@@ -86,7 +86,7 @@ public class LandMapLayer extends SimpleRendererInteraction implements Renderer2
     public double netLon = 9.727570;
 
     @NeptusProperty(name = "Ground Level", description = "Height from \"ground\" to bottom of net (m).", userLevel = LEVEL.REGULAR)
-    public double ground_level = 30;   
+    public double ground_level = 30;
 
     // Advanced settings
     @NeptusProperty(name = "Minimum Turn Radius", description = "Lateral turning radius of UAV (m).", userLevel = LEVEL.ADVANCED)
@@ -102,7 +102,7 @@ public class LandMapLayer extends SimpleRendererInteraction implements Renderer2
     public double speed12 = 18;
 
     @NeptusProperty(name = "Speed WP3-5", description = "Speed of waypoints WP3, WP4 and WP5 (m/s).", userLevel = LEVEL.ADVANCED)
-    public double speed345 = 16; 
+    public double speed345 = 16;
 
     @NeptusProperty(name = "Distance in Front", description = "Distance from net to WP before (should be negative) (m).", userLevel = LEVEL.ADVANCED)
     public double dist_infront = -100;
@@ -115,11 +115,11 @@ public class LandMapLayer extends SimpleRendererInteraction implements Renderer2
 
     private static final long serialVersionUID = 1L;
     private LocationType landPos = null;
-    
-    private int[] arrX = {-8,-12,-12,12,12,8,0};
-    private int[] arrY = {6,6,10,10,6,6,-10};
+
+    private int[] arrX = { -8, -12, -12, 12, 12, 8, 0 };
+    private int[] arrY = { 6, 6, 10, 10, 6, 6, -10 };
     private Polygon poly = new Polygon(arrX, arrY, 7);
-    
+
     /**
      * @param console
      */
@@ -172,10 +172,10 @@ public class LandMapLayer extends SimpleRendererInteraction implements Renderer2
             @Override
             public void actionPerformed(ActionEvent e) {
                 PlanGeneration pg = new PlanGeneration();
-                String params = "land_lat=" + landPos.getLatitudeDegs() +";";
-                params += "land_lon=" + landPos.getLongitudeDegs() +";";
+                String params = "land_lat=" + landPos.getLatitudeDegs() + ";";
+                params += "land_lon=" + landPos.getLongitudeDegs() + ";";
                 params += "land_heading=" + netHeading + ";";
-                params += "net_height=" + netHeight/2 + ";";
+                params += "net_height=" + netHeight / 2 + ";";
                 params += "min_turn_radius=" + minTurnRad + ";";
                 params += "attack_angle=" + attackAngle + ";";
                 params += "descend_angle=" + descendAngle + ";";
@@ -191,19 +191,20 @@ public class LandMapLayer extends SimpleRendererInteraction implements Renderer2
                 params += "ignore_evasive=" + ignore_evasive + ";";
 
                 pg.setParams(params);
-                pg.setCmd(CMD.EXECUTE); //CMD.GENERATE
+                pg.setCmd(CMD.EXECUTE); // CMD.GENERATE
                 pg.setOp(OP.REQUEST);
                 pg.setPlanId("land");
-                
-                if(pg.getCmd() == CMD.EXECUTE){
+
+                if (pg.getCmd() == CMD.EXECUTE) {
                     send(new Abort());
                     try {
                         TimeUnit.MILLISECONDS.sleep(500);
-                    } catch (InterruptedException err) {
-                        //Handle exception
+                    }
+                    catch (InterruptedException err) {
+                        // Handle exception
                     }
                 }
-                
+
                 send(pg);
             }
         });
@@ -212,7 +213,7 @@ public class LandMapLayer extends SimpleRendererInteraction implements Renderer2
 
     private void addSetNetMenu(JPopupMenu popup, final LocationType loc) {
         popup.add(I18n.text("Set net here")).addActionListener(new ActionListener() {
-            
+
             @Override
             public void actionPerformed(ActionEvent e) {
                 loc.convertToAbsoluteLatLonDepth();
@@ -243,11 +244,11 @@ public class LandMapLayer extends SimpleRendererInteraction implements Renderer2
 
         Point2D pt = renderer.getScreenPosition(landPos);
         g.translate(pt.getX(), pt.getY());
-        
+
         // Draws the "arrow"
         g.setColor(Color.green);
         g.fillPolygon(poly);
-        
+
         // Draws the "aiming point" in the middle
         g.setColor(Color.red);
         g.fill(new Ellipse2D.Double(-3, -3, 6, 6));
@@ -263,26 +264,26 @@ public class LandMapLayer extends SimpleRendererInteraction implements Renderer2
     public void cleanSubPanel() {
         // TODO Auto-generated method stub
     }
-    
+
     @Subscribe
     public void on(DeviceState state) {
         // Consumes changes to the net
         netHeading = Math.toDegrees(state.getPsi());
-        double[] displaced = CoordinateUtil.WGS84displace(netLat,netLon,0.0,state.getY(),state.getX(),0.0);
+        double[] displaced = CoordinateUtil.WGS84displace(netLat, netLon, 0.0, state.getY(), state.getX(), 0.0);
         netLat = displaced[0];
         netLon = displaced[1];
         landPos.setLatitudeDegs(netLat);
         landPos.setLongitudeDegs(netLon);
         updateNetArrow();
     }
-    
-    private void updateNetArrow(){
+
+    private void updateNetArrow() {
         double angle = Math.toRadians(netHeading);
-        for(int i=0; i<poly.npoints; i++){
+        for (int i = 0; i < poly.npoints; i++) {
             int x = arrX[i];
             int y = arrY[i];
-            
-            //Apply rotation
+
+            // Apply rotation
             double temp_x = x * Math.cos(angle) - y * Math.sin(angle);
             double temp_y = x * Math.sin(angle) + y * Math.cos(angle);
 
