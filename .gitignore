@@ -51,6 +51,8 @@
 /conf/mystate.xml
 /conf/oplimits
 /conf/ais.cache
+/conf/bathymetry.obj
+/conf/AirOS.conf
 
 # /conf/i18n/
 /conf/i18n/en
