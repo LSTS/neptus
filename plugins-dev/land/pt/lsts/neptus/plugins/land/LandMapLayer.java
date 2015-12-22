@@ -58,6 +58,7 @@ import pt.lsts.neptus.console.plugins.MainVehicleChangeListener;
 import pt.lsts.neptus.gui.PropertiesEditor;
 import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.plugins.NeptusProperty;
+import pt.lsts.neptus.plugins.NeptusProperty.LEVEL;
 import pt.lsts.neptus.plugins.PluginDescription;
 import pt.lsts.neptus.plugins.SimpleRendererInteraction;
 import pt.lsts.neptus.renderer2d.Renderer2DPainter;
@@ -68,50 +69,48 @@ import pt.lsts.neptus.types.coord.LocationType;
  * @author marcusf
  *
  */
-
 @PluginDescription(name = "LandMapLayer", icon = "pt/lsts/neptus/plugins/land/land_icon.png")
 public class LandMapLayer extends SimpleRendererInteraction implements Renderer2DPainter, MainVehicleChangeListener {
 
-// Simple settings
-    
-    @NeptusProperty(name = "Net height [m]", description = "Height of the actual net.", category = "Simple")
+    // Simple settings
+    @NeptusProperty(name = "Net Height", description = "Height of the actual net (m).", userLevel = LEVEL.REGULAR)
     public double netHeight = 3;
 
-    @NeptusProperty(name = "Net orientation (N=0, E=90) [deg]", description = "Heading for UAV to enter net.", category = "Simple")
+    @NeptusProperty(name = "Net Orientation", description = "Heading for UAV to enter net (deg | N=0, E=90).", userLevel = LEVEL.REGULAR)
     public double netHeading = 66.5;
 
-    @NeptusProperty(name = "Net latitude [decimal deg]", description = "Position of landing net (lat).", category = "Simple")
+    @NeptusProperty(name = "Net Latitude", description = "Position of landing net (decimal deg).", userLevel = LEVEL.REGULAR)
     public double netLat = 63.628600;
 
-    @NeptusProperty(name = "Net longitude [decimal deg]", description = "Position of landing net (lon).", category = "Simple")
+    @NeptusProperty(name = "Net Longitude", description = "Position of landing net (decimal deg).", userLevel = LEVEL.REGULAR)
     public double netLon = 9.727570;
 
-    @NeptusProperty(name = "Ground level [m]", description = "Height from \"ground\" to bottom of net.", category = "Simple")
+    @NeptusProperty(name = "Ground Level", description = "Height from \"ground\" to bottom of net (m).", userLevel = LEVEL.REGULAR)
     public double ground_level = 30;   
 
-// Advanced settings
-    @NeptusProperty(name = "Minimum turn radius [m]", description = "Lateral turning radius of UAV.", category = "Advanced")
+    // Advanced settings
+    @NeptusProperty(name = "Minimum Turn Radius", description = "Lateral turning radius of UAV (m).", userLevel = LEVEL.ADVANCED)
     public double minTurnRad = 150;
 
-    @NeptusProperty(name = "Attack angle [deg]", description = "Vertical angle of attack into the net.", category = "Advanced")
+    @NeptusProperty(name = "Attack Angle", description = "Vertical angle of attack into the net (deg).", userLevel = LEVEL.ADVANCED)
     public double attackAngle = 4;
 
-    @NeptusProperty(name = "Descend angle [deg]", description = "Vertical angle of UAV when descending.", category = "Advanced")
+    @NeptusProperty(name = "Descend Angle", description = "Vertical angle of UAV when descending (deg).", userLevel = LEVEL.ADVANCED)
     public double descendAngle = 4;
 
-    @NeptusProperty(name = "Speed 12 [m/s]", description = "{tmp. name} Speed of WP1-2.", category = "Advanced")
+    @NeptusProperty(name = "Speed WP1-2", description = "Speed of waypoints WP1 and WP2 (m/s).", userLevel = LEVEL.ADVANCED)
     public double speed12 = 18;
 
-    @NeptusProperty(name = "Speed 345 [m/s]", description = "{tmp. name} Speed of WP3-5.", category = "Advanced")
+    @NeptusProperty(name = "Speed WP3-5", description = "Speed of waypoints WP3, WP4 and WP5 (m/s).", userLevel = LEVEL.ADVANCED)
     public double speed345 = 16; 
 
-    @NeptusProperty(name = "Distance in front [m]", description = "Distance from net to WP before (should be negative).", category = "Advanced")
+    @NeptusProperty(name = "Distance in Front", description = "Distance from net to WP before (should be negative) (m).", userLevel = LEVEL.ADVANCED)
     public double dist_infront = -100;
 
-    @NeptusProperty(name = "Distance behind [m]", description = "Distance from net to aimingpoint (WP) after net.", category = "Advanced")
+    @NeptusProperty(name = "Distance Behind", description = "Distance from net to aimingpoint (WP) after net (m).", userLevel = LEVEL.ADVANCED)
     public double dist_behind = 100;
 
-    @NeptusProperty(name = "Ignore evasive [bool]", description = "If true: Force landing despite error demanding evasive.", category = "Advanced")
+    @NeptusProperty(name = "Ignore Evasive", description = "If true: Force landing despite error demanding evasive.", userLevel = LEVEL.ADVANCED)
     public boolean ignore_evasive = false;
 
     private static final long serialVersionUID = 1L;
