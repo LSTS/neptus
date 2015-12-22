@@ -37,6 +37,7 @@ import java.awt.Component;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
+import java.io.FileReader;
 import java.net.URL;
 import java.util.Date;
 import java.util.HashSet;
@@ -44,6 +45,7 @@ import java.util.LinkedHashMap;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 
+import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
 
 import org.jfree.chart.ChartFactory;
@@ -208,13 +210,16 @@ public class AirOSPeers extends ConsolePanel {
         chart.getPlot().setBackgroundPaint(Color.black);
         cpanel = new ChartPanel(chart);
         add (cpanel, BorderLayout.CENTER);
-        cpanel.getPopupMenu().add(I18n.text("Download Addresses")).addActionListener(new ActionListener() {
+        cpanel.getPopupMenu().add(I18n.text("Load Addresses")).addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 try {
-                    String res = JOptionPane.showInputDialog((Component)AirOSPeers.this, "Please enter addresses URL");
-                    if (res != null)
-                        WiFiMacAddresses.downloadAddresses(new URL(res));  
+                    JFileChooser chooser = new JFileChooser();
+                    chooser.setFileFilter(GuiUtils.getCustomFileFilter("CSV Files", "csv"));
+                    chooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
+                    int op = chooser.showOpenDialog(AirOSPeers.this);
+                    if (op == JFileChooser.APPROVE_OPTION)
+                        WiFiMacAddresses.parseAddresses(new FileReader(chooser.getSelectedFile()));  
                 }
                 catch (Exception ex) {
                     GuiUtils.errorMessage(getConsole(), ex);
@@ -228,7 +233,7 @@ public class AirOSPeers extends ConsolePanel {
             public void actionPerformed(ActionEvent e) {
                 tsc.removeAllSeries();
             }
-        });       
+        });
     }
 
     @Override

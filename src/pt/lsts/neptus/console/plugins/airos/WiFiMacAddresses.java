@@ -38,6 +38,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.io.Reader;
 import java.io.Serializable;
 import java.net.URL;
 import java.net.URLConnection;
@@ -82,10 +83,8 @@ public class WiFiMacAddresses implements Serializable {
 
         return instance;
     }
-
-    public static void downloadAddresses(URL url) throws IOException {
-        URLConnection conn = url.openConnection();
-        InputStreamReader reader = new InputStreamReader(conn.getInputStream());
+    
+    public static void parseAddresses(Reader reader) throws IOException {
         WiFiMacAddresses addrs = new WiFiMacAddresses();
         CsvReader csv = new CsvReader(reader);
         csv.skipLine();
@@ -100,6 +99,12 @@ public class WiFiMacAddresses implements Serializable {
         reader.close();
         oos.close();
         instance = addrs;
+    }
+
+    public static void downloadAddresses(URL url) throws IOException {
+        URLConnection conn = url.openConnection();
+        InputStreamReader reader = new InputStreamReader(conn.getInputStream());
+        parseAddresses(reader);
     }
 
     public static void main(String[] args) throws Exception {
