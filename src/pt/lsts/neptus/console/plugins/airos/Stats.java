@@ -41,21 +41,21 @@ public class Stats {
 
     @SerializedName("rx_data")
     @Expose
-    public int rxData;
+    public float rxData;
     @SerializedName("rx_bytes")
     @Expose
-    public int rxBytes;
+    public float rxBytes;
     @SerializedName("rx_pps")
     @Expose
-    public int rxPps;
+    public float rxPps;
     @SerializedName("tx_data")
     @Expose
-    public int txData;
+    public float txData;
     @SerializedName("tx_bytes")
     @Expose
-    public int txBytes;
+    public float txBytes;
     @SerializedName("tx_pps")
     @Expose
-    public int txPps;
+    public float txPps;
 
 }

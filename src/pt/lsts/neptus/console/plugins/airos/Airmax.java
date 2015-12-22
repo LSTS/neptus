@@ -41,18 +41,18 @@ public class Airmax {
 
     @SerializedName("priority")
     @Expose
-    public int priority;
+    public float priority;
     @SerializedName("quality")
     @Expose
-    public int quality;
+    public float quality;
     @SerializedName("beam")
     @Expose
-    public int beam;
+    public float beam;
     @SerializedName("signal")
     @Expose
-    public int signal;
+    public float signal;
     @SerializedName("capacity")
     @Expose
-    public int capacity;
+    public float capacity;
 
 }

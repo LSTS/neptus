@@ -53,40 +53,40 @@ public class Station {
     public String lastip;
     @SerializedName("associd")
     @Expose
-    public int associd;
+    public float associd;
     @SerializedName("aprepeater")
     @Expose
-    public int aprepeater;
+    public float aprepeater;
     @SerializedName("tx")
     @Expose
-    public int tx;
+    public float tx;
     @SerializedName("rx")
     @Expose
-    public int rx;
+    public float rx;
     @SerializedName("signal")
     @Expose
-    public int signal;
+    public float signal;
     @SerializedName("ccq")
     @Expose
-    public int ccq;
+    public float ccq;
     @SerializedName("idle")
     @Expose
-    public int idle;
+    public float idle;
     @SerializedName("uptime")
     @Expose
-    public int uptime;
+    public float uptime;
     @SerializedName("ack")
     @Expose
-    public int ack;
+    public float ack;
     @SerializedName("distance")
     @Expose
-    public int distance;
+    public float distance;
     @SerializedName("txpower")
     @Expose
-    public int txpower;
+    public float txpower;
     @SerializedName("noisefloor")
     @Expose
-    public int noisefloor;
+    public float noisefloor;
     @SerializedName("airmax")
     @Expose
     public Airmax airmax;
