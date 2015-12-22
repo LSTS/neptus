@@ -46,6 +46,7 @@ import pt.lsts.neptus.comm.manager.imc.ImcSystemsHolder;
 import pt.lsts.neptus.comm.manager.imc.ImcSystem.IMCAuthorityState;
 import pt.lsts.neptus.console.ConsoleLayout;
 import pt.lsts.neptus.console.ConsolePanel;
+import pt.lsts.neptus.console.events.ConsoleEventMainSystemChange;
 import pt.lsts.neptus.console.events.ConsoleEventSystemAuthorityStateChanged;
 import pt.lsts.neptus.console.events.ConsoleEventVehicleStateChanged;
 import pt.lsts.neptus.console.events.ConsoleEventVehicleStateChanged.STATE;
@@ -190,6 +191,11 @@ public class LogBookSubPanel extends ConsolePanel implements IPeriodicUpdates {
                     || System.currentTimeMillis() / 1000 - lastMessagesUpdate.get(stateChanged.getVehicle()) > secondsBetweenRequests)
                 update();
         }
+    }
+    
+    @Subscribe
+    public void consume(ConsoleEventMainSystemChange e) {
+        update();
     }
 
     @Override
