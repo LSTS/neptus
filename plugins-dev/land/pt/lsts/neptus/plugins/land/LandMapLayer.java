@@ -69,7 +69,8 @@ import pt.lsts.neptus.types.coord.LocationType;
  * @author marcusf
  *
  */
-@PluginDescription(name = "LandMapLayer", icon = "pt/lsts/neptus/plugins/land/land_icon.png")
+@SuppressWarnings("serial")
+@PluginDescription(name = "Land Map Layer", icon = "pt/lsts/neptus/plugins/land/land_icon.png", author = "Marcus Frølich", version = "0.8")
 public class LandMapLayer extends SimpleRendererInteraction implements Renderer2DPainter, MainVehicleChangeListener {
 
     // Simple settings
@@ -86,11 +87,11 @@ public class LandMapLayer extends SimpleRendererInteraction implements Renderer2
     public double netLon = 9.727570;
 
     @NeptusProperty(name = "Ground Level", description = "Height from \"ground\" to bottom of net (m).", userLevel = LEVEL.REGULAR)
-    public double ground_level = 30;
+    public double groundLevel = 30;
 
     // Advanced settings
     @NeptusProperty(name = "Minimum Turn Radius", description = "Lateral turning radius of UAV (m).", userLevel = LEVEL.ADVANCED)
-    public double minTurnRad = 150;
+    public double minTurnRadius = 150;
 
     @NeptusProperty(name = "Attack Angle", description = "Vertical angle of attack into the net (deg).", userLevel = LEVEL.ADVANCED)
     public double attackAngle = 4;
@@ -105,15 +106,14 @@ public class LandMapLayer extends SimpleRendererInteraction implements Renderer2
     public double speed345 = 16;
 
     @NeptusProperty(name = "Distance in Front", description = "Distance from net to WP before (should be negative) (m).", userLevel = LEVEL.ADVANCED)
-    public double dist_infront = -100;
+    public double distInFront = -100;
 
     @NeptusProperty(name = "Distance Behind", description = "Distance from net to aimingpoint (WP) after net (m).", userLevel = LEVEL.ADVANCED)
-    public double dist_behind = 100;
+    public double distBehind = 100;
 
     @NeptusProperty(name = "Ignore Evasive", description = "If true: Force landing despite error demanding evasive.", userLevel = LEVEL.ADVANCED)
-    public boolean ignore_evasive = false;
+    public boolean ignoreEvasive = false;
 
-    private static final long serialVersionUID = 1L;
     private LocationType landPos = null;
 
     private int[] arrX = { -8, -12, -12, 12, 12, 8, 0 };
@@ -125,6 +125,14 @@ public class LandMapLayer extends SimpleRendererInteraction implements Renderer2
      */
     public LandMapLayer(ConsoleLayout console) {
         super(console);
+    }
+
+    @Override
+    public void initSubPanel() {
+    }
+
+    @Override
+    public void cleanSubPanel() {
     }
 
     @Override
@@ -152,7 +160,6 @@ public class LandMapLayer extends SimpleRendererInteraction implements Renderer2
 
     private void addSettingMenu(JPopupMenu popup) {
         popup.add(I18n.text("Settings")).addActionListener(new ActionListener() {
-
             @Override
             public void actionPerformed(ActionEvent e) {
                 netLat = landPos.getLatitudeDegs();
@@ -168,7 +175,6 @@ public class LandMapLayer extends SimpleRendererInteraction implements Renderer2
     private void addStartLandMenu(JPopupMenu popup) {
         JMenuItem item = popup.add(I18n.text("Start land plan"));
         item.addActionListener(new ActionListener() {
-
             @Override
             public void actionPerformed(ActionEvent e) {
                 PlanGeneration pg = new PlanGeneration();
@@ -176,19 +182,19 @@ public class LandMapLayer extends SimpleRendererInteraction implements Renderer2
                 params += "land_lon=" + landPos.getLongitudeDegs() + ";";
                 params += "land_heading=" + netHeading + ";";
                 params += "net_height=" + netHeight / 2 + ";";
-                params += "min_turn_radius=" + minTurnRad + ";";
+                params += "min_turn_radius=" + minTurnRadius + ";";
                 params += "attack_angle=" + attackAngle + ";";
                 params += "descend_angle=" + descendAngle + ";";
 
-                params += "dist_behind=" + dist_behind + ";";
-                params += "dist_infront=" + dist_infront + ";";
+                params += "dist_behind=" + distBehind + ";";
+                params += "dist_infront=" + distInFront + ";";
                 params += "speed12=" + speed12 + ";";
                 params += "speed345=" + speed345 + ";";
 
                 params += "z_unit=height;"; // "height" or "altitude"
-                params += "ground_level=" + ground_level + ";";
+                params += "ground_level=" + groundLevel + ";";
 
-                params += "ignore_evasive=" + ignore_evasive + ";";
+                params += "ignore_evasive=" + ignoreEvasive + ";";
 
                 pg.setParams(params);
                 pg.setCmd(CMD.EXECUTE); // CMD.GENERATE
@@ -213,7 +219,6 @@ public class LandMapLayer extends SimpleRendererInteraction implements Renderer2
 
     private void addSetNetMenu(JPopupMenu popup, final LocationType loc) {
         popup.add(I18n.text("Set net here")).addActionListener(new ActionListener() {
-
             @Override
             public void actionPerformed(ActionEvent e) {
                 loc.convertToAbsoluteLatLonDepth();
@@ -225,10 +230,10 @@ public class LandMapLayer extends SimpleRendererInteraction implements Renderer2
         });
     }
 
-    @Override
     /**
      * Always returns true
      */
+    @Override
     public boolean isExclusive() {
         return true;
     }
@@ -252,17 +257,6 @@ public class LandMapLayer extends SimpleRendererInteraction implements Renderer2
         // Draws the "aiming point" in the middle
         g.setColor(Color.red);
         g.fill(new Ellipse2D.Double(-3, -3, 6, 6));
-
-    }
-
-    @Override
-    public void initSubPanel() {
-        // TODO Auto-generated method stub
-    }
-
-    @Override
-    public void cleanSubPanel() {
-        // TODO Auto-generated method stub
     }
 
     @Subscribe
