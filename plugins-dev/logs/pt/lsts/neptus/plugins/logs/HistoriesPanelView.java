@@ -33,6 +33,16 @@ package pt.lsts.neptus.plugins.logs;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.Component;
+import java.awt.Toolkit;
+import java.awt.datatransfer.Clipboard;
+import java.awt.datatransfer.ClipboardOwner;
+import java.awt.datatransfer.StringSelection;
+import java.awt.datatransfer.Transferable;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
@@ -43,6 +53,7 @@ import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JPopupMenu;
 
 import net.miginfocom.swing.MigLayout;
 import pt.lsts.imc.IMCDefinition;
@@ -138,6 +149,67 @@ public class HistoriesPanelView extends JPanel {
                     continue;
                 
                 JLabel l = new JLabel("", JLabel.LEFT);
+                
+                l.addMouseListener(new MouseAdapter() {
+                    @Override
+                    public void mouseClicked(MouseEvent arg0) {
+                        if (arg0.getButton() == MouseEvent.BUTTON3) {
+                            JPopupMenu popup = new JPopupMenu();
+                            popup.add(I18n.text("Clear")).addActionListener(new ActionListener() {
+
+                                @Override
+                                public void actionPerformed(ActionEvent e) {
+                                    clear();
+                                }
+                            });
+
+                            popup.add(I18n.text("Refresh")).addActionListener(new ActionListener() {
+
+                                @Override
+                                public void actionPerformed(ActionEvent e) {
+                                    refreshHistoryMessages();
+                                }
+                            });
+
+                            final int index = myMessages.lastIndexOf(arg0.getPoint());
+                            if (index != -1) {
+                                popup.add(I18n.text("Copy entry to clipboard")).addActionListener(new ActionListener() {
+
+                                    @Override
+                                    public void actionPerformed(ActionEvent e) {
+                                        String text = myMessages.elementAt(index).toString();
+
+                                        ClipboardOwner owner = new ClipboardOwner() {
+                                            public void lostOwnership(Clipboard clipboard, Transferable contents) {};                       
+                                        };
+                                        Toolkit.getDefaultToolkit().getSystemClipboard().setContents(new StringSelection(text), owner);
+                                    }
+                                });
+                            }
+
+                            if (myMessages.size() > 0) {
+                                popup.add(I18n.text("Copy history to clipboard")).addActionListener(new ActionListener() {
+
+                                    @Override
+                                    public void actionPerformed(ActionEvent e) {
+                                        String text = "";
+                                        
+                                        for (int i = 0; i < myMessages.size(); i++) {
+                                            text += myMessages.elementAt(i)+"\n";
+                                        }
+
+                                        ClipboardOwner owner = new ClipboardOwner() {
+                                            public void lostOwnership(Clipboard clipboard, Transferable contents) {};                       
+                                        };
+                                        Toolkit.getDefaultToolkit().getSystemClipboard().setContents(new StringSelection(text), owner);
+                                    }
+                                });
+                            }
+
+                            popup.show((Component)arg0.getSource(), arg0.getX(), arg0.getY());
+                        }
+                    }
+                });
                 l.setText(m.toString());
                 l.setIcon(getIcon(m.type));
                 l.setToolTipText(I18n.textf("Received on %timeStamp (%context)", new Date(m.timestamp), m.context));
