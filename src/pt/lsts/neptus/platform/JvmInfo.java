@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2015 OceanScan - Marine Systems & Technology, Lda.
+ * Copyright (c) 2004-2016 OceanScan - Marine Systems & Technology, Lda.
  *
  * This file is part of Neptus, Command and Control Framework.
  *
