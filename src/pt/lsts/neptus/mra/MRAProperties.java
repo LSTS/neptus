@@ -43,7 +43,7 @@ import java.util.Map.Entry;
 import java.util.Properties;
 import java.util.Vector;
 
-import org.mozilla.javascript.edu.emory.mathcs.backport.java.util.Arrays;
+import java.util.Arrays;
 
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.gui.PropertiesEditor;

@@ -70,7 +70,7 @@ import javax.swing.event.ChangeListener;
 
 import org.apache.commons.lang.StringUtils;
 import org.jdesktop.swingx.JXTable;
-import org.mozilla.javascript.edu.emory.mathcs.backport.java.util.Collections;
+import java.util.Collections;
 import org.reflections.Reflections;
 
 import pt.lsts.neptus.NeptusLog;

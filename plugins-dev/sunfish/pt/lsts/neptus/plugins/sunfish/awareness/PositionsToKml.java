@@ -40,7 +40,7 @@ import java.util.Vector;
 
 import javax.swing.JFileChooser;
 
-import org.mozilla.javascript.edu.emory.mathcs.backport.java.util.Collections;
+import java.util.Collections;
 
 import pt.lsts.neptus.plugins.sunfish.awareness.SunfishAssetProperties.AssetDesc;
 import pt.lsts.neptus.util.FileUtil;

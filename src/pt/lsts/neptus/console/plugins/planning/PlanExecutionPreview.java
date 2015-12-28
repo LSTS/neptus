@@ -39,7 +39,7 @@ import java.awt.geom.RoundRectangle2D;
 import java.util.LinkedHashMap;
 import java.util.Vector;
 
-import org.mozilla.javascript.edu.emory.mathcs.backport.java.util.Collections;
+import java.util.Collections;
 
 import pt.lsts.imc.Announce;
 import pt.lsts.imc.EstimatedState;

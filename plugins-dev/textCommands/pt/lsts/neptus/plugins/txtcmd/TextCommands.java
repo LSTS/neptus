@@ -49,7 +49,7 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 
-import org.mozilla.javascript.edu.emory.mathcs.backport.java.util.Collections;
+import java.util.Collections;
 import org.reflections.Reflections;
 
 import pt.lsts.neptus.console.ConsoleLayout;

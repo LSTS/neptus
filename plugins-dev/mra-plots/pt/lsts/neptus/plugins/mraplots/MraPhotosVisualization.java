@@ -69,7 +69,7 @@ import javax.swing.plaf.basic.BasicSliderUI;
 import net.miginfocom.swing.MigLayout;
 
 import org.imgscalr.Scalr;
-import org.mozilla.javascript.edu.emory.mathcs.backport.java.util.Collections;
+import java.util.Collections;
 import org.opencv.core.Core;
 import org.opencv.core.CvType;
 import org.opencv.core.Mat;

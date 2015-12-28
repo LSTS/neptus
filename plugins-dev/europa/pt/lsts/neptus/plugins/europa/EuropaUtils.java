@@ -36,7 +36,7 @@ import java.io.FileNotFoundException;
 import java.util.Vector;
 
 import org.apache.commons.lang.StringUtils;
-import org.mozilla.javascript.edu.emory.mathcs.backport.java.util.Arrays;
+import java.util.Arrays;
 
 import psengine.PSEngine;
 import psengine.PSLanguageExceptionList;

@@ -47,7 +47,7 @@ import javax.swing.JList;
 import javax.swing.JScrollPane;
 import javax.swing.ListCellRenderer;
 
-import org.mozilla.javascript.edu.emory.mathcs.backport.java.util.Collections;
+import java.util.Collections;
 
 import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.plugins.logs.HistoryMessage.msg_type;
