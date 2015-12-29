@@ -462,7 +462,7 @@ public class Vision extends ConsolePanel implements ConfigurationListener, ItemL
             this.add(panelImage, BorderLayout.NORTH);
             BufferedImage errorImg = null;
             try {
-                errorImg = ImageIO.read(new File("plugins-dev/vision/images/errorOpencv.png"));
+                errorImg = ImageIO.read(new File(FileUtil.getResourceAsFileKeepName("images/errorOpencv.png")));
             }
             catch (IOException e1) {
                 e1.printStackTrace();
