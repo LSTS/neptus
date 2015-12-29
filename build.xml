@@ -1501,7 +1501,7 @@ For simple use the main targets are:
 		</antcall>
 	</target>
 	
-	<target name="test-worker" depends="default, junit">
+	<target name="test-worker" depends="default, junit, java-src-check">
 	</target>
 	
 	<!-- =================================================================== -->
