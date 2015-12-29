@@ -2387,6 +2387,37 @@ For simple use the main targets are:
 	</target>
 
 	<!-- =================================================================== -->
+	<!-- Check for java src bad src references for resources                 -->
+	<!-- =================================================================== -->
+    <target name="java-src-check"
+    		description="This will check if some src code referece resources in src or plugins-dev directly.">
+    	<fileset id="bad.ref.files" dir="${src.dir}" defaultexcludes="yes">
+    		<include name="**/*.java"/>
+    		<or>
+    	        <containsregexp expression='".*?src/.*?"'/>
+    	        <containsregexp expression='".*?plugins-dev/.*?"'/>
+    	    </or>
+    	</fileset>
+    	<fail message="Bad references to src found...failing: ${toString:bad.ref.files}">
+    	    <condition>
+    	        <resourcecount when="greater" count="0" refid="bad.ref.files" />
+    	    </condition>
+    	</fail>
+    	<fileset id="bad.ref.files2" dir="${plugin-dev.dir.base}" defaultexcludes="yes">
+    		<include name="**/*.java"/>
+    		<or>
+    	        <containsregexp expression='".*?src/.*?"'/>
+    	        <containsregexp expression='".*?plugins-dev/.*?"'/>
+    	    </or>
+    	</fileset>
+    	<fail message="Bad references to src found...failing: ${toString:bad.ref.files2}">
+    	    <condition>
+    	        <resourcecount when="greater" count="0" refid="bad.ref.files2" />
+    	    </condition>
+    	</fail>
+    </target>
+
+	<!-- =================================================================== -->
 	<!-- Run Neptus application                                              -->
 	<!-- =================================================================== -->
 	<target name="run" depends="jar" description="Test run of Neptus">
@@ -2414,8 +2445,6 @@ For simple use the main targets are:
 	"hash":"${git.hash}"
 }
 </echo>
-
-
 	</target>
 
 </project>

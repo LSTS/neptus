@@ -262,7 +262,6 @@ public class FilterMra extends JPanel implements MRAVisualization, TimelineChang
         
         // Read the map file (list NED format)
         try {
-//            InputStream ips = new FileInputStream("./plugins-dev/filter-viewer/pt/lsts/neptus/plugins/filterviewer/Maps/carte_mbp.txt");
             String mapFile = FileUtil.getResourceAsFileKeepName(FileUtil.getPackageAsPath(FilterMra.this) + "/Maps/carte_mbp.txt");
             InputStream ips = new FileInputStream(mapFile);
 
@@ -498,7 +497,6 @@ public class FilterMra extends JPanel implements MRAVisualization, TimelineChang
         // Load the LAUV 3D model (vtk file)
         vtkGenericDataObjectReader vtk_generic_reader = new vtkGenericDataObjectReader();
         String nopModelFile = FileUtil.getResourceAsFileKeepName(FileUtil.getPackageAsPath(FilterMra.this) + "/Models/noptilus.vtk");
-        //vtk_generic_reader.SetFileName("./plugins-dev/filter-viewer/pt/lsts/neptus/plugins/filterviewer/Models/noptilus.vtk");
         vtk_generic_reader.SetFileName(nopModelFile);
         vtk_generic_reader.ReadAllNormalsOn();
         vtk_generic_reader.ReadAllScalarsOn();

@@ -40,6 +40,8 @@ import java.util.UUID;
 
 import com.google.gson.Gson;
 
+import pt.lsts.neptus.util.FileUtil;
+
 /**
  * @author zp
  *
@@ -95,7 +97,8 @@ public class Observation {
     }
     
     public static void main(String[] args) throws Exception {
-        Observation o = Observation.parseJSON(new FileReader(new File(".", "plugins-dev/cloud/com/inovaworks/example.json")));
+        Observation o = Observation
+                .parseJSON(new FileReader(new File(FileUtil.getResourceAsFileKeepName("com/inovaworks/example.json"))));
         System.out.println(o.toJSON());
     }
 }

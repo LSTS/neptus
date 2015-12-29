@@ -34,12 +34,12 @@ package pt.lsts.nasa.mts.data;
 import java.text.ParseException;
 import java.util.Date;
 
+import com.google.gson.annotations.Expose;
+
 import pt.lsts.neptus.comm.manager.imc.ImcId16;
 import pt.lsts.neptus.util.AngleCalc;
 import pt.lsts.neptus.util.DateTimeUtil;
 import pt.lsts.neptus.util.MathMiscUtils;
-
-import com.google.gson.annotations.Expose;
 
 /**
  * IWG1 Packet Definitions
@@ -1112,7 +1112,7 @@ public class IWG1Data {
     }
 
     public static void main(String[] args) throws Exception {
-//        IWG1Data o = IWG1Data.parseJSON(new FileReader(new File(".", "plugins-dev/cloud/com/inovaworks/example.json")));
+//        IWG1Data o = IWG1Data.parseJSON(new FileReader(new File(FileUtil.getResourceAsFileKeepName("com/inovaworks/example.json"))));
         IWG1Data i = new IWG1Data();
         System.out.println(i.toIWG1());
         
