@@ -27,9 +27,12 @@
 # For more information please see <http://lsts.fe.up.pt/neptus>.            #
 #############################################################################
 # Author: José Pinto                                                        #
+# Author: Paulo Dias                                                        #
 #############################################################################
 # This script is the NSIS script for neptus.exe launcher for Windows        #
 #############################################################################
+
+!include "x64.nsh"
 
 # FUNCTIONS
 
@@ -116,15 +119,19 @@ section
 	# The exe path is now on var $exepath
 	var /GLOBAL exepath1
 	${GetExePath} $exepath1
-	
+	    
 	Call GetParameters
 	Pop $0
 	
 	SetOutPath $exepath1
-	Exec "neptus.bat $0"
+	${If} ${RunningX64}
+    ${DisableX64FSRedirection}
+  ${EndIf}
+  Exec "neptus.bat $0"
+	${If} ${RunningX64}
+    ${EnableX64FSRedirection}
+  ${EndIf}
 	
 	;messageBox MB_OK "$exepath\neptus.bat $0"
 	
 sectionEnd
-
-
