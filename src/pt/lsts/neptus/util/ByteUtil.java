@@ -39,8 +39,6 @@ import org.apache.commons.codec.DecoderException;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.codec.binary.Hex;
 
-import pt.lsts.neptus.NeptusLog;
-
 /**
  * @author pdias
  *
@@ -252,18 +250,18 @@ public class ByteUtil {
 	public static void main(String[] args) {
 		dumpAsHex("Teste", "Isto é de facto \0 um teste para ver se imprime bem Hex!".getBytes(), System.out);
 		
-		dumpAsHex(FileUtil.getFileAsString("legal/Neptus-LICENSE.txt").getBytes(), System.out);
+		dumpAsHex(FileUtil.getFileAsString("LICENSE.md").getBytes(), System.out);
 
-		dumpAsHex(FileUtil.getFileAsString("src/images/auto-pilot.png").getBytes(), System.out);
+		String fxImg = FileUtil.getResourceAsFileKeepName("images/auto-pilot.png");
+		dumpAsHex( FileUtil.getFileAsString(fxImg).getBytes(), System.out);
 
 		String tt = "\0\1Isto é de facto um teste para ver se imprime bem Hex!";
-		tt = FileUtil.getFileAsString("legal/Neptus-LICENSE.txt");
-		NeptusLog.pub().info("<###> "+new String(Base64.encodeBase64Chunked(tt.getBytes())));
+		tt = FileUtil.getFileAsString("LICENSE.md");
+		System.out.println(new String(Base64.encodeBase64Chunked(tt.getBytes())));
 		//dumpAsHex(tt.getBytes(), System.out);
 
-		NeptusLog.pub().info("<###> "+new String(Base64.decodeBase64(Base64.encodeBase64Chunked(tt.getBytes()))));
+		System.out.println(new String(Base64.decodeBase64(Base64.encodeBase64Chunked(tt.getBytes()))));
 
-		System.err.println(dumpAsHexToString(FileUtil.getFileAsString("legal/Neptus-LICENSE.txt").getBytes()));
-
+		System.err.println(dumpAsHexToString(FileUtil.getFileAsString("LICENSE.md").getBytes()));
 	}
 }
