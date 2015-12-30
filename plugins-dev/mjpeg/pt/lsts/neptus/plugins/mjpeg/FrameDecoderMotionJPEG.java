@@ -44,6 +44,8 @@ import pt.lsts.neptus.plugins.mjpeg.containers.avi.MjpegFile;
 public class FrameDecoderMotionJPEG implements FrameDecoder {
     /** Valid AVI/MJPEG file extensions. */
     private static final String[] validExtensions = {"mjpg"};
+    /** Default frame rate. */
+    private static final int DEFAULT_FRAME_RATE = 5;
     /** Folder of interest. */
     private File folder;
     /** List of AVI encoded Motion JPEG files. */
@@ -154,6 +156,11 @@ public class FrameDecoderMotionJPEG implements FrameDecoder {
         }
 
         averageFrameRate = (int)Math.round(frameRateAccumulator / validFiles.length);
+        if (averageFrameRate <= 0) {
+            NeptusLog.pub().warn("invalid frame rate, using default");
+            averageFrameRate = DEFAULT_FRAME_RATE; 
+        }
+        
     }
 
     private VideoFrame createVideoFrame(int fileNumber, int frameNumber, int globalFrameNumber) {
