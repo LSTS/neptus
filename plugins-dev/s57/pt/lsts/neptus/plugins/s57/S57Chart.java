@@ -94,6 +94,7 @@ public class S57Chart implements MapPainterProvider {
         NeptusS57Painter painterToUse = painterList.get(renderer);
         if (painterToUse == null) {
             painterToUse = NeptusS57Painter.forge(s57, mc);
+            s57.addPainter(painterToUse);
             painterList.put(renderer, painterToUse);
         }
         painterToUse.paint(g, renderer);
