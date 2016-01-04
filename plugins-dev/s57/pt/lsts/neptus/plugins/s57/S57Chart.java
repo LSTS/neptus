@@ -107,8 +107,10 @@ public class S57Chart implements MapPainterProvider {
             public void dispose() {
                 super.dispose();
                 NeptusS57Painter painterToRemove = painterList.get(renderer);
-                if (painterToRemove != null)
+                if (painterToRemove != null) {
                     s57.removePainter(painterToRemove);
+                    painterList.remove(renderer);
+                }
             }
         };
         dialog.setIconImages(ConfigFetch.getIconImagesForFrames());
