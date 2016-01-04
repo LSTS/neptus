@@ -154,7 +154,6 @@ public class MRAProperties implements PropertiesProvider {
         Depth_Sensor
     }
 
-    @SuppressWarnings("unchecked")
     @Override
     public DefaultProperty[] getProperties() {
         Vector<DefaultProperty> props = new Vector<DefaultProperty>();

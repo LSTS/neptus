@@ -346,7 +346,6 @@ public class MVProblemSpecification {
         return sb.toString();
     }
 
-    @SuppressWarnings("unchecked")
     private static MVProblemSpecification generateTest(int numberOfSurveys, int numberOfSamplings, String... vehicles) {
         Vector<VehicleType> vehiclTypes = new Vector<VehicleType>();
         Vector<MVPlannerTask> generatedTasks = new Vector<MVPlannerTask>();

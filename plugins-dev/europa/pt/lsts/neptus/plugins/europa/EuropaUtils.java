@@ -151,7 +151,6 @@ public class EuropaUtils {
         return flaws;
     }
 
-    @SuppressWarnings("unchecked")
     protected static String locateLibrary(String lib) throws Exception {
         String lookFor = System.mapLibraryName(lib);
         Vector<String> path = new Vector<>();
