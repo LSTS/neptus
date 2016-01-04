@@ -33,24 +33,28 @@ package pt.lsts.neptus.mra.visualizations;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.Rectangle;
 import java.awt.Window;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.FocusEvent;
-import java.awt.event.FocusListener;
 import java.awt.event.InputEvent;
-import java.awt.event.ItemEvent;
-import java.awt.event.ItemListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Collections;
+import java.util.Date;
+import java.util.TimeZone;
 
 import javax.swing.AbstractAction;
+import javax.swing.BorderFactory;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
@@ -60,10 +64,13 @@ import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
+import javax.swing.JSpinner;
 import javax.swing.JTable;
 import javax.swing.JTextField;
+import javax.swing.JToggleButton;
 import javax.swing.KeyStroke;
 import javax.swing.ListSelectionModel;
+import javax.swing.SpinnerDateModel;
 import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
 import javax.swing.SwingWorker;
@@ -89,6 +96,7 @@ import pt.lsts.neptus.util.llf.SortedComboBoxModel;
  * @author zp
  * @author Manuel Ribeiro
  */
+
 @PluginDescription(icon = "pt/lsts/neptus/mra/visualizations/doc-search.png")
 public class MraRawMessages extends SimpleMRAVisualization {
 
@@ -101,6 +109,7 @@ public class MraRawMessages extends SimpleMRAVisualization {
     //private int currSelectedIndex = -1;
     private FinderDialog find;
     private AbstractAction finderAction;
+    private JToggleButton highlightBtn;
 
     private boolean closingUp = false;
 
@@ -178,10 +187,11 @@ public class MraRawMessages extends SimpleMRAVisualization {
         panel.add(panel1, BorderLayout.EAST);
         panel1.setLayout(new BorderLayout(2, 0));
 
-        JButton highlightBtn = new JButton();
+        highlightBtn = new JToggleButton();
         highlightBtn.setHorizontalTextPosition(SwingConstants.CENTER);
         highlightBtn.setVerticalTextPosition(SwingConstants.BOTTOM);
         highlightBtn.setIcon(ImageUtils.createScaleImageIcon("images/buttons/lights.png", 13, 13));
+        highlightBtn.setSelected(false);
         highlightBtn.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -206,7 +216,7 @@ public class MraRawMessages extends SimpleMRAVisualization {
         });
 
         panel1.add(findBtn, BorderLayout.WEST);
-
+        
         table.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
@@ -259,6 +269,7 @@ public class MraRawMessages extends SimpleMRAVisualization {
             table.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
             find.busyLbl.setBusy(true);
             find.busyLbl.setVisible(true);
+            
             for (int row = 0; row < table.getRowCount(); row++) {
                 String rowTime = (String) table.getValueAt(row, 1); //Time
                 String rowType = (String) table.getValueAt(row, 2);
@@ -325,7 +336,9 @@ public class MraRawMessages extends SimpleMRAVisualization {
             highLightRow();
             return true;
         } else {
-            finderNextIndex--;
+            //System.out.println("actual : " + finderNextIndex);
+            finderNextIndex = currFinderIndex - 1;
+            //System.out.println("prev one : " + finderNextIndex);
             highLightRow();
             return true;
         }
@@ -378,8 +391,23 @@ public class MraRawMessages extends SimpleMRAVisualization {
         typeList.add(ANY_TXT);
         Collections.sort(typeList, String.CASE_INSENSITIVE_ORDER);
         find.initTypeField(typeList);
-        find.sourceEntCBox.setSelectedIndex(1);
-
+        find.sourceEntCBox.setSelectedItem("<ANY>");
+        
+        String t1 = (String) table.getValueAt(0, 1);
+        String t2 = (String) table.getValueAt(table.getRowCount() - 1, 1);
+        
+        DateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
+        format.setTimeZone(TimeZone.getTimeZone("UTC"));
+        try {
+            Date dt1 = format.parse(t1);
+            Date dt2 = format.parse(t2);
+            
+            find.setTimestamp(dt1, dt2);
+        }
+        catch (ParseException e) {
+            e.printStackTrace();
+        }
+        
         return find;
     }
 
@@ -388,29 +416,20 @@ public class MraRawMessages extends SimpleMRAVisualization {
 
         private Java2sAutoTextField typeTxt;
         private JComboBox<String> sourceCBox, sourceEntCBox, destCBox;
-        private JTextField ts1, ts2;
-        private String curTs1Txt = null;
-        private String curTs2Txt = null;
-        private String curTpTxt = null;
-        private JButton prevBtn, findBtn;
+        private JSpinner ts1, ts2;
+        private JButton prevBtn, nextBtn, findBtn;
         private JLabel statusLbl;
         private JXBusyLabel busyLbl;
         private boolean hightlighted = false;
-        private boolean toValidateT1 = false;
-        private boolean toValidateT2 = false;
 
         public FinderDialog(Window parent) {
             super(parent, ModalityType.MODELESS);
-            initComponents();
+            initComponents(parent);
         }
 
-        /**
-         * Checks if string has valid time in format HH:mm
-         * @param time, string to be validate
-         * @returns true, if valid time, false otherwise
-         */
-        private boolean isValidTime(String time) {
-            return (time.matches("^([0-1][0-9]|2[0-3]):([0-5][0-9])$") || time.isEmpty());
+        private void setTimestamp(Date t1, Date t2) {
+            ts1.setValue(t1);
+            ts2.setValue(t2);
         }
 
         /**
@@ -425,11 +444,13 @@ public class MraRawMessages extends SimpleMRAVisualization {
                         table.addRowSelectionInterval(row, row);
                     }
                     hightlighted = true;
+                    highlightBtn.setSelected(hightlighted);
                 }
             }
             else {
                 table.clearSelection();
                 hightlighted = false;
+                highlightBtn.setSelected(hightlighted);
             }
         }
 
@@ -441,15 +462,16 @@ public class MraRawMessages extends SimpleMRAVisualization {
             dispose();
         }
 
-        private void initComponents() {
+        private void initComponents(Window parent) {
             setIconImage(MraRawMessages.this.getIcon().getImage());
             setTitle(I18n.text("Find"));
-            setSize(290, 200);
+            setSize(290, 205);
             setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
             setResizable(false);
             setLocationRelativeTo(null);
+            setLocation(parent.getLocation().x, getLocation().y);
 
-            getContentPane().setLayout(new MigLayout("", "[][grow]", "[][][][][][][]"));
+            getContentPane().setLayout(new MigLayout("", "[][grow]", "[][][][][][]"));
             SortedComboBoxModel<String> model1 = new SortedComboBoxModel<String>(new String[] {ANY_TXT});
             SortedComboBoxModel<String> model2 = new SortedComboBoxModel<String>(new String[] {ANY_TXT});
             SortedComboBoxModel<String> model3 = new SortedComboBoxModel<String>(new String[] {ANY_TXT});
@@ -462,11 +484,50 @@ public class MraRawMessages extends SimpleMRAVisualization {
             JLabel destLabel = new JLabel(I18n.textc("Dest.", "Destination"));
             destCBox = new JComboBox<String>(model3);
             JLabel timeLbl = new JLabel(I18n.text("Time"));
-            ts1 = new JTextField();
+            ts1 = new JSpinner( new SpinnerDateModel() );
+            JSpinner.DateEditor timeEditor = new JSpinner.DateEditor(ts1, "HH:mm:ss");
+            ts1.setEditor(timeEditor);
+            ts1.setUI(new javax.swing.plaf.basic.BasicSpinnerUI(){
+                protected Component createNextButton(){
+                  Component c = new JButton();
+                  c.setPreferredSize(new Dimension(0,0));
+                  return c;
+                }
+                protected Component createPreviousButton(){
+                  Component c = new JButton();
+                  c.setPreferredSize(new Dimension(0,0));
+                  return c;
+                }
+              });
+            ts1.setBorder(null);
+            JTextField tf = ((JSpinner.DefaultEditor)ts1.getEditor()).getTextField();
+            ((JComponent)tf.getParent()).setBorder(BorderFactory.createLineBorder(Color.GRAY));
+           
             JLabel separatorLbl = new JLabel("-");
-            ts2 = new JTextField();
+            ts2 = new JSpinner( new SpinnerDateModel() );
+            JSpinner.DateEditor timeEditor2 = new JSpinner.DateEditor(ts2, "HH:mm:ss");
+            ts2.setEditor(timeEditor2);
+            ts2.setUI(new javax.swing.plaf.basic.BasicSpinnerUI(){
+                protected Component createNextButton(){
+                  Component c = new JButton();
+                  c.setPreferredSize(new Dimension(0,0));
+                  return c;
+                }
+                protected Component createPreviousButton(){
+                  Component c = new JButton();
+                  c.setPreferredSize(new Dimension(0,0));
+                  return c;
+                }
+              });
+            ts2.setBorder(null);
+            JTextField tf1 = ((JSpinner.DefaultEditor)ts2.getEditor()).getTextField();
+            ((JComponent)tf1.getParent()).setBorder(BorderFactory.createLineBorder(Color.GRAY));
+           
             prevBtn = new JButton(I18n.textc("Prev.", "Previous"));
             findBtn = new JButton(I18n.text("Find"));
+            nextBtn = new JButton(I18n.text("Next"));
+            nextBtn.setEnabled(false);
+            prevBtn.setEnabled(false);
             statusLbl = new JLabel();
 
             busyLbl = InfiniteProgressPanel.createBusyAnimationInfiniteBeans(18);
@@ -482,17 +543,11 @@ public class MraRawMessages extends SimpleMRAVisualization {
             destLabel.setFont(defFont);
             destCBox.setFont(defFont);
             timeLbl.setFont(defFont);
-            ts1.setFont(defFont);
             separatorLbl.setFont(defFont);
-            ts2.setFont(defFont);
             statusLbl.setFont(defFont);
 
-            ts1.setMaximumSize(new Dimension(42, 18));
-            ts1.setColumns(4);
-            ts2.setMaximumSize(new Dimension(42, 18));
-            ts2.setColumns(4);
-
             prevBtn.setHorizontalAlignment(SwingConstants.RIGHT);
+            nextBtn.setHorizontalAlignment(SwingConstants.RIGHT);
             findBtn.setHorizontalAlignment(SwingConstants.RIGHT);
 
             getContentPane().add(typeLabel, "cell 0 0,alignx trailing");
@@ -503,10 +558,10 @@ public class MraRawMessages extends SimpleMRAVisualization {
             getContentPane().add(destLabel, "cell 0 3,alignx trailing");
             getContentPane().add(destCBox, "cell 1 3,growx");
             getContentPane().add(timeLbl, "cell 0 4,alignx trailing");
-            getContentPane().add(ts1, "flowx,cell 1 4,growx");
+            getContentPane().add(ts1, "flowx,cell 1 4");
             getContentPane().add(separatorLbl, "cell 1 4");
             getContentPane().add(ts2, "flowx,cell 1 4");
-
+            
             JPanel panel = new JPanel();
             getContentPane().add(panel, "cell 0 5 2 1,grow");
             panel.setLayout(new BorderLayout());
@@ -518,24 +573,15 @@ public class MraRawMessages extends SimpleMRAVisualization {
             panel.add(bottomPanel, BorderLayout.EAST);
             
             bottomPanel.add(prevBtn);
+            bottomPanel.add(nextBtn);
             bottomPanel.add(findBtn);
             bottomPanel.add(busyLbl);
-           
-            sourceCBox.addItemListener(new ItemListener() {
-                public void itemStateChanged(ItemEvent arg0) {
-                    clear();
-                }
-            });
 
-            sourceEntCBox.addItemListener(new ItemListener() {
-                public void itemStateChanged(ItemEvent arg0) {
-                    clear();
-                }
-            });
-
-            destCBox.addItemListener(new ItemListener() {
-                public void itemStateChanged(ItemEvent arg0) {
-                    clear();
+            prevBtn.addActionListener(new ActionListener() {
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    hasPrev();
+                    updateStatus();
                 }
             });
 
@@ -546,19 +592,32 @@ public class MraRawMessages extends SimpleMRAVisualization {
                     updateStatus();
                 }
             });
-
+            
+            nextBtn.addActionListener(new ActionListener() {
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    hasNext();
+                    updateStatus();                    
+                }
+            });
+            
             findBtn.addActionListener(new ActionListener() {
                 public void actionPerformed(ActionEvent e) {
-                    curTs1Txt = ts1.getText();
-                    curTs2Txt = ts2.getText();
-                    curTpTxt = typeTxt.getText();
-                    findBtn.setEnabled(false);
+                    clear();
                     SwingWorker<Boolean, Void> worker = new SwingWorker<Boolean, Void>() {
                         @Override
                         protected Boolean doInBackground() throws Exception {
+                            Date t1 = (Date) ts1.getValue(); 
+                            Date t2 = (Date) ts2.getValue();
+                            Calendar calendar = Calendar.getInstance();
+                            calendar.setTime(t1);
+                            String ts1 = calendar.get(Calendar.HOUR_OF_DAY) + ":" + calendar.get(Calendar.MINUTE) + ":" + calendar.get(Calendar.SECOND);
+                            calendar.setTime(t2);
+                            String ts2 = calendar.get(Calendar.HOUR_OF_DAY) + ":" + calendar.get(Calendar.MINUTE) + ":" + calendar.get(Calendar.SECOND);
+                            
                             boolean found = findMessage(typeTxt.getText(), (String) sourceCBox.getSelectedItem(), 
                                     (String)sourceEntCBox.getSelectedItem(), (String) destCBox.getSelectedItem(),
-                                    (String) ts1.getText(), (String) ts2.getText());
+                                    ts1, ts2);
                             return found;
                         }
                         @Override
@@ -566,9 +625,9 @@ public class MraRawMessages extends SimpleMRAVisualization {
                             try {
                                 boolean found = get();
                                 if (found) {
-                                    findBtn.setText(I18n.text("Next"));
-                                    if (!prevBtn.isEnabled())
-                                        prevBtn.setEnabled(true);
+                                    nextBtn.setEnabled(true);
+                                    prevBtn.setEnabled(true);
+                                    
                                     updateStatus();
                                 } 
                                 else {
@@ -579,52 +638,13 @@ public class MraRawMessages extends SimpleMRAVisualization {
                             catch (Exception e) {
                                 e.printStackTrace();
                             }
-                            findBtn.setEnabled(true);
                         }
                     };
                     worker.execute();
                 }
             });
-
-            ts1.addFocusListener(new FocusListener() {
-                public void focusGained(FocusEvent e) {
-                    toValidateT1 = true;
-                }
-
-                public void focusLost(FocusEvent e) {
-                    if (curTs1Txt != null) {
-                        if (!curTs1Txt.equals(ts1.getText())) {
-                            clear();
-                        }
-                    }
-
-                    if (!isValidTime(ts1.getText()) && toValidateT1){
-                        GuiUtils.errorMessage(FinderDialog.this, I18n.text("Find"), 
-                                I18n.text("Invalid time format (HH:mm)"));
-                    }
-                    toValidateT1 = false;
-                }
-            });
-
-            ts2.addFocusListener(new FocusListener() {
-                public void focusGained(FocusEvent e) {
-                    toValidateT2 = true;
-                }
-
-                public void focusLost(FocusEvent e) {
-                    if (curTs2Txt != null) {
-                        if (!curTs2Txt.equals(ts2.getText())) {
-                            clear();
-                        }
-                    }
-
-                    if (!isValidTime(ts2.getText()) && toValidateT2){
-                        GuiUtils.errorMessage(FinderDialog.this, I18n.text("Find"), 
-                                I18n.text("Invalid time format (HH:mm)"));
-                    }
-                    toValidateT2 = false;
-                }
-            });
+            
+            
             
             getRootPane().setDefaultButton(findBtn);
         }
@@ -656,18 +676,6 @@ public class MraRawMessages extends SimpleMRAVisualization {
                 public void mouseClicked(MouseEvent e) {
                     if (e.getClickCount() == 2) {
                         typeTxt.selectAll();
-                    }
-                }
-            });
-
-            typeTxt.addFocusListener(new FocusListener() {
-                public void focusGained(FocusEvent e) {
-                }
-
-                public void focusLost(FocusEvent e) {
-                    if (curTpTxt != null) {
-                        if (!curTpTxt.equals(typeTxt.getText()))
-                            clear();
                     }
                 }
             });
