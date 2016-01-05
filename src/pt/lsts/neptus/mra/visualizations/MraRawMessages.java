@@ -50,6 +50,7 @@ import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Collections;
 import java.util.Date;
 import java.util.TimeZone;
@@ -81,6 +82,7 @@ import org.jdesktop.swingx.JXBusyLabel;
 
 import net.miginfocom.swing.MigLayout;
 import pt.lsts.imc.lsf.LsfIndex;
+import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.gui.InfiniteProgressPanel;
 import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.mra.MRAPanel;
@@ -103,16 +105,16 @@ public class MraRawMessages extends SimpleMRAVisualization {
 
     private static final long serialVersionUID = 1L;
     private static final String ANY_TXT = I18n.text("<ANY>");
+    private static final int MAX_TIME_DEVIATION = 2; //2 seconds
     private JTable table;
     private ArrayList<Integer> resultList = new ArrayList<>();
     private int finderNextIndex = -1;
     private int currFinderIndex = -1;
-    //private int currSelectedIndex = -1;
-    private FinderDialog find;
+    private FinderDialog find = null;
     private boolean findOpenState = false;
     private AbstractAction finderAction;
     private JToggleButton highlightBtn;
-
+    
     private boolean closingUp = false;
 
     public MraRawMessages(MRAPanel panel) {
@@ -153,7 +155,8 @@ public class MraRawMessages extends SimpleMRAVisualization {
     public void onCleanup() {
         super.onCleanup();
         closingUp = true;
-        find.close();
+        if (find != null)
+            find.close();
     }
 
     @Override
@@ -244,22 +247,22 @@ public class MraRawMessages extends SimpleMRAVisualization {
     }
 
     /**
-     * Compares two Date objects
-     * @param a 
-     * @param b
+     * Compares two Date objects, evaluating by a specific operator.
+     * @param date1, the date to check against the base date
      * @param operator
+     * @param base, the base date
      */
-    private static boolean compareTime(Date a, Date b, String operator)
+    private static boolean compareTime(Date date1, String operator, Date base)
     {
-        if (a == null)
+        if (base == null)
         {
             return false;
         }
         try
         {
             SimpleDateFormat parser = new SimpleDateFormat("HH:mm:ss");
-            a = parser.parse(parser.format(a));
-            b = parser.parse(parser.format(b));
+            base = parser.parse(parser.format(base));
+            date1 = parser.parse(parser.format(date1));
         }
         catch (ParseException ex)
         {
@@ -268,21 +271,33 @@ public class MraRawMessages extends SimpleMRAVisualization {
         switch (operator)
         {
             case "==":
-                return b.compareTo(a) == 0;
+                return date1.compareTo(base) == 0;
             case "<":
-                return b.compareTo(a) < 0;
+                return date1.compareTo(base) < 0;
             case ">":
-                return b.compareTo(a) > 0;
+                return date1.compareTo(base) > 0;
             case "<=":
-                return b.compareTo(a) <= 0;
+                return date1.compareTo(base) <= 0;
             case ">=":
-                return b.compareTo(a) >= 0;
+                return date1.compareTo(base) >= 0;
             default:
                 throw new IllegalArgumentException();
 
         }
     }
+    private static Date parseTime(String time) {
+        SimpleDateFormat parser = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
+        
+        Date dateTime = null;
+         try {
+            dateTime = parser.parse(time);
+        }
+        catch (ParseException e) {
+            return null;
+        }
 
+        return dateTime;
+    }
     /**
      * Checks if there are messages in the list that have a specific type, source, source_entity, 
      * destination and are within specified time limits 
@@ -307,34 +322,100 @@ public class MraRawMessages extends SimpleMRAVisualization {
                 find.busyLbl.setVisible(false);
                 return true;
             }
+            
+            int low = 0;
+            int mid = -1;
+            int high = table.getRowCount() - 1;
+            String rowTime = null;
+            String rowType = null;
+            String rowSrc = null;
+            
+            int last = -1;
+            int first = -1;
+            Date parsedTime = null;
+            
+            while(low <= high) {
+                mid = high - (high - low) / 2;
+                
+                rowTime = (String) table.getValueAt(mid, 1); //Time
+                rowType = (String) table.getValueAt(mid, 2); //Type
+                rowSrc = (String) table.getValueAt(mid, 3); //Source
+                
+                parsedTime = parseTime(rowTime);
+                if (compareTime(parsedTime, ">", time1)) {
+                    high = mid - 1;
+                } 
+                else if (compareTime(parsedTime, "<", time1)) {
+                    first = mid;
+                    low = mid + 1;
+                }
+                else {
+                    last = mid;
+                    break;
+                }
+                
+            }
+            if (last == -1) {
+                last = first;
+                first = 0;
+            }
+            if (first == -1)
+                first = 0;
+            
+            int indexFirst = findFirstOcc(first, last, time1);
+            
+            if (indexFirst == -1)
+                return false;
+            
+            low = indexFirst;
+            high = table.getRowCount() - 1;
+            Calendar calendar = Calendar.getInstance();
+            calendar.setTime(time2);
+            int seconds = calendar.get(Calendar.SECOND);
+            // we add MAX_TIME_DEVIATION seconds because of unsorted Time column
+            calendar.set(Calendar.SECOND, seconds+MAX_TIME_DEVIATION);
+            Date advT2 = calendar.getTime();
 
-            for (int row = 0; row < table.getRowCount(); row++) {
-                String rowTime = (String) table.getValueAt(row, 1); //Time
-                String rowType = (String) table.getValueAt(row, 2); //Type
-                String rowSrc = (String) table.getValueAt(row, 3); //Source
+            while(low <= high) {
+                mid = high - (high - low) / 2;
+                rowTime = (String) table.getValueAt(mid, 1); //Time
+                rowType = (String) table.getValueAt(mid, 2); //Type
+                rowSrc = (String) table.getValueAt(mid, 3); //Source
+                parsedTime = parseTime(rowTime);
+                
+                if (compareTime(parsedTime, ">", advT2))
+                    high = mid - 1;
+                else if (compareTime(parsedTime, "<", advT2)) 
+                    low = mid + 1;
+                else {
+                    last = mid;
+                    break;
+                }
+            }
+            
+            int indexLast = last;
+
+            for (int row = indexFirst; row < indexLast; row++) {
+                rowTime = (String) table.getValueAt(row, 1); //Time
+                rowType = (String) table.getValueAt(row, 2); //Type
+                rowSrc = (String) table.getValueAt(row, 3); //Source
                 String rowSrcEnt = (String) table.getValueAt(row, 4); //SourceEntity
                 String rowDest = (String) table.getValueAt(row, 5); //Destination
                 if (rowSrcEnt == null || rowSrcEnt.isEmpty())
                     rowSrcEnt = "empty";
 
-                SimpleDateFormat parser = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
-                Date tableTime = null;
-                try {
-                    tableTime = parser.parse(rowTime);
-                }
-                catch (ParseException e) {
-                    e.printStackTrace();
+                Date tableTime = parseTime(rowTime);
+                if (tableTime == null) {
+                    NeptusLog.pub().warn("Unable to parse timestamp from message list.");
                     continue;
                 }
-
+                    
                 if (rowType.contains(type) || type.equals(ANY_TXT)) {
                     if (rowSrc.contains(src) || src.equals(ANY_TXT)) {
                         if (rowSrcEnt.contains(srcEnt) || srcEnt.equals(ANY_TXT)) {
                             if (rowDest.contains(dest) || dest.equals(ANY_TXT) || 
                                     (rowDest.contains("null") && dest.equals("UNADDRESSABLE"))){
-                                // if (isBetweenTime(HHMM, time1, time2))
-                                // System.out.println(tableTime + " " + time1 + " " + time2);
-                                if (compareTime(time1, tableTime, ">=") && compareTime(time2, tableTime, "<="))
+                                if (compareTime(tableTime, ">=", time1) && compareTime(tableTime, "<=", time2))
                                     resultList.add(row);
                             }
                         }
@@ -360,6 +441,18 @@ public class MraRawMessages extends SimpleMRAVisualization {
 
             return false;
         }
+    }
+
+    private int findFirstOcc(int first, int last, Date time1) {
+        for (int row = first; row < last; row++) {
+            String rowTime = (String) table.getValueAt(row, 1); //Time
+            Date parsedTime = parseTime(rowTime);
+            
+            if (compareTime(parsedTime, ">=", time1)) {
+                return row;
+            }
+        }
+        return -1;
     }
 
     private void highLightRow() {
@@ -452,7 +545,6 @@ public class MraRawMessages extends SimpleMRAVisualization {
             Date dt2 = format.parse(t2);
 
             find.setTimestamp(dt1, dt2);
-            System.out.println(dt2);
         }
         catch (ParseException e) {
             e.printStackTrace();
@@ -481,7 +573,8 @@ public class MraRawMessages extends SimpleMRAVisualization {
         }
 
         public boolean hasDefaultTS() {
-            if (compareTime((Date) ts1.getValue(), defTS1, "==") && compareTime((Date) ts2.getValue(), defTS2, "=="))
+            if (compareTime((Date) ts1.getValue(), "==", defTS1) &&
+                    compareTime((Date) ts2.getValue(), "==", defTS2))
                 return true;
             else
                 return false;
