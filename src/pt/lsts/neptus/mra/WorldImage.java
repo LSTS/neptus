@@ -91,7 +91,14 @@ public class WorldImage {
         return minVal == null ? dd.minVal[0]*0.995 : minVal;        
     }
     
+    public int getAmountDataPoints() {
+        return dd.getAmountDataPoints();
+    }
+    
     public BufferedImage processData() {
+        if (getAmountDataPoints() == 0)
+            return null;
+        
         double maxX = dd.maxX + 5;
         double maxY = dd.maxY + 5;
         double minX = dd.minX - 5;
