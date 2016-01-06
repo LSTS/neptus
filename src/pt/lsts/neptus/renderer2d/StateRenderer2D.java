@@ -79,6 +79,9 @@ import javax.swing.JPopupMenu;
 import javax.swing.SwingUtilities;
 import javax.swing.event.ChangeListener;
 
+import com.l2fprod.common.propertysheet.DefaultProperty;
+import com.l2fprod.common.propertysheet.Property;
+
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.console.plugins.planning.MapShortcutsLayer;
 import pt.lsts.neptus.gui.MenuScroller;
@@ -102,15 +105,13 @@ import pt.lsts.neptus.types.map.ScatterPointsElement;
 import pt.lsts.neptus.types.map.VehicleTailElement;
 import pt.lsts.neptus.types.vehicle.VehicleType;
 import pt.lsts.neptus.types.vehicle.VehiclesHolder;
+import pt.lsts.neptus.util.AngleCalc;
 import pt.lsts.neptus.util.GuiUtils;
 import pt.lsts.neptus.util.ImageUtils;
 import pt.lsts.neptus.util.conf.ConfigFetch;
 import pt.lsts.neptus.util.conf.GeneralPreferences;
 import pt.lsts.neptus.util.conf.PreferencesListener;
 import pt.lsts.neptus.util.coord.MapTileUtil;
-
-import com.l2fprod.common.propertysheet.DefaultProperty;
-import com.l2fprod.common.propertysheet.Property;
 
 /**
  * This class provides a 2D visualization of the world, including maps, vehicle poses and other layers
@@ -744,6 +745,11 @@ CustomInteractionSupport, IMapPopup, FocusListener {
         if (!inOrOut) { // zoom out
             double nwx = -(localRenderX - getWidth() / 2);
             double nwy = -(localRenderY - getHeight() / 2);
+            if (rotationRads != 0) {
+                double[] np = AngleCalc.rotate(rotationRads, nwy, nwx, true);
+                nwx = np[1];
+                nwy = np[0];
+            }
             worldPixelXY.setLocation(worldPixelXY.getX() + nwx, worldPixelXY.getY() + nwy);
             setLevelOfDetail(getLevelOfDetail() - 1);
         }
@@ -751,6 +757,11 @@ CustomInteractionSupport, IMapPopup, FocusListener {
             setLevelOfDetail(getLevelOfDetail() + 1);
             double nwx = (localRenderX - getWidth() / 2);
             double nwy = (localRenderY - getHeight() / 2);
+             if (rotationRads != 0) {
+                double[] np = AngleCalc.rotate(rotationRads, nwy, nwx, true);
+                nwx = np[1];
+                nwy = np[0];
+            }
             worldPixelXY.setLocation(worldPixelXY.getX() + nwx, worldPixelXY.getY() + nwy);
         }
     }
