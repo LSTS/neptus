@@ -53,7 +53,6 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
 import java.util.Date;
-import java.util.TimeZone;
 
 import javax.swing.AbstractAction;
 import javax.swing.BorderFactory;
@@ -336,12 +335,11 @@ public class MraRawMessages extends SimpleMRAVisualization {
             
             while(low <= high) {
                 mid = high - (high - low) / 2;
-                
                 rowTime = (String) table.getValueAt(mid, 1); //Time
                 rowType = (String) table.getValueAt(mid, 2); //Type
                 rowSrc = (String) table.getValueAt(mid, 3); //Source
-                
                 parsedTime = parseTime(rowTime);
+                
                 if (compareTime(parsedTime, ">", time1)) {
                     high = mid - 1;
                 } 
@@ -533,13 +531,12 @@ public class MraRawMessages extends SimpleMRAVisualization {
         typeList.add(ANY_TXT);
         Collections.sort(typeList, String.CASE_INSENSITIVE_ORDER);
         find.initTypeField(typeList);
-        find.sourceEntCBox.setSelectedItem("<ANY>");
+        find.sourceEntCBox.setSelectedItem(ANY_TXT);
 
         String t1 = (String) table.getValueAt(0, 1); //get first timestamp from table
         String t2 = (String) table.getValueAt(table.getRowCount() - 1, 1); //get last timestamp from table
-
         DateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
-        format.setTimeZone(TimeZone.getTimeZone("UTC"));
+
         try {
             Date dt1 = format.parse(t1);
             Date dt2 = format.parse(t2);
