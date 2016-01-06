@@ -103,7 +103,7 @@ import pt.lsts.neptus.util.llf.LsfReportProperties;
  * @author zp
  * 
  */
-@PluginDescription(name = "Photos", icon = "pt/lsts/neptus/plugins/mraplots/camera.png")
+@PluginDescription(name = "Photos", icon = "images/downloader/camera.png")
 public class MraPhotosVisualization extends JComponent implements MRAVisualization, LogMarkerListener {
     private static final long serialVersionUID = 1L;
     protected File photosDir;
