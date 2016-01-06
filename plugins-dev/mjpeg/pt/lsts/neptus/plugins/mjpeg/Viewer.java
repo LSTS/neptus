@@ -71,7 +71,7 @@ import java.util.Vector;
  * @author Ricardo Martins
  * @author José Pinto
  */
-@PluginDescription(name = "Video", icon = "pt/lsts/neptus/plugins/mraplots/camera.png")
+@PluginDescription(name = "Video", icon = "images/downloader/camera.png")
 public class Viewer extends JComponent implements MRAVisualization, LogMarkerListener {
     private static final long serialVersionUID = 1L;
     /** Parent MRA panel. */
