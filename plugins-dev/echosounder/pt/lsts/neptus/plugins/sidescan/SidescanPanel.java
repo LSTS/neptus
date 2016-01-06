@@ -516,11 +516,17 @@ public class SidescanPanel extends JPanel implements MouseListener, MouseMotionL
             BufferedImage zoomImage = image.getSubimage(zX - ZOOM_BOX_SIZE / 2, zY - ZOOM_BOX_SIZE / 2, ZOOM_BOX_SIZE, ZOOM_BOX_SIZE);
             BufferedImage zoomLayerImage = layer.getSubimage(zX - ZOOM_BOX_SIZE / 2, zY - ZOOM_BOX_SIZE / 2, ZOOM_BOX_SIZE, ZOOM_BOX_SIZE);
 
+            // choose on which side to paint the zoom based on mouse position
+            int xPosition = 1;
+            if (mouseX <= (image.getWidth() / 2)){
+                xPosition = image.getWidth() - (ZOOM_LAYER_BOX_SIZE + 1);
+            }
+            
             // Draw zoomed image.
             g.drawImage(ImageUtils.getFasterScaledInstance(zoomImage, ZOOM_LAYER_BOX_SIZE, ZOOM_LAYER_BOX_SIZE),
-                    image.getWidth() - (ZOOM_LAYER_BOX_SIZE + 1), image.getHeight() - (ZOOM_LAYER_BOX_SIZE + 1), null);
+                    xPosition, image.getHeight() - (ZOOM_LAYER_BOX_SIZE + 1), null);
             g.drawImage(ImageUtils.getFasterScaledInstance(zoomLayerImage, ZOOM_LAYER_BOX_SIZE, ZOOM_LAYER_BOX_SIZE),
-                    layer.getWidth() - (ZOOM_LAYER_BOX_SIZE + 1), layer.getHeight() - (ZOOM_LAYER_BOX_SIZE + 1), null);
+                    xPosition, layer.getHeight() - (ZOOM_LAYER_BOX_SIZE + 1), null);
         }
         else {
             threadExecutor.execute(updateLines);
@@ -575,8 +581,14 @@ public class SidescanPanel extends JPanel implements MouseListener, MouseMotionL
                     }
 
                     int vZoomScale = 3;
+                    // choose on which side to paint the zoom based on mouse position
+                    int xPosition = 1;
+                    if (mouseX <= (layer.getWidth() / 2)){
+                        xPosition = layer.getWidth() - (ZOOM_LAYER_BOX_SIZE + 1);
+                    }
+                    
                     Image full = ImageUtils.getScaledImage(zoomedImg, ZOOM_LAYER_BOX_SIZE, vZoomScale, true);
-                    g.drawImage(full, layer.getWidth() - (ZOOM_LAYER_BOX_SIZE + 1), layer.getHeight() + (ZOOM_BOX_SIZE) - ypos, null);
+                    g.drawImage(full, xPosition, layer.getHeight() + (ZOOM_BOX_SIZE) - ypos, null);
                     ypos = ypos + vZoomScale;
                 }
             }
@@ -779,11 +791,20 @@ public class SidescanPanel extends JPanel implements MouseListener, MouseMotionL
 
         Graphics2D g2d = (Graphics2D) g.create();
         int fontSize = 11;
-        int x = layer.getWidth() - (ZOOM_LAYER_BOX_SIZE + 1);
+
+        // choose on which side to paint the zoom based on mouse position
+        int xPosition = 0;
+        int xLength = ZOOM_LAYER_BOX_SIZE;
+        if (mouseX <= (image.getWidth() / 2)){
+            xPosition = layer.getWidth() - (ZOOM_LAYER_BOX_SIZE + 2) ;
+            xLength = layer.getWidth();
+        }
+        
+        int x = xPosition;
         int y = layer.getHeight() - (ZOOM_LAYER_BOX_SIZE);
         // Draw Horizontal Line
         g2d.setColor(Color.BLACK);
-        g2d.drawLine(x, y, layer.getWidth(), y);
+        g2d.drawLine(x, y, xLength, y);
 
         Rectangle drawRulerHere = new Rectangle(x, y - MAX_RULER_SIZE, ZOOM_LAYER_BOX_SIZE + 1, MAX_RULER_SIZE);
         g2d.setColor(Color.LIGHT_GRAY);
@@ -793,7 +814,7 @@ public class SidescanPanel extends JPanel implements MouseListener, MouseMotionL
         g2d.setColor(Color.BLACK);
 
         // Draw top line
-        g2d.drawLine(x, y - MAX_RULER_SIZE, layer.getWidth(), y - MAX_RULER_SIZE);
+        g2d.drawLine(x, y - MAX_RULER_SIZE, xLength, y - MAX_RULER_SIZE);
 
         // Draw the zero
         g2d.drawLine(x, y, x , y-MAX_RULER_SIZE);
@@ -813,7 +834,7 @@ public class SidescanPanel extends JPanel implements MouseListener, MouseMotionL
 
         int c = x + (int) step;
 
-        for (; c<=layer.getWidth(); c += step , r += zoomRangeStep) {
+        for (; c<=xLength; c += step , r += zoomRangeStep) {
             g2d.drawLine(c, y, c, y - MAX_RULER_SIZE);
             g2d.drawString("" + (int) r, c - 13, y-3);
         }
