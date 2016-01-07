@@ -180,16 +180,6 @@ public class SidescanPanel extends JPanel implements MouseListener, MouseMotionL
                         measureHeightMouseX = Double.NaN;
                     }
 
-                    if (zoom) {
-                        Graphics2D gz = (Graphics2D) g.create();
-                        gz.setColor(Color.WHITE);
-                        drawZoom(gz); // Update layer with zoom information
-
-                        Graphics2D zoomRuler = (Graphics2D) g.create();
-                        zoomRuler.setColor(Color.WHITE);
-                        drawZoomRuler(zoomRuler);  // Update layer with zoom ruler information
-                    }
-
                     if (info)
                         drawInfo(layer.getGraphics()); // update layer with location information
 
@@ -197,6 +187,16 @@ public class SidescanPanel extends JPanel implements MouseListener, MouseMotionL
 
                     g.drawImage(layer, 0, 0, null);
 
+                    if (zoom) {
+                        Graphics2D gz = (Graphics2D) g.create();
+                        gz.setColor(Color.WHITE);
+                        drawZoom(gz); // Update layer with zoom information
+                        
+                        Graphics2D zoomRuler = (Graphics2D) g.create();
+                        zoomRuler.setColor(Color.WHITE);
+                        drawZoomRuler(zoomRuler);  // Update layer with zoom ruler information
+                    }
+                    
                     if (config.showPositionHud) {
                         posHud.setPathColor(config.pathColor);
                         int x = getWidth() / 2 - config.hudSize / 2; // 0;
