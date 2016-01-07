@@ -99,6 +99,8 @@ import pt.lsts.neptus.util.sidescan.SlantRangeImageFilter;
 public class SidescanPanel extends JPanel implements MouseListener, MouseMotionListener {
     private static final long serialVersionUID = 1L;
 
+    private static final int BULLSEYE_HIDE_TIMEOUT_MILLIS = 5000;
+    
     private static final int ZOOM_BOX_SIZE = 100;
     private static final int ZOOM_LAYER_BOX_SIZE = 300;
 
@@ -314,7 +316,7 @@ public class SidescanPanel extends JPanel implements MouseListener, MouseMotionL
                                 setSSLines(mouseY, null);
                                 threadExecutor.execute(updateLines);
                                 view.repaint();
-                                updated=true;
+                                updated = true;
                             }
                             Thread.sleep(500);
                         }
@@ -330,6 +332,9 @@ public class SidescanPanel extends JPanel implements MouseListener, MouseMotionL
                 catch (InterruptedException e) {
                     e.printStackTrace();
                 }
+                
+                if (isMouseAtRest(BULLSEYE_HIDE_TIMEOUT_MILLIS / 2))
+                    view.repaint();
             }
         }
     };
@@ -595,11 +600,13 @@ public class SidescanPanel extends JPanel implements MouseListener, MouseMotionL
         }
 
         // Mouse center indicator
-        g.setColor(ColorUtils.setTransparencyToColor(Color.CYAN, 180));
-        int xBullseye = image.getWidth() - (ZOOM_LAYER_BOX_SIZE / 2 + 1) - 3;
-        if (mouseX > (image.getWidth() / 2))
-            xBullseye = (ZOOM_LAYER_BOX_SIZE / 2 + 1) - 3;
-        g.drawRect(xBullseye, image.getHeight() - (ZOOM_LAYER_BOX_SIZE / 2 + 1) - 3, 6, 6);
+        if (!isMouseAtRest(BULLSEYE_HIDE_TIMEOUT_MILLIS)) {
+            g.setColor(ColorUtils.setTransparencyToColor(Color.CYAN, 180));
+            int xBullseye = image.getWidth() - (ZOOM_LAYER_BOX_SIZE / 2 + 1) - 3;
+            if (mouseX > (image.getWidth() / 2))
+                xBullseye = (ZOOM_LAYER_BOX_SIZE / 2 + 1) - 3;
+            g.drawRect(xBullseye, image.getHeight() - (ZOOM_LAYER_BOX_SIZE / 2 + 1) - 3, 6, 6);
+        }
             
         g.dispose();
     }
@@ -994,8 +1001,12 @@ public class SidescanPanel extends JPanel implements MouseListener, MouseMotionL
     };
 
     private boolean isMouseAtRest() {
+        return isMouseAtRest(0);
+    }
+
+    private boolean isMouseAtRest(long timeoutMillis) {
         long now = System.nanoTime();
-        if (now - 1000000000 > lastMouseMoveTS)
+        if (now - 1000000000 > lastMouseMoveTS + timeoutMillis * 1000000)
             return true;
 
         return false;
