@@ -128,8 +128,11 @@ public class VehicleAwareness {
         public ArrayList<String> getVehicleCapabilities(String vId) {
             ArrayList<SystemProperty> prList = ConfigurationManager.getInstance().getProperties(vId, vis, scope);
             ArrayList<String> capabilities = new ArrayList<String>(prList.size());
-            for(SystemProperty pr : prList)
-                capabilities.add(pr.getCategory());
+            for(SystemProperty pr : prList) {
+                String cap = pr.getCategory();
+                if(!capabilities.contains(cap))
+                    capabilities.add(cap);
+            }
 
             return capabilities;
         }
