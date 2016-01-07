@@ -36,6 +36,7 @@ import java.awt.Dialog.ModalityType;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
+import java.lang.reflect.Constructor;
 import java.net.URI;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
@@ -613,12 +614,32 @@ public class MRAMenuBar {
         Vector<MRAExporter> exporterList = new Vector<>();
 
         for (Class<? extends MRAExporter> clazz : exporterMap.values()) {
-            try {
-                exporterList.add(clazz.getConstructor(IMraLogGroup.class).newInstance(new Object[] { source }));
+            Constructor<?>[] constructors = clazz.getConstructors();
+            
+            boolean added = false;
+            
+            for (Constructor<?> c : constructors) {
+                if (c.getParameterTypes().length == 1 && c.getParameterTypes()[0].equals(IMraLogGroup.class)) {
+                    try {
+                        exporterList.add(clazz.getConstructor(IMraLogGroup.class).newInstance(new Object[] { source }));
+                    }
+                    catch (Exception e) {                        
+                        e.printStackTrace();
+                    }
+                    added = true;
+                }
             }
-            catch (Exception e) {
-                System.out.println(clazz.getName());
-                e.printStackTrace();
+            
+            if (!added) {
+                try {
+                    exporterList.add(clazz.newInstance());
+                    added = true;
+                }
+                catch (Exception e) { }                
+            }
+            
+            if (!added) {
+                NeptusLog.pub().error("Error Exporter of type "+clazz.getName()+": No valid constructor.");
             }
         }
 
