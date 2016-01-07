@@ -34,6 +34,7 @@ package pt.lsts.neptus.mra;
 import java.awt.BorderLayout;
 import java.awt.Component;
 import java.io.File;
+import java.lang.reflect.Constructor;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -49,10 +50,9 @@ import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
 import javax.swing.JTabbedPane;
 
-import net.miginfocom.swing.MigLayout;
-
 import org.jdesktop.swingx.JXStatusBar;
 
+import net.miginfocom.swing.MigLayout;
 import pt.lsts.imc.IMCMessage;
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.console.plugins.MissionChangeListener;
@@ -222,10 +222,25 @@ public class MRAPanel extends JPanel {
                 if (!mra.getMraProperties().isVisualizationActive(vis))
                     continue;
 
-                MRAVisualization visualization = (MRAVisualization) vis.getDeclaredConstructor(MRAPanel.class)
-                        .newInstance(this);
-                PluginUtils.loadProperties(visualization, "mra");
-
+                Constructor<?>[] constructors = vis.getDeclaredConstructors();
+                boolean instantiated = false;
+                MRAVisualization visualization = null;
+                
+                for (Constructor<?> c : constructors) {
+                    if (c.getParameterTypes().length == 1 && c.getParameterTypes()[0].equals(MRAPanel.class)) {
+                        instantiated = true;
+                        visualization = (MRAVisualization) vis.getDeclaredConstructor(MRAPanel.class)
+                                .newInstance(this);
+                        PluginUtils.loadProperties(visualization, "mra");
+                        
+                    }
+                }
+                if (!instantiated) {
+                    visualization = (MRAVisualization)vis.newInstance();
+                    PluginUtils.loadProperties(visualization, "mra");
+                    instantiated = true;
+                }
+                
                 if (visualization.canBeApplied(MRAPanel.this.source)) {
                     visualizations.add(visualization);
                 }
@@ -235,6 +250,7 @@ public class MRAPanel extends JPanel {
                 
             }
             catch (Exception e1) {
+                e1.printStackTrace();
                 NeptusLog.pub().error(
                         I18n.text("MRA Visualization not loading properly") + ": " + visName + "  [" + e1.getMessage()
                         + "]");
