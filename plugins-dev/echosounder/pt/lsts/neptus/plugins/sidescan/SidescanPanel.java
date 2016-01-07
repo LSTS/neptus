@@ -199,8 +199,9 @@ public class SidescanPanel extends JPanel implements MouseListener, MouseMotionL
 
                     if (config.showPositionHud) {
                         posHud.setPathColor(config.pathColor);
-                        g.drawImage(posHud.getImage((firstPingTime + currentTime) / 1000.0), 0, getHeight()
-                                - config.hudSize, null);
+                        int x = getWidth() / 2 - config.hudSize / 2; // 0;
+                        int y = getHeight() - config.hudSize;
+                        g.drawImage(posHud.getImage((firstPingTime + currentTime) / 1000.0), x, y, null);
                     }
 
                     if (record) {
