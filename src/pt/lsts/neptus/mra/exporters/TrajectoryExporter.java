@@ -66,10 +66,6 @@ public class TrajectoryExporter implements MRAExporter {
         return source.getLsfIndex().containsMessagesOfType("PlanSpecification");
     }
 
-    public TrajectoryExporter(IMraLogGroup source) {
-
-    }
-
     @Override
     public String process(IMraLogGroup source, ProgressMonitor pmonitor) {
         pmonitor.setNote(I18n.text("Parsing Mission"));
