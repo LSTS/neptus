@@ -2188,7 +2188,7 @@ For simple use the main targets are:
 							<include name="pt.lsts.neptus.gui." />
 							<include name="pt.lsts.neptus.util.*Utils" />
 							<include name="pt.lsts.neptus.util.*Util" />
-							<include name="pt.lsts.neptus.util.AngleCalc" />
+							<include name="pt.lsts.neptus.util.AngleUtils" />
 							<include name="pt.lsts.neptus.util.NameNormalizer" />
 							<include name="pt.lsts.neptus.util.logdownload.Log*" />
 							<!--include name="pt.lsts.vartree.VarTree" /-->
@@ -2327,7 +2327,7 @@ For simple use the main targets are:
 							<include name="pt.lsts.neptus.gui." />
 							<include name="pt.lsts.neptus.util.*Utils" />
 							<include name="pt.lsts.neptus.util.*Util" />
-							<include name="pt.lsts.neptus.util.AngleCalc" />
+							<include name="pt.lsts.neptus.util.AngleUtils" />
 							<include name="pt.lsts.neptus.util.NameNormalizer" />
 							<include name="pt.lsts.neptus.util.logdownload.Log*" />
 							<include name="pt.lsts.vartree.VarTree" />
