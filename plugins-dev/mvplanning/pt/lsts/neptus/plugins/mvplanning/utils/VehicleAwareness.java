@@ -35,15 +35,18 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.concurrent.ConcurrentHashMap;
 
 import com.google.common.eventbus.Subscribe;
 
 import pt.lsts.neptus.console.events.ConsoleEventVehicleStateChanged;
+import pt.lsts.neptus.mp.Maneuver;
 import pt.lsts.neptus.params.ConfigurationManager;
 import pt.lsts.neptus.params.SystemProperty;
 import pt.lsts.neptus.params.SystemProperty.Scope;
 import pt.lsts.neptus.params.SystemProperty.Visibility;
+import pt.lsts.neptus.types.mission.plan.PlanType;
 
 public class VehicleAwareness {
     private ConcurrentHashMap<String, VehicleInfo> availableVehicles;
@@ -79,6 +82,15 @@ public class VehicleAwareness {
             }
         }
     }
+    
+    public VehicleInfo getVehicleInfo(String vid) {
+        return availableVehicles.get(vid);
+    }
+    
+    public void printVehicleCapabilities(String vid) {
+        getVehicleInfo(vid).printCapabilities();
+    }
+    
     
     /* for debugging
      * 0 for unavailabe 1 for available */
@@ -117,7 +129,7 @@ public class VehicleAwareness {
             ArrayList<SystemProperty> prList = ConfigurationManager.getInstance().getProperties(vId, vis, scope);
             ArrayList<String> capabilities = new ArrayList<String>(prList.size());
             for(SystemProperty pr : prList)
-                capabilities.add(pr.getName());
+                capabilities.add(pr.getCategory());
 
             return capabilities;
         }
