@@ -40,16 +40,19 @@ import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.codec.binary.Hex;
 
 /**
+ * Holds some byte utilities.
+ * 
  * @author pdias
  *
  */
 public class ByteUtil {
-	
+	/** To avoid instantiation */
 	private ByteUtil() {
 	}
 	
 	/**
 	 * Test if the two byte arrays are equal.
+	 * 
 	 * @param buffer1
 	 * @param buffer2
 	 * @return
@@ -65,6 +68,7 @@ public class ByteUtil {
 	
 	/**
 	 * Dumps the byte array as hex string to the {@link PrintStream}.
+	 * 
 	 * @param buffer
 	 * @param pStream
 	 */
@@ -74,6 +78,7 @@ public class ByteUtil {
 	
 	/**
      * Dumps the byte array as hex string to the {@link PrintStream}, with a title.
+     * 
 	 * @param title
 	 * @param buffer
 	 * @param pStream
@@ -142,6 +147,12 @@ public class ByteUtil {
 		pStream.println("----------------------------------------------------------  ----------------");
 	}
 	
+	/**
+	 * Encodes the byte array into a string as hexadecimal format.
+	 * 
+	 * @param buffer
+	 * @return
+	 */
 	public static String encodeToHex(byte[] buffer) {
 	    StringBuilder sb = new StringBuilder();
 	    for (int i = 0; i < buffer.length; i++) {
@@ -153,6 +164,7 @@ public class ByteUtil {
 
 	/**
 	 * The same as {@link #dumpAsHex(byte[], PrintStream)} but the output will be return as a String.
+	 * 
 	 * @param buffer
 	 * @return
 	 */
@@ -162,6 +174,7 @@ public class ByteUtil {
 
 	/**
      * The same as {@link #dumpAsHex(String, byte[], PrintStream)} but the output will be return as a String.
+     * 
 	 * @param title
 	 * @param buffer
 	 * @return
@@ -189,6 +202,7 @@ public class ByteUtil {
 	
 	/**
 	 * Return the byte array encoded as a hex string.
+	 * 
 	 * @param source
 	 * @return
 	 */
@@ -198,6 +212,7 @@ public class ByteUtil {
 
 	/**
      * Decodes the encoded hex string byte array back as byte array.
+     * 
 	 * @param hexString
 	 * @return
 	 * @throws DecoderException
@@ -208,6 +223,7 @@ public class ByteUtil {
 
 	/**
      * Decodes the encoded hex string byte array back as byte array.
+     * 
 	 * @param sourceChars
 	 * @return
 	 * @throws DecoderException
@@ -218,6 +234,7 @@ public class ByteUtil {
 
 	/**
      * Return the byte array encoded as a base64 string.
+     * 
 	 * @param source
 	 * @param chunked
 	 * @return
@@ -231,6 +248,7 @@ public class ByteUtil {
 	
 	/**
      * Return the byte array encoded as a base64 string (chunked).
+     * 
 	 * @param source
 	 * @return
 	 */
@@ -240,6 +258,7 @@ public class ByteUtil {
 		
 	/**
      * Decodes the encoded base64 byte array back as byte array.
+     * 
 	 * @param source
 	 * @return
 	 */
