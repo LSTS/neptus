@@ -195,7 +195,7 @@
 	<classpathentry kind="lib" path="lib/commons-codec-1.9.jar"/>
 	<classpathentry kind="lib" path="lib/commons-configuration-1.10.jar"/>
 	<classpathentry kind="lib" path="lib/reflections-0.9.9-RC1.jar"/>
-	<classpathentry kind="lib" path="plugins-dev/s57/s57-package-2.2.jar"/>
+	<classpathentry kind="lib" path="plugins-dev/s57/s57-package-2.3.jar"/>
 	<classpathentry kind="lib" path="lib/PSEngine.jar">
 		<attributes>
 			<attribute name="javadoc_location" value="jar:platform:/resource/neptus/libJNI/europa/PSEngine-javadoc.jar!/"/>
