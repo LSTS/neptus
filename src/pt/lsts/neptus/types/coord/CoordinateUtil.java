@@ -42,7 +42,7 @@ import java.util.StringTokenizer;
 import javax.vecmath.Matrix3d;
 
 import pt.lsts.neptus.NeptusLog;
-import pt.lsts.neptus.util.AngleCalc;
+import pt.lsts.neptus.util.AngleUtils;
 import pt.lsts.neptus.util.coord.MapTileUtil;
 
 /**
@@ -611,7 +611,7 @@ public class CoordinateUtil {
         else
             letter = isLatOrLon ? "S" : "W";
 
-        double[] latLonDM = CoordinateUtil.decimalDegreesToDM(AngleCalc.nomalizeAngleDegrees180(latLonDegrees));
+        double[] latLonDM = CoordinateUtil.decimalDegreesToDM(AngleUtils.nomalizeAngleDegrees180(latLonDegrees));
         String latLonStr = CoordinateUtil.dmToLatString(latLonDM[0], latLonDM[1], 5);
         latLonStr = latLonStr.replaceAll("[NSEW]", ".");
         String[] latLonParts = latLonStr.split("\\.");

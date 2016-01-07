@@ -41,7 +41,7 @@ import pt.lsts.neptus.mp.ManeuverLocation;
 import pt.lsts.neptus.mp.maneuvers.LocatedManeuver;
 import pt.lsts.neptus.types.coord.LocationType;
 import pt.lsts.neptus.types.mission.plan.PlanType;
-import pt.lsts.neptus.util.AngleCalc;
+import pt.lsts.neptus.util.AngleUtils;
 import pt.lsts.neptus.util.coord.MapTileUtil;
 
 /**
@@ -83,7 +83,7 @@ public class PlanRotated extends AbstractUndoableEdit {
                 LocatedManeuver satellite = (LocatedManeuver) m;
                 double[] top = pivot.getManeuverLocation().getDistanceInPixelTo(satellite.getManeuverLocation(),
                         MapTileUtil.LEVEL_OFFSET);
-                double[] topR = AngleCalc.rotate(2 * -angleRads, top[0], top[1], false);
+                double[] topR = AngleUtils.rotate(2 * -angleRads, top[0], top[1], false);
                 double deltaX = topR[0];
                 double deltaY = topR[1];
                 LocationType lt = new LocationType(pivot.getManeuverLocation());
@@ -103,7 +103,7 @@ public class PlanRotated extends AbstractUndoableEdit {
                 LocatedManeuver satellite = (LocatedManeuver) m;
                 double[] top = pivot.getManeuverLocation().getDistanceInPixelTo(satellite.getManeuverLocation(),
                         MapTileUtil.LEVEL_OFFSET);
-                double[] topR = AngleCalc.rotate(2 * angleRads, top[0], top[1], false);
+                double[] topR = AngleUtils.rotate(2 * angleRads, top[0], top[1], false);
                 double deltaX = topR[0];
                 double deltaY = topR[1];
                 LocationType lt = new LocationType(pivot.getManeuverLocation());

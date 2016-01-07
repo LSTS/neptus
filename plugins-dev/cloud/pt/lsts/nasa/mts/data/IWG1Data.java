@@ -37,7 +37,7 @@ import java.util.Date;
 import com.google.gson.annotations.Expose;
 
 import pt.lsts.neptus.comm.manager.imc.ImcId16;
-import pt.lsts.neptus.util.AngleCalc;
+import pt.lsts.neptus.util.AngleUtils;
 import pt.lsts.neptus.util.DateTimeUtil;
 import pt.lsts.neptus.util.MathMiscUtils;
 
@@ -962,11 +962,11 @@ public class IWG1Data {
             }
             sb.append(",");
             if (!Double.isNaN(latitudeDegs)) {
-                sb.append(MathMiscUtils.round(AngleCalc.nomalizeAngleDegrees180(latitudeDegs), 7));
+                sb.append(MathMiscUtils.round(AngleUtils.nomalizeAngleDegrees180(latitudeDegs), 7));
             }
             sb.append(",");
             if (!Double.isNaN(longitudeDegs)) {
-                sb.append(MathMiscUtils.round(AngleCalc.nomalizeAngleDegrees180(longitudeDegs), 7));
+                sb.append(MathMiscUtils.round(AngleUtils.nomalizeAngleDegrees180(longitudeDegs), 7));
             }
             sb.append(",");
             if (!Double.isNaN(gpsAltMSL)) {
@@ -1006,11 +1006,11 @@ public class IWG1Data {
             }
             sb.append(",");
             if (!Double.isNaN(trueHeadingDegs)) {
-                sb.append(MathMiscUtils.round(AngleCalc.nomalizeAngleDegrees360(trueHeadingDegs), 2));
+                sb.append(MathMiscUtils.round(AngleUtils.nomalizeAngleDegrees360(trueHeadingDegs), 2));
             }
             sb.append(",");
             if (!Double.isNaN(trackAngleDegs)) {
-                sb.append(MathMiscUtils.round(AngleCalc.nomalizeAngleDegrees360(trackAngleDegs), 2));
+                sb.append(MathMiscUtils.round(AngleUtils.nomalizeAngleDegrees360(trackAngleDegs), 2));
             }
             sb.append(",");
             if (!Double.isNaN(driftAngleDegs)) {
@@ -1018,11 +1018,11 @@ public class IWG1Data {
             }
             sb.append(",");
             if (!Double.isNaN(pitchAngleDegs)) {
-                sb.append(MathMiscUtils.round(AngleCalc.nomalizeAngleDegrees180(pitchAngleDegs), 2));
+                sb.append(MathMiscUtils.round(AngleUtils.nomalizeAngleDegrees180(pitchAngleDegs), 2));
             }
             sb.append(",");
             if (!Double.isNaN(rollAngleDegs)) {
-                sb.append(MathMiscUtils.round(AngleCalc.nomalizeAngleDegrees180(rollAngleDegs), 2));
+                sb.append(MathMiscUtils.round(AngleUtils.nomalizeAngleDegrees180(rollAngleDegs), 2));
             }
             sb.append(",");
             if (!Double.isNaN(slipAngleDegs)) {
@@ -1030,7 +1030,7 @@ public class IWG1Data {
             }
             sb.append(",");
             if (!Double.isNaN(attackAngleDegs)) {
-                sb.append(MathMiscUtils.round(AngleCalc.nomalizeAngleDegrees180(attackAngleDegs), 2));
+                sb.append(MathMiscUtils.round(AngleUtils.nomalizeAngleDegrees180(attackAngleDegs), 2));
             }
             sb.append(",");
             if (!Double.isNaN(staticAirTemp)) {
@@ -1062,7 +1062,7 @@ public class IWG1Data {
             }
             sb.append(",");
             if (!Double.isNaN(windDirection)) {
-                sb.append(MathMiscUtils.round(AngleCalc.nomalizeAngleDegrees360(windDirection), 2));
+                sb.append(MathMiscUtils.round(AngleUtils.nomalizeAngleDegrees360(windDirection), 2));
             }
             sb.append(",");
             if (!Double.isNaN(vertWindSpeed)) {
@@ -1078,11 +1078,11 @@ public class IWG1Data {
             }
             sb.append(",");
             if (!Double.isNaN(sunAzimuthDegs)) {
-                sb.append(MathMiscUtils.round(AngleCalc.nomalizeAngleDegrees360(sunAzimuthDegs), 2));
+                sb.append(MathMiscUtils.round(AngleUtils.nomalizeAngleDegrees360(sunAzimuthDegs), 2));
             }
             sb.append(",");
             if (!Double.isNaN(aircraftSunAzimuthDegs)) {
-                sb.append(MathMiscUtils.round(AngleCalc.nomalizeAngleDegrees360(aircraftSunAzimuthDegs), 2));
+                sb.append(MathMiscUtils.round(AngleUtils.nomalizeAngleDegrees360(aircraftSunAzimuthDegs), 2));
             }
 
             // Private fields

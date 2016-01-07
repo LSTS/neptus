@@ -105,7 +105,7 @@ import pt.lsts.neptus.types.map.ScatterPointsElement;
 import pt.lsts.neptus.types.map.VehicleTailElement;
 import pt.lsts.neptus.types.vehicle.VehicleType;
 import pt.lsts.neptus.types.vehicle.VehiclesHolder;
-import pt.lsts.neptus.util.AngleCalc;
+import pt.lsts.neptus.util.AngleUtils;
 import pt.lsts.neptus.util.GuiUtils;
 import pt.lsts.neptus.util.ImageUtils;
 import pt.lsts.neptus.util.conf.ConfigFetch;
@@ -746,7 +746,7 @@ CustomInteractionSupport, IMapPopup, FocusListener {
             double nwx = -(localRenderX - getWidth() / 2);
             double nwy = -(localRenderY - getHeight() / 2);
             if (rotationRads != 0) {
-                double[] np = AngleCalc.rotate(rotationRads, nwy, nwx, true);
+                double[] np = AngleUtils.rotate(rotationRads, nwy, nwx, true);
                 nwx = np[1];
                 nwy = np[0];
             }
@@ -758,7 +758,7 @@ CustomInteractionSupport, IMapPopup, FocusListener {
             double nwx = (localRenderX - getWidth() / 2);
             double nwy = (localRenderY - getHeight() / 2);
              if (rotationRads != 0) {
-                double[] np = AngleCalc.rotate(rotationRads, nwy, nwx, true);
+                double[] np = AngleUtils.rotate(rotationRads, nwy, nwx, true);
                 nwx = np[1];
                 nwy = np[0];
             }

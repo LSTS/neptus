@@ -41,7 +41,7 @@ import java.awt.Transparency;
 import java.awt.image.BufferedImage;
 
 import pt.lsts.neptus.types.coord.LocationType;
-import pt.lsts.neptus.util.AngleCalc;
+import pt.lsts.neptus.util.AngleUtils;
 
 /**
  * This is a helper class in order to control an offscreen buffered image to be used in
@@ -187,7 +187,7 @@ public class OffScreenLayerImageControl {
             Graphics2D g3 = (Graphics2D) g.create();
 
             double[] offset = renderer.getCenter().getDistanceInPixelTo(lastCenter, renderer.getLevelOfDetail());
-            offset = AngleCalc.rotate(renderer.getRotation(), offset[0], offset[1], true);
+            offset = AngleUtils.rotate(renderer.getRotation(), offset[0], offset[1], true);
 
             g3.drawImage(cacheImg, null, (int) offset[0] - offScreenBufferPixel, (int) offset[1] - offScreenBufferPixel);
             g3.dispose();

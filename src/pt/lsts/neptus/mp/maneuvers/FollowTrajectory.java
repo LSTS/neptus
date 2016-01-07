@@ -84,7 +84,7 @@ import pt.lsts.neptus.renderer2d.StateRenderer2D;
 import pt.lsts.neptus.renderer2d.StateRendererInteraction;
 import pt.lsts.neptus.types.coord.LocationType;
 import pt.lsts.neptus.types.map.PlanElement;
-import pt.lsts.neptus.util.AngleCalc;
+import pt.lsts.neptus.util.AngleUtils;
 import pt.lsts.neptus.util.FileUtil;
 import pt.lsts.neptus.util.GuiUtils;
 
@@ -389,7 +389,7 @@ StateRendererInteraction, IMCSerialization, PathProvider {
                 bearingRad += Math.PI * 2;
 
             for (double[] pt : points) {
-                double[] ret = AngleCalc.rotate(bearingRad, pt[X], pt[Y], false);
+                double[] ret = AngleUtils.rotate(bearingRad, pt[X], pt[Y], false);
                 pt[X] = ret[X];
                 pt[Y] = ret[Y];
             }

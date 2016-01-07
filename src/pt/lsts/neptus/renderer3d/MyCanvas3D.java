@@ -63,7 +63,7 @@ import pt.lsts.neptus.types.map.HomeReferenceElement;
 import pt.lsts.neptus.types.map.MarkElement;
 import pt.lsts.neptus.types.map.TransponderElement;
 import pt.lsts.neptus.types.vehicle.VehicleType;
-import pt.lsts.neptus.util.AngleCalc;
+import pt.lsts.neptus.util.AngleUtils;
 import pt.lsts.neptus.util.ImageUtils;
 import pt.lsts.neptus.util.MathMiscUtils;
 
@@ -674,7 +674,7 @@ class MyCanvas3D extends Canvas3D {
 		scale /= 100;
 		String text = new String(scale + units);
 //		Point2d paux=new Point2d(p1.x-p2.x,p1.y-p2.y);
-		double angle=AngleCalc.calcAngle(p1.x,p1.y,p2.x,p2.y);
+		double angle=AngleUtils.calcAngle(p1.x,p1.y,p2.x,p2.y);
 		//double ang=Math.atan(m);
 		angle = Math.toDegrees(-angle + Math.PI);
 		

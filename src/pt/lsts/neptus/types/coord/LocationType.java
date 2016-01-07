@@ -44,7 +44,7 @@ import org.dom4j.Node;
 
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.types.XmlOutputMethods;
-import pt.lsts.neptus.util.AngleCalc;
+import pt.lsts.neptus.util.AngleUtils;
 import pt.lsts.neptus.util.Dom4JUtil;
 import pt.lsts.neptus.util.GuiUtils;
 import pt.lsts.neptus.util.MathMiscUtils;
@@ -888,7 +888,7 @@ public class LocationType implements XmlOutputMethods, Serializable, Comparable<
      */
     public double getXYAngle(LocationType anotherLocation) {
         double o2[] = anotherLocation.getOffsetFrom(this);
-        double ang = AngleCalc.calcAngle(0, 0, o2[1], o2[0]);
+        double ang = AngleUtils.calcAngle(0, 0, o2[1], o2[0]);
 
         if (ang < 0)
             ang += Math.PI * 2;

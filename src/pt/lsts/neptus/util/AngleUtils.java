@@ -36,22 +36,34 @@ import java.util.Vector;
 
 import javax.vecmath.Vector2d;
 
-import pt.lsts.neptus.NeptusLog;
-
 /**
+ * This class holds some Angle related utilities.
+ * 
  * @author zecarlos
  * @author RJPG
+ * @author pdias
  */
-public class AngleCalc {
-	
+public class AngleUtils {
+	/** 2Pi constant */
     public static final double TWO_PI_RADS = Math.PI * 2.0;
 
-    public static Vector<Point2D> linearizePoint2d(Vector<Point2D> points, double angleTolerance) {
+    /** To avoid initialization */
+    private AngleUtils() {
+    }
+    
+    /**
+     * This method linearizes an vector of 2D points.
+     * 
+     * @param points The points to linearize
+     * @param angleTolerance The acceptable angle to consider a straight line
+     * @return
+     */
+    public static Vector<Point2D> linearizePoint2D(Vector<Point2D> points, double angleTolerance) {
         Point2D[] aux = (Point2D[]) points.toArray(new Point2D[] {});
         Vector<Point2D> aux2 = new Vector<Point2D>();
 
-        Boolean reduce = true;
-        while (reduce) { // precessa enquanto houver reduções
+        boolean reduce = true;
+        while (reduce) { // process while there are reductions to process
             aux2 = null;
             aux2 = new Vector<Point2D>();
             reduce = false;
@@ -63,7 +75,7 @@ public class AngleCalc {
             }
 
             int i = 0;
-            while (i < nPointsProcess) { // retira os pontos (processa 3 a 3)
+            while (i < nPointsProcess) { // remove the points if considered linear (process 3 by 3)
                 Vector2d a = new Vector2d();
                 Vector2d b = new Vector2d();
 
@@ -86,7 +98,7 @@ public class AngleCalc {
                 i += 3;
             }
 
-            while (i < aux.length) { // adiciona o resto
+            while (i < aux.length) { // adds the remainder
                 aux2.add(aux[i]);
                 i++;
             }
@@ -116,6 +128,15 @@ public class AngleCalc {
         return aux2;
     }
 
+    /**
+     * Calculates the angle between two 2D points.
+     * 
+     * @param x1
+     * @param y1
+     * @param x2
+     * @param y2
+     * @return
+     */
     public static double calcAngle(double x1, double y1, double x2, double y2) {
         double dx = x2 - x1;
         double dy = y2 - y1;
@@ -149,9 +170,11 @@ public class AngleCalc {
         return -1 * (angle - (Math.PI / 2.0));
     }
     
-    /**	
-     * @param angle
-     * @return the angle between 0 and 2pi
+    /**
+     * Normalizes an angle in radians.
+     * 
+     * @param angle The angle to normalize
+     * @return The angle between 0 and 2pi
      */
     public static double nomalizeAngleRads2Pi(double angle) {
     	double ret = angle;
@@ -162,8 +185,10 @@ public class AngleCalc {
     }
 
     /**
-     * @param angle
-     * @return the angle between -pi and pi
+     * Normalizes an angle in radians.
+     * 
+     * @param angle The angle to normalize
+     * @return The angle between -pi and pi
      */
     public static double nomalizeAngleRadsPi(double angle) {
         double ret = angle;
@@ -175,8 +200,10 @@ public class AngleCalc {
     }
     
     /**	
-     * @param angle
-     * @return the angle between 0 and 360
+     * Normalizes an angle in degrees.
+     * 
+     * @param angle The angle to normalize
+     * @return The angle between 0 and 360
      */
     public static double nomalizeAngleDegrees360(double angle) {
     	double ret = angle;
@@ -187,8 +214,10 @@ public class AngleCalc {
     }
 
     /**
-     * @param angle
-     * @return the angle between -180 and 180
+     * Normalizes an angle in degrees.
+     * 
+     * @param angle The angle to normalize
+     * @return The angle between -180 and 180
      */
     public static double nomalizeAngleDegrees180(double angle) {
         double ret = angle;
@@ -201,11 +230,11 @@ public class AngleCalc {
 
     /**
      * XY Coordinate conversion considering a rotation angle.
-     * (Eduardo Marques)
-     * @param angleRadians angle
+     * 
+     * @param angleRadians Angle
      * @param x original x value on entry, rotated x value on exit.
      * @param y original y value on entry, rotated y value on exit.
-     * @param clockwiseRotation clockwiseRotation rotation or not
+     * @param clockwiseRotation ClockwiseRotation rotation or not
      */
     public static double[] rotate(double angleRadians, double x, double y, boolean clockwiseRotation) {
         double sina = Math.sin(angleRadians), cosa = Math.cos(angleRadians);
@@ -221,63 +250,41 @@ public class AngleCalc {
         return xy;
     }
 
-    
-    /*    public static void main(String[] args)
-    {
-        BufferedReader in = new BufferedReader(new InputStreamReader(System.in));
-        float x1, y1, x2, y2;
-
-        try
-        {
-            while(true)
-            {
-                System.out.print("x1: "); x1 = Float.parseFloat(in.readLine());
-                System.out.print("y1: "); y1 = Float.parseFloat(in.readLine());
-                System.out.print("x2: "); x2 = Float.parseFloat(in.readLine());
-                System.out.print("y2: "); y2 = Float.parseFloat(in.readLine());
-                double rad = calcAngle(x1,y1,x2,y2);
-                double radPi = rad / Math.PI;
-                NeptusLog.pub().info("<###>Angle: "+rad+" rad");
-                NeptusLog.pub().info("<###>Angle: "+radPi+" pi rad"); //"\u03C0"
-                NeptusLog.pub().info("<###>Angle: "+Math.toDegrees(rad)+"\u00B0");
-                NeptusLog.pub().info("<###> "+);
-            }
-        }
-        catch (Exception e) {}
-    }
-*/
-
     public static void main(String[] args) {
-		NeptusLog.pub().info("<###> "+Math.toDegrees(nomalizeAngleRads2Pi(Math.toRadians(360+120))));
-		NeptusLog.pub().info("<###> "+Math.toDegrees(nomalizeAngleRads2Pi(Math.toRadians(-120))));
-		NeptusLog.pub().info("<###> "+Math.toDegrees(nomalizeAngleRads2Pi(Math.PI*4.2)));
-		NeptusLog.pub().info("<###> "+Math.toDegrees(nomalizeAngleRads2Pi(Math.PI*3)));
+        System.out.println(Math.toDegrees(nomalizeAngleRads2Pi(Math.toRadians(360 + 120))));
+        System.out.println(Math.toDegrees(nomalizeAngleRads2Pi(Math.toRadians(-120))));
+        System.out.println(Math.toDegrees(nomalizeAngleRads2Pi(Math.PI * 4.2)));
+        System.out.println(Math.toDegrees(nomalizeAngleRads2Pi(Math.PI * 3)));
 		
-        NeptusLog.pub().info("<###> "+Math.toDegrees(calcAngle(0, 0, 1, 0)));
-        NeptusLog.pub().info("<###> "+Math.toDegrees(calcAngle(0, 0, 1, 0.2)));
+        System.out.println();
+
+        System.out.println(Math.toDegrees(calcAngle(0, 0, 1, 0)));
+        System.out.println(Math.toDegrees(calcAngle(0, 0, 1, 0.2)));
 		
-		double[] xy = rotate(Math.PI/4, 1, .2, true);
-        NeptusLog.pub().info("<###>[" + xy[0] + ", " + xy[1] + "]");
-        xy = rotate(Math.PI/4, 1, 0.2, false);
-        NeptusLog.pub().info("<###>[" + xy[0] + ", " + xy[1] + "]");
+        System.out.println();
         
+		double[] xy = rotate(Math.PI/4, 1, .2, true);
+        System.out.println("[" + xy[0] + ", " + xy[1] + "]");
+        xy = rotate(Math.PI/4, 1, 0.2, false);
+        System.out.println("[" + xy[0] + ", " + xy[1] + "]");
+        
+        System.out.println();
         
         xy = rotate(Math.toRadians(-2), 8233.212457347916, 3936.711000673984, false);
-        NeptusLog.pub().info("<###>[" + xy[0] + ", " + xy[1] + "]");
+        System.out.println("[" + xy[0] + ", " + xy[1] + "]");
         xy = rotate(Math.toRadians(-2), xy[0], xy[1], false);
-        NeptusLog.pub().info("<###>[" + xy[0] + ", " + xy[1] + "]");
+        System.out.println("[" + xy[0] + ", " + xy[1] + "]");
         xy = rotate(Math.toRadians(-2), xy[0], xy[1], false);
-        NeptusLog.pub().info("<###>[" + xy[0] + ", " + xy[1] + "]");
+        System.out.println("[" + xy[0] + ", " + xy[1] + "]");
         xy = rotate(Math.toRadians(-2), xy[0], xy[1], false);
-        NeptusLog.pub().info("<###>[" + xy[0] + ", " + xy[1] + "]");
+        System.out.println("[" + xy[0] + ", " + xy[1] + "]");
         xy = rotate(Math.toRadians(-2), xy[0], xy[1], false);
-        NeptusLog.pub().info("<###>[" + xy[0] + ", " + xy[1] + "]");
+        System.out.println("[" + xy[0] + ", " + xy[1] + "]");
         xy = rotate(Math.toRadians(-2), xy[0], xy[1], false);
-        NeptusLog.pub().info("<###>[" + xy[0] + ", " + xy[1] + "]");
+        System.out.println("[" + xy[0] + ", " + xy[1] + "]");
         xy = rotate(Math.toRadians(-2), xy[0], xy[1], false);
-        NeptusLog.pub().info("<###>[" + xy[0] + ", " + xy[1] + "]");
+        System.out.println("[" + xy[0] + ", " + xy[1] + "]");
         xy = rotate(Math.toRadians(-2), xy[0], xy[1], false);
-        NeptusLog.pub().info("<###>[" + xy[0] + ", " + xy[1] + "]");
-        
+        System.out.println("[" + xy[0] + ", " + xy[1] + "]");
 	}
 }

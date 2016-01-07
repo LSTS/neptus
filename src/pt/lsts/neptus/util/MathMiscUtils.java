@@ -134,9 +134,9 @@ public class MathMiscUtils {
         // Dilation
         for (Point2D dp : polyPoints) {
             Point2D np = new Point2D.Double();
-            double ang = AngleCalc.calcAngle(dp.getX(), dp.getY(), cX, cY);
+            double ang = AngleUtils.calcAngle(dp.getX(), dp.getY(), cX, cY);
             double dist = Math.sqrt((dp.getX() - cX) * (dp.getX() - cX) + (dp.getY() - cY) * (dp.getY() - cY));
-            double[] rotD = AngleCalc.rotate(ang + Math.PI / 2, dist + growByValue, 0, true);
+            double[] rotD = AngleUtils.rotate(ang + Math.PI / 2, dist + growByValue, 0, true);
             np.setLocation(cX + rotD[0], cY + rotD[1]);
             pointsGrow.add(np);
         }

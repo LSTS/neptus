@@ -47,7 +47,7 @@ import pt.lsts.neptus.mp.Maneuver;
 import pt.lsts.neptus.mp.preview.SpeedConversion;
 import pt.lsts.neptus.plugins.PluginProperty;
 import pt.lsts.neptus.plugins.PluginUtils;
-import pt.lsts.neptus.util.AngleCalc;
+import pt.lsts.neptus.util.AngleUtils;
 
 import com.l2fprod.common.propertysheet.DefaultProperty;
 import com.l2fprod.common.propertysheet.Property;
@@ -79,11 +79,11 @@ public class ManeuversUtil {
         
         double length = width;
         double[] pointBaseB = {-length/2., -width/2., 0, -1};
-        double[] res = AngleCalc.rotate(bearingRad, pointBaseB[X], pointBaseB[Y], false);
+        double[] res = AngleUtils.rotate(bearingRad, pointBaseB[X], pointBaseB[Y], false);
         double[] pointBase1 = new double[] {res[X], res[Y], 0, -1};
-        res = AngleCalc.rotate(bearingRad+Math.toRadians(-60), pointBaseB[X], pointBaseB[Y], false);
+        res = AngleUtils.rotate(bearingRad+Math.toRadians(-60), pointBaseB[X], pointBaseB[Y], false);
         double[] pointBase2 = {res[X], res[Y], 0, -1};
-        res = AngleCalc.rotate(bearingRad+Math.toRadians(-120), pointBaseB[X], pointBaseB[Y], false);
+        res = AngleUtils.rotate(bearingRad+Math.toRadians(-120), pointBaseB[X], pointBaseB[Y], false);
         double[] pointBase3 = {res[X], res[Y], 0, -1};
         
         Vector<double[]> points1 = calcRowsPoints(width, width, hstep, 2-alternationPercent, curvOff,
@@ -130,9 +130,9 @@ public class ManeuversUtil {
         double length = width;
         double[] pointBase1 = {-length/2., -width/2., 0, -1};
         double[] pointBase2 = {-length/2., width/2., 0, -1};
-        double[] res = AngleCalc.rotate(bearingRad, pointBase1[X], pointBase1[Y], false);
+        double[] res = AngleUtils.rotate(bearingRad, pointBase1[X], pointBase1[Y], false);
         pointBase1 = new double[] {res[X], res[Y], 0, -1};
-        res = AngleCalc.rotate(bearingRad, pointBase2[X], pointBase2[Y], false);
+        res = AngleUtils.rotate(bearingRad, pointBase2[X], pointBase2[Y], false);
         pointBase2 = new double[] {res[X], res[Y], 0, -1};
 
         Vector<double[]> points1 = calcRowsPoints(width, width, hstep, 1, curvOff,
@@ -225,12 +225,12 @@ public class ManeuversUtil {
             }
         }
         for (double[] pt : newPoints) {
-            double[] res = AngleCalc.rotate(-crossAngleRadians, pt[X], 0, false);
+            double[] res = AngleUtils.rotate(-crossAngleRadians, pt[X], 0, false);
             pt[X] = res[0];
             pt[Y] = pt[Y] + res[1];
             if (invertY)
                 pt[Y] = -pt[Y];
-            res = AngleCalc.rotate(bearingRad + (!invertY ? -1 : 1) * -crossAngleRadians, pt[X], pt[Y], false);
+            res = AngleUtils.rotate(bearingRad + (!invertY ? -1 : 1) * -crossAngleRadians, pt[X], pt[Y], false);
             pt[X] = res[0];
             pt[Y] = res[1];
         }
@@ -372,7 +372,7 @@ public class ManeuversUtil {
         double mult = !invertY ? 1 : -1;
         GeneralPath sp = new GeneralPath();
         sp.moveTo(x0 * zoom, y0 * zoom);
-        double[] resT = AngleCalc.rotate(-crossAngleRadians, length, 0, false);
+        double[] resT = AngleUtils.rotate(-crossAngleRadians, length, 0, false);
         sp.lineTo(x0 * zoom + resT[0] * zoom, mult * (y0 * zoom + resT[1] * zoom));
 //        resT = AngleCalc.rotate(crossAngleRadians, length, 0, false);
         sp.lineTo(x0 * zoom + resT[0] * zoom, mult * (y0 * zoom + (width + resT[1]) * zoom));

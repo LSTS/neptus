@@ -61,7 +61,7 @@ import pt.lsts.neptus.types.coord.LocationType;
 import pt.lsts.neptus.types.mission.MissionType;
 import pt.lsts.neptus.types.mission.plan.PlanType;
 import pt.lsts.neptus.types.vehicle.VehicleType;
-import pt.lsts.neptus.util.AngleCalc;
+import pt.lsts.neptus.util.AngleUtils;
 import pt.lsts.neptus.util.GuiUtils;
 import pt.lsts.neptus.util.conf.ConfigFetch;
 import pt.lsts.neptus.util.conf.GeneralPreferences;
@@ -662,7 +662,7 @@ public class PlanElement extends AbstractElement implements Renderer2DPainter, P
                 LocatedManeuver satellite = (LocatedManeuver) m;
                 double[] top = center.getManeuverLocation().getDistanceInPixelTo(satellite.getManeuverLocation(),
                         MapTileUtil.LEVEL_OFFSET);
-                double[] topR = AngleCalc.rotate(2 * ammount, top[0], top[1], false);
+                double[] topR = AngleUtils.rotate(2 * ammount, top[0], top[1], false);
                 double deltaX = topR[0]; // distPx * Math.cos(anglePx);
                 double deltaY = topR[1]; // distPx * Math.sin(anglePx);
                 ManeuverLocation lt = new ManeuverLocation(center.getManeuverLocation());

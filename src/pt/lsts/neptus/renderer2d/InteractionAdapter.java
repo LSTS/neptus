@@ -56,7 +56,7 @@ import pt.lsts.neptus.console.ConsolePanel;
 import pt.lsts.neptus.gui.ToolbarSwitch;
 import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.types.coord.LocationType;
-import pt.lsts.neptus.util.AngleCalc;
+import pt.lsts.neptus.util.AngleUtils;
 import pt.lsts.neptus.util.FileUtil;
 import pt.lsts.neptus.util.GuiUtils;
 import pt.lsts.neptus.util.ImageUtils;
@@ -193,7 +193,7 @@ public class InteractionAdapter extends ConsolePanel implements StateRendererInt
                 if (!event.isControlDown()) {
                     double deltaX = -source.getWidth() / 16.0, deltaY = 0;
                     if (source.getRotation() != 0) {
-                        double[] offsets = AngleCalc.rotate(source.getRotation(), deltaX, deltaY, false);
+                        double[] offsets = AngleUtils.rotate(source.getRotation(), deltaX, deltaY, false);
                         deltaX = offsets[0];
                         deltaY = offsets[1];
                     }
@@ -209,7 +209,7 @@ public class InteractionAdapter extends ConsolePanel implements StateRendererInt
                 if (!event.isControlDown()) {
                     double deltaX = source.getWidth() / 16.0, deltaY = 0;
                     if (source.getRotation() != 0) {
-                        double[] offsets = AngleCalc.rotate(source.getRotation(), deltaX, deltaY, false);
+                        double[] offsets = AngleUtils.rotate(source.getRotation(), deltaX, deltaY, false);
                         deltaX = offsets[0];
                         deltaY = offsets[1];
                     }
@@ -226,7 +226,7 @@ public class InteractionAdapter extends ConsolePanel implements StateRendererInt
                 double deltaXU = 0,
                 deltaYU = -source.getHeight() / 16.0;
                 if (source.getRotation() != 0) {
-                    double[] offsets = AngleCalc.rotate(source.getRotation(), deltaXU, deltaYU, false);
+                    double[] offsets = AngleUtils.rotate(source.getRotation(), deltaXU, deltaYU, false);
                     deltaXU = offsets[0];
                     deltaYU = offsets[1];
                 }
@@ -239,7 +239,7 @@ public class InteractionAdapter extends ConsolePanel implements StateRendererInt
                 double deltaXD = 0,
                 deltaYD = source.getHeight() / 16.0;
                 if (source.getRotation() != 0) {
-                    double[] offsets = AngleCalc.rotate(source.getRotation(), deltaXD, deltaYD, false);
+                    double[] offsets = AngleUtils.rotate(source.getRotation(), deltaXD, deltaYD, false);
                     deltaXD = offsets[0];
                     deltaYD = offsets[1];
                 }

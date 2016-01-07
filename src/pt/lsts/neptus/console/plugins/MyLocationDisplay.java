@@ -87,7 +87,7 @@ import pt.lsts.neptus.types.map.MapType;
 import pt.lsts.neptus.types.map.MarkElement;
 import pt.lsts.neptus.types.mission.MapMission;
 import pt.lsts.neptus.types.mission.MissionType;
-import pt.lsts.neptus.util.AngleCalc;
+import pt.lsts.neptus.util.AngleUtils;
 import pt.lsts.neptus.util.DateTimeUtil;
 import pt.lsts.neptus.util.GuiUtils;
 import pt.lsts.neptus.util.ImageUtils;
@@ -325,11 +325,11 @@ public class MyLocationDisplay extends ConsolePanel implements IPeriodicUpdates,
         }
         
         if (updateLocation && updateHeading)
-            MyState.setLocationAndAxis(newLocation, AngleCalc.nomalizeAngleDegrees360(newHeadingDegrees));
+            MyState.setLocationAndAxis(newLocation, AngleUtils.nomalizeAngleDegrees360(newHeadingDegrees));
         else if (updateLocation)
             MyState.setLocation(newLocation);
         else if (updateHeading)
-            MyState.setHeadingInDegrees(AngleCalc.nomalizeAngleDegrees360(newHeadingDegrees));
+            MyState.setHeadingInDegrees(AngleUtils.nomalizeAngleDegrees360(newHeadingDegrees));
 
         return true;
     }
@@ -709,7 +709,7 @@ public class MyLocationDisplay extends ConsolePanel implements IPeriodicUpdates,
                     while (!validValue) {
                         String res = JOptionPane.showInputDialog(getConsole(),
                                 I18n.text("Introduce the angle offset from system to use heading from (clockwise positive angle)"),
-                                Double.valueOf(AngleCalc.nomalizeAngleDegrees180(followHeadingOfAngleOffset))
+                                Double.valueOf(AngleUtils.nomalizeAngleDegrees180(followHeadingOfAngleOffset))
                                         .shortValue());
                         if (res == null)
                             return;
@@ -781,7 +781,7 @@ public class MyLocationDisplay extends ConsolePanel implements IPeriodicUpdates,
                     while (!validValue) {
                         String res = JOptionPane.showInputDialog(getConsole(),
                                 I18n.text("Introduce the angle offset from front to derived heading (clockwise positive angle)"),
-                                Double.valueOf(AngleCalc.nomalizeAngleDegrees180(angleOffsetFromFrontToDerivedHeading))
+                                Double.valueOf(AngleUtils.nomalizeAngleDegrees180(angleOffsetFromFrontToDerivedHeading))
                                         .shortValue());
                         if (res == null)
                             return;
@@ -801,7 +801,7 @@ public class MyLocationDisplay extends ConsolePanel implements IPeriodicUpdates,
                     while (!validValue) {
                         String res = JOptionPane.showInputDialog(getConsole(),
                                 I18n.text("Introduce the angle offset from front to where the operator is looking (clockwise positive angle)"),
-                                Double.valueOf(AngleCalc.nomalizeAngleDegrees180(angleOffsetFromFrontToWhereTheOperatorIsLooking))
+                                Double.valueOf(AngleUtils.nomalizeAngleDegrees180(angleOffsetFromFrontToWhereTheOperatorIsLooking))
                                         .shortValue());
                         if (res == null)
                             return;
