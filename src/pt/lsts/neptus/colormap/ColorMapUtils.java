@@ -54,8 +54,8 @@ import pt.lsts.neptus.ws.Location;
 
 public class ColorMapUtils {
 
-    public static final int POWER = 4;
-    public static final int K_NEIGHBORS = 6;
+    public static final int POWER = 2;
+    public static final int K_NEIGHBORS = 25000;
     
     
     static class NeighborDistance implements Comparable<NeighborDistance> {
