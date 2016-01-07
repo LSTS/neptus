@@ -128,24 +128,15 @@ public class PluginsLoader {
                 }
             }
             catch (IOException e) {
-                // TODO Auto-generated catch block
                 e.printStackTrace();
             }
-//            
-//            Reflections r = new Reflections("pt.lsts.neptus.plugins");
-//            
-//            for (Class<?> c : r.getTypesAnnotatedWith(PluginDescription.class)) {
-//                PluginsRepository.addPlugin(c.getName());
-//            }
         }
-
     }
 
     /**
      * Loads core plugins inside the src folder in the "pt.lsts.neptus.console.plugins" package
      */
     private static void loadCorePlugins() {
-
         for (String pkg : new String[] {"pt.lsts.neptus.console.plugins", "pt.lsts.neptus.mra"}) {
             Reflections reflections = new Reflections(pkg);
             for (Class<?> c : reflections.getTypesAnnotatedWith(PluginDescription.class)) {
@@ -164,7 +155,6 @@ public class PluginsLoader {
             return jars;
         }
         catch (IOException e) {
-            // TODO Auto-generated catch block
             e.printStackTrace();
         }
         return null;
@@ -181,7 +171,6 @@ public class PluginsLoader {
 
         }
         catch (IOException e) {
-            // TODO Auto-generated catch block
             e.printStackTrace();
         }
         return null;
