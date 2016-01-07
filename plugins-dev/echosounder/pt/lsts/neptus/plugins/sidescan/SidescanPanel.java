@@ -596,8 +596,11 @@ public class SidescanPanel extends JPanel implements MouseListener, MouseMotionL
 
         // Mouse center indicator
         g.setColor(ColorUtils.setTransparencyToColor(Color.CYAN, 180));
-        g.drawRect(image.getWidth() - (ZOOM_LAYER_BOX_SIZE / 2 + 1) - 3, image.getHeight() - (ZOOM_LAYER_BOX_SIZE / 2 + 1) - 3, 6, 6);
-        
+        int xBullseye = image.getWidth() - (ZOOM_LAYER_BOX_SIZE / 2 + 1) - 3;
+        if (mouseX > (image.getWidth() / 2))
+            xBullseye = (ZOOM_LAYER_BOX_SIZE / 2 + 1) - 3;
+        g.drawRect(xBullseye, image.getHeight() - (ZOOM_LAYER_BOX_SIZE / 2 + 1) - 3, 6, 6);
+            
         g.dispose();
     }
 
