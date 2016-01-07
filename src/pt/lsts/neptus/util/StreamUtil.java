@@ -47,15 +47,15 @@ import pt.lsts.neptus.util.conf.ConfigFetch;
  */
 public class StreamUtil {
 
-    /**
-     * 
-     */
+    /** To avoid instantiation */
     private StreamUtil() {
         super();
     }
 
     /**
+     * Copies an input stream to the output stream until end of stream. 
      * This won't close the streams!! You have to close them.
+     * 
      * @param inStream
      * @param outStream
      * @return
@@ -83,22 +83,19 @@ public class StreamUtil {
             		break;
             	}
             }
-            // outStream.close(); //pdias - Tacking back again because some operations that use this don't want the stream closed 
             return true;
         }
         catch (IOException e) {
             NeptusLog.waste().error("copyStreamToStream", e);
-            //e.printStackTrace();
-//            try {
-//				outStream.close(); //pdias - Tacking back again because some operations that use this don't want the stream closed
-//			} catch (IOException e1) {
-//			}
             return false;
         }
     }
 
     
     /**
+     * Copies an input stream to a string until end of stream. 
+     * This won't close the stream!! You have to close them.
+     * 
      * @param inStream
      * @return
      */
@@ -110,7 +107,10 @@ public class StreamUtil {
     }
 
     /**
+     * Copies an input stream to a file until end of stream. 
      * This won't close the stream!! You have to close them.
+     * This will overwrite the file.
+     * 
      * @param inStream
      * @param outFile
      * @return
@@ -121,7 +121,9 @@ public class StreamUtil {
 
     
     /**
+     * Copies an input stream to a file until end of stream. 
      * This won't close the stream!! You have to close them.
+     * 
      * @param inStream
      * @param outFile
      * @param append 
@@ -148,8 +150,10 @@ public class StreamUtil {
         }
     }
     
-    
     /**
+     * Copies an input stream to a temporary file until end of stream. 
+     * This won't close the stream!! You have to close them.
+     * 
      * @param inStream
      * @return
      */
@@ -171,24 +175,19 @@ public class StreamUtil {
         }
     }
 
-	/**
-	 * Works similarly to {@link InputStream} but ensures that len is read,
-	 * or returns -1 if EOS.
-	 * @see {@link InputStream}
-	 * @param      in    the InputStream to read from.
-     * @param      b     the buffer into which the data is read.
-     * @param      off   the start offset in array <code>b</code>
-     *                   at which the data is written.
-     * @param      len   the maximum number of bytes to read.
-     * @return     the total number of bytes read into the buffer, or
-     *             <code>-1</code> if there is no more data because the end of
-     *             the stream has been reached.
-	 * @param b
-	 * @param off
-	 * @param len
-	 * @return the total number of bytes read into the buffer, or -1 if there is no more data because the end of the stream has been reached.
-	 * @throws IOException
-	 */
+    /**
+     * Works similarly to {@link InputStream} but ensures that len is read, or returns -1 if EOS.
+     * 
+     * @see {@link InputStream}
+     * 
+     * @param in the InputStream to read from.
+     * @param b the buffer into which the data is read.
+     * @param off the start offset in array <code>b</code> at which the data is written.
+     * @param len The maximum number of bytes to read.
+     * @return The total number of bytes read into the buffer, or <code>-1</code> if there is no more data because the
+     *         end of the stream has been reached.
+     * @throws IOException
+     */
 	public static int ensureRead (InputStream in, byte[] b, int off, int len) throws IOException {
 		int actualRead = 0;
 		int ret = in.read(b, off, len);
