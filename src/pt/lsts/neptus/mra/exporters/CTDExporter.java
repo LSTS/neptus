@@ -56,7 +56,6 @@ import pt.lsts.neptus.mp.SystemPositionAndAttitude;
 import pt.lsts.neptus.mra.api.CorrectedPosition;
 import pt.lsts.neptus.mra.importers.IMraLogGroup;
 import pt.lsts.neptus.plugins.PluginDescription;
-import pt.lsts.neptus.plugins.PluginUtils;
 import pt.lsts.neptus.types.coord.LocationType;
 import pt.lsts.neptus.util.conf.ConfigFetch;
 import pt.lsts.neptus.util.llf.LsfLogSource;
@@ -76,11 +75,6 @@ public class CTDExporter implements MRAExporter {
     public boolean canBeApplied(IMraLogGroup source) {
         return source.getLsfIndex().getEntityId("CTD") != -1;
     };
-
-    @Override
-    public String getName() {
-        return PluginUtils.getPluginDescription(getClass());
-    }
 
     private String finish(BufferedWriter writer, int count) {
         try {

@@ -57,7 +57,7 @@ import pt.lsts.neptus.plugins.PluginUtils;
  * @author zp
  *
  */
-@PluginDescription
+@PluginDescription(name="Sidescan Images")
 public class SidescanImageExporter implements MRAExporter {
 
     SidescanParser parser = null;
@@ -212,10 +212,4 @@ public class SidescanImageExporter implements MRAExporter {
         }
         return I18n.textf("%num images were exported to %path.", image_num, out.getAbsolutePath());
     }    
-
-    @Override
-    public String getName() {
-        return "Sidescan Images";
-    }
-
 }

@@ -96,7 +96,7 @@ import pt.lsts.util.WGS84Utilities;
 /**
  * @author zp
  */
-@PluginDescription
+@PluginDescription(name="Export to KML")
 public class KMLExporter implements MRAExporter {
     public double minHeight = 1000;
     public double maxHeight = -1;
@@ -156,12 +156,7 @@ public class KMLExporter implements MRAExporter {
     public KMLExporter(IMraLogGroup source) {
         this.source = source;
     }
-
-    @Override
-    public String getName() {
-        return I18n.text("Export to KML");
-    }
-
+    
     @Override
     public boolean canBeApplied(IMraLogGroup source) {
         return true;

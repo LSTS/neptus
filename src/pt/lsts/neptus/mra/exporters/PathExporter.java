@@ -134,9 +134,4 @@ public class PathExporter implements MRAExporter {
         double[] offsets = loc.getOffsetFrom(homeref);
         writer.write(String.format(Locale.US, "%.3f, %.2f, %.2f, %.2f\n", pose.getTime()/1000.0, offsets[0], offsets[1], -loc.getDepth()));        
     }
-
-    @Override
-    public String getName() {
-        return "XYZ Path Exporter";
-    }
 }

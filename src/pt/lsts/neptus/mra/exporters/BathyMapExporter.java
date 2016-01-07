@@ -100,11 +100,6 @@ public class BathyMapExporter implements MRAExporter {
     }
 
     @Override
-    public String getName() {
-        return PluginUtils.getPluginDescription(getClass());
-    }
-
-    @Override
     public String process(IMraLogGroup source, ProgressMonitor pmonitor) {
 
         // Ask setting map parameters

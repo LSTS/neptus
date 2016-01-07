@@ -42,7 +42,6 @@ import pt.lsts.imc.EstimatedState;
 import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.mra.importers.IMraLogGroup;
 import pt.lsts.neptus.plugins.PluginDescription;
-import pt.lsts.neptus.plugins.PluginUtils;
 import pt.lsts.neptus.util.MathMiscUtils;
 import pt.lsts.neptus.util.bathymetry.TidePredictionFactory;
 import pt.lsts.neptus.util.bathymetry.TidePredictionFinder;
@@ -63,11 +62,6 @@ public class TideTidExporter implements MRAExporter {
     public TideTidExporter(IMraLogGroup source) {
     }
 
-    @Override
-    public String getName() {
-        return PluginUtils.getPluginName(this.getClass());
-    }
-    
     @Override
     public boolean canBeApplied(IMraLogGroup source) {
         boolean ret = source.getLsfIndex().containsMessagesOfType("EstimatedState");        

@@ -145,6 +145,11 @@ public class PluginUtils {
         PluginDescription pd = clazz.getAnnotation(PluginDescription.class);
         return pd != null && pd.active();
     }
+    
+    public static boolean isPluginExperimental(Class<?> clazz) {
+        PluginDescription pd = clazz.getAnnotation(PluginDescription.class);
+        return pd != null && pd.experimental();
+    }
 
     /**
      * Retrieves the filename of the icon to be used for this plugin as stated in the {@link PluginDescription}

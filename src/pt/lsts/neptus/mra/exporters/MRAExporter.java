@@ -53,11 +53,5 @@ public interface MRAExporter {
      * @param pmonitor TODO
      * @return The result of the process (to be shown to the user)
      */
-    public String process(IMraLogGroup source, ProgressMonitor pmonitor);
-    
-    /**
-     * Return the name that will be shown on Exporters menu 
-     * @return the name string
-     */
-    public String getName();
+    public String process(IMraLogGroup source, ProgressMonitor pmonitor);   
 }

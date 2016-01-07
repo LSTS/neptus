@@ -58,7 +58,7 @@ import pt.lsts.neptus.util.VideoCreator;
 /**
  * @author zp
  */
-@PluginDescription
+@PluginDescription(name="Video Legend")
 public class VideoLegendExporter implements MRAExporter {
 
     private static final int width = 120, height = 140;
@@ -164,10 +164,5 @@ public class VideoLegendExporter implements MRAExporter {
             legendWidth = maxSize;
         }
         return legendWidth;
-    }
-    
-    @Override
-    public String getName() {
-        return "Video Legend";
     }
 }

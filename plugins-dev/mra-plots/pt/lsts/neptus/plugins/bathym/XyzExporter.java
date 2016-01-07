@@ -118,11 +118,6 @@ public class XyzExporter implements MRAExporter {
     }
 
     @Override
-    public String getName() {
-        return PluginUtils.getLocalizedPluginName(this.getClass());
-    }
-
-    @Override
     public boolean canBeApplied(IMraLogGroup source) {
         return source.getLsfIndex().containsMessagesOfType("EstimatedState");        
     }

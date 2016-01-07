@@ -67,7 +67,7 @@ import com.jmatio.types.MLUInt8;
  * @author pdias
  * @author jqcorreia
  */
-@PluginDescription
+@PluginDescription(name="MatLab format .MAT")
 public class MatExporter implements MRAExporter {
     @NeptusProperty(editable = false)
     private static final int MAX_PLAINTEXT_RAWDATA_LENGHT = 256; //256; 0xFFFF
@@ -397,11 +397,6 @@ public class MatExporter implements MRAExporter {
                 ((MLChar) fieldMap.get(field)).set(val == null ? "" : val, indexToInsert);
                 break;
         }
-    }
-
-    @Override
-    public String getName() {
-        return I18n.text("MatLab format .MAT");
     }
 
     public static void main(String[] args) throws Exception {

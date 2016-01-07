@@ -43,7 +43,6 @@ import pt.lsts.imc.lsf.LsfIndex;
 import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.mra.importers.IMraLogGroup;
 import pt.lsts.neptus.plugins.PluginDescription;
-import pt.lsts.neptus.plugins.PluginUtils;
 import pt.lsts.neptus.util.tid.TidWriter;
 
 /**
@@ -65,14 +64,6 @@ public class DepthToTidExporter implements MRAExporter {
     private TidWriter tidWriter;
     
     public DepthToTidExporter(IMraLogGroup source) {
-    }
-
-    /* (non-Javadoc)
-     * @see pt.lsts.neptus.mra.exporters.MRAExporter#getName()
-     */
-    @Override
-    public String getName() {
-        return PluginUtils.getPluginName(this.getClass());
     }
     
     @Override

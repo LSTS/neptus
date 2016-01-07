@@ -87,8 +87,7 @@ import pt.lsts.neptus.util.GuiUtils;
  * @author Manuel R.
  *
  */
-@PluginDescription
-
+@PluginDescription(name="Export filtered log")
 public class MRAExporterFilter implements MRAExporter {
 
     private IMraLogGroup source;
@@ -184,12 +183,6 @@ public class MRAExporterFilter implements MRAExporter {
         return ((progress == 100 ) && (!pmonitor.isCanceled()) ? I18n.text("Exported filtered log successfully.") : I18n.text("Filtered log not exported successfully."));
 
     }
-
-    @Override
-    public String getName() {
-        return I18n.text("Export filtered log");
-    }
-
 
     private void applyFilter(FilterList filter) {
         LsfIndex index = source.getLsfIndex();

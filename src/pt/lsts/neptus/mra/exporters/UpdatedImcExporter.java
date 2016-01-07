@@ -51,7 +51,7 @@ import pt.lsts.neptus.util.FileUtil;
  * @author zp
  *
  */
-@PluginDescription
+@PluginDescription(name="Log using updated IMC")
 public class UpdatedImcExporter implements MRAExporter {
 
     public UpdatedImcExporter(IMraLogGroup source) {       
@@ -102,11 +102,4 @@ public class UpdatedImcExporter implements MRAExporter {
         }
         return "Log writen to "+out.getAbsolutePath();
     }
-
-    @Override
-    public String getName() {
-        return "Log using IMC "+IMCDefinition.getInstance().getVersion();
-    }
-
-
 }

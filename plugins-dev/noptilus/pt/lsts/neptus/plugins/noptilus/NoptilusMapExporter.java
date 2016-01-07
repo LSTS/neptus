@@ -68,7 +68,7 @@ import convcao.com.agent.NoptilusCoords;
  * @author zp
  *
  */
-@PluginDescription
+@PluginDescription(name="Noptilus Normalized map", experimental=true)
 public class NoptilusMapExporter implements MRAExporter, PropertiesProvider {
 
     NoptilusCoords coords = new NoptilusCoords();
@@ -255,8 +255,4 @@ public class NoptilusMapExporter implements MRAExporter, PropertiesProvider {
         PluginUtils.setPluginProperties(coords, properties);
     }
 
-    @Override
-    public String getName() {
-        return "Normalized map";
-    }
 }

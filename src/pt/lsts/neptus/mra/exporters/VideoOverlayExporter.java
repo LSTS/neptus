@@ -42,6 +42,13 @@ import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.ProgressMonitor;
 
+import com.xuggle.mediatool.IMediaReader;
+import com.xuggle.mediatool.IMediaTool;
+import com.xuggle.mediatool.IMediaWriter;
+import com.xuggle.mediatool.MediaToolAdapter;
+import com.xuggle.mediatool.ToolFactory;
+import com.xuggle.mediatool.event.IVideoPictureEvent;
+
 import pt.lsts.imc.EstimatedState;
 import pt.lsts.imc.Temperature;
 import pt.lsts.imc.lsf.IndexScanner;
@@ -52,18 +59,11 @@ import pt.lsts.neptus.mra.replay.MraVehiclePosHud;
 import pt.lsts.neptus.types.coord.LocationType;
 import pt.lsts.neptus.util.GuiUtils;
 
-import com.xuggle.mediatool.IMediaReader;
-import com.xuggle.mediatool.IMediaTool;
-import com.xuggle.mediatool.IMediaWriter;
-import com.xuggle.mediatool.MediaToolAdapter;
-import com.xuggle.mediatool.ToolFactory;
-import com.xuggle.mediatool.event.IVideoPictureEvent;
-
 /**
  * @author zp
  *
  */
-// @PluginDescription
+//@PluginDescription(name="Video Overlay")
 public class VideoOverlayExporter implements MRAExporter {
 
     @Override
@@ -116,11 +116,6 @@ public class VideoOverlayExporter implements MRAExporter {
         }
 
         return "done";
-    }
-
-    @Override
-    public String getName() {
-        return "Video Overlay";
     }
 
     static class TimeStampTool extends MediaToolAdapter {

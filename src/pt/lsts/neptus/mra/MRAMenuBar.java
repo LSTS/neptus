@@ -38,6 +38,8 @@ import java.awt.event.ActionListener;
 import java.io.File;
 import java.lang.reflect.Constructor;
 import java.net.URI;
+import java.text.Collator;
+import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -611,7 +613,9 @@ public class MRAMenuBar {
         LinkedHashMap<String, Class<? extends MRAExporter>> exporterMap = PluginsRepository
                 .listExtensions(MRAExporter.class);
 
-        Vector<MRAExporter> exporterList = new Vector<>();
+        LinkedHashMap<String, MRAExporter> exporters = new LinkedHashMap<>();
+        
+        //Vector<MRAExporter> exporterList = new Vector<>();
 
         for (Class<? extends MRAExporter> clazz : exporterMap.values()) {
             Constructor<?>[] constructors = clazz.getConstructors();
@@ -621,7 +625,7 @@ public class MRAMenuBar {
             for (Constructor<?> c : constructors) {
                 if (c.getParameterTypes().length == 1 && c.getParameterTypes()[0].equals(IMraLogGroup.class)) {
                     try {
-                        exporterList.add(clazz.getConstructor(IMraLogGroup.class).newInstance(new Object[] { source }));
+                        exporters.put(PluginUtils.getPluginI18nName(clazz), clazz.getConstructor(IMraLogGroup.class).newInstance(new Object[] { source }));
                     }
                     catch (Exception e) {                        
                         e.printStackTrace();
@@ -632,7 +636,7 @@ public class MRAMenuBar {
             
             if (!added) {
                 try {
-                    exporterList.add(clazz.newInstance());
+                    exporters.put(PluginUtils.getPluginI18nName(clazz), clazz.newInstance());
                     added = true;
                 }
                 catch (Exception e) { }                
@@ -648,21 +652,29 @@ public class MRAMenuBar {
             toolsMenu.remove(getExportersMenu());
 
         setExportersMenu(new JMenu(I18n.text("Exporters")));
+        JMenu experimental = new JMenu(I18n.text("Experimental"));
         getExportersMenu().setIcon(ImageUtils.getIcon("images/menus/export.png"));
         getExportersMenu().setToolTipText(I18n.text("Export data to") + "...");
-        for (final MRAExporter exp : exporterList) {
+        
+        
+        Vector<String> names = new Vector<>();
+        names.addAll(exporters.keySet());
+        Collections.sort(names, Collator.getInstance());
+        
+        for (String name : names) {
+            final MRAExporter exp = exporters.get(name);
             if (exp.canBeApplied(source)) {
-                JMenuItem item = new JMenuItem(new AbstractAction(exp.getName()) {
+                JMenuItem item = new JMenuItem(new AbstractAction(name) {
                     @Override
                     public void actionPerformed(ActionEvent e) {
-                        Thread t = new Thread(exp.getName() + " processing") {
+                        Thread t = new Thread(name + " processing") {
                             @Override
                             public void run() {
-                                ProgressMonitor monitor = new ProgressMonitor(mra.getMraPanel(), exp.getName(), "", 0, 100);
+                                ProgressMonitor monitor = new ProgressMonitor(mra.getMraPanel(), name, "", 0, 100);
                                 monitor.setProgress(0);
                                 String res = exp.process(source, monitor);
                                 if (res != null)
-                                    GuiUtils.infoMessage(mra.getMraPanel(), exp.getName(), res);
+                                    GuiUtils.infoMessage(mra.getMraPanel(), name, res);
                                 monitor.close();
                             };
                         };
@@ -671,7 +683,11 @@ public class MRAMenuBar {
                     }
                 });
                 item.setIcon(ImageUtils.getIcon("images/menus/export.png"));
-                getExportersMenu().add(item);
+                
+                if (PluginUtils.isPluginExperimental(exp.getClass()))
+                    experimental.add(item);
+                else
+                    getExportersMenu().add(item);
             }
         }
 
@@ -680,6 +696,8 @@ public class MRAMenuBar {
                 toolsMenu.addSeparator();
                 isExportersAdded = true;
             }
+            if (experimental.getItemCount() > 0)
+                getExportersMenu().add(experimental);
             toolsMenu.add(getExportersMenu());
         }
     }

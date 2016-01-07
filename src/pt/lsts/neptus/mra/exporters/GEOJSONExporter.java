@@ -43,7 +43,6 @@ import javax.swing.ProgressMonitor;
 import pt.lsts.imc.IMCMessage;
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.comm.IMCUtils;
-import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.mra.importers.IMraLogGroup;
 import pt.lsts.neptus.plugins.PluginDescription;
 import pt.lsts.neptus.types.coord.LocationType;
@@ -56,7 +55,7 @@ import pt.lsts.util.WGS84Utilities;
 /**
  * @author Mauro Brandão
  */
-@PluginDescription
+@PluginDescription(name="Export to GeoJson")
 public class GEOJSONExporter implements MRAExporter {
 
     public double minHeight = 1000;
@@ -68,11 +67,6 @@ public class GEOJSONExporter implements MRAExporter {
     
     public GEOJSONExporter(IMraLogGroup source) {
         this.source = source;
-    }
-
-    @Override
-    public String getName() {
-        return I18n.text("Export to GeoJson");
     }
 
     @Override

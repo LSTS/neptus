@@ -52,7 +52,7 @@ import pt.lsts.neptus.util.GuiUtils;
  * @author zp
  * 
  */
-@PluginDescription
+@PluginDescription(name="Export to CSV")
 public class CSVExporter implements MRAExporter {
 
     IMraLogGroup source;
@@ -145,10 +145,5 @@ public class CSVExporter implements MRAExporter {
         }
 
         return I18n.text("Process complete");
-    }
-
-    @Override
-    public String getName() {
-        return I18n.text("Export to CSV");
     }
 }

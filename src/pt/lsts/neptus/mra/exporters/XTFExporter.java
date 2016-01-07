@@ -53,7 +53,7 @@ import pt.lsts.neptus.mra.importers.IMraLogGroup;
  * @author jqcorreia
  *
  */
-//@PluginDescription
+//@PluginDescription(name="XTF Exporter")
 public class XTFExporter implements MRAExporter {
     IMraLogGroup source;
     BathymetryParser parser = null;
@@ -137,9 +137,4 @@ public class XTFExporter implements MRAExporter {
             buf.put((byte) c);
         }
     }
-    
-    @Override
-    public String getName() {
-        return I18n.text("XTF Exporter");
-    }   
 }
