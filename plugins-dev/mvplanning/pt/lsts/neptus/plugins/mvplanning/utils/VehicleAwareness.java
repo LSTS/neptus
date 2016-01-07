@@ -106,49 +106,4 @@ public class VehicleAwareness {
         }
         System.out.println("\n");
     }
-
-
-    private class VehicleInfo {
-        private String vId;
-        private ArrayList<String> capabilities;
-
-        /* Properties variables */
-        private final Scope scope = Scope.GLOBAL;
-        private final Visibility vis = Visibility.USER;
-
-        public VehicleInfo(String id) {
-            vId = id;
-            capabilities = getVehicleCapabilities(vId);
-        }
-
-        public String vehicleId() {
-            return vId;
-        }
-
-        public ArrayList<String> getVehicleCapabilities(String vId) {
-            ArrayList<SystemProperty> prList = ConfigurationManager.getInstance().getProperties(vId, vis, scope);
-            ArrayList<String> capabilities = new ArrayList<String>(prList.size());
-            for(SystemProperty pr : prList) {
-                String cap = pr.getCategory();
-                if(!capabilities.contains(cap))
-                    capabilities.add(cap);
-            }
-
-            return capabilities;
-        }
-
-        public ArrayList<String> vehicleCapabilities() {
-            return capabilities;
-        }
-
-        public boolean hasCapabilities(LinkedList<String> neededCapabilities) {
-            return capabilities.containsAll(neededCapabilities);
-        }
-        
-        /* for debugging */
-        public void printCapabilities() {
-            for(String cap : capabilities)
-                System.out.println("-> " + cap);
-        }
-    }
 }
