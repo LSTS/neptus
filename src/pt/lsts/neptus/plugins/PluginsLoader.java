@@ -78,35 +78,44 @@ public class PluginsLoader {
         if (ConfigFetch.getRunEnvironment() == Environment.PRODUCTION) {
             List<Path> pluginsJars = findJars();
 
-            for (Path jar : pluginsJars) {
-                try {
-                    addToSysClassLoader(jar.toUri().toURL());
-                    FindPlugins plugins = new FindPlugins();
-                    FileSystem zipFileSystem = createZipFileSystem(jar.toAbsolutePath().toString(), false);
-                    final Path root = zipFileSystem.getPath("/");
-                    Files.walkFileTree(root, plugins);
-                    List<Path> pluginsLST = plugins.getPlugins();
-                    for (Path lst : pluginsLST) {
-                        loadPluginFromLST(lst);
+            try {
+                for (Path jar : pluginsJars) {
+                    try {
+                        addToSysClassLoader(jar.toUri().toURL());
+                        FindPlugins plugins = new FindPlugins();
+                        FileSystem zipFileSystem = createZipFileSystem(jar.toAbsolutePath().toString(), false);
+                        final Path root = zipFileSystem.getPath("/");
+                        Files.walkFileTree(root, plugins);
+                        List<Path> pluginsLST = plugins.getPlugins();
+                        for (Path lst : pluginsLST) {
+                            loadPluginFromLST(lst);
+                        }
+                    }
+                    catch (Exception e) {
+                        NeptusLog.pub().error("Error loading plugin from jars", e);
                     }
                 }
-                catch (Exception e) {
-                    NeptusLog.pub().error("Error loading plugins from jars", e);
-                }
+            }
+            catch (Exception e) {
+                NeptusLog.pub().error("Error getting plugins from jars", e);
             }
         }
 
         if (ConfigFetch.getRunEnvironment() == Environment.DEVELOPMENT) {
             List<Path> externalJars = findExternalPluginsJars();
 
-            for (Path jar : externalJars) {
-                try {
-                    addToSysClassLoader(jar.toUri().toURL());
+            try {
+                for (Path jar : externalJars) {
+                    try {
+                        addToSysClassLoader(jar.toUri().toURL());
+                    }
+                    catch (Exception e) {
+                        NeptusLog.pub().error("Error loading plugin jar from dev", e);
+                    }
                 }
-                catch (Exception e) {
-                    // TODO Auto-generated catch block
-                    e.printStackTrace();
-                }
+            }
+            catch (Exception e) {
+                NeptusLog.pub().error("Error getting plugins from dev", e);
             }
 
             FindPlugins plugins = new FindPlugins();
