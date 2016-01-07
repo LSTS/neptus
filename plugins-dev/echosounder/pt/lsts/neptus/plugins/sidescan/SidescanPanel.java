@@ -520,7 +520,7 @@ public class SidescanPanel extends JPanel implements MouseListener, MouseMotionL
         if (parent.getTimeline().isRunning()) {
 
             BufferedImage zoomImage = image.getSubimage(zX - ZOOM_BOX_SIZE / 2, zY - ZOOM_BOX_SIZE / 2, ZOOM_BOX_SIZE, ZOOM_BOX_SIZE);
-            BufferedImage zoomLayerImage = layer.getSubimage(zX - ZOOM_BOX_SIZE / 2, zY - ZOOM_BOX_SIZE / 2, ZOOM_BOX_SIZE, ZOOM_BOX_SIZE);
+            // BufferedImage zoomLayerImage = layer.getSubimage(zX - ZOOM_BOX_SIZE / 2, zY - ZOOM_BOX_SIZE / 2, ZOOM_BOX_SIZE, ZOOM_BOX_SIZE);
 
             // choose on which side to paint the zoom based on mouse position
             int xPosition = 1;
@@ -531,8 +531,8 @@ public class SidescanPanel extends JPanel implements MouseListener, MouseMotionL
             // Draw zoomed image.
             g.drawImage(ImageUtils.getFasterScaledInstance(zoomImage, ZOOM_LAYER_BOX_SIZE, ZOOM_LAYER_BOX_SIZE),
                     xPosition, image.getHeight() - (ZOOM_LAYER_BOX_SIZE + 1), null);
-            g.drawImage(ImageUtils.getFasterScaledInstance(zoomLayerImage, ZOOM_LAYER_BOX_SIZE, ZOOM_LAYER_BOX_SIZE),
-                    xPosition, layer.getHeight() - (ZOOM_LAYER_BOX_SIZE + 1), null);
+            // g.drawImage(ImageUtils.getFasterScaledInstance(zoomLayerImage, ZOOM_LAYER_BOX_SIZE, ZOOM_LAYER_BOX_SIZE),
+            //        xPosition, layer.getHeight() - (ZOOM_LAYER_BOX_SIZE + 1), null);
         }
         else {
             threadExecutor.execute(updateLines);
