@@ -144,7 +144,8 @@ public class StreamUtil {
             try {
                 if (fos != null)
                     fos.close();
-            } catch (Exception e) {
+            }
+            catch (Exception e) {
                 NeptusLog.pub().error("copyStreamToFile", e);
             }
         }
