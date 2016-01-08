@@ -319,15 +319,16 @@ public class MRAFilesHandler implements FileHandler {
                 outFile.createNewFile();
             }
             FilterCopyDataMonitor fis = new FilterCopyDataMonitor(gzDataLog) {
-                long target = 1 * 1024 * 1024;
-                protected String decompressed = I18n.text("Decompressed");
+                long targetStep = 1 * 1024 * 1024;
+                long target = targetStep;
+                protected String decompressed = I18n.text("Decompressed") + " ";
 
                 @Override
                 public void updateValueInMessagePanel() {
                     if (downloadedSize > target) {
-                        mra.getBgp().setText(decompressed + " "
+                        mra.getBgp().setText(decompressed
                                 + MathMiscUtils.parseToEngineeringRadix2Notation(downloadedSize, 2) + "B");
-                        target += 1 * 1024 * 1024;
+                        target += targetStep;
                     }
                 }
             };
