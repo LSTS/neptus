@@ -215,10 +215,15 @@ public class MraRawMessages extends SimpleMRAVisualization {
         findBtn.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                if (!find.isVisible())
+                if (!find.isVisible()) {
                     find.setVisible(true);
-                else
+                    closingUp = false;
+                }
+                else {
                     find.setVisible(false);
+                    closingUp = true;
+                    find.dispose();
+                }
             }
         });
 
@@ -329,41 +334,53 @@ public class MraRawMessages extends SimpleMRAVisualization {
             String rowType = null;
             String rowSrc = null;
             
-            int last = -1;
-            int first = -1;
+            int last = high - (high - low) / 2;
+            int first = 0;
             Date parsedTime = null;
-            
+
             while(low <= high) {
+                if (closingUp)
+                    break;
                 mid = high - (high - low) / 2;
                 rowTime = (String) table.getValueAt(mid, 1); //Time
+               /*
                 rowType = (String) table.getValueAt(mid, 2); //Type
                 rowSrc = (String) table.getValueAt(mid, 3); //Source
+                */
+               
                 parsedTime = parseTime(rowTime);
                 
                 if (compareTime(parsedTime, ">", time1)) {
                     high = mid - 1;
+                    //System.out.println("["+mid+"] parsedTime:"+ parsedTime  + "> time: "+time1 );
                 } 
                 else if (compareTime(parsedTime, "<", time1)) {
                     first = mid;
                     low = mid + 1;
+                    //System.out.println("["+mid+"] parsedTime:"+ parsedTime  + "< time: "+time1 );
                 }
                 else {
+                    //System.out.println("["+mid+"] parsedTime:"+ parsedTime  + " == time: "+time1 );
                     last = mid;
+                   // System.out.println("first: "+first);
+                    if (first == 0) {
+                        first = last;
+                        last = high;
+                       // System.out.println("first: "+first + " last:"+high);
+                    }
                     break;
                 }
                 
             }
-            if (last == -1) {
-                last = first;
-                first = 0;
-            }
-            if (first == -1)
-                first = 0;
             
-            int indexFirst = findFirstOcc(first, last, time1);
             
-            if (indexFirst == -1)
+            int indexFirst = findFirstOcc(first, last, time1, type);
+           // System.out.println("indexFirst: " + indexFirst);
+            if (indexFirst == -1) {
+                find.busyLbl.setBusy(false);
+                find.busyLbl.setVisible(false);
                 return false;
+            }   
             
             low = indexFirst;
             high = table.getRowCount() - 1;
@@ -373,8 +390,12 @@ public class MraRawMessages extends SimpleMRAVisualization {
             // we add MAX_TIME_DEVIATION seconds because of unsorted Time column
             calendar.set(Calendar.SECOND, seconds+MAX_TIME_DEVIATION);
             Date advT2 = calendar.getTime();
-
+            last = high;
+            
             while(low <= high) {
+                if (closingUp)
+                    break;
+                
                 mid = high - (high - low) / 2;
                 rowTime = (String) table.getValueAt(mid, 1); //Time
                 rowType = (String) table.getValueAt(mid, 2); //Type
@@ -392,7 +413,8 @@ public class MraRawMessages extends SimpleMRAVisualization {
             }
             
             int indexLast = last;
-
+            System.out.println("indexLast: " + indexLast);
+            
             for (int row = indexFirst; row < indexLast; row++) {
                 rowTime = (String) table.getValueAt(row, 1); //Time
                 rowType = (String) table.getValueAt(row, 2); //Type
@@ -408,10 +430,10 @@ public class MraRawMessages extends SimpleMRAVisualization {
                     continue;
                 }
                     
-                if (rowType.contains(type) || type.equals(ANY_TXT)) {
-                    if (rowSrc.contains(src) || src.equals(ANY_TXT)) {
-                        if (rowSrcEnt.contains(srcEnt) || srcEnt.equals(ANY_TXT)) {
-                            if (rowDest.contains(dest) || dest.equals(ANY_TXT) || 
+                if (rowType.equals(type) || type.equals(ANY_TXT)) {
+                    if (rowSrc.equals(src) || src.equals(ANY_TXT)) {
+                        if (rowSrcEnt.equals(srcEnt) || srcEnt.equals(ANY_TXT)) {
+                            if (rowDest.equals(dest) || dest.equals(ANY_TXT) || 
                                     (rowDest.contains("null") && dest.equals("UNADDRESSABLE"))){
                                 if (compareTime(tableTime, ">=", time1) && compareTime(tableTime, "<=", time2))
                                     resultList.add(row);
@@ -441,12 +463,15 @@ public class MraRawMessages extends SimpleMRAVisualization {
         }
     }
 
-    private int findFirstOcc(int first, int last, Date time1) {
+    private int findFirstOcc(int first, int last, Date time1, String type) {
+        if (first == last)
+            last = table.getRowCount() / 2;
         for (int row = first; row < last; row++) {
             String rowTime = (String) table.getValueAt(row, 1); //Time
+            String rowType = (String) table.getValueAt(row, 2); //Type
             Date parsedTime = parseTime(rowTime);
             
-            if (compareTime(parsedTime, ">=", time1)) {
+            if (compareTime(parsedTime, ">=", time1) && (rowType.equals(type) || type.equals(ANY_TXT))) {
                 return row;
             }
         }
@@ -454,6 +479,9 @@ public class MraRawMessages extends SimpleMRAVisualization {
     }
 
     private void highLightRow() {
+        /*
+         FIXME: when pressing hasPrev / hasNext, clear hightlight button state !!!
+         */
         currFinderIndex = resultList.get(finderNextIndex);
         // currSelectedIndex = currFinderIndex;
 
