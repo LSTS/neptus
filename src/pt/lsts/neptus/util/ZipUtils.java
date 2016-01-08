@@ -177,9 +177,21 @@ public class ZipUtils {
      * @param zOutStream
      */
     private static void zipDirWorker(String dir2zip, String baseDir, ZipOutputStream zOutStream) {
-        File zipDir = new File(dir2zip);
+        File baseDirFile = new File(baseDir);
+        if (baseDirFile.isFile()) {
+            baseDirFile = baseDirFile.getAbsoluteFile().getParentFile();
+            baseDir = baseDirFile.getAbsolutePath();
+        }
+        File zipDir = new File(dir2zip).getAbsoluteFile();
         // get a listing of the directory content
-        String[] dirList = zipDir.list();
+        String[] dirList;
+        if (zipDir.isDirectory()) {
+            dirList = zipDir.list();
+        }
+        else {
+            dirList = new String[] { zipDir.getName() };
+            zipDir = zipDir.getParentFile();
+        }
         // loop through dirList, and zip the files
         for (int i = 0; i < dirList.length; i++) {
             File f = new File(zipDir, dirList[i]);
@@ -282,5 +294,7 @@ public class ZipUtils {
         // ZipUtils.zipDir("teste-nep.zip", "D:\\Program Files\\BitComet");
         // System.err.println(Charset.isSupported("ibm437"));
         // NeptusLog.pub().info("<###> "+new String("Cópia".getBytes(), "IBM437"));
+
+        ZipUtils.zipDir("teste-nep.zip", "CHANGES.md");
     }
 }
