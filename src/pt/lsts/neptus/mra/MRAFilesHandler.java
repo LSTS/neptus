@@ -264,17 +264,17 @@ public class MRAFilesHandler implements FileHandler {
      * @return decompressed file
      */
     private File extractGzip(File f) {
-        GzipCompressorInputStream ginstream = null;
+        GzipCompressorInputStream gzDataLog = null;
         try {
             mra.getBgp().setText(I18n.text("Decompressing LSF Data..."));
-            ginstream = new GzipCompressorInputStream(new FileInputStream(f), true);
-            activeInputStream = ginstream;
+            gzDataLog = new GzipCompressorInputStream(new FileInputStream(f), true);
+            activeInputStream = gzDataLog;
             File outputFile = new File(f.getParent(), "Data.lsf");
             if (!outputFile.exists()) {
                 outputFile.createNewFile();
             }
             
-            FilterCopyDataMonitor fis = createCopyMonitor(ginstream);
+            FilterCopyDataMonitor fis = createCopyMonitor(gzDataLog);
             StreamUtil.copyStreamToFile(fis, outputFile);
 
             File res = new File(f.getParent(), "Data.lsf");
@@ -289,9 +289,9 @@ public class MRAFilesHandler implements FileHandler {
             return null;
         }
         finally {
-            if (ginstream != null) {
+            if (gzDataLog != null) {
                 try {
-                    ginstream.close();
+                    gzDataLog.close();
                 }
                 catch (IOException e) {
                     e.printStackTrace();
@@ -307,12 +307,11 @@ public class MRAFilesHandler implements FileHandler {
      */
     private File extractBzip2(File f) {
         mra.getBgp().setText(I18n.text("Decompressing BZip2 LSF Data..."));
-        FileInputStream fxInStream = null;
         BZip2CompressorInputStream bz2DataLog = null;
         try {
-            fxInStream = new FileInputStream(f);
-            activeInputStream = fxInStream;
+            FileInputStream fxInStream = new FileInputStream(f);
             bz2DataLog = new BZip2CompressorInputStream(fxInStream, true);
+            activeInputStream = bz2DataLog;
             File outFile = new File(f.getParent(), "Data.lsf");
             if (!outFile.exists()) {
                 outFile.createNewFile();
@@ -331,14 +330,6 @@ public class MRAFilesHandler implements FileHandler {
             return null;
         }
         finally {
-            if (fxInStream != null) {
-                try {
-                    fxInStream.close();
-                }
-                catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
             if (bz2DataLog != null) {
                 try {
                     bz2DataLog.close();
