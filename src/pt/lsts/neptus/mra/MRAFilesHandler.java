@@ -313,7 +313,7 @@ public class MRAFilesHandler implements FileHandler {
         try {
             final FileInputStream fxInStream = new FileInputStream(f);
             activeInputStream = fxInStream;
-            BZip2CompressorInputStream gzDataLog = new BZip2CompressorInputStream(fxInStream);
+            BZip2CompressorInputStream gzDataLog = new BZip2CompressorInputStream(fxInStream, true);
             File outFile = new File(f.getParent(), "Data.lsf");
             if (!outFile.exists()) {
                 outFile.createNewFile();
