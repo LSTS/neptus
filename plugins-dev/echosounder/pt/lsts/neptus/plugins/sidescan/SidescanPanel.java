@@ -1018,6 +1018,9 @@ public class SidescanPanel extends JPanel implements MouseListener, MouseMotionL
         mouseX = e.getX();
         mouseY = e.getY();
         int y = e.getY();
+        lastMouseMoveTS = System.nanoTime();
+        setSSLines(mouseY, e);
+        
         for (SidescanLine line : lineList.toArray(new SidescanLine[0])) {
             if (y >= line.getYPos() && y <= (line.getYPos() + line.getYSize())) {
                 mouseSidescanLine = line;
