@@ -42,6 +42,8 @@ import java.util.Locale;
 
 import javax.swing.ProgressMonitor;
 
+import org.apache.commons.io.FileUtils;
+
 import pt.lsts.imc.EstimatedState;
 import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.mra.api.BathymetryParser;
@@ -57,6 +59,7 @@ import pt.lsts.neptus.plugins.PluginDescription;
 import pt.lsts.neptus.plugins.PluginUtils;
 import pt.lsts.neptus.types.coord.LocationType;
 import pt.lsts.neptus.util.DateTimeUtil;
+import pt.lsts.neptus.util.ZipUtils;
 import pt.lsts.neptus.util.bathymetry.TidePredictionFactory;
 import pt.lsts.neptus.util.bathymetry.TidePredictionFinder;
 
@@ -103,8 +106,11 @@ public class XyzExporter implements MRAExporter {
     @NeptusProperty(name = "Tide Correction")
     public boolean tideCorrection = true;
     
-    @NeptusProperty(name = "Filename to write to", editable = false)
+    @NeptusProperty(name = "Filename to write to", category = "Output", editable = false)
     public File file = new File(".");
+    
+    @NeptusProperty(name="Compress Output", category = "Output")
+    public boolean compressOutput = true;
 
     @NeptusProperty(name = "Data spacer")
     public SeparatorChar spacer = SeparatorChar.COMMA;
@@ -192,10 +198,20 @@ public class XyzExporter implements MRAExporter {
         catch (Exception e) {
             e.printStackTrace(); 
         }
+
+        String outputPath = file.getName();
+        if (compressOutput) {
+            this.pmonitor.setProgress(90);
+            pmonitor.setNote(I18n.text("Compressing output"));
+            ZipUtils.zipDir(file.getAbsolutePath() + ".zip", file.getAbsolutePath());
+            outputPath += ".zip";
+            pmonitor.setNote("Deleting file");
+            FileUtils.deleteQuietly(file);
+        }
         
         this.pmonitor.setProgress(100);
         
-        return I18n.textf("File written to %file.", file.getAbsolutePath());
+        return I18n.textf("File written to %file.", outputPath);
     }
 
     private void processEstimatedStates(IMraLogGroup source) {
