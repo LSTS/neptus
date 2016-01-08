@@ -35,7 +35,6 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.FilterInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -265,32 +264,20 @@ public class MRAFilesHandler implements FileHandler {
      * @return decompressed file
      */
     private File extractGzip(File f) {
+        GzipCompressorInputStream ginstream = null;
         try {
-            File res;
             mra.getBgp().setText(I18n.text("Decompressing LSF Data..."));
-            GzipCompressorInputStream ginstream = new GzipCompressorInputStream(new FileInputStream(f), true);
+            ginstream = new GzipCompressorInputStream(new FileInputStream(f), true);
             activeInputStream = ginstream;
             File outputFile = new File(f.getParent(), "Data.lsf");
             if (!outputFile.exists()) {
                 outputFile.createNewFile();
             }
-            FileOutputStream outstream = new FileOutputStream(outputFile, false);
-            byte[] buf = new byte[2048];
-            int len;
-            try {
-                while ((len = ginstream.read(buf)) > 0) {
-                    outstream.write(buf, 0, len);
-                }
-            }
-            catch (Exception e) {
-                GuiUtils.errorMessage(mra, e);
-                NeptusLog.pub().error(e);
-            }
-            finally {
-                ginstream.close();
-                outstream.close();
-            }
-            res = new File(f.getParent(), "Data.lsf");
+            
+            FilterCopyDataMonitor fis = createCopyMonitor(ginstream);
+            StreamUtil.copyStreamToFile(fis, outputFile);
+
+            File res = new File(f.getParent(), "Data.lsf");
 
             return res;
         }
@@ -301,6 +288,16 @@ public class MRAFilesHandler implements FileHandler {
             ioe.printStackTrace();
             return null;
         }
+        finally {
+            if (ginstream != null) {
+                try {
+                    ginstream.close();
+                }
+                catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
     }
 
     /**
@@ -310,31 +307,20 @@ public class MRAFilesHandler implements FileHandler {
      */
     private File extractBzip2(File f) {
         mra.getBgp().setText(I18n.text("Decompressing BZip2 LSF Data..."));
+        FileInputStream fxInStream = null;
+        BZip2CompressorInputStream bz2DataLog = null;
         try {
-            final FileInputStream fxInStream = new FileInputStream(f);
+            fxInStream = new FileInputStream(f);
             activeInputStream = fxInStream;
-            BZip2CompressorInputStream gzDataLog = new BZip2CompressorInputStream(fxInStream, true);
+            bz2DataLog = new BZip2CompressorInputStream(fxInStream, true);
             File outFile = new File(f.getParent(), "Data.lsf");
             if (!outFile.exists()) {
                 outFile.createNewFile();
             }
-            FilterCopyDataMonitor fis = new FilterCopyDataMonitor(gzDataLog) {
-                long targetStep = 1 * 1024 * 1024;
-                long target = targetStep;
-                protected String decompressed = I18n.text("Decompressed") + " ";
 
-                @Override
-                public void updateValueInMessagePanel() {
-                    if (downloadedSize > target) {
-                        mra.getBgp().setText(decompressed
-                                + MathMiscUtils.parseToEngineeringRadix2Notation(downloadedSize, 2) + "B");
-                        target += targetStep;
-                    }
-                }
-            };
-
+            FilterCopyDataMonitor fis = createCopyMonitor(bz2DataLog);
             StreamUtil.copyStreamToFile(fis, outFile);
-            fxInStream.close();
+            
             return outFile;
         }
         catch (Exception e) {
@@ -344,6 +330,46 @@ public class MRAFilesHandler implements FileHandler {
             e.printStackTrace();
             return null;
         }
+        finally {
+            if (fxInStream != null) {
+                try {
+                    fxInStream.close();
+                }
+                catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+            if (bz2DataLog != null) {
+                try {
+                    bz2DataLog.close();
+                }
+                catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+    }
+
+    /**
+     * @param stream
+     * @return
+     */
+    private FilterCopyDataMonitor createCopyMonitor(InputStream stream) {
+        FilterCopyDataMonitor fis = new FilterCopyDataMonitor(stream) {
+            long targetStep = 1 * 1024 * 1024;
+            long target = targetStep;
+            protected String decompressed = I18n.text("Decompressed") + " ";
+
+            @Override
+            public void updateValueInMessagePanel() {
+                if (downloadedSize > target) {
+                    mra.getBgp().setText(decompressed
+                            + MathMiscUtils.parseToEngineeringRadix2Notation(downloadedSize, 2) + "B");
+                    target += targetStep;
+                }
+            }
+        };
+        return fis;
     }
 
     /**
