@@ -41,13 +41,13 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.Method;
 import java.util.LinkedHashMap;
-import java.util.zip.GZIPInputStream;
 
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.SwingWorker;
 
 import org.apache.commons.compress.compressors.bzip2.BZip2CompressorInputStream;
+import org.apache.commons.compress.compressors.gzip.GzipCompressorInputStream;
 import org.apache.commons.io.FileUtils;
 
 import pt.lsts.imc.lsf.LsfIndexListener;
@@ -268,7 +268,7 @@ public class MRAFilesHandler implements FileHandler {
         try {
             File res;
             mra.getBgp().setText(I18n.text("Decompressing LSF Data..."));
-            GZIPInputStream ginstream = new GZIPInputStream(new FileInputStream(f));
+            GzipCompressorInputStream ginstream = new GzipCompressorInputStream(new FileInputStream(f), true);
             activeInputStream = ginstream;
             File outputFile = new File(f.getParent(), "Data.lsf");
             if (!outputFile.exists()) {
