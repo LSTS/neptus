@@ -182,7 +182,7 @@ public class ZipUtils {
 
     /**
      * Compresses a source folder (of file) into a Zip
-     * (with "IBM437" encoding, teh most usual for Zip files).
+     * (with "IBM437" encoding, the most usual for Zip files).
      * 
      * @param zipFile
      * @param sourceDir
