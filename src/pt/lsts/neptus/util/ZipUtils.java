@@ -42,9 +42,9 @@ import java.io.UnsupportedEncodingException;
 import java.nio.charset.Charset;
 import java.util.Arrays;
 import java.util.Enumeration;
-import java.util.zip.ZipInputStream;
 
 import org.apache.commons.compress.archivers.zip.ZipArchiveEntry;
+import org.apache.commons.compress.archivers.zip.ZipArchiveInputStream;
 import org.apache.commons.compress.archivers.zip.ZipArchiveOutputStream;
 import org.apache.commons.compress.archivers.zip.ZipArchiveOutputStream.UnicodeExtraFieldPolicy;
 import org.apache.commons.compress.archivers.zip.ZipFile;
@@ -301,10 +301,14 @@ public class ZipUtils {
         boolean missionFileFound = false;
         try {
             FileInputStream fxInStream = new FileInputStream(zipFile);
-            ZipInputStream zInStream = new ZipInputStream(fxInStream);
+            ZipArchiveInputStream zInStream; 
+            if (Charset.isSupported("ibm437"))
+                zInStream = new ZipArchiveInputStream(fxInStream, "ibm437");
+            else
+                zInStream = new ZipArchiveInputStream(fxInStream);
 
             while (true) {
-                java.util.zip.ZipEntry zipEntry = zInStream.getNextEntry();
+                ZipArchiveEntry zipEntry = zInStream.getNextZipEntry();
 
                 if (zipEntry == null)
                     break;
