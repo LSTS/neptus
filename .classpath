@@ -230,7 +230,8 @@
 			<attribute name="org.eclipse.jdt.launching.CLASSPATH_ATTR_LIBRARY_PATH_ENTRY" value="/usr/lib/jni"/>
 		</attributes>
 	</classpathentry>
-	<classpathentry kind="lib" path="lib/zxing-bin.jar"/>
+	<classpathentry kind="lib" path="lib/zxing-3.2.1.jar"/>
+	<classpathentry kind="lib" path="lib/zxing-core-3.2.1.jar"/>
 	<classpathentry kind="lib" path="plugins-dev/shapefiles/lib/shapefilereader-1.0.jar"/>
 	<classpathentry kind="lib" path="lib/opencv-2.4.11.jar"/>
 	<classpathentry kind="output" path="build/classes"/>

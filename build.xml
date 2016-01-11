@@ -1005,7 +1005,8 @@ For simple use the main targets are:
 		<unzip dest="${tmp.bundle.dir}" src="lib/standby.jar"/>
 		<unzip dest="${tmp.bundle.dir}" src="lib/log4j-1.2.17.jar"/>
 		<unzip dest="${tmp.bundle.dir}" src="lib/iText-2.1.5.jar"/>
-		<unzip dest="${tmp.bundle.dir}" src="lib/zxing-bin.jar"/>
+		<unzip dest="${tmp.bundle.dir}" src="lib/zxing-3.2.1.jar"/>
+		<unzip dest="${tmp.bundle.dir}" src="lib/zxing-core-3.2.1.jar"/>
 		<unzip dest="${tmp.bundle.dir}" src="lib/commons-cli-1.2.jar"/>
 		<unzip dest="${tmp.bundle.dir}" src="lib/libimc.jar"/>
 		<!--unzip dest="${tmp.bundle.dir}" src="lib/commons-io-2.4.jar"/-->
@@ -1120,7 +1121,6 @@ For simple use the main targets are:
 		<unzip dest="${tmp.bundle.dir}" src="lib/standby.jar"/>
 		<unzip dest="${tmp.bundle.dir}" src="lib/log4j-1.2.17.jar"/>
 		<!--unzip dest="${tmp.bundle.dir}" src="lib/iText-2.1.5.jar"/-->
-		<!--unzip dest="${tmp.bundle.dir}" src="lib/zxing-bin.jar"/-->
 		<unzip dest="${tmp.bundle.dir}" src="lib/commons-cli-1.2.jar"/>
 		<!--unzip dest="${tmp.bundle.dir}" src="lib/commons-io-1.4.jar"/-->
 		<unzip dest="${tmp.bundle.dir}" src="lib/foxtrot.jar"/>
