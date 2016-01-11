@@ -350,17 +350,11 @@ public class ZipUtils {
         // NeptusLog.pub().info("<###> "+new String("Cópia".getBytes(), "IBM437"));
 
         ZipUtils.zipDir("teste0.zip", "CHANGES.md");
-        ZipUtilsOld.zipDir("teste0-0.zip", "CHANGES.md");
         ZipUtils.zipDir("teste1.zip", "c:\\Temp\\zipTest\\test1");
-        ZipUtilsOld.zipDir("teste1-0.zip", "c:\\Temp\\zipTest\\test1");
         ZipUtils.zipDir("teste2.zip", "c:\\Temp\\zipTest\\test2");
-        ZipUtilsOld.zipDir("teste2-0.zip", "c:\\Temp\\zipTest\\test2");
 
         ZipUtils.unZip("teste2.zip", "c:\\Temp\\zipTest\\test2-unzip");
         ZipUtils.unZip("teste2-utf8.zip", "c:\\Temp\\zipTest\\test2-utf8-unzip");
         ZipUtils.unZip("teste2-0.zip", "c:\\Temp\\zipTest\\test2-unzip-0");
-        ZipUtilsOld.unZip("teste2-0.zip", "c:\\Temp\\zipTest\\test2-0-unzip");
-        ZipUtilsOld.unZip("teste2.zip", "c:\\Temp\\zipTest\\test2-0-unzip-1");
-        ZipUtilsOld.unZip("teste2-utf8.zip", "c:\\Temp\\zipTest\\test2-utf8-0-unzip");
     }
 }
