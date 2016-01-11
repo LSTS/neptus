@@ -26,11 +26,9 @@
  *
  * For more information please see <http://lsts.fe.up.pt/neptus>.
  *
- * Author: 
+ * Author: Paulo Dias 
  * 1/Mar/2005
- *
  */
-
 package pt.lsts.neptus.util;
 
 import java.io.File;
@@ -39,93 +37,118 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
 import java.nio.charset.Charset;
-import java.util.zip.ZipInputStream;
+import java.util.Arrays;
+import java.util.Enumeration;
 
-import org.apache.tools.ant.taskdefs.ExpandStriped;
-import org.apache.tools.zip.ZipEntry;
-import org.apache.tools.zip.ZipOutputStream;
+import org.apache.commons.compress.archivers.zip.ZipArchiveEntry;
+import org.apache.commons.compress.archivers.zip.ZipArchiveInputStream;
+import org.apache.commons.compress.archivers.zip.ZipArchiveOutputStream;
+import org.apache.commons.compress.archivers.zip.ZipArchiveOutputStream.UnicodeExtraFieldPolicy;
+import org.apache.commons.compress.archivers.zip.ZipFile;
+import org.apache.log4j.Level;
 
 import pt.lsts.neptus.NeptusLog;
+import pt.lsts.neptus.util.conf.ConfigFetch;
 
 /**
  * @author Paulo Dias
- * @version 1.1 Ago/2006
  */
 public class ZipUtils {
+    
+    /** To avoid instantiation */
+    public ZipUtils() {
+    }
+    
     /**
+     * Unzips a Zip file into destination path.
+     * It assumes ibm437 encoding at first.
+     * 
      * @param zipFile
      * @param destinationPath
      * @return
      */
     public static boolean unZip(String zipFile, String destinationPath) {
+        ZipFile fxZipFile = null;
         try {
-            FileInputStream fxInStream = new FileInputStream(zipFile);
-            ZipInputStream zInStream = new ZipInputStream(fxInStream);
+            if (Charset.isSupported("ibm437"))
+                fxZipFile = new ZipFile(zipFile, "ibm437");
+            else
+                fxZipFile = new ZipFile(zipFile);
+            
+            NeptusLog.pub().debug(zipFile + "   " + fxZipFile.getEncoding());
+            
+            Enumeration<ZipArchiveEntry> entries = fxZipFile.getEntries();
+
             File destination = new File(destinationPath).getAbsoluteFile();
             destination.mkdirs();
-
-            while (true) {
-                java.util.zip.ZipEntry zipEntry = zInStream.getNextEntry();
-                if (zipEntry == null)
-                    break;
-                if (zipEntry.isDirectory()) {
-                    File dir = new File(destinationPath, zipEntry.getName());
-                    boolean bl = dir.mkdirs();
-                    NeptusLog.pub().debug("Created dir (" + bl + "): " + dir.getAbsolutePath());
+            
+            while (entries.hasMoreElements()) {
+                ZipArchiveEntry entry = entries.nextElement();
+                InputStream content = fxZipFile.getInputStream(entry);
+                
+                try {
+                    NeptusLog.pub().debug(entry.getName() + "   " + entry.getLastModifiedDate() + "\n"
+                            + Arrays.toString(entry.getExtraFields()));
+                    if (entry.isDirectory()) {
+                        File dir = new File(destinationPath, entry.getName());
+                        boolean bl = dir.mkdirs();
+                        NeptusLog.pub().debug("Created dir (" + bl + "): " + dir.getAbsolutePath());
+                    }
+                    else {
+                        File file = new File(destinationPath, entry.getName());
+                        file.getParentFile().mkdirs();
+                        FileOutputStream fxOutStream = new FileOutputStream(file);
+                        boolean bl = StreamUtil.copyStreamToStream(content, fxOutStream);
+                        try {
+                            fxOutStream.close();
+                        }
+                        catch (Exception e) {
+                            e.printStackTrace();
+                        }
+                        file.setLastModified(entry.getTime() < 0 ? System.currentTimeMillis() : entry.getTime());
+                        NeptusLog.pub().debug("Created file(" + bl + "): " + entry.getName());
+                    }
                 }
-                else {
-                    File file = new File(destinationPath, zipEntry.getName());
-                    file.getParentFile().mkdirs();
-                    FileOutputStream fxOutStream = new FileOutputStream(file);
-                    boolean bl = StreamUtil.copyStreamToStream(zInStream, fxOutStream);
-                    NeptusLog.pub().debug("Created file(" + bl + "): " + zipEntry.getName());
+                finally {
+                    try {
+                        content.close();
+                    }
+                    catch (Exception e) {
+                        e.printStackTrace();
+                    }
                 }
             }
-            zInStream.close();
 
+            fxZipFile.close();
+            
             return true;
-        }
-        catch (IllegalArgumentException e) {
-            NeptusLog.pub().debug("unZip: found Zip with encoding IBM437. " + "Running alternateUnzip!");
-            return alternateUnzip(zipFile, destinationPath, "ibm437");
         }
         catch (FileNotFoundException e) {
             NeptusLog.pub().error("unZip", e);
-            // e.printStackTrace();
             return false;
         }
-        catch (IOException e) {
+        catch (Exception e) {
             NeptusLog.pub().error("unZip", e);
-            // e.printStackTrace();
             return false;
         }
-
-    }
-
-    /**
-     * @param zipFile
-     * @param destinationPath
-     * @param encoding
-     * @return
-     */
-    private static boolean alternateUnzip(String zipFile, String destinationPath, String encoding) {
-        try {
-            File sourceZip = new File(zipFile).getAbsoluteFile();
-            File destination = new File(destinationPath).getAbsoluteFile();
-            ExpandStriped exp = new ExpandStriped();
-            exp.setEncoding(encoding);
-            exp.expandFile(sourceZip, destination);
-            return true;
-        }
-        catch (RuntimeException e) {
-            NeptusLog.pub().error("alternateUnzip", e);
-            return false;
+        finally {
+            if (fxZipFile != null) {
+                try {
+                    fxZipFile.close();
+                }
+                catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
         }
     }
 
     /**
+     * Compresses a source folder (of file) into a Zip.
+     * 
      * @param zipFile
      * @param sourceDir
      * @param encoding
@@ -133,32 +156,33 @@ public class ZipUtils {
      */
     public static boolean zipDir(String zipFile, String sourceDir, String encoding) {
         try {
-            FileOutputStream fxOutStream = new FileOutputStream(zipFile);
-            ZipOutputStream zOutStream = new ZipOutputStream(fxOutStream);
+            File fxZipFile = new File(zipFile);
+            ZipArchiveOutputStream zOutStream = new ZipArchiveOutputStream(fxZipFile);
             zOutStream.setEncoding(encoding);
+            
+            zOutStream.setUseLanguageEncodingFlag(true);
+            zOutStream.setFallbackToUTF8(false);
+            zOutStream.setCreateUnicodeExtraFields(UnicodeExtraFieldPolicy.NOT_ENCODEABLE);
 
             zipDirWorker(sourceDir, sourceDir, zOutStream);
 
             zOutStream.close();
-            fxOutStream.flush();
-            fxOutStream.close();
 
             return true;
         }
         catch (FileNotFoundException e) {
             NeptusLog.pub().error("zipDir", e);
-            // e.printStackTrace();
             return false;
         }
-        catch (IOException e) {
+        catch (Exception e) {
             NeptusLog.pub().error("zipDir", e);
-            // e.printStackTrace();
             return false;
         }
     }
 
     /**
-     * With "IBM437" encoding.
+     * Compresses a source folder (of file) into a Zip
+     * (with "IBM437" encoding, the most usual for Zip files).
      * 
      * @param zipFile
      * @param sourceDir
@@ -172,11 +196,13 @@ public class ZipUtils {
     }
 
     /**
+     * This is the Zip worker.
+     * 
      * @param dir2zip
      * @param baseDir
      * @param zOutStream
      */
-    private static void zipDirWorker(String dir2zip, String baseDir, ZipOutputStream zOutStream) {
+    private static void zipDirWorker(String dir2zip, String baseDir, ZipArchiveOutputStream zOutStream) {
         File baseDirFile = new File(baseDir);
         if (baseDirFile.isFile()) {
             baseDirFile = baseDirFile.getAbsoluteFile().getParentFile();
@@ -204,52 +230,85 @@ public class ZipUtils {
                 continue;
             }
             // if we reached here, the File object was not a directory
-            ZipUtils.addZipEntry(FileUtil.relativizeFilePath(baseDir, f.getPath()), f.getPath(), zOutStream);
+            addZipEntry(FileUtil.relativizeFilePath(baseDir, f.getPath()), f.getPath(), zOutStream);
         }
     }
 
     /**
+     * Called to add a Zip entry.
+     * 
      * @param entryName
      * @param filePath
      * @param zOutStream
      * @return
      */
-    private static boolean addZipEntry(String entryName, String filePath, ZipOutputStream zOutStream) {
+    private static boolean addZipEntry(String entryName, String filePath, ZipArchiveOutputStream zOutStream) {
         try {
-
             entryName = entryName.replace('\\', '/');
-            ZipEntry zEntry = new ZipEntry(entryName);
+            File contentFx = new File(filePath);
+            
+            ZipArchiveEntry entry = (ZipArchiveEntry) zOutStream.createArchiveEntry(contentFx, entryName);
 
-            FileInputStream fxInStream = new FileInputStream(filePath);
+            zOutStream.putArchiveEntry(entry);
 
-            zOutStream.putNextEntry(zEntry);
-            boolean bl = StreamUtil.copyStreamToStream(fxInStream, zOutStream);
+            FileInputStream fxInStream = new FileInputStream(contentFx);
+            OutputStream os = new OutputStream() {
+                @Override
+                public void write(int b) throws IOException {
+                    zOutStream.write(b);
+                }
+                @Override
+                public void write(byte[] b, int off, int len) throws IOException {
+                    zOutStream.write(b, off, len);
+                }
+            };
+            boolean bl = StreamUtil.copyStreamToStream(fxInStream, os);
             zOutStream.flush();
-            zOutStream.closeEntry();
-            fxInStream.close();
+            zOutStream.closeArchiveEntry();
+
+            try {
+                fxInStream.close();
+            }
+            catch (Exception e) {
+                e.printStackTrace();
+            }
+            try {
+                os.close();
+            }
+            catch (Exception e) {
+                e.printStackTrace();
+            }
+            
             return bl;
         }
         catch (FileNotFoundException e) {
             NeptusLog.pub().error("addZipEntry", e);
-            // e.printStackTrace();
-
             return false;
         }
         catch (IOException e) {
             NeptusLog.pub().error("addZipEntry", e);
-            // e.printStackTrace();
             return false;
         }
     }
 
+    /**
+     * Searches a Zip mission file for the mission file and returns it as an {@link InputStream}-
+     * 
+     * @param zipFile 
+     * @return
+     */
     public static InputStream getMissionZipedAsInputSteam(String zipFile) {
         boolean missionFileFound = false;
         try {
             FileInputStream fxInStream = new FileInputStream(zipFile);
-            ZipInputStream zInStream = new ZipInputStream(fxInStream);
+            ZipArchiveInputStream zInStream; 
+            if (Charset.isSupported("ibm437"))
+                zInStream = new ZipArchiveInputStream(fxInStream, "ibm437");
+            else
+                zInStream = new ZipArchiveInputStream(fxInStream);
 
             while (true) {
-                java.util.zip.ZipEntry zipEntry = zInStream.getNextEntry();
+                ZipArchiveEntry zipEntry = zInStream.getNextZipEntry();
 
                 if (zipEntry == null)
                     break;
@@ -271,30 +330,31 @@ public class ZipUtils {
                 return null;
             // zInStream.close();
         }
-        catch (IllegalArgumentException e) {
-            NeptusLog.pub().debug("unZip: found Zip with encoding IBM437. " + "Running alternateUnzip!");
-            return null; // alternateUnzip(zipFile, destinationPath, "ibm437");
-        }
         catch (FileNotFoundException e) {
             NeptusLog.pub().error("unZip", e);
-            // e.printStackTrace();
             return null;
         }
-        catch (IOException e) {
+        catch (Exception e) {
             NeptusLog.pub().error("unZip", e);
-            // e.printStackTrace();
             return null;
         }
     }
 
     public static void main(String[] args) throws UnsupportedEncodingException {
-        // ConfigFetch.initialize();
+        ConfigFetch.initialize();
+        NeptusLog.pub().setLevel(Level.DEBUG);
         // ZipUtils.zipDir("teste.zip", "tmp");
         // ZipUtils.unZip("teste.zip", "tmp/teste");
         // ZipUtils.zipDir("teste-nep.zip", "D:\\Program Files\\BitComet");
         // System.err.println(Charset.isSupported("ibm437"));
         // NeptusLog.pub().info("<###> "+new String("Cópia".getBytes(), "IBM437"));
 
-        ZipUtils.zipDir("teste-nep.zip", "CHANGES.md");
+        ZipUtils.zipDir("teste0.zip", "CHANGES.md");
+        ZipUtils.zipDir("teste1.zip", "c:\\Temp\\zipTest\\test1");
+        ZipUtils.zipDir("teste2.zip", "c:\\Temp\\zipTest\\test2");
+
+        ZipUtils.unZip("teste2.zip", "c:\\Temp\\zipTest\\test2-unzip");
+        ZipUtils.unZip("teste2-utf8.zip", "c:\\Temp\\zipTest\\test2-utf8-unzip");
+        ZipUtils.unZip("teste2-0.zip", "c:\\Temp\\zipTest\\test2-unzip-0");
     }
 }

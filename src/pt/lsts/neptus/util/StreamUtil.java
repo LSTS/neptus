@@ -73,7 +73,7 @@ public class StreamUtil {
             	if (ret != -1) {
             	    byte[] extra1 = new byte[ret];
 					System.arraycopy (extra, 0 , extra1, 0 , ret);					
-            	    outStream.write (extra1);
+            	    outStream.write(extra1);
             		outStream.flush();
             		pos =+ret;
                     NeptusLog.waste().debug("copyStreamToStream> pos: " + pos);
