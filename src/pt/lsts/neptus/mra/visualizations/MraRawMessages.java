@@ -113,7 +113,6 @@ public class MraRawMessages extends SimpleMRAVisualization {
     private boolean findOpenState = false;
     private AbstractAction finderAction;
     private JToggleButton highlightBtn;
-    
     private boolean closingUp = false;
 
     public MraRawMessages(MRAPanel panel) {
@@ -161,7 +160,7 @@ public class MraRawMessages extends SimpleMRAVisualization {
     @Override
     public JComponent getVisualization(IMraLogGroup source, double timestep) {
         final LsfIndex index = source.getLsfIndex();
-        table = new JTable(new RawMessagesTableModel(source.getLsfIndex()));
+        table = new JTable(new RawMessagesTableModel(index));
         Color defColor = table.getSelectionBackground();
 
         find = setupFinder();
@@ -291,9 +290,9 @@ public class MraRawMessages extends SimpleMRAVisualization {
     }
     private static Date parseTime(String time) {
         SimpleDateFormat parser = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
-        
+
         Date dateTime = null;
-         try {
+        try {
             dateTime = parser.parse(time);
         }
         catch (ParseException e) {
@@ -310,157 +309,151 @@ public class MraRawMessages extends SimpleMRAVisualization {
      * @return true if there is at least one element, false otherwise
      */
     private boolean findMessage(String type, String src, String srcEnt, String dest, Date time1, Date time2) {
-        if (!resultList.isEmpty()) {
-            hasNext();
+        table.setRowSelectionAllowed(true);
+        table.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
+        find.busyLbl.setBusy(true);
+        find.busyLbl.setVisible(true);
+
+        if (type.equals(ANY_TXT) && src.equals(ANY_TXT) && srcEnt.equals(ANY_TXT) 
+                && dest.equals(ANY_TXT) && find.hasDefaultTS()) {
+            find.busyLbl.setBusy(false);
+            find.busyLbl.setVisible(false);
             return true;
-        } 
-        else {
-            table.setRowSelectionAllowed(true);
-            table.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
-            find.busyLbl.setBusy(true);
-            find.busyLbl.setVisible(true);
+        }
+        
+        int low = 0;
+        int mid = -1;
+        int high = table.getRowCount() - 1;
+        String rowTime = null;
+        String rowType = null;
+        String rowSrc = null;
 
-            if (type.equals(ANY_TXT) && src.equals(ANY_TXT) && srcEnt.equals(ANY_TXT) 
-                    && dest.equals(ANY_TXT) && find.hasDefaultTS()) {
-                find.busyLbl.setBusy(false);
-                find.busyLbl.setVisible(false);
-                return true;
-            }
-            
-            int low = 0;
-            int mid = -1;
-            int high = table.getRowCount() - 1;
-            String rowTime = null;
-            String rowType = null;
-            String rowSrc = null;
-            
-            int last = high - (high - low) / 2;
-            int first = 0;
-            Date parsedTime = null;
+        int last = high - (high - low) / 2;
+        int first = 0;
+        Date parsedTime = null;
 
-            while(low <= high) {
-                if (closingUp)
-                    break;
-                mid = high - (high - low) / 2;
-                rowTime = (String) table.getValueAt(mid, 1); //Time
-               /*
-                rowType = (String) table.getValueAt(mid, 2); //Type
-                rowSrc = (String) table.getValueAt(mid, 3); //Source
-                */
-               
-                parsedTime = parseTime(rowTime);
-                
-                if (compareTime(parsedTime, ">", time1)) {
-                    high = mid - 1;
-                    //System.out.println("["+mid+"] parsedTime:"+ parsedTime  + "> time: "+time1 );
-                } 
-                else if (compareTime(parsedTime, "<", time1)) {
-                    first = mid;
-                    low = mid + 1;
-                    //System.out.println("["+mid+"] parsedTime:"+ parsedTime  + "< time: "+time1 );
-                }
-                else {
-                    //System.out.println("["+mid+"] parsedTime:"+ parsedTime  + " == time: "+time1 );
-                    last = mid;
-                   // System.out.println("first: "+first);
-                    if (first == 0) {
-                        first = last;
-                        last = high;
-                       // System.out.println("first: "+first + " last:"+high);
-                    }
-                    break;
-                }
-                
-            }
-            
-            
-            int indexFirst = findFirstOcc(first, last, time1, type);
-           // System.out.println("indexFirst: " + indexFirst);
-            if (indexFirst == -1) {
-                find.busyLbl.setBusy(false);
-                find.busyLbl.setVisible(false);
-                return false;
-            }   
-            
-            low = indexFirst;
-            high = table.getRowCount() - 1;
-            Calendar calendar = Calendar.getInstance();
-            calendar.setTime(time2);
-            int seconds = calendar.get(Calendar.SECOND);
-            // we add MAX_TIME_DEVIATION seconds because of unsorted Time column
-            calendar.set(Calendar.SECOND, seconds+MAX_TIME_DEVIATION);
-            Date advT2 = calendar.getTime();
-            last = high;
-            
-            while(low <= high) {
-                if (closingUp)
-                    break;
-                
-                mid = high - (high - low) / 2;
-                rowTime = (String) table.getValueAt(mid, 1); //Time
-                rowType = (String) table.getValueAt(mid, 2); //Type
-                rowSrc = (String) table.getValueAt(mid, 3); //Source
-                parsedTime = parseTime(rowTime);
-                
-                if (compareTime(parsedTime, ">", advT2))
-                    high = mid - 1;
-                else if (compareTime(parsedTime, "<", advT2)) 
-                    low = mid + 1;
-                else {
-                    last = mid;
-                    break;
-                }
-            }
-            
-            int indexLast = last;
-            System.out.println("indexLast: " + indexLast);
-            
-            for (int row = indexFirst; row < indexLast; row++) {
-                rowTime = (String) table.getValueAt(row, 1); //Time
-                rowType = (String) table.getValueAt(row, 2); //Type
-                rowSrc = (String) table.getValueAt(row, 3); //Source
-                String rowSrcEnt = (String) table.getValueAt(row, 4); //SourceEntity
-                String rowDest = (String) table.getValueAt(row, 5); //Destination
-                if (rowSrcEnt == null || rowSrcEnt.isEmpty())
-                    rowSrcEnt = "empty";
+        while(low <= high) {
+            if (closingUp)
+                break;
+            mid = high - (high - low) / 2;
+            rowTime = (String) table.getValueAt(mid, 1); //Time
 
-                Date tableTime = parseTime(rowTime);
-                if (tableTime == null) {
-                    NeptusLog.pub().warn("Unable to parse timestamp from message list.");
-                    continue;
+            parsedTime = parseTime(rowTime);
+
+            if (compareTime(parsedTime, ">", time1)) {
+                high = mid - 1;
+                // System.out.println("["+mid+"] parsedTime:"+ parsedTime  + " > time: "+time1 );
+            } 
+            else if (compareTime(parsedTime, "<", time1)) {
+                first = mid;
+                low = mid + 1;
+                // System.out.println("["+mid+"] parsedTime:"+ parsedTime  + " < time: "+time1 );
+            }
+            else {
+                // System.out.println("["+mid+"] parsedTime:"+ parsedTime  + " == time: "+time1 );
+                last = mid;
+              //  System.out.println("first: "+first);
+                if (first == 0) {
+                    first = last;
+                    last = high;
+                    // System.out.println("first: "+first + " last:"+high);
                 }
-                    
-                if (rowType.equals(type) || type.equals(ANY_TXT)) {
-                    if (rowSrc.equals(src) || src.equals(ANY_TXT)) {
-                        if (rowSrcEnt.equals(srcEnt) || srcEnt.equals(ANY_TXT)) {
-                            if (rowDest.equals(dest) || dest.equals(ANY_TXT) || 
-                                    (rowDest.contains("null") && dest.equals("UNADDRESSABLE"))){
-                                if (compareTime(tableTime, ">=", time1) && compareTime(tableTime, "<=", time2))
-                                    resultList.add(row);
-                            }
+                break;
+            }
+
+        }
+
+
+        int indexFirst = findFirstOcc(first, table.getRowCount() / 2, time1, type);
+        //  System.out.println("indexFirst: " + indexFirst);
+        if (indexFirst == -1) {
+            indexFirst = table.getRowCount() / 2;
+        }
+
+        low = table.getRowCount() / 2;
+        high = table.getRowCount() - 1;
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(time2);
+        int seconds = calendar.get(Calendar.SECOND);
+        // we add MAX_TIME_DEVIATION seconds because of unsorted Time column
+        calendar.set(Calendar.SECOND, seconds+MAX_TIME_DEVIATION);
+        Date advT2 = calendar.getTime();
+        last = high;
+
+        while(low <= high) {
+            if (closingUp)
+                break;
+
+            mid = high - (high - low) / 2;
+            rowTime = (String) table.getValueAt(mid, 1); //Time
+            rowType = (String) table.getValueAt(mid, 2); //Type
+            rowSrc = (String) table.getValueAt(mid, 3); //Source
+            parsedTime = parseTime(rowTime);
+
+            if (compareTime(parsedTime, ">", advT2))
+                high = mid - 1;
+            else if (compareTime(parsedTime, "<", advT2)) 
+                low = mid + 1;
+            else {
+                last = mid;
+                break;
+            }
+        }
+
+        int indexLast = last;
+        //System.out.println("indexLast: " + indexLast);
+        int total = indexLast - indexFirst;
+        //System.out.println("total: " + total);
+        int count=0;
+        for (int row = indexFirst; row < indexLast; row++) {
+            count++;
+            rowTime = (String) table.getValueAt(row, 1); //Time
+            rowType = (String) table.getValueAt(row, 2); //Type
+            rowSrc = (String) table.getValueAt(row, 3); //Source
+            String rowSrcEnt = (String) table.getValueAt(row, 4); //SourceEntity
+            String rowDest = (String) table.getValueAt(row, 5); //Destination
+            if (rowSrcEnt == null || rowSrcEnt.isEmpty())
+                rowSrcEnt = "empty";
+
+            Date tableTime = parseTime(rowTime);
+            if (tableTime == null) {
+                NeptusLog.pub().warn("Unable to parse timestamp from message list.");
+                continue;
+            }
+
+            if (rowType.equals(type) || type.equals(ANY_TXT)) {
+                if (rowSrc.equals(src) || src.equals(ANY_TXT)) {
+                    if (rowSrcEnt.equals(srcEnt) || srcEnt.equals(ANY_TXT)) {
+                        if (rowDest.equals(dest) || dest.equals(ANY_TXT) || 
+                                (rowDest.contains("null") && dest.equals("UNADDRESSABLE"))){
+                            if (compareTime(tableTime, ">=", time1) && compareTime(tableTime, "<=", time2))
+                                resultList.add(row);
                         }
                     }
                 }
-
-                if (closingUp)
-                    break;
             }
-
-            find.busyLbl.setBusy(false);
-            find.busyLbl.setVisible(false);
-
-            if (!resultList.isEmpty()) {
-                table.clearSelection();
-                table.setSelectionBackground(Color.yellow);
-                table.addRowSelectionInterval(resultList.get(0), resultList.get(0));
-                table.scrollRectToVisible(new Rectangle(table.getCellRect(resultList.get(0), 0, true)));
-                table.repaint();
-                finderNextIndex++;
-                return true;
-            }
-
-            return false;
+            int state = (count * 100) / total;
+            find.statusLbl.setText(state+"%");
+            find.repaint();
+            if (closingUp)
+                break;
         }
+
+        find.busyLbl.setBusy(false);
+        find.busyLbl.setVisible(false);
+        find.statusLbl.setVisible(false);
+
+        if (!resultList.isEmpty()) {
+            table.clearSelection();
+            table.setSelectionBackground(Color.yellow);
+            table.addRowSelectionInterval(resultList.get(0), resultList.get(0));
+            table.scrollRectToVisible(new Rectangle(table.getCellRect(resultList.get(0), 0, true)));
+            table.repaint();
+            finderNextIndex++;
+            return true;
+        }
+
+        return false;
     }
 
     private int findFirstOcc(int first, int last, Date time1, String type) {
@@ -470,7 +463,7 @@ public class MraRawMessages extends SimpleMRAVisualization {
             String rowTime = (String) table.getValueAt(row, 1); //Time
             String rowType = (String) table.getValueAt(row, 2); //Type
             Date parsedTime = parseTime(rowTime);
-            
+
             if (compareTime(parsedTime, ">=", time1) && (rowType.equals(type) || type.equals(ANY_TXT))) {
                 return row;
             }
@@ -789,7 +782,7 @@ public class MraRawMessages extends SimpleMRAVisualization {
                             boolean found = findMessage(typeTxt.getText(), (String) sourceCBox.getSelectedItem(), 
                                     (String)sourceEntCBox.getSelectedItem(), (String) destCBox.getSelectedItem(),
                                     t1, t2);
-                            
+
                             return found;
                         }
                         @Override
@@ -833,6 +826,7 @@ public class MraRawMessages extends SimpleMRAVisualization {
             findBtn.setText(I18n.text("Find"));
             prevBtn.setEnabled(false);
             statusLbl.setText("");
+            statusLbl.setVisible(true);
             highlightBtn.setSelected(false);
             toggleHighlight();
         }
@@ -841,8 +835,10 @@ public class MraRawMessages extends SimpleMRAVisualization {
          *  Updates status label with number of found elements 
          */
         private void updateStatus() {
-            if (resultList.size() != 0)
+            if (resultList.size() != 0) {
+                statusLbl.setVisible(true);
                 statusLbl.setText(finderNextIndex+1 + " of "+resultList.size());
+            }
         }
 
         /**
