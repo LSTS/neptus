@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2016 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2015 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -53,6 +53,8 @@ public class MapTileUtil {
     public static final double MIN_LONGITUDE = -180;
     public static final double MAX_LONGITUDE = 180;
 
+    public static final boolean USE_CLIPPING = false;
+    
     /**
      * Clips a number to the specified minimum and maximum values.
      * 
@@ -61,8 +63,11 @@ public class MapTileUtil {
      * @param maxValue Maximum allowable value.
      * @return The clipped value.
      */
-    public static double clip(double n, double minValue, double maxValue) {
-        return Math.min(Math.max(n, minValue), maxValue);
+    private static double clip(double n, double minValue, double maxValue) {
+        if (USE_CLIPPING)
+            return Math.min(Math.max(n, minValue), maxValue);
+        else
+            return n;
     }
 
     /**
