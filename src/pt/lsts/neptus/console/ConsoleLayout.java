@@ -96,7 +96,6 @@ import pt.lsts.neptus.console.actions.AutoSnapshotConsoleAction;
 import pt.lsts.neptus.console.actions.ConsoleAction;
 import pt.lsts.neptus.console.actions.CreateMissionConsoleAction;
 import pt.lsts.neptus.console.actions.ExitAction;
-import pt.lsts.neptus.console.actions.IncomingDataAction;
 import pt.lsts.neptus.console.actions.LayoutEditConsoleAction;
 import pt.lsts.neptus.console.actions.OpenConsoleAction;
 import pt.lsts.neptus.console.actions.OpenImcMonitorAction;
@@ -123,8 +122,8 @@ import pt.lsts.neptus.console.plugins.PluginManager;
 import pt.lsts.neptus.console.plugins.SettingsWindow;
 import pt.lsts.neptus.console.plugins.SubPanelChangeEvent;
 import pt.lsts.neptus.console.plugins.SubPanelChangeEvent.SubPanelChangeAction;
-import pt.lsts.neptus.console.plugins.containers.MigLayoutContainer;
 import pt.lsts.neptus.console.plugins.SubPanelChangeListener;
+import pt.lsts.neptus.console.plugins.containers.MigLayoutContainer;
 import pt.lsts.neptus.console.plugins.planning.MapPanel;
 import pt.lsts.neptus.controllers.ControllerManager;
 import pt.lsts.neptus.events.NeptusEvents;
@@ -598,10 +597,6 @@ public class ConsoleLayout extends JFrame implements XmlInOutMethods, ComponentL
         advanced.add(layoutEdit);
 
         advanced.add(new SetMainVehicleConsoleAction(this));
-
-        IncomingDataAction incomingData = new IncomingDataAction(this);
-        actions.put(IncomingDataAction.class, incomingData);
-        advanced.add(incomingData);
 
         OpenImcMonitorAction imcMonitor = new OpenImcMonitorAction(this);
         actions.put(OpenImcMonitorAction.class, imcMonitor);
