@@ -748,11 +748,12 @@ public class MraRawMessages extends SimpleMRAVisualization {
 
             JPanel bottomPanel = new JPanel();
             panel.add(bottomPanel, BorderLayout.EAST);
+            panel.add(busyLbl, BorderLayout.WEST);
 
             bottomPanel.add(prevBtn);
             bottomPanel.add(nextBtn);
             bottomPanel.add(findBtn);
-            bottomPanel.add(busyLbl);
+          //  bottomPanel.add(busyLbl);
 
             prevBtn.addActionListener(new ActionListener() {
                 @Override
