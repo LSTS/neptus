@@ -33,27 +33,17 @@ package pt.lsts.neptus.util.http.client;
 
 import org.apache.http.HttpResponse;
 import org.apache.http.client.config.RequestConfig;
-import org.apache.http.client.config.RequestConfig.Builder;
-import org.apache.http.conn.scheme.PlainSocketFactory;
-import org.apache.http.conn.scheme.Scheme;
-import org.apache.http.conn.scheme.SchemeRegistry;
+import org.apache.http.client.protocol.HttpClientContext;
 import org.apache.http.impl.client.CloseableHttpClient;
-import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.impl.client.HttpClients;
-import org.apache.http.impl.conn.PoolingClientConnectionManager;
 import org.apache.http.impl.conn.PoolingHttpClientConnectionManager;
-import org.apache.http.params.BasicHttpParams;
-import org.apache.http.params.HttpConnectionParams;
-import org.apache.http.params.HttpParams;
-import org.apache.http.protocol.BasicHttpContext;
-import org.apache.http.protocol.HttpContext;
 
 import pt.lsts.neptus.comm.proxy.ProxyInfoProvider;
 
 /**
  * This helper class encapsulates the use of Apache's HttpComponents.
- * It uses a {@link DefaultHttpClient} and {@link PoolingClientConnectionManager}.
+ * It uses a {@link CloseableHttpClient} and {@link PoolingHttpClientConnectionManager}.
  * Additionally it allows the use of proxy connection with the call of {@link ProxyInfoProvider}.
  * 
  * To start the comms. call {@link #initializeComm()} and at the end {@link #cleanUp()} to close the comms.
@@ -111,9 +101,9 @@ public class HttpClientConnectionHelper {
         HttpClientBuilder clientBuilder = HttpClients.custom();
 
         // FIXME
-        SchemeRegistry schemeRegistry = new SchemeRegistry(); //(4.3) use Registry
-        schemeRegistry.register(new Scheme("http", 80, PlainSocketFactory.getSocketFactory()));
-        schemeRegistry.register(new Scheme("https", 443, PlainSocketFactory.getSocketFactory()));
+//        SchemeRegistry schemeRegistry = new SchemeRegistry(); //(4.3) use Registry
+//        schemeRegistry.register(new Scheme("http", 80, PlainSocketFactory.getSocketFactory()));
+//        schemeRegistry.register(new Scheme("https", 443, PlainSocketFactory.getSocketFactory()));
         httpConnectionManager = new PoolingHttpClientConnectionManager(); //schemeRegistry
         httpConnectionManager.setMaxTotal(maxTotalConnections);
         httpConnectionManager.setDefaultMaxPerRoute(defaultMaxConnectionsPerRoute);
@@ -194,9 +184,9 @@ public class HttpClientConnectionHelper {
      * @param iGetResultCode
      * @param localContext
      */
-    public void autenticateProxyIfNeeded(HttpResponse iGetResultCode, HttpContext localContext) {
+    public void autenticateProxyIfNeeded(HttpResponse iGetResultCode, HttpClientContext localContext) {
         if (localContext == null)
-            localContext = new BasicHttpContext();
+            localContext = HttpClientContext.create();
         
         ProxyInfoProvider.authenticateConnectionIfNeeded(iGetResultCode, localContext, client);
     }

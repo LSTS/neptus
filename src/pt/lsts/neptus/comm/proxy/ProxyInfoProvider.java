@@ -46,14 +46,11 @@ import org.apache.http.auth.Credentials;
 import org.apache.http.auth.UsernamePasswordCredentials;
 import org.apache.http.client.CredentialsProvider;
 import org.apache.http.client.HttpClient;
-import org.apache.http.client.protocol.ClientContext;
 import org.apache.http.client.protocol.HttpClientContext;
 import org.apache.http.conn.routing.HttpRoute;
 import org.apache.http.conn.routing.HttpRoutePlanner;
 import org.apache.http.impl.client.BasicCredentialsProvider;
-import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.impl.client.HttpClientBuilder;
-import org.apache.http.protocol.ExecutionContext;
 import org.apache.http.protocol.HttpContext;
 import org.apache.http.protocol.HttpCoreContext;
 
@@ -242,26 +239,26 @@ public class ProxyInfoProvider {
      * @param resp
      * @param localContext
      */
-    public static void authenticateConnectionIfNeeded(HttpResponse resp, HttpContext localContext, HttpClient client) {
+    public static void authenticateConnectionIfNeeded(HttpResponse resp, HttpClientContext localContext, HttpClient client) {
         {
             if (isEnableProxy()) {
                 AuthState proxyAuthState = (AuthState) localContext
                         .getAttribute(HttpClientContext.PROXY_AUTH_STATE);
                 if (proxyAuthState != null) {
-                    // NeptusLog.pub().info("<###>Proxy auth state: " + proxyAuthState.getState());
+                    // NeptusLog.pub().info("Proxy auth state: " + proxyAuthState.getState());
                     if (proxyAuthState.getAuthScheme() != null)
-                        NeptusLog.pub().info("<###>Proxy auth scheme: " + proxyAuthState.getAuthScheme());
+                        NeptusLog.pub().info("Proxy auth scheme: " + proxyAuthState.getAuthScheme());
                     if (proxyAuthState.getCredentials() != null)
-                        NeptusLog.pub().info("<###>Proxy auth credentials: " + proxyAuthState.getCredentials());
+                        NeptusLog.pub().info("Proxy auth credentials: " + proxyAuthState.getCredentials());
                 }
                 AuthState targetAuthState = (AuthState) localContext
                         .getAttribute(HttpClientContext.TARGET_AUTH_STATE);
                 if (targetAuthState != null) {
-                    // NeptusLog.pub().info("<###>Target auth state: " + targetAuthState.getState());
+                    // NeptusLog.pub().info("Target auth state: " + targetAuthState.getState());
                     if (targetAuthState.getAuthScheme() != null)
-                        NeptusLog.pub().info("<###>Target auth scheme: " + targetAuthState.getAuthScheme());
+                        NeptusLog.pub().info("Target auth scheme: " + targetAuthState.getAuthScheme());
                     if (targetAuthState.getCredentials() != null)
-                        NeptusLog.pub().info("<###>Target auth credentials: " + targetAuthState.getCredentials());
+                        NeptusLog.pub().info("Target auth credentials: " + targetAuthState.getCredentials());
                 }
             }
         }
@@ -284,9 +281,12 @@ public class ProxyInfoProvider {
                 }
                 if (authState != null) {
                     AuthScheme authscheme = authState.getAuthScheme();
-                    NeptusLog.pub().info("<###>Using proxy for " + authscheme.getRealm() + " ...");
+                    NeptusLog.pub().info("Using proxy for " + authscheme.getRealm() + " ...");
                     Credentials creds = getProxyCredentials();
-                    client.getCredentialsProvider().setCredentials(new AuthScope(authhost), creds);
+                    CredentialsProvider credsProvider = localContext.getCredentialsProvider();
+                    if (credsProvider == null)
+                        credsProvider = new BasicCredentialsProvider();
+                    credsProvider.setCredentials(new AuthScope(authhost), creds);
                 }
             }
         }
