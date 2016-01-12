@@ -1130,7 +1130,7 @@ For simple use the main targets are:
 		<unzip dest="${tmp.bundle.dir}" src="lib/fop/batik.jar"/>
 		<unzip dest="${tmp.bundle.dir}" src="lib/fop/xml-apis-ext.jar"/>
 		<unzip dest="${tmp.bundle.dir}" src="lib/fop/xmlgraphics-commons-1.3.1.jar"/>
-		<unzip dest="${tmp.bundle.dir}" src="lib/commons-logging-1.1.3.jar"/>
+		<unzip dest="${tmp.bundle.dir}" src="lib/commons-logging-1.2.jar"/>
 		<unzip dest="${tmp.bundle.dir}" src="plugins/tiles-extra.jar"/>
 		<unzip dest="${tmp.bundle.dir}" src="lib/libimc.jar"/>
 		<unzip dest="${tmp.bundle.dir}" src="lib/miglayout-core-4.2.jar"/>
