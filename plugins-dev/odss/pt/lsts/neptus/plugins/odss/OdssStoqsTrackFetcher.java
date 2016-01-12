@@ -51,16 +51,7 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
 import org.apache.http.client.methods.HttpGet;
-import org.apache.http.conn.scheme.PlainSocketFactory;
-import org.apache.http.conn.scheme.Scheme;
-import org.apache.http.conn.scheme.SchemeRegistry;
-import org.apache.http.impl.client.DefaultHttpClient;
-import org.apache.http.impl.conn.PoolingClientConnectionManager;
-import org.apache.http.params.BasicHttpParams;
-import org.apache.http.params.HttpConnectionParams;
-import org.apache.http.params.HttpParams;
-import org.apache.http.protocol.BasicHttpContext;
-import org.apache.http.protocol.HttpContext;
+import org.apache.http.client.protocol.HttpClientContext;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -71,7 +62,6 @@ import pt.lsts.neptus.comm.IMCUtils;
 import pt.lsts.neptus.comm.manager.imc.ImcMsgManager;
 import pt.lsts.neptus.comm.manager.imc.ImcSystem;
 import pt.lsts.neptus.comm.manager.imc.ImcSystemsHolder;
-import pt.lsts.neptus.comm.proxy.ProxyInfoProvider;
 import pt.lsts.neptus.console.ConsoleLayout;
 import pt.lsts.neptus.console.ConsolePanel;
 import pt.lsts.neptus.gui.PropertiesEditor;
@@ -94,12 +84,13 @@ import pt.lsts.neptus.types.vehicle.VehiclesHolder;
 import pt.lsts.neptus.util.DateTimeUtil;
 import pt.lsts.neptus.util.FileUtil;
 import pt.lsts.neptus.util.conf.IntegerMinMaxValidator;
+import pt.lsts.neptus.util.http.client.HttpClientConnectionHelper;
 
 /**
  * @author pdias
  *
  */
-@SuppressWarnings({"serial","deprecation"})
+@SuppressWarnings({"serial"})
 @PluginDescription(name = "ODSS STOQS Track Fetcher", author = "Paulo Dias", version = "0.1",
         icon="pt/lsts/neptus/plugins/odss/odss.png")
 public class OdssStoqsTrackFetcher extends ConsolePanel implements IPeriodicUpdates, ConfigurationListener {
@@ -156,10 +147,8 @@ public class OdssStoqsTrackFetcher extends ConsolePanel implements IPeriodicUpda
     private JCheckBoxMenuItem startStopCheckItem = null;
 //    private ToolbarButton sendEnableDisableButton;
 
-    private DefaultHttpClient client;
-    private PoolingClientConnectionManager httpConnectionManager; //old ThreadSafeClientConnManager
+    private HttpClientConnectionHelper httpComm;
     private HttpGet getHttpRequestState;
-//    private HashSet<HttpRequestBase> listActiveGetMethods = new HashSet<HttpRequestBase>();
 
     private Timer timer = null;
     private TimerTask ttask = null;
@@ -189,18 +178,8 @@ public class OdssStoqsTrackFetcher extends ConsolePanel implements IPeriodicUpda
      * 
      */
     private void initializeComm() {
-        SchemeRegistry schemeRegistry = new SchemeRegistry();
-        schemeRegistry.register(new Scheme("http", 80, PlainSocketFactory.getSocketFactory()));
-        schemeRegistry.register(new Scheme("https", 443, PlainSocketFactory.getSocketFactory()));
-        httpConnectionManager = new PoolingClientConnectionManager(schemeRegistry);
-        httpConnectionManager.setMaxTotal(4);
-        httpConnectionManager.setDefaultMaxPerRoute(50);
-
-        HttpParams params = new BasicHttpParams();
-        HttpConnectionParams.setConnectionTimeout(params, 5000);
-        client = new DefaultHttpClient(httpConnectionManager, params);
-        
-        ProxyInfoProvider.setRoutePlanner(client);
+        httpComm = new HttpClientConnectionHelper();
+        httpComm.initializeComm();
     }
 
     /**
@@ -266,6 +245,8 @@ public class OdssStoqsTrackFetcher extends ConsolePanel implements IPeriodicUpda
      */
     @Override
     public void cleanSubPanel() {
+        httpComm.cleanUp();
+        
         removeCheckMenuItem("Settings>" + PluginUtils.getPluginName(this.getClass()) + ">Start/Stop");
         removeMenuItem("Settings>" + PluginUtils.getPluginName(this.getClass()) + ">Settings");
         
@@ -306,9 +287,10 @@ public class OdssStoqsTrackFetcher extends ConsolePanel implements IPeriodicUpda
                 String uri = endpoint + POS_OF_URL_FRAGMENT + typeRqst + LAST_URL_FRAGMENT + periodHoursToFetch + "h/data.html";
                 getHttpRequestState = new HttpGet(uri);
 
-                HttpContext localContext = new BasicHttpContext();
-                HttpResponse iGetResultCode = client.execute(getHttpRequestState, localContext);
-                ProxyInfoProvider.authenticateConnectionIfNeeded(iGetResultCode, localContext, client);
+                HttpClientContext localContext = HttpClientContext.create();
+                HttpResponse iGetResultCode = httpComm.getClient().execute(getHttpRequestState, localContext);
+//                ProxyInfoProvider.authenticateConnectionIfNeeded(iGetResultCode, localContext, client);
+                httpComm.autenticateProxyIfNeeded(iGetResultCode, localContext);
                 
                 if (iGetResultCode.getStatusLine().getStatusCode() != HttpStatus.SC_OK) {
                     NeptusLog.pub().info("<###> "+OdssStoqsTrackFetcher.this.getClass().getSimpleName() 
