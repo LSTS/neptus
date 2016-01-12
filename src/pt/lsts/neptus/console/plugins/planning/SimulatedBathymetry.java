@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2015 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2016 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -35,9 +35,18 @@ import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.geom.Line2D;
 import java.awt.geom.Point2D;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.io.Serializable;
+import java.util.Collections;
 import java.util.LinkedHashMap;
+import java.util.Map;
 import java.util.Map.Entry;
 
+import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.renderer2d.Renderer2DPainter;
 import pt.lsts.neptus.renderer2d.StateRenderer2D;
 import pt.lsts.neptus.types.coord.LocationType;
@@ -46,25 +55,60 @@ import pt.lsts.neptus.types.coord.LocationType;
  * @author zp
  *
  */
-public class SimulatedBathymetry implements Renderer2DPainter {
+public class SimulatedBathymetry implements Renderer2DPainter, Serializable {
 
+    private static final long serialVersionUID = -2381547139906945494L;
     protected double defaultDepth = 10;
     protected double minDistToSounding = 200;
-    
     protected LinkedHashMap<LocationType, Double> soundings = new LinkedHashMap<>();
+    private static final File file = new File("conf/bathymetry.obj");
     
-    protected void addSounding(LocationType loc, double depth) {
+    private SimulatedBathymetry() {
+        
+    }
+    
+    private static SimulatedBathymetry instance = null;
+    
+    public static SimulatedBathymetry getInstance() {
+        if (instance == null)
+            instance = load();
+        return instance;
+    }
+    
+    public void addSoundings(Map<LocationType, Double> data) {
+        soundings.putAll(data);
+        store(this);
+    }
+    
+    public void addSounding(LocationType loc, double depth) {
         soundings.put(loc, depth);
+        store(this);
     }
     
-    protected void clearSoundings() {
+    public void clearSoundings() {
         soundings.clear();
+        store(this);
     }
     
-    public LinkedHashMap<LocationType, Double> getSoundings() {
-        return soundings;
+    public Map<LocationType, Double> getSoundings() {
+        return Collections.unmodifiableMap(soundings);
     }
     
+    /**
+     * @return the defaultDepth
+     */
+    public double getDefaultDepth() {
+        return defaultDepth;
+    }
+
+    /**
+     * @param defaultDepth the defaultDepth to set
+     */
+    public void setDefaultDepth(double defaultDepth) {
+        this.defaultDepth = defaultDepth;
+        store(this);
+    }
+
     public double getSimulatedDepth(LocationType loc) {
         if (soundings.size() == 0)
             return defaultDepth;
@@ -101,5 +145,31 @@ public class SimulatedBathymetry implements Renderer2DPainter {
             g.draw(new Line2D.Double(pt.getX(), pt.getY()-3, pt.getX(), pt.getY()+3));            
             g.drawString(String.format("%.1f m", sounding.getValue()), (int)pt.getX()+5, (int)pt.getY()+5);
         }
+    }
+    
+    private static void store(SimulatedBathymetry obj) {
+        try {
+            ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(file));
+            oos.writeObject(obj);
+            oos.close();            
+        }
+        catch (Exception e) {
+            NeptusLog.pub().error("Could not store bathymetry to file", e);            
+        }
+    }
+    
+    private static SimulatedBathymetry load() {
+        if (!file.canRead())
+            return new SimulatedBathymetry();
+        try {
+            ObjectInputStream ois = new ObjectInputStream(new FileInputStream(file));
+            SimulatedBathymetry obj = (SimulatedBathymetry) ois.readObject();
+            ois.close();
+            return obj;
+        }
+        catch (Exception e) {
+            NeptusLog.pub().error("Could not load bathymetry from file", e);
+            return new SimulatedBathymetry();
+        }        
     }
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2015 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2016 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -41,11 +41,10 @@ import java.io.File;
 import javax.swing.ImageIcon;
 import javax.swing.JComponent;
 import javax.swing.JFileChooser;
-import javax.swing.filechooser.FileFilter;
 
 import pt.lsts.neptus.NeptusLog;
-import pt.lsts.neptus.gui.swing.NeptusFileView;
 import pt.lsts.neptus.i18n.I18n;
+import pt.lsts.neptus.util.GuiUtils;
 import pt.lsts.neptus.util.conf.ConfigFetch;
 
 /**
@@ -55,56 +54,12 @@ import pt.lsts.neptus.util.conf.ConfigFetch;
 public class ImageFileChooser extends JFileChooser {
     
 	/**
-	 * Returns the file extension for the given file (null if no extension)
-	 * @param f The file from where to get the extension
-	 * @return The file extension of the given file
-	 */
-	private static String getExtension(File f) {
-        String ext = null;
-        String s = f.getName();
-        int i = s.lastIndexOf('.');
-
-        if (i > 0 &&  i < s.length() - 1) {
-            ext = s.substring(i+1).toLowerCase();
-        }
-        return ext;
-    }
-	
-	/**
 	 * Shows 
 	 */
 	public static File showOpenImageDialog() {
-		JFileChooser jfc = new JFileChooser();
-        jfc.setCurrentDirectory(new File(ConfigFetch.getConfigFile()));
+        JFileChooser jfc = GuiUtils.getFileChooser(ConfigFetch.getConfigFile(), I18n.text("Image files"), "png", "jpg",
+                "jpeg", "gif");
 		jfc.setAccessory(new ImagePreview(jfc));
-		jfc.setFileView(new NeptusFileView());
-		jfc.setFileFilter(new FileFilter() {
-			
-			public boolean accept(File f) {
-				 if (f.isDirectory()) {
-		            return true;
-				 }
-
-		        String extension = getExtension(f);
-		        if (extension != null) {
-		            if (extension.equals("png") ||
-		                extension.equals("jpg") ||
-		                extension.equals("jpeg") ||
-		                extension.equals("gif")) {
-		                    return true;
-		            } 
-		            else {
-		                return false;
-		            }
-		    	}
-
-		        return false;
-			}
-			
-			public String getDescription() {
-				return I18n.text("Image files");
-			}
-		});
 		
 		jfc.showDialog(ConfigFetch.getSuperParentFrame(), I18n.text("Open Image"));
 		return jfc.getSelectedFile();
@@ -116,7 +71,7 @@ public class ImageFileChooser extends JFileChooser {
 	}
 }
 
-// copy-paste de http://www.ictp.trieste.it/~manuals/programming/Java/tutorial/uiswing/components/filechooser.html
+// from http://www.ictp.trieste.it/~manuals/programming/Java/tutorial/uiswing/components/filechooser.html
 @SuppressWarnings("serial")
 class ImagePreview extends JComponent implements PropertyChangeListener {
 	private ImageIcon thumbnail = null;

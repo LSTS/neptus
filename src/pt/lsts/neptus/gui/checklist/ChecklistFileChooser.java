@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2015 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2016 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -43,7 +43,6 @@ import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
-import javax.swing.filechooser.FileFilter;
 
 import org.dom4j.Element;
 import org.dom4j.ElementHandler;
@@ -51,9 +50,9 @@ import org.dom4j.ElementPath;
 import org.dom4j.io.SAXReader;
 
 import pt.lsts.neptus.NeptusLog;
-import pt.lsts.neptus.gui.swing.NeptusFileView;
 import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.util.FileUtil;
+import pt.lsts.neptus.util.GuiUtils;
 import pt.lsts.neptus.util.conf.ConfigFetch;
 
 /**
@@ -98,7 +97,6 @@ public class ChecklistFileChooser extends JFileChooser {
      * Shows
      */
     private static File showOpenDialog(Component parent, String title, File basedir) {
-        JFileChooser jfc = new JFileChooser();
         File fx;
         if (basedir != null && basedir.exists()) {
             fx = basedir;
@@ -113,35 +111,10 @@ public class ChecklistFileChooser extends JFileChooser {
                 }
             }
         }
-        jfc.setCurrentDirectory(fx);
+
+        JFileChooser jfc = GuiUtils.getFileChooser(fx, I18n.text("Checklist files"), FileUtil.FILE_TYPE_CHECKLIST,
+                FileUtil.FILE_TYPE_XML);
         jfc.setAccessory(new ChecklistPreview(jfc));
-        jfc.setFileView(new NeptusFileView());
-        jfc.setFileFilter(new FileFilter() {
-            public boolean accept(File f) {
-                if (f.isDirectory()) {
-                    return true;
-                }
-
-                String extension = FileUtil.getFileExtension(f);
-                if (extension != null) {
-                    if (FileUtil.FILE_TYPE_CHECKLIST.equalsIgnoreCase(extension)
-                            || FileUtil.FILE_TYPE_XML.equalsIgnoreCase(extension)) {
-                        // return ChecklistType.validate(f);
-                        return true;
-                    }
-                    else {
-                        return false;
-                    }
-                }
-                return false;
-            }
-
-            public String getDescription() {
-                return I18n.text("Checklist files") +
-                		" ('" + FileUtil.FILE_TYPE_CHECKLIST + "', '"
-                        + FileUtil.FILE_TYPE_XML + "')";
-            }
-        });
 
         int result = jfc.showDialog((parent == null) ? new JFrame() : parent, title);
         if (result == JFileChooser.CANCEL_OPTION)

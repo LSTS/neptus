@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2015 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2016 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -47,6 +47,7 @@ import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
 
+import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.util.GuiUtils;
 
 /**
@@ -75,8 +76,7 @@ public class JImagePanel extends JPanel {
                     popup.add("Save image").addActionListener(new ActionListener() {
                         @Override
                         public void actionPerformed(ActionEvent e) {
-                            JFileChooser chooser = new JFileChooser();
-                            chooser.setFileFilter(GuiUtils.getCustomFileFilter("PNG files", "png"));
+                            JFileChooser chooser = GuiUtils.getFileChooser((String) null, I18n.text("PNG files"), "png");
                             if (chooser.showSaveDialog(JImagePanel.this) != JFileChooser.APPROVE_OPTION)
                                 return;
                             try {

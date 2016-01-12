@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2015 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2016 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -39,8 +39,10 @@ import org.dom4j.Document;
 import org.dom4j.DocumentHelper;
 import org.dom4j.Element;
 
+import com.l2fprod.common.propertysheet.DefaultProperty;
+import com.l2fprod.common.propertysheet.Property;
+
 import pt.lsts.imc.state.ImcSystemState;
-import pt.lsts.neptus.comm.manager.imc.ImcMsgManager;
 import pt.lsts.neptus.console.plugins.MainVehicleChangeListener;
 import pt.lsts.neptus.console.plugins.MissionChangeListener;
 import pt.lsts.neptus.console.plugins.PlanChangeListener;
@@ -50,9 +52,6 @@ import pt.lsts.neptus.plugins.PluginUtils;
 import pt.lsts.neptus.plugins.update.IPeriodicUpdates;
 import pt.lsts.neptus.plugins.update.PeriodicUpdatesService;
 import pt.lsts.neptus.util.ImageUtils;
-
-import com.l2fprod.common.propertysheet.DefaultProperty;
-import com.l2fprod.common.propertysheet.Property;
 
 /**
  * @author zp
@@ -141,7 +140,7 @@ public abstract class AbstractConsolePlugin implements PropertiesProvider {
         }
         
         NeptusEvents.register(this, console);
-        ImcMsgManager.registerBusListener(this);
+        getConsole().getImcMsgManager().registerBusListener(this);
     }
     
     /**
@@ -174,11 +173,11 @@ public abstract class AbstractConsolePlugin implements PropertiesProvider {
             periodicMethods.clear();
         }
         
-        ImcMsgManager.unregisterBusListener(this);        
+        getConsole().getImcMsgManager().unregisterBusListener(this);        
     }
     
     protected final ImcSystemState getState() {
-        return ImcMsgManager.getManager().getState(getConsole().getMainSystem());
+        return getConsole().getImcMsgManager().getState(getConsole().getMainSystem());
     }
     
     public final ImageIcon getIcon() {

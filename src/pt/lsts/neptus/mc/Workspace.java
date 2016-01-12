@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2015 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2016 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -495,7 +495,15 @@ public class Workspace extends JFrame implements IFrameOpener, FileHandler {
     @SuppressWarnings("serial")
     private JDesktopPane getJDesktopPane() {
         if (jDesktopPane == null) {
-            jDesktopPane = new JDesktopPane();
+            jDesktopPane = new JDesktopPane() {
+                @Override
+                public Component add(Component comp) {
+                    if(getComponentCount() == 0)
+                        return super.add(comp);
+                    else
+                        return super.add(comp, getComponentCount() - 1);
+                }
+            };
             jDesktopPane.setBackground(new Color(24, 58, 83));
 
             final ImageIcon icon = new ImageIcon(ImageUtils.getImage("images/lsts.png"));
@@ -520,7 +528,7 @@ public class Workspace extends JFrame implements IFrameOpener, FileHandler {
                 }
             });
 
-            jDesktopPane.add(lbl, Integer.MIN_VALUE);
+            jDesktopPane.add(lbl);
         }
 
         return jDesktopPane;
@@ -533,8 +541,7 @@ public class Workspace extends JFrame implements IFrameOpener, FileHandler {
      */
     private JFileChooser getFileDialog() {
         if (fileDialog == null) {
-            fileDialog = new JFileChooser();
-            fileDialog.setFileView(new NeptusFileView());
+            fileDialog = GuiUtils.getFileChooser((String) null);
         }
         return fileDialog;
     }
@@ -1773,11 +1780,10 @@ public class Workspace extends JFrame implements IFrameOpener, FileHandler {
             public void actionPerformed(ActionEvent e) {
                 startActivity(I18n.text("Opening Empty Console..."));
                 SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>() {
+                    ConsoleLayout empCon;
                     @Override
                     protected Void doInBackground() throws Exception {
-                        ConsoleLayout empCon = new ConsoleLayout();
-                        empCon.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-                        empCon.setVisible(true);
+                        empCon = ConsoleLayout.forge();
                         return null;
                     }
 
@@ -1785,6 +1791,8 @@ public class Workspace extends JFrame implements IFrameOpener, FileHandler {
                     protected void done() {
                         try {
                             get();
+                            empCon.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+                            empCon.setVisible(true);
                         }
                         catch (Exception e) {
                             e.printStackTrace();
@@ -1997,11 +2005,10 @@ public class Workspace extends JFrame implements IFrameOpener, FileHandler {
                 public void actionPerformed(ActionEvent e) {
                     startActivity(I18n.text("Opening Empty Console..."));
                     SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>() {
+                        ConsoleLayout empCon;
                         @Override
                         protected Void doInBackground() throws Exception {
-                            ConsoleLayout empCon = new ConsoleLayout();
-                            empCon.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-                            empCon.setVisible(true);
+                            empCon = ConsoleLayout.forge();
                             return null;
                         }
 
@@ -2009,6 +2016,8 @@ public class Workspace extends JFrame implements IFrameOpener, FileHandler {
                         protected void done() {
                             try {
                                 get();
+                                empCon.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+                                empCon.setVisible(true);
                             }
                             catch (Exception e) {
                                 e.printStackTrace();
@@ -2022,7 +2031,7 @@ public class Workspace extends JFrame implements IFrameOpener, FileHandler {
         }
         return newConsoleMenuItem;
     }
-
+    
     private void addDesktopIcons() {
         int iconSize = 48, iconSepSize = Math.min(iconSize + iconSize * 2 / 3, iconSize + 18);
         int posY = 30;

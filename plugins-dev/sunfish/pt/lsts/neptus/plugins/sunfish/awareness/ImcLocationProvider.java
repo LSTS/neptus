@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2015 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2016 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -34,7 +34,6 @@ package pt.lsts.neptus.plugins.sunfish.awareness;
 import pt.lsts.imc.Announce;
 import pt.lsts.imc.IMCDefinition;
 import pt.lsts.imc.RemoteSensorInfo;
-import pt.lsts.neptus.comm.manager.imc.ImcMsgManager;
 
 import com.google.common.eventbus.Subscribe;
 
@@ -49,12 +48,12 @@ public class ImcLocationProvider implements ILocationProvider {
     @Override
     public void onInit(SituationAwareness instance) {
         this.instance = instance;
-        ImcMsgManager.registerBusListener(this);
+        instance.getConsole().getImcMsgManager().registerBusListener(this);
     }
 
     @Override
     public void onCleanup() {
-        ImcMsgManager.unregisterBusListener(this);
+        instance.getConsole().getImcMsgManager().unregisterBusListener(this);
     }
     
     @Override

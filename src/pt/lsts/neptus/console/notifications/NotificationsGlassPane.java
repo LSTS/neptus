@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2015 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2016 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -129,9 +129,10 @@ public class NotificationsGlassPane extends JPanel {
         Border paddingBorder = BorderFactory.createEmptyBorder(6, 10, 6, 10);
         Border border;
         String html;
+        String msgTxt = noty.getText() != null && !noty.getText().isEmpty() ? noty.getText().replaceAll("\n", "<br>") : "";
         switch (noty.getType()) {
             case SUCCESS:
-                html = "<html> <b>" + noty.getSrc() + "</b> " + noty.getTitle() + "<br>" + noty.getText() + "</html>";
+                html = "<html> <b>" + noty.getSrc() + "</b> " + noty.getTitle() + "<br>" + msgTxt+ "</html>";
                 label = new JLabel(html, ImageUtils.createImageIcon("images/icons/noty-success.png"),
                         SwingConstants.LEFT);
                 label.setBackground(new Color(0xDFF0D8));
@@ -139,14 +140,14 @@ public class NotificationsGlassPane extends JPanel {
                 border = new LineBorder(new Color(0x468847), 1);
                 break;
             case ERROR:
-                html = "<html> <b>" + noty.getSrc() + "</b> " + noty.getTitle() + "<br>" + noty.getText() + "</html>";
+                html = "<html> <b>" + noty.getSrc() + "</b> " + noty.getTitle() + "<br>" + msgTxt + "</html>";
                 label = new JLabel(html, ImageUtils.createImageIcon("images/icons/noty-error.png"), SwingConstants.LEFT);
                 label.setBackground(new Color(0xF2DEDE));
                 label.setForeground(new Color(0x333333));
                 border = new LineBorder(new Color(0xB94A48), 1);
                 break;
             case WARNING:
-                html = "<html> <b>" + noty.getSrc() + "</b> " + noty.getTitle() + "<br>" + noty.getText() + "</html>";
+                html = "<html> <b>" + noty.getSrc() + "</b> " + noty.getTitle() + "<br>" + msgTxt + "</html>";
                 label = new JLabel(html, ImageUtils.createImageIcon("images/icons/noty-warning.png"),
                         SwingConstants.LEFT);
                 label.setBackground(new Color(0xFCF8E3));
@@ -154,14 +155,14 @@ public class NotificationsGlassPane extends JPanel {
                 border = new LineBorder(new Color(0xC09853), 1);
                 break;
             case INFO:
-                html = "<html> <b>" + noty.getSrc() + "</b> " + noty.getTitle() + "<br>" + noty.getText() + "</html>";
+                html = "<html> <b>" + noty.getSrc() + "</b> " + noty.getTitle() + "<br>" + msgTxt + "</html>";
                 label = new JLabel(html, ImageUtils.createImageIcon("images/icons/noty-info.png"), SwingConstants.LEFT);
                 label.setBackground(new Color(0xD9EDF7));
                 label.setForeground(new Color(0x333333));
                 border = new LineBorder(new Color(0x3A87AD), 1);
                 break;
             default:
-                html = "<html> <b>" + noty.getSrc() + "</b> " + noty.getTitle() + "<br>" + noty.getText() + "</html>";
+                html = "<html> <b>" + noty.getSrc() + "</b> " + noty.getTitle() + "<br>" + msgTxt + "</html>";
                 label = new JLabel(html, ImageUtils.createImageIcon("images/icons/info.png"), SwingConstants.LEFT);
                 label.setBackground(new Color(0xD9EDF7));
                 label.setForeground(new Color(0x333333));

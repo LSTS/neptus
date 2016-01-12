@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2015 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2016 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -45,40 +45,41 @@ import pt.lsts.neptus.mra.importers.IMraLogGroup;
 import pt.lsts.neptus.types.coord.LocationType;
 
 /**
+ * This will be serializable, so no name changes of the fields!
  * @author jqcorreia
  *
  */
 public class LogMarker implements Serializable, Comparable<LogMarker> {
     private static final long serialVersionUID = 1L;
 
-    private String label;
+    protected String label;
     
     /**
      * Time stamp in milliseconds
      */
-    private double timestamp;
+    protected double timestamp;
 
     /**
      * Latitude in radians
      */
-    private double lat;
+    protected double lat;
     /**
      * Longitude in radians
      */
-    private double lon;
+    protected double lon;
     
     /**
      * @param label Text to associate with the marker
      * @param timestamp in milliseconds
-     * @param lat Latitude, in radians of the marker. Use 0 if not available.
-     * @param lon Longitude, in radians of the marker. Use 0 if not available.
+     * @param latRads Latitude, in radians of the marker. Use 0 if not available.
+     * @param lonRads Longitude, in radians of the marker. Use 0 if not available.
      */
-    public LogMarker(String label, double timestamp, double lat, double lon) {
+    public LogMarker(String label, double timestamp, double latRads, double lonRads) {
         super();
         this.label = label;
         this.timestamp = timestamp;
-        this.lat = lat;
-        this.lon = lon;
+        this.lat = latRads;
+        this.lon = lonRads;
     }
     
     @Override
@@ -143,34 +144,40 @@ public class LogMarker implements Serializable, Comparable<LogMarker> {
     /**
      * @return the lat
      */
-    public double getLat() {
+    public double getLatRads() {
         return lat;
     }
 
     /**
-     * @param lat the lat to set
+     * @param latRads the lat to set
      */
-    public void setLat(double lat) {
-        this.lat = lat;
+    public void setLatRads(double latRads) {
+        this.lat = latRads;
     }
 
     /**
      * @return the lon
      */
-    public double getLon() {
+    public double getLonRads() {
         return lon;
     }
 
     /**
-     * @param lon the lon to set
+     * @param lonRads the lon to set
      */
-    public void setLon(double lon) {
-        this.lon = lon;
+    public void setLonRads(double lonRads) {
+        this.lon = lonRads;
     }
     
     public Date getDate() {
         return new Date((long)timestamp);
     }
 
-
+    /* (non-Javadoc)
+     * @see java.lang.Object#toString()
+     */
+    @Override
+    public String toString() {
+        return label;
+    }
 }

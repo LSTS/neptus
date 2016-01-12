@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2015 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2016 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -128,7 +128,7 @@ public class DeltaT83PToCorrectedPos83P implements MRAExporter {
                 // 47-60    -   GNSS Ships Postion Longitude (14 byes) "ddd.mm.xxxxx_E" ddd= degrees, mm = minutes, xxxxx = decimal minutes, E = East or W = West
                 
                 buf = channel.map(MapMode.READ_WRITE, curPos, 256);
-                DeltaTHeader header = deltaParser.getCurrentHeader();;
+                DeltaTHeader header = deltaParser.getCurrentHeader();
                 curPos = deltaParser.getCurrentPosition() - header.numBytes;
                 
                 long nextSwathTimeStamp = nextSwath.getTimestamp();

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2015 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2016 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -60,14 +60,14 @@ public class IndexedLogTableModel extends AbstractTableModel {
     private final IMCMessageType imcMsgType;
     private Vector<String> names = null;
     private Vector<String> msgNames = null;
-    
+
     // This method returns the message that should go into the given table row
     public synchronized IMCMessage getMessage(int row) {
         if (!rowToIndex.containsKey(row))
             return null;
 
         int idx = rowToIndex.get(row);
-        
+
         if (cache.containsKey(idx)) {
             return (IMCMessage) cache.get(idx);
         }
@@ -164,36 +164,40 @@ public class IndexedLogTableModel extends AbstractTableModel {
         if (index == null) {
             return "Unable to load data";
         }
-        
+
         // retrieve the message that should go into this column from the cache
         IMCMessage m = getMessage(rowIndex);
         // given the column name show the resulting value
         if (m != null) {
-            switch (msgNames.get(columnIndex)) {
-                case "time":
-                    return m.getTimestampMillis();
-                case "src":
-                    return m.getSourceName();
-                case "src_ent":
-                    return index.getEntityName(m.getSrc(), m.getSrcEnt());
-                case "dst":
-                    return index.getSystemName(m.getDst());
-                case "dst_ent":
-                    return index.getEntityName(m.getDst(), m.getDstEnt());
-                default: {
-                    String type = m.getTypeOf(msgNames.get(columnIndex));
-                    if (type.startsWith("uint") || type.startsWith("int") || type.startsWith("fp")) {
-                        String unit = m.getUnitsOf(msgNames.get(columnIndex));
-                        Number nb = null;
-                        nb = m.getAsNumber(msgNames.get(columnIndex));
-                        if (nb != null
-                                && (unit == null || !"enumerated".equalsIgnoreCase(unit.toLowerCase())
-                                        && !"bitmask".equalsIgnoreCase(unit.toLowerCase())
-                                        && !"bitfield".equalsIgnoreCase(unit.toLowerCase())))
-                            return nb;
-                    }
-                    return ""+m.getString(msgNames.get(columnIndex), false);
+            if (columnIndex <= 4) {
+                switch (msgNames.get(columnIndex)) {
+                    case "time":
+                        return m.getTimestampMillis();
+                    case "src":
+                        return m.getSourceName();
+                    case "src_ent":
+                        return index.getEntityName(m.getSrc(), m.getSrcEnt());
+                    case "dst":
+                        return index.getSystemName(m.getDst());
+                    case "dst_ent":
+                        return index.getEntityName(m.getDst(), m.getDstEnt());
+                    default:
+                        return null;
                 }
+            }
+            else {
+                String type = m.getTypeOf(msgNames.get(columnIndex));
+                if (type.startsWith("uint") || type.startsWith("int") || type.startsWith("fp")) {
+                    String unit = m.getUnitsOf(msgNames.get(columnIndex));
+                    Number nb = null;
+                    nb = m.getAsNumber(msgNames.get(columnIndex));
+                    if (nb != null
+                            && (unit == null || !"enumerated".equalsIgnoreCase(unit.toLowerCase())
+                            && !"bitmask".equalsIgnoreCase(unit.toLowerCase())
+                            && !"bitfield".equalsIgnoreCase(unit.toLowerCase())))
+                        return nb;
+                }
+                return ""+m.getString(msgNames.get(columnIndex), false);
             }
         }
         return null;

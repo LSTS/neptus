@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2015 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2016 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -35,19 +35,12 @@ import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
 import java.io.File;
+import java.util.Locale;
 
 import javax.swing.JFileChooser;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.ProgressMonitor;
-
-import pt.lsts.imc.EstimatedState;
-import pt.lsts.imc.Temperature;
-import pt.lsts.imc.lsf.IndexScanner;
-import pt.lsts.neptus.comm.IMCUtils;
-import pt.lsts.neptus.mra.importers.IMraLogGroup;
-import pt.lsts.neptus.mra.replay.MraVehiclePosHud;
-import pt.lsts.neptus.types.coord.LocationType;
 
 import com.xuggle.mediatool.IMediaReader;
 import com.xuggle.mediatool.IMediaTool;
@@ -56,11 +49,21 @@ import com.xuggle.mediatool.MediaToolAdapter;
 import com.xuggle.mediatool.ToolFactory;
 import com.xuggle.mediatool.event.IVideoPictureEvent;
 
+import pt.lsts.imc.EstimatedState;
+import pt.lsts.imc.Temperature;
+import pt.lsts.imc.lsf.IndexScanner;
+import pt.lsts.neptus.comm.IMCUtils;
+import pt.lsts.neptus.i18n.I18n;
+import pt.lsts.neptus.mra.importers.IMraLogGroup;
+import pt.lsts.neptus.mra.replay.MraVehiclePosHud;
+import pt.lsts.neptus.types.coord.LocationType;
+import pt.lsts.neptus.util.GuiUtils;
+
 /**
  * @author zp
  *
  */
-// @PluginDescription
+//@PluginDescription(name="Video Overlay")
 public class VideoOverlayExporter implements MRAExporter {
 
     @Override
@@ -78,23 +81,24 @@ public class VideoOverlayExporter implements MRAExporter {
     @Override
     public String process(IMraLogGroup source, ProgressMonitor pmonitor) {
 
-        JFileChooser chooser = new JFileChooser();
+        JFileChooser chooser = GuiUtils.getFileChooser(source.getDir());
+        chooser.setDialogTitle(I18n.text("Video file"));
         int op = chooser.showOpenDialog(null);
         if (op == JFileChooser.APPROVE_OPTION) {
             videoIn = chooser.getSelectedFile();
 
-            videoOut = new File(chooser.getSelectedFile().getAbsolutePath()+".out.avi");
+            videoOut = new File(chooser.getSelectedFile().getAbsolutePath() + ".out.avi");
         }
         else
-            return "User cancelled the operation";
-        String time = JOptionPane.showInputDialog("Enter the log time, in seconds when the video starts");
+            return I18n.text("User cancelled the operation");
+        String time = JOptionPane.showInputDialog(I18n.text("Enter the log time, in seconds when the video starts"));
         double startTime = 0;
         try {
             startTime = Double.parseDouble(time);
         }
         catch (Exception e) {
             e.printStackTrace();
-            return "Given time was not understood";
+            return I18n.text("Given time was not understood");
         }
 
         IMediaReader reader = ToolFactory.makeReader(videoIn.toString());
@@ -111,18 +115,10 @@ public class VideoOverlayExporter implements MRAExporter {
 
         }
 
-
         return "done";
     }
 
-    @Override
-    public String getName() {
-        // TODO Auto-generated method stub
-        return "Video Overlay";
-    }
-
-    static class TimeStampTool extends MediaToolAdapter
-    {
+    static class TimeStampTool extends MediaToolAdapter {
         private final ProgressMonitor pmonitor;
         private final double timeOffset;
         private final IndexScanner scanner;
@@ -140,8 +136,7 @@ public class VideoOverlayExporter implements MRAExporter {
         }
 
         @Override
-        public void onVideoPicture(IVideoPictureEvent event)
-        {
+        public void onVideoPicture(IVideoPictureEvent event) {
             Graphics2D g = event.getImage().createGraphics();
 
             pmonitor.setProgress((int)(event.getPicture().getTimeStamp()/1000000));
@@ -151,11 +146,11 @@ public class VideoOverlayExporter implements MRAExporter {
                 tempScanner.setTime(timeOffset+event.getPicture().getTimeStamp()/1000000.0);
                 Temperature temp = tempScanner.next(Temperature.class, "CTD");
                 if (state != null) {
-                    String depth = String.format("%.2f", state.getDepth());
-                    String roll = String.format ("%.1f", Math.toDegrees(state.getPhi()));
-                    String pitch = String.format("%.1f", Math.toDegrees(state.getTheta()));
-                    String yaw = String.format  ("%.1f", Math.toDegrees(state.getPsi()));
-                    String t = String.format("%.2f", temp.getValue());
+                    String depth = String.format(Locale.US, "%.2f", state.getDepth());
+                    String roll = String.format(Locale.US, "%.1f", Math.toDegrees(state.getPhi()));
+                    String pitch = String.format(Locale.US, "%.1f", Math.toDegrees(state.getTheta()));
+                    String yaw = String.format(Locale.US, "%.1f", Math.toDegrees(state.getPsi()));
+                    String t = String.format(Locale.US, "%.2f", temp.getValue());
                     LocationType loc = IMCUtils.parseLocation(state);
                     loc.convertToAbsoluteLatLonDepth();
                     lbl.setText("<html><h3>"+loc.getLatitudeAsPrettyString()+"<br>"+loc.getLongitudeAsPrettyString()+"</h3>"+
@@ -180,5 +175,4 @@ public class VideoOverlayExporter implements MRAExporter {
             super.onVideoPicture(event);
         }
     }
-
 }

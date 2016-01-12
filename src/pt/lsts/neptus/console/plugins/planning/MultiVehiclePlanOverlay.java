@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2015 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2016 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -165,6 +165,7 @@ public class MultiVehiclePlanOverlay extends ConsolePanel implements Renderer2DP
                     points.add(renderer.getScreenPosition(l));
                 lastZoom = renderer.getZoom();
                 lastCenter = new LocationType(renderer.getCenter());
+                lastRotation = renderer.getRotation();
             }
             planPoints.put(entry.getValue(), points);
 

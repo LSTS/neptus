@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2015 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2016 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -519,18 +519,18 @@ public class GraphType implements XmlOutputMethods {
 //	    Element offsetsE = manElemRoot.addElement("offsets");
 //	    Element offsE = offsetsE.addElement("offset");
 //	    offsE.addElement("north-offset").setText("1");
-//	    offsE.addElement("east-offset").setText("1");;
-//	    offsE.addElement("depth-offset").setText("1");;
+//	    offsE.addElement("east-offset").setText("1");
+//	    offsE.addElement("depth-offset").setText("1");
 //
 //	    offsE = offsetsE.addElement("offset");
 //	    offsE.addElement("north-offset").setText("2.4");
-//	    offsE.addElement("east-offset").setText("3.4");;
-//	    offsE.addElement("depth-offset").setText("3");;
+//	    offsE.addElement("east-offset").setText("3.4");
+//	    offsE.addElement("depth-offset").setText("3");
 //
 //	    offsE = offsetsE.addElement("offset");
 //	    offsE.addElement("north-offset").setText("3");
-//	    offsE.addElement("east-offset").setText("4");;
-//	    offsE.addElement("depth-offset").setText("5");;
+//	    offsE.addElement("east-offset").setText("4");
+//	    offsE.addElement("depth-offset").setText("5");
 //
 //        System.err.println(FileUtil.getAsPrettyPrintFormatedXMLString(document));
 

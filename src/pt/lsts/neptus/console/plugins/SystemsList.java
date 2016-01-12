@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2015 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2016 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -1427,7 +1427,7 @@ public class SystemsList extends ConsolePanel implements MainVehicleChangeListen
                     if (!systems.containsKey(sys))
                         imcSystemsNotOnList.add(sys);
                 }
-                drawInRenderImc3SystemList(renderer, (Graphics2D) g.create(), imcSystemsNotOnList);
+                drawInRenderImcSystemList(renderer, (Graphics2D) g.create(), imcSystemsNotOnList);
             }
 
             // Draw in render the systems on the list
@@ -1780,14 +1780,14 @@ public class SystemsList extends ConsolePanel implements MainVehicleChangeListen
             if (sd.isMainVehicle())
                 color = new Color(0, 255, 64); // Color.GREEN.darker();
 
-            drawImc3System(renderer, g2, sys, color,
+            drawImcSystem(renderer, g2, sys, color,
                     !viewInfoOSDSwitch.isSelected() && !viewExtendedOSDSwitch.isSelected());
 
             g2.dispose();
         }
     }
 
-    private void drawInRenderImc3SystemList(StateRenderer2D renderer, Graphics2D g, List<ImcSystem> systemsList) {
+    private void drawInRenderImcSystemList(StateRenderer2D renderer, Graphics2D g, List<ImcSystem> systemsList) {
         Graphics2D g2;
         for (ImcSystem sys : systemsList) {
             g2 = (Graphics2D) g.create();
@@ -1802,7 +1802,7 @@ public class SystemsList extends ConsolePanel implements MainVehicleChangeListen
             if (SystemPainterHelper.getLocationAge(sys.getLocation(), sys.getLocationTimeMillis()) < DateTimeUtil.MINUTE
                     * minutesToHideSystemsWithoutKnownLocation
                     || sys.isActive())
-                drawImc3System(renderer, g2, sys, color, true);
+                drawImcSystem(renderer, g2, sys, color, true);
 
             g2.dispose();
         }
@@ -1828,7 +1828,7 @@ public class SystemsList extends ConsolePanel implements MainVehicleChangeListen
         }
     }
 
-    private void drawImc3System(StateRenderer2D renderer, Graphics2D g, ImcSystem sys, Color color, boolean drawLabel) {
+    private void drawImcSystem(StateRenderer2D renderer, Graphics2D g, ImcSystem sys, Color color, boolean drawLabel) {
         Graphics2D g2 = (Graphics2D) g.create();
         double iconWidth = rendererIconsSize; // 20
 

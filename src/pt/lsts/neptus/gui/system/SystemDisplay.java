@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2015 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2016 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -128,7 +128,7 @@ public class SystemDisplay extends JXPanel implements Comparable<SystemDisplay>,
 	private boolean active = false;
 	private boolean selected = false;
 	private boolean enableSelection = true;
-	private ImcSystem.IMCAuthorityState withAuthority = IMCAuthorityState.NONE;;
+	private ImcSystem.IMCAuthorityState withAuthority = IMCAuthorityState.NONE;
 	private boolean taskAlocated = false;
 	private boolean emergencyTaskAlocated = false;
 	private boolean attentionAlert = false;

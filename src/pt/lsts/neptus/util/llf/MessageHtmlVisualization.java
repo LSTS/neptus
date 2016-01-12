@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2015 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2016 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -31,7 +31,6 @@
  */
 package pt.lsts.neptus.util.llf;
 
-import java.awt.Color;
 import java.awt.Component;
 import java.awt.Toolkit;
 import java.awt.datatransfer.StringSelection;
@@ -43,12 +42,13 @@ import java.text.SimpleDateFormat;
 import java.util.TimeZone;
 
 import javax.swing.ImageIcon;
-import javax.swing.JLabel;
+import javax.swing.JEditorPane;
 import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
 
 import pt.lsts.imc.IMCMessage;
 import pt.lsts.imc.IMCUtil;
+import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.mra.importers.IMraLogGroup;
 import pt.lsts.neptus.mra.visualizations.MRAVisualization;
@@ -67,15 +67,15 @@ public class MessageHtmlVisualization implements MRAVisualization {
     }
 
     protected JScrollPane scroll;
-    protected JLabel lbl;
+    protected JEditorPane editor = new JEditorPane();
 
     public MessageHtmlVisualization(final IMCMessage message) {
         this.message = message;
 
-        lbl = new JLabel(IMCUtil.getAsHtml(message));
-        lbl.setBackground(Color.white);
-        lbl.setOpaque(true);
-        lbl.addMouseListener(new MouseAdapter() {
+        editor.setContentType("text/html");
+        editor.setEditable(false);
+        editor.setText(IMCUtil.getAsHtml(message));
+        editor.addMouseListener(new MouseAdapter() {
             public void mouseClicked(MouseEvent e) {
                 if (e.getButton() == MouseEvent.BUTTON3) {
                     JPopupMenu popup = new JPopupMenu();
@@ -87,13 +87,28 @@ public class MessageHtmlVisualization implements MRAVisualization {
                             Toolkit.getDefaultToolkit().getSystemClipboard().setContents(selection, null);
                         }
                     });
+                    
+                    if (editor.getSelectionStart() < editor.getSelectionEnd()) {
+                        popup.add(I18n.text("Copy selection to clipboard")).addActionListener(new ActionListener() {
 
+                            @Override
+                            public void actionPerformed(ActionEvent e) {
+                                try {
+                                    StringSelection selection = new StringSelection(editor.getSelectedText());
+                                    Toolkit.getDefaultToolkit().getSystemClipboard().setContents(selection, null);
+                                }
+                                catch (Exception ex) {
+                                    NeptusLog.pub().error(ex);
+                                }
+                            }
+                        });
+                    }                        
                     popup.show(e.getComponent(), e.getX(), e.getY());
                 }
             };
         });
 
-        scroll = new JScrollPane(lbl);
+        scroll = new JScrollPane(editor);
     }
 
     public void onHide() {
@@ -110,7 +125,7 @@ public class MessageHtmlVisualization implements MRAVisualization {
 
     @Override
     public String getName() {
-        return String.format("%s [%s, %02x]", message.getAbbrev(), fmt.format(message.getDate()), lbl.getText().hashCode());
+        return String.format("%s [%s, %02x]", message.getAbbrev(), fmt.format(message.getDate()), editor.getText().hashCode());
     }
 
     @Override

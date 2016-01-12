@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2015 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2016 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -38,16 +38,21 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Vector;
 
 import javax.imageio.ImageIO;
 import javax.swing.JFileChooser;
+import javax.swing.JOptionPane;
 
 import pt.lsts.neptus.colormap.ColorMapFactory;
 import pt.lsts.neptus.console.ConsoleLayout;
 import pt.lsts.neptus.console.ConsolePanel;
 import pt.lsts.neptus.console.plugins.planning.MapPanel;
+import pt.lsts.neptus.console.plugins.planning.SimulatedBathymetry;
+import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.mra.WorldImage;
 import pt.lsts.neptus.plugins.NeptusProperty;
 import pt.lsts.neptus.plugins.PluginDescription;
@@ -57,12 +62,13 @@ import pt.lsts.neptus.renderer2d.tiles.MapPainterProvider;
 import pt.lsts.neptus.types.coord.LocationType;
 import pt.lsts.neptus.util.GuiUtils;
 import pt.lsts.neptus.util.ImageUtils;
+import pt.lsts.neptus.util.bathymetry.TidePredictionFactory;
 
 /**
  * @author zp
  * 
  */
-@PluginDescription
+@PluginDescription(name="S57 Tools")
 public class S57SoundingsExporter extends ConsolePanel {
 
     private static final long serialVersionUID = 1653621815781506755L;
@@ -73,10 +79,11 @@ public class S57SoundingsExporter extends ConsolePanel {
 
     @Override
     public void cleanSubPanel() {
-        // TODO Auto-generated method stub
-
+        removeMenuItem(I18n.text("Tools") + ">" + I18n.text("S57") + ">"
+                + I18n.text("Use S57 Bathymetry for Simulation"));
+        removeMenuItem(I18n.text("Tools") + I18n.text("S57") + ">" + I18n.text("Export Depth Soundings"));
+        removeMenuItem(I18n.text("Tools") + I18n.text("S57") + ">" + I18n.text("Export Bathymetry Mesh"));
     }
-
 
     public static S57Chart getS57Chart(ConsoleLayout console) throws Exception {
 
@@ -103,7 +110,57 @@ public class S57SoundingsExporter extends ConsolePanel {
 
     @Override
     public void initSubPanel() {
-        addMenuItem("Tools>Export Depth soundings", ImageUtils.getIcon(PluginUtils.getPluginIcon(getClass())),
+        
+        addMenuItem(I18n.text("Tools") + ">" + I18n.text("S57") + ">"
+                + I18n.text("Use S57 Bathymetry for Simulation"), 
+                ImageUtils.getIcon(PluginUtils.getPluginIcon(getClass())),
+                new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                
+                float tide = (float) TidePredictionFactory.getTideLevel(System.currentTimeMillis());
+                String depthStr = JOptionPane.showInputDialog(getConsole(), I18n.text("Please enter tide level (meters)"), tide);
+                if (depthStr == null)
+                    return;
+                try {
+                    tide = Float.parseFloat(depthStr);
+                    SimulatedBathymetry.getInstance().setDefaultDepth(tide);                   
+                }
+                catch (Exception ex) {
+                    GuiUtils.errorMessage(getConsole(), I18n.text("S57 bathymetry"), I18n.textf("Wrong tide value: %error", ex.getMessage()));
+                }   
+                
+                try {
+                    S57Chart chart = getS57Chart(getConsole());
+                    StateRenderer2D renderer = getRenderer(getConsole());
+                    
+                    LocationType topLeft = renderer.getTopLeftLocationType().convertToAbsoluteLatLonDepth();
+                    LocationType bottomRight = renderer.getBottomRightLocationType()
+                            .convertToAbsoluteLatLonDepth();
+                    ArrayList<LocationType> soundings = new ArrayList<>();
+                    soundings.addAll(chart.getDepthSoundings(bottomRight.getLatitudeDegs(),
+                            topLeft.getLatitudeDegs(), topLeft.getLongitudeDegs(),
+                            bottomRight.getLongitudeDegs()));
+                    SimulatedBathymetry.getInstance().clearSoundings();
+                    
+                    
+                    LinkedHashMap<LocationType, Double> data = new LinkedHashMap<>();
+                    
+                    for (LocationType loc : soundings)
+                       data.put(loc, loc.getDepth()+tide);
+                    
+                    SimulatedBathymetry.getInstance().addSoundings(data);
+                }
+                catch (Exception ex) {
+                    GuiUtils.errorMessage(getConsole(), ex);
+                    ex.printStackTrace();
+                }
+            }
+
+        });
+        
+        addMenuItem(I18n.text("Tools") + ">" + I18n.text("S57") + ">" + I18n.text("Export Depth Soundings"), 
+                ImageUtils.getIcon(PluginUtils.getPluginIcon(getClass())),
                 new ActionListener() {
 
             @Override
@@ -132,10 +189,11 @@ public class S57SoundingsExporter extends ConsolePanel {
                     w.write("Latitude,Longitude,Depth\n");
                     
                     for (LocationType loc : soundings) {
-                        w.write(String.format("%.8f,%.8f,%.2f\n",loc.getLatitudeDegs(),loc.getLongitudeDegs(),loc.getDepth()));
+                        w.write(String.format(Locale.US, "%.8f,%.8f,%.2f\n",loc.getLatitudeDegs(),loc.getLongitudeDegs(),loc.getDepth()));
                     }
                     w.close();
-                    GuiUtils.infoMessage(getConsole(), "Export soundings", "Exported "+soundings.size()+" soundings to "+f.getAbsolutePath());
+                    GuiUtils.infoMessage(getConsole(), I18n.text("Export soundings"), 
+                            I18n.textf("Exported %points soundings to %file", soundings.size(), f.getAbsolutePath()));
                 }
                 catch (Exception err) {
                     GuiUtils.errorMessage(getConsole(), err);
@@ -144,7 +202,8 @@ public class S57SoundingsExporter extends ConsolePanel {
             }
         });
         
-        addMenuItem("Tools>Export Bathymetry Mesh", ImageUtils.getIcon(PluginUtils.getPluginIcon(getClass())),
+        addMenuItem(I18n.text("Tools") + ">" + I18n.text("S57") + ">" + I18n.text("Export Bathymetry Mesh"), 
+                ImageUtils.getIcon(PluginUtils.getPluginIcon(getClass())),
                 new ActionListener() {
 
             @Override
@@ -191,7 +250,6 @@ public class S57SoundingsExporter extends ConsolePanel {
                     ImageIO.write(scaled, "PNG", new File(options.dest.getParentFile(), options.dest.getName()+".2.png"));
                     BufferedWriter bw = new BufferedWriter(new FileWriter(options.dest));
                     
-                    
                     int x = 0, y;
                     for (double east = 0; x < scaled.getWidth(); east += options.cellWidth, x++) {
                         y = 0;
@@ -202,13 +260,14 @@ public class S57SoundingsExporter extends ConsolePanel {
                             long rgb = scaled.getRGB(x, y);
                             double depth = ((rgb & 0xFF) / 255.0) * img.getMaxValue();
                             System.out.printf("%.2f %.2f %.2f\n", pos[1], -pos[0], -depth);
-                            bw.write(String.format("%.2f %.2f %.2f\n", pos[1], -pos[0], -depth));
+                            bw.write(String.format(Locale.US, "%.2f %.2f %.2f\n", pos[1], -pos[0], -depth));
                         }
                     }
                     
                     bw.close();
                     
-                    GuiUtils.infoMessage(getConsole(), "Export bathymetry", "Exported mesh to "+options.dest.getAbsolutePath());
+                    GuiUtils.infoMessage(getConsole(), I18n.text("Export Bathymetry"), 
+                            I18n.textf("Exported mesh to %file.", options.dest.getAbsolutePath()));
                 }
                 catch (Exception err) {
                     GuiUtils.errorMessage(getConsole(), err);

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2015 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2016 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -31,11 +31,8 @@
  */
 package pt.lsts.neptus.gui;
 
-import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
-import java.awt.Graphics;
-import java.awt.Graphics2D;
 import java.awt.Image;
 import java.util.HashMap;
 
@@ -62,7 +59,6 @@ import pt.lsts.neptus.types.mission.HomeReference;
 import pt.lsts.neptus.types.mission.MapMission;
 import pt.lsts.neptus.types.mission.VehicleMission;
 import pt.lsts.neptus.types.mission.plan.PlanType;
-import pt.lsts.neptus.util.ColorUtils;
 import pt.lsts.neptus.util.ImageUtils;
 import pt.lsts.neptus.util.conf.GeneralPreferences;
 
@@ -350,63 +346,4 @@ public class MissionTreeCellRenderer extends DefaultTreeCellRenderer {
                 break;
         }
     }
-}
-
-class ExtendedIcon extends ImageIcon {
-    private static final long serialVersionUID = 5952273156817637800L;
-
-    private static Color BLUE = ColorUtils.setTransparencyToColor(Color.BLUE, 90);
-    private static Color GREEN = ColorUtils.setTransparencyToColor(Color.GREEN, 90);
-    private static Color RED = ColorUtils.setTransparencyToColor(Color.RED, 90);
-
-    // protected static final ImageIcon PLAN_ICON = new ImageIcon(ImageUtils.getImage("images/menus/plan.png"));
-
-    protected State state = State.LOCAL;
-
-    protected Image overImage = null;
-    
-    public ExtendedIcon(Image vImage) {
-        super(vImage);
-    }
-
-    public ExtendedIcon(Image vImage, Image topImage) {
-        super(vImage);
-        this.overImage = topImage;
-    }
-
-    /**
-     * @return the state
-     */
-    public State getState() {
-        return state;
-    }
-
-    /**
-     * @param state the state to set
-     */
-    public void setState(State state) {
-        this.state = state;
-    }
-
-    @Override
-    public synchronized void paintIcon(Component c, Graphics g, int x, int y) {
-        // g.drawImage(PLAN_ICON.getImage(), 0, 0, null);
-        g.drawImage(getImage(), 0, 0, null);
-
-        super.paintIcon(c, g, x, y);
-
-        if(overImage != null)
-            g.drawImage(overImage, 0, 0, null);
-
-        if (state != State.LOCAL) {
-            // Graphics2D g2 = (Graphics2D) g.create(0, 0, PLAN_ICON.getImage().getWidth(null),
-            // PLAN_ICON.getImage().getHeight(null));
-            Graphics2D g2 = (Graphics2D) g.create(0, 0, getImage().getWidth(null), getImage().getHeight(null));
-            Color color = (state == State.SYNC ? GREEN : (state == State.REMOTE ? BLUE : RED));
-            g2.setColor(color);
-            g2.fill(g2.getClipBounds());
-            g2.dispose();
-        }
-    }
-
 }

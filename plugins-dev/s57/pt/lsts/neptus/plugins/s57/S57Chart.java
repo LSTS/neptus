@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2015 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2016 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -94,6 +94,7 @@ public class S57Chart implements MapPainterProvider {
         NeptusS57Painter painterToUse = painterList.get(renderer);
         if (painterToUse == null) {
             painterToUse = NeptusS57Painter.forge(s57, mc);
+            s57.addPainter(painterToUse);
             painterList.put(renderer, painterToUse);
         }
         painterToUse.paint(g, renderer);
@@ -106,8 +107,10 @@ public class S57Chart implements MapPainterProvider {
             public void dispose() {
                 super.dispose();
                 NeptusS57Painter painterToRemove = painterList.get(renderer);
-                if (painterToRemove != null)
+                if (painterToRemove != null) {
                     s57.removePainter(painterToRemove);
+                    painterList.remove(renderer);
+                }
             }
         };
         dialog.setIconImages(ConfigFetch.getIconImagesForFrames());

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2015 OceanScan - Marine Systems & Technology, Lda.
+ * Copyright (c) 2004-2016 OceanScan - Marine Systems & Technology, Lda.
  * Polo do Mar do UPTEC, Avenida da Liberdade, 4450-718 Matosinhos, Portugal
  *
  * This file is part of Neptus, Command and Control Framework.
@@ -163,6 +163,6 @@ public class Caption {
     }
 
     private static String formatNumber(double number) {
-        return Double.isNaN(number) ? "N/A" : String.format("%.1f", number);
+        return Double.isNaN(number) ? "N/A" : String.format(Locale.US, "%.1f", number);
     }
 }

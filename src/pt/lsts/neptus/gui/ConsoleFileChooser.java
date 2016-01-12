@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2015 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2016 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -36,12 +36,10 @@ import java.io.File;
 
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
-import javax.swing.filechooser.FileFilter;
 
 import pt.lsts.neptus.NeptusLog;
-import pt.lsts.neptus.gui.swing.NeptusFileView;
 import pt.lsts.neptus.i18n.I18n;
-import pt.lsts.neptus.util.FileUtil;
+import pt.lsts.neptus.util.GuiUtils;
 import pt.lsts.neptus.util.conf.ConfigFetch;
 
 public class ConsoleFileChooser extends JFileChooser {
@@ -100,15 +98,12 @@ public class ConsoleFileChooser extends JFileChooser {
 
     private static File showOpenDialog(Component parent, String title, File basedir) {
 
-        JFileChooser jfc = new JFileChooser();
-
         File fx;
         if (basedir != null && basedir.exists()) {
             fx = basedir;
         }
         else {
-            fx = new File(ConfigFetch.getConfigFile());
-            fx = new File(fx.getParentFile(), "conf/consoles");
+            fx = new File(ConfigFetch.getConsolesFolder());
             if (!fx.exists()) {
                 fx = new File(ConfigFetch.resolvePath("."));
                 if (!fx.exists()) {
@@ -116,34 +111,8 @@ public class ConsoleFileChooser extends JFileChooser {
                 }
             }
         }
-        jfc.setCurrentDirectory(fx);
-        // jfc.setCurrentDirectory(new File(ConfigFetch.getConfigFile()));
 
-        jfc.setFileView(new NeptusFileView());
-        jfc.setFileFilter(new FileFilter() {
-
-            public boolean accept(File f) {
-                if (f.isDirectory()) {
-                    return true;
-                }
-
-                String extension = FileUtil.getFileExtension(f).toLowerCase();
-                if (extension != null) {
-                    if (extension.equals("xml") || extension.equals("ncn") || extension.equals("ncon")) {
-                        return true;
-                    }
-                    else {
-                        return false;
-                    }
-                }
-
-                return false;
-            }
-
-            public String getDescription() {
-                return I18n.textf("Console files (%extensions)", "'ncon', 'xml'");
-            }
-        });
+        JFileChooser jfc = GuiUtils.getFileChooser(fx, I18n.text("Console files"), "ncon");
 
         int result = jfc.showDialog(parent, title);
         if (result == JFileChooser.CANCEL_OPTION)

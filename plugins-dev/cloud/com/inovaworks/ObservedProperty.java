@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2015 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2016 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -31,6 +31,8 @@
  */
 package com.inovaworks;
 
+import java.util.Locale;
+
 import org.apache.commons.lang.StringUtils;
 
 
@@ -60,18 +62,18 @@ public class ObservedProperty {
     }
     
     public static ObservedProperty position(double latDegs, double lonDegs, double height) {
-        return new ObservedProperty("position", String.format("%.8f,%.8f,%.3f", latDegs, lonDegs, height), "position");
+        return new ObservedProperty("position", String.format(Locale.US, "%.8f,%.8f,%.3f", latDegs, lonDegs, height), "position");
     }
     
     public static ObservedProperty speed(double speedMps) {
-        return new ObservedProperty("speed", String.format("%.2f", speedMps * 3.6), "km/h");
+        return new ObservedProperty("speed", String.format(Locale.US, "%.2f", speedMps * 3.6), "km/h");
     }
     
     public static ObservedProperty verticalSpeed(double speedMps) {
-        return new ObservedProperty("verticalSpeed", String.format("%.2f", speedMps * 3.6), "km/h");
+        return new ObservedProperty("verticalSpeed", String.format(Locale.US, "%.2f", speedMps * 3.6), "km/h");
     }
     
     public static ObservedProperty heading(double headingDegs) {
-        return new ObservedProperty("heading", String.format("%.1f", headingDegs), "degrees");
+        return new ObservedProperty("heading", String.format(Locale.US, "%.1f", headingDegs), "degrees");
     }
 }

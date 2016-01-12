@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2015 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2016 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -57,7 +57,7 @@ import pt.lsts.neptus.plugins.PluginUtils;
  * @author zp
  *
  */
-@PluginDescription
+@PluginDescription(name="Sidescan Images")
 public class SidescanImageExporter implements MRAExporter {
 
     SidescanParser parser = null;
@@ -147,12 +147,12 @@ public class SidescanImageExporter implements MRAExporter {
                 continue;
 
             if (img == null) {
-                width = Math.min(imageWidth, lines.get(0).xsize);
+                width = Math.min(imageWidth, lines.get(0).getXSize());
                 height = imageHeight;
                 img = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
                 img.getGraphics().clearRect(0, 0, img.getWidth(), img.getHeight());
             }
-            BufferedImage tmp = new BufferedImage(lines.get(0).data.length, 1, BufferedImage.TYPE_INT_RGB);
+            BufferedImage tmp = new BufferedImage(lines.get(0).getData().length, 1, BufferedImage.TYPE_INT_RGB);
             for (SidescanLine l : lines) {
                 pmonitor.setNote(I18n.textf("Generating image %num",image_num));
                 pmonitor.setProgress((int)((time - start)/1000));
@@ -184,8 +184,8 @@ public class SidescanImageExporter implements MRAExporter {
                 }
 
                 // Apply colormap to data
-                for (int c = 0; c < l.data.length; c++)
-                    tmp.setRGB(c, 0, cmap.getColor(l.data[c]).getRGB());
+                for (int c = 0; c < l.getData().length; c++)
+                    tmp.setRGB(c, 0, cmap.getColor(l.getData()[c]).getRGB());
 
                 img.getGraphics().drawImage(tmp, 0, ypos, width-1, ypos+1, 0, 0, tmp.getWidth(), tmp.getHeight(), null);
                 ypos++;
@@ -212,10 +212,4 @@ public class SidescanImageExporter implements MRAExporter {
         }
         return I18n.textf("%num images were exported to %path.", image_num, out.getAbsolutePath());
     }    
-
-    @Override
-    public String getName() {
-        return "Sidescan Images";
-    }
-
 }

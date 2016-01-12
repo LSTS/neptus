@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2015 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2016 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -49,6 +49,7 @@ import pt.lsts.neptus.mra.exporters.MRAExporter;
 import pt.lsts.neptus.mra.importers.IMraLog;
 import pt.lsts.neptus.mra.importers.IMraLogGroup;
 import pt.lsts.neptus.plugins.NeptusProperty;
+import pt.lsts.neptus.plugins.PluginDescription;
 import pt.lsts.neptus.plugins.PluginUtils;
 import pt.lsts.neptus.util.http.client.HttpClientConnectionHelper;
 
@@ -56,6 +57,7 @@ import pt.lsts.neptus.util.http.client.HttpClientConnectionHelper;
  * @author pdias
  *
  */
+@PluginDescription(name="Inovaworks State Upload Exporter", experimental=true)
 public class InovaWorksUploaderExporter implements MRAExporter {
 
     @NeptusProperty
@@ -73,15 +75,7 @@ public class InovaWorksUploaderExporter implements MRAExporter {
         httpComm = new HttpClientConnectionHelper();
         this.log = log;
     }
-
-    /* (non-Javadoc)
-     * @see pt.lsts.neptus.mra.exporters.MRAExporter#getName()
-     */
-    @Override
-    public String getName() {
-        return "Inovaworks State Upload Exporter";
-    }
-
+    
     /* (non-Javadoc)
      * @see pt.lsts.neptus.mra.exporters.MRAExporter#canBeApplied(pt.lsts.neptus.mra.importers.IMraLogGroup)
      */

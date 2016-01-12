@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2015 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2016 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -98,12 +98,6 @@ public class VehicleIpPortEditor implements PropertiesProvider {
             if (cm != null) {
                 if (prop.getName().equals("host name")) {
                     cm.setHostAddress((String) prop.getValue());
-                }
-                else if (prop.getName().equals("user name")) {
-                    cm.setUserName((String) prop.getValue());
-                }
-                else if (prop.getName().equals("is password saved")) {
-                    cm.setPasswordSaved((Boolean) prop.getValue());
                 }
                 else {
                     for (String protocol : cm.getProtocols()) {

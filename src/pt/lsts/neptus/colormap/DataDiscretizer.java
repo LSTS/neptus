@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2015 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2016 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -50,7 +50,7 @@ public class DataDiscretizer {
     public double maxX = Double.NaN, maxY = Double.NaN, minX = Double.NaN, minY = Double.NaN;
     public double minVal[] = null, maxVal[] = null;
     private double cellWidth = 5;
-    //private ArrayList<Point> chull = new ArrayList<Point>();;
+    //private ArrayList<Point> chull = new ArrayList<Point>();
 
     public DataDiscretizer(double cellWidth) {
         this.cellWidth = cellWidth;		

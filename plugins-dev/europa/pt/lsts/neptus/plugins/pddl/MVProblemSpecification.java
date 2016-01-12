@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2015 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2016 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -38,13 +38,14 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
+import java.util.Locale;
 import java.util.Map.Entry;
 import java.util.Random;
 import java.util.Vector;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.mozilla.javascript.edu.emory.mathcs.backport.java.util.Arrays;
+import java.util.Arrays;
 
 import pt.lsts.imc.FuelLevel;
 import pt.lsts.imc.state.ImcSystemState;
@@ -262,7 +263,7 @@ public class MVProblemSpecification {
                 String loc1 = locNames.get(i);
                 String loc2 = locNames.get(j);
                 double dist = Math.max(0.01, locations.get(loc1).getHorizontalDistanceInMeters(locations.get(loc2)));
-                sb.append("  (=(distance "+loc1+" "+loc2+") "+String.format("%.2f", dist)+")\n");
+                sb.append("  (=(distance "+loc1+" "+loc2+") "+String.format(Locale.US, "%.2f", dist)+")\n");
             }
         }
         sb.append("\n");
@@ -272,7 +273,7 @@ public class MVProblemSpecification {
             sb.append("\n;"+v.getId()+":\n");
             double moveConsumption = VehicleParams.moveConsumption(v) * powerUnitMultiplier / 3600.0;
             sb.append("  (=(speed "+v.getNickname()+") "+constantSpeed+")\n");
-            sb.append("  (= (battery-consumption-move "+v.getNickname()+") "+String.format("%.2f", moveConsumption)+")\n");
+            sb.append("  (= (battery-consumption-move "+v.getNickname()+") "+String.format(Locale.US, "%.2f", moveConsumption)+")\n");
             sb.append("  (= (battery-level "+v.getNickname()+") "+vehicleBattery.get(v.getId())*powerUnitMultiplier+")\n");
             sb.append("  (base "+v.getNickname()+" "+v.getNickname()+"_depot)\n\n");
             sb.append("  (at "+v.getNickname()+" "+v.getNickname()+"_depot"+")\n");
@@ -280,7 +281,7 @@ public class MVProblemSpecification {
                 for (String n : entry.getValue()) {
                     if (n.startsWith(v.getNickname()+"_")) {
                         double consumption = ((PayloadRequirement.valueOf(entry.getKey()).getConsumptionPerHour() / 3600.0) * powerUnitMultiplier);
-                        sb.append("  (= (battery-consumption-payload "+n+") "+String.format("%.2f", consumption)+")\n");
+                        sb.append("  (= (battery-consumption-payload "+n+") "+String.format(Locale.US, "%.2f", consumption)+")\n");
                         sb.append("  (having "+n+" "+v.getNickname()+")\n");        
                     }
                 }
@@ -297,7 +298,7 @@ public class MVProblemSpecification {
             sb.append("  (free "+t.getName()+"_exit"+")\n");
             sb.append("  (entry "+t.getName()+"_area "+t.getName()+"_entry"+")\n");                    
             sb.append("  (exit "+t.getName()+"_area "+t.getName()+"_exit"+")\n");
-            sb.append("  (=(surveillance_distance "+t.getName()+"_area) "+String.format("%.2f", t.getLength())+")\n");
+            sb.append("  (=(surveillance_distance "+t.getName()+"_area) "+String.format(Locale.US, "%.2f", t.getLength())+")\n");
 
             for (PayloadRequirement r : t.getRequiredPayloads()) {
                 if (!payloadNames.containsKey(r.name())) {
@@ -345,7 +346,6 @@ public class MVProblemSpecification {
         return sb.toString();
     }
 
-    @SuppressWarnings("unchecked")
     private static MVProblemSpecification generateTest(int numberOfSurveys, int numberOfSamplings, String... vehicles) {
         Vector<VehicleType> vehiclTypes = new Vector<VehicleType>();
         Vector<MVPlannerTask> generatedTasks = new Vector<MVPlannerTask>();
@@ -407,9 +407,8 @@ public class MVProblemSpecification {
      * Unitary test used to generate a series of initial states to feed and test the planner...
      */
     public static void main(String[] args) {
-
         MVPlannerInteraction inter = new MVPlannerInteraction();
-        inter.init(new ConsoleLayout());
+        inter.init(ConsoleLayout.forge());
 
         for (int i = 1; i <= 10; i++) {
             MVProblemSpecification spec = MVProblemSpecification.generateTest(i, i, "lauv-seacon-1", "lauv-xplore-1", "lauv-noptilus-3", "lauv-xtreme-2");
@@ -419,8 +418,5 @@ public class MVProblemSpecification {
                 System.out.println("Created "+"state"+i+".pddl");
             }
         }
-
-
     }
-
 }

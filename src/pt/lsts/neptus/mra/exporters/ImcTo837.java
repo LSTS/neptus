@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2015 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2016 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -36,6 +36,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.util.Calendar;
+import java.util.Locale;
 import java.util.TimeZone;
 
 import javax.swing.ProgressMonitor;
@@ -149,10 +150,10 @@ public class ImcTo837 implements MRAExporter {
                         
                         int d = (int)res[0];
                         double m = ((res[0] - d) * 60);
-                        lat = String.format(" %02d.%.5f",Math.abs(d),Math.abs(m)) + (d > 0 ? " N" : " S");
+                        lat = String.format(Locale.US, " %02d.%.5f",Math.abs(d),Math.abs(m)) + (d > 0 ? " N" : " S");
                         d = (int)res[1];
                         m = ((res[1] - d) * 60);
-                        lon = String.format("%03d.%.5f",Math.abs(d),Math.abs(m)) + (d > 0 ? " E" : " W");
+                        lon = String.format(Locale.US, "%03d.%.5f",Math.abs(d),Math.abs(m)) + (d > 0 ? " E" : " W");
 //                        
                         NeptusLog.pub().info("<###> "+lat);
                         NeptusLog.pub().info("<###> "+lon);
@@ -181,11 +182,11 @@ public class ImcTo837 implements MRAExporter {
                         case 10: month = "NOV"; break;
                         case 11: month = "DEC"; break;
                     }
-                    sTime = String.format("%02d-%s-%d\0%02d:%02d:%02d\0.00\0", 
+                    sTime = String.format(Locale.US, "%02d-%s-%d\0%02d:%02d:%02d\0.00\0", 
                             cal.get(Calendar.DAY_OF_MONTH), month, cal.get(Calendar.YEAR), 
                             cal.get(Calendar.HOUR_OF_DAY), cal.get(Calendar.MINUTE), cal.get(Calendar.SECOND));
                     
-                    sMillis = String.format(".%03d\0", cal.get(Calendar.MILLISECOND));
+                    sMillis = String.format(Locale.US, ".%03d\0", cal.get(Calendar.MILLISECOND));
                     
                     
                     buffer = new byte[pingMsg.getRawData("data").length];

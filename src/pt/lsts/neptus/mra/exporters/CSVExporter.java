@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2015 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2016 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -52,7 +52,7 @@ import pt.lsts.neptus.util.GuiUtils;
  * @author zp
  * 
  */
-@PluginDescription
+@PluginDescription(name="Export to CSV")
 public class CSVExporter implements MRAExporter {
 
     IMraLogGroup source;
@@ -145,10 +145,5 @@ public class CSVExporter implements MRAExporter {
         }
 
         return I18n.text("Process complete");
-    }
-
-    @Override
-    public String getName() {
-        return I18n.text("Export to CSV");
     }
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2015 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2016 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -85,6 +85,11 @@ import javax.swing.undo.UndoManager;
 import org.dom4j.Document;
 import org.dom4j.DocumentHelper;
 
+import com.l2fprod.common.propertysheet.DefaultProperty;
+import com.l2fprod.common.propertysheet.PropertySheet;
+import com.l2fprod.common.propertysheet.PropertySheetDialog;
+import com.l2fprod.common.propertysheet.PropertySheetPanel;
+
 import pt.lsts.imc.IMCMessage;
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.console.ConsoleLayout;
@@ -138,11 +143,6 @@ import pt.lsts.neptus.types.vehicle.VehiclesHolder;
 import pt.lsts.neptus.util.GuiUtils;
 import pt.lsts.neptus.util.ImageUtils;
 import pt.lsts.neptus.util.conf.ConfigFetch;
-
-import com.l2fprod.common.propertysheet.DefaultProperty;
-import com.l2fprod.common.propertysheet.PropertySheet;
-import com.l2fprod.common.propertysheet.PropertySheetDialog;
-import com.l2fprod.common.propertysheet.PropertySheetPanel;
 
 /**
  * 
@@ -574,8 +574,21 @@ public class PlanEditor extends InteractionAdapter implements Renderer2DPainter,
                 String lastPlanId = plan.getId();
                 String planId = lastPlanId;
                 while (true) {
+                    try {
+                        plan.validatePlan();
+                    }
+                    catch (Exception ex) {
+                        int option = GuiUtils.confirmDialog(getConsole(), I18n.text("Plan Validation"), 
+                                I18n.text("Are you sure you want to save the plan?\nThe following errors where found:")
+                                        +"\n - " + ex.getMessage().replaceAll("\n", "\n - "));
+                        if (option == JOptionPane.YES_OPTION)
+                            break;
+                        else
+                            return;
+                    }
+                    
                     planId = JOptionPane.showInputDialog(getConsole(), I18n.text("Enter the plan ID"), lastPlanId);
-
+                    
                     if (planId == null)
                         return;
                     if (getConsole().getMission().getIndividualPlansList().get(planId) != null) {
@@ -583,9 +596,8 @@ public class PlanEditor extends InteractionAdapter implements Renderer2DPainter,
                                 I18n.text("Do you wish to replace the existing plan with same name?"));
                         if (option == JOptionPane.CANCEL_OPTION)
                             return;
-                        else if (option == JOptionPane.YES_OPTION) {
+                        else if (option == JOptionPane.YES_OPTION)
                             break;
-                        }
                         lastPlanId = planId;
                     }
                     else

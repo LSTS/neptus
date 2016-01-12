@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2015 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2016 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -31,7 +31,9 @@
  */
 package pt.lsts.neptus.console;
 
+import java.awt.Container;
 import java.awt.Dimension;
+import java.awt.Graphics;
 import java.awt.Point;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -49,6 +51,7 @@ import javax.swing.JMenu;
 import javax.swing.JMenuItem;
 import javax.swing.JPanel;
 import javax.swing.KeyStroke;
+import javax.swing.SwingUtilities;
 import javax.swing.WindowConstants;
 
 import org.dom4j.Document;
@@ -56,13 +59,16 @@ import org.dom4j.DocumentException;
 import org.dom4j.DocumentHelper;
 import org.dom4j.Element;
 
+import com.google.common.eventbus.Subscribe;
+import com.l2fprod.common.propertysheet.DefaultProperty;
+import com.l2fprod.common.propertysheet.Property;
+
 import pt.lsts.imc.IMCDefinition;
 import pt.lsts.imc.IMCMessage;
 import pt.lsts.imc.state.ImcSystemState;
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.comm.iridium.ImcIridiumMessage;
 import pt.lsts.neptus.comm.iridium.IridiumManager;
-import pt.lsts.neptus.comm.manager.imc.ImcMsgManager;
 import pt.lsts.neptus.comm.manager.imc.ImcSystem;
 import pt.lsts.neptus.comm.manager.imc.ImcSystemsHolder;
 import pt.lsts.neptus.console.notifications.Notification;
@@ -91,13 +97,9 @@ import pt.lsts.neptus.util.ImageUtils;
 import pt.lsts.neptus.util.ListenerManager;
 import pt.lsts.neptus.util.ReflectionUtil;
 
-import com.google.common.eventbus.Subscribe;
-import com.l2fprod.common.propertysheet.DefaultProperty;
-import com.l2fprod.common.propertysheet.Property;
-
 /**
  * @author Rui Gonçalves, ZP
- * 
+ * @author pdias
  */
 public abstract class ConsolePanel extends JPanel implements PropertiesProvider, XmlInOutMethods,
         MessageListener<MessageInfo, IMCMessage>, MainVehicleChangeListener {
@@ -270,7 +272,7 @@ public abstract class ConsolePanel extends JPanel implements PropertiesProvider,
         if (cAction.accelerator() != KeyEvent.VK_UNDEFINED) {
             int key = cAction.accelerator();
             if (key == KeyEvent.VK_C || key == KeyEvent.VK_V || key == KeyEvent.VK_X) {
-                NeptusLog.pub().error("Cant assign CTRL-X, CTRL-C or CTRL-V to popups.");
+                NeptusLog.pub().error("Can't assign CTRL-X, CTRL-C or CTRL-V to popups.");
             }
             else {
                 accelerator = KeyStroke.getKeyStroke(cAction.accelerator(), KeyEvent.CTRL_DOWN_MASK);
@@ -299,14 +301,49 @@ public abstract class ConsolePanel extends JPanel implements PropertiesProvider,
 
                 @Override
                 public void actionPerformed(ActionEvent e) {
-                    dialog.setVisible(!dialog.isVisible());
-                    setPopupPosition(popupPosition);
+                    decideToShowPopupDialog(popupPosition);
                 }
             });
         }
-        dialog.add(this);
+        // dialog.add(this); This cannot be done here, because if the component is on the initial layout it will not show
     }
 
+    /**
+     * @param popupPosition
+     */
+    private void decideToShowPopupDialog(final POSITION popupPosition) {
+        if (dialog.isVisible()) {
+            dialog.setVisible(false);
+        }
+        else {
+            Container prt = ConsolePanel.this.getParent();
+            NeptusLog.pub().debug(prt == null ? "null" : prt.getClass().getSimpleName() + "  isAssignableFrom ContainerSubPanel=" + ContainerSubPanel.class.isAssignableFrom(prt.getClass())
+                    + "  isDescendingFrom Dialog=" + SwingUtilities.isDescendingFrom(ConsolePanel.this.getParent(), dialog)
+                    + "  isVisible=" + ConsolePanel.this.isVisible() + "  isShowing=" + ConsolePanel.this.isShowing()
+                    + "  Parent: " + prt);
+            if (prt == null || (!ConsolePanel.this.isShowing()
+                    && !SwingUtilities.isDescendingFrom(ConsolePanel.this.getParent(), dialog)))
+                dialog.add(ConsolePanel.this);
+            
+            if (SwingUtilities.isDescendingFrom(ConsolePanel.this.getParent(), dialog)) {
+                dialog.setVisible(!dialog.isVisible());
+                setPopupPosition(popupPosition);
+            }
+        }
+    }
+
+    /* (non-Javadoc)
+     * @see javax.swing.JComponent#paintComponent(java.awt.Graphics)
+     */
+    @Override
+    protected void paintComponent(Graphics g) {
+        if (dialog != null && dialog.isVisible()
+                && !SwingUtilities.isDescendingFrom(ConsolePanel.this.getParent(), dialog))
+            dialog.setVisible(false);
+
+        super.paintComponent(g);
+    }
+    
     /**
      * Empty implementation. This is called when the console wants to remove the panel from the console (override it if
      * needed to properly disposal of the component).
@@ -335,11 +372,11 @@ public abstract class ConsolePanel extends JPanel implements PropertiesProvider,
         if (this instanceof NeptusMessageListener) {
             if (getConsole() != null) {
                 messagesToListen.clear();
-                ImcMsgManager.getManager().removeListener(this, getConsole().getMainSystem());
+                getConsole().getImcMsgManager().removeListener(this, getConsole().getMainSystem());
             }
         }
 
-        ImcMsgManager.unregisterBusListener(this);
+        getConsole().getImcMsgManager().unregisterBusListener(this);
 
         for (String menuPath : addedMenus) {
             JMenu parent = getConsole().removeMenuItem(menuPath.split(">"));
@@ -374,10 +411,8 @@ public abstract class ConsolePanel extends JPanel implements PropertiesProvider,
 
             @Override
             public void actionPerformed(ActionEvent e) {
-                dialog.setVisible(!dialog.isVisible());
-                setPopupPosition(popupPosition);
+                decideToShowPopupDialog(popupPosition);
             }
-
         });
         return menuItem;
     }
@@ -438,7 +473,7 @@ public abstract class ConsolePanel extends JPanel implements PropertiesProvider,
     }
 
     protected final ImcSystemState getState() {
-        return ImcMsgManager.getManager().getState(getConsole().getMainSystem());
+        return getConsole().getImcMsgManager().getState(getConsole().getMainSystem());
     }
 
     public boolean getVisibility() {
@@ -486,11 +521,8 @@ public abstract class ConsolePanel extends JPanel implements PropertiesProvider,
             setVisible(false);
         }
 
-        // for miglayout parent will be null if the subpanel isnt in the layout
-        if (this.getParent() == null) {
-            this.buildPopup();
-        }
-
+        this.buildPopup();
+        
         initSubPanel();
 
         // After all setup let us register the IPeriodicUpdates and Message callbacks
@@ -500,7 +532,7 @@ public abstract class ConsolePanel extends JPanel implements PropertiesProvider,
         
         PeriodicUpdatesService.registerPojo(this);
         
-        ImcMsgManager.registerBusListener(this);
+        getConsole().getImcMsgManager().registerBusListener(this);
 
         if (this instanceof NeptusMessageListener) {
             getConsole().addMainVehicleListener((MainVehicleChangeListener) this);
@@ -522,7 +554,7 @@ public abstract class ConsolePanel extends JPanel implements PropertiesProvider,
             }
 
             if (getConsole() != null && !messagesToListen.isEmpty())
-                ImcMsgManager.getManager().addListener(this, getConsole().getMainSystem());
+                getConsole().getImcMsgManager().addListener(this, getConsole().getMainSystem());
             else {
                 NeptusLog.pub().info("<###>Console is null..." + this.getName());
             }
@@ -566,13 +598,13 @@ public abstract class ConsolePanel extends JPanel implements PropertiesProvider,
     @Override
     public final void mainVehicleChange(String id) {
         if (messagesToListen != null && !messagesToListen.isEmpty()) {
-            ImcMsgManager.getManager().removeListener(this, mainVehicleId);
+            getConsole().getImcMsgManager().removeListener(this, mainVehicleId);
         }
 
         mainVehicleId = id;
 
         if (messagesToListen != null && !messagesToListen.isEmpty()) {
-            ImcMsgManager.getManager().addListener(this, id);
+            getConsole().getImcMsgManager().addListener(this, id);
         }
 
         if (this instanceof NeptusMessageListener) {
@@ -669,7 +701,7 @@ public abstract class ConsolePanel extends JPanel implements PropertiesProvider,
             GuiUtils.errorMessage(getConsole(), e);
             return;
         }
-        int src = ImcMsgManager.getManager().getLocalId().intValue();
+        int src = getConsole().getImcMsgManager().getLocalId().intValue();
         int dst = IMCDefinition.getInstance().getResolver().resolve(destination);
         int count = 0;
         try {
@@ -698,7 +730,7 @@ public abstract class ConsolePanel extends JPanel implements PropertiesProvider,
         boolean sent = false;
         
         for (ImcSystem s : ccus) {
-            boolean success = ImcMsgManager.getManager().sendMessageToSystem(message, s.getName());
+            boolean success = getConsole().getImcMsgManager().sendMessageToSystem(message, s.getName());
 //            System.out.println("Sending "+message.getAbbrev()+" to "+s.getName()+": "+success);
             sent |= success;
         }
@@ -720,7 +752,7 @@ public abstract class ConsolePanel extends JPanel implements PropertiesProvider,
         }
 
         try {
-            if (!ImcMsgManager.getManager().sendMessageToSystem(message, destination)) {
+            if (!getConsole().getImcMsgManager().sendMessageToSystem(message, destination)) {
                 NeptusLog.pub().error(
                         ReflectionUtil.getCallerStamp() + ": " + "Error while communicating with " + destination + ".");
                 return false;
@@ -807,6 +839,8 @@ public abstract class ConsolePanel extends JPanel implements PropertiesProvider,
         this.visibility = visibility;
     }
 
+    
+    
     public void XML_ChildsRead(Element e) {
 
     }

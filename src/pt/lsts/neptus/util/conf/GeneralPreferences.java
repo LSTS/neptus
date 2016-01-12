@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2015 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2016 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -211,7 +211,7 @@ public class GeneralPreferences implements PropertiesProvider {
     public static boolean programLogExtendedLog = false;
 
     @NeptusProperty(name = "Tides file", category = "Tides", userLevel = LEVEL.REGULAR)
-    public static File tidesFile = new File("conf/tides/Leixoes.txt");
+    public static File tidesFile = new File("conf/tides/Leixoes.tid");
 
     // -------------------------------------------------------------------------
     

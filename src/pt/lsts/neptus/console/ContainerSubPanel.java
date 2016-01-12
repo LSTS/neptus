@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2015 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2016 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -58,7 +58,7 @@ public class ContainerSubPanel extends ConsolePanel implements LockableSubPanel 
     private static final long serialVersionUID = 1L;
     @NeptusProperty(name = "Maximize Panel", description = "Use this to indicate that this panel "
             + "should be maximized on load. (Only works for top level panels.)", distribution = DistributionEnum.DEVELOPER)
-    public boolean maximizePanel = false;
+    public boolean maximizePanel = true;
     
     protected List<ConsolePanel> panels = new ArrayList<>();
 

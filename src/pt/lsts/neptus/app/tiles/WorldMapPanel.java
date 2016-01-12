@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2015 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2016 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -184,23 +184,24 @@ public class WorldMapPanel extends JPanel {
 
     private static final String ROOT_PREFIX;
     static {
-        if (new File("../" + "conf").exists())
+        if (new File("../" + ConfigFetch.getConfFolder()).exists())
             ROOT_PREFIX = "../";
         else {
             ROOT_PREFIX = "";
-            new File("conf").mkdir();
+            new File(ConfigFetch.getConfFolder()).mkdir();
         }
     }
 
     {
         try {
-            String confFx = ROOT_PREFIX + "conf/" + WorldMapPanel.class.getSimpleName().toLowerCase() + ".properties";
+            String confFx = ROOT_PREFIX + ConfigFetch.getConfFolder() + "/" + WorldMapPanel.class.getSimpleName().toLowerCase() + ".properties";
             if (new File(confFx).exists())
                 PluginUtils.loadProperties(confFx, WorldMapPanel.this);
         }
         catch (Exception e) {
             NeptusLog.pub().error(
-                    "Not possible to open \"conf/" + WorldMapPanel.class.getSimpleName().toLowerCase()
+                    "Not possible to open \"" + ConfigFetch.getConfFolder()
+                    + "/" + WorldMapPanel.class.getSimpleName().toLowerCase()
                             + ".properties\"");
             NeptusLog.pub().debug(e, e);
         }
@@ -868,28 +869,24 @@ public class WorldMapPanel extends JPanel {
     }
 
     private JFileChooser createFileChooser(String name) {
-        JFileChooser fc = new JFileChooser();
-        fc.setName(name);
-        fc.setFileFilter(new FileNameExtensionFilter("PNG images", "png", "PNG"));
-        fc.setMultiSelectionEnabled(false);
         File last = new File(".");
         if (lastSuccessSavedDir != null && lastSuccessSavedDir.exists()) {
             last = lastSuccessSavedDir.isDirectory() ? lastSuccessSavedDir : lastSuccessSavedDir.getParentFile();
         }
-        fc.setCurrentDirectory(last);
+        JFileChooser fc = GuiUtils.getFileChooser(last, "PNG images", "png");
+        fc.setName(name);
+        fc.setMultiSelectionEnabled(false);
         return fc;
     }
 
     private JFileChooser createFileKMLChooser(String name) {
-        JFileChooser fc = new JFileChooser();
-        fc.setName(name);
-        fc.setFileFilter(new FileNameExtensionFilter("KML File", "kml", "KML"));
-        fc.setMultiSelectionEnabled(false);
         File last = new File(".");
         if (lastSuccessKMLDir != null && lastSuccessKMLDir.exists()) {
             last = lastSuccessKMLDir.isDirectory() ? lastSuccessKMLDir : lastSuccessKMLDir.getParentFile();
         }
-        fc.setCurrentDirectory(last);
+        JFileChooser fc = GuiUtils.getFileChooser(last, "KML File", "kml");
+        fc.setName(name);
+        fc.setMultiSelectionEnabled(false);
         return fc;
     }
 

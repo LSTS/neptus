@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2015 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2016 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -55,7 +55,7 @@ public class IMCArgs extends ProtocolArgs {
     protected boolean udpOn = true;
     protected boolean tcpOn = false;
 
-    protected ImcId16 imc3Id = null;
+    protected ImcId16 imcId = null;
 
     private Document doc = null;
     private boolean isLoadOk = true;
@@ -129,17 +129,17 @@ public class IMCArgs extends ProtocolArgs {
     }
 
     /**
-     * @return the imc3Id
+     * @return the imcId
      */
-    public ImcId16 getImc3Id() {
-        return imc3Id;
+    public ImcId16 getImcId() {
+        return imcId;
     }
 
     /**
-     * @param imc3Id the imc3Id to set
+     * @param imcId the imcId to set
      */
-    public void setImc3Id(ImcId16 imc3Id) {
-        this.imc3Id = imc3Id;
+    public void setImcId(ImcId16 imcId) {
+        this.imcId = imcId;
     }
 
     public boolean isLoadOk() {
@@ -174,11 +174,11 @@ public class IMCArgs extends ProtocolArgs {
             else
                 tcpOn = false;
 
-            node = doc.selectSingleNode("//imc3-id");
+            node = doc.selectSingleNode("//imc-id");
             if (node != null)
-                imc3Id = new ImcId16(node.getText());
+                imcId = new ImcId16(node.getText());
             else
-                imc3Id = null;
+                imcId = null;
 
             isLoadOk = true;
         }
@@ -271,8 +271,8 @@ public class IMCArgs extends ProtocolArgs {
         root.addElement("udp-on").setText(Boolean.toString(isUdpOn()));
         root.addElement("tcp-on").setText(Boolean.toString(isTcpOn()));
 
-        if (getImc3Id() != null)
-            root.addElement("imc3-id").setText(getImc3Id().toPrettyString());
+        if (getImcId() != null)
+            root.addElement("imc-id").setText(getImcId().toPrettyString());
 
         return document;
     }

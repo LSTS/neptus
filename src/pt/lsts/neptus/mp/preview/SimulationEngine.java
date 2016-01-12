@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2015 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2016 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -61,7 +61,7 @@ public class SimulationEngine {
     protected SystemPositionAndAttitude state;
     protected boolean finished = false;
     protected IManeuverPreview<?> curPreview = null;
-    public static SimulatedBathymetry simBathym = new SimulatedBathymetry();
+    public static SimulatedBathymetry simBathym = SimulatedBathymetry.getInstance();
     
     public SimulationEngine(final PlanType plan) {
         this.plan = plan;
@@ -77,6 +77,7 @@ public class SimulationEngine {
         if (state == null)
             state = new SystemPositionAndAttitude(plan.getMissionType().getStartLocation(), 0, 0, 0);
         
+        state.setAltitude(SimulatedBathymetry.getInstance().getSimulatedDepth(state.getPosition())-state.getDepth());
     }
 
     public boolean isFinished() {
@@ -127,14 +128,9 @@ public class SimulationEngine {
                 curPreview = ManPreviewFactory.getPreview(m, vehicleId, state, null);
             }
             if (curPreview == null) {
-//                NeptusLog.pub().info(
-//                        "Unable to create preview for maneuver " + m.getId() + " (" + m.getClass().getSimpleName()
-//                        + ")");
                 Maneuver next = plan.getGraph().getFollowingManeuver(m.getId());
-                if (next == null) {
+                if (next == null)
                     finished = true;
-//                    NeptusLog.pub().info("Plan finished at " + new Date());
-                }
                 else {                    
                     manId = next.getId();
                     NeptusLog.pub().debug("Simulating " + manId);
@@ -145,7 +141,6 @@ public class SimulationEngine {
                 NeptusLog.pub().debug("now simulating using " + curPreview.getClass().getSimpleName());
             }
         }
-
         state = curPreview.step(state, timestep);
         if (curPreview.isFinished() || curPreview == null) {
             try {

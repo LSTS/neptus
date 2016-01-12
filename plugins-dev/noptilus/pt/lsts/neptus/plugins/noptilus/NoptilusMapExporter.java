@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2015 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2016 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -62,13 +62,13 @@ import pt.lsts.neptus.types.coord.LocationType;
 import com.l2fprod.common.propertysheet.DefaultProperty;
 import com.l2fprod.common.propertysheet.Property;
 
-import convcao.com.caoAgent.NoptilusCoords;
+import convcao.com.agent.NoptilusCoords;
 
 /**
  * @author zp
  *
  */
-@PluginDescription
+@PluginDescription(name="Noptilus Normalized map", experimental=true)
 public class NoptilusMapExporter implements MRAExporter, PropertiesProvider {
 
     NoptilusCoords coords = new NoptilusCoords();
@@ -95,22 +95,22 @@ public class NoptilusMapExporter implements MRAExporter, PropertiesProvider {
         double mapHeight = coords.numRows * coords.cellWidth;
         double cellSize = coords.cellWidth;
         LocationType sw = new LocationType(coords.squareCenter);
-        sw.translatePosition(-mapWidth/2, -mapHeight/2, 0);
+        sw.translatePosition(-mapWidth / 2, -mapHeight / 2, 0);
 
         DataDiscretizer highRes = new DataDiscretizer(cellSize);
         DataDiscretizer lowRes = new DataDiscretizer(cellSize * 10);
-        int numCols = (int)(mapWidth / cellSize);
-        int numRows = (int)(mapHeight / cellSize);
+        int numCols = (int) (mapWidth / cellSize);
+        int numRows = (int) (mapHeight / cellSize);
         boolean pathHigh[][] = new boolean[numCols][numRows];
-        boolean pathLow[][] = new boolean[numCols/10 + 1][numRows/10 + 1];
+        boolean pathLow[][] = new boolean[numCols / 10 + 1][numRows / 10 + 1];
         BufferedImage imgHigh = new BufferedImage(numRows, numCols, BufferedImage.TYPE_INT_ARGB);
-        BufferedImage imgLow = new BufferedImage(numRows/10, numCols/10, BufferedImage.TYPE_INT_ARGB);
+        BufferedImage imgLow = new BufferedImage(numRows / 10, numCols / 10, BufferedImage.TYPE_INT_ARGB);
         BufferedImage pathImg = new BufferedImage(numRows, numCols, BufferedImage.TYPE_INT_ARGB);
-        //if (source.getFile("data.83P") == null) {
+        // if (source.getFile("data.83P") == null) {
         NeptusLog.pub().info(I18n.text("no multibeam data has been found... using DVL"));
         LsfIterator<EstimatedState> it = source.getLsfIndex().getIterator(EstimatedState.class);
 
-        while(it.hasNext()) {
+        while (it.hasNext()) {
             EstimatedState state = it.next();
             LocationType loc = IMCUtils.parseLocation(state);
             double[] offsets = loc.getOffsetFrom(sw);
@@ -119,12 +119,12 @@ public class NoptilusMapExporter implements MRAExporter, PropertiesProvider {
             if (offsets[1] < 0 || offsets[1] > mapWidth)
                 continue;
 
-            int col = (int)(offsets[1] / cellSize);
-            int row = (int)(offsets[0] / cellSize);
+            int col = (int) (offsets[1] / cellSize);
+            int row = (int) (offsets[0] / cellSize);
             pathHigh[col][row] = true;
-            pathLow[col/10][row/10] = true;
-            highRes.addPoint(offsets[1], offsets[0], state.getAlt()+state.getDepth());
-            lowRes.addPoint(offsets[1], offsets[0], state.getAlt()+state.getDepth());
+            pathLow[col / 10][row / 10] = true;
+            highRes.addPoint(offsets[1], offsets[0], state.getAlt() + state.getDepth());
+            lowRes.addPoint(offsets[1], offsets[0], state.getAlt() + state.getDepth());
             pathImg.setRGB(col, row, Color.blue.darker().getRGB());
         }
         //}
@@ -134,9 +134,9 @@ public class NoptilusMapExporter implements MRAExporter, PropertiesProvider {
             parser.rewind();
 
             LocationType topLeft = new LocationType(coords.squareCenter);
-            topLeft.translatePosition(mapHeight/2, -mapWidth/2, 0);
+            topLeft.translatePosition(mapHeight / 2, -mapWidth / 2, 0);
             LocationType bottomRight = new LocationType(coords.squareCenter);
-            bottomRight.translatePosition(-mapHeight/2, mapWidth/2, 0);
+            bottomRight.translatePosition(-mapHeight / 2, mapWidth / 2, 0);
 
             BathymetrySwath swath;
             while ((swath = parser.nextSwath(0.3)) != null) {
@@ -253,11 +253,6 @@ public class NoptilusMapExporter implements MRAExporter, PropertiesProvider {
     @Override
     public void setProperties(Property[] properties) {
         PluginUtils.setPluginProperties(coords, properties);
-    }
-
-    @Override
-    public String getName() {
-        return "Normalized map";
     }
 
 }

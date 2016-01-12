@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2015 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2016 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -131,7 +131,7 @@ public class NecsaveTransport {
 
         Message msg = ProtoDefinition.getInstance().nextMessage(pis);
 
-        System.out.println("Received message of type "+msg.getAbbrev()+"from "+ receivePacket.getAddress());
+        System.out.println("Received message of type '"+msg.getAbbrev()+"' from "+ receivePacket.getAddress());
         
         if (msg instanceof PlatformInfo)
             process((PlatformInfo)msg, receivePacket.getAddress().getHostAddress(), receivePacket.getPort());        

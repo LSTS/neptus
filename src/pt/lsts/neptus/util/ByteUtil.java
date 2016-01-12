@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2015 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2016 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -39,19 +39,20 @@ import org.apache.commons.codec.DecoderException;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.codec.binary.Hex;
 
-import pt.lsts.neptus.NeptusLog;
-
 /**
+ * Holds some byte utilities.
+ * 
  * @author pdias
  *
  */
 public class ByteUtil {
-	
+	/** To avoid instantiation */
 	private ByteUtil() {
 	}
 	
 	/**
 	 * Test if the two byte arrays are equal.
+	 * 
 	 * @param buffer1
 	 * @param buffer2
 	 * @return
@@ -67,6 +68,7 @@ public class ByteUtil {
 	
 	/**
 	 * Dumps the byte array as hex string to the {@link PrintStream}.
+	 * 
 	 * @param buffer
 	 * @param pStream
 	 */
@@ -76,6 +78,7 @@ public class ByteUtil {
 	
 	/**
      * Dumps the byte array as hex string to the {@link PrintStream}, with a title.
+     * 
 	 * @param title
 	 * @param buffer
 	 * @param pStream
@@ -144,6 +147,12 @@ public class ByteUtil {
 		pStream.println("----------------------------------------------------------  ----------------");
 	}
 	
+	/**
+	 * Encodes the byte array into a string as hexadecimal format.
+	 * 
+	 * @param buffer
+	 * @return
+	 */
 	public static String encodeToHex(byte[] buffer) {
 	    StringBuilder sb = new StringBuilder();
 	    for (int i = 0; i < buffer.length; i++) {
@@ -155,6 +164,7 @@ public class ByteUtil {
 
 	/**
 	 * The same as {@link #dumpAsHex(byte[], PrintStream)} but the output will be return as a String.
+	 * 
 	 * @param buffer
 	 * @return
 	 */
@@ -164,6 +174,7 @@ public class ByteUtil {
 
 	/**
      * The same as {@link #dumpAsHex(String, byte[], PrintStream)} but the output will be return as a String.
+     * 
 	 * @param title
 	 * @param buffer
 	 * @return
@@ -191,6 +202,7 @@ public class ByteUtil {
 	
 	/**
 	 * Return the byte array encoded as a hex string.
+	 * 
 	 * @param source
 	 * @return
 	 */
@@ -200,6 +212,7 @@ public class ByteUtil {
 
 	/**
      * Decodes the encoded hex string byte array back as byte array.
+     * 
 	 * @param hexString
 	 * @return
 	 * @throws DecoderException
@@ -210,6 +223,7 @@ public class ByteUtil {
 
 	/**
      * Decodes the encoded hex string byte array back as byte array.
+     * 
 	 * @param sourceChars
 	 * @return
 	 * @throws DecoderException
@@ -220,6 +234,7 @@ public class ByteUtil {
 
 	/**
      * Return the byte array encoded as a base64 string.
+     * 
 	 * @param source
 	 * @param chunked
 	 * @return
@@ -233,6 +248,7 @@ public class ByteUtil {
 	
 	/**
      * Return the byte array encoded as a base64 string (chunked).
+     * 
 	 * @param source
 	 * @return
 	 */
@@ -242,6 +258,7 @@ public class ByteUtil {
 		
 	/**
      * Decodes the encoded base64 byte array back as byte array.
+     * 
 	 * @param source
 	 * @return
 	 */
@@ -252,18 +269,18 @@ public class ByteUtil {
 	public static void main(String[] args) {
 		dumpAsHex("Teste", "Isto é de facto \0 um teste para ver se imprime bem Hex!".getBytes(), System.out);
 		
-		dumpAsHex(FileUtil.getFileAsString("legal/Neptus-LICENSE.txt").getBytes(), System.out);
+		dumpAsHex(FileUtil.getFileAsString("LICENSE.md").getBytes(), System.out);
 
-		dumpAsHex(FileUtil.getFileAsString("src/images/auto-pilot.png").getBytes(), System.out);
+		String fxImg = FileUtil.getResourceAsFileKeepName("images/auto-pilot.png");
+		dumpAsHex( FileUtil.getFileAsString(fxImg).getBytes(), System.out);
 
 		String tt = "\0\1Isto é de facto um teste para ver se imprime bem Hex!";
-		tt = FileUtil.getFileAsString("legal/Neptus-LICENSE.txt");
-		NeptusLog.pub().info("<###> "+new String(Base64.encodeBase64Chunked(tt.getBytes())));
+		tt = FileUtil.getFileAsString("LICENSE.md");
+		System.out.println(new String(Base64.encodeBase64Chunked(tt.getBytes())));
 		//dumpAsHex(tt.getBytes(), System.out);
 
-		NeptusLog.pub().info("<###> "+new String(Base64.decodeBase64(Base64.encodeBase64Chunked(tt.getBytes()))));
+		System.out.println(new String(Base64.decodeBase64(Base64.encodeBase64Chunked(tt.getBytes()))));
 
-		System.err.println(dumpAsHexToString(FileUtil.getFileAsString("legal/Neptus-LICENSE.txt").getBytes()));
-
+		System.err.println(dumpAsHexToString(FileUtil.getFileAsString("LICENSE.md").getBytes()));
 	}
 }

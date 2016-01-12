@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2015 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2016 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -31,23 +31,19 @@
  */
 package pt.lsts.neptus.util;
 
-import pt.lsts.neptus.NeptusLog;
-
-
 /**
  * @author pdias
  *
  */
 public class StringUtils {
 
-	/**
-	 * 
-	 */
+	/** To avoid instantiation */
 	private StringUtils() {
 	}
 
-
 	/**
+	 * Searches for a token in a string with spaces or comma as separator.
+	 * 
 	 * @param searchString
 	 * @param token
 	 * @return
@@ -57,6 +53,8 @@ public class StringUtils {
 	}
 
 	/**
+     * Searches for a token in a string with the provided splitRedex.
+     * 
 	 * @param searchString
 	 * @param token
 	 * @param splitRedex
@@ -73,6 +71,8 @@ public class StringUtils {
 	}
 	
 	/**
+	 * Replaces all spaces and '_' with '-'.
+	 * 
 	 * @param name
 	 * @return
 	 */
@@ -81,6 +81,8 @@ public class StringUtils {
 	}
 
 	/**
+	 * @see #wrapEveryNChars(String, short, int, boolean)
+	 * 
 	 * @param txt
 	 * @param lineLength
 	 * @return
@@ -90,6 +92,8 @@ public class StringUtils {
 	}
 
     /**
+     * @see #wrapEveryNChars(String, short, int, boolean)
+     * 
      * @param txt
      * @param lineLength
      * @param maxCharacters
@@ -100,26 +104,29 @@ public class StringUtils {
     }
     
     /**
+     * Returns a string wrapped (inserts new lines).
+     * 
      * @param txt
-     * @param lineLength
-     * @param maxCharacters Place -1 for no limit
-     * @param placeElipsisIfCuted
+     * @param lineLength The maximum line length, after inserts a new line
+     * @param maxCharacters Place -1 for no limit, if positive is the maximum number of characters, after that gets
+     *            truncated
+     * @param placeEllipsisIfCuted If is truncated, adds an ellipsis at the end
      * @return
      */
     public static final String wrapEveryNChars(String txt, short lineLength, int maxCharacters,
-            boolean placeElipsisIfCuted) {
+            boolean placeEllipsisIfCuted) {
         boolean hasLimit = true;
         if (maxCharacters <= 0)
             hasLimit = false;
 	    if (lineLength <= 1) {
             if (hasLimit && txt.length() >= maxCharacters)
-                return txt.substring(0, maxCharacters) + (placeElipsisIfCuted?"...":"");
+                return txt.substring(0, maxCharacters) + (placeEllipsisIfCuted?"...":"");
             return txt;
 	    }
 	    String ret = "";
 	    if (lineLength >= txt.length()) {
 	        if (hasLimit && txt.length() >= maxCharacters)
-	            return txt.substring(0, maxCharacters) + (placeElipsisIfCuted?"...":"");
+	            return txt.substring(0, maxCharacters) + (placeEllipsisIfCuted?"...":"");
 	        return txt;
 	    }
 	    for (int i = 0; i < txt.length(); i+=lineLength) {
@@ -128,33 +135,30 @@ public class StringUtils {
 	            end = txt.length();
 	        ret += txt.substring(i, end) + "\n";
 	        if (hasLimit && ret.length() >= maxCharacters) {
-	            return ret.substring(0, maxCharacters) + (placeElipsisIfCuted?"...":"");
+	            return ret.substring(0, maxCharacters) + (placeEllipsisIfCuted?"...":"");
 	        }
 	    }
 	    return ret;
 	}
 	
-	/**
-	 * @param args
-	 */
 	public static void main(String[] args) {
-		NeptusLog.pub().info("<###>"+isTokenInList("UDP, RTPS", "UDP"));
-		NeptusLog.pub().info("<###>"+isTokenInList("UDP,RTPS", "UDP"));
-		NeptusLog.pub().info("<###>"+isTokenInList(" UDP ,  RTPS", "UDP"));
+		System.out.println(isTokenInList("UDP, RTPS", "UDP"));
+		System.out.println(isTokenInList("UDP,RTPS", "UDP"));
+		System.out.println(isTokenInList(" UDP ,  RTPS", "UDP"));
 		
 		String txt = "- Retrying connect"+
 "4097816 [Foxtrot Multi Worker Thread Runner #70] INFO org.apache.http.impl.client.DefaultHttpClient  - Retrying connect"+
 "- I/O exception (java.net.NoRouteToHostException) caught when connecting to the target host: No route to host: connect"+
 "4097818 [Foxtrot Multi Worker Thread Runner #70] INFO org.apache.http.impl.client.DefaultHttpClient  - I/O exception (java.net.NoRouteToHostException) caught when connecting to the target host: No route to host: connect"+
 "- Retrying connect"+
-"4097818 [Foxtrot Multi Worker Thread Runner #70] INFO org.apache.http.impl.client.DefaultHttpClient  - Retrying connect xxxx";
-		NeptusLog.pub().info("<###> "+wrapEveryNChars(txt, (short) 100));
-		NeptusLog.pub().info("<###>\n\n------------------------------------------------\n\n");
-		NeptusLog.pub().info("<###> "+wrapEveryNChars(txt, (short) 100, 100, true));
-        NeptusLog.pub().info("<###>\n\n------------------------------------------------\n\n");
-        NeptusLog.pub().info("<###> "+wrapEveryNChars(txt, (short) 100, 1000, true));
-        NeptusLog.pub().info("<###>\n\n------------------------------------------------\n\n");
-        NeptusLog.pub().info("<###> "+wrapEveryNChars(txt, (short) 100, 100, true));
-        NeptusLog.pub().info("<###> "+wrapEveryNChars(txt, (short) 120, 100, true));
+"4097818 [Foxtrot Multi Worker Thread Runner #70] INFO org.apache.http.impl.client.DefaultHttpClient  - Retrying connect xxxx END";
+		System.out.println(wrapEveryNChars(txt, (short) 100));
+		System.out.println("\n\n------------------------------------------------\n\n");
+		System.out.println(wrapEveryNChars(txt, (short) 100, 100, true));
+        System.out.println("\n\n------------------------------------------------\n\n");
+        System.out.println(wrapEveryNChars(txt, (short) 100, 1000, true));
+        System.out.println("\n\n------------------------------------------------\n\n");
+        System.out.println(wrapEveryNChars(txt, (short) 100, 100, true));
+        System.out.println(wrapEveryNChars(txt, (short) 120, 100, true));
 	}
 }

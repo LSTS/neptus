@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2015 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2016 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -35,10 +35,10 @@ import java.awt.Point;
 import java.awt.geom.Line2D;
 import java.awt.geom.Point2D;
 import java.text.DecimalFormat;
+import java.text.NumberFormat;
 import java.util.ArrayList;
+import java.util.Locale;
 import java.util.StringTokenizer;
-
-import pt.lsts.neptus.NeptusLog;
 
 /**
  * @author Paulo Dias
@@ -134,9 +134,9 @@ public class MathMiscUtils {
         // Dilation
         for (Point2D dp : polyPoints) {
             Point2D np = new Point2D.Double();
-            double ang = AngleCalc.calcAngle(dp.getX(), dp.getY(), cX, cY);
+            double ang = AngleUtils.calcAngle(dp.getX(), dp.getY(), cX, cY);
             double dist = Math.sqrt((dp.getX() - cX) * (dp.getX() - cX) + (dp.getY() - cY) * (dp.getY() - cY));
-            double[] rotD = AngleCalc.rotate(ang + Math.PI / 2, dist + growByValue, 0, true);
+            double[] rotD = AngleUtils.rotate(ang + Math.PI / 2, dist + growByValue, 0, true);
             np.setLocation(cX + rotD[0], cY + rotD[1]);
             pointsGrow.add(np);
         }
@@ -153,7 +153,9 @@ public class MathMiscUtils {
 	 */
 	public static String parseToEngineeringNotation(double val,
 			int decimalHouses) {
-		DecimalFormat engNot = new DecimalFormat("##0.###E0");
+	    Locale locale  = new Locale("en", "US");
+	    DecimalFormat engNot = (DecimalFormat) NumberFormat.getNumberInstance(locale);
+		engNot.applyPattern("##0.###E0");
 		String pl = engNot.format(val);
 		String[] pl2 = pl.split("E");
 		double vl = Double.parseDouble(pl2[0].replace(',', '.'));
@@ -161,58 +163,58 @@ public class MathMiscUtils {
 		int mul = Integer.parseInt(pl2[1]);
 		String mulStr = "";
 		switch (mul) {
-		case 24:
-			mulStr = "Y";
-			break;
-		case 21:
-			mulStr = "Z";
-			break;
-		case 18:
-			mulStr = "E";
-			break;
-		case 15:
-			mulStr = "P";
-			break;
-		case 12:
-			mulStr = "T";
-			break;
-		case 9:
-			mulStr = "G";
-			break;
-		case 6:
-			mulStr = "M";
-			break;
-		case 3:
-			mulStr = "k";
-			break;
-		case -3:
-			mulStr = "m";
-			break;
-		case -6:
-			mulStr = "u";
-			mulStr = "\u00B5";
-			break;
-		case -9:
-			mulStr = "n";
-			break;
-		case -12:
-			mulStr = "p";
-			break;
-		case -15:
-			mulStr = "f";
-			break;
-		case -18:
-			mulStr = "a";
-			break;
-		case -21:
-			mulStr = "z";
-			break;
-		case -24:
-			mulStr = "y";
-			break;
-		default:
-			mulStr = "";
-			break;
+    		case 24:
+    			mulStr = "Y";
+    			break;
+    		case 21:
+    			mulStr = "Z";
+    			break;
+    		case 18:
+    			mulStr = "E";
+    			break;
+    		case 15:
+    			mulStr = "P";
+    			break;
+    		case 12:
+    			mulStr = "T";
+    			break;
+    		case 9:
+    			mulStr = "G";
+    			break;
+    		case 6:
+    			mulStr = "M";
+    			break;
+    		case 3:
+    			mulStr = "k";
+    			break;
+    		case -3:
+    			mulStr = "m";
+    			break;
+    		case -6:
+    			mulStr = "u";
+    			mulStr = "\u00B5";
+    			break;
+    		case -9:
+    			mulStr = "n";
+    			break;
+    		case -12:
+    			mulStr = "p";
+    			break;
+    		case -15:
+    			mulStr = "f";
+    			break;
+    		case -18:
+    			mulStr = "a";
+    			break;
+    		case -21:
+    			mulStr = "z";
+    			break;
+    		case -24:
+    			mulStr = "y";
+    			break;
+    		default:
+    			mulStr = mul == 0 ? "" : "E" + mul;
+    			break;
 		}
 
 		return (decimalHouses == 0 ? (long) vl + "" : vl) + mulStr;
@@ -239,21 +241,23 @@ public class MathMiscUtils {
 		if ((strt.countTokens() == 1)
 				&& (strtTkn.countTokens() <= (strt.countTokens() + 1))) {
 			// NOP
-		} else
+		} 
+		else
 			return Double.NaN;
 		for (int i = 1; strtTkn.hasMoreTokens(); i++) {
 			if (i == 1) {
 				try {
 					doubleValue = Double.parseDouble(strtTkn.nextToken());
-				} catch (NumberFormatException e) {
+				} 
+				catch (NumberFormatException e) {
 					return Double.NaN;
 				}
-			} else {
+			} 
+			else {
 				String multiplierStr = strtTkn.nextToken();
 				double multiplier = getEngMultiplier(multiplierStr);
 				doubleValue *= multiplier;
 			}
-			// NeptusLog.pub().info("<###> "+doubleValue);
 		}
 
 		return doubleValue;
@@ -271,58 +275,58 @@ public class MathMiscUtils {
 			return 1;
 		char key = multiplierStr.charAt(0);
 		switch (key) {
-		case 'Y':
-			multiplier = 1E24;
-			break;
-		case 'Z':
-			multiplier = 1E21;
-			break;
-		case 'E':
-			multiplier = 1E18;
-			break;
-		case 'P':
-			multiplier = 1E15;
-			break;
-		case 'T':
-			multiplier = 1E12;
-			break;
-		case 'G':
-			multiplier = 1E9;
-			break;
-		case 'M':
-			multiplier = 1E6;
-			break;
-		case 'k':
-			multiplier = 1E3;
-			break;
-		case 'm':
-			multiplier = 1E-3;
-			break;
-		case 'u':
-		case '\u00B5':
-			multiplier = 1E-6;
-			break;
-		case 'n':
-			multiplier = 1E-9;
-			break;
-		case 'p':
-			multiplier = 1E-12;
-			break;
-		case 'f':
-			multiplier = 1E-15;
-			break;
-		case 'a':
-			multiplier = 1E-18;
-			break;
-		case 'z':
-			multiplier = 1E-21;
-			break;
-		case 'y':
-			multiplier = 1E-24;
-			break;
-		default:
-			multiplier = 1;
-			break;
+    		case 'Y':
+    			multiplier = 1E24;
+    			break;
+    		case 'Z':
+    			multiplier = 1E21;
+    			break;
+    		case 'E':
+    			multiplier = 1E18;
+    			break;
+    		case 'P':
+    			multiplier = 1E15;
+    			break;
+    		case 'T':
+    			multiplier = 1E12;
+    			break;
+    		case 'G':
+    			multiplier = 1E9;
+    			break;
+    		case 'M':
+    			multiplier = 1E6;
+    			break;
+    		case 'k':
+    			multiplier = 1E3;
+    			break;
+    		case 'm':
+    			multiplier = 1E-3;
+    			break;
+    		case 'u':
+    		case '\u00B5':
+    			multiplier = 1E-6;
+    			break;
+    		case 'n':
+    			multiplier = 1E-9;
+    			break;
+    		case 'p':
+    			multiplier = 1E-12;
+    			break;
+    		case 'f':
+    			multiplier = 1E-15;
+    			break;
+    		case 'a':
+    			multiplier = 1E-18;
+    			break;
+    		case 'z':
+    			multiplier = 1E-21;
+    			break;
+    		case 'y':
+    			multiplier = 1E-24;
+    			break;
+    		default:
+    			multiplier = 1;
+    			break;
 		}
 		return multiplier;
 	}
@@ -468,58 +472,58 @@ public class MathMiscUtils {
 		int mul = mulTmp * 10;
 		String mulStr = "";
 		switch (mul) {
-		case 80:
-			mulStr = "Yi";
-			break;
-		case 70:
-			mulStr = "Zi";
-			break;
-		case 60:
-			mulStr = "Ei";
-			break;
-		case 50:
-			mulStr = "Pi";
-			break;
-		case 40:
-			mulStr = "Ti";
-			break;
-		case 30:
-			mulStr = "Gi";
-			break;
-		case 20:
-			mulStr = "Mi";
-			break;
-		case 10:
-			mulStr = "Ki";
-			break;
-		case -10:
-			mulStr = "mi";
-			break;
-		case -20:
-			mulStr = "ui";
-			mulStr = "\u00B5i";
-			break;
-		case -30:
-			mulStr = "ni";
-			break;
-		case -40:
-			mulStr = "pi";
-			break;
-		case -50:
-			mulStr = "fi";
-			break;
-		case -60:
-			mulStr = "ai";
-			break;
-		case -70:
-			mulStr = "zi";
-			break;
-		case -80:
-			mulStr = "yi";
-			break;
-		default:
-			mulStr = "";
-			break;
+    		case 80:
+    			mulStr = "Yi";
+    			break;
+    		case 70:
+    			mulStr = "Zi";
+    			break;
+    		case 60:
+    			mulStr = "Ei";
+    			break;
+    		case 50:
+    			mulStr = "Pi";
+    			break;
+    		case 40:
+    			mulStr = "Ti";
+    			break;
+    		case 30:
+    			mulStr = "Gi";
+    			break;
+    		case 20:
+    			mulStr = "Mi";
+    			break;
+    		case 10:
+    			mulStr = "Ki";
+    			break;
+    		case -10:
+    			mulStr = "mi";
+    			break;
+    		case -20:
+    			mulStr = "ui";
+    			mulStr = "\u00B5i";
+    			break;
+    		case -30:
+    			mulStr = "ni";
+    			break;
+    		case -40:
+    			mulStr = "pi";
+    			break;
+    		case -50:
+    			mulStr = "fi";
+    			break;
+    		case -60:
+    			mulStr = "ai";
+    			break;
+    		case -70:
+    			mulStr = "zi";
+    			break;
+    		case -80:
+    			mulStr = "yi";
+    			break;
+    		default:
+    			mulStr =  mul == 0 ? "" : "E" + mul;
+    			break;
 		}
 		if ("".equalsIgnoreCase(mulStr) && vl < 1024) {
 			if (vl == (long) vl)
@@ -544,28 +548,28 @@ public class MathMiscUtils {
 
 		strt = new StringTokenizer(engValue, delim);
 		strtTkn = new StringTokenizer(engValue, delim, true);
-		// NeptusLog.pub().info("<###> "+strt.countTokens());
-		// NeptusLog.pub().info("<###> "+strtTkn.countTokens());
 		if ((strt.countTokens() == 1)
 				&& (strtTkn.countTokens() <= (strt.countTokens() + 2))) {
 			// NOP
-		} else
+		} 
+		else
 			return Double.NaN;
 		for (int i = 1; strtTkn.hasMoreTokens(); i++) {
 			if (i == 1) {
 				try {
 					doubleValue = Double.parseDouble(strtTkn.nextToken());
-				} catch (NumberFormatException e) {
+				} 
+				catch (NumberFormatException e) {
 					return Double.NaN;
 				}
-			} else {
+			} 
+			else {
 				String multiplierStr = strtTkn.nextToken();
 				if (strtTkn.hasMoreTokens())
 					multiplierStr += strtTkn.nextToken();
 				double multiplier = getEngRadix2Multiplier(multiplierStr);
 				doubleValue *= multiplier;
 			}
-			// NeptusLog.pub().info("<###> "+doubleValue);
 		}
 
 		return doubleValue;
@@ -587,59 +591,59 @@ public class MathMiscUtils {
 		if (keyI != 'i')
 			return 1;
 		switch (key) {
-		case 'Y':
-			multiplier = Math.pow(1024, 8);
-			break;
-		case 'Z':
-			multiplier = Math.pow(1024, 7);
-			break;
-		case 'E':
-			multiplier = Math.pow(1024, 6);
-			break;
-		case 'P':
-			multiplier = Math.pow(1024, 5);
-			break;
-		case 'T':
-			multiplier = Math.pow(1024, 4);
-			break;
-		case 'G':
-			multiplier = Math.pow(1024, 3);
-			break;
-		case 'M':
-			multiplier = Math.pow(1024, 2);
-			break;
-		case 'K':
-		case 'k':
-			multiplier = 1024;
-			break;
-		case 'm':
-			multiplier = Math.pow(1024, -1);
-			break;
-		case 'u':
-		case '\u00B5':
-			multiplier = Math.pow(1024, -2);
-			break;
-		case 'n':
-			multiplier = Math.pow(1024, -3);
-			break;
-		case 'p':
-			multiplier = Math.pow(1024, -4);
-			break;
-		case 'f':
-			multiplier = Math.pow(1024, -5);
-			break;
-		case 'a':
-			multiplier = Math.pow(1024, -6);
-			break;
-		case 'z':
-			multiplier = Math.pow(1024, -7);
-			break;
-		case 'y':
-			multiplier = Math.pow(1024, -8);
-			break;
-		default:
-			multiplier = 1;
-			break;
+    		case 'Y':
+    			multiplier = Math.pow(1024, 8);
+    			break;
+    		case 'Z':
+    			multiplier = Math.pow(1024, 7);
+    			break;
+    		case 'E':
+    			multiplier = Math.pow(1024, 6);
+    			break;
+    		case 'P':
+    			multiplier = Math.pow(1024, 5);
+    			break;
+    		case 'T':
+    			multiplier = Math.pow(1024, 4);
+    			break;
+    		case 'G':
+    			multiplier = Math.pow(1024, 3);
+    			break;
+    		case 'M':
+    			multiplier = Math.pow(1024, 2);
+    			break;
+    		case 'K':
+    		case 'k':
+    			multiplier = 1024;
+    			break;
+    		case 'm':
+    			multiplier = Math.pow(1024, -1);
+    			break;
+    		case 'u':
+    		case '\u00B5':
+    			multiplier = Math.pow(1024, -2);
+    			break;
+    		case 'n':
+    			multiplier = Math.pow(1024, -3);
+    			break;
+    		case 'p':
+    			multiplier = Math.pow(1024, -4);
+    			break;
+    		case 'f':
+    			multiplier = Math.pow(1024, -5);
+    			break;
+    		case 'a':
+    			multiplier = Math.pow(1024, -6);
+    			break;
+    		case 'z':
+    			multiplier = Math.pow(1024, -7);
+    			break;
+    		case 'y':
+    			multiplier = Math.pow(1024, -8);
+    			break;
+    		default:
+    			multiplier = 1;
+    			break;
 		}
 		return multiplier;
 	}
@@ -726,41 +730,44 @@ public class MathMiscUtils {
 	/*-------------------------------------------------------------*/
 
 	public static void main(String[] args) {
-		NeptusLog.pub().info("<###> "+parseEngineeringModeToDouble("10M"));
-		NeptusLog.pub().info("<###> "+parseToEngineeringNotation(0.000003, 2));
+		System.out.println(parseEngineeringModeToDouble("10M"));
+		System.out.println(parseToEngineeringNotation(0.000003, 2));
 
-        NeptusLog.pub().info("<###> "+MathMiscUtils.parseToEngineeringNotation(3.56, 0) + "=4");
-        NeptusLog.pub().info("<###> "+MathMiscUtils.parseToEngineeringNotation(3.56, 1) + "=3.6");
+        System.out.println(MathMiscUtils.parseToEngineeringNotation(3.56, 0) + "=4");
+        System.out.println(MathMiscUtils.parseToEngineeringNotation(3.56, 1) + "=3.6");
 
 		
 		if (MathMiscUtils.parseEngineeringModeToDouble("100M") > MathMiscUtils
 				.parseEngineeringModeToDouble("10M")) {
-			NeptusLog.pub().info("<###>Hello");
-		} else {
-			NeptusLog.pub().info("<###>Nops");
+		    System.out.println("Hello");
+		}
+		else {
+		    System.out.println("Nops");
 		}
 
-		NeptusLog.pub().info("<###> "+MathMiscUtils.parseToEngineeringRadix2Notation(
+		System.out.println(MathMiscUtils.parseToEngineeringRadix2Notation(
 				1887115, 1) + "=1.8Mi");
-		NeptusLog.pub().info("<###> "+MathMiscUtils
+		System.out.println(MathMiscUtils
 				.parseEngineeringRadix2ModeToDouble("1.79969310760498046875Mi")
 				+ "=1887115.0");
 
-		NeptusLog.pub().info("<###> "+MathMiscUtils.parseToEngineeringRadix2Notation(876,
+		System.out.println(MathMiscUtils.parseToEngineeringRadix2Notation(876,
 				1) + "=876");
 
-		NeptusLog.pub().info("<###> "+MathMiscUtils.parseToEngineeringRadix2Notation(0,
+		System.out.println(MathMiscUtils.parseToEngineeringRadix2Notation(0,
 		        1) + "=0");
 
-		NeptusLog.pub().info("<###> "+parseEngineeringRadix2ModeToDouble("1ki"));
-		NeptusLog.pub().info("<###> "+parseEngineeringRadix2ModeToDouble("1Ki"));
-		NeptusLog.pub().info("<###> "+parseEngineeringRadix2ModeToDouble("1Mi"));
-		NeptusLog.pub().info("<###> "+parseEngineeringRadix2ModeToDouble("1\u00B5i"));
-		NeptusLog.pub().info("<###> "+parseEngineeringRadix2ModeToDouble("1ui"));
+		System.out.println(parseEngineeringRadix2ModeToDouble("1ki"));
+		System.out.println(parseEngineeringRadix2ModeToDouble("1Ki"));
+		System.out.println(parseEngineeringRadix2ModeToDouble("1Mi"));
+		System.out.println(parseEngineeringRadix2ModeToDouble("1\u00B5i"));
+		System.out.println(parseEngineeringRadix2ModeToDouble("1ui"));
 
-        NeptusLog.pub().info("<###> "+round(Math.PI, 2));
-        NeptusLog.pub().info("<###> "+round(Math.PI, 1));
-        NeptusLog.pub().info("<###> "+round(Math.PI, 0));
-        NeptusLog.pub().info("<###> "+clamp(41,50,100));
+        System.out.println(round(Math.PI, 2));
+        System.out.println(round(Math.PI, 1));
+        System.out.println(round(Math.PI, 0));
+        System.out.println(clamp(41, 50, 100));
+        
+        System.out.println(parseToEngineeringNotation(0.0000484746447, 1));
 	}
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2015 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2016 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -80,6 +80,8 @@ public class TransponderEstimation extends ConsolePanel implements Renderer2DPai
 
     private static final long serialVersionUID = 1L;
 
+    public static final int TIME = 0, X = 1, Y = 2, Z = 3, RANGE = 4;
+
     @NeptusProperty(name = "Logs folder", editable = true) 
     public String logsFolder = ".";
 
@@ -88,19 +90,19 @@ public class TransponderEstimation extends ConsolePanel implements Renderer2DPai
     
     @NeptusProperty(name = "Distance treshold")
     public double dropDistance = 100;
-    
+
+    protected LinkedHashMap<String, LocationType> estimations = new LinkedHashMap<String, LocationType>();
+    protected JMenuItem calcMenu = null, settingsMenu = null;
+
+    private JMenu menu;
     
     public TransponderEstimation(ConsoleLayout console) {
         super(console);
         setVisibility(false);
     }
     
-    protected LinkedHashMap<String, LocationType> estimations = new LinkedHashMap<String, LocationType>();
-    protected JMenuItem calcMenu = null, settingsMenu = null;
-    
     @Override
     public void paint(Graphics2D g, StateRenderer2D renderer) {
-        
         for (String name : estimations.keySet()) {
             LocationType loc = estimations.get(name);            
             Point2D pt = renderer.getScreenPosition(loc);
@@ -144,8 +146,6 @@ public class TransponderEstimation extends ConsolePanel implements Renderer2DPai
         });
         
     }
-
-    public static final int TIME = 0, X = 1, Y = 2, Z = 3, RANGE = 4;
 
     public void getRanges(File lsfFile) throws Exception {
         LsfIndex index = new LsfIndex(lsfFile, new IMCDefinition(new FileInputStream(new File(lsfFile.getParent(),
@@ -226,30 +226,29 @@ public class TransponderEstimation extends ConsolePanel implements Renderer2DPai
             if (measurements == null)
                 continue;
             
-            int N = measurements.size();
+            int n = measurements.size();
             double bestR = Double.MAX_VALUE;
 
             for (int k = 0; k < numIterations; k++) {
-
                 double r = 0;
 
                 for (int i = 0; i < measurements.size(); i++) {
 
-                    double Px = measurements.get(i)[X];
-                    double Py = measurements.get(i)[Y];
-                    double Pz = measurements.get(i)[Z];
+                    double px = measurements.get(i)[X];
+                    double py = measurements.get(i)[Y];
+                    double pz = measurements.get(i)[Z];
 
                     double val1 = Math.sqrt(
-                            (Px - estimate[0]) * (Px - estimate[0]) + 
-                            (Py - estimate[1]) * (Py - estimate[1]) + 
-                            (Pz - estimate[2]) * (Pz - estimate[2])
+                            (px - estimate[0]) * (px - estimate[0]) + 
+                            (py - estimate[1]) * (py - estimate[1]) + 
+                            (pz - estimate[2]) * (pz - estimate[2])
                         );
 
                     double val2 = measurements.get(i)[RANGE];
 
                     r += Math.abs(val1 - val2);
                 }
-                r = r / N;
+                r = r / n;
 
                 if (r < bestR) {
                     bestEstimate = Arrays.copyOf(estimate, estimate.length);
@@ -266,7 +265,7 @@ public class TransponderEstimation extends ConsolePanel implements Renderer2DPai
             estimations.put(beaconNames.get(beacon), loc);
         }
         
-        JMenu menu = getConsole().getOrCreateJMenu(new String[] {"Noptilus", "Transponder Estimation"});
+        menu = getConsole().getOrCreateJMenu(new String[] {"Noptilus", "Transponder Estimation"});
         menu.removeAll();
         menu.add(calcMenu);
         menu.add(settingsMenu);
@@ -274,8 +273,8 @@ public class TransponderEstimation extends ConsolePanel implements Renderer2DPai
         for (String beaconName : estimations.keySet()) {
             final LocationType loc = estimations.get(beaconName);
             loc.setId(beaconName);
-            JMenuItem item = new JMenuItem("Copy "+beaconName+" location");
-            item.setToolTipText(loc.getLatitudeAsPrettyString()+" / "+loc.getLongitudeAsPrettyString()+" / "+loc.getAllZ());
+            JMenuItem item = new JMenuItem("Copy " + beaconName + " location");
+            item.setToolTipText(loc.getLatitudeAsPrettyString() + " / "+loc.getLongitudeAsPrettyString()+" / "+loc.getAllZ());
             item.addActionListener(new ActionListener() {                
                 @Override
                 public void actionPerformed(ActionEvent e) {
@@ -286,13 +285,12 @@ public class TransponderEstimation extends ConsolePanel implements Renderer2DPai
                     Toolkit.getDefaultToolkit().getSystemClipboard().setContents(new StringSelection(loc.getClipboardText()), owner);
                 }
             });
-            item.setActionCommand("copy "+beaconName);
+            item.setActionCommand("copy " + beaconName);
             menu.add(item);
         }
         
         JMenuItem clear = new JMenuItem("Clear");
         clear.addActionListener(new ActionListener() {
-            
             @Override
             public void actionPerformed(ActionEvent e) {
                 JMenu menu = getConsole().getOrCreateJMenu(new String[] {"Noptilus", "Transponder Estimation"});
@@ -330,7 +328,9 @@ public class TransponderEstimation extends ConsolePanel implements Renderer2DPai
      */
     @Override
     public void cleanSubPanel() {
-        // TODO Auto-generated method stub
-        
+        removeMenuItem("Noptilus"+">"+"Transponder Estimation"+">"+"Calculate");
+        removeMenuItem("Noptilus"+">"+"Transponder Estimation"+">"+"Settings");
+        menu.removeAll();
+        removeMenuItem("Noptilus>Transponder Estimation");
     }
 }

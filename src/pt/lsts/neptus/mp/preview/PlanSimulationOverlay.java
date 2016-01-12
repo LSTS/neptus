@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2015 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2016 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -38,6 +38,7 @@ import java.awt.geom.Point2D;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
+import java.util.Map.Entry;
 import java.util.Vector;
 
 import pt.lsts.neptus.colormap.ColorMap;
@@ -63,6 +64,8 @@ public class PlanSimulationOverlay implements Renderer2DPainter {
     protected Vector<SystemPositionAndAttitude> states = new Vector<>();
     protected Vector<Color> colors = new Vector<>();
     protected Vector<SimulationState> simStates = new Vector<>();
+    protected Vector<LinkedHashMap<Area, Color>> swaths = new Vector<>();
+    
     public boolean simulationFinished = false;
     public static double bottomDepth = 10;
     private HashSet<PlanSimulationListener> listeners = new HashSet<>();
@@ -76,7 +79,6 @@ public class PlanSimulationOverlay implements Renderer2DPainter {
         this.plan = plan;
         final SimulationEngine engine = new SimulationEngine(plan);
         payloads = PayloadFactory.getPayloads(plan);
-        //System.out.println(payloads.entrySet().iterator().next().getValue());
         if (start == null) {
             start = new SystemPositionAndAttitude(plan.getMissionType().getHomeRef(), 0, 0, 0);
             Vector<LocatedManeuver> manLocs = PlanUtil.getLocationsAsSequence(plan);
@@ -100,9 +102,10 @@ public class PlanSimulationOverlay implements Renderer2DPainter {
                     engine.simulationStep();
                     if (ellapsedTime - lastPoint > 1) {
                         Color c = cmap.getColor(1 - ((ellapsedTime + usedBatt) / totalBattTime));
-                        addPoint(engine.getState(), c,
+                        SystemPositionAndAttitude state = engine.getState();
+                        addPoint(state, c,
                                 new SimulationState(engine.getManId(), engine.getCurPreview() == null ? null : engine
-                                        .getCurPreview().getState(), engine.getState()));
+                                        .getCurPreview().getState(), state));
                         
                         lastPoint = ellapsedTime;
                     }
@@ -150,6 +153,21 @@ public class PlanSimulationOverlay implements Renderer2DPainter {
         states.add(state);
         colors.add(color);
         simStates.add(simState);
+        
+        String man = simState.getCurrentManeuver();
+        LinkedHashMap<Area, Color> swath = new LinkedHashMap<>();
+        for (PayloadFingerprint pf : payloads.get(man)) {
+            double altitude = SimulationEngine.simBathym.getSimulatedDepth(state.getPosition());
+           if (state.getDepth() == -1)
+               new Exception().printStackTrace();
+            altitude -= state.getDepth();
+            state.setAltitude(altitude);
+            Area a = pf.getFingerprint(state);
+            swath.put(a, pf.getColor());
+        }
+        synchronized (swaths) {
+            swaths.add(swath);    
+        }        
     }
 
     public void addPoint(LocationType loc, Color color, SimulationState simState) {
@@ -240,23 +258,22 @@ public class PlanSimulationOverlay implements Renderer2DPainter {
         g.setColor(Color.white);
 
         for (int i = 0; i < states.size(); i++) {
-            String man = simStates.get(i).getCurrentManeuver();
             Graphics2D g2 = (Graphics2D)g.create();
             Point2D pt = renderer.getScreenPosition(states.get(i).getPosition());
             g2.translate(pt.getX(), pt.getY());
             g2.scale(renderer.getZoom(), renderer.getZoom());
             g2.rotate(-renderer.getRotation()+states.get(i).getYaw());
-            
-            for (PayloadFingerprint pf : payloads.get(man)) {
-                SystemPositionAndAttitude state = states.get(i);
-                state.setAltitude(SimulationEngine.simBathym.getSimulatedDepth(state.getPosition()));
-                Area a = pf.getFingerprint(states.get(i));
-                g2.setColor(pf.getColor());
-                g2.fill(a);                
+            try {
+                for (Entry<Area, Color> swath : swaths.get(i).entrySet()) {
+                    g2.setColor(swath.getValue());
+                    g2.fill(swath.getKey());
+                }   
             }
+            catch (ArrayIndexOutOfBoundsException e) {
+                // still being generated...
+            }
+            
         }
-        
-        //g.drawString("Plan takes aproximately "+time+" "+timeUnits, 10, renderer.getHeight()-40);
         g.translate(center.getX(), center.getY());
         g.rotate(-renderer.getRotation());
         for (int i = 0; i < states.size(); i++) {
