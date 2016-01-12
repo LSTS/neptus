@@ -1106,6 +1106,7 @@ For simple use the main targets are:
 			<include name="pt/lsts/neptus/util/*.class" />
 			<include name="pt/lsts/neptus/util/coord/*.class" />
 			<include name="pt/lsts/neptus/util/conf/*.class" />
+			<include name="pt/lsts/neptus/util/http/client/HttpClientConnectionHelper*.class" />
 			<include name="pt/lsts/neptus/util/output/*.class"/>
 			<include name="pt/lsts/neptus/planeditor/I*.class" />
 			<include name="pt/lsts/neptus/platform/**/*.class"/>
