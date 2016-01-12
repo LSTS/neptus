@@ -49,7 +49,6 @@ import pt.lsts.neptus.util.coord.MapTileUtil;
  * @author pdias
  *
  */
-@SuppressWarnings("deprecation")
 @MapTileProvider(name = "Google Maps")
 public class TileGoogleMaps extends TileHttpFetcher {
 
@@ -93,7 +92,7 @@ public class TileGoogleMaps extends TileHttpFetcher {
         if (alreadyInitialize)
             return;
         alreadyInitialize = true;
-        httpConnectionManager.setMaxPerRoute(new HttpRoute(new HttpHost(HOST)), 1); // was setMaxForRoute
+        httpComm.getHttpConnectionManager().setMaxPerRoute(new HttpRoute(new HttpHost(HOST)), 1); // was setMaxForRoute
     }
 
     /**

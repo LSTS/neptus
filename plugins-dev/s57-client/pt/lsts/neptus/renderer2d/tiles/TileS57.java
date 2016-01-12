@@ -62,7 +62,6 @@ import com.l2fprod.common.propertysheet.Property;
  * @author pdias
  *
  */
-@SuppressWarnings("deprecation")
 @MapTileProvider(name = "S57 Client (HTTP)")
 public class TileS57 extends TileHttpFetcher {
     
@@ -131,7 +130,7 @@ public class TileS57 extends TileHttpFetcher {
 
         try {
             URL url = new URL(mapServerURL);
-            httpConnectionManager.setMaxPerRoute(new HttpRoute(new HttpHost(url.getHost())), 1); // was setMaxForRoute
+            httpComm.getHttpConnectionManager().setMaxPerRoute(new HttpRoute(new HttpHost(url.getHost())), 1); // was setMaxForRoute
         }
         catch (MalformedURLException e) {
             e.printStackTrace();
@@ -210,7 +209,7 @@ public class TileS57 extends TileHttpFetcher {
 
         try {
             URL url = new URL(mapServerURL);
-            httpConnectionManager.setMaxPerRoute(new HttpRoute(new HttpHost(url.getHost())), 1); // was setMaxForRoute
+            httpComm.getHttpConnectionManager().setMaxPerRoute(new HttpRoute(new HttpHost(url.getHost())), 1); // was setMaxForRoute
         }
         catch (MalformedURLException e) {
             e.printStackTrace();

@@ -49,7 +49,6 @@ import pt.lsts.neptus.util.coord.MapTileUtil;
  * @author pdias
  *
  */
-@SuppressWarnings("deprecation")
 @MapTileProvider(name = "www.GEBCO.net")
 public class TileGEBCO extends TileHttpFetcher {
     
@@ -99,7 +98,7 @@ public class TileGEBCO extends TileHttpFetcher {
         if (alreadyInitialize)
             return;
         alreadyInitialize = true;
-        httpConnectionManager.setMaxPerRoute(new HttpRoute(new HttpHost("www.gebco.net")), 4); // was setMaxForRoute
+        httpComm.getHttpConnectionManager().setMaxPerRoute(new HttpRoute(new HttpHost("www.gebco.net")), 4); // was setMaxForRoute
     }
     
     /**
