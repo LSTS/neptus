@@ -1124,8 +1124,8 @@ For simple use the main targets are:
 		<unzip dest="${tmp.bundle.dir}" src="lib/commons-cli-1.2.jar"/>
 		<!--unzip dest="${tmp.bundle.dir}" src="lib/commons-io-1.4.jar"/-->
 		<unzip dest="${tmp.bundle.dir}" src="lib/foxtrot.jar"/>
-		<unzip dest="${tmp.bundle.dir}" src="lib/httpclient-4.3.2.jar"/>
-		<unzip dest="${tmp.bundle.dir}" src="lib/httpcore-4.3.1.jar"/>
+		<unzip dest="${tmp.bundle.dir}" src="lib/httpclient-4.5.1.jar"/>
+		<unzip dest="${tmp.bundle.dir}" src="lib/httpcore-4.4.4.jar"/>
 		<unzip dest="${tmp.bundle.dir}" src="lib/commons-codec-1.9.jar"/>
 		<unzip dest="${tmp.bundle.dir}" src="lib/fop/batik.jar"/>
 		<unzip dest="${tmp.bundle.dir}" src="lib/fop/xml-apis-ext.jar"/>
