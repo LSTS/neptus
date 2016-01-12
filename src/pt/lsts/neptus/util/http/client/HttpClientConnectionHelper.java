@@ -53,13 +53,17 @@ import pt.lsts.neptus.comm.proxy.ProxyInfoProvider;
  */
 public class HttpClientConnectionHelper {
 
+    public static final int MAX_TOTAL_CONNECTIONS = 4;
+    public static final int DEFAULT_MAX_CONNECTIONS_PER_ROUTE = 50;
+    public static final int CONNECTION_TIMEOUT = 5000;
+    
     private CloseableHttpClient client; // Usar v4.3 HttpClientBuilder para criar CloseableHttpClient WAS DefaultHttpClient
     private PoolingHttpClientConnectionManager httpConnectionManager; // Usar v4.3  PoolingHttpClientConnectionManager WAS PoolingClientConnectionManager
     // private HashSet<HttpRequestBase> listActiveHttpMethods = new HashSet<HttpRequestBase>();
 
-    private int maxTotalConnections = 4;
-    private int defaultMaxConnectionsPerRoute = 50;
-    private int connectionTimeout = 5000;
+    private int maxTotalConnections = MAX_TOTAL_CONNECTIONS;
+    private int defaultMaxConnectionsPerRoute = DEFAULT_MAX_CONNECTIONS_PER_ROUTE;
+    private int connectionTimeout = CONNECTION_TIMEOUT;
     private boolean initializeProxyRoutePlanner = true;
     
     public HttpClientConnectionHelper() {
