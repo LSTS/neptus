@@ -62,18 +62,9 @@ import org.apache.http.NameValuePair;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
-import org.apache.http.conn.scheme.PlainSocketFactory;
-import org.apache.http.conn.scheme.Scheme;
-import org.apache.http.conn.scheme.SchemeRegistry;
+import org.apache.http.client.protocol.HttpClientContext;
 import org.apache.http.entity.InputStreamEntity;
-import org.apache.http.impl.client.DefaultHttpClient;
-import org.apache.http.impl.conn.PoolingClientConnectionManager;
 import org.apache.http.message.BasicNameValuePair;
-import org.apache.http.params.BasicHttpParams;
-import org.apache.http.params.HttpConnectionParams;
-import org.apache.http.params.HttpParams;
-import org.apache.http.protocol.BasicHttpContext;
-import org.apache.http.protocol.HttpContext;
 import org.dom4j.Document;
 import org.dom4j.DocumentHelper;
 import org.dom4j.Element;
@@ -87,7 +78,6 @@ import pt.lsts.neptus.comm.manager.imc.ImcId16;
 import pt.lsts.neptus.comm.manager.imc.ImcMsgManager;
 import pt.lsts.neptus.comm.manager.imc.ImcSystem;
 import pt.lsts.neptus.comm.manager.imc.ImcSystemsHolder;
-import pt.lsts.neptus.comm.proxy.ProxyInfoProvider;
 import pt.lsts.neptus.console.ConsoleLayout;
 import pt.lsts.neptus.console.ConsolePanel;
 import pt.lsts.neptus.gui.PropertiesEditor;
@@ -116,13 +106,14 @@ import pt.lsts.neptus.util.ImageUtils;
 import pt.lsts.neptus.util.StreamUtil;
 import pt.lsts.neptus.util.StringUtils;
 import pt.lsts.neptus.util.conf.StringPatternValidator;
+import pt.lsts.neptus.util.http.client.HttpClientConnectionHelper;
 import pt.lsts.neptus.ws.PublishHelper;
 
 /**
  * @author pdias
  * 
  */
-@SuppressWarnings({"serial","deprecation"})
+@SuppressWarnings({"serial"})
 @PluginDescription(name = "Remote Position Publisher Updater", author = "Paulo Dias", version = "1.0", icon = "pt/lsts/neptus/plugins/webupdate/webupdate-pub-on.png")
 public class RemotePositionPublisherUpdater extends ConsolePanel implements IPeriodicUpdates, ConfigurationListener {
 
@@ -186,9 +177,7 @@ public class RemotePositionPublisherUpdater extends ConsolePanel implements IPer
 
     private long lastFetchPosTimeMillis = System.currentTimeMillis();
 
-    private DefaultHttpClient client;
-    private PoolingClientConnectionManager httpConnectionManager; // old ThreadSafeClientConnManager
-    // private HashSet<HttpRequestBase> listActiveHttpMethods = new HashSet<HttpRequestBase>();
+    private HttpClientConnectionHelper httpComm;
     private HttpPost postHttpRequestPublishState;
     private HttpPost postHttpRequestPublishPlan;
     private HttpGet getHttpRequestImcMsg;
@@ -427,18 +416,8 @@ public class RemotePositionPublisherUpdater extends ConsolePanel implements IPer
     }
 
     private void initializeComm() {
-        SchemeRegistry schemeRegistry = new SchemeRegistry();
-        schemeRegistry.register(new Scheme("http", 80, PlainSocketFactory.getSocketFactory()));
-        schemeRegistry.register(new Scheme("https", 443, PlainSocketFactory.getSocketFactory()));
-        httpConnectionManager = new PoolingClientConnectionManager(schemeRegistry);
-        httpConnectionManager.setMaxTotal(4);
-        httpConnectionManager.setDefaultMaxPerRoute(50);
-
-        HttpParams params = new BasicHttpParams();
-        HttpConnectionParams.setConnectionTimeout(params, 5000);
-        client = new DefaultHttpClient(httpConnectionManager, params);
-
-        ProxyInfoProvider.setRoutePlanner(client);
+        httpComm = new HttpClientConnectionHelper();
+        httpComm.initializeComm();
     }
 
     /**
@@ -746,9 +725,10 @@ public class RemotePositionPublisherUpdater extends ConsolePanel implements IPer
             nvps.add(nvp_xml);
 
             postHttpRequestPublishState.setEntity(new UrlEncodedFormEntity(nvps, "UTF-8"));
-            HttpContext localContext = new BasicHttpContext();
-            HttpResponse iGetResultCode = client.execute(postHttpRequestPublishState, localContext);
-            ProxyInfoProvider.authenticateConnectionIfNeeded(iGetResultCode, localContext, client);
+            HttpClientContext localContext = HttpClientContext.create();
+            HttpResponse iGetResultCode = httpComm.getClient().execute(postHttpRequestPublishState, localContext);
+//            ProxyInfoProvider.authenticateConnectionIfNeeded(iGetResultCode, localContext, client);
+            httpComm.autenticateProxyIfNeeded(iGetResultCode, localContext);
 
             if (iGetResultCode.getStatusLine().getStatusCode() != HttpStatus.SC_OK) {
                 NeptusLog.pub().info("<###>publishData [" + iGetResultCode.getStatusLine().getStatusCode() + "] "
@@ -848,9 +828,10 @@ public class RemotePositionPublisherUpdater extends ConsolePanel implements IPer
             nvps.add(nvp_xml);
 
             postHttpRequestPublishPlan.setEntity(new UrlEncodedFormEntity(nvps, "UTF-8"));
-            HttpContext localContext = new BasicHttpContext();
-            HttpResponse iGetResultCode = client.execute(postHttpRequestPublishPlan, localContext);
-            ProxyInfoProvider.authenticateConnectionIfNeeded(iGetResultCode, localContext, client);
+            HttpClientContext localContext = HttpClientContext.create();
+            HttpResponse iGetResultCode = httpComm.getClient().execute(postHttpRequestPublishPlan, localContext);
+//            ProxyInfoProvider.authenticateConnectionIfNeeded(iGetResultCode, localContext, client);
+            httpComm.autenticateProxyIfNeeded(iGetResultCode, localContext);
 
             if (iGetResultCode.getStatusLine().getStatusCode() != HttpStatus.SC_OK) {
                 NeptusLog.pub().info("<###>publishData [" + iGetResultCode.getStatusLine().getStatusCode() + "] "
@@ -906,7 +887,9 @@ public class RemotePositionPublisherUpdater extends ConsolePanel implements IPer
 
             post.setEntity(reqEntity);
 
-            HttpResponse iGetResultCode = client.execute(post);
+            HttpClientContext context = HttpClientContext.create();
+            HttpResponse iGetResultCode = httpComm.getClient().execute(post, context);
+            httpComm.autenticateProxyIfNeeded(iGetResultCode, context);
 
             if (iGetResultCode.getStatusLine().getStatusCode() != HttpStatus.SC_OK) {
                 NeptusLog.pub().info("<###>postMessages [" + iGetResultCode.getStatusLine().getStatusCode() + "] "
@@ -959,7 +942,11 @@ public class RemotePositionPublisherUpdater extends ConsolePanel implements IPer
             getHttpRequestImcMsg = new HttpGet(uri);
             @SuppressWarnings("unused")
             long reqTime = System.currentTimeMillis();
-            HttpResponse iGetResultCode = client.execute(getHttpRequestImcMsg);
+            
+            HttpClientContext context = HttpClientContext.create();
+            HttpResponse iGetResultCode = httpComm.getClient().execute(getHttpRequestImcMsg, context);
+            httpComm.autenticateProxyIfNeeded(iGetResultCode, context);
+            
             if (iGetResultCode.getStatusLine().getStatusCode() != HttpStatus.SC_OK) {
                 NeptusLog.pub().info("<###>getRemoteImcData [" + iGetResultCode.getStatusLine().getStatusCode() + "] "
                         + iGetResultCode.getStatusLine().getReasonPhrase() + " code was return from the server");
@@ -1132,7 +1119,11 @@ public class RemotePositionPublisherUpdater extends ConsolePanel implements IPer
             String endpoint = pubURL; // GeneralPreferences.getProperty(GeneralPreferences.PUBLISH_WS_ADDRESS);
             String uri = endpoint + "state/state.xml"; // + "/state.xml";
             getHttpRequestRemoteState = new HttpGet(uri);
-            HttpResponse iGetResultCode = client.execute(getHttpRequestRemoteState);
+            
+            HttpClientContext context = HttpClientContext.create();
+            HttpResponse iGetResultCode = httpComm.getClient().execute(getHttpRequestRemoteState, context);
+            httpComm.autenticateProxyIfNeeded(iGetResultCode, context);
+            
             if (iGetResultCode.getStatusLine().getStatusCode() != HttpStatus.SC_OK) {
                 NeptusLog.pub().info("<###>[" + iGetResultCode.getStatusLine().getStatusCode() + "] "
                         + iGetResultCode.getStatusLine().getReasonPhrase() + " code was return from the server");
@@ -1205,10 +1196,8 @@ public class RemotePositionPublisherUpdater extends ConsolePanel implements IPer
         removeCheckMenuItem("Settings>" + PluginUtils.getPluginName(this.getClass()) + ">Start/Stop");
         removeMenuItem("Settings>" + PluginUtils.getPluginName(this.getClass()) + ">Settings");
 
-        if (client != null) {
-        }
-        if (httpConnectionManager != null) {
-            httpConnectionManager.shutdown();
+        if (httpComm != null) {
+            httpComm.cleanUp();;
         }
         if (ttask != null) {
             ttask.cancel();

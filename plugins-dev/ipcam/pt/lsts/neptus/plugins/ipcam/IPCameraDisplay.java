@@ -52,16 +52,10 @@ import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JPopupMenu;
 
 import org.apache.http.HttpResponse;
-import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;
-import org.apache.http.conn.params.ConnManagerParams;
-import org.apache.http.conn.scheme.PlainSocketFactory;
-import org.apache.http.conn.scheme.Scheme;
-import org.apache.http.conn.scheme.SchemeRegistry;
-import org.apache.http.impl.client.DefaultHttpClient;
-import org.apache.http.impl.conn.tsccm.ThreadSafeClientConnManager;
-import org.apache.http.params.BasicHttpParams;
-import org.apache.http.params.HttpParams;
+import org.apache.http.client.protocol.HttpClientContext;
+
+import com.l2fprod.common.propertysheet.DefaultProperty;
 
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.console.ConsoleLayout;
@@ -73,14 +67,12 @@ import pt.lsts.neptus.plugins.PluginDescription;
 import pt.lsts.neptus.plugins.Popup;
 import pt.lsts.neptus.plugins.Popup.POSITION;
 import pt.lsts.neptus.util.GuiUtils;
-
-import com.l2fprod.common.propertysheet.DefaultProperty;
+import pt.lsts.neptus.util.http.client.HttpClientConnectionHelper;
 
 /**
  * @author zp
  *
  */
-@SuppressWarnings("deprecation")
 @Popup( pos = POSITION.RIGHT, width=400, height=400)
 @PluginDescription(name="IP Camera Display", author="ZP", description="Video display for Conceptronic IP Camera", icon="pt/lsts/neptus/plugins/ipcam/camera.png")
 public class IPCameraDisplay extends ConsolePanel implements ConfigurationListener {
@@ -109,8 +101,7 @@ public class IPCameraDisplay extends ConsolePanel implements ConfigurationListen
     protected MJPEGCreator videoCreator = null;	
     protected BufferedImage imageToDisplay = null;
     protected byte[] cache = new byte[100*1024];
-    protected HttpClient client;
-    protected ThreadSafeClientConnManager httpConnectionManager;
+    protected HttpClientConnectionHelper httpComm;
     protected boolean connected = true;
     private final byte buff[] = new byte[256];
     protected Thread updater = null;
@@ -119,14 +110,11 @@ public class IPCameraDisplay extends ConsolePanel implements ConfigurationListen
     public IPCameraDisplay(ConsoleLayout console) {
         super(console);
         removeAll();
-        HttpParams params = new BasicHttpParams();
-        ConnManagerParams.setTimeout(params, 1000);
-        SchemeRegistry schemeRegistry = new SchemeRegistry();
-        schemeRegistry.register(
-                new Scheme("http", PlainSocketFactory.getSocketFactory(), 80));
+        
+        httpComm = new HttpClientConnectionHelper(HttpClientConnectionHelper.MAX_TOTAL_CONNECTIONS, 
+                HttpClientConnectionHelper.DEFAULT_MAX_CONNECTIONS_PER_ROUTE, 1000, true);
+        httpComm.initializeComm();
 
-        httpConnectionManager = new ThreadSafeClientConnManager(params, schemeRegistry);
-        client = new DefaultHttpClient(httpConnectionManager, params);
         status = "initializing...";
         updater = updaterThread();
         updater.setPriority(Thread.MIN_PRIORITY);
@@ -233,8 +221,10 @@ public class IPCameraDisplay extends ConsolePanel implements ConfigurationListen
                     HttpGet get = new HttpGet(url);				
                     connected = true;
                     try {
+                        HttpClientContext context = HttpClientContext.create();
+                        HttpResponse resp = httpComm.getClient().execute(get, context);
+                        httpComm.autenticateProxyIfNeeded(resp, context);
                         
-                        HttpResponse resp = client.execute(get);		
                         InputStream is = resp.getEntity().getContent();
                         
                        
@@ -375,6 +365,9 @@ public class IPCameraDisplay extends ConsolePanel implements ConfigurationListen
 
     @Override
     public void cleanSubPanel() {
+        if (httpComm != null)
+            httpComm.cleanUp();
+        
         status = "stopping";
         url = null;
         connected = false;
