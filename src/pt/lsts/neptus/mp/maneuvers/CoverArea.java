@@ -521,7 +521,10 @@ public class CoverArea extends Maneuver implements LocatedManeuver, IMCSerializa
         super.clone(clone);
         clone.speed = speed;
         clone.units = units;
-        clone.setManeuverLocation(location);
+        clone.setManeuverLocation(location.getNewAbsoluteLatLonDepth());
+        for (LocationType lc : points) {
+            clone.points.addElement(lc.getNewAbsoluteLatLonDepth());
+        }
         
         return clone;
     }
