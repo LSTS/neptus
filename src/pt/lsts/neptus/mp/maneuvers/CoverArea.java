@@ -422,12 +422,19 @@ public class CoverArea extends Maneuver implements LocatedManeuver, IMCSerializa
 
     @Override
     public void setManeuverLocation(ManeuverLocation loc) {
+        double[] offset = location.getOffsetFrom(loc);
         location = loc.clone();
+        for (LocationType lc : points) {
+            lc.translatePosition(-offset[0], -offset[1], 0);
+        }
     }
 
     @Override
     public void translate(double offsetNorth, double offsetEast, double offsetDown) {
-        getManeuverLocation().translatePosition(offsetNorth, offsetEast, offsetDown);
+        location.translatePosition(offsetNorth, offsetEast, offsetDown);
+        for (LocationType loc : points) {
+            loc.translatePosition(offsetNorth, offsetEast, offsetDown);
+        }
     }
 
     /* (non-Javadoc)
