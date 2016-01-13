@@ -459,7 +459,7 @@ public class CoverArea extends Maneuver implements LocatedManeuver, IMCSerializa
             
         }
         catch (Exception e) {
-            NeptusLog.pub().info("<###> "+I18n.text("Error while loading the XML:")+"{" + xml + "}");
+            NeptusLog.pub().info("Error while loading the XML:" + "{" + xml + "}");
             NeptusLog.pub().error(this, e);
             return;
         }
