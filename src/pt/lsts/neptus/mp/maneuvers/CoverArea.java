@@ -75,6 +75,7 @@ import pt.lsts.neptus.renderer2d.StateRenderer2D;
 import pt.lsts.neptus.renderer2d.StateRendererInteraction;
 import pt.lsts.neptus.types.coord.LocationType;
 import pt.lsts.neptus.types.map.PlanElement;
+import pt.lsts.neptus.util.FileUtil;
 
 /**
  * @author zp
@@ -457,6 +458,22 @@ public class CoverArea extends Maneuver implements LocatedManeuver, IMCSerializa
             setSpeedUnits(speedUnit);
             setSpeedTolerance(Double.parseDouble(speedNode.valueOf("@tolerance")));
             
+            Node vertexPoints = doc.selectSingleNode(getType()+"/vertexPoints");
+            points.clear();
+            if (vertexPoints != null) {
+                List<?> lst = vertexPoints.selectNodes("point");
+                for (Object obj : lst) {
+                    Node nd = (Node) obj;
+                    try {
+                        String latStr = nd.selectSingleNode("latitude").getText();
+                        String lonStr = nd.selectSingleNode("longitude").getText();
+                        LocationType lc = LocationType.valueOf(latStr + ", " + lonStr);
+                        points.addElement(lc);
+                    }
+                    catch (Exception e) {
+                    }
+                }
+            }
         }
         catch (Exception e) {
             NeptusLog.pub().info("Error while loading the XML:" + "{" + xml + "}");
@@ -555,6 +572,14 @@ public class CoverArea extends Maneuver implements LocatedManeuver, IMCSerializa
         Element radiusTolerance = trajectoryTolerance.addElement("radiusTolerance");
         radiusTolerance.setText(String.valueOf(getRadiusTolerance()));
 
+        // Adding the points
+        Element polyVertexPointsElm = root.addElement("vertexPoints");
+        for (LocationType lc : points) {
+            Element vertexElm = polyVertexPointsElm.addElement("point");
+            vertexElm.addElement("latitude").setText(lc.getLatitudeStr());
+            vertexElm.addElement("longitude").setText(lc.getLongitudeStr());
+        }
+
         return document;
     }
     
@@ -611,11 +636,14 @@ public class CoverArea extends Maneuver implements LocatedManeuver, IMCSerializa
     public static void main(String[] args) {
         
         CoverArea compc = new CoverArea();
+        compc.points.add(new LocationType(1, 2));
+        compc.points.add(new LocationType(3, 4));
+        compc.points.add(new LocationType(5, 6));
         String ccmanXML = compc.getManeuverAsDocument("CoverArea").asXML();
-        System.out.println(ccmanXML);
+        System.out.println(FileUtil.getAsPrettyPrintFormatedXMLString(ccmanXML));
         CoverArea compc1 = new CoverArea();
         compc1.loadFromXML(ccmanXML);
-        ccmanXML = compc.getManeuverAsDocument("CoverArea").asXML();
-        System.out.println(ccmanXML);
+        ccmanXML = compc1.getManeuverAsDocument("CoverArea").asXML();
+        System.out.println(FileUtil.getAsPrettyPrintFormatedXMLString(ccmanXML));
     }
 }
