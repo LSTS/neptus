@@ -237,8 +237,6 @@ public class LogsDownloaderWorker {
     private RectanglePainter rectPainter;
     private CompoundPainter<JXPanel> compoundBackPainter;
 
-    //    private Timer timer = null;
-    //    private TimerTask ttaskLocalDiskSpace = null;
     private ScheduledThreadPoolExecutor threadScheduledPool = null;
     private Runnable ttaskLocalDiskSpace = null;
 
@@ -275,7 +273,6 @@ public class LogsDownloaderWorker {
 
     private void initializeComm() {
         // Init timer
-        //        timer = new Timer("LogsDownloadWorker");
         threadScheduledPool = (ScheduledThreadPoolExecutor) Executors.newScheduledThreadPool(4, new ThreadFactory() {
             private ThreadGroup group;
             private long count = 0;
@@ -299,21 +296,6 @@ public class LogsDownloaderWorker {
 
             @Override
             public void onMessage(MessageInfo info, IMCMessage msg) {
-                /* Old way
-                if (msg.getAbbrev().equals("PowerChannelState")) {
-                    String systemName = getLogLabel();
-                    ImcSystem imcSystem = ImcSystemsHolder.getSystemWithName(systemName);
-                    if (imcSystem == null || imcSystem.getId().intValue() != msg.getSrc())
-                        return;
-
-                    if (msg.getString("name").equals("Camera Module") || msg.getString("name").equals("Camera - CPU")) { 
-                        //System.out.println(LogsDownloaderWorker.class.getSimpleName() + " :: PowerChannelState "
-                        //+ msg.getInteger("state"));
-                        cameraButton.setBackground(msg.getInteger("state") == 1 ? Color.GREEN : null);
-                    }
-                }
-                 */
-
                 if (msg.getAbbrev().equals("EntityState")) {
                     // we need to check for the source match
                     int srcIdNumber = msg.getSrc();
@@ -339,17 +321,6 @@ public class LogsDownloaderWorker {
         };
         ImcMsgManager.getManager().addListener(messageListener); // all systems listener
 
-        //        timer.scheduleAtFixedRate(new TimerTask() {
-        //            protected  IMCMessage msg = new IMCMessage("QueryPowerChannelState");
-        //            @Override
-        //            public void run() {
-        //                if (getLogLabel() == null || getLogLabel().length() == 0)
-        //                    return;
-        //                
-        //                msg.setTimestampMillis(System.currentTimeMillis());
-        //                ImcMsgManager.getManager().sendMessageToSystem(msg, getLogLabel());
-        //            }
-        //        }, 500, 5000);
         threadScheduledPool.scheduleAtFixedRate(new Runnable() {
             protected  IMCMessage msg = new IMCMessage("QueryPowerChannelState");
             @Override
@@ -386,7 +357,6 @@ public class LogsDownloaderWorker {
         hostField.setText(host);
         portLabel = new JLabel(I18n.text("Port: "));
         portField = new JTextField(5);
-        // portField = new JFormattedTextField(NumberFormat.getInstance());
         portField.setText("" + port);
         logLabelLabel = new JLabel(I18n.text("System Label: "));
         logLabelField = new JTextField(40);
@@ -424,13 +394,10 @@ public class LogsDownloaderWorker {
         downloadWorkersScroll = new JScrollPane();
         downloadWorkersScroll.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
         downloadWorkersScroll.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
-        // downloadWorkersScroll.setBorder(BorderFactory.createEmptyBorder(0,0,0,0));
-        // downloadWorkersScroll.setPreferredSize(new Dimension(800,600));
         downloadWorkersScroll.setViewportView(downloadWorkersHolder);
 
         logFolderList = new LogFolderInfoList();
-        // logFolderList.setVisibleRowCount(10);
-        logFolderList.setSortable(true); // logFolderList.setFilterEnabled(true); // Changed from swingx 1.6.+ !!!!
+        logFolderList.setSortable(true); 
         logFolderList.setAutoCreateRowSorter(true);
         logFolderList.setSortOrder(SortOrder.DESCENDING);
         logFolderList.addListSelectionListener(new ListSelectionListener() {
@@ -692,7 +659,6 @@ public class LogsDownloaderWorker {
             GuiUtils.centerOnScreen(frame);
 
         ttaskLocalDiskSpace = getTimerTaskLocalDiskSpace();
-        //        timer.scheduleAtFixedRate(ttaskLocalDiskSpace, 500, 5000);
         threadScheduledPool.scheduleAtFixedRate(ttaskLocalDiskSpace, 500, 5000, TimeUnit.MILLISECONDS);
     }
 
@@ -714,8 +680,6 @@ public class LogsDownloaderWorker {
                         if (stopLogListProcessing)
                             stopLogListProcessing = false;
 
-                        // long time = System.currentTimeMillis();
-                        // NeptusLog.pub().info("<###>.......downloadListAction");
                         SwingUtilities.invokeAndWait(new Runnable() {
                             @Override
                             public void run() {
@@ -725,9 +689,7 @@ public class LogsDownloaderWorker {
                         });
 
                         downloadListButton.setEnabled(false);
-                        // logFolderList.setEnabled(false);
                         logFolderList.setValueIsAdjusting(true);
-                        // logFilesList.setEnabled(false);
 
                         // ->Getting txt list of logs from server
                         SwingUtilities.invokeAndWait(new Runnable() {
@@ -739,20 +701,12 @@ public class LogsDownloaderWorker {
                                         .text("Connecting to remote system for log list update..."));
                             }
                         });
-                        // long timeD1 = System.currentTimeMillis();
 
                         LinkedHashMap<FTPFile, String> retList = null;
                         LinkedHashMap<String, String> serversLogPresenceList = new LinkedHashMap<>(); 
 
                         // Getting the file list from main CPU
                         try {
-                            //                            if (clientFtp == null)
-                            //                                clientFtp = new FtpDownloader(host, port);
-                            //                            else
-                            //                                clientFtp.setHostAndPort(host, port);
-                            //                            
-                            //                            if (!clientFtp.isConnected())
-                            //                                clientFtp.renewClient();
                             clientFtp = getOrRenewFtpDownloader(clientFtp, host, port);
 
                             retList = clientFtp.listLogs();
@@ -771,13 +725,6 @@ public class LogsDownloaderWorker {
                         if (cameraHost.length() > 0) {
                             LinkedHashMap<FTPFile, String> retCamList = null;
                             try {
-                                //                                if (cameraFtp == null)
-                                //                                    cameraFtp = new FtpDownloader(cameraHost, port);
-                                //                                else
-                                //                                    cameraFtp.setHostAndPort(cameraHost, port);
-                                //                                
-                                //                                if (!cameraFtp.isConnected())
-                                //                                    cameraFtp.renewClient();
                                 cameraFtp = getOrRenewFtpDownloader(cameraFtp, cameraHost, port);
 
                                 retCamList = cameraFtp.listLogs();
@@ -810,8 +757,6 @@ public class LogsDownloaderWorker {
                             }
                         }
 
-                        // NeptusLog.pub().info("<###>.......get list from server " +
-                        // (System.currentTimeMillis()-timeD1));
                         if (retList == null) {
                             msgPanel.writeMessageTextln(I18n.text("Done"));
                             return null;
@@ -848,8 +793,6 @@ public class LogsDownloaderWorker {
                             SwingUtilities.invokeAndWait(new Runnable() {
                                 @Override
                                 public void run() {
-                                    //                                    listHandlingProgressBar.setValue(10);
-                                    //                                    listHandlingProgressBar.setIndeterminate(true);
                                     listHandlingProgressBar.setString(msg1);
                                 }
                             });
@@ -864,7 +807,6 @@ public class LogsDownloaderWorker {
                                 listHandlingProgressBar.setString(I18n.text("Filtering list..."));
                             }
                         });
-                        // long timeC1 = System.currentTimeMillis();
                         Object[] objArray = new Object[logFolderList.myModel.size()];
                         logFolderList.myModel.copyInto(objArray);
                         for (Object comp : objArray) {
@@ -872,10 +814,8 @@ public class LogsDownloaderWorker {
                                 return null;
 
                             try {
-                                // NeptusLog.pub().info("<###>... upda
                                 LogFolderInfo log = (LogFolderInfo) comp;
                                 if (!retList.containsValue(log.getName())) {
-                                    // retList.remove(log.getName());
                                     for (LogFileInfo lfx : log.getLogFiles()) {
                                         if (stopLogListProcessing)
                                             return null;
@@ -888,9 +828,6 @@ public class LogsDownloaderWorker {
                                 NeptusLog.pub().debug(e.getMessage());
                             }
                         }
-                        // NeptusLog.pub().info("<###>.......Removing from already existing LogFolders to LOCAL state "
-                        // + (System.currentTimeMillis()-timeC1));
-
                         // ->Adding new LogFolders
                         LinkedList<LogFolderInfo> existenteLogFoldersFromServer = new LinkedList<LogFolderInfo>();
                         LinkedList<LogFolderInfo> newLogFoldersFromServer = new LinkedList<LogFolderInfo>();
@@ -912,8 +849,6 @@ public class LogsDownloaderWorker {
                                 });
                             }
                         }
-                        // msgPanel.writeMessageTextln("Logs Folders: " + logFolderList.myModel.size());
-
                         // ->Getting Log files list from server
                         SwingUtilities.invokeAndWait(new Runnable() {
                             @Override
@@ -949,9 +884,6 @@ public class LogsDownloaderWorker {
 
                             try {
                                 LogFolderInfo logFolder = (LogFolderInfo) comp;
-
-                                // LinkedHashMap<String, String> res = filterHrefLogFilesList(docList,
-                                // logFolder.getName());
                                 int indexLFolder = tmpLogFolderList.indexOf(logFolder);
                                 LinkedHashSet<LogFileInfo> logFilesTmp = (indexLFolder != -1) ? tmpLogFolderList.get(
                                         indexLFolder).getLogFiles() : new LinkedHashSet<LogFileInfo>();
@@ -1028,7 +960,6 @@ public class LogsDownloaderWorker {
                                                     if (!getFileTarget(lfx.getName()).exists()) {
                                                         if (lfx.getState() != LogFolderInfo.State.NEW && lfx.getState() != LogFolderInfo.State.DOWNLOADING) {
                                                             lfx.setState(LogFolderInfo.State.INCOMPLETE);
-                                                            //                                                        System.out.println("//////////// " + lfx.getName() + "  " + getFileTarget(lfx.getName()).exists());
                                                         }
                                                     }
                                                     else {
@@ -1059,29 +990,17 @@ public class LogsDownloaderWorker {
                                 NeptusLog.pub().debug(e.getMessage());
                             }
                         }
-                        // NeptusLog.pub().info("<###>.......Testing for log files from each log folder " +
-                        // (System.currentTimeMillis()-timeF1));
-
-                        // long timeF2 = System.currentTimeMillis();
                         testNewReportedLogFoldersForLocalCorrespondent(newLogFoldersFromServer);
                         for (LogFolderInfo logFolder : existenteLogFoldersFromServer) {
                             updateLogFolderState(logFolder);
                         }
                         updateLogStateIconForAllLogFolders();
-
-                        // NeptusLog.pub().info("<###>.......Updating LogFolders State " +
-                        // (System.currentTimeMillis()-timeF2));
-
-                        // long timeF3 = System.currentTimeMillis();
-                        // updateFilesListGUIForFolderSelected();
                         new Thread("updateFilesListGUIForFolderSelected") {
                             @Override
                             public void run() {
                                 updateFilesListGUIForFolderSelected();
                             };
                         }.start();
-                        // NeptusLog.pub().info("<###>.......updateFilesListGUIForFolderSelected " +
-                        // (System.currentTimeMillis()-timeF3));
 
                         SwingUtilities.invokeAndWait(new Runnable() {
                             @Override
@@ -1095,12 +1014,8 @@ public class LogsDownloaderWorker {
                         logFolderList.revalidate();
                         logFolderList.repaint();
                         logFolderList.setEnabled(true);
-                        // logFilesList.invalidate();
-                        // logFilesList.revalidate();
-                        // logFilesList.repaint();
                         logFilesList.setEnabled(true);
 
-                        // NeptusLog.pub().info("<###>.......downloadListAction " + (System.currentTimeMillis()-time));
                         SwingUtilities.invokeAndWait(new Runnable() {
                             @Override
                             public void run() {
@@ -1121,9 +1036,6 @@ public class LogsDownloaderWorker {
                         logFolderList.revalidate();
                         logFolderList.repaint();
                         logFolderList.setEnabled(true);
-                        // logFilesList.invalidate();
-                        // logFilesList.revalidate();
-                        // logFilesList.repaint();
                         listHandlingProgressBar.setValue(0);
                         listHandlingProgressBar.setIndeterminate(false);
                         listHandlingProgressBar.setString("");
@@ -1155,11 +1067,8 @@ public class LogsDownloaderWorker {
                     public Object run() throws Exception {
                         for (Object comp : logFolderList.getSelectedValues()) {
                             try {
-                                // NeptusLog.pub().info("<###>... updateFilesForFolderSelected");
                                 LogFolderInfo logFd = (LogFolderInfo) comp;
                                 for (LogFileInfo lfx : logFd.getLogFiles()) {
-                                    //                                    if (downloadSelectedLogDirsButton.isEnabled())
-                                    //                                        break; // If button enabled a reset was called, so let's interrupt all 
                                     if (resetting)
                                         break;
 
@@ -1209,7 +1118,6 @@ public class LogsDownloaderWorker {
                                 break;
 
                             try {
-                                // NeptusLog.pub().info("<###>... updateFilesForFolderSelected");
                                 // FIXME Find out LogFolderInfo for LogFileInfo
                                 LogFileInfo lfx = (LogFileInfo) comp;
                                 singleLogFileDownloadWorker(lfx, findLogFolderInfoForFile(lfx));
@@ -1249,8 +1157,6 @@ public class LogsDownloaderWorker {
                     @Override
                     public Object run() throws Exception {
                         deleteSelectedLogFoldersButton.setEnabled(false);
-                        // logFolderList.setEnabled(false);
-                        // logFilesList.setEnabled(false);
 
                         Object[] objArray = logFolderList.getSelectedValues();
                         if (objArray.length == 0)
@@ -1263,7 +1169,6 @@ public class LogsDownloaderWorker {
                         dialog.setModalityType(ModalityType.DOCUMENT_MODAL);
                         dialog.setVisible(true);
                         Object userChoice = jop.getValue();
-                        // NeptusLog.pub().info("<###>user option: "+userChoice);
                         try {
                             if (((Integer) userChoice) != JOptionPane.YES_OPTION) {
                                 return null;
@@ -1273,7 +1178,6 @@ public class LogsDownloaderWorker {
                             NeptusLog.pub().error(e2.getMessage());
                             return null;
                         }
-                        // NeptusLog.pub().info("<###>user option: "+userChoice);
                         deleteSelectedLogFoldersButton.setEnabled(true);
                         for (Object comp : objArray) {
                             try {
@@ -1349,7 +1253,6 @@ public class LogsDownloaderWorker {
                         dialog.setModalityType(ModalityType.DOCUMENT_MODAL);
                         dialog.setVisible(true);
                         Object userChoice = jop.getValue();
-                        // NeptusLog.pub().info("<###>user option: "+userChoice);
                         try {
                             if (((Integer) userChoice) != JOptionPane.YES_OPTION) {
                                 return null;
@@ -1435,7 +1338,6 @@ public class LogsDownloaderWorker {
             public void actionPerformed(ActionEvent e) {
                 resetButton.setEnabled(false);
                 doReset(false);
-                //                resetButton.setEnabled(true);
             }
         };
 
@@ -1444,8 +1346,6 @@ public class LogsDownloaderWorker {
             public void actionPerformed(ActionEvent e) {
                 stopAllButton.setEnabled(false);
                 doReset(true);
-                //                stopAllButton.setEnabled(true);
-                //                updateLogStateIconForAllLogFolders();
             }
         };
 
@@ -1453,23 +1353,6 @@ public class LogsDownloaderWorker {
             @Override
             public void actionPerformed(ActionEvent e) {
                 try {
-                    /* Old way
-                    if (getLogLabel().equals("lauv-noptilus-3")) {
-                        PowerOperation powerOp = new PowerOperation();
-                        powerOp.setDst(0x6003);
-                        powerOp.setOp(cameraButton.getBackground() != Color.GREEN ? OP.PWR_UP : OP.PWR_DOWN);
-                        ImcMsgManager.getManager().sendMessageToSystem(powerOp, getLogLabel());
-                    }
-                    else {
-                        String powerChannel = getLogLabel().equals("lauv-xtreme-2") ? "Camera Module" : "Camera - CPU";
-                        IMCMessage msg = new IMCMessage("PowerChannelControl");
-                        msg.setValue("name", powerChannel);
-                        msg.setValue("op", cameraButton.getBackground() != Color.GREEN ? 1 : 0);
-
-                        ImcMsgManager.getManager().sendMessageToSystem(msg, getLogLabel());
-                    }
-                     */
-
                     ArrayList<EntityParameter> propList = new ArrayList<>();
                     EntityParameter entParsm = new EntityParameter().setName("Active").setValue(cameraButton.getBackground() != Color.GREEN ? "true" : "false");
                     propList.add(entParsm);
@@ -1501,8 +1384,6 @@ public class LogsDownloaderWorker {
             ttaskLocalDiskSpace = new Runnable() {
                 @Override
                 public void run() {
-                    // NeptusLog.pub().info("<###>Usable space: " + MathMiscUtils.parseToEngineeringRadix2Notation(new
-                    // File(logFetcher.dirBaseToStoreFiles).getUsableSpace(),2)+"B");
                     try {
                         File fxD = new File(dirBaseToStoreFiles);
                         long tspace = fxD.getTotalSpace();
@@ -1511,8 +1392,6 @@ public class LogsDownloaderWorker {
                             String tSpStr = MathMiscUtils.parseToEngineeringRadix2Notation(tspace, 2) + "B";
                             String uSpStr = MathMiscUtils.parseToEngineeringRadix2Notation(uspace, 2) + "B";
                             double pFree = 1.0 * (tspace - uspace) / tspace;
-                            // NeptusLog.pub().info("<###>Free Space: "+(tspace - uspace)+" "+((tspace - uspace)*1.0 /
-                            // tspace)+" "+pFree);
                             diskFreeLabel.setText("<html><b>" + uSpStr);
                             diskFreeLabel.setToolTipText(I18n.textf("Local free disk space %usedspace of %totalspace",
                                     uSpStr, tSpStr));
@@ -1567,15 +1446,6 @@ public class LogsDownloaderWorker {
      */
     public void cleanup() {
         disconnectFTPClientsForListing();
-
-        //        if (ttaskLocalDiskSpace != null) {
-        //            ttaskLocalDiskSpace.cancel();
-        //            ttaskLocalDiskSpace = null;
-        //        }
-        //        if (timer != null) {
-        //            timer.cancel();
-        //            timer = null;
-        //        }
         if (threadScheduledPool != null) {
             threadScheduledPool.shutdownNow();
         }
@@ -1639,7 +1509,7 @@ public class LogsDownloaderWorker {
             rectPainter.setBorderPaint(Color.LIGHT_GRAY.darker().darker().darker());
             rectPainter.setStyle(RectanglePainter.Style.BOTH);
             rectPainter.setBorderWidth(2);
-            rectPainter.setAntialiasing(true);// RectanglePainter.Antialiasing.On);
+            rectPainter.setAntialiasing(true);
         }
         return rectPainter;
     }
@@ -1649,7 +1519,6 @@ public class LogsDownloaderWorker {
      */
     private CompoundPainter<JXPanel> getCompoundBackPainter() {
         compoundBackPainter = new CompoundPainter<JXPanel>(
-                // new MattePainter(Color.BLACK),
                 getRectPainter(), new GlossPainter());
         return compoundBackPainter;
     }
@@ -1798,22 +1667,15 @@ public class LogsDownloaderWorker {
     private void updateFilesListGUIForFolderSelected() {
         if (isUpdatingFileList)
             exitRequest = true;
-        // System.err.println(".................. " +isUpdatingFileList+" "+exitRequest);
         synchronized (lock) {
             isUpdatingFileList = true;
             exitRequest = false;
-
-            // long start = System.currentTimeMillis();
-            // NeptusLog.pub().info("<###>updateFilesForFolderSelected");
-            // logFilesList.setEnabled(false);
             logFilesList.setValueIsAdjusting(true);
 
             final LinkedHashSet<LogFileInfo> validFiles = new LinkedHashSet<LogFileInfo>();
             for (Object comp : logFolderList.getSelectedValues()) {
                 try {
-                    // NeptusLog.pub().info("<###>... updateFilesForFolderSelected");
                     LogFolderInfo log = (LogFolderInfo) comp;
-                    // NeptusLog.pub().info("<###>LogFolder Sel: " + log.getName());
                     for (LogFileInfo lgfl : log.getLogFiles()) {
                         validFiles.add(lgfl);
 
@@ -1874,11 +1736,6 @@ public class LogsDownloaderWorker {
             logFilesList.setValueIsAdjusting(false);
             logFilesList.invalidate();
             logFilesList.validate();
-            // logFilesList.setEnabled(true);
-            // NeptusLog.pub().info("<###>end  updateFilesForFolderSelected");
-            // NeptusLog.pub().info("<###>end  updateFilesForFolderSelected " + System.currentTimeMillis() +
-            // "        " + (System.currentTimeMillis() - start) + "ms " + logFilesList.myModel.size() +
-            // " fxs");
             isUpdatingFileList = false;
         }
     }
@@ -1984,11 +1841,6 @@ public class LogsDownloaderWorker {
 
         try {
             FtpDownloader ftpDownloader = null;
-            //            if (clientFtp != null && clientFtp.getHost().equals(lfx.getHost()))
-            //                ftpDownloader = clientFtp;
-            //            else if (cameraFtp != null && cameraFtp.getHost().equals(lfx.getHost()))
-            //                ftpDownloader = cameraFtp;
-            //            else
             ftpDownloader = new FtpDownloader(lfx.getHost(), port);
 
             if (lfx.isDirectory()) {
@@ -2008,26 +1860,6 @@ public class LogsDownloaderWorker {
             // TODO Auto-generated catch block
             e1.printStackTrace();
         }
-        //        Component[] components = downloadWorkersHolder.getComponents();
-        //        for (Component cp : components) {
-        //            try {
-        //                DownloaderPanel dpp = (DownloaderPanel) cp;
-        //                if (workerD.equals(dpp)) {
-        //                    workerD = dpp;
-        //                    if (workerD.getState() == DownloaderPanel.State.ERROR
-        //                            || workerD.getState() == DownloaderPanel.State.IDLE
-        //                            || workerD.getState() == DownloaderPanel.State.TIMEOUT
-        //                            || workerD.getState() == DownloaderPanel.State.QUEUED
-        //                            || workerD.getState() == DownloaderPanel.State.NOT_DONE) {
-        //                        workerD.actionDownload();
-        //                    }
-        //                    break;
-        //                }
-        //            }
-        //            catch (Exception e) {
-        //                e.printStackTrace();
-        //            }
-        //        }
         final LogFolderInfo lfdfinal = logFd;
         final LogFileInfo lfxfinal = lfx;
         final DownloaderPanel workerDFinal = workerD;
@@ -2037,7 +1869,6 @@ public class LogsDownloaderWorker {
 
             @Override
             public void downloaderStateChange(DownloaderPanel.State newState, DownloaderPanel.State oldState) {
-                //                System.out.println("State state update for " + fxLog.getUriPartial() + " " + fxLog.getState() + "::" + oldState + "::" + newState);
 
                 if (fxLog.getState() != LogFolderInfo.State.LOCAL) {
                     if (newState == DownloaderPanel.State.DONE)
@@ -2050,7 +1881,7 @@ public class LogsDownloaderWorker {
                     else if (newState == DownloaderPanel.State.NOT_DONE)
                         fxLog.setState(LogFolderInfo.State.INCOMPLETE);
                     else if (newState == DownloaderPanel.State.IDLE)
-                        ;// fxLog.setState(LogFolderInfo.State.ERROR);
+                        ;
 
                     if (logFilesList.containsFile(fxLog)) {
                         logFilesList.revalidate();
@@ -2083,10 +1914,9 @@ public class LogsDownloaderWorker {
                             }
                         }
                     };
-                    //                    timer.schedule(task, DELTA_TIME_TO_CLEAR_DONE);
                     threadScheduledPool.schedule(task, DELTA_TIME_TO_CLEAR_DONE, TimeUnit.MILLISECONDS);
                 }
-                else { //if (newState != DownloaderPanel.State.WORKING && newState != DownloaderPanel.State.TIMEOUT && newState != DownloaderPanel.State.QUEUED) { // FIXME VERIFICAR SE OK OU TIRAR
+                else { 
                     cancelTasksIfSchedule();
                     task = new Runnable() {
                         @Override
@@ -2107,7 +1937,6 @@ public class LogsDownloaderWorker {
                             }
                         }
                     };
-                    //                    timer.schedule(task, DELTA_TIME_TO_CLEAR_NOT_WORKING);
                     threadScheduledPool.schedule(task, DELTA_TIME_TO_CLEAR_NOT_WORKING, TimeUnit.MILLISECONDS);
                 }
             }
@@ -2288,8 +2117,6 @@ public class LogsDownloaderWorker {
     private boolean deleteLogFolderFromServer(String path) {
         try {
             System.out.println("Deleting folder");
-            //            if (!clientFtp.isConnected())
-            //                clientFtp.renewClient();
             try {
                 clientFtp = getOrRenewFtpDownloader(clientFtp, host, port);
             }
@@ -2307,8 +2134,6 @@ public class LogsDownloaderWorker {
     private boolean deleteLogFolderFromCameraServer(String path) {
         try {
             if (cameraFtp != null) {
-                //                if (!cameraFtp.isConnected())
-                //                    cameraFtp.renewClient();
                 try {
                     cameraFtp = getOrRenewFtpDownloader(cameraFtp, getCameraHost(host), port);
                 }
@@ -2348,9 +2173,6 @@ public class LogsDownloaderWorker {
                     continue;
 
                 String isoStr = new String(logDir.getBytes(), "ISO-8859-1");
-                //                boolean ret = clientFtp.getClient().changeWorkingDirectory("/" + isoStr + "/");
-                //                if (!ret)
-                //                    continue;
                 LogFolderInfo lFolder = new LogFolderInfo(logDir);
 
                 // Updating the LogFiles for each LogFolder
@@ -2392,15 +2214,12 @@ public class LogsDownloaderWorker {
 
             // REDO the same thing if cameraHost exists with the difference of a another client
             if (cameraHost != null && cameraFtp != null) {
-                FtpDownloader ftpd = cameraFtp; // new FtpDownloader(cameraHost, port);
+                FtpDownloader ftpd = cameraFtp; 
                 for (String logDir : serversLogPresenceList.keySet()) {
                     if (!serversLogPresenceList.get(logDir).contains(SERVER_CAM))
                         continue;
 
                     String isoStr = new String(logDir.getBytes(), "ISO-8859-1");
-                    //                    if (ftpd.getClient().changeWorkingDirectory("/" + isoStr + "/") == false) // Log doesnt exist in
-                    //                        // DOAM
-                    //                        continue;
 
                     LogFolderInfo lFolder = null;
 
@@ -2461,8 +2280,6 @@ public class LogsDownloaderWorker {
             e.printStackTrace();
         }
 
-        // NeptusLog.pub().info("<###>.......getLogListAsTemporaryStructureFromDOM " +
-        // (System.currentTimeMillis()-time));
         return tmpLogFolders;
     }
 
@@ -2621,7 +2438,6 @@ public class LogsDownloaderWorker {
                 logFolderList.clearSelection();
                 logFolderList.setValueIsAdjusting(true);
                 for (LogFolderInfo logFd : folders) {
-                    // logFolderList.setSelectedValue(logFd, false);
                     int iS = logFolderList.myModel.indexOf(logFd);
                     iS = logFolderList.convertIndexToView(iS);
                     logFolderList.addSelectionInterval(iS, iS);
@@ -2738,7 +2554,6 @@ public class LogsDownloaderWorker {
         for (Component cp : components) {
             try {
                 DownloaderPanel workerD = (DownloaderPanel) cp;
-                //                if (workerD.getState() == DownloaderPanel.State.WORKING) {
                 if (!stopAll) {
                     for (String prefix : logList) {
                         if (workerD.getName().startsWith(prefix)) {
@@ -2752,7 +2567,6 @@ public class LogsDownloaderWorker {
                     continue;
                 }
                 workerD.actionStop();
-                //                }
             }
             catch (Exception e) {
                 e.printStackTrace();
@@ -2895,46 +2709,6 @@ public class LogsDownloaderWorker {
         }
 
         return true;
-        //        if (!justStopDownloads)
-        //            resetting = true;
-        //        
-        //        boolean resetRes = true;
-        //        if (!justStopDownloads)
-        //            warnLongMsg(I18n.text("Resetting... Wait please..."));
-        //        try {
-        //            disconnectFTPClientsForListing();
-        //        }
-        //        catch (Exception e) {
-        //            e.printStackTrace();
-        //            warnLongMsg(I18n.textf("Error couth on resetting: %errormessage", e.getMessage()));
-        //            resetRes &= false;
-        //        }
-        //        try {
-        //            if (!justStopDownloads)
-        //                doStopLogFoldersDownloads(true);
-        //            else
-        //                doStopLogFoldersDownloads(false);
-        //            waitForStopOnAllLogFoldersDownloads();
-        //        }
-        //        catch (Exception e) {
-        //            e.printStackTrace();
-        //            warnLongMsg(I18n.textf("Error couth on resetting: %errormessage", e.getMessage()));
-        //            resetRes &= false;
-        //        }
-        //        try {
-        //            if (!justStopDownloads)
-        //                cleanInterface();
-        //        }
-        //        catch (Exception e) {
-        //            e.printStackTrace();
-        //            warnLongMsg(I18n.textf("Error couth on resetting: %errormessage", e.getMessage()));
-        //            resetRes &= false;
-        //        }
-        //        
-        //        if (!justStopDownloads)
-        //            resetting = false;
-        //        
-        //        return resetRes;
     }
 
     /**
@@ -2948,27 +2722,12 @@ public class LogsDownloaderWorker {
         LinkedHashSet<LogFileInfo> toDelFL = new LinkedHashSet<LogFileInfo>();
         for (LogFileInfo lfx : logFiles) {
             lfx.setState(LogFolderInfo.State.LOCAL);
-            //            DownloaderPanel workerD;
-            //            if (lfx.isDirectory()) {
-            //                HashMap<String, FTPFile> directoryContentsList = new LinkedHashMap<>();
-            //                for (LogFileInfo lfi : lfx.getDirectoryContents()) {
-            //                    directoryContentsList.put(lfi.getUriPartial(), lfx.getFile());
-            //                }
-            //                workerD = new DownloaderPanel(clientFtp, lfx.getFile(), lfx.getName(),
-            //                        getFileTarget(lfx.getName()), directoryContentsList, threadScheduledPool, queueWorkTickets);
-            //            }
-            //            else {
-            //                workerD = new DownloaderPanel(clientFtp, lfx.getFile(), lfx.getName(),
-            //                        getFileTarget(lfx.getName()), threadScheduledPool, queueWorkTickets);
-            //            }
 
             Component[] components = downloadWorkersHolder.getComponents();
             for (Component cp : components) {
                 try {
                     DownloaderPanel dpp = (DownloaderPanel) cp;
-                    // NeptusLog.pub().info("<###>........... "+dpp.getName());
                     if (lfx.getName().equals(dpp.getUri())) {
-                        // NeptusLog.pub().info("<###>...........");
                         if (dpp.getState() == DownloaderPanel.State.WORKING || dpp.getState() == DownloaderPanel.State.QUEUED) {
                             dpp.addStateChangeListener(null);
                             dpp.actionStop();
@@ -3027,206 +2786,6 @@ public class LogsDownloaderWorker {
      * @param args
      */
     public static void main(String[] args) {
-        // GuiUtils.setLookAndFeel();
-        //
-        // final LogsDownloaderWorker logFetcher = new LogsDownloaderWorker();
-        //
-        // logFetcher.frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        //
-        // // logFetcher.setHost("192.168.106.30");
-        // // logFetcher.setPort(8080);
-        // // logFetcher.setBasePath("/dune/logs/");
-        //
-        // logFetcher.setHost("192.168.56.101");
-        // //logFetcher.setHost("127.0.0.1");
-        // logFetcher.setHost("192.168.106.30");
-        // logFetcher.setHost("127.0.0.1");
-        // //logFetcher.setHost("192.168.106.34");
-        // //logFetcher.setPort(8080);
-        // //logFetcher.setBasePath("/images/");
-        //
-        // logFetcher.setLogLabel("lauv_test");
-        //
-        // logFetcher.setVisibleBasePath(true);
-        // //logFetcher.setVisibleHost(false);
-        // //logFetcher.setVisiblePort(false);
-        // //logFetcher.setVisibleLogLabel(false);
-        // logFetcher.setEnableLogLabel(true);
-        // logFetcher.setVisible(true);
-        //
-        // NeptusLog.pub().info("<###> doGiveListOfLogFolders");
-        // for (String str : logFetcher.doGiveListOfLogFolders()) {
-        // NeptusLog.pub().info("<###>  ->"+str);
-        // }
-        //
-        //
-        // logFetcher.doUpdateListFromServer();
-        // try {
-        // Thread.sleep(5000);
-        // } catch (InterruptedException e) {
-        // // TODO Auto-generated catch block
-        // e.printStackTrace();
-        // }
-        // logFetcher.doDownloadLogFoldersFromServer("20090918/174214", "20090916/152804");
-        //
-        // // NeptusLog.pub().info("<###> doGiveListOfLogFolders");
-        // // for (String str : logFetcher.doGiveListOfLogFolders()) {
-        // // NeptusLog.pub().info("<###>  ->"+str);
-        // // }
-        // //
-        // // logFetcher.setVisible(false);
-        // //
-        // // try {
-        // // Thread.sleep(3000);
-        // // } catch (InterruptedException e) {
-        // // // TODO Auto-generated catch block
-        // // e.printStackTrace();
-        // // }
-        // //
-        // // LinkedHashMap<String, LogFolderInfo.State> states = logFetcher.doGiveStateOfLogFolders();
-        // // NeptusLog.pub().info("<###> doGiveStateOfLogFolders no filter");
-        // // for (String str : states.keySet()) {
-        // // NeptusLog.pub().info("<###>  .....>"+str+"  "+states.get(str));
-        // // }
-        // //
-        // // states = logFetcher.doGiveStateOfLogFolders("20090918/174214");
-        // // NeptusLog.pub().info("<###> doGiveStateOfLogFolders with filter");
-        // // for (String str : states.keySet()) {
-        // // NeptusLog.pub().info("<###>  .....>"+str+"  "+states.get(str));
-        // // }
-        // //
-        // // logFetcher.doDeleteLogFoldersFromServer("20090918/174214");
-        // //
-        // //
-        // // try {
-        // // Thread.sleep(10000);
-        // // } catch (InterruptedException e) {
-        // // // TODO Auto-generated catch block
-        // // e.printStackTrace();
-        // // }
-        // // logFetcher.setVisible(true);
-        //
-        // // NeptusLog.pub().info("<###>Usable space: " + MathMiscUtils.parseToEngineeringRadix2Notation(new
-        // File(logFetcher.dirBaseToStoreFiles).getUsableSpace(),2)+"B");
-        // // NeptusLog.pub().info("<###>Free   space: " + MathMiscUtils.parseToEngineeringRadix2Notation(new
-        // File(logFetcher.dirBaseToStoreFiles).getFreeSpace(),2)+"B");
-        // // NeptusLog.pub().info("<###>Total  space: " + MathMiscUtils.parseToEngineeringRadix2Notation(new
-        // File(logFetcher.dirBaseToStoreFiles).getTotalSpace(),2)+"B");
-        // // NeptusLog.pub().info("<###>Usable space: " + MathMiscUtils.parseToEngineeringRadix2Notation(new
-        // File("d:\\").getUsableSpace(),2)+"B");
-        // // NeptusLog.pub().info("<###>Usable space: " + MathMiscUtils.parseToEngineeringRadix2Notation(new
-        // File(".").getUsableSpace(),2)+"B");
-        // // NeptusLog.pub().info("<###>Usable space: " + MathMiscUtils.parseToEngineeringRadix2Notation(new
-        // File("sdd").getUsableSpace(),2)+"B");
-        // // NeptusLog.pub().info("<###>Usable space: " + MathMiscUtils.parseToEngineeringRadix2Notation(new
-        // File("k:\\").getUsableSpace(),2)+"B");
-        //
-        //
-        // // try {
-        // // Thread.sleep(10000);
-        // // } catch (InterruptedException e) {
-        // // // TODO Auto-generated catch block
-        // // e.printStackTrace();
-        // // }
-        // // logFetcher.doReset();
-        //
-        // logFetcher.dummyLists = true;
-        //
-        // int port = 8080;
-        // Server server = new Server(port);
-        //
-        // server = new Server(port);
-        // Context root = new Context(server, "/", Context.SESSIONS);
-        // HttpServlet serv = new HttpServlet() {
-        // @Override
-        // protected void doGet(HttpServletRequest arg0, HttpServletResponse arg1)
-        // throws ServletException, IOException {
-        // arg1.setContentType("text/html");
-        // arg1.getWriter().write("<html><head><title>Neptus Web Services</title></head><body><h1>Neptus Web Services</h1>");
-        //
-        // try { Thread.sleep(60000*2); } catch (InterruptedException e) { NeptusLog.pub().error(e.getMessage()); }
-        //
-        // arg1.getWriter().write("</body></html>");
-        // arg1.getWriter().close();
-        // }
-        //
-        // };
-        // root.addServlet(new ServletHolder(serv), "/*");
-        // try {
-        // server.start();
-        // }
-        // catch (Exception e) {
-        // e.printStackTrace();
-        // }
-        //
-        //
-        // // Test 2 sharing a frame
-        // JFrame frame = new JFrame("Logs Downloader");
-        // frame.setSize(900, 560);
-        // frame.setIconImages(ConfigFetch.getIconImagesForFrames());
-        // frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-        //
-        // LogsDownloaderWorker logF1 = new LogsDownloaderWorker(frame);
-        // LogsDownloaderWorker logF2 = new LogsDownloaderWorker(frame);
-        //
-        // logF1.dummyLists = true;
-        // logF2.dummyLists = true;
-        //
-        // logF1.setHost("192.168.106.30");
-        // logF2.setHost("192.168.106.31");
-        //
-        // logF1.setLogLabel("lauv_test_1");
-        // logF2.setLogLabel("lauv_test_2");
-        //
-        // JTabbedPane tabbledPane = new JTabbedPane();
-        // tabbledPane.addTab(logF1.getLogLabel(), logF1.getContentPanel());
-        // tabbledPane.addTab(logF2.getLogLabel(), logF2.getContentPanel());
-        // tabbledPane.setSelectedComponent(logF2.getContentPanel());
-        //
-        // frame.setLayout(new BorderLayout());
-        // frame.add(tabbledPane);
-        // frame.setVisible(true);
-        //
-
-
-        //        // Register for EntityActivationStateActivationState
-        //        {
-        //            ImcMsgManager.getManager().addListener(new MessageListener<MessageInfo, IMCMessage>() {
-        //                
-        //                @Override
-        //                public void onMessage(MessageInfo info, IMCMessage msg) {
-        //                    if (msg.getAbbrev().equals("PowerChannelState")) {
-        //                        System.out.println(LogsDownloaderWorker.class.getSimpleName() + " :: " + msg);
-        //                    }
-        //                }
-        //            });
-        //            
-        //            ImcMsgManager.getManager().start();
-        //            new Thread(new Runnable() {
-        //                
-        //                @Override
-        //                public void run() {
-        //                    
-        //                    while (true) {
-        //                        int ent = EntitiesResolver.resolveId("lauv-xtreme-2", "Camera Module");
-        //                        System.out.println(LogsDownloaderWorker.class.getSimpleName() + " :: " + "Entity ID: " + ent);
-        //                        
-        //                        IMCMessage msg = new IMCMessage("QueryPowerChannelState");
-        //                        msg.setDstEnt(255);
-        //                        
-        //                        ImcMsgManager.getManager().sendMessageToSystem(msg, "lauv-xtreme-2");
-        //                        
-        //                        try {
-        //                            Thread.sleep(1000);
-        //                        }
-        //                        catch (InterruptedException e) {
-        //                            e.printStackTrace();
-        //                        }
-        //                    }
-        //                }
-        //            }, "Query DOAM Activation").start();
-        //        }
-
         {
             GuiUtils.setLookAndFeel();
 
@@ -3235,10 +2794,6 @@ public class LogsDownloaderWorker {
 
             logFetcher.frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
             logFetcher.frame.setVisible(true);
-
-            // logFetcher.setHost("10.0.2.90");
-            // logFetcher.setPort(8080);
-
         }
     }
 }
