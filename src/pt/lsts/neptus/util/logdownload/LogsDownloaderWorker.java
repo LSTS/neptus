@@ -128,7 +128,7 @@ import foxtrot.AsyncWorker;
 public class LogsDownloaderWorker {
 
     private static final Color CAM_CPU_ON_COLOR = Color.GREEN;
-    private static final int QUERYPOWERCHANNEL_PERIOD_MILLIS = 5000;
+//    private static final int QUERYPOWERCHANNEL_PERIOD_MILLIS = 5000;
     private static final int ACTIVE_DOWNLOADS_QUEUE_SIZE = 1;
     private static final String SERVER_MAIN = "main";
     private static final String SERVER_CAM = "cam";
@@ -320,18 +320,6 @@ public class LogsDownloaderWorker {
             }
         };
         ImcMsgManager.getManager().addListener(messageListener); // all systems listener
-
-        threadScheduledPool.scheduleAtFixedRate(new Runnable() {
-            protected  IMCMessage msg = new IMCMessage("QueryPowerChannelState");
-            @Override
-            public void run() {
-                if (getLogLabel() == null || getLogLabel().length() == 0)
-                    return;
-
-                msg.setTimestampMillis(System.currentTimeMillis());
-                ImcMsgManager.getManager().sendMessageToSystem(msg, getLogLabel());
-            }
-        }, 500, QUERYPOWERCHANNEL_PERIOD_MILLIS, TimeUnit.MILLISECONDS);
     }
 
     private boolean isCamCpuOn() {
