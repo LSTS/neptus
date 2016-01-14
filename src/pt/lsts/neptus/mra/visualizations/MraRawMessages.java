@@ -305,7 +305,7 @@ public class MraRawMessages extends SimpleMRAVisualization {
             return true;
         }
         //Fix year/month/day of textbox's ts1 and ts2
-        System.out.println("Before Fix: "+ time1.toString());
+        //System.out.println("Before Fix: "+ time1.toString());
         Date base = new Date((long)(1000.0*source.getLsfIndex().timeOf(0)));
         time1.setYear(base.getYear());
         time1.setMonth(base.getMonth());
@@ -313,8 +313,8 @@ public class MraRawMessages extends SimpleMRAVisualization {
         time2.setYear(base.getYear());
         time2.setMonth(base.getMonth());
         time2.setDate(base.getDate());
-        System.out.println("After fix: "+ time1.toString());
-        //
+        //System.out.println("After fix: "+ time1.toString());
+
         String rowType = null;
         String rowSrc = null;
         String rowSrcEnt = null;
@@ -325,10 +325,10 @@ public class MraRawMessages extends SimpleMRAVisualization {
         System.out.println(rowTime3 + " " + t1);
         
         int first = source.getLsfIndex().getFirstMessageAtOrAfter(t1);
-        System.out.println("First: " + first);
+        //System.out.println("First: " + first);
 
         int indexFirst = findFirstOcc(first, source.getLsfIndex().getNumberOfMessages(), t1, type);
-        System.out.println("indexFirst: " + indexFirst);
+        //System.out.println("indexFirst: " + indexFirst);
 
         if (indexFirst == -1) {
             find.busyLbl.setBusy(false);
@@ -363,12 +363,12 @@ public class MraRawMessages extends SimpleMRAVisualization {
 
         int indexLast = last;
         int total = indexLast - indexFirst;
-        int count=0;
-        long startTime = System.nanoTime();
+        int count = 0;
+        //long startTime = System.nanoTime();
 
         for (int row = indexFirst; row < indexLast; row++) {
             count++;
-            long rowTime2 = (long) source.getLsfIndex().timeOf(row);
+            long rowTime = (long) source.getLsfIndex().timeOf(row); //Time
             rowType = source.getLsfIndex().getDefinitions().getMessageName(source.getLsfIndex().typeOf(row)); //Type
             rowSrc = source.getLsfIndex().sourceNameOf(row);  //Source
             rowSrcEnt = source.getLsfIndex().entityNameOf(row); //SourceEntity
@@ -381,7 +381,7 @@ public class MraRawMessages extends SimpleMRAVisualization {
                     if (rowSrcEnt.equals(srcEnt) || srcEnt.equals(ANY_TXT)) {
                         if (rowDest.equals(dest) || dest.equals(ANY_TXT) || 
                                 (rowDest.contains("null") && dest.equals("UNADDRESSABLE"))){
-                            if ((rowTime2 >= t1) && (rowTime2 <= t2))
+                            if ((rowTime >= t1) && (rowTime <= t2))
                                 resultList.add(row);
                         }
                     }
@@ -389,7 +389,7 @@ public class MraRawMessages extends SimpleMRAVisualization {
             }
             int state = (count * 100) / total;
             find.statusLbl.setText(state+"%");
-            find.repaint();
+
             if (closingUp)
                 break;
 
@@ -398,8 +398,8 @@ public class MraRawMessages extends SimpleMRAVisualization {
         find.busyLbl.setVisible(false);
         find.statusLbl.setVisible(false);
 
-        long stopTime = System.nanoTime();
-        System.out.println("Duration: "+ (stopTime - startTime));
+        //long stopTime = System.nanoTime();
+        //System.out.println("Duration: "+ (stopTime - startTime));
 
         if (!resultList.isEmpty()) {
             table.clearSelection();
@@ -416,22 +416,23 @@ public class MraRawMessages extends SimpleMRAVisualization {
 
     private int findFirstOcc(int first, int last, long t1, String type) {
         for (int row = first; row < last; row++) {
-            //String rowTime = (String) table.getValueAt(row, 1); //Time
             long rowTime = (long) source.getLsfIndex().timeOf(row);
-            String rowType = source.getLsfIndex().getDefinitions().getMessageName(source.getLsfIndex().typeOf(row)); //(String) table.getValueAt(row, 2); //Type
-            //Date parsedTime = parseTime(rowTime);
+            String rowType = source.getLsfIndex().getDefinitions().getMessageName(source.getLsfIndex().typeOf(row)); //Type
 
             if ((rowTime >= t1) && (rowType.equals(type) || type.equals(ANY_TXT))) {
                 return row;
             }
+            
+            if (closingUp)
+                break;
         }
         return -1;
     }
 
     private void highLightRow() {
-        /*
-         FIXME: when pressing hasPrev / hasNext, clear hightlight button state !!!
-         */
+        if (highlightBtn.isSelected())
+            find.toggleHighlight();
+        
         currFinderIndex = resultList.get(finderNextIndex);
         table.scrollRectToVisible(new Rectangle(table.getCellRect(currFinderIndex, 0, true)));
         table.clearSelection();
@@ -488,9 +489,9 @@ public class MraRawMessages extends SimpleMRAVisualization {
         ArrayList<String> typeList = new ArrayList<>();
 
         for (int row = 0; row < source.getLsfIndex().getNumberOfMessages(); row++) {
-            String type = source.getLsfIndex().getDefinitions().getMessageName(source.getLsfIndex().typeOf(row)); //(String) table.getValueAt(row, 2); //Type
-            String src = source.getLsfIndex().sourceNameOf(row); //(String) table.getValueAt(row, 3); //Source
-            String srcEntity = source.getLsfIndex().entityNameOf(row); //(String) table.getValueAt(row, 4); //SourceEntity
+            String type = source.getLsfIndex().getDefinitions().getMessageName(source.getLsfIndex().typeOf(row)); //Type
+            String src = source.getLsfIndex().sourceNameOf(row); //Source
+            String srcEntity = source.getLsfIndex().entityNameOf(row); //SourceEntity
             String dest = (String) table.getValueAt(row, 5); //Destination
 
             if (!typeList.contains(type))
@@ -519,7 +520,6 @@ public class MraRawMessages extends SimpleMRAVisualization {
         DateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
          */
         Date dt1 = new Date((long) (1000.0*ts1));
-
         Date dt2 = new Date((long) (1000.0*ts2));
         find.setTimestamp(dt1, dt2);
         /*
@@ -572,10 +572,6 @@ public class MraRawMessages extends SimpleMRAVisualization {
         private void setTimestamp(Date t1, Date t2) {
             ts1.setValue(t1);
             ts2.setValue(t2);
-            Date tf = (Date) ts1.getValue();
-            Date th = (Date) ts2.getValue();
-            System.out.println("T1: "+ tf.toString() + " " + tf.getTime()/1000);
-            System.out.println("T2: "+ th.toString());
             defTS1 = t1;
             defTS2 = t2;
         }
@@ -613,7 +609,7 @@ public class MraRawMessages extends SimpleMRAVisualization {
         private void initComponents() {
             setIconImage(MraRawMessages.this.getIcon().getImage());
             setTitle(I18n.text("Find"));
-            setSize(290, 205);
+            setSize(290, 210);
             setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
             setResizable(false);
             setLocationOnLeft();
