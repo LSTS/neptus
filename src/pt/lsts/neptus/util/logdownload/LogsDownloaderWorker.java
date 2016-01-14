@@ -745,13 +745,6 @@ public class LogsDownloaderWorker {
                         long timeD1 = System.currentTimeMillis();
                         // Getting the file list from main CPU
                         try {
-                            //                            if (clientFtp == null)
-                            //                                clientFtp = new FtpDownloader(host, port);
-                            //                            else
-                            //                                clientFtp.setHostAndPort(host, port);
-                            //                            
-                            //                            if (!clientFtp.isConnected())
-                            //                                clientFtp.renewClient();
                             clientFtp = getOrRenewFtpDownloader(clientFtp, host, port);
 
                             retList = clientFtp.listLogs();
@@ -772,15 +765,7 @@ public class LogsDownloaderWorker {
                         if (cameraHost.length() > 0) {
                             LinkedHashMap<FTPFile, String> retCamList = null;
                             try {
-                                //                                if (cameraFtp == null)
-                                //                                    cameraFtp = new FtpDownloader(cameraHost, port);
-                                //                                else
-                                //                                    cameraFtp.setHostAndPort(cameraHost, port);
-                                //                                
-                                //                                if (!cameraFtp.isConnected())
-                                //                                    cameraFtp.renewClient();
                                 cameraFtp = getOrRenewFtpDownloader(cameraFtp, cameraHost, port);
-
                                 retCamList = cameraFtp.listLogs();
                             }
                             catch (Exception e) {
@@ -851,8 +836,8 @@ public class LogsDownloaderWorker {
                             SwingUtilities.invokeAndWait(new Runnable() {
                                 @Override
                                 public void run() {
-                                    //                                    listHandlingProgressBar.setValue(10);
-                                    //                                    listHandlingProgressBar.setIndeterminate(true);
+                                    // listHandlingProgressBar.setValue(10);
+                                    // listHandlingProgressBar.setIndeterminate(true);
                                     listHandlingProgressBar.setString(msg1);
                                 }
                             });
@@ -1036,7 +1021,7 @@ public class LogsDownloaderWorker {
                                                     if (!getFileTarget(lfx.getName()).exists()) {
                                                         if (lfx.getState() != LogFolderInfo.State.NEW && lfx.getState() != LogFolderInfo.State.DOWNLOADING) {
                                                             lfx.setState(LogFolderInfo.State.INCOMPLETE);
-                                                            //                                                        System.out.println("//////////// " + lfx.getName() + "  " + getFileTarget(lfx.getName()).exists());
+                                                            // System.out.println("//////////// " + lfx.getName() + "  " + getFileTarget(lfx.getName()).exists());
                                                         }
                                                     }
                                                     else {
