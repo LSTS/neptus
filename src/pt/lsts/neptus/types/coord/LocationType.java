@@ -1235,14 +1235,14 @@ public class LocationType implements XmlOutputMethods, Serializable, Comparable<
      */
     public void translateInPixel(double deltaX, double deltaY, int levelOfDetail){
         Point2D pixs = getPointInPixel(levelOfDetail);
-        double[] latlon = MapTileUtil.XYToDegrees(pixs.getX() + deltaX, pixs.getY() + deltaY, levelOfDetail);
+        double[] latlon = MapTileUtil.xyToDegrees(pixs.getX() + deltaX, pixs.getY() + deltaY, levelOfDetail);
         convertToAbsoluteLatLonDepth(); // just to clear the offsets and save the depth
         this.setLatitudeDegs(latlon[0]);
         this.setLongitudeDegs(latlon[1]);
     }
 
     public void setLocationByPixel(double x, double y, int levelOfDetail){
-        double[] degrees = MapTileUtil.XYToDegrees(x, y, levelOfDetail);
+        double[] degrees = MapTileUtil.xyToDegrees(x, y, levelOfDetail);
         convertToAbsoluteLatLonDepth(); // just to clear the offsets and save the depth
         this.latitudeRads = Math.toRadians(degrees[0]);
         this.longitudeRads = Math.toRadians(degrees[1]);

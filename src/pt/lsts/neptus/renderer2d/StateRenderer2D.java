@@ -1391,7 +1391,7 @@ CustomInteractionSupport, IMapPopup, FocusListener {
         }
         Point2D centerXY = worldPixelXY;
 
-        double[] latLong = MapTileUtil.XYToDegrees(centerXY.getX() + tx, centerXY.getY() + ty, levelOfDetail);
+        double[] latLong = MapTileUtil.xyToDegrees(centerXY.getX() + tx, centerXY.getY() + ty, levelOfDetail);
 
         LocationType loc = new LocationType();
         loc.setLatitudeDegs(latLong[0]);
@@ -1573,7 +1573,7 @@ CustomInteractionSupport, IMapPopup, FocusListener {
     }
 
     private final void updateCenter() {
-        double[] latLon = MapTileUtil.XYToDegrees(worldPixelXY.getX(), worldPixelXY.getY(), getLevelOfDetail());
+        double[] latLon = MapTileUtil.xyToDegrees(worldPixelXY.getX(), worldPixelXY.getY(), getLevelOfDetail());
         center.setLatitudeDegs(latLon[0]);
         center.setLongitudeDegs(latLon[1]);
     }
