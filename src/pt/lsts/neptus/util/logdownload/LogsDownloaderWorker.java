@@ -255,24 +255,22 @@ public class LogsDownloaderWorker {
             frame = parentFrame;
             frameIsExternalControlled = true;
         }
-        initializeComm();
+
         initialize();
     }
 
-    private void initializeComm() {
+    private void initialize() {
         // Init timer
         threadScheduledPool = LogsDownloaderUtil.createThreadPool(LogsDownloaderWorker.this);
+        
+        initializeGUI();
 
         // Register for EntityActivationState
         messageListener = LogsDownloaderUtil.createEntityStateMessageListener(LogsDownloaderWorker.this, cameraButton);
         ImcMsgManager.getManager().addListener(messageListener); // all systems listener
     }
 
-    private boolean isCamCpuOn() {
-        return cameraButton.getBackground() == CAM_CPU_ON_COLOR;
-    }
-
-    private void initialize() {
+    private void initializeGUI() {
         initializeActions();
 
         if (frame == null) {
@@ -1298,6 +1296,10 @@ public class LogsDownloaderWorker {
                 }
             }
         };
+    }
+
+    private boolean isCamCpuOn() {
+        return cameraButton.getBackground() == CAM_CPU_ON_COLOR;
     }
 
     /**
