@@ -127,6 +127,7 @@ import foxtrot.AsyncWorker;
  */
 public class LogsDownloaderWorker {
 
+    private static final Color CAM_CPU_ON_COLOR = Color.GREEN;
     private static final int QUERYPOWERCHANNEL_PERIOD_MILLIS = 5000;
     private static final int ACTIVE_DOWNLOADS_QUEUE_SIZE = 1;
     private static final String SERVER_MAIN = "main";
@@ -327,7 +328,7 @@ public class LogsDownloaderWorker {
                             if (descStateCode != null
                                     && ("active".equalsIgnoreCase(descStateCode.trim()) || I18n.text("active")
                                             .equalsIgnoreCase(descStateCode.trim()))) {
-                                cameraButton.setBackground(Color.GREEN);
+                                cameraButton.setBackground(CAM_CPU_ON_COLOR);
                             }
                             else {
                                 cameraButton.setBackground(null);
@@ -361,6 +362,10 @@ public class LogsDownloaderWorker {
                 ImcMsgManager.getManager().sendMessageToSystem(msg, getLogLabel());
             }
         }, 500, QUERYPOWERCHANNEL_PERIOD_MILLIS, TimeUnit.MILLISECONDS);
+    }
+
+    private boolean isCamCpuOn() {
+        return cameraButton.getBackground() == CAM_CPU_ON_COLOR;
     }
 
     private void initialize() {
@@ -761,8 +766,7 @@ public class LogsDownloaderWorker {
                         long timeD2 = System.currentTimeMillis();
                         //Getting the log list from Camera CPU
                         String cameraHost = getCameraHost(getHost());
-
-                        if (cameraHost.length() > 0) {
+                        if (cameraHost.length() > 0 && isCamCpuOn()) {
                             LinkedHashMap<FTPFile, String> retCamList = null;
                             try {
                                 cameraFtp = getOrRenewFtpDownloader(cameraFtp, cameraHost, port);
