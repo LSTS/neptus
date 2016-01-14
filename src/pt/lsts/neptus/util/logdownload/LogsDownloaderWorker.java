@@ -606,7 +606,7 @@ public class LogsDownloaderWorker {
                         catch (Exception e) {
                             NeptusLog.pub().error("Connecting with " + host + ":" + port + " with error: " + e.getMessage());
                         }
-                        NeptusLog.pub().info(".......get list from main CPU server " + (System.currentTimeMillis() - timeD1) + "ms");                        
+                        NeptusLog.pub().warn(".......get list from main CPU server " + (System.currentTimeMillis() - timeD1) + "ms");                        
 
                         long timeD2 = System.currentTimeMillis();
                         //Getting the log list from Camera CPU
@@ -642,10 +642,10 @@ public class LogsDownloaderWorker {
                                     }
                                 }
                             }
-                            NeptusLog.pub().info(".......get list from main CAM server " + (System.currentTimeMillis() - timeD2) + "ms");                        
+                            NeptusLog.pub().warn(".......get list from main CAM server " + (System.currentTimeMillis() - timeD2) + "ms");                        
                         }
 
-                        NeptusLog.pub().info(".......get list from all servers " + (System.currentTimeMillis() - timeD1) + "ms");                        
+                        NeptusLog.pub().warn(".......get list from all servers " + (System.currentTimeMillis() - timeD1) + "ms");                        
                         if (retList == null) {
                             msgPanel.writeMessageTextln(I18n.text("Done"));
                             return null;
@@ -724,7 +724,7 @@ public class LogsDownloaderWorker {
                                 NeptusLog.pub().debug(e.getMessage());
                             }
                         }
-                        NeptusLog.pub().info(".......Removing from already existing LogFolders to LOCAL state "
+                        NeptusLog.pub().warn(".......Removing from already existing LogFolders to LOCAL state "
                                 + (System.currentTimeMillis() - timeC1) + "ms");
 
                         // ->Adding new LogFolders
@@ -770,7 +770,7 @@ public class LogsDownloaderWorker {
 
                         long timeF0 = System.currentTimeMillis();
                         LinkedList<LogFolderInfo> tmpLogFolderList = getLogFileList(serversLogPresenceList);
-                        NeptusLog.pub().info(".......Contacting remote system for complete log file list " +
+                        NeptusLog.pub().warn(".......Contacting remote system for complete log file list " +
                                 (System.currentTimeMillis() - timeF0) + "ms");
 
                         SwingUtilities.invokeAndWait(new Runnable() {
@@ -899,7 +899,7 @@ public class LogsDownloaderWorker {
                                 NeptusLog.pub().debug(e.getMessage());
                             }
                         }
-                        NeptusLog.pub().info(".......Testing for log files from each log folder " +
+                        NeptusLog.pub().warn(".......Testing for log files from each log folder " +
                                 (System.currentTimeMillis() - timeF1) + "ms");
 
                         long timeF2 = System.currentTimeMillis();
@@ -908,7 +908,7 @@ public class LogsDownloaderWorker {
                             updateLogFolderState(logFolder);
                         }
                         updateLogStateIconForAllLogFolders();
-                        NeptusLog.pub().info(".......Updating LogFolders State " +
+                        NeptusLog.pub().warn(".......Updating LogFolders State " +
                                 (System.currentTimeMillis() - timeF2) + "ms");
 
                         long timeF3 = System.currentTimeMillis();
@@ -919,10 +919,10 @@ public class LogsDownloaderWorker {
                                 updateFilesListGUIForFolderSelected();
                             };
                         }.start();
-                        NeptusLog.pub().info(".......updateFilesListGUIForFolderSelected " +
+                        NeptusLog.pub().warn(".......updateFilesListGUIForFolderSelected " +
                                 (System.currentTimeMillis() - timeF3) + "ms");
 
-                        NeptusLog.pub().info("....process list from all servers " + (System.currentTimeMillis() - timeD3) + "ms");                        
+                        NeptusLog.pub().warn("....process list from all servers " + (System.currentTimeMillis() - timeD3) + "ms");                        
 
                         SwingUtilities.invokeAndWait(new Runnable() {
                             @Override
@@ -941,7 +941,7 @@ public class LogsDownloaderWorker {
                         // logFilesList.repaint();
                         logFilesList.setEnabled(true);
 
-                        NeptusLog.pub().info("....all downloadListAction " + (System.currentTimeMillis() - time) + "ms");
+                        NeptusLog.pub().warn("....all downloadListAction " + (System.currentTimeMillis() - time) + "ms");
                         SwingUtilities.invokeAndWait(new Runnable() {
                             @Override
                             public void run() {
