@@ -53,7 +53,7 @@ public class MapTileUtil {
     public static final double MIN_LONGITUDE = -180;
     public static final double MAX_LONGITUDE = 180;
 
-    public static final boolean USE_CLIPPING = false;
+    public static final boolean USE_CLIPPING = true;
     
     /**
      * Clips a number to the specified minimum and maximum values.

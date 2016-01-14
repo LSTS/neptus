@@ -157,8 +157,14 @@ CustomInteractionSupport, IMapPopup, FocusListener {
             propagateChange();
         };
 
-        public void propagateChange() {
-            updateCenter();
+        private void propagateChange() {
+            // updateCenter();
+            double[] latLon = MapTileUtil.xyToDegrees(worldPixelXY.getX(), worldPixelXY.getY(), getLevelOfDetail());
+            center.setLatitudeDegs(latLon[0]);
+            center.setLongitudeDegs(latLon[1]);
+            Point2D nXY = MapTileUtil.degreesToXY(latLon[0], latLon[1], levelOfDetail);
+            super.setLocation(nXY.getX(), nXY.getY());  //This is the one that has to be called, otherwise a endless cycle will emerge
+
             setLevelOfDetail(levelOfDetail);
             repaint();
         }
@@ -1570,12 +1576,6 @@ CustomInteractionSupport, IMapPopup, FocusListener {
      */
     public LocationType getCenter() {
         return center.getNewAbsoluteLatLonDepth();
-    }
-
-    private final void updateCenter() {
-        double[] latLon = MapTileUtil.xyToDegrees(worldPixelXY.getX(), worldPixelXY.getY(), getLevelOfDetail());
-        center.setLatitudeDegs(latLon[0]);
-        center.setLongitudeDegs(latLon[1]);
     }
 
     /**
