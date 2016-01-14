@@ -81,7 +81,6 @@ import javax.swing.border.TitledBorder;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
-import org.apache.commons.lang.StringUtils;
 import org.apache.commons.net.ftp.FTPFile;
 import org.jdesktop.swingx.JXCollapsiblePane;
 import org.jdesktop.swingx.JXLabel;
@@ -127,7 +126,7 @@ import foxtrot.AsyncWorker;
  */
 public class LogsDownloaderWorker {
 
-    private static final Color CAM_CPU_ON_COLOR = Color.GREEN;
+    protected static final Color CAM_CPU_ON_COLOR = Color.GREEN;
     private static final int ACTIVE_DOWNLOADS_QUEUE_SIZE = 1;
     private static final String SERVER_MAIN = "main";
     private static final String SERVER_CAM = "cam";
@@ -273,51 +272,10 @@ public class LogsDownloaderWorker {
 
     private void initializeComm() {
         // Init timer
-        threadScheduledPool = (ScheduledThreadPoolExecutor) Executors.newScheduledThreadPool(4, new ThreadFactory() {
-            private ThreadGroup group;
-            private long count = 0;
-            {
-                SecurityManager s = System.getSecurityManager();
-                group = (s != null) ? s.getThreadGroup() :
-                    Thread.currentThread().getThreadGroup();
-            }
-            @Override
-            public Thread newThread(Runnable r) {
-                Thread t = new Thread(group, r);
-                t.setName(LogsDownloaderWorker.class.getSimpleName() + "::"
-                        + Integer.toHexString(LogsDownloaderWorker.this.hashCode()) + "::" + count++);
-                t.setDaemon(true);
-                return t;
-            }
-        });
+        threadScheduledPool = LogsDownloaderUtil.createThreadPool(LogsDownloaderWorker.this);
 
         // Register for EntityActivationState
-        messageListener = new MessageListener<MessageInfo, IMCMessage>() {
-            @Override
-            public void onMessage(MessageInfo info, IMCMessage msg) {
-                if (msg.getAbbrev().equals("EntityState")) {
-                    // we need to check for the source match
-                    int srcIdNumber = msg.getSrc();
-                    ImcSystem sys = ImcSystemsHolder.lookupSystem(srcIdNumber);
-                    if (sys != null && logLabel.equalsIgnoreCase(sys.getName())) {
-                        EntityState est = (EntityState) msg;
-                        String entityName = EntitiesResolver.resolveName(getLogLabel(), (int) msg.getSrcEnt());
-                        if (entityName != null && CAMERA_CPU_LABEL.equalsIgnoreCase(entityName)) {
-                            String descStateCode = est.getDescription();
-                            // Testing for active state code (also for the translated string)
-                            if (descStateCode != null
-                                    && ("active".equalsIgnoreCase(descStateCode.trim()) || I18n.text("active")
-                                            .equalsIgnoreCase(descStateCode.trim()))) {
-                                cameraButton.setBackground(CAM_CPU_ON_COLOR);
-                            }
-                            else {
-                                cameraButton.setBackground(null);
-                            }
-                        }
-                    }
-                }
-            }
-        };
+        messageListener = LogsDownloaderUtil.createEntityStateMessageListener(LogsDownloaderWorker.this, cameraButton);
         ImcMsgManager.getManager().addListener(messageListener); // all systems listener
     }
 
@@ -414,57 +372,8 @@ public class LogsDownloaderWorker {
                 AsyncWorker.getWorkerThread().postTask(task);
             }
         });
-
-        logFolderList.addMouseListener(new MouseAdapter() {
-            @Override
-            public void mouseClicked(MouseEvent e) {
-                if (e.getButton() == MouseEvent.BUTTON3) {
-                    // Test if log can be opened in MRA, and open it
-
-                    final String baseFxPath = dirBaseToStoreFiles + "/" + getLogLabel() + "/"
-                            + logFolderList.getSelectedValue() + "/";
-                    final File imc = new File(baseFxPath + "IMC.xml");
-                    final File imcGz = new File(baseFxPath + "IMC.xml.gz");
-
-                    final File log = new File(baseFxPath + "Data.lsf");
-                    final File logGz = new File(baseFxPath + "Data.lsf.gz");
-
-                    if ((imc.exists() || imcGz.exists()) && (logGz.exists() || log.exists())) {
-
-                        JPopupMenu popup = new JPopupMenu();
-                        popup.add(I18n.text("Open this log in MRA")).addActionListener(new ActionListener() {
-
-                            @Override
-                            public void actionPerformed(ActionEvent e) {
-                                Thread t = new Thread(LogsDownloaderWorker.class.getSimpleName() + " :: MRA Openner") {
-                                    public void run() {
-                                        JFrame mra = new NeptusMRA();
-                                        mra.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-
-                                        File fx = null;
-                                        if (logGz.exists())
-                                            fx = logGz;
-                                        if (log.exists())
-                                            fx = log;
-
-                                        ((NeptusMRA) mra).getMraFilesHandler().openLog(fx);
-                                    };
-                                };
-
-                                t.setDaemon(true);
-                                t.start();
-                            }
-                        });
-                        
-                        popup.show((Component)e.getSource(), e.getX(), e.getY());
-                    }
-                    else {
-                        warnMsg(I18n.text("Basic log folder not synchronized. Can't open MRA"));
-                        return;
-                    }
-                }
-            }
-        });
+        logFolderList.addMouseListener(
+                LogsDownloaderUtil.createOpenLogInMRAMouseListener(LogsDownloaderWorker.this, logFolderList));
 
         logFolderScroll = new JScrollPane();
         logFolderScroll.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
@@ -699,7 +608,7 @@ public class LogsDownloaderWorker {
                         long timeD1 = System.currentTimeMillis();
                         // Getting the file list from main CPU
                         try {
-                            clientFtp = getOrRenewFtpDownloader(clientFtp, host, port);
+                            clientFtp = LogsDownloaderUtil.getOrRenewFtpDownloader(clientFtp, host, port);
 
                             retList = clientFtp.listLogs();
 
@@ -714,11 +623,11 @@ public class LogsDownloaderWorker {
 
                         long timeD2 = System.currentTimeMillis();
                         //Getting the log list from Camera CPU
-                        String cameraHost = getCameraHost(getHost());
+                        String cameraHost = LogsDownloaderUtil.getCameraHost(getHost());
                         if (cameraHost.length() > 0 && isCamCpuOn()) {
                             LinkedHashMap<FTPFile, String> retCamList = null;
                             try {
-                                cameraFtp = getOrRenewFtpDownloader(cameraFtp, cameraHost, port);
+                                cameraFtp = LogsDownloaderUtil.getOrRenewFtpDownloader(cameraFtp, cameraHost, port);
                                 retCamList = cameraFtp.listLogs();
                             }
                             catch (Exception e) {
@@ -1459,18 +1368,6 @@ public class LogsDownloaderWorker {
         return ttaskLocalDiskSpace;
     }
 
-    private FtpDownloader getOrRenewFtpDownloader(FtpDownloader clientFtp, String host, int port) throws Exception {
-        if (clientFtp == null)
-            clientFtp = new FtpDownloader(host, port);
-        else
-            clientFtp.setHostAndPort(host, port);
-
-        if (!clientFtp.isConnected())
-            clientFtp.renewClient();
-
-        return clientFtp;
-    }
-
     /**
      * This is used to clean and dispose safely of this component
      */
@@ -2132,7 +2029,7 @@ public class LogsDownloaderWorker {
         // Not the best way but for now lets try like this
         if (hostFx.equals(host))
             return deleteLogFolderFromServer(path);
-        else if (hostFx.equals(getCameraHost(host)))
+        else if (hostFx.equals(LogsDownloaderUtil.getCameraHost(host)))
             return deleteLogFolderFromCameraServer(path);
         else
             return false;
@@ -2146,7 +2043,7 @@ public class LogsDownloaderWorker {
         try {
             System.out.println("Deleting folder");
             try {
-                clientFtp = getOrRenewFtpDownloader(clientFtp, host, port);
+                clientFtp = LogsDownloaderUtil.getOrRenewFtpDownloader(clientFtp, host, port);
             }
             catch (Exception e) {
                 e.printStackTrace();
@@ -2163,7 +2060,7 @@ public class LogsDownloaderWorker {
         try {
             if (cameraFtp != null) {
                 try {
-                    cameraFtp = getOrRenewFtpDownloader(cameraFtp, getCameraHost(host), port);
+                    cameraFtp = LogsDownloaderUtil.getOrRenewFtpDownloader(cameraFtp, LogsDownloaderUtil.getCameraHost(host), port);
                 }
                 catch (Exception e) {
                     e.printStackTrace();
@@ -2191,7 +2088,7 @@ public class LogsDownloaderWorker {
 
         LinkedList<LogFolderInfo> tmpLogFolders = new LinkedList<LogFolderInfo>();
 
-        String cameraHost = getCameraHost(getHost());
+        String cameraHost = LogsDownloaderUtil.getCameraHost(getHost());
 
         System.out.println(LogsDownloaderWorker.class.getSimpleName() + " :: " + cameraHost + " " + getLogLabel());
 
@@ -2339,6 +2236,13 @@ public class LogsDownloaderWorker {
         // dirTarget.mkdirs(); Taking this out to not create empty folders
         return dirTarget;
     }
+    
+    /**
+     * @return the dirBaseToStoreFiles
+     */
+    String getDirBaseToStoreFiles() {
+        return dirBaseToStoreFiles;
+    }
 
     // --------------------------------------------------------------
 
@@ -2416,12 +2320,12 @@ public class LogsDownloaderWorker {
 
     // --------------------------------------------------------------
 
-    private void warnMsg(String message) {
+    protected void warnMsg(String message) {
         NudgeGlassPane.nudge(frameCompHolder.getRootPane(), (frameIsExternalControlled ? getLogLabel() + " > " : "")
                 + message, 2);
     }
 
-    private void warnLongMsg(String message) {
+    protected void warnLongMsg(String message) {
         NudgeGlassPane.nudge(frameCompHolder.getRootPane(), (frameIsExternalControlled ? getLogLabel() + " > " : "")
                 + message, 6);
     }
@@ -2801,25 +2705,6 @@ public class LogsDownloaderWorker {
             lfx.setState(LogFolderInfo.State.LOCAL);
         }
         return toDelFL;
-    }
-
-    public String getCameraHost(String mainHost) {
-        String cameraHost = null;
-        try {
-            String[] parts = mainHost.split("\\.");
-            parts[3] = "" + (Integer.parseInt(parts[3]) + 3);
-            cameraHost = StringUtils.join(parts, ".");
-        }
-        catch (Exception oops) {
-            NeptusLog.pub().error("Could not get camera host string: "+oops.getClass().getSimpleName(), oops);
-            cameraHost = "";
-        }
-        catch (Error oops) {
-            NeptusLog.pub().error("Could not get camera host string: "+oops.getClass().getSimpleName(), oops);
-            cameraHost = "";
-        }
-
-        return cameraHost;
     }
 
     /**
