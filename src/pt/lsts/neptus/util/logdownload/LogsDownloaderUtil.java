@@ -243,4 +243,39 @@ class LogsDownloaderUtil {
         return clientFtp;
     }
 
+    /**
+     * Return the file for the file name in the dirBaseToStoreFiles for logs and the logLabel
+     * of the log selected.
+     * 
+     * Does not create the parent folders (except the dirBaseToStoreFiles ones).
+     * 
+     * @param name
+     * @param dirBaseToStoreFiles
+     * @param logLabel
+     * @return
+     */
+    static File getFileTarget(String name, String dirBaseToStoreFiles, String logLabel) {
+        File outFile = new File(getDirTarget(dirBaseToStoreFiles, logLabel), name);
+        // outFile.getParentFile().mkdirs(); Taking this out to not create empty folders
+        return outFile;
+    }
+
+    /**
+     * Return the folderfor the dirBaseToStoreFiles for logs and the logLabel
+     * of the log selected.
+     * 
+     * Does not create the parent folders (except the dirBaseToStoreFiles ones).
+     * 
+     * @param dirBaseToStoreFiles
+     * @param logLabel
+     * @return
+     */
+    static File getDirTarget(String dirBaseToStoreFiles, String logLabel) {
+        File dirToStore = new File(dirBaseToStoreFiles);
+        dirToStore.mkdirs();
+        File dirTarget = new File(dirToStore, logLabel);
+        // dirTarget.mkdirs(); Taking this out to not create empty folders
+        return dirTarget;
+    }
+
 }

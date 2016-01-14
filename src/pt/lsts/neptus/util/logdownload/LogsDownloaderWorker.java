@@ -37,9 +37,6 @@ import java.awt.Component;
 import java.awt.Dialog.ModalityType;
 import java.awt.Frame;
 import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.File;
@@ -52,9 +49,7 @@ import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.Vector;
-import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
-import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
 
 import javax.swing.AbstractAction;
@@ -68,7 +63,6 @@ import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
-import javax.swing.JPopupMenu;
 import javax.swing.JProgressBar;
 import javax.swing.JScrollPane;
 import javax.swing.JTextField;
@@ -89,18 +83,16 @@ import org.jdesktop.swingx.painter.CompoundPainter;
 import org.jdesktop.swingx.painter.GlossPainter;
 import org.jdesktop.swingx.painter.RectanglePainter;
 
+import foxtrot.AsyncTask;
+import foxtrot.AsyncWorker;
 import pt.lsts.imc.EntityParameter;
-import pt.lsts.imc.EntityState;
 import pt.lsts.imc.IMCMessage;
 import pt.lsts.imc.SetEntityParameters;
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.colormap.ColorMap;
 import pt.lsts.neptus.colormap.ColorMapFactory;
 import pt.lsts.neptus.colormap.InterpolationColorMap;
-import pt.lsts.neptus.comm.manager.imc.EntitiesResolver;
 import pt.lsts.neptus.comm.manager.imc.ImcMsgManager;
-import pt.lsts.neptus.comm.manager.imc.ImcSystem;
-import pt.lsts.neptus.comm.manager.imc.ImcSystemsHolder;
 import pt.lsts.neptus.ftp.FtpDownloader;
 import pt.lsts.neptus.gui.MiniButton;
 import pt.lsts.neptus.gui.NudgeGlassPane;
@@ -108,14 +100,11 @@ import pt.lsts.neptus.gui.swing.MessagePanel;
 import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.messages.listener.MessageInfo;
 import pt.lsts.neptus.messages.listener.MessageListener;
-import pt.lsts.neptus.mra.NeptusMRA;
 import pt.lsts.neptus.util.GuiUtils;
 import pt.lsts.neptus.util.ImageUtils;
 import pt.lsts.neptus.util.MathMiscUtils;
 import pt.lsts.neptus.util.conf.ConfigFetch;
 import pt.lsts.neptus.util.conf.GeneralPreferences;
-import foxtrot.AsyncTask;
-import foxtrot.AsyncWorker;
 
 /**
  * This is the log downloader worker panel. You can put it into an external frame using
@@ -861,9 +850,9 @@ public class LogsDownloaderWorker {
                                                 }
 
                                                 if (lfx.isDirectory()) {
-                                                    if (!getFileTarget(lfx.getName()).exists()) {
+                                                    if (!LogsDownloaderUtil.getFileTarget(lfx.getName(), getDirBaseToStoreFiles(), getLogLabel()).exists()) {
                                                         for (LogFileInfo lfi : lfx.getDirectoryContents()) {
-                                                            if (!getFileTarget(lfi.getName()).exists()) {
+                                                            if (!LogsDownloaderUtil.getFileTarget(lfi.getName(), getDirBaseToStoreFiles(), getLogLabel()).exists()) {
                                                                 if (lfx.getState() != LogFolderInfo.State.NEW && lfx.getState() != LogFolderInfo.State.DOWNLOADING)
                                                                     lfx.setState(LogFolderInfo.State.INCOMPLETE);
                                                                 break;
@@ -871,20 +860,20 @@ public class LogsDownloaderWorker {
                                                         }
                                                     }
                                                     else {
-                                                        long sizeD = getDiskSizeFromLocal(lfx);
+                                                        long sizeD = getDiskSizeFromLocal(lfx, LogsDownloaderWorker.this);
                                                         if (lfx.getSize() != sizeD && lfx.getState() == LogFolderInfo.State.SYNC)
                                                             lfx.setState(LogFolderInfo.State.INCOMPLETE);
                                                     }
                                                 }
                                                 else {
-                                                    if (!getFileTarget(lfx.getName()).exists()) {
+                                                    if (!LogsDownloaderUtil.getFileTarget(lfx.getName(), getDirBaseToStoreFiles(), getLogLabel()).exists()) {
                                                         if (lfx.getState() != LogFolderInfo.State.NEW && lfx.getState() != LogFolderInfo.State.DOWNLOADING) {
                                                             lfx.setState(LogFolderInfo.State.INCOMPLETE);
-                                                            // System.out.println("//////////// " + lfx.getName() + "  " + getFileTarget(lfx.getName()).exists());
+                                                            // System.out.println("//////////// " + lfx.getName() + "  " + LogsDownloaderUtil.getFileTarget(lfx.getName()).exists());
                                                         }
                                                     }
                                                     else {
-                                                        long sizeD = getDiskSizeFromLocal(lfx);
+                                                        long sizeD = getDiskSizeFromLocal(lfx, LogsDownloaderWorker.this);
                                                         if (lfx.getSize() != sizeD && lfx.getState() == LogFolderInfo.State.SYNC)
                                                             lfx.setState(LogFolderInfo.State.INCOMPLETE);
                                                     }
@@ -898,7 +887,8 @@ public class LogsDownloaderWorker {
                                             if (!logFilesTmp.contains(lfx)
                                                     /* !res.keySet().contains(lfx.getName()) */) {
                                                 lfx.setState(LogFolderInfo.State.LOCAL);
-                                                if (!getFileTarget(lfx.getName()).exists()) {
+                                                if (!LogsDownloaderUtil.getFileTarget(lfx.getName(), 
+                                                        getDirBaseToStoreFiles(), getLogLabel()).exists()) {
                                                     toDelFL.add(lfx);
                                                     // logFolder.getLogFiles().remove(lfx); //This cannot be done here
                                                 }
@@ -1670,17 +1660,19 @@ public class LogsDownloaderWorker {
      */
     private void testNewReportedLogFoldersForLocalCorrespondent(LinkedList<LogFolderInfo> newLogFoldersFromServer) {
         for (LogFolderInfo lf : newLogFoldersFromServer) {
-            File testFile = new File(getDirTarget(), lf.getName());
+            File testFile = new File(LogsDownloaderUtil.getDirTarget(getDirBaseToStoreFiles(), getLogLabel()),
+                    lf.getName());
             if (testFile.exists()) {
                 if (lf.getState() == LogFolderInfo.State.DOWNLOADING)
                     continue;
 
                 lf.setState(LogFolderInfo.State.UNKNOWN);
                 for (LogFileInfo lfx : lf.getLogFiles()) {
-                    File testFx = new File(getDirTarget(), lfx.getName());
+                    File testFx = new File(LogsDownloaderUtil.getDirTarget(getDirBaseToStoreFiles(), getLogLabel()), 
+                            lfx.getName());
                     if (testFx.exists()) {
                         lfx.setState(LogFolderInfo.State.UNKNOWN);
-                        long sizeD = getDiskSizeFromLocal(lfx);
+                        long sizeD = getDiskSizeFromLocal(lfx, LogsDownloaderWorker.this);
                         if (lfx.getSize() == sizeD) {
                             lfx.setState(LogFolderInfo.State.SYNC);
                         }
@@ -1704,8 +1696,9 @@ public class LogsDownloaderWorker {
      * @param fx
      * @return Negative values for errors (HTTP like returns).
      */
-    private long getDiskSizeFromLocal(LogFileInfo fx) {
-        File fileTarget = getFileTarget(fx.getName());
+    static long getDiskSizeFromLocal(LogFileInfo fx, LogsDownloaderWorker worker) {
+        File fileTarget = LogsDownloaderUtil.getFileTarget(fx.getName(), 
+                worker.getDirBaseToStoreFiles(), worker.getLogLabel());
         if (fileTarget == null)
             return -1;
         else if (fileTarget.exists()) {
@@ -1715,7 +1708,7 @@ public class LogsDownloaderWorker {
             else if (fileTarget.isDirectory()) {
                 long allSize = 0;
                 for (LogFileInfo dirFileInfo : fx.getDirectoryContents()) {
-                    long dfSize = getDiskSizeFromLocal(dirFileInfo);
+                    long dfSize = getDiskSizeFromLocal(dirFileInfo, worker);
                     if (dfSize >= 0)
                         allSize += dfSize;
                 }
@@ -1773,11 +1766,13 @@ public class LogsDownloaderWorker {
                     directoryContentsList.put(lfi.getUriPartial(), lfi.getFile());
                 }
                 workerD = new DownloaderPanel(ftpDownloader, lfx.getFile(), lfx.getName(),
-                        getFileTarget(lfx.getName()), directoryContentsList, threadScheduledPool, queueWorkTickets);
+                        LogsDownloaderUtil.getFileTarget(lfx.getName(), getDirBaseToStoreFiles(), getLogLabel()), 
+                        directoryContentsList, threadScheduledPool, queueWorkTickets);
             }
             else {
                 workerD = new DownloaderPanel(ftpDownloader, lfx.getFile(), lfx.getName(),
-                        getFileTarget(lfx.getName()), threadScheduledPool, queueWorkTickets);
+                        LogsDownloaderUtil.getFileTarget(lfx.getName(), getDirBaseToStoreFiles(), getLogLabel()), 
+                        threadScheduledPool, queueWorkTickets);
             }
         }
         catch (Exception e1) {
@@ -2216,27 +2211,6 @@ public class LogsDownloaderWorker {
         return tmpLogFolders;
     }
 
-    /**
-     * @param name
-     * @return
-     */
-    private File getFileTarget(String name) {
-        File outFile = new File(getDirTarget(), name);
-        // outFile.getParentFile().mkdirs(); Taking this out to not create empty folders
-        return outFile;
-    }
-
-    /**
-     * @return
-     */
-    private File getDirTarget() {
-        File dirToStore = new File(dirBaseToStoreFiles);
-        dirToStore.mkdirs();
-        File dirTarget = new File(dirToStore, logLabel);
-        // dirTarget.mkdirs(); Taking this out to not create empty folders
-        return dirTarget;
-    }
-    
     /**
      * @return the dirBaseToStoreFiles
      */
@@ -2698,7 +2672,7 @@ public class LogsDownloaderWorker {
                     e.printStackTrace();
                 }
             }
-            if (!getFileTarget(lfx.getName()).exists()) {
+            if (!LogsDownloaderUtil.getFileTarget(lfx.getName(), getDirBaseToStoreFiles(), getLogLabel()).exists()) {
                 toDelFL.add(lfx);
                 // logFd.getLogFiles().remove(lfx); //This cannot be done here
             }
