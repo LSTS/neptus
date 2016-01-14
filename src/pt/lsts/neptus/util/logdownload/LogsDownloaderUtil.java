@@ -278,4 +278,38 @@ class LogsDownloaderUtil {
         return dirTarget;
     }
 
+    /**
+     * Return the file size (or in case is a folder, its content size).
+     * 
+     * @param fx
+     * @param worker
+     * @return Negative values for errors (HTTP like returns).
+     */
+    static long getDiskSizeFromLocal(LogFileInfo fx, LogsDownloaderWorker worker) {
+        File fileTarget = LogsDownloaderUtil.getFileTarget(fx.getName(), 
+                worker.getDirBaseToStoreFiles(), worker.getLogLabel());
+        if (fileTarget == null)
+            return -1;
+        else if (fileTarget.exists()) {
+            if (fileTarget.isFile()) {
+                return fileTarget.length();
+            }
+            else if (fileTarget.isDirectory()) {
+                long allSize = 0;
+                for (LogFileInfo dirFileInfo : fx.getDirectoryContents()) {
+                    long dfSize = getDiskSizeFromLocal(dirFileInfo, worker);
+                    if (dfSize >= 0)
+                        allSize += dfSize;
+                }
+                return allSize;
+            }
+            else
+                return -500;
+        }
+        else if (!fileTarget.exists()) {
+            return -400;
+        }
+        return -500;
+    }
+
 }
