@@ -1026,7 +1026,7 @@ public class LogsDownloaderWorker {
                         NeptusLog.pub().info(".......updateFilesListGUIForFolderSelected " +
                                 (System.currentTimeMillis() - timeF3) + "ms");
 
-                        NeptusLog.pub().info(".......process list from all servers " + (System.currentTimeMillis() - timeD3) + "ms");                        
+                        NeptusLog.pub().info("....process list from all servers " + (System.currentTimeMillis() - timeD3) + "ms");                        
 
                         SwingUtilities.invokeAndWait(new Runnable() {
                             @Override
@@ -1045,7 +1045,7 @@ public class LogsDownloaderWorker {
                         // logFilesList.repaint();
                         logFilesList.setEnabled(true);
 
-                        NeptusLog.pub().info(".......all downloadListAction " + (System.currentTimeMillis() - time) + "ms");
+                        NeptusLog.pub().info("....all downloadListAction " + (System.currentTimeMillis() - time) + "ms");
                         SwingUtilities.invokeAndWait(new Runnable() {
                             @Override
                             public void run() {
@@ -1345,7 +1345,6 @@ public class LogsDownloaderWorker {
         toggleConfPanelAction = new AbstractAction() {
             @Override
             public void actionPerformed(ActionEvent e) {
-
                 configCollapsiblePanel.getActionMap().get(JXCollapsiblePane.TOGGLE_ACTION).actionPerformed(e);
             }
         };
@@ -2875,7 +2874,6 @@ public class LogsDownloaderWorker {
         }
 
         return cameraHost;
-
     }
 
     /**
