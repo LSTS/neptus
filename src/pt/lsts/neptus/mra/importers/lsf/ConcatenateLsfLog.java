@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2015 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2016 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -39,7 +39,9 @@ import java.util.LinkedHashMap;
 
 import javax.swing.JFileChooser;
 
-import pt.lsts.imc.gz.MultiMemberGZIPInputStream;
+import org.apache.commons.compress.compressors.bzip2.BZip2CompressorInputStream;
+import org.apache.commons.compress.compressors.gzip.GzipCompressorInputStream;
+
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.util.FileUtil;
@@ -98,21 +100,46 @@ public class ConcatenateLsfLog {
         }
 
         for (File folder : folders) {
-            File src = new File(folder, "Data.lsf");
+            File src = new File(folder, "Data." + FileUtil.FILE_TYPE_LSF);
+            File dst = new File(destination, "Data." + FileUtil.FILE_TYPE_LSF);
             if (src.canRead()) {
-                FileUtil.appendToFile(new File(destination, "Data.lsf"), new File(folder, "Data.lsf"));
-                NeptusLog.pub().info("<###> "+I18n.textf("Concatenating %filename",new File(folder, "Data.lsf").getAbsolutePath()));
+                FileUtil.appendToFile(dst, new File(folder, "Data." + FileUtil.FILE_TYPE_LSF));
+                NeptusLog.pub().info("<###> " + I18n.textf("Concatenating %filename",
+                        new File(folder, "Data." + FileUtil.FILE_TYPE_LSF).getAbsolutePath()));
             }
             else {
-                src = new File(folder, "Data.lsf.gz");
+                src = new File(folder, "Data." + FileUtil.FILE_TYPE_LSF_COMPRESSED);
                 if (src.canRead()) {
-                    FileUtil.appendToFile(new File(destination, "Data.lsf"), new MultiMemberGZIPInputStream(new FileInputStream(
-                            new File(folder, "Data.lsf.gz"))));
-                    
-                    NeptusLog.pub().info("<###> "+I18n.textf("Concatenating %filename", new File(folder, "Data.lsf.gz").getAbsolutePath()));
+                    GzipCompressorInputStream is = new GzipCompressorInputStream(
+                            new FileInputStream(new File(folder, "Data." + FileUtil.FILE_TYPE_LSF_COMPRESSED)), true);
+                    FileUtil.appendToFile(dst, is);
+                    try {
+                        is.close();
+                    }
+                    catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                    NeptusLog.pub().info("<###> " + I18n.textf("Concatenating %filename",
+                            new File(folder, "Data." + FileUtil.FILE_TYPE_LSF_COMPRESSED).getAbsolutePath()));
                 }
                 else {
-                    NeptusLog.pub().info("Missing Data.lsf");
+                    src = new File(folder, "Data." + FileUtil.FILE_TYPE_LSF_COMPRESSED_BZIP2);
+                    if (src.canRead()) {
+                        BZip2CompressorInputStream is = new BZip2CompressorInputStream(
+                                new FileInputStream(new File(folder, "Data." + FileUtil.FILE_TYPE_LSF_COMPRESSED_BZIP2)), true);
+                        FileUtil.appendToFile(dst, is);
+                        try {
+                            is.close();
+                        }
+                        catch (Exception e) {
+                            e.printStackTrace();
+                        }
+                        NeptusLog.pub().info("<###> " + I18n.textf("Concatenating %filename",
+                                new File(folder, "Data." + FileUtil.FILE_TYPE_LSF_COMPRESSED_BZIP2).getAbsolutePath()));
+                    }
+                    else {
+                        NeptusLog.pub().info("Missing Data.lsf");
+                    }
                 }
             }
         }

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2015 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2016 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -50,6 +50,7 @@ import pt.lsts.neptus.plugins.preflight.PreflightCheck;
 import pt.lsts.neptus.plugins.preflight.PreflightPanel;
 import pt.lsts.neptus.plugins.preflight.PreflightSection;
 import pt.lsts.neptus.types.vehicle.VehicleType.VehicleTypeEnum;
+import pt.lsts.neptus.util.FileUtil;
 
 
 /**
@@ -57,7 +58,7 @@ import pt.lsts.neptus.types.vehicle.VehicleType.VehicleTypeEnum;
  *
  */
 public class PreflightBuilder {
-    private static final String XML_PATH = "plugins-dev/preflight/pt/lsts/neptus/plugins/preflight/etc/";
+    private static final String XML_PATH = "pt/lsts/neptus/plugins/preflight/etc/";
     
     public PreflightBuilder() {}
     
@@ -164,7 +165,7 @@ public class PreflightBuilder {
     
     
     private String getPanelXmlFile(String vehicle) {
-        return XML_PATH + "x8.xml"; /* for now */
+        return FileUtil.getResourceAsFileKeepName(XML_PATH + "x8.xml"); /* for now */
     }
           
     /* Returns if the number of "arguments", of the class in xml format, 

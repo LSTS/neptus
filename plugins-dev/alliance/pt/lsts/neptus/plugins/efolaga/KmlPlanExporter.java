@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2015 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2016 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -34,6 +34,7 @@ package pt.lsts.neptus.plugins.efolaga;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
+import java.util.Locale;
 
 import javax.swing.ProgressMonitor;
 
@@ -63,7 +64,7 @@ public class KmlPlanExporter implements IPlanFileExporter {
         sb.append("    <name>"+id+"</name>\n");
         sb.append("    <description>going-to.string=FIXED_CONSTANT_DEPTH_UPDATES=depth="+Math.abs(loc.getZ())+"</description>\n");
         sb.append("    <Point>\n");
-        sb.append(String.format("      <coordinates>%.5f,%.5f,0.</coordinates>\n", loc.getLongitudeDegs(), loc.getLatitudeDegs()));
+        sb.append(String.format(Locale.US, "      <coordinates>%.5f,%.5f,0.</coordinates>\n", loc.getLongitudeDegs(), loc.getLatitudeDegs()));
         sb.append("    </Point>\n");
         sb.append("  </Placemark>\n");
         return sb.toString();

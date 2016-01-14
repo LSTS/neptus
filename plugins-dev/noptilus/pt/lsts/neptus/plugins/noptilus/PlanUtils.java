@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2015 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2016 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -78,8 +78,6 @@ public class PlanUtils {
         return locs;        
     }
     
-    
-
     /**
      * Given a list of read locations, this method can be used to normalize them 
      * @param points A list of points (previously read with {@link #loadWaypoints(File)}
@@ -173,11 +171,11 @@ public class PlanUtils {
             gotoManeuver.setSpeedUnits(units);
             
             maneuvers.add(gotoManeuver);
-            plan.addManeuver(""+(i+1), gotoManeuver);            
-        }       
+            plan.addManeuver("" + (i + 1), gotoManeuver);
+        }
         
-        for (int i = 1; i < maneuvers.size(); i++) 
-            plan.addTransition(""+i, ""+(i+1), "ManeuverIsDone", null);
+        for (int i = 1; i < maneuvers.size(); i++)
+            plan.addTransition("" + i, "" + (i + 1), "ManeuverIsDone", null);
         
         return (PlanSpecification) plan.getData(IMCDefinition.getInstance());
     }

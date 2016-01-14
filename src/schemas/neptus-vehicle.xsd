@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-Copyright (c) 2004-2015 Universidade do Porto - Faculdade de Engenharia
+Copyright (c) 2004-2016 Universidade do Porto - Faculdade de Engenharia
 Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
 All rights reserved.
 Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -116,7 +116,7 @@ Author: Paulo Dias, José Pinto
 							default="true" minOccurs="0" />
 						<xs:element name="tcp-on" type="xs:boolean"
 							default="false" minOccurs="0" />
-						<xs:element name="imc3-id" type="imc3-id-type"
+						<xs:element name="imc-id" type="imc-id-type"
 							minOccurs="0" />
 					</xs:sequence>
 				</xs:complexType>
@@ -146,7 +146,7 @@ Author: Paulo Dias, José Pinto
 			<xs:element name="iridium" type="iridiumType" maxOccurs="1" minOccurs="0"></xs:element>
 		</xs:sequence>
 	</xs:complexType>
-	<xs:simpleType name="imc3-id-type">
+	<xs:simpleType name="imc-id-type">
 		<xs:restriction base="xs:string">
 			<xs:whiteSpace value="collapse"/>
 			<xs:length value="5"/>

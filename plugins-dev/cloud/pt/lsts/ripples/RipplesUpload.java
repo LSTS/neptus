@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2015 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2016 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -33,6 +33,7 @@ package pt.lsts.ripples;
 
 import java.awt.event.ActionEvent;
 import java.util.LinkedHashMap;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Vector;
@@ -184,7 +185,7 @@ public class RipplesUpload extends ConsolePanel implements ConfigurationListener
             }
             else if (!pcs.getPlanId().isEmpty()) {
                 planRef.child("id").setValue(pcs.getPlanId());
-                planRef.child("progress").setValue(String.format("%.1f", pcs.getPlanProgress()));
+                planRef.child("progress").setValue(String.format(Locale.US, "%.1f", pcs.getPlanProgress()));
 
                 if (getConsole().getMission().getIndividualPlansList().containsKey(pcs.getPlanId())) {
                     PlanType pt = getConsole().getMission().getIndividualPlansList().get(pcs.getPlanId());

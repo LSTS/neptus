@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2015 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2016 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -86,8 +86,6 @@ import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
 import javax.swing.KeyStroke;
 
-import net.miginfocom.swing.MigLayout;
-
 import org.opencv.core.CvType;
 import org.opencv.core.Mat;
 import org.opencv.core.Scalar;
@@ -95,6 +93,9 @@ import org.opencv.core.Size;
 import org.opencv.highgui.VideoCapture;
 import org.opencv.imgproc.Imgproc;
 
+import com.google.common.eventbus.Subscribe;
+
+import net.miginfocom.swing.MigLayout;
 import pt.lsts.imc.Announce;
 import pt.lsts.imc.CcuEvent;
 import pt.lsts.imc.EstimatedState;
@@ -117,10 +118,11 @@ import pt.lsts.neptus.types.map.MapType;
 import pt.lsts.neptus.types.map.MarkElement;
 import pt.lsts.neptus.types.mission.MapMission;
 import pt.lsts.neptus.types.mission.MissionType;
+import pt.lsts.neptus.util.FileUtil;
 import pt.lsts.neptus.util.GuiUtils;
+import pt.lsts.neptus.util.ImageUtils;
 import pt.lsts.neptus.util.SearchOpenCv;
-
-import com.google.common.eventbus.Subscribe;
+import pt.lsts.neptus.util.conf.ConfigFetch;
 
 /**
  * Neptus Plugin for Video Stream and tag frame/object
@@ -137,8 +139,8 @@ import com.google.common.eventbus.Subscribe;
 public class Vision extends ConsolePanel implements ConfigurationListener, ItemListener{
 
     private static final String BASE_FOLDER_FOR_IMAGES = "log/images";
-    private static final String BASE_FOLDER_FOR_ICON_IMAGES = "plugins-dev/vision/iconImages";
-    private static final String BASE_FOLDER_FOR_URLINI = "plugins-dev/vision/ipUrl.ini";
+    private static final String BASE_FOLDER_FOR_ICON_IMAGES = "iconImages";
+    private static final String BASE_FOLDER_FOR_URLINI = "ipUrl.ini";
 
     @NeptusProperty(name = "Axis Camera RTPS URL")
     private String camRtpsUrl = "rtsp://10.0.20.207:554/live/ch01_0";
@@ -347,14 +349,14 @@ public class Vision extends ConsolePanel implements ConfigurationListener, ItemL
                     if (e.getButton() == MouseEvent.BUTTON3) {
                         popup = new JPopupMenu();
                         JMenuItem item1;
-                        popup.add(item1 = new JMenuItem(I18n.text("Start")+" RasPiCam", new ImageIcon(String.format(BASE_FOLDER_FOR_ICON_IMAGES + "/raspicam.jpg")))).addActionListener(new ActionListener() {
+                        popup.add(item1 = new JMenuItem(I18n.text("Start")+" RasPiCam", ImageUtils.createImageIcon(String.format(BASE_FOLDER_FOR_ICON_IMAGES + "/raspicam.jpg")))).addActionListener(new ActionListener() {
                             public void actionPerformed(ActionEvent e) {
                                 checkHostIp();
                             }
                         });
                         item1.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_R, ActionEvent.ALT_MASK));
                         JMenuItem item2;
-                        popup.add(item2 = new JMenuItem(I18n.text("Close all connections"), new ImageIcon(String.format(BASE_FOLDER_FOR_ICON_IMAGES + "/close.gif")))).addActionListener(new ActionListener() {
+                        popup.add(item2 = new JMenuItem(I18n.text("Close all connections"), ImageUtils.createImageIcon(String.format(BASE_FOLDER_FOR_ICON_IMAGES + "/close.gif")))).addActionListener(new ActionListener() {
                             public void actionPerformed(ActionEvent e) {
                                 NeptusLog.pub().info("Clossing all Video Stream...");
                                 if(raspiCam && tcpOK) {
@@ -372,7 +374,7 @@ public class Vision extends ConsolePanel implements ConfigurationListener, ItemL
                         });
                         item2.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_X, ActionEvent.ALT_MASK));
                         JMenuItem item3;  
-                        popup.add(item3 = new JMenuItem(I18n.text("Start IpCam"), new ImageIcon(String.format(BASE_FOLDER_FOR_ICON_IMAGES + "/ipcam.png")))).addActionListener(new ActionListener() {
+                        popup.add(item3 = new JMenuItem(I18n.text("Start IpCam"), ImageUtils.createImageIcon(String.format(BASE_FOLDER_FOR_ICON_IMAGES + "/ipcam.png")))).addActionListener(new ActionListener() {
                             public void actionPerformed(ActionEvent e) {
                                 checkIpCam();        
                             }
@@ -380,7 +382,7 @@ public class Vision extends ConsolePanel implements ConfigurationListener, ItemL
                         popup.addSeparator();
                         item3.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_I, ActionEvent.ALT_MASK));
                         JMenuItem item4;
-                        popup.add(item4 = new JMenuItem(I18n.text("Config"), new ImageIcon(String.format(BASE_FOLDER_FOR_ICON_IMAGES + "/config.jpeg")))).addActionListener(new ActionListener() {
+                        popup.add(item4 = new JMenuItem(I18n.text("Config"), ImageUtils.createImageIcon(String.format(BASE_FOLDER_FOR_ICON_IMAGES + "/config.jpeg")))).addActionListener(new ActionListener() {
                             @Override
                             public void actionPerformed(ActionEvent e) {
                                 menu.setVisible(true);
@@ -460,7 +462,7 @@ public class Vision extends ConsolePanel implements ConfigurationListener, ItemL
             this.add(panelImage, BorderLayout.NORTH);
             BufferedImage errorImg = null;
             try {
-                errorImg = ImageIO.read(new File("plugins-dev/vision/images/errorOpencv.png"));
+                errorImg = ImageIO.read(new File(FileUtil.getResourceAsFileKeepName("images/errorOpencv.png")));
             }
             catch (IOException e1) {
                 e1.printStackTrace();
@@ -484,7 +486,7 @@ public class Vision extends ConsolePanel implements ConfigurationListener, ItemL
         ipHostPing.setSize(340, 80);
         ipHostPing.setLocation(dim.width/2-ipCamPing.getSize().width/2, dim.height/2-ipCamPing.getSize().height/2);
         ipHostCheck = new JPanel(new MigLayout());
-        ImageIcon imgIpCam = new ImageIcon(String.format(BASE_FOLDER_FOR_ICON_IMAGES + "/raspicam.jpg"));
+        ImageIcon imgIpCam = ImageUtils.createImageIcon(String.format(BASE_FOLDER_FOR_ICON_IMAGES + "/raspicam.jpg"));
         ipHostPing.setIconImage(imgIpCam.getImage());
         ipHostPing.setResizable(false);
         ipHostPing.setBackground(Color.GRAY);
@@ -560,9 +562,10 @@ public class Vision extends ConsolePanel implements ConfigurationListener, ItemL
         
         ipCamPing = new JFrame(I18n.text("Select IpCam"));
         ipCamPing.setSize(340, 80);
-        ipCamPing.setLocation(dim.width/2-ipCamPing.getSize().width/2, dim.height/2-ipCamPing.getSize().height/2);
+        ipCamPing.setLocation(dim.width / 2 - ipCamPing.getSize().width / 2,
+                dim.height / 2 - ipCamPing.getSize().height / 2);
         ipCamCheck = new JPanel(new MigLayout());
-        ImageIcon imgIpCam = new ImageIcon(String.format(BASE_FOLDER_FOR_ICON_IMAGES + "/ipcam.png"));
+        ImageIcon imgIpCam = ImageUtils.createImageIcon(String.format(BASE_FOLDER_FOR_ICON_IMAGES + "/ipcam.png"));
         ipCamPing.setIconImage(imgIpCam.getImage());
         ipCamPing.setResizable(false);
         ipCamPing.setBackground(Color.GRAY);                  
@@ -671,12 +674,17 @@ public class Vision extends ConsolePanel implements ConfigurationListener, ItemL
         String[][] dataSplit = null;
         int cntReader = 0;
         try {
-            br = new BufferedReader(new FileReader(BASE_FOLDER_FOR_URLINI));
+            String iniRsrcPath = FileUtil.getResourceAsFileKeepName(BASE_FOLDER_FOR_URLINI);
+            File confIni = new File(ConfigFetch.getConfFolder() + "/" + BASE_FOLDER_FOR_URLINI);
+            if (!confIni.exists()) {
+                FileUtil.copyFileToDir(iniRsrcPath, ConfigFetch.getConfFolder());
+            }
+            br = new BufferedReader(new FileReader(confIni));
             while ((lineFile = br.readLine()) != null)
                 cntReader++;
             
             br.close();
-            br = new BufferedReader(new FileReader(BASE_FOLDER_FOR_URLINI));
+            br = new BufferedReader(new FileReader(confIni));
             
             dataSplit = new String[cntReader+1][3];
             cntReader = 1;
@@ -844,7 +852,7 @@ public class Vision extends ConsolePanel implements ConfigurationListener, ItemL
         menu.setSize(450, 350);
         menu.setLocation(dim.width/2-menu.getSize().width/2, dim.height/2-menu.getSize().height/2);
         menu.setVisible(show_menu);
-        ImageIcon imgMenu = new ImageIcon(String.format(BASE_FOLDER_FOR_ICON_IMAGES + "/config.jpeg"));
+        ImageIcon imgMenu = ImageUtils.createImageIcon(String.format(BASE_FOLDER_FOR_ICON_IMAGES + "/config.jpeg"));
         menu.setIconImage(imgMenu.getImage());
         menu.add(config);
     }

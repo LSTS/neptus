@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2015 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2016 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -61,7 +61,7 @@ public class AboutPanel extends JFrame {
     private static final String IMG_FILE_NAME = "images/nep-about.jpg";
     private static final String VERSION_FILE_NAME = "/version.txt";
 
-    private static final String COPY_YEARS = "2004-2015";
+    private static final String COPY_YEARS = "2004-2016";
 
     private String mainDevelopers = "Paulo Dias, José Pinto";
     private String contributorsDevelopers = "Ricardo Martins, Sérgio Ferreira, "
@@ -192,8 +192,8 @@ public class AboutPanel extends JFrame {
                 + "&nbsp;&nbsp;&nbsp;" + pastDevelopers + "<br/><br/>" 
                 + "<b>" + I18n.text("Contact info:") + "</b>" 
                 + "<br/>" + "   " 
-                + I18n.text("URL:") + " http://lsts.fe.up.pt/" + "&nbsp;&nbsp;&nbsp;<br/>" 
-                + I18n.text("URL:") + " http://whale.fe.up.pt/neptus" 
+                + I18n.text("URL:") + " http://www.lsts.pt/" + "&nbsp;&nbsp;&nbsp;<br/>" 
+                + I18n.text("URL:") + " http://www.lsts.pt/neptus" 
                 + "<br/><br/>"
                 + "<div class=\"align-right\">"
                 + versionString + "<br/>"

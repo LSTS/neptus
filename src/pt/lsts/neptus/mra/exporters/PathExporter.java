@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2015 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2016 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -35,6 +35,7 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.util.LinkedHashMap;
+import java.util.Locale;
 
 import javax.swing.ProgressMonitor;
 
@@ -131,12 +132,6 @@ public class PathExporter implements MRAExporter {
     private void writePose(BufferedWriter writer, SystemPositionAndAttitude pose) throws Exception {
         LocationType loc = pose.getPosition();
         double[] offsets = loc.getOffsetFrom(homeref);
-        writer.write(String.format("%.3f, %.2f, %.2f, %.2f\n", pose.getTime()/1000.0, offsets[0], offsets[1], -loc.getDepth()));        
+        writer.write(String.format(Locale.US, "%.3f, %.2f, %.2f, %.2f\n", pose.getTime()/1000.0, offsets[0], offsets[1], -loc.getDepth()));        
     }
-
-    @Override
-    public String getName() {
-        return "XYZ Path Exporter";
-    }
-
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2015 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2016 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -40,6 +40,7 @@ import java.awt.geom.Line2D;
 import java.awt.geom.Point2D;
 import java.awt.image.BufferedImage;
 import java.util.Collections;
+import java.util.Locale;
 import java.util.Vector;
 
 import javax.swing.JComponent;
@@ -138,7 +139,7 @@ public class CTDSidePlot extends SimpleMRAVisualization {
         for (int i = 75; i <= 1075; i += 100, pos+=0.1) {
             double temperature = minTemp + (maxTemp-minTemp)*pos;
             g2d.draw(new Line2D.Double(i, 670, i, 675));
-            g2d.drawString(String.format("%.2f", temperature), i-25, 700);
+            g2d.drawString(String.format(Locale.US, "%.2f", temperature), i-25, 700);
         }
         
         g2d.translate(75, 25);

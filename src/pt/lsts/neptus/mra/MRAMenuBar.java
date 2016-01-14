@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2015 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2016 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -36,7 +36,10 @@ import java.awt.Dialog.ModalityType;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
+import java.lang.reflect.Constructor;
 import java.net.URI;
+import java.text.Collator;
+import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -67,6 +70,7 @@ import pt.lsts.neptus.comm.manager.imc.ImcSystem;
 import pt.lsts.neptus.comm.manager.imc.ImcSystemsHolder;
 import pt.lsts.neptus.comm.manager.imc.SystemImcMsgCommInfo;
 import pt.lsts.neptus.gui.AboutPanel;
+import pt.lsts.neptus.gui.InfiniteProgressPanel;
 import pt.lsts.neptus.gui.MissionFileChooser;
 import pt.lsts.neptus.gui.PropertiesEditor;
 import pt.lsts.neptus.gui.WaitPanel;
@@ -104,8 +108,10 @@ public class MRAMenuBar {
     private JMenu fileMenu, reportMenu, settingsMenu, toolsMenu, helpMenu;
     private JMenu recentlyOpenFilesMenu = null;
     private JMenu exporters;
-
+    private JMenu tideMenu;
+    
     private boolean isExportersAdded = false;
+    private boolean isTidesAdded = false;
 
     private AbstractAction openLsf, exit;
     protected AbstractAction genReport;
@@ -607,37 +613,68 @@ public class MRAMenuBar {
         LinkedHashMap<String, Class<? extends MRAExporter>> exporterMap = PluginsRepository
                 .listExtensions(MRAExporter.class);
 
-        Vector<MRAExporter> exporterList = new Vector<>();
+        LinkedHashMap<String, MRAExporter> exporters = new LinkedHashMap<>();
+        
+        //Vector<MRAExporter> exporterList = new Vector<>();
 
         for (Class<? extends MRAExporter> clazz : exporterMap.values()) {
-            try {
-                exporterList.add(clazz.getConstructor(IMraLogGroup.class).newInstance(new Object[] { source }));
+            Constructor<?>[] constructors = clazz.getConstructors();
+            
+            boolean added = false;
+            
+            for (Constructor<?> c : constructors) {
+                if (c.getParameterTypes().length == 1 && c.getParameterTypes()[0].equals(IMraLogGroup.class)) {
+                    try {
+                        exporters.put(PluginUtils.getPluginI18nName(clazz), clazz.getConstructor(IMraLogGroup.class).newInstance(new Object[] { source }));
+                    }
+                    catch (Exception e) {                        
+                        e.printStackTrace();
+                    }
+                    added = true;
+                }
             }
-            catch (Exception e) {
-                System.out.println(clazz.getName());
-                e.printStackTrace();
+            
+            if (!added) {
+                try {
+                    exporters.put(PluginUtils.getPluginI18nName(clazz), clazz.newInstance());
+                    added = true;
+                }
+                catch (Exception e) { }                
+            }
+            
+            if (!added) {
+                NeptusLog.pub().error("Error Exporter of type "+clazz.getName()+": No valid constructor.");
             }
         }
 
         // Check for existence of Exporters menu and remove on existence (in case of opening a new log)
-        if(getExportersMenu()!=null)
+        if(getExportersMenu() != null)
             toolsMenu.remove(getExportersMenu());
 
         setExportersMenu(new JMenu(I18n.text("Exporters")));
+        JMenu experimental = new JMenu(I18n.text("Experimental"));
         getExportersMenu().setIcon(ImageUtils.getIcon("images/menus/export.png"));
         getExportersMenu().setToolTipText(I18n.text("Export data to") + "...");
-        for (final MRAExporter exp : exporterList) {
+        
+        
+        Vector<String> names = new Vector<>();
+        names.addAll(exporters.keySet());
+        Collections.sort(names, Collator.getInstance());
+        
+        for (String name : names) {
+            final MRAExporter exp = exporters.get(name);
             if (exp.canBeApplied(source)) {
-                JMenuItem item = new JMenuItem(new AbstractAction(exp.getName()) {
+                JMenuItem item = new JMenuItem(new AbstractAction(name) {
                     @Override
                     public void actionPerformed(ActionEvent e) {
-                        Thread t = new Thread(exp.getName() + " processing") {
+                        Thread t = new Thread(name + " processing") {
                             @Override
                             public void run() {
-                                ProgressMonitor monitor = new ProgressMonitor(mra.getMraPanel(), exp.getName(), "", 0, 100);
+                                ProgressMonitor monitor = new ProgressMonitor(mra.getMraPanel(), name, "", 0, 100);
+                                monitor.setProgress(0);
                                 String res = exp.process(source, monitor);
                                 if (res != null)
-                                    GuiUtils.infoMessage(mra.getMraPanel(), exp.getName(), res);
+                                    GuiUtils.infoMessage(mra.getMraPanel(), name, res);
                                 monitor.close();
                             };
                         };
@@ -646,7 +683,11 @@ public class MRAMenuBar {
                     }
                 });
                 item.setIcon(ImageUtils.getIcon("images/menus/export.png"));
-                getExportersMenu().add(item);
+                
+                if (PluginUtils.isPluginExperimental(exp.getClass()))
+                    experimental.add(item);
+                else
+                    getExportersMenu().add(item);
             }
         }
 
@@ -655,10 +696,66 @@ public class MRAMenuBar {
                 toolsMenu.addSeparator();
                 isExportersAdded = true;
             }
+            if (experimental.getItemCount() > 0)
+                getExportersMenu().add(experimental);
             toolsMenu.add(getExportersMenu());
         }
     }
+    
+    public void setUpTidesMenu(final IMraLogGroup source) {
+        if(getTidesMenu() != null)
+            settingsMenu.remove(getTidesMenu());
 
+        String strTitle = I18n.text("Change tides source");
+        JMenuItem changeTideMenu = new JMenuItem(strTitle);
+        changeTideMenu.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                int res = GuiUtils.confirmDialog(mra, strTitle,
+                        I18n.text("This will require a log reopening. Want to proceed?"));
+                switch (res) {
+                    case JOptionPane.YES_OPTION:
+                        InfiniteProgressPanel busyPanel = InfiniteProgressPanel.createInfinitePanelBeans(I18n.text("Processing"), 100);
+                        JDialog dialog = new JDialog(mra, I18n.text("Tides"), ModalityType.DOCUMENT_MODAL);
+                        dialog.add(busyPanel);
+                        dialog.pack();
+                        dialog.setSize(300, 200);
+                        dialog.setLocationRelativeTo(mra);
+                        Thread wt = new Thread("Open Log") {
+                            @Override
+                            public void run() {
+                                TidesMraLoader.chooseTideSource(source, mra);
+                                dialog.setVisible(false);
+                                busyPanel.setBusy(false);
+                                dialog.dispose();
+                                mra.getMraFilesHandler().openLog(source.getFile("Data.lsf"));
+                            };
+                        };
+                        busyPanel.setBusy(true);
+                        wt.setDaemon(true);
+                        wt.start();
+                        dialog.setVisible(true);
+                        break;
+                    default:
+                        break;
+                }
+            }
+        });
+
+        JMenu tMenu = new JMenu(I18n.text("Tides"));
+        tMenu.add(changeTideMenu);
+
+        setTideMenu(tMenu);
+
+        if (getTidesMenu()!= null) {
+            if(!isTidesAdded) {
+                settingsMenu.addSeparator();
+                isTidesAdded = true;
+            }
+            settingsMenu.add(getTidesMenu());
+        }
+    }
+    
     /**
      * @return the menuBar
      */
@@ -725,5 +822,19 @@ public class MRAMenuBar {
      */
     private void setExportersMenu(JMenu exportersMenu) {
         this.exporters = exportersMenu;
+    }
+    
+    /**
+     * @return the tideMenu
+     */
+    private JMenu getTidesMenu() {
+        return tideMenu;
+    }
+
+    /**
+     * @param tideMenu the tideMenu to set
+     */
+    private void setTideMenu(JMenu tideMenu) {
+        this.tideMenu = tideMenu;
     }
 }

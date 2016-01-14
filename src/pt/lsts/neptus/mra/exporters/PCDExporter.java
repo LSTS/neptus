@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2015 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2016 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -48,7 +48,6 @@ import javax.swing.ProgressMonitor;
 
 import pt.lsts.imc.IMCMessage;
 import pt.lsts.neptus.NeptusLog;
-import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.mra.importers.IMraLog;
 import pt.lsts.neptus.mra.importers.IMraLogGroup;
 import pt.lsts.neptus.plugins.PluginDescription;
@@ -59,7 +58,7 @@ import pt.lsts.neptus.util.llf.LsfLogSource;
  * 83P to Point Cloud Data exporter
  * @author jqcorreia
  */
-@PluginDescription
+@PluginDescription(name="83P to PCD")
 public class PCDExporter implements MRAExporter{
     public double minLat = 180;
     public double maxLat = -180;
@@ -468,10 +467,5 @@ public class PCDExporter implements MRAExporter{
     @Override
     public boolean canBeApplied(IMraLogGroup source) {
         return source.getFile("multibeam.83P") != null;
-    }
-
-    @Override
-    public String getName() {
-        return I18n.text("83P to PCD");
     }
 }

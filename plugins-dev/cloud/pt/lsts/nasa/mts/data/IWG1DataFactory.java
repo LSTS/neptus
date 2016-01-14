@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2015 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2016 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -42,7 +42,7 @@ import pt.lsts.imc.lsf.LsfIndex;
 import pt.lsts.neptus.comm.IMCUtils;
 import pt.lsts.neptus.mp.SystemPositionAndAttitude;
 import pt.lsts.neptus.types.coord.LocationType;
-import pt.lsts.neptus.util.bathymetry.TidePrediction;
+import pt.lsts.neptus.util.bathymetry.TidePredictionFactory;
 import pt.lsts.neptus.util.llf.LsfLogSource;
 
 /**
@@ -77,7 +77,7 @@ public class IWG1DataFactory {
         o.setTrueHeadingDegs(Math.toDegrees(state.getPsi()));
 
         if (state.getDepth() != -1 && state.getAlt() != -1) {
-            double tide = TidePrediction.getTideLevel(state.getTimestampMillis());
+            double tide = TidePredictionFactory.getTideLevel(state.getTimestampMillis());
             double bathym = state.getDepth() + state.getAlt() - tide;
             o.setBathymetry(bathym);
         }
@@ -108,7 +108,7 @@ public class IWG1DataFactory {
         o.setTrueHeadingDegs(Math.toDegrees(state.getYaw()));
 
         if (loc.getDepth() != -1 && state.getAltitude() != -1) {
-            double tide = TidePrediction.getTideLevel(state.getTime());
+            double tide = TidePredictionFactory.getTideLevel(state.getTime());
             double bathym = loc.getDepth() + state.getAltitude() - tide;
             o.setBathymetry(bathym);
         }

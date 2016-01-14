@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2015 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2016 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -59,8 +59,6 @@ import info.necsave.msgs.MissionReadyToStart;
 import info.necsave.msgs.PlatformInfo;
 import info.necsave.msgs.PlatformPlanProgress;
 import info.necsave.proto.Message;
-import pt.lsts.imc.JsonObject;
-import pt.lsts.imc.lsf.LsfMessageLogger;
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.console.ConsoleInteraction;
 import pt.lsts.neptus.console.notifications.Notification;
@@ -354,13 +352,6 @@ public class NecsaveUI extends ConsoleInteraction {
         loc.setLongitudeRads(msg.getObject().getLongitude());
         loc.setDepth(msg.getObject().getDepth());
         contacts.put(msg.getSrc() + "." + msg.getContactId(), loc);
-    }
-
-    @Subscribe
-    public void on(Message msg) {
-        JsonObject json = new JsonObject();
-        json.setJson(msg.asJSON(false));
-        LsfMessageLogger.log(json);
     }
     
     @Override

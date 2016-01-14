@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2015 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2016 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -576,7 +576,7 @@ public class ImcSystem implements Comparable<ImcSystem> {
 		IMCArgs nArgs = new IMCArgs();
         nArgs.setPort(port);
         nArgs.setPortTCP(portTCP);
-		nArgs.setImc3Id(imcId);
+		nArgs.setImcId(imcId);
 		nArgs.setUdpOn(udpOn);
 		nArgs.setTcpOn(tcpOn);
 		
@@ -1005,12 +1005,12 @@ public class ImcSystem implements Comparable<ImcSystem> {
 	public static void main(String[] args) {
 //		ConfigFetch.initialize();
 //		VehicleType vehicle = VehiclesHolder.getVehicleById("lauv-blue");
-//		Imc3System imcSystem = new Imc3System(vehicle);
+//		ImcSystem imcSystem = new ImcSystem(vehicle);
 //		NeptusLog.pub().info("<###>Id: " + imcSystem.getId() +
 //				" | Name: " + imcSystem.getName() + 
 //				" | Type: " + imcSystem.getType());
 //		NeptusLog.pub().info("<###> "+imcSystem.getInetSocketAddress());
-//		imcSystem = new Imc3System(new ImcId16("e3:33"));
+//		imcSystem = new ImcSystem(new ImcId16("e3:33"));
 //		NeptusLog.pub().info("<###>Id: " + imcSystem.getId() +
 //				" | Name: " + imcSystem.getName() + 
 //				" | Type: " + imcSystem.getType());

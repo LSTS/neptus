@@ -107,7 +107,7 @@
                     <port-tcp>6002</port-tcp>
                     <udp-on>true</udp-on>
                     <tcp-on>false</tcp-on>
-                    <imc3-id>2c:30</imc3-id>
+                    <imc-id>2c:30</imc-id>
                 </imc>
             </protocols-args>
         </comm-mean>

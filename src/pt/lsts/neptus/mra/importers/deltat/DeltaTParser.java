@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2015 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2016 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -45,10 +45,10 @@ import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
 import java.nio.channels.FileChannel.MapMode;
 import java.util.Date;
+import java.util.Random;
 
 import org.apache.commons.io.FileUtils;
 
-import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.mp.SystemPositionAndAttitude;
 import pt.lsts.neptus.mra.MRAProperties;
 import pt.lsts.neptus.mra.api.BathymetryInfo;
@@ -91,6 +91,9 @@ public class DeltaTParser implements BathymetryParser {
     private boolean generateProcessReport = false;
     private String processResultOutputFileName;
     private Writer processResultOutputWriter;
+    
+    private long firstTimestamp = 0;
+    private long lastTimestamp = 0;
     
     public DeltaTParser(IMraLogGroup source) {
         this.source = source;
@@ -195,6 +198,7 @@ public class DeltaTParser implements BathymetryParser {
 
             BathymetrySwath bs;
 
+            boolean firstTimestampSet = false;
             while ((bs = nextSwath()) != null) {
                 LocationType loc = bs.getPose().getPosition().convertToAbsoluteLatLonDepth();
                 double lat = loc.getLatitudeDegs();
@@ -204,6 +208,12 @@ public class DeltaTParser implements BathymetryParser {
                 maxLon = Math.max(lon, maxLon);
                 minLat = Math.min(lat, minLat);
                 minLon = Math.min(lon, minLon);
+                
+                if (!firstTimestampSet) {
+                    firstTimestamp = bs.getTimestamp();
+                    firstTimestampSet = true;
+                }
+                lastTimestamp = bs.getTimestamp();
 
                 for (int c = 0; c < bs.getNumBeams(); c++) {
                     BathymetryPoint p = bs.getData()[c];
@@ -278,7 +288,26 @@ public class DeltaTParser implements BathymetryParser {
                 e.printStackTrace();
             }
         }
-        
+        else {
+            boolean firstTimestampSet = false;
+            try {
+                while(curPos < channel.size()) {
+                    buf = channel.map(MapMode.READ_ONLY, curPos, 256);
+                    header = new DeltaTHeader();
+                    header.parse(buf);
+                    if (!firstTimestampSet) {
+                        firstTimestamp = header.timestamp;
+                        firstTimestampSet = true;
+                    }
+                    lastTimestamp = header.timestamp;
+                    curPos += header.numBytes;
+                }
+            }
+            catch (IOException e) {
+                e.printStackTrace();
+            }
+            curPos = 0;
+        }
     }
 
     public static boolean canBeApplied(IMraLogGroup source) {
@@ -318,12 +347,12 @@ public class DeltaTParser implements BathymetryParser {
     
     @Override
     public long getFirstTimestamp() {
-        return 0;
+        return firstTimestamp;
     }
 
     @Override
     public long getLastTimestamp() {
-        return 0;
+        return lastTimestamp;
     }
 
     @Override
@@ -333,6 +362,33 @@ public class DeltaTParser implements BathymetryParser {
 
     @Override
     public BathymetrySwath getSwathAt(long timestamp) {
+        if (this.header.timestamp == timestamp) {
+            curPos -= header.numBytes;
+            return nextSwath(1);
+        }
+        
+        long oldCurPos = curPos;
+        long posSearch = oldCurPos;
+        if (timestamp < this.header.timestamp)
+            posSearch = 0;
+        
+        try {
+            DeltaTHeader headerTest = null;
+            while(posSearch < channel.size()) {
+                buf = channel.map(MapMode.READ_ONLY, posSearch, 256);
+                headerTest = new DeltaTHeader();
+                headerTest.parse(buf);
+                if (headerTest.timestamp >= timestamp) {
+                    curPos = posSearch;
+                    return nextSwath(1);
+                }
+                posSearch += headerTest.numBytes;
+            }
+        }
+        catch (IOException e) {
+            e.printStackTrace();
+        }
+
         return null;
     }
 
@@ -590,7 +646,7 @@ public class DeltaTParser implements BathymetryParser {
         try {
             LsfLogSource source = new LsfLogSource(new File(
                     // "/home/lsts/Desktop/to_upload_20130715/lauv-noptilus-1/20130715/122455_out_survey/Data.lsf"
-                    "D:\\LSTS-Logs\\2014-11-09-Madeira\\2014-11-12-Madeira_115528_rows_maneuver_cais2_day3\\Data.lsf"
+                    "D:\\LSTS-Logs\\2014-11-09-Madeira\\2014-11-12-Madeira_115528_rows_maneuver_cais2_day3\\Data.lsf.gz"
                     ), null);
             File fxB = source.getFile("mra/bathy.info");
             if (fxB != null && fxB.exists())
@@ -619,9 +675,26 @@ public class DeltaTParser implements BathymetryParser {
                 // // kryo.writeObject(output, bs);
 
                 System.out.println(Math.toDegrees(s.getPose().getYaw()));
-
+                c++;
             }
-            NeptusLog.pub().info("<###> " + c);
+            System.out.println(c);
+            
+            long fTs = p.getFirstTimestamp();
+            long lTs = p.getLastTimestamp();
+            long sTs = lTs - fTs;
+            Random rand = new Random();
+            for (int i = 0; i < 4; i++) {
+                double perc = rand.nextDouble();
+                long searchTs = (long) (sTs * perc + fTs);
+                long markStart = System.nanoTime();
+                BathymetrySwath swath = p.getSwathAt(searchTs);
+                long markEnd = System.nanoTime();
+                System.out.printf("Search swath at '%s' and got one for time '%s' and took %.3fms\n", 
+                        DateTimeUtil.dateTimeFormatterUTC.format(new Date(searchTs)),
+                        (swath != null ? DateTimeUtil.dateTimeFormatterUTC.format(new Date(swath.getTimestamp())) : "NONE"),
+                        (markEnd - markStart) / 1E6);
+            }
+            
         }
         catch (Exception e) {
             e.printStackTrace();

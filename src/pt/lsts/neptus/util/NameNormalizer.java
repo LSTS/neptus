@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2015 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2016 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -36,17 +36,26 @@ import java.util.Random;
 
 /**
  * @author zecarlos
+ * @author pdias
  */
 public class NameNormalizer {
 	
+    /** The randomizer to use for IDs. */
 	private static Random rnd = new Random(System.currentTimeMillis()); 
 	
+    /**
+     * Returns text as an identifier.
+     * A valid ID must start with a letter (if not "id" is prefix to text,
+     * and all spaces are replaced with '_' or 'X' if is not a Java identifier char
+     * (check {@link Character}).
+     * @param text
+     * @return
+     */
     public static String asIdentifier(String text) {
-
-        // Se o texto dado for null ou vazio ("") retorna o tempo corrente em milisegundos
+        // If text is null or empty, returns the current time in milliseconds (preempted with "id"). 
         if (text == null || text.length() == 0) {
             GregorianCalendar cal = new GregorianCalendar();
-            return "id"+String.valueOf(cal.getTimeInMillis());
+            return "id" + String.valueOf(cal.getTimeInMillis());
         }
         
         char[] letters = text.toCharArray();
@@ -60,27 +69,33 @@ public class NameNormalizer {
             if (!Character.isJavaIdentifierPart(letters[i])) {
             	if (Character.isSpaceChar(letters[i]))
             		letters[i] = '_';
-            	else {
-            		
+            	else
             		letters[i] = 'X';
-            	}
             }
         }
         
         return new String(letters);
     }
     
-    
-    public static boolean isNeptusIdentifierStart(char c) {
+    /**
+     * Checks if is a valid start char for IDs.
+     * @param c
+     * @return
+     */
+    private static boolean isNeptusIdentifierStart(char c) {
         if (Character.isLetter(c))
             return true;
         if (c == '_')
             return true;
         return false;
-        
     }
 
-	public static boolean isNeptusIdentifierPart(char c) {
+    /**
+     * Checks if is a valid char for IDs.
+     * @param c
+     * @return
+     */
+    private static boolean isNeptusIdentifierPart(char c) {
 	    if (Character.isLetterOrDigit(c))
 	        return true;
 	    switch(c) {
@@ -97,9 +112,12 @@ public class NameNormalizer {
 	    }
 	}
 	
-    
+    /**
+     * Returns true is is a valid Neptus identifier.
+     * @param identifier
+     * @return
+     */
     public static boolean isNeptusValidIdentifier(String identifier) {
-        
         if (identifier.length() < 1)
             return false;
         if (!isNeptusIdentifierStart(identifier.charAt(0)))
@@ -111,13 +129,23 @@ public class NameNormalizer {
         return true;
     }
     
+    /**
+     * Provides a valid random ID.
+     * @return
+     */
     public static String getRandomID() {    	
         return getRandomID("id");        
     }
     
+    /**
+     * Provides a valid random ID with the prefix provided.
+     * @param prefix
+     * @return
+     */
     public static String getRandomID(String prefix) {
         StringBuilder builder = new StringBuilder(9);
-        builder.append(prefix);
+        String nPrefix = asIdentifier(prefix);
+        builder.append(nPrefix);
         builder.append("_");        
         int val = Math.abs(rnd.nextInt());        
         builder.append(Integer.toString(val, 36));
@@ -126,5 +154,8 @@ public class NameNormalizer {
     
     public static void main(String args[]) {
         System.out.println(getRandomID());
+        System.out.println(getRandomID("22"));
+        System.out.println(getRandomID(" sp"));
+        System.out.println(getRandomID("OB"));
     }
 }

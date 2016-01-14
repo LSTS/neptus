@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2015 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2016 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -1079,8 +1079,8 @@ public class VehicleInfo extends JPanel implements PropertiesProvider {
                 comP = PropertiesEditor.getPropertyInstance("imc.tcp-on", categoryBase, Boolean.class, new Boolean(
                         nArgs.isTcpOn()), true);
                 propertiesList.add(comP);
-                comP = PropertiesEditor.getPropertyInstance("imc.imc3-id", categoryBase, ImcId16.class,
-                        (nArgs.getImc3Id() == null) ? ImcId16.NULL_ID : nArgs.getImc3Id(), true);
+                comP = PropertiesEditor.getPropertyInstance("imc.imc-id", categoryBase, ImcId16.class,
+                        (nArgs.getImcId() == null) ? ImcId16.NULL_ID : nArgs.getImcId(), true);
                 propertiesList.add(comP);
             }
             else if (pArgs instanceof FTPArgs) {
@@ -1133,8 +1133,8 @@ public class VehicleInfo extends JPanel implements PropertiesProvider {
                     comP = PropertiesEditor.getPropertyInstance("imc.tcp-on", category, Boolean.class, new Boolean(
                             nArgs.isTcpOn()), true);
                     propertiesList.add(comP);
-                    comP = PropertiesEditor.getPropertyInstance("imc.imc3-id", category, ImcId16.class,
-                            (nArgs.getImc3Id() == null) ? ImcId16.NULL_ID : nArgs.getImc3Id(), true);
+                    comP = PropertiesEditor.getPropertyInstance("imc.imc-id", category, ImcId16.class,
+                            (nArgs.getImcId() == null) ? ImcId16.NULL_ID : nArgs.getImcId(), true);
                     propertiesList.add(comP);
                 }
                 else if (pArgs instanceof FTPArgs) {
@@ -1204,8 +1204,8 @@ public class VehicleInfo extends JPanel implements PropertiesProvider {
                                     ((IMCArgs) protoArgs).setUdpOn((Boolean) prop.getValue());
                                 else if (prop.getName().equals("imc.tcp-on"))
                                     ((IMCArgs) protoArgs).setTcpOn((Boolean) prop.getValue());
-                                else if (prop.getName().equals("imc.imc3-id"))
-                                    ((IMCArgs) protoArgs).setImc3Id((ImcId16) prop.getValue());
+                                else if (prop.getName().equals("imc.imc-id"))
+                                    ((IMCArgs) protoArgs).setImcId((ImcId16) prop.getValue());
                             }
                         }
                     }
@@ -1233,8 +1233,8 @@ public class VehicleInfo extends JPanel implements PropertiesProvider {
                                         ((IMCArgs) protoArgs).setUdpOn((Boolean) prop.getValue());
                                     else if (prop.getName().equals("imc.tcp-on"))
                                         ((IMCArgs) protoArgs).setTcpOn((Boolean) prop.getValue());
-                                    else if (prop.getName().equals("imc.imc3-id"))
-                                        ((IMCArgs) protoArgs).setImc3Id((ImcId16) prop.getValue());
+                                    else if (prop.getName().equals("imc.imc-id"))
+                                        ((IMCArgs) protoArgs).setImcId((ImcId16) prop.getValue());
                                 }
                             }
                         }
