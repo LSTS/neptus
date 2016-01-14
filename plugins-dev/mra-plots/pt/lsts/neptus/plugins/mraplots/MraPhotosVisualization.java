@@ -69,7 +69,9 @@ import javax.swing.plaf.basic.BasicSliderUI;
 import net.miginfocom.swing.MigLayout;
 
 import org.imgscalr.Scalr;
+
 import java.util.Collections;
+
 import org.opencv.core.Core;
 import org.opencv.core.CvType;
 import org.opencv.core.Mat;
@@ -309,8 +311,10 @@ public class MraPhotosVisualization extends JComponent implements MRAVisualizati
         if (photosDir == null)
             return;
 
-        double sliderValue = marker.getTimestamp() - startTime;
-        timeline.getSlider().setValue((int)sliderValue);
+        /*double sliderValue = marker.getTimestamp() - startTime;
+        timeline.getSlider().setValue((int)sliderValue);*/
+        int time = (int)(marker.getTimestamp()/1000.0);
+        timeline.getSlider().setValue(time);
     }
 
     public File getCurFile() {
