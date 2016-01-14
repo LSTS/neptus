@@ -36,10 +36,10 @@ import java.util.Comparator;
 import java.util.Date;
 import java.util.LinkedList;
 
-import javafx.util.Pair;
 import pt.lsts.imc.UamRxFrame;
 import pt.lsts.imc.UamTxStatus;
 import pt.lsts.imc.UamTxStatus.VALUE;
+import pt.lsts.neptus.data.Pair;
 import pt.lsts.neptus.mra.importers.IMraLogGroup;
 
 /**
@@ -81,7 +81,7 @@ public class AcousticCommsFilter {
         Collections.sort(corruptedTime, new Comparator<Pair<Date, Date>>() {
             @Override
             public int compare(Pair<Date, Date> o1, Pair<Date, Date> o2) {
-                return o1.getKey().compareTo(o2.getKey());
+                return o1.first().compareTo(o2.first());
             }
         });
     }
@@ -90,11 +90,11 @@ public class AcousticCommsFilter {
         synchronized (corruptedTime) {
             for (Pair<Date, Date> p : corruptedTime) {
                 // if it starts after is already past this time
-                if (p.getKey().after(date))
+                if (p.first().after(date))
                     return true;
                 
                 // if it ends after and started before, the data is corrupt
-                if (p.getValue().after(date))
+                if (p.second().after(date))
                     return false;
             }            
         }
