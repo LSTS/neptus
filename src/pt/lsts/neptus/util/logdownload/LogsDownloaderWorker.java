@@ -2749,46 +2749,6 @@ public class LogsDownloaderWorker {
         }
 
         return true;
-        //        if (!justStopDownloads)
-        //            resetting = true;
-        //        
-        //        boolean resetRes = true;
-        //        if (!justStopDownloads)
-        //            warnLongMsg(I18n.text("Resetting... Wait please..."));
-        //        try {
-        //            disconnectFTPClientsForListing();
-        //        }
-        //        catch (Exception e) {
-        //            e.printStackTrace();
-        //            warnLongMsg(I18n.textf("Error couth on resetting: %errormessage", e.getMessage()));
-        //            resetRes &= false;
-        //        }
-        //        try {
-        //            if (!justStopDownloads)
-        //                doStopLogFoldersDownloads(true);
-        //            else
-        //                doStopLogFoldersDownloads(false);
-        //            waitForStopOnAllLogFoldersDownloads();
-        //        }
-        //        catch (Exception e) {
-        //            e.printStackTrace();
-        //            warnLongMsg(I18n.textf("Error couth on resetting: %errormessage", e.getMessage()));
-        //            resetRes &= false;
-        //        }
-        //        try {
-        //            if (!justStopDownloads)
-        //                cleanInterface();
-        //        }
-        //        catch (Exception e) {
-        //            e.printStackTrace();
-        //            warnLongMsg(I18n.textf("Error couth on resetting: %errormessage", e.getMessage()));
-        //            resetRes &= false;
-        //        }
-        //        
-        //        if (!justStopDownloads)
-        //            resetting = false;
-        //        
-        //        return resetRes;
     }
 
     /**
@@ -2802,19 +2762,6 @@ public class LogsDownloaderWorker {
         LinkedHashSet<LogFileInfo> toDelFL = new LinkedHashSet<LogFileInfo>();
         for (LogFileInfo lfx : logFiles) {
             lfx.setState(LogFolderInfo.State.LOCAL);
-            //            DownloaderPanel workerD;
-            //            if (lfx.isDirectory()) {
-            //                HashMap<String, FTPFile> directoryContentsList = new LinkedHashMap<>();
-            //                for (LogFileInfo lfi : lfx.getDirectoryContents()) {
-            //                    directoryContentsList.put(lfi.getUriPartial(), lfx.getFile());
-            //                }
-            //                workerD = new DownloaderPanel(clientFtp, lfx.getFile(), lfx.getName(),
-            //                        getFileTarget(lfx.getName()), directoryContentsList, threadScheduledPool, queueWorkTickets);
-            //            }
-            //            else {
-            //                workerD = new DownloaderPanel(clientFtp, lfx.getFile(), lfx.getName(),
-            //                        getFileTarget(lfx.getName()), threadScheduledPool, queueWorkTickets);
-            //            }
 
             Component[] components = downloadWorkersHolder.getComponents();
             for (Component cp : components) {
@@ -2880,218 +2827,15 @@ public class LogsDownloaderWorker {
      * @param args
      */
     public static void main(String[] args) {
-        // GuiUtils.setLookAndFeel();
-        //
-        // final LogsDownloaderWorker logFetcher = new LogsDownloaderWorker();
-        //
-        // logFetcher.frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        //
-        // // logFetcher.setHost("192.168.106.30");
-        // // logFetcher.setPort(8080);
-        // // logFetcher.setBasePath("/dune/logs/");
-        //
-        // logFetcher.setHost("192.168.56.101");
-        // //logFetcher.setHost("127.0.0.1");
-        // logFetcher.setHost("192.168.106.30");
-        // logFetcher.setHost("127.0.0.1");
-        // //logFetcher.setHost("192.168.106.34");
-        // //logFetcher.setPort(8080);
-        // //logFetcher.setBasePath("/images/");
-        //
-        // logFetcher.setLogLabel("lauv_test");
-        //
-        // logFetcher.setVisibleBasePath(true);
-        // //logFetcher.setVisibleHost(false);
-        // //logFetcher.setVisiblePort(false);
-        // //logFetcher.setVisibleLogLabel(false);
-        // logFetcher.setEnableLogLabel(true);
-        // logFetcher.setVisible(true);
-        //
-        // NeptusLog.pub().info("<###> doGiveListOfLogFolders");
-        // for (String str : logFetcher.doGiveListOfLogFolders()) {
-        // NeptusLog.pub().info("<###>  ->"+str);
-        // }
-        //
-        //
-        // logFetcher.doUpdateListFromServer();
-        // try {
-        // Thread.sleep(5000);
-        // } catch (InterruptedException e) {
-        // // TODO Auto-generated catch block
-        // e.printStackTrace();
-        // }
-        // logFetcher.doDownloadLogFoldersFromServer("20090918/174214", "20090916/152804");
-        //
-        // // NeptusLog.pub().info("<###> doGiveListOfLogFolders");
-        // // for (String str : logFetcher.doGiveListOfLogFolders()) {
-        // // NeptusLog.pub().info("<###>  ->"+str);
-        // // }
-        // //
-        // // logFetcher.setVisible(false);
-        // //
-        // // try {
-        // // Thread.sleep(3000);
-        // // } catch (InterruptedException e) {
-        // // // TODO Auto-generated catch block
-        // // e.printStackTrace();
-        // // }
-        // //
-        // // LinkedHashMap<String, LogFolderInfo.State> states = logFetcher.doGiveStateOfLogFolders();
-        // // NeptusLog.pub().info("<###> doGiveStateOfLogFolders no filter");
-        // // for (String str : states.keySet()) {
-        // // NeptusLog.pub().info("<###>  .....>"+str+"  "+states.get(str));
-        // // }
-        // //
-        // // states = logFetcher.doGiveStateOfLogFolders("20090918/174214");
-        // // NeptusLog.pub().info("<###> doGiveStateOfLogFolders with filter");
-        // // for (String str : states.keySet()) {
-        // // NeptusLog.pub().info("<###>  .....>"+str+"  "+states.get(str));
-        // // }
-        // //
-        // // logFetcher.doDeleteLogFoldersFromServer("20090918/174214");
-        // //
-        // //
-        // // try {
-        // // Thread.sleep(10000);
-        // // } catch (InterruptedException e) {
-        // // // TODO Auto-generated catch block
-        // // e.printStackTrace();
-        // // }
-        // // logFetcher.setVisible(true);
-        //
-        // // NeptusLog.pub().info("<###>Usable space: " + MathMiscUtils.parseToEngineeringRadix2Notation(new
-        // File(logFetcher.dirBaseToStoreFiles).getUsableSpace(),2)+"B");
-        // // NeptusLog.pub().info("<###>Free   space: " + MathMiscUtils.parseToEngineeringRadix2Notation(new
-        // File(logFetcher.dirBaseToStoreFiles).getFreeSpace(),2)+"B");
-        // // NeptusLog.pub().info("<###>Total  space: " + MathMiscUtils.parseToEngineeringRadix2Notation(new
-        // File(logFetcher.dirBaseToStoreFiles).getTotalSpace(),2)+"B");
-        // // NeptusLog.pub().info("<###>Usable space: " + MathMiscUtils.parseToEngineeringRadix2Notation(new
-        // File("d:\\").getUsableSpace(),2)+"B");
-        // // NeptusLog.pub().info("<###>Usable space: " + MathMiscUtils.parseToEngineeringRadix2Notation(new
-        // File(".").getUsableSpace(),2)+"B");
-        // // NeptusLog.pub().info("<###>Usable space: " + MathMiscUtils.parseToEngineeringRadix2Notation(new
-        // File("sdd").getUsableSpace(),2)+"B");
-        // // NeptusLog.pub().info("<###>Usable space: " + MathMiscUtils.parseToEngineeringRadix2Notation(new
-        // File("k:\\").getUsableSpace(),2)+"B");
-        //
-        //
-        // // try {
-        // // Thread.sleep(10000);
-        // // } catch (InterruptedException e) {
-        // // // TODO Auto-generated catch block
-        // // e.printStackTrace();
-        // // }
-        // // logFetcher.doReset();
-        //
-        // logFetcher.dummyLists = true;
-        //
-        // int port = 8080;
-        // Server server = new Server(port);
-        //
-        // server = new Server(port);
-        // Context root = new Context(server, "/", Context.SESSIONS);
-        // HttpServlet serv = new HttpServlet() {
-        // @Override
-        // protected void doGet(HttpServletRequest arg0, HttpServletResponse arg1)
-        // throws ServletException, IOException {
-        // arg1.setContentType("text/html");
-        // arg1.getWriter().write("<html><head><title>Neptus Web Services</title></head><body><h1>Neptus Web Services</h1>");
-        //
-        // try { Thread.sleep(60000*2); } catch (InterruptedException e) { NeptusLog.pub().error(e.getMessage()); }
-        //
-        // arg1.getWriter().write("</body></html>");
-        // arg1.getWriter().close();
-        // }
-        //
-        // };
-        // root.addServlet(new ServletHolder(serv), "/*");
-        // try {
-        // server.start();
-        // }
-        // catch (Exception e) {
-        // e.printStackTrace();
-        // }
-        //
-        //
-        // // Test 2 sharing a frame
-        // JFrame frame = new JFrame("Logs Downloader");
-        // frame.setSize(900, 560);
-        // frame.setIconImages(ConfigFetch.getIconImagesForFrames());
-        // frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-        //
-        // LogsDownloaderWorker logF1 = new LogsDownloaderWorker(frame);
-        // LogsDownloaderWorker logF2 = new LogsDownloaderWorker(frame);
-        //
-        // logF1.dummyLists = true;
-        // logF2.dummyLists = true;
-        //
-        // logF1.setHost("192.168.106.30");
-        // logF2.setHost("192.168.106.31");
-        //
-        // logF1.setLogLabel("lauv_test_1");
-        // logF2.setLogLabel("lauv_test_2");
-        //
-        // JTabbedPane tabbledPane = new JTabbedPane();
-        // tabbledPane.addTab(logF1.getLogLabel(), logF1.getContentPanel());
-        // tabbledPane.addTab(logF2.getLogLabel(), logF2.getContentPanel());
-        // tabbledPane.setSelectedComponent(logF2.getContentPanel());
-        //
-        // frame.setLayout(new BorderLayout());
-        // frame.add(tabbledPane);
-        // frame.setVisible(true);
-        //
+        GuiUtils.setLookAndFeel();
 
+        final LogsDownloaderWorker logFetcher = new LogsDownloaderWorker();
+        logFetcher.setEnableLogLabel(true);
 
-        //        // Register for EntityActivationStateActivationState
-        //        {
-        //            ImcMsgManager.getManager().addListener(new MessageListener<MessageInfo, IMCMessage>() {
-        //                
-        //                @Override
-        //                public void onMessage(MessageInfo info, IMCMessage msg) {
-        //                    if (msg.getAbbrev().equals("PowerChannelState")) {
-        //                        System.out.println(LogsDownloaderWorker.class.getSimpleName() + " :: " + msg);
-        //                    }
-        //                }
-        //            });
-        //            
-        //            ImcMsgManager.getManager().start();
-        //            new Thread(new Runnable() {
-        //                
-        //                @Override
-        //                public void run() {
-        //                    
-        //                    while (true) {
-        //                        int ent = EntitiesResolver.resolveId("lauv-xtreme-2", "Camera Module");
-        //                        System.out.println(LogsDownloaderWorker.class.getSimpleName() + " :: " + "Entity ID: " + ent);
-        //                        
-        //                        IMCMessage msg = new IMCMessage("QueryPowerChannelState");
-        //                        msg.setDstEnt(255);
-        //                        
-        //                        ImcMsgManager.getManager().sendMessageToSystem(msg, "lauv-xtreme-2");
-        //                        
-        //                        try {
-        //                            Thread.sleep(1000);
-        //                        }
-        //                        catch (InterruptedException e) {
-        //                            e.printStackTrace();
-        //                        }
-        //                    }
-        //                }
-        //            }, "Query DOAM Activation").start();
-        //        }
+        logFetcher.frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        logFetcher.frame.setVisible(true);
 
-        {
-            GuiUtils.setLookAndFeel();
-
-            final LogsDownloaderWorker logFetcher = new LogsDownloaderWorker();
-            logFetcher.setEnableLogLabel(true);
-
-            logFetcher.frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-            logFetcher.frame.setVisible(true);
-
-            // logFetcher.setHost("10.0.2.90");
-            // logFetcher.setPort(8080);
-
-        }
+        // logFetcher.setHost("10.0.2.90");
+        // logFetcher.setPort(8080);
     }
 }
