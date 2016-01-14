@@ -46,11 +46,9 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
-import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.Collections;
 import java.util.Date;
 
@@ -81,7 +79,6 @@ import org.jdesktop.swingx.JXBusyLabel;
 
 import net.miginfocom.swing.MigLayout;
 import pt.lsts.imc.lsf.LsfIndex;
-import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.gui.InfiniteProgressPanel;
 import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.mra.MRAPanel;
@@ -104,7 +101,6 @@ public class MraRawMessages extends SimpleMRAVisualization {
 
     private static final long serialVersionUID = 1L;
     private static final String ANY_TXT = I18n.text("<ANY>");
-    private static final int MAX_TIME_DEVIATION = 2; //2 seconds
     private JTable table;
     private ArrayList<Integer> resultList = new ArrayList<>();
     private int finderNextIndex = -1;
@@ -288,19 +284,7 @@ public class MraRawMessages extends SimpleMRAVisualization {
 
         }
     }
-    private static Date parseTime(String time) {
-        SimpleDateFormat parser = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
 
-        Date dateTime = null;
-        try {
-            dateTime = parser.parse(time);
-        }
-        catch (ParseException e) {
-            return null;
-        }
-
-        return dateTime;
-    }
     /**
      * Checks if there are messages in the list that have a specific type, source, source_entity, 
      * destination and are within specified time limits 
@@ -320,113 +304,84 @@ public class MraRawMessages extends SimpleMRAVisualization {
             find.busyLbl.setVisible(false);
             return true;
         }
-        
-        int low = 0;
-        int mid = -1;
-        int high = table.getRowCount() - 1;
-        String rowTime = null;
+        //Fix year/month/day of textbox's ts1 and ts2
+        System.out.println("Before Fix: "+ time1.toString());
+        Date base = new Date((long)(1000.0*source.getLsfIndex().timeOf(0)));
+        time1.setYear(base.getYear());
+        time1.setMonth(base.getMonth());
+        time1.setDate(base.getDate());
+        time2.setYear(base.getYear());
+        time2.setMonth(base.getMonth());
+        time2.setDate(base.getDate());
+        System.out.println("After fix: "+ time1.toString());
+        //
         String rowType = null;
         String rowSrc = null;
+        String rowSrcEnt = null;
+        String rowDest = null;
+        long t1 = (long) time1.getTime()/1000;
+        long t2 = (long) time2.getTime()/1000;
+        long rowTime3 = (long) source.getLsfIndex().timeOf(0);
+        System.out.println(rowTime3 + " " + t1);
+        
+        int first = source.getLsfIndex().getFirstMessageAtOrAfter(t1);
+        System.out.println("First: " + first);
 
-        int last = high - (high - low) / 2;
-        int first = 0;
-        Date parsedTime = null;
+        int indexFirst = findFirstOcc(first, source.getLsfIndex().getNumberOfMessages(), t1, type);
+        System.out.println("indexFirst: " + indexFirst);
 
-        while(low <= high) {
-            if (closingUp)
-                break;
-            mid = high - (high - low) / 2;
-            rowTime = (String) table.getValueAt(mid, 1); //Time
-
-            parsedTime = parseTime(rowTime);
-
-            if (compareTime(parsedTime, ">", time1)) {
-                high = mid - 1;
-                // System.out.println("["+mid+"] parsedTime:"+ parsedTime  + " > time: "+time1 );
-            } 
-            else if (compareTime(parsedTime, "<", time1)) {
-                first = mid;
-                low = mid + 1;
-                // System.out.println("["+mid+"] parsedTime:"+ parsedTime  + " < time: "+time1 );
-            }
-            else {
-                // System.out.println("["+mid+"] parsedTime:"+ parsedTime  + " == time: "+time1 );
-                last = mid;
-              //  System.out.println("first: "+first);
-                if (first == 0) {
-                    first = last;
-                    last = high;
-                    // System.out.println("first: "+first + " last:"+high);
-                }
-                break;
-            }
-
-        }
-
-
-        int indexFirst = findFirstOcc(first, table.getRowCount() / 2, time1, type);
-        //  System.out.println("indexFirst: " + indexFirst);
         if (indexFirst == -1) {
-            indexFirst = table.getRowCount() / 2;
+            find.busyLbl.setBusy(false);
+            find.busyLbl.setVisible(false);
+            return false;
         }
 
-        low = table.getRowCount() / 2;
-        high = table.getRowCount() - 1;
-        Calendar calendar = Calendar.getInstance();
-        calendar.setTime(time2);
-        int seconds = calendar.get(Calendar.SECOND);
-        // we add MAX_TIME_DEVIATION seconds because of unsorted Time column
-        calendar.set(Calendar.SECOND, seconds+MAX_TIME_DEVIATION);
-        Date advT2 = calendar.getTime();
-        last = high;
+        int low = source.getLsfIndex().getNumberOfMessages() / 2;
+        int high = source.getLsfIndex().getNumberOfMessages() - 1;
+        int mid = -1;
+        int last = high;
 
         while(low <= high) {
             if (closingUp)
                 break;
 
             mid = high - (high - low) / 2;
-            rowTime = (String) table.getValueAt(mid, 1); //Time
-            rowType = (String) table.getValueAt(mid, 2); //Type
-            rowSrc = (String) table.getValueAt(mid, 3); //Source
-            parsedTime = parseTime(rowTime);
+            long rowTime2 = (long) source.getLsfIndex().timeOf(mid);
+            rowType = source.getLsfIndex().getDefinitions().getMessageName(source.getLsfIndex().typeOf(mid));
+            rowSrc = source.getLsfIndex().sourceNameOf(mid);
 
-            if (compareTime(parsedTime, ">", advT2))
+            if (rowTime2 > t2) {
                 high = mid - 1;
-            else if (compareTime(parsedTime, "<", advT2)) 
+            } else if (rowTime2 < t2) {
                 low = mid + 1;
+            }
             else {
-                last = mid;
+                last = high;
                 break;
             }
         }
 
         int indexLast = last;
-        //System.out.println("indexLast: " + indexLast);
         int total = indexLast - indexFirst;
-        //System.out.println("total: " + total);
         int count=0;
+        long startTime = System.nanoTime();
+
         for (int row = indexFirst; row < indexLast; row++) {
             count++;
-            rowTime = (String) table.getValueAt(row, 1); //Time
-            rowType = (String) table.getValueAt(row, 2); //Type
-            rowSrc = (String) table.getValueAt(row, 3); //Source
-            String rowSrcEnt = (String) table.getValueAt(row, 4); //SourceEntity
-            String rowDest = (String) table.getValueAt(row, 5); //Destination
+            long rowTime2 = (long) source.getLsfIndex().timeOf(row);
+            rowType = source.getLsfIndex().getDefinitions().getMessageName(source.getLsfIndex().typeOf(row)); //Type
+            rowSrc = source.getLsfIndex().sourceNameOf(row);  //Source
+            rowSrcEnt = source.getLsfIndex().entityNameOf(row); //SourceEntity
+            rowDest = (String) table.getValueAt(row, 5); //Destination
             if (rowSrcEnt == null || rowSrcEnt.isEmpty())
                 rowSrcEnt = "empty";
-
-            Date tableTime = parseTime(rowTime);
-            if (tableTime == null) {
-                NeptusLog.pub().warn("Unable to parse timestamp from message list.");
-                continue;
-            }
 
             if (rowType.equals(type) || type.equals(ANY_TXT)) {
                 if (rowSrc.equals(src) || src.equals(ANY_TXT)) {
                     if (rowSrcEnt.equals(srcEnt) || srcEnt.equals(ANY_TXT)) {
                         if (rowDest.equals(dest) || dest.equals(ANY_TXT) || 
                                 (rowDest.contains("null") && dest.equals("UNADDRESSABLE"))){
-                            if (compareTime(tableTime, ">=", time1) && compareTime(tableTime, "<=", time2))
+                            if ((rowTime2 >= t1) && (rowTime2 <= t2))
                                 resultList.add(row);
                         }
                     }
@@ -437,11 +392,14 @@ public class MraRawMessages extends SimpleMRAVisualization {
             find.repaint();
             if (closingUp)
                 break;
-        }
 
+        }
         find.busyLbl.setBusy(false);
         find.busyLbl.setVisible(false);
         find.statusLbl.setVisible(false);
+
+        long stopTime = System.nanoTime();
+        System.out.println("Duration: "+ (stopTime - startTime));
 
         if (!resultList.isEmpty()) {
             table.clearSelection();
@@ -456,15 +414,14 @@ public class MraRawMessages extends SimpleMRAVisualization {
         return false;
     }
 
-    private int findFirstOcc(int first, int last, Date time1, String type) {
-        if (first == last)
-            last = table.getRowCount() / 2;
+    private int findFirstOcc(int first, int last, long t1, String type) {
         for (int row = first; row < last; row++) {
-            String rowTime = (String) table.getValueAt(row, 1); //Time
-            String rowType = (String) table.getValueAt(row, 2); //Type
-            Date parsedTime = parseTime(rowTime);
+            //String rowTime = (String) table.getValueAt(row, 1); //Time
+            long rowTime = (long) source.getLsfIndex().timeOf(row);
+            String rowType = source.getLsfIndex().getDefinitions().getMessageName(source.getLsfIndex().typeOf(row)); //(String) table.getValueAt(row, 2); //Type
+            //Date parsedTime = parseTime(rowTime);
 
-            if (compareTime(parsedTime, ">=", time1) && (rowType.equals(type) || type.equals(ANY_TXT))) {
+            if ((rowTime >= t1) && (rowType.equals(type) || type.equals(ANY_TXT))) {
                 return row;
             }
         }
@@ -476,8 +433,6 @@ public class MraRawMessages extends SimpleMRAVisualization {
          FIXME: when pressing hasPrev / hasNext, clear hightlight button state !!!
          */
         currFinderIndex = resultList.get(finderNextIndex);
-        // currSelectedIndex = currFinderIndex;
-
         table.scrollRectToVisible(new Rectangle(table.getCellRect(currFinderIndex, 0, true)));
         table.clearSelection();
         table.addRowSelectionInterval(currFinderIndex, currFinderIndex);
@@ -532,10 +487,10 @@ public class MraRawMessages extends SimpleMRAVisualization {
         FinderDialog find = new FinderDialog(SwingUtilities.windowForComponent(this.mraPanel));
         ArrayList<String> typeList = new ArrayList<>();
 
-        for (int row = 0; row < table.getRowCount(); row++) {
-            String type = (String) table.getValueAt(row, 2); //Type
-            String src = (String) table.getValueAt(row, 3); //Source
-            String srcEntity = (String) table.getValueAt(row, 4); //SourceEntity
+        for (int row = 0; row < source.getLsfIndex().getNumberOfMessages(); row++) {
+            String type = source.getLsfIndex().getDefinitions().getMessageName(source.getLsfIndex().typeOf(row)); //(String) table.getValueAt(row, 2); //Type
+            String src = source.getLsfIndex().sourceNameOf(row); //(String) table.getValueAt(row, 3); //Source
+            String srcEntity = source.getLsfIndex().entityNameOf(row); //(String) table.getValueAt(row, 4); //SourceEntity
             String dest = (String) table.getValueAt(row, 5); //Destination
 
             if (!typeList.contains(type))
@@ -554,10 +509,20 @@ public class MraRawMessages extends SimpleMRAVisualization {
         find.initTypeField(typeList);
         find.sourceEntCBox.setSelectedItem(ANY_TXT);
 
+        double ts1 = source.getLsfIndex().getStartTime();
+        double ts2 = source.getLsfIndex().getEndTime();
+
+        /*
+        System.out.println("Ts1 : " + ts1 + " ts2: "+ts2);
         String t1 = (String) table.getValueAt(0, 1); //get first timestamp from table
         String t2 = (String) table.getValueAt(table.getRowCount() - 1, 1); //get last timestamp from table
         DateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
+         */
+        Date dt1 = new Date((long) (1000.0*ts1));
 
+        Date dt2 = new Date((long) (1000.0*ts2));
+        find.setTimestamp(dt1, dt2);
+        /*
         try {
             Date dt1 = format.parse(t1);
             Date dt2 = format.parse(t2);
@@ -567,6 +532,7 @@ public class MraRawMessages extends SimpleMRAVisualization {
         catch (ParseException e) {
             e.printStackTrace();
         }
+         */
 
         return find;
     }
@@ -606,6 +572,10 @@ public class MraRawMessages extends SimpleMRAVisualization {
         private void setTimestamp(Date t1, Date t2) {
             ts1.setValue(t1);
             ts2.setValue(t2);
+            Date tf = (Date) ts1.getValue();
+            Date th = (Date) ts2.getValue();
+            System.out.println("T1: "+ tf.toString() + " " + tf.getTime()/1000);
+            System.out.println("T2: "+ th.toString());
             defTS1 = t1;
             defTS2 = t2;
         }
@@ -753,7 +723,7 @@ public class MraRawMessages extends SimpleMRAVisualization {
             bottomPanel.add(prevBtn);
             bottomPanel.add(nextBtn);
             bottomPanel.add(findBtn);
-          //  bottomPanel.add(busyLbl);
+            //  bottomPanel.add(busyLbl);
 
             prevBtn.addActionListener(new ActionListener() {
                 @Override
