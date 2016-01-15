@@ -46,9 +46,11 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Collections;
 import java.util.Date;
 
@@ -107,9 +109,9 @@ public class MraRawMessages extends SimpleMRAVisualization {
     private int currFinderIndex = -1;
     private FinderDialog find = null;
     private boolean findOpenState = false;
+    private boolean closingUp = false;
     private AbstractAction finderAction;
     private JToggleButton highlightBtn;
-    private boolean closingUp = false;
 
     public MraRawMessages(MRAPanel panel) {
         super(panel);
@@ -166,6 +168,7 @@ public class MraRawMessages extends SimpleMRAVisualization {
 
             @Override
             public void actionPerformed(ActionEvent e) {
+                find.setSize(290, 200);
                 find.setLocationOnLeft();
                 find.setVisible(true);
                 findOpenState = true;
@@ -284,7 +287,23 @@ public class MraRawMessages extends SimpleMRAVisualization {
 
         }
     }
-
+    
+    private static Date fixTime(Date base, Date timeToFix) {
+        Calendar c1 = Calendar.getInstance();
+        int offset = (c1.get(Calendar.ZONE_OFFSET) + c1.get(Calendar.DST_OFFSET))  / (60 * 1000);
+        c1.setTime(base);
+        int hour = c1.get(Calendar.HOUR);
+        int day = c1.get(Calendar.DAY_OF_MONTH);
+        int month = c1.get(Calendar.MONTH);
+        int year = c1.get(Calendar.YEAR);
+        c1.setTime(timeToFix);
+        c1.set(Calendar.HOUR, hour + offset);
+        c1.set(Calendar.DAY_OF_MONTH, day);
+        c1.set(Calendar.MONTH, month);
+        c1.set(Calendar.YEAR, year);
+        return c1.getTime();
+    }
+    
     /**
      * Checks if there are messages in the list that have a specific type, source, source_entity, 
      * destination and are within specified time limits 
@@ -293,6 +312,7 @@ public class MraRawMessages extends SimpleMRAVisualization {
      * @return true if there is at least one element, false otherwise
      */
     private boolean findMessage(String type, String src, String srcEnt, String dest, Date time1, Date time2) {
+        closingUp = false;
         table.setRowSelectionAllowed(true);
         table.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
         find.busyLbl.setBusy(true);
@@ -304,16 +324,11 @@ public class MraRawMessages extends SimpleMRAVisualization {
             find.busyLbl.setVisible(false);
             return true;
         }
-        //Fix year/month/day of textbox's ts1 and ts2
-        //System.out.println("Before Fix: "+ time1.toString());
+        
+        //Fix year/month/day of textbox's timestamp and timestampHigh
         Date base = new Date((long)(1000.0*source.getLsfIndex().timeOf(0)));
-        time1.setYear(base.getYear());
-        time1.setMonth(base.getMonth());
-        time1.setDate(base.getDate());
-        time2.setYear(base.getYear());
-        time2.setMonth(base.getMonth());
-        time2.setDate(base.getDate());
-        //System.out.println("After fix: "+ time1.toString());
+        time1 = fixTime(base, time1);
+        time2 = fixTime(base, time2);
 
         String rowType = null;
         String rowSrc = null;
@@ -321,22 +336,18 @@ public class MraRawMessages extends SimpleMRAVisualization {
         String rowDest = null;
         long t1 = (long) time1.getTime()/1000;
         long t2 = (long) time2.getTime()/1000;
-        long rowTime3 = (long) source.getLsfIndex().timeOf(0);
-        System.out.println(rowTime3 + " " + t1);
-        
+
         int first = source.getLsfIndex().getFirstMessageAtOrAfter(t1);
-        //System.out.println("First: " + first);
-
         int indexFirst = findFirstOcc(first, source.getLsfIndex().getNumberOfMessages(), t1, type);
-        //System.out.println("indexFirst: " + indexFirst);
 
+        // if there isn't at least one result...
         if (indexFirst == -1) {
             find.busyLbl.setBusy(false);
             find.busyLbl.setVisible(false);
             return false;
         }
 
-        int low = source.getLsfIndex().getNumberOfMessages() / 2;
+        int low = 0;
         int high = source.getLsfIndex().getNumberOfMessages() - 1;
         int mid = -1;
         int last = high;
@@ -360,14 +371,16 @@ public class MraRawMessages extends SimpleMRAVisualization {
                 break;
             }
         }
-
         int indexLast = last;
         int total = indexLast - indexFirst;
         int count = 0;
-        //long startTime = System.nanoTime();
 
         for (int row = indexFirst; row < indexLast; row++) {
-            count++;
+            if (closingUp) {
+                find.clear();
+                return true;
+            }
+            
             long rowTime = (long) source.getLsfIndex().timeOf(row); //Time
             rowType = source.getLsfIndex().getDefinitions().getMessageName(source.getLsfIndex().typeOf(row)); //Type
             rowSrc = source.getLsfIndex().sourceNameOf(row);  //Source
@@ -387,19 +400,15 @@ public class MraRawMessages extends SimpleMRAVisualization {
                     }
                 }
             }
+            count++;
+
             int state = (count * 100) / total;
             find.statusLbl.setText(state+"%");
-
-            if (closingUp)
-                break;
 
         }
         find.busyLbl.setBusy(false);
         find.busyLbl.setVisible(false);
         find.statusLbl.setVisible(false);
-
-        //long stopTime = System.nanoTime();
-        //System.out.println("Duration: "+ (stopTime - startTime));
 
         if (!resultList.isEmpty()) {
             table.clearSelection();
@@ -422,7 +431,7 @@ public class MraRawMessages extends SimpleMRAVisualization {
             if ((rowTime >= t1) && (rowType.equals(type) || type.equals(ANY_TXT))) {
                 return row;
             }
-            
+
             if (closingUp)
                 break;
         }
@@ -432,7 +441,7 @@ public class MraRawMessages extends SimpleMRAVisualization {
     private void highLightRow() {
         if (highlightBtn.isSelected())
             find.toggleHighlight();
-        
+
         currFinderIndex = resultList.get(finderNextIndex);
         table.scrollRectToVisible(new Rectangle(table.getCellRect(currFinderIndex, 0, true)));
         table.clearSelection();
@@ -488,6 +497,20 @@ public class MraRawMessages extends SimpleMRAVisualization {
         FinderDialog find = new FinderDialog(SwingUtilities.windowForComponent(this.mraPanel));
         ArrayList<String> typeList = new ArrayList<>();
 
+        String t1 = (String) table.getValueAt(0, 1); //get first timestamp from table
+        String t2 = (String) table.getValueAt(table.getRowCount() - 1, 1); //get last timestamp from table
+        DateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
+
+        try {
+            Date dtX = format.parse(t1);
+            Date dtY = format.parse(t2);
+
+            find.setTimestamp(dtX, dtY);
+        }
+        catch (ParseException e) {
+            e.printStackTrace();
+        }
+
         for (int row = 0; row < source.getLsfIndex().getNumberOfMessages(); row++) {
             String type = source.getLsfIndex().getDefinitions().getMessageName(source.getLsfIndex().typeOf(row)); //Type
             String src = source.getLsfIndex().sourceNameOf(row); //Source
@@ -510,40 +533,15 @@ public class MraRawMessages extends SimpleMRAVisualization {
         find.initTypeField(typeList);
         find.sourceEntCBox.setSelectedItem(ANY_TXT);
 
-        double ts1 = source.getLsfIndex().getStartTime();
-        double ts2 = source.getLsfIndex().getEndTime();
-
-        /*
-        System.out.println("Ts1 : " + ts1 + " ts2: "+ts2);
-        String t1 = (String) table.getValueAt(0, 1); //get first timestamp from table
-        String t2 = (String) table.getValueAt(table.getRowCount() - 1, 1); //get last timestamp from table
-        DateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
-         */
-        Date dt1 = new Date((long) (1000.0*ts1));
-        Date dt2 = new Date((long) (1000.0*ts2));
-        find.setTimestamp(dt1, dt2);
-        /*
-        try {
-            Date dt1 = format.parse(t1);
-            Date dt2 = format.parse(t2);
-
-            find.setTimestamp(dt1, dt2);
-        }
-        catch (ParseException e) {
-            e.printStackTrace();
-        }
-         */
-
         return find;
     }
 
     private class FinderDialog extends JDialog {
         private static final long serialVersionUID = 1L;
-
         private Java2sAutoTextField typeTxt;
         private JComboBox<String> sourceCBox, sourceEntCBox, destCBox;
-        private JSpinner ts1, ts2;
-        private Date defTS1, defTS2;
+        private JSpinner timestampLow, timestampHigh;
+        private Date defTimestampLow, defTimestampHigh;
         private JButton prevBtn, nextBtn, findBtn;
         private JLabel statusLbl;
         private JXBusyLabel busyLbl;
@@ -555,25 +553,39 @@ public class MraRawMessages extends SimpleMRAVisualization {
             this.parent = parent;
             initComponents();
         }
-
+        
+        /** 
+         * Checks if timestampLow and timestampHigh have default time values
+         * @return true, if both have default values
+         */
         public boolean hasDefaultTS() {
-            if (compareTime((Date) ts1.getValue(), "==", defTS1) &&
-                    compareTime((Date) ts2.getValue(), "==", defTS2))
+            if (compareTime((Date) timestampLow.getValue(), "==", defTimestampLow) &&
+                    compareTime((Date) timestampHigh.getValue(), "==", defTimestampHigh))
                 return true;
             else
                 return false;
         }
-
+        
+        /** 
+         * Positions find dialog window on the left side of the screen
+         * 
+         */
         public void setLocationOnLeft() {
             setLocationRelativeTo(null);
             setLocation(parent.getLocation().x, getLocation().y);
         }
-
+        
+        /** 
+         * Sets timestampLow and timestampHigh box's with a date 
+         *   and also sets this values as default ones
+         * @param t1, date to be used for timestampLow box
+         * @param t2, date to be used for timestampHigh box
+         */
         private void setTimestamp(Date t1, Date t2) {
-            ts1.setValue(t1);
-            ts2.setValue(t2);
-            defTS1 = t1;
-            defTS2 = t2;
+            timestampLow.setValue(t1);
+            timestampHigh.setValue(t2);
+            defTimestampLow = t1;
+            defTimestampHigh = t2;
         }
 
         /**
@@ -609,7 +621,6 @@ public class MraRawMessages extends SimpleMRAVisualization {
         private void initComponents() {
             setIconImage(MraRawMessages.this.getIcon().getImage());
             setTitle(I18n.text("Find"));
-            setSize(290, 210);
             setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
             setResizable(false);
             setLocationOnLeft();
@@ -627,10 +638,10 @@ public class MraRawMessages extends SimpleMRAVisualization {
             JLabel destLabel = new JLabel(I18n.textc("Dest.", "Destination"));
             destCBox = new JComboBox<String>(model3);
             JLabel timeLbl = new JLabel(I18n.text("Time"));
-            ts1 = new JSpinner( new SpinnerDateModel() );
-            JSpinner.DateEditor timeEditor = new JSpinner.DateEditor(ts1, "HH:mm:ss");
-            ts1.setEditor(timeEditor);
-            ts1.setUI(new javax.swing.plaf.basic.BasicSpinnerUI(){
+            timestampLow = new JSpinner( new SpinnerDateModel() );
+            JSpinner.DateEditor timeEditor = new JSpinner.DateEditor(timestampLow, "HH:mm:ss");
+            timestampLow.setEditor(timeEditor);
+            timestampLow.setUI(new javax.swing.plaf.basic.BasicSpinnerUI(){
                 protected Component createNextButton(){
                     Component c = new JButton();
                     c.setPreferredSize(new Dimension(0,0));
@@ -642,15 +653,15 @@ public class MraRawMessages extends SimpleMRAVisualization {
                     return c;
                 }
             });
-            ts1.setBorder(null);
-            JTextField tf = ((JSpinner.DefaultEditor)ts1.getEditor()).getTextField();
+            timestampLow.setBorder(null);
+            JTextField tf = ((JSpinner.DefaultEditor)timestampLow.getEditor()).getTextField();
             ((JComponent)tf.getParent()).setBorder(BorderFactory.createLineBorder(Color.GRAY));
 
             JLabel separatorLbl = new JLabel("-");
-            ts2 = new JSpinner( new SpinnerDateModel() );
-            JSpinner.DateEditor timeEditor2 = new JSpinner.DateEditor(ts2, "HH:mm:ss");
-            ts2.setEditor(timeEditor2);
-            ts2.setUI(new javax.swing.plaf.basic.BasicSpinnerUI(){
+            timestampHigh = new JSpinner( new SpinnerDateModel() );
+            JSpinner.DateEditor timeEditor2 = new JSpinner.DateEditor(timestampHigh, "HH:mm:ss");
+            timestampHigh.setEditor(timeEditor2);
+            timestampHigh.setUI(new javax.swing.plaf.basic.BasicSpinnerUI(){
                 protected Component createNextButton(){
                     Component c = new JButton();
                     c.setPreferredSize(new Dimension(0,0));
@@ -662,8 +673,8 @@ public class MraRawMessages extends SimpleMRAVisualization {
                     return c;
                 }
             });
-            ts2.setBorder(null);
-            JTextField tf1 = ((JSpinner.DefaultEditor)ts2.getEditor()).getTextField();
+            timestampHigh.setBorder(null);
+            JTextField tf1 = ((JSpinner.DefaultEditor)timestampHigh.getEditor()).getTextField();
             ((JComponent)tf1.getParent()).setBorder(BorderFactory.createLineBorder(Color.GRAY));
 
             prevBtn = new JButton(I18n.textc("Prev.", "Previous"));
@@ -701,9 +712,9 @@ public class MraRawMessages extends SimpleMRAVisualization {
             getContentPane().add(destLabel, "cell 0 3,alignx trailing");
             getContentPane().add(destCBox, "cell 1 3,growx");
             getContentPane().add(timeLbl, "cell 0 4,alignx trailing");
-            getContentPane().add(ts1, "flowx,cell 1 4");
+            getContentPane().add(timestampLow, "flowx,cell 1 4");
             getContentPane().add(separatorLbl, "cell 1 4");
-            getContentPane().add(ts2, "flowx,cell 1 4");
+            getContentPane().add(timestampHigh, "flowx,cell 1 4");
 
             JPanel panel = new JPanel();
             getContentPane().add(panel, "cell 0 5 2 1,grow");
@@ -719,8 +730,7 @@ public class MraRawMessages extends SimpleMRAVisualization {
             bottomPanel.add(prevBtn);
             bottomPanel.add(nextBtn);
             bottomPanel.add(findBtn);
-            //  bottomPanel.add(busyLbl);
-
+            
             prevBtn.addActionListener(new ActionListener() {
                 @Override
                 public void actionPerformed(ActionEvent e) {
@@ -740,12 +750,12 @@ public class MraRawMessages extends SimpleMRAVisualization {
             findBtn.addActionListener(new ActionListener() {
                 public void actionPerformed(ActionEvent e) {
                     clear();
+                    closingUp = true;
                     SwingWorker<Boolean, Void> worker = new SwingWorker<Boolean, Void>() {
                         @Override
                         protected Boolean doInBackground() throws Exception {
-                            Date t1 = (Date) ts1.getValue(); 
-                            Date t2 = (Date) ts2.getValue();
-
+                            Date t1 = (Date) timestampLow.getValue(); 
+                            Date t2 = (Date) timestampHigh.getValue();
                             boolean found = findMessage(typeTxt.getText(), (String) sourceCBox.getSelectedItem(), 
                                     (String)sourceEntCBox.getSelectedItem(), (String) destCBox.getSelectedItem(),
                                     t1, t2);
@@ -776,26 +786,25 @@ public class MraRawMessages extends SimpleMRAVisualization {
                 }
             });
 
-
-
-            getRootPane().setDefaultButton(findBtn);
-
             addWindowListener(new WindowAdapter() {
                 @Override
                 public void windowClosed(WindowEvent e) {
                     findOpenState = false;
                 }
             });
+            setSize(290, 200);
+            
+            requestFocus();
+            getRootPane().setDefaultButton(findBtn);
         }
 
         private void clear() {
             clearSelection();
-            findBtn.setText(I18n.text("Find"));
             prevBtn.setEnabled(false);
             statusLbl.setText("");
             statusLbl.setVisible(true);
             highlightBtn.setSelected(false);
-            toggleHighlight();
+
         }
 
         /**
