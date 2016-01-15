@@ -39,7 +39,9 @@ import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.TimeZone;
 import java.util.zip.GZIPOutputStream;
@@ -55,6 +57,7 @@ import pt.lsts.imc.IMCOutputStream;
 import pt.lsts.imc.LoggingControl;
 import pt.lsts.imc.lsf.LsfIndex;
 import pt.lsts.neptus.NeptusLog;
+import pt.lsts.neptus.gui.CheckboxList;
 import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.mra.importers.IMraLogGroup;
 import pt.lsts.neptus.plugins.PluginDescription;
@@ -141,7 +144,24 @@ public class LogSliceExporter implements MRAExporter {
             return problem;
         
         LsfIndex index = source.getLsfIndex();
-
+        HashSet<String> availableMessages = new HashSet<>();
+        
+        for (int i = 0; i < index.getNumberOfMessages(); i++) {
+            int type = index.typeOf(i);
+            availableMessages.add(index.getDefinitions().getMessageName(type));
+        }
+        
+        ArrayList<String> selectedMsgs = new ArrayList<>();
+        selectedMsgs.addAll(availableMessages);
+        Collections.sort(selectedMsgs);
+        String[] result = CheckboxList.selectOptions(ConfigFetch.getSuperParentFrame(), "Messages to export", selectedMsgs.toArray(new String[selectedMsgs.size()]));
+        if (result == null)
+            return I18n.text("Cancelled by user.");
+        
+        ArrayList<Integer> selectedTypes = new ArrayList<>();
+        for (String r : result)
+            selectedTypes.add(index.getDefinitions().getMessageId(r));
+        
         SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd-HHmmss");
         sdf.setTimeZone(TimeZone.getTimeZone("UTC"));
         
@@ -150,7 +170,8 @@ public class LogSliceExporter implements MRAExporter {
         while (outputdir.exists()) {
             outputdir = new File(source.getDir(), sdf.format(start)+"."+count);
             count++;
-        }        
+        }
+        
         outputdir.mkdirs();
         try {
             BufferedWriter writer = new BufferedWriter(new OutputStreamWriter( new
@@ -166,6 +187,9 @@ public class LogSliceExporter implements MRAExporter {
             for (int i = index.getFirstMessageAtOrAfter(start.getTime()/1000.0); i != -1; i++) {
                 if (index.timeOf(i) > endTime)
                     break;
+                if (!selectedTypes.contains(index.typeOf(i)))
+                    continue;
+                
                 out.write(index.getMessageBytes(i));
             }            
             out.close();
