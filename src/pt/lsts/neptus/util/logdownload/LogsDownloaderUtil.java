@@ -312,4 +312,25 @@ class LogsDownloaderUtil {
         return -500;
     }
 
+    /**
+     * Finds the LogFolderInfo for the lfx in the logFolderList.
+     * 
+     * @param lfx
+     * @param logFolderList
+     * @return
+     */
+    static LogFolderInfo findLogFolderInfoForFile(LogFileInfo lfx, LogFolderInfoList logFolderList) {
+        for (Object comp : logFolderList.getSelectedValues()) {
+            try {
+                LogFolderInfo logFd = (LogFolderInfo) comp;
+                if (logFd.getLogFiles().contains(lfx))
+                    return logFd;
+            }
+            catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+        return null;
+    }
+
 }

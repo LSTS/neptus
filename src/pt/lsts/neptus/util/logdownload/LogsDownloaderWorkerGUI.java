@@ -147,6 +147,8 @@ class LogsDownloaderWorkerGUI {
     }
 
     public LogsDownloaderWorkerGUI(LogsDownloaderWorker worker, JFrame parentFrame) {
+        this.worker = worker;
+        
         if (parentFrame != null) {
             frame = parentFrame;
             frameIsExternalControlled = true;

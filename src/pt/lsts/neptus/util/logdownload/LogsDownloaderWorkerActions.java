@@ -78,6 +78,9 @@ class LogsDownloaderWorkerActions {
     AbstractAction stopAllAction = null;
     AbstractAction turnCameraOn = null;
 
+    boolean stopLogListProcessing = false;
+    boolean resetting = false;
+
     public LogsDownloaderWorkerActions(LogsDownloaderWorker worker, LogsDownloaderWorkerGUI gui) {
         this.worker = worker;
         this.gui = gui;
@@ -130,9 +133,9 @@ class LogsDownloaderWorkerActions {
                         long timeD1 = System.currentTimeMillis();
                         // Getting the file list from main CPU
                         try {
-                            clientFtp = LogsDownloaderUtil.getOrRenewFtpDownloader(clientFtp, worker.getHost(), worker.getPort());
+                            worker.clientFtp = LogsDownloaderUtil.getOrRenewFtpDownloader(worker.clientFtp, worker.getHost(), worker.getPort());
 
-                            retList = clientFtp.listLogs();
+                            retList = worker.clientFtp.listLogs();
 
                             for (String partialUri : retList.values()) {
                                 serversLogPresenceList.put(partialUri, LogsDownloaderWorker.SERVER_MAIN);
@@ -149,8 +152,8 @@ class LogsDownloaderWorkerActions {
                         if (cameraHost.length() > 0 && isCamCpuOn()) {
                             LinkedHashMap<FTPFile, String> retCamList = null;
                             try {
-                                cameraFtp = LogsDownloaderUtil.getOrRenewFtpDownloader(cameraFtp, cameraHost, worker.getPort());
-                                retCamList = cameraFtp.listLogs();
+                                worker.cameraFtp = LogsDownloaderUtil.getOrRenewFtpDownloader(worker.cameraFtp, cameraHost, worker.getPort());
+                                retCamList = worker.cameraFtp.listLogs();
                             }
                             catch (Exception e) {
                                 NeptusLog.pub().error("Connecting with " + cameraHost + ":" + worker.getPort() + " with error: " + e.getMessage());
@@ -304,7 +307,7 @@ class LogsDownloaderWorkerActions {
                         gui.logFolderList.myModel.copyInto(objArray);
 
                         long timeF0 = System.currentTimeMillis();
-                        LinkedList<LogFolderInfo> tmpLogFolderList = getLogFileList(serversLogPresenceList);
+                        LinkedList<LogFolderInfo> tmpLogFolderList = worker.getLogFileList(serversLogPresenceList);
                         NeptusLog.pub().warn(".......Contacting remote system for complete log file list " +
                                 (System.currentTimeMillis() - timeF0) + "ms");
 
@@ -438,11 +441,12 @@ class LogsDownloaderWorkerActions {
                                 (System.currentTimeMillis() - timeF1) + "ms");
 
                         long timeF2 = System.currentTimeMillis();
-                        testNewReportedLogFoldersForLocalCorrespondent(newLogFoldersFromServer);
+                        worker.testNewReportedLogFoldersForLocalCorrespondent(newLogFoldersFromServer);
                         for (LogFolderInfo logFolder : existenteLogFoldersFromServer) {
-                            updateLogFolderState(logFolder);
+                            LogsDownloaderWorkerGUIUtil.updateLogFolderState(logFolder, gui.logFolderList);
                         }
-                        updateLogStateIconForAllLogFolders();
+                        LogsDownloaderWorkerGUIUtil.updateLogStateIconForAllLogFolders(gui.logFolderList,
+                                gui.logFoldersListLabel);
                         NeptusLog.pub().warn(".......Updating LogFolders State " +
                                 (System.currentTimeMillis() - timeF2) + "ms");
 
@@ -451,7 +455,7 @@ class LogsDownloaderWorkerActions {
                         new Thread("updateFilesListGUIForFolderSelected") {
                             @Override
                             public void run() {
-                                updateFilesListGUIForFolderSelected();
+                                worker.updateFilesListGUIForFolderSelected();
                             };
                         }.start();
                         NeptusLog.pub().warn(".......updateFilesListGUIForFolderSelected " +
@@ -539,7 +543,7 @@ class LogsDownloaderWorkerActions {
                                     if (resetting)
                                         break;
 
-                                    singleLogFileDownloadWorker(lfx, logFd);
+                                    worker.singleLogFileDownloadWorker(lfx, logFd);
                                 }
                             }
                             catch (Exception e) {
@@ -585,7 +589,8 @@ class LogsDownloaderWorkerActions {
 
                             try {
                                 LogFileInfo lfx = (LogFileInfo) comp;
-                                singleLogFileDownloadWorker(lfx, findLogFolderInfoForFile(lfx));
+                                worker.singleLogFileDownloadWorker(lfx,
+                                        LogsDownloaderUtil.findLogFolderInfoForFile(lfx, gui.logFolderList));
                             }
                             catch (Exception e) {
                                 NeptusLog.pub().debug(e.getMessage());
@@ -648,12 +653,14 @@ class LogsDownloaderWorkerActions {
                         for (Object comp : objArray) {
                             try {
                                 LogFolderInfo logFd = (LogFolderInfo) comp;
-                                boolean resDel = deleteLogFolderFromServer(logFd);
+                                boolean resDel = worker.deleteLogFolderFromServer(logFd);
                                 if (resDel) {
                                     logFd.setState(LogFolderInfo.State.LOCAL);
                                     LinkedHashSet<LogFileInfo> logFiles = logFd.getLogFiles();
 
-                                    LinkedHashSet<LogFileInfo> toDelFL = updateLogFilesStateDeleted(logFiles);
+                                    LinkedHashSet<LogFileInfo> toDelFL = LogsDownloaderWorkerGUIUtil
+                                            .updateLogFilesStateDeleted(logFiles, gui.downloadWorkersHolder,
+                                                    worker.getDirBaseToStoreFiles(), worker.getLogLabel());
                                     for (LogFileInfo lfx : toDelFL) {
                                         if (resetting)
                                             break;
@@ -669,7 +676,7 @@ class LogsDownloaderWorkerActions {
                             if (resetting)
                                 break;
                         }
-                        updateFilesListGUIForFolderSelected();
+                        worker.updateFilesListGUIForFolderSelected();
                         return true;
                     }
 
@@ -727,7 +734,7 @@ class LogsDownloaderWorkerActions {
                             NeptusLog.pub().error(e2.getMessage());
                             return null;
                         }
-                        deleteSelectedLogFoldersButton.setEnabled(true);
+                        gui.deleteSelectedLogFoldersButton.setEnabled(true);
 
                         LinkedHashSet<LogFileInfo> logFiles = new LinkedHashSet<LogFileInfo>();
                         for (Object comp : objArray) {
@@ -736,7 +743,7 @@ class LogsDownloaderWorkerActions {
 
                             try {
                                 LogFileInfo lfx = (LogFileInfo) comp;
-                                if (deleteLogFileFromServer(lfx))
+                                if (worker.deleteLogFileFromServer(lfx))
                                     logFiles.add(lfx);
                             }
                             catch (Exception e) {
@@ -744,9 +751,10 @@ class LogsDownloaderWorkerActions {
                             }
                         }
                         if (!resetting) {
-                            updateLogFilesStateDeleted(logFiles);
+                            LogsDownloaderWorkerGUIUtil.updateLogFilesStateDeleted(logFiles, gui.downloadWorkersHolder,
+                                    worker.getDirBaseToStoreFiles(), worker.getLogLabel());
 
-                            updateFilesListGUIForFolderSelected();
+                            worker.updateFilesListGUIForFolderSelected();
                         }
                         return true;
                     }
@@ -800,7 +808,7 @@ class LogsDownloaderWorkerActions {
             @Override
             public void actionPerformed(ActionEvent e) {
                 gui.resetButton.setEnabled(false);
-                doReset(false);
+                worker.doReset(false);
             }
         };
 
@@ -808,7 +816,7 @@ class LogsDownloaderWorkerActions {
             @Override
             public void actionPerformed(ActionEvent e) {
                 gui.stopAllButton.setEnabled(false);
-                doReset(true);
+                worker.doReset(true);
             }
         };
 
@@ -832,6 +840,10 @@ class LogsDownloaderWorkerActions {
                 }
             }
         };
+    }
+
+    private boolean isCamCpuOn() {
+        return gui.cameraButton.getBackground() == LogsDownloaderWorker.CAM_CPU_ON_COLOR;
     }
 
 }
