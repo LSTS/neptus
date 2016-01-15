@@ -200,7 +200,7 @@ public class LogsDownloaderWorker {
         if (!gui.frameIsExternalControlled)
             GuiUtils.centerOnScreen(gui.frame);
 
-        ttaskLocalDiskSpace = LogsDownloaderWorkerGUIUtil.getTimerTaskLocalDiskSpace(this, gui, queueWorkTickets);
+        ttaskLocalDiskSpace = LogsDownloaderWorkerGUIUtil.createTimerTaskLocalDiskSpace(this, gui, queueWorkTickets);
         threadScheduledPool.scheduleAtFixedRate(ttaskLocalDiskSpace, 500, 5000, TimeUnit.MILLISECONDS);
     }
 

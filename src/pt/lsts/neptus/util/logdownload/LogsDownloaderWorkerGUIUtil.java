@@ -268,7 +268,7 @@ public class LogsDownloaderWorkerGUIUtil {
      * @param queueWorkTickets
      * @return
      */
-    static Runnable getTimerTaskLocalDiskSpace(LogsDownloaderWorker worker,
+    static Runnable createTimerTaskLocalDiskSpace(LogsDownloaderWorker worker,
             LogsDownloaderWorkerGUI gui, QueueWorkTickets<DownloaderPanel> queueWorkTickets) {
         Runnable ttaskLocalDiskSpace = new Runnable() {
             @Override
