@@ -87,9 +87,23 @@ class LogsDownloaderWorkerActions {
         initializeActions();
     }
 
-    @SuppressWarnings("serial")
     private void initializeActions() {
-        downloadListAction = new AbstractAction() {
+        downloadListAction = createDownloadListAction();
+        downloadSelectedLogDirsAction = createDownloadSelectedLogDirsAction();
+        downloadSelectedLogFilesAction = createDownloadSelectedLogFilesAction();
+        deleteSelectedLogFoldersAction = createDeleteSelectedLogFoldersAction();
+        deleteSelectedLogFilesAction = createDeleteSelectedLogFilesAction();
+        toggleConfPanelAction = createToggleConfPanelAction();
+        toggleExtraInfoPanelAction = createToggleExtraInfoPanelAction();
+        helpAction = createHelpAction();
+        resetAction = createResetAction();
+        stopAllAction = createStopAllAction();
+        turnCameraOn = createTurnCameraOnAction();
+    }
+
+    @SuppressWarnings("serial")
+    private AbstractAction createDownloadListAction() {
+        return new AbstractAction() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 if (!gui.validateAndSetUI()) {
@@ -521,8 +535,11 @@ class LogsDownloaderWorkerActions {
                 AsyncWorker.getWorkerThread().postTask(task);
             }
         };
+    }
 
-        downloadSelectedLogDirsAction = new AbstractAction() {
+    @SuppressWarnings("serial")
+    private AbstractAction createDownloadSelectedLogDirsAction() {
+        return new AbstractAction() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 if (!gui.validateAndSetUI()) {
@@ -570,8 +587,11 @@ class LogsDownloaderWorkerActions {
                 AsyncWorker.getWorkerThread().postTask(task);
             }
         };
+    }
 
-        downloadSelectedLogFilesAction = new AbstractAction() {
+    @SuppressWarnings("serial")
+    private AbstractAction createDownloadSelectedLogFilesAction() {
+        return new AbstractAction() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 if (!gui.validateAndSetUI()) {
@@ -614,8 +634,11 @@ class LogsDownloaderWorkerActions {
                 AsyncWorker.getWorkerThread().postTask(task);
             }
         };
+    }
 
-        deleteSelectedLogFoldersAction = new AbstractAction() {
+    @SuppressWarnings("serial")
+    private AbstractAction createDeleteSelectedLogFoldersAction() {
+        return new AbstractAction() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 if (!gui.validateAndSetUI()) {
@@ -701,8 +724,11 @@ class LogsDownloaderWorkerActions {
                 AsyncWorker.getWorkerThread().postTask(task);
             }
         };
+    }
 
-        deleteSelectedLogFilesAction = new AbstractAction() {
+    @SuppressWarnings("serial")
+    private AbstractAction createDeleteSelectedLogFilesAction() {
+        return new AbstractAction() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 if (!gui.validateAndSetUI()) {
@@ -780,22 +806,31 @@ class LogsDownloaderWorkerActions {
                 AsyncWorker.getWorkerThread().postTask(task);
             }
         };
+    }
 
-        toggleConfPanelAction = new AbstractAction() {
+    @SuppressWarnings("serial")
+    private AbstractAction createToggleConfPanelAction() {
+        return new AbstractAction() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 gui.configCollapsiblePanel.getActionMap().get(JXCollapsiblePane.TOGGLE_ACTION).actionPerformed(e);
             }
         };
+    }
 
-        toggleExtraInfoPanelAction = new AbstractAction() {
+    @SuppressWarnings("serial")
+    private AbstractAction createToggleExtraInfoPanelAction() {
+        return new AbstractAction() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 gui.extraInfoCollapsiblePanel.getActionMap().get(JXCollapsiblePane.TOGGLE_ACTION).actionPerformed(e);
             }
         };
+    }
 
-        helpAction = new AbstractAction() {
+    @SuppressWarnings("serial")
+    private AbstractAction createHelpAction() {
+        return new AbstractAction() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 GuiUtils.centerOnScreen(gui.downHelpDialog.getDialog());
@@ -803,24 +838,33 @@ class LogsDownloaderWorkerActions {
                 gui.downHelpDialog.getDialog().setVisible(true);
             }
         };
+    }
 
-        resetAction = new AbstractAction() {
+    @SuppressWarnings("serial")
+    private AbstractAction createResetAction() {
+        return new AbstractAction() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 gui.resetButton.setEnabled(false);
                 worker.doReset(false);
             }
         };
+    }
 
-        stopAllAction = new AbstractAction() {
+    @SuppressWarnings("serial")
+    private AbstractAction createStopAllAction() {
+        return new AbstractAction() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 gui.stopAllButton.setEnabled(false);
                 worker.doReset(true);
             }
         };
+    }
 
-        turnCameraOn = new AbstractAction() {
+    @SuppressWarnings("serial")
+    private AbstractAction createTurnCameraOnAction() {
+        return new AbstractAction() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 try {
