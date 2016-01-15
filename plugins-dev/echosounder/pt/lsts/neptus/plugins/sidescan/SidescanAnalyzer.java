@@ -246,7 +246,14 @@ public class SidescanAnalyzer extends JPanel implements MRAVisualization, Timeli
     @Override
     public void goToMarker(LogMarker marker) {
         int time = (int)(marker.getTimestamp()/1000.0);
-        timeline.getSlider().setValue(time);
+        if (time>0) {
+            try {
+                timeline.getSlider().setValue(time);
+            }
+            catch (Exception e) {
+                System.out.println(e);
+            }
+        }
     }
 
 }
