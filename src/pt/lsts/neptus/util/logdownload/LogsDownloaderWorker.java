@@ -162,8 +162,6 @@ public class LogsDownloaderWorker {
     }
 
     private void initializeGUI(JFrame parentFrame) {
-//        initializeActions();
-
         gui = new LogsDownloaderWorkerGUI(this, parentFrame);
         actions = new LogsDownloaderWorkerActions(this, gui);
         
@@ -177,10 +175,6 @@ public class LogsDownloaderWorker {
                 }
             });
         }
-
-        gui.resetButton.addActionListener(actions.resetAction);
-        gui.stopAllButton.addActionListener(actions.stopAllAction);
-        gui.cameraButton.addActionListener(actions.turnCameraOn);
 
         gui.logFolderList.addListSelectionListener(new ListSelectionListener() {
             @Override
@@ -207,24 +201,6 @@ public class LogsDownloaderWorker {
         });
         gui.logFolderList.addMouseListener(
                 LogsDownloaderUtil.createOpenLogInMRAMouseListener(LogsDownloaderWorker.this, gui.logFolderList));
-
-        gui.downloadListButton.addActionListener(actions.downloadListAction);
-
-        gui.downloadSelectedLogDirsButton.addActionListener(actions.downloadSelectedLogDirsAction);
-
-        gui.downloadSelectedLogFilesButton.addActionListener(actions.downloadSelectedLogFilesAction);
-
-        gui.deleteSelectedLogFoldersButton.addActionListener(actions.deleteSelectedLogFoldersAction);
-
-        gui.deleteSelectedLogFilesButton.addActionListener(actions.deleteSelectedLogFilesAction);
-
-
-        // Collapsible Panel Show/Hide buttons
-        gui.toggleConfPanelButton.addActionListener(actions.toggleConfPanelAction);
-
-        gui.toggleExtraInfoPanelButton.addActionListener(actions.toggleExtraInfoPanelAction);
-
-        gui.helpButton.addActionListener(actions.helpAction);
 
         setEnableLogLabel(false);
 

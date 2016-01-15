@@ -81,24 +81,56 @@ class LogsDownloaderWorkerActions {
     boolean stopLogListProcessing = false;
     boolean resetting = false;
 
+    /**
+     * This will initialize the actions and set them up on the GUI
+     * (so the GUI components are assume to exist).
+     * 
+     * @param worker
+     * @param gui
+     */
     public LogsDownloaderWorkerActions(LogsDownloaderWorker worker, LogsDownloaderWorkerGUI gui) {
         this.worker = worker;
         this.gui = gui;
+        
         initializeActions();
+        setupListenersOnGuiComponents();
     }
 
     private void initializeActions() {
         downloadListAction = createDownloadListAction();
         downloadSelectedLogDirsAction = createDownloadSelectedLogDirsAction();
         downloadSelectedLogFilesAction = createDownloadSelectedLogFilesAction();
+        
         deleteSelectedLogFoldersAction = createDeleteSelectedLogFoldersAction();
         deleteSelectedLogFilesAction = createDeleteSelectedLogFilesAction();
+        
         toggleConfPanelAction = createToggleConfPanelAction();
         toggleExtraInfoPanelAction = createToggleExtraInfoPanelAction();
+        
         helpAction = createHelpAction();
+        
         resetAction = createResetAction();
         stopAllAction = createStopAllAction();
         turnCameraOn = createTurnCameraOnAction();
+    }
+
+    private void setupListenersOnGuiComponents() {
+        gui.downloadListButton.addActionListener(downloadListAction);
+        gui.downloadSelectedLogDirsButton.addActionListener(downloadSelectedLogDirsAction);
+        gui.downloadSelectedLogFilesButton.addActionListener(downloadSelectedLogFilesAction);
+        
+        gui.deleteSelectedLogFoldersButton.addActionListener(deleteSelectedLogFoldersAction);
+        gui.deleteSelectedLogFilesButton.addActionListener(deleteSelectedLogFilesAction);
+
+        // Collapsible Panel Show/Hide buttons
+        gui.toggleConfPanelButton.addActionListener(toggleConfPanelAction);
+        gui.toggleExtraInfoPanelButton.addActionListener(toggleExtraInfoPanelAction);
+
+        gui.helpButton.addActionListener(helpAction);
+        
+        gui.resetButton.addActionListener(resetAction);
+        gui.stopAllButton.addActionListener(stopAllAction);
+        gui.cameraButton.addActionListener(turnCameraOn);
     }
 
     @SuppressWarnings("serial")
