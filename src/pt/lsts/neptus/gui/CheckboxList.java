@@ -32,21 +32,26 @@
 package pt.lsts.neptus.gui;
 
 import java.awt.Component;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.util.ArrayList;
+import java.util.Arrays;
 
 import javax.swing.JCheckBox;
 import javax.swing.JList;
 import javax.swing.JOptionPane;
+import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
 import javax.swing.ListCellRenderer;
 import javax.swing.ListSelectionModel;
+import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 import javax.swing.border.Border;
 import javax.swing.border.EmptyBorder;
 
-import org.mozilla.javascript.edu.emory.mathcs.backport.java.util.Arrays;
+import pt.lsts.neptus.i18n.I18n;
 
 /**
  * @author zp
@@ -64,9 +69,33 @@ public class CheckboxList extends JList<JCheckBox> {
                 int index = locationToIndex(e.getPoint());
 
                 if (index != -1) {
-                    JCheckBox checkbox = getModel().getElementAt(index);
-                    checkbox.setSelected(!checkbox.isSelected());
-                    repaint();
+                    if (SwingUtilities.isRightMouseButton(e)) {
+                        JPopupMenu popup = new JPopupMenu();
+                        popup.add(I18n.text("Select all")).addActionListener(new ActionListener() {
+                            @Override
+                            public void actionPerformed(ActionEvent e) {
+                                for (int i = 0; i < getModel().getSize(); i++)
+                                    getModel().getElementAt(i).setSelected(true);
+                                repaint();
+                            }
+                        });
+
+                        popup.add(I18n.text("Select none")).addActionListener(new ActionListener() {
+                            @Override
+                            public void actionPerformed(ActionEvent e) {
+                                for (int i = 0; i < getModel().getSize(); i++)
+                                    getModel().getElementAt(i).setSelected(false);
+                                repaint();
+                            }
+                        });
+
+                        popup.show(CheckboxList.this, getX(), e.getY());
+                    }
+                    else {
+                        JCheckBox checkbox = getModel().getElementAt(index);
+                        checkbox.setSelected(!checkbox.isSelected());
+                        repaint();
+                    }
                 }
             }
         });
@@ -75,8 +104,8 @@ public class CheckboxList extends JList<JCheckBox> {
     }
 
     protected class CellRenderer implements ListCellRenderer<JCheckBox> {
-        public Component getListCellRendererComponent(JList<? extends JCheckBox> list, JCheckBox checkbox, int index, boolean isSelected,
-                boolean cellHasFocus) {
+        public Component getListCellRendererComponent(JList<? extends JCheckBox> list, JCheckBox checkbox, int index,
+                boolean isSelected, boolean cellHasFocus) {
             checkbox.setBackground(isSelected ? getSelectionBackground() : getBackground());
             checkbox.setForeground(isSelected ? getSelectionForeground() : getForeground());
             checkbox.setEnabled(isEnabled());
@@ -87,37 +116,38 @@ public class CheckboxList extends JList<JCheckBox> {
             return checkbox;
         }
     }
-    
+
     public static CheckboxList getInstance(String... options) {
         JCheckBox[] items = new JCheckBox[options.length];
-        
+
         for (int i = 0; i < options.length; i++)
             items[i] = new JCheckBox(options[i]);
-        
+
         CheckboxList list = new CheckboxList();
         list.setListData(items);
-        
+
         return list;
     }
-    
+
     public String[] getSelectedStrings() {
         ArrayList<String> selected = new ArrayList<>();
         for (int i = 0; i < getModel().getSize(); i++) {
             if (getModel().getElementAt(i).isSelected())
                 selected.add(getModel().getElementAt(i).getText());
         }
-        
+
         return selected.toArray(new String[selected.size()]);
     }
-    
+
     public static String[] selectOptions(Component parent, String title, String... options) {
         CheckboxList checkList = CheckboxList.getInstance(options);
+
         int op = JOptionPane.showConfirmDialog(parent, new JScrollPane(checkList), title, JOptionPane.OK_CANCEL_OPTION);
         if (op != JOptionPane.OK_OPTION)
             return null;
         return checkList.getSelectedStrings();
     }
-    
+
     // example usage
     public static void main(String[] args) {
         String[] options = selectOptions(null, "Title", "Option A", "Option B", "Option C");
