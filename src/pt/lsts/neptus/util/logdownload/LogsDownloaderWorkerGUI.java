@@ -530,4 +530,18 @@ class LogsDownloaderWorkerGUI {
         dialog.setVisible(true);
     }
 
+    void cleanInterface() {
+        logFilesList.myModel.clear();
+        logFolderList.myModel.clear();
+        downloadWorkersHolder.removeAll();
+
+        // Protected against disable problems
+        downloadListButton.setEnabled(true);
+        downloadSelectedLogDirsButton.setEnabled(true);
+        downloadSelectedLogFilesButton.setEnabled(true);
+        deleteSelectedLogFoldersButton.setEnabled(true);
+        deleteSelectedLogFilesButton.setEnabled(true);
+
+        logFoldersListLabel.setIcon(null);
+    }
 }

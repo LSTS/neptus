@@ -1039,25 +1039,6 @@ public class LogsDownloaderWorker {
         return dirBaseToStoreFiles;
     }
 
-    // --------------------------------------------------------------
-
-    /**
-     * 
-     */
-    private void cleanInterface() {
-        gui.logFilesList.myModel.clear();
-        gui.logFolderList.myModel.clear();
-        gui.downloadWorkersHolder.removeAll();
-
-        // Protected against disable problems
-        gui.downloadListButton.setEnabled(true);
-        gui.downloadSelectedLogDirsButton.setEnabled(true);
-        gui.downloadSelectedLogFilesButton.setEnabled(true);
-        gui.deleteSelectedLogFoldersButton.setEnabled(true);
-        gui.deleteSelectedLogFilesButton.setEnabled(true);
-
-        gui.logFoldersListLabel.setIcon(null);
-    }
 
     // --------------------------------------------------------------
 
@@ -1403,7 +1384,7 @@ public class LogsDownloaderWorker {
                         SwingUtilities.invokeAndWait(new Runnable() {
                             @Override
                             public void run() {
-                                cleanInterface();
+                                gui.cleanInterface();
                             }
                         });
                     }
