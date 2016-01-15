@@ -311,10 +311,15 @@ public class MraPhotosVisualization extends JComponent implements MRAVisualizati
         if (photosDir == null)
             return;
 
-        /*double sliderValue = marker.getTimestamp() - startTime;
-        timeline.getSlider().setValue((int)sliderValue);*/
         int time = (int)(marker.getTimestamp()/1000.0);
-        timeline.getSlider().setValue(time);
+        if (time>0) {
+            try {
+                timeline.getSlider().setValue(time);
+            }
+            catch (Exception e) {
+                System.out.println(e);
+            }
+        }
     }
 
     public File getCurFile() {
