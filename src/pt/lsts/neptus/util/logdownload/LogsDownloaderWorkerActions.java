@@ -33,6 +33,7 @@ package pt.lsts.neptus.util.logdownload;
 
 import java.awt.Dialog.ModalityType;
 import java.awt.event.ActionEvent;
+import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.LinkedHashMap;
@@ -149,13 +150,7 @@ class LogsDownloaderWorkerActions {
                             stopLogListProcessing = false;
 
                         long time = System.currentTimeMillis();
-                        SwingUtilities.invokeAndWait(new Runnable() {
-                            @Override
-                            public void run() {
-                                gui.listHandlingProgressBar.setValue(0);
-                                gui.listHandlingProgressBar.setString(I18n.text("Starting..."));
-                            }
-                        });
+                        showInGuiStarting();
 
                         gui.downloadListButton.setEnabled(false);
                         // logFolderList.setEnabled(false);
@@ -163,71 +158,46 @@ class LogsDownloaderWorkerActions {
                         // logFilesList.setEnabled(false);
 
                         // ->Getting txt list of logs from server
-                        SwingUtilities.invokeAndWait(new Runnable() {
-                            @Override
-                            public void run() {
-                                gui.listHandlingProgressBar.setValue(10);
-                                gui.listHandlingProgressBar.setIndeterminate(true);
-                                gui.listHandlingProgressBar.setString(I18n
-                                        .text("Connecting to remote system for log list update..."));
-                            }
-                        });
+                        showInGuiConnectingToServers();
 
-                        LinkedHashMap<FTPFile, String> retList = null;
                         LinkedHashMap<String, String> serversLogPresenceList = new LinkedHashMap<>(); 
 
+                        // Get list from main CPU
                         long timeD1 = System.currentTimeMillis();
-                        // Getting the file list from main CPU
-                        try {
-                            worker.clientFtp = LogsDownloaderUtil.getOrRenewFtpDownloader(worker.clientFtp, worker.getHost(), worker.getPort());
-
-                            retList = worker.clientFtp.listLogs();
-
+                        LinkedHashMap<FTPFile, String> retList = getFileListFromMainCPU(serversLogPresenceList);
+                        if (retList != null) {
                             for (String partialUri : retList.values()) {
                                 serversLogPresenceList.put(partialUri, LogsDownloaderWorker.SERVER_MAIN);
                             }
                         }
-                        catch (Exception e) {
-                            NeptusLog.pub().error("Connecting with " + worker.getHost() + ":" + worker.getPort() + " with error: " + e.getMessage());
-                        }
                         NeptusLog.pub().warn(".......get list from main CPU server " + (System.currentTimeMillis() - timeD1) + "ms");                        
 
+                        // Get list from main CPU
                         long timeD2 = System.currentTimeMillis();
-                        //Getting the log list from Camera CPU
-                        String cameraHost = LogsDownloaderUtil.getCameraHost(worker.getHost());
-                        if (cameraHost.length() > 0 && isCamCpuOn()) {
-                            LinkedHashMap<FTPFile, String> retCamList = null;
-                            try {
-                                worker.cameraFtp = LogsDownloaderUtil.getOrRenewFtpDownloader(worker.cameraFtp, cameraHost, worker.getPort());
-                                retCamList = worker.cameraFtp.listLogs();
-                            }
-                            catch (Exception e) {
-                                NeptusLog.pub().error("Connecting with " + cameraHost + ":" + worker.getPort() + " with error: " + e.getMessage());
-                            }
-                            if (retCamList != null) {
-                                if (retList == null) {
-                                    retList = retCamList;
+                        LinkedHashMap<FTPFile, String> retCamList = getFileListFromCamCPU(serversLogPresenceList);;
+                        if (retCamList != null) {
+                            if (retList == null) {
+                                retList = retCamList;
 
-                                    for (String partialUri : retList.values()) {
-                                        serversLogPresenceList.put(partialUri, LogsDownloaderWorker.SERVER_CAM);
-                                    }
+                                for (String partialUri : retList.values()) {
+                                    serversLogPresenceList.put(partialUri, LogsDownloaderWorker.SERVER_CAM);
                                 }
-                                else {
-                                    for (FTPFile camFTPFile : retCamList.keySet()) {
-                                        String val = retCamList.get(camFTPFile);
-                                        if (retList.containsValue(val)) {
-                                            serversLogPresenceList.put(val, serversLogPresenceList.get(val) + " " + LogsDownloaderWorker.SERVER_CAM);
-                                            continue;
-                                        }
-                                        else {
-                                            retList.put(camFTPFile, val);
-                                            serversLogPresenceList.put(val, LogsDownloaderWorker.SERVER_CAM);
-                                        }
+                            }
+                            else {
+                                for (FTPFile camFTPFile : retCamList.keySet()) {
+                                    String val = retCamList.get(camFTPFile);
+                                    if (retList.containsValue(val)) {
+                                        serversLogPresenceList.put(val, serversLogPresenceList.get(val) + " " + LogsDownloaderWorker.SERVER_CAM);
+                                        continue;
+                                    }
+                                    else {
+                                        retList.put(camFTPFile, val);
+                                        serversLogPresenceList.put(val, LogsDownloaderWorker.SERVER_CAM);
                                     }
                                 }
                             }
-                            NeptusLog.pub().warn(".......get list from main CAM server " + (System.currentTimeMillis() - timeD2) + "ms");                        
                         }
+                        NeptusLog.pub().warn(".......get list from main CAM server " + (System.currentTimeMillis() - timeD2) + "ms");                        
 
                         NeptusLog.pub().warn(".......get list from all servers " + (System.currentTimeMillis() - timeD1) + "ms");                        
                         if (retList == null) {
@@ -239,302 +209,76 @@ class LogsDownloaderWorkerActions {
 
                         long timeD3 = System.currentTimeMillis();
                         
-                        // Added in order not to show the active log (the last one
-                        if (retList.size() > 0) {
-                            String[] ordList = retList.values().toArray(new String[retList.size()]);
-                            Arrays.sort(ordList);
-                            String activeLogName = ordList[ordList.length - 1];
-                            for (FTPFile fFile : retList.keySet().toArray(new FTPFile[retList.size()])) {
-                                if (retList.get(fFile).equals(activeLogName)) {
-                                    retList.remove(fFile);
-                                    break;
-                                }
-                            }
-                        }
-
-                        if (retList.size() == 0) {
-                            SwingUtilities.invokeAndWait(new Runnable() {
-                                @Override
-                                public void run() {
-                                    gui.listHandlingProgressBar.setValue(100);
-                                    gui.listHandlingProgressBar.setIndeterminate(false);
-                                    gui.listHandlingProgressBar.setString(I18n.text("No logs..."));
-                                }
-                            });
+                        // Added in order not to show the active log (the last one)
+                        orderAndFilterOutTheActiveLog(retList);
+                        showInGuiNumberOfLogsFromServers(retList);
+                        if (retList.size() == 0) // Abort the rest of processing
                             return null;
-                        }
-                        else {
-                            final String msg1 = I18n.textf("Log Folders: %numberoffolders", retList.size());
-                            SwingUtilities.invokeAndWait(new Runnable() {
-                                @Override
-                                public void run() {
-                                    // listHandlingProgressBar.setValue(10);
-                                    // listHandlingProgressBar.setIndeterminate(true);
-                                    gui.listHandlingProgressBar.setString(msg1);
-                                }
-                            });
-                        }
 
                         // ->Removing from already existing LogFolders to LOCAL state
-                        SwingUtilities.invokeAndWait(new Runnable() {
-                            @Override
-                            public void run() {
-                                gui.listHandlingProgressBar.setValue(20);
-                                gui.listHandlingProgressBar.setIndeterminate(false);
-                                gui.listHandlingProgressBar.setString(I18n.text("Filtering list..."));
-                            }
-                        });
+                        showInGuiFiltering();
                         long timeC1 = System.currentTimeMillis();
-                        Object[] objArray = new Object[gui.logFolderList.myModel.size()];
-                        gui.logFolderList.myModel.copyInto(objArray);
-                        for (Object comp : objArray) {
-                            if (stopLogListProcessing)
-                                return null;
-
-                            try {
-                                // NeptusLog.pub().info("<###>... upda
-                                LogFolderInfo log = (LogFolderInfo) comp;
-                                if (!retList.containsValue(log.getName())) {
-                                    // retList.remove(log.getName());
-                                    for (LogFileInfo lfx : log.getLogFiles()) {
-                                        if (stopLogListProcessing)
-                                            return null;
-                                        lfx.setState(LogFolderInfo.State.LOCAL);
-                                    }
-                                    log.setState(LogFolderInfo.State.LOCAL);
-                                }
-                            }
-                            catch (Exception e) {
-                                NeptusLog.pub().debug(e.getMessage());
-                            }
-                        }
+                        setStateLocalIfNotInPresentServer(retList);
                         NeptusLog.pub().warn(".......Removing from already existing LogFolders to LOCAL state "
                                 + (System.currentTimeMillis() - timeC1) + "ms");
 
+                        if (stopLogListProcessing)
+                            return null;
+                        
                         // ->Adding new LogFolders
                         LinkedList<LogFolderInfo> existenteLogFoldersFromServer = new LinkedList<LogFolderInfo>();
                         LinkedList<LogFolderInfo> newLogFoldersFromServer = new LinkedList<LogFolderInfo>();
-                        for (String newLogName : retList.values()) {
-                            if (stopLogListProcessing)
-                                return null;
+                        addTheNewFoldersAnFillTheReturnedExistentAndNewLists(retList, existenteLogFoldersFromServer,
+                                newLogFoldersFromServer);
 
-                            final LogFolderInfo newLogDir = new LogFolderInfo(newLogName);
-                            if (gui.logFolderList.containsFolder(newLogDir)) {
-                                existenteLogFoldersFromServer.add(gui.logFolderList.getFolder((newLogDir.getName())));
-                            }
-                            else {
-                                newLogFoldersFromServer.add(newLogDir);
-                                SwingUtilities.invokeAndWait(new Runnable() {
-                                    @Override
-                                    public void run() {
-                                        gui.logFolderList.addFolder(newLogDir);
-                                    }
-                                });
-                            }
-                        }
-                        // msgPanel.writeMessageTextln("Logs Folders: " + logFolderList.myModel.size());
+                        if (stopLogListProcessing)
+                            return null;
 
                         // ->Getting Log files list from server
-                        SwingUtilities.invokeAndWait(new Runnable() {
-                            @Override
-                            public void run() {
-                                gui.listHandlingProgressBar.setValue(30);
-                                gui.listHandlingProgressBar.setIndeterminate(true);
-                                gui.listHandlingProgressBar.setString(I18n
-                                        .text("Contacting remote system for complete log file list..."));
-
-                                gui.listHandlingProgressBar.setValue(40);
-                                gui.listHandlingProgressBar.setIndeterminate(false);
-                                gui.listHandlingProgressBar.setString(I18n.text("Processing log list..."));
-                            }
-                        });
-
-                        objArray = new Object[gui.logFolderList.myModel.size()];
-                        gui.logFolderList.myModel.copyInto(objArray);
+                        showInGuiProcessingLogList();
 
                         long timeF0 = System.currentTimeMillis();
-                        LinkedList<LogFolderInfo> tmpLogFolderList = worker.getLogFileList(serversLogPresenceList);
+                        LinkedList<LogFolderInfo> tmpLogFolderList = gettingFromServersCompleteLogList(serversLogPresenceList);
                         NeptusLog.pub().warn(".......Contacting remote system for complete log file list " +
                                 (System.currentTimeMillis() - timeF0) + "ms");
 
-                        SwingUtilities.invokeAndWait(new Runnable() {
-                            @Override
-                            public void run() {
-                                gui.listHandlingProgressBar.setValue(70);
-                                gui.listHandlingProgressBar.setIndeterminate(false);
-                                gui.listHandlingProgressBar.setString(I18n.text("Updating logs info..."));
-                            }
-                        });
+                        showInGuiUpdatingLogsInfo();
 
                         long timeF1 = System.currentTimeMillis();
                         // Testing for log files from each log folder
-                        for (Object comp : objArray) {
-                            if (stopLogListProcessing)
-                                return null;
-
-                            try {
-                                LogFolderInfo logFolder = (LogFolderInfo) comp;
-
-                                int indexLFolder = tmpLogFolderList.indexOf(logFolder);
-                                LinkedHashSet<LogFileInfo> logFilesTmp = (indexLFolder != -1) ? tmpLogFolderList.get(
-                                        indexLFolder).getLogFiles() : new LinkedHashSet<LogFileInfo>();
-                                        for (LogFileInfo logFx : logFilesTmp) {
-                                            if (stopLogListProcessing)
-                                                return null;
-
-                                            if (!logFolder.getLogFiles().contains(logFx)) {
-                                                // The file or directory is new
-                                                logFolder.addFile(logFx);
-                                            }
-                                            else {
-                                                // The file or directory is already known so let us update
-                                                LogFileInfo lfx = logFolder.getLogFile(logFx.getName()/* fxStr */);
-                                                if (lfx.getSize() == -1) {
-                                                    lfx.setSize(logFx.getSize());
-                                                }
-                                                else if (lfx.getSize() != logFx.getSize()) {
-                                                    System.out.println("//////////// " + lfx.getSize() + "  " + logFx.getSize());
-                                                    if (lfx.getState() == LogFolderInfo.State.SYNC)
-                                                        lfx.setState(LogFolderInfo.State.INCOMPLETE);
-                                                    else if (lfx.getState() == LogFolderInfo.State.LOCAL)
-                                                        lfx.setState(LogFolderInfo.State.INCOMPLETE);
-                                                    lfx.setSize(logFx.getSize());
-                                                    lfx.setFile(logFx.getFile());
-                                                }
-                                                else if (lfx.getSize() == logFx.getSize()) {
-                                                    if (lfx.getState() == LogFolderInfo.State.LOCAL)
-                                                        lfx.setState(LogFolderInfo.State.SYNC);
-                                                }
-                                                lfx.setHost(logFx.getHost());
-
-                                                if (logFx.isDirectory()) {
-                                                    ArrayList<LogFileInfo> notMatchElements = new ArrayList<>();
-                                                    notMatchElements.addAll(lfx.getDirectoryContents());
-                                                    for (LogFileInfo lfi : logFx.getDirectoryContents()) {
-                                                        boolean alreadyExists = false;
-                                                        for (LogFileInfo lfiLocal : lfx.getDirectoryContents()) {
-                                                            if (lfi.equals(lfiLocal)) {
-                                                                alreadyExists = true;
-                                                                notMatchElements.remove(lfiLocal);
-                                                                lfi.setSize(lfiLocal.getSize());
-                                                                lfi.setFile(lfiLocal.getFile());
-                                                                lfi.setHost(lfiLocal.getHost());
-                                                            }
-                                                        }
-                                                        if (!alreadyExists) {
-                                                            lfx.getDirectoryContents().add(lfi);
-                                                            lfx.setState(LogFolderInfo.State.INCOMPLETE);
-                                                        }
-                                                    }
-                                                    for (LogFileInfo lfi : notMatchElements) {
-                                                        lfx.getDirectoryContents().remove(lfi);
-                                                    }
-                                                }
-
-                                                if (lfx.isDirectory()) {
-                                                    if (!LogsDownloaderUtil.getFileTarget(lfx.getName(), worker.getDirBaseToStoreFiles(), worker.getLogLabel()).exists()) {
-                                                        for (LogFileInfo lfi : lfx.getDirectoryContents()) {
-                                                            if (!LogsDownloaderUtil.getFileTarget(lfi.getName(), worker.getDirBaseToStoreFiles(), worker.getLogLabel()).exists()) {
-                                                                if (lfx.getState() != LogFolderInfo.State.NEW && lfx.getState() != LogFolderInfo.State.DOWNLOADING)
-                                                                    lfx.setState(LogFolderInfo.State.INCOMPLETE);
-                                                                break;
-                                                            }
-                                                        }
-                                                    }
-                                                    else {
-                                                        long sizeD = LogsDownloaderUtil.getDiskSizeFromLocal(lfx, worker);
-                                                        if (lfx.getSize() != sizeD && lfx.getState() == LogFolderInfo.State.SYNC)
-                                                            lfx.setState(LogFolderInfo.State.INCOMPLETE);
-                                                    }
-                                                }
-                                                else {
-                                                    if (!LogsDownloaderUtil.getFileTarget(lfx.getName(), worker.getDirBaseToStoreFiles(), worker.getLogLabel()).exists()) {
-                                                        if (lfx.getState() != LogFolderInfo.State.NEW && lfx.getState() != LogFolderInfo.State.DOWNLOADING) {
-                                                            lfx.setState(LogFolderInfo.State.INCOMPLETE);
-                                                            // System.out.println("//////////// " + lfx.getName() + "  " + LogsDownloaderUtil.getFileTarget(lfx.getName()).exists());
-                                                        }
-                                                    }
-                                                    else {
-                                                        long sizeD = LogsDownloaderUtil.getDiskSizeFromLocal(lfx, worker);
-                                                        if (lfx.getSize() != sizeD && lfx.getState() == LogFolderInfo.State.SYNC)
-                                                            lfx.setState(LogFolderInfo.State.INCOMPLETE);
-                                                    }
-                                                }
-                                            }
-                                        }
-
-                                        // Put LOCAL state on files not in server
-                                        LinkedHashSet<LogFileInfo> toDelFL = new LinkedHashSet<LogFileInfo>();
-                                        for (LogFileInfo lfx : logFolder.getLogFiles()) {
-                                            if (!logFilesTmp.contains(lfx)
-                                                    /* !res.keySet().contains(lfx.getName()) */) {
-                                                lfx.setState(LogFolderInfo.State.LOCAL);
-                                                if (!LogsDownloaderUtil.getFileTarget(lfx.getName(), 
-                                                        worker.getDirBaseToStoreFiles(), worker.getLogLabel()).exists()) {
-                                                    toDelFL.add(lfx);
-                                                    // logFolder.getLogFiles().remove(lfx); //This cannot be done here
-                                                }
-                                            }
-                                        }
-                                        for (LogFileInfo lfx : toDelFL)
-                                            logFolder.getLogFiles().remove(lfx);
-                            }
-                            catch (Exception e) {
-                                NeptusLog.pub().debug(e.getMessage());
-                            }
-                        }
+                        testingForLogFilesFromEachLogFolderAndFillInfo(tmpLogFolderList);
                         NeptusLog.pub().warn(".......Testing for log files from each log folder " +
                                 (System.currentTimeMillis() - timeF1) + "ms");
 
+                        if (stopLogListProcessing)
+                            return null;
+                        
                         long timeF2 = System.currentTimeMillis();
-                        worker.testNewReportedLogFoldersForLocalCorrespondent(newLogFoldersFromServer);
-                        for (LogFolderInfo logFolder : existenteLogFoldersFromServer) {
-                            LogsDownloaderWorkerGUIUtil.updateLogFolderState(logFolder, gui.logFolderList);
-                        }
-                        LogsDownloaderWorkerGUIUtil.updateLogStateIconForAllLogFolders(gui.logFolderList,
-                                gui.logFoldersListLabel);
+                        testNewReportedLogFoldersForLocalCorrespondent(newLogFoldersFromServer);
+                        updateLogFoldersState(existenteLogFoldersFromServer);
                         NeptusLog.pub().warn(".......Updating LogFolders State " +
                                 (System.currentTimeMillis() - timeF2) + "ms");
 
                         long timeF3 = System.currentTimeMillis();
-                        // updateFilesListGUIForFolderSelected();
-                        new Thread("updateFilesListGUIForFolderSelected") {
-                            @Override
-                            public void run() {
-                                worker.updateFilesListGUIForFolderSelected();
-                            };
-                        }.start();
+                        updateFilesListGUIForFolderSelected();
                         NeptusLog.pub().warn(".......updateFilesListGUIForFolderSelected " +
                                 (System.currentTimeMillis() - timeF3) + "ms");
 
                         NeptusLog.pub().warn("....process list from all servers " + (System.currentTimeMillis() - timeD3) + "ms");                        
 
-                        SwingUtilities.invokeAndWait(new Runnable() {
-                            @Override
-                            public void run() {
-                                gui.listHandlingProgressBar.setValue(90);
-                                gui.listHandlingProgressBar.setIndeterminate(false);
-                                gui.listHandlingProgressBar.setString(I18n.text("Updating GUI..."));
-                            }
-                        });
-                        gui.logFolderList.invalidate();
-                        gui.logFolderList.revalidate();
-                        gui.logFolderList.repaint();
-                        gui.logFolderList.setEnabled(true);
-                        // logFilesList.invalidate();
-                        // logFilesList.revalidate();
-                        // logFilesList.repaint();
-                        gui.logFilesList.setEnabled(true);
+                        showInGuiUpdatingGui();
+                        
+//                        gui.logFolderList.invalidate();
+//                        gui.logFolderList.revalidate();
+//                        gui.logFolderList.repaint();
+//                        gui.logFolderList.setEnabled(true);
+//                        // logFilesList.invalidate();
+//                        // logFilesList.revalidate();
+//                        // logFilesList.repaint();
+//                        gui.logFilesList.setEnabled(true);
 
                         NeptusLog.pub().warn("....all downloadListAction " + (System.currentTimeMillis() - time) + "ms");
-                        SwingUtilities.invokeAndWait(new Runnable() {
-                            @Override
-                            public void run() {
-                                gui.listHandlingProgressBar.setValue(100);
-                                gui.listHandlingProgressBar.setIndeterminate(false);
-                                gui.listHandlingProgressBar.setString(I18n.text("Done"));
-                            }
-                        });
+                        showInGuiDone();
                         return true;
                     }
 
@@ -569,6 +313,363 @@ class LogsDownloaderWorkerActions {
         };
     }
 
+    private LinkedHashMap<FTPFile, String> getFileListFromMainCPU(
+            LinkedHashMap<String, String> serversLogPresenceList) {
+        // Getting the file list from main CPU
+        LinkedHashMap<FTPFile, String> retList = null;
+        try {
+            worker.clientFtp = LogsDownloaderUtil.getOrRenewFtpDownloader(worker.clientFtp, worker.getHost(),
+                    worker.getPort());
+            retList = worker.clientFtp.listLogs();
+        }
+        catch (Exception e) {
+            NeptusLog.pub().error(
+                    "Connecting with " + worker.getHost() + ":" + worker.getPort() + " with error: " + e.getMessage());
+        }
+        return retList;
+    }
+
+    private LinkedHashMap<FTPFile, String> getFileListFromCamCPU(
+            LinkedHashMap<String, String> serversLogPresenceList) {
+      //Getting the log list from Camera CPU
+        String cameraHost = LogsDownloaderUtil.getCameraHost(worker.getHost());
+        LinkedHashMap<FTPFile, String> retCamList = null;
+        if (cameraHost.length() > 0 && isCamCpuOn()) {
+            try {
+                worker.cameraFtp = LogsDownloaderUtil.getOrRenewFtpDownloader(worker.cameraFtp, cameraHost,
+                        worker.getPort());
+                retCamList = worker.cameraFtp.listLogs();
+            }
+            catch (Exception e) {
+                NeptusLog.pub().error(
+                        "Connecting with " + cameraHost + ":" + worker.getPort() + " with error: " + e.getMessage());
+            }
+        }
+        return retCamList;
+    }
+
+    private void orderAndFilterOutTheActiveLog(LinkedHashMap<FTPFile, String> retList) {
+        if (retList.size() > 0) {
+            String[] ordList = retList.values().toArray(new String[retList.size()]);
+            Arrays.sort(ordList);
+            String activeLogName = ordList[ordList.length - 1];
+            for (FTPFile fFile : retList.keySet().toArray(new FTPFile[retList.size()])) {
+                if (retList.get(fFile).equals(activeLogName)) {
+                    retList.remove(fFile);
+                    break;
+                }
+            }
+        }
+    }
+
+    private void setStateLocalIfNotInPresentServer(LinkedHashMap<FTPFile, String> retList) {
+        Object[] objArray = new Object[gui.logFolderList.myModel.size()];
+        gui.logFolderList.myModel.copyInto(objArray);
+        for (Object comp : objArray) {
+            if (stopLogListProcessing)
+                return;
+
+            try {
+                // NeptusLog.pub().info("<###>... upda
+                LogFolderInfo log = (LogFolderInfo) comp;
+                if (!retList.containsValue(log.getName())) {
+                    // retList.remove(log.getName());
+                    for (LogFileInfo lfx : log.getLogFiles()) {
+                        if (stopLogListProcessing)
+                            return;
+                        lfx.setState(LogFolderInfo.State.LOCAL);
+                    }
+                    log.setState(LogFolderInfo.State.LOCAL);
+                }
+            }
+            catch (Exception e) {
+                NeptusLog.pub().debug(e.getMessage());
+            }
+        }
+    }
+
+    private void addTheNewFoldersAnFillTheReturnedExistentAndNewLists(
+            LinkedHashMap<FTPFile, String> retList,
+            LinkedList<LogFolderInfo> existenteLogFoldersFromServer,
+            LinkedList<LogFolderInfo> newLogFoldersFromServer)
+                    throws InterruptedException, InvocationTargetException {
+        for (String newLogName : retList.values()) {
+            if (stopLogListProcessing)
+                return;
+
+            final LogFolderInfo newLogDir = new LogFolderInfo(newLogName);
+            if (gui.logFolderList.containsFolder(newLogDir)) {
+                existenteLogFoldersFromServer.add(gui.logFolderList.getFolder((newLogDir.getName())));
+            }
+            else {
+                newLogFoldersFromServer.add(newLogDir);
+                SwingUtilities.invokeAndWait(new Runnable() {
+                    @Override
+                    public void run() {
+                        gui.logFolderList.addFolder(newLogDir);
+                    }
+                });
+            }
+        }
+        // msgPanel.writeMessageTextln("Logs Folders: " + logFolderList.myModel.size());
+    }
+
+    private LinkedList<LogFolderInfo> gettingFromServersCompleteLogList(
+            LinkedHashMap<String, String> serversLogPresenceList) {
+        return worker.getLogFileList(serversLogPresenceList);
+    }
+    
+    private void testingForLogFilesFromEachLogFolderAndFillInfo(
+            LinkedList<LogFolderInfo> tmpLogFolderList) {
+        Object[] objArray = new Object[gui.logFolderList.myModel.size()];
+        gui.logFolderList.myModel.copyInto(objArray);
+        for (Object comp : objArray) {
+            if (stopLogListProcessing)
+                return;
+
+            try {
+                LogFolderInfo logFolder = (LogFolderInfo) comp;
+
+                int indexLFolder = tmpLogFolderList.indexOf(logFolder);
+                LinkedHashSet<LogFileInfo> logFilesTmp = (indexLFolder != -1) ? tmpLogFolderList.get(
+                        indexLFolder).getLogFiles() : new LinkedHashSet<LogFileInfo>();
+                        for (LogFileInfo logFx : logFilesTmp) {
+                            if (stopLogListProcessing)
+                                return;
+
+                            if (!logFolder.getLogFiles().contains(logFx)) {
+                                // The file or directory is new
+                                logFolder.addFile(logFx);
+                            }
+                            else {
+                                // The file or directory is already known so let us update
+                                LogFileInfo lfx = logFolder.getLogFile(logFx.getName()/* fxStr */);
+                                if (lfx.getSize() == -1) {
+                                    lfx.setSize(logFx.getSize());
+                                }
+                                else if (lfx.getSize() != logFx.getSize()) {
+                                    System.out.println("//////////// " + lfx.getSize() + "  " + logFx.getSize());
+                                    if (lfx.getState() == LogFolderInfo.State.SYNC)
+                                        lfx.setState(LogFolderInfo.State.INCOMPLETE);
+                                    else if (lfx.getState() == LogFolderInfo.State.LOCAL)
+                                        lfx.setState(LogFolderInfo.State.INCOMPLETE);
+                                    lfx.setSize(logFx.getSize());
+                                    lfx.setFile(logFx.getFile());
+                                }
+                                else if (lfx.getSize() == logFx.getSize()) {
+                                    if (lfx.getState() == LogFolderInfo.State.LOCAL)
+                                        lfx.setState(LogFolderInfo.State.SYNC);
+                                }
+                                lfx.setHost(logFx.getHost());
+
+                                if (logFx.isDirectory()) {
+                                    ArrayList<LogFileInfo> notMatchElements = new ArrayList<>();
+                                    notMatchElements.addAll(lfx.getDirectoryContents());
+                                    for (LogFileInfo lfi : logFx.getDirectoryContents()) {
+                                        boolean alreadyExists = false;
+                                        for (LogFileInfo lfiLocal : lfx.getDirectoryContents()) {
+                                            if (lfi.equals(lfiLocal)) {
+                                                alreadyExists = true;
+                                                notMatchElements.remove(lfiLocal);
+                                                lfi.setSize(lfiLocal.getSize());
+                                                lfi.setFile(lfiLocal.getFile());
+                                                lfi.setHost(lfiLocal.getHost());
+                                            }
+                                        }
+                                        if (!alreadyExists) {
+                                            lfx.getDirectoryContents().add(lfi);
+                                            lfx.setState(LogFolderInfo.State.INCOMPLETE);
+                                        }
+                                    }
+                                    for (LogFileInfo lfi : notMatchElements) {
+                                        lfx.getDirectoryContents().remove(lfi);
+                                    }
+                                }
+
+                                if (lfx.isDirectory()) {
+                                    if (!LogsDownloaderUtil.getFileTarget(lfx.getName(), worker.getDirBaseToStoreFiles(), worker.getLogLabel()).exists()) {
+                                        for (LogFileInfo lfi : lfx.getDirectoryContents()) {
+                                            if (!LogsDownloaderUtil.getFileTarget(lfi.getName(), worker.getDirBaseToStoreFiles(), worker.getLogLabel()).exists()) {
+                                                if (lfx.getState() != LogFolderInfo.State.NEW && lfx.getState() != LogFolderInfo.State.DOWNLOADING)
+                                                    lfx.setState(LogFolderInfo.State.INCOMPLETE);
+                                                break;
+                                            }
+                                        }
+                                    }
+                                    else {
+                                        long sizeD = LogsDownloaderUtil.getDiskSizeFromLocal(lfx, worker);
+                                        if (lfx.getSize() != sizeD && lfx.getState() == LogFolderInfo.State.SYNC)
+                                            lfx.setState(LogFolderInfo.State.INCOMPLETE);
+                                    }
+                                }
+                                else {
+                                    if (!LogsDownloaderUtil.getFileTarget(lfx.getName(), worker.getDirBaseToStoreFiles(), worker.getLogLabel()).exists()) {
+                                        if (lfx.getState() != LogFolderInfo.State.NEW && lfx.getState() != LogFolderInfo.State.DOWNLOADING) {
+                                            lfx.setState(LogFolderInfo.State.INCOMPLETE);
+                                            // System.out.println("//////////// " + lfx.getName() + "  " + LogsDownloaderUtil.getFileTarget(lfx.getName()).exists());
+                                        }
+                                    }
+                                    else {
+                                        long sizeD = LogsDownloaderUtil.getDiskSizeFromLocal(lfx, worker);
+                                        if (lfx.getSize() != sizeD && lfx.getState() == LogFolderInfo.State.SYNC)
+                                            lfx.setState(LogFolderInfo.State.INCOMPLETE);
+                                    }
+                                }
+                            }
+                        }
+
+                        // Put LOCAL state on files not in server
+                        LinkedHashSet<LogFileInfo> toDelFL = new LinkedHashSet<LogFileInfo>();
+                        for (LogFileInfo lfx : logFolder.getLogFiles()) {
+                            if (!logFilesTmp.contains(lfx)
+                                    /* !res.keySet().contains(lfx.getName()) */) {
+                                lfx.setState(LogFolderInfo.State.LOCAL);
+                                if (!LogsDownloaderUtil.getFileTarget(lfx.getName(), 
+                                        worker.getDirBaseToStoreFiles(), worker.getLogLabel()).exists()) {
+                                    toDelFL.add(lfx);
+                                    // logFolder.getLogFiles().remove(lfx); //This cannot be done here
+                                }
+                            }
+                        }
+                        for (LogFileInfo lfx : toDelFL)
+                            logFolder.getLogFiles().remove(lfx);
+            }
+            catch (Exception e) {
+                NeptusLog.pub().debug(e.getMessage());
+            }
+        }
+    }
+    
+    private void testNewReportedLogFoldersForLocalCorrespondent(
+            LinkedList<LogFolderInfo> newLogFoldersFromServer) {
+        worker.testNewReportedLogFoldersForLocalCorrespondent(newLogFoldersFromServer);
+    }
+
+    private void updateLogFoldersState(LinkedList<LogFolderInfo> existenteLogFoldersFromServer) {
+        for (LogFolderInfo logFolder : existenteLogFoldersFromServer) {
+            LogsDownloaderWorkerGUIUtil.updateLogFolderState(logFolder, gui.logFolderList);
+        }
+        LogsDownloaderWorkerGUIUtil.updateLogStateIconForAllLogFolders(gui.logFolderList,
+                gui.logFoldersListLabel);
+    }
+
+    private void updateFilesListGUIForFolderSelected() {
+        // updateFilesListGUIForFolderSelected();
+        new Thread("updateFilesListGUIForFolderSelected") {
+            @Override
+            public void run() {
+                worker.updateFilesListGUIForFolderSelected();
+            };
+        }.start();
+    }
+    
+    private void showInGuiStarting() throws InterruptedException, InvocationTargetException {
+        SwingUtilities.invokeAndWait(new Runnable() {
+            @Override
+            public void run() {
+                gui.listHandlingProgressBar.setValue(0);
+                gui.listHandlingProgressBar.setString(I18n.text("Starting..."));
+            }
+        });
+    }
+    
+    private void showInGuiConnectingToServers() throws InterruptedException, InvocationTargetException {
+        SwingUtilities.invokeAndWait(new Runnable() {
+            @Override
+            public void run() {
+                gui.listHandlingProgressBar.setValue(10);
+                gui.listHandlingProgressBar.setIndeterminate(true);
+                gui.listHandlingProgressBar.setString(I18n
+                        .text("Connecting to remote system for log list update..."));
+            }
+        });
+    }
+
+    private void showInGuiNumberOfLogsFromServers(LinkedHashMap<FTPFile, String> retList)
+            throws InterruptedException, InvocationTargetException {
+        if (retList.size() == 0) {
+            SwingUtilities.invokeAndWait(new Runnable() {
+                @Override
+                public void run() {
+                    gui.listHandlingProgressBar.setValue(100);
+                    gui.listHandlingProgressBar.setIndeterminate(false);
+                    gui.listHandlingProgressBar.setString(I18n.text("No logs..."));
+                }
+            });
+        }
+        else {
+            final String msg1 = I18n.textf("Log Folders: %numberoffolders", retList.size());
+            SwingUtilities.invokeAndWait(new Runnable() {
+                @Override
+                public void run() {
+                    // listHandlingProgressBar.setValue(10);
+                    // listHandlingProgressBar.setIndeterminate(true);
+                    gui.listHandlingProgressBar.setString(msg1);
+                }
+            });
+        }
+    }
+
+    private void showInGuiFiltering() throws InterruptedException, InvocationTargetException {
+        SwingUtilities.invokeAndWait(new Runnable() {
+            @Override
+            public void run() {
+                gui.listHandlingProgressBar.setValue(20);
+                gui.listHandlingProgressBar.setIndeterminate(false);
+                gui.listHandlingProgressBar.setString(I18n.text("Filtering list..."));
+            }
+        });
+    }
+
+    private void showInGuiProcessingLogList() throws InterruptedException, InvocationTargetException {
+        SwingUtilities.invokeAndWait(new Runnable() {
+            @Override
+            public void run() {
+                gui.listHandlingProgressBar.setValue(30);
+                gui.listHandlingProgressBar.setIndeterminate(true);
+                gui.listHandlingProgressBar.setString(I18n
+                        .text("Contacting remote system for complete log file list..."));
+
+                gui.listHandlingProgressBar.setValue(40);
+                gui.listHandlingProgressBar.setIndeterminate(false);
+                gui.listHandlingProgressBar.setString(I18n.text("Processing log list..."));
+            }
+        });
+    }
+
+    private void showInGuiUpdatingLogsInfo() throws InterruptedException, InvocationTargetException {
+        SwingUtilities.invokeAndWait(new Runnable() {
+            @Override
+            public void run() {
+                gui.listHandlingProgressBar.setValue(70);
+                gui.listHandlingProgressBar.setIndeterminate(false);
+                gui.listHandlingProgressBar.setString(I18n.text("Updating logs info..."));
+            }
+        });
+    }
+
+    private void showInGuiUpdatingGui() throws InterruptedException, InvocationTargetException {
+        SwingUtilities.invokeAndWait(new Runnable() {
+            @Override
+            public void run() {
+                gui.listHandlingProgressBar.setValue(90);
+                gui.listHandlingProgressBar.setIndeterminate(false);
+                gui.listHandlingProgressBar.setString(I18n.text("Updating GUI..."));
+            }
+        });
+    }
+
+    private void showInGuiDone() throws InterruptedException, InvocationTargetException {
+        SwingUtilities.invokeAndWait(new Runnable() {
+            @Override
+            public void run() {
+                gui.listHandlingProgressBar.setValue(100);
+                gui.listHandlingProgressBar.setIndeterminate(false);
+                gui.listHandlingProgressBar.setString(I18n.text("Done"));
+            }
+        });
+    }
+    
     @SuppressWarnings("serial")
     private AbstractAction createDownloadSelectedLogDirsAction() {
         return new AbstractAction() {
