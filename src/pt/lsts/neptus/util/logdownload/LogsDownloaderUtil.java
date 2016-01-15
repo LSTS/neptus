@@ -59,6 +59,7 @@ import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.messages.listener.MessageInfo;
 import pt.lsts.neptus.messages.listener.MessageListener;
 import pt.lsts.neptus.mra.NeptusMRA;
+import pt.lsts.neptus.util.FileUtil;
 
 /**
  * @author pdias
@@ -179,10 +180,11 @@ class LogsDownloaderUtil {
                     final File imc = new File(baseFxPath + "IMC.xml");
                     final File imcGz = new File(baseFxPath + "IMC.xml.gz");
 
-                    final File log = new File(baseFxPath + "Data.lsf");
-                    final File logGz = new File(baseFxPath + "Data.lsf.gz");
+                    final File log = new File(baseFxPath + "Data." + FileUtil.FILE_TYPE_LSF);
+                    final File logGz = new File(baseFxPath + "Data." + FileUtil.FILE_TYPE_LSF_COMPRESSED);
+                    final File logBz2 = new File(baseFxPath + "Data." + FileUtil.FILE_TYPE_LSF_COMPRESSED_BZIP2);
 
-                    if ((imc.exists() || imcGz.exists()) && (logGz.exists() || log.exists())) {
+                    if ((imc.exists() || imcGz.exists()) && (logGz.exists() || log.exists() || logBz2.exists())) {
 
                         JPopupMenu popup = new JPopupMenu();
                         popup.add(I18n.text("Open this log in MRA")).addActionListener(new ActionListener() {
@@ -195,10 +197,12 @@ class LogsDownloaderUtil {
                                         mra.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 
                                         File fx = null;
-                                        if (logGz.exists())
-                                            fx = logGz;
                                         if (log.exists())
                                             fx = log;
+                                        else if (logGz.exists())
+                                            fx = logGz;
+                                        else if (logBz2.exists())
+                                            fx = logBz2;
 
                                         ((NeptusMRA) mra).getMraFilesHandler().openLog(fx);
                                     };
