@@ -386,18 +386,14 @@ public class MRALogReplay extends SimpleMRAVisualization implements LogMarkerLis
 
     @Override
     public void goToMarker(LogMarker marker) {
-        for (LogReplayLayer l : layers) {
-            if (l instanceof LogMarkerListener)
-                ((LogMarkerListener) l).goToMarker(marker);
-                int time = (int)(marker.getTimestamp()/1000.0);
-                if (time>0) {
-                    try {
-                        timeline.focusTime(time);
-                    }
-                    catch (Exception e) {
-                        System.out.println(e);
-                    }
-                }
+        int time = (int)(marker.getTimestamp()/1000.0);
+        if (time>0) {
+            try {
+                timeline.focusTime(time);
+            }
+            catch (Exception e) {
+                System.out.println(e);
+            }
         }
     }
 
