@@ -244,7 +244,7 @@ public class LoggingDownloader extends ConsolePanel implements MainVehicleChange
         };
 
         showDownloaderAction = new AbstractAction(I18n.text("Show Downloader"),
-                LogsDownloaderWorker.ICON_DOWNLOAD_FOLDERS) {
+                LogsDownloaderWorker.getIcon()) {
             @Override
             public void actionPerformed(ActionEvent e) {
                 tabbledPane.setSelectedComponent(getDownloadWorker().getContentPanel());

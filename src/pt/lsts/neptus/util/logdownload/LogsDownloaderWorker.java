@@ -33,7 +33,6 @@ package pt.lsts.neptus.util.logdownload;
 
 import java.awt.Color;
 import java.awt.Component;
-import java.awt.Dialog.ModalityType;
 import java.awt.Frame;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
@@ -49,9 +48,8 @@ import java.util.Vector;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
-import javax.swing.JDialog;
+import javax.swing.Icon;
 import javax.swing.JFrame;
-import javax.swing.JOptionPane;
 import javax.swing.SwingUtilities;
 import javax.swing.SwingWorker;
 import javax.swing.event.ListSelectionEvent;
@@ -59,9 +57,6 @@ import javax.swing.event.ListSelectionListener;
 
 import org.apache.commons.net.ftp.FTPFile;
 import org.jdesktop.swingx.JXPanel;
-import org.jdesktop.swingx.painter.CompoundPainter;
-import org.jdesktop.swingx.painter.GlossPainter;
-import org.jdesktop.swingx.painter.RectanglePainter;
 
 import foxtrot.AsyncTask;
 import foxtrot.AsyncWorker;
@@ -91,8 +86,8 @@ public class LogsDownloaderWorker {
 
     protected static final Color CAM_CPU_ON_COLOR = Color.GREEN;
     private static final int ACTIVE_DOWNLOADS_QUEUE_SIZE = 1;
-    private static final String SERVER_MAIN = "main";
-    private static final String SERVER_CAM = "cam";
+    static final String SERVER_MAIN = "main";
+    static final String SERVER_CAM = "cam";
 
     static final int DEFAULT_PORT = 30021;
 
@@ -122,6 +117,7 @@ public class LogsDownloaderWorker {
 
 
     private LogsDownloaderWorkerGUI gui = null;
+    private LogsDownloaderWorkerActions actions = null;
 
     private ScheduledThreadPoolExecutor threadScheduledPool = null;
     private Runnable ttaskLocalDiskSpace = null;
@@ -159,14 +155,16 @@ public class LogsDownloaderWorker {
         initializeGUI(parentFrame);
 
         // Register for EntityActivationState
-        messageListener = LogsDownloaderUtil.createEntityStateMessageListener(LogsDownloaderWorker.this, cameraButton);
+        messageListener = LogsDownloaderUtil.createEntityStateMessageListener(LogsDownloaderWorker.this,
+                gui.cameraButton);
         ImcMsgManager.getManager().addListener(messageListener); // all systems listener
     }
 
     private void initializeGUI(JFrame parentFrame) {
-        initializeActions();
+//        initializeActions();
 
         gui = new LogsDownloaderWorkerGUI(this, parentFrame);
+        actions = new LogsDownloaderWorkerActions(this, gui);
         
         if (gui.frame == null) {
             gui.frame.setTitle(DEFAULT_TITLE + " - " + logLabel);
@@ -179,11 +177,9 @@ public class LogsDownloaderWorker {
             });
         }
 
-        gui.resetButton.addActionListener(resetAction);
-
-        gui.stopAllButton.addActionListener(stopAllAction);
-
-        gui.cameraButton.addActionListener(turnCameraOn);
+        gui.resetButton.addActionListener(actions.resetAction);
+        gui.stopAllButton.addActionListener(actions.stopAllAction);
+        gui.cameraButton.addActionListener(actions.turnCameraOn);
 
         gui.logFolderList.addListSelectionListener(new ListSelectionListener() {
             @Override
@@ -211,28 +207,23 @@ public class LogsDownloaderWorker {
         gui.logFolderList.addMouseListener(
                 LogsDownloaderUtil.createOpenLogInMRAMouseListener(LogsDownloaderWorker.this, gui.logFolderList));
 
-        gui.downloadListButton.addActionListener(downloadListAction);
+        gui.downloadListButton.addActionListener(actions.downloadListAction);
 
-        gui.downloadSelectedLogDirsButton.addActionListener(downloadSelectedLogDirsAction);
+        gui.downloadSelectedLogDirsButton.addActionListener(actions.downloadSelectedLogDirsAction);
 
-        gui.downloadSelectedLogFilesButton.addActionListener(downloadSelectedLogFilesAction);
+        gui.downloadSelectedLogFilesButton.addActionListener(actions.downloadSelectedLogFilesAction);
 
-        gui.deleteSelectedLogFoldersButton.addActionListener(deleteSelectedLogFoldersAction);
+        gui.deleteSelectedLogFoldersButton.addActionListener(actions.deleteSelectedLogFoldersAction);
 
-        gui.deleteSelectedLogFilesButton.addActionListener(deleteSelectedLogFilesAction);
+        gui.deleteSelectedLogFilesButton.addActionListener(actions.deleteSelectedLogFilesAction);
 
 
         // Collapsible Panel Show/Hide buttons
-        gui.toggleConfPanelButton.addActionListener(toggleConfPanelAction);
+        gui.toggleConfPanelButton.addActionListener(actions.toggleConfPanelAction);
 
-        gui.toggleExtraInfoPanelButton.addActionListener(toggleExtraInfoPanelAction);
+        gui.toggleExtraInfoPanelButton.addActionListener(actions.toggleExtraInfoPanelAction);
 
-        gui.helpButton.addActionListener(helpAction);
-
-
-
-
-        downHelpDialog = new DownloaderHelp(gui.frame);
+        gui.helpButton.addActionListener(actions.helpAction);
 
         setEnableLogLabel(false);
 
@@ -243,6 +234,14 @@ public class LogsDownloaderWorker {
 
         ttaskLocalDiskSpace = getTimerTaskLocalDiskSpace();
         threadScheduledPool.scheduleAtFixedRate(ttaskLocalDiskSpace, 500, 5000, TimeUnit.MILLISECONDS);
+    }
+
+    public static Icon getIcon() {
+        return LogsDownloaderWorkerGUI.ICON_DOWNLOAD_FOLDERS;
+    }
+
+    public boolean validateConfiguration() {
+        return gui.validateConfiguration();
     }
 
     private boolean isCamCpuOn() {
@@ -275,7 +274,7 @@ public class LogsDownloaderWorker {
                             gui.diskFreeLabel.setText("<html><b>" + uSpStr);
                             gui.diskFreeLabel.setToolTipText(I18n.textf("Local free disk space %usedspace of %totalspace",
                                     uSpStr, tSpStr));
-                            updateDiskFreeLabelBackColor(diskFreeColorMap.getColor(pFree));
+                            gui.updateDiskFreeLabelBackColor(diskFreeColorMap.getColor(pFree));
                             return;
                         }
                     }
@@ -284,7 +283,7 @@ public class LogsDownloaderWorker {
                     }
                     gui.diskFreeLabel.setText("<html><b>?");
                     gui.diskFreeLabel.setToolTipText(I18n.text("Unknown local disk free space"));
-                    updateDiskFreeLabelBackColor(Color.LIGHT_GRAY);
+                    gui.updateDiskFreeLabelBackColor(Color.LIGHT_GRAY);
 
                     // Queue block test
                     ArrayList<DownloaderPanel> workingDonsloaders = queueWorkTickets.getAllWorkingClients();
@@ -326,8 +325,8 @@ public class LogsDownloaderWorker {
             }
         }
 
-        if (downHelpDialog != null)
-            downHelpDialog.dispose();
+        if (gui.downHelpDialog != null)
+            gui.downHelpDialog.dispose();
 
         ImcMsgManager.getManager().removeListener(messageListener);
 
@@ -362,48 +361,6 @@ public class LogsDownloaderWorker {
         super.finalize();
         cleanup();
     }
-
-    /**
-     * @return the rectPainter
-     */
-    private RectanglePainter getRectPainter() {
-        if (gui.rectPainter == null) {
-            gui.rectPainter = new RectanglePainter(0, 0, 0, 0, 10, 10);
-            gui.rectPainter.setFillPaint(Color.LIGHT_GRAY);
-            gui.rectPainter.setBorderPaint(Color.LIGHT_GRAY.darker().darker().darker());
-            gui.rectPainter.setStyle(RectanglePainter.Style.BOTH);
-            gui.rectPainter.setBorderWidth(2);
-            gui.rectPainter.setAntialiasing(true);
-        }
-        return gui.rectPainter;
-    }
-
-    /**
-     * @return the compoundBackPainter
-     */
-    CompoundPainter<JXPanel> getCompoundBackPainter() {
-        gui.compoundBackPainter = new CompoundPainter<JXPanel>(getRectPainter(), new GlossPainter());
-        return gui.compoundBackPainter;
-    }
-
-    /**
-     * @param color
-     */
-    private void updateDiskFreeLabelBackColor(Color color) {
-        getRectPainter().setFillPaint(color);
-        getRectPainter().setBorderPaint(color.darker());
-
-        gui.diskFreeLabel.setBackgroundPainter(getCompoundBackPainter());
-    }
-
-    private void popupErrorConfigurationDialog() {
-        JOptionPane jop = new JOptionPane(I18n.text("Some of the configuration parameters are not correct!"),
-                JOptionPane.ERROR_MESSAGE);
-        JDialog dialog = jop.createDialog(gui.frameCompHolder, I18n.text("Error on configuration"));
-        dialog.setModalityType(ModalityType.DOCUMENT_MODAL);
-        dialog.setVisible(true);
-    }
-
 
     public String getHost() {
         return host;

@@ -33,14 +33,17 @@ package pt.lsts.neptus.util.logdownload;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.Dialog.ModalityType;
 
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
 import javax.swing.GroupLayout;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
+import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JProgressBar;
 import javax.swing.JScrollPane;
@@ -54,6 +57,7 @@ import org.jdesktop.swingx.JXCollapsiblePane;
 import org.jdesktop.swingx.JXLabel;
 import org.jdesktop.swingx.JXPanel;
 import org.jdesktop.swingx.painter.CompoundPainter;
+import org.jdesktop.swingx.painter.GlossPainter;
 import org.jdesktop.swingx.painter.RectanglePainter;
 
 import pt.lsts.neptus.NeptusLog;
@@ -133,8 +137,8 @@ class LogsDownloaderWorkerGUI {
     JProgressBar listHandlingProgressBar = null;
 
     // Background Painter Stuff
-    RectanglePainter rectPainter;
-    CompoundPainter<JXPanel> compoundBackPainter;
+    private RectanglePainter rectPainter;
+    private CompoundPainter<JXPanel> compoundBackPainter;
     
     boolean frameIsExternalControlled = false;
 
@@ -168,7 +172,7 @@ class LogsDownloaderWorkerGUI {
         logFilesListLabel = new JXLabel("<html><b>" + I18n.text("Log Files"), JLabel.CENTER);
 
         diskFreeLabel = new JXLabel("<html><b>?", JLabel.CENTER);
-        diskFreeLabel.setBackgroundPainter(worker.getCompoundBackPainter());
+        diskFreeLabel.setBackgroundPainter(getCompoundBackPainter());
 
         initializeButtons();
 
@@ -236,8 +240,7 @@ class LogsDownloaderWorkerGUI {
         // Setup main content panel
         initializeMainPanel();
 
-        
-        
+        downHelpDialog = new DownloaderHelp(frame);
     }
 
     private void initializeButtons() {
@@ -434,6 +437,39 @@ class LogsDownloaderWorkerGUI {
                                                         .addComponent(downloadWorkersScroll, 80, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE));
     }
 
+    /**
+     * @return the rectPainter
+     */
+    private RectanglePainter getRectPainter() {
+        if (rectPainter == null) {
+            rectPainter = new RectanglePainter(0, 0, 0, 0, 10, 10);
+            rectPainter.setFillPaint(Color.LIGHT_GRAY);
+            rectPainter.setBorderPaint(Color.LIGHT_GRAY.darker().darker().darker());
+            rectPainter.setStyle(RectanglePainter.Style.BOTH);
+            rectPainter.setBorderWidth(2);
+            rectPainter.setAntialiasing(true);
+        }
+        return rectPainter;
+    }
+
+    /**
+     * @return the compoundBackPainter
+     */
+    CompoundPainter<JXPanel> getCompoundBackPainter() {
+        compoundBackPainter = new CompoundPainter<JXPanel>(getRectPainter(), new GlossPainter());
+        return compoundBackPainter;
+    }
+
+    /**
+     * @param color
+     */
+    void updateDiskFreeLabelBackColor(Color color) {
+        getRectPainter().setFillPaint(color);
+        getRectPainter().setBorderPaint(color.darker());
+
+        diskFreeLabel.setBackgroundPainter(getCompoundBackPainter());
+    }
+
     boolean validateAndSetUI() {
         int iPort = LogsDownloaderWorker.DEFAULT_PORT;
         if ("".equalsIgnoreCase(hostField.getText())) {
@@ -465,7 +501,7 @@ class LogsDownloaderWorkerGUI {
         return true;
     }
 
-    public boolean validateConfiguration() {
+    boolean validateConfiguration() {
         if ("".equalsIgnoreCase(hostField.getText())) {
             return false;
         }
@@ -484,6 +520,14 @@ class LogsDownloaderWorkerGUI {
         if ("".equalsIgnoreCase(logLabelField.getText()))
             return false;
         return true;
+    }
+
+    void popupErrorConfigurationDialog() {
+        JOptionPane jop = new JOptionPane(I18n.text("Some of the configuration parameters are not correct!"),
+                JOptionPane.ERROR_MESSAGE);
+        JDialog dialog = jop.createDialog(frameCompHolder, I18n.text("Error on configuration"));
+        dialog.setModalityType(ModalityType.DOCUMENT_MODAL);
+        dialog.setVisible(true);
     }
 
 }
