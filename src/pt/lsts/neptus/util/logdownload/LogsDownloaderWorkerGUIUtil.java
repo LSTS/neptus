@@ -31,7 +31,10 @@
  */
 package pt.lsts.neptus.util.logdownload;
 
+import java.awt.Color;
 import java.awt.Component;
+import java.io.File;
+import java.util.ArrayList;
 import java.util.LinkedHashSet;
 
 import javax.swing.JPanel;
@@ -39,11 +42,21 @@ import javax.swing.SwingWorker;
 
 import org.jdesktop.swingx.JXLabel;
 
+import pt.lsts.neptus.NeptusLog;
+import pt.lsts.neptus.colormap.ColorMap;
+import pt.lsts.neptus.colormap.ColorMapFactory;
+import pt.lsts.neptus.colormap.InterpolationColorMap;
+import pt.lsts.neptus.i18n.I18n;
+import pt.lsts.neptus.util.MathMiscUtils;
+
 /**
  * @author pdias
  *
  */
 public class LogsDownloaderWorkerGUIUtil {
+
+    private static final ColorMap diskFreeColorMap = ColorMapFactory
+            .createInvertedColorMap((InterpolationColorMap) ColorMapFactory.createRedYellowGreenColorMap());
 
     /** To avoid instantiation */
     private LogsDownloaderWorkerGUIUtil() {
@@ -247,4 +260,58 @@ public class LogsDownloaderWorkerGUIUtil {
         return toDelFL;
     }
 
+    /**
+     * Creates the {@link Runnable} task to be schedule to update the local disk space info.
+     * 
+     * @param worker
+     * @param gui
+     * @param queueWorkTickets
+     * @return
+     */
+    static Runnable getTimerTaskLocalDiskSpace(LogsDownloaderWorker worker,
+            LogsDownloaderWorkerGUI gui, QueueWorkTickets<DownloaderPanel> queueWorkTickets) {
+        Runnable ttaskLocalDiskSpace = new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    File fxD = new File(worker.getDirBaseToStoreFiles());
+                    long tspace = fxD.getTotalSpace();
+                    long uspace = fxD.getUsableSpace();
+                    if (tspace != 0 /* && uspace != 0 */) {
+                        String tSpStr = MathMiscUtils.parseToEngineeringRadix2Notation(tspace, 2) + "B";
+                        String uSpStr = MathMiscUtils.parseToEngineeringRadix2Notation(uspace, 2) + "B";
+                        double pFree = 1.0 * (tspace - uspace) / tspace;
+                        gui.diskFreeLabel.setText("<html><b>" + uSpStr);
+                        gui.diskFreeLabel.setToolTipText(I18n.textf("Local free disk space %usedspace of %totalspace",
+                                uSpStr, tSpStr));
+                        gui.updateDiskFreeLabelBackColor(diskFreeColorMap.getColor(pFree));
+                        return;
+                    }
+                }
+                catch (Exception e) {
+                    e.printStackTrace();
+                }
+                gui.diskFreeLabel.setText("<html><b>?");
+                gui.diskFreeLabel.setToolTipText(I18n.text("Unknown local disk free space"));
+                gui.updateDiskFreeLabelBackColor(Color.LIGHT_GRAY);
+
+                // Queue block test
+                ArrayList<DownloaderPanel> workingDonsloaders = queueWorkTickets.getAllWorkingClients();
+                Component[] components = gui.downloadWorkersHolder.getComponents();
+                for (Component cp : components) {
+                    if (!(cp instanceof DownloaderPanel))
+                        continue;
+
+                    DownloaderPanel workerD = (DownloaderPanel) cp;
+                    if (workingDonsloaders.contains(workerD))
+                        workingDonsloaders.remove(workerD);
+                }
+                for (DownloaderPanel cp : workingDonsloaders) {
+                    queueWorkTickets.release(cp);
+                    NeptusLog.pub().error(cp.getUri() + " should not be holding the lock (forcing release)! State: " + cp.getState());
+                }
+            }
+        };
+        return ttaskLocalDiskSpace;
+    }
 }

@@ -64,9 +64,6 @@ import foxtrot.AsyncTask;
 import foxtrot.AsyncWorker;
 import pt.lsts.imc.IMCMessage;
 import pt.lsts.neptus.NeptusLog;
-import pt.lsts.neptus.colormap.ColorMap;
-import pt.lsts.neptus.colormap.ColorMapFactory;
-import pt.lsts.neptus.colormap.InterpolationColorMap;
 import pt.lsts.neptus.comm.manager.imc.ImcMsgManager;
 import pt.lsts.neptus.ftp.FtpDownloader;
 import pt.lsts.neptus.gui.NudgeGlassPane;
@@ -74,7 +71,6 @@ import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.messages.listener.MessageInfo;
 import pt.lsts.neptus.messages.listener.MessageListener;
 import pt.lsts.neptus.util.GuiUtils;
-import pt.lsts.neptus.util.MathMiscUtils;
 import pt.lsts.neptus.util.conf.GeneralPreferences;
 
 /**
@@ -94,11 +90,6 @@ public class LogsDownloaderWorker {
     static final int DEFAULT_PORT = 30021;
 
     private static final String DEFAULT_TITLE = I18n.text("Download Log Files");
-
-
-    private static final ColorMap diskFreeColorMap = ColorMapFactory
-            .createInvertedColorMap((InterpolationColorMap) ColorMapFactory.createRedYellowGreenColorMap());
-
     protected static final long DELTA_TIME_TO_CLEAR_DONE = 5000;
     protected static final long DELTA_TIME_TO_CLEAR_NOT_WORKING = 45000;
 
@@ -209,7 +200,7 @@ public class LogsDownloaderWorker {
         if (!gui.frameIsExternalControlled)
             GuiUtils.centerOnScreen(gui.frame);
 
-        ttaskLocalDiskSpace = getTimerTaskLocalDiskSpace();
+        ttaskLocalDiskSpace = LogsDownloaderWorkerGUIUtil.getTimerTaskLocalDiskSpace(this, gui, queueWorkTickets);
         threadScheduledPool.scheduleAtFixedRate(ttaskLocalDiskSpace, 500, 5000, TimeUnit.MILLISECONDS);
     }
 
@@ -226,57 +217,6 @@ public class LogsDownloaderWorker {
      */
     public JXPanel getContentPanel() {
         return gui.frameCompHolder;
-    }
-
-    /**
-     * @return
-     */
-    private Runnable getTimerTaskLocalDiskSpace() {
-        if (ttaskLocalDiskSpace == null) {
-            ttaskLocalDiskSpace = new Runnable() {
-                @Override
-                public void run() {
-                    try {
-                        File fxD = new File(dirBaseToStoreFiles);
-                        long tspace = fxD.getTotalSpace();
-                        long uspace = fxD.getUsableSpace();
-                        if (tspace != 0 /* && uspace != 0 */) {
-                            String tSpStr = MathMiscUtils.parseToEngineeringRadix2Notation(tspace, 2) + "B";
-                            String uSpStr = MathMiscUtils.parseToEngineeringRadix2Notation(uspace, 2) + "B";
-                            double pFree = 1.0 * (tspace - uspace) / tspace;
-                            gui.diskFreeLabel.setText("<html><b>" + uSpStr);
-                            gui.diskFreeLabel.setToolTipText(I18n.textf("Local free disk space %usedspace of %totalspace",
-                                    uSpStr, tSpStr));
-                            gui.updateDiskFreeLabelBackColor(diskFreeColorMap.getColor(pFree));
-                            return;
-                        }
-                    }
-                    catch (Exception e) {
-                        e.printStackTrace();
-                    }
-                    gui.diskFreeLabel.setText("<html><b>?");
-                    gui.diskFreeLabel.setToolTipText(I18n.text("Unknown local disk free space"));
-                    gui.updateDiskFreeLabelBackColor(Color.LIGHT_GRAY);
-
-                    // Queue block test
-                    ArrayList<DownloaderPanel> workingDonsloaders = queueWorkTickets.getAllWorkingClients();
-                    Component[] components = gui.downloadWorkersHolder.getComponents();
-                    for (Component cp : components) {
-                        if (!(cp instanceof DownloaderPanel))
-                            continue;
-
-                        DownloaderPanel workerD = (DownloaderPanel) cp;
-                        if (workingDonsloaders.contains(workerD))
-                            workingDonsloaders.remove(workerD);
-                    }
-                    for (DownloaderPanel cp : workingDonsloaders) {
-                        queueWorkTickets.release(cp);
-                        NeptusLog.pub().error(cp.getUri() + " should not be holding the lock (forcing release)! State: " + cp.getState());
-                    }
-                }
-            };
-        }
-        return ttaskLocalDiskSpace;
     }
 
     /**
