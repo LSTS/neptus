@@ -35,10 +35,14 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import pt.lsts.neptus.NeptusLog;
 
@@ -57,6 +61,20 @@ public class QueueWorkTickets <C extends Object> {
     private LinkedBlockingQueue<C> workingClients = new LinkedBlockingQueue<>();
     private HashMap<C, QueueFuture> futures = new HashMap<>();
 
+    private final ExecutorService service = Executors.newCachedThreadPool(new ThreadFactory() {
+        private final String namePrefix = QueueWorkTickets.class.getSimpleName() + "::"
+                + Integer.toHexString(QueueWorkTickets.this.hashCode());
+        private final AtomicInteger counter = new AtomicInteger(0);
+        private final ThreadGroup group = new ThreadGroup(namePrefix);
+        @Override
+        public Thread newThread(Runnable r) {
+            Thread t = new Thread(group, r);
+            t.setName(namePrefix + "::" + (counter.getAndIncrement()));
+            t.setDaemon(true);
+            return t;
+        }
+    });
+    
     public QueueWorkTickets(int maximumTickets) {
         this.maximumTickets = maximumTickets;
     }
@@ -119,13 +137,6 @@ public class QueueWorkTickets <C extends Object> {
      * @param future
      */
     private void runFuture(final QueueFuture future) {
-//        new Thread(QueueWorkTickets.class.getSimpleName() + ":: "
-//                + Integer.toHexString(QueueWorkTickets.this.hashCode())) {
-//            @Override
-//            public void run() {
-//                future.run();
-//            }  
-//        }.start();
         future.run();
     }
 
@@ -233,23 +244,25 @@ public class QueueWorkTickets <C extends Object> {
             }
             else if (callable != null) {
                 try {
-//                    result = callable.call();
-                    new Thread(QueueWorkTickets.class.getSimpleName() + ":: "
-                            + Integer.toHexString(QueueWorkTickets.this.hashCode())) {
-                        @Override
-                        public void run() {
-                            try {
-                                callable.call();
-                            }
-                            catch (Exception e) {
-                                e.printStackTrace();
-                            }
-                        }  
-                    }.start();
+//                    new Thread(QueueWorkTickets.class.getSimpleName() + ":: "
+//                            + Integer.toHexString(QueueWorkTickets.this.hashCode())) {
+//                        @Override
+//                        public void run() {
+//                            try {
+//                                callable.call();
+//                            }
+//                            catch (Exception e) {
+//                                e.printStackTrace();
+//                            }
+//                        }  
+//                    }.start();
+                    service.submit(callable);
                     result = true;
                 }
                 catch (Exception e) {
                     e.printStackTrace();
+                }
+                finally {
                     result = false;
                     release(client); // Here we need to be sure to release the lock because we are not able to inform the client 
                 }
@@ -353,8 +366,6 @@ public class QueueWorkTickets <C extends Object> {
             }
         });
         try { ft1.get(2, TimeUnit.SECONDS); } catch (TimeoutException | ExecutionException | InterruptedException e) { e.printStackTrace(); }
-
-        
     }
 }
 
