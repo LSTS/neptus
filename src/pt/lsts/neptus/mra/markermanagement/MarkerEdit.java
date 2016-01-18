@@ -141,7 +141,6 @@ public class MarkerEdit extends JDialog {
     }
 
 
-
     @SuppressWarnings({ "unchecked", "rawtypes" })
     private void initialize() {
         panel.requestFocus();
@@ -196,13 +195,11 @@ public class MarkerEdit extends JDialog {
                     if (enableZoom && mouseDown)
                         zoom(layer.getGraphics(), zoomLayer.getGraphics());
 
-
                     g.drawImage(layer, RULER_SIZE+1, RULER_SIZE+1, null);
-
 
                     if (drawImageOverlay != null)
                         g.drawImage(drawImageOverlay, RULER_SIZE+1, RULER_SIZE+1, null);
-                    
+
                     //Draw ruler
                     if (enableRuler) {
                         drawRuler(rg2d);
@@ -252,7 +249,6 @@ public class MarkerEdit extends JDialog {
 
         markerImage.addMouseMotionListener(new MouseMotionListener() {
 
-
             @Override
             public void mouseMoved(MouseEvent e) {
                 mouseX = e.getX();
@@ -267,7 +263,6 @@ public class MarkerEdit extends JDialog {
                         (mouseY < image.getHeight())) {
 
                     pointsList.add(new Point(mouseX-RULER_SIZE-1, mouseY-RULER_SIZE-1));
-
                 }
                 markerImage.repaint();
             }
@@ -531,7 +526,7 @@ public class MarkerEdit extends JDialog {
 
                 layer = ImageUtils.createCompatibleImage(image.getWidth(), 
                         image.getHeight(), Transparency.TRANSLUCENT);
-                
+
                 rulerLayer = ImageUtils.createCompatibleImage(markerImage.getPreferredSize().width, 
                         markerImage.getPreferredSize().height, Transparency.TRANSLUCENT);
                 zoomLayer = ImageUtils.createCompatibleImage(image.getWidth(), 
@@ -552,7 +547,7 @@ public class MarkerEdit extends JDialog {
             setBounds(100, 100, markerImage.getIcon().getIconWidth() + prefWidth + RULER_SIZE + 10, markerImage.getIcon().getIconHeight() + prefHeight + RULER_SIZE + 10);
             setLocation(parent.getwindowLocation());
         }
-        if (image==null || layer==null) {
+        if (image == null || layer == null) {
             rectDrawBtn.setEnabled(false);
             circleDrawBtn.setEnabled(false);
             freeDrawBtn.setEnabled(false);
@@ -758,8 +753,8 @@ public class MarkerEdit extends JDialog {
 
             @Override
             public void actionPerformed(ActionEvent e) {
-                int res = showDelDialog();
-                if (res==0)  { 
+                int res = GuiUtils.confirmDialog(null, I18n.text("Confirm delete"), I18n.text("Are you sure you want to delete this marker?"));
+                if (res == 0)  { 
                     parent.removeMarkerItem(selectedMarker, selectMarkerRowIndex);
                     parent.removePanelMarkerItem(selectedMarker);
                     dispose();
@@ -1052,12 +1047,6 @@ public class MarkerEdit extends JDialog {
         toolBar.getActionMap().put("prevMark", previousMark);
 
         add(toolBar, BorderLayout.PAGE_START);
-    }
-
-
-    private int showDelDialog() {
-        int ans = GuiUtils.confirmDialog(this, I18n.text("Confirm delete"), I18n.text("Are you sure you want to delete this marker?"));
-        return ans;
     }
 
     private void clearLayer(){
