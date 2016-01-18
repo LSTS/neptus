@@ -56,7 +56,6 @@ import javax.swing.event.ChangeListener;
 import net.miginfocom.swing.MigLayout;
 import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.util.ImageUtils;
-import pt.lsts.neptus.util.logdownload.QueueWorkTickets;
 
 @SuppressWarnings("serial")
 public class Timeline extends JPanel implements ChangeListener {
