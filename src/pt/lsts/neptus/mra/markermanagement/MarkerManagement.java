@@ -36,6 +36,8 @@ import java.awt.Dialog.ModalityType;
 import java.awt.Dimension;
 import java.awt.Point;
 import java.awt.Toolkit;
+import java.awt.datatransfer.Clipboard;
+import java.awt.datatransfer.StringSelection;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
@@ -235,8 +237,8 @@ public class MarkerManagement {
                 @Override
                 public void actionPerformed(ActionEvent arg0) {
                     int rowIndex = table.getSelectedRow();
-                    if (table.getSelectedRow() != -1) {
-                        LogMarkerItem selectedMarker = findMarker(table.getValueAt(table.getSelectedRow(), 1).toString());
+                    if (rowIndex != -1) {
+                        LogMarkerItem selectedMarker = findMarker(table.getValueAt(rowIndex, 1).toString());
 
                         if (markerEditFrame.getOpenMarker() == selectedMarker) {
                             markerEditFrame.dispose();
@@ -250,7 +252,23 @@ public class MarkerManagement {
             };
 
             del.putValue(Action.SHORT_DESCRIPTION, I18n.text("Delete this marker."));
+            
+            AbstractAction copy = new AbstractAction(I18n.text("Copy location"), null) {
+
+                @Override
+                public void actionPerformed(ActionEvent arg0) {
+                    int rowIndex = table.getSelectedRow();
+                    if (rowIndex != -1) {
+                        LogMarkerItem selectedMarker = findMarker(table.getValueAt(rowIndex, 1).toString());
+                        StringSelection selec = new StringSelection(selectedMarker.getLocation().toString());
+                        Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
+                        clipboard.setContents(selec, selec);
+                    }
+                }
+            };
+
             popupMenu.add(del);
+            popupMenu.add(copy);
             table.setComponentPopupMenu(popupMenu);
             panel.add(scrollPane, "cell 0 2 3 1,grow");
             table.updateUI();

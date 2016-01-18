@@ -202,7 +202,7 @@ public class MarkerEdit extends JDialog {
 
                     if (drawImageOverlay != null)
                         g.drawImage(drawImageOverlay, RULER_SIZE+1, RULER_SIZE+1, null);
-
+                    
                     //Draw ruler
                     if (enableRuler) {
                         drawRuler(rg2d);
@@ -423,11 +423,11 @@ public class MarkerEdit extends JDialog {
         double range = selectedMarker.getRange();
         double height = selectedMarker.getHeight();
 
-        float zoomRangeStep = 1;
-        if (range > 10.0 && range < 30.0)
-            zoomRangeStep = 2;
+        float zoomRangeStep = 2;
+        if (range >= 10.0 && range < 30.0)
+            zoomRangeStep = 3;
         else {
-            if (range > 30.0)
+            if (range >= 30.0)
                 zoomRangeStep = 5;
         }
         //System.out.println("Range "+ range);
@@ -473,7 +473,6 @@ public class MarkerEdit extends JDialog {
 
         // vertical ruler (height)
 
-
         double zoomRangeStepV = 2.0;
         double stepV = zoomRangeStepV * (image.getHeight()) / height;
         double rV = 0;
@@ -511,7 +510,13 @@ public class MarkerEdit extends JDialog {
 
                 int width = image.getWidth();
                 int height = image.getHeight();
+                if (width > 300 || height > 300) {
+                    width = width / 3;
+                    height = height / 3;
+                    image = (BufferedImage) ImageUtils.getFasterScaledInstance(image, width, height);
+                }
 
+                markerImage.setIcon(null);
                 markerImage.repaint();
                 markerImage.setPreferredSize(new Dimension(width + RULER_SIZE + 10, height + RULER_SIZE + 10));
 
@@ -526,6 +531,7 @@ public class MarkerEdit extends JDialog {
 
                 layer = ImageUtils.createCompatibleImage(image.getWidth(), 
                         image.getHeight(), Transparency.TRANSLUCENT);
+                
                 rulerLayer = ImageUtils.createCompatibleImage(markerImage.getPreferredSize().width, 
                         markerImage.getPreferredSize().height, Transparency.TRANSLUCENT);
                 zoomLayer = ImageUtils.createCompatibleImage(image.getWidth(), 
