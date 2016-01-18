@@ -51,9 +51,12 @@ import java.util.concurrent.FutureTask;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import javax.naming.InvalidNameException;
 import javax.swing.JFrame;
+
+import com.google.common.eventbus.AsyncEventBus;
 
 import pt.lsts.imc.Announce;
 import pt.lsts.imc.EntityInfo;
@@ -92,8 +95,6 @@ import pt.lsts.neptus.util.StringUtils;
 import pt.lsts.neptus.util.conf.ConfigFetch;
 import pt.lsts.neptus.util.conf.GeneralPreferences;
 import pt.lsts.neptus.util.conf.PreferencesListener;
-
-import com.google.common.eventbus.AsyncEventBus;
 
 /**
  * @author pdias
@@ -158,11 +159,14 @@ CommBaseManager<IMCMessage, MessageInfo, SystemImcMsgCommInfo, ImcId16, CommMana
 
     // EventBus
     private final ExecutorService service = Executors.newCachedThreadPool(new ThreadFactory() {
-        private long counter = 0;
+        private final String namePrefix = ImcMsgManager.class.getSimpleName() + "::"
+                + Integer.toHexString(ImcMsgManager.this.hashCode());
+        private final AtomicInteger counter = new AtomicInteger(0);
+        private final ThreadGroup group = new ThreadGroup(namePrefix);
         @Override
         public Thread newThread(Runnable r) {
-            Thread t = new Thread(r);
-            t.setName("Message Event Bus " + (counter++));
+            Thread t = new Thread(group, r);
+            t.setName("Message Event Bus " + (counter.getAndIncrement()));
             t.setDaemon(true);
             return t;
         }
