@@ -41,6 +41,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import javax.swing.AbstractAction;
 import javax.swing.ImageIcon;
@@ -55,6 +56,7 @@ import javax.swing.event.ChangeListener;
 import net.miginfocom.swing.MigLayout;
 import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.util.ImageUtils;
+import pt.lsts.neptus.util.logdownload.QueueWorkTickets;
 
 @SuppressWarnings("serial")
 public class Timeline extends JPanel implements ChangeListener {
@@ -75,10 +77,14 @@ public class Timeline extends JPanel implements ChangeListener {
     private List<TimelineChangeListener> listeners = new ArrayList<TimelineChangeListener>();
     
     private ScheduledExecutorService service = Executors.newSingleThreadScheduledExecutor(new ThreadFactory() {
+        private final String namePrefix = Timeline.class.getSimpleName() + "::"
+                + Integer.toHexString(Timeline.this.hashCode());
+        private final AtomicInteger counter = new AtomicInteger(0);
+        private final ThreadGroup group = new ThreadGroup(namePrefix);
         @Override
         public Thread newThread(Runnable r) {
-            Thread t = new Thread(r);
-            t.setName("Timeline Thread");
+            Thread t = new Thread(group, r);
+            t.setName(namePrefix + "::" + counter.getAndIncrement());
             t.setDaemon(true);
             return t;
         }
