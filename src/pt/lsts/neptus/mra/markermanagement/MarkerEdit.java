@@ -518,7 +518,7 @@ public class MarkerEdit extends JDialog {
                 setBounds(100, 100, width + prefWidth + RULER_SIZE + 10, height + prefHeight + RULER_SIZE + 10);
                 setLocation(parent.getwindowLocation());
 
-                if (selectedMarker.getDrawImgPath() != null && !selectedMarker.getDrawImgPath().toString().equals("null")) {
+                if (selectedMarker.getDrawImgPath() != null && !selectedMarker.getDrawImgPath().toString().equals("N/A")) {
                     File fDraw = new File(path + selectedMarker.getDrawImgPath());
                     drawImageOverlay = ImageIO.read(fDraw);
                 } else 
