@@ -197,11 +197,13 @@ public class MRALogReplayTimeline extends JPanel implements ChangeListener {
             time = timeline.getMaximum();
 
         timeline.setValue(time);
-        if (replayThread != null)
+        boolean isRunning = replayThread != null; 
+        if (isRunning)
             replayThread.interrupt();
 
         replayThread = createReplayThread();
-        replayThread.start();
+        if (isRunning)
+            replayThread.start();
     }
 
     @Override
