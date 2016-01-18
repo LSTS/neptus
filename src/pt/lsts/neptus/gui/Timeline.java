@@ -75,8 +75,9 @@ public class Timeline extends JPanel implements ChangeListener {
         
         // To avoid exception
         max = Math.max(min, max);
-
+        
         slider = new JSlider(min, max);
+        
         slider.addChangeListener(this);
 
         slider.setPaintTicks(true);
@@ -208,6 +209,10 @@ public class Timeline extends JPanel implements ChangeListener {
     
     public void setTime(long epochTimeMillis) {
         this.time.setText(fmt.format(new Date(epochTimeMillis)) + " UTC (x" + speed + ")");
+    }
+    
+    public void focusTime(int timestamp) {
+        slider.setValue(timestamp);
     }
     
     public static void main(String args[]) {
