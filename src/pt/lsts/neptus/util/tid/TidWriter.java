@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2015 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2016 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -39,6 +39,32 @@ import java.util.TimeZone;
 
 /**
  * This is a TID file writer
+ * 
+ * The format is the following:
+ * <code><br>
+ * # Tides Data<br>
+ * # Time Zone: UTC<br>
+ * # Harbor: Leixoes<br>
+ * 2007/12/31 20:42:00.000 2.60<br>
+ * 2008/01/01 02:40:00.000 1.38<br>
+ * ...<br>
+ * </code>
+ * 
+ * <p>
+ * The first line is simply a comment.
+ * The time zone line is optional but if not there {@link TimeZone} UTC is assumed.
+ * The time zones ids to use should adhere to {@link TimeZone}.
+ * </p>
+ * <p>
+ * The harbor line informs of the harbor location for the data. If not there "?" 
+ * will appear, so use it.
+ * </p>
+ * <p>
+ * The header lines should appear at the beginning of the file. If the time zone 
+ * appear in the middle only the first will be used (but all previous dates will 
+ * be loaded as UTC).
+ * If additional columns are set, they will be loaded as doubles.
+ * </p>
  * @author Paulo Dias
  *
  */
@@ -52,8 +78,16 @@ public class TidWriter {
     2014/08/27 07:53:33.057 0.006612 
     */
 
+    /** Line ending to use */
+    private static final String LINE_ENDING = "\r\n";
+
     /** The default decimal houses to use */
-    private static final int DEFAULT_DECIMAL_HOUSES = 6;
+    private static final int DEFAULT_DECIMAL_HOUSES = 2;
+
+    /** Harbor txt for location search */
+    public static final String HARBOR_STR = "Harbor";
+    /** Time zone txt for search */
+    public static final String TIMEZONE_STR = "Time Zone";
     
     /** Data formatter */
     @SuppressWarnings("serial")
@@ -66,6 +100,9 @@ public class TidWriter {
     private BufferedWriter writer;
     /** The decimal houses to use in the output */
     private int decimalHouses;
+    
+    /** Time Zone indicator control */
+    private boolean alreadyWroteTimeZoneWithHeader = false;
     
     /**
      * @param writer The writer to be used.
@@ -84,13 +121,28 @@ public class TidWriter {
     }
 
     /**
-     * Writes a header. (Empty for now.)
+     * Writes a header.
+     * It will write the time zone used (only once, safe for multiple calls) which is UTC.
      * @throws Exception
      */
-    public void writeHeader() throws Exception {
-        writer.write("--------\r\n");
+    public void writeHeader(String title) throws Exception {
+        writer.write("# " + (title != null ? title : "") + LINE_ENDING);
+        if (!alreadyWroteTimeZoneWithHeader) {
+            alreadyWroteTimeZoneWithHeader = true;
+            writer.write("# " + TIMEZONE_STR + ": " + TimeZone.getTimeZone("UTC").getID() + LINE_ENDING);
+        }
     }
-    
+
+    /**
+     * Writes a header.
+     * It will write the time zone used (only once, safe for multiple calls) which is UTC.
+     * @throws Exception
+     */
+    public void writeHeader(String title, String placeIndicator) throws Exception {
+        writeHeader(title);
+        writeHeader(HARBOR_STR + ": " + placeIndicator);
+    }
+
     /**
      * Writes the date, time and each value passed into a line entry.
      * @param timeMillis
@@ -105,6 +157,6 @@ public class TidWriter {
         writer.write(dateStr + " " + timeStr);
         for (double d : vals)
             writer.write(String.format(Locale.US, " %." + decimalHouses + "f", d));
-        writer.write("\r\n");
+        writer.write(LINE_ENDING);
     }
 }

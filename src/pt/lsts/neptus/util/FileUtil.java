@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2015 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2016 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -59,36 +59,65 @@ import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.util.conf.ConfigFetch;
 
 /**
+ * Some file utilities.
+ * 
  * @author Paulo Dias
  */
+/**
+ * @author pdias
+ *
+ */
 public class FileUtil {
+    /** Byte order mark for UTF-8 */
     public static final byte[] BOM_UTF8 = new byte[] { (byte) 0xEF, (byte) 0xBB, (byte) 0xBF };
+    /** Byte order mark for UTF-16 little-endian */
     public static final byte[] BOM_UTF16LE = new byte[] { (byte) 0xFF, (byte) 0xFE };
+    /** Byte order mark for UTF-16 big-endian */
     public static final byte[] BOM_UTF16BE = new byte[] { (byte) 0xFE, (byte) 0xFF };
+    /** Byte order mark for UTF-32 little-endian */
     public static final byte[] BOM_UTF32LE = new byte[] { (byte) 0x00, (byte) 0x00, (byte) 0xFF, (byte) 0xFE };
+    /** Byte order mark for UTF-32 big-endian */
     public static final byte[] BOM_UTF32BE = new byte[] { (byte) 0x00, (byte) 0x00, (byte) 0xFE, (byte) 0xFF };
 
+    /** Mission file extension */
     public static final String FILE_TYPE_MISSION = "nmis";
+    /** Compressed mission file extension */
     public static final String FILE_TYPE_MISSION_COMPRESSED = "nmisz";
+    /** Map file extension */
     public static final String FILE_TYPE_MAP = "nmap";
+    /** Console file extension */
     public static final String FILE_TYPE_CONSOLE = "ncon";
+    /** Config file extension (not used often) */
     public static final String FILE_TYPE_CONFIG = "ncfg";
+    /** Vehicle file extension */
     public static final String FILE_TYPE_VEHICLE = "nvcl";
+    /** Checklist file extension */
     public static final String FILE_TYPE_CHECKLIST = "nchk";
+    /** WSN (Wireless Sensor Network) file extension (not used often now) */
     public static final String FILE_TYPE_WSN = "nwsn";
+    /** INI file extension */
     public static final String FILE_TYPE_INI = "ini";
+    /** RMF (REMUS Mission Format) file extension (not used often now) */
     public static final String FILE_TYPE_RMF = "rmf";
+    /** XML file extension */
     public static final String FILE_TYPE_XML = "xml";
+    /** LSF (LSTS Serialized Format) file extension */
     public static final String FILE_TYPE_LSF = "lsf";
+    /** GZipped compressed LSF (LSTS Serialized Format) file extension */
     public static final String FILE_TYPE_LSF_COMPRESSED = "lsf.gz";
+    /** BZipped2 compressed LSF (LSTS Serialized Format) file extension */
     public static final String FILE_TYPE_LSF_COMPRESSED_BZIP2 = "lsf.bz2";
 
-    /**
-     * Empty constructor
-     */
+    /** To avoid instantiation */
     private FileUtil() {
     }
 
+    /**
+     * Returns the file extension string.
+     * 
+     * @param fx
+     * @return
+     */
     public static String getFileExtension(File fx) {
         String path = null;
         try {
@@ -100,11 +129,23 @@ public class FileUtil {
         return getFileExtension(path);
     }
 
+    /**
+     * Returns the file extension string.
+     * 
+     * @param path
+     * @return
+     */
     public static String getFileExtension(String path) {
         int lastDotPostion = path.lastIndexOf('.');
         return (lastDotPostion != -1) ? (path.substring(lastDotPostion + 1)) : "";
     }
     
+    /**
+     * Return the file name without extension.
+     * 
+     * @param fx
+     * @return
+     */
     public static String getFileNameWithoutExtension(File fx) {
         String path = null;
         try {
@@ -116,6 +157,12 @@ public class FileUtil {
         return getFileNameWithoutExtension(path);
     }
     
+    /**
+     * Return the file name without extension.
+     * 
+     * @param path
+     * @return
+     */
     public static String getFileNameWithoutExtension(String path) {
         File f = new File(path);
         String fname = f.getName();
@@ -125,7 +172,13 @@ public class FileUtil {
         return ret;
     }
     
-
+    /**
+     * Return the file name string with the extension replaced.
+     * 
+     * @param fx
+     * @param newExtension
+     * @return
+     */
     public static String replaceFileExtension(File fx, String newExtension) {
         String path = null;
         try {
@@ -135,18 +188,24 @@ public class FileUtil {
             path = fx.getAbsolutePath();
         }
         return replaceFileExtension(path, newExtension);
-
     }
 
+    /**
+     * Return the file name string with the extension replaced.
+     * 
+     * @param path
+     * @param newExtension
+     * @return
+     */
     public static String replaceFileExtension(String path, String newExtension) {
         int lastDotPostion = path.lastIndexOf('.');
         String st = (lastDotPostion != -1) ? (path.substring(0, lastDotPostion)) : path;
         return st + "." + newExtension;
     }
 
-
     /**
      * See {@link #checkFileForExtensions(String, String...)}.
+     * 
      * @param file
      * @param extensions
      * @return
@@ -157,6 +216,7 @@ public class FileUtil {
 
     /**
      * Checks a file name for matching a file extension (case insensitive).
+     * 
      * @param filePath
      * @param extensions
      * @return The extension that matched or null if not.
@@ -178,6 +238,8 @@ public class FileUtil {
     }
     
     /**
+     * See {@link #getFileAsString(String)}
+     * 
      * @param fx
      * @return
      */
@@ -186,7 +248,10 @@ public class FileUtil {
     }
 
     /**
-     * @param url
+     * Returns the content of the file as a UTF-8 (or in the encoding 
+     * of the file if found, {@link #findOutFileEncoding(byte[])}) encoded string.
+     * 
+     * @param url The URL or relative file path.
      * @return
      */
     public static String getFileAsString(String url) {
@@ -218,12 +283,6 @@ public class FileUtil {
                 NeptusLog.pub().debug(FileUtil.class + "getFileAsString ", e1);
                 result = new String(ba, "UTF-8");
             }
-
-            // fis.close();
-
-            // NeptusLog.pub().debug(FileUtil.class + " Input file as (" +
-            // actualEncoding + ") \n" + result);
-
         }
         catch (FileNotFoundException e) {
             NeptusLog.pub().error(FileUtil.class, e);
@@ -244,7 +303,17 @@ public class FileUtil {
         return result;
     }
 
-    private static File[] getFilesFromDiskWorker(File folderToLoad, final String searchPattern, final boolean justFolders) {
+    /**
+     * Get the list of sorted files in folder or null if parent folder doesn't exist or pattern is not valid.
+     * This is the worker used by {@link #getFilesFromDisk(File, String)} and {@link #getFoldersFromDisk(File, String)}.
+     * 
+     * @param folderToLoad
+     * @param searchPattern
+     * @param justFolders
+     * @return
+     */
+    private static File[] getFilesFromDiskWorker(File folderToLoad, final String searchPattern,
+            final boolean justFolders) {
         try {
             if (folderToLoad != null && folderToLoad.exists()) {
                 File folder = folderToLoad.isDirectory() ? folderToLoad : 
@@ -282,6 +351,7 @@ public class FileUtil {
 
     /**
      * Get the list of sorted files in folder or null if parent folder doesn't exist or pattern is not valid.
+     * 
      * @param folderToLoad
      * @param searchPattern null for all
      * @return
@@ -292,6 +362,7 @@ public class FileUtil {
 
     /**
      * Get the list of sorted folders in folder or null if parent folder doesn't exist or pattern is not valid.
+     * 
      * @param folderToLoad
      * @param searchPattern null for all
      * @return
@@ -301,7 +372,9 @@ public class FileUtil {
     }
 
     /**
-     * @param url
+     * Return the file as an byte array.
+     * 
+     * @param url The URL or file path for the file
      * @return
      */
     public static byte[] getFileAsByteArray(String url) {
@@ -331,6 +404,7 @@ public class FileUtil {
 
     /**
      * Find the encoding of a file.
+     * 
      * @param ba
      * @return
      */
@@ -356,7 +430,10 @@ public class FileUtil {
                 return encoding;
             }
 
-            if ((ba[0] == BOM_UTF8[0]) && (ba[1] == BOM_UTF8[1]) && (ba[2] == BOM_UTF8[2])) {
+            if (ba.length == 0) {
+                return "UTF-8";
+            }
+            else if ((ba[0] == BOM_UTF8[0]) && (ba[1] == BOM_UTF8[1]) && (ba[2] == BOM_UTF8[2])) {
                 NeptusLog.pub().debug(FileUtil.class + ".findOutFileEncoding - " + "UTF-8");
                 return "UTF-8";
             }
@@ -376,6 +453,9 @@ public class FileUtil {
     }
 
     /**
+     * This will get a flat or partial formated XML string as a formated XML string.
+     * (With XML declaration, {@link #getAsPrettyPrintFormatedXMLString(String, boolean)} )
+     * 
      * @param xml
      * @return
      */
@@ -383,6 +463,13 @@ public class FileUtil {
         return getAsPrettyPrintFormatedXMLString(xml, false);
     }
 
+    /**
+     * This will get a flat or partial formated XML string as a formated XML string.
+     * 
+     * @param xml
+     * @param omitDeclaration If the declaration of the XML file is to be included or omitted.
+     * @return
+     */
     public static String getAsPrettyPrintFormatedXMLString(String xml, boolean omitDeclaration) {
         Document doc = null;
         try {
@@ -396,6 +483,9 @@ public class FileUtil {
     }
 
     /**
+     * This removes all extra spaces and new lines from the XML and return it.
+     * (With XML declaration, {@link #getAsCompactFormatedXMLString(String, boolean)} )
+     * 
      * @param xml
      * @return
      */
@@ -403,6 +493,13 @@ public class FileUtil {
         return getAsCompactFormatedXMLString(xml, false);
     }
 
+    /**
+     * This removes all extra spaces and new lines from the XML and return it.
+     * 
+     * @param xml
+     * @param omitDeclaration If the declaration of the XML file is to be included or omitted.
+     * @return
+     */
     public static String getAsCompactFormatedXMLString(String xml, boolean omitDeclaration) {
         Document doc = null;
         try {
@@ -416,6 +513,9 @@ public class FileUtil {
     }
 
     /**
+     * This will get a flat or partial formated XML string as a formated XML string.
+     * (With XML declaration, {@link #getAsPrettyPrintFormatedXMLString(Document, boolean)} )
+     * 
      * @param doc
      * @return
      */
@@ -423,6 +523,13 @@ public class FileUtil {
         return getAsPrettyPrintFormatedXMLString(doc, false);
     }
 
+    /**
+     * This will get a flat or partial formated XML string as a formated XML string.
+     * 
+     * @param doc
+     * @param omitDeclaration If the declaration of the XML file is to be included or omitted.
+     * @return
+     */
     public static String getAsPrettyPrintFormatedXMLString(Document doc, boolean omitDeclaration) {
         // PrettyPrint format
         OutputFormat format = OutputFormat.createPrettyPrint();
@@ -434,6 +541,9 @@ public class FileUtil {
     }
 
     /**
+     * This removes all extra spaces and new lines from the XML and return it.
+     * (With XML declaration, {@link #getAsCompactFormatedXMLString(String, boolean)} )
+     * 
      * @param doc
      * @return
      */
@@ -441,6 +551,13 @@ public class FileUtil {
         return getAsCompactFormatedXMLString(doc, false);
     }
 
+    /**
+     * This removes all extra spaces and new lines from the XML and return it.
+     * 
+     * @param doc
+     * @param omitDeclaration If the declaration of the XML file is to be included or omitted.
+     * @return
+     */
     public static String getAsCompactFormatedXMLString(Document doc, boolean omitDeclaration) {
         // Compact format
         OutputFormat format = OutputFormat.createCompactFormat();
@@ -449,19 +566,18 @@ public class FileUtil {
     }
 
     /**
+     * This is the worker for the others methods.
+     * 
      * @param doc
-     * @param format
+     * @param format Either {@link OutputFormat#createPrettyPrint()} or {@link OutputFormat#createCompactFormat()}.
      * @return
      */
     private static String getAsFormatedXMLString(Document doc, OutputFormat format) {
         String enc = doc.getXMLEncoding();
         if (enc == null)
             enc = "UTF-8";
+        
         ByteArrayOutputStream ba = new ByteArrayOutputStream();
-        // PrettyPrint format
-        // OutputFormat format = OutputFormat.createPrettyPrint();
-        // Compact format
-        // OutputFormat format = OutputFormat.createCompactFormat();
         XMLWriter writer;
         try {
             writer = new XMLWriter(ba, format);
@@ -471,7 +587,7 @@ public class FileUtil {
             e.printStackTrace();
             return null;
         }
-        // NeptusLog.pub().info("<###> "+ba.toString());
+
         String result;
         try {
             result = ba.toString(enc);
@@ -489,6 +605,13 @@ public class FileUtil {
         return result;
     }
 
+    /**
+     * This will appends the source to the destination file and close it.
+     * 
+     * @param destination
+     * @param source
+     * @throws Exception
+     */
     public static void appendToFile(File destination, InputStream source) throws Exception {
         FileOutputStream fos = new FileOutputStream(destination, true);
 
@@ -503,10 +626,23 @@ public class FileUtil {
         fos.close();
     }
 
+    /**
+     * This concatenates two files.
+     * 
+     * @param destination
+     * @param fileToBeAppended
+     * @throws Exception
+     */
     public static void concatFiles(File destination, File fileToBeAppended) throws Exception {
         appendToFile(destination, fileToBeAppended);
     }
 
+    /**
+     * This will append one file to the destination.
+     * @param destination
+     * @param fileToBeAppended
+     * @throws Exception
+     */
     public static void appendToFile(File destination, File fileToBeAppended) throws Exception {
         FileInputStream fis = new FileInputStream(fileToBeAppended);
         appendToFile(destination, fis);
@@ -515,6 +651,7 @@ public class FileUtil {
 
     /**
      * @see #saveToFile(String, String, String, boolean)
+     * 
      * @param fileName
      * @param dataToSave
      * @param encoding
@@ -526,6 +663,7 @@ public class FileUtil {
 
     /**
      * @see #saveToFile(String, String, String, boolean)
+     * 
      * @param fileName
      * @param dataToSave
      * @return
@@ -536,6 +674,7 @@ public class FileUtil {
 
     /**
      * @see #saveToFile(String, String, String, boolean)
+     * 
      * @param fileName
      * @param dataToSave
      * @param encoding
@@ -547,6 +686,7 @@ public class FileUtil {
 
     /**
      * @see #saveToFile(String, String, String, boolean)
+     * 
      * @param fileName
      * @param dataToSave
      * @return
@@ -556,6 +696,8 @@ public class FileUtil {
     }
 
     /**
+     * This will save the string (dataToSave) to the file with the encoding and appends or overwrite.
+     * 
      * @param fileName File path to save to.
      * @param dataToSave String with the data.
      * @param encoding The encoding of the output file.
@@ -618,6 +760,8 @@ public class FileUtil {
     }
 
     /**
+     * This will create a copy of the given file with the bak extension appended into the name.
+     * 
      * @param source
      * @return
      */
@@ -633,6 +777,9 @@ public class FileUtil {
     }
 
     /**
+     * This will copy the file to some other and also
+     * creates a copy of the given file with the bak extension appended into the name.
+     * 
      * @param source
      * @param out
      * @return
@@ -648,6 +795,8 @@ public class FileUtil {
     }
 
     /**
+     * This will copy the file to some other.
+     * 
      * @param source
      * @param out
      * @return
@@ -673,6 +822,13 @@ public class FileUtil {
         return ret;
     }
 
+    /**
+     * This will copy a file to a given folder.
+     * 
+     * @param source
+     * @param destDir
+     * @return
+     */
     public static boolean copyFileToDir(String source, String destDir) {
         try {
             File in = new File(source);
@@ -693,20 +849,25 @@ public class FileUtil {
         }
     }
 
+    /**
+     * This will try to relativize the file path in relation to the other as an URI.
+     * 
+     * @param parentPath The path to relativize to
+     * @param filePath The path to be relativized
+     * @return
+     */
     public static String relativizeFilePathAsURI(String parentPath, String filePath) {
         String st = relativizeFilePath(parentPath, filePath);
-        // URI uri = new File(st).toURI();
-        // NeptusLog.pub().debug("relativizeFilePathAsURI > " + uri.toString());
-        // return uri.toString();
-
         st = st.replace('\\', '/').toString();
         NeptusLog.pub().debug("relativizeFilePathAsURI   > " + st);
         return st;
     }
 
     /**
-     * @param parentPath
-     * @param filePath
+     * This will try to relativize the file path in relation to the other.
+     * 
+     * @param parentPath The path to relativize to
+     * @param filePath The path to be relativized
      * @return
      */
     public static String relativizeFilePath(String parentPath, String filePath) {
@@ -716,34 +877,25 @@ public class FileUtil {
 
         File fxP = new File(parentPath);
         File fxF = new File(filePath);
-        // URI uriP = fxP.toURI();
-        // URI uriF = fxF.toURI();
 
-        // if (fxP.exists())
-        // {
-        // if (fxP.isFile())
-
-        // FIXME Verificar se é um directório não existente
+        // FIXME Check if is a non-existent folder
         if (!fxP.isDirectory())
             fxP = fxP.getParentFile().getAbsoluteFile();
-        // }
+        
         if (fxF.exists())
             fxF = fxF.getAbsoluteFile();
 
         String pS, fS;
         try {
             pS = fxP.getCanonicalPath();
-            // NeptusLog.pub().info("<###> "+pS);
         }
         catch (IOException e) {
-            // e.printStackTrace();
             pS = fxP.getAbsolutePath();
         }
         try {
             fS = fxF.getCanonicalPath();
         }
         catch (IOException e) {
-            // e.printStackTrace();
             fS = fxF.getAbsolutePath();
         }
 
@@ -772,7 +924,6 @@ public class FileUtil {
                 }
                 lev++;
                 tmp = tmp.substring(0, i);
-                // NeptusLog.pub().info("<###> "+tmp);
                 if (fS.regionMatches(0, tmp, 0, tmp.length())) {
                     res = fS.substring(tmp.length() + 1, fS.length());
                     break;
@@ -815,7 +966,6 @@ public class FileUtil {
                 deltree(tmp.getAbsolutePath());
             }
             else {
-                // NeptusLog.pub().info("<###>deleting "+tmp.getAbsolutePath());
                 try {
                     tmp.delete();
                 }
@@ -827,6 +977,13 @@ public class FileUtil {
         directory.delete();
     }
 
+    /**
+     * This will transform a path into a URL.
+     * 
+     * @param path
+     * @return
+     * @throws MalformedURLException
+     */
     public static URL pathToURL(String path) throws MalformedURLException {
         URL retval = null;
         if (path == null) {
@@ -849,6 +1006,12 @@ public class FileUtil {
         return retval;
     }
 
+    /**
+     * This will return the caller class. Is used in {@link #getResourceAsFile(String)}
+     * and {@link #getResourceAsFileKeepName(String)}.
+     * 
+     * @return
+     */
     private static Class<?> getCallerClass() {
         StackTraceElement[] stack = Thread.currentThread().getStackTrace();
         String className = stack[3].getClassName();
@@ -864,6 +1027,13 @@ public class FileUtil {
         }
     }
     
+    /**
+     * Return a resource path as a path. The name of the file DOES NOT match the resource name.
+     * The resource is extracted as a temporary file.
+     * 
+     * @param name
+     * @return
+     */
     public static String getResourceAsFile(String name) {
         InputStream inStream = FileUtil.class.getResourceAsStream(name.replace('\\', '/'));
         if (inStream == null) {
@@ -882,6 +1052,13 @@ public class FileUtil {
         }
     }
 
+    /**
+     * Return a resource path as a path. The name of the file match the resource name.
+     * The resource is extracted as a temporary file.
+     * 
+     * @param name
+     * @return
+     */
     public static String getResourceAsFileKeepName(String name) {
         String nameSlashed = name.replace('\\', '/');
         InputStream inStream = null;
@@ -909,7 +1086,6 @@ public class FileUtil {
                 fx.createNewFile();
             }
             catch (IOException e) {
-                // TODO Auto-generated catch block
                 e.printStackTrace();
             }
             fx.deleteOnExit();
@@ -945,12 +1121,24 @@ public class FileUtil {
         }
     }
 
+    /**
+     * Return the Object package as a path.
+     * 
+     * @param obj
+     * @return
+     */
     public static String getPackageAsPath(Object obj) {
         if (obj == null)
             return "";
         return getPackageAsPath(obj.getClass());
     }
 
+    /**
+     * Return the Class package as a path.
+     * 
+     * @param clazz
+     * @return
+     */
     public static String getPackageAsPath(Class<?> clazz) {
         if (clazz == null)
             return "";

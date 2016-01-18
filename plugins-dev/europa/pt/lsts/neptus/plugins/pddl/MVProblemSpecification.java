@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2015 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2016 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -45,7 +45,7 @@ import java.util.Vector;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.mozilla.javascript.edu.emory.mathcs.backport.java.util.Arrays;
+import java.util.Arrays;
 
 import pt.lsts.imc.FuelLevel;
 import pt.lsts.imc.state.ImcSystemState;
@@ -346,7 +346,6 @@ public class MVProblemSpecification {
         return sb.toString();
     }
 
-    @SuppressWarnings("unchecked")
     private static MVProblemSpecification generateTest(int numberOfSurveys, int numberOfSamplings, String... vehicles) {
         Vector<VehicleType> vehiclTypes = new Vector<VehicleType>();
         Vector<MVPlannerTask> generatedTasks = new Vector<MVPlannerTask>();

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2015 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2016 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -46,28 +46,17 @@ import javax.imageio.stream.ImageInputStream;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
 import org.apache.http.client.methods.HttpGet;
+import org.apache.http.client.protocol.HttpClientContext;
 import org.apache.http.conn.ConnectionPoolTimeoutException;
-import org.apache.http.conn.scheme.PlainSocketFactory;
-import org.apache.http.conn.scheme.Scheme;
-import org.apache.http.conn.scheme.SchemeRegistry;
-import org.apache.http.impl.client.AbstractHttpClient;
-import org.apache.http.impl.client.DefaultHttpClient;
-import org.apache.http.impl.conn.PoolingClientConnectionManager;
-import org.apache.http.params.BasicHttpParams;
-import org.apache.http.params.HttpConnectionParams;
-import org.apache.http.params.HttpParams;
-import org.apache.http.protocol.BasicHttpContext;
-import org.apache.http.protocol.HttpContext;
 
 import pt.lsts.neptus.NeptusLog;
-import pt.lsts.neptus.comm.proxy.ProxyInfoProvider;
+import pt.lsts.neptus.util.http.client.HttpClientConnectionHelper;
 
 
 /**
  * @author pdias
  *
  */
-@SuppressWarnings("deprecation")
 public abstract class TileHttpFetcher extends Tile {
 
     private static final long serialVersionUID = 536559879996297467L;
@@ -86,8 +75,9 @@ public abstract class TileHttpFetcher extends Tile {
     
     protected int retries = 0;
 
-    protected static DefaultHttpClient client;
-    protected static PoolingClientConnectionManager httpConnectionManager; // was ThreadSafeClientConnManager
+    protected static HttpClientConnectionHelper httpComm;
+//    protected static DefaultHttpClient client;
+//    protected static PoolingClientConnectionManager httpConnectionManager; // was ThreadSafeClientConnManager
 
 //    {
 //        SchemeRegistry schemeRegistry = new SchemeRegistry();
@@ -133,32 +123,36 @@ public abstract class TileHttpFetcher extends Tile {
     }
 
     private final synchronized void initialize() {
-        if (client != null)
+        if (httpComm != null)
             return;
         
-        SchemeRegistry schemeRegistry = new SchemeRegistry();
-        schemeRegistry.register(
-                new Scheme("http", 80, PlainSocketFactory.getSocketFactory()));
-        schemeRegistry.register(
-                new Scheme("https", 443, PlainSocketFactory.getSocketFactory()));
-        httpConnectionManager = new PoolingClientConnectionManager(schemeRegistry);
-        httpConnectionManager.setMaxTotal(50);
-        httpConnectionManager.setDefaultMaxPerRoute(10);
+        httpComm = new HttpClientConnectionHelper();
+        httpComm.initializeComm();
 
-        HttpParams params = new BasicHttpParams();
-        HttpConnectionParams.setConnectionTimeout(params, 30000);
-
-        //            HttpProtocolParams.setUserAgent(params, "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/536.6 (KHTML, like Gecko) Chrome/20.0.1092.0 Safari/536.6");
-
-        client = new DefaultHttpClient(httpConnectionManager, params);
-
-        ProxyInfoProvider.setRoutePlanner((AbstractHttpClient) client);
+//        SchemeRegistry schemeRegistry = new SchemeRegistry();
+//        schemeRegistry.register(
+//                new Scheme("http", 80, PlainSocketFactory.getSocketFactory()));
+//        schemeRegistry.register(
+//                new Scheme("https", 443, PlainSocketFactory.getSocketFactory()));
+//        httpConnectionManager = new PoolingClientConnectionManager(schemeRegistry);
+//        httpConnectionManager.setMaxTotal(50);
+//        httpConnectionManager.setDefaultMaxPerRoute(10);
+//
+//        HttpParams params = new BasicHttpParams();
+//        HttpConnectionParams.setConnectionTimeout(params, 30000);
+//
+//        //            HttpProtocolParams.setUserAgent(params, "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/536.6 (KHTML, like Gecko) Chrome/20.0.1092.0 Safari/536.6");
+//
+//        client = new DefaultHttpClient(httpConnectionManager, params);
+//
+//        ProxyInfoProvider.setRoutePlanner((AbstractHttpClient) client);
 
         Runtime.getRuntime().addShutdownHook(new Thread() {
             @Override
             public void run() {
-                client.getConnectionManager().shutdown();
-                httpConnectionManager.shutdown();
+//                client.getConnectionManager().shutdown();
+//                httpConnectionManager.shutdown();
+                httpComm.cleanUp();
             }
         });
     }
@@ -253,19 +247,10 @@ public abstract class TileHttpFetcher extends Tile {
                             getWaitTimeLock().lock();
                     }
                     
-                    HttpContext localContext = new BasicHttpContext();
-//                    if (ProxyInfoProvider.isEnableProxy()) {
-//                        AuthState proxyAuthState = (AuthState) localContext
-//                                .getAttribute(ClientContext.PROXY_AUTH_STATE);
-//                        if (proxyAuthState != null) {
-//                            proxyAuthState.setCredentials(ProxyInfoProvider.getProxyCredentials());
-//                            // new but untested code: proxyAuthState.update(proxyAuthState.getAuthScheme(), ProxyInfoProvider.getProxyCredentials());
-//                        }
-//                    }
-                    
-                    resp = client.execute(get, localContext);
-                    
-                    ProxyInfoProvider.authenticateConnectionIfNeeded(resp, localContext, client);
+                    HttpClientContext localContext = HttpClientContext.create();
+                    resp = httpComm.getClient().execute(get, localContext);
+//                    ProxyInfoProvider.authenticateConnectionIfNeeded(resp, localContext, client);
+                    httpComm.autenticateProxyIfNeeded(resp, localContext);
                     
 //                    NeptusLog.pub().info("<###> "+resp.getStatusLine().getStatusCode());
                     if (TileHttpFetcher.this.getState() != TileState.DISPOSING
@@ -595,11 +580,12 @@ public abstract class TileHttpFetcher extends Tile {
 //                                    getWaitTimeLock().lock();
 //                            }
 
-                            HttpContext localContext = new BasicHttpContext();
+                            HttpClientContext localContext = new HttpClientContext();
 
-                            resp = client.execute(get, localContext);
+                            resp = httpComm.getClient().execute(get, localContext);
 
-                            ProxyInfoProvider.authenticateConnectionIfNeeded(resp, localContext, client);
+//                            ProxyInfoProvider.authenticateConnectionIfNeeded(resp, localContext, client);
+                            httpComm.autenticateProxyIfNeeded(resp, localContext);
 
                             // NeptusLog.pub().info("<###> "+resp.getStatusLine().getStatusCode());
                             if (TileHttpFetcher.this.getState() != TileState.DISPOSING && retries < MAX_RETRIES

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2015 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2016 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -78,35 +78,44 @@ public class PluginsLoader {
         if (ConfigFetch.getRunEnvironment() == Environment.PRODUCTION) {
             List<Path> pluginsJars = findJars();
 
-            for (Path jar : pluginsJars) {
-                try {
-                    addToSysClassLoader(jar.toUri().toURL());
-                    FindPlugins plugins = new FindPlugins();
-                    FileSystem zipFileSystem = createZipFileSystem(jar.toAbsolutePath().toString(), false);
-                    final Path root = zipFileSystem.getPath("/");
-                    Files.walkFileTree(root, plugins);
-                    List<Path> pluginsLST = plugins.getPlugins();
-                    for (Path lst : pluginsLST) {
-                        loadPluginFromLST(lst);
+            try {
+                for (Path jar : pluginsJars) {
+                    try {
+                        addToSysClassLoader(jar.toUri().toURL());
+                        FindPlugins plugins = new FindPlugins();
+                        FileSystem zipFileSystem = createZipFileSystem(jar.toAbsolutePath().toString(), false);
+                        final Path root = zipFileSystem.getPath("/");
+                        Files.walkFileTree(root, plugins);
+                        List<Path> pluginsLST = plugins.getPlugins();
+                        for (Path lst : pluginsLST) {
+                            loadPluginFromLST(lst);
+                        }
+                    }
+                    catch (Exception e) {
+                        NeptusLog.pub().error("Error loading plugin from jars", e);
                     }
                 }
-                catch (Exception e) {
-                    NeptusLog.pub().error("Error loading plugins from jars", e);
-                }
+            }
+            catch (Exception e) {
+                NeptusLog.pub().error("Error getting plugins from jars", e);
             }
         }
 
         if (ConfigFetch.getRunEnvironment() == Environment.DEVELOPMENT) {
             List<Path> externalJars = findExternalPluginsJars();
 
-            for (Path jar : externalJars) {
-                try {
-                    addToSysClassLoader(jar.toUri().toURL());
+            try {
+                for (Path jar : externalJars) {
+                    try {
+                        addToSysClassLoader(jar.toUri().toURL());
+                    }
+                    catch (Exception e) {
+                        NeptusLog.pub().error("Error loading plugin jar from dev", e);
+                    }
                 }
-                catch (Exception e) {
-                    // TODO Auto-generated catch block
-                    e.printStackTrace();
-                }
+            }
+            catch (Exception e) {
+                NeptusLog.pub().error("Error getting plugins from dev", e);
             }
 
             FindPlugins plugins = new FindPlugins();
@@ -119,24 +128,15 @@ public class PluginsLoader {
                 }
             }
             catch (IOException e) {
-                // TODO Auto-generated catch block
                 e.printStackTrace();
             }
-//            
-//            Reflections r = new Reflections("pt.lsts.neptus.plugins");
-//            
-//            for (Class<?> c : r.getTypesAnnotatedWith(PluginDescription.class)) {
-//                PluginsRepository.addPlugin(c.getName());
-//            }
         }
-
     }
 
     /**
      * Loads core plugins inside the src folder in the "pt.lsts.neptus.console.plugins" package
      */
     private static void loadCorePlugins() {
-
         for (String pkg : new String[] {"pt.lsts.neptus.console.plugins", "pt.lsts.neptus.mra"}) {
             Reflections reflections = new Reflections(pkg);
             for (Class<?> c : reflections.getTypesAnnotatedWith(PluginDescription.class)) {
@@ -155,7 +155,6 @@ public class PluginsLoader {
             return jars;
         }
         catch (IOException e) {
-            // TODO Auto-generated catch block
             e.printStackTrace();
         }
         return null;
@@ -172,7 +171,6 @@ public class PluginsLoader {
 
         }
         catch (IOException e) {
-            // TODO Auto-generated catch block
             e.printStackTrace();
         }
         return null;

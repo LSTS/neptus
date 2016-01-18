@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2015 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2016 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -462,7 +462,7 @@ public class Vision extends ConsolePanel implements ConfigurationListener, ItemL
             this.add(panelImage, BorderLayout.NORTH);
             BufferedImage errorImg = null;
             try {
-                errorImg = ImageIO.read(new File("plugins-dev/vision/images/errorOpencv.png"));
+                errorImg = ImageIO.read(new File(FileUtil.getResourceAsFileKeepName("images/errorOpencv.png")));
             }
             catch (IOException e1) {
                 e1.printStackTrace();

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2015 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2016 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -43,7 +43,6 @@ import pt.lsts.imc.lsf.LsfIndex;
 import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.mra.importers.IMraLogGroup;
 import pt.lsts.neptus.plugins.PluginDescription;
-import pt.lsts.neptus.plugins.PluginUtils;
 import pt.lsts.neptus.util.tid.TidWriter;
 
 /**
@@ -66,14 +65,6 @@ public class DepthToTidExporter implements MRAExporter {
     
     public DepthToTidExporter(IMraLogGroup source) {
     }
-
-    /* (non-Javadoc)
-     * @see pt.lsts.neptus.mra.exporters.MRAExporter#getName()
-     */
-    @Override
-    public String getName() {
-        return PluginUtils.getPluginName(this.getClass());
-    }
     
     @Override
     public boolean canBeApplied(IMraLogGroup source) {
@@ -93,9 +84,10 @@ public class DepthToTidExporter implements MRAExporter {
         int srcId = vehs.iterator().next(); 
         
         try {
-            BufferedWriter outFile = new BufferedWriter(new FileWriter(new File(outputDir, "Data.tid")));
-            tidWriter = new TidWriter(outFile);
-            tidWriter.writeHeader();
+            int decimalHouses = 2;
+            BufferedWriter outFile = new BufferedWriter(new FileWriter(new File(outputDir, "Depths.tid")));
+            tidWriter = new TidWriter(outFile, decimalHouses);
+            tidWriter.writeHeader("Vehicle's Depths (m)");
 
             for (EstimatedState state: index.getIterator(EstimatedState.class)) {
                 if (state.getSrc() != srcId)

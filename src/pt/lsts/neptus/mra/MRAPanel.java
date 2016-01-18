@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2015 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2016 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -34,6 +34,7 @@ package pt.lsts.neptus.mra;
 import java.awt.BorderLayout;
 import java.awt.Component;
 import java.io.File;
+import java.lang.reflect.Constructor;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -49,10 +50,9 @@ import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
 import javax.swing.JTabbedPane;
 
-import net.miginfocom.swing.MigLayout;
-
 import org.jdesktop.swingx.JXStatusBar;
 
+import net.miginfocom.swing.MigLayout;
 import pt.lsts.imc.IMCMessage;
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.console.plugins.MissionChangeListener;
@@ -69,7 +69,7 @@ import pt.lsts.neptus.types.vehicle.VehicleType;
 import pt.lsts.neptus.util.FileUtil;
 import pt.lsts.neptus.util.GuiUtils;
 import pt.lsts.neptus.util.ImageUtils;
-import pt.lsts.neptus.util.conf.ConfigFetch;
+import pt.lsts.neptus.util.bathymetry.TidePredictionFactory;
 import pt.lsts.neptus.util.llf.LogTree;
 import pt.lsts.neptus.util.llf.LogUtils;
 import pt.lsts.neptus.util.llf.LsfReportProperties;
@@ -116,18 +116,17 @@ public class MRAPanel extends JPanel {
     public MRAPanel(final IMraLogGroup source, NeptusMRA mra) {
         this.source = source;
         this.mra = mra;
-        if (new File(ConfigFetch.getConfFolder() + "/tides.txt").canRead() && source.getFile("tides.txt") == null) {
-            FileUtil.copyFile(ConfigFetch.getConfFolder() + "/tides.txt", new File(source.getFile("."), "tides.txt").getAbsolutePath());
-        }
 
+        TidesMraLoader.setDefaultTideIfNotExisted(source);
+        
         // ------- Setup interface --------
         setLayout(new BorderLayout(3, 3));
 
-        mra.getBgp().setText(I18n.text("Starting up left panel..."));
+        mra.getBgp().setText(I18n.text("Starting up left panel"));
         setUpLeftPanel();
-        mra.getBgp().setText(I18n.text("Starting up status bar..."));
+        mra.getBgp().setText(I18n.text("Starting up status bar"));
         setUpStatusBar();
-        mra.getBgp().setText(I18n.text("Starting up main panel..."));
+        mra.getBgp().setText(I18n.text("Starting up main panel"));
         setUpMainPanel();
 
         // add split pane left panel and main visualizations to right side
@@ -141,14 +140,20 @@ public class MRAPanel extends JPanel {
         add(splitPane, BorderLayout.CENTER);
         add(statusBar, BorderLayout.SOUTH);
 
-        mra.getBgp().setText(I18n.text("Loading markers..."));
+        mra.getBgp().setText(I18n.text("Loading markers"));
         // Load markers
         loadMarkers();
 
+        mra.getBgp().setText(I18n.text("Finishing loading"));
         // adds Exporters MenuItem to Tools menu after a Log is loaded
         mra.getMRAMenuBar().setUpExportersMenu(source);
 
+        // adds MarkerManagement MenuItem to Tools menu after a Log is loaded
         mra.getMRAMenuBar().setUpMarkerManagementMenu();
+        
+        // Adds tides menu
+        mra.getMRAMenuBar().setUpTidesMenu(source);
+
     }
 
     /**
@@ -178,8 +183,22 @@ public class MRAPanel extends JPanel {
         Date startDate = LogUtils.getStartDate(source);
         String date = startDate != null ? " | <b>" + I18n.text("Date") + ":</b> " + new SimpleDateFormat("dd/MMM/yyyy").format(startDate) : "";
 
+        // Tide info
+        String noTideStr = I18n.text("No tides");
+        String usedTideStr = noTideStr;
+        File tideInfoFx = new File(source.getDir(), TidePredictionFactory.MRA_TIDE_INDICATION_FILE_PATH);
+        if (tideInfoFx.exists() && tideInfoFx.canRead()) {
+            String hF = FileUtil.getFileAsString(tideInfoFx);
+            if (hF != null && !hF.isEmpty()) {
+                File fx = new File(TidePredictionFactory.BASE_TIDE_FOLDER_PATH, hF);
+                if (fx != null && fx.exists() && fx.canRead())
+                    usedTideStr = hF;
+            }
+        }
+        
         statusBar.add(new JLabel("<html><b>" + I18n.text("Log") + ":</b> " + source.name() + date
-                + ((veh != null) ? " | <b>" + I18n.text("System") + ":</b> " + veh.getName() : "")));
+                + ((veh != null) ? " | <b>" + I18n.text("System") + ":</b> " + veh.getName() : "")
+                + (" | <b>" + I18n.text("Tides") + ":</b> " + usedTideStr)));
     }
 
     public void addStatusBarMsg(String msg){
@@ -208,10 +227,25 @@ public class MRAPanel extends JPanel {
                 if (!mra.getMraProperties().isVisualizationActive(vis))
                     continue;
 
-                MRAVisualization visualization = (MRAVisualization) vis.getDeclaredConstructor(MRAPanel.class)
-                        .newInstance(this);
-                PluginUtils.loadProperties(visualization, "mra");
-
+                Constructor<?>[] constructors = vis.getDeclaredConstructors();
+                boolean instantiated = false;
+                MRAVisualization visualization = null;
+                
+                for (Constructor<?> c : constructors) {
+                    if (c.getParameterTypes().length == 1 && c.getParameterTypes()[0].equals(MRAPanel.class)) {
+                        instantiated = true;
+                        visualization = (MRAVisualization) vis.getDeclaredConstructor(MRAPanel.class)
+                                .newInstance(this);
+                        PluginUtils.loadProperties(visualization, "mra");
+                        
+                    }
+                }
+                if (!instantiated) {
+                    visualization = (MRAVisualization)vis.newInstance();
+                    PluginUtils.loadProperties(visualization, "mra");
+                    instantiated = true;
+                }
+                
                 if (visualization.canBeApplied(MRAPanel.this.source)) {
                     visualizations.add(visualization);
                 }
@@ -221,6 +255,7 @@ public class MRAPanel extends JPanel {
 
             }
             catch (Exception e1) {
+                e1.printStackTrace();
                 NeptusLog.pub().error(
                         I18n.text("MRA Visualization not loading properly") + ": " + visName + "  [" + e1.getMessage()
                         + "]");

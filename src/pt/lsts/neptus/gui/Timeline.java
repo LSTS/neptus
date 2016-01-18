@@ -72,6 +72,9 @@ public class Timeline extends JPanel implements ChangeListener {
     
     public Timeline(int min, int max, int frequency, int perSecond, boolean wait) {
         fmt.setTimeZone(TimeZone.getTimeZone("UTC"));
+        
+        // To avoid exception
+        max = Math.max(min, max);
 
         slider = new JSlider(min, max);
         slider.addChangeListener(this);

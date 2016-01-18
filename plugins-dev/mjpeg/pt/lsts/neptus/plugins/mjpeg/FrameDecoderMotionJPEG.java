@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2015 OceanScan - Marine Systems & Technology, Lda.
+ * Copyright (c) 2004-2016 OceanScan - Marine Systems & Technology, Lda.
  * Polo do Mar do UPTEC, Avenida da Liberdade, 4450-718 Matosinhos, Portugal
  *
  * This file is part of Neptus, Command and Control Framework.
@@ -29,6 +29,7 @@ package pt.lsts.neptus.plugins.mjpeg;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Locale;
 
 import org.apache.commons.io.FileUtils;
@@ -44,6 +45,8 @@ import pt.lsts.neptus.plugins.mjpeg.containers.avi.MjpegFile;
 public class FrameDecoderMotionJPEG implements FrameDecoder {
     /** Valid AVI/MJPEG file extensions. */
     private static final String[] validExtensions = {"mjpg"};
+    /** Default frame rate. */
+    private static final int DEFAULT_FRAME_RATE = 5;
     /** Folder of interest. */
     private File folder;
     /** List of AVI encoded Motion JPEG files. */
@@ -114,7 +117,8 @@ public class FrameDecoderMotionJPEG implements FrameDecoder {
             if (newFileNumber < fileList.size() - 1) {
                 newFileNumber = cursor.fileNumber + 1;
                 newFileFrame = 0;
-            } else {
+            }
+            else {
                 System.err.format("ERROR: ups\n");
             }
         }
@@ -135,7 +139,7 @@ public class FrameDecoderMotionJPEG implements FrameDecoder {
     }
 
     private void createFileList() {
-        java.util.Collection<File> validFileCollection = FileUtils.listFiles(folder, validExtensions, true);
+        Collection<File> validFileCollection = FileUtils.listFiles(folder, validExtensions, true);
         File[] validFiles = validFileCollection.toArray(new File[validFileCollection.size()]);
         Arrays.sort(validFiles);
 
@@ -148,12 +152,17 @@ public class FrameDecoderMotionJPEG implements FrameDecoder {
                 frameCount += mjpegFile.getFrameCount();
                 fileList.add(mjpegFile);
                 frameRateAccumulator += mjpegFile.getFrameRate();
-            } catch (Exception e) {
+            }
+            catch (Exception e) {
                 e.printStackTrace();
             }
         }
 
         averageFrameRate = (int)Math.round(frameRateAccumulator / validFiles.length);
+        if (averageFrameRate <= 0) {
+            NeptusLog.pub().warn("invalid frame rate, using default");
+            averageFrameRate = DEFAULT_FRAME_RATE; 
+        }
     }
 
     private VideoFrame createVideoFrame(int fileNumber, int frameNumber, int globalFrameNumber) {
@@ -183,7 +192,8 @@ public class FrameDecoderMotionJPEG implements FrameDecoder {
         for (MjpegFile file : fileList) {
             if (frameNumber > file.getFrameCount() - 1) {
                 frameNumber -= file.getFrameCount();
-            } else {
+            }
+            else {
                 cursor = new Cursor(globalFrameNumber, fileNumber, frameNumber, file.getFrameTime(frameNumber));
                 break;
             }
@@ -206,7 +216,8 @@ public class FrameDecoderMotionJPEG implements FrameDecoder {
                 if (delta < minimumDelta) {
                     minimumDelta = delta;
                     minimumCursor.set(globalFrameNumber, fileIndex, i, file.getFrameTime(i));
-                } else {
+                }
+                else {
                     break;
                 }
 
@@ -226,7 +237,6 @@ public class FrameDecoderMotionJPEG implements FrameDecoder {
         long timeStamp = -1;
 
         public Cursor() {
-
         }
 
         public Cursor(int globalFrameNumber, int fileNumber, int frameNumber, long timeStamp) {

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2015 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2016 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -67,7 +67,7 @@ import com.jmatio.types.MLUInt8;
  * @author pdias
  * @author jqcorreia
  */
-@PluginDescription
+@PluginDescription(name="MatLab format .MAT")
 public class MatExporter implements MRAExporter {
     @NeptusProperty(editable = false)
     private static final int MAX_PLAINTEXT_RAWDATA_LENGHT = 256; //256; 0xFFFF
@@ -397,11 +397,6 @@ public class MatExporter implements MRAExporter {
                 ((MLChar) fieldMap.get(field)).set(val == null ? "" : val, indexToInsert);
                 break;
         }
-    }
-
-    @Override
-    public String getName() {
-        return I18n.text("MatLab format .MAT");
     }
 
     public static void main(String[] args) throws Exception {

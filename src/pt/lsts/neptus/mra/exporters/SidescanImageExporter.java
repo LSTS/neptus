@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2015 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2016 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -57,7 +57,7 @@ import pt.lsts.neptus.plugins.PluginUtils;
  * @author zp
  *
  */
-@PluginDescription
+@PluginDescription(name="Sidescan Images")
 public class SidescanImageExporter implements MRAExporter {
 
     SidescanParser parser = null;
@@ -212,10 +212,4 @@ public class SidescanImageExporter implements MRAExporter {
         }
         return I18n.textf("%num images were exported to %path.", image_num, out.getAbsolutePath());
     }    
-
-    @Override
-    public String getName() {
-        return "Sidescan Images";
-    }
-
 }

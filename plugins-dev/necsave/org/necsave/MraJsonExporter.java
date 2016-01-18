@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2015 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2016 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -46,7 +46,6 @@ import pt.lsts.neptus.mp.SystemPositionAndAttitude;
 import pt.lsts.neptus.mra.exporters.MRAExporter;
 import pt.lsts.neptus.mra.importers.IMraLogGroup;
 import pt.lsts.neptus.plugins.PluginDescription;
-import pt.lsts.neptus.plugins.PluginUtils;
 
 /**
  * @author zp
@@ -122,10 +121,5 @@ public class MraJsonExporter implements MRAExporter {
         String vehicle;
         double timestamp, latitude, longitude, depth, altitude, roll, pitch, yaw;
         double u, v, w, p, q, r;
-    }
-
-    @Override
-    public String getName() {
-        return PluginUtils.getPluginName(getClass());
     }
 }

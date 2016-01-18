@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2015 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2016 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -114,9 +114,10 @@ import pt.lsts.neptus.renderer2d.StateRenderer2D;
 import pt.lsts.neptus.types.coord.LocationType;
 import pt.lsts.neptus.types.vehicle.VehicleType;
 import pt.lsts.neptus.types.vehicle.VehiclesHolder;
+import pt.lsts.neptus.util.FileUtil;
 import pt.lsts.neptus.util.GuiUtils;
 import pt.lsts.neptus.util.ImageUtils;
-import pt.lsts.neptus.util.bathymetry.TidePrediction;
+import pt.lsts.neptus.util.bathymetry.TidePredictionFactory;
 
 
 /**
@@ -359,7 +360,7 @@ public class ConvcaoNeptusInteraction extends ConsolePanel implements Renderer2D
         
         if (subtractTide) {
             try {
-                tide = TidePrediction.getTideLevel(state.getDate());
+                tide = TidePredictionFactory.getTideLevel(state.getDate());
             }
             catch (Exception e) {
                 NeptusLog.pub().warn(e);
@@ -610,7 +611,7 @@ public class ConvcaoNeptusInteraction extends ConsolePanel implements Renderer2D
             EstimatedState state = ImcMsgManager.getManager().getState(auvName).last(EstimatedState.class);
             LocationType auvPosition = IMCUtils.getLocation(state);
             positions.put(auvName, auvPosition);
-            double tideOffset = subtractTide? TidePrediction.currentTideLevel() : 0;
+            double tideOffset = subtractTide ? TidePredictionFactory.currentTideLevel() : 0;
             bathymetry.put(auvName, state.getDepth() + state.getAlt() - tideOffset);
             double dist = auvPosition.getHorizontalDistanceInMeters(destinations.get(auvName));
             if (dist < nearDistance)
@@ -697,9 +698,13 @@ public class ConvcaoNeptusInteraction extends ConsolePanel implements Renderer2D
             jLabel6.setText("Connection Established");
             jLabel1.setVisible(true);
             System.out.println("Uploading first file");
-            upload("www.convcao.com","NEPTUS","",jTextField1.getText(),new String(jPasswordField1.getPassword()),fileName); //send first file
+            upload("www.convcao.com", "NEPTUS", "", jTextField1.getText(), new String(jPasswordField1.getPassword()),
+                    fileName); // send first file
             System.out.println("Uploading second file");
-            upload("www.convcao.com","NEPTUS/" + sessionID,"plugins-dev/noptilus/convcao/com/caoAgent/",jTextField1.getText(),new String(jPasswordField1.getPassword()),"mapPortoSparse.txt"); //send sparse map
+            String mapFxStr = FileUtil.getResourceAsFileKeepName("convcao/com/caoAgent/mapPortoSparse.txt");
+            File mapFx = new File(mapFxStr);
+            upload("www.convcao.com", "NEPTUS/" + sessionID, mapFx.getParent(),
+                    jTextField1.getText(), new String(jPasswordField1.getPassword()), "mapPortoSparse.txt"); // send sparse map
             System.out.println("Both files uploaded");
             jButton1.setEnabled(true);
             jButton2.setEnabled(true);
@@ -749,7 +754,7 @@ public class ConvcaoNeptusInteraction extends ConsolePanel implements Renderer2D
         //end of deleting
     }
 
-    private void upload(String ftpServer, String pathDirectory, String SourcePathDirectory, String userName,
+    private void upload(String ftpServer, String pathDirectory, String sourcePathDirectory, String userName,
             String password, String filename) {
 
         FTPClient client = new FTPClient();
@@ -760,12 +765,12 @@ public class ConvcaoNeptusInteraction extends ConsolePanel implements Renderer2D
             client.login(userName, password);
             client.enterLocalPassiveMode();
             client.setFileType(FTP.BINARY_FILE_TYPE);
-            fis = new FileInputStream(SourcePathDirectory+filename);
+            fis = new FileInputStream(sourcePathDirectory+filename);
             client.changeWorkingDirectory("/"+pathDirectory);
 
             client.storeFile(filename, fis);
 
-            System.out.println("The file "+SourcePathDirectory+" was stored to "+"/"+pathDirectory+"/"+filename);
+            System.out.println("The file "+sourcePathDirectory+" was stored to "+"/"+pathDirectory+"/"+filename);
             client.logout();
 
 

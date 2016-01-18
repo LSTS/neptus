@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2015 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2016 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -87,8 +87,7 @@ import pt.lsts.neptus.util.GuiUtils;
  * @author Manuel R.
  *
  */
-@PluginDescription
-
+@PluginDescription(name="Export filtered log")
 public class MRAExporterFilter implements MRAExporter {
 
     private IMraLogGroup source;
@@ -184,12 +183,6 @@ public class MRAExporterFilter implements MRAExporter {
         return ((progress == 100 ) && (!pmonitor.isCanceled()) ? I18n.text("Exported filtered log successfully.") : I18n.text("Filtered log not exported successfully."));
 
     }
-
-    @Override
-    public String getName() {
-        return I18n.text("Export filtered log");
-    }
-
 
     private void applyFilter(FilterList filter) {
         LsfIndex index = source.getLsfIndex();

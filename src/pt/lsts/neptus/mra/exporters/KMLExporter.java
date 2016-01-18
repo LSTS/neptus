@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2015 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2016 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -96,7 +96,7 @@ import pt.lsts.util.WGS84Utilities;
 /**
  * @author zp
  */
-@PluginDescription
+@PluginDescription(name="Export to KML")
 public class KMLExporter implements MRAExporter {
     public double minHeight = 1000;
     public double maxHeight = -1;
@@ -146,16 +146,17 @@ public class KMLExporter implements MRAExporter {
     
     @NeptusProperty(category = "SideScan", name="Acoustic Communications Filter")
     public boolean filterMicromodem = false;
-    
+
+    @NeptusProperty(category = "Export", name="Export Bathymetry")
+    public boolean exportBathymetry = true;
+
+    @NeptusProperty(category = "Export", name="Export Sidescan")
+    public boolean exportSidescan = true;
+
     public KMLExporter(IMraLogGroup source) {
         this.source = source;
     }
-
-    @Override
-    public String getName() {
-        return I18n.text("Export to KML");
-    }
-
+    
     @Override
     public boolean canBeApplied(IMraLogGroup source) {
         return true;
@@ -810,46 +811,53 @@ public class KMLExporter implements MRAExporter {
             topLeft.convertToAbsoluteLatLonDepth();
             bottomRight.convertToAbsoluteLatLonDepth();
 
-            pmonitor.setNote("Generating sidescan overlay");
-            
-            if (separateLineSegments) {
-                double lastTime = 0;
-                int count = 1;
-                for (Double seg : LogUtils.lineSegments(source)) {
-                    bw.write(sidescanOverlay(out.getParentFile(), 6, topLeft, bottomRight, "sss" + count,
-                            (long) (lastTime * 1000), (long) (seg * 1000), Ducer.both));
-                    lastTime = seg;
-                    count++;
+            if (exportSidescan) {
+                pmonitor.setNote("Generating sidescan overlay");
+                
+                if (separateLineSegments) {
+                    double lastTime = 0;
+                    int count = 1;
+                    for (Double seg : LogUtils.lineSegments(source)) {
+                        bw.write(sidescanOverlay(out.getParentFile(), 6, topLeft, bottomRight, "sss" + count,
+                                (long) (lastTime * 1000), (long) (seg * 1000), Ducer.both));
+                        lastTime = seg;
+                        count++;
+                    }
+                }
+                else {
+                    bw.write(sidescanOverlay(out.getParentFile(), 6, topLeft, bottomRight, Ducer.both));
+                    if (separateTransducers) {
+                        bw.write(sidescanOverlay(out.getParentFile(), 6, topLeft, bottomRight, Ducer.board));
+                        bw.write(sidescanOverlay(out.getParentFile(), 6, topLeft, bottomRight, Ducer.starboard));
+                    }
                 }
             }
-            else {
-                bw.write(sidescanOverlay(out.getParentFile(), 6, topLeft, bottomRight, Ducer.both));
-                if (separateTransducers) {
-                    bw.write(sidescanOverlay(out.getParentFile(), 6, topLeft, bottomRight, Ducer.board));
-                    bw.write(sidescanOverlay(out.getParentFile(), 6, topLeft, bottomRight, Ducer.starboard));
+
+            if (exportBathymetry) {
+                pmonitor.setNote("Generating bathymetry overlay");
+                String mb = multibeamOverlay(out.getParentFile());
+                if (!mb.isEmpty())
+                    bw.write(mb);
+                else {
+                    WorldImage imgDvl = new WorldImage(1, ColorMapFactory.createJetColorMap());
+                    imgDvl.setMaxVal(20d);
+                    imgDvl.setMinVal(3d);
+                    it = source.getLsfIndex().getIterator("EstimatedState", 0, 100);
+                    for (IMCMessage s : it) {
+                        LocationType loc = IMCUtils.parseState(s).getPosition();
+                        double alt = s.getDouble("alt");
+                        double depth = s.getDouble("depth");
+                        if (alt == -1 || depth < MRAProperties.minDepthForBathymetry)
+                            continue;
+                        else
+                            imgDvl.addPoint(loc, s.getDouble("alt"));
+                    }
+                    if (imgDvl.getAmountDataPoints() > 0) {
+                        ImageIO.write(imgDvl.processData(), "PNG", new File(out.getParent(), "dvl_bath.png"));
+                        bw.write(overlay(new File(out.getParent(), "dvl_bath.png"), "DVL Bathymetry", imgDvl.getSouthWest(),
+                                imgDvl.getNorthEast(), visibilityForBathymetry));
+                    }
                 }
-            }
-            pmonitor.setNote("Generating bathymetry overlay");
-            String mb = multibeamOverlay(out.getParentFile());
-            if (!mb.isEmpty())
-                bw.write(mb);
-            else {
-                WorldImage imgDvl = new WorldImage(1, ColorMapFactory.createJetColorMap());
-                imgDvl.setMaxVal(20d);
-                imgDvl.setMinVal(3d);
-                it = source.getLsfIndex().getIterator("EstimatedState", 0, 100);
-                for (IMCMessage s : it) {
-                    LocationType loc = IMCUtils.parseState(s).getPosition();
-                    double alt = s.getDouble("alt");
-                    double depth = s.getDouble("depth");
-                    if (alt == -1 || depth < MRAProperties.minDepthForBathymetry)
-                        continue;
-                    else
-                        imgDvl.addPoint(loc, s.getDouble("alt"));
-                }
-                ImageIO.write(imgDvl.processData(), "PNG", new File(out.getParent(), "dvl_bath.png"));
-                bw.write(overlay(new File(out.getParent(), "dvl_bath.png"), "DVL Bathymetry", imgDvl.getSouthWest(),
-                        imgDvl.getNorthEast(), visibilityForBathymetry));
             }
 
             bw.write(kmlFooter());

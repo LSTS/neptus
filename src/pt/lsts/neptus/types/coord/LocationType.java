@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2015 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2016 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -44,7 +44,7 @@ import org.dom4j.Node;
 
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.types.XmlOutputMethods;
-import pt.lsts.neptus.util.AngleCalc;
+import pt.lsts.neptus.util.AngleUtils;
 import pt.lsts.neptus.util.Dom4JUtil;
 import pt.lsts.neptus.util.GuiUtils;
 import pt.lsts.neptus.util.MathMiscUtils;
@@ -888,7 +888,7 @@ public class LocationType implements XmlOutputMethods, Serializable, Comparable<
      */
     public double getXYAngle(LocationType anotherLocation) {
         double o2[] = anotherLocation.getOffsetFrom(this);
-        double ang = AngleCalc.calcAngle(0, 0, o2[1], o2[0]);
+        double ang = AngleUtils.calcAngle(0, 0, o2[1], o2[0]);
 
         if (ang < 0)
             ang += Math.PI * 2;
@@ -1235,14 +1235,14 @@ public class LocationType implements XmlOutputMethods, Serializable, Comparable<
      */
     public void translateInPixel(double deltaX, double deltaY, int levelOfDetail){
         Point2D pixs = getPointInPixel(levelOfDetail);
-        double[] latlon = MapTileUtil.XYToDegrees(pixs.getX() + deltaX, pixs.getY() + deltaY, levelOfDetail);
+        double[] latlon = MapTileUtil.xyToDegrees(pixs.getX() + deltaX, pixs.getY() + deltaY, levelOfDetail);
         convertToAbsoluteLatLonDepth(); // just to clear the offsets and save the depth
         this.setLatitudeDegs(latlon[0]);
         this.setLongitudeDegs(latlon[1]);
     }
 
     public void setLocationByPixel(double x, double y, int levelOfDetail){
-        double[] degrees = MapTileUtil.XYToDegrees(x, y, levelOfDetail);
+        double[] degrees = MapTileUtil.xyToDegrees(x, y, levelOfDetail);
         convertToAbsoluteLatLonDepth(); // just to clear the offsets and save the depth
         this.latitudeRads = Math.toRadians(degrees[0]);
         this.longitudeRads = Math.toRadians(degrees[1]);

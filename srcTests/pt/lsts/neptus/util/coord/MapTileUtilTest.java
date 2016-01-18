@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2015 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2016 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -85,7 +85,7 @@ public class MapTileUtilTest {
         int levelOfDetail = 11;
         Point2D xy = MapTileUtil.degreesToXY(latitude, longitude, levelOfDetail);
         
-        double[] actual = MapTileUtil.XYToDegrees(xy.getX(), xy.getY(), levelOfDetail);
+        double[] actual = MapTileUtil.xyToDegrees(xy.getX(), xy.getY(), levelOfDetail);
         NeptusLog.pub().info("<###> "+latitude+","+longitude);
         NeptusLog.pub().info("<###> "+actual[0]+","+actual[1]);
 
@@ -101,7 +101,7 @@ public class MapTileUtilTest {
         int levelOfDetail = 11;
         Point2D xy = MapTileUtil.degreesToXY(latitude, longitude, levelOfDetail);
         
-        double[] actual = MapTileUtil.XYToDegrees(xy.getX()+deltaX, xy.getY()+deltaY, levelOfDetail);
+        double[] actual = MapTileUtil.xyToDegrees(xy.getX()+deltaX, xy.getY()+deltaY, levelOfDetail);
         NeptusLog.pub().info("<###> "+latitude+","+longitude);
         NeptusLog.pub().info("<###> "+actual[0]+","+actual[1]);
 

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2015 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2016 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -53,6 +53,7 @@ import java.util.Vector;
 import javax.swing.BoxLayout;
 import javax.swing.ButtonGroup;
 import javax.swing.JButton;
+import javax.swing.JCheckBox;
 import javax.swing.JDialog;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
@@ -62,7 +63,6 @@ import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
 import javax.swing.JTabbedPane;
 import javax.swing.JTextArea;
-import javax.swing.JToggleButton;
 
 import com.google.common.eventbus.Subscribe;
 
@@ -132,7 +132,7 @@ public class MantaOperations extends ConsolePanel implements ConfigurationListen
     protected JPanel listPanel = new JPanel();
     protected JTextArea bottomPane = new JTextArea();
     protected final JButton clearButton = new JButton(I18n.text("Clear ranges"));
-    protected JToggleButton showHideRangesToggle;
+    private final JCheckBox showRangesCheckBox = new JCheckBox(I18n.text("Show ranges"));
     protected String selectedSystem = null;
     protected String gateway = "any";
     protected JLabel lblState = new JLabel("<html><h1>" + I18n.text("Please select a gateway") + "</h1>");
@@ -535,25 +535,14 @@ public class MantaOperations extends ConsolePanel implements ConfigurationListen
         });
         ctrlPanel.add(clearButton);
         
-        final String rangesShow = I18n.text("Show Ranges");
-        final String rangesHidden = I18n.text("Hide Ranges");
-        showHideRangesToggle = new JToggleButton(showRanges ? rangesHidden : rangesShow);
-        showHideRangesToggle.addActionListener(new ActionListener() {
+        showRangesCheckBox.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent event) {
-                showRanges = ((JToggleButton) event.getSource()).isSelected();
-                if (!showRanges) {  
-                    rangeDistances.clear();
-                    rangeSources.clear();
-                    showHideRangesToggle.setText(rangesShow);
-                }
-                else {
-                    showHideRangesToggle.setText(rangesHidden);
-                }
+                showRanges = ((JCheckBox) event.getSource()).isSelected();
             }
         });
-        showHideRangesToggle.setSelected(showRanges);
-        ctrlPanel.add(showHideRangesToggle);
+        showRangesCheckBox.setSelected(showRanges);
+        ctrlPanel.add(showRangesCheckBox);
 
         listPanel.setBackground(Color.white);
         listPanel.setLayout(new BoxLayout(listPanel, BoxLayout.PAGE_AXIS));
