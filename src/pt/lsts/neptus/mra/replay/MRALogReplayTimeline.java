@@ -185,11 +185,7 @@ public class MRALogReplayTimeline extends JPanel implements ChangeListener {
     }
 
     public void focusTime(double timestamp) {
-        
-        System.out.println("timeline.getMinimum(): "+sdf.format(new Date(timeline.getMinimum()*1000l)));
-        System.out.println("timeline.getMaximum(): "+sdf.format(new Date(timeline.getMaximum()*1000l)));
         int time = (int) timestamp;
-        System.out.println("timeline.focus: "+sdf.format(new Date(time * 1000l)));
         
         if (time < timeline.getMinimum())
             time = timeline.getMinimum();
