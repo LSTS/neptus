@@ -87,7 +87,9 @@ public class LogFileInfoList extends JXList {
 	 */
 	public void initialize() {
 		setModel(myModel);
+		//setVisibleRowCount(25);
 		setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
+		//setDragEnabled(true);
 		
 		setCellRenderer(new ListCellRenderer<LogFileInfo>() {
 			public Component getListCellRendererComponent(JList<? extends LogFileInfo> list, LogFileInfo value, int index, boolean isSelected, boolean cellHasFocus) {
@@ -186,7 +188,27 @@ public class LogFileInfoList extends JXList {
 				}
 				
 				if (e.getButton() == MouseEvent.BUTTON1 && e.getClickCount() == 2) {
+//					if (getNeptusIM() != null)
+//						getNeptusIM().setSelectedChannel(((IMChannel)getSelectedValue()).getRemoteID());
 				}
+				
+				
+//				final IMChannel channel = (IMChannel)getSelectedValue();
+//				setToolTipText("<html>Channel name: <b>"+channel.getRemoteUsername()+"</b><br>"+
+//						"Channel ID: <b>"+channel.getRemoteID()+"</b><br></html>");
+//				
+//				if (e.getButton() == MouseEvent.BUTTON3 && !channel.getRemoteID().equals("ALL")) {
+//					JPopupMenu popup = new JPopupMenu();
+//					
+//					popup.add(new AbstractAction("Nudge "+channel.getRemoteUsername()) {
+//						public void actionPerformed(java.awt.event.ActionEvent e) {
+//							neptusIM.nudge(channel.getRemoteID());
+//						};
+//					});
+//					
+//					popup.show(ChannelsList.this, e.getX(), e.getY());
+//				}
+						
 			}
 		});
 	}
@@ -243,7 +265,8 @@ public class LogFileInfoList extends JXList {
 		list.addFile(new LogFileInfo("a12/A"));
 		list.addFile(new LogFileInfo("22/a"));
 		
-		list.setSortable(true); 
+		list.setSortable(true); // list.setFilterEnabled(true); // Changed from swingx 1.6.+ !!!!
+		//list.setComparator((Comparator<?>) new LogFolder("<><>"));
         list.setAutoCreateRowSorter(true);
         list.setSortOrder(SortOrder.ASCENDING);
         list.addListSelectionListener(new ListSelectionListener() {
