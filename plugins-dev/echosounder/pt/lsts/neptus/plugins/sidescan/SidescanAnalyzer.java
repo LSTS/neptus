@@ -248,7 +248,7 @@ public class SidescanAnalyzer extends JPanel implements MRAVisualization, Timeli
         int time = (int)(marker.getTimestamp()/1000.0);
         if (time>0) {
             try {
-                timeline.getSlider().setValue(time);
+                getTimeline().focusTime(time);
             }
             catch (Exception e) {
                 System.out.println(e);
