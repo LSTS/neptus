@@ -243,7 +243,21 @@ public class MraPhotosVisualization extends JComponent implements MRAVisualizati
 
         return panel;
     }
+    
+    /**
+     * @return the timeline
+     */
+    public Timeline getTimeline() {
+        return timeline;
+    }
 
+    /**
+     * @param timeline the timeline to set
+     */
+    public void setTimeline(Timeline timeline) {
+        this.timeline = timeline;
+    }
+    
     @Override
     public boolean canBeApplied(IMraLogGroup source) {
         return source.getFile("Photos") != null && source.getFile("Photos").isDirectory();
@@ -314,7 +328,7 @@ public class MraPhotosVisualization extends JComponent implements MRAVisualizati
         int time = (int)(marker.getTimestamp()/1000.0);
         if (time>0) {
             try {
-                timeline.getSlider().setValue(time);
+                getTimeline().focusTime(time);
             }
             catch (Exception e) {
                 System.out.println(e);
