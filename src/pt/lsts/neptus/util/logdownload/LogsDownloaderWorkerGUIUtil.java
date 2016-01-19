@@ -251,7 +251,7 @@ public class LogsDownloaderWorkerGUIUtil {
                     e.printStackTrace();
                 }
             }
-            if (!LogsDownloaderUtil.getFileTarget(lfx.getName(), dirBaseToStoreFiles, logLabel).exists()) {
+            if (!LogsDownloaderWorkerUtil.getFileTarget(lfx.getName(), dirBaseToStoreFiles, logLabel).exists()) {
                 toDelFL.add(lfx);
                 // logFd.getLogFiles().remove(lfx); //This cannot be done here
             }

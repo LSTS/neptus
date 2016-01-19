@@ -142,12 +142,12 @@ public class LogsDownloaderWorker {
 
     private void initialize(JFrame parentFrame) {
         // Init timer
-        threadScheduledPool = LogsDownloaderUtil.createThreadPool(LogsDownloaderWorker.this);
+        threadScheduledPool = LogsDownloaderWorkerUtil.createThreadPool(LogsDownloaderWorker.this);
         
         initializeGUI(parentFrame);
 
         // Register for EntityActivationState
-        messageListener = LogsDownloaderUtil.createEntityStateMessageListener(LogsDownloaderWorker.this,
+        messageListener = LogsDownloaderWorkerUtil.createEntityStateMessageListener(LogsDownloaderWorker.this,
                 gui.cameraButton);
         ImcMsgManager.getManager().addListener(messageListener); // all systems listener
     }
@@ -191,7 +191,7 @@ public class LogsDownloaderWorker {
             }
         });
         gui.logFolderList.addMouseListener(
-                LogsDownloaderUtil.createOpenLogInMRAMouseListener(LogsDownloaderWorker.this, gui.logFolderList));
+                LogsDownloaderWorkerUtil.createOpenLogInMRAMouseListener(LogsDownloaderWorker.this, gui.logFolderList));
 
         setEnableLogLabel(false);
 
@@ -409,7 +409,7 @@ public class LogsDownloaderWorker {
     // FIXME Visibility
     void testNewReportedLogFoldersForLocalCorrespondent(LinkedList<LogFolderInfo> newLogFoldersFromServer) {
         for (LogFolderInfo lf : newLogFoldersFromServer) {
-            File testFile = new File(LogsDownloaderUtil.getDirTarget(getDirBaseToStoreFiles(), getLogLabel()),
+            File testFile = new File(LogsDownloaderWorkerUtil.getDirTarget(getDirBaseToStoreFiles(), getLogLabel()),
                     lf.getName());
             if (testFile.exists()) {
                 if (lf.getState() == LogFolderInfo.State.DOWNLOADING)
@@ -417,11 +417,11 @@ public class LogsDownloaderWorker {
 
                 lf.setState(LogFolderInfo.State.UNKNOWN);
                 for (LogFileInfo lfx : lf.getLogFiles()) {
-                    File testFx = new File(LogsDownloaderUtil.getDirTarget(getDirBaseToStoreFiles(), getLogLabel()), 
+                    File testFx = new File(LogsDownloaderWorkerUtil.getDirTarget(getDirBaseToStoreFiles(), getLogLabel()), 
                             lfx.getName());
                     if (testFx.exists()) {
                         lfx.setState(LogFolderInfo.State.UNKNOWN);
-                        long sizeD = LogsDownloaderUtil.getDiskSizeFromLocal(lfx, LogsDownloaderWorker.this);
+                        long sizeD = LogsDownloaderWorkerUtil.getDiskSizeFromLocal(lfx, LogsDownloaderWorker.this);
                         if (lfx.getSize() == sizeD) {
                             lfx.setState(LogFolderInfo.State.SYNC);
                         }
@@ -485,12 +485,12 @@ public class LogsDownloaderWorker {
                     directoryContentsList.put(lfi.getUriPartial(), lfi.getFile());
                 }
                 workerD = new DownloaderPanel(ftpDownloader, lfx.getFile(), lfx.getName(),
-                        LogsDownloaderUtil.getFileTarget(lfx.getName(), getDirBaseToStoreFiles(), getLogLabel()), 
+                        LogsDownloaderWorkerUtil.getFileTarget(lfx.getName(), getDirBaseToStoreFiles(), getLogLabel()), 
                         directoryContentsList, threadScheduledPool, queueWorkTickets);
             }
             else {
                 workerD = new DownloaderPanel(ftpDownloader, lfx.getFile(), lfx.getName(),
-                        LogsDownloaderUtil.getFileTarget(lfx.getName(), getDirBaseToStoreFiles(), getLogLabel()), 
+                        LogsDownloaderWorkerUtil.getFileTarget(lfx.getName(), getDirBaseToStoreFiles(), getLogLabel()), 
                         threadScheduledPool, queueWorkTickets);
             }
         }
@@ -630,7 +630,7 @@ public class LogsDownloaderWorker {
         // Not the best way but for now lets try like this
         if (hostFx.equals(host))
             return deleteLogFolderFromServer(path);
-        else if (hostFx.equals(LogsDownloaderUtil.getCameraHost(host)))
+        else if (hostFx.equals(LogsDownloaderWorkerUtil.getCameraHost(host)))
             return deleteLogFolderFromCameraServer(path);
         else
             return false;
@@ -644,7 +644,7 @@ public class LogsDownloaderWorker {
         try {
             System.out.println("Deleting folder");
             try {
-                clientFtp = LogsDownloaderUtil.getOrRenewFtpDownloader(clientFtp, host, port);
+                clientFtp = LogsDownloaderWorkerUtil.getOrRenewFtpDownloader(clientFtp, host, port);
             }
             catch (Exception e) {
                 e.printStackTrace();
@@ -661,7 +661,7 @@ public class LogsDownloaderWorker {
         try {
             if (cameraFtp != null) {
                 try {
-                    cameraFtp = LogsDownloaderUtil.getOrRenewFtpDownloader(cameraFtp, LogsDownloaderUtil.getCameraHost(host), port);
+                    cameraFtp = LogsDownloaderWorkerUtil.getOrRenewFtpDownloader(cameraFtp, LogsDownloaderWorkerUtil.getCameraHost(host), port);
                 }
                 catch (Exception e) {
                     e.printStackTrace();
@@ -690,7 +690,7 @@ public class LogsDownloaderWorker {
 
         LinkedList<LogFolderInfo> tmpLogFolders = new LinkedList<LogFolderInfo>();
 
-        String cameraHost = LogsDownloaderUtil.getCameraHost(getHost());
+        String cameraHost = LogsDownloaderWorkerUtil.getCameraHost(getHost());
 
         System.out.println(LogsDownloaderWorker.class.getSimpleName() + " :: " + cameraHost + " " + getLogLabel());
 

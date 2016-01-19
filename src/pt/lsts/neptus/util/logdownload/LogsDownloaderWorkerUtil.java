@@ -65,10 +65,10 @@ import pt.lsts.neptus.util.FileUtil;
  * @author pdias
  *
  */
-class LogsDownloaderUtil {
+class LogsDownloaderWorkerUtil {
 
     /** To avoid instantiation */
-    private LogsDownloaderUtil() {
+    private LogsDownloaderWorkerUtil() {
     }
 
     /**
@@ -290,7 +290,7 @@ class LogsDownloaderUtil {
      * @return Negative values for errors (HTTP like returns).
      */
     static long getDiskSizeFromLocal(LogFileInfo fx, LogsDownloaderWorker worker) {
-        File fileTarget = LogsDownloaderUtil.getFileTarget(fx.getName(), 
+        File fileTarget = LogsDownloaderWorkerUtil.getFileTarget(fx.getName(), 
                 worker.getDirBaseToStoreFiles(), worker.getLogLabel());
         if (fileTarget == null)
             return -1;

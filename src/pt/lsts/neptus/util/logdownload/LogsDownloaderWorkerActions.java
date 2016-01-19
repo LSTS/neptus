@@ -318,7 +318,7 @@ class LogsDownloaderWorkerActions {
         // Getting the file list from main CPU
         LinkedHashMap<FTPFile, String> retList = null;
         try {
-            worker.clientFtp = LogsDownloaderUtil.getOrRenewFtpDownloader(worker.clientFtp, worker.getHost(),
+            worker.clientFtp = LogsDownloaderWorkerUtil.getOrRenewFtpDownloader(worker.clientFtp, worker.getHost(),
                     worker.getPort());
             retList = worker.clientFtp.listLogs();
         }
@@ -332,11 +332,11 @@ class LogsDownloaderWorkerActions {
     private LinkedHashMap<FTPFile, String> getFileListFromCamCPU(
             LinkedHashMap<String, String> serversLogPresenceList) {
       //Getting the log list from Camera CPU
-        String cameraHost = LogsDownloaderUtil.getCameraHost(worker.getHost());
+        String cameraHost = LogsDownloaderWorkerUtil.getCameraHost(worker.getHost());
         LinkedHashMap<FTPFile, String> retCamList = null;
         if (cameraHost.length() > 0 && isCamCpuOn()) {
             try {
-                worker.cameraFtp = LogsDownloaderUtil.getOrRenewFtpDownloader(worker.cameraFtp, cameraHost,
+                worker.cameraFtp = LogsDownloaderWorkerUtil.getOrRenewFtpDownloader(worker.cameraFtp, cameraHost,
                         worker.getPort());
                 retCamList = worker.cameraFtp.listLogs();
             }
@@ -487,9 +487,9 @@ class LogsDownloaderWorkerActions {
                                 }
 
                                 if (lfx.isDirectory()) {
-                                    if (!LogsDownloaderUtil.getFileTarget(lfx.getName(), worker.getDirBaseToStoreFiles(), worker.getLogLabel()).exists()) {
+                                    if (!LogsDownloaderWorkerUtil.getFileTarget(lfx.getName(), worker.getDirBaseToStoreFiles(), worker.getLogLabel()).exists()) {
                                         for (LogFileInfo lfi : lfx.getDirectoryContents()) {
-                                            if (!LogsDownloaderUtil.getFileTarget(lfi.getName(), worker.getDirBaseToStoreFiles(), worker.getLogLabel()).exists()) {
+                                            if (!LogsDownloaderWorkerUtil.getFileTarget(lfi.getName(), worker.getDirBaseToStoreFiles(), worker.getLogLabel()).exists()) {
                                                 if (lfx.getState() != LogFolderInfo.State.NEW && lfx.getState() != LogFolderInfo.State.DOWNLOADING)
                                                     lfx.setState(LogFolderInfo.State.INCOMPLETE);
                                                 break;
@@ -497,20 +497,20 @@ class LogsDownloaderWorkerActions {
                                         }
                                     }
                                     else {
-                                        long sizeD = LogsDownloaderUtil.getDiskSizeFromLocal(lfx, worker);
+                                        long sizeD = LogsDownloaderWorkerUtil.getDiskSizeFromLocal(lfx, worker);
                                         if (lfx.getSize() != sizeD && lfx.getState() == LogFolderInfo.State.SYNC)
                                             lfx.setState(LogFolderInfo.State.INCOMPLETE);
                                     }
                                 }
                                 else {
-                                    if (!LogsDownloaderUtil.getFileTarget(lfx.getName(), worker.getDirBaseToStoreFiles(), worker.getLogLabel()).exists()) {
+                                    if (!LogsDownloaderWorkerUtil.getFileTarget(lfx.getName(), worker.getDirBaseToStoreFiles(), worker.getLogLabel()).exists()) {
                                         if (lfx.getState() != LogFolderInfo.State.NEW && lfx.getState() != LogFolderInfo.State.DOWNLOADING) {
                                             lfx.setState(LogFolderInfo.State.INCOMPLETE);
                                             // System.out.println("//////////// " + lfx.getName() + "  " + LogsDownloaderUtil.getFileTarget(lfx.getName()).exists());
                                         }
                                     }
                                     else {
-                                        long sizeD = LogsDownloaderUtil.getDiskSizeFromLocal(lfx, worker);
+                                        long sizeD = LogsDownloaderWorkerUtil.getDiskSizeFromLocal(lfx, worker);
                                         if (lfx.getSize() != sizeD && lfx.getState() == LogFolderInfo.State.SYNC)
                                             lfx.setState(LogFolderInfo.State.INCOMPLETE);
                                     }
@@ -524,7 +524,7 @@ class LogsDownloaderWorkerActions {
                             if (!logFilesTmp.contains(lfx)
                                     /* !res.keySet().contains(lfx.getName()) */) {
                                 lfx.setState(LogFolderInfo.State.LOCAL);
-                                if (!LogsDownloaderUtil.getFileTarget(lfx.getName(), 
+                                if (!LogsDownloaderWorkerUtil.getFileTarget(lfx.getName(), 
                                         worker.getDirBaseToStoreFiles(), worker.getLogLabel()).exists()) {
                                     toDelFL.add(lfx);
                                     // logFolder.getLogFiles().remove(lfx); //This cannot be done here
@@ -743,7 +743,7 @@ class LogsDownloaderWorkerActions {
                             try {
                                 LogFileInfo lfx = (LogFileInfo) comp;
                                 worker.singleLogFileDownloadWorker(lfx,
-                                        LogsDownloaderUtil.findLogFolderInfoForFile(lfx, gui.logFolderList));
+                                        LogsDownloaderWorkerUtil.findLogFolderInfoForFile(lfx, gui.logFolderList));
                             }
                             catch (Exception e) {
                                 NeptusLog.pub().debug(e.getMessage());
