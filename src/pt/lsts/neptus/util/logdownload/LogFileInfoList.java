@@ -34,8 +34,6 @@ package pt.lsts.neptus.util.logdownload;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Rectangle;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
 import java.util.Enumeration;
 
 import javax.swing.DefaultListModel;
@@ -47,6 +45,7 @@ import javax.swing.ListSelectionModel;
 import javax.swing.SortOrder;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
+import javax.swing.plaf.basic.BasicHTML;
 
 import org.jdesktop.swingx.JXList;
 
@@ -71,7 +70,6 @@ public class LogFileInfoList extends JXList {
 	public static final Icon ICON_SYNC = ImageUtils.getScaledIcon("images/downloader/file_sync.png", 20, 20);
 	public static final Icon ICON_LOCAL = ImageUtils.getScaledIcon("images/downloader/file_local.png", 20, 20);
 	
-	
 	DefaultListModel<LogFileInfo> myModel = new DefaultListModel<LogFileInfo>();	
 	
 	/**
@@ -82,9 +80,6 @@ public class LogFileInfoList extends JXList {
 		initialize();
 	}
 	
-	/**
-	 * 
-	 */
 	public void initialize() {
 		setModel(myModel);
 		setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
@@ -103,6 +98,7 @@ public class LogFileInfoList extends JXList {
                                         || folder.getDirectoryContents().isEmpty() ? "" : " | "
                                         + I18n.textf("%files files", folder.getDirectoryContents().size()))) + ")";
 					}
+					
 					JLabel lbl = new JLabel(folder.getName() + infoSize, ICON_NEW, JLabel.LEFT) {
                         @Override
                         public void validate() {}
@@ -118,13 +114,13 @@ public class LogFileInfoList extends JXList {
                         public void repaint(Rectangle r) {}
                         @Override
                         protected void firePropertyChange(String propertyName, Object oldValue, Object newValue) {
-                        // Strings get interned...
-                        if (propertyName.equals("text")
+                            // Strings get interned...
+                            if (propertyName.equals("text")
                                     || ((propertyName.equals("font") || propertyName.equals("foreground"))
-                                        && oldValue != newValue
-                                        && getClientProperty(javax.swing.plaf.basic.BasicHTML.propertyKey) != null)) {
+                                            && oldValue != newValue
+                                            && getClientProperty(BasicHTML.propertyKey) != null)) {
 
-                            super.firePropertyChange(propertyName, oldValue, newValue);
+                                super.firePropertyChange(propertyName, oldValue, newValue);
                             }
                         }
                         @Override
@@ -160,7 +156,6 @@ public class LogFileInfoList extends JXList {
 					else if (folder.getState() == LogFolderInfo.State.LOCAL)
 						lbl.setIcon(ICON_LOCAL);
 
-					
 					lbl.setBackground(Color.white);
 					if (isSelected /*|| cellHasFocus*/) {
 						lbl.setForeground(getBackground());
@@ -171,22 +166,9 @@ public class LogFileInfoList extends JXList {
 					return lbl;
 				}
 				catch (Exception e) {
-					// TODO: handle exception
+					e.printStackTrace();
 				}
 				return new JLabel("?");		
-			}
-		});
-		
-		addMouseListener(new MouseAdapter() {
-			@Override
-			public void mouseClicked(MouseEvent e) {
-				if (e.getButton() == MouseEvent.BUTTON1
-						&& e.getModifiers() == MouseEvent.CTRL_DOWN_MASK
-						&& e.getClickCount() == 1) {
-				}
-				
-				if (e.getButton() == MouseEvent.BUTTON1 && e.getClickCount() == 2) {
-				}
 			}
 		});
 	}
@@ -229,7 +211,9 @@ public class LogFileInfoList extends JXList {
 				lfx = (LogFileInfo)iter.nextElement();
 				if (lfx.getName().equals(name))
 					return lfx;
-			} catch (Exception e) {
+			}
+			catch (Exception e) {
+			    e.printStackTrace();
 			}
 		}
 		return null;
@@ -249,13 +233,10 @@ public class LogFileInfoList extends JXList {
         list.addListSelectionListener(new ListSelectionListener() {
             @Override
             public void valueChanged(ListSelectionEvent e) {
-                for (Object sel : list.getSelectedValues()) { // getSelectedValuesList não dá os valores correctos
+                for (Object sel : list.getSelectedValues()) { // getSelectedValuesList does not give the corrected values
                     NeptusLog.pub().info("<###> "+((LogFileInfo)sel));
                 }
             }});
 		GuiUtils.testFrame(list);
-		
-		
 	}
-
 }
