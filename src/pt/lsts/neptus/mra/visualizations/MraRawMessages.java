@@ -103,6 +103,8 @@ public class MraRawMessages extends SimpleMRAVisualization {
 
     private static final long serialVersionUID = 1L;
     private static final String ANY_TXT = I18n.text("<ANY>");
+    private static final String SHOW_ICON = "images/buttons/show.png";
+    private static final String LIGHTS_ICON = "images/buttons/lights.png";
     private JTable table;
     private ArrayList<Integer> resultList = new ArrayList<>();
     private int finderNextIndex = -1;
@@ -135,7 +137,8 @@ public class MraRawMessages extends SimpleMRAVisualization {
     @Override
     public void onHide() {
         mraPanel.getActionMap().remove("finder");
-        find.setVisible(false);
+        if (find != null)
+            find.setVisible(false);
     }
 
     @Override
@@ -169,9 +172,12 @@ public class MraRawMessages extends SimpleMRAVisualization {
             @Override
             public void actionPerformed(ActionEvent e) {
                 find.setSize(290, 200);
+                find.busyLbl.setBusy(false);
+                find.busyLbl.setVisible(false);
                 find.setLocationOnLeft();
                 find.setVisible(true);
                 findOpenState = true;
+                
             }
         };
 
@@ -195,7 +201,7 @@ public class MraRawMessages extends SimpleMRAVisualization {
         highlightBtn = new JToggleButton();
         highlightBtn.setHorizontalTextPosition(SwingConstants.CENTER);
         highlightBtn.setVerticalTextPosition(SwingConstants.BOTTOM);
-        highlightBtn.setIcon(ImageUtils.createScaleImageIcon("images/buttons/lights.png", 13, 13));
+        highlightBtn.setIcon(ImageUtils.createScaleImageIcon(LIGHTS_ICON, 13, 13));
         highlightBtn.setSelected(false);
         highlightBtn.addActionListener(new ActionListener() {
             @Override
@@ -209,15 +215,17 @@ public class MraRawMessages extends SimpleMRAVisualization {
         JButton findBtn = new JButton();
         findBtn.setHorizontalTextPosition(SwingConstants.CENTER);
         findBtn.setVerticalTextPosition(SwingConstants.BOTTOM);
-        findBtn.setIcon(ImageUtils.createScaleImageIcon("images/buttons/show.png", 13, 13));
+        findBtn.setIcon(ImageUtils.createScaleImageIcon(SHOW_ICON, 13, 13));
         findBtn.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 if (!find.isVisible()) {
                     find.setVisible(true);
                     closingUp = false;
+                    findOpenState = true;
                 }
                 else {
+                    findOpenState = false;
                     find.setVisible(false);
                     closingUp = true;
                     find.dispose();
@@ -322,9 +330,11 @@ public class MraRawMessages extends SimpleMRAVisualization {
                 && dest.equals(ANY_TXT) && find.hasDefaultTS()) {
             find.busyLbl.setBusy(false);
             find.busyLbl.setVisible(false);
+            find.nextBtn.setEnabled(false);
+            find.prevBtn.setEnabled(false);
             return true;
         }
-        
+
         //Fix year/month/day of textbox's timestamp and timestampHigh
         Date base = new Date((long)(1000.0*source.getLsfIndex().timeOf(0)));
         time1 = fixTime(base, time1);
