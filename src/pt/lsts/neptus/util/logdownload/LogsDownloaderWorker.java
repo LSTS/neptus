@@ -96,9 +96,10 @@ public class LogsDownloaderWorker {
     protected static final String CAMERA_CPU_LABEL = "Slave CPU";
 
     // FIXME Visibility
-    FtpDownloader clientFtp = null;
+    // private FtpDownloader clientFtp = null;
     // FIXME Visibility
-    FtpDownloader cameraFtp = null;
+    // private FtpDownloader cameraFtp = null;
+    private final LinkedHashMap<String, FtpDownloader> ftpDownloaders = new LinkedHashMap<>(2);
 
     private String host = "127.0.0.1";
     private int port = DEFAULT_PORT;
@@ -248,20 +249,30 @@ public class LogsDownloaderWorker {
 
     private void disconnectFTPClientsForListing() {
         actions.stopLogListProcessing = true;
-        if (clientFtp != null && clientFtp.isConnected()) {
-            try {
-                clientFtp.getClient().disconnect();
-            }
-            catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
-        if (cameraFtp != null && cameraFtp.isConnected()) {
-            try {
-                cameraFtp.getClient().disconnect();
-            }
-            catch (IOException e) {
-                e.printStackTrace();
+//        if (clientFtp != null && clientFtp.isConnected()) {
+//            try {
+//                clientFtp.getClient().disconnect();
+//            }
+//            catch (IOException e) {
+//                e.printStackTrace();
+//            }
+//        }
+//        if (cameraFtp != null && cameraFtp.isConnected()) {
+//            try {
+//                cameraFtp.getClient().disconnect();
+//            }
+//            catch (IOException e) {
+//                e.printStackTrace();
+//            }
+//        }
+        for (FtpDownloader ftpDwnld : ftpDownloaders.values().toArray(new FtpDownloader[ftpDownloaders.size()])) {
+            if (ftpDwnld != null && ftpDwnld.isConnected()) {
+                try {
+                    ftpDwnld.getClient().disconnect();
+                }
+                catch (IOException e) {
+                    e.printStackTrace();
+                }
             }
         }
     }
@@ -275,6 +286,10 @@ public class LogsDownloaderWorker {
         cleanup();
     }
 
+    LinkedHashMap<String, FtpDownloader> getFtpDownloaders() {
+        return ftpDownloaders;
+    }
+    
     public String getHost() {
         return host;
     }
@@ -641,35 +656,55 @@ public class LogsDownloaderWorker {
      * @return
      */
     private boolean deleteLogFolderFromServer(String path) {
+//        try {
+//            System.out.println("Deleting folder");
+//            try {
+//                clientFtp = LogsDownloaderWorkerUtil.getOrRenewFtpDownloader(clientFtp, host, port);
+//            }
+//            catch (Exception e) {
+//                e.printStackTrace();
+//            }
+//            return clientFtp.getClient().deleteFile("/" + path);
+//        }
+//        catch (IOException e) {
+//            e.printStackTrace();
+//            return false;
+//        }
+        return deleteLogFolderFromServerWorker(SERVER_MAIN, host, port, path);
+    }
+
+    private boolean deleteLogFolderFromCameraServer(String path) {
+//        try {
+//            if (cameraFtp != null) {
+//                try {
+//                    cameraFtp = LogsDownloaderWorkerUtil.getOrRenewFtpDownloader(cameraFtp, LogsDownloaderWorkerUtil.getCameraHost(host), port);
+//                }
+//                catch (Exception e) {
+//                    e.printStackTrace();
+//                }
+//                return cameraFtp.getClient().deleteFile("/" + path);
+//            }
+//            else
+//                return false;
+//        }
+//        catch (IOException e) {
+//            e.printStackTrace();
+//            return false;
+//        }
+        return deleteLogFolderFromServerWorker(SERVER_CAM, LogsDownloaderWorkerUtil.getCameraHost(host), port, path);
+    }
+
+    private boolean deleteLogFolderFromServerWorker(String serverKey, String host, int port, String path) {
         try {
             System.out.println("Deleting folder");
+            FtpDownloader ftp = null;
             try {
-                clientFtp = LogsDownloaderWorkerUtil.getOrRenewFtpDownloader(clientFtp, host, port);
+                ftp = LogsDownloaderWorkerUtil.getOrRenewFtpDownloader(serverKey, ftpDownloaders, host, port);
             }
             catch (Exception e) {
                 e.printStackTrace();
             }
-            return clientFtp.getClient().deleteFile("/" + path);
-        }
-        catch (IOException e) {
-            e.printStackTrace();
-            return false;
-        }
-    }
-
-    private boolean deleteLogFolderFromCameraServer(String path) {
-        try {
-            if (cameraFtp != null) {
-                try {
-                    cameraFtp = LogsDownloaderWorkerUtil.getOrRenewFtpDownloader(cameraFtp, LogsDownloaderWorkerUtil.getCameraHost(host), port);
-                }
-                catch (Exception e) {
-                    e.printStackTrace();
-                }
-                return cameraFtp.getClient().deleteFile("/" + path);
-            }
-            else
-                return false;
+            return ftp == null ? false : ftp.getClient().deleteFile("/" + path);
         }
         catch (IOException e) {
             e.printStackTrace();
@@ -706,6 +741,7 @@ public class LogsDownloaderWorker {
                 LogFolderInfo lFolder = new LogFolderInfo(logDir);
 
                 // Updating the LogFiles for each LogFolder
+                FtpDownloader clientFtp = ftpDownloaders.get(SERVER_MAIN);
                 FTPFile[] files = clientFtp.getClient().listFiles("/" + isoStr + "/");
                 for (FTPFile file : files) {
                     String name = logDir + "/" + file.getName();
@@ -743,6 +779,7 @@ public class LogsDownloaderWorker {
             }
 
             // REDO the same thing if cameraHost exists with the difference of a another client
+            FtpDownloader cameraFtp = ftpDownloaders.get(SERVER_CAM);
             if (cameraHost != null && cameraFtp != null) {
                 FtpDownloader ftpd = cameraFtp; // new FtpDownloader(cameraHost, port);
                 for (String logDir : serversLogPresenceList.keySet()) {

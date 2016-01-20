@@ -38,6 +38,7 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.io.File;
+import java.util.LinkedHashMap;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.ThreadFactory;
@@ -245,6 +246,26 @@ class LogsDownloaderWorkerUtil {
             clientFtp.renewClient();
 
         return clientFtp;
+    }
+
+    /**
+     * Gets the clientFtp with the connection renewed ({@link FtpDownloader#renewClient()})
+     * or create a new one connected. This is based on the key (serverKey) and at the end stores
+     * in the ftpDownloaders.
+     * 
+     * @param serverKey
+     * @param ftpDownloaders
+     * @param host
+     * @param port
+     * @return
+     * @throws Exception
+     */
+    static FtpDownloader getOrRenewFtpDownloader(String serverKey, LinkedHashMap<String, FtpDownloader> ftpDownloaders,
+            String host, int port) throws Exception {
+        FtpDownloader ftpDwnldr = ftpDownloaders.get(serverKey);
+        ftpDwnldr = getOrRenewFtpDownloader(ftpDwnldr, host, port);
+        ftpDownloaders.put(serverKey, ftpDwnldr); // Even if null is added
+        return ftpDwnldr;
     }
 
     /**

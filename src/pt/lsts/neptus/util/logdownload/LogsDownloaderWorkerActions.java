@@ -54,6 +54,7 @@ import pt.lsts.imc.EntityParameter;
 import pt.lsts.imc.SetEntityParameters;
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.comm.manager.imc.ImcMsgManager;
+import pt.lsts.neptus.ftp.FtpDownloader;
 import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.util.GuiUtils;
 
@@ -172,7 +173,7 @@ class LogsDownloaderWorkerActions {
                         }
                         NeptusLog.pub().warn(".......get list from main CPU server " + (System.currentTimeMillis() - timeD1) + "ms");                        
 
-                        // Get list from main CPU
+                        // Get list from cam CPU
                         long timeD2 = System.currentTimeMillis();
                         LinkedHashMap<FTPFile, String> retCamList = getFileListFromCamCPU(serversLogPresenceList);;
                         if (retCamList != null) {
@@ -318,9 +319,11 @@ class LogsDownloaderWorkerActions {
         // Getting the file list from main CPU
         LinkedHashMap<FTPFile, String> retList = null;
         try {
-            worker.clientFtp = LogsDownloaderWorkerUtil.getOrRenewFtpDownloader(worker.clientFtp, worker.getHost(),
-                    worker.getPort());
-            retList = worker.clientFtp.listLogs();
+//            worker.clientFtp = LogsDownloaderWorkerUtil.getOrRenewFtpDownloader(worker.clientFtp, worker.getHost(), worker.getPort());
+//            retList = worker.clientFtp.listLogs();
+            FtpDownloader clientFtp = LogsDownloaderWorkerUtil.getOrRenewFtpDownloader(LogsDownloaderWorker.SERVER_MAIN,
+                    worker.getFtpDownloaders(), worker.getHost(), worker.getPort());
+            retList = clientFtp.listLogs();
         }
         catch (Exception e) {
             NeptusLog.pub().error(
@@ -336,9 +339,12 @@ class LogsDownloaderWorkerActions {
         LinkedHashMap<FTPFile, String> retCamList = null;
         if (cameraHost.length() > 0 && isCamCpuOn()) {
             try {
-                worker.cameraFtp = LogsDownloaderWorkerUtil.getOrRenewFtpDownloader(worker.cameraFtp, cameraHost,
-                        worker.getPort());
-                retCamList = worker.cameraFtp.listLogs();
+//                worker.cameraFtp = LogsDownloaderWorkerUtil.getOrRenewFtpDownloader(worker.cameraFtp, cameraHost,
+//                        worker.getPort());
+//                retCamList = worker.cameraFtp.listLogs();
+                FtpDownloader clientFtp = LogsDownloaderWorkerUtil.getOrRenewFtpDownloader(LogsDownloaderWorker.SERVER_CAM,
+                        worker.getFtpDownloaders(), cameraHost, worker.getPort());
+                retCamList = clientFtp.listLogs();
             }
             catch (Exception e) {
                 NeptusLog.pub().error(
