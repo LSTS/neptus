@@ -873,6 +873,10 @@ public class MraRawMessages extends SimpleMRAVisualization {
                     }
                 }
             });
+            typeTxt.addActionListener(new ActionListener(){
+                public void actionPerformed(ActionEvent e){
+                    findBtn.doClick();
+                }});
         }
 
         /**
