@@ -186,17 +186,12 @@ public class MraRawMessages extends SimpleMRAVisualization {
                 if (find == null)
                     find = new FinderDialog(SwingUtilities.windowForComponent(mraPanel));
                 else {
-                    if (find.isVisible()) {
-                        find.setVisible(false); 
-                    } 
-                    else {
-                        find.busyLbl.setBusy(false);
-                        find.busyLbl.setVisible(false);
-                        find.setLocationOnLeft();
-                        find.pack();
-                        find.setVisible(true);
-                        findOpenState = true;
-                    }
+                    find.busyLbl.setBusy(false);
+                    find.busyLbl.setVisible(false);
+                    find.setLocationOnLeft();
+                    find.setVisible(true);
+                    find.pack();
+                    findOpenState = true;
                 }
             }
         };
