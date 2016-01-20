@@ -166,6 +166,7 @@ class LogsDownloaderWorkerActions {
                         // Get list from main CPU
                         long timeD1 = System.currentTimeMillis();
                         LinkedHashMap<FTPFile, String> retList = getBaseLogListFrom(LogsDownloaderWorker.SERVER_MAIN);
+                        fillServerPresenceList(LogsDownloaderWorker.SERVER_MAIN, retList, null, serversLogPresenceList);
                         NeptusLog.pub().warn(".......get list from main CPU server " + (System.currentTimeMillis() - timeD1) + "ms");                        
 
                         // Get list from cam CPU
