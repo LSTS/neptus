@@ -702,45 +702,16 @@ public class LogsDownloaderWorker {
      * @return
      */
     private boolean deleteLogFolderFromServer(String path) {
-//        try {
-//            System.out.println("Deleting folder");
-//            try {
-//                clientFtp = LogsDownloaderWorkerUtil.getOrRenewFtpDownloader(clientFtp, host, port);
-//            }
-//            catch (Exception e) {
-//                e.printStackTrace();
-//            }
-//            return clientFtp.getClient().deleteFile("/" + path);
-//        }
-//        catch (IOException e) {
-//            e.printStackTrace();
-//            return false;
-//        }
-        return deleteLogFolderFromServerWorker(SERVER_MAIN, host, port, path);
+        return deleteLogFolderFromServerWorker(SERVER_MAIN, path);
     }
 
     private boolean deleteLogFolderFromCameraServer(String path) {
-//        try {
-//            if (cameraFtp != null) {
-//                try {
-//                    cameraFtp = LogsDownloaderWorkerUtil.getOrRenewFtpDownloader(cameraFtp, LogsDownloaderWorkerUtil.getCameraHost(host), port);
-//                }
-//                catch (Exception e) {
-//                    e.printStackTrace();
-//                }
-//                return cameraFtp.getClient().deleteFile("/" + path);
-//            }
-//            else
-//                return false;
-//        }
-//        catch (IOException e) {
-//            e.printStackTrace();
-//            return false;
-//        }
-        return deleteLogFolderFromServerWorker(SERVER_CAM, LogsDownloaderWorkerUtil.getCameraHost(host), port, path);
+        return deleteLogFolderFromServerWorker(SERVER_CAM, path);
     }
 
-    private boolean deleteLogFolderFromServerWorker(String serverKey, String host, int port, String path) {
+    private boolean deleteLogFolderFromServerWorker(String serverKey, String path) {
+        String host = getHostFor(serverKey);
+        int port = getPortFor(serverKey);
         try {
             System.out.println("Deleting folder");
             FtpDownloader ftp = null;
