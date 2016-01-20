@@ -165,39 +165,13 @@ class LogsDownloaderWorkerActions {
 
                         // Get list from main CPU
                         long timeD1 = System.currentTimeMillis();
-                        LinkedHashMap<FTPFile, String> retList = getFileListFromMainCPU(serversLogPresenceList);
-                        if (retList != null) {
-                            for (String partialUri : retList.values()) {
-                                serversLogPresenceList.put(partialUri, LogsDownloaderWorker.SERVER_MAIN);
-                            }
-                        }
+                        LinkedHashMap<FTPFile, String> retList = getBaseLogListFrom(LogsDownloaderWorker.SERVER_MAIN);
                         NeptusLog.pub().warn(".......get list from main CPU server " + (System.currentTimeMillis() - timeD1) + "ms");                        
 
                         // Get list from cam CPU
                         long timeD2 = System.currentTimeMillis();
-                        LinkedHashMap<FTPFile, String> retCamList = getFileListFromCamCPU(serversLogPresenceList);;
-                        if (retCamList != null) {
-                            if (retList == null) {
-                                retList = retCamList;
-
-                                for (String partialUri : retList.values()) {
-                                    serversLogPresenceList.put(partialUri, LogsDownloaderWorker.SERVER_CAM);
-                                }
-                            }
-                            else {
-                                for (FTPFile camFTPFile : retCamList.keySet()) {
-                                    String val = retCamList.get(camFTPFile);
-                                    if (retList.containsValue(val)) {
-                                        serversLogPresenceList.put(val, serversLogPresenceList.get(val) + " " + LogsDownloaderWorker.SERVER_CAM);
-                                        continue;
-                                    }
-                                    else {
-                                        retList.put(camFTPFile, val);
-                                        serversLogPresenceList.put(val, LogsDownloaderWorker.SERVER_CAM);
-                                    }
-                                }
-                            }
-                        }
+                        LinkedHashMap<FTPFile, String> retCamList = getBaseLogListFrom(LogsDownloaderWorker.SERVER_CAM);
+                        fillServerPresenceList(LogsDownloaderWorker.SERVER_CAM, retCamList, retList, serversLogPresenceList);
                         NeptusLog.pub().warn(".......get list from main CAM server " + (System.currentTimeMillis() - timeD2) + "ms");                        
 
                         NeptusLog.pub().warn(".......get list from all servers " + (System.currentTimeMillis() - timeD1) + "ms");                        
@@ -314,44 +288,72 @@ class LogsDownloaderWorkerActions {
         };
     }
 
-    private LinkedHashMap<FTPFile, String> getFileListFromMainCPU(
-            LinkedHashMap<String, String> serversLogPresenceList) {
-        // Getting the file list from main CPU
+    /**
+     * Contacts the server given by the serverKey ID and gets the base logs list.
+     * 
+     * Uses {@link LogsDownloaderWorker#getHostFor(String)} and
+     * {@link LogsDownloaderWorker#getPortFor(String)} to fill the destination.
+     * 
+     * @param serverKey
+     * @return
+     */
+    private LinkedHashMap<FTPFile, String> getBaseLogListFrom(String serverKey) {
         LinkedHashMap<FTPFile, String> retList = null;
+        String host = worker.getHostFor(serverKey);
+        int port = worker.getPortFor(serverKey);
+        
+        if (host.length() == 0 || !worker.isServerAvailable(serverKey))
+            return retList;
+        
         try {
-//            worker.clientFtp = LogsDownloaderWorkerUtil.getOrRenewFtpDownloader(worker.clientFtp, worker.getHost(), worker.getPort());
-//            retList = worker.clientFtp.listLogs();
-            FtpDownloader clientFtp = LogsDownloaderWorkerUtil.getOrRenewFtpDownloader(LogsDownloaderWorker.SERVER_MAIN,
-                    worker.getFtpDownloaders(), worker.getHost(), worker.getPort());
+            FtpDownloader clientFtp = LogsDownloaderWorkerUtil.getOrRenewFtpDownloader(serverKey,
+                    worker.getFtpDownloaders(), host, port);
             retList = clientFtp.listLogs();
         }
         catch (Exception e) {
-            NeptusLog.pub().error(
-                    "Connecting with " + worker.getHost() + ":" + worker.getPort() + " with error: " + e.getMessage());
+            NeptusLog.pub().error("Connecting " + serverKey + " with " 
+                    + host + ":" + port + " with error: " + e.getMessage());
         }
         return retList;
     }
 
-    private LinkedHashMap<FTPFile, String> getFileListFromCamCPU(
-            LinkedHashMap<String, String> serversLogPresenceList) {
-      //Getting the log list from Camera CPU
-        String cameraHost = LogsDownloaderWorkerUtil.getCameraHost(worker.getHost());
-        LinkedHashMap<FTPFile, String> retCamList = null;
-        if (cameraHost.length() > 0 && isCamCpuOn()) {
-            try {
-//                worker.cameraFtp = LogsDownloaderWorkerUtil.getOrRenewFtpDownloader(worker.cameraFtp, cameraHost,
-//                        worker.getPort());
-//                retCamList = worker.cameraFtp.listLogs();
-                FtpDownloader clientFtp = LogsDownloaderWorkerUtil.getOrRenewFtpDownloader(LogsDownloaderWorker.SERVER_CAM,
-                        worker.getFtpDownloaders(), cameraHost, worker.getPort());
-                retCamList = clientFtp.listLogs();
+    /**
+     * For the given server with serverKey ID, takes his {@link #getBaseLogListFrom(String)}
+     * reply as toProcessLogList and fill the serversLogPresenceList for each base log
+     * adding the serverKey to the list of presence for that base log.
+     * 
+     * If finalLogList is not null, also adds the missing entries to it.
+     * 
+     * @param serverKey
+     * @param toProcessLogList
+     * @param finalLogList
+     * @param serversLogPresenceList
+     */
+    private void fillServerPresenceList(String serverKey, LinkedHashMap<FTPFile, String> toProcessLogList,
+            LinkedHashMap<FTPFile, String> finalLogList, LinkedHashMap<String, String> serversLogPresenceList) {
+
+        if (toProcessLogList != null && !toProcessLogList.isEmpty()) {
+            if (finalLogList == null || finalLogList.isEmpty()) {
+                for (String partialUri : toProcessLogList.values()) {
+                    serversLogPresenceList.put(partialUri, serverKey);
+                }
+                if (finalLogList != null)
+                    finalLogList.putAll(toProcessLogList);
             }
-            catch (Exception e) {
-                NeptusLog.pub().error(
-                        "Connecting with " + cameraHost + ":" + worker.getPort() + " with error: " + e.getMessage());
+            else {
+                for (FTPFile ftpFile : toProcessLogList.keySet()) {
+                    String val = toProcessLogList.get(ftpFile);
+                    if (finalLogList.containsValue(val)) {
+                        serversLogPresenceList.put(val, serversLogPresenceList.get(val) + " " + serverKey);
+                        continue;
+                    }
+                    else {
+                        finalLogList.put(ftpFile, val);
+                        serversLogPresenceList.put(val, serverKey);
+                    }
+                }
             }
         }
-        return retCamList;
     }
 
     private void orderAndFilterOutTheActiveLog(LinkedHashMap<FTPFile, String> retList) {
@@ -1024,9 +1026,4 @@ class LogsDownloaderWorkerActions {
             }
         };
     }
-
-    private boolean isCamCpuOn() {
-        return gui.cameraButton.getBackground() == LogsDownloaderWorker.CAM_CPU_ON_COLOR;
-    }
-
 }
