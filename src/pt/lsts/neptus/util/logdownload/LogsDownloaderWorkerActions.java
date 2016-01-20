@@ -163,20 +163,18 @@ class LogsDownloaderWorkerActions {
 
                         LinkedHashMap<String, String> serversLogPresenceList = new LinkedHashMap<>(); 
 
-                        // Get list from main CPU
+                        // Get list from servers
                         long timeD1 = System.currentTimeMillis();
-                        LinkedHashMap<FTPFile, String> retList = getBaseLogListFrom(LogsDownloaderWorker.SERVER_MAIN);
-                        fillServerPresenceList(LogsDownloaderWorker.SERVER_MAIN, retList, null, serversLogPresenceList);
-                        NeptusLog.pub().warn(".......get list from main CPU server " + (System.currentTimeMillis() - timeD1) + "ms");                        
-
-                        // Get list from cam CPU
-                        long timeD2 = System.currentTimeMillis();
-                        LinkedHashMap<FTPFile, String> retCamList = getBaseLogListFrom(LogsDownloaderWorker.SERVER_CAM);
-                        fillServerPresenceList(LogsDownloaderWorker.SERVER_CAM, retCamList, retList, serversLogPresenceList);
-                        NeptusLog.pub().warn(".......get list from main CAM server " + (System.currentTimeMillis() - timeD2) + "ms");                        
-
+                        LinkedHashMap<FTPFile, String> retList = new LinkedHashMap<>();
+                        for (String serverKey : worker.getServersList()) {
+                            long timeD2 = System.currentTimeMillis();
+                            LinkedHashMap<FTPFile, String> ret = getBaseLogListFrom(serverKey);
+                            fillServerPresenceList(serverKey, ret, retList, serversLogPresenceList);
+                            NeptusLog.pub().warn(".......get list from '" + serverKey + "' server "
+                                    + (System.currentTimeMillis() - timeD2) + "ms");
+                        }
                         NeptusLog.pub().warn(".......get list from all servers " + (System.currentTimeMillis() - timeD1) + "ms");                        
-                        if (retList == null) {
+                        if (retList.isEmpty()) {
                             gui.msgPanel.writeMessageTextln(I18n.text("Done"));
                             return null;
                         }

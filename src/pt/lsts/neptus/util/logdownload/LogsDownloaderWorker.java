@@ -287,6 +287,10 @@ public class LogsDownloaderWorker {
         cleanup();
     }
 
+    ArrayList<String> getServersList() {
+        return serversList;
+    }
+    
     LinkedHashMap<String, FtpDownloader> getFtpDownloaders() {
         return ftpDownloaders;
     }
