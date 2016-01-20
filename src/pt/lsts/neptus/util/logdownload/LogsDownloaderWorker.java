@@ -95,10 +95,7 @@ public class LogsDownloaderWorker {
 
     protected static final String CAMERA_CPU_LABEL = "Slave CPU";
 
-    // FIXME Visibility
-    // private FtpDownloader clientFtp = null;
-    // FIXME Visibility
-    // private FtpDownloader cameraFtp = null;
+    private final ArrayList<String> serversList = new ArrayList<>(2);
     private final LinkedHashMap<String, FtpDownloader> ftpDownloaders = new LinkedHashMap<>(2);
 
     private String host = "127.0.0.1";
@@ -142,6 +139,10 @@ public class LogsDownloaderWorker {
     }
 
     private void initialize(JFrame parentFrame) {
+        // Filling servers list
+        serversList.add(SERVER_MAIN);
+        serversList.add(SERVER_CAM);
+        
         // Init timer
         threadScheduledPool = LogsDownloaderWorkerUtil.createThreadPool(LogsDownloaderWorker.this);
         
@@ -675,8 +676,10 @@ public class LogsDownloaderWorker {
     // FIXME Visibility
     boolean deleteLogFolderFromServer(LogFolderInfo logFd) {
         String path = logFd.getName();
-        boolean ret = deleteLogFolderFromServer(path);
-        ret |= deleteLogFolderFromCameraServer(path);
+        boolean ret = false;
+        for (String serverKey : serversList) {
+            ret |= deleteLogFolderFromServerWorker(serverKey, path);
+        }
         return ret;
     }
 
@@ -688,25 +691,14 @@ public class LogsDownloaderWorker {
     boolean deleteLogFileFromServer(LogFileInfo logFx) {
         String path = logFx.getName();
         String hostFx = logFx.getHost();
-        // Not the best way but for now lets try like this
-        if (hostFx.equals(host))
-            return deleteLogFolderFromServer(path);
-        else if (hostFx.equals(LogsDownloaderWorkerUtil.getCameraHost(host)))
-            return deleteLogFolderFromCameraServer(path);
-        else
-            return false;
-    }
-
-    /**
-     * @param path
-     * @return
-     */
-    private boolean deleteLogFolderFromServer(String path) {
-        return deleteLogFolderFromServerWorker(SERVER_MAIN, path);
-    }
-
-    private boolean deleteLogFolderFromCameraServer(String path) {
-        return deleteLogFolderFromServerWorker(SERVER_CAM, path);
+        String host;
+        for (String serverKey : serversList) {
+            host = getHostFor(serverKey);
+            // Not the best way but for now lets try like this
+            if (hostFx.equals(host))
+                return deleteLogFolderFromServerWorker(serverKey, path);
+        }
+        return false;
     }
 
     private boolean deleteLogFolderFromServerWorker(String serverKey, String path) {
