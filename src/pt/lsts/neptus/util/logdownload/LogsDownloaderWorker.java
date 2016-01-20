@@ -290,6 +290,52 @@ public class LogsDownloaderWorker {
         return ftpDownloaders;
     }
     
+    /**
+     * Return the host for the serverKey
+     * 
+     * @param serverKey
+     * @return
+     */
+    String getHostFor(String serverKey) {
+        switch (serverKey) {
+            case SERVER_MAIN:
+                return getHost();
+            case SERVER_CAM:
+                return LogsDownloaderWorkerUtil.getCameraHost(getHost());
+            default:
+                break;
+        }
+        return null;
+    }
+
+    /**
+     * Return the port for the serverKey
+     * 
+     * @param serverKey
+     * @return
+     */
+    int getPortFor(String serverKey) {
+        return getPort();
+    }
+
+    /**
+     * Return if the server is available (may not be reachable).
+     * Serves only the function to decide to try to contact or not.
+     * 
+     * @param serverKey
+     * @return
+     */
+    boolean isServerAvailable(String serverKey) {
+        switch (serverKey) {
+            case SERVER_MAIN:
+                return true;
+            case SERVER_CAM:
+                return gui.cameraButton.getBackground() == LogsDownloaderWorker.CAM_CPU_ON_COLOR;
+            default:
+                return false;
+        }
+    }
+    
     public String getHost() {
         return host;
     }
