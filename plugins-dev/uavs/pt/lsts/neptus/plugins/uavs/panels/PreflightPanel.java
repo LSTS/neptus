@@ -40,15 +40,21 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.SwingConstants;
 
+import com.google.common.eventbus.Subscribe;
+
 import net.miginfocom.swing.MigLayout;
 import pt.lsts.imc.AutopilotMode;
 import pt.lsts.imc.AutopilotMode.AUTONOMY;
+import pt.lsts.imc.Current;
 import pt.lsts.imc.DevCalibrationControl;
 import pt.lsts.imc.DevCalibrationControl.OP;
+import pt.lsts.imc.IMCMessage;
+import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.console.ConsoleLayout;
 import pt.lsts.neptus.console.ConsolePanel;
 import pt.lsts.neptus.console.plugins.MainVehicleChangeListener;
 import pt.lsts.neptus.i18n.I18n;
+import pt.lsts.neptus.plugins.NeptusProperty;
 import pt.lsts.neptus.plugins.PluginDescription;
 import pt.lsts.neptus.plugins.PluginDescription.CATEGORY;
 
@@ -63,6 +69,11 @@ public class PreflightPanel extends ConsolePanel implements MainVehicleChangeLis
 
     private static final long serialVersionUID = 1L;
 
+    @NeptusProperty(description="When UAV is on the ground, it is expected that the current from this entity is positive and below CurrentThreshold.")
+    public String currentEntity = "Autopilot"; 
+    
+    @NeptusProperty(description="Current Threshold above which the UAV is considered to be flying.")
+    public double CurrentThreshold = 10; 
     // GUI
     private JPanel titlePanel = null;
     private JPanel buttonPanel = null;
@@ -109,8 +120,8 @@ public class PreflightPanel extends ConsolePanel implements MainVehicleChangeLis
                 send(calib);
             }
         });
+        
         buttonPanel.add(calibButton, "w 34%, h 100%");
-
         // Arm
         JButton armButton = new JButton("Arm");
         armButton.addActionListener(new ActionListener() {
@@ -147,5 +158,20 @@ public class PreflightPanel extends ConsolePanel implements MainVehicleChangeLis
     public void cleanSubPanel() {
         // TODO Auto-generated method stub
 
+    }
+    
+    @Subscribe
+    public void on(Current msg) {
+        if (msg.getSourceName().equals(getConsole().getMainSystem())) {
+            if (!currentEntity.isEmpty() && !msg.getEntityName().equals(currentEntity))
+                return;
+            
+            double uavValue = msg.getValue();
+            if(uavValue >0 && uavValue<CurrentThreshold){
+                buttonPanel.setEnabled(true);                
+            }
+            
+        }
+        
     }
 }
