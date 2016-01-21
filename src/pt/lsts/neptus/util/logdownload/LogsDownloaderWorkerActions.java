@@ -227,15 +227,6 @@ class LogsDownloaderWorkerActions {
 
                         showInGuiUpdatingGui();
                         
-//                        gui.logFolderList.invalidate();
-//                        gui.logFolderList.revalidate();
-//                        gui.logFolderList.repaint();
-//                        gui.logFolderList.setEnabled(true);
-//                        // logFilesList.invalidate();
-//                        // logFilesList.revalidate();
-//                        // logFilesList.repaint();
-//                        gui.logFilesList.setEnabled(true);
-
                         NeptusLog.pub().warn("....all downloadListAction " + (System.currentTimeMillis() - time) + "ms");
                         showInGuiDone();
                         return true;
