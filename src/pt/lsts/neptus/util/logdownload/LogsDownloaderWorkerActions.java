@@ -176,7 +176,7 @@ class LogsDownloaderWorkerActions {
 
                         gui.msgPanel.writeMessageTextln(I18n.textf("Log Folders: %numberoffolders", retList.size()));
 
-                        long timeD3 = System.currentTimeMillis();
+                        long timeS1 = System.currentTimeMillis();
                         
                         // Added in order not to show the active log (the last one)
                         orderAndFilterOutTheActiveLog(retList);
@@ -186,10 +186,7 @@ class LogsDownloaderWorkerActions {
 
                         // ->Removing from already existing LogFolders to LOCAL state
                         showInGuiFiltering();
-                        long timeC1 = System.currentTimeMillis();
                         setStateLocalIfNotInPresentServer(retList);
-                        NeptusLog.pub().warn(".......Removing from already existing LogFolders to LOCAL state "
-                                + (System.currentTimeMillis() - timeC1) + "ms");
 
                         if (stopLogListProcessing)
                             return null;
@@ -205,11 +202,7 @@ class LogsDownloaderWorkerActions {
 
                         // ->Getting Log files list from server
                         showInGuiProcessingLogList();
-
-                        long timeF0 = System.currentTimeMillis();
                         LinkedList<LogFolderInfo> tmpLogFolderList = getFromServersCompleteLogList(serversLogPresenceList);
-                        NeptusLog.pub().warn(".......Contacting remote system for complete log file list " +
-                                (System.currentTimeMillis() - timeF0) + "ms");
 
                         showInGuiUpdatingLogsInfo();
 
@@ -233,7 +226,7 @@ class LogsDownloaderWorkerActions {
                         NeptusLog.pub().warn(".......updateFilesListGUIForFolderSelected " +
                                 (System.currentTimeMillis() - timeF3) + "ms");
 
-                        NeptusLog.pub().warn("....process list from all servers " + (System.currentTimeMillis() - timeD3) + "ms");                        
+                        NeptusLog.pub().warn("....process list from all servers " + (System.currentTimeMillis() - timeS1) + "ms");                        
 
                         showInGuiUpdatingGui();
                         
@@ -387,11 +380,13 @@ class LogsDownloaderWorkerActions {
     }
 
     private void setStateLocalIfNotInPresentServer(LinkedHashMap<FTPFile, String> retList) {
+        long timeC1 = System.currentTimeMillis();
+
         Object[] objArray = new Object[gui.logFolderList.myModel.size()];
         gui.logFolderList.myModel.copyInto(objArray);
         for (Object comp : objArray) {
             if (stopLogListProcessing)
-                return;
+                break;
 
             try {
                 // NeptusLog.pub().info("<###>... upda
@@ -400,7 +395,7 @@ class LogsDownloaderWorkerActions {
                     // retList.remove(log.getName());
                     for (LogFileInfo lfx : log.getLogFiles()) {
                         if (stopLogListProcessing)
-                            return;
+                            break;
                         lfx.setState(LogFolderInfo.State.LOCAL);
                     }
                     log.setState(LogFolderInfo.State.LOCAL);
@@ -410,6 +405,8 @@ class LogsDownloaderWorkerActions {
                 NeptusLog.pub().debug(e.getMessage());
             }
         }
+        NeptusLog.pub().warn(".......Removing from already existing LogFolders to LOCAL state "
+                + (System.currentTimeMillis() - timeC1) + "ms");
     }
 
     private void addTheNewFoldersAnFillTheReturnedExistentAndNewLists(
@@ -450,6 +447,8 @@ class LogsDownloaderWorkerActions {
             LinkedHashMap<String, String> serversLogPresenceList) {
         if (serversLogPresenceList.size() == 0)
             return new LinkedList<LogFolderInfo>();
+
+        long timeF0 = System.currentTimeMillis();
 
         LinkedList<LogFolderInfo> tmpLogFolders = new LinkedList<LogFolderInfo>();
         
@@ -540,6 +539,9 @@ class LogsDownloaderWorkerActions {
         catch (Exception e) {
             e.printStackTrace();
         }
+
+        NeptusLog.pub().warn(".......Contacting remote system for complete log file list " +
+                (System.currentTimeMillis() - timeF0) + "ms");
 
         return tmpLogFolders;
     }
