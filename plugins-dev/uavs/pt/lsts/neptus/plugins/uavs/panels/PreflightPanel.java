@@ -45,11 +45,10 @@ import com.google.common.eventbus.Subscribe;
 import net.miginfocom.swing.MigLayout;
 import pt.lsts.imc.AutopilotMode;
 import pt.lsts.imc.AutopilotMode.AUTONOMY;
-import pt.lsts.imc.Current;
 import pt.lsts.imc.DevCalibrationControl;
 import pt.lsts.imc.DevCalibrationControl.OP;
-import pt.lsts.imc.IMCMessage;
-import pt.lsts.neptus.NeptusLog;
+import pt.lsts.imc.VehicleMedium;
+import pt.lsts.imc.VehicleMedium.MEDIUM;
 import pt.lsts.neptus.console.ConsoleLayout;
 import pt.lsts.neptus.console.ConsolePanel;
 import pt.lsts.neptus.console.plugins.MainVehicleChangeListener;
@@ -69,11 +68,9 @@ public class PreflightPanel extends ConsolePanel implements MainVehicleChangeLis
 
     private static final long serialVersionUID = 1L;
 
-    @NeptusProperty(description="When UAV is on the ground, it is expected that the current from this entity is positive and below CurrentThreshold.")
+    @NeptusProperty(description="When UAV is on the ground, enables the Calibration button.")
     public String currentEntity = "Autopilot"; 
     
-    @NeptusProperty(description="Current Threshold above which the UAV is considered to be flying.")
-    public double CurrentThreshold = 10; 
     // GUI
     private JPanel titlePanel = null;
     private JPanel buttonPanel = null;
@@ -122,6 +119,7 @@ public class PreflightPanel extends ConsolePanel implements MainVehicleChangeLis
         });
         
         buttonPanel.add(calibButton, "w 34%, h 100%");
+        buttonPanel.getComponents()[0].setEnabled(false);
         // Arm
         JButton armButton = new JButton("Arm");
         armButton.addActionListener(new ActionListener() {
@@ -161,14 +159,20 @@ public class PreflightPanel extends ConsolePanel implements MainVehicleChangeLis
     }
     
     @Subscribe
-    public void on(Current msg) {
+    public void on(VehicleMedium msg) {
         if (msg.getSourceName().equals(getConsole().getMainSystem())) {
             if (!currentEntity.isEmpty() && !msg.getEntityName().equals(currentEntity))
                 return;
             
-            double uavValue = msg.getValue();
-            if(uavValue >0 && uavValue<CurrentThreshold){
-                buttonPanel.setEnabled(true);                
+            MEDIUM uavValue = msg.getMedium();
+            if(uavValue == MEDIUM.GROUND){
+                //Calibration ON
+                buttonPanel.getComponents()[0].setEnabled(true);                
+            }
+            else{
+                //Calibration OFF
+                buttonPanel.getComponents()[0].setEnabled(false);
+                post(pt.lsts.neptus.console.notifications.Notification.info("Pre-flight Actions", "Pre-flight Calibration only allowed on GROUND."));
             }
             
         }
