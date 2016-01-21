@@ -211,7 +211,7 @@ public class MRAExporterFilter implements MRAExporter {
         filter.dispose();
     }
 
-    class Task extends SwingWorker<Void, Void> {
+    private class Task extends SwingWorker<Void, Void> {
         private LsfIndex index;
         private FileOutputStream fos;
         private GZIPOutputStream gzipOS;
@@ -303,21 +303,21 @@ public class MRAExporterFilter implements MRAExporter {
         progress = 99;
         pmonitor.setProgress(progress);
         if (!location1.equals(location2)){
-            File sourceIMCXML = new File(location1+ "/IMC.xml.gz");
-            File sourceOutputTxt = new File(location1+ "/Output.txt");
-            File destIMC = new File(location2+"/IMC.xml.gz");
-            File destOutputTxt = new File(location2+"/Output.txt");
+            File sourceIMCXML = new File(location1 + "/IMC.xml.gz");
+            File sourceOutputTxt = new File(location1 + "/Output.txt");
+            File destIMC = new File(location2 + "/IMC.xml.gz");
+            File destOutputTxt = new File(location2 + "/Output.txt");
             pmonitor.setNote(I18n.text("Copying additional files..."));
             try {
                 FileUtils.copyFile(sourceIMCXML, destIMC);
                 FileUtils.copyFile(sourceOutputTxt, destOutputTxt);
-            } catch (IOException e) {
+            }
+            catch (IOException e) {
                 e.printStackTrace();
             } 
         }
         progress = 100;
         pmonitor.setProgress(progress);
-
     }
 
     @SuppressWarnings("rawtypes")
@@ -364,13 +364,11 @@ public class MRAExporterFilter implements MRAExporter {
             Dimension dim = Toolkit.getDefaultToolkit().getScreenSize();
 
             final ActionListener entAct = new ActionListener() {
-
                 @Override
                 public void actionPerformed(ActionEvent e) {
-                    int index = m_list.getNextMatch(textField.getText(), 0, javax.swing.text.Position.Bias.Forward);
+                    int index = m_list.getNextMatch(textField.getText(), 0, Position.Bias.Forward);
                     m_list.setSelectedIndex(index);
                     m_list.ensureIndexIsVisible(index);
-
                 }
             };
 
@@ -392,16 +390,14 @@ public class MRAExporterFilter implements MRAExporter {
                 }
             };
 
-
-            p.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke(KeyEvent.VK_F, InputEvent.CTRL_MASK), "finder");
+            p.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW)
+                    .put(KeyStroke.getKeyStroke(KeyEvent.VK_F, InputEvent.CTRL_MASK), "finder");
             p.getActionMap().put("finder", finder);
 
             getContentPane().add(p, "cell 0 1,alignx left,aligny top");
 
-
             JButton saveBtn = new JButton(I18n.text("Save File"));
             AbstractAction saveFileAct = new AbstractAction() {
-
                 @Override
                 public void actionPerformed(ActionEvent e) {
                     // filterList.setVisible(false);
@@ -450,7 +446,6 @@ public class MRAExporterFilter implements MRAExporter {
             }
 
             public Component getListCellRendererComponent(JList list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
-
                 setText(value.toString());
                 setBackground(isSelected ? list.getSelectionBackground() : list.getBackground());
                 setForeground(isSelected ? list.getSelectionForeground() : list.getForeground());
@@ -461,12 +456,10 @@ public class MRAExporterFilter implements MRAExporter {
                 setBorder((cellHasFocus) ? UIManager.getBorder("List.focusCellHighlightBorder") : m_noFocusBorder);
 
                 return this;
-
             }
         }
 
-        class CheckListener implements MouseListener, KeyListener {
-
+        private class CheckListener implements MouseListener, KeyListener {
             protected JList m_list;
             public CheckListener(FilterList parent) {
                 m_list = parent.m_list;
@@ -507,8 +500,7 @@ public class MRAExporterFilter implements MRAExporter {
 
         }
 
-        class LogItem implements Comparable<LogItem> {
-
+        private class LogItem implements Comparable<LogItem> {
             protected String logName;
             protected boolean m_selected;
             protected boolean m_enabled;
