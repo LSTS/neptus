@@ -180,15 +180,6 @@ class LogsDownloaderWorkerUtil {
 
                     final String baseFxPath = worker.getDirBaseToStoreFiles() + "/" + worker.getLogLabel() + "/"
                             + logFolderList.getSelectedValue() + "/";
-//                    final File imc = new File(baseFxPath + "IMC.xml");
-//                    final File imcGz = new File(baseFxPath + "IMC.xml.gz");
-//
-//                    final File log = new File(baseFxPath + "Data." + FileUtil.FILE_TYPE_LSF);
-//                    final File logGz = new File(baseFxPath + "Data." + FileUtil.FILE_TYPE_LSF_COMPRESSED);
-//                    final File logBz2 = new File(baseFxPath + "Data." + FileUtil.FILE_TYPE_LSF_COMPRESSED_BZIP2);
-                    
-//                    boolean isLogOkForOpening = (imc.exists() || imcGz.exists())
-//                            && (logGz.exists() || log.exists() || logBz2.exists());
                     File logFolder = new File(baseFxPath);
                     LogValidity isLogOkForOpening = LogUtils.isValidLSFSource(logFolder);
 
