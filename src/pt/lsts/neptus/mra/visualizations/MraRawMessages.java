@@ -114,6 +114,7 @@ public class MraRawMessages extends SimpleMRAVisualization {
     private FinderDialog find = null;
     private boolean findOpenState = false;
     private boolean closingUp = false;
+    private boolean finished = false;
     private AbstractAction finderAction = null;
     private JToggleButton highlightBtn;
 
@@ -236,7 +237,6 @@ public class MraRawMessages extends SimpleMRAVisualization {
                 else {
                     findOpenState = false;
                     find.setVisible(false);
-                    closingUp = true;
                     find.dispose();
                 }
             }
@@ -293,6 +293,7 @@ public class MraRawMessages extends SimpleMRAVisualization {
      */
     private boolean findMessage(String type, String src, String srcEnt, String dest, Date time1, Date time2) {
         closingUp = false;
+        finished = false;
         table.setRowSelectionAllowed(true);
         table.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
         find.busyLbl.setBusy(true);
@@ -309,7 +310,7 @@ public class MraRawMessages extends SimpleMRAVisualization {
             find.busyLbl.setVisible(false);
             find.nextBtn.setEnabled(false);
             find.prevBtn.setEnabled(false);
-
+            
             return true;
         }
 
@@ -329,6 +330,8 @@ public class MraRawMessages extends SimpleMRAVisualization {
         if (indexFirst == -1) {
             find.busyLbl.setBusy(false);
             find.busyLbl.setVisible(false);
+            find.nextBtn.setEnabled(false);
+            find.prevBtn.setEnabled(false);
             return false;
         }
 
@@ -338,8 +341,11 @@ public class MraRawMessages extends SimpleMRAVisualization {
         int last = high;
 
         while(low <= high) {
-            if (closingUp)
+            if (closingUp) {
+                find.nextBtn.setEnabled(false);
+                find.prevBtn.setEnabled(false);
                 break;
+            }
 
             mid = high - (high - low) / 2;
             long rowTime2 = (long) source.getLsfIndex().timeOf(mid);
@@ -402,9 +408,12 @@ public class MraRawMessages extends SimpleMRAVisualization {
             table.scrollRectToVisible(new Rectangle(table.getCellRect(resultList.get(0), 0, true)));
             table.repaint();
             finderNextIndex++;
+            finished = true;
             return true;
         }
 
+        find.nextBtn.setEnabled(false);
+        find.prevBtn.setEnabled(false);
         return false;
     }
 
@@ -484,7 +493,7 @@ public class MraRawMessages extends SimpleMRAVisualization {
         private JComboBox<String> sourceCBox, sourceEntCBox, destCBox;
         private JSpinner timestampLow, timestampHigh;
         private long defTimestampLow, defTimestampHigh;
-        private JButton prevBtn, nextBtn, findBtn;
+        private JButton prevBtn, nextBtn, findBtn, resetBtn;
         private JLabel statusLbl;
         private JXBusyLabel busyLbl;
         private boolean hightlighted = false;
@@ -496,7 +505,6 @@ public class MraRawMessages extends SimpleMRAVisualization {
 
             initComponents();
         }
-
 
         /** 
          * Checks if timestampLow and timestampHigh have default time values
@@ -582,6 +590,7 @@ public class MraRawMessages extends SimpleMRAVisualization {
                 setSize(290,270);
                 getContentPane().add(loader, "cell 0 2 3 1,grow");
                 loader.setText(I18n.text("Initializing Find"));
+                loader.setOpaque(false);
                 loader.start();
 
                 SortedComboBoxModel<String> model1 = new SortedComboBoxModel<String>(new String[] {ANY_TXT});
@@ -638,8 +647,11 @@ public class MraRawMessages extends SimpleMRAVisualization {
                 prevBtn = new JButton(I18n.textc("Prev.", "Previous"));
                 findBtn = new JButton(I18n.text("Find"));
                 nextBtn = new JButton(I18n.text("Next"));
+                resetBtn = new JButton(I18n.text("Reset"));
+                
                 nextBtn.setEnabled(false);
                 prevBtn.setEnabled(false);
+                resetBtn.setEnabled(true);
                 statusLbl = new JLabel();
 
                 busyLbl = InfiniteProgressPanel.createBusyAnimationInfiniteBeans(18);
@@ -661,6 +673,7 @@ public class MraRawMessages extends SimpleMRAVisualization {
                 prevBtn.setHorizontalAlignment(SwingConstants.RIGHT);
                 nextBtn.setHorizontalAlignment(SwingConstants.RIGHT);
                 findBtn.setHorizontalAlignment(SwingConstants.RIGHT);
+                resetBtn.setHorizontalAlignment(SwingConstants.RIGHT);
 
                 //
                 ArrayList<String> typeList = new ArrayList<>();
@@ -718,6 +731,7 @@ public class MraRawMessages extends SimpleMRAVisualization {
                 getContentPane().add(timestampLow, "flowx,cell 1 4");
                 getContentPane().add(separatorLbl, "cell 1 4");
                 getContentPane().add(timestampHigh, "flowx,cell 1 4");
+                getContentPane().add(resetBtn, "cell 1 4,alignx right");
 
                 JPanel panel = new JPanel();
                 getContentPane().add(panel, "cell 0 5 2 1,grow");
@@ -734,6 +748,20 @@ public class MraRawMessages extends SimpleMRAVisualization {
                 bottomPanel.add(nextBtn);
                 bottomPanel.add(findBtn);
 
+                resetBtn.addActionListener(new ActionListener() {
+                    @Override
+                    public void actionPerformed(ActionEvent e) {
+                        typeTxt.setText(ANY_TXT);
+                        sourceCBox.setSelectedItem(ANY_TXT);
+                        sourceEntCBox.setSelectedItem(ANY_TXT);
+                        destCBox.setSelectedItem(ANY_TXT);
+                        prevBtn.setEnabled(false);
+                        nextBtn.setEnabled(false);
+                        timestampLow.setValue(parseDate(0));
+                        timestampHigh.setValue(parseDate(table.getRowCount() - 1));
+                    }
+                });
+                
                 prevBtn.addActionListener(new ActionListener() {
                     @Override
                     public void actionPerformed(ActionEvent e) {
@@ -762,7 +790,7 @@ public class MraRawMessages extends SimpleMRAVisualization {
                                 boolean found = findMessage(typeTxt.getText(), (String) sourceCBox.getSelectedItem(), 
                                         (String)sourceEntCBox.getSelectedItem(), (String) destCBox.getSelectedItem(),
                                         t1, t2);
-
+                                
                                 return found;
                             }
 
@@ -771,7 +799,7 @@ public class MraRawMessages extends SimpleMRAVisualization {
                                 try {
                                     boolean found = get();
                                     if (found) {
-                                        if (!resultList.isEmpty()) {
+                                        if (!resultList.isEmpty() && finished) {
                                             nextBtn.setEnabled(true);
                                             prevBtn.setEnabled(true);
                                         }
@@ -841,6 +869,7 @@ public class MraRawMessages extends SimpleMRAVisualization {
         private void clear() {
             clearSelection();
             prevBtn.setEnabled(false);
+            nextBtn.setEnabled(false);
             statusLbl.setText("");
             statusLbl.setVisible(true);
             highlightBtn.setSelected(false);
