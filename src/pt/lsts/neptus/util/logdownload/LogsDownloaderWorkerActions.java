@@ -557,7 +557,7 @@ class LogsDownloaderWorkerActions {
     
     private void testingForLogFilesFromEachLogFolderAndFillInfo(
             LinkedList<LogFolderInfo> tmpLogFolderList) {
-        
+
         long timeF1 = System.currentTimeMillis();
 
         Object[] objArray = new Object[gui.logFolderList.myModel.size()];
@@ -572,106 +572,111 @@ class LogsDownloaderWorkerActions {
                 int indexLFolder = tmpLogFolderList.indexOf(logFolder);
                 LinkedHashSet<LogFileInfo> logFilesTmp = (indexLFolder != -1) ? tmpLogFolderList.get(
                         indexLFolder).getLogFiles() : new LinkedHashSet<LogFileInfo>();
-                        for (LogFileInfo logFx : logFilesTmp) {
-                            if (stopLogListProcessing)
-                                break;
+                for (LogFileInfo logFx : logFilesTmp) {
+                    if (stopLogListProcessing)
+                        break;
 
-                            if (!logFolder.getLogFiles().contains(logFx)) {
-                                // The file or directory is new
-                                logFolder.addFile(logFx);
+                    if (!logFolder.getLogFiles().contains(logFx)) {
+                        // The file or directory is new
+                        logFolder.addFile(logFx);
+                    }
+                    else {
+                        // The file or directory is already known so let us update
+                        LogFileInfo lfx = logFolder.getLogFile(logFx.getName()/* fxStr */);
+                        if (lfx.getSize() == -1) {
+                            lfx.setSize(logFx.getSize());
+                        }
+                        else if (lfx.getSize() != logFx.getSize()) {
+                            // System.out.println("//////////// " + lfx.getSize() + "  " + logFx.getSize());
+                            if (lfx.getState() == LogFolderInfo.State.SYNC)
+                                lfx.setState(LogFolderInfo.State.INCOMPLETE);
+                            else if (lfx.getState() == LogFolderInfo.State.LOCAL)
+                                lfx.setState(LogFolderInfo.State.INCOMPLETE);
+                            lfx.setSize(logFx.getSize());
+                            lfx.setFile(logFx.getFile());
+                        }
+                        else if (lfx.getSize() == logFx.getSize()) {
+                            if (lfx.getState() == LogFolderInfo.State.LOCAL)
+                                lfx.setState(LogFolderInfo.State.SYNC);
+                        }
+                        lfx.setHost(logFx.getHost());
+
+                        if (logFx.isDirectory()) {
+                            ArrayList<LogFileInfo> notMatchElements = new ArrayList<>();
+                            notMatchElements.addAll(lfx.getDirectoryContents());
+                            for (LogFileInfo lfi : logFx.getDirectoryContents()) {
+                                boolean alreadyExists = false;
+                                for (LogFileInfo lfiLocal : lfx.getDirectoryContents()) {
+                                    if (lfi.equals(lfiLocal)) {
+                                        alreadyExists = true;
+                                        notMatchElements.remove(lfiLocal);
+                                        lfi.setSize(lfiLocal.getSize());
+                                        lfi.setFile(lfiLocal.getFile());
+                                        lfi.setHost(lfiLocal.getHost());
+                                    }
+                                }
+                                if (!alreadyExists) {
+                                    lfx.getDirectoryContents().add(lfi);
+                                    lfx.setState(LogFolderInfo.State.INCOMPLETE);
+                                }
+                            }
+                            for (LogFileInfo lfi : notMatchElements) {
+                                lfx.getDirectoryContents().remove(lfi);
+                            }
+                        }
+
+                        if (lfx.isDirectory()) {
+                            if (!LogsDownloaderWorkerUtil
+                                    .getFileTarget(lfx.getName(), worker.getDirBaseToStoreFiles(), worker.getLogLabel())
+                                    .exists()) {
+                                for (LogFileInfo lfi : lfx.getDirectoryContents()) {
+                                    if (!LogsDownloaderWorkerUtil.getFileTarget(lfi.getName(),
+                                            worker.getDirBaseToStoreFiles(), worker.getLogLabel()).exists()) {
+                                        if (lfx.getState() != LogFolderInfo.State.NEW
+                                                && lfx.getState() != LogFolderInfo.State.DOWNLOADING)
+                                            lfx.setState(LogFolderInfo.State.INCOMPLETE);
+                                        break;
+                                    }
+                                }
                             }
                             else {
-                                // The file or directory is already known so let us update
-                                LogFileInfo lfx = logFolder.getLogFile(logFx.getName()/* fxStr */);
-                                if (lfx.getSize() == -1) {
-                                    lfx.setSize(logFx.getSize());
-                                }
-                                else if (lfx.getSize() != logFx.getSize()) {
-                                    // System.out.println("//////////// " + lfx.getSize() + "  " + logFx.getSize());
-                                    if (lfx.getState() == LogFolderInfo.State.SYNC)
-                                        lfx.setState(LogFolderInfo.State.INCOMPLETE);
-                                    else if (lfx.getState() == LogFolderInfo.State.LOCAL)
-                                        lfx.setState(LogFolderInfo.State.INCOMPLETE);
-                                    lfx.setSize(logFx.getSize());
-                                    lfx.setFile(logFx.getFile());
-                                }
-                                else if (lfx.getSize() == logFx.getSize()) {
-                                    if (lfx.getState() == LogFolderInfo.State.LOCAL)
-                                        lfx.setState(LogFolderInfo.State.SYNC);
-                                }
-                                lfx.setHost(logFx.getHost());
-
-                                if (logFx.isDirectory()) {
-                                    ArrayList<LogFileInfo> notMatchElements = new ArrayList<>();
-                                    notMatchElements.addAll(lfx.getDirectoryContents());
-                                    for (LogFileInfo lfi : logFx.getDirectoryContents()) {
-                                        boolean alreadyExists = false;
-                                        for (LogFileInfo lfiLocal : lfx.getDirectoryContents()) {
-                                            if (lfi.equals(lfiLocal)) {
-                                                alreadyExists = true;
-                                                notMatchElements.remove(lfiLocal);
-                                                lfi.setSize(lfiLocal.getSize());
-                                                lfi.setFile(lfiLocal.getFile());
-                                                lfi.setHost(lfiLocal.getHost());
-                                            }
-                                        }
-                                        if (!alreadyExists) {
-                                            lfx.getDirectoryContents().add(lfi);
-                                            lfx.setState(LogFolderInfo.State.INCOMPLETE);
-                                        }
-                                    }
-                                    for (LogFileInfo lfi : notMatchElements) {
-                                        lfx.getDirectoryContents().remove(lfi);
-                                    }
-                                }
-
-                                if (lfx.isDirectory()) {
-                                    if (!LogsDownloaderWorkerUtil.getFileTarget(lfx.getName(), worker.getDirBaseToStoreFiles(), worker.getLogLabel()).exists()) {
-                                        for (LogFileInfo lfi : lfx.getDirectoryContents()) {
-                                            if (!LogsDownloaderWorkerUtil.getFileTarget(lfi.getName(), worker.getDirBaseToStoreFiles(), worker.getLogLabel()).exists()) {
-                                                if (lfx.getState() != LogFolderInfo.State.NEW && lfx.getState() != LogFolderInfo.State.DOWNLOADING)
-                                                    lfx.setState(LogFolderInfo.State.INCOMPLETE);
-                                                break;
-                                            }
-                                        }
-                                    }
-                                    else {
-                                        long sizeD = LogsDownloaderWorkerUtil.getDiskSizeFromLocal(lfx, worker);
-                                        if (lfx.getSize() != sizeD && lfx.getState() == LogFolderInfo.State.SYNC)
-                                            lfx.setState(LogFolderInfo.State.INCOMPLETE);
-                                    }
-                                }
-                                else {
-                                    if (!LogsDownloaderWorkerUtil.getFileTarget(lfx.getName(), worker.getDirBaseToStoreFiles(), worker.getLogLabel()).exists()) {
-                                        if (lfx.getState() != LogFolderInfo.State.NEW && lfx.getState() != LogFolderInfo.State.DOWNLOADING) {
-                                            lfx.setState(LogFolderInfo.State.INCOMPLETE);
-                                            // System.out.println("//////////// " + lfx.getName() + "  " + LogsDownloaderUtil.getFileTarget(lfx.getName()).exists());
-                                        }
-                                    }
-                                    else {
-                                        long sizeD = LogsDownloaderWorkerUtil.getDiskSizeFromLocal(lfx, worker);
-                                        if (lfx.getSize() != sizeD && lfx.getState() == LogFolderInfo.State.SYNC)
-                                            lfx.setState(LogFolderInfo.State.INCOMPLETE);
-                                    }
-                                }
+                                long sizeD = LogsDownloaderWorkerUtil.getDiskSizeFromLocal(lfx, worker);
+                                if (lfx.getSize() != sizeD && lfx.getState() == LogFolderInfo.State.SYNC)
+                                    lfx.setState(LogFolderInfo.State.INCOMPLETE);
                             }
                         }
-
-                        // Put LOCAL state on files not in server
-                        LinkedHashSet<LogFileInfo> toDelFL = new LinkedHashSet<LogFileInfo>();
-                        for (LogFileInfo lfx : logFolder.getLogFiles()) {
-                            if (!logFilesTmp.contains(lfx)
-                                    /* !res.keySet().contains(lfx.getName()) */) {
-                                lfx.setState(LogFolderInfo.State.LOCAL);
-                                if (!LogsDownloaderWorkerUtil.getFileTarget(lfx.getName(), 
-                                        worker.getDirBaseToStoreFiles(), worker.getLogLabel()).exists()) {
-                                    toDelFL.add(lfx);
-                                    // logFolder.getLogFiles().remove(lfx); //This cannot be done here
+                        else {
+                            if (!LogsDownloaderWorkerUtil.getFileTarget(lfx.getName(), worker.getDirBaseToStoreFiles(), worker.getLogLabel()).exists()) {
+                                if (lfx.getState() != LogFolderInfo.State.NEW && lfx.getState() != LogFolderInfo.State.DOWNLOADING) {
+                                    lfx.setState(LogFolderInfo.State.INCOMPLETE);
+                                    // System.out.println("//////////// " + lfx.getName() + "  " + LogsDownloaderUtil.getFileTarget(lfx.getName()).exists());
                                 }
                             }
+                            else {
+                                long sizeD = LogsDownloaderWorkerUtil.getDiskSizeFromLocal(lfx, worker);
+                                if (lfx.getSize() != sizeD && lfx.getState() == LogFolderInfo.State.SYNC)
+                                    lfx.setState(LogFolderInfo.State.INCOMPLETE);
+                            }
                         }
-                        for (LogFileInfo lfx : toDelFL)
-                            logFolder.getLogFiles().remove(lfx);
+                    }
+                }
+
+                // Put LOCAL state on files not in server
+                LinkedHashSet<LogFileInfo> toDelFL = new LinkedHashSet<LogFileInfo>();
+                for (LogFileInfo lfx : logFolder.getLogFiles()) {
+                    if (!logFilesTmp.contains(lfx)
+                            /* !res.keySet().contains(lfx.getName()) */) {
+                        lfx.setState(LogFolderInfo.State.LOCAL);
+                        if (!LogsDownloaderWorkerUtil
+                                .getFileTarget(lfx.getName(), worker.getDirBaseToStoreFiles(), worker.getLogLabel())
+                                .exists()) {
+                            toDelFL.add(lfx);
+                            // logFolder.getLogFiles().remove(lfx); //This cannot be done here
+                        }
+                    }
+                }
+                for (LogFileInfo lfx : toDelFL)
+                    logFolder.getLogFiles().remove(lfx);
             }
             catch (Exception e) {
                 NeptusLog.pub().debug(e.getMessage());
