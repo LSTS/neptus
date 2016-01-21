@@ -35,6 +35,7 @@ import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Toolkit;
+import java.awt.Window;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.InputEvent;
@@ -42,11 +43,10 @@ import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
-import java.awt.event.WindowAdapter;
-import java.awt.event.WindowEvent;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -57,8 +57,8 @@ import javax.swing.AbstractAction;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComponent;
+import javax.swing.JDialog;
 import javax.swing.JFileChooser;
-import javax.swing.JFrame;
 import javax.swing.JList;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
@@ -73,6 +73,7 @@ import javax.swing.border.Border;
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.EtchedBorder;
 import javax.swing.border.TitledBorder;
+import javax.swing.text.Position;
 
 import org.apache.commons.io.FileUtils;
 
@@ -83,6 +84,7 @@ import pt.lsts.neptus.mra.importers.IMraLogGroup;
 import pt.lsts.neptus.plugins.PluginDescription;
 import pt.lsts.neptus.util.FileUtil;
 import pt.lsts.neptus.util.GuiUtils;
+import pt.lsts.neptus.util.conf.ConfigFetch;
 /**
  * @author Manuel R.
  *
@@ -96,9 +98,7 @@ public class MRAExporterFilter implements MRAExporter {
     private int progress;
     private Task processTask;
     private File outputFile;
-    /**
-     * @wbp.parser.entryPoint
-     */
+    
     public MRAExporterFilter(IMraLogGroup source) {
         super();
         this.source = source;
@@ -158,14 +158,7 @@ public class MRAExporterFilter implements MRAExporter {
         String[] logs = source.listLogs();
 
         //create JFrame with default logs selected and the rest of available logs
-        FilterList window = new FilterList(defaultLogs, logs);
-
-        window.addWindowListener(new WindowAdapter() {
-            @Override
-            public void windowClosed(WindowEvent e) {
-
-            }
-        } );
+        FilterList window = new FilterList(defaultLogs, logs, ConfigFetch.getSuperParentAsFrame());
 
         while ((window.isShowing() || progress < 100 ) && !pmonitor.isCanceled()) {
             try {
@@ -328,15 +321,14 @@ public class MRAExporterFilter implements MRAExporter {
     }
 
     @SuppressWarnings("rawtypes")
-    private class FilterList extends JFrame {
+    private class FilterList extends JDialog {
         private static final long serialVersionUID = 1L;
         protected JList m_list;
         private JTextField textField = null;
 
         @SuppressWarnings({ "unchecked", "serial" })
-        public FilterList(ArrayList<String> defaultLogs, String[] logs) {
-
-            super(I18n.text("MRA Exporter"));
+        public FilterList(ArrayList<String> defaultLogs, String[] logs, Window parent) {
+            super(parent, I18n.text("MRA Exporter"), ModalityType.DOCUMENT_MODAL);
             setType(Type.NORMAL);
             setSize(230, 300);
             getContentPane().setLayout(new MigLayout("", "[240px]", "[300px]"));
@@ -419,11 +411,11 @@ public class MRAExporterFilter implements MRAExporter {
             };
             saveBtn.addActionListener(saveFileAct);
             getContentPane().add(saveBtn, "cell 0 2,alignx center");
-            setVisible(true);
 
-            this.setLocation(dim.width/2-this.getSize().width/2, dim.height/2-this.getSize().height/2);
+            this.setLocation(dim.width / 2 - this.getSize().width / 2, dim.height / 2 - this.getSize().height / 2);
             setResizable(false);
 
+            setVisible(true);
         }
 
         /**
