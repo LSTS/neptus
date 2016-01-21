@@ -537,7 +537,7 @@ class LogsDownloaderWorkerActions {
             e.printStackTrace();
         }
 
-        NeptusLog.pub().warn(".......Contacting remote system for complete log file list " +
+        NeptusLog.pub().warn(".......Contacting remote systems for complete log file list " +
                 (System.currentTimeMillis() - timeF0) + "ms");
 
         return tmpLogFolders;
