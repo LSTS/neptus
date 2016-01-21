@@ -206,11 +206,8 @@ class LogsDownloaderWorkerActions {
 
                         showInGuiUpdatingLogsInfo();
 
-                        long timeF1 = System.currentTimeMillis();
                         // Testing for log files from each log folder
                         testingForLogFilesFromEachLogFolderAndFillInfo(tmpLogFolderList);
-                        NeptusLog.pub().warn(".......Testing for log files from each log folder " +
-                                (System.currentTimeMillis() - timeF1) + "ms");
 
                         if (stopLogListProcessing)
                             return null;
@@ -560,11 +557,14 @@ class LogsDownloaderWorkerActions {
     
     private void testingForLogFilesFromEachLogFolderAndFillInfo(
             LinkedList<LogFolderInfo> tmpLogFolderList) {
+        
+        long timeF1 = System.currentTimeMillis();
+
         Object[] objArray = new Object[gui.logFolderList.myModel.size()];
         gui.logFolderList.myModel.copyInto(objArray);
         for (Object comp : objArray) {
             if (stopLogListProcessing)
-                return;
+                break;
 
             try {
                 LogFolderInfo logFolder = (LogFolderInfo) comp;
@@ -574,7 +574,7 @@ class LogsDownloaderWorkerActions {
                         indexLFolder).getLogFiles() : new LinkedHashSet<LogFileInfo>();
                         for (LogFileInfo logFx : logFilesTmp) {
                             if (stopLogListProcessing)
-                                return;
+                                break;
 
                             if (!logFolder.getLogFiles().contains(logFx)) {
                                 // The file or directory is new
@@ -587,7 +587,7 @@ class LogsDownloaderWorkerActions {
                                     lfx.setSize(logFx.getSize());
                                 }
                                 else if (lfx.getSize() != logFx.getSize()) {
-                                    System.out.println("//////////// " + lfx.getSize() + "  " + logFx.getSize());
+                                    // System.out.println("//////////// " + lfx.getSize() + "  " + logFx.getSize());
                                     if (lfx.getState() == LogFolderInfo.State.SYNC)
                                         lfx.setState(LogFolderInfo.State.INCOMPLETE);
                                     else if (lfx.getState() == LogFolderInfo.State.LOCAL)
@@ -677,6 +677,9 @@ class LogsDownloaderWorkerActions {
                 NeptusLog.pub().debug(e.getMessage());
             }
         }
+        
+        NeptusLog.pub().warn(".......Testing for log files from each log folder " +
+                (System.currentTimeMillis() - timeF1) + "ms");
     }
     
     private void testNewReportedLogFoldersForLocalCorrespondent(
