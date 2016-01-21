@@ -38,12 +38,14 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.io.File;
+import java.util.LinkedHashMap;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.ThreadFactory;
 
 import javax.swing.JButton;
 import javax.swing.JFrame;
+import javax.swing.JMenuItem;
 import javax.swing.JPopupMenu;
 
 import org.apache.commons.lang.StringUtils;
@@ -59,16 +61,17 @@ import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.messages.listener.MessageInfo;
 import pt.lsts.neptus.messages.listener.MessageListener;
 import pt.lsts.neptus.mra.NeptusMRA;
-import pt.lsts.neptus.util.FileUtil;
+import pt.lsts.neptus.util.llf.LogUtils;
+import pt.lsts.neptus.util.llf.LogUtils.LogValidity;
 
 /**
  * @author pdias
  *
  */
-class LogsDownloaderUtil {
+class LogsDownloaderWorkerUtil {
 
     /** To avoid instantiation */
-    private LogsDownloaderUtil() {
+    private LogsDownloaderWorkerUtil() {
     }
 
     /**
@@ -177,48 +180,34 @@ class LogsDownloaderUtil {
 
                     final String baseFxPath = worker.getDirBaseToStoreFiles() + "/" + worker.getLogLabel() + "/"
                             + logFolderList.getSelectedValue() + "/";
-                    final File imc = new File(baseFxPath + "IMC.xml");
-                    final File imcGz = new File(baseFxPath + "IMC.xml.gz");
+                    File logFolder = new File(baseFxPath);
+                    LogValidity isLogOkForOpening = LogUtils.isValidLSFSource(logFolder);
 
-                    final File log = new File(baseFxPath + "Data." + FileUtil.FILE_TYPE_LSF);
-                    final File logGz = new File(baseFxPath + "Data." + FileUtil.FILE_TYPE_LSF_COMPRESSED);
-                    final File logBz2 = new File(baseFxPath + "Data." + FileUtil.FILE_TYPE_LSF_COMPRESSED_BZIP2);
-
-                    if ((imc.exists() || imcGz.exists()) && (logGz.exists() || log.exists() || logBz2.exists())) {
-
-                        JPopupMenu popup = new JPopupMenu();
-                        popup.add(I18n.text("Open this log in MRA")).addActionListener(new ActionListener() {
-
+                    JPopupMenu popup = new JPopupMenu();
+                    JMenuItem jm = popup.add(I18n.text("Open this log in MRA"));
+                    if (isLogOkForOpening == LogValidity.VALID) {
+                        File log = LogUtils.getValidLogFileFromLogFolder(logFolder);
+                        jm.addActionListener(new ActionListener() {
                             @Override
                             public void actionPerformed(ActionEvent e) {
                                 Thread t = new Thread(LogsDownloaderWorker.class.getSimpleName() + " :: MRA Openner") {
                                     public void run() {
                                         JFrame mra = new NeptusMRA();
                                         mra.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-
-                                        File fx = null;
-                                        if (log.exists())
-                                            fx = log;
-                                        else if (logGz.exists())
-                                            fx = logGz;
-                                        else if (logBz2.exists())
-                                            fx = logBz2;
-
-                                        ((NeptusMRA) mra).getMraFilesHandler().openLog(fx);
+                                        
+                                        ((NeptusMRA) mra).getMraFilesHandler().openLog(log);
                                     };
                                 };
-
                                 t.setDaemon(true);
                                 t.start();
                             }
                         });
-                        
-                        popup.show((Component)e.getSource(), e.getX(), e.getY());
                     }
                     else {
-                        worker.warnMsg(I18n.text("Basic log folder not synchronized. Can't open MRA"));
-                        return;
+                        jm.setEnabled(false);
                     }
+                    
+                    popup.show((Component)e.getSource(), e.getX(), e.getY());
                 }
             }
         };
@@ -234,7 +223,7 @@ class LogsDownloaderUtil {
      * @return
      * @throws Exception
      */
-    static FtpDownloader getOrRenewFtpDownloader(FtpDownloader clientFtp, String host, int port)
+    private static FtpDownloader getOrRenewFtpDownloader(FtpDownloader clientFtp, String host, int port)
             throws Exception {
         if (clientFtp == null)
             clientFtp = new FtpDownloader(host, port);
@@ -245,6 +234,26 @@ class LogsDownloaderUtil {
             clientFtp.renewClient();
 
         return clientFtp;
+    }
+
+    /**
+     * Gets the clientFtp with the connection renewed ({@link FtpDownloader#renewClient()})
+     * or create a new one connected. This is based on the key (serverKey) and at the end stores
+     * in the ftpDownloaders.
+     * 
+     * @param serverKey
+     * @param ftpDownloaders
+     * @param host
+     * @param port
+     * @return
+     * @throws Exception
+     */
+    static FtpDownloader getOrRenewFtpDownloader(String serverKey, LinkedHashMap<String, FtpDownloader> ftpDownloaders,
+            String host, int port) throws Exception {
+        FtpDownloader ftpDwnldr = ftpDownloaders.get(serverKey);
+        ftpDwnldr = getOrRenewFtpDownloader(ftpDwnldr, host, port);
+        ftpDownloaders.put(serverKey, ftpDwnldr); // Even if null is added
+        return ftpDwnldr;
     }
 
     /**
@@ -290,7 +299,7 @@ class LogsDownloaderUtil {
      * @return Negative values for errors (HTTP like returns).
      */
     static long getDiskSizeFromLocal(LogFileInfo fx, LogsDownloaderWorker worker) {
-        File fileTarget = LogsDownloaderUtil.getFileTarget(fx.getName(), 
+        File fileTarget = LogsDownloaderWorkerUtil.getFileTarget(fx.getName(), 
                 worker.getDirBaseToStoreFiles(), worker.getLogLabel());
         if (fileTarget == null)
             return -1;

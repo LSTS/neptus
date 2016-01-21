@@ -387,7 +387,7 @@ public class LogUtils {
         return null;
     }
     
-        public static TransponderElement[] getTransponders(IMraLogGroup source) {
+    public static TransponderElement[] getTransponders(IMraLogGroup source) {
         IMraLog parser = source.getLog("LblConfig");
         if (parser == null)
             return new TransponderElement[0];
@@ -440,6 +440,7 @@ public class LogUtils {
         return transp.toArray(new TransponderElement[0]);
     }
 
+    @Deprecated
     public static boolean isValidLogFolder(File dir) {
         if (!dir.isDirectory() || !dir.canRead())
             return false;
@@ -453,6 +454,7 @@ public class LogUtils {
         return false;
     }
 
+    @Deprecated
     public static boolean isValidZipSource(File zipFile) {
         try {
             ZipInputStream zis = new ZipInputStream(new FileInputStream(zipFile));
@@ -510,6 +512,51 @@ public class LogUtils {
         return LogValidity.NO_XML_DEFS;
     }
 
+    /**
+     * Return from a log folder a valid {@link FileUtil#FILE_TYPE_LSF} (compressed or not.
+     * 
+     * @param logFolder
+     * @return
+     */
+    public static File getValidLogFileFromLogFolder(File logFolder) {
+        if (!logFolder.exists())
+            return null;
+
+        File logLsf = null;
+        File logLsfGz = null;
+        File logLsfBz2 = null;
+        
+        for (File fx : logFolder.listFiles()) {
+            switch (FileUtil.getFileExtension(fx)) {
+                case FileUtil.FILE_TYPE_LSF:
+                    logLsf = fx;;
+                    break;
+                case "gz":
+                    String fex = FileUtil.getFileNameWithoutExtension(fx.getName());
+                    if (FileUtil.getFileExtension(fex).equalsIgnoreCase(FileUtil.FILE_TYPE_LSF))
+                        logLsfGz = fx;
+                    break;
+                case "bz2":
+                    fex = FileUtil.getFileNameWithoutExtension(fx.getName());
+                    if (FileUtil.getFileExtension(fex).equalsIgnoreCase(FileUtil.FILE_TYPE_LSF))
+                        logLsfBz2 = fx;
+                    break;
+                default:
+                    break;
+            }
+        }
+        
+        File ret = null;
+        if (logLsf != null)
+            ret = logLsf;
+        else if (logLsfGz != null)
+            ret = logLsfGz;
+        else if (logLsfBz2 != null)
+            ret = logLsfBz2;
+
+        return ret;
+    }
+    
     /**
      * @author zp
      * @param mt
