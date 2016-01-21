@@ -75,6 +75,7 @@ import javax.swing.border.EtchedBorder;
 import javax.swing.border.TitledBorder;
 import javax.swing.text.Position;
 
+import org.apache.commons.compress.compressors.bzip2.BZip2CompressorOutputStream;
 import org.apache.commons.io.FileUtils;
 
 import net.miginfocom.swing.MigLayout;
@@ -131,16 +132,18 @@ public class MRAExporterFilter implements MRAExporter {
 
             try {
                 fileName = selectedFile.getCanonicalPath();
-                if (fileName.endsWith(".gz")) {
+                if (fileName.endsWith("." + FileUtil.FILE_TYPE_LSF_COMPRESSED)
+                        || fileName.endsWith("." + FileUtil.FILE_TYPE_LSF_COMPRESSED_BZIP2)) {
                     return selectedFile = new File(fileName);
                 }
-                if (!fileName.endsWith(".lsf")) {
-                    return selectedFile = new File(fileName + ".lsf");
+                if (!fileName.endsWith("." + FileUtil.FILE_TYPE_LSF)) {
+                    return selectedFile = new File(fileName + "." + FileUtil.FILE_TYPE_LSF_COMPRESSED);
                 }
-                if (fileName.endsWith(".lsf")) {
+                if (fileName.endsWith("." + FileUtil.FILE_TYPE_LSF)) {
                     return selectedFile = new File(fileName);
                 }
-            } catch (IOException e) {
+            }
+            catch (IOException e) {
                 e.printStackTrace();
             }
         }
@@ -183,8 +186,8 @@ public class MRAExporterFilter implements MRAExporter {
         String path = source.getFile("Data.lsf").getParent();
 
         File outputFile = chooseSaveFile(path);
+        OutputStream os = null;
         FileOutputStream fos = null;
-        GZIPOutputStream gzipOS = null;
         if(outputFile == null)
             return;
 
@@ -193,9 +196,14 @@ public class MRAExporterFilter implements MRAExporter {
             outputFile.createNewFile();
             fos = new FileOutputStream(outputFile, true);
 
-            //GZIP if user selected .gz
             if (outputFile.getName().toLowerCase().endsWith(FileUtil.FILE_TYPE_LSF_COMPRESSED))  {
-                gzipOS = new GZIPOutputStream(fos);
+                os = new GZIPOutputStream(fos);
+            }
+            else if (outputFile.getName().toLowerCase().endsWith(FileUtil.FILE_TYPE_LSF_COMPRESSED_BZIP2))  {
+                os = new BZip2CompressorOutputStream(fos);
+            }
+            else {
+                os = fos;
             }
 
         }
@@ -203,7 +211,7 @@ public class MRAExporterFilter implements MRAExporter {
             e.printStackTrace();
         }
         this.outputFile = outputFile;
-        processTask = new Task(index, fos, gzipOS, path, outputFile);
+        processTask = new Task(index, os, path, outputFile);
         processTask.execute();
 
         pmonitor.close();
@@ -213,27 +221,20 @@ public class MRAExporterFilter implements MRAExporter {
 
     private class Task extends SwingWorker<Void, Void> {
         private LsfIndex index;
-        private FileOutputStream fos;
-        private GZIPOutputStream gzipOS;
+        private OutputStream fos;
         private String path;
         private File outputFile;
-        /**
-         * @param index2
-         * @param fos2
-         * @param gzipOS2
-         */
-        public Task(LsfIndex index, FileOutputStream fos, GZIPOutputStream gzipOS, String path, File outputFile) {
+        
+        public Task(LsfIndex index, OutputStream fos, String path, File outputFile) {
             this.index = index;
             this.fos = fos;
-            this.gzipOS = gzipOS;
             this.path = path;
             this.outputFile = outputFile;
         }
 
         @Override
         public Void doInBackground() {
-
-            writeToStream(index, fos, gzipOS);
+            writeToStream(index, fos);
             if (pmonitor.isCanceled())
                 return null;
             copyCheck(path.toString(), outputFile.getParentFile().getAbsolutePath());
@@ -247,8 +248,7 @@ public class MRAExporterFilter implements MRAExporter {
         }
     }
 
-
-    private void writeToStream(LsfIndex index, FileOutputStream fos, GZIPOutputStream gzipOutputStream) {
+    private void writeToStream(LsfIndex index, OutputStream fos) {
         pmonitor.setNote(I18n.text("Filtering"));
         int total = index.getNumberOfMessages();
         int count = 0;
@@ -265,15 +265,9 @@ public class MRAExporterFilter implements MRAExporter {
 
                 byte[] by = index.getMessageBytes(i);
                 try {
-                    if (gzipOutputStream == null) {
-                        fos.write(by);
-                    }
-                    else
-                        gzipOutputStream.write(by);
-
+                    fos.write(by);
                 }
                 catch (IOException e) {
-                    // TODO Auto-generated catch block
                     e.printStackTrace();
                 }
                 count++;
@@ -286,14 +280,13 @@ public class MRAExporterFilter implements MRAExporter {
 
         //close resources
         try {
-            if (gzipOutputStream != null)
-                gzipOutputStream.close();
             fos.close();
         }
         catch (IOException e) {
             e.printStackTrace();
         }
     }
+    
     /** Copies IMC.xml.gz and Output.txt to location2, if location1 != location2.
      * @param location1 
      * @param location2 
