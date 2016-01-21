@@ -489,10 +489,10 @@ class LogsDownloaderWorkerActions {
                         if (lfi.getName().equals(logDir)) {
                             lFolder = lfi;
                             break;
+                        }
                     }
-                    if (lFolder == null) {
+                    if (lFolder == null)
                         lFolder = new LogFolderInfo(logDir);
-                    }
                     
                     if (!ftpServer.isConnected())
                         ftpServer.renewClient();
