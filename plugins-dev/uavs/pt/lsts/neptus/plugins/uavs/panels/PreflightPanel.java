@@ -74,7 +74,7 @@ public class PreflightPanel extends ConsolePanel implements MainVehicleChangeLis
     // GUI
     private JPanel titlePanel = null;
     private JPanel buttonPanel = null;
-
+    private JButton calibButton = new JButton(I18n.text("Calibrate"));
     /**
      * @param console
      */
@@ -108,7 +108,6 @@ public class PreflightPanel extends ConsolePanel implements MainVehicleChangeLis
         buttonPanel = new JPanel(new MigLayout("gap 0 0, ins 0"));
 
         // Calibrate
-        JButton calibButton = new JButton("Calibrate");
         calibButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -119,9 +118,9 @@ public class PreflightPanel extends ConsolePanel implements MainVehicleChangeLis
         });
         
         buttonPanel.add(calibButton, "w 34%, h 100%");
-        buttonPanel.getComponents()[0].setEnabled(false);
+        calibButton.setEnabled(false);
         // Arm
-        JButton armButton = new JButton("Arm");
+        JButton armButton = new JButton(I18n.text("Arm"));
         armButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -134,7 +133,7 @@ public class PreflightPanel extends ConsolePanel implements MainVehicleChangeLis
         buttonPanel.add(armButton, "w 33%, h 100%");
 
         // Disarm
-        JButton disarmButton = new JButton("Disarm");
+        JButton disarmButton = new JButton(I18n.text("Disarm"));
         disarmButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -167,11 +166,11 @@ public class PreflightPanel extends ConsolePanel implements MainVehicleChangeLis
             MEDIUM uavValue = msg.getMedium();
             if(uavValue == MEDIUM.GROUND){
                 //Calibration ON
-                buttonPanel.getComponents()[0].setEnabled(true);                
+                calibButton.setEnabled(true);                
             }
             else{
                 //Calibration OFF
-                buttonPanel.getComponents()[0].setEnabled(false);
+                calibButton.setEnabled(false);
                 post(pt.lsts.neptus.console.notifications.Notification.info("Pre-flight Actions", "Pre-flight Calibration only allowed on GROUND."));
             }
             
