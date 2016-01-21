@@ -678,9 +678,39 @@ class LogsDownloaderWorkerActions {
                 (System.currentTimeMillis() - timeF1) + "ms");
     }
     
-    private void testNewReportedLogFoldersForLocalCorrespondent(
-            LinkedList<LogFolderInfo> newLogFoldersFromServer) {
-        worker.testNewReportedLogFoldersForLocalCorrespondent(newLogFoldersFromServer);
+    private void testNewReportedLogFoldersForLocalCorrespondent(LinkedList<LogFolderInfo> newLogFoldersFromServer) {
+        for (LogFolderInfo lf : newLogFoldersFromServer) {
+            File testFile = new File(
+                    LogsDownloaderWorkerUtil.getDirTarget(worker.getDirBaseToStoreFiles(), worker.getLogLabel()),
+                    lf.getName());
+            if (testFile.exists()) {
+                if (lf.getState() == LogFolderInfo.State.DOWNLOADING)
+                    continue;
+
+                lf.setState(LogFolderInfo.State.UNKNOWN);
+                for (LogFileInfo lfx : lf.getLogFiles()) {
+                    File testFx = new File(LogsDownloaderWorkerUtil.getDirTarget(worker.getDirBaseToStoreFiles(),
+                            worker.getLogLabel()), lfx.getName());
+                    if (testFx.exists()) {
+                        lfx.setState(LogFolderInfo.State.UNKNOWN);
+                        long sizeD = LogsDownloaderWorkerUtil.getDiskSizeFromLocal(lfx, worker);
+                        if (lfx.getSize() == sizeD) {
+                            lfx.setState(LogFolderInfo.State.SYNC);
+                        }
+                        else {
+                            lfx.setState(LogFolderInfo.State.INCOMPLETE);
+                            // System.out.println("//////////// " + lfx + "  incomplete " + lfx.getSize());
+                        }
+                    }
+                }
+                LogsDownloaderWorkerGUIUtil.updateLogFolderState(lf, gui.logFolderList);
+            }
+            else {
+                lf.setState(LogFolderInfo.State.NEW);
+            }
+        }
+
+        LogsDownloaderWorkerGUIUtil.updateLogStateIconForAllLogFolders(gui.logFolderList, gui.logFoldersListLabel);
     }
 
     private void updateLogFoldersState(LinkedList<LogFolderInfo> existenteLogFoldersFromServer) {
