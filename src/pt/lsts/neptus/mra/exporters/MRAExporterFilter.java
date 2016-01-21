@@ -86,6 +86,7 @@ import pt.lsts.neptus.plugins.PluginDescription;
 import pt.lsts.neptus.util.FileUtil;
 import pt.lsts.neptus.util.GuiUtils;
 import pt.lsts.neptus.util.conf.ConfigFetch;
+
 /**
  * @author Manuel R.
  *
@@ -175,8 +176,8 @@ public class MRAExporterFilter implements MRAExporter {
             outputFile.delete();
             return "Cancelled by the user";
         }
-        return ((progress == 100 ) && (!pmonitor.isCanceled()) ? I18n.text("Exported filtered log successfully.") : I18n.text("Filtered log not exported successfully."));
-
+        return ((progress == 100) && (!pmonitor.isCanceled()) ? I18n.text("Exported filtered log successfully.")
+                : I18n.text("Filtered log not exported successfully."));
     }
 
     private void applyFilter(FilterList filter) {
