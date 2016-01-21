@@ -725,11 +725,6 @@ public class LogsDownloaderWorker {
         }
     }
 
-    /**
-     * @param docList
-     * @param serversLogPresenceList
-     * @return
-     */
     // FIXME Visibility
     LinkedList<LogFolderInfo> getLogFileList(LinkedHashMap<String, String> serversLogPresenceList) {
 

@@ -103,7 +103,6 @@ public class LogFolderInfo {
 		return name.hashCode();
 	}
 
-	
 	public void addFile(LogFileInfo file) {
 		logFiles.add(file);
 	}
@@ -128,7 +127,9 @@ public class LogFolderInfo {
 			try {
 				if (lfx.getName().equals(name))
 					return lfx;
-			} catch (Exception e) {
+			}
+			catch (Exception e) {
+			    e.printStackTrace();
 			}
 		}
 		return null;
