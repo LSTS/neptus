@@ -455,6 +455,9 @@ class LogsDownloaderWorkerActions {
         try {
             ArrayList<String> servers = worker.getServersList();
             for (String serverKey : servers) { // Let's iterate by servers first
+                if (stopLogListProcessing)
+                    break;
+                
                 if (!worker.isServerAvailable(serverKey))
                     continue;
                 
@@ -472,6 +475,9 @@ class LogsDownloaderWorkerActions {
                 String host = worker.getHostFor(serverKey); // To fill the log files host info
                 
                 for (String logDir : serversLogPresenceList.keySet()) { // For the server go through the folders
+                    if (stopLogListProcessing)
+                        break;
+
                     if (!serversLogPresenceList.get(logDir).contains(serverKey))
                         continue;
                     
@@ -494,6 +500,9 @@ class LogsDownloaderWorkerActions {
                     try {
                         FTPFile[] files = ftpServer.getClient().listFiles("/" + isoStr + "/");
                         for (FTPFile file : files) {
+                            if (stopLogListProcessing)
+                                break;
+
                             String name = logDir + "/" + file.getName();
                             String uriPartial = logDir + "/" + file.getName();
                             LogFileInfo logFileTmp = new LogFileInfo(name);
@@ -511,6 +520,9 @@ class LogsDownloaderWorkerActions {
                                 LinkedHashMap<String, FTPFile> dirListing = ftpServer.listDirectory(logFileTmp.getName());
                                 ArrayList<LogFileInfo> directoryContents = new ArrayList<>();
                                 for (String fName : dirListing.keySet()) {
+                                    if (stopLogListProcessing)
+                                        break;
+
                                     FTPFile fFile = dirListing.get(fName);
                                     String fURIPartial = fName;
                                     LogFileInfo fLogFileTmp = new LogFileInfo(fName);
