@@ -123,7 +123,7 @@ public class MRAExporterFilter implements MRAExporter {
         fileChooser.setSelectedFile(new File(path.concat("/Data_filtered.lsf.gz")));
         fileChooser.setAcceptAllFileFilterUsed(false);
 
-        int status = fileChooser.showSaveDialog(null);
+        int status = fileChooser.showSaveDialog(ConfigFetch.getSuperParentFrame());
         String fileName = null;
 
         if (status == JFileChooser.APPROVE_OPTION) {
