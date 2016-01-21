@@ -249,22 +249,7 @@ public class LogsDownloaderWorker {
 
     private void disconnectFTPClientsForListing() {
         actions.stopLogListProcessing = true;
-//        if (clientFtp != null && clientFtp.isConnected()) {
-//            try {
-//                clientFtp.getClient().disconnect();
-//            }
-//            catch (IOException e) {
-//                e.printStackTrace();
-//            }
-//        }
-//        if (cameraFtp != null && cameraFtp.isConnected()) {
-//            try {
-//                cameraFtp.getClient().disconnect();
-//            }
-//            catch (IOException e) {
-//                e.printStackTrace();
-//            }
-//        }
+
         for (FtpDownloader ftpDwnld : ftpDownloaders.values().toArray(new FtpDownloader[ftpDownloaders.size()])) {
             if (ftpDwnld != null && ftpDwnld.isConnected()) {
                 try {
@@ -563,8 +548,8 @@ public class LogsDownloaderWorker {
                         fxLog.setState(LogFolderInfo.State.DOWNLOADING);
                     else if (newState == DownloaderPanel.State.NOT_DONE)
                         fxLog.setState(LogFolderInfo.State.INCOMPLETE);
-                    else if (newState == DownloaderPanel.State.IDLE)
-                        ;// fxLog.setState(LogFolderInfo.State.ERROR);
+                    // else if (newState == DownloaderPanel.State.IDLE)
+                    //     ;// fxLog.setState(LogFolderInfo.State.ERROR);
 
                     if (logFilesList.containsFile(fxLog)) {
                         logFilesList.revalidate();
@@ -597,10 +582,9 @@ public class LogsDownloaderWorker {
                             }
                         }
                     };
-                    //                    timer.schedule(task, DELTA_TIME_TO_CLEAR_DONE);
                     threadScheduledPool.schedule(task, DELTA_TIME_TO_CLEAR_DONE, TimeUnit.MILLISECONDS);
                 }
-                else { //if (newState != DownloaderPanel.State.WORKING && newState != DownloaderPanel.State.TIMEOUT && newState != DownloaderPanel.State.QUEUED) { // FIXME VERIFICAR SE OK OU TIRAR
+                else {
                     cancelTasksIfSchedule();
                     task = new Runnable() {
                         @Override
@@ -610,7 +594,7 @@ public class LogsDownloaderWorker {
                                         && workerDFinal.getState() != DownloaderPanel.State.TIMEOUT
                                         && workerDFinal.getState() != DownloaderPanel.State.QUEUED) {
                                     workerDFinal.doStopAndInvalidate();
-                                    //                                    waitForStopOnAllLogFoldersDownloads(workerDFinal.getName());
+                                    // waitForStopOnAllLogFoldersDownloads(workerDFinal.getName());
                                     downloadWorkersHolder.remove(workerDFinal);
                                     downloadWorkersHolder.revalidate();
                                     downloadWorkersHolder.repaint();
@@ -924,7 +908,6 @@ public class LogsDownloaderWorker {
         for (Component cp : components) {
             try {
                 DownloaderPanel workerD = (DownloaderPanel) cp;
-                //                if (workerD.getState() == DownloaderPanel.State.WORKING) {
                 if (!stopAll) {
                     for (String prefix : logList) {
                         if (workerD.getName().startsWith(prefix)) {
@@ -938,7 +921,6 @@ public class LogsDownloaderWorker {
                     continue;
                 }
                 workerD.actionStop();
-                //                }
             }
             catch (Exception e) {
                 e.printStackTrace();
@@ -951,15 +933,17 @@ public class LogsDownloaderWorker {
             return;
 
         boolean waitStopAll = true;
-        if (logList != null)
+        if (logList != null) {
             if (logList.length > 0)
                 waitStopAll = false;
+        }
         Component[] components = gui.downloadWorkersHolder.getComponents();
         for (Component cp : components) {
             try {
                 DownloaderPanel workerD = (DownloaderPanel) cp;
                 boolean wait = false;
-                if (workerD.getState() == DownloaderPanel.State.WORKING || workerD.getState() == DownloaderPanel.State.QUEUED) {
+                if (workerD.getState() == DownloaderPanel.State.WORKING
+                        || workerD.getState() == DownloaderPanel.State.QUEUED) {
                     if (!waitStopAll) {
                         for (String prefix : logList) {
                             if (workerD.getName().startsWith(prefix)) {
@@ -971,7 +955,8 @@ public class LogsDownloaderWorker {
                             continue;
                     }
 
-                    while (workerD.getState() == DownloaderPanel.State.WORKING || workerD.getState() == DownloaderPanel.State.QUEUED) {
+                    while (workerD.getState() == DownloaderPanel.State.WORKING
+                            || workerD.getState() == DownloaderPanel.State.QUEUED) {
                         try { Thread.sleep(100); } catch (Exception e) { }
                         NeptusLog.pub().warn("Waiting for '" + workerD.getUri() + "' to stop!");
                     }
@@ -987,7 +972,6 @@ public class LogsDownloaderWorker {
         boolean isEventDispatchThread = SwingUtilities.isEventDispatchThread();
 
         SwingWorker<Boolean, Void> worker = new SwingWorker<Boolean, Void>() {
-
             @Override
             protected Boolean doInBackground() throws Exception {
                 if (!justStopDownloads)
@@ -1010,7 +994,7 @@ public class LogsDownloaderWorker {
                     SwingUtilities.invokeAndWait(new Runnable() {
                         @Override
                         public void run() {
-                            warnLongMsg(I18n.textf("Error couth on resetting: %errormessage", e.getMessage()));
+                            warnLongMsg(I18n.textf("Error caught on resetting: %errormessage", e.getMessage()));
                         }
                     });
                     resetRes &= false;
@@ -1027,7 +1011,7 @@ public class LogsDownloaderWorker {
                     SwingUtilities.invokeAndWait(new Runnable() {
                         @Override
                         public void run() {
-                            warnLongMsg(I18n.textf("Error couth on resetting: %errormessage", e.getMessage()));
+                            warnLongMsg(I18n.textf("Error caught on resetting: %errormessage", e.getMessage()));
                         }
                     });
                     resetRes &= false;
@@ -1044,7 +1028,7 @@ public class LogsDownloaderWorker {
                 }
                 catch (Exception e) {
                     e.printStackTrace();
-                    warnLongMsg(I18n.textf("Error couth on resetting: %errormessage", e.getMessage()));
+                    warnLongMsg(I18n.textf("Error caught on resetting: %errormessage", e.getMessage()));
                     resetRes &= false;
                 }
 
