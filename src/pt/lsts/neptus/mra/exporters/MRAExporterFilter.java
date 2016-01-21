@@ -345,9 +345,9 @@ public class MRAExporterFilter implements MRAExporter {
 
             for (String log : logs ) {
                 if (defaultLogs.contains(log)) 
-                    options.add(new LogItem(log, true));
+                    options.add(new LogItem(log, true, false));
                 else
-                    options.add(new LogItem(log, false));
+                    options.add(new LogItem(log, false, true));
             }
             Arrays.sort(options.toArray());
 
@@ -464,6 +464,7 @@ public class MRAExporterFilter implements MRAExporter {
                 setForeground(isSelected ? list.getSelectionForeground() : list.getForeground());
                 LogItem data = (LogItem)value;
                 setSelected(data.isSelected());
+                setEnabled(data.isEnabled());
                 setFont(list.getFont());
                 setBorder((cellHasFocus) ? UIManager.getBorder("List.focusCellHighlightBorder") : m_noFocusBorder);
 
@@ -507,7 +508,8 @@ public class MRAExporterFilter implements MRAExporter {
                 if (index < 0)
                     return;
                 LogItem data = (LogItem)m_list.getModel().getElementAt(index);
-                data.invertSelected();
+                if (data.isEnabled())
+                    data.invertSelected();
                 m_list.repaint();
             }
 
@@ -516,15 +518,17 @@ public class MRAExporterFilter implements MRAExporter {
         class LogItem implements Comparable<LogItem> {
 
             protected String logName;
-
             protected boolean m_selected;
+            protected boolean m_enabled;
 
-            public LogItem(String name, boolean selected) {
+            public LogItem(String name, boolean selected, boolean enabled) {
+                this.logName = name;
+                this.m_selected = selected;
+                this.m_enabled = enabled;
+            }
 
-                logName = name;
-
-                m_selected = selected;
-
+            public boolean isEnabled() {
+                return m_enabled;
             }
 
             @SuppressWarnings("unused")
