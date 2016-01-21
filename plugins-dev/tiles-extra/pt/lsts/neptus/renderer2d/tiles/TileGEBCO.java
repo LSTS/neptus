@@ -49,7 +49,6 @@ import pt.lsts.neptus.util.coord.MapTileUtil;
  * @author pdias
  *
  */
-@SuppressWarnings("deprecation")
 @MapTileProvider(name = "www.GEBCO.net")
 public class TileGEBCO extends TileHttpFetcher {
     
@@ -99,7 +98,7 @@ public class TileGEBCO extends TileHttpFetcher {
         if (alreadyInitialize)
             return;
         alreadyInitialize = true;
-        httpConnectionManager.setMaxPerRoute(new HttpRoute(new HttpHost("www.gebco.net")), 4); // was setMaxForRoute
+        httpComm.getHttpConnectionManager().setMaxPerRoute(new HttpRoute(new HttpHost("www.gebco.net")), 4); // was setMaxForRoute
     }
     
     /**
@@ -108,8 +107,8 @@ public class TileGEBCO extends TileHttpFetcher {
     @Override
     protected String createTileRequestURL() {
         double lat1 = 35, lat2 = 44, lon1 = -12.7, lon2 = 5;
-        double[] ret1 = MapTileUtil.XYToDegrees(worldX, worldY, levelOfDetail);
-        double[] ret2 = MapTileUtil.XYToDegrees(worldX + 256, worldY + 256, levelOfDetail);
+        double[] ret1 = MapTileUtil.xyToDegrees(worldX, worldY, levelOfDetail);
+        double[] ret2 = MapTileUtil.xyToDegrees(worldX + 256, worldY + 256, levelOfDetail);
 
         lat1 = Math.min(ret1[0], ret2[0]);
         lat2 = Math.max(ret1[0], ret2[0]);

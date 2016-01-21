@@ -53,7 +53,7 @@ public class MapTileUtil {
     public static final double MIN_LONGITUDE = -180;
     public static final double MAX_LONGITUDE = 180;
 
-    public static final boolean USE_CLIPPING = false;
+    public static final boolean USE_CLIPPING = true;
     
     /**
      * Clips a number to the specified minimum and maximum values.
@@ -131,10 +131,10 @@ public class MapTileUtil {
      * 
      * @param pixelX X coordinate of the point, in pixels.
      * @param pixelY Y coordinates of the point, in pixels.
-     * @param levelOfDetail Level of detail, from 1 (lowest detail)to 23 (highest detail).
+     * @param levelOfDetail Level of detail, from 1 (lowest detail) to 23 (highest detail).
      * @return Lat Lon in degrees.
      */
-    public static double[] XYToDegrees(double pixelX, double pixelY, int levelOfDetail) {
+    public static double[] xyToDegrees(double pixelX, double pixelY, int levelOfDetail) {
         int mapSize = mapSize(levelOfDetail);
         double x = (clip(pixelX, 0, mapSize - 1) / mapSize) - 0.5;
         double y = 0.5 - (clip(pixelY, 0, mapSize - 1) / mapSize);
@@ -151,7 +151,7 @@ public class MapTileUtil {
      * @param pixelY Pixel Y coordinate.
      * @return tileX: Output parameter receiving the tile X coordinate. tileY: Output parameter receiving the tile Y coordinate.
      */
-    public static int[] pixelXYToTileXY(int pixelX, int pixelY) {//TODO mudar isto para double ????
+    public static int[] pixelXYToTileXY(int pixelX, int pixelY) {// TODO change to double ?
         int tileX, tileY;
         tileX = pixelX / 256;
         tileY = pixelY / 256;
@@ -165,7 +165,7 @@ public class MapTileUtil {
      * @param tileY Tile Y coordinate.
      * @return pixelX: Output parameter receiving the pixel X coordinate. pixelY: Output parameter receiving the pixel Y coordinate.
      */
-    public static int[] tileXYToPixelXY(int tileX, int tileY) {//TODO mudar isto para double ????
+    public static int[] tileXYToPixelXY(int tileX, int tileY) {// TODO change to double ?
         int pixelX, pixelY;
         pixelX = tileX * 256;
         pixelY = tileY * 256;
@@ -180,7 +180,7 @@ public class MapTileUtil {
      * @param levelOfDetail Level of detail, from 1 (lowest detail) to 23 (highest detail).
      * @return A string containing the QuadKey.
      */
-    public static String tileXYToQuadKey(int tileX, int tileY, int levelOfDetail) {//TODO mudar isto para double ????
+    public static String tileXYToQuadKey(int tileX, int tileY, int levelOfDetail) {// TODO change to double ?
         StringBuilder quadKey = new StringBuilder();
         for (int i = levelOfDetail; i > 0; i--) {
             char digit = '0';
@@ -205,33 +205,13 @@ public class MapTileUtil {
      *         receiving the level of detail.
      * @throws Exception
      */
-    public static int[] quadKeyToTileXY(String quadKey) throws Exception {//TODO mudar isto para double ????
+    public static int[] quadKeyToTileXY(String quadKey) throws Exception {// TODO change to double ?
         int tileX, tileY, levelOfDetail;
         tileX = tileY = 0;
         levelOfDetail = quadKey.length();
         for (int i = levelOfDetail; i > 0; i--) {
             int mask = 1 << (i - 1);
             String str = quadKey.substring(levelOfDetail - i, levelOfDetail - i + 1);
-            // switch (quadKey[levelOfDetail - i]) {
-            // case '0':
-            // break;
-            //
-            // case '1':
-            // tileX |= mask;
-            // break;
-            //
-            // case '2':
-            // tileY |= mask;
-            // break;
-            //
-            // case '3':
-            // tileX |= mask;
-            // tileY |= mask;
-            // break;
-            //
-            // default:
-            // throw new Exception("Invalid QuadKey digit sequence.");
-            // }
             if ("0".equalsIgnoreCase(str)) {
             }
             else if ("1".equalsIgnoreCase(str)) {
@@ -382,13 +362,13 @@ public class MapTileUtil {
         LocationType locS1 = new LocationType(loc1);
         NeptusLog.pub().info("<###> "+locS1);
         Point2D ptS1 = locS1.getPointInPixel(22);
-        double[] kS1 = MapTileUtil.XYToDegrees(ptS1.getX(), ptS1.getY(), 22);
+        double[] kS1 = MapTileUtil.xyToDegrees(ptS1.getX(), ptS1.getY(), 22);
         LocationType locS2 = new LocationType();
         locS2.setLatitudeDegs(kS1[0]);
         locS2.setLongitudeDegs(kS1[1]);
         NeptusLog.pub().info("<###> "+locS2);
 
-        kS1 = MapTileUtil.XYToDegrees((int)ptS1.getX(), (int)ptS1.getY(), 22);
+        kS1 = MapTileUtil.xyToDegrees((int)ptS1.getX(), (int)ptS1.getY(), 22);
         LocationType locS3 = new LocationType();
         locS3.setLatitudeDegs(kS1[0]);
         locS3.setLongitudeDegs(kS1[1]);

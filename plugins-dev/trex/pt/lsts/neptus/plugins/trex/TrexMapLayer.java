@@ -56,11 +56,11 @@ import javax.swing.JScrollPane;
 
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
-import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.conn.HttpHostConnectException;
 import org.apache.http.entity.StringEntity;
-import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.HttpClientBuilder;
 
 import pt.lsts.imc.EntityParameter;
 import pt.lsts.imc.IMCMessage;
@@ -100,7 +100,6 @@ import com.google.common.eventbus.Subscribe;
  * @author zp
  * 
  */
-@SuppressWarnings("deprecation")
 @PluginDescription(name = "TrexMapLayer", icon = "pt/lsts/neptus/plugins/trex/smallTrex.png")
 public class TrexMapLayer extends SimpleRendererInteraction implements Renderer2DPainter, NeptusMessageListener {
     enum CommsChannel {
@@ -143,7 +142,7 @@ public class TrexMapLayer extends SimpleRendererInteraction implements Renderer2
     public boolean postNotifications = true;
     
 
-    private final HttpClient httpclient = new DefaultHttpClient();
+    private final CloseableHttpClient httpclient = HttpClientBuilder.create().build();
 
     private static final long serialVersionUID = 1L;
     private Maneuver lastManeuver = null;
@@ -692,8 +691,12 @@ public class TrexMapLayer extends SimpleRendererInteraction implements Renderer2
      */
     @Override
     public void cleanSubPanel() {
-        // TODO Auto-generated method stub
-        httpclient.getConnectionManager().shutdown();
+        try {
+            httpclient.close();
+        }
+        catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     // @Subscribe

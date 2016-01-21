@@ -62,7 +62,6 @@ import com.l2fprod.common.propertysheet.Property;
  * @author pdias
  *
  */
-@SuppressWarnings("deprecation")
 @MapTileProvider(name = "S57 Client (HTTP)")
 public class TileS57 extends TileHttpFetcher {
     
@@ -131,7 +130,7 @@ public class TileS57 extends TileHttpFetcher {
 
         try {
             URL url = new URL(mapServerURL);
-            httpConnectionManager.setMaxPerRoute(new HttpRoute(new HttpHost(url.getHost())), 1); // was setMaxForRoute
+            httpComm.getHttpConnectionManager().setMaxPerRoute(new HttpRoute(new HttpHost(url.getHost())), 1); // was setMaxForRoute
         }
         catch (MalformedURLException e) {
             e.printStackTrace();
@@ -175,8 +174,8 @@ public class TileS57 extends TileHttpFetcher {
         // svsw=5 (Set Very Shallow Water)
         // svdw=20 (Set Very Deep Water)
 
-        double[] locTL = MapTileUtil.XYToDegrees(worldX, worldY, levelOfDetail);
-        double[] locBR = MapTileUtil.XYToDegrees(worldX + 256, worldY + 256, levelOfDetail);
+        double[] locTL = MapTileUtil.xyToDegrees(worldX, worldY, levelOfDetail);
+        double[] locBR = MapTileUtil.xyToDegrees(worldX + 256, worldY + 256, levelOfDetail);
         String requestQuery = "q=" + locTL[0]
                 + "," + locTL[1]
                 + "," + locBR[0]
@@ -210,7 +209,7 @@ public class TileS57 extends TileHttpFetcher {
 
         try {
             URL url = new URL(mapServerURL);
-            httpConnectionManager.setMaxPerRoute(new HttpRoute(new HttpHost(url.getHost())), 1); // was setMaxForRoute
+            httpComm.getHttpConnectionManager().setMaxPerRoute(new HttpRoute(new HttpHost(url.getHost())), 1); // was setMaxForRoute
         }
         catch (MalformedURLException e) {
             e.printStackTrace();

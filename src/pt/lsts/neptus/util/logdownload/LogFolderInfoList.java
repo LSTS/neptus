@@ -98,9 +98,7 @@ JXList provides api to access items of the underlying model in view coordinates 
 	 */
 	public void initialize() {
 		setModel(myModel);
-		//setVisibleRowCount(25);
 		setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
-		//setDragEnabled(true);
 		setCellRenderer(new ListCellRenderer<LogFolderInfo>() {
 			
 			public Component getListCellRendererComponent(JList<? extends LogFolderInfo> list, 
@@ -186,7 +184,6 @@ JXList provides api to access items of the underlying model in view coordinates 
 		addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent e) {
-//				NeptusLog.pub().info("<###>"+((LogFolder)getSelectedValue()).logFiles.size());
 				if (e.getButton() == MouseEvent.BUTTON1
 						&& e.getModifiers() == MouseEvent.CTRL_DOWN_MASK
 						&& e.getClickCount() == 1) {
@@ -194,28 +191,10 @@ JXList provides api to access items of the underlying model in view coordinates 
 				}
 				
 				if (e.getButton() == MouseEvent.BUTTON1 && e.getClickCount() == 2) {
-//					if (getNeptusIM() != null)
-//						getNeptusIM().setSelectedChannel(((IMChannel)getSelectedValue()).getRemoteID());
 				}
 				if(e.getButton() == MouseEvent.BUTTON3)
 				{
 				}
-				
-//				final IMChannel channel = (IMChannel)getSelectedValue();
-//				setToolTipText("<html>Channel name: <b>"+channel.getRemoteUsername()+"</b><br>"+
-//						"Channel ID: <b>"+channel.getRemoteID()+"</b><br></html>");
-//				
-//				if (e.getButton() == MouseEvent.BUTTON3 && !channel.getRemoteID().equals("ALL")) {
-//					JPopupMenu popup = new JPopupMenu();
-//					
-//					popup.add(new AbstractAction("Nudge "+channel.getRemoteUsername()) {
-//						public void actionPerformed(java.awt.event.ActionEvent e) {
-//							neptusIM.nudge(channel.getRemoteID());
-//						};
-//					});
-//					
-//					popup.show(ChannelsList.this, e.getX(), e.getY());
-//				}
 						
 			}
 		});
@@ -265,15 +244,13 @@ JXList provides api to access items of the underlying model in view coordinates 
 		return null;
 	}
 
-	
 	public static void main(String[] args) {
 		LogFolderInfoList list = new LogFolderInfoList();
 		list.addFolder(new LogFolderInfo("22/A"));
 		list.addFolder(new LogFolderInfo("12/A"));
 		list.addFolder(new LogFolderInfo("22/a"));
 		
-		list.setSortable(true); //list.setFilterEnabled(true); // Changed from swingx 1.6.+ !!!!
-		//list.setComparator((Comparator<?>) new LogFolder("<><>"));
+		list.setSortable(true); 
 		list.setAutoCreateRowSorter(true);
         list.setSortOrder(SortOrder.ASCENDING);
 		

@@ -49,7 +49,6 @@ import pt.lsts.neptus.util.coord.MapTileUtil;
  * @author pdias
  *
  */
-@SuppressWarnings("deprecation")
 @MapTileProvider(name = "Google Maps")
 public class TileGoogleMaps extends TileHttpFetcher {
 
@@ -93,7 +92,7 @@ public class TileGoogleMaps extends TileHttpFetcher {
         if (alreadyInitialize)
             return;
         alreadyInitialize = true;
-        httpConnectionManager.setMaxPerRoute(new HttpRoute(new HttpHost(HOST)), 1); // was setMaxForRoute
+        httpComm.getHttpConnectionManager().setMaxPerRoute(new HttpRoute(new HttpHost(HOST)), 1); // was setMaxForRoute
     }
 
     /**
@@ -101,7 +100,7 @@ public class TileGoogleMaps extends TileHttpFetcher {
      */
     @Override
     protected String createTileRequestURL() {
-        double[] ret = MapTileUtil.XYToDegrees(worldX+256/2, worldY+256/2, levelOfDetail);
+        double[] ret = MapTileUtil.xyToDegrees(worldX+256/2, worldY+256/2, levelOfDetail);
         
         String urlGet = "http://" + HOST + "/maps/api/staticmap?center=" + ret[0] + ","
                 + ret[1] + "&zoom=" + levelOfDetail + "&size=256x256&sensor=false";

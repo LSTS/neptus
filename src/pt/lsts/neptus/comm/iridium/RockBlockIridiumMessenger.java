@@ -65,9 +65,9 @@ import org.apache.commons.httpclient.HttpException;
 import org.apache.commons.io.IOUtils;
 import org.apache.http.HttpResponse;
 import org.apache.http.NameValuePair;
-import org.apache.http.client.HttpClient;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.HttpPost;
+import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.message.BasicNameValuePair;
 
@@ -209,7 +209,7 @@ public class RockBlockIridiumMessenger implements IridiumMessenger {
     public static String sendToRockBlockHttp(String destImei, String username, String password, byte[] data)
             throws HttpException, IOException {
 
-        HttpClient client = HttpClientBuilder.create().build();
+        CloseableHttpClient client = HttpClientBuilder.create().build();
 
         HttpPost post = new HttpPost("https://secure.rock7mobile.com/rockblock/MT");
         List<NameValuePair> urlParameters = new ArrayList<NameValuePair>();
@@ -229,6 +229,14 @@ public class RockBlockIridiumMessenger implements IridiumMessenger {
         while ((line = rd.readLine()) != null) {
             result.append(line);
         }
+        
+        try {
+            client.close();
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+        }
+        
         return result.toString();
     }
 

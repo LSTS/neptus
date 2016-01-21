@@ -1,4 +1,3 @@
-package pt.lsts.neptus.mra.importers.sdf;
 /*
  * Copyright (c) 2004-2014 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
@@ -30,8 +29,9 @@ package pt.lsts.neptus.mra.importers.sdf;
  * Author: Manuel R.
  * Oct 21, 2014
  */
-import java.nio.ByteBuffer;
+package pt.lsts.neptus.mra.importers.sdf;
 
+import java.nio.ByteBuffer;
 
 public class SdfHeader {
     private int numberBytes; // total number of bytes in page

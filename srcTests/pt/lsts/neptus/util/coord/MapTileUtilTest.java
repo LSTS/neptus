@@ -85,7 +85,7 @@ public class MapTileUtilTest {
         int levelOfDetail = 11;
         Point2D xy = MapTileUtil.degreesToXY(latitude, longitude, levelOfDetail);
         
-        double[] actual = MapTileUtil.XYToDegrees(xy.getX(), xy.getY(), levelOfDetail);
+        double[] actual = MapTileUtil.xyToDegrees(xy.getX(), xy.getY(), levelOfDetail);
         NeptusLog.pub().info("<###> "+latitude+","+longitude);
         NeptusLog.pub().info("<###> "+actual[0]+","+actual[1]);
 
@@ -101,7 +101,7 @@ public class MapTileUtilTest {
         int levelOfDetail = 11;
         Point2D xy = MapTileUtil.degreesToXY(latitude, longitude, levelOfDetail);
         
-        double[] actual = MapTileUtil.XYToDegrees(xy.getX()+deltaX, xy.getY()+deltaY, levelOfDetail);
+        double[] actual = MapTileUtil.xyToDegrees(xy.getX()+deltaX, xy.getY()+deltaY, levelOfDetail);
         NeptusLog.pub().info("<###> "+latitude+","+longitude);
         NeptusLog.pub().info("<###> "+actual[0]+","+actual[1]);
 
