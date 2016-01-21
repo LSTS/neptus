@@ -33,6 +33,7 @@ package pt.lsts.neptus.util.logdownload;
 
 import java.awt.Dialog.ModalityType;
 import java.awt.event.ActionEvent;
+import java.io.File;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -192,9 +193,9 @@ class LogsDownloaderWorkerActions {
                             return null;
                         
                         // ->Adding new LogFolders
-                        LinkedList<LogFolderInfo> existenteLogFoldersFromServer = new LinkedList<LogFolderInfo>();
+                        LinkedList<LogFolderInfo> existentLogFoldersFromServer = new LinkedList<LogFolderInfo>();
                         LinkedList<LogFolderInfo> newLogFoldersFromServer = new LinkedList<LogFolderInfo>();
-                        addTheNewFoldersAnFillTheReturnedExistentAndNewLists(retList, existenteLogFoldersFromServer,
+                        addTheNewFoldersAnFillTheReturnedExistentAndNewLists(retList, existentLogFoldersFromServer,
                                 newLogFoldersFromServer);
 
                         if (stopLogListProcessing)
@@ -212,16 +213,12 @@ class LogsDownloaderWorkerActions {
                         if (stopLogListProcessing)
                             return null;
                         
-                        long timeF2 = System.currentTimeMillis();
+                        // Updating new and existent log folders
                         testNewReportedLogFoldersForLocalCorrespondent(newLogFoldersFromServer);
-                        updateLogFoldersState(existenteLogFoldersFromServer);
-                        NeptusLog.pub().warn(".......Updating LogFolders State " +
-                                (System.currentTimeMillis() - timeF2) + "ms");
+                        updateLogFoldersState(existentLogFoldersFromServer);
 
-                        long timeF3 = System.currentTimeMillis();
-                        updateFilesListGUIForFolderSelected();
-                        NeptusLog.pub().warn(".......updateFilesListGUIForFolderSelected " +
-                                (System.currentTimeMillis() - timeF3) + "ms");
+                        // Updating Files for selected folders
+                        updateFilesListGUIForFolderSelectedNonBlocking();
 
                         NeptusLog.pub().warn("....process list from all servers " + (System.currentTimeMillis() - timeS1) + "ms");                        
 
@@ -679,6 +676,8 @@ class LogsDownloaderWorkerActions {
     }
     
     private void testNewReportedLogFoldersForLocalCorrespondent(LinkedList<LogFolderInfo> newLogFoldersFromServer) {
+        long timeF1 = System.currentTimeMillis();
+
         for (LogFolderInfo lf : newLogFoldersFromServer) {
             File testFile = new File(
                     LogsDownloaderWorkerUtil.getDirTarget(worker.getDirBaseToStoreFiles(), worker.getLogLabel()),
@@ -711,18 +710,26 @@ class LogsDownloaderWorkerActions {
         }
 
         LogsDownloaderWorkerGUIUtil.updateLogStateIconForAllLogFolders(gui.logFolderList, gui.logFoldersListLabel);
+        
+        NeptusLog.pub().warn(".......Updating LogFolders State new for local correspondent" +
+                (System.currentTimeMillis() - timeF1) + "ms");
     }
 
-    private void updateLogFoldersState(LinkedList<LogFolderInfo> existenteLogFoldersFromServer) {
-        for (LogFolderInfo logFolder : existenteLogFoldersFromServer) {
+    private void updateLogFoldersState(LinkedList<LogFolderInfo> existentLogFoldersFromServer) {
+        long timeF1 = System.currentTimeMillis();
+
+        for (LogFolderInfo logFolder : existentLogFoldersFromServer) {
             LogsDownloaderWorkerGUIUtil.updateLogFolderState(logFolder, gui.logFolderList);
         }
         LogsDownloaderWorkerGUIUtil.updateLogStateIconForAllLogFolders(gui.logFolderList,
                 gui.logFoldersListLabel);
+
+        NeptusLog.pub().warn(".......Updating LogFolders State " +
+                (System.currentTimeMillis() - timeF1) + "ms");
     }
 
-    private void updateFilesListGUIForFolderSelected() {
-        // updateFilesListGUIForFolderSelected();
+    private void updateFilesListGUIForFolderSelectedNonBlocking() {
+        // This is on a thread to avoid lock because of the called method is blocking
         new Thread("updateFilesListGUIForFolderSelected") {
             @Override
             public void run() {
