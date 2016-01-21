@@ -488,8 +488,10 @@ public class LogsDownloaderWorker {
         DownloaderPanel workerD = null;
 
         try {
-            FtpDownloader ftpDownloader = null;
-            ftpDownloader = new FtpDownloader(lfx.getHost(), port);
+            String serverKey = lfx.getHost();
+            String host = getHostFor(serverKey); // lfx.getHost();
+            int port = getPortFor(serverKey); // this.port;
+            FtpDownloader ftpDownloader = new FtpDownloader(host, port);
 
             if (lfx.isDirectory()) {
                 HashMap<String, FTPFile> directoryContentsList = new LinkedHashMap<>();
@@ -642,7 +644,7 @@ public class LogsDownloaderWorker {
         String hostFx = logFx.getHost();
         String host;
         for (String serverKey : serversList) {
-            host = getHostFor(serverKey);
+            host = serverKey; // getHostFor(serverKey);
             // Not the best way but for now lets try like this
             if (hostFx.equals(host))
                 return deleteLogFolderFromServerWorker(serverKey, path);

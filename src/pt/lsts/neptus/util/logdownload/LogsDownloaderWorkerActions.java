@@ -457,7 +457,8 @@ class LogsDownloaderWorkerActions {
                 if (ftpServer == null)
                     continue;
                 
-                String host = worker.getHostFor(serverKey); // To fill the log files host info
+                // String host = worker.getHostFor(serverKey); // To fill the log files host info
+                String host = serverKey; // Using a key instead of host directly
                 
                 for (String logDir : serversLogPresenceList.keySet()) { // For the server go through the folders
                     if (stopLogListProcessing)
