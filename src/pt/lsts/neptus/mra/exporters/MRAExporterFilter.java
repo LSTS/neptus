@@ -366,17 +366,27 @@ public class MRAExporterFilter implements MRAExporter {
             };
 
             AbstractAction finder = new AbstractAction() {
-
+                private final int ADDED_HEIGHT = 50;
+                
                 @Override
                 public void actionPerformed(ActionEvent e) {
                     if (textField != null) {
                         getContentPane().remove(textField);
                         textField = null;
-                    } else {
+                        
+                        Dimension szDim = FilterList.this.getSize();
+                        szDim.setSize(szDim.getWidth(), szDim.getHeight() - ADDED_HEIGHT);
+                        FilterList.this.setSize(szDim);
+                    }
+                    else {
                         textField = new JTextField();
                         textField.setColumns(10);
                         getContentPane().add(textField, "cell 0 0,alignx center");
                         textField.addActionListener(entAct);
+
+                        Dimension szDim = FilterList.this.getSize();
+                        szDim.setSize(szDim.getWidth(), szDim.getHeight() + ADDED_HEIGHT);
+                        FilterList.this.setSize(szDim);
                     }
                     getContentPane().revalidate();
                     getContentPane().repaint();
