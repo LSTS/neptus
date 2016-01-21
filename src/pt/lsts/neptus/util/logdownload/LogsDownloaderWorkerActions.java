@@ -163,18 +163,12 @@ class LogsDownloaderWorkerActions {
 
                         // Map base log folder vs servers presence (space separated list of servers keys)
                         LinkedHashMap<String, String> serversLogPresenceList = new LinkedHashMap<>();
+                        // Map FTPFile (log base folder) vs remote path
+                        LinkedHashMap<FTPFile, String> retList = new LinkedHashMap<>();
 
                         // Get list from servers
-                        long timeD1 = System.currentTimeMillis();
-                        LinkedHashMap<FTPFile, String> retList = new LinkedHashMap<>();
-                        for (String serverKey : worker.getServersList()) {
-                            long timeD2 = System.currentTimeMillis();
-                            LinkedHashMap<FTPFile, String> ret = getBaseLogListFrom(serverKey);
-                            fillServerPresenceList(serverKey, ret, retList, serversLogPresenceList);
-                            NeptusLog.pub().warn(".......get list from '" + serverKey + "' server "
-                                    + (System.currentTimeMillis() - timeD2) + "ms");
-                        }
-                        NeptusLog.pub().warn(".......get list from all servers " + (System.currentTimeMillis() - timeD1) + "ms");                        
+                        getFromServersBaseLogList(retList, serversLogPresenceList);
+                        
                         if (retList.isEmpty()) {
                             gui.msgPanel.writeMessageTextln(I18n.text("Done"));
                             return null;
@@ -286,6 +280,28 @@ class LogsDownloaderWorkerActions {
                 AsyncWorker.getWorkerThread().postTask(task);
             }
         };
+    }
+
+    /**
+     * Goes through the servers ({@link LogsDownloaderWorker#getServersList()})
+     * and gets the base logs list.
+     * 
+     * It fills the provided retList and serversLogPresenceList.
+     * 
+     * @param baselogFolderList
+     * @param serversLogPresenceList
+     */
+    private void getFromServersBaseLogList(LinkedHashMap<FTPFile, String> baselogFolderList,
+            LinkedHashMap<String, String> serversLogPresenceList) {
+        long timeD1 = System.currentTimeMillis();
+        for (String serverKey : worker.getServersList()) {
+            long timeD2 = System.currentTimeMillis();
+            LinkedHashMap<FTPFile, String> ret = getBaseLogListFrom(serverKey);
+            fillServerPresenceList(serverKey, ret, baselogFolderList, serversLogPresenceList);
+            NeptusLog.pub().warn(".......get list from '" + serverKey + "' server "
+                    + (System.currentTimeMillis() - timeD2) + "ms");
+        }
+        NeptusLog.pub().warn(".......get list from all servers " + (System.currentTimeMillis() - timeD1) + "ms");                        
     }
 
     /**
