@@ -161,7 +161,8 @@ class LogsDownloaderWorkerActions {
                         // ->Getting txt list of logs from server
                         showInGuiConnectingToServers();
 
-                        LinkedHashMap<String, String> serversLogPresenceList = new LinkedHashMap<>(); 
+                        // Map base log folder vs servers presence (space separated list of servers keys)
+                        LinkedHashMap<String, String> serversLogPresenceList = new LinkedHashMap<>();
 
                         // Get list from servers
                         long timeD1 = System.currentTimeMillis();
@@ -212,7 +213,7 @@ class LogsDownloaderWorkerActions {
                         showInGuiProcessingLogList();
 
                         long timeF0 = System.currentTimeMillis();
-                        LinkedList<LogFolderInfo> tmpLogFolderList = gettingFromServersCompleteLogList(serversLogPresenceList);
+                        LinkedList<LogFolderInfo> tmpLogFolderList = getFromServersCompleteLogList(serversLogPresenceList);
                         NeptusLog.pub().warn(".......Contacting remote system for complete log file list " +
                                 (System.currentTimeMillis() - timeF0) + "ms");
 
@@ -421,9 +422,110 @@ class LogsDownloaderWorkerActions {
         // msgPanel.writeMessageTextln("Logs Folders: " + logFolderList.myModel.size());
     }
 
-    private LinkedList<LogFolderInfo> gettingFromServersCompleteLogList(
+    /**
+     * Process the serversLogPresenceList and gets the actual log files/folder for each base log folder. This is done by
+     * iterating the {@link LogsDownloaderWorker#getServersList()} depending on its presence.
+     * 
+     * @param serversLogPresenceList Map for each base log folder and servers presence as values (space separated list
+     *            of servers keys)
+     * @return
+     */
+    private LinkedList<LogFolderInfo> getFromServersCompleteLogList(
             LinkedHashMap<String, String> serversLogPresenceList) {
-        return worker.getLogFileList(serversLogPresenceList);
+        if (serversLogPresenceList.size() == 0)
+            return new LinkedList<LogFolderInfo>();
+
+        LinkedList<LogFolderInfo> tmpLogFolders = new LinkedList<LogFolderInfo>();
+        
+        try {
+            ArrayList<String> servers = worker.getServersList();
+            for (String serverKey : servers) { // Let's iterate by servers first
+                if (!worker.isServerAvailable(serverKey))
+                    continue;
+                
+                FtpDownloader ftpServer = null;
+                try {
+                    ftpServer = LogsDownloaderWorkerUtil.getOrRenewFtpDownloader(serverKey,
+                            worker.getFtpDownloaders(), worker.getHostFor(serverKey), worker.getPortFor(serverKey));
+                }
+                catch (Exception e) {
+                    e.printStackTrace();
+                }
+                if (ftpServer == null)
+                    continue;
+                
+                String host = worker.getHostFor(serverKey); // To fill the log files host info
+                
+                for (String logDir : serversLogPresenceList.keySet()) { // For the server go through the folders
+                    if (!serversLogPresenceList.get(logDir).contains(serverKey))
+                        continue;
+                    
+                    // This is needed to avoid problems with non English languages
+                    String isoStr = new String(logDir.getBytes(), "ISO-8859-1");
+                    
+                    LogFolderInfo lFolder = null;
+
+                    for (LogFolderInfo lfi : tmpLogFolders) {
+                        if (lfi.getName().equals(logDir))
+                            lFolder = lfi;
+                    }
+                    if (lFolder == null) {
+                        lFolder = new LogFolderInfo(logDir);
+                    }
+                    
+                    if (!ftpServer.isConnected())
+                        ftpServer.renewClient();
+                    
+                    try {
+                        FTPFile[] files = ftpServer.getClient().listFiles("/" + isoStr + "/");
+                        for (FTPFile file : files) {
+                            String name = logDir + "/" + file.getName();
+                            String uriPartial = logDir + "/" + file.getName();
+                            LogFileInfo logFileTmp = new LogFileInfo(name);
+                            logFileTmp.setUriPartial(uriPartial);
+                            logFileTmp.setSize(file.getSize());
+                            logFileTmp.setFile(file);
+                            logFileTmp.setHost(host);
+                            
+                            // Let us see if its a directory
+                            if (file.isDirectory()) {
+                                logFileTmp.setSize(-1); // Set size to -1 if directory
+                                long allSize = 0;
+
+                                // Here there are no directories, considering only 2 folder layers only, e.g. "Photos/00000"
+                                LinkedHashMap<String, FTPFile> dirListing = ftpServer.listDirectory(logFileTmp.getName());
+                                ArrayList<LogFileInfo> directoryContents = new ArrayList<>();
+                                for (String fName : dirListing.keySet()) {
+                                    FTPFile fFile = dirListing.get(fName);
+                                    String fURIPartial = fName;
+                                    LogFileInfo fLogFileTmp = new LogFileInfo(fName);
+                                    fLogFileTmp.setUriPartial(fURIPartial);
+                                    fLogFileTmp.setSize(fFile.getSize());
+                                    fLogFileTmp.setFile(fFile);
+                                    fLogFileTmp.setHost(host);
+
+                                    allSize += fLogFileTmp.getSize();
+                                    directoryContents.add(fLogFileTmp);
+                                }
+                                logFileTmp.setDirectoryContents(directoryContents);
+                                logFileTmp.setSize(allSize);
+                            }
+                            lFolder.addFile(logFileTmp);
+                            tmpLogFolders.add(lFolder);
+                        }
+                    }
+                    catch (Exception e) {
+                        System.err.println(isoStr);
+                        e.printStackTrace();
+                    }
+                }
+            }
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return tmpLogFolders;
     }
     
     private void testingForLogFilesFromEachLogFolderAndFillInfo(
