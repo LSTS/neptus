@@ -45,6 +45,7 @@ import java.util.concurrent.ThreadFactory;
 
 import javax.swing.JButton;
 import javax.swing.JFrame;
+import javax.swing.JMenuItem;
 import javax.swing.JPopupMenu;
 
 import org.apache.commons.lang.StringUtils;
@@ -185,18 +186,20 @@ class LogsDownloaderWorkerUtil {
                     final File logGz = new File(baseFxPath + "Data." + FileUtil.FILE_TYPE_LSF_COMPRESSED);
                     final File logBz2 = new File(baseFxPath + "Data." + FileUtil.FILE_TYPE_LSF_COMPRESSED_BZIP2);
 
-                    if ((imc.exists() || imcGz.exists()) && (logGz.exists() || log.exists() || logBz2.exists())) {
+                    boolean isLogOkForOpening = (imc.exists() || imcGz.exists())
+                            && (logGz.exists() || log.exists() || logBz2.exists());
 
-                        JPopupMenu popup = new JPopupMenu();
-                        popup.add(I18n.text("Open this log in MRA")).addActionListener(new ActionListener() {
-
+                    JPopupMenu popup = new JPopupMenu();
+                    JMenuItem jm = popup.add(I18n.text("Open this log in MRA"));
+                    if (isLogOkForOpening) {
+                        jm.addActionListener(new ActionListener() {
                             @Override
                             public void actionPerformed(ActionEvent e) {
                                 Thread t = new Thread(LogsDownloaderWorker.class.getSimpleName() + " :: MRA Openner") {
                                     public void run() {
                                         JFrame mra = new NeptusMRA();
                                         mra.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-
+                                        
                                         File fx = null;
                                         if (log.exists())
                                             fx = log;
@@ -204,22 +207,21 @@ class LogsDownloaderWorkerUtil {
                                             fx = logGz;
                                         else if (logBz2.exists())
                                             fx = logBz2;
-
+                                        
                                         ((NeptusMRA) mra).getMraFilesHandler().openLog(fx);
                                     };
                                 };
-
+                                
                                 t.setDaemon(true);
                                 t.start();
                             }
                         });
-                        
-                        popup.show((Component)e.getSource(), e.getX(), e.getY());
                     }
                     else {
-                        worker.warnMsg(I18n.text("Basic log folder not synchronized. Can't open MRA"));
-                        return;
+                        jm.setEnabled(false);
                     }
+                    
+                    popup.show((Component)e.getSource(), e.getX(), e.getY());
                 }
             }
         };
