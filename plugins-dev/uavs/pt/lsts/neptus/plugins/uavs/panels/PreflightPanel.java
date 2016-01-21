@@ -69,7 +69,7 @@ public class PreflightPanel extends ConsolePanel implements MainVehicleChangeLis
     private static final long serialVersionUID = 1L;
 
     @NeptusProperty(description="When UAV is on the ground, enables the Calibration button.")
-    public String currentEntity = "Autopilot"; 
+    public String currentEntity = "Medium"; 
     
     // GUI
     private JPanel titlePanel = null;
