@@ -727,6 +727,103 @@ public class LogsDownloaderWorker {
 
     // FIXME Visibility
     LinkedList<LogFolderInfo> getLogFileList(LinkedHashMap<String, String> serversLogPresenceList) {
+        if (serversLogPresenceList.size() == 0)
+            return new LinkedList<LogFolderInfo>();
+
+        LinkedList<LogFolderInfo> tmpLogFolders = new LinkedList<LogFolderInfo>();
+        
+        try {
+            ArrayList<String> servers = getServersList();
+            for (String serverKey : servers) { // Let's iterate by servers first
+                if (!isServerAvailable(serverKey))
+                    continue;
+                
+                FtpDownloader ftpServer = null;
+                try {
+                    ftpServer = LogsDownloaderWorkerUtil.getOrRenewFtpDownloader(serverKey,
+                            getFtpDownloaders(), getHostFor(serverKey), getPortFor(serverKey));
+                }
+                catch (Exception e) {
+                    e.printStackTrace();
+                }
+                if (ftpServer == null)
+                    continue;
+                
+                String host = getHostFor(serverKey); // To fill the log files host info
+                
+                for (String logDir : serversLogPresenceList.keySet()) { // For the server go through the folders
+                    if (!serversLogPresenceList.get(logDir).contains(serverKey))
+                        continue;
+                    
+                    // This is needed to avoid problems with non English languages
+                    String isoStr = new String(logDir.getBytes(), "ISO-8859-1");
+                    
+                    LogFolderInfo lFolder = null;
+
+                    for (LogFolderInfo lfi : tmpLogFolders) {
+                        if (lfi.getName().equals(logDir))
+                            lFolder = lfi;
+                    }
+                    if (lFolder == null) {
+                        lFolder = new LogFolderInfo(logDir);
+                    }
+                    
+                    if (!ftpServer.isConnected())
+                        ftpServer.renewClient();
+                    
+                    try {
+                        FTPFile[] files = ftpServer.getClient().listFiles("/" + isoStr + "/");
+                        for (FTPFile file : files) {
+                            String name = logDir + "/" + file.getName();
+                            String uriPartial = logDir + "/" + file.getName();
+                            LogFileInfo logFileTmp = new LogFileInfo(name);
+                            logFileTmp.setUriPartial(uriPartial);
+                            logFileTmp.setSize(file.getSize());
+                            logFileTmp.setFile(file);
+                            logFileTmp.setHost(host);
+                            
+                            // Let us see if its a directory
+                            if (file.isDirectory()) {
+                                logFileTmp.setSize(-1); // Set size to -1 if directory
+                                long allSize = 0;
+
+                                // Here there are no directories, considering only 2 folder layers only, e.g. "Photos/00000"
+                                LinkedHashMap<String, FTPFile> dirListing = ftpServer.listDirectory(logFileTmp.getName());
+                                ArrayList<LogFileInfo> directoryContents = new ArrayList<>();
+                                for (String fName : dirListing.keySet()) {
+                                    FTPFile fFile = dirListing.get(fName);
+                                    String fURIPartial = fName;
+                                    LogFileInfo fLogFileTmp = new LogFileInfo(fName);
+                                    fLogFileTmp.setUriPartial(fURIPartial);
+                                    fLogFileTmp.setSize(fFile.getSize());
+                                    fLogFileTmp.setFile(fFile);
+                                    fLogFileTmp.setHost(host);
+
+                                    allSize += fLogFileTmp.getSize();
+                                    directoryContents.add(fLogFileTmp);
+                                }
+                                logFileTmp.setDirectoryContents(directoryContents);
+                                logFileTmp.setSize(allSize);
+                            }
+                            lFolder.addFile(logFileTmp);
+                            tmpLogFolders.add(lFolder);
+                        }
+                    }
+                    catch (Exception e) {
+                        System.err.println(isoStr);
+                        e.printStackTrace();
+                    }
+                }
+            }
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return tmpLogFolders;
+    }
+    
+    LinkedList<LogFolderInfo> getLogFileListOld(LinkedHashMap<String, String> serversLogPresenceList) {
 
         if (serversLogPresenceList.size() == 0)
             return new LinkedList<LogFolderInfo>();
