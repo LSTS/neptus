@@ -485,10 +485,10 @@ class LogsDownloaderWorkerActions {
                     String isoStr = new String(logDir.getBytes(), "ISO-8859-1");
                     
                     LogFolderInfo lFolder = null;
-
                     for (LogFolderInfo lfi : tmpLogFolders) {
-                        if (lfi.getName().equals(logDir))
+                        if (lfi.getName().equals(logDir)) {
                             lFolder = lfi;
+                            break;
                     }
                     if (lFolder == null) {
                         lFolder = new LogFolderInfo(logDir);
