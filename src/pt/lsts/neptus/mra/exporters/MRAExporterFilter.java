@@ -91,7 +91,7 @@ import pt.lsts.neptus.util.conf.ConfigFetch;
  * @author Manuel R.
  *
  */
-@PluginDescription(name="Export filtered log")
+@PluginDescription(name="Export Filtered Log")
 public class MRAExporterFilter implements MRAExporter {
 
     private IMraLogGroup source;
