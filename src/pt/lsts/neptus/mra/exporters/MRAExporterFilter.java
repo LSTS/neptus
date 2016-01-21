@@ -102,13 +102,13 @@ public class MRAExporterFilter implements MRAExporter {
     public MRAExporterFilter(IMraLogGroup source) {
         super();
         this.source = source;
-
+        
+        defaultLogs.add("EntityList");
         defaultLogs.add("EstimatedState");
         defaultLogs.add("Temperature");
         defaultLogs.add("Salinity");
         defaultLogs.add("Conductivity");
         defaultLogs.add("Pressure");
-
     }
 
     @Override
@@ -257,56 +257,38 @@ public class MRAExporterFilter implements MRAExporter {
 
     private void writeToStream(LsfIndex index, FileOutputStream fos, GZIPOutputStream gzipOutputStream) {
         pmonitor.setNote(I18n.text("Filtering"));
+        int total = index.getNumberOfMessages();
         int count = 0;
-        for (String logName : source.listLogs()) {
-            if (defaultLogs.contains(logName)) {
-                count++;
-            }
-        }
-        int x = 100 / count;
-        for (String logName : source.listLogs()) {
+
+        for (int i = 0; i < index.getNumberOfMessages(); i++) {
+            String logName = index.getDefinitions().getMessageName(index.typeOf(i));
+
             if (defaultLogs.contains(logName)) {
                 if (pmonitor.isCanceled()){
                     break;
                 }
+
                 pmonitor.setNote(I18n.textf("Filtering %logname...", logName));
-                pmonitor.setProgress(progress);
-                progress = progress + x;
-                int mgid = index.getDefinitions().getMessageId(logName);
-                int firstPos = index.getFirstMessageOfType(mgid);
-                int lastPos = index.getLastMessageOfType(mgid);
-                int j = firstPos;
+
+                byte[] by = index.getMessageBytes(i);
                 try {
-                    while (j < lastPos) {
-                        //  IMCMessage entry = index.getMessage(j);
-                        //  System.out.println(entry.toString());
-                        //  System.out.println("pos "+ j);
-
-                        //write msg bytes
-                        byte[] by = index.getMessageBytes(j);
-                        if (gzipOutputStream == null) {
-                            fos.write(by);
-                        }
-                        else 
-                            gzipOutputStream.write(by);
-
-                        j = index.getNextMessageOfType(mgid, j);
+                    if (gzipOutputStream == null) {
+                        fos.write(by);
                     }
-                    //append last message
-                    byte[] lastMsg = index.getMessageBytes(lastPos);
-                    if (gzipOutputStream == null)
-                        fos.write(lastMsg);
-                    else 
-                        gzipOutputStream.write(lastMsg);
-
+                    else
+                        gzipOutputStream.write(by);
 
                 }
                 catch (IOException e) {
+                    // TODO Auto-generated catch block
                     e.printStackTrace();
                 }
-            }
+                count++;
 
+                pmonitor.setProgress((count * 100) / total);
+            }
         }
+
         pmonitor.setProgress(progress);
 
         //close resources
