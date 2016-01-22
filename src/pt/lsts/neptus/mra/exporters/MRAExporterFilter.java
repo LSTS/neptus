@@ -96,7 +96,9 @@ public class MRAExporterFilter implements MRAExporter {
 
     private IMraLogGroup source;
     private ProgressMonitor pmonitor;
+    private ArrayList<String> logList = new ArrayList<String>();
     private ArrayList<String> defaultLogs = new ArrayList<String>();
+
     private int progress;
     private Task processTask;
     private File outputFile;
@@ -111,6 +113,8 @@ public class MRAExporterFilter implements MRAExporter {
         defaultLogs.add("Salinity");
         defaultLogs.add("Conductivity");
         defaultLogs.add("Pressure");
+        
+        logList.addAll(defaultLogs);
     }
 
     @Override
@@ -161,7 +165,7 @@ public class MRAExporterFilter implements MRAExporter {
         String[] logs = source.listLogs();
 
         //create JFrame with default logs selected and the rest of available logs
-        FilterList window = new FilterList(defaultLogs, logs, ConfigFetch.getSuperParentAsFrame());
+        FilterList window = new FilterList(logs, ConfigFetch.getSuperParentAsFrame());
 
         while ((window.isShowing() || progress < 100 ) && !pmonitor.isCanceled()) {
             try {
@@ -239,6 +243,9 @@ public class MRAExporterFilter implements MRAExporter {
                 return null;
             copyCheck(path.toString(), outputFile.getParentFile().getAbsolutePath());
 
+            logList.clear();
+            logList.addAll(defaultLogs);
+            
             return null;
         }
 
@@ -256,7 +263,7 @@ public class MRAExporterFilter implements MRAExporter {
         for (int i = 0; i < index.getNumberOfMessages(); i++) {
             String logName = index.getDefinitions().getMessageName(index.typeOf(i));
 
-            if (defaultLogs.contains(logName)) {
+            if (logList.contains(logName)) {
                 if (pmonitor.isCanceled()){
                     break;
                 }
@@ -320,7 +327,7 @@ public class MRAExporterFilter implements MRAExporter {
         private JTextField textField = null;
 
         @SuppressWarnings({ "unchecked", "serial" })
-        public FilterList(ArrayList<String> defaultLogs, String[] logs, Window parent) {
+        public FilterList(String[] logs, Window parent) {
             super(parent, I18n.text("MRA Exporter"), ModalityType.DOCUMENT_MODAL);
             setType(Type.NORMAL);
             setSize(230, 300);
@@ -329,7 +336,7 @@ public class MRAExporterFilter implements MRAExporter {
             ArrayList<LogItem> options = new ArrayList<>();
 
             for (String log : logs ) {
-                if (defaultLogs.contains(log)) 
+                if (logList.contains(log)) 
                     options.add(new LogItem(log, true, false));
                 else
                     options.add(new LogItem(log, false, true));
@@ -403,8 +410,8 @@ public class MRAExporterFilter implements MRAExporter {
             AbstractAction saveFileAct = new AbstractAction() {
                 @Override
                 public void actionPerformed(ActionEvent e) {
-                    // filterList.setVisible(false);
-                    defaultLogs.addAll(getSelectedItems());
+
+                    logList.addAll(getSelectedItems());
                     applyFilter(FilterList.this);
                 }
             };
