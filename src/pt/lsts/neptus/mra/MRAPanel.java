@@ -144,10 +144,12 @@ public class MRAPanel extends JPanel {
         // Load markers
         loadMarkers();
 
-        mra.getBgp().setText(I18n.text("Finishing loading"));
+        mra.getBgp().setText(I18n.text("Loading exporter plug-ins..."));
         // adds Exporters MenuItem to Tools menu after a Log is loaded
         mra.getMRAMenuBar().setUpExportersMenu(source);
+        
         // Adds tides menu
+        mra.getBgp().setText(I18n.text("Loading tides menu..."));
         mra.getMRAMenuBar().setUpTidesMenu(source);
     }
 
@@ -155,7 +157,9 @@ public class MRAPanel extends JPanel {
      * Left panel - Visualizations and Messages tree
      */
     private void setUpLeftPanel() {
+        mra.getBgp().setText(I18n.text("Loading messages tree"));
         tree = new LsfTree(source);
+        mra.getBgp().setText(I18n.text("Loading available visualizations"));
         logTree = new LogTree(source, this);
         jspMessageTree = new JScrollPane(tree);
         jspLogTree = new JScrollPane(logTree);
@@ -210,6 +214,28 @@ public class MRAPanel extends JPanel {
         updateUI();
     }
 
+    private MRAVisualization loadVisualization(Class<?> visClass) throws Exception {
+        
+        MRAVisualization visualization;
+        
+        if (hasMraPanelConstructor(visClass))
+            visualization = (MRAVisualization) visClass.getDeclaredConstructor(MRAPanel.class).newInstance(this);
+        else
+            visualization = (MRAVisualization) visClass.newInstance();        
+        
+        PluginUtils.loadProperties(visualization, "mra");
+        
+        return visualization;
+    }
+    
+    private boolean hasMraPanelConstructor(Class<?> clazz) {
+        Constructor<?>[] constructors = clazz.getDeclaredConstructors();
+        for (Constructor<?> c : constructors)
+            if (c.getParameterTypes().length == 1 && c.getParameterTypes()[0].equals(MRAPanel.class))
+                return true;
+        return false;           
+    }
+    
     /**
      * Load MRA visualizations from Plugins Repo
      */
@@ -222,32 +248,13 @@ public class MRAPanel extends JPanel {
                 if (!mra.getMraProperties().isVisualizationActive(vis))
                     continue;
 
-                Constructor<?>[] constructors = vis.getDeclaredConstructors();
-                boolean instantiated = false;
-                MRAVisualization visualization = null;
+                MRAVisualization visualization = loadVisualization(vis);
                 
-                for (Constructor<?> c : constructors) {
-                    if (c.getParameterTypes().length == 1 && c.getParameterTypes()[0].equals(MRAPanel.class)) {
-                        instantiated = true;
-                        visualization = (MRAVisualization) vis.getDeclaredConstructor(MRAPanel.class)
-                                .newInstance(this);
-                        PluginUtils.loadProperties(visualization, "mra");
-                        
-                    }
-                }
-                if (!instantiated) {
-                    visualization = (MRAVisualization)vis.newInstance();
-                    PluginUtils.loadProperties(visualization, "mra");
-                    instantiated = true;
-                }
-                
-                if (visualization.canBeApplied(MRAPanel.this.source)) {
+                if (visualization.canBeApplied(MRAPanel.this.source))
                     visualizations.add(visualization);
-                }
-                if (visualization instanceof MissionChangeListener) {
-                    addMissionChangeListener((MissionChangeListener)visualization);
-                }
                 
+                if (visualization instanceof MissionChangeListener)
+                    addMissionChangeListener((MissionChangeListener)visualization);                                
             }
             catch (Exception e1) {
                 e1.printStackTrace();

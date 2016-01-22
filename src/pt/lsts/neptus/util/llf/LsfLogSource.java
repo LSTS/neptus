@@ -189,19 +189,18 @@ public class LsfLogSource implements IMraLogGroup {
     public String[] listLogs() {
 
         if (existingMessages == null) {
-            Vector<String> list = new Vector<String>();
-            Vector<Integer> indexes = new Vector<Integer>();
+            ArrayList<String> list = new ArrayList<String>();
+            ArrayList<Integer> indexes = new ArrayList<Integer>();
 
             for(int i = 0; i < index.getNumberOfMessages(); i++) {
                 int type = index.typeOf(i);
                 if (!indexes.contains(type)) {
                     indexes.add(type);
                     String msgName = index.getDefinitions().getMessageName(type);
-                    if (msgName == null) {
+                    if (msgName == null)
                         System.err.println("Message type not found in the definitions: "+type+", "+(index.getNumberOfMessages()-i));
-                    }
                     else
-                        list.add(index.getDefinitions().getMessageName(type));
+                        list.add(msgName);
                 }
             }
             existingMessages = list.toArray(new String[list.size()]);
