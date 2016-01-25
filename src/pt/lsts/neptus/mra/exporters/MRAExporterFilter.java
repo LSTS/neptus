@@ -192,10 +192,14 @@ public class MRAExporterFilter implements MRAExporter {
         File outputFile = chooseSaveFile(path);
         OutputStream os = null;
         FileOutputStream fos = null;
-        if(outputFile == null)
+        if (outputFile == null)
             return;
 
         try {
+            //delete file if already exists
+            if (outputFile.exists())
+                outputFile.delete();
+            
             //create file
             outputFile.createNewFile();
             fos = new FileOutputStream(outputFile, true);
@@ -239,8 +243,11 @@ public class MRAExporterFilter implements MRAExporter {
         @Override
         public Void doInBackground() {
             writeToStream(index, fos);
-            if (pmonitor.isCanceled())
+            if (pmonitor.isCanceled()) {
+                logList.clear();
+                logList.addAll(defaultLogs);
                 return null;
+            }
             copyCheck(path.toString(), outputFile.getParentFile().getAbsolutePath());
 
             logList.clear();
@@ -265,6 +272,9 @@ public class MRAExporterFilter implements MRAExporter {
 
             if (logList.contains(logName)) {
                 if (pmonitor.isCanceled()){
+                    logList.clear();
+                    logList.addAll(defaultLogs);
+
                     break;
                 }
 
@@ -277,10 +287,11 @@ public class MRAExporterFilter implements MRAExporter {
                 catch (IOException e) {
                     e.printStackTrace();
                 }
-                count++;
 
-                pmonitor.setProgress((count * 100) / total);
             }
+            count++;
+
+            pmonitor.setProgress((count * 100) / total);
         }
 
         pmonitor.setProgress(progress);
