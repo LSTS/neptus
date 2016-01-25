@@ -46,8 +46,10 @@ import pt.lsts.neptus.comm.manager.imc.ImcMsgManager;
 import pt.lsts.neptus.console.ConsoleLayer;
 import pt.lsts.neptus.console.ConsoleLayout;
 import pt.lsts.neptus.console.events.ConsoleEventMainSystemChange;
+import pt.lsts.neptus.console.events.ConsoleEventVehicleStateChanged;
 import pt.lsts.neptus.console.plugins.MainVehicleChangeListener;
 import pt.lsts.neptus.console.plugins.PlanChangeListener;
+import pt.lsts.neptus.events.NeptusEvents;
 import pt.lsts.neptus.mp.Maneuver;
 import pt.lsts.neptus.params.ConfigurationManager;
 import pt.lsts.neptus.params.SystemProperty;
@@ -70,14 +72,11 @@ public class MVPlanning extends ConsoleLayer implements PlanChangeListener {
     private Scope scope = Scope.GLOBAL;
     private Visibility vis = Visibility.USER;
     private ConsoleLayout console;
+    private VehicleAwareness vawareness;
 
     public MVPlanning() {
-//        this.console = getConsole();
-//
-//        System.out.println("######" + (console == null));
-        //system = getConsole().getMainSystem();
-        
-        new VehicleAwareness();
+        this.console = getConsole();
+        vawareness = new VehicleAwareness();
     }
 
     private void printActiveCapabilities() {
@@ -90,10 +89,8 @@ public class MVPlanning extends ConsoleLayer implements PlanChangeListener {
         }
     }
 
-
     private void printPlanCapabilitiesNeeds(PlanType plan) {
         Maneuver[] mans = plan.getGraph().getAllManeuvers();
-
 
         for(Maneuver man : mans) {
             System.out.println("### " + man.getId());
@@ -111,11 +108,7 @@ public class MVPlanning extends ConsoleLayer implements PlanChangeListener {
         ImcMsgManager.getManager().sendMessageToSystem(qEntityState, system);
     }
 
-//    @Subscribe
-//    public void on(EntityState msg) {
-//        System.out.println("# MSG FROM: " + msg.getEntityName() + " @ " + msg.getSourceName());
-//        System.out.println("# ENTITY STATE: " + msg.getStateStr());
-//    }
+
 
     @Override
     public boolean userControlsOpacity() {
@@ -125,8 +118,7 @@ public class MVPlanning extends ConsoleLayer implements PlanChangeListener {
     @Override
     public void initLayer() {
         this.console = getConsole();
-//        system = console.getMainSystem();
-//        printActiveCapabilities();
+        NeptusEvents.register(vawareness, console);
     }
 
     @Override
@@ -134,18 +126,16 @@ public class MVPlanning extends ConsoleLayer implements PlanChangeListener {
     }
 
 
+    @Override
+    public void planChange(PlanType plan) {
+        printPlanCapabilitiesNeeds(plan);
+    }
 
 //    @Subscribe
 //    public void on(ConsoleEventMainSystemChange ev) { /* When a diff vehicle has been selected as main Vehicle */
-//        system = console.getMainSystem();
-//
-//        //printActiveCapabilities();
-//        printPlanCapabilitiesNeeds(console.getPlan());
+//        System.out.println("### VEHICLE CHANGE ###");
+//        //vawareness.printVehicleCapabilities(ev.getCurrent());
+//        system = ev.getCurrent();
+//        printActiveCapabilities();
 //    }
-
-
-    @Override
-    public void planChange(PlanType plan) {
-        //printPlanCapabilitiesNeeds(plan);
-    }
 }
