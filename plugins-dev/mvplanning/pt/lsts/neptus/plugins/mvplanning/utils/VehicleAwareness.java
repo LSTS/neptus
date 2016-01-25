@@ -68,19 +68,31 @@ public class VehicleAwareness {
         ConsoleEventVehicleStateChanged.STATE newState = event.getState();
 
         if(newState == ConsoleEventVehicleStateChanged.STATE.SERVICE) {
+            logDebugInfo("new active vehicle");
+            
             VehicleInfo vehicle;
             if(unavailableVehicles.containsKey(id))
                 vehicle = unavailableVehicles.remove(id);
             else
                 vehicle = new VehicleInfo(id); /* first time in service mode */
             availableVehicles.put(id, vehicle);
+            
+            /* logging */
+            System.out.println(" [" + id + "]");
+            vehicle.printCapabilities();
         }
         else {
             if(availableVehicles.containsKey(id)) {
                 VehicleInfo vehicle = availableVehicles.remove(id);
                 unavailableVehicles.put(id, vehicle);
+                
+                logDebugInfo("vehicle no longer active, [" + id + "]");
             }
         }
+    }
+    
+    private void logDebugInfo(String msg) {
+        System.out.println("[mvplanning/VehicleAwareness] " + msg);
     }
     
     public VehicleInfo getVehicleInfo(String vid) {

@@ -83,6 +83,7 @@ public class VehicleInfo {
     /* for debugging */
     public void printCapabilities() {
         for(String cap : capabilities)
-            System.out.println("-> " + cap);
+            System.out.println("   " + "[" + cap + "]");
+        System.out.println();
     }
 }
