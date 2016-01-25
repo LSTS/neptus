@@ -174,8 +174,8 @@ public class TileS57 extends TileHttpFetcher {
         // svsw=5 (Set Very Shallow Water)
         // svdw=20 (Set Very Deep Water)
 
-        double[] locTL = MapTileUtil.XYToDegrees(worldX, worldY, levelOfDetail);
-        double[] locBR = MapTileUtil.XYToDegrees(worldX + 256, worldY + 256, levelOfDetail);
+        double[] locTL = MapTileUtil.xyToDegrees(worldX, worldY, levelOfDetail);
+        double[] locBR = MapTileUtil.xyToDegrees(worldX + 256, worldY + 256, levelOfDetail);
         String requestQuery = "q=" + locTL[0]
                 + "," + locTL[1]
                 + "," + locBR[0]

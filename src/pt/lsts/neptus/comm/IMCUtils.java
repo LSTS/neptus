@@ -79,6 +79,7 @@ import pt.lsts.neptus.messages.Enumerated;
 import pt.lsts.neptus.mp.Maneuver;
 import pt.lsts.neptus.mp.SystemPositionAndAttitude;
 import pt.lsts.neptus.mp.maneuvers.CompassCalibration;
+import pt.lsts.neptus.mp.maneuvers.CoverArea;
 import pt.lsts.neptus.mp.maneuvers.Dislodge;
 import pt.lsts.neptus.mp.maneuvers.Elevator;
 import pt.lsts.neptus.mp.maneuvers.FollowPath;
@@ -572,6 +573,8 @@ public class IMCUtils {
             m = new CompassCalibration();
         else if (message.getAbbrev().equalsIgnoreCase("dislodge"))
             m = new Dislodge();
+        else if (message.getAbbrev().equalsIgnoreCase("CoverArea"))
+            m = new CoverArea();
 
         if (m != null)
             ((IMCSerialization) m).parseIMCMessage(message);
