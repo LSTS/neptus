@@ -64,6 +64,7 @@ import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.plugins.PluginDescription;
 import pt.lsts.neptus.plugins.update.IPeriodicUpdates;
 import pt.lsts.neptus.types.vehicle.VehiclesHolder;
+import pt.lsts.neptus.util.gui.Java2sAutoTextField;
 
 import com.google.common.eventbus.Subscribe;
 

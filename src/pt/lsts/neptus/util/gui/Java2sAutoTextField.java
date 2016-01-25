@@ -1,3 +1,5 @@
+package pt.lsts.neptus.util.gui;
+
 /*
  * Copyright (c) 2004-2016 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
@@ -29,7 +31,6 @@
  * Author: ?
  * 
  */
-package pt.lsts.neptus.plugins.messages;
 
 import java.util.List;
 
