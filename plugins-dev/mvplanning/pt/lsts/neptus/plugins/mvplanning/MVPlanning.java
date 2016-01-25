@@ -115,14 +115,6 @@ public class MVPlanning extends ConsoleLayer implements PlanChangeListener {
 
     @Override
     public void planChange(PlanType plan) {
-        printPlanCapabilitiesNeeds(plan);
+//        printPlanCapabilitiesNeeds(plan);
     }
-
-//    @Subscribe
-//    public void on(ConsoleEventMainSystemChange ev) { /* When a diff vehicle has been selected as main Vehicle */
-//        System.out.println("### VEHICLE CHANGE ###");
-//        //vawareness.printVehicleCapabilities(ev.getCurrent());
-//        system = ev.getCurrent();
-//        printActiveCapabilities();
-//    }
 }
