@@ -305,16 +305,6 @@ public class MraRawMessages extends SimpleMRAVisualization {
         time1 = fixTime(base, time1);
         time2 = fixTime(base, time2);
 
-        if (type.equals(ANY_TXT) && src.equals(ANY_TXT) && srcEnt.equals(ANY_TXT) 
-                && find.hasDefaultTS(time1.getTime() / 1000, time2.getTime() / 1000)) {
-            find.busyLbl.setBusy(false);
-            find.busyLbl.setVisible(false);
-            find.nextBtn.setEnabled(false);
-            find.prevBtn.setEnabled(false);
-
-            return true;
-        }
-
         find.validateTimestamp(time1.getTime() / 1000, time2.getTime() / 1000);
 
         String rowType = null;
@@ -322,6 +312,17 @@ public class MraRawMessages extends SimpleMRAVisualization {
         String rowSrcEnt = null;
         long t1 = (long) find.defTimestampLow;
         long t2 = (long) find.defTimestampHigh;
+        
+        if (type.equals(ANY_TXT) && src.equals(ANY_TXT) && 
+                srcEnt.equals(ANY_TXT) && find.hasDefaultTS(t1, t2)) {
+            find.busyLbl.setBusy(false);
+            find.busyLbl.setVisible(false);
+            find.nextBtn.setEnabled(false);
+            find.prevBtn.setEnabled(false);
+
+            return true;
+        }
+        
         int first = source.getLsfIndex().getFirstMessageAtOrAfter(t1);
         int indexFirst = findFirstOcc(first, source.getLsfIndex().getNumberOfMessages(), t1, type);
 
