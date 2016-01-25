@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2015 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2016 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -44,7 +44,7 @@ import javax.swing.UIDefaults;
 import javax.swing.UIManager;
 import javax.swing.plaf.ColorUIResource;
 
-import org.mozilla.javascript.edu.emory.mathcs.backport.java.util.Collections;
+import java.util.Collections;
 
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.util.conf.GeneralPreferences;
@@ -367,7 +367,7 @@ public class I18n {
             replaces.put(matcher.group(1), parameters[i++].toString());
         }
         for (String k : replaces.keySet()) {
-            text = text.replaceAll(k, replaces.get(k));
+            text = text.replaceAll(k, Matcher.quoteReplacement(replaces.get(k)));
         }
 
         return text;
@@ -406,9 +406,11 @@ public class I18n {
         Collections.sort(lst);
         for (Object key : lst) {
           Object val = uiDefaults.get(key);
-          NeptusLog.pub().info("<###>[" + key.toString() + "]:[" +
+          System.out.println("[" + key.toString() + "]:[" +
              (null != val ? val.toString() : "(null)") +
              "]");
         }
+        
+        System.out.println(I18n.textf("File written to %file %t.", new File(".").getAbsolutePath(), "\u00B5"));
     }
 }

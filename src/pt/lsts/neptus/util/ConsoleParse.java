@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2015 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2016 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -50,7 +50,7 @@ import org.dom4j.DocumentHelper;
 import org.dom4j.Element;
 import org.dom4j.Node;
 import org.dom4j.io.SAXReader;
-import org.mozilla.javascript.edu.emory.mathcs.backport.java.util.Collections;
+import java.util.Collections;
 
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.console.ConsoleLayout;
@@ -66,17 +66,12 @@ import pt.lsts.neptus.util.conf.ConfigFetch;
 public class ConsoleParse implements FileHandler {
 
     public static ConsoleLayout consoleLayoutLoader(String consoleURL) {
-        ConsoleLayout console = new ConsoleLayout();
-        parseFile(consoleURL, console);
-
-        console.setConsoleChanged(false);
+        ConsoleLayout console = ConsoleLayout.forge(consoleURL);
 
         Rectangle screen = MouseInfo.getPointerInfo().getDevice().getDefaultConfiguration().getBounds();
         console.setLocation(screen.x, screen.y);
-        
-        console.imcOn();
-        console.setVisible(true);
 
+        console.setVisible(true);
         return console;
     }
     
@@ -165,27 +160,19 @@ public class ConsoleParse implements FileHandler {
             if ("mainpanel".equals(element.getName())) {
                 Attribute attribute = (Attribute) element.selectSingleNode("@name");
                 if ("console main panel".equals(attribute.getValue())) {
-                    ConfigFetch.mark("main panel");
                     parseConsoleMainPanel(element, console);
-                    ConfigFetch.benchmark("main panel");
                 }
             }
             else if ("layers".equals(element.getName())) {
-                ConfigFetch.mark("load layers");
                 layers = parseConsoleLayers(element, console);
-                ConfigFetch.benchmark("load layers");
             }
             else if ("interactions".equals(element.getName())) {
-                ConfigFetch.mark("load interactions");
                 interactions = parseConsoleInteractions(element, console);
-                ConfigFetch.benchmark("load interactions");
             }
                 
         }
-        ConfigFetch.mark("reinit");
+
         console.initSubPanels();
-        ConfigFetch.benchmark("reinit");
-        
         
         // Add map layers and interactions
         Vector<MapPanel> maps = console.getSubPanelsOfClass(MapPanel.class);
@@ -291,7 +278,6 @@ public class ConsoleParse implements FileHandler {
     private static Vector<ConsolePanel> parseConsoleMainPanel(Node node, ConsoleLayout console) {
         List<?> list = node.selectNodes("*");
         Vector<ConsolePanel> panels = new Vector<>();
-        ConfigFetch.mark("construct container");
         for (Iterator<?> iter = list.iterator(); iter.hasNext();) {
             Element element = (Element) iter.next();
             ConsolePanel subpanel = null;
@@ -308,10 +294,7 @@ public class ConsoleParse implements FileHandler {
                             subpanel = (ConsolePanel) clazz.getConstructor(ConsoleLayout.class).newInstance(console);
                             console.getMainPanel().addSubPanel(subpanel);
                             panels.add(subpanel);
-                            ConfigFetch.benchmark("construct container");
-                            ConfigFetch.mark("in element of container");
                             subpanel.inElement(element);
-                            ConfigFetch.benchmark("in element of container");
                         }
                         catch (Exception e) {
                             NeptusLog.pub().error("creating subpanel new instance ", e);
@@ -404,7 +387,7 @@ public class ConsoleParse implements FileHandler {
         ConfigFetch.initialize();
         GuiUtils.setLookAndFeel();
 
-        ConsoleLayout cl = new ConsoleLayout();
+        ConsoleLayout cl = ConsoleLayout.forge();
         cl.setVisible(true);
         cl.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         if (plan != null) {
@@ -419,6 +402,7 @@ public class ConsoleParse implements FileHandler {
             panel.setBounds(10, 10, (int) panel.getPreferredSize().getWidth(), (int) panel.getPreferredSize()
                     .getHeight());
 
+            cl.getMainPanel().removeAll();
             cl.getMainPanel().addSubPanel(panel, 10, 10);
             return cl;
         }
@@ -431,7 +415,7 @@ public class ConsoleParse implements FileHandler {
     // From GuiUtils 7/12/2008
     public static ConsoleLayout dummyConsole(ConsolePanel... panelsToTest) {
         ConfigFetch.initialize();
-        ConsoleLayout layout = new ConsoleLayout();
+        ConsoleLayout layout = ConsoleLayout.forge();
 
         layout.setSize(800, 600);
         layout.setMainSystem("lauv-seacon-1");

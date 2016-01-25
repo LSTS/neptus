@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2015 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2016 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -177,8 +177,8 @@ public class RevisionSidePanel extends JPanel {
         }
 
         public void selectFile() {
-            final JFileChooser chooser = new JFileChooser(overlays.defaultDirectory);
-            chooser.setFileFilter(GuiUtils.getCustomFileFilter(I18n.text("LSF log files"), new String[] {"lsf", "lsf.gz"}));
+            final JFileChooser chooser = GuiUtils.getFileChooser(overlays.defaultDirectory, I18n.text("LSF log files"), 
+                    FileUtil.FILE_TYPE_LSF, FileUtil.FILE_TYPE_LSF_COMPRESSED, FileUtil.FILE_TYPE_LSF_COMPRESSED_BZIP2);
             chooser.setApproveButtonText(I18n.text("Open Log"));
             
             int option = chooser.showOpenDialog(overlays.getConsole());

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2015 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2016 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -40,15 +40,20 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.SwingConstants;
 
+import com.google.common.eventbus.Subscribe;
+
 import net.miginfocom.swing.MigLayout;
 import pt.lsts.imc.AutopilotMode;
 import pt.lsts.imc.AutopilotMode.AUTONOMY;
 import pt.lsts.imc.DevCalibrationControl;
 import pt.lsts.imc.DevCalibrationControl.OP;
+import pt.lsts.imc.VehicleMedium;
+import pt.lsts.imc.VehicleMedium.MEDIUM;
 import pt.lsts.neptus.console.ConsoleLayout;
 import pt.lsts.neptus.console.ConsolePanel;
 import pt.lsts.neptus.console.plugins.MainVehicleChangeListener;
 import pt.lsts.neptus.i18n.I18n;
+import pt.lsts.neptus.plugins.NeptusProperty;
 import pt.lsts.neptus.plugins.PluginDescription;
 import pt.lsts.neptus.plugins.PluginDescription.CATEGORY;
 
@@ -63,10 +68,13 @@ public class PreflightPanel extends ConsolePanel implements MainVehicleChangeLis
 
     private static final long serialVersionUID = 1L;
 
+    @NeptusProperty(description="When UAV is on the ground, enables the Calibration button.")
+    public String currentEntity = "Medium"; 
+    
     // GUI
     private JPanel titlePanel = null;
     private JPanel buttonPanel = null;
-
+    private JButton calibButton = new JButton(I18n.text("Calibrate"));
     /**
      * @param console
      */
@@ -100,7 +108,6 @@ public class PreflightPanel extends ConsolePanel implements MainVehicleChangeLis
         buttonPanel = new JPanel(new MigLayout("gap 0 0, ins 0"));
 
         // Calibrate
-        JButton calibButton = new JButton("Calibrate");
         calibButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -109,10 +116,11 @@ public class PreflightPanel extends ConsolePanel implements MainVehicleChangeLis
                 send(calib);
             }
         });
+        
         buttonPanel.add(calibButton, "w 34%, h 100%");
-
+        calibButton.setEnabled(false);
         // Arm
-        JButton armButton = new JButton("Arm");
+        JButton armButton = new JButton(I18n.text("Arm"));
         armButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -125,7 +133,7 @@ public class PreflightPanel extends ConsolePanel implements MainVehicleChangeLis
         buttonPanel.add(armButton, "w 33%, h 100%");
 
         // Disarm
-        JButton disarmButton = new JButton("Disarm");
+        JButton disarmButton = new JButton(I18n.text("Disarm"));
         disarmButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -147,5 +155,26 @@ public class PreflightPanel extends ConsolePanel implements MainVehicleChangeLis
     public void cleanSubPanel() {
         // TODO Auto-generated method stub
 
+    }
+    
+    @Subscribe
+    public void on(VehicleMedium msg) {
+        if (msg.getSourceName().equals(getConsole().getMainSystem())) {
+            if (!currentEntity.isEmpty() && !msg.getEntityName().equals(currentEntity))
+                return;
+            
+            MEDIUM uavValue = msg.getMedium();
+            if(uavValue == MEDIUM.GROUND){
+                //Calibration ON
+                calibButton.setEnabled(true);                
+            }
+            else{
+                //Calibration OFF
+                calibButton.setEnabled(false);
+                post(pt.lsts.neptus.console.notifications.Notification.info("Pre-flight Actions", "Pre-flight Calibration only allowed on GROUND."));
+            }
+            
+        }
+        
     }
 }

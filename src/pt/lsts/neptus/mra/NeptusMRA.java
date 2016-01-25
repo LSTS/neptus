@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2015 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2016 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -82,11 +82,11 @@ public class NeptusMRA extends JFrame {
     public NeptusMRA() {
         super(MRA_TITLE);
         try {
-            PluginUtils.loadProperties("conf/mra.properties", getMraProperties());
+            PluginUtils.loadProperties(ConfigFetch.getConfFolder() + "/mra.properties", getMraProperties());
         }
         catch (Exception e) {
             NeptusLog.pub().error(I18n.text("Not possible to open")
-                    + " \"conf/mra.properties\"");
+                    + " \"" + ConfigFetch.getConfFolder() + "/mra.properties\"");
         }
         JPopupMenu.setDefaultLightWeightPopupEnabled(false);
         ToolTipManager.sharedInstance().setLightWeightPopupEnabled(false);

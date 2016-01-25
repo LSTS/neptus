@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2015 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2016 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -70,7 +70,7 @@ public class CheckGpsFix extends AutomatedCheck {
         BigDecimal bd = new BigDecimal(vdop);
         bd = bd.setScale(1, RoundingMode.HALF_UP);
         
-        String strMsg = "(" + nSat + ")" + " | Vdop: " + bd.doubleValue();;
+        String strMsg = "(" + nSat + ")" + " | Vdop: " + bd.doubleValue();
 
         if (fixType == TYPE.DEAD_RECKONING) {
             setState(NOT_VALIDATED);

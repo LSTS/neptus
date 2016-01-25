@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2015 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2016 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -128,7 +128,7 @@ SubPanelChangeListener, MainVehicleChangeListener {
         if (getConsole().getMission() == null)
             return;
 
-        String id = markerName + "_" + DateTimeUtil.timeFormaterNoMillis.format(new Date(tstamp));
+        String id = markerName + "_" + DateTimeUtil.timeFormatterNoMillis.format(new Date(tstamp));
         boolean validId = false;
         while (!validId) {
             id = JOptionPane.showInputDialog(getConsole(), I18n.text("Please enter new mark name"), id);

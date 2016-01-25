@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2015 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2016 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -51,13 +51,9 @@ public class SidescanFingerprint extends PayloadFingerprint {
     }
     
     public Area getFingerprint(SystemPositionAndAttitude pose) {
-        double sssRange = range;
-        
-        Rectangle2D r1 = new Rectangle2D.Double(-sssRange, -1, sssRange-pose.getAltitude(), 1.3);
-        Rectangle2D r2 = new Rectangle2D.Double(pose.getAltitude(), -1, sssRange-pose.getAltitude(), 1.3);
-        
-        Area a = new Area(r1);
-        a.add(new Area(r2));
+        double sssRange = Math.sqrt(range*range - (pose.getAltitude()*pose.getAltitude()));
+        Rectangle2D r2 = new Rectangle2D.Double(-sssRange, -1, sssRange*2, 1.3);
+        Area a = new Area(r2);
         return a;        
     };
 }

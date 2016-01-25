@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2015 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2016 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -164,16 +164,7 @@ public class Vis3DMenuBar extends JMenuBar {
 
             @Override
             public void actionPerformed(ActionEvent e) {
-                JFileChooser chooser = new JFileChooser(vtkInit.getLog().getFile("Data.lsf").getParentFile());
-
-                // FileFilter filefilter = GuiUtils.getCustomFileFilter(I18n.text("3D files ") + "*.vtk" + ", *.stl"
-                // + ", *.ply" + ", *.obj" + ", *.wrl" + " *.x3d", new String[] { "X3D", "VTK", "STL", "PLY", "OBJ",
-                // "WRL" });
-
-                FileFilter filefilter = GuiUtils.getCustomFileFilter(I18n.text("3D files ") + "*.vtk" + ", *.stl"
-                        + ", *.ply" + ", *.obj" + ", *.wrl" + " *.x3d", File3DUtils.TYPES_3D_FILES);
-
-                chooser.setFileFilter(filefilter);
+                JFileChooser chooser = GuiUtils.getFileChooser(vtkInit.getLog().getDir(), I18n.text("3D files"), File3DUtils.TYPES_3D_FILES); 
 
                 int ans = chooser.showDialog(vtkInit, I18n.text("Save as") + "...");
                 if (ans == JFileChooser.APPROVE_OPTION) {

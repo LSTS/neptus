@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2015 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2016 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -1363,7 +1363,7 @@ public class RhodamineOilVisualizer extends ConsoleLayer implements Configuratio
         double valueReceived = msg.getValue();
         if (!Double.isNaN(valueReceived)) {
             rhodamineImcString = "" + MathMiscUtils.round(valueReceived, 2) + "ppb @ " 
-                    + DateTimeUtil.timeFormaterUTC.format(new Date(rhodamineImcStringMillis));
+                    + DateTimeUtil.timeFormatterUTC.format(new Date(rhodamineImcStringMillis));
             rhodamineImcStringMillis = msg.getTimestampMillis();
         }
     }

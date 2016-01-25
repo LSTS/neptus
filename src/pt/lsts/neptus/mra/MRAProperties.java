@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2015 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2016 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -43,7 +43,7 @@ import java.util.Map.Entry;
 import java.util.Properties;
 import java.util.Vector;
 
-import org.mozilla.javascript.edu.emory.mathcs.backport.java.util.Arrays;
+import java.util.Arrays;
 
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.gui.PropertiesEditor;
@@ -97,7 +97,7 @@ public class MRAProperties implements PropertiesProvider {
     public static boolean generateDeltaTProcessReport = false;
 
     @NeptusProperty(name = "Maximum depth for bathymetry plots", description = "Maximum depth to be used in bathymetry plots.")
-    public static double maxBathymDepth = 15;
+    public static double maxBathymDepth = 110;
 
     @NeptusProperty(name = "Print page number in generated reports")
     public static boolean printPageNumbers = true;
@@ -154,7 +154,6 @@ public class MRAProperties implements PropertiesProvider {
         Depth_Sensor
     }
 
-    @SuppressWarnings("unchecked")
     @Override
     public DefaultProperty[] getProperties() {
         Vector<DefaultProperty> props = new Vector<DefaultProperty>();

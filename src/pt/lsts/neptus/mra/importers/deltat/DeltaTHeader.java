@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2015 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2016 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -60,7 +60,7 @@ public class DeltaTHeader {
     
     public int pingNumber;
     
-    public double pulseLenght; // Pulse Length (in microseconds)
+    public double pulseLength; // Pulse Length (in microseconds)
     public double pulseRepetingRate;// Repeting Rate (in miliseconds) - time between pings
     
     public double speed;
@@ -90,6 +90,8 @@ public class DeltaTHeader {
     public float sonarXOffset = Float.NaN;
     public float sonarYOffset = Float.NaN;
     public float sonarZOffset = Float.NaN;
+    
+    public float altitude = Float.NaN;
     
     private static Calendar cal;
     private static Pattern pTimeStamp;
@@ -123,7 +125,7 @@ public class DeltaTHeader {
         
         sonarFreqKHz = b.getShort(81);
         
-        pulseLenght = b.getShort(87);
+        pulseLength = b.getShort(87);
         pulseRepetingRate = b.getShort(91);
         
         soundVelocity = parseSoundVelocity(b);
@@ -137,10 +139,10 @@ public class DeltaTHeader {
         byte shipLatLonBuf[] = new byte[14];
         b.position(33);
         b.get(shipLatLonBuf, 0, 14);
-        gnssShipPosLat = new String(shipLatLonBuf);;
+        gnssShipPosLat = new String(shipLatLonBuf);
         b.position(47);
         b.get(shipLatLonBuf, 0, 14);
-        gnssShipPosLon = new String(shipLatLonBuf);;
+        gnssShipPosLon = new String(shipLatLonBuf);
         
         sonarXOffset = b.getFloat(100);
         sonarYOffset = b.getFloat(104);
@@ -227,6 +229,8 @@ public class DeltaTHeader {
         sonarIsOperatingInOverlappedMode = isBitSet(vel123, 2); // Bit 2 - 1 = sonar is operating in overlapped mode
         
         numberOfPingsAveraged = b.get(125); // Number of Pings Averaged - 0 to 25
+        
+        altitude = b.getFloat(133);
     }
     
     /**

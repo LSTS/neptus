@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2015 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2016 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -34,12 +34,12 @@ package pt.lsts.nasa.mts.data;
 import java.text.ParseException;
 import java.util.Date;
 
+import com.google.gson.annotations.Expose;
+
 import pt.lsts.neptus.comm.manager.imc.ImcId16;
-import pt.lsts.neptus.util.AngleCalc;
+import pt.lsts.neptus.util.AngleUtils;
 import pt.lsts.neptus.util.DateTimeUtil;
 import pt.lsts.neptus.util.MathMiscUtils;
-
-import com.google.gson.annotations.Expose;
 
 /**
  * IWG1 Packet Definitions
@@ -892,10 +892,10 @@ public class IWG1Data {
     private static void parseTimeStamp(IWG1Data ret, String tk) {
         Date dateTime = null;
         try {
-            int dpt = DateTimeUtil.dateTimeFormaterISO8601.toPattern().replace("'", "").length();
+            int dpt = DateTimeUtil.dateTimeFormatterISO8601.toPattern().replace("'", "").length();
             String st = tk.substring(0, dpt);
-            dateTime = DateTimeUtil.dateTimeFormaterISO8601.parse(st);
-            String st1 = DateTimeUtil.dateTimeFormaterISO8601.format(dateTime);
+            dateTime = DateTimeUtil.dateTimeFormatterISO8601.parse(st);
+            String st1 = DateTimeUtil.dateTimeFormatterISO8601.format(dateTime);
             if (!st.equalsIgnoreCase(st1)) {
                 dateTime = null;
                 throw new ParseException("Not possible to revert parse!", 0);
@@ -903,10 +903,10 @@ public class IWG1Data {
         }
         catch (ParseException e) {
             try {
-                int dpt = DateTimeUtil.dateTimeFormaterISO8601_1.toPattern().replace("'", "").length();
+                int dpt = DateTimeUtil.dateTimeFormatterISO8601_1.toPattern().replace("'", "").length();
                 String st = tk.substring(0, dpt);
-                dateTime = DateTimeUtil.dateTimeFormaterISO8601_1.parse(st);
-                String st1 = DateTimeUtil.dateTimeFormaterISO8601_1.format(dateTime);
+                dateTime = DateTimeUtil.dateTimeFormatterISO8601_1.parse(st);
+                String st1 = DateTimeUtil.dateTimeFormatterISO8601_1.format(dateTime);
                 if (!st.equalsIgnoreCase(st1)) {
                     dateTime = null;
                     throw new ParseException("Not possible to revert parse!", 0);
@@ -914,10 +914,10 @@ public class IWG1Data {
             }
             catch (ParseException e1) {
                 try {
-                    int dpt = DateTimeUtil.dateTimeFormaterISO8601_2.toPattern().replace("'", "").length();
+                    int dpt = DateTimeUtil.dateTimeFormatterISO8601_2.toPattern().replace("'", "").length();
                     String st = tk.substring(0, dpt);
-                    dateTime = DateTimeUtil.dateTimeFormaterISO8601_2.parse(st);
-                    String st1 = DateTimeUtil.dateTimeFormaterISO8601_2.format(dateTime);
+                    dateTime = DateTimeUtil.dateTimeFormatterISO8601_2.parse(st);
+                    String st1 = DateTimeUtil.dateTimeFormatterISO8601_2.format(dateTime);
                     if (!st.equalsIgnoreCase(st1)) {
                         dateTime = null;
                         throw new ParseException("Not possible to revert parse!", 0);
@@ -958,15 +958,15 @@ public class IWG1Data {
             
             sb.append(",");
             if (timeStampMillis >= 0) {
-                sb.append(DateTimeUtil.dateTimeFormaterISO8601.format(new Date(new Double(timeStampMillis).longValue())));
+                sb.append(DateTimeUtil.dateTimeFormatterISO8601.format(new Date(new Double(timeStampMillis).longValue())));
             }
             sb.append(",");
             if (!Double.isNaN(latitudeDegs)) {
-                sb.append(MathMiscUtils.round(AngleCalc.nomalizeAngleDegrees180(latitudeDegs), 7));
+                sb.append(MathMiscUtils.round(AngleUtils.nomalizeAngleDegrees180(latitudeDegs), 7));
             }
             sb.append(",");
             if (!Double.isNaN(longitudeDegs)) {
-                sb.append(MathMiscUtils.round(AngleCalc.nomalizeAngleDegrees180(longitudeDegs), 7));
+                sb.append(MathMiscUtils.round(AngleUtils.nomalizeAngleDegrees180(longitudeDegs), 7));
             }
             sb.append(",");
             if (!Double.isNaN(gpsAltMSL)) {
@@ -1006,11 +1006,11 @@ public class IWG1Data {
             }
             sb.append(",");
             if (!Double.isNaN(trueHeadingDegs)) {
-                sb.append(MathMiscUtils.round(AngleCalc.nomalizeAngleDegrees360(trueHeadingDegs), 2));
+                sb.append(MathMiscUtils.round(AngleUtils.nomalizeAngleDegrees360(trueHeadingDegs), 2));
             }
             sb.append(",");
             if (!Double.isNaN(trackAngleDegs)) {
-                sb.append(MathMiscUtils.round(AngleCalc.nomalizeAngleDegrees360(trackAngleDegs), 2));
+                sb.append(MathMiscUtils.round(AngleUtils.nomalizeAngleDegrees360(trackAngleDegs), 2));
             }
             sb.append(",");
             if (!Double.isNaN(driftAngleDegs)) {
@@ -1018,11 +1018,11 @@ public class IWG1Data {
             }
             sb.append(",");
             if (!Double.isNaN(pitchAngleDegs)) {
-                sb.append(MathMiscUtils.round(AngleCalc.nomalizeAngleDegrees180(pitchAngleDegs), 2));
+                sb.append(MathMiscUtils.round(AngleUtils.nomalizeAngleDegrees180(pitchAngleDegs), 2));
             }
             sb.append(",");
             if (!Double.isNaN(rollAngleDegs)) {
-                sb.append(MathMiscUtils.round(AngleCalc.nomalizeAngleDegrees180(rollAngleDegs), 2));
+                sb.append(MathMiscUtils.round(AngleUtils.nomalizeAngleDegrees180(rollAngleDegs), 2));
             }
             sb.append(",");
             if (!Double.isNaN(slipAngleDegs)) {
@@ -1030,7 +1030,7 @@ public class IWG1Data {
             }
             sb.append(",");
             if (!Double.isNaN(attackAngleDegs)) {
-                sb.append(MathMiscUtils.round(AngleCalc.nomalizeAngleDegrees180(attackAngleDegs), 2));
+                sb.append(MathMiscUtils.round(AngleUtils.nomalizeAngleDegrees180(attackAngleDegs), 2));
             }
             sb.append(",");
             if (!Double.isNaN(staticAirTemp)) {
@@ -1062,7 +1062,7 @@ public class IWG1Data {
             }
             sb.append(",");
             if (!Double.isNaN(windDirection)) {
-                sb.append(MathMiscUtils.round(AngleCalc.nomalizeAngleDegrees360(windDirection), 2));
+                sb.append(MathMiscUtils.round(AngleUtils.nomalizeAngleDegrees360(windDirection), 2));
             }
             sb.append(",");
             if (!Double.isNaN(vertWindSpeed)) {
@@ -1078,11 +1078,11 @@ public class IWG1Data {
             }
             sb.append(",");
             if (!Double.isNaN(sunAzimuthDegs)) {
-                sb.append(MathMiscUtils.round(AngleCalc.nomalizeAngleDegrees360(sunAzimuthDegs), 2));
+                sb.append(MathMiscUtils.round(AngleUtils.nomalizeAngleDegrees360(sunAzimuthDegs), 2));
             }
             sb.append(",");
             if (!Double.isNaN(aircraftSunAzimuthDegs)) {
-                sb.append(MathMiscUtils.round(AngleCalc.nomalizeAngleDegrees360(aircraftSunAzimuthDegs), 2));
+                sb.append(MathMiscUtils.round(AngleUtils.nomalizeAngleDegrees360(aircraftSunAzimuthDegs), 2));
             }
 
             // Private fields
@@ -1112,7 +1112,7 @@ public class IWG1Data {
     }
 
     public static void main(String[] args) throws Exception {
-//        IWG1Data o = IWG1Data.parseJSON(new FileReader(new File(".", "plugins-dev/cloud/com/inovaworks/example.json")));
+//        IWG1Data o = IWG1Data.parseJSON(new FileReader(new File(FileUtil.getResourceAsFileKeepName("com/inovaworks/example.json"))));
         IWG1Data i = new IWG1Data();
         System.out.println(i.toIWG1());
         

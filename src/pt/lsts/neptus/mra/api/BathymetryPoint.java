@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2015 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2016 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -39,7 +39,8 @@ public class BathymetryPoint {
     public float north;
     public float east;
     public float depth;
-    public short intensity;
+    public int intensity; // Unsigned short 16b
+    public int intensityMaxValue = Integer.MAX_VALUE;
 
     /**
      * @param lat lat in radians
@@ -62,7 +63,7 @@ public class BathymetryPoint {
      * @param east offset north in meters
      * @param depth depth in this point in meters (relative to water surface)
      */
-    public BathymetryPoint(float north, float east, float depth, short intensity) {
+    public BathymetryPoint(float north, float east, float depth, int intensity) {
         super();
         this.north = north;
         this.east = east;

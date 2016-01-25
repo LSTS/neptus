@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2015 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2016 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -46,7 +46,7 @@ public class SystemPositionAndAttitude implements Cloneable, Comparable<SystemPo
     private double pitch = 0; 
     private double yaw = 0;
     private double altitude = 0;
-    private double depth = -1;
+    //private double depth = -1;
 
     private Vector3Dimension pqr = new Vector3Dimension();
     private Vector3Dimension uvw = new Vector3Dimension();
@@ -237,14 +237,14 @@ public class SystemPositionAndAttitude implements Cloneable, Comparable<SystemPo
      * @return the depth
      */
     public double getDepth() {
-        return depth;
+        return position.getDepth();        
     }
     
     /**
      * @param depth the depth to set
      */
     public void setDepth(double depth) {
-        this.depth = depth;
+        this.position.setDepth(depth);
     }
     
     public double getRoll() {

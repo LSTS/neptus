@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2015 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2016 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -49,9 +49,11 @@ import java.awt.image.BufferedImage;
 import java.awt.image.BufferedImageOp;
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Vector;
 
 import javax.imageio.ImageIO;
@@ -67,7 +69,11 @@ import javax.swing.plaf.basic.BasicSliderUI;
 import net.miginfocom.swing.MigLayout;
 
 import org.imgscalr.Scalr;
-import org.mozilla.javascript.edu.emory.mathcs.backport.java.util.Collections;
+import java.util.Collections;
+import org.opencv.core.Core;
+import org.opencv.core.CvType;
+import org.opencv.core.Mat;
+import org.opencv.imgproc.Imgproc;
 
 import pt.lsts.imc.IMCMessage;
 import pt.lsts.imc.lsf.LsfIndex;
@@ -97,7 +103,7 @@ import pt.lsts.neptus.util.llf.LsfReportProperties;
  * @author zp
  * 
  */
-@PluginDescription(name = "Photos", icon = "pt/lsts/neptus/plugins/mraplots/camera.png")
+@PluginDescription(name = "Photos", icon = "images/downloader/camera.png")
 public class MraPhotosVisualization extends JComponent implements MRAVisualization, LogMarkerListener {
     private static final long serialVersionUID = 1L;
     protected File photosDir;
@@ -111,7 +117,14 @@ public class MraPhotosVisualization extends JComponent implements MRAVisualizati
     protected boolean grayscale = false;
     protected boolean contrast = false;
     protected boolean sharpen = false;
+    protected boolean grayHist = false;
+    protected boolean colorHist = false;
     protected boolean showLegend = true;
+    protected BufferedImage bufferedTempOriginal = null;
+    protected Mat matGray;
+    protected Mat matGrayTemp;
+    protected Mat matColor;
+    protected List<Mat> lRgb;
     protected BufferedImageOp contrastOp = ImageUtils.contrastOp();
     protected BufferedImageOp sharpenOp = ImageUtils.sharpenOp();
     protected BufferedImageOp brightenOp = ImageUtils.brightenOp(1.2f, 0);
@@ -123,6 +136,7 @@ public class MraPhotosVisualization extends JComponent implements MRAVisualizati
     protected Point2D zoomPoint = null;
     protected boolean fullRes = false;
     protected Vector<LogMarker> markers = new Vector<>();
+    
     private File[] allFiles;
     long startTime;
     long endTime;
@@ -569,20 +583,125 @@ public class MraPhotosVisualization extends JComponent implements MRAVisualizati
         if (grayscale)
             ops.add(grayscaleOp);
 
-        final BufferedImageOp[] operations = ops.toArray(new BufferedImageOp[0]);
+        BufferedImageOp[] operations = ops.toArray(new BufferedImageOp[0]);
 
         BufferedImage original = ImageIO.read(f);
         if (fullRes || useFullResolution) {
-            if (!ops.isEmpty())
-                original = Scalr.apply(original, operations);
+            if (ops.isEmpty()) {
+                operations = new BufferedImageOp[] {ImageUtils.identityOp()};
+            }
+            original = Scalr.apply(original, operations);
         }
         else {
             original = Scalr.resize(original, getWidth(), getHeight(), operations);
         }
-
+        
+        try {
+            if(grayHist && !colorHist)
+            {
+                
+                matGrayTemp = new Mat(original.getHeight(), original.getWidth(), CvType.CV_8UC1);
+                matGray = new Mat(original.getHeight(), original.getWidth(), CvType.CV_8UC3);
+                Imgproc.cvtColor(bufferedImageToMat(original), matGrayTemp, Imgproc.COLOR_RGB2GRAY);
+                Imgproc.equalizeHist(matGrayTemp, matGrayTemp);
+                Imgproc.cvtColor(matGrayTemp, matGray, Imgproc.COLOR_GRAY2RGB);
+                original = matToBufferedImage(matGray);
+            }
+            
+            if(colorHist && !grayHist)
+            {
+                matColor = new Mat(original.getHeight(), original.getWidth(), CvType.CV_8UC3);
+                lRgb = new ArrayList<Mat>(3);
+                Core.split(bufferedImageToMat(original), lRgb);
+                Mat mR = lRgb.get(0);
+                Imgproc.equalizeHist(mR, mR);
+                lRgb.set(0, mR);
+                Mat mG = lRgb.get(1);
+                Imgproc.equalizeHist(mG, mG);
+                lRgb.set(1, mG);
+                Mat mB = lRgb.get(2);
+                Imgproc.equalizeHist(mB, mB);
+                lRgb.set(2, mB);
+                Core.merge(lRgb, matColor);
+                original = matToBufferedImage(matColor);
+            }
+        }
+        catch (Exception e) {
+            NeptusLog.pub().error(e);
+        }
         return original;
     }
+    
+    /**  
+     * Converts/writes a Mat into a BufferedImage.  
+     * @param matrix Mat of type CV_8UC3 or CV_8UC1  
+     * @return BufferedImage of type TYPE_3BYTE_BGR or TYPE_BYTE_GRAY  
+     */  
+    protected BufferedImage matToBufferedImage(Mat matrix) {
+        int cols = matrix.cols();  
+        int rows = matrix.rows();  
+        int elemSize = (int)matrix.elemSize();  
+        byte[] data = new byte[cols * rows * elemSize];  
+        int type;  
+        matrix.get(0, 0, data);  
+        switch (matrix.channels()) {  
+            case 1:  
+                type = BufferedImage.TYPE_BYTE_GRAY;  
+                break;  
+            case 3:  
+                type = BufferedImage.TYPE_3BYTE_BGR;  
+                // bgr to rgb  
+                byte b;  
+                for(int i=0; i<data.length; i=i+3) {  
+                    b = data[i];  
+                    data[i] = data[i+2];  
+                    data[i+2] = b;  
+                }  
+                break;  
+        default:  
+            return null;  
+        }
+        BufferedImage image2 = new BufferedImage(cols, rows, type);  
+        image2.getRaster().setDataElements(0, 0, cols, rows, data);  
+        return image2;
+    }
+    
+    //!Convert bufferedImage to Mat
+    protected Mat bufferedImageToMat(BufferedImage in)
+    {
+          Mat out;
+          byte[] data;
+          int r, g, b;
 
+          if(in.getType() == BufferedImage.TYPE_INT_RGB)
+          {
+              out = new Mat(in.getHeight(), in.getWidth(), CvType.CV_8UC3);
+              data = new byte[in.getWidth() * in.getHeight() * (int)out.elemSize()];
+              int[] dataBuff = in.getRGB(0, 0, in.getWidth(), in.getHeight(), null, 0, in.getWidth());
+              for(int i = 0; i < dataBuff.length; i++)
+              {
+                  data[i*3] = (byte) ((dataBuff[i] >> 16) & 0xFF);
+                  data[i*3 + 1] = (byte) ((dataBuff[i] >> 8) & 0xFF);
+                  data[i*3 + 2] = (byte) ((dataBuff[i] >> 0) & 0xFF);
+              }
+          }
+          else
+          {
+              out = new Mat(in.getHeight(), in.getWidth(), CvType.CV_8UC1);
+              data = new byte[in.getWidth() * in.getHeight() * (int)out.elemSize()];
+              int[] dataBuff = in.getRGB(0, 0, in.getWidth(), in.getHeight(), null, 0, in.getWidth());
+              for(int i = 0; i < dataBuff.length; i++)
+              {
+                r = (byte) ((dataBuff[i] >> 16) & 0xFF);
+                g = (byte) ((dataBuff[i] >> 8) & 0xFF);
+                b = (byte) ((dataBuff[i] >> 0) & 0xFF);
+                data[i] = (byte)((0.21 * r) + (0.71 * g) + (0.07 * b)); //luminosity
+              }
+           }
+           out.put(0, 0, data);
+           return out;
+     } 
+    
     protected Integer legendWidth = null;
 
     protected int getLegendWidth(Vector<String> strs, Graphics2D g) {
@@ -617,7 +736,7 @@ public class MraPhotosVisualization extends JComponent implements MRAVisualizati
         Vector<String> details = new Vector<>();
         details.add(lat);
         details.add(lon);
-        details.add(I18n.text("Time") + ": " + DateTimeUtil.timeFormaterUTC.format(new Date(timeUTC)));
+        details.add(I18n.text("Time") + ": " + DateTimeUtil.timeFormatterUTC.format(new Date(timeUTC)));
         details.add(I18n.text("Depth") + ": " + depth);
         details.add(I18n.text("Altitude") + ": " + alt);
         details.add(I18n.text("Roll") + ": " + roll);

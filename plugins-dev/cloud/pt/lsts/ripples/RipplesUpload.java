@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2015 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2016 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -33,12 +33,16 @@ package pt.lsts.ripples;
 
 import java.awt.event.ActionEvent;
 import java.util.LinkedHashMap;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Vector;
 
 import javax.swing.ImageIcon;
 import javax.swing.JCheckBoxMenuItem;
+
+import com.firebase.client.Firebase;
+import com.google.common.eventbus.Subscribe;
 
 import pt.lsts.imc.Announce;
 import pt.lsts.imc.EstimatedState;
@@ -49,10 +53,12 @@ import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.comm.IMCUtils;
 import pt.lsts.neptus.console.ConsoleLayout;
 import pt.lsts.neptus.console.ConsolePanel;
+import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.mp.ManeuverLocation;
 import pt.lsts.neptus.mp.SystemPositionAndAttitude;
 import pt.lsts.neptus.mystate.MyState;
 import pt.lsts.neptus.plugins.CheckMenuChangeListener;
+import pt.lsts.neptus.plugins.ConfigurationListener;
 import pt.lsts.neptus.plugins.NeptusProperty;
 import pt.lsts.neptus.plugins.PluginDescription;
 import pt.lsts.neptus.plugins.update.Periodic;
@@ -62,23 +68,24 @@ import pt.lsts.neptus.types.mission.plan.PlanType;
 import pt.lsts.neptus.util.ImageUtils;
 import pt.lsts.neptus.util.conf.GeneralPreferences;
 
-import com.firebase.client.Firebase;
-import com.google.common.eventbus.Subscribe;
-
 /**
  * @author zp
  *
  */
 @PluginDescription(name = "Ripples Uploader", icon = "pt/lsts/ripples/ripples_on.png")
-public class RipplesUpload extends ConsolePanel {
+public class RipplesUpload extends ConsolePanel implements ConfigurationListener {
+
+    private static final long serialVersionUID = -8036937519999303108L;
+    
+    private final String firebasePath = "https://neptus.firebaseio-demo.com/";
 
     private JCheckBoxMenuItem menuItem;
     private ImageIcon onIcon, offIcon;
-    private final String firebasePath = "https://neptus.firebaseio-demo.com/";
-    private Firebase firebase = null;
-    private LinkedHashMap<String, PlanControlState> planStates = new LinkedHashMap<String, PlanControlState>();
+    private String checkMenuTxt = I18n.text("Advanced") + ">Ripples";
 
-    private static final long serialVersionUID = -8036937519999303108L;
+    private Firebase firebase = null;
+    private LinkedHashMap<String, SystemPositionAndAttitude> toSend = new LinkedHashMap<String, SystemPositionAndAttitude>();
+    private LinkedHashMap<String, PlanControlState> planStates = new LinkedHashMap<String, PlanControlState>();
 
     @NeptusProperty
     private boolean synch = false;
@@ -94,14 +101,28 @@ public class RipplesUpload extends ConsolePanel {
     public void cleanSubPanel() {
         if (synch)
             stopSynch();
+        
+        if (menuItem != null) {
+            removeCheckMenuItem(checkMenuTxt);
+        }
     }
-
-    private LinkedHashMap<String, SystemPositionAndAttitude> toSend = new LinkedHashMap<String, SystemPositionAndAttitude>();
-
+    
+    /* (non-Javadoc)
+     * @see pt.lsts.neptus.plugins.ConfigurationListener#propertiesChanged()
+     */
+    @Override
+    public void propertiesChanged() {
+        if (synch && !menuItem.isSelected())
+            menuItem.doClick();
+        else if (!synch && menuItem.isSelected())
+            menuItem.doClick();
+    }
+    
     @Subscribe
     public void on(EstimatedState state) {
         if (!synch)
             return;
+        
         SystemPositionAndAttitude pose = new SystemPositionAndAttitude(IMCUtils.parseLocationAlt(state)
                 .convertToAbsoluteLatLonDepth(), state.getPhi(), state.getTheta(), state.getPsi());
         pose.setTime(state.getTimestampMillis());
@@ -164,7 +185,7 @@ public class RipplesUpload extends ConsolePanel {
             }
             else if (!pcs.getPlanId().isEmpty()) {
                 planRef.child("id").setValue(pcs.getPlanId());
-                planRef.child("progress").setValue(String.format("%.1f", pcs.getPlanProgress()));
+                planRef.child("progress").setValue(String.format(Locale.US, "%.1f", pcs.getPlanProgress()));
 
                 if (getConsole().getMission().getIndividualPlansList().containsKey(pcs.getPlanId())) {
                     PlanType pt = getConsole().getMission().getIndividualPlansList().get(pcs.getPlanId());
@@ -228,18 +249,18 @@ public class RipplesUpload extends ConsolePanel {
     public void initSubPanel() {
         onIcon = ImageUtils.getScaledIcon("pt/lsts/ripples/ripples_on.png", 16, 16);
         offIcon = ImageUtils.getScaledIcon("pt/lsts/ripples/ripples_off.png", 16, 16);
-        menuItem = addCheckMenuItem("Advanced>Ripples>Start synch", offIcon, new CheckMenuChangeListener() {
+        menuItem = addCheckMenuItem(checkMenuTxt + ">" + I18n.text("Start synch"), offIcon, new CheckMenuChangeListener() {
 
             @Override
             public void menuUnchecked(ActionEvent e) {
-                menuItem.setText("Start synch");
+                menuItem.setText(I18n.text("Start synch"));
                 menuItem.setIcon(offIcon);
                 stopSynch();
             }
 
             @Override
             public void menuChecked(ActionEvent e) {
-                menuItem.setText("Stop synch");
+                menuItem.setText(I18n.text("Stop synch"));
                 menuItem.setIcon(onIcon);
                 startSynch();
             }

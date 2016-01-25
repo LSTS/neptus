@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2015 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2016 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -65,7 +65,7 @@ import pt.lsts.neptus.types.coord.LocationType;
 import pt.lsts.neptus.types.mission.plan.PlanType;
 import pt.lsts.neptus.types.vehicle.VehicleType;
 import pt.lsts.neptus.types.vehicle.VehiclesHolder;
-import pt.lsts.neptus.util.AngleCalc;
+import pt.lsts.neptus.util.AngleUtils;
 import pt.lsts.neptus.util.MathMiscUtils;
 import pt.lsts.neptus.util.StringUtils;
 import pt.lsts.neptus.util.conf.GeneralPreferences;
@@ -369,12 +369,12 @@ public class SystemImcMsgCommInfo extends SystemCommBaseInfo<IMCMessage, Message
                     double vy = msg.getDouble("vy");
                     double vz = msg.getDouble("vz");
 
-                    double courseRad = AngleCalc.calcAngle(0, 0, vy, vx);
+                    double courseRad = AngleUtils.calcAngle(0, 0, vy, vx);
                     double groundSpeed = Math.sqrt(vx * vx + vy * vy);
                     double verticalSpeed = vz;
 
                     resSys.storeData(ImcSystem.COURSE_KEY,
-                            (int) AngleCalc.nomalizeAngleDegrees360(MathMiscUtils.round(Math.toDegrees(courseRad), 0)),
+                            (int) AngleUtils.nomalizeAngleDegrees360(MathMiscUtils.round(Math.toDegrees(courseRad), 0)),
                             timeMillis, true);
                     resSys.storeData(ImcSystem.GROUND_SPEED_KEY, groundSpeed, timeMillis, true);
                     resSys.storeData(ImcSystem.VERTICAL_SPEED_KEY, verticalSpeed, timeMillis, true);
@@ -382,7 +382,7 @@ public class SystemImcMsgCommInfo extends SystemCommBaseInfo<IMCMessage, Message
                     double headingRad = msg.getDouble("psi");
                     resSys.storeData(
                             ImcSystem.HEADING_KEY,
-                            (int) AngleCalc.nomalizeAngleDegrees360(MathMiscUtils.round(Math.toDegrees(headingRad), 0)),
+                            (int) AngleUtils.nomalizeAngleDegrees360(MathMiscUtils.round(Math.toDegrees(headingRad), 0)),
                             timeMillis, true);
 
                 }

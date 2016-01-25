@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2015 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2016 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -32,7 +32,7 @@ import net.miginfocom.swing.MigLayout;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.jdesktop.swingx.VerticalLayout;
-import org.mozilla.javascript.edu.emory.mathcs.backport.java.util.Collections;
+import java.util.Collections;
 import pt.lsts.imc.IMCMessage;
 import pt.lsts.imc.lsf.LsfIndex;
 import pt.lsts.neptus.NeptusLog;
@@ -71,7 +71,7 @@ import java.util.Vector;
  * @author Ricardo Martins
  * @author José Pinto
  */
-@PluginDescription(name = "Video", icon = "pt/lsts/neptus/plugins/mraplots/camera.png")
+@PluginDescription(name = "Video", icon = "images/downloader/camera.png")
 public class Viewer extends JComponent implements MRAVisualization, LogMarkerListener {
     private static final long serialVersionUID = 1L;
     /** Parent MRA panel. */

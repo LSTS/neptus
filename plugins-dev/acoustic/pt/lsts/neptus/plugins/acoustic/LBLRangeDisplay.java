@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2015 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2016 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -83,6 +83,7 @@ import pt.lsts.neptus.i18n.Translate;
 import pt.lsts.neptus.loader.NeptusMain;
 import pt.lsts.neptus.mp.MapChangeEvent;
 import pt.lsts.neptus.mp.MapChangeListener;
+import pt.lsts.neptus.platform.OsInfo;
 import pt.lsts.neptus.plugins.ConfigurationListener;
 import pt.lsts.neptus.plugins.NeptusMessageListener;
 import pt.lsts.neptus.plugins.NeptusProperty;
@@ -105,7 +106,6 @@ import pt.lsts.neptus.types.mission.MapMission;
 import pt.lsts.neptus.types.mission.MissionType;
 import pt.lsts.neptus.util.ImageUtils;
 import pt.lsts.neptus.util.ReflectionUtil;
-import pt.lsts.neptus.util.conf.ConfigFetch;
 import pt.lsts.neptus.util.lbl.LBLTriangulationHelper;
 
 import com.google.common.eventbus.Subscribe;
@@ -273,7 +273,7 @@ SubPanelChangeListener, MissionChangeListener, MapChangeListener, ConfigurationL
         }
         catch (Exception e) {
             NeptusLog.pub().error(I18n.text("Unable to start MIDI sound device"));
-            if (ConfigFetch.isOSEqual(ConfigFetch.OS_LINUX)) {
+            if (OsInfo.getName() == OsInfo.Name.LINUX) {
                 System.err.println(I18n.text("For midi, try running Neptus with the command 'padsp ./neptus.sh'."));
             }
         }
@@ -304,7 +304,7 @@ SubPanelChangeListener, MissionChangeListener, MapChangeListener, ConfigurationL
             synth.open();
         }
         catch (Exception e) {
-            if (ConfigFetch.isOSEqual(ConfigFetch.OS_LINUX)) {
+            if (OsInfo.getName() == OsInfo.Name.LINUX) {
                 System.err.println(I18n
                         .text("Unable to open midi synthesizer. Try running Neptus with the command 'padsp ./neptus.sh'."));
             }

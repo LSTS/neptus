@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2015 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2016 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -65,7 +65,32 @@ public class MiGLayoutXmlPropertyEditor extends XMLPropertyEditor {
         title = I18n.text("Layout for: MiGLayout Layout XML");
         smallMsg = I18n.text("This follows the MiGLayout");
         contentType = "text/html";
-        helpText = "<html>";
+        helpText = I18n.text("Container using MigLayout") + "<br/>";
+        helpText += I18n.textf("(see %url)", "'http://www.migcalendar.com/miglayout/mavensite/docs/cheatsheet.html'") + "<br/>";
+        helpText += "<br/>";
+        helpText += I18n.text("Example of a basic profile:") + "<br/>";
+        helpText += "================<br/>";
+        helpText += "<br/>";
+        helpText += "&lt;profiles&gt;<br/>";
+        helpText += "&nbsp;&nbsp;&lt;profile name=\"Normal\"&gt;<br/>";
+        helpText += "&nbsp;&nbsp;&nbsp;&nbsp;&lt;container layoutparam=\"ins 0\" param=\"w 100%, h 100%\"&gt;<br/>";
+        helpText += "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;child name=\"Map Panel\" param=\"w 100%, h 100%\"/&gt;<br/>";
+        helpText += "&nbsp;&nbsp;&nbsp;&nbsp;&lt;/container&gt;<br/>";
+        helpText += "&nbsp;&nbsp;&nbsp;&nbsp;&lt;container layoutparam=\"ins 3\" param=\"w 300px!, h 100%\"&gt;<br/>";
+        helpText += "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;container layoutparam=\"ins 0, filly\" param=\"w 100%, h 100%\"&gt;<br/>";
+        helpText += "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;child name=\"Plan Control\" param=\"w 80%, h 50px!\"/&gt;<br/>";
+        helpText += "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;child name=\"Abort Button\" param=\"w 20%, h 50px!, wrap\"/&gt;<br/>";
+        helpText += "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;child name=\"Plan Control State\" param=\"w 100%!, h 100px!, span, wrap\"/&gt;<br/>";
+        helpText += "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;child name=\"Mission Tree\" param=\"w 100%, h 100%, span\"/&gt;<br/>";
+        helpText += "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;/container&gt;<br/>";
+        helpText += "&nbsp;&nbsp;&nbsp;&nbsp;&lt;/container&gt;<br/>";
+        helpText += "&nbsp;&nbsp;&lt;/profile&gt;<br/>";
+        helpText += "&nbsp;&nbsp;&lt;profile name=\"Map\"&gt;<br/>";
+        helpText += "&nbsp;&nbsp;&nbsp;&nbsp;&lt;container layoutparam=\"ins 0\" param=\"w 100%, h 100%\"&gt;<br/>";
+        helpText += "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;child name=\"Map Panel\" param=\"w 100%, h 100%\"/&gt;<br/>";
+        helpText += "&nbsp;&nbsp;&nbsp;&nbsp;&lt;/container&gt;<br/>";
+        helpText += "&nbsp;&nbsp;&lt;/profile&gt;<br/>";
+        helpText += "&lt;/profiles&gt;<br/>";
     }
 
     protected void buildUI() {
@@ -155,5 +180,4 @@ public class MiGLayoutXmlPropertyEditor extends XMLPropertyEditor {
         toolbar.add(buttons, BorderLayout.EAST);
         dialog.add(toolbar, BorderLayout.SOUTH);
     }
-
 }

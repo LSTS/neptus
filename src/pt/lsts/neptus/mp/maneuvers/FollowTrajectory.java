@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2015 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2016 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -84,7 +84,7 @@ import pt.lsts.neptus.renderer2d.StateRenderer2D;
 import pt.lsts.neptus.renderer2d.StateRendererInteraction;
 import pt.lsts.neptus.types.coord.LocationType;
 import pt.lsts.neptus.types.map.PlanElement;
-import pt.lsts.neptus.util.AngleCalc;
+import pt.lsts.neptus.util.AngleUtils;
 import pt.lsts.neptus.util.FileUtil;
 import pt.lsts.neptus.util.GuiUtils;
 
@@ -389,7 +389,7 @@ StateRendererInteraction, IMCSerialization, PathProvider {
                 bearingRad += Math.PI * 2;
 
             for (double[] pt : points) {
-                double[] ret = AngleCalc.rotate(bearingRad, pt[X], pt[Y], false);
+                double[] ret = AngleUtils.rotate(bearingRad, pt[X], pt[Y], false);
                 pt[X] = ret[X];
                 pt[Y] = ret[Y];
             }

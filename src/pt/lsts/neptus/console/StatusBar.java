@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2015 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2016 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -158,7 +158,7 @@ public class StatusBar extends JPanel {
             @Override
             public void run() {
                 /// Universal Time Coordinated
-                String clockStr = DateTimeUtil.timeUTCFormaterNoSegs3.format(new Date(System.currentTimeMillis()))
+                String clockStr = DateTimeUtil.timeUTCFormatterNoSegs3.format(new Date(System.currentTimeMillis()))
                         + " " + I18n.text("UTC");
                 clock.setText(clockStr);
             }

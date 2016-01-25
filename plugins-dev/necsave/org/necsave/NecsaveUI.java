@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2015 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2016 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -31,20 +31,8 @@
  */
 package org.necsave;
 
-import info.necsave.msgs.AbortMission;
-import info.necsave.msgs.AbortMission.TYPE;
-import info.necsave.msgs.MissionGoal;
-import info.necsave.msgs.Area;
-import info.necsave.msgs.Contact;
-import info.necsave.msgs.ContactList;
-import info.necsave.msgs.Kinematics;
-import info.necsave.msgs.MissionArea;
-import info.necsave.msgs.MissionGoal.GOAL_TYPE;
-import info.necsave.msgs.MissionReadyToStart;
-import info.necsave.msgs.PlatformInfo;
-import info.necsave.msgs.PlatformPlanProgress;
-import info.necsave.proto.Message;
-
+import java.awt.Color;
+import java.awt.Graphics2D;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.Arrays;
@@ -55,14 +43,29 @@ import java.util.concurrent.Future;
 
 import javax.swing.JOptionPane;
 
-import pt.lsts.imc.JsonObject;
-import pt.lsts.imc.lsf.LsfMessageLogger;
+import com.google.common.eventbus.Subscribe;
+
+import info.necsave.msgs.AbortMission;
+import info.necsave.msgs.AbortMission.TYPE;
+import info.necsave.msgs.Area;
+import info.necsave.msgs.Contact;
+import info.necsave.msgs.ContactList;
+import info.necsave.msgs.Kinematics;
+import info.necsave.msgs.MissionArea;
+import info.necsave.msgs.MissionCompleted;
+import info.necsave.msgs.MissionGoal;
+import info.necsave.msgs.MissionGoal.GOAL_TYPE;
+import info.necsave.msgs.MissionReadyToStart;
+import info.necsave.msgs.PlatformInfo;
+import info.necsave.msgs.PlatformPlanProgress;
+import info.necsave.proto.Message;
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.console.ConsoleInteraction;
 import pt.lsts.neptus.console.notifications.Notification;
 import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.plugins.NeptusProperty;
 import pt.lsts.neptus.plugins.PluginDescription;
+import pt.lsts.neptus.renderer2d.StateRenderer2D;
 import pt.lsts.neptus.systems.external.ExternalSystem;
 import pt.lsts.neptus.systems.external.ExternalSystemsHolder;
 import pt.lsts.neptus.types.coord.LocationType;
@@ -70,8 +73,6 @@ import pt.lsts.neptus.types.map.MapGroup;
 import pt.lsts.neptus.types.map.ParallelepipedElement;
 import pt.lsts.neptus.types.vehicle.VehicleType.SystemTypeEnum;
 import pt.lsts.neptus.util.GuiUtils;
-
-import com.google.common.eventbus.Subscribe;
 
 /**
  * This class will show the states of NECSAVE platforms and allows interactions with them
@@ -210,6 +211,29 @@ public class NecsaveUI extends ConsoleInteraction {
                 }
             }
         });
+        
+        getConsole().addMenuItem("Advanced>NECSAVE>Send MissionCompleted", null, new ActionListener() {
+
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                MissionCompleted msg = new MissionCompleted();
+                try {
+                    sendMessage(msg);
+                }
+                catch (Exception ex) {
+                    GuiUtils.errorMessage(getConsole(), ex);
+                    ex.printStackTrace();
+                }
+            }
+        });
+        
+        getConsole().addMenuItem("Advanced>NECSAVE>Clear Platforms", null, new ActionListener() {
+
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                platformNames.clear();
+            }
+        });
     }
     
     private static String[] getNames(Class<? extends Enum<?>> e) {
@@ -293,6 +317,7 @@ public class NecsaveUI extends ConsoleInteraction {
                         Math.toDegrees(msg.getWaypoint().getLongitude()));
                 loc.setDepth(msg.getWaypoint().getDepth());
                 extSys.setLocation(loc, System.currentTimeMillis());
+                extSys.setAttitudeDegrees(Math.toDegrees(msg.getHeading()));
             }
             else {
                 NeptusLog.pub().error(I18n.textf("Kinematics message from %platform is not valid.", name));
@@ -328,12 +353,16 @@ public class NecsaveUI extends ConsoleInteraction {
         loc.setDepth(msg.getObject().getDepth());
         contacts.put(msg.getSrc() + "." + msg.getContactId(), loc);
     }
-
-    @Subscribe
-    public void on(Message msg) {
-        JsonObject json = new JsonObject();
-        json.setJson(msg.asJSON(false));
-        LsfMessageLogger.log(json);
+    
+    @Override
+    public void paintInteraction(Graphics2D g, StateRenderer2D source) {
+        super.paintInteraction(g, source);
+        g.setColor(Color.black);
+        int x = 50;
+        for (int id : platformNames.keySet()) {
+            g.drawString(platformNames.get(id)+": "+transport.addressOf(id), 50, x);
+            x += 20;
+        }
     }
 
     @Override

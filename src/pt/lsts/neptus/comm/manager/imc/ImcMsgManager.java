@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2015 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2016 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -51,8 +51,12 @@ import java.util.concurrent.FutureTask;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
+import java.util.concurrent.atomic.AtomicInteger;
 
+import javax.naming.InvalidNameException;
 import javax.swing.JFrame;
+
+import com.google.common.eventbus.AsyncEventBus;
 
 import pt.lsts.imc.Announce;
 import pt.lsts.imc.EntityInfo;
@@ -91,8 +95,6 @@ import pt.lsts.neptus.util.StringUtils;
 import pt.lsts.neptus.util.conf.ConfigFetch;
 import pt.lsts.neptus.util.conf.GeneralPreferences;
 import pt.lsts.neptus.util.conf.PreferencesListener;
-
-import com.google.common.eventbus.AsyncEventBus;
 
 /**
  * @author pdias
@@ -157,11 +159,14 @@ CommBaseManager<IMCMessage, MessageInfo, SystemImcMsgCommInfo, ImcId16, CommMana
 
     // EventBus
     private final ExecutorService service = Executors.newCachedThreadPool(new ThreadFactory() {
-        private long counter = 0;
+        private final String namePrefix = ImcMsgManager.class.getSimpleName() + "::"
+                + Integer.toHexString(ImcMsgManager.this.hashCode());
+        private final AtomicInteger counter = new AtomicInteger(0);
+        private final ThreadGroup group = new ThreadGroup(namePrefix);
         @Override
         public Thread newThread(Runnable r) {
-            Thread t = new Thread(r);
-            t.setName("Message Event Bus " + (counter++));
+            Thread t = new Thread(group, r);
+            t.setName("Message Event Bus " + (counter.getAndIncrement()));
             t.setDaemon(true);
             return t;
         }
@@ -208,18 +213,18 @@ CommBaseManager<IMCMessage, MessageInfo, SystemImcMsgCommInfo, ImcId16, CommMana
         ignoredClasses.add(IMCSendMessageUtils.class.getName());
     }
 
-    public static void registerBusListener(Object listener) {
-        if (!getManager().busListeners.contains(listener)) {
-            getManager().getMessageBus().register(listener);
+    public void registerBusListener(Object listener) {
+        if (!busListeners.contains(listener)) {
+            getMessageBus().register(listener);
         }
-        getManager().busListeners.add(listener);
+        busListeners.add(listener);
     }
 
-    public static void unregisterBusListener(Object listener) {
-        if (getManager().busListeners.contains(listener)) {
-            getManager().getMessageBus().unregister(listener);
+    public void unregisterBusListener(Object listener) {
+        if (busListeners.contains(listener)) {
+            getMessageBus().unregister(listener);
         }
-        getManager().busListeners.remove(listener);
+        busListeners.remove(listener);
     }
 
     /**
@@ -401,7 +406,7 @@ CommBaseManager<IMCMessage, MessageInfo, SystemImcMsgCommInfo, ImcId16, CommMana
 
         commInfo.put(vIdS, vsci);
 
-        // pdias 14/3/2009 new to VehicleImc3MsgCommInfo.createNewPrivateNode
+        // pdias 14/3/2009 new to VehicleImcMsgCommInfo.createNewPrivateNode
         // if (vsci.isUdpOn())
         // udpOnIpMapper.put(vsci.getIpAddress()+(isFilterByPort?":"+vsci.getIpRemotePort():""),
         // vsci.getVehicleCommId());
@@ -1473,6 +1478,51 @@ CommBaseManager<IMCMessage, MessageInfo, SystemImcMsgCommInfo, ImcId16, CommMana
             NeptusLog.pub().info("<###>sending msg '" + msg.getAbbrev() + "' to '" + s.getName() + "'...");
             ImcMsgManager.getManager().sendMessage(msg, s.getId(), null);
         }
+    }
+    
+    public int getEntityId() {
+        String caller = getCallerClass();
+
+        if (caller != null) {
+            if (!neptusEntities.containsKey(caller)) {
+                short id = ++lastEntityId;
+                neptusEntities.put(caller, id);
+                
+                EntityInfo info = new EntityInfo();
+                info.setId(id);
+                info.setComponent(caller);
+                try {
+                    caller = PluginUtils.getPluginName(Class.forName(caller));
+                }
+                catch (Exception e) {
+                    NeptusLog.pub().error(e.getMessage());
+                }
+                info.setLabel(caller);
+                info.setSrcEnt(0);
+                info.setSrc(getLocalId().intValue());
+
+                LsfMessageLogger.log(info);
+            }
+            return neptusEntities.get(caller);
+        }
+        
+        return 255;
+    }
+    
+    public int registerEntity(String name) throws InvalidNameException {
+        if (neptusEntities.containsKey(name))
+            throw new InvalidNameException("There is already a registered entity named '"+name+"'.");
+
+        neptusEntities.put(name, ++lastEntityId);
+        EntityInfo info = new EntityInfo();
+        info.setId(lastEntityId);
+        info.setComponent(name);
+        info.setLabel(name);
+        info.setSrcEnt(0);
+        info.setSrc(getLocalId().intValue());
+        LsfMessageLogger.log(info);
+        
+        return neptusEntities.get(name);
     }
 
     /**

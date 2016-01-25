@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2015 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2016 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -68,6 +68,7 @@ import pt.lsts.neptus.gui.checklist.UserActionItem;
 import pt.lsts.neptus.gui.checklist.UserCommentItem;
 import pt.lsts.neptus.gui.checklist.VariableIntervalItem;
 import pt.lsts.neptus.gui.swing.JRoundButton;
+import pt.lsts.neptus.platform.OsInfo;
 import pt.lsts.neptus.types.checklist.CheckAutoSubItem;
 import pt.lsts.neptus.types.checklist.CheckAutoUserActionItem;
 import pt.lsts.neptus.types.checklist.CheckAutoUserLogItem;
@@ -78,7 +79,6 @@ import pt.lsts.neptus.util.DateTimeUtil;
 import pt.lsts.neptus.util.FileUtil;
 import pt.lsts.neptus.util.GuiUtils;
 import pt.lsts.neptus.util.ImageUtils;
-import pt.lsts.neptus.util.conf.ConfigFetch;
 
 public class CheckListExe extends JDialog implements CheckSubItemProvider {
 
@@ -635,7 +635,7 @@ public class CheckListExe extends JDialog implements CheckSubItemProvider {
 
                     chronometer.stop();
 
-                    String saux = DateTimeUtil.dateTimeFileNameFormater.format(new Date(System.currentTimeMillis()));
+                    String saux = DateTimeUtil.dateTimeFileNameFormatter.format(new Date(System.currentTimeMillis()));
                     String aux2 = checklist.getName().replace('.', '\0');
                     aux2 = aux2.replace('<', '_');
                     aux2 = aux2.replace('>', '_');
@@ -681,7 +681,7 @@ public class CheckListExe extends JDialog implements CheckSubItemProvider {
                      * else ret = saveFile();
                      */
 
-                    String saux = DateTimeUtil.dateTimeFileNameFormater.format(new Date(System.currentTimeMillis()));
+                    String saux = DateTimeUtil.dateTimeFileNameFormatter.format(new Date(System.currentTimeMillis()));
                     String aux2 = checklist.getName().replace('.', '\0');
                     aux2 = aux2.replace('<', '_');
                     aux2 = aux2.replace('>', '_');
@@ -718,7 +718,7 @@ public class CheckListExe extends JDialog implements CheckSubItemProvider {
                                 + "\".");
 
                         try {
-                            if (ConfigFetch.getOS() == ConfigFetch.OS_WINDOWS)
+                            if (OsInfo.getName() == OsInfo.Name.WINDOWS)
                                 Runtime.getRuntime().exec("rundll32 url.dll,FileProtocolHandler " + pdf);
                             else {
                                 String[] readers = { "acroread", "xpdf" };

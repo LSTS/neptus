@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2015 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2016 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -76,6 +76,7 @@ import pt.lsts.neptus.types.mission.MissionType;
 import pt.lsts.neptus.types.mission.plan.PlanType;
 import pt.lsts.neptus.util.GuiUtils;
 import pt.lsts.neptus.util.ImageUtils;
+import pt.lsts.neptus.util.conf.ConfigFetch;
 import de.micromata.opengis.kml.v_2_2_0.Coordinate;
 import de.micromata.opengis.kml.v_2_2_0.Placemark;
 import de.micromata.opengis.kml.v_2_2_0.LineString;
@@ -138,9 +139,8 @@ public class KmlImport extends ConsolePanel {
         add(menuBar, BorderLayout.NORTH);
         addMenuListeners();
 
-        fileChooser = new JFileChooser();
-        fileChooser.setCurrentDirectory(new File(System.getProperty("user.home")));
-        fileChooser.setFileFilter(GuiUtils.getCustomFileFilter(I18n.text("KML files"), new String[] {"kml", "kmz", "KML", "KMZ"}));
+        fileChooser = GuiUtils.getFileChooser(ConfigFetch.getUserHomeFolder(),
+                I18n.text("KML files"), "kml", "kmz");
 
         rightClickPopup = new JPopupMenu();
         rightClickAddItem = new JMenuItem(I18n.text("Add to map"));

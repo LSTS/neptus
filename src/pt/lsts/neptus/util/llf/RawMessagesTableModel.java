@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2015 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2016 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -32,6 +32,7 @@
 package pt.lsts.neptus.util.llf;
 
 import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.TimeZone;
 
 import javax.swing.table.AbstractTableModel;
@@ -98,26 +99,25 @@ public class RawMessagesTableModel extends AbstractTableModel {
          if (!map.containsKey(rowIndex))
             map.put(rowIndex, index.getMessage(rowIndex));
         
-        IMCMessage m = (IMCMessage) map.get(rowIndex);
-        
         switch (columnIndex) {
             case NUM:
                 return String.format("%8d", rowIndex);
             case TIMESTAMP:
-                return sdf.format(m.getDate());
+                return sdf.format(new Date((long)(1000.0*index.timeOf(rowIndex))));
             case SRC:
-                return m.getSourceName();
+                return index.sourceNameOf(rowIndex);
             case SRC_ENT:
-                return index.entityNameOf(m.getSrcEnt());
+                return index.entityNameOf(rowIndex);
             case DST:
-                return index.getDefinitions().getResolver().resolve(m.getDst());
+                return index.getDefinitions().getResolver().resolve(((IMCMessage) map.get(rowIndex)).getDst());
             case DST_ENT:
+                IMCMessage m = (IMCMessage) map.get(rowIndex);
                 if (m.getSrc() == m.getDst())
                     return index.entityNameOf(m.getDstEnt());
                 else
                     return m.getDstEnt();
             case MGID:
-                return m.getAbbrev();
+                return index.getDefinitions().getMessageName(index.typeOf(rowIndex));
             case SIZE:
                 return index.sizeOf(rowIndex);
             default:

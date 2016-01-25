@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2015 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2016 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -37,6 +37,7 @@ import java.util.Map.Entry;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadFactory;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.console.ConsoleLayout;
@@ -61,10 +62,14 @@ public enum NeptusEvents {
 
     private NeptusEvents() {
         ExecutorService service = Executors.newCachedThreadPool(new ThreadFactory() {
+            private final String namePrefix = NeptusEvents.class.getSimpleName() + "::global::"
+                    + Integer.toHexString(NeptusEvents.this.hashCode());
+            private final AtomicInteger counter = new AtomicInteger(0);
+            private final ThreadGroup group = new ThreadGroup(namePrefix);
             @Override
             public Thread newThread(Runnable r) {
-                Thread t = new Thread(r);
-                t.setName("global events handler");
+                Thread t = new Thread(group, r);
+                t.setName("Global Events Handler ::" + counter.getAndIncrement());
                 t.setDaemon(true);
                 return t;
             }
@@ -72,10 +77,14 @@ public enum NeptusEvents {
         eventBus = new AsyncEventBus(service);
         eventBus.register(this);
         service = Executors.newCachedThreadPool(new ThreadFactory() {
+            private final String namePrefix = NeptusEvents.class.getSimpleName() + "::main-system::"
+                    + Integer.toHexString(NeptusEvents.this.hashCode());
+            private final AtomicInteger counter = new AtomicInteger(0);
+            private final ThreadGroup group = new ThreadGroup(namePrefix);
             @Override
             public Thread newThread(Runnable r) {
-                Thread t = new Thread(r);
-                t.setName("main system events handler");
+                Thread t = new Thread(group, r);
+                t.setName("Main System Events Handler ::" + counter.getAndIncrement());
                 t.setDaemon(true);
                 return t;
             }
@@ -83,10 +92,14 @@ public enum NeptusEvents {
         mainSystemEventBus = new AsyncEventBus(service);
         mainSystemEventBus.register(this);
         service = Executors.newCachedThreadPool(new ThreadFactory() {
+            private final String namePrefix = NeptusEvents.class.getSimpleName() + "::other-system::"
+                    + Integer.toHexString(NeptusEvents.this.hashCode());
+            private final AtomicInteger counter = new AtomicInteger(0);
+            private final ThreadGroup group = new ThreadGroup(namePrefix);
             @Override
             public Thread newThread(Runnable r) {
-                Thread t = new Thread(r);
-                t.setName("other system events handler");
+                Thread t = new Thread(group, r);
+                t.setName("Other System Events Handler ::" + counter.getAndIncrement());
                 t.setDaemon(true);
                 return t;
             }
@@ -179,11 +192,15 @@ public enum NeptusEvents {
     public static void create(ConsoleLayout console) {
         // EventBus
         ExecutorService service = Executors.newCachedThreadPool(new ThreadFactory() {
-
+            private final String namePrefix = NeptusEvents.class.getSimpleName()
+                    + "::" + ConsoleLayout.class.getSimpleName()  + "::console::"
+                    + Integer.toHexString(console.hashCode());
+            private final AtomicInteger counter = new AtomicInteger(0);
+            private final ThreadGroup group = new ThreadGroup(namePrefix);
             @Override
             public Thread newThread(Runnable r) {
-                Thread t = new Thread(r);
-                t.setName("console event bus");
+                Thread t = new Thread(group, r);
+                t.setName("Console Event Bus ::" + counter.getAndIncrement());
                 t.setDaemon(true);
                 return t;
             }

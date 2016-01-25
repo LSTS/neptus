@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2015 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2016 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -1185,9 +1185,9 @@ LockableSubPanel, IPeriodicUpdates, NeptusMessageListener {
                                 double deltaTime = (msg.getTimestampMillis() - requestTimeMillis) / 1E3;
                                 post(Notification.error(I18n.text("Plan Control Error"),
                                         I18n.textf("The following error arrived at @%timeArrived for a request @%timeRequested (\u2206t %deltaTime): %msg",
-                                                DateTimeUtil.timeFormaterNoMillis2UTC.format(msg.getDate())
+                                                DateTimeUtil.timeFormatterNoMillis2UTC.format(msg.getDate())
                                                 + utcStr,
-                                                DateTimeUtil.timeFormaterNoMillis2UTC.format(new Date(
+                                                DateTimeUtil.timeFormatterNoMillis2UTC.format(new Date(
                                                         requestTimeMillis)) + utcStr, deltaTime < 0 ? "-"
                                                                 : convertTimeSecondsToFormatedStringMillis(deltaTime),
                                                                 msg.getInfo())).src(
@@ -1244,9 +1244,9 @@ LockableSubPanel, IPeriodicUpdates, NeptusMessageListener {
                                 double deltaTime = (planDb.getTimestampMillis() - requestTimeMillis) / 1E3;
                                 post(Notification.error(I18n.text("Plan DB Error"),
                                         I18n.textf("The following error arrived at @%timeArrived for a request @%timeRequested (\u2206t %deltaTime): %msg",
-                                                DateTimeUtil.timeFormaterNoMillis2UTC.format(planDb.getDate())
+                                                DateTimeUtil.timeFormatterNoMillis2UTC.format(planDb.getDate())
                                                 + utcStr,
-                                                DateTimeUtil.timeFormaterNoMillis2UTC.format(new Date(
+                                                DateTimeUtil.timeFormatterNoMillis2UTC.format(new Date(
                                                         requestTimeMillis)) + utcStr, deltaTime < 0 ? "-"
                                                                 : convertTimeSecondsToFormatedStringMillis(deltaTime),
                                                                 planDb.getInfo())).src(

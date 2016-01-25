@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2015 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2016 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -62,10 +62,10 @@ public class SidescanConfig implements PropertiesProvider {
     public ColorMap colorMap = ColorMapFactory.createBronzeColormap();
     
     @NeptusProperty (name="Normalization factor", category="Visualization parameters")
-    public double normalization = 0.2;
+    public double normalization = 0.1;
     
     @NeptusProperty (name="Time Variable Gain factor", category="Visualization parameters")
-    public double tvgGain = 75;
+    public double tvgGain = 120;
     
     @NeptusProperty (name="Display Vehicle Path", category="Vehicle Path")
     public boolean showPositionHud = true;

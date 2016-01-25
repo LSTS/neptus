@@ -35,7 +35,7 @@
         WG_NAV_TEST_RUDDER_LEFT
         -->
 
-        <!-- Follow a system of points 
+        <!-- Follow a system of points
         <maneuver>
             <FollowPath kind="automatic">
                 <basePoint type="pointType">
@@ -126,7 +126,7 @@
                 <telemetry>5984</telemetry>
                 <command>5983</command>
                 <reply>5001</reply>
-            </cmre-udp>                
+            </cmre-udp>
        </protocols-args>
     </protocols-supported>
     <communication-means>
@@ -134,10 +134,9 @@
             <name>ethernet</name>
             <type>ethernet</type>
             <host-address>192.168.0.47</host-address>
-            <credentials username="root"/>
             <protocols>cmre-udp</protocols>
             <latency value="10M" unit="bps"/>
-            
+
         </comm-mean>
     </communication-means>
     <consoles>

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2015 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2016 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -35,11 +35,14 @@ import pt.lsts.neptus.colormap.ColorMap;
 import pt.lsts.neptus.colormap.ColorMapFactory;
 
 /**
+ * This will be serializable, so no name changes of the fields!
  * @author jqcorreia
  * 
  */
 public class SidescanLogMarker extends LogMarker {
     private static final long serialVersionUID = 1L;
+    
+    private static final int CURRENT_VERSION = 1;
 
     public double x;
     public double y;
@@ -50,6 +53,9 @@ public class SidescanLogMarker extends LogMarker {
     public String colorMap;
     public boolean point;
 
+    /** Added version info. For the loaded old marks this value will be 0. */
+    private int sidescanMarkVersion = CURRENT_VERSION;
+    
     /**
      * @param label
      * @param timestamp
@@ -110,4 +116,22 @@ public class SidescanLogMarker extends LogMarker {
         }
     }
 
+    public void fixLocation(double latRads, double lonRads) {
+        this.lat = latRads;
+        this.lon = lonRads;
+    }
+    
+    /**
+     * @return the SidescanMarkVersion
+     */
+    public int getSidescanMarkVersion() {
+        return sidescanMarkVersion;
+    }
+    
+    /**
+     * This will set the version to {@link #CURRENT_VERSION} (currently {@value #CURRENT_VERSION})
+     */
+    public void resetSidescanMarkVersion() {
+        this.sidescanMarkVersion = CURRENT_VERSION;
+    }
 }

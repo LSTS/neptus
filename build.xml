@@ -2,7 +2,7 @@
 <!-- ===================================================================
    Build file for Neptus
 
-Copyright (c) 2004-2015 Universidade do Porto - Faculdade de Engenharia
+Copyright (c) 2004-2016 Universidade do Porto - Faculdade de Engenharia
 Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
 All rights reserved.
 Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -74,7 +74,7 @@ For simple use the main targets are:
 
 	<property name="name" value="neptus" />
 	<property name="Name" value="Neptus" />
-	<property name="years" value="2004-2015" />
+	<property name="years" value="2004-2016" />
 	<property name="legal.copy" value="(c)${years} LSTS-FEUP and Neptus developers. All Rights Reserved."/>
 	<property name="legal.copy.html" value="Copyright &#169; ${years} FEUP-LSTS and Neptus developers. All Rights Reserved."/>
 
@@ -364,7 +364,6 @@ For simple use the main targets are:
 		<property name="dist.installer.name.seacon" value="${dist.installer.basename.seacon}-${scm.last.changed.date.short}"/><!--${time.date}-->
 
 		<echo message="-------------------------------------------------------------------" />
-		<!--echo level="info" message="SVN r${svn.revision.range} @ ${svn.repository.path}" /-->
 		<echo level="info" message="Git ${scm.revision}" />
 		<echo level="info" message="    g${scm.revision.uid}" />
 		<echo level="info" message="    ${scm.repository.path}" />
@@ -825,7 +824,12 @@ For simple use the main targets are:
 				index="false" update="true" excludes="${exclude-defaults}, *.class">
 			<include name="version.*" />
 			<include name="info*" />
+			<include name="pt/lsts/neptus/comm/iridium/**/*.class" />
 			<include name="pt/lsts/neptus/comm/manager/imc/ImcId16*.class" />
+			<include name="pt/lsts/neptus/console/*ConsoleLayer*.class" />
+			<include name="pt/lsts/neptus/console/ConsolePanel*.class" />
+			<include name="pt/lsts/neptus/console/MainPanel*.class" />
+			<include name="pt/lsts/neptus/console/plugins/**/*.class" />
 			<include name="pt/lsts/neptus/i18n/**/*.class" />
 			<include name="pt/lsts/neptus/types/coord/*.class" />
 			<include name="pt/lsts/neptus/types/**/*.class" />
@@ -835,6 +839,8 @@ For simple use the main targets are:
 			<include name="pt/lsts/neptus/gps/**.class" />
 			<include name="pt/lsts/neptus/gui/Properties*.class" />
 			<include name="pt/lsts/neptus/gui/InfiniteProgressPanel.class" />
+			<include name="pt/lsts/neptus/gui/ToolbarSwitch*.class" />
+			<include name="pt/lsts/neptus/gui/swing/NeptusFileView*.class" />
 			<include name="pt/lsts/neptus/mp/MapChangeEvent*.class" />
 			<include name="pt/lsts/neptus/mp/MapChangeListener*.class" />
 			<include name="pt/lsts/neptus/mp/Vehicle*.class" />
@@ -962,12 +968,14 @@ For simple use the main targets are:
 			<include name="pt/lsts/neptus/util/NameNormalizer.class"/>
 			<include name="pt/lsts/neptus/util/PropertiesLoader*.class"/>
 			<include name="pt/lsts/neptus/util/conf/*.class"/>
+			<include name="pt/lsts/neptus/util/credentials/*.class"/>
 			<include name="pt/lsts/neptus/util/output/*.class"/>
 			<include name="pt/lsts/neptus/util/xsl/*.class"/>
 			<!--include name="pt/lsts/neptus/util/**/*.class"/-->
 			<include name="pt/lsts/neptus/util/*.class"/>
 			<include name="pt/lsts/neptus/vartree/*.class"/>
 			<include name="pt/lsts/vartree/*.class"/>
+			<include name="pt/lsts/neptus/platform/**/*.class"/>
 			<manifest>
 				<attribute name="Built-By" value="${user.name}" />
 				<attribute name="Built-On" value="${TODAY} - ${TSTAMP}" />
@@ -997,7 +1005,8 @@ For simple use the main targets are:
 		<unzip dest="${tmp.bundle.dir}" src="lib/standby.jar"/>
 		<unzip dest="${tmp.bundle.dir}" src="lib/log4j-1.2.17.jar"/>
 		<unzip dest="${tmp.bundle.dir}" src="lib/iText-2.1.5.jar"/>
-		<unzip dest="${tmp.bundle.dir}" src="lib/zxing-bin.jar"/>
+		<unzip dest="${tmp.bundle.dir}" src="lib/zxing-3.2.1.jar"/>
+		<unzip dest="${tmp.bundle.dir}" src="lib/zxing-core-3.2.1.jar"/>
 		<unzip dest="${tmp.bundle.dir}" src="lib/commons-cli-1.2.jar"/>
 		<unzip dest="${tmp.bundle.dir}" src="lib/libimc.jar"/>
 		<!--unzip dest="${tmp.bundle.dir}" src="lib/commons-io-2.4.jar"/-->
@@ -1097,8 +1106,11 @@ For simple use the main targets are:
 			<include name="pt/lsts/neptus/util/*.class" />
 			<include name="pt/lsts/neptus/util/coord/*.class" />
 			<include name="pt/lsts/neptus/util/conf/*.class" />
+			<include name="pt/lsts/neptus/util/http/client/HttpClientConnectionHelper*.class" />
 			<include name="pt/lsts/neptus/util/output/*.class"/>
 			<include name="pt/lsts/neptus/planeditor/I*.class" />
+			<include name="pt/lsts/neptus/platform/**/*.class"/>
+			<include name="pt/lsts/neptus/gui/swing/NeptusFileView*.class"/>
 		</jar>
 		<mkdir dir="${tmp.bundle.dir}"/>
 		<unzip dest="${tmp.bundle.dir}" src="lib/dom4j/dom4j-1.6.1.jar"/>
@@ -1110,17 +1122,16 @@ For simple use the main targets are:
 		<unzip dest="${tmp.bundle.dir}" src="lib/standby.jar"/>
 		<unzip dest="${tmp.bundle.dir}" src="lib/log4j-1.2.17.jar"/>
 		<!--unzip dest="${tmp.bundle.dir}" src="lib/iText-2.1.5.jar"/-->
-		<!--unzip dest="${tmp.bundle.dir}" src="lib/zxing-bin.jar"/-->
 		<unzip dest="${tmp.bundle.dir}" src="lib/commons-cli-1.2.jar"/>
 		<!--unzip dest="${tmp.bundle.dir}" src="lib/commons-io-1.4.jar"/-->
 		<unzip dest="${tmp.bundle.dir}" src="lib/foxtrot.jar"/>
-		<unzip dest="${tmp.bundle.dir}" src="lib/httpclient-4.3.2.jar"/>
-		<unzip dest="${tmp.bundle.dir}" src="lib/httpcore-4.3.1.jar"/>
+		<unzip dest="${tmp.bundle.dir}" src="lib/httpclient-4.5.1.jar"/>
+		<unzip dest="${tmp.bundle.dir}" src="lib/httpcore-4.4.4.jar"/>
 		<unzip dest="${tmp.bundle.dir}" src="lib/commons-codec-1.9.jar"/>
 		<unzip dest="${tmp.bundle.dir}" src="lib/fop/batik.jar"/>
 		<unzip dest="${tmp.bundle.dir}" src="lib/fop/xml-apis-ext.jar"/>
 		<unzip dest="${tmp.bundle.dir}" src="lib/fop/xmlgraphics-commons-1.3.1.jar"/>
-		<unzip dest="${tmp.bundle.dir}" src="lib/commons-logging-1.1.3.jar"/>
+		<unzip dest="${tmp.bundle.dir}" src="lib/commons-logging-1.2.jar"/>
 		<unzip dest="${tmp.bundle.dir}" src="plugins/tiles-extra.jar"/>
 		<unzip dest="${tmp.bundle.dir}" src="lib/libimc.jar"/>
 		<unzip dest="${tmp.bundle.dir}" src="lib/miglayout-core-4.2.jar"/>
@@ -1498,7 +1509,7 @@ For simple use the main targets are:
 		</antcall>
 	</target>
 	
-	<target name="test-worker" depends="default, junit, distribution-full-all-os, distribution-full-windows">
+	<target name="test-worker" depends="default, junit, java-src-check">
 	</target>
 	
 	<!-- =================================================================== -->
@@ -2178,7 +2189,7 @@ For simple use the main targets are:
 							<include name="pt.lsts.neptus.gui." />
 							<include name="pt.lsts.neptus.util.*Utils" />
 							<include name="pt.lsts.neptus.util.*Util" />
-							<include name="pt.lsts.neptus.util.AngleCalc" />
+							<include name="pt.lsts.neptus.util.AngleUtils" />
 							<include name="pt.lsts.neptus.util.NameNormalizer" />
 							<include name="pt.lsts.neptus.util.logdownload.Log*" />
 							<!--include name="pt.lsts.vartree.VarTree" /-->
@@ -2317,7 +2328,7 @@ For simple use the main targets are:
 							<include name="pt.lsts.neptus.gui." />
 							<include name="pt.lsts.neptus.util.*Utils" />
 							<include name="pt.lsts.neptus.util.*Util" />
-							<include name="pt.lsts.neptus.util.AngleCalc" />
+							<include name="pt.lsts.neptus.util.AngleUtils" />
 							<include name="pt.lsts.neptus.util.NameNormalizer" />
 							<include name="pt.lsts.neptus.util.logdownload.Log*" />
 							<include name="pt.lsts.vartree.VarTree" />
@@ -2384,6 +2395,37 @@ For simple use the main targets are:
 	</target>
 
 	<!-- =================================================================== -->
+	<!-- Check for java src bad src references for resources                 -->
+	<!-- =================================================================== -->
+    <target name="java-src-check"
+    		description="This will check if some src code referece resources in src or plugins-dev directly.">
+    	<fileset id="bad.ref.files" dir="${src.dir}" defaultexcludes="yes">
+    		<include name="**/*.java"/>
+    		<or>
+    	        <containsregexp expression='".*?src/.*?"'/>
+    	        <containsregexp expression='".*?plugins-dev/.*?"'/>
+    	    </or>
+    	</fileset>
+    	<fail message="Bad references to src found...failing: ${toString:bad.ref.files}">
+    	    <condition>
+    	        <resourcecount when="greater" count="0" refid="bad.ref.files" />
+    	    </condition>
+    	</fail>
+    	<fileset id="bad.ref.files2" dir="${plugin-dev.dir.base}" defaultexcludes="yes">
+    		<include name="**/*.java"/>
+    		<or>
+    	        <containsregexp expression='".*?src/.*?"'/>
+    	        <containsregexp expression='".*?plugins-dev/.*?"'/>
+    	    </or>
+    	</fileset>
+    	<fail message="Bad references to src found...failing: ${toString:bad.ref.files2}">
+    	    <condition>
+    	        <resourcecount when="greater" count="0" refid="bad.ref.files2" />
+    	    </condition>
+    	</fail>
+    </target>
+
+	<!-- =================================================================== -->
 	<!-- Run Neptus application                                              -->
 	<!-- =================================================================== -->
 	<target name="run" depends="jar" description="Test run of Neptus">
@@ -2411,8 +2453,6 @@ For simple use the main targets are:
 	"hash":"${git.hash}"
 }
 </echo>
-
-
 	</target>
 
 </project>

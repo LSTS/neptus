@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2015 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2016 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -37,6 +37,7 @@ import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.awt.event.KeyEvent;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Vector;
 
@@ -61,10 +62,10 @@ import pt.lsts.neptus.util.conf.ConfigFetch;
  * Contains all the buttons.
  * 
  * @author Margarida Faria
- * 
+ * @author pdias
  */
 @Popup(icon = "images/menus/settings.png", name = "Console Settings", pos = POSITION.CENTER, accelerator = KeyEvent.VK_F3, height = 400, width = 600)
-public class SettingsWindow extends ConsolePanel {
+public class SettingsWindow extends ConsolePanel implements SubPanelChangeListener {
 
     private static final long serialVersionUID = 1L;
     private FunctionalitiesSettings settingsPanel;
@@ -82,6 +83,13 @@ public class SettingsWindow extends ConsolePanel {
 
         this.removeAll();
 
+        initPropertiesProvidersList(console);
+    }
+
+    /**
+     * @param console
+     */
+    private void initPropertiesProvidersList(ConsoleLayout console) {
         List<PropertiesProvider> consolePlugins = console.getAllPropertiesProviders();
         for (PropertiesProvider propertiesProvider : consolePlugins) {
             if (propertiesProvider == null)
@@ -150,14 +158,91 @@ public class SettingsWindow extends ConsolePanel {
         this.settingsPanel = new FunctionalitiesSettings(ConfigFetch.getDistributionType().equals(
                 DistributionEnum.CLIENT), subPanels);
         this.add(settingsPanel, "w 100%!, h 100%, wrap");
+        
+//        initPropertiesProvidersList(getConsole());
+
         addButtons();
         // this is done after the level normal/advanced is set by creating the checkbox
         settingsPanel.reset();
+        
+        getConsole().addSubPanelListener(this);
+        
         dialog.setModalityType(ModalityType.DOCUMENT_MODAL);
     }
 
     @Override
     public void cleanSubPanel() {
+        getConsole().removeSubPanelListener(this);
         settingsPanel = null;
+        subPanels.clear();
+    }
+
+    public void addPropertiesProvider(PropertiesProvider... propProvider) {
+        addRemovePropertiesProviderWorker(propProvider, null);
+    }
+
+    public void removePropertiesProvider(PropertiesProvider... propProvider) {
+        addRemovePropertiesProviderWorker(null, propProvider);
+    }
+
+    public void addRemovePropertiesProvider(ArrayList<PropertiesProvider> propProviderAddList,
+            ArrayList<PropertiesProvider> propProviderRemoveList) {
+        addRemovePropertiesProviderWorker(
+                propProviderAddList == null ? null
+                        : propProviderAddList.toArray(new PropertiesProvider[propProviderAddList.size()]),
+                propProviderRemoveList == null ? null
+                        : propProviderRemoveList.toArray(new PropertiesProvider[propProviderRemoveList.size()]));
+    }
+
+    private void addRemovePropertiesProviderWorker(PropertiesProvider[] propProviderAdd, 
+            PropertiesProvider[] propProviderRemove) {
+        boolean change = false;
+
+        if (propProviderAdd != null) {
+            for (PropertiesProvider pp : propProviderAdd) {
+                if (!subPanels.contains(pp)) {
+                    boolean ret = subPanels.add(pp);
+                    if (ret) {
+                        change = true;
+                    }
+                }
+            }
+        }
+
+        if (propProviderRemove != null) {
+            for (PropertiesProvider pp : propProviderRemove) {
+                if (subPanels.contains(pp)) {
+                    boolean ret = subPanels.remove(pp);
+                    if (ret) {
+                        change = true;
+                    }
+                }
+            }
+        }
+        
+        if (change) {
+            settingsPanel.setupNewProviders(subPanels);
+            settingsPanel.reset();
+        }
+    }
+
+    /* (non-Javadoc)
+     * @see pt.lsts.neptus.console.plugins.SubPanelChangeListener#subPanelChanged(pt.lsts.neptus.console.plugins.SubPanelChangeEvent)
+     */
+    @Override
+    public void subPanelChanged(SubPanelChangeEvent panelChange) {
+        ConsolePanel panel = panelChange.getPanel();
+        switch (panelChange.getAction()) {
+            case ADDED:
+                if (panel instanceof PropertiesProvider) {
+                    addPropertiesProvider((PropertiesProvider) panel);
+                }
+                break;
+            case REMOVED:
+                removePropertiesProvider((PropertiesProvider) panel);
+                break;
+            default:
+                break;
+        }
     }
 }

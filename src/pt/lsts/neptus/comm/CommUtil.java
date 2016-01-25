@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2015 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2016 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -175,21 +175,6 @@ public class CommUtil {
      */
     public static boolean testCommMeanForActivity(CommMean cm) {
         // FIXME Test CommMean for activity!!!
-        /*
-         * boolean ret = PingSend.ping(cm.getHostAddress()); if (ret) {
-         * NeptusLog.pub().info("CommUtil::testCommMeanForActivity:: " + "CommMean " + cm.getName() + " for host " +
-         * cm.getHostAddress() + " is active."); return true; } else { if (PingSend.activityTest(cm)) {
-         * NeptusLog.pub().info("CommUtil::testCommMeanForActivity:: " + "CommMean " + cm.getName() + " for host " +
-         * cm.getHostAddress() + " is active."); return true; } else {
-         * NeptusLog.pub().info("CommUtil::testCommMeanForActivity:: " + "CommMean " + cm.getName() + " for host " +
-         * cm.getHostAddress() + " is inactive."); return false; } }
-         */
-        /*
-         * if (PingSend.activityTest(cm)) { NeptusLog.pub().info("CommUtil::testCommMeanForActivity:: " + "CommMean " +
-         * cm.getName() + " for host " + cm.getHostAddress() + " is active."); return true; } else {
-         * NeptusLog.pub().info("CommUtil::testCommMeanForActivity:: " + "CommMean " + cm.getName() + " for host " +
-         * cm.getHostAddress() + " is inactive."); return false; }
-         */
         return true;
     }
 

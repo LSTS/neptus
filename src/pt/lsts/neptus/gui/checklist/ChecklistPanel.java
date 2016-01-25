@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2015 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2016 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -107,6 +107,7 @@ import pt.lsts.neptus.comm.manager.imc.SystemImcMsgCommInfo;
 import pt.lsts.neptus.gui.BlockingGlassPane;
 import pt.lsts.neptus.gui.checklist.exec.CheckListExe;
 import pt.lsts.neptus.i18n.I18n;
+import pt.lsts.neptus.platform.OsInfo;
 import pt.lsts.neptus.types.checklist.CheckItem;
 import pt.lsts.neptus.types.checklist.ChecklistType;
 import pt.lsts.neptus.util.FileUtil;
@@ -139,7 +140,7 @@ public class ChecklistPanel extends JPanel implements PropertyChangeListener {
     public static Icon ICON_CANCEL = new ImageIcon(ImageUtils.getImage("images/checklists/cancel.png"));
     public static Icon ICON_RUN = new ImageIcon(ImageUtils.getImage("images/checklists/run.png"));
 
-    public static String FLAT_TITLE;;
+    public static String FLAT_TITLE;
     public static String NOT_FLAT_TITLE;
 
     private static final int MAX_NUMBER_OF_SHOWN_CHARS = 20;
@@ -1443,7 +1444,7 @@ public class ChecklistPanel extends JPanel implements PropertyChangeListener {
      */
     protected void openPDFInExternalViewer(String pdf) {
         try {
-            if (ConfigFetch.getOS() == ConfigFetch.OS_WINDOWS) {
+            if (OsInfo.getName() == OsInfo.Name.WINDOWS) {
                 Runtime.getRuntime().exec("rundll32 url.dll,FileProtocolHandler " + pdf);
             }
             else {
@@ -2510,7 +2511,7 @@ public class ChecklistPanel extends JPanel implements PropertyChangeListener {
         HelpFormatter formatter = new HelpFormatter();
         // formatter.printHelp(NeptusLeaves.class.getCanonicalName(), options);
         formatter.printHelp("java -jar neptus-check.jar", "Neptus Checklist v" + ConfigFetch.getVersionSimpleString()
-                + "\nCopyright (c) 2004-2015 - Universidade do Porto - LSTS. All rights reserved.\n\n"
+                + "\nCopyright (c) 2004-2016 - Universidade do Porto - LSTS. All rights reserved.\n\n"
                 + I18n.text("Options:") + "\n",
                 options, I18n.textf("Report bugs to %email", "Paulo Dias <pdias@fe.up.pt>"), true);
     }
@@ -2543,7 +2544,7 @@ public class ChecklistPanel extends JPanel implements PropertyChangeListener {
             // BasicConfigurator.resetConfiguration();
             // NeptusLog.INSTANCE.logWaste.setLevel(Level.OFF);
             // NeptusLog.setLevel(Level.FATAL);
-            if (ConfigFetch.isOSEqual(ConfigFetch.OS_LINUX))
+            if (OsInfo.getName() == OsInfo.Name.LINUX)
                 GuiUtils.setLookAndFeel();
             else
                 GuiUtils.setSystemLookAndFeel();

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2015 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2016 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -31,85 +31,58 @@
  */
 package pt.lsts.neptus.util.conf;
 
-import java.awt.Component;
-import java.awt.Frame;
-import java.awt.Image;
-import java.awt.Toolkit;
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileFilter;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.lang.Thread.UncaughtExceptionHandler;
+import org.dom4j.*;
+import org.dom4j.io.SAXReader;
+import pt.lsts.neptus.NeptusLog;
+import pt.lsts.neptus.comm.manager.imc.ImcId16;
+import pt.lsts.neptus.platform.OsInfo;
+import pt.lsts.neptus.plugins.NeptusProperty;
+import pt.lsts.neptus.plugins.NeptusProperty.DistributionEnum;
+import pt.lsts.neptus.util.*;
+import pt.lsts.neptus.util.output.OutputMonitor;
+
+import javax.swing.*;
+import java.awt.*;
+import java.io.*;
 import java.net.Inet4Address;
 import java.net.InetAddress;
 import java.net.NetworkInterface;
 import java.net.URLDecoder;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.Enumeration;
-import java.util.HashMap;
-import java.util.Hashtable;
-import java.util.Iterator;
-import java.util.LinkedList;
+import java.util.*;
 import java.util.List;
-import java.util.Map;
-import java.util.Properties;
-import java.util.StringTokenizer;
-
-import javax.swing.JDialog;
-import javax.swing.JFrame;
-
-import org.dom4j.Attribute;
-import org.dom4j.Document;
-import org.dom4j.DocumentHelper;
-import org.dom4j.Element;
-import org.dom4j.Node;
-import org.dom4j.XPath;
-import org.dom4j.io.SAXReader;
-
-import pt.lsts.neptus.NeptusLog;
-import pt.lsts.neptus.comm.manager.imc.ImcId16;
-import pt.lsts.neptus.plugins.NeptusProperty;
-import pt.lsts.neptus.plugins.NeptusProperty.DistributionEnum;
-import pt.lsts.neptus.util.DateTimeUtil;
-import pt.lsts.neptus.util.FileUtil;
-import pt.lsts.neptus.util.NameNormalizer;
-import pt.lsts.neptus.util.ReflectionUtil;
-import pt.lsts.neptus.util.StreamUtil;
-import pt.lsts.neptus.util.output.OutputMonitor;
 
 /**
  * @author Paulo Dias <pdias@fe.up.pt>
- * @version 1.3.9 10/2006
+ * @version 1.3.10
  */
 public class ConfigFetch {
-    private static boolean onLockedMode = false;
-
-    public static final short OS_ERROR = -1;
-    public static final short OS_WINDOWS = 0;
-    public static final short OS_LINUX = 1;
-    public static final short OS_OTHER = 9;
-    public static final String DS = System.getProperty("file.separator", "/");
-
-    public static final long STARTTIME = System.currentTimeMillis();
-    public static long mark = System.currentTimeMillis();
-    public static Map<String, Long> timings = new HashMap<String, Long>();
-    protected static boolean schemasInTempFile = false;
-    protected static final Hashtable<String, String> listOfSchemas = new Hashtable<String, String>();
-    protected static final Hashtable<String, String> listOfSchemasPaths = new Hashtable<String, String>();
-
-    public enum ENVIROMENT {
+    /**
+     * This enum provides info if Neptus is running from jars or 
+     * by a development environment (e.g. Eclipse).
+     */
+    public enum Environment {
         PRODUCTION,
         DEVELOPMENT
     }
 
-    public static ENVIROMENT ENV = ENVIROMENT.DEVELOPMENT;
+    /** 
+     * This is the static instance of the {@link ConfigFetch}.
+     * To be initialized call first {@link ConfigFetch}{@link #initialize()}
+     * or {@link ConfigFetch}{@link #initialize(String)}.
+     */
+    public static ConfigFetch INSTANCE = null;
 
+    /** This hold the information if Neptus is running from jars or development environment. */
+    private static Environment runEnvironment = Environment.DEVELOPMENT;
+
+    /** This is the directory separator from {@link System}.getProperty("file.separator"). */
+    public static final String DS = System.getProperty("file.separator", "/");
+
+    /** To hold the list of XML Schemas used in Neptus. */
+    private static final Hashtable<String, String> listOfSchemas = new Hashtable<>();
+    /** To hold the loaded XML Schemas used in Neptus. */
+    private static final Hashtable<String, String> listOfSchemasPaths = new Hashtable<>();
     static {
         DateTimeUtil.getUID();
         listOfSchemas.put("mission", "schemas/neptus-mission.xsd");
@@ -121,31 +94,47 @@ public class ConfigFetch {
         listOfSchemas.put("checklist", "schemas/neptus-checklist.xsd");
         listOfSchemas.put("console", "schemas/neptus-console.xsd");
         listOfSchemas.put("coordinateSystems", "schemas/neptus-coordinateSystems.xsd");
-
         listOfSchemas.put("maneuvers", "schemas/neptus-maneuvers.xsd");
         listOfSchemas.put("textures", "schemas/neptus-textures.xsd");
         listOfSchemas.put("types", "schemas/neptus-types.xsd");
     }
 
+    /** The resource path for the version info (inside main jar. */
     private static final String VERSION_FILE_NAME = "/version.txt";
+    /** The resource path for the extended version info (inside main jar. */
     private static final String VERSION__EXTENDED_FILE_NAME = "/info";
 
-    protected static final String classPackage = "pt/lsts/neptus/util/conf";
-    protected static final String className = "ConfigFetch.class";
-
+    /** A list of base file paths */
     private static final String CONFIG_FILE_NAME = "neptus-config.xml";
+    private static final String MISSION_BASE_FOLDER = "missions";
+    private static final String CONF_BASE_FOLDER = "conf";
+    private static final String CONSOLES_BASE_FOLDER = CONF_BASE_FOLDER + "/" + "consoles";
+    private static final String LOG_BASE_FOLDER = "log";
+    private static final String LOG_DOWNLOADED_BASE_FOLDER = LOG_BASE_FOLDER + "/" + "downloaded";
+    private static final String MAP_BASE_FOLDER = "maps";
+    private static final String VEHICLES_BASE_FOLDER = "vehicles-defs";
 
-    protected static Document confDoc = DocumentHelper.createDocument();
-    protected static String configFile = CONFIG_FILE_NAME;
-    protected static String baseJarFileDir = ".";
-    protected static boolean ifLogger = true;
+    /** DOM4J Doc to hold the configuration. */
+    private static Document confDoc = DocumentHelper.createDocument();
+    /** The configuration file name. */
+    private static String configFile = CONFIG_FILE_NAME;
 
-    private static boolean distributionSetChangedOrGet = false;
+    /** The base jar file folder, initialized on {@link #init()}. Will be used for path resolver. */
+    private static String baseJarFileDir = ".";
+
+    /** Holds if Neptus is on lock mode. Use {@link #getDistributionType()} instead. */
+    private static boolean onLockedMode = false;
+    
+    /** Holds the type of distribution used. See {@link NeptusProperty.DistributionEnum}. */
     private static NeptusProperty.DistributionEnum distributionType = DistributionEnum.DEVELOPER;
+    /** Control variable to only set the {@link #distributionType} once. */
+    private static boolean distributionSetChangedOrGet = false;
 
-    protected static final String neptusTmpDir = System.getProperty("java.io.tmpdir", "tmp") + DS
+    /** This is the created temporary folder available for this instance of Neptus. */
+    private static final String neptusTmpDir = System.getProperty("java.io.tmpdir", "tmp") + DS
             + NameNormalizer.getRandomID("neptus");
 
+    /** Initialize the Neptus temporary folder. */
     static {
         try {
             File ntd = new File(neptusTmpDir);
@@ -157,59 +146,44 @@ public class ConfigFetch {
         }
     }
 
-    protected static String[] parentPaths = {
-            ".", // Necessário para carregar o workspace no webstart
-            // TODO Isto pode dar problemas se disparar uma SecurityException
+    private static final String[] parentPaths = {
+            ".", // Needed to load the workspace on Webstart
+            // TODO This can trigger a SecurityException
             System.getProperty("user.home", ".") + DS + ".neptus", System.getProperty("user.dir", "."),
             ".." + DS + "classes", ".." + DS + "config", ".." + DS + "conf", ".." + DS + "files", ".." + DS + "images",
             ".." + DS + "..", "..", System.getProperty("user.home", ".") };
 
-    protected static Component superParentFrame = null;
+    /** This is to hold the current parent (the console or MRA visible). */
+    private static Component superParentFrame = null;
 
     private static Hashtable<String, String> params = null;
 
-    public BufferedWriter bw, bwhale;
-
     private static boolean alreadyInitialized = false;
-
-    private static long neptusInitializationTime;
-
-    public static ConfigFetch INSTANCE = null;
 
     /**
      * Simple constructor (using as config file name: "neptus-config.xml") that loads the configuration file.
      */
     private ConfigFetch() {
-        this(configFile, true);
+        this(configFile);
     }
 
     /**
      * Base constructor
      * 
      * @param configFile Configuration file name
-     * @param ifLog
      */
-    private ConfigFetch(String configFile, boolean ifLog) {
-        // Set Enviroment
+    private ConfigFetch(String configFile) {
+        // Set Environment
         if (ConfigFetch.class.getResource("/version.txt").toString().startsWith("jar:")) {
-            ENV = ENVIROMENT.PRODUCTION;
+            runEnvironment = Environment.PRODUCTION;
         }
         
-        // This as to be called before logger
         OutputMonitor.grab();
-        // Config Logger
         NeptusLog.init();
         
         // Set Default Exception Handler
-        Thread.setDefaultUncaughtExceptionHandler(new UncaughtExceptionHandler() {
-            @Override
-            public void uncaughtException(Thread t, Throwable e) {
-                NeptusLog.pub().error("Uncaught Exception! " + ReflectionUtil.getCallerStamp(), e);
-            }
-        });
+        Thread.setDefaultUncaughtExceptionHandler((t, e) -> NeptusLog.pub().error("Uncaught Exception! " + ReflectionUtil.getCallerStamp(), e));
 
-        ifLogger = ifLog;
-        neptusInitializationTime = System.currentTimeMillis();
         init();
         loadSchemas();
         String fxt = resolvePath(configFile);
@@ -221,8 +195,6 @@ public class ConfigFetch {
 
         load();
 
-        // loadIMCDefinitions();
-
         Runtime.getRuntime().addShutdownHook(new Thread(new Runnable() {
             @Override
             public void run() {
@@ -230,26 +202,6 @@ public class ConfigFetch {
                 OutputMonitor.end();
             }
         }));
-
-        // NeptusLog.pub().info("Found OS: " + System.getProperty("os.name"));
-    }
-
-    /**
-     * Simple constructor that loads the configuration file.
-     * 
-     * @param ifLog
-     */
-    private ConfigFetch(boolean ifLog) {
-        this(configFile, ifLog);
-    }
-
-    /**
-     * Simple constructor that loads the configuration file.
-     * 
-     * @param configFile Configuration file name
-     */
-    private ConfigFetch(String configFile) {
-        this(configFile, true);
     }
 
     /**
@@ -257,48 +209,11 @@ public class ConfigFetch {
      * @return
      */
     public static boolean initialize() {
-
         if (INSTANCE != null)
             return true;
 
         try {
             INSTANCE = new ConfigFetch();
-        }
-        catch (RuntimeException e) {
-            NeptusLog.pub().error(e.getStackTrace());
-            return false;
-        }
-        return true;
-    }
-
-    /**
-     * @see ConfigFetch#ConfigFetch(String, boolean)
-     * @return
-     */
-    public static boolean initialize(String configFile, boolean ifLog) {
-        if (INSTANCE != null)
-            return true;
-
-        try {
-            INSTANCE = new ConfigFetch(configFile, ifLog);
-        }
-        catch (RuntimeException e) {
-            NeptusLog.pub().error(e.getStackTrace());
-            return false;
-        }
-        return true;
-    }
-
-    /**
-     * @see ConfigFetch#ConfigFetch(boolean)
-     * @return
-     */
-    public static boolean initialize(boolean ifLog) {
-        if (INSTANCE != null)
-            return true;
-
-        try {
-            INSTANCE = new ConfigFetch(ifLog);
         }
         catch (RuntimeException e) {
             NeptusLog.pub().error(e.getStackTrace());
@@ -326,13 +241,12 @@ public class ConfigFetch {
     }
 
     /**
-     * This is basicaly to be used internaly. This method tries to find the directoy where this class resides (or the
+     * This is basically to be used internally. This method tries to find the directory where this class resides (or the
      * jar file resides).
      * 
      * @return true if it's successful
      */
     private boolean init() {
-
         if (alreadyInitialized)
             return true;
         alreadyInitialized = true;
@@ -341,29 +255,18 @@ public class ConfigFetch {
         fxTmpDir.mkdirs();
         fxTmpDir.deleteOnExit();
 
-//        OutputMonitor.grab();
-
         try {
-//            if (ifLogger) {
-//                try {
-//                    DOMConfigurator.configure(getLoggingPropertiesLocation());
-//                    NeptusLog.pub().debug("Log4J configured with a XML conf. file!");
-//                }
-//                catch (Error e) {
-//                    NeptusLog.pub().debug(e.getMessage());
-//                    BasicConfigurator.configure();
-//                    NeptusLog
-//                            .pub()
-//                            .warn("Could not configure Log4J with a default config, will try to load from configuration file!!");
-//                }
-//            }
-            String inFileName = ConfigFetch.class.getResource("/" + classPackage + "/" + className).getFile();
+            String classPackageFilePath = ConfigFetch.class.getPackage().getName().replace('.', '/');
+            String classNameFilePath = ConfigFetch.class.getTypeName().replace('.', '/') + ".class";
+            
+            String inFileName = ConfigFetch.class.getResource("/" + classNameFilePath).getFile();
 
             String strNeptusVersion = "Starting Neptus " + getVersionSimpleString() + " ...";
             String strJavaVersion = "Using Java from: " + System.getProperty("java.vendor") + " | Version: "
                     + System.getProperty("java.version");
             String strOSVersion = "On OS: " + System.getProperty("os.name") + " | Version: "
                     + System.getProperty("os.version") + " | Arch.: " + System.getProperty("os.arch");
+
             NeptusLog.pub().info(strNeptusVersion);
             NeptusLog.pub().info(strJavaVersion);
             NeptusLog.pub().info(strOSVersion);
@@ -381,7 +284,7 @@ public class ConfigFetch {
             if (lind != -1)
                 inFileName = inFileName.substring(0, lind);
 
-            lind = inFileName.lastIndexOf(classPackage + "/");
+            lind = inFileName.lastIndexOf(classPackageFilePath + "/");
             if (lind != -1)
                 inFileName = inFileName.substring(0, lind);
             lind = inFileName.lastIndexOf("/");
@@ -407,17 +310,12 @@ public class ConfigFetch {
     }
 
     /**
-     * This method set's a new file name. IMPORTANT: It doesn't load it. To load you have to call {@link #load(String)}.
+     * Loads the configuration file. Also configures the log4j.
      * 
-     * @param configFile Configuration file name
-     * @return
+     * @return true if successful
      */
-    public boolean setFile(String configFile) {
-        String fxt = resolvePath(configFile);
-        if (fxt == null)
-            return false;
-        ConfigFetch.configFile = fxt;
-        return true;
+    private boolean load() {
+        return load(configFile);
     }
 
     /**
@@ -426,7 +324,7 @@ public class ConfigFetch {
      * @param configFile Configuration file name
      * @return true if successful
      */
-    public boolean load(String configFile) {
+    private boolean load(String configFile) {
         String fxt = resolvePath(configFile);
         if (fxt == null) {
             fxt = CONFIG_FILE_NAME;
@@ -437,100 +335,70 @@ public class ConfigFetch {
         }
         confDoc = readConfigFile(fxt);
 
-//        if (ifLogger) {
-//            if (getLoggingPropertiesType().equalsIgnoreCase("xml")) {
-//                try {
-//                    DOMConfigurator.configure(getLoggingPropertiesLocation());
-//                    NeptusLog.pub().debug("Log4J configured with a XML conf. file!");
-//                }
-//                catch (Error e) {
-//                    NeptusLog.pub().debug(e.getMessage());
-//                    BasicConfigurator.configure();
-//                    NeptusLog.pub().warn("Could not configure Log4J!!");
-//                }
-//            }
-//            else if (getLoggingPropertiesType().equalsIgnoreCase("properties")) {
-//                try {
-//                    PropertyConfigurator.configure(getLoggingPropertiesLocation());
-//                    NeptusLog.pub().debug("Log4J configured with a JavaProperties conf. file!");
-//                }
-//                catch (Error e1) {
-//                    NeptusLog.pub().debug(e1.getMessage());
-//                    BasicConfigurator.configure();
-//                    NeptusLog.pub().warn("Could not configure Log4J!!");
-//                }
-//            }
-//        }
-
         // IMC Local ID
         try {
-            String hostadr;
-            try {
-                InetAddress addr = InetAddress.getLocalHost();
-                hostadr = addr.getHostAddress();
-            }
-            catch (Exception e1) { // UnknownHostException
-                e1.printStackTrace();
-                hostadr = "127.0.0.1";
-            }
-            NeptusLog.pub().debug("Using initial option for IMC ID is '" + hostadr + "'");
-            String osName = System.getProperty("os.name");
-            if (osName.toLowerCase().indexOf("linux") != -1) {
-                try {
-                    Enumeration<NetworkInterface> netInt = NetworkInterface.getNetworkInterfaces();
-                    while (netInt.hasMoreElements()) {
-                        NetworkInterface ni = netInt.nextElement();
-                        Enumeration<InetAddress> iAddress = ni.getInetAddresses();
-                        while (iAddress.hasMoreElements()) {
-                            InetAddress ia = iAddress.nextElement();
-                            if (!ia.isLoopbackAddress()) {
-                                if (ia instanceof Inet4Address) {
-                                    String msg = "Changing initial option for IMC ID from '" + hostadr + "' to '";
-                                    hostadr = ia.getHostAddress();
-                                    msg += hostadr + "'";
-                                    NeptusLog.pub().debug(msg);
-                                    break;
-                                }
-                            }
-                        }
-                    }
-                }
-                catch (Exception e) {
-                    NeptusLog.pub().error(e.getStackTrace());
-                }
-            }
-            String[] sl2 = hostadr.split("\\.");
-
-            // IMC
-            long idd = (Integer.parseInt(sl2[2]) << 8) + (Integer.parseInt(sl2[3]));
-            ImcId16 newCcuId = new ImcId16((idd & 0x1FFF) | 0x4000); // 010????? CCU IDs
-            GeneralPreferences.imcCcuId = newCcuId;
-
-            GeneralPreferences.imcCcuName = "CCU " + System.getProperty("user.name") + " " + sl2[2] + "_" + sl2[3];
-
-            NeptusLog.pub().debug(
-                    "Using IMC ID " + newCcuId.toPrettyString() + " with name '" + GeneralPreferences.imcCcuName + "'");
-
+            initializeLocalImcId();
             GeneralPreferences.saveProperties();
         }
         catch (NumberFormatException e) {
             NeptusLog.pub().warn("Setting CCU Local IMC ID error", e);
         }
         finally {
-            GeneralPreferences.warnPreferencesListeneres();
+            GeneralPreferences.warnPreferencesListeners();
         }
         return true;
     }
 
     /**
-     * Loads the configuration file. Also configures the log4j.
-     * 
-     * @return true if successful
+     * Sets the local IMC ID using the IP of the machine.
+     * The name will be CCU plus "user.name" and the last 2 bytes of the IP.
+     * The ID is the last 2 bytes of the IP logically and with 0x1FFF and then
+     * logically or with 0x4000.
      */
-    public boolean load() {
-        return load(configFile);
-    }
+    private void initializeLocalImcId() {
+        String hostadr;
+        try {
+            InetAddress addr = InetAddress.getLocalHost();
+            hostadr = addr.getHostAddress();
+        }
+        catch (Exception e1) {
+            e1.printStackTrace();
+            hostadr = "127.0.0.1";
+        }
+        NeptusLog.pub().debug("Using initial option for IMC ID is '" + hostadr + "'");
+        if (OsInfo.getName() == OsInfo.Name.LINUX) {
+            try {
+                Enumeration<NetworkInterface> netInt = NetworkInterface.getNetworkInterfaces();
+                while (netInt.hasMoreElements()) {
+                    NetworkInterface ni = netInt.nextElement();
+                    Enumeration<InetAddress> iAddress = ni.getInetAddresses();
+                    while (iAddress.hasMoreElements()) {
+                        InetAddress ia = iAddress.nextElement();
+                        if (!ia.isLoopbackAddress()) {
+                            if (ia instanceof Inet4Address) {
+                                String msg = "Changing initial option for IMC ID from '" + hostadr + "' to '";
+                                hostadr = ia.getHostAddress();
+                                msg += hostadr + "'";
+                                NeptusLog.pub().debug(msg);
+                                break;
+                            }
+                        }
+                    }
+                }
+            }
+            catch (Exception e) {
+                NeptusLog.pub().error(e.getStackTrace());
+            }
+        }
+        String[] sl2 = hostadr.split("\\.");
 
+        long idd = (Integer.parseInt(sl2[2]) << 8) + (Integer.parseInt(sl2[3]));
+        ImcId16 newCcuId = new ImcId16((idd & 0x1FFF) | 0x4000); // 010????? CCU IDs
+        GeneralPreferences.imcCcuId = newCcuId;
+        GeneralPreferences.imcCcuName = "CCU " + System.getProperty("user.name") + " " + sl2[2] + "_" + sl2[3];
+        NeptusLog.pub().debug("Using IMC ID " + newCcuId.toPrettyString() + " with name '" + GeneralPreferences.imcCcuName + "'");
+    }
+    
     /**
      * Tries to resolve a relative path. The searches are done in: &lt;ul&gt; &lt;li&gt;If it's absolute returns the
      * same path.&lt;/li&gt; &lt;li&gt;Looks in the path given by {@link #init()}.&lt;/li&gt; &lt;li&gt;Looks in one
@@ -546,7 +414,7 @@ public class ConfigFetch {
      */
     public static String resolvePath(String path) {
         File fx = new File(path);
-        File fx1 = null;
+        File fx1;
 
         try {
             NeptusLog.pub().debug("Trying to see if the Path exists...");
@@ -591,13 +459,13 @@ public class ConfigFetch {
      */
     private static File resolvePathInner(String path) {
         String rootSolver = baseJarFileDir;
-        File fx1 = null;
+        File fx1;
 
-        for (int i = 0; i < parentPaths.length; i++) {
-            if ((new File(parentPaths[i])).isAbsolute())
-                fx1 = (new File(parentPaths[i] + DS + path)).getAbsoluteFile();
+        for (String parentPath : parentPaths) {
+            if ((new File(parentPath)).isAbsolute())
+                fx1 = (new File(parentPath + DS + path)).getAbsoluteFile();
             else
-                fx1 = (new File(rootSolver + DS + parentPaths[i] + DS + path)).getAbsoluteFile();
+                fx1 = (new File(rootSolver + DS + parentPath + DS + path)).getAbsoluteFile();
             NeptusLog.pub().debug("Trying to find Path in " + fx1.getAbsolutePath() + "...");
             if (fx1.exists())
                 return fx1;
@@ -623,7 +491,7 @@ public class ConfigFetch {
         }
         else {
             if (fxParent.exists()) {
-                String parent = "";
+                String parent;
                 if (fxParent.isDirectory())
                     parent = fxParent.getAbsolutePath();
                 else
@@ -655,10 +523,66 @@ public class ConfigFetch {
     }
 
     /**
+     * @return The user home folder.
+     */
+    public static String getUserHomeFolder() {
+        return System.getProperty("user.home");
+    }
+    
+    /**
      * @return Returns the configFile path.
      */
     public static String getConfigFile() {
         return configFile;
+    }
+
+    /**
+     * @return The config folder path.
+     */
+    public static String getConfFolder() {
+        return resolvePathBasedOnConfigFile(CONF_BASE_FOLDER);
+    }
+
+    /**
+     * @return The missions folder path.
+     */
+    public static String getMissionsFolder() {
+        return resolvePathBasedOnConfigFile(MISSION_BASE_FOLDER);
+    }
+
+    /**
+     * @return The consoles folder path.
+     */
+    public static String getConsolesFolder() {
+        return resolvePathBasedOnConfigFile(CONSOLES_BASE_FOLDER);
+    }
+
+    /**
+     * @return The logs folder path.
+     */
+    public static String getLogsFolder() {
+        return resolvePathBasedOnConfigFile(LOG_BASE_FOLDER);
+    }
+
+    /**
+     * @return The logs downloaded folder path.
+     */
+    public static String getLogsDownloadedFolder() {
+        return resolvePathBasedOnConfigFile(LOG_DOWNLOADED_BASE_FOLDER);
+    }
+
+    /**
+     * @return The maps folder path.
+     */
+    public static String getMapsFolder() {
+        return resolvePathBasedOnConfigFile(MAP_BASE_FOLDER);
+    }
+
+    /**
+     * @return The vehicle defs folder path.
+     */
+    public static String getVehiclesDefsFolder() {
+        return resolvePathBasedOnConfigFile(VEHICLES_BASE_FOLDER);
     }
 
     /**
@@ -667,39 +591,23 @@ public class ConfigFetch {
      * @param doDocument
      * @return
      */
-    public static String getElementTextByXPath(String xpath2Element, Document doDocument) {
+    private static String getElementTextByXPath(String xpath2Element, Document doDocument) {
         String entity = null;
 
         XPath xpathSelector = DocumentHelper.createXPath(xpath2Element);
         List<?> results = xpathSelector.selectNodes(doDocument);
-        for (Iterator<?> iter = results.iterator(); iter.hasNext();) {
-            entity = ((Element) iter.next()).getTextTrim();
+        for (Object result : results) {
+            entity = ((Element) result).getTextTrim();
         }
         return entity;
     }
 
     /**
-     * @param xpath2Attribute
-     * @param doDocument
+     * Reads the configuration file.
+     * @param configFile
      * @return
      */
-    public static String getAttributeTextByXPath(String xpath2Attribute, Document doDocument) {
-        String entity = null;
-
-        XPath xpathSelector = DocumentHelper.createXPath(xpath2Attribute);
-        List<?> results = xpathSelector.selectNodes(doDocument);
-        for (Iterator<?> iter = results.iterator(); iter.hasNext();) {
-            entity = ((Attribute) iter.next()).getStringValue();
-        }
-        return entity;
-    }
-
-    /**
-     * 
-     * @param ConfigFile
-     * @return
-     */
-    protected Document readConfigFile(String configFile) {
+    private Document readConfigFile(String configFile) {
         Document ret = DocumentHelper.createDocument();
 
         File file = new File(configFile);
@@ -749,20 +657,7 @@ public class ConfigFetch {
     }
 
     /**
-     * returns the central properties file type for log4j Loggers. This file type is expected to be "xml" or
-     * "properties". <i>//log-conf-file/@type</i>
-     * 
-     * @return
-     */
-    public static String getLoggingPropertiesType() {
-        String type = getAttributeTextByXPath("//log-conf-file/@type", confDoc);
-        if (type == null)
-            type = "xml";
-        return type;
-    }
-
-    /**
-     * @return
+     * @return The CoordinateSystems file def. (Will be deprecated in near future).
      */
     public static String getCoordinateSystemsConfigLocation() {
         String loc = getElementTextByXPath("//coordinate-systems-conf-file", confDoc);
@@ -778,26 +673,10 @@ public class ConfigFetch {
     }
 
     /**
-     * @return
-     */
-    public static String getMiscSystemsConfigLocation() {
-        String loc = getElementTextByXPath("//misc-systems-file", confDoc);
-        if (loc != null) {
-            String loc1 = resolvePath(loc);
-            if (loc1 != null)
-                return loc1;
-            return loc;
-        }
-        else
-            loc = "conf/neptus-misc-systems.xml";
-        return loc;
-    }
-
-    /**
-     * @return
+     * @return The ordered list of vehicle defs. 
      */
     public static LinkedList<String> getVehiclesList() {
-        LinkedList<String> result = new LinkedList<String>();
+        LinkedList<String> result = new LinkedList<>();
         Element elem;
         String xpath2Element = "//vehicles-base-path";
         Document doDocument = confDoc;
@@ -817,25 +696,15 @@ public class ConfigFetch {
         File fxDir = new File(baseDir);
         if (!fxDir.isDirectory())
             return result;
-        File[] filesVeh = fxDir.listFiles(new FileFilter() {
-            @Override
-            public boolean accept(File f) {
-                if (f.isDirectory())
-                    return false;
-
-                String extension = FileUtil.getFileExtension(f);
-                if (extension != null) {
-                    if (extension.equals("xml") || extension.equals(FileUtil.FILE_TYPE_VEHICLE))
-                        return true;
-                    else
-                        return false;
-                }
+        File[] filesVeh = fxDir.listFiles(f -> {
+            if (f.isDirectory())
                 return false;
-            }
+
+            String extension = FileUtil.getFileExtension(f);
+            return extension != null && (extension.equals("xml") || extension.equals(FileUtil.FILE_TYPE_VEHICLE));
         });
 
-        // To sort the list (in Windows this is automatic, in Linux we need
-        // this)
+        // To sort the list (in Windows this is automatic, in Linux we need this)
         Arrays.sort(filesVeh);
 
         for (File fx1 : filesVeh) {
@@ -852,7 +721,7 @@ public class ConfigFetch {
     }
 
     /**
-     * @return
+     * @return The Mission XML Schema.
      */
     public static String getMissionSchemaLocation() {
         initialize();
@@ -860,7 +729,7 @@ public class ConfigFetch {
     }
 
     /**
-     * @return
+     * @return The Vehicle XML Schema.
      */
     public static String getVehicleSchemaLocation() {
         initialize();
@@ -868,7 +737,7 @@ public class ConfigFetch {
     }
 
     /**
-     * @return
+     * @return The Map XML Schema.
      */
     public static String getMapSchemaLocation() {
         initialize();
@@ -876,7 +745,7 @@ public class ConfigFetch {
     }
 
     /**
-     * @return
+     * @return The CoordinateSystem XML Schema.
      */
     public static String getCoordinateSystemSchemaLocation() {
         initialize();
@@ -884,7 +753,7 @@ public class ConfigFetch {
     }
 
     /**
-     * @return
+     * @return The Checklist XML Schema.
      */
     public static String getChecklistSchemaLocation() {
         initialize();
@@ -892,15 +761,7 @@ public class ConfigFetch {
     }
 
     /**
-     * @return
-     */
-    public static String getMiscSystemsSchemaLocation() {
-        initialize();
-        return listOfSchemasPaths.get("misc-systems");
-    }
-
-    /**
-     * @return
+     * @return The Console XML Schema.
      */
     public static String getConsoleSchemaLocation() {
         initialize();
@@ -908,32 +769,15 @@ public class ConfigFetch {
     }
 
     /**
-     * @return
+     * @return The {@link #VERSION_FILE_NAME} as properties.
      */
-    public static String getActionMapSchemaLocation() {
-        initialize();
-        return listOfSchemasPaths.get("neptus-action-map");
-    }
-
-    /**
-     * @return
-     */
-    public static Properties getVersionInfoAsProperties() {
+    private static Properties getVersionInfoAsProperties() {
         Properties prop = new Properties();
-        @SuppressWarnings("unused")
-        String versionString = "";
         InputStream ist = ConfigFetch.class.getResourceAsStream(VERSION_FILE_NAME);
 
         if (ist != null) {
             try {
                 prop.load(ist);
-                versionString = "\n\nVersion ";
-                versionString += prop.getProperty("VERSION", "");
-                versionString += " (";
-                versionString += prop.getProperty("DATE", "");
-                versionString += ", g";
-                versionString += prop.getProperty("SCM_REV", "?");
-                versionString += ")";
             }
             catch (IOException e) {
                 NeptusLog.pub().debug(e);
@@ -942,6 +786,9 @@ public class ConfigFetch {
         return prop;
     }
 
+    /**
+     * @return A simple String text with version and date of Neptus.
+     */
     public static String getVersionSimpleString() {
         Properties prop = new Properties();
         String versionString = " ";
@@ -965,32 +812,9 @@ public class ConfigFetch {
     }
 
     /**
-     * @return
+     * @return The loaded {@link #VERSION__EXTENDED_FILE_NAME} as String. 
      */
-    public static String getVersionInfoAsString() {
-        Properties prop = new Properties();
-        String versionString = "";
-        InputStream ist = ConfigFetch.class.getResourceAsStream(VERSION_FILE_NAME);
-
-        if (ist != null) {
-            try {
-                prop.load(ist);
-                versionString = "\n\nVersion ";
-                versionString += prop.getProperty("VERSION", "");
-                versionString += " (";
-                versionString += prop.getProperty("DATE", "");
-                versionString += ", g";
-                versionString += prop.getProperty("SCM_REV", "?");
-                versionString += ")";
-            }
-            catch (IOException e) {
-                NeptusLog.pub().debug(e);
-            }
-        }
-        return versionString;
-    }
-
-    public static String getVersionExtendedInfoSimpleString() {
+    private static String getVersionExtendedInfoSimpleString() {
         String versionString = "";
         InputStream ist = ConfigFetch.class.getResourceAsStream(VERSION__EXTENDED_FILE_NAME);
 
@@ -1006,7 +830,9 @@ public class ConfigFetch {
     }
 
     /**
-     * @return
+     * The comment text to be put on XML or other files saved.
+     * Holds a date time and version of Neptus. 
+     * @return The comment text.
      */
     public static String getSaveAsCommentForXML() {
         Properties prop = getVersionInfoAsProperties();
@@ -1019,6 +845,8 @@ public class ConfigFetch {
     }
 
     /**
+     * This return the current parent (the console or MRA visible).
+     * This should only be used if no other means to get a valid parent can be used
      * @return Returns the superParentFrame.
      */
     public static Component getSuperParentFrame() {
@@ -1026,6 +854,9 @@ public class ConfigFetch {
     }
 
     /**
+     * This return the current parent (the console or MRA visible) as {@link Frame}
+     * (if not possible return a new {@link Frame}).
+     * This should only be used if no other means to get a valid parent can be used
      * @return Returns the superParentFrame.
      */
     public static Frame getSuperParentAsFrame() {
@@ -1040,6 +871,8 @@ public class ConfigFetch {
     }
 
     /**
+     * This is to set the current parent (the console or MRA visible).
+     * Only if none is already set.
      * @param superParentFrame The superParentFrame to set.
      */
     public static void setSuperParentFrame(Component superParentFrame) {
@@ -1048,44 +881,19 @@ public class ConfigFetch {
     }
 
     /**
+     * This is to set the current parent (the console or MRA visible).
      * @param superParentFrame The superParentFrame to set.
      */
     public static void setSuperParentFrameForced(Component superParentFrame) {
         ConfigFetch.superParentFrame = superParentFrame;
     }
 
-    /**
-     * @return The short corresponding to the OS found.
-     */
-    static public short getOS() {
-        String osName = System.getProperty("os.name");
-        short os = OS_ERROR;
-        if (osName.toLowerCase().indexOf("windows") != -1)
-            os = OS_WINDOWS;
-        else if (osName.toLowerCase().indexOf("linux") != -1)
-            os = OS_LINUX;
-        else
-            os = OS_OTHER;
-
-        return os;
-    }
-
-    /**
-     * @param os The shor representing the OS to test.
-     * @return The result of the test.
-     */
-    static public boolean isOSEqual(short os) {
-        return (getOS() == os) ? true : false;
-    }
-
-    /**
-     * 
-     */
+    /** This will parse the version file. */
     private static void parseVersionFile() {
         if (params != null)
             return;
 
-        params = new Hashtable<String, String>();
+        params = new Hashtable<>();
 
         BufferedReader br = new BufferedReader(new InputStreamReader(ConfigFetch.class.getClassLoader()
                 .getResourceAsStream("version.txt")));
@@ -1121,27 +929,40 @@ public class ConfigFetch {
         return params.get("date");
     }
 
+    /**
+     * @return The SCM revision.
+     */
     public static String getScmRev() {
         parseVersionFile();
         return params.get("scm_rev");
     }
 
-    public static long getNeptusInitializationTime() {
-        return neptusInitializationTime;
-    }
-
+    /**
+     * @return The current Neptus temporary folder.
+     */
     public static String getNeptusTmpDir() {
         return neptusTmpDir;
     }
 
+    /**
+     * Return if is on lock mode. Use {@link #getDistributionType()} instead.
+     * @return
+     */
     public static boolean isOnLockedMode() {
         return onLockedMode;
     }
 
+    /**
+     * Sets if is on lock mode. Use {@link #getDistributionType()} instead.
+     * @param onLockedMode
+     */
     public static void setOnLockedMode(boolean onLockedMode) {
         ConfigFetch.onLockedMode = onLockedMode;
     }
 
+    /**
+     * This will load the schemas from {@link #listOfSchemas} into {@link #listOfSchemasPaths}.
+     */
     private static void loadSchemas() {
         for (String key : listOfSchemas.keySet()) {
             String name = listOfSchemas.get(key);
@@ -1163,61 +984,26 @@ public class ConfigFetch {
     }
 
     /**
-     * 
-     */
-//    private void loadIMCDefinitions() {
-//        // IMC definition loading
-//        boolean loadDefault = false;
-//        File imcFx = new File(getDefaultIMCDefinitionsLocation());
-//        FileInputStream fis = null;
-//        if (imcFx.exists()) {
-//            try {
-//                fis = new FileInputStream(imcFx);
-//            }
-//            catch (FileNotFoundException e) {
-//                loadDefault = true;
-//                NeptusLog.pub().fatal(e);
-//            }
-//        }
-//        else {
-//            loadDefault = true;
-//        }
-//        String msg = "IMC definition loading from default: \""
-//                + getDefaultIMCDefinitionsLocation()
-//                + (!loadDefault ? "\"" : "\" [file doesn't exists!!! | loading \"" + IMCDefinition.pathToDefaults
-//                        + "\" inside the jar!!!]");
-//
-//        if (!loadDefault)
-//            NeptusLog.pub().info(msg);
-//        else
-//            NeptusLog.pub().error(msg);
-//        if (!loadDefault)
-//            IMCDefinition.getInstance(fis);
-//        else
-//            IMCDefinition.getInstance();
-//    }
-
-    /**
-     * @return
+     * @return a list of {@link Image}s to be set to frames.
      */
     public static List<Image> getIconImagesForFrames() {
-        ArrayList<Image> imageList = new ArrayList<Image>();
+        ArrayList<Image> imageList = new ArrayList<>();
         imageList.add(Toolkit.getDefaultToolkit().getImage(ConfigFetch.class.getResource("/images/neptus-icon.png")));
         imageList.add(Toolkit.getDefaultToolkit().getImage(ConfigFetch.class.getResource("/images/neptus-icon1.png")));
         imageList.add(Toolkit.getDefaultToolkit().getImage(ConfigFetch.class.getResource("/images/neptus-icon2.png")));
         return imageList;
     }
 
-    public static void mark(String tag) {
-        // timings.put(tag, System.currentTimeMillis());
-    }
-
-    public static void benchmark(String tag) {
-        // NeptusLog.pub().info("<###>BENCHMARK "+tag + " took " + ((System.currentTimeMillis() - timings.get(tag))) +
-        // "ms and from the start "+ ((System.currentTimeMillis() - STARTTIME) / 1E3) + "s");
-    }
-
     /**
+     * Return the information if Neptus is running from jars or development environment.
+     * @return the runEnvironment
+     */
+    public static Environment getRunEnvironment() {
+        return runEnvironment;
+    }
+    
+    /**
+     * Return the type of distribution used. See {@link NeptusProperty.DistributionEnum}
      * @return the distributionType
      */
     public static NeptusProperty.DistributionEnum getDistributionType() {
@@ -1226,8 +1012,10 @@ public class ConfigFetch {
     }
 
     /**
+     * Sets the type of distribution used. See {@link NeptusProperty.DistributionEnum}
+     * Only one set is possible.
      * @param dist
-     * @return true if the change happen or not.
+     * @return true if the change happened or not.
      */
     public static boolean setDistributionType(NeptusProperty.DistributionEnum dist) {
         if (distributionSetChangedOrGet)

@@ -1,9 +1,7 @@
 # DATE=@DATE@
 # TIME=@TIME@
-# COMPILED BY=@COMPILED BY@ 
+# COMPILED BY=@COMPILED BY@
 # LEGAL_COPY=@LEGAL_COPY@
-# SVN_REV=@SVN_REV@
-# SVN_PATH=@SVN_PATH@
 
 pt.lsts.neptus.plugins.uavs.panels.UavAltitudePanel
 pt.lsts.neptus.plugins.uavs.panels.UavHUDPanel
@@ -12,3 +10,4 @@ pt.lsts.neptus.plugins.uavs.panels.AutopilotModePanel
 pt.lsts.neptus.plugins.uavs.panels.PreflightPanel
 pt.lsts.neptus.plugins.uavs.panels.PiksiPanel
 no.ntnu.gpsplot.GpsPlotter
+pt.lsts.uav.mra.MessagesPerSystemPlot

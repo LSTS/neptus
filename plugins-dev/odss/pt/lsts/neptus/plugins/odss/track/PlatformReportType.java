@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2015 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2016 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -68,7 +68,7 @@ public class PlatformReportType implements Cloneable{
         this.latitude = latitude;
         this.longitude = longitude;
         this.epochSeconds = epoch_seconds;
-        this.isoDatetime = DateTimeUtil.dateFormaterXMLNoMillisUTC.format(new Date(Math.round(epoch_seconds * 1000d)));
+        this.isoDatetime = DateTimeUtil.dateFormatterXMLNoMillisUTC.format(new Date(Math.round(epoch_seconds * 1000d)));
     }
     
     /**

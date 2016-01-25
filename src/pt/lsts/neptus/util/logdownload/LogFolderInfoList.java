@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2015 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2016 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -34,8 +34,6 @@ package pt.lsts.neptus.util.logdownload;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Rectangle;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
 import java.util.Enumeration;
 
 import javax.swing.DefaultListModel;
@@ -45,6 +43,7 @@ import javax.swing.JList;
 import javax.swing.ListCellRenderer;
 import javax.swing.ListSelectionModel;
 import javax.swing.SortOrder;
+import javax.swing.plaf.basic.BasicHTML;
 
 import org.jdesktop.swingx.JXList;
 
@@ -58,22 +57,6 @@ import pt.lsts.neptus.util.ImageUtils;
 @SuppressWarnings("serial")
 public class LogFolderInfoList extends JXList {
 
-	/*
-VER
-Sorting and Filtering
-JXList supports sorting and filtering. Changed to use core support. Usage is very similar to J/X/Table. It provides api to apply a specific sort order, to toggle the sort order and to reset a sort. Sort sequence can be configured by setting a custom comparator.
-
-
- list.setAutoCreateRowSorter(true);
- list.setComparator(myComparator);
- list.setSortOrder(SortOrder.DESCENDING);
- list.toggleSortOder();
- list.resetSortOrder();
- 
-
-JXList provides api to access items of the underlying model in view coordinates and to convert from/to model coordinates. Note: JXList needs a specific ui-delegate - BasicXListUI and subclasses - which is aware of model vs. view coordiate systems and which controls the synchronization of selection/dataModel and sorter state. SwingX comes with a subclass for Synth. 	 
-*/
-	
 	public static final Icon ICON_NEW = ImageUtils.getScaledIcon("images/downloader/folder_grey3.png", 20, 20);
 	public static final Icon ICON_UNKNOWN = ImageUtils.getScaledIcon("images/downloader/folder_grey2.png", 20, 20);
 	public static final Icon ICON_DOWN = ImageUtils.getScaledIcon("images/downloader/folder_download.png", 20, 20);
@@ -81,7 +64,6 @@ JXList provides api to access items of the underlying model in view coordinates 
 	public static final Icon ICON_INCOMP = ImageUtils.getScaledIcon("images/downloader/folder_yellow1.png", 20, 20);
 	public static final Icon ICON_SYNC = ImageUtils.getScaledIcon("images/downloader/folder_green1.png", 20, 20);
 	public static final Icon ICON_LOCAL = ImageUtils.getScaledIcon("images/downloader/folder_green2.png", 20, 20);
-	
 	
 	DefaultListModel<LogFolderInfo> myModel = new DefaultListModel<LogFolderInfo>();	
 	
@@ -93,14 +75,9 @@ JXList provides api to access items of the underlying model in view coordinates 
 		initialize();
 	}
 	
-	/**
-	 * 
-	 */
 	public void initialize() {
 		setModel(myModel);
-		//setVisibleRowCount(25);
 		setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
-		//setDragEnabled(true);
 		setCellRenderer(new ListCellRenderer<LogFolderInfo>() {
 			
 			public Component getListCellRendererComponent(JList<? extends LogFolderInfo> list, 
@@ -124,13 +101,13 @@ JXList provides api to access items of the underlying model in view coordinates 
 					    public void repaint(Rectangle r) {}
 					    @Override
 					    protected void firePropertyChange(String propertyName, Object oldValue, Object newValue) {
-					    // Strings get interned...
-					    if (propertyName.equals("text")
+					        // Strings get interned...
+					        if (propertyName.equals("text")
 					                || ((propertyName.equals("font") || propertyName.equals("foreground"))
-					                    && oldValue != newValue
-					                    && getClientProperty(javax.swing.plaf.basic.BasicHTML.propertyKey) != null)) {
+					                        && oldValue != newValue
+					                        && getClientProperty(BasicHTML.propertyKey) != null)) {
 
-					        super.firePropertyChange(propertyName, oldValue, newValue);
+					            super.firePropertyChange(propertyName, oldValue, newValue);
 					        }
 					    }
 					    @Override
@@ -165,7 +142,6 @@ JXList provides api to access items of the underlying model in view coordinates 
 						lbl.setIcon(ICON_UNKNOWN);
 					else if (folder.getState() == LogFolderInfo.State.LOCAL)
 						lbl.setIcon(ICON_LOCAL);
-
 					
 					lbl.setBackground(Color.white);
 					if (isSelected /*|| cellHasFocus*/) {
@@ -177,46 +153,9 @@ JXList provides api to access items of the underlying model in view coordinates 
 					return lbl;
 				}
 				catch (Exception e) {
-					// TODO: handle exception
+					e.printStackTrace();
 				}
 				return new JLabel("?");		
-			}
-		});
-		
-		addMouseListener(new MouseAdapter() {
-			@Override
-			public void mouseClicked(MouseEvent e) {
-//				NeptusLog.pub().info("<###>"+((LogFolder)getSelectedValue()).logFiles.size());
-				if (e.getButton() == MouseEvent.BUTTON1
-						&& e.getModifiers() == MouseEvent.CTRL_DOWN_MASK
-						&& e.getClickCount() == 1) {
-				    
-				}
-				
-				if (e.getButton() == MouseEvent.BUTTON1 && e.getClickCount() == 2) {
-//					if (getNeptusIM() != null)
-//						getNeptusIM().setSelectedChannel(((IMChannel)getSelectedValue()).getRemoteID());
-				}
-				if(e.getButton() == MouseEvent.BUTTON3)
-				{
-				}
-				
-//				final IMChannel channel = (IMChannel)getSelectedValue();
-//				setToolTipText("<html>Channel name: <b>"+channel.getRemoteUsername()+"</b><br>"+
-//						"Channel ID: <b>"+channel.getRemoteID()+"</b><br></html>");
-//				
-//				if (e.getButton() == MouseEvent.BUTTON3 && !channel.getRemoteID().equals("ALL")) {
-//					JPopupMenu popup = new JPopupMenu();
-//					
-//					popup.add(new AbstractAction("Nudge "+channel.getRemoteUsername()) {
-//						public void actionPerformed(java.awt.event.ActionEvent e) {
-//							neptusIM.nudge(channel.getRemoteID());
-//						};
-//					});
-//					
-//					popup.show(ChannelsList.this, e.getX(), e.getY());
-//				}
-						
 			}
 		});
 	}
@@ -259,21 +198,21 @@ JXList provides api to access items of the underlying model in view coordinates 
 				lfd = (LogFolderInfo)iter.nextElement();
 				if (lfd.getName().equals(name))
 					return lfd;
-			} catch (Exception e) {
+			}
+			catch (Exception e) {
+			    e.printStackTrace();
 			}
 		}
 		return null;
 	}
 
-	
 	public static void main(String[] args) {
 		LogFolderInfoList list = new LogFolderInfoList();
 		list.addFolder(new LogFolderInfo("22/A"));
 		list.addFolder(new LogFolderInfo("12/A"));
 		list.addFolder(new LogFolderInfo("22/a"));
 		
-		list.setSortable(true); //list.setFilterEnabled(true); // Changed from swingx 1.6.+ !!!!
-		//list.setComparator((Comparator<?>) new LogFolder("<><>"));
+		list.setSortable(true); 
 		list.setAutoCreateRowSorter(true);
         list.setSortOrder(SortOrder.ASCENDING);
 		

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2015 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2016 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -55,7 +55,7 @@ import pt.lsts.neptus.plugins.NeptusProperty;
 import pt.lsts.neptus.plugins.PluginDescription;
 import pt.lsts.neptus.plugins.update.IPeriodicUpdates;
 import pt.lsts.neptus.types.coord.LocationType;
-import pt.lsts.neptus.util.AngleCalc;
+import pt.lsts.neptus.util.AngleUtils;
 
 /**
  * @author zp
@@ -192,7 +192,7 @@ public class FindVehicle extends ConsolePanel implements ConfigurationListener, 
 	 */
 	public static BaseOrientations convertToBaseOrientation(double baseOrientationRadians) {
 		double headingDegrees = Math.toDegrees(baseOrientationRadians);
-		headingDegrees = AngleCalc.nomalizeAngleDegrees360(headingDegrees);
+		headingDegrees = AngleUtils.nomalizeAngleDegrees360(headingDegrees);
 		if(headingDegrees >= -22.5 && headingDegrees <= 22.5)
 			return BaseOrientations.North;
 		else if(headingDegrees > 22.5 && headingDegrees < 67.5)

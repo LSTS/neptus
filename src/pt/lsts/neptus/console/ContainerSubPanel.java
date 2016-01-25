@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2015 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2016 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -48,7 +48,6 @@ import pt.lsts.neptus.plugins.NeptusProperty;
 import pt.lsts.neptus.plugins.NeptusProperty.DistributionEnum;
 import pt.lsts.neptus.plugins.PluginUtils;
 import pt.lsts.neptus.util.GuiUtils;
-import pt.lsts.neptus.util.conf.ConfigFetch;
 
 /**
  * @author ZP
@@ -59,7 +58,7 @@ public class ContainerSubPanel extends ConsolePanel implements LockableSubPanel 
     private static final long serialVersionUID = 1L;
     @NeptusProperty(name = "Maximize Panel", description = "Use this to indicate that this panel "
             + "should be maximized on load. (Only works for top level panels.)", distribution = DistributionEnum.DEVELOPER)
-    public boolean maximizePanel = false;
+    public boolean maximizePanel = true;
     
     protected List<ConsolePanel> panels = new ArrayList<>();
 
@@ -176,14 +175,12 @@ public class ContainerSubPanel extends ConsolePanel implements LockableSubPanel 
             // process childs 
             if ("child".equals(element.getName())) {
                 Attribute attribute = element.attribute("class");
-                ConfigFetch.mark(attribute.getValue());
                 try {
                     Class<?> clazz = Class.forName(attribute.getValue());
                     try {
                         subpanel = (ConsolePanel) clazz.getConstructor(ConsoleLayout.class).newInstance(getConsole());
                         addSubPanel(subpanel);
                         subpanel.inElement(element);
-                        ConfigFetch.benchmark(attribute.getValue());
                     }
                     catch (Exception e) {
                         NeptusLog.pub().error("creating subpanel new instance " + clazz.getName(), e);

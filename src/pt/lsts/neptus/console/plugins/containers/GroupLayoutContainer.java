@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2015 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2016 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -1533,7 +1533,7 @@ public class GroupLayoutContainer extends ContainerSubPanel implements Configura
 
         ConfigFetch.initialize();
         PluginsLoader.load();
-        ConsoleLayout cl = new ConsoleLayout();
+        ConsoleLayout cl = ConsoleLayout.forge(); // See better because it has a MiGLayout panel
         // ConsoleParse parse=new ConsoleParse(cl);
         // try
         // {

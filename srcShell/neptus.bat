@@ -1,6 +1,6 @@
 @echo off
 rem #############################################################################
-rem # Copyright (c) 2004-2015 Universidade do Porto - Faculdade de Engenharia   #
+rem # Copyright (c) 2004-2016 Universidade do Porto - Faculdade de Engenharia   #
 rem # Laboratório de Sistemas e Tecnologia Subaquática (LSTS)                   #
 rem # All rights reserved.                                                      #
 rem # Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal            #
@@ -84,9 +84,36 @@ if %JAVA_MACHINE_TYPE%==windows-x86 (
 )
 
 if %JAVA_MACHINE_TYPE%==windows-x86 (
-  set LIBRARYPATH=.;libJNI\x86;libJNI;%VTKLIB%
+  if %PROCESSOR_ARCHITECTURE%==x86 (
+    if defined opencv.lib.dir (
+      set OPENCVLIB=%opencv.lib.dir%
+    ) else (
+       set OPENCVLIB=%PROGRAMFILES%\opencv\bin
+    )
+  )
+  else (
+    if defined "opencv.lib.dir(x86)" (
+      set OPENCVLIB=%opencv.lib.dir(x86)%
+    ) else (
+      if defined opencv.lib.dir (
+        set OPENCVLIB=%opencv.lib.dir%
+      ) else (
+        set "OPENCVLIB=%PROGRAMFILES(x86)%\opencv\bin"
+      )
+    )
+  )
 ) else (
-  set LIBRARYPATH=.;libJNI\x64;libJNI;%VTKLIB%
+  if defined opencv.lib.dir (
+      set OPENCVLIB=%opencv.lib.dir%
+  ) else (
+    set OPENCVLIB=%PROGRAMFILES%\opencv\bin
+  )
+)
+
+if %JAVA_MACHINE_TYPE%==windows-x86 (
+  set LIBRARYPATH=.;libJNI\x86;libJNI;%VTKLIB%;%OPENCVLIB%
+) else (
+  set LIBRARYPATH=.;libJNI\x64;libJNI;%VTKLIB%;%OPENCVLIB%
 )
 
 if not "%1"=="ws" goto end2
