@@ -33,33 +33,20 @@ package pt.lsts.neptus.plugins.mvplanning;
 
 import java.util.ArrayList;
 
-import jdk.nashorn.internal.ir.debug.PrintVisitor;
-
-import com.google.common.eventbus.Subscribe;
-import com.l2fprod.common.propertysheet.DefaultProperty;
-
-import pt.lsts.imc.EntityState;
 import pt.lsts.imc.IMCMessage;
 import pt.lsts.imc.QueryEntityState;
-import pt.lsts.neptus.comm.IMCSendMessageUtils;
 import pt.lsts.neptus.comm.manager.imc.ImcMsgManager;
 import pt.lsts.neptus.console.ConsoleLayer;
 import pt.lsts.neptus.console.ConsoleLayout;
-import pt.lsts.neptus.console.events.ConsoleEventMainSystemChange;
-import pt.lsts.neptus.console.events.ConsoleEventVehicleStateChanged;
-import pt.lsts.neptus.console.plugins.MainVehicleChangeListener;
 import pt.lsts.neptus.console.plugins.PlanChangeListener;
 import pt.lsts.neptus.events.NeptusEvents;
 import pt.lsts.neptus.mp.Maneuver;
 import pt.lsts.neptus.params.ConfigurationManager;
 import pt.lsts.neptus.params.SystemProperty;
 import pt.lsts.neptus.params.SystemProperty.Scope;
-import pt.lsts.neptus.params.SystemProperty.ValueTypeEnum;
 import pt.lsts.neptus.params.SystemProperty.Visibility;
 import pt.lsts.neptus.plugins.PluginDescription;
 import pt.lsts.neptus.plugins.mvplanning.utils.VehicleAwareness;
-import pt.lsts.neptus.types.map.MapType;
-import pt.lsts.neptus.types.map.PlanElement;
 import pt.lsts.neptus.types.mission.plan.PlanType;
 
 /**

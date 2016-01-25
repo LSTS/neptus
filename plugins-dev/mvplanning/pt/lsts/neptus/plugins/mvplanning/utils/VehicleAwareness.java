@@ -31,22 +31,12 @@
  */
 package pt.lsts.neptus.plugins.mvplanning.utils;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.LinkedList;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.concurrent.ConcurrentHashMap;
 
 import com.google.common.eventbus.Subscribe;
 
 import pt.lsts.neptus.console.events.ConsoleEventVehicleStateChanged;
-import pt.lsts.neptus.mp.Maneuver;
-import pt.lsts.neptus.params.ConfigurationManager;
-import pt.lsts.neptus.params.SystemProperty;
-import pt.lsts.neptus.params.SystemProperty.Scope;
-import pt.lsts.neptus.params.SystemProperty.Visibility;
-import pt.lsts.neptus.types.mission.plan.PlanType;
 
 public class VehicleAwareness {
     private ConcurrentHashMap<String, VehicleInfo> availableVehicles;
