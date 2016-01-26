@@ -47,6 +47,7 @@ import com.google.common.eventbus.Subscribe;
 
 import info.necsave.msgs.AbortMission;
 import info.necsave.msgs.AbortMission.TYPE;
+import info.necsave.msgs.Header.MEDIUM;
 import info.necsave.msgs.Area;
 import info.necsave.msgs.Contact;
 import info.necsave.msgs.ContactList;
@@ -241,8 +242,8 @@ public class NecsaveUI extends ConsoleInteraction {
     }
 
     private void sendMessageReliably(Message msg) throws Exception {
+        msg.setMedium(MEDIUM.IP_RELIABLE);
         LinkedHashMap<String, Future<Boolean>> results = new LinkedHashMap<>();
-
         for (String platf : platformNames.values())
             results.put(platf,transport.sendMessage(msg, platf));                    
 
@@ -263,6 +264,7 @@ public class NecsaveUI extends ConsoleInteraction {
     }
 
     private void sendMessageUnreliable(Message msg) throws Exception {
+        msg.setMedium(MEDIUM.IP_BROADCAST);
         try {
             transport.broadcast(msg);
             getConsole().post(
@@ -287,6 +289,7 @@ public class NecsaveUI extends ConsoleInteraction {
                         sendMessageUnreliable(msg);
                 }
                 catch (Exception e) {
+                    e.printStackTrace();
                     NeptusLog.pub().error(e);
                 }
             }
