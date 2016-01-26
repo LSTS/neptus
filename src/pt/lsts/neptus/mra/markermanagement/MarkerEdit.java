@@ -62,6 +62,7 @@ import java.util.ArrayList;
 
 import javax.imageio.ImageIO;
 import javax.swing.AbstractAction;
+import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.ImageIcon;
@@ -86,6 +87,8 @@ import javax.swing.SwingUtilities;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import javax.swing.filechooser.FileFilter;
+
+import org.jdesktop.swingx.JXStatusBar;
 
 import net.miginfocom.swing.MigLayout;
 import pt.lsts.neptus.NeptusLog;
@@ -126,7 +129,8 @@ public class MarkerEdit extends JDialog {
     private boolean toDeleteDraw = false;
     private BufferedImage layer,  rulerLayer, image, drawImageOverlay, zoomLayer;
     private ArrayList<Point> pointsList = new ArrayList<>();
-
+    private JXStatusBar statusBar = new JXStatusBar();
+    
     public MarkerEdit(MarkerManagement parent, Window window) {
         super(window, ModalityType.MODELESS);
         this.parent = parent;
@@ -157,6 +161,7 @@ public class MarkerEdit extends JDialog {
         panel.addFocusListener(l);
         getContentPane().add(panel, BorderLayout.CENTER);
         panel.setLayout(new MigLayout("", "[][][][][grow][][][][grow]", "[][][][][][][grow][][grow]"));
+        //FIXME
         markerImage = new JLabel() { 
             @Override
             protected void paintComponent(Graphics g) {
@@ -302,16 +307,31 @@ public class MarkerEdit extends JDialog {
         panel.add(classifValue, "cell 8 4,alignx left");
         panel.add(annotationLabel, "cell 7 5");
         scrollPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
-        panel.add(scrollPane, "cell 7 6 2 1,grow");
+        panel.add(scrollPane, "cell 7 6 2 1,growx,aligny top");
         annotationValue.setText(I18n.text("<Your annotations here>"));
         annotationValue.setLineWrap(true); //Auto down line if the line is too long
         annotationValue.setWrapStyleWord(true); //Auto set up the style of words
-        annotationValue.setRows(8);
+        annotationValue.setRows(3);
         scrollPane.setViewportView(annotationValue);
         panel.add(depthLabel, "cell 8 3");
         panel.add(depthValue, "cell 8 3");
+  
+        JPanel panel2 = new JPanel(new BorderLayout());
+        panel2.setBorder(BorderFactory.createMatteBorder(1, 0, 1, 0, Color.GRAY));
+ 
+        panel2.add(statusBar);
+        getContentPane().add(panel2, BorderLayout.SOUTH);
     }
 
+    public void addStatusBarMsg(String msg){
+        JLabel jlabel = new JLabel(msg);
+        jlabel.setFont(new Font("SansSerif", Font.PLAIN, 11));
+        statusBar.removeAll();
+        statusBar.updateUI();
+        statusBar.add(jlabel);
+        statusBar.updateUI();
+    }
+    
     private void drawRect(Graphics g, int endX, int endY) {
         if (mouseX == -1 && lastMouseX == -1) 
             return;
@@ -353,7 +373,7 @@ public class MarkerEdit extends JDialog {
         int X = (int) MathMiscUtils.clamp(mouseX - RULER_SIZE -1, ZOOM_BOX_SIZE / 2, image.getWidth() - ZOOM_BOX_SIZE / 2);
         int Y = (int) MathMiscUtils.clamp(mouseY - RULER_SIZE -1, ZOOM_BOX_SIZE / 2, image.getHeight() - ZOOM_BOX_SIZE / 2);
 
-        //zoomScale = 2; //2x ZOOM 
+        //TODO : ir buscar crop da imagem ao proprio ficheiro, pq tem melhor resolução
 
         BufferedImage zoomImage = image.getSubimage(X - ZOOM_BOX_SIZE / 2, Y - ZOOM_BOX_SIZE / 2, 50, ZOOM_BOX_SIZE);
 
@@ -490,11 +510,12 @@ public class MarkerEdit extends JDialog {
     }
 
     public void loadMarker(LogMarkerItem log, int rowIndex) {
+        statusBar.removeAll();
         toDeleteDraw = false;
         selectedMarker = log;
         selectMarkerRowIndex = rowIndex;
         int prefWidth = 265;
-        int prefHeight = 80;
+        int prefHeight = 80+30;
 
         if (selectedMarker.getSidescanImgPath() != null ) {
             try {
@@ -509,6 +530,7 @@ public class MarkerEdit extends JDialog {
                     width = width / 3;
                     height = height / 3;
                     image = (BufferedImage) ImageUtils.getFasterScaledInstance(image, width, height);
+
                 }
 
                 markerImage.setIcon(null);
@@ -586,6 +608,7 @@ public class MarkerEdit extends JDialog {
             path = path + ".png";
 
         GuiUtils.showInfoPopup(I18n.text("Success"), I18n.text("Image exported to: ")+path);
+        addStatusBarMsg("Image '"+path+"' exported successfully...");
     }
 
     private String chooseSaveFile(BufferedImage image, String path) {
@@ -730,6 +753,7 @@ public class MarkerEdit extends JDialog {
                     ImageIO.write(img, "PNG", drawFile);
                 } catch (IOException ie) {
                     NeptusLog.pub().error(I18n.text("Error writing image to file..."));
+                    addStatusBarMsg("Error writing image to file...");
                 }
 
                 g2d.dispose();
@@ -746,6 +770,7 @@ public class MarkerEdit extends JDialog {
                 }
                 parent.updateLogMarker(selectedMarker, selectMarkerRowIndex);
                 markerImage.repaint();
+                addStatusBarMsg("Saving completed...");
             }
         };
 
@@ -778,11 +803,14 @@ public class MarkerEdit extends JDialog {
 
             @Override
             public void actionPerformed(ActionEvent e) {
-                if (enableRuler)
+                if (enableRuler) {
                     enableRuler = false;
-                else
+                    addStatusBarMsg("Showing ruler...");
+                }
+                else {
                     enableRuler = true;
-
+                    addStatusBarMsg("Hiding Ruler...");
+                }
                 markerImage.repaint();
             }
         };
@@ -799,6 +827,7 @@ public class MarkerEdit extends JDialog {
 
                 //delete draw image if exists
                 toDeleteDraw = true;
+                addStatusBarMsg("Clearing all drawings...");
             }
         };
         AbstractAction drawRect = new AbstractAction() {
@@ -854,7 +883,7 @@ public class MarkerEdit extends JDialog {
                     String fileName = chooseSaveFile(img, path);
                     // show saved dialog
                     if (fileName != null)
-                        showSuccessDlg(fileName);
+                        showSuccessDlg(fileName); 
                 }
             }
         };
@@ -945,6 +974,7 @@ public class MarkerEdit extends JDialog {
             @Override
             public void actionPerformed(ActionEvent e) {
                 parent.prevMark(selectMarkerRowIndex);
+                statusBar.removeAll();
             }
         };
 
@@ -953,6 +983,7 @@ public class MarkerEdit extends JDialog {
             @Override
             public void actionPerformed(ActionEvent e) {
                 parent.nextMark(selectMarkerRowIndex);
+                statusBar.removeAll();
             }
         };
         AbstractAction zoomAction = new AbstractAction(I18n.text("Zoom")) {
