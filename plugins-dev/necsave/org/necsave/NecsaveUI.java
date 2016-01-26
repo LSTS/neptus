@@ -85,7 +85,7 @@ public class NecsaveUI extends ConsoleInteraction {
 
     @NeptusProperty(description="Select if the commands should be sent using TCP communications")
     public boolean sendCommandsReliably = true;
-    
+
     private NecsaveTransport transport = null;
     private LinkedHashMap<Integer, String> platformNames = new LinkedHashMap<>();
     private LinkedHashMap<Integer, PlatformPlanProgress> planProgresses = new LinkedHashMap<>();
@@ -93,7 +93,7 @@ public class NecsaveUI extends ConsoleInteraction {
     private ParallelepipedElement elem = null;
     private LocationType corner = null; 
     private double width, height;
-    
+
     @Override
     public void initInteraction() {
         try {
@@ -102,7 +102,7 @@ public class NecsaveUI extends ConsoleInteraction {
         catch (Exception e) {
             NeptusLog.pub().error(e);
         }
-        
+
         addActions();
     }
 
@@ -160,16 +160,16 @@ public class NecsaveUI extends ConsoleInteraction {
                 }
 
                 String[] goals = getNames(GOAL_TYPE.class);
-                
+
                 Object goal_ret = JOptionPane.showInputDialog(getConsole(), I18n.text("Select goal"),
                         I18n.text("Select goal"), JOptionPane.QUESTION_MESSAGE, null,
                         goals, goals[0]);
                 if (goal_ret == null)
                     return;
-                
+
                 GOAL_TYPE goal = GOAL_TYPE.valueOf((String) goal_ret);
                 MissionGoal m_goal = new MissionGoal(goal);
-                
+
                 try {
                     sendMessage(m_goal);
                 }
@@ -177,22 +177,22 @@ public class NecsaveUI extends ConsoleInteraction {
                     GuiUtils.errorMessage(getConsole(), ex);
                     ex.printStackTrace();
                 }
-                
-                int reply = JOptionPane.showConfirmDialog(getConsole(), I18n.text("Start Mission"), 
-                        I18n.text("Start Mission"), JOptionPane.YES_NO_OPTION);
-                if (reply == JOptionPane.YES_OPTION) {
-                    MissionReadyToStart start = new MissionReadyToStart();
-                    try {
-                        sendMessage(start);
-                    }
-                    catch (Exception ex) {
-                        GuiUtils.errorMessage(getConsole(), ex);
-                        ex.printStackTrace();
-                    }
-                }
-                else
+
+                String description = JOptionPane.showInputDialog(getConsole(), I18n.text("Please enter test description"), I18n.text("Start Mission"), JOptionPane.OK_CANCEL_OPTION);
+
+                if (description == null)
                     return;
 
+                MissionReadyToStart start = new MissionReadyToStart();
+                start.setInfo(description);
+                
+                try {
+                    sendMessage(start);
+                }
+                catch (Exception ex) {
+                    GuiUtils.errorMessage(getConsole(), ex);
+                    ex.printStackTrace();
+                }
             }
         });
 
@@ -211,7 +211,7 @@ public class NecsaveUI extends ConsoleInteraction {
                 }
             }
         });
-        
+
         getConsole().addMenuItem("Advanced>NECSAVE>Send MissionCompleted", null, new ActionListener() {
 
             @Override
@@ -226,7 +226,7 @@ public class NecsaveUI extends ConsoleInteraction {
                 }
             }
         });
-        
+
         getConsole().addMenuItem("Advanced>NECSAVE>Clear Platforms", null, new ActionListener() {
 
             @Override
@@ -235,17 +235,17 @@ public class NecsaveUI extends ConsoleInteraction {
             }
         });
     }
-    
+
     private static String[] getNames(Class<? extends Enum<?>> e) {
         return Arrays.stream(e.getEnumConstants()).map(Enum::name).toArray(String[]::new);
     }
-    
+
     private void sendMessageReliably(Message msg) throws Exception {
         LinkedHashMap<String, Future<Boolean>> results = new LinkedHashMap<>();
-        
+
         for (String platf : platformNames.values())
             results.put(platf,transport.sendMessage(msg, platf));                    
-                
+
         int successful = 0;
         for (Entry<String, Future<Boolean> > f : results.entrySet()) {
             try {
@@ -261,7 +261,7 @@ public class NecsaveUI extends ConsoleInteraction {
         if (successful == results.size())
             getConsole().post(Notification.success("NECSAVE", "Message delivered to "+results.size()+" platforms."));            
     }
-    
+
     private void sendMessageUnreliable(Message msg) throws Exception {
         try {
             transport.broadcast(msg);
@@ -291,20 +291,20 @@ public class NecsaveUI extends ConsoleInteraction {
                 }
             }
         };
-        
+
         Thread t = new Thread(send, "NECSAVE send");
         t.setDaemon(true);
         t.start();        
     }
-    
+
     @Subscribe
     public void on(Kinematics msg) {
         try {
             if (!platformNames.containsKey(msg.getSrc()))
                 return;
-    
+
             String name = platformNames.get(msg.getSrc());
-    
+
             if (ExternalSystemsHolder.lookupSystem(name) == null) {
                 ExternalSystem es = new ExternalSystem(name);
                 ExternalSystemsHolder.registerSystem(es);
@@ -353,7 +353,7 @@ public class NecsaveUI extends ConsoleInteraction {
         loc.setDepth(msg.getObject().getDepth());
         contacts.put(msg.getSrc() + "." + msg.getContactId(), loc);
     }
-    
+
     @Override
     public void paintInteraction(Graphics2D g, StateRenderer2D source) {
         super.paintInteraction(g, source);
