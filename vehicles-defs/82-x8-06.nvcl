@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <system xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="..\schemas\neptus-vehicle.xsd">
     <properties>
-        <id>x8-04</id>
-        <name>X8-04</name>
+        <id>x8-06</id>
+        <name>X8-06</name>
         <type>UAV</type>
         <model>Cularis</model>
         <appearance>
@@ -177,7 +177,7 @@
         <comm-mean>
             <name>ethernet</name>
             <type>ethernet</type>
-            <host-address>10.0.20.98</host-address>
+            <host-address>10.0.20.115</host-address>
             <protocols>imc</protocols>
             <latency value="10M" unit="bps"/>
             <protocols-args>
@@ -186,7 +186,7 @@
                     <port-tcp>6002</port-tcp>
                     <udp-on>true</udp-on>
                     <tcp-on>false</tcp-on>
-                    <imc-id>0c:07</imc-id>
+                    <imc-id>0c:1b</imc-id>
                 </imc>
             </protocols-args>
         </comm-mean>
