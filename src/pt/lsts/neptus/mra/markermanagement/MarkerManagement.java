@@ -1046,4 +1046,8 @@ public class MarkerManagement {
         }
 
     }
+    
+    public String logPath() {
+        return mraPanel.getSource().getDir().toString();
+    }
 }
