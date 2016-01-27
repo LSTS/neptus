@@ -31,8 +31,8 @@
  */
 package pt.lsts.neptus.mra.markermanagement;
 
-import java.awt.image.BufferedImage;
 import java.text.DateFormat;
+import java.util.ArrayList;
 
 import pt.lsts.neptus.mra.LogMarker;
 import pt.lsts.neptus.types.coord.LocationType;
@@ -45,8 +45,8 @@ public class LogMarkerItem extends LogMarker {
 
     private static final long serialVersionUID = 1L;
     private int index;
-    private BufferedImage image;
     private String sidescanImgPath;
+    private ArrayList<String> photosPath = new ArrayList<>();
     private String drawImgPath;
     private String annotation;
     private double altitude;
@@ -93,20 +93,6 @@ public class LogMarkerItem extends LogMarker {
         this.range = range;
         this.height = height;
         this.classification = classif;
-    }
-
-    /**
-     * @return the image
-     */
-    public BufferedImage getImage() {
-        return image;
-    }
-
-    /**
-     * @param image the image to set
-     */
-    public void setImage(BufferedImage image) {
-        this.image = image;
     }
 
     /**
@@ -186,7 +172,6 @@ public class LogMarkerItem extends LogMarker {
     public void copy(LogMarkerItem from) {
         this.annotation = from.annotation;
         this.classification = from.classification;
-        this.image = from.image;
     }
 
     /**
@@ -257,5 +242,19 @@ public class LogMarkerItem extends LogMarker {
      */
     public void setDrawImgPath(String drawImgPath) {
         this.drawImgPath = drawImgPath;
+    }
+    
+    /**
+     * @return the photosPath
+     */
+    public ArrayList<String> getPhotosPath() {
+        return photosPath;
+    }
+
+    /**
+     * @param photosPath the photosPath to set
+     */
+    public void setPhotosPath(ArrayList<String> photosPath) {
+        this.photosPath = photosPath;
     }
 }
