@@ -49,7 +49,9 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import javax.imageio.ImageIO;
 import javax.swing.AbstractAction;
@@ -340,19 +342,6 @@ public class MarkerManagement {
         return false;
     }
 
-    @SuppressWarnings("unused")
-    private void addImagesToMarkers() {
-        String path = mraPanel.getSource().getFile("Data.lsf").getParent() + "/mra/markers/";
-
-        for (LogMarkerItem log : markerList) {
-            File f = new File(path+log.getLabel()+".png");
-
-            if(f.exists() && !f.isDirectory()) {
-                //log.setSidescanImgPath(f); //FIXME
-            }
-        }
-    }
-
     private void getImageForSingleMarker(SidescanParser ssParser, SidescanLogMarker marker) {
         int nSubsys = ssParser.getSubsystemList().size();
         int colorMapCode = LsfReportProperties.sidescanColorMap;
@@ -411,7 +400,8 @@ public class MarkerManagement {
      * @param sidescanParams
      * @param globalColorMap
      */
-    private void createImage(SidescanLogMarker ssLogMarker, SidescanParser parser, int nSubsys, SidescanConfig config, SidescanParameters sidescanParams, boolean globalColorMap) {
+    private void createImage(SidescanLogMarker ssLogMarker, SidescanParser parser, int nSubsys, SidescanConfig config, 
+            SidescanParameters sidescanParams, boolean globalColorMap) {
 
         ssLogMarker.setDefaults(parser.getSubsystemList().get(0));//setDefaults if they are N/A
 
@@ -419,7 +409,8 @@ public class MarkerManagement {
 
             BufferedImage image = null;
             try {
-                image = LsfReport.getSidescanMarkImage(mraPanel.getSource(), parser, sidescanParams, config, globalColorMap, ssLogMarker, i);
+                image = LsfReport.getSidescanMarkImage(mraPanel.getSource(), parser, sidescanParams, config, globalColorMap, 
+                        ssLogMarker, i);
             }catch(Exception e){
                 NeptusLog.pub().error(e.getMessage());
             }
@@ -504,8 +495,9 @@ public class MarkerManagement {
         double range = ssLogMarker.wMeters;
   
         double alt = altAndHeight[0];
-        double heightValue = altAndHeight[1];
-        double depth = altAndHeight[2];
+        double depth = altAndHeight[1];
+        
+        ArrayList<String> photoList = new ArrayList<>();
         
         String description;
         if (ssLogMarker.getDescription() != null && !ssLogMarker.getDescription().isEmpty())
@@ -513,7 +505,8 @@ public class MarkerManagement {
         else
             description = "<Your annotation here.>";
        
-        LogMarkerItem marker = new LogMarkerItem(index, ssLogMarker.getLabel(), ssLogMarker.getTimestamp(), loc.getLatitudeDegs(), loc.getLongitudeDegs(), getImgPath(ssLogMarker.getLabel()), null, description, alt, depth, range, heightValue, Classification.UNDEFINED);
+        LogMarkerItem marker = new LogMarkerItem(index, ssLogMarker.getLabel(), ssLogMarker.getTimestamp(), loc.getLatitudeDegs(), 
+                loc.getLongitudeDegs(), getImgPath(ssLogMarker.getLabel()), null, description, alt, depth, range, Classification.UNDEFINED, photoList);
 
         //format date timestamp
         String date = DateTimeUtil.dateFormatterXMLUTC.format(ssLogMarker.getTimestamp());
@@ -558,6 +551,9 @@ public class MarkerManagement {
         Element draw = dom.createElement("Draw");
         draw.appendChild(dom.createTextNode("N/A"));
         mark.appendChild(draw);
+        
+        Element photo = dom.createElement("Photos");
+        mark.appendChild(photo);
 
         Element altitude = dom.createElement("Altitude");
         altitude.appendChild(dom.createTextNode(marker.getAltitude() + ""));
@@ -570,10 +566,6 @@ public class MarkerManagement {
         Element rang = dom.createElement("Range");
         rang.appendChild(dom.createTextNode(marker.getRange() + ""));
         mark.appendChild(rang);
-
-        Element height = dom.createElement("Height");
-        height.appendChild(dom.createTextNode(marker.getHeight() + ""));
-        mark.appendChild(height);
 
         Element classif = dom.createElement("Classification");
         classif.appendChild(dom.createTextNode(Classification.UNDEFINED.toString()));
@@ -617,33 +609,19 @@ public class MarkerManagement {
         SidescanConfig config = new SidescanConfig();
         SidescanParameters sidescanParams = setupSscanParam(config);
         double altitude = 0;
-        double height = 0; //FIXME : Calculate box height somehow
         double depth = 0;
         int subsys = ssLogMarker.subSys;
 
         ArrayList<SidescanLine> lines = LsfReport.getLines(ssParser, subsys, sidescanParams, ssLogMarker);
 
         if (lines != null && !lines.isEmpty()) {
-            
             //get altitude from the line in the middle of the list
             altitude = lines.get(lines.size()/2).getState().getAltitude(); 
             depth = depth(lines.get(lines.size()/2).getTimestampMillis());
         }
-
-        //        calculate distance between two locations
-        //        if (topLocation != null) {
-        //            height = bottomLocation.getDistanceInMeters(topLocation) / 2; //FIXME : is returning 2x compared to http://www.movable-type.co.uk/scripts/latlong.html
-        //            hHeight = bottomLocation.getHorizontalDistanceInMeters(topLocation); //FIXME :
-        //            
-        //            System.out.println(topLocation.getLatitudeDegs());
-        //            System.out.println(bottomLocation.getLongitudeDegs());
-        //            System.out.println("Altura: " + height);
-        //            System.out.println("altura horiz: "+ hHeight);
-        //        }
-
         
-        // result[] = {altitude, height}
-        double[] result = { ((double)Math.round(altitude * 100) / 100), height, depth };
+        // result[] = {altitude, depth}
+        double[] result = { ((double)Math.round(altitude * 100) / 100), depth };
 
         return result;
     }
@@ -759,9 +737,6 @@ public class MarkerManagement {
      * @param row The row that has been updated
      */
     public void updateLogMarker(LogMarkerItem selectedMarker, int row) {
-        LogMarkerItem marker = findMarker(selectedMarker.getLabel());
-        marker.copy(selectedMarker);
-
         tableModel.updateRow(row);
 
         //update & save XML
@@ -789,6 +764,43 @@ public class MarkerManagement {
                 
                 mark.getElementsByTagName("Classification").item(0).setTextContent(mrkerToUpd.getClassification().name());
                 mark.getElementsByTagName("Draw").item(0).setTextContent(mrkerToUpd.getDrawImgPath());
+                
+                Element photosEl = (Element) mark.getElementsByTagName("Photos").item(0);
+                NodeList photosNode = mark.getElementsByTagName("Photos");
+                
+                Set<Element> targetElements = new HashSet<Element>();
+                for (int s = 0; s < photosNode.getLength(); s++) {
+                    Element e = (Element)photosNode.item(s);
+                    NodeList pList = e.getElementsByTagName("Photo");
+                    if (pList != null) {
+                        for (int k=0; k< pList.getLength(); k++) {
+                            Element photo = (Element)pList.item(k);
+                            if (!mrkerToUpd.getPhotosPath().contains(photo.getFirstChild().getNodeValue())) {
+                                //target to remove
+                                targetElements.add(photo);
+                            }
+                        }
+                    }
+                }
+            
+
+                for (Element e: targetElements) {
+                    e.getParentNode().removeChild(e);
+                }
+
+                for (String imgPath : mrkerToUpd.getPhotosPath()) {
+                    if (!photoAlreadyExists(photosNode, imgPath)) {
+                        Element photo = dom.createElement("Photo");
+                        photo.appendChild(dom.createTextNode(imgPath));
+                        photosEl.appendChild(photo);
+                    }
+                }
+                
+                if (mrkerToUpd.getPhotosPath().isEmpty()) {
+                    System.out.println("Deleting them all!"); //TODO
+                }
+                
+                System.out.println("List: "+ mrkerToUpd.getPhotosPath().toString());
             }
         }
         //delete draw image, if exists
@@ -796,7 +808,25 @@ public class MarkerManagement {
             deleteImage(mrkerToUpd.getDrawImgPath());
         }
     }
-
+    
+    private boolean photoAlreadyExists(NodeList node, String photoPath){
+        
+        for (int j = 0; j < node.getLength(); j++) {
+            Element el = (Element)node.item(j);
+            NodeList pList = el.getElementsByTagName("Photo");
+            if (pList != null) {
+                for (int k=0; k< pList.getLength(); k++) {
+                    Element photo = (Element)pList.item(k);
+                    System.out.println("photo :"+ photo.getFirstChild().getNodeValue());
+                    if (photo.getFirstChild().getNodeValue().equals(photoPath)) {
+                        return true;
+                    }
+                }
+            }
+        }
+        return false;
+    }
+    
     /** Add new LogMarker to MarkerManagement
      * @marker, the marker to be added
      * 
@@ -904,14 +934,13 @@ public class MarkerManagement {
         Date parsed = null;
         String path = null;
         String drawPath = null;
-
+        ArrayList<String> photoList = null;
         double ts = 0;
         double lon = 0;
         double lat = 0;
         double altitude = 0;
         double depth = 0;
         double range = 0;
-        double height = 0;
         Classification cls = Classification.valueOf(getTextValue(markerEl,"Classification"));
         String annot = "";
 
@@ -927,9 +956,9 @@ public class MarkerManagement {
             altitude = getDoubleValue(markerEl, "Altitude");
             depth = getDoubleValue(markerEl, "Depth");
             range = getDoubleValue(markerEl, "Range");
-            height = getDoubleValue(markerEl, "Height");
             cls = Classification.valueOf(getTextValue(markerEl,"Classification"));
             annot = getTextValue(markerEl, "Annotation");
+            photoList = getListValue(markerEl, "Photos");
         }
         catch (ParseException e1) {
             e1.printStackTrace();
@@ -941,9 +970,30 @@ public class MarkerManagement {
         }
 
         //Create new LogMarkerItem with the value read from xml
-        LogMarkerItem e = new LogMarkerItem(index, name, ts, lat, lon, path, drawPath, annot, altitude, depth, range, height, cls);
+        LogMarkerItem e = new LogMarkerItem(index, name, ts, lat, lon, path, drawPath, annot, altitude, depth, range, cls, photoList);
 
         return e;
+    }
+
+   
+    private ArrayList<String> getListValue(Element ele, String tagName) {
+        ArrayList<String> res = new ArrayList<>();
+        
+        NodeList nl = ele.getElementsByTagName(tagName);
+        if (nl != null ){
+            for (int i=0; i < nl.getLength(); i++) {
+                Element el = (Element)nl.item(i);
+                NodeList pList = el.getElementsByTagName("Photo");
+                if (pList != null) {
+                    for (int j=0; j < pList.getLength(); j++) {
+                        Element photo = (Element)pList.item(j);
+                        res.add(photo.getFirstChild().getNodeValue());
+                    }
+                }
+            }
+        }
+        
+        return res;
     }
 
     private String getTextValue(Element ele, String tagName) {
@@ -963,7 +1013,7 @@ public class MarkerManagement {
     }
 
     private int getAttIntValue(Element ele, String tagName) throws NullPointerException {
-        return Integer.parseInt(ele.getAttribute( tagName));
+        return Integer.parseInt(ele.getAttribute(tagName));
     }
 
     private double getDoubleValue(Element ele, String tagName) throws NullPointerException{
@@ -1044,10 +1094,11 @@ public class MarkerManagement {
             openMarkerEditor(table.getValueAt(rowToOpen, 1).toString(), rowToOpen);
             table.setRowSelectionInterval(rowToOpen, rowToOpen);
         }
-
-    }
-    
-    public String logPath() {
-        return mraPanel.getSource().getDir().toString();
+        else 
+            if (index >= table.getRowCount()-1) {
+                int rowToOpen = 0;
+                openMarkerEditor(table.getValueAt(rowToOpen, 1).toString(), rowToOpen);
+                table.setRowSelectionInterval(rowToOpen, rowToOpen);
+            }
     }
 }

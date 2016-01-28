@@ -45,7 +45,6 @@ import java.awt.Toolkit;
 import java.awt.Transparency;
 import java.awt.Window;
 import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
 import java.awt.event.InputEvent;
@@ -56,6 +55,9 @@ import java.awt.event.MouseMotionListener;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.DirectoryStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.text.DateFormat;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
@@ -79,6 +81,7 @@ import javax.swing.JMenuItem;
 import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
+import javax.swing.JSeparator;
 import javax.swing.JSlider;
 import javax.swing.JTextArea;
 import javax.swing.JToggleButton;
@@ -114,7 +117,10 @@ import pt.lsts.neptus.util.llf.LogUtils;
 @SuppressWarnings("serial")
 public class MarkerEdit extends JDialog {
 
-    private final int RULER_SIZE = 15;
+    private static final int RULER_SIZE = 15;
+    private static final String MARKERS_REL_PATH = "/mra/markers/";
+    private static final String PHOTOS_REL_PATH = "/mra/markers/photos/";
+    private String path;
     private int selectMarkerRowIndex = -1;
     private JPanel panel = new JPanel(); 
     private MarkerManagement parent;
@@ -124,6 +130,10 @@ public class MarkerEdit extends JDialog {
     private JComboBox<String> classifValue;
     private JTextArea annotationValue;
     private JButton rectDrawBtn, circleDrawBtn, freeDrawBtn, exportImgBtn;
+    private JXStatusBar statusBar = new JXStatusBar();
+    private JScrollPane listScroll;
+    private DefaultListModel<String> photoListModel = new DefaultListModel<String>();
+    private JList<String> photoList;
     private int mouseX, mouseY, initialX, initialY, lastMouseX, lastMouseY, zoomScale = 2;
     private boolean enableFreeDraw = false;
     private boolean enableRectDraw = false;
@@ -135,10 +145,7 @@ public class MarkerEdit extends JDialog {
     private boolean toDeleteDraw = false;
     private BufferedImage layer,  rulerLayer, image, drawImageOverlay, zoomLayer;
     private ArrayList<Point> pointsList = new ArrayList<>();
-    private JXStatusBar statusBar = new JXStatusBar();
-    private JScrollPane listScroll;
-    private DefaultListModel<String> photoListModel = new DefaultListModel<String>();
-
+    
     public MarkerEdit(MarkerManagement parent, Window window) {
         super(window, ModalityType.MODELESS);
         this.parent = parent;
@@ -147,6 +154,9 @@ public class MarkerEdit extends JDialog {
         setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
         setBounds(100, 100, 590, 395);
         setIconImage(Toolkit.getDefaultToolkit().getImage(MarkerEdit.class.getResource("/images/menus/edit.png")));
+        
+        //define log location path
+        path = parent.mraPanel.getSource().getFile("Data.lsf").getParent() + MARKERS_REL_PATH;
 
         setupMenu();
         initialize();
@@ -319,6 +329,8 @@ public class MarkerEdit extends JDialog {
         JScrollPane scrollPane = new JScrollPane();
         panelTwo.add(scrollPane, BorderLayout.NORTH);
         annotationValue = new JTextArea();
+        annotationValue.setColumns(5);
+        annotationValue.setTabSize(5);
         scrollPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
         annotationValue.setText(I18n.text("<Your annotations here>"));
         annotationValue.setLineWrap(true); //Auto down line if the line is too long
@@ -337,39 +349,10 @@ public class MarkerEdit extends JDialog {
         listScroll = new JScrollPane();
         eastPanel.add(listScroll, BorderLayout.EAST);
 
-        JList photoList = new JList();
+        photoList = new JList();
         photoList.setModel(photoListModel);
         listScroll.setViewportView(photoList);
         listScroll.setVisible(false);
-
-        JPanel buttonPanel = new JPanel();
-        buttonPanel.setLayout(new BorderLayout(20, 20));
-        eastPanel.add(buttonPanel, BorderLayout.CENTER);
-
-        JPanel eastBtnPanel = new JPanel();
-        buttonPanel.add(eastBtnPanel, BorderLayout.EAST);
-        eastBtnPanel.setLayout(new MigLayout("", "[89px][89px]", "[23px][][]"));
-
-        JButton addBtn = new JButton(I18n.text("Add Photo"));
-        addBtn.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                addPhoto();
-            }
-        });
-        eastBtnPanel.add(addBtn, "cell 1 1,alignx center,aligny top");
-
-        JButton remBtn = new JButton(I18n.text("Remove Photo"));
-        remBtn.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                String toRemove = (String) photoList.getSelectedValue();
-                if (toRemove == null)
-                    return;
-
-                removePhoto(toRemove);
-            }
-
-        });
-        eastBtnPanel.add(remBtn, "cell 1 2,alignx center,aligny top");
 
         panel.add(depthLabel, "cell 8 3");
         panel.add(depthValue, "cell 8 3");
@@ -384,23 +367,24 @@ public class MarkerEdit extends JDialog {
     private boolean addPhoto() {
         String[] imgExtensions =  { "bmp", "jpg", "jpeg", "wbmp", "png", "gif" } ;
 
-        String path = parent.logPath().concat("/mra/markers/");
         JFileChooser fileChooser = GuiUtils.getFileChooser(path, 
                 I18n.text("Image Files"), imgExtensions);
 
         fileChooser.setAcceptAllFileFilterUsed(false);
+        fileChooser.setMultiSelectionEnabled(true);
         int status = fileChooser.showOpenDialog(ConfigFetch.getSuperParentFrame());
 
         if (status == JFileChooser.APPROVE_OPTION) {
-            File selectedFile = fileChooser.getSelectedFile();
+            File[] selectedFile = fileChooser.getSelectedFiles();
             if (selectedFile != null) {
                 String folder = createFolder(path);
-                
-                if (FileUtil.copyFile(selectedFile.getPath(), folder + "/" + selectedFile.getName())) {
-                    addToList(selectedFile.getName(), "/mra/markers/photos/"+selectedMarker.getLabel()+"/");
-                    showPhotoList();
-                    addStatusBarMsg("Added new photo");
+                for (File s : selectedFile) {
+                    if (FileUtil.copyFile(s.getPath(), folder + "/" + s.getName())) {
+                        addToList(s.getName(), PHOTOS_REL_PATH+selectedMarker.getLabel()+"/");
+                        showPhotoList();
+                    }
                 }
+                addStatusBarMsg("Added new photo(s)...");
             }
         } 
         return false;
@@ -440,16 +424,35 @@ public class MarkerEdit extends JDialog {
     }
 
     private void removePhoto(String toRemove) {
-        String source = parent.logPath();
-        String path = "/mra/markers/photos/"+selectedMarker.getLabel()+"/" + toRemove;
-        File toRemoveFile = new File(source + path);
-
+        String remPath = PHOTOS_REL_PATH+selectedMarker.getLabel()+"/" + toRemove;
+        String absPath = parent.mraPanel.getSource().getFile("Data.lsf").getParent();
+        File toRemoveFile = new File(absPath + remPath);
+            
         FileUtils.deleteQuietly(toRemoveFile);
-        selectedMarker.getPhotosPath().remove(path);
-
+      
+        selectedMarker.getPhotosPath().remove(remPath);
         photoListModel.removeElement(toRemove);
-
+       
+        File markerFile = new File(absPath + PHOTOS_REL_PATH+selectedMarker.getLabel()+"/");
+        try {
+            //Delete folder if it's empty
+            if (isDirEmpty(markerFile.toPath()))
+                FileUtils.deleteDirectory(markerFile);
+        }
+        catch (IOException e) {
+            e.printStackTrace();
+        }
+        
+        if (selectedMarker.getPhotosPath().isEmpty())
+            hidePhotoList();
     }
+    
+    private static boolean isDirEmpty(final Path directory) throws IOException {
+        try(DirectoryStream<Path> dirStream = Files.newDirectoryStream(directory)) {
+            return !dirStream.iterator().hasNext();
+        }
+    }
+
     public void addStatusBarMsg(String msg){
         JLabel jlabel = new JLabel(msg);
         jlabel.setFont(new Font("SansSerif", Font.PLAIN, 11));
@@ -563,7 +566,6 @@ public class MarkerEdit extends JDialog {
 
         //set range (width) and height
         double range = selectedMarker.getRange();
-        double height = selectedMarker.getHeight();
         
         float zoomRangeStep = 2;
         if (range >= 10.0 && range < 30.0)
@@ -580,12 +582,6 @@ public class MarkerEdit extends JDialog {
         if (range != 0) {
             Rectangle horizRect = new Rectangle(RULER_SIZE+1, image.getHeight()+3, image.getWidth(), 12);
             g2d.fill(horizRect);
-        }
-
-        //vertical rectangle
-        if (height != 0) {
-            Rectangle vertRect = new Rectangle(RULER_SIZE+1, RULER_SIZE+1, RULER_SIZE, image.getHeight()-1);
-            g2d.fill(vertRect);
         }
 
         g2d.setColor(Color.BLACK);
@@ -613,8 +609,9 @@ public class MarkerEdit extends JDialog {
 
         }
 
+        /*
         // vertical ruler (height)
-
+        
         double zoomRangeStepV = 2.0;
         double stepV = zoomRangeStepV * (image.getHeight()) / height;
         double rV = 0;
@@ -634,6 +631,7 @@ public class MarkerEdit extends JDialog {
                 g2d.drawLine(RULER_SIZE, cV, (RULER_SIZE)-lineWith, cV);
             }
         }
+        */
     }
 
     public void loadMarker(LogMarkerItem log, int rowIndex) {
@@ -654,17 +652,15 @@ public class MarkerEdit extends JDialog {
                 int width = image.getWidth();
                 int height = image.getHeight();
                 if (width > 300 || height > 300) {
-                    width = width / 3;
-                    height = height / 3;
-                    image = (BufferedImage) ImageUtils.getFasterScaledInstance(image, width, height);
-
+                    width = height = 300;
+                    image = (BufferedImage) ImageUtils.getFasterScaledInstance(image, 300, 300);
                 }
 
                 markerImage.setIcon(null);
                 markerImage.repaint();
                 markerImage.setPreferredSize(new Dimension(width + RULER_SIZE + 10, height + RULER_SIZE + 10));
 
-                setBounds(100, 100, width + prefWidth + RULER_SIZE + 10, height + prefHeight + RULER_SIZE + 10);
+                setBounds(parent.getwindowLocation().x, 100, width + prefWidth + RULER_SIZE + 10, height + prefHeight + RULER_SIZE + 10);
                 setLocation(parent.getwindowLocation());
 
                 if (selectedMarker.getDrawImgPath() != null && !selectedMarker.getDrawImgPath().toString().equals("N/A")) {
@@ -841,14 +837,17 @@ public class MarkerEdit extends JDialog {
 
         JButton saveBtn = createBtn("images/menus/save.png", I18n.text("Save"));
         JButton delBtn = createBtn("images/menus/editdelete.png", I18n.text("Delete"));
+        exportImgBtn = createBtn("images/menus/export.png", I18n.text("Export"));
         rectDrawBtn = createBtn("images/menus/rectdraw.png", I18n.text("Draw rectangle"));
         circleDrawBtn = createBtn("images/menus/circledraw.png", I18n.text("Draw circle"));
         freeDrawBtn = createBtn("images/menus/freedraw.png", I18n.text("Draw"));
         JButton clearDrawBtn = createBtn("images/menus/clear.png", I18n.text("Clear all"));
         JButton showGridBtn = createBtn("images/menus/grid.png", I18n.text("Show grid"));
         JButton showRulerBtn = createBtn("images/menus/ruler.png", I18n.text("Show ruler"));
-        exportImgBtn = createBtn("images/menus/export.png", I18n.text("Export"));
 
+        JButton addPhotoBtn = createBtn("images/menus/attach.png", I18n.text("Add Photo"));
+        JButton remPhotoBtn = createBtn("images/menus/no.png", I18n.text("Remove selected photos"));
+        
         JButton previousMarkBtn = createBtn("images/menus/previous.png", I18n.text("Previous Mark"));
         JButton nextMarkBtn = createBtn("images/menus/next.png", I18n.text("Next Mark"));
 
@@ -864,7 +863,6 @@ public class MarkerEdit extends JDialog {
                 //save drawing image
                 BufferedImage img = new BufferedImage(image.getWidth(), image.getHeight(), BufferedImage.TYPE_INT_ARGB);
                 Graphics2D g2d = img.createGraphics();
-                String path = parent.mraPanel.getSource().getFile("Data.lsf").getParent() + "/mra/markers/";
 
                 // drawRect(layer.getGraphics(), lastMouseX, lastMouseY);
 
@@ -890,16 +888,18 @@ public class MarkerEdit extends JDialog {
 
                 g2d.dispose();
 
-                String relPath = "/mra/markers/" + selectedMarker.getLabel() +"_draw.png";
+                String relPath = MARKERS_REL_PATH + selectedMarker.getLabel() +"_draw.png";
 
                 //end save drawing image
                 selectedMarker.setDrawImgPath(relPath);
                 selectedMarker.setClassification(classif);
                 selectedMarker.setAnnotation(annotation);
+                
                 if (toDeleteDraw) {
                     parent.deleteImage(drawFile.toString());
-                    selectedMarker.setDrawImgPath("null");
+                    selectedMarker.setDrawImgPath("N/A");
                 }
+                
                 parent.updateLogMarker(selectedMarker, selectMarkerRowIndex);
                 markerImage.repaint();
                 addStatusBarMsg("Saving completed...");
@@ -1009,7 +1009,6 @@ public class MarkerEdit extends JDialog {
 
                     g2d.drawImage(image, 0, 0, null);
                     g2d.dispose();
-                    String path = parent.mraPanel.getSource().getFile("Data.lsf").getParent() + "/mra/markers/";
 
                     // save image to file
                     String fileName = chooseSaveFile(img, path);
@@ -1032,7 +1031,6 @@ public class MarkerEdit extends JDialog {
                     g2d.drawImage(image, RULER_SIZE, 0, null);
                     g2d.drawImage(rulerLayer, 0, -RULER_SIZE, null);
                     g2d.dispose();
-                    String path = parent.mraPanel.getSource().getFile("Data.lsf").getParent() + "/mra/markers/";
 
                     // save image to file
                     String fileName = chooseSaveFile(img, path);
@@ -1050,7 +1048,6 @@ public class MarkerEdit extends JDialog {
                 if (markerImage != null && rulerLayer != null) {
                     BufferedImage img = new BufferedImage(image.getWidth(), image.getHeight(), BufferedImage.TYPE_INT_ARGB);
                     Graphics2D g2d = img.createGraphics();
-                    String path = parent.mraPanel.getSource().getFile("Data.lsf").getParent() + "/mra/markers/";
 
                     // drawRect(layer.getGraphics(), lastMouseX, lastMouseY);
 
@@ -1090,7 +1087,6 @@ public class MarkerEdit extends JDialog {
                     g2d.drawImage(rulerLayer, 0, -RULER_SIZE, null);
 
                     g2d.dispose();
-                    String path = parent.mraPanel.getSource().getFile("Data.lsf").getParent() + "/mra/markers/";
 
                     // save image to file
                     String fileName = chooseSaveFile(img, path);
@@ -1133,22 +1129,65 @@ public class MarkerEdit extends JDialog {
                 }
             }
         };
+        
+        AbstractAction addPhotoAction = new AbstractAction(I18n.text("Add Photo")) {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                addPhoto();
+            }
+        };
+
+        AbstractAction remPhotoAction = new AbstractAction(I18n.text("Remove selected photos")) {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                String toRemove = (String) photoList.getSelectedValue();
+                if (toRemove == null)
+                    return;
+
+                removePhoto(toRemove);
+            }
+        };
+
+        JSeparator separator1 = new JSeparator(){
+            @Override
+            public Dimension getMaximumSize(){
+                return new Dimension(5, 25);
+            }
+        };
+        separator1.setOrientation(JSeparator.VERTICAL);
+        
+        JSeparator separator2 = new JSeparator(){
+            @Override
+            public Dimension getMaximumSize(){
+                return new Dimension(5, 25);
+            }
+        };
+        separator2.setOrientation(JSeparator.VERTICAL);
+        
+        JSeparator separator3 = new JSeparator(){
+            @Override
+            public Dimension getMaximumSize(){
+                return new Dimension(5, 25);
+            }
+        };
+        separator3.setOrientation(JSeparator.VERTICAL);
 
         //add buttons to toolbar
         toolBar.add(saveBtn);
         toolBar.add(delBtn);
-        toolBar.addSeparator(); 
+        toolBar.add(exportImgBtn);
+        toolBar.add(separator1);
         toolBar.add(rectDrawBtn);
         toolBar.add(circleDrawBtn);
         toolBar.add(freeDrawBtn);
         toolBar.add(clearDrawBtn);
-        toolBar.addSeparator(); 
+        toolBar.add(separator2); 
         toolBar.add(showGridBtn);
         toolBar.add(showRulerBtn);
         toolBar.add(zoomBtn);
-        toolBar.addSeparator();
-        toolBar.add(exportImgBtn);
-
+        toolBar.add(separator3);
+        toolBar.add(addPhotoBtn); 
+        toolBar.add(remPhotoBtn);
         toolBar.add(Box.createHorizontalGlue());
         toolBar.add(previousMarkBtn); 
         toolBar.add(nextMarkBtn);
@@ -1168,6 +1207,8 @@ public class MarkerEdit extends JDialog {
         showGridBtn.addActionListener(showGrid);
         showRulerBtn.addActionListener(showRuler);
         zoomBtn.addActionListener(zoomAction);
+        addPhotoBtn.addActionListener(addPhotoAction);
+        remPhotoBtn.addActionListener(remPhotoAction);
         nextMarkBtn.addActionListener(nextMark);
         previousMarkBtn.addActionListener(previousMark);
 

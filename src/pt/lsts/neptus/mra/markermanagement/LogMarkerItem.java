@@ -46,13 +46,12 @@ public class LogMarkerItem extends LogMarker {
     private static final long serialVersionUID = 1L;
     private int index;
     private String sidescanImgPath;
-    private ArrayList<String> photosPath = new ArrayList<>();
+    private ArrayList<String> photoList = new ArrayList<>();
     private String drawImgPath;
     private String annotation;
     private double altitude;
     private double depth;
     private double range;
-    private double height;
     private Classification classification;
 
     public enum Classification {
@@ -82,7 +81,8 @@ public class LogMarkerItem extends LogMarker {
      * @param lat
      * @param lon
      */
-    public LogMarkerItem(int index, String label, double timestamp, double lat, double lon, String sidescanImgPath, String drawImgPath, String annot, double altitude, double depth, double range, double height, Classification classif) {
+    public LogMarkerItem(int index, String label, double timestamp, double lat, double lon, String sidescanImgPath, String drawImgPath, 
+            String annot, double altitude, double depth, double range, Classification classif, ArrayList<String> photos) {
         super(label, annot, timestamp, lat, lon);
         this.index = index;
         this.sidescanImgPath = sidescanImgPath;
@@ -91,8 +91,8 @@ public class LogMarkerItem extends LogMarker {
         this.altitude = altitude;
         this.depth = depth;
         this.range = range;
-        this.height = height;
         this.classification = classif;
+        this.photoList = photos;
     }
 
     /**
@@ -172,6 +172,7 @@ public class LogMarkerItem extends LogMarker {
     public void copy(LogMarkerItem from) {
         this.annotation = from.annotation;
         this.classification = from.classification;
+        this.photoList = from.photoList;
     }
 
     /**
@@ -217,20 +218,6 @@ public class LogMarkerItem extends LogMarker {
     }
 
     /**
-     * @return the height
-     */
-    public double getHeight() {
-        return height;
-    }
-
-    /**
-     * @param height the height to set
-     */
-    public void setHeight(double height) {
-        this.height = height;
-    }
-
-    /**
      * @return the drawImgPath
      */
     public String getDrawImgPath() {
@@ -248,13 +235,13 @@ public class LogMarkerItem extends LogMarker {
      * @return the photosPath
      */
     public ArrayList<String> getPhotosPath() {
-        return photosPath;
+        return photoList;
     }
 
     /**
      * @param photosPath the photosPath to set
      */
     public void setPhotosPath(ArrayList<String> photosPath) {
-        this.photosPath = photosPath;
+        this.photoList = photosPath;
     }
 }
