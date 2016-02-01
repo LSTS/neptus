@@ -292,9 +292,6 @@ For simple use the main targets are:
 							<file file="neptus.bat"/>
 						</resourceexists>
 						<resourcecount refid="nsis-generated-launchers" when="ge" count="4" />
-						<resourceexists>
-							<file file="dev-scripts/grow_pot.sh"/>
-						</resourceexists>
 					</and>
 				</not>
 			</condition>
@@ -1578,30 +1575,12 @@ For simple use the main targets are:
 			</fileset>
 			<filterset refid="bat.filters" />
 		</copy>
-		<copy todir="." overwrite="true" force="true">
-			<fileset dir="${src.shell.dir}">
-				<include name="*.sh" />
-				<exclude name="grow_pot.sh" />
-				<exclude name="${exclude-defaults}" />
-			</fileset>
-			<filterset refid="sh.filters" />
-		</copy>
 
 		<chmod perm="a+x">
 			<fileset dir=".">
 				<include name="*.sh"/>
 			</fileset>
 		</chmod>
-
-		<copy todir="dev-scripts" overwrite="true" force="true">
-			<fileset dir="${src.shell.dir}">
-				<include name="grow_pot.sh" />
-				<exclude name="${exclude-defaults}" />
-			</fileset>
-			<filterset refid="sh.filters" />
-		</copy>
-		<fixcrlf preservelastmodified="true" srcdir="dev-scripts" eol="lf" eof="remove" includes="*.sh" />
-		<chmod file="dev-scripts/grow_pot.sh" perm="a+x" />
 
 		<!-- generate the installers bat and sh files -->
 		<mkdir dir="NSIS_release/static_files/batch_files"/>
