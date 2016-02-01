@@ -33,8 +33,6 @@ package org.necsave;
 
 import java.awt.Color;
 import java.awt.Graphics2D;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.Map.Entry;
@@ -47,10 +45,10 @@ import com.google.common.eventbus.Subscribe;
 
 import info.necsave.msgs.AbortMission;
 import info.necsave.msgs.AbortMission.TYPE;
-import info.necsave.msgs.Header.MEDIUM;
 import info.necsave.msgs.Area;
 import info.necsave.msgs.Contact;
 import info.necsave.msgs.ContactList;
+import info.necsave.msgs.Header.MEDIUM;
 import info.necsave.msgs.Kinematics;
 import info.necsave.msgs.MissionArea;
 import info.necsave.msgs.MissionCompleted;
@@ -64,6 +62,7 @@ import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.console.ConsoleInteraction;
 import pt.lsts.neptus.console.notifications.Notification;
 import pt.lsts.neptus.i18n.I18n;
+import pt.lsts.neptus.plugins.NeptusMenuItem;
 import pt.lsts.neptus.plugins.NeptusProperty;
 import pt.lsts.neptus.plugins.PluginDescription;
 import pt.lsts.neptus.renderer2d.StateRenderer2D;
@@ -103,138 +102,121 @@ public class NecsaveUI extends ConsoleInteraction {
         catch (Exception e) {
             NeptusLog.pub().error(e);
         }
-
-        addActions();
     }
+    
+    @NeptusMenuItem("Advanced>NECSAVE>Set Mission")
+    public void setMission() {
+        MapGroup mg = MapGroup.getMapGroupInstance(getConsole().getMission());
+        Vector<ParallelepipedElement> pps = mg.getAllObjectsOfType(ParallelepipedElement.class);
 
-    public void addActions() {
-        getConsole().addMenuItem("Advanced>NECSAVE>Set Mission", null, new ActionListener() {
+        if (pps.isEmpty()) {
+            GuiUtils.errorMessage(getConsole(), I18n.text("Set mission area"),
+                    I18n.text("Please add at least one rectangle to the map"));
+            return;
+        }
 
-            @Override
-            public void actionPerformed(ActionEvent e) {
+        Object ret = JOptionPane.showInputDialog(getConsole(), I18n.text("Select area"),
+                I18n.text("Select area"), JOptionPane.QUESTION_MESSAGE, null,
+                pps.toArray(new ParallelepipedElement[0]), pps.iterator().next());
+        if (ret == null)
+            return;
 
-                MapGroup mg = MapGroup.getMapGroupInstance(getConsole().getMission());
-                Vector<ParallelepipedElement> pps = mg.getAllObjectsOfType(ParallelepipedElement.class);
+        elem = (ParallelepipedElement) ret;
 
-                if (pps.isEmpty()) {
-                    GuiUtils.errorMessage(getConsole(), I18n.text("Set mission area"),
-                            I18n.text("Please add at least one rectangle to the map"));
-                    return;
-                }
+        double a = elem.getYawRad();
+        width = elem.getWidth();
+        height = elem.getLength();
 
-                Object ret = JOptionPane.showInputDialog(getConsole(), I18n.text("Select area"),
-                        I18n.text("Select area"), JOptionPane.QUESTION_MESSAGE, null,
-                        pps.toArray(new ParallelepipedElement[0]), pps.iterator().next());
-                if (ret == null)
-                    return;
+        corner = new LocationType(elem.getCenterLocation());
+        corner.setOffsetDistance(-height / 2);
+        corner.setAzimuth(Math.toDegrees(a));
+        corner.convertToAbsoluteLatLonDepth();
+        corner.setOffsetDistance(-width / 2);
+        corner.setAzimuth(Math.toDegrees(a + Math.PI / 2));
+        corner.convertToAbsoluteLatLonDepth();
+        corner.convertToAbsoluteLatLonDepth();
 
-                elem = (ParallelepipedElement) ret;
+        NecsaveUI.this.width = elem.getWidth();
+        NecsaveUI.this.height = elem.getLength();
+        Area area = new Area();
+        area.setLatitude(corner.getLatitudeRads());
+        area.setLongitude(corner.getLongitudeRads());
+        area.setBearing(a);
+        area.setWidth(elem.getWidth());
+        area.setLength(elem.getLength());
 
-                double a = elem.getYawRad();
-                width = elem.getWidth();
-                height = elem.getLength();
+        try {
+            sendMessage(new MissionArea(area));                    
+        }
+        catch (Exception ex) {
+            GuiUtils.errorMessage(getConsole(), ex);
+            ex.printStackTrace();
+        }
 
-                corner = new LocationType(elem.getCenterLocation());
-                corner.setOffsetDistance(-height / 2);
-                corner.setAzimuth(Math.toDegrees(a));
-                corner.convertToAbsoluteLatLonDepth();
-                corner.setOffsetDistance(-width / 2);
-                corner.setAzimuth(Math.toDegrees(a + Math.PI / 2));
-                corner.convertToAbsoluteLatLonDepth();
-                corner.convertToAbsoluteLatLonDepth();
+        String[] goals = getNames(GOAL_TYPE.class);
 
-                NecsaveUI.this.width = elem.getWidth();
-                NecsaveUI.this.height = elem.getLength();
-                Area area = new Area();
-                area.setLatitude(corner.getLatitudeRads());
-                area.setLongitude(corner.getLongitudeRads());
-                area.setBearing(a);
-                area.setWidth(elem.getWidth());
-                area.setLength(elem.getLength());
+        Object goal_ret = JOptionPane.showInputDialog(getConsole(), I18n.text("Select goal"),
+                I18n.text("Select goal"), JOptionPane.QUESTION_MESSAGE, null,
+                goals, goals[0]);
+        if (goal_ret == null)
+            return;
 
-                try {
-                    sendMessage(new MissionArea(area));                    
-                }
-                catch (Exception ex) {
-                    GuiUtils.errorMessage(getConsole(), ex);
-                    ex.printStackTrace();
-                }
+        GOAL_TYPE goal = GOAL_TYPE.valueOf((String) goal_ret);
+        MissionGoal m_goal = new MissionGoal(goal);
 
-                String[] goals = getNames(GOAL_TYPE.class);
+        try {
+            sendMessage(m_goal);
+        }
+        catch (Exception ex) {
+            GuiUtils.errorMessage(getConsole(), ex);
+            ex.printStackTrace();
+        }
 
-                Object goal_ret = JOptionPane.showInputDialog(getConsole(), I18n.text("Select goal"),
-                        I18n.text("Select goal"), JOptionPane.QUESTION_MESSAGE, null,
-                        goals, goals[0]);
-                if (goal_ret == null)
-                    return;
+        String description = JOptionPane.showInputDialog(getConsole(), I18n.text("Please enter test description"), I18n.text("Start Mission"), JOptionPane.OK_CANCEL_OPTION);
 
-                GOAL_TYPE goal = GOAL_TYPE.valueOf((String) goal_ret);
-                MissionGoal m_goal = new MissionGoal(goal);
+        if (description == null)
+            return;
 
-                try {
-                    sendMessage(m_goal);
-                }
-                catch (Exception ex) {
-                    GuiUtils.errorMessage(getConsole(), ex);
-                    ex.printStackTrace();
-                }
-
-                String description = JOptionPane.showInputDialog(getConsole(), I18n.text("Please enter test description"), I18n.text("Start Mission"), JOptionPane.OK_CANCEL_OPTION);
-
-                if (description == null)
-                    return;
-
-                MissionReadyToStart start = new MissionReadyToStart();
-                start.setInfo(description);
-                
-                try {
-                    sendMessage(start);
-                }
-                catch (Exception ex) {
-                    GuiUtils.errorMessage(getConsole(), ex);
-                    ex.printStackTrace();
-                }
-            }
-        });
-
-        getConsole().addMenuItem("Advanced>NECSAVE>Abort Mission", null, new ActionListener() {
-
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                AbortMission abort = new AbortMission();
-                abort.setType(TYPE.SYSTEM_WIDE);
-                try {
-                    sendMessage(abort);
-                }
-                catch (Exception ex) {
-                    GuiUtils.errorMessage(getConsole(), ex);
-                    ex.printStackTrace();
-                }
-            }
-        });
-
-        getConsole().addMenuItem("Advanced>NECSAVE>Send MissionCompleted", null, new ActionListener() {
-
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                MissionCompleted msg = new MissionCompleted();
-                try {
-                    sendMessage(msg);
-                }
-                catch (Exception ex) {
-                    GuiUtils.errorMessage(getConsole(), ex);
-                    ex.printStackTrace();
-                }
-            }
-        });
-
-        getConsole().addMenuItem("Advanced>NECSAVE>Clear Platforms", null, new ActionListener() {
-
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                platformNames.clear();
-            }
-        });
+        MissionReadyToStart start = new MissionReadyToStart();
+        start.setInfo(description);
+        
+        try {
+            sendMessage(start);
+        }
+        catch (Exception ex) {
+            GuiUtils.errorMessage(getConsole(), ex);
+            ex.printStackTrace();
+        }
+    }
+    
+    @NeptusMenuItem("Advanced>NECSAVE>Abort Mission")
+    public void abortMission() {
+        AbortMission abort = new AbortMission();
+        abort.setType(TYPE.SYSTEM_WIDE);
+        try {
+            sendMessage(abort);
+        }
+        catch (Exception ex) {
+            GuiUtils.errorMessage(getConsole(), ex);
+            ex.printStackTrace();
+        }
+    }
+    
+    @NeptusMenuItem("Advanced>NECSAVE>Send MissionCompleted")
+    public void missionCompleted() {
+        MissionCompleted msg = new MissionCompleted();
+        try {
+            sendMessage(msg);
+        }
+        catch (Exception ex) {
+            GuiUtils.errorMessage(getConsole(), ex);
+            ex.printStackTrace();
+        }
+    }
+    
+    @NeptusMenuItem("Advanced>NECSAVE>Clear Platforms")
+    public void clearPlatforms() {
+        platformNames.clear();
     }
 
     private static String[] getNames(Class<? extends Enum<?>> e) {

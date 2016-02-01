@@ -83,6 +83,7 @@ import pt.lsts.neptus.messages.listener.MessageInfo;
 import pt.lsts.neptus.messages.listener.MessageListener;
 import pt.lsts.neptus.plugins.CheckMenuChangeListener;
 import pt.lsts.neptus.plugins.NeptusMessageListener;
+import pt.lsts.neptus.plugins.PluginMenuUtils;
 import pt.lsts.neptus.plugins.PluginUtils;
 import pt.lsts.neptus.plugins.Popup;
 import pt.lsts.neptus.plugins.Popup.POSITION;
@@ -368,6 +369,7 @@ public abstract class ConsolePanel extends JPanel implements PropertiesProvider,
             PeriodicUpdatesService.unregister((IPeriodicUpdates) this);
 
         PeriodicUpdatesService.unregisterPojo(this);
+        PluginMenuUtils.removePluginMenus(console, this);
         
         if (this instanceof NeptusMessageListener) {
             if (getConsole() != null) {
@@ -531,6 +533,7 @@ public abstract class ConsolePanel extends JPanel implements PropertiesProvider,
             PeriodicUpdatesService.register((IPeriodicUpdates) this);
         
         PeriodicUpdatesService.registerPojo(this);
+        PluginMenuUtils.addPluginMenus(console, this);
         
         getConsole().getImcMsgManager().registerBusListener(this);
 

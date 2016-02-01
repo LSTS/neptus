@@ -31,27 +31,18 @@
  */
 package pt.lsts.neptus.plugins;
 
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 
-/**
- * This interface is to be used by pluggable actions that can be added to Console interfaces and other applications
- * @author zp
- * @version 1.0
- */
-public interface NeptusAction {
+@Retention(RetentionPolicy.RUNTIME)
+@Target(ElementType.METHOD)
+public @interface NeptusMenuItem {
 
 	/**
-	 * Executes the action, a separate thread is used if the call {@link #runInOwnThread()} returns <b>true</b>
+	 * @return The path to the menu presented to the user 
+	 * such as "Advanced > My Menu > Do stuff!"
 	 */
-	public void execute();
-	
-	/**
-	 * @return <b>true</b> if this action should be run in a separate thread or <b>false</b> otherwise
-	 */
-	public boolean runInOwnThread();
-	
-	/**
-	 * If this action is to be executed periodically (as a daemon), this method should return a value greater than 0
-	 * @return A value greater than 0 corresponding to the interval between executions or <b>0</b> if this action is not to be run periodically
-	 */
-	public int getPeriodicityMillis();
+    String value();
 }
