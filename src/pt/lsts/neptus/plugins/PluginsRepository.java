@@ -51,7 +51,6 @@ public class PluginsRepository {
 
    
     private static ExtensionsBag extensions = new ExtensionsBag(
-            NeptusAction.class,
             ConsolePanel.class,
             ConsoleLayer.class,
             ConsoleInteraction.class,
