@@ -107,7 +107,7 @@ public class SidescanImageExporter implements MRAExporter {
         parser = SidescanParserFactory.build(source);
         boolean cancel = PluginUtils.editPluginProperties(this, true);
         if (cancel)
-            return "Cancelled by user";
+            return I18n.text("Cancelled by user");
         
         MraVehiclePosHud hud = new MraVehiclePosHud(source, hudSize, hudSize);
         hud.setPathColor(Color.white);

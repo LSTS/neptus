@@ -299,10 +299,10 @@ public class BathyMapExporter implements MRAExporter {
         }
 
         if (pmonitor.isCanceled())
-            return I18n.text("Cancel by user");
+            return I18n.text("Cancelled by user");
 
         // Map export completed
         pmonitor.setProgress(pmonitor.getMaximum());
-        return I18n.text("Bathymetry map export is successfully completed");
+        return I18n.text("Bathymetry map export has completed successfully");
     }
 }

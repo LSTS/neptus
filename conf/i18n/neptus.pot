@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Neptus\n"
 "Report-Msgid-Bugs-To: neptus.i18n@lsts-feup.org\n"
-"POT-Creation-Date: 2016-02-01 14:59+0000\n"
+"POT-Creation-Date: 2016-02-01 18:39+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -27,6 +27,10 @@ msgstr ""
 
 #: src/pt/lsts/neptus/mra/visualizations/ColorMapVisualization.java:514
 msgid "%1 Colormap"
+msgstr ""
+
+#: src/pt/lsts/neptus/mra/exporters/PCDExporter.java:276
+msgid "%ExceptionClass while exporting to PCD: %error"
 msgstr ""
 
 #: src/pt/lsts/neptus/mc/Workspace.java:223
@@ -773,7 +777,7 @@ msgctxt "Colormap name"
 msgid "Additive colormap"
 msgstr ""
 
-#: src/pt/lsts/neptus/gui/PropertiesEditor.java:194
+#: src/pt/lsts/neptus/gui/PropertiesEditor.java:198
 msgctxt ""
 "Properties category dubbed Advance, normally category is \"Advance\" or "
 "STARTS WITH \"Advance - \""
@@ -1214,7 +1218,7 @@ msgid "Bathymetry layer"
 msgstr ""
 
 #: src/pt/lsts/neptus/mra/exporters/BathyMapExporter.java:306
-msgid "Bathymetry map export is successfully completed"
+msgid "Bathymetry map export has completed successfully"
 msgstr ""
 
 #: Property from pt.lsts.neptus.plugins.gauges.CpuBattDiskNetGauge
@@ -1471,7 +1475,7 @@ msgstr ""
 #: src/pt/lsts/neptus/gui/ZValueSelector.java:192
 #: src/pt/lsts/neptus/gui/editor/XMLPropertyEditor.java:191
 #: src/pt/lsts/neptus/gui/HeightDepthSelector.java:180
-#: src/pt/lsts/neptus/gui/PropertiesEditor.java:323
+#: src/pt/lsts/neptus/gui/PropertiesEditor.java:327
 #: src/pt/lsts/neptus/gui/objparams/ImageLocatorPanel.java:218
 #: src/pt/lsts/neptus/gui/objparams/TranspondersPositionHelper.java:634
 #: src/pt/lsts/neptus/gui/VehicleSelectionDialog.java:169
@@ -1487,13 +1491,25 @@ msgstr ""
 msgid "Cancel"
 msgstr ""
 
-#: src/pt/lsts/neptus/mra/exporters/BathyMapExporter.java:302
-msgid "Cancel by user"
+#: src/pt/lsts/neptus/mra/exporters/CTDExporter.java:101
+#: src/pt/lsts/neptus/mra/exporters/CTDExporter.java:116
+#: src/pt/lsts/neptus/mra/exporters/MRAExporterFilter.java:181
+#: src/pt/lsts/neptus/mra/exporters/CSVExporter.java:126
+#: src/pt/lsts/neptus/mra/exporters/UpdatedImcExporter.java:80
+#: src/pt/lsts/neptus/mra/exporters/KMLExporter.java:869
+#: src/pt/lsts/neptus/mra/exporters/SidescanImageExporter.java:143
+#: src/pt/lsts/neptus/mra/exporters/LogSliceExporter.java:99
+#: src/pt/lsts/neptus/mra/exporters/LogSliceExporter.java:114
+msgid "Cancelled by the user"
 msgstr ""
 
-#: src/pt/lsts/neptus/mra/exporters/UpdatedImcExporter.java:80
-#: src/pt/lsts/neptus/mra/exporters/SidescanImageExporter.java:143
-msgid "Cancelled by the user"
+#: src/pt/lsts/neptus/mra/exporters/KMLExporter.java:718
+msgid "Cancelled by the user."
+msgstr ""
+
+#: src/pt/lsts/neptus/mra/exporters/SidescanImageExporter.java:110
+#: src/pt/lsts/neptus/mra/exporters/BathyMapExporter.java:302
+msgid "Cancelled by user"
 msgstr ""
 
 #: src/pt/lsts/neptus/mra/exporters/LogSliceExporter.java:159
@@ -1851,7 +1867,7 @@ msgstr ""
 msgid "Clockwise"
 msgstr ""
 
-#: src/pt/lsts/neptus/gui/PropertiesEditor.java:323
+#: src/pt/lsts/neptus/gui/PropertiesEditor.java:327
 #: src/pt/lsts/neptus/console/plugins/planning/PlanEditor.java:635
 msgid "Close"
 msgstr ""
@@ -1997,6 +2013,7 @@ msgid "Compress Output"
 msgstr ""
 
 #: plugins-dev/mra-plots/pt/lsts/neptus/plugins/bathym/XyzExporter.java:205
+#: src/pt/lsts/neptus/mra/exporters/KMLExporter.java:871
 msgid "Compressing output"
 msgstr ""
 
@@ -2398,7 +2415,7 @@ msgstr ""
 msgid "Copying additional files..."
 msgstr ""
 
-#: src/pt/lsts/neptus/mra/exporters/CSVBathymetryExporter.java:140
+#: src/pt/lsts/neptus/mra/exporters/CSVBathymetryExporter.java:134
 #: src/pt/lsts/neptus/mra/exporters/DeltaT83PToCorrectedPos83P.java:98
 msgid "Copying file"
 msgstr ""
@@ -2449,6 +2466,10 @@ msgstr ""
 
 #: src/pt/lsts/neptus/console/plugins/planning/PlanEditor.java:471
 msgid "Create new plan"
+msgstr ""
+
+#: src/pt/lsts/neptus/mra/exporters/CTDExporter.java:137
+msgid "Creating output folder..."
 msgstr ""
 
 #: plugins-dev/mra-plots/pt/lsts/neptus/plugins/mraplots/MraPhotosVisualization.java:472
@@ -3520,6 +3541,10 @@ msgstr ""
 msgid "Error creating PDF table"
 msgstr ""
 
+#: src/pt/lsts/neptus/mra/exporters/CTDExporter.java:157
+msgid "Error creating output file: %error"
+msgstr ""
+
 #: src/pt/lsts/neptus/mra/MRAChartPanel.java:320
 msgid "Error exporting to PDF"
 msgstr ""
@@ -3568,6 +3593,10 @@ msgstr ""
 
 #: src/pt/lsts/neptus/mp/Maneuver.java:971
 msgid "Error parsing custom setting '%s' to '%s'!"
+msgstr ""
+
+#: src/pt/lsts/neptus/mra/exporters/CTDExporter.java:202
+msgid "Error positions is Empty"
 msgstr ""
 
 #: src/pt/lsts/neptus/mra/exporters/MatExporter.java:195
@@ -3636,12 +3665,24 @@ msgstr ""
 msgid "Error sending stopping plan"
 msgstr ""
 
+#: src/pt/lsts/neptus/mra/exporters/UpdatedImcExporter.java:101
+msgid "Error while converting: %error"
+msgstr ""
+
+#: src/pt/lsts/neptus/mra/exporters/KMLExporter.java:886
+msgid "Error while exporting to KML"
+msgstr ""
+
 #: src/pt/lsts/neptus/gui/editor/XMLPropertyEditor.java:230
 msgid "Error while extracting schema to file!!"
 msgstr ""
 
 #: src/pt/lsts/neptus/mp/maneuvers/Goto.java:136
 msgid "Error while loading the XML:"
+msgstr ""
+
+#: src/pt/lsts/neptus/mra/exporters/CTDExporter.java:224
+msgid "Error writing to file: %error"
 msgstr ""
 
 #: src/pt/lsts/neptus/util/logdownload/DownloaderPanel.java:796
@@ -3698,6 +3739,10 @@ msgstr ""
 
 #: src/pt/lsts/neptus/gui/ErrorMessageBox.java:84
 msgid "Exception Thrown"
+msgstr ""
+
+#: src/pt/lsts/neptus/mra/exporters/KMLExporter.java:887
+msgid "Exception of type %exception occurred: %message"
 msgstr ""
 
 #: Name of plugin pt.lsts.neptus.plugins.actions.ExecuteCommandPanel
@@ -3807,6 +3852,14 @@ msgstr ""
 msgid "Export cancelled"
 msgstr ""
 
+#: src/pt/lsts/neptus/mra/exporters/CSVBathymetryExporter.java:261
+msgid "Export completed successfully"
+msgstr ""
+
+#: src/pt/lsts/neptus/mra/exporters/CSVBathymetryExporter.java:265
+msgid "Export completed with errors! (%error)"
+msgstr ""
+
 #: src/pt/lsts/neptus/mra/MRAMenuBar.java:657
 msgid "Export data to"
 msgstr ""
@@ -3817,6 +3870,10 @@ msgstr ""
 
 #: src/pt/lsts/neptus/console/plugins/PlanExporter.java:109
 msgid "Export plan"
+msgstr ""
+
+#: src/pt/lsts/neptus/mra/exporters/TrajectoryExporter.java:124
+msgid "Export process complete."
 msgstr ""
 
 #: plugins-dev/s57/pt/lsts/neptus/plugins/s57/S57SoundingsExporter.java:195
@@ -3842,6 +3899,10 @@ msgstr ""
 
 #: plugins-dev/mra-plots/pt/lsts/neptus/plugins/mraplots/MraPhotosVisualization.java:460
 msgid "Export video"
+msgstr ""
+
+#: src/pt/lsts/neptus/mra/exporters/CTDExporter.java:86
+msgid "Exported %count samples"
 msgstr ""
 
 #: plugins-dev/s57/pt/lsts/neptus/plugins/s57/S57SoundingsExporter.java:196
@@ -3980,6 +4041,11 @@ msgstr ""
 
 #: src/pt/lsts/neptus/i18n/I18n.java:197
 msgid "File Name:"
+msgstr ""
+
+#: src/pt/lsts/neptus/mra/exporters/CSVBathymetryExporter.java:117
+#: src/pt/lsts/neptus/mra/exporters/CSVBathymetryExporter.java:126
+msgid "File already exists!"
 msgstr ""
 
 #: src/pt/lsts/neptus/mc/Workspace.java:925
@@ -4373,8 +4439,16 @@ msgstr ""
 msgid "Generating PDF Report..."
 msgstr ""
 
+#: src/pt/lsts/neptus/mra/exporters/KMLExporter.java:838
+msgid "Generating bathymetry overlay"
+msgstr ""
+
 #: plugins-dev/mra-plots/pt/lsts/neptus/plugins/mraplots/BathymetryPlotter.java:365
 msgid "Generating bathymetry plot"
+msgstr ""
+
+#: src/pt/lsts/neptus/mra/exporters/CTDExporter.java:142
+msgid "Generating corrected positions..."
 msgstr ""
 
 #: src/pt/lsts/neptus/mra/exporters/VideoLegendExporter.java:102
@@ -4383,6 +4457,18 @@ msgstr ""
 
 #: src/pt/lsts/neptus/mra/exporters/SidescanImageExporter.java:157
 msgid "Generating image %num"
+msgstr ""
+
+#: src/pt/lsts/neptus/mra/exporters/KMLExporter.java:721
+msgid "Generating output dirs"
+msgstr ""
+
+#: src/pt/lsts/neptus/mra/exporters/KMLExporter.java:741
+msgid "Generating path"
+msgstr ""
+
+#: src/pt/lsts/neptus/mra/exporters/KMLExporter.java:816
+msgid "Generating sidescan overlay"
 msgstr ""
 
 #: Name of plugin pt.lsts.neptus.plugins.position.ScriptedDisplay
@@ -5304,7 +5390,7 @@ msgstr ""
 msgid "Invalid input"
 msgstr ""
 
-#: src/pt/lsts/neptus/gui/PropertiesEditor.java:395
+#: src/pt/lsts/neptus/gui/PropertiesEditor.java:399
 #: src/pt/lsts/neptus/console/plugins/FunctionalitiesSettings.java:291
 msgid "Invalid properties"
 msgstr ""
@@ -5823,6 +5909,15 @@ msgstr ""
 msgid "Log Slice"
 msgstr ""
 
+#: src/pt/lsts/neptus/mra/exporters/PCDExporter.java:279
+msgid "Log exported sucessfully"
+msgstr ""
+
+#: src/pt/lsts/neptus/mra/exporters/KMLExporter.java:880
+#: src/pt/lsts/neptus/mra/exporters/KMLExporter.java:883
+msgid "Log exported to %path"
+msgstr ""
+
 #: src/pt/lsts/neptus/mra/exporters/MatExporter.java:227
 msgid "Log exported to MAT successfully"
 msgstr ""
@@ -5849,6 +5944,10 @@ msgstr ""
 
 #: src/pt/lsts/neptus/util/logdownload/DownloaderHelp.java:142
 msgid "Log file with errors."
+msgstr ""
+
+#: src/pt/lsts/neptus/mra/exporters/LogSliceExporter.java:202
+msgid "Log file written to %path"
 msgstr ""
 
 #: src/pt/lsts/neptus/util/logdownload/DownloaderHelp.java:128
@@ -5889,6 +5988,10 @@ msgstr ""
 
 #: Name of plugin pt.lsts.neptus.mra.exporters.UpdatedImcExporter
 msgid "Log using updated IMC"
+msgstr ""
+
+#: src/pt/lsts/neptus/mra/exporters/UpdatedImcExporter.java:103
+msgid "Log writen to %path"
 msgstr ""
 
 #: plugins-dev/logs/pt/lsts/neptus/plugins/logs/LoggingDownloader.java:680
@@ -6415,6 +6518,10 @@ msgstr ""
 
 #: plugins-dev/uavs/pt/lsts/uav/mra/MessagesPerSystemPlot.java:67
 msgid "Messages per second"
+msgstr ""
+
+#: src/pt/lsts/neptus/mra/exporters/LogSliceExporter.java:157
+msgid "Messages to export"
 msgstr ""
 
 #: plugins-dev/urready4os/pt/lsts/neptus/plugins/urready4os/vtk/window/EventsHandlerRhod3D.java:87
@@ -7008,6 +7115,7 @@ msgid "No data Available!"
 msgstr ""
 
 #: plugins-dev/cloud/com/inovaworks/InovaWorksUploaderExporter.java:94
+#: src/pt/lsts/neptus/mra/exporters/CSVBathymetryExporter.java:96
 msgid "No data to process!"
 msgstr ""
 
@@ -7147,6 +7255,10 @@ msgstr ""
 
 #: src/pt/lsts/neptus/gui/checklist/ChecklistPanel.java:1662
 msgid "Not a valid name!"
+msgstr ""
+
+#: src/pt/lsts/neptus/mra/exporters/VideoLegendExporter.java:90
+msgid "Not able to create video"
 msgstr ""
 
 #: src/pt/lsts/neptus/console/plugins/planning/PlanEditor.java:1108
@@ -7308,7 +7420,7 @@ msgstr ""
 #: src/pt/lsts/neptus/gui/ZValueSelector.java:189
 #: src/pt/lsts/neptus/gui/editor/XMLPropertyEditor.java:163
 #: src/pt/lsts/neptus/gui/HeightDepthSelector.java:177
-#: src/pt/lsts/neptus/gui/PropertiesEditor.java:317
+#: src/pt/lsts/neptus/gui/PropertiesEditor.java:321
 #: src/pt/lsts/neptus/gui/objparams/ImageLocatorPanel.java:201
 #: src/pt/lsts/neptus/gui/LatLonConv.java:279
 #: src/pt/lsts/neptus/gui/VehicleSelectionDialog.java:161
@@ -10566,6 +10678,11 @@ msgstr ""
 msgid "Start synch"
 msgstr ""
 
+#: src/pt/lsts/neptus/mra/exporters/CTDExporter.java:128
+#: src/pt/lsts/neptus/mra/exporters/LogSliceExporter.java:126
+msgid "Start time must be before end time"
+msgstr ""
+
 #: src/pt/lsts/neptus/gui/ChronometerPanel.java:219
 msgid "Start/Stop"
 msgstr ""
@@ -11249,7 +11366,7 @@ msgid ""
 "(∆t %deltaTime): %msg"
 msgstr ""
 
-#: src/pt/lsts/neptus/gui/PropertiesEditor.java:386
+#: src/pt/lsts/neptus/gui/PropertiesEditor.java:390
 #: src/pt/lsts/neptus/console/plugins/FunctionalitiesSettings.java:285
 msgid "The following errors were found"
 msgstr ""
@@ -12923,6 +13040,14 @@ msgstr ""
 
 #: src/pt/lsts/neptus/mra/exporters/MatExporter.java:212
 msgid "Writing data"
+msgstr ""
+
+#: src/pt/lsts/neptus/mra/exporters/KMLExporter.java:788
+msgid "Writing path to file"
+msgstr ""
+
+#: src/pt/lsts/neptus/mra/exporters/KMLExporter.java:805
+msgid "Writing plan"
 msgstr ""
 
 #: plugins-dev/bathymLayer/pt/lsts/neptus/console/bathymLayer/DepthSoundingsInteraction.java:103

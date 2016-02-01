@@ -98,8 +98,8 @@ public class UpdatedImcExporter implements MRAExporter {
         }
         catch(Exception e) {
             NeptusLog.pub().error(e);
-            return "Error while converting: "+e.getMessage();
+            return I18n.textf("Error while converting: %error", e.getMessage());
         }
-        return "Log writen to "+out.getAbsolutePath();
+        return  I18n.textf("Log writen to %path", out.getAbsolutePath());
     }
 }

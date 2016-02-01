@@ -401,31 +401,6 @@ public class MatExporter implements MRAExporter {
 
     public static void main(String[] args) throws Exception {
 
-//      System.out.println("creating objects");
-//      MLDouble mld = new MLDouble("foo", new int[] { 10000000, 1 });
-//      
-//      for(int i = 0; i < 10000000; i++)
-//      {
-//          mld.set(0.0, i);
-//      }
-//      
-//      ArrayList<MLArray> z = new ArrayList<MLArray>();
-//      System.out.println("creating objects #2");
-//      System.out.println("creating objects #3");
-//      z.add(mld);
-//      System.out.println("starting write");
-//      try {
-//          new MatFileWriter("/home/jqcorreia/foo.mat", z);
-//      }
-//      catch (IOException e) {
-//          e.printStackTrace();
-//      }
-        
-        // IMraLogGroup source = new LsfLogSource(new File("D:\\LSTS-Logs\\2014-03-27-apdl-xplore1-noptilus2\\logs\\lauv-xplore-1\\20140327\\142100\\Data.lsf.gz"), null);
-        // IMraLogGroup source = new LsfLogSource(new File("/home/pdias/LSTS-Logs/2014-03-27-apdl-xplore1-noptilus2/logs/lauv-xplore-1/20140327/142100/Data.lsf.gz"), null);
-        // IMraLogGroup source = new LsfLogSource(new File("D:\\LSTS-Logs\\2014-03-27-apdl-xplore1-noptilus2\\logs\\lauv-xplore-1\\20140327\\152506_test_pitch_3\\Data.lsf.gz"), null);
-        // IMraLogGroup source = new LsfLogSource(new File("/home/pdias/LSTS-Logs/2014-03-27-apdl-xplore1-noptilus2/logs/lauv-xplore-1/20140327/152506_test_pitch_3/Data.lsf.gz"), null);
-        // IMraLogGroup source = new LsfLogSource(new File("/home/pdias/Desktop/Sunfish-CTD/20140507-concat/Data.lsf"), null);
         IMraLogGroup source = new LsfLogSource(new File("/home/pdias/Desktop/Sunfish-CTD/20140513/135733_sample_front/Data.lsf"), null);
         
         MatExporter me = new MatExporter(source);
