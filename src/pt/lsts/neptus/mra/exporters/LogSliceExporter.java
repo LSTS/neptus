@@ -96,7 +96,7 @@ public class LogSliceExporter implements MRAExporter {
         while(startSel.isEmpty()) {
         startSel = JOptionPane.showInputDialog(ConfigFetch.getSuperParentFrame(), I18n.text("Select start time (UTC)"), sdf.format(start));        
             if (startSel == null)
-                return "Cancelled by the user";
+                return I18n.text("Cancelled by the user");
             try {
                 start = sdf.parse(startSel);
             }
@@ -111,7 +111,7 @@ public class LogSliceExporter implements MRAExporter {
         while (endSel.isEmpty()) {
             endSel = JOptionPane.showInputDialog(ConfigFetch.getSuperParentFrame(), I18n.text("Select end time (UTC)"), sdf.format(end));
             if (endSel == null)
-                return "Cancelled by the user";
+                return I18n.text("Cancelled by the user");
             try {
                 end = sdf.parse(endSel);
             }
@@ -123,7 +123,7 @@ public class LogSliceExporter implements MRAExporter {
         }
         
         if (start.after(end)) {
-            return "Start time must be before end time";
+            return I18n.text("Start time must be before end time");
         }
       
         start = new Date(startOfDay.getTime()+start.getTime());
@@ -154,7 +154,7 @@ public class LogSliceExporter implements MRAExporter {
         ArrayList<String> selectedMsgs = new ArrayList<>();
         selectedMsgs.addAll(availableMessages);
         Collections.sort(selectedMsgs);
-        String[] result = CheckboxList.selectOptions(ConfigFetch.getSuperParentFrame(), "Messages to export", selectedMsgs.toArray(new String[selectedMsgs.size()]));
+        String[] result = CheckboxList.selectOptions(ConfigFetch.getSuperParentFrame(), I18n.text("Messages to export"), selectedMsgs.toArray(new String[selectedMsgs.size()]));
         if (result == null)
             return I18n.text("Cancelled by user.");
         
@@ -199,7 +199,7 @@ public class LogSliceExporter implements MRAExporter {
             return e.getClass()+": "+e.getMessage();
         }
         
-        return "Log file written to "+outputdir.getAbsolutePath();
+        return I18n.textf("Log file written to %path", outputdir.getAbsolutePath());
     }
     
     private void writeInitialMessages(LsfIndex index, OutputStream out) throws Exception {
