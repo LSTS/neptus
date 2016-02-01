@@ -41,6 +41,7 @@ import javax.swing.JMenuItem;
 
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.console.ConsoleLayout;
+import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.util.ReflectionUtil;
 
 /**
@@ -51,6 +52,19 @@ import pt.lsts.neptus.util.ReflectionUtil;
  */
 public class PluginMenuUtils {
 
+    
+    public static String translatePath(String path) {
+        String translatedPath = "";
+        for (String part : path.split(">")) {
+            if (translatedPath.isEmpty())
+                translatedPath = I18n.text(part.trim());
+            else
+                translatedPath += ">"+I18n.text(part.trim());                    
+        }
+        
+        return translatedPath;
+    }
+    
     /**
      * This method will look for {@linkplain NeptusMenuItem} annotatated methods and add them as menus to the console
      * @param console The console where to add the menus
@@ -61,7 +75,8 @@ public class PluginMenuUtils {
         ArrayList<JMenuItem> items = new ArrayList<>();
         for (final Method m : ReflectionUtil.getMethodsAnnotatedWith(NeptusMenuItem.class, plugin)) {
             NeptusMenuItem ann = m.getAnnotation(NeptusMenuItem.class);
-            JMenuItem item = console.addMenuItem(ann.value(), null, new ActionListener() {
+            
+            JMenuItem item = console.addMenuItem(translatePath(ann.value()), null, new ActionListener() {
                 
                 @Override
                 public void actionPerformed(ActionEvent e) {
@@ -92,7 +107,7 @@ public class PluginMenuUtils {
             NeptusMenuItem ann = m.getAnnotation(NeptusMenuItem.class);
             String[] path = ann.value().split(">");
             for (int i = 0; i < path.length; i++)
-                path[i] = path[i].trim();
+                path[i] = I18n.text(path[i].trim());
             console.removeMenuItem(path);
         }
     }

@@ -38,7 +38,8 @@ cd $NEPTUS_HOME
 
 PROG="pt.lsts.neptus.i18n.PluginsPotGenerator"
       
-CLASSPATH="./build/classes:./build/plugins@NEPTUS_LIBS@":dev-utils/junit-3.8.2.jar:$CLASSPATH
+ALL_LIBS=`find . -name *.jar | paste -sd ":" -`
+CLASSPATH="./build/classes:./build/plugins":$ALL_LIBS
 
 export LD_LIBRARY_PATH=".:libJNI"
 
