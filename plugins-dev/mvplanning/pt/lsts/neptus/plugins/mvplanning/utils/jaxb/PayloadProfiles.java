@@ -67,6 +67,15 @@ public class PayloadProfiles {
         profilesType = pType;
     }
     
+    public List<PayloadProfile> getVehicleProfiles(String vehicleId) {
+        List<PayloadProfile> vehicleProfiles = new ArrayList<PayloadProfile>();
+        for(PayloadProfile prf : profiles) {
+            if(prf.getPayloadVehicles().contains(vehicleId))
+                vehicleProfiles.add(prf);
+        }
+        return vehicleProfiles;
+    }
+    
     public String getType() {
         return profilesType;
     }
