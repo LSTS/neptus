@@ -35,8 +35,6 @@ import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.adapters.XmlAdapter;
 
-import com.rabbitmq.client.impl.ValueWriter;
-
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
