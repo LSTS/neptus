@@ -95,6 +95,10 @@ public class PayloadMarshaler {
         PayloadProfile origProfile = profiles.getProfiles().get(origPos);
         origProfile.getPayloadParameters().putAll(newProfile.getPayloadParameters());
     }
+    
+    public Map<String, PayloadProfiles> getAllProfiles() {
+        return this.allProfiles;
+    }
       
    
     public void marshal(String type) {
