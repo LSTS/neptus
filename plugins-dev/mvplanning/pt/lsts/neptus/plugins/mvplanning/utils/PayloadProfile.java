@@ -79,6 +79,10 @@ public class PayloadProfile {
         return type;
     }
     
+    public boolean appliesToVehicle(String vehicleId) {
+        return vehicles.contains(vehicleId);
+    }
+    
     public List<String> getPayloadVehicles() {
         if(vehicles == null)
             vehicles = new ArrayList<String>();
