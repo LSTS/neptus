@@ -50,11 +50,8 @@ public class PayloadParametersAdapter extends XmlAdapter<AdaptedMap, Map<String,
     public Map<String, String> unmarshal(AdaptedMap value) throws Exception {
         Map<String, String> parameters = new HashMap<String, String>();
         
-        for(AdaptedMapEntry entry : value.entries) {
-            System.out.println(entry.key + " " + entry.value);
+        for(AdaptedMapEntry entry : value.entries)
             parameters.put(entry.key, entry.value);
-        }
-        System.out.println();
         
         return parameters;
     }
