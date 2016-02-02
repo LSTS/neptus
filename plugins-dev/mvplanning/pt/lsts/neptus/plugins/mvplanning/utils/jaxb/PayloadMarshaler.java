@@ -66,35 +66,22 @@ public class PayloadMarshaler {
             }
             else {
                 PayloadProfiles prf = allProfiles.get(type);
-                int duplicatePos = checkDuplicateProfile(payload, prf);
-
-                /* not duplicate */
-                if(duplicatePos == -1)
+                if(!isDuplicateProfile(payload, prf))
                     allProfiles.get(type).addProfile(payload);
                 else
-                    mergeProfiles(payload, prf, duplicatePos);
+                    System.out.println("[mvplanning/PayloadMarshaler]: #Error#, payload aready exists");
             }
         }
     }
     
-    /* Profiles are considered duplicates, if they apply to the same vehicles
-     * If they are duplicates, return position of the original one */
-    private int checkDuplicateProfile(PayloadProfile p, PayloadProfiles profiles) {
-        int pos = 0;
+    private boolean isDuplicateProfile(PayloadProfile p, PayloadProfiles profiles) {
         for(PayloadProfile pld : profiles.getProfiles()) {
-            if(pld.getPayloadVehicles().containsAll(p.getPayloadVehicles()))
-                return pos;
-            pos++;           
+            if(pld.getPayloadId().equals(p.getPayloadId()))
+                return true;
         }
-        return -1;
+        return false;
     }
     
-    /* If two profiles are duplicates, check if the 'new one' has new/different 
-     * parameters. If yes, merge them in the original one */
-    private void mergeProfiles(PayloadProfile newProfile, PayloadProfiles profiles, int origPos) {
-        PayloadProfile origProfile = profiles.getProfiles().get(origPos);
-        origProfile.getPayloadParameters().putAll(newProfile.getPayloadParameters());
-    }
     
     public Map<String, PayloadProfiles> getAllProfiles() {
         return this.allProfiles;
@@ -164,35 +151,28 @@ public class PayloadMarshaler {
            
     /* Use to add new payload or testing */
     public static void main(String[] args) {
-        PayloadProfile pld = new PayloadProfile("Sidescan");
+        PayloadProfile pld = new PayloadProfile("Sidescan", "Perfil 1");
         pld.addPayloadParamater("Range", "500");
         pld.addPayloadParamater("Frequency", "20");
         pld.addPayloadParamater("Altitude", "100");
+        pld.addPayloadParamater("SASA", "100");
         pld.addPayloadVehicle("lauv-seacon-1");
         pld.addPayloadVehicle("lauv-seacon-3");
         pld.addPayloadVehicle("laux-seacon-2");
         
-        PayloadProfile pld2 = new PayloadProfile("Sidescan");
-        pld2.addPayloadParamater("Range", "200");
-        pld2.addPayloadParamater("Frequency", "20");
-        pld2.addPayloadParamater("Altitude", "100");
-        pld2.addPayloadParamater("SKIJ", "1.00");
-        pld2.addPayloadVehicle("x8-01");
+//        PayloadProfile pld2 = new PayloadProfile("Sidescan", "Profile 2");
+//        pld2.addPayloadParamater("Range", "200");
+//        pld2.addPayloadParamater("Frequency", "20");
+//        pld2.addPayloadParamater("Altitude", "100");
+//        pld2.addPayloadParamater("SKIJ", "1.00");
+//        pld2.addPayloadVehicle("x8-01");
         
 //        Payload.marshalPayload(pld);
 //        
         PayloadMarshaler pldM = new PayloadMarshaler();
-        pldM.addProfile("sidescan", pld);
-        pldM.addProfile("sidescan", pld2);
-//        PayloadProfile pld3 = new PayloadProfile("sidescan");
-//        pld3.addPayloadVehicle("x8-01");
-//        pld3.addPayloadVehicle("lauv-seacon3");
-//        pld3.addPayloadParamater("Frequency", "2000");
-//        pld3.addPayloadParamater("Range", "100");
-//        pldM.addProfile("sidescan", pld3);
-//////        pldM.addProfile("sidescan", pld);
-//////        pldM.addProfile("sidescan", pld2);
-        pldM.marshal("sidescan");
+        pldM.addProfile("Sidescan", pld);
+//        pldM.addProfile("sidescan", pld2);
+        pldM.marshal("Sidescan");
         
 //        pldM.unmarshalAll();
     }
