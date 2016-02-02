@@ -35,7 +35,10 @@ import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.adapters.XmlAdapter;
 
+import com.rabbitmq.client.impl.ValueWriter;
+
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -44,35 +47,43 @@ import java.util.Map;
  *
  */
 public class PayloadParametersAdapter extends XmlAdapter<AdaptedMap, Map<String, String>> {
-    
+
     @Override
     public Map<String, String> unmarshal(AdaptedMap value) throws Exception {
-      throw new UnsupportedOperationException();
+        Map<String, String> parameters = new HashMap<String, String>();
+        
+        for(AdaptedMapEntry entry : value.entries) {
+            System.out.println(entry.key + " " + entry.value);
+            parameters.put(entry.key, entry.value);
+        }
+        System.out.println();
+        
+        return parameters;
     }
 
     @Override
     public AdaptedMap marshal(Map<String, String> value) throws Exception {
-      AdaptedMap map = new AdaptedMap();
-      map.entries = new ArrayList<AdaptedMapEntry>();
-      for (String key : value.keySet()) {
-        AdaptedMapEntry entry = new AdaptedMapEntry();
-        entry.key = key;
-        entry.value = value.get(key);
-        map.entries.add(entry);
-      }
-      return map;
+        AdaptedMap map = new AdaptedMap();
+        map.entries = new ArrayList<AdaptedMapEntry>();
+        for (String key : value.keySet()) {
+            AdaptedMapEntry entry = new AdaptedMapEntry();
+            entry.key = key;
+            entry.value = value.get(key);
+            map.entries.add(entry);
+        }
+        return map;
     }
-  }
+}
 
-  class AdaptedMap {
+class AdaptedMap {
     @XmlElement(name="parameter")
     public List<AdaptedMapEntry> entries;
-  }
+}
 
-  class AdaptedMapEntry {
+class AdaptedMapEntry {
     @XmlAttribute(name = "name")
     public String key;
 
     @XmlAttribute
     public String value;
-  }
+}
