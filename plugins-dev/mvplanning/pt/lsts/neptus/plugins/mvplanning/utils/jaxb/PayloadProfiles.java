@@ -50,7 +50,7 @@ import pt.lsts.neptus.plugins.mvplanning.utils.PayloadProfile;
 @XmlRootElement (name="PayloadProfiles")
 @XmlAccessorType(XmlAccessType.NONE)
 @XmlSeeAlso({PayloadProfile.class})
-class PayloadProfiles {
+public class PayloadProfiles {
     
     @XmlElement(name = "Profile")
     private List<PayloadProfile> profiles;
