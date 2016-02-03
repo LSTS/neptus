@@ -57,6 +57,8 @@ import info.necsave.msgs.MissionGoal.GOAL_TYPE;
 import info.necsave.msgs.MissionReadyToStart;
 import info.necsave.msgs.PlatformInfo;
 import info.necsave.msgs.PlatformPlanProgress;
+import info.necsave.msgs.PlatformState;
+import info.necsave.msgs.Resurface;
 import info.necsave.proto.Message;
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.console.ConsoleInteraction;
@@ -283,12 +285,33 @@ public class NecsaveUI extends ConsoleInteraction {
     }
 
     @Subscribe
-    public void on(Kinematics msg) {
+    public void on(PlatformState msg) {
+        LocationType loc = new LocationType();
+        loc.setLatitudeDegs(Math.toDegrees(msg.getLatitude()));
+        loc.setLongitudeDegs(Math.toDegrees(msg.getLongitude()));
+        loc.setDepth(msg.getZ());
+        update(msg.getSrc(), loc, 0);
+    }
+    
+    @Subscribe
+    public void on(AbortMission msg) {
+        getConsole().post(Notification.warning("NECSAVE AbortMission",
+                "AbortMission message sent from " + platformNames.get(msg.getSrc())));
+    }
+    
+    @Subscribe
+    public void on(Resurface msg) {
+        getConsole().post(Notification.warning("NECSAVE Resurface",
+                "Resurface message sent from " + platformNames.get(msg.getSrc())));
+    }
+    
+    
+    private void update(int src, LocationType loc, double headingDegs) {
         try {
-            if (!platformNames.containsKey(msg.getSrc()))
+            if (!platformNames.containsKey(src))
                 return;
 
-            String name = platformNames.get(msg.getSrc());
+            String name = platformNames.get(src);
 
             if (ExternalSystemsHolder.lookupSystem(name) == null) {
                 ExternalSystem es = new ExternalSystem(name);
@@ -297,15 +320,26 @@ public class NecsaveUI extends ConsoleInteraction {
                 es.setType(SystemTypeEnum.UNKNOWN);
             }
             ExternalSystem extSys = ExternalSystemsHolder.lookupSystem(name);
+                extSys.setLocation(loc, System.currentTimeMillis());
+                extSys.setAttitudeDegrees(headingDegs);            
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+    
+    @Subscribe
+    public void on(Kinematics msg) {
+        try {
             if (msg.getWaypoint() != null) {
                 LocationType loc = new LocationType(Math.toDegrees(msg.getWaypoint().getLatitude()),
                         Math.toDegrees(msg.getWaypoint().getLongitude()));
                 loc.setDepth(msg.getWaypoint().getDepth());
-                extSys.setLocation(loc, System.currentTimeMillis());
-                extSys.setAttitudeDegrees(Math.toDegrees(msg.getHeading()));
+                update(msg.getSrc(), loc, Math.toDegrees(msg.getHeading()));
             }
             else {
-                NeptusLog.pub().error(I18n.textf("Kinematics message from %platform is not valid.", name));
+                NeptusLog.pub().error(
+                        I18n.textf("Kinematics message from %platform is not valid.", platformNames.get(msg.getSrc())));
             }
         }
         catch (Exception e) {

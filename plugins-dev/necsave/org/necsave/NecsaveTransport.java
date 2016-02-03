@@ -131,11 +131,12 @@ public class NecsaveTransport {
 
         Message msg = ProtoDefinition.getInstance().nextMessage(pis);
 
-        System.out.println("Received message of type '"+msg.getAbbrev()+"' from "+ receivePacket.getAddress());
-        
         if (msg instanceof PlatformInfo)
             process((PlatformInfo)msg, receivePacket.getAddress().getHostAddress(), receivePacket.getPort());        
 
+        System.out.println("Received message of type '" + msg.getAbbrev() + "' from " + receivePacket.getAddress()
+                + " - Platform " + platformNames.get(msg.getSrc()));
+        
         return msg;
     }   
 
