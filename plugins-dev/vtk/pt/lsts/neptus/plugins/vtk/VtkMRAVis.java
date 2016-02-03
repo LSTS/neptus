@@ -158,17 +158,22 @@ public class VtkMRAVis extends JPanel implements MRAVisualization, PropertiesPro
 
     private void loadCloud() {
         if (mbFound) {
-            PointCloudXYZ pointCloudMultibeam = new PointCloudXYZ();
-            LoadToPointCloud load = new LoadToPointCloud(source, pointCloudMultibeam);
-            NeptusLog.pub().info("Parsing Multibeam data.");
-            pointCloudMultibeam.setCloudName("multibeam");
-            load.parseMultibeamPointCloud();
-            getLinkedHashMapCloud().put(pointCloudMultibeam.getCloudName(), pointCloudMultibeam);
-            processPointCloud(pointCloudMultibeam, load);
-            pointCloudMultibeam.getPolyData().GetPointData().SetScalars(((PointCloudHandlerXYZ) (pointCloudMultibeam.getColorHandler())).getColorsZ());
-            events.setSensorTypeInteraction(SensorTypeInteraction.MULTIBEAM);
-            toolbar.multibeamToggle.setSelected(true);
-            setUpRenderer(pointCloudMultibeam);
+            try {
+                PointCloudXYZ pointCloudMultibeam = new PointCloudXYZ();
+                LoadToPointCloud load = new LoadToPointCloud(source, pointCloudMultibeam);
+                NeptusLog.pub().info("Parsing Multibeam data.");
+                pointCloudMultibeam.setCloudName("multibeam");
+                load.parseMultibeamPointCloud();
+                getLinkedHashMapCloud().put(pointCloudMultibeam.getCloudName(), pointCloudMultibeam);
+                processPointCloud(pointCloudMultibeam, load);
+                pointCloudMultibeam.getPolyData().GetPointData().SetScalars(((PointCloudHandlerXYZ) (pointCloudMultibeam.getColorHandler())).getColorsZ());
+                events.setSensorTypeInteraction(SensorTypeInteraction.MULTIBEAM);
+                toolbar.multibeamToggle.setSelected(true);
+                setUpRenderer(pointCloudMultibeam);
+            }
+            catch (Exception e) {
+                NeptusLog.pub().error(e.getMessage(), e);
+            }
         }
         if (source.getLsfIndex().containsMessagesOfType("Distance")) {
             PointCloudXYZ pointCloudDVL = new PointCloudXYZ();

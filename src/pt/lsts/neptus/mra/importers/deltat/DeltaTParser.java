@@ -49,6 +49,7 @@ import java.util.Random;
 
 import org.apache.commons.io.FileUtils;
 
+import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.mp.SystemPositionAndAttitude;
 import pt.lsts.neptus.mra.MRAProperties;
 import pt.lsts.neptus.mra.api.BathymetryInfo;
@@ -57,6 +58,7 @@ import pt.lsts.neptus.mra.api.BathymetryPoint;
 import pt.lsts.neptus.mra.api.BathymetrySwath;
 import pt.lsts.neptus.mra.api.CorrectedPosition;
 import pt.lsts.neptus.mra.importers.IMraLogGroup;
+import pt.lsts.neptus.types.coord.CoordinateUtil;
 import pt.lsts.neptus.types.coord.LocationType;
 import pt.lsts.neptus.util.DateTimeUtil;
 import pt.lsts.neptus.util.FileUtil;
@@ -432,7 +434,27 @@ public class DeltaTParser implements BathymetryParser {
 
             long timestamp = header.timestamp + MRAProperties.timestampMultibeamIncrement;
 
+            boolean poseFromCorrected = true;
             SystemPositionAndAttitude pose = position.getPosition(timestamp/1000.0);
+            if (pose == null) {
+                
+                poseFromCorrected = false;
+                pose = new SystemPositionAndAttitude();
+                LocationType loc = new LocationType();
+                loc.setLatitudeDegs(CoordinateUtil.latFrom83PFormatWorker(header.gnssShipPosLat));
+                loc.setLongitudeDegs(CoordinateUtil.lonFrom83PFormatWorker(header.gnssShipPosLon));
+                loc.setAbsoluteDepth(-1);
+                pose.setPosition(loc);
+                
+                pose.setTime(timestamp);
+                pose.setAltitude(header.altitude);
+
+                pose.setRoll(Math.toRadians(header.rollAngleDegreesOrientModule));
+                pose.setPitch(Math.toRadians(header.pitchAngleDegreesOrientModule));
+                pose.setYaw(Math.toRadians(header.headingAngleDegreesOrientModule));
+                
+                NeptusLog.pub().warn("No position found on navigation, using partial data from Sonar");
+            }
 
             boolean doSpeedCorrection = MRAProperties.soundSpeedCorrection;
 
@@ -440,7 +462,8 @@ public class DeltaTParser implements BathymetryParser {
             recordMsgln("% Swath type & version : " + header.fileType + ", " + header.fileVersion);
             recordMsgln("% Swath time           : " + DateTimeUtil.dateTimeFileNameFormatterMillis.format(new Date(timestamp)));
             recordMsgln("% Swath position       : " + pose.getPosition().toString().replaceAll("\n", " ") + 
-                    "m depth  :: " + MathMiscUtils.round(pose.getAltitude(), 2) + "m altitude");
+                    "m depth  :: " + MathMiscUtils.round(pose.getAltitude(), 2) + "m altitude" + 
+                    (poseFromCorrected ? " from corrected position" : " from data"));
             recordMsgln("% Swath attitude       : R" + MathMiscUtils.round(Math.toDegrees(pose.getRoll()), 1) +
                     "\u00B0 P" + MathMiscUtils.round(Math.toDegrees(pose.getPitch()), 1) +
                     "\u00B0 Y" + MathMiscUtils.round(Math.toDegrees(pose.getYaw()), 1) + "\u00B0");

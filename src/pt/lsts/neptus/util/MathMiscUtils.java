@@ -153,6 +153,9 @@ public class MathMiscUtils {
 	 */
 	public static String parseToEngineeringNotation(double val,
 			int decimalHouses) {
+	    if (Double.isInfinite(val) || Double.isNaN(val))
+	        return "" + val;
+	    
 	    Locale locale  = new Locale("en", "US");
 	    DecimalFormat engNot = (DecimalFormat) NumberFormat.getNumberInstance(locale);
 		engNot.applyPattern("##0.###E0");
