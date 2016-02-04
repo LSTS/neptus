@@ -37,8 +37,12 @@ import java.util.concurrent.ConcurrentHashMap;
 import com.google.common.eventbus.Subscribe;
 
 import pt.lsts.neptus.console.events.ConsoleEventVehicleStateChanged;
+import pt.lsts.neptus.plugins.mvplanning.utils.jaxb.PayloadMarshaler;
+
 
 public class VehicleAwareness {
+    private final PayloadMarshaler payloadMarsh = new PayloadMarshaler();
+    
     private ConcurrentHashMap<String, VehicleInfo> availableVehicles;
     private ConcurrentHashMap<String, VehicleInfo> unavailableVehicles;
 
@@ -64,11 +68,10 @@ public class VehicleAwareness {
             if(unavailableVehicles.containsKey(id))
                 vehicle = unavailableVehicles.remove(id);
             else
-                vehicle = new VehicleInfo(id); /* first time in service mode */
+                vehicle = new VehicleInfo(id, payloadMarsh.getAllProfiles()); /* first time in service mode */
             availableVehicles.put(id, vehicle);
             
             /* logging */
-            System.out.println(" [" + id + "]");
             vehicle.printCapabilities();
         }
         else {

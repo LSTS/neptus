@@ -36,6 +36,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
@@ -135,5 +136,10 @@ public class PayloadProfile {
         if(parameters == null)
             parameters = new HashMap<String, String>();
         return parameters;
+    }
+    
+    public void printPayloadParameters() {
+        for(Entry<String, String> param : parameters.entrySet())
+            System.out.println(param.getKey() + " : " + param.getValue());
     }
 }

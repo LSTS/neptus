@@ -32,58 +32,75 @@
 package pt.lsts.neptus.plugins.mvplanning.utils;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
 
 import pt.lsts.neptus.params.ConfigurationManager;
 import pt.lsts.neptus.params.SystemProperty;
 import pt.lsts.neptus.params.SystemProperty.Scope;
 import pt.lsts.neptus.params.SystemProperty.Visibility;
+import pt.lsts.neptus.plugins.mvplanning.utils.jaxb.PayloadProfiles;
 
 /**
  * @author tsmarques
  *
  */
+
 public class VehicleInfo {
     private String vId;
-    private ArrayList<String> capabilities;
+    //private ArrayList<String> capabilities;
+    private Map<String, List<PayloadProfile>> vehicleCapabilities;
 
     /* Properties variables */
     private final Scope scope = Scope.GLOBAL;
     private final Visibility vis = Visibility.USER;
 
-    public VehicleInfo(String id) {
+    public VehicleInfo(String id, Map<String, PayloadProfiles> allProfiles) {
         vId = id;
-        capabilities = getVehicleCapabilities(vId);
+        setVehicleCapabilities(vId, allProfiles);
     }
 
     public String vehicleId() {
         return vId;
     }
 
-    public ArrayList<String> getVehicleCapabilities(String vId) {
+    /* From the available payload (in mvplanning/etc/ )
+     * retrieve all profiles that apply to this vehicle */
+    public void setVehicleCapabilities(String vId, Map<String, PayloadProfiles> allProfiles) {
         ArrayList<SystemProperty> prList = ConfigurationManager.getInstance().getProperties(vId, vis, scope);
-        ArrayList<String> capabilities = new ArrayList<String>(prList.size());
+        vehicleCapabilities = new HashMap<String, List<PayloadProfile>>();
+
         for(SystemProperty pr : prList) {
             String cap = pr.getCategory();
-            if(!capabilities.contains(cap))
-                capabilities.add(cap);
+            
+            /* if 'cap' is considered payload/capability */
+            if(allProfiles.containsKey(cap))
+                vehicleCapabilities.put(cap, allProfiles.get(cap).getVehicleProfiles(vId));
         }
-
-        return capabilities;
     }
 
-    public ArrayList<String> vehicleCapabilities() {
-        return capabilities;
+    public List<PayloadProfile> getVehicleProfiles(String payloadType) {
+        return vehicleCapabilities.get(payloadType);
     }
 
     public boolean hasCapabilities(LinkedList<String> neededCapabilities) {
-        return capabilities.containsAll(neededCapabilities);
+        return vehicleCapabilities.keySet().containsAll(neededCapabilities);
     }
     
     /* for debugging */
     public void printCapabilities() {
-        for(String cap : capabilities)
-            System.out.println("   " + "[" + cap + "]");
-        System.out.println();
+        System.out.println("[" + vId + "]");
+        for(String cap : vehicleCapabilities.keySet()) {
+            System.out.println("[" + cap + " profiles]");
+            
+            for(PayloadProfile profile : vehicleCapabilities.get(cap)) {
+                System.out.println("[" + profile.getProfileId() + "]");
+                profile.printPayloadParameters();
+                System.out.println();
+            }
+            System.out.println("\n");
+        }
     }
 }
