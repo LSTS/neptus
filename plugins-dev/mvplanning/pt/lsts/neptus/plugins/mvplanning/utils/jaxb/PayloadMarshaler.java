@@ -76,7 +76,7 @@ public class PayloadMarshaler {
     
     private boolean isDuplicateProfile(PayloadProfile p, PayloadProfiles profiles) {
         for(PayloadProfile pld : profiles.getProfiles()) {
-            if(pld.getPayloadId().equals(p.getPayloadId()))
+            if(pld.getProfileId().equals(p.getProfileId()))
                 return true;
         }
         return false;

@@ -80,7 +80,7 @@ public class PayloadProfile {
         this.type = type;
     }
     
-    public String getPayloadId() {
+    public String getProfileId() {
         return id;
     }
        
