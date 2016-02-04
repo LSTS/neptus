@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <PayloadProfiles Type="Sidescan">
-    <Profile>
+    <Profile id="Perfil 1">
         <parameters>
             <parameter name="Frequency" value="20"/>
             <parameter name="Range" value="200"/>
@@ -12,9 +12,10 @@
             <vehicle>lauv-seacon3</vehicle>
         </vehicles>
     </Profile>
-    <Profile>
+    <Profile id="Perfil 2">
         <parameters>
             <parameter name="Frequency" value="20"/>
+            <parameter name="SASA" value="100"/>
             <parameter name="Range" value="500"/>
             <parameter name="Altitude" value="100"/>
         </parameters>
@@ -22,6 +23,17 @@
             <vehicle>lauv-seacon-1</vehicle>
             <vehicle>lauv-seacon-3</vehicle>
             <vehicle>laux-seacon-2</vehicle>
+        </vehicles>
+    </Profile>
+    <Profile id="Perfil 3">
+        <parameters>
+            <parameter name="Frequency" value="20"/>
+            <parameter name="Range" value="500"/>
+            <parameter name="Altitude" value="300"/>
+        </parameters>
+        <vehicles>
+            <vehicle>lauv-seacon-1</vehicle>
+            <vehicle>lauv-seacon-3</vehicle>
         </vehicles>
     </Profile>
 </PayloadProfiles>
