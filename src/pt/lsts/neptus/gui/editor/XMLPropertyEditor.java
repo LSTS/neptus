@@ -38,10 +38,14 @@ import java.awt.event.ActionListener;
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.Vector;
 
 import javax.swing.GroupLayout;
+import javax.swing.GroupLayout.ParallelGroup;
+import javax.swing.GroupLayout.SequentialGroup;
 import javax.swing.JButton;
+import javax.swing.JComponent;
 import javax.swing.JDialog;
 import javax.swing.JEditorPane;
 import javax.swing.JLabel;
@@ -58,14 +62,14 @@ import org.xml.sax.ErrorHandler;
 import org.xml.sax.SAXException;
 import org.xml.sax.SAXParseException;
 
+import com.l2fprod.common.beans.editor.AbstractPropertyEditor;
+
 import pt.lsts.neptus.console.plugins.containers.GroupLayoutContainer;
 import pt.lsts.neptus.fileeditor.SyntaxDocument;
 import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.util.GuiUtils;
 import pt.lsts.neptus.util.StreamUtil;
 import pt.lsts.neptus.util.XMLUtil;
-
-import com.l2fprod.common.beans.editor.AbstractPropertyEditor;
 
 /**
  * @author pdias
@@ -78,6 +82,7 @@ public class XMLPropertyEditor extends AbstractPropertyEditor {
 
     protected JButton button;
     protected String xmlStr = "";
+    protected String oldXmlStr;
 
     protected String helpText = I18n.text("Container using GroupLayout\n" + "(see 'http://download.oracle.com/javase/"
             + "tutorial/uiswing/layout/group.html'\n" + "and 'http://download.oracle.com/javase/"
@@ -87,16 +92,19 @@ public class XMLPropertyEditor extends AbstractPropertyEditor {
     protected String smallMsg = I18n.text("This follows the Java Group Layout");
     protected JDialog dialog;
 
-    /**
-	 * 
-	 */
+    // GUI
+    protected JEditorPane editorPane;
+    protected JScrollPane editorScrollPane;
+    
+    protected JButton okButton;
+    protected JButton cancelButton;
+    protected JButton validateButton;
+    protected JButton extractSchemaButton;
+
     public XMLPropertyEditor() {
         initialize();
     }
 
-    /**
-	 * 
-	 */
     private void initialize() {
         button = new JButton(I18n.text("Edit"));
         editor = new JPanel(new BorderLayout(0, 0));
@@ -120,9 +128,13 @@ public class XMLPropertyEditor extends AbstractPropertyEditor {
         dialog.setResizable(true);
 
         // editor panel
-        final String oldXmlStr = xmlStr;
-        final JEditorPane editorPane = SyntaxDocument.getXmlEditorPane();
-        JScrollPane editorScrollPane = new JScrollPane();
+        oldXmlStr = xmlStr;
+        
+        editorPane = SyntaxDocument.getXmlEditorPane();
+        editorScrollPane = new JScrollPane();
+//        editorPane = SyntaxFormaterTextArea.createXMLFormatTextArea();
+//        editorScrollPane = new RTextScrollPane(editorPane);
+
         editorScrollPane.setViewportView(editorPane);
         editorScrollPane.setVisible(true);
         try {
@@ -160,8 +172,118 @@ public class XMLPropertyEditor extends AbstractPropertyEditor {
         layout.setAutoCreateGaps(true);
         layout.setAutoCreateContainerGaps(true);
 
-        JButton okButton = new JButton(I18n.text("OK"));
-        okButton.addActionListener(new ActionListener() {
+        okButton = new JButton(I18n.text("OK"));
+        okButton.addActionListener(getOkButtonAction());
+
+        cancelButton = new JButton(I18n.text("Cancel"));
+        cancelButton.addActionListener(getCancelButtonAction());
+
+        validateButton = new JButton(I18n.text("Validate"));
+        validateButton.addActionListener(getValidateButtonAction());
+
+        extractSchemaButton = new JButton(I18n.text("Extract Schema"));
+        extractSchemaButton.addActionListener(getExtractSchemaButtonAction());
+        // If schema doesn't exist disable validation and extraction button
+        if (getSchema() == null) {
+            validateButton.setEnabled(false);
+            extractSchemaButton.setEnabled(false);
+        }
+
+        JLabel label = new JLabel(smallMsg);
+        
+        ArrayList<JComponent> additionalComponentsForButtonsPanel = getAdditionalComponentsForButtonsPanel();
+        
+        SequentialGroup horizSeqGroup = layout.createSequentialGroup();
+        ParallelGroup vertParallelGrp = layout.createParallelGroup();
+        
+        if (validateButton.isEnabled()) {
+            horizSeqGroup.addComponent(extractSchemaButton).addComponent(validateButton);
+            vertParallelGrp.addComponent(extractSchemaButton).addComponent(validateButton);
+        }
+        if (!label.getText().isEmpty()) {
+            horizSeqGroup.addComponent(label);
+            vertParallelGrp.addComponent(label);
+        }
+        for (JComponent comp : additionalComponentsForButtonsPanel) {
+            horizSeqGroup.addComponent(comp);
+            vertParallelGrp.addComponent(comp);
+        }
+        horizSeqGroup.addComponent(okButton).addComponent(cancelButton);
+        vertParallelGrp.addComponent(okButton).addComponent(cancelButton);
+        
+        layout.setHorizontalGroup(horizSeqGroup);
+        layout.setVerticalGroup(vertParallelGrp);
+
+        if (validateButton.isEnabled()) {
+            layout.linkSize(SwingConstants.HORIZONTAL, validateButton, extractSchemaButton);
+        }
+
+        ArrayList<JComponent> buttonsComp = new ArrayList<>();
+        buttonsComp.add(okButton);
+        buttonsComp.add(cancelButton);
+        for (JComponent comp : additionalComponentsForButtonsPanel) {
+            if (comp instanceof JButton)
+                buttonsComp.add(comp);
+        }
+        layout.linkSize(SwingConstants.HORIZONTAL, buttonsComp.toArray(new JComponent[buttonsComp.size()]));
+
+        toolbar.add(buttons, BorderLayout.EAST);
+        dialog.add(toolbar, BorderLayout.SOUTH);
+    }
+
+    protected ArrayList<JComponent> getAdditionalComponentsForButtonsPanel() {
+        return new ArrayList<>();
+    }
+
+    protected ActionListener getExtractSchemaButtonAction() {
+        return new ActionListener() {
+            public void actionPerformed(ActionEvent arg0) {
+                try {
+                    InputStream sstream = GroupLayoutContainer.class
+                            .getResourceAsStream(GroupLayoutContainer.GROUP_LAYOUT_SCHEMA);
+                    File fx = new File(GroupLayoutContainer.GROUP_LAYOUT_SCHEMA);
+                    fx = new File(fx.getName());
+                    fx.createNewFile();
+                    StreamUtil.copyStreamToFile(sstream, fx);
+                    GuiUtils.infoMessage(dialog, I18n.text("Extract Schema"), I18n.text("Schema extracted to file:")
+                            + "\n" + fx.getAbsolutePath());
+                }
+                catch (Exception e) {
+                    GuiUtils.errorMessage(dialog, I18n.text("Extract Schema"),
+                            I18n.text("Error while extracting schema to file!!") + "\n" + e.getMessage());
+                }
+            }
+        };
+    }
+
+    protected ActionListener getValidateButtonAction() {
+        return new ActionListener() {
+            public void actionPerformed(ActionEvent arg0) {
+                String[] vmsgs = validateLayoutXML(editorPane.getText());
+                if (vmsgs.length == 0) {
+                    GuiUtils.infoMessage(dialog, I18n.text("Validation"), I18n.text("Valid XML."));
+                }
+                else {
+                    String strMsg = I18n.text("Invalid XML!") + "\n";
+                    for (String str : vmsgs)
+                        strMsg += "\n" + str;
+                    GuiUtils.infoMessage(dialog, I18n.text("Validation"), strMsg);
+                }
+            }
+        };
+    }
+
+    protected ActionListener getCancelButtonAction() {
+        return new ActionListener() {
+            public void actionPerformed(ActionEvent arg0) {
+                dialog.setVisible(false);
+                dialog.dispose();
+            }
+        };
+    }
+
+    protected ActionListener getOkButtonAction() {
+        return new ActionListener() {
             public void actionPerformed(ActionEvent arg0) {
                 String[] vmsgs = validateLayoutXML(editorPane.getText());
                 if (vmsgs.length == 0) {
@@ -186,67 +308,7 @@ public class XMLPropertyEditor extends AbstractPropertyEditor {
                     GuiUtils.infoMessage(dialog, I18n.text("Validation"), strMsg);
                 }
             }
-        });
-
-        JButton cancelButton = new JButton(I18n.text("Cancel"));
-        cancelButton.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent arg0) {
-                dialog.setVisible(false);
-                dialog.dispose();
-            }
-        });
-
-        JButton validateButton = new JButton(I18n.text("Validate"));
-        validateButton.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent arg0) {
-                String[] vmsgs = validateLayoutXML(editorPane.getText());
-                if (vmsgs.length == 0) {
-                    GuiUtils.infoMessage(dialog, I18n.text("Validation"), I18n.text("Valid XML."));
-                }
-                else {
-                    String strMsg = I18n.text("Invalid XML!") + "\n";
-                    for (String str : vmsgs)
-                        strMsg += "\n" + str;
-                    GuiUtils.infoMessage(dialog, I18n.text("Validation"), strMsg);
-                }
-            }
-        });
-
-        JButton extractSchemaButton = new JButton(I18n.text("Extract Schema"));
-        extractSchemaButton.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent arg0) {
-                try {
-                    InputStream sstream = GroupLayoutContainer.class
-                            .getResourceAsStream(GroupLayoutContainer.GROUP_LAYOUT_SCHEMA);
-                    File fx = new File(GroupLayoutContainer.GROUP_LAYOUT_SCHEMA);
-                    fx = new File(fx.getName());
-                    fx.createNewFile();
-                    StreamUtil.copyStreamToFile(sstream, fx);
-                    GuiUtils.infoMessage(dialog, I18n.text("Extract Schema"), I18n.text("Schema extracted to file:")
-                            + "\n" + fx.getAbsolutePath());
-                }
-                catch (Exception e) {
-                    GuiUtils.errorMessage(dialog, I18n.text("Extract Schema"),
-                            I18n.text("Error while extracting schema to file!!") + "\n" + e.getMessage());
-                }
-            }
-        });
-        // If schema doesn't exist disable validation and extraction button
-        if (getSchema() == null) {
-            validateButton.setEnabled(false);
-            extractSchemaButton.setEnabled(false);
-        }
-
-        JLabel label = new JLabel(smallMsg);
-        layout.setHorizontalGroup(layout.createSequentialGroup().addComponent(extractSchemaButton)
-                .addComponent(validateButton).addComponent(label).addComponent(okButton).addComponent(cancelButton));
-        layout.setVerticalGroup(layout.createParallelGroup().addComponent(extractSchemaButton)
-                .addComponent(validateButton).addComponent(label).addComponent(okButton).addComponent(cancelButton));
-        layout.linkSize(SwingConstants.HORIZONTAL, validateButton, okButton, cancelButton, extractSchemaButton);
-        toolbar.add(buttons, BorderLayout.EAST);
-        dialog.add(toolbar, BorderLayout.SOUTH);
-       
-        
+        };
     }
 
     public Object getValue() {

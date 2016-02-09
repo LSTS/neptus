@@ -31,27 +31,18 @@
  */
 package pt.lsts.neptus.console.plugins.containers.propeditor;
 
-import java.awt.BorderLayout;
-import java.awt.Color;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.ArrayList;
 
-import javax.swing.GroupLayout;
 import javax.swing.JButton;
-import javax.swing.JDialog;
-import javax.swing.JEditorPane;
-import javax.swing.JPanel;
-import javax.swing.JScrollPane;
-import javax.swing.JSplitPane;
-import javax.swing.SwingUtilities;
+import javax.swing.JComponent;
 
 import pt.lsts.neptus.events.NeptusEventLayoutChanged;
 import pt.lsts.neptus.events.NeptusEvents;
-import pt.lsts.neptus.fileeditor.SyntaxDocument;
 import pt.lsts.neptus.gui.editor.XMLPropertyEditor;
 import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.util.GuiUtils;
-import pt.lsts.neptus.util.XMLUtil;
 
 /**
  * @author pdias
@@ -59,6 +50,8 @@ import pt.lsts.neptus.util.XMLUtil;
  */
 public class MiGLayoutXmlPropertyEditor extends XMLPropertyEditor {
 
+    protected JButton testButton;
+    
     public MiGLayoutXmlPropertyEditor() {
         super();
         rootElement = "MiGLayout Layout XML";
@@ -92,66 +85,13 @@ public class MiGLayoutXmlPropertyEditor extends XMLPropertyEditor {
         helpText += "&nbsp;&nbsp;&lt;/profile&gt;<br/>";
         helpText += "&lt;/profiles&gt;<br/>";
     }
-
-    protected void buildUI() {
-        dialog = new JDialog(SwingUtilities.getWindowAncestor(editor));
-        dialog.setTitle(title);
-        dialog.setSize(800, 600);
-        dialog.setLayout(new BorderLayout());
-        GuiUtils.centerOnScreen(dialog);
-        dialog.setResizable(true);
-
-        // editor panel
-        final String oldXmlStr = xmlStr;
-        final JEditorPane editorPane = SyntaxDocument.getXmlEditorPane();
-        JScrollPane editorScrollPane = new JScrollPane();
-        editorScrollPane.setViewportView(editorPane);
-        editorScrollPane.setVisible(true);
-        try {
-            if (!"".equalsIgnoreCase(xmlStr)) {
-                xmlStr = XMLUtil.getAsCompactFormatedXMLString(xmlStr);
-                xmlStr = XMLUtil.getAsPrettyPrintFormatedXMLString(xmlStr);
-            }
-        }
-        catch (Exception e1) {
-            xmlStr = oldXmlStr;
-        }
-        editorPane.setText(xmlStr.trim());
-
-        // help panel
-        JScrollPane helpScrollPane = new JScrollPane();
-        JEditorPane help = new JEditorPane();
-        help.setEditable(false);
-        help.setContentType(contentType);
-        help.setBackground(new Color(255, 255, 160));
-        help.setText(helpText);
-        help.setCaretPosition(0);
-        helpScrollPane.setViewportView(help);
-        helpScrollPane.setVisible(true);
-
-        JSplitPane splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, editorScrollPane, helpScrollPane);
-        splitPane.setOneTouchExpandable(true);
-        splitPane.setDividerLocation((int) (dialog.getWidth() * 0.7));
-
-        dialog.add(splitPane, BorderLayout.CENTER);
-        JPanel toolbar = new JPanel();
-        toolbar.setLayout(new BorderLayout());
-        JPanel buttons = new JPanel();
-        GroupLayout layout = new GroupLayout(buttons);
-        buttons.setLayout(layout);
-        layout.setAutoCreateGaps(true);
-        layout.setAutoCreateContainerGaps(true);
-
-        JButton testButton = new JButton(I18n.text("Test"));
-        testButton.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent arg0) {
-                String tmpStr = editorPane.getText();
-                NeptusEvents.post(new NeptusEventLayoutChanged(tmpStr));
-            }
-        });
-
-        JButton okButton = new JButton(I18n.text("Ok"));
-        okButton.addActionListener(new ActionListener() {
+    
+    /* (non-Javadoc)
+     * @see pt.lsts.neptus.gui.editor.XMLPropertyEditor#getOkButtonAction()
+     */
+    @Override
+    protected ActionListener getOkButtonAction() {
+        return new ActionListener() {
             public void actionPerformed(ActionEvent arg0) {
                 String tmpStr = editorPane.getText();
                 NeptusEvents.post(new NeptusEventLayoutChanged(tmpStr));
@@ -160,10 +100,15 @@ public class MiGLayoutXmlPropertyEditor extends XMLPropertyEditor {
                 dialog.setVisible(false);
                 dialog.dispose();
             }
-        });
-
-        JButton cancelButton = new JButton(I18n.text("Cancel"));
-        cancelButton.addActionListener(new ActionListener() {
+        };
+    }
+    
+    /* (non-Javadoc)
+     * @see pt.lsts.neptus.gui.editor.XMLPropertyEditor#getCancelButtonAction()
+     */
+    @Override
+    protected ActionListener getCancelButtonAction() {
+        return new ActionListener() {
             public void actionPerformed(ActionEvent arg0) {
                 NeptusEvents.post(new NeptusEventLayoutChanged(oldXmlStr));
                 setValue(oldXmlStr);
@@ -171,13 +116,31 @@ public class MiGLayoutXmlPropertyEditor extends XMLPropertyEditor {
                 dialog.setVisible(false);
                 dialog.dispose();
             }
+        };
+    }
+    
+    /* (non-Javadoc)
+     * @see pt.lsts.neptus.gui.editor.XMLPropertyEditor#getAdditionalComponentsForButtonsPanel()
+     */
+    @Override
+    protected ArrayList<JComponent> getAdditionalComponentsForButtonsPanel() {
+        ArrayList<JComponent> ret = new ArrayList<>();
+        
+        testButton = new JButton(I18n.text("Test"));
+        testButton.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent arg0) {
+                String tmpStr = editorPane.getText();
+                NeptusEvents.post(new NeptusEventLayoutChanged(tmpStr));
+            }
         });
+        ret.add(testButton);
+        
+        return ret;
+    }
+    
+    public static void main(String[] args) {
+        MiGLayoutXmlPropertyEditor xp = new MiGLayoutXmlPropertyEditor();
 
-        layout.setHorizontalGroup(layout.createSequentialGroup().addComponent(testButton).addComponent(okButton)
-                .addComponent(cancelButton));
-        layout.setVerticalGroup(layout.createParallelGroup().addComponent(testButton).addComponent(okButton)
-                .addComponent(cancelButton));
-        toolbar.add(buttons, BorderLayout.EAST);
-        dialog.add(toolbar, BorderLayout.SOUTH);
+        GuiUtils.testFrame(xp.button);
     }
 }
