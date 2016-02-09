@@ -33,13 +33,18 @@ package pt.lsts.neptus.console.plugins.containers.propeditor;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.InputStream;
 import java.util.ArrayList;
 
 import javax.swing.JButton;
 import javax.swing.JComponent;
 
+import org.fife.ui.autocomplete.CompletionProvider;
+
+import pt.lsts.neptus.console.plugins.containers.MigLayoutContainer;
 import pt.lsts.neptus.events.NeptusEventLayoutChanged;
 import pt.lsts.neptus.events.NeptusEvents;
+import pt.lsts.neptus.fileeditor.SyntaxFormaterTextArea;
 import pt.lsts.neptus.gui.editor.XMLPropertyEditor;
 import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.util.GuiUtils;
@@ -86,9 +91,6 @@ public class MiGLayoutXmlPropertyEditor extends XMLPropertyEditor {
         helpText += "&lt;/profiles&gt;<br/>";
     }
     
-    /* (non-Javadoc)
-     * @see pt.lsts.neptus.gui.editor.XMLPropertyEditor#getOkButtonAction()
-     */
     @Override
     protected ActionListener getOkButtonAction() {
         return new ActionListener() {
@@ -103,9 +105,6 @@ public class MiGLayoutXmlPropertyEditor extends XMLPropertyEditor {
         };
     }
     
-    /* (non-Javadoc)
-     * @see pt.lsts.neptus.gui.editor.XMLPropertyEditor#getCancelButtonAction()
-     */
     @Override
     protected ActionListener getCancelButtonAction() {
         return new ActionListener() {
@@ -119,9 +118,6 @@ public class MiGLayoutXmlPropertyEditor extends XMLPropertyEditor {
         };
     }
     
-    /* (non-Javadoc)
-     * @see pt.lsts.neptus.gui.editor.XMLPropertyEditor#getAdditionalComponentsForButtonsPanel()
-     */
     @Override
     protected ArrayList<JComponent> getAdditionalComponentsForButtonsPanel() {
         ArrayList<JComponent> ret = new ArrayList<>();
@@ -138,6 +134,21 @@ public class MiGLayoutXmlPropertyEditor extends XMLPropertyEditor {
         return ret;
     }
     
+    @Override
+    protected InputStream getSchemaInputStream() {
+        return MigLayoutContainer.class.getResourceAsStream(MigLayoutContainer.LAYOUT_SCHEMA);
+    }
+
+    @Override
+    protected ArrayList<CompletionProvider> getAdditionalCompletionProviders() {
+        ArrayList<CompletionProvider> ret = new ArrayList<>();
+        
+        CompletionProvider provider = SyntaxFormaterTextArea.createMigLayoutContainerCompletionProvider();
+        ret.add(provider);
+        
+        return ret;
+    }
+
     public static void main(String[] args) {
         MiGLayoutXmlPropertyEditor xp = new MiGLayoutXmlPropertyEditor();
 

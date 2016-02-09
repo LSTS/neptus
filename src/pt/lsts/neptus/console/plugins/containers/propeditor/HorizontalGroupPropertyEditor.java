@@ -31,11 +31,14 @@
  */
 package pt.lsts.neptus.console.plugins.containers.propeditor;
 
+import java.io.InputStream;
+
 import javax.xml.validation.Schema;
 
 import pt.lsts.neptus.console.plugins.containers.GroupLayoutContainer;
 import pt.lsts.neptus.gui.editor.XMLPropertyEditor;
 import pt.lsts.neptus.i18n.I18n;
+import pt.lsts.neptus.util.GuiUtils;
 
 /**
  * @author pdias
@@ -88,7 +91,19 @@ public class HorizontalGroupPropertyEditor extends XMLPropertyEditor {
 					">";
 	}
 	
+    @Override
 	public Schema getSchema() {
-	        return GroupLayoutContainer.schema;
+        return GroupLayoutContainer.schema;
 	}
+	
+	@Override
+	protected InputStream getSchemaInputStream() {
+        return GroupLayoutContainer.class.getResourceAsStream(GroupLayoutContainer.GROUP_LAYOUT_SCHEMA);
+	}
+	
+    public static void main(String[] args) {
+        HorizontalGroupPropertyEditor xp = new HorizontalGroupPropertyEditor();
+
+        GuiUtils.testFrame(xp.button);
+    }
 }

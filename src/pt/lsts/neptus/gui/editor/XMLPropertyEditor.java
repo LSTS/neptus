@@ -58,14 +58,17 @@ import javax.xml.transform.stream.StreamSource;
 import javax.xml.validation.Schema;
 import javax.xml.validation.Validator;
 
+import org.fife.ui.autocomplete.AutoCompletion;
+import org.fife.ui.autocomplete.CompletionProvider;
+import org.fife.ui.rsyntaxtextarea.RSyntaxTextArea;
+import org.fife.ui.rtextarea.RTextScrollPane;
 import org.xml.sax.ErrorHandler;
 import org.xml.sax.SAXException;
 import org.xml.sax.SAXParseException;
 
 import com.l2fprod.common.beans.editor.AbstractPropertyEditor;
 
-import pt.lsts.neptus.console.plugins.containers.GroupLayoutContainer;
-import pt.lsts.neptus.fileeditor.SyntaxDocument;
+import pt.lsts.neptus.fileeditor.SyntaxFormaterTextArea;
 import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.util.GuiUtils;
 import pt.lsts.neptus.util.StreamUtil;
@@ -93,8 +96,8 @@ public class XMLPropertyEditor extends AbstractPropertyEditor {
     protected JDialog dialog;
 
     // GUI
-    protected JEditorPane editorPane;
-    protected JScrollPane editorScrollPane;
+    protected RSyntaxTextArea editorPane;
+    protected RTextScrollPane editorScrollPane;
     
     protected JButton okButton;
     protected JButton cancelButton;
@@ -130,10 +133,16 @@ public class XMLPropertyEditor extends AbstractPropertyEditor {
         // editor panel
         oldXmlStr = xmlStr;
         
-        editorPane = SyntaxDocument.getXmlEditorPane();
-        editorScrollPane = new JScrollPane();
-//        editorPane = SyntaxFormaterTextArea.createXMLFormatTextArea();
-//        editorScrollPane = new RTextScrollPane(editorPane);
+        editorPane = SyntaxFormaterTextArea.createXMLFormatTextArea();
+        SyntaxFormaterTextArea.installXMLLanguageSupport(editorPane, getSchemaInputStream());
+        
+        ArrayList<CompletionProvider> completionProviders = getAdditionalCompletionProviders();
+        for (CompletionProvider provider : completionProviders) {
+            AutoCompletion ac = new AutoCompletion(provider);
+            ac.install(editorPane);
+        }
+        
+        editorScrollPane = new RTextScrollPane(editorPane);
 
         editorScrollPane.setViewportView(editorPane);
         editorScrollPane.setVisible(true);
@@ -239,9 +248,8 @@ public class XMLPropertyEditor extends AbstractPropertyEditor {
         return new ActionListener() {
             public void actionPerformed(ActionEvent arg0) {
                 try {
-                    InputStream sstream = GroupLayoutContainer.class
-                            .getResourceAsStream(GroupLayoutContainer.GROUP_LAYOUT_SCHEMA);
-                    File fx = new File(GroupLayoutContainer.GROUP_LAYOUT_SCHEMA);
+                    InputStream sstream = getSchemaInputStream();
+                    File fx = new File(title + ".xsd");
                     fx = new File(fx.getName());
                     fx.createNewFile();
                     StreamUtil.copyStreamToFile(sstream, fx);
@@ -362,6 +370,14 @@ public class XMLPropertyEditor extends AbstractPropertyEditor {
         return null;
     }
 
+    protected InputStream getSchemaInputStream() {
+        return null;
+    }
+
+    protected ArrayList<CompletionProvider>  getAdditionalCompletionProviders() {
+        return new ArrayList<>();
+    }
+    
     public static void main(String[] args) {
         XMLPropertyEditor xp = new XMLPropertyEditor();
 

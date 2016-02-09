@@ -72,11 +72,13 @@ import com.google.common.eventbus.Subscribe;
 
 /**
  * @author jqcorreia
- * 
+ * @author pdias
  */
 @SuppressWarnings("serial")
-@PluginDescription(author = "José Quadrado", version = "1.0.0", name = "Console Layout: MigLayout", description = "This container uses MigLayout manager", icon = "pt/lsts/neptus/plugins/containers/layout.png", category = CATEGORY.INTERFACE)
+@PluginDescription(author = "José Quadrado", version = "1.0.1", name = "Console Layout: MigLayout", description = "This container uses MigLayout manager", icon = "pt/lsts/neptus/plugins/containers/layout.png", category = CATEGORY.INTERFACE)
 public class MigLayoutContainer extends ContainerSubPanel implements ConfigurationListener, LayoutProfileProvider {
+
+    public static final String LAYOUT_SCHEMA = "miglayout-container.xsd";
 
     @NeptusProperty(name = "XML Definitions", description = "XML layout definition", editorClass = MiGLayoutXmlPropertyEditor.class, distribution = DistributionEnum.DEVELOPER)
     public String xmlDef = "<profiles>\n  <profile name=\"Normal\">\n    <container layoutparam=\"ins 0\" param=\"w 100%, h 100%\">\n      <child name=\"Map Panel\" param=\"w 100%, h 100%\"/>\n    </container>\n  </profile>\n</profiles>";
