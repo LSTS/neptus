@@ -89,7 +89,7 @@ public class XMLPropertyEditor extends AbstractPropertyEditor {
             + "tutorial/uiswing/layout/groupExample.html')\n" + "\n\nDefinition:\n===========\n\n");
     protected String contentType = "text/plain";
 
-    protected String smallMsg = I18n.text("This follows the Java Group Layout");
+    protected String smallMsg = ""; // I18n.text("This follows the Java Group Layout");
     protected JDialog dialog;
 
     // GUI

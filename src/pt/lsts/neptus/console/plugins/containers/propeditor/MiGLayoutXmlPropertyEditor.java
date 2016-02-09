@@ -56,7 +56,7 @@ public class MiGLayoutXmlPropertyEditor extends XMLPropertyEditor {
         super();
         rootElement = "MiGLayout Layout XML";
         title = I18n.text("Layout for: MiGLayout Layout XML");
-        smallMsg = I18n.text("This follows the MiGLayout");
+        smallMsg = ""; // I18n.text("This follows the MiGLayout");
         contentType = "text/html";
         helpText = I18n.text("Container using MigLayout") + "<br/>";
         helpText += I18n.textf("(see %url)", "'http://www.migcalendar.com/miglayout/mavensite/docs/cheatsheet.html'") + "<br/>";
