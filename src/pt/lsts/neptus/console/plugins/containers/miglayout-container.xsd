@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified" attributeFormDefault="unqualified">
+	<xs:element name="profiles">
+		<xs:annotation>
+			<xs:documentation>Comment describing your root element</xs:documentation>
+		</xs:annotation>
+		<xs:complexType>
+			<xs:sequence maxOccurs="unbounded">
+				<xs:element name="profile" type="profileType">
+					<xs:unique name="ComponentNameUnique">
+						<xs:selector xpath=".//child"/>
+						<xs:field xpath="@name"/>
+					</xs:unique>
+				</xs:element>
+			</xs:sequence>
+		</xs:complexType>
+		<xs:unique name="ProfileNameUnique">
+			<xs:selector xpath="profile"/>
+			<xs:field xpath="@name"/>
+		</xs:unique>
+	</xs:element>
+	<xs:group name="profileGroup">
+		<xs:choice>
+			<xs:element name="container">
+				<xs:complexType>
+					<xs:group ref="profileGroup" minOccurs="0" maxOccurs="unbounded"/>
+					<xs:attribute name="layoutparam"/>
+					<xs:attribute name="colparam" type="xs:string"/>
+					<xs:attribute name="rowparam" type="xs:string"/>
+					<xs:attribute name="param" type="xs:string"/>
+					<xs:attribute name="type" type="xs:string" fixed="tabcontainer"/>
+				</xs:complexType>
+			</xs:element>
+			<xs:element name="child">
+				<xs:complexType>
+					<xs:attribute name="name" use="required">
+						<xs:simpleType>
+							<xs:restriction base="xs:string">
+								<xs:minLength value="2"/>
+							</xs:restriction>
+						</xs:simpleType>
+					</xs:attribute>
+					<xs:attribute name="param" type="xs:string"/>
+				</xs:complexType>
+			</xs:element>
+			<xs:element name="tab">
+				<xs:complexType>
+					<xs:group ref="profileGroup" minOccurs="0" maxOccurs="unbounded"/>
+					<xs:attribute name="tabname" type="xs:string" use="required"/>
+					<xs:attribute name="layoutparam"/>
+					<xs:attribute name="colparam" type="xs:string"/>
+					<xs:attribute name="rowparam" type="xs:string"/>
+				</xs:complexType>
+			</xs:element>
+		</xs:choice>
+	</xs:group>
+	<xs:complexType name="profileType">
+		<xs:group ref="profileGroup" minOccurs="0" maxOccurs="unbounded"/>
+		<xs:attribute name="name" use="required">
+			<xs:simpleType>
+				<xs:restriction base="xs:string">
+					<xs:pattern value="[A-Z].*"/>
+				</xs:restriction>
+			</xs:simpleType>
+		</xs:attribute>
+	</xs:complexType>
+</xs:schema>
