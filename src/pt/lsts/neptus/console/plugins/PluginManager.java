@@ -199,17 +199,33 @@ public class PluginManager extends ConsolePanel {
                     return;
                 Class<?> clazz = plugins.get(availableSelected);
 
-                if (ConsolePanel.class.isAssignableFrom(clazz)) {
+                if (container == null && ContainerSubPanel.class.isAssignableFrom(clazz)) {
                     ConsolePanel sp = PluginsRepository.getPanelPlugin(availableSelected, getConsole());
-                    container.addSubPanel(sp);
-                    sp.init();
-                    getConsole().informSubPanelListener(sp, SubPanelChangeAction.ADDED);
-                    refreshActivePlugins();
-                    warnSettingsWindowAdd(sp);
-                    NeptusLog.pub().warn(
-                            "Added new console panel: " + sp.getName() + " Class name : "
-                                    + sp.getClass().getCanonicalName());
-                    getConsole().setConsoleChanged(true);
+                    if (sp != null) {
+                        getConsole().getMainPanel().addSubPanel(sp);
+                        container = (ContainerSubPanel) sp;
+                        
+                        refreshActivePlugins();
+                        warnSettingsWindowAdd(sp);
+                        getConsole().setConsoleChanged(true);
+                    }
+                    
+                    return;
+                }
+
+                if (ConsolePanel.class.isAssignableFrom(clazz)) {
+                    if (container != null) {
+                        ConsolePanel sp = PluginsRepository.getPanelPlugin(availableSelected, getConsole());
+                        container.addSubPanel(sp);
+                        sp.init();
+                        getConsole().informSubPanelListener(sp, SubPanelChangeAction.ADDED);
+                        refreshActivePlugins();
+                        warnSettingsWindowAdd(sp);
+                        NeptusLog.pub().warn(
+                                "Added new console panel: " + sp.getName() + " Class name : "
+                                        + sp.getClass().getCanonicalName());
+                        getConsole().setConsoleChanged(true);
+                    }
                 }
 
                 if (ConsoleLayer.class.isAssignableFrom(clazz)) {
@@ -248,7 +264,14 @@ public class PluginManager extends ConsolePanel {
                 Class<?> clazz = plugins.get(activeSelected);
                 if (ConsolePanel.class.isAssignableFrom(clazz)) {
                     ConsolePanel sp = (ConsolePanel) pluginsMap.get(activeSelected);
-                    container.removeSubPanel(activeSelected);
+                    if (container.getSubPanelsCount() == 0 
+                            &&  sp == container) {
+                        getConsole().getMainPanel().removeSubPanel(container);
+                        container = null;
+                    }
+                    else {
+                        container.removeSubPanel(activeSelected);
+                    }
                     getConsole().informSubPanelListener(sp, SubPanelChangeAction.REMOVED);
                     refreshActivePlugins();
                     warnSettingsWindowRemove(sp);

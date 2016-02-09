@@ -133,10 +133,10 @@ public class ContainerSubPanel extends ConsolePanel implements LockableSubPanel 
 
     public void removeSubPanel(String subPanelName) {
         ConsolePanel sp = getSubPanelByName(subPanelName);
-        sp.clean();
-        if (sp != null)
+        if (sp != null) {
+            sp.clean();
             removeSubPanel(sp);
-
+        }
     }
 
     public ConsolePanel getSubPanelByName(String name) {
@@ -275,6 +275,10 @@ public class ContainerSubPanel extends ConsolePanel implements LockableSubPanel 
      */
     public List<ConsolePanel> getSubPanels() {
         return panels;
+    }
+    
+    public int getSubPanelsCount() {
+        return panels.size();
     }
     
     @Override

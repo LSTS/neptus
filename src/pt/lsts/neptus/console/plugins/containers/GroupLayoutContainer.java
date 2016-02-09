@@ -575,97 +575,102 @@ public class GroupLayoutContainer extends ContainerSubPanel implements Configura
      */
     private void applyLayout(String horizontalGroupLocal, String verticalGroupLocal, String linkSizeHorizontalLocal,
             String linkSizeVerticalLocal, boolean applyProfile) {
-        layout.invalidateLayout(this);
-        layout.setAutoCreateGaps(autoCreateGaps);
-        layout.setAutoCreateContainerGaps(autoCreateContainerGaps);
-        layout.setHonorsVisibility(honorsVisibility);
-
         try {
-            DocumentBuilder builder = docBuilderFactory.newDocumentBuilder();
-            ByteArrayInputStream bais = new ByteArrayInputStream(
-                    ("<?xml version=\"1.0\" encoding=\"UTF-8\"?><HorizontalGroup>" + horizontalGroupLocal.trim() + "</HorizontalGroup>")
-                            .getBytes());
-            String[] vmsgs = validateLayoutXML(bais);
-            if (vmsgs.length != 0) {
-                String strMsg = "Invalid XML!\n";
-                for (String str : vmsgs)
-                    strMsg += "\n" + str;
-                NeptusLog.pub().error(ReflectionUtil.getCallerStamp() + "HorizontalGroup: " + strMsg);
+            layout.invalidateLayout(this);
+            layout.setAutoCreateGaps(autoCreateGaps);
+            layout.setAutoCreateContainerGaps(autoCreateContainerGaps);
+            layout.setHonorsVisibility(honorsVisibility);
+
+            try {
+                DocumentBuilder builder = docBuilderFactory.newDocumentBuilder();
+                ByteArrayInputStream bais = new ByteArrayInputStream(
+                        ("<?xml version=\"1.0\" encoding=\"UTF-8\"?><HorizontalGroup>" + horizontalGroupLocal.trim() + "</HorizontalGroup>")
+                                .getBytes());
+                String[] vmsgs = validateLayoutXML(bais);
+                if (vmsgs.length != 0) {
+                    String strMsg = "Invalid XML!\n";
+                    for (String str : vmsgs)
+                        strMsg += "\n" + str;
+                    NeptusLog.pub().error(ReflectionUtil.getCallerStamp() + "HorizontalGroup: " + strMsg);
+                }
+                bais.reset();
+                Document docHG = builder.parse(bais);
+                Element rootHG = docHG.getDocumentElement();
+
+                bais = new ByteArrayInputStream(("<?xml version=\"1.0\" encoding=\"UTF-8\"?><VerticalGroup>"
+                        + verticalGroupLocal.trim() + "</VerticalGroup>").getBytes());
+                vmsgs = validateLayoutXML(bais);
+                if (vmsgs.length != 0) {
+                    String strMsg = "Invalid XML!\n";
+                    for (String str : vmsgs)
+                        strMsg += "\n" + str;
+                    NeptusLog.pub().error(ReflectionUtil.getCallerStamp() + "VerticalGroup: " + strMsg);
+                }
+                bais.reset();
+                Document docVG = builder.parse(bais);
+                Element rootVG = docVG.getDocumentElement();
+
+                bais = new ByteArrayInputStream(("<?xml version=\"1.0\" encoding=\"UTF-8\"?><LinkSizeHorizontal>"
+                        + linkSizeHorizontalLocal.trim() + "</LinkSizeHorizontal>").getBytes());
+                vmsgs = validateLayoutXML(bais);
+                if (vmsgs.length != 0) {
+                    String strMsg = "Invalid XML!\n";
+                    for (String str : vmsgs)
+                        strMsg += "\n" + str;
+                    NeptusLog.pub().error(ReflectionUtil.getCallerStamp() + "LinkSizeHorizontal: " + strMsg);
+                }
+                bais.reset();
+                Document docLH = builder.parse(bais);
+                Element rootLH = docLH.getDocumentElement();
+
+                bais = new ByteArrayInputStream(("<?xml version=\"1.0\" encoding=\"UTF-8\"?><LinkSizeVertical>"
+                        + linkSizeVerticalLocal.trim() + "</LinkSizeVertical>").getBytes());
+                vmsgs = validateLayoutXML(bais);
+                if (vmsgs.length != 0) {
+                    String strMsg = "Invalid XML!\n";
+                    for (String str : vmsgs)
+                        strMsg += "\n" + str;
+                    NeptusLog.pub().error(ReflectionUtil.getCallerStamp() + "LinkSizeVertical: " + strMsg);
+                }
+                bais.reset();
+                Document docLV = builder.parse(bais);
+                Element rootLV = docLV.getDocumentElement();
+
+                // Validate all elements together (later pass it upward)
+                bais = new ByteArrayInputStream(("<?xml version=\"1.0\" encoding=\"UTF-8\"?><ConsoleGroupLayout>"
+                        + "<HorizontalGroup>" + horizontalGroupLocal.trim() + "</HorizontalGroup>" + "<VerticalGroup>"
+                        + verticalGroupLocal.trim() + "</VerticalGroup>" + "<LinkSizeHorizontal>"
+                        + linkSizeHorizontalLocal.trim() + "</LinkSizeHorizontal>" + "<LinkSizeVertical>"
+                        + linkSizeVerticalLocal.trim() + "</LinkSizeVertical>" +
+                // "<Profiles>" + profiles.trim() + "</Profiles>" +
+                        "</ConsoleGroupLayout>").getBytes());
+                vmsgs = validateLayoutXML(bais);
+                if (vmsgs.length != 0) {
+                    String strMsg = "Invalid XML!\n";
+                    for (String str : vmsgs)
+                        strMsg += "\n" + str;
+                    NeptusLog.pub().error(ReflectionUtil.getCallerStamp() + "ConsoleGroupLayout: " + strMsg);
+                    return; // If not valid exit
+                }
+
+                layout.setHorizontalGroup(createLayoutGroup(rootHG));
+                layout.setVerticalGroup(createLayoutGroup(rootVG));
+
+                createLayoutLinkSize(rootLH, true);
+                createLayoutLinkSize(rootLV, false);
+
             }
-            bais.reset();
-            Document docHG = builder.parse(bais);
-            Element rootHG = docHG.getDocumentElement();
-
-            bais = new ByteArrayInputStream(("<?xml version=\"1.0\" encoding=\"UTF-8\"?><VerticalGroup>"
-                    + verticalGroupLocal.trim() + "</VerticalGroup>").getBytes());
-            vmsgs = validateLayoutXML(bais);
-            if (vmsgs.length != 0) {
-                String strMsg = "Invalid XML!\n";
-                for (String str : vmsgs)
-                    strMsg += "\n" + str;
-                NeptusLog.pub().error(ReflectionUtil.getCallerStamp() + "VerticalGroup: " + strMsg);
-            }
-            bais.reset();
-            Document docVG = builder.parse(bais);
-            Element rootVG = docVG.getDocumentElement();
-
-            bais = new ByteArrayInputStream(("<?xml version=\"1.0\" encoding=\"UTF-8\"?><LinkSizeHorizontal>"
-                    + linkSizeHorizontalLocal.trim() + "</LinkSizeHorizontal>").getBytes());
-            vmsgs = validateLayoutXML(bais);
-            if (vmsgs.length != 0) {
-                String strMsg = "Invalid XML!\n";
-                for (String str : vmsgs)
-                    strMsg += "\n" + str;
-                NeptusLog.pub().error(ReflectionUtil.getCallerStamp() + "LinkSizeHorizontal: " + strMsg);
-            }
-            bais.reset();
-            Document docLH = builder.parse(bais);
-            Element rootLH = docLH.getDocumentElement();
-
-            bais = new ByteArrayInputStream(("<?xml version=\"1.0\" encoding=\"UTF-8\"?><LinkSizeVertical>"
-                    + linkSizeVerticalLocal.trim() + "</LinkSizeVertical>").getBytes());
-            vmsgs = validateLayoutXML(bais);
-            if (vmsgs.length != 0) {
-                String strMsg = "Invalid XML!\n";
-                for (String str : vmsgs)
-                    strMsg += "\n" + str;
-                NeptusLog.pub().error(ReflectionUtil.getCallerStamp() + "LinkSizeVertical: " + strMsg);
-            }
-            bais.reset();
-            Document docLV = builder.parse(bais);
-            Element rootLV = docLV.getDocumentElement();
-
-            // Validate all elements together (later pass it upward)
-            bais = new ByteArrayInputStream(("<?xml version=\"1.0\" encoding=\"UTF-8\"?><ConsoleGroupLayout>"
-                    + "<HorizontalGroup>" + horizontalGroupLocal.trim() + "</HorizontalGroup>" + "<VerticalGroup>"
-                    + verticalGroupLocal.trim() + "</VerticalGroup>" + "<LinkSizeHorizontal>"
-                    + linkSizeHorizontalLocal.trim() + "</LinkSizeHorizontal>" + "<LinkSizeVertical>"
-                    + linkSizeVerticalLocal.trim() + "</LinkSizeVertical>" +
-            // "<Profiles>" + profiles.trim() + "</Profiles>" +
-                    "</ConsoleGroupLayout>").getBytes());
-            vmsgs = validateLayoutXML(bais);
-            if (vmsgs.length != 0) {
-                String strMsg = "Invalid XML!\n";
-                for (String str : vmsgs)
-                    strMsg += "\n" + str;
-                NeptusLog.pub().error(ReflectionUtil.getCallerStamp() + "ConsoleGroupLayout: " + strMsg);
-                return; // If not valid exit
+            catch (Exception e) {
+                NeptusLog.pub().error(ReflectionUtil.getCallerStamp() + e.getMessage());
             }
 
-            layout.setHorizontalGroup(createLayoutGroup(rootHG));
-            layout.setVerticalGroup(createLayoutGroup(rootVG));
-
-            createLayoutLinkSize(rootLH, true);
-            createLayoutLinkSize(rootLV, false);
-
+            // maximizePanel(maximizePanel);
+            if (!inEditMode && applyProfile)
+                setActiveProfile(activeProfile);
         }
         catch (Exception e) {
-            NeptusLog.pub().error(ReflectionUtil.getCallerStamp() + e.getMessage());
+            e.printStackTrace();
         }
-
-        // maximizePanel(maximizePanel);
-        if (!inEditMode && applyProfile)
-            setActiveProfile(activeProfile);
     }
 
     /**
@@ -921,7 +926,10 @@ public class GroupLayoutContainer extends ContainerSubPanel implements Configura
                 System.out.flush();
             }
             try {
-                ((ParallelGroup) groupBase).addComponent(comp, alignment, min, pref, max);
+                if (groupBase.getClass().isAssignableFrom(ParallelGroup.class))
+                    ((ParallelGroup) groupBase).addComponent(comp, alignment, min, pref, max);
+                else
+                    groupBase.addComponent(comp, min, pref, max);
             }
             catch (Exception e) {
                 e.printStackTrace();

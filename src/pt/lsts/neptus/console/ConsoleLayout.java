@@ -1115,11 +1115,24 @@ public class ConsoleLayout extends JFrame implements XmlInOutMethods, ComponentL
 
     /**
      * This will not go to the children of {@link ContainerSubPanel}
+     * Don't use this to add or remove {@link ConsolePanel}s.
      * 
      * @return
      */
     public List<ConsolePanel> getSubPanels() {
         return subPanels;
+    }
+    
+    public void addSubPanel(ConsolePanel panel) {
+        getMainPanel().addSubPanel(panel);;
+    }
+
+    public void addSubPanel(ConsolePanel panel, int x, int y) {
+        getMainPanel().addSubPanel(panel, x, y);
+    }
+
+    public void removeSubPanel(ConsolePanel panel) {
+        getMainPanel().removeSubPanel(panel);
     }
 
     public List<PropertiesProvider> getAllPropertiesProviders() {
