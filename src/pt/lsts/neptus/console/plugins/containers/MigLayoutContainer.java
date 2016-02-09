@@ -103,9 +103,8 @@ public class MigLayoutContainer extends ContainerSubPanel implements Configurati
             applyLayout(this.xmlDef);
         }
         else {
-            if(currentProfile!=""){
-            changeProfile(currentProfile); // This call maybe redundant but is needed for profile menu update
-            }
+            if(currentProfile!="")
+                changeProfile(currentProfile); // This call maybe redundant but is needed for profile menu update
             applyLayout(this.xmlDef);
         }
         super.init();
@@ -167,7 +166,8 @@ public class MigLayoutContainer extends ContainerSubPanel implements Configurati
                 JCheckBoxMenuItem item = (JCheckBoxMenuItem) profilesMenu.getItem(i);
                 item.setSelected(item.getText().equals(profileName));
             }
-        }else{
+        }
+        else{
             profileName="";
         }
         propagateActiveProfileChange(profileName);
@@ -220,19 +220,19 @@ public class MigLayoutContainer extends ContainerSubPanel implements Configurati
                     parse(node, this);
                 }
             }
-
         }
         catch (DocumentException e) {
             NeptusLog.pub().error("reading inner xml", e);
         }
+        
         getConsole().revalidate();
         getConsole().repaint();
     }
 
-    public ConsolePanel parse(Node node, JComponent parent) {
+    public void parse(Node node, JComponent parent) {
         Element e = (Element) node;
         if (!node.hasContent()) {
-            return null;
+            return;
         }
         else {
             @SuppressWarnings("unchecked")
@@ -286,9 +286,8 @@ public class MigLayoutContainer extends ContainerSubPanel implements Configurati
                     parse(element, tab);
                 }
             }
-            return null;
+            return;
         }
-
     }
 
     @Override
