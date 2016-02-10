@@ -1437,30 +1437,61 @@ public class ConsoleLayout extends JFrame implements XmlInOutMethods, ComponentL
     public void reset() {
         // getContentPane().remove(statusBar);
         this.remove(mainPanel);
-        mainPanel.clean();
+
+        resetConsoleElementsCommon();
+
         mainPanel = new MainPanel(this);
         this.add(mainPanel, BorderLayout.CENTER);
 
-        missionListeners.clear(); // retirar todos os listeners (limpeza forçada)
-        planListeners.clear(); // retirar todos os listeners
-        consoleVehicleChangeListeners.clear();
-
-        for (ConsoleSystem vehicle : consoleSystems.values()) {
-            vehicle.clean();
-        }
-        consoleSystems.clear();
-
-        for (Window j : onRunningFrames) {
-            j.dispose();
-        }
-
         setMission(null);
-        mainVehicleListeners.clear();
 
         changed = false;
 
         this.revalidate();
-        this.repaint();
+        this.repaint();    
+    }
+    
+    private void resetConsoleElementsCommon() {
+        missionListeners.clear();
+        planListeners.clear();
+        consoleVehicleChangeListeners.clear();
+
+        for (Window window : onRunningFrames) {
+            window.dispose();
+        }
+
+        mainVehicleListeners.clear();
+
+        for (IConsoleLayer layer : layers.keySet().toArray(new IConsoleLayer[layers.size()])) {
+            try {
+                NeptusLog.pub().info("Cleaning " + layer.getName());
+                layer.clean();
+                NeptusLog.pub().info("Cleaned " + layer.getName());
+            }
+            catch (Exception e) {
+                NeptusLog.pub().error("Error cleaning " + layer.getName() + " :: " + e.getMessage(), e);
+            }
+        }
+        layers.clear();
+
+        for (IConsoleInteraction interaction : interactions.keySet()
+                .toArray(new IConsoleInteraction[interactions.size()])) {
+            try {
+                interaction.clean();
+                NeptusLog.pub().info("Cleaned " + interaction.getName());
+            }
+            catch (Exception e) {
+                NeptusLog.pub().error("Error cleaning " + interaction.getName() + " :: " + e.getMessage(), e);
+            }
+        }
+        interactions.clear();
+        
+        for (ConsoleSystem system : consoleSystems.values()) {
+            system.clean();
+        }
+        consoleSystems.clear();
+
+        mainPanel.clean();
     }
 
     /**
@@ -1472,49 +1503,12 @@ public class ConsoleLayout extends JFrame implements XmlInOutMethods, ComponentL
         try {
             removeComponentListener(this);
 
-            missionListeners.clear();
-            planListeners.clear();
-            consoleVehicleChangeListeners.clear();
-
-            for (Window j : onRunningFrames) {
-                j.setVisible(false);
-                j.dispose();
-            }
-
-            mainVehicleListeners.clear();
-
             AutoSnapshotConsoleAction autosnapshot = (AutoSnapshotConsoleAction) actions
                     .get(AutoSnapshotConsoleAction.class);
             autosnapshot.cleanClose();
 
-            for (IConsoleLayer layer : layers.keySet().toArray(new IConsoleLayer[layers.size()])) {
-                try {
-                    NeptusLog.pub().info("Cleaning " + layer.getName());
-                    layer.clean();
-                    NeptusLog.pub().info("Cleaned " + layer.getName());
-                }
-                catch (Exception e) {
-                    NeptusLog.pub().error("Error cleaning " + layer.getName() + " :: " + e.getMessage(), e);
-                }
-            }
-            layers.clear();
-
-            for (IConsoleInteraction interaction : interactions.keySet().toArray(new IConsoleInteraction[interactions.size()])) {
-                try {
-                    interaction.clean();
-                    NeptusLog.pub().info("Cleaned " + interaction.getName());
-                }
-                catch (Exception e) {
-                    NeptusLog.pub().error("Error cleaning " + interaction.getName() + " :: " + e.getMessage(), e);
-                }
-            }
-            interactions.clear();
-
-            for (ConsoleSystem system : consoleSystems.values()) {
-                system.clean();
-            }
-            consoleSystems.clear();
-            mainPanel.clean();
+            resetConsoleElementsCommon();
+            
             statusBar.clean();
             
             this.cleanKeyBindings();
