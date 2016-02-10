@@ -44,6 +44,7 @@ import org.dom4j.Element;
 
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.console.plugins.LockableSubPanel;
+import pt.lsts.neptus.console.plugins.SubPanelChangeEvent.SubPanelChangeAction;
 import pt.lsts.neptus.plugins.NeptusProperty;
 import pt.lsts.neptus.plugins.NeptusProperty.DistributionEnum;
 import pt.lsts.neptus.plugins.PluginUtils;
@@ -103,6 +104,9 @@ public class ContainerSubPanel extends ConsolePanel implements LockableSubPanel 
     public void addSubPanel(ConsolePanel panel) {
         panels.add(panel);
         this.add(panel);
+
+        // Let us inform the addition
+        getConsole().informSubPanelListener(panel, SubPanelChangeAction.ADDED);
     }
 
     public void removeSubPanel(ConsolePanel sp) {
@@ -111,6 +115,9 @@ public class ContainerSubPanel extends ConsolePanel implements LockableSubPanel 
         doLayout();
         invalidate();
         revalidate();
+        
+        // Let us inform the removal
+        getConsole().informSubPanelListener(sp, SubPanelChangeAction.REMOVED);
     }
 
     private List<String> subPanelNames() {
