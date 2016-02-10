@@ -264,13 +264,16 @@ public class PluginManager extends ConsolePanel {
                 Class<?> clazz = plugins.get(activeSelected);
                 if (ConsolePanel.class.isAssignableFrom(clazz)) {
                     ConsolePanel sp = (ConsolePanel) pluginsMap.get(activeSelected);
-                    if (container.getSubPanelsCount() == 0 
+                    if (container != null && container.getSubPanelsCount() == 0 
                             &&  sp == container) {
                         getConsole().getMainPanel().removeSubPanel(container);
                         container = null;
                     }
                     else {
-                        container.removeSubPanel(activeSelected);
+                        if (container != null)
+                            container.removeSubPanel(activeSelected);
+                        else // Try to remove from console
+                            getConsole().removeSubPanel(sp);
                     }
                     getConsole().informSubPanelListener(sp, SubPanelChangeAction.REMOVED);
                     refreshActivePlugins();
