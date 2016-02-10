@@ -59,7 +59,7 @@ public class MiGLayoutXmlPropertyEditor extends XMLPropertyEditor {
     
     public MiGLayoutXmlPropertyEditor() {
         super();
-        rootElement = "MiGLayout Layout XML";
+        rootElement = "";
         title = I18n.text("Layout for: MiGLayout Layout XML");
         smallMsg = ""; // I18n.text("This follows the MiGLayout");
         contentType = "text/html";

@@ -46,8 +46,7 @@ public class LinkSizeHorizontalPropertyEditor extends HorizontalGroupPropertyEdi
 		super();
 		rootElement = "LinkSizeHorizontal";
 		title = I18n.text("Link size for horizontal axis:") + " <" + rootElement + "></" + rootElement + ">";
-		helpText += "<!-- " + I18n.text("Don't use this top element (this is informative)") + " -->\n" +
-					"<!ELEMENT LinkSizeHorizontal (LinkSizeGroup)*>\n\n" +
+		helpText += "<!ELEMENT LinkSizeHorizontal (LinkSizeGroup)*>\n\n" +
 					"<!ELEMENT LinkSizeGroup ((Component), (Component)+)>\n" +
 					"<!ELEMENT Component ANY>\n" +
 					"<!ATTLIST Component\n" +

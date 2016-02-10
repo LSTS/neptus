@@ -89,7 +89,9 @@ public class XMLPropertyEditor extends AbstractPropertyEditor {
 
     protected String helpText = I18n.text("Container using GroupLayout\n" + "(see 'http://download.oracle.com/javase/"
             + "tutorial/uiswing/layout/group.html'\n" + "and 'http://download.oracle.com/javase/"
-            + "tutorial/uiswing/layout/groupExample.html')\n" + "\n\nDefinition:\n===========\n\n");
+            + "tutorial/uiswing/layout/groupExample.html')\n"
+            + "For reference duplicated components use <Component Name>_N where N=1,2,3...\n"
+            + "\n\nDefinition:\n===========\n\n");
     protected String contentType = "text/plain";
 
     protected String smallMsg = ""; // I18n.text("This follows the Java Group Layout");
@@ -155,7 +157,22 @@ public class XMLPropertyEditor extends AbstractPropertyEditor {
         catch (Exception e1) {
             xmlStr = oldXmlStr;
         }
-        editorPane.setText(xmlStr.trim());
+        
+        editorPane.setText(xmlStr.trim()); // To avoid null pointer
+        String editorTxt = getTextWithRootElementText();
+        try {
+            if (!xmlStr.isEmpty() && !editorTxt.isEmpty()) {
+                editorTxt = XMLUtil.getAsCompactFormatedXMLString(editorTxt);
+                editorTxt = XMLUtil.getAsPrettyPrintFormatedXMLString(editorTxt);
+            }
+            else {
+                editorTxt.replace("><", ">\n<");
+            }
+        }
+        catch (Exception e1) {
+            e1.printStackTrace();
+        }
+        editorPane.setText(editorTxt); // xmlStr.trim()
 
         // help panel
         JScrollPane helpScrollPane = new JScrollPane();
@@ -267,7 +284,7 @@ public class XMLPropertyEditor extends AbstractPropertyEditor {
     protected ActionListener getValidateButtonAction() {
         return new ActionListener() {
             public void actionPerformed(ActionEvent arg0) {
-                String[] vmsgs = validateLayoutXML(editorPane.getText());
+                String[] vmsgs = validateLayoutXML(getStrippedDownRootElementText()); //  editorPane.getText()
                 if (vmsgs.length == 0) {
                     GuiUtils.infoMessage(dialog, I18n.text("Validation"), I18n.text("Valid XML."));
                 }
@@ -293,10 +310,10 @@ public class XMLPropertyEditor extends AbstractPropertyEditor {
     protected ActionListener getOkButtonAction() {
         return new ActionListener() {
             public void actionPerformed(ActionEvent arg0) {
-                String[] vmsgs = validateLayoutXML(editorPane.getText());
+                String[] vmsgs = validateLayoutXML(getStrippedDownRootElementText()); // editorPane.getText()
                 if (vmsgs.length == 0) {
                     
-                    String tmpStr = editorPane.getText();
+                    String tmpStr = getStrippedDownRootElementText(); //editorPane.getText();
                     try {
                         if (!"".equalsIgnoreCase(tmpStr)) {
                             tmpStr = XMLUtil.getAsCompactFormatedXMLString(tmpStr);
@@ -327,6 +344,23 @@ public class XMLPropertyEditor extends AbstractPropertyEditor {
         if (arg0 instanceof String) {
             xmlStr = (String) arg0;
         }
+    }
+
+    protected String getStrippedDownRootElementText() {
+        String txt = xmlStr;
+        if (rootElement != null && !"".equalsIgnoreCase(rootElement)) {
+            txt = txt.replaceAll("^[[\\s]*?]?<" + rootElement + ">", "")
+                    .replaceAll("[[\\s]]*?]?</\" + rootElement + \">[[\\\\s]]*?]?$", "");
+        }
+        
+        return txt;
+    }
+
+    protected String getTextWithRootElementText() {
+        String txt = xmlStr;
+        if (rootElement != null && !"".equalsIgnoreCase(rootElement))
+            txt = "<" + rootElement + ">" + txt + "</" + rootElement + ">";
+        return txt;
     }
 
     private String[] validateLayoutXML(String strXml) {

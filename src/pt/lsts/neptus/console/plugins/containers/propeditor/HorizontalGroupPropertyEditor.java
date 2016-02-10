@@ -53,8 +53,7 @@ public class HorizontalGroupPropertyEditor extends XMLPropertyEditor {
 		super();
 		rootElement = "HorizontalGroup";
 		title = I18n.text("Layout for horizontal axis:") + " <" + rootElement + "></" + rootElement + ">";
-		helpText += "<!-- " + I18n.text("Don't use this top element (this is informative)") + " -->\n" +
-					"<!ELEMENT HorizontalGroup (Sequence | Parallel)?>\n\n" +
+		helpText += "<!ELEMENT HorizontalGroup (Sequence | Parallel)?>\n\n" +
 					"<!ELEMENT Sequence (Component | (Gap | GapComponents | PreferredGap) | Sequence | Parallel)+>\n" +
 					"<!ELEMENT Parallel (Component | Gap | Sequence | Parallel)+>\n" +
 					"<!ATTLIST Parallel\n" +
