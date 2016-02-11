@@ -157,6 +157,11 @@ public class GroupLayoutContainer extends ContainerSubPanel implements Configura
     public boolean showOnlyProfilesToUser = false;
 
     private boolean inEditMode = false;
+    /**
+     * This will protect a re-layout illegal state exception while applying it (repaint called in the middle of the
+     * apply
+     */
+    private boolean relayouting = false;
 
     private GroupLayout layout = null;
 
@@ -222,7 +227,8 @@ public class GroupLayoutContainer extends ContainerSubPanel implements Configura
     @Override
     public void doLayout() {
         try {
-            super.doLayout();
+            if (!relayouting)
+                super.doLayout();
         }
         catch (final IllegalStateException e) {
             new Thread() {
@@ -575,6 +581,7 @@ public class GroupLayoutContainer extends ContainerSubPanel implements Configura
      */
     private void applyLayout(String horizontalGroupLocal, String verticalGroupLocal, String linkSizeHorizontalLocal,
             String linkSizeVerticalLocal, boolean applyProfile) {
+        relayouting = true;
         try {
             layout.invalidateLayout(this);
             layout.setAutoCreateGaps(autoCreateGaps);
@@ -653,12 +660,13 @@ public class GroupLayoutContainer extends ContainerSubPanel implements Configura
                     return; // If not valid exit
                 }
 
-                layout.setHorizontalGroup(createLayoutGroup(rootHG));
-                layout.setVerticalGroup(createLayoutGroup(rootVG));
+                Group hGroup = createLayoutGroup(rootHG);
+                Group vGroup = createLayoutGroup(rootVG);
+                layout.setHorizontalGroup(hGroup);
+                layout.setVerticalGroup(vGroup);
 
                 createLayoutLinkSize(rootLH, true);
                 createLayoutLinkSize(rootLV, false);
-
             }
             catch (Exception e) {
                 NeptusLog.pub().error(ReflectionUtil.getCallerStamp() + e.getMessage());
@@ -670,6 +678,9 @@ public class GroupLayoutContainer extends ContainerSubPanel implements Configura
         }
         catch (Exception e) {
             e.printStackTrace();
+        }
+        finally {
+            relayouting = false;
         }
     }
 
