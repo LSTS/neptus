@@ -74,6 +74,7 @@ public class OpenConsoleAction extends ConsoleAction {
                 @Override
                 protected Void doInBackground() throws Exception {
                     ConsoleParse.parseFile(file.getAbsolutePath().toString(), console);
+                    console.resetTidyUp();
                     return null;
                 }
 

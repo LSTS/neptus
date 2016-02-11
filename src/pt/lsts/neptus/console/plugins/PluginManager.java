@@ -421,6 +421,10 @@ public class PluginManager extends ConsolePanel {
         return pluginNames;
     }
 
+    public void reset() {
+        refreshActivePlugins();
+    }
+    
     private void refreshActivePlugins() {
         pluginsMap.clear();
         List<String> names = new ArrayList<>();

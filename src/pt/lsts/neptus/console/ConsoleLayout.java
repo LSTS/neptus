@@ -222,6 +222,9 @@ public class ConsoleLayout extends JFrame implements XmlInOutMethods, ComponentL
     public boolean resizableConsole = false;
     
     private boolean systemComboOnMenu = true;
+    
+    protected PluginManager pluginManager = null;
+    protected SettingsWindow settingsWindow = null;
 
     /**
      * Static factory method
@@ -306,11 +309,13 @@ public class ConsoleLayout extends JFrame implements XmlInOutMethods, ComponentL
         if (editable) {
             manager = new PluginManager(instance);
             manager.init();
+            instance.pluginManager = manager;
         }
         SettingsWindow settings = new SettingsWindow(instance);
         settings.init();
         if (editable)
             manager.setSettingsWindow(settings);
+        instance.settingsWindow = settings;
 
         if (!editable)
             instance.removeJMenuAction(LayoutEditConsoleAction.class);
@@ -1140,6 +1145,14 @@ public class ConsoleLayout extends JFrame implements XmlInOutMethods, ComponentL
         for (ConsolePanel sp : subPanels) {
             if (sp instanceof PropertiesProvider)
                 ret.add((PropertiesProvider) sp);
+            
+//            // Process Containers (one level only)
+//            if (sp instanceof ContainerSubPanel) {
+//                for (ConsolePanel s : ((ContainerSubPanel) sp).getSubPanels()) {
+//                    if (s instanceof PropertiesProvider)
+//                        ret.add((PropertiesProvider) s);
+//                }
+//            }
         }
         for (IConsoleLayer ly : layers.keySet()) {
             if (layers.get(ly)) {
@@ -1429,9 +1442,17 @@ public class ConsoleLayout extends JFrame implements XmlInOutMethods, ComponentL
         }
     }
 
+    public void resetTidyUp() {
+        if (pluginManager != null)
+            pluginManager.reset();
+        
+        if (settingsWindow != null)
+            settingsWindow.reset();
+    }
+    
     /**
      * Reset the console for a new one use when a new console is open
-     * 
+     * Call also {@link #resetTidyUp()} after this if you load a new console (or empty one).
      */
     public void reset() {
         this.remove(mainPanel);
@@ -1490,6 +1511,9 @@ public class ConsoleLayout extends JFrame implements XmlInOutMethods, ComponentL
         consoleSystems.clear();
 
         mainPanel.clean();
+        
+        pluginManager.reset();
+        settingsWindow.reset();
     }
 
     /**

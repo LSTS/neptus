@@ -107,6 +107,15 @@ public class SettingsWindow extends ConsolePanel implements SubPanelChangeListen
         }
     }
 
+    public void reset() {
+        subPanels.clear();
+        settingsPanel.reset();
+        initPropertiesProvidersList(getConsole());
+        settingsPanel.setupNewProviders(subPanels);
+        settingsPanel.reset();
+        this.repaint();
+    }
+    
     private void addButtons() {
         checkLvl = new JCheckBox(I18n.text("Advanced"));
         checkLvl.addItemListener(new ItemListener() {
