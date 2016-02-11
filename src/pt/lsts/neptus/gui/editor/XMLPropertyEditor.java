@@ -347,10 +347,12 @@ public class XMLPropertyEditor extends AbstractPropertyEditor {
     }
 
     protected String getStrippedDownRootElementText() {
-        String txt = xmlStr;
-        if (rootElement != null && !"".equalsIgnoreCase(rootElement)) {
+        String txt = editorPane.getText();
+        if (rootElement != null && !"".equalsIgnoreCase(rootElement) && !txt.isEmpty()) {
+            txt = txt.trim();
             txt = txt.replaceAll("^[[\\s]*?]?<" + rootElement + ">", "")
-                    .replaceAll("[[\\s]]*?]?</\" + rootElement + \">[[\\\\s]]*?]?$", "");
+                    .replaceAll("[[\\s]]*?]?</" + rootElement + ">[[\\s]]*?]?$", "");
+            txt = txt.trim();
         }
         
         return txt;

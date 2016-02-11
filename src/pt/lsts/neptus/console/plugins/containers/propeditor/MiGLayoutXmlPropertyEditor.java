@@ -95,8 +95,9 @@ public class MiGLayoutXmlPropertyEditor extends XMLPropertyEditor {
     protected ActionListener getOkButtonAction() {
         return new ActionListener() {
             public void actionPerformed(ActionEvent arg0) {
+                // don't use rootElement so no need to call getStrippedDownRootElementText()
                 String tmpStr = editorPane.getText();
-                NeptusEvents.post(new NeptusEventLayoutChanged(tmpStr));
+                NeptusEvents.post(new NeptusEventLayoutChanged(tmpStr)); // Review this, but not access to console
                 setValue(tmpStr);
 
                 dialog.setVisible(false);
