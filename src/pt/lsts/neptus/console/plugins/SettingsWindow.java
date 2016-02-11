@@ -210,9 +210,10 @@ public class SettingsWindow extends ConsolePanel implements SubPanelChangeListen
         if (propProviderAdd != null) {
             for (PropertiesProvider pp : propProviderAdd) {
                 if (!subPanels.contains(pp)) {
-                    boolean ret = subPanels.add(pp);
-                    if (ret) {
-                        change = true;
+                    if (!(pp instanceof ContainerSubPanel)) {
+                        boolean ret = subPanels.add(pp);
+                        if (ret)
+                            change = true;
                     }
                 }
             }
