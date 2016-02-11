@@ -384,8 +384,10 @@ public class PluginManager extends ConsolePanel {
                 }
 
                 Class<?> clazz = plugins.get(pluginName);
-                type.setText(getType(clazz));
-                description.setText(PluginUtils.getPluginDescription(clazz));
+                if (clazz != null) {
+                    type.setText(getType(clazz));
+                    description.setText(PluginUtils.getPluginDescription(clazz));
+                }
             }
         };
         availablePluginsList.addKeyListener(keyboardListener);
