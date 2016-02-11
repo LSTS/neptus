@@ -91,9 +91,6 @@ public class OpenConsoleAction extends ConsoleAction {
                 }
             };
             worker.execute();
-
         }
-
     }
-
 }

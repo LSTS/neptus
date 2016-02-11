@@ -1430,12 +1430,10 @@ public class ConsoleLayout extends JFrame implements XmlInOutMethods, ComponentL
     }
 
     /**
-     * 
-     * reset the console for a new one useb when a new console is open
+     * Reset the console for a new one use when a new console is open
      * 
      */
     public void reset() {
-        // getContentPane().remove(statusBar);
         this.remove(mainPanel);
 
         resetConsoleElementsCommon();
