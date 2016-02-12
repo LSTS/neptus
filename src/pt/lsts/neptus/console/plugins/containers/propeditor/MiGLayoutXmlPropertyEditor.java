@@ -33,14 +33,19 @@ package pt.lsts.neptus.console.plugins.containers.propeditor;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.File;
 import java.io.InputStream;
 import java.util.ArrayList;
 
 import javax.swing.JButton;
 import javax.swing.JComponent;
+import javax.xml.XMLConstants;
+import javax.xml.validation.Schema;
+import javax.xml.validation.SchemaFactory;
 
 import org.fife.ui.autocomplete.CompletionProvider;
 
+import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.console.plugins.containers.MigLayoutContainer;
 import pt.lsts.neptus.events.NeptusEventLayoutChanged;
 import pt.lsts.neptus.events.NeptusEvents;
@@ -48,6 +53,8 @@ import pt.lsts.neptus.fileeditor.SyntaxFormaterTextArea;
 import pt.lsts.neptus.gui.editor.XMLPropertyEditor;
 import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.util.GuiUtils;
+import pt.lsts.neptus.util.ReflectionUtil;
+import pt.lsts.neptus.util.StreamUtil;
 
 /**
  * @author pdias
@@ -168,6 +175,19 @@ public class MiGLayoutXmlPropertyEditor extends XMLPropertyEditor {
     @Override
     protected InputStream getSchemaInputStream() {
         return MigLayoutContainer.class.getResourceAsStream(MigLayoutContainer.LAYOUT_SCHEMA);
+    }
+    
+    @Override
+    public Schema getSchema() {
+        SchemaFactory sm = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
+        try {
+            File sFx = StreamUtil.copyStreamToTempFile(getSchemaInputStream());
+            Schema schema = sm.newSchema(sFx);
+            return schema;
+        }
+        catch (Exception e) {
+            NeptusLog.pub().warn(ReflectionUtil.getCallerStamp() + e.getMessage());
+        }        return null;
     }
 
     @Override
