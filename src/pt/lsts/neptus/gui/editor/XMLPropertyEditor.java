@@ -82,6 +82,7 @@ public class XMLPropertyEditor extends AbstractPropertyEditor {
 
     protected String title = "XML";
     protected String rootElement = "";
+    protected String xmlSchemaName = "xml";
 
     protected JButton button;
     protected String xmlStr = "";
@@ -266,7 +267,7 @@ public class XMLPropertyEditor extends AbstractPropertyEditor {
             public void actionPerformed(ActionEvent arg0) {
                 try {
                     InputStream sstream = getSchemaInputStream();
-                    File fx = new File(title + ".xsd");
+                    File fx = new File(xmlSchemaName + ".xsd");
                     fx = new File(fx.getName());
                     fx.createNewFile();
                     StreamUtil.copyStreamToFile(sstream, fx);
