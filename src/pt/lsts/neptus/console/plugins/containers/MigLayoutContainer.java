@@ -246,7 +246,8 @@ public class MigLayoutContainer extends ContainerSubPanel implements Configurati
                     String rowparam = element.attributeValue("rowparam");
                     String addParam = element.attributeValue("param");
                     String type = element.attributeValue("type") == null ? "" : element.attributeValue("type");
-                    if ("tabcontainer".equals(type)) {
+                    // Let us try the tab type
+                    if (element.selectSingleNode("tab") != null || "tabcontainer".equals(type)) {
                         JTabbedPane tabbedPane = new JTabbedPane();
                         parent.add(tabbedPane, addParam);
                         parse(element, tabbedPane);

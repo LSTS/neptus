@@ -1,4 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
+<!-- edited with XMLSpy v2011 sp1 (http://www.altova.com) by PAD (free.org) -->
 <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified" attributeFormDefault="unqualified">
 	<xs:element name="profiles">
 		<xs:annotation>
@@ -23,13 +24,20 @@
 		<xs:choice>
 			<xs:element name="container">
 				<xs:complexType>
-					<xs:group ref="profileGroup" minOccurs="0" maxOccurs="unbounded"/>
+					<xs:choice>
+						<xs:group ref="profileGroup" minOccurs="0" maxOccurs="unbounded"/>
+						<xs:group ref="tabsGroup" minOccurs="0" maxOccurs="unbounded"/>
+					</xs:choice>
 					<xs:attribute name="layoutparam"/>
 					<xs:attribute name="colparam" type="xs:string"/>
 					<xs:attribute name="rowparam" type="xs:string"/>
 					<xs:attribute name="param" type="xs:string"/>
-					<xs:attribute name="type" type="xs:string" fixed="tabcontainer"/>
+					<xs:attribute name="type" type="xs:string" use="prohibited" fixed="tabcontainer"/>
 				</xs:complexType>
+				<xs:unique name="tabNameUnique">
+					<xs:selector xpath="tab"/>
+					<xs:field xpath="@tabname"/>
+				</xs:unique>
 			</xs:element>
 			<xs:element name="child">
 				<xs:complexType>
@@ -43,16 +51,26 @@
 					<xs:attribute name="param" type="xs:string"/>
 				</xs:complexType>
 			</xs:element>
-			<xs:element name="tab">
+		</xs:choice>
+	</xs:group>
+	<xs:group name="tabsGroup">
+		<xs:sequence>
+			<xs:element name="tab" minOccurs="0" maxOccurs="unbounded">
 				<xs:complexType>
 					<xs:group ref="profileGroup" minOccurs="0" maxOccurs="unbounded"/>
-					<xs:attribute name="tabname" type="xs:string" use="required"/>
+					<xs:attribute name="tabname" use="required">
+						<xs:simpleType>
+							<xs:restriction base="xs:string">
+								<xs:minLength value="1"/>
+							</xs:restriction>
+						</xs:simpleType>
+					</xs:attribute>
 					<xs:attribute name="layoutparam"/>
 					<xs:attribute name="colparam" type="xs:string"/>
 					<xs:attribute name="rowparam" type="xs:string"/>
 				</xs:complexType>
 			</xs:element>
-		</xs:choice>
+		</xs:sequence>
 	</xs:group>
 	<xs:complexType name="profileType">
 		<xs:group ref="profileGroup" minOccurs="0" maxOccurs="unbounded"/>

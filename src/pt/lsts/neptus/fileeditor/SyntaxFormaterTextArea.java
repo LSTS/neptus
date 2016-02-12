@@ -107,9 +107,12 @@ public class SyntaxFormaterTextArea {
         provider.addCompletion(new ShorthandCompletion(provider, "<container>",
                 "<container layoutparam=\"\" param=\"\"></container>", "container tag"));
 
-        provider.addCompletion(new ShorthandCompletion(provider, "child",
+        provider.addCompletion(new ShorthandCompletion(provider, "<child>",
                 "<child name=\"?\" param=\"\" />", "child tag"));
-        
+
+        provider.addCompletion(new ShorthandCompletion(provider, "<tab>",
+                "<tab tabname=\"\" layoutparam=\"\"></tab>", "tab tag"));
+
         return provider;
      }
 
