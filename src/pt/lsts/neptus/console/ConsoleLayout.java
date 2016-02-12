@@ -101,6 +101,7 @@ import pt.lsts.neptus.console.actions.OpenConsoleAction;
 import pt.lsts.neptus.console.actions.OpenImcMonitorAction;
 import pt.lsts.neptus.console.actions.OpenMRAAction;
 import pt.lsts.neptus.console.actions.OpenMissionConsoleAction;
+import pt.lsts.neptus.console.actions.OpenNewConsoleAction;
 import pt.lsts.neptus.console.actions.RunChecklistConsoleAction;
 import pt.lsts.neptus.console.actions.SaveAsConsoleAction;
 import pt.lsts.neptus.console.actions.SaveConsoleAction;
@@ -325,6 +326,7 @@ public class ConsoleLayout extends JFrame implements XmlInOutMethods, ComponentL
             instance.removeJMenuAction(OpenConsoleAction.class);
             instance.removeJMenuAction(SaveConsoleAction.class);
             instance.removeJMenuAction(SaveAsConsoleAction.class);
+            instance.removeJMenuAction(OpenNewConsoleAction.class);
             instance.removeJMenuAction(RunChecklistConsoleAction.class);
         }
 
@@ -560,6 +562,11 @@ public class ConsoleLayout extends JFrame implements XmlInOutMethods, ComponentL
         ConsoleAction saveAs = new SaveAsConsoleAction(this);
         actions.put(SaveAsConsoleAction.class, saveAs);
         file.add(saveAs);
+
+        ConsoleAction openNew = new OpenNewConsoleAction(this);
+        actions.put(OpenNewConsoleAction.class, openNew);
+        file.add(openNew);
+        
         file.addSeparator();
 
         // create mission
