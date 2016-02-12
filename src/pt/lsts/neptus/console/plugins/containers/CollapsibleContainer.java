@@ -43,6 +43,7 @@ import java.util.LinkedHashMap;
 
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
+import javax.swing.ImageIcon;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.border.LineBorder;
@@ -58,16 +59,23 @@ import pt.lsts.neptus.console.ContainerSubPanel;
 import pt.lsts.neptus.console.ConsolePanel;
 import pt.lsts.neptus.plugins.NeptusProperty;
 import pt.lsts.neptus.plugins.PluginDescription;
+import pt.lsts.neptus.util.FileUtil;
 import pt.lsts.neptus.util.ImageUtils;
 
 /**
  * @author ZP
  * 
  */
-@PluginDescription(name = "Console Layout: Collapsible", description = "Collapsible subpanels", icon = "pt/lsts/neptus/plugins/containers/layout.png")
+@PluginDescription(name = "Console Layout: Collapsible", description = "Collapsible subpanels", 
+    icon = "pt/lsts/neptus/console/plugins/containers/layout.png")
 public class CollapsibleContainer extends ContainerSubPanel {
 
     private static final long serialVersionUID = 1L;
+
+    private static final ImageIcon MINUS_IMG = ImageUtils
+            .getScaledIcon(FileUtil.getPackageAsPath(CollapsibleContainer.class) + "/minus.png", 12, 12);
+    private static final ImageIcon PLUS_IMG = ImageUtils
+            .getScaledIcon(FileUtil.getPackageAsPath(CollapsibleContainer.class) + "/plus.png", 12, 12);
 
     @NeptusProperty(editable = false)
     public String state = "";
@@ -119,8 +127,7 @@ public class CollapsibleContainer extends ContainerSubPanel {
         final JXCollapsiblePane colPane = new JXCollapsiblePane();
         colPane.setLayout(new BorderLayout());
         colPane.add(cmp, BorderLayout.CENTER);
-        final JLabel minimizeLbl = new JLabel(ImageUtils.getScaledIcon(
-                "pt/lsts/neptus/plugins/containers/minus.png", 12, 12));
+        final JLabel minimizeLbl = new JLabel(MINUS_IMG);
         minimizeLbl.setPreferredSize(new Dimension(12, 12));
         minimizeLbl.setMaximumSize(new Dimension(12, 12));
         minimizeLbl.setMinimumSize(new Dimension(12, 12));
@@ -141,15 +148,13 @@ public class CollapsibleContainer extends ContainerSubPanel {
                         colPane.getActionMap().get(JXCollapsiblePane.TOGGLE_ACTION)
                                 .actionPerformed(new ActionEvent(minimizeLbl, ActionEvent.RESERVED_ID_MAX, "toggle"));
                         minimizeLbl.setToolTipText("maximize");
-                        minimizeLbl.setIcon(ImageUtils.getScaledIcon(
-                                "pt/lsts/neptus/plugins/containers/plus.png", 12, 12));
+                        minimizeLbl.setIcon(PLUS_IMG);
                     }
                     else {
                         colPane.getActionMap().get(JXCollapsiblePane.TOGGLE_ACTION)
                                 .actionPerformed(new ActionEvent(minimizeLbl, ActionEvent.RESERVED_ID_MAX, "toggle"));
                         minimizeLbl.setToolTipText("minimize");
-                        minimizeLbl.setIcon(ImageUtils.getScaledIcon(
-                                "pt/lsts/neptus/plugins/containers/minus.png", 12, 12));
+                        minimizeLbl.setIcon(MINUS_IMG);
                     }
                     state = computeState();
                     // getConsole().setConsoleSaved(false);
@@ -175,7 +180,7 @@ public class CollapsibleContainer extends ContainerSubPanel {
         if (collapsed) {
             colPane.setCollapsed(true);
             minimizeLbl.setToolTipText("maximize");
-            minimizeLbl.setIcon(ImageUtils.getScaledIcon("pt/lsts/neptus/plugins/containers/plus.png", 12, 12));
+            minimizeLbl.setIcon(PLUS_IMG);
         }
         add(colPane);
 
