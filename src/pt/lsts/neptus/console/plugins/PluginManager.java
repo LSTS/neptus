@@ -205,7 +205,8 @@ public class PluginManager extends ConsolePanel {
                     if (sp != null) {
                         getConsole().getMainPanel().addSubPanel(sp);
                         container = (ContainerSubPanel) sp;
-                        
+                        sp.init();
+                        getConsole().informSubPanelListener(sp, SubPanelChangeAction.ADDED);
                         refreshActivePlugins();
                         warnSettingsWindowAdd(sp);
                         getConsole().setConsoleChanged(true);
