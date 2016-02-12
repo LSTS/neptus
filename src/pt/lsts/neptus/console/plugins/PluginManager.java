@@ -366,10 +366,12 @@ public class PluginManager extends ConsolePanel {
 
         keyboardListener = new KeyListener() {
             @Override
-            public void keyTyped(KeyEvent e) {}
+            public void keyTyped(KeyEvent e) {
+            }
 
             @Override
-            public void keyPressed(KeyEvent e) {}
+            public void keyPressed(KeyEvent e) {
+            }
 
             @Override
             public void keyReleased(KeyEvent e) {
@@ -396,26 +398,27 @@ public class PluginManager extends ConsolePanel {
 
     private String getType(Class<?> clazz) {
         String type = "N/A";
-        if (ConsolePanel.class.isAssignableFrom(clazz))
-            type = "Panel";
-        if (ConsoleLayer.class.isAssignableFrom(clazz))
-            type = "Layer";
-        if (ConsoleInteraction.class.isAssignableFrom(clazz))
-            type = "Interaction";
+        if (clazz != null) {
+            if (ConsolePanel.class.isAssignableFrom(clazz))
+                type = "Panel";
+            else if (ConsoleLayer.class.isAssignableFrom(clazz))
+                type = "Layer";
+            else if (ConsoleInteraction.class.isAssignableFrom(clazz))
+                type = "Interaction";
+        }
         return type;
     }
 
     private String[] getAvailablePlugins() {
-
         plugins.putAll(PluginsRepository.getPanelPlugins());
         plugins.putAll(PluginsRepository.getConsoleInteractions());
         plugins.putAll(PluginsRepository.getConsoleLayerPlugins());
         String[] pluginNames = plugins.keySet().toArray(new String[0]);
         // Natural sort
         Arrays.sort(pluginNames, new Comparator<String>() {
+            private Collator collator = Collator.getInstance(Locale.US);
             @Override
             public int compare(String o1, String o2) {
-                Collator collator = Collator.getInstance(Locale.US);
                 return collator.compare(PluginUtils.i18nTranslate(o1), PluginUtils.i18nTranslate(o2));
             }
         });
@@ -438,9 +441,9 @@ public class PluginManager extends ConsolePanel {
                 List<ConsolePanel> panels = ((ContainerSubPanel) panel).getSubPanels();
 
                 Collections.sort(panels, new Comparator<ConsolePanel>() {
+                    private Collator collator = Collator.getInstance(Locale.US);
                     @Override
                     public int compare(ConsolePanel o1, ConsolePanel o2) {
-                        final Collator collator = Collator.getInstance(Locale.US);
                         return collator.compare(PluginUtils.i18nTranslate(o1.getName()),
                                 PluginUtils.i18nTranslate(o2.getName()));
                     }
