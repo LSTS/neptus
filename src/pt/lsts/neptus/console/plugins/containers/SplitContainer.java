@@ -53,7 +53,8 @@ import pt.lsts.neptus.plugins.PluginDescription;
  *
  */
 @SuppressWarnings("serial")
-@PluginDescription(name="Console Layout: Split", description="Allows to add 2 components with a flexible split bar", icon="pt/lsts/neptus/plugins/containers/layout.png")
+@PluginDescription(name = "Console Layout: Split", description = "Allows to add 2 components with a flexible split bar", 
+    icon = "pt/lsts/neptus/plugins/containers/layout.png", experimental = true)
 public class SplitContainer extends ContainerSubPanel implements ConfigurationListener {
 
 	public enum SplitTypeEnum {Vertical, Horizontal};
