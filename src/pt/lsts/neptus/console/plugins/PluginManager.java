@@ -422,7 +422,8 @@ public class PluginManager extends ConsolePanel {
             private Collator collator = Collator.getInstance(Locale.US);
             @Override
             public int compare(String o1, String o2) {
-                return collator.compare(PluginUtils.i18nTranslate(o1), PluginUtils.i18nTranslate(o2));
+                // return collator.compare(PluginUtils.i18nTranslate(o1), PluginUtils.i18nTranslate(o2));
+                return collator.compare(o1, o2);
             }
         });
 
@@ -447,8 +448,9 @@ public class PluginManager extends ConsolePanel {
                     private Collator collator = Collator.getInstance(Locale.US);
                     @Override
                     public int compare(ConsolePanel o1, ConsolePanel o2) {
-                        return collator.compare(PluginUtils.i18nTranslate(o1.getName()),
-                                PluginUtils.i18nTranslate(o2.getName()));
+//                        return collator.compare(PluginUtils.i18nTranslate(o1.getName()),
+//                                PluginUtils.i18nTranslate(o2.getName()));
+                        return collator.compare(o1.getName(), o2.getName());
                     }
                 });
 
