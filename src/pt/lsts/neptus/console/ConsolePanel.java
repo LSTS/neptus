@@ -354,7 +354,7 @@ public abstract class ConsolePanel extends JPanel implements PropertiesProvider,
     }
     
     /**
-     * Empty implementation. This is called when the console wants to remove the panel from the console (override it if
+     * This is called when the console wants to remove the panel from the console (override it if
      * needed to properly disposal of the component).
      */
     public void clean() {
@@ -417,6 +417,9 @@ public abstract class ConsolePanel extends JPanel implements PropertiesProvider,
         cleanSubPanel();
     }
 
+    /**
+     * Abstract implementation. Implement it to your cleanup needs. It is callse from {@link #clean()}.
+     */
     public abstract void cleanSubPanel();
 
     private JMenuItem createMenuItem(final POSITION popupPosition, String name2, ImageIcon icon) {
