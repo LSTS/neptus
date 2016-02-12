@@ -89,6 +89,35 @@ public class MiGLayoutXmlPropertyEditor extends XMLPropertyEditor {
         helpText += "&nbsp;&nbsp;&nbsp;&nbsp;&lt;/container&gt;<br/>";
         helpText += "&nbsp;&nbsp;&lt;/profile&gt;<br/>";
         helpText += "&lt;/profiles&gt;<br/>";
+        
+        helpText += "<br/>";
+        helpText += "<br/>";
+        
+        helpText += "&lt;!--profiles DTD--&gt;<br/>";
+        helpText += "&lt;!ELEMENT profiles (profile)+&gt;<br/>";
+        helpText += "&lt;!ELEMENT profile (container | child)*&gt;<br/>";
+        helpText += "&lt;!ATTLIST profile<br/>";
+        helpText += "&nbsp;&nbsp;name CDATA #REQUIRED<br/>";
+        helpText += "&gt;<br/>";
+        helpText += "&lt;!ELEMENT container ((container | child)* | (tab*)*)&gt;<br/>";
+        helpText += "&lt;!ATTLIST container<br/>";
+        helpText += "&nbsp;&nbsp;layoutparam CDATA #IMPLIED<br/>";
+        helpText += "&nbsp;&nbsp;colparam CDATA #IMPLIED<br/>";
+        helpText += "&nbsp;&nbsp;rowparam CDATA #IMPLIED<br/>";
+        helpText += "&nbsp;&nbsp;param CDATA #IMPLIED<br/>";
+        helpText += "&gt;<br/>";
+        helpText += "&lt;!ELEMENT child EMPTY&gt;<br/>";
+        helpText += "&lt;!ATTLIST child<br/>";
+        helpText += "&nbsp;&nbsp;name CDATA #REQUIRED<br/>";
+        helpText += "&nbsp;&nbsp;param CDATA #IMPLIED<br/>";
+        helpText += "&gt;<br/>";
+        helpText += "&lt;!ELEMENT tab (container | child)*&gt;<br/>";
+        helpText += "&lt;!ATTLIST tab<br/>";
+        helpText += "&nbsp;&nbsp;tabname CDATA #REQUIRED<br/>";
+        helpText += "&nbsp;&nbsp;layoutparam CDATA #IMPLIED<br/>";
+        helpText += "&nbsp;&nbsp;colparam CDATA #IMPLIED<br/>";
+        helpText += "&nbsp;&nbsp;rowparam CDATA #IMPLIED<br/>";
+        helpText += "&gt;<br/>";
     }
     
     @Override
