@@ -57,6 +57,7 @@ import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
+import javax.swing.SwingUtilities;
 
 import net.miginfocom.swing.MigLayout;
 import pt.lsts.neptus.NeptusLog;
@@ -317,7 +318,8 @@ public class PluginManager extends ConsolePanel {
                 if (activeSelected == null)
                     return;
                 if (pluginsMap.get(activeSelected) instanceof PropertiesProvider) {
-                    PropertiesEditor.editProperties((PropertiesProvider) pluginsMap.get(activeSelected), true);
+                    PropertiesEditor.editProperties((PropertiesProvider) pluginsMap.get(activeSelected),
+                            SwingUtilities.getWindowAncestor(PluginManager.this), true);
                     getConsole().setConsoleChanged(true);
                 }
             }
@@ -334,7 +336,8 @@ public class PluginManager extends ConsolePanel {
                     if (index > -1) {
                         activeSelected = (String) activePluginsList.getSelectedValue();
                         if (pluginsMap.get(activeSelected) instanceof PropertiesProvider) {
-                            PropertiesEditor.editProperties((PropertiesProvider) pluginsMap.get(activeSelected), true);
+                            PropertiesEditor.editProperties((PropertiesProvider) pluginsMap.get(activeSelected),
+                                    SwingUtilities.getWindowAncestor(PluginManager.this), true);
                         }
                     }
                 }
