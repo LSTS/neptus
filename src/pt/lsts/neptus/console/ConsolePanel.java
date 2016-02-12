@@ -46,7 +46,6 @@ import javax.swing.AbstractAction;
 import javax.swing.ImageIcon;
 import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JDialog;
-import javax.swing.JFrame;
 import javax.swing.JMenu;
 import javax.swing.JMenuItem;
 import javax.swing.JPanel;
@@ -404,7 +403,7 @@ public abstract class ConsolePanel extends JPanel implements PropertiesProvider,
                 menu.remove(menuItem);
             if (dialog != null) {
                 NeptusLog.pub().info("<###> " + this.getName());
-                dialog.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+                dialog.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
                 dialog.dispose();
             }
             
