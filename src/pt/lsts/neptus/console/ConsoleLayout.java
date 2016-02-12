@@ -446,24 +446,39 @@ public class ConsoleLayout extends JFrame implements XmlInOutMethods, ComponentL
         KeyboardFocusManager.getCurrentKeyboardFocusManager().addKeyEventDispatcher(keyDispatcher);
     }
 
-    private void cleanKeyBindings() {
+    private void cleanGlobalKeyBindings() {
         KeyboardFocusManager.getCurrentKeyboardFocusManager().removeKeyEventDispatcher(keyDispatcher);
         globalKeybindings.clear();
     }
 
+    private void clearGlobalKeyBindings() {
+        this.globalKeybindings.clear();
+    }
+    
     /**
      * Register a global key binding with the console
      * 
      * @param name
      * @param action
      */
-    public void registerGlobalKeyBinding(KeyStroke name, Action action) {
+    public boolean registerGlobalKeyBinding(KeyStroke name, Action action) {
         if (this.globalKeybindings.containsKey(name.toString())) {
             NeptusLog.pub().error("Global keybind " + name + " already registered by another component");
+            return false;
         }
         else {
             this.globalKeybindings.put(name.toString(), action);
+            return true;
         }
+    }
+
+    public boolean unRegisterGlobalKeyBinding(Action action) {
+        for (String ky : this.globalKeybindings.keySet()) {
+            Action ac = this.globalKeybindings.get(ky);
+            if (ac == action)
+                return this.globalKeybindings.remove(ky) != null ? true : false;
+        }
+        return false;
     }
 
     /**
@@ -1512,6 +1527,8 @@ public class ConsoleLayout extends JFrame implements XmlInOutMethods, ComponentL
 
         mainPanel.clean();
         
+        clearGlobalKeyBindings();
+        
         pluginManager.reset();
         settingsWindow.reset();
     }
@@ -1533,7 +1550,7 @@ public class ConsoleLayout extends JFrame implements XmlInOutMethods, ComponentL
             
             statusBar.clean();
             
-            this.cleanKeyBindings();
+            this.cleanGlobalKeyBindings();
             this.imcOff();
 
             NeptusEvents.delete(this);

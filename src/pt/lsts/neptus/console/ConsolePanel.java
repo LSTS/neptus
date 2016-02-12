@@ -115,9 +115,11 @@ public abstract class ConsolePanel extends JPanel implements PropertiesProvider,
     private final Vector<Integer> messagesToListen = new Vector<Integer>();
     private String mainVehicleId = null;
 
+    // PopUp variables
     protected JDialog dialog = null;
-    
+    protected AbstractAction popUpAction = null;
     private JMenuItem menuItem = null;
+
     private double percentXPos, percentYPos, percentWidth, percentHeight;
     
     private boolean editmode;
@@ -283,8 +285,8 @@ public abstract class ConsolePanel extends JPanel implements PropertiesProvider,
         JMenu menu = getConsole().getOrCreateJMenu(new String[] { I18n.text("View") });
         ImageIcon icon = ImageUtils.getIcon(iconPath);
         menuItem = createMenuItem(popupPosition, name2, icon);
-        if (accelerator != null)
-            menuItem.setAccelerator(accelerator);
+//        if (accelerator != null)
+//            menuItem.setAccelerator(accelerator);
         menu.add(menuItem);
 
         // Build Dialog
@@ -297,14 +299,17 @@ public abstract class ConsolePanel extends JPanel implements PropertiesProvider,
         // dialog.setFocusable(true);
 
         if (accelerator != null) {
-            getConsole().registerGlobalKeyBinding(accelerator, new AbstractAction() {
+            popUpAction = new AbstractAction() {
                 private static final long serialVersionUID = 1L;
 
                 @Override
                 public void actionPerformed(ActionEvent e) {
                     decideToShowPopupDialog(popupPosition);
                 }
-            });
+            };
+            boolean res = getConsole().registerGlobalKeyBinding(accelerator, popUpAction);
+            if (res)
+                menuItem.setAccelerator(accelerator);
         }
         // dialog.add(this); This cannot be done here, because if the component is on the initial layout it will not show
     }
@@ -395,12 +400,16 @@ public abstract class ConsolePanel extends JPanel implements PropertiesProvider,
 
         if (menuItem != null || dialog != null) {
             JMenu menu = getConsole().getOrCreateJMenu(new String[] { I18n.text("View") });
-            menu.remove(menuItem);
-            if (dialog.isVisible()) {
+            if(menu != null)
+                menu.remove(menuItem);
+            if (dialog != null) {
                 NeptusLog.pub().info("<###> " + this.getName());
                 dialog.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
                 dialog.dispose();
             }
+            
+            if (popUpAction != null)
+                getConsole().unRegisterGlobalKeyBinding(popUpAction);
         }
         cleanSubPanel();
     }
