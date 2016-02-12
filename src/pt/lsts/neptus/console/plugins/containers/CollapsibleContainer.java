@@ -67,7 +67,7 @@ import pt.lsts.neptus.util.ImageUtils;
  * 
  */
 @PluginDescription(name = "Console Layout: Collapsible", description = "Collapsible subpanels", 
-    icon = "pt/lsts/neptus/console/plugins/containers/layout.png")
+    icon = "pt/lsts/neptus/console/plugins/containers/layout.png", experimental = true)
 public class CollapsibleContainer extends ContainerSubPanel {
 
     private static final long serialVersionUID = 1L;
