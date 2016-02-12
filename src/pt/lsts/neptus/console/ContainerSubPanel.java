@@ -101,23 +101,67 @@ public class ContainerSubPanel extends ConsolePanel implements LockableSubPanel 
         }
     }
 
-    public void addSubPanel(ConsolePanel panel) {
+    /**
+     * If you don't want to add directly to container JPanel override this with false.
+     * 
+     * @return
+     */
+    protected boolean isAddSubPanelToPanelOrLetExtensionDoIt() {
+        return true;
+    }
+    
+    public final void addSubPanel(ConsolePanel panel) {
+        if (panel == null || !addSubPanelExtra(panel))
+            return;
+        
         panels.add(panel);
-        this.add(panel);
+        if (isAddSubPanelToPanelOrLetExtensionDoIt())
+            this.add(panel);
+        
+        doLayout();
+        invalidate();
+        revalidate();
 
         // Let us inform the addition
         getConsole().informSubPanelListener(panel, SubPanelChangeAction.ADDED);
     }
 
-    public void removeSubPanel(ConsolePanel sp) {
+    /**
+     * Called from {@link #addSubPanel(ConsolePanel)} for extra work.
+     * Empty implementation, override if needed it.
+     * 
+     * Return false to abort addition.
+     * 
+     * @param panel
+     */
+    protected boolean addSubPanelExtra(ConsolePanel panel) {
+        return true;
+    }
+
+    public final void removeSubPanel(ConsolePanel sp) {
         panels.remove(sp);
-        this.remove(sp);
+        if (isAddSubPanelToPanelOrLetExtensionDoIt())
+            this.remove(sp);
+        
+        removeSubPanelExtra(sp);
+        
+        sp.clean();
+        
         doLayout();
         invalidate();
         revalidate();
         
         // Let us inform the removal
         getConsole().informSubPanelListener(sp, SubPanelChangeAction.REMOVED);
+    }
+
+    /**
+     * Called from {@link #removeSubPanel(ConsolePanel)} for extra work.
+     * Empty implementation, override if needed it.
+     * 
+     * @param panel
+     */
+    protected void removeSubPanelExtra(ConsolePanel panel) {
     }
 
     private List<String> subPanelNames() {

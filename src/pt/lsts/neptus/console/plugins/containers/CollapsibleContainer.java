@@ -90,10 +90,8 @@ public class CollapsibleContainer extends ContainerSubPanel {
     }
 
     @Override
-    public void addSubPanel(ConsolePanel panel) {
-        // panel.setBorder(BorderFactory.createEmptyBorder());
+    public boolean addSubPanelExtra(ConsolePanel panel) {
         int pos = panels.size();
-        panels.add(panel);
 
         String[] states = state.split(",");
         if (states.length > pos && states[pos].equals("0"))
@@ -101,22 +99,15 @@ public class CollapsibleContainer extends ContainerSubPanel {
         else
             addCollapsiblePanel(panel, panel.getName(), false);
 
-        doLayout();
-        invalidate();
-        revalidate();
+        return true;
     }
 
     @Override
-    public void removeSubPanel(ConsolePanel sp) {
-        panels.remove(sp);
+    public void removeSubPanelExtra(ConsolePanel sp) {
         remove(colPanes.get(sp));
         remove(auxPanels.get(sp));
         colPanes.remove(sp);
         auxPanels.remove(sp);
-
-        doLayout();
-        invalidate();
-        revalidate();
     }
 
     private JXCollapsiblePane addCollapsiblePanel(ConsolePanel cmp, String label, boolean collapsed) {

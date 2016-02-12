@@ -277,31 +277,23 @@ public class GroupLayoutContainer extends ContainerSubPanel implements Configura
         applyLayout();
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see pt.lsts.neptus.consolebase.ContainerSubPanel#addSubPanel(pt.lsts.neptus.consolebase.SubPanel)
+    /* (non-Javadoc)
+     * @see pt.lsts.neptus.console.ContainerSubPanel#addSubPanelExtra(pt.lsts.neptus.console.ConsolePanel)
      */
     @Override
-    public void addSubPanel(ConsolePanel panel) {
-        super.addSubPanel(panel);
+    public boolean addSubPanelExtra(ConsolePanel panel) {
         panel.addMouseListener(getLayoutMouseListener());
+        return true;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see pt.lsts.neptus.consolebase.ContainerSubPanel#removeSubPanel(pt.lsts.neptus.consolebase.SubPanel)
+    /* (non-Javadoc)
+     * @see pt.lsts.neptus.console.ContainerSubPanel#removeSubPanelExtra(pt.lsts.neptus.console.ConsolePanel)
      */
     @Override
-    public void removeSubPanel(ConsolePanel sp) {
-        super.removeSubPanel(sp);
+    public void removeSubPanelExtra(ConsolePanel sp) {
         sp.removeMouseListener(getLayoutMouseListener());
     }
 
-    /**
-     * 
-     */
     private void addProfilesJMenuToConsole() {
         if (menuForProfileChangeInConsole != null && this.getParent() instanceof MainPanel
                 && profilesList.keySet().size() == 0) {

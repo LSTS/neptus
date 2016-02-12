@@ -140,11 +140,20 @@ public class TabContainer extends ContainerSubPanel implements ConfigurationList
 			}
 		}	
 	}
-	
+
+	/* (non-Javadoc)
+	 * @see pt.lsts.neptus.console.ContainerSubPanel#isAddSubPanelToPanelOrLetExtensionDoIt()
+	 */
 	@Override
-	public void addSubPanel(ConsolePanel panel) {
-		super.addSubPanel(panel);
-		
+	protected boolean isAddSubPanelToPanelOrLetExtensionDoIt() {
+	    return false;
+	}
+	
+	/* (non-Javadoc)
+	 * @see pt.lsts.neptus.console.ContainerSubPanel#addSubPanelExtra(pt.lsts.neptus.console.ConsolePanel)
+	 */
+	@Override
+	public boolean addSubPanelExtra(ConsolePanel panel) {
 		ArrayList<AlarmProviderOld> l = new ArrayList<AlarmProviderOld>();
 		for(Component c : panel.getComponents()) {
 		    if(c instanceof AlarmProviderOld) {
@@ -152,22 +161,32 @@ public class TabContainer extends ContainerSubPanel implements ConfigurationList
 		        l.add((AlarmProviderOld)c);
 		    }
 		}
-		subPanelList.put(panel, l);
+		synchronized (subPanelList) {
+		    subPanelList.put(panel, l);
+        }
 		pivot.addTab("", panel);
 
 		setTabNames();
+		
+		return true;
 	}
 	
+	/* (non-Javadoc)
+	 * @see pt.lsts.neptus.console.ContainerSubPanel#removeSubPanelExtra(pt.lsts.neptus.console.ConsolePanel)
+	 */
 	@Override
-	public void removeSubPanel(ConsolePanel sp) {
-	    super.removeSubPanel(sp);
-	    
-	    subPanelList.remove(sp);
-	    for (int i = 0; i < pivot.getTabCount(); i++) {
-            Component cp = pivot.getTabComponentAt(i);
-            if (sp == cp)
-                pivot.removeTabAt(i);
-        }
+	public void removeSubPanelExtra(ConsolePanel sp) {
+	    synchronized (subPanelList) {
+	        subPanelList.remove(sp);
+	    }
+	    int idx = pivot.indexOfComponent(sp);
+	    if (idx > 0)
+            pivot.removeTabAt(idx);
+//	    for (int i = 0; i < pivot.getTabCount(); i++) {
+//            Component cp = pivot.getTabComponentAt(i);
+//            if (sp == cp)
+//                pivot.removeTabAt(i);
+//        }
 	    
 	    setTabNames();
 	}
@@ -219,10 +238,13 @@ public class TabContainer extends ContainerSubPanel implements ConfigurationList
         for(int i = 0; i < size; i++) {
             Component jc = pivot.getComponentAt(i);
             
-            if(subPanelList.get(jc).size()!=0) {
-                for (AlarmProviderOld ap : subPanelList.get(jc)) {
-                    if (ap.getAlarmState() > AlarmProviderOld.LEVEL_0 && i != pivot.getSelectedIndex()) {
-                        pivot.setForegroundAt(i, Color.RED);
+            synchronized (subPanelList) {
+                ArrayList<AlarmProviderOld> splc = subPanelList.get(jc);
+                if(splc != null && splc.size() != 0) {
+                    for (AlarmProviderOld ap : subPanelList.get(jc)) {
+                        if (ap.getAlarmState() > AlarmProviderOld.LEVEL_0 && i != pivot.getSelectedIndex()) {
+                            pivot.setForegroundAt(i, Color.RED);
+                        }
                     }
                 }
             }
