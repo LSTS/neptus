@@ -582,6 +582,9 @@ public class GroupLayoutContainer extends ContainerSubPanel implements Configura
     private void applyLayout(String horizontalGroupLocal, String verticalGroupLocal, String linkSizeHorizontalLocal,
             String linkSizeVerticalLocal, boolean applyProfile) {
         relayouting = true;
+        if (layout == null)
+            return;
+        
         try {
             layout.invalidateLayout(this);
             layout.setAutoCreateGaps(autoCreateGaps);
