@@ -46,6 +46,7 @@ import javax.swing.JCheckBox;
 import javax.swing.JPanel;
 
 import net.miginfocom.swing.MigLayout;
+import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.console.ConsoleLayout;
 import pt.lsts.neptus.console.ConsolePanel;
 import pt.lsts.neptus.console.ContainerSubPanel;
@@ -242,6 +243,7 @@ public class SettingsWindow extends ConsolePanel implements SubPanelChangeListen
     @Override
     public void subPanelChanged(SubPanelChangeEvent panelChange) {
         ConsolePanel panel = panelChange.getPanel();
+        NeptusLog.pub().debug(">>>>>>>>>>>>>>   " + panelChange.getAction() + " > " + panel);
         switch (panelChange.getAction()) {
             case ADDED:
                 if (panel instanceof PropertiesProvider) {
