@@ -73,6 +73,7 @@ public class MiGLayoutXmlPropertyEditor extends XMLPropertyEditor {
         contentType = "text/html";
         helpText = I18n.text("Container using MigLayout") + "<br/>";
         helpText += I18n.textf("(see %url)", "'http://www.migcalendar.com/miglayout/mavensite/docs/cheatsheet.html'") + "<br/>";
+        helpText += I18n.text("For reference duplicated components use <Component Name>_N where N=1,2,3...\n");
         helpText += "<br/>";
         helpText += I18n.text("Example of a basic profile:") + "<br/>";
         helpText += "================<br/>";
