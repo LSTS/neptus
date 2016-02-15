@@ -42,7 +42,6 @@ import java.awt.event.MouseEvent;
 import java.text.Collator;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -58,6 +57,9 @@ import javax.swing.JList;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.SwingUtilities;
+
+import com.l2fprod.common.swing.StatusBar;
+import com.sun.java.swing.plaf.windows.WindowsButtonUI;
 
 import net.miginfocom.swing.MigLayout;
 import pt.lsts.neptus.NeptusLog;
@@ -77,9 +79,6 @@ import pt.lsts.neptus.plugins.PluginUtils;
 import pt.lsts.neptus.plugins.PluginsRepository;
 import pt.lsts.neptus.plugins.Popup;
 import pt.lsts.neptus.plugins.Popup.POSITION;
-
-import com.l2fprod.common.swing.StatusBar;
-import com.sun.java.swing.plaf.windows.WindowsButtonUI;
 
 /**
  * @author Hugo Dias
@@ -267,7 +266,8 @@ public class PluginManager extends ConsolePanel {
                 if (activeSelected == null)
                     return;
 
-                Class<?> clazz = plugins.get(activeSelected);
+                String activeSelectedFixed = activeSelected.replaceAll("_\\d*$", "");
+                Class<?> clazz = plugins.get(activeSelectedFixed);
                 if (ConsolePanel.class.isAssignableFrom(clazz)) {
                     ConsolePanel sp = (ConsolePanel) pluginsMap.get(activeSelected);
                     if (container != null && container.getSubPanelsCount() == 0 
@@ -350,7 +350,8 @@ public class PluginManager extends ConsolePanel {
                     int index = activePluginsList.locationToIndex(e.getPoint());
                     if (index > -1) {
                         activeSelected = (String) activePluginsList.getSelectedValue();
-                        Class<?> clazz = plugins.get(activeSelected);
+                        String activeSelectedFixed = activeSelected.replaceAll("_\\d*$", "");
+                        Class<?> clazz = plugins.get(activeSelectedFixed);
                         updateDescriptionTextInGui(clazz);
                     }
                 }
@@ -363,7 +364,8 @@ public class PluginManager extends ConsolePanel {
                     if (index > -1) {
                         String pluginName = (String) availablePluginsList.getSelectedValue();
                         availableSelected = pluginName;
-                        Class<?> clazz = plugins.get(pluginName);
+                        String pluginNameFixed = activeSelected.replaceAll("_\\d*$", "");
+                        Class<?> clazz = plugins.get(pluginNameFixed);
                         updateDescriptionTextInGui(clazz);
                     }
                 }
@@ -391,7 +393,8 @@ public class PluginManager extends ConsolePanel {
                     activeSelected = pluginName;
                 }
 
-                Class<?> clazz = plugins.get(pluginName);
+                String pluginNameFixed = pluginName.replaceAll("_\\d*$", "");
+                Class<?> clazz = plugins.get(pluginNameFixed);
                 if (clazz != null) {
                     updateDescriptionTextInGui(clazz);
                 }
@@ -450,21 +453,20 @@ public class PluginManager extends ConsolePanel {
             pluginsMap.put(panel.getName(), panel);
             if (panel instanceof ContainerSubPanel) {
                 container = (ContainerSubPanel) panel;
-                List<ConsolePanel> panels = ((ContainerSubPanel) panel).getSubPanels();
-
-                Collections.sort(panels, new Comparator<ConsolePanel>() {
+                
+                String[] panelsNames = ((ContainerSubPanel) panel).subPanelList();
+                Arrays.sort(panelsNames, new Comparator<String>() {
                     private Collator collator = Collator.getInstance(Locale.US);
                     @Override
-                    public int compare(ConsolePanel o1, ConsolePanel o2) {
-//                        return collator.compare(PluginUtils.i18nTranslate(o1.getName()),
-//                                PluginUtils.i18nTranslate(o2.getName()));
-                        return collator.compare(o1.getName(), o2.getName());
+                    public int compare(String o1, String o2) {
+                        return collator.compare(o1, o2);
                     }
                 });
-
-                for (ConsolePanel panel2 : panels) {
-                    names.add(panel2.getName());
-                    pluginsMap.put(panel2.getName(), panel2);
+                
+                for (String name : panelsNames) {
+                    ConsolePanel sp = container.getSubPanelByName(name);
+                    names.add(name);
+                    pluginsMap.put(name, sp);
                 }
             }
         }
