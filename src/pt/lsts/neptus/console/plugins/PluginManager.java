@@ -215,6 +215,10 @@ public class PluginManager extends ConsolePanel {
                     return;
                 }
 
+                if (container != null && ContainerSubPanel.class.isAssignableFrom(clazz)) {
+                    return;
+                }
+                
                 if (ConsolePanel.class.isAssignableFrom(clazz)) {
                     if (container != null) {
                         ConsolePanel sp = PluginsRepository.getPanelPlugin(availableSelected, getConsole());
