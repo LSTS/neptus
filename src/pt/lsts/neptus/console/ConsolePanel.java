@@ -322,7 +322,7 @@ public abstract class ConsolePanel extends JPanel implements PropertiesProvider,
         }
         else {
             Container prt = ConsolePanel.this.getParent();
-            NeptusLog.pub().debug("ConsolePanel " + getClass().getSimpleName() + " :: Parent " 
+            NeptusLog.pub().debug("Popup ConsolePanel " + getClass().getSimpleName() + " :: Parent " 
                     + (prt == null ? "null" : prt.getClass().getSimpleName() 
                     + "  isAssignableFrom ContainerSubPanel=" + ContainerSubPanel.class.isAssignableFrom(prt.getClass())
                     + "  isDescendingFrom Dialog=" + SwingUtilities.isDescendingFrom(ConsolePanel.this.getParent(), dialog))
@@ -341,18 +341,24 @@ public abstract class ConsolePanel extends JPanel implements PropertiesProvider,
         }
     }
 
-    /* (non-Javadoc)
-     * @see javax.swing.JComponent#paintComponent(java.awt.Graphics)
-     */
     @Override
-    protected void paintComponent(Graphics g) {
+    public void paint(Graphics g) {
         if (dialog != null && dialog.isVisible()
                 && !SwingUtilities.isDescendingFrom(ConsolePanel.this.getParent(), dialog))
             dialog.setVisible(false);
 
-        super.paintComponent(g);
+        NeptusLog.pub().debug("Paint ConsolePanel " + getClass().getSimpleName() + " :: Parent " 
+                + (getParent() == null ? "null" : getParent().getClass().getSimpleName() 
+                + "  isAssignableFrom ContainerSubPanel=" + ContainerSubPanel.class.isAssignableFrom(getParent().getClass())
+                + "  isDescendingFrom Dialog=" + SwingUtilities.isDescendingFrom(ConsolePanel.this.getParent(), dialog))
+                + "  isVisible=" + ConsolePanel.this.isVisible() + "  isShowing=" + ConsolePanel.this.isShowing()
+                + "  isValid=" + ConsolePanel.this.isValid() + "  isDisplayable=" + ConsolePanel.this.isDisplayable()
+                + "  isEnabled=" + ConsolePanel.this.isEnabled()
+                + "  Parent: " + getParent());
+
+        super.paint(g);
     }
-    
+
     /**
      * This is called when the console wants to remove the panel from the console (override it if
      * needed to properly disposal of the component).
