@@ -347,8 +347,7 @@ public class PluginManager extends ConsolePanel {
                     if (index > -1) {
                         activeSelected = (String) activePluginsList.getSelectedValue();
                         Class<?> clazz = plugins.get(activeSelected);
-                        type.setText(getType(clazz));
-                        description.setText(PluginUtils.getPluginDescription(clazz));
+                        updateDescriptionTextInGui(clazz);
                     }
                 }
             }
@@ -361,8 +360,7 @@ public class PluginManager extends ConsolePanel {
                         String pluginName = (String) availablePluginsList.getSelectedValue();
                         availableSelected = pluginName;
                         Class<?> clazz = plugins.get(pluginName);
-                        type.setText(getType(clazz));
-                        description.setText(PluginUtils.getPluginDescription(clazz));
+                        updateDescriptionTextInGui(clazz);
                     }
                 }
             }
@@ -391,8 +389,7 @@ public class PluginManager extends ConsolePanel {
 
                 Class<?> clazz = plugins.get(pluginName);
                 if (clazz != null) {
-                    type.setText(getType(clazz));
-                    description.setText(PluginUtils.getPluginDescription(clazz));
+                    updateDescriptionTextInGui(clazz);
                 }
             }
         };
@@ -400,15 +397,21 @@ public class PluginManager extends ConsolePanel {
         activePluginsList.addKeyListener(keyboardListener);
     }
 
+    private void updateDescriptionTextInGui(Class<?> clazz) {
+        boolean experimental = PluginUtils.isPluginExperimental(clazz);
+        type.setText(getType(clazz) + (experimental ? " (" + I18n.text("experimental") + ")" : ""));
+        description.setText(PluginUtils.getPluginDescription(clazz));
+    }
+
     private String getType(Class<?> clazz) {
-        String type = "N/A";
+        String type = I18n.text("N/A");
         if (clazz != null) {
             if (ConsolePanel.class.isAssignableFrom(clazz))
-                type = "Panel";
+                type = I18n.text("Panel");
             else if (ConsoleLayer.class.isAssignableFrom(clazz))
-                type = "Layer";
+                type = I18n.text("Layer");
             else if (ConsoleInteraction.class.isAssignableFrom(clazz))
-                type = "Interaction";
+                type = I18n.text("Interaction");
         }
         return type;
     }
