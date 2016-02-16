@@ -74,6 +74,7 @@ public class ImcSystem implements Comparable<ImcSystem> {
     public final static String LBL_CONFIG_KEY = "LblConfig";
     public final static String ACOUSTIC_SYSTEMS = "AcousticSystems";
     public final static String ENTITY_PARAMETERS = "EntityParameters";
+    public final static String VEHICLE_MEDIUM = "VehicleMedium";
     
 	protected String name = ImcId16.NULL_ID.toString();
 	protected ImcId16 id = ImcId16.NULL_ID;
