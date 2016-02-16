@@ -55,23 +55,35 @@ public class PayloadMarshaler {
         allProfiles = unmarshalAll();
     }
     
-    public void addProfile(String type, Payload payload) {
-//        if(payload.getPayloadVehicles().isEmpty())
-//            System.out.println("[mvplanning/PayloadMarshaler: #Error#, can't add profile without vehicles!");
-//        else {
-//            if(!allProfiles.containsKey(type)) {
-//                Profile prf = new Profile(type);
-//                prf.addProfile(payload);
-//                allProfiles.put(type, prf);
-//            }
-//            else {
-//                Profile prf = allProfiles.get(type);
-//                if(!isDuplicateProfile(payload, prf))
-//                    allProfiles.get(type).addProfile(payload);
-//                else
-//                    System.out.println("[mvplanning/PayloadMarshaler]: #Error#, payload aready exists");
-//            }
-//        }
+    public void addProfile(String id, Profile profile) {
+        if(profileIsValid(profile))
+            allProfiles.put(id, profile);
+    }
+    
+    public boolean profileIsValid(Profile profile) {
+        boolean valid = true;
+        
+        if(profile.getProfileVehicles().isEmpty()) {
+            System.out.println("[mvplanning/PayloadMarshaler]: ERROR profile without vehicles");
+            valid = false;
+        }
+        
+        if(profile.getProfileAltitude() == -1) {
+            System.out.println("[mvplanning/PayloadMarshaler]: ERROR profile altitude not set");
+            valid = false;
+        }
+        
+        if(profile.getProfileVelocity() == -1) {
+            System.out.println("[mvplanning/PayloadMarshaler]: ERROR profile velocity not set");
+            valid = false;
+        }
+        
+        if(profile.getPayload().isEmpty()) {
+            System.out.println("[mvplanning/PayloadMarshaler]: ERROR profile has not payload");
+            valid = false;
+        }
+        
+        return valid;
     }
     
     private boolean isDuplicateProfile(Payload p, Profile profiles) {
