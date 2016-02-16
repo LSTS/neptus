@@ -68,12 +68,17 @@ public class Profile {
     private List<String> vehicles; /* vehicles where this profile applies */
     
     public Profile() {
+        velocity = -1;
+        altitude = -1;
     }
     
     public Profile(String pType) {
         payloads = new ArrayList<Payload>();
         vehicles = new ArrayList<String>();
         profilesId = pType;
+        
+        velocity = -1;
+        altitude = -1;
     }
     
     public double getProfileAltitude() {
