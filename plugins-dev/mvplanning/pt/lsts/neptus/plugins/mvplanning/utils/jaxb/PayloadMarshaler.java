@@ -49,7 +49,7 @@ import pt.lsts.neptus.plugins.mvplanning.utils.Payload;
  */
 public class PayloadMarshaler {
     private static final String PAYLOADS_DIR = System.getProperty("user.dir") + "/plugins-dev/mvplanning/etc/";
-    private Map<String, PayloadProfiles> allProfiles;
+    private Map<String, Profile> allProfiles;
     
     public PayloadMarshaler() {
         allProfiles = unmarshalAll();
@@ -60,12 +60,12 @@ public class PayloadMarshaler {
             System.out.println("[mvplanning/PayloadMarshaler: #Error#, can't add profile without vehicles!");
         else {
             if(!allProfiles.containsKey(type)) {
-                PayloadProfiles prf = new PayloadProfiles(type);
+                Profile prf = new Profile(type);
                 prf.addProfile(payload);
                 allProfiles.put(type, prf);
             }
             else {
-                PayloadProfiles prf = allProfiles.get(type);
+                Profile prf = allProfiles.get(type);
                 if(!isDuplicateProfile(payload, prf))
                     allProfiles.get(type).addProfile(payload);
                 else
@@ -74,7 +74,7 @@ public class PayloadMarshaler {
         }
     }
     
-    private boolean isDuplicateProfile(Payload p, PayloadProfiles profiles) {
+    private boolean isDuplicateProfile(Payload p, Profile profiles) {
         for(Payload pld : profiles.getProfiles()) {
             if(pld.getProfileId().equals(p.getProfileId()))
                 return true;
@@ -83,7 +83,7 @@ public class PayloadMarshaler {
     }
     
     
-    public Map<String, PayloadProfiles> getAllProfiles() {
+    public Map<String, Profile> getAllProfiles() {
         return this.allProfiles;
     }
       
@@ -92,7 +92,7 @@ public class PayloadMarshaler {
         if(allProfiles.containsKey(type)) {
             JAXBContext jaxbContext;        
             try {
-                jaxbContext = JAXBContext.newInstance(PayloadProfiles.class);
+                jaxbContext = JAXBContext.newInstance(Profile.class);
                 Marshaller jaxbMarshaller = jaxbContext.createMarshaller();
 
                 jaxbMarshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
@@ -111,15 +111,15 @@ public class PayloadMarshaler {
         + type + "> to marshal");
     }
     
-    private Map<String, PayloadProfiles> unmarshalAll() {
-        Map<String, PayloadProfiles> profiles = new HashMap<String, PayloadProfiles>();
+    private Map<String, Profile> unmarshalAll() {
+        Map<String, Profile> profiles = new HashMap<String, Profile>();
         File directory = new File(PAYLOADS_DIR);
         
         for(File file : directory.listFiles()) {
             String filename = file.getName();
             if(filename.endsWith(".xml")) {
                 String type = filename.substring(0, filename.indexOf('.'));
-                PayloadProfiles profile = unmarshal(type);
+                Profile profile = unmarshal(type);
                 
                 profiles.put(type, profile);
             }
@@ -130,14 +130,14 @@ public class PayloadMarshaler {
             
     /* Reads all available payload of a specific type,
      * from xml files and builds a PayloadProfiles objects */
-    public PayloadProfiles unmarshal(String type) {
+    public Profile unmarshal(String type) {
         JAXBContext jaxbContext;
         Unmarshaller jaxbUnmarshaller;
-        PayloadProfiles pProfiles;
+        Profile pProfiles;
         try {
-            jaxbContext = JAXBContext.newInstance(PayloadProfiles.class);
+            jaxbContext = JAXBContext.newInstance(Profile.class);
             jaxbUnmarshaller = jaxbContext.createUnmarshaller();
-            pProfiles = (PayloadProfiles) jaxbUnmarshaller.unmarshal(new File(PAYLOADS_DIR + type + ".xml"));
+            pProfiles = (Profile) jaxbUnmarshaller.unmarshal(new File(PAYLOADS_DIR + type + ".xml"));
             
             return pProfiles;
         }
@@ -146,7 +146,7 @@ public class PayloadMarshaler {
         }
         
         // TODO: improve
-        return new PayloadProfiles();
+        return new Profile();
     }
            
     /* Use to add new payload or testing */

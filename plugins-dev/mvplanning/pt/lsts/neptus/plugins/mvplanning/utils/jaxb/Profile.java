@@ -47,10 +47,10 @@ import pt.lsts.neptus.plugins.mvplanning.utils.Payload;
  * @author tsmarques
  *
  */
-@XmlRootElement (name="PayloadProfiles")
+@XmlRootElement (name="Profile")
 @XmlAccessorType(XmlAccessType.NONE)
 @XmlSeeAlso({Payload.class})
-public class PayloadProfiles {
+public class Profile {
     
     @XmlElement(name = "Payload")
     private List<Payload> payloads;
@@ -58,11 +58,11 @@ public class PayloadProfiles {
     @XmlAttribute(name = "Type")
     private String profilesType;
     
-    public PayloadProfiles() {
+    public Profile() {
         
     }
     
-    public PayloadProfiles(String pType) {
+    public Profile(String pType) {
         payloads = new ArrayList<Payload>();
         profilesType = pType;
     }

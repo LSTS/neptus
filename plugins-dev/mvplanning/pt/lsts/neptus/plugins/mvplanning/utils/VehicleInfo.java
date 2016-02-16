@@ -41,7 +41,7 @@ import pt.lsts.neptus.params.ConfigurationManager;
 import pt.lsts.neptus.params.SystemProperty;
 import pt.lsts.neptus.params.SystemProperty.Scope;
 import pt.lsts.neptus.params.SystemProperty.Visibility;
-import pt.lsts.neptus.plugins.mvplanning.utils.jaxb.PayloadProfiles;
+import pt.lsts.neptus.plugins.mvplanning.utils.jaxb.Profile;
 
 /**
  * @author tsmarques
@@ -57,7 +57,7 @@ public class VehicleInfo {
     private final Scope scope = Scope.GLOBAL;
     private final Visibility vis = Visibility.USER;
 
-    public VehicleInfo(String id, Map<String, PayloadProfiles> allProfiles) {
+    public VehicleInfo(String id, Map<String, Profile> allProfiles) {
         vId = id;
         setVehicleCapabilities(vId, allProfiles);
     }
@@ -68,7 +68,7 @@ public class VehicleInfo {
 
     /* From the available payload (in mvplanning/etc/ )
      * retrieve all profiles that apply to this vehicle */
-    public void setVehicleCapabilities(String vId, Map<String, PayloadProfiles> allProfiles) {
+    public void setVehicleCapabilities(String vId, Map<String, Profile> allProfiles) {
         ArrayList<SystemProperty> prList = ConfigurationManager.getInstance().getProperties(vId, vis, scope);
         vehicleCapabilities = new HashMap<String, List<Payload>>();
 
