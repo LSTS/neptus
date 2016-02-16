@@ -68,11 +68,11 @@ public class Profile {
     private List<String> vehicles; /* vehicles where this profile applies */
     
     public Profile() {
-
     }
     
     public Profile(String pType) {
         payloads = new ArrayList<Payload>();
+        vehicles = new ArrayList<String>();
         profilesId = pType;
     }
     
@@ -92,6 +92,14 @@ public class Profile {
         return velocity;
     }
     
+    public void setProfileVelocity(double velocity) {
+        this.velocity = velocity;
+    }
+    
+    public void setProfileAltitude(double altitude) {
+        this.altitude = altitude;
+    }
+    
     public String getId() {
         return profilesId;
     }
@@ -103,5 +111,14 @@ public class Profile {
     
     public List<Payload> getPayload() {
         return payloads;
+    }
+    
+    public void addVehicle(String vehicleId) {
+        if(!vehicles.contains(vehicleId))
+            vehicles.add(vehicleId);
+    }
+    
+    public void removeVehicle(String vehicleId) {
+        vehicles.remove(vehicleId);
     }
 }
