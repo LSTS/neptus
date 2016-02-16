@@ -97,11 +97,11 @@ public class Profile {
     }
        
     
-    public void addProfile(Payload payload) {
+    public void addPayload(Payload payload) {
         payloads.add(payload);
     }
     
-    public List<Payload> getProfiles() {
+    public List<Payload> getPayload() {
         return payloads;
     }
 }
