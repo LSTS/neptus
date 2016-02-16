@@ -51,6 +51,10 @@ import pt.lsts.neptus.plugins.mvplanning.utils.Payload;
 @XmlAccessorType(XmlAccessType.NONE)
 @XmlSeeAlso({Payload.class})
 public class Profile {
+    @XmlElement(name = "Altitude")
+    private double altitude;
+    @XmlElement(name = "Velocity")
+    private double velocity;
     
     @XmlElement(name = "Payload")
     private List<Payload> payloads;
@@ -65,6 +69,14 @@ public class Profile {
     public Profile(String pType) {
         payloads = new ArrayList<Payload>();
         profilesId = pType;
+    }
+    
+    public double getProfileAltitude() {
+        return altitude;
+    }
+    
+    public double getProfileVelocity() {
+        return velocity;
     }
     
     public List<Payload> getVehicleProfiles(String vehicleId) {
