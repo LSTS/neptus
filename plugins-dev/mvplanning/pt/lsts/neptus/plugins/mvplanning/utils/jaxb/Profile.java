@@ -42,6 +42,8 @@ import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlSeeAlso;
 
+import org.jzy3d.maths.Array;
+
 import pt.lsts.neptus.plugins.mvplanning.utils.Payload;
 
 /**
@@ -69,8 +71,11 @@ public class Profile {
     private List<String> vehicles; /* vehicles where this profile applies */
     
     public Profile() {
+        profilesId = "";
         velocity = -1;
         altitude = -1;
+        payloads = new ArrayList<Payload>();
+        vehicles = new ArrayList<String>();
     }
     
     public Profile(String pType) {
