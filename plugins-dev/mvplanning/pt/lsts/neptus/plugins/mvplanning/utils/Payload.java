@@ -53,7 +53,6 @@ import pt.lsts.neptus.plugins.mvplanning.utils.jaxb.PayloadParametersAdapter;
  *
  */
 
-@XmlRootElement (name="Profile")
 @XmlAccessorType(XmlAccessType.NONE)
 public class Payload {   
     @XmlAttribute
