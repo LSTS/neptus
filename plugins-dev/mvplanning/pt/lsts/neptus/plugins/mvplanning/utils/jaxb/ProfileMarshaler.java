@@ -34,7 +34,6 @@ package pt.lsts.neptus.plugins.mvplanning.utils.jaxb;
 import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Map.Entry;
 
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;

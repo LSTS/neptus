@@ -31,7 +31,6 @@
  */
 package pt.lsts.neptus.plugins.mvplanning.utils;
 
-import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 import pt.lsts.neptus.console.events.ConsoleEventVehicleStateChanged;
