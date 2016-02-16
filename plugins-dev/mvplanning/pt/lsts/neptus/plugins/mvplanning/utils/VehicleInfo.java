@@ -74,21 +74,21 @@ public class VehicleInfo {
 
         for(Entry<String, Profile> entry : existingProfiles.entrySet()) {
             Profile profile = entry.getValue();
-            
+
             if(profile.getProfileVehicles().contains(vId) && canUseProfile(profile, payloadList))
                 vehicleProfiles.put(entry.getKey(), profile);
         }
     }
-    
-    /* Checks if a vehicle can use a given profile, i.e, 
+
+    /* Checks if a vehicle can use a given profile, i.e,
      * if it has, available, all the payload that the profile
      * 'needs' */
-    private boolean canUseProfile(Profile profile, List<SystemProperty> vehiclePayload) {        
+    private boolean canUseProfile(Profile profile, List<SystemProperty> vehiclePayload) {
         boolean vehicleHasPayload = false;
         for(Payload pld : profile.getPayload()) {
             for(SystemProperty pr : vehiclePayload) {
                 String payloadType = pr.getCategory(); /* sidescan, etc */
-                
+
                 if(payloadType.equals(pld.getPayloadType())) {
                     vehicleHasPayload = true;
                     break;
@@ -104,19 +104,13 @@ public class VehicleInfo {
     public boolean hasCapabilities(LinkedList<String> neededCapabilities) {
         return vehicleProfiles.keySet().containsAll(neededCapabilities);
     }
-    
+
     /* for debugging */
-    public void printCapabilities() {
-//        System.out.println("[" + vId + "]");
-//        for(String cap : vehicleCapabilities.keySet()) {
-//            System.out.println("[" + cap + " profiles]");
-//            
-//            for(Payload profile : vehicleCapabilities.get(cap)) {
-//                System.out.println("[" + profile.getProfileId() + "]");
-//                profile.printPayloadParameters();
-//                System.out.println();
-//            }
-//            System.out.println("\n");
-//        }
+    public void printProfiles() {
+        for(Entry<String, Profile> entry : vehicleProfiles.entrySet()) {
+            System.out.println("  [Profile: " + entry.getKey() + "]");
+            for(Payload pld : entry.getValue().getPayload())
+                System.out.println("   " + pld.getPayloadType());
+        }
     }
 }

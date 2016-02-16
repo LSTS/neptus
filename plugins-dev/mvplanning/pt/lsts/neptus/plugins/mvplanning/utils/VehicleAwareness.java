@@ -64,7 +64,7 @@ public class VehicleAwareness {
         ConsoleEventVehicleStateChanged.STATE newState = event.getState();
 
         if(newState == ConsoleEventVehicleStateChanged.STATE.SERVICE) {
-            logDebugInfo("new active vehicle");
+            logDebugInfo("New active vehicle " + "[" + id + "]");
 
             VehicleInfo vehicle;
             if(unavailableVehicles.containsKey(id))
@@ -74,7 +74,7 @@ public class VehicleAwareness {
             availableVehicles.put(id, vehicle);
 
             /* logging */
-            vehicle.printCapabilities();
+            vehicle.printProfiles();
         }
         else {
             if(availableVehicles.containsKey(id)) {
@@ -94,8 +94,8 @@ public class VehicleAwareness {
         return availableVehicles.get(vid);
     }
 
-    public void printVehicleCapabilities(String vid) {
-        getVehicleInfo(vid).printCapabilities();
+    public void printVehicleProfiles(String vid) {
+        getVehicleInfo(vid).printProfiles();
     }
 
 
@@ -109,7 +109,7 @@ public class VehicleAwareness {
 
         for(Map.Entry<String, VehicleInfo> entry : vehicles.entrySet()) {
             System.out.println("# Vehicle: " + entry.getKey());
-            entry.getValue().printCapabilities();
+            entry.getValue().printProfiles();
         }
         System.out.println("\n");
     }
