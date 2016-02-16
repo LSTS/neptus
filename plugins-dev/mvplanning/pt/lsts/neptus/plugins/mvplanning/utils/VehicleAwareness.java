@@ -34,15 +34,18 @@ package pt.lsts.neptus.plugins.mvplanning.utils;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
+import pt.lsts.neptus.console.events.ConsoleEventVehicleStateChanged;
+import pt.lsts.neptus.plugins.mvplanning.utils.jaxb.ProfileMarshaler;
+
 import com.google.common.eventbus.Subscribe;
 
-import pt.lsts.neptus.console.events.ConsoleEventVehicleStateChanged;
-import pt.lsts.neptus.plugins.mvplanning.utils.jaxb.PayloadMarshaler;
-
-
+/*
+ * FIXME: Only detects vehicles when they change state.
+ *        Should fetch list of available vehicles at startup
+ */
 public class VehicleAwareness {
-    private final PayloadMarshaler payloadMarsh = new PayloadMarshaler();
-    
+    private final ProfileMarshaler payloadMarsh = new ProfileMarshaler();
+
     private ConcurrentHashMap<String, VehicleInfo> availableVehicles;
     private ConcurrentHashMap<String, VehicleInfo> unavailableVehicles;
 
@@ -51,26 +54,25 @@ public class VehicleAwareness {
         unavailableVehicles = new ConcurrentHashMap<>();
     }
 
-
     @Subscribe
     public void on(ConsoleEventVehicleStateChanged event) {
         onVehicleStateChanged(event);
     }
-    
+
     private synchronized void onVehicleStateChanged(ConsoleEventVehicleStateChanged event) {
         String id = event.getVehicle();
         ConsoleEventVehicleStateChanged.STATE newState = event.getState();
 
         if(newState == ConsoleEventVehicleStateChanged.STATE.SERVICE) {
             logDebugInfo("new active vehicle");
-            
+
             VehicleInfo vehicle;
             if(unavailableVehicles.containsKey(id))
                 vehicle = unavailableVehicles.remove(id);
             else
                 vehicle = new VehicleInfo(id, payloadMarsh.getAllProfiles()); /* first time in service mode */
             availableVehicles.put(id, vehicle);
-            
+
             /* logging */
             vehicle.printCapabilities();
         }
@@ -78,25 +80,25 @@ public class VehicleAwareness {
             if(availableVehicles.containsKey(id)) {
                 VehicleInfo vehicle = availableVehicles.remove(id);
                 unavailableVehicles.put(id, vehicle);
-                
+
                 logDebugInfo("vehicle no longer active, [" + id + "]");
             }
         }
     }
-    
+
     private void logDebugInfo(String msg) {
         System.out.println("[mvplanning/VehicleAwareness] " + msg);
     }
-    
+
     public VehicleInfo getVehicleInfo(String vid) {
         return availableVehicles.get(vid);
     }
-    
+
     public void printVehicleCapabilities(String vid) {
         getVehicleInfo(vid).printCapabilities();
     }
-    
-    
+
+
     /* for debugging
      * 0 for unavailabe 1 for available */
     private void printVehicles(int t, ConcurrentHashMap<String, VehicleInfo> vehicles) {
@@ -104,7 +106,7 @@ public class VehicleAwareness {
             System.out.println("## Unavailable vehicles ##");
         else
             System.out.println("## Available Vehicles ##");
-        
+
         for(Map.Entry<String, VehicleInfo> entry : vehicles.entrySet()) {
             System.out.println("# Vehicle: " + entry.getKey());
             entry.getValue().printCapabilities();
