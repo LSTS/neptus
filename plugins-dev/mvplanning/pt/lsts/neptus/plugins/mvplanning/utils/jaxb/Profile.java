@@ -38,6 +38,7 @@ import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlSeeAlso;
 
@@ -62,8 +63,12 @@ public class Profile {
     @XmlAttribute(name = "Type")
     private String profilesId;
     
+    @XmlElement(name = "vehicle")
+    @XmlElementWrapper(name = "vehicles")
+    private List<String> vehicles; /* vehicles where this profile applies */
+    
     public Profile() {
-        
+
     }
     
     public Profile(String pType) {
@@ -73,6 +78,14 @@ public class Profile {
     
     public double getProfileAltitude() {
         return altitude;
+    }
+    
+    public List<String> getProfileVehicles() {
+        return vehicles;
+    }
+    
+    public void setProfileVehicles(List<String> vehicles) {
+        this.vehicles = vehicles; 
     }
     
     public double getProfileVelocity() {
