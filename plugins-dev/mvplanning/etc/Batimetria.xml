@@ -3,13 +3,13 @@
     <Altitude>1000.0</Altitude>
     <Velocity>35.0</Velocity>
     <Payloads>
-        <Payload type="sidescan">
+        <Payload type="Sidescan">
             <parameters>
                 <parameter name="BLA BLA" value="20"/>
                 <parameter name="Frequency" value="500"/>
             </parameters>
         </Payload>
-        <Payload type="multibeam">
+        <Payload type="Echo Sounder>
             <parameters>
                 <parameter name="YET ANOTHER ONE" value="12220"/>
                 <parameter name="PARAMETER" value="12312312"/>
