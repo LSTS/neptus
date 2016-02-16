@@ -41,7 +41,7 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlSeeAlso;
 
-import pt.lsts.neptus.plugins.mvplanning.utils.PayloadProfile;
+import pt.lsts.neptus.plugins.mvplanning.utils.Payload;
 
 /**
  * @author tsmarques
@@ -49,11 +49,11 @@ import pt.lsts.neptus.plugins.mvplanning.utils.PayloadProfile;
  */
 @XmlRootElement (name="PayloadProfiles")
 @XmlAccessorType(XmlAccessType.NONE)
-@XmlSeeAlso({PayloadProfile.class})
+@XmlSeeAlso({Payload.class})
 public class PayloadProfiles {
     
-    @XmlElement(name = "Profile")
-    private List<PayloadProfile> profiles;
+    @XmlElement(name = "Payload")
+    private List<Payload> payloads;
     
     @XmlAttribute(name = "Type")
     private String profilesType;
@@ -63,13 +63,13 @@ public class PayloadProfiles {
     }
     
     public PayloadProfiles(String pType) {
-        profiles = new ArrayList<PayloadProfile>();
+        payloads = new ArrayList<Payload>();
         profilesType = pType;
     }
     
-    public List<PayloadProfile> getVehicleProfiles(String vehicleId) {
-        List<PayloadProfile> vehicleProfiles = new ArrayList<PayloadProfile>();
-        for(PayloadProfile prf : profiles) {
+    public List<Payload> getVehicleProfiles(String vehicleId) {
+        List<Payload> vehicleProfiles = new ArrayList<Payload>();
+        for(Payload prf : payloads) {
             if(prf.getPayloadVehicles().contains(vehicleId))
                 vehicleProfiles.add(prf);
         }
@@ -81,11 +81,11 @@ public class PayloadProfiles {
     }
        
     
-    public void addProfile(PayloadProfile payload) {
-        profiles.add(payload);
+    public void addProfile(Payload payload) {
+        payloads.add(payload);
     }
     
-    public List<PayloadProfile> getProfiles() {
-        return profiles;
+    public List<Payload> getProfiles() {
+        return payloads;
     }
 }

@@ -41,7 +41,7 @@ import javax.xml.bind.JAXBException;
 import javax.xml.bind.Marshaller;
 import javax.xml.bind.Unmarshaller;
 
-import pt.lsts.neptus.plugins.mvplanning.utils.PayloadProfile;
+import pt.lsts.neptus.plugins.mvplanning.utils.Payload;
 
 /**
  * @author tsmarques
@@ -55,7 +55,7 @@ public class PayloadMarshaler {
         allProfiles = unmarshalAll();
     }
     
-    public void addProfile(String type, PayloadProfile payload) {
+    public void addProfile(String type, Payload payload) {
         if(payload.getPayloadVehicles().isEmpty())
             System.out.println("[mvplanning/PayloadMarshaler: #Error#, can't add profile without vehicles!");
         else {
@@ -74,8 +74,8 @@ public class PayloadMarshaler {
         }
     }
     
-    private boolean isDuplicateProfile(PayloadProfile p, PayloadProfiles profiles) {
-        for(PayloadProfile pld : profiles.getProfiles()) {
+    private boolean isDuplicateProfile(Payload p, PayloadProfiles profiles) {
+        for(Payload pld : profiles.getProfiles()) {
             if(pld.getProfileId().equals(p.getProfileId()))
                 return true;
         }
@@ -151,7 +151,7 @@ public class PayloadMarshaler {
            
     /* Use to add new payload or testing */
     public static void main(String[] args) {
-        PayloadProfile pld = new PayloadProfile("Sidescan", "Perfil 1");
+        Payload pld = new Payload("Sidescan", "Perfil 1");
         pld.addPayloadParamater("Range", "500");
         pld.addPayloadParamater("Frequency", "20");
         pld.addPayloadParamater("Altitude", "100");

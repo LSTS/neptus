@@ -55,9 +55,7 @@ import pt.lsts.neptus.plugins.mvplanning.utils.jaxb.PayloadParametersAdapter;
 
 @XmlRootElement (name="Profile")
 @XmlAccessorType(XmlAccessType.NONE)
-public class PayloadProfile {
-    private static final String PAYLOADS_DIR = System.getProperty("user.dir") + "/plugins-dev/mvplanning/etc/";
-    
+public class Payload {   
     @XmlAttribute
     private String id; /* profile ID */
     private String type; /* sidescan, multibeam, etc */
@@ -70,13 +68,13 @@ public class PayloadProfile {
     @XmlElementWrapper(name = "vehicles")
     private List<String> vehicles; /* vehicles where this profile applies */
     
-    public PayloadProfile() {
+    public Payload() {
         id = "";
         type = "";
         parameters = new HashMap<String, String>();
     }
         
-    public PayloadProfile(String type, String id) {
+    public Payload(String type, String id) {
         this.id = id;
         this.type = type;
     }

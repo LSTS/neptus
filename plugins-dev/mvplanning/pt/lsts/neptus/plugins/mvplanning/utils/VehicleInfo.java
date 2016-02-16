@@ -51,7 +51,7 @@ import pt.lsts.neptus.plugins.mvplanning.utils.jaxb.PayloadProfiles;
 public class VehicleInfo {
     private String vId;
     //private ArrayList<String> capabilities;
-    private Map<String, List<PayloadProfile>> vehicleCapabilities;
+    private Map<String, List<Payload>> vehicleCapabilities;
 
     /* Properties variables */
     private final Scope scope = Scope.GLOBAL;
@@ -70,7 +70,7 @@ public class VehicleInfo {
      * retrieve all profiles that apply to this vehicle */
     public void setVehicleCapabilities(String vId, Map<String, PayloadProfiles> allProfiles) {
         ArrayList<SystemProperty> prList = ConfigurationManager.getInstance().getProperties(vId, vis, scope);
-        vehicleCapabilities = new HashMap<String, List<PayloadProfile>>();
+        vehicleCapabilities = new HashMap<String, List<Payload>>();
 
         for(SystemProperty pr : prList) {
             String cap = pr.getCategory();
@@ -81,7 +81,7 @@ public class VehicleInfo {
         }
     }
 
-    public List<PayloadProfile> getVehicleProfiles(String payloadType) {
+    public List<Payload> getVehicleProfiles(String payloadType) {
         return vehicleCapabilities.get(payloadType);
     }
 
@@ -95,7 +95,7 @@ public class VehicleInfo {
         for(String cap : vehicleCapabilities.keySet()) {
             System.out.println("[" + cap + " profiles]");
             
-            for(PayloadProfile profile : vehicleCapabilities.get(cap)) {
+            for(Payload profile : vehicleCapabilities.get(cap)) {
                 System.out.println("[" + profile.getProfileId() + "]");
                 profile.printPayloadParameters();
                 System.out.println();
