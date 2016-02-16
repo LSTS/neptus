@@ -36,6 +36,7 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import pt.lsts.neptus.params.ConfigurationManager;
 import pt.lsts.neptus.params.SystemProperty;
@@ -51,42 +52,57 @@ import pt.lsts.neptus.plugins.mvplanning.utils.jaxb.Profile;
 public class VehicleInfo {
     private String vId;
     //private ArrayList<String> capabilities;
-    private Map<String, List<Payload>> vehicleCapabilities;
+    private Map<String, Profile> vehicleProfiles;
 
     /* Properties variables */
     private final Scope scope = Scope.GLOBAL;
     private final Visibility vis = Visibility.USER;
 
-    public VehicleInfo(String id, Map<String, Profile> allProfiles) {
+    public VehicleInfo(String id, Map<String, Profile> existingProfiles) {
         vId = id;
-        setVehicleCapabilities(vId, allProfiles);
+        fetchVehicleProfiles(existingProfiles);
     }
 
     public String vehicleId() {
         return vId;
     }
 
-    /* From the available payload (in mvplanning/etc/ )
-     * retrieve all profiles that apply to this vehicle */
-    public void setVehicleCapabilities(String vId, Map<String, Profile> allProfiles) {
-//        ArrayList<SystemProperty> prList = ConfigurationManager.getInstance().getProperties(vId, vis, scope);
-//        vehicleCapabilities = new HashMap<String, List<Payload>>();
-//
-//        for(SystemProperty pr : prList) {
-//            String cap = pr.getCategory();
-//            
-//            /* if 'cap' is considered payload/capability */
-//            if(allProfiles.containsKey(cap))
-//                vehicleCapabilities.put(cap, allProfiles.get(cap).getVehicleProfiles(vId));
-//        }
+
+    public void fetchVehicleProfiles(Map<String, Profile> existingProfiles) {
+        ArrayList<SystemProperty> payloadList = ConfigurationManager.getInstance().getProperties(vId, vis, scope);
+        vehicleProfiles = new HashMap<String, Profile>();
+
+        for(Entry<String, Profile> entry : existingProfiles.entrySet()) {
+            Profile profile = entry.getValue();
+            
+            if(profile.getProfileVehicles().contains(vId) && canUseProfile(profile, payloadList))
+                vehicleProfiles.put(entry.getKey(), profile);
+        }
+    }
+    
+    /* Checks if a vehicle can use a given profile, i.e, 
+     * if it has, available, all the payload that the profile
+     * 'needs' */
+    private boolean canUseProfile(Profile profile, List<SystemProperty> vehiclePayload) {        
+        boolean vehicleHasPayload = false;
+        for(Payload pld : profile.getPayload()) {
+            for(SystemProperty pr : vehiclePayload) {
+                String payloadType = pr.getCategory(); /* sidescan, etc */
+                
+                if(payloadType.equals(pld.getPayloadType())) {
+                    vehicleHasPayload = true;
+                    break;
+                }
+            }
+            if(!vehicleHasPayload)
+                return false;
+        }
+        return true;
     }
 
-    public List<Payload> getVehicleProfiles(String payloadType) {
-        return vehicleCapabilities.get(payloadType);
-    }
 
     public boolean hasCapabilities(LinkedList<String> neededCapabilities) {
-        return vehicleCapabilities.keySet().containsAll(neededCapabilities);
+        return vehicleProfiles.keySet().containsAll(neededCapabilities);
     }
     
     /* for debugging */
