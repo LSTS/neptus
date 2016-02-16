@@ -56,38 +56,12 @@ import pt.lsts.neptus.types.mission.plan.PlanType;
 @PluginDescription(name = "Multi-Vehicle Planning")
 public class MVPlanning extends ConsoleLayer implements PlanChangeListener {
     private String system;
-    private Scope scope = Scope.GLOBAL;
-    private Visibility vis = Visibility.USER;
     private ConsoleLayout console;
     private VehicleAwareness vawareness;
 
     public MVPlanning() {
         this.console = getConsole();
         vawareness = new VehicleAwareness();
-    }
-
-    private void printActiveCapabilities() {
-        ArrayList<SystemProperty> prList = ConfigurationManager.getInstance().getProperties(system, vis, scope);
-        for(SystemProperty pr : prList) {
-            String name = pr.getName(); /* needed values */
-            String categ = pr.getCategory();
-
-            System.out.println(categ + " " + " : " + name);
-        }
-    }
-
-    private void printPlanCapabilitiesNeeds(PlanType plan) {
-        Maneuver[] mans = plan.getGraph().getAllManeuvers();
-
-        for(Maneuver man : mans) {
-            System.out.println("### " + man.getId());
-            for(IMCMessage m : man.getStartActions().getAllMessages()) {
-                for(String s : m.getValues().keySet()) {
-                    if(s.equals("name"))
-                        System.out.println(m.getValue(s).toString());
-                }
-            }
-        }
     }
 
     void requestEntitiesState() {
