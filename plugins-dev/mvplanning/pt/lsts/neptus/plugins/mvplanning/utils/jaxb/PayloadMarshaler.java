@@ -86,14 +86,6 @@ public class PayloadMarshaler {
         return valid;
     }
     
-    private boolean isDuplicateProfile(Payload p, Profile profiles) {
-//        for(Payload pld : profiles.getProfiles()) {
-//            if(pld.getProfileId().equals(p.getProfileId()))
-//                return true;
-//        }
-        return false;
-    }
-    
     
     public Map<String, Profile> getAllProfiles() {
         return this.allProfiles;
