@@ -56,7 +56,7 @@ public class Profile {
     private List<Payload> payloads;
     
     @XmlAttribute(name = "Type")
-    private String profilesType;
+    private String profilesId;
     
     public Profile() {
         
@@ -64,7 +64,7 @@ public class Profile {
     
     public Profile(String pType) {
         payloads = new ArrayList<Payload>();
-        profilesType = pType;
+        profilesId = pType;
     }
     
     public List<Payload> getVehicleProfiles(String vehicleId) {
@@ -76,8 +76,8 @@ public class Profile {
         return vehicleProfiles;
     }
     
-    public String getType() {
-        return profilesType;
+    public String getId() {
+        return profilesId;
     }
        
     
