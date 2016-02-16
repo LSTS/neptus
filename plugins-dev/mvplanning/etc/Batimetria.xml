@@ -9,7 +9,7 @@
                 <parameter name="Frequency" value="500"/>
             </parameters>
         </Payload>
-        <Payload type="Echo Sounder>
+        <Payload type="Echo Sounder">
             <parameters>
                 <parameter name="YET ANOTHER ONE" value="12220"/>
                 <parameter name="PARAMETER" value="12312312"/>
