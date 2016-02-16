@@ -27,31 +27,43 @@
  * For more information please see <http://lsts.fe.up.pt/neptus>.
  *
  * Author: Paulo Dias
- * 5 de Out de 2010
+ * 11/02/2016
  */
-package pt.lsts.neptus.console.plugins.containers.propeditor;
+package pt.lsts.neptus.console.actions;
 
+import java.awt.event.ActionEvent;
+
+import javax.swing.ImageIcon;
+
+import pt.lsts.neptus.console.ConsoleLayout;
 import pt.lsts.neptus.i18n.I18n;
+import pt.lsts.neptus.util.ImageUtils;
 
 /**
- * @author pdias
- *
+ * @author Paulo Dias
+ * 
  */
-public class LinkSizeVerticalPropertyEditor extends HorizontalGroupPropertyEditor {
+@SuppressWarnings("serial")
+public class OpenNewConsoleAction extends ConsoleAction {
+    protected ConsoleLayout console;
 
-	/**
-	 * 
-	 */
-	public LinkSizeVerticalPropertyEditor() {
-		super();
-		rootElement = "LinkSizeVertical";
-		title = I18n.text("Link size for vertical axis:") + " <" + rootElement + "></" + rootElement + ">";
-		helpText += "<!ELEMENT LinkSizeVertical (LinkSizeGroup)*>\n\n" +
-					"<!ELEMENT LinkSizeGroup ((Component), (Component)+)>\n" +
-					"<!ELEMENT Component ANY>\n" +
-					"<!ATTLIST Component\n" +
-					"	id CDATA #REQUIRED\n" +
-					">";
-	}
+    public OpenNewConsoleAction(ConsoleLayout console) {
+        super(I18n.text("New Console"), new ImageIcon(ImageUtils.getImage("images/menus/new.png")));
+        this.console = console;
+    }
 
+    /* (non-Javadoc)
+     * @see java.awt.event.ActionListener#actionPerformed(java.awt.event.ActionEvent)
+     */
+    @Override
+    public void actionPerformed(ActionEvent event) {
+        this.setEnabled(false);
+        console.getContentPane().setVisible(false);
+        console.reset();
+        console.resetTidyUp();
+        console.getContentPane().setVisible(true);
+        console.setConsoleChanged(false);
+        console.fileName = null;
+        this.setEnabled(true);
+    }
 }

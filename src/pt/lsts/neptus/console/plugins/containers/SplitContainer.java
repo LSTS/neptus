@@ -53,7 +53,8 @@ import pt.lsts.neptus.plugins.PluginDescription;
  *
  */
 @SuppressWarnings("serial")
-@PluginDescription(name="Console Layout: Split", description="Allows to add 2 components with a flexible split bar", icon="pt/lsts/neptus/plugins/containers/layout.png")
+@PluginDescription(name = "Console Layout: Split", description = "Allows to add 2 components with a flexible split bar", 
+    icon = "pt/lsts/neptus/plugins/containers/layout.png", experimental = true)
 public class SplitContainer extends ContainerSubPanel implements ConfigurationListener {
 
 	public enum SplitTypeEnum {Vertical, Horizontal};
@@ -85,17 +86,47 @@ public class SplitContainer extends ContainerSubPanel implements ConfigurationLi
 		add(pivot, BorderLayout.CENTER);
 	}
 	
+	   /* (non-Javadoc)
+     * @see pt.lsts.neptus.console.ContainerSubPanel#isAddSubPanelToPanelOrLetExtensionDoIt()
+     */
+    @Override
+    protected boolean isAddSubPanelToPanelOrLetExtensionDoIt() {
+        return false;
+    }
+    
+	/* (non-Javadoc)
+	 * @see pt.lsts.neptus.console.ContainerSubPanel#addSubPanelExtra(pt.lsts.neptus.console.ConsolePanel)
+	 */
 	@Override
-	public void addSubPanel(ConsolePanel panel) {
+	public boolean addSubPanelExtra(ConsolePanel panel) {
 		panel.setBorder(BorderFactory.createEmptyBorder());
-		panels.add(panel);
 		
 		if (!addedLeftComponent) {
 			addedLeftComponent = true;
 			splitPane.setLeftComponent(panel);
+			return true;
 		}
-		else
+		else if (splitPane.getRightComponent() == null){
 			splitPane.setRightComponent(panel);
+            return true;
+		}
+		
+        return false;
+	}
+	
+	/* (non-Javadoc)
+	 * @see pt.lsts.neptus.console.ContainerSubPanel#removeSubPanelExtra(pt.lsts.neptus.console.ConsolePanel)
+	 */
+	@Override
+	protected void removeSubPanelExtra(ConsolePanel panel) {
+	    if (splitPane.getLeftComponent() == panel) {
+	        splitPane.setLeftComponent(splitPane.getRightComponent());
+	        if (splitPane.getLeftComponent() == null)
+	            addedLeftComponent = false;
+	    }
+	    else if (splitPane.getRightComponent() == panel) {
+            splitPane.setRightComponent(null);
+	    }
 	}
 	
 	@Override

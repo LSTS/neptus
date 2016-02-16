@@ -46,6 +46,7 @@ import javax.swing.JCheckBox;
 import javax.swing.JPanel;
 
 import net.miginfocom.swing.MigLayout;
+import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.console.ConsoleLayout;
 import pt.lsts.neptus.console.ConsolePanel;
 import pt.lsts.neptus.console.ContainerSubPanel;
@@ -107,6 +108,15 @@ public class SettingsWindow extends ConsolePanel implements SubPanelChangeListen
         }
     }
 
+    public void reset() {
+        subPanels.clear();
+        settingsPanel.reset();
+        initPropertiesProvidersList(getConsole());
+        settingsPanel.setupNewProviders(subPanels);
+        settingsPanel.reset();
+        this.repaint();
+    }
+    
     private void addButtons() {
         checkLvl = new JCheckBox(I18n.text("Advanced"));
         checkLvl.addItemListener(new ItemListener() {
@@ -201,9 +211,10 @@ public class SettingsWindow extends ConsolePanel implements SubPanelChangeListen
         if (propProviderAdd != null) {
             for (PropertiesProvider pp : propProviderAdd) {
                 if (!subPanels.contains(pp)) {
-                    boolean ret = subPanels.add(pp);
-                    if (ret) {
-                        change = true;
+                    if (!(pp instanceof ContainerSubPanel)) {
+                        boolean ret = subPanels.add(pp);
+                        if (ret)
+                            change = true;
                     }
                 }
             }
@@ -232,6 +243,7 @@ public class SettingsWindow extends ConsolePanel implements SubPanelChangeListen
     @Override
     public void subPanelChanged(SubPanelChangeEvent panelChange) {
         ConsolePanel panel = panelChange.getPanel();
+        NeptusLog.pub().debug(">>>>>>>>>>>>>>   " + panelChange.getAction() + " > " + panel);
         switch (panelChange.getAction()) {
             case ADDED:
                 if (panel instanceof PropertiesProvider) {
