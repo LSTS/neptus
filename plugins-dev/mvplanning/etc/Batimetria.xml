@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<Profile Type="Batimetria">
+    <Altitude>1000.0</Altitude>
+    <Velocity>35.0</Velocity>
+    <Payloads>
+        <Payload type="sidescan">
+            <parameters>
+                <parameter name="BLA BLA" value="20"/>
+                <parameter name="Frequency" value="500"/>
+            </parameters>
+        </Payload>
+        <Payload type="multibeam">
+            <parameters>
+                <parameter name="YET ANOTHER ONE" value="12220"/>
+                <parameter name="PARAMETER" value="12312312"/>
+            </parameters>
+        </Payload>
+    </Payloads>
+    <vehicles>
+        <vehicle>lauv-seacon-1</vehicle>
+        <vehicle>lauv-seacon-2</vehicle>
+        <vehicle>lauv-seacon-3</vehicle>
+        <vehicle>lauv-noptilus-1</vehicle>
+        <vehicle>lauv-noptilus-2</vehicle>
+    </vehicles>
+</Profile>
