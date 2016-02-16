@@ -127,8 +127,7 @@ public class ProfileMarshaler {
                 
                 profiles.put(type, profile);
             }
-        }
-        
+        }       
         return profiles;
     }
             
@@ -142,7 +141,7 @@ public class ProfileMarshaler {
             jaxbContext = JAXBContext.newInstance(Profile.class);
             jaxbUnmarshaller = jaxbContext.createUnmarshaller();
             pProfiles = (Profile) jaxbUnmarshaller.unmarshal(new File(PAYLOADS_DIR + type + ".xml"));
-            
+                        
             return pProfiles;
         }
         catch (JAXBException e) {
@@ -155,5 +154,20 @@ public class ProfileMarshaler {
            
     /* Use to add new payload or testing */
     public static void main(String[] args) {
+        ProfileMarshaler marsh = new ProfileMarshaler();
+        
+        Payload pld1 = new Payload("sidescan");
+        pld1.addPayloadParamater("Frequency", "500");
+        pld1.addPayloadParamater("BLA BLA", "20");
+        
+        Profile prf1 = new Profile("Low scan");
+        prf1.setProfileAltitude(1000);
+        prf1.setProfileVelocity(35);
+        prf1.addPayload(pld1);
+        prf1.addVehicle("lauv-noptilus-1");
+        prf1.addVehicle("lauv-noptilus-2");
+        
+        marsh.addProfile("Low scan", prf1);
+        marsh.marshal("Low scan");
     }
 }
