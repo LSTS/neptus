@@ -69,16 +69,16 @@ public class VehicleInfo {
     /* From the available payload (in mvplanning/etc/ )
      * retrieve all profiles that apply to this vehicle */
     public void setVehicleCapabilities(String vId, Map<String, Profile> allProfiles) {
-        ArrayList<SystemProperty> prList = ConfigurationManager.getInstance().getProperties(vId, vis, scope);
-        vehicleCapabilities = new HashMap<String, List<Payload>>();
-
-        for(SystemProperty pr : prList) {
-            String cap = pr.getCategory();
-            
-            /* if 'cap' is considered payload/capability */
-            if(allProfiles.containsKey(cap))
-                vehicleCapabilities.put(cap, allProfiles.get(cap).getVehicleProfiles(vId));
-        }
+//        ArrayList<SystemProperty> prList = ConfigurationManager.getInstance().getProperties(vId, vis, scope);
+//        vehicleCapabilities = new HashMap<String, List<Payload>>();
+//
+//        for(SystemProperty pr : prList) {
+//            String cap = pr.getCategory();
+//            
+//            /* if 'cap' is considered payload/capability */
+//            if(allProfiles.containsKey(cap))
+//                vehicleCapabilities.put(cap, allProfiles.get(cap).getVehicleProfiles(vId));
+//        }
     }
 
     public List<Payload> getVehicleProfiles(String payloadType) {

@@ -63,9 +63,6 @@ public class Payload {
     @XmlJavaTypeAdapter(PayloadParametersAdapter.class)
     private Map<String, String> parameters; /* <parameter, value> */
     
-    @XmlElement(name = "vehicle")
-    @XmlElementWrapper(name = "vehicles")
-    private List<String> vehicles; /* vehicles where this profile applies */
     
     public Payload() {
         type = "";
@@ -79,30 +76,7 @@ public class Payload {
     public String getPayloadType() {
         return type;
     }
-    
-    public boolean appliesToVehicle(String vehicleId) {
-        return vehicles.contains(vehicleId);
-    }
-    
-    public List<String> getPayloadVehicles() {
-        if(vehicles == null)
-            vehicles = new ArrayList<String>();
         
-        return vehicles;
-    }
-    
-    
-    public void setPayloadVehicles(ArrayList<String> vehicles) {
-        this.vehicles = vehicles;
-    }
-    
-    
-    public void addPayloadVehicle(String vehicleId) {
-        if(vehicles == null)
-            vehicles = new ArrayList<String>();
-        vehicles.add(vehicleId);
-    }
-    
     
     public void setPayloadParameters(Map<String, String> parameters) {
         this.parameters = parameters;

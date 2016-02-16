@@ -56,22 +56,22 @@ public class PayloadMarshaler {
     }
     
     public void addProfile(String type, Payload payload) {
-        if(payload.getPayloadVehicles().isEmpty())
-            System.out.println("[mvplanning/PayloadMarshaler: #Error#, can't add profile without vehicles!");
-        else {
-            if(!allProfiles.containsKey(type)) {
-                Profile prf = new Profile(type);
-                prf.addProfile(payload);
-                allProfiles.put(type, prf);
-            }
-            else {
-                Profile prf = allProfiles.get(type);
-                if(!isDuplicateProfile(payload, prf))
-                    allProfiles.get(type).addProfile(payload);
-                else
-                    System.out.println("[mvplanning/PayloadMarshaler]: #Error#, payload aready exists");
-            }
-        }
+//        if(payload.getPayloadVehicles().isEmpty())
+//            System.out.println("[mvplanning/PayloadMarshaler: #Error#, can't add profile without vehicles!");
+//        else {
+//            if(!allProfiles.containsKey(type)) {
+//                Profile prf = new Profile(type);
+//                prf.addProfile(payload);
+//                allProfiles.put(type, prf);
+//            }
+//            else {
+//                Profile prf = allProfiles.get(type);
+//                if(!isDuplicateProfile(payload, prf))
+//                    allProfiles.get(type).addProfile(payload);
+//                else
+//                    System.out.println("[mvplanning/PayloadMarshaler]: #Error#, payload aready exists");
+//            }
+//        }
     }
     
     private boolean isDuplicateProfile(Payload p, Profile profiles) {

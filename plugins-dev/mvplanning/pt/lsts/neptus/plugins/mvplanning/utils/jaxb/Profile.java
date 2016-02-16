@@ -79,15 +79,6 @@ public class Profile {
         return velocity;
     }
     
-    public List<Payload> getVehicleProfiles(String vehicleId) {
-        List<Payload> vehicleProfiles = new ArrayList<Payload>();
-        for(Payload prf : payloads) {
-            if(prf.getPayloadVehicles().contains(vehicleId))
-                vehicleProfiles.add(prf);
-        }
-        return vehicleProfiles;
-    }
-    
     public String getId() {
         return profilesId;
     }
