@@ -97,20 +97,4 @@ public class VehicleAwareness {
     public void printVehicleProfiles(String vid) {
         getVehicleInfo(vid).printProfiles();
     }
-
-
-    /* for debugging
-     * 0 for unavailabe 1 for available */
-    private void printVehicles(int t, ConcurrentHashMap<String, VehicleInfo> vehicles) {
-        if(t == 0)
-            System.out.println("## Unavailable vehicles ##");
-        else
-            System.out.println("## Available Vehicles ##");
-
-        for(Map.Entry<String, VehicleInfo> entry : vehicles.entrySet()) {
-            System.out.println("# Vehicle: " + entry.getKey());
-            entry.getValue().printProfiles();
-        }
-        System.out.println("\n");
-    }
 }
