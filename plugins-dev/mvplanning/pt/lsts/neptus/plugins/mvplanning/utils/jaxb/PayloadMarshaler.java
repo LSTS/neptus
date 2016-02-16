@@ -75,10 +75,10 @@ public class PayloadMarshaler {
     }
     
     private boolean isDuplicateProfile(Payload p, Profile profiles) {
-        for(Payload pld : profiles.getProfiles()) {
-            if(pld.getProfileId().equals(p.getProfileId()))
-                return true;
-        }
+//        for(Payload pld : profiles.getProfiles()) {
+//            if(pld.getProfileId().equals(p.getProfileId()))
+//                return true;
+//        }
         return false;
     }
     
@@ -151,29 +151,29 @@ public class PayloadMarshaler {
            
     /* Use to add new payload or testing */
     public static void main(String[] args) {
-        Payload pld = new Payload("Sidescan", "Perfil 1");
-        pld.addPayloadParamater("Range", "500");
-        pld.addPayloadParamater("Frequency", "20");
-        pld.addPayloadParamater("Altitude", "100");
-        pld.addPayloadParamater("SASA", "100");
-        pld.addPayloadVehicle("lauv-seacon-1");
-        pld.addPayloadVehicle("lauv-seacon-3");
-        pld.addPayloadVehicle("laux-seacon-2");
-        
-//        PayloadProfile pld2 = new PayloadProfile("Sidescan", "Profile 2");
-//        pld2.addPayloadParamater("Range", "200");
-//        pld2.addPayloadParamater("Frequency", "20");
-//        pld2.addPayloadParamater("Altitude", "100");
-//        pld2.addPayloadParamater("SKIJ", "1.00");
-//        pld2.addPayloadVehicle("x8-01");
-        
-//        Payload.marshalPayload(pld);
+//        Payload pld = new Payload("Sidescan", "Perfil 1");
+//        pld.addPayloadParamater("Range", "500");
+//        pld.addPayloadParamater("Frequency", "20");
+//        pld.addPayloadParamater("Altitude", "100");
+//        pld.addPayloadParamater("SASA", "100");
+//        pld.addPayloadVehicle("lauv-seacon-1");
+//        pld.addPayloadVehicle("lauv-seacon-3");
+//        pld.addPayloadVehicle("laux-seacon-2");
 //        
-        PayloadMarshaler pldM = new PayloadMarshaler();
-        pldM.addProfile("Sidescan", pld);
-//        pldM.addProfile("sidescan", pld2);
-        pldM.marshal("Sidescan");
-        
-//        pldM.unmarshalAll();
+////        PayloadProfile pld2 = new PayloadProfile("Sidescan", "Profile 2");
+////        pld2.addPayloadParamater("Range", "200");
+////        pld2.addPayloadParamater("Frequency", "20");
+////        pld2.addPayloadParamater("Altitude", "100");
+////        pld2.addPayloadParamater("SKIJ", "1.00");
+////        pld2.addPayloadVehicle("x8-01");
+//        
+////        Payload.marshalPayload(pld);
+////        
+//        PayloadMarshaler pldM = new PayloadMarshaler();
+//        pldM.addProfile("Sidescan", pld);
+////        pldM.addProfile("sidescan", pld2);
+//        pldM.marshal("Sidescan");
+//        
+////        pldM.unmarshalAll();
     }
 }

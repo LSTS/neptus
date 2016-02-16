@@ -91,16 +91,16 @@ public class VehicleInfo {
     
     /* for debugging */
     public void printCapabilities() {
-        System.out.println("[" + vId + "]");
-        for(String cap : vehicleCapabilities.keySet()) {
-            System.out.println("[" + cap + " profiles]");
-            
-            for(Payload profile : vehicleCapabilities.get(cap)) {
-                System.out.println("[" + profile.getProfileId() + "]");
-                profile.printPayloadParameters();
-                System.out.println();
-            }
-            System.out.println("\n");
-        }
+//        System.out.println("[" + vId + "]");
+//        for(String cap : vehicleCapabilities.keySet()) {
+//            System.out.println("[" + cap + " profiles]");
+//            
+//            for(Payload profile : vehicleCapabilities.get(cap)) {
+//                System.out.println("[" + profile.getProfileId() + "]");
+//                profile.printPayloadParameters();
+//                System.out.println();
+//            }
+//            System.out.println("\n");
+//        }
     }
 }
