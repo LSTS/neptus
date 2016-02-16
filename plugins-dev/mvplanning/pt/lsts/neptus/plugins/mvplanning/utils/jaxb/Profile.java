@@ -57,6 +57,7 @@ public class Profile {
     @XmlElement(name = "Velocity")
     private double velocity;
     
+    @XmlElementWrapper(name = "Payloads")
     @XmlElement(name = "Payload")
     private List<Payload> payloads;
     
