@@ -47,11 +47,11 @@ import pt.lsts.neptus.plugins.mvplanning.utils.Payload;
  * @author tsmarques
  *
  */
-public class PayloadMarshaler {
+public class ProfileMarshaler {
     private static final String PAYLOADS_DIR = System.getProperty("user.dir") + "/plugins-dev/mvplanning/etc/";
     private Map<String, Profile> allProfiles;
     
-    public PayloadMarshaler() {
+    public ProfileMarshaler() {
         allProfiles = unmarshalAll();
     }
     
@@ -155,29 +155,5 @@ public class PayloadMarshaler {
            
     /* Use to add new payload or testing */
     public static void main(String[] args) {
-//        Payload pld = new Payload("Sidescan", "Perfil 1");
-//        pld.addPayloadParamater("Range", "500");
-//        pld.addPayloadParamater("Frequency", "20");
-//        pld.addPayloadParamater("Altitude", "100");
-//        pld.addPayloadParamater("SASA", "100");
-//        pld.addPayloadVehicle("lauv-seacon-1");
-//        pld.addPayloadVehicle("lauv-seacon-3");
-//        pld.addPayloadVehicle("laux-seacon-2");
-//        
-////        PayloadProfile pld2 = new PayloadProfile("Sidescan", "Profile 2");
-////        pld2.addPayloadParamater("Range", "200");
-////        pld2.addPayloadParamater("Frequency", "20");
-////        pld2.addPayloadParamater("Altitude", "100");
-////        pld2.addPayloadParamater("SKIJ", "1.00");
-////        pld2.addPayloadVehicle("x8-01");
-//        
-////        Payload.marshalPayload(pld);
-////        
-//        PayloadMarshaler pldM = new PayloadMarshaler();
-//        pldM.addProfile("Sidescan", pld);
-////        pldM.addProfile("sidescan", pld2);
-//        pldM.marshal("Sidescan");
-//        
-////        pldM.unmarshalAll();
     }
 }
