@@ -127,8 +127,6 @@ public class QueueWorkTickets <C extends Object> {
         futures.put(client, future);
         @SuppressWarnings("unused")
         boolean res = lease(client);
-//        if (res)
-//            runFuture(future);
         return future;
     }
 
@@ -179,10 +177,12 @@ public class QueueWorkTickets <C extends Object> {
                 try {
                     C client = waitingClients.poll(100, TimeUnit.MILLISECONDS);
                     if (client != null) {
-                        workingClients.offer(client);
-                        QueueFuture future = futures.remove(client);
-                        if (future != null)
-                            runFuture(future);
+                        boolean ret = workingClients.offer(client);
+                        if (ret) {
+                            QueueFuture future = futures.remove(client);
+                            if (future != null)
+                                runFuture(future);
+                        }
                     }
                 }
                 catch (InterruptedException e) {
@@ -228,6 +228,7 @@ public class QueueWorkTickets <C extends Object> {
     
     private class QueueFuture implements Future<Boolean> {
 
+        @SuppressWarnings("unused")
         private C client = null;
         private Callable<Boolean> callable = null;
         private Boolean result = null;
@@ -244,27 +245,16 @@ public class QueueWorkTickets <C extends Object> {
             }
             else if (callable != null) {
                 try {
-//                    new Thread(QueueWorkTickets.class.getSimpleName() + ":: "
-//                            + Integer.toHexString(QueueWorkTickets.this.hashCode())) {
-//                        @Override
-//                        public void run() {
-//                            try {
-//                                callable.call();
-//                            }
-//                            catch (Exception e) {
-//                                e.printStackTrace();
-//                            }
-//                        }  
-//                    }.start();
                     service.submit(callable);
                     result = true;
                 }
                 catch (Exception e) {
                     e.printStackTrace();
+                    result = false;
                 }
                 finally {
-                    result = false;
-                    release(client); // Here we need to be sure to release the lock because we are not able to inform the client 
+                    //result = false;
+                    // release(client); // Here we need to be sure to release the lock because we are not able to inform the client 
                 }
             }
             else {
@@ -314,6 +304,7 @@ public class QueueWorkTickets <C extends Object> {
     /**
      * @param args
      */
+    @SuppressWarnings("unused")
     public static void main(String[] args) {
         Object o1 = new Object();
         Object o2 = new Object();
@@ -366,6 +357,54 @@ public class QueueWorkTickets <C extends Object> {
             }
         });
         try { ft1.get(2, TimeUnit.SECONDS); } catch (TimeoutException | ExecutionException | InterruptedException e) { e.printStackTrace(); }
+        
+        
+        qt.cancelAll();
+        System.out.println();
+        System.out.println();
+        System.out.println();
+        System.out.println("----------------------------------");
+
+        Future<Boolean> f1 = qt.leaseAndWait(o1, new Callable<Boolean>() {
+            @Override
+            public Boolean call() throws Exception {
+                System.out.println("future = o1");
+                try { Thread.sleep(5000); } catch (InterruptedException e) { }
+                qt.release(o1);
+                return true;
+            }
+        });
+        Future<Boolean> f2 = qt.leaseAndWait(o2, new Callable<Boolean>() {
+            @Override
+            public Boolean call() throws Exception {
+                System.out.println("future = o2");
+                try { Thread.sleep(5000); } catch (InterruptedException e) { }
+                qt.release(o2);
+                return true;
+            }
+        });
+        Future<Boolean> f3 = qt.leaseAndWait(o3, new Callable<Boolean>() {
+            @Override
+            public Boolean call() throws Exception {
+                System.out.println("future = o3");
+                try { Thread.sleep(5000); } catch (InterruptedException e) { }
+                qt.release(o3);
+                return true;
+            }
+        });
+        Future<Boolean> f4 = qt.leaseAndWait(o4, new Callable<Boolean>() {
+            @Override
+            public Boolean call() throws Exception {
+                System.out.println("future = o4");
+                try { Thread.sleep(5000); } catch (InterruptedException e) { }
+                qt.release(o4);
+                return true;
+            }
+        });
+        
+        try { Thread.sleep(5000); } catch (InterruptedException e) { }
+        
+        qt.release(o1);
     }
 }
 
