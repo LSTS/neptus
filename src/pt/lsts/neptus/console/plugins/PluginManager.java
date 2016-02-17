@@ -364,7 +364,7 @@ public class PluginManager extends ConsolePanel {
                     if (index > -1) {
                         String pluginName = (String) availablePluginsList.getSelectedValue();
                         availableSelected = pluginName;
-                        String pluginNameFixed = activeSelected.replaceAll("_\\d*$", "");
+                        String pluginNameFixed = pluginName.replaceAll("_\\d*$", "");
                         Class<?> clazz = plugins.get(pluginNameFixed);
                         updateDescriptionTextInGui(clazz);
                     }
