@@ -118,6 +118,8 @@ public class ContainerSubPanel extends ConsolePanel implements LockableSubPanel 
         if (isAddSubPanelToPanelOrLetExtensionDoIt())
             this.add(panel);
         
+        addSubPanelFinishUp();
+        
         doLayout();
         invalidate();
         revalidate();
@@ -136,6 +138,12 @@ public class ContainerSubPanel extends ConsolePanel implements LockableSubPanel 
      */
     protected boolean addSubPanelExtra(ConsolePanel panel) {
         return true;
+    }
+
+    /**
+     * Override this to finish up layout tasks after the new component is added to container.
+     */
+    protected void addSubPanelFinishUp() {
     }
 
     public final void removeSubPanel(ConsolePanel sp) {

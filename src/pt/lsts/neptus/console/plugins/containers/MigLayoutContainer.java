@@ -294,9 +294,13 @@ public class MigLayoutContainer extends ContainerSubPanel implements Configurati
     }
 
     @Override
-    public boolean addSubPanelExtra(ConsolePanel panel) {
-        applyLayout(this.xmlDef);
+    protected boolean addSubPanelExtra(ConsolePanel panel) {
         return true;
+    }
+    
+    @Override
+    protected void addSubPanelFinishUp() {
+        applyLayout(this.xmlDef);
     }
 
     @Override
