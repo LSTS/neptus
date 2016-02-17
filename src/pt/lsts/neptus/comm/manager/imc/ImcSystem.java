@@ -40,6 +40,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Vector;
 
+import pt.lsts.imc.VehicleMedium;
+import pt.lsts.imc.VehicleMedium.MEDIUM;
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.comm.CommUtil;
 import pt.lsts.neptus.comm.IMCUtils;
@@ -321,7 +323,11 @@ public class ImcSystem implements Comparable<ImcSystem> {
 		}
 		return null;
 	}
-	
+
+	public MEDIUM getVehicleMedium() {
+	    VehicleMedium vmd = (VehicleMedium) dataStorage.get(VEHICLE_MEDIUM);
+	    return vmd.getMedium();
+	}
 	/**
      * @return the planDBControl
      */
