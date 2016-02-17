@@ -61,7 +61,7 @@ import com.l2fprod.common.propertysheet.Property;
 
 public class StationKeeping extends Maneuver implements LocatedManeuver, IMCSerialization, StatisticsProvider {
 
-	public static final int INFINITY_DURATION = -1;
+	public static final int INFINITY_DURATION = 0;
 	public static final double MINIMUM_SK_RADIUS = 20;
 	
 	private int duration = 60;
