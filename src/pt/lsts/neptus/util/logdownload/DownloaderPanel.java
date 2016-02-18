@@ -71,6 +71,7 @@ import pt.lsts.neptus.util.ImageUtils;
 import pt.lsts.neptus.util.MathMiscUtils;
 import pt.lsts.neptus.util.MovingAverage;
 import pt.lsts.neptus.util.StreamUtil;
+import pt.lsts.neptus.util.concurrency.QueueWorkTickets;
 import pt.lsts.neptus.util.conf.GeneralPreferences;
 import foxtrot.AsyncTask;
 import foxtrot.AsyncWorker;

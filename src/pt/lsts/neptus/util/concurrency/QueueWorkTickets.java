@@ -29,7 +29,7 @@
  * Author: pdias
  * Jun 25, 2014
  */
-package pt.lsts.neptus.util.logdownload;
+package pt.lsts.neptus.util.concurrency;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -144,7 +144,7 @@ public class QueueWorkTickets <C extends Object> {
             leaseNext();
             return workingClients.contains(client);
         }
-        NeptusLog.pub().warn((QueueWorkTickets.class.getSimpleName() + " .................... size of workers=" + workingClients.size() + "  waiting=" + waitingClients.size()));
+        NeptusLog.pub().debug((QueueWorkTickets.class.getSimpleName() + " .................... size of workers=" + workingClients.size() + "  waiting=" + waitingClients.size()));
         return ret;
     }
 
@@ -190,12 +190,12 @@ public class QueueWorkTickets <C extends Object> {
                 }
             }
         }
-        NeptusLog.pub().warn(QueueWorkTickets.class.getSimpleName() + " |................... size of workers=" + workingClients.size() + "  waiting=" + waitingClients.size());
+        NeptusLog.pub().debug(QueueWorkTickets.class.getSimpleName() + " |................... size of workers=" + workingClients.size() + "  waiting=" + waitingClients.size());
     }
 
     public void cancelAll() {
         synchronized (workingClients) {
-            NeptusLog.pub().warn(QueueWorkTickets.class.getSimpleName() + " |..cancel all....... size of workers=" + workingClients.size() + "  waiting=" + waitingClients.size());
+            NeptusLog.pub().debug(QueueWorkTickets.class.getSimpleName() + " |..cancel all....... size of workers=" + workingClients.size() + "  waiting=" + waitingClients.size());
             workingClients.clear();
             waitingClients.clear();
             for (QueueFuture ft : futures.values()) {
@@ -225,7 +225,6 @@ public class QueueWorkTickets <C extends Object> {
         return ret;
     }
 
-    
     private class QueueFuture implements Future<Boolean> {
 
         @SuppressWarnings("unused")
@@ -252,10 +251,6 @@ public class QueueWorkTickets <C extends Object> {
                     e.printStackTrace();
                     result = false;
                 }
-                finally {
-                    //result = false;
-                    // release(client); // Here we need to be sure to release the lock because we are not able to inform the client 
-                }
             }
             else {
                 result = true;
@@ -271,9 +266,12 @@ public class QueueWorkTickets <C extends Object> {
             return result;
         }
 
+        /**
+         * The caller must release the lock calling {@link QueueWorkTickets#release(Object)}
+         * @see java.util.concurrent.Future#cancel(boolean)
+         */
         @Override
         public boolean cancel(boolean mayInterruptIfRunning) {
-            // The caller must release the lock
             canceled = true;
             return false;
         }
