@@ -33,9 +33,12 @@ package pt.lsts.neptus.mra;
 
 import java.awt.Component;
 import java.io.File;
+import java.io.IOException;
 import java.util.Date;
 
 import javax.swing.JOptionPane;
+
+import org.apache.commons.io.FileUtils;
 
 import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.mra.importers.IMraLogGroup;
@@ -130,10 +133,25 @@ public class TidesMraLoader {
     public static void setDefaultTideIfNotExisted(IMraLogGroup source) {
         File tideInfoFx = new File(source.getDir(), TidePredictionFactory.MRA_TIDE_INDICATION_FILE_PATH);
         if (!tideInfoFx.exists() || !tideInfoFx.canRead()) {
-            File defaultTidesSource = GeneralPreferences.tidesFile;
-            if (defaultTidesSource != null && defaultTidesSource.exists() && defaultTidesSource.canRead()) {
-                FileUtil.saveToFile(new File(source.getDir(), TidePredictionFactory.MRA_TIDE_INDICATION_FILE_PATH)
-                        .getAbsolutePath(), defaultTidesSource.getName());
+            // Account for old way of saving tide info to mra folder of the log
+            File tideInfoOldFx = new File(source.getDir(), TidePredictionFactory.MRA_TIDE_INDICATION_FILE_PATH_OLD);
+            boolean writeDefault = false;
+            if (tideInfoOldFx.exists() && tideInfoOldFx.canRead()) {
+                try {
+                    FileUtils.moveFile(tideInfoOldFx, tideInfoFx);
+                }
+                catch (IOException e) {
+                    e.printStackTrace();
+                    writeDefault = true;
+                }
+            }
+            
+            if (writeDefault) {
+                File defaultTidesSource = GeneralPreferences.tidesFile;
+                if (defaultTidesSource != null && defaultTidesSource.exists() && defaultTidesSource.canRead()) {
+                    FileUtil.saveToFile(new File(source.getDir(), TidePredictionFactory.MRA_TIDE_INDICATION_FILE_PATH)
+                            .getAbsolutePath(), defaultTidesSource.getName());
+                }
             }
         }
     }
