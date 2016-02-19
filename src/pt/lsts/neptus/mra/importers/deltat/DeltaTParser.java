@@ -602,7 +602,7 @@ public class DeltaTParser implements BathymetryParser {
 
             return swath;
         }
-        catch (IOException e) {
+        catch (Exception e) {
             e.printStackTrace();
 //            cleanupResultOutputFile();
             return null;
@@ -633,7 +633,7 @@ public class DeltaTParser implements BathymetryParser {
 
             return swath;
         }
-        catch (IOException e) {
+        catch (Exception e) {
             e.printStackTrace();
             return null;
         }
