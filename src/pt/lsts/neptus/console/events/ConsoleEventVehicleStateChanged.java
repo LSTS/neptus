@@ -49,7 +49,8 @@ public class ConsoleEventVehicleStateChanged {
         TELEOPERATION(5),
         DISCONNECTED(6),
         CONNECTED(7),
-        BOOT(8);
+        BOOT(8),
+        FINISHED(9);
 
         protected long value;
 
