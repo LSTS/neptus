@@ -34,8 +34,8 @@ package pt.lsts.neptus.plugins.mvplanning;
 
 import pt.lsts.imc.QueryEntityState;
 import pt.lsts.neptus.comm.manager.imc.ImcMsgManager;
-import pt.lsts.neptus.console.ConsoleLayer;
 import pt.lsts.neptus.console.ConsoleLayout;
+import pt.lsts.neptus.console.ConsolePanel;
 import pt.lsts.neptus.console.plugins.PlanChangeListener;
 import pt.lsts.neptus.events.NeptusEvents;
 import pt.lsts.neptus.plugins.PluginDescription;
@@ -47,7 +47,7 @@ import pt.lsts.neptus.types.mission.plan.PlanType;
  *
  */
 @PluginDescription(name = "Multi-Vehicle Planning")
-public class MVPlanning extends ConsoleLayer implements PlanChangeListener {
+public class MVPlanning extends ConsolePanel implements PlanChangeListener {
     public static final String PROFILES_DIR = MVPlanning.class.getProtectionDomain().getCodeSource().getLocation().getPath() + "etc/";
 
 
@@ -55,7 +55,8 @@ public class MVPlanning extends ConsoleLayer implements PlanChangeListener {
     private ConsoleLayout console;
     private VehicleAwareness vawareness;
 
-    public MVPlanning() {
+    public MVPlanning(ConsoleLayout console) {
+        super(console);
         this.console = getConsole();
         vawareness = new VehicleAwareness();
     }
@@ -66,23 +67,18 @@ public class MVPlanning extends ConsoleLayer implements PlanChangeListener {
     }
 
     @Override
-    public boolean userControlsOpacity() {
-        return false;
-    }
-
-    @Override
-    public void initLayer() {
-        this.console = getConsole();
-        NeptusEvents.register(vawareness, console);
-    }
-
-    @Override
-    public void cleanLayer() {
-    }
-
-
-    @Override
     public void planChange(PlanType plan) {
 //        printPlanCapabilitiesNeeds(plan);
+    }
+
+    @Override
+    public void cleanSubPanel() {        
+    }
+
+
+    @Override
+    public void initSubPanel() {
+        this.console = getConsole();
+        NeptusEvents.register(vawareness, console);
     }
 }
