@@ -40,14 +40,15 @@ import javax.xml.bind.JAXBException;
 import javax.xml.bind.Marshaller;
 import javax.xml.bind.Unmarshaller;
 
+import pt.lsts.neptus.plugins.mvplanning.MVPlanning;
 import pt.lsts.neptus.plugins.mvplanning.utils.Payload;
+import pt.lsts.neptus.util.FileUtil;
 
 /**
  * @author tsmarques
  *
  */
 public class ProfileMarshaler {
-    private static final String PAYLOADS_DIR = System.getProperty("user.dir") + "/plugins-dev/mvplanning/etc/";
     private Map<String, Profile> allProfiles;
     
     public ProfileMarshaler() {
@@ -102,7 +103,7 @@ public class ProfileMarshaler {
 
                 System.out.println("[mvplanning/PayloadMarshaler] Marshaling payload of type " + type);
                 jaxbMarshaller.marshal(allProfiles.get(type), System.out);
-                jaxbMarshaller.marshal(allProfiles.get(type), new File(PAYLOADS_DIR + type + ".xml"));
+                jaxbMarshaller.marshal(allProfiles.get(type), new File(MVPlanning.PROFILES_DIR + type + ".xml"));
             }
             catch (JAXBException e) {
                 System.out.println("[mvplanning/PayloadMarshaler] #Error# while marshaling payload");
@@ -116,17 +117,18 @@ public class ProfileMarshaler {
     
     private Map<String, Profile> unmarshalAll() {
         Map<String, Profile> profiles = new HashMap<String, Profile>();
-        File directory = new File(PAYLOADS_DIR);
+        File directory = new File(MVPlanning.PROFILES_DIR);
         
         for(File file : directory.listFiles()) {
             String filename = file.getName();
             if(filename.endsWith(".xml")) {
+                System.out.println(filename);
                 String type = filename.substring(0, filename.indexOf('.'));
                 Profile profile = unmarshal(type);
                 
                 profiles.put(type, profile);
             }
-        }       
+        }     
         return profiles;
     }
             
@@ -139,7 +141,7 @@ public class ProfileMarshaler {
         try {
             jaxbContext = JAXBContext.newInstance(Profile.class);
             jaxbUnmarshaller = jaxbContext.createUnmarshaller();
-            pProfiles = (Profile) jaxbUnmarshaller.unmarshal(new File(PAYLOADS_DIR + type + ".xml"));
+            pProfiles = (Profile) jaxbUnmarshaller.unmarshal(new File(MVPlanning.PROFILES_DIR + type + ".xml"));
                         
             return pProfiles;
         }

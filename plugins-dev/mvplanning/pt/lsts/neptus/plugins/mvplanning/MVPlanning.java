@@ -31,20 +31,13 @@
  */
 package pt.lsts.neptus.plugins.mvplanning;
 
-import java.util.ArrayList;
 
-import pt.lsts.imc.IMCMessage;
 import pt.lsts.imc.QueryEntityState;
 import pt.lsts.neptus.comm.manager.imc.ImcMsgManager;
 import pt.lsts.neptus.console.ConsoleLayer;
 import pt.lsts.neptus.console.ConsoleLayout;
 import pt.lsts.neptus.console.plugins.PlanChangeListener;
 import pt.lsts.neptus.events.NeptusEvents;
-import pt.lsts.neptus.mp.Maneuver;
-import pt.lsts.neptus.params.ConfigurationManager;
-import pt.lsts.neptus.params.SystemProperty;
-import pt.lsts.neptus.params.SystemProperty.Scope;
-import pt.lsts.neptus.params.SystemProperty.Visibility;
 import pt.lsts.neptus.plugins.PluginDescription;
 import pt.lsts.neptus.plugins.mvplanning.utils.VehicleAwareness;
 import pt.lsts.neptus.types.mission.plan.PlanType;
@@ -55,6 +48,9 @@ import pt.lsts.neptus.types.mission.plan.PlanType;
  */
 @PluginDescription(name = "Multi-Vehicle Planning")
 public class MVPlanning extends ConsoleLayer implements PlanChangeListener {
+    public static final String PROFILES_DIR = MVPlanning.class.getProtectionDomain().getCodeSource().getLocation().getPath() + "etc/";
+
+
     private String system;
     private ConsoleLayout console;
     private VehicleAwareness vawareness;
@@ -68,8 +64,6 @@ public class MVPlanning extends ConsoleLayer implements PlanChangeListener {
         QueryEntityState qEntityState = new QueryEntityState();
         ImcMsgManager.getManager().sendMessageToSystem(qEntityState, system);
     }
-
-
 
     @Override
     public boolean userControlsOpacity() {
