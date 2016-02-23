@@ -328,6 +328,13 @@ public class ImcSystem implements Comparable<ImcSystem> {
 	    VehicleMedium vmd = (VehicleMedium) dataStorage.get(VEHICLE_MEDIUM);
 	    return vmd.getMedium();
 	}
+	
+	/* If the vehicle is in it's operation medium.
+	 * E.g. if a UAV is in the air and a AUV in the water */
+	public boolean isInOperationMedium() {
+	    return getVehicleMedium() != MEDIUM.GROUND;
+	}
+	
 	/**
      * @return the planDBControl
      */
