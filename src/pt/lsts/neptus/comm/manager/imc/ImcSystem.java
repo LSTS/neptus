@@ -326,7 +326,11 @@ public class ImcSystem implements Comparable<ImcSystem> {
 
 	public MEDIUM getVehicleMedium() {
 	    VehicleMedium vmd = (VehicleMedium) dataStorage.get(VEHICLE_MEDIUM);
-	    return vmd.getMedium();
+	    
+	    if(vmd == null)
+	        return MEDIUM.GROUND;
+	    else
+	        return vmd.getMedium();
 	}
 	
 	/* If the vehicle is in it's operation medium.
