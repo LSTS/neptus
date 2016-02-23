@@ -33,7 +33,10 @@ package pt.lsts.neptus.plugins.mvplanning.utils;
 
 import java.util.concurrent.ConcurrentHashMap;
 
+import pt.lsts.neptus.comm.manager.imc.ImcSystem;
+import pt.lsts.neptus.comm.manager.imc.ImcSystemsHolder;
 import pt.lsts.neptus.console.events.ConsoleEventVehicleStateChanged;
+import pt.lsts.neptus.console.events.ConsoleEventVehicleStateChanged.STATE;
 import pt.lsts.neptus.plugins.mvplanning.utils.jaxb.ProfileMarshaler;
 
 import com.google.common.eventbus.Subscribe;
@@ -62,9 +65,23 @@ public class VehicleAwareness {
         String id = event.getVehicle();
         ConsoleEventVehicleStateChanged.STATE newState = event.getState();
 
-        if(newState == ConsoleEventVehicleStateChanged.STATE.SERVICE) {
-            logDebugInfo("New active vehicle " + "[" + id + "]");
+        if(newState == STATE.FINISHED)
+            setVehicleAvailable(id);
+        else if(newState == STATE.SERVICE) {
+            ImcSystem vehicle = ImcSystemsHolder.getSystemWithName(id);
 
+            if(vehicle.isInOperationMedium())
+                setVehicleAvailable(id);
+            else /* In SERVICE mode, but on the ground */
+                setVehicleUnavailable(id);
+        }
+        else
+            setVehicleUnavailable(id);
+    }
+    
+    private void setVehicleAvailable(String id) {
+        /* if vehicle is not already set as available */
+        if(!availableVehicles.containsKey(id)) {
             VehicleInfo vehicle;
             if(unavailableVehicles.containsKey(id))
                 vehicle = unavailableVehicles.remove(id);
@@ -73,15 +90,21 @@ public class VehicleAwareness {
             availableVehicles.put(id, vehicle);
 
             /* logging */
+            logDebugInfo("Vehicle " + id + " set as AVAILABLE");
             vehicle.printProfiles();
         }
-        else {
-            if(availableVehicles.containsKey(id)) {
-                VehicleInfo vehicle = availableVehicles.remove(id);
-                unavailableVehicles.put(id, vehicle);
-
-                logDebugInfo("vehicle no longer active, [" + id + "]");
-            }
+    }
+    
+    private void setVehicleUnavailable(String id) {
+        /* if vehicle is not already set as unavailable */
+        if(!unavailableVehicles.containsKey(id)) {
+            VehicleInfo vehicle;
+            if(availableVehicles.containsKey(id))
+                vehicle = availableVehicles.remove(id);
+            else
+                vehicle = new VehicleInfo(id, payloadMarsh.getAllProfiles()); /* first time in service mode */
+            unavailableVehicles.put(id, vehicle);
+            logDebugInfo("Vehicle " + id + " set as UNAVAILABLE");
         }
     }
 
