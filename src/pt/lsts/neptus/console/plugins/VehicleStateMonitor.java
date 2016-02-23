@@ -45,6 +45,9 @@ import pt.lsts.neptus.console.events.ConsoleEventVehicleStateChanged.STATE;
 import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.plugins.PluginDescription;
 import pt.lsts.neptus.plugins.update.IPeriodicUpdates;
+import pt.lsts.imc.Loiter;
+import pt.lsts.imc.PlanControlState;
+import pt.lsts.imc.StationKeeping;
 import pt.lsts.imc.Teleoperation;
 import pt.lsts.imc.VehicleState;
 import pt.lsts.imc.VehicleState.OP_MODE;
@@ -135,6 +138,25 @@ public class VehicleStateMonitor extends ConsolePanel implements IPeriodicUpdate
         }
         catch (Exception e) {
             e.printStackTrace();
+        }
+    }
+    
+    @Subscribe
+    public void consume(PlanControlState msg) {
+        boolean vehicleIsAvailable = false;
+        if (msg.getState() == PlanControlState.STATE.READY)
+            vehicleIsAvailable = true;
+        else if (msg.getManEta() == 0xFFFF && msg.getManType() == Loiter.ID_STATIC)
+            vehicleIsAvailable = true;
+        else if (msg.getManEta() == 1 && msg.getManType() == StationKeeping.ID_STATIC ) /**/
+            vehicleIsAvailable = true;
+        
+        if(vehicleIsAvailable) {
+            String src = msg.getSourceName();
+            ConsoleSystem consoleSystem = getConsole().getSystem(src);
+            
+            post(new ConsoleEventVehicleStateChanged(src, "", STATE.FINISHED));
+            consoleSystem.setVehicleState(STATE.FINISHED);
         }
     }
 
