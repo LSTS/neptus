@@ -31,12 +31,15 @@
  */
 package pt.lsts.neptus.plugins.mvplanning.utils;
 
+import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 import pt.lsts.neptus.comm.manager.imc.ImcSystem;
 import pt.lsts.neptus.comm.manager.imc.ImcSystemsHolder;
 import pt.lsts.neptus.console.events.ConsoleEventVehicleStateChanged;
 import pt.lsts.neptus.console.events.ConsoleEventVehicleStateChanged.STATE;
+import pt.lsts.neptus.plugins.mvplanning.MVPlanning;
+import pt.lsts.neptus.plugins.mvplanning.utils.jaxb.Profile;
 import pt.lsts.neptus.plugins.mvplanning.utils.jaxb.ProfileMarshaler;
 
 import com.google.common.eventbus.Subscribe;
@@ -46,8 +49,6 @@ import com.google.common.eventbus.Subscribe;
  *        Should fetch list of available vehicles at startup
  */
 public class VehicleAwareness {
-    private final ProfileMarshaler payloadMarsh = new ProfileMarshaler();
-
     private ConcurrentHashMap<String, VehicleInfo> availableVehicles;
     private ConcurrentHashMap<String, VehicleInfo> unavailableVehicles;
 
@@ -86,7 +87,7 @@ public class VehicleAwareness {
             if(unavailableVehicles.containsKey(id))
                 vehicle = unavailableVehicles.remove(id);
             else
-                vehicle = new VehicleInfo(id, payloadMarsh.getAllProfiles()); /* first time in service mode */
+                vehicle = new VehicleInfo(id, MVPlanning.availableProfiles); /* first time in service mode */
             availableVehicles.put(id, vehicle);
 
             /* logging */
@@ -102,7 +103,7 @@ public class VehicleAwareness {
             if(availableVehicles.containsKey(id))
                 vehicle = availableVehicles.remove(id);
             else
-                vehicle = new VehicleInfo(id, payloadMarsh.getAllProfiles()); /* first time in service mode */
+                vehicle = new VehicleInfo(id, MVPlanning.availableProfiles); /* first time in service mode */
             unavailableVehicles.put(id, vehicle);
             logDebugInfo("Vehicle " + id + " set as UNAVAILABLE");
         }

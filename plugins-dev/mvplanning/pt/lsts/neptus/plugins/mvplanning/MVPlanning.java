@@ -32,6 +32,8 @@
 package pt.lsts.neptus.plugins.mvplanning;
 
 
+import java.util.Map;
+
 import pt.lsts.imc.QueryEntityState;
 import pt.lsts.neptus.comm.manager.imc.ImcMsgManager;
 import pt.lsts.neptus.console.ConsoleLayout;
@@ -40,6 +42,8 @@ import pt.lsts.neptus.console.plugins.PlanChangeListener;
 import pt.lsts.neptus.events.NeptusEvents;
 import pt.lsts.neptus.plugins.PluginDescription;
 import pt.lsts.neptus.plugins.mvplanning.utils.VehicleAwareness;
+import pt.lsts.neptus.plugins.mvplanning.utils.jaxb.Profile;
+import pt.lsts.neptus.plugins.mvplanning.utils.jaxb.ProfileMarshaler;
 import pt.lsts.neptus.types.mission.plan.PlanType;
 
 /**
@@ -49,8 +53,9 @@ import pt.lsts.neptus.types.mission.plan.PlanType;
 @PluginDescription(name = "Multi-Vehicle Planning")
 public class MVPlanning extends ConsolePanel implements PlanChangeListener {
     public static final String PROFILES_DIR = MVPlanning.class.getProtectionDomain().getCodeSource().getLocation().getPath() + "etc/";
-
-
+    private static final ProfileMarshaler pMarsh = new ProfileMarshaler();
+    public static final Map<String, Profile> availableProfiles = pMarsh.getAllProfiles();
+    
     private String system;
     private ConsoleLayout console;
     private VehicleAwareness vawareness;
