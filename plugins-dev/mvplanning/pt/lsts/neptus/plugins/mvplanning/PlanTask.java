@@ -33,6 +33,7 @@ package pt.lsts.neptus.plugins.mvplanning;
 
 import pt.lsts.imc.PlanSpecification;
 import pt.lsts.imc.types.PlanSpecificationAdapter;
+import pt.lsts.neptus.plugins.mvplanning.utils.jaxb.Profile;
 
 /**
  * @author tsmarques
@@ -41,15 +42,21 @@ import pt.lsts.imc.types.PlanSpecificationAdapter;
 /* Wrapper around PlanSpecification */
 public class PlanTask {
     private PlanSpecification plan;
+    private Profile planProfile;
     private double timestamp;
 
-    public PlanTask(PlanSpecification plan, double timestamp) {
+    public PlanTask(PlanSpecification plan, Profile planProfile, double timestamp) {
         this.plan = plan;
+        this.planProfile = planProfile;
         this.timestamp = timestamp;
     }
 
     public double getTimestamp() {
         return timestamp;
+    }
+
+    public Profile getProfile() {
+        return planProfile;
     }
 
     public void setTimestamp(double timestamp) {
