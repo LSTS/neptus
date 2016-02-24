@@ -79,6 +79,10 @@ public class VehicleAwareness {
         else
             setVehicleUnavailable(id);
     }
+
+    public boolean isVehicleAvailable(String vehicle) {
+        return availableVehicles.containsKey(vehicle);
+    }
     
     private void setVehicleAvailable(String id) {
         /* if vehicle is not already set as available */
