@@ -50,8 +50,9 @@ import pt.lsts.neptus.plugins.mvplanning.utils.jaxb.Profile;
  */
 
 public class VehicleInfo {
+    /* vehicle id */
     private String vId;
-    //private ArrayList<String> capabilities;
+    /* What profiles the vehicle can 'use'. Map<ProfileId, Profile> */
     private Map<String, Profile> vehicleProfiles;
 
     /* Properties variables */
@@ -68,6 +69,7 @@ public class VehicleInfo {
     }
 
 
+    /* Fetch the profiles that the vehicle can 'use' */
     public void fetchVehicleProfiles(Map<String, Profile> existingProfiles) {
         ArrayList<SystemProperty> payloadList = ConfigurationManager.getInstance().getProperties(vId, vis, scope);
         vehicleProfiles = new HashMap<String, Profile>();
@@ -98,11 +100,6 @@ public class VehicleInfo {
                 return false;
         }
         return true;
-    }
-
-
-    public boolean hasCapabilities(LinkedList<String> neededCapabilities) {
-        return vehicleProfiles.keySet().containsAll(neededCapabilities);
     }
 
     /* for debugging */
