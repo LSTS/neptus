@@ -32,23 +32,89 @@
 
 package pt.lsts.neptus.plugins.mvplanning;
 
-import pt.lsts.imc.PlanDB;
-import pt.lsts.imc.PlanDB.OP;
-import pt.lsts.neptus.comm.IMCSendMessageUtils;
-import pt.lsts.neptus.console.ConsoleLayout;
-import pt.lsts.neptus.i18n.I18n;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import com.google.common.eventbus.Subscribe;
+
+import pt.lsts.neptus.plugins.mvplanning.events.MvPlanningEventAvailableVehicle;
 import pt.lsts.neptus.plugins.mvplanning.utils.VehicleAwareness;
+import pt.lsts.neptus.plugins.mvplanning.utils.jaxb.Profile;
 
 /* Sends plans to the vehicles.
  Also send 'execution commands'*/
 public class PlanAllocator {
+    /* Used only to query if a vehicle is available */
     private VehicleAwareness vawareness;
+
+    /** Lists used to maintain a round-robin allocation, per Profile
+     * Map<ProfileId, Vehicles List> */
+    private Map<String, List<String>> allocationLists;
+
+    /* Plans waiting for an available vehicle to be allocated to */
+    private List<PlanTask> queuedPlans;
+
+    /* If there are plans waiting to be allocated */
+    private boolean existsQueuedPlans;
+
     public PlanAllocator(VehicleAwareness vawareness) {
         this.vawareness = vawareness;
+        allocationLists = new HashMap<>();
+        queuedPlans = new ArrayList<>();
+        existsQueuedPlans = false;
     }
- 
-    public void allocate(PlanTask pTask) {
+
+    private boolean unseenProfile(String profileId) {
+        return allocationLists.containsKey(profileId);
+    }
+
+    private void fetchProfileVehicles(Profile newProfile) {
+        allocationLists.put(newProfile.getId(), newProfile.getProfileVehicles());
+    }
+
+    public synchronized void allocate(PlanTask pTask) {
         /* allocate plans to vehicle */
         System.out.println("[mvplanning/PlanAlocater]: Allocating plan");
+
+        String profileId = pTask.getProfile().getId();
+
+        /* if it's a new profile */
+        if(unseenProfile(profileId))
+            fetchProfileVehicles(pTask.getProfile());
+
+        int i = 0;
+        List<String> profileVehicles = allocationLists.get(profileId);
+        boolean allocated = false;
+
+        /* iterate over profile's vehicles and find the first one available */
+        while(!allocated || (i == profileVehicles.size())) {
+            /* fetch, supposedly, available vehicle of the profile */
+            String freeVehicle = profileVehicles.get(i);
+
+            if(vawareness.isVehicleAvailable(freeVehicle)) {
+                /* allocate plan and then push the vehicle to the back of queue */
+                allocated = true;
+                profileVehicles.remove(i);
+                profileVehicles.add(freeVehicle);
+            }
+            i++;
+        }
+
+        if(!allocated) {
+            /* No vehicle is currently available,
+             * queue plan and allocate as soon as there's
+             * a vehicle */
+            queuedPlans.add(pTask);
+            existsQueuedPlans = true;
+        }
+    }
+
+    @Subscribe
+    public void waitForAvailableVehicle(MvPlanningEventAvailableVehicle event) {
+        if(existsQueuedPlans) {
+            /* if there are plans to be allocated, check if this vehicle can execute any of them */
+        }
     }
 }
