@@ -151,12 +151,11 @@ public class VehicleStateMonitor extends ConsolePanel implements IPeriodicUpdate
         else if (msg.getManEta() == 1 && msg.getManType() == StationKeeping.ID_STATIC ) /**/
             vehicleIsAvailable = true;
         
-        if(vehicleIsAvailable) {
-            String src = msg.getSourceName();
-            ConsoleSystem consoleSystem = getConsole().getSystem(src);
-            
+        String src = msg.getSourceName();
+        ConsoleSystem vehicle = getConsole().getSystem(src);
+        if(vehicleIsAvailable && (vehicle.getVehicleState() != STATE.FINISHED)) {
             post(new ConsoleEventVehicleStateChanged(src, "", STATE.FINISHED));
-            consoleSystem.setVehicleState(STATE.FINISHED);
+            vehicle.setVehicleState(STATE.FINISHED);
         }
     }
 
