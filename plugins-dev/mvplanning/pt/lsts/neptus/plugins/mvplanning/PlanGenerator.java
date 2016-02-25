@@ -16,7 +16,6 @@ public class PlanGenerator {
     }
 
     public void generatePlan(Profile planProfile, Object obj) {
-        System.out.println("############################################### " + obj.getClass().getSimpleName());
         if(obj.getClass().getSimpleName().equals("PlanType")) {
             PlanType pType = (PlanType) obj;
             PlanSpecification pSpec = (PlanSpecification) IMCUtils.generatePlanSpecification(pType);
