@@ -1,7 +1,9 @@
 package pt.lsts.neptus.plugins.mvplanning;
 
 import pt.lsts.imc.PlanSpecification;
+import pt.lsts.neptus.comm.IMCUtils;
 import pt.lsts.neptus.plugins.mvplanning.utils.jaxb.Profile;
+import pt.lsts.neptus.types.mission.plan.PlanType;
 
 public class PlanGenerator {
     private PlanAllocator planAloc;
@@ -14,8 +16,12 @@ public class PlanGenerator {
     }
 
     public void generatePlan(Profile planProfile, Object obj) {
-        if(obj.getClass().getSimpleName().equals("PlanSpecification"))
-            planAloc.allocate(new PlanTask((PlanSpecification) obj, planProfile, 0));
+        System.out.println("############################################### " + obj.getClass().getSimpleName());
+        if(obj.getClass().getSimpleName().equals("PlanType")) {
+            PlanType pType = (PlanType) obj;
+            PlanSpecification pSpec = (PlanSpecification) IMCUtils.generatePlanSpecification(pType);
+            planAloc.allocate(new PlanTask(pSpec, planProfile, 0));
+        }
         else {
             System.out.println("[mvplanning/PlanGenerator]: Generating a plan");
         }
