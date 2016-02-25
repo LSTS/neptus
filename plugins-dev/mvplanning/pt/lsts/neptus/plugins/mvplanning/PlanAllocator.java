@@ -118,9 +118,16 @@ public class PlanAllocator {
         }
     }
 
+    private boolean existsQueuedPlans() {
+        synchronized (queuedPlans) {
+            return this.existsQueuedPlans;
+        }
+    }
+
+
     @Subscribe
     public void waitForAvailableVehicle(MvPlanningEventAvailableVehicle event) {
-        if(existsQueuedPlans) {
+        if(existsQueuedPlans()) {
             /* if there are plans to be allocated, check if this vehicle can execute any of them */
         }
     }
