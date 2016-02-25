@@ -39,6 +39,7 @@ import java.util.Map;
 
 import com.google.common.eventbus.Subscribe;
 
+import pt.lsts.neptus.events.NeptusEvents;
 import pt.lsts.neptus.plugins.mvplanning.events.MvPlanningEventAvailableVehicle;
 import pt.lsts.neptus.plugins.mvplanning.utils.VehicleAwareness;
 import pt.lsts.neptus.plugins.mvplanning.utils.jaxb.Profile;
@@ -64,6 +65,8 @@ public class PlanAllocator {
         allocationLists = new HashMap<>();
         queuedPlans = new ArrayList<>();
         existsQueuedPlans = false;
+        
+        NeptusEvents.register(this);
     }
 
     private boolean unseenProfile(String profileId) {
