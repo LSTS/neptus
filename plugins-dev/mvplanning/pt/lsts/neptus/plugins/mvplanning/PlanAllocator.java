@@ -77,7 +77,7 @@ public class PlanAllocator {
         allocationLists.put(newProfile.getId(), newProfile.getProfileVehicles());
     }
 
-    public synchronized void allocate(PlanTask pTask) {
+    public void allocate(PlanTask pTask) {
         /* allocate plans to vehicle */
         System.out.println("[mvplanning/PlanAlocater]: Allocating plan");
 
