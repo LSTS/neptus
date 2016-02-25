@@ -92,7 +92,7 @@ public class PlanAllocator {
         boolean allocated = false;
 
         /* iterate over profile's vehicles and find the first one available */
-        while(!allocated || (i == profileVehicles.size())) {
+        while(!allocated || (i < profileVehicles.size())) {
             /* fetch, supposedly, available vehicle of the profile */
             String freeVehicle = profileVehicles.get(i);
 
