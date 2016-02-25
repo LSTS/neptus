@@ -50,6 +50,10 @@ public class PlanTask {
         this.planProfile = planProfile;
         this.timestamp = timestamp;
     }
+    
+    public PlanSpecification getPlanSpecification() {
+        return this.plan;
+    }
 
     public double getTimestamp() {
         return timestamp;
