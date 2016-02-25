@@ -70,7 +70,7 @@ public class PlanAllocator {
     }
 
     private boolean unseenProfile(String profileId) {
-        return allocationLists.containsKey(profileId);
+        return !allocationLists.containsKey(profileId);
     }
 
     private void fetchProfileVehicles(Profile newProfile) {
