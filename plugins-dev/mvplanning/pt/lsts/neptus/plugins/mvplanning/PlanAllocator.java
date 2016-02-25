@@ -105,12 +105,16 @@ public class PlanAllocator {
             i++;
         }
 
-        if(!allocated) {
-            /* No vehicle is currently available,
-             * queue plan and allocate as soon as there's
-             * a vehicle */
-            queuedPlans.add(pTask);
-            existsQueuedPlans = true;
+        /* No vehicle is currently available, queue plan and allocate as soon as there's
+         * a vehicle available */
+        if(!allocated)
+            queuePlan(pTask);
+    }
+
+    private void queuePlan(PlanTask plan) {
+        synchronized(queuedPlans) {
+            queuedPlans.add(plan);
+            this.existsQueuedPlans = true;
         }
     }
 
