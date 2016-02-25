@@ -39,7 +39,11 @@ import java.util.Map;
 
 import com.google.common.eventbus.Subscribe;
 
+import pt.lsts.imc.PlanDB;
+import pt.lsts.imc.PlanSpecification;
+import pt.lsts.neptus.comm.IMCSendMessageUtils;
 import pt.lsts.neptus.events.NeptusEvents;
+import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.plugins.mvplanning.events.MvPlanningEventAvailableVehicle;
 import pt.lsts.neptus.plugins.mvplanning.utils.VehicleAwareness;
 import pt.lsts.neptus.plugins.mvplanning.utils.jaxb.Profile;
@@ -79,8 +83,6 @@ public class PlanAllocator {
 
     public void allocate(PlanTask pTask) {
         /* allocate plans to vehicle */
-        System.out.println("[mvplanning/PlanAlocater]: Allocating plan");
-
         String profileId = pTask.getProfile().getId();
 
         /* if it's a new profile */
@@ -94,13 +96,17 @@ public class PlanAllocator {
         /* iterate over profile's vehicles and find the first one available */
         while(!allocated || (i < profileVehicles.size())) {
             /* fetch, supposedly, available vehicle of the profile */
-            String freeVehicle = profileVehicles.get(i);
+            String vehicle = profileVehicles.get(i);
 
-            if(vawareness.isVehicleAvailable(freeVehicle)) {
+            if(vawareness.isVehicleAvailable(vehicle)) {
                 /* allocate plan and then push the vehicle to the back of queue */
-                allocated = true;
-                profileVehicles.remove(i);
-                profileVehicles.add(freeVehicle);
+                allocated = allocateTo(vehicle, pTask);
+                if(allocated) {
+                    profileVehicles.remove(i);
+                    profileVehicles.add(vehicle);
+                    allocationLists.put(profileId, profileVehicles);
+                    System.out.println("[mvplanning/PlanAlocater]: Plan " + pTask.getPlanId() + " successfully allocated to " + vehicle);
+                }
             }
             i++;
         }
@@ -110,6 +116,31 @@ public class PlanAllocator {
         if(!allocated)
             queuePlan(pTask);
     }
+
+    private boolean allocateTo(String vehicle, PlanTask pTask) {
+        try {
+            int reqId = IMCSendMessageUtils.getNextRequestId();
+
+            PlanDB pdb = new PlanDB();
+            PlanSpecification plan = pTask.getPlanSpecification();
+
+            pdb.setType(PlanDB.TYPE.REQUEST);
+            pdb.setOp(PlanDB.OP.SET);
+            pdb.setRequestId(reqId);
+            pdb.setPlanId(pTask.getPlanId());
+            pdb.setArg(plan);
+            pdb.setInfo("Plan allocated by [mvplanning/PlanAllocator]");
+
+            boolean planSent = IMCSendMessageUtils.sendMessage(pdb, I18n.text("Error sending plan"), vehicle);
+
+            return planSent;
+        }
+        catch(Exception e) {
+            e.printStackTrace();
+            System.out.println("[mvplanning/PlanAllocator]: Failed to allocate plan " + pTask.getPlanId() + " to " + vehicle);
+            return false;
+        }
+  }
 
     private void queuePlan(PlanTask plan) {
         synchronized(queuedPlans) {
