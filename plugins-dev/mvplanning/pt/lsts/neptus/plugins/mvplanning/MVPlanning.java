@@ -59,11 +59,15 @@ public class MVPlanning extends ConsolePanel implements PlanChangeListener {
     private String system;
     private ConsoleLayout console;
     private VehicleAwareness vawareness;
+    PlanAllocator pAlloc;
+    PlanGenerator pGen;
 
     public MVPlanning(ConsoleLayout console) {
         super(console);
         this.console = getConsole();
         vawareness = new VehicleAwareness();
+        pAlloc = new PlanAllocator(vawareness);
+        pGen = new PlanGenerator(pAlloc);
     }
 
     void requestEntitiesState() {
@@ -74,6 +78,7 @@ public class MVPlanning extends ConsolePanel implements PlanChangeListener {
     @Override
     public void planChange(PlanType plan) {
 //        printPlanCapabilitiesNeeds(plan);
+        pGen.generatePlan(availableProfiles.get("Batimetria"), plan);
     }
 
     @Override
