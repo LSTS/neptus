@@ -32,134 +32,38 @@
 
 package pt.lsts.neptus.plugins.mvplanning;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import com.google.common.eventbus.Subscribe;
-
-import pt.lsts.imc.PlanDB;
-import pt.lsts.imc.PlanSpecification;
-import pt.lsts.neptus.comm.IMCSendMessageUtils;
-import pt.lsts.neptus.events.NeptusEvents;
-import pt.lsts.neptus.i18n.I18n;
-import pt.lsts.neptus.plugins.mvplanning.events.MvPlanningEventAvailableVehicle;
+import pt.lsts.neptus.plugins.mvplanning.allocation.RoundRobinAllocator;
+import pt.lsts.neptus.plugins.mvplanning.interfaces.AbstractAllocator;
 import pt.lsts.neptus.plugins.mvplanning.utils.VehicleAwareness;
-import pt.lsts.neptus.plugins.mvplanning.utils.jaxb.Profile;
 
 /* Sends plans to the vehicles.
  Also send 'execution commands'*/
 public class PlanAllocator {
-    /* Used only to query if a vehicle is available */
+    private AbstractAllocator allocator = null;
     private VehicleAwareness vawareness;
 
-    /** Lists used to maintain a round-robin allocation, per Profile
-     * Map<ProfileId, Vehicles List> */
-    private Map<String, List<String>> allocationLists;
-
-    /* Plans waiting for an available vehicle to be allocated to */
-    private List<PlanTask> queuedPlans;
-
-    /* If there are plans waiting to be allocated */
-    private boolean existsQueuedPlans;
+    public enum AllocationStrategy {
+        ROUND_ROBIN
+    }
 
     public PlanAllocator(VehicleAwareness vawareness) {
         this.vawareness = vawareness;
-        allocationLists = new HashMap<>();
-        queuedPlans = new ArrayList<>();
-        existsQueuedPlans = false;
-        
-        NeptusEvents.register(this);
     }
 
-    private boolean unseenProfile(String profileId) {
-        return !allocationLists.containsKey(profileId);
+    public PlanAllocator(AllocationStrategy allocStrat, VehicleAwareness vawareness) {
+        this.vawareness = vawareness;
+        setAllocationStrategy(allocStrat);
     }
 
-    private void fetchProfileVehicles(Profile newProfile) {
-        allocationLists.put(newProfile.getId(), newProfile.getProfileVehicles());
+    public void allocate(PlanTask ptask) {
+        /* default allocation strategy is round-robin */
+        if(allocator == null)
+            setAllocationStrategy(AllocationStrategy.ROUND_ROBIN);
+        allocator.addNewPlan(ptask);
     }
 
-    public void allocate(PlanTask pTask) {
-        /* allocate plans to vehicle */
-        String profileId = pTask.getProfile().getId();
-
-        /* if it's a new profile */
-        if(unseenProfile(profileId))
-            fetchProfileVehicles(pTask.getProfile());
-
-        int i = 0;
-        List<String> profileVehicles = allocationLists.get(profileId);
-        boolean allocated = false;
-
-        /* iterate over profile's vehicles and find the first one available */
-        while(!allocated || (i < profileVehicles.size())) {
-            /* fetch, supposedly, available vehicle of the profile */
-            String vehicle = profileVehicles.get(i);
-
-            if(vawareness.isVehicleAvailable(vehicle)) {
-                /* allocate plan and then push the vehicle to the back of queue */
-                allocated = allocateTo(vehicle, pTask);
-                if(allocated) {
-                    profileVehicles.remove(i);
-                    profileVehicles.add(vehicle);
-                    allocationLists.put(profileId, profileVehicles);
-                    System.out.println("[mvplanning/PlanAlocater]: Plan " + pTask.getPlanId() + " successfully allocated to " + vehicle);
-                }
-            }
-            i++;
-        }
-
-        /* No vehicle is currently available, queue plan and allocate as soon as there's
-         * a vehicle available */
-        if(!allocated)
-            queuePlan(pTask);
-    }
-
-    private boolean allocateTo(String vehicle, PlanTask pTask) {
-        try {
-            int reqId = IMCSendMessageUtils.getNextRequestId();
-
-            PlanDB pdb = new PlanDB();
-            PlanSpecification plan = pTask.getPlanSpecification();
-
-            pdb.setType(PlanDB.TYPE.REQUEST);
-            pdb.setOp(PlanDB.OP.SET);
-            pdb.setRequestId(reqId);
-            pdb.setPlanId(pTask.getPlanId());
-            pdb.setArg(plan);
-            pdb.setInfo("Plan allocated by [mvplanning/PlanAllocator]");
-
-            boolean planSent = IMCSendMessageUtils.sendMessage(pdb, I18n.text("Error sending plan"), vehicle);
-
-            return planSent;
-        }
-        catch(Exception e) {
-            e.printStackTrace();
-            System.out.println("[mvplanning/PlanAllocator]: Failed to allocate plan " + pTask.getPlanId() + " to " + vehicle);
-            return false;
-        }
-  }
-
-    private void queuePlan(PlanTask plan) {
-        synchronized(queuedPlans) {
-            queuedPlans.add(plan);
-            this.existsQueuedPlans = true;
-        }
-    }
-
-    private boolean existsQueuedPlans() {
-        synchronized (queuedPlans) {
-            return this.existsQueuedPlans;
-        }
-    }
-
-
-    @Subscribe
-    public void waitForAvailableVehicle(MvPlanningEventAvailableVehicle event) {
-        if(existsQueuedPlans()) {
-            /* if there are plans to be allocated, check if this vehicle can execute any of them */
-        }
+    public void setAllocationStrategy(AllocationStrategy allocStrat) {
+        /* for now just round-robin */
+        allocator = new RoundRobinAllocator(true, false, vawareness);
     }
 }
