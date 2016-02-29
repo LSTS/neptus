@@ -42,7 +42,6 @@ import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.Map;
 import java.util.Vector;
-import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -1900,58 +1899,5 @@ CommBaseManager<IMCMessage, MessageInfo, SystemImcMsgCommInfo, ImcId16, CommMana
                 e.printStackTrace();
             }
         }
-    }
-
-    static class ResultWaiter implements Callable<SendResult>, MessageDeliveryListener {
-        
-        public SendResult result = null;
-        private long timeoutMillis = 10000;
-        private long start;
-        
-        public ResultWaiter(long timeoutMillis) {
-            this.timeoutMillis = timeoutMillis;
-            this.start = System.currentTimeMillis();
-        }
-        
-        @Override
-        public SendResult call() throws Exception {
-            while (true) {
-                synchronized (this) {
-                    if (result != null) {
-                        return result;
-                    }
-                    if (System.currentTimeMillis() - start > timeoutMillis) {                     
-                        return SendResult.TIMEOUT;
-                    }
-                }
-                Thread.sleep(100);
-            }
-        }
-        
-        @Override
-        public void deliveryError(IMCMessage message, Object error) {
-            result = SendResult.ERROR;
-        }
-        
-        @Override
-        public void deliverySuccess(IMCMessage message) {
-            result = SendResult.SUCCESS;
-        }
-
-        @Override
-        public void deliveryTimeOut(IMCMessage message) {
-            result = SendResult.TIMEOUT;
-        }
-
-        @Override
-        public void deliveryUncertain(IMCMessage message, Object msg) {
-            result = SendResult.UNCERTAIN_DELIVERY;
-                    
-        }
-
-        @Override
-        public void deliveryUnreacheable(IMCMessage message) { 
-            result = SendResult.UNREACHABLE;
-        }        
     }
 }
