@@ -116,12 +116,9 @@ CommBaseManager<IMCMessage, MessageInfo, SystemImcMsgCommInfo, ImcId16, CommMana
     private boolean sameIdErrorDetected = false;
     private long sameIdErrorDetectedTimeMillis = -1;
 
-    protected IMCFragmentHandler fragmentHandler = new IMCFragmentHandler(IMCDefinition.getInstance());
+    protected IMCFragmentHandler fragmentHandler = null;
     
-    protected ImcSystemState imcState = new ImcSystemState(IMCDefinition.getInstance());
-    {
-        imcState.setIgnoreEntities(true);
-    }
+    protected ImcSystemState imcState = null;
 
     // public static String CCU_VEH_STRING = "CCU-VEH";
     // public static String VEH_CCU_STRING = "VEH-CCU";
@@ -260,6 +257,11 @@ CommBaseManager<IMCMessage, MessageInfo, SystemImcMsgCommInfo, ImcId16, CommMana
         };
         this.imcDefinition = imcDefinition;
         announceWorker = new AnnounceWorker(this, imcDefinition);
+        
+        fragmentHandler = new IMCFragmentHandler(imcDefinition);
+        
+        imcState = new ImcSystemState(imcDefinition);
+        imcState.setIgnoreEntities(true);
 
         //        GeneralPreferencesPropertiesProvider.addPreferencesListener(gplistener);
         GeneralPreferences.addPreferencesListener(gplistener);
