@@ -76,4 +76,12 @@ public class PlanTask {
     public void setPlan(PlanSpecification imcPlan) {
        this.plan = imcPlan;
     }
+
+    /**
+     * If the given vehicle can execute this plan with
+     * the needed profile.
+     * */
+    public boolean containsVehicle(String vehicle) {
+        return planProfile.getProfileVehicles().contains(vehicle);
+    }
 }
