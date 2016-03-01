@@ -76,8 +76,8 @@ public class RoundRobinAllocator extends AbstractAllocator {
     @Override
     public void doAllocation() {
         synchronized(plans) {
-            if(plans.isEmpty()) {
-                System.out.println("[mvplanning/RoundRobinAllocator] No plans to allocate.");
+            if(plans.isEmpty() || vehicles.isEmpty()) {
+                System.out.println("[mvplanning/RoundRobinAllocator] No plans or vehicles available.");
                 return;
             }
 
