@@ -74,7 +74,7 @@ public class RoundRobinAllocator extends AbstractAllocator {
 
     @Override
     public void doAllocation() {
-        synchronized(vehicles) {
+        synchronized(plans) {
             if(plans.isEmpty())
                 return;
 
