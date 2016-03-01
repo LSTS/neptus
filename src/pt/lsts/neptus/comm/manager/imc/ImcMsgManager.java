@@ -1316,7 +1316,7 @@ CommBaseManager<IMCMessage, MessageInfo, SystemImcMsgCommInfo, ImcId16, CommMana
 
         // If the destination to send to is null, just send back to the caller an error
         if (systemCommId == null) {
-            System.err.println("systemCommId is null!");
+            NeptusLog.pub().error("systemCommId is null!");
             listener.deliveryError(message, new Exception("systemCommId is null!"));
             return false;
         }
