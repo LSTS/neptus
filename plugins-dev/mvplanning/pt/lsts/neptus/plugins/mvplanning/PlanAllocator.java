@@ -59,11 +59,13 @@ public class PlanAllocator {
         /* default allocation strategy is round-robin */
         if(allocator == null)
             setAllocationStrategy(AllocationStrategy.ROUND_ROBIN);
+        System.out.println("[mvplanning/PlanAllocator] Forwarding plan to the allocator.");
         allocator.addNewPlan(ptask);
     }
 
     public void setAllocationStrategy(AllocationStrategy allocStrat) {
         /* for now just round-robin */
+        System.out.println("[mvplanning/PlanAllocator] Setting Round-Robin allocation strategy.");
         allocator = new RoundRobinAllocator(true, false, vawareness);
     }
 }
