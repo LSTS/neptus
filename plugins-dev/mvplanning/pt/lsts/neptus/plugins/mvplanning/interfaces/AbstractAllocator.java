@@ -31,11 +31,10 @@
  */
 package pt.lsts.neptus.plugins.mvplanning.interfaces;
 
-import pt.lsts.neptus.events.NeptusEvents;
-import pt.lsts.neptus.messages.listener.Periodic;
 import pt.lsts.neptus.plugins.mvplanning.PlanTask;
 import pt.lsts.neptus.plugins.mvplanning.utils.VehicleAwareness;
 import pt.lsts.neptus.plugins.update.IPeriodicUpdates;
+import pt.lsts.neptus.plugins.update.PeriodicUpdatesService;
 
 /**
  * @author tsmarques
@@ -43,9 +42,9 @@ import pt.lsts.neptus.plugins.update.IPeriodicUpdates;
  */
 public abstract class AbstractAllocator implements IPeriodicUpdates {
     private boolean isPeriodic;
-    private long period;
+    private long period = 1000;
     private boolean listenToEvents;
-    
+
     public AbstractAllocator(boolean isPeriodic, boolean listenToEvents) {
         setPeriodic(isPeriodic);
         setListenToEvents(listenToEvents);
@@ -70,7 +69,6 @@ public abstract class AbstractAllocator implements IPeriodicUpdates {
      * is set as periodic, this method will be
      *  called periodically. 
      * */
-    @Periodic
     public abstract void doAllocation();
 
 
@@ -78,13 +76,15 @@ public abstract class AbstractAllocator implements IPeriodicUpdates {
      * Send the actual plan to a vehicle. 
      * */
     public abstract boolean allocateTo(String vehicle, PlanTask ptask);   
-    
+
     /**
      * Set if the allocator is periodic */    
     private void setPeriodic(boolean isPeriodic) {
         this.isPeriodic = isPeriodic;
-    }
 
+        if(isPeriodic)
+            PeriodicUpdatesService.register(this);
+    }
 
     /**
      * Set <strong>true</strong> to register the allocator to
@@ -100,14 +100,14 @@ public abstract class AbstractAllocator implements IPeriodicUpdates {
     public void setUpdatePeriod(long period) {
         this.period = period;
     }
-    
+
     /**
      * If this allocator is periodic
      * */
     public boolean isPeriodic() {
         return isPeriodic;
     }
-    
+
     /**
      * If this allocator is listening to
      * events
@@ -115,14 +115,15 @@ public abstract class AbstractAllocator implements IPeriodicUpdates {
     public boolean listenToEvents() {
         return listenToEvents;
     }
-    
+
     @Override
     public long millisBetweenUpdates() {
         return period;
     }
-    
+
     @Override
     public boolean update() {
+        doAllocation();
         return isPeriodic;
     }
 }
