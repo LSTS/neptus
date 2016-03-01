@@ -55,7 +55,6 @@ public class MVPlanning extends ConsolePanel implements PlanChangeListener {
     private static final ProfileMarshaler pMarsh = new ProfileMarshaler();
     public static final Map<String, Profile> availableProfiles = pMarsh.getAllProfiles();
     
-    private String system;
     private ConsoleLayout console;
     private VehicleAwareness vawareness;
     PlanAllocator pAlloc;
@@ -67,11 +66,6 @@ public class MVPlanning extends ConsolePanel implements PlanChangeListener {
         vawareness = new VehicleAwareness();
         pAlloc = new PlanAllocator(vawareness);
         pGen = new PlanGenerator(pAlloc);
-    }
-
-    void requestEntitiesState() {
-        QueryEntityState qEntityState = new QueryEntityState();
-        ImcMsgManager.getManager().sendMessageToSystem(qEntityState, system);
     }
 
     @Override
