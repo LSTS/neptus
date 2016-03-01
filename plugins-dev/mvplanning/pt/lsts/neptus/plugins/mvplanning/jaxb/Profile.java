@@ -42,8 +42,6 @@ import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlSeeAlso;
 
-import pt.lsts.neptus.plugins.mvplanning.utils.Payload;
-
 /**
  * @author tsmarques
  *

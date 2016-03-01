@@ -41,7 +41,6 @@ import javax.xml.bind.Marshaller;
 import javax.xml.bind.Unmarshaller;
 
 import pt.lsts.neptus.plugins.mvplanning.MVPlanning;
-import pt.lsts.neptus.plugins.mvplanning.utils.Payload;
 import pt.lsts.neptus.util.FileUtil;
 
 /**
