@@ -29,7 +29,7 @@
  * Author: tsmarques
  * 26 Jan 2016
  */
-package pt.lsts.neptus.plugins.mvplanning.utils.jaxb;
+package pt.lsts.neptus.plugins.mvplanning.jaxb;
 
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;

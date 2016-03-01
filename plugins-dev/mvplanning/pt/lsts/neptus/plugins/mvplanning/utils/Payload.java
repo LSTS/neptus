@@ -40,7 +40,7 @@ import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
-import pt.lsts.neptus.plugins.mvplanning.utils.jaxb.PayloadParametersAdapter;
+import pt.lsts.neptus.plugins.mvplanning.jaxb.PayloadParametersAdapter;
 
 /**
  * @author tsmarques

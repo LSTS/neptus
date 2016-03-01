@@ -33,7 +33,7 @@ package pt.lsts.neptus.plugins.mvplanning;
 
 import pt.lsts.imc.PlanSpecification;
 import pt.lsts.imc.types.PlanSpecificationAdapter;
-import pt.lsts.neptus.plugins.mvplanning.utils.jaxb.Profile;
+import pt.lsts.neptus.plugins.mvplanning.jaxb.Profile;
 
 /**
  * @author tsmarques

@@ -42,8 +42,8 @@ import pt.lsts.neptus.console.events.ConsoleEventVehicleStateChanged;
 import pt.lsts.neptus.console.events.ConsoleEventVehicleStateChanged.STATE;
 import pt.lsts.neptus.events.NeptusEvents;
 import pt.lsts.neptus.plugins.mvplanning.events.MvPlanningEventAvailableVehicle;
-import pt.lsts.neptus.plugins.mvplanning.utils.jaxb.Profile;
-import pt.lsts.neptus.plugins.mvplanning.utils.jaxb.ProfileMarshaler;
+import pt.lsts.neptus.plugins.mvplanning.jaxb.Profile;
+import pt.lsts.neptus.plugins.mvplanning.jaxb.ProfileMarshaler;
 
 import com.google.common.eventbus.Subscribe;
 

@@ -29,7 +29,7 @@
  * Author: tsmarques
  * 28 Jan 2016
  */
-package pt.lsts.neptus.plugins.mvplanning.utils.jaxb;
+package pt.lsts.neptus.plugins.mvplanning.jaxb;
 
 import java.util.ArrayList;
 import java.util.List;

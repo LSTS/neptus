@@ -2,7 +2,7 @@ package pt.lsts.neptus.plugins.mvplanning;
 
 import pt.lsts.imc.PlanSpecification;
 import pt.lsts.neptus.comm.IMCUtils;
-import pt.lsts.neptus.plugins.mvplanning.utils.jaxb.Profile;
+import pt.lsts.neptus.plugins.mvplanning.jaxb.Profile;
 import pt.lsts.neptus.types.mission.plan.PlanType;
 
 public class PlanGenerator {
