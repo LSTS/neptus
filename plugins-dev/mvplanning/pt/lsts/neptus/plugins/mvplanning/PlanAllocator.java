@@ -34,7 +34,6 @@ package pt.lsts.neptus.plugins.mvplanning;
 
 import pt.lsts.neptus.plugins.mvplanning.allocation.RoundRobinAllocator;
 import pt.lsts.neptus.plugins.mvplanning.interfaces.AbstractAllocator;
-import pt.lsts.neptus.plugins.mvplanning.utils.VehicleAwareness;
 
 /* Sends plans to the vehicles.
  Also send 'execution commands'*/

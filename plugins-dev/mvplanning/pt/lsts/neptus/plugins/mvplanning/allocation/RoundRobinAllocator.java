@@ -39,8 +39,8 @@ import pt.lsts.imc.PlanSpecification;
 import pt.lsts.neptus.comm.IMCSendMessageUtils;
 import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.plugins.mvplanning.PlanTask;
+import pt.lsts.neptus.plugins.mvplanning.VehicleAwareness;
 import pt.lsts.neptus.plugins.mvplanning.interfaces.AbstractAllocator;
-import pt.lsts.neptus.plugins.mvplanning.utils.VehicleAwareness;
 
 /**
  * @author tsmarques

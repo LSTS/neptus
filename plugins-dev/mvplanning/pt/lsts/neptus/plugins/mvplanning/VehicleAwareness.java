@@ -29,7 +29,7 @@
  * Author: tsmarques
  * 15 Dec 2015
  */
-package pt.lsts.neptus.plugins.mvplanning.utils;
+package pt.lsts.neptus.plugins.mvplanning;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -41,7 +41,6 @@ import pt.lsts.neptus.comm.manager.imc.ImcSystemsHolder;
 import pt.lsts.neptus.console.events.ConsoleEventVehicleStateChanged;
 import pt.lsts.neptus.console.events.ConsoleEventVehicleStateChanged.STATE;
 import pt.lsts.neptus.events.NeptusEvents;
-import pt.lsts.neptus.plugins.mvplanning.MVPlanning;
 import pt.lsts.neptus.plugins.mvplanning.events.MvPlanningEventAvailableVehicle;
 import pt.lsts.neptus.plugins.mvplanning.utils.jaxb.Profile;
 import pt.lsts.neptus.plugins.mvplanning.utils.jaxb.ProfileMarshaler;

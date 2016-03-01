@@ -41,7 +41,6 @@ import pt.lsts.neptus.console.ConsolePanel;
 import pt.lsts.neptus.console.plugins.PlanChangeListener;
 import pt.lsts.neptus.events.NeptusEvents;
 import pt.lsts.neptus.plugins.PluginDescription;
-import pt.lsts.neptus.plugins.mvplanning.utils.VehicleAwareness;
 import pt.lsts.neptus.plugins.mvplanning.utils.jaxb.Profile;
 import pt.lsts.neptus.plugins.mvplanning.utils.jaxb.ProfileMarshaler;
 import pt.lsts.neptus.types.mission.plan.PlanType;
