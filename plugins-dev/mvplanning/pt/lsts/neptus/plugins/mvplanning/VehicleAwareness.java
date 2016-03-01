@@ -44,6 +44,7 @@ import pt.lsts.neptus.events.NeptusEvents;
 import pt.lsts.neptus.plugins.mvplanning.events.MvPlanningEventAvailableVehicle;
 import pt.lsts.neptus.plugins.mvplanning.jaxb.Profile;
 import pt.lsts.neptus.plugins.mvplanning.jaxb.ProfileMarshaler;
+import pt.lsts.neptus.plugins.mvplanning.interfaces.ConsoleAdapter;
 
 import com.google.common.eventbus.Subscribe;
 
@@ -52,10 +53,12 @@ import com.google.common.eventbus.Subscribe;
  *        Should fetch list of available vehicles at startup
  */
 public class VehicleAwareness {
+    private ConsoleAdapter console;
     private List<String> availableVehicles;
     private List<String> unavailableVehicles;
 
-    public VehicleAwareness() {
+    public VehicleAwareness(ConsoleAdapter console) {
+        this.console = console;
         availableVehicles = new ArrayList<>();
         unavailableVehicles = new ArrayList<>();
     }
@@ -96,7 +99,7 @@ public class VehicleAwareness {
 
             availableVehicles.add(id);
 
-            NeptusEvents.post(new MvPlanningEventAvailableVehicle(id));
+            console.post(new MvPlanningEventAvailableVehicle(id));
             /* logging */
             logDebugInfo("Vehicle " + id + " set as AVAILABLE");
         }

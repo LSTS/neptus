@@ -34,10 +34,12 @@ package pt.lsts.neptus.plugins.mvplanning;
 
 import pt.lsts.neptus.plugins.mvplanning.allocation.RoundRobinAllocator;
 import pt.lsts.neptus.plugins.mvplanning.interfaces.AbstractAllocator;
+import pt.lsts.neptus.plugins.mvplanning.interfaces.ConsoleAdapter;
 
 /* Sends plans to the vehicles.
  Also send 'execution commands'*/
 public class PlanAllocator {
+    private ConsoleAdapter console;
     private AbstractAllocator allocator = null;
     private VehicleAwareness vawareness;
 
@@ -45,8 +47,9 @@ public class PlanAllocator {
         ROUND_ROBIN
     }
 
-    public PlanAllocator(VehicleAwareness vawareness) {
+    public PlanAllocator(VehicleAwareness vawareness, ConsoleAdapter console) {
         this.vawareness = vawareness;
+        this.console = console;
     }
 
     public PlanAllocator(AllocationStrategy allocStrat, VehicleAwareness vawareness) {
@@ -65,6 +68,6 @@ public class PlanAllocator {
     public void setAllocationStrategy(AllocationStrategy allocStrat) {
         /* for now just round-robin */
         System.out.println("[mvplanning/PlanAllocator] Setting Round-Robin allocation strategy.");
-        allocator = new RoundRobinAllocator(true, false, vawareness);
+        allocator = new RoundRobinAllocator(true, false, vawareness, console);
     }
 }

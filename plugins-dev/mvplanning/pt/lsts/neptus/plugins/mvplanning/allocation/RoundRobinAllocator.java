@@ -41,18 +41,21 @@ import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.plugins.mvplanning.PlanTask;
 import pt.lsts.neptus.plugins.mvplanning.VehicleAwareness;
 import pt.lsts.neptus.plugins.mvplanning.interfaces.AbstractAllocator;
+import pt.lsts.neptus.plugins.mvplanning.interfaces.ConsoleAdapter;
 
 /**
  * @author tsmarques
  *
  */
 public class RoundRobinAllocator extends AbstractAllocator {
+    private ConsoleAdapter console;
     private List<PlanTask> plans;
     private List<String> vehicles;
     private VehicleAwareness vawareness;
 
-    public RoundRobinAllocator(boolean isPeriodic, boolean listenToEvents, VehicleAwareness vawareness) {
+    public RoundRobinAllocator(boolean isPeriodic, boolean listenToEvents, VehicleAwareness vawareness, ConsoleAdapter console) {
         super(isPeriodic, listenToEvents);
+        this.console = console;
         setVehicleAwareness(vawareness);
         plans = new ArrayList<>();
         vehicles = new ArrayList<>();
@@ -129,7 +132,7 @@ public class RoundRobinAllocator extends AbstractAllocator {
             pdb.setArg(plan);
             pdb.setInfo("Plan allocated by [mvplanning/PlanAllocator]");
 
-            boolean planSent = IMCSendMessageUtils.sendMessage(pdb, I18n.text("Error sending plan"), vehicle);
+            boolean planSent = console.sendMessage(vehicle, pdb);
 
             return planSent;
         }

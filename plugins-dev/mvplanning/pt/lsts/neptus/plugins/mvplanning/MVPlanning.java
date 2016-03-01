@@ -34,16 +34,14 @@ package pt.lsts.neptus.plugins.mvplanning;
 
 import java.util.Map;
 
-import pt.lsts.imc.QueryEntityState;
-import pt.lsts.neptus.comm.manager.imc.ImcMsgManager;
 import pt.lsts.neptus.console.ConsoleLayout;
 import pt.lsts.neptus.console.ConsolePanel;
 import pt.lsts.neptus.console.plugins.PlanChangeListener;
-import pt.lsts.neptus.events.NeptusEvents;
 import pt.lsts.neptus.plugins.PluginDescription;
 import pt.lsts.neptus.plugins.mvplanning.jaxb.Profile;
 import pt.lsts.neptus.plugins.mvplanning.jaxb.ProfileMarshaler;
 import pt.lsts.neptus.types.mission.plan.PlanType;
+import pt.lsts.neptus.plugins.mvplanning.interfaces.ConsoleAdapter;
 
 /**
  * @author tsmarques
@@ -55,16 +53,16 @@ public class MVPlanning extends ConsolePanel implements PlanChangeListener {
     private static final ProfileMarshaler pMarsh = new ProfileMarshaler();
     public static final Map<String, Profile> availableProfiles = pMarsh.getAllProfiles();
     
-    private ConsoleLayout console;
+    private ConsoleAdapter console;
     private VehicleAwareness vawareness;
     PlanAllocator pAlloc;
     PlanGenerator pGen;
 
     public MVPlanning(ConsoleLayout console) {
         super(console);
-        this.console = getConsole();
-        vawareness = new VehicleAwareness();
-        pAlloc = new PlanAllocator(vawareness);
+        this.console = new NeptusConsoleAdapter(console);
+        vawareness = new VehicleAwareness(this.console);
+        pAlloc = new PlanAllocator(vawareness, this.console);
         pGen = new PlanGenerator(pAlloc);
     }
 
@@ -81,7 +79,6 @@ public class MVPlanning extends ConsolePanel implements PlanChangeListener {
 
     @Override
     public void initSubPanel() {
-        this.console = getConsole();
-        NeptusEvents.register(vawareness, console);
+        console.registerToEventBus(vawareness);
     }
 }
