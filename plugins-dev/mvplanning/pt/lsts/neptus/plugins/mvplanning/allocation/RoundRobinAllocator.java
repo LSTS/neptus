@@ -34,6 +34,10 @@ package pt.lsts.neptus.plugins.mvplanning.allocation;
 import java.util.ArrayList;
 import java.util.List;
 
+import pt.lsts.imc.PlanDB;
+import pt.lsts.imc.PlanSpecification;
+import pt.lsts.neptus.comm.IMCSendMessageUtils;
+import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.plugins.mvplanning.PlanTask;
 import pt.lsts.neptus.plugins.mvplanning.interfaces.AbstractAllocator;
 import pt.lsts.neptus.plugins.mvplanning.utils.VehicleAwareness;
@@ -110,9 +114,30 @@ public class RoundRobinAllocator extends AbstractAllocator {
     
     @Override
     public boolean allocateTo(String vehicle, PlanTask ptask) {
-        /* TODO: Implement. Use sendMessage() from ConsoleAdapter */
+        /* TODO: Implement using sendMessage() from ConsoleAdapter */
         System.out.println("[mvplanning/RoundRobinAllocator] Sending message");
-        return false;
+        try {
+            int reqId = IMCSendMessageUtils.getNextRequestId();
+
+            PlanDB pdb = new PlanDB();
+            PlanSpecification plan = ptask.getPlanSpecification();
+
+            pdb.setType(PlanDB.TYPE.REQUEST);
+            pdb.setOp(PlanDB.OP.SET);
+            pdb.setRequestId(reqId);
+            pdb.setPlanId(ptask.getPlanId());
+            pdb.setArg(plan);
+            pdb.setInfo("Plan allocated by [mvplanning/PlanAllocator]");
+
+            boolean planSent = IMCSendMessageUtils.sendMessage(pdb, I18n.text("Error sending plan"), vehicle);
+
+            return planSent;
+        }
+        catch(Exception e) {
+            e.printStackTrace();
+            System.out.println("[mvplanning/PlanAllocator]: Failed to allocate plan " + ptask.getPlanId() + " to " + vehicle);
+            return false;
+        }
     }
     
     @Override
