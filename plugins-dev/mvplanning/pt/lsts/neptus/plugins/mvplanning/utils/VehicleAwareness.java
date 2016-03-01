@@ -31,6 +31,8 @@
  */
 package pt.lsts.neptus.plugins.mvplanning.utils;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -51,12 +53,12 @@ import com.google.common.eventbus.Subscribe;
  *        Should fetch list of available vehicles at startup
  */
 public class VehicleAwareness {
-    private ConcurrentHashMap<String, VehicleInfo> availableVehicles;
-    private ConcurrentHashMap<String, VehicleInfo> unavailableVehicles;
+    private List<String> availableVehicles;
+    private List<String> unavailableVehicles;
 
     public VehicleAwareness() {
-        availableVehicles = new ConcurrentHashMap<>();
-        unavailableVehicles = new ConcurrentHashMap<>();
+        availableVehicles = new ArrayList<>();
+        unavailableVehicles = new ArrayList<>();
     }
 
     @Subscribe
@@ -83,48 +85,37 @@ public class VehicleAwareness {
     }
 
     public boolean isVehicleAvailable(String vehicle) {
-        return availableVehicles.containsKey(vehicle);
+        return availableVehicles.contains(vehicle);
     }
     
     private void setVehicleAvailable(String id) {
         /* if vehicle is not already set as available */
-        if(!availableVehicles.containsKey(id)) {
-            VehicleInfo vehicle;
-            if(unavailableVehicles.containsKey(id))
-                vehicle = unavailableVehicles.remove(id);
-            else
-                vehicle = new VehicleInfo(id, MVPlanning.availableProfiles); /* first time in service mode */
-            availableVehicles.put(id, vehicle);
+        if(!availableVehicles.contains(id)) {
+            /* if vehicle was set as unavailable, unset */
+            if(unavailableVehicles.contains(id))
+                unavailableVehicles.remove(id);
+
+            availableVehicles.add(id);
 
             NeptusEvents.post(new MvPlanningEventAvailableVehicle(id));
             /* logging */
             logDebugInfo("Vehicle " + id + " set as AVAILABLE");
-            vehicle.printProfiles();
         }
     }
     
     private void setVehicleUnavailable(String id) {
         /* if vehicle is not already set as unavailable */
-        if(!unavailableVehicles.containsKey(id)) {
-            VehicleInfo vehicle;
-            if(availableVehicles.containsKey(id))
-                vehicle = availableVehicles.remove(id);
-            else
-                vehicle = new VehicleInfo(id, MVPlanning.availableProfiles); /* first time in service mode */
-            unavailableVehicles.put(id, vehicle);
+        if(!unavailableVehicles.contains(id)) {
+            /* if vehicle was set as available, unset */
+            if(availableVehicles.contains(id))
+                availableVehicles.remove(id);
+
+            unavailableVehicles.add(id);
             logDebugInfo("Vehicle " + id + " set as UNAVAILABLE");
         }
     }
 
     private void logDebugInfo(String msg) {
         System.out.println("[mvplanning/VehicleAwareness] " + msg);
-    }
-
-    public VehicleInfo getVehicleInfo(String vid) {
-        return availableVehicles.get(vid);
-    }
-
-    public void printVehicleProfiles(String vid) {
-        getVehicleInfo(vid).printProfiles();
     }
 }
