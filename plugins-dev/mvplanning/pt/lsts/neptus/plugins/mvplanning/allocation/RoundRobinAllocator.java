@@ -65,6 +65,7 @@ public class RoundRobinAllocator extends AbstractAllocator {
     @Override
     public void addNewPlan(PlanTask ptask) {
         synchronized(plans) {
+            System.out.println("[mvplanning/RoundRobinAllocator] Received a new plan.");
             plans.add(ptask);
             updateVehiclesList(ptask.getProfile().getProfileVehicles());
             doAllocation();
@@ -75,8 +76,10 @@ public class RoundRobinAllocator extends AbstractAllocator {
     @Override
     public void doAllocation() {
         synchronized(plans) {
-            if(plans.isEmpty())
+            if(plans.isEmpty()) {
+                System.out.println("[mvplanning/RoundRobinAllocator] No plans to allocate.");
                 return;
+            }
 
             int i = 0;
             boolean allocated = false;
@@ -89,6 +92,7 @@ public class RoundRobinAllocator extends AbstractAllocator {
                     allocated = allocateTo(vehicle, ptask);
 
                     if(allocated) {
+                        System.out.println("[mvplanning/RoundRobinAllocator] Allocating " + ptask.getPlanId() + " to " + vehicle);
                         /* plan has been allocated */
                         plans.remove(0);
 
@@ -96,6 +100,8 @@ public class RoundRobinAllocator extends AbstractAllocator {
                         vehicles.remove(i);
                         vehicles.add(vehicle);
                     }
+                    else
+                        System.out.println("[mvplanning/RoundRobinAllocator] Vehicle " + vehicle + " no available or not in profile " + ptask.getProfile().getId());
                 }
                 i++;
             }
@@ -105,6 +111,7 @@ public class RoundRobinAllocator extends AbstractAllocator {
     @Override
     public boolean allocateTo(String vehicle, PlanTask ptask) {
         /* TODO: Implement. Use sendMessage() from ConsoleAdapter */
+        System.out.println("[mvplanning/RoundRobinAllocator] Sending message");
         return false;
     }
     
