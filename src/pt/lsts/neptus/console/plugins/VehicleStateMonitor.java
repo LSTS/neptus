@@ -146,7 +146,7 @@ public class VehicleStateMonitor extends ConsolePanel implements IPeriodicUpdate
         boolean vehicleIsAvailable = false;
         if (msg.getManEta() == 0xFFFF && msg.getManType() == Loiter.ID_STATIC)
             vehicleIsAvailable = true;
-        else if (msg.getManEta() == 1 && msg.getManType() == StationKeeping.ID_STATIC ) /**/
+        else if (msg.getManEta() == 0xFFFF && msg.getManType() == StationKeeping.ID_STATIC ) /**/
             vehicleIsAvailable = true;
         
         String src = msg.getSourceName();
