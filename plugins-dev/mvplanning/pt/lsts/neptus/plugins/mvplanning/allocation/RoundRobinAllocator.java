@@ -34,11 +34,9 @@ package pt.lsts.neptus.plugins.mvplanning.allocation;
 import java.util.ArrayList;
 import java.util.List;
 
-import pt.lsts.neptus.plugins.mvplanning.PlanAllocator;
 import pt.lsts.neptus.plugins.mvplanning.PlanTask;
 import pt.lsts.neptus.plugins.mvplanning.interfaces.AbstractAllocator;
 import pt.lsts.neptus.plugins.mvplanning.utils.VehicleAwareness;
-import pt.lsts.neptus.plugins.update.Periodic;
 
 /**
  * @author tsmarques
@@ -79,7 +77,7 @@ public class RoundRobinAllocator extends AbstractAllocator {
         synchronized(vehicles) {
             if(plans.isEmpty())
                 return;
-            
+
             int i = 0;
             boolean allocated = false;
             PlanTask ptask = plans.get(0);
@@ -87,8 +85,18 @@ public class RoundRobinAllocator extends AbstractAllocator {
             while(!allocated || (i < vehicles.size())) {
                 /* fetch, supposedly, available vehicle of the profile */
                 String vehicle = vehicles.get(i);
-                if(vawareness.isVehicleAvailable(vehicle) && ptask.containsVehicle(vehicle))
+                if(vawareness.isVehicleAvailable(vehicle) && ptask.containsVehicle(vehicle)) {
                     allocated = allocateTo(vehicle, ptask);
+
+                    if(allocated) {
+                        /* plan has been allocated */
+                        plans.remove(0);
+
+                        /* move vehicle to the end of the queue */
+                        vehicles.remove(i);
+                        vehicles.add(vehicle);
+                    }
+                }
                 i++;
             }
         }
