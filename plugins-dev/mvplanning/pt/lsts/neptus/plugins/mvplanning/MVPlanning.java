@@ -32,7 +32,19 @@
 package pt.lsts.neptus.plugins.mvplanning;
 
 
+import java.awt.ComponentOrientation;
+import java.awt.Dimension;
+import java.awt.FlowLayout;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.util.HashMap;
 import java.util.Map;
+
+import javax.swing.DefaultListModel;
+import javax.swing.JButton;
+import javax.swing.JComboBox;
+import javax.swing.JList;
+import javax.swing.JScrollPane;
 
 import pt.lsts.neptus.console.ConsoleLayout;
 import pt.lsts.neptus.console.ConsolePanel;
@@ -50,36 +62,98 @@ import pt.lsts.neptus.plugins.mvplanning.interfaces.ConsoleAdapter;
  *
  */
 @PluginDescription(name = "Multi-Vehicle Planning")
-@Popup(name = "MvPlanning", pos = POSITION.LEFT, width = 550, height = 300)
+@Popup(name = "MvPlanning", pos = POSITION.LEFT, width = 285, height = 240)
 public class MVPlanning extends ConsolePanel implements PlanChangeListener {
     public static final String PROFILES_DIR = MVPlanning.class.getProtectionDomain().getCodeSource().getLocation().getPath() + "etc/";
     private static final ProfileMarshaler pMarsh = new ProfileMarshaler();
     public static final Map<String, Profile> availableProfiles = pMarsh.getAllProfiles();
-    
+
+    /* modules */
     private ConsoleAdapter console;
     private VehicleAwareness vawareness;
     private PlanAllocator pAlloc;
     private PlanGenerator pGen;
 
+    private Map<String, PlanType> selectedPlans;
+
+    /* User interface */
+    private FlowLayout layout;
+    private JScrollPane listScroller;
+    private JList<String> plans;
+    private DefaultListModel<String> listModel;
+    private JComboBox<String> profiles;
+    private JButton allocateButton;
+    private JButton allocateAllButton;
+
     public MVPlanning(ConsoleLayout console) {
         super(console);
+        selectedPlans = new HashMap<>();
+        initUi();
+
         this.console = new NeptusConsoleAdapter(console);
         vawareness = new VehicleAwareness(this.console);
         pAlloc = new PlanAllocator(vawareness, this.console);
         pGen = new PlanGenerator(pAlloc);
     }
 
+    private void initUi() {
+        layout = new FlowLayout();
+        this.setLayout(layout);
+        this.setComponentOrientation(ComponentOrientation.LEFT_TO_RIGHT);
+
+        plans = new JList<>();
+        listModel = new DefaultListModel<>();
+        listScroller = new JScrollPane(plans);
+        profiles = new JComboBox<>();
+        allocateButton = new JButton("Allocate plan");
+        allocateAllButton = new JButton("Allocate all plans");
+
+        plans.setPreferredSize(new Dimension(225, 280));
+        plans.setModel(listModel);
+        profiles.setPreferredSize(new Dimension(225, 30));
+        allocateButton.setPreferredSize(new Dimension(100, 30));
+        allocateAllButton.setPreferredSize(new Dimension(50, 30));
+
+
+        /* fetch available profiles */
+        for(String profile : availableProfiles.keySet())
+            profiles.addItem(profile);
+
+        allocateButton.addActionListener(new ActionListener() {
+
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                String desiredProfile = (String) profiles.getSelectedItem();
+                String desiredPlan = plans.getSelectedValue();
+
+                if(desiredPlan != null)
+                    pGen.generatePlan(availableProfiles.get(desiredProfile), selectedPlans.get(desiredPlan));
+            }
+        });
+
+
+        this.add(profiles);
+        this.add(listScroller);
+        this.add(allocateButton);
+    }
+
+
     @Override
     public void planChange(PlanType plan) {
-        String planId = plan.getId();
-        if(!planId.startsWith("go_") && !planId.startsWith("sk_") && !planId.startsWith("lt_"))
-            pGen.generatePlan(availableProfiles.get("Batimetria"), plan);
+        if(plan != null) {
+            String planId = plan.getId();
+            if(!planId.startsWith("go_") && !planId.startsWith("sk_") && !planId.startsWith("lt_")) {
+                if(listModel.contains(planId))
+                    listModel.removeElement(planId);
+                listModel.addElement(planId);
+                selectedPlans.put(planId, plan);
+            }
+        }
     }
 
     @Override
     public void cleanSubPanel() {        
     }
-
 
     @Override
     public void initSubPanel() {
