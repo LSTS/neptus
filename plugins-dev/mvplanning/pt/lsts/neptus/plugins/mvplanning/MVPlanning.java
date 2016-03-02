@@ -71,7 +71,9 @@ public class MVPlanning extends ConsolePanel implements PlanChangeListener {
 
     @Override
     public void planChange(PlanType plan) {
-        pGen.generatePlan(availableProfiles.get("Batimetria"), plan);
+        String planId = plan.getId();
+        if(!planId.startsWith("go_") && !planId.startsWith("sk_") && !planId.startsWith("lt_"))
+            pGen.generatePlan(availableProfiles.get("Batimetria"), plan);
     }
 
     @Override
