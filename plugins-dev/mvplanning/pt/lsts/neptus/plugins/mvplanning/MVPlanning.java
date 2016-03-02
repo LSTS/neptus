@@ -38,6 +38,8 @@ import pt.lsts.neptus.console.ConsoleLayout;
 import pt.lsts.neptus.console.ConsolePanel;
 import pt.lsts.neptus.console.plugins.PlanChangeListener;
 import pt.lsts.neptus.plugins.PluginDescription;
+import pt.lsts.neptus.plugins.Popup;
+import pt.lsts.neptus.plugins.Popup.POSITION;
 import pt.lsts.neptus.plugins.mvplanning.jaxb.Profile;
 import pt.lsts.neptus.plugins.mvplanning.jaxb.ProfileMarshaler;
 import pt.lsts.neptus.types.mission.plan.PlanType;
@@ -48,6 +50,7 @@ import pt.lsts.neptus.plugins.mvplanning.interfaces.ConsoleAdapter;
  *
  */
 @PluginDescription(name = "Multi-Vehicle Planning")
+@Popup(name = "MvPlanning", pos = POSITION.LEFT, width = 550, height = 300)
 public class MVPlanning extends ConsolePanel implements PlanChangeListener {
     public static final String PROFILES_DIR = MVPlanning.class.getProtectionDomain().getCodeSource().getLocation().getPath() + "etc/";
     private static final ProfileMarshaler pMarsh = new ProfileMarshaler();
