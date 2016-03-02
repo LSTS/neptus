@@ -77,10 +77,10 @@ public class VehicleAwareness {
         else if(newState == STATE.SERVICE) {
             ImcSystem vehicle = ImcSystemsHolder.getSystemWithName(id);
 
-            if(vehicle.isInOperationMedium())
-                setVehicleAvailable(id);
-            else /* In SERVICE mode, but on the ground */
-                setVehicleUnavailable(id);
+//            if(vehicle.isInOperationMedium())
+            setVehicleAvailable(id);
+//            else /* In SERVICE mode, but on the ground */
+//                setVehicleUnavailable(id);
         }
         else
             setVehicleUnavailable(id);
