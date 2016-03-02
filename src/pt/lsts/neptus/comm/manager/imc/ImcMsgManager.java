@@ -73,6 +73,7 @@ import pt.lsts.neptus.comm.IMCUtils;
 import pt.lsts.neptus.comm.manager.CommBaseManager;
 import pt.lsts.neptus.comm.manager.CommManagerStatusChangeListener;
 import pt.lsts.neptus.comm.manager.MessageFrequencyCalculator;
+import pt.lsts.neptus.comm.manager.imc.ImcMsgManager.SendResult;
 import pt.lsts.neptus.comm.transports.ImcTcpTransport;
 import pt.lsts.neptus.comm.transports.ImcUdpTransport;
 import pt.lsts.neptus.console.ConsolePanel;
@@ -1563,6 +1564,13 @@ CommBaseManager<IMCMessage, MessageInfo, SystemImcMsgCommInfo, ImcId16, CommMana
     /* (non-Javadoc)
      * @see pt.lsts.neptus.comm.manager.CommBaseManager#sendMessage(pt.lsts.neptus.messages.IMessage, java.lang.Object, java.lang.String)
      */
+
+    public Future<SendResult> sendMessageWaitResult(IMCMessage message, ImcId16 systemCommId, String sendProperties) {
+        Future<SendResult> result = new FutureMessageSenderResult();
+        sendMessage(message, systemCommId, sendProperties, (MessageDeliveryListener) result);
+        return result;
+    }
+
     @Override
     public boolean sendMessage(IMCMessage message, ImcId16 vehicleCommId, String sendProperties) {
         return sendMessage(message, vehicleCommId, sendProperties, null);
