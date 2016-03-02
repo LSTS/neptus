@@ -1543,7 +1543,7 @@ CommBaseManager<IMCMessage, MessageInfo, SystemImcMsgCommInfo, ImcId16, CommMana
      */
     public boolean sendMessage(IMCMessage message) {
         try {
-            ImcId16 id = new ImcId16(message.getHeader().getValue("dst"));
+            ImcId16 id = new ImcId16(message.getDst());
             return sendMessage(message, id, null);
         }
         catch (Exception e) {
