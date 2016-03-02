@@ -34,6 +34,8 @@ package pt.lsts.neptus.plugins.mvplanning.allocation;
 import java.util.ArrayList;
 import java.util.List;
 
+import pt.lsts.imc.PlanControl;
+import pt.lsts.imc.PlanControl.OP;
 import pt.lsts.imc.PlanDB;
 import pt.lsts.imc.PlanSpecification;
 import pt.lsts.neptus.comm.IMCSendMessageUtils;
@@ -133,8 +135,21 @@ public class RoundRobinAllocator extends AbstractAllocator {
             pdb.setInfo("Plan allocated by [mvplanning/PlanAllocator]");
 
             boolean planSent = console.sendMessage(vehicle, pdb);
-
-            return planSent;
+            
+            if(planSent) {
+                reqId = IMCSendMessageUtils.getNextRequestId();
+                PlanControl pc = new PlanControl();
+                pc.setType(PlanControl.TYPE.REQUEST);
+                pc.setRequestId(reqId);
+                pc.setPlanId(ptask.getPlanId());
+                pc.setOp(OP.START);
+                
+                boolean cmdSent = console.sendMessage(vehicle, pc);
+                
+                return cmdSent;
+            }
+            else
+                return planSent;
         }
         catch(Exception e) {
             e.printStackTrace();
