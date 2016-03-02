@@ -1460,11 +1460,6 @@ CommBaseManager<IMCMessage, MessageInfo, SystemImcMsgCommInfo, ImcId16, CommMana
         }
     }
     
-    @Override
-    public boolean sendMessageToVehicle(IMCMessage message, VehicleType vehicle, String sendProperties) {
-        return sendMessage(message, vehicle.getImcId(), sendProperties);
-    }
-
     public boolean sendMessageToSystem(IMCMessage message, String systemName, MessageDeliveryListener listener) {
         return sendMessageToSystem(message, systemName, null, listener);
     }
@@ -1557,11 +1552,16 @@ CommBaseManager<IMCMessage, MessageInfo, SystemImcMsgCommInfo, ImcId16, CommMana
         }
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see pt.lsts.neptus.util.comm.manager.CommBaseManager#sendMessage(pt.lsts.neptus.messages.IMessage,
-     * java.lang.Object, java.lang.String)
+    /* (non-Javadoc)
+     * @see pt.lsts.neptus.comm.manager.CommBaseManager#sendMessageToVehicle(pt.lsts.neptus.messages.IMessage, pt.lsts.neptus.types.vehicle.VehicleType, java.lang.String)
+     */
+    @Override
+    public boolean sendMessageToVehicle(IMCMessage message, VehicleType vehicle, String sendProperties) {
+        return sendMessage(message, vehicle.getImcId(), sendProperties);
+    }
+
+    /* (non-Javadoc)
+     * @see pt.lsts.neptus.comm.manager.CommBaseManager#sendMessage(pt.lsts.neptus.messages.IMessage, java.lang.Object, java.lang.String)
      */
     @Override
     public boolean sendMessage(IMCMessage message, ImcId16 vehicleCommId, String sendProperties) {
