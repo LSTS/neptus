@@ -33,18 +33,10 @@ package pt.lsts.neptus.plugins.mvplanning;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 
-import pt.lsts.neptus.comm.manager.imc.ImcSystem;
-import pt.lsts.neptus.comm.manager.imc.ImcSystemsHolder;
-import pt.lsts.neptus.console.events.ConsoleEventNewSystem;
 import pt.lsts.neptus.console.events.ConsoleEventVehicleStateChanged;
 import pt.lsts.neptus.console.events.ConsoleEventVehicleStateChanged.STATE;
-import pt.lsts.neptus.events.NeptusEvents;
 import pt.lsts.neptus.plugins.mvplanning.events.MvPlanningEventAvailableVehicle;
-import pt.lsts.neptus.plugins.mvplanning.jaxb.Profile;
-import pt.lsts.neptus.plugins.mvplanning.jaxb.ProfileMarshaler;
 import pt.lsts.neptus.plugins.mvplanning.interfaces.ConsoleAdapter;
 
 import com.google.common.eventbus.Subscribe;
@@ -72,10 +64,10 @@ public class VehicleAwareness {
     private synchronized void onVehicleStateChanged(ConsoleEventVehicleStateChanged event) {
         String id = event.getVehicle();
         ConsoleEventVehicleStateChanged.STATE newState = event.getState();
-        
+
         checkVehicleState(id, newState);
     }
-    
+
     private void checkVehicleState(String vehicle, STATE state) {
         if(state == STATE.FINISHED)
             setVehicleAvailable(vehicle);
