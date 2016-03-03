@@ -33,7 +33,9 @@ package pt.lsts.neptus.plugins.mvplanning;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map.Entry;
 
+import pt.lsts.neptus.console.ConsoleSystem;
 import pt.lsts.neptus.console.events.ConsoleEventVehicleStateChanged;
 import pt.lsts.neptus.console.events.ConsoleEventVehicleStateChanged.STATE;
 import pt.lsts.neptus.plugins.mvplanning.events.MvPlanningEventAvailableVehicle;
@@ -54,6 +56,10 @@ public class VehicleAwareness {
         this.console = console;
         availableVehicles = new ArrayList<>();
         unavailableVehicles = new ArrayList<>();
+
+        /* check vehicles' state at startup */
+        for(Entry<String, ConsoleSystem> entry : console.getSystems().entrySet())
+            checkVehicleState(entry.getKey(), entry.getValue().getVehicleState());
     }
 
     @Subscribe
