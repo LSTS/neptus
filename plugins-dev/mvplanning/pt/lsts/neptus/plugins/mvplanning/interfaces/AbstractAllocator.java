@@ -47,7 +47,7 @@ import pt.lsts.neptus.comm.IMCSendMessageUtils;
  */
 public abstract class AbstractAllocator implements IPeriodicUpdates {
     private boolean isPeriodic;
-    private long period = 1000;
+    private long period = 5000;
     private boolean listenToEvents;
     protected ConsoleAdapter console;
 
