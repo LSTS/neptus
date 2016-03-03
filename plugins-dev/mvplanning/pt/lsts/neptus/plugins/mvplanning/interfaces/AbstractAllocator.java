@@ -44,8 +44,10 @@ public abstract class AbstractAllocator implements IPeriodicUpdates {
     private boolean isPeriodic;
     private long period = 1000;
     private boolean listenToEvents;
+    protected ConsoleAdapter console;
 
-    public AbstractAllocator(boolean isPeriodic, boolean listenToEvents) {
+    public AbstractAllocator(boolean isPeriodic, boolean listenToEvents, ConsoleAdapter console) {
+        this.console = console;
         setPeriodic(isPeriodic);
         setListenToEvents(listenToEvents);
     }

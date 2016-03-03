@@ -50,13 +50,12 @@ import pt.lsts.neptus.plugins.mvplanning.interfaces.ConsoleAdapter;
  *
  */
 public class RoundRobinAllocator extends AbstractAllocator {
-    private ConsoleAdapter console;
     private List<PlanTask> plans;
     private List<String> vehicles;
     private VehicleAwareness vawareness;
 
     public RoundRobinAllocator(boolean isPeriodic, boolean listenToEvents, VehicleAwareness vawareness, ConsoleAdapter console) {
-        super(isPeriodic, listenToEvents);
+        super(isPeriodic, listenToEvents, console);
         this.console = console;
         setVehicleAwareness(vawareness);
         plans = new ArrayList<>();
