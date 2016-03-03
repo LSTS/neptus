@@ -84,7 +84,6 @@ public abstract class AbstractAllocator implements IPeriodicUpdates {
      * */
     protected boolean allocateTo(String vehicle, PlanTask ptask) {
         /* TODO: Implement using sendMessage() from ConsoleAdapter */
-        System.out.println("[mvplanning/RoundRobinAllocator] Sending message");
         try {
             int reqId = IMCSendMessageUtils.getNextRequestId();
 

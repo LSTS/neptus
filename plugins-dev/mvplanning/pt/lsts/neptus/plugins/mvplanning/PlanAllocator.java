@@ -61,7 +61,6 @@ public class PlanAllocator {
         /* default allocation strategy is round-robin */
         if(allocator == null)
             setAllocationStrategy(AllocationStrategy.ROUND_ROBIN);
-        System.out.println("[mvplanning/PlanAllocator] Forwarding plan to the allocator.");
         allocator.addNewPlan(ptask);
     }
 

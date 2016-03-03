@@ -67,7 +67,6 @@ public class RoundRobinAllocator extends AbstractAllocator {
     @Override
     public void addNewPlan(PlanTask ptask) {
         synchronized(plans) {
-            System.out.println("[mvplanning/RoundRobinAllocator] Received a new plan.");
             plans.add(ptask);
             updateVehiclesList(ptask.getProfile().getProfileVehicles());
         }
@@ -77,10 +76,8 @@ public class RoundRobinAllocator extends AbstractAllocator {
     @Override
     public void doAllocation() {
         synchronized(plans) {
-            if(plans.isEmpty() || vehicles.isEmpty()) {
-                System.out.println("[mvplanning/RoundRobinAllocator] No plans or vehicles available.");
+            if(plans.isEmpty() || vehicles.isEmpty())
                 return;
-            }
 
             int i = 0;
             boolean allocated;
@@ -104,13 +101,10 @@ public class RoundRobinAllocator extends AbstractAllocator {
                             tmpList.remove(ptask);
                         }
                     }
-                    else
-                        System.out.println("[mvplanning/RoundRobinAllocator] Vehicle " + vehicle + " no available or not in profile " + ptask.getProfile().getId());
                     i++;
                 }
             }
             plans = tmpList;
-            System.out.println();
         }
     }
     
