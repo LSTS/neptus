@@ -9,5 +9,6 @@ pt.lsts.neptus.plugins.uavs.panels.SpeedIndicatorPanel
 pt.lsts.neptus.plugins.uavs.panels.AutopilotModePanel
 pt.lsts.neptus.plugins.uavs.panels.PreflightPanel
 pt.lsts.neptus.plugins.uavs.panels.PiksiPanel
+pt.lsts.neptus.plugins.uavs.panels.GimbalPanel
 no.ntnu.gpsplot.GpsPlotter
 pt.lsts.uav.mra.MessagesPerSystemPlot
