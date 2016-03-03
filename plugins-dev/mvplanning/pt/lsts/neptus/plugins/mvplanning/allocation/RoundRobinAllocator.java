@@ -70,7 +70,6 @@ public class RoundRobinAllocator extends AbstractAllocator {
             System.out.println("[mvplanning/RoundRobinAllocator] Received a new plan.");
             plans.add(ptask);
             updateVehiclesList(ptask.getProfile().getProfileVehicles());
-            doAllocation();
         }
     }
     
