@@ -85,28 +85,31 @@ public class RoundRobinAllocator extends AbstractAllocator {
 
             int i = 0;
             boolean allocated = false;
-            PlanTask ptask = plans.get(0);
-            /* iterate over profile's vehicles and find the first one available */
-            while(!allocated && (i < vehicles.size())) {
-                /* fetch, supposedly, available vehicle of the profile */
-                String vehicle = vehicles.get(i);
-                if(vawareness.isVehicleAvailable(vehicle) && ptask.containsVehicle(vehicle)) {
-                    allocated = allocateTo(vehicle, ptask);
+            List<PlanTask> tmpList = new ArrayList<>();
 
-                    if(allocated) {
-                        System.out.println("[mvplanning/RoundRobinAllocator] Allocating " + ptask.getPlanId() + " to " + vehicle);
-                        /* plan has been allocated */
-                        plans.remove(0);
+            for(int j = 0; j < plans.size(); j++) {
+                PlanTask ptask = plans.get(j);
+                /* iterate over profile's vehicles and find the first one available */
+                while(!allocated && (i < vehicles.size())) {
+                    String vehicle = vehicles.get(i);
+                    if(vawareness.isVehicleAvailable(vehicle) && ptask.containsVehicle(vehicle)) {
+                        allocated = allocateTo(vehicle, ptask);
 
-                        /* move vehicle to the end of the queue */
-                        vehicles.remove(i);
-                        vehicles.add(vehicle);
+                        if(allocated) {
+                            System.out.println("[mvplanning/RoundRobinAllocator] Allocating " + ptask.getPlanId() + " to " + vehicle);
+                            /* move vehicle to the end of the queue */
+                            vehicles.remove(i);
+                            vehicles.add(vehicle);
+                        }
+                        else {
+                            tmpList.add(ptask);
+                            System.out.println("[mvplanning/RoundRobinAllocator] Vehicle " + vehicle + " no available or not in profile " + ptask.getProfile().getId());
+                        }
                     }
-                    else
-                        System.out.println("[mvplanning/RoundRobinAllocator] Vehicle " + vehicle + " no available or not in profile " + ptask.getProfile().getId());
+                    i++;
                 }
-                i++;
             }
+            plans = tmpList;
         }
     }
     
