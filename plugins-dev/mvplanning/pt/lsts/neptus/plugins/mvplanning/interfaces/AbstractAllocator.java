@@ -35,6 +35,11 @@ import pt.lsts.neptus.plugins.mvplanning.PlanTask;
 import pt.lsts.neptus.plugins.mvplanning.VehicleAwareness;
 import pt.lsts.neptus.plugins.update.IPeriodicUpdates;
 import pt.lsts.neptus.plugins.update.PeriodicUpdatesService;
+import pt.lsts.imc.PlanControl;
+import pt.lsts.imc.PlanControl.OP;
+import pt.lsts.imc.PlanDB;
+import pt.lsts.imc.PlanSpecification;
+import pt.lsts.neptus.comm.IMCSendMessageUtils;
 
 /**
  * @author tsmarques
@@ -77,7 +82,45 @@ public abstract class AbstractAllocator implements IPeriodicUpdates {
     /**
      * Send the actual plan to a vehicle. 
      * */
-    public abstract boolean allocateTo(String vehicle, PlanTask ptask);   
+    protected boolean allocateTo(String vehicle, PlanTask ptask) {
+        /* TODO: Implement using sendMessage() from ConsoleAdapter */
+        System.out.println("[mvplanning/RoundRobinAllocator] Sending message");
+        try {
+            int reqId = IMCSendMessageUtils.getNextRequestId();
+
+            PlanDB pdb = new PlanDB();
+            PlanSpecification plan = ptask.getPlanSpecification();
+
+            pdb.setType(PlanDB.TYPE.REQUEST);
+            pdb.setOp(PlanDB.OP.SET);
+            pdb.setRequestId(reqId);
+            pdb.setPlanId(ptask.getPlanId());
+            pdb.setArg(plan);
+            pdb.setInfo("Plan allocated by [mvplanning/PlanAllocator]");
+
+            boolean planSent = console.sendMessage(vehicle, pdb);
+
+            if(planSent) {
+                reqId = IMCSendMessageUtils.getNextRequestId();
+                PlanControl pc = new PlanControl();
+                pc.setType(PlanControl.TYPE.REQUEST);
+                pc.setRequestId(reqId);
+                pc.setPlanId(ptask.getPlanId());
+                pc.setOp(OP.START);
+
+                boolean cmdSent = console.sendMessage(vehicle, pc);
+
+                return cmdSent;
+            }
+            else
+                return planSent;
+        }
+        catch(Exception e) {
+            e.printStackTrace();
+            System.out.println("[mvplanning/PlanAllocator]: Failed to allocate plan " + ptask.getPlanId() + " to " + vehicle);
+            return false;
+        }
+    }
 
     /**
      * Set if the allocator is periodic */    
