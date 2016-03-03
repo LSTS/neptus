@@ -100,11 +100,11 @@ public class RoundRobinAllocator extends AbstractAllocator {
                             vehicles.remove(i);
                             vehicles.add(vehicle);
                         }
-                        else {
+                        else
                             tmpList.add(ptask);
-                            System.out.println("[mvplanning/RoundRobinAllocator] Vehicle " + vehicle + " no available or not in profile " + ptask.getProfile().getId());
-                        }
                     }
+                    else
+                        System.out.println("[mvplanning/RoundRobinAllocator] Vehicle " + vehicle + " no available or not in profile " + ptask.getProfile().getId());
                     i++;
                 }
             }
