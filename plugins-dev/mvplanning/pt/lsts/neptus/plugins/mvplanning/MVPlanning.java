@@ -84,6 +84,7 @@ public class MVPlanning extends ConsolePanel implements PlanChangeListener {
     private JComboBox<String> profiles;
     private JButton allocateButton;
     private JButton allocateAllButton;
+    private JButton clean;
 
     public MVPlanning(ConsoleLayout console) {
         super(console);
@@ -107,11 +108,13 @@ public class MVPlanning extends ConsolePanel implements PlanChangeListener {
         profiles = new JComboBox<>();
         allocateButton = new JButton("Allocate plan");
         allocateAllButton = new JButton("Allocate all plans");
+        clean = new JButton("clean");
 
         plans.setPreferredSize(new Dimension(225, 280));
         plans.setModel(listModel);
         profiles.setPreferredSize(new Dimension(225, 30));
         allocateButton.setPreferredSize(new Dimension(100, 30));
+        clean.setPreferredSize(new Dimension(100, 30));
         allocateAllButton.setPreferredSize(new Dimension(50, 30));
 
 
@@ -134,11 +137,20 @@ public class MVPlanning extends ConsolePanel implements PlanChangeListener {
                 }
             }
         });
+        
+        clean.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                plans.removeAll();
+                listModel.removeAllElements();
+            }
+        });
 
 
         this.add(profiles);
         this.add(listScroller);
         this.add(allocateButton);
+        this.add(clean);
     }
 
 
