@@ -38,6 +38,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import pt.lsts.neptus.comm.manager.imc.ImcSystem;
 import pt.lsts.neptus.comm.manager.imc.ImcSystemsHolder;
+import pt.lsts.neptus.console.events.ConsoleEventNewSystem;
 import pt.lsts.neptus.console.events.ConsoleEventVehicleStateChanged;
 import pt.lsts.neptus.console.events.ConsoleEventVehicleStateChanged.STATE;
 import pt.lsts.neptus.events.NeptusEvents;
@@ -71,19 +72,23 @@ public class VehicleAwareness {
     private synchronized void onVehicleStateChanged(ConsoleEventVehicleStateChanged event) {
         String id = event.getVehicle();
         ConsoleEventVehicleStateChanged.STATE newState = event.getState();
-
-        if(newState == STATE.FINISHED)
-            setVehicleAvailable(id);
-        else if(newState == STATE.SERVICE) {
-            ImcSystem vehicle = ImcSystemsHolder.getSystemWithName(id);
+        
+        checkVehicleState(id, newState);
+    }
+    
+    private void checkVehicleState(String vehicle, STATE state) {
+        if(state == STATE.FINISHED)
+            setVehicleAvailable(vehicle);
+        else if(state == STATE.SERVICE) {
+//            ImcSystem vehicle = ImcSystemsHolder.getSystemWithName(id);
 
 //            if(vehicle.isInOperationMedium())
-            setVehicleAvailable(id);
+            setVehicleAvailable(vehicle);
 //            else /* In SERVICE mode, but on the ground */
 //                setVehicleUnavailable(id);
         }
         else
-            setVehicleUnavailable(id);
+            setVehicleUnavailable(vehicle);
     }
 
     public boolean isVehicleAvailable(String vehicle) {
