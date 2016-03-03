@@ -126,8 +126,12 @@ public class MVPlanning extends ConsolePanel implements PlanChangeListener {
                 String desiredProfile = (String) profiles.getSelectedItem();
                 String desiredPlan = plans.getSelectedValue();
 
-                if(desiredPlan != null)
+                if(desiredPlan != null) {
                     pGen.generatePlan(availableProfiles.get(desiredProfile), selectedPlans.get(desiredPlan));
+
+                    int index = listModel.indexOf(desiredPlan);
+                    listModel.set(index, desiredPlan + " [" + desiredProfile + "]");
+                }
             }
         });
 
