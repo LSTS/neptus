@@ -83,10 +83,11 @@ public class RoundRobinAllocator extends AbstractAllocator {
             }
 
             int i = 0;
-            boolean allocated = false;
-            List<PlanTask> tmpList = new ArrayList<>();
+            boolean allocated;
+            List<PlanTask> tmpList = new ArrayList<>(plans);
 
             for(int j = 0; j < plans.size(); j++) {
+                allocated = false;
                 PlanTask ptask = plans.get(j);
                 /* iterate over profile's vehicles and find the first one available */
                 while(!allocated && (i < vehicles.size())) {
@@ -99,9 +100,9 @@ public class RoundRobinAllocator extends AbstractAllocator {
                             /* move vehicle to the end of the queue */
                             vehicles.remove(i);
                             vehicles.add(vehicle);
+
+                            tmpList.remove(ptask);
                         }
-                        else
-                            tmpList.add(ptask);
                     }
                     else
                         System.out.println("[mvplanning/RoundRobinAllocator] Vehicle " + vehicle + " no available or not in profile " + ptask.getProfile().getId());
@@ -109,6 +110,7 @@ public class RoundRobinAllocator extends AbstractAllocator {
                 }
             }
             plans = tmpList;
+            System.out.println();
         }
     }
     
