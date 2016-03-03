@@ -31,7 +31,10 @@
  */
 package pt.lsts.neptus.plugins.mvplanning.interfaces;
 
+import java.util.Map;
+
 import pt.lsts.imc.IMCMessage;
+import pt.lsts.neptus.console.ConsoleSystem;
 
 /**
  * @author tsmarques
@@ -41,4 +44,5 @@ public interface ConsoleAdapter {
     public void registerToEventBus(Object obj);
     public void post(Object event);
     public boolean sendMessage(String dest, IMCMessage msg);
+    public Map<String, ConsoleSystem> getSystems();
 }

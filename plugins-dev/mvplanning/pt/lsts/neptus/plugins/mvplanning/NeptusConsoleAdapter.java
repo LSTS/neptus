@@ -31,8 +31,11 @@
  */
 package pt.lsts.neptus.plugins.mvplanning;
 
+import java.util.Map;
+
 import pt.lsts.imc.IMCMessage;
 import pt.lsts.neptus.console.ConsoleLayout;
+import pt.lsts.neptus.console.ConsoleSystem;
 import pt.lsts.neptus.events.NeptusEvents;
 import pt.lsts.neptus.plugins.mvplanning.interfaces.ConsoleAdapter;
 
@@ -66,5 +69,10 @@ public class NeptusConsoleAdapter implements ConsoleAdapter {
         catch (Exception e) {
             return false;
         }
+    }
+
+    @Override
+    public Map<String, ConsoleSystem> getSystems() {
+        return console.getSystems();
     }
 }
