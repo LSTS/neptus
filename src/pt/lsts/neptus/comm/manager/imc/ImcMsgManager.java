@@ -73,7 +73,6 @@ import pt.lsts.neptus.comm.IMCUtils;
 import pt.lsts.neptus.comm.manager.CommBaseManager;
 import pt.lsts.neptus.comm.manager.CommManagerStatusChangeListener;
 import pt.lsts.neptus.comm.manager.MessageFrequencyCalculator;
-import pt.lsts.neptus.comm.manager.imc.ImcMsgManager.SendResult;
 import pt.lsts.neptus.comm.transports.ImcTcpTransport;
 import pt.lsts.neptus.comm.transports.ImcUdpTransport;
 import pt.lsts.neptus.console.ConsolePanel;
@@ -95,6 +94,7 @@ import pt.lsts.neptus.util.StringUtils;
 import pt.lsts.neptus.util.conf.ConfigFetch;
 import pt.lsts.neptus.util.conf.GeneralPreferences;
 import pt.lsts.neptus.util.conf.PreferencesListener;
+import pt.lsts.neptus.util.datetime.TimeDuration;
 
 /**
  * @author pdias
@@ -1561,19 +1561,30 @@ CommBaseManager<IMCMessage, MessageInfo, SystemImcMsgCommInfo, ImcId16, CommMana
         return sendMessage(message, vehicle.getImcId(), sendProperties);
     }
 
-    /* (non-Javadoc)
-     * @see pt.lsts.neptus.comm.manager.CommBaseManager#sendMessage(pt.lsts.neptus.messages.IMessage, java.lang.Object, java.lang.String)
-     */
-
     public Future<SendResult> sendMessageWaitResult(IMCMessage message, ImcId16 systemCommId, String sendProperties) {
         Future<SendResult> result = new FutureMessageSenderResult();
         sendMessage(message, systemCommId, sendProperties, (MessageDeliveryListener) result);
         return result;
     }
 
+    public Future<SendResult> sendMessageWaitResult(IMCMessage message, ImcId16 systemCommId, String sendProperties,
+            TimeDuration messageTimeout) {
+        Future<SendResult> result = new FutureMessageSenderResult();
+        sendMessage(message, systemCommId, sendProperties, (MessageDeliveryListener) result, messageTimeout);
+        return result;
+    }
+
+    /* (non-Javadoc)
+     * @see pt.lsts.neptus.comm.manager.CommBaseManager#sendMessage(pt.lsts.neptus.messages.IMessage, java.lang.Object, java.lang.String)
+     */
     @Override
     public boolean sendMessage(IMCMessage message, ImcId16 vehicleCommId, String sendProperties) {
         return sendMessage(message, vehicleCommId, sendProperties, null);
+    }
+
+    public boolean sendMessage(IMCMessage message, ImcId16 systemCommId, String sendProperties,
+            MessageDeliveryListener msgListener) {
+        return sendMessage(message, systemCommId, sendProperties, msgListener, null);
     }
 
     /**
@@ -1584,11 +1595,12 @@ CommBaseManager<IMCMessage, MessageInfo, SystemImcMsgCommInfo, ImcId16, CommMana
      *            or both, it exists), and alternatively UDP or TCP (only if the Multicast and/or Broadcast are not
      *            used).
      * @param listener If you want to be warn on the send status of the message. Use null if you don't care.
+     * @param messageTimeout The maximum time for sending the message. 
      * @return Return true if the message went to the transport to be delivered. If you need to know if the message left
      *         the transport use the listener.
      */
     public boolean sendMessage(IMCMessage message, ImcId16 systemCommId, String sendProperties,
-            MessageDeliveryListener msgListener) {
+            MessageDeliveryListener msgListener, TimeDuration messageTimeout) {
 
         checkAndSetMessageSrcEntity(message);
 
@@ -1638,7 +1650,8 @@ CommBaseManager<IMCMessage, MessageInfo, SystemImcMsgCommInfo, ImcId16, CommMana
                 try {
                     for (int port : multicastPorts) {
                         markMessageToSent(systemCommId);
-                        sentResult = multicastUdpTransport.sendMessage(multicastAddress, port, message, listener);
+                        sentResult = multicastUdpTransport.sendMessage(multicastAddress, port, message, listener,
+                                messageTimeout);
                     }
                 }
                 catch (Exception e) {
@@ -1659,7 +1672,7 @@ CommBaseManager<IMCMessage, MessageInfo, SystemImcMsgCommInfo, ImcId16, CommMana
                                     if (i4a != null) {
                                         markMessageToSent(systemCommId);
                                         sentResult = multicastUdpTransport.sendMessage(i4a.getHostAddress(), port,
-                                                message, listener);
+                                                message, listener, messageTimeout);
                                     }
                                 }
                             }
@@ -1725,14 +1738,14 @@ CommBaseManager<IMCMessage, MessageInfo, SystemImcMsgCommInfo, ImcId16, CommMana
             for (TransportPreference transport : transportChoiceToSend) {
                 if (transport == TransportPreference.UDP) {
                     boolean ret = getUdpTransport().sendMessage(imcSystem.getHostAddress(),
-                            imcSystem.getRemoteUDPPort(), message.cloneMessage(), listener);
+                            imcSystem.getRemoteUDPPort(), message.cloneMessage(), listener, messageTimeout);
                     sentResult = sentResult && ret;
                     if (ret)
                         break;
                 }
                 else if (transport == TransportPreference.TCP) {
                     boolean ret = getTcpTransport().sendMessage(imcSystem.getHostAddress(),
-                            imcSystem.getRemoteTCPPort(), message.cloneMessage(), listener);
+                            imcSystem.getRemoteTCPPort(), message.cloneMessage(), listener, messageTimeout);
                     sentResult = sentResult && ret;
                     if (ret)
                         break;
