@@ -121,7 +121,7 @@ public abstract class AbstractAllocator implements IPeriodicUpdates {
                 pc.setPlanId(ptask.getPlanId());
                 pc.setOp(OP.START);
 
-                Future<SendResult> cmdRes = console.sendMessageReliably(vehicle, pdb);
+                Future<SendResult> cmdRes = console.sendMessageReliably(vehicle, pc);
                 boolean cmdSent = (cmdRes.get() == SendResult.SUCCESS);
 
                 return cmdSent;
