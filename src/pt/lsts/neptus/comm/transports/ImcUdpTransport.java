@@ -48,6 +48,7 @@ import pt.lsts.neptus.messages.listener.MessageInfo;
 import pt.lsts.neptus.messages.listener.MessageInfoImpl;
 import pt.lsts.neptus.messages.listener.MessageListener;
 import pt.lsts.neptus.util.conf.ConfigFetch;
+import pt.lsts.neptus.util.datetime.TimeDuration;
 
 /**
  * @author pdias
@@ -234,8 +235,28 @@ public class ImcUdpTransport {
         return sendMessage(destination, port, message, null);
     }
 
+    /**
+     * @param destination
+     * @param port
+     * @param message
+     * @param deliveryListener
+     * @return
+     */
+    public boolean sendMessage(String destination, int port, final IMCMessage message,
+            final MessageDeliveryListener deliveryListener) {
+        return sendMessage(destination, port, message, deliveryListener, null);
+    }
+
+	/**
+	 * @param destination
+	 * @param port
+	 * @param message
+	 * @param deliveryListener
+	 * @param timeout
+	 * @return
+	 */
 	public boolean sendMessage(String destination, int port, final IMCMessage message,
-	        final MessageDeliveryListener deliveryListener) {
+	        final MessageDeliveryListener deliveryListener, TimeDuration timeout) {
 		ByteArrayOutputStream baos = new ByteArrayOutputStream();
 		IMCOutputStream imcOs = new IMCOutputStream(baos);
 
@@ -267,12 +288,7 @@ public class ImcUdpTransport {
                     }
                 };                
             }
-            boolean ret = getUdpTransport().sendMessage(destination, port, baos.toByteArray(), listener);
-//            message.dump(System.err);
-//            if (message.getAbbrev().equalsIgnoreCase("LblConfig")) {
-//                NeptusLog.pub().info("<###> sissssssssssss" + baos.toByteArray().length);
-//                ByteUtil.dumpAsHex(message.getAbbrev(), baos.toByteArray(), System.out);
-//            }
+            boolean ret = getUdpTransport().sendMessage(destination, port, baos.toByteArray(), listener, timeout);
             if (!ret) {
                 if (deliveryListener != null) {
                     deliveryListener.deliveryError(message, new Exception("Delivery "
@@ -280,7 +296,8 @@ public class ImcUdpTransport {
                 }
             }
             return ret;
-		} catch (Exception e) {
+		}
+		catch (Exception e) {
 		    e.printStackTrace();
 			NeptusLog.pub().error(e);
 			if (deliveryListener != null) {
@@ -289,7 +306,6 @@ public class ImcUdpTransport {
 			return false;
 		}
 	}
-
 	
 	public void stop() {
 		getUdpTransport().stop();
@@ -309,7 +325,6 @@ public class ImcUdpTransport {
 	public boolean isOnBindError() {
 		return getUdpTransport().isOnBindError();
 	}
-
 	
 	/**
 	 * @param args

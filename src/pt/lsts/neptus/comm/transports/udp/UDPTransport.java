@@ -47,11 +47,13 @@ import java.util.LinkedHashSet;
 import java.util.Vector;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.comm.transports.DeliveryListener;
 import pt.lsts.neptus.comm.transports.DeliveryListener.ResultEnum;
 import pt.lsts.neptus.util.ByteUtil;
+import pt.lsts.neptus.util.datetime.TimeDuration;
 
 /**
  * @author pdias
@@ -674,6 +676,18 @@ public class UDPTransport {
                         req = sendmessageList.poll(1, TimeUnit.SECONDS);
                         if (req == null)
                             continue;
+                        
+                        if (req.getTimeoutMillis() > 0) {
+                            long timeMillis = System.currentTimeMillis();
+                            long reqTimeMillis = req.getTimeMillis();
+                            long timeoutMillis = req.getTimeoutMillis();
+                            if (reqTimeMillis + timeoutMillis > timeMillis) {
+                                informDeliveryListener(req, ResultEnum.TimeOut,
+                                        new TimeoutException("Maximum requested time to send message expired!"));
+                                continue;
+                            }
+                        }
+                        
                         try {
                             dgram = new DatagramPacket(req.getBuffer(), req.getBuffer().length, req.getAddress());
                             if (req.getAddress().getPort() != 0) {
@@ -753,7 +767,23 @@ public class UDPTransport {
      * @param deliveryListener
      * @return true meaning that the message was put on the send queue, and false if it was not put on the send queue.
      */
-    public boolean sendMessage(String destination, int port, byte[] buffer, DeliveryListener deliveryListener) {
+    public boolean sendMessage(String destination, int port, byte[] buffer, 
+            DeliveryListener deliveryListener) {
+        return sendMessage(destination, port, buffer, deliveryListener, null);
+    }
+
+    /**
+     * Sends a message to the network
+     * 
+     * @param destination A valid hostname like "whale.fe.up.pt" or "127.0.0.1"
+     * @param port The destination's port
+     * @param buffer
+     * @param deliveryListener
+     * @param timeout The timeout for sending the message.
+     * @return true meaning that the message was put on the send queue, and false if it was not put on the send queue.
+     */
+    public boolean sendMessage(String destination, int port, byte[] buffer, 
+            DeliveryListener deliveryListener, TimeDuration timeout) {
         if (purging) {
             String txt = "Not accepting any more messages. IMCMessenger is terminating";
             NeptusLog.pub().error(txt);
@@ -762,8 +792,16 @@ public class UDPTransport {
             return false;
         }
         try {
-            UDPNotification req = new UDPNotification(UDPNotification.SEND, new InetSocketAddress(
-                    resolveAddress(destination), port), buffer);
+            UDPNotification req;
+            if (timeout == null) {
+                req = new UDPNotification(UDPNotification.SEND, new InetSocketAddress(
+                        resolveAddress(destination), port), buffer);
+            }
+            else {
+                req = new UDPNotification(UDPNotification.SEND, new InetSocketAddress(
+                        resolveAddress(destination), port), buffer, System.currentTimeMillis(), 
+                        timeout.getTimeAsMillis());
+            }
             req.setDeliveryListener(deliveryListener);
             sendmessageList.add(req);
         }
