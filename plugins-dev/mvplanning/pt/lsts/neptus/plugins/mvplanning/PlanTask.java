@@ -45,12 +45,14 @@ public class PlanTask {
     private PlanSpecification plan;
     private Profile planProfile;
     private double timestamp;
+    private byte[] md5;
 
-    public PlanTask(String id, PlanSpecification plan, Profile planProfile) {
+    public PlanTask(String id, PlanSpecification plan, Profile planProfile, byte[] planMd5) {
         this.planId = id;
         this.plan = plan;
         this.planProfile = planProfile;
         this.timestamp = -1;
+        this.md5 = planMd5;
     }
     
     public String getPlanId() {
@@ -67,6 +69,10 @@ public class PlanTask {
 
     public Profile getProfile() {
         return planProfile;
+    }
+
+    public byte[] getMd5() {
+        return md5;
     }
 
     public void setTimestamp(double timestamp) {
