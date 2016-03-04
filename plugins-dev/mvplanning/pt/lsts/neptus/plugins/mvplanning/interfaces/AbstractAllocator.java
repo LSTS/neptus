@@ -35,15 +35,19 @@ import pt.lsts.neptus.plugins.mvplanning.PlanTask;
 import pt.lsts.neptus.plugins.mvplanning.VehicleAwareness;
 import pt.lsts.neptus.plugins.update.IPeriodicUpdates;
 import pt.lsts.neptus.plugins.update.PeriodicUpdatesService;
+import pt.lsts.neptus.util.ByteUtil;
 
 import java.util.concurrent.Future;
 
 import pt.lsts.imc.PlanControl;
 import pt.lsts.imc.PlanControl.OP;
+import pt.lsts.imc.state.ImcSystemState;
 import pt.lsts.imc.PlanDB;
 import pt.lsts.imc.PlanSpecification;
 import pt.lsts.neptus.comm.IMCSendMessageUtils;
 import pt.lsts.neptus.comm.manager.imc.ImcMsgManager.SendResult;
+import pt.lsts.neptus.comm.manager.imc.ImcSystem;
+import pt.lsts.neptus.comm.manager.imc.ImcSystemsHolder;
 
 /**
  * @author tsmarques
@@ -102,9 +106,14 @@ public abstract class AbstractAllocator implements IPeriodicUpdates {
             pdb.setInfo("Plan allocated by [mvplanning/PlanAllocator]");
 
             Future<SendResult> res = console.sendMessageReliably(vehicle, pdb);
-            boolean planSent = (res.get() == SendResult.SUCCESS);
+            boolean planSent = false;
+            SendResult sendRes = res.get();
 
-            if(planSent) {
+
+            if(sendRes == SendResult.UNCERTAIN_DELIVERY)
+                planSent = confirmPlanAllocated(vehicle, ptask);
+
+            if(sendRes == SendResult.SUCCESS || planSent) {
                 reqId = IMCSendMessageUtils.getNextRequestId();
                 PlanControl pc = new PlanControl();
                 pc.setType(PlanControl.TYPE.REQUEST);
@@ -118,13 +127,23 @@ public abstract class AbstractAllocator implements IPeriodicUpdates {
                 return cmdSent;
             }
             else
-                return planSent;
+                return false;
         }
         catch(Exception e) {
             e.printStackTrace();
             System.out.println("[mvplanning/PlanAllocator]: Failed to allocate plan " + ptask.getPlanId() + " to " + vehicle);
             return false;
         }
+    }
+
+    private boolean confirmPlanAllocated(String vehicle, PlanTask ptask) {
+        ImcSystem sys = ImcSystemsHolder.getSystemWithName(vehicle);
+        byte[] remoteMD5 = sys.getPlanDBControl().getRemoteState().getStoredPlans().get(ptask.getPlanId()).getMd5();
+
+        if(remoteMD5 == null)
+            return false;
+
+        return ByteUtil.equal(ptask.getMd5(), remoteMD5);
     }
 
     /**
