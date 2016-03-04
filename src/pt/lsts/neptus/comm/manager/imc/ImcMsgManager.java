@@ -51,6 +51,7 @@ import java.util.concurrent.FutureTask;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import javax.naming.InvalidNameException;
@@ -1311,7 +1312,8 @@ CommBaseManager<IMCMessage, MessageInfo, SystemImcMsgCommInfo, ImcId16, CommMana
         }
 
         // Lets wrap the possible listener in our internal one for frequency count for to send and sent messages
-        MessageDeliveryListener listener = wrapMessageDeliveryListenerForSentMessageCounter(systemCommId, msgListener);
+        MessageDeliveryListener listener = wrapMessageDeliveryListenerForSentMessageCounter(systemCommId, msgListener,
+                message);
 
         // If the destination to send to is null, just send back to the caller an error
         if (systemCommId == null) {
@@ -1385,9 +1387,6 @@ CommBaseManager<IMCMessage, MessageInfo, SystemImcMsgCommInfo, ImcId16, CommMana
                 }
             }
 
-            if (sentResult)
-                logMessage(message);
-
             return sentResult;
         }
 
@@ -1457,9 +1456,6 @@ CommBaseManager<IMCMessage, MessageInfo, SystemImcMsgCommInfo, ImcId16, CommMana
             if (listener != null)
                 listener.deliveryError(message, e);
         }
-
-        if (sentResult)
-            logMessage(message);
 
         return sentResult;
     }
@@ -1578,14 +1574,16 @@ CommBaseManager<IMCMessage, MessageInfo, SystemImcMsgCommInfo, ImcId16, CommMana
 
     /**
      * To wrap the possible listener in our internal one for frequency count for to send and sent messages.
+     * Also on success will log the message (at least success on one sent request).
      * @param systemCommId
      * @param listenerToWrap
      * @return
      */
     private MessageDeliveryListener wrapMessageDeliveryListenerForSentMessageCounter(final ImcId16 systemCommId,
-            final MessageDeliveryListener listenerToWrap) {
+            final MessageDeliveryListener listenerToWrap, final IMCMessage originalToSendMessage) {
         MessageDeliveryListener msgLstnr = new MessageDeliveryListener() {
-
+            private AtomicBoolean messageAlreadyLogged = new AtomicBoolean(false);
+            
             @Override
             public void deliveryError(IMCMessage message, Object error) {
                 if (listenerToWrap != null)
@@ -1609,6 +1607,7 @@ CommBaseManager<IMCMessage, MessageInfo, SystemImcMsgCommInfo, ImcId16, CommMana
                 if (listenerToWrap != null)
                     listenerToWrap.deliveryUncertain(message, msg);
 
+                tryLogMessage();
                 markMessageSent(systemCommId);
             }
 
@@ -1617,7 +1616,13 @@ CommBaseManager<IMCMessage, MessageInfo, SystemImcMsgCommInfo, ImcId16, CommMana
                 if (listenerToWrap != null)
                     listenerToWrap.deliverySuccess(message);
 
+                tryLogMessage();
                 markMessageSent(systemCommId);
+            }
+
+            private void tryLogMessage() {
+                if (messageAlreadyLogged.compareAndSet(false, true))
+                    logMessage(originalToSendMessage);
             }
         };
 
