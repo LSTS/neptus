@@ -129,7 +129,7 @@ public class GimbalPanel extends ConsolePanel implements MainVehicleChangeListen
 
         buttonPanel.add(rollSlider, "w 50%, h 100%");
         
-        JSlider pitchSlider = new JSlider(JSlider.VERTICAL, 45, 100, 75);
+        JSlider pitchSlider = new JSlider(JSlider.VERTICAL, 75, 100, 75);
         pitchSlider.setPaintTicks(true);
         
         Hashtable<Integer, JLabel> pitchLblTable = new Hashtable<>();
@@ -137,9 +137,6 @@ public class GimbalPanel extends ConsolePanel implements MainVehicleChangeListen
         pitchLblTable.put( new Integer(90), new JLabel("-45") );
         pitchLblTable.put( new Integer(80), new JLabel("-15") );
         pitchLblTable.put( new Integer(75), new JLabel("0 - FWD") );
-        pitchLblTable.put( new Integer(70), new JLabel("15") );
-        pitchLblTable.put( new Integer(60), new JLabel("30") );
-        pitchLblTable.put( new Integer(45), new JLabel("45 - UP") );
         pitchSlider.setLabelTable( pitchLblTable );
         pitchSlider.setPaintLabels(true);
         
@@ -153,7 +150,6 @@ public class GimbalPanel extends ConsolePanel implements MainVehicleChangeListen
                     SetServoPosition pitchMsg = new SetServoPosition();
                     pitchMsg.setId(PITCH_SERVO_ID);
                     double rads = Math.toRadians(pos);
-                    System.out.println("Degree: "+pos+ " Rads: "+  rads);                    
                     pitchMsg.setValue(rads);
                     
                     send(pitchMsg);
