@@ -113,25 +113,36 @@ public abstract class AbstractAllocator implements IPeriodicUpdates {
             if(sendRes == SendResult.UNCERTAIN_DELIVERY)
                 planSent = confirmPlanAllocated(vehicle, ptask);
 
-            if(sendRes == SendResult.SUCCESS || planSent) {
-                reqId = IMCSendMessageUtils.getNextRequestId();
-                PlanControl pc = new PlanControl();
-                pc.setType(PlanControl.TYPE.REQUEST);
-                pc.setRequestId(reqId);
-                pc.setPlanId(ptask.getPlanId());
-                pc.setOp(OP.START);
-
-                Future<SendResult> cmdRes = console.sendMessageReliably(vehicle, pc);
-                boolean cmdSent = (cmdRes.get() == SendResult.SUCCESS);
-
-                return cmdSent;
-            }
+            if(sendRes == SendResult.SUCCESS || planSent)
+                return sendPlanStart(vehicle, ptask);
             else
                 return false;
         }
         catch(Exception e) {
             e.printStackTrace();
             System.out.println("[mvplanning/PlanAllocator]: Failed to allocate plan " + ptask.getPlanId() + " to " + vehicle);
+            return false;
+        }
+    }
+
+    private boolean sendPlanStart(String vehicle, PlanTask ptask) {
+        try {
+            int reqId = IMCSendMessageUtils.getNextRequestId();
+            PlanControl pc = new PlanControl();
+            pc.setType(PlanControl.TYPE.REQUEST);
+            pc.setRequestId(reqId);
+            pc.setPlanId(ptask.getPlanId());
+            pc.setOp(OP.START);
+
+            /* TODO: Handle case success is uncertain */
+            Future<SendResult> cmdRes = console.sendMessageReliably(vehicle, pc);
+            boolean cmdSent = (cmdRes.get() == SendResult.SUCCESS);
+
+            return cmdSent;
+        }
+        catch(Exception e) {
+            e.printStackTrace();
+            System.out.println("[mvplanning/PlanAllocator]: Failed to start plan " + ptask.getPlanId() + " in " + vehicle);
             return false;
         }
     }
