@@ -36,6 +36,7 @@ import java.util.List;
 
 import pt.lsts.neptus.plugins.mvplanning.PlanTask;
 import pt.lsts.neptus.plugins.mvplanning.VehicleAwareness;
+import pt.lsts.neptus.plugins.mvplanning.events.MvPlanningEventPlanAllocated;
 import pt.lsts.neptus.plugins.mvplanning.interfaces.AbstractAllocator;
 import pt.lsts.neptus.plugins.mvplanning.interfaces.ConsoleAdapter;
 
@@ -99,6 +100,7 @@ public class RoundRobinAllocator extends AbstractAllocator {
                             vehicles.add(vehicle);
 
                             tmpList.remove(ptask);
+                            console.post(new MvPlanningEventPlanAllocated(ptask.getPlanId(), ptask.getProfile().getId(), vehicle));
                         }
                     }
                     i++;
