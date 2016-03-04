@@ -51,6 +51,7 @@ import pt.lsts.neptus.messages.listener.MessageInfo;
 import pt.lsts.neptus.messages.listener.MessageInfoImpl;
 import pt.lsts.neptus.messages.listener.MessageListener;
 import pt.lsts.neptus.util.conf.ConfigFetch;
+import pt.lsts.neptus.util.datetime.TimeDuration;
 
 /**
  * @author pdias
@@ -171,7 +172,6 @@ public class ImcTcpTransport {
 		return sendMessage(destination, port, message, null);
 	}
 
-	
     /**
      * @param destination
      * @param port
@@ -180,6 +180,18 @@ public class ImcTcpTransport {
      */
     public boolean sendMessage(String destination, int port, final IMCMessage message,
             final MessageDeliveryListener deliveryListener) {
+        return sendMessage(destination, port, message, deliveryListener, null);
+    }
+	
+    /**
+     * @param destination
+     * @param port
+     * @param message
+     * @param deliveryListener
+     * @param timeout
+     */
+    public boolean sendMessage(String destination, int port, final IMCMessage message,
+            final MessageDeliveryListener deliveryListener, TimeDuration timeout) {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         IMCOutputStream imcOs = new IMCOutputStream(baos);
         try {
@@ -212,7 +224,7 @@ public class ImcTcpTransport {
                 };                
             }
             boolean ret = getTcpTransport().sendMessage(destination, port,
-                    baos.toByteArray(), listener);
+                    baos.toByteArray(), listener, timeout);
             if (!ret) {
                 if (deliveryListener != null) {
                     deliveryListener.deliveryError(message, new Exception("Delivery "
@@ -220,7 +232,8 @@ public class ImcTcpTransport {
                 }
             }
             return ret;
-        } catch (Exception e) {
+        }
+        catch (Exception e) {
             NeptusLog.pub().error(e);
             if (deliveryListener != null) {
                 deliveryListener.deliveryError(message, e);
