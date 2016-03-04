@@ -61,4 +61,16 @@ public class UDPNotification extends Notification{
 			byte[] buffer, long timeMillis) {
 		super(isReception, address, buffer, timeMillis);
 	}
+
+	/**
+	 * @param isReception
+	 * @param address
+	 * @param buffer
+	 * @param timeMillis
+	 * @param timeoutMillis
+	 */
+	public UDPNotification(boolean isReception, InetSocketAddress address,
+	        byte[] buffer, long timeMillis, long timeoutMillis) {
+	    super(isReception, address, buffer, timeMillis, timeoutMillis);
+	}
 }

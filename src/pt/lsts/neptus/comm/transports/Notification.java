@@ -52,6 +52,8 @@ public class Notification {
 
 	private long timeMillis = -1;
 	
+	private long timeoutMillis = -1;
+	
 	// DeliveryListener vars
 	private ResultEnum operationResult = ResultEnum.UnFinished; 
 	private Exception errorObject = null;
@@ -75,35 +77,24 @@ public class Notification {
      * @param currentTimeMillis
      */
     public Notification(boolean isReception, InetSocketAddress address, byte[] buffer, long timeMillis) {
+        this(isReception, address, buffer, timeMillis, -1);
+    }
+
+    /**
+     * @param isReception
+     * @param address
+     * @param buffer
+     * @param timeMillis
+     * @param timeoutMillis
+     */
+    public Notification(boolean isReception, InetSocketAddress address, byte[] buffer, long timeMillis, long timeoutMillis) {
         this.address = address;
         this.buffer = buffer;
         this.timeMillis = timeMillis;
+        this.timeoutMillis = timeoutMillis;
         setReception(isReception);
     }
 
-//	public Notification(boolean isReception, InetSocketAddress address,
-//			boolean eos, long timeMillis) {
-//		this.address = address;
-//		this.eosReceived = eos;
-//		this.buffer = new byte[0];
-//		this.timeMillis = timeMillis;
-//		setReception(isReception);
-//	}
-
-//	/**
-//	 * @return the eosReceived
-//	 */
-//	public boolean isEosReceived() {
-//		return eosReceived;
-//	}
-//	
-//	/**
-//	 * @param eosReceived the eosReceived to set
-//	 */
-//	public void setEosReceived(boolean eosReceived) {
-//		this.eosReceived = eosReceived;
-//	}
-	
 	/**
 	 * @return the buffer
 	 */
@@ -154,7 +145,6 @@ public class Notification {
 		isReception = !value;
 	}
 
-	
 	/**
 	 * @return the timeMillis
 	 */
@@ -169,6 +159,20 @@ public class Notification {
 		this.timeMillis = timeMillis;
 	}
 	
+	/**
+     * @return the timeoutMillis
+     */
+    public long getTimeoutMillis() {
+        return timeoutMillis;
+    }
+    
+    /**
+     * @param timeoutMillis the timeoutMillis to set
+     */
+    public void setTimeoutMillis(long timeoutMillis) {
+        this.timeoutMillis = timeoutMillis;
+    }
+    
 	/**
      * @return the operationResult
      */

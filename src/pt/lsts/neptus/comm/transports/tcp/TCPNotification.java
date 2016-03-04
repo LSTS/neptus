@@ -66,6 +66,18 @@ public class TCPNotification extends Notification {
 	/**
 	 * @param isReception
 	 * @param address
+	 * @param buffer
+	 * @param timeMillis
+	 * @param timeutMillis
+	 */
+	public TCPNotification(boolean isReception, InetSocketAddress address,
+	        byte[] buffer, long timeMillis, long  timeoutMillis) {
+	    super(isReception, address, buffer, timeMillis, timeoutMillis);
+	}
+
+	/**
+	 * @param isReception
+	 * @param address
 	 * @param eos
 	 * @param timeMillis
 	 */
@@ -73,6 +85,19 @@ public class TCPNotification extends Notification {
 			boolean eos, long timeMillis) {
 		super(isReception, address, new byte[0], timeMillis);
 		this.eosReceived = eos;
+	}
+
+	/**
+	 * @param isReception
+	 * @param address
+	 * @param eos
+	 * @param timeMillis
+	 * @param timeoutMillis
+	 */
+	public TCPNotification(boolean isReception, InetSocketAddress address,
+	        boolean eos, long timeMillis, long  timeoutMillis) {
+	    super(isReception, address, new byte[0], timeMillis, timeoutMillis);
+	    this.eosReceived = eos;
 	}
 
 	/**
