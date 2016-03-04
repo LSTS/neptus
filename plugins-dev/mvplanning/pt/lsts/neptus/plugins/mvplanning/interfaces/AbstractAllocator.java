@@ -35,11 +35,15 @@ import pt.lsts.neptus.plugins.mvplanning.PlanTask;
 import pt.lsts.neptus.plugins.mvplanning.VehicleAwareness;
 import pt.lsts.neptus.plugins.update.IPeriodicUpdates;
 import pt.lsts.neptus.plugins.update.PeriodicUpdatesService;
+
+import java.util.concurrent.Future;
+
 import pt.lsts.imc.PlanControl;
 import pt.lsts.imc.PlanControl.OP;
 import pt.lsts.imc.PlanDB;
 import pt.lsts.imc.PlanSpecification;
 import pt.lsts.neptus.comm.IMCSendMessageUtils;
+import pt.lsts.neptus.comm.manager.imc.ImcMsgManager.SendResult;
 
 /**
  * @author tsmarques
@@ -97,7 +101,8 @@ public abstract class AbstractAllocator implements IPeriodicUpdates {
             pdb.setArg(plan);
             pdb.setInfo("Plan allocated by [mvplanning/PlanAllocator]");
 
-            boolean planSent = console.sendMessage(vehicle, pdb);
+            Future<SendResult> res = console.sendMessageReliably(vehicle, pdb);
+            boolean planSent = (res.get() == SendResult.SUCCESS);
 
             if(planSent) {
                 reqId = IMCSendMessageUtils.getNextRequestId();
@@ -107,7 +112,8 @@ public abstract class AbstractAllocator implements IPeriodicUpdates {
                 pc.setPlanId(ptask.getPlanId());
                 pc.setOp(OP.START);
 
-                boolean cmdSent = console.sendMessage(vehicle, pc);
+                Future<SendResult> cmdRes = console.sendMessageReliably(vehicle, pdb);
+                boolean cmdSent = (cmdRes.get() == SendResult.SUCCESS);
 
                 return cmdSent;
             }

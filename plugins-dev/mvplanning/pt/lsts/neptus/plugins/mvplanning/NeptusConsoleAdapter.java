@@ -32,8 +32,10 @@
 package pt.lsts.neptus.plugins.mvplanning;
 
 import java.util.Map;
+import java.util.concurrent.Future;
 
 import pt.lsts.imc.IMCMessage;
+import pt.lsts.neptus.comm.manager.imc.ImcMsgManager.SendResult;
 import pt.lsts.neptus.console.ConsoleLayout;
 import pt.lsts.neptus.console.ConsoleSystem;
 import pt.lsts.neptus.events.NeptusEvents;
@@ -69,6 +71,11 @@ public class NeptusConsoleAdapter implements ConsoleAdapter {
         catch (Exception e) {
             return false;
         }
+    }
+
+    @Override
+    public Future<SendResult> sendMessageReliably(String dest, IMCMessage message) {
+        return console.getImcMsgManager().sendMessageReliably(message, dest);
     }
 
     @Override

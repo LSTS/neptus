@@ -32,8 +32,10 @@
 package pt.lsts.neptus.plugins.mvplanning.interfaces;
 
 import java.util.Map;
+import java.util.concurrent.Future;
 
 import pt.lsts.imc.IMCMessage;
+import pt.lsts.neptus.comm.manager.imc.ImcMsgManager.SendResult;
 import pt.lsts.neptus.console.ConsoleSystem;
 
 /**
@@ -44,5 +46,6 @@ public interface ConsoleAdapter {
     public void registerToEventBus(Object obj);
     public void post(Object event);
     public boolean sendMessage(String dest, IMCMessage msg);
+    public Future<SendResult> sendMessageReliably(String dest, IMCMessage message);
     public Map<String, ConsoleSystem> getSystems();
 }
