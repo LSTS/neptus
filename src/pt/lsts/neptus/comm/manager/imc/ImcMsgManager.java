@@ -1250,20 +1250,30 @@ CommBaseManager<IMCMessage, MessageInfo, SystemImcMsgCommInfo, ImcId16, CommMana
      * @param systemCommId
      */
     private void markMessageSent(ImcId16 systemCommId) {
-        sentMessagesFreqCalc.setTimeMillisLastMsg(System.currentTimeMillis());
-        MessageFrequencyCalculator mfc = getSentMessagesFreqCalc(systemCommId);
-        if (mfc != null)
-            mfc.setTimeMillisLastMsg(System.currentTimeMillis());
+        try {
+            sentMessagesFreqCalc.setTimeMillisLastMsg(System.currentTimeMillis());
+            MessageFrequencyCalculator mfc = getSentMessagesFreqCalc(systemCommId);
+            if (mfc != null)
+                mfc.setTimeMillisLastMsg(System.currentTimeMillis());
+        }
+        catch (Exception e) {
+            NeptusLog.pub().warn(e);
+        }
     }
 
     /**
      * @param systemCommId
      */
     private void markMessageToSent(ImcId16 systemCommId) {
-        toSendMessagesFreqCalc.setTimeMillisLastMsg(System.currentTimeMillis());
-        MessageFrequencyCalculator mfc = getToSendMessagesFreqCalc(systemCommId);
-        if (mfc != null)
-            mfc.setTimeMillisLastMsg(System.currentTimeMillis());
+        try {
+            toSendMessagesFreqCalc.setTimeMillisLastMsg(System.currentTimeMillis());
+            MessageFrequencyCalculator mfc = getToSendMessagesFreqCalc(systemCommId);
+            if (mfc != null)
+                mfc.setTimeMillisLastMsg(System.currentTimeMillis());
+        }
+        catch (Exception e) {
+            NeptusLog.pub().warn(e);
+        }
     }
 
     /**
