@@ -46,6 +46,8 @@ import javax.swing.JComboBox;
 import javax.swing.JList;
 import javax.swing.JScrollPane;
 
+import com.google.common.eventbus.Subscribe;
+
 import pt.lsts.neptus.console.ConsoleLayout;
 import pt.lsts.neptus.console.ConsolePanel;
 import pt.lsts.neptus.console.plugins.PlanChangeListener;
@@ -55,6 +57,7 @@ import pt.lsts.neptus.plugins.Popup.POSITION;
 import pt.lsts.neptus.plugins.mvplanning.jaxb.Profile;
 import pt.lsts.neptus.plugins.mvplanning.jaxb.ProfileMarshaler;
 import pt.lsts.neptus.types.mission.plan.PlanType;
+import pt.lsts.neptus.plugins.mvplanning.events.MvPlanningEventPlanAllocated;
 import pt.lsts.neptus.plugins.mvplanning.interfaces.ConsoleAdapter;
 
 /**
@@ -165,6 +168,17 @@ public class MVPlanning extends ConsolePanel implements PlanChangeListener {
                 selectedPlans.put(planId, plan);
             }
         }
+    }
+    
+    @Subscribe
+    public synchronized void on(MvPlanningEventPlanAllocated event) {
+        String lookupId = event.getPlanId() + " [" + event.getProfile() + "]";
+        String newId = lookupId + " [" + event.getVehicle() + "]";
+        int index;
+
+        while((index = listModel.indexOf(lookupId)) == -1);
+        
+        listModel.set(index, newId);
     }
 
     @Override
