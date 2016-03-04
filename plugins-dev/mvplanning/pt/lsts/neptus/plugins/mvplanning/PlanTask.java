@@ -46,11 +46,11 @@ public class PlanTask {
     private Profile planProfile;
     private double timestamp;
 
-    public PlanTask(String id, PlanSpecification plan, Profile planProfile, double timestamp) {
+    public PlanTask(String id, PlanSpecification plan, Profile planProfile) {
         this.planId = id;
         this.plan = plan;
         this.planProfile = planProfile;
-        this.timestamp = timestamp;
+        this.timestamp = -1;
     }
     
     public String getPlanId() {

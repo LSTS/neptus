@@ -19,7 +19,7 @@ public class PlanGenerator {
         if(obj.getClass().getSimpleName().equals("PlanType")) {
             PlanType pType = (PlanType) obj;
             PlanSpecification pSpec = (PlanSpecification) IMCUtils.generatePlanSpecification(pType);
-            planAloc.allocate(new PlanTask(pType.getId(), pSpec, planProfile, 0));
+            planAloc.allocate(new PlanTask(pType.getId(), pSpec, planProfile));
         }
         else {
             System.out.println("[mvplanning/PlanGenerator]: Generating a plan");
