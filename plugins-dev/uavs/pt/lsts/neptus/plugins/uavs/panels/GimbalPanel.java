@@ -120,26 +120,26 @@ public class GimbalPanel extends ConsolePanel implements MainVehicleChangeListen
         });
         
         Hashtable<Integer, JLabel> rollLblTable = new Hashtable<>();
-        rollLblTable.put( new Integer(0),  new JLabel("-45"));
-        rollLblTable.put( new Integer(30), new JLabel("-15") );
-        rollLblTable.put( new Integer(90), new JLabel("0") ); 
-        rollLblTable.put( new Integer(180),  new JLabel("45"));
-        rollLblTable.put( new Integer(120), new JLabel("15") ); 
+        rollLblTable.put( new Integer(45),  new JLabel("-90"));
+        rollLblTable.put( new Integer(64), new JLabel("-45") );
+        rollLblTable.put( new Integer(75), new JLabel("0") ); 
+        rollLblTable.put( new Integer(92), new JLabel("45") );
+        rollLblTable.put( new Integer(110),  new JLabel("90"));
         rollSlider.setLabelTable(rollLblTable);
 
         buttonPanel.add(rollSlider, "w 50%, h 100%");
         
-        JSlider pitchSlider = new JSlider(JSlider.VERTICAL, -90, 45, 0);
+        JSlider pitchSlider = new JSlider(JSlider.VERTICAL, 45, 100, 75);
         pitchSlider.setPaintTicks(true);
         
         Hashtable<Integer, JLabel> pitchLblTable = new Hashtable<>();
-        pitchLblTable.put( new Integer(0),  new JLabel("-90 - DWN"));
-        pitchLblTable.put( new Integer(30), new JLabel("-45") );
-        pitchLblTable.put( new Integer(60), new JLabel("-15") );
-        pitchLblTable.put( new Integer(90), new JLabel("0 - FWD") );
-        pitchLblTable.put( new Integer(120), new JLabel("15") );
-        pitchLblTable.put( new Integer(150), new JLabel("30") );
-        pitchLblTable.put( new Integer(180), new JLabel("45 - UP") );
+        pitchLblTable.put( new Integer(100),  new JLabel("-90 - DWN"));
+        pitchLblTable.put( new Integer(90), new JLabel("-45") );
+        pitchLblTable.put( new Integer(80), new JLabel("-15") );
+        pitchLblTable.put( new Integer(75), new JLabel("0 - FWD") );
+        pitchLblTable.put( new Integer(70), new JLabel("15") );
+        pitchLblTable.put( new Integer(60), new JLabel("30") );
+        pitchLblTable.put( new Integer(45), new JLabel("45 - UP") );
         pitchSlider.setLabelTable( pitchLblTable );
         pitchSlider.setPaintLabels(true);
         
@@ -152,8 +152,8 @@ public class GimbalPanel extends ConsolePanel implements MainVehicleChangeListen
                     int pos = (int) source.getValue();
                     SetServoPosition pitchMsg = new SetServoPosition();
                     pitchMsg.setId(PITCH_SERVO_ID);
-                    System.out.println(pos);                    
                     double rads = Math.toRadians(pos);
+                    System.out.println("Degree: "+pos+ " Rads: "+  rads);                    
                     pitchMsg.setValue(rads);
                     
                     send(pitchMsg);
