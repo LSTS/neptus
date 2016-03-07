@@ -89,7 +89,21 @@ public class ImcTcpTransport {
 		this.bindPort = bindPort;
 		getTcpTransport().setBindPort(bindPort);
 	}
-	
+
+    /**
+     * @return the timeoutMillis
+     */
+    public int getTimeoutMillis() {
+        return getTcpTransport().getTimeoutMillis();
+    }
+
+    /**
+     * @param timeoutMillis the timeoutMillis to set
+     */
+    public void setTimeoutMillis(int timeoutMillis) {
+        getTcpTransport().setTimeoutMillis(timeoutMillis);
+    }
+
 	/**
 	 * @return
 	 */

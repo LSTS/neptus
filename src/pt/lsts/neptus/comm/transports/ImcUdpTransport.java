@@ -141,11 +141,22 @@ public class ImcUdpTransport {
         this.broadcastEnable = broadcastEnable;
         getUdpTransport().setBroadcastEnable(broadcastEnable);
     }
-    
-	/**
-	 * 
-	 */
-	private void setUDPListener() {
+
+    /**
+     * @return the timeoutMillis
+     */
+    public int getTimeoutMillis() {
+        return getUdpTransport().getTimeoutMillis();
+    }
+
+    /**
+     * @param timeoutMillis the timeoutMillis to set
+     */
+    public void setTimeoutMillis(int timeoutMillis) {
+        getUdpTransport().setTimeoutMillis(timeoutMillis);
+    }
+
+    private void setUDPListener() {
 		getUdpTransport().addListener(new UDPMessageListener() {
 			@Override
 			public void onUDPMessageNotification(UDPNotification req) {

@@ -310,7 +310,20 @@ public class TCPTransport {
 		this.bindPort = bindPort;
 	}
 	
-	
+    /**
+     * @return the timeoutMillis
+     */
+    public int getTimeoutMillis() {
+        return timeoutMillis;
+    }
+
+    /**
+     * @param timeoutMillis the timeoutMillis to set
+     */
+    public void setTimeoutMillis(int timeoutMillis) {
+        this.timeoutMillis = timeoutMillis;
+    }
+
 	protected void connect() {
 		try {
 			serverCh = ServerSocketChannel.open();
@@ -509,7 +522,8 @@ public class TCPTransport {
 					NeptusLog.pub().debug("Listener Thread Started");
 					try {
 						connect();
-					} catch (Exception e) {
+					}
+					catch (Exception e) {
 						NeptusLog.pub().error(e);
 						//setOnBindError(true);
 						return;
