@@ -1525,7 +1525,7 @@ CommBaseManager<IMCMessage, MessageInfo, SystemImcMsgCommInfo, ImcId16, CommMana
             }
         };
         
-        sendMessageToSystem(message, systemName, "TCP", waiter);
+        sendMessageToSystem(message, systemName, TRANSPORT_TCP, waiter);
         //Executors.newSingleThreadExecutor().execute(result);
         return result;
     }
@@ -1536,7 +1536,7 @@ CommBaseManager<IMCMessage, MessageInfo, SystemImcMsgCommInfo, ImcId16, CommMana
      * @param listener
      */
     public boolean sendReliablyNonBlocking(IMCMessage message, ImcId16 vehicleCommId, MessageDeliveryListener listener) {
-        return sendMessage(message, vehicleCommId, "TCP", listener);
+        return sendMessage(message, vehicleCommId, TRANSPORT_TCP, listener);
     }
 
     /**
@@ -1711,9 +1711,9 @@ CommBaseManager<IMCMessage, MessageInfo, SystemImcMsgCommInfo, ImcId16, CommMana
 
         // Let us see if it was indicated to send the message through a specific transport
         TransportPreference transportPreferenceRequested = TransportPreference.ANY;
-        if (sendProperties != null && StringUtils.isTokenInList(sendProperties, "UDP"))
+        if (sendProperties != null && StringUtils.isTokenInList(sendProperties, TRANSPORT_UDP))
             transportPreferenceRequested = TransportPreference.UDP;
-        else if (sendProperties != null && StringUtils.isTokenInList(sendProperties, "TCP"))
+        else if (sendProperties != null && StringUtils.isTokenInList(sendProperties, TRANSPORT_TCP))
             transportPreferenceRequested = TransportPreference.TCP;
 
         ImcId16 sysId = systemCommId;
