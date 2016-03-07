@@ -87,6 +87,12 @@ public class GeneralPreferences implements PropertiesProvider {
     @NeptusProperty(name = "Comms Local Port TCP", category = "IMC Communications", userLevel = LEVEL.ADVANCED)
     public static int commsLocalPortTCP = 6001;
 
+    @NeptusProperty(name = "Comms UDP timeout millis", category = "IMC Communications", userLevel = LEVEL.ADVANCED)
+    public static int commsUDPTimeoutMillis = 1000;
+
+    @NeptusProperty(name = "Comms TCP timeout millis", category = "IMC Communications", userLevel = LEVEL.ADVANCED)
+    public static int commsTCPTimeoutMillis = 5000;
+
     @NeptusProperty(name = "IMC transports to use", category = "IMC Communications", userLevel = LEVEL.ADVANCED, 
             description = "Comma separated transports list. Valid values are (UDP, TCP). (The order implies preference of use.)")
     public static String imcTransportsToUse = "UDP, TCP";

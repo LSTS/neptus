@@ -618,6 +618,7 @@ CommBaseManager<IMCMessage, MessageInfo, SystemImcMsgCommInfo, ImcId16, CommMana
         else {
             udpTransport.setBindPort(localport);
         }
+        udpTransport.setTimeoutMillis(GeneralPreferences.commsUDPTimeoutMillis);
         udpTransport.reStart();
 
         if (udpTransport.isOnBindError()) {
@@ -653,6 +654,7 @@ CommBaseManager<IMCMessage, MessageInfo, SystemImcMsgCommInfo, ImcId16, CommMana
         else {
             tcpTransport.setBindPort(localport);
         }
+        tcpTransport.setTimeoutMillis(GeneralPreferences.commsTCPTimeoutMillis);
         tcpTransport.reStart();
 
         if (tcpTransport.isOnBindError()) {
@@ -704,6 +706,7 @@ CommBaseManager<IMCMessage, MessageInfo, SystemImcMsgCommInfo, ImcId16, CommMana
             multicastUdpTransport.setMulticastAddress(multicastAddress);
         }
         multicastUdpTransport.setBroadcastEnable(broadcastEnabled);
+        multicastUdpTransport.setTimeoutMillis(GeneralPreferences.commsUDPTimeoutMillis);
         multicastUdpTransport.reStart();
         if (multicastUdpTransport.isOnBindError()) {
             for (int i = 1; i < multicastPorts.length; i++) {
