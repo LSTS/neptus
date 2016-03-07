@@ -1530,15 +1530,6 @@ CommBaseManager<IMCMessage, MessageInfo, SystemImcMsgCommInfo, ImcId16, CommMana
         return result;
     }
 
-    @Override
-    public boolean sendMessageToVehicle(IMCMessage message, String vehicleID, String sendProperties) {
-        VehicleType vehicle = VehiclesHolder.getVehicleById(vehicleID);
-        if (vehicle != null)
-            return sendMessage(message, vehicle.getImcId(), sendProperties);
-        else
-            return false;
-    }
-
     /**
      * @param message
      * @param vehicleCommId
@@ -1561,6 +1552,18 @@ CommBaseManager<IMCMessage, MessageInfo, SystemImcMsgCommInfo, ImcId16, CommMana
             NeptusLog.pub().error(e);
             return false;
         }
+    }
+
+    /* (non-Javadoc)
+     * @see pt.lsts.neptus.comm.manager.CommBaseManager#sendMessageToVehicle(pt.lsts.neptus.messages.IMessage, java.lang.String, java.lang.String)
+     */
+    @Override
+    public boolean sendMessageToVehicle(IMCMessage message, String vehicleID, String sendProperties) {
+        VehicleType vehicle = VehiclesHolder.getVehicleById(vehicleID);
+        if (vehicle != null)
+            return sendMessage(message, vehicle.getImcId(), sendProperties);
+        else
+            return false;
     }
 
     /* (non-Javadoc)
