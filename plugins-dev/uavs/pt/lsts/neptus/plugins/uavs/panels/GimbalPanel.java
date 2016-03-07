@@ -61,28 +61,28 @@ public class GimbalPanel extends ConsolePanel implements MainVehicleChangeListen
     private static final long serialVersionUID = 1L;
     private static final short PITCH_SERVO_ID = 1;
     private static final short ROLL_SERVO_ID = 2;
-    
+
     // GUI
     private JPanel titlePanel = null;
     private JPanel buttonPanel = null;
-    
+
     public GimbalPanel(ConsoleLayout console) {
         super(console);
-        
+
         // clears all the unused initializations of the standard SimpleSubPanel
         removeAll();
     }
-    
+
     @Override
     public void initSubPanel() {
         titlePanelSetup();
         buttonPanelSetup();
-        
+
         // panel general layout setup
         this.setLayout(new MigLayout("gap 0 0, ins 0"));
         this.add(titlePanel, "w 100%, h 5%, wrap");
         this.add(buttonPanel, "w 100%, h 95%, wrap");
-        
+
     }
 
     private void titlePanelSetup() {
@@ -90,13 +90,13 @@ public class GimbalPanel extends ConsolePanel implements MainVehicleChangeListen
         JLabel titleLabel = new JLabel(I18n.text("Gimbal Control"), SwingConstants.LEFT);
         titleLabel.setFont(new Font("Arial", Font.BOLD, 9));
         titlePanel.add(titleLabel, "w 100%, h 100%");
-        
+
     }
 
     private void buttonPanelSetup() {
         buttonPanel = new JPanel(new MigLayout("gap 0 0, ins 0"));
 
-        JSlider rollSlider = new JSlider(JSlider.HORIZONTAL, -45, 45, 0);
+        JSlider rollSlider = new JSlider(JSlider.HORIZONTAL, 45, 110, 75);
 
         rollSlider.setMinorTickSpacing(15);
         rollSlider.setMajorTickSpacing(30);
@@ -106,32 +106,35 @@ public class GimbalPanel extends ConsolePanel implements MainVehicleChangeListen
             @Override
             public void stateChanged(ChangeEvent e) {
                 JSlider source = (JSlider)e.getSource();
-     
+
                 if (!source.getValueIsAdjusting()) {
                     int pos = (int) source.getValue();
                     SetServoPosition rollMsg = new SetServoPosition();
                     rollMsg.setId(ROLL_SERVO_ID);
-                    
+
                     double rads = Math.toRadians(pos);
                     rollMsg.setValue(rads);
-                   send(rollMsg);
+                    send(rollMsg);
+                    System.out.println("SENDING value "+ rads);
                 }      
             }
         });
-        
+
         Hashtable<Integer, JLabel> rollLblTable = new Hashtable<>();
-        rollLblTable.put( new Integer(45),  new JLabel("-90"));
-        rollLblTable.put( new Integer(64), new JLabel("-45") );
-        rollLblTable.put( new Integer(75), new JLabel("0") ); 
-        rollLblTable.put( new Integer(92), new JLabel("45") );
-        rollLblTable.put( new Integer(110),  new JLabel("90"));
+        rollLblTable.put( new Integer(110),  new JLabel("-90 - LEFT"));
+        rollLblTable.put( new Integer(90), new JLabel("-45") );
+        rollLblTable.put( new Integer(80), new JLabel("-15") );
+        rollLblTable.put( new Integer(75), new JLabel("0 - CENTER") );
+        rollLblTable.put( new Integer(70), new JLabel("15") );
+        rollLblTable.put( new Integer(65), new JLabel("45") );
+        rollLblTable.put( new Integer(50), new JLabel("90 - RIGHT") );
         rollSlider.setLabelTable(rollLblTable);
 
         buttonPanel.add(rollSlider, "w 50%, h 100%");
-        
+
         JSlider pitchSlider = new JSlider(JSlider.VERTICAL, 75, 100, 75);
         pitchSlider.setPaintTicks(true);
-        
+
         Hashtable<Integer, JLabel> pitchLblTable = new Hashtable<>();
         pitchLblTable.put( new Integer(100),  new JLabel("-90 - DWN"));
         pitchLblTable.put( new Integer(90), new JLabel("-45") );
@@ -139,7 +142,7 @@ public class GimbalPanel extends ConsolePanel implements MainVehicleChangeListen
         pitchLblTable.put( new Integer(75), new JLabel("0 - FWD") );
         pitchSlider.setLabelTable( pitchLblTable );
         pitchSlider.setPaintLabels(true);
-        
+
         pitchSlider.addChangeListener(new ChangeListener() {
             @Override
             public void stateChanged(ChangeEvent e) {
@@ -151,19 +154,19 @@ public class GimbalPanel extends ConsolePanel implements MainVehicleChangeListen
                     pitchMsg.setId(PITCH_SERVO_ID);
                     double rads = Math.toRadians(pos);
                     pitchMsg.setValue(rads);
-                    
+
                     send(pitchMsg);
                 }      
             }
         });
-        
+
         buttonPanel.add(pitchSlider, "w 50%, h 100%");
-        
+
     }
 
     @Override
     public void cleanSubPanel() {
         // TODO Auto-generated method stub
-        
+
     }
 }
