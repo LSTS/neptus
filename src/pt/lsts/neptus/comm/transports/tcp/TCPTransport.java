@@ -110,10 +110,19 @@ public class TCPTransport {
 
 	private boolean isOnBindError = false;
 
+	/**
+	 * Creates a TCPTransport and starts it.
+	 * Binds to port {@link #bindPort}
+	 */
 	public TCPTransport() {
 		initialize();
 	}
 
+	/**
+     * Creates a TCPTransport and starts it.
+     * 
+     * @param bindPort The port to bind.
+     */
 	public TCPTransport(int bindPort) {
 		setBindPort(bindPort);
 		initialize();
@@ -136,6 +145,11 @@ public class TCPTransport {
 		getDispacherThread();
 	}
 
+	/**
+	 * Called to restart a stopped transport. Otherwise return false.
+	 * 
+	 * @return
+	 */
 	public boolean reStart() {
 		if (isConnected())
 			return false;
@@ -159,6 +173,7 @@ public class TCPTransport {
 
 	/**
 	 * Interrupts all the sending threads abruptly.
+	 * 
 	 * @see {@link #purge()}
 	 */
 	public void stop() {
@@ -198,7 +213,8 @@ public class TCPTransport {
         while (!receptionMessageList.isEmpty() || !sendmessageList.isEmpty()) {
             try {
                 Thread.sleep(1000);
-            } catch (Exception e) {
+            }
+            catch (Exception e) {
                 e.printStackTrace();
             }
         }
@@ -254,6 +270,8 @@ public class TCPTransport {
     }
 
     /**
+     * If no connection to host and port already, will create a connection.  
+     * 
      * @param host
      * @param port
      * @return
@@ -263,6 +281,8 @@ public class TCPTransport {
     }
     
     /**
+     * Tests if a connection is established to host:port.
+     * 
      * @param host
      * @param port
      * @return
@@ -283,6 +303,8 @@ public class TCPTransport {
 	}
 	
 	/**
+	 * Only works after a restart.
+	 * 
 	 * @param bindPort the bindPort to set
 	 */
 	public void setBindPort(int bindPort) {
@@ -297,6 +319,8 @@ public class TCPTransport {
     }
 
     /**
+     * Their use on all connections is only guaranteed after restart.
+     *  
      * @param timeoutMillis the timeoutMillis to set
      */
     public void setTimeoutMillis(int timeoutMillis) {
@@ -405,6 +429,8 @@ public class TCPTransport {
 	}
 
 	/**
+	 * Returns true if the transport is running.
+	 * 
      * @return
      */
     public boolean isRunning() {
@@ -412,6 +438,8 @@ public class TCPTransport {
     }
 
     /**
+     * Returns true if no binding error or no working threads are stopped.
+     * 
      * @return
      */
     public boolean isRunningNormally() {
@@ -432,6 +460,8 @@ public class TCPTransport {
     }
 	
 	/**
+	 * To add listeners of messages received.
+	 * 
 	 * @param listener
 	 * @return
 	 */
@@ -443,11 +473,12 @@ public class TCPTransport {
 	}
 
 	/**
+     * To remove listeners of messages received.
+     * 
 	 * @param listener
 	 * @return
 	 */
-	public boolean removeListener(
-			TCPMessageListener listener) {
+	public boolean removeListener(TCPMessageListener listener) {
 		synchronized (listeners) {
 			boolean ret = listeners.remove(listener);
 			return ret;
