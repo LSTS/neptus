@@ -43,10 +43,6 @@ import pt.lsts.neptus.plugins.mvplanning.interfaces.ConsoleAdapter;
 
 import com.google.common.eventbus.Subscribe;
 
-/*
- * FIXME: Only detects vehicles when they change state.
- *        Should fetch list of available vehicles at startup
- */
 public class VehicleAwareness {
     private ConsoleAdapter console;
     private List<String> availableVehicles;
