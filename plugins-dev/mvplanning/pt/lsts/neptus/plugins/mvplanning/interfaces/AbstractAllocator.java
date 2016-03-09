@@ -115,16 +115,6 @@ public abstract class AbstractAllocator implements IPeriodicUpdates {
         }
     }
 
-    private boolean confirmPlanAllocated(String vehicle, PlanTask ptask) {
-        ImcSystem sys = ImcSystemsHolder.getSystemWithName(vehicle);
-        byte[] remoteMD5 = sys.getPlanDBControl().getRemoteState().getStoredPlans().get(ptask.getPlanId()).getMd5();
-
-        if(remoteMD5 == null)
-            return false;
-
-        return ByteUtil.equal(ptask.getMd5(), remoteMD5);
-    }
-
     /**
      * Set if the allocator is periodic */    
     private void setPeriodic(boolean isPeriodic) {
