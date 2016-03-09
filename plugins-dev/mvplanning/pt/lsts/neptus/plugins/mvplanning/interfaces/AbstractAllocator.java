@@ -94,55 +94,23 @@ public abstract class AbstractAllocator implements IPeriodicUpdates {
         /* TODO: Implement using sendMessage() from ConsoleAdapter */
         try {
             int reqId = IMCSendMessageUtils.getNextRequestId();
-
-            PlanDB pdb = new PlanDB();
-            PlanSpecification plan = ptask.getPlanSpecification();
-
-            pdb.setType(PlanDB.TYPE.REQUEST);
-            pdb.setOp(PlanDB.OP.SET);
-            pdb.setRequestId(reqId);
-            pdb.setPlanId(ptask.getPlanId());
-            pdb.setArg(plan);
-            pdb.setInfo("Plan allocated by [mvplanning/PlanAllocator]");
-
-            Future<SendResult> res = console.sendMessageReliably(vehicle, pdb);
-            boolean planSent = false;
-            SendResult sendRes = res.get();
-
-
-            if(sendRes == SendResult.UNCERTAIN_DELIVERY)
-                planSent = confirmPlanAllocated(vehicle, ptask);
-
-            if(sendRes == SendResult.SUCCESS || planSent)
-                return sendPlanStart(vehicle, ptask);
-            else
-                return false;
-        }
-        catch(Exception e) {
-            e.printStackTrace();
-            System.out.println("[mvplanning/PlanAllocator]: Failed to allocate plan " + ptask.getPlanId() + " to " + vehicle);
-            return false;
-        }
-    }
-
-    private boolean sendPlanStart(String vehicle, PlanTask ptask) {
-        try {
-            int reqId = IMCSendMessageUtils.getNextRequestId();
             PlanControl pc = new PlanControl();
             pc.setType(PlanControl.TYPE.REQUEST);
             pc.setRequestId(reqId);
             pc.setPlanId(ptask.getPlanId());
             pc.setOp(OP.START);
+            pc.setArg(ptask.getPlanSpecification());
 
             /* TODO: Handle case success is uncertain */
             Future<SendResult> cmdRes = console.sendMessageReliably(vehicle, pc);
             boolean cmdSent = (cmdRes.get() == SendResult.SUCCESS);
 
             return cmdSent;
+
         }
         catch(Exception e) {
             e.printStackTrace();
-            System.out.println("[mvplanning/PlanAllocator]: Failed to start plan " + ptask.getPlanId() + " in " + vehicle);
+            System.out.println("[mvplanning/PlanAllocator]: Failed to allocate plan " + ptask.getPlanId() + " to " + vehicle);
             return false;
         }
     }
