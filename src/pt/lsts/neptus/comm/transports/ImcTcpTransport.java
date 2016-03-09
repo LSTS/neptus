@@ -42,6 +42,7 @@ import pt.lsts.imc.IMCDefinition;
 import pt.lsts.imc.IMCMessage;
 import pt.lsts.imc.IMCOutputStream;
 import pt.lsts.neptus.NeptusLog;
+import pt.lsts.neptus.comm.IMCUtils;
 import pt.lsts.neptus.comm.manager.imc.MessageDeliveryListener;
 import pt.lsts.neptus.comm.transports.DeliveryListener.ResultEnum;
 import pt.lsts.neptus.comm.transports.tcp.TCPMessageListener;
@@ -50,6 +51,7 @@ import pt.lsts.neptus.comm.transports.tcp.TCPTransport;
 import pt.lsts.neptus.messages.listener.MessageInfo;
 import pt.lsts.neptus.messages.listener.MessageInfoImpl;
 import pt.lsts.neptus.messages.listener.MessageListener;
+import pt.lsts.neptus.util.ByteUtil;
 import pt.lsts.neptus.util.conf.ConfigFetch;
 import pt.lsts.neptus.util.datetime.TimeDuration;
 
@@ -339,12 +341,11 @@ public class ImcTcpTransport {
 	            e.printStackTrace();
 	        }
 	        final IMCDefinition imcDef = imcDefinition;
-	        new Thread(ImcTcpTransport.class.getSimpleName() + " :: " + TCPMessageProcessor.class.getSimpleName() + "(" + TCPMessageProcessor.this.hashCode() + ")") {
+	        Thread worker = new Thread(ImcTcpTransport.class.getSimpleName() + " :: " + TCPMessageProcessor.class.getSimpleName() + "("
+                    + TCPMessageProcessor.this.hashCode() + ")") {
 	            @Override
 	            public void run() {
 	                try {
-	                    //IMCInputStream iis = new IMCInputStream(pis);
-	                    
                         while(!isInputClosed && pis.available() >= 0) { // the pis.available() not always when return '0' means end of stream
                             
                             if (pis.available() == 0) {
@@ -353,13 +354,14 @@ public class ImcTcpTransport {
                             }
                             try {
                                 IMCMessage msg = imcDef.nextMessage(pis);
-//                                msg.dump(System.out);
-                                //double timeMillis = msg.getTimestampMillis();
                                 msgArrived(/*(long) timeMillis,*/ msg);
                             }
                             catch (IOException e) {
-                                if (!"Unrecognized Sync word: 00".equalsIgnoreCase(e.getMessage()))
-                                        e.printStackTrace();
+                                if (!"Unrecognized Sync word: 00".equalsIgnoreCase(e.getMessage())
+                                        && !"Unrecognized Sync word: FFFF".equalsIgnoreCase(e.getMessage())
+                                        && !(e.getMessage() != null && e.getMessage().endsWith("??"))) {
+                                    NeptusLog.pub().debug(e.getMessage(), e);
+                                }
                             }
 //                            byte[] ba = new byte[pis.available()];
 //                            if (ba.length > 0) {
@@ -369,11 +371,11 @@ public class ImcTcpTransport {
                         }
                     }
                     catch (IOException e) {
-                        // TODO Auto-generated catch block
                         e.printStackTrace();
                     }
 	            }
-	        }.start();
+	        };
+	        worker.start();
 	    }
 
 	    /**
@@ -549,13 +551,17 @@ public class ImcTcpTransport {
         msg.getHeader().setValue("src", 0x3c22);
         msgES.getHeader().setValue("src", 0x0015);
         
-//        try { Thread.sleep(10000); } catch (InterruptedException e1) { }
-//        
-//        try { Thread.sleep(5000); } catch (InterruptedException e1) { }
-//        tcpT.sendMessage(server2, portServer2, msg, mdlT);
-//        try { Thread.sleep(5000); } catch (InterruptedException e1) { }
-//        tcpT.sendMessage(server2, portServer2, msg, mdlT);
-//
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        IMCUtils.writeAsLsf(msg, baos);
+        ByteUtil.dumpAsHex(msg.getAbbrev(), baos.toByteArray(), System.out);
+        
+        try { Thread.sleep(10000); } catch (InterruptedException e1) { }
+        
+        try { Thread.sleep(5000); } catch (InterruptedException e1) { }
+        tcpT.sendMessage(server2, portServer2, msg, mdlT);
+        try { Thread.sleep(5000); } catch (InterruptedException e1) { }
+        tcpT.sendMessage(server2, portServer2, msg, mdlT);
+
 //        try { Thread.sleep(5000); } catch (InterruptedException e1) { }
 //        tcpT2.sendMessage(server, portServer, msgES, mdlT2);
 //        try { Thread.sleep(5000); } catch (InterruptedException e1) { }
@@ -571,5 +577,7 @@ public class ImcTcpTransport {
 //
 //        try { Thread.sleep(5000); } catch (InterruptedException e1) { }
 //        tcpT.sendMessage(server2, portServer2, msg, mdlT);
+        
+        System.in.read();
 	}
 }
