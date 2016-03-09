@@ -67,6 +67,8 @@ import pt.lsts.imc.IMCOutputStream;
 import vrml.eai.ConnectionException;
 
 /**
+ * This is a TCP transport that sends and receives bytes.
+ * 
  * @author pdias
  *
  */
@@ -81,7 +83,6 @@ public class TCPTransport {
 	private Thread dispacherThread = null;
 	private Thread senderThread = null;
 	
-	
 	private LinkedHashMap<String, InetAddress> solvedAddresses = new LinkedHashMap<String, InetAddress>();
 
 	private int bindPort = 7011;
@@ -91,7 +92,6 @@ public class TCPTransport {
 	private int maxBufferSize = 65506;
 
 	private boolean purging = false;
-
 	
 	/**
 	 * Server channel for "select" operation.
@@ -110,9 +110,6 @@ public class TCPTransport {
 
 	private boolean isOnBindError = false;
 
-	/**
-	 * 
-	 */
 	public TCPTransport() {
 		initialize();
 	}
@@ -122,10 +119,6 @@ public class TCPTransport {
 		initialize();
 	}
 
-	
-	/**
-	 * 
-	 */
 	private void initialize() {
 		serverCh = null;
 		selector = null;
@@ -133,9 +126,6 @@ public class TCPTransport {
 		createSenders();
 	}
 	
-	/**
-     * 
-     */
     private void createSenders() {
         getSenderThread();
     }
@@ -146,7 +136,6 @@ public class TCPTransport {
 		getDispacherThread();
 	}
 
-
 	public boolean reStart() {
 		if (isConnected())
 			return false;
@@ -155,7 +144,7 @@ public class TCPTransport {
 		return true;
 	}
 	
-	   /**
+	/**
      * @param multicastAddress
      * @return
      */
@@ -167,7 +156,6 @@ public class TCPTransport {
         }
         return solvedAddresses.get(multicastAddress);
     }
-
 
 	/**
 	 * Interrupts all the sending threads abruptly.
@@ -193,12 +181,6 @@ public class TCPTransport {
                 senderThread = null;
             }
 			
-//			int size = senderThreads.size();
-//			for (int i = 0; i < size; i++) {
-//				senderThreads.get(0).interrupt();
-//				senderThreads.remove(0); //shifts the right elements to the left 
-//			}
-            
             Vector<TCPNotification> toClearSen = new Vector<TCPNotification>();
             sendmessageList.drainTo(toClearSen);
             for (TCPNotification req : toClearSen) {
@@ -246,7 +228,6 @@ public class TCPTransport {
         }
         return channel;
     }
-    
 
     /**
      * @param host
@@ -258,7 +239,6 @@ public class TCPTransport {
         synchronized (clients) {
             for (SocketChannel channelTmp : clients) {
                 try {
-//                    NeptusLog.pub().info("<###> "+resolveAddress(host) +"  " +port + "   " +channelTmp.socket().getInetAddress() + " " + channelTmp.socket().getPort());
                     if (resolveAddress(host).toString().equalsIgnoreCase(channelTmp.socket().getInetAddress().toString())
                             && port == channelTmp.socket().getPort()) {
                         channel = channelTmp;
@@ -270,7 +250,6 @@ public class TCPTransport {
                 }
             }
         }
-//        if (channel != null) NeptusLog.pub().info("<###> "+host +"@" +port + "   " + channel + "   " + channel.socket().getInetAddress());
         return channel;
     }
 
@@ -359,22 +338,15 @@ public class TCPTransport {
             }
 	        channel.configureBlocking(false);
 	        channel.connect(address);
-//	        boolean connect = channel.connect(address);
-//	        if (!connect)
-//	            return null;
 	        while (!channel.finishConnect()) {
 	            try { Thread.sleep(10); } catch (InterruptedException e1) { NeptusLog.pub().error(e1.getMessage()); }
 	        }
             selector.wakeup();
-//	        NeptusLog.pub().info("<###>rrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr");
 	        channel.register(selector, SelectionKey.OP_READ | SelectionKey.OP_WRITE);
-//	        NeptusLog.pub().info("<###>RRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRR");
 	        return channel;
 	    }
 	    catch (Exception e) {
 	        if (e instanceof NoRouteToHostException || e instanceof ConnectException) {
-//	            System.err.print(e.toString() + ": " + address + "  ");
-//	            System.err.flush();
 	            NeptusLog.pub().warn(e.toString() + ": " + address);
 	        }
 	        else
@@ -386,7 +358,6 @@ public class TCPTransport {
 	private boolean checkConnected() {
 		return isConnected();
 	}
-
 	
 	/**
 	 * Disconnect and close the TCP server socket.
@@ -403,7 +374,6 @@ public class TCPTransport {
                 for (SocketChannel channel : clients) {
                     try {
                         channel.close();
-                        // safelyAlertAndCloseChannelToListeners(channel);
                     }
                     catch (IOException e) {
                         NeptusLog.pub().error(e.getStackTrace());
@@ -412,7 +382,8 @@ public class TCPTransport {
                 }
             }
 			serverCh.close();
-		} catch (Exception e) {
+		}
+		catch (Exception e) {
 		    NeptusLog.pub().error(e);
 		}
 		serverCh = null;
@@ -423,36 +394,8 @@ public class TCPTransport {
 		purging = true;
 	}
 
-//	private void safelyAlertAndCloseChannelToListeners(SocketChannel channel) {
-//        System.err.println("111111111111111111");
-//	    InetAddress dd = channel.socket().getInetAddress();
-//        System.err.println("222222222222222222");
-//        int pp = channel.socket().getPort();
-//        System.err.println("333333333333333333");
-//        TCPNotification info = new TCPNotification(
-//                TCPNotification.RECEPTION,
-//                new InetSocketAddress(dd,
-//                        pp), true,
-//                System.currentTimeMillis());
-//        System.err.println("444444444444444444 "+clients.size());
-//        //clients.remove(channel);
-//        System.err.println("555555555555555555 "+clients.remove(channel));
-//        try {
-//            channel.close();
-//        }
-//        catch (IOException e) {
-//         // Ignore error when closing client socket
-////            e.printStackTrace();
-//        }
-//        System.err.println("666666666666666666");
-//        receptionMessageList.offer(info);
-//        System.err.println("777777777777777777");
-//    }
-
-	
 	/**
 	 * @return 
-	 * 
 	 */
 	private boolean isConnected() {
 		if (serverCh == null && sockedListenerThread == null
@@ -461,7 +404,7 @@ public class TCPTransport {
 		return true;
 	}
 
-	   /**
+	/**
      * @return
      */
     public boolean isRunning() {
@@ -480,7 +423,6 @@ public class TCPTransport {
 
         return true;
     }
-
 	
 	/**
      * @return the isOnBindError
@@ -511,7 +453,6 @@ public class TCPTransport {
 			return ret;
 		}
 	}
-	
 	
 	private Thread getSockedListenerThread() {
 		if (sockedListenerThread == null) {
@@ -645,8 +586,6 @@ public class TCPTransport {
 										    synchronized (clients) {
 										        clients.remove(channel);
 										    }
-//											System.err.println("Lost touch with " + channel
-//													+ " -> " + e.getMessage());
                                             NeptusLog.pub().info(TCPTransport.class.getSimpleName()
                                                     + ": Listener Thread " + "Lost touch with " + channel + " -> "
                                                     + e.getMessage());
@@ -688,7 +627,12 @@ public class TCPTransport {
                                             key.cancel();
                                         }
                                     }
-									try { Thread.sleep(10); } catch (Exception e) { NeptusLog.pub().error(e.getMessage());}
+                                    try {
+                                        Thread.sleep(10);
+                                    }
+                                    catch (Exception e) {
+                                        NeptusLog.pub().error(e.getMessage());
+                                    }
 								}
 							} 
 							catch (IOException e) {
@@ -713,7 +657,6 @@ public class TCPTransport {
 		}
 		return sockedListenerThread;
 	}
-
 	
 	private Thread getDispacherThread() {
 		if (dispacherThread == null) {
@@ -726,15 +669,14 @@ public class TCPTransport {
 				public void run() {
 					try {
 						while (!(purging && receptionMessageList.isEmpty())) {
-//							TCPNotification req = receptionMessageList.take();
 							TCPNotification req = receptionMessageList.poll(1, TimeUnit.SECONDS);
                             if (req == null)
                                 continue;
 							for (TCPMessageListener lst : listeners) {
 								try {
-//								    ByteUtil.dumpAsHex("" + req.getAddress(), req.getBuffer(), System.out);
 									lst.onTCPMessageNotification(req);
-								} catch (Exception e) {
+								}
+								catch (Exception e) {
 									e.printStackTrace();
 								}
 								catch (Error e) {
@@ -772,7 +714,6 @@ public class TCPTransport {
 	            public void run() {
 	                try {
 	                    while (!(purging && sendmessageList.isEmpty())) {
-//	                        req = sendmessageList.take();
                             req = sendmessageList.poll(1, TimeUnit.SECONDS);
                             if (req == null)
                                 continue;
@@ -913,7 +854,7 @@ public class TCPTransport {
             sendmessageList.add(req);
         } 
         catch (UnknownHostException e) {
-            e.printStackTrace();
+            NeptusLog.pub().error(e, e);
             if (deliveryListener != null)
                 deliveryListener.deliveryResult(ResultEnum.Unreacheable, e);
             return false;
@@ -949,9 +890,6 @@ public class TCPTransport {
         // Needed because the pis.available() not always when return '0' means end of stream
         boolean isInputClosed = false;
 
-        /**
-         * 
-         */
         public TCPMessageProcessor(String id) {
             this.id = id;
             pos = new PipedOutputStream();
@@ -983,7 +921,6 @@ public class TCPTransport {
 //                                    break;
 //                            }
                             catch (IOException e) {
-                                // TODO Auto-generated catch block
                                 e.printStackTrace();
                             }
 //                            byte[] ba = new byte[pis.available()];
@@ -1009,13 +946,6 @@ public class TCPTransport {
             }.start();
         }
         
-//        /**
-//         * @return the id
-//         */
-//        public String getId() {
-//            return id;
-//        }
-        
         @Override
         public void onTCPMessageNotification(TCPNotification req) {
             try {
@@ -1027,7 +957,8 @@ public class TCPTransport {
                 }
                 else
                     pos.write(req.getBuffer());
-            } catch (IOException e) {
+            }
+            catch (IOException e) {
                 e.printStackTrace();
             }
         }
