@@ -103,7 +103,7 @@ public abstract class AbstractAllocator implements IPeriodicUpdates {
 
             /* TODO: Handle case success is uncertain */
             Future<SendResult> cmdRes = console.sendMessageReliably(vehicle, pc);
-            boolean cmdSent = (cmdRes.get() == SendResult.SUCCESS);
+            boolean cmdSent = (cmdRes.get() == SendResult.SUCCESS || cmdRes.get() == SendResult.UNCERTAIN_DELIVERY);
 
             return cmdSent;
 
