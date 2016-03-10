@@ -36,8 +36,12 @@ import pt.lsts.neptus.plugins.mvplanning.allocation.RoundRobinAllocator;
 import pt.lsts.neptus.plugins.mvplanning.interfaces.AbstractAllocator;
 import pt.lsts.neptus.plugins.mvplanning.interfaces.ConsoleAdapter;
 
-/* Sends plans to the vehicles.
- Also send 'execution commands'*/
+/**
+ * Responsible for plan allocation and allocation strategy.
+ * Holds an object, the allocator, that should extend the
+ * {@link AbstractAllocator} class and implement an allocation
+ * strategy.
+ * */
 public class PlanAllocator {
     private ConsoleAdapter console;
     private AbstractAllocator allocator = null;

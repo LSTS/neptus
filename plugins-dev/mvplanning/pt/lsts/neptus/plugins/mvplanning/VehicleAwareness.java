@@ -45,6 +45,12 @@ import pt.lsts.neptus.plugins.mvplanning.interfaces.ConsoleAdapter;
 
 import com.google.common.eventbus.Subscribe;
 
+/**
+ * Class responsible for keeping a list of available and
+ * unavailable vehicles.
+ * It listens to {@link ConsoleEventVehicleStateChanged} events
+ * to have a sense of what the vehicles' current state is. 
+ **/
 public class VehicleAwareness {
     private ConsoleAdapter console;
     private List<String> availableVehicles;

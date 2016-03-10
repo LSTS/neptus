@@ -53,6 +53,11 @@ import pt.lsts.neptus.comm.manager.imc.ImcSystemsHolder;
  * @author tsmarques
  *
  */
+
+/**
+ * Class that defines common methods for plan allocators.
+ * Any allocator/allocation strategy should extend this class.
+ * */
 public abstract class AbstractAllocator implements IPeriodicUpdates {
     private boolean isPeriodic;
     private long period = 5000;
