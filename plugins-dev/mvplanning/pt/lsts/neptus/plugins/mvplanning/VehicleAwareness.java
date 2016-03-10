@@ -35,6 +35,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map.Entry;
 
+import pt.lsts.neptus.comm.manager.imc.ImcSystem;
+import pt.lsts.neptus.comm.manager.imc.ImcSystemsHolder;
 import pt.lsts.neptus.console.ConsoleSystem;
 import pt.lsts.neptus.console.events.ConsoleEventVehicleStateChanged;
 import pt.lsts.neptus.console.events.ConsoleEventVehicleStateChanged.STATE;
@@ -86,7 +88,18 @@ public class VehicleAwareness {
     }
 
     public boolean isVehicleAvailable(String vehicle) {
-        return availableVehicles.contains(vehicle);
+        if(availableVehicles.contains(vehicle)) {
+            ImcSystem sys = ImcSystemsHolder.getSystemWithName(vehicle);
+
+            if(sys.isActive())
+                return true;
+            else {
+                setVehicleUnavailable(vehicle);
+                return false;
+            }
+        }
+        else
+            return false;
     }
     
     private void setVehicleAvailable(String id) {
