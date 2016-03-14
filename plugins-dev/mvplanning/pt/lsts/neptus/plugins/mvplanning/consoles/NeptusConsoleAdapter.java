@@ -29,7 +29,7 @@
  * Author: tsmarques
  * 1 Mar 2016
  */
-package pt.lsts.neptus.plugins.mvplanning;
+package pt.lsts.neptus.plugins.mvplanning.consoles;
 
 import java.util.Map;
 import java.util.concurrent.Future;
