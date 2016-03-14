@@ -79,7 +79,11 @@ public class VehicleAwareness {
     }
 
     private void checkVehicleState(String vehicle, STATE state) {
-        if(state == STATE.FINISHED)
+        ImcSystem sys = ImcSystemsHolder.getSystemWithName(vehicle);
+
+        if(!sys.isTCPOn())
+            setVehicleUnavailable(vehicle);
+        else if(state == STATE.FINISHED)
             setVehicleAvailable(vehicle);
         else if(state == STATE.SERVICE) {
 //            ImcSystem vehicle = ImcSystemsHolder.getSystemWithName(id);
@@ -97,7 +101,7 @@ public class VehicleAwareness {
         if(availableVehicles.contains(vehicle)) {
             ImcSystem sys = ImcSystemsHolder.getSystemWithName(vehicle);
 
-            if(sys.isActive())
+            if(sys.isActive() && sys.isTCPOn())
                 return true;
             else {
                 setVehicleUnavailable(vehicle);
