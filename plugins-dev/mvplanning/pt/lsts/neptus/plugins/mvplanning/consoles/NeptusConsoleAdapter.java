@@ -31,7 +31,9 @@
  */
 package pt.lsts.neptus.plugins.mvplanning.consoles;
 
+import java.util.List;
 import java.util.Map;
+import java.util.Vector;
 import java.util.concurrent.Future;
 
 import pt.lsts.imc.IMCMessage;
@@ -40,6 +42,7 @@ import pt.lsts.neptus.console.ConsoleLayout;
 import pt.lsts.neptus.console.ConsoleSystem;
 import pt.lsts.neptus.events.NeptusEvents;
 import pt.lsts.neptus.plugins.mvplanning.interfaces.ConsoleAdapter;
+import pt.lsts.neptus.types.map.AbstractElement;
 
 /**
  * @author tsmarques
@@ -81,5 +84,13 @@ public class NeptusConsoleAdapter implements ConsoleAdapter {
     @Override
     public Map<String, ConsoleSystem> getSystems() {
         return console.getSystems();
+    }
+
+    @Override
+    public AbstractElement[] getMapObstacles() {
+        return (AbstractElement[]) console.getMission().
+                generateMapGroup().
+                getObstacles().
+                toArray();
     }
 }

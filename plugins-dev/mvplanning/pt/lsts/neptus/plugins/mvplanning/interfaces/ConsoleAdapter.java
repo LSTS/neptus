@@ -37,6 +37,7 @@ import java.util.concurrent.Future;
 import pt.lsts.imc.IMCMessage;
 import pt.lsts.neptus.comm.manager.imc.ImcMsgManager.SendResult;
 import pt.lsts.neptus.console.ConsoleSystem;
+import pt.lsts.neptus.types.map.AbstractElement;
 
 /**
  * @author tsmarques
@@ -48,4 +49,5 @@ public interface ConsoleAdapter {
     public boolean sendMessage(String dest, IMCMessage msg);
     public Future<SendResult> sendMessageReliably(String dest, IMCMessage message);
     public Map<String, ConsoleSystem> getSystems();
+    public AbstractElement[] getMapObstacles();
 }
