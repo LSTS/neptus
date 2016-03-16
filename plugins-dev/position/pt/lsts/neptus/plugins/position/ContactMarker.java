@@ -118,10 +118,10 @@ SubPanelChangeListener, MainVehicleChangeListener {
 
     @Override
     public void initSubPanel() {
-      /*  renderersPopups = getConsole().getSubPanelsOfInterface(IMapPopup.class);
+        renderersPopups = getConsole().getSubPanelsOfInterface(IMapPopup.class);
         for (IMapPopup str2d : renderersPopups) {
             str2d.addMenuExtension(this);
-        }*/
+        }
     }
 
     private void placeLocationOnMap(LocationType locContact, String markerName, long tstamp) {
@@ -318,7 +318,7 @@ SubPanelChangeListener, MainVehicleChangeListener {
                             event.setType(TYPE.MAP_FEATURE_ADDED);
                             event.setId(markId);
                             event.setArg(new DevDataBinary(elem.asXML().getBytes()));
-                           sendToOtherCCUs(event);
+                            sendToOtherCCUs(event);
                         }                        
                     };
                     dissem.add(rem);
@@ -345,7 +345,7 @@ SubPanelChangeListener, MainVehicleChangeListener {
                     switch(doc.getRootElement().getName()) {
                         case "mark":
                             MarkElement el = new MarkElement(xml);
-                            
+
                             MapGroup mg = MapGroup.getMapGroupInstance(getConsole().getMission());
                             AbstractElement[] els = mg.getMapObjectsByID(el.getId());
                             if (els.length != 0) {
