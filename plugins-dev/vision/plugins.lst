@@ -4,3 +4,4 @@
 # LEGAL_COPY=@LEGAL_COPY@
 
 pt.lsts.neptus.plugins.vision.Vision
+pt.lsts.neptus.plugins.vision.UtilCv

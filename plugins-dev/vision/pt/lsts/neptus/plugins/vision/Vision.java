@@ -37,7 +37,6 @@ import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.Graphics2D;
-import java.awt.Image;
 import java.awt.MouseInfo;
 import java.awt.RenderingHints;
 import java.awt.Toolkit;
@@ -89,6 +88,8 @@ import javax.swing.JPopupMenu;
 import javax.swing.JTextField;
 import javax.swing.KeyStroke;
 
+import net.miginfocom.swing.MigLayout;
+
 import org.opencv.core.CvType;
 import org.opencv.core.Mat;
 import org.opencv.core.Scalar;
@@ -96,9 +97,6 @@ import org.opencv.core.Size;
 import org.opencv.highgui.VideoCapture;
 import org.opencv.imgproc.Imgproc;
 
-import com.google.common.eventbus.Subscribe;
-
-import net.miginfocom.swing.MigLayout;
 import pt.lsts.imc.Announce;
 import pt.lsts.imc.CcuEvent;
 import pt.lsts.imc.EstimatedState;
@@ -126,6 +124,8 @@ import pt.lsts.neptus.util.GuiUtils;
 import pt.lsts.neptus.util.ImageUtils;
 import pt.lsts.neptus.util.SearchOpenCv;
 import pt.lsts.neptus.util.conf.ConfigFetch;
+
+import com.google.common.eventbus.Subscribe;
 
 /**
  * Neptus Plugin for Video Stream and tag frame/object
@@ -301,6 +301,8 @@ public class Vision extends ConsolePanel implements ConfigurationListener, ItemL
     private JPanel ipHostCheck;
     //Flag of ping state to host
     private boolean pingHostOk = false;
+    //Flag for Histogram image
+    boolean histogramflag = false;
     
     //*** TEST FOR SAVE VIDEO **/
     private File outputfile;
@@ -406,6 +408,8 @@ public class Vision extends ConsolePanel implements ConfigurationListener, ItemL
                         zoomMask = false;
                         popupzoom.setVisible(false);
                     }
+                    if(e.getKeyCode() == KeyEvent.VK_H)
+                        histogramflag = false;
                 }
                 @Override
                 public void keyPressed(KeyEvent e) {
@@ -445,6 +449,10 @@ public class Vision extends ConsolePanel implements ConfigurationListener, ItemL
                         else
                             popupzoom.setVisible(false);
                     }
+                    else if(e.getKeyChar() == 'h') {
+                        histogramflag = true;
+                        //System.out.println("AQUI");
+                    }
                 }
                 @Override
                 public void keyTyped(KeyEvent e) {
@@ -472,7 +480,7 @@ public class Vision extends ConsolePanel implements ConfigurationListener, ItemL
             catch (IOException e1) {
                 e1.printStackTrace();
             }
-            showImage(resize(errorImg, 320, 240));
+            showImage(UtilCv.resize(errorImg, 320, 240));
             //JLabel info
             warningText = new JLabel("  " +I18n.textf("Please install %libopencv and its dependencies.", libOpencvName)+ "  ");
             warningText.setForeground(Color.RED);
@@ -1071,7 +1079,7 @@ public class Vision extends ConsolePanel implements ConfigurationListener, ItemL
                             yScale = (float) heightConsole / mat.rows();
                             Imgproc.resize(mat, matResize, size);       
                             //Convert Mat to BufferedImage
-                            temp=matToBufferedImage(matResize);
+                            temp=UtilCv.matToBufferedImage(matResize);
                             //Display image in JFrame
                             long stopTime = System.currentTimeMillis();
                             long fpsResult = stopTime - startTime;
@@ -1079,7 +1087,11 @@ public class Vision extends ConsolePanel implements ConfigurationListener, ItemL
                                 infoSizeStream = String.format("Size(%d x %d) | Scale(%.2f x %.2f) | FPS:%d |\t\t\t", mat.cols(), mat.rows(),xScale,yScale,(int)(1000/fpsResult));
 
                             txtText.setText(infoSizeStream);
-                            showImage(temp);
+                            
+                            if(histogramflag)
+                                showImage(UtilCv.histogramCv(temp));
+                            else
+                                showImage(temp);
                             
                             if( captureFrame ) {
                                 xPixel = xPixel - widhtConsole/2;
@@ -1230,7 +1242,7 @@ public class Vision extends ConsolePanel implements ConfigurationListener, ItemL
     public void inicImage() {
         Scalar black = new Scalar(0);
         matResize.setTo(black);
-        temp=matToBufferedImage(matResize);
+        temp=UtilCv.matToBufferedImage(matResize);
         showImage(temp);
     }
     
@@ -1317,7 +1329,7 @@ public class Vision extends ConsolePanel implements ConfigurationListener, ItemL
             Imgproc.resize(mat, matResize, size);
                        
             //Convert Mat to BufferedImage
-            temp=matToBufferedImage(matResize);    
+            temp=UtilCv.matToBufferedImage(matResize);    
             
             xScale = (float) widhtConsole / widthImgRec;
             yScale = (float) heightConsole / heightImgRec;
@@ -1329,20 +1341,12 @@ public class Vision extends ConsolePanel implements ConfigurationListener, ItemL
             txtText.setText(info);
             txtDataTcp.setText(duneGps);
             //Display image in JFrame
-            showImage(temp);
+            if(histogramflag)
+                showImage(UtilCv.histogramCv(temp));
+            else
+                showImage(temp);
+
         }     
-    }
-    
-    //!Resize Buffered Image
-    public static BufferedImage resize(BufferedImage img, int newW, int newH) { 
-        Image tmp = img.getScaledInstance(newW, newH, Image.SCALE_SMOOTH);
-        BufferedImage dimg = new BufferedImage(newW, newH, BufferedImage.TYPE_INT_ARGB);
-
-        Graphics2D g2d = dimg.createGraphics();
-        g2d.drawImage(tmp, 0, 0, null);
-        g2d.dispose();
-
-        return dimg;
     }
     
     //!Close TCP COM
@@ -1416,39 +1420,7 @@ public class Vision extends ConsolePanel implements ConfigurationListener, ItemL
             return false;
     }
     
-    /**  
-     * Converts/writes a Mat into a BufferedImage.  
-     * @param matrix Mat of type CV_8UC3 or CV_8UC1  
-     * @return BufferedImage of type TYPE_3BYTE_BGR or TYPE_BYTE_GRAY  
-     */  
-    public static BufferedImage matToBufferedImage(Mat matrix) {
-        int cols = matrix.cols();  
-        int rows = matrix.rows();  
-        int elemSize = (int)matrix.elemSize();  
-        byte[] data = new byte[cols * rows * elemSize];  
-        int type;  
-        matrix.get(0, 0, data);  
-        switch (matrix.channels()) {  
-            case 1:  
-                type = BufferedImage.TYPE_BYTE_GRAY;  
-                break;  
-            case 3:  
-                type = BufferedImage.TYPE_3BYTE_BGR;  
-                // bgr to rgb  
-                byte b;  
-                for(int i=0; i<data.length; i=i+3) {  
-                    b = data[i];  
-                    data[i] = data[i+2];  
-                    data[i+2] = b;  
-                }  
-                break;  
-        default:  
-            return null;  
-        }
-        BufferedImage image2 = new BufferedImage(cols, rows, type);  
-        image2.getRaster().setDataElements(0, 0, cols, rows, data);  
-        return image2;
-    }
+    
     
     //!Zoom in
     public void getCutImage(BufferedImage imageToCut, int w, int h) {
