@@ -118,10 +118,10 @@ SubPanelChangeListener, MainVehicleChangeListener {
 
     @Override
     public void initSubPanel() {
-        renderersPopups = getConsole().getSubPanelsOfInterface(IMapPopup.class);
+      /*  renderersPopups = getConsole().getSubPanelsOfInterface(IMapPopup.class);
         for (IMapPopup str2d : renderersPopups) {
             str2d.addMenuExtension(this);
-        }
+        }*/
     }
 
     private void placeLocationOnMap(LocationType locContact, String markerName, long tstamp) {

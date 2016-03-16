@@ -33,21 +33,30 @@ package org.necsave;
 
 import java.awt.Color;
 import java.awt.Graphics2D;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.MouseEvent;
 import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.Map.Entry;
 import java.util.Vector;
 import java.util.concurrent.Future;
 
+import javax.swing.JMenu;
+import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
+import javax.swing.JPopupMenu;
 
 import com.google.common.eventbus.Subscribe;
 
 import info.necsave.msgs.AbortMission;
 import info.necsave.msgs.AbortMission.TYPE;
+import info.necsave.msgs.ActionIdle;
+import info.necsave.msgs.ActionIdle.GO_HOME;
 import info.necsave.msgs.Area;
 import info.necsave.msgs.Contact;
 import info.necsave.msgs.ContactList;
+import info.necsave.msgs.Coordinate;
 import info.necsave.msgs.Header.MEDIUM;
 import info.necsave.msgs.Kinematics;
 import info.necsave.msgs.MissionArea;
@@ -59,6 +68,7 @@ import info.necsave.msgs.PlatformInfo;
 import info.necsave.msgs.PlatformPlanProgress;
 import info.necsave.msgs.PlatformState;
 import info.necsave.msgs.Resurface;
+import info.necsave.msgs.SetHomePosition;
 import info.necsave.proto.Message;
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.console.ConsoleInteraction;
@@ -105,7 +115,7 @@ public class NecsaveUI extends ConsoleInteraction {
             NeptusLog.pub().error(e);
         }
     }
-    
+
     @NeptusMenuItem("Advanced>NECSAVE>Set Mission")
     public void setMission() {
         MapGroup mg = MapGroup.getMapGroupInstance(getConsole().getMission());
@@ -181,7 +191,7 @@ public class NecsaveUI extends ConsoleInteraction {
 
         MissionReadyToStart start = new MissionReadyToStart();
         start.setInfo(description);
-        
+
         try {
             sendMessage(start);
         }
@@ -190,7 +200,7 @@ public class NecsaveUI extends ConsoleInteraction {
             ex.printStackTrace();
         }
     }
-    
+
     @NeptusMenuItem("Advanced>NECSAVE>Abort Mission")
     public void abortMission() {
         AbortMission abort = new AbortMission();
@@ -203,7 +213,7 @@ public class NecsaveUI extends ConsoleInteraction {
             ex.printStackTrace();
         }
     }
-    
+
     @NeptusMenuItem("Advanced>NECSAVE>Send MissionCompleted")
     public void missionCompleted() {
         MissionCompleted msg = new MissionCompleted();
@@ -215,14 +225,109 @@ public class NecsaveUI extends ConsoleInteraction {
             ex.printStackTrace();
         }
     }
-    
+
     @NeptusMenuItem("Advanced>NECSAVE>Clear Platforms")
     public void clearPlatforms() {
         platformNames.clear();
     }
 
+    @NeptusMenuItem("Advanced>NECSAVE>Set All Platforms Idle")
+    public void setPlatformsIdle() {
+        for (Entry<Integer, String> plat : platformNames.entrySet()) {
+            ActionIdle goIdle = new ActionIdle();
+
+            try {
+                transport.sendMessage(goIdle, plat.getKey());
+            }
+            catch (Exception ex) {
+                GuiUtils.errorMessage(getConsole(), ex);
+                ex.printStackTrace();
+            }
+        }
+    }
+
     private static String[] getNames(Class<? extends Enum<?>> e) {
         return Arrays.stream(e.getEnumConstants()).map(Enum::name).toArray(String[]::new);
+    }
+
+    @Override
+    public void mouseClicked(MouseEvent event, StateRenderer2D source) {
+        super.mouseClicked(event, source);
+        if (event.getButton() == MouseEvent.BUTTON3) {
+            JPopupMenu popup = new JPopupMenu();
+            for (Entry<Integer, String> plat : platformNames.entrySet()) {
+
+                JMenu cmdMenu = new JMenu(I18n.text("Command ")+ plat.getValue());
+                popup.add(cmdMenu);
+
+                cmdMenu.add(new JMenuItem(I18n.text("Set Home Position"))).addActionListener(new ActionListener() {
+                    @Override
+                    public void actionPerformed(ActionEvent e) {
+                        LocationType loc = source.getRealWorldLocation(event.getPoint());
+                        Coordinate homeLoc = new Coordinate();
+                        homeLoc.setLatitude(loc.getLatitudeRads());
+                        homeLoc.setLongitude(loc.getLongitudeRads());
+
+                        SetHomePosition home = new SetHomePosition(homeLoc);
+
+                        try {
+                            transport.sendMessage(home, plat.getKey());
+                        }
+                        catch (Exception ex) {
+                            GuiUtils.errorMessage(getConsole(), ex);
+                            ex.printStackTrace();
+                        }
+
+                    }
+                });
+
+                cmdMenu.add(new JMenuItem(I18n.text("Go to Home Position"))).addActionListener(new ActionListener() {
+                    @Override
+                    public void actionPerformed(ActionEvent e) {
+                        
+                        ActionIdle goIdle = new ActionIdle();
+                        goIdle.setGoHome(ActionIdle.GO_HOME.TRUE);
+                        
+                        System.out.println(goIdle.toString());
+
+                        try {
+                            transport.sendMessage(goIdle, plat.getKey());
+                        }
+                        catch (Exception ex) {
+                            GuiUtils.errorMessage(getConsole(), ex);
+                            ex.printStackTrace();
+                        }
+
+                    }
+                });
+                cmdMenu.add(new JMenuItem(I18n.text("Idle here"))).addActionListener(new ActionListener() {
+                    @Override
+                    public void actionPerformed(ActionEvent e) {
+                        LocationType loc = source.getRealWorldLocation(event.getPoint());
+                        Coordinate hereLoc = new Coordinate();
+                        hereLoc.setLatitude(loc.getLatitudeRads());
+                        hereLoc.setLongitude(loc.getLongitudeRads());
+
+                        ActionIdle goIdle = new ActionIdle();
+                        goIdle.setGoHome(ActionIdle.GO_HOME.FALSE);
+                        goIdle.setWaypoint(hereLoc);
+                        
+                        System.out.println(goIdle.asJSON(true));
+                        try {
+                            transport.sendMessage(goIdle, plat.getKey());
+                        }
+                        catch (Exception ex) {
+                            GuiUtils.errorMessage(getConsole(), ex);
+                            ex.printStackTrace();
+                        }
+
+                    }
+                });
+
+            }
+
+            popup.show(source, event.getX(), event.getY());
+        }
     }
 
     private void sendMessageReliably(Message msg) throws Exception {
@@ -292,20 +397,20 @@ public class NecsaveUI extends ConsoleInteraction {
         loc.setDepth(msg.getZ());
         update(msg.getSrc(), loc, 0);
     }
-    
+
     @Subscribe
     public void on(AbortMission msg) {
         getConsole().post(Notification.warning("NECSAVE AbortMission",
                 "AbortMission message sent from " + platformNames.get(msg.getSrc())));
     }
-    
+
     @Subscribe
     public void on(Resurface msg) {
         getConsole().post(Notification.warning("NECSAVE Resurface",
                 "Resurface message sent from " + platformNames.get(msg.getSrc())));
     }
-    
-    
+
+
     private void update(int src, LocationType loc, double headingDegs) {
         try {
             if (!platformNames.containsKey(src))
@@ -320,14 +425,14 @@ public class NecsaveUI extends ConsoleInteraction {
                 es.setType(SystemTypeEnum.UNKNOWN);
             }
             ExternalSystem extSys = ExternalSystemsHolder.lookupSystem(name);
-                extSys.setLocation(loc, System.currentTimeMillis());
-                extSys.setAttitudeDegrees(headingDegs);            
+            extSys.setLocation(loc, System.currentTimeMillis());
+            extSys.setAttitudeDegrees(headingDegs);            
         }
         catch (Exception e) {
             e.printStackTrace();
         }
     }
-    
+
     @Subscribe
     public void on(Kinematics msg) {
         try {
