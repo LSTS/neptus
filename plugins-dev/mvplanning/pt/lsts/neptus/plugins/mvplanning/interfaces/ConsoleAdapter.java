@@ -38,6 +38,8 @@ import pt.lsts.imc.IMCMessage;
 import pt.lsts.neptus.comm.manager.imc.ImcMsgManager.SendResult;
 import pt.lsts.neptus.console.ConsoleSystem;
 import pt.lsts.neptus.types.map.AbstractElement;
+import pt.lsts.neptus.types.map.MapGroup;
+import pt.lsts.neptus.types.mission.MissionType;
 
 /**
  * @author tsmarques
@@ -50,4 +52,6 @@ public interface ConsoleAdapter {
     public Future<SendResult> sendMessageReliably(String dest, IMCMessage message);
     public Map<String, ConsoleSystem> getSystems();
     public AbstractElement[] getMapObstacles();
+    public MapGroup getMapGroup();
+    public MissionType getMission();
 }

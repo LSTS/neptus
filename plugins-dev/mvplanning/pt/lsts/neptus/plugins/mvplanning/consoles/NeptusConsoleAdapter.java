@@ -43,6 +43,8 @@ import pt.lsts.neptus.console.ConsoleSystem;
 import pt.lsts.neptus.events.NeptusEvents;
 import pt.lsts.neptus.plugins.mvplanning.interfaces.ConsoleAdapter;
 import pt.lsts.neptus.types.map.AbstractElement;
+import pt.lsts.neptus.types.map.MapGroup;
+import pt.lsts.neptus.types.mission.MissionType;
 
 /**
  * @author tsmarques
@@ -84,6 +86,16 @@ public class NeptusConsoleAdapter implements ConsoleAdapter {
     @Override
     public Map<String, ConsoleSystem> getSystems() {
         return console.getSystems();
+    }
+
+    @Override
+    public MapGroup getMapGroup() {
+        return console.getMission().generateMapGroup();
+    }
+
+    @Override
+    public MissionType getMission() {
+        return console.getMission();
     }
 
     @Override
