@@ -46,26 +46,25 @@ import pt.lsts.neptus.mra.importers.IMraLogGroup;
 public class ImcSidescanParser implements SidescanParser {
     IMraLog pingParser;
     IMraLog stateParser;
-    
+
     long firstTimestamp = -1;
     long lastTimestamp = -1;
-    
+
     long lastTimestampRequested;
-    
+
     public ImcSidescanParser(IMraLogGroup source) {
         pingParser = source.getLog("SonarData");
         stateParser = source.getLog("EstimatedState");
-        
+
         calcFirstAndLastTimestamps();
     }
 
-    
     private void calcFirstAndLastTimestamps() {
         IMCMessage msg;
         boolean firstFound = false;
-        
-        while((msg = getNextMessage(pingParser)) != null) {
-            if(!firstFound) {
+
+        while ((msg = getNextMessage(pingParser)) != null) {
+            if (!firstFound) {
                 firstFound = true;
                 firstTimestamp = msg.getTimestampMillis();
             }
@@ -75,48 +74,49 @@ public class ImcSidescanParser implements SidescanParser {
         pingParser.firstLogEntry();
     }
 
-
     @Override
     public long firstPingTimestamp() {
         return firstTimestamp;
     };
-    
+
     @Override
     public long lastPingTimestamp() {
         return lastTimestamp;
     }
-    
+
+    @Override
     public ArrayList<Integer> getSubsystemList() {
-        // For now just return a list with 1 item. In the future IMC will accomodate various SonarData subsystems
+        // For now just return a list with 1 item. In the future IMC will accommodate various SonarData subsystems.
         ArrayList<Integer> l = new ArrayList<Integer>();
         l.add(1);
         return l;
     };
 
-    public ArrayList<SidescanLine> getLinesBetween(long timestamp1, long timestamp2, int subsystem, SidescanParameters params) {
-        
+    @Override
+    public ArrayList<SidescanLine> getLinesBetween(long timestamp1, long timestamp2, int subsystem,
+            SidescanParameters params) {
         // Preparation
         ArrayList<SidescanLine> list = new ArrayList<SidescanLine>();
         double[] fData = null;
-        
-        if(lastTimestampRequested > timestamp1) {
+
+        if (lastTimestampRequested > timestamp1) {
             pingParser.firstLogEntry();
             stateParser.firstLogEntry();
         }
-        
+
         lastTimestampRequested = timestamp1;
         IMCMessage ping;
         try {
-             ping = pingParser.getEntryAtOrAfter(timestamp1);
+            ping = pingParser.getEntryAtOrAfter(timestamp1);
         }
         catch (Exception e) {
             ping = null;
         }
         if (ping == null)
             return list;
-       
+
         if (ping.getInteger("type") != SonarData.TYPE.SIDESCAN.value()) {
-            ping = getNextMessage(pingParser); //FIXME
+            ping = getNextMessage(pingParser); // FIXME
         }
         IMCMessage state = stateParser.getEntryAtOrAfter(ping.getTimestampMillis());
 
@@ -127,9 +127,6 @@ public class ImcSidescanParser implements SidescanParser {
         int range = ping.getInteger("range");
         if (range == 0)
             range = ping.getInteger("max_range");
-
-        if (fData == null) {
-        }
 
         while (ping == null || ping.getTimestampMillis() <= timestamp2) {
             // Null guards
@@ -154,45 +151,54 @@ public class ImcSidescanParser implements SidescanParser {
             byte[] data = ping.getRawData("data");
 
             for (int c = 0; c < data.length; c++) {
-                fData[c] = (data[c] & 0xFF) / 255.0;
+                double gain = params.getTvgGain();
+                double contrast = params.getNormalization();
+                double signalLevel = (data[c] & 0xFF);
+
+                // Normalize.
+                double normalized = ((signalLevel / 2) + gain) / contrast;
+                // Clip between 0 and 1.0.
+                fData[c] = Math.max(Math.min(normalized, 1.0), 0.0);
             }
-            
+
             list.add(new SidescanLine(ping.getTimestampMillis(), range, pose, ping.getFloat("frequency"), fData));
 
-            ping = getNextMessage(pingParser); 
+            ping = getNextMessage(pingParser);
             if (ping != null)
                 state = stateParser.getEntryAtOrAfter(ping.getTimestampMillis());
         }
-        
+
         return list;
     }
-    
+
     public long getCurrentTime() {
         return pingParser.currentTimeMillis();
     }
-    
+
     /**
      * Method used to get the next SonarData message of Sidescan Type
+     *
      * @param parser
      * @return
      */
     public IMCMessage getNextMessage(IMraLog parser) {
         IMCMessage msg;
-        while((msg = parser.nextLogEntry()) != null) {
-            if(msg.getInteger("type") == SonarData.TYPE.SIDESCAN.value()) {
+        while ((msg = parser.nextLogEntry()) != null) {
+            if (msg.getInteger("type") == SonarData.TYPE.SIDESCAN.value()) {
                 return msg;
             }
         }
         return null;
     }
 
-
-    /* (non-Javadoc)
+    /*
+     * (non-Javadoc)
+     *
      * @see pt.lsts.neptus.mra.api.SidescanParser#cleanup()
      */
     @Override
     public void cleanup() {
         // TODO Auto-generated method stub
-        
+
     }
 }
