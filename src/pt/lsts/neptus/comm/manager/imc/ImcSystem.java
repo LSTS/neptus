@@ -58,6 +58,10 @@ import pt.lsts.neptus.util.DateTimeUtil;
 /**
  * @author pdias
  */
+/**
+ * @author pdias
+ *
+ */
 public class ImcSystem implements Comparable<ImcSystem> {
 
     private static final int TIMEOUT_FOR_NOT_ANNOUNCE_STATE = 12000;
@@ -208,10 +212,19 @@ public class ImcSystem implements Comparable<ImcSystem> {
 		setLocationTimeMillis(System.currentTimeMillis());
 	}
 
-	public void setLocation(LocationType location, long locationTimeMillis) {
+	/**
+	 * Only is override if locationTimeMillis is newer than already there.
+	 * 
+	 * @param location
+	 * @param locationTimeMillis
+	 */
+	public boolean setLocation(LocationType location, long locationTimeMillis) {
+	    if (locationTimeMillis < getLocationTimeMillis())
+	        return false;
         this.location.setLocation(location);
         this.location.convertToAbsoluteLatLonDepth();
 	    setLocationTimeMillis(locationTimeMillis);
+	    return true;
 	}
 
     public void setAttitudeDegrees(double rollDegrees, double pitchDegrees, double yawDegrees) {
@@ -221,11 +234,23 @@ public class ImcSystem implements Comparable<ImcSystem> {
         setAttitudeTimeMillis(System.currentTimeMillis());
     }
 
-    public void setAttitudeDegrees(double rollDegrees, double pitchDegrees, double yawDegrees, long locationTimeMillis) {
+    /**
+     * Only is override if attitudeTimeMillis is newer than already there.
+     * 
+     * @param rollDegrees
+     * @param pitchDegrees
+     * @param yawDegrees
+     * @param locationTimeMillis
+     * @return 
+     */
+    public boolean setAttitudeDegrees(double rollDegrees, double pitchDegrees, double yawDegrees, long attitudeTimeMillis) {
+        if (attitudeTimeMillis < getAttitudeTimeMillis())
+            return false;
         location.setRoll(rollDegrees);
         location.setPitch(pitchDegrees);
         location.setYaw(yawDegrees);
-        setAttitudeTimeMillis(locationTimeMillis);
+        setAttitudeTimeMillis(attitudeTimeMillis);
+        return true;
     }
 
     public void setAttitudeDegrees(double yawDegrees) {
@@ -235,11 +260,21 @@ public class ImcSystem implements Comparable<ImcSystem> {
         setAttitudeTimeMillis(System.currentTimeMillis());
     }
 
-    public void setAttitudeDegrees(double yawDegrees, long locationTimeMillis) {
+    /**
+     * Only is override if attitudeTimeMillis is newer than already there.
+     * 
+     * @param yawDegrees
+     * @param locationTimeMillis
+     * @return 
+     */
+    public boolean setAttitudeDegrees(double yawDegrees, long attitudeTimeMillis) {
+        if (attitudeTimeMillis < getAttitudeTimeMillis())
+            return false;
         location.setRoll(0);
         location.setPitch(0);
         location.setYaw(yawDegrees);
-        setAttitudeTimeMillis(locationTimeMillis);
+        setAttitudeTimeMillis(attitudeTimeMillis);
+        return true;
     }
 
     public double getRollDegrees() {
