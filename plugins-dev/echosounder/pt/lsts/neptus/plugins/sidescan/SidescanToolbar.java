@@ -116,7 +116,6 @@ public class SidescanToolbar extends JToolBar {
     private final ChangeListener alGains = new ChangeListener() {
         @Override
         public void stateChanged(ChangeEvent e) {
-            System.err.format("STATE_CHANGE\n");
             panel.config.tvgGain = (Double) spinTVG.getValue();
             panel.config.normalization = (Double) spinNormalization.getValue();
             panel.record(btnRecord.isSelected());
