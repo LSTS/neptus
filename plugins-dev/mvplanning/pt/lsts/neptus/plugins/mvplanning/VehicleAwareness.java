@@ -81,7 +81,7 @@ public class VehicleAwareness {
     private void checkVehicleState(String vehicle, STATE state) {
         ImcSystem sys = ImcSystemsHolder.getSystemWithName(vehicle);
 
-        if(!sys.isTCPOn())
+        if(!sys.isSimulated() && !sys.isTCPOn())
             setVehicleUnavailable(vehicle);
         else if(state == STATE.FINISHED)
             setVehicleAvailable(vehicle);
