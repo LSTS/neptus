@@ -68,9 +68,8 @@ import pt.lsts.neptus.plugins.mvplanning.interfaces.ConsoleAdapter;
 @PluginDescription(name = "Multi-Vehicle Planning")
 @Popup(name = "MvPlanning", pos = POSITION.LEFT, width = 285, height = 240)
 public class MVPlanning extends ConsolePanel implements PlanChangeListener {
-    public static final String PROFILES_DIR = MVPlanning.class.getProtectionDomain().getCodeSource().getLocation().getPath() + "etc/";
-    private static final ProfileMarshaler pMarsh = new ProfileMarshaler();
-    public static final Map<String, Profile> availableProfiles = pMarsh.getAllProfiles();
+    private final ProfileMarshaler pMarsh = new ProfileMarshaler();
+    public final Map<String, Profile> availableProfiles = pMarsh.getAllProfiles();
 
     /* modules */
     private ConsoleAdapter console;
@@ -170,7 +169,7 @@ public class MVPlanning extends ConsolePanel implements PlanChangeListener {
             }
         }
     }
-    
+
     @Subscribe
     public synchronized void on(MvPlanningEventPlanAllocated event) {
         String lookupId = event.getPlanId() + " [" + event.getProfile() + "]";
@@ -183,7 +182,7 @@ public class MVPlanning extends ConsolePanel implements PlanChangeListener {
     }
 
     @Override
-    public void cleanSubPanel() {        
+    public void cleanSubPanel() {
     }
 
     @Override
