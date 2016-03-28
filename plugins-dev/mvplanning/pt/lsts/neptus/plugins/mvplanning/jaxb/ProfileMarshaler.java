@@ -43,6 +43,7 @@ import javax.xml.bind.JAXBException;
 import javax.xml.bind.Marshaller;
 import javax.xml.bind.Unmarshaller;
 
+import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.plugins.mvplanning.MVPlanning;
 import pt.lsts.neptus.util.FileUtil;
 import pt.lsts.neptus.util.StreamUtil;
@@ -68,7 +69,7 @@ public class ProfileMarshaler {
             String prfPath = FileUtil.getResourceAsFileKeepName(PROFILES_DIR + profile + ".xml");
             
             if(prfPath == null)
-                System.out.println("[mvplanning/ProfileMarshaler]: INFO profile " + profile + " does not exist");
+                NeptusLog.pub().warn("Profile " + profile + " does not exist");
             else
                 profilesPaths.add(new File(prfPath));
         }
@@ -88,22 +89,22 @@ public class ProfileMarshaler {
         boolean valid = true;
         
         if(profile.getProfileVehicles().isEmpty()) {
-            System.out.println("[mvplanning/PayloadMarshaler]: ERROR profile without vehicles");
+            NeptusLog.pub().warn("Profile without vehicles");
             valid = false;
         }
         
         if(profile.getProfileAltitude() == -1) {
-            System.out.println("[mvplanning/PayloadMarshaler]: ERROR profile altitude not set");
+            NeptusLog.pub().warn("Profile altitude not set");
             valid = false;
         }
         
         if(profile.getProfileVelocity() == -1) {
-            System.out.println("[mvplanning/PayloadMarshaler]: ERROR profile velocity not set");
+            NeptusLog.pub().warn("Profile velocity not set");
             valid = false;
         }
         
         if(profile.getPayload().isEmpty()) {
-            System.out.println("[mvplanning/PayloadMarshaler]: ERROR profile has not payload");
+            NeptusLog.pub().warn("Profile has no payload");
             valid = false;
         }
         
@@ -125,18 +126,17 @@ public class ProfileMarshaler {
 
                 jaxbMarshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
 
-                System.out.println("[mvplanning/PayloadMarshaler] Marshaling payload of type " + type);
+                NeptusLog.pub().info("Marshaling payload of type " + type);
                 jaxbMarshaller.marshal(allProfiles.get(type), System.out);
                 jaxbMarshaller.marshal(allProfiles.get(type), new File(PROFILES_DIR + type + ".xml"));
             }
             catch (JAXBException e) {
-                System.out.println("[mvplanning/PayloadMarshaler] #Error# while marshaling payload");
+                NeptusLog.pub().warn("Failed payload marshaling");
                 e.printStackTrace();
             }
         }
         else
-            System.out.println("[mvplanning/PayloadMarshaler] No payload profiles of type <" 
-        + type + "> to marshal");
+            NeptusLog.pub().warn("No payload profiles of type <" + type + "> to marshal");
     }
 
     private Map<String, Profile> unmarshalAll() {

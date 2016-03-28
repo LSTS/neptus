@@ -32,6 +32,7 @@
 
 package pt.lsts.neptus.plugins.mvplanning;
 
+import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.plugins.mvplanning.allocation.RoundRobinAllocator;
 import pt.lsts.neptus.plugins.mvplanning.interfaces.AbstractAllocator;
 import pt.lsts.neptus.plugins.mvplanning.interfaces.ConsoleAdapter;
@@ -70,7 +71,7 @@ public class PlanAllocator {
 
     public void setAllocationStrategy(AllocationStrategy allocStrat) {
         /* for now just round-robin */
-        System.out.println("[mvplanning/PlanAllocator] Setting Round-Robin allocation strategy.");
+        NeptusLog.pub().info("Using Round-Robin allocation strategy");
         allocator = new RoundRobinAllocator(true, false, vawareness, console);
     }
 }

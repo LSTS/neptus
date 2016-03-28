@@ -35,6 +35,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map.Entry;
 
+import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.comm.manager.imc.ImcSystem;
 import pt.lsts.neptus.comm.manager.imc.ImcSystemsHolder;
 import pt.lsts.neptus.console.ConsoleSystem;
@@ -123,7 +124,7 @@ public class VehicleAwareness {
 
             console.post(new MvPlanningEventAvailableVehicle(id));
             /* logging */
-            logDebugInfo("Vehicle " + id + " set as AVAILABLE");
+            NeptusLog.pub().info("Vehicle" + id + "is available");
         }
     }
     
@@ -135,7 +136,7 @@ public class VehicleAwareness {
                 availableVehicles.remove(id);
 
             unavailableVehicles.add(id);
-            logDebugInfo("Vehicle " + id + " set as UNAVAILABLE");
+            NeptusLog.pub().info("Vehicle " + id + " set as UNAVAILABLE");
         }
     }
 

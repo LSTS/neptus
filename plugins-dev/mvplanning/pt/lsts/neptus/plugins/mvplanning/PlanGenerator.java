@@ -1,6 +1,7 @@
 package pt.lsts.neptus.plugins.mvplanning;
 
 import pt.lsts.imc.PlanSpecification;
+import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.comm.IMCUtils;
 import pt.lsts.neptus.plugins.mvplanning.jaxb.Profile;
 import pt.lsts.neptus.types.mission.plan.PlanType;
@@ -22,7 +23,7 @@ public class PlanGenerator {
             planAloc.allocate(new PlanTask(pType.getId(), pSpec, planProfile, pType.asIMCPlan().payloadMD5()));
         }
         else {
-            System.out.println("[mvplanning/PlanGenerator]: Generating a plan");
+            NeptusLog.pub().info("Generating a plan");
         }
     }
 }

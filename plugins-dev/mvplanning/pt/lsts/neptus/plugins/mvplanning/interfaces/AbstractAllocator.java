@@ -44,6 +44,7 @@ import pt.lsts.imc.PlanControl.OP;
 import pt.lsts.imc.state.ImcSystemState;
 import pt.lsts.imc.PlanDB;
 import pt.lsts.imc.PlanSpecification;
+import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.comm.IMCSendMessageUtils;
 import pt.lsts.neptus.comm.manager.imc.ImcMsgManager.SendResult;
 import pt.lsts.neptus.comm.manager.imc.ImcSystem;
@@ -115,7 +116,7 @@ public abstract class AbstractAllocator implements IPeriodicUpdates {
         }
         catch(Exception e) {
             e.printStackTrace();
-            System.out.println("[mvplanning/PlanAllocator]: Failed to allocate plan " + ptask.getPlanId() + " to " + vehicle);
+            NeptusLog.pub().warn("Failed to allocate plan " + ptask.getPlanId() + " to " + vehicle);
             return false;
         }
     }
