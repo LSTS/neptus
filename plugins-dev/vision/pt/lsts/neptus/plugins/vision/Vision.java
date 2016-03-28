@@ -123,6 +123,7 @@ import pt.lsts.neptus.util.FileUtil;
 import pt.lsts.neptus.util.GuiUtils;
 import pt.lsts.neptus.util.ImageUtils;
 import pt.lsts.neptus.util.SearchOpenCv;
+import pt.lsts.neptus.util.UtilCv;
 import pt.lsts.neptus.util.conf.ConfigFetch;
 
 import com.google.common.eventbus.Subscribe;
@@ -131,7 +132,7 @@ import com.google.common.eventbus.Subscribe;
  * Neptus Plugin for Video Stream and tag frame/object
  * 
  * @author pedrog
- * @version 1.2
+ * @version 1.3
  * @category Vision
  *
  */
@@ -142,7 +143,6 @@ import com.google.common.eventbus.Subscribe;
 public class Vision extends ConsolePanel implements ConfigurationListener, ItemListener{
 
     private static final String BASE_FOLDER_FOR_IMAGES = "log/images";
-    private static final String BASE_FOLDER_FOR_ICON_IMAGES = "iconImages";
     private static final String BASE_FOLDER_FOR_URLINI = "ipUrl.ini";
 
     @NeptusProperty(name = "Axis Camera RTPS URL", editable = false)
@@ -168,6 +168,7 @@ public class Vision extends ConsolePanel implements ConfigurationListener, ItemL
     private boolean tcpOK = false;
     //Strut Video Capture Opencv
     private VideoCapture capture;
+    private VideoCapture captureSave;
     //Width size of image
     private int widthImgRec;
     //Height size of image
@@ -246,6 +247,8 @@ public class Vision extends ConsolePanel implements ConfigurationListener, ItemL
     private Mat matResize;
     //Image receive
     private Mat mat;
+    //Image receive to save
+    private Mat matSaveImg;
     //Size of output frame
     private Size size = null;
     //Counter for image tag
@@ -285,6 +288,8 @@ public class Vision extends ConsolePanel implements ConfigurationListener, ItemL
     private Graphics2D graphics2D;
     //BufferedImage for zoom image scaling
     private BufferedImage scaledCutImage;
+    //Buffer image for zoom image temp
+    private BufferedImage zoomTemp;
     //PopPup zoom Image
     private JPopupMenu popupzoom;
     //cord x for zoom
@@ -303,6 +308,10 @@ public class Vision extends ConsolePanel implements ConfigurationListener, ItemL
     private boolean pingHostOk = false;
     //Flag for Histogram image
     boolean histogramflag = false;
+    //Flag to save snapshot
+    boolean saveSnapshot = false;
+    
+    static double camTiltDeg = 45.0f;//this value may be in configuration
     
     //*** TEST FOR SAVE VIDEO **/
     private File outputfile;
@@ -356,14 +365,14 @@ public class Vision extends ConsolePanel implements ConfigurationListener, ItemL
                     if (e.getButton() == MouseEvent.BUTTON3) {
                         popup = new JPopupMenu();
                         JMenuItem item1;
-                        popup.add(item1 = new JMenuItem(I18n.text("Start")+" RasPiCam", ImageUtils.createImageIcon(String.format(BASE_FOLDER_FOR_ICON_IMAGES + "/raspicam.jpg")))).addActionListener(new ActionListener() {
+                        popup.add(item1 = new JMenuItem(I18n.text("Start")+" RasPiCam", ImageUtils.createImageIcon(String.format("src/images/menus/raspicam.png")))).addActionListener(new ActionListener() {
                             public void actionPerformed(ActionEvent e) {
                                 checkHostIp();
                             }
                         });
                         item1.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_R, ActionEvent.ALT_MASK));
                         JMenuItem item2;
-                        popup.add(item2 = new JMenuItem(I18n.text("Close all connections"), ImageUtils.createImageIcon(String.format(BASE_FOLDER_FOR_ICON_IMAGES + "/close.gif")))).addActionListener(new ActionListener() {
+                        popup.add(item2 = new JMenuItem(I18n.text("Close all connections"), ImageUtils.createImageIcon(String.format("src/images/menus/exit.png")))).addActionListener(new ActionListener() {
                             public void actionPerformed(ActionEvent e) {
                                 NeptusLog.pub().info("Clossing all Video Stream...");
                                 if(raspiCam && tcpOK) {
@@ -381,7 +390,7 @@ public class Vision extends ConsolePanel implements ConfigurationListener, ItemL
                         });
                         item2.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_X, ActionEvent.ALT_MASK));
                         JMenuItem item3;  
-                        popup.add(item3 = new JMenuItem(I18n.text("Start IpCam"), ImageUtils.createImageIcon(String.format(BASE_FOLDER_FOR_ICON_IMAGES + "/ipcam.png")))).addActionListener(new ActionListener() {
+                        popup.add(item3 = new JMenuItem(I18n.text("Start IpCam"), ImageUtils.createImageIcon("src/images/menus/camera.png"))).addActionListener(new ActionListener() {
                             public void actionPerformed(ActionEvent e) {
                                 checkIpCam();        
                             }
@@ -389,13 +398,27 @@ public class Vision extends ConsolePanel implements ConfigurationListener, ItemL
                         popup.addSeparator();
                         item3.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_I, ActionEvent.ALT_MASK));
                         JMenuItem item4;
-                        popup.add(item4 = new JMenuItem(I18n.text("Config"), ImageUtils.createImageIcon(String.format(BASE_FOLDER_FOR_ICON_IMAGES + "/config.jpeg")))).addActionListener(new ActionListener() {
+                        popup.add(item4 = new JMenuItem(I18n.text("Config"), ImageUtils.createImageIcon(String.format("src/images/menus/configure.png")))).addActionListener(new ActionListener() {
                             @Override
                             public void actionPerformed(ActionEvent e) {
                                 menu.setVisible(true);
                             }
                         });
                         item4.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_C, ActionEvent.ALT_MASK));
+                        JMenuItem item5;
+                        popup.add(item5 = new JMenuItem(I18n.text("Histogram filter on/off"), ImageUtils.createImageIcon("src/images/menus/histogram.png"))).addActionListener(new ActionListener() {
+                            public void actionPerformed(ActionEvent e) {
+                                histogramflag = !histogramflag;
+                            }
+                        });
+                        item5.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_H, ActionEvent.ALT_MASK));
+                        JMenuItem item6;
+                        popup.add(item6 = new JMenuItem(I18n.text("Snapshot"), ImageUtils.createImageIcon("src/images/menus/snapshot.png"))).addActionListener(new ActionListener() {
+                            public void actionPerformed(ActionEvent e) {
+                                saveSnapshot = true;
+                            }
+                        });
+                        item6.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_S, ActionEvent.ALT_MASK));
                         popup.show((Component) e.getSource(), e.getX(), e.getY());
                     }
                 }
@@ -408,8 +431,6 @@ public class Vision extends ConsolePanel implements ConfigurationListener, ItemL
                         zoomMask = false;
                         popupzoom.setVisible(false);
                     }
-                    if(e.getKeyCode() == KeyEvent.VK_H)
-                        histogramflag = false;
                 }
                 @Override
                 public void keyPressed(KeyEvent e) {
@@ -438,20 +459,20 @@ public class Vision extends ConsolePanel implements ConfigurationListener, ItemL
                             xLocMouse = 0;
                         if(yLocMouse < 0)
                             yLocMouse = 0;
-                        
+
                         if(xLocMouse + 52 < panelImage.getSize().getWidth() && xLocMouse - 52 > 0 && yLocMouse + 60 < panelImage.getSize().getHeight() && yLocMouse - 60 > 0){
                             zoomX = xLocMouse;
                             zoomY = yLocMouse;
                             popupzoom.setLocation(MouseInfo.getPointerInfo().getLocation().x - 150, MouseInfo.getPointerInfo().getLocation().y - 150);
-                            getCutImage(temp, zoomX, zoomY);
-                            popupzoom.setVisible(true);
                         }
                         else
                             popupzoom.setVisible(false);
                     }
-                    else if(e.getKeyChar() == 'h') {
-                        histogramflag = true;
-                        //System.out.println("AQUI");
+                    else if((e.getKeyCode() == KeyEvent.VK_H) && ((e.getModifiers() & KeyEvent.ALT_MASK) != 0)) {
+                        histogramflag = !histogramflag;
+                    }
+                    else if((e.getKeyCode() == KeyEvent.VK_S) && ((e.getModifiers() & KeyEvent.ALT_MASK) != 0)) {
+                        saveSnapshot = true;
                     }
                 }
                 @Override
@@ -499,7 +520,7 @@ public class Vision extends ConsolePanel implements ConfigurationListener, ItemL
         ipHostPing.setSize(340, 80);
         ipHostPing.setLocation(dim.width/2-ipCamPing.getSize().width/2, dim.height/2-ipCamPing.getSize().height/2);
         ipHostCheck = new JPanel(new MigLayout());
-        ImageIcon imgIpCam = ImageUtils.createImageIcon(String.format(BASE_FOLDER_FOR_ICON_IMAGES + "/raspicam.jpg"));
+        ImageIcon imgIpCam = ImageUtils.createImageIcon(String.format("src/images/menus/raspicam.png"));
         ipHostPing.setIconImage(imgIpCam.getImage());
         ipHostPing.setResizable(false);
         ipHostPing.setBackground(Color.GRAY);
@@ -579,7 +600,7 @@ public class Vision extends ConsolePanel implements ConfigurationListener, ItemL
         ipCamPing.setLocation(dim.width / 2 - ipCamPing.getSize().width / 2,
                 dim.height / 2 - ipCamPing.getSize().height / 2);
         ipCamCheck = new JPanel(new MigLayout());
-        ImageIcon imgIpCam = ImageUtils.createImageIcon(String.format(BASE_FOLDER_FOR_ICON_IMAGES + "/ipcam.png"));
+        ImageIcon imgIpCam = ImageUtils.createImageIcon(String.format("src/images/menus/camera.png"));
         ipCamPing.setIconImage(imgIpCam.getImage());
         ipCamPing.setResizable(false);
         ipCamPing.setBackground(Color.GRAY);                  
@@ -876,6 +897,9 @@ public class Vision extends ConsolePanel implements ConfigurationListener, ItemL
         //Create folder Image Save
         dir = new File(String.format(BASE_FOLDER_FOR_IMAGES + "/%s/imageSave", date));
         dir.mkdir();
+        //Create folder Image Snapshot Save
+        dir = new File(String.format(BASE_FOLDER_FOR_IMAGES + "/%s/snapshotImage", date));
+        dir.mkdir();
         logDir = String.format(BASE_FOLDER_FOR_IMAGES + "/%s", date);
         
         //JLabel for image
@@ -923,7 +947,7 @@ public class Vision extends ConsolePanel implements ConfigurationListener, ItemL
         menu.setSize(450, 350);
         menu.setLocation(dim.width/2-menu.getSize().width/2, dim.height/2-menu.getSize().height/2);
         menu.setVisible(show_menu);
-        ImageIcon imgMenu = ImageUtils.createImageIcon(String.format(BASE_FOLDER_FOR_ICON_IMAGES + "/config.jpeg"));
+        ImageIcon imgMenu = ImageUtils.createImageIcon(String.format("src/images/menus/configure.png"));
         menu.setIconImage(imgMenu.getImage());
         menu.add(config);
     }
@@ -935,12 +959,9 @@ public class Vision extends ConsolePanel implements ConfigurationListener, ItemL
     public void itemStateChanged(ItemEvent e) {
         //checkbox listener
         Object source = e.getItemSelectable();
-        //System.out.println("source: "+source);
         if (source == saveToDiskCheckBox) {
-            //System.out.println("raspiCam="+raspiCam+"ipCam"+ipCam+"saveToDiskCheckBox"+saveToDiskCheckBox.isSelected());
             if ((raspiCam == true || ipCam == true) && saveToDiskCheckBox.isSelected() == true) {
                 flagBuffImg = true;
-                //System.out.println("Valor: "+flagBuffImg);
             }
             if ((raspiCam == false && ipCam == false) || saveToDiskCheckBox.isSelected() == false) {
                 flagBuffImg=false;
@@ -1077,9 +1098,9 @@ public class Vision extends ConsolePanel implements ConfigurationListener, ItemL
                             }
                             xScale = (float) widhtConsole / mat.cols();
                             yScale = (float) heightConsole / mat.rows();
-                            Imgproc.resize(mat, matResize, size);       
+                            Imgproc.resize(mat, matResize, size);
                             //Convert Mat to BufferedImage
-                            temp=UtilCv.matToBufferedImage(matResize);
+                            temp = UtilCv.matToBufferedImage(matResize);
                             //Display image in JFrame
                             long stopTime = System.currentTimeMillis();
                             long fpsResult = stopTime - startTime;
@@ -1087,12 +1108,37 @@ public class Vision extends ConsolePanel implements ConfigurationListener, ItemL
                                 infoSizeStream = String.format("Size(%d x %d) | Scale(%.2f x %.2f) | FPS:%d |\t\t\t", mat.cols(), mat.rows(),xScale,yScale,(int)(1000/fpsResult));
 
                             txtText.setText(infoSizeStream);
+                            if(histogramflag) {
+                                if(zoomMask) {
+                                    zoomTemp = temp;
+                                    getCutImage(UtilCv.histogramCv(zoomTemp), zoomX, zoomY);
+                                    popupzoom.setVisible(true);
+                                }
+                                else
+                                    popupzoom.setVisible(false);
+
+                                if(saveSnapshot) {
+                                    UtilCv.saveSnapshot(UtilCv.addText(UtilCv.histogramCv(temp), I18n.text("Histogram - On"), Color.GREEN, temp.getWidth() - 5, 20), String.format(logDir + "/snapshotImage"));
+                                    saveSnapshot = false;
+                                }
+                                showImage(UtilCv.addText(UtilCv.histogramCv(temp), I18n.text("Histogram - On"), Color.GREEN, temp.getWidth() - 5, 20));
+                            }
+                            else {
+                                if(zoomMask) {
+                                    getCutImage(temp, zoomX, zoomY);
+                                    popupzoom.setVisible(true);
+                                }
+                                else
+                                    popupzoom.setVisible(false);
+                                
+                                if(saveSnapshot) {
+                                    UtilCv.saveSnapshot(UtilCv.addText(temp, I18n.text("Histogram - Off"), Color.RED, temp.getWidth() - 5, 20), String.format(logDir + "/snapshotImage"));
+                                    saveSnapshot = false;
+                                }
+                                showImage(UtilCv.addText(temp, I18n.text("Histogram - Off"), Color.RED, temp.getWidth() - 5, 20));
+                            }
                             
-                            if(histogramflag)
-                                showImage(UtilCv.histogramCv(temp));
-                            else
-                                showImage(temp);
-                            
+                            //save image tag to disk
                             if( captureFrame ) {
                                 xPixel = xPixel - widhtConsole/2;
                                 yPixel = -(yPixel - heightConsole/2);
@@ -1132,15 +1178,29 @@ public class Vision extends ConsolePanel implements ConfigurationListener, ItemL
         Thread si = new Thread("Save Image") {
             @Override
             public void run() {
-                while(true) {
-                    if (raspiCam || ipCam) {
+                matSaveImg = new Mat(heightImgRec, widthImgRec, CvType.CV_8UC3);
+                boolean stateSetUrl = false;
+                
+                while(true){
+                    if(ipCam && !stateSetUrl){
+                        captureSave = new VideoCapture();
+                        captureSave.open(camRtpsUrl);
+                        if (captureSave.isOpened()) {
+                            cntTag = 1;
+                            stateSetUrl = true;
+                        }
+                    }
+                    if(raspiCam){
+                        stateSetUrl = false;
                         if(flagBuffImg == true) {
-                            //flagBuffImg = false;
                             long startTime = System.currentTimeMillis();
                             String imageJpeg = String.format("%s/imageSave/%d.jpeg",logDir,cnt);
                             outputfile = new File(imageJpeg);
                             try {
-                                ImageIO.write(temp, "jpeg", outputfile);
+                                if(histogramflag)
+                                    ImageIO.write(UtilCv.histogramCv(temp), "jpeg", outputfile);
+                                else
+                                    ImageIO.write(temp, "jpeg", outputfile);
                             }
                             catch (IOException e) {
                                 e.printStackTrace();
@@ -1149,7 +1209,40 @@ public class Vision extends ConsolePanel implements ConfigurationListener, ItemL
                             long stopTime = System.currentTimeMillis();
                             while((stopTime - startTime) < (1000/FPS)) {
                                 stopTime = System.currentTimeMillis();
+                            } 
+                        }
+                        else {
+                            try {
+                                TimeUnit.MILLISECONDS.sleep(100);
                             }
+                            catch (InterruptedException e) {
+                                e.printStackTrace();
+                            }
+                        }
+                    }
+                    if(ipCam && stateSetUrl) {
+                        if(flagBuffImg == true) {
+                            long startTime = System.currentTimeMillis();
+                            captureSave.grab();
+                            captureSave.read(matSaveImg);
+                            if(!matSaveImg.empty()) {
+                                String imageJpeg = String.format("%s/imageSave/%d.jpeg",logDir,cnt);
+                                outputfile = new File(imageJpeg);
+                                try {
+                                    if(histogramflag)
+                                        ImageIO.write(UtilCv.histogramCv(UtilCv.matToBufferedImage(matSaveImg)), "jpeg", outputfile);
+                                    else
+                                        ImageIO.write(UtilCv.matToBufferedImage(matSaveImg), "jpeg", outputfile);
+                                }
+                                catch (IOException e) {
+                                    e.printStackTrace();
+                                }
+                                cnt++;
+                                long stopTime = System.currentTimeMillis();
+                                while((stopTime - startTime) < (1000/FPS)) {
+                                    stopTime = System.currentTimeMillis();
+                                }
+                            } 
                         }
                         else {
                             try {
@@ -1170,7 +1263,7 @@ public class Vision extends ConsolePanel implements ConfigurationListener, ItemL
                     }
                     if (closingPanel)
                         break;
-               }
+                }
            }
         };
         si.setDaemon(true);
@@ -1203,7 +1296,6 @@ public class Vision extends ConsolePanel implements ConfigurationListener, ItemL
                 locationType.setOffsetEast(offsetE);
                 locationType.setHeight(heightRelative);
 
-                double camTiltDeg = 45.0f;//this value may be in configuration
                 info = String.format("(IMC) LAT: %f # LON: %f # ALT: %.2f m", lat, lon, heightRelative);
                 LocationType tagLocationType = calcTagPosition(locationType.convertToAbsoluteLatLonDepth(), Math.toDegrees(msg.getPsi()), camTiltDeg);
                 this.lat = tagLocationType.convertToAbsoluteLatLonDepth().getLatitudeDegs();
@@ -1220,7 +1312,7 @@ public class Vision extends ConsolePanel implements ConfigurationListener, ItemL
      * @param locationType
      * @param orientationDegrees
      * @param camTiltDeg
-     * @return
+     * @return tagLocationType
      */
     public LocationType calcTagPosition(LocationType locationType, double orientationDegrees, double camTiltDeg) {
         double altitude = locationType.getHeight();
@@ -1327,9 +1419,39 @@ public class Vision extends ConsolePanel implements ConfigurationListener, ItemL
             mat.put(0, 0, decompressedData);
             //Resize image to console size
             Imgproc.resize(mat, matResize, size);
-                       
-            //Convert Mat to BufferedImage
-            temp=UtilCv.matToBufferedImage(matResize);    
+            
+            //Display image in JFrame
+            if(histogramflag) {
+                if(saveSnapshot) {
+                    UtilCv.saveSnapshot(UtilCv.addText(UtilCv.histogramCv(temp), I18n.text("Histogram - On"), Color.GREEN, temp.getWidth() - 5, 20), String.format(logDir + "/snapshotImage"));
+                    saveSnapshot = false;
+                }
+                showImage(UtilCv.addText(UtilCv.histogramCv(temp), I18n.text("Histogram - On"), Color.GREEN, temp.getWidth() - 5, 20));
+            }
+            else {
+                if(saveSnapshot) {
+                    UtilCv.saveSnapshot(UtilCv.addText(temp, I18n.text("Histogram - Off"), Color.RED, temp.getWidth() - 5, 20), String.format(logDir + "/snapshotImage"));
+                    saveSnapshot = false;
+                }
+                showImage(UtilCv.addText(temp, I18n.text("Histogram - Off"), Color.RED, temp.getWidth() - 5, 20));
+            }
+            
+            
+            if(histogramflag) {
+                showImage(UtilCv.addText(UtilCv.histogramCv(UtilCv.matToBufferedImage(matResize)), I18n.text("Histogram - On"), Color.GREEN, matResize.cols() - 5, 20));
+                if(saveSnapshot) {
+                    UtilCv.saveSnapshot(UtilCv.addText(UtilCv.histogramCv(UtilCv.matToBufferedImage(matResize)), I18n.text("Histogram - On"), Color.GREEN, matResize.cols() - 5, 20), String.format(logDir + "/snapshotImage"));
+                    saveSnapshot = false;
+                }
+            }
+            else {
+                showImage(UtilCv.addText(UtilCv.matToBufferedImage(matResize), I18n.text("Histogram - Off"), Color.RED, matResize.cols() - 5, 20));
+                if(saveSnapshot) {
+                    UtilCv.saveSnapshot(UtilCv.addText(UtilCv.matToBufferedImage(matResize), I18n.text("Histogram - On"), Color.RED, matResize.cols() - 5, 20), String.format(logDir + "/snapshotImage"));
+                    saveSnapshot = false;
+                }
+            }
+            
             
             xScale = (float) widhtConsole / widthImgRec;
             yScale = (float) heightConsole / heightImgRec;
@@ -1340,11 +1462,6 @@ public class Vision extends ConsolePanel implements ConfigurationListener, ItemL
             info = String.format("Size(%d x %d) | Scale(%.2f x %.2f) | FPS:%d | Pak:%d (KiB:%d)", widthImgRec, heightImgRec,xScale,yScale,(int) 1000/(stopTime - startTime),lengthImage,lengthImage/1024);
             txtText.setText(info);
             txtDataTcp.setText(duneGps);
-            //Display image in JFrame
-            if(histogramflag)
-                showImage(UtilCv.histogramCv(temp));
-            else
-                showImage(temp);
 
         }     
     }
@@ -1419,9 +1536,7 @@ public class Vision extends ConsolePanel implements ConfigurationListener, ItemL
         else
             return false;
     }
-    
-    
-    
+
     //!Zoom in
     public void getCutImage(BufferedImage imageToCut, int w, int h) {
         zoomImgCut = new BufferedImage (100, 100, BufferedImage.TYPE_3BYTE_BGR);
