@@ -365,14 +365,14 @@ public class Vision extends ConsolePanel implements ConfigurationListener, ItemL
                     if (e.getButton() == MouseEvent.BUTTON3) {
                         popup = new JPopupMenu();
                         JMenuItem item1;
-                        popup.add(item1 = new JMenuItem(I18n.text("Start")+" RasPiCam", ImageUtils.createImageIcon(String.format("src/images/menus/raspicam.png")))).addActionListener(new ActionListener() {
+                        popup.add(item1 = new JMenuItem(I18n.text("Start")+" RasPiCam", ImageUtils.createImageIcon(String.format("images/menus/raspicam.png")))).addActionListener(new ActionListener() {
                             public void actionPerformed(ActionEvent e) {
                                 checkHostIp();
                             }
                         });
                         item1.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_R, ActionEvent.ALT_MASK));
                         JMenuItem item2;
-                        popup.add(item2 = new JMenuItem(I18n.text("Close all connections"), ImageUtils.createImageIcon(String.format("src/images/menus/exit.png")))).addActionListener(new ActionListener() {
+                        popup.add(item2 = new JMenuItem(I18n.text("Close all connections"), ImageUtils.createImageIcon(String.format("images/menus/exit.png")))).addActionListener(new ActionListener() {
                             public void actionPerformed(ActionEvent e) {
                                 NeptusLog.pub().info("Clossing all Video Stream...");
                                 if(raspiCam && tcpOK) {
@@ -390,7 +390,7 @@ public class Vision extends ConsolePanel implements ConfigurationListener, ItemL
                         });
                         item2.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_X, ActionEvent.ALT_MASK));
                         JMenuItem item3;  
-                        popup.add(item3 = new JMenuItem(I18n.text("Start IpCam"), ImageUtils.createImageIcon("src/images/menus/camera.png"))).addActionListener(new ActionListener() {
+                        popup.add(item3 = new JMenuItem(I18n.text("Start IpCam"), ImageUtils.createImageIcon("images/menus/camera.png"))).addActionListener(new ActionListener() {
                             public void actionPerformed(ActionEvent e) {
                                 checkIpCam();        
                             }
@@ -398,7 +398,7 @@ public class Vision extends ConsolePanel implements ConfigurationListener, ItemL
                         popup.addSeparator();
                         item3.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_I, ActionEvent.ALT_MASK));
                         JMenuItem item4;
-                        popup.add(item4 = new JMenuItem(I18n.text("Config"), ImageUtils.createImageIcon(String.format("src/images/menus/configure.png")))).addActionListener(new ActionListener() {
+                        popup.add(item4 = new JMenuItem(I18n.text("Config"), ImageUtils.createImageIcon(String.format("images/menus/configure.png")))).addActionListener(new ActionListener() {
                             @Override
                             public void actionPerformed(ActionEvent e) {
                                 menu.setVisible(true);
@@ -406,19 +406,22 @@ public class Vision extends ConsolePanel implements ConfigurationListener, ItemL
                         });
                         item4.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_C, ActionEvent.ALT_MASK));
                         JMenuItem item5;
-                        popup.add(item5 = new JMenuItem(I18n.text("Histogram filter on/off"), ImageUtils.createImageIcon("src/images/menus/histogram.png"))).addActionListener(new ActionListener() {
+                        popup.add(item5 = new JMenuItem(I18n.text("Histogram filter on/off"), ImageUtils.createImageIcon("images/menus/histogram.png"))).addActionListener(new ActionListener() {
                             public void actionPerformed(ActionEvent e) {
                                 histogramflag = !histogramflag;
                             }
                         });
                         item5.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_H, ActionEvent.ALT_MASK));
                         JMenuItem item6;
-                        popup.add(item6 = new JMenuItem(I18n.text("Snapshot"), ImageUtils.createImageIcon("src/images/menus/snapshot.png"))).addActionListener(new ActionListener() {
+                        popup.add(item6 = new JMenuItem(I18n.text("Snapshot"), ImageUtils.createImageIcon("images/menus/snapshot.png"))).addActionListener(new ActionListener() {
                             public void actionPerformed(ActionEvent e) {
                                 saveSnapshot = true;
                             }
                         });
                         item6.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_S, ActionEvent.ALT_MASK));
+                        popup.addSeparator();
+                        JLabel infoZoom = new JLabel(I18n.text("For zoom use Alt-Z"));
+                        popup.add(infoZoom, JMenuItem.CENTER_ALIGNMENT);
                         popup.show((Component) e.getSource(), e.getX(), e.getY());
                     }
                 }
@@ -520,7 +523,7 @@ public class Vision extends ConsolePanel implements ConfigurationListener, ItemL
         ipHostPing.setSize(340, 80);
         ipHostPing.setLocation(dim.width/2-ipCamPing.getSize().width/2, dim.height/2-ipCamPing.getSize().height/2);
         ipHostCheck = new JPanel(new MigLayout());
-        ImageIcon imgIpCam = ImageUtils.createImageIcon(String.format("src/images/menus/raspicam.png"));
+        ImageIcon imgIpCam = ImageUtils.createImageIcon(String.format("images/menus/raspicam.png"));
         ipHostPing.setIconImage(imgIpCam.getImage());
         ipHostPing.setResizable(false);
         ipHostPing.setBackground(Color.GRAY);
@@ -600,7 +603,7 @@ public class Vision extends ConsolePanel implements ConfigurationListener, ItemL
         ipCamPing.setLocation(dim.width / 2 - ipCamPing.getSize().width / 2,
                 dim.height / 2 - ipCamPing.getSize().height / 2);
         ipCamCheck = new JPanel(new MigLayout());
-        ImageIcon imgIpCam = ImageUtils.createImageIcon(String.format("src/images/menus/camera.png"));
+        ImageIcon imgIpCam = ImageUtils.createImageIcon(String.format("images/menus/camera.png"));
         ipCamPing.setIconImage(imgIpCam.getImage());
         ipCamPing.setResizable(false);
         ipCamPing.setBackground(Color.GRAY);                  
@@ -947,7 +950,7 @@ public class Vision extends ConsolePanel implements ConfigurationListener, ItemL
         menu.setSize(450, 350);
         menu.setLocation(dim.width/2-menu.getSize().width/2, dim.height/2-menu.getSize().height/2);
         menu.setVisible(show_menu);
-        ImageIcon imgMenu = ImageUtils.createImageIcon(String.format("src/images/menus/configure.png"));
+        ImageIcon imgMenu = ImageUtils.createImageIcon(String.format("images/menus/configure.png"));
         menu.setIconImage(imgMenu.getImage());
         menu.add(config);
     }
