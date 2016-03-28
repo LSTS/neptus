@@ -52,6 +52,7 @@ import org.opencv.core.CvType;
 import org.opencv.core.Mat;
 import org.opencv.imgproc.Imgproc;
 
+import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.i18n.I18n;
 
 /** 
@@ -68,6 +69,7 @@ public class UtilCv {
     static File outputfile;
     static Date date;
     static TextLayout textLayout;
+    static BufferedImage tmp;
     
     private UtilCv() {
     }
@@ -151,37 +153,43 @@ public class UtilCv {
     }
         
     //!Histogram equalizer
-    public static BufferedImage histogramCv(BufferedImage original) {   
-        try {
-            if(original.getType() == BufferedImage.TYPE_INT_RGB || original.getType() == BufferedImage.TYPE_3BYTE_BGR) {
-                matColor = new Mat(original.getHeight(), original.getWidth(), CvType.CV_8UC3);
-                Core.split(bufferedImageToMat(original), lRgb);
-                Mat mR = lRgb.get(0);
-                Imgproc.equalizeHist(mR, mR);
-                lRgb.set(0, mR);
-                Mat mG = lRgb.get(1);
-                Imgproc.equalizeHist(mG, mG);
-                lRgb.set(1, mG);
-                Mat mB = lRgb.get(2);
-                Imgproc.equalizeHist(mB, mB);
-                lRgb.set(2, mB);
-                Core.merge(lRgb, matColor);
-                original = matToBufferedImage(matColor);
-                matColor.release();
-                mR.release();
-                mG.release();
-                mB.release();
+    public static BufferedImage histogramCv(BufferedImage original) {
+        if(original.getWidth() > 0 && original.getHeight() > 0) {
+            tmp = original;
+            try {
+                if(original.getType() == BufferedImage.TYPE_INT_RGB || original.getType() == BufferedImage.TYPE_3BYTE_BGR) {
+                    matColor = new Mat(original.getHeight(), original.getWidth(), CvType.CV_8UC3);
+                    Core.split(bufferedImageToMat(original), lRgb);
+                    Mat mR = lRgb.get(0);
+                    Imgproc.equalizeHist(mR, mR);
+                    lRgb.set(0, mR);
+                    Mat mG = lRgb.get(1);
+                    Imgproc.equalizeHist(mG, mG);
+                    lRgb.set(1, mG);
+                    Mat mB = lRgb.get(2);
+                    Imgproc.equalizeHist(mB, mB);
+                    lRgb.set(2, mB);
+                    Core.merge(lRgb, matColor);
+                    original = matToBufferedImage(matColor);
+                    matColor.release();
+                    mR.release();
+                    mG.release();
+                    mB.release();
+                }
+                else if(original.getType() == BufferedImage.TYPE_BYTE_GRAY) {
+                    matGray = new Mat(original.getHeight(), original.getWidth(), CvType.CV_8UC1);
+                    Imgproc.equalizeHist(matGray, matGray);
+                    original = matToBufferedImage(matGray);
+                    matGray.release();
+                }
             }
-            else if(original.getType() == BufferedImage.TYPE_BYTE_GRAY) {
-                matGray = new Mat(original.getHeight(), original.getWidth(), CvType.CV_8UC1);
-                Imgproc.equalizeHist(matGray, matGray);
-                original = matToBufferedImage(matGray);
-                matGray.release();
+            catch(Exception e){
+                NeptusLog.pub().warn(I18n.text("Histogram equalizer ERROR: ")+e.getMessage());
+                original = tmp;
             }
         }
-        catch(Exception e){
-            System.out.println(I18n.text("SAVE IMAGE ERROR: ")+e.getMessage());
-        }
+        else
+            NeptusLog.pub().warn(I18n.text("Histogram equalizer ERROR"));
         
         return original;
     }
