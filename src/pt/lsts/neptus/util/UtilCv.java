@@ -29,19 +29,30 @@
  * Author: Pedro Gonçalves
  * Nov 19, 2015
  */
-package pt.lsts.neptus.plugins.vision;
+package pt.lsts.neptus.util;
 
+import java.awt.Color;
+import java.awt.Font;
+import java.awt.FontMetrics;
 import java.awt.Graphics2D;
 import java.awt.Image;
+import java.awt.font.TextLayout;
 import java.awt.image.BufferedImage;
 import java.awt.image.DataBufferByte;
+import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
+
+import javax.imageio.ImageIO;
 
 import org.opencv.core.Core;
 import org.opencv.core.CvType;
 import org.opencv.core.Mat;
 import org.opencv.imgproc.Imgproc;
+
+import pt.lsts.neptus.i18n.I18n;
 
 /** 
  * @author pedrog
@@ -52,25 +63,23 @@ import org.opencv.imgproc.Imgproc;
 public class UtilCv {
     
     static Mat matGray;
-    static Mat matGrayTemp;
     static Mat matColor;
-    static List<Mat> lRgb = new ArrayList<Mat>(3);;
+    static List<Mat> lRgb = new ArrayList<Mat>(3);
+    static File outputfile;
+    static Date date;
+    static TextLayout textLayout;
     
     private UtilCv() {
     }
     
-    /**  
-     * Converts/writes a Mat into a BufferedImage.  
-     * @param matrix Mat of type CV_8UC3 or CV_8UC1  
-     * @return BufferedImage of type TYPE_3BYTE_BGR or TYPE_BYTE_GRAY  
-     */  
+    //!Convert a Mat image to bufferedImage
     public static BufferedImage matToBufferedImage(Mat matrix) {
         int cols = matrix.cols();  
         int rows = matrix.rows();  
         int elemSize = (int)matrix.elemSize();  
         byte[] data = new byte[cols * rows * elemSize];  
         int type;  
-        matrix.get(0, 0, data);  
+        matrix.get(0, 0, data);
         switch (matrix.channels()) {  
             case 1:  
                 type = BufferedImage.TYPE_BYTE_GRAY;  
@@ -122,40 +131,71 @@ public class UtilCv {
         return dimg;
     }
     
-    //Hist
-    public static BufferedImage histogramCv(BufferedImage original)
-    {   
-        if(original.getType() == BufferedImage.TYPE_INT_RGB || original.getType() == BufferedImage.TYPE_3BYTE_BGR)
-        {            
-            matColor = new Mat(original.getHeight(), original.getWidth(), CvType.CV_8UC3);
-            Core.split(bufferedImageToMat(original), lRgb);
-            Mat mR = lRgb.get(0);
-            Imgproc.equalizeHist(mR, mR);
-            lRgb.set(0, mR);
-            Mat mG = lRgb.get(1);
-            Imgproc.equalizeHist(mG, mG);
-            lRgb.set(1, mG);
-            Mat mB = lRgb.get(2);
-            Imgproc.equalizeHist(mB, mB);
-            lRgb.set(2, mB);
-            Core.merge(lRgb, matColor);
-            original = matToBufferedImage(matColor);
-            matColor.release();
-            mR.release();
-            mG.release();
-            mB.release();
+    //!Add text to Buffered Image
+    public static BufferedImage addText(BufferedImage old, String text, Color m_color, int posX, int posY) {
+        BufferedImage img = new BufferedImage( old.getWidth(), old.getHeight(), BufferedImage.TYPE_INT_ARGB);
+        Graphics2D g1d = img.createGraphics();
+        g1d.drawImage(old, 0, 0, null);
+        g1d.setPaint(Color.DARK_GRAY);
+        g1d.setFont(new Font("Serif", Font.BOLD, 14));
+        FontMetrics fm = g1d.getFontMetrics();
+        g1d.drawString(text, posX - fm.stringWidth(text) - 10, posY);
+        
+        g1d.setPaint(m_color);
+        g1d.setFont(new Font("Serif", Font.BOLD, 14));
+        fm = g1d.getFontMetrics();
+        g1d.drawString(text, posX - fm.stringWidth(text) - 12, posY);
+        g1d.dispose();
+        
+        return img;
+    }
+        
+    //!Histogram equalizer
+    public static BufferedImage histogramCv(BufferedImage original) {   
+        try {
+            if(original.getType() == BufferedImage.TYPE_INT_RGB || original.getType() == BufferedImage.TYPE_3BYTE_BGR) {
+                matColor = new Mat(original.getHeight(), original.getWidth(), CvType.CV_8UC3);
+                Core.split(bufferedImageToMat(original), lRgb);
+                Mat mR = lRgb.get(0);
+                Imgproc.equalizeHist(mR, mR);
+                lRgb.set(0, mR);
+                Mat mG = lRgb.get(1);
+                Imgproc.equalizeHist(mG, mG);
+                lRgb.set(1, mG);
+                Mat mB = lRgb.get(2);
+                Imgproc.equalizeHist(mB, mB);
+                lRgb.set(2, mB);
+                Core.merge(lRgb, matColor);
+                original = matToBufferedImage(matColor);
+                matColor.release();
+                mR.release();
+                mG.release();
+                mB.release();
+            }
+            else if(original.getType() == BufferedImage.TYPE_BYTE_GRAY) {
+                matGray = new Mat(original.getHeight(), original.getWidth(), CvType.CV_8UC1);
+                Imgproc.equalizeHist(matGray, matGray);
+                original = matToBufferedImage(matGray);
+                matGray.release();
+            }
         }
-        else
-        {
-            matGrayTemp = new Mat(original.getHeight(), original.getWidth(), CvType.CV_8UC1);
-            matGray = new Mat(original.getHeight(), original.getWidth(), CvType.CV_8UC3);
-            Imgproc.cvtColor(bufferedImageToMat(original), matGrayTemp, Imgproc.COLOR_RGB2GRAY);
-            Imgproc.equalizeHist(matGrayTemp, matGrayTemp);
-            Imgproc.cvtColor(matGrayTemp, matGray, Imgproc.COLOR_GRAY2RGB);
-            original = matToBufferedImage(matGray);
-            matGrayTemp.release();
-            matGray.release();
+        catch(Exception e){
+            System.out.println(I18n.text("SAVE IMAGE ERROR: ")+e.getMessage());
         }
+        
         return original;
+    }
+    
+    //!Save a snapshot to disk
+    public static void saveSnapshot(BufferedImage image, String snapshotdir) {
+        date = new Date();
+        String imageJpeg = String.format("%s/%tT.png",snapshotdir , date);
+        outputfile = new File(imageJpeg);
+        try {
+            ImageIO.write(image, "png", outputfile);
+        }
+        catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 }
