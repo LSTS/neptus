@@ -52,7 +52,6 @@ import com.google.common.eventbus.Subscribe;
 import info.necsave.msgs.AbortMission;
 import info.necsave.msgs.AbortMission.TYPE;
 import info.necsave.msgs.ActionIdle;
-import info.necsave.msgs.ActionIdle.GO_HOME;
 import info.necsave.msgs.Area;
 import info.necsave.msgs.Contact;
 import info.necsave.msgs.ContactList;
@@ -64,11 +63,12 @@ import info.necsave.msgs.MissionCompleted;
 import info.necsave.msgs.MissionGoal;
 import info.necsave.msgs.MissionGoal.GOAL_TYPE;
 import info.necsave.msgs.MissionReadyToStart;
+import info.necsave.msgs.PlatformExit;
 import info.necsave.msgs.PlatformInfo;
 import info.necsave.msgs.PlatformPlanProgress;
 import info.necsave.msgs.PlatformState;
 import info.necsave.msgs.Resurface;
-import info.necsave.msgs.SetHomePosition;
+import info.necsave.msgs.SetHomeLocation;
 import info.necsave.proto.Message;
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.console.ConsoleInteraction;
@@ -268,7 +268,7 @@ public class NecsaveUI extends ConsoleInteraction {
                         homeLoc.setLatitude(loc.getLatitudeRads());
                         homeLoc.setLongitude(loc.getLongitudeRads());
 
-                        SetHomePosition home = new SetHomePosition(homeLoc);
+                        SetHomeLocation home = new SetHomeLocation(homeLoc);
 
                         try {
                             transport.sendMessage(home, plat.getKey());
@@ -286,10 +286,8 @@ public class NecsaveUI extends ConsoleInteraction {
                     public void actionPerformed(ActionEvent e) {
                         
                         ActionIdle goIdle = new ActionIdle();
-                        goIdle.setGoHome(ActionIdle.GO_HOME.TRUE);
+                        goIdle.setIdleAtHome(ActionIdle.IDLE_AT_HOME.TRUE);
                         
-                        System.out.println(goIdle.toString());
-
                         try {
                             transport.sendMessage(goIdle, plat.getKey());
                         }
@@ -309,10 +307,9 @@ public class NecsaveUI extends ConsoleInteraction {
                         hereLoc.setLongitude(loc.getLongitudeRads());
 
                         ActionIdle goIdle = new ActionIdle();
-                        goIdle.setGoHome(ActionIdle.GO_HOME.FALSE);
+                        goIdle.setIdleAtHome(ActionIdle.IDLE_AT_HOME.FALSE);
                         goIdle.setWaypoint(hereLoc);
                         
-                        System.out.println(goIdle.asJSON(true));
                         try {
                             transport.sendMessage(goIdle, plat.getKey());
                         }
@@ -323,7 +320,23 @@ public class NecsaveUI extends ConsoleInteraction {
 
                     }
                 });
+                
+                cmdMenu.add(new JMenuItem(I18n.text("Quit Platform"))).addActionListener(new ActionListener() {
+                    @Override
+                    public void actionPerformed(ActionEvent e) {
 
+                        PlatformExit exit = new PlatformExit();
+                       
+                        try {
+                            transport.sendMessage(exit, plat.getKey());
+                        }
+                        catch (Exception ex) {
+                            GuiUtils.errorMessage(getConsole(), ex);
+                            ex.printStackTrace();
+                        }
+
+                    }
+                });
             }
 
             popup.show(source, event.getX(), event.getY());
