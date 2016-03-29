@@ -48,8 +48,9 @@ public interface MapDecomposition {
      * Decompose the given map area according to
      * the decomposition strategy
      * */
-    public void decomposeMap(MapGroup map, LocationType[] bounds);
-    
+    public void decomposeMap(LocationType[] bounds);
+
+
     /**
      * Given a map area, returns the list of cells that
      * are within that area
