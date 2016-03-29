@@ -52,6 +52,11 @@ public interface MapDecomposition {
 
 
     /**
+     * Get all the area/decomposition vertices
+     * */
+    public LocationType[] getBounds();
+
+    /**
      * Given a map area, returns the list of cells that
      * are within that area
      * */
