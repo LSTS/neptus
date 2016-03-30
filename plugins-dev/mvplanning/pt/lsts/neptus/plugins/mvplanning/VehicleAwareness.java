@@ -139,8 +139,4 @@ public class VehicleAwareness {
             NeptusLog.pub().info("Vehicle " + id + " set as UNAVAILABLE");
         }
     }
-
-    private void logDebugInfo(String msg) {
-        System.out.println("[mvplanning/VehicleAwareness] " + msg);
-    }
 }
