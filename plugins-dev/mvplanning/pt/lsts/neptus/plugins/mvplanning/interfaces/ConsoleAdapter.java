@@ -46,12 +46,51 @@ import pt.lsts.neptus.types.mission.MissionType;
  *
  */
 public interface ConsoleAdapter {
+    /**
+     * Register the given object to the console's event bus
+     * */
     public void registerToEventBus(Object obj);
+
+
+    /**
+     * Post an event to the console's event bus
+     * */
     public void post(Object event);
+
+
+    /**
+     * Send an IMC message to a given system
+     * */
     public boolean sendMessage(String dest, IMCMessage msg);
+
+
+    /**
+     * Same as {@link #sendMessage(String, IMCMessage)} but
+     * uses TCP instead.
+     * */
     public Future<SendResult> sendMessageReliably(String dest, IMCMessage message);
+
+
+    /**
+     * Get the console systems
+     * */
     public Map<String, ConsoleSystem> getSystems();
+
+
+    /**
+     * Get obstacles drawn on the console's map
+     * */
     public AbstractElement[] getMapObstacles();
+
+
+    /**
+     * Get the map group of the console's current map
+     * */
     public MapGroup getMapGroup();
+
+
+    /**
+     * Get console's current mission
+     * */
     public MissionType getMission();
 }
