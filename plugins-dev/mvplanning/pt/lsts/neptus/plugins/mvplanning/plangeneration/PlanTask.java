@@ -29,7 +29,7 @@
  * Author: tsmarques
  * 15 Feb 2016
  */
-package pt.lsts.neptus.plugins.mvplanning;
+package pt.lsts.neptus.plugins.mvplanning.plangeneration;
 
 import pt.lsts.imc.PlanSpecification;
 import pt.lsts.imc.types.PlanSpecificationAdapter;
@@ -54,7 +54,7 @@ public class PlanTask {
         this.timestamp = -1;
         this.md5 = planMd5;
     }
-    
+
     public String getPlanId() {
         return planId;
     }
