@@ -61,7 +61,7 @@ For simple use the main targets are:
 	<!-- Set this to '-dev' if a developer release; blank "" if maintenance release; or '-rcX' for release candidate X (X number) -->
 	<property name="version.DEVELOPER" value="-dev" />
 	<!-- Set the release number. Use the form 'R14.01' for release 1 of year 2014. Or leave it blank for a non release -->
-	<property name="release.NAME" value="R14.03" />
+	<property name="release.NAME" value="R15.03" />
 	<property name="release.INFO" value="${release.NAME}"/>
 
 	<!-- EITHER the developer release number, or a maintenance release number -->
@@ -78,6 +78,7 @@ For simple use the main targets are:
 	<property name="legal.copy" value="(c)${years} LSTS-FEUP and Neptus developers. All Rights Reserved."/>
 	<property name="legal.copy.html" value="Copyright &#169; ${years} FEUP-LSTS and Neptus developers. All Rights Reserved."/>
 
+	<property name="ant.minimum.version" value="1.8.2" />
 
 	<property name="build.compiler" value="modern" />
 	<property name="debug" value="on" />
@@ -316,10 +317,10 @@ For simple use the main targets are:
 		<echo message=" JVM version Ant detected: ${ant.java.version}" />
 		<echo message="-------------------------------------------------------------------" />
 		<fail>
-			Ant version should be at least v1.8.0! Yours is ${ant.version}.
+			Ant version should be at least v${ant.minimum.version}! Yours is ${ant.version}.
 			<condition>
 				<not>
-					<antversion atleast="1.8.0"/>
+					<antversion atleast="${ant.minimum.version}"/>
 				</not>
 			</condition>
 		</fail>
