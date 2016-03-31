@@ -88,8 +88,6 @@ import javax.swing.JPopupMenu;
 import javax.swing.JTextField;
 import javax.swing.KeyStroke;
 
-import net.miginfocom.swing.MigLayout;
-
 import org.opencv.core.CvType;
 import org.opencv.core.Mat;
 import org.opencv.core.Scalar;
@@ -97,6 +95,9 @@ import org.opencv.core.Size;
 import org.opencv.highgui.VideoCapture;
 import org.opencv.imgproc.Imgproc;
 
+import com.google.common.eventbus.Subscribe;
+
+import net.miginfocom.swing.MigLayout;
 import pt.lsts.imc.Announce;
 import pt.lsts.imc.CcuEvent;
 import pt.lsts.imc.EstimatedState;
@@ -125,8 +126,6 @@ import pt.lsts.neptus.util.ImageUtils;
 import pt.lsts.neptus.util.SearchOpenCv;
 import pt.lsts.neptus.util.UtilCv;
 import pt.lsts.neptus.util.conf.ConfigFetch;
-
-import com.google.common.eventbus.Subscribe;
 
 /**
  * Neptus Plugin for Video Stream and tag frame/object
@@ -177,6 +176,10 @@ public class Vision extends ConsolePanel implements ConfigurationListener, ItemL
     private int widhtConsole = 640;
     //Height size of Console
     private int heightConsole = 480;
+    //Black Image
+    private Scalar black = new Scalar(0);
+    //flag for state of neptus logo
+    private boolean neptusLogoState = false;
     //Scale factor of x pixel
     private float xScale;
     //Scale factor of y pixel
@@ -276,6 +279,13 @@ public class Vision extends ConsolePanel implements ConfigurationListener, ItemL
     private int rowSelect;
     //JLabel for text ipCam Ping
     private JLabel jlabel;
+    //JTextField for ipcam name
+    private JTextField fieldName = new JTextField(I18n.text("Name"));
+    //JTextField for ipcam ip
+    private JTextField fieldIp = new JTextField(I18n.text("Ip"));
+    //JTextField for ipcam url
+    private JTextField fieldUrl = new JTextField(I18n.text("Url"));
+    //
     //Dimension of Desktop Screen
     private Dimension dim;
     //JPanel for zoom point
@@ -375,6 +385,7 @@ public class Vision extends ConsolePanel implements ConfigurationListener, ItemL
                         popup.add(item2 = new JMenuItem(I18n.text("Close all connections"), ImageUtils.createImageIcon(String.format("images/menus/exit.png")))).addActionListener(new ActionListener() {
                             public void actionPerformed(ActionEvent e) {
                                 NeptusLog.pub().info("Clossing all Video Stream...");
+                                neptusLogoState = false;
                                 if(raspiCam && tcpOK) {
                                     try {
                                         clientSocket.close();
@@ -615,6 +626,12 @@ public class Vision extends ConsolePanel implements ConfigurationListener, ItemL
                 JComboBox cb = (JComboBox)e.getSource();
                 rowSelect = cb.getSelectedIndex();
                 if(rowSelect >= 0) {
+                    fieldName.setText(I18n.text(dataUrlIni[rowSelect][0]));
+                    fieldName.validate(); fieldName.repaint();
+                    fieldIp.setText(I18n.text(dataUrlIni[rowSelect][1]));
+                    fieldIp.validate(); fieldIp.repaint();
+                    fieldUrl.setText(I18n.text(dataUrlIni[rowSelect][2]));
+                    fieldUrl.validate(); fieldUrl.repaint();
                     if(pingIpCam(dataUrlIni[rowSelect][1])) {
                         camRtpsUrl = dataUrlIni[rowSelect][2];
                         colorStateIpCam.setBackground(Color.GREEN);
@@ -664,9 +681,6 @@ public class Vision extends ConsolePanel implements ConfigurationListener, ItemL
         });
         ipCamCheck.add(selectIpCam,"h 30!, wrap");
         
-        JTextField fieldName = new JTextField(I18n.text("Name"));
-        JTextField fieldIp = new JTextField(I18n.text("Ip"));
-        JTextField fieldUrl = new JTextField(I18n.text("Url"));
         JButton addNewIpCam = new JButton(I18n.text("Add New IpCam"));
         addNewIpCam.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
@@ -1335,10 +1349,17 @@ public class Vision extends ConsolePanel implements ConfigurationListener, ItemL
     
     //!Fill cv::Mat image with zeros
     public void inicImage() {
-        Scalar black = new Scalar(0);
-        matResize.setTo(black);
-        temp=UtilCv.matToBufferedImage(matResize);
-        showImage(temp);
+        if(!neptusLogoState) {
+            if(ImageUtils.getImage("images/nep-about.jpg") == null) {
+                matResize.setTo(black);
+                temp = UtilCv.matToBufferedImage(matResize);
+            }
+            else
+               temp = ImageUtils.toBufferedImage(ImageUtils.getImage("images/nep-about.jpg"));
+
+            showImage(temp);
+            neptusLogoState = true;
+        }
     }
     
     //!Received data Image
