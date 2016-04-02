@@ -337,7 +337,7 @@ public class KmlImport extends ConsolePanel {
         }    
         
         pathElem.setId(idByUser);
-        pathElem.setFill(isFilled);
+        pathElem.setFilled(isFilled);
         pathElem.setShape(isFilled);
         
         mapType.addObject(pathElem);
