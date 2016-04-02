@@ -83,7 +83,7 @@ public class PathElement extends AbstractElement {
             -Double.MAX_VALUE, Double.MAX_VALUE, -Double.MAX_VALUE };
     public static final int SOUTH_COORD = 0, NORTH_COORD = 1, DOWN_COORD = 2, UP_COORD = 3, WEST_COORD = 4,
             EAST_COORD = 5;
-    private Stroke stroke = new BasicStroke(1);
+    private Stroke stroke = new BasicStroke(2);
     private boolean isShape = true;
     protected boolean firstPoint = true;
 
