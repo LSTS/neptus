@@ -108,10 +108,22 @@ public class UtilCv {
     public static Mat bufferedImageToMat(BufferedImage in) {
         Mat out;
 
-        if(in.getType() == BufferedImage.TYPE_INT_RGB || in.getType() == BufferedImage.TYPE_3BYTE_BGR) {
+        if(in.getType() == BufferedImage.TYPE_3BYTE_BGR) {
             out = new Mat(in.getHeight(), in.getWidth(), CvType.CV_8UC3);
             byte[] pixels = ((DataBufferByte) in.getRaster().getDataBuffer()).getData();
             out.put(0, 0, pixels);
+        }
+        else if(in.getType() == BufferedImage.TYPE_INT_RGB) {
+            out = new Mat(in.getHeight(), in.getWidth(), CvType.CV_8UC3);
+            byte [] data = new byte[in.getWidth() * in.getHeight() * (int)out.elemSize()];
+            int[] dataBuff = in.getRGB(0, 0, in.getWidth(), in.getHeight(), null, 0, in.getWidth());
+            for(int i = 0; i < dataBuff.length; i++)
+            {
+                data[i*3] = (byte) ((dataBuff[i] >> 16) & 0xFF);
+                data[i*3 + 1] = (byte) ((dataBuff[i] >> 8) & 0xFF);
+                data[i*3 + 2] = (byte) ((dataBuff[i] >> 0) & 0xFF);
+            }
+            out.put(0, 0, data);
         }
         else {
             out = new Mat(in.getHeight(), in.getWidth(), CvType.CV_8UC1);
@@ -197,7 +209,8 @@ public class UtilCv {
     //!Save a snapshot to disk
     public static void saveSnapshot(BufferedImage image, String snapshotdir) {
         date = new Date();
-        String imageJpeg = String.format("%s/%tT.png",snapshotdir , date);
+        String dateFolder = String.format("%tT", date);
+        String imageJpeg = String.format("%s/%s.png",snapshotdir , dateFolder.replace(":", "-"));
         outputfile = new File(imageJpeg);
         try {
             ImageIO.write(image, "png", outputfile);
