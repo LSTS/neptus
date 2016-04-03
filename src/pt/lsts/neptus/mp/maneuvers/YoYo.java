@@ -41,6 +41,9 @@ import org.dom4j.DocumentHelper;
 import org.dom4j.Element;
 import org.dom4j.Node;
 
+import com.l2fprod.common.propertysheet.DefaultProperty;
+import com.l2fprod.common.propertysheet.Property;
+
 import pt.lsts.imc.IMCMessage;
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.gui.GotoParameters;
@@ -54,20 +57,16 @@ import pt.lsts.neptus.mp.ManeuverLocation;
 import pt.lsts.neptus.mp.SystemPositionAndAttitude;
 import pt.lsts.neptus.types.coord.LocationType;
 import pt.lsts.neptus.util.GuiUtils;
-import pt.lsts.neptus.util.NameNormalizer;
-
-import com.l2fprod.common.propertysheet.DefaultProperty;
-import com.l2fprod.common.propertysheet.Property;
 
 /**
  * @author Paulo Dias
  */
 public class YoYo extends Maneuver implements IMCSerialization, LocatedManeuver {
 
-    double speed = 1000, speedTolerance = 100, amplitude = 2;
-    float pitchAngle = (float) (Math.PI/4);
-    String units = "RPM";
-    ManeuverLocation destination = new ManeuverLocation();
+    protected double speed = 1000, speedTolerance = 100, amplitude = 2;
+    protected float pitchAngle = (float) (Math.PI/4);
+    protected String units = "RPM";
+    protected ManeuverLocation destination = new ManeuverLocation();
     protected static final String DEFAULT_ROOT_ELEMENT = "YoYo";
 	
 	private GotoParameters params = new GotoParameters();
@@ -76,11 +75,9 @@ public class YoYo extends Maneuver implements IMCSerialization, LocatedManeuver 
 	private final int FIRST_ROTATE = 0 ;
 	private final int HORIZONTAL_MOVE = 1 ;
 	
-	int current_state = ANGLE_CALCULATION;
+	protected int current_state = ANGLE_CALCULATION;
 	
 	private double targetAngle, rotateIncrement;
-	
-	public String id = NameNormalizer.getRandomID();
 	
 	public String getType() {
 		return "YoYo";
@@ -221,14 +218,6 @@ public class YoYo extends Maneuver implements IMCSerialization, LocatedManeuver 
 	    return clone;
 	}
 
-    public String getId() {
-        return id;
-    }
-    
-    public void setId(String id) {
-        this.id = id;
-    }
-    
     public double getAmplitude() {
         return amplitude;
     }
