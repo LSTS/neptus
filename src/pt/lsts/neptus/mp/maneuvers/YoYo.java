@@ -54,8 +54,6 @@ import pt.lsts.neptus.mp.ManeuverLocation;
 import pt.lsts.neptus.mp.SystemPositionAndAttitude;
 import pt.lsts.neptus.types.coord.LocationType;
 import pt.lsts.neptus.util.GuiUtils;
-import pt.lsts.neptus.util.NameNormalizer;
-
 import com.l2fprod.common.propertysheet.DefaultProperty;
 import com.l2fprod.common.propertysheet.Property;
 
@@ -79,8 +77,6 @@ public class YoYo extends Maneuver implements IMCSerialization, LocatedManeuver 
 	int current_state = ANGLE_CALCULATION;
 	
 	private double targetAngle, rotateIncrement;
-	
-	public String id = NameNormalizer.getRandomID();
 	
 	public String getType() {
 		return "YoYo";
@@ -221,14 +217,6 @@ public class YoYo extends Maneuver implements IMCSerialization, LocatedManeuver 
 	    return clone;
 	}
 
-    public String getId() {
-        return id;
-    }
-    
-    public void setId(String id) {
-        this.id = id;
-    }
-    
     public double getAmplitude() {
         return amplitude;
     }

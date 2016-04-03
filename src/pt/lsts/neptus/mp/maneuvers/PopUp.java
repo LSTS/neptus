@@ -58,8 +58,6 @@ import pt.lsts.neptus.mp.SystemPositionAndAttitude;
 import pt.lsts.neptus.renderer2d.StateRenderer2D;
 import pt.lsts.neptus.types.coord.LocationType;
 import pt.lsts.neptus.types.map.PlanElement;
-import pt.lsts.neptus.util.NameNormalizer;
-
 import com.l2fprod.common.propertysheet.DefaultProperty;
 import com.l2fprod.common.propertysheet.Property;
 
@@ -84,8 +82,6 @@ public class PopUp extends Maneuver implements LocatedManeuver, IMCSerialization
 	private boolean currPos = false;
         private boolean waitAtSurface = false;
         private boolean stationKeep = false; // To become deprecated
-	
-	public String id = NameNormalizer.getRandomID();
 	
 	
 	public String getType() {
@@ -238,14 +234,6 @@ public class PopUp extends Maneuver implements LocatedManeuver, IMCSerialization
 	    return clone;
 	}
 
-    public String getId() {
-        return id;
-    }
-    
-    public void setId(String id) {
-        this.id = id;
-    }
-    
     public double getRadiusTolerance() {
         return radiusTolerance;
     }

@@ -47,8 +47,6 @@ import pt.lsts.neptus.gui.editor.ComboEditor;
 import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.messages.Bitmask;
 import pt.lsts.neptus.mp.SystemPositionAndAttitude;
-import pt.lsts.neptus.util.NameNormalizer;
-
 import com.l2fprod.common.propertysheet.DefaultProperty;
 import com.l2fprod.common.propertysheet.Property;
 
@@ -73,8 +71,6 @@ public class HeadingSpeedDepth extends DefaultManeuver implements IMCSerializati
     private double targetAngle, rotateIncrement, startTime = -1;
 
     // private GotoParameters params = new GotoParameters();
-
-    public String id = NameNormalizer.getRandomID();
 
     /**
 	 * 
@@ -237,14 +233,6 @@ public class HeadingSpeedDepth extends DefaultManeuver implements IMCSerializati
         }
 
         return nextVehicleState;
-    }
-
-    public String getId() {
-        return id;
-    }
-
-    public void setId(String id) {
-        this.id = id;
     }
 
     /**

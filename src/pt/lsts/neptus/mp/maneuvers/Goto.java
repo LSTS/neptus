@@ -54,8 +54,6 @@ import pt.lsts.neptus.mp.ManeuverLocation;
 import pt.lsts.neptus.mp.SystemPositionAndAttitude;
 import pt.lsts.neptus.types.coord.LocationType;
 import pt.lsts.neptus.util.GuiUtils;
-import pt.lsts.neptus.util.NameNormalizer;
-
 import com.l2fprod.common.propertysheet.DefaultProperty;
 import com.l2fprod.common.propertysheet.Property;
 
@@ -81,7 +79,6 @@ public class Goto extends Maneuver implements IMCSerialization, LocatedManeuver 
 	protected double targetAngle, rotateIncrement;
 	protected double roll, pitch, yaw;
 	
-	public String id = NameNormalizer.getRandomID();
 	LinkedHashMap<String, String> custom = new LinkedHashMap<>();
 	
 	public String getType() {
@@ -222,14 +219,6 @@ public class Goto extends Maneuver implements IMCSerialization, LocatedManeuver 
 	    return clone;
 	}
 
-    public String getId() {
-        return id;
-    }
-    
-    public void setId(String id) {
-        this.id = id;
-    }
-    
     public double getRadiusTolerance() {
         return radiusTolerance;
     }

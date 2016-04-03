@@ -51,7 +51,6 @@ import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.mp.ManeuverLocation;
 import pt.lsts.neptus.mp.SystemPositionAndAttitude;
 import pt.lsts.neptus.types.coord.LocationType;
-import pt.lsts.neptus.util.NameNormalizer;
 
 import com.l2fprod.common.propertysheet.DefaultProperty;
 import com.l2fprod.common.propertysheet.Property;
@@ -77,9 +76,6 @@ public class CommsRelay extends DefaultManeuver implements IMCSerialization, Loc
     private double move_threshold = 30;
     
     protected static final String DEFAULT_ROOT_ELEMENT = "CommsRelay";
-    
-	
-	public String id = NameNormalizer.getRandomID();
 	
 	public String getType() {
 		return DEFAULT_ROOT_ELEMENT;
@@ -146,14 +142,6 @@ public class CommsRelay extends DefaultManeuver implements IMCSerialization, Loc
 		return lastVehicleState;
 	}
 
-    public String getId() {
-        return id;
-    }
-    
-    public void setId(String id) {
-        this.id = id;
-    }
-    
     public String getSystemA() {
         return sys_a;
     }

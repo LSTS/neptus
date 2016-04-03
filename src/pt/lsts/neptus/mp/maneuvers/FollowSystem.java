@@ -49,8 +49,6 @@ import pt.lsts.neptus.gui.editor.renderer.I18nCellRenderer;
 import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.mp.SystemPositionAndAttitude;
 import pt.lsts.neptus.util.MathMiscUtils;
-import pt.lsts.neptus.util.NameNormalizer;
-
 import com.l2fprod.common.propertysheet.DefaultProperty;
 import com.l2fprod.common.propertysheet.Property;
 
@@ -74,9 +72,6 @@ public class FollowSystem extends DefaultManeuver implements IMCSerialization {
     private double xOffset = 1, yOffset = 1, zOffset = 1;
     
     protected static final String DEFAULT_ROOT_ELEMENT = "FollowSystem";
-    
-	
-	public String id = NameNormalizer.getRandomID();
 	
 	public String getType() {
 		return DEFAULT_ROOT_ELEMENT;
@@ -139,14 +134,6 @@ public class FollowSystem extends DefaultManeuver implements IMCSerialization {
 		return lastVehicleState;
 	}
 
-    public String getId() {
-        return id;
-    }
-    
-    public void setId(String id) {
-        this.id = id;
-    }
-    
     public String getSystem() {
         return system;
     }
