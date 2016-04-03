@@ -58,6 +58,9 @@ import org.dom4j.DocumentHelper;
 import org.dom4j.Element;
 import org.dom4j.Node;
 
+import com.l2fprod.common.propertysheet.DefaultProperty;
+import com.l2fprod.common.propertysheet.Property;
+
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.gui.PropertiesEditor;
 import pt.lsts.neptus.gui.PropertiesProvider;
@@ -74,9 +77,6 @@ import pt.lsts.neptus.types.mission.MissionType;
 import pt.lsts.neptus.types.mission.plan.PlanType;
 import pt.lsts.neptus.util.GuiUtils;
 import pt.lsts.neptus.util.NameNormalizer;
-
-import com.l2fprod.common.propertysheet.DefaultProperty;
-import com.l2fprod.common.propertysheet.Property;
 
 /**
  * This is the superclass of every Maneuver To create a new maneuver, all the abstract classes must be implemented
@@ -133,12 +133,13 @@ public abstract class Maneuver implements XmlOutputMethods, PropertiesProvider, 
 
     private static Random rnd = new Random(System.currentTimeMillis());
 
+    public String id = NameNormalizer.getRandomID();
+
     private int maxTime = 10000, minTime = 0; // The maxinum number of seconds that any maneuver can take
     protected LinkedHashMap<String, String> customSettings = new LinkedHashMap<String, String>();
     protected LinkedHashMap<String, String> customSettingsTypeHint = new LinkedHashMap<String, String>();
     private int xPosition = rnd.nextInt(500), yPosition = rnd.nextInt(300);
     private boolean ManeuverEnded = false, initialManeuver = false;
-    public String id = NameNormalizer.getRandomID();
     private Hashtable<String, String> transitions = new Hashtable<String, String>();
     private MissionType missionType = null;
     
