@@ -39,6 +39,9 @@ import org.dom4j.DocumentHelper;
 import org.dom4j.Element;
 import org.dom4j.Node;
 
+import com.l2fprod.common.propertysheet.DefaultProperty;
+import com.l2fprod.common.propertysheet.Property;
+
 import pt.lsts.imc.IMCDefinition;
 import pt.lsts.imc.IMCMessage;
 import pt.lsts.neptus.NeptusLog;
@@ -49,21 +52,12 @@ import pt.lsts.neptus.gui.editor.renderer.I18nCellRenderer;
 import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.mp.SystemPositionAndAttitude;
 import pt.lsts.neptus.util.MathMiscUtils;
-import com.l2fprod.common.propertysheet.DefaultProperty;
-import com.l2fprod.common.propertysheet.Property;
 
 /**
  * @author pdias
  *
  */
 public class FollowSystem extends DefaultManeuver implements IMCSerialization {
-
-	/**
-	 * 
-	 */
-	public FollowSystem() {
-		// TODO Auto-generated constructor stub
-	}
 
     private double speed = 1000, speedTolerance = 100;
     private String units = "RPM";
@@ -73,6 +67,9 @@ public class FollowSystem extends DefaultManeuver implements IMCSerialization {
     
     protected static final String DEFAULT_ROOT_ELEMENT = "FollowSystem";
 	
+    public FollowSystem() {
+    }
+
 	public String getType() {
 		return DEFAULT_ROOT_ELEMENT;
 	}

@@ -46,6 +46,9 @@ import org.dom4j.DocumentHelper;
 import org.dom4j.Element;
 import org.dom4j.Node;
 
+import com.l2fprod.common.propertysheet.DefaultProperty;
+import com.l2fprod.common.propertysheet.Property;
+
 import pt.lsts.imc.IMCMessage;
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.gui.PropertiesEditor;
@@ -58,8 +61,6 @@ import pt.lsts.neptus.mp.SystemPositionAndAttitude;
 import pt.lsts.neptus.renderer2d.StateRenderer2D;
 import pt.lsts.neptus.types.coord.LocationType;
 import pt.lsts.neptus.types.map.PlanElement;
-import com.l2fprod.common.propertysheet.DefaultProperty;
-import com.l2fprod.common.propertysheet.Property;
 
 /**
  * @author pdias
@@ -67,29 +68,29 @@ import com.l2fprod.common.propertysheet.Property;
  */
 public class PopUp extends Maneuver implements LocatedManeuver, IMCSerialization {
 
-    double speed = 1000, speedTolerance = 100, radiusTolerance = 2;
-    int duration = 5;
-    String units = "RPM";
-    ManeuverLocation destination = new ManeuverLocation();
+    protected double speed = 1000, speedTolerance = 100, radiusTolerance = 2;
+    protected int duration = 5;
+    protected String units = "RPM";
+    protected ManeuverLocation destination = new ManeuverLocation();
     protected static final String DEFAULT_ROOT_ELEMENT = "PopUp";
 	
 	private final int ANGLE_CALCULATION = -1;
 	private final int FIRST_ROTATE = 0;
 	private final int HORIZONTAL_MOVE = 1;
-	int current_state = ANGLE_CALCULATION;
+	protected int current_state = ANGLE_CALCULATION;
 	
 	private double targetAngle, rotateIncrement;
 	private boolean currPos = false;
-        private boolean waitAtSurface = false;
-        private boolean stationKeep = false; // To become deprecated
-	
-	
+	private boolean waitAtSurface = false;
+	private boolean stationKeep = false; // To become deprecated
+
+	private int count = 0;
+
 	public String getType() {
 		return "PopUp";
 	}
 	
 	public Document getManeuverAsDocument(String rootElementName) {
-        
 	    Document document = DocumentHelper.createDocument();
 	    Element root = document.addElement( rootElementName );
 	    root.addAttribute("kind", "automatic");
@@ -117,7 +118,6 @@ public class PopUp extends Maneuver implements LocatedManeuver, IMCSerialization
 	    
 	    return document;
     }
-	
 	
 	public void loadFromXML(String xml) {
 	    try {
@@ -148,15 +148,9 @@ public class PopUp extends Maneuver implements LocatedManeuver, IMCSerialization
 	    }
     }
 	
-	private int count = 0;
-	
 	public SystemPositionAndAttitude ManeuverFunction(SystemPositionAndAttitude lastVehicleState) {
-	    
-	 SystemPositionAndAttitude nextVehicleState = (SystemPositionAndAttitude) lastVehicleState.clone();
-	 
-	 
+	    SystemPositionAndAttitude nextVehicleState = (SystemPositionAndAttitude) lastVehicleState.clone();
 		switch (current_state) {
-		
 			case(ANGLE_CALCULATION):
 				targetAngle = lastVehicleState.getPosition().getXYAngle(destination);
 				
@@ -201,12 +195,12 @@ public class PopUp extends Maneuver implements LocatedManeuver, IMCSerialization
 					endManeuver();
 				}
 				else {					
-						nextVehicleState.moveForward(calculatedSpeed);
-						double depthDiff = destination.getDepth()-nextVehicleState.getPosition().getDepth();
-						
-						double depthIncr = depthDiff / (dist/calculatedSpeed);
-						double curDepth = nextVehicleState.getPosition().getDepth();
-						nextVehicleState.getPosition().setDepth(curDepth+depthIncr);
+				    nextVehicleState.moveForward(calculatedSpeed);
+				    double depthDiff = destination.getDepth()-nextVehicleState.getPosition().getDepth();
+
+				    double depthIncr = depthDiff / (dist/calculatedSpeed);
+				    double curDepth = nextVehicleState.getPosition().getDepth();
+				    nextVehicleState.getPosition().setDepth(curDepth+depthIncr);
 				}
 				break;
 			
@@ -216,10 +210,8 @@ public class PopUp extends Maneuver implements LocatedManeuver, IMCSerialization
 		
 		return nextVehicleState;
 	}
-	
 
 	public Object clone() {  
-		
 		PopUp clone = new PopUp();
 	    super.clone(clone);
 		clone.setManeuverLocation(destination.clone());

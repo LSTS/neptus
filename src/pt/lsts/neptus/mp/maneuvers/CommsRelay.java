@@ -61,13 +61,6 @@ import com.l2fprod.common.propertysheet.Property;
  */
 public class CommsRelay extends DefaultManeuver implements IMCSerialization, LocatedManeuver {
 
-	/**
-	 * 
-	 */
-	public CommsRelay() {
-		
-	}
-
     private double speed = 1000;
     private String units = "RPM";
     private int duration = 60;
@@ -77,6 +70,9 @@ public class CommsRelay extends DefaultManeuver implements IMCSerialization, Loc
     
     protected static final String DEFAULT_ROOT_ELEMENT = "CommsRelay";
 	
+    public CommsRelay() {
+    }
+
 	public String getType() {
 		return DEFAULT_ROOT_ELEMENT;
 	}

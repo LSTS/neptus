@@ -39,6 +39,9 @@ import org.dom4j.DocumentHelper;
 import org.dom4j.Element;
 import org.dom4j.Node;
 
+import com.l2fprod.common.propertysheet.DefaultProperty;
+import com.l2fprod.common.propertysheet.Property;
+
 import pt.lsts.imc.IMCDefinition;
 import pt.lsts.imc.IMCMessage;
 import pt.lsts.neptus.NeptusLog;
@@ -47,8 +50,6 @@ import pt.lsts.neptus.gui.editor.ComboEditor;
 import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.messages.Bitmask;
 import pt.lsts.neptus.mp.SystemPositionAndAttitude;
-import com.l2fprod.common.propertysheet.DefaultProperty;
-import com.l2fprod.common.propertysheet.Property;
 
 /**
  * @author pdias
@@ -56,27 +57,21 @@ import com.l2fprod.common.propertysheet.Property;
  */
 public class HeadingSpeedDepth extends DefaultManeuver implements IMCSerialization {
 
-    double speed = 1000, speedTolerance = 100, depth = 1.5, heading = -1;
-    int duration = 10;
-    String units = "RPM";
-    boolean useHeading = true, useSpeed = true, useDepth = true;
-    protected static final String DEFAULT_ROOT_ELEMENT = "HeadingSpeedDepth";
-
     private final int ANGLE_CALCULATION = -1;
     private final int FIRST_ROTATE = 0;
     private final int HORIZONTAL_MOVE = 1;
+    
+    protected double speed = 1000, speedTolerance = 100, depth = 1.5, heading = -1;
+    protected int duration = 10;
+    protected String units = "RPM";
+    protected boolean useHeading = true, useSpeed = true, useDepth = true;
+    protected static final String DEFAULT_ROOT_ELEMENT = "HeadingSpeedDepth";
 
-    int current_state = ANGLE_CALCULATION;
+    protected int current_state = ANGLE_CALCULATION;
 
     private double targetAngle, rotateIncrement, startTime = -1;
 
-    // private GotoParameters params = new GotoParameters();
-
-    /**
-	 * 
-	 */
     public HeadingSpeedDepth() {
-        // TODO Auto-generated constructor stub
     }
 
     public String getType() {

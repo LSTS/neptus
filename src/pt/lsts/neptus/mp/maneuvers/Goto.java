@@ -42,6 +42,9 @@ import org.dom4j.DocumentHelper;
 import org.dom4j.Element;
 import org.dom4j.Node;
 
+import com.l2fprod.common.propertysheet.DefaultProperty;
+import com.l2fprod.common.propertysheet.Property;
+
 import pt.lsts.imc.IMCMessage;
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.gui.GotoParameters;
@@ -54,8 +57,6 @@ import pt.lsts.neptus.mp.ManeuverLocation;
 import pt.lsts.neptus.mp.SystemPositionAndAttitude;
 import pt.lsts.neptus.types.coord.LocationType;
 import pt.lsts.neptus.util.GuiUtils;
-import com.l2fprod.common.propertysheet.DefaultProperty;
-import com.l2fprod.common.propertysheet.Property;
 
 /**
  * @author Zé Carlos
@@ -205,7 +206,6 @@ public class Goto extends Maneuver implements IMCSerialization, LocatedManeuver 
 		return nextVehicleState;
 	}
 	
-
 	public Object clone() {  
 	    Goto clone = new Goto();
 	    super.clone(clone);
