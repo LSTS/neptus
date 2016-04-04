@@ -96,6 +96,12 @@ public class TestGridDecomposition {
         System.out.println("TopLeft to bottomLeft " + topLeft.getDistanceInMeters(bottomLeft));
         System.out.println("TopRight to bottomRight " + topRight.getDistanceInMeters(bottomRight));
         System.out.println("BottomLeft to bottomRight " + bottomLeft.getDistanceInMeters(bottomRight));
+
+        System.out.println("\n--- Coordinates: ---");
+        System.out.println("TL: " + topLeft.getLatitudeAsPrettyString() + " " + topLeft.getLongitudeAsPrettyString());
+        System.out.println("TR: " + topRight.getLatitudeAsPrettyString() + " " + topRight.getLongitudeAsPrettyString());
+        System.out.println("BL: " + bottomLeft.getLatitudeAsPrettyString() + " " + bottomLeft.getLongitudeAsPrettyString());
+        System.out.println("BR: " + bottomRight.getLatitudeAsPrettyString() + " " + bottomRight.getLongitudeAsPrettyString());
     }
 
     public void testDecomposeGrid() {
@@ -109,7 +115,6 @@ public class TestGridDecomposition {
             System.out.println("Cells are [" + gridDcmp.getCellWidth() + " x " + gridDcmp.getCellHeight() + "]");
         }
     }
-
 
     public static void main(String[] args) {
         double[] areasWidths = {1000, 500, 300, 200};
