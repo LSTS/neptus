@@ -47,7 +47,9 @@ import pt.lsts.neptus.types.coord.LocationType;
  */
 public class GridArea implements MapDecomposition {
     private final static double CELL_WIDTH = 20;
-    private double cellHeight; 
+    private double cellHeight;
+    private double gridWidth;
+    private double gridHeight;
 
     private int nrows;
     private int ncols;
@@ -80,14 +82,14 @@ public class GridArea implements MapDecomposition {
         LocationType topRight = bounds[1];
         LocationType bottomLeft = bounds[2];
 
-        /* operational area dimensions (rounded to 1 decimal place) */
-        double areaWidth = (int) Math.ceil(topRight.getDistanceInMeters(topLeft) * 10) / 10;
-        double areaHeight = (int) Math.ceil(bottomLeft.getDistanceInMeters(topLeft) * 10) / 10;
+        /* operational area dimensions (rounded to 2 decimal places) */
+        gridWidth = (int) Math.ceil(topRight.getDistanceInMeters(topLeft) * 100) / 100;
+        gridHeight = (int) Math.ceil(bottomLeft.getDistanceInMeters(topLeft) * 100) / 100;
 
-        ncols = (int) (areaWidth / CELL_WIDTH);
+        ncols = (int) (gridWidth / CELL_WIDTH);
         nrows = ncols;
 
-        cellHeight = Math.ceil((areaHeight / nrows) * 10) / 10;
+        cellHeight = Math.ceil((gridHeight / nrows) * 100) / 100;
 
         /* compute grid size */
         decomposedMap = new MapCell[nrows][ncols];
@@ -99,9 +101,11 @@ public class GridArea implements MapDecomposition {
                 double verticalShift = j * cellHeight ;
                 
                 LocationType cellLoc = new LocationType(topLeft);
-                cellLoc.setOffsetWest(horizontalShift);
+                cellLoc.setOffsetEast(horizontalShift);
                 cellLoc.setOffsetSouth(verticalShift);
-                
+
+                /* TODO check for obstacles, using Environment */
+                /* TODO set correct bounds for each map cells (set vertices) */
                 decomposedMap[i][j] = new MapCell(cellLoc, false);
             }
         }
@@ -110,6 +114,10 @@ public class GridArea implements MapDecomposition {
     @Override
     public LocationType[] getBounds() {
         return bounds;
+    }
+
+    public MapCell[][] getAllCells() {
+        return decomposedMap;
     }
 
     /* TODO: Check only neighbours of cells
@@ -140,6 +148,14 @@ public class GridArea implements MapDecomposition {
 
     public double getCellHeight() {
         return cellHeight;
+    }
+
+    public double gridWidth() {
+        return gridWidth;
+    }
+
+    public double gridHeight() {
+        return gridHeight;
     }
 
     /**
