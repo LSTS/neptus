@@ -31,6 +31,9 @@
  */
 package pt.lsts.neptus.console.plugins.planning.edit;
 
+import java.util.Arrays;
+import java.util.List;
+
 import javax.swing.undo.AbstractUndoableEdit;
 import javax.swing.undo.CannotRedoException;
 import javax.swing.undo.CannotUndoException;
@@ -88,11 +91,14 @@ public class PlanTransitionsReversed extends AbstractUndoableEdit {
     }
 
     private void reverseTransitions() {
-        for (TransitionType t : plan.getGraph().getAllEdges()) {
+        List<TransitionType> tList = Arrays.asList(plan.getGraph().getAllEdges());
+        for (TransitionType t : tList) {
+            plan.getGraph().removeTransition(t);
             String sm = t.getSourceManeuver();
             String tm = t.getTargetManeuver();
             t.setSourceManeuver(tm);
             t.setTargetManeuver(sm);
+            plan.getGraph().addTransition(t);
         }
     }
 
