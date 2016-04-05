@@ -82,15 +82,19 @@ public class TestGridDecomposition {
 
         topLeft.setOffsetWest(areaWidth/2);
         topLeft.setOffsetNorth(areaHeight/2);
+        topLeft = topLeft.getNewAbsoluteLatLonDepth();
 
         topRight.setOffsetEast(areaWidth/2);
         topRight.setOffsetNorth(areaHeight/2);
+        topRight = topRight.getNewAbsoluteLatLonDepth();
 
         bottomLeft.setOffsetWest(areaWidth/2);
         bottomLeft.setOffsetSouth(areaHeight/2);
+        bottomLeft = bottomLeft.getNewAbsoluteLatLonDepth();
 
         bottomRight.setOffsetEast(areaWidth/2);
         bottomRight.setOffsetSouth(areaHeight/2);
+        bottomRight = bottomRight.getNewAbsoluteLatLonDepth();
 
         System.out.println("TopLeft to topRight " + topLeft.getDistanceInMeters(topRight));
         System.out.println("TopLeft to bottomLeft " + topLeft.getDistanceInMeters(bottomLeft));

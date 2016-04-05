@@ -103,6 +103,7 @@ public class GridArea implements MapDecomposition {
                 LocationType cellLoc = new LocationType(topLeft);
                 cellLoc.setOffsetEast(horizontalShift);
                 cellLoc.setOffsetSouth(verticalShift);
+                cellLoc = cellLoc.getNewAbsoluteLatLonDepth();
 
                 /* TODO check for obstacles, using Environment */
                 /* TODO set correct bounds for each map cells (set vertices) */
