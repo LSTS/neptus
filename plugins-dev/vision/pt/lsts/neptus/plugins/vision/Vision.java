@@ -131,12 +131,10 @@ import foxtrot.AsyncWorker;
  * Neptus Plugin for Video Stream and tag frame/object
  * 
  * @author pedrog
- * @version 1.3
  * @category Vision
- *
  */
 @SuppressWarnings("serial")
-@Popup( pos = POSITION.RIGHT, width=640, height=480, accelerator = 'R')
+@Popup(pos = POSITION.RIGHT, width=640, height=480, accelerator = 'R')
 @LayerPriority(priority=0)
 @PluginDescription(name="Video Stream", version="1.2", author="Pedro Gonçalves", description="Plugin for View video Stream TCP-Ip/IpCam", icon="pt/lsts/neptus/plugins/ipcam/camera.png")
 public class Vision extends ConsolePanel implements ConfigurationListener, ItemListener{
@@ -156,10 +154,8 @@ public class Vision extends ConsolePanel implements ConfigurationListener, ItemL
     @NeptusProperty(name = "Cam Tilt Deg Value", editable = true)
     private double camTiltDeg = 45.0f;//this value may be in configuration
    
-    
     //Opencv library name
     private String libOpencvName = "libopencv2.4-jni";
-    //private ServerSocket serverSocket = null;
     private Socket clientSocket = null;
     //Send data for sync 
     private PrintWriter out = null; 
@@ -183,7 +179,7 @@ public class Vision extends ConsolePanel implements ConfigurationListener, ItemL
     //Black Image
     private Scalar black = new Scalar(0);
     //flag for state of neptus logo
-    private boolean neptusLogoState = false;
+    private boolean noVideoLogoState = false;
     //Scale factor of x pixel
     private float xScale;
     //Scale factor of y pixel
@@ -215,7 +211,7 @@ public class Vision extends ConsolePanel implements ConfigurationListener, ItemL
     //Close comTCP state
     private boolean closeComState = false;
     //Url of IpCam
-    private String dataUrlIni[][];
+    private String[][] dataUrlIni;
     
     private boolean closingPanel = false;
     
@@ -286,11 +282,11 @@ public class Vision extends ConsolePanel implements ConfigurationListener, ItemL
     //JTextField for ipcam name
     private JTextField fieldName = new JTextField(I18n.text("Name"));
     //JTextField for ipcam ip
-    private JTextField fieldIp = new JTextField(I18n.text("Ip"));
+    private JTextField fieldIp = new JTextField(I18n.text("IP"));
     //JTextField for ipcam url
-    private JTextField fieldUrl = new JTextField(I18n.text("Url"));
+    private JTextField fieldUrl = new JTextField(I18n.text("URL"));
     //state of ping to host
-    boolean statePing;
+    private boolean statePing;
     //JPanel for zoom point
     private JPanel zoomImg = new JPanel();
     //Buffer image for zoom Img Cut
@@ -323,7 +319,6 @@ public class Vision extends ConsolePanel implements ConfigurationListener, ItemL
     boolean histogramflag = false;
     //Flag to save snapshot
     boolean saveSnapshot = false;
-    
     
     //*** TEST FOR SAVE VIDEO **/
     private File outputfile;
@@ -485,7 +480,7 @@ public class Vision extends ConsolePanel implements ConfigurationListener, ItemL
                     popup.add(item2 = new JMenuItem(I18n.text("Close all connections"), ImageUtils.createImageIcon(String.format("images/menus/exit.png")))).addActionListener(new ActionListener() {
                         public void actionPerformed(ActionEvent e) {
                             NeptusLog.pub().info("Clossing all Video Stream...");
-                            neptusLogoState = false;
+                            noVideoLogoState = false;
                             if(raspiCam && tcpOK) {
                                 try {
                                     clientSocket.close();
@@ -1355,17 +1350,19 @@ public class Vision extends ConsolePanel implements ConfigurationListener, ItemL
     
     //Fill cv::Mat image with zeros
     public void inicImage() {
-        if(!neptusLogoState) {
+        if(!noVideoLogoState) {
             if(ImageUtils.getImage("images/novideo.png") == null) {
                 matResize.setTo(black);
                 temp = UtilCv.matToBufferedImage(matResize);
             }
-            else 
-                temp = UtilVision.resizeBufferedImage(ImageUtils.toBufferedImage(ImageUtils.getImage("images/novideo.png")), size);
+            else { 
+                temp = UtilVision.resizeBufferedImage(
+                        ImageUtils.toBufferedImage(ImageUtils.getImage("images/novideo.png")), size);
+            }
             
             if(temp != null){
                 showImage(temp);
-                neptusLogoState = true;
+                noVideoLogoState = true;
             }
         }
     }
@@ -1380,10 +1377,11 @@ public class Vision extends ConsolePanel implements ConfigurationListener, ItemL
             e1.printStackTrace();
         }
         if (line == null){
-            JOptionPane.showMessageDialog(panelImage, I18n.text("Lost connection with vehicle"), I18n.text("Connection error"), JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(panelImage, I18n.text("Lost connection with vehicle"),
+                    I18n.text("Connection error"), JOptionPane.ERROR_MESSAGE);
             raspiCam = false;
             state = false;
-            //closeTcpCom();
+            // closeTcpCom();
             try {
                 clientSocket.close();
             }
@@ -1429,8 +1427,7 @@ public class Vision extends ConsolePanel implements ConfigurationListener, ItemL
             ByteArrayOutputStream bos = new ByteArrayOutputStream(data.length);
             //Decompress the data
             byte[] buf = new byte[(widthImgRec * heightImgRec * 3)];
-            while (!decompresser.finished()) 
-            {
+            while (!decompresser.finished()) {
                 try {
                     int count = decompresser.inflate(buf);                  
                     bos.write(buf, 0, count);
@@ -1454,36 +1451,45 @@ public class Vision extends ConsolePanel implements ConfigurationListener, ItemL
             
             //Display image in JFrame
             if(histogramflag) {
-                if(saveSnapshot) {
-                    UtilCv.saveSnapshot(UtilCv.addText(UtilCv.histogramCv(temp), I18n.text("Histogram - On"), Color.GREEN, temp.getWidth() - 5, 20), String.format(logDir + "/snapshotImage"));
+                if (saveSnapshot) {
+                    UtilCv.saveSnapshot(UtilCv.addText(UtilCv.histogramCv(temp), I18n.text("Histogram - On"),
+                            Color.GREEN, temp.getWidth() - 5, 20), String.format(logDir + "/snapshotImage"));
                     saveSnapshot = false;
                 }
-                showImage(UtilCv.addText(UtilCv.histogramCv(temp), I18n.text("Histogram - On"), Color.GREEN, temp.getWidth() - 5, 20));
+                showImage(UtilCv.addText(UtilCv.histogramCv(temp), I18n.text("Histogram - On"), Color.GREEN,
+                        temp.getWidth() - 5, 20));
             }
             else {
-                if(saveSnapshot) {
-                    UtilCv.saveSnapshot(UtilCv.addText(temp, I18n.text("Histogram - Off"), Color.RED, temp.getWidth() - 5, 20), String.format(logDir + "/snapshotImage"));
+                if (saveSnapshot) {
+                    UtilCv.saveSnapshot(
+                            UtilCv.addText(temp, I18n.text("Histogram - Off"), Color.RED, temp.getWidth() - 5, 20),
+                            String.format(logDir + "/snapshotImage"));
                     saveSnapshot = false;
                 }
                 showImage(UtilCv.addText(temp, I18n.text("Histogram - Off"), Color.RED, temp.getWidth() - 5, 20));
             }
-            
-            
-            if(histogramflag) {
-                showImage(UtilCv.addText(UtilCv.histogramCv(UtilCv.matToBufferedImage(matResize)), I18n.text("Histogram - On"), Color.GREEN, matResize.cols() - 5, 20));
-                if(saveSnapshot) {
-                    UtilCv.saveSnapshot(UtilCv.addText(UtilCv.histogramCv(UtilCv.matToBufferedImage(matResize)), I18n.text("Histogram - On"), Color.GREEN, matResize.cols() - 5, 20), String.format(logDir + "/snapshotImage"));
+
+            if (histogramflag) {
+                showImage(UtilCv.addText(UtilCv.histogramCv(UtilCv.matToBufferedImage(matResize)),
+                        I18n.text("Histogram - On"), Color.GREEN, matResize.cols() - 5, 20));
+                if (saveSnapshot) {
+                    UtilCv.saveSnapshot(
+                            UtilCv.addText(UtilCv.histogramCv(UtilCv.matToBufferedImage(matResize)),
+                                    I18n.text("Histogram - On"), Color.GREEN, matResize.cols() - 5, 20),
+                            String.format(logDir + "/snapshotImage"));
                     saveSnapshot = false;
                 }
             }
             else {
-                showImage(UtilCv.addText(UtilCv.matToBufferedImage(matResize), I18n.text("Histogram - Off"), Color.RED, matResize.cols() - 5, 20));
-                if(saveSnapshot) {
-                    UtilCv.saveSnapshot(UtilCv.addText(UtilCv.matToBufferedImage(matResize), I18n.text("Histogram - On"), Color.RED, matResize.cols() - 5, 20), String.format(logDir + "/snapshotImage"));
+                showImage(UtilCv.addText(UtilCv.matToBufferedImage(matResize), I18n.text("Histogram - Off"), Color.RED,
+                        matResize.cols() - 5, 20));
+                if (saveSnapshot) {
+                    UtilCv.saveSnapshot(UtilCv.addText(UtilCv.matToBufferedImage(matResize),
+                            I18n.text("Histogram - On"), Color.RED, matResize.cols() - 5, 20),
+                            String.format(logDir + "/snapshotImage"));
                     saveSnapshot = false;
                 }
             }
-            
             
             xScale = (float) widhtConsole / widthImgRec;
             yScale = (float) heightConsole / heightImgRec;
@@ -1491,10 +1497,10 @@ public class Vision extends ConsolePanel implements ConfigurationListener, ItemL
             while((stopTime - startTime) < (1000/FPS))
                 stopTime = System.currentTimeMillis();
             
-            info = String.format("Size(%d x %d) | Scale(%.2f x %.2f) | FPS:%d | Pak:%d (KiB:%d)", widthImgRec, heightImgRec,xScale,yScale,(int) 1000/(stopTime - startTime),lengthImage,lengthImage/1024);
+            info = String.format("Size(%d x %d) | Scale(%.2f x %.2f) | FPS:%d | Pak:%d (KiB:%d)", widthImgRec,
+                    heightImgRec, xScale, yScale, (int) 1000 / (stopTime - startTime), lengthImage, lengthImage / 1024);
             txtText.setText(info);
             txtDataTcp.setText(duneGps);
-
         }     
     }
     
@@ -1522,7 +1528,7 @@ public class Vision extends ConsolePanel implements ConfigurationListener, ItemL
     }
     
     //Create Socket service
-    public boolean tcpConnection() {
+    private boolean tcpConnection() {
         //Socket Config    
         NeptusLog.pub().info("Waiting for connection from RasPiCam...");
         try { 
@@ -1530,8 +1536,7 @@ public class Vision extends ConsolePanel implements ConfigurationListener, ItemL
             if(clientSocket.isConnected());
                 tcpOK=true;
         } 
-        catch (IOException e) 
-        { 
+        catch (IOException e) { 
             //NeptusLog.pub().error("Accept failed...");
             try {
                 TimeUnit.MILLISECONDS.sleep(1000);
@@ -1565,16 +1570,18 @@ public class Vision extends ConsolePanel implements ConfigurationListener, ItemL
 
             return true;
         }
-        else
+        else {
             return false;
+        }
     }
 
     //Zoom in
     public void getCutImage(BufferedImage imageToCut, int w, int h) {
         zoomImgCut = new BufferedImage (100, 100, BufferedImage.TYPE_3BYTE_BGR);
-        for( int i = -50; i < 50; i++ )
+        for( int i = -50; i < 50; i++ ) {
             for( int j = -50; j < 50; j++ )
                 zoomImgCut.setRGB(i + 50, j + 50, imageToCut.getRGB( w+i, h+j));
+        }
 
         // Create new (blank) image of required (scaled) size
         scaledCutImage = new BufferedImage(300, 300, BufferedImage.TYPE_INT_ARGB);
