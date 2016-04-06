@@ -771,7 +771,7 @@ public class Vision extends ConsolePanel implements ConfigurationListener, ItemL
         if (!confIni.exists()) {
             FileUtil.copyFileToDir(iniRsrcPath, ConfigFetch.getConfFolder());
         }
-        UtilVision.writeText(confIni, textString);
+        FileUtil.saveToFile(confIni.getAbsolutePath(), textString);
     }
     
     //Ping CamIp

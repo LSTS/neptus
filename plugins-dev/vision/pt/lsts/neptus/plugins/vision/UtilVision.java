@@ -35,11 +35,9 @@ import java.awt.Graphics2D;
 import java.awt.Image;
 import java.awt.image.BufferedImage;
 import java.io.BufferedReader;
-import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
@@ -95,39 +93,17 @@ public class UtilVision {
         return dataIpCam.toArray(new String[dataIpCam.size()][0]);
     }
     
-    public static void writeText(File nameFile, String textString) {
-        BufferedWriter brf = null;
-        try {
-            brf = new BufferedWriter(new FileWriter(nameFile, true));
-        }
-        catch (IOException e) {
-            e.printStackTrace();
-        }
-        try {
-            brf.write(textString);
-        }
-        catch (IOException e) {
-            e.printStackTrace();
-        }
-        try {
-            brf.close();
-        }
-        catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-    
-    public static boolean pingIp (String host) {
+    public static boolean pingIp(String host) {
         boolean ping = false;
         try {
             String cmd = "";
-            if(System.getProperty("os.name").startsWith("Windows")) {   
-                    // For Windows
-                    cmd = "ping -n 1 " + host;
+            if (System.getProperty("os.name").startsWith("Windows")) {
+                // For Windows
+                cmd = "ping -n 1 " + host;
             }
             else {
-                    // For Linux and OSX
-                    cmd = "ping -c 1 " + host;
+                // For Linux and OSX
+                cmd = "ping -c 1 " + host;
             }
             Process myProcess = Runtime.getRuntime().exec(cmd);
             try {
@@ -136,7 +112,7 @@ public class UtilVision {
             catch (InterruptedException e) {
                 e.printStackTrace();
             }
-            if(myProcess.exitValue() == 0)
+            if (myProcess.exitValue() == 0)
                 ping = true;
             else
                 ping = false;
@@ -146,12 +122,12 @@ public class UtilVision {
         }
         catch (IOException e) {
             e.printStackTrace();
-        } //Ping doesnt work 
-        
+        } // Ping doesnt work
+
         return ping;
     }
     
-    public static BufferedImage resizeBufferedImage (BufferedImage img, Size size) {
+    public static BufferedImage resizeBufferedImage(BufferedImage img, Size size) {
         if(size != null){
             BufferedImage dimg = new BufferedImage((int)size.width, (int)size.height, img.getType());
             Graphics2D g2d = dimg.createGraphics();
