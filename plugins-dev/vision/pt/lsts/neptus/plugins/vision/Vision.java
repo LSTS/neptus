@@ -310,7 +310,7 @@ public class Vision extends ConsolePanel implements ConfigurationListener, ItemL
     //cord y for zoom
     private int zoomY = 100;
     
-    //!check ip for Host - TCP
+    //check ip for Host - TCP
     //JFormattedTextField for host ip
     private JFormattedTextField hostIp;
     //JDialog to check host connection
@@ -345,7 +345,7 @@ public class Vision extends ConsolePanel implements ConfigurationListener, ItemL
         if(findOpenCV()) {
             //clears all the unused initializations of the standard ConsolePanel
             removeAll();
-            //!Resize Console
+            //Resize Console
             this.addComponentListener(new ComponentAdapter() {  
                 public void componentResized(ComponentEvent evt) {
                     Component c = evt.getComponent();
@@ -362,10 +362,10 @@ public class Vision extends ConsolePanel implements ConfigurationListener, ItemL
                 }
             });
             
-            //!Mouse click
+            //Mouse click
             mouseListenerInic();
             
-            //!Detect key-pressed
+            //Detect key-pressed
             this.addKeyListener(new KeyListener() {            
                 @Override
                 public void keyReleased(KeyEvent e) {
@@ -456,7 +456,7 @@ public class Vision extends ConsolePanel implements ConfigurationListener, ItemL
         return;
     }
     
-    //!Mouse click Listener
+    //Mouse click Listener
     private void mouseListenerInic() {
         addMouseListener(new MouseAdapter() {
             public void mouseClicked(MouseEvent e) {
@@ -540,7 +540,7 @@ public class Vision extends ConsolePanel implements ConfigurationListener, ItemL
         
     }
 
-    //!Check ip given by user
+    //Check ip given by user
     private void checkHostIp() {
         ipHostPing = new JDialog(SwingUtilities.getWindowAncestor(Vision.this), I18n.text("Host IP")+" - RasPiCam");
         ipHostPing.setModalityType(ModalityType.DOCUMENT_MODAL);
@@ -629,7 +629,7 @@ public class Vision extends ConsolePanel implements ConfigurationListener, ItemL
         ipHostPing.setVisible(true);
     }
     
-    //!Read ipUrl.ini to find IpCam ON
+    //Read ipUrl.ini to find IpCam ON
     @SuppressWarnings({ "unchecked", "rawtypes" })
     private void checkIpCam() {
         dataUrlIni = readIpUrl();
@@ -769,7 +769,7 @@ public class Vision extends ConsolePanel implements ConfigurationListener, ItemL
         ipCamPing.setVisible(true);
     }
     
-    //!Write to file
+    //Write to file
     private void writeToFile(String textString){
         String iniRsrcPath = FileUtil.getResourceAsFileKeepName(BASE_FOLDER_FOR_URLINI);
         File confIni = new File(ConfigFetch.getConfFolder() + "/" + BASE_FOLDER_FOR_URLINI);
@@ -779,13 +779,13 @@ public class Vision extends ConsolePanel implements ConfigurationListener, ItemL
         UtilVision.writeText(confIni, textString);
     }
     
-    //!Ping CamIp
+    //Ping CamIp
     private boolean pingIpCam (String host) {
         statePingOk = UtilVision.pingIp(host);
         return statePingOk;
     }
     
-    //!Read file
+    //Read file
     private String[][] readIpUrl() {
         String iniRsrcPath = FileUtil.getResourceAsFileKeepName(BASE_FOLDER_FOR_URLINI);
         File confIni = new File(ConfigFetch.getConfFolder() + "/" + BASE_FOLDER_FOR_URLINI);
@@ -860,7 +860,7 @@ public class Vision extends ConsolePanel implements ConfigurationListener, ItemL
         captureFrame = true;
     }
 
-    //!Print Image to JPanel
+    //Print Image to JPanel
     private void showImage(BufferedImage image) {
         picLabel.setIcon(new ImageIcon(image));
         panelImage.revalidate();
@@ -868,7 +868,7 @@ public class Vision extends ConsolePanel implements ConfigurationListener, ItemL
         repaint();
     }
         
-    //!Config Layout
+    //Config Layout
     private void configLayout() {
         //Create Buffer (type MAT) for Image resize
         matResize = new Mat(heightConsole, widhtConsole, CvType.CV_8UC3);
@@ -877,7 +877,7 @@ public class Vision extends ConsolePanel implements ConfigurationListener, ItemL
         zoomImg.setSize(300, 300);
         popupzoom = new JPopupMenu();
         popupzoom.setSize(300, 300);
-        //!Create folder to save image data
+        //Create folder to save image data
         //Create folder image in log if don't exist
         File dir = new File(String.format(BASE_FOLDER_FOR_IMAGES));
         dir.mkdir();
@@ -1018,12 +1018,12 @@ public class Vision extends ConsolePanel implements ConfigurationListener, ItemL
         return ipUrl;
     }
 
-    //!Find OPENCV JNI in host PC
+    //Find OPENCV JNI in host PC
     private boolean findOpenCV() {
         return SearchOpenCv.searchJni();
     }
     
-    //!Get size of image over TCP
+    //Get size of image over TCP
     private void initSizeImage() {
         //Width size of image
         try {
@@ -1048,7 +1048,7 @@ public class Vision extends ConsolePanel implements ConfigurationListener, ItemL
         mat = new Mat(heightImgRec, widthImgRec, CvType.CV_8UC3);
     }
     
-    //!Thread to handle data receive
+    //Thread to handle data receive
     private Thread updaterThread() {
         Thread ret = new Thread("Video Stream Thread") {
             @Override
@@ -1186,7 +1186,7 @@ public class Vision extends ConsolePanel implements ConfigurationListener, ItemL
         return ret;
     }
 
-    //!Thread to handle save image
+    //Thread to handle save image
     private Thread updaterThreadSave() {
         Thread si = new Thread("Save Image") {
             @Override
@@ -1293,13 +1293,13 @@ public class Vision extends ConsolePanel implements ConfigurationListener, ItemL
         return si;
     }
     
-    //!IMC handle
+    //IMC handle
     @Subscribe
     public void consume(EstimatedState msg) {   
         //System.out.println("Source Name "+msg.getSourceName()+"ID "+getMainVehicleId());
         if(msg.getSourceName().equals(getMainVehicleId())) {
             try {
-                //! update the position of target
+                // update the position of target
                 //LAT and LON rad
                 double latRad = msg.getLat();
                 double lonRad = msg.getLon();
@@ -1353,7 +1353,7 @@ public class Vision extends ConsolePanel implements ConfigurationListener, ItemL
     public void consume(Announce announce) {
     }
     
-    //!Fill cv::Mat image with zeros
+    //Fill cv::Mat image with zeros
     public void inicImage() {
         if(!neptusLogoState) {
             if(ImageUtils.getImage("images/novideo.png") == null) {
@@ -1370,7 +1370,7 @@ public class Vision extends ConsolePanel implements ConfigurationListener, ItemL
         }
     }
     
-    //!Received data Image
+    //Received data Image
     public void receivedDataImage() {
         long startTime = System.currentTimeMillis();
         try {
@@ -1498,7 +1498,7 @@ public class Vision extends ConsolePanel implements ConfigurationListener, ItemL
         }     
     }
     
-    //!Close TCP COM
+    //Close TCP COM
     public void closeTcpCom() {
         try {
             is.close();
@@ -1521,7 +1521,7 @@ public class Vision extends ConsolePanel implements ConfigurationListener, ItemL
         }
     }
     
-    //!Create Socket service
+    //Create Socket service
     public boolean tcpConnection() {
         //Socket Config    
         NeptusLog.pub().info("Waiting for connection from RasPiCam...");
@@ -1569,7 +1569,7 @@ public class Vision extends ConsolePanel implements ConfigurationListener, ItemL
             return false;
     }
 
-    //!Zoom in
+    //Zoom in
     public void getCutImage(BufferedImage imageToCut, int w, int h) {
         zoomImgCut = new BufferedImage (100, 100, BufferedImage.TYPE_3BYTE_BGR);
         for( int i = -50; i < 50; i++ )
