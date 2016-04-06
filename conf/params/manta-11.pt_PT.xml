@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<config format="1" version="2016.01.0 (master,dd196ec,dirty)" system="manta-11" i18n="pt_PT">
+<config format="1" version="2016.03.0 (master,75a147e)" system="manta-11" i18n="pt_PT">
   <section name="Navigation" name-i18n="Navegação">
     <param name="Entity Label">
       <name-i18n>Nome da Entidade</name-i18n>
@@ -1895,15 +1895,6 @@
       <units/>
       <desc>Serial port baud rate</desc>
     </param>
-    <param name="Power Channel - Name">
-      <name-i18n>Power Channel - Name</name-i18n>
-      <type>string</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>LC2M</default>
-      <units/>
-      <desc>Name of the power channel that supplies the modem</desc>
-    </param>
     <param name="Mailbox Check - Periodicity">
       <name-i18n>Mailbox Check - Periodicity</name-i18n>
       <type>real</type>
@@ -2061,7 +2052,7 @@
       <type>list:string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>Abort, Announce, AcousticOperation, CpuUsage, Current, Depth, EntityList, EntityState, GpsFix, Heartbeat, IridiumMsgRx, IridiumMsgTx, IridiumTxStatus, LblRange, LblRangeAcceptance, LogBookControl, LogBookEntry, PlanControl, RemoteSensorInfo, RSSI, StorageUsage, Temperature, UamRxFrame, UamTxFrame, UamTxStatus, UamRxRange, Voltage</default>
+      <default>Abort, Announce, AcousticOperation, CpuUsage, Current, Depth, DevDataText, EntityList, EntityState, GpsFix, Heartbeat, IridiumMsgRx, IridiumMsgTx, IridiumTxStatus, LblRange, LblRangeAcceptance, LogBookControl, LogBookEntry, PlanControl, PowerChannelControl, RemoteSensorInfo, RSSI, StorageUsage, Temperature, UamRxFrame, UamTxFrame, UamTxStatus, UamRxRange, Voltage</default>
       <units/>
       <desc/>
     </param>
@@ -2213,6 +2204,15 @@
       <units/>
       <desc>PPP Interface</desc>
     </param>
+    <param name="Enable IP Forwarding">
+      <name-i18n>Enable IP Forwarding</name-i18n>
+      <type>boolean</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>true</default>
+      <units/>
+      <desc>Enable or disable IP forward</desc>
+    </param>
   </section>
   <section name="Acoustic Access Controller" name-i18n="Controlador de Acesso Acústico">
     <param name="Entity Label">
@@ -2297,17 +2297,6 @@
       <default>false</default>
       <units/>
       <desc>Enable system state reporting</desc>
-    </param>
-    <param name="Reports Periodicity">
-      <name-i18n>Periodicidade de Relatórios</name-i18n>
-      <type>real</type>
-      <visibility>user</visibility>
-      <scope>global</scope>
-      <default>60</default>
-      <units>s</units>
-      <desc>Reports periodicity</desc>
-      <min>30</min>
-      <max>600</max>
     </param>
   </section>
   <section name="UDP" name-i18n="UDP">

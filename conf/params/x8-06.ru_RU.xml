@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<config format="1" version="2016.03.0 (master,75a147e)" system="x8-01" i18n="ru_RU">
+<config format="1" version="2016.03.0 (master,75a147e)" system="x8-06" i18n="ru_RU">
   <section name="Height Control" name-i18n="Height Control">
     <param name="Entity Label">
       <name-i18n>Entity Label</name-i18n>
@@ -275,7 +275,7 @@
       <type>integer</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>1180</default>
+      <default>1106</default>
       <units>us</units>
       <desc>Min PWM value for Roll channel</desc>
     </param>
@@ -284,7 +284,7 @@
       <type>integer</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>1865</default>
+      <default>1869</default>
       <units>us</units>
       <desc>Max PWM value for Roll channel</desc>
     </param>
@@ -311,7 +311,7 @@
       <type>integer</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>1177</default>
+      <default>1087</default>
       <units>us</units>
       <desc>Min PWM value for Climb Rate channel</desc>
     </param>
@@ -320,7 +320,7 @@
       <type>integer</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>2002</default>
+      <default>1905</default>
       <units>us</units>
       <desc>Max PWM value for Climb Rate channel</desc>
     </param>
@@ -338,7 +338,7 @@
       <type>boolean</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>False</default>
+      <default>True</default>
       <units/>
       <desc>Reverse Pitch Channel</desc>
     </param>
@@ -347,7 +347,7 @@
       <type>integer</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>1097</default>
+      <default>1189</default>
       <units>us</units>
       <desc>Min PWM value for Air Speed channel</desc>
     </param>
@@ -356,7 +356,7 @@
       <type>integer</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>1933</default>
+      <default>2055</default>
       <units>us</units>
       <desc>Max PWM value for Air Speed channel</desc>
     </param>
@@ -466,7 +466,7 @@
       <type>string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>None</default>
+      <default>Debug</default>
       <units/>
       <desc/>
       <values>None, Debug, Trace, Spew</values>
@@ -733,7 +733,7 @@
       <type>real</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>1.2</default>
+      <default>0.75</default>
       <units/>
       <desc>Look-ahead gain for control</desc>
     </param>
@@ -742,7 +742,7 @@
       <type>real</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>0.0005</default>
+      <default>0.002</default>
       <units/>
       <desc>Turn rate gain for control</desc>
     </param>
@@ -2036,7 +2036,7 @@
       <type>list:real</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>22.9797, 0.0</default>
+      <default>24.5294, 0.0</default>
       <units/>
       <desc/>
       <size>2</size>
@@ -2064,7 +2064,7 @@
       <type>list:real</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>4.7534, 0.0</default>
+      <default>16.6667, 0.0</default>
       <units/>
       <desc/>
       <size>2</size>
@@ -2092,7 +2092,7 @@
       <type>list:real</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>6.4851, 0.0</default>
+      <default>6.8824, 0.0</default>
       <units/>
       <desc/>
       <size>2</size>
@@ -2120,7 +2120,7 @@
       <type>list:real</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>1.0965, 0.0</default>
+      <default>16.6667, 0.0</default>
       <units/>
       <desc/>
       <size>2</size>
@@ -2148,7 +2148,7 @@
       <type>list:real</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>15.9575, 0.0</default>
+      <default>17.0784, 0.0</default>
       <units/>
       <desc/>
       <size>2</size>
@@ -2176,7 +2176,7 @@
       <type>list:real</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>0.4868, 0.0</default>
+      <default>5.5556, 0.0</default>
       <units/>
       <desc/>
       <size>2</size>
@@ -2204,7 +2204,7 @@
       <type>list:real</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>51.2821, 0.0</default>
+      <default>53.9412, 0.0</default>
       <units/>
       <desc/>
       <size>2</size>
@@ -2232,7 +2232,7 @@
       <type>list:real</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>0.0877, 0.0</default>
+      <default>0.5, 0.0</default>
       <units/>
       <desc/>
       <size>2</size>
@@ -2242,7 +2242,7 @@
       <type>string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>5V C.1  (Photo Trigger)</default>
+      <default>5V C.1</default>
       <units/>
       <desc/>
     </param>
@@ -2251,7 +2251,7 @@
       <type>integer</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>0</default>
+      <default>1</default>
       <units/>
       <desc/>
     </param>
@@ -2260,7 +2260,7 @@
       <type>string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>5V C.2  (None)</default>
+      <default>5V C.2</default>
       <units/>
       <desc/>
     </param>
@@ -2278,7 +2278,7 @@
       <type>string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>5V C.3  (None)</default>
+      <default>5V C.3</default>
       <units/>
       <desc/>
     </param>
@@ -2296,7 +2296,7 @@
       <type>string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>12V C.1 (Wifi Board)</default>
+      <default>12V C.1</default>
       <units/>
       <desc/>
     </param>
@@ -2314,7 +2314,7 @@
       <type>string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>12V C.2 (Switch ETH)</default>
+      <default>12V C.2</default>
       <units/>
       <desc/>
     </param>
@@ -2332,7 +2332,7 @@
       <type>string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>12V C.3 (None)</default>
+      <default>12V C.3</default>
       <units/>
       <desc/>
     </param>
@@ -2350,7 +2350,7 @@
       <type>string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>12V C.4 (None)</default>
+      <default>12V C.4</default>
       <units/>
       <desc/>
     </param>
@@ -2368,7 +2368,7 @@
       <type>string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>48V C   (Axis Camera)</default>
+      <default>48V C</default>
       <units/>
       <desc/>
     </param>
