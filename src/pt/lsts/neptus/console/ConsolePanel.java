@@ -412,7 +412,7 @@ public abstract class ConsolePanel extends JPanel implements PropertiesProvider,
             if(menu != null)
                 menu.remove(menuItem);
             if (dialog != null) {
-                NeptusLog.pub().info("<###> " + this.getName());
+                NeptusLog.pub().info("Closing popup dialog for: " + this.getName());
                 dialog.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
                 dialog.dispose();
             }
