@@ -60,5 +60,5 @@ public interface MapDecomposition {
      * Given a map area, returns the list of cells that
      * are within that area
      * */
-    public List<MapCell> getAreaCells(LocationType[] mapArea);
+    public List<MapCell> getAreaCells();
 }

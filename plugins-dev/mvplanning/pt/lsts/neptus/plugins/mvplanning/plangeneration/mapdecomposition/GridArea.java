@@ -157,17 +157,13 @@ public class GridArea implements MapDecomposition {
         return decomposedMap;
     }
 
-    /* TODO: Check only neighbours of cells
-     * that are within the given area, instead of all cells*/
     @Override
-    public List<MapCell> getAreaCells(LocationType[] mapArea) {
+    public List<MapCell> getAreaCells() {
         List<MapCell> areaCells = new ArrayList<>();
 
         for(MapCell[] row : decomposedMap)
             for(MapCell cell : row)
-                if(cellWithinArea(cell.getLocation(), mapArea))
-                    areaCells.add(cell);
-
+                areaCells.add(cell);
         return areaCells;
     }
 
