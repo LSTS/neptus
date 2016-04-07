@@ -31,6 +31,7 @@
  */
 package pt.lsts.neptus.plugins.mvplanning.plangeneration.mapdecomposition;
 
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -50,6 +51,7 @@ public class GridArea implements MapDecomposition {
     private double cellHeight;
     private double gridWidth;
     private double gridHeight;
+    private LocationType center;
 
     private int nrows;
     private int ncols;
@@ -62,11 +64,16 @@ public class GridArea implements MapDecomposition {
     /**
      * Used just for testing
      * */
-    public GridArea() {
-
+    public GridArea(double gridWidth, double gridHeight, LocationType center) {
+        this.gridWidth = gridWidth;
+        this.gridHeight = gridHeight;
+        this.center = center;
     }
 
-    public GridArea(Environment env) {
+    public GridArea(double gridWidth, double gridHeight, LocationType center, Environment env) {
+        this.gridWidth = gridWidth;
+        this.gridHeight = gridHeight;
+        this.center = center;
         this.env = env;
     }
 
