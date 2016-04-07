@@ -70,6 +70,33 @@ public class GridArea implements MapDecomposition {
         this.env = env;
     }
 
+    public LocationType[] computeGridBounds(double gridWidth, double gridHeight, LocationType center) {
+        LocationType topLeft = new LocationType(center);
+        LocationType topRight = new LocationType(center);
+        LocationType bottomLeft = new LocationType(center);
+        LocationType bottomRight = new LocationType(center);
+
+        topLeft.setOffsetWest(gridWidth/2);
+        topLeft.setOffsetNorth(gridHeight/2);
+        topLeft = topLeft.getNewAbsoluteLatLonDepth();
+
+        topRight.setOffsetEast(gridWidth/2);
+        topRight.setOffsetNorth(gridHeight/2);
+        topRight = topRight.getNewAbsoluteLatLonDepth();
+
+        bottomLeft.setOffsetWest(gridWidth/2);
+        bottomLeft.setOffsetSouth(gridHeight/2);
+        bottomLeft = bottomLeft.getNewAbsoluteLatLonDepth();
+
+        bottomRight.setOffsetEast(gridWidth/2);
+        bottomRight.setOffsetSouth(gridHeight/2);
+        bottomRight = bottomRight.getNewAbsoluteLatLonDepth();
+
+        LocationType[] gridBounds = {topLeft, topRight, bottomLeft, bottomRight};
+
+        return gridBounds;
+    }
+
     /**
      * Decomposes the given area in a square grid/matrix
      * */
