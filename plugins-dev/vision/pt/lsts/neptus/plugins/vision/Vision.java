@@ -1377,8 +1377,10 @@ public class Vision extends ConsolePanel implements ConfigurationListener, ItemL
             e1.printStackTrace();
         }
         if (line == null){
-            JOptionPane.showMessageDialog(panelImage, I18n.text("Lost connection with vehicle"),
-                    I18n.text("Connection error"), JOptionPane.ERROR_MESSAGE);
+//            JOptionPane.showMessageDialog(panelImage, I18n.text("Lost connection with vehicle"),
+//                    I18n.text("Connection error"), JOptionPane.ERROR_MESSAGE);
+            GuiUtils.errorMessage(panelImage, I18n.text("Connection error"), I18n.text("Lost connection with vehicle"),
+                    ModalityType.DOCUMENT_MODAL);
             raspiCam = false;
             state = false;
             // closeTcpCom();
