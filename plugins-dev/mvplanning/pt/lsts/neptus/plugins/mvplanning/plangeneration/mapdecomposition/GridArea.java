@@ -190,11 +190,4 @@ public class GridArea implements MapDecomposition {
     public double gridHeight() {
         return gridHeight;
     }
-
-    /**
-     * Returns if a given cell is within the bounds of the given area
-     * */
-    private boolean cellWithinArea(LocationType cellLocation, LocationType[] mapArea) {
-        return false;
-    }
 }
