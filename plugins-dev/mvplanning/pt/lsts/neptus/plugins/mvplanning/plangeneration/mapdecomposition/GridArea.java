@@ -32,6 +32,10 @@
 package pt.lsts.neptus.plugins.mvplanning.plangeneration.mapdecomposition;
 
 
+import java.awt.Color;
+import java.awt.Graphics2D;
+import java.awt.geom.Point2D;
+import java.awt.geom.Rectangle2D;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -39,14 +43,17 @@ import java.util.List;
 import pt.lsts.neptus.plugins.mvplanning.Environment;
 import pt.lsts.neptus.plugins.mvplanning.interfaces.MapDecomposition;
 import pt.lsts.neptus.plugins.mvplanning.plangeneration.MapCell;
+import pt.lsts.neptus.renderer2d.StateRenderer2D;
 import pt.lsts.neptus.types.coord.LocationType;
+import pt.lsts.neptus.types.map.AbstractElement;
+import pt.lsts.neptus.types.map.GeometryElement;
 
 /**
  * Decomposes a given area into a grid
  * @author tsmarques
  *
  */
-public class GridArea implements MapDecomposition {
+public class GridArea extends GeometryElement implements MapDecomposition {
     private final static double CELL_WIDTH = 20;
     private double cellHeight;
     private double gridWidth;
@@ -189,5 +196,31 @@ public class GridArea implements MapDecomposition {
 
     public double gridHeight() {
         return gridHeight;
+    }
+
+    @Override
+    public void paint(Graphics2D g, StateRenderer2D renderer, double rotation) {
+        g.setTransform(renderer.identity);
+        for(int i = 0; i < nrows; i++) {
+            for(int j = 0; j < ncols; j++) {
+                /* compute cell's center location */
+                LocationType cellCenter = new LocationType(decomposedMap[i][j].getLocation());
+                cellCenter.setOffsetWest(CELL_WIDTH / 2);
+                cellCenter.setOffsetNorth(cellHeight / 2);
+                cellCenter = cellCenter.getNewAbsoluteLatLonDepth();
+
+                Point2D cellPos = renderer.getScreenPosition(cellCenter);
+
+                g.setColor(Color.BLACK);
+                Rectangle2D.Double cellRec = new Rectangle2D.Double(cellPos.getX(), cellPos.getY(), CELL_WIDTH * renderer.getZoom(), cellHeight * renderer.getZoom());
+                g.draw(cellRec);
+            }
+            g.setTransform(renderer.identity);
+        }
+    }
+
+    @Override
+    public ELEMENT_TYPE getElementType() {
+        return AbstractElement.ELEMENT_TYPE.TYPE_PARALLELEPIPED;
     }
 }
