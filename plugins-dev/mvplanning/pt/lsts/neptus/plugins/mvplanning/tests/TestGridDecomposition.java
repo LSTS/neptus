@@ -112,28 +112,12 @@ public class TestGridDecomposition {
         if(gridDcmp == null)
             System.out.println("No grid decomposition available");
         else {
-            LocationType[] bounds = gridDcmp.computeGridBounds(gridWidth, gridHeight, center);
+            LocationType[] bounds = gridDcmp.getBounds();
 
             LocationType tl = bounds[0];
             LocationType tr = bounds[1];
             LocationType bl = bounds[2];
             LocationType br = bounds[3];
-
-            tl.setOffsetWest(gridWidth/2);
-            tl.setOffsetNorth(gridHeight/2);
-            tl = topLeft.getNewAbsoluteLatLonDepth();
-
-            tr.setOffsetEast(gridWidth/2);
-            tr.setOffsetNorth(gridHeight/2);
-            tr = topRight.getNewAbsoluteLatLonDepth();
-
-            bl.setOffsetWest(gridWidth/2);
-            bl.setOffsetSouth(gridHeight/2);
-            bl = bottomLeft.getNewAbsoluteLatLonDepth();
-
-            br.setOffsetEast(gridWidth/2);
-            br.setOffsetSouth(gridHeight/2);
-            br = bottomRight.getNewAbsoluteLatLonDepth();
 
             System.out.println("\n# Using GridArea.computeGridBounds()");
             System.out.println("TopLeft to topRight " + tl.getDistanceInMeters(tr));

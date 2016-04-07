@@ -68,6 +68,8 @@ public class GridArea implements MapDecomposition {
         this.gridWidth = gridWidth;
         this.gridHeight = gridHeight;
         this.center = center;
+
+        this.bounds = computeGridBounds();
     }
 
     public GridArea(double gridWidth, double gridHeight, LocationType center, Environment env) {
@@ -75,9 +77,11 @@ public class GridArea implements MapDecomposition {
         this.gridHeight = gridHeight;
         this.center = center;
         this.env = env;
+
+        this.bounds = computeGridBounds();
     }
 
-    public LocationType[] computeGridBounds(double gridWidth, double gridHeight, LocationType center) {
+    private LocationType[] computeGridBounds() {
         LocationType topLeft = new LocationType(center);
         LocationType topRight = new LocationType(center);
         LocationType bottomLeft = new LocationType(center);
