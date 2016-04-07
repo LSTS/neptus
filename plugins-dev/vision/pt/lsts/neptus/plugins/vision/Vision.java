@@ -422,15 +422,15 @@ public class Vision extends ConsolePanel implements ConfigurationListener, ItemL
         else {
             NeptusLog.pub().error("Opencv not found.");
             closingPanel = true;
-            
+            setBackground(Color.BLACK);
             //JLabel for image
             picLabel = new JLabel();
             //JPanel for Image
             panelImage = new JPanel();
-            panelImage.setBackground(Color.LIGHT_GRAY);
+            panelImage.setBackground(Color.BLACK);
             panelImage.setSize(this.getWidth(), this.getHeight());
             this.setLayout(new MigLayout());
-            this.add(panelImage, BorderLayout.NORTH);
+            this.add(panelImage, "alignx center, aligny center");
             BufferedImage errorImg = null;
             try {
                 errorImg = ImageIO.read(new File(FileUtil.getResourceAsFileKeepName("images/errorOpencv.png")));
@@ -441,9 +441,8 @@ public class Vision extends ConsolePanel implements ConfigurationListener, ItemL
             showImage(UtilCv.resize(errorImg, 320, 240));
             //JLabel info
             warningText = new JLabel("  " + I18n.textf("Please install %libopencv and its dependencies.", libOpencvName) + "  ");
+            warningText.setForeground(new Color(252, 68, 35));
             warningText.setFont(new Font("Courier New", Font.ITALIC, 18));
-            warningText.setBackground(Color.yellow);
-            warningText.setOpaque(true);
             this.add(warningText, BorderLayout.SOUTH); 
         }
         return;
