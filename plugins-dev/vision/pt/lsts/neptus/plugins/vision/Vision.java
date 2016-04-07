@@ -84,8 +84,6 @@ import javax.swing.JTextField;
 import javax.swing.KeyStroke;
 import javax.swing.SwingUtilities;
 
-import net.miginfocom.swing.MigLayout;
-
 import org.opencv.core.CvType;
 import org.opencv.core.Mat;
 import org.opencv.core.Scalar;
@@ -93,7 +91,12 @@ import org.opencv.core.Size;
 import org.opencv.highgui.VideoCapture;
 import org.opencv.imgproc.Imgproc;
 
-import pt.lsts.imc.Announce;
+import com.google.common.eventbus.Subscribe;
+
+import foxtrot.AsyncTask;
+import foxtrot.AsyncWorker;
+import net.miginfocom.swing.MigLayout;
+
 import pt.lsts.imc.CcuEvent;
 import pt.lsts.imc.EstimatedState;
 import pt.lsts.imc.MapFeature;
@@ -121,11 +124,6 @@ import pt.lsts.neptus.util.ImageUtils;
 import pt.lsts.neptus.util.SearchOpenCv;
 import pt.lsts.neptus.util.UtilCv;
 import pt.lsts.neptus.util.conf.ConfigFetch;
-
-import com.google.common.eventbus.Subscribe;
-
-import foxtrot.AsyncTask;
-import foxtrot.AsyncWorker;
 
 /**
  * Neptus Plugin for Video Stream and tag frame/object
@@ -258,7 +256,7 @@ public class Vision extends ConsolePanel implements ConfigurationListener, ItemL
     private int cntTag = 1;
 
     //counter for frame tag ID
-    private short frameTagID =1;
+    private short frameTagID = 1;
     //lat, lon: frame Tag pos to be marked as POI
     private double lat,lon;
 
@@ -273,8 +271,7 @@ public class Vision extends ConsolePanel implements ConfigurationListener, ItemL
     //JButton to confirm ipcam
     private JButton selectIpCam;
     //JComboBox for list of ipcam in ipUrl.ini
-    @SuppressWarnings("rawtypes")
-    private JComboBox ipCamList;
+    private JComboBox<String> ipCamList;
     //row select from string matrix of IpCam List
     private int rowSelect;
     //JLabel for text ipCam Ping
@@ -316,9 +313,9 @@ public class Vision extends ConsolePanel implements ConfigurationListener, ItemL
     //Flag of ping state to host
     private boolean pingHostOk = false;
     //Flag for Histogram image
-    boolean histogramflag = false;
+    private boolean histogramflag = false;
     //Flag to save snapshot
-    boolean saveSnapshot = false;
+    private boolean saveSnapshot = false;
     
     //*** TEST FOR SAVE VIDEO **/
     private File outputfile;
@@ -377,18 +374,21 @@ public class Vision extends ConsolePanel implements ConfigurationListener, ItemL
                             popupzoom.add(zoomImg);
                         }
                     }
-                    else if((e.getKeyCode() == KeyEvent.VK_I) && ((e.getModifiers() & KeyEvent.ALT_MASK) != 0))
+                    else if((e.getKeyCode() == KeyEvent.VK_I) && ((e.getModifiers() & KeyEvent.ALT_MASK) != 0)) {
                         checkIpCam();
-                    else if((e.getKeyCode() == KeyEvent.VK_R) && ((e.getModifiers() & KeyEvent.ALT_MASK) != 0))
+                    }
+                    else if((e.getKeyCode() == KeyEvent.VK_R) && ((e.getModifiers() & KeyEvent.ALT_MASK) != 0)) {
                         checkHostIp();
+                    }
                     else if((e.getKeyCode() == KeyEvent.VK_X) && ((e.getModifiers() & KeyEvent.ALT_MASK) != 0)) {
                         NeptusLog.pub().info("Clossing all Video Stream...");
                         raspiCam = false;
                         state = false;
                         ipCam = false;
                     }
-                    else if((e.getKeyCode() == KeyEvent.VK_C) && ((e.getModifiers() & KeyEvent.ALT_MASK) != 0))
+                    else if((e.getKeyCode() == KeyEvent.VK_C) && ((e.getModifiers() & KeyEvent.ALT_MASK) != 0)) {
                         menu.setVisible(true);
+                    }
                     else if(e.getKeyChar() == 'z' && zoomMask) {
                         int xLocMouse = MouseInfo.getPointerInfo().getLocation().x - getLocationOnScreen().x - 11;
                         int yLocMouse = MouseInfo.getPointerInfo().getLocation().y - getLocationOnScreen().y - 11;
@@ -402,8 +402,9 @@ public class Vision extends ConsolePanel implements ConfigurationListener, ItemL
                             zoomY = yLocMouse;
                             popupzoom.setLocation(MouseInfo.getPointerInfo().getLocation().x - 150, MouseInfo.getPointerInfo().getLocation().y - 150);
                         }
-                        else
+                        else {
                             popupzoom.setVisible(false);
+                        }
                     }
                     else if((e.getKeyCode() == KeyEvent.VK_H) && ((e.getModifiers() & KeyEvent.ALT_MASK) != 0)) {
                         histogramflag = !histogramflag;
@@ -414,7 +415,6 @@ public class Vision extends ConsolePanel implements ConfigurationListener, ItemL
                 }
                 @Override
                 public void keyTyped(KeyEvent e) {
-                    
                 }
             });
             this.setFocusable(true);
@@ -440,13 +440,11 @@ public class Vision extends ConsolePanel implements ConfigurationListener, ItemL
             }
             showImage(UtilCv.resize(errorImg, 320, 240));
             //JLabel info
-            warningText = new JLabel("  " +I18n.textf("Please install %libopencv and its dependencies.", libOpencvName)+ "  ");
-            warningText.setForeground(Color.RED);
+            warningText = new JLabel("  " + I18n.textf("Please install %libopencv and its dependencies.", libOpencvName) + "  ");
             warningText.setFont(new Font("Courier New", Font.ITALIC, 18));
             warningText.setBackground(Color.yellow);
             warningText.setOpaque(true);
             this.add(warningText, BorderLayout.SOUTH); 
-            return;
         }
         return;
     }
@@ -532,7 +530,6 @@ public class Vision extends ConsolePanel implements ConfigurationListener, ItemL
                 }
             }
         });
-        
     }
 
     //Check ip given by user
@@ -639,7 +636,7 @@ public class Vision extends ConsolePanel implements ConfigurationListener, ItemL
         ipCamPing.setSize(440, 200);
         ipCamPing.setLocationRelativeTo(Vision.this);
         ipCamCheck = new JPanel(new MigLayout());
-        ImageIcon imgIpCam = ImageUtils.createImageIcon(String.format("images/menus/camera.png"));
+        ImageIcon imgIpCam = ImageUtils.createImageIcon("images/menus/camera.png");
         ipCamPing.setIconImage(imgIpCam.getImage());
         ipCamPing.setResizable(false);
         ipCamPing.setBackground(Color.GRAY);                  
@@ -800,7 +797,6 @@ public class Vision extends ConsolePanel implements ConfigurationListener, ItemL
      * Adapted from ContactMarker.placeLocationOnMap()
      */
     private void placeLocationOnMap() {
-
         if (getConsole().getMission() == null)
             return;
 
@@ -815,11 +811,13 @@ public class Vision extends ConsolePanel implements ConfigurationListener, ItemL
             if (id == null)
                 return;
             AbstractElement elems[] = MapGroup.getMapGroupInstance(getConsole().getMission()).getMapObjectsByID(id);
-            if (elems.length > 0)
+            if (elems.length > 0) {
                 GuiUtils.errorMessage(getConsole(), I18n.text("Add mark"),
                         I18n.text("The given ID already exists in the map. Please choose a different one"));
-            else
+            }
+            else {
                 validId = true;
+            }
         }
         frameTagID++;//increment ID
 
@@ -990,8 +988,7 @@ public class Vision extends ConsolePanel implements ConfigurationListener, ItemL
             saveImg = updaterThreadSave();
             saveImg.start();
         }
-        else
-        {
+        else {
             NeptusLog.pub().error("Opencv not found.");
             closingPanel = true;
             return;
@@ -1120,11 +1117,15 @@ public class Vision extends ConsolePanel implements ConfigurationListener, ItemL
                                 else
                                     popupzoom.setVisible(false);
 
-                                if(saveSnapshot) {
-                                    UtilCv.saveSnapshot(UtilCv.addText(UtilCv.histogramCv(temp), I18n.text("Histogram - On"), Color.GREEN, temp.getWidth() - 5, 20), String.format(logDir + "/snapshotImage"));
+                                if (saveSnapshot) {
+                                    UtilCv.saveSnapshot(
+                                            UtilCv.addText(UtilCv.histogramCv(temp), I18n.text("Histogram - On"),
+                                                    Color.GREEN, temp.getWidth() - 5, 20),
+                                            String.format(logDir + "/snapshotImage"));
                                     saveSnapshot = false;
                                 }
-                                showImage(UtilCv.addText(UtilCv.histogramCv(temp), I18n.text("Histogram - On"), Color.GREEN, temp.getWidth() - 5, 20));
+                                showImage(UtilCv.addText(UtilCv.histogramCv(temp), I18n.text("Histogram - On"),
+                                        Color.GREEN, temp.getWidth() - 5, 20));
                             }
                             else {
                                 if(zoomMask) {
@@ -1134,13 +1135,15 @@ public class Vision extends ConsolePanel implements ConfigurationListener, ItemL
                                 else
                                     popupzoom.setVisible(false);
                                 
-                                if(saveSnapshot) {
-                                    UtilCv.saveSnapshot(UtilCv.addText(temp, I18n.text("Histogram - Off"), Color.RED, temp.getWidth() - 5, 20), String.format(logDir + "/snapshotImage"));
+                                if (saveSnapshot) {
+                                    UtilCv.saveSnapshot(UtilCv.addText(temp, I18n.text("Histogram - Off"), Color.RED,
+                                            temp.getWidth() - 5, 20), String.format(logDir + "/snapshotImage"));
                                     saveSnapshot = false;
                                 }
-                                showImage(UtilCv.addText(temp, I18n.text("Histogram - Off"), Color.RED, temp.getWidth() - 5, 20));
+                                showImage(UtilCv.addText(temp, I18n.text("Histogram - Off"), Color.RED,
+                                        temp.getWidth() - 5, 20));
                             }
-                            
+
                             //save image tag to disk
                             if( captureFrame ) {
                                 xPixel = xPixel - widhtConsole/2;
@@ -1309,7 +1312,7 @@ public class Vision extends ConsolePanel implements ConfigurationListener, ItemL
                 double offsetE = msg.getY();
                 
                 //Height of Vehicle
-                double heightRelative = msg.getHeight()-msg.getZ();//absolute altitude - zero of that location
+                double heightRelative = msg.getHeight() - msg.getZ();//absolute altitude - zero of that location
                 locationType.setOffsetNorth(offsetN);
                 locationType.setOffsetEast(offsetE);
                 locationType.setHeight(heightRelative);
@@ -1321,6 +1324,7 @@ public class Vision extends ConsolePanel implements ConfigurationListener, ItemL
                 txtData.setText(info);
             }
             catch (Exception e) {
+                NeptusLog.pub().error(e.getMessage());
             }
         }
     }
@@ -1334,9 +1338,9 @@ public class Vision extends ConsolePanel implements ConfigurationListener, ItemL
      */
     public LocationType calcTagPosition(LocationType locationType, double orientationDegrees, double camTiltDeg) {
         double altitude = locationType.getHeight();
-        double dist = Math.tan(Math.toRadians(camTiltDeg))*(Math.abs(altitude));// hypotenuse
-        double offsetN = Math.cos(Math.toRadians(orientationDegrees))*dist;//oposite side
-        double offsetE = Math.sin(Math.toRadians(orientationDegrees))*dist;// adjacent side
+        double dist = Math.tan(Math.toRadians(camTiltDeg)) * (Math.abs(altitude));// hypotenuse
+        double offsetN = Math.cos(Math.toRadians(orientationDegrees)) * dist;// oposite side
+        double offsetE = Math.sin(Math.toRadians(orientationDegrees)) * dist;// adjacent side
 
         LocationType tagLocationType = locationType.convertToAbsoluteLatLonDepth();
         tagLocationType.setOffsetNorth(offsetN);
@@ -1344,10 +1348,6 @@ public class Vision extends ConsolePanel implements ConfigurationListener, ItemL
         return tagLocationType.convertToAbsoluteLatLonDepth();
     }
 
-    @Subscribe
-    public void consume(Announce announce) {
-    }
-    
     //Fill cv::Mat image with zeros
     public void inicImage() {
         if(!noVideoLogoState) {
@@ -1377,8 +1377,6 @@ public class Vision extends ConsolePanel implements ConfigurationListener, ItemL
             e1.printStackTrace();
         }
         if (line == null){
-//            JOptionPane.showMessageDialog(panelImage, I18n.text("Lost connection with vehicle"),
-//                    I18n.text("Connection error"), JOptionPane.ERROR_MESSAGE);
             GuiUtils.errorMessage(panelImage, I18n.text("Connection error"), I18n.text("Lost connection with vehicle"),
                     ModalityType.DOCUMENT_MODAL);
             raspiCam = false;
@@ -1549,7 +1547,8 @@ public class Vision extends ConsolePanel implements ConfigurationListener, ItemL
             tcpOK = false; 
         }
         if(tcpOK){
-            NeptusLog.pub().info("Connection successful from Server: "+clientSocket.getInetAddress()+":"+clientSocket.getLocalPort());
+            NeptusLog.pub().info("Connection successful from Server: " + clientSocket.getInetAddress() + ":"
+                    + clientSocket.getLocalPort());
             NeptusLog.pub().info("Receiving data image from RasPiCam...");
                 
             //Send data for sync 
