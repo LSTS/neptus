@@ -108,6 +108,47 @@ public class TestGridDecomposition {
         System.out.println("BR: " + bottomRight.getLatitudeAsPrettyString() + " " + bottomRight.getLongitudeAsPrettyString());
     }
 
+    private void testComputeGridBounds(double gridWidth, double gridHeight) {
+        if(gridDcmp == null)
+            System.out.println("No grid decomposition available");
+        else {
+            LocationType[] bounds = gridDcmp.computeGridBounds(gridWidth, gridHeight, center);
+
+            LocationType tl = bounds[0];
+            LocationType tr = bounds[1];
+            LocationType bl = bounds[2];
+            LocationType br = bounds[3];
+
+            tl.setOffsetWest(gridWidth/2);
+            tl.setOffsetNorth(gridHeight/2);
+            tl = topLeft.getNewAbsoluteLatLonDepth();
+
+            tr.setOffsetEast(gridWidth/2);
+            tr.setOffsetNorth(gridHeight/2);
+            tr = topRight.getNewAbsoluteLatLonDepth();
+
+            bl.setOffsetWest(gridWidth/2);
+            bl.setOffsetSouth(gridHeight/2);
+            bl = bottomLeft.getNewAbsoluteLatLonDepth();
+
+            br.setOffsetEast(gridWidth/2);
+            br.setOffsetSouth(gridHeight/2);
+            br = bottomRight.getNewAbsoluteLatLonDepth();
+
+            System.out.println("\n# Using GridArea.computeGridBounds()");
+            System.out.println("TopLeft to topRight " + tl.getDistanceInMeters(tr));
+            System.out.println("TopLeft to bottomLeft " + tl.getDistanceInMeters(bl));
+            System.out.println("TopRight to bottomRight " + tr.getDistanceInMeters(br));
+            System.out.println("BottomLeft to bottomRight " + bl.getDistanceInMeters(br));
+
+            System.out.println("\n--- Coordinates: ---");
+            System.out.println("TL: " + tl.getLatitudeAsPrettyString() + " " + tl.getLongitudeAsPrettyString());
+            System.out.println("TR: " + tr.getLatitudeAsPrettyString() + " " + tr.getLongitudeAsPrettyString());
+            System.out.println("BL: " + bl.getLatitudeAsPrettyString() + " " + bl.getLongitudeAsPrettyString());
+            System.out.println("BR: " + br.getLatitudeAsPrettyString() + " " + br.getLongitudeAsPrettyString());
+        }
+    }
+
     public void testDecomposeGrid() {
         if(gridDcmp == null)
             System.out.println("No grid decomposition available");
@@ -131,6 +172,7 @@ public class TestGridDecomposition {
             System.out.println();
 
             gridTest.testDecomposeGrid();
+            gridTest.testComputeGridBounds(areasWidths[i], areasHeights[i]);
             System.out.println("\n########\n");
         }
     }
