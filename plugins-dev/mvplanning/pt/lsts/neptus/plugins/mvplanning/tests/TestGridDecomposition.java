@@ -141,6 +141,7 @@ public class TestGridDecomposition {
 
             System.out.println("Decomposed grid as [" + gridDcmp.getNumberOfRows() + " x " + gridDcmp.getNumberOfColumns() + "] cells");
             System.out.println("Cells are [" + gridDcmp.getCellWidth() + " x " + gridDcmp.getCellHeight() + "]");
+            System.out.println("There are " + gridDcmp.getAreaCells().size() + " cells");
         }
     }
 
