@@ -112,9 +112,7 @@ public class GridArea implements MapDecomposition {
      * Decomposes the given area in a square grid/matrix
      * */
     @Override
-    public void decomposeMap(LocationType[] bounds) {
-        this.bounds = bounds;
-
+    public void decomposeMap() {
         /* operational area bounds */
         LocationType topLeft = bounds[0];
         LocationType topRight = bounds[1];

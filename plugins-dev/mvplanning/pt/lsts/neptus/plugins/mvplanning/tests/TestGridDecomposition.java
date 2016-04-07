@@ -137,8 +137,7 @@ public class TestGridDecomposition {
         if(gridDcmp == null)
             System.out.println("No grid decomposition available");
         else {
-            LocationType[] bounds = {topLeft, topRight, bottomLeft, bottomRight}; 
-            gridDcmp.decomposeMap(bounds);
+            gridDcmp.decomposeMap();
 
             System.out.println("Decomposed grid as [" + gridDcmp.getNumberOfRows() + " x " + gridDcmp.getNumberOfColumns() + "] cells");
             System.out.println("Cells are [" + gridDcmp.getCellWidth() + " x " + gridDcmp.getCellHeight() + "]");

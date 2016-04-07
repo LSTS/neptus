@@ -48,7 +48,7 @@ public interface MapDecomposition {
      * Decompose the given map area according to
      * the decomposition strategy
      * */
-    public void decomposeMap(LocationType[] bounds);
+    public void decomposeMap();
 
 
     /**
