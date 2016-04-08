@@ -407,6 +407,7 @@ public class Vision extends ConsolePanel implements ItemListener{
                         }
                         else {
                             popupzoom.setVisible(false);
+                            zoomMask = false;
                         }
                     }
                     else if((e.getKeyCode() == KeyEvent.VK_H) && ((e.getModifiers() & KeyEvent.ALT_MASK) != 0)) {
@@ -1559,23 +1560,35 @@ public class Vision extends ConsolePanel implements ItemListener{
 
     //Zoom in
     private void getCutImage(BufferedImage imageToCut, int w, int h) {
-        zoomImgCut = new BufferedImage (100, 100, BufferedImage.TYPE_3BYTE_BGR);
-        for( int i = -50; i < 50; i++ ) {
-            for( int j = -50; j < 50; j++ )
-                zoomImgCut.setRGB(i + 50, j + 50, imageToCut.getRGB( w+i, h+j));
-        }
+        if (w - 50 <= 0)
+            w = 55;
+        if (w + 50 >= imageToCut.getWidth())
+            w = imageToCut.getWidth() - 55;
+        if (h - 50 <= 0)
+            h = 55;
+        if (h + 50 >= imageToCut.getHeight())
+            h = imageToCut.getHeight() - 55;
+        
+        //TODO
+        if (popupzoom.isShowing()) {
+            zoomImgCut = new BufferedImage (100, 100, BufferedImage.TYPE_3BYTE_BGR);
+            for( int i = -50; i < 50; i++ ) {
+                for( int j = -50; j < 50; j++ )
+                    zoomImgCut.setRGB(i + 50, j + 50, imageToCut.getRGB( w+i, h+j));
+            }
 
-        // Create new (blank) image of required (scaled) size
-        scaledCutImage = new BufferedImage(300, 300, BufferedImage.TYPE_INT_ARGB);
-        // Paint scaled version of image to new image
-        graphics2D = scaledCutImage.createGraphics();
-        graphics2D.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BILINEAR);
-        graphics2D.drawImage(zoomImgCut, 0, 0, 300, 300, null);
-        // clean up
-        graphics2D.dispose();
-        //draw image
-        zoomLabel.setIcon(new ImageIcon(scaledCutImage));
-        zoomImg.revalidate();
-        zoomImg.add(zoomLabel);
+            // Create new (blank) image of required (scaled) size
+            scaledCutImage = new BufferedImage(300, 300, BufferedImage.TYPE_INT_ARGB);
+            // Paint scaled version of image to new image
+            graphics2D = scaledCutImage.createGraphics();
+            graphics2D.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BILINEAR);
+            graphics2D.drawImage(zoomImgCut, 0, 0, 300, 300, null);
+            // clean up
+            graphics2D.dispose();
+            //draw image
+            zoomLabel.setIcon(new ImageIcon(scaledCutImage));
+            zoomImg.revalidate();
+            zoomImg.add(zoomLabel);
+        }
     }    
 }
