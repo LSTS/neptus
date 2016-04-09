@@ -613,6 +613,12 @@ public class Vision extends ConsolePanel implements ItemListener{
     //Read ipUrl.ini to find IPCam ON
     @SuppressWarnings({ "unchecked", "rawtypes" })
     private void checkIPCam() {
+        fieldName.setText(I18n.text("NAME"));
+        fieldName.validate(); fieldName.repaint();
+        fieldIP.setText(I18n.text("IP"));
+        fieldIP.validate(); fieldIP.repaint();
+        fieldUrl.setText(I18n.text("URL"));
+        fieldUrl.validate(); fieldUrl.repaint();
         dataUrlIni = readIPUrl();
         int sizeDataUrl = dataUrlIni.length;
         String nameIPCam[] = new String[sizeDataUrl];
@@ -634,9 +640,11 @@ public class Vision extends ConsolePanel implements ItemListener{
         ipCamList.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
+                ipCamList.setEnabled(false);
                 JComboBox cb = (JComboBox)e.getSource();
                 rowSelect = cb.getSelectedIndex();
-                if(rowSelect >= 0) {
+                statePing = false;
+                if(rowSelect > 0) {
                     colorStateIPCam.setBackground(Color.LIGHT_GRAY);
                     jlabel.setText("---");
                     statePingOk = false;
@@ -646,7 +654,6 @@ public class Vision extends ConsolePanel implements ItemListener{
                     fieldIP.validate(); fieldIP.repaint();
                     fieldUrl.setText(I18n.text(dataUrlIni[rowSelect][2]));
                     fieldUrl.validate(); fieldUrl.repaint();
-                    statePing = false;
                     AsyncTask task = new AsyncTask() {
                         @Override
                         public Object run() throws Exception {
@@ -660,11 +667,13 @@ public class Vision extends ConsolePanel implements ItemListener{
                                 camRtpsUrl = dataUrlIni[rowSelect][2];
                                 colorStateIPCam.setBackground(Color.GREEN);
                                 jlabel.setText("ON");
+                                ipCamList.setEnabled(true);
                             }
                             else {
                                 selectIPCam.setEnabled(false);
                                 colorStateIPCam.setBackground(Color.RED);
                                 jlabel.setText("OFF");
+                                ipCamList.setEnabled(true);
                             }
                             selectIPCam.validate(); selectIPCam.repaint();
                         }
@@ -675,6 +684,13 @@ public class Vision extends ConsolePanel implements ItemListener{
                     statePingOk = false;
                     colorStateIPCam.setBackground(Color.RED);
                     jlabel.setText("OFF");
+                    ipCamList.setEnabled(true);
+                    fieldName.setText(I18n.text("NAME"));
+                    fieldName.validate(); fieldName.repaint();
+                    fieldIP.setText(I18n.text("IP"));
+                    fieldIP.validate(); fieldIP.repaint();
+                    fieldUrl.setText(I18n.text("URL"));
+                    fieldUrl.validate(); fieldUrl.repaint();
                 }
             }
         });
@@ -757,7 +773,7 @@ public class Vision extends ConsolePanel implements ItemListener{
         if (!confIni.exists()) {
             FileUtil.copyFileToDir(iniRsrcPath, ConfigFetch.getConfFolder());
         }
-        FileUtil.saveToFile(confIni.getAbsolutePath(), textString);
+        FileUtil.saveToFile(confIni.getAbsolutePath(), textString, "UTF-8", true);
     }
     
     //Ping CamIp
@@ -1569,7 +1585,6 @@ public class Vision extends ConsolePanel implements ItemListener{
         if (h + 50 >= imageToCut.getHeight())
             h = imageToCut.getHeight() - 55;
         
-        //TODO
         if (popupzoom.isShowing()) {
             zoomImgCut = new BufferedImage (100, 100, BufferedImage.TYPE_3BYTE_BGR);
             for( int i = -50; i < 50; i++ ) {

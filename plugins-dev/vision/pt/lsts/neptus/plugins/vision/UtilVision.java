@@ -39,6 +39,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
+import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
 
@@ -95,6 +96,7 @@ public class UtilVision {
     
     public static boolean pingIp(String host) {
         boolean ping = false;
+        boolean ping2 = false;
         try {
             String cmd = "";
             if (System.getProperty("os.name").startsWith("Windows")) {
@@ -112,7 +114,11 @@ public class UtilVision {
             catch (InterruptedException e) {
                 e.printStackTrace();
             }
-            if (myProcess.exitValue() == 0)
+            
+            InetAddress hostip = InetAddress.getByName(host);
+            ping2 = hostip.isReachable(1000);
+            
+            if (myProcess.exitValue() == 0 && ping2)
                 ping = true;
             else
                 ping = false;
@@ -123,7 +129,7 @@ public class UtilVision {
         catch (IOException e) {
             e.printStackTrace();
         } // Ping doesnt work
-
+        
         return ping;
     }
     
