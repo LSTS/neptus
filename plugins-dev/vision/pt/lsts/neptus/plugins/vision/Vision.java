@@ -636,6 +636,7 @@ public class Vision extends ConsolePanel implements ItemListener{
             @Override
             public void actionPerformed(ActionEvent e) {
                 ipCamList.setEnabled(false);
+                selectIPCam.setEnabled(false);
                 JComboBox cb = (JComboBox)e.getSource();
                 rowSelect = cb.getSelectedIndex();
                 statePing = false;
