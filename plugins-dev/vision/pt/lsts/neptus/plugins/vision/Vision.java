@@ -346,12 +346,12 @@ public class Vision extends ConsolePanel implements ItemListener{
                     Component c = evt.getComponent();
                     widhtConsole = c.getSize().width;
                     heightConsole = c.getSize().height;
-                    widhtConsole = widhtConsole - 22;
-                    heightConsole = heightConsole - 22;
-                    xScale = (float)widhtConsole/widthImgRec;
-                    yScale = (float)heightConsole/heightImgRec;
+                    widhtConsole = widhtConsole - 24;
+                    heightConsole = heightConsole - 24;
+                    xScale = (float) widhtConsole / widthImgRec;
+                    yScale = (float) heightConsole / heightImgRec;
                     size = new Size(widhtConsole, heightConsole);
-                    matResize = new Mat(heightConsole, widhtConsole, CvType.CV_8UC3);
+                    matResize = new Mat((int) size.height, (int) size.width, CvType.CV_8UC3);
                     if(!raspiCam && !ipCam)
                         initImage();
                 }
