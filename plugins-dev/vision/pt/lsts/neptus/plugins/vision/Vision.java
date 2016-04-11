@@ -613,12 +613,7 @@ public class Vision extends ConsolePanel implements ItemListener{
     //Read ipUrl.ini to find IPCam ON
     @SuppressWarnings({ "unchecked", "rawtypes" })
     private void checkIPCam() {
-        fieldName.setText(I18n.text("NAME"));
-        fieldName.validate(); fieldName.repaint();
-        fieldIP.setText(I18n.text("IP"));
-        fieldIP.validate(); fieldIP.repaint();
-        fieldUrl.setText(I18n.text("URL"));
-        fieldUrl.validate(); fieldUrl.repaint();
+        repaintParametersTextFields();
         dataUrlIni = readIPUrl();
         int sizeDataUrl = dataUrlIni.length;
         String nameIPCam[] = new String[sizeDataUrl];
@@ -649,11 +644,14 @@ public class Vision extends ConsolePanel implements ItemListener{
                     jlabel.setText("---");
                     statePingOk = false;
                     fieldName.setText(I18n.text(dataUrlIni[rowSelect][0]));
-                    fieldName.validate(); fieldName.repaint();
+                    fieldName.validate();
+                    fieldName.repaint();
                     fieldIP.setText(I18n.text(dataUrlIni[rowSelect][1]));
-                    fieldIP.validate(); fieldIP.repaint();
+                    fieldIP.validate();
+                    fieldIP.repaint();
                     fieldUrl.setText(I18n.text(dataUrlIni[rowSelect][2]));
-                    fieldUrl.validate(); fieldUrl.repaint();
+                    fieldUrl.validate();
+                    fieldUrl.repaint();
                     AsyncTask task = new AsyncTask() {
                         @Override
                         public Object run() throws Exception {
@@ -685,12 +683,7 @@ public class Vision extends ConsolePanel implements ItemListener{
                     colorStateIPCam.setBackground(Color.RED);
                     jlabel.setText("OFF");
                     ipCamList.setEnabled(true);
-                    fieldName.setText(I18n.text("NAME"));
-                    fieldName.validate(); fieldName.repaint();
-                    fieldIP.setText(I18n.text("IP"));
-                    fieldIP.validate(); fieldIP.repaint();
-                    fieldUrl.setText(I18n.text("URL"));
-                    fieldUrl.validate(); fieldUrl.repaint();
+                    repaintParametersTextFields();
                 }
             }
         });
@@ -764,6 +757,18 @@ public class Vision extends ConsolePanel implements ItemListener{
         ipCamPing.add(ipCamCheck);
         ipCamPing.pack();
         ipCamPing.setVisible(true);
+    }
+
+    private void repaintParametersTextFields() {
+        fieldName.setText(I18n.text("NAME"));
+        fieldName.validate();
+        fieldName.repaint();
+        fieldIP.setText(I18n.text("IP"));
+        fieldIP.validate();
+        fieldIP.repaint();
+        fieldUrl.setText(I18n.text("URL"));
+        fieldUrl.validate();
+        fieldUrl.repaint();
     }
     
     //Write to file
