@@ -34,6 +34,7 @@ package pt.lsts.neptus.plugins.mvplanning.plangeneration.mapdecomposition;
 
 import java.awt.Color;
 import java.awt.Graphics2D;
+import java.awt.geom.AffineTransform;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 import java.util.ArrayList;
@@ -200,7 +201,7 @@ public class GridArea extends GeometryElement implements MapDecomposition {
 
     @Override
     public void paint(Graphics2D g, StateRenderer2D renderer, double rotation) {
-        g.setTransform(renderer.identity);
+        g.setTransform(new AffineTransform());
         for(int i = 0; i < nrows; i++) {
             for(int j = 0; j < ncols; j++) {
                 /* compute cell's center location */
@@ -215,7 +216,7 @@ public class GridArea extends GeometryElement implements MapDecomposition {
                 Rectangle2D.Double cellRec = new Rectangle2D.Double(cellPos.getX(), cellPos.getY(), CELL_WIDTH * renderer.getZoom(), cellHeight * renderer.getZoom());
                 g.draw(cellRec);
             }
-            g.setTransform(renderer.identity);
+            g.setTransform(new AffineTransform());
         }
     }
 
