@@ -278,7 +278,7 @@ public class Vision extends ConsolePanel implements ItemListener{
     //row select from string matrix of IPCam List
     private int rowSelect;
     //JLabel for text IPCam Ping
-    private JLabel jlabel;
+    private JLabel onOffIndicator;
     //JTextField for IPCam name
     private JTextField fieldName = new JTextField(I18n.text("Name"));
     //JTextField for IPCam ip
@@ -546,17 +546,17 @@ public class Vision extends ConsolePanel implements ItemListener{
         });
         ipHostCheck.add(hostIP);
         colorStateIPCam = new JPanel();
-        jlabel = new JLabel(I18n.text("OFF"));
-        jlabel.setFont(new Font("Verdana",1,14));
+        onOffIndicator = new JLabel(I18n.text("OFF"));
+        onOffIndicator.setFont(new Font("Verdana",1,14));
         colorStateIPCam.setBackground(Color.RED);
-        colorStateIPCam.add(jlabel);
+        colorStateIPCam.add(onOffIndicator);
         ipHostCheck.add(colorStateIPCam,"h 30!, w 30!");
         selectIPCam = new JButton(I18n.text("Check"));
         selectIPCam.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 statePing = false;
                 colorStateIPCam.setBackground(Color.LIGHT_GRAY);
-                jlabel.setText("---");
+                onOffIndicator.setText("---");
                 AsyncTask task = new AsyncTask() {
                     @Override
                     public Object run() throws Exception {
@@ -567,13 +567,13 @@ public class Vision extends ConsolePanel implements ItemListener{
                     public void finish() {
                         if(statePing) {
                             colorStateIPCam.setBackground(Color.GREEN);
-                            jlabel.setText("ON");
+                            onOffIndicator.setText("ON");
                             pingHostOk = true;
                             selectIPCam.setEnabled(true);
                         }
                         else {
                             colorStateIPCam.setBackground(Color.RED);
-                            jlabel.setText("OFF");
+                            onOffIndicator.setText("OFF");
                             pingHostOk = false;
                             selectIPCam.setEnabled(false);
                         }
@@ -641,7 +641,7 @@ public class Vision extends ConsolePanel implements ItemListener{
                 statePing = false;
                 if(rowSelect > 0) {
                     colorStateIPCam.setBackground(Color.LIGHT_GRAY);
-                    jlabel.setText("---");
+                    onOffIndicator.setText("---");
                     statePingOk = false;
                     fieldName.setText(I18n.text(dataUrlIni[rowSelect][0]));
                     fieldName.validate();
@@ -664,13 +664,13 @@ public class Vision extends ConsolePanel implements ItemListener{
                                 selectIPCam.setEnabled(true);
                                 camRtpsUrl = dataUrlIni[rowSelect][2];
                                 colorStateIPCam.setBackground(Color.GREEN);
-                                jlabel.setText("ON");
+                                onOffIndicator.setText("ON");
                                 ipCamList.setEnabled(true);
                             }
                             else {
                                 selectIPCam.setEnabled(false);
                                 colorStateIPCam.setBackground(Color.RED);
-                                jlabel.setText("OFF");
+                                onOffIndicator.setText("OFF");
                                 ipCamList.setEnabled(true);
                             }
                             selectIPCam.validate(); selectIPCam.repaint();
@@ -681,7 +681,7 @@ public class Vision extends ConsolePanel implements ItemListener{
                 else {
                     statePingOk = false;
                     colorStateIPCam.setBackground(Color.RED);
-                    jlabel.setText("OFF");
+                    onOffIndicator.setText("OFF");
                     ipCamList.setEnabled(true);
                     repaintParametersTextFields();
                 }
@@ -690,10 +690,10 @@ public class Vision extends ConsolePanel implements ItemListener{
         ipCamCheck.add(ipCamList,"split 3, width 50:250:250, center");
         
         colorStateIPCam = new JPanel();
-        jlabel = new JLabel(I18n.text("OFF"));
-        jlabel.setFont(new Font("Verdana",1,14));
+        onOffIndicator = new JLabel(I18n.text("OFF"));
+        onOffIndicator.setFont(new Font("Verdana",1,14));
         colorStateIPCam.setBackground(Color.RED);
-        colorStateIPCam.add(jlabel);
+        colorStateIPCam.add(onOffIndicator);
         ipCamCheck.add(colorStateIPCam,"h 30!, w 30!");
         
         selectIPCam = new JButton(I18n.text("Select IPCam"), imgIPCam);
