@@ -46,6 +46,11 @@ public class Environment implements MapChangeListener {
     private ConsoleAdapter console;
     private ArrayList<AbstractElement> consoleObstacles;
 
+    public Environment() {
+        console = null;
+        consoleObstacles = new ArrayList<>();
+    }
+
     public Environment(ConsoleAdapter console) {
         this.console = console;
         this.console.registerToEventBus(this);
@@ -54,9 +59,13 @@ public class Environment implements MapChangeListener {
         this.console.getMapGroup().addChangeListener(this);
     }
 
+    public void addObstacle(AbstractElement obstacle) {
+        consoleObstacles.add(obstacle);
+    }
+
     @Override
     public void mapChanged(MapChangeEvent mapChange) {
         if(mapChange != null)
-            consoleObstacles.add(mapChange.getChangedObject());
+            addObstacle(mapChange.getChangedObject());
     }
 }
