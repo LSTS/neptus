@@ -31,9 +31,11 @@
  */
 package pt.lsts.neptus.plugins.mvplanning.tests;
 
+import java.util.Arrays;
 import java.util.List;
 
 import pt.lsts.neptus.plugins.mvplanning.Environment;
+import pt.lsts.neptus.plugins.mvplanning.plangeneration.MapCell;
 import pt.lsts.neptus.plugins.mvplanning.plangeneration.mapdecomposition.GridArea;
 import pt.lsts.neptus.types.coord.LocationType;
 
@@ -145,6 +147,21 @@ public class TestGridDecomposition {
         }
     }
 
+    public void testNumberOfNeighbours() {
+        /* count number of cells that don't have 4 neighbours */
+        int count = (int) gridDcmp.getAreaCells()
+                .stream()
+                .filter((s) -> s.getNeighbours().size() < 4)
+                .count();
+
+        int nrows = gridDcmp.getNumberOfRows();
+        int ncols = gridDcmp.getNumberOfColumns();
+        int correctValue = ((nrows + ncols) * 2) - 4;
+        System.out.println("\n# There are " + count + " cells with less than 4 neighbours");
+        System.out.println("# There should be exactly " + correctValue + " cells");
+        System.out.println("# Validated: " + (count == correctValue));
+    }
+
     public static void main(String[] args) {
         double[] areasWidths = {1000, 500, 300, 200};
         double[] areasHeights = {1000, 500, 200, 50};
@@ -157,6 +174,7 @@ public class TestGridDecomposition {
 
             gridTest.testDecomposeGrid();
             gridTest.testComputeGridBounds(areasWidths[i], areasHeights[i]);
+            gridTest.testNumberOfNeighbours();
             System.out.println("\n########\n");
         }
     }
