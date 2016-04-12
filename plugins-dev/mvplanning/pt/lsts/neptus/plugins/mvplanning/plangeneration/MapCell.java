@@ -60,6 +60,10 @@ public class MapCell {
     public void addNeighbour(MapCell neighCell) {
         neighbours.add(neighCell);
     }
+
+    public List<MapCell> getNeighbours() {
+        return neighbours;
+    }
     
     public boolean isNeighbour(MapCell cell) {
         return neighbours.contains(cell);
