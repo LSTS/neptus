@@ -53,6 +53,7 @@ import pt.lsts.neptus.plugins.PluginDescription;
 import pt.lsts.neptus.renderer2d.LayerPriority;
 import pt.lsts.neptus.renderer2d.StateRenderer2D;
 import pt.lsts.neptus.types.coord.LocationType;
+import pt.lsts.neptus.util.DateTimeUtil;
 
 /**
  * @author hfq
@@ -121,7 +122,14 @@ public class SalinityReplay extends ColormapOverlay implements LogReplayLayer {
                         break;
                     }
 
-                    EstimatedState state = indexScanner.next(EstimatedState.class);
+                    EstimatedState state = (EstimatedState) lsfIndex.getMessageBeforeOrAt(
+                            EstimatedState.class.getSimpleName(), indexScanner.getIndex(), salinity.getTimestamp());
+                    
+                    if (state == null) {
+                        NeptusLog.pub().warn(String.format("No location found for %msg at %time!", salinity.getMessageType(), 
+                                DateTimeUtil.milliSecondsToFormatedString(salinity.getTimestampMillis())));
+                        continue;
+                    }
 
                     LocationType loc = new LocationType(Math.toDegrees(state.getLat()), Math.toDegrees(state.getLon()));
                     loc.translatePosition(state.getX(), state.getY(), 0);
