@@ -62,10 +62,10 @@ import com.l2fprod.common.propertysheet.Property;
 public class StationKeeping extends Maneuver implements LocatedManeuver, IMCSerialization, StatisticsProvider {
 
 	public static final int INFINITY_DURATION = 0;
-	public static final double MINIMUM_SK_RADIUS = 20;
+	public static final double MINIMUM_SK_RADIUS = 0;
 	
 	private int duration = 60;
-	private double radius = MINIMUM_SK_RADIUS, speed = 30;
+	private double radius = 20, speed = 30;
 	private String speedUnits = "m/s";
 	private ManeuverLocation location = new ManeuverLocation();	 
 
