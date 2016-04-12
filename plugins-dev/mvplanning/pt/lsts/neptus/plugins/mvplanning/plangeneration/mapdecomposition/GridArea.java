@@ -143,7 +143,7 @@ public class GridArea extends GeometryElement implements MapDecomposition {
             for(int j = 0; j < ncols; j++) {
                 double horizontalShift = i * CELL_WIDTH;
                 double verticalShift = j * cellHeight ;
-                
+
                 LocationType cellLoc = new LocationType(topLeft);
                 cellLoc.setOffsetEast(horizontalShift);
                 cellLoc.setOffsetSouth(verticalShift);
@@ -152,6 +152,21 @@ public class GridArea extends GeometryElement implements MapDecomposition {
                 /* TODO check for obstacles, using Environment */
                 /* TODO set correct bounds for each map cells (set vertices) */
                 decomposedMap[i][j] = new MapCell(cellLoc, false);
+
+                /* neighbour cells */
+
+                if(i != 0) {
+                    /* cell above me is my neighbour,
+                     * and I'm neighbour its */
+                    decomposedMap[i][j].addNeighbour(decomposedMap[i-1][j]);
+                    decomposedMap[i-1][j].addNeighbour(decomposedMap[i][j]);
+                }
+
+                if(j != 0) {
+                    /* the same for the cell on my left */
+                    decomposedMap[i][j].addNeighbour(decomposedMap[i][j-1]);
+                    decomposedMap[i][j-1].addNeighbour(decomposedMap[i][j]);
+                }
             }
         }
     }
