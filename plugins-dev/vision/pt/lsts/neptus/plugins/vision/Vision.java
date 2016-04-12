@@ -905,8 +905,8 @@ public class Vision extends ConsolePanel implements ItemListener{
         panelImage = new JPanel();
         panelImage.setBackground(Color.LIGHT_GRAY);
         panelImage.setSize(this.getWidth(), this.getHeight());
-        this.setLayout(new MigLayout());
-        this.add(panelImage, BorderLayout.CENTER);
+        this.setLayout(new BorderLayout());
+        this.add(panelImage);
         
         //JPanel for info and config values      
         config = new JPanel(new MigLayout());
