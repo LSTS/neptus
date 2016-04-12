@@ -36,6 +36,7 @@ import java.util.ArrayList;
 import pt.lsts.neptus.mp.MapChangeEvent;
 import pt.lsts.neptus.mp.MapChangeListener;
 import pt.lsts.neptus.plugins.mvplanning.interfaces.ConsoleAdapter;
+import pt.lsts.neptus.types.coord.LocationType;
 import pt.lsts.neptus.types.map.AbstractElement;
 
 /**
@@ -57,6 +58,12 @@ public class Environment implements MapChangeListener {
         consoleObstacles = new ArrayList<>();
 
         this.console.getMapGroup().addChangeListener(this);
+    }
+
+    public boolean hasObstacle(LocationType lt) {
+        return consoleObstacles
+                .stream()
+                .anyMatch((s) -> s.containsPoint(lt, null));
     }
 
     public void addObstacle(AbstractElement obstacle) {
