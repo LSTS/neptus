@@ -47,6 +47,8 @@ import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPopupMenu;
 
+import org.necsave.simulation.SimulatorGUI;
+
 import com.google.common.eventbus.Subscribe;
 
 import info.necsave.msgs.AbortMission;
@@ -105,6 +107,7 @@ public class NecsaveUI extends ConsoleInteraction {
     private ParallelepipedElement elem = null;
     private LocationType corner = null; 
     private double width, height;
+    private SimulatorGUI simulator = null;
 
     @Override
     public void initInteraction() {
@@ -201,6 +204,16 @@ public class NecsaveUI extends ConsoleInteraction {
         }
     }
 
+    @NeptusMenuItem("Advanced>NECSAVE>Simulation Manager")
+    public void simulationManager() {
+        if (simulator == null)
+            simulator = new SimulatorGUI();
+        else
+            if (!simulator.isVisible()) {
+                simulator = new SimulatorGUI();
+            }
+    }
+    
     @NeptusMenuItem("Advanced>NECSAVE>Abort Mission")
     public void abortMission() {
         AbortMission abort = new AbortMission();

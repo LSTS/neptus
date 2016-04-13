@@ -1,0 +1,95 @@
+<xml>
+
+<Section name="General" show="true" platform="All">
+  <Field name="Platform Id" type="textfield"/>
+  <Field name="Platform Name" type="textfield"/>
+  <Field name="Debug Level" type="textfield"/>
+</Section>
+
+<Section name="$PLATFORM$" show="true" platform="All">
+  <Field name="Module Id" type="textfield"/>
+  <Field name="Speed" type="textfield"/>
+  <Field name="Depth" type="textfield"/>
+  <Field name="Minimum Depth" type="textfield"/>
+  <Field name="Maximum Depth" type="textfield"/>
+  <Field name="Idle Consumption" type="textfield"/>
+  <Field name="Move Consumption" type="textfield"/>
+</Section>
+
+<Section name="$PLATFORM$/InitialState" show="true" platform="All">
+  <Field name="Latitude" type="textfield"/>
+  <Field name="Longitude" type="textfield"/>
+  <Field name="Depth" type="textfield"/>
+</Section>
+
+<Section name="$PLATFORM$/NMP" show="true" platform="All">
+  <Field name="Local Port" type="textfield"/>
+</Section>
+
+<Section name="DunePlatform/IMC" show="true" platform="DunePlatform">
+  <Field name="DUNE Address" type="textfield"/>
+  <Field name="DUNE Port" type="textfield"/>
+  <Field name="Local Port" type="textfield"/>
+  <Field name="Remote IMC ID" type="textfield"/>
+</Section>
+
+<Section name="DunePlatform/Simulation" show="true" platform="DunePlatform">
+  <Field name="Enabled" type="checkbox"/>
+  <Field name="Communications Simulation" type="checkbox"/>
+</Section>
+
+<Section name="$PLATFORM$/ContactSimulation" show="true" platform="All">
+  <Field name="Enabled" type="checkbox"/>
+  <Field name="Time" type="textfield"/>
+  <Field name="Location" type="textarea"/>
+</Section>
+
+<Section name="$PLATFORM$/Capabilities" show="true" platform="All">
+  <Field name="Block" type="textarea"/>
+  <Field name="Time" type="textfield"/>
+</Section>
+
+<Section name="MissionPlanner" show="true" platform="All">
+  <Field name="Planner Mode" type="textfield"/>
+  <Field name="Planner Implementation" type="textfield"/>
+  <Field name="Number of sub-areas" type="textfield"/>
+  <Field name="PlatformPlanProgress interval" type="textfield"/>
+  <Field name="Verbose" type="checkbox"/>
+  <Field name="Gateway id" type="textfield"/>
+</Section>
+
+<Section name="VehiclePlanner" show="false" platform="All">
+  <Field name="Debug Level" type="textfield"/>
+</Section>
+
+<Section name="Perception" show="false" platform="All">
+  <Field name="Debug Level" type="textfield"/>
+</Section>
+
+<Section name="NecRouter" show="false" platform="All">
+  <Field name="Registration Endpoint" type="textfield"/>
+  <Field name="XSUB Endpoint" type="textfield"/>
+  <Field name="XPUB Endpoint" type="textfield"/>
+  <Field name="Router Endpoint" type="textfield"/>
+  <Field name="Dealer Endpoint" type="textfield"/>
+</Section>
+
+<Section name="ProxyXBus" show="false" platform="All">
+  <Field name="Frontend Endpoint" type="textfield"/>
+  <Field name="Backend Endpoint" type="textfield"/>
+</Section>
+
+<Section name="ProxyPerception" show="false" platform="All">
+  <Field name="Frontend Endpoint" type="textfield"/>
+  <Field name="Backend Endpoint" type="textfield"/>
+</Section>
+
+<Section name="$PLATFORM$/SideScanSonar" show="false" platform="All">
+  <Field name="Present" type="textfield"/>
+  <Field name="Range" type="textfield"/>
+  <Field name="Consumption" type="textfield"/>
+  <Field name="Depth" type="textfield"/>
+  <Field name="Resolution" type="textfield"/>
+</Section>
+
+</xml>
