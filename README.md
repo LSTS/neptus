@@ -1,6 +1,8 @@
 Neptus, Command and Control Framework
 =====================================
 
+[![Join the chat at https://gitter.im/LSTS/neptus](https://badges.gitter.im/LSTS/neptus.svg)](https://gitter.im/LSTS/neptus?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+
 Copyright © 2004-2016 Universidade do Porto - Faculdade de Engenharia
 Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
 All rights reserved.
