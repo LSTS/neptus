@@ -35,6 +35,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import pt.lsts.neptus.plugins.mvplanning.Environment;
+import pt.lsts.neptus.plugins.mvplanning.interfaces.MapDecomposition;
 import pt.lsts.neptus.plugins.mvplanning.plangeneration.MapCell;
 import pt.lsts.neptus.plugins.mvplanning.plangeneration.mapdecomposition.GridArea;
 import pt.lsts.neptus.types.coord.LocationType;
@@ -162,6 +163,24 @@ public class TestGridDecomposition {
         System.out.println("# Validated: " + (count == correctValue));
     }
 
+    public void testSplitDecomposition(int n) {
+        System.out.println("\n --- Testing splitDecomposition() ---");
+
+        MapDecomposition[] newDcmp = gridDcmp.split(n);
+        if(newDcmp == null)
+            System.out.println("# Can't split in " + n + " decompositions");
+        else {
+            System.out.println("# Original decomposition was split in " + newDcmp.length);
+
+            for(int i = 0; i < newDcmp.length; i++) {
+                MapCell[][] cells = ((GridArea) newDcmp[i]).getAllCells();
+                int nrows = cells.length;
+                int ncols = cells[0].length;
+                System.out.println("# Decomposition " + i + " : [" + nrows + "x" + ncols + "]");
+            }
+        }
+    }
+
     public static void main(String[] args) {
         double[] areasWidths = {1000, 500, 300, 200};
         double[] areasHeights = {1000, 500, 200, 50};
@@ -175,6 +194,10 @@ public class TestGridDecomposition {
             gridTest.testDecomposeGrid();
             gridTest.testComputeGridBounds(areasWidths[i], areasHeights[i]);
             gridTest.testNumberOfNeighbours();
+
+            int[] splits = {0, 1, 2, 3, 4};
+            for(int j = 0; j < splits.length; j++)
+                gridTest.testSplitDecomposition(j);
             System.out.println("\n########\n");
         }
     }
