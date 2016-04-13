@@ -42,6 +42,8 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
@@ -146,7 +148,16 @@ public class MarkerManagement {
         frmMarkerManagement.setIconImage(Toolkit.getDefaultToolkit().getImage(MarkerManagement.class.getResource("/images/menus/marker.png")));
         frmMarkerManagement.setTitle(I18n.text("Marker Management"));
         frmMarkerManagement.setBounds(100, 100, 687, 426);
-        frmMarkerManagement.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
+        frmMarkerManagement.addWindowListener(new WindowAdapter()
+        {
+            @Override
+            public void windowClosing(WindowEvent e)
+            {
+                if (markerEditFrame != null)
+                    markerEditFrame.dispose();
+                e.getWindow().dispose();
+            }
+        });
         frmMarkerManagement.getContentPane().setLayout(new MigLayout("", "[grow]", "[grow]"));
         frmMarkerManagement.setVisible(true);
         frmMarkerManagement.setResizable(false);
@@ -1100,5 +1111,10 @@ public class MarkerManagement {
                 openMarkerEditor(table.getValueAt(rowToOpen, 1).toString(), rowToOpen);
                 table.setRowSelectionInterval(rowToOpen, rowToOpen);
             }
+    }
+
+    public boolean isVisible() {
+       
+        return frmMarkerManagement.isVisible();
     }
 }

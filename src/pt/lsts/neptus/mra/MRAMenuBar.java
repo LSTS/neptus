@@ -833,14 +833,18 @@ public class MRAMenuBar {
      * 
      */
     public void setUpMarkerManagementMenu() {
-        if (markerManagement != null) {
+        if (markerManagement != null)
             toolsMenu.remove(markerItem);
-        }
+
         markerManagement = new AbstractAction(I18n.text("Markers Management"), ImageUtils.getIcon("images/menus/marker.png")) {
 
             @Override
             public void actionPerformed(ActionEvent e) {
-                markerMngmt = new MarkerManagement(mra, mra.getMraPanel());
+                if (markerMngmt == null)
+                    markerMngmt = new MarkerManagement(mra, mra.getMraPanel());
+                else
+                    if (!markerMngmt.isVisible())
+                        markerMngmt = new MarkerManagement(mra, mra.getMraPanel());
 
             }
         };
