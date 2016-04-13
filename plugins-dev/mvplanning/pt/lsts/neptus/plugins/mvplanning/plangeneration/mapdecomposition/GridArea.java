@@ -38,9 +38,10 @@ import java.awt.geom.AffineTransform;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
-
+import pt.lsts.imc.Map;
 import pt.lsts.neptus.plugins.mvplanning.Environment;
 import pt.lsts.neptus.plugins.mvplanning.interfaces.MapDecomposition;
 import pt.lsts.neptus.plugins.mvplanning.plangeneration.MapCell;
@@ -85,6 +86,20 @@ public class GridArea extends GeometryElement implements MapDecomposition {
         this.gridHeight = gridHeight;
         this.center = center;
         this.env = env;
+
+        this.bounds = computeGridBounds();
+    }
+
+    /**
+     * Used when splitting a GridArea
+     * */
+    public GridArea(MapCell[][] cells, int nrows, int ncols, LocationType center, Environment env) {
+        this.decomposedMap = cells;
+        this.nrows = nrows;
+        this.ncols = ncols;
+        this.center = center;
+        this.gridWidth = CELL_WIDTH * ncols;
+        this.gridHeight = cellHeight * nrows;
 
         this.bounds = computeGridBounds();
     }
@@ -169,6 +184,34 @@ public class GridArea extends GeometryElement implements MapDecomposition {
                 }
             }
         }
+    }
+
+    @Override
+    public MapDecomposition[] split(int n) {
+        if((n == 0 || n == 1) || n > nrows)
+            return null;
+        else {
+            MapDecomposition[] parts = new GridArea[n];
+
+            for(int i = 0; i < n; i++) {
+                int newRows = nrows / n;
+
+                if((i == n-1)) /* in case matrix is not square, last part is bigger*/
+                    newRows += (nrows % n);
+
+                MapCell[][] newCells = subsetGrid(i * newRows, newRows, ncols);
+                /* TODO set new center location */
+                parts[i] = new GridArea(newCells, newRows, ncols, center, env);
+            }
+            return parts;
+        }
+    }
+
+    private MapCell[][] subsetGrid(int startRow, int nrows, int ncols) {
+        MapCell[][] newGrid = new MapCell[nrows][ncols];
+        for(int i = startRow; i < nrows; i++)
+            newGrid[i] = decomposedMap[i].clone();
+        return newGrid;
     }
 
     @Override
