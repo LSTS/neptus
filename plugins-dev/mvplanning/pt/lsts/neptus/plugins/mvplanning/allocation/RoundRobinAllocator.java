@@ -78,36 +78,38 @@ public class RoundRobinAllocator extends AbstractAllocator {
     @Override
     public void doAllocation() {
         synchronized(plans) {
-            if(plans.isEmpty() || vehicles.isEmpty())
-                return;
+            synchronized(vehicles) {
+                if(plans.isEmpty() || vehicles.isEmpty())
+                    return;
 
-            int i = 0;
-            boolean allocated;
-            List<PlanTask> tmpList = new ArrayList<>(plans);
+                int i = 0;
+                boolean allocated;
+                List<PlanTask> tmpList = new ArrayList<>(plans);
 
-            for(int j = 0; j < plans.size(); j++) {
-                allocated = false;
-                PlanTask ptask = plans.get(j);
-                /* iterate over profile's vehicles and find the first one available */
-                while(!allocated && (i < vehicles.size())) {
-                    String vehicle = vehicles.get(i);
-                    if(vawareness.isVehicleAvailable(vehicle) && ptask.containsVehicle(vehicle)) {
-                        allocated = allocateTo(vehicle, ptask);
+                for(int j = 0; j < plans.size(); j++) {
+                    allocated = false;
+                    PlanTask ptask = plans.get(j);
+                    /* iterate over profile's vehicles and find the first one available */
+                    while(!allocated && (i < vehicles.size())) {
+                        String vehicle = vehicles.get(i);
+                        if(vawareness.isVehicleAvailable(vehicle) && ptask.containsVehicle(vehicle)) {
+                            allocated = allocateTo(vehicle, ptask);
 
-                        if(allocated) {
-                            NeptusLog.pub().info("Allocating " + ptask.getPlanId() + " to " + vehicle);
-                            /* move vehicle to the end of the queue */
-                            vehicles.remove(i);
-                            vehicles.add(vehicle);
+                            if(allocated) {
+                                NeptusLog.pub().info("Allocating " + ptask.getPlanId() + " to " + vehicle);
+                                /* move vehicle to the end of the queue */
+                                vehicles.remove(i);
+                                vehicles.add(vehicle);
 
-                            tmpList.remove(ptask);
-                            console.post(new MvPlanningEventPlanAllocated(ptask.getPlanId(), ptask.getProfile().getId(), vehicle));
+                                tmpList.remove(ptask);
+                                console.post(new MvPlanningEventPlanAllocated(ptask.getPlanId(), ptask.getProfile().getId(), vehicle));
+                            }
                         }
+                        i++;
                     }
-                    i++;
                 }
+                plans = tmpList;
             }
-            plans = tmpList;
         }
     }
     
