@@ -31,11 +31,11 @@
  */
 package pt.lsts.neptus.plugins.vision;
 
-import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dialog.ModalityType;
 import java.awt.Font;
+import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.MouseInfo;
 import java.awt.RenderingHints;
@@ -95,9 +95,7 @@ import com.google.common.eventbus.Subscribe;
 
 import foxtrot.AsyncTask;
 import foxtrot.AsyncWorker;
-
 import net.miginfocom.swing.MigLayout;
-
 import pt.lsts.imc.CcuEvent;
 import pt.lsts.imc.EstimatedState;
 import pt.lsts.imc.MapFeature;
@@ -193,8 +191,9 @@ public class Vision extends ConsolePanel implements ItemListener{
     private int lengthImage;
     //buffer for save data receive
     private byte[] data;
-    //Buffer image for JFrame/showImage
-    private BufferedImage temp;
+    //Buffer image for showImage
+    private BufferedImage offlineImage;
+    private BufferedImage realImage;
     //Flag - start acquired image
     private boolean raspiCam = false;
     //Flag - Lost connection to the vehicle
@@ -212,10 +211,7 @@ public class Vision extends ConsolePanel implements ItemListener{
     
     private boolean closingPanel = false;
     
-    //JLabel for image
-    private JLabel picLabel;
-    //JPanel for display image
-    private JPanel panelImage;
+    boolean refreshTemp;
     //JPanel for info and config values
     private JPanel config;
     //JText info of data receive
@@ -341,13 +337,12 @@ public class Vision extends ConsolePanel implements ItemListener{
             //clears all the unused initializations of the standard ConsolePanel
             removeAll();
             //Resize Console
-            this.addComponentListener(new ComponentAdapter() {  
+            this.addComponentListener(new ComponentAdapter() { 
                 public void componentResized(ComponentEvent evt) {
                     Component c = evt.getComponent();
+                    System.out.println("Valor: "+widhtConsole+" : "+heightConsole+" INFO: "+evt.toString());
                     widhtConsole = c.getSize().width;
                     heightConsole = c.getSize().height;
-                    widhtConsole = widhtConsole - 24;
-                    heightConsole = heightConsole - 24;
                     xScale = (float) widhtConsole / widthImgRec;
                     yScale = (float) heightConsole / heightImgRec;
                     size = new Size(widhtConsole, heightConsole);
@@ -356,7 +351,7 @@ public class Vision extends ConsolePanel implements ItemListener{
                         initImage();
                 }
             });
-            
+                        
             //Mouse click
             mouseListenerInit();
             
@@ -400,7 +395,7 @@ public class Vision extends ConsolePanel implements ItemListener{
                         if(yLocMouse < 0)
                             yLocMouse = 0;
 
-                        if(xLocMouse + 52 < panelImage.getSize().getWidth() && xLocMouse - 52 > 0 && yLocMouse + 60 < panelImage.getSize().getHeight() && yLocMouse - 60 > 0){
+                        if(xLocMouse + 52 < Vision.this.getSize().getWidth() && xLocMouse - 52 > 0 && yLocMouse + 60 < Vision.this.getSize().getHeight() && yLocMouse - 60 > 0){
                             zoomX = xLocMouse;
                             zoomY = yLocMouse;
                             popupzoom.setLocation(MouseInfo.getPointerInfo().getLocation().x - 150, MouseInfo.getPointerInfo().getLocation().y - 150);
@@ -865,10 +860,22 @@ public class Vision extends ConsolePanel implements ItemListener{
     }
 
     //Print Image to JPanel
+    @Override
+    protected void paintComponent(Graphics g) {
+        if (refreshTemp && realImage != null) {
+            g.drawImage(realImage, 0, 0, this);
+            refreshTemp = false;
+        }
+        else {
+            g.setColor(Color.BLACK);
+            g.fillRect(0, 0, (int) size.width, (int) size.height);
+        }
+    }
+
+    //TODO    
     private void showImage(BufferedImage image) {
-        picLabel.setIcon(new ImageIcon(image));
-        panelImage.revalidate();
-        panelImage.add(picLabel, BorderLayout.CENTER);
+        realImage = offlineImage;
+        refreshTemp = true; 
         repaint();
     }
         
@@ -898,15 +905,6 @@ public class Vision extends ConsolePanel implements ItemListener{
         dir = new File(String.format(BASE_FOLDER_FOR_IMAGES + "/%s/snapshotImage", date.toString().replace(":", "-")));
         dir.mkdir();
         logDir = String.format(BASE_FOLDER_FOR_IMAGES + "/%s", date.toString().replace(":", "-"));
-        
-        //JLabel for image
-        picLabel = new JLabel();
-        //JPanel for Image
-        panelImage = new JPanel();
-        panelImage.setBackground(Color.LIGHT_GRAY);
-        panelImage.setSize(this.getWidth(), this.getHeight());
-        this.setLayout(new BorderLayout());
-        this.add(panelImage);
         
         //JPanel for info and config values      
         config = new JPanel(new MigLayout());
@@ -1104,7 +1102,7 @@ public class Vision extends ConsolePanel implements ItemListener{
                             yScale = (float) heightConsole / mat.rows();
                             Imgproc.resize(mat, matResize, size);
                             //Convert Mat to BufferedImage
-                            temp = UtilCv.matToBufferedImage(matResize);
+                            offlineImage = UtilCv.matToBufferedImage(matResize);
                             //Display image in JFrame
                             long stopTime = System.currentTimeMillis();
                             long fpsResult = stopTime - startTime;
@@ -1114,7 +1112,7 @@ public class Vision extends ConsolePanel implements ItemListener{
                             txtText.setText(infoSizeStream);
                             if(histogramflag) {
                                 if(zoomMask) {
-                                    zoomTemp = temp;
+                                    zoomTemp = offlineImage;
                                     getCutImage(UtilCv.histogramCv(zoomTemp), zoomX, zoomY);
                                     popupzoom.setVisible(true);
                                 }
@@ -1123,29 +1121,29 @@ public class Vision extends ConsolePanel implements ItemListener{
 
                                 if (saveSnapshot) {
                                     UtilCv.saveSnapshot(
-                                            UtilCv.addText(UtilCv.histogramCv(temp), I18n.text("Histogram - On"),
-                                                    Color.GREEN, temp.getWidth() - 5, 20),
+                                            UtilCv.addText(UtilCv.histogramCv(offlineImage), I18n.text("Histogram - On"),
+                                                    Color.GREEN, offlineImage.getWidth() - 5, 20),
                                             String.format(logDir + "/snapshotImage"));
                                     saveSnapshot = false;
                                 }
-                                showImage(UtilCv.addText(UtilCv.histogramCv(temp), I18n.text("Histogram - On"),
-                                        Color.GREEN, temp.getWidth() - 5, 20));
+                                showImage(UtilCv.addText(UtilCv.histogramCv(offlineImage), I18n.text("Histogram - On"),
+                                        Color.GREEN, offlineImage.getWidth() - 5, 20));
                             }
                             else {
                                 if(zoomMask) {
-                                    getCutImage(temp, zoomX, zoomY);
+                                    getCutImage(offlineImage, zoomX, zoomY);
                                     popupzoom.setVisible(true);
                                 }
                                 else
                                     popupzoom.setVisible(false);
                                 
                                 if (saveSnapshot) {
-                                    UtilCv.saveSnapshot(UtilCv.addText(temp, I18n.text("Histogram - Off"), Color.RED,
-                                            temp.getWidth() - 5, 20), String.format(logDir + "/snapshotImage"));
+                                    UtilCv.saveSnapshot(UtilCv.addText(offlineImage, I18n.text("Histogram - Off"), Color.RED,
+                                            offlineImage.getWidth() - 5, 20), String.format(logDir + "/snapshotImage"));
                                     saveSnapshot = false;
                                 }
-                                showImage(UtilCv.addText(temp, I18n.text("Histogram - Off"), Color.RED,
-                                        temp.getWidth() - 5, 20));
+                                showImage(UtilCv.addText(offlineImage, I18n.text("Histogram - Off"), Color.RED,
+                                        offlineImage.getWidth() - 5, 20));
                             }
 
                             //save image tag to disk
@@ -1160,7 +1158,7 @@ public class Vision extends ConsolePanel implements ItemListener{
                                 
                                 outputfile = new File(imageTag);
                                 try {
-                                    ImageIO.write(temp, "jpeg", outputfile);
+                                    ImageIO.write(offlineImage, "jpeg", outputfile);
                                 }
                                 catch (IOException e) {
                                     e.printStackTrace();
@@ -1214,12 +1212,12 @@ public class Vision extends ConsolePanel implements ItemListener{
                                 if(histogramflag){
                                     imageJpeg = String.format("%s/imageSave/%d_H.jpeg",logDir,cnt);
                                     outputfile = new File(imageJpeg);
-                                    ImageIO.write(UtilCv.histogramCv(temp), "jpeg", outputfile);
+                                    ImageIO.write(UtilCv.histogramCv(offlineImage), "jpeg", outputfile);
                                 }
                                 else{
                                     imageJpeg = String.format("%s/imageSave/%d.jpeg",logDir,cnt);
                                     outputfile = new File(imageJpeg);
-                                    ImageIO.write(temp, "jpeg", outputfile);
+                                    ImageIO.write(offlineImage, "jpeg", outputfile);
                                 }
                             }
                             catch (IOException e) {
@@ -1357,17 +1355,22 @@ public class Vision extends ConsolePanel implements ItemListener{
         if(!noVideoLogoState) {
             if(ImageUtils.getImage("images/novideo.png") == null) {
                 matResize.setTo(black);
-                temp = UtilCv.matToBufferedImage(matResize);
+                offlineImage = UtilCv.matToBufferedImage(matResize);
             }
             else { 
-                temp = UtilVision.resizeBufferedImage(
+                offlineImage = UtilVision.resizeBufferedImage(
                         ImageUtils.toBufferedImage(ImageUtils.getImage("images/novideo.png")), size);
             }
             
-            if(temp != null){
-                showImage(temp);
+            if(offlineImage != null){
+                showImage(offlineImage);
                 noVideoLogoState = true;
             }
+        }
+        else {
+            offlineImage = UtilVision.resizeBufferedImage(
+                    ImageUtils.toBufferedImage(ImageUtils.getImage("images/novideo.png")), size);
+            showImage(offlineImage);
         }
     }
     
@@ -1381,7 +1384,7 @@ public class Vision extends ConsolePanel implements ItemListener{
             e1.printStackTrace();
         }
         if (line == null){
-            GuiUtils.errorMessage(panelImage, I18n.text("Connection error"), I18n.text("Lost connection with vehicle"),
+            GuiUtils.errorMessage(Vision.this, I18n.text("Connection error"), I18n.text("Lost connection with vehicle"),
                     ModalityType.DOCUMENT_MODAL);
             raspiCam = false;
             state = false;
@@ -1456,21 +1459,21 @@ public class Vision extends ConsolePanel implements ItemListener{
             //Display image in JFrame
             if(histogramflag) {
                 if (saveSnapshot) {
-                    UtilCv.saveSnapshot(UtilCv.addText(UtilCv.histogramCv(temp), I18n.text("Histogram - On"),
-                            Color.GREEN, temp.getWidth() - 5, 20), String.format(logDir + "/snapshotImage"));
+                    UtilCv.saveSnapshot(UtilCv.addText(UtilCv.histogramCv(offlineImage), I18n.text("Histogram - On"),
+                            Color.GREEN, offlineImage.getWidth() - 5, 20), String.format(logDir + "/snapshotImage"));
                     saveSnapshot = false;
                 }
-                showImage(UtilCv.addText(UtilCv.histogramCv(temp), I18n.text("Histogram - On"), Color.GREEN,
-                        temp.getWidth() - 5, 20));
+                showImage(UtilCv.addText(UtilCv.histogramCv(offlineImage), I18n.text("Histogram - On"), Color.GREEN,
+                        offlineImage.getWidth() - 5, 20));
             }
             else {
                 if (saveSnapshot) {
                     UtilCv.saveSnapshot(
-                            UtilCv.addText(temp, I18n.text("Histogram - Off"), Color.RED, temp.getWidth() - 5, 20),
+                            UtilCv.addText(offlineImage, I18n.text("Histogram - Off"), Color.RED, offlineImage.getWidth() - 5, 20),
                             String.format(logDir + "/snapshotImage"));
                     saveSnapshot = false;
                 }
-                showImage(UtilCv.addText(temp, I18n.text("Histogram - Off"), Color.RED, temp.getWidth() - 5, 20));
+                showImage(UtilCv.addText(offlineImage, I18n.text("Histogram - Off"), Color.RED, offlineImage.getWidth() - 5, 20));
             }
 
             if (histogramflag) {
