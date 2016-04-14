@@ -55,6 +55,10 @@ import pt.lsts.neptus.types.map.GeometryElement;
  * @author tsmarques
  *
  */
+/**
+ * @author tsmarques
+ *
+ */
 public class GridArea extends GeometryElement implements MapDecomposition {
     private final static double CELL_WIDTH = 20;
     private double cellHeight;
@@ -112,19 +116,15 @@ public class GridArea extends GeometryElement implements MapDecomposition {
 
         topLeft.setOffsetWest(gridWidth/2);
         topLeft.setOffsetNorth(gridHeight/2);
-        topLeft = topLeft.getNewAbsoluteLatLonDepth();
 
         topRight.setOffsetEast(gridWidth/2);
         topRight.setOffsetNorth(gridHeight/2);
-        topRight = topRight.getNewAbsoluteLatLonDepth();
 
         bottomLeft.setOffsetWest(gridWidth/2);
         bottomLeft.setOffsetSouth(gridHeight/2);
-        bottomLeft = bottomLeft.getNewAbsoluteLatLonDepth();
 
         bottomRight.setOffsetEast(gridWidth/2);
         bottomRight.setOffsetSouth(gridHeight/2);
-        bottomRight = bottomRight.getNewAbsoluteLatLonDepth();
 
         LocationType[] gridBounds = {topLeft, topRight, bottomLeft, bottomRight};
 
@@ -160,9 +160,7 @@ public class GridArea extends GeometryElement implements MapDecomposition {
                 double verticalShift = j * cellHeight ;
 
                 LocationType cellLoc = new LocationType(topLeft);
-                cellLoc.setOffsetEast(horizontalShift);
-                cellLoc.setOffsetSouth(verticalShift);
-                cellLoc = cellLoc.getNewAbsoluteLatLonDepth();
+                cellLoc.translatePosition(-verticalShift, horizontalShift, 0);
 
                 /* TODO check for obstacles, using Environment */
                 /* TODO set correct bounds for each map cells (set vertices) */
@@ -257,18 +255,16 @@ public class GridArea extends GeometryElement implements MapDecomposition {
         return gridHeight;
     }
 
+    /* (non-Javadoc)
+     * @see pt.lsts.neptus.types.map.AbstractElement#paint(java.awt.Graphics2D, pt.lsts.neptus.renderer2d.StateRenderer2D, double)
+     */
     @Override
     public void paint(Graphics2D g, StateRenderer2D renderer, double rotation) {
         g.setTransform(new AffineTransform());
         for(int i = 0; i < nrows; i++) {
             for(int j = 0; j < ncols; j++) {
                 /* compute cell's center location */
-                LocationType cellCenter = new LocationType(decomposedMap[i][j].getLocation());
-                cellCenter.setOffsetWest(CELL_WIDTH / 2);
-                cellCenter.setOffsetNorth(cellHeight / 2);
-                cellCenter = cellCenter.getNewAbsoluteLatLonDepth();
-
-                Point2D cellPos = renderer.getScreenPosition(cellCenter);
+                Point2D cellPos = renderer.getScreenPosition(decomposedMap[i][j].getLocation());
 
                 g.setColor(Color.BLACK);
                 Rectangle2D.Double cellRec = new Rectangle2D.Double(cellPos.getX(), cellPos.getY(), CELL_WIDTH * renderer.getZoom(), cellHeight * renderer.getZoom());
