@@ -104,6 +104,11 @@ public class VehicleAwareness {
 
             if(sys.isActive() && sys.isTCPOn())
                 return true;
+            else if(sys.isActive() && !sys.isTCPOn())
+                if(sys.isSimulated())
+                    return true;
+                else
+                    return false;
             else {
                 setVehicleUnavailable(vehicle);
                 return false;
