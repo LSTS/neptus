@@ -44,13 +44,13 @@ import pt.lsts.neptus.mra.importers.IMraLogGroup;
  *
  */
 public class ImcSidescanParser implements SidescanParser {
-    IMraLog pingParser;
-    IMraLog stateParser;
+    private IMraLog pingParser;
+    private IMraLog stateParser;
 
-    long firstTimestamp = -1;
-    long lastTimestamp = -1;
+    private long firstTimestamp = -1;
+    private long lastTimestamp = -1;
 
-    long lastTimestampRequested;
+    private long lastTimestampRequested;
 
     public ImcSidescanParser(IMraLogGroup source) {
         pingParser = source.getLog("SonarData");
@@ -149,20 +149,38 @@ public class ImcSidescanParser implements SidescanParser {
 
             // Image building. Calculate and draw a line, scale and save it
             byte[] data = ping.getRawData("data");
+            int middle = data.length / 2;
 
+            double avgSboard = 0, avgPboard = 0;
             for (int c = 0; c < data.length; c++) {
-                double gain = params.getTvgGain();
-                double contrast = params.getNormalization();
-                double signalLevel = (data[c] & 0xFF);
-
-                // Normalize.
-                double normalized = ((signalLevel / 2) + gain) / contrast;
-                // Clip between 0 and 1.0.
-                fData[c] = Math.max(Math.min(normalized, 1.0), 0.0);
+                double r = data[c] & 0xFF;
+                if (c < middle)
+                    avgPboard += r;
+                else
+                    avgSboard += r;                        
             }
-
+            
+            avgPboard /= (double) middle * params.getNormalization();
+            avgSboard /= (double) middle * params.getNormalization();
+            
+            for (int c = 0; c < data.length; c++) {
+                double r;
+                double avg;
+                if (c < middle) {
+                    r =  c / (double) middle;
+                    avg = avgPboard;
+                }
+                else {
+                    r =  1 - (c - middle) / (double) middle;
+                    avg = avgSboard;
+                }
+                double gain = Math.abs(30.0 * Math.log(r));
+                double pb = (data[c] & 0xFF) * Math.pow(10, gain / params.getTvgGain());
+                fData[c] = pb / avg;
+            }
+            
             list.add(new SidescanLine(ping.getTimestampMillis(), range, pose, ping.getFloat("frequency"), fData));
-
+            
             ping = getNextMessage(pingParser);
             if (ping != null)
                 state = stateParser.getEntryAtOrAfter(ping.getTimestampMillis());
