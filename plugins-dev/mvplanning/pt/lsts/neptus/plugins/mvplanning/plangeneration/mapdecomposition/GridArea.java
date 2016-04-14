@@ -255,20 +255,24 @@ public class GridArea extends GeometryElement implements MapDecomposition {
         return gridHeight;
     }
 
-    /* (non-Javadoc)
-     * @see pt.lsts.neptus.types.map.AbstractElement#paint(java.awt.Graphics2D, pt.lsts.neptus.renderer2d.StateRenderer2D, double)
-     */
     @Override
     public void paint(Graphics2D g, StateRenderer2D renderer, double rotation) {
         g.setTransform(new AffineTransform());
+        double scaledWidth = CELL_WIDTH * renderer.getZoom();
+        double scaledHeight = cellHeight * renderer.getZoom();
+        Point2D topLeftP = renderer.getScreenPosition(bounds[0]);
+
+        Rectangle2D.Double cellRec = new Rectangle2D.Double(0, 0, scaledWidth, scaledHeight);
+
         for(int i = 0; i < nrows; i++) {
             for(int j = 0; j < ncols; j++) {
-                /* compute cell's center location */
-                Point2D cellPos = renderer.getScreenPosition(decomposedMap[i][j].getLocation());
+                Graphics2D g2 = (Graphics2D) g.create();
+                double verticalShift = scaledHeight * i;
+                double horizontalShift = scaledWidth * j;
 
-                g.setColor(Color.BLACK);
-                Rectangle2D.Double cellRec = new Rectangle2D.Double(cellPos.getX(), cellPos.getY(), CELL_WIDTH * renderer.getZoom(), cellHeight * renderer.getZoom());
-                g.draw(cellRec);
+                g2.translate(topLeftP.getX() + horizontalShift, topLeftP.getY() + verticalShift);
+                g2.draw(cellRec);
+                g2.dispose();
             }
             g.setTransform(new AffineTransform());
         }
