@@ -271,7 +271,12 @@ public class GridArea extends GeometryElement implements MapDecomposition {
                 double horizontalShift = scaledWidth * j;
 
                 g2.translate(topLeftP.getX() + horizontalShift, topLeftP.getY() + verticalShift);
-                g2.draw(cellRec);
+
+                if(decomposedMap[i][j].hasObstacle())
+                    g2.fill(cellRec);
+                else
+                    g2.draw(cellRec);
+
                 g2.dispose();
             }
             g.setTransform(new AffineTransform());
