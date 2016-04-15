@@ -69,7 +69,7 @@ import pt.lsts.neptus.plugins.Popup;
 import pt.lsts.neptus.plugins.Popup.POSITION;
 import pt.lsts.neptus.plugins.mvplanning.jaxb.Profile;
 import pt.lsts.neptus.plugins.mvplanning.jaxb.ProfileMarshaler;
-import pt.lsts.neptus.plugins.mvplanning.plangeneration.mapdecomposition.GridArea;
+import pt.lsts.neptus.plugins.mvplanning.planning.mapdecomposition.GridArea;
 import pt.lsts.neptus.renderer2d.StateRenderer2D;
 import pt.lsts.neptus.types.coord.LocationType;
 import pt.lsts.neptus.types.mission.plan.PlanType;

@@ -36,8 +36,8 @@ import java.util.List;
 
 import pt.lsts.neptus.plugins.mvplanning.Environment;
 import pt.lsts.neptus.plugins.mvplanning.interfaces.MapDecomposition;
-import pt.lsts.neptus.plugins.mvplanning.plangeneration.MapCell;
-import pt.lsts.neptus.plugins.mvplanning.plangeneration.mapdecomposition.GridArea;
+import pt.lsts.neptus.plugins.mvplanning.planning.MapCell;
+import pt.lsts.neptus.plugins.mvplanning.planning.mapdecomposition.GridArea;
 import pt.lsts.neptus.types.coord.LocationType;
 
 /**

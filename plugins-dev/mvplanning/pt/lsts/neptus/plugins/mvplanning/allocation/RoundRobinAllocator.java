@@ -39,7 +39,7 @@ import pt.lsts.neptus.plugins.mvplanning.VehicleAwareness;
 import pt.lsts.neptus.plugins.mvplanning.events.MvPlanningEventPlanAllocated;
 import pt.lsts.neptus.plugins.mvplanning.interfaces.AbstractAllocator;
 import pt.lsts.neptus.plugins.mvplanning.interfaces.ConsoleAdapter;
-import pt.lsts.neptus.plugins.mvplanning.plangeneration.PlanTask;
+import pt.lsts.neptus.plugins.mvplanning.planning.PlanTask;
 
 /**
  * @author tsmarques

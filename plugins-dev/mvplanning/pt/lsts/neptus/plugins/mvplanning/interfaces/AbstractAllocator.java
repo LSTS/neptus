@@ -32,7 +32,7 @@
 package pt.lsts.neptus.plugins.mvplanning.interfaces;
 
 import pt.lsts.neptus.plugins.mvplanning.VehicleAwareness;
-import pt.lsts.neptus.plugins.mvplanning.plangeneration.PlanTask;
+import pt.lsts.neptus.plugins.mvplanning.planning.PlanTask;
 import pt.lsts.neptus.plugins.update.IPeriodicUpdates;
 import pt.lsts.neptus.plugins.update.PeriodicUpdatesService;
 import pt.lsts.neptus.util.ByteUtil;

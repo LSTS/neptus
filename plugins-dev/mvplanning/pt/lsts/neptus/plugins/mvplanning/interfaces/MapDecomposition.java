@@ -33,7 +33,7 @@ package pt.lsts.neptus.plugins.mvplanning.interfaces;
 
 import java.util.List;
 
-import pt.lsts.neptus.plugins.mvplanning.plangeneration.MapCell;
+import pt.lsts.neptus.plugins.mvplanning.planning.MapCell;
 import pt.lsts.neptus.types.coord.LocationType;
 import pt.lsts.neptus.types.map.MapGroup;
 

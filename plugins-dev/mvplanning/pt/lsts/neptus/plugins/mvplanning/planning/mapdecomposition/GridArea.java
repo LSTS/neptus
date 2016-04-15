@@ -29,7 +29,7 @@
  * Author: tsmarques
  * 14 Mar 2016
  */
-package pt.lsts.neptus.plugins.mvplanning.plangeneration.mapdecomposition;
+package pt.lsts.neptus.plugins.mvplanning.planning.mapdecomposition;
 
 
 import java.awt.Color;
@@ -44,7 +44,7 @@ import java.util.List;
 import pt.lsts.imc.Map;
 import pt.lsts.neptus.plugins.mvplanning.Environment;
 import pt.lsts.neptus.plugins.mvplanning.interfaces.MapDecomposition;
-import pt.lsts.neptus.plugins.mvplanning.plangeneration.MapCell;
+import pt.lsts.neptus.plugins.mvplanning.planning.MapCell;
 import pt.lsts.neptus.renderer2d.StateRenderer2D;
 import pt.lsts.neptus.types.coord.LocationType;
 import pt.lsts.neptus.types.map.AbstractElement;

@@ -29,7 +29,7 @@
  * Author: tsmarques
  * 15 Feb 2016
  */
-package pt.lsts.neptus.plugins.mvplanning.plangeneration;
+package pt.lsts.neptus.plugins.mvplanning.planning;
 
 import pt.lsts.imc.PlanSpecification;
 import pt.lsts.imc.types.PlanSpecificationAdapter;

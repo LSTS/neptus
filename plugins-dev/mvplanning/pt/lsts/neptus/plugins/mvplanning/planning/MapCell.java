@@ -29,7 +29,7 @@
  * Author: tsmarques
  * 14 Mar 2016
  */
-package pt.lsts.neptus.plugins.mvplanning.plangeneration;
+package pt.lsts.neptus.plugins.mvplanning.planning;
 
 import java.util.ArrayList;
 import java.util.List;
