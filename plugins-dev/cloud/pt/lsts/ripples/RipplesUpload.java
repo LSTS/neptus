@@ -62,6 +62,8 @@ import pt.lsts.neptus.plugins.ConfigurationListener;
 import pt.lsts.neptus.plugins.NeptusProperty;
 import pt.lsts.neptus.plugins.PluginDescription;
 import pt.lsts.neptus.plugins.update.Periodic;
+import pt.lsts.neptus.systems.external.ExternalSystem;
+import pt.lsts.neptus.systems.external.ExternalSystemsHolder;
 import pt.lsts.neptus.types.coord.LocationType;
 import pt.lsts.neptus.types.map.PlanUtil;
 import pt.lsts.neptus.types.mission.plan.PlanType;
@@ -87,6 +89,9 @@ public class RipplesUpload extends ConsolePanel implements ConfigurationListener
     private LinkedHashMap<String, SystemPositionAndAttitude> toSend = new LinkedHashMap<String, SystemPositionAndAttitude>();
     private LinkedHashMap<String, PlanControlState> planStates = new LinkedHashMap<String, PlanControlState>();
 
+    @NeptusProperty(name = "Synch external systems")
+    private boolean synchExternalSystems = false;
+    
     @NeptusProperty
     private boolean synch = false;
 
@@ -213,6 +218,19 @@ public class RipplesUpload extends ConsolePanel implements ConfigurationListener
         SystemPositionAndAttitude mine = new SystemPositionAndAttitude(MyState.getLocation(), 0, 0, MyState.getHeadingInRadians());
         mine.setTime(System.currentTimeMillis());
         copy.put(GeneralPreferences.imcCcuName, mine);
+        
+        if (synchExternalSystems) {
+            ExternalSystem[] extSys = ExternalSystemsHolder.lookupAllActiveSystems();
+            for (ExternalSystem es : extSys) {
+                String name = es.getName();
+                if(copy.containsKey(name))
+                    continue;
+                SystemPositionAndAttitude sysPos = new SystemPositionAndAttitude(es.getLocation(), 0, 0,
+                        Math.toRadians(es.getYawDegrees()));
+                sysPos.setTime(es.getLocationTimeMillis());
+                copy.put(name, sysPos);
+            }
+        }
         
         for (Entry<String, SystemPositionAndAttitude> state : copy.entrySet()) {
             Map<String, Object> assetState = new LinkedHashMap<String, Object>();
