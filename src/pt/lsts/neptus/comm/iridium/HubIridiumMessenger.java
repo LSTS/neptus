@@ -90,8 +90,10 @@ public class HubIridiumMessenger implements IridiumMessenger {
         
         DeviceUpdate up = new DeviceUpdate();
         for (HubSystemMsg s : sys) {
+            if (s.imcid > Integer.MAX_VALUE)
+                continue;
             Position pos = new Position();
-            pos.id = s.imcid;
+            pos.id = (int) s.imcid;
             pos.latRads = s.coordinates[0];
             pos.lonRads = s.coordinates[1];
             pos.timestamp = stringToDate(s.updated_at).getTime() / 1000.0;
@@ -288,7 +290,7 @@ public class HubIridiumMessenger implements IridiumMessenger {
     
     public static class HubSystemMsg {
         
-        public int imcid;
+        public long imcid;
         public String name;
         public String updated_at;
         public String created_at;

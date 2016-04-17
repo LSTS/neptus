@@ -1290,16 +1290,16 @@ public class IMCUtils {
      * @param imcId The IMC id (uint16_t)
      * @return The type of the system. One of "UUV", "ROV", "USV", "UAV", "UXV", "CCU", "Sensor" or "Unknown".
      */
-    public static String getSystemType(int imcId) {
+    public static String getSystemType(long imcId) {
         int sys_selector = 0xE000;
         int vtype_selector = 0x1C00;
         
-        int sys_type = (imcId & sys_selector) >> 13;
+        int sys_type = (int) ((imcId & sys_selector) >> 13);
 
         switch (sys_type) {
             case 0:
             case 1:
-                switch ((imcId & vtype_selector) >> 10) {
+                switch ((int) ((imcId & vtype_selector) >> 10)) {
                     case 0:
                         return "UUV";
                     case 1:
@@ -1317,7 +1317,10 @@ public class IMCUtils {
                 break;
         }
 
-        String name = IMCDefinition.getInstance().getResolver().resolve(imcId).toLowerCase();
+        if (imcId > Integer.MAX_VALUE)
+            return "Unknown";
+        
+        String name = IMCDefinition.getInstance().getResolver().resolve((int) imcId).toLowerCase();
         if (name.contains("ccu"))
             return "CCU";
         if (name.contains("argos"))
