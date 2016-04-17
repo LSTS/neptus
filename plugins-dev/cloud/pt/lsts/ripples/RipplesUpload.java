@@ -32,6 +32,8 @@
 package pt.lsts.ripples;
 
 import java.awt.event.ActionEvent;
+import java.io.InputStreamReader;
+import java.net.URL;
 import java.util.LinkedHashMap;
 import java.util.Locale;
 import java.util.Map;
@@ -43,6 +45,7 @@ import javax.swing.JCheckBoxMenuItem;
 
 import com.firebase.client.Firebase;
 import com.google.common.eventbus.Subscribe;
+import com.google.gson.Gson;
 
 import pt.lsts.imc.Announce;
 import pt.lsts.imc.EstimatedState;
@@ -51,8 +54,13 @@ import pt.lsts.imc.PlanControlState;
 import pt.lsts.imc.PlanControlState.STATE;
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.comm.IMCUtils;
+import pt.lsts.neptus.comm.iridium.HubIridiumMessenger.HubSystemMsg;
+import pt.lsts.neptus.comm.manager.imc.ImcId16;
+import pt.lsts.neptus.comm.manager.imc.ImcSystem;
+import pt.lsts.neptus.comm.manager.imc.ImcSystemsHolder;
 import pt.lsts.neptus.console.ConsoleLayout;
 import pt.lsts.neptus.console.ConsolePanel;
+import pt.lsts.neptus.console.notifications.Notification;
 import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.mp.ManeuverLocation;
 import pt.lsts.neptus.mp.SystemPositionAndAttitude;
@@ -60,6 +68,7 @@ import pt.lsts.neptus.mystate.MyState;
 import pt.lsts.neptus.plugins.CheckMenuChangeListener;
 import pt.lsts.neptus.plugins.ConfigurationListener;
 import pt.lsts.neptus.plugins.NeptusProperty;
+import pt.lsts.neptus.plugins.NeptusProperty.LEVEL;
 import pt.lsts.neptus.plugins.PluginDescription;
 import pt.lsts.neptus.plugins.update.Periodic;
 import pt.lsts.neptus.systems.external.ExternalSystem;
@@ -80,6 +89,7 @@ public class RipplesUpload extends ConsolePanel implements ConfigurationListener
     private static final long serialVersionUID = -8036937519999303108L;
     
     private final String firebasePath = "https://neptus.firebaseio-demo.com/";
+    private final String ripplesActiveSysUrl = "http://ripples.lsts.pt/api/v1/systems/active";
 
     private JCheckBoxMenuItem menuItem;
     private ImageIcon onIcon, offIcon;
@@ -91,7 +101,10 @@ public class RipplesUpload extends ConsolePanel implements ConfigurationListener
 
     @NeptusProperty(name = "Synch external systems")
     private boolean synchExternalSystems = false;
-    
+
+    @NeptusProperty(name = "Poll also systems from server",  userLevel = LEVEL.REGULAR)
+    private boolean pollSystems = false;
+
     @NeptusProperty
     private boolean synch = false;
 
@@ -301,4 +314,79 @@ public class RipplesUpload extends ConsolePanel implements ConfigurationListener
         Firebase.goOffline();
         synch = false;
     }
+    
+    @Periodic(millisBetweenUpdates = 10000)
+    public void pollActiveSystems() {
+        if (!synch || !pollSystems)
+            return;
+        
+        try {
+            Gson gson = new Gson();
+            URL url = new URL(ripplesActiveSysUrl);
+    
+            HubSystemMsg[] msgs = gson.fromJson(new InputStreamReader(url.openStream()), HubSystemMsg[].class);
+            NeptusLog.pub().info(" through HTTP: " + ripplesActiveSysUrl);
+    
+            for (HubSystemMsg m : msgs) {
+                long id = m.imcid;
+                if (id > ImcId16.MAX_VALUE) { // External system
+                    fillExternalSystem(m);
+                }
+                else { // IMC system
+                    ImcSystem imcSys = ImcSystemsHolder.lookupSystem((int) id);
+                    if (imcSys == null)
+                        fillExternalSystem(m);
+                    else
+                        fillIMCSystem(imcSys, m);
+                }
+                
+                NeptusLog.pub().info(String.format("Received Ripples position update for '%s' :: %s @ %s", m.name, parsePos(m), m.updatedAt()));
+            }
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+            NeptusLog.pub().error(e);
+            post(Notification.error(getName(), e.getClass().getSimpleName()+" while polling device updates from Ripples.").requireHumanAction(false));    
+        }
+    }
+
+    private void fillIMCSystem(ImcSystem imcSys, HubSystemMsg m) {
+        if (imcSys == null)
+            return;
+
+        LocationType pos = parsePos(m);
+        if (pos == null)
+            return;
+
+        if (m.updatedAt().getTime() > imcSys.getLocationTimeMillis())
+            imcSys.setLocation(pos, m.updatedAt().getTime());
+    }
+
+    private void fillExternalSystem(HubSystemMsg m) {
+        LocationType pos = parsePos(m);
+        if (pos == null)
+            return;
+        
+        ExternalSystem es = new ExternalSystem(m.name);
+        es = ExternalSystemsHolder.registerSystem(es);
+        if (m.updatedAt().getTime() > es.getLocationTimeMillis())
+            es.setLocation(pos, m.updatedAt().getTime());
+    }
+
+    /**
+     * @param m
+     * @return
+     */
+    private LocationType parsePos(HubSystemMsg m) {
+        if (m.coordinates.length > 1 && m.coordinates[0] != null && Double.isFinite(m.coordinates[0]) 
+                && m.coordinates[1] != null && Double.isFinite(m.coordinates[1])) {
+            LocationType pos = new LocationType(m.coordinates[0], m.coordinates[1]); // degrees
+            if (m.coordinates.length > 2 && m.coordinates[2] != null && Double.isFinite(m.coordinates[2]))
+                pos.setHeight(m.coordinates[2]);
+            
+            return pos;
+        }
+        return null;
+    }
+
 }
