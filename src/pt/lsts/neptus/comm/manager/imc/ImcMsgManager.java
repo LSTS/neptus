@@ -847,8 +847,6 @@ CommBaseManager<IMCMessage, MessageInfo, SystemImcMsgCommInfo, ImcId16, CommMana
 
         long recTimeMillis = msg.getTimestampMillis();
 
-        LinkedHashMap<String, String> customData = msg.getData();
-        
         ImcSystem imcSys = ImcSystemsHolder.lookupSystemByName(sysId);
         ExternalSystem extSys = null;
         if (imcSys == null) {

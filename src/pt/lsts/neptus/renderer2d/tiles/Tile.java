@@ -40,7 +40,6 @@ import java.awt.geom.Point2D;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.FileFilter;
-import java.io.IOException;
 import java.io.Serializable;
 import java.util.Map;
 import java.util.Timer;
