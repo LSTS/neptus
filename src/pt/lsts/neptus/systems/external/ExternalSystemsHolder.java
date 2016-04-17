@@ -91,13 +91,13 @@ public class ExternalSystemsHolder {
     private ExternalSystemsHolder() {
     }
     
-    public static boolean registerSystem(ExternalSystem system) {
+    public static ExternalSystem registerSystem(ExternalSystem system) {
         ExternalSystem resLook = lookupTable.get(system.getId());
         if (resLook != null)
-            return true;
+            return resLook;
         
         lookupTable.put(system.getId(), system);
-        return true;
+        return system;
     }
 
     public static ExternalSystem lookupSystem(String id) {
