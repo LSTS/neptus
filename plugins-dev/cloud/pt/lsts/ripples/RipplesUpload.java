@@ -43,7 +43,10 @@ import java.util.Vector;
 import javax.swing.ImageIcon;
 import javax.swing.JCheckBoxMenuItem;
 
+import com.firebase.client.AuthData;
 import com.firebase.client.Firebase;
+import com.firebase.client.Firebase.AuthResultHandler;
+import com.firebase.client.FirebaseError;
 import com.google.common.eventbus.Subscribe;
 import com.google.gson.Gson;
 
@@ -88,7 +91,7 @@ public class RipplesUpload extends ConsolePanel implements ConfigurationListener
 
     private static final long serialVersionUID = -8036937519999303108L;
     
-    private final String firebasePath = "https://neptus.firebaseio-demo.com/";
+    private final String firebasePath = "https://neptus.firebaseio.com/";
     private final String ripplesActiveSysUrl = "http://ripples.lsts.pt/api/v1/systems/active";
 
     private JCheckBoxMenuItem menuItem;
@@ -96,6 +99,7 @@ public class RipplesUpload extends ConsolePanel implements ConfigurationListener
     private String checkMenuTxt = I18n.text("Advanced") + ">Ripples";
 
     private Firebase firebase = null;
+    private AuthData authData = null;
     private LinkedHashMap<String, SystemPositionAndAttitude> toSend = new LinkedHashMap<String, SystemPositionAndAttitude>();
     private LinkedHashMap<String, PlanControlState> planStates = new LinkedHashMap<String, PlanControlState>();
 
@@ -303,14 +307,33 @@ public class RipplesUpload extends ConsolePanel implements ConfigurationListener
 
     private void startSynch() {
         NeptusLog.pub().info("Started synch'ing with ripples.");
+        authData = null;
         firebase = new Firebase(firebasePath);
-        Firebase.goOnline();
-        synch = true;
+        firebase.authAnonymously(new AuthResultHandler() {
+            @Override
+            public void onAuthenticationError(FirebaseError error) {
+                NeptusLog.pub().error(error.toException());
+                RipplesUpload.this.firebase = null;
+            }
+            
+            @Override
+            public void onAuthenticated(AuthData authData) {
+                RipplesUpload.this.authData = authData;
+                NeptusLog.pub().info("Firebaseio sign in: " + authData);;
+            }
+        });
+        if (firebase != null) {
+            Firebase.goOnline();
+            synch = true;
+        }
     }
 
     private void stopSynch() {
         NeptusLog.pub().info("Stopped synch'ing with ripples.");
+        if (firebase != null)
+            firebase.unauth();
         firebase = null;
+        authData = null;
         Firebase.goOffline();
         synch = false;
     }
