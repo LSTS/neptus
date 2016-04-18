@@ -366,6 +366,30 @@
                 </annotation>
             </Launch>
         </maneuver>
+        <maneuver>
+            <ScheduledGoto kind="automatic">
+                <finalPoint type="pointType">
+                    <point>
+                        <id>Destination</id>
+                        <name>Destination</name>
+                        <coordinate>
+                            <latitude>0N</latitude>
+                            <longitude>0E</longitude>
+                            <depth>2</depth>
+                        </coordinate>
+                    </point>
+                    <radiusTolerance>5</radiusTolerance>
+                </finalPoint>
+                <velocity tolerance="10" type="float" unit="RPM">900</velocity>
+                <trajectoryTolerance>
+                    <radiusTolerance type="float">1</radiusTolerance>
+                </trajectoryTolerance>    
+                <annotation>
+                    <documentation>No documentation available</documentation>
+                    <implementation-class>pt.lsts.neptus.mp.maneuvers.ScheduledGoto</implementation-class>
+                </annotation>
+            </ScheduledGoto>
+        </maneuver>
     </feasibleManeuvers>
     <protocols-supported>
         <protocols>gsm iridium</protocols>
