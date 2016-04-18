@@ -236,6 +236,8 @@ public class RipplesUpload extends ConsolePanel implements ConfigurationListener
         mine.setTime(System.currentTimeMillis());
         copy.put(GeneralPreferences.imcCcuName, mine);
         
+        LinkedHashMap<String, String> extSysType = new LinkedHashMap<String, String>();
+        
         if (synchExternalSystems) {
             ExternalSystem[] extSys = ExternalSystemsHolder.lookupAllActiveSystems();
             for (ExternalSystem es : extSys) {
@@ -246,6 +248,7 @@ public class RipplesUpload extends ConsolePanel implements ConfigurationListener
                         Math.toRadians(es.getYawDegrees()));
                 sysPos.setTime(es.getLocationTimeMillis());
                 copy.put(name, sysPos);
+                extSysType.put(name, es.getTypeExternal().toString().toLowerCase());
             }
         }
         
@@ -266,11 +269,15 @@ public class RipplesUpload extends ConsolePanel implements ConfigurationListener
             tmp.put("depth", state.getValue().getDepth());
             assetState.put("position", tmp);
             assetState.put("updated_at", state.getValue().getTime());
-            if (state.getKey().equals(GeneralPreferences.imcCcuName))
-                assetState.put("type", "CCU");            
-            else
-                assetState.put("type",
-                        IMCUtils.getSystemType(IMCDefinition.getInstance().getResolver().resolve(state.getKey())));
+            if (state.getKey().equals(GeneralPreferences.imcCcuName)) {
+                assetState.put("type", "CCU");
+            }
+            else {
+                String typeSys = IMCUtils.getSystemType(IMCDefinition.getInstance().getResolver().resolve(state.getKey()));
+                if ("Unknown".equalsIgnoreCase(typeSys) && extSysType.containsKey(state.getKey()))
+                    typeSys = extSysType.get(state.getKey());
+                assetState.put("type", typeSys);
+            }
             
             synchronized (firebase) {
                 if (firebase != null) {
