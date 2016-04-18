@@ -48,7 +48,7 @@ public class TestCoverageArea {
     public static void testCoverageFromGrid(GridArea areaToCover) {
         System.out.println("--- Testing coverage area from a grid ---");
 
-        GraphType planGraph = CoverageArea.getCoverageFromGridAsGraph(areaToCover, new MissionType());
+        GraphType planGraph = CoverageArea.getCoverageFromGridAsGraph(areaToCover);
         int nNodes = planGraph.getAllManeuvers().length;
         int nEdges = planGraph.getAllEdges().length;
 

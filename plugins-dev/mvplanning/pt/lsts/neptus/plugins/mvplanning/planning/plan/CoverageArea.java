@@ -47,19 +47,19 @@ import pt.lsts.neptus.types.mission.plan.PlanType;
  *
  */
 public class CoverageArea {
-    
+
     /**
      * Generates a PlanType for a coverage area plan
      * */
     public static PlanType getCoverageFromGrid(GridArea areaToCover, MissionType mt) {
-        return toPlanType(getCoverageFromGridAsGraph(areaToCover, mt), mt);
+        return toPlanType(getCoverageFromGridAsGraph(areaToCover), mt);
     }
-    
-    
+
+
     /**
      * Generates a GraphType for a coverage area plan
      * */
-    public static GraphType getCoverageFromGridAsGraph(GridArea areaToCover, MissionType mt) {
+    public static GraphType getCoverageFromGridAsGraph(GridArea areaToCover) {
         /* TODO Improve */
         MapCell[][] cells = areaToCover.getAllCells();
         int nrows = cells.length;
