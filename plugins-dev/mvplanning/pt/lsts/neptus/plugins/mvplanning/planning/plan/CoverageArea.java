@@ -87,27 +87,17 @@ public class CoverageArea {
                 TransitionType edge;
                 /* edge's start node */
                 String wpId = i + " " + j;
-                Goto waypoint = (Goto) planGraph.getManeuver(wpId);
-
                 /* edges's end node */
-                Goto neighbour = new Goto();
                 if(j == ncols - 1 && i != nrows -1) {
                     String neighbourId = (i+1) + " " + 0;
-                    neighbour.setId(neighbourId);
-                    neighbour.setManeuverLocation(new ManeuverLocation(cells[i+1][0].getLocation()));
-
                     edge = new TransitionType(wpId, neighbourId);
                     planGraph.addTransition(edge);
                 }
                 else if(j != ncols - 1){
                     String neighbourId = i + " " + (j+1);
-                    neighbour.setId(neighbourId);
-                    neighbour.setManeuverLocation(new ManeuverLocation(cells[i][j+1].getLocation()));
-
                     edge = new TransitionType(wpId, neighbourId);
                     planGraph.addTransition(edge);
                 }
-                planGraph.addManeuver(waypoint);
             }
         }
         return planGraph;
