@@ -35,8 +35,10 @@ import pt.lsts.imc.IMCMessage;
 import pt.lsts.neptus.mp.ManeuverLocation;
 import pt.lsts.neptus.mp.maneuvers.FollowPath;
 import pt.lsts.neptus.mp.maneuvers.Goto;
+import pt.lsts.neptus.plugins.mvplanning.jaxb.Profile;
 import pt.lsts.neptus.plugins.mvplanning.planning.MapCell;
 import pt.lsts.neptus.plugins.mvplanning.planning.mapdecomposition.GridArea;
+import pt.lsts.neptus.types.coord.LocationType;
 import pt.lsts.neptus.types.mission.GraphType;
 import pt.lsts.neptus.types.mission.MissionType;
 import pt.lsts.neptus.types.mission.TransitionType;
@@ -51,15 +53,15 @@ public class CoverageArea {
     /**
      * Generates a PlanType for a coverage area plan
      * */
-    public static PlanType getCoverageFromGrid(GridArea areaToCover, MissionType mt) {
-        return toPlanType(getCoverageFromGridAsGraph(areaToCover), mt);
+    public static PlanType getCoverageFromGrid(Profile planProfile, GridArea areaToCover, MissionType mt) {
+        return toPlanType(planProfile, getCoverageFromGridAsGraph(planProfile, areaToCover), mt);
     }
 
 
     /**
      * Generates a GraphType for a coverage area plan
      * */
-    public static GraphType getCoverageFromGridAsGraph(GridArea areaToCover) {
+    public static GraphType getCoverageFromGridAsGraph(Profile planProfile, GridArea areaToCover) {
         /* TODO Improve */
         MapCell[][] cells = areaToCover.getAllCells();
         int nrows = cells.length;
@@ -103,9 +105,24 @@ public class CoverageArea {
         return planGraph;
     }
 
-    private static PlanType toPlanType(GraphType planGraph, MissionType mt) {
+    private static ManeuverLocation getManeuverLocation(Profile planProfile, LocationType lt) {
+        ManeuverLocation manLoc = new ManeuverLocation(lt);
+        manLoc.setZ(planProfile.getProfileAltitude());
+
+        /* TODO set according to profile's parameters */
+        manLoc.setZUnits(ManeuverLocation.Z_UNITS.DEPTH);
+        return manLoc;
+    }
+
+    private static PlanType toPlanType(Profile planProfile, GraphType planGraph, MissionType mt) {
+        FollowPath fpath = new FollowPath(planGraph);
+        fpath.setManeuverLocation(getManeuverLocation(planProfile, fpath.getManeuverLocation()));
+        fpath.setSpeed(planProfile.getProfileVelocity());
+        /* TODO set according to profile's parameters */
+        fpath.setSpeedUnits(ManeuverLocation.Z_UNITS.DEPTH.toString());
+
         PlanType ptype = new PlanType(mt);
-        ptype.getGraph().addManeuver(new FollowPath(planGraph));
+        ptype.getGraph().addManeuver(fpath);
 
         return ptype;
     }

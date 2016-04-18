@@ -31,24 +31,23 @@
  */
 package pt.lsts.neptus.plugins.mvplanning.tests;
 
-import pt.lsts.neptus.mp.maneuvers.FollowPath;
+import pt.lsts.neptus.plugins.mvplanning.jaxb.Profile;
+import pt.lsts.neptus.plugins.mvplanning.jaxb.ProfileMarshaler;
 import pt.lsts.neptus.plugins.mvplanning.planning.mapdecomposition.GridArea;
 import pt.lsts.neptus.plugins.mvplanning.planning.plan.CoverageArea;
 import pt.lsts.neptus.types.coord.LocationType;
 import pt.lsts.neptus.types.mission.GraphType;
-import pt.lsts.neptus.types.mission.MissionType;
 import pt.lsts.neptus.types.mission.TransitionType;
-import pt.lsts.neptus.types.mission.plan.PlanType;
 
 /**
  * @author tsmarques
  *
  */
 public class TestCoverageArea {
-    public static void testCoverageFromGrid(GridArea areaToCover) {
+    public static void testCoverageFromGrid(Profile planProfile, GridArea areaToCover) {
         System.out.println("--- Testing coverage area from a grid ---");
 
-        GraphType planGraph = CoverageArea.getCoverageFromGridAsGraph(areaToCover);
+        GraphType planGraph = CoverageArea.getCoverageFromGridAsGraph(planProfile, areaToCover);
         int nNodes = planGraph.getAllManeuvers().length;
         int nEdges = planGraph.getAllEdges().length;
 
@@ -66,11 +65,14 @@ public class TestCoverageArea {
     }
 
     public static void main(String[] args) {
+        ProfileMarshaler pMarsh = new ProfileMarshaler();
+        Profile planProfile = pMarsh.getAllProfiles().get("Batimetria");
+
         System.out.println("--- Test 1 ---");
         GridArea grid1 = new GridArea(100, 100, LocationType.FEUP);
         grid1.decomposeMap();
 
-        TestCoverageArea.testCoverageFromGrid(grid1);
+        TestCoverageArea.testCoverageFromGrid(planProfile, grid1);
 
         System.out.println();
 
@@ -78,6 +80,6 @@ public class TestCoverageArea {
         GridArea grid2 = new GridArea(500, 500, LocationType.FEUP);
         grid2.decomposeMap();
 
-        TestCoverageArea.testCoverageFromGrid(grid2);
+        TestCoverageArea.testCoverageFromGrid(planProfile, grid2);
     }
 }
