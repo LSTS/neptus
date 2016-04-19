@@ -35,6 +35,7 @@ import pt.lsts.imc.IMCMessage;
 import pt.lsts.neptus.mp.ManeuverLocation;
 import pt.lsts.neptus.mp.maneuvers.FollowPath;
 import pt.lsts.neptus.mp.maneuvers.Goto;
+import pt.lsts.neptus.mp.maneuvers.LocatedManeuver;
 import pt.lsts.neptus.plugins.mvplanning.jaxb.Profile;
 import pt.lsts.neptus.plugins.mvplanning.planning.MapCell;
 import pt.lsts.neptus.plugins.mvplanning.planning.mapdecomposition.GridArea;
@@ -104,10 +105,12 @@ public class CoverageArea {
         }
         return planGraph;
     }
-    
+
     public static FollowPath getFollowPath(Profile planProfile, GraphType planGraph) {
         FollowPath fpath = new FollowPath(planGraph);
-        fpath.setManeuverLocation(getManeuverLocation(planProfile, fpath.getManeuverLocation()));
+        ManeuverLocation loc = ((LocatedManeuver) planGraph.getManeuversSequence()[0]).getManeuverLocation();
+
+        fpath.setManeuverLocation(getManeuverLocation(planProfile, loc));
         fpath.setSpeed(planProfile.getProfileVelocity());
 
         /* TODO set according to profile's parameters */
