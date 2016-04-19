@@ -146,11 +146,6 @@ public class PreflightPanel extends ConsolePanel implements MainVehicleChangeLis
         buttonPanel.add(disarmButton, "w 33%, h 100%");
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see pt.lsts.neptus.console.ConsolePanel#cleanSubPanel()
-     */
     @Override
     public void cleanSubPanel() {
         // TODO Auto-generated method stub
@@ -163,18 +158,8 @@ public class PreflightPanel extends ConsolePanel implements MainVehicleChangeLis
             if (!currentEntity.isEmpty() && !msg.getEntityName().equals(currentEntity))
                 return;
             
-            MEDIUM uavValue = msg.getMedium();
-            if(uavValue == MEDIUM.GROUND){
-                //Calibration ON
-                calibButton.setEnabled(true);                
-            }
-            else{
-                //Calibration OFF
-                calibButton.setEnabled(false);
-                post(pt.lsts.neptus.console.notifications.Notification.info("Pre-flight Actions", "Pre-flight Calibration only allowed on GROUND."));
-            }
-            
+            // Calibration is enabled only when UAV is on the ground
+            calibButton.setEnabled(msg.getMedium() == MEDIUM.GROUND);            
         }
-        
     }
 }

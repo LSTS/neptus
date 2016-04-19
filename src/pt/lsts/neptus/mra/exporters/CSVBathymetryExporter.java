@@ -93,7 +93,7 @@ public class CSVBathymetryExporter implements MRAExporter {
 
     public String process(IMraLogGroup source, ProgressMonitor pmonitor) {
         if (!canBeApplied(source))
-            return "No data to process!";
+            return I18n.text("No data to process!");
         
         PluginUtils.editPluginProperties(this, true);
         
@@ -113,26 +113,20 @@ public class CSVBathymetryExporter implements MRAExporter {
         // Create all beams csv file and file descriptor
         processResultOutputFileNameAllBeams = new File(folder, parentFolder + "-bathymetry-process-all-beams.csv").getAbsolutePath();
         boolean fileChecker = initResultOutputFile(processResultOutputFileNameAllBeams, processResultOutputWriterAllBeams);
-        if (!fileChecker) {
-            if (pmonitor != null)
-                pmonitor.setNote("File already exists!");
-            return "File already exists!";
-        }
-        if (fileChecker) {
+        if (!fileChecker)
+            return I18n.text("File already exists!");
+        
+        if (fileChecker)
             processResultOutputWriterAllBeams = initializeWriter(processResultOutputFileNameAllBeams);
-        }
         
         // Create center beam csv file and file descriptor
         processResultOutputFileNameCenterBeam = new File(folder, parentFolder + "-bathymetry-process-center-beam.csv").getAbsolutePath();
         fileChecker = initResultOutputFile(processResultOutputFileNameCenterBeam, processResultOutputWriterCenterBeam);
-        if (!fileChecker) {
-            if (pmonitor != null)
-                pmonitor.setNote("File already exists!");
-            return "File already exists!";
-        }
-        if (fileChecker) {
+        if (!fileChecker)
+            return I18n.text("File already exists!");
+        
+        if (fileChecker)
             processResultOutputWriterCenterBeam = initializeWriter(processResultOutputFileNameCenterBeam);
-        }
         
         log = source;
         
@@ -264,11 +258,11 @@ public class CSVBathymetryExporter implements MRAExporter {
                     return "Export interrupted!";
             }
             
-            return "Export completed successfully";
+            return I18n.text("Export completed successfully");
         }
         catch (Exception e) {
             e.printStackTrace();
-            return "Export completed with errors! (" + e.getMessage() + ")";
+            return I18n.textf("Export completed with errors! (%error)", e.getMessage());
         }
         finally {
             cleanupResultOutputFile();

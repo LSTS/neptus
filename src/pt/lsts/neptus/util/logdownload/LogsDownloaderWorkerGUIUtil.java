@@ -48,6 +48,7 @@ import pt.lsts.neptus.colormap.ColorMapFactory;
 import pt.lsts.neptus.colormap.InterpolationColorMap;
 import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.util.MathMiscUtils;
+import pt.lsts.neptus.util.concurrency.QueueWorkTickets;
 
 /**
  * @author pdias

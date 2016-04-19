@@ -155,6 +155,8 @@ public class PlanSimulationOverlay implements Renderer2DPainter {
         simStates.add(simState);
         
         String man = simState.getCurrentManeuver();
+        if (man == null)
+            return;
         LinkedHashMap<Area, Color> swath = new LinkedHashMap<>();
         for (PayloadFingerprint pf : payloads.get(man)) {
             double altitude = SimulationEngine.simBathym.getSimulatedDepth(state.getPosition());

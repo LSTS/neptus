@@ -246,6 +246,7 @@ public class SystemImcMsgCommInfo extends SystemCommBaseInfo<IMCMessage, Message
         return true;
     }
 
+    @SuppressWarnings("unchecked")
     @Override
     protected boolean processMsgLocally(MessageInfo info, IMCMessage msg) {
         // msg.dump(System.out);
@@ -385,7 +386,6 @@ public class SystemImcMsgCommInfo extends SystemCommBaseInfo<IMCMessage, Message
                             ImcSystem.HEADING_KEY,
                             (int) AngleUtils.nomalizeAngleDegrees360(MathMiscUtils.round(Math.toDegrees(headingRad), 0)),
                             timeMillis, true);
-
                 }
                 catch (Exception e) {
                     e.printStackTrace();
@@ -454,19 +454,27 @@ public class SystemImcMsgCommInfo extends SystemCommBaseInfo<IMCMessage, Message
                     else {
                         final String entityName = EntitiesResolver.resolveName(resSys.getName(), entityId);
                         if (entityName != null) {
+                            long lastStoredTimeMillis = resSys.retrieveDataTimeMillis(ImcSystem.RPM_MAP_ENTITY_KEY);
                             Object obj = resSys.retrieveData(ImcSystem.RPM_MAP_ENTITY_KEY);
-                            if (obj == null) {
-                                Map<String, Integer> map = (Map<String, Integer>) Collections
+                            Map<String, Integer> rpms = null;
+                            if (obj == null || !(obj instanceof Map<?, ?>)) {
+                                rpms = (Map<String, Integer>) Collections
                                         .synchronizedMap(new HashMap<String, Integer>());
-                                map.put(entityName, value);
-                                resSys.storeData(ImcSystem.RPM_MAP_ENTITY_KEY, map, timeMillis, true);
+                                rpms.put(entityName, value);
+                                resSys.storeData(ImcSystem.RPM_MAP_ENTITY_KEY, rpms, timeMillis, true);
                             }
                             else {
-                                @SuppressWarnings("unchecked")
-                                Map<String, Integer> rpms = (Map<String, Integer>) resSys
+                                rpms = (Map<String, Integer>) resSys
                                         .retrieveData(ImcSystem.RPM_MAP_ENTITY_KEY);
                                 rpms.put(entityName, value);
                                 resSys.storeData(ImcSystem.RPM_MAP_ENTITY_KEY, rpms, timeMillis, false);
+                            }
+                            if (timeMillis - lastStoredTimeMillis > 2000) {
+                                for (String entName : rpms.keySet().toArray(new String[0])) {
+                                    int entId = EntitiesResolver.resolveId(resSys.getName(), entName);
+                                    if (entId < 0)
+                                        rpms.remove(entName);
+                                }
                             }
                         }
                     }

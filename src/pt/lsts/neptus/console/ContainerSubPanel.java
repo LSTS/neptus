@@ -44,6 +44,7 @@ import org.dom4j.Element;
 
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.console.plugins.LockableSubPanel;
+import pt.lsts.neptus.console.plugins.SubPanelChangeEvent.SubPanelChangeAction;
 import pt.lsts.neptus.plugins.NeptusProperty;
 import pt.lsts.neptus.plugins.NeptusProperty.DistributionEnum;
 import pt.lsts.neptus.plugins.PluginUtils;
@@ -100,17 +101,75 @@ public class ContainerSubPanel extends ConsolePanel implements LockableSubPanel 
         }
     }
 
-    public void addSubPanel(ConsolePanel panel) {
-        panels.add(panel);
-        this.add(panel);
+    /**
+     * If you don't want to add directly to container JPanel override this with false.
+     * 
+     * @return
+     */
+    protected boolean isAddSubPanelToPanelOrLetExtensionDoIt() {
+        return true;
     }
-
-    public void removeSubPanel(ConsolePanel sp) {
-        panels.remove(sp);
-        this.remove(sp);
+    
+    public final void addSubPanel(ConsolePanel panel) {
+        if (panel == null || !addSubPanelExtra(panel))
+            return;
+        
+        panels.add(panel);
+        if (isAddSubPanelToPanelOrLetExtensionDoIt())
+            this.add(panel);
+        
+        addSubPanelFinishUp();
+        
         doLayout();
         invalidate();
         revalidate();
+
+        // Let us inform the addition
+        getConsole().informSubPanelListener(panel, SubPanelChangeAction.ADDED);
+    }
+
+    /**
+     * Called from {@link #addSubPanel(ConsolePanel)} for extra work.
+     * Empty implementation, override if needed it.
+     * 
+     * Return false to abort addition.
+     * 
+     * @param panel
+     */
+    protected boolean addSubPanelExtra(ConsolePanel panel) {
+        return true;
+    }
+
+    /**
+     * Override this to finish up layout tasks after the new component is added to container.
+     */
+    protected void addSubPanelFinishUp() {
+    }
+
+    public final void removeSubPanel(ConsolePanel sp) {
+        panels.remove(sp);
+        if (isAddSubPanelToPanelOrLetExtensionDoIt())
+            this.remove(sp);
+        
+        removeSubPanelExtra(sp);
+        
+        sp.clean();
+        
+        doLayout();
+        invalidate();
+        revalidate();
+        
+        // Let us inform the removal
+        getConsole().informSubPanelListener(sp, SubPanelChangeAction.REMOVED);
+    }
+
+    /**
+     * Called from {@link #removeSubPanel(ConsolePanel)} for extra work.
+     * Empty implementation, override if needed it.
+     * 
+     * @param panel
+     */
+    protected void removeSubPanelExtra(ConsolePanel panel) {
     }
 
     private List<String> subPanelNames() {
@@ -133,10 +192,10 @@ public class ContainerSubPanel extends ConsolePanel implements LockableSubPanel 
 
     public void removeSubPanel(String subPanelName) {
         ConsolePanel sp = getSubPanelByName(subPanelName);
-        sp.clean();
-        if (sp != null)
+        if (sp != null) {
+            sp.clean();
             removeSubPanel(sp);
-
+        }
     }
 
     public ConsolePanel getSubPanelByName(String name) {
@@ -275,6 +334,10 @@ public class ContainerSubPanel extends ConsolePanel implements LockableSubPanel 
      */
     public List<ConsolePanel> getSubPanels() {
         return panels;
+    }
+    
+    public int getSubPanelsCount() {
+        return panels.size();
     }
     
     @Override

@@ -53,6 +53,7 @@ import pt.lsts.neptus.plugins.PluginDescription;
 import pt.lsts.neptus.renderer2d.LayerPriority;
 import pt.lsts.neptus.renderer2d.StateRenderer2D;
 import pt.lsts.neptus.types.coord.LocationType;
+import pt.lsts.neptus.util.DateTimeUtil;
 
 /**
  * @author hfq
@@ -133,7 +134,14 @@ public class TemperatureReplay extends ColormapOverlay implements LogReplayLayer
                     if (temp == null)
                         break;
 
-                    EstimatedState state = indexScanner.next(EstimatedState.class);
+                    EstimatedState state = (EstimatedState) lsfIndex.getMessageBeforeOrAt(
+                            EstimatedState.class.getSimpleName(), indexScanner.getIndex(), temp.getTimestamp());
+
+                    if (state == null) {
+                        NeptusLog.pub().warn(String.format("No location found for %msg at %time!", temp.getMessageType(), 
+                                DateTimeUtil.milliSecondsToFormatedString(temp.getTimestampMillis())));
+                        continue;
+                    }
 
                     LocationType loc = new LocationType(Math.toDegrees(state.getLat()), Math.toDegrees(state.getLon()));
                     loc.translatePosition(state.getX(), state.getY(), 0);

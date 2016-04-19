@@ -31,11 +31,14 @@
  */
 package pt.lsts.neptus.console.plugins.containers.propeditor;
 
+import java.io.InputStream;
+
 import javax.xml.validation.Schema;
 
 import pt.lsts.neptus.console.plugins.containers.GroupLayoutContainer;
 import pt.lsts.neptus.gui.editor.XMLPropertyEditor;
 import pt.lsts.neptus.i18n.I18n;
+import pt.lsts.neptus.util.GuiUtils;
 
 /**
  * @author pdias
@@ -49,9 +52,9 @@ public class HorizontalGroupPropertyEditor extends XMLPropertyEditor {
 	public HorizontalGroupPropertyEditor() {
 		super();
 		rootElement = "HorizontalGroup";
+        xmlSchemaName = "GroupLayoutContainer";
 		title = I18n.text("Layout for horizontal axis:") + " <" + rootElement + "></" + rootElement + ">";
-		helpText += "<!-- " + I18n.text("Don't use this top element (this is informative)") + " -->\n" +
-					"<!ELEMENT HorizontalGroup (Sequence | Parallel)?>\n\n" +
+		helpText += "<!ELEMENT HorizontalGroup (Sequence | Parallel)?>\n\n" +
 					"<!ELEMENT Sequence (Component | (Gap | GapComponents | PreferredGap) | Sequence | Parallel)+>\n" +
 					"<!ELEMENT Parallel (Component | Gap | Sequence | Parallel)+>\n" +
 					"<!ATTLIST Parallel\n" +
@@ -88,7 +91,19 @@ public class HorizontalGroupPropertyEditor extends XMLPropertyEditor {
 					">";
 	}
 	
+    @Override
 	public Schema getSchema() {
-	        return GroupLayoutContainer.schema;
+        return GroupLayoutContainer.schema;
 	}
+	
+	@Override
+	protected InputStream getSchemaInputStream() {
+        return GroupLayoutContainer.class.getResourceAsStream(GroupLayoutContainer.GROUP_LAYOUT_SCHEMA);
+	}
+	
+    public static void main(String[] args) {
+        HorizontalGroupPropertyEditor xp = new HorizontalGroupPropertyEditor();
+
+        GuiUtils.testFrame(xp.button);
+    }
 }

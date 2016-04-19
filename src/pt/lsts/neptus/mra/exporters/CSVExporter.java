@@ -123,7 +123,7 @@ public class CSVExporter implements MRAExporter {
         int i = 0;
         for (String message : source.listLogs()) {
             if (pmonitor.isCanceled())
-                return "Cancelled by the user";
+                return I18n.text("Cancelled by the user");
             
             try {
                 File out = new File(dir, message + ".csv");

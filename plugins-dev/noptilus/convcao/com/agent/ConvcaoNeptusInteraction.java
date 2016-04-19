@@ -124,7 +124,7 @@ import pt.lsts.neptus.util.bathymetry.TidePredictionFactory;
  * @author Thanasis, ZP
  *
  */
-@PluginDescription(author="thanasis", category=CATEGORY.UNSORTED, name="convcao Neptus Interaction")
+@PluginDescription(author="thanasis", category=CATEGORY.UNSORTED, name="Convcao Neptus Interaction")
 @Popup(accelerator=KeyEvent.VK_N, pos=Popup.POSITION.CENTER, height=500, width=510, name="convcao Neptus Interaction")
 public class ConvcaoNeptusInteraction extends ConsolePanel implements Renderer2DPainter, IController, ConfigurationListener {
 

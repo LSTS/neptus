@@ -65,7 +65,7 @@ import com.l2fprod.common.propertysheet.Property;
 
 public class Loiter extends Maneuver implements LocatedManeuver, StatisticsProvider, IMCSerialization {
 
-	public static final int INFINITY_DURATION = -1;
+	public static final int INFINITY_DURATION = 0;
 	
 	private int loiterDuration = 60;
 	private double radius = 15, radiusTolerance = 5, length = 1, bearing = 0,

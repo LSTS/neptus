@@ -172,7 +172,7 @@ public class RectangleEditor extends JPanel implements Renderer2DPainter, StateR
 		}
 		else if (rectangle != null) {
 			rectangle.setMyColor(Color.red);
-			rectangle.setFill(true);
+			rectangle.setFilled(true);
 			rectangle.paint((Graphics2D)g.create(), renderer, -renderer.getRotation());
 		}
 		g.dispose();

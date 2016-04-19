@@ -36,13 +36,19 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
+import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
+import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Vector;
 
 import org.reflections.Reflections;
+
+import com.l2fprod.common.propertysheet.DefaultProperty;
 
 import pt.lsts.imc.Announce;
 import pt.lsts.imc.Goto;
@@ -55,6 +61,7 @@ import pt.lsts.neptus.console.plugins.planning.MapPanel;
 import pt.lsts.neptus.gui.PropertiesEditor;
 import pt.lsts.neptus.gui.system.SystemDisplayComparator;
 import pt.lsts.neptus.mp.ManeuverLocation.Z_UNITS;
+import pt.lsts.neptus.plugins.NeptusMenuItem;
 import pt.lsts.neptus.plugins.NeptusProperty;
 import pt.lsts.neptus.plugins.PluginDescription;
 import pt.lsts.neptus.renderer2d.tiles.Tile.TileState;
@@ -63,8 +70,6 @@ import pt.lsts.neptus.types.map.MapType;
 import pt.lsts.neptus.types.vehicle.VehicleType.SystemTypeEnum;
 import pt.lsts.neptus.types.vehicle.VehicleType.VehicleTypeEnum;
 import pt.lsts.neptus.util.FileUtil;
-
-import com.l2fprod.common.propertysheet.DefaultProperty;
 
 /**
  * @author zp
@@ -195,6 +200,8 @@ public class PluginsPotGenerator {
 
         Vector<Class<?>> classes = getAllClasses();
 
+        System.out.println("Processing "+classes.size()+" classes...");
+        
         for (Class<?> c : classes) {
             try {
                 PluginDescription pd = c.getAnnotation(PluginDescription.class);
@@ -235,6 +242,20 @@ public class PluginsPotGenerator {
             catch (Error e) {
                 // TODO: handle exception
             }
+            
+            HashSet<String> addedMenuParts = new HashSet<>();
+                        
+            for (Method m : methodsAnnotatedWith(NeptusMenuItem.class, c)) {
+                String path = m.getAnnotation(NeptusMenuItem.class).value();
+                
+                for (String part : path.split(">")) {
+                    if (addedMenuParts.contains(part.trim()))
+                        continue;
+                    writer.write("#: Menu item path (class " + c.getSimpleName() + ", complete path: '"+path+"')\n");
+                    writer.write("msgid \"" + part.trim() + "\"\n");
+                    writer.write("msgstr \"\"\n\n");           
+                }
+            }
         }
 
         for (AbstractElement elem : mapElements()) {
@@ -269,6 +290,34 @@ public class PluginsPotGenerator {
         }
 
         writer.close();
+    }
+    
+    public static Collection<Method> methodsAnnotatedWith(Class<? extends Annotation> ann, Object o) {
+        Class<?> c;
+        if (o instanceof Class<?>)
+            c = (Class<?>)o;
+        else
+            c = o.getClass();
+        
+        HashSet<Method> methods = new HashSet<>(); 
+        
+        try {
+            for (Method m : c.getMethods()) {
+                if (m.getAnnotation(ann) != null)
+                    methods.add(m);
+            }
+            for (Method m : c.getDeclaredMethods()) {
+                if (m.getAnnotation(ann) != null) {
+                    m.setAccessible(true);
+                    methods.add(m);
+                }
+            }    
+        }
+        catch (Error e) {
+            e.printStackTrace();
+        }
+        
+        return methods;
     }
 
 }

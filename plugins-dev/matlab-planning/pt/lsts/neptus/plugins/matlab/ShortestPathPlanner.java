@@ -169,7 +169,7 @@ public class ShortestPathPlanner extends SimpleRendererInteraction implements Re
                             state = EDITION_STATES.ADDING_OBSTACLE;
                             LocationType loc = renderer.getRealWorldLocation(mousePosition);
                             currentObstacle = new PathElement(renderer.getMapGroup(), null, loc);
-                            currentObstacle.setFill(true);
+                            currentObstacle.setFilled(true);
                             currentObstacle.setShape(true);
                             currentObstacle.setMyColor(Color.yellow);
                             currentObstacle.addPoint(0, 0, 0, false);

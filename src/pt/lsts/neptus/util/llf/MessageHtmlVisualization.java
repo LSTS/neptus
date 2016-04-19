@@ -79,7 +79,7 @@ public class MessageHtmlVisualization implements MRAVisualization {
             public void mouseClicked(MouseEvent e) {
                 if (e.getButton() == MouseEvent.BUTTON3) {
                     JPopupMenu popup = new JPopupMenu();
-                    popup.add(I18n.text("Copy HTML to clipboard")).addActionListener(new ActionListener() {
+                    popup.add(I18n.text("Copy as HTML")).addActionListener(new ActionListener() {
 
                         @Override
                         public void actionPerformed(ActionEvent e) {
@@ -88,8 +88,27 @@ public class MessageHtmlVisualization implements MRAVisualization {
                         }
                     });
                     
+                    popup.add(I18n.text("Copy as JSON")).addActionListener(new ActionListener() {
+
+                        @Override
+                        public void actionPerformed(ActionEvent e) {
+                            StringSelection selection = new StringSelection(message.asJSON(true));
+                            Toolkit.getDefaultToolkit().getSystemClipboard().setContents(selection, null);
+                        }
+                    });
+                    
+                    popup.add(I18n.text("Copy as XML")).addActionListener(new ActionListener() {
+
+                        @Override
+                        public void actionPerformed(ActionEvent e) {
+                            StringSelection selection = new StringSelection(message.asXml(false));
+                            Toolkit.getDefaultToolkit().getSystemClipboard().setContents(selection, null);
+                        }
+                    });
+
+                    
                     if (editor.getSelectionStart() < editor.getSelectionEnd()) {
-                        popup.add(I18n.text("Copy selection to clipboard")).addActionListener(new ActionListener() {
+                        popup.add(I18n.text("Copy selection as text")).addActionListener(new ActionListener() {
 
                             @Override
                             public void actionPerformed(ActionEvent e) {

@@ -92,7 +92,7 @@ public class PolygonInteraction extends InteractionAdapter {
 
         if (element == null) {
             element = new PathElement(pivot.getMapGroup(), pivot, lt);
-            element.setFill(fill);
+            element.setFilled(fill);
             element.setShape(fill);
             pivot.addObject(element);
             element.addPoint(0,0,0, false);

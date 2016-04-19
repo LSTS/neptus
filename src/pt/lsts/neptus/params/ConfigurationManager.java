@@ -694,7 +694,16 @@ public class ConfigurationManager {
      */
     public static Object getValueTypedFromString(String valueStr, SystemProperty.ValueTypeEnum type) {
         if (type == SystemProperty.ValueTypeEnum.BOOLEAN) {
-            return Boolean.parseBoolean(valueStr);
+            if (valueStr == null)
+                return false;
+            switch (valueStr.toLowerCase().trim()) {
+                case "true":
+                case "yes":
+                case "1":
+                    return true;
+                default:
+                    return false;
+            }
         }
         else if (type == SystemProperty.ValueTypeEnum.INTEGER) {
             try {

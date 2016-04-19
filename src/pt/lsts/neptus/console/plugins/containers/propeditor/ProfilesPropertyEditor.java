@@ -44,8 +44,7 @@ public class ProfilesPropertyEditor extends HorizontalGroupPropertyEditor {
 		super();
 		rootElement = "Profiles";
 		title = "Profiles: <" + rootElement + "></" + rootElement + ">";
-		helpText += "<!-- Don't use this top element (this is informative) -->\n" +
-					"<!ELEMENT Profiles (Default?, (Profile)*)?>\n\n" +
+		helpText += "<!ELEMENT Profiles (Default?, (Profile)*)?>\n\n" +
 					"<!ELEMENT Default EMPTY>\n" +
                     "<!ATTLIST Default\n" +
                     "    profile CDATA #REQUIRED\n" +

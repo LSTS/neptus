@@ -305,7 +305,9 @@ public class PluginUtils {
         }
         return null;
     }
-    
+    /**     
+     * @return <b>true</b> if cancelled or <b>false</b> otherwise.
+     */
     public static boolean editPluginProperties(final Object obj, boolean editable) {
         PropertiesProvider provider = new PropertiesProvider() {
             

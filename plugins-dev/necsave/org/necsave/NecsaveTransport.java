@@ -47,6 +47,7 @@ import java.util.concurrent.Future;
 import org.apache.commons.lang3.concurrent.ConcurrentUtils;
 
 import info.necsave.msgs.ActionStop;
+import info.necsave.msgs.Header.MEDIUM;
 import info.necsave.msgs.PlatformInfo;
 import info.necsave.proto.Message;
 import info.necsave.proto.ProtoDefinition;
@@ -131,17 +132,19 @@ public class NecsaveTransport {
 
         Message msg = ProtoDefinition.getInstance().nextMessage(pis);
 
-        System.out.println("Received message of type '"+msg.getAbbrev()+"' from "+ receivePacket.getAddress());
-        
         if (msg instanceof PlatformInfo)
             process((PlatformInfo)msg, receivePacket.getAddress().getHostAddress(), receivePacket.getPort());        
 
+        System.out.println("Received message of type '" + msg.getAbbrev() + "' from " + receivePacket.getAddress()
+                + " - Platform " + platformNames.get(msg.getSrc()));
+        
         return msg;
     }   
 
     public void broadcast(Message msg) throws Exception {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         ProtoOutputStream pos = new ProtoOutputStream(baos);
+        msg.setMedium(MEDIUM.IP_BROADCAST);
         int length = msg.serialize(pos);
         DatagramPacket packet = new DatagramPacket(baos.toByteArray(), length);
         for (int i = 0; i < 3; i++)
@@ -176,6 +179,7 @@ public class NecsaveTransport {
         return executor.submit(new Callable<Boolean>() {
             @Override
             public Boolean call() throws Exception {
+                msg.setMedium(MEDIUM.IP_RELIABLE);
                 try {
                     Socket socket = new Socket(host, port);
                     msg.serialize(new ProtoOutputStream(socket.getOutputStream()));

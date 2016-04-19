@@ -178,7 +178,7 @@ public class MRAExporterFilter implements MRAExporter {
 
         if (pmonitor.isCanceled()) {
             outputFile.delete();
-            return "Cancelled by the user";
+            return I18n.text("Cancelled by the user");
         }
         return ((progress == 100) && (!pmonitor.isCanceled()) ? I18n.text("Exported filtered log successfully.")
                 : I18n.text("Filtered log not exported successfully."));

@@ -61,7 +61,8 @@ import pt.lsts.neptus.util.conf.GeneralPreferences;
 public class TidePredictionFactory {
 
     public static final String MRA_TIDE_INDICATION_FILE = "tide.info";
-    public static final String MRA_TIDE_INDICATION_FILE_PATH = "mra/" + TidePredictionFactory.MRA_TIDE_INDICATION_FILE;
+    public static final String MRA_TIDE_INDICATION_FILE_PATH = TidePredictionFactory.MRA_TIDE_INDICATION_FILE;
+    public static final String MRA_TIDE_INDICATION_FILE_PATH_OLD = "mra/" + TidePredictionFactory.MRA_TIDE_INDICATION_FILE;
 
     public static final String BASE_TIDE_FOLDER_PATH = ConfigFetch.getConfFolder() + "/tides";
     

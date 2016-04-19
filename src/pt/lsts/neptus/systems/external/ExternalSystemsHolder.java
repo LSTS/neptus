@@ -101,7 +101,17 @@ public class ExternalSystemsHolder {
     }
 
     public static ExternalSystem lookupSystem(String id) {
-        return lookupTable.get(id);
+        ExternalSystem ret = lookupTable.get(id);
+        if (ret == null) {
+            for (ExternalSystem is : lookupTable.values()) {
+                //NeptusLog.pub().info("<###>... lookupSystemByName()"+is.getName());
+                if (id.equalsIgnoreCase(is.getName())) {
+                    ret = is;;
+                    break;
+                }
+            }
+        }
+        return ret;
     }
     
     /**

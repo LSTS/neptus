@@ -222,6 +222,9 @@
 	<classpathentry kind="lib" path="lib/javacsv.jar"/>
 	<classpathentry kind="lib" path="lib/commons-collections-3.2.1.jar"/>
 	<classpathentry kind="lib" path="lib/commons-lang-2.6.jar"/>
+	<classpathentry kind="lib" path="lib/rsyntaxtextarea/rsyntaxtextarea-2.5.8.jar"/>
+	<classpathentry kind="lib" path="lib/rsyntaxtextarea/autocomplete-2.5.8.jar"/>
+	<classpathentry kind="lib" path="lib/rsyntaxtextarea/languagesupport-2.5.8.jar"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.junit.JUNIT_CONTAINER/4"/>
 	<classpathentry kind="lib" path="conf"/>

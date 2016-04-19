@@ -189,7 +189,7 @@ public class LogTree extends JTree {
                             n.getUserObject() instanceof GenericPlot ||
                             n.getUserObject() instanceof MessageHtmlVisualization) {
 
-                        menu.add(new AbstractAction("Remove") {
+                        menu.add(new AbstractAction(I18n.text("Remove")) {
 
                             @Override
                             public void actionPerformed(ActionEvent e) {

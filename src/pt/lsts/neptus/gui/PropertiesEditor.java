@@ -105,7 +105,8 @@ public class PropertiesEditor {
 	 * This method shows a dialog with all the properties available in the properties provider
 	 * If the user presses the OK button, the new properties are sent back to the properties provider
 	 * @param provider The PropertiesProvider that is to be configured
-	 */
+     * @return <b>true</b> if cancelled or <b>false</b> otherwise.
+     */
 	public static boolean editProperties(PropertiesProvider provider, boolean editable) {
         return editPropertiesWorker(provider, null, editable);
 	}
@@ -177,6 +178,9 @@ public class PropertiesEditor {
         }        
     }
     
+    /**
+     * @return <b>true</b> if cancelled or <b>false</b> otherwise.
+     */
     private static boolean editPropertiesWorker(PropertiesProvider provider, Window parent, boolean editable) {
         
     	boolean canceled = false;

@@ -121,6 +121,6 @@ public class TrajectoryExporter implements MRAExporter {
             return I18n.textf("Error: %s", ""+e.getMessage());
         }
         pmonitor.close();
-        return "done";
+        return I18n.text("Export process complete.");
     }
 }

@@ -87,7 +87,7 @@ public class VideoLegendExporter implements MRAExporter {
         }
         catch (Exception e1) {
             e1.printStackTrace();
-            return "Not able to create video";
+            return I18n.text("Not able to create video");
         }
         
         pmonitor.setNote(I18n.text("Starting up"));

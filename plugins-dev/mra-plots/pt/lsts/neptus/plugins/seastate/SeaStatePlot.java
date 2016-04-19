@@ -37,11 +37,13 @@ import pt.lsts.imc.lsf.LsfIndex;
 import pt.lsts.imc.lsf.LsfIterator;
 import pt.lsts.neptus.mra.MRAPanel;
 import pt.lsts.neptus.mra.plots.MRATimeSeriesPlot;
+import pt.lsts.neptus.plugins.PluginDescription;
 
 /**
  * @author zp
  *
  */
+@PluginDescription(name = "Sea State Plot", experimental = true)
 public class SeaStatePlot extends MRATimeSeriesPlot {
 
     public SeaStatePlot(MRAPanel panel) {

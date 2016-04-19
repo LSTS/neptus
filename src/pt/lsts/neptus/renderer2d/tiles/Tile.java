@@ -40,7 +40,6 @@ import java.awt.geom.Point2D;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.FileFilter;
-import java.io.IOException;
 import java.io.Serializable;
 import java.util.Map;
 import java.util.Timer;
@@ -50,6 +49,7 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import javax.imageio.ImageIO;
 
+import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.gui.PropertiesEditor;
 import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.plugins.MapTileProvider;
@@ -382,13 +382,18 @@ public abstract class Tile implements /*Renderer2DPainter,*/ Serializable {
         if (state != TileState.LOADED)
             return false;
         
+        if (image == null) {
+            NeptusLog.pub().warn(String.format("Tile image %tile", getTileFilePath()));
+            return false;
+        }
+
         tileCacheDiskClearOrTileSaveLock.readLock().lock();
         try {
             File outFile = new File(getTileFilePath());
             outFile.mkdirs();
             return ImageIO.write(image, TILE_FX_EXTENSION.toUpperCase(), outFile);
         }
-        catch (IOException e) {
+        catch (Exception e) {
             e.printStackTrace();
             return false;
         }

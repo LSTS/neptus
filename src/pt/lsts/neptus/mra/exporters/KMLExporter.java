@@ -714,10 +714,11 @@ public class KMLExporter implements MRAExporter {
         pmonitor.setMinimum(0);
         pmonitor.setMaximum(320);
 
-        PluginUtils.editPluginProperties(this, true);
+        if (PluginUtils.editPluginProperties(this, true))
+            return I18n.text("Cancelled by the user.");
 
         try {
-            pmonitor.setNote("Generating output dirs");
+            pmonitor.setNote(I18n.text("Generating output dirs"));
             File out = new File(source.getFile("mra"), "kml");
             out.mkdirs();
 
@@ -737,7 +738,7 @@ public class KMLExporter implements MRAExporter {
             // Path
             Iterable<IMCMessage> it = source.getLsfIndex().getIterator("EstimatedState", 0, 3000);
             pmonitor.setProgress(1);
-            pmonitor.setNote("Generating path");
+            pmonitor.setNote(I18n.text("Generating path"));
             double start = source.getLsfIndex().getStartTime();
             double end = source.getLsfIndex().getEndTime();
             for (IMCMessage s : it) {
@@ -784,7 +785,7 @@ public class KMLExporter implements MRAExporter {
                 bw.close();
                 throw new Exception("This log doesn't have required data (EstimatedState)");
             }
-            pmonitor.setNote("Writing path to file");
+            pmonitor.setNote(I18n.text("Writing path to file"));
             // bw.write(path(states, "Estimated State", "estate"));
             for (String sys : pathsForSystems.keySet()) {
                 Vector<LocationType> st = pathsForSystems.get(sys);
@@ -801,7 +802,7 @@ public class KMLExporter implements MRAExporter {
                 NeptusLog.pub().error(e);
             }
             if (plan != null) {
-                pmonitor.setNote("Writing plan");
+                pmonitor.setNote(I18n.text("Writing plan"));
                 bw.write(path(plan.planPath(), "Planned waypoints", "plan"));
                 pmonitor.setProgress(90);
             }
@@ -812,7 +813,7 @@ public class KMLExporter implements MRAExporter {
             bottomRight.convertToAbsoluteLatLonDepth();
 
             if (exportSidescan) {
-                pmonitor.setNote("Generating sidescan overlay");
+                pmonitor.setNote(I18n.text("Generating sidescan overlay"));
                 
                 if (separateLineSegments) {
                     double lastTime = 0;
@@ -834,7 +835,7 @@ public class KMLExporter implements MRAExporter {
             }
 
             if (exportBathymetry) {
-                pmonitor.setNote("Generating bathymetry overlay");
+                pmonitor.setNote(I18n.text("Generating bathymetry overlay"));
                 String mb = multibeamOverlay(out.getParentFile());
                 if (!mb.isEmpty())
                     bw.write(mb);
@@ -865,9 +866,9 @@ public class KMLExporter implements MRAExporter {
             bw.close();
 
             if (pmonitor.isCanceled())
-                return "Cancelled by the user";
+                return I18n.text("Cancelled by the user");
             if (compressOutput) {
-                pmonitor.setNote("Compressing output");
+                pmonitor.setNote(I18n.text("Compressing output"));
                 
                 System.out.println(new File(source.getFile("mra"), "Data.kmz"));
                 System.out.println(new File(source.getFile("mra"), "kml"));
@@ -876,14 +877,14 @@ public class KMLExporter implements MRAExporter {
                 pmonitor.setNote("Deleting old directory");
                 FileUtil.deltree(out.getAbsolutePath());
                 pmonitor.close();
-                return "Log exported to " + new File(source.getFile("mra"), "Data.kmz").getAbsolutePath();
+                return I18n.textf("Log exported to %path", new File(source.getFile("mra"), "Data.kmz").getAbsolutePath());
             }
             else
-                return "Log exported to " + out.getAbsolutePath();
+                return  I18n.textf("Log exported to %path", out.getAbsolutePath());
         }
         catch (Exception e) {
-            GuiUtils.errorMessage("Error while exporting to KML", "Exception of type " + e.getClass().getSimpleName()
-                    + " occurred: " + e.getMessage());
+            GuiUtils.errorMessage(I18n.text("Error while exporting to KML"), I18n.textf(
+                    "Exception of type %exception occurred: %message", e.getClass().getSimpleName(), e.getMessage()));
             e.printStackTrace();
             pmonitor.close();
             return null;

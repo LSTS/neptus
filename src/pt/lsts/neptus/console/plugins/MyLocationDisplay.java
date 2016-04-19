@@ -283,7 +283,7 @@ public class MyLocationDisplay extends ConsolePanel implements IPeriodicUpdates,
                 headingDegreesTime = sys.getAttitudeTimeMillis();
             }
             else {
-                ExternalSystem ext = ExternalSystemsHolder.lookupSystem(followHeadingOf);
+                ExternalSystem ext = followHeadingOf == null || followHeadingOf.isEmpty() ? null : ExternalSystemsHolder.lookupSystem(followHeadingOf);
                 if (ext != null) {
                     headingDegrees = ext.getYawDegrees();
                     headingDegreesTime = ext.getAttitudeTimeMillis();

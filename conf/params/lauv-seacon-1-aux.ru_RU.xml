@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<config format="1" version="2016.01.0 (master,dd196ec,dirty)" system="lauv-seacon-1-aux" i18n="ru_RU">
+<config format="1" version="2016.03.0 (master,75a147e)" system="lauv-seacon-1-aux" i18n="ru_RU">
   <section name="Power Supervisor" name-i18n="Power Supervisor">
     <param name="Entity Label">
       <name-i18n>Entity Label</name-i18n>

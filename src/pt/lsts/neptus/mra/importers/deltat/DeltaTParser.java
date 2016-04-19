@@ -49,6 +49,7 @@ import java.util.Random;
 
 import org.apache.commons.io.FileUtils;
 
+import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.mp.SystemPositionAndAttitude;
 import pt.lsts.neptus.mra.MRAProperties;
 import pt.lsts.neptus.mra.api.BathymetryInfo;
@@ -57,6 +58,7 @@ import pt.lsts.neptus.mra.api.BathymetryPoint;
 import pt.lsts.neptus.mra.api.BathymetrySwath;
 import pt.lsts.neptus.mra.api.CorrectedPosition;
 import pt.lsts.neptus.mra.importers.IMraLogGroup;
+import pt.lsts.neptus.types.coord.CoordinateUtil;
 import pt.lsts.neptus.types.coord.LocationType;
 import pt.lsts.neptus.util.DateTimeUtil;
 import pt.lsts.neptus.util.FileUtil;
@@ -432,47 +434,70 @@ public class DeltaTParser implements BathymetryParser {
 
             long timestamp = header.timestamp + MRAProperties.timestampMultibeamIncrement;
 
+            boolean poseFromCorrected = true;
             SystemPositionAndAttitude pose = position.getPosition(timestamp/1000.0);
+            if (pose == null) {
+                
+                poseFromCorrected = false;
+                pose = new SystemPositionAndAttitude();
+                LocationType loc = new LocationType();
+                loc.setLatitudeDegs(CoordinateUtil.latFrom83PFormatWorker(header.gnssShipPosLat));
+                loc.setLongitudeDegs(CoordinateUtil.lonFrom83PFormatWorker(header.gnssShipPosLon));
+                loc.setAbsoluteDepth(-1);
+                pose.setPosition(loc);
+                
+                pose.setTime(timestamp);
+                pose.setAltitude(header.altitude);
+
+                pose.setRoll(Math.toRadians(header.rollAngleDegreesOrientModule));
+                pose.setPitch(Math.toRadians(header.pitchAngleDegreesOrientModule));
+                pose.setYaw(Math.toRadians(header.headingAngleDegreesOrientModule));
+                
+                NeptusLog.pub().warn("No position found on navigation, using partial data from Sonar");
+            }
 
             boolean doSpeedCorrection = MRAProperties.soundSpeedCorrection;
 
-            recordMsgln();
-            recordMsgln("% Swath type & version : " + header.fileType + ", " + header.fileVersion);
-            recordMsgln("% Swath time           : " + DateTimeUtil.dateTimeFileNameFormatterMillis.format(new Date(timestamp)));
-            recordMsgln("% Swath position       : " + pose.getPosition().toString().replaceAll("\n", " ") + 
-                    "m depth  :: " + MathMiscUtils.round(pose.getAltitude(), 2) + "m altitude");
-            recordMsgln("% Swath attitude       : R" + MathMiscUtils.round(Math.toDegrees(pose.getRoll()), 1) +
-                    "\u00B0 P" + MathMiscUtils.round(Math.toDegrees(pose.getPitch()), 1) +
-                    "\u00B0 Y" + MathMiscUtils.round(Math.toDegrees(pose.getYaw()), 1) + "\u00B0");
-            recordMsgln("% Orient. module       : R" + MathMiscUtils.round(Math.toDegrees(header.rollAngleDegreesOrientModule), 1) +
-                    "\u00B0 P" + MathMiscUtils.round(Math.toDegrees(header.pitchAngleDegreesOrientModule), 1) +
-                    "\u00B0 H" + MathMiscUtils.round(Math.toDegrees(header.headingAngleDegreesOrientModule), 1) + "\u00B0");
-
-            recordMsgln("% Ship Course          : " + header.gnssShipCourse + "\u00B0");
-            recordMsgln("% Ship Lat/Lon         : " + header.gnssShipPosLat + "  " + header.gnssShipPosLon);
-            recordMsgln("% Sonar XYZ offsets    : " + header.sonarXOffset + "m, " + header.sonarYOffset + "m, " + header.sonarZOffset + "m");
-
-            recordMsgln("% Angle start/increment: " + header.startAngle + "\u00B0" + ", " + header.angleIncrement + "\u00B0");
-            recordMsgln("% Beams                : " + header.numBeams);
-            recordMsgln("% Samples per beam     : " + header.samplesPerBeam);
-            recordMsgln("% Number of pings avg  : " + header.numberOfPingsAveraged);
-            recordMsgln("% Sample rate high/std : " + (header.sampleRateHigh ? "high" : "std") + " [std(1 in 500)/high (1 in 5000)]");
-            recordMsgln("% Range                : " + header.range + "m");
-            recordMsgln("% Range resolution     : " + header.rangeResolution + "mm");
-            recordMsgln("% Sonar Freq.          : " + header.sonarFreqKHz + "kHz");
-            recordMsgln("% Pulse length         : " + header.pulseLength + "\u03BCs");
-            recordMsg(  "% 1/PRF                : " + header.pulseRepetingRate + "ms");
-            recordMsgln(" (" + MathMiscUtils.parseToEngineeringNotation(1. / (header.pulseRepetingRate / 1E3), 1) + "Hz)");
-            recordMsgln("% Ping number          : " + header.pingNumber);
-            recordMsgln("% Sector size          : " + header.sectorSize + "\u00B0 :: " +
-                    (header.angleIncrement * header.numBeams) + "\u00B0 calculated");
-            recordMsgln("% Speed                : " + MathMiscUtils.round(header.speed, 1) + "m/s");
-            recordMsgln("% Sound speed          : " + header.soundVelocity + "m/s" + (doSpeedCorrection ? "" : " (1500m/s used for calculation)"));
-            recordMsgln("% Roll correction      : " + (header.dataIsCorrectedForRoll ? "yes" : "no"));
-            recordMsgln("% RayBending correction: " + (header.dataIsCorrectedForRayBending ? "yes" : "no"));
-            recordMsgln("% Op overlap mode      : " + (header.sonarIsOperatingInOverlappedMode ? "yes" : "no"));
-            recordMsgln("% Altitude             : " + header.altitude + "m");
-            recordMsgln("% ---------------------");
+            if (generateProcessReport) {
+                recordMsgln();
+                recordMsgln("% Swath type & version : " + header.fileType + ", " + header.fileVersion);
+                recordMsgln("% Swath time           : " + DateTimeUtil.dateTimeFileNameFormatterMillis.format(new Date(timestamp)));
+                recordMsgln("% Swath position       : " + pose.getPosition().toString().replaceAll("\n", " ") + 
+                        "m depth  :: " + MathMiscUtils.round(pose.getAltitude(), 2) + "m altitude" + 
+                        (poseFromCorrected ? " from corrected position" : " from data"));
+                recordMsgln("% Swath attitude       : R" + MathMiscUtils.round(Math.toDegrees(pose.getRoll()), 1) +
+                        "\u00B0 P" + MathMiscUtils.round(Math.toDegrees(pose.getPitch()), 1) +
+                        "\u00B0 Y" + MathMiscUtils.round(Math.toDegrees(pose.getYaw()), 1) + "\u00B0");
+                recordMsgln("% Orient. module       : R" + MathMiscUtils.round(Math.toDegrees(header.rollAngleDegreesOrientModule), 1) +
+                        "\u00B0 P" + MathMiscUtils.round(Math.toDegrees(header.pitchAngleDegreesOrientModule), 1) +
+                        "\u00B0 H" + MathMiscUtils.round(Math.toDegrees(header.headingAngleDegreesOrientModule), 1) + "\u00B0");
+                
+                recordMsgln("% Ship Course          : " + header.gnssShipCourse + "\u00B0");
+                recordMsgln("% Ship Lat/Lon         : " + header.gnssShipPosLat + "  " + header.gnssShipPosLon);
+                recordMsgln("% Sonar XYZ offsets    : " + header.sonarXOffset + "m, " + header.sonarYOffset + "m, " + header.sonarZOffset + "m");
+                
+                recordMsgln("% Angle start/increment: " + header.startAngle + "\u00B0" + ", " + header.angleIncrement + "\u00B0");
+                recordMsgln("% Beams                : " + header.numBeams);
+                recordMsgln("% Samples per beam     : " + header.samplesPerBeam);
+                recordMsgln("% Number of pings avg  : " + header.numberOfPingsAveraged);
+                recordMsgln("% Sample rate high/std : " + (header.sampleRateHigh ? "high" : "std") + " [std(1 in 500)/high (1 in 5000)]");
+                recordMsgln("% Range                : " + header.range + "m");
+                recordMsgln("% Range resolution     : " + header.rangeResolution + "mm");
+                recordMsgln("% Sonar Freq.          : " + header.sonarFreqKHz + "kHz");
+                recordMsgln("% Pulse length         : " + header.pulseLength + "\u03BCs");
+                recordMsg(  "% 1/PRF                : " + header.pulseRepetingRate + "ms");
+                recordMsgln(" (" + MathMiscUtils.parseToEngineeringNotation(1. / (header.pulseRepetingRate / 1E3), 1) + "Hz)");
+                recordMsgln("% Ping number          : " + header.pingNumber);
+                recordMsgln("% Sector size          : " + header.sectorSize + "\u00B0 :: " +
+                        (header.angleIncrement * header.numBeams) + "\u00B0 calculated");
+                recordMsgln("% Speed                : " + MathMiscUtils.round(header.speed, 1) + "m/s");
+                recordMsgln("% Sound speed          : " + header.soundVelocity + "m/s" + (doSpeedCorrection ? "" : " (1500m/s used for calculation)"));
+                recordMsgln("% Roll correction      : " + (header.dataIsCorrectedForRoll ? "yes" : "no"));
+                recordMsgln("% RayBending correction: " + (header.dataIsCorrectedForRayBending ? "yes" : "no"));
+                recordMsgln("% Op overlap mode      : " + (header.sonarIsOperatingInOverlappedMode ? "yes" : "no"));
+                recordMsgln("% Altitude             : " + header.altitude + "m");
+                recordMsgln("% ---------------------");
+            }
             
             StringBuilder rangesStr = new StringBuilder();
             StringBuilder heightStr = new StringBuilder();
@@ -487,32 +512,31 @@ public class DeltaTParser implements BathymetryParser {
                 double range = buf.getShort(c * 2) * (header.rangeResolution / 1000.0); // rangeResolution in mm 
 
                 if (range == 0.0 || Math.random() > prob) {
-                    if (range != 0) {
-                        recordMsgln("% Skip swath beam " + c + " range=" + range);
-                    }
-                    else { 
-                        rangesStr.append(" " + MathMiscUtils.round(range, 3));
-                        heightStr.append(" " + Double.NaN);
-                        intensityStr.append(" " + Double.NaN);
-                        oxStr.append(" " + Double.NaN);
-                        oyStr.append(" " + Double.NaN);
-                        deltasStr.append(" " + Float.NaN);
-                        prevX = Float.NaN;
-                        prevY = Float.NaN;
+                    if (generateProcessReport) {
+                        if (range != 0) {
+                            recordMsgln("% Skip swath beam " + c + " range=" + range);
+                        }
+                        else { 
+                            rangesStr.append(" " + MathMiscUtils.round(range, 3));
+                            heightStr.append(" " + Double.NaN);
+                            intensityStr.append(" " + Double.NaN);
+                            oxStr.append(" " + Double.NaN);
+                            oyStr.append(" " + Double.NaN);
+                            deltasStr.append(" " + Float.NaN);
+                            prevX = Float.NaN;
+                            prevY = Float.NaN;
+                        }
                     }
                     continue;
                 }
 
-                if (doSpeedCorrection) {
-//                    NeptusLog.pub().info("Sound speed correction applied to data");
-//                    NeptusLog.pub().info("header soundVelocity: " + header.soundVelocity);
-                    if (header.soundVelocity == 1500)
-                        ; // NeptusLog.pub().info("No sound speed data to apply to data");
-                    else
-                        range = range * header.soundVelocity / 1500;
+                if (doSpeedCorrection && header.soundVelocity != 1500f) {
+                    range = range * header.soundVelocity / 1500f;
                 }
 
-                rangesStr.append(" " + MathMiscUtils.round(range, 3));
+                if (generateProcessReport) {
+                    rangesStr.append(" " + MathMiscUtils.round(range, 3));
+                }
                 
                 double angle = header.startAngle + header.angleIncrement * c;
                 float height = (float) (range * Math.cos(Math.toRadians(angle)) + pose.getPosition().getDepth());
@@ -528,50 +552,49 @@ public class DeltaTParser implements BathymetryParser {
                     int intensityInt = 0xffff & intensity;
                     data[realNumberOfBeams] = new BathymetryPoint(ox, oy, height, intensityInt);
                     data[realNumberOfBeams].intensityMaxValue = 65535;
-                    intensityStr.append(" " + intensityInt);
+                    if (generateProcessReport)
+                        intensityStr.append(" " + intensityInt);
                 }
                 else {
                     data[realNumberOfBeams] = new BathymetryPoint(ox, oy, height);
                     data[realNumberOfBeams].intensityMaxValue = 65535;
-                    intensityStr.append(" " + Double.NaN);
+                    if (generateProcessReport)
+                        intensityStr.append(" " + Double.NaN);
                 }
                 realNumberOfBeams++;
                 
-                heightStr.append(" " + MathMiscUtils.round(height, 3));
-                oxStr.append(" " + MathMiscUtils.round(ox, 3));
-                oyStr.append(" " + MathMiscUtils.round(oy, 3));
-                if (!Float.isNaN(prevX) && !Float.isNaN(prevY)) {
-                    float delta = (float) Math.sqrt((ox - prevX) * (ox - prevX) + (oy - prevY) * (oy - prevY));
-                    deltasStr.append(" " + MathMiscUtils.round(delta, 3));
+                if (generateProcessReport) {
+                    heightStr.append(" " + MathMiscUtils.round(height, 3));
+                    oxStr.append(" " + MathMiscUtils.round(ox, 3));
+                    oyStr.append(" " + MathMiscUtils.round(oy, 3));
+                    if (!Float.isNaN(prevX) && !Float.isNaN(prevY)) {
+                        float delta = (float) Math.sqrt((ox - prevX) * (ox - prevX) + (oy - prevY) * (oy - prevY));
+                        deltasStr.append(" " + MathMiscUtils.round(delta, 3));
+                    }
+                    else {
+                        deltasStr.append(" " + Float.NaN);
+                    }
+                    prevX = ox;
+                    prevY = oy;
                 }
-                else {
-                    deltasStr.append(" " + Float.NaN);
-                }
-                prevX = ox;
-                prevY = oy;
             }
 
-            recordMsgln("% Ranges:");
-            recordMsgln(rangesStr.toString());
-            recordMsgln("% Heights:");
-            recordMsgln(heightStr.toString());
-            recordMsgln("% Intensities:");
-            recordMsgln(intensityStr.toString());
-            recordMsgln("% Offsets X:");
-            recordMsgln(oxStr.toString());
-            recordMsgln("% Offsets Y:");
-            recordMsgln(oyStr.toString());
-            recordMsgln("% Deltas:");
-            recordMsgln(deltasStr.toString());
-            recordMsgln("% Number of beams vs read: " + header.numBeams + " vs " + realNumberOfBeams);
+            if (generateProcessReport) {
+                recordMsgln("% Ranges:");
+                recordMsgln(rangesStr.toString());
+                recordMsgln("% Heights:");
+                recordMsgln(heightStr.toString());
+                recordMsgln("% Intensities:");
+                recordMsgln(intensityStr.toString());
+                recordMsgln("% Offsets X:");
+                recordMsgln(oxStr.toString());
+                recordMsgln("% Offsets Y:");
+                recordMsgln(oyStr.toString());
+                recordMsgln("% Deltas:");
+                recordMsgln(deltasStr.toString());
+                recordMsgln("% Number of beams vs read: " + header.numBeams + " vs " + realNumberOfBeams);
+            }
             
-            // for(int i = 0; i < header.numBeams; ++i) {
-            //
-            // double intensity = buf.getShort(i*2);
-            // //NeptusLog.pub().info("intensity: " + intensity);
-            // ++countNumberIntensities;
-            // }
-
             curPos += header.numBytes; // Advance current position
 
             BathymetrySwath swath = new BathymetrySwath(header.timestamp, pose, data);
@@ -579,9 +602,8 @@ public class DeltaTParser implements BathymetryParser {
 
             return swath;
         }
-        catch (IOException e) {
+        catch (Exception e) {
             e.printStackTrace();
-//            cleanupResultOutputFile();
             return null;
         }
     }
@@ -610,7 +632,7 @@ public class DeltaTParser implements BathymetryParser {
 
             return swath;
         }
-        catch (IOException e) {
+        catch (Exception e) {
             e.printStackTrace();
             return null;
         }

@@ -70,6 +70,7 @@ import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.messages.listener.MessageInfo;
 import pt.lsts.neptus.messages.listener.MessageListener;
 import pt.lsts.neptus.util.GuiUtils;
+import pt.lsts.neptus.util.concurrency.QueueWorkTickets;
 import pt.lsts.neptus.util.conf.GeneralPreferences;
 
 /**

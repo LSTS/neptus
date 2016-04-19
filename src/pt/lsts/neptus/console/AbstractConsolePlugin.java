@@ -31,8 +31,6 @@
  */
 package pt.lsts.neptus.console;
 
-import java.util.Collection;
-
 import javax.swing.ImageIcon;
 
 import org.dom4j.Document;
@@ -48,6 +46,7 @@ import pt.lsts.neptus.console.plugins.MissionChangeListener;
 import pt.lsts.neptus.console.plugins.PlanChangeListener;
 import pt.lsts.neptus.events.NeptusEvents;
 import pt.lsts.neptus.gui.PropertiesProvider;
+import pt.lsts.neptus.plugins.PluginMenuUtils;
 import pt.lsts.neptus.plugins.PluginUtils;
 import pt.lsts.neptus.plugins.update.IPeriodicUpdates;
 import pt.lsts.neptus.plugins.update.PeriodicUpdatesService;
@@ -61,7 +60,6 @@ public abstract class AbstractConsolePlugin implements PropertiesProvider {
 
     private ConsoleLayout console;
     private ImageIcon icon;
-    private Collection<IPeriodicUpdates> periodicMethods = null;
     
     @Override
     public final DefaultProperty[] getProperties() {
@@ -134,10 +132,8 @@ public abstract class AbstractConsolePlugin implements PropertiesProvider {
             PeriodicUpdatesService.register((IPeriodicUpdates) this);
         }
         
-        periodicMethods = PeriodicUpdatesService.inspect(this);
-        for (IPeriodicUpdates i : periodicMethods) {
-            PeriodicUpdatesService.register(i);
-        }
+        PeriodicUpdatesService.registerPojo(this);
+        PluginMenuUtils.addPluginMenus(console, this);
         
         NeptusEvents.register(this, console);
         getConsole().getImcMsgManager().registerBusListener(this);
@@ -166,12 +162,8 @@ public abstract class AbstractConsolePlugin implements PropertiesProvider {
         if (this instanceof IPeriodicUpdates)
             PeriodicUpdatesService.unregister((IPeriodicUpdates) this);
 
-        if (periodicMethods != null) {
-            for (IPeriodicUpdates i : periodicMethods) {
-                PeriodicUpdatesService.unregister(i);
-            }
-            periodicMethods.clear();
-        }
+        PeriodicUpdatesService.unregisterPojo(this);
+        PluginMenuUtils.removePluginMenus(console, this);
         
         getConsole().getImcMsgManager().unregisterBusListener(this);        
     }
