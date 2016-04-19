@@ -73,6 +73,7 @@ import pt.lsts.neptus.plugins.mvplanning.planning.mapdecomposition.GridArea;
 import pt.lsts.neptus.renderer2d.StateRenderer2D;
 import pt.lsts.neptus.types.coord.LocationType;
 import pt.lsts.neptus.types.mission.plan.PlanType;
+import pt.lsts.neptus.util.NameNormalizer;
 import pt.lsts.neptus.plugins.mvplanning.consoles.NeptusConsoleAdapter;
 import pt.lsts.neptus.plugins.mvplanning.events.MvPlanningEventPlanAllocated;
 import pt.lsts.neptus.plugins.mvplanning.interfaces.ConsoleAdapter;
@@ -117,7 +118,7 @@ public class MVPlanning extends ConsolePanel implements PlanChangeListener, ICon
         this.console = new NeptusConsoleAdapter(console);
         vawareness = new VehicleAwareness(this.console);
         pAlloc = new PlanAllocator(vawareness, this.console);
-        pGen = new PlanGenerator(pAlloc);
+        pGen = new PlanGenerator(pAlloc, this.console);
 
         interactionActive = false;
     }
@@ -226,6 +227,13 @@ public class MVPlanning extends ConsolePanel implements PlanChangeListener, ICon
             LocationType lt = source.getRealWorldLocation(event.getPoint());
             opArea = new GridArea(500, 500, lt);
             opArea.decomposeMap();
+
+            String desiredProfile = (String) profiles.getSelectedItem();
+            String planId = "coverage_" + NameNormalizer.getRandomID();
+            PlanType plan = pGen.generateCoverageArea(availableProfiles.get(desiredProfile), opArea, planId);
+
+            listModel.addElement(planId);
+            selectedPlans.put(planId, plan);
         }
     }
 
