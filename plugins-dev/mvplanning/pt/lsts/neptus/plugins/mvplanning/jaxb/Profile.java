@@ -52,8 +52,8 @@ import javax.xml.bind.annotation.XmlSeeAlso;
 public class Profile {
     @XmlElement(name = "Altitude")
     private double altitude;
-    @XmlElement(name = "Velocity")
-    private double velocity;
+    @XmlElement(name = "Speed")
+    private double speed;
     
     @XmlElementWrapper(name = "Payloads")
     @XmlElement(name = "Payload")
@@ -68,7 +68,7 @@ public class Profile {
     
     public Profile() {
         profilesId = "";
-        velocity = -1;
+        speed = -1;
         altitude = -1;
         payloads = new ArrayList<Payload>();
         vehicles = new ArrayList<String>();
@@ -79,7 +79,7 @@ public class Profile {
         vehicles = new ArrayList<String>();
         profilesId = pType;
         
-        velocity = -1;
+        speed = -1;
         altitude = -1;
     }
     
@@ -95,12 +95,12 @@ public class Profile {
         this.vehicles = vehicles; 
     }
     
-    public double getProfileVelocity() {
-        return velocity;
+    public double getProfileSpeed() {
+        return speed;
     }
     
-    public void setProfileVelocity(double velocity) {
-        this.velocity = velocity;
+    public void setProfileSpeed(double speed) {
+        this.speed = speed;
     }
     
     public void setProfileAltitude(double altitude) {

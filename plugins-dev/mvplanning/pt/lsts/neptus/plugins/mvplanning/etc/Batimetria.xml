@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <Profile Type="Batimetria">
     <Altitude>42.0</Altitude>
-    <Velocity>35.0</Velocity>
+    <Speed>35.0</Speed>
     <Payloads>
         <Payload type="Sidescan">
             <parameters>

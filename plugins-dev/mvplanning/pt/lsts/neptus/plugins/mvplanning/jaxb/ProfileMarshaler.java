@@ -98,8 +98,8 @@ public class ProfileMarshaler {
             valid = false;
         }
         
-        if(profile.getProfileVelocity() == -1) {
-            NeptusLog.pub().warn("Profile velocity not set");
+        if(profile.getProfileSpeed() == -1) {
+            NeptusLog.pub().warn("Profile Speed not set");
             valid = false;
         }
         
@@ -186,7 +186,7 @@ public class ProfileMarshaler {
         
         Profile prf1 = new Profile("Low scan");
         prf1.setProfileAltitude(1000);
-        prf1.setProfileVelocity(35);
+        prf1.setProfileSpeed(35);
         prf1.addPayload(pld1);
         prf1.addVehicle("lauv-noptilus-1");
         prf1.addVehicle("lauv-noptilus-2");

@@ -111,7 +111,7 @@ public class CoverageArea {
         ManeuverLocation loc = ((LocatedManeuver) planGraph.getManeuversSequence()[0]).getManeuverLocation();
 
         fpath.setManeuverLocation(getManeuverLocation(planProfile, loc));
-        fpath.setSpeed(planProfile.getProfileVelocity());
+        fpath.setSpeed(planProfile.getProfileSpeed());
 
         /* TODO set according to profile's parameters */
         fpath.setSpeedUnits(ManeuverLocation.Z_UNITS.DEPTH.toString());
