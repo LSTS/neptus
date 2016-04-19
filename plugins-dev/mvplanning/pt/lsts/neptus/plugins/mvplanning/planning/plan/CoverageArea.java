@@ -104,6 +104,17 @@ public class CoverageArea {
         }
         return planGraph;
     }
+    
+    public static FollowPath getFollowPath(Profile planProfile, GraphType planGraph) {
+        FollowPath fpath = new FollowPath(planGraph);
+        fpath.setManeuverLocation(getManeuverLocation(planProfile, fpath.getManeuverLocation()));
+        fpath.setSpeed(planProfile.getProfileVelocity());
+
+        /* TODO set according to profile's parameters */
+        fpath.setSpeedUnits(ManeuverLocation.Z_UNITS.DEPTH.toString());
+        
+        return fpath;
+    }
 
     private static ManeuverLocation getManeuverLocation(Profile planProfile, LocationType lt) {
         ManeuverLocation manLoc = new ManeuverLocation(lt);
@@ -115,12 +126,7 @@ public class CoverageArea {
     }
 
     private static PlanType toPlanType(Profile planProfile, GraphType planGraph, MissionType mt) {
-        FollowPath fpath = new FollowPath(planGraph);
-        fpath.setManeuverLocation(getManeuverLocation(planProfile, fpath.getManeuverLocation()));
-        fpath.setSpeed(planProfile.getProfileVelocity());
-        /* TODO set according to profile's parameters */
-        fpath.setSpeedUnits(ManeuverLocation.Z_UNITS.DEPTH.toString());
-
+        FollowPath fpath = getFollowPath(planProfile, planGraph);
         PlanType ptype = new PlanType(mt);
         ptype.getGraph().addManeuver(fpath);
 
