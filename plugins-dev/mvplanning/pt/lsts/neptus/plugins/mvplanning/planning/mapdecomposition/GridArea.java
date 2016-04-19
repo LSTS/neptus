@@ -156,8 +156,8 @@ public class GridArea extends GeometryElement implements MapDecomposition {
         /* do decomposition */
         for(int i = 0; i < nrows; i ++) {
             for(int j = 0; j < ncols; j++) {
-                double horizontalShift = j * CELL_WIDTH;
-                double verticalShift = i * cellHeight ;
+                double horizontalShift = (j * CELL_WIDTH) + CELL_WIDTH / 2;
+                double verticalShift = (i * cellHeight) + cellHeight / 2;
 
                 LocationType cellLoc = new LocationType(topLeft);
                 cellLoc.translatePosition(-verticalShift, horizontalShift, 0);

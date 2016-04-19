@@ -41,18 +41,18 @@ import pt.lsts.neptus.types.coord.LocationType;
  *
  */
 public class MapCell {
-    private LocationType cellLoc;
+    private LocationType centerLoc;
     private List<MapCell> neighbours;
     private boolean hasObstacle;
     
-    public MapCell(LocationType cellLocation, boolean hasObstacle) {
-        cellLoc = cellLocation;
+    public MapCell(LocationType centerLocation, boolean hasObstacle) {
+        this.centerLoc = centerLocation;
         neighbours = new ArrayList<>();
         this.hasObstacle = hasObstacle;
     }
     
-    public MapCell(LocationType cellLocation, List<MapCell> neighbours, boolean hasObstacle) {
-        cellLoc = cellLocation;
+    public MapCell(LocationType centerLocation, List<MapCell> neighbours, boolean hasObstacle) {
+        this.centerLoc = centerLocation;
         this.neighbours = neighbours;
         this.hasObstacle = hasObstacle;
     }
@@ -69,10 +69,13 @@ public class MapCell {
         return neighbours.contains(cell);
     }
 
+    /**
+     * Returns the center location of this cell
+     * */
     public LocationType getLocation() {
-        return cellLoc;
+        return centerLoc;
     }
-    
+
     public void setHasObstacle(boolean value) {
         hasObstacle = value;
     }
