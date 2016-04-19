@@ -31,11 +31,13 @@
  */
 package pt.lsts.neptus.plugins.mvplanning.tests;
 
+import pt.lsts.neptus.mp.maneuvers.FollowPath;
 import pt.lsts.neptus.plugins.mvplanning.jaxb.Profile;
 import pt.lsts.neptus.plugins.mvplanning.jaxb.ProfileMarshaler;
 import pt.lsts.neptus.plugins.mvplanning.planning.mapdecomposition.GridArea;
 import pt.lsts.neptus.plugins.mvplanning.planning.plan.CoverageArea;
 import pt.lsts.neptus.types.coord.LocationType;
+import pt.lsts.neptus.types.map.PlanUtil;
 import pt.lsts.neptus.types.mission.GraphType;
 import pt.lsts.neptus.types.mission.TransitionType;
 
@@ -48,12 +50,21 @@ public class TestCoverageArea {
         System.out.println("--- Testing coverage area from a grid ---");
 
         GraphType planGraph = CoverageArea.getCoverageFromGridAsGraph(planProfile, areaToCover);
+        FollowPath covManeuver = CoverageArea.getFollowPath(planProfile, planGraph);
         int nNodes = planGraph.getAllManeuvers().length;
         int nEdges = planGraph.getAllEdges().length;
+        double manLat = covManeuver.getManeuverLocation().getAbsoluteLatLonDepth()[0];
+        double manLon = covManeuver.getManeuverLocation().getAbsoluteLatLonDepth()[1];
+        double speed = covManeuver.getSpeed();
+        double z = covManeuver.getManeuverLocation().getZ();
+        String zUnits = covManeuver.getManeuverLocation().getZUnits().toString();
 
         System.out.println("* Maneuver's graph has " + nNodes + " nodes and " + nEdges + " edges");
         System.out.println("* Start maneuver is " + planGraph.getInitialManeuverId());
         System.out.println("* End maneuver is " + planGraph.getLastManeuver().getId());
+        System.out.println("* Maneuver's location is " + manLat + " " + manLon);
+        System.out.println("* Maneuver's speed is " + speed);
+        System.out.println("* Maneuver's Z is " + z + " " + zUnits);
         System.out.println();
         System.out.println("* Displaying transitions:");
 
