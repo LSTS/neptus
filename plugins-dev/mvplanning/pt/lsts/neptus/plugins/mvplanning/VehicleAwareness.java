@@ -79,45 +79,29 @@ public class VehicleAwareness {
         checkVehicleState(id, newState);
     }
 
+    /* TODO also check vehicle's medium */
     private void checkVehicleState(String vehicle, STATE state) {
-        ImcSystem sys = ImcSystemsHolder.getSystemWithName(vehicle);
-
-        if(!sys.isSimulated() && !sys.isTCPOn())
-            setVehicleUnavailable(vehicle);
-        else if(state == STATE.FINISHED)
-            setVehicleAvailable(vehicle);
-        else if(state == STATE.SERVICE) {
-//            ImcSystem vehicle = ImcSystemsHolder.getSystemWithName(id);
-
-//            if(vehicle.isInOperationMedium())
-            setVehicleAvailable(vehicle);
-//            else /* In SERVICE mode, but on the ground */
-//                setVehicleUnavailable(id);
+        if(state == STATE.FINISHED || state == STATE.SERVICE) {
+            if(hasReliableComms(vehicle))
+                setVehicleAvailable(vehicle);
         }
         else
             setVehicleUnavailable(vehicle);
     }
 
     public boolean isVehicleAvailable(String vehicle) {
-        if(availableVehicles.contains(vehicle)) {
-            ImcSystem sys = ImcSystemsHolder.getSystemWithName(vehicle);
-
-            if(sys.isActive() && sys.isTCPOn())
-                return true;
-            else if(sys.isActive() && !sys.isTCPOn())
-                if(sys.isSimulated())
-                    return true;
-                else
-                    return false;
-            else {
-                setVehicleUnavailable(vehicle);
-                return false;
-            }
-        }
+        if(availableVehicles.contains(vehicle) && hasReliableComms(vehicle))
+            return true;
         else
             return false;
     }
     
+    private boolean hasReliableComms(String vehicle) {
+        ImcSystem sys = ImcSystemsHolder.getSystemWithName(vehicle);
+        return sys.isActive() && sys.isTCPOn() ||
+                sys.isActive() && sys.isSimulated();
+    }
+
     private void setVehicleAvailable(String id) {
         /* if vehicle is not already set as available */
         if(!availableVehicles.contains(id)) {
