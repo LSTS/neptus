@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <Profile Type="Batimetria">
-    <Altitude>1000.0</Altitude>
+    <Altitude>42.0</Altitude>
     <Velocity>35.0</Velocity>
     <Payloads>
         <Payload type="Sidescan">
