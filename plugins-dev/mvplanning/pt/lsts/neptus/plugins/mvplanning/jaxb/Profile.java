@@ -50,8 +50,8 @@ import javax.xml.bind.annotation.XmlSeeAlso;
 @XmlAccessorType(XmlAccessType.NONE)
 @XmlSeeAlso({Payload.class})
 public class Profile {
-    @XmlElement(name = "Altitude")
-    private double altitude;
+    @XmlElement(name = "Z")
+    private double z;
     @XmlElement(name = "Speed")
     private double speed;
     
@@ -69,7 +69,7 @@ public class Profile {
     public Profile() {
         profilesId = "";
         speed = -1;
-        altitude = -1;
+        z = -1;
         payloads = new ArrayList<Payload>();
         vehicles = new ArrayList<String>();
     }
@@ -80,11 +80,11 @@ public class Profile {
         profilesId = pType;
         
         speed = -1;
-        altitude = -1;
+        z = -1;
     }
     
-    public double getProfileAltitude() {
-        return altitude;
+    public double getProfileZ() {
+        return z;
     }
     
     public List<String> getProfileVehicles() {
@@ -103,8 +103,8 @@ public class Profile {
         this.speed = speed;
     }
     
-    public void setProfileAltitude(double altitude) {
-        this.altitude = altitude;
+    public void setProfileZ(double z) {
+        this.z = z;
     }
     
     public String getId() {

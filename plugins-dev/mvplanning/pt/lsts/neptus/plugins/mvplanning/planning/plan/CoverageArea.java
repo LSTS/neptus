@@ -121,7 +121,7 @@ public class CoverageArea {
 
     private static ManeuverLocation getManeuverLocation(Profile planProfile, LocationType lt) {
         ManeuverLocation manLoc = new ManeuverLocation(lt);
-        manLoc.setZ(planProfile.getProfileAltitude());
+        manLoc.setZ(planProfile.getProfileZ());
 
         /* TODO set according to profile's parameters */
         manLoc.setZUnits(ManeuverLocation.Z_UNITS.DEPTH);

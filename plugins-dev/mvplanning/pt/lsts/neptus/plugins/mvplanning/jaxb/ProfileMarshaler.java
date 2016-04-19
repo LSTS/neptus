@@ -93,7 +93,7 @@ public class ProfileMarshaler {
             valid = false;
         }
         
-        if(profile.getProfileAltitude() == -1) {
+        if(profile.getProfileZ() == -1) {
             NeptusLog.pub().warn("Profile altitude not set");
             valid = false;
         }
@@ -185,7 +185,7 @@ public class ProfileMarshaler {
         pld1.addPayloadParamater("BLA BLA", "20");
         
         Profile prf1 = new Profile("Low scan");
-        prf1.setProfileAltitude(1000);
+        prf1.setProfileZ(1000);
         prf1.setProfileSpeed(35);
         prf1.addPayload(pld1);
         prf1.addVehicle("lauv-noptilus-1");
