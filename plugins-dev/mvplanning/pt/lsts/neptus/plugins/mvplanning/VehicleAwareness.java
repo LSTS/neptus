@@ -116,8 +116,6 @@ public class VehicleAwareness {
                         unavailableVehicles.remove(id);
 
                     availableVehicles.add(id);
-
-                    console.post(new MvPlanningEventAvailableVehicle(id));
                     /* logging */
                     NeptusLog.pub().info("Vehicle " + id + " is AVAILABLE");
                 }
