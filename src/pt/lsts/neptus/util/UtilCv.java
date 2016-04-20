@@ -63,8 +63,6 @@ import pt.lsts.neptus.i18n.I18n;
  */
 public class UtilCv {
     
-    static Mat matGray;
-    static Mat matColor;
     static List<Mat> lRgb = new ArrayList<Mat>(3);
     static File outputfile;
     static Date date;
@@ -160,25 +158,29 @@ public class UtilCv {
         fm = g1d.getFontMetrics();
         g1d.drawString(text, posX - fm.stringWidth(text) - 12, posY);
         g1d.dispose();
-        
         return img;
     }
         
     //!Histogram equalizer
     public static BufferedImage histogramCv(BufferedImage original) {
+        Mat matGray = null;
+        Mat matColor = null;
+        Mat mR = null;
+        Mat mG = null;
+        Mat mB = null;
         if(original.getWidth() > 0 && original.getHeight() > 0) {
             tmp = original;
             try {
                 if(original.getType() == BufferedImage.TYPE_INT_RGB || original.getType() == BufferedImage.TYPE_3BYTE_BGR) {
                     matColor = new Mat(original.getHeight(), original.getWidth(), CvType.CV_8UC3);
                     Core.split(bufferedImageToMat(original), lRgb);
-                    Mat mR = lRgb.get(0);
+                    mR = lRgb.get(0);
                     Imgproc.equalizeHist(mR, mR);
                     lRgb.set(0, mR);
-                    Mat mG = lRgb.get(1);
+                    mG = lRgb.get(1);
                     Imgproc.equalizeHist(mG, mG);
                     lRgb.set(1, mG);
-                    Mat mB = lRgb.get(2);
+                    mB = lRgb.get(2);
                     Imgproc.equalizeHist(mB, mB);
                     lRgb.set(2, mB);
                     Core.merge(lRgb, matColor);
@@ -197,7 +199,18 @@ public class UtilCv {
             }
             catch(Exception e){
                 NeptusLog.pub().warn(I18n.text("Histogram equalizer ERROR: ")+e.getMessage());
-                original = tmp;
+                if(matColor != null)
+                    matColor.release();
+                if(mR != null)
+                    mR.release();
+                if(mG != null)
+                    mG.release();
+                if(mB != null)
+                    mB.release();
+                if(matGray != null)
+                    matGray.release();
+                
+                return tmp;
             }
         }
         else
