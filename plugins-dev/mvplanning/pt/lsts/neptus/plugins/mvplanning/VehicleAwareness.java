@@ -43,7 +43,6 @@ import pt.lsts.neptus.comm.manager.imc.ImcSystemsHolder;
 import pt.lsts.neptus.console.ConsoleSystem;
 import pt.lsts.neptus.console.events.ConsoleEventVehicleStateChanged;
 import pt.lsts.neptus.console.events.ConsoleEventVehicleStateChanged.STATE;
-import pt.lsts.neptus.plugins.mvplanning.events.MvPlanningEventAvailableVehicle;
 import pt.lsts.neptus.plugins.mvplanning.interfaces.ConsoleAdapter;
 
 import com.google.common.eventbus.Subscribe;
@@ -91,6 +90,11 @@ public class VehicleAwareness {
             setVehicleUnavailable(vehicle);
     }
 
+    /**
+     * Confirms both that there are reliable communications
+     * with the vehicle and that it is currently considered
+     * as available.
+     * */
     public boolean isVehicleAvailable(String vehicle) {
         synchronized (availableVehicles) {
             if(availableVehicles.contains(vehicle) && hasReliableComms(vehicle))
@@ -99,7 +103,14 @@ public class VehicleAwareness {
                 return false;
         }
     }
-    
+
+    /**
+     * Checks if its possible to communicate with the vehicle
+     * (is active) and if this communication is via TCP.
+     * If the vehicle is in simulation mode it is considered
+     * that there are reliable communications whether TCP is on
+     * or not
+     * */
     private boolean hasReliableComms(String vehicle) {
         ImcSystem sys = ImcSystemsHolder.getSystemWithName(vehicle);
         return sys.isActive() && sys.isTCPOn() ||
@@ -122,7 +133,7 @@ public class VehicleAwareness {
             }
         }
     }
-    
+
     private void setVehicleUnavailable(String id) {
         synchronized (availableVehicles) {
             synchronized(unavailableVehicles) {
