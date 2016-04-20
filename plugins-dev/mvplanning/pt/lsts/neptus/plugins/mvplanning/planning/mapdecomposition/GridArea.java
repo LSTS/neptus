@@ -108,6 +108,10 @@ public class GridArea extends GeometryElement implements MapDecomposition {
         this.bounds = computeGridBounds();
     }
 
+    /**
+     * From the center location and grid's height and width
+     * compute its vertices' locations
+     * */
     private LocationType[] computeGridBounds() {
         LocationType topLeft = new LocationType(center);
         LocationType topRight = new LocationType(center);
@@ -205,6 +209,10 @@ public class GridArea extends GeometryElement implements MapDecomposition {
         }
     }
 
+    /**
+     * Get a nrows by ncols submatrix of the current matrix,
+     * starting at startRow
+     * */
     private MapCell[][] subsetGrid(int startRow, int nrows, int ncols) {
         MapCell[][] newGrid = new MapCell[nrows][ncols];
         for(int i = startRow; i < nrows; i++)
@@ -217,6 +225,9 @@ public class GridArea extends GeometryElement implements MapDecomposition {
         return bounds;
     }
 
+    /**
+     * Returns the matrix representation of this grid
+     * */
     public MapCell[][] getAllCells() {
         return decomposedMap;
     }
