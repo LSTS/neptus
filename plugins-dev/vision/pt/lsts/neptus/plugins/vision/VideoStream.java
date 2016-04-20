@@ -133,7 +133,7 @@ import pt.lsts.neptus.util.conf.ConfigFetch;
 @Popup(pos = POSITION.RIGHT, width = 640, height = 480, accelerator = 'R')
 @LayerPriority(priority = 0)
 @PluginDescription(name = "Video Stream", version = "1.3", author = "Pedro Gonçalves", description = "Plugin for View video Stream TCP-Ip/IPCam", icon = "pt/lsts/neptus/plugins/IPCam/camera.png")
-public class Vision extends ConsolePanel implements ItemListener {
+public class VideoStream extends ConsolePanel implements ItemListener {
 
     private static final String BASE_FOLDER_FOR_IMAGES = "log/images";
     private static final String BASE_FOLDER_FOR_URLINI = "ipUrl.ini";
@@ -339,7 +339,7 @@ public class Vision extends ConsolePanel implements ItemListener {
     private boolean isAliveIPCam;
     private boolean isCleanTurnOffCam;
 
-    public Vision(ConsoleLayout console) {
+    public VideoStream(ConsoleLayout console) {
         super(console);
 
         if (findOpenCV()) {
@@ -411,8 +411,8 @@ public class Vision extends ConsolePanel implements ItemListener {
                         if (yLocMouse < 0)
                             yLocMouse = 0;
 
-                        if (xLocMouse + 52 < Vision.this.getSize().getWidth() && xLocMouse - 52 > 0
-                                && yLocMouse + 60 < Vision.this.getSize().getHeight() && yLocMouse - 60 > 0) {
+                        if (xLocMouse + 52 < VideoStream.this.getSize().getWidth() && xLocMouse - 52 > 0
+                                && yLocMouse + 60 < VideoStream.this.getSize().getHeight() && yLocMouse - 60 > 0) {
                             zoomX = xLocMouse;
                             zoomY = yLocMouse;
                             popupzoom.setLocation(MouseInfo.getPointerInfo().getLocation().x - 150,
@@ -552,10 +552,10 @@ public class Vision extends ConsolePanel implements ItemListener {
 
     // Check ip given by user
     private void checkHostIp() {
-        ipHostPing = new JDialog(SwingUtilities.getWindowAncestor(Vision.this), I18n.text("Host IP") + " - RasPiCam");
+        ipHostPing = new JDialog(SwingUtilities.getWindowAncestor(VideoStream.this), I18n.text("Host IP") + " - RasPiCam");
         ipHostPing.setModalityType(ModalityType.DOCUMENT_MODAL);
         ipHostPing.setSize(340, 80);
-        ipHostPing.setLocationRelativeTo(Vision.this);
+        ipHostPing.setLocationRelativeTo(VideoStream.this);
         ImageIcon imgIPCam = ImageUtils.createImageIcon(String.format("images/menus/raspicam.png"));
         ipHostPing.setIconImage(imgIPCam.getImage());
         ipHostPing.setResizable(false);
@@ -651,11 +651,11 @@ public class Vision extends ConsolePanel implements ItemListener {
         for (int i = 0; i < sizeDataUrl; i++)
             nameIPCam[i] = dataUrlIni[i][0];
 
-        ipCamPing = new JDialog(SwingUtilities.getWindowAncestor(Vision.this), I18n.text("Select IPCam"));
+        ipCamPing = new JDialog(SwingUtilities.getWindowAncestor(VideoStream.this), I18n.text("Select IPCam"));
         ipCamPing.setResizable(true);
         ipCamPing.setModalityType(ModalityType.DOCUMENT_MODAL);
         ipCamPing.setSize(440, 200);
-        ipCamPing.setLocationRelativeTo(Vision.this);
+        ipCamPing.setLocationRelativeTo(VideoStream.this);
         ipCamCheck = new JPanel(new MigLayout());
         ImageIcon imgIPCam = ImageUtils.createImageIcon("images/menus/camera.png");
         ipCamPing.setIconImage(imgIPCam.getImage());
@@ -976,11 +976,11 @@ public class Vision extends ConsolePanel implements ItemListener {
         txtData.setText(info);
         config.add(txtData, "cell 0 6 3 1, wrap");
 
-        menu = new JDialog(SwingUtilities.getWindowAncestor(Vision.this), I18n.text("Menu Config"));
+        menu = new JDialog(SwingUtilities.getWindowAncestor(VideoStream.this), I18n.text("Menu Config"));
         menu.setResizable(false);
         menu.setModalityType(ModalityType.DOCUMENT_MODAL);
         menu.setSize(450, 350);
-        menu.setLocationRelativeTo(Vision.this);
+        menu.setLocationRelativeTo(VideoStream.this);
         menu.setVisible(show_menu);
         ImageIcon imgMenu = ImageUtils.createImageIcon(String.format("images/menus/configure.png"));
         menu.setIconImage(imgMenu.getImage());
@@ -1448,7 +1448,7 @@ public class Vision extends ConsolePanel implements ItemListener {
             e1.printStackTrace();
         }
         if (line == null) {
-            GuiUtils.errorMessage(Vision.this, I18n.text("Connection error"), I18n.text("Lost connection with vehicle"),
+            GuiUtils.errorMessage(VideoStream.this, I18n.text("Connection error"), I18n.text("Lost connection with vehicle"),
                     ModalityType.DOCUMENT_MODAL);
             raspiCam = false;
             state = false;
