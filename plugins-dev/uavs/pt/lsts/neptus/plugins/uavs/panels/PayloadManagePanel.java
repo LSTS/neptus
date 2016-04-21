@@ -65,6 +65,8 @@ public class PayloadManagePanel extends ConsolePanel implements MainVehicleChang
 
     private static final double SERVO_OPEN = (Math.PI/2);
     private static final double SERVO_CLOSE = Math.PI;
+    private static final short SERVO_ID = 24;
+    
     private boolean isOpenState = true;
     private final String lockTxt = I18n.text("Lock");
     private final String releaseTxt = I18n.text("Release");
@@ -117,12 +119,14 @@ public class PayloadManagePanel extends ConsolePanel implements MainVehicleChang
             public void actionPerformed(ActionEvent e) {
                 if (isOpenState) { // is open
                     SetServoPosition servo = new SetServoPosition();
+                    servo.setId(SERVO_ID);
                     servo.setValue(SERVO_CLOSE);
                     send(servo);
                     isOpenState = false;
                 } 
                 else {
                     SetServoPosition servo = new SetServoPosition();
+                    servo.setId(SERVO_ID);
                     servo.setValue(SERVO_OPEN);
                     send(servo);
                     isOpenState = true;
