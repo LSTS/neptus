@@ -322,7 +322,7 @@ public class VideoStream extends ConsolePanel implements ItemListener {
     private File outputfile;
     private boolean flagBuffImg = false;
     private int cnt = 0;
-    private int FPS = 20;
+    private int FPS = 8;
     // *************************/
 
     // worker thread designed to acquire the data packet from DUNE
@@ -1141,7 +1141,6 @@ public class VideoStream extends ConsolePanel implements ItemListener {
                             isAliveIPCam = false;
                             resetWatchDog(4000);
                             while (watchDog.isAlive() && !isAliveIPCam) {
-                                capture.grab();
                                 capture.read(mat);
                                 isAliveIPCam = true;
                             }
@@ -1303,7 +1302,6 @@ public class VideoStream extends ConsolePanel implements ItemListener {
                     if (ipCam && stateSetUrl) {
                         if (flagBuffImg == true) {
                             long startTime = System.currentTimeMillis();
-                            captureSave.grab();
                             captureSave.read(matSaveImg);
                             if (!matSaveImg.empty()) {
                                 String imageJpeg = null;
