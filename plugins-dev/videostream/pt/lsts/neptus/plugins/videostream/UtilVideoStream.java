@@ -29,7 +29,7 @@
  * Author: Pedro Gonçalves
  */
 
-package pt.lsts.neptus.plugins.vision;
+package pt.lsts.neptus.plugins.videostream;
 
 import java.awt.Graphics2D;
 import java.awt.Image;
@@ -54,9 +54,9 @@ import pt.lsts.neptus.i18n.I18n;
  * @category OpenCV-Vision
  *
  */
-public class UtilVision {
+public class UtilVideoStream {
     
-    private UtilVision() {
+    private UtilVideoStream() {
     }
     
     public static String[][] readIpUrl(File nameFile) {

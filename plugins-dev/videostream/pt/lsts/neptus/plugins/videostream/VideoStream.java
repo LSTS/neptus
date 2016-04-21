@@ -29,7 +29,7 @@
  * Author: Pedro Gonçalves
  * Apr 4, 2015
  */
-package pt.lsts.neptus.plugins.vision;
+package pt.lsts.neptus.plugins.videostream;
 
 import java.awt.Color;
 import java.awt.Component;
@@ -819,7 +819,7 @@ public class VideoStream extends ConsolePanel implements ItemListener {
 
     // Ping CamIp
     private boolean pingIPCam(String host) {
-        statePingOk = UtilVision.pingIp(host);
+        statePingOk = UtilVideoStream.pingIp(host);
         return statePingOk;
     }
 
@@ -830,7 +830,7 @@ public class VideoStream extends ConsolePanel implements ItemListener {
         if (!confIni.exists()) {
             FileUtil.copyFileToDir(iniRsrcPath, ConfigFetch.getConfFolder());
         }
-        return UtilVision.readIpUrl(confIni);
+        return UtilVideoStream.readIpUrl(confIni);
     }
 
     private String timestampToReadableHoursString(long timestamp) {
@@ -1422,7 +1422,7 @@ public class VideoStream extends ConsolePanel implements ItemListener {
                 offlineImage = UtilCv.matToBufferedImage(matResize);
             }
             else {
-                offlineImage = UtilVision.resizeBufferedImage(
+                offlineImage = UtilVideoStream.resizeBufferedImage(
                         ImageUtils.toBufferedImage(ImageUtils.getImage("images/novideo.png")), size);
             }
 
@@ -1432,7 +1432,7 @@ public class VideoStream extends ConsolePanel implements ItemListener {
             }
         }
         else {
-            offlineImage = UtilVision
+            offlineImage = UtilVideoStream
                     .resizeBufferedImage(ImageUtils.toBufferedImage(ImageUtils.getImage("images/novideo.png")), size);
             showImage(offlineImage);
         }
