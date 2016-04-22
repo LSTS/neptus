@@ -91,7 +91,7 @@ public class ExternalSystem implements Comparable<ExternalSystem> {
      * @return the active
      */
     public boolean isActive() {
-        return active;
+        return active || (locationTimeMillis - System.currentTimeMillis() < 10000);
     }
     
     /**

@@ -43,6 +43,8 @@ public class ImcId16 extends Number implements Comparable<ImcId16>{
 
 	private static final long serialVersionUID = 4540568234437157049L;
 
+	public static final long MAX_VALUE = 0xFFFF;
+
 	public static final ImcId16 BROADCAST_ID = new ImcId16(0xFFF0);
     public static final ImcId16 ANNOUNCE     = new ImcId16(0x0000);
     public static final ImcId16 NULL_ID      = new ImcId16(0xFFFF);
