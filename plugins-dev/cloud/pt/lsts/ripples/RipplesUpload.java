@@ -248,6 +248,9 @@ public class RipplesUpload extends ConsolePanel implements ConfigurationListener
                         Math.toRadians(es.getYawDegrees()));
                 sysPos.setTime(es.getLocationTimeMillis());
                 copy.put(name, sysPos);
+                String type = es.getTypeExternal().toString().toLowerCase();
+                if ("vehicle".equalsIgnoreCase(type))
+                    type = es.getTypeVehicle().toString().toLowerCase();
                 extSysType.put(name, es.getTypeExternal().toString().toLowerCase());
             }
         }
