@@ -251,7 +251,7 @@ public class RipplesUpload extends ConsolePanel implements ConfigurationListener
                 String type = es.getTypeExternal().toString().toLowerCase();
                 if ("vehicle".equalsIgnoreCase(type))
                     type = es.getTypeVehicle().toString().toLowerCase();
-                extSysType.put(name, es.getTypeExternal().toString().toLowerCase());
+                extSysType.put(name, type);
             }
         }
         
