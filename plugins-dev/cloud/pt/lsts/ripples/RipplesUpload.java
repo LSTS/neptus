@@ -38,6 +38,7 @@ import java.util.LinkedHashMap;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
 import java.util.Vector;
 
 import javax.swing.ImageIcon;
@@ -49,6 +50,9 @@ import com.firebase.client.Firebase.AuthResultHandler;
 import com.firebase.client.FirebaseError;
 import com.google.common.eventbus.Subscribe;
 import com.google.gson.Gson;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonParser;
+import com.google.gson.stream.JsonReader;
 
 import pt.lsts.imc.Announce;
 import pt.lsts.imc.EstimatedState;
@@ -57,6 +61,7 @@ import pt.lsts.imc.PlanControlState;
 import pt.lsts.imc.PlanControlState.STATE;
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.comm.IMCUtils;
+import pt.lsts.neptus.comm.SystemUtils;
 import pt.lsts.neptus.comm.iridium.HubIridiumMessenger.HubSystemMsg;
 import pt.lsts.neptus.comm.manager.imc.ImcId16;
 import pt.lsts.neptus.comm.manager.imc.ImcSystem;
@@ -75,10 +80,13 @@ import pt.lsts.neptus.plugins.NeptusProperty.LEVEL;
 import pt.lsts.neptus.plugins.PluginDescription;
 import pt.lsts.neptus.plugins.update.Periodic;
 import pt.lsts.neptus.systems.external.ExternalSystem;
+import pt.lsts.neptus.systems.external.ExternalSystem.ExternalTypeEnum;
 import pt.lsts.neptus.systems.external.ExternalSystemsHolder;
 import pt.lsts.neptus.types.coord.LocationType;
 import pt.lsts.neptus.types.map.PlanUtil;
 import pt.lsts.neptus.types.mission.plan.PlanType;
+import pt.lsts.neptus.types.vehicle.VehicleType.SystemTypeEnum;
+import pt.lsts.neptus.types.vehicle.VehicleType.VehicleTypeEnum;
 import pt.lsts.neptus.util.ImageUtils;
 import pt.lsts.neptus.util.conf.GeneralPreferences;
 
@@ -242,6 +250,10 @@ public class RipplesUpload extends ConsolePanel implements ConfigurationListener
             ExternalSystem[] extSys = ExternalSystemsHolder.lookupAllActiveSystems();
             for (ExternalSystem es : extSys) {
                 String name = es.getName();
+                
+                if ("ship".equalsIgnoreCase(name))
+                    continue;
+                
                 if(copy.containsKey(name))
                     continue;
                 SystemPositionAndAttitude sysPos = new SystemPositionAndAttitude(es.getLocation(), 0, 0,
@@ -348,7 +360,6 @@ public class RipplesUpload extends ConsolePanel implements ConfigurationListener
         synch = false;
     }
     
-    @Periodic(millisBetweenUpdates = 10000)
     public void pollActiveSystems() {
         if (!synch || !pollSystems)
             return;
@@ -374,6 +385,60 @@ public class RipplesUpload extends ConsolePanel implements ConfigurationListener
                 }
                 
                 NeptusLog.pub().info(String.format("Received Ripples position update for '%s' :: %s @ %s", m.name, parsePos(m), m.updatedAt()));
+            }
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+            NeptusLog.pub().error(e);
+            post(Notification.error(getName(), e.getClass().getSimpleName()+" while polling device updates from Ripples.").requireHumanAction(false));    
+        }
+    }
+
+    @Periodic(millisBetweenUpdates = 10000)
+    public void pollActiveSystemsF() {
+        if (!synch || !pollSystems)
+            return;
+        
+        try {
+            JsonParser parser = new JsonParser();
+            URL url = new URL(firebasePath.trim() + (firebasePath.trim().endsWith("/") ? "" : "/") + ".json");
+            
+            JsonElement root = parser.parse(new JsonReader(new InputStreamReader(url.openConnection().getInputStream())));
+            Set<Entry<String, JsonElement>> assets = root.getAsJsonObject().get("assets").getAsJsonObject().entrySet();
+            
+            for (Entry<String, JsonElement> asset : assets) {
+                long updatedAt = asset.getValue().getAsJsonObject().get("updated_at").getAsLong();
+                JsonElement position = asset.getValue().getAsJsonObject().get("position");
+                if (position == null)
+                    continue;
+                
+                double latDegs = position.getAsJsonObject().get("latitude").getAsDouble();
+                double lonDegs = position.getAsJsonObject().get("longitude").getAsDouble();
+
+                double height = position.getAsJsonObject().get("height").getAsDouble();
+
+                ExternalSystem es = new ExternalSystem(asset.getKey());
+                es = ExternalSystemsHolder.registerSystem(es);
+                if (updatedAt > es.getLocationTimeMillis()) {
+                    LocationType pos = new LocationType(latDegs, lonDegs);
+                    if (height != 0)
+                        pos.setHeight(height);
+                    es.setLocation(pos, updatedAt);
+                }
+                
+                JsonElement typeJson = asset.getValue().getAsJsonObject().get("type");
+                if (typeJson != null) {
+                    String type = typeJson.getAsString();
+                    if (!type.isEmpty()) {
+                        SystemTypeEnum sType = SystemUtils.getSystemTypeFrom(type);
+                        VehicleTypeEnum vType = SystemUtils.getVehicleTypeFrom(type);
+                        ExternalTypeEnum eType = SystemUtils.getExternalTypeFrom(type);
+                        
+                        es.setType(sType);
+                        es.setTypeVehicle(vType);
+                        es.setTypeExternal(eType);
+                    }
+                }
             }
         }
         catch (Exception e) {
