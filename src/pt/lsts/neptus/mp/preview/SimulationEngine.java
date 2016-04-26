@@ -141,8 +141,11 @@ public class SimulationEngine {
                 NeptusLog.pub().debug("now simulating using " + curPreview.getClass().getSimpleName());
             }
         }
-        state = curPreview.step(state, timestep);
-        if (curPreview.isFinished() || curPreview == null) {
+        
+        if (curPreview != null)
+            state = curPreview.step(state, timestep);
+        
+        if (curPreview == null || curPreview.isFinished()) {
             try {
                 Maneuver next = plan.getGraph().getFollowingManeuver(m.getId());
                 if (next == null) {
