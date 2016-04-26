@@ -62,7 +62,7 @@ public class TestGridDecomposition {
         this.areaWidth = areaWidth;
         this.areaHeight = areaHeight;
         this.center = center;
-        gridDcmp = new GridArea(areaWidth, areaHeight, center);
+        gridDcmp = new GridArea(20, areaWidth, areaHeight, center);
 
         computeGridBounds();
     }

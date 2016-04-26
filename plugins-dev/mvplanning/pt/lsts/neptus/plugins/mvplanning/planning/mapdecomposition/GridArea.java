@@ -60,7 +60,7 @@ import pt.lsts.neptus.types.map.GeometryElement;
  *
  */
 public class GridArea extends GeometryElement implements MapDecomposition {
-    private final static double CELL_WIDTH = 20;
+    private double cellWidth;
     private double cellHeight;
     private double gridWidth;
     private double gridHeight;
@@ -77,7 +77,8 @@ public class GridArea extends GeometryElement implements MapDecomposition {
     /**
      * Used just for testing
      * */
-    public GridArea(double gridWidth, double gridHeight, LocationType center) {
+    public GridArea(double cellWidth, double gridWidth, double gridHeight, LocationType center) {
+        this.cellWidth = cellWidth;
         this.gridWidth = gridWidth;
         this.gridHeight = gridHeight;
         this.center = center;
@@ -85,7 +86,8 @@ public class GridArea extends GeometryElement implements MapDecomposition {
         this.bounds = computeGridBounds();
     }
 
-    public GridArea(double gridWidth, double gridHeight, LocationType center, Environment env) {
+    public GridArea(double cellWidth, double gridWidth, double gridHeight, LocationType center, Environment env) {
+        this.cellWidth = cellWidth;
         this.gridWidth = gridWidth;
         this.gridHeight = gridHeight;
         this.center = center;
@@ -102,7 +104,7 @@ public class GridArea extends GeometryElement implements MapDecomposition {
         this.nrows = nrows;
         this.ncols = ncols;
         this.center = center;
-        this.gridWidth = CELL_WIDTH * ncols;
+        this.gridWidth = cellWidth * ncols;
         this.gridHeight = cellHeight * nrows;
 
         this.bounds = computeGridBounds();
@@ -149,7 +151,7 @@ public class GridArea extends GeometryElement implements MapDecomposition {
         gridWidth = (int) Math.ceil(topRight.getDistanceInMeters(topLeft) * 100) / 100;
         gridHeight = (int) Math.ceil(bottomLeft.getDistanceInMeters(topLeft) * 100) / 100;
 
-        ncols = (int) (gridWidth / CELL_WIDTH);
+        ncols = (int) (gridWidth / cellWidth);
         nrows = ncols;
 
         cellHeight = Math.ceil((gridHeight / nrows) * 100) / 100;
@@ -160,7 +162,7 @@ public class GridArea extends GeometryElement implements MapDecomposition {
         /* do decomposition */
         for(int i = 0; i < nrows; i ++) {
             for(int j = 0; j < ncols; j++) {
-                double horizontalShift = (j * CELL_WIDTH) + CELL_WIDTH / 2;
+                double horizontalShift = (j * cellWidth) + cellWidth / 2;
                 double verticalShift = (i * cellHeight) + cellHeight / 2;
 
                 LocationType cellLoc = new LocationType(topLeft);
@@ -251,7 +253,7 @@ public class GridArea extends GeometryElement implements MapDecomposition {
     }
 
     public double getCellWidth() {
-        return CELL_WIDTH;
+        return cellWidth;
     }
 
     public double getCellHeight() {
@@ -269,7 +271,7 @@ public class GridArea extends GeometryElement implements MapDecomposition {
     @Override
     public void paint(Graphics2D g, StateRenderer2D renderer, double rotation) {
         g.setTransform(new AffineTransform());
-        double scaledWidth = CELL_WIDTH * renderer.getZoom();
+        double scaledWidth = cellWidth * renderer.getZoom();
         double scaledHeight = cellHeight * renderer.getZoom();
         Point2D topLeftP = renderer.getScreenPosition(bounds[0]);
 

@@ -80,7 +80,7 @@ public class TestCoverageArea {
         Profile planProfile = pMarsh.getAllProfiles().get("Batimetria");
 
         System.out.println("--- Test 1 ---");
-        GridArea grid1 = new GridArea(100, 100, LocationType.FEUP);
+        GridArea grid1 = new GridArea(20, 100, 100, LocationType.FEUP);
         grid1.decomposeMap();
 
         TestCoverageArea.testCoverageFromGrid(planProfile, grid1);
@@ -88,7 +88,7 @@ public class TestCoverageArea {
         System.out.println();
 
         System.out.println("--- Test 2 ---");
-        GridArea grid2 = new GridArea(500, 500, LocationType.FEUP);
+        GridArea grid2 = new GridArea(20, 500, 500, LocationType.FEUP);
         grid2.decomposeMap();
 
         TestCoverageArea.testCoverageFromGrid(planProfile, grid2);
