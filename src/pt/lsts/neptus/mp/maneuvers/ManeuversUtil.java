@@ -276,7 +276,7 @@ public class ManeuversUtil {
         Stroke s3 = new BasicStroke(3);
         Stroke sR = new BasicStroke((float) (2 * sRange * zoom), BasicStroke.CAP_BUTT, BasicStroke.JOIN_MITER);
         
-        for (int i = 0; i < points.size(); i+=2) {
+        for (int i = 0; i < points.size(); i += 2) {
             pointI = points.get(i);
             //NeptusLog.pub().info("<###>[" + pointI[X] + ", " + pointI[Y] + "]");
             try {
@@ -292,11 +292,13 @@ public class ManeuversUtil {
                 pointN = null;
             }
             int ellisRadius = !editMode ? 3 : 4;
+            int factor = 2;
             Ellipse2D el = new Ellipse2D.Double(-ellisRadius, -ellisRadius, ellisRadius * 2, ellisRadius * 2);
+            Ellipse2D ex = new Ellipse2D.Double(-ellisRadius * factor, -ellisRadius * factor, ellisRadius * factor * 2, ellisRadius * factor * 2);
             if (i == 0) {
                 g2d.translate(pointI[X] * zoom, pointI[Y] * zoom);
-                g2d.setColor(new Color(0, 255, 0));
-                g2d.fill(el);
+                g2d.setColor(new Color(0, 0, 255));
+                g2d.fill(ex);
                 g2d.translate(-pointI[X] * zoom, -pointI[Y] * zoom);
             }
             if (pointF != null) {
@@ -317,7 +319,15 @@ public class ManeuversUtil {
 
                 g2d.translate(pointF[X] * zoom, pointF[Y] * zoom);
                 g2d.setColor(new Color(255, 0, 0));
-                g2d.fill(el);
+                if (i == points.size() - 2) {
+                    g2d.setColor(new Color(0, 0, 255));
+                    g2d.fill(ex);
+                    g2d.setColor(Color.WHITE);
+                    g2d.fill(el);
+                }
+                else {
+                    g2d.fill(el);
+                }
                 g2d.translate(-pointF[X] * zoom, -pointF[Y] * zoom);
 
                 if (pointN != null) {
@@ -333,7 +343,15 @@ public class ManeuversUtil {
                     
                     g2d.translate(pointN[X] * zoom, pointN[Y] * zoom);
                     g2d.setColor(new Color(0, 255, 0));
-                    g2d.fill(el);
+                    if (i == points.size() - 3) {
+                        g2d.setColor(new Color(0, 0, 255));
+                        g2d.fill(ex);
+                        g2d.setColor(Color.WHITE);
+                        g2d.fill(el);
+                    }
+                    else {
+                        g2d.fill(el);
+                    }
                     g2d.translate(-pointN[X] * zoom, -pointN[Y] * zoom);
                 }
             }
