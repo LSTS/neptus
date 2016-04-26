@@ -88,6 +88,7 @@ import pt.lsts.neptus.mp.maneuvers.FollowTrajectory;
 import pt.lsts.neptus.mp.maneuvers.Goto;
 import pt.lsts.neptus.mp.maneuvers.HeadingSpeedDepth;
 import pt.lsts.neptus.mp.maneuvers.IMCSerialization;
+import pt.lsts.neptus.mp.maneuvers.Launch;
 import pt.lsts.neptus.mp.maneuvers.Loiter;
 import pt.lsts.neptus.mp.maneuvers.PopUp;
 import pt.lsts.neptus.mp.maneuvers.RowsManeuver;
@@ -575,6 +576,8 @@ public class IMCUtils {
             m = new Dislodge();
         else if (message.getAbbrev().equalsIgnoreCase("CoverArea"))
             m = new CoverArea();
+        else if (message.getAbbrev().equalsIgnoreCase("launch"))
+            m = new Launch();
 
         if (m != null)
             ((IMCSerialization) m).parseIMCMessage(message);
