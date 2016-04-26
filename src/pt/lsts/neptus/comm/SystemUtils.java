@@ -143,6 +143,8 @@ public class SystemUtils {
         if (VehicleTypeEnum.UNKNOWN != vt && vt.toString().toUpperCase().startsWith("U"))
             return ExternalTypeEnum.VEHICLE;
         
+        typeStr = typeStr.toLowerCase();
+        
         // Try additional options
         if ("drifter".equalsIgnoreCase(typeStr.trim()))
             return ExternalTypeEnum.MOBILESENSOR;
@@ -156,6 +158,15 @@ public class SystemUtils {
             return ExternalTypeEnum.MANNED_SHIP;
         else if ("ship".equalsIgnoreCase(typeStr.trim()))
             return ExternalTypeEnum.MANNED_SHIP;
+        else if (typeStr.trim().contains("ship") || typeStr.trim().contains("vessel"))
+            return ExternalTypeEnum.MANNED_SHIP;
+        else if (typeStr.trim().contains("(wig)") || typeStr.trim().contains("(hsc)")
+                || typeStr.trim().contains("fishing") || typeStr.trim().contains("towing")
+                || typeStr.trim().contains("dredging") || typeStr.trim().contains("sailing")
+                || typeStr.trim().contains("port tender") || typeStr.trim().contains("craft")
+                || typeStr.trim().contains("cargo") || typeStr.trim().contains("tanker")
+                || typeStr.trim().contains("passenger")|| typeStr.trim().contains("tug"))
+            return ExternalTypeEnum.MANNED_SHIP;
         else if ("car".equalsIgnoreCase(typeStr.trim()))
             return ExternalTypeEnum.MANNED_CAR;
         else if ("automobile".equalsIgnoreCase(typeStr.trim()))
@@ -164,7 +175,7 @@ public class SystemUtils {
             return ExternalTypeEnum.MANNED_AIRPLANE;
         else if ("helicopter".equalsIgnoreCase(typeStr.trim()))
             return ExternalTypeEnum.MANNED_AIRPLANE;
-        else if (typeStr.trim().endsWith("copter"))
+        else if (typeStr.trim().endsWith("copter") || typeStr.trim().contains("copter"))
             return ExternalTypeEnum.VEHICLE;
         
         return ret;
