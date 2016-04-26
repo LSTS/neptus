@@ -142,6 +142,9 @@ public class RipplesUpload extends ConsolePanel implements ConfigurationListener
      */
     @Override
     public void propertiesChanged() {
+        if (menuItem == null)
+            return;
+
         if (synch && !menuItem.isSelected())
             menuItem.doClick();
         else if (!synch && menuItem.isSelected())
