@@ -380,13 +380,13 @@ public class RowsPattern extends FollowPath {
     public void parseIMCMessage(IMCMessage message) {
         super.parseIMCMessage(message);
 
-        LinkedHashMap<String, String> customValues = message.getTupleList("custom");
+        LinkedHashMap<String, String> customValues = customSettings; // message.getTupleList("custom");
 
-        String pattern = customValues.get("Pattern");
+        String pattern = customValues.remove("Pattern");
         if (!getName().equalsIgnoreCase(pattern))
             return;
 
-        String value = customValues.get("bearingRad");
+        String value = customValues.remove("bearingRad");
         try {
             bearingRad = Double.parseDouble(value);
         }
@@ -394,7 +394,7 @@ public class RowsPattern extends FollowPath {
             e.printStackTrace();
         }
 
-        value = customValues.get("width");
+        value = customValues.remove("width");
         try {
             width = Double.parseDouble(value);
         }
@@ -402,8 +402,8 @@ public class RowsPattern extends FollowPath {
             e.printStackTrace();
         }
 
+        value = customValues.remove("length");
         if (!ignoreLength) {
-            value = customValues.get("length");
             try {
                 length = Double.parseDouble(value);
             }
@@ -412,7 +412,7 @@ public class RowsPattern extends FollowPath {
             }
         }
 
-        value = customValues.get("hstep");
+        value = customValues.remove("hstep");
         try {
             hstep = Double.parseDouble(value);
         }
@@ -420,7 +420,7 @@ public class RowsPattern extends FollowPath {
             e.printStackTrace();
         }
 
-        value = customValues.get("sRange");
+        value = customValues.remove("sRange");
         try {
             sRange = Double.parseDouble(value);
         }
@@ -428,8 +428,8 @@ public class RowsPattern extends FollowPath {
             e.printStackTrace();
         }
 
+        value = customValues.remove("crossAngleRadians");
         if (!ignoreCrossAngle) {
-            value = customValues.get("crossAngleRadians");
             try {
                 crossAngleRadians = Double.parseDouble(value);
             }
@@ -438,7 +438,7 @@ public class RowsPattern extends FollowPath {
             }
         }
 
-        value = customValues.get("curvOff");
+        value = customValues.remove("curvOff");
         try {
             curvOff = Double.parseDouble(value);
         }
@@ -446,8 +446,8 @@ public class RowsPattern extends FollowPath {
             e.printStackTrace();
         }
 
+        value = customValues.remove("alternationPercentage");
         if (!ignoreAlternationPercentage) {
-            value = customValues.get("alternationPercentage");
             try {
                 alternationPercentage = (float) Float.parseFloat(value);
             }
@@ -455,11 +455,11 @@ public class RowsPattern extends FollowPath {
                 e.printStackTrace();
             }
         }
-        value = customValues.get("squareCurve");
+        value = customValues.remove("squareCurve");
         squareCurve = Boolean.parseBoolean(value);
 
+        value = customValues.remove("firstCurveRight");
         if (!ignoreFirstCurveRight) {
-            value = customValues.get("firstCurveRight");
             firstCurveRight = Boolean.parseBoolean(value);
         }
 
