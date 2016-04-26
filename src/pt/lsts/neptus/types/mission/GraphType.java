@@ -114,8 +114,9 @@ public class GraphType implements XmlOutputMethods {
             for (int i = 0; i < nodes.length; i++) {
                 Element node = (Element) nodes[i];
                 Maneuver man = Maneuver.createFromXML(node.asXML());
+                if (man == null)
+                    continue;
                 addManeuver(man, false);
-                
                 if (man.isInitialManeuver()||initialManeuver == null) {
                     setInitialManeuver(man.getId());  
                 }

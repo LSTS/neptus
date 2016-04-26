@@ -563,6 +563,25 @@ public class IMCUtils {
         return plan;
     }
 
+    public static <M extends Maneuver> Class<M> getManeuverFromType(String type) {
+        String tp = type.trim().toLowerCase();
+        @SuppressWarnings("unchecked")
+        Class<M> mClass = (Class<M>) maneuversTypeList.get(tp);
+        if (mClass != null) {
+            try {
+                return mClass;
+            }
+            catch (Exception e) {
+                e.printStackTrace();
+            }
+            catch (Error e) {
+                e.printStackTrace();
+            }
+        }
+
+        return null;
+    }
+
     /**
      * See {@link LogUtils#parseManeuver}
      */

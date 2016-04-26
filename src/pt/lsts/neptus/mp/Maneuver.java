@@ -68,6 +68,7 @@ import pt.lsts.neptus.gui.editor.ComboEditor;
 import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.mp.actions.PlanActions;
 import pt.lsts.neptus.mp.maneuvers.LocatedManeuver;
+import pt.lsts.neptus.mp.maneuvers.ManeuversUtil;
 import pt.lsts.neptus.plugins.PluginUtils;
 import pt.lsts.neptus.renderer2d.StateRenderer2D;
 import pt.lsts.neptus.types.XmlOutputMethods;
@@ -372,8 +373,6 @@ public abstract class Maneuver implements XmlOutputMethods, PropertiesProvider, 
             Element maneuver = doc.getRootElement().element("maneuver");
             Iterator<?> elementIterator = maneuver.elementIterator();
 
-            ClassLoader cl = ClassLoader.getSystemClassLoader();
-
             while (elementIterator.hasNext()) {
 
                 Element element = (Element) elementIterator.next();
@@ -385,10 +384,11 @@ public abstract class Maneuver implements XmlOutputMethods, PropertiesProvider, 
                 String manType = element.getName();
 
                 try {
-                    man = (Maneuver) cl.loadClass("pt.lsts.neptus.mp.maneuvers." + manType).newInstance();
+                    Class<Maneuver> manClass = ManeuversUtil.getManeuverFromType(manType);
+                    man = manClass.newInstance();
                 }
                 catch (Exception e) {
-                    NeptusLog.pub().error("maneuver not found: " + manType + " (" + e.getMessage() + ")");
+                    NeptusLog.pub().error("Maneuver not found: " + manType + " (" + e.getMessage() + ")");
                 }
                 if (man == null)
                     return null;

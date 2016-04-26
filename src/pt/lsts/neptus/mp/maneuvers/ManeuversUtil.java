@@ -43,6 +43,7 @@ import java.util.List;
 import java.util.Vector;
 
 import pt.lsts.neptus.NeptusLog;
+import pt.lsts.neptus.comm.IMCUtils;
 import pt.lsts.neptus.mp.Maneuver;
 import pt.lsts.neptus.mp.preview.SpeedConversion;
 import pt.lsts.neptus.plugins.PluginProperty;
@@ -437,5 +438,9 @@ public class ManeuversUtil {
      */
     public static void setPropertiesToManeuver(Maneuver man, Property[] properties) {
         PluginUtils.setPluginProperties(man, properties);
+    }
+    
+    public static <M extends Maneuver> Class<M> getManeuverFromType(String type) {
+        return IMCUtils.getManeuverFromType(type);
     }
 }
