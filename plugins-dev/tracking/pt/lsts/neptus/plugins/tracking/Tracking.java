@@ -170,6 +170,14 @@ public class Tracking extends ConsolePanel implements ItemListener {
             this.setFocusable(true);
         }
         else {
+            this.addComponentListener(new ComponentAdapter() {
+                public void componentResized(ComponentEvent evt) {
+                    Component c = evt.getComponent();
+                    widhtConsole = c.getSize().width;
+                    heightConsole = c.getSize().height;
+                    panelSize = new Size(widhtConsole, heightConsole);
+                }
+            });
             errorOpenCv();
         }
     }
