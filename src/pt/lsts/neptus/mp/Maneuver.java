@@ -493,6 +493,7 @@ public abstract class Maneuver implements XmlOutputMethods, PropertiesProvider, 
 
     /**
      * The extending classes should provide a type name that will be shown to the user related to that maneuver.
+     * This should match the IMC message maneuver abbreviation.
      */
     public String getType() {
         return getClass().getSimpleName();

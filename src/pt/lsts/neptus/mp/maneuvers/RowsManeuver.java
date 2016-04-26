@@ -116,6 +116,14 @@ IMCSerialization, StatisticsProvider, PathProvider {
         recalcPoints();
     }
 
+    /* (non-Javadoc)
+     * @see pt.lsts.neptus.mp.Maneuver#getType()
+     */
+    @Override
+    public String getType() {
+        return "Rows";
+    }
+    
     protected ManeuverLocation calculatePosition() {
         ManeuverLocation loc = new ManeuverLocation();
         loc.setLatitudeDegs(Math.toDegrees(latRad));

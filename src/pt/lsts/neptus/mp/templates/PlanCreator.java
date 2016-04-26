@@ -32,6 +32,7 @@
 package pt.lsts.neptus.mp.templates;
 
 import java.lang.reflect.Method;
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -62,8 +63,8 @@ public class PlanCreator {
 
     private LinkedHashMap<String, Class<?>> maneuvers = new LinkedHashMap<String, Class<?>>();
     {
-        Class<?> mans[] = ReflectionUtil.listManeuvers();
-        for (Class<?> c : mans) {
+        ArrayList<Class<Maneuver>> mans = ReflectionUtil.listManeuvers();
+        for (Class<Maneuver> c : mans) {
             maneuvers.put(c.getSimpleName().toLowerCase(), c);
             // NeptusLog.pub().info("<###>Maneuver: "+c.getSimpleName().toLowerCase());
         }

@@ -41,6 +41,7 @@ import java.net.InetSocketAddress;
 import java.net.URI;
 import java.net.URL;
 import java.net.URLConnection;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
@@ -78,24 +79,9 @@ import pt.lsts.neptus.messages.Bitmask;
 import pt.lsts.neptus.messages.Enumerated;
 import pt.lsts.neptus.mp.Maneuver;
 import pt.lsts.neptus.mp.SystemPositionAndAttitude;
-import pt.lsts.neptus.mp.maneuvers.CompassCalibration;
-import pt.lsts.neptus.mp.maneuvers.CoverArea;
-import pt.lsts.neptus.mp.maneuvers.Dislodge;
-import pt.lsts.neptus.mp.maneuvers.Elevator;
 import pt.lsts.neptus.mp.maneuvers.FollowPath;
-import pt.lsts.neptus.mp.maneuvers.FollowSystem;
-import pt.lsts.neptus.mp.maneuvers.FollowTrajectory;
-import pt.lsts.neptus.mp.maneuvers.Goto;
-import pt.lsts.neptus.mp.maneuvers.HeadingSpeedDepth;
 import pt.lsts.neptus.mp.maneuvers.IMCSerialization;
-import pt.lsts.neptus.mp.maneuvers.Launch;
-import pt.lsts.neptus.mp.maneuvers.Loiter;
-import pt.lsts.neptus.mp.maneuvers.PopUp;
-import pt.lsts.neptus.mp.maneuvers.RowsManeuver;
-import pt.lsts.neptus.mp.maneuvers.StationKeeping;
 import pt.lsts.neptus.mp.maneuvers.Unconstrained;
-import pt.lsts.neptus.mp.maneuvers.VehicleFormation;
-import pt.lsts.neptus.mp.maneuvers.YoYo;
 import pt.lsts.neptus.plugins.PluginProperty;
 import pt.lsts.neptus.types.coord.LocationType;
 import pt.lsts.neptus.types.map.MapGroup;
@@ -111,6 +97,7 @@ import pt.lsts.neptus.types.vehicle.VehicleType;
 import pt.lsts.neptus.types.vehicle.VehiclesHolder;
 import pt.lsts.neptus.util.GuiUtils;
 import pt.lsts.neptus.util.PropertiesLoader;
+import pt.lsts.neptus.util.ReflectionUtil;
 import pt.lsts.neptus.util.conf.ConfigFetch;
 import pt.lsts.neptus.util.llf.LogUtils;
 
@@ -118,6 +105,39 @@ import com.l2fprod.common.propertysheet.Property;
 import com.l2fprod.common.swing.renderer.DefaultCellRenderer;
 
 public class IMCUtils {
+
+    private static LinkedHashMap<String, Class<Maneuver>> maneuversTypeList = new LinkedHashMap<>();
+    static {
+        ArrayList<Class<Maneuver>> mans = ReflectionUtil.listManeuvers();
+        for (Class<Maneuver> m : mans) {
+            Maneuver manInstance = null;
+            try {
+                manInstance = m.newInstance();
+            }
+            catch (Exception e) {
+                e.printStackTrace();
+            }
+            catch (Error e) {
+                e.printStackTrace();
+            }
+            maneuversTypeList.put(
+                    manInstance == null ? m.getSimpleName().toLowerCase() : manInstance.getType().toLowerCase(), m);
+
+            if (manInstance != null) {
+                switch (manInstance.getType().toLowerCase()) {
+                    case "unconstrained":
+                        maneuversTypeList.put("teleoperation", m);
+                        break;
+                    case "headingspeeddepth":
+                        maneuversTypeList.put("elementalmaneuver", m);
+                        break;
+                    case "rows":
+                        maneuversTypeList.put("rowsmaneuver", m);
+                        break;
+                }
+            }
+        }
+    }
 
     public static String translateImcIdToSystem(int imcId) {
         return translateImcIdToSystem(new ImcId16(imcId));
@@ -543,46 +563,32 @@ public class IMCUtils {
      */
     public static Maneuver parseManeuver(IMCMessage message) {
         Maneuver m = null;
-
-        if (message.getAbbrev().equalsIgnoreCase("goto"))
-            m = new Goto();
-        if (message.getAbbrev().equalsIgnoreCase("loiter"))
-            m = new Loiter();
-        else if (message.getAbbrev().equalsIgnoreCase("teleoperation"))
-            m = new Unconstrained();
-        else if (message.getAbbrev().equalsIgnoreCase("elementalmaneuver"))
-            m = new HeadingSpeedDepth();
-        else if (message.getAbbrev().equalsIgnoreCase("yoyo"))
-            m = new YoYo();
-        else if (message.getAbbrev().equalsIgnoreCase("popup"))
-            m = new PopUp();
-        else if (message.getAbbrev().equalsIgnoreCase("stationkeeping"))
-            m = new StationKeeping();
-        else if (message.getAbbrev().equalsIgnoreCase("rowsmaneuver") || message.getAbbrev().equalsIgnoreCase("rows"))
-            m = new RowsManeuver();
-        else if (message.getAbbrev().equalsIgnoreCase("followpath"))
-            m = FollowPath.createFollowPathOrPattern(message);
-        else if (message.getAbbrev().equalsIgnoreCase("followtrajectory"))
-            m = new FollowTrajectory();
-        else if (message.getAbbrev().equalsIgnoreCase("followsystem"))
-            m = new FollowSystem();
-        else if (message.getAbbrev().equalsIgnoreCase("vehicleformation"))
-            m = new VehicleFormation();
-        else if (message.getAbbrev().equalsIgnoreCase("elevator"))
-            m = new Elevator();
-        else if (message.getAbbrev().equalsIgnoreCase("compasscalibration"))
-            m = new CompassCalibration();
-        else if (message.getAbbrev().equalsIgnoreCase("dislodge"))
-            m = new Dislodge();
-        else if (message.getAbbrev().equalsIgnoreCase("CoverArea"))
-            m = new CoverArea();
-        else if (message.getAbbrev().equalsIgnoreCase("launch"))
-            m = new Launch();
+        Class<Maneuver> mClass = maneuversTypeList.get(message.getAbbrev().toLowerCase());
+        if (mClass != null) {
+            if (FollowPath.class.isAssignableFrom(mClass)) {
+                m = FollowPath.createFollowPathOrPattern(message);
+            }
+            else {
+                try {
+                    m = mClass.newInstance();
+                }
+                catch (Exception e) {
+                    e.printStackTrace();
+                }
+                catch (Error e) {
+                    e.printStackTrace();
+                }
+            }
+        }
 
         if (m != null)
             ((IMCSerialization) m).parseIMCMessage(message);
         else
             m = new Unconstrained();
+
+        NeptusLog.pub().warn(
+                String.format("IMC maneuver message '%s' translated to a '%s'", message.getAbbrev(), m.getClass()));
+
         return m;
     }
 
