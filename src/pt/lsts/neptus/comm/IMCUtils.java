@@ -605,7 +605,7 @@ public class IMCUtils {
             }
         }
 
-        if (m != null)
+        if (m != null && (m instanceof IMCSerialization))
             ((IMCSerialization) m).parseIMCMessage(message);
         else
             m = new Unconstrained();
