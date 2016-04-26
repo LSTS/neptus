@@ -31,6 +31,7 @@
  */
 package pt.lsts.neptus.mp.maneuvers;
 
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
 
 import pt.lsts.imc.IMCMessage;
@@ -47,6 +48,12 @@ import pt.lsts.neptus.util.FileUtil;
  */
 public class FollowPath extends FollowTrajectory {
 
+    private static ArrayList<Class<FollowPath>> followPathPatternsList = new ArrayList<>();
+    static {
+        registerPattern(RowsPattern.class);
+        registerPattern(RIPattern.class);
+        registerPattern(CrossHatchPattern.class);
+    }
     
     public FollowPath() {
         super();
@@ -90,27 +97,48 @@ public class FollowPath extends FollowTrajectory {
     }
 
     /**
+     * This method allows to register additional follow path pattern maneuvers to be used.
+     * This allows easy addition of new maneuvers following the follow path maneuver as pattern.
+     * 
+     * @param followPathPattern
+     */
+    @SuppressWarnings("unchecked")
+    public synchronized static <P extends FollowPath> void registerPattern(Class<P> followPathPattern) {
+        if (!followPathPatternsList.contains(followPathPattern)) {
+            followPathPatternsList.add((Class<FollowPath>) followPathPattern);
+        }
+    }
+    
+    /**
      * @param msg
      * @return
      */
-    public static Maneuver createFollowPathOrPattern(IMCMessage message) {
+    public static FollowPath createFollowPathOrPattern(IMCMessage message) {
         String customValues = (String) message.getValue("custom");
         if (customValues != null) {
             LinkedHashMap<String, String> customValuesTL = IMCMessage.decodeTupleList(customValues);
             String pattern = customValuesTL.get("Pattern");
             if (pattern == null || pattern.length() == 0)
                 return new FollowPath();
-            if ("RowsPatterns".equalsIgnoreCase(pattern))
-                return new RowsPattern();
-            else if ("RIPattern".equalsIgnoreCase(pattern))
-                return new RIPattern();
-            else if ("CrossHatchPattern".equalsIgnoreCase(pattern))
-                return new CrossHatchPattern();
-            else
-                return new FollowPath();
+            
+            for (Class<FollowPath> fpp : followPathPatternsList) {
+                String patternName = fpp.getSimpleName();
+                if (patternName.equalsIgnoreCase(pattern)) {
+                    NeptusLog.pub().warn(String.format("Found follow path pattern '%s'", patternName));
+                    try {
+                        return fpp.newInstance();
+                    }
+                    catch (Exception e) {
+                        NeptusLog.pub().warn(String.format("Not possible to instanciate found follow path pattern '%s'! (%s)", 
+                                patternName, e.getMessage()));
+                    }
+                }
+            }
+            NeptusLog.pub().warn(String.format("Not possible to find follow path pattern for '%s', "
+                    + "reverting to follow path!", pattern));
         }
-        else
-            return new FollowPath();
+        
+        return new FollowPath();
     }
 
     public static void main(String[] args) {
