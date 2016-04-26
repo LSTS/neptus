@@ -296,7 +296,7 @@ public class PlanExecutionPreview extends ConsolePanel implements Renderer2DPain
                     simulator.setManId(msg.getManId());
             }
             catch (Exception e) {
-                e.printStackTrace();
+//                e.printStackTrace();
                 NeptusLog.pub().error(e);
             }
         }
