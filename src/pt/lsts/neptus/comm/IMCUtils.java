@@ -114,6 +114,10 @@ public class IMCUtils {
             try {
                 manInstance = m.newInstance();
             }
+            catch (InstantiationException e) {
+                // Abstract so no to be used
+                continue;
+            }
             catch (Exception e) {
                 e.printStackTrace();
             }
