@@ -36,6 +36,8 @@ import java.awt.Component;
 import java.awt.Font;
 import java.awt.FontMetrics;
 import java.awt.Graphics;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
 import java.awt.event.ItemEvent;
@@ -47,6 +49,9 @@ import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
 
 import javax.swing.JLabel;
+import javax.swing.JMenuItem;
+import javax.swing.JPopupMenu;
+import javax.swing.KeyStroke;
 
 import org.opencv.core.CvType;
 import org.opencv.core.Mat;
@@ -100,8 +105,6 @@ public class Tracking extends ConsolePanel implements ItemListener {
     private Mat finalMatResizeCam1;
     // Image resize Cam2
     private Mat finalMatResizeCam2;
-    // Flag for starting task
-    private boolean startTask;
     // flag for state of neptus logo
     private boolean noVideoLogoState;
     // Buffer image for showImage
@@ -148,6 +151,9 @@ public class Tracking extends ConsolePanel implements ItemListener {
     private int realYCoordCam2;
     private boolean showDebug;
     private boolean isCtrlPress;
+    // JPopup Menu
+    private JPopupMenu popup;
+    private boolean startCapture;
 
     
     /**
@@ -193,7 +199,7 @@ public class Tracking extends ConsolePanel implements ItemListener {
                 panelSize = new Size(widhtConsole, heightConsole);
                 finalMatResizeCam1 = new Mat((int) panelSize.height, (int) panelSize.width, CvType.CV_8UC3);
                 finalMatResizeCam2 = new Mat((int) panelSize.height, (int) panelSize.width, CvType.CV_8UC3);
-                if (!startTask)
+                if (!startCapture)
                     initImage();
             }
         });
@@ -203,12 +209,12 @@ public class Tracking extends ConsolePanel implements ItemListener {
      * Initialize Variables
      */
     public void initVariables() {
-        fpsMax = 30;
-        startTask = false;
+        fpsMax = 30;;
         showDebug = false;
         isCtrlPress = false;
         noVideoLogoState = false;
-        closePlugin = false;
+        startCapture = false;
+        closePlugin = true;
         frameSizeCam1 = new Size(0, 0);
         frameSizeCam2 = new Size(0, 0);
         frameScaleCam1 = new Size(0, 0);
@@ -248,7 +254,7 @@ public class Tracking extends ConsolePanel implements ItemListener {
     public void initSubPanel() {
     }
     
-    /* (non-Javadoc)
+    /**
      * Fill image with zeros or null video
      */
     public void initImage() {
@@ -276,7 +282,9 @@ public class Tracking extends ConsolePanel implements ItemListener {
         }
     }
     
-    // Print Image to JPanel
+    /**
+     * Paint Component
+     */
     @Override
     protected void paintComponent(Graphics g) {
         if (refreshTemp && realImageCam1 != null && realImageCam2 != null) {
@@ -315,6 +323,9 @@ public class Tracking extends ConsolePanel implements ItemListener {
         }
     }
     
+    /**
+     * Print to panel images captured/processed
+     */
     // Print Images to console
     private void showImage(BufferedImage image1, BufferedImage image2) {
         realImageCam1 = image1;
@@ -324,7 +335,7 @@ public class Tracking extends ConsolePanel implements ItemListener {
     }
     
     /**
-     * @return
+     * Tread for capture image of IPCam1
      */
     private Thread updaterThreadCam1() {
         Thread ipCam1 = new Thread("Capture stream of IPCam1") {
@@ -339,7 +350,7 @@ public class Tracking extends ConsolePanel implements ItemListener {
                 boolean isAliveIPCams;
                 boolean stateIPCams = false;
                 while (true) {
-                    if (!closePlugin) {
+                    if (!closePlugin && startCapture) {
                         if (stateIPCams == false) {
                             captureCam1 = new VideoCapture();
                             captureCam1.open(cam1RtpsUrl);
@@ -350,10 +361,13 @@ public class Tracking extends ConsolePanel implements ItemListener {
                             }
                             else {
                                 NeptusLog.pub().info("Video Strem from IPCam1 is not captured");
+                                closePlugin = true;
+                                startCapture = false;
+                                stateIPCams = false;
                             }
                         }
                         // IPCam Capture
-                        else if (stateIPCams) {
+                        else if (stateIPCams || !captureCam1.isOpened()) {
                             isAliveIPCams = false;
                             resetWatchDogCam1(4000);
                             long startTime = System.currentTimeMillis();
@@ -361,11 +375,12 @@ public class Tracking extends ConsolePanel implements ItemListener {
                                 captureCam1.read(matCam1);
                                 isAliveIPCams = true;
                             }
-                            if (isAliveIPCams)
-                                resetWatchDogCam1(4000);
 
                             if (matCam1.empty()) {
                                 NeptusLog.pub().error(I18n.text("ERROR capturing img of IPCam1"));
+                                closePlugin = true;
+                                startCapture = false;
+                                stateIPCams = false;
                                 continue;
                             }
                             else {
@@ -381,16 +396,19 @@ public class Tracking extends ConsolePanel implements ItemListener {
                                 catch (InterruptedException e) {
                                 }
                             }
-                            //TODO
                             fpsCam1Value = (int) (1000 / (stopTime - startTime));
-                            /*if((stopTime - startTime) != 0)
-                                System.out.println("FPS CAM1: "+fpsCam1Value);*/
                         }
                     }
-                    else {
+                    else if (!closePlugin && !startCapture) {
+                        closePlugin = true;
+                        stateIPCams = false;
                         captureCam1.release();
+                    }
+                    else {
                         try {
+                            initImage();
                             Thread.sleep(1000);
+                            resetWatchDogCam1(4000);
                         }
                         catch (InterruptedException e) {
                             e.printStackTrace();
@@ -404,7 +422,7 @@ public class Tracking extends ConsolePanel implements ItemListener {
     }
     
     /**
-     * @return
+     * Tread for capture image of IPCam2
      */
     private Thread updaterThreadCam2() {
         Thread ipCams = new Thread("Capture stream of IPCam2") {
@@ -419,8 +437,8 @@ public class Tracking extends ConsolePanel implements ItemListener {
                 boolean isAliveIPCams;
                 boolean stateIPCams = false;
                 while (true) {
-                    if (!closePlugin) {
-                        if (stateIPCams == false) {
+                    if (!closePlugin && startCapture) {
+                        if (stateIPCams == false || !captureCam2.isOpened()) {
                             captureCam2 = new VideoCapture();
                             captureCam2.open(cam2RtpsUrl);
                             if (captureCam2.isOpened()) {
@@ -429,6 +447,9 @@ public class Tracking extends ConsolePanel implements ItemListener {
                             }
                             else {
                                 NeptusLog.pub().info("Video Strem from IPCam2 is not captured");
+                                closePlugin = true;
+                                startCapture = false;
+                                stateIPCams = false;
                             }
                         }
                         // IPCam Capture
@@ -440,11 +461,12 @@ public class Tracking extends ConsolePanel implements ItemListener {
                                 captureCam2.read(matCam2);
                                 isAliveIPCams = true;
                             }
-                            if (isAliveIPCams)
-                                resetWatchDogCam2(4000);
 
                             if (matCam2.empty()) {
                                 NeptusLog.pub().error(I18n.text("ERROR capturing img of IPCam2"));
+                                closePlugin = true;
+                                startCapture = false;
+                                stateIPCams = false;
                                 continue;
                             }
                             else {
@@ -460,16 +482,18 @@ public class Tracking extends ConsolePanel implements ItemListener {
                                 catch (InterruptedException e) {
                                 }
                             }
-                            //TODO
                             fpsCam2Value = (int) (1000 / (stopTime - startTime));
-                            /*if((stopTime - startTime) != 0)
-                                System.out.println("FPS CAM2: "+fpsCam2Value);*/
                         }
                     }
-                    else {
+                    else if (!closePlugin && !startCapture) {
+                        closePlugin = true;
+                        stateIPCams = false;
                         captureCam2.release();
+                    }
+                    else {
                         try {
                             Thread.sleep(1000);
+                            resetWatchDogCam2(4000);
                         }
                         catch (InterruptedException e) {
                             e.printStackTrace();
@@ -483,7 +507,7 @@ public class Tracking extends ConsolePanel implements ItemListener {
     }
     
     /**
-     * @return
+     * Thread for processing/treatment of image captured
      */
     private Thread updaterThreadManipulation() {
         Thread manipulationImg = new Thread("Manipulation of images captured") {
@@ -495,7 +519,7 @@ public class Tracking extends ConsolePanel implements ItemListener {
                     e.printStackTrace();
                 }
                 while (true) {
-                    if (!closePlugin) {
+                    if (!closePlugin && startCapture) {
                         if (!matCam1.empty() && !matCam2.empty()) {
                             long startTime = System.currentTimeMillis();
                             offlineImageCam1 = UtilCv.matToBufferedImage(matCam1);
@@ -511,9 +535,6 @@ public class Tracking extends ConsolePanel implements ItemListener {
                                 catch (InterruptedException e) {
                                 }
                             }
-                            //TODO
-                            /*if((stopTime - startTime) != 0)
-                                System.out.println("FPS manipulation: "+1000/(stopTime - startTime));*/
                         }
                     }
                     else {
@@ -531,6 +552,9 @@ public class Tracking extends ConsolePanel implements ItemListener {
         return manipulationImg;
     }
     
+    /**
+     * Setup WatchDog
+     */
     private void setupWatchDogCam(double timeout) {
         watchDogCam = new Thread(new Runnable() {
             @Override
@@ -540,30 +564,45 @@ public class Tracking extends ConsolePanel implements ItemListener {
         });
     }
 
+    /**
+     * Start WatchDog
+     */
     private void startWatchDogCam() {
         if (watchDogCam.getState().toString() != "TIMED_WAITING")
             watchDogCam.start();
     }
 
+    /**
+     * Reset WatchDog for IPCam1
+     */
     private void resetWatchDogCam1(double timeout) {
         endTimeMillisCam1 = (long) (System.currentTimeMillis() + timeout);
         virtualEndThreadCam1 = false;
     }
     
+    /**
+     * Reset WatchDog for IPCam2
+     */
     private void resetWatchDogCam2(double timeout) {
         endTimeMillisCam2 = (long) (System.currentTimeMillis() + timeout);
         virtualEndThreadCam2 = false;
     }
 
+    /**
+     * WatchDog Method
+     */
     private void methodWatchDogCam(double miliseconds) {
         endTimeMillisCam1 = (long) (System.currentTimeMillis() + miliseconds);
         virtualEndThreadCam1 = false;
         while (true) {
             if (System.currentTimeMillis() > endTimeMillisCam1 && !virtualEndThreadCam1) {
-                if (!closePlugin) {
+                if (!closePlugin && startCapture) {
                     NeptusLog.pub().error("TIME OUT IPCAM 1");
                     NeptusLog.pub().info("Clossing all Video Stream...");
                     noVideoLogoState = false;
+                    closePlugin = true;
+                    startCapture = false;
+                    showDebug = false;
                     initImage();
                     virtualEndThreadCam1 = true;
                 }
@@ -577,10 +616,13 @@ public class Tracking extends ConsolePanel implements ItemListener {
             }
             
             if (System.currentTimeMillis() > endTimeMillisCam2 && !virtualEndThreadCam2) {
-                if (!closePlugin) {
+                if (!closePlugin && startCapture) {
                     NeptusLog.pub().error("TIME OUT IPCAM 2");
                     NeptusLog.pub().info("Clossing all Video Stream...");
                     noVideoLogoState = false;
+                    closePlugin = true;
+                    startCapture = false;
+                    showDebug = false;
                     initImage();
                     virtualEndThreadCam2 = true;
                 }
@@ -627,12 +669,60 @@ public class Tracking extends ConsolePanel implements ItemListener {
                         System.out.println("Real Cam2: "+realXCoordCam2+" : "+realYCoordCam2);
                 }
                 if (e.getButton() == MouseEvent.BUTTON3) {
-                    System.out.println("Menu");
+                    popUpMenu(e.getX(), e.getY());
                 }
             }
         });
     }
     
+    /**
+     * PopUp Menu
+     */
+    private void popUpMenu(int x, int y) {
+        popup = new JPopupMenu();
+        JMenuItem item1;
+        popup.add(item1 = new JMenuItem(I18n.text("Start Capture"), ImageUtils.createImageIcon(String.format("images/downloader/camera.png"))))
+                .addActionListener(new ActionListener() {
+                    public void actionPerformed(ActionEvent e) {
+                        startCapture = true;
+                        closePlugin = false;
+                    }
+                });
+        item1.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_S, ActionEvent.ALT_MASK));
+        JMenuItem item2;
+        popup.add(item2 = new JMenuItem(I18n.text("Close Capture"), ImageUtils.createImageIcon(String.format("images/menus/exit.png"))))
+                .addActionListener(new ActionListener() {
+                    public void actionPerformed(ActionEvent e) {
+                        startCapture = false;
+                        closePlugin = true;
+                        showDebug = false;
+                    }
+                });
+        item2.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_C, ActionEvent.ALT_MASK));
+        JMenuItem item3;
+        popup.add(item3 = new JMenuItem(I18n.text("Force Close Capture"), ImageUtils.createImageIcon(String.format("images/buttons/important.png"))))
+                .addActionListener(new ActionListener() {
+                    public void actionPerformed(ActionEvent e) {
+                        if (!startCapture && closePlugin) {
+                            NeptusLog.pub().warn(I18n.text("Forcing close of capture"));
+                            if (captureCam1.isOpened())
+                                captureCam1.release();
+                            if (captureCam2.isOpened())
+                                captureCam2.release();
+                        }
+                        else {
+                            NeptusLog.pub().warn(I18n.text("First try close capture in normal mode"));
+                        }
+                    }
+                });
+        item3.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_F, ActionEvent.ALT_MASK));
+        popup.addSeparator();
+        JLabel infoDebug = new JLabel(I18n.text("Info Debug use Ctrl-D"));
+        infoDebug.setIcon(ImageUtils.createImageIcon(String.format("images/menus/comment.png")));
+        popup.add(infoDebug, JMenuItem.CENTER_ALIGNMENT);
+        popup.show(this, x, y);
+    }
+
     /**
      * Key Listener
      */
@@ -655,6 +745,32 @@ public class Tracking extends ConsolePanel implements ItemListener {
                 
                 if (e.getKeyCode() == KeyEvent.VK_D && isCtrlPress) {
                     showDebug = !showDebug;
+                }
+                else if ((e.getKeyCode() == KeyEvent.VK_S) && ((e.getModifiers() & KeyEvent.ALT_MASK) != 0)) {
+                    startCapture = true;
+                    closePlugin = false;
+                }
+                else if ((e.getKeyCode() == KeyEvent.VK_C) && ((e.getModifiers() & KeyEvent.ALT_MASK) != 0)) {
+                    startCapture = false;
+                    closePlugin = true;
+                    showDebug = false;
+                }
+                else if ((e.getKeyCode() == KeyEvent.VK_F) && ((e.getModifiers() & KeyEvent.ALT_MASK) != 0)) {
+                    if (!startCapture && closePlugin) {
+                        NeptusLog.pub().warn(I18n.text("Forcing close of capture"));
+                        if (captureCam1 != null) {
+                            if (captureCam1.isOpened())
+                                captureCam1.release();
+                        }
+
+                        if (captureCam2 != null) {
+                            if (captureCam2.isOpened())
+                                captureCam2.release();
+                        }
+                    }
+                    else {
+                        NeptusLog.pub().warn(I18n.text("First try close capture in normal mode"));
+                    }
                 }
             }
         });
