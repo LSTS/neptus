@@ -97,13 +97,16 @@ public class GridArea extends GeometryElement implements MapDecomposition {
     }
 
     /**
-     * Used when splitting a GridArea
+     * Used when splitting a GridArea or its cells
      * */
-    public GridArea(MapCell[][] cells, int nrows, int ncols, LocationType center, Environment env) {
+    public GridArea(MapCell[][] cells, double cellWidth, double cellHeight, int nrows, int ncols, LocationType center, Environment env) {
         this.decomposedMap = cells;
         this.nrows = nrows;
         this.ncols = ncols;
         this.center = center;
+
+        this.cellWidth = cellWidth;
+        this.cellHeight = cellHeight;
         this.gridWidth = cellWidth * ncols;
         this.gridHeight = cellHeight * nrows;
 
@@ -205,7 +208,7 @@ public class GridArea extends GeometryElement implements MapDecomposition {
 
                 MapCell[][] newCells = subsetGrid(i * newRows, newRows, ncols);
                 /* TODO set new center location */
-                parts[i] = new GridArea(newCells, newRows, ncols, center, env);
+                parts[i] = new GridArea(newCells, cellWidth, cellHeight, newRows, ncols, center, env);
             }
             return parts;
         }
@@ -220,6 +223,58 @@ public class GridArea extends GeometryElement implements MapDecomposition {
         for(int i = startRow; i < nrows; i++)
             newGrid[i] = decomposedMap[i].clone();
         return newGrid;
+    }
+
+    /**
+     * Makes a new grid where each (old) cell is
+     * split into n cells, i.e. increases grid's
+     * resolution.
+     * This is used for the mega-cells algorithms
+     * where each cell is (internally) formed by
+     * 4 smaller cells.
+     * */
+    public MapDecomposition splitCells(int n) {
+        if((n == 0 || n == 1) || n > nrows)
+            return null;
+        else {
+            int newRows = 2 * nrows;
+            int newCols = 2 * ncols;
+            double newCellWidth = cellWidth / 2;
+            double newCellHeight = cellHeight / 2;
+
+            MapCell[][] newGrid = new MapCell[newRows][newCols];
+
+            for(int i = 0; i < nrows; i++) {
+                for(int j = 0; j < ncols; j++) {
+                    LocationType cellCenter = decomposedMap[i][j].getLocation();
+
+                    /* Compute 4 new cells' center locations */
+                    LocationType topLeft = new LocationType(cellCenter);
+                    topLeft.setOffsetWest(newCellWidth/2);
+                    topLeft.setOffsetNorth(newCellHeight/2);
+
+                    LocationType topRight = new LocationType(cellCenter);
+                    topLeft.setOffsetEast(newCellWidth/2);
+                    topLeft.setOffsetNorth(newCellHeight/2);
+
+                    LocationType bottomLeft = new LocationType(cellCenter);
+                    topLeft.setOffsetWest(newCellWidth/2);
+                    topLeft.setOffsetSouth(newCellHeight/2);
+
+                    LocationType bottomRight = new LocationType(cellCenter);
+                    topLeft.setOffsetEast(newCellWidth/2);
+                    topLeft.setOffsetSouth(newCellHeight/2);
+
+                    /* TODO check if cells have an obstacle */
+                    newGrid[2*i][2*j] = new MapCell(topLeft, false);
+                    newGrid[2*i][2*j + 1] = new MapCell(topRight, false);
+
+                    newGrid[2*i + 1][2*j] = new MapCell(bottomLeft, false);
+                    newGrid[2*i + 1][2*j + 1] = new MapCell(bottomRight, false);
+                }
+            }
+            return new GridArea(newGrid, newCellWidth, newCellHeight, newRows, newCols, this.center, this.env);
+        }
     }
 
     @Override
