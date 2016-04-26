@@ -40,6 +40,9 @@ import org.dom4j.DocumentHelper;
 import org.dom4j.Element;
 import org.dom4j.Node;
 
+import com.l2fprod.common.propertysheet.DefaultProperty;
+import com.l2fprod.common.propertysheet.Property;
+
 import pt.lsts.imc.IMCMessage;
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.comm.IMCUtils;
@@ -51,9 +54,6 @@ import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.mp.ManeuverLocation;
 import pt.lsts.neptus.mp.SystemPositionAndAttitude;
 import pt.lsts.neptus.types.coord.LocationType;
-
-import com.l2fprod.common.propertysheet.DefaultProperty;
-import com.l2fprod.common.propertysheet.Property;
 
 /**
  * @author zp
@@ -230,13 +230,11 @@ public class CommsRelay extends DefaultManeuver implements IMCSerialization, Loc
     	return properties;
     }
     
-    
     public String getPropertiesDialogTitle() {    
         return getId() + " parameters";
     }
     
     public void setProperties(Property[] properties) {
-    	
     	super.setProperties(properties);
     	
     	for (Property p : properties) {
@@ -258,7 +256,6 @@ public class CommsRelay extends DefaultManeuver implements IMCSerialization, Loc
             if (p.getName().equals("Move threshold")) {
                 setMoveThreshold((Double)p.getValue());
             }
-            
     	}
     }
     
