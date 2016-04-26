@@ -42,6 +42,18 @@ import pt.lsts.neptus.mp.maneuvers.Launch;
  */
 public class ManPreviewFactory {
 
+    /**
+     * If finds and instantiate a preview for the maneuver. It looks for a preview
+     * in the current package of the maneuver class and in the sibling package "preview".
+     * The name of the preview class should be the name of the maneuver class suffixed 
+     * by the "Preview" string.
+     * 
+     * @param maneuver The maneuver to preview.
+     * @param vehicleId The vehicle ID.
+     * @param state The vehicle current {@link SystemPositionAndAttitude}.
+     * @param manState The current maneuver state.
+     * @return
+     */
     public static IManeuverPreview<?> getPreview(Maneuver maneuver, String vehicleId, SystemPositionAndAttitude state, Object manState) {
         if (maneuver == null)
             return null;
