@@ -1,7 +1,1 @@
-# DATE=@DATE@
-# TIME=@TIME@
-# COMPILED BY=@COMPILED BY@
-# LEGAL_COPY=@LEGAL_COPY@
-
 pt.lsts.neptus.plugins.videostream.VideoStream
-pt.lsts.neptus.plugins.videostream.UtilVision
