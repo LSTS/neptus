@@ -193,7 +193,7 @@ public class VideoStream extends ConsolePanel implements ItemListener {
     private byte[] data;
     // Buffer image for showImage
     private BufferedImage offlineImage;
-    private BufferedImage realImage;
+    private BufferedImage onScreenImage;
     // Flag - start acquired image
     private boolean raspiCam = false;
     // Flag - Lost connection to the vehicle
@@ -902,8 +902,8 @@ public class VideoStream extends ConsolePanel implements ItemListener {
     // Print Image to JPanel
     @Override
     protected void paintComponent(Graphics g) {
-        if (refreshTemp && realImage != null) {
-            g.drawImage(realImage, 0, 0, this);
+        if (refreshTemp && onScreenImage != null) {
+            g.drawImage(onScreenImage, 0, 0, this);
             refreshTemp = false;
         }
         else {
@@ -913,7 +913,7 @@ public class VideoStream extends ConsolePanel implements ItemListener {
     }
 
     private void showImage(BufferedImage image) {
-        realImage = image;
+        onScreenImage = image;
         refreshTemp = true;
         repaint();
     }
