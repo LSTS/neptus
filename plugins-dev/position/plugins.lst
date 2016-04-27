@@ -17,7 +17,6 @@ pt.lsts.neptus.plugins.position.StreamSpeedPanel
 pt.lsts.neptus.plugins.position.MultiEntityDisplayPanel
 pt.lsts.neptus.plugins.position.RemoteStateSimplePanel
 pt.lsts.neptus.plugins.position.painter.SystemInfoPainter
-pt.lsts.neptus.plugins.position.StreamSpeedOverlay
 pt.lsts.neptus.plugins.position.DistancesPanel
 pt.lsts.neptus.plugins.position.AttitudeReplayPanel
 pt.lsts.neptus.plugins.position.FindMainSystemLayer
