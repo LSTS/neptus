@@ -1,15 +1,9 @@
-# DATE=@DATE@
-# TIME=@TIME@
-# COMPILED BY=@COMPILED BY@
-# LEGAL_COPY=@LEGAL_COPY@
-
 #Simple Plugin:
 pt.lsts.neptus.plugins.position.AbsLatLonDepth
 pt.lsts.neptus.plugins.position.EulerAnglesPanel
 pt.lsts.neptus.plugins.position.SpeedPanel
 pt.lsts.neptus.plugins.position.ScriptedDisplay
 pt.lsts.neptus.plugins.position.FindVehicle
-pt.lsts.neptus.plugins.position.StreamSpeed
 pt.lsts.neptus.plugins.position.PositionClipboardTransferer
 pt.lsts.neptus.plugins.position.GPSFixPanel
 pt.lsts.neptus.plugins.position.ContactMarker
