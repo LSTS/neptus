@@ -331,7 +331,7 @@ public class VideoStream extends ConsolePanel implements ItemListener {
     private Thread saveImg = null;
     // worker thread create ipUrl.ini in conf folder
     private Thread createIPUrl = null;
-    
+
     // WatchDog variables/objects
     private Thread watchDog;
     private long endTimeMillis;
@@ -380,7 +380,7 @@ public class VideoStream extends ConsolePanel implements ItemListener {
                 public void keyPressed(KeyEvent e) {
                     if (e.getKeyCode() == KeyEvent.VK_CONTROL)
                         ctrlOn = true;
-                    
+
                     if ((e.getKeyCode() == KeyEvent.VK_Z) && ((e.getModifiers() & KeyEvent.ALT_MASK) != 0)
                             && !zoomMask) {
                         if (raspiCam || ipCam) {
@@ -456,7 +456,7 @@ public class VideoStream extends ConsolePanel implements ItemListener {
     private void mouseListenerInit() {
         addMouseListener(new MouseAdapter() {
             public void mouseClicked(MouseEvent e) {
-                //TODO                
+                // TODO
                 if (e.getButton() == MouseEvent.BUTTON1 && ctrlOn) {
                     if (raspiCam || ipCam) {
                         xPixel = (int) ((e.getX() - 11) / xScale); // shift window bar
@@ -552,7 +552,8 @@ public class VideoStream extends ConsolePanel implements ItemListener {
 
     // Check ip given by user
     private void checkHostIp() {
-        ipHostPing = new JDialog(SwingUtilities.getWindowAncestor(VideoStream.this), I18n.text("Host IP") + " - RasPiCam");
+        ipHostPing = new JDialog(SwingUtilities.getWindowAncestor(VideoStream.this),
+                I18n.text("Host IP") + " - RasPiCam");
         ipHostPing.setModalityType(ModalityType.DOCUMENT_MODAL);
         ipHostPing.setSize(340, 80);
         ipHostPing.setLocationRelativeTo(VideoStream.this);
@@ -1161,7 +1162,7 @@ public class VideoStream extends ConsolePanel implements ItemListener {
                                 NeptusLog.pub().error(I18n.text("ERROR capturing img of IPCam"));
                                 continue;
                             }
-                            
+
                             xScale = (float) widhtConsole / mat.cols();
                             yScale = (float) heightConsole / mat.rows();
                             Imgproc.resize(mat, matResize, size);
@@ -1446,8 +1447,8 @@ public class VideoStream extends ConsolePanel implements ItemListener {
             e1.printStackTrace();
         }
         if (line == null) {
-            GuiUtils.errorMessage(VideoStream.this, I18n.text("Connection error"), I18n.text("Lost connection with vehicle"),
-                    ModalityType.DOCUMENT_MODAL);
+            GuiUtils.errorMessage(VideoStream.this, I18n.text("Connection error"),
+                    I18n.text("Lost connection with vehicle"), ModalityType.DOCUMENT_MODAL);
             raspiCam = false;
             state = false;
             // closeTcpCom();
@@ -1702,8 +1703,8 @@ public class VideoStream extends ConsolePanel implements ItemListener {
         endTimeMillis = (long) (System.currentTimeMillis() + miliseconds);
         virtualEndThread = false;
         while (true) {
-            if (System.currentTimeMillis() > endTimeMillis && !virtualEndThread) {                
-                if(!isCleanTurnOffCam) {
+            if (System.currentTimeMillis() > endTimeMillis && !virtualEndThread) {
+                if (!isCleanTurnOffCam) {
                     NeptusLog.pub().error("TIME OUT IPCAM");
                     NeptusLog.pub().info("Clossing all Video Stream...");
                     noVideoLogoState = false;
