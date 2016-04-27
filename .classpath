@@ -60,7 +60,7 @@
 	<classpathentry kind="src" path="plugins-dev/shapefiles"/>
 	<classpathentry kind="src" path="plugins-dev/nvmaps"/>
 	<classpathentry kind="src" path="plugins-dev/preflight"/>
-	<classpathentry kind="src" path="plugins-dev/vision"/>
+	<classpathentry kind="src" path="plugins-dev/videostream"/>
 	<classpathentry kind="src" path="plugins-dev/cmre-wg"/>
 	<classpathentry kind="src" path="plugins-dev/mjpeg"/>
 	<classpathentry kind="src" path="plugins-dev/necsave"/>

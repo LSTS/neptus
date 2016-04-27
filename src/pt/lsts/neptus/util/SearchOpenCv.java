@@ -32,8 +32,12 @@
 package pt.lsts.neptus.util;
 
 import java.io.File;
+import java.io.FilenameFilter;
 
 import pt.lsts.neptus.NeptusLog;
+import pt.lsts.neptus.platform.OsInfo;
+import pt.lsts.neptus.platform.OsInfo.DataModel;
+import pt.lsts.neptus.platform.OsInfo.Family;
 
 /** 
  * @author pedrog
@@ -49,69 +53,68 @@ public class SearchOpenCv {
     }
     
     public synchronized static boolean searchJni() {
-        File path = new File("/usr/lib/jni");
-        if(resultState == null) {
-            resultState = false;
-            String libOpencv = new String();
-            String[] children = path.list();
-            if (children != null) {
-                for (int i = 0; i < children.length; i++) {
-                    String filename = children[i];
-                    
-                    if(filename.toLowerCase().startsWith("libopencv_java24") && filename.toLowerCase().endsWith(".so"))
-                        libOpencv = filename.toString().replaceAll("lib", "").replaceAll(".so", "");
+        if (resultState != null)
+            return resultState;
+
+        resultState = false;
+
+        if (OsInfo.getFamily() == Family.UNIX) {
+            File path = new File("/usr/lib/jni");
+            String libOpencv = "";
+            String[] children = !path.exists() ? new String[0] : path.list(new FilenameFilter() {
+                @Override
+                public boolean accept(File dir, String name) {
+                    boolean ret = name.toLowerCase().startsWith("libopencv_java24");
+                    ret = ret && name.toLowerCase().endsWith(".so");
+                    return ret;
                 }
-            } 
-            try {
-                System.loadLibrary(libOpencv);
-                resultState = true;
-                return true;
-            }
-            catch (Exception e) {
+            });
+            if (children.length > 0) {
+                String filename = children[0];
+                libOpencv = filename.toString().replaceAll("lib", "").replaceAll(".so", "");
+
                 try {
-                    System.loadLibrary("opencv_java2411");
-                    System.loadLibrary("libopencv_core2411");
-                    System.loadLibrary("libopencv_highgui2411");
-                    try {
-                        System.loadLibrary("opencv_ffmpeg2411_64");
-                    }
-                    catch (Exception e1) {
-                        System.loadLibrary("opencv_ffmpeg2411");
-                    }
-                    catch (Error e1) {
-                        System.loadLibrary("opencv_ffmpeg2411");
-                    }
+                    System.loadLibrary(libOpencv);
                     resultState = true;
+                    return true;
                 }
-                catch (Exception e1) {
-                    NeptusLog.pub().error("Opencv not found - please install libopencv2.4-jni and dependencies");
-                    resultState = false;
+                catch (Exception e) {
+                    NeptusLog.pub().error("Opencv not found - " + e.getMessage());
                 }
-                return resultState;
-            }
-            catch (Error e) {
-                try {
-                    System.loadLibrary("opencv_java2411");
-                    System.loadLibrary("libopencv_core2411");
-                    System.loadLibrary("libopencv_highgui2411");
-                    try {
-                        System.loadLibrary("opencv_ffmpeg2411_64");
-                    }
-                    catch (Exception e1) {
-                        System.loadLibrary("opencv_ffmpeg2411");
-                    }
-                    catch (Error e1) {
-                        System.loadLibrary("opencv_ffmpeg2411");
-                    }
-                    resultState = true;
-                }
-                catch (Error e1) {
-                    NeptusLog.pub().error("Opencv not found - please install libopencv2.4-jni and dependencies");
-                    resultState = false;
+                catch (Error e) {
+                    NeptusLog.pub().error("Opencv not found - " + e.getMessage());
                 }
             }
         }
-        
+        else {
+         // If we are here is not loaded yet
+            try {
+                System.loadLibrary("opencv_java2411");
+                System.loadLibrary("libopencv_core2411");
+                System.loadLibrary("libopencv_highgui2411");
+                try {
+                    System.loadLibrary("opencv_ffmpeg2411"+ (OsInfo.getDataModel() == DataModel.B64 ? "_64" : ""));
+                }
+                catch (Exception e1) {
+                    System.loadLibrary("opencv_ffmpeg2411");
+                }
+                catch (Error e1) {
+                    System.loadLibrary("opencv_ffmpeg2411");
+                }
+                resultState = true;
+            }
+            catch (Exception e) {
+                resultState = false;
+                NeptusLog.pub().error("Opencv not found - " + e.getMessage());
+            }
+            catch (Error e) {
+                resultState = false;
+                NeptusLog.pub().error("Opencv not found - " + e.getMessage());
+            }
+        }
+        if (!resultState)
+            NeptusLog.pub().error("Opencv not found - please install OpenCv 2.4 and dependencies.");
+            
         return resultState;
     }
 }
