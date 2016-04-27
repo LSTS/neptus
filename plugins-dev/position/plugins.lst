@@ -7,7 +7,7 @@ pt.lsts.neptus.plugins.position.FindVehicle
 pt.lsts.neptus.plugins.position.PositionClipboardTransferer
 pt.lsts.neptus.plugins.position.GPSFixPanel
 pt.lsts.neptus.plugins.position.ContactMarker
-pt.lsts.neptus.plugins.position.StreamSpeedPanel
+pt.lsts.neptus.plugins.position.StreamSpeedOverlay
 pt.lsts.neptus.plugins.position.MultiEntityDisplayPanel
 pt.lsts.neptus.plugins.position.RemoteStateSimplePanel
 pt.lsts.neptus.plugins.position.painter.SystemInfoPainter

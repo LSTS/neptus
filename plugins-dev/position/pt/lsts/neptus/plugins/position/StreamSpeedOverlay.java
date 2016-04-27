@@ -62,10 +62,10 @@ import pt.lsts.neptus.util.ReflectionUtil;
  *
  */
 @SuppressWarnings("serial")
-@PluginDescription(author = "Rui Gonçalves", name = "StreamSpeedPanel", icon = "pt/lsts/neptus/plugins/position/wind.png", 
-description = "Stream Speed Display")
+@PluginDescription(author = "Rui Gonçalves", name = "Stream Speed Overlay", icon = "pt/lsts/neptus/plugins/position/wind.png", 
+description = "Stream speed overlay. Wind or water dependent on the type of vehicle.")
 @LayerPriority(priority = 100)
-public class StreamSpeedPanel extends ConsolePanel
+public class StreamSpeedOverlay extends ConsolePanel
         implements MainVehicleChangeListener, Renderer2DPainter, SubPanelChangeListener {
 
     private static final Color COLOR_STRIPES_OUTLINE = new Color(255, 255, 255, 150);
@@ -89,7 +89,7 @@ public class StreamSpeedPanel extends ConsolePanel
     private GeneralPath windsockWhiteStripes;
     private GeneralPath windsockOutline;
     
-	public StreamSpeedPanel(ConsoleLayout console) {
+	public StreamSpeedOverlay(ConsoleLayout console) {
 	    super(console);
 		setVisibility(false);
 		
