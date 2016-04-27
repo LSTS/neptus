@@ -209,8 +209,8 @@ public class VideoStream extends ConsolePanel implements ItemListener {
     // Url of IPCam
     private String[][] dataUrlIni;
     private boolean closingPanel = false;
-
     private boolean refreshTemp;
+
     // JPanel for info and config values
     private JPanel config;
     // JText info of data receive
@@ -227,9 +227,9 @@ public class VideoStream extends ConsolePanel implements ItemListener {
     private JCheckBox saveToDiskCheckBox;
     // JPopup Menu
     private JPopupMenu popup;
+
     // Flag to enable/disable zoom
     private boolean zoomMask = false;
-
     // String for the info treatment
     private String info;
     // String for the info of Image Size Stream
@@ -239,9 +239,9 @@ public class VideoStream extends ConsolePanel implements ItemListener {
     // Location of log folder
     private String logDir;
     // Decompress data received
-    Inflater decompresser = new Inflater(false);
+    private Inflater decompresser = new Inflater(false);
     // Create an expandable byte array to hold the decompressed data
-    ByteArrayOutputStream bos;
+    private ByteArrayOutputStream bos;
     // Image resize
     private Mat matResize;
     // Image receive
@@ -261,7 +261,7 @@ public class VideoStream extends ConsolePanel implements ItemListener {
     private boolean ctrlOn;
 
     // Flag for IPCam Ip Check
-    boolean statePingOk = false;
+    private boolean statePingOk = false;
     // JPanel for color state of ping to host IPCam
     private JPanel colorStateIPCam;
     // JDialog for IPCam Select
