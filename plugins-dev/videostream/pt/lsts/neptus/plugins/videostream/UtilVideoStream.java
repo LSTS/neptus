@@ -134,7 +134,7 @@ public class UtilVideoStream {
     }
     
     public static BufferedImage resizeBufferedImage(BufferedImage img, Size size) {
-        if(size != null){
+        if(size != null && size.width != 0 && size.height != 0){
             BufferedImage dimg = new BufferedImage((int)size.width, (int)size.height, img.getType());
             Graphics2D g2d = dimg.createGraphics();
             g2d.drawImage(img.getScaledInstance((int)size.width, (int)size.height, Image.SCALE_SMOOTH), 0, 0, null);
@@ -142,7 +142,7 @@ public class UtilVideoStream {
             return dimg;
         }
         else {
-            NeptusLog.pub().warn(I18n.text("Size in resizeBufferedImage must be != NULL"));
+            NeptusLog.pub().warn(I18n.text("Size in resizeBufferedImage must be != NULL and not 0"));
             return null;
         }
     }
