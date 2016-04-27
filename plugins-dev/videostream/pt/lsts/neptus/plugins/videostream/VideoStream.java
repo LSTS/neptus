@@ -135,7 +135,7 @@ import pt.lsts.neptus.util.conf.ConfigFetch;
 @PluginDescription(name = "Video Stream", version = "1.3", author = "Pedro Gonçalves", description = "Plugin for View video Stream TCP-Ip/IPCam", icon = "pt/lsts/neptus/plugins/IPCam/camera.png")
 public class VideoStream extends ConsolePanel implements ItemListener {
 
-    private static final String BASE_FOLDER_FOR_IMAGES = "log/images";
+    private static final String BASE_FOLDER_FOR_IMAGES = ConfigFetch.getLogsFolder() + "/images";
     private static final String BASE_FOLDER_FOR_URLINI = "ipUrl.ini";
 
     @NeptusProperty(name = "Axis Camera RTPS URL", editable = false)
