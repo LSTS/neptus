@@ -62,11 +62,6 @@ import pt.lsts.neptus.i18n.I18n;
  */
 public class UtilCv {
 
-    private static List<Mat> lRgb = new ArrayList<Mat>(3);
-    private static File outputfile;
-    private static Date date;
-    private static BufferedImage tmp;
-
     private UtilCv() {
     }
     
@@ -168,9 +163,11 @@ public class UtilCv {
         Mat mB = null;
         if(original.getWidth() > 0 && original.getHeight() > 0) {
             tmp = original;
+            BufferedImage tmp = original;
             try {
                 if(original.getType() == BufferedImage.TYPE_INT_RGB || original.getType() == BufferedImage.TYPE_3BYTE_BGR) {
                     matColor = new Mat(original.getHeight(), original.getWidth(), CvType.CV_8UC3);
+                    List<Mat> lRgb = new ArrayList<Mat>(3);
                     Core.split(bufferedImageToMat(original), lRgb);
                     mR = lRgb.get(0);
                     Imgproc.equalizeHist(mR, mR);
@@ -219,10 +216,10 @@ public class UtilCv {
     
     //!Save a snapshot to disk
     public static void saveSnapshot(BufferedImage image, String snapshotdir) {
-        date = new Date();
+        Date date = new Date();
         String dateFolder = String.format("%tT", date);
         String imageJpeg = String.format("%s/%s.png",snapshotdir , dateFolder.replace(":", "-"));
-        outputfile = new File(imageJpeg);
+        File outputfile = new File(imageJpeg);
         try {
             ImageIO.write(image, "png", outputfile);
         }
