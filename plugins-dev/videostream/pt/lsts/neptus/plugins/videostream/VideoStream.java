@@ -934,22 +934,7 @@ public class VideoStream extends ConsolePanel implements ItemListener {
         zoomImg.setSize(300, 300);
         popupzoom = new JPopupMenu();
         popupzoom.setSize(300, 300);
-        // Create folder to save image data
-        // Create folder image in log if don't exist
-        File dir = new File(String.format(BASE_FOLDER_FOR_IMAGES));
-        dir.mkdir();
-        // Create folder Image to save data received
-        dir = new File(String.format(BASE_FOLDER_FOR_IMAGES + "/%s", date.toString().replace(":", "-")));
-        dir.mkdir();
-        // Create folder Image Tag
-        dir = new File(String.format(BASE_FOLDER_FOR_IMAGES + "/%s/imageTag", date.toString().replace(":", "-")));
-        dir.mkdir();
-        // Create folder Image Save
-        dir = new File(String.format(BASE_FOLDER_FOR_IMAGES + "/%s/imageSave", date.toString().replace(":", "-")));
-        dir.mkdir();
-        // Create folder Image Snapshot Save
-        dir = new File(String.format(BASE_FOLDER_FOR_IMAGES + "/%s/snapshotImage", date.toString().replace(":", "-")));
-        dir.mkdir();
+        
         logDir = String.format(BASE_FOLDER_FOR_IMAGES + "/%s", date.toString().replace(":", "-"));
 
         // JPanel for info and config values
@@ -1224,7 +1209,7 @@ public class VideoStream extends ConsolePanel implements ItemListener {
                                     imageTag = String.format("%s/imageTag/(%d)_%s_X=%d_Y=%d.jpeg", logDir, cntTag, info,
                                             xPixel, yPixel);
 
-                                outputfile = new File(imageTag);
+                                outputfile = checkExistenceOfFolderForFile(new File(imageTag));
                                 try {
                                     ImageIO.write(offlineImage, "jpeg", outputfile);
                                 }
@@ -1254,6 +1239,14 @@ public class VideoStream extends ConsolePanel implements ItemListener {
         return ret;
     }
 
+    private static File checkExistenceOfFolderForFile(File fx) {
+        File p = fx.getParentFile();
+        if (!p.exists())
+            p.mkdirs();
+        
+        return fx;
+    }
+    
     // Thread to handle save image
     private Thread updaterThreadSave() {
         Thread si = new Thread("Save Image") {
@@ -1279,12 +1272,12 @@ public class VideoStream extends ConsolePanel implements ItemListener {
                             try {
                                 if (histogramflag) {
                                     imageJpeg = String.format("%s/imageSave/%d_H.jpeg", logDir, cnt);
-                                    outputfile = new File(imageJpeg);
+                                    outputfile = checkExistenceOfFolderForFile(new File(imageJpeg));
                                     ImageIO.write(UtilCv.histogramCv(offlineImage), "jpeg", outputfile);
                                 }
                                 else {
                                     imageJpeg = String.format("%s/imageSave/%d.jpeg", logDir, cnt);
-                                    outputfile = new File(imageJpeg);
+                                    outputfile = checkExistenceOfFolderForFile(new File(imageJpeg));
                                     ImageIO.write(offlineImage, "jpeg", outputfile);
                                 }
                             }
@@ -1315,13 +1308,13 @@ public class VideoStream extends ConsolePanel implements ItemListener {
                                 try {
                                     if (histogramflag) {
                                         imageJpeg = String.format("%s/imageSave/%d_H.jpeg", logDir, cnt);
-                                        outputfile = new File(imageJpeg);
+                                        outputfile = checkExistenceOfFolderForFile(new File(imageJpeg));
                                         ImageIO.write(UtilCv.histogramCv(UtilCv.matToBufferedImage(matSaveImg)), "jpeg",
                                                 outputfile);
                                     }
                                     else {
                                         imageJpeg = String.format("%s/imageSave/%d.jpeg", logDir, cnt);
-                                        outputfile = new File(imageJpeg);
+                                        outputfile = checkExistenceOfFolderForFile(new File(imageJpeg));
                                         ImageIO.write(UtilCv.matToBufferedImage(matSaveImg), "jpeg", outputfile);
                                     }
                                 }

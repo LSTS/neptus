@@ -220,6 +220,9 @@ public class UtilCv {
         String imageJpeg = String.format("%s/%s.png", snapshotdir, dateFolder.replace(":", "-"));
         File outputfile = new File(imageJpeg);
         try {
+            File pDir = outputfile.getParentFile();
+            if (!pDir.exists())
+                pDir.mkdirs();
             ImageIO.write(image, "png", outputfile);
         }
         catch (IOException e) {
