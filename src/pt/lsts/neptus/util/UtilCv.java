@@ -36,7 +36,6 @@ import java.awt.Font;
 import java.awt.FontMetrics;
 import java.awt.Graphics2D;
 import java.awt.Image;
-import java.awt.font.TextLayout;
 import java.awt.image.BufferedImage;
 import java.awt.image.DataBufferByte;
 import java.io.File;
@@ -62,13 +61,12 @@ import pt.lsts.neptus.i18n.I18n;
  *
  */
 public class UtilCv {
-    
-    static List<Mat> lRgb = new ArrayList<Mat>(3);
-    static File outputfile;
-    static Date date;
-    static TextLayout textLayout;
-    static BufferedImage tmp;
-    
+
+    private static List<Mat> lRgb = new ArrayList<Mat>(3);
+    private static File outputfile;
+    private static Date date;
+    private static BufferedImage tmp;
+
     private UtilCv() {
     }
     
