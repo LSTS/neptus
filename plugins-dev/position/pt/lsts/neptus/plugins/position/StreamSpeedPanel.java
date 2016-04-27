@@ -29,7 +29,6 @@
  * Author: Rui Gonçalves
  * Oct 26, 2010
  */
-
 package pt.lsts.neptus.plugins.position;
 
 import java.awt.Color;
@@ -39,12 +38,18 @@ import java.awt.geom.Rectangle2D;
 import java.text.DecimalFormat;
 import java.util.Vector;
 
+import com.google.common.eventbus.Subscribe;
+
 import pt.lsts.imc.EstimatedStreamVelocity;
+import pt.lsts.neptus.comm.manager.imc.ImcSystem;
+import pt.lsts.neptus.comm.manager.imc.ImcSystemsHolder;
 import pt.lsts.neptus.console.ConsoleLayout;
 import pt.lsts.neptus.console.ConsolePanel;
+import pt.lsts.neptus.console.events.ConsoleEventMainSystemChange;
 import pt.lsts.neptus.console.plugins.MainVehicleChangeListener;
 import pt.lsts.neptus.console.plugins.SubPanelChangeEvent;
 import pt.lsts.neptus.console.plugins.SubPanelChangeListener;
+import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.plugins.PluginDescription;
 import pt.lsts.neptus.renderer2d.ILayerPainter;
 import pt.lsts.neptus.renderer2d.LayerPriority;
@@ -52,40 +57,72 @@ import pt.lsts.neptus.renderer2d.Renderer2DPainter;
 import pt.lsts.neptus.renderer2d.StateRenderer2D;
 import pt.lsts.neptus.util.ReflectionUtil;
 
-import com.google.common.eventbus.Subscribe;
-
 /**
  * @author rjpg
  *
  */
 @SuppressWarnings("serial")
-@PluginDescription(author = "Rui Gonçalves", name = "StreamSpeedPanel", 
-		icon = "pt/lsts/neptus/plugins/position/wind.png", 
-		description = "Stream Speed Display2")
-@LayerPriority(priority=100)
-public class StreamSpeedPanel 
-extends ConsolePanel  
-implements MainVehicleChangeListener, Renderer2DPainter, SubPanelChangeListener {
+@PluginDescription(author = "Rui Gonçalves", name = "StreamSpeedPanel", icon = "pt/lsts/neptus/plugins/position/wind.png", 
+description = "Stream Speed Display")
+@LayerPriority(priority = 100)
+public class StreamSpeedPanel extends ConsolePanel
+        implements MainVehicleChangeListener, Renderer2DPainter, SubPanelChangeListener {
+
+    private static final Color COLOR_STRIPES_OUTLINE = new Color(255, 255, 255, 150);
+    private static final Color COLOR_STRIPES_WIND = new Color(255, 0, 0, 150);
+    private static final Color COLOR_STRIPES_WATER = new Color(0, 0, 255, 150).darker();
+    
+    private static final String MPS_STRING = "m/s";
+    private static final String WIND_STRING = I18n.textc("wind", "Keep the text relatively small");
+    private static final String WATTER_STRING = I18n.textc("water", "Keep the text relatively small");
 
     private Vector<ILayerPainter> renderers = new Vector<ILayerPainter>();
-	
-	
-	private boolean initCalled=false;
-	
+
+    private DecimalFormat myFormatter = new DecimalFormat("###.##");
+
+	private boolean initCalled = false;
     private double strX, strY;// stream vector
 
-	/**
-	 * 
-	 */
+    private String labelText = WIND_STRING;
+    
+    private GeneralPath windsockRedStripes;
+    private GeneralPath windsockWhiteStripes;
+    private GeneralPath windsockOutline;
+    
 	public StreamSpeedPanel(ConsoleLayout console) {
 	    super(console);
 		setVisibility(false);
+		
+        windsockRedStripes = new GeneralPath();
+        windsockRedStripes.moveTo(4, -15);
+        windsockRedStripes.lineTo(-4, -15);
+        windsockRedStripes.lineTo(-5, -5);
+        windsockRedStripes.lineTo(5, -5);
+        windsockRedStripes.closePath();
+
+        windsockRedStripes.moveTo(6, 5);
+        windsockRedStripes.lineTo(-6, 5);
+        windsockRedStripes.lineTo(-7, 15);
+        windsockRedStripes.lineTo(7, 15);
+        windsockRedStripes.closePath();
+
+        windsockWhiteStripes = new GeneralPath();
+        windsockWhiteStripes.moveTo(6, 5);
+        windsockWhiteStripes.lineTo(-6, 5);
+        windsockWhiteStripes.lineTo(-5, -5);
+        windsockWhiteStripes.lineTo(5, -5);
+        windsockWhiteStripes.closePath();
+
+        windsockOutline = new GeneralPath();
+        windsockOutline.moveTo(-7, 15);
+        windsockOutline.lineTo(7, 15);
+        windsockOutline.lineTo(4, -15);
+        windsockOutline.lineTo(-4, -15);
+        windsockOutline.closePath();
 	}
 	
 	@Override
 	public void initSubPanel() {
-		// TODO Auto-generated method stub
-		
 		renderers = getConsole().getSubPanelsOfInterface(ILayerPainter.class);
 		for (ILayerPainter str2d : renderers) {
 			str2d.addPostRenderPainter(this, this.getClass().getSimpleName());
@@ -94,11 +131,13 @@ implements MainVehicleChangeListener, Renderer2DPainter, SubPanelChangeListener 
 		if (initCalled)
 			return;
 		initCalled  = true;
+
+		setupLabel();
+		strX = strY = Double.NaN;
 	}
 		
 	@Override
 	public void subPanelChanged(SubPanelChangeEvent panelChange) {
-
 		if (panelChange == null)
 			return;
 
@@ -120,94 +159,92 @@ implements MainVehicleChangeListener, Renderer2DPainter, SubPanelChangeListener 
 				ILayerPainter str2d = sub;
 				if (str2d != null) {
 					str2d.removePostRenderPainter(this);
-
 				}
 			}
 		}
 	}
 	
-	
 	@Override
 	public void paint(Graphics2D g2, StateRenderer2D renderer) {
-		if(true){
-			int rWidth = renderer.getWidth();
-			double rangle = renderer.getRotation();
-			
-            double windAngle = Math.atan2(strY, strX);
-            rangle -= windAngle;			
-			
-			// box coordinates
-			int width = 70, height = 80;
-			int cornerX = (int) (rWidth - 100 - width);
-	        int cornerY = 10;
-			
-	        // Box
-	        g2.setColor(new Color(255,255,255,100));
-            g2.fillRect(cornerX, cornerY, width, height);
-            g2.setColor(Color.BLACK);
-            g2.drawRect(cornerX, cornerY, width, height);
-            
-            // value
-            DecimalFormat myFormatter = new DecimalFormat("###.##");
-            String output = myFormatter.format(Math.sqrt(strX * strX + strY * strY));
+		int rWidth = renderer.getWidth();
+		double rangle = renderer.getRotation();
+		
+        double windAngle = 0;
+        String speedStr = "?";
+        if (Double.isFinite(strX) && Double.isFinite(strY)) {
+            windAngle = Math.atan2(strY, strX);
+            speedStr = myFormatter.format(Math.sqrt(strX * strX + strY * strY));
+        }
 
-            String text =  output+" m/s";
-            Rectangle2D stringBounds = g2.getFontMetrics().getStringBounds(text, g2);
-            int advance = (int) (width - 20 - stringBounds.getWidth()) / 2;
-            g2.drawString(text, advance + cornerX + 10, cornerY + 25);
-            
-            g2.drawString("wind", 12 + cornerX + 12, cornerY + 11);
-            
-            //arrow
-	        g2.translate(cornerX + width / 2, cornerY + (height)/ 2 + 13);
-	        //AffineTransform identity = g2.getTransform();    
-	        g2.rotate(-rangle);
-	        GeneralPath red = new GeneralPath();
-	        red.moveTo(4, -15);
-	        red.lineTo(-4, -15);
-	        red.lineTo(-5, -5);
-	        red.lineTo(5, -5);
-	        red.closePath();
+        rangle -= windAngle;			
+		
+		// Box coordinates
+		int width = 70, height = 80;
+		int cornerX = (int) (rWidth - 100 - width);
+        int cornerY = 10;
+		
+        // Box
+        g2.setColor(new Color(255,255,255,100));
+        g2.fillRect(cornerX, cornerY, width, height);
+        g2.setColor(Color.BLACK);
+        g2.drawRect(cornerX, cornerY, width, height);
+        
+        String text =  speedStr + " " + MPS_STRING;
+        Rectangle2D stringBounds = g2.getFontMetrics().getStringBounds(text, g2);
+        int advance = (int) (width - 20 - stringBounds.getWidth()) / 2;
+        g2.drawString(text, advance + cornerX + 10, cornerY + 25);
+        
+        g2.drawString(labelText, 12 + cornerX + 12, cornerY + 11);
+        
+        // Draw icon
+        g2.translate(cornerX + width / 2, cornerY + (height)/ 2 + 13);
+        
+        g2.rotate(-rangle);
+        
+        if (WATTER_STRING.equalsIgnoreCase(labelText))
+            g2.setColor(COLOR_STRIPES_WATER);
+        else
+            g2.setColor(COLOR_STRIPES_WIND);
+        g2.fill(windsockRedStripes);
 
-	        red.moveTo(6, 5);
-	        red.lineTo(-6, 5);
-	        red.lineTo(-7, 15);
-	        red.lineTo(7, 15);
-	        red.closePath();
-	        g2.setColor(new Color(255,0,0,150));
-	        g2.fill(red);
-	        
-            GeneralPath white = new GeneralPath();
-            white.moveTo(6, 5);
-            white.lineTo(-6, 5);
-            white.lineTo(-5, -5);
-            white.lineTo(5, -5);
-            white.closePath();
-            g2.setColor(new Color(255,255,255,150));
-            g2.fill(white);
-            
-            GeneralPath outline = new GeneralPath();
-            outline.moveTo(-7, 15);
-            outline.lineTo(7, 15);
-            outline.lineTo(4, -15);
-            outline.lineTo(-4, -15);
-            outline.closePath();
-	       
-	        g2.setColor(Color.BLACK);
-            g2.draw(outline);
-            g2.translate(-(cornerX + width / 2), -(cornerY + (height)/ 2 + 13));
-		}
+        g2.setColor(COLOR_STRIPES_OUTLINE);
+        g2.fill(windsockWhiteStripes);
+        
+        g2.setColor(Color.BLACK);
+        g2.draw(windsockOutline);
+        g2.translate(-(cornerX + width / 2), -(cornerY + (height) / 2 + 13));
 	}
 	
 	@Override
 	public void cleanSubPanel() {
-
 		renderers = getConsole().getSubPanelsOfInterface(ILayerPainter.class);
 		for (ILayerPainter str2d : renderers) {
 			str2d.removePostRenderPainter(this);
 		}
 	}
 
+	@Subscribe
+    public void mainVehicleChangeNotification(ConsoleEventMainSystemChange evt) {
+	    setupLabel();
+	    strX = strY = Double.NaN;
+    }
+
+    private void setupLabel() {
+        String mvid = getMainVehicleId();
+        ImcSystem sys = ImcSystemsHolder.lookupSystemByName(mvid);
+	    if (sys != null) {
+	        switch (sys.getTypeVehicle()) {
+                case USV:
+                case UUV:
+                    labelText = WATTER_STRING;
+                    break;
+                default:
+                    labelText = WIND_STRING;
+                    break;
+            }
+	    }
+    }
+	
     @Subscribe
     public void on(EstimatedStreamVelocity msg) {
         if(!msg.getSourceName().equals(getConsole().getMainSystem()))
