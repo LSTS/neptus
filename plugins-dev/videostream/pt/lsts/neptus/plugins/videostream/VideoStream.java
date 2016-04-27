@@ -341,6 +341,9 @@ public class VideoStream extends ConsolePanel implements ItemListener {
     public VideoStream(ConsoleLayout console) {
         super(console);
 
+        // Initialize size variables
+        updateSizeVariables(this);
+        
         if (findOpenCV()) {
             // clears all the unused initializations of the standard ConsolePanel
             removeAll();
@@ -349,11 +352,7 @@ public class VideoStream extends ConsolePanel implements ItemListener {
                 public void componentResized(ComponentEvent evt) {
                     Component c = evt.getComponent();
                     // System.out.println("Valor: "+widhtConsole+" : "+heightConsole+" INFO: "+evt.toString());
-                    widhtConsole = c.getSize().width;
-                    heightConsole = c.getSize().height;
-                    xScale = (float) widhtConsole / widthImgRec;
-                    yScale = (float) heightConsole / heightImgRec;
-                    size = new Size(widhtConsole, heightConsole);
+                    updateSizeVariables(c);
                     matResize = new Mat((int) size.height, (int) size.width, CvType.CV_8UC3);
                     if (!raspiCam && !ipCam)
                         initImage();
@@ -449,6 +448,14 @@ public class VideoStream extends ConsolePanel implements ItemListener {
             this.add(warningText);
         }
         return;
+    }
+
+    private void updateSizeVariables(Component comp) {
+        widhtConsole = comp.getSize().width;
+        heightConsole = comp.getSize().height;
+        xScale = (float) widhtConsole / widthImgRec;
+        yScale = (float) heightConsole / heightImgRec;
+        size = new Size(widhtConsole, heightConsole);
     }
 
     // Mouse click Listener
