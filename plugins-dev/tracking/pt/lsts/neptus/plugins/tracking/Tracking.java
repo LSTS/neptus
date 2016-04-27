@@ -53,13 +53,20 @@ import javax.swing.JMenuItem;
 import javax.swing.JPopupMenu;
 import javax.swing.KeyStroke;
 
+import org.opencv.core.Core;
 import org.opencv.core.CvType;
 import org.opencv.core.Mat;
+import org.opencv.core.Point;
 import org.opencv.core.Scalar;
 import org.opencv.core.Size;
 import org.opencv.highgui.VideoCapture;
+import org.opencv.imgproc.Imgproc;
+
+import com.google.common.eventbus.Subscribe;
 
 import net.miginfocom.swing.MigLayout;
+import pt.lsts.imc.GetCoordImage;
+import pt.lsts.imc.SetCoordImage;
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.console.ConsoleLayout;
 import pt.lsts.neptus.console.ConsolePanel;
@@ -79,12 +86,13 @@ import pt.lsts.neptus.util.UtilCv;
  * @author pgonçalves
  * @category Tracking
  */
-@SuppressWarnings("serial")
-@Popup(pos = POSITION.RIGHT, width = 640, height = 480, accelerator = 'T')
+@Popup(pos = POSITION.RIGHT, width = 640, height = 480, accelerator = 'O')
 @LayerPriority(priority = 0)
 @PluginDescription(name = "Tracking", version = "1.0", author = "Pedro Gonçalves", description = "Plugin for tracking objects over IPCam", icon = "images/downloader/camera.png")
 public class Tracking extends ConsolePanel implements ItemListener {
     
+    private static final long serialVersionUID = 1L;
+
     @NeptusProperty(name = "Cam1 RTPS URL", editable = false)
     private String cam1RtpsUrl = "rtsp://usercam1:usercam1@10.0.10.42:88/videoMain";
     @NeptusProperty(name = "Cam2 RTPS URL", editable = false)
@@ -94,7 +102,7 @@ public class Tracking extends ConsolePanel implements ItemListener {
     private String cam1RtpsUrl = "rtsp://10.0.20.207:554/live/ch01_0";
     @NeptusProperty(name = "Cam2 RTPS URL", editable = false)
     private String cam2RtpsUrl = "rtsp://10.0.20.209:554/live/ch01_0";*/
-    
+
     // Width size of Console
     private int widhtConsole;
     // Height size of Console
@@ -154,6 +162,11 @@ public class Tracking extends ConsolePanel implements ItemListener {
     // JPopup Menu
     private JPopupMenu popup;
     private boolean startCapture;
+    private SetCoordImage setCoordCam;
+
+    private Point coordCam1;
+    private Point coordCam2;
+    Scalar color;
 
     
     /**
@@ -230,6 +243,10 @@ public class Tracking extends ConsolePanel implements ItemListener {
         textCam1 = new String();
         textCam2 = new String();
         black = new Scalar(0);
+        coordCam1 = new Point();
+        coordCam2 = new Point();
+        color = new Scalar(255, 255, 255, 0);
+        setCoordCam = new SetCoordImage();
         captureCam_1 = updaterThreadCam1();
         captureCam_1.start();
         captureCam_2 = updaterThreadCam2();
@@ -266,27 +283,38 @@ public class Tracking extends ConsolePanel implements ItemListener {
      * Fill image with zeros or null video
      */
     public void initImage() {
-        if (!noVideoLogoState) {
-            if (ImageUtils.getImage("images/novideo.png") == null) {
-                finalMatResizeCam1.setTo(black);
-                offlineImageCam1 = UtilTracking.resizeBufferedImage(UtilCv.matToBufferedImage(finalMatResizeCam1), panelSize, true);
-                finalMatResizeCam2.setTo(black);
-                offlineImageCam2 = UtilTracking.resizeBufferedImage(UtilCv.matToBufferedImage(finalMatResizeCam2), panelSize, true);
+        if( panelSize != null ){
+            if (!noVideoLogoState) {
+                if (ImageUtils.getImage("images/novideo.png") == null) {
+                    finalMatResizeCam1.setTo(black);
+                    offlineImageCam1 = UtilTracking.resizeBufferedImage(UtilCv.matToBufferedImage(finalMatResizeCam1), panelSize, true);
+                    finalMatResizeCam2.setTo(black);
+                    offlineImageCam2 = UtilTracking.resizeBufferedImage(UtilCv.matToBufferedImage(finalMatResizeCam2), panelSize, true);
+                }
+                else {
+                    offlineImageCam1 = UtilTracking.resizeBufferedImage(ImageUtils.toBufferedImage(ImageUtils.getImage("images/novideo.png")), panelSize, true);
+                    offlineImageCam2 = UtilTracking.resizeBufferedImage(ImageUtils.toBufferedImage(ImageUtils.getImage("images/novideo.png")), panelSize, true);
+                }
+
+                if (offlineImageCam1 != null && offlineImageCam2 != null) {
+                    showImage(offlineImageCam1, offlineImageCam2);
+                    noVideoLogoState = true;
+                }
             }
             else {
                 offlineImageCam1 = UtilTracking.resizeBufferedImage(ImageUtils.toBufferedImage(ImageUtils.getImage("images/novideo.png")), panelSize, true);
                 offlineImageCam2 = UtilTracking.resizeBufferedImage(ImageUtils.toBufferedImage(ImageUtils.getImage("images/novideo.png")), panelSize, true);
-            }
-
-            if (offlineImageCam1 != null && offlineImageCam2 != null) {
                 showImage(offlineImageCam1, offlineImageCam2);
-                noVideoLogoState = true;
             }
         }
         else {
-            offlineImageCam1 = UtilTracking.resizeBufferedImage(ImageUtils.toBufferedImage(ImageUtils.getImage("images/novideo.png")), panelSize, true);
-            offlineImageCam2 = UtilTracking.resizeBufferedImage(ImageUtils.toBufferedImage(ImageUtils.getImage("images/novideo.png")), panelSize, true);
-            showImage(offlineImageCam1, offlineImageCam2);
+            try {
+                Thread.sleep(1000);
+            }
+            catch (InterruptedException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
         }
     }
     
@@ -354,7 +382,7 @@ public class Tracking extends ConsolePanel implements ItemListener {
                 }
                 catch (InterruptedException e) {
                 }
-                matCam1 = new Mat((int) panelSize.height, (int) panelSize.width, CvType.CV_8UC3);
+                matCam1 = new Mat(320, 240, CvType.CV_8UC3);
                 boolean isAliveIPCams;
                 boolean stateIPCams = false;
                 while (true) {
@@ -395,6 +423,9 @@ public class Tracking extends ConsolePanel implements ItemListener {
                                 frameSizeCam1.width = matCam1.width();
                                 frameSizeCam1.height = matCam1.height();
                             }
+
+                            Core.circle(matCam1, coordCam1, 14, color, 2);
+
                             long stopTime = System.currentTimeMillis();
                             while((stopTime - startTime) < (1000/fpsMax)) {
                                 stopTime = System.currentTimeMillis();
@@ -441,7 +472,7 @@ public class Tracking extends ConsolePanel implements ItemListener {
                 }
                 catch (InterruptedException e) {
                 }
-                matCam2 = new Mat((int) panelSize.height, (int) panelSize.width, CvType.CV_8UC3);
+                matCam2 = new Mat(320, 240, CvType.CV_8UC3);
                 boolean isAliveIPCams;
                 boolean stateIPCams = false;
                 while (true) {
@@ -481,6 +512,9 @@ public class Tracking extends ConsolePanel implements ItemListener {
                                 frameSizeCam2.width = matCam2.width();
                                 frameSizeCam2.height = matCam2.height();
                             }
+
+                            Core.circle(matCam2, coordCam2, 14, color, 2);
+
                             long stopTime = System.currentTimeMillis();
                             while((stopTime - startTime) < (1000/fpsMax)) {
                                 stopTime = System.currentTimeMillis();
@@ -671,10 +705,21 @@ public class Tracking extends ConsolePanel implements ItemListener {
                     }
                     
                     //TODO -> dispatch to imc message
-                    if (isCam1)
-                        System.out.println("Real Cam1: "+realXCoordCam1+" : "+realYCoordCam1);
-                    else
-                        System.out.println("Real Cam2: "+realXCoordCam2+" : "+realYCoordCam2);
+                    setCoordCam = new SetCoordImage();
+                    if (isCam1) {
+                        //System.out.println("Real Cam1: "+realXCoordCam1+" : "+realYCoordCam1);
+                        setCoordCam.setCamId( (short) 1);
+                        setCoordCam.setX(realXCoordCam1);
+                        setCoordCam.setY(realYCoordCam1);
+                        send(setCoordCam);
+                    }
+                    else {
+                        //System.out.println("Real Cam2: "+realXCoordCam2+" : "+realYCoordCam2);
+                        setCoordCam.setCamId((short) 2);
+                        setCoordCam.setX(realXCoordCam2);
+                        setCoordCam.setY(realYCoordCam2);
+                        send(setCoordCam);
+                    }
                 }
                 if (e.getButton() == MouseEvent.BUTTON3) {
                     popUpMenu(e.getX(), e.getY());
@@ -682,7 +727,7 @@ public class Tracking extends ConsolePanel implements ItemListener {
             }
         });
     }
-    
+
     /**
      * PopUp Menu
      */
@@ -782,5 +827,24 @@ public class Tracking extends ConsolePanel implements ItemListener {
                 }
             }
         });
+    }
+
+    /**
+     * Consume IMC message
+     */
+    @Subscribe
+    public void consume( GetCoordImage msg ) {
+        if (startCapture) {
+            //System.out.println("Source Name "+msg.getSourceName()+" ID "+getMainVehicleId());
+            //System.out.println("VALUES REC: "+msg.getX()+" : "+msg.getY()+" ID: "+msg.getCamId());
+            if (msg.getCamId() == 1) {
+                coordCam1.x = msg.getX();
+                coordCam1.y = msg.getY();
+            }
+            else if (msg.getCamId() == 2) {
+                coordCam2.x = msg.getX();
+                coordCam2.y = msg.getY();
+            }
+        }
     }
 }
