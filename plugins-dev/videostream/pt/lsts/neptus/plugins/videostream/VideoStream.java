@@ -208,10 +208,9 @@ public class VideoStream extends ConsolePanel implements ItemListener {
     private boolean closeComState = false;
     // Url of IPCam
     private String[][] dataUrlIni;
-
     private boolean closingPanel = false;
 
-    boolean refreshTemp;
+    private boolean refreshTemp;
     // JPanel for info and config values
     private JPanel config;
     // JText info of data receive
