@@ -181,6 +181,26 @@ public class TestGridDecomposition {
         }
     }
 
+    public void testSplitCells(int n) {
+        System.out.println("\n --- Testing splitCells() ---");
+        System.out.println("* Original Grid has " + gridDcmp.getAreaCells().size());
+        System.out.println("* Splitting each cell into " + n);
+        GridArea newGrid = (GridArea) gridDcmp.splitCells(4);
+
+        int nCells = newGrid.getAreaCells().size();
+        int correctN = gridDcmp.getAreaCells().size() * 4;
+
+        System.out.println("** New Grid has " + nCells + " cells");
+        System.out.println("** It should have " + correctN);
+        System.out.println("*** Validated: " + (nCells == correctN));
+        System.out.println("** Number of rows: " + newGrid.getNumberOfRows());
+        System.out.println("** Number of columns: " + newGrid.getNumberOfColumns());
+        System.out.println("** Width: " + newGrid.getWidth());
+        System.out.println("** Height: " + newGrid.getHeight());
+        System.out.println("** Cell width: " + newGrid.getCellWidth());
+        System.out.println("** Cell height: " + newGrid.getCellHeight());
+    }
+
     public static void main(String[] args) {
         double[] areasWidths = {1000, 500, 300, 200};
         double[] areasHeights = {1000, 500, 200, 50};
@@ -198,6 +218,7 @@ public class TestGridDecomposition {
             int[] splits = {0, 1, 2, 3, 4};
             for(int j = 0; j < splits.length; j++)
                 gridTest.testSplitDecomposition(j);
+            gridTest.testSplitCells(4);
             System.out.println("\n########\n");
         }
     }
