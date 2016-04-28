@@ -243,6 +243,69 @@ public class ManeuversUtil {
         return newPoints;
     }
 
+    public static Vector<double[]> calcExpansiveSquarePatternPointsMaxBox(
+            double width, double hstep, double bearingRad, boolean invertY) {
+
+        Vector<double[]> newPoints = new Vector<double[]>();
+        
+        final short left = 0, up = 1, right = 2, down = 3;
+        
+        double[] point;;
+        
+        double x = 0;
+        double y = 0;
+        short stepDir = left;
+        int stepX = 1;
+        int stepY = 1;
+        do {
+            point = new double[] { x, y, 0, -1 };
+            newPoints.add(point);
+
+            switch (stepDir) {
+                case left:
+                    x += hstep * stepX;
+                    // y = y;
+                    stepX++;
+                    break;
+                case up:
+                    // x = x;
+                    y += hstep * stepY;
+                    stepY++;
+                    break;
+                case right:
+                    x -= hstep * stepX;
+                    // y = y;
+                    stepX++;
+                    break;
+                case down:
+                    // x = x;;
+                    y -= hstep * stepY;
+                    stepY++;
+                    break;
+                default:
+                    throw new RuntimeException("Something went wrong!!");
+            }
+            stepDir = (short) (++stepDir % 4);
+        } while (Math.abs(x) <= width / 2 || Math.abs(y) <= width / 2);
+
+        double[] le = newPoints.lastElement();
+        le[0] = Math.signum(le[0]) * Math.min(Math.abs(le[0]), width / 2);
+        le[1] = Math.signum(le[1]) * Math.min(Math.abs(le[1]), width / 2);
+        
+        for (double[] pt : newPoints) {
+            double[] res = AngleUtils.rotate(0, pt[X], 0, false);
+            pt[X] = res[0];
+            pt[Y] = pt[Y] + res[1];
+            if (invertY)
+                pt[Y] = -pt[Y];
+            res = AngleUtils.rotate(bearingRad, pt[X], pt[Y], false);
+            pt[X] = res[0];
+            pt[Y] = res[1];
+        }
+
+        return newPoints;
+    }
+
     /**
      * @param g2d
      * @param zoom
