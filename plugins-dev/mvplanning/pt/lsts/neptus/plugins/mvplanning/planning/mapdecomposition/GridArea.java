@@ -259,20 +259,16 @@ public class GridArea extends GeometryElement implements MapDecomposition {
 
                     /* Compute 4 new cells' center locations */
                     LocationType topLeft = new LocationType(cellCenter);
-                    topLeft.setOffsetWest(newCellWidth/2);
-                    topLeft.setOffsetNorth(newCellHeight/2);
+                    topLeft.translatePosition(newCellHeight/2, -newCellWidth/2, 0);
 
                     LocationType topRight = new LocationType(cellCenter);
-                    topLeft.setOffsetEast(newCellWidth/2);
-                    topLeft.setOffsetNorth(newCellHeight/2);
+                    topLeft.translatePosition(newCellHeight/2, newCellWidth/2, 0);
 
                     LocationType bottomLeft = new LocationType(cellCenter);
-                    topLeft.setOffsetWest(newCellWidth/2);
-                    topLeft.setOffsetSouth(newCellHeight/2);
+                    topLeft.translatePosition(-newCellHeight/2, -newCellWidth/2, 0);
 
                     LocationType bottomRight = new LocationType(cellCenter);
-                    topLeft.setOffsetEast(newCellWidth/2);
-                    topLeft.setOffsetSouth(newCellHeight/2);
+                    topLeft.translatePosition(-newCellHeight/2, newCellWidth/2, 0);
 
                     /* TODO check if cells have an obstacle */
                     newGrid[2*i][2*j] = new MapCell(topLeft, false);
