@@ -46,13 +46,16 @@ import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.gui.PropertiesEditor;
 import pt.lsts.neptus.gui.editor.SpeedUnitsEditor;
 import pt.lsts.neptus.gui.editor.renderer.I18nCellRenderer;
+import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.mp.ManeuverLocation;
 import pt.lsts.neptus.renderer2d.StateRenderer2D;
 import pt.lsts.neptus.types.map.MapGroup;
 import pt.lsts.neptus.types.map.PlanElement;
 import pt.lsts.neptus.types.mission.MissionType;
 import pt.lsts.neptus.types.mission.plan.PlanType;
+import pt.lsts.neptus.util.AngleUtils;
 import pt.lsts.neptus.util.GuiUtils;
+import pt.lsts.neptus.util.MathMiscUtils;
 
 import com.l2fprod.common.propertysheet.DefaultProperty;
 import com.l2fprod.common.propertysheet.Property;
@@ -75,6 +78,7 @@ public class RowsPattern extends FollowPath {
 
     public RowsPattern() {
         super();
+        editingHelpText = I18n.text("Ctrl+Click to grow | Shift+Click to rotate");
         recalcPoints();
     }
 
@@ -197,10 +201,18 @@ public class RowsPattern extends FollowPath {
         double yammount = event.getPoint().getY() - lastDragPoint.getY();
         yammount = -yammount;
         if (event.isControlDown()) {
-            width += xammount / (Math.abs(yammount) < 30 ? 10 : 2);
+            double norm = Math.sqrt(xammount * xammount + yammount * yammount);
+            double angle = AngleUtils.calcAngle(lastDragPoint.getY(), lastDragPoint.getX(), event.getPoint().getY(),
+                    event.getPoint().getX());
+            double nx = norm * Math.cos(bearingRad - angle);
+            double ny = norm * Math.sin(bearingRad - angle);
+
+            width += nx / (Math.abs(nx) < 30 ? 10 : 2);
+            width = MathMiscUtils.round(width, 1);
             width = Math.max(1, width);
             if (!ignoreLength) {
-                length += yammount / (Math.abs(yammount) < 30 ? 10 : 2);
+                length += ny / (Math.abs(ny) < 30 ? 10 : 2);
+                length = MathMiscUtils.round(length, 1);
                 length = Math.max(1, length);
             }
             recalcPoints();

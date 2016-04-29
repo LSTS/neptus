@@ -31,9 +31,10 @@
  */
 package pt.lsts.neptus.mp.maneuvers;
 
-
 import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.Cursor;
+import java.awt.Font;
 import java.awt.Dialog.ModalityType;
 import java.awt.Graphics2D;
 import java.awt.Image;
@@ -103,6 +104,10 @@ StateRendererInteraction, IMCSerialization, PathProvider {
     protected static final double RPM_MPS_CONVERSION = (1000/1.3);
     protected static final double RPM_PERCENT_CONVERSION = (1000/100);
     protected static final double PERCENT_MPS_CONVERSION = RPM_MPS_CONVERSION/RPM_PERCENT_CONVERSION;
+    
+    protected static final Color COLOR_HELP = new Color(255, 125, 255);
+    
+    protected String editingHelpText = I18n.text("Shift+Click to rotate | Alt+Click to remove last point");
 
     protected ManeuverLocation startLoc = new ManeuverLocation();
     LocationType previousLoc = null;
@@ -229,6 +234,20 @@ StateRendererInteraction, IMCSerialization, PathProvider {
 
     public void paintOnMap(Graphics2D g2d, PlanElement planElement, StateRenderer2D renderer) {
         super.paintOnMap(g2d, planElement, renderer);
+        
+        if (editing && editingHelpText != null && !editingHelpText.isEmpty()) {
+            Graphics2D g3 = (Graphics2D) g2d.create();
+            Point2D manL = renderer.getScreenPosition(getManeuverLocation());
+            Point2D gL = renderer.getScreenPosition(renderer.getTopLeftLocationType());
+            g3.translate(gL.getX() - manL.getX(), gL.getY() - manL.getY());
+            g3.setFont(new Font("Helvetica", Font.BOLD, 13));
+            g3.setColor(Color.BLACK);
+            g3.drawString(editingHelpText, 55, 15 + 20);
+            g3.setColor(COLOR_HELP);
+            g3.drawString(editingHelpText, 54, 14 + 20);
+            g3.dispose();
+        }
+
         g2d.rotate(-renderer.getRotation());
         g2d.rotate(-Math.PI/2);
         ManeuversUtil.paintPointLineList(g2d, renderer.getZoom(), points, false, 0, editing);
@@ -369,7 +388,7 @@ StateRendererInteraction, IMCSerialization, PathProvider {
     }
 
     public void mousePressed(MouseEvent event, StateRenderer2D source) {
-        adapter.mousePressed(event, source);
+        // adapter.mousePressed(event, source); // Not to rotate the map on shift
     }
 
     public void mouseDragged(MouseEvent event, StateRenderer2D source) {
