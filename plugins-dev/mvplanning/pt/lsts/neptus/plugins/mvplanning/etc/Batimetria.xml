@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <Profile Type="Batimetria">
-    <Z>42.0</Z>
-    <Speed>35.0</Speed>
+    <Z>3</Z>
+    <Speed>1</Speed>
     <Payloads>
         <Payload type="Sidescan">
             <parameters>
