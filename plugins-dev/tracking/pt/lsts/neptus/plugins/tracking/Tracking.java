@@ -64,8 +64,8 @@ import org.opencv.highgui.VideoCapture;
 import com.google.common.eventbus.Subscribe;
 
 import net.miginfocom.swing.MigLayout;
-import pt.lsts.imc.GetCoordImage;
-import pt.lsts.imc.SetCoordImage;
+import pt.lsts.imc.GetImageCoords;
+import pt.lsts.imc.SetImageCoords;
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.console.ConsoleLayout;
 import pt.lsts.neptus.console.ConsolePanel;
@@ -92,6 +92,9 @@ public class Tracking extends ConsolePanel implements ItemListener {
     
     private static final long serialVersionUID = 1L;
 
+    @NeptusProperty(name = "caravela-aux", editable = false)
+    private String remotesystem = "caravela-aux";
+    
     @NeptusProperty(name = "Cam1 RTPS URL", editable = false)
     private String cam1RtpsUrl = "rtsp://usercam1:usercam1@10.0.10.42:88/videoMain";
     @NeptusProperty(name = "Cam2 RTPS URL", editable = false)
@@ -161,7 +164,7 @@ public class Tracking extends ConsolePanel implements ItemListener {
     // JPopup Menu
     private JPopupMenu popup;
     private boolean startCapture;
-    private SetCoordImage setCoordCam;
+    private SetImageCoords setCoordCam;
 
     private Point coordCam1;
     private Point coordCam2;
@@ -245,7 +248,7 @@ public class Tracking extends ConsolePanel implements ItemListener {
         coordCam1 = new Point();
         coordCam2 = new Point();
         color = new Scalar(255, 255, 255, 0);
-        setCoordCam = new SetCoordImage();
+        setCoordCam = new SetImageCoords();
         captureCam_1 = updaterThreadCam1();
         captureCam_1.start();
         captureCam_2 = updaterThreadCam2();
@@ -704,20 +707,20 @@ public class Tracking extends ConsolePanel implements ItemListener {
                     }
                     
                     //TODO -> dispatch to imc message
-                    setCoordCam = new SetCoordImage();
+                    setCoordCam = new SetImageCoords();
                     if (isCam1) {
                         //System.out.println("Real Cam1: "+realXCoordCam1+" : "+realYCoordCam1);
                         setCoordCam.setCamId( (short) 1);
                         setCoordCam.setX(realXCoordCam1);
                         setCoordCam.setY(realYCoordCam1);
-                        send(setCoordCam);
+                        send(remotesystem, setCoordCam);
                     }
                     else {
                         //System.out.println("Real Cam2: "+realXCoordCam2+" : "+realYCoordCam2);
                         setCoordCam.setCamId((short) 2);
                         setCoordCam.setX(realXCoordCam2);
                         setCoordCam.setY(realYCoordCam2);
-                        send(setCoordCam);
+                        send(remotesystem, setCoordCam);
                     }
                 }
                 if (e.getButton() == MouseEvent.BUTTON3) {
@@ -832,7 +835,7 @@ public class Tracking extends ConsolePanel implements ItemListener {
      * Consume IMC message
      */
     @Subscribe
-    public void consume( GetCoordImage msg ) {
+    public void consume( GetImageCoords msg ) {
         if (startCapture) {
             //System.out.println("Source Name "+msg.getSourceName()+" ID "+getMainVehicleId());
             //System.out.println("VALUES REC: "+msg.getX()+" : "+msg.getY()+" ID: "+msg.getCamId());
