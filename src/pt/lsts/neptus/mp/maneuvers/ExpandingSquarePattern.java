@@ -50,6 +50,7 @@ import pt.lsts.neptus.mp.ManeuverLocation;
 import pt.lsts.neptus.plugins.NeptusProperty;
 import pt.lsts.neptus.renderer2d.StateRenderer2D;
 import pt.lsts.neptus.types.map.PlanElement;
+import pt.lsts.neptus.util.AngleUtils;
 import pt.lsts.neptus.util.MathMiscUtils;
 
 /**
@@ -166,7 +167,13 @@ public class ExpandingSquarePattern extends FollowPath {
         double yammount = event.getPoint().getY() - lastDragPoint.getY();
         yammount = -yammount;
         if (event.isControlDown()) {
-            width += xammount / (Math.abs(yammount) < 30 ? 10 : 2);
+            double norm = Math.sqrt(xammount * xammount + yammount * yammount);
+            double angle = AngleUtils.calcAngle(lastDragPoint.getY(), lastDragPoint.getX(), event.getPoint().getY(),
+                    event.getPoint().getX());
+            double nx = norm * Math.cos(Math.toDegrees(bearingDeg) - angle);
+            // double ny = norm * Math.sin(Math.toDegrees(bearingDeg) - angle);
+
+            width += nx / (Math.abs(nx) < 30 ? 10 : 2);
             width = MathMiscUtils.round(width, 1);
             width = Math.max(1, width);
             recalcPoints();

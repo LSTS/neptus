@@ -67,6 +67,7 @@ import pt.lsts.neptus.renderer2d.StateRenderer2D;
 import pt.lsts.neptus.renderer2d.StateRendererInteraction;
 import pt.lsts.neptus.types.coord.LocationType;
 import pt.lsts.neptus.types.map.PlanElement;
+import pt.lsts.neptus.util.AngleUtils;
 import pt.lsts.neptus.util.ConsoleParse;
 import pt.lsts.neptus.util.FileUtil;
 import pt.lsts.neptus.util.GuiUtils;
@@ -345,8 +346,14 @@ IMCSerialization, StatisticsProvider, PathProvider {
         double yammount = event.getPoint().getY() - lastDragPoint.getY();
         yammount = -yammount;
         if (event.isControlDown()) {
-            width += xammount/(Math.abs(xammount) < 30 ? 10 : 2);
-            length += yammount/(Math.abs(yammount) < 30 ? 10 : 2);
+            double norm = Math.sqrt(xammount * xammount + yammount * yammount);
+            double angle = AngleUtils.calcAngle(lastDragPoint.getY(), lastDragPoint.getX(), event.getPoint().getY(),
+                    event.getPoint().getX());
+            double nx = norm * Math.cos(bearingRad - angle);
+            double ny = norm * Math.sin(bearingRad - angle);
+            
+            width += nx / (Math.abs(nx) < 30 ? 10 : 2);
+            length += ny / (Math.abs(ny) < 30 ? 10 : 2);
 
             width = Math.max(1, width);
             length = Math.max(1, length);
