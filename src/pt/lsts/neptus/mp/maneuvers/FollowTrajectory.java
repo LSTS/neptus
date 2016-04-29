@@ -369,7 +369,7 @@ StateRendererInteraction, IMCSerialization, PathProvider {
     }
 
     public void mousePressed(MouseEvent event, StateRenderer2D source) {
-        adapter.mousePressed(event, source);
+        // adapter.mousePressed(event, source); // Not to rotate the map on shift
     }
 
     public void mouseDragged(MouseEvent event, StateRenderer2D source) {
