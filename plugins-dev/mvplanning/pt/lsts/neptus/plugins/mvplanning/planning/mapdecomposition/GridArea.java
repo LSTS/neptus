@@ -162,11 +162,10 @@ public class GridArea extends GeometryElement implements MapDecomposition {
         /* operational area dimensions (rounded to 2 decimal places) */
         gridWidth = (int) Math.ceil(topRight.getDistanceInMeters(topLeft) * 100) / 100;
         gridHeight = (int) Math.ceil(bottomLeft.getDistanceInMeters(topLeft) * 100) / 100;
+        cellHeight = (int) Math.ceil(cellWidth * (gridHeight / gridWidth));
 
-        ncols = (int) (gridWidth / cellWidth);
-        nrows = ncols;
-
-        cellHeight = Math.ceil((gridHeight / nrows) * 100) / 100;
+        ncols = (int) Math.ceil(gridWidth / cellWidth);
+        nrows = (int) Math.ceil(gridHeight / cellHeight);
 
         /* compute grid size */
         decomposedMap = new MapCell[nrows][ncols];
