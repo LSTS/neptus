@@ -46,6 +46,7 @@ import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.gui.PropertiesEditor;
 import pt.lsts.neptus.gui.editor.SpeedUnitsEditor;
 import pt.lsts.neptus.gui.editor.renderer.I18nCellRenderer;
+import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.mp.ManeuverLocation;
 import pt.lsts.neptus.renderer2d.StateRenderer2D;
 import pt.lsts.neptus.types.map.MapGroup;
@@ -77,6 +78,7 @@ public class RowsPattern extends FollowPath {
 
     public RowsPattern() {
         super();
+        editingHelpText = I18n.text("Ctrl+Click to grow | Shift+Click to rotate");
         recalcPoints();
     }
 

@@ -46,6 +46,7 @@ import com.l2fprod.common.propertysheet.Property;
 
 import pt.lsts.imc.IMCMessage;
 import pt.lsts.neptus.NeptusLog;
+import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.mp.ManeuverLocation;
 import pt.lsts.neptus.plugins.NeptusProperty;
 import pt.lsts.neptus.renderer2d.StateRenderer2D;
@@ -74,6 +75,7 @@ public class ExpandingSquarePattern extends FollowPath {
     
     public ExpandingSquarePattern() {
         super();
+        editingHelpText = I18n.text("Ctrl+Click to grow | Shift+Click to rotate");
         recalcPoints();
     }
 

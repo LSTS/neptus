@@ -33,6 +33,7 @@ package pt.lsts.neptus.mp.maneuvers;
 
 import java.awt.Color;
 import java.awt.Cursor;
+import java.awt.Font;
 import java.awt.Graphics2D;
 import java.awt.Image;
 import java.awt.event.FocusEvent;
@@ -82,6 +83,8 @@ import com.l2fprod.common.propertysheet.Property;
  */
 public class RowsManeuver extends Maneuver implements LocatedManeuver, StateRendererInteraction,
 IMCSerialization, StatisticsProvider, PathProvider {
+
+    private static final Color COLOR_HELP = new Color(255, 125, 255);
 
     static boolean unblockNewRows = false;
 
@@ -619,8 +622,23 @@ IMCSerialization, StatisticsProvider, PathProvider {
     @Override
     public void paintOnMap(Graphics2D g2d, PlanElement planElement, StateRenderer2D renderer) {
         super.paintOnMap(g2d, planElement, renderer);
-        g2d.setColor(Color.white);
 
+        if (editing) {
+            Graphics2D g3 = (Graphics2D) g2d.create();
+            Point2D manL = renderer.getScreenPosition(getManeuverLocation());
+            Point2D gL = renderer.getScreenPosition(renderer.getTopLeftLocationType());
+            g3.translate(gL.getX() - manL.getX(), gL.getY() - manL.getY());
+            g3.setFont(new Font("Helvetica", Font.BOLD, 13));
+            String txt = I18n.text("Ctrl+Click to grow | Shift+Click to rotate");
+            g3.setColor(Color.BLACK);
+            g3.drawString(txt, 55, 15 + 20);
+            g3.setColor(COLOR_HELP);
+            g3.drawString(txt, 54, 14 + 20);
+            g3.dispose();
+        }
+        
+        g2d.setColor(Color.white);
+        
         double zoom = renderer.getZoom();
         g2d.rotate(-renderer.getRotation());
 
