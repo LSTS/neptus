@@ -83,6 +83,9 @@ public class GridArea extends GeometryElement implements MapDecomposition {
         this.gridHeight = gridHeight;
         this.center = center;
 
+        setWidth(gridWidth);
+        setHeight(gridHeight);
+
         this.bounds = computeGridBounds();
     }
 
@@ -92,6 +95,9 @@ public class GridArea extends GeometryElement implements MapDecomposition {
         this.gridHeight = gridHeight;
         this.center = center;
         this.env = env;
+
+        setWidth(gridWidth);
+        setHeight(gridHeight);
 
         this.bounds = computeGridBounds();
     }
@@ -109,6 +115,9 @@ public class GridArea extends GeometryElement implements MapDecomposition {
         this.cellHeight = cellHeight;
         this.gridWidth = cellWidth * ncols;
         this.gridHeight = cellHeight * nrows;
+
+        setWidth(gridWidth);
+        setHeight(gridHeight);
 
         this.bounds = computeGridBounds();
     }
@@ -313,14 +322,6 @@ public class GridArea extends GeometryElement implements MapDecomposition {
 
     public double getCellHeight() {
         return cellHeight;
-    }
-
-    public double gridWidth() {
-        return gridWidth;
-    }
-
-    public double gridHeight() {
-        return gridHeight;
     }
 
     @Override
