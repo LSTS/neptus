@@ -167,6 +167,7 @@ public class ExpandingSquarePattern extends FollowPath {
         yammount = -yammount;
         if (event.isControlDown()) {
             width += xammount / (Math.abs(yammount) < 30 ? 10 : 2);
+            width = MathMiscUtils.round(width, 1);
             width = Math.max(1, width);
             recalcPoints();
         }
