@@ -62,7 +62,7 @@ public class TestGridDecomposition {
         this.areaWidth = areaWidth;
         this.areaHeight = areaHeight;
         this.center = center;
-        gridDcmp = new GridArea(20, areaWidth, areaHeight, center);
+        gridDcmp = new GridArea(60, areaWidth, areaHeight, center);
 
         computeGridBounds();
     }
@@ -203,7 +203,7 @@ public class TestGridDecomposition {
 
     public static void main(String[] args) {
         double[] areasWidths = {1000, 500, 300, 200};
-        double[] areasHeights = {1000, 500, 200, 50};
+        double[] areasHeights = {1000, 500, 200, 100};
 
         for(int i = 0; i < areasWidths.length; i++) {
             System.out.println("# Test " + i +  " [" + areasWidths[i] + " x " + areasHeights[i] + "]");
