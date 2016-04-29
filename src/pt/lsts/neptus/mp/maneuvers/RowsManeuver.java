@@ -355,7 +355,9 @@ IMCSerialization, StatisticsProvider, PathProvider {
             width += nx / (Math.abs(nx) < 30 ? 10 : 2);
             length += ny / (Math.abs(ny) < 30 ? 10 : 2);
 
+            width = MathMiscUtils.round(width, 1);
             width = Math.max(1, width);
+            length = MathMiscUtils.round(length, 1);
             length = Math.max(1, length);
             recalcPoints();
         }

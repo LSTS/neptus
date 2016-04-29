@@ -210,6 +210,7 @@ public class RowsPattern extends FollowPath {
             width = Math.max(1, width);
             if (!ignoreLength) {
                 length += ny / (Math.abs(ny) < 30 ? 10 : 2);
+                length = MathMiscUtils.round(length, 1);
                 length = Math.max(1, length);
             }
             recalcPoints();
