@@ -45,9 +45,6 @@ import java.util.ArrayList;
 
 import org.opencv.core.Size;
 
-import pt.lsts.neptus.NeptusLog;
-import pt.lsts.neptus.i18n.I18n;
-
 /** 
  * @author pedrog
  * @version 1.0
@@ -142,7 +139,7 @@ public class UtilVideoStream {
             return dimg;
         }
         else {
-            NeptusLog.pub().warn(I18n.text("Size in resizeBufferedImage must be != NULL and not 0"));
+            //NeptusLog.pub().warn(I18n.text("Size in resizeBufferedImage must be != NULL and not 0"));
             return null;
         }
     }
