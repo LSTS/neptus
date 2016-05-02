@@ -482,6 +482,7 @@ LockableSubPanel, IPeriodicUpdates, NeptusMessageListener {
 
                 if (startTeleOperationStr.equalsIgnoreCase(e.getActionCommand())) {
                     Teleoperation teleop = new Teleoperation();
+                    teleop.setCustom("src="+ImcMsgManager.getManager().getLocalId().intValue());
 
                     int reqId = IMCSendMessageUtils.getNextRequestId();
                     PlanControl pc = new PlanControl();
