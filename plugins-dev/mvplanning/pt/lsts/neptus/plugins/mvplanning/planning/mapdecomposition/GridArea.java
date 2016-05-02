@@ -98,8 +98,6 @@ public class GridArea extends GeometryElement implements MapDecomposition {
 
         setWidth(gridWidth);
         setHeight(gridHeight);
-
-        this.bounds = computeGridBounds();
     }
 
     /**
@@ -118,8 +116,6 @@ public class GridArea extends GeometryElement implements MapDecomposition {
 
         setWidth(gridWidth);
         setHeight(gridHeight);
-
-        this.bounds = computeGridBounds();
     }
 
     /**
@@ -261,13 +257,13 @@ public class GridArea extends GeometryElement implements MapDecomposition {
                     topLeft.translatePosition(newCellHeight/2, -newCellWidth/2, 0);
 
                     LocationType topRight = new LocationType(cellCenter);
-                    topLeft.translatePosition(newCellHeight/2, newCellWidth/2, 0);
+                    topRight.translatePosition(newCellHeight/2, newCellWidth/2, 0);
 
                     LocationType bottomLeft = new LocationType(cellCenter);
-                    topLeft.translatePosition(-newCellHeight/2, -newCellWidth/2, 0);
+                    bottomLeft.translatePosition(-newCellHeight/2, -newCellWidth/2, 0);
 
                     LocationType bottomRight = new LocationType(cellCenter);
-                    topLeft.translatePosition(-newCellHeight/2, newCellWidth/2, 0);
+                    bottomRight.translatePosition(-newCellHeight/2, newCellWidth/2, 0);
 
                     /* TODO check if cells have an obstacle */
                     newGrid[2*i][2*j] = new MapCell(topLeft, false);
@@ -277,8 +273,15 @@ public class GridArea extends GeometryElement implements MapDecomposition {
                     newGrid[2*i + 1][2*j + 1] = new MapCell(bottomRight, false);
                 }
             }
-            return new GridArea(newGrid, newCellWidth, newCellHeight, newRows, newCols, this.center, this.env);
+            GridArea newGridArea = new GridArea(newGrid, newCellWidth, newCellHeight, newRows, newCols, this.center, this.env);
+            newGridArea.setBounds(this.bounds);
+
+            return newGridArea;
         }
+    }
+
+    public void setBounds(LocationType[] bounds) {
+        this.bounds = bounds;
     }
 
     @Override
