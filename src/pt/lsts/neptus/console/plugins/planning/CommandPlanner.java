@@ -84,10 +84,6 @@ import pt.lsts.neptus.types.vehicle.VehiclesHolder;
 @PluginDescription(name = "Command Planner", author = "zp, pdias", icon = "pt/lsts/neptus/console/plugins/kenolaba.png", version = "1.5", category = CATEGORY.PLANNING)
 public class CommandPlanner extends ConsolePanel implements IEditorMenuExtension, NeptusMessageListener {
 
-    private static final String PLAN_PREFIX = "";
-
-    // private static final String[] SPEED_UNITS = new String[] {"RPM", "m/s", "%"};
-
     @NeptusProperty(name = "AUV travelling depth", category = "AUV", description = "Use 0 for going at surface", userLevel = LEVEL.REGULAR)
     public double auvDepth = 0;
 
@@ -97,12 +93,18 @@ public class CommandPlanner extends ConsolePanel implements IEditorMenuExtension
     @NeptusProperty(name = "AUV travelling speed units", category = "AUV", editorClass = SpeedUnitsEditor.class, userLevel = LEVEL.REGULAR)
     public String auvSpeedUnits = I18n.text("RPM");
 
+    @NeptusProperty(name = "AUV loiter depth", category = "AUV", userLevel = LEVEL.REGULAR)
+    public double auvLtDepth = 3;
+    
+    @NeptusProperty(name = "AUV loiter duration in seconds", category = "AUV", userLevel = LEVEL.REGULAR)
+    public int auvLtDuration = 300;
+        
     @NeptusProperty(name = "AUV loiter radius", category = "AUV", userLevel = LEVEL.REGULAR)
     public double auvLoiterRadius = 20;
 
     @NeptusProperty(name = "AUV Station Keeping radius", category = "AUV", userLevel = LEVEL.REGULAR)
     public double auvSkRadius = 15;
-
+    
     @NeptusProperty(name = "UAV Z", category = "UAV", userLevel = LEVEL.REGULAR)
     public double uavZ = 200;
 
@@ -268,7 +270,7 @@ public class CommandPlanner extends ConsolePanel implements IEditorMenuExtension
                                 creator.addManeuver("Goto", "speed", speed, "speedUnits", speedUnit);
                                 PlanType plan = creator.getPlan();
                                 plan.setVehicle(v);
-                                plan.setId(PLAN_PREFIX + "go_" + plan.getId());
+                                plan.setId("cmd-"+v);
                                 plan = addPlanToMission(plan);
                                 startPlan(plan, false, (arg0.getModifiers() & ActionEvent.CTRL_MASK) != 0);
                             }
@@ -311,7 +313,7 @@ public class CommandPlanner extends ConsolePanel implements IEditorMenuExtension
                                         "duration", duration, "radius", radius);
                                 PlanType plan = creator.getPlan();
                                 plan.setVehicle(v);
-                                plan.setId(PLAN_PREFIX + "sk_" + plan.getId());
+                                plan.setId("cmd-"+v);
                                 plan = addPlanToMission(plan);
                                 startPlan(plan, false, (arg0.getModifiers() & ActionEvent.CTRL_MASK) != 0);
                             }
@@ -340,7 +342,8 @@ public class CommandPlanner extends ConsolePanel implements IEditorMenuExtension
                                     speed = auvSpeed;
                                     speedUnit = auvSpeedUnits;
                                     radius = auvLoiterRadius;
-                                    z = auvDepth;
+                                    z = auvLtDepth;
+                                    duration = auvLtDuration;
                                     zunits = Z_UNITS.DEPTH;
                                 }
                                 else if ("asv".equalsIgnoreCase(v.getType()) || "usv".equalsIgnoreCase(v.getType())) {
@@ -368,7 +371,7 @@ public class CommandPlanner extends ConsolePanel implements IEditorMenuExtension
                                         "loiterDuration", duration, "radius", radius);
                                 PlanType plan = creator.getPlan();
                                 plan.setVehicle(v);
-                                plan.setId(PLAN_PREFIX + "lt_" + plan.getId());
+                                plan.setId("cmd-"+v);
                                 plan = addPlanToMission(plan);
                                 startPlan(plan, false, (arg0.getModifiers() & ActionEvent.CTRL_MASK) != 0);
                             }
