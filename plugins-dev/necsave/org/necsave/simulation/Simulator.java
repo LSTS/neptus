@@ -5,6 +5,8 @@ import java.awt.Font;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -132,6 +134,22 @@ public class Simulator extends JPanel {
 				}
 			}
 		});
+		
+
+        extraItemsDialog.addWindowListener(new WindowAdapter() 
+        {
+          public void windowClosed(WindowEvent e)
+          {
+            showMoreBtn.setText("Additional Settings...");
+          }
+         
+          public void windowClosing(WindowEvent e)
+          {
+            showMoreBtn.setText("Additional Settings...");
+          }
+        });
+        
+        
 		buttonsPanel.add(leftSidePanel, BorderLayout.WEST);
 		buttonsPanel.add(rightSidePanel, BorderLayout.EAST);
 
