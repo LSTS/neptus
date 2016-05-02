@@ -225,7 +225,7 @@ public class MVPlanning extends ConsolePanel implements PlanChangeListener, ICon
     public void mouseClicked(MouseEvent event, StateRenderer2D source) {
         if(interactionActive) {
             LocationType lt = source.getRealWorldLocation(event.getPoint());
-            opArea = new GridArea(20, 500, 500, lt);
+            opArea = new GridArea(60, 500, 500, lt);
             opArea.decomposeMap();
 
             String desiredProfile = (String) profiles.getSelectedItem();
