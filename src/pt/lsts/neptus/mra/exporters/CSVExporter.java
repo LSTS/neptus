@@ -62,7 +62,7 @@ import pt.lsts.neptus.util.GuiUtils;
 public class CSVExporter implements MRAExporter {
     
     @NeptusProperty(name = "Message List to Export", editorClass = StringListEditor.class,
-            description = "List of messages to export. Use '!' at the begining tomake it an exclud list.")
+            description = "List of messages to export. Use '!' at the begining to make it an exclude list.")
     public String msgList = "";
 
     private IMraLogGroup source;
