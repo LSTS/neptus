@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<config format="1" version="2016.03.0 (master,75a147e)" system="lauv-noptilus-2" i18n="pt_PT">
+<config format="1" version="2016.03.0 (master,695f0dc,dirty)" system="lauv-noptilus-2" i18n="pt_PT">
   <section name="Motor Controller" name-i18n="Controlador de Motor">
     <param name="Entity Label">
       <name-i18n>Nome da Entidade</name-i18n>
@@ -2099,7 +2099,7 @@
       <type>real</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>20.0</default>
+      <default>10.0</default>
       <units/>
       <desc>Minimum radius for StationKeeping to prevent incompatibility with path controller</desc>
     </param>
@@ -5021,7 +5021,7 @@
       <type>string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>N/C (+5V_3)</default>
+      <default>Private (Auxiliary CPU)</default>
       <units/>
       <desc/>
     </param>
@@ -6785,6 +6785,100 @@
       <min>1.0</min>
     </param>
   </section>
+  <section name="Recovery Supervisor" name-i18n="Recovery Supervisor">
+    <param name="Entity Label">
+      <name-i18n>Nome da Entidade</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>Recovery Supervisor</default>
+      <units/>
+      <desc>Nome principal da entidade</desc>
+    </param>
+    <param name="Execution Priority">
+      <name-i18n>Prioridade de Execução</name-i18n>
+      <type>integer</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>10</default>
+      <units/>
+      <desc>Prioridade de execução</desc>
+    </param>
+    <param name="Activation Time">
+      <name-i18n>Tempo de Ativação</name-i18n>
+      <type>integer</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>0</default>
+      <units/>
+      <desc/>
+    </param>
+    <param name="Deactivation Time">
+      <name-i18n>Tempo de Desativação</name-i18n>
+      <type>integer</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>0</default>
+      <units/>
+      <desc/>
+    </param>
+    <param name="Debug Level">
+      <name-i18n>Nível de Depuração</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>None</default>
+      <units/>
+      <desc/>
+      <values>None, Debug, Trace, Spew</values>
+      <values-i18n>None, Debug, Trace, Spew</values-i18n>
+    </param>
+    <param name="Execution Frequency">
+      <name-i18n>Frequência de Execução</name-i18n>
+      <type>real</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>1.0</default>
+      <units>Hz</units>
+      <desc>Frequência com que a tarefa é executada</desc>
+    </param>
+    <param name="Minimum Ascent Rate">
+      <name-i18n>Minimum Ascent Rate</name-i18n>
+      <type>real</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>0.1</default>
+      <units>m/s</units>
+      <desc>Threshold for the depth rate of change</desc>
+    </param>
+    <param name="Ascent Rate Window Size">
+      <name-i18n>Ascent Rate Window Size</name-i18n>
+      <type>integer</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>5</default>
+      <units/>
+      <desc>Window size for the moving average of the ascent rate</desc>
+    </param>
+    <param name="Stuck Trigger Time">
+      <name-i18n>Stuck Trigger Time</name-i18n>
+      <type>real</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>60.0</default>
+      <units>s</units>
+      <desc>Amount of time, after meeting conditions, before triggering dislodging behavior</desc>
+    </param>
+    <param name="Dislodge Plan Id">
+      <name-i18n>Dislodge Plan Id</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>dislodge</default>
+      <units/>
+      <desc>Dislodge plan id</desc>
+    </param>
+  </section>
   <section name="Clock" name-i18n="Relógio">
     <param name="Entity Label">
       <name-i18n>Nome da Entidade</name-i18n>
@@ -7099,14 +7193,14 @@
       <units>Hz</units>
       <desc>Frequência com que a tarefa é executada</desc>
     </param>
-    <param name="Safe Entities">
-      <name-i18n>Safe Entities</name-i18n>
+    <param name="Vital Entities">
+      <name-i18n>Vital Entities</name-i18n>
       <type>list:string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
       <default/>
       <units/>
-      <desc>Relevant entities when performing a safe plan</desc>
+      <desc>Relevant entities that are always considered regardless of ignoring errors during plan execution</desc>
     </param>
     <param name="Allows External Control">
       <name-i18n>Allows External Control</name-i18n>
@@ -8344,37 +8438,10 @@
       <values>None, Debug, Trace, Spew</values>
       <values-i18n>None, Debug, Trace, Spew</values-i18n>
     </param>
-    <param name="Active - Scope">
-      <name-i18n>Ativa - Escopo</name-i18n>
-      <type>string</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>maneuver</default>
-      <units/>
-      <desc>Escopo do parâmetro 'Ativa'</desc>
-    </param>
-    <param name="Active - Visibility">
-      <name-i18n>Ativa - Visibilidade</name-i18n>
-      <type>string</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>user</default>
-      <units/>
-      <desc>Visibilidade do parâmetro 'Ativa'</desc>
-    </param>
-    <param name="Active">
-      <name-i18n>Ativa</name-i18n>
-      <type>boolean</type>
-      <visibility>user</visibility>
-      <scope>maneuver</scope>
-      <default>1</default>
-      <units/>
-      <desc>Verdadeiro para ativar tarefa, falso caso contrário</desc>
-    </param>
     <param name="Enable Reports">
       <name-i18n>Permitir Relatórios</name-i18n>
       <type>boolean</type>
-      <visibility>user</visibility>
+      <visibility>developer</visibility>
       <scope>global</scope>
       <default>true</default>
       <units/>
@@ -8533,7 +8600,7 @@
       <type>list:string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>AlignmentState, CpuUsage, DevCalibrationControl, DevCalibrationState, Distance, EntityList, EntityParameters, EntityState, EstimatedState, FollowRefState, FuelLevel, Heartbeat, IridiumMsgRx, IridiumMsgTx, IridiumTxStatus, LblEstimate, LblRangeAcceptance, LblConfig, LogBookEntry, LogBookControl, OperationalLimits, PathControlState, PlanControl, PlanControlState, PlanDB, PlanGeneration, PowerChannelState, ReportControl, RemoteActions, RemoteActionsRequest, Rpm, RSSI, SimulatedState, StorageUsage, Temperature, TrexObservation, TrexOperation, TrexToken, TrexPlan, VehicleMedium, VehicleState, Voltage, Current</default>
+      <default>AlignmentState, CpuUsage, Current, DevCalibrationControl, DevCalibrationState, Distance, EntityList, EntityParameters, EntityState, EstimatedState, FollowRefState, FuelLevel, Heartbeat, IridiumMsgRx, IridiumMsgTx, IridiumTxStatus, LblEstimate, LblRangeAcceptance, LblConfig, LogBookEntry, LogBookControl, OperationalLimits, PathControlState, PlanControl, PlanControlState, PlanDB, PlanGeneration, PowerChannelState, ReportControl, RemoteActions, RemoteActionsRequest, Rpm, RSSI, SimulatedState, StorageUsage, Temperature, TrexObservation, TrexOperation, TrexToken, TrexPlan, VehicleMedium, VehicleState, Voltage</default>
       <units/>
       <desc>List of messages to transport</desc>
     </param>

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<config format="1" version="2016.03.0 (master,75a147e)" system="mariner-02" i18n="pt_PT">
+<config format="1" version="2016.03.0 (master,695f0dc,dirty)" system="mariner-02" i18n="pt_PT">
   <section name="Autopilot" name-i18n="Piloto Automático">
     <param name="Entity Label">
       <name-i18n>Nome da Entidade</name-i18n>
@@ -1628,14 +1628,14 @@
       <units>Hz</units>
       <desc>Frequência com que a tarefa é executada</desc>
     </param>
-    <param name="Safe Entities">
-      <name-i18n>Safe Entities</name-i18n>
+    <param name="Vital Entities">
+      <name-i18n>Vital Entities</name-i18n>
       <type>list:string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
       <default/>
       <units/>
-      <desc>Relevant entities when performing a safe plan</desc>
+      <desc>Relevant entities that are always considered regardless of ignoring errors during plan execution</desc>
     </param>
     <param name="Allows External Control">
       <name-i18n>Allows External Control</name-i18n>

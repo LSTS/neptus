@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<config format="1" version="2016.03.0 (master,75a147e)" system="manta-3" i18n="ru_RU">
+<config format="1" version="2016.03.0 (master,695f0dc,dirty)" system="manta-3" i18n="ru_RU">
   <section name="Navigation" name-i18n="Navigation">
     <param name="Entity Label">
       <name-i18n>Entity Label</name-i18n>

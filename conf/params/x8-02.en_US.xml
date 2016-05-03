@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<config format="1" version="2016.03.0 (master,75a147e)" system="x8-02" i18n="en_US">
+<config format="1" version="2016.03.0 (master,695f0dc,dirty)" system="x8-02" i18n="en_US">
   <section name="Height Control" name-i18n="Height Control">
     <param name="Entity Label">
       <name-i18n>Entity Label</name-i18n>
@@ -302,7 +302,7 @@
       <type>boolean</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>True</default>
+      <default>true</default>
       <units/>
       <desc>Reverse Roll Channel</desc>
     </param>
@@ -2092,14 +2092,14 @@
       <units>Hz</units>
       <desc>Frequency at which task is executed</desc>
     </param>
-    <param name="Safe Entities">
-      <name-i18n>Safe Entities</name-i18n>
+    <param name="Vital Entities">
+      <name-i18n>Vital Entities</name-i18n>
       <type>list:string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
       <default/>
       <units/>
-      <desc>Relevant entities when performing a safe plan</desc>
+      <desc>Relevant entities that are always considered regardless of ignoring errors during plan execution</desc>
     </param>
     <param name="Allows External Control">
       <name-i18n>Allows External Control</name-i18n>
@@ -3004,313 +3004,6 @@
       <default>false</default>
       <units/>
       <desc>Only transmit messsages from local system.</desc>
-    </param>
-  </section>
-  <section name="PTUTransport" name-i18n="PTUTransport">
-    <param name="Entity Label">
-      <name-i18n>Entity Label</name-i18n>
-      <type>string</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>PTUTransport</default>
-      <units/>
-      <desc>Main entity label</desc>
-    </param>
-    <param name="Execution Priority">
-      <name-i18n>Execution Priority</name-i18n>
-      <type>integer</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>10</default>
-      <units/>
-      <desc>Execution priority</desc>
-    </param>
-    <param name="Activation Time">
-      <name-i18n>Activation Time</name-i18n>
-      <type>integer</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>0</default>
-      <units/>
-      <desc/>
-    </param>
-    <param name="Deactivation Time">
-      <name-i18n>Deactivation Time</name-i18n>
-      <type>integer</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>0</default>
-      <units/>
-      <desc/>
-    </param>
-    <param name="Debug Level">
-      <name-i18n>Debug Level</name-i18n>
-      <type>string</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>None</default>
-      <units/>
-      <desc/>
-      <values>None, Debug, Trace, Spew</values>
-      <values-i18n>None, Debug, Trace, Spew</values-i18n>
-    </param>
-    <param name="Local Port">
-      <name-i18n>Local Port</name-i18n>
-      <type>integer</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>6020</default>
-      <units/>
-      <desc>Local UDP port to listen on</desc>
-    </param>
-    <param name="Contact Timeout">
-      <name-i18n>Contact Timeout</name-i18n>
-      <type>real</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>30</default>
-      <units>s</units>
-      <desc/>
-    </param>
-    <param name="Contact Refresh Periodicity">
-      <name-i18n>Contact Refresh Periodicity</name-i18n>
-      <type>real</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>5.0</default>
-      <units>s</units>
-      <desc/>
-    </param>
-    <param name="Print Outgoing Messages">
-      <name-i18n>Print Outgoing Messages</name-i18n>
-      <type>boolean</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>false</default>
-      <units/>
-      <desc>Print outgoing messages (Debug)</desc>
-    </param>
-    <param name="Print Incoming Messages">
-      <name-i18n>Print Incoming Messages</name-i18n>
-      <type>boolean</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>false</default>
-      <units/>
-      <desc>Print incoming messages (Debug)</desc>
-    </param>
-    <param name="Static Destinations">
-      <name-i18n>Static Destinations</name-i18n>
-      <type>list:string</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>10.0.30.3:6002</default>
-      <units/>
-      <desc>List of &lt;IPv4&gt;:&lt;Port&gt; destinations that will always receive outgoing messages</desc>
-    </param>
-    <param name="Rate Limiters">
-      <name-i18n>Rate Limiters</name-i18n>
-      <type>list:string</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default/>
-      <units/>
-      <desc>List of &lt;Message&gt;:&lt;Frequency&gt;</desc>
-    </param>
-    <param name="Filtered Entities">
-      <name-i18n>Filtered Entities</name-i18n>
-      <type>list:string</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default/>
-      <units/>
-      <desc>List of &lt;Message&gt;:&lt;Entity&gt;+&lt;Entity&gt; that define the source entities allowed to pass message of a specific message type.</desc>
-    </param>
-    <param name="Announce Service">
-      <name-i18n>Announce Service</name-i18n>
-      <type>boolean</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>true</default>
-      <units/>
-      <desc>Announce this transport to services or not</desc>
-    </param>
-    <param name="Communication Range">
-      <name-i18n>Communication Range</name-i18n>
-      <type>real</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>0</default>
-      <units>m</units>
-      <desc>Communication range (0 for infinite)</desc>
-    </param>
-    <param name="Underwater Communications">
-      <name-i18n>Underwater Communications</name-i18n>
-      <type>boolean</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>false</default>
-      <units/>
-      <desc>Allow underwater communication when limited comms are being simulated</desc>
-    </param>
-    <param name="Transports">
-      <name-i18n>Transports</name-i18n>
-      <type>list:string</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>EstimatedState</default>
-      <units/>
-      <desc>List of messages to transport</desc>
-    </param>
-    <param name="Always Transmitted Messages">
-      <name-i18n>Always Transmitted Messages</name-i18n>
-      <type>list:string</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default/>
-      <units/>
-      <desc>List of messages that will always be transmitted disregarding communication limitations</desc>
-    </param>
-    <param name="Dynamic Nodes">
-      <name-i18n>Dynamic Nodes</name-i18n>
-      <type>boolean</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>true</default>
-      <units/>
-      <desc>Allow use of dynamic nodes.</desc>
-    </param>
-    <param name="Local Messages Only">
-      <name-i18n>Local Messages Only</name-i18n>
-      <type>boolean</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>false</default>
-      <units/>
-      <desc>Only transmit messsages from local system.</desc>
-    </param>
-  </section>
-  <section name="Photo Trigger" name-i18n="Photo Trigger">
-    <param name="Entity Label">
-      <name-i18n>Entity Label</name-i18n>
-      <type>string</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>Photo Trigger</default>
-      <units/>
-      <desc>Main entity label</desc>
-    </param>
-    <param name="Execution Priority">
-      <name-i18n>Execution Priority</name-i18n>
-      <type>integer</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>10</default>
-      <units/>
-      <desc>Execution priority</desc>
-    </param>
-    <param name="Activation Time">
-      <name-i18n>Activation Time</name-i18n>
-      <type>integer</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>0</default>
-      <units/>
-      <desc/>
-    </param>
-    <param name="Deactivation Time">
-      <name-i18n>Deactivation Time</name-i18n>
-      <type>integer</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>0</default>
-      <units/>
-      <desc/>
-    </param>
-    <param name="Debug Level">
-      <name-i18n>Debug Level</name-i18n>
-      <type>string</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>None</default>
-      <units/>
-      <desc/>
-      <values>None, Debug, Trace, Spew</values>
-      <values-i18n>None, Debug, Trace, Spew</values-i18n>
-    </param>
-    <param name="Active - Scope">
-      <name-i18n>Active - Scope</name-i18n>
-      <type>string</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>maneuver</default>
-      <units/>
-      <desc>Scoped of the 'Active' parameter</desc>
-    </param>
-    <param name="Active - Visibility">
-      <name-i18n>Active - Visibility</name-i18n>
-      <type>string</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>user</default>
-      <units/>
-      <desc>Visibility of the 'Active' parameter</desc>
-    </param>
-    <param name="Active">
-      <name-i18n>Active</name-i18n>
-      <type>boolean</type>
-      <visibility>user</visibility>
-      <scope>maneuver</scope>
-      <default>0</default>
-      <units/>
-      <desc>True to activate task, false otherwise</desc>
-    </param>
-    <param name="Trigger with distance">
-      <name-i18n>Trigger with distance</name-i18n>
-      <type>boolean</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>false</default>
-      <units/>
-      <desc>Trigger by using overlap value and distance to previous shot</desc>
-    </param>
-    <param name="Trigger Frequency">
-      <name-i18n>Trigger Frequency</name-i18n>
-      <type>real</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>0.4</default>
-      <units>Hz</units>
-      <desc>Frequency of photo shots</desc>
-      <max>1.0</max>
-    </param>
-    <param name="Photo Overlap">
-      <name-i18n>Photo Overlap</name-i18n>
-      <type>real</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>0.5</default>
-      <units/>
-      <desc>Overlap between consecutive shots</desc>
-      <max>1.0</max>
-    </param>
-    <param name="Focal Length">
-      <name-i18n>Focal Length</name-i18n>
-      <type>real</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>24</default>
-      <units/>
-      <desc>Focal length in mm, equivalent to 35mm sensor</desc>
-    </param>
-    <param name="Altitude">
-      <name-i18n>Altitude</name-i18n>
-      <type>integer</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>100</default>
-      <units/>
-      <desc>Distance to surface (sea or ground)</desc>
     </param>
   </section>
 </config>
