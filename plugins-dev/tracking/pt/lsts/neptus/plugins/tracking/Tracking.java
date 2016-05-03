@@ -168,7 +168,9 @@ public class Tracking extends ConsolePanel implements ItemListener {
 
     private Point coordCam1;
     private Point coordCam2;
-    Scalar color;
+
+    Scalar greenColor;
+    Scalar blueColor;
 
     
     /**
@@ -247,7 +249,8 @@ public class Tracking extends ConsolePanel implements ItemListener {
         black = new Scalar(0);
         coordCam1 = new Point();
         coordCam2 = new Point();
-        color = new Scalar(255, 255, 255, 0);
+        greenColor = new Scalar(0, 255, 0, 0);
+        blueColor = new Scalar(255, 0, 0, 0);
         setCoordCam = new SetImageCoords();
         captureCam_1 = updaterThreadCam1();
         captureCam_1.start();
@@ -426,7 +429,8 @@ public class Tracking extends ConsolePanel implements ItemListener {
                                 frameSizeCam1.height = matCam1.height();
                             }
 
-                            Core.circle(matCam1, coordCam1, 14, color, 2);
+                            Core.rectangle(matCam1, new Point(coordCam1.x - 25, coordCam1.y -25), new Point(coordCam1.x + 25, coordCam1.y + 25), greenColor, 1);
+                            Core.rectangle(matCam1, new Point(coordCam1.x - 45, coordCam1.y -45), new Point(coordCam1.x + 45, coordCam1.y + 45), blueColor, 1);
 
                             long stopTime = System.currentTimeMillis();
                             while((stopTime - startTime) < (1000/fpsMax)) {
@@ -514,8 +518,8 @@ public class Tracking extends ConsolePanel implements ItemListener {
                                 frameSizeCam2.width = matCam2.width();
                                 frameSizeCam2.height = matCam2.height();
                             }
-
-                            Core.circle(matCam2, coordCam2, 14, color, 2);
+                            Core.rectangle(matCam2, new Point(coordCam2.x - 25, coordCam2.y -25), new Point(coordCam2.x + 25, coordCam2.y + 25), greenColor, 1);
+                            Core.rectangle(matCam2, new Point(coordCam2.x - 45, coordCam2.y -45), new Point(coordCam2.x + 45, coordCam2.y + 45), blueColor, 1);
 
                             long stopTime = System.currentTimeMillis();
                             while((stopTime - startTime) < (1000/fpsMax)) {
