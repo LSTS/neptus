@@ -109,6 +109,7 @@ public class MVPlanning extends ConsolePanel implements PlanChangeListener, ICon
     /* Interaction */
     private boolean interactionActive;
     private GridArea opArea;
+    private GridArea megaCells;
 
     public MVPlanning(ConsoleLayout console) {
         super(console);
@@ -228,9 +229,11 @@ public class MVPlanning extends ConsolePanel implements PlanChangeListener, ICon
             opArea = new GridArea(60, 500, 500, lt);
             opArea.decomposeMap();
 
+            megaCells = (GridArea) opArea.splitCells(4);
+
             String desiredProfile = (String) profiles.getSelectedItem();
             String planId = "coverage_" + NameNormalizer.getRandomID();
-            PlanType plan = pGen.generateCoverageArea(availableProfiles.get(desiredProfile), opArea, planId);
+            PlanType plan = pGen.generateCoverageArea(availableProfiles.get(desiredProfile), megaCells, planId);
 
             listModel.addElement(planId);
             selectedPlans.put(planId, plan);
