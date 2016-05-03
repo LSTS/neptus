@@ -41,6 +41,7 @@ import pt.lsts.neptus.types.coord.LocationType;
  *
  */
 public class MapCell {
+    private String id;
     private LocationType centerLoc;
     private List<MapCell> neighbours;
     private boolean hasObstacle;
@@ -56,7 +57,15 @@ public class MapCell {
         this.neighbours = neighbours;
         this.hasObstacle = hasObstacle;
     }
-    
+
+    public String id() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
+    }
+
     public void addNeighbour(MapCell neighCell) {
         neighbours.add(neighCell);
     }
