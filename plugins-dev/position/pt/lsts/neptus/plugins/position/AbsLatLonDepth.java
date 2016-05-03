@@ -35,6 +35,8 @@ import java.awt.Color;
 import java.awt.GridLayout;
 import java.text.DecimalFormat;
 
+import com.google.common.eventbus.Subscribe;
+
 import pt.lsts.imc.IMCMessage;
 import pt.lsts.neptus.comm.manager.imc.ImcSystem;
 import pt.lsts.neptus.comm.manager.imc.ImcSystemsHolder;
@@ -51,8 +53,6 @@ import pt.lsts.neptus.types.coord.CoordinateUtil;
 import pt.lsts.neptus.types.coord.LocationType;
 import pt.lsts.neptus.types.mission.MissionType;
 import pt.lsts.neptus.util.coord.egm96.EGM96Util;
-
-import com.google.common.eventbus.Subscribe;
 
 /**
  * @author zp

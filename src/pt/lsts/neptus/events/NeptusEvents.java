@@ -39,15 +39,15 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import pt.lsts.neptus.NeptusLog;
-import pt.lsts.neptus.console.ConsoleLayout;
-import pt.lsts.neptus.console.ConsolePanel;
-import pt.lsts.neptus.renderer2d.InteractionAdapter;
-
 import com.google.common.eventbus.AsyncEventBus;
 import com.google.common.eventbus.DeadEvent;
 import com.google.common.eventbus.EventBus;
 import com.google.common.eventbus.Subscribe;
+
+import pt.lsts.neptus.NeptusLog;
+import pt.lsts.neptus.console.ConsoleLayout;
+import pt.lsts.neptus.console.ConsolePanel;
+import pt.lsts.neptus.renderer2d.InteractionAdapter;
 
 /**
  * @author Hugo

@@ -47,11 +47,11 @@ import javax.swing.JLabel;
 import javax.swing.UIManager;
 import javax.swing.border.Border;
 
-import pt.lsts.neptus.NeptusLog;
-import pt.lsts.neptus.platform.OsInfo;
-
 import com.jgoodies.looks.LookUtils;
 import com.jgoodies.looks.plastic.PlasticXPLookAndFeel;
+
+import pt.lsts.neptus.NeptusLog;
+import pt.lsts.neptus.platform.OsInfo;
 
 /**
  * @author zp

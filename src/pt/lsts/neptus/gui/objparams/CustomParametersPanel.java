@@ -33,11 +33,11 @@ package pt.lsts.neptus.gui.objparams;
 
 import java.awt.BorderLayout;
 
-import pt.lsts.neptus.gui.PropertiesEditor;
-
 import com.l2fprod.common.propertysheet.Property;
 import com.l2fprod.common.propertysheet.PropertySheet;
 import com.l2fprod.common.propertysheet.PropertySheetPanel;
+
+import pt.lsts.neptus.gui.PropertiesEditor;
 
 public class CustomParametersPanel extends ParametersPanel {
 	

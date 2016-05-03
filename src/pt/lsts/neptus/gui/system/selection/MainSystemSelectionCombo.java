@@ -46,6 +46,9 @@ import javax.swing.JList;
 import javax.swing.ListCellRenderer;
 import javax.swing.SwingConstants;
 
+import com.google.common.eventbus.Subscribe;
+import com.sun.java.swing.plaf.windows.WindowsComboBoxUI;
+
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.console.ConsoleLayout;
 import pt.lsts.neptus.console.events.ConsoleEventMainSystemChange;
@@ -54,9 +57,6 @@ import pt.lsts.neptus.console.events.ConsoleEventVehicleStateChanged;
 import pt.lsts.neptus.console.events.ConsoleEventVehicleStateChanged.STATE;
 import pt.lsts.neptus.events.NeptusEvents;
 import pt.lsts.neptus.i18n.I18n;
-
-import com.google.common.eventbus.Subscribe;
-import com.sun.java.swing.plaf.windows.WindowsComboBoxUI;
 
 /**
  * @author Paulo Dias

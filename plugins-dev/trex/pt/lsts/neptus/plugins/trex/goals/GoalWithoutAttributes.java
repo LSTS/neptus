@@ -34,10 +34,10 @@ package pt.lsts.neptus.plugins.trex.goals;
 import java.util.Collection;
 import java.util.Vector;
 
-import pt.lsts.imc.TrexAttribute;
-
 import com.l2fprod.common.propertysheet.DefaultProperty;
 import com.l2fprod.common.propertysheet.Property;
+
+import pt.lsts.imc.TrexAttribute;
 
 /**
  * @author zp

@@ -48,6 +48,8 @@ import javax.swing.JCheckBox;
 import javax.swing.JPanel;
 import javax.swing.border.Border;
 
+import com.google.common.eventbus.Subscribe;
+
 import net.miginfocom.swing.MigLayout;
 import pt.lsts.imc.LedBrightness;
 import pt.lsts.imc.QueryLedBrightness;
@@ -62,8 +64,6 @@ import pt.lsts.neptus.plugins.Popup;
 import pt.lsts.neptus.plugins.Popup.POSITION;
 import pt.lsts.neptus.plugins.update.IPeriodicUpdates;
 import pt.lsts.neptus.util.GuiUtils;
-
-import com.google.common.eventbus.Subscribe;
 
 /**
  * This panel is responsible for controlling the Leds brightness placed on Adamastor.

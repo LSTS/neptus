@@ -39,7 +39,6 @@ import java.util.Vector;
 
 import javax.vecmath.Point2d;
 
-import pt.lsts.neptus.NeptusLog;
 import drasys.or.graph.DuplicateVertexException;
 import drasys.or.graph.EdgeI;
 import drasys.or.graph.GraphI;
@@ -53,6 +52,7 @@ import drasys.or.graph.vrp.ImproveI;
 import drasys.or.graph.vrp.ImproveWithTSP;
 import drasys.or.graph.vrp.SolutionNotFoundException;
 import drasys.or.graph.vrp.VRPException;
+import pt.lsts.neptus.NeptusLog;
 
 /**
  * @author Rui Gonçalves

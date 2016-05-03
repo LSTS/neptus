@@ -31,26 +31,51 @@
  */
 package pt.lsts.neptus.util.conf;
 
-import org.dom4j.*;
-import org.dom4j.io.SAXReader;
-import pt.lsts.neptus.NeptusLog;
-import pt.lsts.neptus.comm.manager.imc.ImcId16;
-import pt.lsts.neptus.platform.OsInfo;
-import pt.lsts.neptus.plugins.NeptusProperty;
-import pt.lsts.neptus.plugins.NeptusProperty.DistributionEnum;
-import pt.lsts.neptus.util.*;
-import pt.lsts.neptus.util.output.OutputMonitor;
-
-import javax.swing.*;
-import java.awt.*;
-import java.io.*;
+import java.awt.Component;
+import java.awt.Frame;
+import java.awt.Image;
+import java.awt.Toolkit;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.net.Inet4Address;
 import java.net.InetAddress;
 import java.net.NetworkInterface;
 import java.net.URLDecoder;
 import java.text.SimpleDateFormat;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Date;
+import java.util.Enumeration;
+import java.util.Hashtable;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.Properties;
+import java.util.StringTokenizer;
+
+import javax.swing.JDialog;
+import javax.swing.JFrame;
+
+import org.dom4j.Document;
+import org.dom4j.DocumentHelper;
+import org.dom4j.Element;
+import org.dom4j.Node;
+import org.dom4j.XPath;
+import org.dom4j.io.SAXReader;
+
+import pt.lsts.neptus.NeptusLog;
+import pt.lsts.neptus.comm.manager.imc.ImcId16;
+import pt.lsts.neptus.platform.OsInfo;
+import pt.lsts.neptus.plugins.NeptusProperty;
+import pt.lsts.neptus.plugins.NeptusProperty.DistributionEnum;
+import pt.lsts.neptus.util.DateTimeUtil;
+import pt.lsts.neptus.util.FileUtil;
+import pt.lsts.neptus.util.NameNormalizer;
+import pt.lsts.neptus.util.ReflectionUtil;
+import pt.lsts.neptus.util.StreamUtil;
+import pt.lsts.neptus.util.output.OutputMonitor;
 
 /**
  * @author Paulo Dias <pdias@fe.up.pt>

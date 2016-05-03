@@ -40,7 +40,6 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 import pt.lsts.neptus.NeptusLog;
-import pt.lsts.neptus.util.coord.MapTileUtil;
 
 /**
  * @author Hugo Dias

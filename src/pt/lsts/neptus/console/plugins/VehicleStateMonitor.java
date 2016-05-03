@@ -35,6 +35,11 @@ import java.util.Iterator;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
+import com.google.common.eventbus.Subscribe;
+
+import pt.lsts.imc.Teleoperation;
+import pt.lsts.imc.VehicleState;
+import pt.lsts.imc.VehicleState.OP_MODE;
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.comm.manager.imc.ImcSystemsHolder;
 import pt.lsts.neptus.console.ConsoleLayout;
@@ -45,11 +50,6 @@ import pt.lsts.neptus.console.events.ConsoleEventVehicleStateChanged.STATE;
 import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.plugins.PluginDescription;
 import pt.lsts.neptus.plugins.update.IPeriodicUpdates;
-import pt.lsts.imc.Teleoperation;
-import pt.lsts.imc.VehicleState;
-import pt.lsts.imc.VehicleState.OP_MODE;
-
-import com.google.common.eventbus.Subscribe;
 
 /**
  * @author zp

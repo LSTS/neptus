@@ -46,6 +46,8 @@ import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.util.EntityUtils;
 
+import com.google.common.eventbus.Subscribe;
+
 import pt.lsts.imc.Announce;
 import pt.lsts.imc.EstimatedState;
 import pt.lsts.imc.IMCDefinition;
@@ -66,8 +68,6 @@ import pt.lsts.neptus.types.coord.LocationType;
 import pt.lsts.neptus.util.ImageUtils;
 import pt.lsts.neptus.util.conf.GeneralPreferences;
 import pt.lsts.neptus.util.http.client.HttpClientConnectionHelper;
-
-import com.google.common.eventbus.Subscribe;
 
 /**
  * @author pdias

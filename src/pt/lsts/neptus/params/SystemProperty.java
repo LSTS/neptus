@@ -34,13 +34,13 @@ package pt.lsts.neptus.params;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 
-import pt.lsts.neptus.i18n.I18n;
-import pt.lsts.neptus.params.editor.custom.CustomSystemPropertyEditor;
-import pt.lsts.neptus.params.renderer.SystemPropertyRenderer;
-
 import com.l2fprod.common.beans.editor.AbstractPropertyEditor;
 import com.l2fprod.common.propertysheet.DefaultProperty;
 import com.l2fprod.common.swing.renderer.DefaultCellRenderer;
+
+import pt.lsts.neptus.i18n.I18n;
+import pt.lsts.neptus.params.editor.custom.CustomSystemPropertyEditor;
+import pt.lsts.neptus.params.renderer.SystemPropertyRenderer;
 
 /**
  * @author jqcorreia

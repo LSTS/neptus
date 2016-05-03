@@ -45,10 +45,10 @@ import java.util.TimerTask;
 
 import javax.swing.JPanel;
 
-import pt.lsts.neptus.util.GuiUtils;
-
 import com.l2fprod.common.propertysheet.DefaultProperty;
 import com.l2fprod.common.propertysheet.Property;
+
+import pt.lsts.neptus.util.GuiUtils;
 
 /**
  * 

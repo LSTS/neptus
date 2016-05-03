@@ -31,6 +31,7 @@
  */
 package pt.lsts.neptus.mp.preview;
 
+import pt.lsts.imc.EstimatedState;
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.mp.Maneuver;
 import pt.lsts.neptus.mp.ManeuverLocation;
@@ -38,7 +39,6 @@ import pt.lsts.neptus.mp.SystemPositionAndAttitude;
 import pt.lsts.neptus.mp.maneuvers.LocatedManeuver;
 import pt.lsts.neptus.types.coord.LocationType;
 import pt.lsts.neptus.types.mission.plan.PlanType;
-import pt.lsts.imc.EstimatedState;
 
 /**
  * This class simulates the execution of a plan (roughly)

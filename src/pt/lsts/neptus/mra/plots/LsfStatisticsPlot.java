@@ -31,8 +31,8 @@
  */
 package pt.lsts.neptus.mra.plots;
 
-import pt.lsts.neptus.mra.MRAPanel;
 import pt.lsts.imc.lsf.LsfIndex;
+import pt.lsts.neptus.mra.MRAPanel;
 
 /**
  * @author zp

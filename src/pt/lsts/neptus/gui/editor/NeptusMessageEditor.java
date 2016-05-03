@@ -38,9 +38,9 @@ import java.awt.event.ActionListener;
 import javax.swing.JButton;
 import javax.swing.JPanel;
 
-import pt.lsts.imc.IMCMessage;
-
 import com.l2fprod.common.beans.editor.AbstractPropertyEditor;
+
+import pt.lsts.imc.IMCMessage;
 
 /**
  * @author pdias

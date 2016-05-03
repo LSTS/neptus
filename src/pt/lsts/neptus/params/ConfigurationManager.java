@@ -44,6 +44,10 @@ import org.dom4j.Element;
 import org.dom4j.Node;
 import org.dom4j.io.SAXReader;
 
+import com.l2fprod.common.beans.editor.AbstractPropertyEditor;
+import com.l2fprod.common.beans.editor.BooleanAsCheckBoxPropertyEditor;
+import com.l2fprod.common.swing.renderer.DefaultCellRenderer;
+
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.gui.editor.ArrayListEditor;
 import pt.lsts.neptus.gui.editor.ComboEditor;
@@ -61,10 +65,6 @@ import pt.lsts.neptus.params.renderer.I18nSystemPropertyRenderer;
 import pt.lsts.neptus.params.renderer.SystemPropertyRenderer;
 import pt.lsts.neptus.util.FileUtil;
 import pt.lsts.neptus.util.conf.GeneralPreferences;
-
-import com.l2fprod.common.beans.editor.AbstractPropertyEditor;
-import com.l2fprod.common.beans.editor.BooleanAsCheckBoxPropertyEditor;
-import com.l2fprod.common.swing.renderer.DefaultCellRenderer;
 
 /**
  * @author pdias

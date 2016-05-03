@@ -34,6 +34,7 @@ package pt.lsts.neptus.plugins.actualstate;
 import java.util.Vector;
 
 import org.jfree.data.xy.XYSeries;
+
 import pt.lsts.imc.EstimatedState;
 import pt.lsts.imc.IMCMessage;
 import pt.lsts.imc.lsf.LsfIndex;

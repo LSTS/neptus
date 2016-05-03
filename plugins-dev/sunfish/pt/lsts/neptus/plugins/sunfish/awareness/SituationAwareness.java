@@ -49,6 +49,7 @@ import java.awt.geom.Point2D;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
@@ -70,7 +71,6 @@ import javax.swing.event.ChangeListener;
 
 import org.apache.commons.lang.StringUtils;
 import org.jdesktop.swingx.JXTable;
-import java.util.Collections;
 import org.reflections.Reflections;
 
 import pt.lsts.neptus.NeptusLog;

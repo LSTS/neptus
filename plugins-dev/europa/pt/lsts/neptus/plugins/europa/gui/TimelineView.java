@@ -50,6 +50,9 @@ import java.util.Vector;
 
 import javax.swing.JPanel;
 
+import com.google.common.collect.BiMap;
+import com.google.common.collect.HashBiMap;
+
 import psengine.PSConstraint;
 import psengine.PSToken;
 import psengine.PSVarValue;
@@ -57,9 +60,6 @@ import psengine.PSVariable;
 import psengine.PSVariableList;
 import pt.lsts.neptus.plugins.europa.NeptusSolver;
 import pt.lsts.neptus.util.DateTimeUtil;
-
-import com.google.common.collect.BiMap;
-import com.google.common.collect.HashBiMap;
 
 /**
  * @author zp

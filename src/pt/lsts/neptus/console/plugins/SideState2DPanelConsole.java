@@ -37,6 +37,10 @@ import java.awt.GridLayout;
 
 import javax.swing.JPanel;
 
+import com.google.common.eventbus.Subscribe;
+import com.rickyclarkson.java.awt.layout.PercentLayout;
+
+import pt.lsts.imc.EstimatedState;
 import pt.lsts.neptus.comm.IMCUtils;
 import pt.lsts.neptus.console.ConsoleLayout;
 import pt.lsts.neptus.console.ConsolePanel;
@@ -48,10 +52,6 @@ import pt.lsts.neptus.plugins.Popup;
 import pt.lsts.neptus.plugins.Popup.POSITION;
 import pt.lsts.neptus.plugins.update.IPeriodicUpdates;
 import pt.lsts.neptus.util.ConsoleParse;
-import pt.lsts.imc.EstimatedState;
-
-import com.google.common.eventbus.Subscribe;
-import com.rickyclarkson.java.awt.layout.PercentLayout;
 
 @Popup(pos = POSITION.RIGHT, width = 500, height = 500)
 @PluginDescription(name = "2D Side View", icon = "images/buttons/sensorstatus2dbutt.png")

@@ -49,6 +49,18 @@ import javax.swing.JButton;
 import javax.swing.JLayeredPane;
 import javax.swing.JPanel;
 
+import com.l2fprod.common.beans.editor.AbstractPropertyEditor;
+import com.l2fprod.common.beans.editor.ComboBoxPropertyEditor;
+import com.l2fprod.common.propertysheet.DefaultProperty;
+import com.l2fprod.common.propertysheet.Property;
+import com.l2fprod.common.propertysheet.PropertyEditorRegistry;
+import com.l2fprod.common.propertysheet.PropertyRendererRegistry;
+import com.l2fprod.common.propertysheet.PropertySheet;
+import com.l2fprod.common.propertysheet.PropertySheetDialog;
+import com.l2fprod.common.propertysheet.PropertySheetPanel;
+import com.l2fprod.common.swing.BannerPanel;
+import com.l2fprod.common.swing.renderer.DefaultCellRenderer;
+
 import pt.lsts.neptus.colormap.ColorMap;
 import pt.lsts.neptus.comm.manager.imc.ImcId16;
 import pt.lsts.neptus.console.ConsoleLayout;
@@ -78,18 +90,6 @@ import pt.lsts.neptus.util.ImageUtils;
 import pt.lsts.neptus.util.conf.ConfigFetch;
 import pt.lsts.neptus.util.credentials.Credentials;
 import pt.lsts.neptus.util.credentials.CredentialsEditor;
-
-import com.l2fprod.common.beans.editor.AbstractPropertyEditor;
-import com.l2fprod.common.beans.editor.ComboBoxPropertyEditor;
-import com.l2fprod.common.propertysheet.DefaultProperty;
-import com.l2fprod.common.propertysheet.Property;
-import com.l2fprod.common.propertysheet.PropertyEditorRegistry;
-import com.l2fprod.common.propertysheet.PropertyRendererRegistry;
-import com.l2fprod.common.propertysheet.PropertySheet;
-import com.l2fprod.common.propertysheet.PropertySheetDialog;
-import com.l2fprod.common.propertysheet.PropertySheetPanel;
-import com.l2fprod.common.swing.BannerPanel;
-import com.l2fprod.common.swing.renderer.DefaultCellRenderer;
 
 /**
  * This provides a simple way of editing any properties that are provide

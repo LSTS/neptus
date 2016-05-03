@@ -40,6 +40,10 @@ import java.io.FileWriter;
 import javax.imageio.ImageIO;
 import javax.swing.ProgressMonitor;
 
+import com.l2fprod.common.propertysheet.DefaultProperty;
+import com.l2fprod.common.propertysheet.Property;
+
+import convcao.com.agent.NoptilusCoords;
 import pt.lsts.imc.EstimatedState;
 import pt.lsts.imc.lsf.LsfIterator;
 import pt.lsts.neptus.NeptusLog;
@@ -58,11 +62,6 @@ import pt.lsts.neptus.mra.importers.deltat.DeltaTParser;
 import pt.lsts.neptus.plugins.PluginDescription;
 import pt.lsts.neptus.plugins.PluginUtils;
 import pt.lsts.neptus.types.coord.LocationType;
-
-import com.l2fprod.common.propertysheet.DefaultProperty;
-import com.l2fprod.common.propertysheet.Property;
-
-import convcao.com.agent.NoptilusCoords;
 
 /**
  * @author zp

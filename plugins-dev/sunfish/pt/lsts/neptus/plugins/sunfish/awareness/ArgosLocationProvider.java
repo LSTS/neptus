@@ -46,6 +46,9 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
+import fr.cls.argos.dataxmldistribution.service.DixService;
+import fr.cls.argos.dataxmldistribution.service.types.XmlRequestType;
+import fr.cls.argos.dataxmldistribution.service.types.XsdRequestType;
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.console.notifications.Notification;
 import pt.lsts.neptus.data.Pair;
@@ -54,9 +57,6 @@ import pt.lsts.neptus.plugins.PluginUtils;
 import pt.lsts.neptus.plugins.update.Periodic;
 import pt.lsts.neptus.util.GuiUtils;
 import pt.lsts.neptus.util.conf.ConfigFetch;
-import fr.cls.argos.dataxmldistribution.service.DixService;
-import fr.cls.argos.dataxmldistribution.service.types.XmlRequestType;
-import fr.cls.argos.dataxmldistribution.service.types.XsdRequestType;
 
 /**
  * @author zp

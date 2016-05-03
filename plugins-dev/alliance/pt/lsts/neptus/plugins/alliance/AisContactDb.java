@@ -41,6 +41,11 @@ import java.util.LinkedHashMap;
 import java.util.Map.Entry;
 import java.util.Vector;
 
+import de.baderjene.aistoolkit.aisparser.AISObserver;
+import de.baderjene.aistoolkit.aisparser.message.Message;
+import de.baderjene.aistoolkit.aisparser.message.Message01;
+import de.baderjene.aistoolkit.aisparser.message.Message03;
+import de.baderjene.aistoolkit.aisparser.message.Message05;
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.comm.manager.imc.ImcSystemsHolder;
 import pt.lsts.neptus.systems.external.ExternalSystem;
@@ -48,11 +53,6 @@ import pt.lsts.neptus.systems.external.ExternalSystemsHolder;
 import pt.lsts.neptus.types.coord.LocationType;
 import pt.lsts.neptus.types.vehicle.VehicleType.SystemTypeEnum;
 import pt.lsts.neptus.util.NMEAUtils;
-import de.baderjene.aistoolkit.aisparser.AISObserver;
-import de.baderjene.aistoolkit.aisparser.message.Message;
-import de.baderjene.aistoolkit.aisparser.message.Message01;
-import de.baderjene.aistoolkit.aisparser.message.Message03;
-import de.baderjene.aistoolkit.aisparser.message.Message05;
 
 /**
  * @author zp

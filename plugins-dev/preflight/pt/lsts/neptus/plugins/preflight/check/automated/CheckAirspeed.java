@@ -33,7 +33,9 @@ package pt.lsts.neptus.plugins.preflight.check.automated;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+
 import com.google.common.eventbus.Subscribe;
+
 import pt.lsts.imc.IndicatedSpeed;
 import pt.lsts.neptus.plugins.preflight.check.WithinRangeCheck;
 

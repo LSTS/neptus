@@ -36,6 +36,9 @@ import java.util.Collection;
 import java.util.Date;
 import java.util.Vector;
 
+import com.l2fprod.common.propertysheet.DefaultProperty;
+import com.l2fprod.common.propertysheet.Property;
+
 import pt.lsts.imc.TrexAttribute;
 import pt.lsts.imc.TrexAttribute.ATTR_TYPE;
 import pt.lsts.imc.TrexOperation;
@@ -44,9 +47,6 @@ import pt.lsts.imc.TrexToken;
 import pt.lsts.neptus.gui.PropertiesEditor;
 import pt.lsts.neptus.gui.PropertiesProvider;
 import pt.lsts.neptus.gui.editor.UnixTimeEditor;
-
-import com.l2fprod.common.propertysheet.DefaultProperty;
-import com.l2fprod.common.propertysheet.Property;
 
 /**
  * @author zp

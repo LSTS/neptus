@@ -43,10 +43,10 @@ import javax.script.ScriptEngine;
 import javax.script.ScriptEngineManager;
 import javax.script.ScriptException;
 
+import com.l2fprod.common.beans.editor.StringPropertyEditor;
+
 import pt.lsts.imc.state.ImcSystemState;
 import pt.lsts.neptus.plugins.PropertyType;
-
-import com.l2fprod.common.beans.editor.StringPropertyEditor;
 
 /**
  * @author zp

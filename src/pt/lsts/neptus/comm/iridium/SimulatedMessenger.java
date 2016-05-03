@@ -36,11 +36,11 @@ import java.util.Date;
 import java.util.HashSet;
 import java.util.Vector;
 
-import pt.lsts.neptus.comm.manager.imc.ImcMsgManager;
+import com.google.common.eventbus.Subscribe;
+
 import pt.lsts.imc.IridiumMsgRx;
 import pt.lsts.imc.IridiumMsgTx;
-
-import com.google.common.eventbus.Subscribe;
+import pt.lsts.neptus.comm.manager.imc.ImcMsgManager;
 
 /**
  * @author zp

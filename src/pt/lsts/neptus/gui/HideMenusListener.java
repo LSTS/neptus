@@ -38,10 +38,10 @@ import javax.swing.JMenuItem;
 import javax.swing.event.MenuEvent;
 import javax.swing.event.MenuListener;
 
+import com.google.common.eventbus.Subscribe;
+
 import pt.lsts.neptus.events.NeptusEventHiddenMenus;
 import pt.lsts.neptus.events.NeptusEvents;
-
-import com.google.common.eventbus.Subscribe;
 
 /**
  * @author pdias

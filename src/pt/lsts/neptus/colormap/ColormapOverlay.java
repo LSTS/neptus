@@ -46,6 +46,8 @@ import java.io.File;
 import java.util.LinkedHashMap;
 import java.util.Map.Entry;
 
+import pt.lsts.imc.EstimatedState;
+import pt.lsts.imc.lsf.LsfIndex;
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.renderer2d.ImageLayer;
 import pt.lsts.neptus.renderer2d.LayerPriority;
@@ -53,8 +55,6 @@ import pt.lsts.neptus.renderer2d.Renderer2DPainter;
 import pt.lsts.neptus.renderer2d.StateRenderer2D;
 import pt.lsts.neptus.types.coord.LocationType;
 import pt.lsts.neptus.util.GuiUtils;
-import pt.lsts.imc.EstimatedState;
-import pt.lsts.imc.lsf.LsfIndex;
 
 /**
  * @author zp

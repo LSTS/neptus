@@ -51,6 +51,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -66,15 +67,13 @@ import javax.swing.JPopupMenu;
 import javax.swing.ProgressMonitor;
 import javax.swing.plaf.basic.BasicSliderUI;
 
-import net.miginfocom.swing.MigLayout;
-
 import org.imgscalr.Scalr;
-import java.util.Collections;
 import org.opencv.core.Core;
 import org.opencv.core.CvType;
 import org.opencv.core.Mat;
 import org.opencv.imgproc.Imgproc;
 
+import net.miginfocom.swing.MigLayout;
 import pt.lsts.imc.IMCMessage;
 import pt.lsts.imc.lsf.LsfIndex;
 import pt.lsts.neptus.NeptusLog;

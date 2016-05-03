@@ -35,6 +35,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Vector;
 
+import com.google.common.eventbus.AsyncEventBus;
+
 import pt.lsts.imc.AcousticSystems;
 import pt.lsts.imc.EmergencyControlState;
 import pt.lsts.imc.EntityParameters;
@@ -70,8 +72,6 @@ import pt.lsts.neptus.util.MathMiscUtils;
 import pt.lsts.neptus.util.StringUtils;
 import pt.lsts.neptus.util.conf.GeneralPreferences;
 import pt.lsts.neptus.util.conf.PreferencesListener;
-
-import com.google.common.eventbus.AsyncEventBus;
 
 /**
  * @author pdias

@@ -33,13 +33,12 @@ package pt.lsts.neptus.junit.types.coord;
 
 import java.io.ByteArrayOutputStream;
 
-import junit.framework.TestCase;
-
 import org.dom4j.Document;
 import org.dom4j.DocumentHelper;
 import org.dom4j.io.OutputFormat;
 import org.dom4j.io.XMLWriter;
 
+import junit.framework.TestCase;
 import pt.lsts.neptus.types.coord.CoordinateSystem;
 
 /**

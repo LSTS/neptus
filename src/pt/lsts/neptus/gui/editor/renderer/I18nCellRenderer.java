@@ -36,9 +36,9 @@ import java.util.HashMap;
 
 import javax.swing.JTable;
 
-import pt.lsts.neptus.i18n.I18n;
-
 import com.l2fprod.common.swing.renderer.DefaultCellRenderer;
+
+import pt.lsts.neptus.i18n.I18n;
 
 /**
  * @author pdias

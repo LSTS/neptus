@@ -36,6 +36,9 @@ import java.net.URL;
 import java.util.Date;
 import java.util.LinkedHashMap;
 
+import com.google.common.eventbus.Subscribe;
+import com.google.gson.Gson;
+
 import pt.lsts.imc.Announce;
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.comm.IMCUtils;
@@ -43,9 +46,6 @@ import pt.lsts.neptus.comm.iridium.HubIridiumMessenger;
 import pt.lsts.neptus.comm.iridium.HubIridiumMessenger.HubSystemMsg;
 import pt.lsts.neptus.console.notifications.Notification;
 import pt.lsts.neptus.plugins.update.Periodic;
-
-import com.google.common.eventbus.Subscribe;
-import com.google.gson.Gson;
 
 
 /**

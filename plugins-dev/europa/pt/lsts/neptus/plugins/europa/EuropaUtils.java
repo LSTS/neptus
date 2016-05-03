@@ -33,11 +33,12 @@ package pt.lsts.neptus.plugins.europa;
 
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.util.Arrays;
 import java.util.Vector;
 
 import org.apache.commons.lang.StringUtils;
-import java.util.Arrays;
 
+import Jama.Matrix;
 import psengine.PSEngine;
 import psengine.PSLanguageExceptionList;
 import psengine.PSSolver;
@@ -45,7 +46,6 @@ import psengine.PSStringList;
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.loader.helper.CheckJavaOSArch;
 import pt.lsts.neptus.util.FileUtil;
-import Jama.Matrix;
 
 /**
  * @author zp

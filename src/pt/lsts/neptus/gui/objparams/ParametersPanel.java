@@ -34,9 +34,9 @@ package pt.lsts.neptus.gui.objparams;
 
 import javax.swing.JPanel;
 
-import pt.lsts.neptus.types.mission.MissionType;
-
 import com.l2fprod.common.propertysheet.Property;
+
+import pt.lsts.neptus.types.mission.MissionType;
 
 /**
  * @author Ze Carlos

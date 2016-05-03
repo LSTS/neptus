@@ -54,11 +54,12 @@ import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import javax.swing.table.TableCellRenderer;
 
-import net.miginfocom.swing.MigLayout;
-
 import org.jdesktop.swingx.JXTable;
 import org.jdesktop.swingx.decorator.HighlighterFactory;
 
+import com.l2fprod.common.swing.renderer.DefaultCellRenderer;
+
+import net.miginfocom.swing.MigLayout;
 import pt.lsts.imc.lsf.LsfIndex;
 import pt.lsts.neptus.gui.swing.RangeSlider;
 import pt.lsts.neptus.i18n.I18n;
@@ -69,8 +70,6 @@ import pt.lsts.neptus.mra.importers.IMraLogGroup;
 import pt.lsts.neptus.mra.plots.LogMarkerListener;
 import pt.lsts.neptus.mra.visualizations.MRAVisualization;
 import pt.lsts.neptus.util.ImageUtils;
-
-import com.l2fprod.common.swing.renderer.DefaultCellRenderer;
 
 /**
  * @author jqcorreia

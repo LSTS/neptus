@@ -27,11 +27,14 @@
 
 package pt.lsts.neptus.plugins.mjpeg;
 
+import javax.swing.ImageIcon;
+import javax.swing.JButton;
+import javax.swing.JPanel;
+import javax.swing.JToggleButton;
+
 import net.miginfocom.swing.MigLayout;
 import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.util.ImageUtils;
-
-import javax.swing.*;
 
 /**
  * Simple toolbar.

@@ -31,11 +31,11 @@
  */
 package pt.lsts.neptus.plugins.sunfish.awareness;
 
+import com.google.common.eventbus.Subscribe;
+
 import pt.lsts.imc.Announce;
 import pt.lsts.imc.IMCDefinition;
 import pt.lsts.imc.RemoteSensorInfo;
-
-import com.google.common.eventbus.Subscribe;
 
 /**
  * @author zp

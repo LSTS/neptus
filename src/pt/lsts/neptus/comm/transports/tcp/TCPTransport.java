@@ -54,14 +54,14 @@ import java.util.Vector;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
 
+import pt.lsts.imc.IMCDefinition;
+import pt.lsts.imc.IMCMessage;
+import pt.lsts.imc.IMCOutputStream;
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.comm.transports.DeliveryListener;
 import pt.lsts.neptus.comm.transports.DeliveryListener.ResultEnum;
 import pt.lsts.neptus.util.ByteUtil;
 import pt.lsts.neptus.util.conf.ConfigFetch;
-import pt.lsts.imc.IMCDefinition;
-import pt.lsts.imc.IMCMessage;
-import pt.lsts.imc.IMCOutputStream;
 import vrml.eai.ConnectionException;
 
 /**

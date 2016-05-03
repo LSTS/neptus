@@ -33,11 +33,11 @@ package pt.lsts.neptus.console.plugins;
 
 import javax.swing.ImageIcon;
 
+import com.l2fprod.common.propertysheet.PropertySheetPanel;
+
 import pt.lsts.neptus.gui.PropertiesProvider;
 import pt.lsts.neptus.plugins.PluginDescription.CATEGORY;
 import pt.lsts.neptus.util.ImageUtils;
-
-import com.l2fprod.common.propertysheet.PropertySheetPanel;
 
 /**
  * Data structure to hold all the information relevant to one class for settings editing

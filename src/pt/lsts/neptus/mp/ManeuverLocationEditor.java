@@ -39,14 +39,14 @@ import javax.swing.JButton;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 
+import com.l2fprod.common.beans.editor.AbstractPropertyEditor;
+import com.l2fprod.common.beans.editor.FixedButton;
+import com.l2fprod.common.swing.LookAndFeelTweaks;
+
 import pt.lsts.neptus.gui.SimpleLocationPanel;
 import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.mp.ManeuverLocation.Z_UNITS;
 import pt.lsts.neptus.types.coord.LocationType;
-
-import com.l2fprod.common.beans.editor.AbstractPropertyEditor;
-import com.l2fprod.common.beans.editor.FixedButton;
-import com.l2fprod.common.swing.LookAndFeelTweaks;
 
 /**
  * @author ZP

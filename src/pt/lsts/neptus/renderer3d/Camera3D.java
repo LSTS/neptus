@@ -50,10 +50,10 @@ import javax.swing.JPanel;
 import javax.vecmath.Point3d;
 import javax.vecmath.Vector3d;
 
+import com.sun.j3d.exp.swing.JCanvas3D;
+
 import pt.lsts.neptus.types.map.AbstractElement;
 import pt.lsts.neptus.types.vehicle.VehicleType;
-
-import com.sun.j3d.exp.swing.JCanvas3D;
 
 /**
  * @author RJPG This class is used to create a view point in 3D space using spherical coordinates and setting an pivot

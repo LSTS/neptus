@@ -45,6 +45,8 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JToggleButton;
 
+import com.google.common.eventbus.Subscribe;
+
 import pt.lsts.imc.AlignmentState;
 import pt.lsts.imc.EntityActivationState;
 import pt.lsts.imc.EntityParameter;
@@ -71,8 +73,6 @@ import pt.lsts.neptus.types.mission.plan.PlanType;
 import pt.lsts.neptus.util.GuiUtils;
 import pt.lsts.neptus.util.ImageUtils;
 import pt.lsts.neptus.util.speech.SpeechUtil;
-
-import com.google.common.eventbus.Subscribe;
 
 /**
  * This panel will allow monitoring and alignment of some IMUs

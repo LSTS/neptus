@@ -35,10 +35,10 @@ import org.mortbay.jetty.Server;
 import org.mortbay.jetty.servlet.Context;
 import org.mortbay.jetty.servlet.ServletHolder;
 
+import pt.lsts.imc.IMCDefinition;
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.util.conf.ConfigFetch;
 import pt.lsts.neptus.util.logdb.SQLiteSerialization;
-import pt.lsts.imc.IMCDefinition;
 
 public class WebServer {
 	

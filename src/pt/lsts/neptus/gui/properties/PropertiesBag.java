@@ -34,11 +34,11 @@ package pt.lsts.neptus.gui.properties;
 import java.util.LinkedHashMap;
 import java.util.Vector;
 
-import pt.lsts.neptus.gui.PropertiesProvider;
-import pt.lsts.neptus.types.coord.LocationType;
-
 import com.l2fprod.common.propertysheet.DefaultProperty;
 import com.l2fprod.common.propertysheet.Property;
+
+import pt.lsts.neptus.gui.PropertiesProvider;
+import pt.lsts.neptus.types.coord.LocationType;
 
 public class PropertiesBag implements PropertiesProvider {
 

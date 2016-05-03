@@ -41,11 +41,11 @@ import javax.swing.undo.CannotUndoException;
 
 import org.apache.commons.lang.StringUtils;
 
+import com.l2fprod.common.propertysheet.DefaultProperty;
+
 import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.mp.Maneuver;
 import pt.lsts.neptus.types.mission.plan.PlanType;
-
-import com.l2fprod.common.propertysheet.DefaultProperty;
 
 /**
  * @author zp

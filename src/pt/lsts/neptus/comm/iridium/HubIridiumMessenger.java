@@ -51,11 +51,11 @@ import java.util.Vector;
 import org.apache.commons.codec.binary.Hex;
 import org.apache.commons.io.IOUtils;
 
+import com.google.gson.Gson;
+
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.comm.iridium.Position.PosType;
 import pt.lsts.neptus.util.ByteUtil;
-
-import com.google.gson.Gson;
 
 /**
  * @author zp

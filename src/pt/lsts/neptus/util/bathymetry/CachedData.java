@@ -37,12 +37,11 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.text.SimpleDateFormat;
+import java.util.Collections;
 import java.util.Date;
 import java.util.SortedSet;
 import java.util.TreeSet;
 import java.util.Vector;
-
-import java.util.Collections;
 
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.util.GuiUtils;

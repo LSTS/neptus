@@ -37,6 +37,8 @@ import java.awt.Graphics2D;
 import javax.swing.BorderFactory;
 import javax.swing.JLabel;
 
+import com.google.common.eventbus.Subscribe;
+
 import pt.lsts.imc.DesiredHeading;
 import pt.lsts.imc.DesiredZ;
 import pt.lsts.imc.Distance;
@@ -57,8 +59,6 @@ import pt.lsts.neptus.renderer2d.StateRenderer2D;
 import pt.lsts.neptus.types.coord.CoordinateUtil;
 import pt.lsts.neptus.util.MathMiscUtils;
 import pt.lsts.neptus.util.conf.DoubleMinMaxValidator;
-
-import com.google.common.eventbus.Subscribe;
 
 /**
  * @author jqcorreia

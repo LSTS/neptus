@@ -41,13 +41,13 @@ import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 
-import pt.lsts.neptus.NeptusLog;
-import pt.lsts.neptus.types.coord.LocationType;
-import pt.lsts.neptus.util.GuiUtils;
-
 import com.vividsolutions.wms.BoundingBox;
 import com.vividsolutions.wms.MapRequest;
 import com.vividsolutions.wms.WMService;
+
+import pt.lsts.neptus.NeptusLog;
+import pt.lsts.neptus.types.coord.LocationType;
+import pt.lsts.neptus.util.GuiUtils;
 
 /**
  * @author zp

@@ -52,12 +52,12 @@ import javax.vecmath.Point3d;
 import javax.vecmath.TexCoord2f;
 import javax.vecmath.Vector3d;
 
-import pt.lsts.neptus.util.GuiUtils;
-import pt.lsts.neptus.util.ImageUtils;
-
 import com.sun.j3d.utils.geometry.GeometryInfo;
 import com.sun.j3d.utils.geometry.NormalGenerator;
 import com.sun.j3d.utils.image.TextureLoader;
+
+import pt.lsts.neptus.util.GuiUtils;
+import pt.lsts.neptus.util.ImageUtils;
 
 /**
  * @author RJPG

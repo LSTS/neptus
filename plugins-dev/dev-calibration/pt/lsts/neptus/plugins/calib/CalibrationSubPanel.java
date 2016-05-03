@@ -46,6 +46,9 @@ import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
 import javax.swing.border.BevelBorder;
 
+import com.google.common.eventbus.Subscribe;
+import com.jogamp.newt.event.KeyEvent;
+
 import pt.lsts.imc.DevCalibrationControl;
 import pt.lsts.imc.DevCalibrationControl.OP;
 import pt.lsts.imc.DevCalibrationState;
@@ -58,9 +61,6 @@ import pt.lsts.neptus.console.events.ConsoleEventMainSystemChange;
 import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.plugins.PluginDescription;
 import pt.lsts.neptus.plugins.Popup;
-
-import com.google.common.eventbus.Subscribe;
-import com.jogamp.newt.event.KeyEvent;
 
 /**
  * @author zp

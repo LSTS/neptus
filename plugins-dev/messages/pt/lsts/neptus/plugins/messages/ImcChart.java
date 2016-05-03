@@ -31,10 +31,6 @@
  */
 package pt.lsts.neptus.plugins.messages;
 
-import info.monitorenter.gui.chart.ZoomableChart;
-import info.monitorenter.gui.chart.traces.Trace2DLtd;
-import info.monitorenter.util.Range;
-
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.event.MouseAdapter;
@@ -46,6 +42,9 @@ import java.util.Map;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 
+import info.monitorenter.gui.chart.ZoomableChart;
+import info.monitorenter.gui.chart.traces.Trace2DLtd;
+import info.monitorenter.util.Range;
 import pt.lsts.imc.IMCMessage;
 import pt.lsts.neptus.comm.manager.imc.ImcId16;
 import pt.lsts.neptus.plugins.MultiSystemIMCMessageListener;

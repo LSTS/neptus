@@ -39,12 +39,12 @@ import javax.swing.JButton;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 
-import pt.lsts.neptus.mp.actions.PlanActions;
-import pt.lsts.neptus.mp.actions.PlanActionsPanel;
-
 import com.l2fprod.common.beans.editor.AbstractPropertyEditor;
 import com.l2fprod.common.beans.editor.FixedButton;
 import com.l2fprod.common.swing.LookAndFeelTweaks;
+
+import pt.lsts.neptus.mp.actions.PlanActions;
+import pt.lsts.neptus.mp.actions.PlanActionsPanel;
 
 /**
  * @author pdias

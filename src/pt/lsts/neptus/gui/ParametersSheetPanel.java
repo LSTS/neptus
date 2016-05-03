@@ -34,12 +34,12 @@ package pt.lsts.neptus.gui;
 import java.awt.BorderLayout;
 import java.awt.Dimension;
 
-import pt.lsts.neptus.gui.objparams.ParametersPanel;
-
 import com.l2fprod.common.propertysheet.Property;
 import com.l2fprod.common.propertysheet.PropertyEditorFactory;
 import com.l2fprod.common.propertysheet.PropertyRendererFactory;
 import com.l2fprod.common.propertysheet.PropertySheetPanel;
+
+import pt.lsts.neptus.gui.objparams.ParametersPanel;
 
 /**
  * @author ZP

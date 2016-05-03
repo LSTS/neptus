@@ -35,6 +35,9 @@ import java.awt.Component;
 
 import javax.swing.JOptionPane;
 
+import pt.lsts.imc.AcousticSystems;
+import pt.lsts.imc.IMCDefinition;
+import pt.lsts.imc.IMCMessage;
 import pt.lsts.neptus.comm.manager.imc.ImcMsgManager;
 import pt.lsts.neptus.comm.manager.imc.ImcSystem;
 import pt.lsts.neptus.comm.manager.imc.ImcSystemsHolder;
@@ -45,9 +48,6 @@ import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.types.vehicle.VehicleType.SystemTypeEnum;
 import pt.lsts.neptus.util.GuiUtils;
 import pt.lsts.neptus.util.StringUtils;
-import pt.lsts.imc.AcousticSystems;
-import pt.lsts.imc.IMCDefinition;
-import pt.lsts.imc.IMCMessage;
 
 /**
  * @author pdias

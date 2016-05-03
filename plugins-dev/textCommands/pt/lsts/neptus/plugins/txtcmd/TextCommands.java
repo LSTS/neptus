@@ -38,6 +38,7 @@ import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.concurrent.Future;
 
@@ -49,8 +50,10 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 
-import java.util.Collections;
 import org.reflections.Reflections;
+
+import com.jogamp.newt.event.KeyEvent;
+import com.l2fprod.common.propertysheet.PropertySheetPanel;
 
 import pt.lsts.neptus.console.ConsoleLayout;
 import pt.lsts.neptus.console.ConsolePanel;
@@ -71,9 +74,6 @@ import pt.lsts.neptus.types.map.MapType;
 import pt.lsts.neptus.types.map.PlanElement;
 import pt.lsts.neptus.types.mission.plan.PlanType;
 import pt.lsts.neptus.util.GuiUtils;
-
-import com.jogamp.newt.event.KeyEvent;
-import com.l2fprod.common.propertysheet.PropertySheetPanel;
 
 /**
  * @author zp

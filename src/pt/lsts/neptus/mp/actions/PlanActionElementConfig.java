@@ -45,11 +45,11 @@ import org.dom4j.DocumentException;
 import org.dom4j.DocumentHelper;
 import org.dom4j.Element;
 
-import pt.lsts.neptus.comm.manager.imc.MessageEditorImc;
-import pt.lsts.imc.IMCMessage;
-
 import com.l2fprod.common.beans.editor.FixedButton;
 import com.l2fprod.common.swing.LookAndFeelTweaks;
+
+import pt.lsts.imc.IMCMessage;
+import pt.lsts.neptus.comm.manager.imc.MessageEditorImc;
 
 /**
  * @author pdias

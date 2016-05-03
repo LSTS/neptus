@@ -38,14 +38,14 @@ import java.awt.geom.Rectangle2D;
 import java.util.Arrays;
 import java.util.Vector;
 
+import com.l2fprod.common.propertysheet.DefaultProperty;
+import com.l2fprod.common.propertysheet.Property;
+
 import pt.lsts.neptus.graph.DefaultNode;
 import pt.lsts.neptus.graph.NeptusEdgeElement;
 import pt.lsts.neptus.graph.NeptusGraph;
 import pt.lsts.neptus.gui.PropertiesProvider;
 import pt.lsts.neptus.mp.Maneuver;
-
-import com.l2fprod.common.propertysheet.DefaultProperty;
-import com.l2fprod.common.propertysheet.Property;
 /**
  * 
  * @author ZP
