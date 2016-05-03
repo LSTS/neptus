@@ -96,9 +96,9 @@ public class Tracking extends ConsolePanel implements ItemListener {
     private String remotesystem = "caravela-aux";
     
     @NeptusProperty(name = "Cam1 RTPS URL", editable = false)
-    private String cam1RtpsUrl = "rtsp://usercam1:usercam1@10.0.10.42:88/videoMain";
+    private String cam1RtpsUrl = "rtsp://usercam1:usercam1@10.0.10.46:88/videoMain";
     @NeptusProperty(name = "Cam2 RTPS URL", editable = false)
-    private String cam2RtpsUrl = "rtsp://usercam2:usercam2@10.0.10.43:88/videoMain";
+    private String cam2RtpsUrl = "rtsp://usercam2:usercam2@10.0.10.47:88/videoMain";
     
     /*@NeptusProperty(name = "Cam1 RTPS URL", editable = false)
     private String cam1RtpsUrl = "rtsp://10.0.20.207:554/live/ch01_0";
