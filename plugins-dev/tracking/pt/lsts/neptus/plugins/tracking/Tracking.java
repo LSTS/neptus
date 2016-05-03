@@ -138,10 +138,13 @@ public class Tracking extends ConsolePanel implements ItemListener {
     private JLabel warningTextOpenCv;
     // WatchDog variables/objects
     private Thread watchDogCam;
+    private boolean watchDogIsStart;
     private long endTimeMillisCam1;
     private boolean virtualEndThreadCam1;
     private long endTimeMillisCam2;
     private boolean virtualEndThreadCam2;
+    private long endTimeMillisLostCom;
+    private boolean virtualEndThreadLostCom;
     
     private Mat matCam1;
     private Mat matCam2;
@@ -258,6 +261,7 @@ public class Tracking extends ConsolePanel implements ItemListener {
         captureCam_2.start();
         manipulationCams = updaterThreadManipulation();
         manipulationCams.start();
+        watchDogIsStart = false;
         setupWatchDogCam(4000);
     }
     
@@ -391,6 +395,13 @@ public class Tracking extends ConsolePanel implements ItemListener {
                 boolean isAliveIPCams;
                 boolean stateIPCams = false;
                 while (true) {
+                    /*if(captureCam1 != null) {
+                        if(captureCam2 != null) {
+                            if(captureCam1.isOpened() && !captureCam2.isOpened()) {
+                                captureCam1.release();
+                            }
+                        }
+                    }*/
                     if (!closePlugin && startCapture) {
                         if (stateIPCams == false) {
                             captureCam1 = new VideoCapture();
@@ -398,7 +409,10 @@ public class Tracking extends ConsolePanel implements ItemListener {
                             if (captureCam1.isOpened()) {
                                 stateIPCams = true;
                                 NeptusLog.pub().info("Video Strem from IPCam1 is captured");
-                                startWatchDogCam();
+                                if (!watchDogIsStart) {
+                                    startWatchDogCam();
+                                    watchDogIsStart = true;
+                                }
                             }
                             else {
                                 NeptusLog.pub().info("Video Strem from IPCam1 is not captured");
@@ -419,16 +433,18 @@ public class Tracking extends ConsolePanel implements ItemListener {
 
                             if (matCam1.empty()) {
                                 NeptusLog.pub().error(I18n.text("ERROR capturing img of IPCam1"));
-                                closePlugin = true;
-                                startCapture = false;
-                                stateIPCams = false;
+                                if (captureCam1 != null) {
+                                    if(!captureCam1.isOpened()) {
+                                        startCapture = false;
+                                        stateIPCams = false;
+                                    }
+                                }
                                 continue;
                             }
                             else {
                                 frameSizeCam1.width = matCam1.width();
                                 frameSizeCam1.height = matCam1.height();
                             }
-
                             Core.rectangle(matCam1, new Point(coordCam1.x - 25, coordCam1.y -25), new Point(coordCam1.x + 25, coordCam1.y + 25), greenColor, 1);
                             Core.rectangle(matCam1, new Point(coordCam1.x - 45, coordCam1.y -45), new Point(coordCam1.x + 45, coordCam1.y + 45), blueColor, 1);
 
@@ -447,7 +463,8 @@ public class Tracking extends ConsolePanel implements ItemListener {
                     else if (!closePlugin && !startCapture) {
                         closePlugin = true;
                         stateIPCams = false;
-                        captureCam1.release();
+                        if (captureCam1.isOpened())
+                            captureCam1.release();
                     }
                     else {
                         try {
@@ -482,6 +499,13 @@ public class Tracking extends ConsolePanel implements ItemListener {
                 boolean isAliveIPCams;
                 boolean stateIPCams = false;
                 while (true) {
+                    /*if(captureCam2 != null) {
+                        if(captureCam1 != null) {
+                            if(captureCam2.isOpened() && !captureCam1.isOpened()) {
+                                captureCam2.release();
+                            }
+                        }
+                    }*/
                     if (!closePlugin && startCapture) {
                         if (stateIPCams == false || !captureCam2.isOpened()) {
                             captureCam2 = new VideoCapture();
@@ -509,9 +533,12 @@ public class Tracking extends ConsolePanel implements ItemListener {
 
                             if (matCam2.empty()) {
                                 NeptusLog.pub().error(I18n.text("ERROR capturing img of IPCam2"));
-                                closePlugin = true;
-                                startCapture = false;
-                                stateIPCams = false;
+                                if (captureCam2 != null) {
+                                    if(!captureCam2.isOpened()) {
+                                        startCapture = false;
+                                        stateIPCams = false;
+                                    }
+                                }
                                 continue;
                             }
                             else {
@@ -536,7 +563,8 @@ public class Tracking extends ConsolePanel implements ItemListener {
                     else if (!closePlugin && !startCapture) {
                         closePlugin = true;
                         stateIPCams = false;
-                        captureCam2.release();
+                        if (captureCam2.isOpened())
+                            captureCam2.release();
                     }
                     else {
                         try {
@@ -637,6 +665,14 @@ public class Tracking extends ConsolePanel implements ItemListener {
     }
 
     /**
+     * Reset WatchDog for Lost com
+     */
+    private void resetWatchDogLostCom(double timeout) {
+        endTimeMillisLostCom = (long) (System.currentTimeMillis() + timeout);
+        virtualEndThreadLostCom = false;
+    }
+
+    /**
      * WatchDog Method
      */
     private void methodWatchDogCam(double miliseconds) {
@@ -653,6 +689,8 @@ public class Tracking extends ConsolePanel implements ItemListener {
                     showDebug = false;
                     initImage();
                     virtualEndThreadCam1 = true;
+                    virtualEndThreadCam2 = true;
+                    virtualEndThreadLostCom = true;
                 }
             }
             else if (virtualEndThreadCam1) {
@@ -672,7 +710,9 @@ public class Tracking extends ConsolePanel implements ItemListener {
                     startCapture = false;
                     showDebug = false;
                     initImage();
+                    virtualEndThreadCam1 = true;
                     virtualEndThreadCam2 = true;
+                    virtualEndThreadLostCom = true;
                 }
             }
             else if (virtualEndThreadCam2) {
@@ -683,6 +723,30 @@ public class Tracking extends ConsolePanel implements ItemListener {
                 }
             }
             
+            if (System.currentTimeMillis() > endTimeMillisLostCom && !virtualEndThreadLostCom && startCapture) {
+                if (!closePlugin && startCapture) {
+                    NeptusLog.pub().error("Lost communication with vehicle");
+                    NeptusLog.pub().info("Clossing all Video Stream...");
+                    noVideoLogoState = false;
+                    closePlugin = true;
+                    startCapture = false;
+                    showDebug = false;
+                    initImage();
+                    virtualEndThreadCam1 = true;
+                    virtualEndThreadCam2 = true;
+                    virtualEndThreadLostCom = true;
+
+                    forceCloseCapture();
+                }
+            }
+            else if (virtualEndThreadLostCom) {
+                try {
+                    Thread.sleep(1000);
+                }
+                catch (InterruptedException e) {
+                }
+            }
+
             try {
                 Thread.sleep(100);
             }
@@ -691,6 +755,28 @@ public class Tracking extends ConsolePanel implements ItemListener {
         }
     }
     
+    /**
+     * Force close capture of IPCams
+     */
+    private void forceCloseCapture() {
+        try {
+            Thread.sleep(1000);
+        }
+        catch (InterruptedException e) {
+        }
+
+        if (captureCam1 != null) {
+            if (captureCam1.isOpened()) {
+                captureCam1.release();
+            }
+        }
+        if (captureCam2 != null) {
+            if (captureCam2.isOpened()) {
+                captureCam2.release();
+            }
+        }
+    }
+
     /**
      * Mouse click Listener
      */
@@ -710,17 +796,14 @@ public class Tracking extends ConsolePanel implements ItemListener {
                         isCam1 = false;
                     }
                     
-                    //TODO -> dispatch to imc message
                     setCoordCam = new SetImageCoords();
                     if (isCam1) {
-                        //System.out.println("Real Cam1: "+realXCoordCam1+" : "+realYCoordCam1);
                         setCoordCam.setCamId( (short) 1);
                         setCoordCam.setX(realXCoordCam1);
                         setCoordCam.setY(realYCoordCam1);
                         send(remotesystem, setCoordCam);
                     }
                     else {
-                        //System.out.println("Real Cam2: "+realXCoordCam2+" : "+realYCoordCam2);
                         setCoordCam.setCamId((short) 2);
                         setCoordCam.setX(realXCoordCam2);
                         setCoordCam.setY(realYCoordCam2);
@@ -745,6 +828,7 @@ public class Tracking extends ConsolePanel implements ItemListener {
                     public void actionPerformed(ActionEvent e) {
                         startCapture = true;
                         closePlugin = false;
+                        resetWatchDogLostCom(8000);
                     }
                 });
         item1.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_S, ActionEvent.ALT_MASK));
@@ -755,6 +839,7 @@ public class Tracking extends ConsolePanel implements ItemListener {
                         startCapture = false;
                         closePlugin = true;
                         showDebug = false;
+                        forceCloseCapture();
                     }
                 });
         item2.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_C, ActionEvent.ALT_MASK));
@@ -764,10 +849,7 @@ public class Tracking extends ConsolePanel implements ItemListener {
                     public void actionPerformed(ActionEvent e) {
                         if (!startCapture && closePlugin) {
                             NeptusLog.pub().warn(I18n.text("Forcing close of capture"));
-                            if (captureCam1.isOpened())
-                                captureCam1.release();
-                            if (captureCam2.isOpened())
-                                captureCam2.release();
+                            forceCloseCapture();
                         }
                         else {
                             NeptusLog.pub().warn(I18n.text("First try close capture in normal mode"));
@@ -813,19 +895,12 @@ public class Tracking extends ConsolePanel implements ItemListener {
                     startCapture = false;
                     closePlugin = true;
                     showDebug = false;
+                    forceCloseCapture();
                 }
                 else if ((e.getKeyCode() == KeyEvent.VK_F) && ((e.getModifiers() & KeyEvent.ALT_MASK) != 0)) {
                     if (!startCapture && closePlugin) {
                         NeptusLog.pub().warn(I18n.text("Forcing close of capture"));
-                        if (captureCam1 != null) {
-                            if (captureCam1.isOpened())
-                                captureCam1.release();
-                        }
-
-                        if (captureCam2 != null) {
-                            if (captureCam2.isOpened())
-                                captureCam2.release();
-                        }
+                        forceCloseCapture();
                     }
                     else {
                         NeptusLog.pub().warn(I18n.text("First try close capture in normal mode"));
@@ -840,7 +915,7 @@ public class Tracking extends ConsolePanel implements ItemListener {
      */
     @Subscribe
     public void consume( GetImageCoords msg ) {
-        if (startCapture) {
+        if (startCapture && remotesystem.compareTo(msg.getSourceName()) == 0 ) {
             //System.out.println("Source Name "+msg.getSourceName()+" ID "+getMainVehicleId());
             //System.out.println("VALUES REC: "+msg.getX()+" : "+msg.getY()+" ID: "+msg.getCamId());
             if (msg.getCamId() == 1) {
@@ -851,6 +926,7 @@ public class Tracking extends ConsolePanel implements ItemListener {
                 coordCam2.x = msg.getX();
                 coordCam2.y = msg.getY();
             }
+            resetWatchDogLostCom(8000);
         }
     }
 }
