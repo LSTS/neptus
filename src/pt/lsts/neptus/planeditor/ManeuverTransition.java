@@ -31,11 +31,11 @@
  */
 package pt.lsts.neptus.planeditor;
 
-import pt.lsts.neptus.graph.DefaultEdge;
-import pt.lsts.neptus.gui.PropertiesEditor;
-
 import com.l2fprod.common.propertysheet.DefaultProperty;
 import com.l2fprod.common.propertysheet.Property;
+
+import pt.lsts.neptus.graph.DefaultEdge;
+import pt.lsts.neptus.gui.PropertiesEditor;
 /**
  * 
  * @author ZP

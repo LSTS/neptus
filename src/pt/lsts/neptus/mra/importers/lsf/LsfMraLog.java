@@ -37,12 +37,12 @@ import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.Vector;
 
-import pt.lsts.neptus.NeptusLog;
-import pt.lsts.neptus.mra.importers.IMraLog;
 import pt.lsts.imc.IMCDefinition;
 import pt.lsts.imc.IMCMessage;
 import pt.lsts.imc.IMCMessageType;
 import pt.lsts.imc.lsf.LsfIndex;
+import pt.lsts.neptus.NeptusLog;
+import pt.lsts.neptus.mra.importers.IMraLog;
 
 /**
  * @author ZP

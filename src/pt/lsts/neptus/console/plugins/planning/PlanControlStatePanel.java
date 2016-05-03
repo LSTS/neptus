@@ -37,6 +37,8 @@ import java.util.Date;
 import javax.swing.JLabel;
 import javax.swing.SwingConstants;
 
+import com.google.common.eventbus.Subscribe;
+
 import net.miginfocom.swing.MigLayout;
 import pt.lsts.imc.IMCDefinition;
 import pt.lsts.imc.PlanControlState;
@@ -54,8 +56,6 @@ import pt.lsts.neptus.plugins.PluginDescription;
 import pt.lsts.neptus.plugins.update.Periodic;
 import pt.lsts.neptus.util.DateTimeUtil;
 import pt.lsts.neptus.util.GuiUtils;
-
-import com.google.common.eventbus.Subscribe;
 
 /**
  * @author pdias

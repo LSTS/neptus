@@ -48,6 +48,8 @@ import java.util.Vector;
 
 import javax.swing.JPopupMenu;
 
+import com.google.common.eventbus.Subscribe;
+
 import pt.lsts.imc.AcousticOperation;
 import pt.lsts.imc.EstimatedState;
 import pt.lsts.imc.FollowRefState;
@@ -82,8 +84,6 @@ import pt.lsts.neptus.types.vehicle.VehicleType.SystemTypeEnum;
 import pt.lsts.neptus.types.vehicle.VehiclesHolder;
 import pt.lsts.neptus.util.GuiUtils;
 import pt.lsts.neptus.util.conf.ConfigFetch;
-
-import com.google.common.eventbus.Subscribe;
 
 /**
  * @author zp

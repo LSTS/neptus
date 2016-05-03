@@ -57,9 +57,6 @@ import javax.swing.table.AbstractTableModel;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.TableColumnModel;
 
-import net.java.games.input.Component;
-import net.miginfocom.swing.MigLayout;
-
 import org.dom4j.Document;
 import org.dom4j.DocumentException;
 import org.dom4j.DocumentHelper;
@@ -70,6 +67,8 @@ import org.dom4j.io.XMLWriter;
 
 import com.google.common.eventbus.Subscribe;
 
+import net.java.games.input.Component;
+import net.miginfocom.swing.MigLayout;
 import pt.lsts.imc.IMCMessage;
 import pt.lsts.imc.RemoteActions;
 import pt.lsts.imc.RemoteActionsRequest;

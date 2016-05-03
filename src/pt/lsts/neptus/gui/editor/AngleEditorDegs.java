@@ -39,11 +39,11 @@ import javax.swing.JButton;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 
-import pt.lsts.neptus.gui.swing.AnglePanel;
-
 import com.l2fprod.common.beans.editor.AbstractPropertyEditor;
 import com.l2fprod.common.beans.editor.FixedButton;
 import com.l2fprod.common.swing.LookAndFeelTweaks;
+
+import pt.lsts.neptus.gui.swing.AnglePanel;
 
 public class AngleEditorDegs extends AbstractPropertyEditor {
 

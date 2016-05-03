@@ -41,8 +41,8 @@ import javax.swing.JSplitPane;
 import javax.swing.plaf.basic.BasicSplitPaneUI;
 
 import pt.lsts.neptus.console.ConsoleLayout;
-import pt.lsts.neptus.console.ContainerSubPanel;
 import pt.lsts.neptus.console.ConsolePanel;
+import pt.lsts.neptus.console.ContainerSubPanel;
 import pt.lsts.neptus.plugins.ConfigurationListener;
 import pt.lsts.neptus.plugins.NeptusProperty;
 import pt.lsts.neptus.plugins.NeptusProperty.DistributionEnum;

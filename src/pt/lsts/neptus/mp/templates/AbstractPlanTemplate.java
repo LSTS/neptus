@@ -35,6 +35,9 @@ import java.awt.Window;
 
 import javax.swing.ImageIcon;
 
+import com.l2fprod.common.propertysheet.DefaultProperty;
+import com.l2fprod.common.propertysheet.Property;
+
 import pt.lsts.neptus.gui.PropertiesEditor;
 import pt.lsts.neptus.gui.PropertiesProvider;
 import pt.lsts.neptus.plugins.PluginUtils;
@@ -43,9 +46,6 @@ import pt.lsts.neptus.types.mission.MissionType;
 import pt.lsts.neptus.types.mission.plan.PlanType;
 import pt.lsts.neptus.util.ImageUtils;
 import pt.lsts.neptus.util.conf.ConfigFetch;
-
-import com.l2fprod.common.propertysheet.DefaultProperty;
-import com.l2fprod.common.propertysheet.Property;
 
 /**
  * @author zepinto

@@ -43,13 +43,13 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 
+import com.l2fprod.common.beans.editor.AbstractPropertyEditor;
+
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.comm.manager.imc.ImcId16;
 import pt.lsts.neptus.gui.SelectAllFocusListener;
 import pt.lsts.neptus.gui.tablelayout.TableLayout;
 import pt.lsts.neptus.util.GuiUtils;
-
-import com.l2fprod.common.beans.editor.AbstractPropertyEditor;
 
 public class ImcId16Editor extends AbstractPropertyEditor {
 

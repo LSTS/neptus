@@ -34,10 +34,10 @@ package pt.lsts.neptus.params.editor.custom;
 import java.beans.PropertyChangeEvent;
 import java.util.Map;
 
+import com.l2fprod.common.beans.editor.AbstractPropertyEditor;
+
 import pt.lsts.neptus.gui.editor.ValidationEnableInterface;
 import pt.lsts.neptus.params.SystemProperty;
-
-import com.l2fprod.common.beans.editor.AbstractPropertyEditor;
 
 /**
  * @author pdias

@@ -45,12 +45,12 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.LinkedHashMap;
 
-import pt.lsts.neptus.NeptusLog;
-import pt.lsts.neptus.util.FileUtil;
-import pt.lsts.neptus.util.conf.ConfigFetch;
 import pt.lsts.imc.IMCDefinition;
 import pt.lsts.imc.IMCMessage;
 import pt.lsts.imc.IMCMessageType;
+import pt.lsts.neptus.NeptusLog;
+import pt.lsts.neptus.util.FileUtil;
+import pt.lsts.neptus.util.conf.ConfigFetch;
 
 /**
  * @author zp

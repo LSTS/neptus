@@ -31,13 +31,13 @@
  */
 package pt.lsts.neptus.renderer3d;
 
+import com.l2fprod.common.propertysheet.DefaultProperty;
+import com.l2fprod.common.propertysheet.Property;
+
 import pt.lsts.neptus.console.plugins.JVideoPanelConsole;
 import pt.lsts.neptus.gui.PropertiesEditor;
 import pt.lsts.neptus.gui.PropertiesProvider;
 import pt.lsts.neptus.gui.editor.ComboEditor;
-
-import com.l2fprod.common.propertysheet.DefaultProperty;
-import com.l2fprod.common.propertysheet.Property;
 
 public class ProjectionPropertiesProvider implements PropertiesProvider {
 

@@ -61,6 +61,8 @@ import org.jdesktop.swingx.painter.CompoundPainter;
 import org.jdesktop.swingx.painter.GlossPainter;
 import org.jdesktop.swingx.painter.RectanglePainter;
 
+import foxtrot.AsyncTask;
+import foxtrot.AsyncWorker;
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.ftp.FtpDownloader;
 import pt.lsts.neptus.gui.MiniButton;
@@ -73,8 +75,6 @@ import pt.lsts.neptus.util.MovingAverage;
 import pt.lsts.neptus.util.StreamUtil;
 import pt.lsts.neptus.util.concurrency.QueueWorkTickets;
 import pt.lsts.neptus.util.conf.GeneralPreferences;
-import foxtrot.AsyncTask;
-import foxtrot.AsyncWorker;
 
 /**
  * @author pdias

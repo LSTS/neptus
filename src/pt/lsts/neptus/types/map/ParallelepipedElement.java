@@ -42,12 +42,12 @@ import javax.media.j3d.BranchGroup;
 import javax.media.j3d.Canvas3D;
 import javax.swing.JFrame;
 
+import com.sun.j3d.utils.geometry.Sphere;
+import com.sun.j3d.utils.universe.SimpleUniverse;
+
 import pt.lsts.neptus.renderer2d.StateRenderer2D;
 import pt.lsts.neptus.renderer3d.Util3D;
 import pt.lsts.neptus.types.coord.LocationType;
-
-import com.sun.j3d.utils.geometry.Sphere;
-import com.sun.j3d.utils.universe.SimpleUniverse;
 
 /**
  * Refactored in 06/11/2006.

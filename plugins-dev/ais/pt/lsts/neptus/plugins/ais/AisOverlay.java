@@ -47,6 +47,7 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Vector;
 
 import javax.swing.JMenu;
@@ -55,7 +56,8 @@ import javax.swing.JPopupMenu;
 
 import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.methods.GetMethod;
-import java.util.Collections;
+
+import com.google.gson.Gson;
 
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.console.ConsoleLayout;
@@ -72,8 +74,6 @@ import pt.lsts.neptus.renderer2d.LayerPriority;
 import pt.lsts.neptus.renderer2d.StateRenderer2D;
 import pt.lsts.neptus.types.coord.LocationType;
 import pt.lsts.neptus.util.GuiUtils;
-
-import com.google.gson.Gson;
 
 /**
  * @author zp

@@ -55,8 +55,8 @@ import org.jdesktop.swingx.painter.GlossPainter;
 import org.jdesktop.swingx.painter.MattePainter;
 
 import pt.lsts.neptus.console.ConsoleLayout;
-import pt.lsts.neptus.console.ContainerSubPanel;
 import pt.lsts.neptus.console.ConsolePanel;
+import pt.lsts.neptus.console.ContainerSubPanel;
 import pt.lsts.neptus.plugins.NeptusProperty;
 import pt.lsts.neptus.plugins.PluginDescription;
 import pt.lsts.neptus.util.FileUtil;

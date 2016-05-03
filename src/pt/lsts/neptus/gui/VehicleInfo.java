@@ -68,6 +68,9 @@ import javax.swing.tree.DefaultMutableTreeNode;
 
 import org.dom4j.Document;
 
+import com.l2fprod.common.propertysheet.DefaultProperty;
+import com.l2fprod.common.propertysheet.Property;
+
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.comm.manager.imc.ImcId16;
 import pt.lsts.neptus.comm.manager.imc.ImcMsgManager;
@@ -86,9 +89,6 @@ import pt.lsts.neptus.util.FileUtil;
 import pt.lsts.neptus.util.GuiUtils;
 import pt.lsts.neptus.util.JTreeUtils;
 import pt.lsts.neptus.util.editors.EditorLauncher;
-
-import com.l2fprod.common.propertysheet.DefaultProperty;
-import com.l2fprod.common.propertysheet.Property;
 
 /**
  * @author Paulo Dias

@@ -49,6 +49,8 @@ import javax.swing.JToggleButton;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
+import com.google.common.eventbus.Subscribe;
+
 import pt.lsts.imc.TrexAttribute;
 import pt.lsts.imc.TrexToken;
 import pt.lsts.neptus.console.ConsoleLayout;
@@ -57,8 +59,6 @@ import pt.lsts.neptus.plugins.PluginDescription;
 import pt.lsts.neptus.plugins.Popup;
 import pt.lsts.neptus.plugins.Popup.POSITION;
 import pt.lsts.neptus.plugins.update.Periodic;
-
-import com.google.common.eventbus.Subscribe;
 
 /**
  * @author zp

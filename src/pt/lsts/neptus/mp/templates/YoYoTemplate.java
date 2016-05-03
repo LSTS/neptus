@@ -33,14 +33,14 @@ package pt.lsts.neptus.mp.templates;
 
 import java.util.LinkedHashMap;
 
+import com.l2fprod.common.propertysheet.DefaultProperty;
+
 import pt.lsts.neptus.comm.IMCUtils;
 import pt.lsts.neptus.mp.Maneuver.SPEED_UNITS;
 import pt.lsts.neptus.plugins.NeptusProperty;
 import pt.lsts.neptus.plugins.PluginDescription;
 import pt.lsts.neptus.types.coord.LocationType;
 import pt.lsts.neptus.types.mission.plan.PlanType;
-
-import com.l2fprod.common.propertysheet.DefaultProperty;
 
 /**
  * @author zepinto

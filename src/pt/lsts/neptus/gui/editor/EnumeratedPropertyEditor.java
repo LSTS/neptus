@@ -36,10 +36,10 @@ import java.util.Set;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.JComboBox;
 
+import com.l2fprod.common.beans.editor.AbstractPropertyEditor;
+
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.messages.Enumerated;
-
-import com.l2fprod.common.beans.editor.AbstractPropertyEditor;
 
 
 

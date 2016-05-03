@@ -62,6 +62,14 @@ import javax.swing.JScrollPane;
 import javax.swing.JTextField;
 import javax.swing.JToolBar;
 
+import com.lowagie.text.Document;
+import com.lowagie.text.PageSize;
+import com.lowagie.text.Rectangle;
+import com.lowagie.text.pdf.PdfContentByte;
+import com.lowagie.text.pdf.PdfWriter;
+
+import foxtrot.AsyncTask;
+import foxtrot.AsyncWorker;
 import net.miginfocom.swing.MigLayout;
 import pt.lsts.imc.EstimatedState;
 import pt.lsts.imc.IMCMessage;
@@ -82,15 +90,6 @@ import pt.lsts.neptus.mra.importers.IMraLogGroup;
 import pt.lsts.neptus.types.coord.LocationType;
 import pt.lsts.neptus.util.GuiUtils;
 import pt.lsts.neptus.util.ImageUtils;
-
-import com.lowagie.text.Document;
-import com.lowagie.text.PageSize;
-import com.lowagie.text.Rectangle;
-import com.lowagie.text.pdf.PdfContentByte;
-import com.lowagie.text.pdf.PdfWriter;
-
-import foxtrot.AsyncTask;
-import foxtrot.AsyncWorker;
 
 /**
  * @author ZP

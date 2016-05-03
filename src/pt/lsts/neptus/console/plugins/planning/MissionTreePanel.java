@@ -57,6 +57,8 @@ import javax.swing.JOptionPane;
 import javax.swing.JPopupMenu;
 import javax.swing.SwingWorker;
 
+import com.google.common.eventbus.Subscribe;
+
 import pt.lsts.imc.IMCDefinition;
 import pt.lsts.imc.IMCMessage;
 import pt.lsts.imc.LblBeacon;
@@ -108,8 +110,6 @@ import pt.lsts.neptus.types.map.TransponderElement;
 import pt.lsts.neptus.types.mission.HomeReference;
 import pt.lsts.neptus.types.mission.MissionType;
 import pt.lsts.neptus.types.mission.plan.PlanType;
-
-import com.google.common.eventbus.Subscribe;
 
 
 /**

@@ -31,6 +31,12 @@
  */
 package pt.lsts.neptus.console;
 
+import com.google.common.eventbus.Subscribe;
+
+import pt.lsts.imc.CcuEvent;
+import pt.lsts.imc.LogBookEntry;
+import pt.lsts.imc.MapFeature;
+import pt.lsts.imc.MapPoint;
 import pt.lsts.neptus.comm.IMCUtils;
 import pt.lsts.neptus.comm.manager.imc.ImcMsgManager;
 import pt.lsts.neptus.plugins.PluginDescription;
@@ -38,12 +44,6 @@ import pt.lsts.neptus.types.coord.LocationType;
 import pt.lsts.neptus.types.map.MapGroup;
 import pt.lsts.neptus.types.map.MarkElement;
 import pt.lsts.neptus.types.mission.plan.PlanType;
-import pt.lsts.imc.CcuEvent;
-import pt.lsts.imc.LogBookEntry;
-import pt.lsts.imc.MapFeature;
-import pt.lsts.imc.MapPoint;
-
-import com.google.common.eventbus.Subscribe;
 
 /**
  * @author zp

@@ -43,6 +43,10 @@ import javax.swing.JToggleButton;
 import javax.swing.border.TitledBorder;
 import javax.swing.undo.UndoManager;
 
+import com.l2fprod.common.propertysheet.DefaultProperty;
+import com.l2fprod.common.propertysheet.Property;
+import com.l2fprod.common.propertysheet.PropertySheetPanel;
+
 import pt.lsts.neptus.gui.PropertiesEditor;
 import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.mp.Maneuver;
@@ -52,10 +56,6 @@ import pt.lsts.neptus.renderer2d.StateRendererInteraction;
 import pt.lsts.neptus.types.mission.plan.PlanType;
 import pt.lsts.neptus.util.GuiUtils;
 import pt.lsts.neptus.util.ImageUtils;
-
-import com.l2fprod.common.propertysheet.DefaultProperty;
-import com.l2fprod.common.propertysheet.Property;
-import com.l2fprod.common.propertysheet.PropertySheetPanel;
 
 /**
  * @author zp

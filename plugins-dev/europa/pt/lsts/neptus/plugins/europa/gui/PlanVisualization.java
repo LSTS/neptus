@@ -44,9 +44,6 @@ import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 
-import psengine.PSToken;
-import psengine.PSTokenList;
-import psengine.PSVariable;
 import edu.uci.ics.jung.algorithms.layout.KKLayout;
 import edu.uci.ics.jung.algorithms.layout.Layout;
 import edu.uci.ics.jung.graph.DirectedSparseGraph;
@@ -55,6 +52,9 @@ import edu.uci.ics.jung.visualization.VisualizationViewer;
 import edu.uci.ics.jung.visualization.control.DefaultModalGraphMouse;
 import edu.uci.ics.jung.visualization.control.ModalGraphMouse;
 import edu.uci.ics.jung.visualization.renderers.VertexLabelRenderer;
+import psengine.PSToken;
+import psengine.PSTokenList;
+import psengine.PSVariable;
 
 /**
  * @author zp

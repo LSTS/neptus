@@ -39,6 +39,8 @@ import java.util.ArrayList;
 
 import javax.swing.JPanel;
 
+import com.google.common.eventbus.Subscribe;
+
 import net.miginfocom.swing.MigLayout;
 import pt.lsts.imc.DeviceState;
 import pt.lsts.imc.Distance;
@@ -48,8 +50,6 @@ import pt.lsts.neptus.plugins.PluginDescription;
 import pt.lsts.neptus.plugins.Popup;
 import pt.lsts.neptus.plugins.Popup.POSITION;
 import pt.lsts.neptus.plugins.update.IPeriodicUpdates;
-
-import com.google.common.eventbus.Subscribe;
 
 /**
  * @author jqcorreia

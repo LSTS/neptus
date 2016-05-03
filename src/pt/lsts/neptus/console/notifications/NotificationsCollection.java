@@ -34,14 +34,14 @@ package pt.lsts.neptus.console.notifications;
 import java.util.LinkedList;
 import java.util.List;
 
+import com.google.common.eventbus.Subscribe;
+
 import pt.lsts.neptus.console.ConsoleLayout;
 import pt.lsts.neptus.console.events.ConsoleEventNewNotification;
 import pt.lsts.neptus.console.events.ConsoleEventVehicleStateChanged;
 import pt.lsts.neptus.events.NeptusEventHiddenMenus;
 import pt.lsts.neptus.events.NeptusEvents;
 import pt.lsts.neptus.i18n.I18n;
-
-import com.google.common.eventbus.Subscribe;
 
 /**
  * @author Hugo

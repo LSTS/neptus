@@ -46,13 +46,13 @@ import javax.swing.JScrollPane;
 import javax.swing.JTextField;
 import javax.swing.SwingUtilities;
 
-import pt.lsts.neptus.fileeditor.SyntaxDocument;
-import pt.lsts.neptus.util.GuiUtils;
-import pt.lsts.neptus.util.conf.StringProperty;
-
 import com.l2fprod.common.beans.editor.AbstractPropertyEditor;
 import com.l2fprod.common.beans.editor.FixedButton;
 import com.l2fprod.common.swing.LookAndFeelTweaks;
+
+import pt.lsts.neptus.fileeditor.SyntaxDocument;
+import pt.lsts.neptus.util.GuiUtils;
+import pt.lsts.neptus.util.conf.StringProperty;
 
 /**
  * @author zp

@@ -34,6 +34,9 @@ package pt.lsts.neptus.comm.manager.imc;
 import java.awt.Window;
 import java.util.Vector;
 
+import com.l2fprod.common.propertysheet.DefaultProperty;
+import com.l2fprod.common.propertysheet.Property;
+
 import pt.lsts.imc.IMCMessage;
 import pt.lsts.imc.PlanControl;
 import pt.lsts.neptus.comm.IMCUtils;
@@ -41,9 +44,6 @@ import pt.lsts.neptus.gui.PropertiesEditor;
 import pt.lsts.neptus.gui.PropertiesProvider;
 import pt.lsts.neptus.plugins.PluginProperty;
 import pt.lsts.neptus.util.conf.ConfigFetch;
-
-import com.l2fprod.common.propertysheet.DefaultProperty;
-import com.l2fprod.common.propertysheet.Property;
 
 /**
  * @author pdias

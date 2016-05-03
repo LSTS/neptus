@@ -38,10 +38,9 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.SwingConstants;
 
-import net.miginfocom.swing.MigLayout;
-
 import com.google.common.eventbus.Subscribe;
 
+import net.miginfocom.swing.MigLayout;
 import pt.lsts.imc.AutopilotMode;
 import pt.lsts.imc.AutopilotMode.AUTONOMY;
 import pt.lsts.neptus.console.ConsoleLayout;

@@ -41,6 +41,8 @@ import javax.swing.JComponent;
 import javax.swing.JPanel;
 import javax.swing.JToggleButton;
 
+import com.google.common.eventbus.Subscribe;
+
 import pt.lsts.imc.IMCDefinition;
 import pt.lsts.imc.IMCMessage;
 import pt.lsts.neptus.comm.manager.imc.ImcMsgManager;
@@ -51,8 +53,6 @@ import pt.lsts.neptus.plugins.NeptusProperty;
 import pt.lsts.neptus.plugins.PluginDescription;
 import pt.lsts.neptus.plugins.PluginUtils;
 import pt.lsts.neptus.util.GuiUtils;
-
-import com.google.common.eventbus.Subscribe;
 
 /**
  * @author zp

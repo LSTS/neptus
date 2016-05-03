@@ -50,6 +50,8 @@ import java.util.Vector;
 import javax.swing.JMenu;
 import javax.swing.JPopupMenu;
 
+import com.google.common.eventbus.Subscribe;
+
 import pt.lsts.imc.EntityParameter;
 import pt.lsts.imc.EstimatedState;
 import pt.lsts.imc.GpsFix;
@@ -95,8 +97,6 @@ import pt.lsts.neptus.types.mission.plan.PlanType;
 import pt.lsts.neptus.types.vehicle.VehicleType;
 import pt.lsts.neptus.types.vehicle.VehiclesHolder;
 import pt.lsts.neptus.util.GuiUtils;
-
-import com.google.common.eventbus.Subscribe;
 
 /**
  * @author zp

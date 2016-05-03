@@ -43,6 +43,9 @@ import java.util.Arrays;
 
 import javax.swing.JPopupMenu;
 
+import com.google.common.eventbus.Subscribe;
+import com.l2fprod.common.propertysheet.Property;
+
 import pt.lsts.imc.DesiredSpeed;
 import pt.lsts.imc.DesiredZ;
 import pt.lsts.imc.DesiredZ.Z_UNITS;
@@ -65,9 +68,6 @@ import pt.lsts.neptus.plugins.SimpleRendererInteraction;
 import pt.lsts.neptus.plugins.update.IPeriodicUpdates;
 import pt.lsts.neptus.renderer2d.StateRenderer2D;
 import pt.lsts.neptus.types.coord.LocationType;
-
-import com.google.common.eventbus.Subscribe;
-import com.l2fprod.common.propertysheet.Property;
 
 /**
  * @author zp

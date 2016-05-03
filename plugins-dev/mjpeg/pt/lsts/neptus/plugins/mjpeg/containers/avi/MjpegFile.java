@@ -27,16 +27,18 @@
 
 package pt.lsts.neptus.plugins.mjpeg.containers.avi;
 
-import pt.lsts.neptus.plugins.mjpeg.containers.riff.*;
-import pt.lsts.neptus.plugins.mjpeg.containers.riff.List;
-
-import javax.imageio.ImageIO;
-import javax.imageio.stream.ImageInputStream;
-import java.awt.*;
+import java.awt.Image;
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+
+import javax.imageio.ImageIO;
+import javax.imageio.stream.ImageInputStream;
+
+import pt.lsts.neptus.plugins.mjpeg.containers.riff.Chunk;
+import pt.lsts.neptus.plugins.mjpeg.containers.riff.List;
+import pt.lsts.neptus.plugins.mjpeg.containers.riff.RiffFile;
 
 /**
  * Parser for AVI encoded MJPEG streams.

@@ -39,6 +39,8 @@ import javax.swing.JButton;
 import javax.swing.JFormattedTextField;
 import javax.swing.JLabel;
 
+import com.google.common.eventbus.Subscribe;
+
 import pt.lsts.imc.DesiredSpeed;
 import pt.lsts.imc.DesiredZ;
 import pt.lsts.imc.EstimatedState;
@@ -64,8 +66,6 @@ import pt.lsts.neptus.types.coord.LocationType;
 import pt.lsts.neptus.types.vehicle.VehicleType;
 import pt.lsts.neptus.types.vehicle.VehiclesHolder;
 import pt.lsts.neptus.util.GuiUtils;
-
-import com.google.common.eventbus.Subscribe;
 
 /**
  * @author zp

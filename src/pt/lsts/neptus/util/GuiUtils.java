@@ -107,6 +107,11 @@ import javax.swing.UIManager;
 import javax.swing.UIManager.LookAndFeelInfo;
 import javax.swing.filechooser.FileFilter;
 
+import com.jgoodies.looks.LookUtils;
+import com.jgoodies.looks.plastic.PlasticLookAndFeel;
+import com.jgoodies.looks.plastic.PlasticXPLookAndFeel;
+import com.l2fprod.common.swing.BaseDialog;
+
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.data.Pair;
 import pt.lsts.neptus.gui.ErrorMessageBox;
@@ -114,11 +119,6 @@ import pt.lsts.neptus.gui.swing.NeptusFileView;
 import pt.lsts.neptus.gui.tablelayout.TableLayout;
 import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.util.conf.ConfigFetch;
-
-import com.jgoodies.looks.LookUtils;
-import com.jgoodies.looks.plastic.PlasticLookAndFeel;
-import com.jgoodies.looks.plastic.PlasticXPLookAndFeel;
-import com.l2fprod.common.swing.BaseDialog;
 
 /**
  * @author Ze Carlos

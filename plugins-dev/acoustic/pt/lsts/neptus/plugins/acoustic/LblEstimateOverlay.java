@@ -38,6 +38,8 @@ import java.awt.geom.Point2D;
 import java.util.LinkedHashMap;
 import java.util.Map.Entry;
 
+import com.google.common.eventbus.Subscribe;
+
 import pt.lsts.imc.LblEstimate;
 import pt.lsts.neptus.console.ConsoleLayout;
 import pt.lsts.neptus.console.ConsolePanel;
@@ -48,8 +50,6 @@ import pt.lsts.neptus.plugins.PluginDescription.CATEGORY;
 import pt.lsts.neptus.renderer2d.Renderer2DPainter;
 import pt.lsts.neptus.renderer2d.StateRenderer2D;
 import pt.lsts.neptus.types.coord.LocationType;
-
-import com.google.common.eventbus.Subscribe;
 
 /**
  * @author zp

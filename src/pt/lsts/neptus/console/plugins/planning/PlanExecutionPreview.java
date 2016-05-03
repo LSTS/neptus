@@ -36,10 +36,12 @@ import java.awt.Graphics2D;
 import java.awt.geom.GeneralPath;
 import java.awt.geom.Point2D;
 import java.awt.geom.RoundRectangle2D;
+import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Vector;
 
-import java.util.Collections;
+import com.google.common.eventbus.Subscribe;
+import com.l2fprod.common.propertysheet.Property;
 
 import pt.lsts.imc.Announce;
 import pt.lsts.imc.EstimatedState;
@@ -67,9 +69,6 @@ import pt.lsts.neptus.types.vehicle.VehicleType;
 import pt.lsts.neptus.types.vehicle.VehiclesHolder;
 import pt.lsts.neptus.util.DateTimeUtil;
 import pt.lsts.neptus.util.GuiUtils;
-
-import com.google.common.eventbus.Subscribe;
-import com.l2fprod.common.propertysheet.Property;
 
 /**
  * @author zp

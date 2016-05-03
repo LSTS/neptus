@@ -38,6 +38,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Vector;
 
+import com.google.common.eventbus.Subscribe;
+
 import pt.lsts.neptus.console.ConsoleLayer;
 import pt.lsts.neptus.console.events.ConsoleEventMainSystemChange;
 import pt.lsts.neptus.console.events.ConsoleEventPlanChange;
@@ -59,8 +61,6 @@ import pt.lsts.neptus.types.vehicle.VehicleType;
 import pt.lsts.neptus.types.vehicle.VehiclesHolder;
 import pt.lsts.neptus.util.DateTimeUtil;
 import pt.lsts.neptus.util.ImageUtils;
-
-import com.google.common.eventbus.Subscribe;
 
 /**
  * @author zp

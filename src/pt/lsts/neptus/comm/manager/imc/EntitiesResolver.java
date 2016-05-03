@@ -34,10 +34,10 @@ package pt.lsts.neptus.comm.manager.imc;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-import pt.lsts.imc.EntityList;
-
 import com.google.common.collect.BiMap;
 import com.google.common.collect.HashBiMap;
+
+import pt.lsts.imc.EntityList;
 
 /**
  * @author zp

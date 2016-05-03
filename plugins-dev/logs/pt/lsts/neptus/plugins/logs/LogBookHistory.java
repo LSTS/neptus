@@ -34,6 +34,7 @@ package pt.lsts.neptus.plugins.logs;
 import java.awt.Color;
 import java.awt.Component;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
@@ -46,8 +47,6 @@ import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.JScrollPane;
 import javax.swing.ListCellRenderer;
-
-import java.util.Collections;
 
 import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.plugins.logs.HistoryMessage.msg_type;

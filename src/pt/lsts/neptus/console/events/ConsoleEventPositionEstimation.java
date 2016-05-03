@@ -31,8 +31,8 @@
  */
 package pt.lsts.neptus.console.events;
 
-import pt.lsts.neptus.types.coord.LocationType;
 import pt.lsts.imc.EstimatedState;
+import pt.lsts.neptus.types.coord.LocationType;
 
 /**
  * @author zp

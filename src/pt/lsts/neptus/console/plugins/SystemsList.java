@@ -71,6 +71,8 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.SwingUtilities;
 
+import com.google.common.eventbus.Subscribe;
+
 import pt.lsts.imc.EntityParameters;
 import pt.lsts.imc.FuelLevel;
 import pt.lsts.neptus.NeptusLog;
@@ -143,8 +145,6 @@ import pt.lsts.neptus.util.MathMiscUtils;
 import pt.lsts.neptus.util.ReflectionUtil;
 import pt.lsts.neptus.util.StringUtils;
 import pt.lsts.neptus.util.conf.ConfigFetch;
-
-import com.google.common.eventbus.Subscribe;
 
 /**
  * @author pdias

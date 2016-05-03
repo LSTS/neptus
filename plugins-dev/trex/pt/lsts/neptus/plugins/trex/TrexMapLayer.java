@@ -62,6 +62,8 @@ import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClientBuilder;
 
+import com.google.common.eventbus.Subscribe;
+
 import pt.lsts.imc.EntityParameter;
 import pt.lsts.imc.IMCMessage;
 import pt.lsts.imc.PathControlState;
@@ -93,8 +95,6 @@ import pt.lsts.neptus.renderer2d.StateRenderer2D;
 import pt.lsts.neptus.types.coord.LocationType;
 import pt.lsts.neptus.util.GuiUtils;
 import pt.lsts.neptus.util.ImageUtils;
-
-import com.google.common.eventbus.Subscribe;
 
 /**
  * @author zp

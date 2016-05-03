@@ -51,11 +51,11 @@ import javax.vecmath.Point3d;
 import javax.vecmath.TexCoord2f;
 import javax.vecmath.Vector3d;
 
+import com.sun.j3d.utils.geometry.GeometryInfo;
+
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.console.plugins.JVideoPanelConsole;
 import pt.lsts.neptus.types.vehicle.VehicleType;
-
-import com.sun.j3d.utils.geometry.GeometryInfo;
 
 public class ProjectionObj {
 

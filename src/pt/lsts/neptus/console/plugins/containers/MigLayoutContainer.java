@@ -45,8 +45,6 @@ import javax.swing.JMenu;
 import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
 
-import net.miginfocom.swing.MigLayout;
-
 import org.dom4j.Document;
 import org.dom4j.DocumentException;
 import org.dom4j.Element;
@@ -54,10 +52,13 @@ import org.dom4j.Node;
 import org.dom4j.io.SAXReader;
 import org.xml.sax.InputSource;
 
+import com.google.common.eventbus.Subscribe;
+
+import net.miginfocom.swing.MigLayout;
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.console.ConsoleLayout;
-import pt.lsts.neptus.console.ContainerSubPanel;
 import pt.lsts.neptus.console.ConsolePanel;
+import pt.lsts.neptus.console.ContainerSubPanel;
 import pt.lsts.neptus.console.plugins.containers.propeditor.MiGLayoutXmlPropertyEditor;
 import pt.lsts.neptus.events.NeptusEventLayoutChanged;
 import pt.lsts.neptus.events.NeptusEvents;
@@ -67,8 +68,6 @@ import pt.lsts.neptus.plugins.NeptusProperty;
 import pt.lsts.neptus.plugins.NeptusProperty.DistributionEnum;
 import pt.lsts.neptus.plugins.PluginDescription;
 import pt.lsts.neptus.plugins.PluginDescription.CATEGORY;
-
-import com.google.common.eventbus.Subscribe;
 
 /**
  * @author jqcorreia

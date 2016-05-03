@@ -38,13 +38,13 @@ import javax.swing.JPanel;
 import javax.swing.JSpinner;
 import javax.swing.SpinnerDateModel;
 
-import pt.lsts.neptus.NeptusLog;
-import pt.lsts.neptus.gui.PropertiesEditor;
-import pt.lsts.neptus.gui.PropertiesProvider;
-
 import com.l2fprod.common.beans.editor.AbstractPropertyEditor;
 import com.l2fprod.common.propertysheet.DefaultProperty;
 import com.l2fprod.common.propertysheet.Property;
+
+import pt.lsts.neptus.NeptusLog;
+import pt.lsts.neptus.gui.PropertiesEditor;
+import pt.lsts.neptus.gui.PropertiesProvider;
 
 /**
  * @author zp

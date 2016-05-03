@@ -46,6 +46,8 @@ import javax.swing.JFileChooser;
 
 import org.imgscalr.Scalr;
 
+import com.google.common.eventbus.Subscribe;
+
 import pt.lsts.imc.EstimatedState;
 import pt.lsts.imc.lsf.LsfIndex;
 import pt.lsts.neptus.NeptusLog;
@@ -64,8 +66,6 @@ import pt.lsts.neptus.util.FileUtil;
 import pt.lsts.neptus.util.GuiUtils;
 import pt.lsts.neptus.util.bathymetry.TidePredictionFactory;
 import pt.lsts.neptus.util.conf.ConfigFetch;
-
-import com.google.common.eventbus.Subscribe;
 
 /**
  * @author zp

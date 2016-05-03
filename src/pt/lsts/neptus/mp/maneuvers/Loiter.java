@@ -43,6 +43,9 @@ import org.dom4j.DocumentHelper;
 import org.dom4j.Element;
 import org.dom4j.Node;
 
+import com.l2fprod.common.propertysheet.DefaultProperty;
+import com.l2fprod.common.propertysheet.Property;
+
 import pt.lsts.imc.IMCMessage;
 import pt.lsts.imc.Loiter.DIRECTION;
 import pt.lsts.imc.Loiter.TYPE;
@@ -59,9 +62,6 @@ import pt.lsts.neptus.renderer2d.LoiterPainter;
 import pt.lsts.neptus.renderer2d.StateRenderer2D;
 import pt.lsts.neptus.types.coord.LocationType;
 import pt.lsts.neptus.types.map.PlanElement;
-
-import com.l2fprod.common.propertysheet.DefaultProperty;
-import com.l2fprod.common.propertysheet.Property;
 
 public class Loiter extends Maneuver implements LocatedManeuver, StatisticsProvider, IMCSerialization {
 

@@ -33,14 +33,14 @@ package pt.lsts.neptus.mra.plots;
 
 import org.jfree.data.xy.XYSeries;
 
-import pt.lsts.neptus.i18n.I18n;
-import pt.lsts.neptus.mra.LogMarker;
-import pt.lsts.neptus.mra.MRAPanel;
-import pt.lsts.neptus.plugins.PluginDescription;
 import pt.lsts.imc.IMCMessage;
 import pt.lsts.imc.Salinity;
 import pt.lsts.imc.lsf.LsfIndex;
 import pt.lsts.imc.lsf.LsfIterator;
+import pt.lsts.neptus.i18n.I18n;
+import pt.lsts.neptus.mra.LogMarker;
+import pt.lsts.neptus.mra.MRAPanel;
+import pt.lsts.neptus.plugins.PluginDescription;
 
 /**
  * @author zp

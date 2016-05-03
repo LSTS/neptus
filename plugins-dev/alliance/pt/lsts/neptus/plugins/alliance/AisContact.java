@@ -31,10 +31,10 @@
  */
 package pt.lsts.neptus.plugins.alliance;
 
-import pt.lsts.neptus.types.coord.LocationType;
 import de.baderjene.aistoolkit.aisparser.message.Message01;
 import de.baderjene.aistoolkit.aisparser.message.Message03;
 import de.baderjene.aistoolkit.aisparser.message.Message05;
+import pt.lsts.neptus.types.coord.LocationType;
 
 /**
  * @author zp

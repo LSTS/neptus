@@ -46,13 +46,13 @@ import javax.swing.JFormattedTextField;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 
+import com.l2fprod.common.propertysheet.DefaultProperty;
+
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.gui.PropertiesEditor;
 import pt.lsts.neptus.gui.tablelayout.TableLayout;
 import pt.lsts.neptus.mp.Maneuver;
 import pt.lsts.neptus.types.mission.plan.PlanType;
-
-import com.l2fprod.common.propertysheet.DefaultProperty;
 /**
  * @author ZP
  */

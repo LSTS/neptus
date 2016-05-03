@@ -34,8 +34,8 @@ package pt.lsts.neptus.mp.maneuvers;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Cursor;
-import java.awt.Font;
 import java.awt.Dialog.ModalityType;
+import java.awt.Font;
 import java.awt.Graphics2D;
 import java.awt.Image;
 import java.awt.Window;
@@ -68,6 +68,9 @@ import org.dom4j.DocumentHelper;
 import org.dom4j.Element;
 import org.dom4j.Node;
 
+import com.l2fprod.common.propertysheet.DefaultProperty;
+import com.l2fprod.common.propertysheet.Property;
+
 import pt.lsts.imc.IMCMessage;
 import pt.lsts.imc.PathPoint;
 import pt.lsts.imc.TrajectoryPoint;
@@ -88,9 +91,6 @@ import pt.lsts.neptus.types.map.PlanElement;
 import pt.lsts.neptus.util.AngleUtils;
 import pt.lsts.neptus.util.FileUtil;
 import pt.lsts.neptus.util.GuiUtils;
-
-import com.l2fprod.common.propertysheet.DefaultProperty;
-import com.l2fprod.common.propertysheet.Property;
 
 /**
  * @author zp

@@ -32,10 +32,10 @@
 package pt.lsts.neptus.plugins.controllers;
 
 
-import pt.lsts.neptus.types.vehicle.VehicleType;
 import pt.lsts.imc.EstimatedState;
 import pt.lsts.imc.FollowRefState;
 import pt.lsts.imc.Reference;
+import pt.lsts.neptus.types.vehicle.VehicleType;
 
 /**
  * This interface is implemented by agents that control vehicles

@@ -46,6 +46,10 @@ import org.dom4j.DocumentHelper;
 import org.dom4j.Element;
 import org.dom4j.Node;
 
+import com.l2fprod.common.beans.editor.FilePropertyEditor;
+import com.l2fprod.common.propertysheet.DefaultProperty;
+import com.l2fprod.common.propertysheet.Property;
+
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.gui.ParametersSheetPanel;
 import pt.lsts.neptus.gui.PropertiesEditor;
@@ -58,10 +62,6 @@ import pt.lsts.neptus.util.FileUtil;
 import pt.lsts.neptus.util.GuiUtils;
 import pt.lsts.neptus.util.ImageUtils;
 import pt.lsts.neptus.util.conf.ConfigFetch;
-
-import com.l2fprod.common.beans.editor.FilePropertyEditor;
-import com.l2fprod.common.propertysheet.DefaultProperty;
-import com.l2fprod.common.propertysheet.Property;
 /**
  * @author Ze Carlos
  * @author Paulo Dias

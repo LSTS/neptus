@@ -40,6 +40,9 @@ import java.util.LinkedList;
 
 import org.dom4j.Document;
 
+import com.l2fprod.common.propertysheet.DefaultProperty;
+import com.l2fprod.common.propertysheet.Property;
+
 import pt.lsts.neptus.gui.PropertiesEditor;
 import pt.lsts.neptus.gui.PropertiesProvider;
 import pt.lsts.neptus.types.comm.CommMean;
@@ -48,9 +51,6 @@ import pt.lsts.neptus.types.comm.protocol.ProtocolArgs;
 import pt.lsts.neptus.types.vehicle.TemplateFileVehicle;
 import pt.lsts.neptus.types.vehicle.VehicleType;
 import pt.lsts.neptus.util.FileUtil;
-
-import com.l2fprod.common.propertysheet.DefaultProperty;
-import com.l2fprod.common.propertysheet.Property;
 
 public class VehicleIpPortEditor implements PropertiesProvider {
     private VehicleType vehicle;

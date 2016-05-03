@@ -53,6 +53,8 @@ import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
 import javax.swing.SwingWorker;
 
+import com.google.common.eventbus.Subscribe;
+
 import pt.lsts.imc.AcousticOperation;
 import pt.lsts.imc.IMCDefinition;
 import pt.lsts.imc.IMCMessage;
@@ -106,8 +108,6 @@ import pt.lsts.neptus.util.ImageUtils;
 import pt.lsts.neptus.util.MathMiscUtils;
 import pt.lsts.neptus.util.conf.ConfigFetch;
 import pt.lsts.neptus.util.conf.GeneralPreferences;
-
-import com.google.common.eventbus.Subscribe;
 
 /**
  * @author pdias

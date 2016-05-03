@@ -44,6 +44,8 @@ import javax.swing.JPopupMenu;
 
 import org.apache.commons.codec.binary.Hex;
 
+import com.google.common.eventbus.Subscribe;
+
 import pt.lsts.imc.EstimatedState;
 import pt.lsts.imc.IMCDefinition;
 import pt.lsts.imc.IMCMessage;
@@ -89,8 +91,6 @@ import pt.lsts.neptus.types.vehicle.VehicleType;
 import pt.lsts.neptus.types.vehicle.VehicleType.SystemTypeEnum;
 import pt.lsts.neptus.types.vehicle.VehiclesHolder;
 import pt.lsts.neptus.util.GuiUtils;
-
-import com.google.common.eventbus.Subscribe;
 
 /**
  * @author zp

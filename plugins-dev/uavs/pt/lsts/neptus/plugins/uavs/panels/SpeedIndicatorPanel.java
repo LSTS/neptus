@@ -41,6 +41,8 @@ import javax.swing.JPanel;
 import javax.swing.JProgressBar;
 import javax.swing.SwingConstants;
 
+import com.google.common.eventbus.Subscribe;
+
 import net.miginfocom.swing.MigLayout;
 import pt.lsts.imc.DesiredPath;
 import pt.lsts.imc.IMCDefinition;
@@ -63,8 +65,6 @@ import pt.lsts.neptus.plugins.NeptusProperty.LEVEL;
 import pt.lsts.neptus.plugins.PluginDescription;
 import pt.lsts.neptus.plugins.PluginDescription.CATEGORY;
 import pt.lsts.neptus.util.ImageUtils;
-
-import com.google.common.eventbus.Subscribe;
 
 /**
  * Neptus panel designed to show indicated speed and ground speed on the same frame. It allows for the setup of limits

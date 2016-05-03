@@ -39,6 +39,9 @@ import java.util.LinkedHashMap;
 import javax.swing.ImageIcon;
 import javax.swing.JPanel;
 
+import com.l2fprod.common.propertysheet.DefaultProperty;
+import com.l2fprod.common.propertysheet.Property;
+
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.gui.PropertiesProvider;
 import pt.lsts.neptus.i18n.I18n;
@@ -66,9 +69,6 @@ import pt.lsts.neptus.vtk.utils.Utils;
 import pt.lsts.neptus.vtk.visualization.Canvas;
 import pt.lsts.neptus.vtk.visualization.Text3D;
 import vtk.vtkLODActor;
-
-import com.l2fprod.common.propertysheet.DefaultProperty;
-import com.l2fprod.common.propertysheet.Property;
 
 /**
  * @author hfq

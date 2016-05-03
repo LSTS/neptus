@@ -27,7 +27,7 @@
 
 package pt.lsts.neptus.plugins.mjpeg;
 
-import java.awt.*;
+import java.awt.Image;
 
 /**
  * Created by rasm on 8/18/15.

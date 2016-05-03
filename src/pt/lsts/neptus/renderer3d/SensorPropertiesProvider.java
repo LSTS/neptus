@@ -31,10 +31,10 @@
  */
 package pt.lsts.neptus.renderer3d;
 
-import pt.lsts.neptus.gui.PropertiesProvider;
-
 import com.l2fprod.common.propertysheet.DefaultProperty;
 import com.l2fprod.common.propertysheet.Property;
+
+import pt.lsts.neptus.gui.PropertiesProvider;
 
 public class SensorPropertiesProvider  implements PropertiesProvider{
 

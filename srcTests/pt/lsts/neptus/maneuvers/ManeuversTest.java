@@ -36,9 +36,9 @@ import java.util.LinkedHashMap;
 import org.junit.Assert;
 import org.junit.Test;
 
-import pt.lsts.neptus.NeptusLog;
 import pt.lsts.imc.IMCMessage;
 import pt.lsts.imc.IMCUtil;
+import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.mp.Maneuver;
 import pt.lsts.neptus.mp.ManeuverFactory;
 import pt.lsts.neptus.mp.maneuvers.IMCSerialization;

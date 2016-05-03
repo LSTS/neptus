@@ -49,6 +49,9 @@ import javax.swing.BorderFactory;
 import javax.swing.JLabel;
 import javax.vecmath.Point3d;
 
+import com.l2fprod.common.propertysheet.DefaultProperty;
+import com.l2fprod.common.propertysheet.Property;
+
 import pt.lsts.neptus.gui.objparams.ParametersPanel;
 import pt.lsts.neptus.mp.Maneuver;
 import pt.lsts.neptus.mp.ManeuverLocation;
@@ -67,9 +70,6 @@ import pt.lsts.neptus.util.conf.ConfigFetch;
 import pt.lsts.neptus.util.conf.GeneralPreferences;
 import pt.lsts.neptus.util.conf.PreferencesListener;
 import pt.lsts.neptus.util.coord.MapTileUtil;
-
-import com.l2fprod.common.propertysheet.DefaultProperty;
-import com.l2fprod.common.propertysheet.Property;
 
 @LayerPriority(priority = 50)
 public class PlanElement extends AbstractElement implements Renderer2DPainter, PreferencesListener {

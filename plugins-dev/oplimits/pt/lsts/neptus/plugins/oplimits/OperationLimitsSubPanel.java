@@ -64,6 +64,8 @@ import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
 import javax.swing.border.EmptyBorder;
 
+import com.google.common.eventbus.Subscribe;
+
 import pt.lsts.imc.GetOperationalLimits;
 import pt.lsts.imc.IMCDefinition;
 import pt.lsts.imc.IMCMessage;
@@ -98,8 +100,6 @@ import pt.lsts.neptus.util.FileUtil;
 import pt.lsts.neptus.util.GuiUtils;
 import pt.lsts.neptus.util.ImageUtils;
 import pt.lsts.neptus.util.MathMiscUtils;
-
-import com.google.common.eventbus.Subscribe;
 
 /**
  * @author zp

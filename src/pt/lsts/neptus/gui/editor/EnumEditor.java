@@ -43,9 +43,9 @@ import javax.swing.SwingConstants;
 import javax.swing.event.PopupMenuEvent;
 import javax.swing.event.PopupMenuListener;
 
-import pt.lsts.neptus.i18n.I18n;
-
 import com.l2fprod.common.beans.editor.AbstractPropertyEditor;
+
+import pt.lsts.neptus.i18n.I18n;
 
 /**
  * @author zp

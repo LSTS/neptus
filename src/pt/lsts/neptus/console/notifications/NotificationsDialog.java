@@ -63,12 +63,12 @@ import javax.swing.ListSelectionModel;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
+import com.google.common.eventbus.Subscribe;
+
 import pt.lsts.neptus.console.ConsoleLayout;
 import pt.lsts.neptus.console.events.ConsoleEventNewNotification;
 import pt.lsts.neptus.events.NeptusEvents;
 import pt.lsts.neptus.i18n.I18n;
-
-import com.google.common.eventbus.Subscribe;
 
 /**
  * @author Hugo

@@ -31,6 +31,8 @@
  */
 package pt.lsts.neptus.plugins.acoustic;
 
+import com.google.common.eventbus.Subscribe;
+
 import pt.lsts.imc.AcousticOperation;
 import pt.lsts.imc.IMCDefinition;
 import pt.lsts.imc.IMCMessage;
@@ -51,8 +53,6 @@ import pt.lsts.neptus.plugins.PluginDescription.CATEGORY;
 import pt.lsts.neptus.plugins.update.IPeriodicUpdates;
 import pt.lsts.neptus.types.vehicle.VehicleType.SystemTypeEnum;
 import pt.lsts.neptus.util.GuiUtils;
-
-import com.google.common.eventbus.Subscribe;
 
 /**
  * @author pdias

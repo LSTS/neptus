@@ -39,6 +39,8 @@ import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.Vector;
 
+import com.google.common.eventbus.Subscribe;
+
 import pt.lsts.imc.IMCMessage;
 import pt.lsts.imc.LblBeacon;
 import pt.lsts.imc.LblConfig;
@@ -55,8 +57,6 @@ import pt.lsts.neptus.types.coord.LocationType;
 import pt.lsts.neptus.types.map.TransponderElement;
 import pt.lsts.neptus.util.lbl.LBLTriangulationHelper;
 import pt.lsts.neptus.util.llf.LogUtils;
-
-import com.google.common.eventbus.Subscribe;
 
 /**
  * @author pdias

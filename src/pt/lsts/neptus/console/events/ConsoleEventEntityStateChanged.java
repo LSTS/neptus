@@ -31,9 +31,9 @@
  */
 package pt.lsts.neptus.console.events;
 
-import pt.lsts.neptus.console.plugins.VehicleStateMonitor;
 import pt.lsts.imc.EntityState;
 import pt.lsts.imc.EntityState.STATE;
+import pt.lsts.neptus.console.plugins.VehicleStateMonitor;
 
 /**
  * This event is triggered whenever a Entity state has changed

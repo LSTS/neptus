@@ -61,6 +61,8 @@ import javax.swing.JScrollPane;
 import org.jdesktop.swingx.JXLabel;
 import org.jdesktop.swingx.JXPanel;
 
+import com.google.common.eventbus.Subscribe;
+
 import pt.lsts.imc.IMCMessage;
 import pt.lsts.imc.LblBeacon;
 import pt.lsts.imc.LblConfig;
@@ -107,8 +109,6 @@ import pt.lsts.neptus.types.mission.MissionType;
 import pt.lsts.neptus.util.ImageUtils;
 import pt.lsts.neptus.util.ReflectionUtil;
 import pt.lsts.neptus.util.lbl.LBLTriangulationHelper;
-
-import com.google.common.eventbus.Subscribe;
 
 /**
  * @author pdias

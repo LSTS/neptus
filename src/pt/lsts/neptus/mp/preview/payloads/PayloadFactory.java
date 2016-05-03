@@ -35,11 +35,11 @@ import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.Vector;
 
-import pt.lsts.neptus.mp.Maneuver;
-import pt.lsts.neptus.types.mission.plan.PlanType;
 import pt.lsts.imc.EntityParameter;
 import pt.lsts.imc.IMCMessage;
 import pt.lsts.imc.SetEntityParameters;
+import pt.lsts.neptus.mp.Maneuver;
+import pt.lsts.neptus.types.mission.plan.PlanType;
 
 /**
  * @author zp

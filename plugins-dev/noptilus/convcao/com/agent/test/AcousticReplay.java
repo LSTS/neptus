@@ -37,6 +37,9 @@ import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.TimeZone;
 
+import com.google.common.eventbus.EventBus;
+import com.google.common.eventbus.Subscribe;
+
 import pt.lsts.imc.Announce;
 import pt.lsts.imc.Distance;
 import pt.lsts.imc.EntityInfo;
@@ -47,9 +50,6 @@ import pt.lsts.imc.lsf.LsfIndex;
 import pt.lsts.neptus.comm.transports.ImcUdpTransport;
 import pt.lsts.neptus.plugins.update.Periodic;
 import pt.lsts.neptus.plugins.update.PeriodicUpdatesService;
-
-import com.google.common.eventbus.EventBus;
-import com.google.common.eventbus.Subscribe;
 
 /**
  * @author zp

@@ -42,6 +42,9 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Vector;
 
+import com.l2fprod.common.propertysheet.DefaultProperty;
+import com.l2fprod.common.propertysheet.Property;
+
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.comm.IMCUtils;
 import pt.lsts.neptus.mp.Maneuver;
@@ -49,9 +52,6 @@ import pt.lsts.neptus.mp.preview.SpeedConversion;
 import pt.lsts.neptus.plugins.PluginProperty;
 import pt.lsts.neptus.plugins.PluginUtils;
 import pt.lsts.neptus.util.AngleUtils;
-
-import com.l2fprod.common.propertysheet.DefaultProperty;
-import com.l2fprod.common.propertysheet.Property;
 
 /**
  * @author pdias

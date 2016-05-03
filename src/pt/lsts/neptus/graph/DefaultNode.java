@@ -40,10 +40,10 @@ import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 import java.util.LinkedHashMap;
 
-import pt.lsts.neptus.gui.PropertiesEditor;
-
 import com.l2fprod.common.propertysheet.DefaultProperty;
 import com.l2fprod.common.propertysheet.Property;
+
+import pt.lsts.neptus.gui.PropertiesEditor;
 
 @SuppressWarnings("rawtypes")
 public class DefaultNode<O> implements NeptusNodeElement<O>{

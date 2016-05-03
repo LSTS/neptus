@@ -47,8 +47,8 @@ import pt.lsts.neptus.comm.manager.imc.ImcSystemsHolder;
 import pt.lsts.neptus.comm.manager.imc.MonitorIMCComms;
 import pt.lsts.neptus.types.comm.protocol.GsmArgs;
 import pt.lsts.neptus.types.vehicle.VehicleType;
-import pt.lsts.neptus.types.vehicle.VehiclesHolder;
 import pt.lsts.neptus.types.vehicle.VehicleType.SystemTypeEnum;
+import pt.lsts.neptus.types.vehicle.VehiclesHolder;
 import pt.lsts.neptus.util.GuiUtils;
 
 /**
