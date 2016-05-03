@@ -46,6 +46,7 @@ import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseWheelEvent;
 import java.awt.geom.AffineTransform;
+import java.awt.geom.Point2D;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -63,12 +64,15 @@ import pt.lsts.neptus.console.ConsoleLayout;
 import pt.lsts.neptus.console.ConsolePanel;
 import pt.lsts.neptus.console.IConsoleInteraction;
 import pt.lsts.neptus.console.plugins.PlanChangeListener;
+import pt.lsts.neptus.data.Pair;
 import pt.lsts.neptus.gui.ToolbarSwitch;
 import pt.lsts.neptus.plugins.PluginDescription;
 import pt.lsts.neptus.plugins.Popup;
 import pt.lsts.neptus.plugins.Popup.POSITION;
 import pt.lsts.neptus.plugins.mvplanning.jaxb.Profile;
 import pt.lsts.neptus.plugins.mvplanning.jaxb.ProfileMarshaler;
+import pt.lsts.neptus.plugins.mvplanning.planning.MapCell;
+import pt.lsts.neptus.plugins.mvplanning.planning.algorithm.MST;
 import pt.lsts.neptus.plugins.mvplanning.planning.mapdecomposition.GridArea;
 import pt.lsts.neptus.renderer2d.StateRenderer2D;
 import pt.lsts.neptus.types.coord.LocationType;
@@ -110,6 +114,7 @@ public class MVPlanning extends ConsolePanel implements PlanChangeListener, ICon
     private boolean interactionActive;
     private GridArea opArea;
     private GridArea megaCells;
+    private MST mst;
 
     public MVPlanning(ConsoleLayout console) {
         super(console);
@@ -230,6 +235,7 @@ public class MVPlanning extends ConsolePanel implements PlanChangeListener, ICon
             opArea.decomposeMap();
 
             megaCells = (GridArea) opArea.splitCells(4);
+            mst = new MST(opArea.getAllCells()[3][3]);
 
             String desiredProfile = (String) profiles.getSelectedItem();
             String planId = "coverage_" + NameNormalizer.getRandomID();
@@ -268,6 +274,16 @@ public class MVPlanning extends ConsolePanel implements PlanChangeListener, ICon
         if(opArea != null) {
             g.setColor(Color.cyan);
             opArea.paint(g, source, 0.0);
+
+            g.setTransform(new AffineTransform());    
+            g.setColor(Color.RED);
+            
+            for(Pair<MapCell, MapCell> edges : mst.getEdges()) {
+                Point2D p1 = source.getScreenPosition(edges.first().getLocation());
+                Point2D p2 = source.getScreenPosition(edges.second().getLocation());
+                
+                g.drawLine((int) p1.getX(),(int) p1.getY(),(int) p2.getX(), (int) p2.getY());
+            }
         }
     }
 
