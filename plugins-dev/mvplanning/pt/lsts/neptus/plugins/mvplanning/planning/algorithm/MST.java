@@ -107,6 +107,6 @@ public class MST {
     }
 
     public MapCell startCell() {
-        return this.startCell();
+        return this.startCell;
     }
 }
