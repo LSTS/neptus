@@ -166,6 +166,7 @@ public class GridArea extends GeometryElement implements MapDecomposition {
         /* compute grid size */
         decomposedMap = new MapCell[nrows][ncols];
 
+        int nodeId = 0;
         /* do decomposition */
         for(int i = 0; i < nrows; i ++) {
             for(int j = 0; j < ncols; j++) {
@@ -178,6 +179,8 @@ public class GridArea extends GeometryElement implements MapDecomposition {
                 /* TODO check for obstacles, using Environment */
                 /* TODO set correct bounds for each map cells (set vertices) */
                 decomposedMap[i][j] = new MapCell(cellLoc, false);
+                decomposedMap[i][j].setId("" + nodeId);
+                nodeId++;
 
                 /* neighbour cells */
 
