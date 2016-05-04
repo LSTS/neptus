@@ -238,11 +238,10 @@ public class MVPlanning extends ConsolePanel implements PlanChangeListener, ICon
             mst = new MST(opArea.getAllCells()[3][3]);
 
             String desiredProfile = (String) profiles.getSelectedItem();
-            String planId = "coverage_" + NameNormalizer.getRandomID();
-            PlanType plan = pGen.generateCoverageArea(availableProfiles.get(desiredProfile), megaCells, planId);
+            PlanType plan = pGen.generateCoverageArea(availableProfiles.get(desiredProfile), megaCells);
 
-            listModel.addElement(planId);
-            selectedPlans.put(planId, plan);
+            listModel.addElement(plan.getId());
+            selectedPlans.put(plan.getId(), plan);
         }
     }
 

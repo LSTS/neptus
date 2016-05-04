@@ -39,6 +39,7 @@ import pt.lsts.neptus.plugins.mvplanning.planning.algorithm.CoverageArea;
 import pt.lsts.neptus.types.coord.LocationType;
 import pt.lsts.neptus.types.map.PlanUtil;
 import pt.lsts.neptus.types.mission.GraphType;
+import pt.lsts.neptus.types.mission.MissionType;
 import pt.lsts.neptus.types.mission.TransitionType;
 
 /**
@@ -49,8 +50,10 @@ public class TestCoverageArea {
     public static void testCoverageFromGrid(Profile planProfile, GridArea areaToCover) {
         System.out.println("--- Testing coverage area from a grid ---");
 
-        GraphType planGraph = CoverageArea.getCoverageFromGridAsGraph(planProfile, areaToCover);
-        FollowPath covManeuver = CoverageArea.getFollowPath(planProfile, planGraph);
+        CoverageArea covArea = new CoverageArea("bla bla", planProfile, areaToCover, new MissionType());
+        GraphType planGraph = covArea.asGraphType();
+        FollowPath covManeuver = covArea.asFollowPathManeuver();
+
         int nNodes = planGraph.getAllManeuvers().length;
         int nEdges = planGraph.getAllEdges().length;
         double manLat = covManeuver.getManeuverLocation().getAbsoluteLatLonDepth()[0];
@@ -80,7 +83,7 @@ public class TestCoverageArea {
         Profile planProfile = pMarsh.getAllProfiles().get("Batimetria");
 
         System.out.println("--- Test 1 ---");
-        GridArea grid1 = new GridArea(20, 100, 100, LocationType.FEUP);
+        GridArea grid1 = new GridArea(60, 100, 100, LocationType.FEUP);
         grid1.decomposeMap();
 
         TestCoverageArea.testCoverageFromGrid(planProfile, grid1);
@@ -88,7 +91,7 @@ public class TestCoverageArea {
         System.out.println();
 
         System.out.println("--- Test 2 ---");
-        GridArea grid2 = new GridArea(20, 500, 500, LocationType.FEUP);
+        GridArea grid2 = new GridArea(60, 500, 500, LocationType.FEUP);
         grid2.decomposeMap();
 
         TestCoverageArea.testCoverageFromGrid(planProfile, grid2);
