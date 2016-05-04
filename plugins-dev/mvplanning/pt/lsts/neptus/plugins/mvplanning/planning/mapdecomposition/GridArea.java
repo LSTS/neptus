@@ -244,10 +244,10 @@ public class GridArea extends GeometryElement implements MapDecomposition {
         if((n == 0 || n == 1) || n > nrows)
             return null;
         else {
-            int newRows = 2 * nrows;
-            int newCols = 2 * ncols;
-            double newCellWidth = cellWidth / 2;
-            double newCellHeight = cellHeight / 2;
+            int newRows = (n/2) * nrows;
+            int newCols = (n/2) * ncols;
+            double newCellWidth = cellWidth / (n/2);
+            double newCellHeight = cellHeight / (n/2);
 
             MapCell[][] newGrid = new MapCell[newRows][newCols];
 
