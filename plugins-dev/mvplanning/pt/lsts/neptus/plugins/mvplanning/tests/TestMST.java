@@ -36,6 +36,7 @@ import java.util.List;
 import pt.lsts.neptus.data.Pair;
 import pt.lsts.neptus.plugins.mvplanning.planning.MapCell;
 import pt.lsts.neptus.plugins.mvplanning.planning.algorithm.MST;
+import pt.lsts.neptus.plugins.mvplanning.planning.mapdecomposition.GridArea;
 import pt.lsts.neptus.types.coord.LocationType;
 
 /**
@@ -54,50 +55,9 @@ public class TestMST {
     }
 
     public static void main(String[] args) {
-        MapCell A = new MapCell(LocationType.FEUP, false);
-        MapCell B = new MapCell(LocationType.FEUP, false);
-        MapCell C = new MapCell(LocationType.FEUP, false);
-        MapCell D = new MapCell(LocationType.FEUP, false);
-        MapCell E = new MapCell(LocationType.FEUP, false);
-        MapCell F = new MapCell(LocationType.FEUP, false);
-        MapCell G = new MapCell(LocationType.FEUP, false);
-        MapCell H = new MapCell(LocationType.FEUP, false);
+        GridArea grid = new GridArea(60, 250, 250, LocationType.FEUP);
+        grid.decomposeMap();
 
-        A.setId("A");
-        B.setId("B");
-        C.setId("C");
-        D.setId("D");
-        E.setId("E");
-        F.setId("F");
-        G.setId("G");
-        H.setId("H");
-
-        A.addNeighbour(B);
-        A.addNeighbour(C);
-
-        B.addNeighbour(A);
-        B.addNeighbour(D);
-
-        C.addNeighbour(A);
-        C.addNeighbour(D);
-
-        D.addNeighbour(B);
-        D.addNeighbour(C);
-        D.addNeighbour(E);
-
-        E.addNeighbour(D);
-        E.addNeighbour(F);
-        E.addNeighbour(G);
-
-        F.addNeighbour(E);
-        F.addNeighbour(H);
-
-        G.addNeighbour(E);
-        G.addNeighbour(H);
-
-        H.addNeighbour(F);
-        H.addNeighbour(G);
-
-        printMST(A);
+        printMST(grid.getAllCells()[3][4]);
     }
 }
