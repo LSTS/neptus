@@ -29,7 +29,7 @@
  * Author: tsmarques
  * 18 Apr 2016
  */
-package pt.lsts.neptus.plugins.mvplanning.planning.plan;
+package pt.lsts.neptus.plugins.mvplanning.planning.algorithm;
 
 import pt.lsts.imc.IMCMessage;
 import pt.lsts.neptus.mp.ManeuverLocation;

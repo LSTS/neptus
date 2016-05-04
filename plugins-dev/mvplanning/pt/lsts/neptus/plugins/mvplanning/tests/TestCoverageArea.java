@@ -35,7 +35,7 @@ import pt.lsts.neptus.mp.maneuvers.FollowPath;
 import pt.lsts.neptus.plugins.mvplanning.jaxb.Profile;
 import pt.lsts.neptus.plugins.mvplanning.jaxb.ProfileMarshaler;
 import pt.lsts.neptus.plugins.mvplanning.planning.mapdecomposition.GridArea;
-import pt.lsts.neptus.plugins.mvplanning.planning.plan.CoverageArea;
+import pt.lsts.neptus.plugins.mvplanning.planning.algorithm.CoverageArea;
 import pt.lsts.neptus.types.coord.LocationType;
 import pt.lsts.neptus.types.map.PlanUtil;
 import pt.lsts.neptus.types.mission.GraphType;

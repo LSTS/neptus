@@ -7,7 +7,7 @@ import pt.lsts.neptus.plugins.mvplanning.interfaces.MapDecomposition;
 import pt.lsts.neptus.plugins.mvplanning.jaxb.Profile;
 import pt.lsts.neptus.plugins.mvplanning.planning.PlanTask;
 import pt.lsts.neptus.plugins.mvplanning.planning.mapdecomposition.GridArea;
-import pt.lsts.neptus.plugins.mvplanning.planning.plan.CoverageArea;
+import pt.lsts.neptus.plugins.mvplanning.planning.algorithm.CoverageArea;
 import pt.lsts.neptus.types.mission.MissionType;
 import pt.lsts.neptus.types.mission.plan.PlanType;
 
