@@ -43,7 +43,8 @@ import pt.lsts.neptus.plugins.mvplanning.planning.MapCell;
  */
 
 /**
- * Minimum Spanning Tree
+ * Simple implementation of a Minimum Spanning Tree
+ * using DFS
  * */
 public class MST {
     private List<Pair<MapCell, MapCell>> mst;
@@ -102,6 +103,9 @@ public class MST {
         return mst;
     }
 
+    /**
+     * Returns nodes sequence of this mst
+     * */
     public List<Pair<MapCell, MapCell>> getEdges() {
         return mst;
     }
