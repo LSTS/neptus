@@ -234,53 +234,46 @@ public class GridArea extends GeometryElement implements MapDecomposition {
 
     /**
      * Makes a new grid where each (old) cell is
-     * split into n cells, i.e. increases grid's
+     * split into 4 cells, i.e. increases grid's
      * resolution.
-     * This is used for the mega-cells algorithms
-     * where each cell is (internally) formed by
-     * 4 smaller cells.
      * */
-    public MapDecomposition splitCells(int n) {
-        if((n == 0 || n == 1) || n > nrows)
-            return null;
-        else {
-            int newRows = (n/2) * nrows;
-            int newCols = (n/2) * ncols;
-            double newCellWidth = cellWidth / (n/2);
-            double newCellHeight = cellHeight / (n/2);
+    public MapDecomposition splitMegaCells() {
+        int newRows = 2 * nrows;
+        int newCols = 2 * ncols;
+        double newCellWidth = cellWidth / 2;
+        double newCellHeight = cellHeight / 2;
 
-            MapCell[][] newGrid = new MapCell[newRows][newCols];
+        MapCell[][] newGrid = new MapCell[newRows][newCols];
 
-            for(int i = 0; i < nrows; i++) {
-                for(int j = 0; j < ncols; j++) {
-                    LocationType cellCenter = decomposedMap[i][j].getLocation();
+        for(int i = 0; i < nrows; i++) {
+            for(int j = 0; j < ncols; j++) {
+                LocationType cellCenter = decomposedMap[i][j].getLocation();
 
-                    /* Compute 4 new cells' center locations */
-                    LocationType topLeft = new LocationType(cellCenter);
-                    topLeft.translatePosition(newCellHeight/2, -newCellWidth/2, 0);
+                /* Compute 4 new cells' center locations */
+                LocationType topLeft = new LocationType(cellCenter);
+                topLeft.translatePosition(newCellHeight/2, -newCellWidth/2, 0);
 
-                    LocationType topRight = new LocationType(cellCenter);
-                    topRight.translatePosition(newCellHeight/2, newCellWidth/2, 0);
+                LocationType topRight = new LocationType(cellCenter);
+                topRight.translatePosition(newCellHeight/2, newCellWidth/2, 0);
 
-                    LocationType bottomLeft = new LocationType(cellCenter);
-                    bottomLeft.translatePosition(-newCellHeight/2, -newCellWidth/2, 0);
+                LocationType bottomLeft = new LocationType(cellCenter);
+                bottomLeft.translatePosition(-newCellHeight/2, -newCellWidth/2, 0);
 
-                    LocationType bottomRight = new LocationType(cellCenter);
-                    bottomRight.translatePosition(-newCellHeight/2, newCellWidth/2, 0);
+                LocationType bottomRight = new LocationType(cellCenter);
+                bottomRight.translatePosition(-newCellHeight/2, newCellWidth/2, 0);
 
-                    /* TODO check if cells have an obstacle */
-                    newGrid[2*i][2*j] = new MapCell(topLeft, false);
-                    newGrid[2*i][2*j + 1] = new MapCell(topRight, false);
+                /* TODO check if cells have an obstacle */
+                newGrid[2*i][2*j] = new MapCell(topLeft, false);
+                newGrid[2*i][2*j + 1] = new MapCell(topRight, false);
 
-                    newGrid[2*i + 1][2*j] = new MapCell(bottomLeft, false);
-                    newGrid[2*i + 1][2*j + 1] = new MapCell(bottomRight, false);
-                }
+                newGrid[2*i + 1][2*j] = new MapCell(bottomLeft, false);
+                newGrid[2*i + 1][2*j + 1] = new MapCell(bottomRight, false);
             }
-            GridArea newGridArea = new GridArea(newGrid, newCellWidth, newCellHeight, newRows, newCols, this.center, this.env);
-            newGridArea.setBounds(this.bounds);
-
-            return newGridArea;
         }
+        GridArea newGridArea = new GridArea(newGrid, newCellWidth, newCellHeight, newRows, newCols, this.center, this.env);
+        newGridArea.setBounds(this.bounds);
+
+        return newGridArea;
     }
 
     public void setBounds(LocationType[] bounds) {

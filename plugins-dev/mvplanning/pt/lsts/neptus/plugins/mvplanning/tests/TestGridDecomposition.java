@@ -185,7 +185,7 @@ public class TestGridDecomposition {
         System.out.println("\n --- Testing splitCells() ---");
         System.out.println("* Original Grid has " + gridDcmp.getAreaCells().size());
         System.out.println("* Splitting each cell into " + n);
-        GridArea newGrid = (GridArea) gridDcmp.splitCells(4);
+        GridArea newGrid = (GridArea) gridDcmp.splitMegaCells();
 
         int nCells = newGrid.getAreaCells().size();
         int correctN = gridDcmp.getAreaCells().size() * 4;

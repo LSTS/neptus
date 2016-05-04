@@ -234,7 +234,7 @@ public class MVPlanning extends ConsolePanel implements PlanChangeListener, ICon
             opArea = new GridArea(60, 500, 500, lt);
             opArea.decomposeMap();
 
-            megaCells = (GridArea) opArea.splitCells(4);
+            megaCells = (GridArea) opArea.splitMegaCells();
             mst = new MST(opArea.getAllCells()[3][3]);
 
             String desiredProfile = (String) profiles.getSelectedItem();
