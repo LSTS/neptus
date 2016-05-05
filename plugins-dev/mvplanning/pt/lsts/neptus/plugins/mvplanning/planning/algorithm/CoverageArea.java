@@ -32,6 +32,7 @@
 package pt.lsts.neptus.plugins.mvplanning.planning.algorithm;
 
 import pt.lsts.imc.PlanSpecification;
+import pt.lsts.neptus.data.Pair;
 import pt.lsts.neptus.mp.ManeuverLocation;
 import pt.lsts.neptus.mp.maneuvers.FollowPath;
 import pt.lsts.neptus.mp.maneuvers.Goto;
@@ -54,9 +55,12 @@ public class CoverageArea {
     private Profile planProfile;
     private PlanType plan;
     private GraphType planGraph;
+    private MST minSpanningTree;
 
     public CoverageArea(String id, Profile planProfile, MapDecomposition areaToCover, MissionType mt) {
         this.planProfile = planProfile;
+        this.minSpanningTree = new MST(areaToCover.getAreaCells().get(30));
+
         planGraph = getGraph(areaToCover);
         plan = getPlan(mt);
         setId(id);
@@ -75,45 +79,42 @@ public class CoverageArea {
     }
 
     private GraphType graphFromGrid(GridArea areaToCover) {
-        /* TODO Improve */
-        MapCell[][] cells = areaToCover.getAllCells();
-        int nrows = cells.length;
-        int ncols = cells[0].length;
-
         /* Build graph */
         GraphType planGraph = new GraphType();
-        /* Add nodes to the graph */
-        for(int i = 0; i < nrows; i++)
-            for(int j = 0; j < ncols; j++) {
-                Goto waypoint = new Goto();
-                String wpId = i + " " + j;
-                waypoint.setManeuverLocation(new ManeuverLocation(cells[i][j].getLocation()));
-                waypoint.setId(wpId);
+        Pair<MapCell, MapCell> previousEdge = null;
 
-                if(i == 0 && j == 0)
-                    waypoint.setInitialManeuver(true);
+        for(Pair<MapCell, MapCell> mstEdge : minSpanningTree.getEdges()) {
+            /* Add nodes to the graph */
+            String sourceId = mstEdge.first().id();
+            String destId = mstEdge.second().id();
 
-                planGraph.addManeuver(waypoint);
+            if(planGraph.getManeuver(sourceId) == null) {
+                Goto source = new Goto();
+                source.setId(sourceId);
+                source.setManeuverLocation(new ManeuverLocation(mstEdge.first().getLocation()));
+
+                if(minSpanningTree.startCell().id().equals(sourceId))
+                    source.setInitialManeuver(true);
+                planGraph.addManeuver(source);
+            }
+            if(planGraph.getManeuver(destId) == null) {
+                Goto dest = new Goto();
+                dest.setId(destId);
+                dest.setManeuverLocation(new ManeuverLocation(mstEdge.second().getLocation()));
+                planGraph.addManeuver(dest);
             }
 
-        /* Add graph edges */
-        for(int i = 0; i < nrows; i++) {
-            for(int j = 0; j < ncols; j++) {
-                TransitionType edge;
-                /* edge's start node */
-                String wpId = i + " " + j;
-                /* edges's end node */
-                if(j == ncols - 1 && i != nrows -1) {
-                    String neighbourId = (i+1) + " " + 0;
-                    edge = new TransitionType(wpId, neighbourId);
-                    planGraph.addTransition(edge);
-                }
-                else if(j != ncols - 1){
-                    String neighbourId = i + " " + (j+1);
-                    edge = new TransitionType(wpId, neighbourId);
-                    planGraph.addTransition(edge);
-                }
+            /* Add edges to the graph */
+            if(previousEdge == null)
+                planGraph.addTransition(new TransitionType(mstEdge.first().id(), mstEdge.second().id()));
+            else {
+                /* If need to go back */
+                if(previousEdge.first().id().equals(mstEdge.first().id()))
+                    planGraph.addTransition(new TransitionType(mstEdge.second().id(), mstEdge.first().id()));
+                else
+                    planGraph.addTransition(new TransitionType(mstEdge.first().id(), mstEdge.second().id()));
             }
+            previousEdge = mstEdge;
         }
         return planGraph;
     }
