@@ -39,7 +39,7 @@ import pt.lsts.neptus.types.coord.LocationType;
  * @author zp
  *
  */
-public class PopupPreview implements IManeuverPreview<PopUp> {
+public class PopUpPreview implements IManeuverPreview<PopUp> {
 
     protected LocationType destination;
     protected double speed;
