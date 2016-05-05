@@ -270,6 +270,15 @@ public class GridArea extends GeometryElement implements MapDecomposition {
                 newGrid[2*i + 1][2*j + 1] = new MapCell(bottomRight, false);
             }
         }
+        /* Set cells' id */
+        /* TODO improve */
+        int id = 0;
+        for(int i = 0; i < newRows; i++)
+            for(int j = 0; j < newCols; j++) {
+                newGrid[i][j].setId("" + id);
+                id++;
+            }
+
         GridArea newGridArea = new GridArea(newGrid, newCellWidth, newCellHeight, newRows, newCols, this.center, this.env);
         newGridArea.setBounds(this.bounds);
 
