@@ -180,6 +180,7 @@ public class GridArea extends GeometryElement implements MapDecomposition {
                 /* TODO set correct bounds for each map cells (set vertices) */
                 decomposedMap[i][j] = new MapCell(cellLoc, false);
                 decomposedMap[i][j].setId("" + nodeId);
+                decomposedMap[i][j].setPosition(i, j);
                 nodeId++;
 
                 /* neighbour cells */
@@ -264,10 +265,16 @@ public class GridArea extends GeometryElement implements MapDecomposition {
 
                 /* TODO check if cells have an obstacle */
                 newGrid[2*i][2*j] = new MapCell(topLeft, false);
+                newGrid[2*i][2*j].setPosition(2*i, 2*j);
+
                 newGrid[2*i][2*j + 1] = new MapCell(topRight, false);
+                newGrid[2*i][2*j + 1].setPosition(2*i, 2*j+1);
 
                 newGrid[2*i + 1][2*j] = new MapCell(bottomLeft, false);
+                newGrid[2*i + 1][2*j].setPosition(2*i + 1, 2*j);
+
                 newGrid[2*i + 1][2*j + 1] = new MapCell(bottomRight, false);
+                newGrid[2*i + 1][2*j + 1].setPosition(2*i + 1, 2*j);
             }
         }
         /* Set cells' id */

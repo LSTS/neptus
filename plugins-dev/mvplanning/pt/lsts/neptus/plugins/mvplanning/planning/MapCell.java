@@ -45,6 +45,8 @@ public class MapCell {
     private LocationType centerLoc;
     private List<MapCell> neighbours;
     private boolean hasObstacle;
+    private int row;
+    private int col;
     
     public MapCell(LocationType centerLocation, boolean hasObstacle) {
         this.centerLoc = centerLocation;
@@ -64,6 +66,19 @@ public class MapCell {
 
     public void setId(String id) {
         this.id = id;
+    }
+
+    public void setPosition(int row, int col) {
+        this.row = row;
+        this.col = col;
+    }
+
+    public int getRow() {
+        return row;
+    }
+
+    public int getColumn() {
+        return col;
     }
 
     public void addNeighbour(MapCell neighCell) {
