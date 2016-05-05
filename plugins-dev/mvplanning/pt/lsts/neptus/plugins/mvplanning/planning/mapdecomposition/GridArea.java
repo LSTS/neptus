@@ -237,7 +237,7 @@ public class GridArea extends GeometryElement implements MapDecomposition {
      * split into 4 cells, i.e. increases grid's
      * resolution.
      * */
-    public MapDecomposition splitMegaCells() {
+    public GridArea splitMegaCells() {
         int newRows = 2 * nrows;
         int newCols = 2 * ncols;
         double newCellWidth = cellWidth / 2;
