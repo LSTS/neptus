@@ -33,11 +33,15 @@ package pt.lsts.neptus.mra;
 
 import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
+import java.io.File;
+
+import javax.imageio.ImageIO;
 
 import pt.lsts.neptus.colormap.ColorMap;
 import pt.lsts.neptus.colormap.ColorMapUtils;
 import pt.lsts.neptus.colormap.DataDiscretizer;
 import pt.lsts.neptus.types.coord.LocationType;
+import pt.lsts.neptus.types.map.ImageElement;
 
 /**
  * @author zp
@@ -93,6 +97,20 @@ public class WorldImage {
     
     public int getAmountDataPoints() {
         return dd.getAmountDataPoints();
+    }
+    
+    public ImageElement asImageElement() {
+        BufferedImage image = processData();
+        ImageElement elem = new ImageElement();
+        if (dd.getAmountDataPoints() < 2)
+            return null;
+        LocationType center = new LocationType(getSouthWest());
+        double[] offsets = getNorthEast().getOffsetFrom(center);
+        center.translatePosition(offsets[0]/2, offsets[1]/2, 0);
+        elem.setImage(image);
+        elem.setCenterLocation(center);
+        elem.setImageScale(offsets[1]/image.getWidth());    
+        return elem;
     }
     
     public BufferedImage processData() {

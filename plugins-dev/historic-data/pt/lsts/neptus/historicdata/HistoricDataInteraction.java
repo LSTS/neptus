@@ -49,25 +49,22 @@ import org.mozilla.javascript.edu.emory.mathcs.backport.java.util.Collections;
 import com.google.common.eventbus.Subscribe;
 
 import pt.lsts.imc.Heartbeat;
-import pt.lsts.imc.HistoricCTD;
 import pt.lsts.imc.HistoricData;
 import pt.lsts.imc.HistoricDataQuery;
 import pt.lsts.imc.HistoricDataQuery.TYPE;
 import pt.lsts.imc.HistoricEvent;
-import pt.lsts.imc.HistoricSonarData;
-import pt.lsts.imc.HistoricTelemetry;
 import pt.lsts.imc.historic.DataSample;
 import pt.lsts.imc.historic.DataStore;
 import pt.lsts.neptus.NeptusLog;
-import pt.lsts.neptus.colormap.ColorMapFactory;
 import pt.lsts.neptus.comm.manager.imc.ImcSystemsHolder;
 import pt.lsts.neptus.console.ConsoleInteraction;
+import pt.lsts.neptus.historicdata.HistoricGroundOverlay.DATA_TYPE;
 import pt.lsts.neptus.i18n.I18n;
-import pt.lsts.neptus.mra.WorldImage;
 import pt.lsts.neptus.plugins.NeptusProperty;
 import pt.lsts.neptus.plugins.PluginDescription;
 import pt.lsts.neptus.renderer2d.StateRenderer2D;
 import pt.lsts.neptus.types.coord.LocationType;
+import pt.lsts.neptus.types.map.ImageElement;
 import pt.lsts.neptus.types.map.PathElement;
 import pt.lsts.neptus.types.vehicle.VehicleType.SystemTypeEnum;
 
@@ -83,27 +80,23 @@ public class HistoricDataInteraction extends ConsoleInteraction {
     private DataStore dataStore = new DataStore();
     private LinkedHashMap<String, Long> lastPollTime = new LinkedHashMap<>();
     private int req_id = 1;
-    private WorldImage imgTemp = new WorldImage(3, ColorMapFactory.createJetColorMap());
-    private WorldImage imgCond = new WorldImage(3, ColorMapFactory.createJetColorMap());
-    private WorldImage imgDepth = new WorldImage(3, ColorMapFactory.createJetColorMap());
-    private WorldImage imgAltitude = new WorldImage(3, ColorMapFactory.createJetColorMap());
-    private WorldImage imgPitch = new WorldImage(3, ColorMapFactory.createJetColorMap());
     private LinkedHashMap<String, ArrayList<RemotePosition>> positions = new LinkedHashMap<>();
     private LinkedHashMap<String, PathElement> positionCache = new LinkedHashMap<>();
     private ArrayList<RemoteEvent> events = new ArrayList<>();
     private RemoteEvent mouseOver = null;
+    private HistoricGroundOverlay overlay = new HistoricGroundOverlay();
     
     @NeptusProperty(name = "Seconds between periodic data requests")
     private int secsBetweenPolling = 60;
 
     @Override
     public void initInteraction() {
-
+        getConsole().addMapLayer(overlay);
     }
 
     @Override
     public void cleanInteraction() {
-
+        getConsole().removeMapLayer(overlay);
     }
 
     @Override
@@ -148,9 +141,9 @@ public class HistoricDataInteraction extends ConsoleInteraction {
     }
     
     public void process(HistoricData incoming) {
-        
         ArrayList<DataSample> newSamples = DataSample.parseSamples(incoming);
         Collections.sort(newSamples);
+        overlay.process(incoming);
         
         for (DataSample sample : DataSample.parseSamples(incoming)) {
             LocationType loc = new LocationType(sample.getLatDegs(), sample.getLonDegs());
@@ -161,29 +154,13 @@ public class HistoricDataInteraction extends ConsoleInteraction {
                 positions.put(system, new ArrayList<>());
             positions.get(system).add(new RemotePosition(sample.getTimestampMillis(), loc));
             
-            switch (sample.getSample().getMgid()) {
-                case HistoricCTD.ID_STATIC:
-                    imgDepth.addPoint(loc, ((HistoricCTD) sample.getSample()).getDepth());
-                    imgCond.addPoint(loc, ((HistoricCTD) sample.getSample()).getConductivity());
-                    imgTemp.addPoint(loc, ((HistoricCTD) sample.getSample()).getTemperature());
-                    break;
-                case HistoricSonarData.ID_STATIC:
-                    
-                    break;
-                case HistoricTelemetry.ID_STATIC:
-                    imgPitch.addPoint(loc, ((HistoricTelemetry) sample.getSample()).getPitch() * (360.0 / 65535));
-                    imgAltitude.addPoint(loc, ((HistoricTelemetry) sample.getSample()).getAltitude());                    
-                    break;
-                case HistoricEvent.ID_STATIC:
-                    RemoteEvent evt = new RemoteEvent();
-                    evt.event = (HistoricEvent)sample.getSample();
-                    evt.location = loc;
-                    evt.system = system;
-                    evt.time = new Date(sample.getTimestampMillis());
-                    events.add(evt);
-                    break;
-                default:
-                    break;
+            if (sample.getSample().getMgid() == HistoricEvent.ID_STATIC) {
+                RemoteEvent evt = new RemoteEvent();
+                evt.event = (HistoricEvent)sample.getSample();
+                evt.location = loc;
+                evt.system = system;
+                evt.time = new Date(sample.getTimestampMillis());
+                events.add(evt);
             }
         }
         
@@ -254,6 +231,7 @@ public class HistoricDataInteraction extends ConsoleInteraction {
         events.clear();
         dataStore.clearData();
         mouseOver = null;
+        overlay.clear();
         NeptusLog.pub().info("Clear all local data.");
     }
 
@@ -299,5 +277,6 @@ public class HistoricDataInteraction extends ConsoleInteraction {
             
             g.drawString("["+over.system+"] "+over.event.getText(), 30, 30);
         }                
+       
     }
 }
