@@ -71,6 +71,7 @@ import pt.lsts.neptus.console.ConsoleLayout;
 import pt.lsts.neptus.console.ConsolePanel;
 import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.plugins.NeptusProperty;
+import pt.lsts.neptus.plugins.NeptusProperty.LEVEL;
 import pt.lsts.neptus.plugins.PluginDescription;
 import pt.lsts.neptus.plugins.Popup;
 import pt.lsts.neptus.plugins.Popup.POSITION;
@@ -95,15 +96,19 @@ public class Tracking extends ConsolePanel implements ItemListener {
     @NeptusProperty(name = "caravela-aux", editable = false)
     private String remotesystem = "caravela-aux";
     
-    @NeptusProperty(name = "Cam1 RTPS URL", editable = false)
+    /*@NeptusProperty(name = "Cam1 RTPS URL", editable = false)
     private String cam1RtpsUrl = "rtsp://usercam1:usercam1@10.0.10.46:88/videoMain";
     @NeptusProperty(name = "Cam2 RTPS URL", editable = false)
-    private String cam2RtpsUrl = "rtsp://usercam2:usercam2@10.0.10.47:88/videoMain";
+    private String cam2RtpsUrl = "rtsp://usercam2:usercam2@10.0.10.47:88/videoMain";*/
     
-    /*@NeptusProperty(name = "Cam1 RTPS URL", editable = false)
+    @NeptusProperty(name = "Cam1 RTPS URL", editable = false)
     private String cam1RtpsUrl = "rtsp://10.0.20.207:554/live/ch01_0";
     @NeptusProperty(name = "Cam2 RTPS URL", editable = false)
-    private String cam2RtpsUrl = "rtsp://10.0.20.209:554/live/ch01_0";*/
+    private String cam2RtpsUrl = "rtsp://10.0.20.209:554/live/ch01_0";
+    @NeptusProperty(name = "TPL Size", editable = true, userLevel = LEVEL.REGULAR)
+    private int tplsize = 50;
+    @NeptusProperty(name = "Window Search Size", editable = true, userLevel = LEVEL.REGULAR)
+    private int windowSearchSize = 90;
 
     // Width size of Console
     private int widhtConsole;
@@ -163,7 +168,7 @@ public class Tracking extends ConsolePanel implements ItemListener {
     private int realXCoordCam2;
     private int realYCoordCam2;
     private boolean showDebug;
-    private boolean isCtrlPress;
+    private boolean isAltPress;
     // JPopup Menu
     private JPopupMenu popup;
     private boolean startCapture;
@@ -237,9 +242,9 @@ public class Tracking extends ConsolePanel implements ItemListener {
      * Initialize Variables
      */
     public void initVariables() {
-        fpsMax = 30;;
+        fpsMax = 30;
         showDebug = false;
-        isCtrlPress = false;
+        isAltPress = false;
         noVideoLogoState = false;
         startCapture = false;
         closePlugin = true;
@@ -445,8 +450,8 @@ public class Tracking extends ConsolePanel implements ItemListener {
                                 frameSizeCam1.width = matCam1.width();
                                 frameSizeCam1.height = matCam1.height();
                             }
-                            Core.rectangle(matCam1, new Point(coordCam1.x - 25, coordCam1.y -25), new Point(coordCam1.x + 25, coordCam1.y + 25), greenColor, 1);
-                            Core.rectangle(matCam1, new Point(coordCam1.x - 45, coordCam1.y -45), new Point(coordCam1.x + 45, coordCam1.y + 45), blueColor, 1);
+                            Core.rectangle(matCam1, new Point(coordCam1.x - (tplsize/2), coordCam1.y -(tplsize/2)), new Point(coordCam1.x + (tplsize/2), coordCam1.y + (tplsize/2)), greenColor, 1);
+                            Core.rectangle(matCam1, new Point(coordCam1.x - (windowSearchSize/2), coordCam1.y -(windowSearchSize/2)), new Point(coordCam1.x + (windowSearchSize/2), coordCam1.y + (windowSearchSize/2)), blueColor, 1);
 
                             long stopTime = System.currentTimeMillis();
                             while((stopTime - startTime) < (1000/fpsMax)) {
@@ -545,8 +550,8 @@ public class Tracking extends ConsolePanel implements ItemListener {
                                 frameSizeCam2.width = matCam2.width();
                                 frameSizeCam2.height = matCam2.height();
                             }
-                            Core.rectangle(matCam2, new Point(coordCam2.x - 25, coordCam2.y -25), new Point(coordCam2.x + 25, coordCam2.y + 25), greenColor, 1);
-                            Core.rectangle(matCam2, new Point(coordCam2.x - 45, coordCam2.y -45), new Point(coordCam2.x + 45, coordCam2.y + 45), blueColor, 1);
+                            Core.rectangle(matCam2, new Point(coordCam2.x - (tplsize/2), coordCam2.y -(tplsize/2)), new Point(coordCam2.x + (tplsize/2), coordCam2.y + (tplsize/2)), greenColor, 1);
+                            Core.rectangle(matCam2, new Point(coordCam2.x - (windowSearchSize/2), coordCam2.y -(windowSearchSize/2)), new Point(coordCam2.x + (windowSearchSize/2), coordCam2.y + (windowSearchSize/2)), blueColor, 1);
 
                             long stopTime = System.currentTimeMillis();
                             while((stopTime - startTime) < (1000/fpsMax)) {
@@ -631,11 +636,11 @@ public class Tracking extends ConsolePanel implements ItemListener {
     /**
      * Setup WatchDog
      */
-    private void setupWatchDogCam(double timeout) {
+    private void setupWatchDogCam(long timeoutMili) {
         watchDogCam = new Thread(new Runnable() {
             @Override
             public void run() {
-                methodWatchDogCam(timeout);
+                methodWatchDogCam(timeoutMili);
             }
         });
     }
@@ -651,32 +656,32 @@ public class Tracking extends ConsolePanel implements ItemListener {
     /**
      * Reset WatchDog for IPCam1
      */
-    private void resetWatchDogCam1(double timeout) {
-        endTimeMillisCam1 = (long) (System.currentTimeMillis() + timeout);
+    private void resetWatchDogCam1(long timeoutMili) {
+        endTimeMillisCam1 = System.currentTimeMillis() + timeoutMili;
         virtualEndThreadCam1 = false;
     }
     
     /**
      * Reset WatchDog for IPCam2
      */
-    private void resetWatchDogCam2(double timeout) {
-        endTimeMillisCam2 = (long) (System.currentTimeMillis() + timeout);
+    private void resetWatchDogCam2(long timeoutMili) {
+        endTimeMillisCam2 = System.currentTimeMillis() + timeoutMili;
         virtualEndThreadCam2 = false;
     }
 
     /**
      * Reset WatchDog for Lost com
      */
-    private void resetWatchDogLostCom(double timeout) {
-        endTimeMillisLostCom = (long) (System.currentTimeMillis() + timeout);
+    private void resetWatchDogLostCom(long timeoutMili) {
+        endTimeMillisLostCom = System.currentTimeMillis() + timeoutMili;
         virtualEndThreadLostCom = false;
     }
 
     /**
      * WatchDog Method
      */
-    private void methodWatchDogCam(double miliseconds) {
-        endTimeMillisCam1 = (long) (System.currentTimeMillis() + miliseconds);
+    private void methodWatchDogCam(long miliseconds) {
+        endTimeMillisCam1 = System.currentTimeMillis() + miliseconds;
         virtualEndThreadCam1 = false;
         while (true) {
             if (System.currentTimeMillis() > endTimeMillisCam1 && !virtualEndThreadCam1) {
@@ -858,9 +863,14 @@ public class Tracking extends ConsolePanel implements ItemListener {
                 });
         item3.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_F, ActionEvent.ALT_MASK));
         popup.addSeparator();
-        JLabel infoDebug = new JLabel(I18n.text("Info Debug use Ctrl-D"));
-        infoDebug.setIcon(ImageUtils.createImageIcon(String.format("images/menus/comment.png")));
-        popup.add(infoDebug, JMenuItem.CENTER_ALIGNMENT);
+        JMenuItem item4;
+        popup.add(item4 = new JMenuItem(I18n.text("Info Debug"), ImageUtils.createImageIcon(String.format("images/menus/comment.png"))))
+                .addActionListener(new ActionListener() {
+                    public void actionPerformed(ActionEvent e) {
+                        showDebug = !showDebug;
+                    }
+                });
+        item4.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_D, ActionEvent.ALT_MASK));
         popup.show(this, x, y);
     }
 
@@ -871,7 +881,7 @@ public class Tracking extends ConsolePanel implements ItemListener {
         addKeyListener(new KeyListener() {
             public void keyReleased(KeyEvent e) {
                 if (e.getKeyCode() == KeyEvent.VK_CONTROL)
-                    isCtrlPress = false;
+                    isAltPress = false;
             }
 
             @Override
@@ -881,10 +891,10 @@ public class Tracking extends ConsolePanel implements ItemListener {
             @Override
             public void keyPressed(KeyEvent e) {
                 
-                if (e.getKeyCode() == KeyEvent.VK_CONTROL)
-                    isCtrlPress = true;
+                if (e.getKeyCode() == KeyEvent.VK_ALT)
+                    isAltPress = true;
                 
-                if (e.getKeyCode() == KeyEvent.VK_D && isCtrlPress) {
+                if (e.getKeyCode() == KeyEvent.VK_D && isAltPress) {
                     showDebug = !showDebug;
                 }
                 else if ((e.getKeyCode() == KeyEvent.VK_S) && ((e.getModifiers() & KeyEvent.ALT_MASK) != 0)) {
