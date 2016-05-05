@@ -61,9 +61,16 @@ import pt.lsts.neptus.util.GuiUtils;
 @PluginDescription(name="Export to CSV")
 public class CSVExporter implements MRAExporter {
     
+    /** Line ending to use */
+    private static final String LINE_ENDING = "\r\n";
+    
     @NeptusProperty(name = "Message List to Export", editorClass = StringListEditor.class,
             description = "List of messages to export. Use '!' at the begining to make it an exclude list.")
     public String msgList = "";
+
+    @NeptusProperty(name = "Textualize enumerations and bitfields",
+            description = "If true will transform the enumerations and bitfields into the textual representation.")
+    public boolean textualizeEnum = true;
 
     private IMraLogGroup source;
     private LinkedHashMap<Short, String> entityNames = new LinkedHashMap<>();
@@ -86,7 +93,7 @@ public class CSVExporter implements MRAExporter {
             else
                 ret += ", " + field;
         }
-        return ret + "\n";
+        return ret + LINE_ENDING;
     }
 
     public String getLine(IMCMessage m) {
@@ -100,19 +107,45 @@ public class CSVExporter implements MRAExporter {
         String ret = floats.format(m.getTimestamp()) + ", " + m.getSourceName() + ", " + entity;
 
         for (String field : m.getFieldNames()) {
-            switch (m.getTypeOf(field)) {
-                case "fp32_t":
-                    ret += ", " + floats.format(m.getDouble(field));
-                    break;
-                case "fp64_t":
-                    ret += ", " + doubles.format(m.getDouble(field));
-                    break;
-                default:
-                    ret += ", " + m.getAsString(field);
-                    break;
+            Object v = m.getValue(field);
+            if (textualizeEnum && v instanceof Number
+                    && m.getMessageType().getFieldPossibleValues(field) != null) {
+                if (m.getUnitsOf(field).equals("tuplelist")
+                        || m.getUnitsOf(field).equals("enumerated")) {
+                    return m.getMessageType().getFieldPossibleValues(field).get(
+                            ((Number) v).longValue());
+                }
+                else {
+
+                    long val = m.getLong(field);
+                    String str = "";
+                    for (int i = 0; i < 16; i++) {
+                        long bitVal = (long) Math.pow(2, i);
+                        if ((val & bitVal) > 0)
+                            str += m.getMessageType().getFieldPossibleValues(field).get(bitVal) + "|";
+                    }
+                    str = str.replaceAll("null\\|", "");
+                    str = str.replaceAll("\\|null", "");
+                    if (str.length() > 0) // remove last "|"
+                        str = str.substring(0, str.length() - 1);
+                    ret += ", " + str;
+                }
+            }
+            else {
+                switch (m.getTypeOf(field)) {
+                    case "fp32_t":
+                        ret += ", " + floats.format(m.getDouble(field));
+                        break;
+                    case "fp64_t":
+                        ret += ", " + doubles.format(m.getDouble(field));
+                        break;
+                    default:
+                        ret += ", " + m.getAsString(field);
+                        break;
+                }
             }
         }
-        return ret + "\n";
+        return ret + LINE_ENDING;
     }
 
     @Override
