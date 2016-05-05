@@ -1695,6 +1695,13 @@ CustomInteractionSupport, IMapPopup, FocusListener {
     }
 
     /**
+     * @return the identity
+     */
+    public AffineTransform getIdentity() {
+        return identity;
+    }
+
+    /**
      * {@link KeyListener} implementation. Monitors key presses for changing the current view
      */
     @Override

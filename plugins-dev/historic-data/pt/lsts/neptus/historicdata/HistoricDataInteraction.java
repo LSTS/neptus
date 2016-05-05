@@ -31,62 +31,100 @@
  */
 package pt.lsts.neptus.historicdata;
 
+import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.event.ActionEvent;
 import java.awt.event.MouseEvent;
+import java.awt.geom.Ellipse2D;
 import java.awt.geom.Point2D;
+import java.util.ArrayList;
+import java.util.Date;
 import java.util.LinkedHashMap;
 
 import javax.swing.JPopupMenu;
 import javax.swing.SwingUtilities;
 
+import org.mozilla.javascript.edu.emory.mathcs.backport.java.util.Collections;
+
 import com.google.common.eventbus.Subscribe;
 
 import pt.lsts.imc.Heartbeat;
+import pt.lsts.imc.HistoricCTD;
+import pt.lsts.imc.HistoricData;
 import pt.lsts.imc.HistoricDataQuery;
 import pt.lsts.imc.HistoricDataQuery.TYPE;
+import pt.lsts.imc.HistoricEvent;
+import pt.lsts.imc.HistoricSonarData;
+import pt.lsts.imc.HistoricTelemetry;
+import pt.lsts.imc.historic.DataSample;
 import pt.lsts.imc.historic.DataStore;
 import pt.lsts.neptus.NeptusLog;
+import pt.lsts.neptus.colormap.ColorMapFactory;
 import pt.lsts.neptus.comm.manager.imc.ImcSystemsHolder;
 import pt.lsts.neptus.console.ConsoleInteraction;
 import pt.lsts.neptus.i18n.I18n;
+import pt.lsts.neptus.mra.WorldImage;
 import pt.lsts.neptus.plugins.NeptusProperty;
 import pt.lsts.neptus.plugins.PluginDescription;
 import pt.lsts.neptus.renderer2d.StateRenderer2D;
+import pt.lsts.neptus.types.coord.LocationType;
+import pt.lsts.neptus.types.map.PathElement;
 import pt.lsts.neptus.types.vehicle.VehicleType.SystemTypeEnum;
 
 /**
- * This plugin is used to retrieve and display historic data 
- * stored in the vehicles and on the web (Ripples)
+ * This plugin is used to retrieve and display historic data stored in the vehicles and on the web (Ripples)
+ * 
  * @author zp
  *
  */
-@PluginDescription(name="Historic Data", experimental=true)
+@PluginDescription(name = "Historic Data", experimental = true)
 public class HistoricDataInteraction extends ConsoleInteraction {
 
     private DataStore dataStore = new DataStore();
     private LinkedHashMap<String, Long> lastPollTime = new LinkedHashMap<>();
     private int req_id = 1;
+    private WorldImage imgTemp = new WorldImage(3, ColorMapFactory.createJetColorMap());
+    private WorldImage imgCond = new WorldImage(3, ColorMapFactory.createJetColorMap());
+    private WorldImage imgDepth = new WorldImage(3, ColorMapFactory.createJetColorMap());
+    private WorldImage imgAltitude = new WorldImage(3, ColorMapFactory.createJetColorMap());
+    private WorldImage imgPitch = new WorldImage(3, ColorMapFactory.createJetColorMap());
+    private LinkedHashMap<String, ArrayList<RemotePosition>> positions = new LinkedHashMap<>();
+    private LinkedHashMap<String, PathElement> positionCache = new LinkedHashMap<>();
+    private ArrayList<RemoteEvent> events = new ArrayList<>();
+    private RemoteEvent mouseOver = null;
     
-    @NeptusProperty(name="Seconds between periodic data requests")
+    @NeptusProperty(name = "Seconds between periodic data requests")
     private int secsBetweenPolling = 60;
-        
+
     @Override
     public void initInteraction() {
-        
+
     }
 
     @Override
     public void cleanInteraction() {
-        
+
+    }
+
+    @Override
+    public void mouseMoved(MouseEvent event, StateRenderer2D source) {
+        super.mouseMoved(event, source);
+        for (RemoteEvent evt : events) {
+            Point2D pt = source.getScreenPosition(evt.location);
+            if (pt.distance(event.getPoint()) <= 3.0) {
+                mouseOver = evt;
+                return;
+            }
+        }
+        mouseOver = null;
     }
     
     @Override
-    public void mouseClicked(MouseEvent event, StateRenderer2D source){
+    public void mouseClicked(MouseEvent event, StateRenderer2D source) {
         if (SwingUtilities.isRightMouseButton(event))
-            rightClick(event.getPoint(), source);        
+            rightClick(event.getPoint(), source);
     }
-    
+
     @Subscribe
     public void on(Heartbeat beat) {
         if (ImcSystemsHolder.lookupSystem(beat.getSrc()).getType() == SystemTypeEnum.VEHICLE) {
@@ -95,59 +133,171 @@ public class HistoricDataInteraction extends ConsoleInteraction {
                     return;
                 }
             }
-            pollDataFrom(beat.getSourceName());            
+            pollDataFrom(beat.getSourceName());
         }
     }
-    
+
     private void pollDataFrom(String system) {
         HistoricDataQuery req = new HistoricDataQuery();
         req.setReqId(req_id++);
         req.setType(TYPE.QUERY);
         req.setMaxSize(64000);
-        NeptusLog.pub().info("Polling historic data from "+system);
+        NeptusLog.pub().info("Polling historic data from " + system);
         lastPollTime.put(system, System.currentTimeMillis());
         getConsole().getImcMsgManager().sendMessageToSystem(req, system);
     }
     
-    @Subscribe
-    public void on(HistoricDataQuery query) {
-        if (query.getType() == HistoricDataQuery.TYPE.REPLY) {
-            dataStore.addData(query.getData());
-            HistoricDataQuery clear = new HistoricDataQuery();
-            clear.setType(TYPE.CLEAR);
-            clear.setData(null);
-            clear.setReqId(query.getReqId());
-            NeptusLog.pub().info("Clearing received data from "+query.getSourceName());
-            getConsole().getImcMsgManager().sendMessageToSystem(clear, query.getSourceName());
+    public void process(HistoricData incoming) {
+        
+        ArrayList<DataSample> newSamples = DataSample.parseSamples(incoming);
+        Collections.sort(newSamples);
+        
+        for (DataSample sample : DataSample.parseSamples(incoming)) {
+            LocationType loc = new LocationType(sample.getLatDegs(), sample.getLonDegs());
+            loc.setDepth(sample.getzMeters());
+            String system = ImcSystemsHolder.translateImcIdToSystemName(sample.getSource());
             
-            // If message's size is near the requested size, retrieve more data
-            if (query.getSize() > 50000)
-                pollDataFrom(query.getSourceName());            
+            if (!positions.containsKey(system))
+                positions.put(system, new ArrayList<>());
+            positions.get(system).add(new RemotePosition(sample.getTimestampMillis(), loc));
+            
+            switch (sample.getSample().getMgid()) {
+                case HistoricCTD.ID_STATIC:
+                    imgDepth.addPoint(loc, ((HistoricCTD) sample.getSample()).getDepth());
+                    imgCond.addPoint(loc, ((HistoricCTD) sample.getSample()).getConductivity());
+                    imgTemp.addPoint(loc, ((HistoricCTD) sample.getSample()).getTemperature());
+                    break;
+                case HistoricSonarData.ID_STATIC:
+                    
+                    break;
+                case HistoricTelemetry.ID_STATIC:
+                    imgPitch.addPoint(loc, ((HistoricTelemetry) sample.getSample()).getPitch() * (360.0 / 65535));
+                    imgAltitude.addPoint(loc, ((HistoricTelemetry) sample.getSample()).getAltitude());                    
+                    break;
+                case HistoricEvent.ID_STATIC:
+                    RemoteEvent evt = new RemoteEvent();
+                    evt.event = (HistoricEvent)sample.getSample();
+                    evt.location = loc;
+                    evt.system = system;
+                    evt.time = new Date(sample.getTimestampMillis());
+                    events.add(evt);
+                    break;
+                default:
+                    break;
+            }
+        }
+        
+        for (String key : positions.keySet()) {
+            Collections.sort(positions.get(key));
+            PathElement el = new PathElement();
+            LocationType center = positions.get(key).get(0).getLocation(); 
+            el.centerLocation.setLocation(center);
+            for (RemotePosition l : positions.get(key))
+                el.addPoint(l.getLocation());
+            el.setFilled(false);
+            el.setShape(false);
+            try {
+                el.setMyColor(ImcSystemsHolder.getSystemWithName(key).getVehicle().getIconColor());
+            }
+            catch (Exception e) {
+                el.setMyColor(Color.blue);
+            }
+                
+            positionCache.put(key, el);
         }
     }
+
+    @Subscribe
+    public void on(HistoricDataQuery query) {
+        try {
+            if (query.getType() == HistoricDataQuery.TYPE.REPLY) {
+                dataStore.addData(query.getData());
+                process(query.getData());
+                HistoricDataQuery clear = new HistoricDataQuery();
+                clear.setType(TYPE.CLEAR);
+                clear.setData(null);
+                clear.setReqId(query.getReqId());
+                NeptusLog.pub().info("Clearing received data from " + query.getSourceName());
+                getConsole().getImcMsgManager().sendMessageToSystem(clear, query.getSourceName());
     
+                // If message's size is near the requested size, retrieve more data
+                if (query.getSize() > 50000)
+                    pollDataFrom(query.getSourceName());
+            }
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
     private void rightClick(Point2D point, StateRenderer2D source) {
         JPopupMenu popup = new JPopupMenu();
-        popup.add(I18n.text("Poll historic data")).addActionListener(this::pollHistoricData);
+        popup.add(I18n.textf("Poll from %vehicle", getConsole().getMainSystem()))
+                .addActionListener(this::pollHistoricData);
+        popup.add(I18n.text("Poll from Web")).addActionListener(this::pollWeb);
         popup.add(I18n.text("Clear local data")).addActionListener(this::clearLocalData);
         popup.add(I18n.text("Upload local data")).addActionListener(this::uploadLocalData);
         popup.show(source, (int) point.getX(), (int) point.getY());
     }
-    
+
     private void pollHistoricData(ActionEvent evt) {
-        pollDataFrom(getConsole().getMainSystem());        
+        pollDataFrom(getConsole().getMainSystem());
     }
-    
+
+    private void pollWeb(ActionEvent evt) {
+        // TODO
+    }
+
     private void clearLocalData(ActionEvent evt) {
-        //TODO
+        positions.clear();
+        positionCache.clear();
+        events.clear();
+        dataStore.clearData();
+        mouseOver = null;
+        NeptusLog.pub().info("Clear all local data.");
     }
-    
+
     private void uploadLocalData(ActionEvent evt) {
-        //TODO
-    }    
+        // TODO
+    }
 
     @Override
     public void paintInteraction(Graphics2D g, StateRenderer2D source) {
-        // TODO
+        g.setTransform(source.getIdentity());
+        g.setColor(Color.red);
+        
+        for (PathElement p : positionCache.values()) {
+            g.setTransform(source.getIdentity());
+            p.paint(g, source, source.getRotation());
+        }
+        
+        for (RemoteEvent evt : events) {
+            
+            Point2D pt = source.getScreenPosition(evt.location);
+            switch (evt.event.getType()) {
+                case ERROR:
+                    g.setColor(Color.red.darker());
+                    break;
+                case INFO:
+                    g.setColor(Color.blue.darker());
+                    break;
+            }
+            g.fill(new Ellipse2D.Double(pt.getX()-4, pt.getY()-4, 8, 8));
+        }
+        
+        RemoteEvent over = mouseOver;
+        
+        if (over != null) {
+            switch (over.event.getType()) {
+                case ERROR:
+                    g.setColor(Color.red.darker());
+                    break;
+                case INFO:
+                    g.setColor(Color.blue.darker());
+                    break;
+            }
+            
+            g.drawString("["+over.system+"] "+over.event.getText(), 30, 30);
+        }                
     }
 }

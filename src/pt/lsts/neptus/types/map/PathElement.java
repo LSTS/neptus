@@ -122,6 +122,7 @@ public class PathElement extends AbstractElement {
         this.myPath = new GeneralPath();
         this.myPath.moveTo(0, 0);
     }
+    
 
     @Override
     public boolean load(Element elem) {
@@ -401,6 +402,11 @@ public class PathElement extends AbstractElement {
             g.setColor(new Color(myColor.getRed(), myColor.getGreen(), myColor.getBlue(), 100));
             g.fill(scaledPath);
         }
+    }
+    
+    public void addPoint(LocationType point) {
+        double[] offsets = point.getOffsetFrom(centerLocation);
+        addPoint(offsets[1], offsets[0], 0, false);
     }
 
     public void addPoint(double eastOffset, double northOffset, double depthOffset, boolean absolute) {
