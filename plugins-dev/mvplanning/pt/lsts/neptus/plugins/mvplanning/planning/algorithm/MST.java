@@ -34,6 +34,7 @@ package pt.lsts.neptus.plugins.mvplanning.planning.algorithm;
 import java.util.ArrayList;
 import java.util.List;
 
+import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.data.Pair;
 import pt.lsts.neptus.plugins.mvplanning.planning.MapCell;
 
@@ -97,8 +98,10 @@ public class MST {
                         currentNode = backtrackNodes.get(0);
                 }
             }
-            else /* Graph needs to be connected in order to have an MST*/
+            else { /* Graph needs to be connected in order to have an MST*/
+                NeptusLog.pub().error("Can't generate a Minimum Spanning Tree because the graph is not connected! Node: " + currentNode.id() + " has no neighbours");
                 return null;
+            }
         }
         return mst;
     }
