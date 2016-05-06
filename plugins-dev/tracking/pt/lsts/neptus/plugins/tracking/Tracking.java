@@ -484,8 +484,11 @@ public class Tracking extends ConsolePanel implements ItemListener {
                                 frameSizeCam1.width = matCam1.width();
                                 frameSizeCam1.height = matCam1.height();
                             }
-                            Core.rectangle(matCam1, new Point(coordCam1.x - (tplsize/2), coordCam1.y -(tplsize/2)), new Point(coordCam1.x + (tplsize/2), coordCam1.y + (tplsize/2)), greenColor, 1);
-                            Core.rectangle(matCam1, new Point(coordCam1.x - (windowSearchSize/2), coordCam1.y -(windowSearchSize/2)), new Point(coordCam1.x + (windowSearchSize/2), coordCam1.y + (windowSearchSize/2)), blueColor, 1);
+
+                            if (isTracking) {
+                                Core.rectangle(matCam1, new Point(coordCam1.x - (tplsize/2), coordCam1.y -(tplsize/2)), new Point(coordCam1.x + (tplsize/2), coordCam1.y + (tplsize/2)), greenColor, 1);
+                                Core.rectangle(matCam1, new Point(coordCam1.x - (windowSearchSize/2), coordCam1.y -(windowSearchSize/2)), new Point(coordCam1.x + (windowSearchSize/2), coordCam1.y + (windowSearchSize/2)), blueColor, 1);
+                            }
 
                             long stopTime = System.currentTimeMillis();
                             while((stopTime - startTime) < (1000/fpsMax)) {
@@ -538,13 +541,6 @@ public class Tracking extends ConsolePanel implements ItemListener {
                 boolean isAliveIPCams;
                 boolean stateIPCams = false;
                 while (true) {
-                    /*if(captureCam2 != null) {
-                        if(captureCam1 != null) {
-                            if(captureCam2.isOpened() && !captureCam1.isOpened()) {
-                                captureCam2.release();
-                            }
-                        }
-                    }*/
                     if (!closePlugin && startCapture) {
                         if (stateIPCams == false || !captureCam2.isOpened()) {
                             captureCam2 = new VideoCapture();
@@ -584,8 +580,11 @@ public class Tracking extends ConsolePanel implements ItemListener {
                                 frameSizeCam2.width = matCam2.width();
                                 frameSizeCam2.height = matCam2.height();
                             }
-                            Core.rectangle(matCam2, new Point(coordCam2.x - (tplsize/2), coordCam2.y -(tplsize/2)), new Point(coordCam2.x + (tplsize/2), coordCam2.y + (tplsize/2)), greenColor, 1);
-                            Core.rectangle(matCam2, new Point(coordCam2.x - (windowSearchSize/2), coordCam2.y -(windowSearchSize/2)), new Point(coordCam2.x + (windowSearchSize/2), coordCam2.y + (windowSearchSize/2)), blueColor, 1);
+
+                            if (isTracking) {
+                                Core.rectangle(matCam2, new Point(coordCam2.x - (tplsize/2), coordCam2.y -(tplsize/2)), new Point(coordCam2.x + (tplsize/2), coordCam2.y + (tplsize/2)), greenColor, 1);
+                                Core.rectangle(matCam2, new Point(coordCam2.x - (windowSearchSize/2), coordCam2.y -(windowSearchSize/2)), new Point(coordCam2.x + (windowSearchSize/2), coordCam2.y + (windowSearchSize/2)), blueColor, 1);
+                            }
 
                             long stopTime = System.currentTimeMillis();
                             while((stopTime - startTime) < (1000/fpsMax)) {
