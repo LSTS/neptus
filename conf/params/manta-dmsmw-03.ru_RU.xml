@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<config format="1" version="2016.03.0 (master,75a147e)" system="manta-dmsmw-03" i18n="ru_RU">
+<config format="1" version="2016.05.0 (master,c659c28)" system="manta-dmsmw-03" i18n="ru_RU">
   <section name="Navigation" name-i18n="Navigation">
     <param name="Entity Label">
       <name-i18n>Entity Label</name-i18n>
@@ -360,7 +360,7 @@
       <type>string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>N/C (+12V_S2)</default>
+      <default>Benthos</default>
       <units/>
       <desc/>
     </param>
@@ -369,7 +369,7 @@
       <type>integer</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>0</default>
+      <default>1</default>
       <units/>
       <desc/>
     </param>
@@ -378,7 +378,7 @@
       <type>string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>N/C (+12V_S1)</default>
+      <default>WizNet</default>
       <units/>
       <desc/>
     </param>
@@ -387,7 +387,7 @@
       <type>integer</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>0</default>
+      <default>1</default>
       <units/>
       <desc/>
     </param>
@@ -1161,7 +1161,7 @@
       <type>string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>Micromodem Addresses</default>
+      <default>Micromodem Addresses - DMSMW</default>
       <units/>
       <desc>Name of the configuration section with modem addresses</desc>
     </param>
