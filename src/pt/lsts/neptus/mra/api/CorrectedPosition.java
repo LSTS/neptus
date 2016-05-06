@@ -101,7 +101,13 @@ public class CorrectedPosition {
             LocationType lastLoc = null;
             double lastTime = 0;
 
+            source.getLsfIndex().hasMultipleVehicles();
+            Collection<Integer> systemsLst = source.getVehicleSources();
+            int sysToUse = systemsLst.iterator().next();
+            
             for (EstimatedState es = it.next(); es != null; es = it.next()) {
+                if (es.getSrc() != sysToUse)
+                    continue;
                 
                 LocationType thisLoc = new LocationType();
                 thisLoc.setLatitudeRads(es.getLat());
