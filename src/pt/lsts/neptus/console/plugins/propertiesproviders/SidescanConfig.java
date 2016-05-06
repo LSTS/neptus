@@ -29,7 +29,7 @@
  * Author: jqcorreia
  * Mar 19, 2013
  */
-package pt.lsts.neptus.console.plugins.PropertiesProviders;
+package pt.lsts.neptus.console.plugins.propertiesproviders;
 
 import java.awt.Color;
 
