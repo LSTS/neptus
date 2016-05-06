@@ -62,10 +62,10 @@ public class SidescanConfig implements PropertiesProvider {
     public ColorMap colorMap = ColorMapFactory.createBronzeColormap();
     
     @NeptusProperty (name="Normalization factor", category="Visualization parameters")
-    public double normalization = 0.1;
+    public double normalization = 0.2;
     
     @NeptusProperty (name="Time Variable Gain factor", category="Visualization parameters")
-    public double tvgGain = 120;
+    public double tvgGain = 280;
     
     @NeptusProperty (name="Display Vehicle Path", category="Vehicle Path")
     public boolean showPositionHud = true;
