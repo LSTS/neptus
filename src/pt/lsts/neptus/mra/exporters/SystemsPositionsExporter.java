@@ -45,7 +45,6 @@ import pt.lsts.imc.IMCMessage;
 import pt.lsts.imc.RemoteSensorInfo;
 import pt.lsts.imc.ReportedState;
 import pt.lsts.imc.lsf.LsfIndex;
-import pt.lsts.imc.lsf.LsfIterator;
 import pt.lsts.neptus.comm.IMCUtils;
 import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.mra.importers.IMraLogGroup;
