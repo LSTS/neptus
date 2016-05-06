@@ -31,14 +31,21 @@
  */
 package pt.lsts.neptus.mra;
 
-import pt.lsts.neptus.NeptusLog;
-import pt.lsts.neptus.mra.importers.IMraLogGroup;
-import pt.lsts.neptus.types.coord.LocationType;
-
-import java.io.*;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.InputStream;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.io.OutputStream;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
+
+import pt.lsts.neptus.NeptusLog;
+import pt.lsts.neptus.mra.importers.IMraLogGroup;
+import pt.lsts.neptus.types.coord.LocationType;
 
 /**
  * This will be serializable, so no name changes of the fields!
