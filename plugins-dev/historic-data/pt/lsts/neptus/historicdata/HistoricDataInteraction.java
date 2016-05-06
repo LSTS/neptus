@@ -43,6 +43,7 @@ import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.TimeZone;
 import java.util.Vector;
+import java.util.concurrent.Future;
 
 import javax.swing.BorderFactory;
 import javax.swing.JLabel;
@@ -70,6 +71,7 @@ import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.plugins.NeptusProperty;
 import pt.lsts.neptus.plugins.PluginDescription;
 import pt.lsts.neptus.plugins.PluginUtils;
+import pt.lsts.neptus.plugins.update.Periodic;
 import pt.lsts.neptus.renderer2d.StateRenderer2D;
 import pt.lsts.neptus.types.coord.LocationType;
 import pt.lsts.neptus.types.map.PathElement;
@@ -92,16 +94,29 @@ public class HistoricDataInteraction extends ConsoleInteraction {
     private ArrayList<RemoteEvent> events = new ArrayList<>();
     private ArrayList<RemoteEvent> mouseOver = new ArrayList<>();
     private HistoricGroundOverlay overlay = null;
+    private HistoricWebAdapter webAdapter = new HistoricWebAdapter(dataStore);
+    private long lastWebSync = System.currentTimeMillis();
     
-    @NeptusProperty(name = "Seconds between periodic data requests")
+    private Future<Boolean> ongoingPost = null, ongoingRequest = null;
+    
+    @NeptusProperty(name = "Automatically poll data from vehicles")
+    private boolean pollFromVehicles = true;
+    
+    @NeptusProperty(name = "Seconds between vehicle data polling")
     private int secsBetweenPolling = 60;
+    
+    @NeptusProperty(name = "Automatically synchronize data with Ripples (Web)")
+    private boolean syncWithRipples = true;
+    
+    @NeptusProperty(name = "Seconds between Ripples synchronizations")
+    private int secsBetweenSyncing = 60;
     
     @NeptusProperty(name = "Data to display in ground overlay")
     private DATA_TYPE overlayType = DATA_TYPE.None;
     
     @NeptusProperty(name = "Ground overlay colormap")
     private ColorMap overlayColormap = ColorMapFactory.createJetColorMap();
-        
+    
     @Override
     public void initInteraction() {
         Vector<HistoricGroundOverlay> overlays = getConsole().getMapPluginsOfType(HistoricGroundOverlay.class);
@@ -160,6 +175,19 @@ public class HistoricDataInteraction extends ConsoleInteraction {
             }
             pollDataFrom(beat.getSourceName());
         }
+    }
+    
+    @Periodic(millisBetweenUpdates=5000)
+    public void webSync() {
+        if (!syncWithRipples)
+            return;
+        if (System.currentTimeMillis() - lastWebSync < secsBetweenSyncing * 1000)
+            return;
+        
+        uploadLocalData(null);
+        pollWeb(null);
+        
+        lastWebSync = System.currentTimeMillis();
     }
 
     private void pollDataFrom(String system) {
@@ -242,8 +270,7 @@ public class HistoricDataInteraction extends ConsoleInteraction {
     private void rightClick(Point2D point, StateRenderer2D source) {
         JPopupMenu popup = new JPopupMenu();
         popup.add(I18n.textf("Poll from %vehicle", getConsole().getMainSystem()))
-                .addActionListener(this::pollHistoricData);
-        
+                .addActionListener(this::pollFromVehicle);        
         popup.add(I18n.text("Poll from Web")).addActionListener(this::pollWeb);
         popup.add(I18n.text("Clear local data")).addActionListener(this::clearLocalData);
         popup.add(I18n.text("Upload local data")).addActionListener(this::uploadLocalData);
@@ -253,7 +280,7 @@ public class HistoricDataInteraction extends ConsoleInteraction {
         popup.show(source, (int) point.getX(), (int) point.getY());
     }
 
-    private void pollHistoricData(ActionEvent evt) {
+    private void pollFromVehicle(ActionEvent evt) {
         pollDataFrom(getConsole().getMainSystem());
     }
 
@@ -279,7 +306,11 @@ public class HistoricDataInteraction extends ConsoleInteraction {
     }
     
     private void uploadLocalData(ActionEvent evt) {
-        // TODO
+        if (ongoingPost != null && !ongoingPost.isDone()) {
+            NeptusLog.pub().warn("Interrupting ongoing post for sending new data.");
+            ongoingPost.cancel(true);
+        }        
+        ongoingPost = webAdapter.upload();
     }
 
     @Override
