@@ -1215,6 +1215,32 @@ public class ConsoleLayout extends JFrame implements XmlInOutMethods, ComponentL
             return new Vector<T>();
         }
     }
+    
+    /**
+     * 
+     * @param subPanelType
+     * @return
+     */
+    @SuppressWarnings("unchecked")
+    public <T> Vector<T> getMapPluginsOfType(Class<T> pluginType) {
+        try {
+            Vector<T> ret = new Vector<T>();
+
+            for (IConsoleLayer l : layers.keySet())
+                if (pluginType.isAssignableFrom(l.getClass()))
+                    ret.add((T)l);
+            
+            for (IConsoleInteraction l : interactions.keySet())
+                if (pluginType.isAssignableFrom(l.getClass()))
+                    ret.add((T)l);
+           
+            return ret;
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+            return new Vector<T>();
+        }
+    }
 
     @SuppressWarnings("unchecked")
     private <T extends ConsolePanel> Vector<T> getSubPanelType(ConsolePanel sp, Class<T> superClass) {

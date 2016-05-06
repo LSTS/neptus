@@ -37,10 +37,15 @@ import java.awt.event.ActionEvent;
 import java.awt.event.MouseEvent;
 import java.awt.geom.Ellipse2D;
 import java.awt.geom.Point2D;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.LinkedHashMap;
+import java.util.TimeZone;
+import java.util.Vector;
 
+import javax.swing.BorderFactory;
+import javax.swing.JLabel;
 import javax.swing.JPopupMenu;
 import javax.swing.SwingUtilities;
 
@@ -56,15 +61,17 @@ import pt.lsts.imc.HistoricEvent;
 import pt.lsts.imc.historic.DataSample;
 import pt.lsts.imc.historic.DataStore;
 import pt.lsts.neptus.NeptusLog;
+import pt.lsts.neptus.colormap.ColorMap;
+import pt.lsts.neptus.colormap.ColorMapFactory;
 import pt.lsts.neptus.comm.manager.imc.ImcSystemsHolder;
 import pt.lsts.neptus.console.ConsoleInteraction;
 import pt.lsts.neptus.historicdata.HistoricGroundOverlay.DATA_TYPE;
 import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.plugins.NeptusProperty;
 import pt.lsts.neptus.plugins.PluginDescription;
+import pt.lsts.neptus.plugins.PluginUtils;
 import pt.lsts.neptus.renderer2d.StateRenderer2D;
 import pt.lsts.neptus.types.coord.LocationType;
-import pt.lsts.neptus.types.map.ImageElement;
 import pt.lsts.neptus.types.map.PathElement;
 import pt.lsts.neptus.types.vehicle.VehicleType.SystemTypeEnum;
 
@@ -74,7 +81,7 @@ import pt.lsts.neptus.types.vehicle.VehicleType.SystemTypeEnum;
  * @author zp
  *
  */
-@PluginDescription(name = "Historic Data", experimental = true)
+@PluginDescription(name = "Historic Data", icon="pt/lsts/neptus/historicdata/rewind_icon.png")
 public class HistoricDataInteraction extends ConsoleInteraction {
 
     private DataStore dataStore = new DataStore();
@@ -83,33 +90,58 @@ public class HistoricDataInteraction extends ConsoleInteraction {
     private LinkedHashMap<String, ArrayList<RemotePosition>> positions = new LinkedHashMap<>();
     private LinkedHashMap<String, PathElement> positionCache = new LinkedHashMap<>();
     private ArrayList<RemoteEvent> events = new ArrayList<>();
-    private RemoteEvent mouseOver = null;
-    private HistoricGroundOverlay overlay = new HistoricGroundOverlay();
+    private ArrayList<RemoteEvent> mouseOver = new ArrayList<>();
+    private HistoricGroundOverlay overlay = null;
     
     @NeptusProperty(name = "Seconds between periodic data requests")
     private int secsBetweenPolling = 60;
-
+    
+    @NeptusProperty(name = "Data to display in ground overlay")
+    private DATA_TYPE overlayType = DATA_TYPE.None;
+    
+    @NeptusProperty(name = "Ground overlay colormap")
+    private ColorMap overlayColormap = ColorMapFactory.createJetColorMap();
+        
     @Override
     public void initInteraction() {
-        getConsole().addMapLayer(overlay);
+        Vector<HistoricGroundOverlay> overlays = getConsole().getMapPluginsOfType(HistoricGroundOverlay.class);
+        if (overlays.isEmpty()) {
+            overlay = new HistoricGroundOverlay();
+            getConsole().addMapLayer(overlay);
+        }
+        else {
+            overlay = overlays.firstElement();
+        }
+        
+        propertiesChanged();
     }
 
     @Override
     public void cleanInteraction() {
         getConsole().removeMapLayer(overlay);
     }
+    
+    @Override
+    public void propertiesChanged() {
+        super.propertiesChanged();
+        overlay.setColormap(overlayColormap);
+        overlay.setTypeToPaint(overlayType);
+        overlay.resetImage();
+    }
 
     @Override
     public void mouseMoved(MouseEvent event, StateRenderer2D source) {
         super.mouseMoved(event, source);
-        for (RemoteEvent evt : events) {
-            Point2D pt = source.getScreenPosition(evt.location);
-            if (pt.distance(event.getPoint()) <= 3.0) {
-                mouseOver = evt;
-                return;
+        synchronized (mouseOver) {
+            mouseOver = new ArrayList<>();
+            for (RemoteEvent evt : events) {
+                Point2D pt = source.getScreenPosition(evt.location);
+                if (pt.distance(event.getPoint()) <= 3.0) {
+                    mouseOver.add(evt);
+                }
             }
-        }
-        mouseOver = null;
+            Collections.sort(mouseOver);    
+        }        
     }
     
     @Override
@@ -194,7 +226,7 @@ public class HistoricDataInteraction extends ConsoleInteraction {
                 clear.setType(TYPE.CLEAR);
                 clear.setData(null);
                 clear.setReqId(query.getReqId());
-                NeptusLog.pub().info("Clearing received data from " + query.getSourceName());
+                NeptusLog.pub().debug("Clearing received data from " + query.getSourceName());
                 getConsole().getImcMsgManager().sendMessageToSystem(clear, query.getSourceName());
     
                 // If message's size is near the requested size, retrieve more data
@@ -211,9 +243,13 @@ public class HistoricDataInteraction extends ConsoleInteraction {
         JPopupMenu popup = new JPopupMenu();
         popup.add(I18n.textf("Poll from %vehicle", getConsole().getMainSystem()))
                 .addActionListener(this::pollHistoricData);
+        
         popup.add(I18n.text("Poll from Web")).addActionListener(this::pollWeb);
         popup.add(I18n.text("Clear local data")).addActionListener(this::clearLocalData);
         popup.add(I18n.text("Upload local data")).addActionListener(this::uploadLocalData);
+        popup.addSeparator();
+        popup.add(I18n.text("Settings")).addActionListener(this::showSettings);
+        
         popup.show(source, (int) point.getX(), (int) point.getY());
     }
 
@@ -230,11 +266,18 @@ public class HistoricDataInteraction extends ConsoleInteraction {
         positionCache.clear();
         events.clear();
         dataStore.clearData();
-        mouseOver = null;
+        synchronized (mouseOver) {
+            mouseOver = new ArrayList<>();
+        }
         overlay.clear();
         NeptusLog.pub().info("Clear all local data.");
     }
 
+    private void showSettings(ActionEvent evt) {
+        PluginUtils.editPluginProperties(this, true);
+        propertiesChanged();
+    }
+    
     private void uploadLocalData(ActionEvent evt) {
         // TODO
     }
@@ -263,20 +306,35 @@ public class HistoricDataInteraction extends ConsoleInteraction {
             g.fill(new Ellipse2D.Double(pt.getX()-4, pt.getY()-4, 8, 8));
         }
         
-        RemoteEvent over = mouseOver;
+        ArrayList<RemoteEvent> copy = new ArrayList<>();
+        synchronized (mouseOver) {
+            copy.addAll(mouseOver);    
+        }
         
-        if (over != null) {
-            switch (over.event.getType()) {
-                case ERROR:
-                    g.setColor(Color.red.darker());
-                    break;
-                case INFO:
-                    g.setColor(Color.blue.darker());
-                    break;
+        if (!copy.isEmpty()) {
+           SimpleDateFormat sdf = new SimpleDateFormat("HH:mm:ss");
+           sdf.setTimeZone(TimeZone.getTimeZone("UTC"));
+           
+           String html = "<html>";
+           for (RemoteEvent evt : copy) {
+               switch (evt.event.getType()) {
+                   case ERROR:
+                       html += "<font color=#990000>";
+                       break;
+                   case INFO:
+                       html += "<font color=#009900>";
+                       break;
+               }
+               html += "<b>"+sdf.format(evt.time)+" / "+evt.system+":</b> "+evt.event.getText()+"<br/>";
             }
-            
-            g.drawString("["+over.system+"] "+over.event.getText(), 30, 30);
-        }                
-       
+            JLabel lbl = new JLabel(html);
+            lbl.setOpaque(true);
+            lbl.setBorder(BorderFactory.createEmptyBorder(3, 3, 3, 3));
+            g.setTransform(source.getIdentity());
+            lbl.setBounds(0, 0, lbl.getPreferredSize().width, lbl.getPreferredSize().height);
+            lbl.setBackground(new Color(255,255,255,180));
+            g.translate(source.getWidth()-lbl.getPreferredSize().getWidth() - 3, source.getHeight()-lbl.getPreferredSize().getHeight() - 3);
+            lbl.paint(g);
+        }       
     }
 }

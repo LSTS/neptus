@@ -40,11 +40,16 @@ import pt.lsts.neptus.types.coord.LocationType;
  * @author zp
  *
  */
-public class RemoteEvent {
+public class RemoteEvent implements Comparable<RemoteEvent> {
 
     public Date time;
     public String system;
     public LocationType location;
     public HistoricEvent event;
+    
+    @Override
+    public int compareTo(RemoteEvent o) {
+        return time.compareTo(o.time);
+    }
     
 }

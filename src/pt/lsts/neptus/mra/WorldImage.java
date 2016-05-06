@@ -33,9 +33,6 @@ package pt.lsts.neptus.mra;
 
 import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
-import java.io.File;
-
-import javax.imageio.ImageIO;
 
 import pt.lsts.neptus.colormap.ColorMap;
 import pt.lsts.neptus.colormap.ColorMapUtils;
@@ -113,6 +110,20 @@ public class WorldImage {
         return elem;
     }
     
+    /**
+     * @return the cmap
+     */
+    public ColorMap getColormap() {
+        return cmap;
+    }
+
+    /**
+     * @param cmap the cmap to set
+     */
+    public void setColormap(ColorMap cmap) {
+        this.cmap = cmap;
+    }
+
     public BufferedImage processData() {
         if (getAmountDataPoints() == 0)
             return null;

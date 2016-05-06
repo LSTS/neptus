@@ -31,6 +31,8 @@
  */
 package pt.lsts.neptus.historicdata;
 
+import java.awt.Color;
+import java.awt.Font;
 import java.awt.Graphics2D;
 
 import pt.lsts.imc.HistoricCTD;
@@ -39,18 +41,25 @@ import pt.lsts.imc.HistoricEvent;
 import pt.lsts.imc.HistoricSonarData;
 import pt.lsts.imc.HistoricTelemetry;
 import pt.lsts.imc.historic.DataSample;
+import pt.lsts.neptus.NeptusLog;
+import pt.lsts.neptus.colormap.ColorBar;
+import pt.lsts.neptus.colormap.ColorMap;
 import pt.lsts.neptus.colormap.ColorMapFactory;
 import pt.lsts.neptus.console.ConsoleLayer;
+import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.mra.WorldImage;
+import pt.lsts.neptus.plugins.PluginDescription;
 import pt.lsts.neptus.renderer2d.StateRenderer2D;
 import pt.lsts.neptus.types.coord.LocationType;
 import pt.lsts.neptus.types.map.ImageElement;
+import pt.lsts.neptus.util.GuiUtils;
 import pt.lsts.neptus.util.bathymetry.TidePredictionFactory;
 
 /**
  * @author zp
  *
  */
+@PluginDescription(name="Historic Ground Overlay", icon="pt/lsts/neptus/historicdata/rewind_icon.png")
 public class HistoricGroundOverlay extends ConsoleLayer {
 
     private WorldImage imgTemp = new WorldImage(3, ColorMapFactory.createJetColorMap());
@@ -60,8 +69,10 @@ public class HistoricGroundOverlay extends ConsoleLayer {
     private WorldImage imgPitch = new WorldImage(3, ColorMapFactory.createJetColorMap());
     private DATA_TYPE cache = null;
     private ImageElement image = null;
-    private DATA_TYPE typeToPaint = DATA_TYPE.Altitude;
-    
+    private DATA_TYPE typeToPaint = DATA_TYPE.None;
+
+    private Boolean processing = false;
+
     public void clear() {
         imgTemp = new WorldImage(3, ColorMapFactory.createJetColorMap());
         imgCond = new WorldImage(3, ColorMapFactory.createJetColorMap());
@@ -71,11 +82,12 @@ public class HistoricGroundOverlay extends ConsoleLayer {
         cache = null;
         image = null;
     }
-    
+
     public void process(HistoricData incoming) {
         for (DataSample sample : DataSample.parseSamples(incoming)) {
             LocationType loc = new LocationType(sample.getLatDegs(), sample.getLonDegs());
             loc.setDepth(sample.getzMeters());
+
             switch (sample.getSample().getMgid()) {
                 case HistoricCTD.ID_STATIC:
                     imgDepth.addPoint(loc, ((HistoricCTD) sample.getSample()).getDepth());
@@ -83,10 +95,13 @@ public class HistoricGroundOverlay extends ConsoleLayer {
                     imgTemp.addPoint(loc, ((HistoricCTD) sample.getSample()).getTemperature());
                     break;
                 case HistoricSonarData.ID_STATIC:
-                    
+
                     break;
                 case HistoricTelemetry.ID_STATIC:
-                    imgPitch.addPoint(loc, ((HistoricTelemetry) sample.getSample()).getPitch() * (360.0 / 65535));
+                    double val = ((HistoricTelemetry) sample.getSample()).getPitch() * (360.0 / 65535);
+                    if (val > 180)
+                        val -= 360;
+                    imgPitch.addPoint(loc, val);
                     double alt = ((HistoricTelemetry) sample.getSample()).getAltitude();
                     if (alt > 0)
                         imgAltitude.addPoint(loc, sample.getzMeters() + alt
@@ -99,58 +114,128 @@ public class HistoricGroundOverlay extends ConsoleLayer {
         }
         cache = null;
     }
-    
+
     public ImageElement getImage(DATA_TYPE dataType) {
         if (cache == dataType)
             return image;
         else {
-            
-            WorldImage pivot = null;
-            
-            switch (dataType) {
-                case Conductivity:
-                    pivot = imgCond;
-                    break;
-                case Temperature:
-                    pivot = imgTemp;
-                    break;
-                case Altitude:
-                    pivot = imgAltitude;
-                    break;
-                case Depth:
-                    pivot = imgDepth;
-                    break;
-                case Pitch:
-                    pivot = imgPitch;
-                default:
-                    break;
+            synchronized (processing) {
+                if (!processing) {
+                    processing = true;
+                    Thread t = new Thread("Historic Overlay: Generate image") {
+                        @Override
+                        public void run() {
+                            WorldImage pivot = null;
+                            switch (dataType) {
+                                case Conductivity:
+                                    pivot = imgCond;
+                                    break;
+                                case Temperature:
+                                    pivot = imgTemp;
+                                    break;
+                                case Altitude:
+                                    pivot = imgAltitude;
+                                    break;
+                                case Depth:
+                                    pivot = imgDepth;
+                                    break;
+                                case Pitch:
+                                    pivot = imgPitch;
+                                default:
+                                    break;
+                            }
+                            if (pivot == null)
+                                image = null;
+                            else
+                                image = pivot.asImageElement();
+                            cache = dataType;
+                            processing = false;
+                        }
+                    };
+                    t.start();
+                }                
             }
-            
-            if (pivot == null)
-                return null;
-            
-            image = pivot.asImageElement();
-            cache = dataType;
-            return image;
+            return null;
         }
     }
-    
+
     public static enum DATA_TYPE {
         Conductivity,
         Temperature,
         Altitude,
         Depth,
-        Pitch
+        Pitch,
+        None
     }
-    
-    
-    
+
+
+
     @Override
     public void paint(Graphics2D g, StateRenderer2D renderer) {
         ImageElement elem = getImage(typeToPaint);
         g.setTransform(renderer.getIdentity());
-        if (elem != null)
+        if (elem != null) {
             elem.paint(g, renderer, renderer.getRotation());
+            paintLegend(g, renderer);
+        }
+    }
+
+    public void paintLegend(Graphics2D g, StateRenderer2D renderer) {        
+        g.setTransform(renderer.getIdentity());
+        String text = "";
+        WorldImage pivot = null;
+        switch (getTypeToPaint()) {
+            case Depth:
+                pivot = imgDepth;
+                text = I18n.text("Depth (m)");
+                break;
+            case Altitude:
+                pivot = imgAltitude;
+                text = I18n.text("Bathym. (m)");
+                break;
+            case Conductivity:
+                text = I18n.text("Cond. (m)");
+                pivot = imgCond;
+                break;
+            case Pitch:
+                text = I18n.text("Pitch (deg)");
+                pivot = imgPitch;
+                break;
+            case Temperature:
+                text = I18n.text("Temp. (ºC)");
+                pivot = imgTemp;
+                break;
+            default:
+                break;
+        }
+
+        if (pivot == null)
+            return;
+
+        g.setColor(new Color(255,255,255,100));
+        g.fillRoundRect(10, 10, 100, 170, 10, 10);
+
+        ColorBar cb = new ColorBar(ColorBar.VERTICAL_ORIENTATION, pivot.getColormap());
+        cb.setSize(15, 80);
+        g.setColor(Color.black);
+        Font prev = g.getFont();
+        g.setFont(new Font("Helvetica", Font.BOLD, 14));
+        g.setFont(prev);
+        g.translate(15, 45);
+        cb.paint(g);
+        g.translate(-10, -15);
+
+        try {
+            g.drawString(GuiUtils.getNeptusDecimalFormat(2).format(pivot.getMaxValue()), 28, 20);
+            g.drawString(GuiUtils.getNeptusDecimalFormat(2).format((pivot.getMaxValue()+pivot.getMinValue())/2), 28, 60);
+            g.drawString(GuiUtils.getNeptusDecimalFormat(2).format(pivot.getMinValue()), 28, 100);
+        }
+        catch (Exception e) {
+            NeptusLog.pub().error(e);
+            e.printStackTrace();
+        }
+        g.translate(10, 120);
+        g.drawString(text, 0, 15);
     }
 
     @Override
@@ -160,11 +245,37 @@ public class HistoricGroundOverlay extends ConsoleLayer {
 
     @Override
     public void initLayer() {
-        
+
     }
 
     @Override
     public void cleanLayer() {
         clear();
+    }
+
+    /**
+     * @return the typeToPaint
+     */
+    public DATA_TYPE getTypeToPaint() {
+        return typeToPaint;
+    }
+
+    public void setColormap(ColorMap colormap) {
+        imgTemp.setColormap(colormap);
+        imgAltitude.setColormap(colormap);
+        imgCond.setColormap(colormap);
+        imgDepth.setColormap(colormap);
+        imgPitch.setColormap(colormap);
+    }
+
+    /**
+     * @param typeToPaint the typeToPaint to set
+     */
+    public void setTypeToPaint(DATA_TYPE typeToPaint) {
+        this.typeToPaint = typeToPaint;
+    }
+
+    public void resetImage() {
+        cache = null;
     }
 }
