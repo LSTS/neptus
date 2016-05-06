@@ -96,20 +96,20 @@ public class MRAPanel extends JPanel {
     private JScrollPane jspMessageTree;
     private JScrollPane jspLogTree;
 
-    private final LinkedHashMap<String, MRAVisualization> visualizationList = new LinkedHashMap<String, MRAVisualization>();
-    private final LinkedHashMap<String, Component> openVisualizationList = new LinkedHashMap<String, Component>();
-    private final ArrayList<String> loadingVisualizations = new ArrayList<String>();
+    private final LinkedHashMap<String, MRAVisualization> visualizationList = new LinkedHashMap<>();
+    private final LinkedHashMap<String, Component> openVisualizationList = new LinkedHashMap<>();
+    private final ArrayList<String> loadingVisualizations = new ArrayList<>();
 
-    private final ArrayList<LogMarker> logMarkers = new ArrayList<LogMarker>();
+    private final ArrayList<LogMarker> logMarkers = new ArrayList<>();
     private MRAVisualization shownViz = null;
     private Vector<MissionChangeListener> mcl = new Vector<>();
     private NeptusMRA mra;
-    
+
     InfiniteProgressPanel loader = InfiniteProgressPanel.createInfinitePanelBeans("");
 
     /**
      * Constructor
-     * 
+     *
      * @param source
      * @param mra
      */
@@ -118,7 +118,7 @@ public class MRAPanel extends JPanel {
         this.mra = mra;
 
         TidesMraLoader.setDefaultTideIfNotExisted(source);
-        
+
         // ------- Setup interface --------
         setLayout(new BorderLayout(3, 3));
 
@@ -190,7 +190,7 @@ public class MRAPanel extends JPanel {
                     usedTideStr = hF;
             }
         }
-        
+
         statusBar.add(new JLabel("<html><b>" + I18n.text("Log") + ":</b> " + source.name() + date
                 + ((veh != null) ? " | <b>" + I18n.text("System") + ":</b> " + veh.getName() : "")
                 + (" | <b>" + I18n.text("Tides") + ":</b> " + usedTideStr)));
@@ -218,21 +218,21 @@ public class MRAPanel extends JPanel {
         for (String visName : PluginsRepository.getMraVisualizations().keySet()) {
             try {
                 Class<?> vis = PluginsRepository.getMraVisualizations().get(visName);
-                
+
                 if (!mra.getMraProperties().isVisualizationActive(vis))
                     continue;
 
                 Constructor<?>[] constructors = vis.getDeclaredConstructors();
                 boolean instantiated = false;
                 MRAVisualization visualization = null;
-                
+
                 for (Constructor<?> c : constructors) {
                     if (c.getParameterTypes().length == 1 && c.getParameterTypes()[0].equals(MRAPanel.class)) {
                         instantiated = true;
                         visualization = (MRAVisualization) vis.getDeclaredConstructor(MRAPanel.class)
                                 .newInstance(this);
                         PluginUtils.loadProperties(visualization, "mra");
-                        
+
                     }
                 }
                 if (!instantiated) {
@@ -240,14 +240,14 @@ public class MRAPanel extends JPanel {
                     PluginUtils.loadProperties(visualization, "mra");
                     instantiated = true;
                 }
-                
+
                 if (visualization.canBeApplied(MRAPanel.this.source)) {
                     visualizations.add(visualization);
                 }
                 if (visualization instanceof MissionChangeListener) {
                     addMissionChangeListener((MissionChangeListener)visualization);
                 }
-                
+
             }
             catch (Exception e1) {
                 e1.printStackTrace();
@@ -264,17 +264,12 @@ public class MRAPanel extends JPanel {
 
         visualizations.addAll(MRAChartFactory.getScriptedPlots(this));
 
-        Collections.sort(visualizations, new Comparator<MRAVisualization>() {
-            @Override
-            public int compare(MRAVisualization o1, MRAVisualization o2) {
-                return o1.getName().compareTo(o2.getName());
-            }
-        });
+        Collections.sort(visualizations, (o1, o2) -> o1.getName().compareTo(o2.getName()));
 
         // Load PluginVisualizations
         for (MRAVisualization viz : visualizations) {
             try {
-                loadVisualization(viz, false);               
+                loadVisualization(viz, false);
             }
             catch (Exception e1) {
                 NeptusLog.pub().error(
@@ -290,7 +285,7 @@ public class MRAPanel extends JPanel {
     }
 
     /**
-     * 
+     *
      * @param vis
      * @param open
      */
@@ -351,11 +346,11 @@ public class MRAPanel extends JPanel {
 
         source.cleanup();
         source = null;
-        
+
     }
 
     /**
-     * 
+     *
      * @param obj
      */
     public void removeTreeObject(Object obj) {
@@ -373,7 +368,7 @@ public class MRAPanel extends JPanel {
     }
 
     /**
-     * 
+     *
      * @param marker
      * @return
      */
@@ -386,7 +381,7 @@ public class MRAPanel extends JPanel {
     }
 
     /**
-     * 
+     *
      * @param marker
      * @param distance
      */
@@ -405,12 +400,11 @@ public class MRAPanel extends JPanel {
     }
 
     /**
-     * 
+     *
      * @param marker
      */
     public void addMarker(LogMarker marker) {
-
-        if (LsfReportProperties.generatingReport==true){
+        if (LsfReportProperties.generatingReport){
             //GuiUtils.infoMessage(getRootPane(), I18n.text("Can not add Marks"), I18n.text("Can not add Marks - Generating Report."));
             return;
         }
@@ -445,13 +439,14 @@ public class MRAPanel extends JPanel {
     }
 
     /**
-     * 
+     *
      * @param marker
      */
     public void removeMarker(LogMarker marker) {
-
-        if (LsfReportProperties.generatingReport==true){
-            GuiUtils.infoMessage(getRootPane(), I18n.text("Can not remove Marks"), I18n.text("Can not remove Marks - Generating Report."));
+        if (LsfReportProperties.generatingReport){
+            GuiUtils.infoMessage(getRootPane(),
+                    I18n.text("Can not remove Marks"),
+                    I18n.text("Can not remove Marks - Generating Report."));
             return;
         }
 
@@ -472,7 +467,7 @@ public class MRAPanel extends JPanel {
     /**
      * Load markers
      */
-    public void loadMarkers() {
+    private void loadMarkers() {
         logMarkers.clear();
         logMarkers.addAll(LogMarker.load(source));
         Collections.sort(logMarkers);
@@ -522,24 +517,23 @@ public class MRAPanel extends JPanel {
     public InfiniteProgressPanel getLoader() {
         return loader;
     }
-    
+
     public void addMissionChangeListener(MissionChangeListener l) {
         if (!mcl.contains(l))
             mcl.add(l);
-        
+
     }
-    
+
     public void warnChangeListeners(MissionType newMission) {
         for (MissionChangeListener m : mcl) {
             m.missionReplaced(newMission);
         }
     }
-    
 
     /**
      *
      */
-    class LoadTask implements Runnable {
+    private class LoadTask implements Runnable {
         MRAVisualization vis;
 
         public LoadTask(MRAVisualization vis) {
@@ -579,7 +573,7 @@ public class MRAPanel extends JPanel {
                         ((LogMarkerListener) vis).addLogMarker(marker);
                     }
                 }
-                
+
                 loader.stop();
                 loadingVisualizations.remove(vis.getName());
             }
