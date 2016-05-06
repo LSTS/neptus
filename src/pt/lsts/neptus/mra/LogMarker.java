@@ -31,153 +31,122 @@
  */
 package pt.lsts.neptus.mra;
 
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
-import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Date;
-
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.mra.importers.IMraLogGroup;
 import pt.lsts.neptus.types.coord.LocationType;
 
+import java.io.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Date;
+
 /**
  * This will be serializable, so no name changes of the fields!
- * @author jqcorreia
  *
+ * @author jqcorreia
  */
 public class LogMarker implements Serializable, Comparable<LogMarker> {
     private static final long serialVersionUID = 1L;
-
-    protected String label;
-    
-    /**
-     * Time stamp in milliseconds
-     */
-    protected double timestamp;
+    private static final String MARKER_FILE = "marks.dat";
+    private String label;
+    private double timestamp;
+    private double lat;
+    private double lon;
 
     /**
-     * Latitude in radians
-     */
-    protected double lat;
-    /**
-     * Longitude in radians
-     */
-    protected double lon;
-    
-    /**
-     * @param label Text to associate with the marker
+     * @param label     Text to associate with the marker
      * @param timestamp in milliseconds
-     * @param latRads Latitude, in radians of the marker. Use 0 if not available.
-     * @param lonRads Longitude, in radians of the marker. Use 0 if not available.
+     * @param latRads   Latitude, in radians of the marker. Use 0 if not available.
+     * @param lonRads   Longitude, in radians of the marker. Use 0 if not available.
      */
     public LogMarker(String label, double timestamp, double latRads, double lonRads) {
         super();
-        this.label = label;
-        this.timestamp = timestamp;
-        this.lat = latRads;
-        this.lon = lonRads;
+        this.setLabel(label);
+        this.setTimestamp(timestamp);
+        this.setLatRads(latRads);
+        this.setLonRads(lonRads);
     }
-    
+
     @Override
     public int compareTo(LogMarker o) {
-        if (o.timestamp > timestamp)
+        if (o.getTimestamp() > getTimestamp())
             return -1;
-        else if (o.timestamp < timestamp)
+        else if (o.getTimestamp() < getTimestamp())
             return 1;
         else
             return 0;
     }
-    
+
     @SuppressWarnings("unchecked")
     public static Collection<LogMarker> load(IMraLogGroup source) {
-        ArrayList<LogMarker> logMarkers = new ArrayList<LogMarker>();
+        ArrayList<LogMarker> logMarkers = new ArrayList<>();
         try {
-            ObjectInputStream ois = new ObjectInputStream(new FileInputStream(source.getFile("Data.lsf").getParent()
-                    + "/marks.dat"));
-            for (LogMarker marker : (ArrayList<LogMarker>) ois.readObject()) {
-                logMarkers.add(marker);                
-            }
+            String folder = source.getFile("Data.lsf").getParent();
+            InputStream stream = new FileInputStream(folder + File.separator + MARKER_FILE);
+            ObjectInputStream ois = new ObjectInputStream(stream);
+            logMarkers.addAll(((ArrayList<LogMarker>) ois.readObject()));
             ois.close();
-            
-        }
-        catch (Exception e) {
+
+        } catch (Exception e) {
             NeptusLog.pub().info("No markers for this log, or erroneous mark file");
         }
         return logMarkers;
     }
-    
+
     public static void save(ArrayList<LogMarker> logMarkers, IMraLogGroup source) {
         try {
-            ObjectOutputStream dos = new ObjectOutputStream(new FileOutputStream(source.getFile(".").getParent()
-                    + "/marks.dat"));
+            String folder = source.getFile(".").getParent();
+            OutputStream stream = new FileOutputStream(folder + File.separator + MARKER_FILE);
+            ObjectOutputStream dos = new ObjectOutputStream(stream);
             dos.writeObject(logMarkers);
             dos.close();
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             e.printStackTrace();
         }
     }
-   
-    
+
     public LocationType getLocation() {
-        return new LocationType(Math.toDegrees(lat), Math.toDegrees(lon));
+        return new LocationType(Math.toDegrees(getLatRads()), Math.toDegrees(getLonRads()));
     }
 
-    /**
-     * @return the label
-     */
     public String getLabel() {
         return label;
     }
 
-    /**
-     * @return the timestamp
-     */
+    public void setLabel(String label) {
+        this.label = label;
+    }
+
     public double getTimestamp() {
         return timestamp;
     }
 
-    /**
-     * @return the lat
-     */
+    public void setTimestamp(double timestamp) {
+        this.timestamp = timestamp;
+    }
+
     public double getLatRads() {
         return lat;
     }
 
-    /**
-     * @param latRads the lat to set
-     */
     public void setLatRads(double latRads) {
         this.lat = latRads;
     }
 
-    /**
-     * @return the lon
-     */
     public double getLonRads() {
         return lon;
     }
 
-    /**
-     * @param lonRads the lon to set
-     */
     public void setLonRads(double lonRads) {
         this.lon = lonRads;
     }
-    
+
     public Date getDate() {
-        return new Date((long)timestamp);
+        return new Date((long) getTimestamp());
     }
 
-    /* (non-Javadoc)
-     * @see java.lang.Object#toString()
-     */
     @Override
     public String toString() {
-        return label;
+        return getLabel();
     }
 }
