@@ -70,7 +70,7 @@ public class SidescanToolbar extends JToolBar {
 
     // Normalization.
     private final JLabel lblNormalization = new JLabel(I18n.text("Normalization"));
-    private final SpinnerNumberModel modelNormalization = new SpinnerNumberModel(0.0, -1000.0, 1000.0, 1.0);
+    private final SpinnerNumberModel modelNormalization = new SpinnerNumberModel(0.0, 0.0, 100.0, 0.1);
     private final JSpinner spinNormalization = new JSpinner();
 
     // TVG.
