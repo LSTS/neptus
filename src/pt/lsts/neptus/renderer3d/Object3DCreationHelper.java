@@ -1231,7 +1231,7 @@ public class Object3DCreationHelper {
             image3D.maxvalue = img.getMaxHeight();
             image3D.minvalue = img.getMaxDepth();
             // System.err.println("max"+maxHeight +"min"+maxDepth);
-            image3D.setResolution(img.getResolution());
+            image3D.setResolution((int)img.getResolution());
         }
         TransformGroup model = image3D.getModel3D();
         // Util3D.enablePicking(model);
