@@ -65,6 +65,8 @@ import com.google.common.eventbus.Subscribe;
 
 import net.miginfocom.swing.MigLayout;
 import pt.lsts.imc.GetImageCoords;
+import pt.lsts.imc.GetWorldCoordinates;
+import pt.lsts.imc.GetWorldCoordinates.TRACKING;
 import pt.lsts.imc.SetImageCoords;
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.console.ConsoleLayout;
@@ -96,15 +98,16 @@ public class Tracking extends ConsolePanel implements ItemListener {
     @NeptusProperty(name = "caravela-aux", editable = false)
     private String remotesystem = "caravela-aux";
     
-    /*@NeptusProperty(name = "Cam1 RTPS URL", editable = false)
+    @NeptusProperty(name = "Cam1 RTPS URL", editable = false)
     private String cam1RtpsUrl = "rtsp://usercam1:usercam1@10.0.10.46:88/videoMain";
     @NeptusProperty(name = "Cam2 RTPS URL", editable = false)
-    private String cam2RtpsUrl = "rtsp://usercam2:usercam2@10.0.10.47:88/videoMain";*/
-    
-    @NeptusProperty(name = "Cam1 RTPS URL", editable = false)
+    private String cam2RtpsUrl = "rtsp://usercam2:usercam2@10.0.10.47:88/videoMain";
+
+    /*@NeptusProperty(name = "Cam1 RTPS URL", editable = false)
     private String cam1RtpsUrl = "rtsp://10.0.20.207:554/live/ch01_0";
     @NeptusProperty(name = "Cam2 RTPS URL", editable = false)
-    private String cam2RtpsUrl = "rtsp://10.0.20.209:554/live/ch01_0";
+    private String cam2RtpsUrl = "rtsp://10.0.20.209:554/live/ch01_0";*/
+
     @NeptusProperty(name = "TPL Size", editable = true, userLevel = LEVEL.REGULAR)
     private int tplsize = 50;
     @NeptusProperty(name = "Window Search Size", editable = true, userLevel = LEVEL.REGULAR)
@@ -177,6 +180,12 @@ public class Tracking extends ConsolePanel implements ItemListener {
     private Point coordCam1;
     private Point coordCam2;
 
+    private FontMetrics fm;
+    private boolean isTracking;
+    private double xWorldCoord;
+    private double yWorldCoord;
+    private double zWorldCoord;
+
     Scalar greenColor;
     Scalar blueColor;
 
@@ -243,6 +252,7 @@ public class Tracking extends ConsolePanel implements ItemListener {
      */
     public void initVariables() {
         fpsMax = 30;
+        isTracking = false;
         showDebug = false;
         isAltPress = false;
         noVideoLogoState = false;
@@ -354,16 +364,40 @@ public class Tracking extends ConsolePanel implements ItemListener {
             if (showDebug) {
                 g.setColor(Color.BLACK);
                 g.setFont(new Font("Serif", Font.BOLD, 14));
-                FontMetrics fm = g.getFontMetrics();
+                fm = g.getFontMetrics();
                 g.drawString(textCam1, (int)panelSize.width / 2 - fm.stringWidth(textCam1) - 10, 20);
                 g.drawString(textCam2, (int)panelSize.width - fm.stringWidth(textCam2) - 10, 20);
                 g.setColor(Color.YELLOW);
-                fm = g.getFontMetrics();
                 g.drawString(textCam1, (int)panelSize.width / 2 - fm.stringWidth(textCam1) - 12, 20);
                 g.drawString(textCam2, (int)panelSize.width - fm.stringWidth(textCam2) - 12, 20);
                 g.dispose();
             }
             
+            if (isTracking) {
+                g.setFont(new Font("Serif", Font.PLAIN, 12));
+                fm = g.getFontMetrics();
+                textCam1 =String.format("Dist to Cam1 (m):");
+                g.setColor(Color.BLACK);
+                g.drawString(textCam1, 10, (int)panelSize.height - 44);
+                g.setColor(Color.ORANGE);
+                g.drawString(textCam1, 12, (int)panelSize.height - 44);
+                textCam1 =String.format("X: %.2f", xWorldCoord);
+                g.setColor(Color.BLACK);
+                g.drawString(textCam1, 10, (int)panelSize.height - 32);
+                g.setColor(Color.ORANGE);
+                g.drawString(textCam1, 12, (int)panelSize.height - 32);
+                textCam1 =String.format("Y: %.2f", yWorldCoord);
+                g.setColor(Color.BLACK);
+                g.drawString(textCam1, 10, (int)panelSize.height - 20);
+                g.setColor(Color.ORANGE);
+                g.drawString(textCam1, 12, (int)panelSize.height - 20);
+                textCam1 =String.format("Z: %.2f", zWorldCoord);
+                g.setColor(Color.BLACK);
+                g.drawString(textCam1, 10, (int)panelSize.height - 8);
+                g.setColor(Color.ORANGE);
+                g.drawString(textCam1, 12, (int)panelSize.height - 8);
+                g.dispose();
+            }
             refreshTemp = false;
         }
         else {
@@ -696,6 +730,7 @@ public class Tracking extends ConsolePanel implements ItemListener {
                     virtualEndThreadCam1 = true;
                     virtualEndThreadCam2 = true;
                     virtualEndThreadLostCom = true;
+                    isTracking = false;
                 }
             }
             else if (virtualEndThreadCam1) {
@@ -718,6 +753,7 @@ public class Tracking extends ConsolePanel implements ItemListener {
                     virtualEndThreadCam1 = true;
                     virtualEndThreadCam2 = true;
                     virtualEndThreadLostCom = true;
+                    isTracking = false;
                 }
             }
             else if (virtualEndThreadCam2) {
@@ -740,6 +776,7 @@ public class Tracking extends ConsolePanel implements ItemListener {
                     virtualEndThreadCam1 = true;
                     virtualEndThreadCam2 = true;
                     virtualEndThreadLostCom = true;
+                    isTracking = false;
 
                     forceCloseCapture();
                 }
@@ -921,13 +958,11 @@ public class Tracking extends ConsolePanel implements ItemListener {
     }
 
     /**
-     * Consume IMC message
+     * Consume IMC message (GetImageCoords)
      */
     @Subscribe
     public void consume( GetImageCoords msg ) {
         if (startCapture && remotesystem.compareTo(msg.getSourceName()) == 0 ) {
-            //System.out.println("Source Name "+msg.getSourceName()+" ID "+getMainVehicleId());
-            //System.out.println("VALUES REC: "+msg.getX()+" : "+msg.getY()+" ID: "+msg.getCamId());
             if (msg.getCamId() == 1) {
                 coordCam1.x = msg.getX();
                 coordCam1.y = msg.getY();
@@ -937,6 +972,27 @@ public class Tracking extends ConsolePanel implements ItemListener {
                 coordCam2.y = msg.getY();
             }
             resetWatchDogLostCom(8000);
+        }
+    }
+
+    /**
+     * Consume IMC message (GetWorldCoordinates)
+     */
+    @Subscribe
+    public void consume( GetWorldCoordinates msg ) {
+        if (startCapture && remotesystem.compareTo(msg.getSourceName()) == 0) {
+            if (msg.getTracking() == TRACKING.TRUE) {
+                isTracking = true;
+                xWorldCoord = msg.getX();
+                yWorldCoord = msg.getY();
+                zWorldCoord = msg.getZ();
+            }
+            else {
+                isTracking = false;
+            }
+        }
+        else {
+            isTracking = false;
         }
     }
 }
