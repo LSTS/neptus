@@ -331,9 +331,9 @@ public class LsfReport {
 
         LogTree tree = panel.getLogTree();
         Vector<LLFChart> llfCharts = new Vector<>();
-        for (int i = 0; i < tree.chartsNode.getChildCount(); i++) {
+        for (int i = 0; i < tree.getChartsNode().getChildCount(); i++) {
             try {
-                LLFChart chart = (LLFChart) ((DefaultMutableTreeNode) tree.chartsNode.getChildAt(i)).getUserObject();
+                LLFChart chart = (LLFChart) ((DefaultMutableTreeNode) tree.getChartsNode().getChildAt(i)).getUserObject();
                 llfCharts.add(chart);
             }
             catch (Exception e) {

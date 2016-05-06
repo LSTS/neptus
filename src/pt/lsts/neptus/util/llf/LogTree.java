@@ -69,13 +69,13 @@ public class LogTree extends JTree {
     LinkedHashMap<String, Component> visList = new LinkedHashMap<String, Component>();
     IMraLogGroup source;
 
-    private 
+    private
     // Root node
     DefaultMutableTreeNode root = new DefaultMutableTreeNode("root");
 
     // Top level nodes
     DefaultMutableTreeNode visualizationsNode = new DefaultMutableTreeNode(I18n.text("Visualizations"));
-    DefaultMutableTreeNode chartsNode = new DefaultMutableTreeNode(I18n.text("Charts"));
+    private DefaultMutableTreeNode chartsNode = new DefaultMutableTreeNode(I18n.text("Charts"));
     DefaultMutableTreeNode tablesNode = new DefaultMutableTreeNode(I18n.text("Tables"));
     DefaultMutableTreeNode markersNode;
 
@@ -84,15 +84,15 @@ public class LogTree extends JTree {
 
     DefaultTreeModel treeModel = new DefaultTreeModel(root);
     DefaultTreeCellRenderer treeRenderer = new DefaultTreeCellRenderer() {
-        
+
         private LinkedHashMap<Object, ImageIcon> iconCache = new LinkedHashMap<>();
-        
+
         @Override
         public Component getTreeCellRendererComponent(JTree tree, Object value, boolean selected, boolean expanded,
                 boolean leaf, int row, boolean hasFocus) {
-            
-            
-            
+
+
+
             DefaultMutableTreeNode node = (DefaultMutableTreeNode) value;
             super.getTreeCellRendererComponent(tree, value, selected, expanded, leaf, row, hasFocus);
 
@@ -101,14 +101,14 @@ public class LogTree extends JTree {
                 setText(viz.getName());
                 if (!iconCache.containsKey(viz))
                     iconCache.put(viz, viz.getIcon());
-                setIcon(iconCache.get(viz));                    
+                setIcon(iconCache.get(viz));
             }
             if(node.getUserObject() instanceof LogMarker) {
                 LogMarker mark = (LogMarker) node.getUserObject();
                 setText(mark.getLabel());
                 if (!iconCache.containsKey("markers"))
                     iconCache.put("markers", ImageUtils.getIcon("images/menus/marker.png"));
-                setIcon(iconCache.get("markers"));                
+                setIcon(iconCache.get("markers"));
             }
 
             return this;
@@ -122,9 +122,9 @@ public class LogTree extends JTree {
 
                 if(e.getClickCount()==1) {
                     // Single Click
-                    // TODO 
+                    // TODO
                 }
-                if(e.getClickCount()==2){ 
+                if(e.getClickCount()==2){
                     // Double Click
                     TreePath path = getPathForLocation(e.getX(), e.getY());
 
@@ -185,7 +185,7 @@ public class LogTree extends JTree {
                         });
                         showMenu = true;
                     }
-                    else if (n.getUserObject() instanceof LogTableVisualization || 
+                    else if (n.getUserObject() instanceof LogTableVisualization ||
                             n.getUserObject() instanceof GenericPlot ||
                             n.getUserObject() instanceof MessageHtmlVisualization) {
 
@@ -196,7 +196,7 @@ public class LogTree extends JTree {
                                 panel.removeTreeObject(n.getUserObject());
                             }
                         });
-                        showMenu = true;                        
+                        showMenu = true;
                     }
 
                     if (showMenu)
@@ -246,7 +246,7 @@ public class LogTree extends JTree {
         treeModel.nodeStructureChanged(root);
         expandAllTree();
     }
-    
+
     public void remove(Object obj, DefaultMutableTreeNode parent) {
         for (int i = 0; i < parent.getChildCount(); i++) {
             if (! (parent.getChildAt(i) instanceof DefaultMutableTreeNode))
@@ -261,7 +261,7 @@ public class LogTree extends JTree {
                     if (parent.getChildCount() == 0 && parent.getParent() instanceof DefaultMutableTreeNode) {
                         ((DefaultMutableTreeNode)parent.getParent()).remove(parent);
                     }
-                        
+
                     treeModel.nodeStructureChanged(root);
                     expandAllTree();
                     return;
@@ -272,7 +272,7 @@ public class LogTree extends JTree {
 
     public void remove(Object obj) {
         remove(obj, root);
-    }        
+    }
 
     public void addMarker(LogMarker marker) {
         if(markersNode == null) {
@@ -308,4 +308,11 @@ public class LogTree extends JTree {
         }
     }
 
+    public DefaultMutableTreeNode getChartsNode() {
+        return chartsNode;
+    }
+
+    public void setChartsNode(DefaultMutableTreeNode chartsNode) {
+        this.chartsNode = chartsNode;
+    }
 }
