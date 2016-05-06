@@ -26,7 +26,7 @@
  *
  * For more information please see <http://lsts.fe.up.pt/neptus>.
  *
- * Author: 
+ * Author:
  * 20??/??/??
  */
 package pt.lsts.neptus.util.llf;
@@ -331,9 +331,9 @@ public class LsfReport {
 
         LogTree tree = panel.getLogTree();
         Vector<LLFChart> llfCharts = new Vector<>();
-        for (int i = 0; i < tree.chartsNode.getChildCount(); i++) {
+        for (int i = 0; i < tree.getChartsNode().getChildCount(); i++) {
             try {
-                LLFChart chart = (LLFChart) ((DefaultMutableTreeNode) tree.chartsNode.getChildAt(i)).getUserObject();
+                LLFChart chart = (LLFChart) ((DefaultMutableTreeNode) tree.getChartsNode().getChildAt(i)).getUserObject();
                 llfCharts.add(chart);
             }
             catch (Exception e) {
@@ -650,8 +650,8 @@ public class LsfReport {
 
         SidescanLogMarker adjustedMark = adjustMark(mark);
         int subSys = ssParser.getSubsystemList().get(subSysN);
-        double wMeters = adjustedMark.wMeters;
-        boolean point = adjustedMark.point;
+        double wMeters = adjustedMark.getwMeters();
+        boolean point = adjustedMark.isPoint();
 
         // get the lines
         ArrayList<SidescanLine> list = null;
@@ -667,7 +667,7 @@ public class LsfReport {
             wMeters = (list.get(list.size() / 2).getRange() / 5);
 
         double x, x1, x2;
-        x = adjustedMark.x;
+        x = adjustedMark.getX();
         x += range;
         x1 = (x - (wMeters / 2));
         x2 = (x + (wMeters / 2));
@@ -697,18 +697,18 @@ public class LsfReport {
         }
 
         if (globalColorMap == false) {
-            config.colorMap = ColorMapFactory.getColorMapByName(adjustedMark.colorMap);
+            config.colorMap = ColorMapFactory.getColorMapByName(adjustedMark.getColorMap());
         }
-        
+
         if (point) {
             Color color = getColor(adjustedMark,ssParser,sidescanParams,config);
             result = createImgLineList(list, i1, i2, config, adjustedMark);
             result = paintPointHighlight(result, (result.getWidth()/2), (result.getHeight()/2), color, config.colorMap);
-        } 
+        }
         else {
             result = createImgLineList(list, i1, i2, config, adjustedMark);
         }
-        
+
         return result;
     }
 
@@ -719,13 +719,13 @@ public class LsfReport {
         int d = 1;
         long t = (long) mark.getTimestamp();
 
-        ArrayList<SidescanLine> list2 = ssParser.getLinesBetween(t - d, t + d, mark.subSys, sidescanParams);
+        ArrayList<SidescanLine> list2 = ssParser.getLinesBetween(t - d, t + d, mark.getSubSys(), sidescanParams);
         while (list2.isEmpty()) {
             d += 10;
-            list2 = ssParser.getLinesBetween(t - d, t + d, mark.subSys, sidescanParams);
+            list2 = ssParser.getLinesBetween(t - d, t + d, mark.getSubSys(), sidescanParams);
         }
         SidescanLine l = list2.get(list2.size() / 2);
-        int index = convertMtoIndex(mark.x + l.getRange(), l.getRange(), l.getData().length);
+        int index = convertMtoIndex(mark.getX() + l.getRange(), l.getRange(), l.getData().length);
 
         color = config.colorMap.getColor(l.getData()[index]);
         return color;
@@ -736,13 +736,13 @@ public class LsfReport {
         int indexX=-1;
         int d = 1;
         long t = (long) mark.getTimestamp();
-        ArrayList<SidescanLine> list2 = ssParser.getLinesBetween(t - d, t + d, mark.subSys, sidescanParams);
+        ArrayList<SidescanLine> list2 = ssParser.getLinesBetween(t - d, t + d, mark.getSubSys(), sidescanParams);
         while (list2.isEmpty()) {
             d += 10;
-            list2 = ssParser.getLinesBetween(t - d, t + d, mark.subSys, sidescanParams);
+            list2 = ssParser.getLinesBetween(t - d, t + d, mark.getSubSys(), sidescanParams);
         }
         SidescanLine l = list2.get(list2.size() / 2);
-        int index = convertMtoIndex(mark.x + l.getRange(), l.getRange(), l.getData().length);
+        int index = convertMtoIndex(mark.getX() + l.getRange(), l.getRange(), l.getData().length);
         if (border == true) {
             if (index > (i2 - i1)) {
                 index = index - i1;
@@ -756,7 +756,7 @@ public class LsfReport {
     }
 
     public static int getIndexY(ArrayList<SidescanLine> list, SidescanLogMarker mark, int subSys){
-        if (mark.subSys!=subSys)
+        if (mark.getSubSys() !=subSys)
             return 50;
         double t = mark.getTimestamp();
         for (int i = 0; i < list.size(); i++) {
@@ -769,8 +769,8 @@ public class LsfReport {
 
     public static BufferedImage drawImage(ArrayList<BufferedImage> imgLineList, SidescanLogMarker mark){
 
-        int w = mark.w;
-        int h = mark.h;
+        int w = mark.getW();
+        int h = mark.getH();
 
         BufferedImage result;
         BufferedImage imgScalled = new BufferedImage(w, h, BufferedImage.TYPE_INT_RGB);
@@ -799,8 +799,8 @@ public class LsfReport {
 
     public static BufferedImage createImgLineList(ArrayList<SidescanLine> list, int i1, int i2, SidescanConfig config, SidescanLogMarker mark){
 
-        int w = mark.w;
-        int h = mark.h;
+        int w = mark.getW();
+        int h = mark.getH();
 
         BufferedImage imgScalled = new BufferedImage(w*3, h*3, BufferedImage.TYPE_INT_RGB);
 
@@ -827,7 +827,7 @@ public class LsfReport {
 
     public static ArrayList<SidescanLine> adjustLines(ArrayList<SidescanLine> list, SidescanLogMarker mark){
 
-        int h = mark.h;
+        int h = mark.getH();
         long t = (long) mark.getTimestamp();
 
         int yref = list.size();
@@ -863,7 +863,7 @@ public class LsfReport {
     public static ArrayList<SidescanLine> getLines(SidescanParser ssParser, int subSys, SidescanParameters sidescanParams, SidescanLogMarker mark){
 
         long t = (long) mark.getTimestamp();
-        int h = mark.h;
+        int h = mark.getH();
         ArrayList<SidescanLine> list = new ArrayList<SidescanLine>();
         long firstTimestamp = ssParser.firstPingTimestamp();
         long lastTimestamp = ssParser.lastPingTimestamp();
@@ -890,11 +890,11 @@ public class LsfReport {
 
     public static SidescanLogMarker adjustMark(SidescanLogMarker mark){
         SidescanLogMarker newMark = new SidescanLogMarker(mark.getLabel(),mark.getTimestamp(),mark.getLatRads(),mark.getLonRads(),
-                mark.x,mark.y,mark.w,mark.h,mark.wMeters,mark.subSys,ColorMapFactory.getColorMapByName(mark.colorMap));
-        newMark.point = mark.point;
-        int h = newMark.h;
-        int w = newMark.w;
-        double wMeters = newMark.wMeters;
+                mark.getX(), mark.getY(), mark.getW(), mark.getH(), mark.getwMeters(), mark.getSubSys(),ColorMapFactory.getColorMapByName(mark.getColorMap()));
+        newMark.setPoint(mark.isPoint());
+        int h = newMark.getH();
+        int w = newMark.getW();
+        double wMeters = newMark.getwMeters();
 
         if (w == 0 && h == 0) {
             w = 100;
@@ -928,9 +928,9 @@ public class LsfReport {
                 h *= 1.1;
         }
 
-        newMark.h = h;
-        newMark.w = w;
-        newMark.wMeters = wMeters;
+        newMark.setH(h);
+        newMark.setW(w);
+        newMark.setwMeters(wMeters);
 
         return newMark;
     }
@@ -1092,7 +1092,7 @@ public class LsfReport {
     }
 
     /**
-     * 
+     *
      * @param m double in meters
      * @param range float in meters
      * @param size max index on SidescanLine.data
