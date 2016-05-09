@@ -39,14 +39,12 @@ import java.io.ObjectOutputStream;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.Vector;
 
 import pt.lsts.imc.EstimatedState;
 import pt.lsts.imc.lsf.LsfIterator;
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.mp.SystemPositionAndAttitude;
 import pt.lsts.neptus.mra.importers.IMraLogGroup;
-import pt.lsts.neptus.types.coord.LocationType;
 
 /**
  * @author zp
@@ -55,7 +53,59 @@ import pt.lsts.neptus.types.coord.LocationType;
 public class CorrectedPosition {
 
     private ArrayList<SystemPositionAndAttitude> positions = new ArrayList<>();
-    
+
+    @SuppressWarnings("unchecked")
+    public CorrectedPosition(IMraLogGroup source) {
+        synchronized (source) {
+            File cache = new File(source.getDir(), "mra/positions.cache");
+            try {
+                if (source.getFile("mra/positions.cache").canRead()) {
+                    ObjectInputStream ois = new ObjectInputStream(new FileInputStream(cache));
+                    positions = (ArrayList<SystemPositionAndAttitude>) ois.readObject();
+                    ois.close();
+                    NeptusLog.pub().info("Read " + positions.size() + " positions from cache file.");
+                    return;
+                }
+            }
+            catch (Exception e) {
+                NeptusLog.pub().warn("Positions cache not found. Creating new one.");
+            }
+
+            LsfIterator<EstimatedState> it = source.getLsfIndex().getIterator(EstimatedState.class);
+            long stepTime = 100;
+            CorrectedPositionBuilder cpBuilder = new CorrectedPositionBuilder();
+
+            source.getLsfIndex().hasMultipleVehicles();
+            Collection<Integer> systemsLst = source.getVehicleSources();
+            int sysToUse = systemsLst.iterator().next();
+            long prevTime = -1;
+
+            for (EstimatedState es = it.next(); es != null; es = it.next()) {
+                if (es.getSrc() != sysToUse)
+                    continue;
+
+                long diffT = es.getTimestampMillis() - prevTime;
+                if (diffT < stepTime)
+                    continue;
+                prevTime = es.getTimestampMillis();
+                cpBuilder.update(es);
+            }
+
+            positions = cpBuilder.getPositions();
+
+            try {
+                ObjectOutputStream ous = new ObjectOutputStream(new FileOutputStream(cache));
+                ous.writeObject(positions);
+                ous.close();
+                NeptusLog.pub().info("Wrote " + positions.size() + " positions to cache file.");
+            }
+            catch (Exception e) {
+                NeptusLog.pub().error("Error saving positions cache to " + cache);
+                e.printStackTrace();
+            }
+        }
+    }
+
     /**
      * @return the positions
      */
@@ -67,139 +117,21 @@ public class CorrectedPosition {
         if (positions.isEmpty())
             return null;
         SystemPositionAndAttitude p = new SystemPositionAndAttitude();
-        p.setTime((long)timestamp * 1000);
+        p.setTime((long) timestamp * 1000);
         int pos = Collections.binarySearch(positions, p);
         if (pos < 0)
             pos = -pos;
         if (pos >= positions.size())
-            return positions.get(positions.size()-1);
+            return positions.get(positions.size() - 1);
         return positions.get(pos);
     }
-    
-    @SuppressWarnings("unchecked")
-    public CorrectedPosition(IMraLogGroup source) {
-        
-        synchronized (source) {
-            File cache = new File(source.getDir(), "mra/positions.cache");
-            try {
-                if (source.getFile("mra/positions.cache").canRead()) {
-                    ObjectInputStream ois = new ObjectInputStream(new FileInputStream(cache));
-                    positions = (ArrayList<SystemPositionAndAttitude>) ois.readObject();
-                    ois.close();
-                    NeptusLog.pub().info("Read "+positions.size()+" positions from cache file.");
-                    return;
-                }
-            }
-            catch (Exception e) {
-                NeptusLog.pub().warn("Positions cache not found. Creating new one.");
-            }
-            
-            LsfIterator<EstimatedState> it = source.getLsfIndex().getIterator(EstimatedState.class, 100l);
-            Vector<EstimatedState> nonAdjusted = new Vector<>();
-            Vector<LocationType> nonAdjustedLocs = new Vector<>();
 
-            LocationType lastLoc = null;
-            double lastTime = 0;
-
-            source.getLsfIndex().hasMultipleVehicles();
-            Collection<Integer> systemsLst = source.getVehicleSources();
-            int sysToUse = systemsLst.iterator().next();
-            
-            for (EstimatedState es = it.next(); es != null; es = it.next()) {
-                if (es.getSrc() != sysToUse)
-                    continue;
-                
-                LocationType thisLoc = new LocationType();
-                thisLoc.setLatitudeRads(es.getLat());
-                thisLoc.setLongitudeRads(es.getLon());
-                
-                if (es.getDepth() > 0)
-                    thisLoc.setDepth(es.getDepth());
-                if (es.getAlt() > 0)
-                    thisLoc.setDepth(-es.getAlt());
-                thisLoc.translatePosition(es.getX(), es.getY(), 0);
-                double speed = Math.sqrt(es.getU() * es.getU() + es.getV() * es.getV() + es.getW() * es.getW());
-
-                thisLoc.convertToAbsoluteLatLonDepth();
-
-                if (lastLoc != null) {
-                    double expectedDiff = speed * (es.getTimestamp() - lastTime);
-
-                    lastTime = es.getTimestamp();
-
-                    double diff = lastLoc.getHorizontalDistanceInMeters(thisLoc);
-                    
-                    if (diff < expectedDiff * 3) {
-                        nonAdjusted.add(es);
-                        nonAdjustedLocs.add(thisLoc);
-
-                    }
-                    else {
-                        if (!nonAdjusted.isEmpty()) {
-                            double[] adjustment = thisLoc.getOffsetFrom(lastLoc);
-                            EstimatedState firstNonAdjusted = nonAdjusted.firstElement();
-                            double timeOfAdjustment = es.getTimestamp() - firstNonAdjusted.getTimestamp();
-                            double xIncPerSec = adjustment[0] / timeOfAdjustment;
-                            double yIncPerSec = adjustment[1] / timeOfAdjustment;
-
-                            for (int i = 0; i < nonAdjusted.size(); i++) {
-                                EstimatedState adj = nonAdjusted.get(i);
-                                LocationType loc = nonAdjustedLocs.get(i);
-                                loc.translatePosition(xIncPerSec * (adj.getTimestamp() - firstNonAdjusted.getTimestamp()),
-                                        yIncPerSec * (adj.getTimestamp() - firstNonAdjusted.getTimestamp()), 0);
-
-                                loc.convertToAbsoluteLatLonDepth();
-                                loc.setDepth(adj.getDepth());
-                                SystemPositionAndAttitude p = new SystemPositionAndAttitude(adj);
-                                p.setPosition(loc);
-                                p.setAltitude(adj.getAlt());
-                                p.setTime((long)(adj.getTimestamp() * 1000));
-                                positions.add(p);
-                            }
-                            nonAdjusted.clear();
-                            nonAdjustedLocs.clear();
-                            nonAdjusted.add(es);
-                            nonAdjustedLocs.add(thisLoc);
-                        }
-                    }
-                }
-                lastLoc = thisLoc;
-                lastTime = es.getTimestamp();
-            }
-            
-            
-            for (int i = 0; i < nonAdjusted.size(); i++) {
-                EstimatedState adj = nonAdjusted.get(i);
-                LocationType loc = nonAdjustedLocs.get(i);
-                loc.convertToAbsoluteLatLonDepth();
-                loc.setDepth(adj.getDepth());
-                SystemPositionAndAttitude p = new SystemPositionAndAttitude(adj);
-                p.setPosition(loc);
-                p.setAltitude(adj.getAlt());
-                p.setTime((long)(adj.getTimestamp() * 1000));
-                positions.add(p);
-            }
-            
-            try {
-                ObjectOutputStream ous = new ObjectOutputStream(new FileOutputStream(cache));
-                ous.writeObject(positions);
-                ous.close();
-                NeptusLog.pub().info("Wrote "+positions.size()+" positions to cache file.");
-            }
-            catch (Exception e) {
-                NeptusLog.pub().error("Error saving positions cache to "+cache); 
-                e.printStackTrace();
-            }
-        }
-    }
-    
-    
     public static class Position implements Comparable<Position> {
         public double lat, lon, alt, depth, timestamp;
+
         @Override
         public int compareTo(Position o) {
-            return ((Double)timestamp).compareTo(o.timestamp);
+            return ((Double) timestamp).compareTo(o.timestamp);
         }
     }
-    
 }
