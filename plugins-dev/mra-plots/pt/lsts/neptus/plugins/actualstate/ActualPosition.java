@@ -102,7 +102,8 @@ public class ActualPosition extends MRA2DPlot {
 
     @Override
     public void process(LsfIndex source) {
-        LsfIterator<EstimatedState> it = source.getIterator(EstimatedState.class, (long) (timestep * 1000));
+        LsfIterator<EstimatedState> it = source.getIterator(EstimatedState.class);
+        long stepTime = (long) (timestep * 1000);
         
          Vector<Announce> uuvSys = source.getSystemsOfType(SYS_TYPE.UUV);
          Collection<Integer> systemsLst = new ArrayList<>();
@@ -111,7 +112,19 @@ public class ActualPosition extends MRA2DPlot {
          Map<Integer, CorrectedPositionBuilder> cpBuilders = new LinkedHashMap<>(systemsLst.size());
          systemsLst.forEach(src -> cpBuilders.put(src, new CorrectedPositionBuilder()));
          
+         Map<Integer, Long> timesLst = new LinkedHashMap<>(systemsLst.size());
+         
          for (EstimatedState es = it.next(); es != null; es = it.next()) {
+             long prevTime = -1;
+             if (timesLst.containsKey(es.getSrc()))
+                 prevTime = timesLst.get(es.getSrc());
+             
+             long diffT = es.getTimestampMillis() - prevTime;
+             if (diffT < stepTime)
+                 continue;
+
+             timesLst.put(es.getSrc(), es.getTimestampMillis());
+             
              LocationType thisLoc = new LocationType();
              thisLoc.setLatitudeRads(es.getLat());
              thisLoc.setLongitudeRads(es.getLon());
