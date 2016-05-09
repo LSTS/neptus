@@ -31,6 +31,7 @@
  */
 package pt.lsts.neptus.historicdata;
 
+import java.awt.AlphaComposite;
 import java.awt.Color;
 import java.awt.Font;
 import java.awt.Graphics2D;
@@ -49,6 +50,7 @@ import pt.lsts.neptus.console.ConsoleLayer;
 import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.mra.WorldImage;
 import pt.lsts.neptus.plugins.PluginDescription;
+import pt.lsts.neptus.renderer2d.LayerPriority;
 import pt.lsts.neptus.renderer2d.StateRenderer2D;
 import pt.lsts.neptus.types.coord.LocationType;
 import pt.lsts.neptus.types.map.ImageElement;
@@ -60,6 +62,7 @@ import pt.lsts.neptus.util.bathymetry.TidePredictionFactory;
  *
  */
 @PluginDescription(name="Historic Ground Overlay", icon="pt/lsts/neptus/historicdata/rewind_icon.png")
+@LayerPriority(priority=-10)
 public class HistoricGroundOverlay extends ConsoleLayer {
 
     private WorldImage imgTemp = new WorldImage(3, ColorMapFactory.createJetColorMap());
@@ -103,9 +106,10 @@ public class HistoricGroundOverlay extends ConsoleLayer {
                         val -= 360;
                     imgPitch.addPoint(loc, val);
                     double alt = ((HistoricTelemetry) sample.getSample()).getAltitude();
+                    double depth = sample.getzMeters() < 0? -sample.getzMeters() : 0;
                     if (alt > 0)
-                        imgAltitude.addPoint(loc, sample.getzMeters() + alt
-                                + TidePredictionFactory.getTideLevel(sample.getTimestampMillis()));                          
+                        imgAltitude.addPoint(loc, depth + alt
+                                - TidePredictionFactory.getTideLevel(sample.getTimestampMillis()));                          
                     break;
                 case HistoricEvent.ID_STATIC:
                 default:
@@ -172,10 +176,12 @@ public class HistoricGroundOverlay extends ConsoleLayer {
 
     @Override
     public void paint(Graphics2D g, StateRenderer2D renderer) {
+        super.paint(g, renderer);
         ImageElement elem = getImage(typeToPaint);
         g.setTransform(renderer.getIdentity());
         if (elem != null) {
             elem.paint(g, renderer, renderer.getRotation());
+            g.setComposite(AlphaComposite.SrcOver);
             paintLegend(g, renderer);
         }
     }
