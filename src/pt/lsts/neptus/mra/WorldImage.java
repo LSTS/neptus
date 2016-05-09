@@ -141,7 +141,7 @@ public class WorldImage {
         double ratio2 = dx/dy;
 
         if (ratio2 < ratio1)        
-            dx = dy * ratio1;
+            dx = dy * ratio2;
         else
             dy = dx/ratio1;
 
