@@ -81,40 +81,23 @@ public class CoverageArea {
     private GraphType graphFromGrid(GridArea areaToCover) {
         /* Build graph */
         GraphType planGraph = new GraphType();
-        Pair<MapCell, MapCell> previousEdge = null;
 
-        for(Pair<MapCell, MapCell> mstEdge : minSpanningTree.getEdges()) {
-            /* Add nodes to the graph */
-            String sourceId = mstEdge.first().id();
-            String destId = mstEdge.second().id();
+        MapCell previousNode = null;
+        for(MapCell node : minSpanningTree.getNodeSequence()) {
+            if(planGraph.getManeuver(node.id()) == null) {
+                Goto newNode = new Goto();
+                newNode.setId(node.id());
+                newNode.setManeuverLocation(new ManeuverLocation(node.getLocation()));
+                planGraph.addManeuver(newNode);
 
-            if(planGraph.getManeuver(sourceId) == null) {
-                Goto source = new Goto();
-                source.setId(sourceId);
-                source.setManeuverLocation(new ManeuverLocation(mstEdge.first().getLocation()));
-
-                if(minSpanningTree.startCell().id().equals(sourceId))
-                    source.setInitialManeuver(true);
-                planGraph.addManeuver(source);
-            }
-            if(planGraph.getManeuver(destId) == null) {
-                Goto dest = new Goto();
-                dest.setId(destId);
-                dest.setManeuverLocation(new ManeuverLocation(mstEdge.second().getLocation()));
-                planGraph.addManeuver(dest);
-            }
-
-            /* Add edges to the graph */
-            if(previousEdge == null)
-                planGraph.addTransition(new TransitionType(mstEdge.first().id(), mstEdge.second().id()));
-            else {
-                /* If need to go back */
-                if(previousEdge.first().id().equals(mstEdge.first().id()))
-                    planGraph.addTransition(new TransitionType(mstEdge.second().id(), mstEdge.first().id()));
+                if(node.id().equals(minSpanningTree.startCell().id()))
+                    newNode.setInitialManeuver(true);
                 else
-                    planGraph.addTransition(new TransitionType(mstEdge.first().id(), mstEdge.second().id()));
+                    planGraph.addTransition(new TransitionType(previousNode.id(), node.id()));
             }
-            previousEdge = mstEdge;
+            else
+                planGraph.addTransition(new TransitionType(previousNode.id(), node.id()));
+            previousNode = node;
         }
         return planGraph;
     }
