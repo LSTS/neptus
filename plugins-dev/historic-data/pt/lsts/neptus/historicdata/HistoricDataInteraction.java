@@ -60,7 +60,6 @@ import pt.lsts.imc.HistoricDataQuery;
 import pt.lsts.imc.HistoricDataQuery.TYPE;
 import pt.lsts.imc.HistoricEvent;
 import pt.lsts.imc.historic.DataSample;
-import pt.lsts.imc.historic.DataStore;
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.colormap.ColorMap;
 import pt.lsts.neptus.colormap.ColorMapFactory;
@@ -85,8 +84,6 @@ import pt.lsts.neptus.types.vehicle.VehicleType.SystemTypeEnum;
  */
 @PluginDescription(name = "Historic Data", icon="pt/lsts/neptus/historicdata/rewind_icon.png")
 public class HistoricDataInteraction extends ConsoleInteraction {
-
-    private DataStore dataStore = new DataStore();
     private LinkedHashMap<String, Long> lastPollTime = new LinkedHashMap<>();
     private int req_id = 1;
     private LinkedHashMap<String, ArrayList<RemotePosition>> positions = new LinkedHashMap<>();
@@ -94,7 +91,7 @@ public class HistoricDataInteraction extends ConsoleInteraction {
     private ArrayList<RemoteEvent> events = new ArrayList<>();
     private ArrayList<RemoteEvent> mouseOver = new ArrayList<>();
     private HistoricGroundOverlay overlay = null;
-    private HistoricWebAdapter webAdapter = new HistoricWebAdapter(dataStore);
+    private HistoricWebAdapter webAdapter = new HistoricWebAdapter(this);
     private long lastWebSync = System.currentTimeMillis();
     
     private Future<Boolean> ongoingPost = null, ongoingRequest = null;
@@ -116,6 +113,9 @@ public class HistoricDataInteraction extends ConsoleInteraction {
     
     @NeptusProperty(name = "Ground overlay colormap")
     private ColorMap overlayColormap = ColorMapFactory.createJetColorMap();
+    
+    @NeptusProperty(name = "Ground overlay opacity (%)")
+    private int opacityPercent = 100;
     
     @Override
     public void initInteraction() {
@@ -142,6 +142,7 @@ public class HistoricDataInteraction extends ConsoleInteraction {
         overlay.setColormap(overlayColormap);
         overlay.setTypeToPaint(overlayType);
         overlay.resetImage();
+        overlay.setOpacity(Math.min(100, Math.max(0, opacityPercent/100f)));
     }
 
     @Override
@@ -203,8 +204,7 @@ public class HistoricDataInteraction extends ConsoleInteraction {
     public void process(HistoricData incoming) {
         ArrayList<DataSample> newSamples = DataSample.parseSamples(incoming);
         Collections.sort(newSamples);
-        overlay.process(incoming);
-        
+        overlay.process(incoming);        
         for (DataSample sample : DataSample.parseSamples(incoming)) {
             LocationType loc = new LocationType(sample.getLatDegs(), sample.getLonDegs());
             loc.setDepth(sample.getzMeters());
@@ -248,7 +248,7 @@ public class HistoricDataInteraction extends ConsoleInteraction {
     public void on(HistoricDataQuery query) {
         try {
             if (query.getType() == HistoricDataQuery.TYPE.REPLY) {
-                dataStore.addData(query.getData());
+                webAdapter.addLocalData(query.getData());
                 process(query.getData());
                 HistoricDataQuery clear = new HistoricDataQuery();
                 clear.setType(TYPE.CLEAR);
@@ -285,14 +285,17 @@ public class HistoricDataInteraction extends ConsoleInteraction {
     }
 
     private void pollWeb(ActionEvent evt) {
-        // TODO
+        if (ongoingRequest != null && !ongoingRequest.isDone()) {
+            NeptusLog.pub().warn("Interrupting ongoing request for retrieving new data.");
+            ongoingRequest.cancel(true);
+        }        
+        ongoingRequest = webAdapter.download();
     }
 
     private void clearLocalData(ActionEvent evt) {
         positions.clear();
         positionCache.clear();
         events.clear();
-        dataStore.clearData();
         synchronized (mouseOver) {
             mouseOver = new ArrayList<>();
         }
