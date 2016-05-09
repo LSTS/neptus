@@ -40,12 +40,11 @@ import pt.lsts.neptus.types.coord.LocationType;
 /**
  * This helper class calculates the adjusted position from estimated ones.
  * 
- * This works by feeding {@link EstimatedState}s to {@link #update(EstimatedState)}
- * method.
+ * This works by feeding {@link EstimatedState}s to {@link #update(EstimatedState)} method.
  * 
- * Once finished, just call {@link #getPositions()}, a finish up will me call to final 
- * creation of positions list. Once this is called this will be locked for further
- * updates. To unlock call {@link #reset()} and you can restart the process.
+ * Once finished, just call {@link #getPositions()}, a finish up will me call to final creation of positions list. Once
+ * this is called this will be locked for further updates. To unlock call {@link #reset()} and you can restart the
+ * process.
  * 
  * @author pdias
  * @author zp (original code)
@@ -66,10 +65,9 @@ public class CorrectedPositionBuilder {
     }
 
     /**
-     * This will reset the instance and {@link #update(EstimatedState)}
-     * can be called.
+     * This will reset the instance and {@link #update(EstimatedState)} can be called.
      */
-    public  void reset() {
+    public void reset() {
         positions.clear();
         resetVariables();
         finished = false;
@@ -78,11 +76,11 @@ public class CorrectedPositionBuilder {
     private void resetVariables() {
         nonAdjusted.clear();
         nonAdjustedLocs.clear();
-        
+
         lastLoc = null;
         lastTime = 0;
     }
-    
+
     /**
      * This will update the positions with an estimated position.
      * 
@@ -92,7 +90,7 @@ public class CorrectedPositionBuilder {
     public boolean update(EstimatedState es) {
         if (finished)
             return false;
-        
+
         LocationType thisLoc = new LocationType();
         thisLoc.setLatitudeRads(es.getLat());
         thisLoc.setLongitudeRads(es.getLon());
@@ -134,7 +132,7 @@ public class CorrectedPositionBuilder {
                         SystemPositionAndAttitude p = new SystemPositionAndAttitude(adj);
                         p.setPosition(loc);
                         p.setAltitude(adj.getAlt());
-                        p.setTime((long)(adj.getTimestamp() * 1000));
+                        p.setTime((long) (adj.getTimestamp() * 1000));
                         positions.add(p);
                     }
                     nonAdjusted.clear();
@@ -148,15 +146,15 @@ public class CorrectedPositionBuilder {
             SystemPositionAndAttitude p = new SystemPositionAndAttitude(es);
             p.setPosition(thisLoc);
             p.setAltitude(es.getAlt());
-            p.setTime((long)(es.getTimestamp() * 1000));
-            positions.add(p); 
+            p.setTime((long) (es.getTimestamp() * 1000));
+            positions.add(p);
         }
         lastLoc = thisLoc;
         lastTime = es.getTimestamp();
-        
+
         return true;
     }
-    
+
     private void finishUp() {
         for (int i = 0; i < nonAdjusted.size(); i++) {
             EstimatedState adj = nonAdjusted.get(i);
@@ -166,14 +164,14 @@ public class CorrectedPositionBuilder {
             SystemPositionAndAttitude p = new SystemPositionAndAttitude(adj);
             p.setPosition(loc);
             p.setAltitude(adj.getAlt());
-            p.setTime((long)(adj.getTimestamp() * 1000));
+            p.setTime((long) (adj.getTimestamp() * 1000));
             positions.add(p);
         }
-        
+
         finished = true;
         resetVariables();
     }
-    
+
     /**
      * This will return the corrected position list and locks this up to further updates.
      * 
@@ -182,7 +180,7 @@ public class CorrectedPositionBuilder {
     public ArrayList<SystemPositionAndAttitude> getPositions() {
         if (!finished)
             finishUp();
-        
+
         return positions;
     }
 }
