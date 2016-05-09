@@ -374,28 +374,29 @@ public class Tracking extends ConsolePanel implements ItemListener {
             }
             
             if (isTracking) {
-                g.setFont(new Font("Serif", Font.PLAIN, 12));
+                g.setFont(new Font("Serif", Font.BOLD, 12));
                 fm = g.getFontMetrics();
-                textCam1 =String.format("Dist to Cam1 (m):");
+                textCam1 =String.format("Dist to Cam1 (m)");
                 g.setColor(Color.BLACK);
-                g.drawString(textCam1, 10, (int)panelSize.height - 44);
+                g.drawString(textCam1, 2, (int)panelSize.height - 44);
                 g.setColor(Color.ORANGE);
-                g.drawString(textCam1, 12, (int)panelSize.height - 44);
+                g.drawString(textCam1, 4, (int)panelSize.height - 44);
                 textCam1 =String.format("X: %.2f", xWorldCoord);
                 g.setColor(Color.BLACK);
-                g.drawString(textCam1, 10, (int)panelSize.height - 32);
-                g.setColor(Color.ORANGE);
-                g.drawString(textCam1, 12, (int)panelSize.height - 32);
+                g.drawString(textCam1, 60, (int)panelSize.height - 32);
+                g.setColor(Color.GREEN);
+                g.drawString(textCam1, 62, (int)panelSize.height - 32);
                 textCam1 =String.format("Y: %.2f", yWorldCoord);
                 g.setColor(Color.BLACK);
-                g.drawString(textCam1, 10, (int)panelSize.height - 20);
-                g.setColor(Color.ORANGE);
-                g.drawString(textCam1, 12, (int)panelSize.height - 20);
+                g.drawString(textCam1, 60, (int)panelSize.height - 20);
+                g.setColor(Color.RED);
+                g.drawString(textCam1, 62, (int)panelSize.height - 20);
                 textCam1 =String.format("Z: %.2f", zWorldCoord);
                 g.setColor(Color.BLACK);
-                g.drawString(textCam1, 10, (int)panelSize.height - 8);
-                g.setColor(Color.ORANGE);
-                g.drawString(textCam1, 12, (int)panelSize.height - 8);
+                g.drawString(textCam1, 60, (int)panelSize.height - 8);
+                g.setColor(Color.BLUE);
+                g.drawString(textCam1, 62, (int)panelSize.height - 8);
+                g.drawImage(ImageUtils.toBufferedImage(ImageUtils.getImage("images/axis.png")), 4, (int)panelSize.height - 38, this);
                 g.dispose();
             }
             refreshTemp = false;
