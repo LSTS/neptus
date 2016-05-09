@@ -29,7 +29,7 @@
  * Author: tsmarques
  * 14 Mar 2016
  */
-package pt.lsts.neptus.plugins.mvplanning.planning;
+package pt.lsts.neptus.plugins.mvplanning.interfaces;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -40,25 +40,35 @@ import pt.lsts.neptus.types.coord.LocationType;
  * @author tsmarques
  *
  */
-public class MapCell {
-    private String id;
-    private LocationType centerLoc;
-    private List<MapCell> neighbours;
+public abstract class MapCell {
     private boolean hasObstacle;
-    private int row;
-    private int col;
-    
-    public MapCell(LocationType centerLocation, boolean hasObstacle) {
-        this.centerLoc = centerLocation;
-        neighbours = new ArrayList<>();
+    private String id;
+
+    public MapCell(boolean hasObstacle) {
         this.hasObstacle = hasObstacle;
     }
-    
-    public MapCell(LocationType centerLocation, List<MapCell> neighbours, boolean hasObstacle) {
-        this.centerLoc = centerLocation;
-        this.neighbours = neighbours;
-        this.hasObstacle = hasObstacle;
-    }
+
+    /**
+     * Add a neighbour of this cell
+     * */
+    public abstract void addNeighbour(MapCell neighCell);
+
+    /**
+     * Get a list of all the neighbour cells
+     * */
+    public abstract List<MapCell> getNeighbours();
+
+
+    /**
+     * Verifies if a given cell is neighbour of this one
+     * */
+    public abstract boolean isNeighbour(MapCell cell);
+
+    /**
+     * Returns the center location of this cell
+     * */
+    public abstract LocationType getLocation();
+
 
     public String id() {
         return id;
@@ -68,43 +78,11 @@ public class MapCell {
         this.id = id;
     }
 
-    public void setPosition(int row, int col) {
-        this.row = row;
-        this.col = col;
-    }
-
-    public int getRow() {
-        return row;
-    }
-
-    public int getColumn() {
-        return col;
-    }
-
-    public void addNeighbour(MapCell neighCell) {
-        neighbours.add(neighCell);
-    }
-
-    public List<MapCell> getNeighbours() {
-        return neighbours;
-    }
-    
-    public boolean isNeighbour(MapCell cell) {
-        return neighbours.contains(cell);
-    }
-
-    /**
-     * Returns the center location of this cell
-     * */
-    public LocationType getLocation() {
-        return centerLoc;
-    }
-
     public void setHasObstacle(boolean value) {
         hasObstacle = value;
     }
-    
+
     public boolean hasObstacle() {
-       return hasObstacle; 
+       return hasObstacle;
     }
 }

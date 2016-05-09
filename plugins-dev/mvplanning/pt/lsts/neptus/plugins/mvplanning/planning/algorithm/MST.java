@@ -36,7 +36,7 @@ import java.util.List;
 
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.data.Pair;
-import pt.lsts.neptus.plugins.mvplanning.planning.MapCell;
+import pt.lsts.neptus.plugins.mvplanning.interfaces.MapCell;
 
 /**
  * @author tsmarques
@@ -60,11 +60,11 @@ public class MST {
         /* Minimum spanning tree to be generated */
         List<Pair<MapCell, MapCell>> mst = new ArrayList<>();
         /* Nodes already visited */
-        List<MapCell> visitedNodes = new ArrayList<>();
+        List<String> visitedNodes = new ArrayList<>();
         /* When the head node has no more free neighbours, remove it and try the next one */
         List<MapCell> backtrackNodes = new ArrayList<>();
 
-        visitedNodes.add(startCell);
+        visitedNodes.add(startCell.id());
         backtrackNodes.add(startCell);
 
         MapCell currentNode = startCell;
@@ -78,13 +78,14 @@ public class MST {
                 while(!freeNode && i < neighbours.size()) {
                     MapCell neighbour = neighbours.get(i);
 
-                    if(!visitedNodes.contains(neighbour)) {
+                    if(!visitedNodes.contains(neighbour.id())) {
                         /* add new edge to the MST */
                         mst.add(new Pair<>(currentNode, neighbour));
 
-                        currentNode = neighbour;
-                        visitedNodes.add(currentNode);
                         backtrackNodes.add(0, currentNode);
+
+                        currentNode = neighbour;
+                        visitedNodes.add(currentNode.id());
 
                         freeNode = true;
                     }
@@ -93,9 +94,8 @@ public class MST {
                 }
                 /* No free nodes found, then, if possible, backtrack */
                 if(!freeNode && !backtrackNodes.isEmpty()) {
-                    backtrackNodes.remove(0);
                     if(!backtrackNodes.isEmpty())
-                        currentNode = backtrackNodes.get(0);
+                        currentNode = backtrackNodes.remove(0);
                 }
             }
             else { /* Graph needs to be connected in order to have an MST*/

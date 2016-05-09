@@ -71,7 +71,6 @@ import pt.lsts.neptus.plugins.Popup;
 import pt.lsts.neptus.plugins.Popup.POSITION;
 import pt.lsts.neptus.plugins.mvplanning.jaxb.Profile;
 import pt.lsts.neptus.plugins.mvplanning.jaxb.ProfileMarshaler;
-import pt.lsts.neptus.plugins.mvplanning.planning.MapCell;
 import pt.lsts.neptus.plugins.mvplanning.planning.algorithm.MST;
 import pt.lsts.neptus.plugins.mvplanning.planning.mapdecomposition.GridArea;
 import pt.lsts.neptus.renderer2d.StateRenderer2D;
@@ -81,6 +80,7 @@ import pt.lsts.neptus.util.NameNormalizer;
 import pt.lsts.neptus.plugins.mvplanning.consoles.NeptusConsoleAdapter;
 import pt.lsts.neptus.plugins.mvplanning.events.MvPlanningEventPlanAllocated;
 import pt.lsts.neptus.plugins.mvplanning.interfaces.ConsoleAdapter;
+import pt.lsts.neptus.plugins.mvplanning.interfaces.MapCell;
 
 /**
  * @author tsmarques

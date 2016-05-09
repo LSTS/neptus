@@ -32,19 +32,17 @@
 package pt.lsts.neptus.plugins.mvplanning.planning.mapdecomposition;
 
 
-import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
-import pt.lsts.imc.Map;
 import pt.lsts.neptus.plugins.mvplanning.Environment;
+import pt.lsts.neptus.plugins.mvplanning.planning.GridCell;
+import pt.lsts.neptus.plugins.mvplanning.interfaces.MapCell;
 import pt.lsts.neptus.plugins.mvplanning.interfaces.MapDecomposition;
-import pt.lsts.neptus.plugins.mvplanning.planning.MapCell;
 import pt.lsts.neptus.renderer2d.StateRenderer2D;
 import pt.lsts.neptus.types.coord.LocationType;
 import pt.lsts.neptus.types.map.AbstractElement;
@@ -69,7 +67,7 @@ public class GridArea extends GeometryElement implements MapDecomposition {
     private int nrows;
     private int ncols;
     private LocationType[] bounds;
-    private MapCell[][] decomposedMap;
+    private GridCell[][] decomposedMap;
 
     /* Used to check for obstacles */
     private Environment env;
@@ -103,7 +101,7 @@ public class GridArea extends GeometryElement implements MapDecomposition {
     /**
      * Used when splitting a GridArea or its cells
      * */
-    public GridArea(MapCell[][] cells, double cellWidth, double cellHeight, int nrows, int ncols, LocationType center, Environment env) {
+    public GridArea(GridCell[][] cells, double cellWidth, double cellHeight, int nrows, int ncols, LocationType center, Environment env) {
         this.decomposedMap = cells;
         this.nrows = nrows;
         this.ncols = ncols;
@@ -164,7 +162,7 @@ public class GridArea extends GeometryElement implements MapDecomposition {
         nrows = (int) Math.ceil(gridHeight / cellHeight);
 
         /* compute grid size */
-        decomposedMap = new MapCell[nrows][ncols];
+        decomposedMap = new GridCell[nrows][ncols];
 
         int nodeId = 0;
         /* do decomposition */
@@ -178,9 +176,8 @@ public class GridArea extends GeometryElement implements MapDecomposition {
 
                 /* TODO check for obstacles, using Environment */
                 /* TODO set correct bounds for each map cells (set vertices) */
-                decomposedMap[i][j] = new MapCell(cellLoc, false);
+                decomposedMap[i][j] = new GridCell(cellLoc, i, j, false);
                 decomposedMap[i][j].setId("" + nodeId);
-                decomposedMap[i][j].setPosition(i, j);
                 nodeId++;
 
                 /* neighbour cells */
@@ -214,7 +211,7 @@ public class GridArea extends GeometryElement implements MapDecomposition {
                 if((i == n-1)) /* in case matrix is not square, last part is bigger*/
                     newRows += (nrows % n);
 
-                MapCell[][] newCells = subsetGrid(i * newRows, newRows, ncols);
+                GridCell[][] newCells = subsetGrid(i * newRows, newRows, ncols);
                 /* TODO set new center location */
                 parts[i] = new GridArea(newCells, cellWidth, cellHeight, newRows, ncols, center, env);
             }
@@ -226,8 +223,8 @@ public class GridArea extends GeometryElement implements MapDecomposition {
      * Get a nrows by ncols submatrix of the current matrix,
      * starting at startRow
      * */
-    private MapCell[][] subsetGrid(int startRow, int nrows, int ncols) {
-        MapCell[][] newGrid = new MapCell[nrows][ncols];
+    private GridCell[][] subsetGrid(int startRow, int nrows, int ncols) {
+        GridCell[][] newGrid = new GridCell[nrows][ncols];
         for(int i = startRow; i < nrows; i++)
             newGrid[i] = decomposedMap[i].clone();
         return newGrid;
@@ -244,7 +241,7 @@ public class GridArea extends GeometryElement implements MapDecomposition {
         double newCellWidth = cellWidth / 2;
         double newCellHeight = cellHeight / 2;
 
-        MapCell[][] newGrid = new MapCell[newRows][newCols];
+        GridCell[][] newGrid = new GridCell[newRows][newCols];
 
         for(int i = 0; i < nrows; i++) {
             for(int j = 0; j < ncols; j++) {
@@ -264,17 +261,10 @@ public class GridArea extends GeometryElement implements MapDecomposition {
                 bottomRight.translatePosition(-newCellHeight/2, newCellWidth/2, 0);
 
                 /* TODO check if cells have an obstacle */
-                newGrid[2*i][2*j] = new MapCell(topLeft, false);
-                newGrid[2*i][2*j].setPosition(2*i, 2*j);
-
-                newGrid[2*i][2*j + 1] = new MapCell(topRight, false);
-                newGrid[2*i][2*j + 1].setPosition(2*i, 2*j+1);
-
-                newGrid[2*i + 1][2*j] = new MapCell(bottomLeft, false);
-                newGrid[2*i + 1][2*j].setPosition(2*i + 1, 2*j);
-
-                newGrid[2*i + 1][2*j + 1] = new MapCell(bottomRight, false);
-                newGrid[2*i + 1][2*j + 1].setPosition(2*i + 1, 2*j);
+                newGrid[2*i][2*j] = new GridCell(topLeft, 2*i, 2*j, false);
+                newGrid[2*i][2*j + 1] = new GridCell(topRight, 2*i, 2*j+1, false);
+                newGrid[2*i + 1][2*j] = new GridCell(bottomLeft, 2*i + 1, 2*j, false);
+                newGrid[2*i + 1][2*j + 1] = new GridCell(bottomRight, 2*i + 1, 2*j, false);
             }
         }
         /* Set cells' id */
@@ -304,7 +294,7 @@ public class GridArea extends GeometryElement implements MapDecomposition {
     /**
      * Returns the matrix representation of this grid
      * */
-    public MapCell[][] getAllCells() {
+    public GridCell[][] getAllCells() {
         return decomposedMap;
     }
 
@@ -312,8 +302,8 @@ public class GridArea extends GeometryElement implements MapDecomposition {
     public List<MapCell> getAreaCells() {
         List<MapCell> areaCells = new ArrayList<>();
 
-        for(MapCell[] row : decomposedMap)
-            for(MapCell cell : row)
+        for(GridCell[] row : decomposedMap)
+            for(GridCell cell : row)
                 areaCells.add(cell);
         return areaCells;
     }
