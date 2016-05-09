@@ -24,14 +24,6 @@
     </properties>
     <feasibleManeuvers>
         <maneuver>
-            <Unconstrained kind="manual">
-                <annotation>
-                    <documentation>Tele-Operation</documentation>
-                    <implementation-class>pt.lsts.neptus.mp.maneuvers.Unconstrained</implementation-class>
-                </annotation>
-            </Unconstrained>
-        </maneuver>
-        <maneuver>
             <Loiter kind="automatic">
                 <basePoint type="pointType">
                     <point>
@@ -40,12 +32,12 @@
                         <coordinate>
                             <latitude>0N</latitude>
                             <longitude>0E</longitude>
-                            <depth>-100</depth>
+                            <height>100</height>
                         </coordinate>
                     </point>
                     <radiusTolerance>5</radiusTolerance>
                 </basePoint>
-                <duration>30</duration>
+                <duration>0</duration>
                 <trajectory>
                     <radius type="float">100</radius>
                     <radiusTolerance type="float">5</radiusTolerance>
@@ -54,36 +46,12 @@
                     <bearing type="float">0</bearing>
                     <direction>Clockwise</direction>
                 </trajectory>
-                <velocity type="float" unit="m/s" tolerance="5">20</velocity>
+                <velocity type="float" unit="m/s" tolerance="5">5</velocity>
                 <annotation>
                     <documentation>Loiter over a point</documentation>
                     <implementation-class>pt.lsts.neptus.mp.maneuvers.Loiter</implementation-class>
                 </annotation>
             </Loiter>
-        </maneuver>
-        <maneuver>
-            <Drop kind="automatic">
-                <finalPoint type="pointType">
-                    <point>
-                        <id>DropDestination</id>
-                        <name>DropDestination</name>
-                        <coordinate>
-                            <latitude>0N</latitude>
-                            <longitude>0E</longitude>
-                            <depth>-100</depth>
-                        </coordinate>
-                    </point>
-                    <radiusTolerance>5</radiusTolerance>
-                </finalPoint>
-                <velocity tolerance="10" type="float" unit="m/s">20</velocity>
-                <trajectoryTolerance>
-                    <radiusTolerance type="float">5</radiusTolerance>
-                </trajectoryTolerance>
-                <annotation>
-                    <documentation>Move to a given point</documentation>
-                    <implementation-class>pt.lsts.neptus.mp.maneuvers.Drop</implementation-class>
-                </annotation>
-            </Drop>
         </maneuver>
         <maneuver>
             <Goto kind="automatic">
@@ -94,12 +62,12 @@
                         <coordinate>
                             <latitude>0N</latitude>
                             <longitude>0E</longitude>
-                            <depth>-100</depth>
+                            <height>30</height>
                         </coordinate>
                     </point>
                     <radiusTolerance>5</radiusTolerance>
                 </finalPoint>
-                <velocity tolerance="10" type="float" unit="m/s">20</velocity>
+                <velocity tolerance="10" type="float" unit="m/s">5</velocity>
                 <trajectoryTolerance>
                     <radiusTolerance type="float">5</radiusTolerance>
                 </trajectoryTolerance>
@@ -111,11 +79,122 @@
         </maneuver>
         <maneuver>
             <CoverArea kind="automatic">
+                <finalPoint type="pointType">
+                    <point>
+                        <id>CoverAreaDestination</id>
+                        <name>CoverAreaDestination</name>
+                        <coordinate>
+                            <latitude>0N</latitude>
+                            <longitude>0E</longitude>
+                            <height>50</height>
+                        </coordinate>
+                    </point>
+                    <radiusTolerance>5</radiusTolerance>
+                </finalPoint>
+                <velocity tolerance="10" type="float" unit="m/s">5</velocity>
+                <trajectoryTolerance>
+                    <radiusTolerance type="float">5</radiusTolerance>
+                </trajectoryTolerance>
                 <annotation>
                     <documentation>Cover an area</documentation>
                     <implementation-class>pt.lsts.neptus.mp.maneuvers.CoverArea</implementation-class>
                 </annotation>
             </CoverArea>
+        </maneuver>
+        <maneuver>
+          <FollowPath kind="automatic">
+                <basePoint type="pointType">
+                    <point>
+                        <id/>
+                        <coordinate>
+                            <latitude>0N</latitude>
+                            <longitude>0E</longitude>
+                            <height>50</height>
+                        </coordinate>
+                    </point>
+                    <radiusTolerance>0.0</radiusTolerance>
+                </basePoint>
+                <path/>
+                <speed unit="m/s">5.0</speed>
+                <annotation>
+                    <documentation>No documentation available</documentation>
+                    <implementation-class>pt.lsts.neptus.mp.maneuvers.FollowPath</implementation-class>
+                </annotation>
+            </FollowPath>
+        </maneuver>
+        <maneuver>
+            <RowsManeuver kind="automatic">
+                <basePoint type="pointType">
+                    <point>
+                        <id/>
+                        <coordinate>
+                            <latitude>0N</latitude>
+                            <longitude>0E</longitude>
+                            <height>50</height>
+                        </coordinate>
+                    </point>
+                    <radiusTolerance>0.0</radiusTolerance>
+                </basePoint>
+                <width>100.0</width>
+                <length>100.0</length>
+                <height>0.0</height>
+                <hstep>20.0</hstep>
+                <vstep>0.0</vstep>
+                <bearing>0.0</bearing>
+                <speed unit="m/s">5.0</speed>
+                <annotation>
+                    <documentation>No documentation available</documentation>
+                    <implementation-class>pt.lsts.neptus.mp.maneuvers.RowsManeuver</implementation-class>
+                </annotation>
+            </RowsManeuver>
+        </maneuver>
+        <maneuver>
+            <CrossHatchPattern kind="automatic">
+                <basePoint type="pointType">
+                    <point>
+                        <id/>
+                        <coordinate>
+                            <latitude>0N</latitude>
+                            <longitude>0E</longitude>
+                            <height>50</height>
+                        </coordinate>
+                    </point>
+                    <radiusTolerance>0.0</radiusTolerance>
+                </basePoint>
+                <width>100.0</width>
+                <hstep>20.0</hstep>
+                <bearing>0.0</bearing>
+                <squareCurve>false</squareCurve>
+                <speed unit="m/s">5.0</speed>
+                <annotation>
+                    <documentation>No documentation available</documentation>
+                    <implementation-class>pt.lsts.neptus.mp.maneuvers.CrossHatchPattern</implementation-class>
+                </annotation>
+            </CrossHatchPattern>
+        </maneuver>
+        <maneuver>
+            <Drop kind="automatic">
+                <finalPoint type="pointType">
+                    <point>
+                        <id>DropDestination</id>
+                        <name>DropDestination</name>
+                        <coordinate>
+                            <latitude>0N</latitude>
+                            <longitude>0E</longitude>
+                            <height>30</height>
+                        </coordinate>
+                    </point>
+                    <radiusTolerance>5</radiusTolerance>
+                </finalPoint>
+                <velocity tolerance="10" type="float" unit="m/s">5</velocity>
+                <trajectoryTolerance>
+                    <radiusTolerance type="float">5</radiusTolerance>
+                </trajectoryTolerance>
+                <annotation>
+                    <documentation>Move to a given point and drop attached payload</documentation>
+                    <implementation-class>pt.lsts.neptus.mp.maneuvers.Drop</implementation-class>
+                </annotation>
+            </Drop>
         </maneuver>
     </feasibleManeuvers>
     <communication-means>
@@ -139,7 +218,10 @@
     </communication-means>
     <consoles>
         <console name="UAV Console">
+            <xml-file>../conf/consoles/uav-light.ncon</xml-file>
+        </console>
+        <console name="UAV Console">
             <xml-file>../conf/consoles/ntnu/copter.ncon</xml-file>
         </console>
     </consoles>
-</system>
+</system>     
