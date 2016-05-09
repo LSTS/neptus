@@ -71,17 +71,23 @@ public class CorrectedPosition {
                 NeptusLog.pub().warn("Positions cache not found. Creating new one.");
             }
 
-            LsfIterator<EstimatedState> it = source.getLsfIndex().getIterator(EstimatedState.class, 200);
+            LsfIterator<EstimatedState> it = source.getLsfIndex().getIterator(EstimatedState.class);
+            long stepTime = 100;
             CorrectedPositionBuilder cpBuilder = new CorrectedPositionBuilder();
 
             source.getLsfIndex().hasMultipleVehicles();
             Collection<Integer> systemsLst = source.getVehicleSources();
             int sysToUse = systemsLst.iterator().next();
+            long prevTime = -1;
 
             for (EstimatedState es = it.next(); es != null; es = it.next()) {
                 if (es.getSrc() != sysToUse)
                     continue;
 
+                long diffT = es.getTimestampMillis() - prevTime;
+                if (diffT < stepTime)
+                    continue;
+                prevTime = es.getTimestampMillis();
                 cpBuilder.update(es);
             }
 
