@@ -264,7 +264,7 @@ public class GridArea extends GeometryElement implements MapDecomposition {
                 newGrid[2*i][2*j] = new GridCell(topLeft, 2*i, 2*j, false);
                 newGrid[2*i][2*j + 1] = new GridCell(topRight, 2*i, 2*j+1, false);
                 newGrid[2*i + 1][2*j] = new GridCell(bottomLeft, 2*i + 1, 2*j, false);
-                newGrid[2*i + 1][2*j + 1] = new GridCell(bottomRight, 2*i + 1, 2*j, false);
+                newGrid[2*i + 1][2*j + 1] = new GridCell(bottomRight, 2*i + 1, 2*j + 1, false);
             }
         }
         /* Set cells' id */
