@@ -48,17 +48,24 @@ import pt.lsts.neptus.plugins.mvplanning.interfaces.MapCell;
  * using DFS
  * */
 public class MST {
+    /* Minimum spanning tree to be generated */
     private List<Pair<MapCell, MapCell>> mst;
+    /* Sequence of nodes used to traverse this tree */
+    private List<MapCell> nodeSequence;
     private MapCell startCell;
 
     public MST(MapCell startCell) {
         this.startCell = startCell;
-        mst = generateMST(startCell);
+        mst = new ArrayList<>();
+        nodeSequence = new ArrayList<>();
+        generateMST(startCell);
     }
 
-    private List<Pair<MapCell, MapCell>> generateMST(MapCell startCell) {
-        /* Minimum spanning tree to be generated */
-        List<Pair<MapCell, MapCell>> mst = new ArrayList<>();
+    /**
+     * Generates the spanning tree edges and the node sequence to
+     * traverse it
+     * */
+    private void generateMST(MapCell startCell) {
         /* Nodes already visited */
         List<String> visitedNodes = new ArrayList<>();
         /* When the head node has no more free neighbours, remove it and try the next one */
@@ -75,6 +82,8 @@ public class MST {
             int i = 0;
 
             if(!neighbours.isEmpty()) {
+                nodeSequence.add(currentNode);
+
                 while(!freeNode && i < neighbours.size()) {
                     MapCell neighbour = neighbours.get(i);
 
@@ -100,10 +109,15 @@ public class MST {
             }
             else { /* Graph needs to be connected in order to have an MST*/
                 NeptusLog.pub().error("Can't generate a Minimum Spanning Tree because the graph is not connected! Node: " + currentNode.id() + " has no neighbours");
-                return null;
             }
         }
-        return mst;
+    }
+
+    /**
+     * Returns a sequence of nodes to traverse this tree
+     * */
+    public List<MapCell> getNodeSequence() {
+        return this.nodeSequence;
     }
 
     /**
