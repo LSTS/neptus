@@ -1,5 +1,72 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<config format="1" version="2.6.x (master,8797653)" system="mariner-01" i18n="pt_PT">
+<config format="1" version="2016.05.0 (feature/drop,b5e3d41)" system="mariner-01" i18n="pt_PT">
+  <section name="PWMBBB" name-i18n="PWMBBB">
+    <param name="Entity Label">
+      <name-i18n>Nome da Entidade</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>PWMBBB</default>
+      <units/>
+      <desc>Nome principal da entidade</desc>
+    </param>
+    <param name="Execution Priority">
+      <name-i18n>Prioridade de Execução</name-i18n>
+      <type>integer</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>10</default>
+      <units/>
+      <desc>Prioridade de execução</desc>
+    </param>
+    <param name="Activation Time">
+      <name-i18n>Tempo de Ativação</name-i18n>
+      <type>integer</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>0</default>
+      <units/>
+      <desc/>
+    </param>
+    <param name="Deactivation Time">
+      <name-i18n>Tempo de Desativação</name-i18n>
+      <type>integer</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>0</default>
+      <units/>
+      <desc/>
+    </param>
+    <param name="Debug Level">
+      <name-i18n>Nível de Depuração</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>None</default>
+      <units/>
+      <desc/>
+      <values>None, Debug, Trace, Spew</values>
+      <values-i18n>None, Debug, Trace, Spew</values-i18n>
+    </param>
+    <param name="PinOut">
+      <name-i18n>PinOut</name-i18n>
+      <type>integer</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>60</default>
+      <units/>
+      <desc>Port to use in PWMBBB</desc>
+    </param>
+    <param name="Servo Id">
+      <name-i18n>Servo Id</name-i18n>
+      <type>integer</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>24</default>
+      <units/>
+      <desc>Servo Id to use in Maneuver Drop</desc>
+    </param>
+  </section>
   <section name="Autopilot" name-i18n="Piloto Automático">
     <param name="Entity Label">
       <name-i18n>Nome da Entidade</name-i18n>
@@ -535,6 +602,15 @@
       <units/>
       <desc>Dislodge maneuver's entity label</desc>
     </param>
+    <param name="Entity Label -- Drop">
+      <name-i18n>Entity Label -- Drop</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>Drop Maneuver</default>
+      <units/>
+      <desc>Drop maneuver's entity label</desc>
+    </param>
     <param name="Unsupported">
       <name-i18n>Unsupported</name-i18n>
       <type>list:string</type>
@@ -670,6 +746,15 @@
       <units>m</units>
       <desc>Maximum distance from station keeping radial circle</desc>
     </param>
+    <param name="PopUp -- Report at PopUps">
+      <name-i18n>PopUp -- Report at PopUps</name-i18n>
+      <type>boolean</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>false</default>
+      <units/>
+      <desc>Request reports when popping at surface</desc>
+    </param>
     <param name="Dislodge -- Bursts">
       <name-i18n>Dislodge -- Bursts</name-i18n>
       <type>integer</type>
@@ -723,6 +808,24 @@
       <default>3.0</default>
       <units>m</units>
       <desc>Safe depth change to consider the maneuver was successful</desc>
+    </param>
+    <param name="Drop -- Servo Id">
+      <name-i18n>Drop -- Servo Id</name-i18n>
+      <type>integer</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>24</default>
+      <units/>
+      <desc>Servo Id.</desc>
+    </param>
+    <param name="Drop -- Servo Value">
+      <name-i18n>Drop -- Servo Value</name-i18n>
+      <type>real</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>3.14159</default>
+      <units/>
+      <desc>Servo Value in radians.</desc>
     </param>
   </section>
   <section name="CPU" name-i18n="CPU">
@@ -1619,14 +1722,14 @@
       <units>Hz</units>
       <desc>Frequência com que a tarefa é executada</desc>
     </param>
-    <param name="Safe Entities">
-      <name-i18n>Safe Entities</name-i18n>
+    <param name="Vital Entities">
+      <name-i18n>Vital Entities</name-i18n>
       <type>list:string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
       <default/>
       <units/>
-      <desc>Relevant entities when performing a safe plan</desc>
+      <desc>Relevant entities that are always considered regardless of ignoring errors during plan execution</desc>
     </param>
     <param name="Allows External Control">
       <name-i18n>Allows External Control</name-i18n>
@@ -2501,7 +2604,7 @@
       <type>list:string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>Acceleration, AngularVelocity, AutopilotMode, CpuUsage, Current, DesiredPath, DesiredRoll, DesiredSpeed, DesiredVerticalRate, DesiredZ, EntityList, EntityParameters, EntityState, EstimatedState, EstimatedStreamVelocity, FollowRefState, FuelLevel, GpsFix, Heartbeat, IndicatedSpeed, LeaderState, LinkLevel, LogBookControl, LoggingControl, MagneticField, OperationalLimits, PathControlState, PlanControl, PlanControlState, PlanDB, PlanGeneration, PlanSpecification, PowerChannelControl, Pressure, QueryEntityParameters, RemoteActionsRequest, Rpm, RSSI, SaveEntityParameters, SetEntityParameters, SetServoPosition, SimulatedState, StorageUsage, Target, Temperature, TrexOperation, TrueSpeed, VehicleMedium, VehicleState, Voltage</default>
+      <default>Acceleration, AngularVelocity, AutopilotMode, CpuUsage, Current, DesiredPath, DesiredRoll, DesiredSpeed, DesiredVerticalRate, DesiredZ, EntityList, EntityParameters, EntityState, EstimatedState, EstimatedStreamVelocity, FollowRefState, FuelLevel, GpsFix, Heartbeat, IndicatedSpeed, LeaderState, LinkLevel, LogBookControl, LoggingControl, MagneticField, OperationalLimits, PathControlState, PlanControl, PlanControlState, PlanDB, PlanGeneration, PlanSpecification, PowerChannelControl, Pressure, QueryEntityParameters, RemoteActionsRequest, Rpm, RSSI, SaveEntityParameters, ServoPosition, SetEntityParameters, SetServoPosition, SimulatedState, StorageUsage, Target, Temperature, TrexOperation, TrueSpeed, VehicleMedium, VehicleState, Voltage</default>
       <units/>
       <desc>List of messages to transport</desc>
     </param>
@@ -2513,6 +2616,24 @@
       <default/>
       <units/>
       <desc>List of messages that will always be transmitted disregarding communication limitations</desc>
+    </param>
+    <param name="Dynamic Nodes">
+      <name-i18n>Dynamic Nodes</name-i18n>
+      <type>boolean</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>true</default>
+      <units/>
+      <desc>Allow use of dynamic nodes.</desc>
+    </param>
+    <param name="Local Messages Only">
+      <name-i18n>Local Messages Only</name-i18n>
+      <type>boolean</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>false</default>
+      <units/>
+      <desc>Only transmit messsages from local system.</desc>
     </param>
   </section>
 </config>
