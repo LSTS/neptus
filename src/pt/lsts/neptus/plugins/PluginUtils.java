@@ -51,6 +51,7 @@ import java.util.HashSet;
 import java.util.InvalidPropertiesFormatException;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Vector;
@@ -471,7 +472,7 @@ public class PluginUtils {
         else
             c = o.getClass();
         
-        HashSet<Field> fields = new HashSet<>(); 
+        HashSet<Field> fields = new LinkedHashSet<>(); 
         for (Field f : c.getFields())
             fields.add(f);
         for (Field f : c.getDeclaredFields()) {
