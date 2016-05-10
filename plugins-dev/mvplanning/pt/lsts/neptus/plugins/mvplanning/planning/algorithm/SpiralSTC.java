@@ -77,14 +77,10 @@ public class SpiralSTC {
         int previousDirection = 0;
         boolean firstNode = true;
         for(MapCell node : minSpanningTree.getNodeSequence()) {
-            Goto newNode = new Goto();
             if(firstNode) {
                 GridCell startSubCell = computeStartSubCell((GridCell) node, minSpanningTree, subCells);
 
-                newNode.setId(startSubCell.id());
-                newNode.setManeuverLocation(new ManeuverLocation(startSubCell.getLocation()));
-                newNode.setInitialManeuver(true);
-                planGraph.addManeuver(newNode);
+                addNewNode(planGraph, startSubCell, true);
 
                 firstNode = false;
                 previousSubCell = startSubCell;
@@ -96,11 +92,7 @@ public class SpiralSTC {
                 /* Based on new direction compute the new subcell to move into */
                 GridCell nextSubCell = computeNewTransition(planGraph, nextDir, previousDirection, previousSubCell, previousCell, (GridCell) node, subCells);
 
-                if(planGraph.getManeuver(nextSubCell.id()) == null) {
-                    newNode.setId(nextSubCell.id());
-                    newNode.setManeuverLocation(new ManeuverLocation(nextSubCell.getLocation()));
-                    planGraph.addManeuver(newNode);
-                }
+                addNewNode(planGraph, nextSubCell, false);
 
                 planGraph.addTransition(new TransitionType(previousSubCell.id(), nextSubCell.id()));
                 previousDirection = nextDir;
@@ -109,6 +101,21 @@ public class SpiralSTC {
             }
         }
         return planGraph;
+    }
+
+    /**
+     * Given a graph and GridCell creates a new node and adds it.
+     * */
+    private void addNewNode(GraphType graph, GridCell cell, boolean isInitialNode) {
+        if(graph.getManeuver(cell.id()) == null) {
+            Goto newNode = new Goto();
+
+            newNode.setId(cell.id());
+            newNode.setManeuverLocation(new ManeuverLocation(cell.getLocation()));
+            newNode.setInitialManeuver(true);
+            newNode.setInitialManeuver(isInitialNode);
+            graph.addManeuver(newNode);
+        }
     }
 
     /**
