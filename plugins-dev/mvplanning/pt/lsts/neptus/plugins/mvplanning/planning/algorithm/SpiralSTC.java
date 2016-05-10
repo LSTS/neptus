@@ -167,7 +167,7 @@ public class SpiralSTC {
         else {
             /* Going back to the previous node */
             if(nextDir == -prevDir)
-               return goAroundNode(path, nextDir, currSubCell, subCells);
+               return goAroundLeafNode(path, nextDir, currSubCell, subCells);
             else {
                 int i = destMegaCell.getRow();
                 int j = destMegaCell.getColumn();
@@ -209,7 +209,7 @@ public class SpiralSTC {
      * returns the last sub cell the vehicle will be in
      * after this move.
      * */
-    private GridCell goAroundNode(GraphType path, int nextDir, GridCell currSubCell, GridArea subCells) {
+    private GridCell goAroundLeafNode(GraphType path, int nextDir, GridCell currSubCell, GridArea subCells) {
         List<GridCell> nodesSequence;
         int currRow = currSubCell.getRow();
         int currCol = currSubCell.getColumn();
