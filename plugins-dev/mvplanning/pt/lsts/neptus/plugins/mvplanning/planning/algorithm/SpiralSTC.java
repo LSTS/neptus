@@ -59,7 +59,7 @@ public class SpiralSTC {
     private MST minSpanningTree;
 
     public SpiralSTC(GridArea areaToCover) {
-        this.minSpanningTree = new MST(areaToCover.getAreaCells().get(30));
+        this.minSpanningTree = new MST(areaToCover.getAreaCells().get(0));
         this.graph = generatePath(areaToCover);
     }
 
@@ -91,23 +91,21 @@ public class SpiralSTC {
                 previousCell = (GridCell) node;
             }
             else {
-                if(!node.id().equals(minSpanningTree.startCell().id())) {
-                    /* Direction from previous mega-cell to the current one */
-                    int nextDir = getNextDirection(previousCell, (GridCell) node);
-                    /* Based on new direction compute the new subcell to move into */
-                    GridCell nextSubCell = computeNewTransition(planGraph, nextDir, previousDirection, previousSubCell, previousCell, (GridCell) node, subCells);
+                /* Direction from previous mega-cell to the current one */
+                int nextDir = getNextDirection(previousCell, (GridCell) node);
+                /* Based on new direction compute the new subcell to move into */
+                GridCell nextSubCell = computeNewTransition(planGraph, nextDir, previousDirection, previousSubCell, previousCell, (GridCell) node, subCells);
 
-                    if(planGraph.getManeuver(nextSubCell.id()) == null) {
-                        newNode.setId(nextSubCell.id());
-                        newNode.setManeuverLocation(new ManeuverLocation(nextSubCell.getLocation()));
-                        planGraph.addManeuver(newNode);
-                    }
-
-                    planGraph.addTransition(new TransitionType(previousSubCell.id(), nextSubCell.id()));
-                    previousDirection = nextDir;
-                    previousSubCell = nextSubCell;
-                    previousCell = (GridCell) node;
+                if(planGraph.getManeuver(nextSubCell.id()) == null) {
+                    newNode.setId(nextSubCell.id());
+                    newNode.setManeuverLocation(new ManeuverLocation(nextSubCell.getLocation()));
+                    planGraph.addManeuver(newNode);
                 }
+
+                planGraph.addTransition(new TransitionType(previousSubCell.id(), nextSubCell.id()));
+                previousDirection = nextDir;
+                previousSubCell = nextSubCell;
+                previousCell = (GridCell) node;
             }
         }
         return planGraph;
