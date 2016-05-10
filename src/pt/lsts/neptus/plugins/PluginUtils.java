@@ -435,13 +435,11 @@ public class PluginUtils {
                         continue;
                     }
                     catch (SecurityException e) {
-                        // TODO Auto-generated catch block
                         e.printStackTrace();
                         continue;
                     }
                 }
                 catch (SecurityException e1) {
-                    // TODO Auto-generated catch block
                     e1.printStackTrace();
                     continue;
                 }
@@ -452,7 +450,6 @@ public class PluginUtils {
                     res = m.invoke(obj, propValue);
                 }
                 catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
-                    // TODO Auto-generated catch block
                     e.printStackTrace();
                     continue;
                 }
