@@ -77,28 +77,24 @@ public class SpiralSTC {
         int previousDirection = 0;
         boolean firstNode = true;
         for(MapCell node : minSpanningTree.getNodeSequence()) {
+            GridCell newSubCell;
             if(firstNode) {
-                GridCell startSubCell = computeStartSubCell((GridCell) node, minSpanningTree, subCells);
+                newSubCell = computeStartSubCell((GridCell) node, minSpanningTree, subCells);
 
-                addNewNode(planGraph, startSubCell, true);
-
+                addNewNode(planGraph, newSubCell, true);
                 firstNode = false;
-                previousSubCell = startSubCell;
-                previousCell = (GridCell) node;
             }
             else {
                 /* Direction from previous mega-cell to the current one */
                 int nextDir = getNextDirection(previousCell, (GridCell) node);
-                /* Based on new direction compute the new subcell to move into */
-                GridCell nextSubCell = computeNewTransition(planGraph, nextDir, previousDirection, previousSubCell, previousCell, (GridCell) node, subCells);
+                newSubCell = computeNewTransition(planGraph, nextDir, previousDirection, previousSubCell, previousCell, (GridCell) node, subCells);
+                addNewNode(planGraph, newSubCell, false);
 
-                addNewNode(planGraph, nextSubCell, false);
-
-                planGraph.addTransition(new TransitionType(previousSubCell.id(), nextSubCell.id()));
+                planGraph.addTransition(new TransitionType(previousSubCell.id(), newSubCell.id()));
                 previousDirection = nextDir;
-                previousSubCell = nextSubCell;
-                previousCell = (GridCell) node;
             }
+            previousSubCell = newSubCell;
+            previousCell = (GridCell) node;
         }
         return planGraph;
     }
