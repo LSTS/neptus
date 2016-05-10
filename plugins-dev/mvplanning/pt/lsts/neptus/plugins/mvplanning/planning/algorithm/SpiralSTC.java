@@ -196,10 +196,7 @@ public class SpiralSTC {
                 else
                     return null;
 
-                GridCell nextSubCell = (GridCell) subCells.getAllCells()[subCellRow][subCellCol];
-                path.addTransition(new TransitionType(currSubCell.id(), (nextSubCell.id())));
-
-                return nextSubCell;
+                return (GridCell) subCells.getAllCells()[subCellRow][subCellCol];
             }
         }
     }
