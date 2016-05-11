@@ -31,22 +31,34 @@
  */
 package pt.lsts.neptus.mp.maneuvers;
 
+import java.awt.Color;
+import java.awt.Graphics2D;
+import java.awt.geom.Rectangle2D;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.TimeZone;
 import java.util.Vector;
 
+import org.dom4j.Document;
+import org.dom4j.DocumentHelper;
+import org.dom4j.Element;
+import org.dom4j.Node;
+
 import com.l2fprod.common.propertysheet.DefaultProperty;
 import com.l2fprod.common.propertysheet.Property;
 
 import pt.lsts.imc.IMCMessage;
+import pt.lsts.imc.ScheduledGoto.DELAYED;
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.gui.PropertiesEditor;
 import pt.lsts.neptus.gui.editor.ComboEditor;
 import pt.lsts.neptus.gui.editor.StringPatternEditor;
 import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.mp.ManeuverLocation;
+import pt.lsts.neptus.renderer2d.StateRenderer2D;
 import pt.lsts.neptus.types.coord.LocationType;
+import pt.lsts.neptus.types.map.PlanElement;
+import pt.lsts.neptus.util.DateTimeUtil;
 
 /**
  * @author zp
@@ -55,16 +67,17 @@ import pt.lsts.neptus.types.coord.LocationType;
 public class ScheduledGoto extends Goto {
 
     protected static final String DEFAULT_ROOT_ELEMENT = "ScheduledGoto";
-    
+
     Date arrivalTime = new Date();
     ManeuverLocation.Z_UNITS travelUnits = ManeuverLocation.Z_UNITS.DEPTH;
     double travelZ = 0;
-    
+    pt.lsts.imc.ScheduledGoto.DELAYED delayedBehavior = DELAYED.SKIP;
+
     @Override
     public String getType() {
         return "ScheduledGoto";
     }
-    
+
     public Object clone() {  
         ScheduledGoto clone = new ScheduledGoto();
         super.clone(clone);
@@ -74,56 +87,58 @@ public class ScheduledGoto extends Goto {
         clone.setSpeedUnits(getUnits());
         clone.setSpeed(getSpeed());
         clone.setSpeedTolerance(getSpeedTolerance());
-        
+        clone.setArrivalTime(getArrivalTime());
+        clone.setDelayedBehavior(getDelayedBehavior());
         return clone;
     }
-    
+
     @Override
     public void parseIMCMessage(IMCMessage message) {
         try {
             pt.lsts.imc.ScheduledGoto msg = new pt.lsts.imc.ScheduledGoto(message);
-            
+
             ManeuverLocation pos = new ManeuverLocation();
             pos.setLatitudeRads(msg.getLat());
             pos.setLongitudeRads(msg.getLon());
             pos.setZ(msg.getZ());
             pos.setZUnits(ManeuverLocation.Z_UNITS.valueOf(msg.getZUnits().toString()));
             setManeuverLocation(pos);
-            
+
             setTravelUnits(ManeuverLocation.Z_UNITS.valueOf(msg.getTravelZUnits().toString()));
             setTravelZ(msg.getTravelZ());
-            setArrivalTime(new Date((long)(msg.getArrivalTime() * 1000)));            
+            setArrivalTime(new Date((long)(msg.getArrivalTime() * 1000)));    
+            setDelayedBehavior(msg.getDelayed());
         }
         catch (Exception e) {
             e.printStackTrace();
             return;
         }
     }
-    
+
     public IMCMessage serializeToIMC() {
         pt.lsts.imc.ScheduledGoto man = new pt.lsts.imc.ScheduledGoto();
-        
+
         LocationType l = getManeuverLocation();
         l.convertToAbsoluteLatLonDepth();
-        
+
         man.setLat(l.getLatitudeRads());
         man.setLon(l.getLongitudeRads());
-        
+
         man.setZ(getManeuverLocation().getZ());
         man.setZUnits(pt.lsts.imc.ScheduledGoto.Z_UNITS.valueOf(getManeuverLocation().getZUnits().name()));
-        
+
         man.setTravelZUnits(pt.lsts.imc.ScheduledGoto.TRAVEL_Z_UNITS.valueOf(getTravelUnits().name()));
         man.setTravelZ(travelZ);
-        
+
         man.setArrivalTime(arrivalTime.getTime()/1000.0);
-        
+        man.setDelayed(getDelayedBehavior());
         return man;
     }
-    
+
     @Override
     protected Vector<DefaultProperty> additionalProperties() {
         Vector<DefaultProperty> props = new Vector<>();
-        
+
         DefaultProperty units = PropertiesEditor.getPropertyInstance("Travel Z units", pt.lsts.neptus.mp.ManeuverLocation.Z_UNITS.class, getTravelUnits(), true);
         units.setDisplayName(I18n.text("Travel Z units"));
         units.setShortDescription(I18n.text("Travel Z units"));
@@ -132,26 +147,37 @@ public class ScheduledGoto extends Goto {
         DefaultProperty travZ = PropertiesEditor.getPropertyInstance("Travel Z value", Double.class, getTravelZ(), true);
         travZ.setDisplayName(I18n.text("Travel Z value"));
         travZ.setShortDescription(I18n.text("Travel Z value (meters)"));
-        
+
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         sdf.setTimeZone(TimeZone.getTimeZone("UTC"));
-        
+
         DefaultProperty arrivalTime = PropertiesEditor.getPropertyInstance("Arrival Time", String.class, sdf.format(getArrivalTime()), true);
+        arrivalTime.setDisplayName(I18n.text("Arrival Time"));
+        arrivalTime.setShortDescription(I18n.text("Arrival Time (UTC timezone)"));
         PropertiesEditor.getPropertyEditorRegistry().registerEditor(arrivalTime, new StringPatternEditor("20[0-9][0-9]\\-[0-1][0-9]\\-[0-3][0-9] [0-2][0-9]\\:[0-5][0-9]\\:[0-5][0-9]"));
-        
+
+        DefaultProperty delayedBeh = PropertiesEditor.getPropertyInstance("Delayed Behavior", DELAYED.class, getDelayedBehavior(), true);
+        delayedBeh.setDisplayName(I18n.text("Delayed Behavior"));
+        delayedBeh.setShortDescription(I18n.text(
+                "How to proceed if vehicle doesn't reach the waypoint in time."+
+                        "\n\tRESUME - Continue until (delayed) arrival,"+
+                        "\n\tSKIP - Move on to next maneuver,"+
+                "\n\tFAIL - Stop plan with a failure."));
+
         props.add(travZ);
         props.add(units);
         props.add(arrivalTime);
-        
+        props.add(delayedBeh);
+
         return props;        
     }
-    
+
     @Override
     public void setProperties(Property[] properties) {
         super.setProperties(properties);
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         sdf.setTimeZone(TimeZone.getTimeZone("UTC"));
-        
+
         for (Property p : properties) {
             if (p.getName().equals("Travel Z units")) {
                 setTravelUnits((pt.lsts.neptus.mp.ManeuverLocation.Z_UNITS) p.getValue());                
@@ -170,10 +196,71 @@ public class ScheduledGoto extends Goto {
             else {
                 NeptusLog.pub().debug("Property "+p.getName()+" ignored.");
             }
-        }
-        
+        }        
     }
-    
+
+    @Override
+    public Document getManeuverAsDocument(String rootElementName) {
+        Document doc = super.getManeuverAsDocument(rootElementName);
+        Element root = doc.getRootElement();
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        sdf.setTimeZone(TimeZone.getTimeZone("UTC"));
+        Element arrivalTime = root.addElement("ArrivalTime");
+        arrivalTime.setText(sdf.format(getArrivalTime()));
+        Element delayedBehavior = root.addElement("DelayedBehavior");
+        delayedBehavior.setText(getDelayedBehavior().toString());
+        Element travelZ = root.addElement("TravelZ");
+        travelZ.setText(""+getTravelZ());
+        Element travelZUnits = root.addElement("TravelUnits");
+        travelZUnits.setText(getTravelUnits().toString());
+        return doc;
+    }
+
+
+    public void loadFromXML(String xml) {  
+        super.loadFromXML(xml);
+        try {
+            Document doc = DocumentHelper.parseText(xml);
+            Node node = doc.selectSingleNode(getType()+"/ArrivalTime");
+            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+            sdf.setTimeZone(TimeZone.getTimeZone("UTC"));
+            setArrivalTime(sdf.parse(node.getText()));
+            node = doc.selectSingleNode(getType()+"/DelayedBehavior");
+            setDelayedBehavior(DELAYED.valueOf(node.getText()));
+            node = doc.selectSingleNode(getType()+"/TravelZ");
+            setTravelZ(Double.parseDouble(node.getText()));
+            node = doc.selectSingleNode(getType()+"/TravelUnits");
+            setTravelUnits(pt.lsts.neptus.mp.ManeuverLocation.Z_UNITS.valueOf(node.getText()));            
+        }
+        catch (Exception e) {
+            NeptusLog.pub().info(I18n.text("Error while loading the XML:")+"{" + xml + "}");
+            NeptusLog.pub().error(this, e);
+            return;
+        }
+    }
+
+    @Override
+    public void paintOnMap(Graphics2D g2d, PlanElement planElement, StateRenderer2D renderer) {
+
+        super.paintOnMap(g2d, planElement, renderer);
+        long diff = getArrivalTime().getTime() - new Date().getTime();
+        String text = DateTimeUtil.milliSecondsToFormatedString(diff, true);
+
+        Rectangle2D rect = g2d.getFontMetrics().getStringBounds(text, g2d);
+        g2d.translate(-rect.getWidth()/2, -rect.getHeight()/2-5);
+        g2d.setColor(Color.black);
+        g2d.drawString(text, 0, 0);
+        g2d.translate(-1, -1);
+        if (getArrivalTime().before(new Date())) {
+            g2d.setColor(Color.red.darker());    
+        }
+        else {
+            g2d.setColor(Color.green.darker());
+        }
+
+        g2d.drawString(text, 0, 0);
+    }
+
 
     /**
      * @return the arrivalTime
@@ -215,5 +302,19 @@ public class ScheduledGoto extends Goto {
      */
     public void setTravelZ(double travelZ) {
         this.travelZ = travelZ;
+    }
+
+    /**
+     * @return the delayedBehavior
+     */
+    public pt.lsts.imc.ScheduledGoto.DELAYED getDelayedBehavior() {
+        return delayedBehavior;
+    }
+
+    /**
+     * @param delayedBehavior the delayedBehavior to set
+     */
+    public void setDelayedBehavior(pt.lsts.imc.ScheduledGoto.DELAYED delayedBehavior) {
+        this.delayedBehavior = delayedBehavior;
     }   
 }
