@@ -35,6 +35,7 @@ import java.awt.Component;
 
 import javax.swing.JOptionPane;
 
+import pt.lsts.imc.AcousticOperation;
 import pt.lsts.imc.AcousticSystems;
 import pt.lsts.imc.IMCDefinition;
 import pt.lsts.imc.IMCMessage;
@@ -179,11 +180,13 @@ public class IMCSendMessageUtils {
                 continue;
             
             String id = acOpSystem.getName();
-            IMCMessage msgAcousticOperation = IMCDefinition.getInstance().create("AcousticOperation");
-
-            msgAcousticOperation.setValue("op", "MSG");
-            msgAcousticOperation.setValue("system", system);
-            msgAcousticOperation.setValue("msg", msg);
+            IMCMessage msgAcousticOperation = msg;
+            if (!(msg instanceof AcousticOperation)) {
+                msgAcousticOperation = IMCDefinition.getInstance().create("AcousticOperation");
+                msgAcousticOperation.setValue("op", "MSG");
+                msgAcousticOperation.setValue("system", system);
+                msgAcousticOperation.setValue("msg", msg);
+            }
 
             boolean ret = sendMessage(msgAcousticOperation, I18n.text("Error sending message by acoustic modem!"),
                     true, id);

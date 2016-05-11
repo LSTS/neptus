@@ -36,10 +36,12 @@ import com.google.common.eventbus.Subscribe;
 import pt.lsts.imc.AcousticOperation;
 import pt.lsts.imc.IMCDefinition;
 import pt.lsts.imc.IMCMessage;
+import pt.lsts.neptus.comm.IMCSendMessageUtils;
 import pt.lsts.neptus.comm.manager.imc.ImcId16;
 import pt.lsts.neptus.comm.manager.imc.ImcMsgManager;
 import pt.lsts.neptus.comm.manager.imc.ImcSystem;
 import pt.lsts.neptus.comm.manager.imc.ImcSystemsHolder;
+import pt.lsts.neptus.comm.manager.imc.MessageDeliveryListener;
 import pt.lsts.neptus.console.ConsoleLayout;
 import pt.lsts.neptus.console.ConsolePanel;
 import pt.lsts.neptus.console.notifications.Notification;
@@ -51,7 +53,6 @@ import pt.lsts.neptus.plugins.NeptusProperty;
 import pt.lsts.neptus.plugins.PluginDescription;
 import pt.lsts.neptus.plugins.PluginDescription.CATEGORY;
 import pt.lsts.neptus.plugins.update.IPeriodicUpdates;
-import pt.lsts.neptus.types.vehicle.VehicleType.SystemTypeEnum;
 import pt.lsts.neptus.util.GuiUtils;
 
 /**
@@ -141,21 +142,61 @@ public class SimpleAbortModemRequest extends ConsolePanel implements IAbortSende
 
     @Override
     public boolean sendAbortRequest(String system) {
-        ImcSystem[] sysLst = ImcSystemsHolder.lookupSystemByService(serviceName, SystemTypeEnum.ALL, useOnlyActive);
-        if (sysLst.length == 0)
-            return false;
-        boolean retAll = false;
-        for (ImcSystem imcSystem : sysLst) {
-            ImcId16 id = imcSystem.getId();
-            IMCMessage msgAcousticOperation = IMCDefinition.getInstance().create("AcousticOperation");
+        IMCMessage msgAcousticOperation = IMCDefinition.getInstance().create("AcousticOperation");
+        msgAcousticOperation.setValue("op", "ABORT");
+        msgAcousticOperation.setValue("system", system);
+        boolean ret = IMCSendMessageUtils.sendMessage(msgAcousticOperation,
+                null, createDefaultMessageDeliveryListener(),
+                this, I18n.text("Error sending ABORT command message!"), false, serviceName,
+                useOnlyActive, true, system);
+        return ret;
+    }
 
-            msgAcousticOperation.setValue("op", "ABORT");
-            msgAcousticOperation.setValue("system", system);
+    private MessageDeliveryListener createDefaultMessageDeliveryListener() {
+        return new MessageDeliveryListener() {
 
-            boolean ret = sendTheMessage(msgAcousticOperation, I18n.text("Error sending ABORT command message!"), id);
-            retAll = retAll || ret;
-        }
-        return retAll;
+            private String  getDest(IMCMessage message) {
+                ImcSystem sys = message != null ? ImcSystemsHolder.lookupSystem(message.getDst()) : null;
+                String dest = sys != null ? sys.getName() : I18n.text("unknown destination");
+                return dest;
+            }
+
+            @Override
+            public void deliveryUnreacheable(IMCMessage message) {
+                post(Notification.error(
+                        I18n.text("Delivering Message"),
+                        I18n.textf("Message %messageType to %destination delivery destination unreacheable",
+                                message.getAbbrev(), getDest(message))));
+            }
+
+            @Override
+            public void deliveryTimeOut(IMCMessage message) {
+                post(Notification.error(
+                        I18n.text("Delivering Message"),
+                        I18n.textf("Message %messageType to %destination delivery timeout",
+                                message.getAbbrev(), getDest(message))));
+            }
+
+            @Override
+            public void deliveryError(IMCMessage message, Object error) {
+                post(Notification.error(
+                        I18n.text("Delivering Message"),
+                        I18n.textf("Message %messageType to %destination delivery error. (%error)",
+                                message.getAbbrev(), getDest(message), error)));
+            }
+
+            @Override
+            public void deliveryUncertain(IMCMessage message, Object msg) {
+            }
+
+            @Override
+            public void deliverySuccess(IMCMessage message) {
+                //                post(Notification.success(
+                //                        I18n.text("Delivering Message"),
+                //                        I18n.textf("Message %messageType to %destination delivery success",
+                //                                message.getAbbrev(), getDest(message))));
+            }
+        };
     }
 
     /*
