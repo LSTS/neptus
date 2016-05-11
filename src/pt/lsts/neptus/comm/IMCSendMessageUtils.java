@@ -32,6 +32,9 @@
 package pt.lsts.neptus.comm;
 
 import java.awt.Component;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 
 import javax.swing.JOptionPane;
 
@@ -174,8 +177,13 @@ public class IMCSendMessageUtils {
     public static boolean sendMessageByAcousticModem(IMCMessage msg, String system,
             boolean sendOnlyThroughOne, ImcSystem[] acousticOpSysLst) {
         // TODO listen for the responses back from the systems with modems
+        
+        List<ImcSystem> lst = Arrays.asList(acousticOpSysLst);
+        if (sendOnlyThroughOne)
+            Collections.shuffle(lst); // Randomizes the order for not using always the same
+        
         boolean retAll = false;
-        for (ImcSystem acOpSystem : acousticOpSysLst) {
+        for (ImcSystem acOpSystem : lst) {
             boolean canReach = doesSystemWithAcousticCanReachSystem(acOpSystem, system);
             if (!canReach)
                 continue;
