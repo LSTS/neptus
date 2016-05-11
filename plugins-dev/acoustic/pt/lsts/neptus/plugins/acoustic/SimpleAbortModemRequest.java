@@ -148,7 +148,7 @@ public class SimpleAbortModemRequest extends ConsolePanel implements IAbortSende
         boolean ret = IMCSendMessageUtils.sendMessage(msgAcousticOperation,
                 null, createDefaultMessageDeliveryListener(),
                 this, I18n.text("Error sending ABORT command message!"), false, serviceName,
-                useOnlyActive, false, system);
+                useOnlyActive, false, true, system);
         return ret;
     }
 

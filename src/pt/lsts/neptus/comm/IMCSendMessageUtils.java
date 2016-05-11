@@ -84,28 +84,29 @@ public class IMCSendMessageUtils {
         }
     }
 
-    public static boolean sendMessage(IMCMessage msg, String errorTextForDialog,
+    public static boolean sendMessage(IMCMessage msg, String errorTextForDialog, boolean sendOnlyThroughOneAcoustically,
             String... ids) {
-        return sendMessage(msg, errorTextForDialog, false, ids);
+        return sendMessage(msg, errorTextForDialog, false, sendOnlyThroughOneAcoustically, ids);
     }
 
     public static boolean sendMessage(IMCMessage msg, String errorTextForDialog,
-            boolean ignoreAcousticSending, String... ids) {
+            boolean ignoreAcousticSending, boolean sendOnlyThroughOneAcoustically, String... ids) {
         return sendMessage(msg, null, errorTextForDialog, ignoreAcousticSending, "acoustic/operation",
-                false, true, ids);
+                false, true, sendOnlyThroughOneAcoustically, ids);
     }
 
     public static boolean sendMessage(IMCMessage msg, Component parent, String errorTextForDialog,
-            boolean ignoreAcousticSending, boolean acousticOpUserAprovedQuestion, String... ids) {
+            boolean ignoreAcousticSending, boolean acousticOpUserAprovedQuestion,
+            boolean sendOnlyThroughOneAcoustically, String... ids) {
         return sendMessage(msg, null, errorTextForDialog, ignoreAcousticSending, "acoustic/operation",
-                false, acousticOpUserAprovedQuestion, ids);
+                false, acousticOpUserAprovedQuestion, sendOnlyThroughOneAcoustically, ids);
     }
     
     public static boolean sendMessage(IMCMessage msg, Component parent, String errorTextForDialog,
             boolean ignoreAcousticSending, String acousticOpServiceName, boolean acousticOpUseOnlyActive,
-            boolean acousticOpUserAprovedQuestion, String... ids) {
+            boolean acousticOpUserAprovedQuestion, boolean sendOnlyThroughOneAcoustically, String... ids) {
         return sendMessage(msg, null, null, parent, errorTextForDialog, ignoreAcousticSending, acousticOpServiceName,
-                acousticOpUseOnlyActive, acousticOpUserAprovedQuestion, ids);
+                acousticOpUseOnlyActive, acousticOpUserAprovedQuestion, sendOnlyThroughOneAcoustically, ids);
     }
 
     /**
@@ -123,7 +124,7 @@ public class IMCSendMessageUtils {
      */
     public static boolean sendMessage(IMCMessage msg, String sendProperties, MessageDeliveryListener listener, Component parent, String errorTextForDialog,
             boolean ignoreAcousticSending, String acousticOpServiceName, boolean acousticOpUseOnlyActive,
-            boolean acousticOpUserAprovedQuestion, String... ids) {
+            boolean acousticOpUserAprovedQuestion, boolean sendOnlyThroughOneAcoustically, String... ids) {
 
         ImcSystem[] acousticOpSysLst = !ignoreAcousticSending ? ImcSystemsHolder.lookupSystemByService(
                 acousticOpServiceName, SystemTypeEnum.ALL, acousticOpUseOnlyActive)
@@ -142,7 +143,7 @@ public class IMCSendMessageUtils {
                     acousticOpUserAprovalRequired = false;
                 }
                 if (acousticOpUserAproved)
-                    ret = sendMessageByAcousticModem(msg, sid, acousticOpSysLst);
+                    ret = sendMessageByAcousticModem(msg, sid, sendOnlyThroughOneAcoustically, acousticOpSysLst);
                 else
                     ret = false;
             }
@@ -171,7 +172,7 @@ public class IMCSendMessageUtils {
      * @return
      */
     public static boolean sendMessageByAcousticModem(IMCMessage msg, String system,
-            ImcSystem[] acousticOpSysLst) {
+            boolean sendOnlyThroughOne, ImcSystem[] acousticOpSysLst) {
         // TODO listen for the responses back from the systems with modems
         boolean retAll = false;
         for (ImcSystem acOpSystem : acousticOpSysLst) {
@@ -191,6 +192,9 @@ public class IMCSendMessageUtils {
             boolean ret = sendMessage(msgAcousticOperation, I18n.text("Error sending message by acoustic modem!"),
                     true, id);
             retAll = retAll || ret;
+            
+            if (sendOnlyThroughOne && ret)
+                break;
         }
         return retAll;
     }

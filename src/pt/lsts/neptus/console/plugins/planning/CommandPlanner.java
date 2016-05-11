@@ -414,7 +414,7 @@ public class CommandPlanner extends ConsolePanel implements IEditorMenuExtension
                 | (ignoreErrors ? PlanControl.FLG_IGNORE_ERRORS : 0));
 
         boolean ret = IMCSendMessageUtils.sendMessage(startPlan, CommandPlanner.this, "Error starting " + plan.getId()
-                + " plan", false, true, plan.getVehicle());
+                + " plan", false, true, true, plan.getVehicle());
         if (ret)
             registerPlanControlRequest(reqId);
     }

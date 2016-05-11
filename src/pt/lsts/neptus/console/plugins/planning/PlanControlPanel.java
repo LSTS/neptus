@@ -498,7 +498,7 @@ LockableSubPanel, IPeriodicUpdates, NeptusMessageListener {
                             createDefaultMessageDeliveryListener(),
                             PlanControlPanel.this,
                             I18n.text("Error Initializing Tele-Operation"), DONT_USE_ACOUSTICS,
-                            "", false, true, systems);
+                            "", false, true, true, systems);
                     if (!ret) {
                         post(Notification.error(I18n.text("Tele-Operation"),
                                 I18n.text("Error sending Tele-Operation message!")));
@@ -513,7 +513,7 @@ LockableSubPanel, IPeriodicUpdates, NeptusMessageListener {
                             createDefaultMessageDeliveryListener(),
                             PlanControlPanel.this,
                             I18n.text("Error sending exiting Tele-Operation message!"), DONT_USE_ACOUSTICS,
-                            "", false, true, systems);
+                            "", false, true, true, systems);
                     if (!ret) {
                         post(Notification.error(I18n.text("Tele-Op"),
                                 I18n.text("Error sending exiting Tele-Operation message!")));
@@ -801,7 +801,7 @@ LockableSubPanel, IPeriodicUpdates, NeptusMessageListener {
         IMCSendMessageUtils.sendMessage(msgLBLConfiguration,
                 (useTcpToSendMessages ? ImcMsgManager.TRANSPORT_TCP : null), createDefaultMessageDeliveryListener(),
                 this, I18n.text("Error sending acoustic beacons"), DONT_USE_ACOUSTICS, acousticOpServiceName,
-                acousticOpUseOnlyActive, true, systems);
+                acousticOpUseOnlyActive, true, true, systems);
         // NeptusLog.pub().error("Sending beacons to vehicle: " + lblBeaconsList.toString());
 
         final String[] dest = systems;
@@ -823,7 +823,7 @@ LockableSubPanel, IPeriodicUpdates, NeptusMessageListener {
                             (useTcpToSendMessages ? ImcMsgManager.TRANSPORT_TCP : null),
                             createDefaultMessageDeliveryListener(), PlanControlPanel.this,
                             I18n.text("Error sending acoustic beacons"), DONT_USE_ACOUSTICS, acousticOpServiceName,
-                            acousticOpUseOnlyActive, true, dest);
+                            acousticOpUseOnlyActive, true, true, dest);
                 }
                 catch (Exception e) {
                     e.printStackTrace();
@@ -885,7 +885,7 @@ LockableSubPanel, IPeriodicUpdates, NeptusMessageListener {
             registerPlanControlRequest(reqId);
             boolean ret = IMCSendMessageUtils.sendMessage(pdb, (useTcpToSendMessages ? ImcMsgManager.TRANSPORT_TCP
                     : null), createDefaultMessageDeliveryListener(), this, I18n.text("Error sending plan"),
-                    DONT_USE_ACOUSTICS, acousticOpServiceName, acousticOpUseOnlyActive, true, systems);
+                    DONT_USE_ACOUSTICS, acousticOpServiceName, acousticOpUseOnlyActive, true, true, systems);
             if (ret) {
                 iSent++;
             }
@@ -922,7 +922,7 @@ LockableSubPanel, IPeriodicUpdates, NeptusMessageListener {
                 (useTcpToSendMessages ? ImcMsgManager.TRANSPORT_TCP : null), 
                 createDefaultMessageDeliveryListener(), this,
                 I18n.text("Error sending plan download request"), DONT_USE_ACOUSTICS,
-                acousticOpServiceName, acousticOpUseOnlyActive, true, systems);
+                acousticOpServiceName, acousticOpUseOnlyActive, true, true, systems);
 
         if (ret) {
             registerPlanControlRequest(reqId);
@@ -958,8 +958,6 @@ LockableSubPanel, IPeriodicUpdates, NeptusMessageListener {
         PlanControl pc = new PlanControl();
         pc.setType(PlanControl.TYPE.REQUEST);
         pc.setRequestId(reqId);
-        
-        
         
         String cmdStrMsg = "";
         try {
@@ -1008,7 +1006,7 @@ LockableSubPanel, IPeriodicUpdates, NeptusMessageListener {
 
         boolean ret = IMCSendMessageUtils.sendMessage(pc, (useTcpToSendMessages ? ImcMsgManager.TRANSPORT_TCP : null),
                 createDefaultMessageDeliveryListener(), this, cmdStrMsg, dontSendByAcoustics,
-                acousticOpServiceName, acousticOpUseOnlyActive, true, systems);
+                acousticOpServiceName, acousticOpUseOnlyActive, true, true, systems);
 
         if (!ret) {
             post(Notification.error(I18n.text("Send Plan"), I18n.text("Error sending PlanControl message!")));

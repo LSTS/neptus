@@ -858,7 +858,7 @@ public class MissionTreePanel extends ConsolePanel implements MissionChangeListe
             boolean acousticOpUserAprovedQuestion = true;
             IMCSendMessageUtils.sendMessage(msgLBLConfiguration, ImcMsgManager.TRANSPORT_TCP, listener,
                     MissionTreePanel.this, errorTextForDialog, ignoreAcousticSending, acousticOpServiceName,
-                    acousticOpUseOnlyActive, acousticOpUserAprovedQuestion, getMainVehicleId());
+                    acousticOpUseOnlyActive, acousticOpUserAprovedQuestion, true, getMainVehicleId());
         }
 
         MessageDeliveryListener listener = new MessageDeliveryListener() {

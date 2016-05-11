@@ -65,7 +65,7 @@ public class AcousticModemSender implements ITextMsgSender {
         TextMessage tm = new TextMessage();
         tm.setText(command);
         tm.setOrigin(source);
-        final boolean result = IMCSendMessageUtils.sendMessageByAcousticModem(tm, destination,
+        final boolean result = IMCSendMessageUtils.sendMessageByAcousticModem(tm, destination, true,
                 ImcSystemsHolder.lookupSystemByService("acoustic/operation", SystemTypeEnum.ALL, true));
         
         return new Future<String>() {
