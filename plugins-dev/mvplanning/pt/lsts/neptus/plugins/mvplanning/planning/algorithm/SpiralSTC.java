@@ -108,7 +108,6 @@ public class SpiralSTC {
 
             newNode.setId(cell.id());
             newNode.setManeuverLocation(new ManeuverLocation(cell.getLocation()));
-            newNode.setInitialManeuver(true);
             newNode.setInitialManeuver(isInitialNode);
             graph.addManeuver(newNode);
         }
