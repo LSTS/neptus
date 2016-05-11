@@ -293,19 +293,8 @@ public class SpiralSTC {
             MapCell source = nodesSequence.get(i-1);
             MapCell dest = nodesSequence.get(i);
 
-            if(path.getManeuver(source.id()) == null) {
-                Goto newNode = new Goto();
-                newNode.setId(source.id());
-                newNode.setManeuverLocation(new ManeuverLocation(source.getLocation()));
-                path.addManeuver(newNode);
-            }
-
-            if(path.getManeuver(dest.id()) == null) {
-                Goto newNode = new Goto();
-                newNode.setId(dest.id());
-                newNode.setManeuverLocation(new ManeuverLocation(dest.getLocation()));
-                path.addManeuver(newNode);
-            }
+            addNewNode(path, (GridCell) source, false);
+            addNewNode(path, (GridCell) dest, false);
 
             path.addTransition(new TransitionType(source.id(), dest.id()));
         }
