@@ -129,7 +129,7 @@ public class IMCSendMessageUtils {
                 acousticOpServiceName, SystemTypeEnum.ALL, acousticOpUseOnlyActive)
                 : new ImcSystem[0];
 
-        boolean acousticOpUserAprovalRequired = true;
+        boolean acousticOpUserAprovalRequired = acousticOpUserAprovedQuestion;
         boolean acousticOpUserAproved = !acousticOpUserAprovedQuestion;
         boolean retAll = true;
         for (String sid : ids) {
