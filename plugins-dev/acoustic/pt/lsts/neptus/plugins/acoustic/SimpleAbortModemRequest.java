@@ -120,6 +120,9 @@ public class SimpleAbortModemRequest extends ConsolePanel implements IAbortSende
             case UNSUPPORTED:
                 post(Notification.error(I18n.text("Abort Request"), I18n.textf("%manta does not support aborting of %systemName", source, system)));
                 break;
+            case NO_TXD:
+                post(Notification.error(I18n.text("Abort Request"), I18n.textf("%manta does not have a tranducer connected", source, system)));
+                break;
             default:
                 break;
         }
