@@ -56,7 +56,7 @@ import pt.lsts.neptus.util.llf.LogUtils;
 
 /**
  * @author jqcorreia
- * 
+ *
  */
 @PluginDescription(author = "jqcorreia", name = "Sidescan Analyzer", icon = "pt/lsts/neptus/plugins/echosounder/echosounder.png")
 public class SidescanAnalyzer extends JPanel implements MRAVisualization, TimelineChangeListener, LogMarkerListener {
@@ -213,6 +213,9 @@ public class SidescanAnalyzer extends JPanel implements MRAVisualization, Timeli
 
     @Override
     public void onCleanup() {
+        if (timeline != null)
+            timeline.shutdown();
+
         sidescanPanels.clear();
         removeAll();
         mraPanel = null;
