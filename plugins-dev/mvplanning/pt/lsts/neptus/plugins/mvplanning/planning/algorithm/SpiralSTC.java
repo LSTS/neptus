@@ -54,6 +54,7 @@ public class SpiralSTC {
     private static final int DOWN = -1;
     private static final int LEFT = 2;
     private static final int RIGHT = -2;
+    private static final int NONE = 0;
 
     private GraphType graph;
     private MST minSpanningTree;
@@ -88,15 +89,76 @@ public class SpiralSTC {
                 /* Direction from previous mega-cell to the current one */
                 int nextDir = getNextDirection(previousCell, (GridCell) node);
                 newSubCell = computeNewTransition(planGraph, nextDir, previousDirection, previousSubCell, previousCell, (GridCell) node, subCells);
-                addNewNode(planGraph, newSubCell, false);
 
-                planGraph.addTransition(new TransitionType(previousSubCell.id(), newSubCell.id()));
+                generateTransition(planGraph, previousSubCell, newSubCell, subCells, previousDirection, nextDir);
                 previousDirection = nextDir;
             }
             previousSubCell = newSubCell;
             previousCell = (GridCell) node;
         }
         return planGraph;
+    }
+
+    private void generateTransition(GraphType graph, GridCell sourceSubCell, GridCell destSubCell, GridArea subCells, int prevDir, int nextDir) {
+        /* Maintaining same direction from previous movement (Normal, linear, transition) */
+        if((prevDir == nextDir) || (prevDir == NONE)) {
+            addNewNode(graph, sourceSubCell, false);
+            addNewNode(graph, destSubCell, false);
+            graph.addTransition(new TransitionType(sourceSubCell.id(), destSubCell.id()));
+        }
+        else if(prevDir == -nextDir) {
+            /* TODO */
+        }
+        else /* changing direction */
+            changeDirectionTransition(graph, sourceSubCell, destSubCell, subCells, prevDir, nextDir);
+    }
+
+    /**
+     * Generate path, between two cells, to follow spanning tree
+     * when it changes direction, e.g., when the vehicle needs
+     * to go from a vertical to an horizontal trajectory/path
+     * */
+    private void changeDirectionTransition(GraphType graph, GridCell sourceSubCell, GridCell destSubCell, GridArea subCells, int prevDir, int nextDir) {
+        if(sourceSubCell.isNeighbour(destSubCell.getRow(), destSubCell.getColumn())) {
+            addNewNode(graph, sourceSubCell, false);
+            addNewNode(graph, destSubCell, false);
+            graph.addTransition(new TransitionType(sourceSubCell.id(), destSubCell.id()));
+        }
+        else {
+            int cornerRow;
+            int cornerCol;
+            int sourceRow = sourceSubCell.getRow();
+            int sourceCol = sourceSubCell.getColumn();
+
+            if(nextDir == UP) {
+                /* got to right corner */
+                cornerRow = sourceRow;
+                cornerCol = sourceCol + 1;
+            }
+            else if(nextDir == DOWN) {
+                /* go to left corner */
+                cornerRow = sourceRow;
+                cornerCol = sourceCol - 1;
+            }
+            else if(nextDir == LEFT) {
+                /* go to top corner */
+                cornerRow = sourceRow - 1;
+                cornerCol = sourceCol;
+            }
+            else {
+                /* go to bottom corner */
+                cornerRow = sourceRow + 1;
+                cornerCol = sourceCol;
+            }
+
+            GridCell cornerSubCell = subCells.getAllCells()[cornerRow][cornerCol];
+            addNewNode(graph, sourceSubCell, false);
+            addNewNode(graph, cornerSubCell, false);
+            addNewNode(graph, destSubCell, false);
+
+            graph.addTransition(new TransitionType(sourceSubCell.id(), cornerSubCell.id()));
+            graph.addTransition(new TransitionType(cornerSubCell.id(), destSubCell.id()));
+        }
     }
 
     /**
