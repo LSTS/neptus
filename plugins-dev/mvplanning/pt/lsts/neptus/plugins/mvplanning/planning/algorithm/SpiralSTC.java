@@ -107,7 +107,7 @@ public class SpiralSTC {
             graph.addTransition(new TransitionType(sourceSubCell.id(), destSubCell.id()));
         }
         else if(prevDir == -nextDir) {
-            /* TODO */
+            goAroundLeafNode(graph, nextDir, sourceSubCell, subCells);
         }
         else /* changing direction */
             changeDirectionTransition(graph, sourceSubCell, destSubCell, subCells, prevDir, nextDir);
@@ -226,52 +226,43 @@ public class SpiralSTC {
             return null;
         }
         else {
-            /* Going back to the previous node */
-            if(nextDir == -prevDir)
-               return goAroundLeafNode(path, nextDir, currSubCell, subCells);
-            else {
-                int i = destMegaCell.getRow();
-                int j = destMegaCell.getColumn();
+            int i = destMegaCell.getRow();
+            int j = destMegaCell.getColumn();
 
-                int subCellRow;
-                int subCellCol;
-                /* move to the bottom-right of new subcell*/
-                if(nextDir == UP) {
-                    subCellRow = 2*i + 1;
-                    subCellCol = 2*j + 1;
-                }
-                /* move to the top-right of the new subcell */
-                else if(nextDir == LEFT) {
-                    subCellRow = 2*i;
-                    subCellCol = 2*j + 1;
-                }
-                /* move to the top-left of the new subcell */
-                else if(nextDir == DOWN) {
-                    subCellRow = 2*i;
-                    subCellCol = 2*j;
-                }
-                /* move to the bottom-left of the new subcell */
-                else if(nextDir == RIGHT) {
-                    subCellRow = 2*i + 1;
-                    subCellCol = 2*j;
-                }
-                else
-                    return null;
-
-                return (GridCell) subCells.getAllCells()[subCellRow][subCellCol];
+            int subCellRow;
+            int subCellCol;
+            /* move to the bottom-right of new subcell*/
+            if(nextDir == UP) {
+                subCellRow = 2*i + 1;
+                subCellCol = 2*j + 1;
             }
+            /* move to the top-right of the new subcell */
+            else if(nextDir == LEFT) {
+                subCellRow = 2*i;
+                subCellCol = 2*j + 1;
+            }
+            /* move to the top-left of the new subcell */
+            else if(nextDir == DOWN) {
+                subCellRow = 2*i;
+                subCellCol = 2*j;
+            }
+            /* move to the bottom-left of the new subcell */
+            else if(nextDir == RIGHT) {
+                subCellRow = 2*i + 1;
+                subCellCol = 2*j;
+            }
+            else
+                return null;
+
+            return (GridCell) subCells.getAllCells()[subCellRow][subCellCol];
         }
     }
 
-
     /**
-     * Generates a path, i.e. sequence of transitions,
-     * that goes around a spanning tree's leaf node and
-     * returns the last sub cell the vehicle will be in
-     * after this move.
+     * Generates a path that goes around a spanning tree's leaf node
      * */
-    private GridCell goAroundLeafNode(GraphType path, int nextDir, GridCell currSubCell, GridArea subCells) {
-        List<GridCell> nodesSequence;
+    private void goAroundLeafNode(GraphType path, int nextDir, GridCell currSubCell, GridArea subCells) {
+        List<GridCell> nodesSequence = null;
         int currRow = currSubCell.getRow();
         int currCol = currSubCell.getColumn();
 
@@ -283,24 +274,21 @@ public class SpiralSTC {
             nodesSequence = goAroundRight(currRow, currCol, subCells);
         else if(nextDir == RIGHT)
             nodesSequence = goAroundLeft(currRow, currCol, subCells);
-        else {
+        else
             NeptusLog.pub().error("Can't go around leaf node from " + currSubCell.id() + " sub-cell");
-            return null;
+
+        if(nodesSequence != null) {
+            /* Add paths between computed nodes */
+            for(int i = 1; i < nodesSequence.size(); i++) {
+                MapCell source = nodesSequence.get(i-1);
+                MapCell dest = nodesSequence.get(i);
+
+                addNewNode(path, (GridCell) source, false);
+                addNewNode(path, (GridCell) dest, false);
+
+                path.addTransition(new TransitionType(source.id(), dest.id()));
+            }
         }
-
-        /* Add paths between computed nodes */
-        for(int i = 1; i < nodesSequence.size(); i++) {
-            MapCell source = nodesSequence.get(i-1);
-            MapCell dest = nodesSequence.get(i);
-
-            addNewNode(path, (GridCell) source, false);
-            addNewNode(path, (GridCell) dest, false);
-
-            path.addTransition(new TransitionType(source.id(), dest.id()));
-        }
-
-        /* return last cell the vehicles's move into */
-        return nodesSequence.get(nodesSequence.size()-1);
     }
 
     private List<GridCell> goAroundUp(int currRow, int currCol, GridArea subCells) {
