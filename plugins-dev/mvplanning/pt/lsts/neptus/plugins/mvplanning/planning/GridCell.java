@@ -119,6 +119,14 @@ public class GridCell extends MapCell {
         return false;
     }
 
+    /**
+     * Given the position of a cell, in a grid, return if
+     * this cell its is neighbour
+     * */
+    public boolean isNeighbour(int row, int col) {
+        return (Math.abs((this.row - row)) <= 1) && (Math.abs((this.col - col)) <= 1);
+    }
+
     @Override
     public LocationType getLocation() {
         return this.centerLoc;
