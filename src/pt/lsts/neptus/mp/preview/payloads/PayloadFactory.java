@@ -31,6 +31,7 @@
  */
 package pt.lsts.neptus.mp.preview.payloads;
 
+import java.awt.Color;
 import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.Vector;
@@ -101,6 +102,18 @@ public class PayloadFactory {
             }
             if (active) {
                 pf.add(new MultibeamFingerprint(range, Math.toRadians(120)));
+            }
+        }
+        else if (msg.getName().equals("Camera")) {
+            boolean active = false;
+            for (EntityParameter p : msg.getParams()) {
+                if (p.getName().equals("Active")) {
+                    active = p.getValue().equalsIgnoreCase("true");
+                }                
+            }
+            if (active) {
+                //FIXME check lumenera's FOV
+                pf.add(new CameraFootprint(Math.toRadians(70), Math.toRadians(90), 6, Color.magenta.darker().darker()));
             }
         }
         return pf;
