@@ -197,8 +197,8 @@ public class IMCSendMessageUtils {
                 msgAcousticOperation.setValue("msg", msg);
             }
 
-            boolean ret = sendMessage(msgAcousticOperation, I18n.text("Error sending message by acoustic modem!"),
-                    true, id);
+            boolean ret = sendMessage(msgAcousticOperation,
+                    I18n.textf("Error sending message by acoustic modem to %sys!", msg.getAbbrev(), system), true, id);
             retAll = retAll || ret;
             
             if (sendOnlyThroughOne && ret)
