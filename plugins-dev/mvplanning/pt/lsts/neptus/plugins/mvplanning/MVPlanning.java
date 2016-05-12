@@ -115,9 +115,7 @@ public class MVPlanning extends ConsolePanel implements PlanChangeListener, Rend
     private JButton clean;
 
     /* Interaction */
-    private boolean interactionActive;
     private GridArea opArea;
-    private GridArea megaCells;
     private MST mst;
 
     public MVPlanning(ConsoleLayout console) {
@@ -129,8 +127,6 @@ public class MVPlanning extends ConsolePanel implements PlanChangeListener, Rend
         vawareness = new VehicleAwareness(this.console);
         pAlloc = new PlanAllocator(vawareness, this.console);
         pGen = new PlanGenerator(pAlloc, this.console);
-
-        interactionActive = false;
     }
 
     private void initUi() {
@@ -235,7 +231,6 @@ public class MVPlanning extends ConsolePanel implements PlanChangeListener, Rend
                 opArea = new GridArea(60, elem.getWidth(), elem.getLength(), lt);
                 opArea.decomposeMap();
 
-                megaCells = (GridArea) opArea.splitMegaCells();
                 mst = new MST(opArea.getAllCells()[0][0]);
 
                 String desiredProfile = (String) profiles.getSelectedItem();
