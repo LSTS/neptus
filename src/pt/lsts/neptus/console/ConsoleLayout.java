@@ -138,10 +138,13 @@ import pt.lsts.neptus.gui.checklist.exec.CheckListExe;
 import pt.lsts.neptus.gui.system.selection.MainSystemSelectionCombo;
 import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.loader.NeptusMain;
+import pt.lsts.neptus.mp.MapChangeEvent;
+import pt.lsts.neptus.mp.MapChangeListener;
 import pt.lsts.neptus.renderer2d.VehicleStateListener;
 import pt.lsts.neptus.types.XmlInOutMethods;
 import pt.lsts.neptus.types.XmlOutputMethods;
 import pt.lsts.neptus.types.checklist.ChecklistType;
+import pt.lsts.neptus.types.map.MapGroup;
 import pt.lsts.neptus.types.mission.MissionType;
 import pt.lsts.neptus.types.mission.VehicleMission;
 import pt.lsts.neptus.types.mission.plan.PlanType;
@@ -165,7 +168,7 @@ import pt.lsts.neptus.util.conf.GeneralPreferences;
  * @author Hugo Dias
  * 
  */
-public class ConsoleLayout extends JFrame implements XmlInOutMethods, ComponentListener {
+public class ConsoleLayout extends JFrame implements XmlInOutMethods, ComponentListener, MapChangeListener {
     private static final long serialVersionUID = -7457352031399061316L;
 
     public static final String DEFAULT_ROOT_ELEMENT = "console";
@@ -784,6 +787,7 @@ public class ConsoleLayout extends JFrame implements XmlInOutMethods, ComponentL
         return mission;
     }
 
+    
     /**
      * Set new mission or if mission param = null remove current mission
      * 
@@ -793,15 +797,17 @@ public class ConsoleLayout extends JFrame implements XmlInOutMethods, ComponentL
         MissionType old = this.mission;
         this.mission = mission;
         this.setPlan(null);
-
+        if (old != null)
+            MapGroup.getMapGroupInstance(old).removeChangeListener(this);
+        
+        
         if (mission != null) {
             NeptusLog.pub().debug("Mission changed to " + mission.getId());
-            // initOtherMissionVehicles();
+            MapGroup.getMapGroupInstance(mission).addChangeListener(this);
         }
-        else {
+        else
             NeptusLog.pub().info("Mission set to null");
-        }
-
+        
         for (MissionChangeListener mlistener : missionListeners) {
             try {
                 mlistener.missionReplaced(mission);
@@ -2128,5 +2134,10 @@ public class ConsoleLayout extends JFrame implements XmlInOutMethods, ComponentL
             return;
         }
         NeptusMain.main(new String[] { "-f", new File(new File(ConfigFetch.getConsolesFolder()), op + ".ncon").getAbsolutePath() });
+    }
+
+    @Override
+    public void mapChanged(MapChangeEvent mapChange) {
+        post(mapChange);
     }
 }
