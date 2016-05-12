@@ -59,6 +59,7 @@ import pt.lsts.neptus.renderer2d.StateRenderer2D;
 import pt.lsts.neptus.types.coord.LocationType;
 import pt.lsts.neptus.types.map.PlanElement;
 import pt.lsts.neptus.util.DateTimeUtil;
+import pt.lsts.neptus.util.XMLUtil;
 
 /**
  * @author zp
@@ -70,7 +71,7 @@ public class ScheduledGoto extends Goto {
 
     Date arrivalTime = new Date();
     ManeuverLocation.Z_UNITS travelUnits = ManeuverLocation.Z_UNITS.DEPTH;
-    double travelZ = 0;
+    double travelZ = 3;
     pt.lsts.imc.ScheduledGoto.DELAYED delayedBehavior = DELAYED.SKIP;
 
     @Override
@@ -228,15 +229,20 @@ public class ScheduledGoto extends Goto {
         try {
             Document doc = DocumentHelper.parseText(xml);
             Node node = doc.selectSingleNode(getType()+"/ArrivalTime");
-            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-            sdf.setTimeZone(TimeZone.getTimeZone("UTC"));
-            setArrivalTime(sdf.parse(node.getText()));
+            if (node != null) {
+                SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+                sdf.setTimeZone(TimeZone.getTimeZone("UTC"));
+                setArrivalTime(sdf.parse(node.getText()));
+            }           
             node = doc.selectSingleNode(getType()+"/DelayedBehavior");
-            setDelayedBehavior(DELAYED.valueOf(node.getText()));
+            if (node != null)
+                setDelayedBehavior(DELAYED.valueOf(node.getText()));
             node = doc.selectSingleNode(getType()+"/TravelZ");
-            setTravelZ(Double.parseDouble(node.getText()));
+            if (node != null)
+                setTravelZ(Double.parseDouble(node.getText()));
             node = doc.selectSingleNode(getType()+"/TravelUnits");
-            setTravelUnits(pt.lsts.neptus.mp.ManeuverLocation.Z_UNITS.valueOf(node.getText()));            
+            if (node != null)
+                setTravelUnits(pt.lsts.neptus.mp.ManeuverLocation.Z_UNITS.valueOf(node.getText()));            
         }
         catch (Exception e) {
             NeptusLog.pub().info(I18n.text("Error while loading the XML:")+"{" + xml + "}");
@@ -328,4 +334,9 @@ public class ScheduledGoto extends Goto {
     public void setDelayedBehavior(pt.lsts.imc.ScheduledGoto.DELAYED delayedBehavior) {
         this.delayedBehavior = delayedBehavior;
     }   
+    
+    public static void main(String[] args) {
+        ScheduledGoto gt = new ScheduledGoto();
+        System.out.println(XMLUtil.getAsPrettyPrintFormatedXMLString(gt.asXML().substring(39)));
+    }
 }
