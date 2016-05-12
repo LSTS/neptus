@@ -73,6 +73,7 @@ import pt.lsts.neptus.plugins.mvplanning.jaxb.Profile;
 import pt.lsts.neptus.plugins.mvplanning.jaxb.ProfileMarshaler;
 import pt.lsts.neptus.plugins.mvplanning.planning.algorithm.MST;
 import pt.lsts.neptus.plugins.mvplanning.planning.mapdecomposition.GridArea;
+import pt.lsts.neptus.renderer2d.Renderer2DPainter;
 import pt.lsts.neptus.renderer2d.StateRenderer2D;
 import pt.lsts.neptus.types.coord.LocationType;
 import pt.lsts.neptus.types.mission.plan.PlanType;
@@ -88,7 +89,7 @@ import pt.lsts.neptus.plugins.mvplanning.interfaces.MapCell;
  */
 @PluginDescription(name = "Multi-Vehicle Planning")
 @Popup(name = "MvPlanning", pos = POSITION.LEFT, width = 285, height = 240)
-public class MVPlanning extends ConsolePanel implements PlanChangeListener, IConsoleInteraction {
+public class MVPlanning extends ConsolePanel implements PlanChangeListener, Renderer2DPainter {
     private final ProfileMarshaler pMarsh = new ProfileMarshaler();
     public final Map<String, Profile> availableProfiles = pMarsh.getAllProfiles();
 
@@ -206,7 +207,7 @@ public class MVPlanning extends ConsolePanel implements PlanChangeListener, ICon
         int index;
 
         while((index = listModel.indexOf(lookupId)) == -1);
-        
+
         listModel.set(index, newId);
     }
 
@@ -219,135 +220,39 @@ public class MVPlanning extends ConsolePanel implements PlanChangeListener, ICon
         console.registerToEventBus(vawareness);
     }
 
-
-    /************************************************/
-    /* Handle interaction with MvPlanning:
-     *  By mouse clicks on the console's map or
-     *  by IMC messages coming from Ripples or other
-     *  plugins  */
-
-
-    @Override
-    public void mouseClicked(MouseEvent event, StateRenderer2D source) {
-        if(interactionActive) {
-            LocationType lt = source.getRealWorldLocation(event.getPoint());
-            opArea = new GridArea(60, 500, 500, lt);
-            opArea.decomposeMap();
-
-            megaCells = (GridArea) opArea.splitMegaCells();
-            mst = new MST(opArea.getAllCells()[3][3]);
-
-            String desiredProfile = (String) profiles.getSelectedItem();
-            PlanType plan = pGen.generateCoverageArea(availableProfiles.get(desiredProfile), opArea);
-
-            listModel.addElement(plan.getId());
-            selectedPlans.put(plan.getId(), plan);
-        }
-    }
+//    public void mouseClicked(MouseEvent event, StateRenderer2D source) {
+//        if(interactionActive) {
+//            LocationType lt = source.getRealWorldLocation(event.getPoint());
+//            opArea = new GridArea(60, 500, 500, lt);
+//            opArea.decomposeMap();
+//
+//            megaCells = (GridArea) opArea.splitMegaCells();
+//            mst = new MST(opArea.getAllCells()[3][3]);
+//
+//            String desiredProfile = (String) profiles.getSelectedItem();
+//            PlanType plan = pGen.generateCoverageArea(availableProfiles.get(desiredProfile), opArea);
+//
+//            listModel.addElement(plan.getId());
+//            selectedPlans.put(plan.getId(), plan);
+//        }
+//    }
 
     @Override
-    public void mouseDragged(MouseEvent event, StateRenderer2D source) {
-    }
-
-    @Override
-    public void keyPressed(KeyEvent event, StateRenderer2D source) {
-        if(event.isControlDown())
-            interactionActive = true;
-    }
-
-    @Override
-    public void keyReleased(KeyEvent event, StateRenderer2D source) {
-        /* isControlUp */
-        if(event.getKeyCode() == KeyEvent.VK_CONTROL)
-            interactionActive = false;
-    }
-
-    @Override
-    public void keyTyped(KeyEvent event, StateRenderer2D source) {
-    }
-
-
-    @Override
-    public void paintInteraction(Graphics2D g, StateRenderer2D source) {
+    public void paint(Graphics2D g, StateRenderer2D renderer) {
         g.setTransform(new AffineTransform());
         if(opArea != null) {
             g.setColor(Color.cyan);
-            opArea.paint(g, source, 0.0);
+            opArea.paint(g, renderer, 0.0);
 
-            g.setTransform(new AffineTransform());    
+            g.setTransform(new AffineTransform());
             g.setColor(Color.RED);
-            
+
             for(Pair<MapCell, MapCell> edges : mst.getEdges()) {
-                Point2D p1 = source.getScreenPosition(edges.first().getLocation());
-                Point2D p2 = source.getScreenPosition(edges.second().getLocation());
-                
+                Point2D p1 = renderer.getScreenPosition(edges.first().getLocation());
+                Point2D p2 = renderer.getScreenPosition(edges.second().getLocation());
+
                 g.drawLine((int) p1.getX(),(int) p1.getY(),(int) p2.getX(), (int) p2.getY());
             }
         }
-    }
-
-
-    /*********************************************************/
-    /******************** Unused methods ********************/
-
-    @Override
-    public Image getIconImage() {
-        return null;
-    }
-
-    @Override
-    public Cursor getMouseCursor() {
-        return null;
-    }
-
-    @Override
-    public boolean isExclusive() {
-        return false;
-    }
-
-    @Override
-    public void setActive(boolean mode, StateRenderer2D source) {
-
-    }
-
-    @Override
-    public void focusLost(FocusEvent event, StateRenderer2D source) {
-    }
-
-
-    @Override
-    public void focusGained(FocusEvent event, StateRenderer2D source) {
-    }
-
-    @Override
-    public void wheelMoved(MouseWheelEvent event, StateRenderer2D source) {
-    }
-
-    @Override
-    public void setAssociatedSwitch(ToolbarSwitch tswitch) {
-    }
-
-    @Override
-    public void mouseMoved(MouseEvent event, StateRenderer2D source) {
-    }
-
-    @Override
-    public void mouseExited(MouseEvent event, StateRenderer2D source) {
-    }
-
-    @Override
-    public void mouseReleased(MouseEvent event, StateRenderer2D source) {
-    }
-
-    @Override
-    public void mousePressed(MouseEvent event, StateRenderer2D source) {
-    }
-
-    @Override
-    public void init(ConsoleLayout console) {
-    }
-
-    @Override
-    public void parseXmlElement(Element elem) {
     }
 }
