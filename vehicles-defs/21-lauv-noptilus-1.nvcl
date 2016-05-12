@@ -377,6 +377,8 @@
                             <longitude>0E</longitude>
                             <depth>2</depth>
                         </coordinate>
+                        <z>0.0</z>
+          				<zunits>DEPTH</zunits>
                     </point>
                     <radiusTolerance>5</radiusTolerance>
                 </finalPoint>
@@ -384,6 +386,9 @@
                 <trajectoryTolerance>
                     <radiusTolerance type="float">1</radiusTolerance>
                 </trajectoryTolerance>    
+                <DelayedBehavior>SKIP</DelayedBehavior>
+      	  		<TravelZ>3</TravelZ>
+      	  		<TravelUnits>DEPTH</TravelUnits>
                 <annotation>
                     <documentation>No documentation available</documentation>
                     <implementation-class>pt.lsts.neptus.mp.maneuvers.ScheduledGoto</implementation-class>
