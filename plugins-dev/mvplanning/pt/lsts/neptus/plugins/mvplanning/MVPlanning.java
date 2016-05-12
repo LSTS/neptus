@@ -66,6 +66,7 @@ import pt.lsts.neptus.console.IConsoleInteraction;
 import pt.lsts.neptus.console.plugins.PlanChangeListener;
 import pt.lsts.neptus.data.Pair;
 import pt.lsts.neptus.gui.ToolbarSwitch;
+import pt.lsts.neptus.mp.MapChangeEvent;
 import pt.lsts.neptus.plugins.PluginDescription;
 import pt.lsts.neptus.plugins.Popup;
 import pt.lsts.neptus.plugins.Popup.POSITION;
@@ -76,6 +77,7 @@ import pt.lsts.neptus.plugins.mvplanning.planning.mapdecomposition.GridArea;
 import pt.lsts.neptus.renderer2d.Renderer2DPainter;
 import pt.lsts.neptus.renderer2d.StateRenderer2D;
 import pt.lsts.neptus.types.coord.LocationType;
+import pt.lsts.neptus.types.map.ParallelepipedElement;
 import pt.lsts.neptus.types.mission.plan.PlanType;
 import pt.lsts.neptus.util.NameNormalizer;
 import pt.lsts.neptus.plugins.mvplanning.consoles.NeptusConsoleAdapter;
@@ -220,27 +222,34 @@ public class MVPlanning extends ConsolePanel implements PlanChangeListener, Rend
         console.registerToEventBus(vawareness);
     }
 
-//    public void mouseClicked(MouseEvent event, StateRenderer2D source) {
-//        if(interactionActive) {
-//            LocationType lt = source.getRealWorldLocation(event.getPoint());
-//            opArea = new GridArea(60, 500, 500, lt);
-//            opArea.decomposeMap();
-//
-//            megaCells = (GridArea) opArea.splitMegaCells();
-//            mst = new MST(opArea.getAllCells()[3][3]);
-//
-//            String desiredProfile = (String) profiles.getSelectedItem();
-//            PlanType plan = pGen.generateCoverageArea(availableProfiles.get(desiredProfile), opArea);
-//
-//            listModel.addElement(plan.getId());
-//            selectedPlans.put(plan.getId(), plan);
-//        }
-//    }
+    @Subscribe
+    public void mapChanged(MapChangeEvent event) {
+        if(event.getChangedObject().getId().startsWith("mvp_")) {
+            String objType = event.getChangedObject().getType();
+
+            if(objType.equals("Parallelepiped")) {
+                ParallelepipedElement elem = (ParallelepipedElement) event.getChangedObject();
+                LocationType lt = elem.getCenterLocation();
+
+                opArea = new GridArea(60, elem.getWidth(), elem.getLength(), lt);
+                opArea.decomposeMap();
+
+                megaCells = (GridArea) opArea.splitMegaCells();
+                mst = new MST(opArea.getAllCells()[0][0]);
+
+                String desiredProfile = (String) profiles.getSelectedItem();
+                PlanType plan = pGen.generateCoverageArea(availableProfiles.get(desiredProfile), opArea);
+
+                listModel.addElement(plan.getId());
+                selectedPlans.put(plan.getId(), plan);
+            }
+        }
+    }
 
     @Override
     public void paint(Graphics2D g, StateRenderer2D renderer) {
         g.setTransform(new AffineTransform());
-        if(opArea != null) {
+        if(opArea != null && mst != null) {
             g.setColor(Color.cyan);
             opArea.paint(g, renderer, 0.0);
 
