@@ -56,17 +56,15 @@ import javax.swing.JComboBox;
 import javax.swing.JList;
 import javax.swing.JScrollPane;
 
-import org.dom4j.Element;
-
 import com.google.common.eventbus.Subscribe;
 
 import pt.lsts.neptus.console.ConsoleLayout;
 import pt.lsts.neptus.console.ConsolePanel;
-import pt.lsts.neptus.console.IConsoleInteraction;
 import pt.lsts.neptus.console.plugins.PlanChangeListener;
 import pt.lsts.neptus.data.Pair;
-import pt.lsts.neptus.gui.ToolbarSwitch;
 import pt.lsts.neptus.mp.MapChangeEvent;
+import pt.lsts.neptus.plugins.NeptusProperty;
+import pt.lsts.neptus.plugins.NeptusProperty.LEVEL;
 import pt.lsts.neptus.plugins.PluginDescription;
 import pt.lsts.neptus.plugins.Popup;
 import pt.lsts.neptus.plugins.Popup.POSITION;
@@ -79,7 +77,6 @@ import pt.lsts.neptus.renderer2d.StateRenderer2D;
 import pt.lsts.neptus.types.coord.LocationType;
 import pt.lsts.neptus.types.map.ParallelepipedElement;
 import pt.lsts.neptus.types.mission.plan.PlanType;
-import pt.lsts.neptus.util.NameNormalizer;
 import pt.lsts.neptus.plugins.mvplanning.consoles.NeptusConsoleAdapter;
 import pt.lsts.neptus.plugins.mvplanning.events.MvPlanningEventPlanAllocated;
 import pt.lsts.neptus.plugins.mvplanning.interfaces.ConsoleAdapter;
@@ -92,6 +89,10 @@ import pt.lsts.neptus.plugins.mvplanning.interfaces.MapCell;
 @PluginDescription(name = "Multi-Vehicle Planning")
 @Popup(name = "MvPlanning", pos = POSITION.LEFT, width = 285, height = 240)
 public class MVPlanning extends ConsolePanel implements PlanChangeListener, Renderer2DPainter {
+
+    @NeptusProperty(name = "Debug mode", description = "Show or hide debug information such as grid areas, spanning trees, etc", userLevel = LEVEL.REGULAR)
+    public boolean inDegubMode = false;
+
     private final ProfileMarshaler pMarsh = new ProfileMarshaler();
     public final Map<String, Profile> availableProfiles = pMarsh.getAllProfiles();
 
@@ -248,19 +249,21 @@ public class MVPlanning extends ConsolePanel implements PlanChangeListener, Rend
 
     @Override
     public void paint(Graphics2D g, StateRenderer2D renderer) {
-        g.setTransform(new AffineTransform());
-        if(opArea != null && mst != null) {
-            g.setColor(Color.cyan);
-            opArea.paint(g, renderer, 0.0);
-
+        if(inDegubMode) {
             g.setTransform(new AffineTransform());
-            g.setColor(Color.RED);
+            if(opArea != null && mst != null) {
+                g.setColor(Color.cyan);
+                opArea.paint(g, renderer, 0.0);
 
-            for(Pair<MapCell, MapCell> edges : mst.getEdges()) {
-                Point2D p1 = renderer.getScreenPosition(edges.first().getLocation());
-                Point2D p2 = renderer.getScreenPosition(edges.second().getLocation());
+                g.setTransform(new AffineTransform());
+                g.setColor(Color.RED);
 
-                g.drawLine((int) p1.getX(),(int) p1.getY(),(int) p2.getX(), (int) p2.getY());
+                for(Pair<MapCell, MapCell> edges : mst.getEdges()) {
+                    Point2D p1 = renderer.getScreenPosition(edges.first().getLocation());
+                    Point2D p2 = renderer.getScreenPosition(edges.second().getLocation());
+
+                    g.drawLine((int) p1.getX(),(int) p1.getY(),(int) p2.getX(), (int) p2.getY());
+                }
             }
         }
     }
