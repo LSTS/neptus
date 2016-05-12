@@ -35,12 +35,9 @@ import com.google.common.eventbus.Subscribe;
 
 import pt.lsts.imc.AcousticOperation;
 import pt.lsts.imc.AcousticOperation.OP;
-import pt.lsts.imc.IMCMessage;
-import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.comm.IMCSendMessageUtils;
 import pt.lsts.neptus.comm.manager.imc.ImcSystem;
 import pt.lsts.neptus.comm.manager.imc.ImcSystemsHolder;
-import pt.lsts.neptus.comm.manager.imc.MessageDeliveryListener;
 import pt.lsts.neptus.console.ConsoleLayout;
 import pt.lsts.neptus.console.ConsolePanel;
 import pt.lsts.neptus.console.notifications.Notification;
@@ -51,6 +48,7 @@ import pt.lsts.neptus.plugins.IAbortSenderProvider;
 import pt.lsts.neptus.plugins.NeptusProperty;
 import pt.lsts.neptus.plugins.PluginDescription;
 import pt.lsts.neptus.plugins.PluginDescription.CATEGORY;
+import pt.lsts.neptus.types.vehicle.VehicleType.SystemTypeEnum;
 
 /**
  * @author pdias
@@ -134,56 +132,15 @@ public class SimpleAbortModemRequest extends ConsolePanel implements IAbortSende
         acOp.setOp(OP.ABORT);
         acOp.setSystem(system);
         
-        boolean ret = IMCSendMessageUtils.sendMessage(acOp,
-                null, createDefaultMessageDeliveryListener(),
-                this, I18n.text("Error sending ABORT command message!"), false, serviceName,
-                useOnlyActive, false, true, system);
+        ImcSystem[] acousticOpSysLst = ImcSystemsHolder.lookupSystemByService(
+                serviceName, SystemTypeEnum.ALL, useOnlyActive);
+        boolean ret = IMCSendMessageUtils.sendMessageByAcousticModem(acOp, system, true, acousticOpSysLst);
+        if (!ret) {
+                String errorTextForDialog = I18n.textf("Error sending ABORT command message to %sys!", system);
+                this.post(Notification.error(I18n.text("Send Message"), errorTextForDialog).src(
+                        I18n.text("Console")));
+        }
         return ret;
-    }
-
-    private MessageDeliveryListener createDefaultMessageDeliveryListener() {
-        return new MessageDeliveryListener() {
-
-            private String  getDest(IMCMessage message) {
-                ImcSystem sys = message != null ? ImcSystemsHolder.lookupSystem(message.getDst()) : null;
-                String dest = sys != null ? sys.getName() : I18n.text("unknown destination");
-                return dest;
-            }
-
-            @Override
-            public void deliveryUnreacheable(IMCMessage message) {
-                post(Notification.error(
-                        I18n.text("Delivering Message"),
-                        I18n.textf("Message %messageType to %destination delivery destination unreacheable",
-                                message.getAbbrev(), getDest(message))));
-            }
-
-            @Override
-            public void deliveryTimeOut(IMCMessage message) {
-                post(Notification.error(
-                        I18n.text("Delivering Message"),
-                        I18n.textf("Message %messageType to %destination delivery timeout",
-                                message.getAbbrev(), getDest(message))));
-            }
-
-            @Override
-            public void deliveryError(IMCMessage message, Object error) {
-                post(Notification.error(
-                        I18n.text("Delivering Message"),
-                        I18n.textf("Message %messageType to %destination delivery error. (%error)",
-                                message.getAbbrev(), getDest(message), error)));
-            }
-
-            @Override
-            public void deliveryUncertain(IMCMessage message, Object msg) {
-                NeptusLog.pub().info("Message sent unreliably");
-            }
-
-            @Override
-            public void deliverySuccess(IMCMessage message) {
-                NeptusLog.pub().info("Message was successfully delivered");
-            }
-        };
     }
 
     @Override
