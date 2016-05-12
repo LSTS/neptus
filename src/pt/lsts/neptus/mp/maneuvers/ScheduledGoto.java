@@ -87,6 +87,8 @@ public class ScheduledGoto extends Goto {
         clone.setSpeedUnits(getUnits());
         clone.setSpeed(getSpeed());
         clone.setSpeedTolerance(getSpeedTolerance());
+        clone.setTravelUnits(getTravelUnits());
+        clone.setTravelZ(getTravelZ());
         clone.setArrivalTime(getArrivalTime());
         clone.setDelayedBehavior(getDelayedBehavior());
         return clone;
@@ -163,7 +165,8 @@ public class ScheduledGoto extends Goto {
                         "\n\tRESUME - Continue until (delayed) arrival,"+
                         "\n\tSKIP - Move on to next maneuver,"+
                 "\n\tFAIL - Stop plan with a failure."));
-
+        PropertiesEditor.getPropertyEditorRegistry().registerEditor(delayedBeh, new ComboEditor<>(DELAYED.values()));
+        
         props.add(travZ);
         props.add(units);
         props.add(arrivalTime);
@@ -180,7 +183,7 @@ public class ScheduledGoto extends Goto {
 
         for (Property p : properties) {
             if (p.getName().equals("Travel Z units")) {
-                setTravelUnits((pt.lsts.neptus.mp.ManeuverLocation.Z_UNITS) p.getValue());                
+                setTravelUnits(pt.lsts.neptus.mp.ManeuverLocation.Z_UNITS.valueOf(p.getValue().toString()));                
             }
             else if (p.getName().equals("Travel Z value")) {
                 setTravelZ((Double)p.getValue());
@@ -192,7 +195,10 @@ public class ScheduledGoto extends Goto {
                 catch (Exception e) {
                     e.printStackTrace();
                 }
-            }            
+            }
+            else if (p.getName().equals("Delayed Behavior")) {
+                setDelayedBehavior(DELAYED.valueOf(p.getValue().toString()));
+            }
             else {
                 NeptusLog.pub().debug("Property "+p.getName()+" ignored.");
             }
@@ -217,7 +223,7 @@ public class ScheduledGoto extends Goto {
     }
 
 
-    public void loadFromXML(String xml) {  
+    public void loadFromXML(String xml) {
         super.loadFromXML(xml);
         try {
             Document doc = DocumentHelper.parseText(xml);
@@ -244,8 +250,13 @@ public class ScheduledGoto extends Goto {
 
         super.paintOnMap(g2d, planElement, renderer);
         long diff = getArrivalTime().getTime() - new Date().getTime();
+        
         String text = DateTimeUtil.milliSecondsToFormatedString(diff, true);
 
+        if (diff < 0)
+            text = "-"+DateTimeUtil.milliSecondsToFormatedString(-diff, true);
+            
+            
         Rectangle2D rect = g2d.getFontMetrics().getStringBounds(text, g2d);
         g2d.translate(-rect.getWidth()/2, -rect.getHeight()/2-5);
         g2d.setColor(Color.black);
