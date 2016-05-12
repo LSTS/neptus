@@ -312,9 +312,9 @@ public class MissionTreePanel extends ConsolePanel implements MissionChangeListe
                 try {
                     LblConfig msgLBLConfiguration = new LblConfig();
                     msgLBLConfiguration.setOp(LblConfig.OP.GET_CFG);
-                    IMCSendMessageUtils.sendMessage(msgLBLConfiguration,
-                            I18n.textf("Unable to get %vehicle list of transponders.", getMainVehicleId()),
-                            true, getMainVehicleId());
+                    IMCSendMessageUtils.sendMessage(msgLBLConfiguration, 
+                            I18n.textf("Unable to get %vehicle list of transponders.", getMainVehicleId()), 
+                            true, true, getMainVehicleId());
                 }
                 catch (Exception e) {
                     e.printStackTrace();
