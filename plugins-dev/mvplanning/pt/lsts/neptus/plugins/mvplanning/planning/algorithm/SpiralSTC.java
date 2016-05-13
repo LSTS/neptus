@@ -247,113 +247,97 @@ public class SpiralSTC {
      * Generates a path that goes around a spanning tree's leaf node
      * */
     private void goAroundLeafNode(List<ManeuverLocation> path, int nextDir, GridCell currSubCell, GridArea subCells) {
-        List<GridCell> nodesSequence = null;
+        if(nextDir == UP)
+            goAroundDown(path, currSubCell, subCells);
+        else if(nextDir == DOWN)
+            goAroundUp(path, currSubCell, subCells);
+        else if(nextDir == LEFT)
+            goAroundRight(path, currSubCell, subCells);
+        else if(nextDir == RIGHT)
+            goAroundLeft(path, currSubCell, subCells);
+        else
+            NeptusLog.pub().error("Can't go around leaf node from " + currSubCell.id() + " sub-cell");
+    }
+
+    private void goAroundUp(List<ManeuverLocation> path, GridCell currSubCell, GridArea subCells) {
+        GridCell[][] cells = subCells.getAllCells();
         int currRow = currSubCell.getRow();
         int currCol = currSubCell.getColumn();
 
-        if(nextDir == UP)
-            nodesSequence = goAroundDown(currRow, currCol, subCells);
-        else if(nextDir == DOWN)
-            nodesSequence = goAroundUp(currRow, currCol, subCells);
-        else if(nextDir == LEFT)
-            nodesSequence = goAroundRight(currRow, currCol, subCells);
-        else if(nextDir == RIGHT)
-            nodesSequence = goAroundLeft(currRow, currCol, subCells);
-        else
-            NeptusLog.pub().error("Can't go around leaf node from " + currSubCell.id() + " sub-cell");
-
-        if(nodesSequence != null) {
-            /* Add paths between computed nodes */
-            for(int i = 1; i < nodesSequence.size(); i++) {
-                MapCell source = nodesSequence.get(i-1);
-                MapCell dest = nodesSequence.get(i);
-
-                addNewNode(path, (GridCell) source);
-                addNewNode(path, (GridCell) dest);
-            }
-        }
-    }
-
-    private List<GridCell> goAroundUp(int currRow, int currCol, GridArea subCells) {
-        GridCell[][] cells = subCells.getAllCells();
-        List<GridCell> nodesSequence = new ArrayList<>();
         /* Move one sub-cell to the up */
         currRow--;
-        nodesSequence.add(cells[currRow][currCol]);
+        addNewNode(path, cells[currRow][currCol]);
 
         /* Then, move one sub-cell left */
         currCol--;
-        nodesSequence.add(cells[currRow][currCol]);
+        addNewNode(path, cells[currRow][currCol]);
 
         /* Then, move 2 sub-cells down */
         currRow++;
-        nodesSequence.add(cells[currRow][currCol]);
+        addNewNode(path, cells[currRow][currCol]);
         currRow++;
-        nodesSequence.add(cells[currRow][currCol]);
-
-        return nodesSequence;
+        addNewNode(path, cells[currRow][currCol]);
     }
 
-    private List<GridCell> goAroundDown(int currRow, int currCol, GridArea subCells) {
+    private void goAroundDown(List<ManeuverLocation> path, GridCell currSubCell, GridArea subCells) {
         GridCell[][] cells = subCells.getAllCells();
-        List<GridCell> nodesSequence = new ArrayList<>();
+        int currRow = currSubCell.getRow();
+        int currCol = currSubCell.getColumn();
+
         /* Move one sub-cell to the down */
         currRow++;
-        nodesSequence.add(cells[currRow][currCol]);
+        addNewNode(path, cells[currRow][currCol]);
 
         /* Then, move one sub-cell right */
         currCol++;
-        nodesSequence.add(cells[currRow][currCol]);
+        addNewNode(path, cells[currRow][currCol]);
 
         /* Then, move 2 sub-cells up */
         currRow--;
-        nodesSequence.add(cells[currRow][currCol]);
+        addNewNode(path, cells[currRow][currCol]);
         currRow--;
-        nodesSequence.add(cells[currRow][currCol]);
-
-        return nodesSequence;
+        addNewNode(path, cells[currRow][currCol]);
     }
 
-    private List<GridCell> goAroundLeft(int currRow, int currCol, GridArea subCells) {
+    private void goAroundLeft(List<ManeuverLocation> path, GridCell currSubCell, GridArea subCells) {
         GridCell[][] cells = subCells.getAllCells();
-        List<GridCell> nodesSequence = new ArrayList<>();
+        int currRow = currSubCell.getRow();
+        int currCol = currSubCell.getColumn();
+
         /* Move one sub-cell to the left */
         currCol--;
-        nodesSequence.add(cells[currRow][currCol]);
+        addNewNode(path, cells[currRow][currCol]);
 
         /* Then, move one sub-cell down */
         currRow++;
-        nodesSequence.add(cells[currRow][currCol]);
+        addNewNode(path, cells[currRow][currCol]);
 
         /* Then, move 2 sub-cells right */
         currCol++;
-        nodesSequence.add(cells[currRow][currCol]);
+        addNewNode(path, cells[currRow][currCol]);
         currCol++;
-        nodesSequence.add(cells[currRow][currCol]);
-
-        return nodesSequence;
+        addNewNode(path, cells[currRow][currCol]);
     }
 
-    private List<GridCell> goAroundRight(int currRow, int currCol, GridArea subCells) {
+    private void goAroundRight(List<ManeuverLocation> path, GridCell currSubCell, GridArea subCells) {
         GridCell[][] cells = subCells.getAllCells();
-        List<GridCell> nodesSequence = new ArrayList<>();
+        int currRow = currSubCell.getRow();
+        int currCol = currSubCell.getColumn();
 
         /* Move one sub-cell to the right */
         currCol++;
-        nodesSequence.add(cells[currRow][currCol]);
+        addNewNode(path, cells[currRow][currCol]);
 
         /* Then, move one sub-cell up */
         currRow--;
-        nodesSequence.add(cells[currRow][currCol]);
+        addNewNode(path, cells[currRow][currCol]);
 
         /* Then, move 2 sub-cells left */
         currCol--;
-        nodesSequence.add(cells[currRow][currCol]);
+        addNewNode(path, cells[currRow][currCol]);
 
         currCol--;
-        nodesSequence.add(cells[currRow][currCol]);
-
-        return nodesSequence;
+        addNewNode(path, cells[currRow][currCol]);
     }
 
     /**
