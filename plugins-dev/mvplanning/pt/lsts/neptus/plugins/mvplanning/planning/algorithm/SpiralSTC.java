@@ -79,7 +79,7 @@ public class SpiralSTC {
             if(firstNode) {
                 newSubCell = computeStartSubCell((GridCell) node, minSpanningTree, subCells);
 
-                addNewNode(path, newSubCell, true);
+                addNewNode(path, newSubCell);
                 firstNode = false;
             }
             else {
@@ -99,8 +99,8 @@ public class SpiralSTC {
     private void generateTransition(List<ManeuverLocation> path, GridCell sourceSubCell, GridCell destSubCell, GridArea subCells, int prevDir, int nextDir) {
         /* Maintaining same direction from previous movement (Normal, linear, transition) */
         if((prevDir == nextDir) || (prevDir == NONE)) {
-            addNewNode(path, sourceSubCell, false);
-            addNewNode(path, destSubCell, false);
+            addNewNode(path, sourceSubCell);
+            addNewNode(path, destSubCell);
         }
         else if(prevDir == -nextDir) {
             goAroundLeafNode(path, nextDir, sourceSubCell, subCells);
@@ -116,8 +116,8 @@ public class SpiralSTC {
      * */
     private void changeDirectionTransition(List<ManeuverLocation> path, GridCell sourceSubCell, GridCell destSubCell, GridArea subCells, int prevDir, int nextDir) {
         if(sourceSubCell.isNeighbour(destSubCell.getRow(), destSubCell.getColumn())) {
-            addNewNode(path, sourceSubCell, false);
-            addNewNode(path, destSubCell, false);
+            addNewNode(path, sourceSubCell);
+            addNewNode(path, destSubCell);
         }
         else {
             int cornerRow;
@@ -147,16 +147,16 @@ public class SpiralSTC {
             }
 
             GridCell cornerSubCell = subCells.getAllCells()[cornerRow][cornerCol];
-            addNewNode(path, sourceSubCell, false);
-            addNewNode(path, cornerSubCell, false);
-            addNewNode(path, destSubCell, false);
+            addNewNode(path, sourceSubCell);
+            addNewNode(path, cornerSubCell);
+            addNewNode(path, destSubCell);
         }
     }
 
     /**
      * Given a graph and GridCell creates a new node and adds it.
      * */
-    private void addNewNode(List<ManeuverLocation> path, GridCell cell, boolean isInitialNode) {
+    private void addNewNode(List<ManeuverLocation> path, GridCell cell) {
         path.add(new ManeuverLocation(cell.getLocation()));
     }
 
@@ -268,8 +268,8 @@ public class SpiralSTC {
                 MapCell source = nodesSequence.get(i-1);
                 MapCell dest = nodesSequence.get(i);
 
-                addNewNode(path, (GridCell) source, false);
-                addNewNode(path, (GridCell) dest, false);
+                addNewNode(path, (GridCell) source);
+                addNewNode(path, (GridCell) dest);
             }
         }
     }
