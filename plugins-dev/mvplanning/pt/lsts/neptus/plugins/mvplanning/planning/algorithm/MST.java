@@ -75,9 +75,10 @@ public class MST {
         backtrackNodes.add(startCell);
 
         MapCell currentNode = startCell;
+        MapCell parentNode = null;
 
         while(backtrackNodes.size() != 0) {
-            List<MapCell> neighbours = currentNode.getNeighbours();
+            List<MapCell> neighbours = currentNode.getNeighboursAntiClockwise(parentNode);
             boolean freeNode = false;
             int i = 0;
 
@@ -93,8 +94,10 @@ public class MST {
 
                         backtrackNodes.add(0, currentNode);
 
+                        parentNode = currentNode;
                         currentNode = neighbour;
                         visitedNodes.add(currentNode.id());
+
 
                         freeNode = true;
                     }
@@ -103,8 +106,10 @@ public class MST {
                 }
                 /* No free nodes found, then, if possible, backtrack */
                 if(!freeNode && !backtrackNodes.isEmpty()) {
-                    if(!backtrackNodes.isEmpty())
+                    if(!backtrackNodes.isEmpty()) {
+                        parentNode = currentNode;
                         currentNode = backtrackNodes.remove(0);
+                    }
                 }
             }
             else { /* Graph needs to be connected in order to have an MST*/
