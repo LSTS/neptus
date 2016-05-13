@@ -112,6 +112,35 @@ public class GridCell extends MapCell {
     }
 
     @Override
+    public List<MapCell> getNeighboursAntiClockwise(MapCell firstNeighbour) {
+        List<MapCell> neighbours = getNeighbours();
+
+        if(firstNeighbour == null)
+            return neighbours;
+        else {
+            /* Find given node and build list starting at that position */
+            int index = neighbours.indexOf(firstNeighbour);
+            List<MapCell> neighboursAclk;
+
+            if(index == -1)
+                return null;
+            else {
+                int seenNeighbours = 0;
+                neighboursAclk = new ArrayList<>();
+
+                while(seenNeighbours < nNeighbours) {
+                    neighboursAclk.add(neighbours.get(index));
+
+                    index = (index + 1) % nNeighbours;
+                    seenNeighbours++;
+                }
+
+                return neighboursAclk;
+            }
+        }
+    }
+
+    @Override
     public boolean isNeighbour(MapCell cell) {
         for(MapCell neighbour : neighbours)
             if(neighbour.id().equals(cell.id()))

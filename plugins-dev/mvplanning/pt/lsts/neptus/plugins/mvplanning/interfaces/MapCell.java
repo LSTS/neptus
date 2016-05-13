@@ -58,6 +58,12 @@ public abstract class MapCell {
      * */
     public abstract List<MapCell> getNeighbours();
 
+    /**
+     * List this cell's neighbours in an anti-clockwise
+     * manner, starting at the given cell
+     * */
+    public abstract List<MapCell> getNeighboursAntiClockwise(MapCell firstNeighbour);
+
 
     /**
      * Verifies if a given cell is neighbour of this one
