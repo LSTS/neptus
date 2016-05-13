@@ -43,7 +43,10 @@ import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
 
+import org.opencv.calib3d.Calib3d;
+import org.opencv.core.Mat;
 import org.opencv.core.Size;
+import org.opencv.imgproc.Imgproc;
 
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.i18n.I18n;
@@ -128,7 +131,7 @@ public class UtilTracking {
         }
         catch (IOException e) {
             e.printStackTrace();
-        } // Ping doesnt work
+        } // Ping doesn't work
         
         return ping;
     }
@@ -155,5 +158,19 @@ public class UtilTracking {
             NeptusLog.pub().warn(I18n.text("Size in resizeBufferedImage must be != NULL"));
             return null;
         }
+    }
+
+    /**
+     * Undistort image.
+     * @param image - Distorted image.
+     * @param cameraMatrix - Camera matrix.
+     * @param distCoeffs - Input vector of distortion coefficients.
+     * @return Undistorted image.
+     */
+    public static Mat undistort(final Mat image, final Mat cameraMatrix, final Mat distCoeffs) {
+        final Mat newCameraMtx = Calib3d.getOptimalNewCameraMatrix(cameraMatrix, distCoeffs, image.size(), 0);
+        final Mat mat = new Mat();
+        Imgproc.undistort(image, mat, cameraMatrix, distCoeffs, newCameraMtx);
+        return mat;
     }
 }
