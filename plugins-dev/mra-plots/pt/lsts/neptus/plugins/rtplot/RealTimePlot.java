@@ -173,7 +173,8 @@ public class RealTimePlot extends ConsolePanel implements IPeriodicUpdates, Conf
                         ts.setMaximumItemCount(numPoints);
                         tsc.addSeries(ts);
                     }
-                    ts.addOrUpdate(new Millisecond(new Date(System.currentTimeMillis())), Double.parseDouble(o.toString()));
+                    if (o != null)
+                        ts.addOrUpdate(new Millisecond(new Date(System.currentTimeMillis())), Double.parseDouble(o.toString()));
                 }
                 catch (Exception e) {
                     NeptusLog.pub().error(e);
