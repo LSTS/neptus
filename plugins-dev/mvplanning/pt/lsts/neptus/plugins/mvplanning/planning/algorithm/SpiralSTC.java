@@ -36,12 +36,9 @@ import java.util.List;
 
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.mp.ManeuverLocation;
-import pt.lsts.neptus.mp.maneuvers.Goto;
 import pt.lsts.neptus.plugins.mvplanning.interfaces.MapCell;
 import pt.lsts.neptus.plugins.mvplanning.planning.GridCell;
 import pt.lsts.neptus.plugins.mvplanning.planning.mapdecomposition.GridArea;
-import pt.lsts.neptus.types.mission.GraphType;
-import pt.lsts.neptus.types.mission.TransitionType;
 
 /**
  * Implementation of the offline version of the
@@ -56,21 +53,21 @@ public class SpiralSTC {
     private static final int RIGHT = -2;
     private static final int NONE = 0;
 
-    private GraphType graph;
     private MST minSpanningTree;
+    private List<ManeuverLocation> path;
 
     public SpiralSTC(GridArea areaToCover) {
         this.minSpanningTree = new MST(areaToCover.getAreaCells().get(0));
-        this.graph = generatePath(areaToCover);
+        this.path = generatePath(areaToCover);
     }
 
-    public GraphType getGraph() {
-        return graph;
+    public List<ManeuverLocation> getPath() {
+        return this.path;
     }
 
-    private GraphType generatePath(GridArea areaToCover) {
+    private List<ManeuverLocation> generatePath(GridArea areaToCover) {
         /* Build graph */
-        GraphType planGraph = new GraphType();
+        List<ManeuverLocation> path = new ArrayList<>();
         GridArea subCells = areaToCover.splitMegaCells();
 
         GridCell previousSubCell = null;
@@ -82,35 +79,34 @@ public class SpiralSTC {
             if(firstNode) {
                 newSubCell = computeStartSubCell((GridCell) node, minSpanningTree, subCells);
 
-                addNewNode(planGraph, newSubCell, true);
+                addNewNode(path, newSubCell, true);
                 firstNode = false;
             }
             else {
                 /* Direction from previous mega-cell to the current one */
                 int nextDir = getNextDirection(previousCell, (GridCell) node);
-                newSubCell = computeNewTransition(planGraph, nextDir, previousDirection, previousSubCell, previousCell, (GridCell) node, subCells);
+                newSubCell = computeNewTransition(path, nextDir, previousDirection, previousSubCell, previousCell, (GridCell) node, subCells);
 
-                generateTransition(planGraph, previousSubCell, newSubCell, subCells, previousDirection, nextDir);
+                generateTransition(path, previousSubCell, newSubCell, subCells, previousDirection, nextDir);
                 previousDirection = nextDir;
             }
             previousSubCell = newSubCell;
             previousCell = (GridCell) node;
         }
-        return planGraph;
+        return path;
     }
 
-    private void generateTransition(GraphType graph, GridCell sourceSubCell, GridCell destSubCell, GridArea subCells, int prevDir, int nextDir) {
+    private void generateTransition(List<ManeuverLocation> path, GridCell sourceSubCell, GridCell destSubCell, GridArea subCells, int prevDir, int nextDir) {
         /* Maintaining same direction from previous movement (Normal, linear, transition) */
         if((prevDir == nextDir) || (prevDir == NONE)) {
-            addNewNode(graph, sourceSubCell, false);
-            addNewNode(graph, destSubCell, false);
-            graph.addTransition(new TransitionType(sourceSubCell.id(), destSubCell.id()));
+            addNewNode(path, sourceSubCell, false);
+            addNewNode(path, destSubCell, false);
         }
         else if(prevDir == -nextDir) {
-            goAroundLeafNode(graph, nextDir, sourceSubCell, subCells);
+            goAroundLeafNode(path, nextDir, sourceSubCell, subCells);
         }
         else /* changing direction */
-            changeDirectionTransition(graph, sourceSubCell, destSubCell, subCells, prevDir, nextDir);
+            changeDirectionTransition(path, sourceSubCell, destSubCell, subCells, prevDir, nextDir);
     }
 
     /**
@@ -118,11 +114,10 @@ public class SpiralSTC {
      * when it changes direction, e.g., when the vehicle needs
      * to go from a vertical to an horizontal trajectory/path
      * */
-    private void changeDirectionTransition(GraphType graph, GridCell sourceSubCell, GridCell destSubCell, GridArea subCells, int prevDir, int nextDir) {
+    private void changeDirectionTransition(List<ManeuverLocation> path, GridCell sourceSubCell, GridCell destSubCell, GridArea subCells, int prevDir, int nextDir) {
         if(sourceSubCell.isNeighbour(destSubCell.getRow(), destSubCell.getColumn())) {
-            addNewNode(graph, sourceSubCell, false);
-            addNewNode(graph, destSubCell, false);
-            graph.addTransition(new TransitionType(sourceSubCell.id(), destSubCell.id()));
+            addNewNode(path, sourceSubCell, false);
+            addNewNode(path, destSubCell, false);
         }
         else {
             int cornerRow;
@@ -152,27 +147,17 @@ public class SpiralSTC {
             }
 
             GridCell cornerSubCell = subCells.getAllCells()[cornerRow][cornerCol];
-            addNewNode(graph, sourceSubCell, false);
-            addNewNode(graph, cornerSubCell, false);
-            addNewNode(graph, destSubCell, false);
-
-            graph.addTransition(new TransitionType(sourceSubCell.id(), cornerSubCell.id()));
-            graph.addTransition(new TransitionType(cornerSubCell.id(), destSubCell.id()));
+            addNewNode(path, sourceSubCell, false);
+            addNewNode(path, cornerSubCell, false);
+            addNewNode(path, destSubCell, false);
         }
     }
 
     /**
      * Given a graph and GridCell creates a new node and adds it.
      * */
-    private void addNewNode(GraphType graph, GridCell cell, boolean isInitialNode) {
-        if(graph.getManeuver(cell.id()) == null) {
-            Goto newNode = new Goto();
-
-            newNode.setId(cell.id());
-            newNode.setManeuverLocation(new ManeuverLocation(cell.getLocation()));
-            newNode.setInitialManeuver(isInitialNode);
-            graph.addManeuver(newNode);
-        }
+    private void addNewNode(List<ManeuverLocation> path, GridCell cell, boolean isInitialNode) {
+        path.add(new ManeuverLocation(cell.getLocation()));
     }
 
     /**
@@ -219,7 +204,7 @@ public class SpiralSTC {
     /**
      * Computes the next subcell(s) the vehicle is going to move into
      * */
-    public GridCell computeNewTransition(GraphType path, int nextDir, int prevDir, GridCell currSubCell, GridCell sourceMegaCell, GridCell destMegaCell, GridArea subCells) {
+    public GridCell computeNewTransition(List<ManeuverLocation> path, int nextDir, int prevDir, GridCell currSubCell, GridCell sourceMegaCell, GridCell destMegaCell, GridArea subCells) {
         if(nextDir == 0) {
             NeptusLog.pub().error("Couldn't compute direction from " + sourceMegaCell.id() + " to " + destMegaCell.id());
 
@@ -261,7 +246,7 @@ public class SpiralSTC {
     /**
      * Generates a path that goes around a spanning tree's leaf node
      * */
-    private void goAroundLeafNode(GraphType path, int nextDir, GridCell currSubCell, GridArea subCells) {
+    private void goAroundLeafNode(List<ManeuverLocation> path, int nextDir, GridCell currSubCell, GridArea subCells) {
         List<GridCell> nodesSequence = null;
         int currRow = currSubCell.getRow();
         int currCol = currSubCell.getColumn();
@@ -285,8 +270,6 @@ public class SpiralSTC {
 
                 addNewNode(path, (GridCell) source, false);
                 addNewNode(path, (GridCell) dest, false);
-
-                path.addTransition(new TransitionType(source.id(), dest.id()));
             }
         }
     }

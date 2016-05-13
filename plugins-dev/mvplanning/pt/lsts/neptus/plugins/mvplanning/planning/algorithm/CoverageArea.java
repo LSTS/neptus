@@ -31,6 +31,9 @@
  */
 package pt.lsts.neptus.plugins.mvplanning.planning.algorithm;
 
+import java.util.List;
+import java.util.Vector;
+
 import pt.lsts.imc.PlanSpecification;
 import pt.lsts.neptus.mp.ManeuverLocation;
 import pt.lsts.neptus.mp.maneuvers.FollowPath;
@@ -52,12 +55,13 @@ public class CoverageArea {
     private Profile planProfile;
     private PlanType plan;
     private GraphType planGraph;
+    private List<ManeuverLocation> path;
 
     public CoverageArea(String id, Profile planProfile, MapDecomposition areaToCover, MissionType mt) {
         this.planProfile = planProfile;
 
-        planGraph = getGraph(areaToCover);
-        plan = getPlan(mt);
+        path = getPath(areaToCover);
+        plan = getPlan(mt, path);
         setId(id);
     }
 
@@ -65,9 +69,9 @@ public class CoverageArea {
         plan.setId(id);
     }
 
-    private GraphType getGraph(MapDecomposition areaToCover) {
+    private List<ManeuverLocation> getPath(MapDecomposition areaToCover) {
         if(areaToCover.getClass().getSimpleName().toString().equals("GridArea"))
-            return new SpiralSTC((GridArea) areaToCover).getGraph();
+            return new SpiralSTC((GridArea) areaToCover).getPath();
 
         /* TODO implement for other types of decompositions */
         return null;
@@ -76,8 +80,8 @@ public class CoverageArea {
     /**
      * Generates a PlanType for a coverage area plan
      * */
-    private PlanType getPlan(MissionType mt) {
-        FollowPath fpath = asFollowPathManeuver();
+    private PlanType getPlan(MissionType mt, List<ManeuverLocation> path) {
+        FollowPath fpath = asFollowPathManeuver(path);
         PlanType ptype = new PlanType(mt);
         ptype.getGraph().addManeuver(fpath);
 
@@ -101,14 +105,32 @@ public class CoverageArea {
     }
 
     public FollowPath asFollowPathManeuver() {
-        FollowPath fpath = new FollowPath(planGraph);
-        ManeuverLocation loc = ((LocatedManeuver) planGraph.getManeuversSequence()[0]).getManeuverLocation();
+        return asFollowPathManeuver(this.path);
+    }
+
+    private FollowPath asFollowPathManeuver(List<ManeuverLocation> path) {
+        FollowPath fpath = new FollowPath();
+        ManeuverLocation loc = path.get(0);
 
         fpath.setManeuverLocation(getManeuverLocation(planProfile, loc));
         fpath.setSpeed(planProfile.getProfileSpeed());
 
         /* TODO set according to profile's parameters */
         fpath.setSpeedUnits(ManeuverLocation.Z_UNITS.DEPTH.toString());
+
+        Vector<double[]> offsets = new Vector<>();
+        for(ManeuverLocation point : path) {
+            double[] newPoint = new double[4];
+            double[] pOffsets = point.getOffsetFrom(loc);
+
+            newPoint[0] = pOffsets[0];
+            newPoint[1] = pOffsets[1];
+            newPoint[2] = pOffsets[2];
+
+            offsets.add(newPoint);
+        }
+
+        fpath.setOffsets(offsets);
 
         return fpath;
     }
