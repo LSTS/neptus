@@ -69,10 +69,10 @@ public class ScheduledGoto extends Goto {
 
     protected static final String DEFAULT_ROOT_ELEMENT = "ScheduledGoto";
 
-    Date arrivalTime = new Date();
-    ManeuverLocation.Z_UNITS travelUnits = ManeuverLocation.Z_UNITS.DEPTH;
-    double travelZ = 3;
-    pt.lsts.imc.ScheduledGoto.DELAYED delayedBehavior = DELAYED.SKIP;
+    private Date arrivalTime = new Date();
+    private ManeuverLocation.Z_UNITS travelUnits = ManeuverLocation.Z_UNITS.DEPTH;
+    private double travelZ = 3;
+    private pt.lsts.imc.ScheduledGoto.DELAYED delayedBehavior = DELAYED.SKIP;
 
     @Override
     public String getType() {
