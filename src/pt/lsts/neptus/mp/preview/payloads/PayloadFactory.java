@@ -48,6 +48,8 @@ import pt.lsts.neptus.types.mission.plan.PlanType;
  */
 public class PayloadFactory {
 
+    public static final double LumeneraHFOV = 59.3, LumeneraVFOV = 45.2; 
+    
     public static Collection<PayloadFingerprint> getPayloads(Maneuver m) {
         Vector<PayloadFingerprint> payloads = new Vector<>();
         IMCMessage[] msgs = m.getStartActions().getAllMessages();
