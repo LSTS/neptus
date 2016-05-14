@@ -205,6 +205,7 @@ public class ScheduledGoto extends Goto {
     @Override
     public void paintOnMap(Graphics2D g2d, PlanElement planElement, StateRenderer2D renderer) {
         super.paintOnMap(g2d, planElement, renderer);
+        
         long diff = getArrivalTime().getTime() - new Date().getTime();
         
         String text;
@@ -215,6 +216,12 @@ public class ScheduledGoto extends Goto {
             
         Rectangle2D rect = g2d.getFontMetrics().getStringBounds(text, g2d);
         g2d.translate(-rect.getWidth()/2, -rect.getHeight()/2-5);
+        
+        if (planElement.isBeingEdited()) {
+            g2d.setColor(Color.WHITE);
+            g2d.fillRect(0, -(int) rect.getHeight(), (int) rect.getWidth(), (int) rect.getHeight());
+        }
+        
         g2d.setColor(Color.black);
         g2d.drawString(text, 0, 0);
         g2d.translate(-1, -1);
