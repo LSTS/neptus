@@ -53,6 +53,7 @@ import javax.swing.JSplitPane;
 import javax.swing.JTree;
 import javax.swing.event.TreeSelectionEvent;
 import javax.swing.event.TreeSelectionListener;
+import javax.swing.table.TableCellRenderer;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeCellRenderer;
 import javax.swing.tree.DefaultTreeModel;
@@ -693,6 +694,13 @@ public class FunctionalitiesSettings extends JPanel {
                 }
             }
         }
+        Class<? extends TableCellRenderer> rendererClass = null;
+        if (neptusProperty.rendererClass() != TableCellRenderer.class) {
+            rendererClass = neptusProperty.rendererClass();
+        }
+        if (rendererClass != null)
+            pRenderRegistry.registerRenderer(pp, rendererClass);
+
         return pp;
     }
 

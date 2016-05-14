@@ -57,6 +57,7 @@ import java.util.Properties;
 import java.util.Vector;
 
 import javax.imageio.spi.ServiceRegistry;
+import javax.swing.table.TableCellRenderer;
 
 import org.apache.commons.io.IOUtils;
 
@@ -239,6 +240,7 @@ public class PluginUtils {
                         + "</code></b>\"]]</i>";
             }
             Class<? extends PropertyEditor> editClass = null;
+            Class<? extends TableCellRenderer> rendererClass = null;
             String category = a.category();
 
             if (a.name().length() == 0) {
@@ -250,6 +252,10 @@ public class PluginUtils {
 
             if (a.editorClass() != PropertyEditor.class) {
                 editClass = a.editorClass();
+            }
+
+            if (a.rendererClass() != TableCellRenderer.class) {
+                rendererClass = a.rendererClass();
             }
 
             if (category == null || category.length() == 0) {
@@ -278,14 +284,15 @@ public class PluginUtils {
                 pp.setCategory(category);
             }
 
-            if (editClass != null)
+            if (editClass != null) {
                 PropertiesEditor.getPropertyEditorRegistry().registerEditor(pp, editClass);
+            }
             else {
                 if (ReflectionUtil.hasInterface(f.getType(), PropertyType.class)) {
                     PropertyType pt = (PropertyType) o;
                     PropertiesEditor.getPropertyEditorRegistry().registerEditor(pp, pt.getPropertyEditor());
                 }
-                if (f.getType().getEnumConstants() != null)
+                if (f.getType().getEnumConstants() != null) {
                     if (o != null) {
                         PropertiesEditor.getPropertyEditorRegistry().registerEditor(pp,
                                 new EnumEditor((Class<? extends Enum<?>>) o.getClass()));
@@ -300,7 +307,11 @@ public class PluginUtils {
                             }
                         });
                     }
+                }
             }
+            
+            if (rendererClass != null)
+                PropertiesEditor.getPropertyRendererRegistry().registerRenderer(pp, rendererClass);
 
             return pp;
         }

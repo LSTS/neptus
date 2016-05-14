@@ -117,18 +117,23 @@ public class Goto extends Maneuver implements IMCSerialization, LocatedManeuver 
 	    try {
 	        Document doc = DocumentHelper.parseText(xml);
 	        Node node = doc.selectSingleNode(getType()+"/finalPoint/point");
-	        ManeuverLocation loc = new ManeuverLocation();
-	        loc.load(node.asXML());
-	        setManeuverLocation(loc);
-	        setRadiusTolerance(Double.parseDouble(doc.selectSingleNode(getType()+"/finalPoint/radiusTolerance").getText()));
+	        if (node != null) {
+	            ManeuverLocation loc = new ManeuverLocation();
+	            loc.load(node.asXML());
+	            setManeuverLocation(loc);
+	            
+	            //setRadiusTolerance(Double.parseDouble(doc.selectSingleNode(getType()+"/finalPoint/radiusTolerance").getText()));
+	        }
+	        
 	        Node speedNode = doc.selectSingleNode(getType()+"/speed");
 	        if (speedNode == null) 
 	        	speedNode = doc.selectSingleNode(getType()+"/velocity");
-	        setSpeed(Double.parseDouble(speedNode.getText()));
-	        String speedUnit = speedNode.valueOf("@unit");
-	        setSpeedUnits(speedUnit);
-	        setSpeedTolerance(Double.parseDouble(speedNode.valueOf("@tolerance")));
-	        
+	        if (speedNode != null) {
+	            setSpeed(Double.parseDouble(speedNode.getText()));
+	            String speedUnit = speedNode.valueOf("@unit");
+	            setSpeedUnits(speedUnit);
+	            setSpeedTolerance(Double.parseDouble(speedNode.valueOf("@tolerance")));
+	        }
 	    }
 	    catch (Exception e) {
 	        NeptusLog.pub().info("<###> "+I18n.text("Error while loading the XML:")+"{" + xml + "}");
