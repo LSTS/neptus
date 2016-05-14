@@ -255,15 +255,14 @@ public class ScheduledGoto extends Goto {
 
     @Override
     public void paintOnMap(Graphics2D g2d, PlanElement planElement, StateRenderer2D renderer) {
-
         super.paintOnMap(g2d, planElement, renderer);
         long diff = getArrivalTime().getTime() - new Date().getTime();
         
-        String text = DateTimeUtil.milliSecondsToFormatedString(diff, true);
-
+        String text;
         if (diff < 0)
             text = "-"+DateTimeUtil.milliSecondsToFormatedString(-diff, true);
-            
+        else
+            text = DateTimeUtil.milliSecondsToFormatedString(diff, true);
             
         Rectangle2D rect = g2d.getFontMetrics().getStringBounds(text, g2d);
         g2d.translate(-rect.getWidth()/2, -rect.getHeight()/2-5);
@@ -279,7 +278,6 @@ public class ScheduledGoto extends Goto {
 
         g2d.drawString(text, 0, 0);
     }
-
 
     /**
      * @return the arrivalTime
