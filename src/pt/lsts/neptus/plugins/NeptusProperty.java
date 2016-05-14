@@ -37,6 +37,8 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
+import javax.swing.table.TableCellRenderer;
+
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.FIELD)
 public @interface NeptusProperty {
@@ -95,6 +97,11 @@ public @interface NeptusProperty {
      * The (full) class name of the editor to be used for this property
      */
     Class<? extends PropertyEditor> editorClass() default PropertyEditor.class;
+
+    /**
+     * The (full) class name of the renderer to be used for this property
+     */
+    Class<? extends TableCellRenderer> rendererClass() default TableCellRenderer.class;
     
     /**
      * Whether this property is to be not editable in user-input dialogs (changed only in code)
