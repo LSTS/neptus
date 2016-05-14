@@ -27,7 +27,7 @@
  * For more information please see <http://lsts.fe.up.pt/neptus>.
  *
  * Author: zp
- * Jul 17, 2015
+ * 18/04/2016
  */
 package pt.lsts.neptus.mp.maneuvers;
 

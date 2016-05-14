@@ -27,7 +27,7 @@
  * For more information please see <http://lsts.fe.up.pt/neptus>.
  *
  * Author: José Pinto
- * Oct 11, 2011
+ * 12/05/2016
  */
 package pt.lsts.neptus.mp.preview;
 
