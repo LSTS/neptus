@@ -50,11 +50,11 @@ import com.l2fprod.common.propertysheet.Property;
 import pt.lsts.imc.IMCMessage;
 import pt.lsts.imc.ScheduledGoto.DELAYED;
 import pt.lsts.neptus.NeptusLog;
-import pt.lsts.neptus.gui.PropertiesEditor;
-import pt.lsts.neptus.gui.editor.ComboEditor;
-import pt.lsts.neptus.gui.editor.StringPatternEditor;
 import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.mp.ManeuverLocation;
+import pt.lsts.neptus.mp.maneuvers.editors.ScheduledGotoDateEditor;
+import pt.lsts.neptus.mp.maneuvers.editors.ScheduledGotoDateRendererEditor;
+import pt.lsts.neptus.plugins.NeptusProperty;
 import pt.lsts.neptus.renderer2d.StateRenderer2D;
 import pt.lsts.neptus.types.coord.LocationType;
 import pt.lsts.neptus.types.map.PlanElement;
@@ -67,13 +67,20 @@ import pt.lsts.neptus.util.XMLUtil;
  */
 public class ScheduledGoto extends Goto {
 
-    private static final String TIME_FORMAT_STR = "yyyy-MM-dd HH:mm:ss";
+    public static final String TIME_FORMAT_STR = "yyyy-MM-dd HH:mm:ss";
 
     protected static final String DEFAULT_ROOT_ELEMENT = "ScheduledGoto";
-
-    private Date arrivalTime = new Date();
-    private ManeuverLocation.Z_UNITS travelUnits = ManeuverLocation.Z_UNITS.DEPTH;
+    
+    @NeptusProperty(name = "Travel Z value")
     private double travelZ = 3;
+    @NeptusProperty(name = "Travel Z units")
+    private ManeuverLocation.Z_UNITS travelUnits = ManeuverLocation.Z_UNITS.DEPTH;
+    @NeptusProperty(name = "Arrival Time", description = "Arrival Time (UTC timezone)", 
+            editorClass = ScheduledGotoDateEditor.class, rendererClass = ScheduledGotoDateRendererEditor.class)
+    private Date arrivalTime = new Date();
+    @NeptusProperty(name = "Delayed Behavior", description = "How to proceed if vehicle doesn't reach the waypoint in time."
+            + "\n\tRESUME - Continue until (delayed) arrival,\n\tSKIP - Move on to next maneuver,"
+            + "\n\tFAIL - Stop plan with a failure.")
     private pt.lsts.imc.ScheduledGoto.DELAYED delayedBehavior = DELAYED.SKIP;
 
     @Override
@@ -142,70 +149,13 @@ public class ScheduledGoto extends Goto {
 
     @Override
     protected Vector<DefaultProperty> additionalProperties() {
-        Vector<DefaultProperty> props = new Vector<>();
-
-        DefaultProperty units = PropertiesEditor.getPropertyInstance("Travel Z units", pt.lsts.neptus.mp.ManeuverLocation.Z_UNITS.class, getTravelUnits(), true);
-        units.setDisplayName(I18n.text("Travel Z units"));
-        units.setShortDescription(I18n.text("Travel Z units"));
-        PropertiesEditor.getPropertyEditorRegistry().registerEditor(units, new ComboEditor<>(pt.lsts.neptus.mp.ManeuverLocation.Z_UNITS.values()));
-
-        DefaultProperty travZ = PropertiesEditor.getPropertyInstance("Travel Z value", Double.class, getTravelZ(), true);
-        travZ.setDisplayName(I18n.text("Travel Z value"));
-        travZ.setShortDescription(I18n.text("Travel Z value (meters)"));
-
-        SimpleDateFormat sdf = new SimpleDateFormat(TIME_FORMAT_STR);
-        sdf.setTimeZone(TimeZone.getTimeZone("UTC"));
-
-        DefaultProperty arrivalTime = PropertiesEditor.getPropertyInstance("Arrival Time", String.class, sdf.format(getArrivalTime()), true);
-        arrivalTime.setDisplayName(I18n.text("Arrival Time"));
-        arrivalTime.setShortDescription(I18n.text("Arrival Time (UTC timezone)"));
-        PropertiesEditor.getPropertyEditorRegistry().registerEditor(arrivalTime, new StringPatternEditor("20[0-9][0-9]\\-[0-1][0-9]\\-[0-3][0-9] [0-2][0-9]\\:[0-5][0-9]\\:[0-5][0-9]"));
-
-        DefaultProperty delayedBeh = PropertiesEditor.getPropertyInstance("Delayed Behavior", DELAYED.class, getDelayedBehavior(), true);
-        delayedBeh.setDisplayName(I18n.text("Delayed Behavior"));
-        delayedBeh.setShortDescription(I18n.text(
-                "How to proceed if vehicle doesn't reach the waypoint in time."+
-                        "\n\tRESUME - Continue until (delayed) arrival,"+
-                        "\n\tSKIP - Move on to next maneuver,"+
-                "\n\tFAIL - Stop plan with a failure."));
-        PropertiesEditor.getPropertyEditorRegistry().registerEditor(delayedBeh, new ComboEditor<>(DELAYED.values()));
-        
-        props.add(travZ);
-        props.add(units);
-        props.add(arrivalTime);
-        props.add(delayedBeh);
-
-        return props;        
+        return ManeuversUtil.getPropertiesFromManeuver(this);
     }
 
     @Override
     public void setProperties(Property[] properties) {
         super.setProperties(properties);
-        SimpleDateFormat sdf = new SimpleDateFormat(TIME_FORMAT_STR);
-        sdf.setTimeZone(TimeZone.getTimeZone("UTC"));
-
-        for (Property p : properties) {
-            if (p.getName().equals("Travel Z units")) {
-                setTravelUnits(pt.lsts.neptus.mp.ManeuverLocation.Z_UNITS.valueOf(p.getValue().toString()));                
-            }
-            else if (p.getName().equals("Travel Z value")) {
-                setTravelZ((Double)p.getValue());
-            }
-            else if (p.getName().equals("Arrival Time")) {
-                try {
-                    setArrivalTime(sdf.parse(p.getValue().toString()));
-                }
-                catch (Exception e) {
-                    e.printStackTrace();
-                }
-            }
-            else if (p.getName().equals("Delayed Behavior")) {
-                setDelayedBehavior(DELAYED.valueOf(p.getValue().toString()));
-            }
-            else {
-                NeptusLog.pub().debug("Property "+p.getName()+" ignored.");
-            }
-        }        
+        ManeuversUtil.setPropertiesToManeuver(this, properties);
     }
 
     @Override
@@ -224,7 +174,6 @@ public class ScheduledGoto extends Goto {
         travelZUnits.setText(getTravelUnits().toString());
         return doc;
     }
-
 
     public void loadFromXML(String xml) {
         super.loadFromXML(xml);
