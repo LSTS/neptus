@@ -67,6 +67,8 @@ import pt.lsts.neptus.util.XMLUtil;
  */
 public class ScheduledGoto extends Goto {
 
+    private static final String TIME_FORMAT_STR = "yyyy-MM-dd HH:mm:ss";
+
     protected static final String DEFAULT_ROOT_ELEMENT = "ScheduledGoto";
 
     private Date arrivalTime = new Date();
@@ -151,7 +153,7 @@ public class ScheduledGoto extends Goto {
         travZ.setDisplayName(I18n.text("Travel Z value"));
         travZ.setShortDescription(I18n.text("Travel Z value (meters)"));
 
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        SimpleDateFormat sdf = new SimpleDateFormat(TIME_FORMAT_STR);
         sdf.setTimeZone(TimeZone.getTimeZone("UTC"));
 
         DefaultProperty arrivalTime = PropertiesEditor.getPropertyInstance("Arrival Time", String.class, sdf.format(getArrivalTime()), true);
@@ -179,7 +181,7 @@ public class ScheduledGoto extends Goto {
     @Override
     public void setProperties(Property[] properties) {
         super.setProperties(properties);
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        SimpleDateFormat sdf = new SimpleDateFormat(TIME_FORMAT_STR);
         sdf.setTimeZone(TimeZone.getTimeZone("UTC"));
 
         for (Property p : properties) {
@@ -210,7 +212,7 @@ public class ScheduledGoto extends Goto {
     public Document getManeuverAsDocument(String rootElementName) {
         Document doc = super.getManeuverAsDocument(rootElementName);
         Element root = doc.getRootElement();
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        SimpleDateFormat sdf = new SimpleDateFormat(TIME_FORMAT_STR);
         sdf.setTimeZone(TimeZone.getTimeZone("UTC"));
         Element arrivalTime = root.addElement("ArrivalTime");
         arrivalTime.setText(sdf.format(getArrivalTime()));
@@ -230,7 +232,7 @@ public class ScheduledGoto extends Goto {
             Document doc = DocumentHelper.parseText(xml);
             Node node = doc.selectSingleNode(getType()+"/ArrivalTime");
             if (node != null) {
-                SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+                SimpleDateFormat sdf = new SimpleDateFormat(TIME_FORMAT_STR);
                 sdf.setTimeZone(TimeZone.getTimeZone("UTC"));
                 setArrivalTime(sdf.parse(node.getText()));
             }           
