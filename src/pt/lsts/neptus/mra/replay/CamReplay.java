@@ -34,6 +34,7 @@ package pt.lsts.neptus.mra.replay;
 import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.geom.Ellipse2D;
+import java.awt.geom.GeneralPath;
 import java.awt.geom.Point2D;
 
 import pt.lsts.imc.EstimatedState;
@@ -43,6 +44,7 @@ import pt.lsts.neptus.mra.importers.IMraLogGroup;
 import pt.lsts.neptus.plugins.PluginDescription;
 import pt.lsts.neptus.plugins.PluginUtils;
 import pt.lsts.neptus.renderer2d.StateRenderer2D;
+import pt.lsts.neptus.types.coord.LocationType;
 
 /**
  * @author zp
@@ -51,7 +53,10 @@ import pt.lsts.neptus.renderer2d.StateRenderer2D;
 public class CamReplay implements LogReplayLayer {
 
     private EstimatedState state = null;
-    CameraFOV fov = new CameraFOV(60, 45);
+    CameraFOV fov = new CameraFOV(Math.toRadians(60), Math.toRadians(45));
+    {
+        fov.setTilt(Math.toRadians(60));
+    }
     
     @Override
     public void paint(Graphics2D g, StateRenderer2D renderer) {
@@ -61,7 +66,20 @@ public class CamReplay implements LogReplayLayer {
             g.setColor(Color.yellow);
             g.fill(new Ellipse2D.Double(pt.getX()-5, pt.getY()-5, 10, 10));
             
-        }        
+            GeneralPath path = new GeneralPath();
+            Point2D prev = null;
+            for (LocationType loc : fov.getFootprintQuad()) {
+                Point2D cur = renderer.getScreenPosition(loc);
+                if (prev == null)
+                    path.moveTo(cur.getX(), cur.getY());
+                else
+                    path.lineTo(cur.getX(), cur.getY());
+                prev = cur;                    
+            }
+            path.closePath();
+            g.setColor(new Color(255,255,0,128));
+            g.fill(path);
+        }
     }
 
     @Override

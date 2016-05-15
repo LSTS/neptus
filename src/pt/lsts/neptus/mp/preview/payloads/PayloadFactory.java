@@ -113,10 +113,8 @@ public class PayloadFactory {
                     active = p.getValue().equalsIgnoreCase("true");
                 }                
             }
-            if (active) {
-                //FIXME check lumenera's FOV
-                pf.add(new CameraFootprint(Math.toRadians(70), Math.toRadians(90), 6, Color.magenta.darker().darker()));
-            }
+            if (active)
+                pf.add(new CameraFootprint(Math.toRadians(45.2), Math.toRadians(59.3), 6, Color.magenta.darker().darker()));
         }
         return pf;
     }    

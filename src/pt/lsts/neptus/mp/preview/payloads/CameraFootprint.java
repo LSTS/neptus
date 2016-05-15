@@ -33,9 +33,12 @@ package pt.lsts.neptus.mp.preview.payloads;
 
 import java.awt.Color;
 import java.awt.geom.Area;
+import java.awt.geom.GeneralPath;
+import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 
 import pt.lsts.neptus.mp.SystemPositionAndAttitude;
+import pt.lsts.neptus.types.coord.LocationType;
 
 /**
  * @author zp
@@ -46,7 +49,7 @@ public class CameraFootprint extends PayloadFingerprint {
     private double crossFov, alongFov;
     private Color color;
     private double maxDistance;
-    
+    CameraFOV fov;
     /**
      * Create a camera footprint 
      * @param alongTrackFov along track field of view, in radians
@@ -60,6 +63,7 @@ public class CameraFootprint extends PayloadFingerprint {
         this.crossFov = crossTrackFov;
         this.color = new Color(color.getRed(), color.getGreen(), color.getBlue(), 128);
         this.maxDistance = maxDistance;
+        fov = new CameraFOV(crossFov, alongFov);
     }
     
     /**
@@ -89,8 +93,20 @@ public class CameraFootprint extends PayloadFingerprint {
     public Area getFingerprint(SystemPositionAndAttitude pose) {
         if (pose.getAltitude() > maxDistance)
             return new Area(new Rectangle2D.Double(0,0,0,0));
-        double width = pose.getAltitude() * (Math.tan(crossFov/2d));
-        double height = pose.getAltitude() * (Math.tan(alongFov/2d));
-        return new Area (new Rectangle2D.Double(-width/2, -height/2, width, height));
+        fov.setState(pose);
+        fov.setYaw(0);
+        GeneralPath path = new GeneralPath();
+        Point2D prev = null;
+        for (LocationType loc : fov.getFootprintQuad()) {
+            double nedOffsets[] = loc.getOffsetFrom(pose.getPosition());
+            Point2D cur = new Point2D.Double(nedOffsets[1], -nedOffsets[0]);
+            if (prev == null)
+                path.moveTo(cur.getX(), cur.getY());
+            else
+                path.lineTo(cur.getX(), cur.getY());
+            prev = cur;                    
+        }
+        path.closePath();
+        return new Area(path);
     };
 }
