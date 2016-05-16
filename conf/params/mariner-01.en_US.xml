@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<config format="1" version="2016.03.0 (master,695f0dc,dirty)" system="mariner-01" i18n="en_US">
+<config format="1" version="2016.05.0 (master,5a841ca)" system="mariner-01" i18n="en_US">
   <section name="Autopilot" name-i18n="Autopilot">
     <param name="Entity Label">
       <name-i18n>Entity Label</name-i18n>
@@ -1377,6 +1377,15 @@
       <default>IMU</default>
       <units/>
       <desc>Entity label of the IMU for fuel prediction</desc>
+    </param>
+    <param name="Plan Generator Entity Label">
+      <name-i18n>Plan Generator Entity Label</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>Plan Generator</default>
+      <units/>
+      <desc>Entity label of the Plan Generator</desc>
     </param>
   </section>
   <section name="Plan Generator" name-i18n="Plan Generator">
