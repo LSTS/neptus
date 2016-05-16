@@ -76,8 +76,9 @@ public class MST {
 
         MapCell currentNode = startCell;
         MapCell parentNode = null;
+        boolean graphIsConnected = true;
 
-        while(backtrackNodes.size() != 0) {
+        while(backtrackNodes.size() != 0 && graphIsConnected) {
             List<MapCell> neighbours = currentNode.getNeighboursAntiClockwise(parentNode);
             boolean freeNode = false;
             int i = 0;
@@ -114,6 +115,7 @@ public class MST {
             }
             else { /* Graph needs to be connected in order to have an MST*/
                 NeptusLog.pub().error("Can't generate a Minimum Spanning Tree because the graph is not connected! Node: " + currentNode.id() + " has no neighbours");
+                graphIsConnected = false;
             }
         }
     }
