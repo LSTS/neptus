@@ -32,7 +32,7 @@
                         <coordinate>
                             <latitude>0N</latitude>
                             <longitude>0E</longitude>
-                            <height>150</height>
+                            <height>100</height>
                         </coordinate>
                     </point>
                     <radiusTolerance>5</radiusTolerance>
@@ -62,7 +62,7 @@
                         <coordinate>
                             <latitude>0N</latitude>
                             <longitude>0E</longitude>
-                            <height>150</height>
+                            <height>30</height>
                         </coordinate>
                     </point>
                     <radiusTolerance>5</radiusTolerance>
@@ -86,7 +86,7 @@
                         <coordinate>
                             <latitude>0N</latitude>
                             <longitude>0E</longitude>
-                            <height>150</height>
+                            <height>50</height>
                         </coordinate>
                     </point>
                     <radiusTolerance>5</radiusTolerance>
@@ -109,7 +109,7 @@
                         <coordinate>
                             <latitude>0N</latitude>
                             <longitude>0E</longitude>
-                            <height>150</height>
+                            <height>50</height>
                         </coordinate>
                     </point>
                     <radiusTolerance>0.0</radiusTolerance>
@@ -130,7 +130,7 @@
                         <coordinate>
                             <latitude>0N</latitude>
                             <longitude>0E</longitude>
-                            <height>150.0</height>
+                            <height>50</height>
                         </coordinate>
                     </point>
                     <radiusTolerance>0.0</radiusTolerance>
@@ -156,7 +156,7 @@
                         <coordinate>
                             <latitude>0N</latitude>
                             <longitude>0E</longitude>
-                            <height>150.0</height>
+                            <height>50</height>
                         </coordinate>
                     </point>
                     <radiusTolerance>0.0</radiusTolerance>
@@ -171,6 +171,30 @@
                     <implementation-class>pt.lsts.neptus.mp.maneuvers.CrossHatchPattern</implementation-class>
                 </annotation>
             </CrossHatchPattern>
+        </maneuver>
+        <maneuver>
+            <Sample kind="automatic">
+                <finalPoint type="pointType">
+                    <point>
+                        <id>SampleDestination</id>
+                        <name>SampleDestination</name>
+                        <coordinate>
+                            <latitude>0N</latitude>
+                            <longitude>0E</longitude>
+                            <height>0</height>
+                        </coordinate>
+                    </point>
+                    <radiusTolerance>5</radiusTolerance>
+                </finalPoint>
+                <velocity tolerance="10" type="float" unit="m/s">5</velocity>
+                <trajectoryTolerance>
+                    <radiusTolerance type="float">5</radiusTolerance>
+                </trajectoryTolerance>
+                <annotation>
+                    <documentation>Move to a given point and take a sample</documentation>
+                    <implementation-class>pt.lsts.neptus.mp.maneuvers.Sample</implementation-class>
+                </annotation>
+            </Sample>
         </maneuver>
     </feasibleManeuvers>
     <communication-means>
