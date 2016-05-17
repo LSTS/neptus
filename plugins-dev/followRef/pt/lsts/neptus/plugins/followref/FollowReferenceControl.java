@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2015 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2016 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -43,6 +43,9 @@ import java.util.Arrays;
 
 import javax.swing.JPopupMenu;
 
+import com.google.common.eventbus.Subscribe;
+import com.l2fprod.common.propertysheet.Property;
+
 import pt.lsts.imc.DesiredSpeed;
 import pt.lsts.imc.DesiredZ;
 import pt.lsts.imc.DesiredZ.Z_UNITS;
@@ -65,9 +68,6 @@ import pt.lsts.neptus.plugins.SimpleRendererInteraction;
 import pt.lsts.neptus.plugins.update.IPeriodicUpdates;
 import pt.lsts.neptus.renderer2d.StateRenderer2D;
 import pt.lsts.neptus.types.coord.LocationType;
-
-import com.google.common.eventbus.Subscribe;
-import com.l2fprod.common.propertysheet.Property;
 
 /**
  * @author zp
@@ -129,9 +129,10 @@ public class FollowReferenceControl extends SimpleRendererInteraction implements
             units = Z_UNITS.ALTITUDE;
             z = -z;
         }
-
-        ref.setZ(new DesiredZ((float)z, units));
-        ref.setSpeed(new DesiredSpeed(speed, DesiredSpeed.SPEED_UNITS.METERS_PS));
+        if (ref != null) {
+            ref.setZ(new DesiredZ((float)z, units));
+            ref.setSpeed(new DesiredSpeed(speed, DesiredSpeed.SPEED_UNITS.METERS_PS));
+        }
     }
 
     @Subscribe

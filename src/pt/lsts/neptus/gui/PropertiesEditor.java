@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2015 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2016 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -49,6 +49,18 @@ import javax.swing.JButton;
 import javax.swing.JLayeredPane;
 import javax.swing.JPanel;
 
+import com.l2fprod.common.beans.editor.AbstractPropertyEditor;
+import com.l2fprod.common.beans.editor.ComboBoxPropertyEditor;
+import com.l2fprod.common.propertysheet.DefaultProperty;
+import com.l2fprod.common.propertysheet.Property;
+import com.l2fprod.common.propertysheet.PropertyEditorRegistry;
+import com.l2fprod.common.propertysheet.PropertyRendererRegistry;
+import com.l2fprod.common.propertysheet.PropertySheet;
+import com.l2fprod.common.propertysheet.PropertySheetDialog;
+import com.l2fprod.common.propertysheet.PropertySheetPanel;
+import com.l2fprod.common.swing.BannerPanel;
+import com.l2fprod.common.swing.renderer.DefaultCellRenderer;
+
 import pt.lsts.neptus.colormap.ColorMap;
 import pt.lsts.neptus.comm.manager.imc.ImcId16;
 import pt.lsts.neptus.console.ConsoleLayout;
@@ -76,18 +88,8 @@ import pt.lsts.neptus.types.vehicle.VehicleType;
 import pt.lsts.neptus.util.GuiUtils;
 import pt.lsts.neptus.util.ImageUtils;
 import pt.lsts.neptus.util.conf.ConfigFetch;
-
-import com.l2fprod.common.beans.editor.AbstractPropertyEditor;
-import com.l2fprod.common.beans.editor.ComboBoxPropertyEditor;
-import com.l2fprod.common.propertysheet.DefaultProperty;
-import com.l2fprod.common.propertysheet.Property;
-import com.l2fprod.common.propertysheet.PropertyEditorRegistry;
-import com.l2fprod.common.propertysheet.PropertyRendererRegistry;
-import com.l2fprod.common.propertysheet.PropertySheet;
-import com.l2fprod.common.propertysheet.PropertySheetDialog;
-import com.l2fprod.common.propertysheet.PropertySheetPanel;
-import com.l2fprod.common.swing.BannerPanel;
-import com.l2fprod.common.swing.renderer.DefaultCellRenderer;
+import pt.lsts.neptus.util.credentials.Credentials;
+import pt.lsts.neptus.util.credentials.CredentialsEditor;
 
 /**
  * This provides a simple way of editing any properties that are provide
@@ -103,7 +105,8 @@ public class PropertiesEditor {
 	 * This method shows a dialog with all the properties available in the properties provider
 	 * If the user presses the OK button, the new properties are sent back to the properties provider
 	 * @param provider The PropertiesProvider that is to be configured
-	 */
+     * @return <b>true</b> if cancelled or <b>false</b> otherwise.
+     */
 	public static boolean editProperties(PropertiesProvider provider, boolean editable) {
         return editPropertiesWorker(provider, null, editable);
 	}
@@ -175,6 +178,9 @@ public class PropertiesEditor {
         }        
     }
     
+    /**
+     * @return <b>true</b> if cancelled or <b>false</b> otherwise.
+     */
     private static boolean editPropertiesWorker(PropertiesProvider provider, Window parent, boolean editable) {
         
     	boolean canceled = false;
@@ -521,7 +527,7 @@ public class PropertiesEditor {
 			per.registerEditor(Double.class, NeptusDoubleEditor.class);
 			per.registerEditor(Float.class, NeptusDoubleEditor.class);
 			per.registerEditor(ManeuverLocation.class, ManeuverLocationEditor.class);
-//			per.registerEditor(ManeuverLocation.Z_UNITS.class, ZValueSelector.ZUnitsComboBox.class);
+			per.registerEditor(Credentials.class, CredentialsEditor.class);
 		}
 		return per;
 	}

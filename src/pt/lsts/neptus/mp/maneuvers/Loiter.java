@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2015 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2016 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -43,6 +43,9 @@ import org.dom4j.DocumentHelper;
 import org.dom4j.Element;
 import org.dom4j.Node;
 
+import com.l2fprod.common.propertysheet.DefaultProperty;
+import com.l2fprod.common.propertysheet.Property;
+
 import pt.lsts.imc.IMCMessage;
 import pt.lsts.imc.Loiter.DIRECTION;
 import pt.lsts.imc.Loiter.TYPE;
@@ -60,12 +63,9 @@ import pt.lsts.neptus.renderer2d.StateRenderer2D;
 import pt.lsts.neptus.types.coord.LocationType;
 import pt.lsts.neptus.types.map.PlanElement;
 
-import com.l2fprod.common.propertysheet.DefaultProperty;
-import com.l2fprod.common.propertysheet.Property;
-
 public class Loiter extends Maneuver implements LocatedManeuver, StatisticsProvider, IMCSerialization {
 
-	public static final int INFINITY_DURATION = -1;
+	public static final int INFINITY_DURATION = 0;
 	
 	private int loiterDuration = 60;
 	private double radius = 15, radiusTolerance = 5, length = 1, bearing = 0,
@@ -79,8 +79,8 @@ public class Loiter extends Maneuver implements LocatedManeuver, StatisticsProvi
     
 	static {
 	    wpLoiterTypeConstantsMap.put(1l, I18n.textmark("Circular"));
-	    wpLoiterTypeConstantsMap.put(2l, I18n.textmark("Racetrack"));
-	    wpLoiterTypeConstantsMap.put(3l, I18n.textmark("Figure 8"));
+	    // wpLoiterTypeConstantsMap.put(2l, I18n.textmark("Racetrack"));
+	    wpLoiterTypeConstantsMap.put(2l, I18n.textmark("Figure 8"));
 	    // wpLoiterTypeConstantsMap.put(4l, "Hover");
 	    
 	    loiterDirectionConstantsMap.put(0l, I18n.textmark("Vehicle Dependent"));
@@ -260,7 +260,7 @@ public class Loiter extends Maneuver implements LocatedManeuver, StatisticsProvi
 		props.add(radius);
 		
 		DefaultProperty length = PropertiesEditor.getPropertyInstance("Length", Double.class, this.length, true);
-		length.setShortDescription("If its a 'racetrack' or 'figure8' loiter, sets the distance between the focuses");
+		length.setShortDescription("If it is 'figure8' loiter, sets the distance between the focuses");
 		props.add(length);
 		
 		DefaultProperty bearing = PropertiesEditor.getPropertyInstance("Bearing", Double.class, this.bearing, true);
@@ -510,7 +510,7 @@ public class Loiter extends Maneuver implements LocatedManeuver, StatisticsProvi
         loiter.setLat(loc.getLatitudeRads());
         loiter.setLon(loc.getLongitudeRads());
         loiter.setZ(getManeuverLocation().getZ());
-        loiter.setZUnits((short)getManeuverLocation().getZUnits().value());
+        loiter.setZUnits(pt.lsts.imc.Loiter.Z_UNITS.valueOf(getManeuverLocation().getZUnits().name()));
         loiter.setSpeed(this.getSpeed());
         loiter.setDuration(getLoiterDuration());
        

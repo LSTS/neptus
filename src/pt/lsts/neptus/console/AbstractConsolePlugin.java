@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2015 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2016 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -31,28 +31,26 @@
  */
 package pt.lsts.neptus.console;
 
-import java.util.Collection;
-
 import javax.swing.ImageIcon;
 
 import org.dom4j.Document;
 import org.dom4j.DocumentHelper;
 import org.dom4j.Element;
 
-import pt.lsts.imc.state.ImcSysState;
-import pt.lsts.neptus.comm.manager.imc.ImcMsgManager;
+import com.l2fprod.common.propertysheet.DefaultProperty;
+import com.l2fprod.common.propertysheet.Property;
+
+import pt.lsts.imc.state.ImcSystemState;
 import pt.lsts.neptus.console.plugins.MainVehicleChangeListener;
 import pt.lsts.neptus.console.plugins.MissionChangeListener;
 import pt.lsts.neptus.console.plugins.PlanChangeListener;
 import pt.lsts.neptus.events.NeptusEvents;
 import pt.lsts.neptus.gui.PropertiesProvider;
+import pt.lsts.neptus.plugins.PluginMenuUtils;
 import pt.lsts.neptus.plugins.PluginUtils;
 import pt.lsts.neptus.plugins.update.IPeriodicUpdates;
 import pt.lsts.neptus.plugins.update.PeriodicUpdatesService;
 import pt.lsts.neptus.util.ImageUtils;
-
-import com.l2fprod.common.propertysheet.DefaultProperty;
-import com.l2fprod.common.propertysheet.Property;
 
 /**
  * @author zp
@@ -62,7 +60,6 @@ public abstract class AbstractConsolePlugin implements PropertiesProvider {
 
     private ConsoleLayout console;
     private ImageIcon icon;
-    private Collection<IPeriodicUpdates> periodicMethods = null;
     
     @Override
     public final DefaultProperty[] getProperties() {
@@ -72,6 +69,7 @@ public abstract class AbstractConsolePlugin implements PropertiesProvider {
     @Override
     public final void setProperties(Property[] properties) {
         PluginUtils.setPluginProperties(this, properties);
+        propertiesChanged();
     }
 
 
@@ -117,8 +115,13 @@ public abstract class AbstractConsolePlugin implements PropertiesProvider {
         return PluginUtils.getPluginName(getClass());
     }
     
-    public void init(ConsoleLayout console) {
+    public final void init(ConsoleLayout console) {
         this.console = console;
+        
+        initPlugin(console);
+        
+        // After all setup let us register the IPeriodicUpdates and Message callbacks
+        
         if (this instanceof MissionChangeListener)
             getConsole().addMissionListener((MissionChangeListener) this);
 
@@ -129,15 +132,19 @@ public abstract class AbstractConsolePlugin implements PropertiesProvider {
             PeriodicUpdatesService.register((IPeriodicUpdates) this);
         }
         
-        periodicMethods = PeriodicUpdatesService.inspect(this);
-        for (IPeriodicUpdates i : periodicMethods) {
-            PeriodicUpdatesService.register(i);
-        }
+        PeriodicUpdatesService.registerPojo(this);
+        PluginMenuUtils.addPluginMenus(console, this);
         
         NeptusEvents.register(this, console);
-        ImcMsgManager.registerBusListener(this);
+        getConsole().getImcMsgManager().registerBusListener(this);
     }
     
+    /**
+     * Use this to setup your plugin before the register of 
+     * the IPeriodicUpdates and Message callbacks.
+     */
+    protected abstract void initPlugin(ConsoleLayout console);
+
     public void clean() {
         NeptusEvents.unregister(this, getConsole());
         if (this instanceof MissionChangeListener) {
@@ -155,18 +162,14 @@ public abstract class AbstractConsolePlugin implements PropertiesProvider {
         if (this instanceof IPeriodicUpdates)
             PeriodicUpdatesService.unregister((IPeriodicUpdates) this);
 
-        if (periodicMethods != null) {
-            for (IPeriodicUpdates i : periodicMethods) {
-                PeriodicUpdatesService.unregister(i);
-            }
-            periodicMethods.clear();
-        }
+        PeriodicUpdatesService.unregisterPojo(this);
+        PluginMenuUtils.removePluginMenus(console, this);
         
-        ImcMsgManager.unregisterBusListener(this);        
+        getConsole().getImcMsgManager().unregisterBusListener(this);        
     }
     
-    protected final ImcSysState getState() {
-        return ImcMsgManager.getManager().getState(getConsole().getMainSystem());
+    protected final ImcSystemState getState() {
+        return getConsole().getImcMsgManager().getState(getConsole().getMainSystem());
     }
     
     public final ImageIcon getIcon() {
@@ -174,6 +177,10 @@ public abstract class AbstractConsolePlugin implements PropertiesProvider {
             icon = ImageUtils.getIcon(PluginUtils.getPluginIcon(getClass()));
         
         return icon;
+    }
+    
+    public void propertiesChanged() {
+        
     }
 
     /**

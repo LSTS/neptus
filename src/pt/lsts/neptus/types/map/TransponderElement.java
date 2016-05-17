@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2015 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2016 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -176,7 +176,7 @@ public class TransponderElement extends AbstractElement implements NameId{
         file = new FileType();
         String workingFile = propConf.getWorkingFile();
         String[] tokens = workingFile.split("/");
-        NeptusLog.pub().error("Beacon conf file:" + tokens[tokens.length - 1]);
+        NeptusLog.pub().debug("Beacon conf file:" + tokens[tokens.length - 1]);
         file.setHref(tokens[tokens.length - 1]);
         this.duneId = duneId;
     }
@@ -218,17 +218,6 @@ public class TransponderElement extends AbstractElement implements NameId{
         if (!getId().equals(externalTrans.getId())) {
             return false;
         }
-        // Configuration
-        short thisInterrogationChannel = Short.parseShort(propConf.getProperty("interrogation channel"));
-        short thisReplyChannel = Short.parseShort(propConf.getProperty("reply channel"));
-        short thisTransponderDelay = Short.parseShort(propConf.getProperty("transponder delay (msecs.)"));
-        PropertiesLoader externalPropConf = externalTrans.getPropConf();
-        short externalInterrogationChannel = Short.parseShort(externalPropConf.getProperty("interrogation channel"));
-        short externalReplyChannel = Short.parseShort(externalPropConf.getProperty("reply channel"));
-        short externalTransponderDelay = Short.parseShort(externalPropConf.getProperty("transponder delay (msecs.)"));
-        if(thisReplyChannel != externalReplyChannel || thisTransponderDelay != externalTransponderDelay || thisInterrogationChannel != externalInterrogationChannel){
-            return false;
-        }
         // Dune id
         if (duneId != externalTrans.duneId)
             return false;
@@ -258,26 +247,7 @@ public class TransponderElement extends AbstractElement implements NameId{
             // System.out.print(lblBeacon.getBeacon() + " has different name that " + getIdentification());
             return false;
         }
-        // Configuration
-        short interrogationChannel = Short.parseShort(propConf.getProperty("interrogation channel"));
-        short replyChannel = Short.parseShort(propConf.getProperty("reply channel"));
-        short transponderDelay = Short.parseShort(propConf.getProperty("transponder delay (msecs.)"));
-        if(replyChannel != lblBeacon.getReplyChannel() ){
-            // System.out.print("they have different reply channels ("
-            // + replyChannel + "/" + lblBeacon.getReplyChannel() + ")");
-            return false;
-        }
-        if (transponderDelay != lblBeacon.getTransponderDelay()) {
-            // System.out.print("they have different transponder delays (" + transponderDelay + "/"
-            // + lblBeacon.getTransponderDelay()
-            // + ")");
-            return false;
-        }
-        if (interrogationChannel != lblBeacon.getQueryChannel()) {
-            // System.out.print("they have different interrogation channels (" + interrogationChannel + "/"
-            // + lblBeacon.getQueryChannel() + ")");
-            return false;
-        }
+
         // All is equal
         return true;
     }

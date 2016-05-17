@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2015 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2016 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -41,10 +41,9 @@ import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.SwingConstants;
 
-import net.miginfocom.swing.MigLayout;
-
 import org.jdesktop.swingx.JXPanel;
 
+import net.miginfocom.swing.MigLayout;
 import pt.lsts.imc.IMCMessage;
 import pt.lsts.neptus.comm.manager.imc.ImcSystem;
 import pt.lsts.neptus.comm.manager.imc.ImcSystemsHolder;
@@ -185,7 +184,7 @@ public class LastErrorPanel extends ConsolePanel implements MainVehicleChangeLis
 
                 String dateStr = "";
                 if (sys.getLastErrorStateReceived() != -1) {
-                    dateStr = DateTimeUtil.timeFormaterNoMillis2.format(new Date(sys.getLastErrorStateReceived()));
+                    dateStr = DateTimeUtil.timeFormatterNoMillis2.format(new Date(sys.getLastErrorStateReceived()));
                     if ((System.currentTimeMillis() - sys.getLastErrorStateReceived()) > 5000)
                         entitiesInErrorLabel.setEnabled(false);
                     else
@@ -213,7 +212,7 @@ public class LastErrorPanel extends ConsolePanel implements MainVehicleChangeLis
         if (lastError != null && !"".equalsIgnoreCase(lastError)) {
             String dateStr = "";
             if (lastErrorTime != -1) {
-                dateStr = DateTimeUtil.timeFormaterNoMillis2.format(new Date(lastErrorTime * 1000));
+                dateStr = DateTimeUtil.timeFormatterNoMillis2.format(new Date(lastErrorTime * 1000));
                 if ((System.currentTimeMillis() - (lastErrorTime * 1000)) > 5000)
                     lastErrorLabel.setEnabled((entitiesInErrorLabel.isEnabled() && !""
                             .equalsIgnoreCase(entitiesInErrorLabel.getText())) ? true : false);

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2015 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2016 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -56,6 +56,13 @@ import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
 import javax.swing.filechooser.FileFilter;
 
+import com.mnstarfire.loaders3d.Inspector3DS;
+import com.sun.j3d.loaders.Loader;
+import com.sun.j3d.loaders.Scene;
+import com.sun.j3d.utils.scenegraph.io.SceneGraphFileReader;
+import com.sun.j3d.utils.scenegraph.io.SceneGraphFileWriter;
+import com.sun.j3d.utils.scenegraph.io.UnsupportedUniverseException;
+
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.gui.WaitPanel;
 import pt.lsts.neptus.gui.swing.NeptusFileView;
@@ -69,13 +76,6 @@ import pt.lsts.neptus.util.ImageUtils;
 import pt.lsts.neptus.util.RecentlyOpenedFilesUtil;
 import pt.lsts.neptus.util.X3dParse;
 import pt.lsts.neptus.util.conf.ConfigFetch;
-
-import com.mnstarfire.loaders3d.Inspector3DS;
-import com.sun.j3d.loaders.Loader;
-import com.sun.j3d.loaders.Scene;
-import com.sun.j3d.utils.scenegraph.io.SceneGraphFileReader;
-import com.sun.j3d.utils.scenegraph.io.SceneGraphFileWriter;
-import com.sun.j3d.utils.scenegraph.io.UnsupportedUniverseException;
 
 /**
  * 

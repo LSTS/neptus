@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2015 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2016 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -32,6 +32,7 @@
 package pt.lsts.neptus.mp.templates;
 
 import java.lang.reflect.Method;
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -62,8 +63,8 @@ public class PlanCreator {
 
     private LinkedHashMap<String, Class<?>> maneuvers = new LinkedHashMap<String, Class<?>>();
     {
-        Class<?> mans[] = ReflectionUtil.listManeuvers();
-        for (Class<?> c : mans) {
+        ArrayList<Class<Maneuver>> mans = ReflectionUtil.listManeuvers();
+        for (Class<Maneuver> c : mans) {
             maneuvers.put(c.getSimpleName().toLowerCase(), c);
             // NeptusLog.pub().info("<###>Maneuver: "+c.getSimpleName().toLowerCase());
         }
@@ -181,6 +182,10 @@ public class PlanCreator {
                             }
                             else if (m.getParameterTypes()[0].isPrimitive()) {
                                 Class<?> c = m.getParameterTypes()[0];
+                                if (c == Boolean.TYPE) {
+                                    m.invoke(man, Boolean.parseBoolean(""+properties.get(key)));
+                                    continue;
+                                }
                                 Object obj = properties.get(key);
                                 Double d = (double) Double.valueOf(obj.toString());
 
@@ -193,8 +198,7 @@ public class PlanCreator {
                                 else if (c == Byte.TYPE)
                                     obj = d.byteValue();
                                 else if (c == Long.TYPE)
-                                    obj = d.longValue();
-
+                                    obj = d.longValue();                                
                                 m.invoke(man, obj);
                             }
 

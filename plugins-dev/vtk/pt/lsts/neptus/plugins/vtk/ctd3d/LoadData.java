@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2015 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2016 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -31,9 +31,7 @@
  */
 package pt.lsts.neptus.plugins.vtk.ctd3d;
 
-import pt.lsts.imc.Depth;
 import pt.lsts.imc.EstimatedState;
-import pt.lsts.imc.Pressure;
 import pt.lsts.imc.Salinity;
 import pt.lsts.imc.Temperature;
 import pt.lsts.imc.lsf.IndexScanner;
@@ -41,8 +39,8 @@ import pt.lsts.imc.lsf.LsfIndex;
 import pt.lsts.neptus.comm.IMCUtils;
 import pt.lsts.neptus.mp.SystemPositionAndAttitude;
 import pt.lsts.neptus.mra.importers.IMraLogGroup;
-import pt.lsts.neptus.plugins.vtk.pointcloud.PointCloudCTD;
 import pt.lsts.neptus.types.coord.LocationType;
+import pt.lsts.neptus.vtk.pointcloud.PointCloudCTD;
 import vtk.vtkDoubleArray;
 import vtk.vtkPoints;
 
@@ -79,22 +77,31 @@ public class LoadData {
     public void loadCTDData() {
         LsfIndex lsfIndex = source.getLsfIndex();
         IndexScanner indexScanner = new IndexScanner(lsfIndex);
-
         LocationType initLoc = null;
+        
+        
 
         int count = 0;
         while (true) {
-            Temperature temp = indexScanner.next(Temperature.class, "CTD");
-            Salinity salinity = indexScanner.next(Salinity.class, "CTD");
-            Pressure pressure = indexScanner.next(Pressure.class, "CTD");
-
+            Temperature temp = indexScanner.next(Temperature.class);
+            while (temp != null && !temp.getEntityName().equals("CTD"))
+                temp = indexScanner.next(Temperature.class);
+            
+            Salinity salinity = indexScanner.next(Salinity.class);
+            while (salinity != null && !salinity.getEntityName().equals("CTD"))
+                salinity = indexScanner.next(Salinity.class);
+            
             if (temp == null && salinity == null) {
                 break;
             }
 
             EstimatedState state = indexScanner.next(EstimatedState.class);
+            while (state != null && state.getSrc() != temp.getSrc())
+                state = indexScanner.next(EstimatedState.class);
+            
             if (state == null)
                 break;
+            
             SystemPositionAndAttitude pose = IMCUtils.parseState(state);
             LocationType currentLoc = pose.getPosition();
             if (initLoc == null)
@@ -109,14 +116,7 @@ public class LoadData {
 
             points.InsertNextPoint(pointPose[0], pointPose[1], pose.getPosition().getDepth());
 
-            if (pressure != null) {
-                pressureArray.InsertValue(count, pressure.getValue());
-            }
-            else {
-                Depth depth = indexScanner.next(Depth.class);
-                if (depth != null)
-                    pressureArray.InsertValue(count, depth.getValue());
-            }
+            pressureArray.InsertValue(count, pose.getPosition().getDepth());
             ++count;
         }
 

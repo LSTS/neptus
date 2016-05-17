@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2015 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2016 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -58,6 +58,10 @@ import pt.lsts.neptus.util.DateTimeUtil;
 /**
  * @author pdias
  */
+/**
+ * @author pdias
+ *
+ */
 public class ImcSystem implements Comparable<ImcSystem> {
 
     private static final int TIMEOUT_FOR_NOT_ANNOUNCE_STATE = 12000;
@@ -90,8 +94,6 @@ public class ImcSystem implements Comparable<ImcSystem> {
 	protected String emergencyPlanId = "";
 	protected String emergencyStatusStr = "";
 	
-	private InetSocketAddress inetSocketAddress = null;
-	
 	private String servicesProvided = "";
 	
 	protected boolean onErrorState = false;
@@ -114,7 +116,6 @@ public class ImcSystem implements Comparable<ImcSystem> {
     // FIXME add description to each one of the states
     public enum IMCAuthorityState { OFF, NONE, PAYLOAD_MONITOR, PAYLOAD, SYSTEM_MONITOR, SYSTEM_FULL };
     protected IMCAuthorityState authorityState = IMCAuthorityState.NONE;
-//    protected IMCAuthorityState authorityRequested = IMCAuthorityState.NONE;
     
 	/**
 	 * @param vehicle
@@ -211,10 +212,19 @@ public class ImcSystem implements Comparable<ImcSystem> {
 		setLocationTimeMillis(System.currentTimeMillis());
 	}
 
-	public void setLocation(LocationType location, long locationTimeMillis) {
+	/**
+	 * Only is override if locationTimeMillis is newer than already there.
+	 * 
+	 * @param location
+	 * @param locationTimeMillis
+	 */
+	public boolean setLocation(LocationType location, long locationTimeMillis) {
+	    if (locationTimeMillis < getLocationTimeMillis())
+	        return false;
         this.location.setLocation(location);
         this.location.convertToAbsoluteLatLonDepth();
 	    setLocationTimeMillis(locationTimeMillis);
+	    return true;
 	}
 
     public void setAttitudeDegrees(double rollDegrees, double pitchDegrees, double yawDegrees) {
@@ -224,11 +234,23 @@ public class ImcSystem implements Comparable<ImcSystem> {
         setAttitudeTimeMillis(System.currentTimeMillis());
     }
 
-    public void setAttitudeDegrees(double rollDegrees, double pitchDegrees, double yawDegrees, long locationTimeMillis) {
+    /**
+     * Only is override if attitudeTimeMillis is newer than already there.
+     * 
+     * @param rollDegrees
+     * @param pitchDegrees
+     * @param yawDegrees
+     * @param locationTimeMillis
+     * @return 
+     */
+    public boolean setAttitudeDegrees(double rollDegrees, double pitchDegrees, double yawDegrees, long attitudeTimeMillis) {
+        if (attitudeTimeMillis < getAttitudeTimeMillis())
+            return false;
         location.setRoll(rollDegrees);
         location.setPitch(pitchDegrees);
         location.setYaw(yawDegrees);
-        setAttitudeTimeMillis(locationTimeMillis);
+        setAttitudeTimeMillis(attitudeTimeMillis);
+        return true;
     }
 
     public void setAttitudeDegrees(double yawDegrees) {
@@ -238,11 +260,21 @@ public class ImcSystem implements Comparable<ImcSystem> {
         setAttitudeTimeMillis(System.currentTimeMillis());
     }
 
-    public void setAttitudeDegrees(double yawDegrees, long locationTimeMillis) {
+    /**
+     * Only is override if attitudeTimeMillis is newer than already there.
+     * 
+     * @param yawDegrees
+     * @param locationTimeMillis
+     * @return 
+     */
+    public boolean setAttitudeDegrees(double yawDegrees, long attitudeTimeMillis) {
+        if (attitudeTimeMillis < getAttitudeTimeMillis())
+            return false;
         location.setRoll(0);
         location.setPitch(0);
         location.setYaw(yawDegrees);
-        setAttitudeTimeMillis(locationTimeMillis);
+        setAttitudeTimeMillis(attitudeTimeMillis);
+        return true;
     }
 
     public double getRollDegrees() {
@@ -475,7 +507,6 @@ public class ImcSystem implements Comparable<ImcSystem> {
         }
     }
 
-	
 	/**
 	 * @return the UDP remote port or if some error occur return '0'
 	 */
@@ -552,22 +583,6 @@ public class ImcSystem implements Comparable<ImcSystem> {
         }
     }
 
-	
-	public InetSocketAddress getInetSocketAddress() {
-		if (getHostAddress() == null || getRemoteUDPPort() == 0)
-			return null;
-		else {
-			if (getHostAddress().equals(inetSocketAddress.getHostName()) || 
-					getHostAddress().equals(inetSocketAddress.getAddress())) {
-				if (getRemoteUDPPort() == inetSocketAddress.getPort()) {
-					return inetSocketAddress;
-				}
-			}
-			return new InetSocketAddress(getHostAddress(), getRemoteUDPPort());
-		}
-	}
-	
-	
 	/* (non-Javadoc)
 	 * @see java.lang.Object#toString()
 	 */
@@ -596,7 +611,7 @@ public class ImcSystem implements Comparable<ImcSystem> {
 		IMCArgs nArgs = new IMCArgs();
         nArgs.setPort(port);
         nArgs.setPortTCP(portTCP);
-		nArgs.setImc3Id(imcId);
+		nArgs.setImcId(imcId);
 		nArgs.setUdpOn(udpOn);
 		nArgs.setTcpOn(tcpOn);
 		
@@ -625,17 +640,6 @@ public class ImcSystem implements Comparable<ImcSystem> {
 	public int compareTo(ImcSystem o) {
 		return getName().compareTo(o.getName());
 	}
-	
-	
-//	/* (non-Javadoc)
-//	 * @see java.lang.Object#equals(java.lang.Object)
-//	 */
-//	@Override
-//	public boolean equals(Object obj) {
-//		L
-//		return super.equals(obj);
-//	}
-
 	
 	/**
 	 * @return the active
@@ -1036,12 +1040,12 @@ public class ImcSystem implements Comparable<ImcSystem> {
 	public static void main(String[] args) {
 //		ConfigFetch.initialize();
 //		VehicleType vehicle = VehiclesHolder.getVehicleById("lauv-blue");
-//		Imc3System imcSystem = new Imc3System(vehicle);
+//		ImcSystem imcSystem = new ImcSystem(vehicle);
 //		NeptusLog.pub().info("<###>Id: " + imcSystem.getId() +
 //				" | Name: " + imcSystem.getName() + 
 //				" | Type: " + imcSystem.getType());
 //		NeptusLog.pub().info("<###> "+imcSystem.getInetSocketAddress());
-//		imcSystem = new Imc3System(new ImcId16("e3:33"));
+//		imcSystem = new ImcSystem(new ImcId16("e3:33"));
 //		NeptusLog.pub().info("<###>Id: " + imcSystem.getId() +
 //				" | Name: " + imcSystem.getName() + 
 //				" | Type: " + imcSystem.getType());

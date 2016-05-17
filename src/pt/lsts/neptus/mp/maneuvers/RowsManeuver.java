@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2015 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2016 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -33,6 +33,7 @@ package pt.lsts.neptus.mp.maneuvers;
 
 import java.awt.Color;
 import java.awt.Cursor;
+import java.awt.Font;
 import java.awt.Graphics2D;
 import java.awt.Image;
 import java.awt.event.FocusEvent;
@@ -51,6 +52,9 @@ import org.dom4j.DocumentHelper;
 import org.dom4j.Element;
 import org.dom4j.Node;
 
+import com.l2fprod.common.propertysheet.DefaultProperty;
+import com.l2fprod.common.propertysheet.Property;
+
 import pt.lsts.imc.IMCDefinition;
 import pt.lsts.imc.IMCMessage;
 import pt.lsts.imc.Rows;
@@ -67,13 +71,11 @@ import pt.lsts.neptus.renderer2d.StateRenderer2D;
 import pt.lsts.neptus.renderer2d.StateRendererInteraction;
 import pt.lsts.neptus.types.coord.LocationType;
 import pt.lsts.neptus.types.map.PlanElement;
+import pt.lsts.neptus.util.AngleUtils;
 import pt.lsts.neptus.util.ConsoleParse;
 import pt.lsts.neptus.util.FileUtil;
 import pt.lsts.neptus.util.GuiUtils;
 import pt.lsts.neptus.util.MathMiscUtils;
-
-import com.l2fprod.common.propertysheet.DefaultProperty;
-import com.l2fprod.common.propertysheet.Property;
 
 /**
  * @author zp
@@ -81,6 +83,8 @@ import com.l2fprod.common.propertysheet.Property;
  */
 public class RowsManeuver extends Maneuver implements LocatedManeuver, StateRendererInteraction,
 IMCSerialization, StatisticsProvider, PathProvider {
+
+    private static final Color COLOR_HELP = new Color(255, 125, 255);
 
     static boolean unblockNewRows = false;
 
@@ -116,6 +120,14 @@ IMCSerialization, StatisticsProvider, PathProvider {
         recalcPoints();
     }
 
+    /* (non-Javadoc)
+     * @see pt.lsts.neptus.mp.Maneuver#getType()
+     */
+    @Override
+    public String getType() {
+        return "Rows";
+    }
+    
     protected ManeuverLocation calculatePosition() {
         ManeuverLocation loc = new ManeuverLocation();
         loc.setLatitudeDegs(Math.toDegrees(latRad));
@@ -337,10 +349,18 @@ IMCSerialization, StatisticsProvider, PathProvider {
         double yammount = event.getPoint().getY() - lastDragPoint.getY();
         yammount = -yammount;
         if (event.isControlDown()) {
-            width += xammount/(Math.abs(xammount) < 30 ? 10 : 2);
-            length += yammount/(Math.abs(yammount) < 30 ? 10 : 2);
+            double norm = Math.sqrt(xammount * xammount + yammount * yammount);
+            double angle = AngleUtils.calcAngle(lastDragPoint.getY(), lastDragPoint.getX(), event.getPoint().getY(),
+                    event.getPoint().getX());
+            double nx = norm * Math.cos(bearingRad - angle);
+            double ny = norm * Math.sin(bearingRad - angle);
+            
+            width += nx / (Math.abs(nx) < 30 ? 10 : 2);
+            length += ny / (Math.abs(ny) < 30 ? 10 : 2);
 
+            width = MathMiscUtils.round(width, 1);
             width = Math.max(1, width);
+            length = MathMiscUtils.round(length, 1);
             length = Math.max(1, length);
             recalcPoints();
         }
@@ -602,8 +622,23 @@ IMCSerialization, StatisticsProvider, PathProvider {
     @Override
     public void paintOnMap(Graphics2D g2d, PlanElement planElement, StateRenderer2D renderer) {
         super.paintOnMap(g2d, planElement, renderer);
-        g2d.setColor(Color.white);
 
+        if (editing) {
+            Graphics2D g3 = (Graphics2D) g2d.create();
+            Point2D manL = renderer.getScreenPosition(getManeuverLocation());
+            Point2D gL = renderer.getScreenPosition(renderer.getTopLeftLocationType());
+            g3.translate(gL.getX() - manL.getX(), gL.getY() - manL.getY());
+            g3.setFont(new Font("Helvetica", Font.BOLD, 13));
+            String txt = I18n.text("Ctrl+Click to grow | Shift+Click to rotate");
+            g3.setColor(Color.BLACK);
+            g3.drawString(txt, 55, 15 + 20);
+            g3.setColor(COLOR_HELP);
+            g3.drawString(txt, 54, 14 + 20);
+            g3.dispose();
+        }
+        
+        g2d.setColor(Color.white);
+        
         double zoom = renderer.getZoom();
         g2d.rotate(-renderer.getRotation());
 
@@ -637,7 +672,7 @@ IMCSerialization, StatisticsProvider, PathProvider {
         man.setLat(latRad);
         man.setLon(lonRad);
         man.setZ(z);
-        man.setZUnits(zunits.toString());
+        man.setZUnits(pt.lsts.imc.Rows.Z_UNITS.valueOf(getManeuverLocation().getZUnits().toString()));        
         man.setSpeed(speed);
         man.setWidth(width);
         man.setLength(length);

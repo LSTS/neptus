@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2015 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2016 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -85,11 +85,13 @@ import javax.swing.border.EmptyBorder;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
-import net.miginfocom.swing.MigLayout;
-
 import org.jdesktop.swingx.JXBusyLabel;
 import org.jdesktop.swingx.JXStatusBar;
 
+import com.l2fprod.common.propertysheet.DefaultProperty;
+import com.l2fprod.common.propertysheet.Property;
+
+import net.miginfocom.swing.MigLayout;
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.comm.proxy.ProxyInfoProvider;
 import pt.lsts.neptus.doc.NeptusDoc;
@@ -105,7 +107,7 @@ import pt.lsts.neptus.plugins.PluginsRepository;
 import pt.lsts.neptus.renderer2d.tiles.MapPainterProvider;
 import pt.lsts.neptus.renderer2d.tiles.Tile;
 import pt.lsts.neptus.renderer2d.tiles.Tile.TileState;
-import pt.lsts.neptus.renderer2d.tiles.TileMercadorSVG;
+import pt.lsts.neptus.renderer2d.tiles.TileMercatorSVG;
 import pt.lsts.neptus.renderer2d.tiles.TileOpenStreetMap;
 import pt.lsts.neptus.types.coord.LocationType;
 import pt.lsts.neptus.util.ColorUtils;
@@ -117,9 +119,6 @@ import pt.lsts.neptus.util.ReflectionUtil;
 import pt.lsts.neptus.util.StringUtils;
 import pt.lsts.neptus.util.conf.ConfigFetch;
 import pt.lsts.neptus.util.coord.MapTileUtil;
-
-import com.l2fprod.common.propertysheet.DefaultProperty;
-import com.l2fprod.common.propertysheet.Property;
 
 /**
  * @author pdias
@@ -148,7 +147,7 @@ public class WorldRenderPainter implements Renderer2DPainter, MouseListener, Mou
     }
 
     @NeptusProperty
-    public static String defaultActiveLayers = TileMercadorSVG.class.getAnnotation(MapTileProvider.class).name();
+    public static String defaultActiveLayers = TileMercatorSVG.class.getAnnotation(MapTileProvider.class).name();
 
     private static final String ROOT_PREFIX;
     static {
@@ -207,17 +206,17 @@ public class WorldRenderPainter implements Renderer2DPainter, MouseListener, Mou
     static {
         long start = System.currentTimeMillis();
 
-        String mapId = TileMercadorSVG.class.getAnnotation(MapTileProvider.class).name();
+        String mapId = TileMercatorSVG.class.getAnnotation(MapTileProvider.class).name();
         mapActiveHolderList.put(mapId, true); //TileMercadorSVG.getTileStyleID()
-        mapBaseOrLayerHolderList.put(mapId, TileMercadorSVG.class.getAnnotation(MapTileProvider.class).isBaseMapOrLayer());
-        mapLayerPrioriryHolderList.put(mapId, TileMercadorSVG.class.getAnnotation(MapTileProvider.class).layerPriority());
-        tileHolderList.put(mapId, TileMercadorSVG.getTilesMap());
-        tileClassList.put(mapId, TileMercadorSVG.class);
+        mapBaseOrLayerHolderList.put(mapId, TileMercatorSVG.class.getAnnotation(MapTileProvider.class).isBaseMapOrLayer());
+        mapLayerPrioriryHolderList.put(mapId, TileMercatorSVG.class.getAnnotation(MapTileProvider.class).layerPriority());
+        tileHolderList.put(mapId, TileMercatorSVG.getTilesMap());
+        tileClassList.put(mapId, TileMercatorSVG.class);
 
         mapId = TileOpenStreetMap.class.getAnnotation(MapTileProvider.class).name();
         mapActiveHolderList.put(mapId, false); //TileOpenStreetMap.getTileStyleID()
-        mapBaseOrLayerHolderList.put(mapId, TileMercadorSVG.class.getAnnotation(MapTileProvider.class).isBaseMapOrLayer());
-        mapLayerPrioriryHolderList.put(mapId, TileMercadorSVG.class.getAnnotation(MapTileProvider.class).layerPriority());
+        mapBaseOrLayerHolderList.put(mapId, TileMercatorSVG.class.getAnnotation(MapTileProvider.class).isBaseMapOrLayer());
+        mapLayerPrioriryHolderList.put(mapId, TileMercatorSVG.class.getAnnotation(MapTileProvider.class).layerPriority());
         tileHolderList.put(mapId, TileOpenStreetMap.getTilesMap());
         tileClassList.put(mapId, TileOpenStreetMap.class);
 

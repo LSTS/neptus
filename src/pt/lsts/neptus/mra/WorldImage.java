@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2015 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2016 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -38,6 +38,7 @@ import pt.lsts.neptus.colormap.ColorMap;
 import pt.lsts.neptus.colormap.ColorMapUtils;
 import pt.lsts.neptus.colormap.DataDiscretizer;
 import pt.lsts.neptus.types.coord.LocationType;
+import pt.lsts.neptus.types.map.ImageElement;
 
 /**
  * @author zp
@@ -83,7 +84,50 @@ public class WorldImage {
         return ne;
     }
     
+    public double getMaxValue() {
+        return maxVal == null ? dd.maxVal[0]*1.005 : maxVal;        
+    }
+    
+    public double getMinValue() {
+        return minVal == null ? dd.minVal[0]*0.995 : minVal;        
+    }
+    
+    public int getAmountDataPoints() {
+        return dd.getAmountDataPoints();
+    }
+    
+    public ImageElement asImageElement() {
+        BufferedImage image = processData();
+        ImageElement elem = new ImageElement();
+        if (dd.getAmountDataPoints() < 2)
+            return null;
+        LocationType center = new LocationType(getSouthWest());
+        double[] offsets = getNorthEast().getOffsetFrom(center);
+        center.translatePosition(offsets[0]/2, offsets[1]/2, 0);
+        elem.setImage(image);
+        elem.setCenterLocation(center);
+        elem.setImageScale(offsets[1]/image.getWidth());    
+        return elem;
+    }
+    
+    /**
+     * @return the cmap
+     */
+    public ColorMap getColormap() {
+        return cmap;
+    }
+
+    /**
+     * @param cmap the cmap to set
+     */
+    public void setColormap(ColorMap cmap) {
+        this.cmap = cmap;
+    }
+
     public BufferedImage processData() {
+        if (getAmountDataPoints() == 0)
+            return null;
+        
         double maxX = dd.maxX + 5;
         double maxY = dd.maxY + 5;
         double minX = dd.minX - 5;
@@ -97,7 +141,7 @@ public class WorldImage {
         double ratio2 = dx/dy;
 
         if (ratio2 < ratio1)        
-            dx = dy * ratio1;
+            dx = dy * ratio2;
         else
             dy = dx/ratio1;
 
@@ -107,11 +151,11 @@ public class WorldImage {
 
         Rectangle2D bounds = new Rectangle2D.Double(cx-dx/2, cy-dy/2, dx, dy);
 
-        BufferedImage img = new BufferedImage(defaultWidth,defaultHeight,BufferedImage.TYPE_INT_ARGB);
+        BufferedImage img = new BufferedImage(1000,(int)(bounds.getHeight()/bounds.getWidth()*1000.0),BufferedImage.TYPE_INT_ARGB);
         
         try {
-            double max = maxVal == null ? dd.maxVal[0]*1.005 : maxVal;
-            double min = minVal == null ? dd.minVal[0]*0.995 : minVal;
+            double max = getMaxValue();
+            double min = getMinValue();
             ColorMapUtils.generateInterpolatedColorMap(bounds, dd.getDataPoints(), 0, img.createGraphics(), img.getWidth(), img.getHeight(), 255, cmap, min, max);
         }
         catch (NullPointerException e) {

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2015 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2016 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -42,6 +42,9 @@ import org.dom4j.DocumentHelper;
 import org.dom4j.Element;
 import org.dom4j.Node;
 
+import com.l2fprod.common.propertysheet.DefaultProperty;
+import com.l2fprod.common.propertysheet.Property;
+
 import pt.lsts.imc.IMCMessage;
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.gui.GotoParameters;
@@ -54,10 +57,6 @@ import pt.lsts.neptus.mp.ManeuverLocation;
 import pt.lsts.neptus.mp.SystemPositionAndAttitude;
 import pt.lsts.neptus.types.coord.LocationType;
 import pt.lsts.neptus.util.GuiUtils;
-import pt.lsts.neptus.util.NameNormalizer;
-
-import com.l2fprod.common.propertysheet.DefaultProperty;
-import com.l2fprod.common.propertysheet.Property;
 
 /**
  * @author Zé Carlos
@@ -70,7 +69,7 @@ public class Goto extends Maneuver implements IMCSerialization, LocatedManeuver 
     ManeuverLocation destination = new ManeuverLocation();
     protected static final String DEFAULT_ROOT_ELEMENT = "Goto";
 	
-	private GotoParameters params = new GotoParameters();
+	protected GotoParameters params = new GotoParameters();
 	
 	private final int ANGLE_CALCULATION = -1 ;
 	private final int FIRST_ROTATE = 0 ;
@@ -78,10 +77,9 @@ public class Goto extends Maneuver implements IMCSerialization, LocatedManeuver 
 	
 	int current_state = ANGLE_CALCULATION;
 	
-	private double targetAngle, rotateIncrement;
-	private double roll, pitch, yaw;
+	protected double targetAngle, rotateIncrement;
+	protected double roll, pitch, yaw;
 	
-	public String id = NameNormalizer.getRandomID();
 	LinkedHashMap<String, String> custom = new LinkedHashMap<>();
 	
 	public String getType() {
@@ -118,19 +116,24 @@ public class Goto extends Maneuver implements IMCSerialization, LocatedManeuver 
 	public void loadFromXML(String xml) {  
 	    try {
 	        Document doc = DocumentHelper.parseText(xml);
-	        Node node = doc.selectSingleNode("Goto/finalPoint/point");
-	        ManeuverLocation loc = new ManeuverLocation();
-	        loc.load(node.asXML());
-	        setManeuverLocation(loc);
-	        setRadiusTolerance(Double.parseDouble(doc.selectSingleNode("Goto/finalPoint/radiusTolerance").getText()));
-	        Node speedNode = doc.selectSingleNode("Goto/speed");
-	        if (speedNode == null) 
-	        	speedNode = doc.selectSingleNode("Goto/velocity");
-	        setSpeed(Double.parseDouble(speedNode.getText()));
-	        String speedUnit = speedNode.valueOf("@unit");
-	        setSpeedUnits(speedUnit);
-	        setSpeedTolerance(Double.parseDouble(speedNode.valueOf("@tolerance")));
+	        Node node = doc.selectSingleNode(getType()+"/finalPoint/point");
+	        if (node != null) {
+	            ManeuverLocation loc = new ManeuverLocation();
+	            loc.load(node.asXML());
+	            setManeuverLocation(loc);
+	            
+	            //setRadiusTolerance(Double.parseDouble(doc.selectSingleNode(getType()+"/finalPoint/radiusTolerance").getText()));
+	        }
 	        
+	        Node speedNode = doc.selectSingleNode(getType()+"/speed");
+	        if (speedNode == null) 
+	        	speedNode = doc.selectSingleNode(getType()+"/velocity");
+	        if (speedNode != null) {
+	            setSpeed(Double.parseDouble(speedNode.getText()));
+	            String speedUnit = speedNode.valueOf("@unit");
+	            setSpeedUnits(speedUnit);
+	            setSpeedTolerance(Double.parseDouble(speedNode.valueOf("@tolerance")));
+	        }
 	    }
 	    catch (Exception e) {
 	        NeptusLog.pub().info("<###> "+I18n.text("Error while loading the XML:")+"{" + xml + "}");
@@ -208,7 +211,6 @@ public class Goto extends Maneuver implements IMCSerialization, LocatedManeuver 
 		return nextVehicleState;
 	}
 	
-
 	public Object clone() {  
 	    Goto clone = new Goto();
 	    super.clone(clone);
@@ -222,14 +224,6 @@ public class Goto extends Maneuver implements IMCSerialization, LocatedManeuver 
 	    return clone;
 	}
 
-    public String getId() {
-        return id;
-    }
-    
-    public void setId(String id) {
-        this.id = id;
-    }
-    
     public double getRadiusTolerance() {
         return radiusTolerance;
     }
@@ -392,7 +386,7 @@ public class Goto extends Maneuver implements IMCSerialization, LocatedManeuver 
 		gotoManeuver.setLat(l.getLatitudeRads());
 		gotoManeuver.setLon(l.getLongitudeRads());
 		gotoManeuver.setZ(getManeuverLocation().getZ());
-		gotoManeuver.setZUnits((short)getManeuverLocation().getZUnits().value());
+		gotoManeuver.setZUnits(pt.lsts.imc.Goto.Z_UNITS.valueOf(getManeuverLocation().getZUnits().name()));
 		gotoManeuver.setSpeed(this.getSpeed());
        
 		switch (this.getUnits()) {

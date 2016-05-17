@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2015 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2016 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -34,10 +34,10 @@ package pt.lsts.neptus.params.editor.custom;
 import java.beans.PropertyChangeEvent;
 import java.util.Map;
 
+import com.l2fprod.common.beans.editor.AbstractPropertyEditor;
+
 import pt.lsts.neptus.gui.editor.ValidationEnableInterface;
 import pt.lsts.neptus.params.SystemProperty;
-
-import com.l2fprod.common.beans.editor.AbstractPropertyEditor;
 
 /**
  * @author pdias

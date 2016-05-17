@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2015 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2016 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -38,6 +38,8 @@ import java.awt.RenderingHints;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
+import java.util.Collections;
+import java.util.Vector;
 
 import javax.swing.ImageIcon;
 import javax.swing.JLabel;
@@ -52,6 +54,27 @@ import pt.lsts.neptus.ws.Location;
 
 public class ColorMapUtils {
 
+    public static final int POWER = 2;
+    public static final int K_NEIGHBORS = 25000;
+    
+    
+    static class NeighborDistance implements Comparable<NeighborDistance> {
+        
+        public double distance = 0;
+        public double value = 0;
+        
+        
+        public NeighborDistance(double value, double distance) {
+            this.value = value;
+            this.distance = distance;
+        }
+        
+        @Override
+        public int compareTo(NeighborDistance o) {
+            return ((Double)distance).compareTo(o.distance);
+        }
+    }
+    
 	private static void generateInterpolatedColorMap(Rectangle2D bounds, Point2D[] points, Double[] values, Graphics2D destination, double width, double height, int alpha, ColorMap colorMap, double min, double max) {
 		if (points.length != values.length || points.length == 0) {
 			//NeptusLog.pub().info("<###> "+points.length+", "+values.length);
@@ -98,13 +121,13 @@ public class ColorMapUtils {
 			}
 		}
 
-        // double power = 6;
-        double power = 2;
-
         double xPt, yPt, d, dTotal;
-		for (int kGrid = 0; kGrid < xGrid.length; kGrid++) {
+        
+       for (int kGrid = 0; kGrid < xGrid.length; kGrid++) {
             dTotal = 0.0;
 			zGrid[kGrid] = 0.0;
+			Vector<NeighborDistance> neighbors = new Vector<ColorMapUtils.NeighborDistance>();
+			
 			for (int k = 0; k < values.length; k++) {
 				
 				if (values[k] == null)
@@ -113,20 +136,29 @@ public class ColorMapUtils {
                 xPt = points[k].getX();
                 yPt = points[k].getY();
                 d = Point2D.distance(xPt, yPt, xGrid[kGrid], yGrid[kGrid]);
-                // if (power != 1) {
-					d = Math.pow(d, power);
-                // }
-                // d = Math.sqrt(d);
-				if (d > 0.0) {
-					d = 1.0 / d;
-				}
-				else { // if d is real small set the inverse to a large number 
-					// to avoid INF
-					d = 1.e20;
-				}
-				zGrid[kGrid] += values[k] * d; 
+                neighbors.add(new NeighborDistance(values[k], d));
+			}
+			
+			Collections.sort(neighbors);
+			
+			for (int i = 0; i < neighbors.size() && i < K_NEIGHBORS; i++) {
+			    d = neighbors.get(i).distance;
+			    double val = neighbors.get(i).value;
+			    
+			    if (POWER != 1) {
+                    d = Math.pow(d, POWER);
+                }
+                //d = Math.sqrt(d);
+                if (d > 0.0) {
+                    d = 1 / d;
+                }
+                else { // if d is real small set the inverse to a large number 
+                    // to avoid INF
+                    d = 1.e20;
+                }
+                zGrid[kGrid] += val * d; 
 
-				dTotal += d;
+                dTotal += d;
 			}
 			zGrid[kGrid] = zGrid[kGrid] / dTotal;  //remove distance of the sum
 		}

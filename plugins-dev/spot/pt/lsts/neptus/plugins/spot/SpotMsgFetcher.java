@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2015 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2016 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -31,8 +31,8 @@
  */
 package pt.lsts.neptus.plugins.spot;
 
-import java.io.File;
 import java.io.IOException;
+import java.net.URL;
 import java.util.HashMap;
 import java.util.TreeSet;
 
@@ -53,26 +53,21 @@ import pt.lsts.neptus.NeptusLog;
  *
  */
 public class SpotMsgFetcher {
-    // private static final String id = "LSTSSPOT";
-    // private static final String pageUrl =
-    // "http://share.findmespot.com/messageService/guestlinkservlet?glId=0eFbYotphiMKz9YiDOI7XqR76JJ010Z0X&completeXml=true";
-    // TODO different url
-    // private static final String pageUrl = "https://api.findmespot.com/spot-main-web/consumer/rest-api/2.0/public/feed/0eFbYotphiMKz9YiDOI7XqR76JJ010Z0X/message.xml";
-
     /**
      * Get messages on SPOT page.
-     * 
+     *
      * @return
      * @throws ParserConfigurationException
      * @throws SAXException
      * @throws IOException
      */
-    public static HashMap<String, TreeSet<SpotMessage>> get(int hours) throws ParserConfigurationException,
-    SAXException,
-    IOException {
+    public static HashMap<String, TreeSet<SpotMessage>> get(int hours, String stream)
+            throws ParserConfigurationException, SAXException, IOException {
         long currentTime = System.currentTimeMillis() / 1000;
         long timeWindow = hours * 60 * 60;
         long startOfTimeWindowSecs = currentTime - timeWindow;
+        String url = "https://api.findmespot.com/spot-main-web/consumer/rest-api/2.0/public/feed/" + stream
+                + "/message.xml";
 
         HashMap<String, TreeSet<SpotMessage>> msgBySpot = new HashMap<String, TreeSet<SpotMessage>>();
         // TreeSet<SpotMessage> spotMsgTree;
@@ -80,10 +75,10 @@ public class SpotMsgFetcher {
         DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
         DocumentBuilder db = dbf.newDocumentBuilder();
         try {
-            // Document doc = db.parse(pageUrl);
+            Document doc = db.parse(new URL(url).openStream());
             // TODO Error with first char being space
-            File file = new File("/home/meg/LSTS/spot.xml");
-            Document doc = db.parse(file);
+            // File file = new File("/home/meg/LSTS/spot.xml");
+            // Document doc = db.parse(file);
             NodeList nlist = doc.getFirstChild().getChildNodes();
             // go through messages
             // TODO Different structure
@@ -122,7 +117,6 @@ public class SpotMsgFetcher {
                 // Bad xml
                 NeptusLog.pub().error("Unexpected root elements");
             }
-
 
         }
         catch (SAXParseException e) {
@@ -164,8 +158,7 @@ public class SpotMsgFetcher {
                 spotMsgTree = new TreeSet<SpotMessage>();
                 msgBySpot.put(id, spotMsgTree);
             }
-            Spot.log.debug("Adding " + id + " " + timestamp + " @ (" + lat + ", " + lon
-                    + ")");
+            Spot.log.debug("Adding " + id + " " + timestamp + " @ (" + lat + ", " + lon + ")");
             spotMsgTree.add(new SpotMessage(lat, lon, timestamp, id));
 
         }

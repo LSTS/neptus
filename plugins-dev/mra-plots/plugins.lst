@@ -1,12 +1,9 @@
-# DATE=@DATE@
-# TIME=@TIME@
-# COMPILED BY=@COMPILED BY@ 
-# LEGAL_COPY=@LEGAL_COPY@
-# SVN_REV=@SVN_REV@
-# SVN_PATH=@SVN_PATH@
-
+pt.lsts.neptus.plugins.actualstate.ActualPosition
+pt.lsts.neptus.plugins.bathym.XyzExporter
+pt.lsts.neptus.plugins.ctd.CTDSidePlot
 pt.lsts.neptus.plugins.mraplots.BathymetryPlotter
 pt.lsts.neptus.plugins.mraplots.MraPhotosVisualization
+pt.lsts.neptus.plugins.mraplots.NetworkConnections
 pt.lsts.neptus.plugins.mraplots.RevisionOverlays
-pt.lsts.neptus.plugins.actualstate.ActualPosition
-pt.lsts.neptus.plugins.ctd.CTDSidePlot
+pt.lsts.neptus.plugins.rtplot.RealTimePlot
+pt.lsts.neptus.plugins.seastate.SeaStatePlot

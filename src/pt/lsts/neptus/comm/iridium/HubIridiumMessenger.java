@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2015 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2016 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -51,11 +51,11 @@ import java.util.Vector;
 import org.apache.commons.codec.binary.Hex;
 import org.apache.commons.io.IOUtils;
 
+import com.google.gson.Gson;
+
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.comm.iridium.Position.PosType;
 import pt.lsts.neptus.util.ByteUtil;
-
-import com.google.gson.Gson;
 
 /**
  * @author zp
@@ -65,7 +65,7 @@ import com.google.gson.Gson;
 public class HubIridiumMessenger implements IridiumMessenger {
 
     protected boolean available = true;
-    protected String serverUrl = "http://hub.lsts.pt/api/v1/";
+    protected String serverUrl = "http://ripples.lsts.pt/api/v1/";
     // protected String serverUrl = "http://lsts-hub/api/v1/";
     protected String systemsUrl = serverUrl+"systems";
     protected String activeSystemsUrl = systemsUrl+"/active";
@@ -74,7 +74,7 @@ public class HubIridiumMessenger implements IridiumMessenger {
     protected HashSet<IridiumMessageListener> listeners = new HashSet<>();
     
     private static TimeZone tz = TimeZone.getTimeZone("UTC");
-    private static DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'");
+    private static DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
     static { dateFormat.setTimeZone(tz); }
     
    // protected Thread t = null;
@@ -90,8 +90,10 @@ public class HubIridiumMessenger implements IridiumMessenger {
         
         DeviceUpdate up = new DeviceUpdate();
         for (HubSystemMsg s : sys) {
+            if (s.imcid > Integer.MAX_VALUE)
+                continue;
             Position pos = new Position();
-            pos.id = s.imcid;
+            pos.id = (int) s.imcid;
             pos.latRads = s.coordinates[0];
             pos.lonRads = s.coordinates[1];
             pos.timestamp = stringToDate(s.updated_at).getTime() / 1000.0;
@@ -180,7 +182,7 @@ public class HubIridiumMessenger implements IridiumMessenger {
             NeptusLog.pub().error(e);
         }
         
-        if (conn.getResponseCode() != 201) {
+        if (conn.getResponseCode() != 200) {
             throw new Exception("Server returned "+conn.getResponseCode()+": "+conn.getResponseMessage());
         }
     }
@@ -288,7 +290,7 @@ public class HubIridiumMessenger implements IridiumMessenger {
     
     public static class HubSystemMsg {
         
-        public int imcid;
+        public long imcid;
         public String name;
         public String updated_at;
         public String created_at;

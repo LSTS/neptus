@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2015 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2016 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -43,20 +43,6 @@ import java.util.LinkedList;
 import org.apache.batik.dom.svg.SAXSVGDocumentFactory;
 import org.apache.batik.util.XMLResourceDescriptor;
 
-import pt.lsts.neptus.i18n.I18n;
-import pt.lsts.neptus.types.checklist.CheckAutoSubItem;
-import pt.lsts.neptus.types.checklist.CheckAutoUserActionItem;
-import pt.lsts.neptus.types.checklist.CheckAutoUserLogItem;
-import pt.lsts.neptus.types.checklist.CheckAutoVarIntervalItem;
-import pt.lsts.neptus.types.checklist.CheckItem;
-import pt.lsts.neptus.types.checklist.ChecklistType;
-import pt.lsts.neptus.util.BarCodesUtil;
-import pt.lsts.neptus.util.DateTimeUtil;
-import pt.lsts.neptus.util.FileUtil;
-import pt.lsts.neptus.util.GuiUtils;
-import pt.lsts.neptus.util.SvgUtil;
-import pt.lsts.neptus.util.conf.ConfigFetch;
-
 import com.lowagie.text.Chunk;
 import com.lowagie.text.Document;
 import com.lowagie.text.Element;
@@ -75,6 +61,20 @@ import com.lowagie.text.pdf.PdfPTable;
 import com.lowagie.text.pdf.PdfPageEventHelper;
 import com.lowagie.text.pdf.PdfTemplate;
 import com.lowagie.text.pdf.PdfWriter;
+
+import pt.lsts.neptus.i18n.I18n;
+import pt.lsts.neptus.types.checklist.CheckAutoSubItem;
+import pt.lsts.neptus.types.checklist.CheckAutoUserActionItem;
+import pt.lsts.neptus.types.checklist.CheckAutoUserLogItem;
+import pt.lsts.neptus.types.checklist.CheckAutoVarIntervalItem;
+import pt.lsts.neptus.types.checklist.CheckItem;
+import pt.lsts.neptus.types.checklist.ChecklistType;
+import pt.lsts.neptus.util.BarCodesUtil;
+import pt.lsts.neptus.util.DateTimeUtil;
+import pt.lsts.neptus.util.FileUtil;
+import pt.lsts.neptus.util.GuiUtils;
+import pt.lsts.neptus.util.SvgUtil;
+import pt.lsts.neptus.util.conf.ConfigFetch;
 
 /**
  * @author pdias
@@ -162,7 +162,7 @@ public class GeneratorChecklistPDF {
             String text = clist.getName()
                     + " | " + I18n.textf("Version: %version", clist.getVersion()) 
                     + " | " + I18n.textf("By: %info", System.getProperty("user.name") + " | " + "@" 
-                    + DateTimeUtil.dateTimeFormater.format(new Date(System
+                    + DateTimeUtil.dateTimeFormatter.format(new Date(System
                             .currentTimeMillis())) + " | "
                             + ConfigFetch.getVersionSimpleString());
             BufferedImage imgB = BarCodesUtil.createQRCodeImage(text, 50, 50);
@@ -429,7 +429,7 @@ class PageEvents extends PdfPageEventHelper {
         cb.endText();                                       
         cb.addTemplate(total, document.left() + textSize, textBase);   
 
-        text = "" + DateTimeUtil.dateTimeFormaterNoSegs.format(new Date());
+        text = "" + DateTimeUtil.dateTimeFormatterNoSegs.format(new Date());
         textBase = document.top() + 20;
         textSize = helv.getWidthPoint(text, 8);
         cb.beginText();

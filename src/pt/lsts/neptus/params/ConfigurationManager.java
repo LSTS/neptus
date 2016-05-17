@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2015 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2016 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -44,6 +44,10 @@ import org.dom4j.Element;
 import org.dom4j.Node;
 import org.dom4j.io.SAXReader;
 
+import com.l2fprod.common.beans.editor.AbstractPropertyEditor;
+import com.l2fprod.common.beans.editor.BooleanAsCheckBoxPropertyEditor;
+import com.l2fprod.common.swing.renderer.DefaultCellRenderer;
+
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.gui.editor.ArrayListEditor;
 import pt.lsts.neptus.gui.editor.ComboEditor;
@@ -61,10 +65,6 @@ import pt.lsts.neptus.params.renderer.I18nSystemPropertyRenderer;
 import pt.lsts.neptus.params.renderer.SystemPropertyRenderer;
 import pt.lsts.neptus.util.FileUtil;
 import pt.lsts.neptus.util.conf.GeneralPreferences;
-
-import com.l2fprod.common.beans.editor.AbstractPropertyEditor;
-import com.l2fprod.common.beans.editor.BooleanAsCheckBoxPropertyEditor;
-import com.l2fprod.common.swing.renderer.DefaultCellRenderer;
 
 /**
  * @author pdias
@@ -694,7 +694,16 @@ public class ConfigurationManager {
      */
     public static Object getValueTypedFromString(String valueStr, SystemProperty.ValueTypeEnum type) {
         if (type == SystemProperty.ValueTypeEnum.BOOLEAN) {
-            return Boolean.parseBoolean(valueStr);
+            if (valueStr == null)
+                return false;
+            switch (valueStr.toLowerCase().trim()) {
+                case "true":
+                case "yes":
+                case "1":
+                    return true;
+                default:
+                    return false;
+            }
         }
         else if (type == SystemProperty.ValueTypeEnum.INTEGER) {
             try {

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2015 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2016 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -53,6 +53,14 @@ public class TideDataFetcher {
         Leixoes(12, 0),
         DouroCapitania(50, 12),
         DouroCrestuma(42, 12),
+        
+        Funchal(112, 0),
+        
+        PontaDelgada(211, 0),
+        AngraDoHeroísmo(221, 0),
+        Horta(231, 0),
+        VilaDoPorto(245, 0),
+        StaCruzDasFlores(241, 0),
 
         VianaDoCastelo(74, 0),
         PovoaDeVarzim(49, 74),
@@ -61,7 +69,9 @@ public class TideDataFetcher {
         VilaDoConde(69, 74),
 
         Aveiro(13, 0),
+        
         FigueiraDaFoz(73, 0),
+        
         Peniche(29, 0),
         Nazare(65, 29),
 

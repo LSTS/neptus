@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2015 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2016 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -39,6 +39,7 @@ import java.awt.geom.Point2D;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Vector;
 
 import com.google.common.eventbus.Subscribe;
 
@@ -54,6 +55,7 @@ import pt.lsts.neptus.messages.MessageFilter;
 import pt.lsts.neptus.messages.listener.MessageInfo;
 import pt.lsts.neptus.plugins.NeptusProperty;
 import pt.lsts.neptus.plugins.PluginDescription;
+import pt.lsts.neptus.plugins.update.Periodic;
 import pt.lsts.neptus.renderer2d.LayerPriority;
 import pt.lsts.neptus.renderer2d.Renderer2DPainter;
 import pt.lsts.neptus.renderer2d.StateRenderer2D;
@@ -98,11 +100,23 @@ public class PathControlLayer extends ConsolePanel implements Renderer2DPainter 
         ImcMsgManager.getManager().removeListener(this);
     }
 
+    @Periodic(millisBetweenUpdates=5000)
+    public void gc() {
+        Vector<Integer> keys = new Vector<Integer>();
+        keys.addAll(lastMsgs.keySet());
+        for (Integer key : keys) {
+            PathControlState pcs = lastMsgs.get(key);
+            if (System.currentTimeMillis() - pcs.getTimestampMillis() > 5000)
+                lastMsgs.remove(key);
+        }
+    }
+    
 
     @Override
     public void paint(Graphics2D g, StateRenderer2D renderer) {
-        for (PathControlState pcs : lastMsgs.values()) {
-            // System.out.println(pcs.getFlags());
+        Vector<PathControlState> states = new Vector<PathControlState>();
+        states.addAll(lastMsgs.values());
+        for (PathControlState pcs : states) {
             LocationType dest = new LocationType(Math.toDegrees(pcs.getEndLat()), Math.toDegrees(pcs.getEndLon()));
             LocationType src = new LocationType(Math.toDegrees(pcs.getStartLat()), Math.toDegrees(pcs.getStartLon()));
             ImcSystem system = ImcSystemsHolder.lookupSystem(pcs.getSrc());

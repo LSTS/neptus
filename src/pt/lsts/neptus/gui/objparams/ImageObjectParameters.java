@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2015 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2016 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -80,7 +80,6 @@ public class ImageObjectParameters extends ParametersPanel {
 	private JLabel jLabel3 = null;
 	private JFormattedTextField scale = null;
 	private NumberFormat df = GuiUtils.getNeptusDecimalFormat();
-	private NumberFormat dfI = GuiUtils.getNeptusIntegerFormat();
 	
 	private String imageFileName = null;
 	private LocationType center = new LocationType();
@@ -520,7 +519,7 @@ public class ImageObjectParameters extends ParametersPanel {
      */
     private JFormattedTextField getResolutionFormattedTextField() {
         if (resolutionFormattedTextField == null) {
-            resolutionFormattedTextField = new JFormattedTextField(dfI);
+            resolutionFormattedTextField = new JFormattedTextField(df);
             resolutionFormattedTextField.setPreferredSize(new java.awt.Dimension(70, 20));
             resolutionFormattedTextField.setText("" + ImageElement.DEFAULT_RESOLUTION);
             resolutionFormattedTextField.setEnabled(false);
@@ -556,8 +555,8 @@ public class ImageObjectParameters extends ParametersPanel {
 		return Integer.parseInt(getResolutionFormattedTextField().getText());
 	}
 	
-	public void setResolution(int val) {
-		getResolutionFormattedTextField().setText(Integer.toString(val));
+	public void setResolution(double val) {
+		getResolutionFormattedTextField().setText(Double.toString(val));
 	}
 	
 	public File getBathimFile() {

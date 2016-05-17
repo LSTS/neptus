@@ -1,5 +1,126 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<config format="1" version="2.6.1 (HEAD,0c854de)" system="x8-01" i18n="en_US">
+<config format="1" version="2016.03.0 (master,75a147e)" system="x8-01" i18n="en_US">
+  <section name="Height Control" name-i18n="Height Control">
+    <param name="Entity Label">
+      <name-i18n>Entity Label</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>Height Control</default>
+      <units/>
+      <desc>Main entity label</desc>
+    </param>
+    <param name="Execution Priority">
+      <name-i18n>Execution Priority</name-i18n>
+      <type>integer</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>10</default>
+      <units/>
+      <desc>Execution priority</desc>
+    </param>
+    <param name="Activation Time">
+      <name-i18n>Activation Time</name-i18n>
+      <type>integer</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>0</default>
+      <units/>
+      <desc/>
+    </param>
+    <param name="Deactivation Time">
+      <name-i18n>Deactivation Time</name-i18n>
+      <type>integer</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>0</default>
+      <units/>
+      <desc/>
+    </param>
+    <param name="Debug Level">
+      <name-i18n>Debug Level</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>None</default>
+      <units/>
+      <desc/>
+      <values>None, Debug, Trace, Spew</values>
+      <values-i18n>None, Debug, Trace, Spew</values-i18n>
+    </param>
+    <param name="Execution Frequency">
+      <name-i18n>Execution Frequency</name-i18n>
+      <type>real</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>10</default>
+      <units>Hz</units>
+      <desc>Frequency at which task is executed</desc>
+    </param>
+    <param name="Active - Scope">
+      <name-i18n>Active - Scope</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>maneuver</default>
+      <units/>
+      <desc>Scoped of the 'Active' parameter</desc>
+    </param>
+    <param name="Active - Visibility">
+      <name-i18n>Active - Visibility</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>user</default>
+      <units/>
+      <desc>Visibility of the 'Active' parameter</desc>
+    </param>
+    <param name="Active">
+      <name-i18n>Active</name-i18n>
+      <type>boolean</type>
+      <visibility>user</visibility>
+      <scope>maneuver</scope>
+      <default>0</default>
+      <units/>
+      <desc>True to activate task, false otherwise</desc>
+    </param>
+    <param name="Vertical Rate maximum gain">
+      <name-i18n>Vertical Rate maximum gain</name-i18n>
+      <type>real</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>0.20</default>
+      <units/>
+      <desc>Vertical Rate maximum gain for control</desc>
+    </param>
+    <param name="Height bandwidth">
+      <name-i18n>Height bandwidth</name-i18n>
+      <type>real</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>40</default>
+      <units>m</units>
+      <desc>Limit distance above and bellow desired height from which maximum control is used</desc>
+    </param>
+    <param name="DesiredZ Filter">
+      <name-i18n>DesiredZ Filter</name-i18n>
+      <type>list:string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default/>
+      <units/>
+      <desc>List of &lt;System&gt;+&lt;System&gt; that define the source systems allowed to command DesiredZ.</desc>
+    </param>
+    <param name="EstimatedState Filter">
+      <name-i18n>EstimatedState Filter</name-i18n>
+      <type>list:string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>self</default>
+      <units/>
+      <desc>List of &lt;System&gt;+&lt;System&gt; that define the source systems allowed to pass EstimatedState messages.</desc>
+    </param>
+  </section>
   <section name="Autopilot" name-i18n="Autopilot">
     <param name="Entity Label">
       <name-i18n>Entity Label</name-i18n>
@@ -154,7 +275,7 @@
       <type>integer</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>1148</default>
+      <default>1180</default>
       <units>us</units>
       <desc>Min PWM value for Roll channel</desc>
     </param>
@@ -163,7 +284,7 @@
       <type>integer</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>1888</default>
+      <default>1865</default>
       <units>us</units>
       <desc>Max PWM value for Roll channel</desc>
     </param>
@@ -190,7 +311,7 @@
       <type>integer</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>1107</default>
+      <default>1177</default>
       <units>us</units>
       <desc>Min PWM value for Climb Rate channel</desc>
     </param>
@@ -199,7 +320,7 @@
       <type>integer</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>1932</default>
+      <default>2002</default>
       <units>us</units>
       <desc>Max PWM value for Climb Rate channel</desc>
     </param>
@@ -226,7 +347,7 @@
       <type>integer</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>1037</default>
+      <default>1097</default>
       <units>us</units>
       <desc>Min PWM value for Air Speed channel</desc>
     </param>
@@ -292,6 +413,358 @@
       <default>Formation Control</default>
       <units/>
       <desc>Entity that sends Formation Flight control references</desc>
+    </param>
+    <param name="Convert MSL to WGS84 height">
+      <name-i18n>Convert MSL to WGS84 height</name-i18n>
+      <type>boolean</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>true</default>
+      <units/>
+      <desc>Convert altitude extracted from the Ardupilot to WGS84 height</desc>
+    </param>
+  </section>
+  <section name="Path Control" name-i18n="Path Control">
+    <param name="Entity Label">
+      <name-i18n>Entity Label</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>Path Control</default>
+      <units/>
+      <desc>Main entity label</desc>
+    </param>
+    <param name="Execution Priority">
+      <name-i18n>Execution Priority</name-i18n>
+      <type>integer</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>10</default>
+      <units/>
+      <desc>Execution priority</desc>
+    </param>
+    <param name="Activation Time">
+      <name-i18n>Activation Time</name-i18n>
+      <type>integer</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>0</default>
+      <units/>
+      <desc/>
+    </param>
+    <param name="Deactivation Time">
+      <name-i18n>Deactivation Time</name-i18n>
+      <type>integer</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>0</default>
+      <units/>
+      <desc/>
+    </param>
+    <param name="Debug Level">
+      <name-i18n>Debug Level</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>None</default>
+      <units/>
+      <desc/>
+      <values>None, Debug, Trace, Spew</values>
+      <values-i18n>None, Debug, Trace, Spew</values-i18n>
+    </param>
+    <param name="Control Frequency">
+      <name-i18n>Control Frequency</name-i18n>
+      <type>real</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>10</default>
+      <units>Hz</units>
+      <desc>Control frequency (&lt; 0 for event-driven EstimatedState processing)</desc>
+    </param>
+    <param name="State Report Frequency">
+      <name-i18n>State Report Frequency</name-i18n>
+      <type>real</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>1</default>
+      <units>Hz</units>
+      <desc>State report frequency</desc>
+    </param>
+    <param name="Course Control">
+      <name-i18n>Course Control</name-i18n>
+      <type>boolean</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>true</default>
+      <units/>
+      <desc>Enable course control</desc>
+    </param>
+    <param name="Along-track -- Monitor">
+      <name-i18n>Along-track -- Monitor</name-i18n>
+      <type>boolean</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>false</default>
+      <units/>
+      <desc>Enable along-track error monitoring</desc>
+    </param>
+    <param name="Along-track -- Check Period">
+      <name-i18n>Along-track -- Check Period</name-i18n>
+      <type>real</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>15</default>
+      <units>s</units>
+      <desc>Period for along-track error check</desc>
+    </param>
+    <param name="Along-track -- Minimum Speed">
+      <name-i18n>Along-track -- Minimum Speed</name-i18n>
+      <type>real</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>10</default>
+      <units>m/s</units>
+      <desc>Minimum speed for along-track progress</desc>
+    </param>
+    <param name="Along-track -- Minimum Yaw">
+      <name-i18n>Along-track -- Minimum Yaw</name-i18n>
+      <type>real</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>10</default>
+      <units>°/s</units>
+      <desc>Minimum yaw speed for track bearing convergence</desc>
+    </param>
+    <param name="Cross-track -- Monitor">
+      <name-i18n>Cross-track -- Monitor</name-i18n>
+      <type>boolean</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>false</default>
+      <units/>
+      <desc>Enable cross-track error monitoring</desc>
+    </param>
+    <param name="Cross-track -- Distance Limit">
+      <name-i18n>Cross-track -- Distance Limit</name-i18n>
+      <type>real</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>250</default>
+      <units>m</units>
+      <desc>Distance threshold value for cross-track error</desc>
+    </param>
+    <param name="Cross-track -- Time Limit">
+      <name-i18n>Cross-track -- Time Limit</name-i18n>
+      <type>real</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>10</default>
+      <units>s</units>
+      <desc>Time threshold value for cross-track error</desc>
+    </param>
+    <param name="Cross-track -- Nav. Unc. Factor">
+      <name-i18n>Cross-track -- Nav. Unc. Factor</name-i18n>
+      <type>real</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>-1</default>
+      <units/>
+      <desc/>
+    </param>
+    <param name="Position Jump Threshold">
+      <name-i18n>Position Jump Threshold</name-i18n>
+      <type>real</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>7.0</default>
+      <units>m</units>
+      <desc>Threshold for a jump in EstimatedState to turn monitors off</desc>
+    </param>
+    <param name="Position Jump Time Factor">
+      <name-i18n>Position Jump Time Factor</name-i18n>
+      <type>real</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>0.3</default>
+      <units>m/s</units>
+      <desc>Relation between monitor disabling time and position jump</desc>
+      <min>0.1</min>
+    </param>
+    <param name="ETA Minimum Speed">
+      <name-i18n>ETA Minimum Speed</name-i18n>
+      <type>real</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>1.0</default>
+      <units>m/s</units>
+      <desc>ETA minimum admissible speed</desc>
+      <min>0.1</min>
+    </param>
+    <param name="New Reference Timeout">
+      <name-i18n>New Reference Timeout</name-i18n>
+      <type>real</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>5</default>
+      <units>s</units>
+      <desc>Timeout for new incoming path reference</desc>
+      <min>3</min>
+      <max>10</max>
+    </param>
+    <param name="Bottom Track -- Enabled">
+      <name-i18n>Bottom Track -- Enabled</name-i18n>
+      <type>boolean</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>false</default>
+      <units/>
+      <desc>Enable or disable bottom track control</desc>
+    </param>
+    <param name="Bottom Track -- Forward Samples">
+      <name-i18n>Bottom Track -- Forward Samples</name-i18n>
+      <type>integer</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>5</default>
+      <units/>
+      <desc>Number of samples for forward range moving average</desc>
+    </param>
+    <param name="Bottom Track -- Safe Pitch">
+      <name-i18n>Bottom Track -- Safe Pitch</name-i18n>
+      <type>real</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>15.0</default>
+      <units>°</units>
+      <desc>Safe pitch angle to perform bottom tracking</desc>
+    </param>
+    <param name="Bottom Track -- Slope Hysteresis">
+      <name-i18n>Bottom Track -- Slope Hysteresis</name-i18n>
+      <type>real</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>1.5</default>
+      <units>°</units>
+      <desc>Slope hysteresis when recovering from avoidance</desc>
+    </param>
+    <param name="Bottom Track -- Minimum Altitude">
+      <name-i18n>Bottom Track -- Minimum Altitude</name-i18n>
+      <type>real</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>1.0</default>
+      <units>m</units>
+      <desc>Minimum admissible altitude for bottom tracking</desc>
+    </param>
+    <param name="Bottom Track -- Minimum Range">
+      <name-i18n>Bottom Track -- Minimum Range</name-i18n>
+      <type>real</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>4.0</default>
+      <units>m</units>
+      <desc>Minimum admissible forward range for bottom tracking</desc>
+    </param>
+    <param name="Bottom Track -- Altitude Tolerance">
+      <name-i18n>Bottom Track -- Altitude Tolerance</name-i18n>
+      <type>real</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>2.0</default>
+      <units>m</units>
+      <desc>Altitude tolerance below which altitude is ignored</desc>
+    </param>
+    <param name="Bottom Track -- Depth Tolerance">
+      <name-i18n>Bottom Track -- Depth Tolerance</name-i18n>
+      <type>real</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>1.0</default>
+      <units>m</units>
+      <desc>Depth tolerance below which altitude is ignored</desc>
+    </param>
+    <param name="Bottom Track -- Check Trend">
+      <name-i18n>Bottom Track -- Check Trend</name-i18n>
+      <type>boolean</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>true</default>
+      <units/>
+      <desc>Check slope angle trend in unsafe state</desc>
+    </param>
+    <param name="Bottom Track -- Execution Frequency">
+      <name-i18n>Bottom Track -- Execution Frequency</name-i18n>
+      <type>real</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>5</default>
+      <units>Hz</units>
+      <desc>Bottom tracker's execution frequency</desc>
+    </param>
+    <param name="Bottom Track -- Depth Avoidance">
+      <name-i18n>Bottom Track -- Depth Avoidance</name-i18n>
+      <type>boolean</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>true</default>
+      <units/>
+      <desc>Enable or disable obstacle avoidance during depth control</desc>
+    </param>
+    <param name="Bottom Track -- Admissible Altitude">
+      <name-i18n>Bottom Track -- Admissible Altitude</name-i18n>
+      <type>real</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>3.0</default>
+      <units>m</units>
+      <desc>Admissible altitude when doing depth control</desc>
+    </param>
+    <param name="EstimatedState Filter">
+      <name-i18n>EstimatedState Filter</name-i18n>
+      <type>list:string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>self</default>
+      <units/>
+      <desc>List of &lt;System&gt;+&lt;System&gt; that defines the source systems allowed to pass EstimatedState messages</desc>
+    </param>
+    <param name="Look Ahead Gain">
+      <name-i18n>Look Ahead Gain</name-i18n>
+      <type>real</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>1.2</default>
+      <units/>
+      <desc>Look-ahead gain for control</desc>
+    </param>
+    <param name="Turn Rate Gain">
+      <name-i18n>Turn Rate Gain</name-i18n>
+      <type>real</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>0.0005</default>
+      <units/>
+      <desc>Turn rate gain for control</desc>
+    </param>
+    <param name="Maximum Bank">
+      <name-i18n>Maximum Bank</name-i18n>
+      <type>real</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>30</default>
+      <units>°</units>
+      <desc>Limit for absolute value of output bank angle reference</desc>
+      <min>5</min>
+      <max>45</max>
+    </param>
+    <param name="Use controller">
+      <name-i18n>Use controller</name-i18n>
+      <type>boolean</type>
+      <visibility>user</visibility>
+      <scope>maneuver</scope>
+      <default>false</default>
+      <units/>
+      <desc>Use this controller for maneuver</desc>
     </param>
   </section>
   <section name="Follow Reference" name-i18n="Follow Reference">
@@ -444,6 +917,15 @@
       <default>Goto Maneuver</default>
       <units/>
       <desc>Goto maneuver's entity label</desc>
+    </param>
+    <param name="Entity Label -- Launch">
+      <name-i18n>Entity Label -- Launch</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>Launch Maneuver</default>
+      <units/>
+      <desc>Launch maneuver's entity label</desc>
     </param>
     <param name="Entity Label -- Loiter">
       <name-i18n>Entity Label -- Loiter</name-i18n>
@@ -651,6 +1133,15 @@
       <default>15.0</default>
       <units>m</units>
       <desc>Maximum distance from station keeping radial circle</desc>
+    </param>
+    <param name="PopUp -- Report at PopUps">
+      <name-i18n>PopUp -- Report at PopUps</name-i18n>
+      <type>boolean</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>false</default>
+      <units/>
+      <desc>Request reports when popping at surface</desc>
     </param>
     <param name="Dislodge -- Bursts">
       <name-i18n>Dislodge -- Bursts</name-i18n>
@@ -872,6 +1363,15 @@
       <default>hwclock -w</default>
       <units/>
       <desc>System command to execute everytime the clock is synchronized</desc>
+    </param>
+    <param name="Change Log">
+      <name-i18n>Change Log</name-i18n>
+      <type>boolean</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>false</default>
+      <units/>
+      <desc>Change log file after synchronization</desc>
     </param>
   </section>
   <section name="Entity Monitor" name-i18n="Entity Monitor">
@@ -1444,6 +1944,442 @@
       <default/>
       <units/>
       <desc>Set of commands for plans to generate at boot</desc>
+    </param>
+  </section>
+  <section name="Power Board" name-i18n="Power Board">
+    <param name="Entity Label">
+      <name-i18n>Entity Label</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>Power Board</default>
+      <units/>
+      <desc>Main entity label</desc>
+    </param>
+    <param name="Execution Priority">
+      <name-i18n>Execution Priority</name-i18n>
+      <type>integer</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>10</default>
+      <units/>
+      <desc>Execution priority</desc>
+    </param>
+    <param name="Activation Time">
+      <name-i18n>Activation Time</name-i18n>
+      <type>integer</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>0</default>
+      <units/>
+      <desc/>
+    </param>
+    <param name="Deactivation Time">
+      <name-i18n>Deactivation Time</name-i18n>
+      <type>integer</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>0</default>
+      <units/>
+      <desc/>
+    </param>
+    <param name="Debug Level">
+      <name-i18n>Debug Level</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>Spew</default>
+      <units/>
+      <desc/>
+      <values>None, Debug, Trace, Spew</values>
+      <values-i18n>None, Debug, Trace, Spew</values-i18n>
+    </param>
+    <param name="Serial Port - Device">
+      <name-i18n>Serial Port - Device</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>/dev/ttyO2</default>
+      <units/>
+      <desc>Serial port device used to communicate with the sensor</desc>
+    </param>
+    <param name="LED - Names">
+      <name-i18n>LED - Names</name-i18n>
+      <type>list:string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>Green, Red</default>
+      <units/>
+      <desc>List of LED names</desc>
+      <size>2</size>
+    </param>
+    <param name="ADC Channel 0 - Message">
+      <name-i18n>ADC Channel 0 - Message</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>Voltage</default>
+      <units/>
+      <desc/>
+    </param>
+    <param name="ADC Channel 0 - Entity Label">
+      <name-i18n>ADC Channel 0 - Entity Label</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>Batteries</default>
+      <units/>
+      <desc/>
+    </param>
+    <param name="ADC Channel 0 - Conversion">
+      <name-i18n>ADC Channel 0 - Conversion</name-i18n>
+      <type>list:real</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>22.9797, 0.0</default>
+      <units/>
+      <desc/>
+      <size>2</size>
+    </param>
+    <param name="ADC Channel 1 - Message">
+      <name-i18n>ADC Channel 1 - Message</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>Current</default>
+      <units/>
+      <desc/>
+    </param>
+    <param name="ADC Channel 1 - Entity Label">
+      <name-i18n>ADC Channel 1 - Entity Label</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>Power Board</default>
+      <units/>
+      <desc/>
+    </param>
+    <param name="ADC Channel 1 - Conversion">
+      <name-i18n>ADC Channel 1 - Conversion</name-i18n>
+      <type>list:real</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>4.7534, 0.0</default>
+      <units/>
+      <desc/>
+      <size>2</size>
+    </param>
+    <param name="ADC Channel 2 - Message">
+      <name-i18n>ADC Channel 2 - Message</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>Voltage</default>
+      <units/>
+      <desc/>
+    </param>
+    <param name="ADC Channel 2 - Entity Label">
+      <name-i18n>ADC Channel 2 - Entity Label</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>Power Supply (+5VDC)</default>
+      <units/>
+      <desc/>
+    </param>
+    <param name="ADC Channel 2 - Conversion">
+      <name-i18n>ADC Channel 2 - Conversion</name-i18n>
+      <type>list:real</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>6.4851, 0.0</default>
+      <units/>
+      <desc/>
+      <size>2</size>
+    </param>
+    <param name="ADC Channel 3 - Message">
+      <name-i18n>ADC Channel 3 - Message</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>Current</default>
+      <units/>
+      <desc/>
+    </param>
+    <param name="ADC Channel 3 - Entity Label">
+      <name-i18n>ADC Channel 3 - Entity Label</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>Power Supply (+5VDC)</default>
+      <units/>
+      <desc/>
+    </param>
+    <param name="ADC Channel 3 - Conversion">
+      <name-i18n>ADC Channel 3 - Conversion</name-i18n>
+      <type>list:real</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>1.0965, 0.0</default>
+      <units/>
+      <desc/>
+      <size>2</size>
+    </param>
+    <param name="ADC Channel 4 - Message">
+      <name-i18n>ADC Channel 4 - Message</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>Voltage</default>
+      <units/>
+      <desc/>
+    </param>
+    <param name="ADC Channel 4 - Entity Label">
+      <name-i18n>ADC Channel 4 - Entity Label</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>Power Supply (+12VDC)</default>
+      <units/>
+      <desc/>
+    </param>
+    <param name="ADC Channel 4 - Conversion">
+      <name-i18n>ADC Channel 4 - Conversion</name-i18n>
+      <type>list:real</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>15.9575, 0.0</default>
+      <units/>
+      <desc/>
+      <size>2</size>
+    </param>
+    <param name="ADC Channel 5 - Message">
+      <name-i18n>ADC Channel 5 - Message</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>Current</default>
+      <units/>
+      <desc/>
+    </param>
+    <param name="ADC Channel 5 - Entity Label">
+      <name-i18n>ADC Channel 5 - Entity Label</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>Power Supply (+12VDC)</default>
+      <units/>
+      <desc/>
+    </param>
+    <param name="ADC Channel 5 - Conversion">
+      <name-i18n>ADC Channel 5 - Conversion</name-i18n>
+      <type>list:real</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>0.4868, 0.0</default>
+      <units/>
+      <desc/>
+      <size>2</size>
+    </param>
+    <param name="ADC Channel 6 - Message">
+      <name-i18n>ADC Channel 6 - Message</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>Voltage</default>
+      <units/>
+      <desc/>
+    </param>
+    <param name="ADC Channel 6 - Entity Label">
+      <name-i18n>ADC Channel 6 - Entity Label</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>Power Supply (+48VDC)</default>
+      <units/>
+      <desc/>
+    </param>
+    <param name="ADC Channel 6 - Conversion">
+      <name-i18n>ADC Channel 6 - Conversion</name-i18n>
+      <type>list:real</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>51.2821, 0.0</default>
+      <units/>
+      <desc/>
+      <size>2</size>
+    </param>
+    <param name="ADC Channel 7 - Message">
+      <name-i18n>ADC Channel 7 - Message</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>Current</default>
+      <units/>
+      <desc/>
+    </param>
+    <param name="ADC Channel 7 - Entity Label">
+      <name-i18n>ADC Channel 7 - Entity Label</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>Power Supply (+48VDC)</default>
+      <units/>
+      <desc/>
+    </param>
+    <param name="ADC Channel 7 - Conversion">
+      <name-i18n>ADC Channel 7 - Conversion</name-i18n>
+      <type>list:real</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>0.0877, 0.0</default>
+      <units/>
+      <desc/>
+      <size>2</size>
+    </param>
+    <param name="Power Channel 0 - Name">
+      <name-i18n>Power Channel 0 - Name</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>5V C.1  (Photo Trigger)</default>
+      <units/>
+      <desc/>
+    </param>
+    <param name="Power Channel 0 - State">
+      <name-i18n>Power Channel 0 - State</name-i18n>
+      <type>integer</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>0</default>
+      <units/>
+      <desc/>
+    </param>
+    <param name="Power Channel 1 - Name">
+      <name-i18n>Power Channel 1 - Name</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>5V C.2  (None)</default>
+      <units/>
+      <desc/>
+    </param>
+    <param name="Power Channel 1 - State">
+      <name-i18n>Power Channel 1 - State</name-i18n>
+      <type>integer</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>1</default>
+      <units/>
+      <desc/>
+    </param>
+    <param name="Power Channel 2 - Name">
+      <name-i18n>Power Channel 2 - Name</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>5V C.3  (None)</default>
+      <units/>
+      <desc/>
+    </param>
+    <param name="Power Channel 2 - State">
+      <name-i18n>Power Channel 2 - State</name-i18n>
+      <type>integer</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>1</default>
+      <units/>
+      <desc/>
+    </param>
+    <param name="Power Channel 3 - Name">
+      <name-i18n>Power Channel 3 - Name</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>12V C.1 (Wifi Board)</default>
+      <units/>
+      <desc/>
+    </param>
+    <param name="Power Channel 3 - State">
+      <name-i18n>Power Channel 3 - State</name-i18n>
+      <type>integer</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>1</default>
+      <units/>
+      <desc/>
+    </param>
+    <param name="Power Channel 4 - Name">
+      <name-i18n>Power Channel 4 - Name</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>12V C.2 (Switch ETH)</default>
+      <units/>
+      <desc/>
+    </param>
+    <param name="Power Channel 4 - State">
+      <name-i18n>Power Channel 4 - State</name-i18n>
+      <type>integer</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>1</default>
+      <units/>
+      <desc/>
+    </param>
+    <param name="Power Channel 5 - Name">
+      <name-i18n>Power Channel 5 - Name</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>12V C.3 (None)</default>
+      <units/>
+      <desc/>
+    </param>
+    <param name="Power Channel 5 - State">
+      <name-i18n>Power Channel 5 - State</name-i18n>
+      <type>integer</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>1</default>
+      <units/>
+      <desc/>
+    </param>
+    <param name="Power Channel 6 - Name">
+      <name-i18n>Power Channel 6 - Name</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>12V C.4 (None)</default>
+      <units/>
+      <desc/>
+    </param>
+    <param name="Power Channel 6 - State">
+      <name-i18n>Power Channel 6 - State</name-i18n>
+      <type>integer</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>1</default>
+      <units/>
+      <desc/>
+    </param>
+    <param name="Power Channel 7 - Name">
+      <name-i18n>Power Channel 7 - Name</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>48V C   (Axis Camera)</default>
+      <units/>
+      <desc/>
+    </param>
+    <param name="Power Channel 7 - State">
+      <name-i18n>Power Channel 7 - State</name-i18n>
+      <type>integer</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>1</default>
+      <units/>
+      <desc/>
     </param>
   </section>
   <section name="Lost Comms Monitor" name-i18n="Lost Comms Monitor">
@@ -2098,7 +3034,7 @@
       <type>list:string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>Voltage, Current, FuelLevel, GpsFix, EntityState, CpuUsage, StorageUsage, Heartbeat, Temperature, RSSI, LinkLevel</default>
+      <default>CpuUsage, Current, EntityState, FuelLevel, GpsFix, Heartbeat, LinkLevel, PowerChannelState, RSSI, StorageUsage, Temperature, Voltage</default>
       <units/>
       <desc>List of messages to transport</desc>
     </param>
@@ -2241,7 +3177,7 @@
       <type>list:string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>Acceleration, AngularVelocity, Announce, AutopilotMode, ControlLoops, CpuUsage, Current, DesiredHeading, DesiredPath, DesiredRoll, DesiredSpeed, DesiredVerticalRate, DesiredZ, EntityList, EntityState, EstimatedState, EstimatedStreamVelocity, FollowReference, FollowRefState, FuelLevel, GpsFix, IndicatedSpeed, LeaderState, LinkLevel, LogBookEntry, MagneticField, ManeuverControlState, PathControlState, PlanControl, PlanSpecification, PlanControlState, PlanDB, PowerChannelControl, Pressure, Reference, Rpm, RSSI, SetControlSurfaceDeflection, SetThrusterActuation, SimulatedState, StopManeuver, StorageUsage, Temperature, TrueSpeed, TrexObservation, TrexPlan, TrexToken, TrueSpeed, VehicleCommand, VehicleMedium, VehicleState, Voltage</default>
+      <default>Acceleration, AngularVelocity, Announce, AutopilotMode, ControlLoops, CpuUsage, Current, DesiredHeading, DesiredPath, DesiredRoll, DesiredSpeed, DesiredVerticalRate, DesiredZ, DevCalibrationControl, EntityList, EntityState, EstimatedState, EstimatedStreamVelocity, FollowReference, FollowRefState, FuelLevel, GpsFix, IndicatedSpeed, LeaderState, LinkLevel, LogBookEntry, MagneticField, ManeuverControlState, PathControlState, PlanControl, PlanSpecification, PlanControlState, PlanDB, PowerChannelControl, Pressure, Reference, Rpm, RSSI, SetControlSurfaceDeflection, SetThrusterActuation, SimulatedState, StopManeuver, StorageUsage, Temperature, TrueSpeed, TrexObservation, TrexPlan, TrexToken, TrueSpeed, VehicleCommand, VehicleMedium, VehicleState, Voltage</default>
       <units/>
       <desc/>
     </param>
@@ -2299,7 +3235,7 @@
       <type>string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>/dev/ttyO0</default>
+      <default>/dev/ttyO1</default>
       <units/>
       <desc>Serial port device used to communicate with the sensor</desc>
     </param>
@@ -2474,7 +3410,7 @@
       <type>list:string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>Acceleration, AngularVelocity, AutopilotMode, CpuUsage, Current, DesiredPath, DesiredRoll, DesiredSpeed, DesiredVerticalRate, DesiredZ, EntityList, EntityParameters, EntityState, EstimatedState, EstimatedStreamVelocity, FollowRefState, FuelLevel, GpsFix, Heartbeat, IndicatedSpeed, LeaderState, LinkLevel, LogBookControl, LoggingControl, MagneticField, OperationalLimits, PathControlState, PlanControl, PlanControlState, PlanDB, PlanGeneration, PlanSpecification, PowerChannelControl, Pressure, QueryEntityParameters, RemoteActionsRequest, Rpm, RSSI, SaveEntityParameters, SetEntityParameters, SetServoPosition, SimulatedState, StorageUsage, Target, Temperature, TrexOperation, TrueSpeed, VehicleMedium, VehicleState, Voltage</default>
+      <default>Acceleration, AngularVelocity, AutopilotMode, CpuUsage, Current, DesiredPath, DesiredRoll, DesiredSpeed, DesiredVerticalRate, DesiredZ, EntityList, EntityParameters, EntityState, EstimatedState, EstimatedStreamVelocity, FollowRefState, FuelLevel, GpsFix, Heartbeat, IndicatedSpeed, LeaderState, LinkLevel, LogBookControl, LoggingControl, MagneticField, OperationalLimits, PathControlState, PlanControl, PlanControlState, PlanDB, PlanGeneration, PlanSpecification, PowerChannelControl, Pressure, QueryEntityParameters, RemoteActionsRequest, Rpm, RSSI, SaveEntityParameters, ServoPosition, SetEntityParameters, SetServoPosition, SimulatedState, StorageUsage, Target, Temperature, TrexOperation, TrueSpeed, VehicleMedium, VehicleState, Voltage</default>
       <units/>
       <desc>List of messages to transport</desc>
     </param>
@@ -2486,6 +3422,331 @@
       <default/>
       <units/>
       <desc>List of messages that will always be transmitted disregarding communication limitations</desc>
+    </param>
+    <param name="Dynamic Nodes">
+      <name-i18n>Dynamic Nodes</name-i18n>
+      <type>boolean</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>true</default>
+      <units/>
+      <desc>Allow use of dynamic nodes.</desc>
+    </param>
+    <param name="Local Messages Only">
+      <name-i18n>Local Messages Only</name-i18n>
+      <type>boolean</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>false</default>
+      <units/>
+      <desc>Only transmit messsages from local system.</desc>
+    </param>
+  </section>
+  <section name="PTUTransport" name-i18n="PTUTransport">
+    <param name="Entity Label">
+      <name-i18n>Entity Label</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>PTUTransport</default>
+      <units/>
+      <desc>Main entity label</desc>
+    </param>
+    <param name="Execution Priority">
+      <name-i18n>Execution Priority</name-i18n>
+      <type>integer</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>10</default>
+      <units/>
+      <desc>Execution priority</desc>
+    </param>
+    <param name="Activation Time">
+      <name-i18n>Activation Time</name-i18n>
+      <type>integer</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>0</default>
+      <units/>
+      <desc/>
+    </param>
+    <param name="Deactivation Time">
+      <name-i18n>Deactivation Time</name-i18n>
+      <type>integer</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>0</default>
+      <units/>
+      <desc/>
+    </param>
+    <param name="Debug Level">
+      <name-i18n>Debug Level</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>None</default>
+      <units/>
+      <desc/>
+      <values>None, Debug, Trace, Spew</values>
+      <values-i18n>None, Debug, Trace, Spew</values-i18n>
+    </param>
+    <param name="Local Port">
+      <name-i18n>Local Port</name-i18n>
+      <type>integer</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>6020</default>
+      <units/>
+      <desc>Local UDP port to listen on</desc>
+    </param>
+    <param name="Contact Timeout">
+      <name-i18n>Contact Timeout</name-i18n>
+      <type>real</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>30</default>
+      <units>s</units>
+      <desc/>
+    </param>
+    <param name="Contact Refresh Periodicity">
+      <name-i18n>Contact Refresh Periodicity</name-i18n>
+      <type>real</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>5.0</default>
+      <units>s</units>
+      <desc/>
+    </param>
+    <param name="Print Outgoing Messages">
+      <name-i18n>Print Outgoing Messages</name-i18n>
+      <type>boolean</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>false</default>
+      <units/>
+      <desc>Print outgoing messages (Debug)</desc>
+    </param>
+    <param name="Print Incoming Messages">
+      <name-i18n>Print Incoming Messages</name-i18n>
+      <type>boolean</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>false</default>
+      <units/>
+      <desc>Print incoming messages (Debug)</desc>
+    </param>
+    <param name="Static Destinations">
+      <name-i18n>Static Destinations</name-i18n>
+      <type>list:string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>10.0.30.3:6002</default>
+      <units/>
+      <desc>List of &lt;IPv4&gt;:&lt;Port&gt; destinations that will always receive outgoing messages</desc>
+    </param>
+    <param name="Rate Limiters">
+      <name-i18n>Rate Limiters</name-i18n>
+      <type>list:string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default/>
+      <units/>
+      <desc>List of &lt;Message&gt;:&lt;Frequency&gt;</desc>
+    </param>
+    <param name="Filtered Entities">
+      <name-i18n>Filtered Entities</name-i18n>
+      <type>list:string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default/>
+      <units/>
+      <desc>List of &lt;Message&gt;:&lt;Entity&gt;+&lt;Entity&gt; that define the source entities allowed to pass message of a specific message type.</desc>
+    </param>
+    <param name="Announce Service">
+      <name-i18n>Announce Service</name-i18n>
+      <type>boolean</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>true</default>
+      <units/>
+      <desc>Announce this transport to services or not</desc>
+    </param>
+    <param name="Communication Range">
+      <name-i18n>Communication Range</name-i18n>
+      <type>real</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>0</default>
+      <units>m</units>
+      <desc>Communication range (0 for infinite)</desc>
+    </param>
+    <param name="Underwater Communications">
+      <name-i18n>Underwater Communications</name-i18n>
+      <type>boolean</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>false</default>
+      <units/>
+      <desc>Allow underwater communication when limited comms are being simulated</desc>
+    </param>
+    <param name="Transports">
+      <name-i18n>Transports</name-i18n>
+      <type>list:string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>EstimatedState</default>
+      <units/>
+      <desc>List of messages to transport</desc>
+    </param>
+    <param name="Always Transmitted Messages">
+      <name-i18n>Always Transmitted Messages</name-i18n>
+      <type>list:string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default/>
+      <units/>
+      <desc>List of messages that will always be transmitted disregarding communication limitations</desc>
+    </param>
+    <param name="Dynamic Nodes">
+      <name-i18n>Dynamic Nodes</name-i18n>
+      <type>boolean</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>true</default>
+      <units/>
+      <desc>Allow use of dynamic nodes.</desc>
+    </param>
+    <param name="Local Messages Only">
+      <name-i18n>Local Messages Only</name-i18n>
+      <type>boolean</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>false</default>
+      <units/>
+      <desc>Only transmit messsages from local system.</desc>
+    </param>
+  </section>
+  <section name="Photo Trigger" name-i18n="Photo Trigger">
+    <param name="Entity Label">
+      <name-i18n>Entity Label</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>Photo Trigger</default>
+      <units/>
+      <desc>Main entity label</desc>
+    </param>
+    <param name="Execution Priority">
+      <name-i18n>Execution Priority</name-i18n>
+      <type>integer</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>10</default>
+      <units/>
+      <desc>Execution priority</desc>
+    </param>
+    <param name="Activation Time">
+      <name-i18n>Activation Time</name-i18n>
+      <type>integer</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>0</default>
+      <units/>
+      <desc/>
+    </param>
+    <param name="Deactivation Time">
+      <name-i18n>Deactivation Time</name-i18n>
+      <type>integer</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>0</default>
+      <units/>
+      <desc/>
+    </param>
+    <param name="Debug Level">
+      <name-i18n>Debug Level</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>None</default>
+      <units/>
+      <desc/>
+      <values>None, Debug, Trace, Spew</values>
+      <values-i18n>None, Debug, Trace, Spew</values-i18n>
+    </param>
+    <param name="Active - Scope">
+      <name-i18n>Active - Scope</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>maneuver</default>
+      <units/>
+      <desc>Scoped of the 'Active' parameter</desc>
+    </param>
+    <param name="Active - Visibility">
+      <name-i18n>Active - Visibility</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>user</default>
+      <units/>
+      <desc>Visibility of the 'Active' parameter</desc>
+    </param>
+    <param name="Active">
+      <name-i18n>Active</name-i18n>
+      <type>boolean</type>
+      <visibility>user</visibility>
+      <scope>maneuver</scope>
+      <default>0</default>
+      <units/>
+      <desc>True to activate task, false otherwise</desc>
+    </param>
+    <param name="Trigger with distance">
+      <name-i18n>Trigger with distance</name-i18n>
+      <type>boolean</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>false</default>
+      <units/>
+      <desc>Trigger by using overlap value and distance to previous shot</desc>
+    </param>
+    <param name="Trigger Frequency">
+      <name-i18n>Trigger Frequency</name-i18n>
+      <type>real</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>0.4</default>
+      <units>Hz</units>
+      <desc>Frequency of photo shots</desc>
+      <max>1.0</max>
+    </param>
+    <param name="Photo Overlap">
+      <name-i18n>Photo Overlap</name-i18n>
+      <type>real</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>0.5</default>
+      <units/>
+      <desc>Overlap between consecutive shots</desc>
+      <max>1.0</max>
+    </param>
+    <param name="Focal Length">
+      <name-i18n>Focal Length</name-i18n>
+      <type>real</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>24</default>
+      <units/>
+      <desc>Focal length in mm, equivalent to 35mm sensor</desc>
+    </param>
+    <param name="Altitude">
+      <name-i18n>Altitude</name-i18n>
+      <type>integer</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>100</default>
+      <units/>
+      <desc>Distance to surface (sea or ground)</desc>
     </param>
   </section>
 </config>

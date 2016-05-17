@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2015 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2016 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -35,19 +35,18 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.FilterInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.Method;
 import java.util.LinkedHashMap;
-import java.util.zip.GZIPInputStream;
 
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.SwingWorker;
 
 import org.apache.commons.compress.compressors.bzip2.BZip2CompressorInputStream;
+import org.apache.commons.compress.compressors.gzip.GzipCompressorInputStream;
 import org.apache.commons.io.FileUtils;
 
 import pt.lsts.imc.lsf.LsfIndexListener;
@@ -55,6 +54,7 @@ import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.loader.FileHandler;
 import pt.lsts.neptus.mra.importers.IMraLogGroup;
+import pt.lsts.neptus.platform.OsInfo;
 import pt.lsts.neptus.util.FileUtil;
 import pt.lsts.neptus.util.GuiUtils;
 import pt.lsts.neptus.util.MathMiscUtils;
@@ -105,7 +105,7 @@ public class MRAFilesHandler implements FileHandler {
         File fileToOpen = null;
 
         String errorMessage = "";
-        
+
         if (fx.getName().toLowerCase().endsWith(FileUtil.FILE_TYPE_LSF_COMPRESSED)) {
             fileToOpen = extractGzip(fx);
         }
@@ -123,7 +123,7 @@ public class MRAFilesHandler implements FileHandler {
                     + errorMessage);
             return false;
         }
-        
+
         return openLSF(fileToOpen);
     }
 
@@ -190,13 +190,13 @@ public class MRAFilesHandler implements FileHandler {
     private boolean openLSF(File f) {
         mra.getBgp().block(true);
         mra.getBgp().setText(I18n.text("Loading LSF Data"));
-        
+
         if (!f.exists()) {
             mra.getBgp().block(false);
             GuiUtils.errorMessage(mra, I18n.text("Invalid LSF file"), I18n.text("LSF file does not exist!"));
             return false; 
         }
-        
+
         final File lsfDir = f.getParentFile();
 
         //IMCDefinition.pathToDefaults = ConfigFetch.getDefaultIMCDefinitionsLocation();
@@ -211,7 +211,7 @@ public class MRAFilesHandler implements FileHandler {
             alreadyConverted = true;
 
         if (alreadyConverted) {
-            int option = JOptionPane.showConfirmDialog(mra,
+            int option = GuiUtils.confirmDialogWithCancel(mra, I18n.text("Open Log"),
                     I18n.text("This log seems to have already been indexed. Index again?"));
 
             if (option == JOptionPane.YES_OPTION) {
@@ -223,7 +223,7 @@ public class MRAFilesHandler implements FileHandler {
                 }
             }
 
-            if (option == JOptionPane.CANCEL_OPTION) {
+            if (option == JOptionPane.CANCEL_OPTION || option == JOptionPane.CLOSED_OPTION) {
                 mra.getBgp().block(false);
                 return false;
             }
@@ -264,32 +264,20 @@ public class MRAFilesHandler implements FileHandler {
      * @return decompressed file
      */
     private File extractGzip(File f) {
+        GzipCompressorInputStream gzDataLog = null;
         try {
-            File res;
             mra.getBgp().setText(I18n.text("Decompressing LSF Data..."));
-            GZIPInputStream ginstream = new GZIPInputStream(new FileInputStream(f));
-            activeInputStream = ginstream;
+            gzDataLog = new GzipCompressorInputStream(new FileInputStream(f), true);
+            activeInputStream = gzDataLog;
             File outputFile = new File(f.getParent(), "Data.lsf");
             if (!outputFile.exists()) {
                 outputFile.createNewFile();
             }
-            FileOutputStream outstream = new FileOutputStream(outputFile, false);
-            byte[] buf = new byte[2048];
-            int len;
-            try {
-                while ((len = ginstream.read(buf)) > 0) {
-                    outstream.write(buf, 0, len);
-                }
-            }
-            catch (Exception e) {
-                GuiUtils.errorMessage(mra, e);
-                NeptusLog.pub().error(e);
-            }
-            finally {
-                ginstream.close();
-                outstream.close();
-            }
-            res = new File(f.getParent(), "Data.lsf");
+            
+            FilterCopyDataMonitor fis = createCopyMonitor(gzDataLog);
+            StreamUtil.copyStreamToFile(fis, outputFile);
+
+            File res = new File(f.getParent(), "Data.lsf");
 
             return res;
         }
@@ -300,6 +288,16 @@ public class MRAFilesHandler implements FileHandler {
             ioe.printStackTrace();
             return null;
         }
+        finally {
+            if (gzDataLog != null) {
+                try {
+                    gzDataLog.close();
+                }
+                catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
     }
 
     /**
@@ -309,30 +307,19 @@ public class MRAFilesHandler implements FileHandler {
      */
     private File extractBzip2(File f) {
         mra.getBgp().setText(I18n.text("Decompressing BZip2 LSF Data..."));
+        BZip2CompressorInputStream bz2DataLog = null;
         try {
-            final FileInputStream fxInStream = new FileInputStream(f);
-            activeInputStream = fxInStream;
-            BZip2CompressorInputStream gzDataLog = new BZip2CompressorInputStream(fxInStream);
+            FileInputStream fxInStream = new FileInputStream(f);
+            bz2DataLog = new BZip2CompressorInputStream(fxInStream, true);
+            activeInputStream = bz2DataLog;
             File outFile = new File(f.getParent(), "Data.lsf");
             if (!outFile.exists()) {
                 outFile.createNewFile();
             }
-            FilterCopyDataMonitor fis = new FilterCopyDataMonitor(gzDataLog) {
-                long target = 1 * 1024 * 1024;
-                protected String decompressed = I18n.text("Decompressed");
 
-                @Override
-                public void updateValueInMessagePanel() {
-                    if (downloadedSize > target) {
-                        mra.getBgp().setText(decompressed + " "
-                                + MathMiscUtils.parseToEngineeringRadix2Notation(downloadedSize, 2) + "B");
-                        target += 1 * 1024 * 1024;
-                    }
-                }
-            };
-
+            FilterCopyDataMonitor fis = createCopyMonitor(bz2DataLog);
             StreamUtil.copyStreamToFile(fis, outFile);
-            fxInStream.close();
+            
             return outFile;
         }
         catch (Exception e) {
@@ -342,6 +329,38 @@ public class MRAFilesHandler implements FileHandler {
             e.printStackTrace();
             return null;
         }
+        finally {
+            if (bz2DataLog != null) {
+                try {
+                    bz2DataLog.close();
+                }
+                catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+    }
+
+    /**
+     * @param stream
+     * @return
+     */
+    private FilterCopyDataMonitor createCopyMonitor(InputStream stream) {
+        FilterCopyDataMonitor fis = new FilterCopyDataMonitor(stream) {
+            long targetStep = 1 * 1024 * 1024;
+            long target = targetStep;
+            protected String decompressed = I18n.text("Decompressed") + " ";
+
+            @Override
+            public void updateValueInMessagePanel() {
+                if (downloadedSize > target) {
+                    mra.getBgp().setText(decompressed
+                            + MathMiscUtils.parseToEngineeringRadix2Notation(downloadedSize, 2) + "B");
+                    target += targetStep;
+                }
+            }
+        };
+        return fis;
     }
 
     /**
@@ -412,12 +431,15 @@ public class MRAFilesHandler implements FileHandler {
                         GuiUtils.infoMessage(mra, I18n.text("Generate PDF Report"),
                                 I18n.text("File saved to") +" "+ f.getAbsolutePath());
                         final String pdfF = f.getAbsolutePath();
-                        new Thread() {
-                            @Override
-                            public void run() {
-                                openPDFInExternalViewer(pdfF);
-                            };
-                        }.start();
+                        int resp = GuiUtils.confirmDialog(mra, I18n.text("Open PDF Report"), I18n.text("Do you want to open PDF Report file?"));
+                        if (resp == JOptionPane.YES_OPTION) {
+                            new Thread() {
+                                @Override
+                                public void run() {
+                                    openPDFInExternalViewer(pdfF);
+                                };
+                            }.start();
+                        }
                     }
                 }
                 catch (Exception e) {
@@ -443,7 +465,7 @@ public class MRAFilesHandler implements FileHandler {
      */
     private void openPDFInExternalViewer(String pdf) {
         try {
-            if (ConfigFetch.getOS() == ConfigFetch.OS_WINDOWS) {
+            if (OsInfo.getName() == OsInfo.Name.WINDOWS) {
                 Runtime.getRuntime().exec("rundll32 url.dll,FileProtocolHandler " + pdf);
             }
             else {
@@ -463,8 +485,8 @@ public class MRAFilesHandler implements FileHandler {
         catch (Exception ex) {
             ex.printStackTrace();
         }
-        GuiUtils.infoMessage(mra,  I18n.text("PDF Report Generated"),
-                I18n.text("File saved to") +" "+ pdf);
+       // GuiUtils.infoMessage(mra,  I18n.text("PDF Report Generated"),
+       //         I18n.text("Opening file") +" "+ pdf);
     }
 
     // --- Recently opened files ---
@@ -492,13 +514,13 @@ public class MRAFilesHandler implements FileHandler {
             return;
         }
 
-//        if (recentlyOpenedFiles == null) {
-//            JOptionPane.showInternalMessageDialog(mra, "Cannot Load");
-//            return;
-//        }
+        //        if (recentlyOpenedFiles == null) {
+        //            JOptionPane.showInternalMessageDialog(mra, "Cannot Load");
+        //            return;
+        //        }
 
-//        if (!new File(recentlyOpenedFiles).exists())
-//            return;
+        //        if (!new File(recentlyOpenedFiles).exists())
+        //            return;
 
         RecentlyOpenedFilesUtil.loadRecentlyOpenedFiles(recentlyOpenedFiles, methodUpdate, this);
     }

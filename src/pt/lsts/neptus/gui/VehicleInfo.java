@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2015 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2016 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -68,13 +68,14 @@ import javax.swing.tree.DefaultMutableTreeNode;
 
 import org.dom4j.Document;
 
+import com.l2fprod.common.propertysheet.DefaultProperty;
+import com.l2fprod.common.propertysheet.Property;
+
 import pt.lsts.neptus.NeptusLog;
-import pt.lsts.neptus.comm.CommUtil;
 import pt.lsts.neptus.comm.manager.imc.ImcId16;
 import pt.lsts.neptus.comm.manager.imc.ImcMsgManager;
 import pt.lsts.neptus.renderer3d.Object3DCreationHelper;
 import pt.lsts.neptus.types.comm.CommMean;
-import pt.lsts.neptus.types.comm.protocol.AdjustTimeShellArgs;
 import pt.lsts.neptus.types.comm.protocol.FTPArgs;
 import pt.lsts.neptus.types.comm.protocol.IMCArgs;
 import pt.lsts.neptus.types.comm.protocol.ProtocolArgs;
@@ -88,9 +89,6 @@ import pt.lsts.neptus.util.FileUtil;
 import pt.lsts.neptus.util.GuiUtils;
 import pt.lsts.neptus.util.JTreeUtils;
 import pt.lsts.neptus.util.editors.EditorLauncher;
-
-import com.l2fprod.common.propertysheet.DefaultProperty;
-import com.l2fprod.common.propertysheet.Property;
 
 /**
  * @author Paulo Dias
@@ -706,8 +704,8 @@ public class VehicleInfo extends JPanel implements PropertiesProvider {
                     if (editableInfo) {
                         EditorLauncher ed = new EditorLauncher();
                         short edType;
-                        if ("xml".equals(fxTypeValue.getText()) | "xslt".equals(fxTypeValue.getText())
-                                | "xsl".equals(fxTypeValue.getText()))
+                        if ("xml".equals(fxTypeValue.getText()) || "xslt".equals(fxTypeValue.getText())
+                                || "xsl".equals(fxTypeValue.getText()))
                             edType = ed.XML_EDITOR_TYPE;
                         else
                             edType = ed.TEXT_EDITOR_TYPE;
@@ -1065,12 +1063,7 @@ public class VehicleInfo extends JPanel implements PropertiesProvider {
         comP = PropertiesEditor.getPropertyInstance("protocols suported", categoryBase, String.class,
                 protocolsStringBase, false);
         propertiesList.add(comP);
-        if (CommUtil.isProtocolSupported(vehicle.getId(), "ssh")
-                || CommUtil.isProtocolSupported(vehicle.getId(), "telnet")) {
-            if (!vehicle.getProtocolsArgs().containsKey("time-shell")) {
-                vehicle.getProtocolsArgs().put(AdjustTimeShellArgs.DEFAULT_ROOT_ELEMENT, new AdjustTimeShellArgs());
-            }
-        }
+
         for (ProtocolArgs pArgs : vehicle.getProtocolsArgs().values()) {
             if (pArgs instanceof IMCArgs) {
                 IMCArgs nArgs = (IMCArgs) pArgs;
@@ -1086,23 +1079,8 @@ public class VehicleInfo extends JPanel implements PropertiesProvider {
                 comP = PropertiesEditor.getPropertyInstance("imc.tcp-on", categoryBase, Boolean.class, new Boolean(
                         nArgs.isTcpOn()), true);
                 propertiesList.add(comP);
-                comP = PropertiesEditor.getPropertyInstance("imc.imc3-id", categoryBase, ImcId16.class,
-                        (nArgs.getImc3Id() == null) ? ImcId16.NULL_ID : nArgs.getImc3Id(), true);
-                propertiesList.add(comP);
-            }
-            else if (pArgs instanceof AdjustTimeShellArgs) {
-                AdjustTimeShellArgs tArgs = (AdjustTimeShellArgs) pArgs;
-                comP = PropertiesEditor.getPropertyInstance("time-shell.set-seconds", categoryBase, Boolean.class,
-                        new Boolean(tArgs.isSetSeconds()), true);
-                propertiesList.add(comP);
-                comP = PropertiesEditor.getPropertyInstance("time-shell.set-year", categoryBase, Boolean.class,
-                        new Boolean(tArgs.isSetYear()), true);
-                propertiesList.add(comP);
-                comP = PropertiesEditor.getPropertyInstance("time-shell.use-2-digit-year", categoryBase, Boolean.class,
-                        new Boolean(tArgs.isUse2DigitYear()), true);
-                propertiesList.add(comP);
-                comP = PropertiesEditor.getPropertyInstance("time-shell.use-hwclock", categoryBase, Boolean.class,
-                        new Boolean(tArgs.isUseHwClock()), true);
+                comP = PropertiesEditor.getPropertyInstance("imc.imc-id", categoryBase, ImcId16.class,
+                        (nArgs.getImcId() == null) ? ImcId16.NULL_ID : nArgs.getImcId(), true);
                 propertiesList.add(comP);
             }
             else if (pArgs instanceof FTPArgs) {
@@ -1127,14 +1105,6 @@ public class VehicleInfo extends JPanel implements PropertiesProvider {
             String category = cm.getName();
             comP = PropertiesEditor.getPropertyInstance("host name", category, String.class,
                     new String(cm.getHostAddress()), true);
-            propertiesList.add(comP);
-
-            comP = PropertiesEditor.getPropertyInstance("user name", category, String.class,
-                    new String(cm.getUserName()), true);
-            propertiesList.add(comP);
-
-            comP = PropertiesEditor.getPropertyInstance("is password saved", category, Boolean.class,
-                    new Boolean(cm.isPasswordSaved()), true);
             propertiesList.add(comP);
 
             String protocolsString = "";
@@ -1163,23 +1133,8 @@ public class VehicleInfo extends JPanel implements PropertiesProvider {
                     comP = PropertiesEditor.getPropertyInstance("imc.tcp-on", category, Boolean.class, new Boolean(
                             nArgs.isTcpOn()), true);
                     propertiesList.add(comP);
-                    comP = PropertiesEditor.getPropertyInstance("imc.imc3-id", category, ImcId16.class,
-                            (nArgs.getImc3Id() == null) ? ImcId16.NULL_ID : nArgs.getImc3Id(), true);
-                    propertiesList.add(comP);
-                }
-                else if (pArgs instanceof AdjustTimeShellArgs) {
-                    AdjustTimeShellArgs tArgs = (AdjustTimeShellArgs) pArgs;
-                    comP = PropertiesEditor.getPropertyInstance("time-shell.set-seconds", categoryBase, Boolean.class,
-                            new Boolean(tArgs.isSetSeconds()), true);
-                    propertiesList.add(comP);
-                    comP = PropertiesEditor.getPropertyInstance("time-shell.set-year", categoryBase, Boolean.class,
-                            new Boolean(tArgs.isSetYear()), true);
-                    propertiesList.add(comP);
-                    comP = PropertiesEditor.getPropertyInstance("time-shell.use-2-digit-year", categoryBase,
-                            Boolean.class, new Boolean(tArgs.isUse2DigitYear()), true);
-                    propertiesList.add(comP);
-                    comP = PropertiesEditor.getPropertyInstance("time-shell.set-year", categoryBase, Boolean.class,
-                            new Boolean(tArgs.isUseHwClock()), true);
+                    comP = PropertiesEditor.getPropertyInstance("imc.imc-id", category, ImcId16.class,
+                            (nArgs.getImcId() == null) ? ImcId16.NULL_ID : nArgs.getImcId(), true);
                     propertiesList.add(comP);
                 }
                 else if (pArgs instanceof FTPArgs) {
@@ -1249,21 +1204,8 @@ public class VehicleInfo extends JPanel implements PropertiesProvider {
                                     ((IMCArgs) protoArgs).setUdpOn((Boolean) prop.getValue());
                                 else if (prop.getName().equals("imc.tcp-on"))
                                     ((IMCArgs) protoArgs).setTcpOn((Boolean) prop.getValue());
-                                else if (prop.getName().equals("imc.imc3-id"))
-                                    ((IMCArgs) protoArgs).setImc3Id((ImcId16) prop.getValue());
-                            }
-                        }
-                        else if (protocol.equalsIgnoreCase("time-shell")) {
-                            ProtocolArgs protoArgs = vehicle.getProtocolsArgs().get(protocol);
-                            if (protoArgs != null) {
-                                if (prop.getName().equals("time-shell.set-seconds"))
-                                    ((AdjustTimeShellArgs) protoArgs).setSetSeconds((Boolean) prop.getValue());
-                                else if (prop.getName().equals("time-shell.set-year"))
-                                    ((AdjustTimeShellArgs) protoArgs).setSetYear((Boolean) prop.getValue());
-                                else if (prop.getName().equals("time-shell.use-2-digit-year"))
-                                    ((AdjustTimeShellArgs) protoArgs).setUse2DigitYear((Boolean) prop.getValue());
-                                else if (prop.getName().equals("time-shell.use-hwclock"))
-                                    ((AdjustTimeShellArgs) protoArgs).setUseHwClock((Boolean) prop.getValue());
+                                else if (prop.getName().equals("imc.imc-id"))
+                                    ((IMCArgs) protoArgs).setImcId((ImcId16) prop.getValue());
                             }
                         }
                     }
@@ -1275,12 +1217,6 @@ public class VehicleInfo extends JPanel implements PropertiesProvider {
             if (cm != null) {
                 if (prop.getName().equals("host name")) {
                     cm.setHostAddress((String) prop.getValue());
-                }
-                else if (prop.getName().equals("user name")) {
-                    cm.setUserName((String) prop.getValue());
-                }
-                else if (prop.getName().equals("is password saved")) {
-                    cm.setPasswordSaved((Boolean) prop.getValue());
                 }
                 else {
                     // for (String protocol : cm.getProtocols())
@@ -1297,21 +1233,8 @@ public class VehicleInfo extends JPanel implements PropertiesProvider {
                                         ((IMCArgs) protoArgs).setUdpOn((Boolean) prop.getValue());
                                     else if (prop.getName().equals("imc.tcp-on"))
                                         ((IMCArgs) protoArgs).setTcpOn((Boolean) prop.getValue());
-                                    else if (prop.getName().equals("imc.imc3-id"))
-                                        ((IMCArgs) protoArgs).setImc3Id((ImcId16) prop.getValue());
-                                }
-                            }
-                            else if (protocol.equalsIgnoreCase("time-shell")) {
-                                ProtocolArgs protoArgs = cm.getProtocolsArgs().get(protocol);
-                                if (protoArgs != null) {
-                                    if (prop.getName().equals("time-shell.set-seconds"))
-                                        ((AdjustTimeShellArgs) protoArgs).setSetSeconds((Boolean) prop.getValue());
-                                    else if (prop.getName().equals("time-shell.set-year"))
-                                        ((AdjustTimeShellArgs) protoArgs).setSetYear((Boolean) prop.getValue());
-                                    else if (prop.getName().equals("time-shell.use-2-digit-year"))
-                                        ((AdjustTimeShellArgs) protoArgs).setUse2DigitYear((Boolean) prop.getValue());
-                                    else if (prop.getName().equals("time-shell.use-hwclock"))
-                                        ((AdjustTimeShellArgs) protoArgs).setUseHwClock((Boolean) prop.getValue());
+                                    else if (prop.getName().equals("imc.imc-id"))
+                                        ((IMCArgs) protoArgs).setImcId((ImcId16) prop.getValue());
                                 }
                             }
                         }

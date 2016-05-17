@@ -1,0 +1,80 @@
+{
+  "id": "fdcbc472-7b8f-44e1-8ac7-87708ec46f6c",
+  "featureOfInterest": {
+    "type": "Airplane",
+    "id": "RA-61714"
+  },
+  "phenomenonTime": 1427723025000,
+  "observationTime": 1427723033038,
+  "observedProperties": [
+    {
+      "property": "callSign",
+      "propertyName": "callSign",
+      "result": {
+        "value": "IK754",
+        "uom": "n/a"
+      }
+    },
+    {
+      "property": "flightNumber",
+      "propertyName": "flightNumber",
+      "result": {
+        "value": "IK754",
+        "uom": "n/a"
+      }
+    },
+    {
+      "property": "heading",
+      "propertyName": "heading",
+      "result": {
+        "value": "336.0",
+        "uom": "degrees"
+      }
+    },
+    {
+      "property": "registrationNumber",
+      "propertyName": "registrationNumber",
+      "result": {
+        "value": "RA-61714",
+        "uom": "n/a"
+      }
+    },
+    {
+      "property": "speed",
+      "propertyName": "speed",
+      "result": {
+        "value": "305.0",
+        "uom": "km/h"
+      }
+    },
+    {
+      "property": "verticalSpeed",
+      "propertyName": "verticalSpeed",
+      "result": {
+        "value": "0.0",
+        "uom": "km/h"
+      }
+    },
+    {
+      "property": "aircraftType",
+      "propertyName": "aircraftType",
+      "result": {
+        "value": "A148",
+        "uom": "n/a"
+      }
+    },
+    {
+      "property": "position",
+      "propertyName": "position",
+      "result": {
+        "value": "55.3756,102.4513,62415.418002706625",
+        "uom": "position"
+      }
+    }
+  ],
+  "procedure": {
+    "type": "reading",
+    "sensor": "flightradar24",
+    "sensorHumanName": "FlightRadar24 Public Feed"
+  }
+}

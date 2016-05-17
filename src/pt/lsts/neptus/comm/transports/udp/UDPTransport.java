@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2015 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2016 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -37,6 +37,7 @@ import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.MulticastSocket;
+import java.net.NoRouteToHostException;
 import java.net.SocketException;
 import java.net.SocketTimeoutException;
 import java.net.UnknownHostException;
@@ -681,6 +682,11 @@ public class UDPTransport {
                             }
                             else
                                 throw new Exception(req.getAddress() + " port is not valid");
+                        }
+                        catch (NoRouteToHostException e) {
+                            NeptusLog.pub().debug(e + " :: " + req.getAddress());
+                            // e.printStackTrace();
+                            informDeliveryListener(req, ResultEnum.Error, e);
                         }
                         catch (Exception e) {
                             NeptusLog.pub().error(e + " :: " + req.getAddress());

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2015 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2016 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -64,7 +64,7 @@ import javax.swing.SwingWorker;
 
 import pt.lsts.imc.IMCMessage;
 import pt.lsts.imc.gui.ImcStatePanel;
-import pt.lsts.imc.state.ImcSysState;
+import pt.lsts.imc.state.ImcSystemState;
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.comm.manager.BaseAbstractCommsMonitorPanel;
 import pt.lsts.neptus.comm.manager.MessageFrequencyCalculator;
@@ -122,13 +122,13 @@ public class MonitorIMCComms extends
     private JLabel configLabelMiddle = null;
     private JPanel configSystemControlPanel = null;
 
-    private ImcSysState commonSystemState = null;
+    private ImcSystemState commonSystemState = null;
     private ImcStatePanel commonSystemStatePanel = null;
     private JPanel addCommonImcMsgPanel = null;
     private JLabel commonImcMsgInfoLabel = null;
     private JScrollPane commonImcMsgScrollPane = null;
 
-    private ImcSysState selSystemState = null;
+    private ImcSystemState selSystemState = null;
     private ImcStatePanel selSystemStatePanel = null;
     private JPanel addSystemImcMsgPanel = null;
     private JLabel systemImcMsgInfoLabel = null;
@@ -175,7 +175,7 @@ public class MonitorIMCComms extends
     }
 
     private void updateCommonImcMsg() {
-        ImcSysState st = getCommManager().getImcState();
+        ImcSystemState st = getCommManager().getImcState();
         if (st != commonSystemState) {
             if (commonSystemState != null)
                 commonSystemState = null;
@@ -226,7 +226,7 @@ public class MonitorIMCComms extends
  
         SystemImcMsgCommInfo ci = getCommManager().getCommInfoById(idImc);
         if (ci != null) {
-            ImcSysState st = ((SystemImcMsgCommInfo)ci).getImcState();
+            ImcSystemState st = ((SystemImcMsgCommInfo)ci).getImcState();
             if (st != selSystemState) {
                 if (selSystemState != null)
                     selSystemState = null;
@@ -312,7 +312,7 @@ public class MonitorIMCComms extends
         ret += "<b>" + I18n.text("Name:") + "</b> " + imcCCUName + "<br>";
         ret += "<b>" + I18n.text("ID:") + "</b> " + idImc.toPrettyString();
         if (getCommManager().is2IdErrorMode())
-            ret += " <b color='red'>" + I18n.text("Another node with this ID detected!") + "</b>";;
+            ret += " <b color='red'>" + I18n.text("Another node with this ID detected!") + "</b>";
         ret += "<br>";
         ret += "<b>" + I18n.text("Services:") + "</b> "
                 + getCommManager().getAllServicesString().replaceAll(";", ";<br>") + "<br><br>";
@@ -732,9 +732,6 @@ public class MonitorIMCComms extends
                         @Override
                         protected Void doInBackground() throws Exception {
                             if (!getCommManager().isRunning()) {
-                                // JOptionPane.showMessageDialog(MonitorIMC3Comms.this,
-                                // "IMC comm. manager is not running yet!",
-                                // "Setup new vehicle comms.", JOptionPane.WARNING_MESSAGE);
                                 JOptionPane jop = new JOptionPane(I18n.text("IMC comm. manager is not running yet!"),
                                         JOptionPane.WARNING_MESSAGE);
                                 JDialog dialog = jop.createDialog(MonitorIMCComms.this,

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2015 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2016 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -51,11 +51,11 @@ import javax.vecmath.Point3d;
 import javax.vecmath.TexCoord2f;
 import javax.vecmath.Vector3d;
 
+import com.sun.j3d.utils.geometry.GeometryInfo;
+
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.console.plugins.JVideoPanelConsole;
 import pt.lsts.neptus.types.vehicle.VehicleType;
-
-import com.sun.j3d.utils.geometry.GeometryInfo;
 
 public class ProjectionObj {
 

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2015 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2016 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -85,6 +85,11 @@ import javax.swing.undo.UndoManager;
 import org.dom4j.Document;
 import org.dom4j.DocumentHelper;
 
+import com.l2fprod.common.propertysheet.DefaultProperty;
+import com.l2fprod.common.propertysheet.PropertySheet;
+import com.l2fprod.common.propertysheet.PropertySheetDialog;
+import com.l2fprod.common.propertysheet.PropertySheetPanel;
+
 import pt.lsts.imc.IMCMessage;
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.console.ConsoleLayout;
@@ -96,6 +101,7 @@ import pt.lsts.neptus.console.plugins.planning.edit.ManeuverRemoved;
 import pt.lsts.neptus.console.plugins.planning.edit.ManeuverTranslated;
 import pt.lsts.neptus.console.plugins.planning.edit.PlanRotated;
 import pt.lsts.neptus.console.plugins.planning.edit.PlanSettingsChanged;
+import pt.lsts.neptus.console.plugins.planning.edit.PlanTransitionsReversed;
 import pt.lsts.neptus.console.plugins.planning.edit.PlanTranslated;
 import pt.lsts.neptus.console.plugins.planning.edit.PlanZChanged;
 import pt.lsts.neptus.gui.PropertiesEditor;
@@ -138,11 +144,6 @@ import pt.lsts.neptus.types.vehicle.VehiclesHolder;
 import pt.lsts.neptus.util.GuiUtils;
 import pt.lsts.neptus.util.ImageUtils;
 import pt.lsts.neptus.util.conf.ConfigFetch;
-
-import com.l2fprod.common.propertysheet.DefaultProperty;
-import com.l2fprod.common.propertysheet.PropertySheet;
-import com.l2fprod.common.propertysheet.PropertySheetDialog;
-import com.l2fprod.common.propertysheet.PropertySheetPanel;
 
 /**
  * 
@@ -574,8 +575,21 @@ public class PlanEditor extends InteractionAdapter implements Renderer2DPainter,
                 String lastPlanId = plan.getId();
                 String planId = lastPlanId;
                 while (true) {
+                    try {
+                        plan.validatePlan();
+                    }
+                    catch (Exception ex) {
+                        int option = GuiUtils.confirmDialog(getConsole(), I18n.text("Plan Validation"), 
+                                I18n.text("Are you sure you want to save the plan?\nThe following errors where found:")
+                                        +"\n - " + ex.getMessage().replaceAll("\n", "\n - "));
+                        if (option == JOptionPane.YES_OPTION)
+                            break;
+                        else
+                            return;
+                    }
+                    
                     planId = JOptionPane.showInputDialog(getConsole(), I18n.text("Enter the plan ID"), lastPlanId);
-
+                    
                     if (planId == null)
                         return;
                     if (getConsole().getMission().getIndividualPlansList().get(planId) != null) {
@@ -583,9 +597,8 @@ public class PlanEditor extends InteractionAdapter implements Renderer2DPainter,
                                 I18n.text("Do you wish to replace the existing plan with same name?"));
                         if (option == JOptionPane.CANCEL_OPTION)
                             return;
-                        else if (option == JOptionPane.YES_OPTION) {
+                        else if (option == JOptionPane.YES_OPTION)
                             break;
-                        }
                         lastPlanId = planId;
                     }
                     else
@@ -634,6 +647,7 @@ public class PlanEditor extends InteractionAdapter implements Renderer2DPainter,
                     if (option == JOptionPane.NO_OPTION)
                         return;
                 }
+                getPropertiesPanel().setManeuver(null);
                 setPlan(null);
                 manager.discardAllEdits();
                 updateUndoRedo();
@@ -1142,6 +1156,26 @@ public class PlanEditor extends InteractionAdapter implements Renderer2DPainter,
                             new ImageIcon(ImageUtils.getScaledImage("images/buttons/wizard.png", 16, 16)));
                     planSettings.add(pVehicle);
 
+                    AbstractAction pTrans = new AbstractAction(I18n.text("Reverse plan transitions...")) {
+                        private static final long serialVersionUID = 1L;
+
+                        @Override
+                        public void actionPerformed(ActionEvent e) {
+                            Maneuver[] manSeq = plan.getGraph().getManeuversSequence();
+                            if (manSeq.length > 1) {
+                                Maneuver startManeuver = manSeq[0];
+                                Maneuver endManeuver = manSeq[manSeq.length - 1];
+                                PlanTransitionsReversed ptr = new PlanTransitionsReversed(plan, startManeuver, endManeuver);
+                                ptr.redo();
+                                manager.addEdit(ptr);
+                            }
+                        }
+                    };
+                    pTrans.putValue(AbstractAction.SMALL_ICON,
+                            new ImageIcon(ImageUtils.getScaledImage("images/buttons/wizard.png", 16, 16)));
+                    planSettings.add(pTrans);
+                    
+                    
                     planSettings.setIcon(new ImageIcon(ImageUtils.getScaledImage("images/buttons/wizard.png", 16, 16)));
                     popup.add(planSettings);
 
@@ -1295,7 +1329,14 @@ public class PlanEditor extends InteractionAdapter implements Renderer2DPainter,
     }
 
     protected AbstractAction getPasteAction(final Point mousePoint) {
-        Transferable contents = Toolkit.getDefaultToolkit().getSystemClipboard().getContents(null);
+        Transferable contents = null;
+        try {
+            contents = Toolkit.getDefaultToolkit().getSystemClipboard().getContents(null);
+        }
+        catch (Exception e1) {
+            NeptusLog.pub().warn(e1);
+        }
+        
         boolean enabled = false;
 
         boolean hasTransferableText = (contents != null) && contents.isDataFlavorSupported(DataFlavor.stringFlavor);

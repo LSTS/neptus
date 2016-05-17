@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2015 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2016 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -42,6 +42,7 @@ import javax.swing.ProgressMonitor;
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.colormap.ColorMap;
 import pt.lsts.neptus.colormap.ColorMapFactory;
+import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.mra.api.SidescanLine;
 import pt.lsts.neptus.mra.api.SidescanParameters;
 import pt.lsts.neptus.mra.api.SidescanParser;
@@ -56,7 +57,7 @@ import pt.lsts.neptus.plugins.PluginUtils;
  * @author zp
  *
  */
-@PluginDescription
+@PluginDescription(name="Sidescan Images")
 public class SidescanImageExporter implements MRAExporter {
 
     SidescanParser parser = null;
@@ -78,7 +79,13 @@ public class SidescanImageExporter implements MRAExporter {
     public int imageHeight = 1080;
     
     @NeptusProperty
+    public int imageOverlap = 0;
+    
+    @NeptusProperty
     public int hudSize = 250;
+    
+    @NeptusProperty
+    public boolean showHud = true;
     
     @Override
     public boolean canBeApplied(IMraLogGroup source) {
@@ -98,7 +105,10 @@ public class SidescanImageExporter implements MRAExporter {
     @Override
     public String process(IMraLogGroup source, ProgressMonitor pmonitor) {
         parser = SidescanParserFactory.build(source);
-        PluginUtils.editPluginProperties(this, true);
+        boolean cancel = PluginUtils.editPluginProperties(this, true);
+        if (cancel)
+            return I18n.text("Cancelled by user");
+        
         MraVehiclePosHud hud = new MraVehiclePosHud(source, hudSize, hudSize);
         hud.setPathColor(Color.white);
         //double ratio = 9.0 / 16.0;
@@ -127,38 +137,44 @@ public class SidescanImageExporter implements MRAExporter {
         BufferedImage img = null;
         int width = imageWidth, height = 1000;
         double startTime = start / 1000.0, endTime;
+        
         for (long time = start; time < end - 1000; time += 1000) {
             if (pmonitor.isCanceled())
-                return "Cancelled by the user";
+                return I18n.text("Cancelled by the user");
+            lines = parser.getLinesBetween(time, time + 1000, sys, params);
 
-            int d = 0;
-            while (lines.isEmpty() && d<10000){
-                d += 1000;
-                lines = parser.getLinesBetween(time, time + d, sys, params);
-            }
             if (lines.isEmpty())
-                break;
+                continue;
 
             if (img == null) {
-                width = Math.min(imageWidth, lines.get(0).xsize);
+                width = Math.min(imageWidth, lines.get(0).getXSize());
                 height = imageHeight;
                 img = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
                 img.getGraphics().clearRect(0, 0, img.getWidth(), img.getHeight());
             }
-            BufferedImage tmp = new BufferedImage(lines.get(0).data.length, 1, BufferedImage.TYPE_INT_RGB);
+            BufferedImage tmp = new BufferedImage(lines.get(0).getData().length, 1, BufferedImage.TYPE_INT_RGB);
             for (SidescanLine l : lines) {
-                pmonitor.setNote("Generating image "+image_num);
+                pmonitor.setNote(I18n.textf("Generating image %num",image_num));
                 pmonitor.setProgress((int)((time - start)/1000));
                 if (ypos >= height || time == end) {
                     endTime = time / 1000.0;
-                    BufferedImage hudImg = hud.getImage(startTime, endTime, 1.0);
-                    img.getGraphics().drawImage(hudImg, 10, height - hudSize-10, hudSize - 10, height-10, 0, 0, hudSize, hudSize, null);
+                    
+                    if (imageOverlap == 0 && showHud) {
+                        BufferedImage hudImg = hud.getImage(startTime, endTime, 1.0);
+                        img.getGraphics().drawImage(hudImg, 10, height - hudSize-10, hudSize - 10, height-10, 0, 0, hudSize, hudSize, null);
+                    }
                     
                     try {
                         ImageIO.write(img, "PNG", new File(out, "sss_"+image_num+".png"));
-                        img.getGraphics().clearRect(0, 0, img.getWidth(), img.getHeight());
-                        ypos = 0;
+                        
+                        if (imageOverlap > 0)
+                            img.getGraphics().drawImage(img, 0, 0, img.getWidth(), imageOverlap, 0, img.getHeight()-imageOverlap, img.getWidth(), img.getHeight(), null);                            
+                        
+                        img.getGraphics().clearRect(0, imageOverlap, img.getWidth(), img.getHeight()-imageOverlap);
+
+                        ypos = imageOverlap;
                         image_num++;
+                        
                     }
                     catch (Exception e) {
                         NeptusLog.pub().error(e);
@@ -168,8 +184,8 @@ public class SidescanImageExporter implements MRAExporter {
                 }
 
                 // Apply colormap to data
-                for (int c = 0; c < l.data.length; c++)
-                    tmp.setRGB(c, 0, cmap.getColor(l.data[c]).getRGB());
+                for (int c = 0; c < l.getData().length; c++)
+                    tmp.setRGB(c, 0, cmap.getColor(l.getData()[c]).getRGB());
 
                 img.getGraphics().drawImage(tmp, 0, ypos, width-1, ypos+1, 0, 0, tmp.getWidth(), tmp.getHeight(), null);
                 ypos++;
@@ -194,12 +210,6 @@ public class SidescanImageExporter implements MRAExporter {
             parser.cleanup();
             parser = null;
         }
-        return "OK";
+        return I18n.textf("%num images were exported to %path.", image_num, out.getAbsolutePath());
     }    
-
-    @Override
-    public String getName() {
-        return "Sidescan Images";
-    }
-
 }

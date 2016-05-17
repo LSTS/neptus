@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2015 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2016 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -33,9 +33,7 @@ package pt.lsts.neptus.plugins.sidescan;
 
 import java.awt.Component;
 import java.awt.Graphics;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.TimeZone;
 
 import javax.swing.ImageIcon;
 import javax.swing.JPanel;
@@ -58,7 +56,7 @@ import pt.lsts.neptus.util.llf.LogUtils;
 
 /**
  * @author jqcorreia
- * 
+ *
  */
 @PluginDescription(author = "jqcorreia", name = "Sidescan Analyzer", icon = "pt/lsts/neptus/plugins/echosounder/echosounder.png")
 public class SidescanAnalyzer extends JPanel implements MRAVisualization, TimelineChangeListener, LogMarkerListener {
@@ -78,8 +76,6 @@ public class SidescanAnalyzer extends JPanel implements MRAVisualization, Timeli
         this.mraPanel = panel;
     }
 
-    protected SimpleDateFormat fmt = new SimpleDateFormat("HH:mm:ss.SSS");
-
     public void initialize(IMraLogGroup source) {
         ssParser = SidescanParserFactory.build(source);
 
@@ -91,8 +87,6 @@ public class SidescanAnalyzer extends JPanel implements MRAVisualization, Timeli
         for (Integer subsys : ssParser.getSubsystemList()) {
             sidescanPanels.add(new SidescanPanel(this, ssParser, subsys));
         }
-
-        fmt.setTimeZone(TimeZone.getTimeZone("UTC"));
 
         timeline = new Timeline(0, (int) (lastPingTime - firstPingTime), 30, 1000, false);
         timeline.getSlider().setValue(0);
@@ -184,7 +178,7 @@ public class SidescanAnalyzer extends JPanel implements MRAVisualization, Timeli
 
     @Override
     public boolean canBeApplied(IMraLogGroup source) {
-        return LogUtils.hasIMCSidescan(source) || source.getFile("Data.jsf") != null
+        return LogUtils.hasIMCSidescan(source) || SidescanParserFactory.existsSidescanParser(source)
                 || source.getLog("SidescanPing") != null;
     }
 
@@ -219,6 +213,9 @@ public class SidescanAnalyzer extends JPanel implements MRAVisualization, Timeli
 
     @Override
     public void onCleanup() {
+        if (timeline != null)
+            timeline.shutdown();
+
         sidescanPanels.clear();
         removeAll();
         mraPanel = null;
@@ -250,7 +247,7 @@ public class SidescanAnalyzer extends JPanel implements MRAVisualization, Timeli
     }
 
     @Override
-    public void GotoMarker(LogMarker marker) {
+    public void goToMarker(LogMarker marker) {
 
     }
 

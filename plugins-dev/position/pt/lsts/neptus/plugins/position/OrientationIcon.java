@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2015 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2016 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -94,7 +94,7 @@ public class OrientationIcon implements Icon {
 		g.fill(circle);
         g.setColor(foregroundColor);
 		g.draw(circle);
-		if (angleRadians != Double.NaN) {
+		if (!Double.isNaN(angleRadians)) {
 			g.rotate(angleRadians);
 			g.scale(diam/100,diam/100);
 			g.fill(arrow);

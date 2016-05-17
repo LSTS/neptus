@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2015 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2016 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -40,6 +40,9 @@ import java.util.LinkedList;
 
 import org.dom4j.Document;
 
+import com.l2fprod.common.propertysheet.DefaultProperty;
+import com.l2fprod.common.propertysheet.Property;
+
 import pt.lsts.neptus.gui.PropertiesEditor;
 import pt.lsts.neptus.gui.PropertiesProvider;
 import pt.lsts.neptus.types.comm.CommMean;
@@ -48,9 +51,6 @@ import pt.lsts.neptus.types.comm.protocol.ProtocolArgs;
 import pt.lsts.neptus.types.vehicle.TemplateFileVehicle;
 import pt.lsts.neptus.types.vehicle.VehicleType;
 import pt.lsts.neptus.util.FileUtil;
-
-import com.l2fprod.common.propertysheet.DefaultProperty;
-import com.l2fprod.common.propertysheet.Property;
 
 public class VehicleIpPortEditor implements PropertiesProvider {
     private VehicleType vehicle;
@@ -98,12 +98,6 @@ public class VehicleIpPortEditor implements PropertiesProvider {
             if (cm != null) {
                 if (prop.getName().equals("host name")) {
                     cm.setHostAddress((String) prop.getValue());
-                }
-                else if (prop.getName().equals("user name")) {
-                    cm.setUserName((String) prop.getValue());
-                }
-                else if (prop.getName().equals("is password saved")) {
-                    cm.setPasswordSaved((Boolean) prop.getValue());
                 }
                 else {
                     for (String protocol : cm.getProtocols()) {

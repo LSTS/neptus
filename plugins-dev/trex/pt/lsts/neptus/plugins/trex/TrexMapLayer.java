@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2015 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2016 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -56,11 +56,13 @@ import javax.swing.JScrollPane;
 
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
-import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.conn.HttpHostConnectException;
 import org.apache.http.entity.StringEntity;
-import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.HttpClientBuilder;
+
+import com.google.common.eventbus.Subscribe;
 
 import pt.lsts.imc.EntityParameter;
 import pt.lsts.imc.IMCMessage;
@@ -74,7 +76,6 @@ import pt.lsts.imc.TrexToken;
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.comm.manager.imc.ImcMsgManager;
 import pt.lsts.neptus.console.ConsoleLayout;
-import pt.lsts.neptus.console.notifications.Notification;
 import pt.lsts.neptus.fileeditor.SyntaxDocument;
 import pt.lsts.neptus.gui.PropertiesEditor;
 import pt.lsts.neptus.mp.Maneuver;
@@ -95,13 +96,10 @@ import pt.lsts.neptus.types.coord.LocationType;
 import pt.lsts.neptus.util.GuiUtils;
 import pt.lsts.neptus.util.ImageUtils;
 
-import com.google.common.eventbus.Subscribe;
-
 /**
  * @author zp
  * 
  */
-@SuppressWarnings("deprecation")
 @PluginDescription(name = "TrexMapLayer", icon = "pt/lsts/neptus/plugins/trex/smallTrex.png")
 public class TrexMapLayer extends SimpleRendererInteraction implements Renderer2DPainter, NeptusMessageListener {
     enum CommsChannel {
@@ -144,7 +142,7 @@ public class TrexMapLayer extends SimpleRendererInteraction implements Renderer2
     public boolean postNotifications = true;
     
 
-    private final HttpClient httpclient = new DefaultHttpClient();
+    private final CloseableHttpClient httpclient = HttpClientBuilder.create().build();
 
     private static final long serialVersionUID = 1L;
     private Maneuver lastManeuver = null;
@@ -693,8 +691,12 @@ public class TrexMapLayer extends SimpleRendererInteraction implements Renderer2
      */
     @Override
     public void cleanSubPanel() {
-        // TODO Auto-generated method stub
-        httpclient.getConnectionManager().shutdown();
+        try {
+            httpclient.close();
+        }
+        catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     // @Subscribe
@@ -732,12 +734,12 @@ public class TrexMapLayer extends SimpleRendererInteraction implements Renderer2
             case POST_TOKEN:
                 pred = token.getPredicate();
                 timeline = token.getTimeline();
-                post(Notification.success("T-REX Observation", timeline+"."+pred));
+                NeptusLog.pub().info("T-REX Observation: "+timeline+"."+pred);
                 break;
             case POST_GOAL:
                 pred = token.getPredicate();
                 timeline = token.getTimeline();
-                post(Notification.success("T-REX Goal", timeline+"."+pred));
+                NeptusLog.pub().info("T-REX Goal: "+timeline+"."+pred);
                 break;
             default:
                 break;

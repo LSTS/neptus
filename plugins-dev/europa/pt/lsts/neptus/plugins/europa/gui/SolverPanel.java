@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2015 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2016 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -176,9 +176,9 @@ public class SolverPanel extends JPanel {
                         long speed3Batt = (long) (speed2Batt * (speed2 / speed3));
 
                         if (ImcMsgManager.getManager().getState(vehicle).isActive()) {
-                            EstimatedState pos = ImcMsgManager.getManager().getState(vehicle).lastEstimatedState();
+                            EstimatedState pos = ImcMsgManager.getManager().getState(vehicle).last(EstimatedState.class);
                             loc = IMCUtils.getLocation(pos);
-                            FuelLevel fl = ImcMsgManager.getManager().getState(vehicle).lastFuelLevel();
+                            FuelLevel fl = ImcMsgManager.getManager().getState(vehicle).last(FuelLevel.class);
                             if (fl != null) {
                                 LinkedHashMap<String, String> opModes = fl.getOpmodes();
                                 // speed conversion is not linear but this is just for demonstration sake...

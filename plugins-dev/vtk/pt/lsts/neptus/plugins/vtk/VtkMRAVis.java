@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2015 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2016 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -39,6 +39,9 @@ import java.util.LinkedHashMap;
 import javax.swing.ImageIcon;
 import javax.swing.JPanel;
 
+import com.l2fprod.common.propertysheet.DefaultProperty;
+import com.l2fprod.common.propertysheet.Property;
+
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.gui.PropertiesProvider;
 import pt.lsts.neptus.i18n.I18n;
@@ -47,30 +50,25 @@ import pt.lsts.neptus.mra.MRAProperties;
 import pt.lsts.neptus.mra.NeptusMRA;
 import pt.lsts.neptus.mra.importers.IMraLogGroup;
 import pt.lsts.neptus.mra.visualizations.MRAVisualization;
-import pt.lsts.neptus.plugins.NeptusProperty;
 import pt.lsts.neptus.plugins.PluginDescription;
 import pt.lsts.neptus.plugins.PluginUtils;
-import pt.lsts.neptus.plugins.vtk.filters.StatisticalOutlierRemoval;
-import pt.lsts.neptus.plugins.vtk.mravisualizer.EventsHandler;
-import pt.lsts.neptus.plugins.vtk.mravisualizer.EventsHandler.SensorTypeInteraction;
-import pt.lsts.neptus.plugins.vtk.mravisualizer.InteractorStyleVis3D;
-import pt.lsts.neptus.plugins.vtk.mravisualizer.LoadToPointCloud;
-import pt.lsts.neptus.plugins.vtk.mravisualizer.Vis3DMenuBar;
-import pt.lsts.neptus.plugins.vtk.mravisualizer.Vis3DToolBar;
-import pt.lsts.neptus.plugins.vtk.mravisualizer.Window;
-import pt.lsts.neptus.plugins.vtk.pointcloud.APointCloud;
-import pt.lsts.neptus.plugins.vtk.pointcloud.PointCloudHandlerXYZ;
-import pt.lsts.neptus.plugins.vtk.pointcloud.PointCloudXYZ;
-import pt.lsts.neptus.plugins.vtk.surface.PointCloudMesh;
-import pt.lsts.neptus.plugins.vtk.utils.Utils;
-import pt.lsts.neptus.plugins.vtk.visualization.Canvas;
-import pt.lsts.neptus.plugins.vtk.visualization.Text3D;
 import pt.lsts.neptus.util.GuiUtils;
 import pt.lsts.neptus.util.ImageUtils;
+import pt.lsts.neptus.vtk.filters.StatisticalOutlierRemoval;
+import pt.lsts.neptus.vtk.mravisualizer.EventsHandler;
+import pt.lsts.neptus.vtk.mravisualizer.EventsHandler.SensorTypeInteraction;
+import pt.lsts.neptus.vtk.mravisualizer.InteractorStyleVis3D;
+import pt.lsts.neptus.vtk.mravisualizer.LoadToPointCloud;
+import pt.lsts.neptus.vtk.mravisualizer.VtkOptions;
+import pt.lsts.neptus.vtk.mravisualizer.Window;
+import pt.lsts.neptus.vtk.pointcloud.APointCloud;
+import pt.lsts.neptus.vtk.pointcloud.PointCloudHandlerXYZ;
+import pt.lsts.neptus.vtk.pointcloud.PointCloudXYZ;
+import pt.lsts.neptus.vtk.surface.PointCloudMesh;
+import pt.lsts.neptus.vtk.utils.Utils;
+import pt.lsts.neptus.vtk.visualization.Canvas;
+import pt.lsts.neptus.vtk.visualization.Text3D;
 import vtk.vtkLODActor;
-
-import com.l2fprod.common.propertysheet.DefaultProperty;
-import com.l2fprod.common.propertysheet.Property;
 
 /**
  * @author hfq
@@ -78,9 +76,6 @@ import com.l2fprod.common.propertysheet.Property;
 @PluginDescription(author = "hfq", name = "Bathymetry 3D", icon = "images/menus/3d.png")
 public class VtkMRAVis extends JPanel implements MRAVisualization, PropertiesProvider {
     private static final long serialVersionUID = 8057825167454469065L;
-
-    @NeptusProperty(name = "Depth exaggeration multiplier", description = "Multiplier value for depth exaggeration.")
-    public static int zExaggeration = 10;
 
     private Canvas canvas;
     private Window winCanvas;
@@ -163,17 +158,22 @@ public class VtkMRAVis extends JPanel implements MRAVisualization, PropertiesPro
 
     private void loadCloud() {
         if (mbFound) {
-            PointCloudXYZ pointCloudMultibeam = new PointCloudXYZ();
-            LoadToPointCloud load = new LoadToPointCloud(source, pointCloudMultibeam);
-            NeptusLog.pub().info("Parsing Multibeam data.");
-            pointCloudMultibeam.setCloudName("multibeam");
-            load.parseMultibeamPointCloud();
-            getLinkedHashMapCloud().put(pointCloudMultibeam.getCloudName(), pointCloudMultibeam);
-            processPointCloud(pointCloudMultibeam, load);
-            pointCloudMultibeam.getPolyData().GetPointData().SetScalars(((PointCloudHandlerXYZ) (pointCloudMultibeam.getColorHandler())).getColorsZ());
-            events.setSensorTypeInteraction(SensorTypeInteraction.MULTIBEAM);
-            toolbar.multibeamToggle.setSelected(true);
-            setUpRenderer(pointCloudMultibeam);
+            try {
+                PointCloudXYZ pointCloudMultibeam = new PointCloudXYZ();
+                LoadToPointCloud load = new LoadToPointCloud(source, pointCloudMultibeam);
+                NeptusLog.pub().info("Parsing Multibeam data.");
+                pointCloudMultibeam.setCloudName("multibeam");
+                load.parseMultibeamPointCloud();
+                getLinkedHashMapCloud().put(pointCloudMultibeam.getCloudName(), pointCloudMultibeam);
+                processPointCloud(pointCloudMultibeam, load);
+                pointCloudMultibeam.getPolyData().GetPointData().SetScalars(((PointCloudHandlerXYZ) (pointCloudMultibeam.getColorHandler())).getColorsZ());
+                events.setSensorTypeInteraction(SensorTypeInteraction.MULTIBEAM);
+                toolbar.multibeamToggle.setSelected(true);
+                setUpRenderer(pointCloudMultibeam);
+            }
+            catch (Exception e) {
+                NeptusLog.pub().error(e.getMessage(), e);
+            }
         }
         if (source.getLsfIndex().containsMessagesOfType("Distance")) {
             PointCloudXYZ pointCloudDVL = new PointCloudXYZ();
@@ -364,7 +364,7 @@ public class VtkMRAVis extends JPanel implements MRAVisualization, PropertiesPro
      */
     @Override
     public DefaultProperty[] getProperties() {
-        return PluginUtils.getPluginProperties(this);
+        return PluginUtils.getPluginProperties(new VtkOptions());
     }
 
     /*
@@ -374,7 +374,7 @@ public class VtkMRAVis extends JPanel implements MRAVisualization, PropertiesPro
      */
     @Override
     public void setProperties(Property[] properties) {
-        PluginUtils.setPluginProperties(this, properties);
+        PluginUtils.setPluginProperties(new VtkOptions(), properties);
     }
 
     @Override

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2015 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2016 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -92,7 +92,7 @@ public class PolygonInteraction extends InteractionAdapter {
 
         if (element == null) {
             element = new PathElement(pivot.getMapGroup(), pivot, lt);
-            element.setFill(fill);
+            element.setFilled(fill);
             element.setShape(fill);
             pivot.addObject(element);
             element.addPoint(0,0,0, false);

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2015 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2016 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -34,6 +34,7 @@ package pt.lsts.neptus.plugins.logs;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.TimeZone;
 
 public class HistoryMessage implements Comparable<HistoryMessage> {
     public enum msg_type {
@@ -44,7 +45,8 @@ public class HistoryMessage implements Comparable<HistoryMessage> {
         debug
     };
 
-    protected static final DateFormat format = new SimpleDateFormat("HH:mm:ss");
+    @SuppressWarnings("serial")
+    protected final DateFormat format = new SimpleDateFormat("HH:mm:ss") {{ setTimeZone(TimeZone.getTimeZone("UTC")); }};
     public long timestamp;
     public String text;
     public String context;
@@ -52,12 +54,11 @@ public class HistoryMessage implements Comparable<HistoryMessage> {
     public msg_type type = msg_type.info;
     
     public HistoryMessage(){
-        
     }
     
     @Override
     public String toString() {
-        return "["+format.format(new Date(timestamp))+"] "+" ["+context+"] "+text;
+        return "["+format.format(new Date(timestamp))+" UTC] "+" ["+context+"] "+text;
     }
     
     public HistoryMessage(long timestamp, String text, String context, boolean assynchronous, msg_type type) {

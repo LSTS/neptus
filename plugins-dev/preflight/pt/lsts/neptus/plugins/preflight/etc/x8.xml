@@ -1,0 +1,80 @@
+<?xml version="1.0"?>
+<x8>
+  <section id = "Planning">
+    <check class = "pt.lsts.neptus.plugins.preflight.check.automated.CheckHomeRef"></check>
+    
+    <check class = "pt.lsts.neptus.plugins.preflight.check.automated.CheckPlan">
+      <arg type = "string">lost_comms</arg>
+      <arg type = "string">Lost Comms</arg>
+    </check>
+
+    <check class = "pt.lsts.neptus.plugins.preflight.check.automated.CheckPlan">
+      <arg type = "java.lang.String">auto_land</arg>
+      <arg type = "java.lang.String">Auto Land</arg>
+    </check>
+    
+    <check class = "pt.lsts.neptus.plugins.preflight.check.automated.CheckPlan">
+      <arg type = "java.lang.String">auto_takeoff</arg>
+      <arg type = "java.lang.String">Auto Takeoff</arg>
+    </check>     
+  </section>
+
+    <section id = "Aircraft Controls">  
+    <check class = "pt.lsts.neptus.plugins.preflight.check.ManualCheck">
+      <arg type = "string">Elevators up/down</arg>
+      <arg type = "string">Aircraft Control</arg>
+    </check>
+
+    <check class = "pt.lsts.neptus.plugins.preflight.check.ManualCheck">
+      <arg type = "string">Ailerons up/down</arg>
+      <arg type = "string">Aircraft Control</arg>
+    </check>
+
+    <check class = "pt.lsts.neptus.plugins.preflight.check.ManualCheck">
+      <arg type = "string">Flaps up/down</arg>
+      <arg type = "string">Aircraft Control</arg>
+    </check>
+
+    <check class = "pt.lsts.neptus.plugins.preflight.check.ManualCheck">
+      <arg type = "string">Rudder left/right</arg>
+      <arg type = "string">Aircraft Control</arg>
+    </check>
+
+    <check class = "pt.lsts.neptus.plugins.preflight.check.ManualCheck">
+      <arg type = "string">Wheel left/right</arg>
+      <arg type = "string">Aircraft Control</arg>
+    </check>
+    </section>
+
+    <section id = "System and Sensors">
+      <check class = "pt.lsts.neptus.plugins.preflight.check.automated.DiskSpaceCheck"></check>
+      <check class = "pt.lsts.neptus.plugins.preflight.check.automated.CheckAirspeed"></check>
+      <check class = "pt.lsts.neptus.plugins.preflight.check.automated.CheckGpsFix"></check>
+      <check class = "pt.lsts.neptus.plugins.preflight.check.automated.CheckVoltage"></check>
+    </section>
+
+    <section id = "Operational Limits">
+      <check class = "pt.lsts.neptus.plugins.preflight.check.automated.CheckOpLimits">
+        <arg type = "string">Min Altitude</arg>
+        <arg type = "string">min_altitude</arg>
+      </check>
+      
+      <check class = "pt.lsts.neptus.plugins.preflight.check.automated.CheckOpLimits">
+        <arg type = "string">Max Altitude</arg>
+        <arg type = "string">max_altitude</arg>
+      </check>
+
+      <check class = "pt.lsts.neptus.plugins.preflight.check.automated.CheckOpLimits">
+        <arg type = "string">Min Speed</arg>
+        <arg type = "string">min_speed</arg>
+      </check>
+
+      <check class = "pt.lsts.neptus.plugins.preflight.check.automated.CheckOpLimits">
+        <arg type = "string">Max Speed</arg>
+        <arg type = "string">max_speed</arg>
+      </check>
+      
+    </section>
+</x8>
+    
+    

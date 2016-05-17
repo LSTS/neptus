@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2015 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2016 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -58,6 +58,9 @@ import org.dom4j.DocumentHelper;
 import org.dom4j.Element;
 import org.dom4j.Node;
 
+import com.l2fprod.common.propertysheet.DefaultProperty;
+import com.l2fprod.common.propertysheet.Property;
+
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.gui.PropertiesEditor;
 import pt.lsts.neptus.gui.PropertiesProvider;
@@ -65,6 +68,7 @@ import pt.lsts.neptus.gui.editor.ComboEditor;
 import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.mp.actions.PlanActions;
 import pt.lsts.neptus.mp.maneuvers.LocatedManeuver;
+import pt.lsts.neptus.mp.maneuvers.ManeuversUtil;
 import pt.lsts.neptus.plugins.PluginUtils;
 import pt.lsts.neptus.renderer2d.StateRenderer2D;
 import pt.lsts.neptus.types.XmlOutputMethods;
@@ -74,9 +78,6 @@ import pt.lsts.neptus.types.mission.MissionType;
 import pt.lsts.neptus.types.mission.plan.PlanType;
 import pt.lsts.neptus.util.GuiUtils;
 import pt.lsts.neptus.util.NameNormalizer;
-
-import com.l2fprod.common.propertysheet.DefaultProperty;
-import com.l2fprod.common.propertysheet.Property;
 
 /**
  * This is the superclass of every Maneuver To create a new maneuver, all the abstract classes must be implemented
@@ -133,12 +134,13 @@ public abstract class Maneuver implements XmlOutputMethods, PropertiesProvider, 
 
     private static Random rnd = new Random(System.currentTimeMillis());
 
+    public String id = NameNormalizer.getRandomID();
+
     private int maxTime = 10000, minTime = 0; // The maxinum number of seconds that any maneuver can take
     protected LinkedHashMap<String, String> customSettings = new LinkedHashMap<String, String>();
     protected LinkedHashMap<String, String> customSettingsTypeHint = new LinkedHashMap<String, String>();
     private int xPosition = rnd.nextInt(500), yPosition = rnd.nextInt(300);
     private boolean ManeuverEnded = false, initialManeuver = false;
-    public String id = NameNormalizer.getRandomID();
     private Hashtable<String, String> transitions = new Hashtable<String, String>();
     private MissionType missionType = null;
     
@@ -371,8 +373,6 @@ public abstract class Maneuver implements XmlOutputMethods, PropertiesProvider, 
             Element maneuver = doc.getRootElement().element("maneuver");
             Iterator<?> elementIterator = maneuver.elementIterator();
 
-            ClassLoader cl = ClassLoader.getSystemClassLoader();
-
             while (elementIterator.hasNext()) {
 
                 Element element = (Element) elementIterator.next();
@@ -384,10 +384,11 @@ public abstract class Maneuver implements XmlOutputMethods, PropertiesProvider, 
                 String manType = element.getName();
 
                 try {
-                    man = (Maneuver) cl.loadClass("pt.lsts.neptus.mp.maneuvers." + manType).newInstance();
+                    Class<Maneuver> manClass = ManeuversUtil.getManeuverFromType(manType);
+                    man = manClass.newInstance();
                 }
                 catch (Exception e) {
-                    NeptusLog.pub().error("maneuver not found: " + manType + " (" + e.getMessage() + ")");
+                    NeptusLog.pub().error("Maneuver not found: " + manType + " (" + e.getMessage() + ")");
                 }
                 if (man == null)
                     return null;
@@ -492,6 +493,7 @@ public abstract class Maneuver implements XmlOutputMethods, PropertiesProvider, 
 
     /**
      * The extending classes should provide a type name that will be shown to the user related to that maneuver.
+     * This should match the IMC message maneuver abbreviation.
      */
     public String getType() {
         return getClass().getSimpleName();

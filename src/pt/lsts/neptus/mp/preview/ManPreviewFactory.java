@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2015 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2016 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -31,72 +31,74 @@
  */
 package pt.lsts.neptus.mp.preview;
 
-import java.util.LinkedHashMap;
-
 import pt.lsts.neptus.mp.Maneuver;
 import pt.lsts.neptus.mp.SystemPositionAndAttitude;
-import pt.lsts.neptus.mp.maneuvers.Elevator;
 import pt.lsts.neptus.mp.maneuvers.FollowTrajectory;
-import pt.lsts.neptus.mp.maneuvers.Goto;
-import pt.lsts.neptus.mp.maneuvers.Loiter;
-import pt.lsts.neptus.mp.maneuvers.PopUp;
-import pt.lsts.neptus.mp.maneuvers.RowsManeuver;
-import pt.lsts.neptus.mp.maneuvers.StationKeeping;
-import pt.lsts.neptus.mp.maneuvers.YoYo;
+import pt.lsts.neptus.mp.maneuvers.Launch;
 
 /**
  * @author zp
- *
+ * @author pdias
  */
 public class ManPreviewFactory {
 
-    protected static LinkedHashMap<Class<Maneuver>, Class<IManeuverPreview<Maneuver>>> registeredPreviews = new LinkedHashMap<Class<Maneuver>, Class<IManeuverPreview<Maneuver>>>();
+    /**
+     * If finds and instantiate a preview for the maneuver. It looks for a preview in the current package of the
+     * maneuver class and in the sibling package "preview". The name of the preview class should be the name of the
+     * maneuver class suffixed by the "Preview" string.
+     * 
+     * @param maneuver The maneuver to preview.
+     * @param vehicleId The vehicle ID.
+     * @param state The vehicle current {@link SystemPositionAndAttitude}.
+     * @param manState The current maneuver state.
+     * @return
+     */
+    public static IManeuverPreview<?> getPreview(Maneuver maneuver, String vehicleId, SystemPositionAndAttitude state,
+            Object manState) {
+        if (maneuver == null)
+            return null;
 
-    public static IManeuverPreview<?> getPreview(Maneuver maneuver, String vehicleId, SystemPositionAndAttitude state, Object manState) {
-        if (maneuver.getClass() == Goto.class) {
-            GotoPreview prev = new GotoPreview();
-            prev.init(vehicleId, (Goto)maneuver, state, manState);
-            return prev;
-        }
-        else if (maneuver.getClass() == PopUp.class) {
-            PopupPreview prev = new PopupPreview();
-            prev.init(vehicleId, (PopUp)maneuver, state, manState);
-            return prev;
-        }
-        else if (maneuver.getClass() == StationKeeping.class) {
-            StationKeepingPreview prev = new StationKeepingPreview();
-            prev.init(vehicleId, (StationKeeping)maneuver, state, manState);
-            return prev;
-        }
-        else if (maneuver.getClass() == Loiter.class) {
-            LoiterPreview prev = new LoiterPreview();
-            prev.init(vehicleId, (Loiter)maneuver, state, manState);
-            return prev;
-        }
-        else if (maneuver.getClass() == RowsManeuver.class) {
-            RowsManeuverPreview prev = new RowsManeuverPreview();
-            prev.init(vehicleId, (RowsManeuver)maneuver, state, manState);
-            return prev;
-        }
-        else if (maneuver.getClass() == Elevator.class) {
-            ElevatorPreview prev = new ElevatorPreview();
-            prev.init(vehicleId, (Elevator)maneuver, state, manState);
-            return prev;
-        }
-        else if (FollowTrajectory.class.isAssignableFrom(maneuver.getClass())) {
+        if (FollowTrajectory.class.isAssignableFrom(maneuver.getClass())) {
             FollowTrajectoryPreview prev = new FollowTrajectoryPreview();
-            prev.init(vehicleId, (FollowTrajectory)maneuver, state, manState);
+            prev.init(vehicleId, (FollowTrajectory) maneuver, state, manState);
             return prev;
         }
-        else if (YoYo.class.isAssignableFrom(maneuver.getClass())) {
-            YoYoPreview prev = new YoYoPreview();
-            prev.init(vehicleId, (YoYo)maneuver, state, manState);
+        else if (Launch.class.isAssignableFrom(maneuver.getClass())) {
+            GotoPreview prev = new GotoPreview();
+            prev.init(vehicleId, (Launch) maneuver, state, manState);
             return prev;
         }
-        
-        
+
+        String pkn = maneuver.getClass().getPackage().getName();
+        ClassLoader cl = ClassLoader.getSystemClassLoader();
+        Class<?> prevClass = null;
+        try {
+            prevClass = cl.loadClass(pkn.replaceAll("\\.[A-Za-z0-9]+$", "") + ".preview."
+                    + maneuver.getClass().getSimpleName() + "Preview");
+        }
+        catch (ClassNotFoundException e) {
+            try {
+                prevClass = cl.loadClass(pkn + "." + maneuver.getClass().getSimpleName() + "Preview");
+            }
+            catch (Exception e1) {
+                e1.printStackTrace();
+            }
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+        }
+        if (prevClass != null) {
+            try {
+                @SuppressWarnings("unchecked")
+                IManeuverPreview<Maneuver> prevG = (IManeuverPreview<Maneuver>) prevClass.newInstance();
+                prevG.init(vehicleId, maneuver, state, manState);
+                return prevG;
+            }
+            catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+
         return null;
-    }    
+    }
 }
-
-

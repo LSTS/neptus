@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2015 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2016 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -37,8 +37,15 @@ import java.awt.geom.Point2D;
 import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
+import java.util.Vector;
+
+import com.google.common.eventbus.Subscribe;
 
 import pt.lsts.imc.IMCMessage;
+import pt.lsts.imc.LblBeacon;
+import pt.lsts.imc.LblConfig;
+import pt.lsts.imc.LblRangeAcceptance;
+import pt.lsts.imc.LblRangeAcceptance.ACCEPTANCE;
 import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.mra.importers.IMraLog;
 import pt.lsts.neptus.mra.importers.IMraLogGroup;
@@ -60,19 +67,20 @@ import pt.lsts.neptus.util.llf.LogUtils;
 public class LBLRangesReplay implements LogReplayLayer {
 
     private LinkedList<TransponderElement> transponders = new LinkedList<TransponderElement>();
-
     private LocationType start = new LocationType();
     private LinkedList<LocationType> triangulatedRangesPointsList = new LinkedList<LocationType>();
-   
-    private LinkedList<RangePainter> rangeFixPainter = new LinkedList<RangePainter>();
+
+    private LinkedHashMap<Integer, String> beaconIds = new LinkedHashMap<>();
+
+    private LinkedHashMap<String, RangePainter> rangeFixPainter = new LinkedHashMap<>();
 
     private LBLTriangulationHelper lblTriangulationHelper = null;
-    
+
     @Override
     public String getName() {
         return I18n.text("LBL Ranges");
     }
-    
+
     @Override
     public void cleanup() {
         transponders.clear();
@@ -86,35 +94,23 @@ public class LBLRangesReplay implements LogReplayLayer {
         return (source.getLog("LblRangeAcceptance") != null && source.getLog("LblConfig") != null);
     }
 
-    /* (non-Javadoc)
-     * @see pt.lsts.neptus.mra.replay.LLFReplayLayer#parse(pt.lsts.neptus.mra.importers.IMraLogGroup)
-     */
     @Override
     public void parse(IMraLogGroup source) {
-        
+
         TransponderElement[] transpondersArray = LogUtils.getTransponders(source);
         if (transpondersArray.length == 0)
             return;
         transponders.addAll(Arrays.asList(transpondersArray));
-        
+
         try {
             start = LogUtils.getStartupPoint(source);
             if (start == null)
                 start = LogUtils.getHomeRef(source);
-            
-            for (TransponderElement te : transponders) {
-                RangePainter rp = new RangePainter(te.getCenterLocation()) {
-                    @Override
-                    public void callParentRepaint() {
-                    }
-                };
-                rangeFixPainter.add(rp);
-            }
-            
+
             try {
                 // trying to use the first valid GPSFix as the last known location / start
                 IMraLog gpsFix = source.getLog("GpsFix");
-//                IMraLog estimatedState = source.getLog("EstimatedState");
+                //                IMraLog estimatedState = source.getLog("EstimatedState");
 
                 if (gpsFix != null) {
                     IMCMessage m;
@@ -131,7 +127,7 @@ public class LBLRangesReplay implements LogReplayLayer {
             catch (Exception e) {
                 e.printStackTrace();
             }
-//            IMraLog lblRangesLog = source.getLog("LBLRanges");
+
             IMraLog lblRangeAcceptancesLog = source.getLog("LblRangeAcceptance");
 
             if (lblTriangulationHelper == null)
@@ -139,17 +135,16 @@ public class LBLRangesReplay implements LogReplayLayer {
                         transponders.toArray(new TransponderElement[transponders.size()]), start);
             else
                 lblTriangulationHelper.reset(transponders.toArray(new TransponderElement[transponders.size()]), start);
-            
+
             boolean useEstimatedStateToFixLastKnownPos = false;
             IMraLog esLog = source.getLog("EstimatedState");
             if (esLog != null)
                 useEstimatedStateToFixLastKnownPos = true;
-            
+
             IMCMessage m;
             while ((m = lblRangeAcceptancesLog.nextLogEntry()) != null) {    
                 double id = m.getInteger("id");
                 double range = m.getDouble("range");
-//                String accep = m.getValue("acceptance").toString();
                 
                 if (useEstimatedStateToFixLastKnownPos) {
                     IMCMessage esEntry = esLog.getEntryAtOrAfter(m.getTimestampMillis());
@@ -158,7 +153,7 @@ public class LBLRangesReplay implements LogReplayLayer {
                         lblTriangulationHelper.resetLastKnownPos(locES, esEntry.getTimestampMillis());
                     }
                 }
-                
+
                 LocationType loc = lblTriangulationHelper.updateRangeAccepted((long) id, range, m.getTimestampMillis());
                 if (loc != null)
                     triangulatedRangesPointsList.add(loc);
@@ -169,48 +164,70 @@ public class LBLRangesReplay implements LogReplayLayer {
         }
     }
 
-    /* (non-Javadoc)
-     * @see pt.lsts.neptus.mra.replay.LLFReplayLayer#getObservedMessages()
-     */
     @Override
     public String[] getObservedMessages() {
-        return new String[] { "LblRangeAcceptance" };
+        return new String[] {};
     }
 
-    /* (non-Javadoc)
-     * @see pt.lsts.neptus.mra.replay.LLFReplayLayer#onMessage(pt.lsts.neptus.imc.IMCMessage)
-     */
-    @Override
-    public void onMessage(IMCMessage message) {
-        
-        if ("LblRangeAcceptance".equalsIgnoreCase(message.getAbbrev())) {
-            
+    @Subscribe
+    public void on(LblRangeAcceptance message) {
+        synchronized (rangeFixPainter) {
             if (rangeFixPainter.isEmpty())
                 return;
-            int id = message.getInteger("id");
-            double range = message.getDouble("range");
-            String accep = message.getString("acceptance");
-            String reason = message.getString("reason");
-            // if (reason != null) NeptusLog.pub().info("<###> "+reason);
+        }
+        
+        String id = beaconIds.get((int)message.getId());
+                
+        if (id == null)
+            return;
+        
+        double range = message.getRange();
+        boolean accepted = message.getAcceptance() == ACCEPTANCE.ACCEPTED;
+        String reason = message.getAcceptance().name();
 
-            
+        synchronized (rangeFixPainter) {
             RangePainter rp = rangeFixPainter.get(id);
             rp.setRange(range);
-            rp.setAccepted(accep == null || "ACCEPTED".equalsIgnoreCase(accep) ? true : false);
-            rp.setRejectionReason(reason);
+            rp.setAccepted(accepted);
+            rp.setRejectionReason(reason);            
         }
+        
     }
 
-    /* (non-Javadoc)
-     * @see pt.lsts.neptus.renderer2d.Renderer2DPainter#paint(java.awt.Graphics2D, pt.lsts.neptus.renderer2d.StateRenderer2D)
-     */
+    @Subscribe
+    public void on(LblConfig config) {
+        synchronized (rangeFixPainter) {
+            Vector<LblBeacon> beacons = config.getBeacons();
+            for (int id = 0; id < beacons.size(); id++) {
+                LblBeacon b = beacons.get(id);
+                beaconIds.put(id, b.getBeacon());
+                double lat = Math.toDegrees(b.getLat());
+                double lon = Math.toDegrees(b.getLon());
+                double depth = b.getDepth();
+                LocationType lt = new LocationType();
+                lt.setLatitudeDegs(lat);
+                lt.setLongitudeDegs(lon);
+                lt.setDepth(depth);
+                if (rangeFixPainter.containsKey(b.getBeacon()))
+                    rangeFixPainter.get(b.getBeacon()).setCurLoc(lt);
+                else {
+                    rangeFixPainter.put(b.getBeacon(), new RangePainter(lt) {
+                        public void callParentRepaint() {}
+                    });
+                }                
+            }
+        }        
+    }
+
     @Override
     public void paint(Graphics2D g, StateRenderer2D renderer) {
         g.setColor(Color.magenta);
-        for (RangePainter rp : rangeFixPainter) {
-            rp.paint((Graphics2D) g.create(), renderer);
+        synchronized (rangeFixPainter) {
+            for (RangePainter rp : rangeFixPainter.values()) {
+                rp.paint((Graphics2D) g.create(), renderer);
+            }
         }
-        
+       
         for (LocationType loc : triangulatedRangesPointsList) {
             Point2D pt = renderer.getScreenPosition(loc);
             g.drawLine((int) pt.getX() - 3, (int) pt.getY(), (int) pt.getX() + 3, (int) pt.getY());
@@ -220,6 +237,12 @@ public class LBLRangesReplay implements LogReplayLayer {
     @Override
     public boolean getVisibleByDefault() {
         return true;
+    }
+    
+    @Override
+    public void onMessage(IMCMessage message) {
+        // TODO Auto-generated method stub
+        
     }
 
 }

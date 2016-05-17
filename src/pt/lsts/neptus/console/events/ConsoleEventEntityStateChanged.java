@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2015 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2016 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -31,9 +31,9 @@
  */
 package pt.lsts.neptus.console.events;
 
-import pt.lsts.neptus.console.plugins.VehicleStateMonitor;
 import pt.lsts.imc.EntityState;
 import pt.lsts.imc.EntityState.STATE;
+import pt.lsts.neptus.console.plugins.VehicleStateMonitor;
 
 /**
  * This event is triggered whenever a Entity state has changed

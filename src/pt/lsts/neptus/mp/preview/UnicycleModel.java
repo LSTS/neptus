@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2015 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2016 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -142,13 +142,12 @@ public class UnicycleModel {
         speedMPS = speed;
 
         if (altitude != null) {
-            
             double curBathym = SimulationEngine.simBathym.getSimulatedDepth(getCurrentPosition());
             double curAltitude = curBathym-depth;
             if (curAltitude > altitude)
-                pitchRad = Math.toRadians(12);
+                pitchRad = Math.toRadians(15);
             else if (curAltitude < altitude)
-                pitchRad = -Math.toRadians(12);
+                pitchRad = -Math.toRadians(15);
             else {
                 depth = (SimulationEngine.simBathym.getSimulatedDepth(getCurrentPosition())-altitude);
             }

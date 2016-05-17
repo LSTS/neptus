@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2015 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2016 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -83,10 +83,9 @@ public class PathElement extends AbstractElement {
             -Double.MAX_VALUE, Double.MAX_VALUE, -Double.MAX_VALUE };
     public static final int SOUTH_COORD = 0, NORTH_COORD = 1, DOWN_COORD = 2, UP_COORD = 3, WEST_COORD = 4,
             EAST_COORD = 5;
-    private Stroke stroke = new BasicStroke(1);
-    private boolean isShape = false;
-    private boolean fill = true;
-    boolean firstPoint = true;
+    private Stroke stroke = new BasicStroke(2);
+    private boolean isShape = true;
+    protected boolean firstPoint = true;
 
     /**
      * 
@@ -123,6 +122,7 @@ public class PathElement extends AbstractElement {
         this.myPath = new GeneralPath();
         this.myPath.moveTo(0, 0);
     }
+    
 
     @Override
     public boolean load(Element elem) {
@@ -143,8 +143,6 @@ public class PathElement extends AbstractElement {
                 double y = Double.parseDouble(vly);
                 String vlz = nd.selectSingleNode("d").getText();
                 double z = Double.parseDouble(vlz);
-                // Point3d pt = new Point3d(x,y,z);
-                // offsets3D.add(pt);
 
                 if (lastPointIsZero) {
                     if (x == 0 && y == 0 && z == 0)
@@ -166,10 +164,10 @@ public class PathElement extends AbstractElement {
                 this.setMyColor(new Color(rr, gg, bb));
             }
             else {
-                NeptusLog.pub().info("<###>Didn't found color!!");
+                NeptusLog.pub().info("Didn't found color!!");
             }
 
-            nd = doc.selectSingleNode("//filled");
+            nd = doc.selectSingleNode("//shape");
             if (nd != null) {
                 if (nd.getText().equalsIgnoreCase("true"))
                     isShape = true;
@@ -285,7 +283,7 @@ public class PathElement extends AbstractElement {
         Element root = (Element) super.asDocument(DEFAULT_ROOT_ELEMENT).getRootElement().detach();
         document.add(root);
 
-        Element typeE = root.addElement("filled");
+        Element typeE = root.addElement("shape");
         typeE.setText(isShape ? "true" : "false");
 
         if (getMyColor() != null) {
@@ -400,10 +398,15 @@ public class PathElement extends AbstractElement {
         scaledPath.transform(transform);
         g.setStroke(stroke);
         g.draw(scaledPath);
-        if (isShape && isFill()) {
+        if (isShape && isFilled()) {
             g.setColor(new Color(myColor.getRed(), myColor.getGreen(), myColor.getBlue(), 100));
             g.fill(scaledPath);
         }
+    }
+    
+    public void addPoint(LocationType point) {
+        double[] offsets = point.getOffsetFrom(centerLocation);
+        addPoint(offsets[1], offsets[0], 0, false);
     }
 
     public void addPoint(double eastOffset, double northOffset, double depthOffset, boolean absolute) {
@@ -519,23 +522,9 @@ public class PathElement extends AbstractElement {
         this.isShape = isShape;
     }
 
-    /**
-     * @return the fill
-     */
-    public boolean isFill() {
-        return fill;
-    }
-
     @Override
     public String getTypeAbbrev() {
         return "path";
-    }
-
-    /**
-     * @param fill the fill to set
-     */
-    public void setFill(boolean fill) {
-        this.fill = fill;
     }
 
     @Override

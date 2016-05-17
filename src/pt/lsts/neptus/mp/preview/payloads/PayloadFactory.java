@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2015 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2016 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -31,15 +31,16 @@
  */
 package pt.lsts.neptus.mp.preview.payloads;
 
+import java.awt.Color;
 import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.Vector;
 
-import pt.lsts.neptus.mp.Maneuver;
-import pt.lsts.neptus.types.mission.plan.PlanType;
 import pt.lsts.imc.EntityParameter;
 import pt.lsts.imc.IMCMessage;
 import pt.lsts.imc.SetEntityParameters;
+import pt.lsts.neptus.mp.Maneuver;
+import pt.lsts.neptus.types.mission.plan.PlanType;
 
 /**
  * @author zp
@@ -100,7 +101,19 @@ public class PayloadFactory {
                 }
             }
             if (active) {
-                pf.add(new MultibeamFingerprint(range, Math.toRadians(60)));
+                pf.add(new MultibeamFingerprint(range, Math.toRadians(120)));
+            }
+        }
+        else if (msg.getName().equals("Camera")) {
+            boolean active = false;
+            for (EntityParameter p : msg.getParams()) {
+                if (p.getName().equals("Active")) {
+                    active = p.getValue().equalsIgnoreCase("true");
+                }                
+            }
+            if (active) {
+                //FIXME check lumenera's FOV
+                pf.add(new CameraFootprint(Math.toRadians(70), Math.toRadians(90), 6, Color.magenta.darker().darker()));
             }
         }
         return pf;

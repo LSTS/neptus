@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2015 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2016 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -68,8 +68,10 @@ public class MapShortcutsLayer extends ConsoleLayer {
     public static String getShortcutsHtml() {
         return "<html>" + "<body background=\"#FF0000\">" + "<table border='0' align='center'>" + "<tr><th>"
                 + I18n.text("Key") + "</th><th>" + I18n.text("Action") + "</th></tr>" + "<tr><td>"
-                + I18n.text("plus (+)") + "</td><td>" + I18n.text("Double the current zoom value") + "</td></tr>"
-                + "<tr><td>" + I18n.text("minus (-)") + "</td><td>" + I18n.text("Half the current zoom value")
+                + I18n.text("PgUp or plus (+)") + "</td><td>"
+                + I18n.text("Double the current zoom value (plus in keyboards where '+' key does not need Shift)") + "</td></tr>"
+                + "<tr><td>" + I18n.text("PgDn or minus (-)") + "</td><td>"
+                + I18n.text("Half the current zoom value (minus in keyboards where '-' key does not need Shift)")
                 + "</td></tr>" + "<tr><td>" + I18n.text("left") + "</td><td>" + I18n.text("Move the map to the left")
                 + "</td></tr>" + "<tr><td>" + I18n.text("right") + "</td><td>" + I18n.text("Move the map to the right")
                 + "</td></tr>" + "<tr><td>" + I18n.text("up") + "</td><td>" + I18n.text("Move the map upwards")
@@ -77,6 +79,8 @@ public class MapShortcutsLayer extends ConsoleLayer {
                 + "</td></tr>" + "<tr><td>" + I18n.textc("N", "The 'N' key.") + "</td><td>"
                 + I18n.text("Reset the current rotation (up facing north)") + "</td></tr>" + "<tr><td>"
                 + I18n.text("F1") + "</td><td>" + I18n.text("Reset the current view to defaults") + "</td></tr>"
+                + "<tr><td>" + I18n.textc("S", "The 'S' key.") + "</td><td>"
+                + I18n.text("Saves the current map shown") + "</td></tr>"
                 + "<tr><td>" + I18n.text("Control") + "</td><td>"
                 + I18n.text("Measure distances by click and dragging the mouse") + "</td></tr>" + "<tr><td>"
                 + I18n.text("Shift") + "</td><td>" + I18n.text("Rotate map by click and dragging the mouse")

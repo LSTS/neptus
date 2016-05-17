@@ -1,9 +1,0 @@
-=================================================================
-JOYSTICK Configuration
-=================================================================
-
-Linux
-------
-
-  If the joystick failed to start in Linux try to  copy the lib 
-"libjjstick.so" to your JRE home dir <JRE_HOME>/lib/i386.

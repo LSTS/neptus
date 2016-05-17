@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2015 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2016 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -435,7 +435,7 @@ public class JsfSonarData {
         int msbStartFreq = (msb & 0x000F) << 16; // First 4 bits of msb shifted so only adding is needed to start Frequency
         frequency = ((buf.getShort(126) & 0xFFFF) + msbStartFreq) / 100.0f;
     
-        depthMillis = buf.getInt(140);
+        depthMillis = buf.getInt(136);
         altMillis = buf.getInt(144);
         
         factor = buf.getShort(168);

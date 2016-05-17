@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2015 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2016 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -46,8 +46,7 @@ public class VerticalGroupPropertyEditor extends HorizontalGroupPropertyEditor {
 		super();
 		rootElement = "VerticalGroup";
 		title = I18n.text("Layout for vertical axis:") + " <" + rootElement + "></" + rootElement + ">";
-		helpText += "<!-- " + I18n.text("Don't use this top element (this is informative)") + " -->\n" +
-					"<!ELEMENT VerticalGroup (Sequence | Parallel)?>\n\n" +
+		helpText += "<!ELEMENT VerticalGroup (Sequence | Parallel)?>\n\n" +
 					"<!ELEMENT Sequence (Component | (Gap | GapComponents | PreferredGap) | Sequence | Parallel)+>\n" +
 					"<!ELEMENT Parallel (Component | Gap | Sequence | Parallel)+>\n" +
 					"<!ATTLIST Parallel\n" +

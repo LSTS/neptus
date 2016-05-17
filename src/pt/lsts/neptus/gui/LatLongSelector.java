@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2015 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2016 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -36,7 +36,6 @@ import java.awt.Color;
 import java.awt.Font;
 import java.awt.Rectangle;
 import java.awt.event.ItemEvent;
-import java.awt.event.ItemListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.text.NumberFormat;
@@ -64,7 +63,7 @@ import pt.lsts.neptus.util.MathMiscUtils;
 public class LatLongSelector extends ParametersPanel implements KeyListener {
 
 	private static final long serialVersionUID = 1L;
-
+	private static final int DECIMAL_DEGREES_PRECISION = 8;
 	public static final short DECIMAL_DEGREES_DISPLAY = 0;
 	public static final short DM_DISPLAY = 1;
 	public static final short DMS_DISPLAY = 2;
@@ -146,7 +145,6 @@ public class LatLongSelector extends ParametersPanel implements KeyListener {
 			jLabel7.setText("''");
 			jLabel7.setHorizontalTextPosition(SwingConstants.CENTER);
 			jLabel7.setHorizontalAlignment(SwingConstants.CENTER);
-			//DMSPanel.setBorder(javax.swing.BorderFactory.createTitledBorder(null, "Degrees/Minutes/Seconds", javax.swing.border.TitledBorder.CENTER, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Dialog", java.awt.Font.BOLD, 12), new java.awt.Color(51,51,51)));
 			dmsPanel.setBorder(BorderFactory.createTitledBorder(null, I18n.text("Degrees/Minutes/Seconds"), TitledBorder.CENTER, TitledBorder.DEFAULT_POSITION, null, null));
 			dmsPanel.add(jLabel, null);
 			dmsPanel.add(getLatDeg(), null);
@@ -180,46 +178,26 @@ public class LatLongSelector extends ParametersPanel implements KeyListener {
             case DM_DISPLAY:
                 dmRadioButton.setSelected(true);
                 break;
-            default: // DMS_DISPLAY
+            default:
                 dmsRadioButton.setSelected(true);
                 break;
         }
 	}
 	
 	public String getLatitude() {
-		String latString =  CoordinateUtil.dmsToLatString(
-			Double.parseDouble(getLatDeg().getText()),
-			Double.parseDouble(getLatMin().getText()),
-			Double.parseDouble(getLatSec().getText())
-		);
-
-		return latString;
+		return CoordinateUtil.dmsToLatString(
+				Double.parseDouble(getLatDeg().getText()),
+				Double.parseDouble(getLatMin().getText()),
+				Double.parseDouble(getLatSec().getText()),
+				DECIMAL_DEGREES_PRECISION);
 	}
 	
 	public String getLongitude() {
 	    return CoordinateUtil.dmsToLonString(
 	    		Double.parseDouble(getLonDeg().getText()),
 	    		Double.parseDouble(getLonMin().getText()),
-	    		Double.parseDouble(getLonSec().getText()));
-	}
-	
-	
-	public double getLatitudeValue() {
-		try {
-			return CoordinateUtil.parseLatitudeCoordToDoubleValue(getLatitude());//Double.parseDouble(getLatDecDegrees().getText());
-		}
-		catch (Exception e) {
-			return 0;
-		}
-	}
-
-	public double getLongitudeValue() {
-		try {
-			return CoordinateUtil.parseLongitudeCoordToDoubleValue(getLongitude());//Double.parseDouble(getLonDecDegrees().getText());
-		}
-		catch (Exception e) {
-			return 0;
-		}
+	    		Double.parseDouble(getLonSec().getText()),
+				DECIMAL_DEGREES_PRECISION);
 	}
 	
 	public void setLatitude(double dms[]) {
@@ -227,8 +205,7 @@ public class LatLongSelector extends ParametersPanel implements KeyListener {
 		getLatMin().setText(String.valueOf(dms[1]));
 		getLatSec().setText(String.valueOf(dms[2]));
 		
-		if (isEditable())
-		{
+		if (isEditable()) {
 			latMin.setEnabled(true);
 			latSec.setEnabled(true);
 			latMin.setBackground(Color.WHITE);
@@ -249,70 +226,6 @@ public class LatLongSelector extends ParametersPanel implements KeyListener {
 		}
 	}
 
-	
-	
-	/**
-	 * @deprecated
-	 * @param latitude
-	 */
-	public void setLatitudeValue(double latitude) {
-		//getLatDecDegrees().setText(String.valueOf(latitude));
-		double[] dms = CoordinateUtil.decimalDegreesToDMS(latitude);
-		getLatDeg().setText(String.valueOf(dms[0]));
-		getLatMin().setText(String.valueOf(dms[1]));
-		getLatSec().setText(String.valueOf(dms[2]));
-	}
-	
-	/**
-	 * @deprecated
-	 * @param longitude
-	 */
-	public void setLongitudeValue(double longitude) {
-		//getLonDecDegrees().setText(String.valueOf(longitude));
-		double[] dms = CoordinateUtil.decimalDegreesToDMS(longitude);
-		getLonDeg().setText(String.valueOf(dms[0]));
-		getLonMin().setText(String.valueOf(dms[1]));
-		getLonSec().setText(String.valueOf(dms[2]));
-	}
-
-	
-	/**
-	 * This method initializes decDegreesPanel	
-	 * 	
-	 * @return javax.swing.JPanel	
-	 */
-	/*
-	private JPanel getDecDegreesPanel() {
-		if (decDegreesPanel == null) {
-			jLabel11 = new JLabel();
-			jLabel10 = new JLabel();
-			jLabel9 = new JLabel();
-			jLabel8 = new JLabel();
-			decDegreesPanel = new JPanel();
-			decDegreesPanel.setLayout(null);
-			decDegreesPanel.setBorder(javax.swing.BorderFactory.createTitledBorder(null, "Decimal Degrees", javax.swing.border.TitledBorder.CENTER, javax.swing.border.TitledBorder.DEFAULT_POSITION, null, null));
-			jLabel8.setBounds(42, 24, 50, 20);
-			jLabel8.setText("Latitude:");
-			jLabel9.setBounds(42, 85, 60, 20);
-			jLabel9.setText("Longitude:");
-			jLabel10.setBounds(165, 49, 10, 19);
-			jLabel10.setText("\u00B0");
-			jLabel10.setFont(new java.awt.Font("Dialog", java.awt.Font.BOLD, 14));
-			jLabel11.setBounds(165, 112, 10, 19);
-			jLabel11.setText("\u00B0");
-			jLabel11.setFont(new java.awt.Font("Dialog", java.awt.Font.BOLD, 14));
-			decDegreesPanel.add(getLatDecDegrees(), null);
-			decDegreesPanel.add(getLonDecDegrees(), null);
-			decDegreesPanel.add(jLabel8, null);
-			decDegreesPanel.add(jLabel9, null);
-			decDegreesPanel.add(jLabel10, null);
-			decDegreesPanel.add(jLabel11, null);
-		}
-		return decDegreesPanel;
-	}
-	
-	*/
-	
 	/**
 	 * This method initializes latDeg	
 	 * 	
@@ -328,6 +241,7 @@ public class LatLongSelector extends ParametersPanel implements KeyListener {
 		}
 		return latDeg;
 	}
+
 	/**
 	 * This method initializes latMin	
 	 * 	
@@ -343,6 +257,7 @@ public class LatLongSelector extends ParametersPanel implements KeyListener {
 		}
 		return latMin;
 	}
+
 	/**
 	 * This method initializes latSec	
 	 * 	
@@ -358,6 +273,7 @@ public class LatLongSelector extends ParametersPanel implements KeyListener {
 		}
 		return latSec;
 	}
+
 	/**
 	 * This method initializes lonDeg	
 	 * 	
@@ -373,6 +289,7 @@ public class LatLongSelector extends ParametersPanel implements KeyListener {
 		}
 		return lonDeg;
 	}
+
 	/**
 	 * This method initializes lonMin	
 	 * 	
@@ -388,6 +305,7 @@ public class LatLongSelector extends ParametersPanel implements KeyListener {
 		}
 		return lonMin;
 	}
+
 	/**
 	 * This method initializes lonSec	
 	 * 	
@@ -403,6 +321,7 @@ public class LatLongSelector extends ParametersPanel implements KeyListener {
 		}
 		return lonSec;
 	}
+
 	/**
 	 * This method initializes latDecDegrees	
 	 * 	
@@ -418,6 +337,7 @@ public class LatLongSelector extends ParametersPanel implements KeyListener {
 		}
 		return latDecDegrees;
 	}
+
 	/**
 	 * This method initializes lonDecDegrees	
 	 * 	
@@ -434,7 +354,6 @@ public class LatLongSelector extends ParametersPanel implements KeyListener {
 		return lonDecDegrees;
 	}
 
-    
     public void keyPressed(KeyEvent e) {
 	}
 
@@ -442,10 +361,10 @@ public class LatLongSelector extends ParametersPanel implements KeyListener {
 	}
 	
     public void keyReleased(KeyEvent e) {
-		
     	if (!Character.isDefined(e.getKeyChar()))
     		return;
-    	// Nao permite colocar valores negativos em outros campos que não sejam o da longitude (graus) e latitude (graus)
+
+		// Only allow negative values in the fields for the latitude and longitude degrees.
         if (e.getSource() != latDeg && e.getSource() != lonDeg && e.getSource() != latDecDegrees
                 && e.getSource() != lonDecDegrees) {
             if (e.getKeyChar() == '-') {
@@ -454,7 +373,7 @@ public class LatLongSelector extends ParametersPanel implements KeyListener {
             }
         }    	
     	
-    	// Se o valor de "degrees" for decimal, então desactiva os campos "minutes" e "seconds"
+    	// If the field "degrees" is decimal deactivate the "minutes" and "seconds" fields.
     	if (e.getSource() == latDeg) {
     		if (latDeg.getText().contains(".")) {
     			latMin.setText("0");
@@ -490,8 +409,7 @@ public class LatLongSelector extends ParametersPanel implements KeyListener {
     		}
     	}
     	
-    	
-    	// Caso o campo dos minutos seja decimal, então desctiva o campo dos segundos.
+    	// If the field "minutes" is decimal deactivate the "seconds" field.
     	if (e.getSource() == latMin) {
     		if (latMin.getText().contains(".")) {
     			latSec.setText("0");
@@ -530,10 +448,6 @@ public class LatLongSelector extends ParametersPanel implements KeyListener {
     		Double.parseDouble(getLonDeg().getText());
     		Double.parseDouble(getLonMin().getText());
     		 Double.parseDouble(getLonSec().getText());
-    		//counter = 2;
-    		//val = Double.parseDouble(getLatDecDegrees().getText());
-    		//counter = 3;
-    		//val = Double.parseDouble(getLonDecDegrees().getText());
     	}
     	catch (Exception e) {
     		switch (counter) {
@@ -557,21 +471,12 @@ public class LatLongSelector extends ParametersPanel implements KeyListener {
 	 * 
 	 * @return void
 	 */
-	private  void initialize() {
-		
-		//GridLayout gridLayout1 = new GridLayout();
+	private void initialize() {
 		this.setLayout(new BorderLayout());
 		this.setSize(420, 145);
-		//gridLayout1.setRows(1);
-		//gridLayout1.setColumns(1);
-		//gridLayout1.setHgap(10);
-		//gridLayout1.setVgap(10);
 		this.add(getDMSPanel(), BorderLayout.CENTER);
-		//this.add(getDecDegreesPanel(), null);
 	}
-	
-	
-	
+
 	public void setEditable(boolean value) {
 	    this.editable = value;
 	    getLatDeg().setEditable(editable);
@@ -618,15 +523,13 @@ public class LatLongSelector extends ParametersPanel implements KeyListener {
 		if (ddegreesRadioButton == null) {
 			ddegreesRadioButton = new JRadioButton();
 			ddegreesRadioButton.setText(I18n.text("Decimal Degrees"));
-			ddegreesRadioButton.addItemListener(new java.awt.event.ItemListener() {
-				public void itemStateChanged(java.awt.event.ItemEvent e) {
-					if (e.getStateChange() == ItemEvent.SELECTED) {
-						dmRadioButton.setSelected(false);
-						dmsRadioButton.setSelected(false);
-						convertLatLonTo(DECIMAL_DEGREES_DISPLAY);
-					}
-				}
-			});
+			ddegreesRadioButton.addItemListener(e -> {
+                if (e.getStateChange() == ItemEvent.SELECTED) {
+                    dmRadioButton.setSelected(false);
+                    dmsRadioButton.setSelected(false);
+                    convertLatLonTo(DECIMAL_DEGREES_DISPLAY);
+                }
+            });
 		}
 		return ddegreesRadioButton;
 	}
@@ -640,15 +543,13 @@ public class LatLongSelector extends ParametersPanel implements KeyListener {
 		if (dmRadioButton == null) {
 			dmRadioButton = new JRadioButton();
 			dmRadioButton.setText(I18n.text("Degrees, Minutes"));
-			dmRadioButton.addItemListener(new ItemListener() {
-				public void itemStateChanged(ItemEvent e) {
-					if (e.getStateChange() == ItemEvent.SELECTED) {
-						ddegreesRadioButton.setSelected(false);
-						dmsRadioButton.setSelected(false);
-						convertLatLonTo(DM_DISPLAY);
-					}
-				}
-			});
+			dmRadioButton.addItemListener(e -> {
+                if (e.getStateChange() == ItemEvent.SELECTED) {
+                    ddegreesRadioButton.setSelected(false);
+                    dmsRadioButton.setSelected(false);
+                    convertLatLonTo(DM_DISPLAY);
+                }
+            });
 		}
 		return dmRadioButton;
 	}
@@ -664,15 +565,13 @@ public class LatLongSelector extends ParametersPanel implements KeyListener {
 			dmsRadioButton.setHorizontalAlignment(SwingConstants.LEADING);
 			/// DMS = Degrees, Minutes, Seconds
 			dmsRadioButton.setText(I18n.text("DMS"));
-			dmsRadioButton.addItemListener(new java.awt.event.ItemListener() {
-				public void itemStateChanged(java.awt.event.ItemEvent e) {
-					if (e.getStateChange() == ItemEvent.SELECTED) {
-						ddegreesRadioButton.setSelected(false);
-						dmRadioButton.setSelected(false);
-						convertLatLonTo(DMS_DISPLAY);
-					}
-				}
-			});
+			dmsRadioButton.addItemListener(e -> {
+                if (e.getStateChange() == ItemEvent.SELECTED) {
+                    ddegreesRadioButton.setSelected(false);
+                    dmRadioButton.setSelected(false);
+                    convertLatLonTo(DMS_DISPLAY);
+                }
+            });
 		}
 		return dmsRadioButton;
 	}
@@ -694,40 +593,29 @@ public class LatLongSelector extends ParametersPanel implements KeyListener {
 		loc.setLatitudeStr(getLatitude());
 		loc.setLongitudeStr(getLongitude());
 		switch (type) {
-		case DECIMAL_DEGREES_DISPLAY:
-			this.setLatitude(new double[] {
-					MathMiscUtils.round(loc.getLatitudeDegs(), 6), 0,
-					0 });
-			this.setLongitude(new double[] {
-					MathMiscUtils.round(loc.getLongitudeDegs(), 6), 0,
-					0 });
-			break;
-
-		case DM_DISPLAY:
-			double[] dmLat = CoordinateUtil.decimalDegreesToDM(loc
-					.getLatitudeDegs());
-			double[] dmLon = CoordinateUtil.decimalDegreesToDM(loc
-					.getLongitudeDegs());
-			this.setLatitude(new double[] { dmLat[0],
-					MathMiscUtils.round(dmLat[1], 4), 0 });
-			this.setLongitude(new double[] { dmLon[0],
-					MathMiscUtils.round(dmLon[1], 4), 0 });
-			break;
-
-		case DMS_DISPLAY:
-			double[] dmsLat = CoordinateUtil.decimalDegreesToDMS(loc
-					.getLatitudeDegs());
-			double[] dmsLon = CoordinateUtil.decimalDegreesToDMS(loc
-					.getLongitudeDegs());
-			this.setLatitude(new double[] { dmsLat[0], dmsLat[1],
-					MathMiscUtils.round(dmsLat[2], 2) });
-			this.setLongitude(new double[] { dmsLon[0], dmsLon[1],
-					MathMiscUtils.round(dmsLon[2], 2) });
-			break;
-
-		default:
-			break;
+    		case DECIMAL_DEGREES_DISPLAY:
+    			this.setLatitude(new double[] {MathMiscUtils.round(loc.getLatitudeDegs(), 6), 0, 0});
+    			this.setLongitude(new double[] {MathMiscUtils.round(loc.getLongitudeDegs(), 6), 0, 0});
+    			break;
+    
+    		case DM_DISPLAY:
+    			double[] dmLat = CoordinateUtil.decimalDegreesToDM(loc.getLatitudeDegs());
+    			double[] dmLon = CoordinateUtil.decimalDegreesToDM(loc.getLongitudeDegs());
+    			this.setLatitude(new double[] {dmLat[0], MathMiscUtils.round(dmLat[1], 4), 0});
+    			this.setLongitude(new double[] {dmLon[0], MathMiscUtils.round(dmLon[1], 4), 0});
+    			break;
+    
+    		case DMS_DISPLAY:
+    			double[] dmsLat = CoordinateUtil.decimalDegreesToDMS(loc.getLatitudeDegs());
+    			double[] dmsLon = CoordinateUtil.decimalDegreesToDMS(loc.getLongitudeDegs());
+    			this.setLatitude(new double[] {dmsLat[0], dmsLat[1], MathMiscUtils.round(dmsLat[2], 2)});
+    			this.setLongitude(new double[] {dmsLon[0], dmsLon[1], MathMiscUtils.round(dmsLon[2], 2)});
+    			break;
+    
+    		default:
+    			break;
 		}
+
 		return true;
 	}
 }

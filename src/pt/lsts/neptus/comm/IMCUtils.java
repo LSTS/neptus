@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2015 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2016 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -41,6 +41,7 @@ import java.net.InetSocketAddress;
 import java.net.URI;
 import java.net.URL;
 import java.net.URLConnection;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
@@ -59,10 +60,15 @@ import org.dom4j.Element;
 import org.dom4j.Node;
 import org.dom4j.tree.DefaultAttribute;
 
+import com.l2fprod.common.propertysheet.Property;
+import com.l2fprod.common.swing.renderer.DefaultCellRenderer;
+
 import pt.lsts.imc.IMCDefinition;
 import pt.lsts.imc.IMCFieldType;
 import pt.lsts.imc.IMCMessage;
+import pt.lsts.imc.IMCMessageType;
 import pt.lsts.imc.IMCOutputStream;
+import pt.lsts.imc.ImcStringDefs;
 import pt.lsts.imc.types.PlanSpecificationAdapter;
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.comm.manager.imc.ImcId16;
@@ -76,22 +82,9 @@ import pt.lsts.neptus.messages.Bitmask;
 import pt.lsts.neptus.messages.Enumerated;
 import pt.lsts.neptus.mp.Maneuver;
 import pt.lsts.neptus.mp.SystemPositionAndAttitude;
-import pt.lsts.neptus.mp.maneuvers.CompassCalibration;
-import pt.lsts.neptus.mp.maneuvers.Dislodge;
-import pt.lsts.neptus.mp.maneuvers.Elevator;
 import pt.lsts.neptus.mp.maneuvers.FollowPath;
-import pt.lsts.neptus.mp.maneuvers.FollowSystem;
-import pt.lsts.neptus.mp.maneuvers.FollowTrajectory;
-import pt.lsts.neptus.mp.maneuvers.Goto;
-import pt.lsts.neptus.mp.maneuvers.HeadingSpeedDepth;
 import pt.lsts.neptus.mp.maneuvers.IMCSerialization;
-import pt.lsts.neptus.mp.maneuvers.Loiter;
-import pt.lsts.neptus.mp.maneuvers.PopUp;
-import pt.lsts.neptus.mp.maneuvers.RowsManeuver;
-import pt.lsts.neptus.mp.maneuvers.StationKeeping;
 import pt.lsts.neptus.mp.maneuvers.Unconstrained;
-import pt.lsts.neptus.mp.maneuvers.VehicleFormation;
-import pt.lsts.neptus.mp.maneuvers.YoYo;
 import pt.lsts.neptus.plugins.PluginProperty;
 import pt.lsts.neptus.types.coord.LocationType;
 import pt.lsts.neptus.types.map.MapGroup;
@@ -107,13 +100,48 @@ import pt.lsts.neptus.types.vehicle.VehicleType;
 import pt.lsts.neptus.types.vehicle.VehiclesHolder;
 import pt.lsts.neptus.util.GuiUtils;
 import pt.lsts.neptus.util.PropertiesLoader;
+import pt.lsts.neptus.util.ReflectionUtil;
 import pt.lsts.neptus.util.conf.ConfigFetch;
 import pt.lsts.neptus.util.llf.LogUtils;
 
-import com.l2fprod.common.propertysheet.Property;
-import com.l2fprod.common.swing.renderer.DefaultCellRenderer;
-
 public class IMCUtils {
+
+    private static LinkedHashMap<String, Class<Maneuver>> maneuversTypeList = new LinkedHashMap<>();
+    static {
+        ArrayList<Class<Maneuver>> mans = ReflectionUtil.listManeuvers();
+        for (Class<Maneuver> m : mans) {
+            Maneuver manInstance = null;
+            try {
+                manInstance = m.newInstance();
+            }
+            catch (InstantiationException e) {
+                // Abstract so no to be used
+                continue;
+            }
+            catch (Exception e) {
+                e.printStackTrace();
+            }
+            catch (Error e) {
+                e.printStackTrace();
+            }
+            maneuversTypeList.put(
+                    manInstance == null ? m.getSimpleName().toLowerCase() : manInstance.getType().toLowerCase(), m);
+
+            if (manInstance != null) {
+                switch (manInstance.getType().toLowerCase()) {
+                    case "unconstrained":
+                        maneuversTypeList.put("teleoperation", m);
+                        break;
+                    case "headingspeeddepth":
+                        maneuversTypeList.put("elementalmaneuver", m);
+                        break;
+                    case "rows":
+                        maneuversTypeList.put("rowsmaneuver", m);
+                        break;
+                }
+            }
+        }
+    }
 
     public static String translateImcIdToSystem(int imcId) {
         return translateImcIdToSystem(new ImcId16(imcId));
@@ -144,8 +172,8 @@ public class IMCUtils {
     }
 
     /**
-     * @param name 
-     * @return 
+     * @param name
+     * @return
      * 
      */
     public static String reduceSystemName(String name) {
@@ -170,8 +198,8 @@ public class IMCUtils {
         IMCOutputStream ios = new IMCOutputStream(os);
         try {
             message.serialize(ios);
-            //            os.write(sb.getBuffer());
-            //            os.close();
+            // os.write(sb.getBuffer());
+            // os.close();
         }
         catch (Exception e) {
             e.printStackTrace();
@@ -251,7 +279,7 @@ public class IMCUtils {
 
         el.addAttribute("version", IMCDefinition.getInstance().getVersion());
 
-        for (IMCMessage msg : messages) {			
+        for (IMCMessage msg : messages) {
             Element msgEl = el.addElement("message");
 
             fillInMessage(msg, msgEl);
@@ -259,7 +287,7 @@ public class IMCUtils {
             try {
                 msgEl.addAttribute("time", msg.getHeader().getString("timestamp"));
                 msgEl.addAttribute("src", msg.getHeader().getString("src"));
-                msgEl.addAttribute("dst", msg.getHeader().getString("dst"));				
+                msgEl.addAttribute("dst", msg.getHeader().getString("dst"));
             }
             catch (Exception e) {
                 // e.printStackTrace();
@@ -280,7 +308,7 @@ public class IMCUtils {
                 + msg.getFieldNames().length + " fields</th></tr>";
 
         for (String fieldName : msg.getFieldNames()) {
-            String value = msg.getString(fieldName);	        
+            String value = msg.getString(fieldName);
             if (msg.getTypeOf(fieldName).equalsIgnoreCase("message") && msg.getValue(fieldName) != null)
                 value = getAsInnerHtml(msg.getMessage(fieldName));
 
@@ -317,7 +345,7 @@ public class IMCUtils {
         long time = System.currentTimeMillis();
         if (timeEl != null) {
             time = (long) (Double.parseDouble(timeEl.getText()) * 1000.0);
-            msg.getHeader().setTimestamp(time/1000);
+            msg.getHeader().setTimestamp(time / 1000);
         }
         if (srcEl != null)
             msg.getHeader().setValue("src", srcEl.getText());
@@ -333,15 +361,15 @@ public class IMCUtils {
             if (!ftype.equals("message")) {
                 if (msg.getMessageType().getFieldMeanings(fname) != null) {
                     long val = msg.getMessageType().getFieldMeanings(fname).get(fieldElem.getText());
-                    msg.setValue(fname, val);	
+                    msg.setValue(fname, val);
                 }
-                //                else {
-                //                    NativeType val = NativeTypeFactory.valueOf(ftype, fieldElem.getText());
-                //                    msg.setValue(fname, val);	
-                //                }
+                // else {
+                // NativeType val = NativeTypeFactory.valueOf(ftype, fieldElem.getText());
+                // msg.setValue(fname, val);
+                // }
             }
             else {
-                IMCMessage inline = parseMessage((Element)fieldElem.selectSingleNode("inline"));                
+                IMCMessage inline = parseMessage((Element) fieldElem.selectSingleNode("inline"));
                 msg.setValue(fname, inline);
             }
         }
@@ -349,7 +377,7 @@ public class IMCUtils {
     }
 
     @SuppressWarnings("unchecked")
-    public static IMCMessage[] parseImcXml(String xml) throws DocumentException{
+    public static IMCMessage[] parseImcXml(String xml) throws DocumentException {
         Vector<IMCMessage> messages = new Vector<IMCMessage>();
 
         Document doc = DocumentHelper.parseText(xml);
@@ -361,7 +389,8 @@ public class IMCUtils {
         return messages.toArray(new IMCMessage[0]);
     }
 
-    public static IMCMessage generateReportedState(LocationType lt, String sid, double roll, double pitch, double yaw, double time) {
+    public static IMCMessage generateReportedState(LocationType lt, String sid, double roll, double pitch, double yaw,
+            double time) {
         double[] lld = lt.getAbsoluteLatLonDepth();
 
         IMCMessage msg = IMCDefinition.getInstance().create("ReportedState");
@@ -425,15 +454,15 @@ public class IMCUtils {
 
             IMCMessage msgBeaconSetup = IMCDefinition.getInstance().create("LblBeaconSetup");
             // msgBeaconSetup.setValue("id", new NativeUINT8(i));
-            String nStr = transp.getId()+"";
+            String nStr = transp.getId() + "";
 
             msgBeaconSetup.setValue("beacon", nStr);
 
             msgBeaconSetup.setValue("lat", absLoc.getLatitudeRads());
             msgBeaconSetup.setValue("lon", absLoc.getLongitudeRads());
-            msgBeaconSetup.setValue("depth",absLoc.getDepth());
+            msgBeaconSetup.setValue("depth", absLoc.getDepth());
 
-            int queryChannel = 0, replyChannel = 0, transponderDelay = 0, id;
+            int id = 0;
             PropertiesLoader propConf = transp.getPropConf();
             if (propConf == null) {
                 GuiUtils.errorMessage(ConfigFetch.getSuperParentAsFrame(), "Send transponders",
@@ -441,14 +470,8 @@ public class IMCUtils {
                 return null;
             }
             String propId = propConf.getProperty("id");
-            String prop1 = propConf.getProperty("interrogation channel");
-            String prop2 = propConf.getProperty("reply channel");
-            String prop3 = propConf.getProperty("transponder delay (msecs.)");
             try {
                 id = (int) Double.parseDouble(propId);
-                queryChannel = (int) Double.parseDouble(prop1);
-                replyChannel = (int) Double.parseDouble(prop2);
-                transponderDelay = (int) Double.parseDouble(prop3);
             }
             catch (NumberFormatException e2) {
                 GuiUtils.errorMessage(ConfigFetch.getSuperParentAsFrame(), "Send transponders",
@@ -459,9 +482,10 @@ public class IMCUtils {
 
             msgBeaconSetup.setValue("id", id);
 
-            msgBeaconSetup.setValue("query_channel", queryChannel);
-            msgBeaconSetup.setValue("reply_channel", replyChannel);
-            msgBeaconSetup.setValue("transponder_delay", transponderDelay);
+            // Obsolete fields.
+            msgBeaconSetup.setValue("query_channel", 0);
+            msgBeaconSetup.setValue("reply_channel", 0);
+            msgBeaconSetup.setValue("transponder_delay", 0);
 
             msgs.add(msgBeaconSetup);
 
@@ -480,7 +504,7 @@ public class IMCUtils {
 
         PlanType iPlan = plan;
         IMCMessage msgPlanSpecification = iPlan.asIMCPlan();
-        return msgPlanSpecification;        
+        return msgPlanSpecification;
     }
 
     public static PlanType parsePlanSpecification(MissionType mission, IMCMessage msg) {
@@ -505,7 +529,7 @@ public class IMCUtils {
                 plan.setVehicle(sender);
         }
 
-        //Parse plan actions
+        // Parse plan actions
         Vector<IMCMessage> sact = adapter.getPlanStartActions();
         Vector<IMCMessage> eact = adapter.getPlanEndActions();
         if (sact != null)
@@ -539,51 +563,61 @@ public class IMCUtils {
         return plan;
     }
 
+    public static <M extends Maneuver> Class<M> getManeuverFromType(String type) {
+        String tp = type.trim().toLowerCase();
+        @SuppressWarnings("unchecked")
+        Class<M> mClass = (Class<M>) maneuversTypeList.get(tp);
+        if (mClass != null) {
+            try {
+                return mClass;
+            }
+            catch (Exception e) {
+                e.printStackTrace();
+            }
+            catch (Error e) {
+                e.printStackTrace();
+            }
+        }
+
+        return null;
+    }
+
     /**
      * See {@link LogUtils#parseManeuver}
      */
     public static Maneuver parseManeuver(IMCMessage message) {
         Maneuver m = null;
+        Class<Maneuver> mClass = maneuversTypeList.get(message.getAbbrev().toLowerCase());
+        if (mClass != null) {
+            if (FollowPath.class.isAssignableFrom(mClass)) {
+                m = FollowPath.createFollowPathOrPattern(message);
+            }
+            else {
+                try {
+                    m = mClass.newInstance();
+                }
+                catch (Exception e) {
+                    e.printStackTrace();
+                }
+                catch (Error e) {
+                    e.printStackTrace();
+                }
+            }
+        }
 
-        if (message.getAbbrev().equalsIgnoreCase("goto"))
-            m = new Goto();
-        if (message.getAbbrev().equalsIgnoreCase("loiter"))
-            m = new Loiter();
-        else if (message.getAbbrev().equalsIgnoreCase("teleoperation"))
-            m = new Unconstrained();
-        else if (message.getAbbrev().equalsIgnoreCase("elementalmaneuver"))
-            m = new HeadingSpeedDepth();
-        else if (message.getAbbrev().equalsIgnoreCase("yoyo"))
-            m = new YoYo();
-        else if (message.getAbbrev().equalsIgnoreCase("popup"))
-            m = new PopUp();
-        else if (message.getAbbrev().equalsIgnoreCase("stationkeeping"))
-            m = new StationKeeping();
-        else if (message.getAbbrev().equalsIgnoreCase("rowsmaneuver") || message.getAbbrev().equalsIgnoreCase("rows"))
-            m = new RowsManeuver();
-        else if (message.getAbbrev().equalsIgnoreCase("followpath"))
-            m = FollowPath.createFollowPathOrPattern(message);
-        else if (message.getAbbrev().equalsIgnoreCase("followtrajectory"))
-            m = new FollowTrajectory();
-        else if (message.getAbbrev().equalsIgnoreCase("followsystem"))
-            m = new FollowSystem();
-        else if (message.getAbbrev().equalsIgnoreCase("vehicleformation"))
-            m = new VehicleFormation();
-        else if (message.getAbbrev().equalsIgnoreCase("elevator"))
-            m = new Elevator();
-        else if (message.getAbbrev().equalsIgnoreCase("compasscalibration"))
-            m = new CompassCalibration();
-        else if (message.getAbbrev().equalsIgnoreCase("dislodge"))
-            m = new Dislodge();
-
-        if (m != null)
+        if (m != null && (m instanceof IMCSerialization))
             ((IMCSerialization) m).parseIMCMessage(message);
         else
             m = new Unconstrained();
+
+        NeptusLog.pub().warn(
+                String.format("IMC maneuver message '%s' translated to a '%s'", message.getAbbrev(), m.getClass()));
+
         return m;
     }
 
-    public static void parseManeuverTransition(String sourceManeuver, IMCMessage message, Vector<TransitionType> transitions) {
+    public static void parseManeuverTransition(String sourceManeuver, IMCMessage message,
+            Vector<TransitionType> transitions) {
         if (message == null)
             return;
         String destMan = message.getAsString("dest_man");
@@ -613,7 +647,7 @@ public class IMCUtils {
             msgPlanCommand.setValue("mission_id", plan.getId());
         msgPlanCommand.setValue("maneuver_id", "");
 
-        msgPlanCommand.setValue("command","LOAD");
+        msgPlanCommand.setValue("command", "LOAD");
 
         msgPlanCommand.setValue("argument", specs);
 
@@ -640,7 +674,7 @@ public class IMCUtils {
         }
         else if (startEl != null) {
             NeptusLog.pub().warn("Unable to retrieve homeref from mission type.");
-            
+
             absLoc.setLocation(startEl.getCenterLocation());
             absLoc = absLoc.getNewAbsoluteLatLonDepth();
         }
@@ -652,7 +686,7 @@ public class IMCUtils {
 
         IMCMessage msgNavStartPoint = IMCDefinition.getInstance().create("NavigationStartupPoint");
         msgNavStartPoint.setValue("lat", absLoc.getLatitudeRads());
-        msgNavStartPoint.setValue("lon",absLoc.getLongitudeRads());
+        msgNavStartPoint.setValue("lon", absLoc.getLongitudeRads());
         msgNavStartPoint.setValue("depth", absLoc.getDepth());
 
         return msgNavStartPoint;
@@ -663,7 +697,7 @@ public class IMCUtils {
         IMCOutputStream sb = new IMCOutputStream(baos);
         try {
             message.serialize(sb);
-            sendUdpMsg(target, baos.toByteArray(),baos.size());
+            sendUdpMsg(target, baos.toByteArray(), baos.size());
         }
         catch (Exception e) {
             NeptusLog.pub().error(e);
@@ -716,7 +750,7 @@ public class IMCUtils {
                 for (IMCMessage message : msgs) {
                     message.serialize(ios);
 
-                    sock .send(new DatagramPacket(baos.toByteArray(), baos.size()));
+                    sock.send(new DatagramPacket(baos.toByteArray(), baos.size()));
                     message.dump(System.out);
                 }
             }
@@ -773,7 +807,8 @@ public class IMCUtils {
         boolean ret = ImcMsgManager.getManager().sendMessageToVehicle(msg, vid, null);
 
         if (!ret)
-            GuiUtils.errorMessage(ConfigFetch.getSuperParentAsFrame(), "Send HomeRef", "Error sending HomeRef message!");
+            GuiUtils.errorMessage(ConfigFetch.getSuperParentAsFrame(), "Send HomeRef",
+                    "Error sending HomeRef message!");
         // HomeReference homeRef = mt.getHomeRef();
         // getSentConfiguration(vid).setHomeRef(homeRef);
 
@@ -917,20 +952,58 @@ public class IMCUtils {
         double height = imcEstimatedState.getDouble("height");
         double altitude = imcEstimatedState.getDouble("alt");
         if (depth != -1) {
-            loc.setDepth(depth);        
+            loc.setDepth(depth);
         }
         else if (altitude != -1) {
-            loc.setDepth(-altitude);            
+            loc.setDepth(-altitude);
         }
         else {
             loc.setDepth(-height);
-        }        
+        }
+        return loc;
+    }
+
+    public static LocationType parseLocationAlt(IMCMessage imcEstimatedState) {
+        double lat = imcEstimatedState.getDouble("lat");
+        double lon = imcEstimatedState.getDouble("lon");
+        double height = imcEstimatedState.getDouble("height");
+        imcEstimatedState.getDouble("depth");
+        imcEstimatedState.getDouble("altitude");
+        double x = imcEstimatedState.getDouble("x");
+        double y = imcEstimatedState.getDouble("y");
+        double z = imcEstimatedState.getDouble("z");
+        // double phi = imcEstimatedState.getDouble("phi");
+        // double theta = imcEstimatedState.getDouble("theta");
+        // double psi = imcEstimatedState.getDouble("psi");
+
+        LocationType loc = new LocationType();
+        loc.setLatitudeRads(lat);
+        loc.setLongitudeRads(lon);
+        loc.setHeight(height);
+        loc.setOffsetNorth(x);
+        loc.setOffsetEast(y);
+        loc.setOffsetDown(z);
+
         return loc;
     }
 
     public static SystemPositionAndAttitude parseState(IMCMessage imcEstimatedState) {
-        return new SystemPositionAndAttitude(IMCUtils.parseLocation(imcEstimatedState), imcEstimatedState.getDouble("phi"),
-                imcEstimatedState.getDouble("theta"), imcEstimatedState.getDouble("psi"));
+        SystemPositionAndAttitude state = new SystemPositionAndAttitude(IMCUtils.parseLocation(imcEstimatedState),
+                imcEstimatedState.getDouble("phi"), imcEstimatedState.getDouble("theta"),
+                imcEstimatedState.getDouble("psi"));
+        state.setAltitude(imcEstimatedState.getDouble("alt"));
+        state.setDepth(imcEstimatedState.getDouble("depth"));
+        state.setTime(imcEstimatedState.getTimestampMillis());
+
+        state.setP(imcEstimatedState.getDouble("p"));
+        state.setQ(imcEstimatedState.getDouble("q"));
+        state.setR(imcEstimatedState.getDouble("r"));
+
+        state.setU(imcEstimatedState.getDouble("u"));
+        state.setV(imcEstimatedState.getDouble("v"));
+        state.setW(imcEstimatedState.getDouble("w"));
+
+        return state;
     }
 
     public static IMCMessage getLblConfig(MissionType mt) {
@@ -952,21 +1025,12 @@ public class IMCUtils {
             TransponderElement transp = transpondersList.get(i);
             LocationType absLoc = transp.getCenterLocation().getNewAbsoluteLatLonDepth();
             try {
-                // int id = (int) Double.parseDouble(transp.getPropConf().getProperty("id"));
-                int queryChannel = (int) Double.parseDouble(transp.getPropConf().getProperty("interrogation channel"));
-                int replyChannel = (int) Double.parseDouble(transp.getPropConf().getProperty("reply channel"));
-                int transpDelay = (int) Double.parseDouble(transp.getPropConf().getProperty(
-                        "transponder delay (msecs.)"));
-
-                IMCMessage lblBeacon = IMCDefinition.getInstance().create("LblBeacon",
-                        "beacon", transp.getId(),
-                        "lat", absLoc.getLatitudeRads(),
-                        "lon", absLoc.getLongitudeRads(),
-                        "depth", absLoc.getDepth(),
-                        "query_channel", queryChannel,
-                        "reply_channel", replyChannel,
-                        "transponder_delay", transpDelay
-                        );
+                IMCMessage lblBeacon = IMCDefinition.getInstance().create("LblBeacon", "beacon", transp.getId(), "lat",
+                        absLoc.getLatitudeRads(), "lon", absLoc.getLongitudeRads(), "depth", absLoc.getDepth(),
+                        "query_channel", 0, // Obsolete.
+                        "reply_channel", 0, // Obsolete.
+                        "transponder_delay" // Obsolete.
+                );
 
                 beaconMessages.add(lblBeacon);
             }
@@ -1002,18 +1066,14 @@ public class IMCUtils {
         loc.setLongitudeRads(estimatedStateMsg.getDouble("lon"));
         loc.setDepth(estimatedStateMsg.getDouble("depth"));
 
-        loc.translatePosition(
-                estimatedStateMsg.getDouble("x"),
-                estimatedStateMsg.getDouble("y"),
-                estimatedStateMsg.getDouble("z")
-                );
+        loc.translatePosition(estimatedStateMsg.getDouble("x"), estimatedStateMsg.getDouble("y"),
+                estimatedStateMsg.getDouble("z"));
 
-        return loc;        
+        return loc;
     }
 
-
     public static void setProperties(Property[] properties, IMCMessage message) {
-        //FIXME Enumerated e BitMask edition
+        // FIXME Enumerated e BitMask edition
         for (Property p : properties) {
             try {
 
@@ -1037,243 +1097,231 @@ public class IMCUtils {
                     else
                         message.setValue(p.getName(), p.getValue());
                 }
-                else if (message.getMessageType().getFieldType(p.getName()) == IMCFieldType.TYPE_PLAINTEXT){
+                else if (message.getMessageType().getFieldType(p.getName()) == IMCFieldType.TYPE_PLAINTEXT) {
                     message.setValue(p.getName(), p.getValue());
                 }
-                else 
+                else
                     message.setValue(p.getName(), p.getValue());
             }
             catch (Exception e) {
-                NeptusLog.pub().error(e,e);
+                NeptusLog.pub().error(e, e);
             }
         }
     }
-
 
     public static Vector<PluginProperty> getProperties(final IMCMessage message) {
         return getProperties(message, false);
     }
-    @SuppressWarnings("serial")
+
+    private static PluginProperty getFieldProperty(final IMCMessage message, final String field) {
+        final IMCMessageType msgType = message.getMessageType();
+
+        boolean headerField = message.getHeader().getTypeOf(field) != null;
+        Class<?> fieldClass = null;
+        String fieldType = null;
+        if (headerField) {
+            fieldClass = IMCDefinition.getInstance().getHeaderType().getFieldType(field).getJavaType();
+            fieldType = message.getHeader().getTypeOf(field);
+        }
+        else {
+            fieldClass = message.getMessageType().getFieldType(field).getJavaType();
+            fieldType = message.getTypeOf(field);
+        }
+
+        try {
+
+            Object fieldValue = message.getValue(field);
+
+            if (msgType.getFieldUnits(field) != null) {
+                if (msgType.getFieldUnits(field).equalsIgnoreCase("Enumerated")) {
+                    Enumerated em = new Enumerated(msgType.getFieldPossibleValues(field), message.getLong(field));
+                    fieldValue = em;
+                    fieldClass = Enumerated.class;
+                }
+                else if (msgType.getFieldUnits(field).equalsIgnoreCase("Bitmask")
+                        || msgType.getFieldUnits(field).equalsIgnoreCase("Bitfield")) {
+                    Bitmask bm = new Bitmask(msgType.getFieldPossibleValues(field), message.getLong(field));
+                    fieldValue = bm;
+                    fieldClass = Bitmask.class;
+                }
+            }
+
+            PluginProperty ap = null;
+            if (fieldValue != null) {
+                ap = new PluginProperty(field, fieldClass, fieldValue);
+                ap.setDisplayName(msgType.getFullFieldName(field));
+            }
+            else if (fieldType.equals("message")) {
+                // TODO allow editing inline messages
+                return null;
+            }
+            else if (fieldType.equals("message-list")) {
+                // TODO allow editing inline message lists
+                return null;
+            }
+            else if (fieldType.equals("rawdata")) {
+                // TODO allow editing of raw data fields
+                return null;
+            }
+            else {
+                try {
+                    ap = new PluginProperty(field, fieldClass, fieldClass.newInstance());
+                    ap.setDisplayName(msgType.getFullFieldName(field));
+                }
+                catch (Exception e) {
+                    e.printStackTrace();
+                    return null;
+                }
+            }
+            ap.setCategory("payload");
+
+            String fieldName = field;
+            fieldName = fieldName.substring(0, 1).toUpperCase() + fieldName.substring(1);
+            String desc = "<html>" + field;
+            if ((msgType.getFieldUnits(field) != null) && !"".equalsIgnoreCase(msgType.getFieldUnits(field)))
+                desc = desc.concat(" (" + msgType.getFieldUnits(field) + ")");
+
+            ap.setShortDescription(desc);
+
+            try {
+                Object min = message.getClass().getField(fieldName + "_MIN").get(message);
+                Object max = message.getClass().getField(fieldName + "_MAX").get(message);
+                String d = desc + "<br>[ " + min + " .. " + max + " ]</html>";
+                ap.setShortDescription(d);
+            }
+            catch (Exception e) {
+                ap.setShortDescription(desc);
+            }
+
+            if ("rad".equalsIgnoreCase(msgType.getFieldUnits(field))
+                    || "radians".equalsIgnoreCase(msgType.getFieldUnits(field))) {
+                PropertiesEditor.getPropertyEditorRegistry().registerEditor(ap, AngleEditorRadsShowDegrees.class);
+                PropertiesEditor.getPropertyRendererRegistry().registerRenderer(ap, new DefaultCellRenderer() {
+                    private static final long serialVersionUID = 1L;
+                    {
+                        setShowOddAndEvenRows(false);
+                    }
+
+                    @Override
+                    protected String convertToString(Object value) {
+                        try {
+                            Number nb = (Number) value;
+                            return Math.toDegrees(nb.doubleValue()) + "\u00B0 deg";
+                        }
+                        catch (Exception e) {
+                            return super.convertToString(value);
+                        }
+                    }
+                });
+            }
+            else if ("deg".equalsIgnoreCase(msgType.getFieldUnits(field))
+                    || "degrees".equalsIgnoreCase(msgType.getFieldUnits(field))) {
+                PropertiesEditor.getPropertyEditorRegistry().registerEditor(ap, AngleEditorDegs.class);
+                PropertiesEditor.getPropertyRendererRegistry().registerRenderer(ap, new DefaultCellRenderer() {
+                    private static final long serialVersionUID = 1L;
+                    {
+                        setShowOddAndEvenRows(false);
+                    }
+
+                    @Override
+                    protected String convertToString(Object value) {
+                        try {
+                            Number nb = (Number) value;
+                            return nb.doubleValue() + "\u00B0 deg";
+                        }
+                        catch (Exception e) {
+                            return super.convertToString(value);
+                        }
+                    }
+                });
+            }
+            else if ("Enumerated".equalsIgnoreCase(msgType.getFieldUnits(field))
+                    || "Bitmask".equalsIgnoreCase(msgType.getFieldUnits(field))
+                    || "Bitfield".equalsIgnoreCase(msgType.getFieldUnits(field))) {
+                // Do nothing
+            }
+            else {
+                PropertiesEditor.getPropertyRendererRegistry().registerRenderer(ap, new DefaultCellRenderer() {
+                    private static final long serialVersionUID = 1L;
+                    {
+                        setShowOddAndEvenRows(false);
+                    }
+
+                    @Override
+                    protected String convertToString(Object value) {
+                        String funits = msgType.getFieldUnits(field);
+                        return super.convertToString(value) + " " + (funits != null ? funits : "");
+                    }
+                });
+            }
+
+            return ap;
+        }
+        catch (Exception e) {
+            NeptusLog.pub().error(e);
+            GuiUtils.errorMessage(null, e);
+            return null;
+        }
+    }
+
     public static Vector<PluginProperty> getProperties(final IMCMessage message, boolean ignoreHeaderFields) {
-        //FIXME Enumerated e BitMask edition
+        // FIXME Enumerated e BitMask edition
 
         Vector<PluginProperty> properties = new Vector<PluginProperty>();
 
+        // add header properties
         if (!ignoreHeaderFields) {
-            IMCMessage headerType = IMCDefinition.getInstance().createHeader();
-
-            for (String hf : headerType.getFieldNames()) {
-                try {
-                    Object fieldValue;
-                    fieldValue = message.getHeader().getValue(hf);
-                    
-                    PluginProperty ap = null;
-
-                    if(fieldValue == null) {
-                        continue;
-                    }
-                    else {
-                        if (hf.equalsIgnoreCase("src") || hf.equalsIgnoreCase("dst")) {
-                            fieldValue = new ImcId16(fieldValue);
-                        }
-                        ap = new PluginProperty(hf, fieldValue.getClass(), fieldValue);
-                        ap.setDisplayName(headerType.getLongFieldName(hf));
-                    }
-                    
-                    ap.setCategory("header");
-                    if (hf.equalsIgnoreCase("time") || hf.equalsIgnoreCase("mgid") || hf.equalsIgnoreCase("sync") ||
-                            hf.equalsIgnoreCase("size")) {
-                        ap.setEditable(false);
-                    }
-                    if (hf.equalsIgnoreCase("sync")) {
-                        PropertiesEditor.getPropertyRendererRegistry().registerRenderer(ap, 
-                                new DefaultCellRenderer() {
-                            {
-                                setShowOddAndEvenRows(false);
-                            }
-                            @Override
-                            protected String convertToString(Object value) {
-                                try {
-                                    Number nb = (Number) value;
-                                    return "0x" + Long.toHexString(nb.longValue()) + " (" + nb + ")";
-                                }
-                                catch (Exception e) {
-                                    return super.convertToString(value);
-                                }
-                            }
-                        });
-                    }
-
-                    properties.add(ap);
-
-                }
-                catch (Exception e) {
-                    NeptusLog.pub().error(e.getStackTrace());
+            for (String hf : message.getHeader().getFieldNames()) {
+                PluginProperty pp = getFieldProperty(message, hf);
+                if (pp != null) {
+                    pp.setCategory("header");
+                    properties.add(pp);
                 }
             }
         }
 
-        for (final String fi : message.getMessageType().getFieldNames()) {           
-            try {
-                Object fieldValue = message.getValue(fi);
-
-                if (message.getMessageType().getFieldUnits(fi) != null) {
-                    if (message.getMessageType().getFieldUnits(fi).equalsIgnoreCase("Enumerated")) {
-                        Enumerated em = new Enumerated(message.getMessageType().getFieldPossibleValues(fi), 
-                                message.getLong(fi));
-                        fieldValue = em;
-                    }
-                    else if (message.getMessageType().getFieldUnits(fi).equalsIgnoreCase("Bitmask")
-                            || message.getMessageType().getFieldUnits(fi).equalsIgnoreCase("Bitfield")) {
-                        Bitmask bm = new Bitmask(message.getMessageType().getFieldPossibleValues(fi),
-                                message.getLong(fi));
-                        fieldValue = bm;
-                    }
-                }                
-
-                PluginProperty ap = null;
-                if (fieldValue != null) {
-                    ap = new PluginProperty(fi, fieldValue.getClass(), fieldValue);
-                    ap.setDisplayName(message.getMessageType().getFullFieldName(fi));
-                }
-                //                    ap = PropertiesEditor.getPropertyInstance(fi, "payload", fieldValue.getClass(), fieldValue, true);
-                else {
-                    try {
-                        Class<?> type = message.getMessageType().getFieldType(fi).getJavaType();
-                        ap = new PluginProperty(fi, type, type.newInstance());
-                        ap.setDisplayName(message.getMessageType().getFullFieldName(fi));
-                    }
-                    catch (Exception e) {
-                        e.printStackTrace();
-                        continue;
-                    }
-                }
-                ap.setCategory("payload");
-
-                String fieldName = fi;
-                fieldName = fieldName.substring(0, 1).toUpperCase()+fieldName.substring(1);
-                String desc = "<html>"+fi;
-                if ((message.getMessageType().getFieldUnits(fi) != null) && 
-                        !"".equalsIgnoreCase(message.getMessageType().getFieldUnits(fi)))
-                    desc = desc.concat(" (" + message.getMessageType().getFieldUnits(fi) + ")");
-
-                try {
-                    Object min = message.getClass().getField(fieldName+"_MIN").get(message);
-                    Object max = message.getClass().getField(fieldName+"_MAX").get(message);
-                    String d = desc + "<br>[ " + min + " .. " + max + " ]</html>";
-                    ap.setShortDescription(d);
-                }
-                catch (Exception e) {
-                    NeptusLog.pub().error(e.getMessage());
-                    ap.setShortDescription(desc);
-                }
-
-                if ("rad".equalsIgnoreCase(message.getMessageType().getFieldUnits(fi))
-                        || "radians".equalsIgnoreCase(message.getMessageType().getFieldUnits(fi))) {
-                    PropertiesEditor.getPropertyEditorRegistry().registerEditor(
-                            ap, AngleEditorRadsShowDegrees.class);
-                    PropertiesEditor.getPropertyRendererRegistry().registerRenderer(ap, 
-                            new DefaultCellRenderer() {
-                        {
-                            setShowOddAndEvenRows(false);
-                        }
-                        @Override
-                        protected String convertToString(Object value) {
-                            try {
-                                Number nb = (Number) value;
-                                return Math.toDegrees(nb.doubleValue()) + "\u00B0 deg";
-                            }
-                            catch (Exception e) {
-                                return super.convertToString(value);
-                            }
-                        }
-                    });
-                }
-                else if ("deg".equalsIgnoreCase(message.getMessageType().getFieldUnits(fi))
-                        || "degrees".equalsIgnoreCase(message.getMessageType().getFieldUnits(fi))) {
-                    PropertiesEditor.getPropertyEditorRegistry().registerEditor(
-                            ap, AngleEditorDegs.class);
-                    PropertiesEditor.getPropertyRendererRegistry().registerRenderer(ap, 
-                            new DefaultCellRenderer() {
-                        {
-                            setShowOddAndEvenRows(false);
-                        }
-                        @Override
-                        protected String convertToString(Object value) {
-                            try {
-                                Number nb = (Number) value;
-                                return nb.doubleValue() + "\u00B0 deg";
-                            }
-                            catch (Exception e) {
-                                return super.convertToString(value);
-                            }
-                        }
-                    });
-                }
-                else if ("Enumerated".equalsIgnoreCase(message.getMessageType().getFieldUnits(fi))
-                        || "Bitmask".equalsIgnoreCase(message.getMessageType().getFieldUnits(fi))
-                        || "Bitfield".equalsIgnoreCase(message.getMessageType().getFieldUnits(fi))) {
-                    // Do nothing
-                }
-                else {
-                    PropertiesEditor.getPropertyRendererRegistry().registerRenderer(ap, new DefaultCellRenderer() {
-                        {
-                            setShowOddAndEvenRows(false);
-                        }
-                        @Override
-                        protected String convertToString(Object value) {
-                            String funits = message.getMessageType().getFieldUnits(fi);
-                            return super.convertToString(value) + " " + (funits != null ? funits : "");
-                        }
-                    });
-                }
-
-                //if (message.getType().getFieldType(fi).equalsIgnoreCase("message")) {
-                //  PropertiesEditor.getPropertyEditorRegitry().registerEditor(
-                //          ap, MessageEditorImc.class);
-                //}
-
-                properties.add(ap);
-            }
-            catch (Exception e) {
-                NeptusLog.pub().error(e);
-                GuiUtils.errorMessage(null, e);
+        // add payload fields
+        for (String fi : message.getMessageType().getFieldNames()) {
+            PluginProperty pp = getFieldProperty(message, fi);
+            if (pp != null) {
+                pp.setCategory("payload");
+                properties.add(pp);
             }
         }
+
         return properties;
     }
-    
+
     public static void dumpPayloadBytes(IMCMessage message) throws Exception {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         IMCOutputStream ios = new IMCOutputStream(baos);
         IMCDefinition.getInstance().serializeFields(message, ios);
         byte[] data = baos.toByteArray();
-        
+
         for (int i = 0; i < data.length; i++) {
             if (i % 10 == 0)
                 System.out.print(" ");
             System.out.printf("%02X", data[i]);
-        }       
+        }
     }
-    
-    
-    
+
     /**
      * Given an IMC ID, this method returns the system type.
+     * 
      * @see https://github.com/LSTS/imc/blob/master/IMC_Addressing_Scheme.txt
      * @param imcId The IMC id (uint16_t)
      * @return The type of the system. One of "UUV", "ROV", "USV", "UAV", "UXV", "CCU", "Sensor" or "Unknown".
      */
-    public static String getSystemType(int imcId) {
+    public static String getSystemType(long imcId) {
         int sys_selector = 0xE000;
-        int vtype_selector = 0x1800;
-        
-        int sys_type = (imcId & sys_selector) >> 13;
-        
+        int vtype_selector = 0x1C00;
+
+        int sys_type = (int) ((imcId & sys_selector) >> 13);
+
         switch (sys_type) {
             case 0:
             case 1:
-                switch ((imcId & vtype_selector) >> 11) {
+                switch ((int) ((imcId & vtype_selector) >> 10)) {
                     case 0:
                         return "UUV";
                     case 1:
@@ -1290,8 +1338,11 @@ public class IMCUtils {
             default:
                 break;
         }
-        
-        String name = IMCDefinition.getInstance().getResolver().resolve(imcId).toLowerCase();
+
+        if (imcId > Integer.MAX_VALUE)
+            return "Unknown";
+
+        String name = IMCDefinition.getInstance().getResolver().resolve((int) imcId).toLowerCase();
         if (name.contains("ccu"))
             return "CCU";
         if (name.contains("argos"))
@@ -1302,10 +1353,17 @@ public class IMCUtils {
             return "Gateway";
         return "Unknown";
     }
-    
+
+    public static void main(String[] args) {
+
+        for (String v : ImcStringDefs.IMC_ADDRESSES.keySet()) {
+            System.out.println(v + " is of type " + getSystemType(ImcStringDefs.IMC_ADDRESSES.get(v)));
+        }
+    }
+
     public static void testSysTypeResolution() throws Exception {
         String address_url = "file:///home/zp/Desktop/IMC_Addresses.xml";
-        
+
         URLConnection conn = new URL(address_url).openConnection();
         Document doc = DocumentHelper.parseText(IOUtils.toString(conn.getInputStream()));
         List<?> nodes = doc.getRootElement().selectNodes("address/@id");
@@ -1313,7 +1371,7 @@ public class IMCUtils {
             DefaultAttribute addrElem = (DefaultAttribute) nodes.get(i);
             int id = Integer.parseInt(addrElem.getText().replaceAll("0x", ""), 16);
             String name = IMCDefinition.getInstance().getResolver().resolve(id);
-            System.out.println(addrElem.getText() + ","+name+" --> "+getSystemType(id));
+            System.out.println(addrElem.getText() + "," + name + " --> " + getSystemType(id));
         }
     }
 }

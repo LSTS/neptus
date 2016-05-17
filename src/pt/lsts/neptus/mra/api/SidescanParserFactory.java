@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2015 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2016 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -32,9 +32,11 @@
 package pt.lsts.neptus.mra.api;
 
 import java.io.File;
+import java.io.FilenameFilter;
 
 import pt.lsts.neptus.mra.importers.IMraLogGroup;
 import pt.lsts.neptus.mra.importers.jsf.JsfSidescanParser;
+import pt.lsts.neptus.mra.importers.sdf.SdfSidescanParser;
 import pt.lsts.neptus.util.llf.LogUtils;
 
 /**
@@ -42,18 +44,23 @@ import pt.lsts.neptus.util.llf.LogUtils;
  *
  */
 public class SidescanParserFactory {
+
+    private static final String JSF_FILE = "Data.jsf";
+
+    private static String[] validSidescanFiles = {JSF_FILE};
+
     static File dir;
     static File file;
     static IMraLogGroup source;
-    
+
     public static SidescanParser build(IMraLogGroup log) {
         file = null;
         dir = log.getDir();
         source = log;
-        
+
         return getParser();
     }
-    
+
     public static SidescanParser build(File fileOrDir) {
         source = null;
         if(fileOrDir.isDirectory())
@@ -63,18 +70,46 @@ public class SidescanParserFactory {
         }
         return getParser();
     }
-    
+
+    public static boolean existsSidescanParser(IMraLogGroup log) {
+        for (String file : validSidescanFiles) {
+            if (log.getFile(file) != null) {
+                return true;
+            }
+        }
+
+        if (countSDFFiles(log) > 0) {
+            return true;
+        }
+
+        return false;
+    }
+
+    private static int countSDFFiles(IMraLogGroup log) {
+        FilenameFilter sdfFilter = SDFFilter();
+        File[] files = log.getDir().listFiles(sdfFilter);
+        return files.length;
+    }
+
     private static SidescanParser getParser() {
         if(file != null) {
             return null; //FIXME for now only directories are supported 
         }
         else if(dir != null) {
-            
-            file = new File(dir.getAbsolutePath()+"/Data.jsf");
+
+            file = new File(dir.getAbsolutePath()+"/"+JSF_FILE);
             if(file.exists()) {
                 return new JsfSidescanParser(file);
+            } 
+            else {
+                    FilenameFilter sdfFilter = SDFFilter();
+                    File[] files = source.getDir().listFiles(sdfFilter);
+                    if (files.length == 1)
+                        return new SdfSidescanParser(files[0]);
+                    else if (files.length > 1)
+                        return new SdfSidescanParser(files);
             }
-            
+
             // Next cases should be file = new File(...) and check for existence
             // TODO
 
@@ -88,5 +123,14 @@ public class SidescanParserFactory {
             }
         }
         return null;
+    }
+    
+    private static FilenameFilter SDFFilter() {
+        FilenameFilter sdfFilter = new FilenameFilter() {
+            public boolean accept(File dir, String name) {
+                return name.toLowerCase().endsWith(".sdf"); // Possibly test if it starts with "Data"
+            }
+        };
+        return sdfFilter;
     }
 }

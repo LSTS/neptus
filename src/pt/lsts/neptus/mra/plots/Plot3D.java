@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2015 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2016 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -73,13 +73,10 @@ import pt.lsts.neptus.types.coord.LocationType;
 /**
  * @author zp
  */
+@SuppressWarnings("serial")
 @PluginDescription(name = "3D Plot", icon = "pt/lsts/neptus/mra/plots/3d.png", active=false)
 public class Plot3D extends SimpleMRAVisualization implements LogMarkerListener {
 
-    /**
-     * 
-     */
-    private static final long serialVersionUID = 1L;
     protected boolean inited = false;
     protected Chart chart = null;
     protected JToggleButton zExaggerationToggle, bathymetryToggle, pathToggle, markersToggle; 
@@ -116,18 +113,34 @@ public class Plot3D extends SimpleMRAVisualization implements LogMarkerListener 
         path = new LineStrip();
         Coord3d lastCoord = new Coord3d();
 
+        // Do not plot state from other entities.
+        boolean uav;
+        int eStateId = -1; // Case if not found any of entities
+        if (source.getLsfIndex().containsMessagesOfType("AutopilotMode")) {
+            eStateId = source.getLsfIndex().getEntityId("Autopilot");
+            uav = true;
+        }
+        else {
+            eStateId = source.getLsfIndex().getEntityId("Navigation");
+            uav = false;
+        }
+
         for (IMCMessage m : source.getLsfIndex().getIterator("EstimatedState", 0, 1000)) {
+            if (eStateId != -1 && m.getSrcEnt() != eStateId)
+                continue;
             LocationType loc = IMCUtils.getLocation(m);
             double offsets[] = loc.getOffsetFrom(ref);
             double phi = Math.min(Math.toDegrees(m.getDouble("theta")), 10);
             phi = Math.max(phi, -10);
             int sb = phi <= 0 ? 0 : (int) ((phi / 10) * 255);
             int bb = phi >= 0 ? 0 : (int) ((phi / -10) * 255);
-            double depth = -loc.getDepth();
+            double z = -loc.getDepth();
             if (m.getTypeOf("ref") != null)
-                depth = -m.getDouble("z");
+                z = -m.getDouble("z");
+            if (uav)
+                z = m.getDouble("height") - m.getDouble("z");
 
-            lastCoord = new Coord3d(-offsets[0], offsets[1], depth);
+            lastCoord = new Coord3d(-offsets[0], offsets[1], z);
             path.add(new Point(lastCoord, new Color(bb, sb, 0), 1f));
         }
 
@@ -143,7 +156,6 @@ public class Plot3D extends SimpleMRAVisualization implements LogMarkerListener 
 
             @Override
             public void run() {
-
                 // legacy code...
                 if (source.getLog("BottomDistance") != null) {
                     int dvlId = source.getLsfIndex().getEntityId("DVL");
@@ -169,11 +181,9 @@ public class Plot3D extends SimpleMRAVisualization implements LogMarkerListener 
                         double offsets[] = l.getOffsetFrom(ref);
                         lastStateIndex = stateIndex;
                         dd.addPoint(-offsets[0], offsets[1], -state.getDouble("z") - bDistance.getDouble("value"));
-
                     }
                 }
                 else {
-
                     for (IMCMessage state : source.getLsfIndex().getIterator("EstimatedState", 0, 100)) {
                         if (state.getTypeOf("alt") != null) {
                             double alt = state.getDouble("alt");
@@ -186,7 +196,6 @@ public class Plot3D extends SimpleMRAVisualization implements LogMarkerListener 
                                 dd.addPoint(-offsets[0], offsets[1], -alt - depth);
 
                             }
-
                         }                       
                     }
                 }
@@ -365,7 +374,7 @@ public class Plot3D extends SimpleMRAVisualization implements LogMarkerListener 
     }
 
     @Override
-    public void GotoMarker(LogMarker marker) {
+    public void goToMarker(LogMarker marker) {
 
     }
 

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2015 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2016 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -38,6 +38,8 @@ import java.util.LinkedHashMap;
 import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JMenuItem;
 
+import com.google.common.eventbus.Subscribe;
+
 import pt.lsts.imc.Teleoperation;
 import pt.lsts.imc.VehicleState;
 import pt.lsts.neptus.NeptusLog;
@@ -51,8 +53,6 @@ import pt.lsts.neptus.plugins.PluginDescription;
 import pt.lsts.neptus.plugins.PluginDescription.CATEGORY;
 import pt.lsts.neptus.plugins.update.IPeriodicUpdates;
 import pt.lsts.neptus.util.speech.SpeechUtil;
-
-import com.google.common.eventbus.Subscribe;
 
 /**
  * @author zp
@@ -130,7 +130,9 @@ public class AudibleVehicleState extends ConsolePanel implements IPeriodicUpdate
         return text
                 .replaceAll("xtreme", "extreme")
                 .replaceAll("xplore", "explore")
-                .replaceAll("lauv-seacon-1", "eereena");
+                .replaceAll("lauv-seacon-1", "eereena")
+                .replaceAll("lauv-seacon-2", "premah")
+                .replaceAll("lauv-seacon-3", "valenteenah");
     }
     public void say(String text) {
         if (useAudioAlerts) 

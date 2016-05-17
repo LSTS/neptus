@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2015 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2016 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -309,8 +309,7 @@ public class MRAChartPanel extends JPanel implements ChartMouseListener {
         cpanel.getPopupMenu().add(I18n.text("Save as PDF")).addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                JFileChooser chooser = new JFileChooser();
-                chooser.setFileFilter(GuiUtils.getCustomFileFilter(I18n.text("PDF files"), new String[] {"pdf"}));
+                JFileChooser chooser = GuiUtils.getFileChooser(source.getDir(), I18n.text("PDF files"), "pdf");
                 int op = chooser.showSaveDialog(MRAChartPanel.this);
                 if (op == JFileChooser.APPROVE_OPTION)
                     if(LsfReport.savePdf(source, chart, chooser.getSelectedFile()))

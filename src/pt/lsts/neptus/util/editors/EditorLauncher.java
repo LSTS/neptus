@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2015 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2016 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -44,6 +44,7 @@ import javax.swing.JTextField;
 
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.loader.FileHandler;
+import pt.lsts.neptus.platform.OsInfo;
 import pt.lsts.neptus.util.GuiUtils;
 /**
  * @author Paulo Dias
@@ -54,9 +55,6 @@ extends JPanel
 implements Runnable, FileHandler
 {
     private static final long serialVersionUID = 1L;
-    public final short WINDOWS_TYPE = 0;
-    public final short LINUX_TYPE   = 1;
-
     public final short TEXT_EDITOR_TYPE = 0;
     public final short XML_EDITOR_TYPE  = 1;
     
@@ -167,12 +165,7 @@ implements Runnable, FileHandler
 	{
         String envEditor = "";
         String envXMLEditor = "";
-        String osName = System.getProperty("os.name");
-        short os = -1;
-        if (osName.toLowerCase().indexOf("windows") != -1)
-            os = WINDOWS_TYPE;
-        else if (osName.toLowerCase().indexOf("linux") != -1)
-            os = LINUX_TYPE;
+
         try
         {
             envEditor = System.getenv("NEPTUS_EDITOR");
@@ -180,13 +173,10 @@ implements Runnable, FileHandler
         }
         catch (Error e)
         {
-            //NOTE Por causa do JDK1.4 que System.getenv(String) dá erro!!
             envEditor = System.getProperty("NEPTUS_EDITOR");
             envXMLEditor = System.getProperty("NEPTUS_XMLEDITOR");
         }
-
-        
-        
+                
         String exeCmd = "";
 
 	    if (type == XML_EDITOR_TYPE)
@@ -195,18 +185,18 @@ implements Runnable, FileHandler
 	            exeCmd = envXMLEditor;
 	        else if (envEditor != null)
 	            exeCmd = envEditor;
-	        else if (os == WINDOWS_TYPE)
+	        else if (OsInfo.getName() == OsInfo.Name.WINDOWS)
 	            exeCmd = TEXT_EDITOR_WIN_1;
-	        else if (os == LINUX_TYPE)
+	        else if (OsInfo.getName() == OsInfo.Name.LINUX)
 	            exeCmd = TEXT_EDITOR_LINUX_1;
         }
         else
         {
 	        if (envEditor != null)
 	            exeCmd = envEditor;
-	        else if (os == WINDOWS_TYPE)
+	        else if (OsInfo.getName() == OsInfo.Name.WINDOWS)
 	            exeCmd = TEXT_EDITOR_WIN_1;
-	        else if (os == LINUX_TYPE)
+	        else if (OsInfo.getName() == OsInfo.Name.LINUX)
 	            exeCmd = TEXT_EDITOR_LINUX_1;
         }
 	    return exeCmd;

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2015 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2016 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -47,13 +47,13 @@ import javax.swing.JToolBar;
 
 import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.plugins.vtk.CTD3D;
-import pt.lsts.neptus.plugins.vtk.pointcloud.DepthExaggeration;
-import pt.lsts.neptus.plugins.vtk.pointcloud.PointCloudCTD;
-import pt.lsts.neptus.plugins.vtk.pointcloud.PointCloudHandlerCTD;
-import pt.lsts.neptus.plugins.vtk.visualization.Canvas;
-import pt.lsts.neptus.plugins.vtk.visualization.ScalarBar;
 import pt.lsts.neptus.util.GuiUtils;
 import pt.lsts.neptus.util.ImageUtils;
+import pt.lsts.neptus.vtk.pointcloud.DepthExaggeration;
+import pt.lsts.neptus.vtk.pointcloud.PointCloudCTD;
+import pt.lsts.neptus.vtk.pointcloud.PointCloudHandlerCTD;
+import pt.lsts.neptus.vtk.visualization.Canvas;
+import pt.lsts.neptus.vtk.visualization.ScalarBar;
 
 /**
  * @author hfq
@@ -65,13 +65,13 @@ public class CTD3DToolbar extends JToolBar {
     private static final short ICON_SIZE = 18;
 
     private static final ImageIcon ICON_TEMP = ImageUtils.getScaledIcon(
-            "pt/lsts/neptus/plugins/vtk/assets/temperature.png", ICON_SIZE, ICON_SIZE);
+            "pt/lsts/neptus/vtk/assets/temperature.png", ICON_SIZE, ICON_SIZE);
     private static final ImageIcon ICON_SALINITY = ImageUtils.getScaledIcon(
-            "pt/lsts/neptus/plugins/vtk/assets/salinity.png", ICON_SIZE, ICON_SIZE);
+            "pt/lsts/neptus/vtk/assets/salinity.png", ICON_SIZE, ICON_SIZE);
     private static final ImageIcon ICON_PRESSURE = ImageUtils.getScaledIcon(
-            "pt/lsts/neptus/plugins/vtk/assets/pressure.png", ICON_SIZE, ICON_SIZE);
+            "pt/lsts/neptus/vtk/assets/pressure.png", ICON_SIZE, ICON_SIZE);
     private static final ImageIcon ICON_Z = ImageUtils.getScaledIcon(
-            "pt/lsts/neptus/plugins/vtk/assets/zexaggerate.png", ICON_SIZE, ICON_SIZE);
+            "pt/lsts/neptus/vtk/assets/zexaggerate.png", ICON_SIZE, ICON_SIZE);
     private static final ImageIcon ICON_RESETVIEWPORT = ImageUtils.getScaledIcon(
             "images/menus/camera.png", ICON_SIZE, ICON_SIZE);
 

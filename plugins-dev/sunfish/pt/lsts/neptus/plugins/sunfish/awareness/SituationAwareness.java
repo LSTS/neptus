@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2015 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2016 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -49,6 +49,7 @@ import java.awt.geom.Point2D;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
@@ -70,7 +71,6 @@ import javax.swing.event.ChangeListener;
 
 import org.apache.commons.lang.StringUtils;
 import org.jdesktop.swingx.JXTable;
-import org.mozilla.javascript.edu.emory.mathcs.backport.java.util.Collections;
 import org.reflections.Reflections;
 
 import pt.lsts.neptus.NeptusLog;
@@ -183,7 +183,7 @@ public class SituationAwareness extends ConsoleInteraction implements IConsoleLa
         wg = ImageUtils.getImage("pt/lsts/neptus/plugins/sunfish/wg.png");
     }
     
-    @Periodic
+    @Periodic(millisBetweenUpdates=1000 * 60 * 15)
     public void fetchAssetProperties() {
         NeptusLog.pub().info("Fetching asset properties");
         for (AssetDesc a : props.fetchAssets()) {

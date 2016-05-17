@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2015 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2016 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -46,6 +46,8 @@ import javax.swing.JLabel;
 import javax.swing.JSeparator;
 import javax.swing.JToolBar;
 
+import com.google.common.eventbus.Subscribe;
+
 import pt.lsts.imc.PlanControlState;
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.comm.manager.imc.ImcMsgManager;
@@ -75,6 +77,7 @@ import pt.lsts.neptus.renderer2d.Renderer2DPainter;
 import pt.lsts.neptus.renderer2d.StateRenderer2D;
 import pt.lsts.neptus.renderer2d.StateRendererInteraction;
 import pt.lsts.neptus.renderer2d.VehicleStateListener;
+import pt.lsts.neptus.types.coord.LocationType;
 import pt.lsts.neptus.types.map.MapGroup;
 import pt.lsts.neptus.types.map.MapType;
 import pt.lsts.neptus.types.map.PlanElement;
@@ -82,8 +85,6 @@ import pt.lsts.neptus.types.mission.MissionType;
 import pt.lsts.neptus.types.mission.plan.PlanType;
 import pt.lsts.neptus.types.vehicle.VehicleType;
 import pt.lsts.neptus.util.ImageUtils;
-
-import com.google.common.eventbus.Subscribe;
 
 /**
  * @author zp
@@ -128,7 +129,7 @@ CustomInteractionSupport, VehicleStateListener, ConsoleVehicleChangeListener {
     }
 
     @NeptusProperty(name = "Toolbar placement", description = "Where to place the toolbar")
-    public PlacementEnum toolbarPlacement = PlacementEnum.Bottom;
+    public PlacementEnum toolbarPlacement = PlacementEnum.Left;
 
     protected StateRenderer2D renderer = new StateRenderer2D();
     protected String planId = null;
@@ -203,6 +204,14 @@ CustomInteractionSupport, VehicleStateListener, ConsoleVehicleChangeListener {
         setToolbarPlacement();
 
     }
+    
+    public void focusLocation(LocationType loc) {
+        renderer.focusLocation(loc);        
+    }
+    
+    public void setRotation(double rotationRads) {
+        renderer.setRotation(rotationRads);        
+    }
 
     @Override
     public void initSubPanel() {
@@ -265,8 +274,11 @@ CustomInteractionSupport, VehicleStateListener, ConsoleVehicleChangeListener {
 
     @Override
     public void missionReplaced(MissionType mission) {
-        // editor.setMission(mission);
-        setMission(mission);
+        if (mission.equals(this.mission))
+            getRenderer().repaint();
+        else
+            setMission(mission);
+        
         if (addPlan != null)
             addPlan.setEnabled(mission != null);
     }

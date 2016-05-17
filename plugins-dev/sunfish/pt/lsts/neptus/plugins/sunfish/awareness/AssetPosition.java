@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2015 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2016 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -56,6 +56,14 @@ public class AssetPosition implements Comparable<AssetPosition> {
         this.timestamp = System.currentTimeMillis();
         this.assetName = asset;
         this.loc = new LocationType(latDegrees, lonDegrees);
+        this.loc.setHeight(0);
+    }
+
+    public AssetPosition(String asset, double latDegrees, double lonDegrees, double height) {
+        this.timestamp = System.currentTimeMillis();
+        this.assetName = asset;
+        this.loc = new LocationType(latDegrees, lonDegrees);
+        this.loc.setHeight(height);
     }
 
     @Override

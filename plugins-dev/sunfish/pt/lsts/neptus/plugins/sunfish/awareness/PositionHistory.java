@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2015 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2016 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -51,16 +51,8 @@ import pt.lsts.neptus.NeptusLog;
  */
 public class PositionHistory {
 
-    private static final String positions_url = "http://hub.lsts.pt/api/v1/csvTag/";
+    private static final String positions_url = "http://ripples.lsts.pt/api/v1/csvTag/";
     private static DateFormat fmt2 = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-    
-//    public static void downloadDailyPositions() throws Exception {
-//        
-//        NeptusLog.pub().info("Downloading daily positions");
-//        URL urlData = new URL(positions_url+"/"+fmt.format(new Date()));
-//        File tmp = new File("positions/"+fmt.format(new Date()));
-//        FileUtils.copyURLToFile(urlData, tmp);        
-//    }
     
     public static void downloadCsv(String day, boolean force) throws Exception {
         File tmp = new File("positions/"+day);

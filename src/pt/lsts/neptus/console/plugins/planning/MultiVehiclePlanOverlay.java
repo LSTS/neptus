@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2015 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2016 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -42,6 +42,8 @@ import java.util.LinkedHashMap;
 import java.util.Map.Entry;
 import java.util.Vector;
 
+import com.google.common.eventbus.Subscribe;
+
 import pt.lsts.imc.PlanControlState;
 import pt.lsts.neptus.comm.manager.imc.ImcSystem;
 import pt.lsts.neptus.comm.manager.imc.ImcSystemsHolder;
@@ -56,8 +58,6 @@ import pt.lsts.neptus.types.mission.MissionType;
 import pt.lsts.neptus.types.mission.plan.PlanType;
 import pt.lsts.neptus.types.vehicle.VehicleType;
 import pt.lsts.neptus.types.vehicle.VehiclesHolder;
-
-import com.google.common.eventbus.Subscribe;
 
 /**
  * @author zp
@@ -165,6 +165,7 @@ public class MultiVehiclePlanOverlay extends ConsolePanel implements Renderer2DP
                     points.add(renderer.getScreenPosition(l));
                 lastZoom = renderer.getZoom();
                 lastCenter = new LocationType(renderer.getCenter());
+                lastRotation = renderer.getRotation();
             }
             planPoints.put(entry.getValue(), points);
 

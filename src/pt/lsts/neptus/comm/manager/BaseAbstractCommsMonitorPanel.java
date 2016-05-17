@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2015 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2016 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -63,21 +63,21 @@ import javax.swing.SwingWorker;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
+import com.l2fprod.common.swing.JOutlookBar;
+
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.gui.StatusLed;
 import pt.lsts.neptus.gui.swing.JRoundButton;
 import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.messages.IMessage;
+import pt.lsts.neptus.messages.listener.MessageInfo;
+import pt.lsts.neptus.messages.listener.MessageListener;
 import pt.lsts.neptus.types.vehicle.VehicleType;
 import pt.lsts.neptus.util.DateTimeUtil;
 import pt.lsts.neptus.util.ImageUtils;
 import pt.lsts.neptus.util.MathMiscUtils;
 import pt.lsts.neptus.util.conf.GeneralPreferences;
 import pt.lsts.neptus.util.conf.PreferencesListener;
-import pt.lsts.neptus.messages.listener.MessageInfo;
-import pt.lsts.neptus.messages.listener.MessageListener;
-
-import com.l2fprod.common.swing.JOutlookBar;
 
 /**
  * @author Paulo Dias

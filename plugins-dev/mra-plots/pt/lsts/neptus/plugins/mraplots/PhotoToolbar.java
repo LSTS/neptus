@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2015 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2016 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -46,6 +46,7 @@ import javax.swing.JToggleButton;
 
 import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.util.ImageUtils;
+import pt.lsts.neptus.util.SearchOpenCv;
 
 /**
  * @author zp
@@ -56,13 +57,15 @@ public class PhotoToolbar extends JPanel {
     private static final long serialVersionUID = 1L;
     protected MraPhotosVisualization display;
     protected JToggleButton grayToggle, sharpenToggle, wbalanceToggle,
-    contrastToggle, brightToggle, legendToggle;
+    contrastToggle, brightToggle, legendToggle, histGrayFilter, histColorFilter;
 
     protected JButton nextButton, prevButton;
     protected File[] allFiles;
     protected double startTime, endTime;
     protected SimpleDateFormat fmt = new SimpleDateFormat("HH:mm:ss.SSS");
-
+    
+    protected static boolean hasOcv = false;
+    
     public PhotoToolbar(MraPhotosVisualization display) {
         this.display = display;
         allFiles = MraPhotosVisualization.listPhotos(display.getPhotosDir()); 
@@ -194,7 +197,54 @@ public class PhotoToolbar extends JPanel {
         legendToggle.setSelected(true);
         legendToggle.setToolTipText(I18n.text("Show legend"));
         add(legendToggle);
+        
+        //!Find OPENCV JNI
+        hasOcv = SearchOpenCv.searchJni();
+        
+        histGrayFilter = new JToggleButton("H/G");
+        histGrayFilter.addActionListener(new ActionListener() {
 
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                if (histGrayFilter.isSelected())
+                    display.grayHist = true;
+                else
+                    display.grayHist = false;
+
+                display.setCurFile(display.getCurFile());
+            }
+        });
+        if (hasOcv)
+            histGrayFilter.setToolTipText(I18n.text("Histogram Equalization Gray Filter"));
+        else {
+            histGrayFilter.setEnabled(false);
+            histGrayFilter.setToolTipText(I18n.text("OpenCV was not detected."));
+        }
+        
+        add(histGrayFilter);
+        
+        histColorFilter = new JToggleButton("H/C");
+        histColorFilter.addActionListener(new ActionListener() {
+
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                if (histColorFilter.isSelected())
+                    display.colorHist = true;
+                else
+                    display.colorHist = false;
+
+                display.setCurFile(display.getCurFile());
+            }
+        });
+        if (hasOcv) {
+            histColorFilter.setToolTipText(I18n.text("Histogram Equalization Color Filter"));
+        }
+        else {
+            histColorFilter.setEnabled(false);
+            histColorFilter.setToolTipText(I18n.text("OpenCV was not detected."));
+        }        
+        
+        add(histColorFilter);
         add(prevButton);
         add(nextButton);
     }

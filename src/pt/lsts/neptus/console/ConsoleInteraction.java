@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2015 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2016 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -53,8 +53,7 @@ public abstract class ConsoleInteraction extends AbstractConsolePlugin implement
     private InteractionAdapter adapter = null;
     
     @Override
-    public final void init(ConsoleLayout console) {
-        super.init(console);
+    protected final void initPlugin(ConsoleLayout console) {
         adapter = new InteractionAdapter(console);
         initInteraction();
     }
@@ -63,7 +62,6 @@ public abstract class ConsoleInteraction extends AbstractConsolePlugin implement
      * This method is called to subclasses after init() is called 
      */
     public abstract void initInteraction();
-    
     
     @Override
     public void clean() {

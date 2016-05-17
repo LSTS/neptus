@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2015 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2016 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -39,17 +39,6 @@ import java.util.Vector;
 
 import javax.swing.ProgressMonitor;
 
-import pt.lsts.imc.IMCFieldType;
-import pt.lsts.imc.IMCMessage;
-import pt.lsts.neptus.i18n.I18n;
-import pt.lsts.neptus.mra.importers.IMraLog;
-import pt.lsts.neptus.mra.importers.IMraLogGroup;
-import pt.lsts.neptus.plugins.NeptusProperty;
-import pt.lsts.neptus.plugins.PluginDescription;
-import pt.lsts.neptus.plugins.PluginUtils;
-import pt.lsts.neptus.util.GuiUtils;
-import pt.lsts.neptus.util.llf.LsfLogSource;
-
 import com.jmatio.io.MatFileWriter;
 import com.jmatio.types.MLArray;
 import com.jmatio.types.MLCell;
@@ -63,11 +52,22 @@ import com.jmatio.types.MLStructure;
 import com.jmatio.types.MLUInt64;
 import com.jmatio.types.MLUInt8;
 
+import pt.lsts.imc.IMCFieldType;
+import pt.lsts.imc.IMCMessage;
+import pt.lsts.neptus.i18n.I18n;
+import pt.lsts.neptus.mra.importers.IMraLog;
+import pt.lsts.neptus.mra.importers.IMraLogGroup;
+import pt.lsts.neptus.plugins.NeptusProperty;
+import pt.lsts.neptus.plugins.PluginDescription;
+import pt.lsts.neptus.plugins.PluginUtils;
+import pt.lsts.neptus.util.GuiUtils;
+import pt.lsts.neptus.util.llf.LsfLogSource;
+
 /**
  * @author pdias
  * @author jqcorreia
  */
-@PluginDescription
+@PluginDescription(name="MatLab format .MAT")
 public class MatExporter implements MRAExporter {
     @NeptusProperty(editable = false)
     private static final int MAX_PLAINTEXT_RAWDATA_LENGHT = 256; //256; 0xFFFF
@@ -399,38 +399,8 @@ public class MatExporter implements MRAExporter {
         }
     }
 
-    @Override
-    public String getName() {
-        return I18n.text("MatLab format .MAT");
-    }
-
     public static void main(String[] args) throws Exception {
 
-//      System.out.println("creating objects");
-//      MLDouble mld = new MLDouble("foo", new int[] { 10000000, 1 });
-//      
-//      for(int i = 0; i < 10000000; i++)
-//      {
-//          mld.set(0.0, i);
-//      }
-//      
-//      ArrayList<MLArray> z = new ArrayList<MLArray>();
-//      System.out.println("creating objects #2");
-//      System.out.println("creating objects #3");
-//      z.add(mld);
-//      System.out.println("starting write");
-//      try {
-//          new MatFileWriter("/home/jqcorreia/foo.mat", z);
-//      }
-//      catch (IOException e) {
-//          e.printStackTrace();
-//      }
-        
-        // IMraLogGroup source = new LsfLogSource(new File("D:\\LSTS-Logs\\2014-03-27-apdl-xplore1-noptilus2\\logs\\lauv-xplore-1\\20140327\\142100\\Data.lsf.gz"), null);
-        // IMraLogGroup source = new LsfLogSource(new File("/home/pdias/LSTS-Logs/2014-03-27-apdl-xplore1-noptilus2/logs/lauv-xplore-1/20140327/142100/Data.lsf.gz"), null);
-        // IMraLogGroup source = new LsfLogSource(new File("D:\\LSTS-Logs\\2014-03-27-apdl-xplore1-noptilus2\\logs\\lauv-xplore-1\\20140327\\152506_test_pitch_3\\Data.lsf.gz"), null);
-        // IMraLogGroup source = new LsfLogSource(new File("/home/pdias/LSTS-Logs/2014-03-27-apdl-xplore1-noptilus2/logs/lauv-xplore-1/20140327/152506_test_pitch_3/Data.lsf.gz"), null);
-        // IMraLogGroup source = new LsfLogSource(new File("/home/pdias/Desktop/Sunfish-CTD/20140507-concat/Data.lsf"), null);
         IMraLogGroup source = new LsfLogSource(new File("/home/pdias/Desktop/Sunfish-CTD/20140513/135733_sample_front/Data.lsf"), null);
         
         MatExporter me = new MatExporter(source);

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2015 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2016 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -40,9 +40,9 @@ import java.nio.channels.FileChannel.MapMode;
 import java.util.Collection;
 import java.util.LinkedHashMap;
 
-import pt.lsts.neptus.mra.importers.IMraLog;
 import pt.lsts.imc.IMCMessage;
 import pt.lsts.imc.IMCMessageType;
+import pt.lsts.neptus.mra.importers.IMraLog;
 
 /**
  * @author jqcorreia
@@ -50,12 +50,14 @@ import pt.lsts.imc.IMCMessageType;
  */
 public class JsfLog implements IMraLog {
 
-    MappedByteBuffer buffer;
+    private MappedByteBuffer buffer;
+    private FileInputStream fis;
     
     public JsfLog(String fileName) {
         File f = new File(fileName);
         try {
-            buffer = new FileInputStream(f).getChannel().map(MapMode.READ_ONLY, 0, f.length());
+            fis = new FileInputStream(f);
+            buffer = fis.getChannel().map(MapMode.READ_ONLY, 0, f.length());
             buffer.order(ByteOrder.LITTLE_ENDIAN);
         }
         catch (IOException e) {
@@ -135,4 +137,12 @@ public class JsfLog implements IMraLog {
         return 0;
     }
 
+    /* (non-Javadoc)
+     * @see java.lang.Object#finalize()
+     */
+    @Override
+    protected void finalize() throws Throwable {
+        super.finalize();
+        fis.close();        
+    }
 }

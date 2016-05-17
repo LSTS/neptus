@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2015 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2016 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -45,6 +45,7 @@ import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.FileOutputStream;
+import java.util.LinkedHashMap;
 import java.util.Vector;
 
 import javax.imageio.ImageIO;
@@ -61,24 +62,6 @@ import javax.swing.JScrollPane;
 import javax.swing.JTextField;
 import javax.swing.JToolBar;
 
-import net.miginfocom.swing.MigLayout;
-import pt.lsts.neptus.NeptusLog;
-import pt.lsts.neptus.colormap.ColorBar;
-import pt.lsts.neptus.colormap.ColorMap;
-import pt.lsts.neptus.colormap.ColorMapFactory;
-import pt.lsts.neptus.colormap.ColorMapUtils;
-import pt.lsts.neptus.colormap.DataDiscretizer;
-import pt.lsts.neptus.colormap.DataDiscretizer.DataPoint;
-import pt.lsts.neptus.gui.ColorMapListRenderer;
-import pt.lsts.neptus.i18n.I18n;
-import pt.lsts.neptus.mra.MRAPanel;
-import pt.lsts.neptus.mra.importers.IMraLog;
-import pt.lsts.neptus.mra.importers.IMraLogGroup;
-import pt.lsts.neptus.util.GuiUtils;
-import pt.lsts.neptus.util.ImageUtils;
-import pt.lsts.imc.IMCMessage;
-import pt.lsts.neptus.types.coord.LocationType;
-
 import com.lowagie.text.Document;
 import com.lowagie.text.PageSize;
 import com.lowagie.text.Rectangle;
@@ -87,6 +70,26 @@ import com.lowagie.text.pdf.PdfWriter;
 
 import foxtrot.AsyncTask;
 import foxtrot.AsyncWorker;
+import net.miginfocom.swing.MigLayout;
+import pt.lsts.imc.EstimatedState;
+import pt.lsts.imc.IMCMessage;
+import pt.lsts.imc.lsf.LsfIterator;
+import pt.lsts.neptus.NeptusLog;
+import pt.lsts.neptus.colormap.ColorBar;
+import pt.lsts.neptus.colormap.ColorMap;
+import pt.lsts.neptus.colormap.ColorMapFactory;
+import pt.lsts.neptus.colormap.ColorMapUtils;
+import pt.lsts.neptus.colormap.DataDiscretizer;
+import pt.lsts.neptus.colormap.DataDiscretizer.DataPoint;
+import pt.lsts.neptus.comm.IMCUtils;
+import pt.lsts.neptus.gui.ColorMapListRenderer;
+import pt.lsts.neptus.i18n.I18n;
+import pt.lsts.neptus.mra.MRAPanel;
+import pt.lsts.neptus.mra.importers.IMraLog;
+import pt.lsts.neptus.mra.importers.IMraLogGroup;
+import pt.lsts.neptus.types.coord.LocationType;
+import pt.lsts.neptus.util.GuiUtils;
+import pt.lsts.neptus.util.ImageUtils;
 
 /**
  * @author ZP
@@ -305,18 +308,27 @@ public class ColorMapVisualization extends JPanel implements MRAVisualization, A
         g.setTransform(new AffineTransform());
         g.setColor(new Color(0,0,0,10));
 
-        IMraLog stateParser = logSource.getLog("EstimatedState");
-        IMCMessage stateEntry;
+        //IMraLog stateParser = logSource.getLog("EstimatedState");
+        //IMCMessage stateEntry;
+        
+        LsfIterator<EstimatedState> iterator = logSource.getLsfIndex().getIterator(EstimatedState.class);
+        if (timeStep > 0)
+            iterator = logSource.getLsfIndex().getIterator(EstimatedState.class, (long)(timeStep*1000));
+        
         Point2D lastPt = null;
-        stateEntry = stateParser.nextLogEntry();
-
-        LocationType ref = new LocationType(Math.toDegrees(stateEntry.getDouble("lat")), Math.toDegrees(stateEntry.getDouble("lon")));
-
-        while (stateEntry != null) {
-            LocationType loc = new LocationType();
-            loc.setLatitudeRads(stateEntry.getDouble("lat"));
-            loc.setLongitudeRads(stateEntry.getDouble("lon"));
-            loc.translatePosition(stateEntry.getDouble("x"), stateEntry.getDouble("y"), stateEntry.getDouble("z"));
+        EstimatedState state = iterator.next();
+        
+        if (state == null) {
+           NeptusLog.pub().error("No estimatedstate messages in the log");
+           return;
+        }
+        LocationType ref = IMCUtils.getLocation(state).convertToAbsoluteLatLonDepth();
+        
+        LinkedHashMap<Integer, Point2D> lastStates = new LinkedHashMap<>();
+        
+        
+        while (state != null) {
+            LocationType loc = IMCUtils.getLocation(state).convertToAbsoluteLatLonDepth();
             double[] offsets = loc.getOffsetFrom(ref);
 
             Point2D pt = new Point2D.Double((offsets[1] - minY) * scaleY, (-minX-offsets[0]) * scaleX);
@@ -326,18 +338,14 @@ public class ColorMapVisualization extends JPanel implements MRAVisualization, A
             else
                 g.setColor(Color.black);
 
+            lastPt = lastStates.get(state.getSrc());
+            
             if (lastPt != null && pt != null)				
                 g.draw(new Line2D.Double(lastPt, pt));
-            lastPt = pt;
-
-            if (timeStep == 0)
-                stateEntry = stateParser.nextLogEntry();
-            else {
-                stateParser.advance((long)(timeStep*1000));
-                stateEntry = stateParser.getCurrentEntry();
-            }
+            lastStates.put(state.getSrc(), pt);
+            
+            state = iterator.next();
         }
-
     }
 
     private void drawLegend(Graphics2D g, ColorMap cmap, int var) {
@@ -395,7 +403,7 @@ public class ColorMapVisualization extends JPanel implements MRAVisualization, A
 
         IMCMessage entry = parser.nextLogEntry();
         IMCMessage stateEntry = stateParser.nextLogEntry();
-        LocationType ref = new LocationType(Math.toDegrees(stateEntry.getDouble("lat")), Math.toDegrees(stateEntry.getDouble("lon")));
+        LocationType ref = IMCUtils.getLocation(stateEntry).convertToAbsoluteLatLonDepth();
 
         entityList.clear();
         entityList.add("ALL");

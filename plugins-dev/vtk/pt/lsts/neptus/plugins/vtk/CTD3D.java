@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2015 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2016 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -37,9 +37,11 @@ import java.awt.Component;
 import javax.swing.ImageIcon;
 import javax.swing.JPanel;
 
+import com.l2fprod.common.propertysheet.DefaultProperty;
+import com.l2fprod.common.propertysheet.Property;
+
 import pt.lsts.neptus.gui.PropertiesProvider;
 import pt.lsts.neptus.i18n.I18n;
-import pt.lsts.neptus.mra.MRAPanel;
 import pt.lsts.neptus.mra.NeptusMRA;
 import pt.lsts.neptus.mra.importers.IMraLogGroup;
 import pt.lsts.neptus.mra.visualizations.MRAVisualization;
@@ -49,16 +51,13 @@ import pt.lsts.neptus.plugins.vtk.ctd3d.CTD3DToolbar;
 import pt.lsts.neptus.plugins.vtk.ctd3d.InteractorStyleCTD3D;
 import pt.lsts.neptus.plugins.vtk.ctd3d.LoadData;
 import pt.lsts.neptus.plugins.vtk.ctd3d.Window;
-import pt.lsts.neptus.plugins.vtk.pointcloud.PointCloudCTD;
-import pt.lsts.neptus.plugins.vtk.pointcloud.PointCloudHandlerCTD;
-import pt.lsts.neptus.plugins.vtk.utils.Utils;
-import pt.lsts.neptus.plugins.vtk.visualization.AxesWidget;
-import pt.lsts.neptus.plugins.vtk.visualization.Canvas;
-import pt.lsts.neptus.plugins.vtk.visualization.ScalarBar;
 import pt.lsts.neptus.util.ImageUtils;
-
-import com.l2fprod.common.propertysheet.DefaultProperty;
-import com.l2fprod.common.propertysheet.Property;
+import pt.lsts.neptus.vtk.pointcloud.PointCloudCTD;
+import pt.lsts.neptus.vtk.pointcloud.PointCloudHandlerCTD;
+import pt.lsts.neptus.vtk.utils.Utils;
+import pt.lsts.neptus.vtk.visualization.AxesWidget;
+import pt.lsts.neptus.vtk.visualization.Canvas;
+import pt.lsts.neptus.vtk.visualization.ScalarBar;
 
 /**
  * @author hfq
@@ -87,7 +86,7 @@ public class CTD3D extends JPanel implements MRAVisualization, PropertiesProvide
     /**
      * 
      */
-    public CTD3D(MRAPanel mraPanel) {
+    public CTD3D() {
         if (!Utils.hasTryedToLoadVtkLib) {
             Utils.loadVTKLibraries();
             // VTKMemoryManager.GC.SetAutoGarbageCollection(true);

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2015 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2016 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -67,7 +67,7 @@ import pt.lsts.neptus.util.GuiUtils;
  * @author Margarida Faria
  *
  */
-@PluginDescription(author = "Margarida", name = "SPOT Overlay")
+@PluginDescription(author = "Margarida", name = "SPOT Overlay", icon = "pt/lsts/neptus/plugins/spot/images/spotIcon.png")
 public class SpotOverlay extends SimpleRendererInteraction implements IPeriodicUpdates, ConfigurationListener {
     private Vector<Spot> spotsOnMap;
     private boolean active = false;
@@ -76,8 +76,8 @@ public class SpotOverlay extends SimpleRendererInteraction implements IPeriodicU
 
     @NeptusProperty
     public int updateMinutes = 2;
-    
-    @NeptusProperty(name="Visible", userLevel=LEVEL.REGULAR)
+
+    @NeptusProperty(name = "Visible", userLevel = LEVEL.REGULAR)
     public boolean visible = true;
 
     @NeptusProperty
@@ -90,6 +90,8 @@ public class SpotOverlay extends SimpleRendererInteraction implements IPeriodicU
     public int hours = 70;
     @NeptusProperty(userLevel = LEVEL.REGULAR, name = "Export to CSV")
     public boolean printCvsFile = false;
+    @NeptusProperty(name = "SPOT Stream ID", description = "Identifier of SPOT stream to show")
+    public String streamID = "0eFbYotphiMKz9YiDOI7XqR76JJ010Z0X";
 
     protected GeneralPath gp = new GeneralPath();
     {
@@ -128,12 +130,11 @@ public class SpotOverlay extends SimpleRendererInteraction implements IPeriodicU
         return true;
     }
 
-
     private void updateFromPage() {
         Vector<Spot> nextSpotsOnMap = new Vector<Spot>();
         HashMap<String, TreeSet<SpotMessage>> msgBySpot;
         try {
-            msgBySpot = SpotMsgFetcher.get(hours);
+            msgBySpot = SpotMsgFetcher.get(hours, streamID);
         }
         catch (ParserConfigurationException | SAXException | IOException e) {
             NeptusLog.pub().error("Exception while loading data from Spot website.", e);
@@ -184,7 +185,7 @@ public class SpotOverlay extends SimpleRendererInteraction implements IPeriodicU
     public void paint(Graphics2D g, StateRenderer2D renderer) {
         if (!visible)
             return;
-        
+
         Graphics2D g2 = (Graphics2D) g.create();
         g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
         // For each spot paint all the known positions with dots in each position and a path connecting them

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2015 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2016 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -37,13 +37,13 @@ import javax.swing.BoxLayout;
 import javax.swing.JLabel;
 import javax.swing.border.EmptyBorder;
 
+import pt.lsts.imc.IMCMessage;
 import pt.lsts.neptus.comm.manager.imc.EntitiesResolver;
 import pt.lsts.neptus.comm.manager.imc.ImcMsgManager;
 import pt.lsts.neptus.gui.checklist.CheckItemPanel;
-import pt.lsts.neptus.types.checklist.CheckAutoVarIntervalItem;
-import pt.lsts.imc.IMCMessage;
 import pt.lsts.neptus.messages.listener.MessageInfo;
 import pt.lsts.neptus.messages.listener.MessageListener;
+import pt.lsts.neptus.types.checklist.CheckAutoVarIntervalItem;
 
 public class CheckVariableItem extends CheckSubItemExe implements MessageListener<MessageInfo, IMCMessage> {
     private static final long serialVersionUID = 1L;
@@ -61,7 +61,8 @@ public class CheckVariableItem extends CheckSubItemExe implements MessageListene
 		checkSubItem = ci;
 		this.system = system;
 		initialize();
-		path = checkSubItem.getVarPath().split(".");
+
+		path = checkSubItem.getVarPath().split("\\.");
 	}
 
 	private void initialize() {

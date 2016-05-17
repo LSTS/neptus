@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2015 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2016 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -47,15 +47,16 @@ import javax.swing.JPanel;
 import javax.swing.SwingConstants;
 import javax.swing.border.BevelBorder;
 
+import com.google.common.eventbus.Subscribe;
+
 import pt.lsts.neptus.console.events.ConsoleEventMainSystemChange;
 import pt.lsts.neptus.console.events.ConsoleEventNewNotification;
 import pt.lsts.neptus.console.events.ConsoleEventPlanChange;
 import pt.lsts.neptus.console.notifications.NotificationsDialog;
 import pt.lsts.neptus.events.NeptusEvents;
+import pt.lsts.neptus.gui.system.selection.MainSystemSelectionCombo;
 import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.util.DateTimeUtil;
-
-import com.google.common.eventbus.Subscribe;
 
 /**
  * @author Hugo, PDias
@@ -72,18 +73,25 @@ public class StatusBar extends JPanel {
     private ConsoleLayout console;
     private NotificationsDialog notificationsDialog;
     private int notificationCount = 0;
+    private MainSystemSelectionCombo mainSystemSelectionCombo = null; 
 
     protected Timer clockTimer = null;
     protected TimerTask clockTimerTask = null;
 
     public StatusBar(ConsoleLayout console, NotificationsDialog notificationsDialog) {
+        this(console, notificationsDialog, null);
+    }
+
+    public StatusBar(ConsoleLayout console, NotificationsDialog notificationsDialog, MainSystemSelectionCombo mainSystemSelectionCombo) {
         super();
 
         this.setBorder(new BevelBorder(BevelBorder.LOWERED));
         this.setPreferredSize(new Dimension(console.getWidth(), 25));
         this.setLayout(new BoxLayout(this, BoxLayout.X_AXIS));
         this.notificationsDialog = notificationsDialog;
+        this.mainSystemSelectionCombo = mainSystemSelectionCombo;
         this.console = console;
+
         this.initialize();
         NeptusEvents.register(this, console);
         this.setVisible(true);
@@ -139,6 +147,9 @@ public class StatusBar extends JPanel {
             }
         });
         this.add(notificationButton);
+        
+        if (mainSystemSelectionCombo != null)
+            this.add(mainSystemSelectionCombo);
     }
 
     public void startClock() {
@@ -147,7 +158,7 @@ public class StatusBar extends JPanel {
             @Override
             public void run() {
                 /// Universal Time Coordinated
-                String clockStr = DateTimeUtil.timeUTCFormaterNoSegs3.format(new Date(System.currentTimeMillis()))
+                String clockStr = DateTimeUtil.timeUTCFormatterNoSegs3.format(new Date(System.currentTimeMillis()))
                         + " " + I18n.text("UTC");
                 clock.setText(clockStr);
             }

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2015 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2016 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -63,7 +63,7 @@ import pt.lsts.neptus.types.map.HomeReferenceElement;
 import pt.lsts.neptus.types.map.MarkElement;
 import pt.lsts.neptus.types.map.TransponderElement;
 import pt.lsts.neptus.types.vehicle.VehicleType;
-import pt.lsts.neptus.util.AngleCalc;
+import pt.lsts.neptus.util.AngleUtils;
 import pt.lsts.neptus.util.ImageUtils;
 import pt.lsts.neptus.util.MathMiscUtils;
 
@@ -674,7 +674,7 @@ class MyCanvas3D extends Canvas3D {
 		scale /= 100;
 		String text = new String(scale + units);
 //		Point2d paux=new Point2d(p1.x-p2.x,p1.y-p2.y);
-		double angle=AngleCalc.calcAngle(p1.x,p1.y,p2.x,p2.y);
+		double angle=AngleUtils.calcAngle(p1.x,p1.y,p2.x,p2.y);
 		//double ang=Math.atan(m);
 		angle = Math.toDegrees(-angle + Math.PI);
 		
@@ -859,11 +859,7 @@ class MyCanvas3D extends Canvas3D {
 		String text="";
 		LocationType curLocation = null;
 		if (camera.lockobj == null) {
-			//double location[] = (double[]) camera.associatedrender.location
-			//		.getOffsetFrom(new LocationType());
 			double location[] = {0, 0, 0};
-			//camera.associatedrender.location.getLongitudeAsDoubleValue(),
-			//camera.associatedrender.location.getDepth());
 			Point3d vec = new Point3d(location[0], location[1], location[2]);
 			vec.x += camera.pivot.x;
 			vec.y += camera.pivot.y;
@@ -877,15 +873,9 @@ class MyCanvas3D extends Canvas3D {
 		} 
 		else if(camera.lock != null )
 		{
-			//double location[] = (double[]) camera.associatedrender.location
-			//		.getOffsetFrom(new LocationType());
 			double location[] = {0, 0, 0};
-			//camera.associatedrender.location.getLongitudeAsDoubleValue(),
-			//camera.associatedrender.location.getDepth());
 			Point3d vec2 = new Point3d(location[0], location[1], location[2]);
-			/*Vector3d vec2=new Vector3d(camera.associatedrender.location.getLatitudeAsDoubleValue(),
-			 camera.associatedrender.location.getLongitudeAsDoubleValue(),
-			 camera.associatedrender.location.getDepth());*/
+
 			Vector3d vec = new Vector3d(camera.lockobj.pos[0],
 					camera.lockobj.pos[1], camera.lockobj.pos[2]);
 			vec.x += camera.pivot.x;
@@ -902,15 +892,9 @@ class MyCanvas3D extends Canvas3D {
 		}
 		else if (camera.lockmapobj != null)
 		{
-			//double location[] = (double[]) camera.associatedrender.location
-			//		.getOffsetFrom(new LocationType());
 			double location[] = {0, 0, 0};
-			//camera.associatedrender.location.getLongitudeAsDoubleValue(),
-			//camera.associatedrender.location.getDepth());
 			Point3d vec2 = new Point3d(location[0], location[1], location[2]);
-			/*Vector3d vec2=new Vector3d(camera.associatedrender.location.getLatitudeAsDoubleValue(),
-			 camera.associatedrender.location.getLongitudeAsDoubleValue(),
-			 camera.associatedrender.location.getDepth());*/
+
 			Vector3d vec = new Vector3d(camera.lockobj.pos[0],
 					camera.lockobj.pos[1], camera.lockobj.pos[2]);
 			vec.x += camera.pivot.x;

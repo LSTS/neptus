@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2015 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2016 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -39,13 +39,6 @@ import java.util.Vector;
 
 import org.apache.commons.io.output.ByteArrayOutputStream;
 
-import pt.lsts.neptus.NeptusLog;
-import pt.lsts.neptus.comm.manager.imc.ImcMsgManager;
-import pt.lsts.neptus.comm.manager.imc.ImcSystem;
-import pt.lsts.neptus.comm.manager.imc.ImcSystemsHolder;
-import pt.lsts.neptus.types.vehicle.VehicleType;
-import pt.lsts.neptus.types.vehicle.VehicleType.SystemTypeEnum;
-import pt.lsts.neptus.types.vehicle.VehiclesHolder;
 import pt.lsts.imc.AcousticOperation;
 import pt.lsts.imc.EstimatedState;
 import pt.lsts.imc.FollowRefState;
@@ -57,6 +50,13 @@ import pt.lsts.imc.PlanControl.TYPE;
 import pt.lsts.imc.PlanManeuver;
 import pt.lsts.imc.PlanSpecification;
 import pt.lsts.imc.Reference;
+import pt.lsts.neptus.NeptusLog;
+import pt.lsts.neptus.comm.manager.imc.ImcMsgManager;
+import pt.lsts.neptus.comm.manager.imc.ImcSystem;
+import pt.lsts.neptus.comm.manager.imc.ImcSystemsHolder;
+import pt.lsts.neptus.types.vehicle.VehicleType;
+import pt.lsts.neptus.types.vehicle.VehicleType.SystemTypeEnum;
+import pt.lsts.neptus.types.vehicle.VehiclesHolder;
 
 /**
  * This class is used to associate external controllers with existing vehicles and manage their control loops
@@ -114,7 +114,7 @@ public class ControllerManager {
      * @throws Exception
      */
     public void associateControl(final IController controller, final VehicleType vehicle, int controlLatencySeconds, int timeoutSeconds) throws Exception {
-        EstimatedState lastState = ImcMsgManager.getManager().getState(vehicle).lastEstimatedState();
+        EstimatedState lastState = ImcMsgManager.getManager().getState(vehicle).last(EstimatedState.class);
         if (!controller.supportsVehicle(vehicle, lastState)) {
             throw new Exception("The vehicle "+vehicle.getName()+" is not supported by "+controller.getControllerName()+" controller");
         }
@@ -159,8 +159,8 @@ public class ControllerManager {
         TimerTask task = new TimerTask() {            
             @Override
             public void run() {
-                EstimatedState state = ImcMsgManager.getManager().getState(vehicle.getId()).lastEstimatedState();
-                FollowRefState frefState = ImcMsgManager.getManager().getState(vehicle.getId()).lastFollowRefState();
+                EstimatedState state = ImcMsgManager.getManager().getState(vehicle.getId()).last(EstimatedState.class);
+                FollowRefState frefState = ImcMsgManager.getManager().getState(vehicle.getId()).last(FollowRefState.class);
                 Reference ref = controller.guide(vehicle, state, frefState);
                 try {
                     System.out.println("size in bytes of the reference message: "+ ref.serialize(new IMCOutputStream(new ByteArrayOutputStream(256))));

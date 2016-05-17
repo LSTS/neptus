@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2015 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2016 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -253,7 +253,8 @@ public abstract class MRAGanttPlot implements LLFChart, LogMarkerListener {
     public void addLogMarker(LogMarker e) {
         ValueMarker marker = new ValueMarker(e.getTimestamp() - localTimeOffset);
         marker.setLabel(e.getLabel());
-        chart.getCategoryPlot().addRangeMarker(marker);
+        if (chart != null)
+            chart.getCategoryPlot().addRangeMarker(marker);
     }
 
     @Override
@@ -267,7 +268,7 @@ public abstract class MRAGanttPlot implements LLFChart, LogMarkerListener {
     }
 
     @Override
-    public void GotoMarker(LogMarker marker) {
+    public void goToMarker(LogMarker marker) {
 
     }
 

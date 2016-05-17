@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2015 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2016 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -193,7 +193,14 @@ public abstract class RangePainter implements Renderer2DPainter {
 	
 	public abstract void callParentRepaint();
 	
-	public void updateGraphics(final double newRange, boolean accepted, String reason) {
+	/**
+     * @param curLoc the curLoc to set
+     */
+    public void setCurLoc(LocationType curLoc) {
+        this.curLoc = curLoc;
+    }
+
+    public void updateGraphics(final double newRange, boolean accepted, String reason) {
 		// setCurLoc(curLoc);
 		setRange(newRange);
 		setAccepted(accepted);

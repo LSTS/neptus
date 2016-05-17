@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2015 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2016 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -79,7 +79,11 @@ import javax.swing.JPopupMenu;
 import javax.swing.SwingUtilities;
 import javax.swing.event.ChangeListener;
 
+import com.l2fprod.common.propertysheet.DefaultProperty;
+import com.l2fprod.common.propertysheet.Property;
+
 import pt.lsts.neptus.NeptusLog;
+import pt.lsts.neptus.console.plugins.planning.MapShortcutsLayer;
 import pt.lsts.neptus.gui.MenuScroller;
 import pt.lsts.neptus.gui.PropertiesEditor;
 import pt.lsts.neptus.gui.PropertiesProvider;
@@ -89,7 +93,7 @@ import pt.lsts.neptus.mp.MapChangeListener;
 import pt.lsts.neptus.mp.SystemPositionAndAttitude;
 import pt.lsts.neptus.planeditor.IEditorMenuExtension;
 import pt.lsts.neptus.planeditor.IMapPopup;
-import pt.lsts.neptus.renderer2d.tiles.TileMercadorSVG;
+import pt.lsts.neptus.renderer2d.tiles.TileMercatorSVG;
 import pt.lsts.neptus.types.coord.CoordinateSystem;
 import pt.lsts.neptus.types.coord.CoordinateUtil;
 import pt.lsts.neptus.types.coord.LocationType;
@@ -101,15 +105,13 @@ import pt.lsts.neptus.types.map.ScatterPointsElement;
 import pt.lsts.neptus.types.map.VehicleTailElement;
 import pt.lsts.neptus.types.vehicle.VehicleType;
 import pt.lsts.neptus.types.vehicle.VehiclesHolder;
+import pt.lsts.neptus.util.AngleUtils;
 import pt.lsts.neptus.util.GuiUtils;
 import pt.lsts.neptus.util.ImageUtils;
 import pt.lsts.neptus.util.conf.ConfigFetch;
 import pt.lsts.neptus.util.conf.GeneralPreferences;
 import pt.lsts.neptus.util.conf.PreferencesListener;
 import pt.lsts.neptus.util.coord.MapTileUtil;
-
-import com.l2fprod.common.propertysheet.DefaultProperty;
-import com.l2fprod.common.propertysheet.Property;
 
 /**
  * This class provides a 2D visualization of the world, including maps, vehicle poses and other layers
@@ -155,8 +157,14 @@ CustomInteractionSupport, IMapPopup, FocusListener {
             propagateChange();
         };
 
-        public void propagateChange() {
-            updateCenter();
+        private void propagateChange() {
+            // updateCenter();
+            double[] latLon = MapTileUtil.xyToDegrees(worldPixelXY.getX(), worldPixelXY.getY(), getLevelOfDetail());
+            center.setLatitudeDegs(latLon[0]);
+            center.setLongitudeDegs(latLon[1]);
+            Point2D nXY = MapTileUtil.degreesToXY(latLon[0], latLon[1], levelOfDetail);
+            super.setLocation(nXY.getX(), nXY.getY());  //This is the one that has to be called, otherwise a endless cycle will emerge
+
             setLevelOfDetail(levelOfDetail);
             repaint();
         }
@@ -194,7 +202,7 @@ CustomInteractionSupport, IMapPopup, FocusListener {
     protected HashSet<String> vehiclesTailOn = new HashSet<String>();
 
     protected boolean worldMapShown = true, worldBondariesShown = false;
-    protected String worldMapStyle = TileMercadorSVG.getTileStyleID();
+    protected String worldMapStyle = TileMercatorSVG.getTileStyleID();
 
     protected boolean gridShown = false, showDots = false, legendShown = false;
     // protected boolean vehicleSymbolShown = true;
@@ -743,6 +751,11 @@ CustomInteractionSupport, IMapPopup, FocusListener {
         if (!inOrOut) { // zoom out
             double nwx = -(localRenderX - getWidth() / 2);
             double nwy = -(localRenderY - getHeight() / 2);
+            if (rotationRads != 0) {
+                double[] np = AngleUtils.rotate(rotationRads, nwy, nwx, true);
+                nwx = np[1];
+                nwy = np[0];
+            }
             worldPixelXY.setLocation(worldPixelXY.getX() + nwx, worldPixelXY.getY() + nwy);
             setLevelOfDetail(getLevelOfDetail() - 1);
         }
@@ -750,6 +763,11 @@ CustomInteractionSupport, IMapPopup, FocusListener {
             setLevelOfDetail(getLevelOfDetail() + 1);
             double nwx = (localRenderX - getWidth() / 2);
             double nwy = (localRenderY - getHeight() / 2);
+             if (rotationRads != 0) {
+                double[] np = AngleUtils.rotate(rotationRads, nwy, nwx, true);
+                nwx = np[1];
+                nwy = np[0];
+            }
             worldPixelXY.setLocation(worldPixelXY.getX() + nwx, worldPixelXY.getY() + nwy);
         }
     }
@@ -1223,22 +1241,26 @@ CustomInteractionSupport, IMapPopup, FocusListener {
                                     .getSuperParentFrame(),
                                     I18n.text("2D Renderer Shortcuts"),
                                     I18n.text("(Keys pressed while the Renderer component is focused)"),
-                                    "<html><h1>" + I18n.text("2D Renderer Shortcuts")
-                                    + "</h1><br><div align='center'><table border='1' align='center'><tr><th>"
-                                    + I18n.text("Key Combination") + "</th><th>" + I18n.text("Action") + "</th></tr>"
-                                    + "<tr><td>" + I18n.text("plus (+)") + "</td><td>"
-                                    + I18n.text("Double the current zoom value") + "</td></tr>" + "<tr><td>"
-                                    + I18n.text("minus (-)") + "</td><td>" + I18n.text("Half the current zoom value")
-                                    + "</td></tr>" + "<tr><td>" + I18n.text("left") + "</td><td>"
-                                    + I18n.text("Move the map to the left") + "</td></tr>" + "<tr><td>"
-                                    + I18n.text("right") + "</td><td>" + I18n.text("Move the map to the right")
-                                    + "</td></tr>" + "<tr><td>" + I18n.text("up") + "</td><td>"
-                                    + I18n.text("Move the map upwards") + "</td></tr>" + "<tr><td>"
-                                    + I18n.text("down") + "</td><td>" + I18n.text("Move the map downwards") + "</td></tr>"
-                                    + "<tr><td>" + I18n.textc("N", "N key") + "</td><td>"
-                                    + I18n.text("Reset the current rotation (up facing north)") + "</td></tr>"
-                                    + "<tr><td>" + I18n.text("F1") + "</td><td>"
-                                    + I18n.text("Reset the current view to defaults") + "</td></tr></table></div>");
+//                                    "<html><h1>" + I18n.text("2D Renderer Shortcuts")
+//                                    + "</h1><br><div align='center'><table border='1' align='center'><tr><th>"
+//                                    + I18n.text("Key Combination") + "</th><th>" + I18n.text("Action") + "</th></tr>"
+//                                    + "<tr><td>" + I18n.text("PgUp or plus (+)") + "</td><td>"
+//                                    + I18n.text("Double the current zoom value (plus in keyboards where '+' key does not need Shift)")
+//                                    + "</td></tr>" + "<tr><td>"
+//                                    + I18n.text("PgDn or minus (-)") + "</td><td>"
+//                                    + I18n.text("Half the current zoom value (minus in keyboards where '-' key does not need Shift)")
+//                                    + "</td></tr>" + "<tr><td>" + I18n.text("left") + "</td><td>"
+//                                    + I18n.text("Move the map to the left") + "</td></tr>" + "<tr><td>"
+//                                    + I18n.text("right") + "</td><td>" + I18n.text("Move the map to the right")
+//                                    + "</td></tr>" + "<tr><td>" + I18n.text("up") + "</td><td>"
+//                                    + I18n.text("Move the map upwards") + "</td></tr>" + "<tr><td>"
+//                                    + I18n.text("down") + "</td><td>" + I18n.text("Move the map downwards") + "</td></tr>"
+//                                    + "<tr><td>" + I18n.textc("N", "N key") + "</td><td>"
+//                                    + I18n.text("Reset the current rotation (up facing north)") + "</td></tr>"
+//                                    + "<tr><td>" + I18n.text("F1") + "</td><td>"
+//                                    + I18n.text("Reset the current view to defaults") + "</td></tr></table></div>"
+                                    MapShortcutsLayer.getShortcutsHtml()
+                                    );
                 }
             });
             item.setIcon(ImageUtils.getIcon("images/menus/info.png"));
@@ -1261,7 +1283,7 @@ CustomInteractionSupport, IMapPopup, FocusListener {
                     items = extension.getApplicableItems(loc, this);
                 }
                 catch (Exception ex) {
-                    NeptusLog.pub().error(ex);
+                    NeptusLog.pub().error(ex, ex);
                 }
 
                 if (items != null && !items.isEmpty()) {
@@ -1375,7 +1397,7 @@ CustomInteractionSupport, IMapPopup, FocusListener {
         }
         Point2D centerXY = worldPixelXY;
 
-        double[] latLong = MapTileUtil.XYToDegrees(centerXY.getX() + tx, centerXY.getY() + ty, levelOfDetail);
+        double[] latLong = MapTileUtil.xyToDegrees(centerXY.getX() + tx, centerXY.getY() + ty, levelOfDetail);
 
         LocationType loc = new LocationType();
         loc.setLatitudeDegs(latLong[0]);
@@ -1556,12 +1578,6 @@ CustomInteractionSupport, IMapPopup, FocusListener {
         return center.getNewAbsoluteLatLonDepth();
     }
 
-    private final void updateCenter() {
-        double[] latLon = MapTileUtil.XYToDegrees(worldPixelXY.getX(), worldPixelXY.getY(), getLevelOfDetail());
-        center.setLatitudeDegs(latLon[0]);
-        center.setLongitudeDegs(latLon[1]);
-    }
-
     /**
      * Translates the current view in order to have the given location at its center <br>
      * <b>NOTE:</b> Don't use this method when you are translating the map (for this use the {@link #worldPixelXY}).
@@ -1676,6 +1692,13 @@ CustomInteractionSupport, IMapPopup, FocusListener {
 
         GeneralPreferences.removePreferencesListener(this);
         shuttingDown = true;
+    }
+
+    /**
+     * @return the identity
+     */
+    public AffineTransform getIdentity() {
+        return identity;
     }
 
     /**

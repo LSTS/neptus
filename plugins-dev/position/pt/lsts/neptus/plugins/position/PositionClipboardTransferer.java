@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2015 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2016 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -37,7 +37,7 @@ import java.util.Vector;
 
 import javax.swing.JOptionPane;
 
-import pt.lsts.imc.state.ImcSysState;
+import pt.lsts.imc.state.ImcSystemState;
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.comm.manager.imc.ImcMsgManager;
 import pt.lsts.neptus.comm.manager.imc.ImcSystem;
@@ -91,7 +91,7 @@ public class PositionClipboardTransferer extends ConsolePanel {
 					return;
 				NeptusLog.pub().info("<###>get position from "+answer);
 				
-				ImcSysState state = ImcMsgManager.getManager().getState(getConsole().getSystem((String)answer).getVehicle().getId());
+				ImcSystemState state = ImcMsgManager.getManager().getState(getConsole().getSystem((String)answer).getVehicle().getId());
 				if (state == null)
 					return;
 				double lat = Math.toDegrees(state.getDouble("GpsFix.GPS.lat"));

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2015 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2016 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -59,16 +59,7 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
 import org.apache.http.client.methods.HttpGet;
-import org.apache.http.conn.scheme.PlainSocketFactory;
-import org.apache.http.conn.scheme.Scheme;
-import org.apache.http.conn.scheme.SchemeRegistry;
-import org.apache.http.impl.client.DefaultHttpClient;
-import org.apache.http.impl.conn.PoolingClientConnectionManager;
-import org.apache.http.params.BasicHttpParams;
-import org.apache.http.params.HttpConnectionParams;
-import org.apache.http.params.HttpParams;
-import org.apache.http.protocol.BasicHttpContext;
-import org.apache.http.protocol.HttpContext;
+import org.apache.http.client.protocol.HttpClientContext;
 import org.w3c.dom.Document;
 
 import pt.lsts.imc.IMCMessage;
@@ -79,7 +70,6 @@ import pt.lsts.neptus.comm.manager.imc.ImcMsgManager;
 import pt.lsts.neptus.comm.manager.imc.ImcSystem;
 import pt.lsts.neptus.comm.manager.imc.ImcSystemsHolder;
 import pt.lsts.neptus.comm.manager.imc.SystemImcMsgCommInfo;
-import pt.lsts.neptus.comm.proxy.ProxyInfoProvider;
 import pt.lsts.neptus.console.ConsoleLayout;
 import pt.lsts.neptus.console.ConsolePanel;
 import pt.lsts.neptus.console.plugins.SubPanelChangeEvent;
@@ -108,12 +98,13 @@ import pt.lsts.neptus.util.ImageUtils;
 import pt.lsts.neptus.util.MathMiscUtils;
 import pt.lsts.neptus.util.ReflectionUtil;
 import pt.lsts.neptus.util.StreamUtil;
+import pt.lsts.neptus.util.http.client.HttpClientConnectionHelper;
 
 /**
  * @author pdias
  * 
  */
-@SuppressWarnings({"serial","deprecation"})
+@SuppressWarnings({"serial"})
 @PluginDescription(name = "Remote Position Fetcher Updater", author = "Paulo Dias", version = "0.2",
 icon="pt/lsts/neptus/plugins/webupdate/webupdate-fetch-on.png")
 @LayerPriority(priority = 178)
@@ -163,8 +154,7 @@ public class RemotePositionFetcherUpdater extends ConsolePanel implements IPerio
     private Vector<ILayerPainter> renderers = new Vector<ILayerPainter>();
     private static GeneralPath arrowShape = null;
 
-    private DefaultHttpClient client;
-    private PoolingClientConnectionManager httpConnectionManager; //old ThreadSafeClientConnManager
+    private HttpClientConnectionHelper httpComm;
     private HttpGet getHttpRequestState, getHttpRequestImcMsgs;
 
     private Timer timer = null;
@@ -306,18 +296,8 @@ public class RemotePositionFetcherUpdater extends ConsolePanel implements IPerio
     }
 
     private void initializeComm() {
-        SchemeRegistry schemeRegistry = new SchemeRegistry();
-        schemeRegistry.register(new Scheme("http", 80, PlainSocketFactory.getSocketFactory()));
-        schemeRegistry.register(new Scheme("https", 443, PlainSocketFactory.getSocketFactory()));
-        httpConnectionManager = new PoolingClientConnectionManager(schemeRegistry);
-        httpConnectionManager.setMaxTotal(4);
-        httpConnectionManager.setDefaultMaxPerRoute(50);
-
-        HttpParams params = new BasicHttpParams();
-        HttpConnectionParams.setConnectionTimeout(params, 5000);
-        client = new DefaultHttpClient(httpConnectionManager, params);
-        
-        ProxyInfoProvider.setRoutePlanner(client);
+        httpComm = new HttpClientConnectionHelper();
+        httpComm.initializeComm();
     }
 
     /**
@@ -393,9 +373,9 @@ public class RemotePositionFetcherUpdater extends ConsolePanel implements IPerio
             String uri = endpoint + "state/state.xml"; // + "/state.xml";
             getHttpRequestState = new HttpGet(uri);
 
-            HttpContext localContext = new BasicHttpContext();
-            HttpResponse iGetResultCode = client.execute(getHttpRequestState, localContext);
-            ProxyInfoProvider.authenticateConnectionIfNeeded(iGetResultCode, localContext, client);
+            HttpClientContext localContext = HttpClientContext.create();
+            HttpResponse iGetResultCode = httpComm.getClient().execute(getHttpRequestState, localContext);
+            httpComm.autenticateProxyIfNeeded(iGetResultCode, localContext);
 
             if (iGetResultCode.getStatusLine().getStatusCode() != HttpStatus.SC_OK) {
                 NeptusLog.pub().info("<###>[" + iGetResultCode.getStatusLine().getStatusCode() + "] "
@@ -446,7 +426,11 @@ public class RemotePositionFetcherUpdater extends ConsolePanel implements IPerio
             getHttpRequestImcMsgs = new HttpGet(uri);
             @SuppressWarnings("unused")
             long reqTime = System.currentTimeMillis();
-            HttpResponse iGetResultCode = client.execute(getHttpRequestImcMsgs);
+            
+            HttpClientContext context = HttpClientContext.create();
+            HttpResponse iGetResultCode = httpComm.getClient().execute(getHttpRequestImcMsgs, context);
+            httpComm.autenticateProxyIfNeeded(iGetResultCode, context);
+            
             if (iGetResultCode.getStatusLine().getStatusCode() != HttpStatus.SC_OK) {
                 NeptusLog.pub().info("<###>[" + iGetResultCode.getStatusLine().getStatusCode() + "] "
                         + iGetResultCode.getStatusLine().getReasonPhrase()
@@ -602,10 +586,8 @@ public class RemotePositionFetcherUpdater extends ConsolePanel implements IPerio
         removeCheckMenuItem("Settings>" + PluginUtils.getPluginName(this.getClass()) + ">Start/Stop");
         removeMenuItem("Settings>" + PluginUtils.getPluginName(this.getClass()) + ">Settings");
 
-        if (client != null) {
-        }
-        if (httpConnectionManager != null) {
-            httpConnectionManager.shutdown();
+        if (httpComm != null) {
+            httpComm.cleanUp();;
         }
         if (ttask != null) {
             ttask.cancel();

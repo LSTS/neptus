@@ -1,8 +1,6 @@
 # DATE=@DATE@
 # TIME=@TIME@
-# COMPILED BY=@COMPILED BY@ 
+# COMPILED BY=@COMPILED BY@
 # LEGAL_COPY=@LEGAL_COPY@
-# SVN_REV=@SVN_REV@
-# SVN_PATH=@SVN_PATH@
 
 pt.lsts.neptus.plugins.accu.AccuTools

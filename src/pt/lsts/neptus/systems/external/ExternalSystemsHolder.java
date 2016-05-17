@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2015 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2016 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -91,17 +91,27 @@ public class ExternalSystemsHolder {
     private ExternalSystemsHolder() {
     }
     
-    public static boolean registerSystem(ExternalSystem system) {
+    public static ExternalSystem registerSystem(ExternalSystem system) {
         ExternalSystem resLook = lookupTable.get(system.getId());
         if (resLook != null)
-            return true;
+            return resLook;
         
         lookupTable.put(system.getId(), system);
-        return true;
+        return system;
     }
 
     public static ExternalSystem lookupSystem(String id) {
-        return lookupTable.get(id);
+        ExternalSystem ret = lookupTable.get(id);
+        if (ret == null) {
+            for (ExternalSystem is : lookupTable.values()) {
+                //NeptusLog.pub().info("<###>... lookupSystemByName()"+is.getName());
+                if (id.equalsIgnoreCase(is.getName())) {
+                    ret = is;;
+                    break;
+                }
+            }
+        }
+        return ret;
     }
     
     /**

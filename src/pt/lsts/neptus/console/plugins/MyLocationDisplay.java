@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2015 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2016 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -87,7 +87,7 @@ import pt.lsts.neptus.types.map.MapType;
 import pt.lsts.neptus.types.map.MarkElement;
 import pt.lsts.neptus.types.mission.MapMission;
 import pt.lsts.neptus.types.mission.MissionType;
-import pt.lsts.neptus.util.AngleCalc;
+import pt.lsts.neptus.util.AngleUtils;
 import pt.lsts.neptus.util.DateTimeUtil;
 import pt.lsts.neptus.util.GuiUtils;
 import pt.lsts.neptus.util.ImageUtils;
@@ -283,7 +283,7 @@ public class MyLocationDisplay extends ConsolePanel implements IPeriodicUpdates,
                 headingDegreesTime = sys.getAttitudeTimeMillis();
             }
             else {
-                ExternalSystem ext = ExternalSystemsHolder.lookupSystem(followHeadingOf);
+                ExternalSystem ext = followHeadingOf == null || followHeadingOf.isEmpty() ? null : ExternalSystemsHolder.lookupSystem(followHeadingOf);
                 if (ext != null) {
                     headingDegrees = ext.getYawDegrees();
                     headingDegreesTime = ext.getAttitudeTimeMillis();
@@ -294,8 +294,7 @@ public class MyLocationDisplay extends ConsolePanel implements IPeriodicUpdates,
                 newHeadingDegrees = headingDegrees + followHeadingOfAngleOffset;
             }
         }
-
-        if (!useConfiguredMyHeading && isSystemToDeriveHeadingFilled()) {
+        else if (!useConfiguredMyHeading && isSystemToDeriveHeadingFilled()) {
             ImcSystem sys = ImcSystemsHolder.lookupSystemByName(useSystemToDeriveHeading);
             LocationType loc = null;
             // long locTime = -1;
@@ -326,11 +325,11 @@ public class MyLocationDisplay extends ConsolePanel implements IPeriodicUpdates,
         }
         
         if (updateLocation && updateHeading)
-            MyState.setLocationAndAxis(newLocation, AngleCalc.nomalizeAngleDegrees360(newHeadingDegrees));
+            MyState.setLocationAndAxis(newLocation, AngleUtils.nomalizeAngleDegrees360(newHeadingDegrees));
         else if (updateLocation)
             MyState.setLocation(newLocation);
         else if (updateHeading)
-            MyState.setHeadingInDegrees(AngleCalc.nomalizeAngleDegrees360(newHeadingDegrees));
+            MyState.setHeadingInDegrees(AngleUtils.nomalizeAngleDegrees360(newHeadingDegrees));
 
         return true;
     }
@@ -391,10 +390,10 @@ public class MyLocationDisplay extends ConsolePanel implements IPeriodicUpdates,
 
                 gt.translate(centerPos.getX(), centerPos.getY());
                 gt.rotate(Math.PI + Math.toRadians(headingDegrees) - renderer.getRotation());
-                if (isSystemToDeriveHeadingFilled()) {
+                if (!useConfiguredMyHeading && isSystemToDeriveHeadingFilled()) {
                     gt.rotate(Math.toRadians(-angleOffsetFromFrontToWhereTheOperatorIsLooking));
                 }
-                else if (isFollowingHeadingOfFilled()) {
+                else if (!useConfiguredMyHeading && isFollowingHeadingOfFilled()) {
                     gt.rotate(Math.toRadians(-followHeadingOfAngleOffset));
                 }
 
@@ -530,7 +529,7 @@ public class MyLocationDisplay extends ConsolePanel implements IPeriodicUpdates,
                         MapType mapType = mapMission.getMap();
                         MarkElement contact = new MarkElement();
                         contact.setCenterLocation(locContact);
-                        String id = I18n.textc("MyLoc", "String prefix for a marker") + "_" + DateTimeUtil.dateTimeFileNameFormaterMillis.format(new Date(tstamp));
+                        String id = I18n.textc("MyLoc", "String prefix for a marker") + "_" + DateTimeUtil.dateTimeFileNameFormatterMillis.format(new Date(tstamp));
                         contact.setId(id);
                         contact.setParentMap(mapType);
                         contact.setMapGroup(mapType.getMapGroup());
@@ -710,7 +709,7 @@ public class MyLocationDisplay extends ConsolePanel implements IPeriodicUpdates,
                     while (!validValue) {
                         String res = JOptionPane.showInputDialog(getConsole(),
                                 I18n.text("Introduce the angle offset from system to use heading from (clockwise positive angle)"),
-                                Double.valueOf(AngleCalc.nomalizeAngleDegrees180(followHeadingOfAngleOffset))
+                                Double.valueOf(AngleUtils.nomalizeAngleDegrees180(followHeadingOfAngleOffset))
                                         .shortValue());
                         if (res == null)
                             return;
@@ -782,7 +781,7 @@ public class MyLocationDisplay extends ConsolePanel implements IPeriodicUpdates,
                     while (!validValue) {
                         String res = JOptionPane.showInputDialog(getConsole(),
                                 I18n.text("Introduce the angle offset from front to derived heading (clockwise positive angle)"),
-                                Double.valueOf(AngleCalc.nomalizeAngleDegrees180(angleOffsetFromFrontToDerivedHeading))
+                                Double.valueOf(AngleUtils.nomalizeAngleDegrees180(angleOffsetFromFrontToDerivedHeading))
                                         .shortValue());
                         if (res == null)
                             return;
@@ -802,7 +801,7 @@ public class MyLocationDisplay extends ConsolePanel implements IPeriodicUpdates,
                     while (!validValue) {
                         String res = JOptionPane.showInputDialog(getConsole(),
                                 I18n.text("Introduce the angle offset from front to where the operator is looking (clockwise positive angle)"),
-                                Double.valueOf(AngleCalc.nomalizeAngleDegrees180(angleOffsetFromFrontToWhereTheOperatorIsLooking))
+                                Double.valueOf(AngleUtils.nomalizeAngleDegrees180(angleOffsetFromFrontToWhereTheOperatorIsLooking))
                                         .shortValue());
                         if (res == null)
                             return;

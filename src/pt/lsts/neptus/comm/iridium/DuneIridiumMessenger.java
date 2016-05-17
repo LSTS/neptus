@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2015 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2016 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -33,6 +33,7 @@ package pt.lsts.neptus.comm.iridium;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.Vector;
@@ -103,12 +104,14 @@ public class DuneIridiumMessenger implements IridiumMessenger, MessageListener<M
     @Override
     public void sendMessage(IridiumMessage msg) throws Exception {
 
-        Collection<String> providers = getIridiumServiceProviders();
+        ArrayList<String> providers = new ArrayList<String>();
+        providers.addAll(getIridiumServiceProviders());
         
         if (providers.isEmpty()) {
             throw new Exception("No Iridium service providers are available");
         }
         
+        providers.sort(Collections.reverseOrder());
         ImcSystem system = ImcSystemsHolder.lookupSystemByName(providers.iterator().next());
         
         System.out.println("Subscribed to Iridium Device Updates through "+system.getName());

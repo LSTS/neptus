@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2015 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2016 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -49,10 +49,19 @@ import javax.swing.JMenu;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 
+import org.dom4j.Document;
+import org.dom4j.DocumentException;
+import org.dom4j.DocumentHelper;
+
+import com.google.common.eventbus.Subscribe;
+
 import pt.lsts.imc.CcuEvent;
+import pt.lsts.imc.CcuEvent.TYPE;
+import pt.lsts.imc.DevDataBinary;
 import pt.lsts.imc.MapFeature;
 import pt.lsts.imc.MapFeature.FEATURE_TYPE;
 import pt.lsts.imc.MapPoint;
+import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.comm.manager.imc.ImcMsgManager;
 import pt.lsts.neptus.comm.manager.imc.ImcSystem;
 import pt.lsts.neptus.comm.manager.imc.ImcSystemsHolder;
@@ -94,10 +103,10 @@ import pt.lsts.neptus.util.ReflectionUtil;
 // icon = "pt/lsts/neptus/plugins/acoustic/lbl.png",
 description = "Mark a contact on the map from a system location.", documentation = "contact-maker/contact-maker.html")
 public class ContactMarker extends ConsolePanel implements IEditorMenuExtension, ConfigurationListener,
-        SubPanelChangeListener, MainVehicleChangeListener {
+SubPanelChangeListener, MainVehicleChangeListener {
 
     @NeptusProperty(name = "Use Single Mark Addition Mode", userLevel = LEVEL.ADVANCED, 
-            description = "Hability to only add marks by inputing the location or using an active system")
+            description = "Ability to only add marks by inputing the location or using an active system")
     public boolean useSingleMarkAdditionMode = true;
 
     private Vector<IMapPopup> renderersPopups = new Vector<IMapPopup>();
@@ -119,7 +128,7 @@ public class ContactMarker extends ConsolePanel implements IEditorMenuExtension,
         if (getConsole().getMission() == null)
             return;
 
-        String id = markerName + "_" + DateTimeUtil.timeFormaterNoMillis.format(new Date(tstamp));
+        String id = markerName + "_" + DateTimeUtil.timeFormatterNoMillis.format(new Date(tstamp));
         boolean validId = false;
         while (!validId) {
             id = JOptionPane.showInputDialog(getConsole(), I18n.text("Please enter new mark name"), id);
@@ -228,8 +237,11 @@ public class ContactMarker extends ConsolePanel implements IEditorMenuExtension,
         Vector<VehicleType> avVehicles = new Vector<VehicleType>();
 
         ImcSystem[] veh = ImcSystemsHolder.lookupActiveSystemVehicles();
-        for (int i = 0; i < veh.length; i++)
-            avVehicles.add(VehiclesHolder.getVehicleWithImc(veh[i].getId()));
+        for (int i = 0; i < veh.length; i++) {
+            VehicleType v = VehiclesHolder.getVehicleWithImc(veh[i].getId());
+            if (v != null)
+                avVehicles.add(v);
+        }
 
         if (avVehicles.isEmpty() && getConsole().getMainSystem() != null)
             avVehicles.add(VehiclesHolder.getVehicleById(getConsole().getMainSystem()));
@@ -286,18 +298,82 @@ public class ContactMarker extends ConsolePanel implements IEditorMenuExtension,
                                 };
                             };
                             Toolkit.getDefaultToolkit()
-                                    .getSystemClipboard()
-                                    .setContents(new StringSelection(elem.getCenterLocation().getClipboardText()),
-                                            owner);
+                            .getSystemClipboard()
+                            .setContents(new StringSelection(elem.getCenterLocation().getClipboardText()),
+                                    owner);
                         }
                     };
                     copy.add(rem);
                     MenuScroller.setScrollerFor(copy, 25);
                 }
+
+                JMenu dissem = new JMenu(I18n.text("Disseminate mark"));
+                menus.add(dissem);
+                for (final AbstractElement elem : marks) {
+                    final String markId = elem.getId();
+                    AbstractAction rem = new AbstractAction(markId) {
+                        @Override
+                        public void actionPerformed(ActionEvent e) {
+                            CcuEvent event = new CcuEvent();
+                            event.setType(TYPE.MAP_FEATURE_ADDED);
+                            event.setId(markId);
+                            event.setArg(new DevDataBinary(elem.asXML().getBytes()));
+                           sendToOtherCCUs(event);
+                        }                        
+                    };
+                    dissem.add(rem);
+                    MenuScroller.setScrollerFor(dissem, 25);
+                }
             }
         }
 
         return menus;
+    }
+
+    @Subscribe
+    public void on(CcuEvent ev) {
+        if (ev.getType() == TYPE.MAP_FEATURE_ADDED) {
+            int answer = GuiUtils.confirmDialog(getConsole(), I18n.text("Map Feature Added"), 
+                    I18n.textf("Do you wish to add the feature '%featureId' disseminated by '%senderName' to the map?", 
+                            ev.getId(), ev.getSourceName()));
+            if (answer == JOptionPane.OK_OPTION) {
+                DevDataBinary data = (DevDataBinary)ev.getArg();
+                String xml = new String(data.getValue());
+
+                try {
+                    Document doc = DocumentHelper.parseText(xml);
+                    switch(doc.getRootElement().getName()) {
+                        case "mark":
+                            MarkElement el = new MarkElement(xml);
+                            
+                            MapGroup mg = MapGroup.getMapGroupInstance(getConsole().getMission());
+                            AbstractElement[] els = mg.getMapObjectsByID(el.getId());
+                            if (els.length != 0) {
+                                int resp = GuiUtils.confirmDialog(getConsole(), I18n.text("Add mark"), 
+                                        I18n.text("Existing map element will be updated. Proceed?"));
+                                if (resp == JOptionPane.OK_OPTION) {
+                                    els[0].setCenterLocation(el.getCenterLocation());
+                                }
+                            }
+                            else {
+                                MapType mapType = mg.getMaps()[0];// mapMission.getMap();
+                                mapType.addObject(el);
+                                getConsole().getMission().save(true);
+                                getConsole().warnMissionListeners();                                
+                            }
+                            break;
+                        default:
+                            GuiUtils.errorMessage(getConsole(), I18n.text("Add map feature"), 
+                                    I18n.textf("Features of type %type are not supported.", 
+                                            doc.getRootElement().getName()));
+                            break;
+                    }
+                }
+                catch (DocumentException e) {
+                    NeptusLog.pub().error(e);                    
+                }
+            }
+        }
     }
 
     @Override

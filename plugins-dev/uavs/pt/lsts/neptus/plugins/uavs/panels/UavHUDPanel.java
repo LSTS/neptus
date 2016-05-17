@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2015 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2016 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -44,6 +44,7 @@ import pt.lsts.neptus.plugins.uavs.UavPaintersBag;
 import pt.lsts.neptus.plugins.uavs.interfaces.IUavPainter;
 import pt.lsts.neptus.plugins.uavs.painters.background.UavVirtualHorizonPainter;
 import pt.lsts.neptus.plugins.uavs.painters.foreground.UavHUDInfoPainter;
+import pt.lsts.neptus.util.MathMiscUtils;
 
 //change to Engineer console
 
@@ -69,7 +70,7 @@ public class UavHUDPanel extends ConsolePanel implements NeptusMessageListener {
 
     // active main vehicle's current heading angle
     private double tmpVar;
-
+    
     public UavHUDPanel(ConsoleLayout console) {
         super(console);
 
@@ -98,26 +99,30 @@ public class UavHUDPanel extends ConsolePanel implements NeptusMessageListener {
     // NeptusMessageListener_BEGIN
     @Override
     public String[] getObservedMessages() {
-        return new String[] { "EstimatedState" };
+        return new String[] { "EstimatedState", "IndicatedSpeed" };
     }
 
     @Override
     public void messageArrived(IMCMessage message) {
+//        indicatedSpeed = Math.sqrt(Math.pow(message.getDouble("u"), 2) + Math.pow(message.getDouble("v"), 2)
+//                + Math.pow(message.getDouble("w"), 2));
+        
+        if (message.getAbbrev().equals("IndicatedSpeed")) {
+            indicatedSpeed = message.getDouble("value");
+            args.put("indicatedSpeed", MathMiscUtils.round(indicatedSpeed, 1));
+        }
+        else {
+            args.put("altitude", (message.getInteger("height")) - (message.getInteger("z")));
+            args.put("roll", Math.toDegrees(message.getDouble("phi")));
+            args.put("pitch", Math.toDegrees(message.getDouble("theta")));
 
-        indicatedSpeed = Math.sqrt(Math.pow(message.getDouble("u"), 2) + Math.pow(message.getDouble("v"), 2)
-                + Math.pow(message.getDouble("w"), 2));
+            tmpVar = Math.toDegrees(message.getDouble("psi"));
 
-        args.put("indicatedSpeed", indicatedSpeed);
-        args.put("altitude", (message.getInteger("height")) - (message.getInteger("z")));
-        args.put("roll", Math.toDegrees(message.getDouble("phi")));
-        args.put("pitch", Math.toDegrees(message.getDouble("theta")));
+            if (tmpVar < 0)
+                tmpVar = 360 + tmpVar;
 
-        tmpVar = Math.toDegrees(message.getDouble("psi"));
-
-        if (tmpVar < 0)
-            tmpVar = 360 + tmpVar;
-
-        args.put("yaw", tmpVar);
+            args.put("yaw", tmpVar);
+        }
 
         repaint();
     }

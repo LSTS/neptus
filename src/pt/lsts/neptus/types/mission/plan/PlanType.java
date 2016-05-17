@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2015 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2016 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -47,6 +47,9 @@ import org.dom4j.DocumentHelper;
 import org.dom4j.Element;
 import org.dom4j.Node;
 
+import com.l2fprod.common.propertysheet.DefaultProperty;
+import com.l2fprod.common.propertysheet.Property;
+
 import pt.lsts.imc.IMCDefinition;
 import pt.lsts.imc.IMCMessage;
 import pt.lsts.imc.IMCOutputStream;
@@ -83,9 +86,6 @@ import pt.lsts.neptus.types.vehicle.VehicleType;
 import pt.lsts.neptus.types.vehicle.VehiclesHolder;
 import pt.lsts.neptus.util.ByteUtil;
 import pt.lsts.neptus.util.NameNormalizer;
-
-import com.l2fprod.common.propertysheet.DefaultProperty;
-import com.l2fprod.common.propertysheet.Property;
 
 /**
  * @author Paulo Dias
@@ -125,15 +125,17 @@ public class PlanType implements XmlOutputMethods, PropertiesProvider, NameId {
      * @throws Exception If some maneuver has no incoming transitions (unreacheable)
      */
     public boolean validatePlan() throws Exception {
+        ArrayList<String> errors = new ArrayList<>();
         for (Maneuver man : getGraph().getAllManeuvers()) {
             if (man instanceof LocatedManeuver) {
                 ManeuverLocation ml = ((LocatedManeuver) man).getManeuverLocation();
                 if (ml.getZUnits() == Z_UNITS.NONE) {
-                    throw new Exception(I18n.textf("The maneuver '%maneuver' has Z_UNITS set to NONE", man.getId()));
+                    // throw new Exception(I18n.textf("The maneuver '%maneuver' has Z_UNITS set to NONE", man.getId()));
+                    errors.add(I18n.textf("The maneuver '%maneuver' has Z_UNITS set to NONE", man.getId()));
                 }
                 if (ml.getZUnits() == Z_UNITS.ALTITUDE && ml.getZ() == 0) {
-                    throw new Exception(I18n.textf("The maneuver '%maneuver' has Z_UNITS set to ALTITUDE and value 0!",
-                            man.getId()));
+                    // throw new Exception(I18n.textf("The maneuver '%maneuver' has Z_UNITS set to ALTITUDE and value 0!", man.getId()));
+                    errors.add((I18n.textf("The maneuver '%maneuver' has Z_UNITS set to ALTITUDE and value 0!", man.getId())));
                 }
             }
         }
@@ -141,11 +143,27 @@ public class PlanType implements XmlOutputMethods, PropertiesProvider, NameId {
         for (Maneuver man : getGraph().getAllManeuvers()) {
             if (getGraph().getIncomingTransitions(man).isEmpty()
                     && !man.getId().equals(getGraph().getInitialManeuverId())) {
-                throw new Exception(I18n.textf(
+//                throw new Exception(I18n.textf(
+//                        "The maneuver '%maneuver' has no incoming transitions and is not the initial maneuver!",
+//                        man.getId()));
+                errors.add((I18n.textf(
                         "The maneuver '%maneuver' has no incoming transitions and is not the initial maneuver!",
-                        man.getId()));
+                        man.getId())));
             }
         }
+        
+        if (!errors.isEmpty()) {
+            StringBuilder sb = new StringBuilder();
+            int count = 0;
+            for (String err : errors) {
+                if (count > 0)
+                    sb.append("\n");
+                sb.append(err);
+                count++;
+            }
+            throw new Exception(sb.toString());
+        }
+        
         return true;
     }
 

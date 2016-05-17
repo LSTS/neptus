@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2015 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2016 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -38,10 +38,13 @@ import javax.swing.AbstractAction;
 import javax.swing.ButtonGroup;
 import javax.swing.JButton;
 import javax.swing.JLabel;
-import javax.swing.JTextField;
+import javax.swing.JSpinner;
 import javax.swing.JToggleButton;
 import javax.swing.JToolBar;
+import javax.swing.SpinnerNumberModel;
 import javax.swing.SwingUtilities;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 
 import pt.lsts.neptus.gui.PropertiesEditor;
 import pt.lsts.neptus.i18n.I18n;
@@ -58,80 +61,93 @@ public class SidescanToolbar extends JToolBar {
 
     ButtonGroup bgroup = new ButtonGroup();
 
-    JToggleButton btnMeasure = new JToggleButton(I18n.text("Measure"));
+    JToggleButton btnMeasure = new JToggleButton(I18n.text("Length"));
+    JToggleButton btnMeasureHeight = new JToggleButton(I18n.text("Height"));
     JToggleButton btnInfo = new JToggleButton(I18n.text("Info"));
     JToggleButton btnZoom = new JToggleButton(I18n.text("Zoom"));
     JToggleButton btnMark = new JToggleButton(I18n.text("Mark"));
     JToggleButton btnRecord = new JToggleButton(I18n.text("Record"));
 
-    JLabel lblNormalization = new JLabel(I18n.text("Normalization"));
-    JLabel lblTVG = new JLabel(I18n.textc("TVG", "Time Variable Gain"));
+    // Normalization.
+    private final JLabel lblNormalization = new JLabel(I18n.text("Normalization"));
+    private final SpinnerNumberModel modelNormalization = new SpinnerNumberModel(0.0, 0.0, 100.0, 0.1);
+    private final JSpinner spinNormalization = new JSpinner();
 
-    JTextField txtNormalization = new JTextField();
-    JTextField txtTVG = new JTextField();
+    // TVG.
+    private final JLabel lblTVG = new JLabel(I18n.textc("TVG", "Time Variable Gain"));
+    private final SpinnerNumberModel modelTVG = new SpinnerNumberModel(0.0, -1000.0, 1000.0, 1.0);
+    private final JSpinner spinTVG = new JSpinner();
 
     JButton btnConfig = new JButton(new AbstractAction(I18n.textc("Config", "Configuration")) {
         private static final long serialVersionUID = -878895322319699542L;
 
         @Override
         public void actionPerformed(ActionEvent e) {
-            PropertiesEditor.editProperties(panel.config,
-                    SwingUtilities.getWindowAncestor(panel), true);
-                panel.config.saveProps();
+            PropertiesEditor.editProperties(panel.config, SwingUtilities.getWindowAncestor(panel), true);
+            panel.config.saveProps();
+
+            if (panel.config.tvgGain != (Double) spinTVG.getValue())
+                spinTVG.setValue(panel.config.tvgGain);
+
+            if (panel.config.normalization != (Double) spinNormalization.getValue())
+                spinTVG.setValue(panel.config.normalization);
         }
     });
-
 
     ActionListener alMode = new ActionListener() {
         @Override
         public void actionPerformed(ActionEvent e) {
             SidescanPanel.InteractionMode imode = SidescanPanel.InteractionMode.NONE;
 
-            if(btnInfo.isSelected())
+            if (btnInfo.isSelected())
                 imode = InteractionMode.INFO;
-            if(btnMark.isSelected())
+            if (btnMark.isSelected())
                 imode = InteractionMode.MARK;
-            if(btnMeasure.isSelected())
+            if (btnMeasure.isSelected())
                 imode = InteractionMode.MEASURE;
+            if (btnMeasureHeight.isSelected())
+                imode = InteractionMode.MEASURE_HEIGHT;
 
             panel.setInteractionMode(imode);
             panel.setZoom(btnZoom.isSelected());
         };
     };
 
-    ActionListener alGains = new ActionListener() {
+    private final ChangeListener alGains = new ChangeListener() {
         @Override
-        public void actionPerformed(ActionEvent e) {
-            panel.config.tvgGain = new Double(txtTVG.getText());
-            panel.config.normalization = new Double(txtNormalization.getText());
+        public void stateChanged(ChangeEvent e) {
+            panel.config.tvgGain = (Double) spinTVG.getValue();
+            panel.config.normalization = (Double) spinNormalization.getValue();
             panel.record(btnRecord.isSelected());
-        };  
+        }
     };
-
-
 
     public SidescanToolbar(SidescanPanel panel) {
         super();
         this.panel = panel;
+        this.spinNormalization.setModel(modelNormalization);
+        this.spinTVG.setModel(modelTVG);
         buildToolbar();
-    }    
+    }
 
     private void buildToolbar() {
         btnInfo.setSelected(true);
         bgroup.add(btnInfo);
         bgroup.add(btnMeasure);
+        bgroup.add(btnMeasureHeight);
         bgroup.add(btnMark);
         add(btnInfo);
         add(btnMeasure);
+        add(btnMeasureHeight);
         add(btnMark);
         add(btnZoom);
 
         addSeparator();
         add(lblNormalization);
-        add(txtNormalization);
+        add(spinNormalization);
 
         add(lblTVG);
-        add(txtTVG);
+        add(spinTVG);
 
         addSeparator();
         add(btnConfig);
@@ -140,13 +156,13 @@ public class SidescanToolbar extends JToolBar {
         btnInfo.addActionListener(alMode);
         btnZoom.addActionListener(alMode);
         btnMeasure.addActionListener(alMode);
+        btnMeasureHeight.addActionListener(alMode);
         btnMark.addActionListener(alMode);
-        btnRecord.addActionListener(alGains);
 
-        txtNormalization.addActionListener(alGains);
-        txtTVG.addActionListener(alGains);
+        spinNormalization.setValue(panel.config.normalization);
+        spinNormalization.addChangeListener(alGains);
 
-        txtNormalization.setText(panel.config.normalization + "");
-        txtTVG.setText(panel.config.tvgGain + "");
+        spinTVG.setValue(panel.config.tvgGain);
+        spinTVG.addChangeListener(alGains);
     }
 }

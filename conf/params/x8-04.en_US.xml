@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<config format="1" version="2.6.1 (HEAD,0c854de)" system="x8-04" i18n="en_US">
-  <section name="Path Control" name-i18n="Path Control">
+<config format="1" version="2.6.x (HEAD,cfaf288,dirty)" system="x8-04" i18n="en_US">
+  <section name="Formation Control" name-i18n="Formation Control">
     <param name="Entity Label">
       <name-i18n>Entity Label</name-i18n>
       <type>string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>Path Control</default>
+      <default>Formation Control</default>
       <units/>
       <desc>Main entity label</desc>
     </param>
@@ -42,296 +42,633 @@
       <type>string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>Debug</default>
+      <default>Trace</default>
       <units/>
       <desc/>
       <values>None, Debug, Trace, Spew</values>
       <values-i18n>None, Debug, Trace, Spew</values-i18n>
+    </param>
+    <param name="Execution Frequency">
+      <name-i18n>Execution Frequency</name-i18n>
+      <type>real</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>50</default>
+      <units>Hz</units>
+      <desc>Frequency at which task is executed</desc>
+    </param>
+    <param name="Commands source">
+      <name-i18n>Commands source</name-i18n>
+      <type>list:string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>:self:Path Control</default>
+      <units/>
+      <desc>List of &lt;Command messages&gt;+&lt;Command messages&gt;:&lt;System&gt;+&lt;System&gt;:&lt;Entity&gt;+&lt;Entity&gt; that define the source systems and entities allowed to pass a command.</desc>
+    </param>
+    <param name="Source Alias">
+      <name-i18n>Source Alias</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default/>
+      <units/>
+      <desc>Emulated system id.</desc>
+    </param>
+    <param name="Leader Name">
+      <name-i18n>Leader Name</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>form-leader-04</default>
+      <units/>
+      <desc>Leader system name.</desc>
+    </param>
+    <param name="Leader Path Controller">
+      <name-i18n>Leader Path Controller</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>Path Control</default>
+      <units/>
+      <desc>Leader path controller entity label.</desc>
+    </param>
+    <param name="Leader Look Ahead Gain">
+      <name-i18n>Leader Look Ahead Gain</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>1.5</default>
+      <units/>
+      <desc>Leader path controller look ahead gain.</desc>
+    </param>
+    <param name="Leader Turn Rate Gain">
+      <name-i18n>Leader Turn Rate Gain</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>0.0005</default>
+      <units/>
+      <desc>Leader path controller turn rate gain.</desc>
+    </param>
+    <param name="Simulation Frequency">
+      <name-i18n>Simulation Frequency</name-i18n>
+      <type>real</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>50</default>
+      <units>Hz</units>
+      <desc>Vehicles motion simulation frequency.</desc>
     </param>
     <param name="Control Frequency">
       <name-i18n>Control Frequency</name-i18n>
       <type>real</type>
       <visibility>developer</visibility>
       <scope>global</scope>
+      <default>20</default>
+      <units>Hz</units>
+      <desc>Frequency of simulated vehicles control execution.</desc>
+    </param>
+    <param name="Leader Output Frequency">
+      <name-i18n>Leader Output Frequency</name-i18n>
+      <type>real</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
       <default>10</default>
       <units>Hz</units>
-      <desc>Control frequency (&lt; 0 for event-driven EstimatedState processing)</desc>
+      <desc>Frequency at which the virtual leader state is sent to the message bus.</desc>
     </param>
-    <param name="State Report Frequency">
-      <name-i18n>State Report Frequency</name-i18n>
+    <param name="Formation Longitudinal Gain">
+      <name-i18n>Formation Longitudinal Gain</name-i18n>
       <type>real</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>1</default>
-      <units>Hz</units>
-      <desc>State report frequency</desc>
-    </param>
-    <param name="Course Control">
-      <name-i18n>Course Control</name-i18n>
-      <type>boolean</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>true</default>
+      <default>1.57</default>
       <units/>
-      <desc>Enable course control</desc>
+      <desc>Trajectory gain over the vehicle longitudinal direction</desc>
     </param>
-    <param name="Along-track -- Monitor">
-      <name-i18n>Along-track -- Monitor</name-i18n>
-      <type>boolean</type>
+    <param name="Formation Lateral Gain">
+      <name-i18n>Formation Lateral Gain</name-i18n>
+      <type>real</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>false</default>
+      <default>1.65</default>
       <units/>
-      <desc>Enable along-track error monitoring</desc>
+      <desc>Trajectory gain over the vehicle lateral direction</desc>
     </param>
-    <param name="Along-track -- Check Period">
-      <name-i18n>Along-track -- Check Period</name-i18n>
+    <param name="Formation Boundary Layer">
+      <name-i18n>Formation Boundary Layer</name-i18n>
       <type>real</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>15</default>
-      <units>s</units>
-      <desc>Period for along-track error check</desc>
-    </param>
-    <param name="Along-track -- Minimum Speed">
-      <name-i18n>Along-track -- Minimum Speed</name-i18n>
-      <type>real</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>10</default>
-      <units>m/s</units>
-      <desc>Minimum speed for along-track progress</desc>
-    </param>
-    <param name="Along-track -- Minimum Yaw">
-      <name-i18n>Along-track -- Minimum Yaw</name-i18n>
-      <type>real</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>10</default>
-      <units>°/s</units>
-      <desc>Minimum yaw speed for track bearing convergence</desc>
-    </param>
-    <param name="Cross-track -- Monitor">
-      <name-i18n>Cross-track -- Monitor</name-i18n>
-      <type>boolean</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>false</default>
+      <default>7.0</default>
       <units/>
-      <desc>Enable cross-track error monitoring</desc>
+      <desc>Control sliding surface boundary layer thickness</desc>
     </param>
-    <param name="Cross-track -- Distance Limit">
-      <name-i18n>Cross-track -- Distance Limit</name-i18n>
+    <param name="Flow Switching Gain">
+      <name-i18n>Flow Switching Gain</name-i18n>
       <type>real</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>250</default>
+      <default>0.0</default>
+      <units>m/s^2</units>
+      <desc>Maximum fluid flow acceleration at aircraft location. Switching gain for the worst case scenario.</desc>
+    </param>
+    <param name="Formation Leader Gain">
+      <name-i18n>Formation Leader Gain</name-i18n>
+      <type>real</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>4.0</default>
+      <units/>
+      <desc>Leader control importance gain (relative to the sum of every other formation vehicle)</desc>
+    </param>
+    <param name="Formation Deconfliction Gain">
+      <name-i18n>Formation Deconfliction Gain</name-i18n>
+      <type>real</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>3.0</default>
+      <units/>
+      <desc>Individual vehicle importance gain (relative to the leader)</desc>
+    </param>
+    <param name="Safety Distance">
+      <name-i18n>Safety Distance</name-i18n>
+      <type>real</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>5.0</default>
       <units>m</units>
-      <desc>Distance threshold value for cross-track error</desc>
+      <desc>Aircraft Safety Distance</desc>
     </param>
-    <param name="Cross-track -- Time Limit">
-      <name-i18n>Cross-track -- Time Limit</name-i18n>
-      <type>real</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>10</default>
-      <units>s</units>
-      <desc>Time threshold value for cross-track error</desc>
-    </param>
-    <param name="Cross-track -- Nav. Unc. Factor">
-      <name-i18n>Cross-track -- Nav. Unc. Factor</name-i18n>
-      <type>real</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>-1</default>
-      <units/>
-      <desc/>
-    </param>
-    <param name="Position Jump Threshold">
-      <name-i18n>Position Jump Threshold</name-i18n>
+    <param name="Deconfliction Offset">
+      <name-i18n>Deconfliction Offset</name-i18n>
       <type>real</type>
       <visibility>developer</visibility>
       <scope>global</scope>
       <default>7.0</default>
       <units>m</units>
-      <desc>Threshold for a jump in EstimatedState to turn monitors off</desc>
+      <desc>Aircraft Deconfliction Distance Offset</desc>
     </param>
-    <param name="Position Jump Time Factor">
-      <name-i18n>Position Jump Time Factor</name-i18n>
+    <param name="Acceleration Safety Margin">
+      <name-i18n>Acceleration Safety Margin</name-i18n>
       <type>real</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>0.3</default>
-      <units>m/s</units>
-      <desc>Relation between monitor disabling time and position jump</desc>
-      <min>0.1</min>
+      <default>0.2</default>
+      <units/>
+      <desc>Acceleration safety margin</desc>
     </param>
-    <param name="ETA Minimum Speed">
-      <name-i18n>ETA Minimum Speed</name-i18n>
+    <param name="Maximum Airspeed">
+      <name-i18n>Maximum Airspeed</name-i18n>
+      <type>real</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>20.0</default>
+      <units>m/s</units>
+      <desc>Aircraft maximum airspeed</desc>
+    </param>
+    <param name="Minimum Airspeed">
+      <name-i18n>Minimum Airspeed</name-i18n>
+      <type>real</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>14.0</default>
+      <units>m/s</units>
+      <desc>Aircraft minimum airspeed</desc>
+    </param>
+    <param name="Maximum Altitude">
+      <name-i18n>Maximum Altitude</name-i18n>
+      <type>real</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>600.0</default>
+      <units>m</units>
+      <desc>Maximum altitude constraint</desc>
+    </param>
+    <param name="Minimum Altitude">
+      <name-i18n>Minimum Altitude</name-i18n>
+      <type>real</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>50.0</default>
+      <units>m</units>
+      <desc>Minimum altitude constraint</desc>
+    </param>
+    <param name="Bank Limit">
+      <name-i18n>Bank Limit</name-i18n>
+      <type>real</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>30.0</default>
+      <units>°</units>
+      <desc>Aircraft Bank Limit</desc>
+    </param>
+    <param name="Simulation type">
+      <name-i18n>Simulation type</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>4DOF_bank</default>
+      <units/>
+      <desc>Simulation type (DOF)</desc>
+      <values>3DOF, 4DOF_alt, 4DOF_bank, 5DOF</values>
+      <values-i18n>3DOF, 4DOF_alt, 4DOF_bank, 5DOF</values-i18n>
+    </param>
+    <param name="Speed Time Constant">
+      <name-i18n>Speed Time Constant</name-i18n>
       <type>real</type>
       <visibility>developer</visibility>
       <scope>global</scope>
       <default>1.0</default>
-      <units>m/s</units>
-      <desc>ETA minimum admissible speed</desc>
-      <min>0.1</min>
+      <units>Hz</units>
+      <desc>Speed controller first order time constant. Inverse of the speed rate gain to simulate speed dynamics</desc>
     </param>
-    <param name="New Reference Timeout">
-      <name-i18n>New Reference Timeout</name-i18n>
+    <param name="Bank Time Constant">
+      <name-i18n>Bank Time Constant</name-i18n>
       <type>real</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>5</default>
-      <units>s</units>
-      <desc>Timeout for new incoming path reference</desc>
-      <min>3</min>
-      <max>10</max>
+      <default>1.0</default>
+      <units>Hz</units>
+      <desc>Bank controller first order time constant. Inverse of the bank rate gain to simulate bank dynamics</desc>
     </param>
-    <param name="Bottom Track -- Enabled">
-      <name-i18n>Bottom Track -- Enabled</name-i18n>
-      <type>boolean</type>
+    <param name="Altitude Time Constant">
+      <name-i18n>Altitude Time Constant</name-i18n>
+      <type>real</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>false</default>
-      <units/>
-      <desc>Enable or disable bottom track control</desc>
+      <default>1.0</default>
+      <units>Hz</units>
+      <desc>Altitude controller first order time constant. Inverse of the vertical rate gain to simulate altitude dynamics</desc>
     </param>
-    <param name="Bottom Track -- Forward Samples">
-      <name-i18n>Bottom Track -- Forward Samples</name-i18n>
+    <param name="Bank Rate Limit">
+      <name-i18n>Bank Rate Limit</name-i18n>
+      <type>real</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>30.0</default>
+      <units>°/s</units>
+      <desc>Bank rate limit to simulate bank dynamics</desc>
+    </param>
+    <param name="Longitudinal Acceleration Limit">
+      <name-i18n>Longitudinal Acceleration Limit</name-i18n>
+      <type>real</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>0.5</default>
+      <units>m/s^2</units>
+      <desc>Vehicle longitudinal acceleration limit</desc>
+    </param>
+    <param name="Vertical Slope Limit">
+      <name-i18n>Vertical Slope Limit</name-i18n>
+      <type>real</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>0.2</default>
+      <units/>
+      <desc>Vertical slope limit to simulate altitude dynamics</desc>
+    </param>
+    <param name="Default Altitude">
+      <name-i18n>Default Altitude</name-i18n>
+      <type>real</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>150</default>
+      <units>m</units>
+      <desc>Initial state WGS-84 geoid altitude</desc>
+    </param>
+    <param name="Default Speed">
+      <name-i18n>Default Speed</name-i18n>
+      <type>real</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>17</default>
+      <units>m/s</units>
+      <desc>Initial state airspeed</desc>
+    </param>
+    <param name="Wind Average Window">
+      <name-i18n>Wind Average Window</name-i18n>
       <type>integer</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>5</default>
-      <units/>
-      <desc>Number of samples for forward range moving average</desc>
+      <default>180.0</default>
+      <units>s</units>
+      <desc>Window time length for the wind average</desc>
     </param>
-    <param name="Bottom Track -- Safe Pitch">
-      <name-i18n>Bottom Track -- Safe Pitch</name-i18n>
-      <type>real</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>15.0</default>
-      <units>°</units>
-      <desc>Safe pitch angle to perform bottom tracking</desc>
-    </param>
-    <param name="Bottom Track -- Slope Hysteresis">
-      <name-i18n>Bottom Track -- Slope Hysteresis</name-i18n>
-      <type>real</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>1.5</default>
-      <units>°</units>
-      <desc>Slope hysteresis when recovering from avoidance</desc>
-    </param>
-    <param name="Bottom Track -- Minimum Altitude">
-      <name-i18n>Bottom Track -- Minimum Altitude</name-i18n>
-      <type>real</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>1.0</default>
-      <units>m</units>
-      <desc>Minimum admissible altitude for bottom tracking</desc>
-    </param>
-    <param name="Bottom Track -- Minimum Range">
-      <name-i18n>Bottom Track -- Minimum Range</name-i18n>
-      <type>real</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>4.0</default>
-      <units>m</units>
-      <desc>Minimum admissible forward range for bottom tracking</desc>
-    </param>
-    <param name="Bottom Track -- Altitude Tolerance">
-      <name-i18n>Bottom Track -- Altitude Tolerance</name-i18n>
-      <type>real</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>2.0</default>
-      <units>m</units>
-      <desc>Altitude tolerance below which altitude is ignored</desc>
-    </param>
-    <param name="Bottom Track -- Depth Tolerance">
-      <name-i18n>Bottom Track -- Depth Tolerance</name-i18n>
-      <type>real</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>1.0</default>
-      <units>m</units>
-      <desc>Depth tolerance below which altitude is ignored</desc>
-    </param>
-    <param name="Bottom Track -- Check Trend">
-      <name-i18n>Bottom Track -- Check Trend</name-i18n>
+    <param name="Debug">
+      <name-i18n>Debug</name-i18n>
       <type>boolean</type>
       <visibility>developer</visibility>
       <scope>global</scope>
       <default>true</default>
       <units/>
-      <desc>Check slope angle trend in unsafe state</desc>
+      <desc>Controller in debug mode</desc>
     </param>
-    <param name="Bottom Track -- Execution Frequency">
-      <name-i18n>Bottom Track -- Execution Frequency</name-i18n>
+  </section>
+  <section name="Formation Coordinator" name-i18n="Formation Coordinator">
+    <param name="Entity Label">
+      <name-i18n>Entity Label</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>Formation Coordinator</default>
+      <units/>
+      <desc>Main entity label</desc>
+    </param>
+    <param name="Execution Priority">
+      <name-i18n>Execution Priority</name-i18n>
+      <type>integer</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>10</default>
+      <units/>
+      <desc>Execution priority</desc>
+    </param>
+    <param name="Activation Time">
+      <name-i18n>Activation Time</name-i18n>
+      <type>integer</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>0</default>
+      <units/>
+      <desc/>
+    </param>
+    <param name="Deactivation Time">
+      <name-i18n>Deactivation Time</name-i18n>
+      <type>integer</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>0</default>
+      <units/>
+      <desc/>
+    </param>
+    <param name="Debug Level">
+      <name-i18n>Debug Level</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>Trace</default>
+      <units/>
+      <desc/>
+      <values>None, Debug, Trace, Spew</values>
+      <values-i18n>None, Debug, Trace, Spew</values-i18n>
+    </param>
+    <param name="Execution Frequency">
+      <name-i18n>Execution Frequency</name-i18n>
       <type>real</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>5</default>
+      <default>50</default>
       <units>Hz</units>
-      <desc>Bottom tracker's execution frequency</desc>
+      <desc>Frequency at which task is executed</desc>
     </param>
-    <param name="Bottom Track -- Depth Avoidance">
-      <name-i18n>Bottom Track -- Depth Avoidance</name-i18n>
+    <param name="Commands source">
+      <name-i18n>Commands source</name-i18n>
+      <type>list:string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default/>
+      <units/>
+      <desc>List of &lt;Command message&gt;+&lt;Command message&gt;:&lt;System&gt;+&lt;System&gt;:&lt;Entity&gt;+&lt;Entity&gt; that define the source systems and entities allowed to pass a command.</desc>
+    </param>
+    <param name="Source Alias">
+      <name-i18n>Source Alias</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>form-leader-04</default>
+      <units/>
+      <desc>Emulated system id.</desc>
+    </param>
+    <param name="Main Coordinator">
+      <name-i18n>Main Coordinator</name-i18n>
       <type>boolean</type>
       <visibility>developer</visibility>
       <scope>global</scope>
       <default>true</default>
       <units/>
-      <desc>Enable or disable obstacle avoidance during depth control</desc>
+      <desc>Flag indicating that the coordinator in this system is the main coordinator task.</desc>
     </param>
-    <param name="Bottom Track -- Admissible Altitude">
-      <name-i18n>Bottom Track -- Admissible Altitude</name-i18n>
+    <param name="Leader Path Controller">
+      <name-i18n>Leader Path Controller</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>Path Control</default>
+      <units/>
+      <desc>Leader path controller entity label.</desc>
+    </param>
+    <param name="Control Frequency">
+      <name-i18n>Control Frequency</name-i18n>
       <type>real</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>3.0</default>
+      <default>20</default>
+      <units>Hz</units>
+      <desc>Frequency of simulated vehicles control execution.</desc>
+    </param>
+    <param name="Synchronization Frequency">
+      <name-i18n>Synchronization Frequency</name-i18n>
+      <type>real</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>0.1</default>
+      <units>Hz</units>
+      <desc>Frequency of the virtual leader synchronization.</desc>
+    </param>
+    <param name="Maximum Airspeed">
+      <name-i18n>Maximum Airspeed</name-i18n>
+      <type>real</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>20.0</default>
+      <units>m/s</units>
+      <desc>Aircraft maximum airspeed</desc>
+    </param>
+    <param name="Minimum Airspeed">
+      <name-i18n>Minimum Airspeed</name-i18n>
+      <type>real</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>14.0</default>
+      <units>m/s</units>
+      <desc>Aircraft minimum airspeed</desc>
+    </param>
+    <param name="Maximum Altitude">
+      <name-i18n>Maximum Altitude</name-i18n>
+      <type>real</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>600.0</default>
       <units>m</units>
-      <desc>Admissible altitude when doing depth control</desc>
+      <desc>Maximum altitude constraint</desc>
     </param>
-    <param name="Look Ahead Gain">
-      <name-i18n>Look Ahead Gain</name-i18n>
+    <param name="Minimum Altitude">
+      <name-i18n>Minimum Altitude</name-i18n>
       <type>real</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>0.75</default>
-      <units/>
-      <desc>Look-ahead gain for control</desc>
+      <default>150.0</default>
+      <units>m</units>
+      <desc>Minimum altitude constraint</desc>
     </param>
-    <param name="Turn Rate Gain">
-      <name-i18n>Turn Rate Gain</name-i18n>
+    <param name="Bank Limit">
+      <name-i18n>Bank Limit</name-i18n>
       <type>real</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>0.002</default>
-      <units/>
-      <desc>Turn rate gain for control</desc>
-    </param>
-    <param name="Maximum Bank">
-      <name-i18n>Maximum Bank</name-i18n>
-      <type>real</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>30</default>
+      <default>30.0</default>
       <units>°</units>
-      <desc>Limit for absolute value of output bank angle reference</desc>
-      <min>5</min>
-      <max>45</max>
+      <desc>Aircraft Bank Limit</desc>
     </param>
-    <param name="Use controller">
-      <name-i18n>Use controller</name-i18n>
-      <type>boolean</type>
+    <param name="Vehicle List">
+      <name-i18n>Vehicle List</name-i18n>
+      <type>list:string</type>
       <visibility>user</visibility>
       <scope>maneuver</scope>
-      <default>True</default>
+      <default>x8-04, x8-02</default>
       <units/>
-      <desc>Use this controller for maneuver</desc>
+      <desc>System ID list of the formation vehicles.</desc>
+    </param>
+    <param name="Formation Reference Frame">
+      <name-i18n>Formation Reference Frame</name-i18n>
+      <type>integer</type>
+      <visibility>user</visibility>
+      <scope>maneuver</scope>
+      <default>0</default>
+      <units/>
+      <desc>Formation Reference Frame (0 - Earth; 1 - Path (no curvature); 2 - Path (with curvature)</desc>
+      <values>0, 1, 2</values>
+      <values-i18n>0, 1, 2</values-i18n>
+    </param>
+    <param name="Formation Positions">
+      <name-i18n>Formation Positions</name-i18n>
+      <type>matrix</type>
+      <visibility>user</visibility>
+      <scope>maneuver</scope>
+      <default>0.0, -50.0, 0.0, -50.0, 50.0, -50.0</default>
+      <units>m</units>
+      <desc>Formation positions matrix</desc>
+    </param>
+    <param name="Simulation type">
+      <name-i18n>Simulation type</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>4DOF_bank</default>
+      <units/>
+      <desc>Simulation type (DOF)</desc>
+      <values>3DOF, 4DOF_alt, 4DOF_bank, 5DOF</values>
+      <values-i18n>3DOF, 4DOF_alt, 4DOF_bank, 5DOF</values-i18n>
+    </param>
+    <param name="Speed Time Constant">
+      <name-i18n>Speed Time Constant</name-i18n>
+      <type>real</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>1.0</default>
+      <units>Hz</units>
+      <desc>Speed controller first order time constant. Inverse of the speed rate gain to simulate speed dynamics</desc>
+    </param>
+    <param name="Bank Time Constant">
+      <name-i18n>Bank Time Constant</name-i18n>
+      <type>real</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>1.0</default>
+      <units>Hz</units>
+      <desc>Bank controller first order time constant. Inverse of the bank rate gain to simulate bank dynamics</desc>
+    </param>
+    <param name="Altitude Time Constant">
+      <name-i18n>Altitude Time Constant</name-i18n>
+      <type>real</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>1.0</default>
+      <units>Hz</units>
+      <desc>Altitude controller first order time constant. Inverse of the vertical rate gain to simulate altitude dynamics</desc>
+    </param>
+    <param name="Bank Rate Limit">
+      <name-i18n>Bank Rate Limit</name-i18n>
+      <type>real</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>30.0</default>
+      <units>°/s</units>
+      <desc>Bank rate limit to simulate bank dynamics</desc>
+    </param>
+    <param name="Longitudinal Acceleration Limit">
+      <name-i18n>Longitudinal Acceleration Limit</name-i18n>
+      <type>real</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>0.2</default>
+      <units>m/s^2</units>
+      <desc>Vehicle longitudinal acceleration limit to simulate the speed dynamics</desc>
+    </param>
+    <param name="Vertical Slope Limit">
+      <name-i18n>Vertical Slope Limit</name-i18n>
+      <type>real</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>0.2</default>
+      <units/>
+      <desc>Vertical slope limit to simulate altitude dynamics</desc>
+    </param>
+    <param name="Default Latitude">
+      <name-i18n>Default Latitude</name-i18n>
+      <type>real</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>39.09</default>
+      <units>°</units>
+      <desc>Default reference latitude</desc>
+    </param>
+    <param name="Default Longitude">
+      <name-i18n>Default Longitude</name-i18n>
+      <type>real</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>-8.964</default>
+      <units>°</units>
+      <desc>Default reference longitude</desc>
+    </param>
+    <param name="Default Ground Height">
+      <name-i18n>Default Ground Height</name-i18n>
+      <type>real</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>-8.964</default>
+      <units>m</units>
+      <desc>Default reference longitude</desc>
+    </param>
+    <param name="Default Altitude">
+      <name-i18n>Default Altitude</name-i18n>
+      <type>real</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>150</default>
+      <units>m</units>
+      <desc>Default reference WGS-84 geoid altitude</desc>
+    </param>
+    <param name="Default Speed">
+      <name-i18n>Default Speed</name-i18n>
+      <type>real</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>17</default>
+      <units>m/s</units>
+      <desc>Initial state airspeed</desc>
+    </param>
+    <param name="Debug">
+      <name-i18n>Debug</name-i18n>
+      <type>boolean</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>true</default>
+      <units/>
+      <desc>Controller in debug mode</desc>
     </param>
   </section>
   <section name="Height Control" name-i18n="Height Control">
@@ -441,18 +778,18 @@
       <type>list:string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>x8-04:Path Control</default>
+      <default>self</default>
       <units/>
-      <desc>List of &lt;System&gt;+&lt;System&gt;:&lt;Entity&gt;+&lt;Entity&gt; that define the source systems and entities allowed to pass DesiredZ.</desc>
+      <desc>List of &lt;System&gt;+&lt;System&gt; that define the source systems allowed to command DesiredZ.</desc>
     </param>
     <param name="EstimatedState Filter">
       <name-i18n>EstimatedState Filter</name-i18n>
       <type>list:string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>x8-04:Autopilot</default>
+      <default>self</default>
       <units/>
-      <desc>List of &lt;System&gt;+&lt;System&gt;:&lt;Entity&gt;+&lt;Entity&gt; that define the source systems and entities allowed to pass EstimatedState messages.</desc>
+      <desc>List of &lt;System&gt;+&lt;System&gt; that define the source systems allowed to pass EstimatedState messages.</desc>
     </param>
   </section>
   <section name="Autopilot" name-i18n="Autopilot">
@@ -747,6 +1084,701 @@
       <default>Formation Control</default>
       <units/>
       <desc>Entity that sends Formation Flight control references</desc>
+    </param>
+    <param name="Convert MSL to WGS84 height">
+      <name-i18n>Convert MSL to WGS84 height</name-i18n>
+      <type>boolean</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>false</default>
+      <units/>
+      <desc>Convert altitude extracted from the Ardupilot to WGS84 height</desc>
+    </param>
+  </section>
+  <section name="Path Control" name-i18n="Path Control">
+    <param name="Entity Label">
+      <name-i18n>Entity Label</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>Path Control</default>
+      <units/>
+      <desc>Main entity label</desc>
+    </param>
+    <param name="Execution Priority">
+      <name-i18n>Execution Priority</name-i18n>
+      <type>integer</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>10</default>
+      <units/>
+      <desc>Execution priority</desc>
+    </param>
+    <param name="Activation Time">
+      <name-i18n>Activation Time</name-i18n>
+      <type>integer</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>0</default>
+      <units/>
+      <desc/>
+    </param>
+    <param name="Deactivation Time">
+      <name-i18n>Deactivation Time</name-i18n>
+      <type>integer</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>0</default>
+      <units/>
+      <desc/>
+    </param>
+    <param name="Debug Level">
+      <name-i18n>Debug Level</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>None</default>
+      <units/>
+      <desc/>
+      <values>None, Debug, Trace, Spew</values>
+      <values-i18n>None, Debug, Trace, Spew</values-i18n>
+    </param>
+    <param name="Control Frequency">
+      <name-i18n>Control Frequency</name-i18n>
+      <type>real</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>10</default>
+      <units>Hz</units>
+      <desc>Control frequency (&lt; 0 for event-driven EstimatedState processing)</desc>
+    </param>
+    <param name="State Report Frequency">
+      <name-i18n>State Report Frequency</name-i18n>
+      <type>real</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>1</default>
+      <units>Hz</units>
+      <desc>State report frequency</desc>
+    </param>
+    <param name="Course Control">
+      <name-i18n>Course Control</name-i18n>
+      <type>boolean</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>true</default>
+      <units/>
+      <desc>Enable course control</desc>
+    </param>
+    <param name="Along-track -- Monitor">
+      <name-i18n>Along-track -- Monitor</name-i18n>
+      <type>boolean</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>false</default>
+      <units/>
+      <desc>Enable along-track error monitoring</desc>
+    </param>
+    <param name="Along-track -- Check Period">
+      <name-i18n>Along-track -- Check Period</name-i18n>
+      <type>real</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>15</default>
+      <units>s</units>
+      <desc>Period for along-track error check</desc>
+    </param>
+    <param name="Along-track -- Minimum Speed">
+      <name-i18n>Along-track -- Minimum Speed</name-i18n>
+      <type>real</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>10</default>
+      <units>m/s</units>
+      <desc>Minimum speed for along-track progress</desc>
+    </param>
+    <param name="Along-track -- Minimum Yaw">
+      <name-i18n>Along-track -- Minimum Yaw</name-i18n>
+      <type>real</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>10</default>
+      <units>°/s</units>
+      <desc>Minimum yaw speed for track bearing convergence</desc>
+    </param>
+    <param name="Cross-track -- Monitor">
+      <name-i18n>Cross-track -- Monitor</name-i18n>
+      <type>boolean</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>false</default>
+      <units/>
+      <desc>Enable cross-track error monitoring</desc>
+    </param>
+    <param name="Cross-track -- Distance Limit">
+      <name-i18n>Cross-track -- Distance Limit</name-i18n>
+      <type>real</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>250</default>
+      <units>m</units>
+      <desc>Distance threshold value for cross-track error</desc>
+    </param>
+    <param name="Cross-track -- Time Limit">
+      <name-i18n>Cross-track -- Time Limit</name-i18n>
+      <type>real</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>10</default>
+      <units>s</units>
+      <desc>Time threshold value for cross-track error</desc>
+    </param>
+    <param name="Cross-track -- Nav. Unc. Factor">
+      <name-i18n>Cross-track -- Nav. Unc. Factor</name-i18n>
+      <type>real</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>-1</default>
+      <units/>
+      <desc/>
+    </param>
+    <param name="Position Jump Threshold">
+      <name-i18n>Position Jump Threshold</name-i18n>
+      <type>real</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>7.0</default>
+      <units>m</units>
+      <desc>Threshold for a jump in EstimatedState to turn monitors off</desc>
+    </param>
+    <param name="Position Jump Time Factor">
+      <name-i18n>Position Jump Time Factor</name-i18n>
+      <type>real</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>0.3</default>
+      <units>m/s</units>
+      <desc>Relation between monitor disabling time and position jump</desc>
+      <min>0.1</min>
+    </param>
+    <param name="ETA Minimum Speed">
+      <name-i18n>ETA Minimum Speed</name-i18n>
+      <type>real</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>1.0</default>
+      <units>m/s</units>
+      <desc>ETA minimum admissible speed</desc>
+      <min>0.1</min>
+    </param>
+    <param name="New Reference Timeout">
+      <name-i18n>New Reference Timeout</name-i18n>
+      <type>real</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>5</default>
+      <units>s</units>
+      <desc>Timeout for new incoming path reference</desc>
+      <min>3</min>
+      <max>10</max>
+    </param>
+    <param name="Bottom Track -- Enabled">
+      <name-i18n>Bottom Track -- Enabled</name-i18n>
+      <type>boolean</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>false</default>
+      <units/>
+      <desc>Enable or disable bottom track control</desc>
+    </param>
+    <param name="Bottom Track -- Forward Samples">
+      <name-i18n>Bottom Track -- Forward Samples</name-i18n>
+      <type>integer</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>5</default>
+      <units/>
+      <desc>Number of samples for forward range moving average</desc>
+    </param>
+    <param name="Bottom Track -- Safe Pitch">
+      <name-i18n>Bottom Track -- Safe Pitch</name-i18n>
+      <type>real</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>15.0</default>
+      <units>°</units>
+      <desc>Safe pitch angle to perform bottom tracking</desc>
+    </param>
+    <param name="Bottom Track -- Slope Hysteresis">
+      <name-i18n>Bottom Track -- Slope Hysteresis</name-i18n>
+      <type>real</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>1.5</default>
+      <units>°</units>
+      <desc>Slope hysteresis when recovering from avoidance</desc>
+    </param>
+    <param name="Bottom Track -- Minimum Altitude">
+      <name-i18n>Bottom Track -- Minimum Altitude</name-i18n>
+      <type>real</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>1.0</default>
+      <units>m</units>
+      <desc>Minimum admissible altitude for bottom tracking</desc>
+    </param>
+    <param name="Bottom Track -- Minimum Range">
+      <name-i18n>Bottom Track -- Minimum Range</name-i18n>
+      <type>real</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>4.0</default>
+      <units>m</units>
+      <desc>Minimum admissible forward range for bottom tracking</desc>
+    </param>
+    <param name="Bottom Track -- Altitude Tolerance">
+      <name-i18n>Bottom Track -- Altitude Tolerance</name-i18n>
+      <type>real</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>2.0</default>
+      <units>m</units>
+      <desc>Altitude tolerance below which altitude is ignored</desc>
+    </param>
+    <param name="Bottom Track -- Depth Tolerance">
+      <name-i18n>Bottom Track -- Depth Tolerance</name-i18n>
+      <type>real</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>1.0</default>
+      <units>m</units>
+      <desc>Depth tolerance below which altitude is ignored</desc>
+    </param>
+    <param name="Bottom Track -- Check Trend">
+      <name-i18n>Bottom Track -- Check Trend</name-i18n>
+      <type>boolean</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>true</default>
+      <units/>
+      <desc>Check slope angle trend in unsafe state</desc>
+    </param>
+    <param name="Bottom Track -- Execution Frequency">
+      <name-i18n>Bottom Track -- Execution Frequency</name-i18n>
+      <type>real</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>5</default>
+      <units>Hz</units>
+      <desc>Bottom tracker's execution frequency</desc>
+    </param>
+    <param name="Bottom Track -- Depth Avoidance">
+      <name-i18n>Bottom Track -- Depth Avoidance</name-i18n>
+      <type>boolean</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>true</default>
+      <units/>
+      <desc>Enable or disable obstacle avoidance during depth control</desc>
+    </param>
+    <param name="Bottom Track -- Admissible Altitude">
+      <name-i18n>Bottom Track -- Admissible Altitude</name-i18n>
+      <type>real</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>3.0</default>
+      <units>m</units>
+      <desc>Admissible altitude when doing depth control</desc>
+    </param>
+    <param name="EstimatedState Filter">
+      <name-i18n>EstimatedState Filter</name-i18n>
+      <type>list:string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>self</default>
+      <units/>
+      <desc>List of &lt;System&gt;+&lt;System&gt; that defines the source systems allowed to pass EstimatedState messages</desc>
+    </param>
+    <param name="Look Ahead Gain">
+      <name-i18n>Look Ahead Gain</name-i18n>
+      <type>real</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>0.75</default>
+      <units/>
+      <desc>Look-ahead gain for control</desc>
+    </param>
+    <param name="Turn Rate Gain">
+      <name-i18n>Turn Rate Gain</name-i18n>
+      <type>real</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>0.002</default>
+      <units/>
+      <desc>Turn rate gain for control</desc>
+    </param>
+    <param name="Maximum Bank">
+      <name-i18n>Maximum Bank</name-i18n>
+      <type>real</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>30</default>
+      <units>°</units>
+      <desc>Limit for absolute value of output bank angle reference</desc>
+      <min>5</min>
+      <max>45</max>
+    </param>
+    <param name="Use controller">
+      <name-i18n>Use controller</name-i18n>
+      <type>boolean</type>
+      <visibility>user</visibility>
+      <scope>maneuver</scope>
+      <default>false</default>
+      <units/>
+      <desc>Use this controller for maneuver</desc>
+    </param>
+  </section>
+  <section name="Path Control Leader" name-i18n="Path Control Leader">
+    <param name="Entity Label">
+      <name-i18n>Entity Label</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>Path Control Leader</default>
+      <units/>
+      <desc>Main entity label</desc>
+    </param>
+    <param name="Execution Priority">
+      <name-i18n>Execution Priority</name-i18n>
+      <type>integer</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>10</default>
+      <units/>
+      <desc>Execution priority</desc>
+    </param>
+    <param name="Activation Time">
+      <name-i18n>Activation Time</name-i18n>
+      <type>integer</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>0</default>
+      <units/>
+      <desc/>
+    </param>
+    <param name="Deactivation Time">
+      <name-i18n>Deactivation Time</name-i18n>
+      <type>integer</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>0</default>
+      <units/>
+      <desc/>
+    </param>
+    <param name="Debug Level">
+      <name-i18n>Debug Level</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>None</default>
+      <units/>
+      <desc/>
+      <values>None, Debug, Trace, Spew</values>
+      <values-i18n>None, Debug, Trace, Spew</values-i18n>
+    </param>
+    <param name="Control Frequency">
+      <name-i18n>Control Frequency</name-i18n>
+      <type>real</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>10</default>
+      <units>Hz</units>
+      <desc>Control frequency (&lt; 0 for event-driven EstimatedState processing)</desc>
+    </param>
+    <param name="State Report Frequency">
+      <name-i18n>State Report Frequency</name-i18n>
+      <type>real</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>1</default>
+      <units>Hz</units>
+      <desc>State report frequency</desc>
+    </param>
+    <param name="Course Control">
+      <name-i18n>Course Control</name-i18n>
+      <type>boolean</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>true</default>
+      <units/>
+      <desc>Enable course control</desc>
+    </param>
+    <param name="Along-track -- Monitor">
+      <name-i18n>Along-track -- Monitor</name-i18n>
+      <type>boolean</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>false</default>
+      <units/>
+      <desc>Enable along-track error monitoring</desc>
+    </param>
+    <param name="Along-track -- Check Period">
+      <name-i18n>Along-track -- Check Period</name-i18n>
+      <type>real</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>15</default>
+      <units>s</units>
+      <desc>Period for along-track error check</desc>
+    </param>
+    <param name="Along-track -- Minimum Speed">
+      <name-i18n>Along-track -- Minimum Speed</name-i18n>
+      <type>real</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>0.25</default>
+      <units>m/s</units>
+      <desc>Minimum speed for along-track progress</desc>
+    </param>
+    <param name="Along-track -- Minimum Yaw">
+      <name-i18n>Along-track -- Minimum Yaw</name-i18n>
+      <type>real</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>10</default>
+      <units>°/s</units>
+      <desc>Minimum yaw speed for track bearing convergence</desc>
+    </param>
+    <param name="Cross-track -- Monitor">
+      <name-i18n>Cross-track -- Monitor</name-i18n>
+      <type>boolean</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>false</default>
+      <units/>
+      <desc>Enable cross-track error monitoring</desc>
+    </param>
+    <param name="Cross-track -- Distance Limit">
+      <name-i18n>Cross-track -- Distance Limit</name-i18n>
+      <type>real</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>15</default>
+      <units>m</units>
+      <desc>Distance threshold value for cross-track error</desc>
+    </param>
+    <param name="Cross-track -- Time Limit">
+      <name-i18n>Cross-track -- Time Limit</name-i18n>
+      <type>real</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>10</default>
+      <units>s</units>
+      <desc>Time threshold value for cross-track error</desc>
+    </param>
+    <param name="Cross-track -- Nav. Unc. Factor">
+      <name-i18n>Cross-track -- Nav. Unc. Factor</name-i18n>
+      <type>real</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>-1</default>
+      <units/>
+      <desc/>
+    </param>
+    <param name="Position Jump Threshold">
+      <name-i18n>Position Jump Threshold</name-i18n>
+      <type>real</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>7.0</default>
+      <units>m</units>
+      <desc>Threshold for a jump in EstimatedState to turn monitors off</desc>
+    </param>
+    <param name="Position Jump Time Factor">
+      <name-i18n>Position Jump Time Factor</name-i18n>
+      <type>real</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>0.3</default>
+      <units>m/s</units>
+      <desc>Relation between monitor disabling time and position jump</desc>
+      <min>0.1</min>
+    </param>
+    <param name="ETA Minimum Speed">
+      <name-i18n>ETA Minimum Speed</name-i18n>
+      <type>real</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>1.0</default>
+      <units>m/s</units>
+      <desc>ETA minimum admissible speed</desc>
+      <min>0.1</min>
+    </param>
+    <param name="New Reference Timeout">
+      <name-i18n>New Reference Timeout</name-i18n>
+      <type>real</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>5</default>
+      <units>s</units>
+      <desc>Timeout for new incoming path reference</desc>
+      <min>3</min>
+      <max>10</max>
+    </param>
+    <param name="Bottom Track -- Enabled">
+      <name-i18n>Bottom Track -- Enabled</name-i18n>
+      <type>boolean</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>false</default>
+      <units/>
+      <desc>Enable or disable bottom track control</desc>
+    </param>
+    <param name="Bottom Track -- Forward Samples">
+      <name-i18n>Bottom Track -- Forward Samples</name-i18n>
+      <type>integer</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>5</default>
+      <units/>
+      <desc>Number of samples for forward range moving average</desc>
+    </param>
+    <param name="Bottom Track -- Safe Pitch">
+      <name-i18n>Bottom Track -- Safe Pitch</name-i18n>
+      <type>real</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>15.0</default>
+      <units>°</units>
+      <desc>Safe pitch angle to perform bottom tracking</desc>
+    </param>
+    <param name="Bottom Track -- Slope Hysteresis">
+      <name-i18n>Bottom Track -- Slope Hysteresis</name-i18n>
+      <type>real</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>1.5</default>
+      <units>°</units>
+      <desc>Slope hysteresis when recovering from avoidance</desc>
+    </param>
+    <param name="Bottom Track -- Minimum Altitude">
+      <name-i18n>Bottom Track -- Minimum Altitude</name-i18n>
+      <type>real</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>1.0</default>
+      <units>m</units>
+      <desc>Minimum admissible altitude for bottom tracking</desc>
+    </param>
+    <param name="Bottom Track -- Minimum Range">
+      <name-i18n>Bottom Track -- Minimum Range</name-i18n>
+      <type>real</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>4.0</default>
+      <units>m</units>
+      <desc>Minimum admissible forward range for bottom tracking</desc>
+    </param>
+    <param name="Bottom Track -- Altitude Tolerance">
+      <name-i18n>Bottom Track -- Altitude Tolerance</name-i18n>
+      <type>real</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>2.0</default>
+      <units>m</units>
+      <desc>Altitude tolerance below which altitude is ignored</desc>
+    </param>
+    <param name="Bottom Track -- Depth Tolerance">
+      <name-i18n>Bottom Track -- Depth Tolerance</name-i18n>
+      <type>real</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>1.0</default>
+      <units>m</units>
+      <desc>Depth tolerance below which altitude is ignored</desc>
+    </param>
+    <param name="Bottom Track -- Check Trend">
+      <name-i18n>Bottom Track -- Check Trend</name-i18n>
+      <type>boolean</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>true</default>
+      <units/>
+      <desc>Check slope angle trend in unsafe state</desc>
+    </param>
+    <param name="Bottom Track -- Execution Frequency">
+      <name-i18n>Bottom Track -- Execution Frequency</name-i18n>
+      <type>real</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>5</default>
+      <units>Hz</units>
+      <desc>Bottom tracker's execution frequency</desc>
+    </param>
+    <param name="Bottom Track -- Depth Avoidance">
+      <name-i18n>Bottom Track -- Depth Avoidance</name-i18n>
+      <type>boolean</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>true</default>
+      <units/>
+      <desc>Enable or disable obstacle avoidance during depth control</desc>
+    </param>
+    <param name="Bottom Track -- Admissible Altitude">
+      <name-i18n>Bottom Track -- Admissible Altitude</name-i18n>
+      <type>real</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>3.0</default>
+      <units>m</units>
+      <desc>Admissible altitude when doing depth control</desc>
+    </param>
+    <param name="EstimatedState Filter">
+      <name-i18n>EstimatedState Filter</name-i18n>
+      <type>list:string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>form-leader-04</default>
+      <units/>
+      <desc>List of &lt;System&gt;+&lt;System&gt; that defines the source systems allowed to pass EstimatedState messages</desc>
+    </param>
+    <param name="Look Ahead Gain">
+      <name-i18n>Look Ahead Gain</name-i18n>
+      <type>real</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>1.5</default>
+      <units/>
+      <desc>Look-ahead gain for control</desc>
+    </param>
+    <param name="Turn Rate Gain">
+      <name-i18n>Turn Rate Gain</name-i18n>
+      <type>real</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>0.0005</default>
+      <units/>
+      <desc>Turn rate gain for control</desc>
+    </param>
+    <param name="Maximum Bank">
+      <name-i18n>Maximum Bank</name-i18n>
+      <type>real</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>30</default>
+      <units>°</units>
+      <desc>Limit for absolute value of output bank angle reference</desc>
+      <min>5</min>
+      <max>45</max>
+    </param>
+    <param name="Use controller">
+      <name-i18n>Use controller</name-i18n>
+      <type>boolean</type>
+      <visibility>user</visibility>
+      <scope>maneuver</scope>
+      <default>false</default>
+      <units/>
+      <desc>Use this controller for maneuver</desc>
     </param>
   </section>
   <section name="Follow Reference" name-i18n="Follow Reference">
@@ -1327,6 +2359,15 @@
       <default>hwclock -w</default>
       <units/>
       <desc>System command to execute everytime the clock is synchronized</desc>
+    </param>
+    <param name="Change Log">
+      <name-i18n>Change Log</name-i18n>
+      <type>boolean</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>false</default>
+      <units/>
+      <desc>Change log file after synchronization</desc>
     </param>
   </section>
   <section name="Entity Monitor" name-i18n="Entity Monitor">
@@ -2553,7 +3594,7 @@
       <type>list:string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>Voltage, Current, FuelLevel, GpsFix, EntityState, CpuUsage, StorageUsage, Heartbeat, Temperature, RSSI, LinkLevel</default>
+      <default>CpuUsage, Current, EntityState, FuelLevel, GpsFix, Heartbeat, LinkLevel, PowerChannelState, RSSI, StorageUsage, Temperature, Voltage</default>
       <units/>
       <desc>List of messages to transport</desc>
     </param>
@@ -2696,7 +3737,7 @@
       <type>list:string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>Acceleration, AngularVelocity, Announce, AutopilotMode, ControlLoops, CpuUsage, Current, DesiredHeading, DesiredPath, DesiredRoll, DesiredSpeed, DesiredVerticalRate, DesiredZ, EntityList, EntityState, EstimatedState, EstimatedStreamVelocity, FollowReference, FollowRefState, FuelLevel, GpsFix, IndicatedSpeed, LeaderState, LinkLevel, LogBookEntry, MagneticField, ManeuverControlState, PathControlState, PlanControl, PlanSpecification, PlanControlState, PlanDB, PowerChannelControl, Pressure, Reference, Rpm, RSSI, SetControlSurfaceDeflection, SetThrusterActuation, SimulatedState, StopManeuver, StorageUsage, Temperature, TrueSpeed, TrexObservation, TrexPlan, TrexToken, TrueSpeed, VehicleCommand, VehicleMedium, VehicleState, Voltage</default>
+      <default>Acceleration, AngularVelocity, Announce, AutopilotMode, ControlLoops, CpuUsage, Current, DesiredHeading, DesiredPath, DesiredRoll, DesiredSpeed, DesiredVerticalRate, DesiredZ, DevCalibrationControl, EntityList, EntityState, EstimatedState, EstimatedStreamVelocity, FollowReference, FollowRefState, Formation, FormationMonitor, FormationEvaluation, FormationControlParams, FuelLevel, GpsFix, IndicatedSpeed, LeaderState, LinkLevel, LogBookEntry, MagneticField, ManeuverControlState, PathControlState, PlanControl, PlanSpecification, PlanControlState, PlanDB, PowerChannelControl, Pressure, Reference, Rpm, RSSI, SetControlSurfaceDeflection, SetEntityParameters, SetThrusterActuation, SimulatedState, StopManeuver, StorageUsage, Temperature, TrueSpeed, TrexObservation, TrexPlan, TrexToken, TrueSpeed, VehicleCommand, VehicleMedium, VehicleState, Voltage</default>
       <units/>
       <desc/>
     </param>
@@ -2754,7 +3795,7 @@
       <type>string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>/dev/ttyO0</default>
+      <default>/dev/ttyO1</default>
       <units/>
       <desc>Serial port device used to communicate with the sensor</desc>
     </param>
@@ -2884,7 +3925,7 @@
       <type>list:string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>CpuUsage:0.2, EntityState:1, EstimatedState:5, FuelLevel:0.1, SimulatedState:0.5, StorageUsage:0.05, Temperature:0.1</default>
+      <default>CpuUsage:0.2, EntityState:1, EstimatedState:5, FormationEvaluation:1, FuelLevel:0.1, SimulatedState:0.5, StorageUsage:0.05, Temperature:0.1</default>
       <units/>
       <desc>List of &lt;Message&gt;:&lt;Frequency&gt;</desc>
     </param>
@@ -2893,7 +3934,7 @@
       <type>list:string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>CpuUsage:Daemon</default>
+      <default>CpuUsage:Daemon, PathControlState:Autopilot+Formation Control,</default>
       <units/>
       <desc>List of &lt;Message&gt;:&lt;Entity&gt;+&lt;Entity&gt; that define the source entities allowed to pass message of a specific message type.</desc>
     </param>
@@ -2929,7 +3970,7 @@
       <type>list:string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>Acceleration, AngularVelocity, AutopilotMode, CpuUsage, Current, DesiredPath, DesiredRoll, DesiredSpeed, DesiredVerticalRate, DesiredZ, EntityList, EntityParameters, EntityState, EstimatedState, EstimatedStreamVelocity, FollowRefState, FuelLevel, GpsFix, Heartbeat, IndicatedSpeed, LeaderState, LinkLevel, LogBookControl, LoggingControl, MagneticField, OperationalLimits, PathControlState, PlanControl, PlanControlState, PlanDB, PlanGeneration, PlanSpecification, PowerChannelControl, Pressure, QueryEntityParameters, RemoteActionsRequest, Rpm, RSSI, SaveEntityParameters, SetEntityParameters, SetServoPosition, SimulatedState, StorageUsage, Target, Temperature, TrexOperation, TrueSpeed, VehicleMedium, VehicleState, Voltage</default>
+      <default>Acceleration, AngularVelocity, AutopilotMode, CpuUsage, Current, DesiredPath, DesiredRoll, DesiredSpeed, DesiredVerticalRate, DesiredZ, EntityList, EntityParameters, EntityState, EstimatedState, EstimatedStreamVelocity, FollowRefState, Formation, FormationMonitor, FormationEvaluation, FormationControlParams, FuelLevel, GpsFix, Heartbeat, IndicatedSpeed, LeaderState, LinkLevel, LogBookControl, LoggingControl, MagneticField, OperationalLimits, PathControlState, PlanControl, PlanControlState, PlanDB, PlanGeneration, PlanSpecification, PowerChannelControl, Pressure, QueryEntityParameters, RemoteActionsRequest, Rpm, RSSI, SaveEntityParameters, SetEntityParameters, SetServoPosition, SimulatedState, StorageUsage, Target, Temperature, TrexOperation, TrueSpeed, VehicleMedium, VehicleState, Voltage</default>
       <units/>
       <desc>List of messages to transport</desc>
     </param>

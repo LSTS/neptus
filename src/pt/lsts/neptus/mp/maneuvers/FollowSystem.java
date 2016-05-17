@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2015 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2016 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -39,6 +39,9 @@ import org.dom4j.DocumentHelper;
 import org.dom4j.Element;
 import org.dom4j.Node;
 
+import com.l2fprod.common.propertysheet.DefaultProperty;
+import com.l2fprod.common.propertysheet.Property;
+
 import pt.lsts.imc.IMCDefinition;
 import pt.lsts.imc.IMCMessage;
 import pt.lsts.neptus.NeptusLog;
@@ -49,23 +52,12 @@ import pt.lsts.neptus.gui.editor.renderer.I18nCellRenderer;
 import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.mp.SystemPositionAndAttitude;
 import pt.lsts.neptus.util.MathMiscUtils;
-import pt.lsts.neptus.util.NameNormalizer;
-
-import com.l2fprod.common.propertysheet.DefaultProperty;
-import com.l2fprod.common.propertysheet.Property;
 
 /**
  * @author pdias
  *
  */
 public class FollowSystem extends DefaultManeuver implements IMCSerialization {
-
-	/**
-	 * 
-	 */
-	public FollowSystem() {
-		// TODO Auto-generated constructor stub
-	}
 
     private double speed = 1000, speedTolerance = 100;
     private String units = "RPM";
@@ -74,10 +66,10 @@ public class FollowSystem extends DefaultManeuver implements IMCSerialization {
     private double xOffset = 1, yOffset = 1, zOffset = 1;
     
     protected static final String DEFAULT_ROOT_ELEMENT = "FollowSystem";
-    
 	
-	public String id = NameNormalizer.getRandomID();
-	
+    public FollowSystem() {
+    }
+
 	public String getType() {
 		return DEFAULT_ROOT_ELEMENT;
 	}
@@ -139,14 +131,6 @@ public class FollowSystem extends DefaultManeuver implements IMCSerialization {
 		return lastVehicleState;
 	}
 
-    public String getId() {
-        return id;
-    }
-    
-    public void setId(String id) {
-        this.id = id;
-    }
-    
     public String getSystem() {
         return system;
     }

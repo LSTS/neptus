@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2015 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2016 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -39,17 +39,19 @@ import java.awt.geom.Ellipse2D;
 import java.awt.geom.GeneralPath;
 import java.awt.geom.Line2D;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Vector;
 
+import com.l2fprod.common.propertysheet.DefaultProperty;
+import com.l2fprod.common.propertysheet.Property;
+
 import pt.lsts.neptus.NeptusLog;
+import pt.lsts.neptus.comm.IMCUtils;
 import pt.lsts.neptus.mp.Maneuver;
 import pt.lsts.neptus.mp.preview.SpeedConversion;
 import pt.lsts.neptus.plugins.PluginProperty;
 import pt.lsts.neptus.plugins.PluginUtils;
-import pt.lsts.neptus.util.AngleCalc;
-
-import com.l2fprod.common.propertysheet.DefaultProperty;
-import com.l2fprod.common.propertysheet.Property;
+import pt.lsts.neptus.util.AngleUtils;
 
 /**
  * @author pdias
@@ -78,11 +80,11 @@ public class ManeuversUtil {
         
         double length = width;
         double[] pointBaseB = {-length/2., -width/2., 0, -1};
-        double[] res = AngleCalc.rotate(bearingRad, pointBaseB[X], pointBaseB[Y], false);
+        double[] res = AngleUtils.rotate(bearingRad, pointBaseB[X], pointBaseB[Y], false);
         double[] pointBase1 = new double[] {res[X], res[Y], 0, -1};
-        res = AngleCalc.rotate(bearingRad+Math.toRadians(-60), pointBaseB[X], pointBaseB[Y], false);
+        res = AngleUtils.rotate(bearingRad+Math.toRadians(-60), pointBaseB[X], pointBaseB[Y], false);
         double[] pointBase2 = {res[X], res[Y], 0, -1};
-        res = AngleCalc.rotate(bearingRad+Math.toRadians(-120), pointBaseB[X], pointBaseB[Y], false);
+        res = AngleUtils.rotate(bearingRad+Math.toRadians(-120), pointBaseB[X], pointBaseB[Y], false);
         double[] pointBase3 = {res[X], res[Y], 0, -1};
         
         Vector<double[]> points1 = calcRowsPoints(width, width, hstep, 2-alternationPercent, curvOff,
@@ -129,9 +131,9 @@ public class ManeuversUtil {
         double length = width;
         double[] pointBase1 = {-length/2., -width/2., 0, -1};
         double[] pointBase2 = {-length/2., width/2., 0, -1};
-        double[] res = AngleCalc.rotate(bearingRad, pointBase1[X], pointBase1[Y], false);
+        double[] res = AngleUtils.rotate(bearingRad, pointBase1[X], pointBase1[Y], false);
         pointBase1 = new double[] {res[X], res[Y], 0, -1};
-        res = AngleCalc.rotate(bearingRad, pointBase2[X], pointBase2[Y], false);
+        res = AngleUtils.rotate(bearingRad, pointBase2[X], pointBase2[Y], false);
         pointBase2 = new double[] {res[X], res[Y], 0, -1};
 
         Vector<double[]> points1 = calcRowsPoints(width, width, hstep, 1, curvOff,
@@ -224,12 +226,12 @@ public class ManeuversUtil {
             }
         }
         for (double[] pt : newPoints) {
-            double[] res = AngleCalc.rotate(-crossAngleRadians, pt[X], 0, false);
+            double[] res = AngleUtils.rotate(-crossAngleRadians, pt[X], 0, false);
             pt[X] = res[0];
             pt[Y] = pt[Y] + res[1];
             if (invertY)
                 pt[Y] = -pt[Y];
-            res = AngleCalc.rotate(bearingRad + (!invertY ? -1 : 1) * -crossAngleRadians, pt[X], pt[Y], false);
+            res = AngleUtils.rotate(bearingRad + (!invertY ? -1 : 1) * -crossAngleRadians, pt[X], pt[Y], false);
             pt[X] = res[0];
             pt[Y] = res[1];
         }
@@ -241,6 +243,69 @@ public class ManeuversUtil {
         return newPoints;
     }
 
+    public static Vector<double[]> calcExpansiveSquarePatternPointsMaxBox(
+            double width, double hstep, double bearingRad, boolean invertY) {
+
+        Vector<double[]> newPoints = new Vector<double[]>();
+        
+        final short left = 0, up = 1, right = 2, down = 3;
+        
+        double[] point;;
+        
+        double x = 0;
+        double y = 0;
+        short stepDir = left;
+        int stepX = 1;
+        int stepY = 1;
+        do {
+            point = new double[] { x, y, 0, -1 };
+            newPoints.add(point);
+
+            switch (stepDir) {
+                case left:
+                    x += hstep * stepX;
+                    // y = y;
+                    stepX++;
+                    break;
+                case up:
+                    // x = x;
+                    y += hstep * stepY;
+                    stepY++;
+                    break;
+                case right:
+                    x -= hstep * stepX;
+                    // y = y;
+                    stepX++;
+                    break;
+                case down:
+                    // x = x;;
+                    y -= hstep * stepY;
+                    stepY++;
+                    break;
+                default:
+                    throw new RuntimeException("Something went wrong!!");
+            }
+            stepDir = (short) (++stepDir % 4);
+        } while (Math.abs(x) <= width / 2 || Math.abs(y) <= width / 2);
+
+        double[] le = newPoints.lastElement();
+        le[0] = Math.signum(le[0]) * Math.min(Math.abs(le[0]), width / 2);
+        le[1] = Math.signum(le[1]) * Math.min(Math.abs(le[1]), width / 2);
+        
+        for (double[] pt : newPoints) {
+            double[] res = AngleUtils.rotate(0, pt[X], 0, false);
+            pt[X] = res[0];
+            pt[Y] = pt[Y] + res[1];
+            if (invertY)
+                pt[Y] = -pt[Y];
+            res = AngleUtils.rotate(bearingRad, pt[X], pt[Y], false);
+            pt[X] = res[0];
+            pt[Y] = res[1];
+        }
+
+        return newPoints;
+    }
+
     /**
      * @param g2d
      * @param zoom
@@ -248,7 +313,7 @@ public class ManeuversUtil {
      * @param paintSSRange
      * @param sRange
      */
-    public static void paintPointLineList(Graphics2D g2d, double zoom, Vector<double[]> points,
+    public static void paintPointLineList(Graphics2D g2d, double zoom, List<double[]> points,
             boolean paintSSRange, double sRange) {
         paintPointLineList(g2d, zoom, points, paintSSRange, sRange, false);
     }
@@ -262,7 +327,7 @@ public class ManeuversUtil {
      * @param sRange
      * @param editMode
      */
-    public static void paintPointLineList(Graphics2D g2d, double zoom, Vector<double[]> points,
+    public static void paintPointLineList(Graphics2D g2d, double zoom, List<double[]> points,
             boolean paintSSRange, double sRange, boolean editMode) {
         double[] pointI, pointF, pointN;
         
@@ -274,7 +339,7 @@ public class ManeuversUtil {
         Stroke s3 = new BasicStroke(3);
         Stroke sR = new BasicStroke((float) (2 * sRange * zoom), BasicStroke.CAP_BUTT, BasicStroke.JOIN_MITER);
         
-        for (int i = 0; i < points.size(); i+=2) {
+        for (int i = 0; i < points.size(); i += 2) {
             pointI = points.get(i);
             //NeptusLog.pub().info("<###>[" + pointI[X] + ", " + pointI[Y] + "]");
             try {
@@ -290,11 +355,13 @@ public class ManeuversUtil {
                 pointN = null;
             }
             int ellisRadius = !editMode ? 3 : 4;
+            int factor = 2;
             Ellipse2D el = new Ellipse2D.Double(-ellisRadius, -ellisRadius, ellisRadius * 2, ellisRadius * 2);
+            Ellipse2D ex = new Ellipse2D.Double(-ellisRadius * factor, -ellisRadius * factor, ellisRadius * factor * 2, ellisRadius * factor * 2);
             if (i == 0) {
                 g2d.translate(pointI[X] * zoom, pointI[Y] * zoom);
-                g2d.setColor(new Color(0, 255, 0));
-                g2d.fill(el);
+                g2d.setColor(new Color(0, 0, 255));
+                g2d.fill(ex);
                 g2d.translate(-pointI[X] * zoom, -pointI[Y] * zoom);
             }
             if (pointF != null) {
@@ -315,7 +382,15 @@ public class ManeuversUtil {
 
                 g2d.translate(pointF[X] * zoom, pointF[Y] * zoom);
                 g2d.setColor(new Color(255, 0, 0));
-                g2d.fill(el);
+                if (i == points.size() - 2) {
+                    g2d.setColor(new Color(0, 0, 255));
+                    g2d.fill(ex);
+                    g2d.setColor(Color.WHITE);
+                    g2d.fill(el);
+                }
+                else {
+                    g2d.fill(el);
+                }
                 g2d.translate(-pointF[X] * zoom, -pointF[Y] * zoom);
 
                 if (pointN != null) {
@@ -331,7 +406,15 @@ public class ManeuversUtil {
                     
                     g2d.translate(pointN[X] * zoom, pointN[Y] * zoom);
                     g2d.setColor(new Color(0, 255, 0));
-                    g2d.fill(el);
+                    if (i == points.size() - 3) {
+                        g2d.setColor(new Color(0, 0, 255));
+                        g2d.fill(ex);
+                        g2d.setColor(Color.WHITE);
+                        g2d.fill(el);
+                    }
+                    else {
+                        g2d.fill(el);
+                    }
                     g2d.translate(-pointN[X] * zoom, -pointN[Y] * zoom);
                 }
             }
@@ -371,7 +454,7 @@ public class ManeuversUtil {
         double mult = !invertY ? 1 : -1;
         GeneralPath sp = new GeneralPath();
         sp.moveTo(x0 * zoom, y0 * zoom);
-        double[] resT = AngleCalc.rotate(-crossAngleRadians, length, 0, false);
+        double[] resT = AngleUtils.rotate(-crossAngleRadians, length, 0, false);
         sp.lineTo(x0 * zoom + resT[0] * zoom, mult * (y0 * zoom + resT[1] * zoom));
 //        resT = AngleCalc.rotate(crossAngleRadians, length, 0, false);
         sp.lineTo(x0 * zoom + resT[0] * zoom, mult * (y0 * zoom + (width + resT[1]) * zoom));
@@ -436,5 +519,9 @@ public class ManeuversUtil {
      */
     public static void setPropertiesToManeuver(Maneuver man, Property[] properties) {
         PluginUtils.setPluginProperties(man, properties);
+    }
+    
+    public static <M extends Maneuver> Class<M> getManeuverFromType(String type) {
+        return IMCUtils.getManeuverFromType(type);
     }
 }

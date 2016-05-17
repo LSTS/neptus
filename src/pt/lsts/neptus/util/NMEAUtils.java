@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2015 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2016 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -219,8 +219,38 @@ public class NMEAUtils {
 		}
 	}
 	
+    public static double processGPHDTSentence(String sentence) {        
+        try {
+            NMEA0183Sentence nmea = new NMEA0183Sentence(sentence);
+        
+            if (!nmea.isValid())
+                return Double.NaN;
+            
+            List<?> data_fields = nmea.getDataFields();
+            
+            String headingDegsStr = (String) data_fields.get(0);
 
-	public static LocationType processRMCSentence(String sentence) {
+            // check for empty messages:
+            if (headingDegsStr.length() == 0)
+                return Double.NaN;
+    
+            try {
+                double headDegs = Double.parseDouble(headingDegsStr);
+                return headDegs;
+            }
+            catch (Exception e) {
+                e.printStackTrace();
+            }
+    
+            return Double.NaN;
+        }
+        catch (Exception ex) {
+            ex.printStackTrace();
+            return Double.NaN;
+        }
+    }
+
+    public static LocationType processRMCSentence(String sentence) {
 		try {
 			NMEA0183Sentence nmea = new NMEA0183Sentence(sentence);
 			if (!nmea.isValid())

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2015 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2016 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -49,7 +49,9 @@ public class PeriodicUpdatesService {
     private static Vector<IPeriodicUpdates> clients = new Vector<IPeriodicUpdates>();
     private static Vector<IPeriodicUpdates> defunctClients = new Vector<IPeriodicUpdates>();
     private static Vector<Thread> updaterThreads = new Vector<Thread>();
-
+    private static LinkedHashMap<Object, Collection<IPeriodicUpdates>> pojoPeriodicMethods = new LinkedHashMap<Object, Collection<IPeriodicUpdates>>();
+    
+    
     private PeriodicUpdatesService() {
     }
 
@@ -73,6 +75,30 @@ public class PeriodicUpdatesService {
         synchronized (PeriodicUpdatesService.class) {
             updatesEnabled = false;
         }
+    }
+    
+    public static void registerPojo(Object pojo) {
+        
+        Collection<IPeriodicUpdates> periodicMethods = PeriodicUpdatesService.inspect(pojo);
+        
+        if (periodicMethods.isEmpty())
+            return;
+        
+        pojoPeriodicMethods.put(pojo, periodicMethods);
+        
+        for (IPeriodicUpdates i : periodicMethods) {
+            PeriodicUpdatesService.register(i);
+        }        
+    }
+    
+    public static void unregisterPojo(Object pojo) {
+        Collection<IPeriodicUpdates> updates = pojoPeriodicMethods.get(pojo);
+        if (updates == null)
+            return;
+        
+        for (IPeriodicUpdates i : updates) {
+            PeriodicUpdatesService.unregister(i);
+        }        
     }
 
     /**

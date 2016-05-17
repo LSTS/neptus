@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2015 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2016 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -46,6 +46,9 @@ import org.dom4j.DocumentHelper;
 import org.dom4j.Element;
 import org.dom4j.Node;
 
+import com.l2fprod.common.propertysheet.DefaultProperty;
+import com.l2fprod.common.propertysheet.Property;
+
 import pt.lsts.imc.IMCMessage;
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.gui.PropertiesEditor;
@@ -58,10 +61,6 @@ import pt.lsts.neptus.mp.SystemPositionAndAttitude;
 import pt.lsts.neptus.renderer2d.StateRenderer2D;
 import pt.lsts.neptus.types.coord.LocationType;
 import pt.lsts.neptus.types.map.PlanElement;
-import pt.lsts.neptus.util.NameNormalizer;
-
-import com.l2fprod.common.propertysheet.DefaultProperty;
-import com.l2fprod.common.propertysheet.Property;
 
 /**
  * @author pdias
@@ -69,30 +68,29 @@ import com.l2fprod.common.propertysheet.Property;
  */
 public class PopUp extends Maneuver implements LocatedManeuver, IMCSerialization {
 
-    double speed = 1000, speedTolerance = 100, radiusTolerance = 2;
-    int duration = 5;
-    String units = "RPM";
-    ManeuverLocation destination = new ManeuverLocation();
+    protected double speed = 1000, speedTolerance = 100, radiusTolerance = 2;
+    protected int duration = 5;
+    protected String units = "RPM";
+    protected ManeuverLocation destination = new ManeuverLocation();
     protected static final String DEFAULT_ROOT_ELEMENT = "PopUp";
 	
 	private final int ANGLE_CALCULATION = -1;
 	private final int FIRST_ROTATE = 0;
 	private final int HORIZONTAL_MOVE = 1;
-	int current_state = ANGLE_CALCULATION;
+	protected int current_state = ANGLE_CALCULATION;
 	
 	private double targetAngle, rotateIncrement;
 	private boolean currPos = false;
-	private boolean waitAtSurface = true, stationKeep = true; // To become deprecated
-	
-	public String id = NameNormalizer.getRandomID();
-	
-	
+	private boolean waitAtSurface = false;
+	private boolean stationKeep = false; // To become deprecated
+
+	private int count = 0;
+
 	public String getType() {
 		return "PopUp";
 	}
 	
 	public Document getManeuverAsDocument(String rootElementName) {
-        
 	    Document document = DocumentHelper.createDocument();
 	    Element root = document.addElement( rootElementName );
 	    root.addAttribute("kind", "automatic");
@@ -115,12 +113,11 @@ public class PopUp extends Maneuver implements LocatedManeuver, IMCSerialization
 	    
 	    Element flags = root.addElement("flags");
 	    flags.addAttribute("CurrPos", ""+isCurrPos());
+	    flags.addAttribute("WaitAtSurface", ""+isWaitAtSurface());
 	    // flags.addAttribute("StationKeep", ""+isStationKeep());
-	    // flags.addAttribute("WaitAtSurface", ""+isWaitAtSurface());        
 	    
 	    return document;
     }
-	
 	
 	public void loadFromXML(String xml) {
 	    try {
@@ -142,7 +139,7 @@ public class PopUp extends Maneuver implements LocatedManeuver, IMCSerialization
 	        
 	        Node flagsNode = doc.selectSingleNode("PopUp/flags");
 	        setCurrPos(Boolean.parseBoolean(flagsNode.valueOf("@CurrPos")));
-	        // setWaitAtSurface(Boolean.parseBoolean(flagsNode.valueOf("@WaitAtSurface")));
+	        setWaitAtSurface(Boolean.parseBoolean(flagsNode.valueOf("@WaitAtSurface")));
 	        // setStationKeep(Boolean.parseBoolean(flagsNode.valueOf("@StationKeep")));
 	    }
 	    catch (Exception e) {
@@ -151,15 +148,9 @@ public class PopUp extends Maneuver implements LocatedManeuver, IMCSerialization
 	    }
     }
 	
-	private int count = 0;
-	
 	public SystemPositionAndAttitude ManeuverFunction(SystemPositionAndAttitude lastVehicleState) {
-	    
-	 SystemPositionAndAttitude nextVehicleState = (SystemPositionAndAttitude) lastVehicleState.clone();
-	 
-	 
+	    SystemPositionAndAttitude nextVehicleState = (SystemPositionAndAttitude) lastVehicleState.clone();
 		switch (current_state) {
-		
 			case(ANGLE_CALCULATION):
 				targetAngle = lastVehicleState.getPosition().getXYAngle(destination);
 				
@@ -204,12 +195,12 @@ public class PopUp extends Maneuver implements LocatedManeuver, IMCSerialization
 					endManeuver();
 				}
 				else {					
-						nextVehicleState.moveForward(calculatedSpeed);
-						double depthDiff = destination.getDepth()-nextVehicleState.getPosition().getDepth();
-						
-						double depthIncr = depthDiff / (dist/calculatedSpeed);
-						double curDepth = nextVehicleState.getPosition().getDepth();
-						nextVehicleState.getPosition().setDepth(curDepth+depthIncr);
+				    nextVehicleState.moveForward(calculatedSpeed);
+				    double depthDiff = destination.getDepth()-nextVehicleState.getPosition().getDepth();
+
+				    double depthIncr = depthDiff / (dist/calculatedSpeed);
+				    double curDepth = nextVehicleState.getPosition().getDepth();
+				    nextVehicleState.getPosition().setDepth(curDepth+depthIncr);
 				}
 				break;
 			
@@ -219,10 +210,8 @@ public class PopUp extends Maneuver implements LocatedManeuver, IMCSerialization
 		
 		return nextVehicleState;
 	}
-	
 
 	public Object clone() {  
-		
 		PopUp clone = new PopUp();
 	    super.clone(clone);
 		clone.setManeuverLocation(destination.clone());
@@ -232,19 +221,11 @@ public class PopUp extends Maneuver implements LocatedManeuver, IMCSerialization
 	    clone.setSpeed(getSpeed());
 	    clone.setSpeedTolerance(getSpeedTolerance());
 	    clone.setCurrPos(isCurrPos());
+	    clone.setWaitAtSurface(isWaitAtSurface());
 //	    clone.setStationKeep(isStationKeep());
-//	    clone.setWaitAtSurface(isWaitAtSurface());
 	    return clone;
 	}
 
-    public String getId() {
-        return id;
-    }
-    
-    public void setId(String id) {
-        this.id = id;
-    }
-    
     public double getRadiusTolerance() {
         return radiusTolerance;
     }
@@ -317,8 +298,8 @@ public class PopUp extends Maneuver implements LocatedManeuver, IMCSerialization
     	properties.add(PropertiesEditor.getPropertyInstance("Duration", Integer.class, getDuration(), true));
     	
     	properties.add(PropertiesEditor.getPropertyInstance("CURR_POS", "Flags", Boolean.class, isCurrPos(), true));
+	properties.add(PropertiesEditor.getPropertyInstance("WAIT_AT_SURFACE", "Flags", Boolean.class, isWaitAtSurface(), true));
     	properties.add(PropertiesEditor.getPropertyInstance("STATION_KEEP", "Flags", Boolean.class, isStationKeep(), false)); // To become deprecated
-    	properties.add(PropertiesEditor.getPropertyInstance("WAIT_AT_SURFACE", "Flags", Boolean.class, isWaitAtSurface(), false)); // To become deprecated
     	
     	return properties;
     }
@@ -351,11 +332,11 @@ public class PopUp extends Maneuver implements LocatedManeuver, IMCSerialization
     		if (p.getName().equals("CURR_POS")) {
     		    setCurrPos((Boolean)p.getValue());
     		}
+		if (p.getName().equals("WAIT_AT_SURFACE")) {
+		    setWaitAtSurface((Boolean)p.getValue());
+		}
 //            if (p.getName().equals("STATION_KEEP")) {
 //                setStationKeep((Boolean)p.getValue());
-//            }
-//            if (p.getName().equals("WAIT_AT_SURFACE")) {
-//                setWaitAtSurface((Boolean)p.getValue());
 //            }
     	}
     }
@@ -404,12 +385,12 @@ public class PopUp extends Maneuver implements LocatedManeuver, IMCSerialization
         return waitAtSurface;
     }
 
-//    /**
-//     * @param waitAtSurface the waitAtSurface to set
-//     */
-//    public void setWaitAtSurface(boolean waitAtSurface) {
-//        this.waitAtSurface = waitAtSurface;
-//    }
+    /**
+     * @param waitAtSurface the waitAtSurface to set
+     */
+    public void setWaitAtSurface(boolean waitAtSurface) {
+        this.waitAtSurface = waitAtSurface;
+    }
 
     /**
      * @return the stationKeep
@@ -491,7 +472,7 @@ public class PopUp extends Maneuver implements LocatedManeuver, IMCSerialization
         
         // flags
         setCurrPos((msgPopup.getFlags() & pt.lsts.imc.PopUp.FLG_CURR_POS) == pt.lsts.imc.PopUp.FLG_CURR_POS);
-//        setWaitAtSurface((msgPopup.getFlags() & pt.lsts.imc.PopUp.FLG_WAIT_AT_SURFACE) == pt.lsts.imc.PopUp.FLG_WAIT_AT_SURFACE);
+	setWaitAtSurface((msgPopup.getFlags() & pt.lsts.imc.PopUp.FLG_WAIT_AT_SURFACE) == pt.lsts.imc.PopUp.FLG_WAIT_AT_SURFACE);
 //        setStationKeep((msgPopup.getFlags() & pt.lsts.imc.PopUp.FLG_STATION_KEEP) == pt.lsts.imc.PopUp.FLG_STATION_KEEP);
         
 	}
@@ -506,7 +487,8 @@ public class PopUp extends Maneuver implements LocatedManeuver, IMCSerialization
 	    msg.setLat(loc.getLatitudeRads());
 	    msg.setLon(loc.getLongitudeRads());
 		msg.setZ(getManeuverLocation().getZ());
-		msg.setZUnits(getManeuverLocation().getZUnits().toString());
+		
+		msg.setZUnits(pt.lsts.imc.PopUp.Z_UNITS.valueOf(getManeuverLocation().getZUnits().toString()));
 	    msg.setDuration(getDuration());
 	    msg.setSpeed(speed);
 	    switch (units) {
@@ -557,7 +539,7 @@ public class PopUp extends Maneuver implements LocatedManeuver, IMCSerialization
         popup.setDuration(300);
         
         popup.setCurrPos(true);
-//        popup.setWaitAtSurface(true);
+        popup.setWaitAtSurface(true);
         ManeuverLocation loc = new ManeuverLocation();
         loc.setLatitudeDegs(0);
         loc.setLongitudeDegs(0);

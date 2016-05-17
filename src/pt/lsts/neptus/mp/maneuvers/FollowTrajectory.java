@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2015 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2016 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -31,10 +31,11 @@
  */
 package pt.lsts.neptus.mp.maneuvers;
 
-
 import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.Cursor;
 import java.awt.Dialog.ModalityType;
+import java.awt.Font;
 import java.awt.Graphics2D;
 import java.awt.Image;
 import java.awt.Window;
@@ -67,6 +68,9 @@ import org.dom4j.DocumentHelper;
 import org.dom4j.Element;
 import org.dom4j.Node;
 
+import com.l2fprod.common.propertysheet.DefaultProperty;
+import com.l2fprod.common.propertysheet.Property;
+
 import pt.lsts.imc.IMCMessage;
 import pt.lsts.imc.PathPoint;
 import pt.lsts.imc.TrajectoryPoint;
@@ -84,12 +88,9 @@ import pt.lsts.neptus.renderer2d.StateRenderer2D;
 import pt.lsts.neptus.renderer2d.StateRendererInteraction;
 import pt.lsts.neptus.types.coord.LocationType;
 import pt.lsts.neptus.types.map.PlanElement;
-import pt.lsts.neptus.util.AngleCalc;
+import pt.lsts.neptus.util.AngleUtils;
 import pt.lsts.neptus.util.FileUtil;
 import pt.lsts.neptus.util.GuiUtils;
-
-import com.l2fprod.common.propertysheet.DefaultProperty;
-import com.l2fprod.common.propertysheet.Property;
 
 /**
  * @author zp
@@ -103,6 +104,10 @@ StateRendererInteraction, IMCSerialization, PathProvider {
     protected static final double RPM_MPS_CONVERSION = (1000/1.3);
     protected static final double RPM_PERCENT_CONVERSION = (1000/100);
     protected static final double PERCENT_MPS_CONVERSION = RPM_MPS_CONVERSION/RPM_PERCENT_CONVERSION;
+    
+    protected static final Color COLOR_HELP = new Color(255, 125, 255);
+    
+    protected String editingHelpText = I18n.text("Shift+Click to rotate | Alt+Click to remove last point");
 
     protected ManeuverLocation startLoc = new ManeuverLocation();
     LocationType previousLoc = null;
@@ -229,6 +234,20 @@ StateRendererInteraction, IMCSerialization, PathProvider {
 
     public void paintOnMap(Graphics2D g2d, PlanElement planElement, StateRenderer2D renderer) {
         super.paintOnMap(g2d, planElement, renderer);
+        
+        if (editing && editingHelpText != null && !editingHelpText.isEmpty()) {
+            Graphics2D g3 = (Graphics2D) g2d.create();
+            Point2D manL = renderer.getScreenPosition(getManeuverLocation());
+            Point2D gL = renderer.getScreenPosition(renderer.getTopLeftLocationType());
+            g3.translate(gL.getX() - manL.getX(), gL.getY() - manL.getY());
+            g3.setFont(new Font("Helvetica", Font.BOLD, 13));
+            g3.setColor(Color.BLACK);
+            g3.drawString(editingHelpText, 55, 15 + 20);
+            g3.setColor(COLOR_HELP);
+            g3.drawString(editingHelpText, 54, 14 + 20);
+            g3.dispose();
+        }
+
         g2d.rotate(-renderer.getRotation());
         g2d.rotate(-Math.PI/2);
         ManeuversUtil.paintPointLineList(g2d, renderer.getZoom(), points, false, 0, editing);
@@ -369,7 +388,7 @@ StateRendererInteraction, IMCSerialization, PathProvider {
     }
 
     public void mousePressed(MouseEvent event, StateRenderer2D source) {
-        adapter.mousePressed(event, source);
+        // adapter.mousePressed(event, source); // Not to rotate the map on shift
     }
 
     public void mouseDragged(MouseEvent event, StateRenderer2D source) {
@@ -389,7 +408,7 @@ StateRendererInteraction, IMCSerialization, PathProvider {
                 bearingRad += Math.PI * 2;
 
             for (double[] pt : points) {
-                double[] ret = AngleCalc.rotate(bearingRad, pt[X], pt[Y], false);
+                double[] ret = AngleUtils.rotate(bearingRad, pt[X], pt[Y], false);
                 pt[X] = ret[X];
                 pt[Y] = ret[Y];
             }
@@ -613,7 +632,8 @@ StateRendererInteraction, IMCSerialization, PathProvider {
             trajMessage.setLat(Math.toRadians(lld[0]));
             trajMessage.setLon(Math.toRadians(lld[1]));
             trajMessage.setZ(getManeuverLocation().getZ());
-            trajMessage.setZUnits(getManeuverLocation().getZUnits().toString());
+            trajMessage.setZUnits(pt.lsts.imc.FollowTrajectory.Z_UNITS.valueOf(
+                    getManeuverLocation().getZUnits().toString()));
             trajMessage.setSpeed(speed);
             try {
                 String speedU = this.getUnits();
@@ -649,7 +669,8 @@ StateRendererInteraction, IMCSerialization, PathProvider {
             pathMessage.setLat(Math.toRadians(lld[0]));
             pathMessage.setLon(Math.toRadians(lld[1]));
             pathMessage.setZ(getManeuverLocation().getZ());
-            pathMessage.setZUnits(getManeuverLocation().getZUnits().toString());
+            pathMessage.setZUnits(pt.lsts.imc.FollowPath.Z_UNITS.valueOf(
+                    getManeuverLocation().getZUnits().toString()));            
             pathMessage.setSpeed(speed);
             try {
                 String speedU = this.getUnits();

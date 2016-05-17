@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2015 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2016 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -42,16 +42,19 @@ public class SidescanPoint {
     public int x,y;
     public int xsize;
     
+    public SidescanLine line;
+    
     /**
      * @param location
      * @param x
      * @param y
      */
-    public SidescanPoint(int x, int y, int xsize, LocationType location) {
+    public SidescanPoint(int x, int y, int xsize, LocationType location, SidescanLine line) {
         super();
         this.location = location;
         this.x = x;
         this.y = y;
         this.xsize = xsize;
+        this.line = line;
     }
 }

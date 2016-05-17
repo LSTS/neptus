@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2015 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2016 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -31,6 +31,8 @@
  */
 package pt.lsts.neptus.mra.plots;
 
+import pt.lsts.imc.EstimatedState;
+import pt.lsts.imc.GpsFix;
 import pt.lsts.imc.IMCMessage;
 import pt.lsts.imc.lsf.LsfIndex;
 import pt.lsts.neptus.i18n.I18n;
@@ -65,44 +67,65 @@ public class ZPlot extends MRATimeSeriesPlot {
 
         TidePredictionFinder tide = TidePredictionFactory.create(source);
 
-        if (source.getDefinitions().getVersion().compareTo("5.0.0") >= 0) {
-            for (IMCMessage es : source.getIterator("EstimatedState", 0, (long)(timestep * 1000))) {
+        EstimatedState firstState = source.getFirst(EstimatedState.class);
+
+        // check if its an UAV...
+        if (firstState != null && firstState.getEntityName().equals("Autopilot")) {
+            for (EstimatedState state : source.getIterator(EstimatedState.class, (long) (timestep * 1000))) {
+                double alt = state.getHeight() - state.getZ();
+                addValue(state.getTimestampMillis(), state.getSourceName() + "." + I18n.text("Altitude"), alt);
+            }
+            
+            for (GpsFix fix : source.getIterator(GpsFix.class, (long) (timestep * 1000))) {
+                double alt = fix.getHeight();
+                addValue(fix.getTimestampMillis(), fix.getSourceName() + "." + I18n.text("GPS Height"), alt);
+            }
+            
+        }
+        else if (source.getDefinitions().getVersion().compareTo("5.0.0") >= 0) {
+            for (IMCMessage es : source.getIterator("EstimatedState", 0, (long) (timestep * 1000))) {
                 double depth = es.getDouble("depth");
                 double alt = es.getDouble("alt");
 
                 if (depth != -1)
-                    addValue(es.getTimestampMillis(), es.getSourceName()+"."  + I18n.text("Depth"), depth);
+                    addValue(es.getTimestampMillis(), es.getSourceName() + "." + I18n.text("Depth"), depth);
 
                 if (alt != -1) {
-                    addValue(es.getTimestampMillis(), es.getSourceName()+"."  + I18n.text("Altitude"), alt);
+                    addValue(es.getTimestampMillis(), es.getSourceName() + "." + I18n.text("Altitude"), alt);
                 }
-                if(depth != -1 && alt != -1) {
+                if (depth != -1 && alt != -1) {
                     if (tide == null)
-                        addValue(es.getTimestampMillis(), es.getSourceName()+"."  + I18n.text("Bathymetry"), Math.max(0, depth) + Math.max(0,alt));
+                        addValue(es.getTimestampMillis(), es.getSourceName() + "." + I18n.text("Bathymetry"),
+                                Math.max(0, depth) + Math.max(0, alt));
                     else {
                         double tHeight = 0;
 
                         try {
-                            tHeight = tide.getTidePrediction(es.getDate(), false);  
-                            addValue(es.getTimestampMillis(), I18n.text("Tide Level"), tHeight);
+                            if (tide != null) {
+                                tHeight = tide.getTidePrediction(es.getDate(), false);
+                                addValue(es.getTimestampMillis(), I18n.text("Tide Level"), tHeight);
+                            }
                         }
                         catch (Exception e) {
                             e.printStackTrace();
                         }
-                        addValue(es.getTimestampMillis(), es.getSourceName()+"."+ I18n.text("Bathymetry"), Math.max(0, depth) + Math.max(0,alt) - tHeight);
-                    }                        
+                        addValue(es.getTimestampMillis(), es.getSourceName() + "." + I18n.text("Bathymetry"),
+                                Math.max(0, depth) + Math.max(0, alt) - tHeight);
+                    }
                 }
-            }    
+            }
         }
         else {
             for (IMCMessage es : source.getIterator("depth")) {
-                addValue(es.getTimestampMillis(), es.getSourceName()+"."  + I18n.text("Depth"), es.getDouble("value"));
+                addValue(es.getTimestampMillis(), es.getSourceName() + "." + I18n.text("Depth"), es.getDouble("value"));
             }
-            for (int i = source.getFirstMessageOfType("BottomDistance"); i != -1; i = source.getNextMessageOfType("BottomDistance", i)) {
+            for (int i = source.getFirstMessageOfType("BottomDistance"); i != -1; i = source.getNextMessageOfType(
+                    "BottomDistance", i)) {
                 IMCMessage m = source.getMessage(i);
                 String entity = source.getEntityName(m.getSrc(), m.getSrcEnt());
                 if (entity.equals("DVL")) {
-                    addValue(m.getTimestampMillis(), m.getSourceName()+"."  + I18n.text("Altitude"), m.getDouble("value"));
+                    addValue(m.getTimestampMillis(), m.getSourceName() + "." + I18n.text("Altitude"),
+                            m.getDouble("value"));
                 }
             }
         }

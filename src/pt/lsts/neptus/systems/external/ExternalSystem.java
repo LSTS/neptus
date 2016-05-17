@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2015 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2016 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -42,7 +42,18 @@ import pt.lsts.neptus.types.vehicle.VehicleType.VehicleTypeEnum;
  */
 public class ExternalSystem implements Comparable<ExternalSystem> {
 
-    public static enum ExternalTypeEnum {UNKNOWN, VEHICLE, CCU, STATICSENSOR, MOBILESENSOR, MANNED_SHIP, MANNED_CAR, MANNED_AIRPLANE, PERSON, ALL};
+    public static enum ExternalTypeEnum {
+        UNKNOWN,
+        VEHICLE,
+        CCU,
+        STATICSENSOR,
+        MOBILESENSOR,
+        MANNED_SHIP,
+        MANNED_CAR,
+        MANNED_AIRPLANE,
+        PERSON,
+        ALL
+    };
     
     protected String id;
     protected SystemTypeEnum type = SystemTypeEnum.UNKNOWN;
@@ -80,7 +91,7 @@ public class ExternalSystem implements Comparable<ExternalSystem> {
      * @return the active
      */
     public boolean isActive() {
-        return active;
+        return active || (locationTimeMillis - System.currentTimeMillis() < 10000);
     }
     
     /**
@@ -107,10 +118,19 @@ public class ExternalSystem implements Comparable<ExternalSystem> {
         setLocationTimeMillis(System.currentTimeMillis());
     }
 
-    public void setLocation(LocationType location, long locationTimeMillis) {
+    /**
+     * Only is override if locationTimeMillis is newer than already there.
+     * 
+     * @param location
+     * @param locationTimeMillis
+     */
+    public boolean setLocation(LocationType location, long locationTimeMillis) {
+        if (locationTimeMillis < getLocationTimeMillis())
+            return false;
         this.location.setLocation(location);
         this.location.convertToAbsoluteLatLonDepth();
         setLocationTimeMillis(locationTimeMillis);
+        return true;
     }
 
     public void setAttitudeDegrees(double rollDegrees, double pitchDegrees, double yawDegrees) {
@@ -120,11 +140,22 @@ public class ExternalSystem implements Comparable<ExternalSystem> {
         setAttitudeTimeMillis(System.currentTimeMillis());
     }
 
-    public void setAttitudeDegrees(double rollDegrees, double pitchDegrees, double yawDegrees, long locationTimeMillis) {
+    /**
+     * Only is override if attitudeTimeMillis is newer than already there.
+     * 
+     * @param rollDegrees
+     * @param pitchDegrees
+     * @param yawDegrees
+     * @param locationTimeMillis
+     */
+    public boolean setAttitudeDegrees(double rollDegrees, double pitchDegrees, double yawDegrees, long attitudeTimeMillis) {
+        if (attitudeTimeMillis < getAttitudeTimeMillis())
+            return false;
         location.setRoll(rollDegrees);
         location.setPitch(pitchDegrees);
         location.setYaw(yawDegrees);
-        setAttitudeTimeMillis(locationTimeMillis);
+        setAttitudeTimeMillis(attitudeTimeMillis);
+        return true;
     }
 
     public void setAttitudeDegrees(double yawDegrees) {
@@ -134,11 +165,20 @@ public class ExternalSystem implements Comparable<ExternalSystem> {
         setAttitudeTimeMillis(System.currentTimeMillis());
     }
 
-    public void setAttitudeDegrees(double yawDegrees, long locationTimeMillis) {
+    /**
+     * Only is override if attitudeTimeMillis is newer than already there.
+     * 
+     * @param yawDegrees
+     * @param locationTimeMillis
+     */
+    public boolean setAttitudeDegrees(double yawDegrees, long attitudeTimeMillis) {
+        if (attitudeTimeMillis < getAttitudeTimeMillis())
+            return false;
         location.setRoll(0);
         location.setPitch(0);
         location.setYaw(yawDegrees);
-        setAttitudeTimeMillis(locationTimeMillis);
+        setAttitudeTimeMillis(attitudeTimeMillis);
+        return true;
     }
 
     public double getRollDegrees() {

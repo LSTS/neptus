@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2015 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2016 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -33,11 +33,12 @@ package pt.lsts.neptus.plugins.europa;
 
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.util.Arrays;
 import java.util.Vector;
 
 import org.apache.commons.lang.StringUtils;
-import org.mozilla.javascript.edu.emory.mathcs.backport.java.util.Arrays;
 
+import Jama.Matrix;
 import psengine.PSEngine;
 import psengine.PSLanguageExceptionList;
 import psengine.PSSolver;
@@ -45,7 +46,6 @@ import psengine.PSStringList;
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.loader.helper.CheckJavaOSArch;
 import pt.lsts.neptus.util.FileUtil;
-import Jama.Matrix;
 
 /**
  * @author zp
@@ -151,7 +151,6 @@ public class EuropaUtils {
         return flaws;
     }
 
-    @SuppressWarnings("unchecked")
     protected static String locateLibrary(String lib) throws Exception {
         String lookFor = System.mapLibraryName(lib);
         Vector<String> path = new Vector<>();

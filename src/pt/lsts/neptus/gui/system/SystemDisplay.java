@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2015 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2016 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -33,12 +33,12 @@ package pt.lsts.neptus.gui.system;
 
 import java.awt.Color;
 import java.awt.Component;
+import java.awt.Dialog.ModalityType;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.Image;
 import java.awt.Insets;
 import java.awt.Toolkit;
-import java.awt.Dialog.ModalityType;
 import java.awt.datatransfer.Clipboard;
 import java.awt.datatransfer.ClipboardOwner;
 import java.awt.datatransfer.DataFlavor;
@@ -77,8 +77,8 @@ import pt.lsts.imc.EntityParameters;
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.comm.manager.imc.ImcMsgManager;
 import pt.lsts.neptus.comm.manager.imc.ImcSystem;
-import pt.lsts.neptus.comm.manager.imc.ImcSystemsHolder;
 import pt.lsts.neptus.comm.manager.imc.ImcSystem.IMCAuthorityState;
+import pt.lsts.neptus.comm.manager.imc.ImcSystemsHolder;
 import pt.lsts.neptus.gui.system.ConnectionSymbol.ConnectionStrengthEnum;
 import pt.lsts.neptus.gui.system.EmergencyTaskSymbol.EmergencyStatus;
 import pt.lsts.neptus.i18n.I18n;
@@ -128,7 +128,7 @@ public class SystemDisplay extends JXPanel implements Comparable<SystemDisplay>,
 	private boolean active = false;
 	private boolean selected = false;
 	private boolean enableSelection = true;
-	private ImcSystem.IMCAuthorityState withAuthority = IMCAuthorityState.NONE;;
+	private ImcSystem.IMCAuthorityState withAuthority = IMCAuthorityState.NONE;
 	private boolean taskAlocated = false;
 	private boolean emergencyTaskAlocated = false;
 	private boolean attentionAlert = false;

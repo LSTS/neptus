@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2015 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2016 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -59,23 +59,24 @@ public class CtdPlot extends MRACombinedPlot {
 
     @Override
     public void process(LsfIndex source) {
-        int rightEntity = source.getMessage(source.getFirstMessageOfType(("Conductivity"))).getSrcEnt();
+        
+        for (IMCMessage c : source.getIterator("Conductivity")) {
+            String entity = source.getEntityName(c.getSrc(), c.getSrcEnt());
+            if ("CTD".equals(entity))
+                addValue(c.getTimestampMillis(), "Conductivity."+c.getSourceName(), c.getDouble("value"));
+        }
 
-        for (IMCMessage c : source.getIterator("Conductivity"))
-            addValue(c.getTimestampMillis(), "Conductivity."+c.getSourceName(), c.getDouble("value"));
-
-        for (IMCMessage c : source.getIterator("Temperature"))
-            if (c.getSrcEnt() != rightEntity)
-                continue;
-            else                
+        
+        for (IMCMessage c : source.getIterator("Temperature")) {
+            String entity = source.getEntityName(c.getSrc(), c.getSrcEnt());
+            if ("CTD".equals(entity))
                 addValue(c.getTimestampMillis(), "Temperature."+c.getSourceName(), c.getDouble("value"));
+        }
 
-        for (IMCMessage c : source.getIterator("Pressure"))
-            if (c.getSrcEnt() != rightEntity)
-                continue;
-            else                
+        for (IMCMessage c : source.getIterator("Pressure")) {
+            String entity = source.getEntityName(c.getSrc(), c.getSrcEnt());
+            if ("CTD".equals(entity))
                 addValue(c.getTimestampMillis(), "Pressure."+c.getSourceName(), c.getDouble("value"));
-
+        }
     }
-
 }

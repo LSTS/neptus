@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2015 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2016 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -35,6 +35,7 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.Date;
@@ -43,7 +44,8 @@ import java.util.Map.Entry;
 import java.util.Properties;
 import java.util.Vector;
 
-import org.mozilla.javascript.edu.emory.mathcs.backport.java.util.Arrays;
+import com.l2fprod.common.propertysheet.DefaultProperty;
+import com.l2fprod.common.propertysheet.Property;
 
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.gui.PropertiesEditor;
@@ -52,9 +54,6 @@ import pt.lsts.neptus.mra.visualizations.MRAVisualization;
 import pt.lsts.neptus.plugins.NeptusProperty;
 import pt.lsts.neptus.plugins.PluginUtils;
 import pt.lsts.neptus.plugins.PluginsRepository;
-
-import com.l2fprod.common.propertysheet.DefaultProperty;
-import com.l2fprod.common.propertysheet.Property;
 
 /**
  * These are Neptus MRA default properties
@@ -93,8 +92,11 @@ public class MRAProperties implements PropertiesProvider {
     @NeptusProperty(name = "Apply Sound Speed Correction", description = "Apply sound speed correction.", category = "Multibeam")
     public static boolean soundSpeedCorrection = false;
 
+    @NeptusProperty(name = "Generate DeltaT Process Report", description = "Generate DeltaT process report. Does not generate if already exist the report or the bathy.info is present. (Re-generate the index for successful generation.)", category = "Multibeam")
+    public static boolean generateDeltaTProcessReport = false;
+
     @NeptusProperty(name = "Maximum depth for bathymetry plots", description = "Maximum depth to be used in bathymetry plots.")
-    public static double maxBathymDepth = 15;
+    public static double maxBathymDepth = 110;
 
     @NeptusProperty(name = "Print page number in generated reports")
     public static boolean printPageNumbers = true;
@@ -151,7 +153,6 @@ public class MRAProperties implements PropertiesProvider {
         Depth_Sensor
     }
 
-    @SuppressWarnings("unchecked")
     @Override
     public DefaultProperty[] getProperties() {
         Vector<DefaultProperty> props = new Vector<DefaultProperty>();

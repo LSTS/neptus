@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2015 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2016 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -41,12 +41,12 @@ import javax.swing.BorderFactory;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 
-import pt.lsts.neptus.util.GuiUtils;
-import pt.lsts.neptus.util.conf.GeneralPreferences;
-
 import com.l2fprod.common.propertysheet.Property;
 import com.l2fprod.common.propertysheet.PropertySheet;
 import com.l2fprod.common.propertysheet.PropertySheetPanel;
+
+import pt.lsts.neptus.util.GuiUtils;
+import pt.lsts.neptus.util.conf.GeneralPreferences;
 
 /**
  * This class provides a panel that show the properties of a given PropertiesProvider

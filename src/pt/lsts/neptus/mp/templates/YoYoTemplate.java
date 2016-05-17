@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2015 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2016 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -31,14 +31,16 @@
  */
 package pt.lsts.neptus.mp.templates;
 
+import java.util.LinkedHashMap;
+
+import com.l2fprod.common.propertysheet.DefaultProperty;
+
 import pt.lsts.neptus.comm.IMCUtils;
 import pt.lsts.neptus.mp.Maneuver.SPEED_UNITS;
 import pt.lsts.neptus.plugins.NeptusProperty;
 import pt.lsts.neptus.plugins.PluginDescription;
 import pt.lsts.neptus.types.coord.LocationType;
 import pt.lsts.neptus.types.mission.plan.PlanType;
-
-import com.l2fprod.common.propertysheet.DefaultProperty;
 
 /**
  * @author zepinto
@@ -87,6 +89,7 @@ public class YoYoTemplate extends AbstractPlanTemplate {
     protected static final int DIR_YUP = 0, DIR_X1 = 1, DIR_YDOWN = 2, DIR_X2 = 3;
 
     public PlanType generatePlan() throws Exception {
+        
         PlanCreator planCreator = new PlanCreator(mission);
         planCreator.setSpeed(speed, SPEED_UNITS.METERS_PS);
         
@@ -97,7 +100,9 @@ public class YoYoTemplate extends AbstractPlanTemplate {
         planCreator.setLocation(center);
         planCreator.move(Math.sin(ang) * radius + vn * time, Math.cos(ang) * radius + ve * time);
         planCreator.setDepth(mindepth);
-        planCreator.addGoto(null);
+        LinkedHashMap<String, Object> map = new LinkedHashMap<String, Object>();
+        map.put("timeout", 45);
+        planCreator.addGoto(map);
         if (popup > 0) {
             planCreator.setDepth(0);
             planCreator.addManeuver("PopUp", "duration", popup, "radius", 20);
