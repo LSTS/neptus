@@ -55,7 +55,7 @@ public class TestMST {
     }
 
     public static void main(String[] args) {
-        GridArea grid = new GridArea(60, 250, 250, LocationType.FEUP);
+        GridArea grid = new GridArea(60, 250, 250, 0, LocationType.FEUP);
         grid.decomposeMap();
 
         printMST(grid.getAllCells()[3][4]);

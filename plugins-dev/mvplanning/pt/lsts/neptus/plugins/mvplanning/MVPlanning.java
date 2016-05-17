@@ -228,7 +228,7 @@ public class MVPlanning extends ConsolePanel implements PlanChangeListener, Rend
                 ParallelepipedElement elem = (ParallelepipedElement) event.getChangedObject();
                 LocationType lt = elem.getCenterLocation();
 
-                opArea = new GridArea(60, elem.getWidth(), elem.getLength(), lt);
+                opArea = new GridArea(60, elem.getWidth(), elem.getLength(), elem.getYawRad(), lt);
                 opArea.decomposeMap();
 
                 mst = new MST(opArea.getAllCells()[0][0]);

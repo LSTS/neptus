@@ -39,6 +39,9 @@ import java.awt.geom.Rectangle2D;
 import java.util.ArrayList;
 import java.util.List;
 
+import pt.lsts.neptus.mp.Maneuver;
+import pt.lsts.neptus.mp.ManeuverLocation;
+import pt.lsts.neptus.mp.maneuvers.LocatedManeuver;
 import pt.lsts.neptus.plugins.mvplanning.Environment;
 import pt.lsts.neptus.plugins.mvplanning.planning.GridCell;
 import pt.lsts.neptus.plugins.mvplanning.interfaces.MapCell;
@@ -47,6 +50,8 @@ import pt.lsts.neptus.renderer2d.StateRenderer2D;
 import pt.lsts.neptus.types.coord.LocationType;
 import pt.lsts.neptus.types.map.AbstractElement;
 import pt.lsts.neptus.types.map.GeometryElement;
+import pt.lsts.neptus.util.AngleUtils;
+import pt.lsts.neptus.util.coord.MapTileUtil;
 
 /**
  * Decomposes a given area into a grid
@@ -75,10 +80,11 @@ public class GridArea extends GeometryElement implements MapDecomposition {
     /**
      * Used just for testing
      * */
-    public GridArea(double cellWidth, double gridWidth, double gridHeight, LocationType center) {
+    public GridArea(double cellWidth, double gridWidth, double gridHeight, double yawRad, LocationType center) {
         this.cellWidth = cellWidth;
         this.gridWidth = gridWidth;
         this.gridHeight = gridHeight;
+        this.setYaw(yawRad);
         this.center = center;
 
         setWidth(gridWidth);
@@ -87,10 +93,11 @@ public class GridArea extends GeometryElement implements MapDecomposition {
         this.bounds = computeGridBounds();
     }
 
-    public GridArea(double cellWidth, double gridWidth, double gridHeight, LocationType center, Environment env) {
+    public GridArea(double cellWidth, double gridWidth, double gridHeight, double yawRad, LocationType center, Environment env) {
         this.cellWidth = cellWidth;
         this.gridWidth = gridWidth;
         this.gridHeight = gridHeight;
+        this.setYaw(yawRad);
         this.center = center;
         this.env = env;
 
@@ -276,10 +283,29 @@ public class GridArea extends GeometryElement implements MapDecomposition {
                 id++;
             }
 
+        rotateCells(newGrid, this.center, this.getYaw());
+
         GridArea newGridArea = new GridArea(newGrid, newCellWidth, newCellHeight, newRows, newCols, this.center, this.env);
         newGridArea.setBounds(this.bounds);
 
         return newGridArea;
+    }
+
+    private void rotateCells(GridCell[][] cells, LocationType pivot, double yaw) {
+        if(yaw == 0 || (yaw % 2*Math.PI) == 0)
+            return;
+
+        for (GridCell[] row : cells) {
+            for(GridCell cell : row) {
+                if(!cell.getLocation().isLocationEqual(pivot)) {
+                    double[] top = pivot.getOffsetFrom(cell.getLocation());
+                    double[] topR = AngleUtils.rotate(yaw, top[0], top[1], false);
+                    double deltaX = topR[0];
+                    double deltaY = topR[1];
+                    cell.getLocation().translatePosition(top[0] - deltaX, top[1] - deltaY, 0);
+                }
+            }
+        }
     }
 
     public void setBounds(LocationType[] bounds) {
@@ -330,9 +356,13 @@ public class GridArea extends GeometryElement implements MapDecomposition {
         double scaledWidth = cellWidth * renderer.getZoom();
         double scaledHeight = cellHeight * renderer.getZoom();
         Point2D topLeftP = renderer.getScreenPosition(bounds[0]);
+        Point2D centerP = renderer.getScreenPosition(center);
 
         Rectangle2D.Double cellRec = new Rectangle2D.Double(0, 0, scaledWidth, scaledHeight);
 
+        g.translate(centerP.getX(), centerP.getY());
+        g.rotate(getYaw() - renderer.getRotation());
+        g.translate(-centerP.getX(), -centerP.getY());
         for(int i = 0; i < nrows; i++) {
             for(int j = 0; j < ncols; j++) {
                 Graphics2D g2 = (Graphics2D) g.create();
@@ -346,9 +376,10 @@ public class GridArea extends GeometryElement implements MapDecomposition {
                 else
                     g2.draw(cellRec);
 
+                g2.translate(-(topLeftP.getX() + horizontalShift), -(topLeftP.getY() + verticalShift));
+
                 g2.dispose();
             }
-            g.setTransform(new AffineTransform());
         }
     }
 
