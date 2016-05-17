@@ -290,17 +290,9 @@ public class GridArea extends GeometryElement implements MapDecomposition {
         if(yaw == 0 || (yaw % 2*Math.PI) == 0)
             return;
 
-        for (GridCell[] row : cells) {
-            for(GridCell cell : row) {
-                if(!cell.getLocation().isLocationEqual(pivot)) {
-                    double[] top = pivot.getOffsetFrom(cell.getLocation());
-                    double[] topR = AngleUtils.rotate(yaw, top[0], top[1], false);
-                    double deltaX = topR[0];
-                    double deltaY = topR[1];
-                    cell.getLocation().translatePosition(top[0] - deltaX, top[1] - deltaY, 0);
-                }
-            }
-        }
+        for(GridCell[] row : cells)
+            for(GridCell cell : row)
+                cell.rotate(yaw, pivot);
     }
 
     public void setBounds(LocationType[] bounds) {

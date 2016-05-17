@@ -38,6 +38,7 @@ import java.util.List;
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.plugins.mvplanning.interfaces.MapCell;
 import pt.lsts.neptus.types.coord.LocationType;
+import pt.lsts.neptus.util.AngleUtils;
 
 /**
  * @author tsmarques
@@ -70,6 +71,16 @@ public class GridCell extends MapCell {
 
     public int getColumn() {
         return col;
+    }
+
+    @Override
+    public void rotate(double yaw, LocationType pivot) {
+        if(!pivot.isLocationEqual(this.centerLoc)) {
+            double offsets[] = pivot.getOffsetFrom(centerLoc);
+            double deltas[] = AngleUtils.rotate(yaw, offsets[0], offsets[1], false);
+
+            this.centerLoc.translatePosition(offsets[0] - deltas[0], offsets[1] - deltas[1], 0);
+        }
     }
 
     @Override

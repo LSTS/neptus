@@ -75,6 +75,12 @@ public abstract class MapCell {
      * */
     public abstract LocationType getLocation();
 
+    /**
+     * Rotates this cell by 'yaw' radians around a
+     * pivot location
+     * */
+    public abstract void rotate(double yaw, LocationType pivot);
+
 
     public String id() {
         return id;
