@@ -72,7 +72,10 @@ public class Environment implements MapChangeListener {
 
     @Override
     public void mapChanged(MapChangeEvent mapChange) {
-        if(mapChange != null)
-            addObstacle(mapChange.getChangedObject());
+        if(mapChange != null) {
+            AbstractElement object = mapChange.getChangedObject();
+            if(object.isObstacle())
+                addObstacle(object);
+        }
     }
 }
