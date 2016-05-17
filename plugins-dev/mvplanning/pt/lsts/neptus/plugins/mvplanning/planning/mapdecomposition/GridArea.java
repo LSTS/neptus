@@ -157,12 +157,7 @@ public class GridArea extends GeometryElement implements MapDecomposition {
     public void decomposeMap() {
         /* operational area bounds */
         LocationType topLeft = bounds[0];
-        LocationType topRight = bounds[1];
-        LocationType bottomLeft = bounds[2];
 
-        /* operational area dimensions (rounded to 2 decimal places) */
-        gridWidth = (int) Math.ceil(topRight.getDistanceInMeters(topLeft) * 100) / 100;
-        gridHeight = (int) Math.ceil(bottomLeft.getDistanceInMeters(topLeft) * 100) / 100;
         cellHeight = (int) Math.ceil(cellWidth * (gridHeight / gridWidth));
 
         ncols = (int) Math.ceil(gridWidth / cellWidth);
