@@ -71,7 +71,7 @@ public class GridArea extends GeometryElement implements MapDecomposition {
 
     private int nrows;
     private int ncols;
-    private LocationType[] bounds;
+    private LocationType topLeft;
     private GridCell[][] decomposedMap;
 
     /* Used to check for obstacles */
@@ -91,7 +91,7 @@ public class GridArea extends GeometryElement implements MapDecomposition {
         setWidth(gridWidth);
         setHeight(gridHeight);
 
-        this.bounds = computeGridBounds();
+        this.topLeft = computeTopLeftLocation();
     }
 
     public GridArea(double cellWidth, double gridWidth, double gridHeight, double yawRad, LocationType center, Environment env) {
@@ -105,6 +105,8 @@ public class GridArea extends GeometryElement implements MapDecomposition {
 
         setWidth(gridWidth);
         setHeight(gridHeight);
+
+        this.topLeft = computeTopLeftLocation();
     }
 
     /**
@@ -125,31 +127,19 @@ public class GridArea extends GeometryElement implements MapDecomposition {
         setHeight(gridHeight);
     }
 
-    /**
-     * From the center location and grid's height and width
-     * compute its vertices' locations
-     * */
-    private LocationType[] computeGridBounds() {
+    private LocationType computeTopLeftLocation() {
         LocationType topLeft = new LocationType(center);
-        LocationType topRight = new LocationType(center);
-        LocationType bottomLeft = new LocationType(center);
-        LocationType bottomRight = new LocationType(center);
 
         topLeft.setOffsetWest(gridWidth/2);
         topLeft.setOffsetNorth(gridHeight/2);
 
-        topRight.setOffsetEast(gridWidth/2);
-        topRight.setOffsetNorth(gridHeight/2);
+        /* Rotate this location aroun the area's center */
+        double offsets[] = center.getOffsetFrom(topLeft);
+        double deltas[] = AngleUtils.rotate(getYaw(), offsets[0], offsets[1], false);
 
-        bottomLeft.setOffsetWest(gridWidth/2);
-        bottomLeft.setOffsetSouth(gridHeight/2);
+        topLeft.translatePosition(offsets[0] - deltas[0], offsets[1] - deltas[1], 0);
 
-        bottomRight.setOffsetEast(gridWidth/2);
-        bottomRight.setOffsetSouth(gridHeight/2);
-
-        LocationType[] gridBounds = {topLeft, topRight, bottomLeft, bottomRight};
-
-        return gridBounds;
+        return topLeft;
     }
 
     /**
@@ -157,9 +147,6 @@ public class GridArea extends GeometryElement implements MapDecomposition {
      * */
     @Override
     public void decomposeMap() {
-        /* operational area bounds */
-        LocationType topLeft = bounds[0];
-
         ncols = (int) Math.ceil(gridWidth / cellWidth);
         nrows = (int) Math.ceil(gridHeight / cellHeight);
 
@@ -180,10 +167,10 @@ public class GridArea extends GeometryElement implements MapDecomposition {
                 /* TODO set correct bounds for each map cells (set vertices) */
                 decomposedMap[i][j] = new GridCell(cellLoc, i, j, false);
                 decomposedMap[i][j].setId("" + nodeId);
+                decomposedMap[i][j].rotate(getYaw(), topLeft);
                 nodeId++;
 
                 /* neighbour cells */
-
                 if(i != 0) {
                     /* cell above me is my neighbour,
                      * and I'm neighbour its */
@@ -267,6 +254,12 @@ public class GridArea extends GeometryElement implements MapDecomposition {
                 newGrid[2*i][2*j + 1] = new GridCell(topRight, 2*i, 2*j+1, false);
                 newGrid[2*i + 1][2*j] = new GridCell(bottomLeft, 2*i + 1, 2*j, false);
                 newGrid[2*i + 1][2*j + 1] = new GridCell(bottomRight, 2*i + 1, 2*j + 1, false);
+
+                /* rotate cells into position */
+                newGrid[2*i][2*j].rotate(getYaw(), cellCenter);
+                newGrid[2*i][2*j + 1].rotate(getYaw(), cellCenter);
+                newGrid[2*i + 1][2*j].rotate(getYaw(), cellCenter);
+                newGrid[2*i + 1][2*j + 1].rotate(getYaw(), cellCenter);
             }
         }
         /* Set cells' id */
@@ -278,30 +271,14 @@ public class GridArea extends GeometryElement implements MapDecomposition {
                 id++;
             }
 
-        rotateCells(newGrid, this.center, this.getYaw());
-
         GridArea newGridArea = new GridArea(newGrid, newCellWidth, newCellHeight, newRows, newCols, this.center, this.env);
-        newGridArea.setBounds(this.bounds);
+        newGridArea.setTopLeftLocation(this.topLeft);
 
         return newGridArea;
     }
 
-    private void rotateCells(GridCell[][] cells, LocationType pivot, double yaw) {
-        if(yaw == 0 || (yaw % 2*Math.PI) == 0)
-            return;
-
-        for(GridCell[] row : cells)
-            for(GridCell cell : row)
-                cell.rotate(yaw, pivot);
-    }
-
-    public void setBounds(LocationType[] bounds) {
-        this.bounds = bounds;
-    }
-
-    @Override
-    public LocationType[] getBounds() {
-        return bounds;
+    public void setTopLeftLocation(LocationType topLeft) {
+        this.topLeft = topLeft;
     }
 
     /**
@@ -342,7 +319,7 @@ public class GridArea extends GeometryElement implements MapDecomposition {
         g.setTransform(new AffineTransform());
         double scaledWidth = cellWidth * renderer.getZoom();
         double scaledHeight = cellHeight * renderer.getZoom();
-        Point2D topLeftP = renderer.getScreenPosition(bounds[0]);
+        Point2D topLeftP = renderer.getScreenPosition(topLeft);
         Point2D centerP = renderer.getScreenPosition(center);
 
         Rectangle2D.Double cellRec = new Rectangle2D.Double(0, 0, scaledWidth, scaledHeight);

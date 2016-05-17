@@ -48,19 +48,13 @@ public interface MapDecomposition {
      * the decomposition strategy
      * */
     public void decomposeMap();
-    
+
     /**
      * Split this MapDecomposition into n
      * parts.
      * @return null if n is 0 or 1
      * */
     public MapDecomposition[] split(int n);
-
-
-    /**
-     * Get all the area/decomposition vertices
-     * */
-    public LocationType[] getBounds();
 
     /**
      * Given a map area, returns the list of cells that
