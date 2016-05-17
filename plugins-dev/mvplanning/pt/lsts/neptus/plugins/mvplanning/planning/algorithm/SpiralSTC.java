@@ -99,7 +99,6 @@ public class SpiralSTC {
     private void generateTransition(List<ManeuverLocation> path, GridCell sourceSubCell, GridCell destSubCell, GridArea subCells, int prevDir, int nextDir) {
         /* Maintaining same direction from previous movement (Normal, linear, transition) */
         if((prevDir == nextDir) || (prevDir == NONE)) {
-            addNewNode(path, sourceSubCell);
             addNewNode(path, destSubCell);
         }
         else if(prevDir == -nextDir) {
@@ -116,7 +115,6 @@ public class SpiralSTC {
      * */
     private void changeDirectionTransition(List<ManeuverLocation> path, GridCell sourceSubCell, GridCell destSubCell, GridArea subCells, int prevDir, int nextDir) {
         if(sourceSubCell.isNeighbour(destSubCell.getRow(), destSubCell.getColumn())) {
-            addNewNode(path, sourceSubCell);
             addNewNode(path, destSubCell);
         }
         else {
@@ -147,7 +145,6 @@ public class SpiralSTC {
             }
 
             GridCell cornerSubCell = subCells.getAllCells()[cornerRow][cornerCol];
-            addNewNode(path, sourceSubCell);
             addNewNode(path, cornerSubCell);
             addNewNode(path, destSubCell);
         }
