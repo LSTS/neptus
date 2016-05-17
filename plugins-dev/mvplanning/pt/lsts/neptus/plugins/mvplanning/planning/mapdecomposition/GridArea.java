@@ -92,6 +92,7 @@ public class GridArea extends GeometryElement implements MapDecomposition {
         setHeight(gridHeight);
 
         this.topLeft = computeTopLeftLocation();
+        decomposeMap();
     }
 
     public GridArea(double cellWidth, double gridWidth, double gridHeight, double yawRad, LocationType center, Environment env) {
@@ -107,6 +108,7 @@ public class GridArea extends GeometryElement implements MapDecomposition {
         setHeight(gridHeight);
 
         this.topLeft = computeTopLeftLocation();
+        decomposeMap();
     }
 
     /**
