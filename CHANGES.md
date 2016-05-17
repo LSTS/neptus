@@ -3,7 +3,10 @@ Changes
 
 Neptus 4.3.0 (17-05-2016)
 ------------
- * |Too many changes to list here, check git change.|
+ * IMC: Updated IMC (e45bef5) and IMCJava (828667d) (v5.4.8.x).
+ * Vehicles: Updated systems parameters to DUNE (dune-2016.05.0-dmsmw, 5a841ca).
+ * I18n: Updated POT and translations.
+ * |Too many changes to list here, check git log.|
 
  Prev changes
  
