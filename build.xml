@@ -56,10 +56,10 @@ For simple use the main targets are:
 	<!-- Defines variables used by the other targets                         -->
 	<!-- =================================================================== -->
 	<property name="version.MAJOR" value="4" />
-	<property name="version.MINOR" value="3" />
+	<property name="version.MINOR" value="4" />
 	<property name="version.PATCH" value="0" />
 	<!-- Set this to '-dev' if a developer release; blank "" if maintenance release; or '-rcX' for release candidate X (X number) -->
-	<property name="version.DEVELOPER" value="" />
+	<property name="version.DEVELOPER" value="dev" />
 	<!-- Set the release number. Use the form 'R14.01' for release 1 of year 2014. Or leave it blank for a non release -->
 	<property name="release.NAME" value="R16.05" />
 	<property name="release.INFO" value="${release.NAME}"/>
