@@ -82,6 +82,7 @@ public class GridArea extends GeometryElement implements MapDecomposition {
      * */
     public GridArea(double cellWidth, double gridWidth, double gridHeight, double yawRad, LocationType center) {
         this.cellWidth = cellWidth;
+        this.cellHeight = cellWidth;
         this.gridWidth = gridWidth;
         this.gridHeight = gridHeight;
         this.setYaw(yawRad);
@@ -95,6 +96,7 @@ public class GridArea extends GeometryElement implements MapDecomposition {
 
     public GridArea(double cellWidth, double gridWidth, double gridHeight, double yawRad, LocationType center, Environment env) {
         this.cellWidth = cellWidth;
+        this.cellHeight = cellWidth;
         this.gridWidth = gridWidth;
         this.gridHeight = gridHeight;
         this.setYaw(yawRad);
@@ -157,8 +159,6 @@ public class GridArea extends GeometryElement implements MapDecomposition {
     public void decomposeMap() {
         /* operational area bounds */
         LocationType topLeft = bounds[0];
-
-        cellHeight = (int) Math.ceil(cellWidth * (gridHeight / gridWidth));
 
         ncols = (int) Math.ceil(gridWidth / cellWidth);
         nrows = (int) Math.ceil(gridHeight / cellHeight);
