@@ -58,8 +58,7 @@ public class SpiralSTC {
     private List<ManeuverLocation> path;
 
     public SpiralSTC(GridArea areaToCover) {
-        System.out.println("PIM");
-        this.minSpanningTree = new MST(areaToCover.getAreaCells().get(10));
+        this.minSpanningTree = new MST(areaToCover.getAreaCells().get(0));
         this.path = generatePath(areaToCover);
     }
 
@@ -71,41 +70,39 @@ public class SpiralSTC {
         /* Build graph */
         List<ManeuverLocation> path = new ArrayList<>();
         GridArea subCells = areaToCover.splitMegaCells();
+        List<MapCell> nodeSequence = minSpanningTree.getNodeSequence();
 
-        GridCell previousSubCell = null;
-        GridCell previousCell = null;
-        int previousDirection = 0;
+        GridCell currSubCell = null;
+        GridCell newSubCell = null;
+        int previousDirection = NONE;
         boolean firstNode = true;
-        for(MapCell node : minSpanningTree.getNodeSequence()) {
-            GridCell newSubCell;
-            if(firstNode) {
-                newSubCell = computeStartSubCell((GridCell) node, minSpanningTree, subCells);
+        for(int i = 0; i < nodeSequence.size() - 1; i++) {
+            GridCell currCell = (GridCell) nodeSequence.get(i);
 
-                addNewNode(path, newSubCell);
+            if(firstNode) {
+                currSubCell = computeStartSubCell(currCell, minSpanningTree, subCells);
                 firstNode = false;
             }
-            else {
-                /* Direction from previous mega-cell to the current one */
-                int nextDir = getNextDirection(previousCell, (GridCell) node);
-                newSubCell = computeNewDestination(path, nextDir, previousDirection, previousSubCell, previousCell, (GridCell) node, subCells);
+            GridCell nextCell = (GridCell) nodeSequence.get(i+1);
+            /* Direction from the current mega-cell to the next one */
+            int nextDir = getNextDirection(currCell, nextCell);
+            newSubCell = computeNewDestination(path, nextDir, previousDirection, nextCell, subCells);
 
-                generateTransition(path, previousSubCell, newSubCell, subCells, previousDirection, nextDir);
+            generateTransition(path, currSubCell, newSubCell, subCells, previousDirection, nextDir);
 
-                /* if back at the first subcell, add it */
-                if(node.id().equals(minSpanningTree.startCell().id()))
-                    addNewNode(path, newSubCell);
-
-                previousDirection = nextDir;
-            }
-            previousSubCell = newSubCell;
-            previousCell = (GridCell) node;
+            previousDirection = nextDir;
+            currSubCell = newSubCell;
         }
+        /* add last subcell */
+        addNewNode(path, newSubCell);
         return path;
     }
 
     private void generateTransition(List<ManeuverLocation> path, GridCell sourceSubCell, GridCell destSubCell, GridArea subCells, int prevDir, int nextDir) {
+        if(prevDir == NONE)
+            addNewNode(path, sourceSubCell);
         /* as an optimization, ignore colinear nodes */
-        if(prevDir != nextDir && prevDir != NONE) {
+        else if(prevDir != nextDir) {
             if(prevDir == -nextDir)
                 goAroundLeafNode(path, nextDir, sourceSubCell, subCells);
             else /* changing direction */
@@ -204,10 +201,9 @@ public class SpiralSTC {
     /**
      * Computes the next subcell(s) the vehicle is going to move into
      * */
-    public GridCell computeNewDestination(List<ManeuverLocation> path, int nextDir, int prevDir, GridCell currSubCell, GridCell sourceMegaCell, GridCell destMegaCell, GridArea subCells) {
+    public GridCell computeNewDestination(List<ManeuverLocation> path, int nextDir, int prevDir, GridCell destMegaCell, GridArea subCells) {
         if(nextDir == 0) {
-            NeptusLog.pub().error("Couldn't compute direction from " + sourceMegaCell.id() + " to " + destMegaCell.id());
-
+            NeptusLog.pub().error("Couldn't compute direction to " + destMegaCell.id());
             return null;
         }
         else {
@@ -247,88 +243,47 @@ public class SpiralSTC {
      * Generates a path that goes around a spanning tree's leaf node
      * */
     private void goAroundLeafNode(List<ManeuverLocation> path, int nextDir, GridCell currSubCell, GridArea subCells) {
-        if(nextDir == UP)
-            goAroundDown(path, currSubCell, subCells);
-        else if(nextDir == DOWN)
-            goAroundUp(path, currSubCell, subCells);
-        else if(nextDir == LEFT)
-            goAroundRight(path, currSubCell, subCells);
-        else if(nextDir == RIGHT)
-            goAroundLeft(path, currSubCell, subCells);
+        GridCell[][] cells = subCells.getAllCells();
+        int currRow = currSubCell.getRow();
+        int currCol = currSubCell.getColumn();
+
+        if(nextDir == UP) {
+            /* Move one sub-cell down */
+            currRow++;
+            addNewNode(path, cells[currRow][currCol]);
+
+            /* Then, move one sub-cell right */
+            currCol++;
+            addNewNode(path, cells[currRow][currCol]);
+        }
+        else if(nextDir == DOWN) {
+            /* Move one sub-cell up */
+            currRow--;
+            addNewNode(path, cells[currRow][currCol]);
+
+            /* Then, move one sub-cell left */
+            currCol--;
+            addNewNode(path, cells[currRow][currCol]);
+        }
+        else if(nextDir == LEFT) {
+            /* Move one sub-cell to the right */
+            currCol++;
+            addNewNode(path, cells[currRow][currCol]);
+
+            /* Then, move one sub-cell up */
+            currRow--;
+            addNewNode(path, cells[currRow][currCol]);
+        }
+        else if(nextDir == RIGHT) {
+            currCol--;
+            addNewNode(path, cells[currRow][currCol]);
+
+            /* Then, move one sub-cell down */
+            currRow++;
+            addNewNode(path, cells[currRow][currCol]);
+        }
         else
             NeptusLog.pub().error("Can't go around leaf node from " + currSubCell.id() + " sub-cell");
-    }
-
-    private void goAroundUp(List<ManeuverLocation> path, GridCell currSubCell, GridArea subCells) {
-        GridCell[][] cells = subCells.getAllCells();
-        int currRow = currSubCell.getRow();
-        int currCol = currSubCell.getColumn();
-
-        /* Move one sub-cell to the up */
-        currRow--;
-        addNewNode(path, cells[currRow][currCol]);
-
-        /* Then, move one sub-cell left */
-        currCol--;
-        addNewNode(path, cells[currRow][currCol]);
-
-        /* Then, move 1 sub-cell down */
-        currRow++;
-        addNewNode(path, cells[currRow][currCol]);
-    }
-
-    private void goAroundDown(List<ManeuverLocation> path, GridCell currSubCell, GridArea subCells) {
-        GridCell[][] cells = subCells.getAllCells();
-        int currRow = currSubCell.getRow();
-        int currCol = currSubCell.getColumn();
-
-        /* Move one sub-cell to the down */
-        currRow++;
-        addNewNode(path, cells[currRow][currCol]);
-
-        /* Then, move one sub-cell right */
-        currCol++;
-        addNewNode(path, cells[currRow][currCol]);
-
-        /* Then, move 1 sub-cells up */
-        currRow--;
-        addNewNode(path, cells[currRow][currCol]);
-    }
-
-    private void goAroundLeft(List<ManeuverLocation> path, GridCell currSubCell, GridArea subCells) {
-        GridCell[][] cells = subCells.getAllCells();
-        int currRow = currSubCell.getRow();
-        int currCol = currSubCell.getColumn();
-
-        /* Move one sub-cell to the left */
-        currCol--;
-        addNewNode(path, cells[currRow][currCol]);
-
-        /* Then, move one sub-cell down */
-        currRow++;
-        addNewNode(path, cells[currRow][currCol]);
-
-        /* Then, move 1 sub-cells right */
-        currCol++;
-        addNewNode(path, cells[currRow][currCol]);
-    }
-
-    private void goAroundRight(List<ManeuverLocation> path, GridCell currSubCell, GridArea subCells) {
-        GridCell[][] cells = subCells.getAllCells();
-        int currRow = currSubCell.getRow();
-        int currCol = currSubCell.getColumn();
-
-        /* Move one sub-cell to the right */
-        currCol++;
-        addNewNode(path, cells[currRow][currCol]);
-
-        /* Then, move one sub-cell up */
-        currRow--;
-        addNewNode(path, cells[currRow][currCol]);
-
-        /* Then, move 1 sub-cells left */
-        currCol--;
-        addNewNode(path, cells[currRow][currCol]);
     }
 
     /**
