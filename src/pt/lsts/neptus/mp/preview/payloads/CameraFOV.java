@@ -262,4 +262,11 @@ public class CameraFOV {
 
         return result;
     }    
+    
+    @Override
+    public String toString() {
+        return String.format("CameraFOV{hAOV=%.2f, vAOV=%.2f, tilt=%.2f, %s -> %s (%.2f)", Math.toDegrees(hAOV),
+                Math.toDegrees(vAOV), Math.toDegrees(tilt), getLocation(), getLookAt(),
+                getLocation().getDistanceInMeters(getLookAt()));
+    }
 }

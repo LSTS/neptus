@@ -114,7 +114,32 @@ public class PayloadFactory {
                 }                
             }
             if (active)
-                pf.add(new CameraFootprint(Math.toRadians(45.2), Math.toRadians(59.3), 6, Color.magenta.darker().darker()));
+                pf.add(new CameraFootprint(Math.toRadians(LumeneraHFOV), Math.toRadians(LumeneraVFOV), 6, Color.magenta.darker().darker()));
+        }
+        else if (msg.getName().equals("UAVCamera")) {
+            boolean active = false;
+            String model = "";
+            for (EntityParameter p : msg.getParams()) {
+                if (p.getName().equals("Active")) {
+                    active = p.getValue().equalsIgnoreCase("true");
+                }
+                if (p.getName().equals("Onboard Camera"))
+                    model = ""+p.getValue();
+            }
+            Color color = new Color(100,0,100,128);
+            switch (model) {
+                case "FLIR":
+                    color = new Color(150, 0, 0, 128);
+                    break;
+                case "AXIS":
+                    color = new Color(0, 150, 0, 128);
+                    break;
+                default:
+                    break;
+            }
+            if (active)
+                pf.add(new CameraFootprint(model, color));
+            
         }
         return pf;
     }    
