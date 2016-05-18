@@ -92,6 +92,7 @@ public class CamFootprintLayer extends ConsoleLayer {
             if (camFov != null) {
                 camFov.setState(msg);
                 camFov.setAltitude(msg.getHeight()-msg.getZ());
+                
                 ArrayList<LocationType> locs = camFov.getFootprintQuad();
                 if (groundFootprint == null) {
                     groundFootprint = new PathElement();
@@ -126,7 +127,8 @@ public class CamFootprintLayer extends ConsoleLayer {
             else if (p.getName().equals("("+camModel+") Vertical AOV"))
                 vAOV = Math.toRadians(Double.valueOf(""+p.getValue()));
             else if (p.getName().equals("("+camModel+") Tilt Angle"))
-                camTilt = Math.toRadians(Math.PI/2+Double.valueOf(""+p.getValue()));
+                camTilt = Math.PI/2+Math.toRadians(Double.valueOf(""+p.getValue()));
+            
         }
         
         if (!camModel.isEmpty()) {
