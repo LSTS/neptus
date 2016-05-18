@@ -187,10 +187,6 @@ public class VideoStream extends ConsolePanel implements ItemListener {
     private float xScale;
     // Scale factor of y pixel
     private float yScale;
-    // x pixel cord
-    private int xPixel;
-    // y pixel cord
-    private int yPixel;
     // read size of pack compress
     private String line;
     // Buffer for data receive from DUNE over TCP
@@ -210,8 +206,6 @@ public class VideoStream extends ConsolePanel implements ItemListener {
     private boolean show_menu = false;
     // Flag state of IP CAM
     private boolean ipCam = false;
-    // Save image tag flag
-    private boolean captureFrame = false;
     // Close comTCP state
     private boolean closeComState = false;
     // Url of IPCam
@@ -258,8 +252,6 @@ public class VideoStream extends ConsolePanel implements ItemListener {
     private Mat matSaveImg;
     // Size of output frame
     private Size size = null;
-    // Counter for image tag
-    private int cntTag = 1;
 
     // counter for frame tag ID
     private short frameTagID = 1;
@@ -343,6 +335,7 @@ public class VideoStream extends ConsolePanel implements ItemListener {
     private boolean isCleanTurnOffCam;
     private CameraFOV camFov = null;
     private Point2D mouseLoc = null;
+    private StoredSnapshot snap = null;
     
     public VideoStream(ConsoleLayout console) {
         super(console);
@@ -492,7 +485,9 @@ public class VideoStream extends ConsolePanel implements ItemListener {
                        double y = height-e.getY();
                        mouseLoc = new Point2D.Double((x / width - 0.5) * 2, (y / height - 0.5) * 2);
                        LocationType loc = camFov.getLookAt(mouseLoc.getX(), mouseLoc.getY());
-                       placeLocationOnMap(loc);
+                       String id = placeLocationOnMap(loc);
+                       if (id != null)
+                           snap = new StoredSnapshot(id, loc, e.getPoint(), null, new Date());
                    }
                 }
                 
@@ -869,21 +864,21 @@ public class VideoStream extends ConsolePanel implements ItemListener {
     /**
      * Adapted from ContactMarker.placeLocationOnMap()
      */
-    private void placeLocationOnMap(LocationType loc) {
+    private String placeLocationOnMap(LocationType loc) {
         if (getConsole().getMission() == null)
-            return;
+            return null;
 
         loc.convertToAbsoluteLatLonDepth();
         double lat = loc.getLatitudeDegs();
         double lon = loc.getLongitudeDegs();
         long timestamp = System.currentTimeMillis();
-        String id = I18n.text("FrameTag") + "-" + frameTagID + "-" + timestampToReadableHoursString(timestamp);
+        String id = I18n.text("Snap") + "-" + frameTagID + "-" + timestampToReadableHoursString(timestamp);
 
         boolean validId = false;
         while (!validId) {
             id = JOptionPane.showInputDialog(getConsole(), I18n.text("Please enter new mark name"), id);
             if (id == null)
-                return;
+                return null;
             AbstractElement elems[] = MapGroup.getMapGroupInstance(getConsole().getMission()).getMapObjectsByID(id);
             if (elems.length > 0) {
                 GuiUtils.errorMessage(getConsole(), I18n.text("Add mark"),
@@ -898,9 +893,9 @@ public class VideoStream extends ConsolePanel implements ItemListener {
         MissionType mission = getConsole().getMission();
         LinkedHashMap<String, MapMission> mapList = mission.getMapsList();
         if (mapList == null)
-            return;
+            return id;
         if (mapList.size() == 0)
-            return;
+            return id;
         // MapMission mapMission = mapList.values().iterator().next();
         MapGroup.resetMissionInstance(getConsole().getMission());
         MapType mapType = MapGroup.getMapGroupInstance(getConsole().getMission()).getMaps()[0];// mapMission.getMap();
@@ -924,7 +919,7 @@ public class VideoStream extends ConsolePanel implements ItemListener {
         event.setArg(feature);
         this.getConsole().getImcMsgManager().broadcastToCCUs(event);
         NeptusLog.pub().info("placeLocationOnMap: " + id + " - "+loc);
-        captureFrame = true;
+        return id;
     }
 
     // Print Image to JPanel
@@ -1139,7 +1134,6 @@ public class VideoStream extends ConsolePanel implements ItemListener {
                             capture.open(camRtpsUrl);
                             if (capture.isOpened()) {
                                 state = true;
-                                cntTag = 1;
                                 NeptusLog.pub().info("Video Strem from IPCam is captured");
                                 startWatchDog();
                                 isCleanTurnOffCam = false;
@@ -1220,26 +1214,15 @@ public class VideoStream extends ConsolePanel implements ItemListener {
                             }
 
                             // save image tag to disk
-                            if (captureFrame) {
-                                xPixel = xPixel - widhtConsole / 2;
-                                yPixel = -(yPixel - heightConsole / 2);
-                                String imageTag = null;
-                                if (info.length() < 12)
-                                    imageTag = String.format("%s/imageTag/(%d)_(IMC) ERROR_X=%d_Y=%d.jpeg", logDir,
-                                            cntTag, xPixel, yPixel);
-                                else
-                                    imageTag = String.format("%s/imageTag/(%d)_%s_X=%d_Y=%d.jpeg", logDir, cntTag, info,
-                                            xPixel, yPixel);
-
-                                outputfile = checkExistenceOfFolderForFile(new File(imageTag));
+                            if (snap != null) {
                                 try {
-                                    ImageIO.write(offlineImage, "jpeg", outputfile);
+                                    snap.capture = offlineImage;
+                                    snap.store();
+                                    snap = null;                                                                       
                                 }
                                 catch (IOException e) {
                                     e.printStackTrace();
                                 }
-                                captureFrame = false;
-                                cntTag++;
                             }
                         }
                     }
@@ -1282,7 +1265,6 @@ public class VideoStream extends ConsolePanel implements ItemListener {
                         captureSave = new VideoCapture();
                         captureSave.open(camRtpsUrl);
                         if (captureSave.isOpened()) {
-                            cntTag = 1;
                             stateSetUrl = true;
                         }
                     }
