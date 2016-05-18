@@ -39,6 +39,7 @@ import pt.lsts.neptus.mp.ManeuverLocation;
 import pt.lsts.neptus.plugins.mvplanning.interfaces.MapCell;
 import pt.lsts.neptus.plugins.mvplanning.planning.GridCell;
 import pt.lsts.neptus.plugins.mvplanning.planning.mapdecomposition.GridArea;
+import pt.lsts.neptus.types.coord.CoordinateUtil;
 
 /**
  * Implementation of the offline version of the
@@ -57,7 +58,8 @@ public class SpiralSTC {
     private List<ManeuverLocation> path;
 
     public SpiralSTC(GridArea areaToCover) {
-        this.minSpanningTree = new MST(areaToCover.getAreaCells().get(0));
+        System.out.println("PIM");
+        this.minSpanningTree = new MST(areaToCover.getAreaCells().get(10));
         this.path = generatePath(areaToCover);
     }
 
@@ -88,6 +90,11 @@ public class SpiralSTC {
                 newSubCell = computeNewDestination(path, nextDir, previousDirection, previousSubCell, previousCell, (GridCell) node, subCells);
 
                 generateTransition(path, previousSubCell, newSubCell, subCells, previousDirection, nextDir);
+
+                /* if back at the first subcell, add it */
+                if(node.id().equals(minSpanningTree.startCell().id()))
+                    addNewNode(path, newSubCell);
+
                 previousDirection = nextDir;
             }
             previousSubCell = newSubCell;
@@ -97,15 +104,13 @@ public class SpiralSTC {
     }
 
     private void generateTransition(List<ManeuverLocation> path, GridCell sourceSubCell, GridCell destSubCell, GridArea subCells, int prevDir, int nextDir) {
-        /* Maintaining same direction from previous movement (Normal, linear, transition) */
-        if((prevDir == nextDir) || (prevDir == NONE)) {
-            addNewNode(path, destSubCell);
+        /* as an optimization, ignore colinear nodes */
+        if(prevDir != nextDir && prevDir != NONE) {
+            if(prevDir == -nextDir)
+                goAroundLeafNode(path, nextDir, sourceSubCell, subCells);
+            else /* changing direction */
+                changeDirectionTransition(path, sourceSubCell, destSubCell, subCells, prevDir, nextDir);
         }
-        else if(prevDir == -nextDir) {
-            goAroundLeafNode(path, nextDir, sourceSubCell, subCells);
-        }
-        else /* changing direction */
-            changeDirectionTransition(path, sourceSubCell, destSubCell, subCells, prevDir, nextDir);
     }
 
     /**
@@ -114,9 +119,8 @@ public class SpiralSTC {
      * to go from a vertical to an horizontal trajectory/path
      * */
     private void changeDirectionTransition(List<ManeuverLocation> path, GridCell sourceSubCell, GridCell destSubCell, GridArea subCells, int prevDir, int nextDir) {
-        if(sourceSubCell.isNeighbour(destSubCell.getRow(), destSubCell.getColumn())) {
-            addNewNode(path, destSubCell);
-        }
+        if(sourceSubCell.isNeighbour(destSubCell.getRow(), destSubCell.getColumn()))
+            addNewNode(path, sourceSubCell);
         else {
             int cornerRow;
             int cornerCol;
@@ -146,7 +150,6 @@ public class SpiralSTC {
 
             GridCell cornerSubCell = subCells.getAllCells()[cornerRow][cornerCol];
             addNewNode(path, cornerSubCell);
-            addNewNode(path, destSubCell);
         }
     }
 
@@ -269,9 +272,7 @@ public class SpiralSTC {
         currCol--;
         addNewNode(path, cells[currRow][currCol]);
 
-        /* Then, move 2 sub-cells down */
-        currRow++;
-        addNewNode(path, cells[currRow][currCol]);
+        /* Then, move 1 sub-cell down */
         currRow++;
         addNewNode(path, cells[currRow][currCol]);
     }
@@ -289,9 +290,7 @@ public class SpiralSTC {
         currCol++;
         addNewNode(path, cells[currRow][currCol]);
 
-        /* Then, move 2 sub-cells up */
-        currRow--;
-        addNewNode(path, cells[currRow][currCol]);
+        /* Then, move 1 sub-cells up */
         currRow--;
         addNewNode(path, cells[currRow][currCol]);
     }
@@ -309,9 +308,7 @@ public class SpiralSTC {
         currRow++;
         addNewNode(path, cells[currRow][currCol]);
 
-        /* Then, move 2 sub-cells right */
-        currCol++;
-        addNewNode(path, cells[currRow][currCol]);
+        /* Then, move 1 sub-cells right */
         currCol++;
         addNewNode(path, cells[currRow][currCol]);
     }
@@ -329,10 +326,7 @@ public class SpiralSTC {
         currRow--;
         addNewNode(path, cells[currRow][currCol]);
 
-        /* Then, move 2 sub-cells left */
-        currCol--;
-        addNewNode(path, cells[currRow][currCol]);
-
+        /* Then, move 1 sub-cells left */
         currCol--;
         addNewNode(path, cells[currRow][currCol]);
     }
