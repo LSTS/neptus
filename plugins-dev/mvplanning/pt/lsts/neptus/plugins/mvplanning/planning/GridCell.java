@@ -85,7 +85,7 @@ public class GridCell extends MapCell {
 
     @Override
     public void addNeighbour(MapCell neighCell) {
-        if(nNeighbours < 4) {
+        if(nNeighbours < 4 && !neighCell.hasObstacle() && !this.hasObstacle()) {
             int neighRow = ((GridCell) neighCell).getRow();
             int neighCol = ((GridCell) neighCell).getColumn();
 
@@ -107,7 +107,7 @@ public class GridCell extends MapCell {
 
             nNeighbours++;
         }
-        else
+        else if(nNeighbours >= 4)
             NeptusLog.pub().warn("Can't add more neighbours to " + id() + " grid cell");
     }
 
