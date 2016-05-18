@@ -49,6 +49,7 @@ import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.awt.geom.Point2D;
 import java.awt.image.BufferedImage;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
@@ -61,6 +62,7 @@ import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.Socket;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.LinkedHashMap;
@@ -103,7 +105,13 @@ import pt.lsts.imc.MapPoint;
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.console.ConsoleLayout;
 import pt.lsts.neptus.console.ConsolePanel;
+import pt.lsts.neptus.console.events.ConsoleEventMainSystemChange;
 import pt.lsts.neptus.i18n.I18n;
+import pt.lsts.neptus.mp.preview.payloads.CameraFOV;
+import pt.lsts.neptus.params.ConfigurationManager;
+import pt.lsts.neptus.params.SystemProperty;
+import pt.lsts.neptus.params.SystemProperty.Scope;
+import pt.lsts.neptus.params.SystemProperty.Visibility;
 import pt.lsts.neptus.plugins.NeptusProperty;
 import pt.lsts.neptus.plugins.PluginDescription;
 import pt.lsts.neptus.plugins.Popup;
@@ -255,11 +263,7 @@ public class VideoStream extends ConsolePanel implements ItemListener {
 
     // counter for frame tag ID
     private short frameTagID = 1;
-    // lat, lon: frame Tag pos to be marked as POI
-    private double lat, lon;
-    // Flag of ctrl key for tag image
-    private boolean ctrlOn;
-
+    
     // Flag for IPCam Ip Check
     private boolean statePingOk = false;
     // JPanel for color state of ping to host IPCam
@@ -337,7 +341,9 @@ public class VideoStream extends ConsolePanel implements ItemListener {
     private boolean virtualEndThread;
     private boolean isAliveIPCam;
     private boolean isCleanTurnOffCam;
-
+    private CameraFOV camFov = null;
+    private Point2D mouseLoc = null;
+    
     public VideoStream(ConsoleLayout console) {
         super(console);
 
@@ -370,15 +376,10 @@ public class VideoStream extends ConsolePanel implements ItemListener {
                         zoomMask = false;
                         popupzoom.setVisible(false);
                     }
-                    if (e.getKeyCode() == KeyEvent.VK_CONTROL)
-                        ctrlOn = false;
                 }
 
                 @Override
                 public void keyPressed(KeyEvent e) {
-                    if (e.getKeyCode() == KeyEvent.VK_CONTROL)
-                        ctrlOn = true;
-
                     if ((e.getKeyCode() == KeyEvent.VK_Z) && ((e.getModifiers() & KeyEvent.ALT_MASK) != 0)
                             && !zoomMask) {
                         if (raspiCam || ipCam) {
@@ -460,22 +461,41 @@ public class VideoStream extends ConsolePanel implements ItemListener {
 
     // Mouse click Listener
     private void mouseListenerInit() {
-        addMouseListener(new MouseAdapter() {
-            public void mouseClicked(MouseEvent e) {
-                // TODO
-                if (e.getButton() == MouseEvent.BUTTON1 && ctrlOn) {
-                    if (raspiCam || ipCam) {
-                        xPixel = (int) ((e.getX() - 11) / xScale); // shift window bar
-                        yPixel = (int) ((e.getY() - 11) / yScale); // shift window bar
-                        if (raspiCam && !ipCam && tcpOK) {
-                            if (xPixel >= 0 && yPixel >= 0 && xPixel <= widthImgRec && yPixel <= heightImgRec)
-                                out.printf("%d#%d;\0", xPixel, yPixel);
-                        }
-                        // place mark on map as POI
-                        placeLocationOnMap();
-                    }
-                    ctrlOn = false;
+        
+        addMouseMotionListener(new MouseAdapter() {
+            @Override
+            public void mouseMoved(MouseEvent e) {
+                if (camFov != null) {
+                    double width = ((Component)e.getSource()).getWidth();
+                    double height = ((Component)e.getSource()).getHeight();
+                    double x = e.getX();
+                    double y = height-e.getY();
+                    mouseLoc = new Point2D.Double((x / width - 0.5) * 2, (y / height - 0.5) * 2);
                 }
+            }
+        });
+        
+        addMouseListener(new MouseAdapter() {
+            
+            @Override
+            public void mouseExited(MouseEvent e) {
+                mouseLoc = null;
+                post(new EventMouseLookAt(null));
+            }
+            
+            public void mouseClicked(MouseEvent e) {
+                if (SwingUtilities.isLeftMouseButton(e) && e.getClickCount() == 2) {
+                   if (camFov != null) {
+                       double width = ((Component)e.getSource()).getWidth();
+                       double height = ((Component)e.getSource()).getHeight();
+                       double x = e.getX();
+                       double y = height-e.getY();
+                       mouseLoc = new Point2D.Double((x / width - 0.5) * 2, (y / height - 0.5) * 2);
+                       LocationType loc = camFov.getLookAt(mouseLoc.getX(), mouseLoc.getY());
+                       placeLocationOnMap(loc);
+                   }
+                }
+                
                 if (e.getButton() == MouseEvent.BUTTON3) {
                     popup = new JPopupMenu();
                     JMenuItem item1;
@@ -849,12 +869,13 @@ public class VideoStream extends ConsolePanel implements ItemListener {
     /**
      * Adapted from ContactMarker.placeLocationOnMap()
      */
-    private void placeLocationOnMap() {
+    private void placeLocationOnMap(LocationType loc) {
         if (getConsole().getMission() == null)
             return;
 
-        double lat = this.lat;
-        double lon = this.lon;
+        loc.convertToAbsoluteLatLonDepth();
+        double lat = loc.getLatitudeDegs();
+        double lon = loc.getLongitudeDegs();
         long timestamp = System.currentTimeMillis();
         String id = I18n.text("FrameTag") + "-" + frameTagID + "-" + timestampToReadableHoursString(timestamp);
 
@@ -902,7 +923,7 @@ public class VideoStream extends ConsolePanel implements ItemListener {
         event.setId(id);
         event.setArg(feature);
         this.getConsole().getImcMsgManager().broadcastToCCUs(event);
-        NeptusLog.pub().info("placeLocationOnMap: " + id + " - Pos: lat: " + this.lat + " ; lon: " + this.lon);
+        NeptusLog.pub().info("placeLocationOnMap: " + id + " - "+loc);
         captureFrame = true;
     }
 
@@ -1030,6 +1051,7 @@ public class VideoStream extends ConsolePanel implements ItemListener {
             closingPanel = true;
             return;
         }
+        setMainVehicle(getConsole().getMainSystem());
     }
 
     private Thread createFile() {
@@ -1354,62 +1376,55 @@ public class VideoStream extends ConsolePanel implements ItemListener {
         return si;
     }
 
+    @Subscribe
+    public void consume(ConsoleEventMainSystemChange evt) {
+        setMainVehicle(evt.getCurrent());
+    }
+    
+    private void setMainVehicle(String vehicle) {
+        camFov = null;
+        
+        ArrayList<SystemProperty> props = ConfigurationManager.getInstance().getPropertiesByEntity(vehicle, "UAVCamera",
+                Visibility.DEVELOPER, Scope.GLOBAL);
+
+        String camModel = "";
+        double hAOV = 0, vAOV = 0, camTilt = 0;
+        
+        for (SystemProperty p : props) {
+            if (p.getName().equals("Onboard Camera"))
+                camModel = ""+p.getValue();
+            else if (p.getName().equals("("+camModel+") Horizontal AOV"))
+                hAOV = Math.toRadians(Double.valueOf(""+p.getValue()));
+            else if (p.getName().equals("("+camModel+") Vertical AOV"))
+                vAOV = Math.toRadians(Double.valueOf(""+p.getValue()));
+            else if (p.getName().equals("("+camModel+") Tilt Angle"))
+                camTilt = Math.PI/2+Math.toRadians(Double.valueOf(""+p.getValue()));            
+        }
+        
+        if (!camModel.isEmpty()) {
+            camFov = new CameraFOV(hAOV, vAOV);
+            camFov.setTilt(camTilt);
+            NeptusLog.pub().info("Using " + camModel + " camera with " + Math.toDegrees(hAOV) + " x "
+                    + Math.toDegrees(vAOV) + " AOV");
+        }
+        else
+            camFov = null;      
+    }
+    
     // IMC handle
     @Subscribe
     public void consume(EstimatedState msg) {
         // System.out.println("Source Name "+msg.getSourceName()+"ID "+getMainVehicleId());
         if (msg.getSourceName().equals(getMainVehicleId()) && findOpenCV()) {
-            try {
-                // update the position of target
-                // LAT and LON rad
-                double latRad = msg.getLat();
-                double lonRad = msg.getLon();
-                // LAT and LON deg
-                double latDeg = Math.toDegrees(latRad);
-                double lonDeg = Math.toDegrees(lonRad);
-
-                LocationType locationType = new LocationType(latDeg, lonDeg);
-
-                // Offset (m)
-                double offsetN = msg.getX();
-                double offsetE = msg.getY();
-
-                // Height of Vehicle
-                double heightRelative = msg.getHeight() - msg.getZ();// absolute altitude - zero of that location
-                locationType.setOffsetNorth(offsetN);
-                locationType.setOffsetEast(offsetE);
-                locationType.setHeight(heightRelative);
-
-                info = String.format("(IMC) LAT: %f # LON: %f # ALT: %.2f m", lat, lon, heightRelative);
-                LocationType tagLocationType = calcTagPosition(locationType.convertToAbsoluteLatLonDepth(),
-                        Math.toDegrees(msg.getPsi()), camTiltDeg);
-                this.lat = tagLocationType.convertToAbsoluteLatLonDepth().getLatitudeDegs();
-                this.lon = tagLocationType.convertToAbsoluteLatLonDepth().getLongitudeDegs();
-                txtData.setText(info);
-            }
-            catch (Exception e) {
-                NeptusLog.pub().error(e.getMessage(), e);
-            }
+            if (camFov != null) {
+                camFov.setState(msg);
+                camFov.setAltitude(msg.getHeight()-msg.getZ());
+                if (mouseLoc != null) {
+                    EventMouseLookAt lookAt = new EventMouseLookAt(camFov.getLookAt(mouseLoc.getX(), mouseLoc.getY()));
+                    getConsole().post(lookAt);
+                }                    
+            }           
         }
-    }
-
-    /**
-     *
-     * @param locationType
-     * @param orientationDegrees
-     * @param camTiltDeg
-     * @return tagLocationType
-     */
-    private LocationType calcTagPosition(LocationType locationType, double orientationDegrees, double camTiltDeg) {
-        double altitude = locationType.getHeight();
-        double dist = Math.tan(Math.toRadians(camTiltDeg)) * (Math.abs(altitude));// hypotenuse
-        double offsetN = Math.cos(Math.toRadians(orientationDegrees)) * dist;// oposite side
-        double offsetE = Math.sin(Math.toRadians(orientationDegrees)) * dist;// adjacent side
-
-        LocationType tagLocationType = locationType.convertToAbsoluteLatLonDepth();
-        tagLocationType.setOffsetNorth(offsetN);
-        tagLocationType.setOffsetEast(offsetE);
-        return tagLocationType.convertToAbsoluteLatLonDepth();
     }
 
     // Fill cv::Mat image with zeros

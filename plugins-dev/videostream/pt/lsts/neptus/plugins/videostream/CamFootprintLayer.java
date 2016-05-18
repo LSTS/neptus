@@ -33,6 +33,8 @@ package pt.lsts.neptus.plugins.videostream;
 
 import java.awt.Color;
 import java.awt.Graphics2D;
+import java.awt.geom.Ellipse2D;
+import java.awt.geom.Point2D;
 import java.util.ArrayList;
 
 import com.google.common.eventbus.Subscribe;
@@ -64,8 +66,7 @@ public class CamFootprintLayer extends ConsoleLayer {
     
     private CameraFOV camFov = null;
     private PathElement groundFootprint = new PathElement();
-    
-    
+    private EventMouseLookAt lookAt = null;
     
     @Override
     public boolean userControlsOpacity() {
@@ -81,6 +82,14 @@ public class CamFootprintLayer extends ConsoleLayer {
     @Override
     public void cleanLayer() {
         
+    }
+    
+    @Subscribe
+    public void on(EventMouseLookAt mouseLookAt) {
+        if (mouseLookAt.isNull())
+            this.lookAt = null;
+        else
+            this.lookAt = mouseLookAt;
     }
     
     @Subscribe
@@ -151,6 +160,15 @@ public class CamFootprintLayer extends ConsoleLayer {
     public void paint(Graphics2D g, StateRenderer2D renderer) {
         g.setTransform(renderer.getIdentity());
         if (groundFootprint != null)
-            groundFootprint.paint(g, renderer, renderer.getRotation());
+            groundFootprint.paint(g, renderer, renderer.getRotation());   
+        
+        if (lookAt != null) {
+            g.setTransform(renderer.getIdentity());
+            Point2D pt = renderer.getScreenPosition(lookAt);
+            g.setColor(Color.white);
+            g.fill(new Ellipse2D.Double(pt.getX()-5, pt.getY()-5, 10, 10));
+            g.setColor(Color.red);
+            g.fill(new Ellipse2D.Double(pt.getX()-2.5, pt.getY()-2.5, 5, 5));
+        }
     }
 }

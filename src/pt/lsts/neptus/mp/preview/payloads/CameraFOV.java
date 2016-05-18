@@ -80,21 +80,21 @@ public class CameraFOV {
         double vDist = Math.tan(vAOV / 2);
         double x = normalizedScreenX * hDist;
         double y = normalizedScreenY * vDist;
-        double roll = Math.atan(Math.sqrt(x*x + y*y));
-        double yaw = Math.atan2(y, x);
-        
+        double pitch = Math.atan(Math.sqrt(x*x + y*y));
+        double yaw = (Math.PI/2)-Math.atan2(y, x);
         LocationType loc = new LocationType(this.loc);
         Point3d lookDown = new Point3d(0, 0, 1);
         Transform3D euler = new Transform3D();
-        euler.setEuler(new Vector3d(getRoll(), getPitch()+tilt, getYaw()));
+        euler.setEuler(new Vector3d(0, pitch, yaw));
         euler.transform(lookDown);
-        euler.setEuler(new Vector3d(roll,0,yaw));
+        euler.setEuler(new Vector3d(getRoll(), getPitch()+tilt, getYaw()));
         euler.transform(lookDown);
         Transform3D scale = new Transform3D();
         scale.setScale(getAltitude() / lookDown.z);
         scale.transform(lookDown);
-        loc.translatePosition(lookDown.x, -lookDown.y, 0);
+        loc.translatePosition(lookDown.x, lookDown.y, 0);        
         return loc;
+        
     }
     
     /**
