@@ -34,6 +34,8 @@ package pt.lsts.neptus.types.coord;
 import java.awt.Toolkit;
 import java.awt.datatransfer.ClipboardOwner;
 import java.awt.datatransfer.StringSelection;
+import java.awt.geom.Line2D;
+import java.awt.geom.Point2D;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.util.Locale;
@@ -1635,6 +1637,18 @@ public class CoordinateUtil {
         bearing = Math.atan2(e, n);
         range = Math.sqrt(n * n + e * e);
         return new double[] { Math.toDegrees(bearing), range };
+    }
+
+    /**
+     * Traces a line between l1 and l2 and computes the distance
+     * of point to this line. If the 3 locations are colinear this
+     * distance will be = 0 + e, where e should be a small error.
+     * */
+    public static double distanceToLine(LocationType point, LocationType l1, LocationType l2) {
+        double[] pt1 = l1.getOffsetFrom(point);
+        double[] pt2 = l2.getOffsetFrom(point);
+        Line2D line = new Line2D.Double(pt1[0], pt1[1], pt2[0], pt2[1]);
+        return line.ptLineDist(new Point2D.Double());
     }
 
     // ---------------------------------------------------------------------------------------------
