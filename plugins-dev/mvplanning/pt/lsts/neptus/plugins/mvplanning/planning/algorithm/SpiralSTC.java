@@ -86,7 +86,7 @@ public class SpiralSTC {
             GridCell nextCell = (GridCell) nodeSequence.get(i+1);
             /* Direction from the current mega-cell to the next one */
             int nextDir = getNextDirection(currCell, nextCell);
-            newSubCell = computeNewDestination(path, nextDir, previousDirection, nextCell, subCells);
+            newSubCell = computeNewDestination(path, nextDir, nextCell, subCells);
 
             generateTransition(path, currSubCell, newSubCell, subCells, previousDirection, nextDir);
 
@@ -201,7 +201,7 @@ public class SpiralSTC {
     /**
      * Computes the next subcell(s) the vehicle is going to move into
      * */
-    public GridCell computeNewDestination(List<ManeuverLocation> path, int nextDir, int prevDir, GridCell destMegaCell, GridArea subCells) {
+    public GridCell computeNewDestination(List<ManeuverLocation> path, int nextDir, GridCell destMegaCell, GridArea subCells) {
         if(nextDir == 0) {
             NeptusLog.pub().error("Couldn't compute direction to " + destMegaCell.id());
             return null;
