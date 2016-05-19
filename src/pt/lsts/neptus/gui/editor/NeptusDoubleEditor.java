@@ -47,7 +47,7 @@ import com.l2fprod.common.swing.LookAndFeelTweaks;
  */
 public class NeptusDoubleEditor extends AbstractPropertyEditor {
 
-    private Object lastGoodValue;
+    protected Object lastGoodValue;
     protected DecimalFormat format = new DecimalFormat("0.0########");
     {
         format.setDecimalFormatSymbols(DecimalFormatSymbols.getInstance(Locale.US));
@@ -101,7 +101,7 @@ public class NeptusDoubleEditor extends AbstractPropertyEditor {
         lastGoodValue = value;
     }
 
-    private Object getDefaultValue() {
+    protected Object getDefaultValue() {
        return 0d;
     }
 }
