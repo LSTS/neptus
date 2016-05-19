@@ -110,8 +110,6 @@ IMCSerialization, StatisticsProvider, PathProvider {
 
     protected Vector<double[]> points = new Vector<double[]>();
 
-    protected static final int X = 0, Y = 1, Z = 2, T = 3;
-
     /**
      * 
      */
