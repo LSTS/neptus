@@ -88,29 +88,29 @@ IMCSerialization, StatisticsProvider, PathProvider {
     protected double z = 0;
     protected ManeuverLocation.Z_UNITS zunits = ManeuverLocation.Z_UNITS.NONE;
 
-    @NeptusProperty
+    @NeptusProperty(name = "Speed")
     protected double speed = 1;
-    @NeptusProperty(editorClass = SpeedUnitsEnumEditor.class)
+    @NeptusProperty(name = "Speed Units", editorClass = SpeedUnitsEnumEditor.class)
     protected SPEED_UNITS speedUnits = SPEED_UNITS.METERS_PS;
-    @NeptusProperty
+    @NeptusProperty(name = "Bearing")
     protected double bearingDegs = 0;
-    @NeptusProperty
+    @NeptusProperty(name = "Width")
     protected double width = 100;
-    @NeptusProperty
+    @NeptusProperty(name = "Length")
     protected double length = 200;
-    @NeptusProperty
+    @NeptusProperty(name = "Cross Angle")
     protected double crossAngleDegs = 0;
-    @NeptusProperty
+    @NeptusProperty(name = "Curve Offset")
     protected double curvOff = 15;
-    @NeptusProperty
+    @NeptusProperty(name = "Apperture Angle")
     protected double appertureAngleDegs = 120;
-    @NeptusProperty
+    @NeptusProperty(name = "Range")
     protected int range = 30;
-    @NeptusProperty
+    @NeptusProperty(name = "Overlap Percentage")
     protected short overlapPercentage = 0;
-    @NeptusProperty
+    @NeptusProperty(name = "Square Curve")
     protected boolean squareCurve = true;
-    @NeptusProperty
+    @NeptusProperty(name = "First Curve Right")
     protected boolean firstCurveRight = true;
 
     protected InteractionAdapter adapter = new InteractionAdapter(null);
