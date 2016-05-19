@@ -1400,7 +1400,6 @@ public class VideoStream extends ConsolePanel implements ItemListener {
         if (msg.getSourceName().equals(getMainVehicleId()) && findOpenCV()) {
             if (camFov != null) {
                 camFov.setState(msg);
-                camFov.setAltitude(msg.getHeight()-msg.getZ());
                 if (mouseLoc != null) {
                     EventMouseLookAt lookAt = new EventMouseLookAt(camFov.getLookAt(mouseLoc.getX(), mouseLoc.getY()));
                     getConsole().post(lookAt);

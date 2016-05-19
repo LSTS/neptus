@@ -100,7 +100,6 @@ public class CamFootprintLayer extends ConsoleLayer {
             
             if (camFov != null) {
                 camFov.setState(msg);
-                camFov.setAltitude(msg.getHeight()-msg.getZ());
                 
                 ArrayList<LocationType> locs = camFov.getFootprintQuad();
                 if (groundFootprint == null) {
