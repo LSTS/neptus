@@ -65,9 +65,9 @@ public class RIPattern extends RowsPattern {
         double zoom = renderer.getZoom();
         g2d.rotate(-renderer.getRotation());
         g2d.rotate(-Math.PI/2);
-        ManeuversUtil.paintBox(g2d, zoom, width, width, -width/2, -width/2, bearingRad, crossAngleRadians, editing);
-        ManeuversUtil.paintBox(g2d, zoom, width, width, -width/2, -width/2, bearingRad+Math.toRadians(-60), crossAngleRadians, editing);
-        ManeuversUtil.paintBox(g2d, zoom, width, width, -width/2, -width/2, bearingRad+Math.toRadians(-120), crossAngleRadians, editing);
+        ManeuversUtil.paintBox(g2d, zoom, width, width, -width/2, -width/2, bearingRad, crossAngleRadians, false, false, editing);
+        ManeuversUtil.paintBox(g2d, zoom, width, width, -width/2, -width/2, bearingRad+Math.toRadians(-60), crossAngleRadians, false, false, editing);
+        ManeuversUtil.paintBox(g2d, zoom, width, width, -width/2, -width/2, bearingRad+Math.toRadians(-120), crossAngleRadians, false, false, editing);
 //        ManeuversUtil.paintPointLineList(g2d, zoom, points, false, sRange);
         g2d.rotate(Math.PI/2);
         g2d.rotate(renderer.getRotation());

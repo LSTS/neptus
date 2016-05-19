@@ -91,7 +91,7 @@ public class ExpandingSquarePattern extends FollowPath {
         double zoom = renderer.getZoom();
         g2d.rotate(-renderer.getRotation());
         g2d.rotate(-Math.PI/2);
-        ManeuversUtil.paintBox(g2d, zoom, width, width, -width/2, -width/2, Math.toRadians(bearingDeg), 0, false, editing);
+        ManeuversUtil.paintBox(g2d, zoom, width, width, -width/2, -width/2, Math.toRadians(bearingDeg), 0, false, false, editing);
         ManeuversUtil.paintPointLineList(g2d, zoom, points, false, 0, editing);
         g2d.rotate(Math.PI/2);
         g2d.rotate(renderer.getRotation());

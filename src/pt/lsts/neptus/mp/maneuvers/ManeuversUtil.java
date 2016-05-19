@@ -61,6 +61,9 @@ public class ManeuversUtil {
     
     protected static final int X = 0, Y = 1, Z = 2, T = 3;
 
+    public static final Color noEditBoxColor = new Color(255, 255, 255, 100);
+    public static final Color editBoxColor = new Color(255, 125, 255, 200);
+
     private ManeuversUtil() {
     }
     
@@ -427,52 +430,36 @@ public class ManeuversUtil {
      * @param zoom
      * @param width
      * @param length
-     * @param bearingRad
-     * @param crossAngleRadians
-     * @param editMode
-     */
-    public static void paintBox(Graphics2D g2d, double zoom, double width, double length,
-            double x0, double y0,
-            double bearingRad, double crossAngleRadians, boolean editMode) {
-        paintBox(g2d, zoom, width, length, x0, y0, bearingRad, crossAngleRadians, false, editMode);
-    }
-
-    /**
-     * @param g2d
-     * @param zoom
-     * @param width
-     * @param length
      * @param x0
      * @param y0
      * @param bearingRad
      * @param crossAngleRadians
+     * @param fill
      * @param invertY
      * @param editMode
      */
-    public static void paintBox(Graphics2D g2d, double zoom, double width, double length, double x0, double y0,
-            double bearingRad, double crossAngleRadians, boolean invertY, boolean editMode) {
+    public static void paintBox(Graphics2D g, double zoom, double width, double length, double x0, double y0,
+            double bearingRad, double crossAngleRadians, boolean fill, boolean invertY, boolean editMode) {
+        Graphics2D g2d = (Graphics2D) g.create();
         double mult = !invertY ? 1 : -1;
         GeneralPath sp = new GeneralPath();
         sp.moveTo(x0 * zoom, y0 * zoom);
         double[] resT = AngleUtils.rotate(-crossAngleRadians, length, 0, false);
         sp.lineTo(x0 * zoom + resT[0] * zoom, mult * (y0 * zoom + resT[1] * zoom));
-//        resT = AngleCalc.rotate(crossAngleRadians, length, 0, false);
         sp.lineTo(x0 * zoom + resT[0] * zoom, mult * (y0 * zoom + (width + resT[1]) * zoom));
         sp.lineTo(x0 * zoom, mult * (y0 * zoom + width * zoom));
         sp.closePath();
-        g2d.setColor(!editMode ? new Color(255, 255, 255, 100) : new Color(255, 125, 255, 200));
+        g2d.setColor(!editMode ? noEditBoxColor : editBoxColor);
         g2d.rotate(bearingRad + (!invertY ? -1 : 1) * -crossAngleRadians);
-        Stroke sO = g2d.getStroke();
         Stroke s1 = new BasicStroke(1);
         Stroke s3 = new BasicStroke(2);
         g2d.setStroke(!editMode ? s1 : s3);
         g2d.draw(sp);
-//        if (editMode) {
-//            g2d.setColor(new Color(255, 125, 255, 100));
-//            g2d.fill(sp);
-//        }
-        g2d.setStroke(sO);
-        g2d.rotate(-bearingRad + (!invertY ? 1 : -1) * -crossAngleRadians);
+        if (fill) {
+            g2d.setColor(editMode ? editBoxColor : noEditBoxColor);
+            g2d.fill(sp);
+        }
+        g2d.dispose();
     }
     
     public static double getSpeedMps(Maneuver man) {
