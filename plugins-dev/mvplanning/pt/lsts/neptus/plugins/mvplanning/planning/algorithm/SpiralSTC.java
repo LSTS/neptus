@@ -54,11 +54,9 @@ public class SpiralSTC {
     private static final int RIGHT = -2;
     private static final int NONE = 0;
 
-    private MST minSpanningTree;
     private List<ManeuverLocation> path;
 
     public SpiralSTC(GridArea areaToCover) {
-        this.minSpanningTree = new MST(areaToCover.getAreaCells().get(0));
         this.path = generatePath(areaToCover);
     }
 
@@ -67,10 +65,17 @@ public class SpiralSTC {
     }
 
     private List<ManeuverLocation> generatePath(GridArea areaToCover) {
+        MST minSpanningTree = new MST(areaToCover.getAreaCells().get(0));
+        List<MapCell> nodeSequence = minSpanningTree.getNodeSequence();
+
+        /* there's nothing to do */
+        if(nodeSequence.isEmpty())
+            return new ArrayList<>(0);
+
+
         /* Build graph */
         List<ManeuverLocation> path = new ArrayList<>();
         GridArea subCells = areaToCover.splitMegaCells();
-        List<MapCell> nodeSequence = minSpanningTree.getNodeSequence();
 
         GridCell currSubCell = null;
         GridCell newSubCell = null;
@@ -83,15 +88,20 @@ public class SpiralSTC {
                 currSubCell = computeStartSubCell(currCell, minSpanningTree, subCells);
                 firstNode = false;
             }
+
             GridCell nextCell = (GridCell) nodeSequence.get(i+1);
-            /* Direction from the current mega-cell to the next one */
             int nextDir = getNextDirection(currCell, nextCell);
             newSubCell = computeNewDestination(path, nextDir, nextCell, subCells);
 
-            generateTransition(path, currSubCell, newSubCell, subCells, previousDirection, nextDir);
+            /* can't proceed */
+            if(newSubCell == null)
+                return new ArrayList<>(0);
+            else {
+                generateTransition(path, currSubCell, newSubCell, subCells, previousDirection, nextDir);
 
-            previousDirection = nextDir;
-            currSubCell = newSubCell;
+                previousDirection = nextDir;
+                currSubCell = newSubCell;
+            }
         }
         /* add last subcell */
         addNewNode(path, newSubCell);

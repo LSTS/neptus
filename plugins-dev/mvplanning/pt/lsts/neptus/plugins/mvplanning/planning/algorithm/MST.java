@@ -57,15 +57,15 @@ public class MST {
     public MST(MapCell startCell) {
         this.startCell = startCell;
         mst = new ArrayList<>();
-        nodeSequence = new ArrayList<>();
-        generateMST(startCell);
+        nodeSequence = generateMST(startCell);
     }
 
     /**
      * Generates the spanning tree edges and the node sequence to
      * traverse it
      * */
-    private void generateMST(MapCell startCell) {
+    private List<MapCell> generateMST(MapCell startCell) {
+        List<MapCell> nodeSequence = new ArrayList<>();
         /* Nodes already visited */
         List<String> visitedNodes = new ArrayList<>();
         /* When the head node has no more free neighbours, remove it and try the next one */
@@ -114,10 +114,14 @@ public class MST {
                 }
             }
             else { /* Graph needs to be connected in order to have an MST*/
-                NeptusLog.pub().error("Can't generate a Minimum Spanning Tree because the graph is not connected! Node: " + currentNode.id() + " has no neighbours");
+                NeptusLog.pub().warn("Can't generate a Minimum Spanning Tree because the graph is not connected! Node: " + currentNode.id() + " has no neighbours");
                 graphIsConnected = false;
+
+                /* return an empty list */
+                nodeSequence = new ArrayList<>(0);
             }
         }
+        return nodeSequence;
     }
 
     /**

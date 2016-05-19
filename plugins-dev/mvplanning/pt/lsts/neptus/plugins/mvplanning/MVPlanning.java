@@ -235,8 +235,10 @@ public class MVPlanning extends ConsolePanel implements PlanChangeListener, Rend
                 String desiredProfile = (String) profiles.getSelectedItem();
                 PlanType plan = pGen.generateCoverageArea(availableProfiles.get(desiredProfile), opArea);
 
-                listModel.addElement(plan.getId());
-                selectedPlans.put(plan.getId(), plan);
+                if(!plan.isEmpty()) {
+                    listModel.addElement(plan.getId());
+                    selectedPlans.put(plan.getId(), plan);
+                }
             }
         }
     }

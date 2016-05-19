@@ -1,6 +1,7 @@
 package pt.lsts.neptus.plugins.mvplanning;
 
 import pt.lsts.imc.PlanSpecification;
+import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.comm.IMCUtils;
 import pt.lsts.neptus.plugins.mvplanning.interfaces.ConsoleAdapter;
 import pt.lsts.neptus.plugins.mvplanning.jaxb.Profile;
@@ -39,8 +40,11 @@ public class PlanGenerator {
         CoverageArea covArea = new CoverageArea(id, planProfile, areaToCover, console.getMission());
         PlanSpecification planSpec = covArea.asPlanSpecification();
 
-        planAloc.allocate(new PlanTask(id, planSpec, planProfile, planSpec.payloadMD5()));
-        
+        if(planSpec != null)
+            planAloc.allocate(new PlanTask(id, planSpec, planProfile, planSpec.payloadMD5()));
+        else
+            NeptusLog.pub().warn("No plan has been generated because it would be empty");
+
         return covArea.asPlanType();
     }
 }
