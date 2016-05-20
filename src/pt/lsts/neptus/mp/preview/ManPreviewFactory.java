@@ -68,6 +68,9 @@ public class ManPreviewFactory {
 
         if (previewMatchList.containsKey(maneuver.getClass())) {
             Class<IManeuverPreview<?>> prevClass = previewMatchList.get(maneuver.getClass());
+            if (prevClass == null)
+                return null;
+            
             try {
                 IManeuverPreview<Maneuver> prevG = ((IManeuverPreview<Maneuver>) prevClass.newInstance());
                 prevG.init(vehicleId, maneuver, state, manState);
@@ -82,13 +85,15 @@ public class ManPreviewFactory {
         if (FollowTrajectory.class.isAssignableFrom(maneuver.getClass())) {
             FollowTrajectoryPreview prev = new FollowTrajectoryPreview();
             prev.init(vehicleId, (FollowTrajectory) maneuver, state, manState);
-            previewMatchList.put((Class<Maneuver>) maneuver.getClass(), (Class<IManeuverPreview<?>>) prev.getClass());
+            IManeuverPreview<?> p = (IManeuverPreview<?>) prev;
+            previewMatchList.put((Class<Maneuver>) maneuver.getClass(), (Class<IManeuverPreview<?>>) p.getClass());
             return prev;
         }
         else if (Launch.class.isAssignableFrom(maneuver.getClass())) {
             GotoPreview prev = new GotoPreview();
             prev.init(vehicleId, (Launch) maneuver, state, manState);
-            previewMatchList.put((Class<Maneuver>) maneuver.getClass(), (Class<IManeuverPreview<?>>) prev.getClass());
+            IManeuverPreview<?> p = (IManeuverPreview<?>) prev;
+            previewMatchList.put((Class<Maneuver>) maneuver.getClass(), (Class<IManeuverPreview<?>>) p.getClass());
             return prev;
         }
 
@@ -122,6 +127,7 @@ public class ManPreviewFactory {
             }
         }
 
+        previewMatchList.put((Class<Maneuver>) maneuver.getClass(), (Class<IManeuverPreview<?>>) null);
         return null;
     }
 }
