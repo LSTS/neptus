@@ -81,8 +81,6 @@ import pt.lsts.neptus.util.XMLUtil;
 public class RowsCoverage extends Maneuver implements LocatedManeuver, StateRendererInteraction,
 IMCSerialization, StatisticsProvider, PathProvider {
 
-    private static final Color COLOR_HELP = new Color(255, 125, 255);
-
     protected double latDegs = 0;
     protected double lonDegs = 0;
     protected double z = 0;

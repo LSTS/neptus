@@ -86,7 +86,7 @@ import pt.lsts.neptus.util.NameNormalizer;
  */
 
 public abstract class Maneuver implements XmlOutputMethods, PropertiesProvider, Comparable<Maneuver> {
-
+    protected static final Color COLOR_HELP = new Color(255, 125, 255);
     protected static final int X = 0, Y = 1, Z = 2, T = 3;
 
     public enum Z_UNITS {
