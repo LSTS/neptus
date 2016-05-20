@@ -566,7 +566,7 @@ IMCSerialization, StatisticsProvider, PathProvider {
             Point2D gL = renderer.getScreenPosition(renderer.getTopLeftLocationType());
             g3.translate(gL.getX() - manL.getX(), gL.getY() - manL.getY());
             g3.setFont(new Font("Helvetica", Font.BOLD, 13));
-            String txt = I18n.text("Ctrl+Click to grow | Shift+Click to rotate");
+            String txt = I18n.text("Ctrl+Click to grow | Shift+Click to rotate | Alt+Click to skew");
             g3.setColor(Color.BLACK);
             g3.drawString(txt, 55, 15 + 20);
             g3.setColor(COLOR_HELP);
