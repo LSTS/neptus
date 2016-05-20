@@ -31,6 +31,11 @@
  */
 package pt.lsts.neptus.mp.preview;
 
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
+
+import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.mp.Maneuver;
 import pt.lsts.neptus.mp.SystemPositionAndAttitude;
 import pt.lsts.neptus.mp.maneuvers.FollowTrajectory;
@@ -42,6 +47,8 @@ import pt.lsts.neptus.mp.maneuvers.Launch;
  */
 public class ManPreviewFactory {
 
+    private static Map<Class<Maneuver>, Class<IManeuverPreview<?>>> previewMatchList = Collections.synchronizedMap(new HashMap<>());
+    
     /**
      * If finds and instantiate a preview for the maneuver. It looks for a preview in the current package of the
      * maneuver class and in the sibling package "preview". The name of the preview class should be the name of the
@@ -53,19 +60,35 @@ public class ManPreviewFactory {
      * @param manState The current maneuver state.
      * @return
      */
+    @SuppressWarnings("unchecked")
     public static IManeuverPreview<?> getPreview(Maneuver maneuver, String vehicleId, SystemPositionAndAttitude state,
             Object manState) {
         if (maneuver == null)
             return null;
 
+        if (previewMatchList.containsKey(maneuver.getClass())) {
+            Class<IManeuverPreview<?>> prevClass = previewMatchList.get(maneuver.getClass());
+            try {
+                IManeuverPreview<Maneuver> prevG = ((IManeuverPreview<Maneuver>) prevClass.newInstance());
+                prevG.init(vehicleId, maneuver, state, manState);
+                return prevG;
+            }
+            catch (Exception e) {
+                NeptusLog.pub().error(e.getMessage());
+                return null;
+            }
+        }
+
         if (FollowTrajectory.class.isAssignableFrom(maneuver.getClass())) {
             FollowTrajectoryPreview prev = new FollowTrajectoryPreview();
             prev.init(vehicleId, (FollowTrajectory) maneuver, state, manState);
+            previewMatchList.put((Class<Maneuver>) maneuver.getClass(), (Class<IManeuverPreview<?>>) prev.getClass());
             return prev;
         }
         else if (Launch.class.isAssignableFrom(maneuver.getClass())) {
             GotoPreview prev = new GotoPreview();
             prev.init(vehicleId, (Launch) maneuver, state, manState);
+            previewMatchList.put((Class<Maneuver>) maneuver.getClass(), (Class<IManeuverPreview<?>>) prev.getClass());
             return prev;
         }
 
@@ -81,21 +104,21 @@ public class ManPreviewFactory {
                 prevClass = cl.loadClass(pkn + "." + maneuver.getClass().getSimpleName() + "Preview");
             }
             catch (Exception e1) {
-                e1.printStackTrace();
+                NeptusLog.pub().error(e1.getMessage());
             }
         }
         catch (Exception e) {
-            e.printStackTrace();
+            NeptusLog.pub().error(e.getMessage());
         }
         if (prevClass != null) {
             try {
-                @SuppressWarnings("unchecked")
                 IManeuverPreview<Maneuver> prevG = (IManeuverPreview<Maneuver>) prevClass.newInstance();
                 prevG.init(vehicleId, maneuver, state, manState);
+                previewMatchList.put((Class<Maneuver>) maneuver.getClass(), (Class<IManeuverPreview<?>>) prevG.getClass());
                 return prevG;
             }
             catch (Exception e) {
-                e.printStackTrace();
+                NeptusLog.pub().error(e.getMessage());
             }
         }
 
