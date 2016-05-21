@@ -61,7 +61,7 @@ public class ManeuversUtil {
     
     protected static final int X = 0, Y = 1, Z = 2, T = 3;
 
-    public static final Color noEditBoxColor = new Color(255, 255, 255, 100);
+    public static final Color noEditBoxColor = new Color(255, 160, 0, 100);
     public static final Color editBoxColor = new Color(255, 125, 255, 200);
 
     private ManeuversUtil() {
@@ -451,8 +451,8 @@ public class ManeuversUtil {
         sp.closePath();
         g2d.setColor(!editMode ? noEditBoxColor : editBoxColor);
         g2d.rotate(bearingRad + (!invertY ? -1 : 1) * -crossAngleRadians);
-        Stroke s1 = new BasicStroke(1);
-        Stroke s3 = new BasicStroke(2);
+        Stroke s1 = new BasicStroke(2);
+        Stroke s3 = new BasicStroke(3);
         g2d.setStroke(!editMode ? s1 : s3);
         g2d.draw(sp);
         if (fill) {
