@@ -110,8 +110,6 @@ IMCSerialization, StatisticsProvider, PathProvider {
 
     protected Vector<double[]> points = new Vector<double[]>();
 
-    protected static final int X = 0, Y = 1, Z = 2, T = 3;
-
     /**
      * 
      */
@@ -644,7 +642,7 @@ IMCSerialization, StatisticsProvider, PathProvider {
 
         g2d.rotate(-Math.PI/2);
         //        recalcPoints();
-        ManeuversUtil.paintBox(g2d, zoom, width, length, 0, 0, bearingRad, crossAngleRadians, !firstCurveRight, editing);
+        ManeuversUtil.paintBox(g2d, zoom, width, length, 0, 0, bearingRad, crossAngleRadians, false, !firstCurveRight, editing);
         ManeuversUtil.paintPointLineList(g2d, zoom, points, paintSSRangeShadow, ssRangeShadow, editing);
         //        ManeuversUtil.paintBox(g2d, zoom, width, width, -width/2, -width/2, bearingRad, crossAngleRadians);
         //        ManeuversUtil.paintBox(g2d, zoom, width, width, -width/2, -width/2, bearingRad+Math.toRadians(-60), crossAngleRadians);

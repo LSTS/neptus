@@ -117,7 +117,6 @@ StateRendererInteraction, IMCSerialization, PathProvider {
     // points are [x,y,z,t] offsets 
     protected Vector<double[]> points = new Vector<double[]>();
 
-    protected static final int X = 0, Y = 1, Z = 2, T = 3;
     protected InteractionAdapter adapter = new InteractionAdapter(null);
     protected Point2D lastDragPoint = null;
     protected boolean editing = false;
