@@ -591,8 +591,7 @@ IMCSerialization, StatisticsProvider, PathProvider {
      * Call this to update the maneuver points.
      */
     private void recalcPoints() {
-        double hstep = 2 * range * Math.sin(Math.toRadians(angleApertureDegs / 2));
-        hstep = hstep * (1 - overlapPercentage / 200.);
+        double hstep = calcHStep();
         Vector<double[]> newPoints = ManeuversUtil.calcRowsPoints(width, length, hstep,
                 1, curvOff, squareCurve, Math.toRadians(bearingDegs), Math.toRadians(crossAngleDegs),
                 !firstCurveRight);
@@ -774,6 +773,7 @@ IMCSerialization, StatisticsProvider, PathProvider {
         else
           hstep = 2 * range * Math.sin(Math.toRadians(angleApertureDegs / 2));
         
+        hstep = hstep * (1 - overlapPercentage / 200.);
         return hstep;
     }
     
