@@ -44,7 +44,9 @@ import java.net.UnknownHostException;
 import java.util.ArrayList;
 
 import org.opencv.calib3d.Calib3d;
+import org.opencv.core.CvType;
 import org.opencv.core.Mat;
+import org.opencv.core.Scalar;
 import org.opencv.core.Size;
 import org.opencv.imgproc.Imgproc;
 
@@ -59,9 +61,15 @@ import pt.lsts.neptus.i18n.I18n;
  */
 public class UtilTracking {
     
+    static Mat mapXCam1;
+    static Mat mapYCam1;
+    static Mat mapXCam2;
+    static Mat mapYCam2;
+    static Mat mat;
+
     private UtilTracking() {
     }
-    
+
     public static String[][] readIpUrl(File nameFile) {
         BufferedReader br = null;
         String lineFile;
@@ -162,15 +170,41 @@ public class UtilTracking {
 
     /**
      * Undistort image.
-     * @param image - Distorted image.
+     * @param image - Image captured.
+     * @return mat - Undistorted image.
+     */
+    public static Mat undistort(Mat image, int camID) {
+        if (camID == 1)
+            Imgproc.remap(image, mat, mapXCam1, mapYCam1, Imgproc.INTER_LINEAR);
+        else if (camID == 2)
+            Imgproc.remap(image, mat, mapXCam2, mapYCam2, Imgproc.INTER_LINEAR);
+
+        return mat;
+    }
+
+    /**
+     * Calculated map of distortion of camera.
      * @param cameraMatrix - Camera matrix.
      * @param distCoeffs - Input vector of distortion coefficients.
+     * @param camID - id of camera
      * @return Undistorted image.
      */
-    public static Mat undistort(final Mat image, final Mat cameraMatrix, final Mat distCoeffs) {
-        final Mat newCameraMtx = Calib3d.getOptimalNewCameraMatrix(cameraMatrix, distCoeffs, image.size(), 0);
-        final Mat mat = new Mat();
-        Imgproc.undistort(image, mat, cameraMatrix, distCoeffs, newCameraMtx);
-        return mat;
+    public static void initRemapMap(Mat cameraMatrix, Mat distCoeffs, int camID) {
+        if( camID > 0) {
+            Mat R = new Mat();
+            Size size = new Size(320, 180);
+            mat = new Mat(size, CvType.CV_8UC3, new Scalar(0));
+
+            if (camID == 1) {
+                mapXCam1 = new Mat();
+                mapYCam1 = new Mat();
+                Imgproc.initUndistortRectifyMap(cameraMatrix, distCoeffs, R, cameraMatrix, size, CvType.CV_32F, mapXCam1, mapYCam1);
+            }
+            else if (camID == 2) {
+                mapXCam2 = new Mat();
+                mapYCam2 = new Mat();
+                Imgproc.initUndistortRectifyMap(cameraMatrix, distCoeffs, R, cameraMatrix, size, CvType.CV_32F, mapXCam2, mapYCam2);
+            }
+        }
     }
 }

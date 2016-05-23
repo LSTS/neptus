@@ -311,6 +311,9 @@ public class Tracking extends ConsolePanel implements ItemListener {
             distCoeffsCam1.put(i, 0, distortionCam1[i]);
             distCoeffsCam2.put(i, 0, distortionCam2[i]);
         }
+
+        UtilTracking.initRemapMap(camera1Matrix, distCoeffsCam1, 1);
+        UtilTracking.initRemapMap(camera2Matrix, distCoeffsCam2, 2);
     }
 
     /* (non-Javadoc)
@@ -658,12 +661,13 @@ public class Tracking extends ConsolePanel implements ItemListener {
                 catch (InterruptedException e) {
                     e.printStackTrace();
                 }
+
                 while (true) {
                     if (!closePlugin && startCapture) {
                         if (!matCam1.empty() && !matCam2.empty()) {
                             long startTime = System.currentTimeMillis();
-                            offlineImageCam1 = UtilCv.matToBufferedImage(UtilTracking.undistort(matCam1, camera1Matrix, distCoeffsCam1));
-                            offlineImageCam2 = UtilCv.matToBufferedImage(UtilTracking.undistort(matCam2, camera2Matrix, distCoeffsCam2));
+                            offlineImageCam1 = UtilCv.matToBufferedImage(UtilTracking.undistort(matCam1, 1));
+                            offlineImageCam2 = UtilCv.matToBufferedImage(UtilTracking.undistort(matCam2, 2));
                             
                             showImage(UtilTracking.resizeBufferedImage(offlineImageCam1, panelSize, true), UtilTracking.resizeBufferedImage(offlineImageCam2, panelSize, true));
                             long stopTime = System.currentTimeMillis();
