@@ -84,8 +84,6 @@ import pt.lsts.neptus.util.MathMiscUtils;
 public class RowsManeuver extends Maneuver implements LocatedManeuver, StateRendererInteraction,
 IMCSerialization, StatisticsProvider, PathProvider {
 
-    private static final Color COLOR_HELP = new Color(255, 125, 255);
-
     static boolean unblockNewRows = false;
 
     static {

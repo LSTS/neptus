@@ -105,8 +105,6 @@ StateRendererInteraction, IMCSerialization, PathProvider {
     protected static final double RPM_PERCENT_CONVERSION = (1000/100);
     protected static final double PERCENT_MPS_CONVERSION = RPM_MPS_CONVERSION/RPM_PERCENT_CONVERSION;
     
-    protected static final Color COLOR_HELP = new Color(255, 125, 255);
-    
     protected String editingHelpText = I18n.text("Shift+Click to rotate | Alt+Click to remove last point");
 
     protected ManeuverLocation startLoc = new ManeuverLocation();
