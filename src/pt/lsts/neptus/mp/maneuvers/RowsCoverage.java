@@ -100,9 +100,9 @@ IMCSerialization, StatisticsProvider, PathProvider {
     protected double crossAngleDegs = 0;
     @NeptusProperty(name = "Curve Offset")
     protected double curvOff = 15;
-    @NeptusProperty(name = "Apperture Angle")
-    protected double appertureAngleDegs = 120;
-    @NeptusProperty(name = "Range")
+    @NeptusProperty(name = "Angle Aperture")
+    protected double angleApertureDegs = 120;
+    @NeptusProperty(name = "Max. Range")
     protected int range = 30;
     @NeptusProperty(name = "Overlap Percentage")
     protected short overlapPercentage = 0;
@@ -194,11 +194,11 @@ IMCSerialization, StatisticsProvider, PathProvider {
             else
                 firstCurveRight = true;
 
-            node = doc.selectSingleNode("//appertureAngle");
+            node = doc.selectSingleNode("//angleAperture");
             if (node != null)
-                appertureAngleDegs = Double.parseDouble(node.getText());
+                angleApertureDegs = Double.parseDouble(node.getText());
             else
-                appertureAngleDegs = 120;
+                angleApertureDegs = 120;
 
             node = doc.selectSingleNode("//range");
             if (node != null)
@@ -236,7 +236,7 @@ IMCSerialization, StatisticsProvider, PathProvider {
         clone.speed = speed;
         clone.speedUnits = speedUnits;
 
-        clone.appertureAngleDegs = appertureAngleDegs;
+        clone.angleApertureDegs = angleApertureDegs;
         clone.range = range;
         
         clone.overlapPercentage = overlapPercentage;
@@ -270,13 +270,13 @@ IMCSerialization, StatisticsProvider, PathProvider {
         if (crossAngleDegs != 0)
             root.addElement("crossAngle").setText("" + crossAngleDegs);
 
-        if (appertureAngleDegs != 0)
-            root.addElement("appertureAngle").setText("" + appertureAngleDegs);
+        if (angleApertureDegs != 0)
+            root.addElement("angleAperture").setText("" + angleApertureDegs);
 
         if (range != 0)
             root.addElement("range").setText("" + range);
 
-        if (overlapPercentage != 100)
+        if (overlapPercentage != 0)
             root.addElement("overlapPercentage").setText("" + overlapPercentage);
 
         if (curvOff != 15)
@@ -543,10 +543,10 @@ IMCSerialization, StatisticsProvider, PathProvider {
     }
 
     /**
-     * @return the appertureAngleDegs
+     * @return the angleAppertureDegs
      */
-    public double getAppertureAngleDegs() {
-        return appertureAngleDegs;
+    public double getAngleApertureDegs() {
+        return angleApertureDegs;
     }
     
     /**
@@ -612,7 +612,7 @@ IMCSerialization, StatisticsProvider, PathProvider {
         man.setBearing(Math.toRadians(bearingDegs));
         man.setCrossAngle(Math.toRadians(crossAngleDegs));
         man.setCoff((short)curvOff);
-        man.setApperture(Math.toDegrees(appertureAngleDegs));
+        man.setAngAperture(Math.toDegrees(angleApertureDegs));
         man.setRange((short) range);
         man.setOverlap(overlapPercentage);
         man.setCustom(getCustomSettings());
@@ -668,7 +668,7 @@ IMCSerialization, StatisticsProvider, PathProvider {
         curvOff = man.getCoff();
         overlapPercentage = man.getOverlap();
         
-        appertureAngleDegs = Math.toDegrees(man.getApperture());
+        angleApertureDegs = Math.toDegrees(man.getAngAperture());
         range = man.getRange();
         
         firstCurveRight = (man.getFlags() & Rows.FLG_CURVE_RIGHT) != 0;
@@ -768,10 +768,10 @@ IMCSerialization, StatisticsProvider, PathProvider {
 
     private double calcHStep() {
         double hstep;
-        if (appertureAngleDegs <= 0)
+        if (angleApertureDegs <= 0)
           hstep = 2 * range;
         else
-          hstep = 2 * range * Math.sin(Math.toRadians(appertureAngleDegs / 2));
+          hstep = 2 * range * Math.sin(Math.toRadians(angleApertureDegs / 2));
         
         return hstep;
     }
