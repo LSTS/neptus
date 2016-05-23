@@ -149,7 +149,7 @@ IMCSerialization, StatisticsProvider, PathProvider {
             Node node = doc.selectSingleNode("//basePoint/point");
             ManeuverLocation loc = new ManeuverLocation();
             loc.load(node.asXML());
-            setManeuverLocation(loc);            
+            setManeuverLocation(loc);
             latDegs = getManeuverLocation().getLatitudeDegs();
             lonDegs = getManeuverLocation().getLongitudeDegs();
             z = getManeuverLocation().getZ();
