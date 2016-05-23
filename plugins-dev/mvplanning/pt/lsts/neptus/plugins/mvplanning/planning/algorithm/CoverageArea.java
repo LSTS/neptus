@@ -31,6 +31,7 @@
  */
 package pt.lsts.neptus.plugins.mvplanning.planning.algorithm;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Vector;
 
@@ -111,6 +112,7 @@ public class CoverageArea {
 
     private FollowPath asFollowPathManeuver(List<ManeuverLocation> path) {
         FollowPath fpath = new FollowPath();
+
         ManeuverLocation loc = path.get(0);
 
         fpath.setManeuverLocation(getManeuverLocation(planProfile, loc));
@@ -121,19 +123,24 @@ public class CoverageArea {
 
         Vector<double[]> offsets = new Vector<>();
         for(ManeuverLocation point : path) {
-            double[] newPoint = new double[4];
-            double[] pOffsets = point.getOffsetFrom(loc);
-
-            newPoint[0] = pOffsets[0];
-            newPoint[1] = pOffsets[1];
-            newPoint[2] = pOffsets[2];
-
+            double[] newPoint = getNewPoint(loc, point);
             offsets.add(newPoint);
         }
 
         fpath.setOffsets(offsets);
 
         return fpath;
+    }
+
+    private double[] getNewPoint(ManeuverLocation initialLoc, ManeuverLocation currentLoc) {
+        double[] newPoint = new double[4];
+        double[] pOffsets = currentLoc.getOffsetFrom(initialLoc);
+
+        newPoint[0] = pOffsets[0];
+        newPoint[1] = pOffsets[1];
+        newPoint[2] = pOffsets[2];
+
+        return newPoint;
     }
 
     public PlanType asPlanType() {
