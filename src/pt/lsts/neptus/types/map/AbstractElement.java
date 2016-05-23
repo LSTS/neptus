@@ -43,6 +43,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.awt.geom.Area;
 import java.util.Comparator;
 import java.util.Vector;
 
@@ -893,6 +894,15 @@ public abstract class AbstractElement
     	return null;
     }
 
+    /**
+     * Retrieve the 2d area of this element relatively to the given location 
+     * @param zero The location that identifies the 2D origin of retrieved area
+     * @return An AWT area whose coordinates are relative to given world location
+     */
+    public Area getArea(LocationType zero) {
+        return new Area();
+    }
+    
     /**
      * Returns the offset from absolute 0 as double[3]:
      * <p>

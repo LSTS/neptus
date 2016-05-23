@@ -33,6 +33,12 @@ package pt.lsts.neptus.types.map;
 
 import java.awt.Color;
 import java.awt.Image;
+import java.awt.geom.AffineTransform;
+import java.awt.geom.Area;
+import java.awt.geom.Ellipse2D;
+import java.awt.geom.GeneralPath;
+import java.awt.geom.PathIterator;
+import java.util.Vector;
 
 import org.dom4j.Document;
 import org.dom4j.DocumentHelper;
@@ -270,6 +276,8 @@ public abstract class GeometryElement extends AbstractElement implements Rotatab
         String rootElementName = DEFAULT_ROOT_ELEMENT;
         return asDocument(rootElementName);
     }
+    
+
 
     /*
      * (non-Javadoc)
@@ -451,9 +459,69 @@ public abstract class GeometryElement extends AbstractElement implements Rotatab
         setLength(newDimension[1]);
         setHeight(newDimension[2]);
     }
+    
+    @Override
+    public Vector<LocationType> getShapePoints() {
+        LocationType center = new LocationType(getCenterLocation());
+        Vector<LocationType> locs = new Vector<>();
+        
+        double width = getWidth();
+        double length = getLength();
+        double yaw = getYawRad();
+        
+        Ellipse2D.Double tmp = new Ellipse2D.Double(-width / 2, -length / 2, width, length);
+        
+        AffineTransform rot = new AffineTransform();
+        rot.rotate(yaw);
+        
+        PathIterator it = tmp.getPathIterator(rot, 2f);
+
+        while(!it.isDone()) {
+
+            double[] offsets = new double[6];
+
+            int op = it.currentSegment(offsets);
+            if (op == PathIterator.SEG_MOVETO || op == PathIterator.SEG_LINETO) {
+                LocationType loc = new LocationType(center);
+                loc.translatePosition(offsets[0], offsets[1], 0);
+                locs.add(loc); 
+            }
+            it.next();
+        }
+        
+        return locs;
+    }
+    
+    @Override
+    public Area getArea(LocationType zero) {
+        
+        GeneralPath path = new GeneralPath();
+        boolean firstLoc = true;
+        for (LocationType loc : getShapePoints()) {
+            double[] offsets = loc.getOffsetFrom(zero);
+            if (firstLoc)
+                path.moveTo(offsets[0], offsets[1]);
+            firstLoc = false;
+            path.lineTo(offsets[0], offsets[1]);
+        }
+        path.closePath();
+        return new Area(path);
+    }
+    
 
     @Override
     public double getTopHeight() {
         return getCenterLocation().getHeight() + getHeight() / 2;
+    }
+    
+    public static void main(String args[]) {
+        EllipsoidElement pp = new EllipsoidElement();
+        pp.setCenterLocation(new LocationType(41, -8));
+        pp.setYawDeg(90);
+        pp.setWidth(200);
+        pp.setHeight(100);
+        pp.setLength(150);
+        
+        System.out.println(pp.getShapePoints().size());
     }
 }

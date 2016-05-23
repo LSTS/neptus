@@ -36,6 +36,7 @@ import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.Stroke;
 import java.awt.geom.AffineTransform;
+import java.awt.geom.Area;
 import java.awt.geom.GeneralPath;
 import java.awt.geom.Point2D;
 import java.util.Iterator;
@@ -506,6 +507,21 @@ public class PathElement extends AbstractElement {
         }
 
         return ret;
+    }
+    
+    @Override
+    public Area getArea(LocationType zero) {
+        GeneralPath path = new GeneralPath();
+        boolean firstLoc = true;
+        for (LocationType loc : getShapePoints()) {
+            double[] offsets = loc.getOffsetFrom(zero);
+            if (firstLoc)
+                path.moveTo(offsets[0], offsets[1]);
+            firstLoc = false;
+            path.lineTo(offsets[0], offsets[1]);
+        }
+        path.closePath();
+        return new Area(path);        
     }
 
     public boolean isShape() {

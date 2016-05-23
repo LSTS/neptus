@@ -35,8 +35,11 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.GraphicsConfiguration;
+import java.awt.geom.AffineTransform;
+import java.awt.geom.PathIterator;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
+import java.util.Vector;
 
 import javax.media.j3d.BranchGroup;
 import javax.media.j3d.Canvas3D;
@@ -104,8 +107,49 @@ public class ParallelepipedElement extends GeometryElement {
         g.draw(tmp);
     }
 
+    @Override
+    public Vector<LocationType> getShapePoints() {
+        LocationType center = new LocationType(getCenterLocation());
+        Vector<LocationType> locs = new Vector<>();
+        
+        double width = getWidth();
+        double length = getLength();
+        double yaw = getYawRad();
+        
+        Rectangle2D.Double tmp = new Rectangle2D.Double(-width / 2, -length / 2, width, length);
+        
+        AffineTransform rot = new AffineTransform();
+        rot.rotate(yaw);
+        
+        PathIterator it = tmp.getPathIterator(rot);
+
+        while(!it.isDone()) {
+
+            double[] offsets = new double[6];
+
+            int op = it.currentSegment(offsets);
+            if (op == PathIterator.SEG_MOVETO || op == PathIterator.SEG_LINETO) {
+                LocationType loc = new LocationType(center);
+                loc.translatePosition(offsets[0], offsets[1], 0);
+                locs.add(loc); 
+            }
+            it.next();
+        }
+        
+        return locs;
+    }
+    
     public static void main(String args[]) {
         JFrame frame = new JFrame("Box and Sphere");
+        
+        ParallelepipedElement pp = new ParallelepipedElement();
+        pp.setCenterLocation(new LocationType(41, -8));
+        pp.setYawDeg(90);
+        pp.setWidth(200);
+        pp.setHeight(100);
+        pp.setLength(150);
+        
+        System.out.println(pp.getShapePoints());        
 
         GraphicsConfiguration config = SimpleUniverse.getPreferredConfiguration();
 
