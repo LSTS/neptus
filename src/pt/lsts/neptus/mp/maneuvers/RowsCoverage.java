@@ -568,7 +568,7 @@ IMCSerialization, StatisticsProvider, PathProvider {
         g2d.rotate(-Math.PI/2);
         ManeuversUtil.paintBox(g2d, zoom, width, length, 0, 0, Math.toRadians(bearingDegs),
                 Math.toRadians(crossAngleDegs), true, !firstCurveRight, editing);
-        ManeuversUtil.paintPointLineList(g2d, zoom, points, editing, calcHStep() / 2, editing);
+        ManeuversUtil.paintPointLineList(g2d, zoom, points, editing, calcCov() / 2, editing);
         g2d.rotate(+Math.PI/2);
     }
 
@@ -752,13 +752,18 @@ IMCSerialization, StatisticsProvider, PathProvider {
         return z;
     }
 
-    private double calcHStep() {
-        double hstep;
+    private double calcCov() {
+        double cov;
         if (angleApertureDegs <= 0)
-          hstep = 2 * range;
+          cov = 2 * range;
         else
-          hstep = 2 * range * Math.sin(Math.toRadians(angleApertureDegs / 2));
+          cov = 2 * range * Math.sin(Math.toRadians(angleApertureDegs / 2));
         
+        return cov;
+    }
+
+    private double calcHStep() {
+        double hstep = calcCov();
         hstep = hstep * (1 - overlapPercentage / 200.);
         return hstep;
     }
