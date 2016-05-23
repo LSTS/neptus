@@ -144,27 +144,20 @@ IMCSerialization, StatisticsProvider, PathProvider {
     public void loadFromXML(String xml) {
         try {
             Document doc = DocumentHelper.parseText(xml);
-            //NeptusLog.pub().info("<###> "+doc.asXML());
-            // basePoint
-            Node node = doc.selectSingleNode("//basePoint/point");
-            ManeuverLocation loc = new ManeuverLocation();
-            loc.load(node.asXML());
-            setManeuverLocation(loc);
-            latDegs = getManeuverLocation().getLatitudeDegs();
-            lonDegs = getManeuverLocation().getLongitudeDegs();
-            z = getManeuverLocation().getZ();
-            zunits = getManeuverLocation().getZUnits();
-
-            // Velocity
-            Node speedNode = doc.selectSingleNode("//speed");
-            speed = Double.parseDouble(speedNode.getText());
-            speedUnits = SPEED_UNITS.parse(speedNode.valueOf("@unit"));
+            
+            ManeuversXMLUtil.parseLocation(doc.getRootElement(), this);
+            try {
+                ManeuversXMLUtil.parseSpeed(doc.getRootElement(), this);
+            }
+            catch (Exception e) {
+                e.printStackTrace();
+            }
 
             bearingDegs = Double.parseDouble(doc.selectSingleNode("//bearing").getText());
 
             // area
             width = Double.parseDouble(doc.selectSingleNode("//width").getText());
-            node = doc.selectSingleNode("//length");
+            Node node = doc.selectSingleNode("//length");
             if (node != null)
                 length = Double.parseDouble(node.getText());
             else
@@ -211,7 +204,6 @@ IMCSerialization, StatisticsProvider, PathProvider {
                 overlapPercentage = Short.parseShort(node.getText());
             else
                 overlapPercentage = 0;
-
         }
         catch (Exception e) {
             NeptusLog.pub().error(this, e);
@@ -251,17 +243,16 @@ IMCSerialization, StatisticsProvider, PathProvider {
 
     @Override
     public Document getManeuverAsDocument(String rootElementName) {
-        Document document = DocumentHelper.createDocument();
-        Element root = document.addElement( rootElementName );
-        root.addAttribute("kind", "automatic");
+        Document doc = ManeuversXMLUtil.createBaseDoc(getType());
+        ManeuversXMLUtil.addLocation(doc.getRootElement(), this);
+        try {
+            ManeuversXMLUtil.addSpeed(doc.getRootElement(), this);
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+        }
 
-        //basePoint
-        Element basePoint = root.addElement("basePoint");
-        Element point = getManeuverLocation().asElement("point");
-        basePoint.add(point);
-        Element radTolerance = basePoint.addElement("radiusTolerance");
-        radTolerance.setText("0");    
-        basePoint.addAttribute("type", "pointType");
+        Element root = doc.getRootElement();
 
         root.addElement("width").setText(""+width);
         root.addElement("length").setText(""+length);
@@ -288,12 +279,7 @@ IMCSerialization, StatisticsProvider, PathProvider {
         if (!firstCurveRight)
             root.addElement("firstCurveRight").setText("" + firstCurveRight);
 
-        //speed
-        Element speedElem = root.addElement("speed");        
-        speedElem.addAttribute("unit", speedUnits.getString());
-        speedElem.setText("" + speed);
-
-        return document;
+        return doc;
     }
 
     @Override
@@ -793,13 +779,10 @@ IMCSerialization, StatisticsProvider, PathProvider {
 
     @Override
     public void setAssociatedSwitch(ToolbarSwitch tswitch) {
-
     }
     
     @Override
     public void paintInteraction(Graphics2D g, StateRenderer2D source) {
-        // TODO Auto-generated method stub
-        
     }
     
     @Override
@@ -825,6 +808,5 @@ IMCSerialization, StatisticsProvider, PathProvider {
         RowsCoverage rc1 = new RowsCoverage();
         rc1.loadFromXML(XMLUtil.getAsPrettyPrintFormatedXMLString(rc.asXML().substring(39)));
         PluginUtils.editPluginProperties(rc1, true);
-        
     }
 }
