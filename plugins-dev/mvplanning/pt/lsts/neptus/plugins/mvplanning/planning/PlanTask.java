@@ -41,11 +41,17 @@ import pt.lsts.neptus.plugins.mvplanning.jaxb.Profile;
 
 /* Wrapper around PlanSpecification */
 public class PlanTask {
+    public static enum PLAN_TYPE {
+        COVERAGE_AREA,
+        VISIT_POINT
+    };
+
     private String planId;
     private PlanSpecification plan;
     private Profile planProfile;
     private double timestamp;
     private byte[] md5;
+    private PLAN_TYPE planType;
 
     public PlanTask(String id, PlanSpecification plan, Profile planProfile, byte[] planMd5) {
         this.planId = id;
@@ -81,6 +87,14 @@ public class PlanTask {
 
     public void setPlan(PlanSpecification imcPlan) {
        this.plan = imcPlan;
+    }
+
+    public void setPlanType(PLAN_TYPE pType) {
+        this.planType = pType;
+    }
+
+    public PLAN_TYPE getPlanType() {
+        return planType;
     }
 
     /**
