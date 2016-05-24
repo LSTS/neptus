@@ -64,8 +64,28 @@ public class SpiralSTC {
         return this.path;
     }
 
+    /**
+     * Finds and returns the first unobstructed map cell
+     * @return first unobstructed cell
+     * @return Null if value not found
+     * */
+    private MapCell computeStartCell(GridArea areaToCover) {
+        List<MapCell> cells = areaToCover.getAreaCells();
+        MapCell startCell = null;
+
+        int i = 0;
+        while(startCell == null && i < cells.size()) {
+            MapCell currCell = cells.get(i);
+            if(!currCell.hasObstacle())
+                startCell = currCell;
+            i++;
+        }
+
+        return startCell;
+    }
+
     private List<ManeuverLocation> generatePath(GridArea areaToCover) {
-        MST minSpanningTree = new MST(areaToCover.getAreaCells().get(0));
+        MST minSpanningTree = new MST(computeStartCell(areaToCover));
         List<MapCell> nodeSequence = minSpanningTree.getNodeSequence();
 
         /* there's nothing to do */
