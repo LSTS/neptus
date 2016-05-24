@@ -39,19 +39,32 @@ import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.util.ArrayList;
+import java.util.Vector;
 
 import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 
+import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.console.ConsoleLayout;
 import pt.lsts.neptus.console.ConsolePanel;
 import pt.lsts.neptus.i18n.I18n;
+import pt.lsts.neptus.mp.ManeuverLocation;
+import pt.lsts.neptus.mp.ManeuverLocation.Z_UNITS;
+import pt.lsts.neptus.mp.maneuvers.FollowTrajectory;
+import pt.lsts.neptus.mp.maneuvers.Goto;
+import pt.lsts.neptus.mp.maneuvers.StationKeeping;
+import pt.lsts.neptus.plugins.NeptusProperty;
 import pt.lsts.neptus.plugins.PluginDescription;
 import pt.lsts.neptus.plugins.Popup;
 import pt.lsts.neptus.plugins.Popup.POSITION;
+import pt.lsts.neptus.types.coord.LocationType;
+import pt.lsts.neptus.types.map.PlanUtil;
+import pt.lsts.neptus.types.mission.plan.PlanType;
 import pt.lsts.neptus.types.vehicle.VehicleType;
+import pt.lsts.neptus.util.GuiUtils;
 import pt.lsts.neptus.wizard.PlanSelectionPage;
+import pt.lsts.neptus.wizard.PojoPropertiesPage;
 import pt.lsts.neptus.wizard.VehicleSelectionPage;
 import pt.lsts.neptus.wizard.WizardPage;
 
@@ -71,6 +84,8 @@ public class VerticalFormationWizard extends ConsolePanel {
     private JLabel lblTop = new JLabel();
     private PlanSelectionPage planSelection;
     private VehicleSelectionPage vehicleSelection;
+    private PojoPropertiesPage<VerticalFormationOptions> options = 
+            new PojoPropertiesPage<VerticalFormationOptions>(new VerticalFormationOptions());
     int page = 0;
     
     /**
@@ -106,8 +121,10 @@ public class VerticalFormationWizard extends ConsolePanel {
         
         planSelection = new PlanSelectionPage(console.getMission(), false);
         vehicleSelection = new VehicleSelectionPage(new ArrayList<VehicleType>(), true);
+        
         pages.add(planSelection);
         pages.add(vehicleSelection);
+        pages.add(options);
         main = new JPanel(new CardLayout());
         pages.forEach( p -> main.add(p, p.getTitle()));
         add(main, BorderLayout.CENTER);
@@ -116,7 +133,28 @@ public class VerticalFormationWizard extends ConsolePanel {
     
     public void advance(ActionEvent evt) {
         if (page == pages.size()-1) {            
-            System.out.println("FINISH!");
+            for (WizardPage<?> p : pages) {
+                try {
+                    p.getSelection();
+                }
+                catch (Exception e) {
+                    page = pages.indexOf(p);
+                    ((CardLayout)main.getLayout()).show(main, p.getTitle());
+                    if (page < pages.size()-1) 
+                        btnAdvance.setText(I18n.text("Next"));
+                    GuiUtils.errorMessage(dialog, I18n.text("Invalid parameters"), e.getMessage());      
+                    return;
+                }
+            }
+            try {
+                generatePlan();
+            }
+            catch (Exception e) {
+                NeptusLog.pub().error(e.getMessage(), e);
+            }
+            
+            dialog.setVisible(false);
+            dialog.dispose();
             return;
         }
         else if (page == pages.size()-2) {
@@ -141,7 +179,8 @@ public class VerticalFormationWizard extends ConsolePanel {
     }
 
     public void cancel(ActionEvent evt) {
-        System.out.println("Cancel...");
+        dialog.setVisible(false);
+        dialog.dispose();
     }
 
 
@@ -156,5 +195,101 @@ public class VerticalFormationWizard extends ConsolePanel {
         // TODO Auto-generated method stub
         
     }
+    
+    private void generatePlan() throws Exception {
+        System.out.println("GENERATE PLAN");
+        PlanType plan = planSelection.getSelection().iterator().next();
+        ArrayList<VehicleType> vehicles = new ArrayList<>();
+        vehicles.addAll(vehicleSelection.getSelection());
+        VerticalFormationOptions params = options.getSelection();
+        ArrayList<ManeuverLocation> locations = new ArrayList<>();
+        locations.addAll(PlanUtil.getPlanWaypoints(plan));
+        double bearing = 0;
+        
+        if (locations.size() > 1)
+            bearing = locations.get(1).getXYAngle(locations.get(0));
+        
+        FollowTrajectory formation = new FollowTrajectory();
+        long arrivalTime = System.currentTimeMillis() + params.startInMins * 60 * 1000;
+        double depth = params.firstDepthMeters;
+        
+        int v = 0;
+        for (VehicleType vehicle : vehicles) {
+            PlanType generated = new PlanType(getConsole().getMission());
+            generated.setId(params.planId+"_"+vehicle.getId());
+            ManeuverLocation first = locations.get(0);
+            first.setZ(depth);
+            first.setZUnits(Z_UNITS.DEPTH);
+            formation.setManeuverLocation(first);
+            formation.setId("formation");
+            Vector<double[]> waypoints = new Vector<>();
+            LocationType previous = first;
+            for (LocationType l : locations) {
+                double[] point = new double[4];
+                double[] offsets = l.getOffsetFrom(first);
+                double time = l.getHorizontalDistanceInMeters(previous) / params.speedMps;
+                point[0] = offsets[0];
+                point[1] = offsets[1];
+                point[2] = 0;
+                point[3] = time;
+                previous = l;
+                waypoints.addElement(point);
+            }
+            formation.setOffsets(waypoints);
+            double offsetX = 50 * Math.cos(bearing);
+            double offsetY = 50 * Math.sin(bearing);
+            ManeuverLocation s1 = new ManeuverLocation(first);
+            s1.translatePosition(offsetX, offsetY, 0);
+            Goto man1 = new Goto();
+            man1.setId("1");
+            man1.setManeuverLocation(s1);
+            Goto man2 = new Goto();
+            man2.setId("2");
+            man2.setManeuverLocation(new ManeuverLocation(first));
+            ManeuverLocation end1 = new ManeuverLocation(formation.getEndLocation());
+            double off = (v % 2 == 1)? v * 30 : v * -30;
+            end1.translatePosition(30, off, 0);
+            Goto man3 = new Goto();
+            man3.setId("4");
+            man3.setManeuverLocation(end1);
+            ManeuverLocation end2 = new ManeuverLocation(end1);
+            end2.setZ(0);            
+            StationKeeping sk = new StationKeeping();
+            sk.setId("end");
+            sk.setManeuverLocation(end2);
+            
+            generated.getGraph().addManeuver(man1);
+            generated.getGraph().addManeuver(man2);
+            generated.getGraph().addManeuver(formation);    
+            generated.getGraph().addManeuver(man3);
+            generated.getGraph().addManeuver(sk);
+            generated.getGraph().addTransition(man1.getId(), man2.getId(), "true");
+            generated.getGraph().addTransition(man2.getId(), formation.getId(), "true");
+            generated.getGraph().addTransition(formation.getId(), man3.getId(), "true");
+            generated.getGraph().addTransition(man3.getId(), sk.getId(), "true");
+            
+            PlanUtil.setPlanSpeed(plan, params.speedMps);
+            getConsole().getMission().addPlan(generated);
+            v++;
+        }
+        getConsole().getMission().save(true);
+        getConsole().warnMissionListeners();
+    }
 
+    public static class VerticalFormationOptions {
+        @NeptusProperty(name="Depth separation (meters)", description="Vertical separation between the vehicles")
+        public double depthSeparationMeters = 1;
+        
+        @NeptusProperty(name="Depth for the first vehicle", description= "The depth of other vehicles will have \"depth separation\" meters)")
+        public double firstDepthMeters = 0.5;
+        
+        @NeptusProperty(name="Formation speed (m/s)", description="Speed to use while travelling in vertical formation")
+        public double speedMps = 1.2;
+        
+        @NeptusProperty(name="Minutes till first point", description="Amount of minutes to travel to the first waypoint")
+        public int startInMins = 1;
+        
+        @NeptusProperty(name="Generated plans prefix", description="Name of the generated plan will <prefix>_<vehicle>")
+        public String planId = "formation";
+    }
 }
