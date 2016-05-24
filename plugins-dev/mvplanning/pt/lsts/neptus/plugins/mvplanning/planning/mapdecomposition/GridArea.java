@@ -171,9 +171,8 @@ public class GridArea extends GeometryElement implements MapDecomposition {
                 LocationType cellLoc = new LocationType(topLeft);
                 cellLoc.translatePosition(-verticalShift, horizontalShift, 0);
 
-                /* TODO check for obstacles, using Environment */
-                /* TODO set correct bounds for each map cells (set vertices) */
-                decomposedMap[i][j] = new GridCell(cellLoc, i, j, false);
+                boolean hasObstacle = env.areaHasObstacle(this.center, cellLoc, cellWidth, cellHeight, getYaw());
+                decomposedMap[i][j] = new GridCell(cellLoc, i, j, hasObstacle);
                 decomposedMap[i][j].setId("" + nodeId);
                 decomposedMap[i][j].rotate(getYaw(), topLeft);
                 nodeId++;
