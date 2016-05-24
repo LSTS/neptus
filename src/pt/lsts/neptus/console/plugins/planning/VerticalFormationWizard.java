@@ -39,20 +39,25 @@ import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.Vector;
 
 import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 
+import org.apache.commons.lang.ArrayUtils;
+
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.console.ConsoleLayout;
 import pt.lsts.neptus.console.ConsolePanel;
+import pt.lsts.neptus.console.plugins.MissionChangeListener;
 import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.mp.ManeuverLocation;
 import pt.lsts.neptus.mp.ManeuverLocation.Z_UNITS;
 import pt.lsts.neptus.mp.maneuvers.FollowTrajectory;
 import pt.lsts.neptus.mp.maneuvers.Goto;
+import pt.lsts.neptus.mp.maneuvers.ScheduledGoto;
 import pt.lsts.neptus.mp.maneuvers.StationKeeping;
 import pt.lsts.neptus.plugins.NeptusProperty;
 import pt.lsts.neptus.plugins.PluginDescription;
@@ -60,6 +65,7 @@ import pt.lsts.neptus.plugins.Popup;
 import pt.lsts.neptus.plugins.Popup.POSITION;
 import pt.lsts.neptus.types.coord.LocationType;
 import pt.lsts.neptus.types.map.PlanUtil;
+import pt.lsts.neptus.types.mission.MissionType;
 import pt.lsts.neptus.types.mission.plan.PlanType;
 import pt.lsts.neptus.types.vehicle.VehicleType;
 import pt.lsts.neptus.util.GuiUtils;
@@ -73,7 +79,7 @@ import pt.lsts.neptus.wizard.WizardPage;
  */
 @PluginDescription
 @Popup(width=800, height=600, pos=POSITION.CENTER)
-public class VerticalFormationWizard extends ConsolePanel {
+public class VerticalFormationWizard extends ConsolePanel implements MissionChangeListener {
 
     private static final long serialVersionUID = -8189579968717153114L;
 
@@ -129,6 +135,17 @@ public class VerticalFormationWizard extends ConsolePanel {
         pages.forEach( p -> main.add(p, p.getTitle()));
         add(main, BorderLayout.CENTER);
         lblTop.setText(pages.get(0).getTitle());
+    }
+    
+    
+    @Override
+    public void missionUpdated(MissionType mission) {
+        planSelection.setMission(mission);
+    }
+
+    @Override
+    public void missionReplaced(MissionType mission) {
+        planSelection.setMission(mission);        
     }
     
     public void advance(ActionEvent evt) {
@@ -209,19 +226,20 @@ public class VerticalFormationWizard extends ConsolePanel {
         if (locations.size() > 1)
             bearing = locations.get(1).getXYAngle(locations.get(0));
         
-        FollowTrajectory formation = new FollowTrajectory();
         long arrivalTime = System.currentTimeMillis() + params.startInMins * 60 * 1000;
         double depth = params.firstDepthMeters;
         
         int v = 0;
         for (VehicleType vehicle : vehicles) {
             PlanType generated = new PlanType(getConsole().getMission());
+            generated.setVehicle(vehicle);
             generated.setId(params.planId+"_"+vehicle.getId());
-            ManeuverLocation first = locations.get(0);
+            ManeuverLocation first = new ManeuverLocation(locations.get(0));
             first.setZ(depth);
             first.setZUnits(Z_UNITS.DEPTH);
-            formation.setManeuverLocation(first);
-            formation.setId("formation");
+            FollowTrajectory formation = new FollowTrajectory();
+            formation.setManeuverLocation(new ManeuverLocation(first));
+            formation.setId("3");
             Vector<double[]> waypoints = new Vector<>();
             LocationType previous = first;
             for (LocationType l : locations) {
@@ -232,20 +250,25 @@ public class VerticalFormationWizard extends ConsolePanel {
                 point[1] = offsets[1];
                 point[2] = 0;
                 point[3] = time;
+                System.out.println("Using time "+time+" to travel "+ l.getHorizontalDistanceInMeters(previous));
                 previous = l;
+                System.out.println(ArrayUtils.toString(point));
                 waypoints.addElement(point);
             }
             formation.setOffsets(waypoints);
+            
             double offsetX = 50 * Math.cos(bearing);
             double offsetY = 50 * Math.sin(bearing);
             ManeuverLocation s1 = new ManeuverLocation(first);
             s1.translatePosition(offsetX, offsetY, 0);
-            Goto man1 = new Goto();
+            ScheduledGoto man1 = new ScheduledGoto();
             man1.setId("1");
             man1.setManeuverLocation(s1);
-            Goto man2 = new Goto();
+            man1.setArrivalTime(new Date(arrivalTime));
+            ScheduledGoto man2 = new ScheduledGoto();
             man2.setId("2");
             man2.setManeuverLocation(new ManeuverLocation(first));
+            man2.setArrivalTime(new Date(arrivalTime + 50 * 1000));
             ManeuverLocation end1 = new ManeuverLocation(formation.getEndLocation());
             double off = (v % 2 == 1)? v * 30 : v * -30;
             end1.translatePosition(30, off, 0);
@@ -255,7 +278,8 @@ public class VerticalFormationWizard extends ConsolePanel {
             ManeuverLocation end2 = new ManeuverLocation(end1);
             end2.setZ(0);            
             StationKeeping sk = new StationKeeping();
-            sk.setId("end");
+            sk.setDuration(0);
+            sk.setId("5");
             sk.setManeuverLocation(end2);
             
             generated.getGraph().addManeuver(man1);
@@ -268,9 +292,10 @@ public class VerticalFormationWizard extends ConsolePanel {
             generated.getGraph().addTransition(formation.getId(), man3.getId(), "true");
             generated.getGraph().addTransition(man3.getId(), sk.getId(), "true");
             
-            PlanUtil.setPlanSpeed(plan, params.speedMps);
+            PlanUtil.setPlanSpeed(generated, params.speedMps);
             getConsole().getMission().addPlan(generated);
             v++;
+            depth += params.depthSeparationMeters;
         }
         getConsole().getMission().save(true);
         getConsole().warnMissionListeners();

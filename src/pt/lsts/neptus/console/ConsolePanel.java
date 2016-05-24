@@ -336,6 +336,10 @@ public abstract class ConsolePanel extends JPanel implements PropertiesProvider,
             
             if (SwingUtilities.isDescendingFrom(ConsolePanel.this.getParent(), dialog)) {
                 dialog.setVisible(!dialog.isVisible());
+                if (dialog.isVisible())
+                    popupShown();
+                else
+                    popupHidden();
                 setPopupPosition(popupPosition);
             }
         }
@@ -586,6 +590,14 @@ public abstract class ConsolePanel extends JPanel implements PropertiesProvider,
     }
 
     public abstract void initSubPanel();
+    
+    public void popupShown() {
+        // do nothing by default
+    }
+    
+    public void popupHidden() {
+        // do nothing by default
+    }
 
     public void parseXML(String str) {
         Document document = null;

@@ -60,6 +60,15 @@ public class PlanSelectionPage extends WizardPage<Collection<PlanType>> {
         add(new JScrollPane(component), BorderLayout.CENTER);
     }
     
+    public void setMission(MissionType mission) {
+        this.mission = mission;
+        removeAll();
+        component = CheckboxList.getInstance(mission.getIndividualPlansList().keySet().toArray(new String[0]));
+        setLayout(new BorderLayout());
+        add(new JScrollPane(component), BorderLayout.CENTER);
+        revalidate();
+    }
+    
     @Override
     public String getTitle() {
         return "Select plan"+(multiSelect? "s" : "");
