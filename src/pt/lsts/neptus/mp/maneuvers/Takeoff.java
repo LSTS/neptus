@@ -281,11 +281,25 @@ public class Takeoff extends Maneuver implements LocatedManeuver, IMCSerializati
     @Override
     public IMCMessage serializeToIMC() {
         pt.lsts.imc.Takeoff man = new pt.lsts.imc.Takeoff();
-//        man.setLat(Math.toRadians(latDegs));
-//        man.setLon(Math.toRadians(lonDegs));
-//        man.setZ(z);
-//        man.setZUnits(pt.lsts.imc.Takeoff.Z_UNITS.valueOf(getManeuverLocation().getZUnits().toString()));        
-//        man.setSpeed(speed);
+        man.setUavType(uavType);
+        man.setLat(Math.toRadians(latDegs));
+        man.setLon(Math.toRadians(lonDegs));
+        man.setZ(z);
+        man.setZUnits(pt.lsts.imc.Takeoff.Z_UNITS.valueOf(getManeuverLocation().getZUnits().toString()));        
+        man.setSpeed(speed);
+        
+        String speedU = this.getSpeedUnits().name();
+        if ("m/s".equalsIgnoreCase(speedU))
+            man.setSpeedUnits(pt.lsts.imc.Takeoff.SPEED_UNITS.METERS_PS);
+        else if ("RPM".equalsIgnoreCase(speedU))
+            man.setSpeedUnits(pt.lsts.imc.Takeoff.SPEED_UNITS.RPM);
+        else if ("%".equalsIgnoreCase(speedU))
+            man.setSpeedUnits(pt.lsts.imc.Takeoff.SPEED_UNITS.PERCENTAGE);
+        else if ("percentage".equalsIgnoreCase(speedU))
+            man.setSpeedUnits(pt.lsts.imc.Takeoff.SPEED_UNITS.PERCENTAGE);
+
+        man.setTakeoffPitch(Math.toRadians(takeoffPitchAngleDegs));
+        
         return man;
     }
 
@@ -303,23 +317,25 @@ public class Takeoff extends Maneuver implements LocatedManeuver, IMCSerializati
             return;
         }
 
-//        latDegs = Math.toDegrees(man.getLat());
-//        lonDegs = Math.toDegrees(man.getLon());
-//        z = man.getZ();
-//        zUnits = ManeuverLocation.Z_UNITS.valueOf(man.getZUnits().toString());
-//
-//        speed = man.getSpeed();
-//        switch (man.getSpeedUnits()) {
-//            case METERS_PS:
-//                speedUnits = SPEED_UNITS.METERS_PS;
-//                break;
-//            case RPM:
-//                speedUnits = SPEED_UNITS.RPM;
-//                break;
-//            default:
-//                speedUnits = SPEED_UNITS.PERCENTAGE;
-//                break;
-//        }
+        uavType = man.getUavType();
+        
+        latDegs = Math.toDegrees(man.getLat());
+        lonDegs = Math.toDegrees(man.getLon());
+        z = man.getZ();
+        zUnits = ManeuverLocation.Z_UNITS.valueOf(man.getZUnits().toString());
+
+        speed = man.getSpeed();
+        switch (man.getSpeedUnits()) {
+            case METERS_PS:
+                speedUnits = SPEED_UNITS.METERS_PS;
+                break;
+            case RPM:
+                speedUnits = SPEED_UNITS.RPM;
+                break;
+            default:
+                speedUnits = SPEED_UNITS.PERCENTAGE;
+                break;
+        }
         
         takeoffPitchAngleDegs = Math.toDegrees(man.getTakeoffPitch());
     }
