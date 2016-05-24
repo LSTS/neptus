@@ -356,7 +356,6 @@ public class Land extends Maneuver implements LocatedManeuver, IMCSerialization 
         Stroke sO = g2d.getStroke();
         Stroke s1 = new BasicStroke(2);
         Stroke s2 = new BasicStroke(16);
-        //Stroke sR = new BasicStroke((float) (2 * sRange * zoom), BasicStroke.CAP_BUTT, BasicStroke.JOIN_MITER);
 
         g2d.setColor(color2);
         g2d.setStroke(s2);
@@ -364,7 +363,8 @@ public class Land extends Maneuver implements LocatedManeuver, IMCSerialization 
         g2d.setColor(Color.WHITE);
         g2d.setStroke(s1);
         g2d.draw(new Line2D.Double(0, 0, dp[0], dp[1]));
-
+        g2d.setStroke(sO);
+        
         String str = I18n.textfc("d=%value m", "This means distance in meters.",
                 MathMiscUtils.round(distance, 1));
         g2d.setColor(Color.BLACK);
