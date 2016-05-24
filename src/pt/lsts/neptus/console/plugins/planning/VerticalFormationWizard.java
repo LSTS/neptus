@@ -239,6 +239,8 @@ public class VerticalFormationWizard extends ConsolePanel implements MissionChan
             first.setZUnits(Z_UNITS.DEPTH);
             FollowTrajectory formation = new FollowTrajectory();
             formation.setManeuverLocation(new ManeuverLocation(first));
+            formation.setSpeedUnits("m/s");
+            formation.setSpeed(params.speedMps);
             formation.setId("3");
             Vector<double[]> waypoints = new Vector<>();
             LocationType previous = first;
