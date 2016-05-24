@@ -102,6 +102,7 @@ public class MVPlanning extends ConsolePanel implements PlanChangeListener, Rend
     private VehicleAwareness vawareness;
     private PlanAllocator pAlloc;
     private PlanGenerator pGen;
+    private Environment env;
 
     private Map<String, PlanType> selectedPlans;
 
@@ -128,6 +129,7 @@ public class MVPlanning extends ConsolePanel implements PlanChangeListener, Rend
         vawareness = new VehicleAwareness(this.console);
         pAlloc = new PlanAllocator(vawareness, this.console);
         pGen = new PlanGenerator(pAlloc, this.console);
+        env = new Environment(this.console);
     }
 
     private void initUi() {
@@ -229,7 +231,7 @@ public class MVPlanning extends ConsolePanel implements PlanChangeListener, Rend
                 ParallelepipedElement elem = (ParallelepipedElement) event.getChangedObject();
                 LocationType lt = elem.getCenterLocation();
 
-                opArea = new GridArea(60, elem.getWidth(), elem.getLength(), elem.getYawRad(), lt);
+                opArea = new GridArea(60, elem.getWidth(), elem.getLength(), elem.getYawRad(), lt, env);
 
                 mst = new MST(opArea.getAllCells()[0][0]);
 

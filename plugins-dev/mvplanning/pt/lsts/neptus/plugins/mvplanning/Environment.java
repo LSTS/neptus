@@ -31,7 +31,11 @@
  */
 package pt.lsts.neptus.plugins.mvplanning;
 
+import java.awt.geom.AffineTransform;
+import java.awt.geom.Area;
+import java.awt.geom.Rectangle2D;
 import java.util.ArrayList;
+import java.util.Vector;
 
 import pt.lsts.neptus.mp.MapChangeEvent;
 import pt.lsts.neptus.mp.MapChangeListener;
@@ -66,14 +70,30 @@ public class Environment implements MapChangeListener {
                 .anyMatch((s) -> s.containsPoint(lt, null));
     }
 
+    /**
+     * Detect if a given area collides with any console obstacle
+     * */
+    public boolean areaHasObstacle(LocationType origin, LocationType center, double width, double height, double yaw) {
+        double[] offsets = center.getOffsetFrom(origin);
+        Rectangle2D.Double areaRec = new Rectangle2D.Double(offsets[0] - width/2, offsets[1] - height/2, width, height);
+        AffineTransform rot = new AffineTransform();
+        rot.rotate(yaw);
+
+        Area area = new Area(areaRec);
+        area.transform(rot);
+
+        area.intersect(console.getMapGroup().getObstaclesArea(origin));
+        return !area.isEmpty();
+    }
+
     public void addObstacle(AbstractElement obstacle) {
         consoleObstacles.add(obstacle);
     }
 
     @Override
     public void mapChanged(MapChangeEvent mapChange) {
-        if(mapChange != null) {
-            AbstractElement object = mapChange.getChangedObject();
+        AbstractElement object = mapChange.getChangedObject();
+        if(mapChange != null && object != null) {
             if(object.isObstacle())
                 addObstacle(object);
         }
