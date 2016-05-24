@@ -88,6 +88,8 @@ public class GridArea extends GeometryElement implements MapDecomposition {
         this.setYaw(yawRad);
         this.center = center;
 
+        /* GeomteryElement's properties */
+        setCenterLocation(center);
         setWidth(gridWidth);
         setHeight(gridHeight);
 
@@ -104,6 +106,8 @@ public class GridArea extends GeometryElement implements MapDecomposition {
         this.center = center;
         this.env = env;
 
+        /* GeomteryElement's properties */
+        setCenterLocation(center);
         setWidth(gridWidth);
         setHeight(gridHeight);
 
@@ -125,6 +129,8 @@ public class GridArea extends GeometryElement implements MapDecomposition {
         this.gridWidth = cellWidth * ncols;
         this.gridHeight = cellHeight * nrows;
 
+        /* GeomteryElement's properties */
+        setCenterLocation(center);
         setWidth(gridWidth);
         setHeight(gridHeight);
     }
