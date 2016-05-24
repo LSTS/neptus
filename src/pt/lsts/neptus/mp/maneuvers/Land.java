@@ -49,7 +49,7 @@ import com.l2fprod.common.propertysheet.DefaultProperty;
 import com.l2fprod.common.propertysheet.Property;
 
 import pt.lsts.imc.IMCMessage;
-import pt.lsts.imc.Takeoff.UAV_TYPE;
+import pt.lsts.imc.Land.UAV_TYPE;
 import pt.lsts.neptus.gui.editor.SpeedUnitsEnumEditor;
 import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.mp.Maneuver;
@@ -272,8 +272,30 @@ public class Land extends Maneuver implements LocatedManeuver, IMCSerialization 
      */
     @Override
     public IMCMessage serializeToIMC() {
-        // TODO Auto-generated method stub
-        return null;
+        pt.lsts.imc.Land man = new pt.lsts.imc.Land();
+        man.setUavType(uavType);
+        man.setLat(Math.toRadians(latDegs));
+        man.setLon(Math.toRadians(lonDegs));
+        man.setZ(z);
+        man.setZUnits(pt.lsts.imc.Land.Z_UNITS.valueOf(getManeuverLocation().getZUnits().toString()));        
+        man.setSpeed(speed);
+        
+        String speedU = speedUnits.name();
+        if ("m/s".equalsIgnoreCase(speedU))
+            man.setSpeedUnits(pt.lsts.imc.Land.SPEED_UNITS.METERS_PS);
+        else if ("RPM".equalsIgnoreCase(speedU))
+            man.setSpeedUnits(pt.lsts.imc.Land.SPEED_UNITS.RPM);
+        else if ("%".equalsIgnoreCase(speedU))
+            man.setSpeedUnits(pt.lsts.imc.Land.SPEED_UNITS.PERCENTAGE);
+        else if ("percentage".equalsIgnoreCase(speedU))
+            man.setSpeedUnits(pt.lsts.imc.Land.SPEED_UNITS.PERCENTAGE);
+
+        man.setAbortZ(zAbort);
+        man.setBearing(Math.toRadians(bearingDegs));
+        man.setGlideSlope(glideSlope);
+        man.setGlideSlopeAlt(glideSlopeAltitude);
+        
+        return man;
     }
 
     /* (non-Javadoc)
@@ -281,8 +303,39 @@ public class Land extends Maneuver implements LocatedManeuver, IMCSerialization 
      */
     @Override
     public void parseIMCMessage(IMCMessage message) {
-        // TODO Auto-generated method stub
+        pt.lsts.imc.Land man = null;
+        try {
+            man = pt.lsts.imc.Land.clone(message);
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+            return;
+        }
 
+        uavType = man.getUavType();
+        
+        latDegs = Math.toDegrees(man.getLat());
+        lonDegs = Math.toDegrees(man.getLon());
+        z = man.getZ();
+        zUnits = ManeuverLocation.Z_UNITS.valueOf(man.getZUnits().toString());
+
+        speed = man.getSpeed();
+        switch (man.getSpeedUnits()) {
+            case METERS_PS:
+                speedUnits = SPEED_UNITS.METERS_PS;
+                break;
+            case RPM:
+                speedUnits = SPEED_UNITS.RPM;
+                break;
+            default:
+                speedUnits = SPEED_UNITS.PERCENTAGE;
+                break;
+        }
+        
+        zAbort = man.getAbortZ();
+        bearingDegs = Math.toDegrees(man.getBearing());
+        glideSlope = man.getGlideSlope();
+        glideSlopeAltitude = (float) man.getGlideSlopeAlt();
     }
     
     /* (non-Javadoc)
