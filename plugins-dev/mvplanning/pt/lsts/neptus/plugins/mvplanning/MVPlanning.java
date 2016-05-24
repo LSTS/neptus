@@ -48,6 +48,7 @@ import java.awt.event.MouseWheelEvent;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Point2D;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import javax.swing.DefaultListModel;
@@ -233,11 +234,13 @@ public class MVPlanning extends ConsolePanel implements PlanChangeListener, Rend
                 mst = new MST(opArea.getAllCells()[0][0]);
 
                 String desiredProfile = (String) profiles.getSelectedItem();
-                PlanType plan = pGen.generateCoverageArea(availableProfiles.get(desiredProfile), opArea);
+                List<PlanType> plans = pGen.generateCoverageArea(availableProfiles.get(desiredProfile), opArea);
 
-                if(!plan.isEmpty()) {
-                    listModel.addElement(plan.getId());
-                    selectedPlans.put(plan.getId(), plan);
+                if(!plans.isEmpty()) {
+                    for(PlanType plan : plans) {
+                        listModel.addElement(plan.getId());
+                        selectedPlans.put(plan.getId(), plan);
+                    }
                 }
             }
         }

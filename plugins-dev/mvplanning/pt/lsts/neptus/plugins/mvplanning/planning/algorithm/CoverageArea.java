@@ -36,6 +36,7 @@ import java.util.List;
 import java.util.Vector;
 
 import pt.lsts.imc.PlanSpecification;
+import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.mp.ManeuverLocation;
 import pt.lsts.neptus.mp.maneuvers.FollowPath;
 import pt.lsts.neptus.mp.maneuvers.LocatedManeuver;
@@ -54,7 +55,7 @@ import pt.lsts.neptus.types.mission.plan.PlanType;
 public class CoverageArea {
 
     private Profile planProfile;
-    private PlanType plan;
+    private List<PlanType> plans;
     private GraphType planGraph;
     private List<ManeuverLocation> path;
 
@@ -62,7 +63,7 @@ public class CoverageArea {
         this.planProfile = planProfile;
 
         path = getPath(areaToCover);
-        plan = getPlan(mt, path, id);
+        plans = getPlan(mt, path, id);
     }
 
 
@@ -77,17 +78,24 @@ public class CoverageArea {
     /**
      * Generates a PlanType for a coverage area plan
      * */
-    private PlanType getPlan(MissionType mt, List<ManeuverLocation> path, String id) {
+    private List<PlanType> getPlan(MissionType mt, List<ManeuverLocation> path, String id) {
         /* returns an empty plan type */
         if(path.isEmpty())
-            return new PlanType(mt);
+            return new ArrayList<>(0);
 
-        FollowPath fpath = asFollowPathManeuver(path);
-        PlanType ptype = new PlanType(mt);
-        ptype.getGraph().addManeuver(fpath);
-        ptype.setId(id);
+        List<FollowPath> fpaths = asFollowPathManeuver(path);
+        List<PlanType> plans = new ArrayList<>(fpaths.size());
+        
+        int i = 0;
+        for(FollowPath followPath : fpaths) {
+            PlanType ptype = new PlanType(mt);
+            ptype.getGraph().addManeuver(followPath);
+            ptype.setId(id + "_" + i);
+            plans.add(ptype);
+            i++;
+        }
 
-        return ptype;
+        return plans;
     }
 
     public ManeuverLocation getManeuverLocation(Profile planProfile, LocationType lt) {
@@ -106,11 +114,12 @@ public class CoverageArea {
         return planGraph;
     }
 
-    public FollowPath asFollowPathManeuver() {
+    public List<FollowPath> asFollowPathManeuver() {
         return asFollowPathManeuver(this.path);
     }
 
-    private FollowPath asFollowPathManeuver(List<ManeuverLocation> path) {
+    private List<FollowPath> asFollowPathManeuver(List<ManeuverLocation> path) {
+        List<FollowPath> fpaths = new ArrayList<>();
         FollowPath fpath = new FollowPath();
 
         ManeuverLocation loc = path.get(0);
@@ -129,7 +138,50 @@ public class CoverageArea {
 
         fpath.setOffsets(offsets);
 
-        return fpath;
+        /* if completion time is bigger than 30 minutes, split the path */
+        if(fpath.getCompletionTime(loc) >= 1800) {
+            fpaths = splitPath(fpath, path);
+            NeptusLog.pub().debug("Splitting the coverage area plan");
+        }
+        else
+            fpaths.add(fpath);
+
+        return fpaths;
+    }
+
+    private List<FollowPath> splitPath(FollowPath path, List<ManeuverLocation> points) {
+        List<FollowPath> paths = new ArrayList<>();
+
+        FollowPath fpath = null;
+        Vector<double[]> offsets = null;
+        ManeuverLocation initialLoc = null;
+        boolean newManeuver = true;
+
+        for(ManeuverLocation point : points) {
+            if(newManeuver) {
+                fpath = new FollowPath();
+                offsets = new Vector<>();
+                initialLoc = point;
+                fpath.setManeuverLocation(getManeuverLocation(planProfile, initialLoc));
+                fpath.setSpeed(fpath.getSpeed());
+                fpath.setSpeedUnits(fpath.getUnits());
+
+                newManeuver = false;
+            }
+
+            double[] newPoint = getNewPoint(initialLoc, point);
+            offsets.add(newPoint);
+            fpath.setOffsets(offsets);
+
+            /* split in plans of 15 minutes (maximum) each */
+            if(fpath.getCompletionTime(initialLoc) >= 900) {
+                newManeuver = true;
+                paths.add(fpath);
+            }
+        }
+
+        paths.add(fpath);
+        return paths;
     }
 
     private double[] getNewPoint(ManeuverLocation initialLoc, ManeuverLocation currentLoc) {
@@ -143,21 +195,27 @@ public class CoverageArea {
         return newPoint;
     }
 
-    public PlanType asPlanType() {
-        return plan;
+    public List<PlanType> asPlanType() {
+        return plans;
     }
 
     /**
-     * Returns a PlanSpecification of the plan.
-     * If the plan is empty returns null
+     * Returns a list of PlanSpecification's of the plan.
+     * If the plan is empty returns and empty list
      * */
-    public PlanSpecification asPlanSpecification() {
-        if(plan.isEmpty())
-            return null;
+    public List<PlanSpecification> asPlanSpecification() {
+        if(plans.isEmpty())
+            return new ArrayList<>(0);
 
-        PlanSpecification planSpec = (PlanSpecification) plan.asIMCPlan();
-        planSpec.setValue("description", "Coverage plan automatically generated by MVPlanning");
+        List<PlanSpecification> pSpecs = new ArrayList<>(plans.size());
+        for(PlanType ptype : plans) {
+            System.out.println("*********** " + ptype.isEmpty());
+            PlanSpecification planSpec = (PlanSpecification) ptype.asIMCPlan();
+            planSpec.setValue("description", "Coverage plan automatically generated by MVPlanning");
+            
+            pSpecs.add(planSpec);
+        }
 
-        return planSpec;
+        return pSpecs;
     }
 }

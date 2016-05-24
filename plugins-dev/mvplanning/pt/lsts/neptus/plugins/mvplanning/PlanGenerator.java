@@ -1,5 +1,7 @@
 package pt.lsts.neptus.plugins.mvplanning;
 
+import java.util.List;
+
 import pt.lsts.imc.PlanSpecification;
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.comm.IMCUtils;
@@ -34,16 +36,24 @@ public class PlanGenerator {
         }
     }
 
-    public PlanType generateCoverageArea(Profile planProfile, GridArea areaToCover) {
+    /**
+     * Given an area generate one or more plans to cover it 
+     * */
+    public List<PlanType> generateCoverageArea(Profile planProfile, GridArea areaToCover) {
         String id = "coverage_" + NameNormalizer.getRandomID();
 
         CoverageArea covArea = new CoverageArea(id, planProfile, areaToCover, console.getMission());
-        PlanSpecification planSpec = covArea.asPlanSpecification();
+        List<PlanSpecification> plans = covArea.asPlanSpecification();
 
-        if(planSpec != null)
-            planAloc.allocate(new PlanTask(id, planSpec, planProfile, planSpec.payloadMD5()));
+        if(!plans.isEmpty()) {
+            int i = 0;
+            for(PlanSpecification planSpec : plans) {
+                planAloc.allocate(new PlanTask(id + "_" + i, planSpec, planProfile, planSpec.payloadMD5()));
+                i++;
+            }
+        }
         else
-            NeptusLog.pub().warn("No plan has been generated because it would be empty");
+            NeptusLog.pub().warn("No plans were generated");
 
         return covArea.asPlanType();
     }
