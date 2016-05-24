@@ -31,6 +31,7 @@
  */
 package pt.lsts.neptus.types.map;
 
+import java.awt.geom.Area;
 import java.util.Arrays;
 import java.util.Enumeration;
 import java.util.Hashtable;
@@ -607,5 +608,18 @@ public class MapGroup implements MapChangeListener {
      */
     public MissionType getMission() {
         return mission;
+    }
+
+    /**
+     * Obtain the areas from all obstacles, according to
+     * an origin point, and merge them all in on Area
+     * */
+    public Area getObstaclesArea(LocationType origin) {
+        Area totalArea = new Area();
+        for(AbstractElement obs : getAllObjects())
+            if(obs.isObstacle())
+                totalArea.add(obs.getArea(origin));
+
+        return totalArea;
     }
 }
