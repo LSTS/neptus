@@ -43,6 +43,8 @@ import dk.maridan.SurveyPlan.Manoeuvre;
 import pt.lsts.imc.IMCMessage;
 import pt.lsts.imc.SetEntityParameters;
 import pt.lsts.neptus.mp.Maneuver;
+import pt.lsts.neptus.mp.ManeuverLocation;
+import pt.lsts.neptus.mp.maneuvers.CrossHatchPattern;
 import pt.lsts.neptus.mp.maneuvers.Goto;
 import pt.lsts.neptus.mp.maneuvers.RowsManeuver;
 import pt.lsts.neptus.plugins.PluginDescription;
@@ -51,6 +53,7 @@ import pt.lsts.neptus.types.map.PlanUtil;
 import pt.lsts.neptus.types.mission.MissionType;
 import pt.lsts.neptus.types.mission.plan.IPlanFileExporter;
 import pt.lsts.neptus.types.mission.plan.PlanType;
+import pt.lsts.neptus.types.coord.CoordinateUtil;
 
 /**
  * @author zp
@@ -58,6 +61,9 @@ import pt.lsts.neptus.types.mission.plan.PlanType;
  */
 @PluginDescription
 public class MaridanPlanExporter implements IPlanFileExporter {
+    
+    protected static final int X = 0, Y = 1, Z = 2, T = 3;
+
 
     @Override
     public String getExporterName() {
@@ -104,9 +110,14 @@ public class MaridanPlanExporter implements IPlanFileExporter {
 
                     if (previousPos == null)
                         tmp.setTimeoutSecs(1000f);
-                    else
-                        tmp.setTimeoutSecs((float) PlanUtil.getExecutionTimeSecs(previousPos, g) * 1.5f);
-
+                    else {
+                        if (PlanUtil.getExecutionTimeSecs(previousPos, g) < 180) {
+                            tmp.setTimeoutSecs(180f);
+                        }
+                        else {
+                            tmp.setTimeoutSecs((float) PlanUtil.getExecutionTimeSecs(previousPos, g) * 1.5f + 120f);
+                        }
+                    }
                     previousPos = g.getEndLocation();
                     break;
                 }
@@ -133,13 +144,71 @@ public class MaridanPlanExporter implements IPlanFileExporter {
                         site.setSpacingMeters((float) -rows.getHstep());
                     site.setLegCount((int) Math.floor(rows.getWidth() / rows.getHstep()) + 1);
                     site.setDirectionDegs((float) Math.toDegrees(rows.getBearingRad()));
-                    site.setLength((float)rows.getLength());
+                    site.setLength((float) rows.getLength());
                     if (previousPos == null)
                         site.setTimeoutSecs(1000f);
                     else
-                        site.setTimeoutSecs((float) PlanUtil.getExecutionTimeSecs(previousPos, rows) * 1.5f);
+                        site.setTimeoutSecs((float) PlanUtil.getExecutionTimeSecs(previousPos, rows) * 1.5f + 120f);
 
                     previousPos = rows.getEndLocation();
+                    break;
+                }
+                case "CrossHatchPattern": {
+                    CrossHatchPattern chp = (CrossHatchPattern) m;
+                    for (double[] points : chp.getPathPoints()) {
+                        SurveyPlan.GotoMan tmp = new SurveyPlan.GotoMan();
+                        man = tmp;
+                        switch (chp.getManeuverLocation().getZUnits()) {
+                            case DEPTH:
+                                tmp.setDepth((float) chp.getManeuverLocation().getZ());
+                                break;
+                            case ALTITUDE:
+                            case HEIGHT:
+                                tmp.setAltitude((float) chp.getManeuverLocation().getZ());
+                                break;
+                            default:
+                                throw new Exception("Invalid Z units for maneuver " + m.getId());
+                        }
+                        // translateposition
+                        ManeuverLocation baselocation = chp.getManeuverLocation();
+                        baselocation.translatePosition(points).convertToAbsoluteLatLonDepth();
+                        tmp.setLatDegs(baselocation.getLatitudeDegs());
+                        tmp.setLonDegs(baselocation.getLongitudeDegs());
+                        tmp.setSpeedMps((float) chp.getSpeed());
+
+                        if (previousPos == null) {
+                            tmp.setTimeoutSecs(1000f);
+                            previousPos = chp.getEndLocation();
+                        }
+                        else {
+                            double dist2d = previousPos.getDistanceInMeters(baselocation);
+                            tmp.setTimeoutSecs((float) ((dist2d / chp.getSpeed()) * 1.5f) + 120f);
+                        }
+                        previousPos.setLatitudeDegs(baselocation.getLatitudeDegs());
+                        previousPos.setLongitudeDegs(baselocation.getLongitudeDegs());
+                        for (IMCMessage imc : m.getStartActions().getAllMessages()) {
+                            if (imc instanceof SetEntityParameters) {
+                                String entityName = ((SetEntityParameters) imc).getName();
+                                if (entityName.equals("Payload")) {
+                                    String profile = ((SetEntityParameters) imc).getParams().firstElement().getValue();
+                                    switch (profile) {
+                                        case "SSS+SBP":
+                                            man.payload.set("1");
+                                            break;
+                                        case "Camera":
+                                            man.payload.set("2");
+                                            break;
+                                        default:
+                                            break;
+                                    }
+                                }
+                            }
+                        }
+                        out.addManoeuvre(man);
+
+                    }
+                    previousPos = chp.getEndLocation();
+                    man = null;
                     break;
                 }
                 default:
