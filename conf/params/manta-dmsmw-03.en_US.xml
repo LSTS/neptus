@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<config format="1" version="2016.05.0 (master,c659c28)" system="manta-dmsmw-03" i18n="en_US">
+<config format="1" version="2016.05.0 (HEAD,5a841ca)" system="manta-dmsmw-03" i18n="en_US">
   <section name="Navigation" name-i18n="Navigation">
     <param name="Entity Label">
       <name-i18n>Entity Label</name-i18n>

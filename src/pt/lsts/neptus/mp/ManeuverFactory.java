@@ -119,7 +119,7 @@ public class ManeuverFactory {
      */
     public static Maneuver createManeuver(String manName, String classFileName) {
 
-        ClassLoader loader = new Goto().getClass().getClassLoader();
+        ClassLoader loader = Goto.class.getClassLoader();
         Maneuver man = null;
         try {
             Class<?> clazz = loader.loadClass(classFileName);

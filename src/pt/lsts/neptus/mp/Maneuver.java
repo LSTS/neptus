@@ -86,6 +86,8 @@ import pt.lsts.neptus.util.NameNormalizer;
  */
 
 public abstract class Maneuver implements XmlOutputMethods, PropertiesProvider, Comparable<Maneuver> {
+    protected static final Color COLOR_HELP = new Color(255, 125, 255);
+    protected static final int X = 0, Y = 1, Z = 2, T = 3;
 
     public enum Z_UNITS {
         NONE(0, "None"), DEPTH(1, "Depth"), ALTITUDE(2, "Altitude"), HEIGHT(3, "Height (WGS84)");
@@ -108,7 +110,7 @@ public abstract class Maneuver implements XmlOutputMethods, PropertiesProvider, 
     }
 
     public enum SPEED_UNITS {
-        METERS_PS(0, "Meters per second"), RPM(1, "RPM"), PERCENTAGE(2, "Percentage");
+        METERS_PS(0, "m/s"), RPM(1, "RPM"), PERCENTAGE(2, "%");
 
         private int value;
         private String name;
@@ -124,6 +126,19 @@ public abstract class Maneuver implements XmlOutputMethods, PropertiesProvider, 
 
         public String getString() {
             return name;
+        }
+        
+        public static SPEED_UNITS parse(String str) {
+            try {
+                return SPEED_UNITS.valueOf(str);
+            }
+            catch (IllegalArgumentException e) {
+                for (SPEED_UNITS vs : values()) {
+                    if (vs.getString().equalsIgnoreCase(str))
+                        return vs;
+                }
+                throw e;
+            }
         }
     }
 

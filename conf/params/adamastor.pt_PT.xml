@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<config format="1" version="2016.03.0 (master,75a147e)" system="adamastor" i18n="pt_PT">
+<config format="1" version="2016.05.0 (master,5a841ca)" system="adamastor" i18n="pt_PT">
   <section name="LED Driver" name-i18n="Controlador de LEDs">
     <param name="Entity Label">
       <name-i18n>Nome da Entidade</name-i18n>
@@ -2590,6 +2590,15 @@
       <units/>
       <desc>Entity label of the IMU for fuel prediction</desc>
     </param>
+    <param name="Plan Generator Entity Label">
+      <name-i18n>Plan Generator Entity Label</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>Plan Generator</default>
+      <units/>
+      <desc>Entity label of the Plan Generator</desc>
+    </param>
   </section>
   <section name="Plan Generator" name-i18n="Gerador de Planos">
     <param name="Entity Label">
@@ -4268,6 +4277,36 @@
       <units/>
       <desc>Set to true to enable raw data output</desc>
     </param>
+    <param name="Rotation Matrix">
+      <name-i18n>Rotation Matrix</name-i18n>
+      <type>list:real</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>1.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 1.0</default>
+      <units/>
+      <desc>Rotation matrix which is dependent of the mounting position</desc>
+      <size>9</size>
+    </param>
+    <param name="Timeout - Error">
+      <name-i18n>Timeout - Error</name-i18n>
+      <type>real</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>3.0</default>
+      <units>s</units>
+      <desc>Number of seconds without data before reporting an error</desc>
+      <min>1.0</min>
+    </param>
+    <param name="Timeout - Failure">
+      <name-i18n>Timeout - Failure</name-i18n>
+      <type>real</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>6.0</default>
+      <units>s</units>
+      <desc>Number of seconds without data before restarting task</desc>
+      <min>1.0</min>
+    </param>
   </section>
   <section name="LBL" name-i18n="LBL">
     <param name="Entity Label">
@@ -4629,6 +4668,91 @@
       <size>3</size>
     </param>
   </section>
+  <section name="Recovery Supervisor" name-i18n="Supervisor de Recuperação">
+    <param name="Entity Label">
+      <name-i18n>Nome da Entidade</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>Recovery Supervisor</default>
+      <units/>
+      <desc>Nome principal da entidade</desc>
+    </param>
+    <param name="Execution Priority">
+      <name-i18n>Prioridade de Execução</name-i18n>
+      <type>integer</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>10</default>
+      <units/>
+      <desc>Prioridade de execução</desc>
+    </param>
+    <param name="Activation Time">
+      <name-i18n>Tempo de Ativação</name-i18n>
+      <type>integer</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>0</default>
+      <units/>
+      <desc/>
+    </param>
+    <param name="Deactivation Time">
+      <name-i18n>Tempo de Desativação</name-i18n>
+      <type>integer</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>0</default>
+      <units/>
+      <desc/>
+    </param>
+    <param name="Debug Level">
+      <name-i18n>Nível de Depuração</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>None</default>
+      <units/>
+      <desc/>
+      <values>None, Debug, Trace, Spew</values>
+      <values-i18n>None, Debug, Trace, Spew</values-i18n>
+    </param>
+    <param name="Execution Frequency">
+      <name-i18n>Frequência de Execução</name-i18n>
+      <type>real</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>1.0</default>
+      <units>Hz</units>
+      <desc>Frequência com que a tarefa é executada</desc>
+    </param>
+    <param name="Minimum Ascent Rate">
+      <name-i18n>Minimum Ascent Rate</name-i18n>
+      <type>real</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>0.1</default>
+      <units>m/s</units>
+      <desc>Threshold for the depth rate of change</desc>
+    </param>
+    <param name="Ascent Rate Window Size">
+      <name-i18n>Ascent Rate Window Size</name-i18n>
+      <type>integer</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>5</default>
+      <units/>
+      <desc>Window size for the moving average of the ascent rate</desc>
+    </param>
+    <param name="Stuck Trigger Time">
+      <name-i18n>Stuck Trigger Time</name-i18n>
+      <type>real</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>60.0</default>
+      <units>s</units>
+      <desc>Amount of time, after meeting conditions, before triggering dislodging behavior</desc>
+    </param>
+  </section>
   <section name="Clock" name-i18n="Relógio">
     <param name="Entity Label">
       <name-i18n>Nome da Entidade</name-i18n>
@@ -4817,7 +4941,7 @@
       <desc>Name of the slave systems</desc>
     </param>
   </section>
-  <section name="Report Supervisor" name-i18n="Report Supervisor">
+  <section name="Report Supervisor" name-i18n="Supervisor de Relatórios">
     <param name="Entity Label">
       <name-i18n>Nome da Entidade</name-i18n>
       <type>string</type>
@@ -4866,7 +4990,7 @@
       <values-i18n>None, Debug, Trace, Spew</values-i18n>
     </param>
     <param name="Acoustic Reports">
-      <name-i18n>Acoustic Reports</name-i18n>
+      <name-i18n>Relatórios Acústicos</name-i18n>
       <type>boolean</type>
       <visibility>user</visibility>
       <scope>global</scope>
@@ -4875,7 +4999,7 @@
       <desc>Enable acoustic system state reporting</desc>
     </param>
     <param name="Acoustic Reports Periodicity">
-      <name-i18n>Acoustic Reports Periodicity</name-i18n>
+      <name-i18n>Periodicidade de Relatórios Acústicos</name-i18n>
       <type>real</type>
       <visibility>user</visibility>
       <scope>global</scope>
@@ -4943,14 +5067,14 @@
       <units>Hz</units>
       <desc>Frequência com que a tarefa é executada</desc>
     </param>
-    <param name="Safe Entities">
-      <name-i18n>Safe Entities</name-i18n>
+    <param name="Vital Entities">
+      <name-i18n>Vital Entities</name-i18n>
       <type>list:string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
       <default/>
       <units/>
-      <desc>Relevant entities when performing a safe plan</desc>
+      <desc>Relevant entities that are always considered regardless of ignoring errors during plan execution</desc>
     </param>
     <param name="Allows External Control">
       <name-i18n>Allows External Control</name-i18n>

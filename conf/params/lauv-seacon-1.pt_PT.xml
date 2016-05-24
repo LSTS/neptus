@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<config format="1" version="2016.05.0 (master,c659c28)" system="lauv-seacon-1" i18n="pt_PT">
+<config format="1" version="2016.05.0 (HEAD,5a841ca)" system="lauv-seacon-1" i18n="pt_PT">
   <section name="Motor Controller" name-i18n="Controlador de Motor">
     <param name="Entity Label">
       <name-i18n>Nome da Entidade</name-i18n>
@@ -2644,7 +2644,7 @@
       <type>string</type>
       <visibility>user</visibility>
       <scope>global</scope>
-      <default>+351910029422</default>
+      <default>+351910012611</default>
       <units/>
       <desc>Número de telefone do destinatário de mensagens SMS</desc>
     </param>
@@ -4362,6 +4362,15 @@
       <units/>
       <desc>Entity label of the IMU for fuel prediction</desc>
     </param>
+    <param name="Plan Generator Entity Label">
+      <name-i18n>Plan Generator Entity Label</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>Plan Generator</default>
+      <units/>
+      <desc>Entity label of the Plan Generator</desc>
+    </param>
   </section>
   <section name="Plan Generator" name-i18n="Gerador de Planos">
     <param name="Entity Label">
@@ -4461,7 +4470,7 @@
       <type>list:string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>dislodge</default>
+      <default/>
       <units/>
       <desc>Set of commands for plans to generate at boot</desc>
     </param>
@@ -5614,7 +5623,7 @@
       <type>real</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>2</default>
+      <default>3.0</default>
       <units>s</units>
       <desc>Number of seconds for the watchdog</desc>
     </param>
@@ -5685,33 +5694,6 @@
       <desc/>
       <values>None, Debug, Trace, Spew</values>
       <values-i18n>None, Debug, Trace, Spew</values-i18n>
-    </param>
-    <param name="Active - Scope">
-      <name-i18n>Ativa - Escopo</name-i18n>
-      <type>string</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>idle</default>
-      <units/>
-      <desc>Escopo do parâmetro 'Ativa'</desc>
-    </param>
-    <param name="Active - Visibility">
-      <name-i18n>Ativa - Visibilidade</name-i18n>
-      <type>string</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>user</default>
-      <units/>
-      <desc>Visibilidade do parâmetro 'Ativa'</desc>
-    </param>
-    <param name="Active">
-      <name-i18n>Ativa</name-i18n>
-      <type>boolean</type>
-      <visibility>user</visibility>
-      <scope>idle</scope>
-      <default>false</default>
-      <units/>
-      <desc>Verdadeiro para ativar tarefa, falso caso contrário</desc>
     </param>
     <param name="Serial Port - Device">
       <name-i18n>Serial Port - Device</name-i18n>
@@ -5876,8 +5858,8 @@
     <param name="Use Device at Surface">
       <name-i18n>Usar Dispositivo à Superfície</name-i18n>
       <type>boolean</type>
-      <visibility>user</visibility>
-      <scope>idle</scope>
+      <visibility>developer</visibility>
+      <scope>global</scope>
       <default>false</default>
       <units/>
       <desc>Enable to activate device when at surface</desc>
@@ -6508,16 +6490,6 @@
       <units/>
       <desc>Serial port baud rate</desc>
     </param>
-    <param name="Data Timeout">
-      <name-i18n>Data Timeout</name-i18n>
-      <type>real</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>2.0</default>
-      <units>s</units>
-      <desc>Number of seconds without data before reporting an error</desc>
-      <min>1.0</min>
-    </param>
     <param name="Calibration Threshold">
       <name-i18n>Calibration Threshold</name-i18n>
       <type>real</type>
@@ -6547,6 +6519,26 @@
       <units/>
       <desc>IMU rotation matrix which is dependent of the mounting position</desc>
       <size>9</size>
+    </param>
+    <param name="Timeout - Error">
+      <name-i18n>Timeout - Error</name-i18n>
+      <type>real</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>3.0</default>
+      <units>s</units>
+      <desc>Number of seconds without data before reporting an error</desc>
+      <min>1.0</min>
+    </param>
+    <param name="Timeout - Failure">
+      <name-i18n>Timeout - Failure</name-i18n>
+      <type>real</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>6.0</default>
+      <units>s</units>
+      <desc>Number of seconds without data before restarting task</desc>
+      <min>1.0</min>
     </param>
   </section>
   <section name="DVL" name-i18n="DVL">
@@ -6935,7 +6927,7 @@
       <min>1.0</min>
     </param>
   </section>
-  <section name="Recovery Supervisor" name-i18n="Recovery Supervisor">
+  <section name="Recovery Supervisor" name-i18n="Supervisor de Recuperação">
     <param name="Entity Label">
       <name-i18n>Nome da Entidade</name-i18n>
       <type>string</type>
@@ -7018,15 +7010,6 @@
       <default>60.0</default>
       <units>s</units>
       <desc>Amount of time, after meeting conditions, before triggering dislodging behavior</desc>
-    </param>
-    <param name="Dislodge Plan Id">
-      <name-i18n>Dislodge Plan Id</name-i18n>
-      <type>string</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>dislodge</default>
-      <units/>
-      <desc>Dislodge plan id</desc>
     </param>
   </section>
   <section name="Clock" name-i18n="Relógio">
@@ -7217,7 +7200,7 @@
       <desc>Name of the slave systems</desc>
     </param>
   </section>
-  <section name="Report Supervisor" name-i18n="Report Supervisor">
+  <section name="Report Supervisor" name-i18n="Supervisor de Relatórios">
     <param name="Entity Label">
       <name-i18n>Nome da Entidade</name-i18n>
       <type>string</type>
@@ -7266,7 +7249,7 @@
       <values-i18n>None, Debug, Trace, Spew</values-i18n>
     </param>
     <param name="Acoustic Reports">
-      <name-i18n>Acoustic Reports</name-i18n>
+      <name-i18n>Relatórios Acústicos</name-i18n>
       <type>boolean</type>
       <visibility>user</visibility>
       <scope>global</scope>
@@ -7275,7 +7258,7 @@
       <desc>Enable acoustic system state reporting</desc>
     </param>
     <param name="Acoustic Reports Periodicity">
-      <name-i18n>Acoustic Reports Periodicity</name-i18n>
+      <name-i18n>Periodicidade de Relatórios Acústicos</name-i18n>
       <type>real</type>
       <visibility>user</visibility>
       <scope>global</scope>
