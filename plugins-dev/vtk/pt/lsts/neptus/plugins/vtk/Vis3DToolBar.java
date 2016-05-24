@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2015 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2016 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -52,9 +52,9 @@ import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.util.GuiUtils;
 import pt.lsts.neptus.util.ImageUtils;
 import pt.lsts.neptus.vtk.mravisualizer.EventsHandler;
-import pt.lsts.neptus.vtk.mravisualizer.VtkOptions;
 import pt.lsts.neptus.vtk.mravisualizer.EventsHandler.RepresentationType;
 import pt.lsts.neptus.vtk.mravisualizer.EventsHandler.SensorTypeInteraction;
+import pt.lsts.neptus.vtk.mravisualizer.VtkOptions;
 import pt.lsts.neptus.vtk.pointcloud.APointCloud;
 import pt.lsts.neptus.vtk.pointcloud.DepthExaggeration;
 import pt.lsts.neptus.vtk.surface.PointCloudMesh;

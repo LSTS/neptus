@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2015 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2016 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -53,6 +53,8 @@ import javax.swing.event.ListSelectionListener;
 import net.miginfocom.swing.MigLayout;
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.i18n.I18n;
+import pt.lsts.neptus.util.GuiUtils;
+import pt.lsts.neptus.util.conf.ConfigFetch;
 
 /**
  * Dialog meant to select various logs and produce a merge of this logs using the LSFMerger class
@@ -60,7 +62,7 @@ import pt.lsts.neptus.i18n.I18n;
  */
 public class LogMerger extends JDialog {
     private static final long serialVersionUID = 1L;
-    JFileChooser fileChooser = new JFileChooser();
+    JFileChooser fileChooser;
     JButton btnAdd;
     JButton btnRemove;
     JButton btnMerge;
@@ -84,6 +86,7 @@ public class LogMerger extends JDialog {
         setSize(400,400);
         
         // Initialize components
+        fileChooser = GuiUtils.getFileChooser(ConfigFetch.getLogsDownloadedFolder());
         fileChooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
         fileChooser.setMultiSelectionEnabled(true);
         

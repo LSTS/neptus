@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2015 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2016 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -39,12 +39,14 @@ import javax.swing.JFileChooser;
 
 import pt.lsts.neptus.console.ConsoleLayout;
 import pt.lsts.neptus.console.ConsolePanel;
+import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.plugins.PluginDescription;
 import pt.lsts.neptus.plugins.PluginUtils;
 import pt.lsts.neptus.types.mission.plan.PlanType;
 import pt.lsts.neptus.util.FileUtil;
 import pt.lsts.neptus.util.GuiUtils;
 import pt.lsts.neptus.util.ImageUtils;
+import pt.lsts.neptus.util.conf.ConfigFetch;
 
 /**
  * @author zp
@@ -53,6 +55,8 @@ import pt.lsts.neptus.util.ImageUtils;
 @PluginDescription(name="QGroundControl interface")
 public class QGCExporter extends ConsolePanel {
 
+    private static final long serialVersionUID = 1L;
+    
     /**
      * @param console
      */
@@ -60,11 +64,9 @@ public class QGCExporter extends ConsolePanel {
         super(console);
     }
 
-    private static final long serialVersionUID = 1L;
-
     @Override
     public void initSubPanel() {
-        addMenuItem("Tools>QGC>Export Waypoint List", ImageUtils.getIcon(PluginUtils.getPluginIcon(getClass())), new ActionListener() {            
+        addMenuItem("Tools" + ">" + "QGC" + ">" + "Export Waypoint List", ImageUtils.getIcon(PluginUtils.getPluginIcon(getClass())), new ActionListener() {            
             @Override
             public void actionPerformed(ActionEvent e) {
                 try {
@@ -72,7 +74,7 @@ public class QGCExporter extends ConsolePanel {
                     if (plan == null)
                         throw new Exception("Please choose a main plan first");
                     String wptList = WaypointUtils.getAsQGCFormat(plan);
-                    JFileChooser fchooser = new JFileChooser();
+                    JFileChooser fchooser = GuiUtils.getFileChooser(ConfigFetch.getUserHomeFolder());
                     fchooser.setAcceptAllFileFilterUsed(true);
                     fchooser.setMultiSelectionEnabled(false);
                     int option = fchooser.showSaveDialog(getConsole());
@@ -80,12 +82,11 @@ public class QGCExporter extends ConsolePanel {
                         return;
                     File f = fchooser.getSelectedFile();
                     FileUtil.saveToFile(f.getAbsolutePath(), wptList);
-                    GuiUtils.infoMessage(getConsole(), "Export Waypoint List", "Waypoint list successfully exported to '"+f.getName()+"'");
+                    GuiUtils.infoMessage(getConsole(), I18n.text("Export Waypoint List"), I18n.textf("Waypoint list successfully exported to '%file'", f.getName()));
                 }
                 catch (Exception ex) {
                     GuiUtils.errorMessage(getConsole(), ex);
                 }
-                
             }
         });
     }
@@ -95,7 +96,6 @@ public class QGCExporter extends ConsolePanel {
      */
     @Override
     public void cleanSubPanel() {
-        // TODO Auto-generated method stub
-        
+        removeMenuItem("Tools" + ">" + "QGC" + ">" + "Export Waypoint List");
     }
 }

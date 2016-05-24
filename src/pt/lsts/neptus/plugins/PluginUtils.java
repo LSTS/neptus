@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2015 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2016 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -51,13 +51,19 @@ import java.util.HashSet;
 import java.util.InvalidPropertiesFormatException;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Vector;
 
 import javax.imageio.spi.ServiceRegistry;
+import javax.swing.table.TableCellRenderer;
 
 import org.apache.commons.io.IOUtils;
+
+import com.l2fprod.common.propertysheet.DefaultProperty;
+import com.l2fprod.common.propertysheet.Property;
+import com.l2fprod.common.swing.renderer.DefaultCellRenderer;
 
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.gui.PropertiesEditor;
@@ -67,10 +73,6 @@ import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.util.FileUtil;
 import pt.lsts.neptus.util.ReflectionUtil;
 import pt.lsts.neptus.util.conf.GeneralPreferences;
-
-import com.l2fprod.common.propertysheet.DefaultProperty;
-import com.l2fprod.common.propertysheet.Property;
-import com.l2fprod.common.swing.renderer.DefaultCellRenderer;
 
 public class PluginUtils {
 
@@ -144,6 +146,11 @@ public class PluginUtils {
     public static boolean isPluginActive(Class<?> clazz) {
         PluginDescription pd = clazz.getAnnotation(PluginDescription.class);
         return pd != null && pd.active();
+    }
+    
+    public static boolean isPluginExperimental(Class<?> clazz) {
+        PluginDescription pd = clazz.getAnnotation(PluginDescription.class);
+        return pd != null && pd.experimental();
     }
 
     /**
@@ -233,6 +240,7 @@ public class PluginUtils {
                         + "</code></b>\"]]</i>";
             }
             Class<? extends PropertyEditor> editClass = null;
+            Class<? extends TableCellRenderer> rendererClass = null;
             String category = a.category();
 
             if (a.name().length() == 0) {
@@ -244,6 +252,10 @@ public class PluginUtils {
 
             if (a.editorClass() != PropertyEditor.class) {
                 editClass = a.editorClass();
+            }
+
+            if (a.rendererClass() != TableCellRenderer.class) {
+                rendererClass = a.rendererClass();
             }
 
             if (category == null || category.length() == 0) {
@@ -272,14 +284,15 @@ public class PluginUtils {
                 pp.setCategory(category);
             }
 
-            if (editClass != null)
+            if (editClass != null) {
                 PropertiesEditor.getPropertyEditorRegistry().registerEditor(pp, editClass);
+            }
             else {
                 if (ReflectionUtil.hasInterface(f.getType(), PropertyType.class)) {
                     PropertyType pt = (PropertyType) o;
                     PropertiesEditor.getPropertyEditorRegistry().registerEditor(pp, pt.getPropertyEditor());
                 }
-                if (f.getType().getEnumConstants() != null)
+                if (f.getType().getEnumConstants() != null) {
                     if (o != null) {
                         PropertiesEditor.getPropertyEditorRegistry().registerEditor(pp,
                                 new EnumEditor((Class<? extends Enum<?>>) o.getClass()));
@@ -294,13 +307,19 @@ public class PluginUtils {
                             }
                         });
                     }
+                }
             }
+            
+            if (rendererClass != null)
+                PropertiesEditor.getPropertyRendererRegistry().registerRenderer(pp, rendererClass);
 
             return pp;
         }
         return null;
     }
-    
+    /**     
+     * @return <b>true</b> if cancelled or <b>false</b> otherwise.
+     */
     public static boolean editPluginProperties(final Object obj, boolean editable) {
         PropertiesProvider provider = new PropertiesProvider() {
             
@@ -427,13 +446,11 @@ public class PluginUtils {
                         continue;
                     }
                     catch (SecurityException e) {
-                        // TODO Auto-generated catch block
                         e.printStackTrace();
                         continue;
                     }
                 }
                 catch (SecurityException e1) {
-                    // TODO Auto-generated catch block
                     e1.printStackTrace();
                     continue;
                 }
@@ -444,7 +461,6 @@ public class PluginUtils {
                     res = m.invoke(obj, propValue);
                 }
                 catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
-                    // TODO Auto-generated catch block
                     e.printStackTrace();
                     continue;
                 }
@@ -464,7 +480,7 @@ public class PluginUtils {
         else
             c = o.getClass();
         
-        HashSet<Field> fields = new HashSet<>(); 
+        HashSet<Field> fields = new LinkedHashSet<>(); 
         for (Field f : c.getFields())
             fields.add(f);
         for (Field f : c.getDeclaredFields()) {

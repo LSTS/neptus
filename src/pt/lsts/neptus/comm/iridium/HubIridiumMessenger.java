@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2015 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2016 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -51,11 +51,11 @@ import java.util.Vector;
 import org.apache.commons.codec.binary.Hex;
 import org.apache.commons.io.IOUtils;
 
+import com.google.gson.Gson;
+
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.comm.iridium.Position.PosType;
 import pt.lsts.neptus.util.ByteUtil;
-
-import com.google.gson.Gson;
 
 /**
  * @author zp
@@ -90,8 +90,10 @@ public class HubIridiumMessenger implements IridiumMessenger {
         
         DeviceUpdate up = new DeviceUpdate();
         for (HubSystemMsg s : sys) {
+            if (s.imcid > Integer.MAX_VALUE)
+                continue;
             Position pos = new Position();
-            pos.id = s.imcid;
+            pos.id = (int) s.imcid;
             pos.latRads = s.coordinates[0];
             pos.lonRads = s.coordinates[1];
             pos.timestamp = stringToDate(s.updated_at).getTime() / 1000.0;
@@ -288,7 +290,7 @@ public class HubIridiumMessenger implements IridiumMessenger {
     
     public static class HubSystemMsg {
         
-        public int imcid;
+        public long imcid;
         public String name;
         public String updated_at;
         public String created_at;

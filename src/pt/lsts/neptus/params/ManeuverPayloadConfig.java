@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2015 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2016 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -38,6 +38,10 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Vector;
 
+import com.l2fprod.common.propertysheet.Property;
+import com.l2fprod.common.propertysheet.PropertySheetPanel;
+import com.l2fprod.common.swing.renderer.DefaultCellRenderer;
+
 import pt.lsts.imc.EntityParameter;
 import pt.lsts.imc.IMCMessage;
 import pt.lsts.imc.SetEntityParameters;
@@ -48,10 +52,6 @@ import pt.lsts.neptus.mp.Maneuver;
 import pt.lsts.neptus.params.SystemProperty.Scope;
 import pt.lsts.neptus.params.SystemProperty.Visibility;
 import pt.lsts.neptus.params.renderer.I18nSystemPropertyRenderer;
-
-import com.l2fprod.common.propertysheet.Property;
-import com.l2fprod.common.propertysheet.PropertySheetPanel;
-import com.l2fprod.common.swing.renderer.DefaultCellRenderer;
 
 /**
  * @author zp

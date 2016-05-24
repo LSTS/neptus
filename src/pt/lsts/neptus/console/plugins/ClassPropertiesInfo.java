@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2015 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2016 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -33,11 +33,11 @@ package pt.lsts.neptus.console.plugins;
 
 import javax.swing.ImageIcon;
 
+import com.l2fprod.common.propertysheet.PropertySheetPanel;
+
 import pt.lsts.neptus.gui.PropertiesProvider;
 import pt.lsts.neptus.plugins.PluginDescription.CATEGORY;
 import pt.lsts.neptus.util.ImageUtils;
-
-import com.l2fprod.common.propertysheet.PropertySheetPanel;
 
 /**
  * Data structure to hold all the information relevant to one class for settings editing

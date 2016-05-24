@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2015 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2016 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -101,6 +101,7 @@ import pt.lsts.neptus.console.plugins.planning.edit.ManeuverRemoved;
 import pt.lsts.neptus.console.plugins.planning.edit.ManeuverTranslated;
 import pt.lsts.neptus.console.plugins.planning.edit.PlanRotated;
 import pt.lsts.neptus.console.plugins.planning.edit.PlanSettingsChanged;
+import pt.lsts.neptus.console.plugins.planning.edit.PlanTransitionsReversed;
 import pt.lsts.neptus.console.plugins.planning.edit.PlanTranslated;
 import pt.lsts.neptus.console.plugins.planning.edit.PlanZChanged;
 import pt.lsts.neptus.gui.PropertiesEditor;
@@ -1155,6 +1156,26 @@ public class PlanEditor extends InteractionAdapter implements Renderer2DPainter,
                             new ImageIcon(ImageUtils.getScaledImage("images/buttons/wizard.png", 16, 16)));
                     planSettings.add(pVehicle);
 
+                    AbstractAction pTrans = new AbstractAction(I18n.text("Reverse plan transitions...")) {
+                        private static final long serialVersionUID = 1L;
+
+                        @Override
+                        public void actionPerformed(ActionEvent e) {
+                            Maneuver[] manSeq = plan.getGraph().getManeuversSequence();
+                            if (manSeq.length > 1) {
+                                Maneuver startManeuver = manSeq[0];
+                                Maneuver endManeuver = manSeq[manSeq.length - 1];
+                                PlanTransitionsReversed ptr = new PlanTransitionsReversed(plan, startManeuver, endManeuver);
+                                ptr.redo();
+                                manager.addEdit(ptr);
+                            }
+                        }
+                    };
+                    pTrans.putValue(AbstractAction.SMALL_ICON,
+                            new ImageIcon(ImageUtils.getScaledImage("images/buttons/wizard.png", 16, 16)));
+                    planSettings.add(pTrans);
+                    
+                    
                     planSettings.setIcon(new ImageIcon(ImageUtils.getScaledImage("images/buttons/wizard.png", 16, 16)));
                     popup.add(planSettings);
 

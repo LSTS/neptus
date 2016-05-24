@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2015 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2016 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -56,7 +56,7 @@ import pt.lsts.neptus.util.llf.LogUtils;
 
 /**
  * @author jqcorreia
- * 
+ *
  */
 @PluginDescription(author = "jqcorreia", name = "Sidescan Analyzer", icon = "pt/lsts/neptus/plugins/echosounder/echosounder.png")
 public class SidescanAnalyzer extends JPanel implements MRAVisualization, TimelineChangeListener, LogMarkerListener {
@@ -213,6 +213,9 @@ public class SidescanAnalyzer extends JPanel implements MRAVisualization, Timeli
 
     @Override
     public void onCleanup() {
+        if (timeline != null)
+            timeline.shutdown();
+
         sidescanPanels.clear();
         removeAll();
         mraPanel = null;

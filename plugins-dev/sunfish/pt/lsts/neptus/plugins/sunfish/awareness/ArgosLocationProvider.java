@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2015 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2016 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -46,6 +46,9 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
+import fr.cls.argos.dataxmldistribution.service.DixService;
+import fr.cls.argos.dataxmldistribution.service.types.XmlRequestType;
+import fr.cls.argos.dataxmldistribution.service.types.XsdRequestType;
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.console.notifications.Notification;
 import pt.lsts.neptus.data.Pair;
@@ -54,9 +57,6 @@ import pt.lsts.neptus.plugins.PluginUtils;
 import pt.lsts.neptus.plugins.update.Periodic;
 import pt.lsts.neptus.util.GuiUtils;
 import pt.lsts.neptus.util.conf.ConfigFetch;
-import fr.cls.argos.dataxmldistribution.service.DixService;
-import fr.cls.argos.dataxmldistribution.service.types.XmlRequestType;
-import fr.cls.argos.dataxmldistribution.service.types.XsdRequestType;
 
 /**
  * @author zp

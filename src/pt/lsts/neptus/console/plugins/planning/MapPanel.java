@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2015 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2016 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -46,6 +46,8 @@ import javax.swing.JLabel;
 import javax.swing.JSeparator;
 import javax.swing.JToolBar;
 
+import com.google.common.eventbus.Subscribe;
+
 import pt.lsts.imc.PlanControlState;
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.comm.manager.imc.ImcMsgManager;
@@ -83,8 +85,6 @@ import pt.lsts.neptus.types.mission.MissionType;
 import pt.lsts.neptus.types.mission.plan.PlanType;
 import pt.lsts.neptus.types.vehicle.VehicleType;
 import pt.lsts.neptus.util.ImageUtils;
-
-import com.google.common.eventbus.Subscribe;
 
 /**
  * @author zp
@@ -129,7 +129,7 @@ CustomInteractionSupport, VehicleStateListener, ConsoleVehicleChangeListener {
     }
 
     @NeptusProperty(name = "Toolbar placement", description = "Where to place the toolbar")
-    public PlacementEnum toolbarPlacement = PlacementEnum.Bottom;
+    public PlacementEnum toolbarPlacement = PlacementEnum.Left;
 
     protected StateRenderer2D renderer = new StateRenderer2D();
     protected String planId = null;

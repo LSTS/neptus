@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2015 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2016 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -161,7 +161,7 @@ public class NeptusSolver {
             if (Math.abs(pol_factors[i]) < 1E-6)
                 pol_factors[i] = 0;
         }
-        String nddl = String.format("Auv v_%s = new Auv(%.2f, %.2f, %.2f, %.6f, %.6f, %.6f);", 
+        String nddl = String.format(Locale.US, "Auv v_%s = new Auv(%.2f, %.2f, %.2f, %.6f, %.6f, %.6f);", 
                     EuropaUtils.clearVarName(name),
                     minSpeed, nomSpeed, maxSpeed,
                     pol_factors[0], pol_factors[1], pol_factors[2]
@@ -214,7 +214,7 @@ public class NeptusSolver {
         LocationType endLoc = PlanUtil.getEndLocation(plan);
         startLoc.convertToAbsoluteLatLonDepth();
         endLoc.convertToAbsoluteLatLonDepth();
-        String nddl = String.format("DuneTask t_%s = new DuneTask(%.8f, %.8f, %.8f, %.8f, %.1f);",
+        String nddl = String.format(Locale.US, "DuneTask t_%s = new DuneTask(%.8f, %.8f, %.8f, %.8f, %.1f);",
                 EuropaUtils.clearVarName(planName), startLoc.getLatitudeDegs(), startLoc.getLongitudeDegs(),
                 endLoc.getLatitudeDegs(), endLoc.getLongitudeDegs(),
                 dist); 

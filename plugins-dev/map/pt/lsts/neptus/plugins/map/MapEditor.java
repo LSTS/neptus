@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2015 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2016 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -102,6 +102,7 @@ import pt.lsts.neptus.types.mission.MissionType;
 import pt.lsts.neptus.util.FileUtil;
 import pt.lsts.neptus.util.GuiUtils;
 import pt.lsts.neptus.util.ImageUtils;
+import pt.lsts.neptus.util.conf.ConfigFetch;
 
 /**
  * @author zp
@@ -634,9 +635,8 @@ public class MapEditor extends ConsolePanel implements StateRendererInteraction,
 
                 @Override
                 public void actionPerformed(ActionEvent e) {
-                    JFileChooser chooser = new JFileChooser();
-                    chooser.setFileFilter(GuiUtils.getCustomFileFilter(I18n.text("Images acompanied by world file"),
-                            new String[] { "png", "jpg", "bmp", "tif" }));
+                    JFileChooser chooser = GuiUtils.getFileChooser(ConfigFetch.getUserHomeFolder(), 
+                            I18n.text("Images acompanied by world file"), "png", "jpg", "jpeg", "bmp", "tif", "tiff");
                     int op = chooser.showOpenDialog(getConsole());
                     if (op == JFileChooser.APPROVE_OPTION) {
                         File choice = chooser.getSelectedFile();

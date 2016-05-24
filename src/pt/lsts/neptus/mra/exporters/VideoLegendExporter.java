@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2015 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2016 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -58,7 +58,7 @@ import pt.lsts.neptus.util.VideoCreator;
 /**
  * @author zp
  */
-@PluginDescription
+@PluginDescription(name="Video Legend")
 public class VideoLegendExporter implements MRAExporter {
 
     private static final int width = 120, height = 140;
@@ -87,7 +87,7 @@ public class VideoLegendExporter implements MRAExporter {
         }
         catch (Exception e1) {
             e1.printStackTrace();
-            return "Not able to create video";
+            return I18n.text("Not able to create video");
         }
         
         pmonitor.setNote(I18n.text("Starting up"));
@@ -164,10 +164,5 @@ public class VideoLegendExporter implements MRAExporter {
             legendWidth = maxSize;
         }
         return legendWidth;
-    }
-    
-    @Override
-    public String getName() {
-        return "Video Legend";
     }
 }

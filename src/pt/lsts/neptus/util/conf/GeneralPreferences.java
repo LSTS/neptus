@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2015 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2016 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -42,6 +42,9 @@ import javax.swing.AbstractAction;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 
+import com.l2fprod.common.propertysheet.DefaultProperty;
+import com.l2fprod.common.propertysheet.Property;
+
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.comm.iridium.IridiumManager.IridiumMessengerEnum;
 import pt.lsts.neptus.comm.manager.imc.ImcId16;
@@ -53,9 +56,6 @@ import pt.lsts.neptus.plugins.NeptusProperty.LEVEL;
 import pt.lsts.neptus.plugins.PluginUtils;
 import pt.lsts.neptus.util.GuiUtils;
 import pt.lsts.neptus.util.PropertiesLoader;
-
-import com.l2fprod.common.propertysheet.DefaultProperty;
-import com.l2fprod.common.propertysheet.Property;
 
 /**
  * @author Paulo Dias
@@ -211,7 +211,7 @@ public class GeneralPreferences implements PropertiesProvider {
     public static boolean programLogExtendedLog = false;
 
     @NeptusProperty(name = "Tides file", category = "Tides", userLevel = LEVEL.REGULAR)
-    public static File tidesFile = new File("conf/tides/Leixoes.txt");
+    public static File tidesFile = new File("conf/tides/Leixoes.tid");
 
     // -------------------------------------------------------------------------
     

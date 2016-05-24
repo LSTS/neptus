@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2015 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2016 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -35,10 +35,10 @@ import org.mortbay.jetty.Server;
 import org.mortbay.jetty.servlet.Context;
 import org.mortbay.jetty.servlet.ServletHolder;
 
+import pt.lsts.imc.IMCDefinition;
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.util.conf.ConfigFetch;
 import pt.lsts.neptus.util.logdb.SQLiteSerialization;
-import pt.lsts.imc.IMCDefinition;
 
 public class WebServer {
 	

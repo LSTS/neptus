@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2015 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2016 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -45,9 +45,13 @@ import java.awt.geom.Rectangle2D;
 import java.awt.geom.RoundRectangle2D;
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.Locale;
 import java.util.Vector;
 
 import javax.swing.JPanel;
+
+import com.google.common.collect.BiMap;
+import com.google.common.collect.HashBiMap;
 
 import psengine.PSConstraint;
 import psengine.PSToken;
@@ -56,9 +60,6 @@ import psengine.PSVariable;
 import psengine.PSVariableList;
 import pt.lsts.neptus.plugins.europa.NeptusSolver;
 import pt.lsts.neptus.util.DateTimeUtil;
-
-import com.google.common.collect.BiMap;
-import com.google.common.collect.HashBiMap;
 
 /**
  * @author zp
@@ -225,7 +226,7 @@ public class TimelineView extends JPanel implements MouseMotionListener, MouseLi
             g2d.setColor(Color.black);
             g2d.draw(new RoundRectangle2D.Double(start, 2, end - start, getHeight() - 4, 12, 12));
             g2d.drawString(tok.id, (int) start + 5, 14);
-            g2d.drawString(String.format("%.1f m/s", tok.speed), (int) start + 5, 30);
+            g2d.drawString(String.format(Locale.US, "%.1f m/s", tok.speed), (int) start + 5, 30);
         }
         else {
             c1 = c1.darker();
@@ -235,7 +236,7 @@ public class TimelineView extends JPanel implements MouseMotionListener, MouseLi
             g2d.setPaint(new GradientPaint(new Point2D.Double(start, 0), c1, new Point2D.Double(end, getHeight()), c2));
             g2d.fill(new RoundRectangle2D.Double(start, 2, end - start, getHeight() - 4, 12, 12));
             g2d.setColor(Color.gray.darker());
-            g2d.drawString(String.format("%.1f m/s", tok.speed), (int) start + 5, 30);
+            g2d.drawString(String.format(Locale.US, "%.1f m/s", tok.speed), (int) start + 5, 30);
         }
     }
 

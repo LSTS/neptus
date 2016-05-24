@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2015 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2016 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -78,7 +78,6 @@ public class ManeuverLocation extends LocationType {
         }
     }
     
-    
     /**
      * @return the z
      */
@@ -114,6 +113,25 @@ public class ManeuverLocation extends LocationType {
         loc.setZUnits(getZUnits());
         return loc;
     }
+    
+    @SuppressWarnings("unchecked")
+    @Override
+    public <L extends LocationType> L getNewAbsoluteLatLonDepth() {
+        L ret = super.getNewAbsoluteLatLonDepth();
+        ManeuverLocation manLoc;
+        if (ret instanceof ManeuverLocation) {
+            manLoc = (ManeuverLocation) ret;
+        }
+        else {
+            manLoc = new ManeuverLocation();
+            manLoc.setLocation(ret);
+        }
+        manLoc.setZ(getZ());
+        manLoc.setZUnits(getZUnits());
+        ret = (L) manLoc;
+        return ret;
+    }
+
     @Override
     public Document asDocument(String rootElementName) {        
         Document document = super.asDocument(rootElementName);        

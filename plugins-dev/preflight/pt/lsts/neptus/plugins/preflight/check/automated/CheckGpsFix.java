@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2015 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2016 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -34,12 +34,12 @@ package pt.lsts.neptus.plugins.preflight.check.automated;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 
+import com.google.common.eventbus.Subscribe;
+
 import pt.lsts.imc.GpsFix;
 import pt.lsts.imc.GpsFix.TYPE;
 import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.plugins.preflight.check.AutomatedCheck;
-
-import com.google.common.eventbus.Subscribe;
 
 /**
  * @author tsmarques
@@ -70,7 +70,7 @@ public class CheckGpsFix extends AutomatedCheck {
         BigDecimal bd = new BigDecimal(vdop);
         bd = bd.setScale(1, RoundingMode.HALF_UP);
         
-        String strMsg = "(" + nSat + ")" + " | Vdop: " + bd.doubleValue();;
+        String strMsg = "(" + nSat + ")" + " | Vdop: " + bd.doubleValue();
 
         if (fixType == TYPE.DEAD_RECKONING) {
             setState(NOT_VALIDATED);

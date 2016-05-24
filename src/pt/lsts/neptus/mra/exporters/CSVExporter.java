@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2015 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2016 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -36,28 +36,44 @@ import java.io.File;
 import java.io.FileWriter;
 import java.text.NumberFormat;
 import java.util.LinkedHashMap;
+import java.util.List;
 
 import javax.swing.ProgressMonitor;
+
+import com.google.common.collect.Lists;
 
 import pt.lsts.imc.EntityInfo;
 import pt.lsts.imc.IMCMessage;
 import pt.lsts.imc.IMCMessageType;
 import pt.lsts.imc.lsf.LsfIterator;
+import pt.lsts.neptus.gui.editor.StringListEditor;
 import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.mra.importers.IMraLogGroup;
+import pt.lsts.neptus.plugins.NeptusProperty;
 import pt.lsts.neptus.plugins.PluginDescription;
+import pt.lsts.neptus.plugins.PluginUtils;
 import pt.lsts.neptus.util.GuiUtils;
 
 /**
  * @author zp
- * 
+ * @author pdias
  */
-@PluginDescription
+@PluginDescription(name="Export to CSV")
 public class CSVExporter implements MRAExporter {
+    
+    /** Line ending to use */
+    private static final String LINE_ENDING = "\r\n";
+    
+    @NeptusProperty(name = "Message List to Export", editorClass = StringListEditor.class,
+            description = "List of messages to export. Use '!' at the begining to make it an exclude list.")
+    public String msgList = "";
 
-    IMraLogGroup source;
-    ProgressMonitor pmonitor;
-    LinkedHashMap<Short, String> entityNames = new LinkedHashMap<>();
+    @NeptusProperty(name = "Textualize enumerations and bitfields",
+            description = "If true will transform the enumerations and bitfields into the textual representation.")
+    public boolean textualizeEnum = true;
+
+    private IMraLogGroup source;
+    private LinkedHashMap<Short, String> entityNames = new LinkedHashMap<>();
 
     public CSVExporter(IMraLogGroup source) {
         this.source = source;
@@ -77,7 +93,7 @@ public class CSVExporter implements MRAExporter {
             else
                 ret += ", " + field;
         }
-        return ret + "\n";
+        return ret + LINE_ENDING;
     }
 
     public String getLine(IMCMessage m) {
@@ -91,25 +107,65 @@ public class CSVExporter implements MRAExporter {
         String ret = floats.format(m.getTimestamp()) + ", " + m.getSourceName() + ", " + entity;
 
         for (String field : m.getFieldNames()) {
-            switch (m.getTypeOf(field)) {
-                case "fp32_t":
-                    ret += ", " + floats.format(m.getDouble(field));
-                    break;
-                case "fp64_t":
-                    ret += ", " + doubles.format(m.getDouble(field));
-                    break;
-                default:
-                    ret += ", " + m.getAsString(field);
-                    break;
+            Object v = m.getValue(field);
+            if (textualizeEnum && v instanceof Number
+                    && m.getMessageType().getFieldPossibleValues(field) != null) {
+                if (m.getUnitsOf(field).equals("tuplelist")
+                        || m.getUnitsOf(field).equals("enumerated")) {
+                    return m.getMessageType().getFieldPossibleValues(field).get(
+                            ((Number) v).longValue());
+                }
+                else {
+
+                    long val = m.getLong(field);
+                    String str = "";
+                    for (int i = 0; i < 16; i++) {
+                        long bitVal = (long) Math.pow(2, i);
+                        if ((val & bitVal) > 0)
+                            str += m.getMessageType().getFieldPossibleValues(field).get(bitVal) + "|";
+                    }
+                    str = str.replaceAll("null\\|", "");
+                    str = str.replaceAll("\\|null", "");
+                    if (str.length() > 0) // remove last "|"
+                        str = str.substring(0, str.length() - 1);
+                    ret += ", " + str;
+                }
+            }
+            else {
+                switch (m.getTypeOf(field)) {
+                    case "fp32_t":
+                        ret += ", " + floats.format(m.getDouble(field));
+                        break;
+                    case "fp64_t":
+                        ret += ", " + doubles.format(m.getDouble(field));
+                        break;
+                    default:
+                        ret += ", " + m.getAsString(field);
+                        break;
+                }
             }
         }
-        return ret + "\n";
+        return ret + LINE_ENDING;
     }
 
     @Override
     public String process(IMraLogGroup source, ProgressMonitor pmonitor) {
         //pmonitor = new ProgressMonitor(ConfigFetch.getSuperParentFrame(), I18n.text("Exporting to CSV"),
         //        I18n.text("Starting up"), 0, source.listLogs().length);
+        
+        if (PluginUtils.editPluginProperties(this, true))
+            return I18n.text("Cancelled by the user.");
+
+        String tmpList = msgList.trim();
+        boolean includeList = true;
+        if (tmpList.isEmpty() || tmpList.startsWith("!")) {
+            includeList = false;
+            if (!tmpList.isEmpty())
+                tmpList = tmpList.replaceFirst("!", "");
+        }
+        String[] lst = tmpList.split(",");
+        List<String> messagesList = Lists.newArrayList(lst);
+        
         File dir = new File(source.getFile("mra"), "csv");
 
         dir.mkdirs();
@@ -123,7 +179,15 @@ public class CSVExporter implements MRAExporter {
         int i = 0;
         for (String message : source.listLogs()) {
             if (pmonitor.isCanceled())
-                return "Cancelled by the user";
+                return I18n.text("Cancelled by the user");
+            
+            boolean acceptMsg = true;
+            if (includeList)
+                acceptMsg = messagesList.contains(message);
+            else
+                acceptMsg = !messagesList.contains(message);
+            if (!acceptMsg)
+                continue;
             
             try {
                 File out = new File(dir, message + ".csv");
@@ -145,10 +209,5 @@ public class CSVExporter implements MRAExporter {
         }
 
         return I18n.text("Process complete");
-    }
-
-    @Override
-    public String getName() {
-        return I18n.text("Export to CSV");
     }
 }

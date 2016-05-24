@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2015 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2016 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -60,8 +60,8 @@ import pt.lsts.neptus.types.XmlInputMethodsFromFile;
 import pt.lsts.neptus.types.XmlOutputMethods;
 import pt.lsts.neptus.types.comm.CommMean;
 import pt.lsts.neptus.types.comm.protocol.FTPArgs;
-import pt.lsts.neptus.types.comm.protocol.IMCArgs;
 import pt.lsts.neptus.types.comm.protocol.GsmArgs;
+import pt.lsts.neptus.types.comm.protocol.IMCArgs;
 import pt.lsts.neptus.types.comm.protocol.IridiumArgs;
 import pt.lsts.neptus.types.comm.protocol.ProtocolArgs;
 import pt.lsts.neptus.types.coord.CoordinateSystem;
@@ -1054,7 +1054,7 @@ public class VehicleType implements XmlOutputMethods, XmlInputMethods, XmlInputM
             ProtocolArgs args = cm.getProtocolsArgs().get(CommMean.IMC);
             if (args != null) {
                 IMCArgs imcArgs = (IMCArgs) args;
-                return (imcArgs.getImc3Id() == null) ? ImcId16.NULL_ID : imcArgs.getImc3Id();
+                return (imcArgs.getImcId() == null) ? ImcId16.NULL_ID : imcArgs.getImcId();
             }
         }
         return ImcId16.NULL_ID;

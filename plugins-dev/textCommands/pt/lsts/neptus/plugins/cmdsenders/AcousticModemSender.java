@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2015 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2016 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -65,7 +65,7 @@ public class AcousticModemSender implements ITextMsgSender {
         TextMessage tm = new TextMessage();
         tm.setText(command);
         tm.setOrigin(source);
-        final boolean result = IMCSendMessageUtils.sendMessageByAcousticModem(tm, destination,
+        final boolean result = IMCSendMessageUtils.sendMessageByAcousticModem(tm, destination, true,
                 ImcSystemsHolder.lookupSystemByService("acoustic/operation", SystemTypeEnum.ALL, true));
         
         return new Future<String>() {

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2015 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2016 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -47,18 +47,18 @@ public class DeltaTHeader {
     public String fileType; // bytes 0-2 - ASCII '8' '3' 'P'
     public byte fileVersion; // byte 3 - 10 = v1.10
     
-    public short numBytes; // 'N' - number of bytes that are written to the disk for this ping, N = 256 + (2*number_of_beams)
-    public short numBeams;
-    public short samplesPerBeam;
-    public short sectorSize;
+    public int numBytes; // 'N' - number of bytes that are written to the disk for this ping, N = 256 + (2*number_of_beams)
+    public int numBeams;
+    public int samplesPerBeam;
+    public int sectorSize;
     public float startAngle;
-    public short rangeResolution;
+    public int rangeResolution;
     
     public float angleIncrement;
-    public short range;
-    public short sonarFreqKHz;
+    public int range;
+    public int sonarFreqKHz;
     
-    public int pingNumber;
+    public long pingNumber;
     
     public double pulseLength; // Pulse Length (in microseconds)
     public double pulseRepetingRate;// Repeting Rate (in miliseconds) - time between pings
@@ -81,7 +81,7 @@ public class DeltaTHeader {
     public Boolean dataIsCorrectedForRayBending;
     public Boolean sonarIsOperatingInOverlappedMode;
 
-    public short numberOfPingsAveraged;
+    public int numberOfPingsAveraged;
 
     public String gnssShipPosLat = "";
     public String gnssShipPosLon = "";
@@ -90,6 +90,8 @@ public class DeltaTHeader {
     public float sonarXOffset = Float.NaN;
     public float sonarYOffset = Float.NaN;
     public float sonarZOffset = Float.NaN;
+    
+    public float altitude = Float.NaN;
     
     private static Calendar cal;
     private static Pattern pTimeStamp;
@@ -110,37 +112,37 @@ public class DeltaTHeader {
         byte millisBuf[] = new byte[5];
         String timestampStr, millisStr;
         
-        numBytes = b.getShort(4);
-        numBeams = b.getShort(70);
+        numBytes = b.getShort(4) & 0xFFFF;
+        numBeams = b.getShort(70) & 0xFFFF;
         
-        pingNumber = b.getInt(93);
+        pingNumber = b.getInt(93) & 0xFFFFFFFF;
         
-        samplesPerBeam = b.getShort(72);
-        sectorSize = b.getShort(74); 
-        startAngle = b.getShort(76) / 100f - 180;
-        angleIncrement = b.get(78) / 100f;
-        range = b.getShort(79);
+        samplesPerBeam = b.getShort(72) & 0xFFFF;
+        sectorSize = b.getShort(74) & 0xFFFF; 
+        startAngle = (b.getShort(76) & 0xFFFF) / 100f - 180;
+        angleIncrement = (b.get(78) & 0xFF) / 100f;
+        range = b.getShort(79) & 0xFFFF;
         
-        sonarFreqKHz = b.getShort(81);
+        sonarFreqKHz = b.getShort(81) & 0xFFFF;
         
-        pulseLength = b.getShort(87);
-        pulseRepetingRate = b.getShort(91);
+        pulseLength = b.getShort(87) & 0xFFFF;
+        pulseRepetingRate = b.getShort(91) & 0xFFFF;
         
         soundVelocity = parseSoundVelocity(b);
         
-        rangeResolution = b.getShort(85);
+        rangeResolution = b.getShort(85) & 0xFFFF;
         
-        speed = convertKnotsToMetersPerSecond((b.get(61) / 10.0));
+        speed = convertKnotsToMetersPerSecond((b.get(61) & 0xFF) / 10.0);
         
-        gnssShipCourse = b.getShort(62) / 10.0;
+        gnssShipCourse = (b.getShort(62) & 0xFFFF) / 10.0;
         
         byte shipLatLonBuf[] = new byte[14];
         b.position(33);
         b.get(shipLatLonBuf, 0, 14);
-        gnssShipPosLat = new String(shipLatLonBuf);;
+        gnssShipPosLat = new String(shipLatLonBuf);
         b.position(47);
         b.get(shipLatLonBuf, 0, 14);
-        gnssShipPosLon = new String(shipLatLonBuf);;
+        gnssShipPosLon = new String(shipLatLonBuf);
         
         sonarXOffset = b.getFloat(100);
         sonarYOffset = b.getFloat(104);
@@ -227,6 +229,8 @@ public class DeltaTHeader {
         sonarIsOperatingInOverlappedMode = isBitSet(vel123, 2); // Bit 2 - 1 = sonar is operating in overlapped mode
         
         numberOfPingsAveraged = b.get(125); // Number of Pings Averaged - 0 to 25
+        
+        altitude = b.getFloat(133);
     }
     
     /**
@@ -271,5 +275,4 @@ public class DeltaTHeader {
         }
         return fileTypeStr;
     }
-
 }

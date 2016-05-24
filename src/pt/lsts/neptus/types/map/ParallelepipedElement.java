@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2015 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2016 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -42,12 +42,12 @@ import javax.media.j3d.BranchGroup;
 import javax.media.j3d.Canvas3D;
 import javax.swing.JFrame;
 
+import com.sun.j3d.utils.geometry.Sphere;
+import com.sun.j3d.utils.universe.SimpleUniverse;
+
 import pt.lsts.neptus.renderer2d.StateRenderer2D;
 import pt.lsts.neptus.renderer3d.Util3D;
 import pt.lsts.neptus.types.coord.LocationType;
-
-import com.sun.j3d.utils.geometry.Sphere;
-import com.sun.j3d.utils.universe.SimpleUniverse;
 
 /**
  * Refactored in 06/11/2006.

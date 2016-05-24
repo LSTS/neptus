@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2015 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2016 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -48,6 +48,8 @@ import java.util.Vector;
 
 import javax.swing.JPopupMenu;
 
+import com.google.common.eventbus.Subscribe;
+
 import pt.lsts.imc.AcousticOperation;
 import pt.lsts.imc.EstimatedState;
 import pt.lsts.imc.FollowRefState;
@@ -82,8 +84,6 @@ import pt.lsts.neptus.types.vehicle.VehicleType.SystemTypeEnum;
 import pt.lsts.neptus.types.vehicle.VehiclesHolder;
 import pt.lsts.neptus.util.GuiUtils;
 import pt.lsts.neptus.util.conf.ConfigFetch;
-
-import com.google.common.eventbus.Subscribe;
 
 /**
  * @author zp

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2015 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2016 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -155,6 +155,8 @@ public class PlanSimulationOverlay implements Renderer2DPainter {
         simStates.add(simState);
         
         String man = simState.getCurrentManeuver();
+        if (man == null)
+            return;
         LinkedHashMap<Area, Color> swath = new LinkedHashMap<>();
         for (PayloadFingerprint pf : payloads.get(man)) {
             double altitude = SimulationEngine.simBathym.getSimulatedDepth(state.getPosition());

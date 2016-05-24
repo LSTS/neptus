@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2015 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2016 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -43,14 +43,12 @@ import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
-import javax.swing.filechooser.FileFilter;
 
-import pt.lsts.neptus.NeptusLog;
-import pt.lsts.neptus.gui.swing.NeptusFileView;
 import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.renderer2d.StateRenderer2D;
 import pt.lsts.neptus.types.mission.MapMission;
 import pt.lsts.neptus.util.FileUtil;
+import pt.lsts.neptus.util.GuiUtils;
 import pt.lsts.neptus.util.conf.ConfigFetch;
 
 /**
@@ -99,13 +97,12 @@ public class MapFileChooser extends JFileChooser {
 	 * Shows 
 	 */
 	private static File showOpenDialog(Component parent, String title, File basedir) {
-		JFileChooser jfc = new JFileChooser();
 		File fx;
 		if (basedir != null && basedir.exists()) {
 			fx = basedir;
 		}
 		else {
-			fx = new File(ConfigFetch.getConfigFile());
+			fx = new File(ConfigFetch.getMapsFolder());
 			if (!fx.exists()) {
 				fx = new File(ConfigFetch.resolvePath("."));
 				if (!fx.exists()) {
@@ -113,38 +110,11 @@ public class MapFileChooser extends JFileChooser {
 				}
 			}
 		}
-		jfc.setCurrentDirectory(fx);
-		//jfc.setCurrentDirectory(new File(ConfigFetch.getConfigFile()));
+
+		JFileChooser jfc = GuiUtils.getFileChooser(fx, I18n.text("Map files"), FileUtil.FILE_TYPE_MAP);
 		jfc.setAccessory(new MapPreview(jfc));
-		jfc.setFileView(new NeptusFileView());
-		jfc.setFileFilter(new FileFilter() {
-			
-			public boolean accept(File f) {
-				 if (f.isDirectory()) {
-		            return true;
-				 }
-
-		        String extension = FileUtil.getFileExtension(f);
-		        if (extension != null) {
-		            if (extension.equals(FileUtil.FILE_TYPE_MAP) ||
-		                extension.equals(FileUtil.FILE_TYPE_XML)) {
-		                    return true;
-		            }
-		            else {
-		                return false;
-		            }
-		    	}
-
-		        return false;
-			}
-			
-			public String getDescription() {
-                return I18n.text("Map files") + " ('" + FileUtil.FILE_TYPE_MAP + "', '" + FileUtil.FILE_TYPE_XML + "')";
-            }
-		});
 		
-		int result = jfc.showDialog((parent == null)?new JFrame():parent, title);
-		//int result = jfc.showDialog(new JFrame(), "Open Map");
+        int result = jfc.showDialog((parent == null) ? new JFrame() : parent, title);
 		if(result == JFileChooser.CANCEL_OPTION)
 			return null;
 		return jfc.getSelectedFile();
@@ -153,7 +123,7 @@ public class MapFileChooser extends JFileChooser {
 	public static void main(String[] args) {
         ConfigFetch.initialize();
 		File f = MapFileChooser.showOpenMapDialog();
-		NeptusLog.pub().info("<###> "+f);
+		System.out.println(f);
 	}
 }
 

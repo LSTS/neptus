@@ -44,6 +44,8 @@ import java.awt.geom.Point2D;
 import javax.swing.JMenuItem;
 import javax.swing.JPopupMenu;
 
+import com.google.common.eventbus.Subscribe;
+
 import pt.lsts.imc.PowerChannelControl;
 import pt.lsts.imc.PowerChannelControl.OP;
 import pt.lsts.imc.PowerChannelState;
@@ -61,8 +63,6 @@ import pt.lsts.neptus.plugins.SimpleRendererInteraction;
 import pt.lsts.neptus.renderer2d.Renderer2DPainter;
 import pt.lsts.neptus.renderer2d.StateRenderer2D;
 import pt.lsts.neptus.types.coord.LocationType;
-
-import com.google.common.eventbus.Subscribe;
 
 /**
  * @author jfortuna

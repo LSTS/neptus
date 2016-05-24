@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2015 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2016 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -31,74 +31,16 @@
  */
 package pt.lsts.neptus.util.bathymetry;
 
-import java.util.ArrayList;
 import java.util.Date;
 
-import pt.lsts.neptus.NeptusLog;
-import pt.lsts.neptus.util.bathymetry.TidePrediction.TIDE_TYPE;
-
-public abstract class TidePredictionFinder {
-    protected ArrayList<TidePrediction> predictions;
-
-    protected void logError(Exception e) {
-        NeptusLog.pub().info("<###>[ERROR] There was a problem finding the tide prediction.", e);
-    }
+public interface TidePredictionFinder {
 
     /**
-     * Applies interpolation formula for the case the date is after a hight tide.
-     * 
-     * @param indexFirstTide
-     * @param wantedDate
+     * The harbor/location name.
      * @return
      */
-    protected Float ihFuncAfterHighTide(int indexFirstTide, Date wantedDate) {
-        TidePrediction firstTide = predictions.get(indexFirstTide);
-        TidePrediction secondTide = predictions.get(indexFirstTide + 1);
-        // hHT - H - height on high tide
-        // hLT - h - height on low tide
-        float hHT = firstTide.getHeight();
-        float hLT = secondTide.getHeight();
-        // hightToLowT - T - time elapsed between previous high tide and low tide
-        float hightToLowT = secondTide.getTimeAndDate().getTime() - firstTide.getTimeAndDate().getTime();
-        // timeUntilNow - t - time elapsed between last high or low tide and desired time
-        float timeUntilNow;
-        long wantedTime = wantedDate.getTime();
-        timeUntilNow = wantedTime - firstTide.getTimeAndDate().getTime();
-
-        float waterHeight = ((hHT + hLT) / 2 
-                + ((hHT - hLT) / 2) * (((float)Math.cos(( ((float)Math.PI) * timeUntilNow) / hightToLowT))) );
-
-        return waterHeight;
-    }
-
-    /**
-     * Applies interpolation formula for the case the date is after a hight tide.
-     * 
-     * @param indexFirstTide
-     * @param wantedDate
-     * @return
-     */
-    protected Float ihFuncAfterLowTide(int indexFirstTide, Date wantedDate) {
-        // hLT - h - height on low tide
-        // hHT - H - height on high tide
-        TidePrediction firstTide = predictions.get(indexFirstTide);
-        TidePrediction secondTide = predictions.get(indexFirstTide + 1);
-        float hLT = firstTide.getHeight();
-        float hHT = secondTide.getHeight();
-        // lowToHighT - T1 - time elapsed between previous low tide and high tide
-        float lowToHighT = secondTide.getTimeAndDate().getTime() - firstTide.getTimeAndDate().getTime();
-        // timeUntilNow - t - time elapsed between last high or low tide and desired time
-        float timeUntilNow;
-        long wantedTime = wantedDate.getTime();
-        timeUntilNow = wantedTime - firstTide.getTimeAndDate().getTime();
-
-        float waterHeight = ((hHT + hLT) / 2 + ((hLT - hHT) / 2)
-                * (((float) Math.cos((((float) Math.PI) * timeUntilNow) / lowToHighT))));
-
-
-        return waterHeight;
-    }
-
+    public abstract String getName();
+    
     /**
      * Method that each class that implements this one must provide that transforms a date into a height.
      * 
@@ -109,27 +51,11 @@ public abstract class TidePredictionFinder {
      */
     public abstract Float getTidePrediction(Date date, boolean print) throws Exception;
 
+    
     /**
-     * Decides which formula to apply (based o the previous tide).
-     * 
+     * Tests if the date is within data.
      * @param date
-     * @param iTide
      * @return
      */
-    protected Float findPrediction(Date date, int iTide) {
-        Float prediction;
-        
-        if (predictions.get(iTide).getTideType() == TIDE_TYPE.HIGH_TIDE) {
-            prediction = ihFuncAfterHighTide(iTide, date);
-        }
-        else {
-            prediction = ihFuncAfterLowTide(iTide, date);
-        }
-        return prediction;
-    }
-
-    public ArrayList<TidePrediction> getPredictionsMarks() {
-        return predictions;
-    }
-
+    public abstract boolean contains(Date date);
 }

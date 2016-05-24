@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2015 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2016 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -56,7 +56,6 @@ import pt.lsts.neptus.mp.SystemPositionAndAttitude;
 import pt.lsts.neptus.mra.api.CorrectedPosition;
 import pt.lsts.neptus.mra.importers.IMraLogGroup;
 import pt.lsts.neptus.plugins.PluginDescription;
-import pt.lsts.neptus.plugins.PluginUtils;
 import pt.lsts.neptus.types.coord.LocationType;
 import pt.lsts.neptus.util.conf.ConfigFetch;
 import pt.lsts.neptus.util.llf.LsfLogSource;
@@ -77,11 +76,6 @@ public class CTDExporter implements MRAExporter {
         return source.getLsfIndex().getEntityId("CTD") != -1;
     };
 
-    @Override
-    public String getName() {
-        return PluginUtils.getPluginDescription(getClass());
-    }
-
     private String finish(BufferedWriter writer, int count) {
         try {
             writer.close();
@@ -89,7 +83,7 @@ public class CTDExporter implements MRAExporter {
         catch (Exception e) {
             NeptusLog.pub().error(e);
         }
-        return "Exported "+count+" samples";
+        return I18n.textf("Exported %count samples", count);
     }
     @SuppressWarnings("resource")
     @Override
@@ -104,7 +98,7 @@ public class CTDExporter implements MRAExporter {
         while(startSel.isEmpty()) {
         startSel = JOptionPane.showInputDialog(ConfigFetch.getSuperParentFrame(), I18n.text("Select start time (UTC)"), sdf.format(start));        
             if (startSel == null)
-                return "Cancelled by the user";
+                return I18n.text("Cancelled by the user");
             try {
                 start = sdf.parse(startSel);
             }
@@ -119,7 +113,7 @@ public class CTDExporter implements MRAExporter {
         while (endSel.isEmpty()) {
             endSel = JOptionPane.showInputDialog(ConfigFetch.getSuperParentFrame(), I18n.text("Select end time (UTC)"), sdf.format(end));
             if (endSel == null)
-                return "Cancelled by the user";
+                return I18n.text("Cancelled by the user");
             try {
                 end = sdf.parse(endSel);
             }
@@ -131,7 +125,7 @@ public class CTDExporter implements MRAExporter {
         }
         
         if (start.after(end)) {
-            return "Start time must be before end time";
+            return I18n.text("Start time must be before end time");
         }
         
         //System.out.println(start +" --> "+end);
@@ -140,12 +134,12 @@ public class CTDExporter implements MRAExporter {
         IndexScanner scanner = new IndexScanner(index);
         pmonitor.setMaximum(index.getNumberOfMessages());
         pmonitor.setMinimum(index.getNumberOfMessages());
-        pmonitor.setNote("Creating output folder...");
+        pmonitor.setNote(I18n.text("Creating output folder..."));
         boolean containsSalinity = source.getLsfIndex().containsMessagesOfType("Salinity");
         
         File dir = new File(source.getFile("mra"), "csv");
         dir.mkdirs();
-        pmonitor.setNote("Generating corrected positions...");
+        pmonitor.setNote(I18n.text("Generating corrected positions..."));
         pmonitor.setProgress(10);
         CorrectedPosition cp = new CorrectedPosition(source);
         
@@ -160,7 +154,7 @@ public class CTDExporter implements MRAExporter {
         }
         catch (Exception e) {
             NeptusLog.pub().error(e);
-            return "Error creating output file: "+e.getMessage();            
+            return I18n.textf("Error creating output file: %error", e.getMessage());            
         }
 
         SimpleDateFormat dateFormat = new SimpleDateFormat("HH:mm:ss.SSS");
@@ -205,7 +199,7 @@ public class CTDExporter implements MRAExporter {
             LocationType loc = IMCUtils.parseLocation(d).convertToAbsoluteLatLonDepth();
             SystemPositionAndAttitude p = cp.getPosition(d.getTimestamp());
             if (p==null)
-                return "error positions is Empty";
+                return I18n.text("Error positions is Empty");
             
             try {
                 String medium = "UNKNOWN";
@@ -227,7 +221,7 @@ public class CTDExporter implements MRAExporter {
             catch (Exception e) {
                 e.printStackTrace();
                 NeptusLog.pub().error(e);
-                return "Error writing to file: "+e.getMessage();       
+                return I18n.textf("Error writing to file: %error", e.getMessage());       
             }
             pmonitor.setProgress(scanner.getIndex());            
         }

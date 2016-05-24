@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2015 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2016 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -42,16 +42,15 @@ import java.util.LinkedHashMap;
 import javax.swing.ImageIcon;
 import javax.swing.JFileChooser;
 import javax.swing.JLabel;
-import javax.swing.filechooser.FileFilter;
 
 import org.dom4j.ElementHandler;
 import org.dom4j.ElementPath;
 import org.dom4j.io.SAXReader;
 
 import pt.lsts.neptus.NeptusLog;
-import pt.lsts.neptus.gui.swing.NeptusFileView;
 import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.util.FileUtil;
+import pt.lsts.neptus.util.GuiUtils;
 import pt.lsts.neptus.util.ZipUtils;
 import pt.lsts.neptus.util.conf.ConfigFetch;
 
@@ -63,65 +62,12 @@ public class MissionFileChooser extends JFileChooser {
     private static final long serialVersionUID = -749492337802300793L;
 
     /**
-     * Returns the file extension for the given file (null if no extension)
-     * 
-     * @param f The file from where to get the extension
-     * @return The file extension of the given file
-     */
-    private static String getExtension(File f) {
-        String ext = null;
-        String s = f.getName();
-        int i = s.lastIndexOf('.');
-
-        if (i > 0 && i < s.length() - 1) {
-            ext = s.substring(i + 1).toLowerCase();
-        }
-        return ext;
-    }
-
-    /**
      * Shows
      */
     public static File showOpenMissionDialog(String[] possibleExtensions) {
-        JFileChooser jfc = new JFileChooser();
-        jfc.setCurrentDirectory(new File(ConfigFetch.getConfigFile()));
+        JFileChooser jfc = GuiUtils.getFileChooser(ConfigFetch.getMissionsFolder(), I18n.text("Mission Files"),
+                possibleExtensions);
         jfc.setAccessory(new MissionPreview(jfc));
-        jfc.setFileView(new NeptusFileView());
-        final String[] exts = possibleExtensions;
-
-        jfc.setFileFilter(new FileFilter() {
-
-            public boolean accept(File f) {
-                if (f.isDirectory()) {
-                    return true;
-                }
-
-                String extension = getExtension(f);
-                if (extension != null) {
-
-                    for (String ext : exts) {
-                        if (extension.equalsIgnoreCase(ext))
-                            return true;
-                    }
-                }
-
-                return false;
-            }
-
-            public String getDescription() {
-                if (exts.length == 0)
-                    return I18n.text("Mission Files");
-
-                String desc = I18n.text("Mission files") + " ('" + exts[0] + "'";
-
-                for (int i = 1; i < exts.length; i++)
-                    desc += ", '" + exts[i] + "'";
-
-                desc += ")";
-
-                return desc;
-            }
-        });
 
         int result = jfc.showDialog(ConfigFetch.getSuperParentFrame(), I18n.text("Open Mission"));
         if (result == JFileChooser.CANCEL_OPTION)
@@ -133,7 +79,7 @@ public class MissionFileChooser extends JFileChooser {
     public static void main(String[] args) {
         ConfigFetch.initialize();
         File f = MissionFileChooser.showOpenMissionDialog(new String[] { "nmis", "xml" });
-        NeptusLog.pub().info("<###> "+f);
+        System.out.println("<###> "+f);
     }
 }
 
@@ -143,7 +89,6 @@ class MissionPreview extends JLabel implements PropertyChangeListener {
     File file = null;
 
     public MissionPreview(JFileChooser fc) {
-        // ConfigFetch.initialize();
         setPreferredSize(new Dimension(120, 50));
         setFont(new Font("Lucida Sans", Font.PLAIN, 10));
         fc.addPropertyChangeListener(this);

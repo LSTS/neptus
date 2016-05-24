@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<config format="1" version="2.6.x (master,8797653)" system="doam" i18n="en_US">
+<config format="1" version="2016.01.0 (master,dd196ec,dirty)" system="doam" i18n="en_US">
   <section name="Thermal Zone" name-i18n="Thermal Zone">
     <param name="Entity Label">
       <name-i18n>Entity Label</name-i18n>

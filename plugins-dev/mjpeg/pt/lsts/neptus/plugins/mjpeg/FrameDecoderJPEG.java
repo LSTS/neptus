@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2015 OceanScan - Marine Systems & Technology Lda.
+ * Copyright (c) 2004-2016 OceanScan - Marine Systems & Technology Lda.
  * Polo do Mar do UPTEC, Avenida da Liberdade, 4450-718 Matosinhos, Portugal
  *
  * This file is part of Neptus, Command and Control Framework.
@@ -27,13 +27,19 @@
 
 package pt.lsts.neptus.plugins.mjpeg;
 
-import org.apache.commons.io.FileUtils;
-import pt.lsts.neptus.NeptusLog;
-
-import javax.imageio.ImageIO;
 import java.io.File;
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.ListIterator;
+import java.util.Locale;
+
+import javax.imageio.ImageIO;
+
+import org.apache.commons.io.FileUtils;
+
+import pt.lsts.neptus.NeptusLog;
 
 /**
  * Decoder for video streams encoded and separate JPEG files.
@@ -152,7 +158,7 @@ public class FrameDecoderJPEG implements FrameDecoder {
         NeptusLog.pub().info("loading frames from " + folder.getAbsolutePath());
         fileList.addAll(FileUtils.listFiles(getBaseFolder(folder), validExtensions, true));
         Collections.sort(fileList);
-        NeptusLog.pub().info(String.format("loaded %d frames", fileList.size()));
+        NeptusLog.pub().info(String.format(Locale.US, "loaded %d frames", fileList.size()));
     }
 
     private void computeFrameRate() {
@@ -172,7 +178,7 @@ public class FrameDecoderJPEG implements FrameDecoder {
 
         double averageFrameRate = 1000.0 / (deltaAccumulator / (getFrameCount() - 1));
         frameRate = (int)Math.round(averageFrameRate);
-        NeptusLog.pub().info(String.format("average frame rate %d (%.1f)", frameRate, averageFrameRate));
+        NeptusLog.pub().info(String.format(Locale.US, "average frame rate %d (%.1f)", frameRate, averageFrameRate));
     }
 
     private int findFrameByTime(long timeStamp) {

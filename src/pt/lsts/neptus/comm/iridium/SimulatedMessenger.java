@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2015 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2016 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -36,11 +36,11 @@ import java.util.Date;
 import java.util.HashSet;
 import java.util.Vector;
 
-import pt.lsts.neptus.comm.manager.imc.ImcMsgManager;
+import com.google.common.eventbus.Subscribe;
+
 import pt.lsts.imc.IridiumMsgRx;
 import pt.lsts.imc.IridiumMsgTx;
-
-import com.google.common.eventbus.Subscribe;
+import pt.lsts.neptus.comm.manager.imc.ImcMsgManager;
 
 /**
  * @author zp

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2015 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2016 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -31,8 +31,6 @@
  */
 package pt.lsts.neptus.comm;
 
-import gnu.io.CommPortIdentifier;
-
 import java.io.File;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
@@ -45,6 +43,7 @@ import java.util.LinkedList;
 import java.util.StringTokenizer;
 import java.util.Vector;
 
+import gnu.io.CommPortIdentifier;
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.types.comm.CommMean;
 import pt.lsts.neptus.types.vehicle.VehicleType;

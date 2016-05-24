@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2015 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2016 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -51,6 +51,7 @@ import org.alternativevision.gpx.beans.Waypoint;
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.console.ConsoleLayout;
 import pt.lsts.neptus.console.ConsolePanel;
+import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.plugins.PluginDescription;
 import pt.lsts.neptus.types.coord.LocationType;
 import pt.lsts.neptus.types.map.AbstractElement;
@@ -60,6 +61,7 @@ import pt.lsts.neptus.types.map.MarkElement;
 import pt.lsts.neptus.types.map.PathElement;
 import pt.lsts.neptus.types.mission.MissionType;
 import pt.lsts.neptus.util.GuiUtils;
+import pt.lsts.neptus.util.conf.ConfigFetch;
 
 /**
  * @author zp
@@ -79,7 +81,8 @@ public class GpxImportExport extends ConsolePanel {
 
     @Override
     public void cleanSubPanel() {
-        
+        removeMenuItem(I18n.text("Tools") + ">" + I18n.text("GPX") + ">" + I18n.text("Import"));
+        removeMenuItem(I18n.text("Tools") + ">" + I18n.text("GPX") + ">" + I18n.text("Export"));
     }
     
     private MapType getMap(MissionType mt) {
@@ -146,13 +149,12 @@ public class GpxImportExport extends ConsolePanel {
     
     @Override
     public void initSubPanel() {
-        addMenuItem("Tools>GPX>Import", null, new ActionListener() {
+        addMenuItem(I18n.text("Tools") + ">" + I18n.text("GPX") + ">" + I18n.text("Import"), null, new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 
-                JFileChooser chooser = new JFileChooser();
-                chooser.setDialogTitle("Select GPX file to import");
-                chooser.setFileFilter(GuiUtils.getCustomFileFilter("GPX files", "gpx"));
+                JFileChooser chooser = GuiUtils.getFileChooser(ConfigFetch.getUserHomeFolder(), I18n.text("GPX files"), "gpx");
+                chooser.setDialogTitle(I18n.text("Select GPX file to import"));
                 int op = chooser.showOpenDialog(getConsole());
                 if (op != JFileChooser.APPROVE_OPTION)
                     return;
@@ -165,7 +167,6 @@ public class GpxImportExport extends ConsolePanel {
                         LocationType loc = new LocationType(wpt.getLatitude(), wpt.getLongitude());
                         addMark(loc, wpt.getName());
                     }
-                    
                     
                     for (Track t : gpx.getTracks()) {
                         Vector<LocationType> locs = new Vector<>();
@@ -184,7 +185,7 @@ public class GpxImportExport extends ConsolePanel {
             }
         });
         
-        addMenuItem("Tools>GPX>Export", null, new ActionListener() {
+        addMenuItem(I18n.text("Tools") + ">" + I18n.text("GPX") + ">" + I18n.text("Export"), null, new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 try {

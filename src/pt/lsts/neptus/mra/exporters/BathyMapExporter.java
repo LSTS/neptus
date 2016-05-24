@@ -31,16 +31,17 @@
  */
 package pt.lsts.neptus.mra.exporters;
 
+import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
-import java.io.BufferedWriter;
-import java.util.List;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Locale;
 
 import javax.swing.ProgressMonitor;
 
 import pt.lsts.imc.IMCMessage;
+import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.mra.api.BathymetryParser;
 import pt.lsts.neptus.mra.api.BathymetryParserFactory;
 import pt.lsts.neptus.mra.api.BathymetryPoint;
@@ -56,12 +57,14 @@ import pt.lsts.neptus.types.coord.LocationType;
  * @author Frédéric Leishman
  * 
  */
-@PluginDescription(name = "Bathy Map Exporter")
+@PluginDescription(name = "Bathymetry Map Exporter")
 public class BathyMapExporter implements MRAExporter {
 
-    IMraLogGroup source;
-    ProgressMonitor pmonitor;
-    BathymetryParser bparser;   
+    @SuppressWarnings("unused")
+    private IMraLogGroup source;
+    @SuppressWarnings("unused")
+    private ProgressMonitor pmonitor;
+    private BathymetryParser bparser;   
 
     @NeptusProperty(name = "Number point to ignore", description = "Number of points of multibeam measure to ignore")
     public double ptsToIgnore = 2.0;
@@ -97,47 +100,42 @@ public class BathyMapExporter implements MRAExporter {
     }
 
     @Override
-    public String getName() {
-        return PluginUtils.getPluginDescription(getClass());
-    }
-
-    @Override
     public String process(IMraLogGroup source, ProgressMonitor pmonitor) {
 
         // Ask setting map parameters
         PluginUtils.editPluginProperties(this, true);
 
         // Initialization of progression display
-        int index_progression = 1;
+        int indexProgression = 1;
         this.pmonitor = pmonitor;
         pmonitor.setMinimum(0);
         pmonitor.setMaximum(10001);
 
-        pmonitor.setNote("PointCloud Loading... ");
+        pmonitor.setNote(I18n.text("PointCloud Loading..."));
         pmonitor.setProgress(1);
 
         bparser = BathymetryParserFactory.build(source, "multibeam");
 
-        int countPoints_MB = 0;
+        int countPointsMB = 0;
         LocationType initLoc = null;
 
         // Get the reference location of estimated state
         IMCMessage map_ref = source.getLsfIndex().getMessage(
                 source.getLsfIndex().getFirstMessageOfType("EstimatedState"));
 
-        double max_x = -100000;
-        double max_y = -100000;
-        double min_x = 100000;
-        double min_y = 100000;
+        double maxX = -100000;
+        double maxY = -100000;
+        double minX = 100000;
+        double minY = 100000;
 
-        List<double[]> table_MB = new ArrayList<double[]>();
+        List<double[]> tableMB = new ArrayList<double[]>();
 
         //NED offset to the MBS acquisition beginning
-        double init_offset_north = 0;
-        double init_offset_east = 0;
-        double init_offset_down = 0;
+        double initOffsetNorth = 0;
+        double initOffsetEast = 0;
+        double initOffsetDown = 0;
 
-        IMraLog estimated_state_parser = source.getLog("EstimatedState");
+        IMraLog estimatedStateParser = source.getLog("EstimatedState");
         
         BathymetrySwath bs;
         while ((bs = bparser.nextSwath()) != null) {
@@ -147,16 +145,20 @@ public class BathyMapExporter implements MRAExporter {
                 initLoc = new LocationType(loc);
                 
                 // Offset Correction, we get the first location correspond to the Mbs acquisition beginning  
-                init_offset_north = (double) estimated_state_parser.getEntryAtOrAfter(bs.getTimestamp()).getDouble("x");
-                init_offset_east  = (double) estimated_state_parser.getEntryAtOrAfter(bs.getTimestamp()).getDouble("y");
-                init_offset_down  = (double) estimated_state_parser.getEntryAtOrAfter(bs.getTimestamp()).getDouble("z");
+                initOffsetNorth = (double) estimatedStateParser.getEntryAtOrAfter(bs.getTimestamp()).getDouble("x");
+                initOffsetEast  = (double) estimatedStateParser.getEntryAtOrAfter(bs.getTimestamp()).getDouble("y");
+                initOffsetDown  = (double) estimatedStateParser.getEntryAtOrAfter(bs.getTimestamp()).getDouble("z");
                 
-                initLoc.setOffsetNorth(-init_offset_north);
-                initLoc.setOffsetEast(-init_offset_east);                   
-                initLoc.setOffsetDown(init_offset_down);  
+                initLoc.setOffsetNorth(-initOffsetNorth);
+                initLoc.setOffsetEast(-initOffsetEast);                   
+                initLoc.setOffsetDown(initOffsetDown);  
             }
 
             for (int c = 0; c < bs.getNumBeams(); c++) {
+                
+                if (pmonitor.isCanceled())
+                    break;
+                
                 // Limitation of number of point (14M pts is too much)
                 if (Math.random() > 1.0 / ptsToIgnore)
                     continue;
@@ -175,52 +177,54 @@ public class BathyMapExporter implements MRAExporter {
                 double data[] = tempLoc.getOffsetFrom(initLoc);
 
                 // Add normalized depth
-                double pts_mb[] = {data[0], data[1], p.depth};
-                table_MB.add(pts_mb);
+                double ptsMB[] = {data[0], data[1], p.depth};
+                tableMB.add(ptsMB);
 
-                ++countPoints_MB;
+                ++countPointsMB;
 
                 // Map border limits
-                if (pts_mb[0] > max_x) {
-                    max_x = pts_mb[0];
+                if (ptsMB[0] > maxX) {
+                    maxX = ptsMB[0];
                 }
-                if (pts_mb[0] < min_x) {
-                    min_x = pts_mb[0];
+                if (ptsMB[0] < minX) {
+                    minX = ptsMB[0];
                 }
-                if (pts_mb[1] > max_y) {
-                    max_y = pts_mb[1];
+                if (ptsMB[1] > maxY) {
+                    maxY = ptsMB[1];
                 }
-                if (pts_mb[1] < min_y) {
-                    min_y = pts_mb[1];
+                if (ptsMB[1] < minY) {
+                    minY = ptsMB[1];
                 }
             }
 
             // Progress notification
-            index_progression = (int) ((double) (countPoints_MB)
+            indexProgression = (int) ((double) (countPointsMB)
                     / (double) (bparser.getBathymetryInfo().totalNumberOfPoints) * 8000.0 * ptsToIgnore);
-            if (index_progression > 0 && index_progression < 8000) {
-                pmonitor.setProgress(index_progression);
-                pmonitor.setNote("PointCloud Loading... " + index_progression / 100 + "%");
+            if (indexProgression > 0 && indexProgression < 8000) {
+                pmonitor.setProgress(indexProgression);
+                pmonitor.setNote(I18n.textf("PointCloud Loading... %pt", indexProgression / 100 + "%"));
             }
+            
+            if (pmonitor.isCanceled())
+                break;
         }
 
         pmonitor.setProgress(8000);
-        pmonitor.setNote("Map building ... 80%");
+        pmonitor.setNote(I18n.text("Map building..."));
 
         // Height map initialization
-        Map map = new Map(mapResolution, min_x, max_x, min_y, max_y);
+        Map map = new Map(mapResolution, minX, maxX, minY, maxY);
         map.SetParameters(ptsMinByCells, ptsMinFilter);
-        map.CreateMapWithPointCloud(table_MB, countPoints_MB);
+        map.CreateMapWithPointCloud(tableMB, countPointsMB);
 
         pmonitor.setProgress(9000);
-        pmonitor.setNote("Map exporting ... 90%");
+        pmonitor.setNote(I18n.text("Map exporting..."));
 
         // Map is generated inside the mra path
-        File dir = new File(source.getFile("mra"), "mbp");
-        dir.mkdirs();
+        File dir = source.getFile("mra");
 
         try {
-            File out = new File(dir, "carte_mbp.txt");
+            File out = new File(dir, "bathymetry_mb_map.txt");
             BufferedWriter bw = new BufferedWriter(new FileWriter(out));
 
             if (matriceFormat == false) {
@@ -244,6 +248,9 @@ public class BathyMapExporter implements MRAExporter {
                                 + String.format(Locale.US, "%.3f", map.cells.get(i).position_y) + ", "
                                 + String.format(Locale.US, "%.3f", map.cells.get(i).depth) + "\n");
                     }
+                    
+                    if (pmonitor.isCanceled())
+                        break;
                 }
             }
             else {
@@ -266,6 +273,9 @@ public class BathyMapExporter implements MRAExporter {
                 // Map body
                 int id = 0;
                 for (int j = 0; j < map.num_j; j++) {
+                    if (pmonitor.isCanceled())
+                        break;
+
                     for (int i = 0; i < map.num_i; i++) {
                         id = i + j * map.num_i;
                         if (map.cells.get(id).IsValidated()) {
@@ -274,6 +284,9 @@ public class BathyMapExporter implements MRAExporter {
                         else {
                             bw.write(valueCellEmpty + ", ");
                         }
+
+                        if (pmonitor.isCanceled())
+                            break;
                     }
                     bw.write("\n");
                 }
@@ -285,8 +298,11 @@ public class BathyMapExporter implements MRAExporter {
             e.printStackTrace();
         }
 
+        if (pmonitor.isCanceled())
+            return I18n.text("Cancelled by user");
+
         // Map export completed
         pmonitor.setProgress(pmonitor.getMaximum());
-        return "Bathy map export is successfully completed";
+        return I18n.text("Bathymetry map export has completed successfully");
     }
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2015 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2016 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -71,7 +71,7 @@ public class ImageElement extends AbstractElement implements ScalableElement, Ro
 
     private boolean isBathymetric = false;
     private double maxHeight = 0.0, maxDepth = 20.0; // max values
-    private int resolution = DEFAULT_RESOLUTION;
+    private double resolution = DEFAULT_RESOLUTION;
 
     protected String originalFilePath = "";
 
@@ -309,14 +309,14 @@ public class ImageElement extends AbstractElement implements ScalableElement, Ro
     /**
      * @return Returns the resolution.
      */
-    public int getResolution() {
+    public double getResolution() {
         return resolution;
     }
 
     /**
      * @param resolution The resolution to set.
      */
-    public void setResolution(int resolution) {
+    public void setResolution(double resolution) {
         this.resolution = resolution;
     }
 
@@ -423,7 +423,7 @@ public class ImageElement extends AbstractElement implements ScalableElement, Ro
             // for some reason this was not in sync with the schema, I've trace back at least to 2007 and it was like
             // this and not like the previous
             if (getResolution() != DEFAULT_RESOLUTION)
-                root.addElement("resolution").addText(Integer.toString(getResolution()));
+                root.addElement("resolution").addText(Double.toString(getResolution()));
             if (getBathymetricImageFileName() != null)
                 root.addElement("href-altitude").addText(
                         FileUtil.relativizeFilePathAsURI(getOriginalFilePath(), getBathymetricImageFileName()));
@@ -494,7 +494,6 @@ public class ImageElement extends AbstractElement implements ScalableElement, Ro
         }
 
         Point2D center = renderer.getScreenPosition(getCenterLocation());
-
         g.translate(center.getX(), center.getY());
         g.scale(getImageScale() * renderer.getZoom(), getImageScale() * renderer.getZoom());
         g.rotate(getYawRad() - renderer.getRotation());

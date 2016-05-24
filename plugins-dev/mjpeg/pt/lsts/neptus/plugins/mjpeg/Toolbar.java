@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2015 OceanScan - Marine Systems & Technology Lda.
+ * Copyright (c) 2004-2016 OceanScan - Marine Systems & Technology Lda.
  * Polo do Mar do UPTEC, Avenida da Liberdade, 4450-718 Matosinhos, Portugal
  *
  * This file is part of Neptus, Command and Control Framework.
@@ -27,11 +27,14 @@
 
 package pt.lsts.neptus.plugins.mjpeg;
 
+import javax.swing.ImageIcon;
+import javax.swing.JButton;
+import javax.swing.JPanel;
+import javax.swing.JToggleButton;
+
 import net.miginfocom.swing.MigLayout;
 import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.util.ImageUtils;
-
-import javax.swing.*;
 
 /**
  * Simple toolbar.

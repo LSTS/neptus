@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2015 OceanScan - Marine Systems & Technology, Lda.
+ * Copyright (c) 2004-2016 OceanScan - Marine Systems & Technology, Lda.
  * Polo do Mar do UPTEC, Avenida da Liberdade, 4450-718 Matosinhos, Portugal
  *
  * This file is part of Neptus, Command and Control Framework.
@@ -27,10 +27,14 @@
 
 package pt.lsts.neptus.plugins.mjpeg;
 
-import java.awt.*;
+import java.awt.Color;
+import java.awt.Font;
+import java.awt.Graphics2D;
+import java.awt.RenderingHints;
 import java.awt.geom.RoundRectangle2D;
-import java.util.*;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.mp.SystemPositionAndAttitude;
@@ -163,6 +167,6 @@ public class Caption {
     }
 
     private static String formatNumber(double number) {
-        return Double.isNaN(number) ? "N/A" : String.format("%.1f", number);
+        return Double.isNaN(number) ? "N/A" : String.format(Locale.US, "%.1f", number);
     }
 }

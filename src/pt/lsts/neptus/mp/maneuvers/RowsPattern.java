@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2015 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2016 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -41,21 +41,24 @@ import org.dom4j.DocumentHelper;
 import org.dom4j.Element;
 import org.dom4j.Node;
 
+import com.l2fprod.common.propertysheet.DefaultProperty;
+import com.l2fprod.common.propertysheet.Property;
+
 import pt.lsts.imc.IMCMessage;
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.gui.PropertiesEditor;
 import pt.lsts.neptus.gui.editor.SpeedUnitsEditor;
 import pt.lsts.neptus.gui.editor.renderer.I18nCellRenderer;
+import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.mp.ManeuverLocation;
 import pt.lsts.neptus.renderer2d.StateRenderer2D;
 import pt.lsts.neptus.types.map.MapGroup;
 import pt.lsts.neptus.types.map.PlanElement;
 import pt.lsts.neptus.types.mission.MissionType;
 import pt.lsts.neptus.types.mission.plan.PlanType;
+import pt.lsts.neptus.util.AngleUtils;
 import pt.lsts.neptus.util.GuiUtils;
-
-import com.l2fprod.common.propertysheet.DefaultProperty;
-import com.l2fprod.common.propertysheet.Property;
+import pt.lsts.neptus.util.MathMiscUtils;
 
 /**
  * @author pdias
@@ -75,6 +78,7 @@ public class RowsPattern extends FollowPath {
 
     public RowsPattern() {
         super();
+        editingHelpText = I18n.text("Ctrl+Click to grow | Shift+Click to rotate");
         recalcPoints();
     }
 
@@ -92,7 +96,7 @@ public class RowsPattern extends FollowPath {
         double zoom = renderer.getZoom();
         g2d.rotate(-renderer.getRotation());
         g2d.rotate(-Math.PI/2);
-        ManeuversUtil.paintBox(g2d, zoom, width, length, 0, 0, bearingRad, crossAngleRadians, !firstCurveRight, editing);
+        ManeuversUtil.paintBox(g2d, zoom, width, length, 0, 0, bearingRad, crossAngleRadians, false, !firstCurveRight, editing);
         ManeuversUtil.paintPointLineList(g2d, zoom, points, true, sRange, editing); // FIXME
         //        ManeuversUtil.paintPointLineList(g2d, zoom, points, false, sRange);
         g2d.rotate(Math.PI/2);
@@ -197,10 +201,18 @@ public class RowsPattern extends FollowPath {
         double yammount = event.getPoint().getY() - lastDragPoint.getY();
         yammount = -yammount;
         if (event.isControlDown()) {
-            width += xammount / (Math.abs(yammount) < 30 ? 10 : 2);
+            double norm = Math.sqrt(xammount * xammount + yammount * yammount);
+            double angle = AngleUtils.calcAngle(lastDragPoint.getY(), lastDragPoint.getX(), event.getPoint().getY(),
+                    event.getPoint().getX());
+            double nx = norm * Math.cos(bearingRad - angle);
+            double ny = norm * Math.sin(bearingRad - angle);
+
+            width += nx / (Math.abs(nx) < 30 ? 10 : 2);
+            width = MathMiscUtils.round(width, 1);
             width = Math.max(1, width);
             if (!ignoreLength) {
-                length += yammount / (Math.abs(yammount) < 30 ? 10 : 2);
+                length += ny / (Math.abs(ny) < 30 ? 10 : 2);
+                length = MathMiscUtils.round(length, 1);
                 length = Math.max(1, length);
             }
             recalcPoints();
@@ -380,13 +392,13 @@ public class RowsPattern extends FollowPath {
     public void parseIMCMessage(IMCMessage message) {
         super.parseIMCMessage(message);
 
-        LinkedHashMap<String, String> customValues = message.getTupleList("custom");
+        LinkedHashMap<String, String> customValues = customSettings; // message.getTupleList("custom");
 
-        String pattern = customValues.get("Pattern");
+        String pattern = customValues.remove("Pattern");
         if (!getName().equalsIgnoreCase(pattern))
             return;
 
-        String value = customValues.get("bearingRad");
+        String value = customValues.remove("bearingRad");
         try {
             bearingRad = Double.parseDouble(value);
         }
@@ -394,7 +406,7 @@ public class RowsPattern extends FollowPath {
             e.printStackTrace();
         }
 
-        value = customValues.get("width");
+        value = customValues.remove("width");
         try {
             width = Double.parseDouble(value);
         }
@@ -402,8 +414,8 @@ public class RowsPattern extends FollowPath {
             e.printStackTrace();
         }
 
+        value = customValues.remove("length");
         if (!ignoreLength) {
-            value = customValues.get("length");
             try {
                 length = Double.parseDouble(value);
             }
@@ -412,7 +424,7 @@ public class RowsPattern extends FollowPath {
             }
         }
 
-        value = customValues.get("hstep");
+        value = customValues.remove("hstep");
         try {
             hstep = Double.parseDouble(value);
         }
@@ -420,7 +432,7 @@ public class RowsPattern extends FollowPath {
             e.printStackTrace();
         }
 
-        value = customValues.get("sRange");
+        value = customValues.remove("sRange");
         try {
             sRange = Double.parseDouble(value);
         }
@@ -428,8 +440,8 @@ public class RowsPattern extends FollowPath {
             e.printStackTrace();
         }
 
+        value = customValues.remove("crossAngleRadians");
         if (!ignoreCrossAngle) {
-            value = customValues.get("crossAngleRadians");
             try {
                 crossAngleRadians = Double.parseDouble(value);
             }
@@ -438,7 +450,7 @@ public class RowsPattern extends FollowPath {
             }
         }
 
-        value = customValues.get("curvOff");
+        value = customValues.remove("curvOff");
         try {
             curvOff = Double.parseDouble(value);
         }
@@ -446,8 +458,8 @@ public class RowsPattern extends FollowPath {
             e.printStackTrace();
         }
 
+        value = customValues.remove("alternationPercentage");
         if (!ignoreAlternationPercentage) {
-            value = customValues.get("alternationPercentage");
             try {
                 alternationPercentage = (float) Float.parseFloat(value);
             }
@@ -455,11 +467,11 @@ public class RowsPattern extends FollowPath {
                 e.printStackTrace();
             }
         }
-        value = customValues.get("squareCurve");
+        value = customValues.remove("squareCurve");
         squareCurve = Boolean.parseBoolean(value);
 
+        value = customValues.remove("firstCurveRight");
         if (!ignoreFirstCurveRight) {
-            value = customValues.get("firstCurveRight");
             firstCurveRight = Boolean.parseBoolean(value);
         }
 

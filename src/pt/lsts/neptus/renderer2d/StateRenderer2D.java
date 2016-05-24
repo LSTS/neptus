@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2015 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2016 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -79,6 +79,9 @@ import javax.swing.JPopupMenu;
 import javax.swing.SwingUtilities;
 import javax.swing.event.ChangeListener;
 
+import com.l2fprod.common.propertysheet.DefaultProperty;
+import com.l2fprod.common.propertysheet.Property;
+
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.console.plugins.planning.MapShortcutsLayer;
 import pt.lsts.neptus.gui.MenuScroller;
@@ -102,15 +105,13 @@ import pt.lsts.neptus.types.map.ScatterPointsElement;
 import pt.lsts.neptus.types.map.VehicleTailElement;
 import pt.lsts.neptus.types.vehicle.VehicleType;
 import pt.lsts.neptus.types.vehicle.VehiclesHolder;
+import pt.lsts.neptus.util.AngleUtils;
 import pt.lsts.neptus.util.GuiUtils;
 import pt.lsts.neptus.util.ImageUtils;
 import pt.lsts.neptus.util.conf.ConfigFetch;
 import pt.lsts.neptus.util.conf.GeneralPreferences;
 import pt.lsts.neptus.util.conf.PreferencesListener;
 import pt.lsts.neptus.util.coord.MapTileUtil;
-
-import com.l2fprod.common.propertysheet.DefaultProperty;
-import com.l2fprod.common.propertysheet.Property;
 
 /**
  * This class provides a 2D visualization of the world, including maps, vehicle poses and other layers
@@ -156,8 +157,14 @@ CustomInteractionSupport, IMapPopup, FocusListener {
             propagateChange();
         };
 
-        public void propagateChange() {
-            updateCenter();
+        private void propagateChange() {
+            // updateCenter();
+            double[] latLon = MapTileUtil.xyToDegrees(worldPixelXY.getX(), worldPixelXY.getY(), getLevelOfDetail());
+            center.setLatitudeDegs(latLon[0]);
+            center.setLongitudeDegs(latLon[1]);
+            Point2D nXY = MapTileUtil.degreesToXY(latLon[0], latLon[1], levelOfDetail);
+            super.setLocation(nXY.getX(), nXY.getY());  //This is the one that has to be called, otherwise a endless cycle will emerge
+
             setLevelOfDetail(levelOfDetail);
             repaint();
         }
@@ -744,6 +751,11 @@ CustomInteractionSupport, IMapPopup, FocusListener {
         if (!inOrOut) { // zoom out
             double nwx = -(localRenderX - getWidth() / 2);
             double nwy = -(localRenderY - getHeight() / 2);
+            if (rotationRads != 0) {
+                double[] np = AngleUtils.rotate(rotationRads, nwy, nwx, true);
+                nwx = np[1];
+                nwy = np[0];
+            }
             worldPixelXY.setLocation(worldPixelXY.getX() + nwx, worldPixelXY.getY() + nwy);
             setLevelOfDetail(getLevelOfDetail() - 1);
         }
@@ -751,6 +763,11 @@ CustomInteractionSupport, IMapPopup, FocusListener {
             setLevelOfDetail(getLevelOfDetail() + 1);
             double nwx = (localRenderX - getWidth() / 2);
             double nwy = (localRenderY - getHeight() / 2);
+             if (rotationRads != 0) {
+                double[] np = AngleUtils.rotate(rotationRads, nwy, nwx, true);
+                nwx = np[1];
+                nwy = np[0];
+            }
             worldPixelXY.setLocation(worldPixelXY.getX() + nwx, worldPixelXY.getY() + nwy);
         }
     }
@@ -1380,7 +1397,7 @@ CustomInteractionSupport, IMapPopup, FocusListener {
         }
         Point2D centerXY = worldPixelXY;
 
-        double[] latLong = MapTileUtil.XYToDegrees(centerXY.getX() + tx, centerXY.getY() + ty, levelOfDetail);
+        double[] latLong = MapTileUtil.xyToDegrees(centerXY.getX() + tx, centerXY.getY() + ty, levelOfDetail);
 
         LocationType loc = new LocationType();
         loc.setLatitudeDegs(latLong[0]);
@@ -1561,12 +1578,6 @@ CustomInteractionSupport, IMapPopup, FocusListener {
         return center.getNewAbsoluteLatLonDepth();
     }
 
-    private final void updateCenter() {
-        double[] latLon = MapTileUtil.XYToDegrees(worldPixelXY.getX(), worldPixelXY.getY(), getLevelOfDetail());
-        center.setLatitudeDegs(latLon[0]);
-        center.setLongitudeDegs(latLon[1]);
-    }
-
     /**
      * Translates the current view in order to have the given location at its center <br>
      * <b>NOTE:</b> Don't use this method when you are translating the map (for this use the {@link #worldPixelXY}).
@@ -1681,6 +1692,13 @@ CustomInteractionSupport, IMapPopup, FocusListener {
 
         GeneralPreferences.removePreferencesListener(this);
         shuttingDown = true;
+    }
+
+    /**
+     * @return the identity
+     */
+    public AffineTransform getIdentity() {
+        return identity;
     }
 
     /**

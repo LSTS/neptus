@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2015 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2016 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -61,6 +61,8 @@ import org.jdesktop.swingx.painter.CompoundPainter;
 import org.jdesktop.swingx.painter.GlossPainter;
 import org.jdesktop.swingx.painter.RectanglePainter;
 
+import foxtrot.AsyncTask;
+import foxtrot.AsyncWorker;
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.ftp.FtpDownloader;
 import pt.lsts.neptus.gui.MiniButton;
@@ -71,9 +73,8 @@ import pt.lsts.neptus.util.ImageUtils;
 import pt.lsts.neptus.util.MathMiscUtils;
 import pt.lsts.neptus.util.MovingAverage;
 import pt.lsts.neptus.util.StreamUtil;
+import pt.lsts.neptus.util.concurrency.QueueWorkTickets;
 import pt.lsts.neptus.util.conf.GeneralPreferences;
-import foxtrot.AsyncTask;
-import foxtrot.AsyncWorker;
 
 /**
  * @author pdias
@@ -588,7 +589,9 @@ public class DownloaderPanel extends JXPanel implements ActionListener {
             public Boolean call() throws Exception {
                 if (DownloaderPanel.this.getState() == DownloaderPanel.State.QUEUED) {
                     NeptusLog.pub().debug("callable download for " + getName());
-                    return doDownloadWorker();
+                    boolean ret = doDownloadWorker();
+                    queueWorkTickets.release(DownloaderPanel.this); // We need to release the lock
+                    return ret;
                 }
                 queueWorkTickets.release(DownloaderPanel.this); // If we are not using the lease, just release it
                 return true;
@@ -604,8 +607,6 @@ public class DownloaderPanel extends JXPanel implements ActionListener {
         State prevState = getState();
         setStateWorking();
         stopping = false;
-
-//        try { Thread.sleep(5000); } catch (InterruptedException e1) { }
 
         String basePath = outFile.getParentFile().getParentFile().getParentFile().getAbsolutePath();
 
@@ -824,10 +825,11 @@ public class DownloaderPanel extends JXPanel implements ActionListener {
             threadScheduledPool.schedule(new Runnable() {
                 @Override
                 public void run() {
-                    new Thread(command, DownloaderPanel.class.getSimpleName() +  " :: On Timeout Retry Launcher for '" + name + "'").start();;
+                    new Thread(command, DownloaderPanel.class.getSimpleName() +  " :: On Timeout Retry Launcher for '" + name + "'").start();
                 }
             }, DELAY_START_ON_TIMEOUT, TimeUnit.MILLISECONDS);
         }
+        
         return true;
     }
 

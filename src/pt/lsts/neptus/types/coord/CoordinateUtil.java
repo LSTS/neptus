@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2015 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2016 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -34,6 +34,8 @@ package pt.lsts.neptus.types.coord;
 import java.awt.Toolkit;
 import java.awt.datatransfer.ClipboardOwner;
 import java.awt.datatransfer.StringSelection;
+import java.awt.geom.Line2D;
+import java.awt.geom.Point2D;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.util.Locale;
@@ -42,7 +44,7 @@ import java.util.StringTokenizer;
 import javax.vecmath.Matrix3d;
 
 import pt.lsts.neptus.NeptusLog;
-import pt.lsts.neptus.util.AngleCalc;
+import pt.lsts.neptus.util.AngleUtils;
 import pt.lsts.neptus.util.coord.MapTileUtil;
 
 /**
@@ -68,6 +70,8 @@ public class CoordinateUtil {
     
     public final static NumberFormat heading3DigitsFormat = new DecimalFormat("000");
 
+    private static final int DEFAULT_DHOUSES_FOR_DMS = 2;
+    private static final int DEFAULT_DHOUSES_FOR_DM  = 4;
 
     /**
      * @param coord Is expeted to be in the form of:
@@ -447,7 +451,7 @@ public class CoordinateUtil {
      * @return
      */
     public static String dmsToLatString(double[] dms) {
-        return dmsToLatLonString(dms, true, -1);
+        return dmsToLatLonString(dms, true, DEFAULT_DHOUSES_FOR_DMS);
     }
 
     /**
@@ -464,7 +468,7 @@ public class CoordinateUtil {
      * @return
      */
     public static String dmToLatString(double[] dm) {
-        return dmToLatLonString(dm, true, -1);
+        return dmToLatLonString(dm, true, DEFAULT_DHOUSES_FOR_DM);
     }
 
     /**
@@ -484,7 +488,7 @@ public class CoordinateUtil {
      */
     public static String dmsToLatString(double d, double m, double s) {
         double[] dms = { d, m, s };
-        return dmsToLatLonString(dms, true, -1);
+        return dmsToLatLonString(dms, true, DEFAULT_DHOUSES_FOR_DMS);
     }
 
     /**
@@ -506,7 +510,7 @@ public class CoordinateUtil {
      */
     public static String dmToLatString(double d, double m) {
         double[] dm = { d, m };
-        return dmToLatLonString(dm, true, -1);
+        return dmToLatLonString(dm, true, DEFAULT_DHOUSES_FOR_DM);
     }
 
     /**
@@ -525,7 +529,7 @@ public class CoordinateUtil {
      * @return
      */
     public static String dmsToLonString(double[] dms) {
-        return dmsToLatLonString(dms, false, -1);
+        return dmsToLatLonString(dms, false, DEFAULT_DHOUSES_FOR_DMS);
     }
 
     /**
@@ -542,7 +546,7 @@ public class CoordinateUtil {
      * @return
      */
     public static String dmToLonString(double[] dm) {
-        return dmToLatLonString(dm, false, -1);
+        return dmToLatLonString(dm, false, DEFAULT_DHOUSES_FOR_DM);
     }
 
     /**
@@ -562,7 +566,7 @@ public class CoordinateUtil {
      */
     public static String dmsToLonString(double d, double m, double s) {
         double[] dms = { d, m, s };
-        return dmsToLatLonString(dms, false, -1);
+        return dmsToLatLonString(dms, false, DEFAULT_DHOUSES_FOR_DMS);
     }
 
     /**
@@ -584,7 +588,7 @@ public class CoordinateUtil {
      */
     public static String dmToLonString(double d, double m) {
         double[] dm = { d, m };
-        return dmToLatLonString(dm, false, -1);
+        return dmToLatLonString(dm, false, DEFAULT_DHOUSES_FOR_DM);
     }
 
     /**
@@ -609,7 +613,7 @@ public class CoordinateUtil {
         else
             letter = isLatOrLon ? "S" : "W";
 
-        double[] latLonDM = CoordinateUtil.decimalDegreesToDM(AngleCalc.nomalizeAngleDegrees180(latLonDegrees));
+        double[] latLonDM = CoordinateUtil.decimalDegreesToDM(AngleUtils.nomalizeAngleDegrees180(latLonDegrees));
         String latLonStr = CoordinateUtil.dmToLatString(latLonDM[0], latLonDM[1], 5);
         latLonStr = latLonStr.replaceAll("[NSEW]", ".");
         String[] latLonParts = latLonStr.split("\\.");
@@ -1633,6 +1637,18 @@ public class CoordinateUtil {
         bearing = Math.atan2(e, n);
         range = Math.sqrt(n * n + e * e);
         return new double[] { Math.toDegrees(bearing), range };
+    }
+
+    /**
+     * Traces a line between l1 and l2 and computes the distance
+     * of point to this line. If the 3 locations are colinear this
+     * distance will be = 0 + e, where e should be a small error.
+     * */
+    public static double distanceToLine(LocationType point, LocationType l1, LocationType l2) {
+        double[] pt1 = l1.getOffsetFrom(point);
+        double[] pt2 = l2.getOffsetFrom(point);
+        Line2D line = new Line2D.Double(pt1[0], pt1[1], pt2[0], pt2[1]);
+        return line.ptLineDist(new Point2D.Double());
     }
 
     // ---------------------------------------------------------------------------------------------

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2015 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2016 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -49,6 +49,9 @@ import javax.swing.BorderFactory;
 import javax.swing.JLabel;
 import javax.vecmath.Point3d;
 
+import com.l2fprod.common.propertysheet.DefaultProperty;
+import com.l2fprod.common.propertysheet.Property;
+
 import pt.lsts.neptus.gui.objparams.ParametersPanel;
 import pt.lsts.neptus.mp.Maneuver;
 import pt.lsts.neptus.mp.ManeuverLocation;
@@ -61,15 +64,12 @@ import pt.lsts.neptus.types.coord.LocationType;
 import pt.lsts.neptus.types.mission.MissionType;
 import pt.lsts.neptus.types.mission.plan.PlanType;
 import pt.lsts.neptus.types.vehicle.VehicleType;
-import pt.lsts.neptus.util.AngleCalc;
+import pt.lsts.neptus.util.AngleUtils;
 import pt.lsts.neptus.util.GuiUtils;
 import pt.lsts.neptus.util.conf.ConfigFetch;
 import pt.lsts.neptus.util.conf.GeneralPreferences;
 import pt.lsts.neptus.util.conf.PreferencesListener;
 import pt.lsts.neptus.util.coord.MapTileUtil;
-
-import com.l2fprod.common.propertysheet.DefaultProperty;
-import com.l2fprod.common.propertysheet.Property;
 
 @LayerPriority(priority = 50)
 public class PlanElement extends AbstractElement implements Renderer2DPainter, PreferencesListener {
@@ -662,7 +662,7 @@ public class PlanElement extends AbstractElement implements Renderer2DPainter, P
                 LocatedManeuver satellite = (LocatedManeuver) m;
                 double[] top = center.getManeuverLocation().getDistanceInPixelTo(satellite.getManeuverLocation(),
                         MapTileUtil.LEVEL_OFFSET);
-                double[] topR = AngleCalc.rotate(2 * ammount, top[0], top[1], false);
+                double[] topR = AngleUtils.rotate(2 * ammount, top[0], top[1], false);
                 double deltaX = topR[0]; // distPx * Math.cos(anglePx);
                 double deltaY = topR[1]; // distPx * Math.sin(anglePx);
                 ManeuverLocation lt = new ManeuverLocation(center.getManeuverLocation());

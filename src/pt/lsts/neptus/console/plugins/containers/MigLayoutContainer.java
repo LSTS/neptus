@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2015 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2016 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -45,8 +45,6 @@ import javax.swing.JMenu;
 import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
 
-import net.miginfocom.swing.MigLayout;
-
 import org.dom4j.Document;
 import org.dom4j.DocumentException;
 import org.dom4j.Element;
@@ -54,10 +52,13 @@ import org.dom4j.Node;
 import org.dom4j.io.SAXReader;
 import org.xml.sax.InputSource;
 
+import com.google.common.eventbus.Subscribe;
+
+import net.miginfocom.swing.MigLayout;
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.console.ConsoleLayout;
-import pt.lsts.neptus.console.ContainerSubPanel;
 import pt.lsts.neptus.console.ConsolePanel;
+import pt.lsts.neptus.console.ContainerSubPanel;
 import pt.lsts.neptus.console.plugins.containers.propeditor.MiGLayoutXmlPropertyEditor;
 import pt.lsts.neptus.events.NeptusEventLayoutChanged;
 import pt.lsts.neptus.events.NeptusEvents;
@@ -68,21 +69,21 @@ import pt.lsts.neptus.plugins.NeptusProperty.DistributionEnum;
 import pt.lsts.neptus.plugins.PluginDescription;
 import pt.lsts.neptus.plugins.PluginDescription.CATEGORY;
 
-import com.google.common.eventbus.Subscribe;
-
 /**
  * @author jqcorreia
- * 
+ * @author pdias
  */
 @SuppressWarnings("serial")
-@PluginDescription(author = "José Quadrado", version = "1.0.0", name = "Console Layout: MigLayout", description = "This container uses MigLayout manager", icon = "pt/lsts/neptus/plugins/containers/layout.png", category = CATEGORY.INTERFACE)
+@PluginDescription(author = "José Quadrado", version = "1.0.1", name = "Console Layout: MigLayout", description = "This container uses MigLayout manager", icon = "pt/lsts/neptus/plugins/containers/layout.png", category = CATEGORY.INTERFACE)
 public class MigLayoutContainer extends ContainerSubPanel implements ConfigurationListener, LayoutProfileProvider {
 
+    public static final String LAYOUT_SCHEMA = "miglayout-container.xsd";
+
     @NeptusProperty(name = "XML Definitions", description = "XML layout definition", editorClass = MiGLayoutXmlPropertyEditor.class, distribution = DistributionEnum.DEVELOPER)
-    public String xmlDef = "";
+    public String xmlDef = "<profiles>\n  <profile name=\"Normal\">\n    <container layoutparam=\"ins 0\" param=\"w 100%, h 100%\">\n      <child name=\"Map Panel\" param=\"w 100%, h 100%\"/>\n    </container>\n  </profile>\n</profiles>";
 
     @NeptusProperty(name = "Current Profile", description = "Name of the current active profile", distribution = DistributionEnum.DEVELOPER)
-    public String currentProfile = "";
+    public String currentProfile = "Normal";
 
     private final ArrayList<String> profileList = new ArrayList<String>();
 
@@ -103,7 +104,8 @@ public class MigLayoutContainer extends ContainerSubPanel implements Configurati
             applyLayout(this.xmlDef);
         }
         else {
-            changeProfile(currentProfile); // This call maybe redundant but is needed for profile menu update
+            if(currentProfile!="")
+                changeProfile(currentProfile); // This call maybe redundant but is needed for profile menu update
             applyLayout(this.xmlDef);
         }
         super.init();
@@ -146,7 +148,9 @@ public class MigLayoutContainer extends ContainerSubPanel implements Configurati
 
                 @Override
                 public void actionPerformed(ActionEvent e) {
-                    changeProfile(name);
+                    if (name != "") {
+                        changeProfile(name);
+                    }
                     applyLayout(xmlDef);
                 }
             });
@@ -157,10 +161,15 @@ public class MigLayoutContainer extends ContainerSubPanel implements Configurati
 
     public void changeProfile(String profileName) {
         currentProfile = profileName;
-
-        for (int i = 0; i < profilesMenu.getItemCount(); i++) {
-            JCheckBoxMenuItem item = (JCheckBoxMenuItem) profilesMenu.getItem(i);
-            item.setSelected(item.getText().equals(profileName));
+        NeptusLog.pub().info("currentProfile: "+currentProfile);
+        if(profileName!=""){
+            for (int i = 0; i < profilesMenu.getItemCount(); i++) {
+                JCheckBoxMenuItem item = (JCheckBoxMenuItem) profilesMenu.getItem(i);
+                item.setSelected(item.getText().equals(profileName));
+            }
+        }
+        else{
+            profileName="";
         }
         propagateActiveProfileChange(profileName);
     }
@@ -212,19 +221,19 @@ public class MigLayoutContainer extends ContainerSubPanel implements Configurati
                     parse(node, this);
                 }
             }
-
         }
         catch (DocumentException e) {
             NeptusLog.pub().error("reading inner xml", e);
         }
+        
         getConsole().revalidate();
         getConsole().repaint();
     }
 
-    public ConsolePanel parse(Node node, JComponent parent) {
+    public void parse(Node node, JComponent parent) {
         Element e = (Element) node;
         if (!node.hasContent()) {
-            return null;
+            return;
         }
         else {
             @SuppressWarnings("unchecked")
@@ -236,7 +245,8 @@ public class MigLayoutContainer extends ContainerSubPanel implements Configurati
                     String rowparam = element.attributeValue("rowparam");
                     String addParam = element.attributeValue("param");
                     String type = element.attributeValue("type") == null ? "" : element.attributeValue("type");
-                    if ("tabcontainer".equals(type)) {
+                    // Let us try the tab type
+                    if (element.selectSingleNode("tab") != null || "tabcontainer".equals(type)) {
                         JTabbedPane tabbedPane = new JTabbedPane();
                         parent.add(tabbedPane, addParam);
                         parse(element, tabbedPane);
@@ -244,10 +254,14 @@ public class MigLayoutContainer extends ContainerSubPanel implements Configurati
                     else {
                         ConsolePanel container = new ConsolePanel(getConsole()) {
                             private static final long serialVersionUID = 8543725153078587308L;
+
                             @Override
-                            public void cleanSubPanel() {}                
+                            public void cleanSubPanel() {
+                            }
+
                             @Override
-                            public void initSubPanel() {}
+                            public void initSubPanel() {
+                            }
                         };
                         container.setLayout(new MigLayout(layoutparam, colparam, rowparam));
                         parent.add(container, addParam);
@@ -274,22 +288,23 @@ public class MigLayoutContainer extends ContainerSubPanel implements Configurati
                     parse(element, tab);
                 }
             }
-            return null;
+            return;
         }
-
     }
 
     @Override
-    public void addSubPanel(ConsolePanel panel) {
-        panels.add(panel);
+    protected boolean addSubPanelExtra(ConsolePanel panel) {
+        return true;
     }
-
+    
     @Override
-    public void removeSubPanel(ConsolePanel sp) {
-        panels.remove(sp);
-        this.remove(sp);
+    protected void addSubPanelFinishUp() {
         applyLayout(this.xmlDef);
-        sp.clean();
+    }
+
+    @Override
+    public void removeSubPanelExtra(ConsolePanel sp) {
+        applyLayout(this.xmlDef);
     }
 
     @Override

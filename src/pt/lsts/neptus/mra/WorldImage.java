@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2015 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2016 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -38,6 +38,7 @@ import pt.lsts.neptus.colormap.ColorMap;
 import pt.lsts.neptus.colormap.ColorMapUtils;
 import pt.lsts.neptus.colormap.DataDiscretizer;
 import pt.lsts.neptus.types.coord.LocationType;
+import pt.lsts.neptus.types.map.ImageElement;
 
 /**
  * @author zp
@@ -91,7 +92,42 @@ public class WorldImage {
         return minVal == null ? dd.minVal[0]*0.995 : minVal;        
     }
     
+    public int getAmountDataPoints() {
+        return dd.getAmountDataPoints();
+    }
+    
+    public ImageElement asImageElement() {
+        BufferedImage image = processData();
+        ImageElement elem = new ImageElement();
+        if (dd.getAmountDataPoints() < 2)
+            return null;
+        LocationType center = new LocationType(getSouthWest());
+        double[] offsets = getNorthEast().getOffsetFrom(center);
+        center.translatePosition(offsets[0]/2, offsets[1]/2, 0);
+        elem.setImage(image);
+        elem.setCenterLocation(center);
+        elem.setImageScale(offsets[1]/image.getWidth());    
+        return elem;
+    }
+    
+    /**
+     * @return the cmap
+     */
+    public ColorMap getColormap() {
+        return cmap;
+    }
+
+    /**
+     * @param cmap the cmap to set
+     */
+    public void setColormap(ColorMap cmap) {
+        this.cmap = cmap;
+    }
+
     public BufferedImage processData() {
+        if (getAmountDataPoints() == 0)
+            return null;
+        
         double maxX = dd.maxX + 5;
         double maxY = dd.maxY + 5;
         double minX = dd.minX - 5;
@@ -105,7 +141,7 @@ public class WorldImage {
         double ratio2 = dx/dy;
 
         if (ratio2 < ratio1)        
-            dx = dy * ratio1;
+            dx = dy * ratio2;
         else
             dy = dx/ratio1;
 

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2015 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2016 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -31,38 +31,31 @@
  */
 package pt.lsts.neptus.util.bathymetry;
 
-import java.awt.Component;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.text.SimpleDateFormat;
+import java.util.Collections;
 import java.util.Date;
 import java.util.SortedSet;
 import java.util.TreeSet;
 import java.util.Vector;
 
-import javax.swing.JOptionPane;
-import javax.swing.ProgressMonitor;
-
-import org.mozilla.javascript.edu.emory.mathcs.backport.java.util.Collections;
-
 import pt.lsts.neptus.NeptusLog;
-import pt.lsts.neptus.i18n.I18n;
-import pt.lsts.neptus.plugins.PluginUtils;
 import pt.lsts.neptus.util.GuiUtils;
-import pt.lsts.neptus.util.conf.GeneralPreferences;
+import pt.lsts.neptus.util.conf.ConfigFetch;
 
 /**
  * @author zp
  * 
  */
-public class CachedData extends TidePredictionFinder {
+class CachedData implements TidePredictionFinder {
 
-    private boolean loading = true;
-    private SortedSet<TidePeak> cachedData = null;
-
+    protected boolean loading = true;
+    protected SortedSet<TidePeak> cachedData = null;
+    protected String name = "?";
 
     public CachedData(File f) {
         try {
@@ -75,28 +68,45 @@ public class CachedData extends TidePredictionFinder {
         loading = false;
     }
 
-    public CachedData() {
-        this(GeneralPreferences.tidesFile);
+    protected CachedData() {
     }
 
+    @Override
+    public String getName() {
+        return name;
+    }
+    
     public void loadFile(File f) throws Exception {
         cachedData = new TreeSet<>();
         if (f == null || ! f.canRead()) {
             NeptusLog.pub().error(new Exception("Tides file is not valid: "+f));
             return;
         }
+        
+        boolean nameRead = false;
+        
         BufferedReader br = new BufferedReader(new FileReader(f));
         String line = br.readLine();
 
         while (line != null) {
-            if (line.startsWith("#"))
+            if (line.startsWith("#")) {
+                line = br.readLine();
                 continue;
-            String parts[] = line.split(",");
-            long unixTimeSecs = Long.parseLong(parts[2]);
-            double height = Double.parseDouble(parts[3]);
-            Date d = new Date(unixTimeSecs * 1000);
-            //System.out.println(d);
-            cachedData.add(new TidePeak(d, height));
+            }
+            try {
+                String parts[] = line.split(",");
+                if (!nameRead) {
+                    name = parts[0];
+                    nameRead = true;
+                }
+                long unixTimeSecs = Long.parseLong(parts[2]);
+                double height = Double.parseDouble(parts[3]);
+                Date d = new Date(unixTimeSecs * 1000);
+                //System.out.println(d);
+                cachedData.add(new TidePeak(d, height));
+            }
+            catch (Exception e) {
+            }
             line = br.readLine();
         }
         br.close();
@@ -125,6 +135,15 @@ public class CachedData extends TidePredictionFinder {
         cachedData.addAll(newData);
     }
 
+    public Vector<TidePeak> getTidePeaks() {
+        Vector<TidePeak> td = new Vector<>(cachedData.size());
+        for (TidePeak tidePeak : cachedData) {
+            td.addElement(tidePeak);
+        }
+        return td;
+    }
+    
+    @Override
     public boolean contains(Date d) {
         while (loading) {
             try {
@@ -151,16 +170,6 @@ public class CachedData extends TidePredictionFinder {
             return false;
 
         return true;
-    }
-
-    public void showSettings() {
-        PluginUtils.editPluginProperties(this, true);
-        try {
-            PluginUtils.saveProperties("conf/conf/cachedData.properties", this);
-        }
-        catch (Exception e) {
-            e.printStackTrace();
-        }
     }
 
     @Override
@@ -208,108 +217,34 @@ public class CachedData extends TidePredictionFinder {
         }
     }
 
+    /**
+     * @param portName
+     * @return
+     */
+    protected File getFileToSave(String portName) {
+        return new File(ConfigFetch.getConfFolder() + "/tides/" + portName + ".txt");
+    }
+
     public Date fetchData(String portName, Date aroundDate) throws Exception {
-        try {
+//        try {
             Vector<TidePeak> newData = TideDataFetcher.fetchData(portName, aroundDate);
-            System.out.println("Retrieved "+newData.size()+" new tide points.");
+            System.out.println("Retrieved " + newData.size() + " new tide points.");
             if (newData.size() == 0) {
                 Thread.sleep(3000);
                 return null;
             }
             update(newData);
-            saveFile(portName, new File(GeneralPreferences.tidesFile.getParentFile(), portName+".txt"));
+            saveFile(portName, getFileToSave(portName));
             return newData.lastElement().date;
-        }
-        catch (Exception e) {
-            e.printStackTrace();
-        }
-        return null;
-    }
-
-    public static String fetchData(Component parent) {
-        Vector<String> harbors = new Vector<>();
-        for (TideDataFetcher.Harbor h : TideDataFetcher.Harbor.values()) {
-            harbors.add(h.toString());
-        }
-
-        String harbor = (String) JOptionPane.showInputDialog(parent,
-                I18n.text("Please select harbor"), I18n.text("Fetch data"),
-                JOptionPane.QUESTION_MESSAGE, null, harbors.toArray(new String[0]), I18n.text(harbors.get(0)));
-
-        if (harbor == null)
-            return null;
-        
-
-        Date start = null, end = null;
-        ProgressMonitor progress = new ProgressMonitor(parent, "Fetching tides", "Starting", 0, 100);
-
-        while (start == null) {
-            String startStr = JOptionPane.showInputDialog(parent, I18n.text("Days to fetch in the past"), 30);
-            try {
-                if (startStr == null)
-                    return null;
-                long days = Integer.parseInt(startStr);
-                if (days < 0)
-                    continue;
-                start = new Date(System.currentTimeMillis() - days * 24l * 3600l * 1000l);
-                System.out.println(start);
-            }
-            catch (Exception e) {
-                e.printStackTrace();
-            }
-        }
-
-        while (end == null) {
-            String endStr = JOptionPane.showInputDialog(parent, I18n.text("Days to fetch in the future"), 30);
-            try {
-                if (endStr == null)
-                    return null;
-                long days = Integer.parseInt(endStr);
-                if (days < 0)
-                    continue;
-                end = new Date(System.currentTimeMillis() + days * 24l * 3600l * 1000l);
-            }
-            catch (Exception e) {
-                e.printStackTrace();
-            }
-        }
-
-        CachedData data = new CachedData(new File("conf/tides/"+harbor+".txt"));
-
-        Date current = new Date(start.getTime());
-        double delta = end.getTime() - start.getTime();
-        
-
-        while (current.getTime() < end.getTime()) {
-            if (progress.isCanceled())
-                return harbor;
-            double done = current.getTime()-start.getTime();
-            try {
-                Date d = data.fetchData(harbor, current);
-                if (d != null)
-                    current = new Date(current.getTime() + 1000 * 3600 * 24 * 5);                
-            }
-            catch (Exception e) {
-                e.printStackTrace();
-            }
-            System.out.println(current);
-            progress.setProgress((int)(done*100.0/delta));
-            progress.setNote(current.toString());
-        }
-        try {
-            progress.setNote("Storing data to disk");
-            data.saveFile(harbor, new File("conf/tides/"+harbor+".txt"));
-            progress.setProgress(100);
-            progress.close();                
-        }
-        catch (Exception e) {
-            e.printStackTrace();
-        }
-        return harbor;
+//        }
+//        catch (Exception e) {
+//            e.printStackTrace();
+//        }
+//        return null;
     }
 
     public static void main(String[] args) throws Exception {
         GuiUtils.setLookAndFeel();
-        fetchData(null);
+        TidePredictionFactory.fetchData(null);
     }
 }

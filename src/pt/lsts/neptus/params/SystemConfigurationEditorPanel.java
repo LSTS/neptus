@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2015 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2016 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -53,6 +53,12 @@ import javax.swing.JList;
 import javax.swing.JPanel;
 import javax.swing.ListCellRenderer;
 
+import com.l2fprod.common.propertysheet.Property;
+import com.l2fprod.common.propertysheet.PropertyEditorRegistry;
+import com.l2fprod.common.propertysheet.PropertyRendererRegistry;
+import com.l2fprod.common.propertysheet.PropertySheet;
+import com.l2fprod.common.propertysheet.PropertySheetPanel;
+
 import net.miginfocom.swing.MigLayout;
 import pt.lsts.imc.EntityParameter;
 import pt.lsts.imc.EntityParameters;
@@ -70,12 +76,6 @@ import pt.lsts.neptus.params.SystemProperty.Scope;
 import pt.lsts.neptus.params.SystemProperty.Visibility;
 import pt.lsts.neptus.util.GuiUtils;
 import pt.lsts.neptus.util.conf.GeneralPreferences;
-
-import com.l2fprod.common.propertysheet.Property;
-import com.l2fprod.common.propertysheet.PropertyEditorRegistry;
-import com.l2fprod.common.propertysheet.PropertyRendererRegistry;
-import com.l2fprod.common.propertysheet.PropertySheet;
-import com.l2fprod.common.propertysheet.PropertySheetPanel;
 
 /**
  * @author pdias

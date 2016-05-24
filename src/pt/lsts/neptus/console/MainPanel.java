@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2015 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2016 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -96,7 +96,6 @@ public class MainPanel extends JPanel implements MouseListener, MouseMotionListe
         add(panel, "width 100%!, height 100%!");
         console.getSubPanels().add(panel);
         console.informSubPanelListener(panel, SubPanelChangeAction.ADDED);
-
     }
 
     public void addSubPanel(ConsolePanel panel, int x, int y) {
@@ -108,6 +107,14 @@ public class MainPanel extends JPanel implements MouseListener, MouseMotionListe
         console.informSubPanelListener(panel, SubPanelChangeAction.ADDED);
     }
 
+    public void removeSubPanel(ConsolePanel panel) {
+        console.getSubPanels().remove(panel);
+        console.informSubPanelListener(panel, SubPanelChangeAction.REMOVED);
+        panel.clean();
+        remove(panel);
+        console.repaint();
+    }
+    
 //    private static void cleanPanels(Collection<ConsolePanel> panels) {
 //        
 //        Vector<Thread> launched = new Vector<>();
@@ -277,11 +284,7 @@ public class MainPanel extends JPanel implements MouseListener, MouseMotionListe
                     itemRemove.addActionListener(new ActionListener() {
                         @Override
                         public void actionPerformed(ActionEvent e) {
-                            console.getSubPanels().remove(panel);
-                            console.informSubPanelListener(panel, SubPanelChangeAction.REMOVED);
-                            panel.clean();
-                            remove(c);
-                            console.repaint();
+                            removeSubPanel(panel);
                         }
                     });
 

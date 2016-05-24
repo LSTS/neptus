@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2015 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2016 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -50,6 +50,10 @@ import java.util.LinkedHashMap;
 
 import javax.swing.JMenuItem;
 
+import com.google.common.eventbus.Subscribe;
+
+import de.baderjene.aistoolkit.aisparser.AISParser;
+import de.baderjene.aistoolkit.aisparser.message.Message05;
 import jssc.SerialPort;
 import jssc.SerialPortEvent;
 import jssc.SerialPortEventListener;
@@ -73,11 +77,6 @@ import pt.lsts.neptus.types.map.ScatterPointsElement;
 import pt.lsts.neptus.types.vehicle.VehicleType.SystemTypeEnum;
 import pt.lsts.neptus.util.GuiUtils;
 import pt.lsts.neptus.util.NMEAUtils;
-
-import com.google.common.eventbus.Subscribe;
-
-import de.baderjene.aistoolkit.aisparser.AISParser;
-import de.baderjene.aistoolkit.aisparser.message.Message05;
 
 
 /**

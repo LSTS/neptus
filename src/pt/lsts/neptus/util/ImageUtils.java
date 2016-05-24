@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2015 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2016 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -54,16 +54,19 @@ import java.awt.image.PixelGrabber;
 import java.awt.image.RescaleOp;
 import java.io.File;
 import java.net.URL;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 import javax.swing.ImageIcon;
 
-import pt.lsts.neptus.NeptusLog;
-
 import com.drew.imaging.ImageMetadataReader;
+import com.drew.metadata.Directory;
 import com.drew.metadata.Metadata;
 import com.drew.metadata.exif.ExifSubIFDDescriptor;
 import com.drew.metadata.exif.ExifSubIFDDirectory;
 import com.jhlabs.image.ContrastFilter;
+
+import pt.lsts.neptus.NeptusLog;
 
 /**
  * @author ZP
@@ -332,7 +335,7 @@ public class ImageUtils {
             return new ImageIcon(img);
         }
         catch (Exception e) {
-            NeptusLog.pub().error(e.getStackTrace());
+            NeptusLog.pub().error(e);
             return new ImageIcon(getImage("images/menus/no.png"));
         }
     }
@@ -526,6 +529,38 @@ public class ImageUtils {
             NeptusLog.waste().debug("[ImageLoader] Loading image " + location + " failed");
             return null;
         }
+    }
+    
+    private static final int EXIF_DATE_TIME = 0x0132;
+    private static final int EXIF_SUBSEC_TIME = 37520;
+
+    /**
+     * This method extracts date from a given image file with EXIF information
+     * @param jpegFile The file to be processed
+     * @return The date this picture was taken
+     * @throws Exception In case the picture cannot be read or does not provide required info
+     */    
+    public static Date getExifDate(File jpegFile) throws Exception {
+        Metadata metadata = ImageMetadataReader.readMetadata(jpegFile);
+        String date = null, subsec = null;
+        for (Directory d : metadata.getDirectories()) {
+            if (d.containsTag(EXIF_DATE_TIME))
+                date = d.getString(EXIF_DATE_TIME);
+            if (d.containsTag(EXIF_SUBSEC_TIME)) {
+                subsec = d.getString(EXIF_SUBSEC_TIME);
+            }
+        }
+
+        if (date == null)
+            throw new Exception("File does not contain required EXIF information");
+
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy:MM:dd HH:mm:ss");
+        if (subsec != null) {
+            date += "."+subsec.substring(0, 3);
+            sdf = new SimpleDateFormat("yyyy:MM:dd HH:mm:ss.SSS");
+        }
+        
+        return sdf.parse(date);
     }
     
     public static String readExifComment(File jpegFile) throws Exception {

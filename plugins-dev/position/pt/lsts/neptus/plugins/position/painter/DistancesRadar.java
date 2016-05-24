@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2015 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2016 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -45,6 +45,8 @@ import java.util.ArrayList;
 import javax.swing.JComboBox;
 import javax.swing.JLabel;
 
+import com.google.common.eventbus.Subscribe;
+
 import net.miginfocom.swing.MigLayout;
 import pt.lsts.imc.Distance;
 import pt.lsts.imc.EntityParameter;
@@ -59,8 +61,8 @@ import pt.lsts.neptus.params.SystemProperty;
 import pt.lsts.neptus.params.SystemProperty.Scope;
 import pt.lsts.neptus.params.SystemProperty.Visibility;
 import pt.lsts.neptus.plugins.NeptusProperty;
-import pt.lsts.neptus.plugins.PluginDescription;
 import pt.lsts.neptus.plugins.NeptusProperty.LEVEL;
+import pt.lsts.neptus.plugins.PluginDescription;
 import pt.lsts.neptus.plugins.PluginDescription.CATEGORY;
 import pt.lsts.neptus.plugins.Popup;
 import pt.lsts.neptus.plugins.Popup.POSITION;
@@ -69,8 +71,6 @@ import pt.lsts.neptus.renderer2d.LayerPriority;
 import pt.lsts.neptus.renderer2d.Renderer2DPainter;
 import pt.lsts.neptus.renderer2d.StateRenderer2D;
 import pt.lsts.neptus.util.conf.IntegerMinMaxValidator;
-
-import com.google.common.eventbus.Subscribe;
 
 /**
  * @author José Braga

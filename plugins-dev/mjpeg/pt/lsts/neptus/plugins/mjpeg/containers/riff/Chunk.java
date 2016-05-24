@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2015 OceanScan - Marine Systems & Technology Lda.
+ * Copyright (c) 2004-2016 OceanScan - Marine Systems & Technology Lda.
  * Polo do Mar do UPTEC, Avenida da Liberdade, 4450-718 Matosinhos, Portugal
  *
  * This file is part of Neptus, Command and Control Framework.
@@ -29,6 +29,7 @@ package pt.lsts.neptus.plugins.mjpeg.containers.riff;
 
 import java.nio.MappedByteBuffer;
 import java.nio.charset.Charset;
+import java.util.Locale;
 
 /**
  * Class representing an AVI chunk.
@@ -98,6 +99,6 @@ public class Chunk {
     }
 
     public String toString() {
-        return String.format("CHUNK [%s] (%d:%d)", getId(), getOffset(), getSize());
+        return String.format(Locale.US, "CHUNK [%s] (%d:%d)", getId(), getOffset(), getSize());
     }
 }

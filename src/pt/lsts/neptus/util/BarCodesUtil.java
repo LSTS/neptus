@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2015 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2016 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -38,11 +38,10 @@ import java.util.Hashtable;
 
 import javax.imageio.ImageIO;
 
-import pt.lsts.neptus.NeptusLog;
-
 import com.google.zxing.BarcodeFormat;
 import com.google.zxing.BinaryBitmap;
 import com.google.zxing.DecodeHintType;
+import com.google.zxing.EncodeHintType;
 import com.google.zxing.LuminanceSource;
 import com.google.zxing.MultiFormatReader;
 import com.google.zxing.MultiFormatWriter;
@@ -77,7 +76,7 @@ public class BarCodesUtil {
      */
     private static BitMatrix createBarCodeBitMatrix(String contents,
             BarcodeFormat format, int width, int height,
-            Hashtable<DecodeHintType, String> hints) throws WriterException,
+            Hashtable<EncodeHintType, String> hints) throws WriterException,
             Exception {
         Writer writer = new MultiFormatWriter();
         BitMatrix matrix = writer
@@ -97,7 +96,7 @@ public class BarCodesUtil {
      */
     public static BufferedImage createBarCodeImage(String contents,
             BarcodeFormat format, int width, int height,
-            Hashtable<DecodeHintType, String> hints) throws WriterException,
+            Hashtable<EncodeHintType, String> hints) throws WriterException,
             Exception {
         BitMatrix matrix = createBarCodeBitMatrix(contents, format, width,
                 height, hints);
@@ -149,11 +148,11 @@ public class BarCodesUtil {
      */
     public static boolean createBarCodeImageToFile(String contents,
             BarcodeFormat format, int width, int height,
-            Hashtable<DecodeHintType, String> hints, String imageFormat,
+            Hashtable<EncodeHintType, String> hints, String imageFormat,
             File file) throws WriterException, Exception {
         BitMatrix matrix = createBarCodeBitMatrix(contents, format, width,
                 height, hints);
-        MatrixToImageWriter.writeToFile(matrix, imageFormat, file);
+        MatrixToImageWriter.writeToPath(matrix, imageFormat, file.toPath());
         return true;
     }
 
@@ -207,7 +206,7 @@ public class BarCodesUtil {
      */
     public static boolean createBarCodeImageToStream(String contents,
             BarcodeFormat format, int width, int height,
-            Hashtable<DecodeHintType, String> hints, String imageFormat,
+            Hashtable<EncodeHintType, String> hints, String imageFormat,
             OutputStream stream) throws WriterException, Exception {
         BitMatrix matrix = createBarCodeBitMatrix(contents, format, width,
                 height, hints);
@@ -299,13 +298,16 @@ public class BarCodesUtil {
                 dx = "1234567890123";
             else if (format == BarcodeFormat.CODE_39)
                 dx = "123456789012345678901234567890123456789";
+            else if (format == BarcodeFormat.ITF)
+                dx = "http://www.lsts.pt/neptus/";
             try {
                 System.out.print(format + ": ");
                 fx = new File("test-" + format + ".png");
                 createBarCodeImageToFile(dx, format, 200, 200, "png", fx);
                 Result result = decodeBarCode(ImageIO.read(fx));
-                NeptusLog.pub().info("<###> "+result.getText());
-            } catch (Exception e) {
+                System.out.println(dx + " == " + result.getText() + " >>> " + (dx.equals(result.getText())));
+            }
+            catch (Exception e) {
                 e.printStackTrace(System.out);
             }
         }

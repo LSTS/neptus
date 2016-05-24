@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2015 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2016 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -50,19 +50,19 @@ import javax.swing.JTextField;
 import javax.swing.UIManager;
 import javax.swing.border.Border;
 
-import net.miginfocom.swing.MigLayout;
-import pt.lsts.neptus.NeptusLog;
-import pt.lsts.neptus.i18n.I18n;
-import pt.lsts.neptus.params.SystemProperty;
-import pt.lsts.neptus.util.GuiUtils;
-import pt.lsts.neptus.util.MathMiscUtils;
-
 import com.l2fprod.common.beans.editor.StringConverterPropertyEditor;
 import com.l2fprod.common.propertysheet.Property;
 import com.l2fprod.common.propertysheet.PropertyEditorRegistry;
 import com.l2fprod.common.propertysheet.PropertySheet;
 import com.l2fprod.common.propertysheet.PropertySheetPanel;
 import com.l2fprod.common.util.converter.ConverterRegistry;
+
+import net.miginfocom.swing.MigLayout;
+import pt.lsts.neptus.NeptusLog;
+import pt.lsts.neptus.i18n.I18n;
+import pt.lsts.neptus.params.SystemProperty;
+import pt.lsts.neptus.util.GuiUtils;
+import pt.lsts.neptus.util.MathMiscUtils;
 
 /**
  * ArrayList that is shown as comma separated values

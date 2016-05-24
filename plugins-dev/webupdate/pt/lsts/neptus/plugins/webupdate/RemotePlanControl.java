@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2015 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2016 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -53,18 +53,8 @@ import javax.swing.SwingWorker;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
 import org.apache.http.client.methods.HttpPost;
-import org.apache.http.conn.scheme.PlainSocketFactory;
-import org.apache.http.conn.scheme.Scheme;
-import org.apache.http.conn.scheme.SchemeRegistry;
+import org.apache.http.client.protocol.HttpClientContext;
 import org.apache.http.entity.InputStreamEntity;
-import org.apache.http.impl.client.AbstractHttpClient;
-import org.apache.http.impl.client.DefaultHttpClient;
-import org.apache.http.impl.conn.PoolingClientConnectionManager;
-import org.apache.http.params.BasicHttpParams;
-import org.apache.http.params.HttpConnectionParams;
-import org.apache.http.params.HttpParams;
-import org.apache.http.protocol.BasicHttpContext;
-import org.apache.http.protocol.HttpContext;
 import org.jdesktop.swingx.JXLabel;
 import org.jdesktop.swingx.JXPanel;
 
@@ -77,7 +67,6 @@ import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.comm.manager.imc.ImcMsgManager;
 import pt.lsts.neptus.comm.manager.imc.ImcSystem;
 import pt.lsts.neptus.comm.manager.imc.ImcSystemsHolder;
-import pt.lsts.neptus.comm.proxy.ProxyInfoProvider;
 import pt.lsts.neptus.console.ConsoleLayout;
 import pt.lsts.neptus.console.ConsolePanel;
 import pt.lsts.neptus.console.events.ConsoleEventMainSystemChange;
@@ -96,12 +85,12 @@ import pt.lsts.neptus.types.mission.MissionType;
 import pt.lsts.neptus.types.mission.plan.PlanType;
 import pt.lsts.neptus.util.GuiUtils;
 import pt.lsts.neptus.util.ImageUtils;
+import pt.lsts.neptus.util.http.client.HttpClientConnectionHelper;
 
 /**
  * @author pdias
  * 
  */
-@SuppressWarnings("deprecation")
 @PluginDescription(name = "Remote Plan Control", author = "Paulo Dias", version = "0.1")
 public class RemotePlanControl extends ConsolePanel implements ConfigurationListener, MainVehicleChangeListener,
         LockableSubPanel, IPeriodicUpdates, NeptusMessageListener {
@@ -124,8 +113,7 @@ public class RemotePlanControl extends ConsolePanel implements ConfigurationList
             + "you can allways click Alt whan sending the plan that this verification will run.")
     public boolean allwaysVerifyAllManeuversUsed = true;
 
-    private DefaultHttpClient client;
-    private PoolingClientConnectionManager httpConnectionManager;
+    private HttpClientConnectionHelper httpComm;
 
     // GUI
     private JXPanel holder;
@@ -197,18 +185,8 @@ public class RemotePlanControl extends ConsolePanel implements ConfigurationList
     }
 
     private void initializeComm() {
-        SchemeRegistry schemeRegistry = new SchemeRegistry();
-        schemeRegistry.register(new Scheme("http", 80, PlainSocketFactory.getSocketFactory()));
-        schemeRegistry.register(new Scheme("https", 443, PlainSocketFactory.getSocketFactory()));
-        httpConnectionManager = new PoolingClientConnectionManager(schemeRegistry);
-        httpConnectionManager.setMaxTotal(4);
-        httpConnectionManager.setDefaultMaxPerRoute(50);
-
-        HttpParams params = new BasicHttpParams();
-        HttpConnectionParams.setConnectionTimeout(params, 5000);
-        client = new DefaultHttpClient(httpConnectionManager, params);
-
-        ProxyInfoProvider.setRoutePlanner((AbstractHttpClient) client);
+        httpComm = new HttpClientConnectionHelper();
+        httpComm.initializeComm();
     }
 
     /**
@@ -737,9 +715,9 @@ public class RemotePlanControl extends ConsolePanel implements ConfigurationList
 
             post.setEntity(reqEntity);
 
-            HttpContext localContext = new BasicHttpContext();
-            HttpResponse iGetResultCode = client.execute(post, localContext);
-            ProxyInfoProvider.authenticateConnectionIfNeeded(iGetResultCode, localContext, client);
+            HttpClientContext localContext = HttpClientContext.create();
+            HttpResponse iGetResultCode = httpComm.getClient().execute(post, localContext);
+            httpComm.autenticateProxyIfNeeded(iGetResultCode, localContext);
 
             if (iGetResultCode.getStatusLine().getStatusCode() != HttpStatus.SC_OK) {
                 NeptusLog.pub().info("<###>[" + iGetResultCode.getStatusLine().getStatusCode() + "] "
@@ -772,11 +750,8 @@ public class RemotePlanControl extends ConsolePanel implements ConfigurationList
 
     @Override
     public void cleanSubPanel() {
-
-        if (client != null) {
-        }
-        if (httpConnectionManager != null) {
-            httpConnectionManager.shutdown();
+        if (httpComm != null) {
+            httpComm.cleanUp();;
         }
     }
 
@@ -785,8 +760,5 @@ public class RemotePlanControl extends ConsolePanel implements ConfigurationList
      */
     @Override
     public void initSubPanel() {
-        // TODO Auto-generated method stub
-        
     }
-
 }

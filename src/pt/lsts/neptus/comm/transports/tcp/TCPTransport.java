@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2015 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2016 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -54,14 +54,14 @@ import java.util.Vector;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
 
+import pt.lsts.imc.IMCDefinition;
+import pt.lsts.imc.IMCMessage;
+import pt.lsts.imc.IMCOutputStream;
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.comm.transports.DeliveryListener;
 import pt.lsts.neptus.comm.transports.DeliveryListener.ResultEnum;
 import pt.lsts.neptus.util.ByteUtil;
 import pt.lsts.neptus.util.conf.ConfigFetch;
-import pt.lsts.imc.IMCDefinition;
-import pt.lsts.imc.IMCMessage;
-import pt.lsts.imc.IMCOutputStream;
 import vrml.eai.ConnectionException;
 
 /**

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2015 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2016 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -39,11 +39,11 @@ import javax.swing.JButton;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 
-import pt.lsts.neptus.gui.swing.AnglePanel;
-
 import com.l2fprod.common.beans.editor.AbstractPropertyEditor;
 import com.l2fprod.common.beans.editor.FixedButton;
 import com.l2fprod.common.swing.LookAndFeelTweaks;
+
+import pt.lsts.neptus.gui.swing.AnglePanel;
 
 public class AngleEditorDegs extends AbstractPropertyEditor {
 

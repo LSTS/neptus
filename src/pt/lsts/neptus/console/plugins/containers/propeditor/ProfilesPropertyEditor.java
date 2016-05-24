@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2015 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2016 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -44,8 +44,7 @@ public class ProfilesPropertyEditor extends HorizontalGroupPropertyEditor {
 		super();
 		rootElement = "Profiles";
 		title = "Profiles: <" + rootElement + "></" + rootElement + ">";
-		helpText += "<!-- Don't use this top element (this is informative) -->\n" +
-					"<!ELEMENT Profiles (Default?, (Profile)*)?>\n\n" +
+		helpText += "<!ELEMENT Profiles (Default?, (Profile)*)?>\n\n" +
 					"<!ELEMENT Default EMPTY>\n" +
                     "<!ATTLIST Default\n" +
                     "    profile CDATA #REQUIRED\n" +

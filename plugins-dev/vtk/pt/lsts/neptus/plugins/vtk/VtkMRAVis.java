@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2015 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2016 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -39,6 +39,9 @@ import java.util.LinkedHashMap;
 import javax.swing.ImageIcon;
 import javax.swing.JPanel;
 
+import com.l2fprod.common.propertysheet.DefaultProperty;
+import com.l2fprod.common.propertysheet.Property;
+
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.gui.PropertiesProvider;
 import pt.lsts.neptus.i18n.I18n;
@@ -66,9 +69,6 @@ import pt.lsts.neptus.vtk.utils.Utils;
 import pt.lsts.neptus.vtk.visualization.Canvas;
 import pt.lsts.neptus.vtk.visualization.Text3D;
 import vtk.vtkLODActor;
-
-import com.l2fprod.common.propertysheet.DefaultProperty;
-import com.l2fprod.common.propertysheet.Property;
 
 /**
  * @author hfq
@@ -158,17 +158,22 @@ public class VtkMRAVis extends JPanel implements MRAVisualization, PropertiesPro
 
     private void loadCloud() {
         if (mbFound) {
-            PointCloudXYZ pointCloudMultibeam = new PointCloudXYZ();
-            LoadToPointCloud load = new LoadToPointCloud(source, pointCloudMultibeam);
-            NeptusLog.pub().info("Parsing Multibeam data.");
-            pointCloudMultibeam.setCloudName("multibeam");
-            load.parseMultibeamPointCloud();
-            getLinkedHashMapCloud().put(pointCloudMultibeam.getCloudName(), pointCloudMultibeam);
-            processPointCloud(pointCloudMultibeam, load);
-            pointCloudMultibeam.getPolyData().GetPointData().SetScalars(((PointCloudHandlerXYZ) (pointCloudMultibeam.getColorHandler())).getColorsZ());
-            events.setSensorTypeInteraction(SensorTypeInteraction.MULTIBEAM);
-            toolbar.multibeamToggle.setSelected(true);
-            setUpRenderer(pointCloudMultibeam);
+            try {
+                PointCloudXYZ pointCloudMultibeam = new PointCloudXYZ();
+                LoadToPointCloud load = new LoadToPointCloud(source, pointCloudMultibeam);
+                NeptusLog.pub().info("Parsing Multibeam data.");
+                pointCloudMultibeam.setCloudName("multibeam");
+                load.parseMultibeamPointCloud();
+                getLinkedHashMapCloud().put(pointCloudMultibeam.getCloudName(), pointCloudMultibeam);
+                processPointCloud(pointCloudMultibeam, load);
+                pointCloudMultibeam.getPolyData().GetPointData().SetScalars(((PointCloudHandlerXYZ) (pointCloudMultibeam.getColorHandler())).getColorsZ());
+                events.setSensorTypeInteraction(SensorTypeInteraction.MULTIBEAM);
+                toolbar.multibeamToggle.setSelected(true);
+                setUpRenderer(pointCloudMultibeam);
+            }
+            catch (Exception e) {
+                NeptusLog.pub().error(e.getMessage(), e);
+            }
         }
         if (source.getLsfIndex().containsMessagesOfType("Distance")) {
             PointCloudXYZ pointCloudDVL = new PointCloudXYZ();

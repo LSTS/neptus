@@ -1,9 +1,4 @@
-# DATE=@DATE@
-# TIME=@TIME@
-# COMPILED BY=@COMPILED BY@
-# LEGAL_COPY=@LEGAL_COPY@
-
 pt.lsts.neptus.plugins.noptilus.NoptilusPlanGenerator
 pt.lsts.neptus.plugins.noptilus.TransponderEstimation
 pt.lsts.neptus.plugins.noptilus.NoptilusMapExporter
-convcao.com.caoAgent.convcaoNeptusInteraction
+convcao.com.agent.ConvcaoNeptusInteraction

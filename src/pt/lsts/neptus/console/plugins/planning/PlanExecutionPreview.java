@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2015 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2016 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -36,10 +36,12 @@ import java.awt.Graphics2D;
 import java.awt.geom.GeneralPath;
 import java.awt.geom.Point2D;
 import java.awt.geom.RoundRectangle2D;
+import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Vector;
 
-import org.mozilla.javascript.edu.emory.mathcs.backport.java.util.Collections;
+import com.google.common.eventbus.Subscribe;
+import com.l2fprod.common.propertysheet.Property;
 
 import pt.lsts.imc.Announce;
 import pt.lsts.imc.EstimatedState;
@@ -67,9 +69,6 @@ import pt.lsts.neptus.types.vehicle.VehicleType;
 import pt.lsts.neptus.types.vehicle.VehiclesHolder;
 import pt.lsts.neptus.util.DateTimeUtil;
 import pt.lsts.neptus.util.GuiUtils;
-
-import com.google.common.eventbus.Subscribe;
-import com.l2fprod.common.propertysheet.Property;
 
 /**
  * @author zp
@@ -296,7 +295,7 @@ public class PlanExecutionPreview extends ConsolePanel implements Renderer2DPain
                     simulator.setManId(msg.getManId());
             }
             catch (Exception e) {
-                e.printStackTrace();
+//                e.printStackTrace();
                 NeptusLog.pub().error(e);
             }
         }

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2015 OceanScan - Marine Systems & Technology, Lda.
+ * Copyright (c) 2004-2016 OceanScan - Marine Systems & Technology, Lda.
  * Polo do Mar do UPTEC, Avenida da Liberdade, 4450-718 Matosinhos, Portugal
  *
  * This file is part of Neptus, Command and Control Framework.
@@ -27,16 +27,18 @@
 
 package pt.lsts.neptus.plugins.mjpeg.containers.avi;
 
-import pt.lsts.neptus.plugins.mjpeg.containers.riff.*;
-import pt.lsts.neptus.plugins.mjpeg.containers.riff.List;
-
-import javax.imageio.ImageIO;
-import javax.imageio.stream.ImageInputStream;
-import java.awt.*;
+import java.awt.Image;
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+
+import javax.imageio.ImageIO;
+import javax.imageio.stream.ImageInputStream;
+
+import pt.lsts.neptus.plugins.mjpeg.containers.riff.Chunk;
+import pt.lsts.neptus.plugins.mjpeg.containers.riff.List;
+import pt.lsts.neptus.plugins.mjpeg.containers.riff.RiffFile;
 
 /**
  * Parser for AVI encoded MJPEG streams.
@@ -79,7 +81,8 @@ public class MjpegFile extends RiffFile {
             memory.get(rawData, 0, record.getSize());
             ImageInputStream iis = ImageIO.createImageInputStream(new ByteArrayInputStream(rawData));
             return ImageIO.read(iis);
-        } catch (IOException e) {
+        } 
+        catch (IOException e) {
             e.printStackTrace();
         }
 
@@ -93,9 +96,11 @@ public class MjpegFile extends RiffFile {
                 pt.lsts.neptus.plugins.mjpeg.containers.riff.List l = (pt.lsts.neptus.plugins.mjpeg.containers.riff.List)listChunk;
                 if (l.getName().equals("hdrl"))
                     readHDRL(l);
-            } else if (listChunk.getId().equals("idx1")) {
+            }
+            else if (listChunk.getId().equals("idx1")) {
                 readIDX1(listChunk);
-            } else if (listChunk.getId().equals("tstp")) {
+            }
+            else if (listChunk.getId().equals("tstp")) {
                 readTSTP(listChunk);
             }
         }
@@ -106,7 +111,7 @@ public class MjpegFile extends RiffFile {
             Chunk chunk = hdrl.next();
             if (chunk.getId().equals("avih")) {
                 int usecPerFrame = memory.getInt(chunk.getOffset() + 8);
-                frameRate = (int)Math.round(1000000.0 / usecPerFrame);
+                frameRate = (int) Math.round(1000000.0 / usecPerFrame);
             }
         }
     }
@@ -134,7 +139,7 @@ public class MjpegFile extends RiffFile {
     }
 
     private void readRecordTSTP(int number, int offset) {
-        long timeStamp = (long)(memory.getDouble(offset) * 1000.0);
+        long timeStamp = (long) (memory.getDouble(offset) * 1000.0);
         index.get(number).setTimeStamp(timeStamp);
     }
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2015 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2016 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -64,6 +64,8 @@ import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import javax.swing.plaf.basic.BasicSliderUI;
 
+import com.google.common.eventbus.Subscribe;
+
 import net.miginfocom.swing.MigLayout;
 import pt.lsts.imc.CrudeOil;
 import pt.lsts.imc.EstimatedState;
@@ -98,8 +100,6 @@ import pt.lsts.neptus.util.FileUtil;
 import pt.lsts.neptus.util.GuiUtils;
 import pt.lsts.neptus.util.MathMiscUtils;
 import pt.lsts.neptus.util.conf.IntegerMinMaxValidator;
-
-import com.google.common.eventbus.Subscribe;
 
 /**
  * @author pdias

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2015 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2016 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -34,13 +34,12 @@ package pt.lsts.neptus.plugins.sunfish.awareness;
 import java.awt.Color;
 import java.text.SimpleDateFormat;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.Vector;
 
 import javax.swing.JFileChooser;
-
-import org.mozilla.javascript.edu.emory.mathcs.backport.java.util.Collections;
 
 import pt.lsts.neptus.plugins.sunfish.awareness.SunfishAssetProperties.AssetDesc;
 import pt.lsts.neptus.util.FileUtil;

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2015 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2016 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -134,9 +134,9 @@ public class MathMiscUtils {
         // Dilation
         for (Point2D dp : polyPoints) {
             Point2D np = new Point2D.Double();
-            double ang = AngleCalc.calcAngle(dp.getX(), dp.getY(), cX, cY);
+            double ang = AngleUtils.calcAngle(dp.getX(), dp.getY(), cX, cY);
             double dist = Math.sqrt((dp.getX() - cX) * (dp.getX() - cX) + (dp.getY() - cY) * (dp.getY() - cY));
-            double[] rotD = AngleCalc.rotate(ang + Math.PI / 2, dist + growByValue, 0, true);
+            double[] rotD = AngleUtils.rotate(ang + Math.PI / 2, dist + growByValue, 0, true);
             np.setLocation(cX + rotD[0], cY + rotD[1]);
             pointsGrow.add(np);
         }
@@ -153,6 +153,9 @@ public class MathMiscUtils {
 	 */
 	public static String parseToEngineeringNotation(double val,
 			int decimalHouses) {
+	    if (Double.isInfinite(val) || Double.isNaN(val))
+	        return "" + val;
+	    
 	    Locale locale  = new Locale("en", "US");
 	    DecimalFormat engNot = (DecimalFormat) NumberFormat.getNumberInstance(locale);
 		engNot.applyPattern("##0.###E0");
@@ -213,7 +216,7 @@ public class MathMiscUtils {
     			mulStr = "y";
     			break;
     		default:
-    			mulStr = "E" + mul;
+    			mulStr = mul == 0 ? "" : "E" + mul;
     			break;
 		}
 
@@ -522,7 +525,7 @@ public class MathMiscUtils {
     			mulStr = "yi";
     			break;
     		default:
-    			mulStr = "E" + mul;
+    			mulStr =  mul == 0 ? "" : "E" + mul;
     			break;
 		}
 		if ("".equalsIgnoreCase(mulStr) && vl < 1024) {

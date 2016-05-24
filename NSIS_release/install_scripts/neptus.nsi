@@ -1,5 +1,5 @@
 #############################################################################
-# Copyright (c) 2004-2015 Universidade do Porto - Faculdade de Engenharia   #
+# Copyright (c) 2004-2016 Universidade do Porto - Faculdade de Engenharia   #
 # Laboratório de Sistemas e Tecnologia Subaquática (LSTS)                   #
 # All rights reserved.                                                      #
 # Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal            #
@@ -105,7 +105,7 @@ Var StartMenuGroup
 ; Languages  
 !insertmacro MUI_LANGUAGE "English"
 !insertmacro MUI_LANGUAGE "Portuguese"
-!insertmacro MUI_LANGUAGE "Russian"
+; !insertmacro MUI_LANGUAGE "Russian"
 
 
 # Installer attributes
@@ -170,9 +170,9 @@ Section "-$(^Name) base" sec1
       ${Case} 1046 ;Brazilian Portuguese (1046)
         ${WriteLangPref} "pt_PT"
       ${Break}
-      ${Case} 1049 ;Russian (1049)
-        ${WriteLangPref} "ru_RU"
-      ${Break}
+      ;${Case} 1049 ;Russian (1049)
+      ;  ${WriteLangPref} "ru_RU"
+      ;${Break}
     ${EndSwitch}
 
 SectionEnd

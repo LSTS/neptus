@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2015 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2016 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -57,6 +57,8 @@ import javax.swing.JOptionPane;
 import javax.swing.JPopupMenu;
 import javax.swing.SwingWorker;
 
+import com.google.common.eventbus.Subscribe;
+
 import pt.lsts.imc.IMCDefinition;
 import pt.lsts.imc.IMCMessage;
 import pt.lsts.imc.LblBeacon;
@@ -108,8 +110,6 @@ import pt.lsts.neptus.types.map.TransponderElement;
 import pt.lsts.neptus.types.mission.HomeReference;
 import pt.lsts.neptus.types.mission.MissionType;
 import pt.lsts.neptus.types.mission.plan.PlanType;
-
-import com.google.common.eventbus.Subscribe;
 
 
 /**
@@ -312,9 +312,9 @@ public class MissionTreePanel extends ConsolePanel implements MissionChangeListe
                 try {
                     LblConfig msgLBLConfiguration = new LblConfig();
                     msgLBLConfiguration.setOp(LblConfig.OP.GET_CFG);
-                    IMCSendMessageUtils.sendMessage(msgLBLConfiguration,
-                            I18n.textf("Unable to get %vehicle list of transponders.", getMainVehicleId()),
-                            true, getMainVehicleId());
+                    IMCSendMessageUtils.sendMessage(msgLBLConfiguration, 
+                            I18n.textf("Unable to get %vehicle list of transponders.", getMainVehicleId()), 
+                            true, true, getMainVehicleId());
                 }
                 catch (Exception e) {
                     e.printStackTrace();
@@ -858,7 +858,7 @@ public class MissionTreePanel extends ConsolePanel implements MissionChangeListe
             boolean acousticOpUserAprovedQuestion = true;
             IMCSendMessageUtils.sendMessage(msgLBLConfiguration, ImcMsgManager.TRANSPORT_TCP, listener,
                     MissionTreePanel.this, errorTextForDialog, ignoreAcousticSending, acousticOpServiceName,
-                    acousticOpUseOnlyActive, acousticOpUserAprovedQuestion, getMainVehicleId());
+                    acousticOpUseOnlyActive, acousticOpUserAprovedQuestion, true, getMainVehicleId());
         }
 
         MessageDeliveryListener listener = new MessageDeliveryListener() {

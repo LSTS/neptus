@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2015 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2016 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -28,11 +28,35 @@
  */
 package pt.lsts.neptus.plugins.mjpeg;
 
-import net.miginfocom.swing.MigLayout;
+import java.awt.Component;
+import java.awt.Graphics;
+import java.awt.Graphics2D;
+import java.awt.Image;
+import java.awt.RenderingHints;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.awt.geom.Point2D;
+import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.IOException;
+import java.util.Collections;
+import java.util.Vector;
+
+import javax.imageio.ImageIO;
+import javax.swing.ImageIcon;
+import javax.swing.JCheckBox;
+import javax.swing.JComponent;
+import javax.swing.JFileChooser;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.border.EmptyBorder;
+import javax.swing.plaf.basic.BasicSliderUI;
+
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.jdesktop.swingx.VerticalLayout;
-import org.mozilla.javascript.edu.emory.mathcs.backport.java.util.Collections;
+
+import net.miginfocom.swing.MigLayout;
 import pt.lsts.imc.IMCMessage;
 import pt.lsts.imc.lsf.LsfIndex;
 import pt.lsts.neptus.NeptusLog;
@@ -52,26 +76,13 @@ import pt.lsts.neptus.util.GuiUtils;
 import pt.lsts.neptus.util.ImageUtils;
 import pt.lsts.neptus.util.llf.LsfReportProperties;
 
-import javax.imageio.ImageIO;
-import javax.swing.*;
-import javax.swing.border.EmptyBorder;
-import javax.swing.plaf.basic.BasicSliderUI;
-import java.awt.*;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
-import java.awt.geom.Point2D;
-import java.awt.image.BufferedImage;
-import java.io.File;
-import java.io.IOException;
-import java.util.Vector;
-
 /**
  * Video viewer.
  *
  * @author Ricardo Martins
  * @author José Pinto
  */
-@PluginDescription(name = "Video", icon = "pt/lsts/neptus/plugins/mraplots/camera.png")
+@PluginDescription(name = "Video", icon = "images/downloader/camera.png")
 public class Viewer extends JComponent implements MRAVisualization, LogMarkerListener {
     private static final long serialVersionUID = 1L;
     /** Parent MRA panel. */

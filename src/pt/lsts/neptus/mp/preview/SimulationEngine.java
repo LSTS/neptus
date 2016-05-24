@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2015 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2016 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -141,8 +141,11 @@ public class SimulationEngine {
                 NeptusLog.pub().debug("now simulating using " + curPreview.getClass().getSimpleName());
             }
         }
-        state = curPreview.step(state, timestep);
-        if (curPreview.isFinished() || curPreview == null) {
+        
+        if (curPreview != null)
+            state = curPreview.step(state, timestep);
+        
+        if (curPreview == null || curPreview.isFinished()) {
             try {
                 Maneuver next = plan.getGraph().getFollowingManeuver(m.getId());
                 if (next == null) {

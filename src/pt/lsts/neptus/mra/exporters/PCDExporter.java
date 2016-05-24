@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2015 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2016 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -59,7 +59,7 @@ import pt.lsts.neptus.util.llf.LsfLogSource;
  * 83P to Point Cloud Data exporter
  * @author jqcorreia
  */
-@PluginDescription
+@PluginDescription(name="83P to PCD")
 public class PCDExporter implements MRAExporter{
     public double minLat = 180;
     public double maxLat = -180;
@@ -222,8 +222,6 @@ public class PCDExporter implements MRAExporter{
                     lon = esMsg.getDouble("lon");
                 }
                 
-                
-                
                 numBeams = b.getShort(70);
                 samplesPerBeam = b.getShort(72);
                 acousticRange = b.getShort(79);
@@ -261,7 +259,6 @@ public class PCDExporter implements MRAExporter{
                     if (height > maxHeight)
                         maxHeight = height;
 
-//                    pointList.add(offHeight);
                     out.writeBytes(offHeight[0] + " " + offHeight[1] + " " + (offHeight[2] /* * 10*/) + "\n");
                 }
                 
@@ -269,188 +266,17 @@ public class PCDExporter implements MRAExporter{
                 curPosition += pingTotalSize;
             }
             NeptusLog.pub().info("<###>Wrinting PCD file");
-//            topLeftLT = new LocationType(maxLat, minLon);
-//            bottomRightLT = new LocationType(minLat, maxLon);
-//
-//            topLeftLT.setOffsetNorth(10);
-//            topLeftLT.setOffsetEast(-10);
-//            bottomRightLT.setOffsetNorth(-10);
-//            bottomRightLT.setOffsetEast(10);
-//            
-//            // SECOND CYCLE
-//            esLog.firstLogEntry();
-//            buf.seek(0); // Reset
-//            
-//            LocationType firstLoc;
-//            
-//            while (buf.getFilePointer() < buf.length()) {
-//                currPingStartOffset = buf.getFilePointer();
-//                // Skip '83P' string and version number
-//                buf.skipBytes(4);
-//
-//                pingTotalSize = buf.readShort();
-//
-//                // Read timestamp information and process it
-//                buf.seek(currPingStartOffset + 8);
-//                buf.read(timestampBuffer, 0, 25);
-//                timestampStr = new String(timestampBuffer);
-//
-//                buf.seek(currPingStartOffset + 112);
-//                buf.read(millisBuffer, 0, 5);
-//                millisStr = new String(millisBuffer);
-//
-//                m = pTimeStamp.matcher(timestampStr);
-//                m.find();
-//
-//                if (m.group(2).equalsIgnoreCase("JAN"))
-//                    month = 0;
-//                if (m.group(2).equalsIgnoreCase("FEB"))
-//                    month = 1;
-//                if (m.group(2).equalsIgnoreCase("MAR"))
-//                    month = 2;
-//                if (m.group(2).equalsIgnoreCase("APR"))
-//                    month = 3;
-//                if (m.group(2).equalsIgnoreCase("MAY"))
-//                    month = 4;
-//                if (m.group(2).equalsIgnoreCase("JUN"))
-//                    month = 5;
-//                if (m.group(2).equalsIgnoreCase("JUL"))
-//                    month = 6;
-//                if (m.group(2).equalsIgnoreCase("AUG"))
-//                    month = 7;
-//                if (m.group(2).equalsIgnoreCase("SEP"))
-//                    month = 8;
-//                if (m.group(2).equalsIgnoreCase("OCT"))
-//                    month = 9;
-//                if (m.group(2).equalsIgnoreCase("NOV"))
-//                    month = 10;
-//                if (m.group(2).equalsIgnoreCase("DEC"))
-//                    month = 11;
-//
-//                cal.set(Integer.valueOf(m.group(3)), month, Integer.valueOf(m.group(1)), Integer.valueOf(m.group(4)),
-//                        Integer.valueOf(m.group(5)), Integer.valueOf(m.group(6)));
-//                cal.set(Calendar.MILLISECOND, Integer.valueOf(millisStr.substring(1, 4)));
-//
-//                esMsg = esLog.getEntryAtOrAfter(cal.getTimeInMillis());
-//                heading = Math.toDegrees(esMsg.getDouble("psi"));
-//
-//                // Read LatLon information
-//                double r[] = CoordinateUtil.latLonAddNE2(Math.toDegrees(esMsg.getDouble("lat")),
-//                        Math.toDegrees(esMsg.getDouble("lon")), esMsg.getDouble("x"), esMsg.getDouble("y"));
-//                lat = r[0];
-//                lon = r[1];
-//
-//                tempLt.setLatitude(lat);
-//                tempLt.setLongitude(lon);
-//
-//                buf.seek(currPingStartOffset + 70);
-//                numBeams = buf.readShort();
-//
-//                samplesPerBeam = buf.readShort();
-//
-//                buf.seek(currPingStartOffset + 79);
-//                acousticRange = buf.readShort();
-//
-//                buf.seek(currPingStartOffset + 85);
-//                rangeResolution = buf.readShort();
-//
-//                buf.seek(currPingStartOffset + 117);
-//                intensity = (byte) buf.read();
-//
-//                buf.seek(currPingStartOffset + 133);
-//                altitude = buf.readFloat();
-//
-////                buf.seek(currPingStartOffset + 68);
-////                heading = buf.readShort();
-//
-//                buf.seek(currPingStartOffset + 74);
-//                sectorSize = buf.readShort();
-//                startAngle = buf.readShort() / 100f - 180;
-//                angleIncrement = buf.read() / 100f;
-//
-//                // NeptusLog.pub().info("<###> "+numBeams + " " + intensity + " " + pingTotalSize + " " + samplesPerBeam + " "
-//                // + altitude + " $ " + heading + " " + startAngle + " " + angleIncrement + " " + sectorSize + " " +
-//                // acousticRange + " ");
-//                
-//                if(dataBuffer == null)
-//                    dataBuffer = new byte[numBeams * 2];
-//                if(data == null)
-//                    data = new int[numBeams];
-//
-//                // Skip to beam range information
-//                buf.seek(currPingStartOffset + 256);
-//                float range;
-//                double height;
-//                
-//                if (c == 0) {
-//                    NeptusLog.pub().info("<###> "+heading);
-//                }
-//
-//                for (int i = 0; i < dataBuffer.length; i += 2) {
-//                    int t = i / 2;
-//
-//                    data[t] = buf.readUnsignedShort();
-//
-//                    if(data[t] == 0) {
-//                        continue;
-//                    }
-//                    
-//                    range = data[t] * rangeResolution / 1000f;
-//                    double angle = startAngle + angleIncrement * t;
-//                    
-//                    double foo = range * Math.cos(Math.toRadians(angle));
-//                    height = range * Math.cos(Math.toRadians(angle)) + esMsg.getDouble("depth");
-//
-//                    double x = range * Math.sin(Math.toRadians(angle));
-//                    double theta = -heading;
-//                    tempLt.setOffsetEast(x * Math.cos(Math.toRadians(theta)));
-//                    tempLt.setOffsetNorth(x * Math.sin(Math.toRadians(theta)));
-//                    double offset[] = tempLt.getOffsetFrom(topLeftLT);
-//                    Double offHeight[] = {offset[0], offset[1], height};
-//                    
-//                    if(height < minHeight) minHeight = height;
-//                    if(height > maxHeight) maxHeight = height;
-//                    
-//                    if(height < 1)
-//                        continue;
-//                    pointList.add(offHeight);
-//                    
-//                }
-////                NeptusLog.pub().info("<###> "+);
-//                // Skip to the end of the ping
-//                buf.seek(currPingStartOffset + pingTotalSize);
-//                c++;
-//
-//            }
-//            
-//            // Write the PCD file 
-//            out.writeBytes("VERSION .7\n");
-//            out.writeBytes("FIELDS x y z\n");
-//            out.writeBytes("SIZE 4 4 4\n");
-//            out.writeBytes("TYPE F F F\n");
-//            out.writeBytes("COUNT 1 1 1\n");
-//            out.writeBytes("WIDTH "+ pointList.size()+"\n");
-//            out.writeBytes("HEIGHT 1\n");
-//            out.writeBytes("VIEWPOINT 0 0 0 1 0 0 0\n");
-//            out.writeBytes("POINTS " + pointList.size() + "\n");
-//            out.writeBytes("DATA ascii\n");
-//            
-//            for(Double[] dv : pointList) {
-//                out.writeBytes(dv[0] + " " + dv[1] + " " + (dv[2] /* * 10*/) + "\n");
-//            }
-//            
-//            // Reset buffer
-//            buf.seek(0);
+
             buf.close();
             fis.close();
             out.close();
         }
         catch (IOException e) {
             e.printStackTrace();
-            return e.getClass().getSimpleName()+" while exporting to PCD: "+e.getMessage();
+            return I18n.textf("%ExceptionClass while exporting to PCD: %error", e.getClass().getSimpleName(), e.getMessage());
         }
         
-        return "Log exported sucessfully";
+        return I18n.text("Log exported sucessfully");
     }
     
     public static void main(String[] args) {
@@ -468,10 +294,5 @@ public class PCDExporter implements MRAExporter{
     @Override
     public boolean canBeApplied(IMraLogGroup source) {
         return source.getFile("multibeam.83P") != null;
-    }
-
-    @Override
-    public String getName() {
-        return I18n.text("83P to PCD");
     }
 }

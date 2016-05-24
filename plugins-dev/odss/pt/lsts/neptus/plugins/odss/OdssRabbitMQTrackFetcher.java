@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2015 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2016 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -43,6 +43,15 @@ import org.mbari.tracking.Tracking;
 import org.mbari.tracking.Tracking.PlatformReport;
 import org.mbari.trex.Sensor.SensorMessage;
 
+import com.google.protobuf.InvalidProtocolBufferException;
+import com.rabbitmq.client.Channel;
+import com.rabbitmq.client.Connection;
+import com.rabbitmq.client.ConnectionFactory;
+import com.rabbitmq.client.ConsumerCancelledException;
+import com.rabbitmq.client.QueueingConsumer;
+import com.rabbitmq.client.ShutdownListener;
+import com.rabbitmq.client.ShutdownSignalException;
+
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.console.ConsoleLayout;
 import pt.lsts.neptus.console.ConsolePanel;
@@ -59,15 +68,6 @@ import pt.lsts.neptus.plugins.odss.track.PlatformReportType.PlatformType;
 import pt.lsts.neptus.plugins.update.IPeriodicUpdates;
 import pt.lsts.neptus.util.ByteUtil;
 import pt.lsts.neptus.util.DateTimeUtil;
-
-import com.google.protobuf.InvalidProtocolBufferException;
-import com.rabbitmq.client.Channel;
-import com.rabbitmq.client.Connection;
-import com.rabbitmq.client.ConnectionFactory;
-import com.rabbitmq.client.ConsumerCancelledException;
-import com.rabbitmq.client.QueueingConsumer;
-import com.rabbitmq.client.ShutdownListener;
-import com.rabbitmq.client.ShutdownSignalException;
 
 /**
  * @author pdias

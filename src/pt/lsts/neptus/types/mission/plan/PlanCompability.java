@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2015 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2016 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -34,6 +34,8 @@ package pt.lsts.neptus.types.mission.plan;
 import java.util.Collection;
 import java.util.HashSet;
 
+import com.l2fprod.common.propertysheet.Property;
+
 import pt.lsts.neptus.mp.Maneuver;
 import pt.lsts.neptus.params.ConfigurationManager;
 import pt.lsts.neptus.params.ManeuverPayloadConfig;
@@ -41,8 +43,6 @@ import pt.lsts.neptus.params.SystemProperty;
 import pt.lsts.neptus.params.SystemProperty.Scope;
 import pt.lsts.neptus.params.SystemProperty.Visibility;
 import pt.lsts.neptus.types.vehicle.VehicleType;
-
-import com.l2fprod.common.propertysheet.Property;
 
 /**
  * This class provides some utility methods for testing vehicle-compatibility for given plans. <br/>

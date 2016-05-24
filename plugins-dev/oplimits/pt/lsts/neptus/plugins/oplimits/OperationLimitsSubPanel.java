@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2015 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2016 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -64,6 +64,8 @@ import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
 import javax.swing.border.EmptyBorder;
 
+import com.google.common.eventbus.Subscribe;
+
 import pt.lsts.imc.GetOperationalLimits;
 import pt.lsts.imc.IMCDefinition;
 import pt.lsts.imc.IMCMessage;
@@ -98,8 +100,6 @@ import pt.lsts.neptus.util.FileUtil;
 import pt.lsts.neptus.util.GuiUtils;
 import pt.lsts.neptus.util.ImageUtils;
 import pt.lsts.neptus.util.MathMiscUtils;
-
-import com.google.common.eventbus.Subscribe;
 
 /**
  * @author zp
@@ -322,11 +322,8 @@ public class OperationLimitsSubPanel extends ConsolePanel implements Configurati
                     synchronized (OperationLimitsSubPanel.this) {
                         if (lastMD5 != null) {
                             if (!Arrays.equals(msg.payloadMD5(), lastMD5)) {
-				int option = JOptionPane.showConfirmDialog(getConsole(),
-									   I18n.text("Replace current operational limits with received ones?"),
-									   I18n.text("Operation Limits"), JOptionPane.YES_NO_OPTION);
-                                if (option != JOptionPane.YES_OPTION)
-                                    return;
+                                post(Notification.warning(I18n.text("Operation Limits"), I18n.text("Not Syncronized")).src(
+                                        getConsole().getMainSystem()));
                             }
                             else {
                                 post(Notification.success(I18n.text("Operation Limits"), I18n.text("Syncronized")).src(
@@ -717,7 +714,7 @@ public class OperationLimitsSubPanel extends ConsolePanel implements Configurati
             }
             else if (rectangle != null) {
                 rectangle.setMyColor(Color.red);
-                rectangle.setFill(true);
+                rectangle.setFilled(true);
                 rectangle.paint((Graphics2D) g.create(), renderer, -renderer.getRotation());
             }
             g.dispose();

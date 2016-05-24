@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2015 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2016 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -41,12 +41,6 @@ import org.dom4j.Node;
 
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.console.ConsoleLayout;
-import pt.lsts.neptus.console.actions.LayoutEditConsoleAction;
-import pt.lsts.neptus.console.actions.OpenConsoleAction;
-import pt.lsts.neptus.console.actions.RunChecklistConsoleAction;
-import pt.lsts.neptus.console.actions.SaveAsConsoleAction;
-import pt.lsts.neptus.console.actions.SaveConsoleAction;
-import pt.lsts.neptus.console.plugins.SettingsWindow;
 import pt.lsts.neptus.gui.Loader;
 import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.loader.NeptusMain;
@@ -54,7 +48,6 @@ import pt.lsts.neptus.plugins.NeptusProperty.DistributionEnum;
 import pt.lsts.neptus.types.mission.MissionType;
 import pt.lsts.neptus.types.vehicle.VehicleType;
 import pt.lsts.neptus.types.vehicle.VehiclesHolder;
-import pt.lsts.neptus.util.ConsoleParse;
 import pt.lsts.neptus.util.Dom4JUtil;
 import pt.lsts.neptus.util.FileUtil;
 import pt.lsts.neptus.util.GuiUtils;
@@ -67,21 +60,6 @@ public class LAUVConsole extends ConsoleLayout {
     public static String lauvVehicle = "lauv-dolphin-1";
     private static Loader loader = null;
     private static boolean editEnabled = false;
-
-    @Override
-    public void createMenuBar() {
-        super.createMenuBar();
-
-        // Let us remove the unwanted menus
-        removeJMenuAction(OpenConsoleAction.class);
-        removeJMenuAction(SaveConsoleAction.class);
-        removeJMenuAction(SaveAsConsoleAction.class);
-        if (!editEnabled)
-            removeJMenuAction(LayoutEditConsoleAction.class);
-        removeJMenuAction(RunChecklistConsoleAction.class);
-        // removeJMenuAction(ManualAction.class);
-        // removeJMenuAction(ExtendedManualAction.class);
-    }
 
     @Override
     public void cleanup() {
@@ -109,25 +87,13 @@ public class LAUVConsole extends ConsoleLayout {
         ConfigFetch.setOnLockedMode(true);
         ConfigFetch.setDistributionType(DistributionEnum.CLIENT);
 
-        // VehicleType vehicle = VehiclesHolder.getVehicleById(lauvVehicle);
-        // if (vehicle == null) {
-        // GuiUtils.errorMessage(loader, I18n.text("Loading Systems"), I18n.text("Error loading systems!"));
-        // return null;
-        // }
         loader.setText(I18n.text("Loading console..."));
 
         NeptusLog.pub().info("Loading " + LAUVConsole.class.getSimpleName() + ".");
 
         final LAUVConsole cls = new LAUVConsole();
-        cls.imcOn();
-        // ConsoleParse.loadConsole(cls, ConfigFetch.resolvePath(consoleURL));
-        ConsoleParse.parseFile(ConfigFetch.resolvePath(consoleURL), cls);
-
-        SettingsWindow settings = new SettingsWindow(cls);
-        settings.init();
-
-        cls.setConsoleChanged(false);
-
+        ConsoleLayout.forge(cls, consoleURL, editEnabled, false, loader);
+        
         GuiUtils.leftTopScreen(cls);
 
         // handle mission file

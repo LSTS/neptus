@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2015 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2016 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -45,6 +45,9 @@ import java.util.Vector;
 import org.apache.http.HttpHost;
 import org.apache.http.conn.routing.HttpRoute;
 
+import com.l2fprod.common.propertysheet.DefaultProperty;
+import com.l2fprod.common.propertysheet.Property;
+
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.gui.PropertiesEditor;
 import pt.lsts.neptus.gui.PropertiesProvider;
@@ -55,14 +58,10 @@ import pt.lsts.neptus.plugins.PluginUtils;
 import pt.lsts.neptus.util.GuiUtils;
 import pt.lsts.neptus.util.coord.MapTileUtil;
 
-import com.l2fprod.common.propertysheet.DefaultProperty;
-import com.l2fprod.common.propertysheet.Property;
-
 /**
  * @author pdias
  *
  */
-@SuppressWarnings("deprecation")
 @MapTileProvider(name = "S57 Client (HTTP)")
 public class TileS57 extends TileHttpFetcher {
     
@@ -131,7 +130,7 @@ public class TileS57 extends TileHttpFetcher {
 
         try {
             URL url = new URL(mapServerURL);
-            httpConnectionManager.setMaxPerRoute(new HttpRoute(new HttpHost(url.getHost())), 1); // was setMaxForRoute
+            httpComm.getHttpConnectionManager().setMaxPerRoute(new HttpRoute(new HttpHost(url.getHost())), 1); // was setMaxForRoute
         }
         catch (MalformedURLException e) {
             e.printStackTrace();
@@ -175,8 +174,8 @@ public class TileS57 extends TileHttpFetcher {
         // svsw=5 (Set Very Shallow Water)
         // svdw=20 (Set Very Deep Water)
 
-        double[] locTL = MapTileUtil.XYToDegrees(worldX, worldY, levelOfDetail);
-        double[] locBR = MapTileUtil.XYToDegrees(worldX + 256, worldY + 256, levelOfDetail);
+        double[] locTL = MapTileUtil.xyToDegrees(worldX, worldY, levelOfDetail);
+        double[] locBR = MapTileUtil.xyToDegrees(worldX + 256, worldY + 256, levelOfDetail);
         String requestQuery = "q=" + locTL[0]
                 + "," + locTL[1]
                 + "," + locBR[0]
@@ -210,7 +209,7 @@ public class TileS57 extends TileHttpFetcher {
 
         try {
             URL url = new URL(mapServerURL);
-            httpConnectionManager.setMaxPerRoute(new HttpRoute(new HttpHost(url.getHost())), 1); // was setMaxForRoute
+            httpComm.getHttpConnectionManager().setMaxPerRoute(new HttpRoute(new HttpHost(url.getHost())), 1); // was setMaxForRoute
         }
         catch (MalformedURLException e) {
             e.printStackTrace();

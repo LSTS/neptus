@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2015 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2016 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -46,6 +46,7 @@ import pt.lsts.neptus.types.map.MapGroup;
 import pt.lsts.neptus.util.GuiUtils;
 import pt.lsts.neptus.util.ImageUtils;
 import pt.lsts.neptus.util.NameNormalizer;
+import pt.lsts.neptus.util.conf.ConfigFetch;
 
 /**
  * @author Hugo
@@ -65,8 +66,14 @@ public class SaveMissionAsConsoleAction extends ConsoleAction{
 
     @Override
     public void actionPerformed(ActionEvent e) {
-        JFileChooser chooser = new JFileChooser(console.getMission().getMissionFile());
-        chooser.setFileFilter(GuiUtils.getCustomFileFilter(I18n.text("Mission Files ") + "('nmisz')", new String[] { "nmisz" }));
+        File chooserBaseFolder;
+        if (console.getMission() != null && console.getMission().getMissionFile() != null)
+            chooserBaseFolder = console.getMission().getMissionFile();
+        else
+            chooserBaseFolder = new File(ConfigFetch.getMissionsFolder());
+        
+        JFileChooser chooser = GuiUtils.getFileChooser(chooserBaseFolder, I18n.text("Mission Files ('nmisz')"), "nmisz");
+
         int resp = chooser.showDialog(console, I18n.text("Save"));
         if (resp == JFileChooser.APPROVE_OPTION) {
             if (chooser.getSelectedFile().exists()) {
