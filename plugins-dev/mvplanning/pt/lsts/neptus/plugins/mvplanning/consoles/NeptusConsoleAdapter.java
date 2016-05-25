@@ -90,7 +90,7 @@ public class NeptusConsoleAdapter implements ConsoleAdapter {
 
     @Override
     public MapGroup getMapGroup() {
-        return console.getMission().generateMapGroup();
+        return MapGroup.getMapGroupInstance(console.getMission());
     }
 
     @Override
