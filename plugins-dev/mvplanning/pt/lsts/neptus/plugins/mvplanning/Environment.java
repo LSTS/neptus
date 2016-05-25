@@ -35,10 +35,6 @@ import java.awt.geom.AffineTransform;
 import java.awt.geom.Area;
 import java.awt.geom.Rectangle2D;
 import java.util.ArrayList;
-import java.util.Vector;
-
-import pt.lsts.neptus.mp.MapChangeEvent;
-import pt.lsts.neptus.mp.MapChangeListener;
 import pt.lsts.neptus.plugins.mvplanning.interfaces.ConsoleAdapter;
 import pt.lsts.neptus.types.coord.LocationType;
 import pt.lsts.neptus.types.map.AbstractElement;
@@ -47,7 +43,7 @@ import pt.lsts.neptus.types.map.AbstractElement;
  * @author tsmarques
  *
  */
-public class Environment implements MapChangeListener {
+public class Environment {
     private ConsoleAdapter console;
     private ArrayList<AbstractElement> consoleObstacles;
 
@@ -60,8 +56,6 @@ public class Environment implements MapChangeListener {
         this.console = console;
         this.console.registerToEventBus(this);
         consoleObstacles = new ArrayList<>();
-
-        this.console.getMapGroup().addChangeListener(this);
     }
 
     public boolean hasObstacle(LocationType lt) {
@@ -88,14 +82,5 @@ public class Environment implements MapChangeListener {
 
     public void addObstacle(AbstractElement obstacle) {
         consoleObstacles.add(obstacle);
-    }
-
-    @Override
-    public void mapChanged(MapChangeEvent mapChange) {
-        AbstractElement object = mapChange.getChangedObject();
-        if(mapChange != null && object != null) {
-            if(object.isObstacle())
-                addObstacle(object);
-        }
     }
 }
