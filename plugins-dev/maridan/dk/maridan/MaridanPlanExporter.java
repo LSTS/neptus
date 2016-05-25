@@ -31,10 +31,10 @@
  */
 package dk.maridan;
 
+import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileWriter;
 import java.io.StringWriter;
-import java.nio.file.Files;
-import java.nio.file.StandardOpenOption;
 
 import javax.swing.ProgressMonitor;
 import javax.xml.bind.JAXB;
@@ -73,7 +73,9 @@ public class MaridanPlanExporter implements IPlanFileExporter {
     @Override
     public void exportToFile(PlanType plan, File out, ProgressMonitor monitor) throws Exception {
         String xml = translate(plan, null);
-        Files.write(out.toPath(), xml.getBytes(), StandardOpenOption.CREATE);
+        BufferedWriter writer = new BufferedWriter(new FileWriter(out));
+        writer.write(xml);
+        writer.close();
     }
 
     @Override
@@ -121,7 +123,7 @@ public class MaridanPlanExporter implements IPlanFileExporter {
                     previousPos = g.getEndLocation();
                     break;
                 }
-                case "RowsManeuver": {
+                case "Rows": {
                     RowsManeuver rows = (RowsManeuver) m;
                     SurveyPlan.SiteMan site = new SurveyPlan.SiteMan();
                     man = site;
@@ -243,9 +245,11 @@ public class MaridanPlanExporter implements IPlanFileExporter {
     }
 
     public static void main(String[] args) throws Exception {
-        MissionType mt = new MissionType("/home/zp/workspace/neptus/missions/APDL/missao-apdl.nmisz");
+        MissionType mt = new MissionType("/home/zp/workspace/neptus/develop/missions/APDL/missao-apdl.nmisz");
         PlanType plan = mt.getIndividualPlansList().get("plan1");
         String planXml = MaridanPlanExporter.translate(plan, null);
+        
+        new MaridanPlanExporter().exportToFile(plan, new File("/home/zp/plan.xml"), null);
         System.out.println(planXml);
     }
 }
