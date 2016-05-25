@@ -131,6 +131,27 @@ public class MVPlanning extends ConsolePanel implements PlanChangeListener, Rend
         pAlloc = new PlanAllocator(vawareness, this.console);
         pGen = new PlanGenerator(pAlloc, this.console);
         env = new Environment(this.console);
+
+        computeOperationalArea();
+    }
+
+    private void computeOperationalArea() {
+        new Thread() {
+            public void run() {
+                int width = 1500;
+                int height = 1500;
+                int cellWidth = 10;
+                GridArea operationalArea = new GridArea(cellWidth, width, height, 0, console.getMapGroup().getHomeRef().getCenterLocation(), env);
+
+                pluginStateButton.setText(StateMonitor.STATE.RUNNING.value);
+                pluginStateButton.setBackground(Color.GREEN.darker());
+                pluginStateButton.setEnabled(true);
+                StateMonitor.resumePlugin();
+
+                NeptusLog.pub().info("Operational area [" + width +  " x " + height + "] is set. Cells are [" + cellWidth + " x " + cellWidth + "]");
+                pGen.setOperationalArea(operationalArea);
+            }
+        }.start();
     }
 
     private void initUi() {
@@ -186,7 +207,7 @@ public class MVPlanning extends ConsolePanel implements PlanChangeListener, Rend
                 listModel.removeAllElements();
             }
         });
-        
+
         pluginStateButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {

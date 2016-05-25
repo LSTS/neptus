@@ -16,6 +16,8 @@ import pt.lsts.neptus.util.NameNormalizer;
 public class PlanGenerator {
     private PlanAllocator planAloc;
     private ConsoleAdapter console;
+    /* Map decomposition needed for some algorithms, e.g, A-star */
+    private GridArea operationalArea;
 
     public PlanGenerator(PlanAllocator planAloc, ConsoleAdapter console) {
         this.planAloc = planAloc;
@@ -24,6 +26,10 @@ public class PlanGenerator {
 
     public PlanGenerator() {
 
+    }
+
+    public void setOperationalArea(GridArea opArea) {
+        operationalArea = opArea;
     }
 
     public void generatePlan(Profile planProfile, Object obj) {
@@ -37,7 +43,7 @@ public class PlanGenerator {
     }
 
     /**
-     * Given an area generate one or more plans to cover it 
+     * Given an area generate one or more plans to cover it
      * */
     public List<PlanType> generateCoverageArea(Profile planProfile, GridArea areaToCover) {
         String id = "coverage_" + NameNormalizer.getRandomID();
