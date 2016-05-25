@@ -143,15 +143,30 @@ public class MVPlanning extends ConsolePanel implements PlanChangeListener, Rend
                 int cellWidth = 10;
                 GridArea operationalArea = new GridArea(cellWidth, width, height, 0, console.getMapGroup().getHomeRef().getCenterLocation(), env);
 
-                pluginStateButton.setText(StateMonitor.STATE.RUNNING.value);
-                pluginStateButton.setBackground(Color.GREEN.darker());
                 pluginStateButton.setEnabled(true);
-                StateMonitor.resumePlugin();
+                resumePlugin();
+
 
                 NeptusLog.pub().info("Operational area [" + width +  " x " + height + "] is set. Cells are [" + cellWidth + " x " + cellWidth + "]");
                 pGen.setOperationalArea(operationalArea);
             }
         }.start();
+    }
+
+    private void resumePlugin() {
+        StateMonitor.resumePlugin();
+        pluginStateButton.setText(StateMonitor.STATE.RUNNING.value);
+        pluginStateButton.setBackground(Color.GREEN.darker());
+
+        allocateButton.setEnabled(true);
+    }
+
+    private void pausePlugin() {
+        StateMonitor.pausePlugin();
+        pluginStateButton.setText(StateMonitor.STATE.PAUSED.value);
+        pluginStateButton.setBackground(Color.YELLOW.darker());
+
+        allocateButton.setEnabled(false);
     }
 
     private void initUi() {
@@ -174,7 +189,10 @@ public class MVPlanning extends ConsolePanel implements PlanChangeListener, Rend
         plans.setPreferredSize(new Dimension(225, 280));
         plans.setModel(listModel);
         profiles.setPreferredSize(new Dimension(225, 30));
+
         allocateButton.setPreferredSize(new Dimension(100, 30));
+        allocateButton.setEnabled(false);
+
         clean.setPreferredSize(new Dimension(100, 30));
         allocateAllButton.setPreferredSize(new Dimension(50, 30));
         pluginStateButton.setPreferredSize(new Dimension(100, 30));
@@ -211,16 +229,10 @@ public class MVPlanning extends ConsolePanel implements PlanChangeListener, Rend
         pluginStateButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                if(StateMonitor.isPluginPaused()) {
-                    StateMonitor.resumePlugin();
-                    pluginStateButton.setText(StateMonitor.STATE.RUNNING.value);
-                    pluginStateButton.setBackground(Color.GREEN.darker());
-                }
-                else {
-                    StateMonitor.pausePlugin();
-                    pluginStateButton.setText(StateMonitor.STATE.PAUSED.value);
-                    pluginStateButton.setBackground(Color.YELLOW.darker());
-                }
+                if(StateMonitor.isPluginPaused())
+                    resumePlugin();
+                else
+                    pausePlugin();
             }
         });
 
@@ -268,6 +280,11 @@ public class MVPlanning extends ConsolePanel implements PlanChangeListener, Rend
 
     @Subscribe
     public void mapChanged(MapChangeEvent event) {
+        if(StateMonitor.isPluginPaused())
+            return;
+
+        System.out.println(event.getChangedObject().getId());
+
         if(event.getChangedObject().getId().startsWith("mvp_")) {
             String objType = event.getChangedObject().getType();
 
