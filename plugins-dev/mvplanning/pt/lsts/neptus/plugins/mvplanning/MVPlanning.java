@@ -59,6 +59,7 @@ import javax.swing.JScrollPane;
 
 import com.google.common.eventbus.Subscribe;
 
+import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.console.ConsoleLayout;
 import pt.lsts.neptus.console.ConsolePanel;
 import pt.lsts.neptus.console.plugins.PlanChangeListener;
@@ -88,9 +89,8 @@ import pt.lsts.neptus.plugins.mvplanning.interfaces.MapCell;
  *
  */
 @PluginDescription(name = "Multi-Vehicle Planning")
-@Popup(name = "MvPlanning", pos = POSITION.LEFT, width = 285, height = 240)
+@Popup(name = "MvPlanning", pos = POSITION.LEFT, width = 285, height = 275)
 public class MVPlanning extends ConsolePanel implements PlanChangeListener, Renderer2DPainter {
-
     @NeptusProperty(name = "Debug mode", description = "Show or hide debug information such as grid areas, spanning trees, etc", userLevel = LEVEL.REGULAR)
     public boolean inDegubMode = false;
 
@@ -115,6 +115,7 @@ public class MVPlanning extends ConsolePanel implements PlanChangeListener, Rend
     private JButton allocateButton;
     private JButton allocateAllButton;
     private JButton clean;
+    private JButton pluginStateButton;
 
     /* Interaction */
     private GridArea opArea;
@@ -145,12 +146,17 @@ public class MVPlanning extends ConsolePanel implements PlanChangeListener, Rend
         allocateAllButton = new JButton("Allocate all plans");
         clean = new JButton("clean");
 
+        pluginStateButton = new JButton(StateMonitor.STATE.WAITING.value);
+        pluginStateButton.setEnabled(false);
+        pluginStateButton.setBackground(Color.RED.darker());
+
         plans.setPreferredSize(new Dimension(225, 280));
         plans.setModel(listModel);
         profiles.setPreferredSize(new Dimension(225, 30));
         allocateButton.setPreferredSize(new Dimension(100, 30));
         clean.setPreferredSize(new Dimension(100, 30));
         allocateAllButton.setPreferredSize(new Dimension(50, 30));
+        pluginStateButton.setPreferredSize(new Dimension(100, 30));
 
 
         /* fetch available profiles */
@@ -180,12 +186,29 @@ public class MVPlanning extends ConsolePanel implements PlanChangeListener, Rend
                 listModel.removeAllElements();
             }
         });
+        
+        pluginStateButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                if(StateMonitor.isPluginPaused()) {
+                    StateMonitor.resumePlugin();
+                    pluginStateButton.setText(StateMonitor.STATE.RUNNING.value);
+                    pluginStateButton.setBackground(Color.GREEN.darker());
+                }
+                else {
+                    StateMonitor.pausePlugin();
+                    pluginStateButton.setText(StateMonitor.STATE.PAUSED.value);
+                    pluginStateButton.setBackground(Color.YELLOW.darker());
+                }
+            }
+        });
 
 
         this.add(profiles);
         this.add(listScroller);
         this.add(allocateButton);
         this.add(clean);
+        this.add(pluginStateButton);
     }
 
 
