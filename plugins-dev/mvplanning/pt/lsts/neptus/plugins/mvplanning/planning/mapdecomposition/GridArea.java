@@ -317,6 +317,29 @@ public class GridArea extends GeometryElement implements MapDecomposition {
         return cellHeight;
     }
 
+    /**
+     * Given a location, inside this grid, returns the closest
+     * cell to it, or null otherwise.
+     * */
+    public GridCell getClosestCell(LocationType loc) {
+        double min = Double.MAX_VALUE;
+        GridCell closestCell = null;
+        for(GridCell[] row : decomposedMap) {
+            for(GridCell cell : row) {
+                double dist = cell.getLocation().getDistanceInMeters(loc);
+
+                if(dist < min) {
+                    min = dist;
+                    closestCell = cell;
+                }
+            }
+        }
+
+        if(min > cellWidth)
+            closestCell = null;
+        return closestCell;
+    }
+
     @Override
     public void paint(Graphics2D g, StateRenderer2D renderer, double rotation) {
         g.setTransform(new AffineTransform());
