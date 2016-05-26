@@ -75,6 +75,7 @@ import pt.lsts.neptus.plugins.mvplanning.planning.mapdecomposition.GridArea;
 import pt.lsts.neptus.renderer2d.Renderer2DPainter;
 import pt.lsts.neptus.renderer2d.StateRenderer2D;
 import pt.lsts.neptus.types.coord.LocationType;
+import pt.lsts.neptus.types.map.MarkElement;
 import pt.lsts.neptus.types.map.ParallelepipedElement;
 import pt.lsts.neptus.types.mission.plan.PlanType;
 
@@ -297,6 +298,11 @@ public class MVPlanning extends ConsolePanel implements PlanChangeListener, Rend
                         selectedPlans.put(plan.getId(), plan);
                     }
                 }
+            }
+            else if(objType.equals("Mark")) {
+                MarkElement mark = (MarkElement) event.getChangedObject();
+                String vehicleId = mark.getId().split("mvp_")[1];
+                vawareness.setVehicleStartLocation(vehicleId, mark.getCenterLocation());
             }
         }
     }

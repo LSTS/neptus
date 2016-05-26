@@ -32,24 +32,29 @@
 package pt.lsts.neptus.plugins.mvplanning;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Map.Entry;
 
 import com.google.common.eventbus.Subscribe;
 
 import pt.lsts.neptus.NeptusLog;
+import pt.lsts.neptus.comm.SystemUtils;
 import pt.lsts.neptus.comm.manager.imc.ImcSystem;
 import pt.lsts.neptus.comm.manager.imc.ImcSystemsHolder;
 import pt.lsts.neptus.console.ConsoleSystem;
 import pt.lsts.neptus.console.events.ConsoleEventVehicleStateChanged;
 import pt.lsts.neptus.console.events.ConsoleEventVehicleStateChanged.STATE;
 import pt.lsts.neptus.plugins.mvplanning.interfaces.ConsoleAdapter;
+import pt.lsts.neptus.types.coord.LocationType;
+import pt.lsts.neptus.types.vehicle.VehicleType.SystemTypeEnum;
 
 /**
  * Class responsible for keeping a list of available and
  * unavailable vehicles.
  * It listens to {@link ConsoleEventVehicleStateChanged} events
- * to have a sense of what the vehicles' current state is. 
+ * to have a sense of what the vehicles' current state is.
  **/
 public class VehicleAwareness {
     private final Object LOCK = new Object();
@@ -57,15 +62,26 @@ public class VehicleAwareness {
     private ConsoleAdapter console;
     private List<String> availableVehicles;
     private List<String> unavailableVehicles;
+    private Map<String, LocationType> startLocations;
 
     public VehicleAwareness(ConsoleAdapter console) {
         this.console = console;
         availableVehicles = new ArrayList<>();
         unavailableVehicles = new ArrayList<>();
+        startLocations = new HashMap<>();
 
         /* check vehicles' state at startup */
         for(Entry<String, ConsoleSystem> entry : console.getSystems().entrySet())
             checkVehicleState(entry.getKey(), entry.getValue().getVehicleState());
+    }
+
+    public void setVehicleStartLocation(String vehicleId, LocationType startLocation) {
+        if(ImcSystemsHolder.getSystemWithName(vehicleId) != null) {
+            startLocations.put(vehicleId, startLocation);
+            NeptusLog.pub().info(vehicleId + " start location's set");
+        }
+        else
+            NeptusLog.pub().warn("Trying to set location of " + vehicleId + ". which is not a vehicle");
     }
 
     @Subscribe
