@@ -39,10 +39,12 @@ import java.awt.geom.Rectangle2D;
 import java.util.ArrayList;
 import java.util.List;
 
+import pt.lsts.neptus.mp.ManeuverLocation;
 import pt.lsts.neptus.plugins.mvplanning.Environment;
 import pt.lsts.neptus.plugins.mvplanning.interfaces.MapCell;
 import pt.lsts.neptus.plugins.mvplanning.interfaces.MapDecomposition;
 import pt.lsts.neptus.plugins.mvplanning.planning.GridCell;
+import pt.lsts.neptus.plugins.mvplanning.planning.algorithm.Astar;
 import pt.lsts.neptus.renderer2d.StateRenderer2D;
 import pt.lsts.neptus.types.coord.LocationType;
 import pt.lsts.neptus.types.map.AbstractElement;
@@ -341,6 +343,13 @@ public class GridArea extends GeometryElement implements MapDecomposition {
         if(min > cellWidth)
             closestCell = null;
         return closestCell;
+    }
+
+    /**
+     * Returns the shortest path between two given cells
+     * */
+    public List<ManeuverLocation> getShortestPath(MapCell start, MapCell end) {
+        return new Astar().computeShortestPath(start, end);
     }
 
     @Override
