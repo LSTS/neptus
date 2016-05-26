@@ -35,7 +35,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map.Entry;
 
-import org.apache.commons.collections.list.SynchronizedList;
+import com.google.common.eventbus.Subscribe;
 
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.comm.manager.imc.ImcSystem;
@@ -44,8 +44,6 @@ import pt.lsts.neptus.console.ConsoleSystem;
 import pt.lsts.neptus.console.events.ConsoleEventVehicleStateChanged;
 import pt.lsts.neptus.console.events.ConsoleEventVehicleStateChanged.STATE;
 import pt.lsts.neptus.plugins.mvplanning.interfaces.ConsoleAdapter;
-
-import com.google.common.eventbus.Subscribe;
 
 /**
  * Class responsible for keeping a list of available and

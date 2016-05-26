@@ -32,7 +32,6 @@
 package pt.lsts.neptus.plugins.mvplanning.planning;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 import pt.lsts.neptus.NeptusLog;

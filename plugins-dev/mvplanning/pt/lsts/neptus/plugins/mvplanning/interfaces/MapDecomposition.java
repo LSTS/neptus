@@ -33,9 +33,6 @@ package pt.lsts.neptus.plugins.mvplanning.interfaces;
 
 import java.util.List;
 
-import pt.lsts.neptus.types.coord.LocationType;
-import pt.lsts.neptus.types.map.MapGroup;
-
 /**
  * Interface for map decomposition strategies.
  * To be used by plan generators.

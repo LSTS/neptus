@@ -39,19 +39,15 @@ import java.awt.geom.Rectangle2D;
 import java.util.ArrayList;
 import java.util.List;
 
-import pt.lsts.neptus.mp.Maneuver;
-import pt.lsts.neptus.mp.ManeuverLocation;
-import pt.lsts.neptus.mp.maneuvers.LocatedManeuver;
 import pt.lsts.neptus.plugins.mvplanning.Environment;
-import pt.lsts.neptus.plugins.mvplanning.planning.GridCell;
 import pt.lsts.neptus.plugins.mvplanning.interfaces.MapCell;
 import pt.lsts.neptus.plugins.mvplanning.interfaces.MapDecomposition;
+import pt.lsts.neptus.plugins.mvplanning.planning.GridCell;
 import pt.lsts.neptus.renderer2d.StateRenderer2D;
 import pt.lsts.neptus.types.coord.LocationType;
 import pt.lsts.neptus.types.map.AbstractElement;
 import pt.lsts.neptus.types.map.GeometryElement;
 import pt.lsts.neptus.util.AngleUtils;
-import pt.lsts.neptus.util.coord.MapTileUtil;
 
 /**
  * Decomposes a given area into a grid

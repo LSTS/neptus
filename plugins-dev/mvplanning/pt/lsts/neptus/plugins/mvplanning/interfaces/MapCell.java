@@ -31,7 +31,6 @@
  */
 package pt.lsts.neptus.plugins.mvplanning.interfaces;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import pt.lsts.neptus.types.coord.LocationType;

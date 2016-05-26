@@ -31,25 +31,18 @@
  */
 package pt.lsts.neptus.plugins.mvplanning.interfaces;
 
+import java.util.concurrent.Future;
+
+import pt.lsts.imc.PlanControl;
+import pt.lsts.imc.PlanControl.OP;
+import pt.lsts.neptus.NeptusLog;
+import pt.lsts.neptus.comm.IMCSendMessageUtils;
+import pt.lsts.neptus.comm.manager.imc.ImcMsgManager.SendResult;
 import pt.lsts.neptus.plugins.mvplanning.StateMonitor;
 import pt.lsts.neptus.plugins.mvplanning.VehicleAwareness;
 import pt.lsts.neptus.plugins.mvplanning.planning.PlanTask;
 import pt.lsts.neptus.plugins.update.IPeriodicUpdates;
 import pt.lsts.neptus.plugins.update.PeriodicUpdatesService;
-import pt.lsts.neptus.util.ByteUtil;
-
-import java.util.concurrent.Future;
-
-import pt.lsts.imc.PlanControl;
-import pt.lsts.imc.PlanControl.OP;
-import pt.lsts.imc.state.ImcSystemState;
-import pt.lsts.imc.PlanDB;
-import pt.lsts.imc.PlanSpecification;
-import pt.lsts.neptus.NeptusLog;
-import pt.lsts.neptus.comm.IMCSendMessageUtils;
-import pt.lsts.neptus.comm.manager.imc.ImcMsgManager.SendResult;
-import pt.lsts.neptus.comm.manager.imc.ImcSystem;
-import pt.lsts.neptus.comm.manager.imc.ImcSystemsHolder;
 
 /**
  * @author tsmarques

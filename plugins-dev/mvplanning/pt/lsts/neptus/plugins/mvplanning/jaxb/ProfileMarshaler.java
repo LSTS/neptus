@@ -32,8 +32,6 @@
 package pt.lsts.neptus.plugins.mvplanning.jaxb;
 
 import java.io.File;
-import java.net.URISyntaxException;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
@@ -46,7 +44,6 @@ import javax.xml.bind.Unmarshaller;
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.plugins.mvplanning.MVPlanning;
 import pt.lsts.neptus.util.FileUtil;
-import pt.lsts.neptus.util.StreamUtil;
 
 /**
  * @author tsmarques

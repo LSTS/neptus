@@ -8,8 +8,8 @@ import pt.lsts.neptus.comm.IMCUtils;
 import pt.lsts.neptus.plugins.mvplanning.interfaces.ConsoleAdapter;
 import pt.lsts.neptus.plugins.mvplanning.jaxb.Profile;
 import pt.lsts.neptus.plugins.mvplanning.planning.PlanTask;
-import pt.lsts.neptus.plugins.mvplanning.planning.mapdecomposition.GridArea;
 import pt.lsts.neptus.plugins.mvplanning.planning.algorithm.CoverageArea;
+import pt.lsts.neptus.plugins.mvplanning.planning.mapdecomposition.GridArea;
 import pt.lsts.neptus.types.mission.plan.PlanType;
 import pt.lsts.neptus.util.NameNormalizer;
 

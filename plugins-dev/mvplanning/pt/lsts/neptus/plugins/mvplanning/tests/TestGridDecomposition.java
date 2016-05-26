@@ -31,10 +31,8 @@
  */
 package pt.lsts.neptus.plugins.mvplanning.tests;
 
-import java.util.Arrays;
 import java.util.List;
 
-import pt.lsts.neptus.plugins.mvplanning.Environment;
 import pt.lsts.neptus.plugins.mvplanning.interfaces.MapCell;
 import pt.lsts.neptus.plugins.mvplanning.interfaces.MapDecomposition;
 import pt.lsts.neptus.plugins.mvplanning.planning.mapdecomposition.GridArea;

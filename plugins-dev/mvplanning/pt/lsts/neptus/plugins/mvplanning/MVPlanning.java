@@ -34,17 +34,11 @@ package pt.lsts.neptus.plugins.mvplanning;
 
 import java.awt.Color;
 import java.awt.ComponentOrientation;
-import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Graphics2D;
-import java.awt.Image;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.FocusEvent;
-import java.awt.event.KeyEvent;
-import java.awt.event.MouseEvent;
-import java.awt.event.MouseWheelEvent;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Point2D;
 import java.util.HashMap;
@@ -70,6 +64,10 @@ import pt.lsts.neptus.plugins.NeptusProperty.LEVEL;
 import pt.lsts.neptus.plugins.PluginDescription;
 import pt.lsts.neptus.plugins.Popup;
 import pt.lsts.neptus.plugins.Popup.POSITION;
+import pt.lsts.neptus.plugins.mvplanning.consoles.NeptusConsoleAdapter;
+import pt.lsts.neptus.plugins.mvplanning.events.MvPlanningEventPlanAllocated;
+import pt.lsts.neptus.plugins.mvplanning.interfaces.ConsoleAdapter;
+import pt.lsts.neptus.plugins.mvplanning.interfaces.MapCell;
 import pt.lsts.neptus.plugins.mvplanning.jaxb.Profile;
 import pt.lsts.neptus.plugins.mvplanning.jaxb.ProfileMarshaler;
 import pt.lsts.neptus.plugins.mvplanning.planning.algorithm.MST;
@@ -79,10 +77,6 @@ import pt.lsts.neptus.renderer2d.StateRenderer2D;
 import pt.lsts.neptus.types.coord.LocationType;
 import pt.lsts.neptus.types.map.ParallelepipedElement;
 import pt.lsts.neptus.types.mission.plan.PlanType;
-import pt.lsts.neptus.plugins.mvplanning.consoles.NeptusConsoleAdapter;
-import pt.lsts.neptus.plugins.mvplanning.events.MvPlanningEventPlanAllocated;
-import pt.lsts.neptus.plugins.mvplanning.interfaces.ConsoleAdapter;
-import pt.lsts.neptus.plugins.mvplanning.interfaces.MapCell;
 
 /**
  * @author tsmarques
@@ -282,8 +276,6 @@ public class MVPlanning extends ConsolePanel implements PlanChangeListener, Rend
     public void mapChanged(MapChangeEvent event) {
         if(StateMonitor.isPluginPaused())
             return;
-
-        System.out.println(event.getChangedObject().getId());
 
         if(event.getChangedObject().getId().startsWith("mvp_")) {
             String objType = event.getChangedObject().getType();

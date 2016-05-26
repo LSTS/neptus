@@ -31,9 +31,7 @@
  */
 package pt.lsts.neptus.plugins.mvplanning.consoles;
 
-import java.util.List;
 import java.util.Map;
-import java.util.Vector;
 import java.util.concurrent.Future;
 
 import pt.lsts.imc.IMCMessage;
