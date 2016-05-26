@@ -54,6 +54,8 @@ import com.google.common.eventbus.Subscribe;
  * to have a sense of what the vehicles' current state is. 
  **/
 public class VehicleAwareness {
+    private final Object LOCK = new Object();
+
     private ConsoleAdapter console;
     private List<String> availableVehicles;
     private List<String> unavailableVehicles;
@@ -73,7 +75,7 @@ public class VehicleAwareness {
         onVehicleStateChanged(event);
     }
 
-    private synchronized void onVehicleStateChanged(ConsoleEventVehicleStateChanged event) {
+    private void onVehicleStateChanged(ConsoleEventVehicleStateChanged event) {
         String id = event.getVehicle();
         ConsoleEventVehicleStateChanged.STATE newState = event.getState();
 
@@ -96,7 +98,7 @@ public class VehicleAwareness {
      * as available.
      * */
     public boolean isVehicleAvailable(String vehicle) {
-        synchronized (availableVehicles) {
+        synchronized(LOCK) {
             if(availableVehicles.contains(vehicle) && hasReliableComms(vehicle))
                 return true;
             else
@@ -118,34 +120,30 @@ public class VehicleAwareness {
     }
 
     private void setVehicleAvailable(String id) {
-        synchronized (availableVehicles) {
-            synchronized(unavailableVehicles) {
-                /* if vehicle is not already set as available */
-                if(!availableVehicles.contains(id)) {
-                    /* if vehicle was set as unavailable, unset */
-                    if(unavailableVehicles.contains(id))
-                        unavailableVehicles.remove(id);
+        synchronized (LOCK) {
+            /* if vehicle is not already set as available */
+            if(!availableVehicles.contains(id)) {
+                /* if vehicle was set as unavailable, unset */
+                if(unavailableVehicles.contains(id))
+                    unavailableVehicles.remove(id);
 
-                    availableVehicles.add(id);
-                    /* logging */
-                    NeptusLog.pub().info("Vehicle " + id + " is AVAILABLE");
-                }
+                availableVehicles.add(id);
+                /* logging */
+                NeptusLog.pub().info("Vehicle " + id + " is AVAILABLE");
             }
         }
     }
 
     private void setVehicleUnavailable(String id) {
-        synchronized (availableVehicles) {
-            synchronized(unavailableVehicles) {
-                /* if vehicle is not already set as unavailable */
-                if(!unavailableVehicles.contains(id)) {
-                    /* if vehicle was set as available, unset */
-                    if(availableVehicles.contains(id))
-                        availableVehicles.remove(id);
+        synchronized (LOCK) {
+            /* if vehicle is not already set as unavailable */
+            if(!unavailableVehicles.contains(id)) {
+                /* if vehicle was set as available, unset */
+                if(availableVehicles.contains(id))
+                    availableVehicles.remove(id);
 
-                    unavailableVehicles.add(id);
-                    NeptusLog.pub().info("Vehicle " + id + " is UNAVAILABLE");
-                }
+                unavailableVehicles.add(id);
+                NeptusLog.pub().info("Vehicle " + id + " is UNAVAILABLE");
             }
         }
     }
