@@ -89,23 +89,38 @@ public class DesiredPathLayer extends ConsoleLayer {
             LocationType src = new LocationType(Math.toDegrees(pcs.getStartLat()), Math.toDegrees(pcs.getStartLon()));
             ImcSystem system = ImcSystemsHolder.lookupSystem(pcs.getSrc());
 
-            Point2D pt = renderer.getScreenPosition(dest);
-            g.setColor(Color.black.darker());
-            g.fill(new Ellipse2D.Double(pt.getX() - 5, pt.getY() - 5, 10, 10));
+            if (system!= null && startFromCurrentLocation)
+                src = system.getLocation();
 
-            if (system != null) {
-                if (startFromCurrentLocation) {
-                    src = system.getLocation();
-                }
-                Point2D ptSrc = renderer.getScreenPosition(src);
-                
-                g.setStroke(new BasicStroke(3));
-                g.draw(new Line2D.Double(ptSrc, pt));
-                g.setColor(Color.yellow);
-                g.setStroke(new BasicStroke(1.5f));                
-                g.draw(new Line2D.Double(ptSrc, pt));
-                g.fill(new Ellipse2D.Double(pt.getX() - 4, pt.getY() - 4, 8, 8));                
+            double lradius = pcs.getLradius() * renderer.getZoom();
+            LocationType destCenter = new LocationType(dest);
+            
+            if (lradius > 0) {
+                dest.setAzimuth(Math.toDegrees(dest.getXYAngle(src)));
+                dest.setOffsetDistance(pcs.getLradius());
             }
+            
+            Point2D pt = renderer.getScreenPosition(dest);
+            Point2D ptCenter = renderer.getScreenPosition(destCenter);
+            g.setStroke(new BasicStroke(3));
+            g.setColor(Color.black.darker());
+            
+            if (lradius == 0)
+                g.fill(new Ellipse2D.Double(pt.getX() - 5, pt.getY() - 5, 10, 10));
+            else                 
+                g.draw(new Ellipse2D.Double(ptCenter.getX() - lradius, ptCenter.getY()-lradius, lradius*2, lradius*2));
+            
+            Point2D ptSrc = renderer.getScreenPosition(src);
+            
+            g.draw(new Line2D.Double(ptSrc, pt));
+            g.setColor(Color.yellow);
+            g.setStroke(new BasicStroke(1.5f));                
+            g.draw(new Line2D.Double(ptSrc, pt));
+            if (lradius == 0)
+                g.fill(new Ellipse2D.Double(pt.getX() - 4, pt.getY() - 4, 8, 8));
+            else
+                g.draw(new Ellipse2D.Double(ptCenter.getX() - lradius, ptCenter.getY()-lradius, lradius*2, lradius*2));
+
         }
     }
 
