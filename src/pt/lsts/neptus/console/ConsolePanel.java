@@ -329,6 +329,7 @@ public abstract class ConsolePanel extends JPanel implements PropertiesProvider,
                     + "  isVisible=" + ConsolePanel.this.isVisible() + "  isShowing=" + ConsolePanel.this.isShowing()
                     + "  isValid=" + ConsolePanel.this.isValid() + "  isDisplayable=" + ConsolePanel.this.isDisplayable()
                     + "  isEnabled=" + ConsolePanel.this.isEnabled()
+                    + "  dialog size=" + dialog.getSize()
                     + "  Parent: " + prt);
             if (prt == null || (!ConsolePanel.this.isShowing()
                     && !SwingUtilities.isDescendingFrom(ConsolePanel.this.getParent(), dialog)))
