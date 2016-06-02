@@ -33,7 +33,6 @@ package pt.lsts.neptus.types.map;
 
 import java.text.NumberFormat;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Vector;
 
 import javax.swing.JLabel;

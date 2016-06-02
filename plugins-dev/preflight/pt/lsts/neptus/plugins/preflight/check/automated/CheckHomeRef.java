@@ -32,7 +32,6 @@
 package pt.lsts.neptus.plugins.preflight.check.automated;
 
 import java.util.Collection;
-import java.util.Vector;
 
 import pt.lsts.neptus.mp.ManeuverLocation;
 import pt.lsts.neptus.plugins.preflight.Preflight;
