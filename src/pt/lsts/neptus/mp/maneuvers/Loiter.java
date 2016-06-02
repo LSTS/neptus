@@ -201,20 +201,18 @@ public class Loiter extends Maneuver implements LocatedManeuver, StatisticsProvi
 	}
 	@Override
 	public ManeuverLocation getManeuverLocation() {
-		return location.clone();
+	    location.setRadius(getRadius());
+	    return location.clone();
 	}
 	
-    /* (non-Javadoc)
-     * @see pt.lsts.neptus.mp.maneuvers.LocationProvider#getFirstPosition()
-     */
     @Override
     public ManeuverLocation getStartLocation() {
-        return location.clone();
+        return getManeuverLocation();
     }
 
 	@Override
 	public ManeuverLocation getEndLocation() {
-	    return location.clone();
+	    return getManeuverLocation();
 	}
 	
 	public void setManeuverLocation(ManeuverLocation location) {
