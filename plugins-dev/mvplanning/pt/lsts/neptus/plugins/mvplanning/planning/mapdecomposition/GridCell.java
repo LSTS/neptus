@@ -29,7 +29,7 @@
  * Author: tsmarques
  * 9 May 2016
  */
-package pt.lsts.neptus.plugins.mvplanning.planning;
+package pt.lsts.neptus.plugins.mvplanning.planning.mapdecomposition;
 
 import java.util.ArrayList;
 import java.util.List;

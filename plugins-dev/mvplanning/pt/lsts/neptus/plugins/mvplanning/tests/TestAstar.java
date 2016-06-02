@@ -36,9 +36,9 @@ import java.util.List;
 
 import pt.lsts.neptus.mp.ManeuverLocation;
 import pt.lsts.neptus.plugins.mvplanning.interfaces.MapCell;
-import pt.lsts.neptus.plugins.mvplanning.planning.GridCell;
 import pt.lsts.neptus.plugins.mvplanning.planning.algorithm.Astar;
 import pt.lsts.neptus.plugins.mvplanning.planning.mapdecomposition.GridArea;
+import pt.lsts.neptus.plugins.mvplanning.planning.mapdecomposition.GridCell;
 import pt.lsts.neptus.types.coord.LocationType;
 
 public class TestAstar {
