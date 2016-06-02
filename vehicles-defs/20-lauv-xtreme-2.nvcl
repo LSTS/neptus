@@ -16,8 +16,8 @@
             <presentation-image-2D>../vehicles-files/lauv/lauv-seacon0-presentation.png</presentation-image-2D>
             <model-3D>../vehicles-files/lauv/lauv-xtreme-2.x3d</model-3D>
             <icon-color>
-                <r>160</r>
-                <g>160</g>
+                <r>204</r>
+                <g>153</g>
                 <b>0</b>
             </icon-color>
         </appearance>

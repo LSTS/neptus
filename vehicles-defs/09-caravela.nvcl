@@ -16,9 +16,9 @@
             <presentation-image-2D>../vehicles-files/lauv/lauv-seacon0-presentation.png</presentation-image-2D>
             <model-3D>../vehicles-files/lauv/lauv-xtreme-2.x3d</model-3D>
             <icon-color>
-                <r>128</r>
-                <g>64</g>
-                <b>64</b>
+                <r>255</r>
+                <g>51</g>
+                <b>153</b>
             </icon-color>
         </appearance>
         <coordinate-system-label>SNAME</coordinate-system-label>
