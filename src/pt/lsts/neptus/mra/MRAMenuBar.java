@@ -200,19 +200,29 @@ public class MRAMenuBar {
 
                 if (fileChooser.showOpenDialog(mra) == JFileChooser.APPROVE_OPTION) {
                     final File log = fileChooser.getSelectedFile();
+                    boolean proceed = true;
+                    
                     LogValidity validity = LogUtils.isValidLSFSource(log.getParentFile());
                     if (validity != LogUtils.LogValidity.VALID) {
-                        String message = null;
-                        if(validity == LogValidity.NO_DIRECTORY)
-                            message = "No such directory / No read permissions";
-                        if(validity == LogValidity.NO_VALID_LOG_FILE)
-                            message = "No valid LSF log file present";
-                        if(validity == LogValidity.NO_XML_DEFS)
-                            message = "No valid XML definition present";
-
-                        GuiUtils.errorMessage(mra, I18n.text("Open LSF log"),
-                                I18n.text(message));
-                        return;
+                        if(validity == LogValidity.NO_XML_DEFS) {
+                            int op = GuiUtils.confirmDialog(mra, I18n.text("Open LSF log"),
+                                    I18n.text("The log folder does not include IMC (xml) definitions. Use defaults?"));
+                            if (op != JOptionPane.YES_OPTION) {
+                                proceed = false;
+                            }
+                        }
+                        else if(validity == LogValidity.NO_DIRECTORY) {
+                            GuiUtils.errorMessage(mra, I18n.text("Open LSF log"),
+                                    I18n.text("No such directory / No read permissions"));
+                            proceed = false;
+                        }
+                        else if(validity == LogValidity.NO_VALID_LOG_FILE) {
+                            GuiUtils.errorMessage(mra, I18n.text("Open LSF log"),
+                                    I18n.text("No valid LSF log file present"));
+                            proceed = false;
+                        }
+                        if (!proceed)
+                            return;
                     }
 
                     new Thread("Open Log") {
