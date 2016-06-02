@@ -172,6 +172,7 @@ public class CompassCalibration extends Maneuver implements LocatedManeuver, IMC
 
     @Override
     public ManeuverLocation getManeuverLocation() {
+        location.setRadius(radius);
         return location.clone();
     }
 

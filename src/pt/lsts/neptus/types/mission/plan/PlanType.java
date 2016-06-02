@@ -872,24 +872,6 @@ public class PlanType implements XmlOutputMethods, PropertiesProvider, NameId {
         }
     }
     
-    public Vector<LocationType> planPath() {
-        Vector<LocationType> locations = new Vector<>();
-        LinkedList<Maneuver> mans = getGraph().getGraphAsManeuversList();
-
-        for (Maneuver man : mans) {
-
-            if (!(man instanceof LocatedManeuver))
-                continue;
-
-            LocationType destTo = ((LocatedManeuver) man).getManeuverLocation();                         
-            if (man instanceof PathProvider)
-                locations.addAll(((PathProvider) man).getPathLocations());
-            else
-                locations.add(destTo);
-        }        
-        return locations;
-    }
-    
     public boolean isCompatibleWith(VehicleType vehicle) {
         if (getVehicle().equals(vehicle.getName()))
             return true;

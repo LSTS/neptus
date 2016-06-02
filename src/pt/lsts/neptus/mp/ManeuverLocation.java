@@ -62,6 +62,7 @@ public class ManeuverLocation extends LocationType {
         }
     }
 
+    protected double lradius = 0;
     protected double z = 0;
     protected Z_UNITS zUnits = Z_UNITS.NONE;
 
@@ -106,11 +107,26 @@ public class ManeuverLocation extends LocationType {
         this.zUnits = zUnits;
     }
     
+    /**
+     * @return Loiter Radius in meters (0 if not a loiter)
+     */
+    public double getRadius() {
+        return lradius;
+    }
+
+    /**
+     * @param lradius Loiter Radius in meters (0 for no loitering)
+     */
+    public void setRadius(double lradius) {
+        this.lradius = lradius;
+    }
+
     public ManeuverLocation clone() {
         ManeuverLocation loc = new ManeuverLocation();
         loc.setLocation(this);
         loc.setZ(getZ());
         loc.setZUnits(getZUnits());
+        loc.setRadius(getRadius());
         return loc;
     }
     

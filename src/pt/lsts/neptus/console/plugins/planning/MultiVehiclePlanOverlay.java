@@ -38,6 +38,7 @@ import java.awt.event.ComponentEvent;
 import java.awt.geom.Ellipse2D;
 import java.awt.geom.Line2D;
 import java.awt.geom.Point2D;
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.Map.Entry;
 import java.util.Vector;
@@ -50,10 +51,12 @@ import pt.lsts.neptus.comm.manager.imc.ImcSystemsHolder;
 import pt.lsts.neptus.console.ConsoleLayout;
 import pt.lsts.neptus.console.ConsolePanel;
 import pt.lsts.neptus.console.plugins.MissionChangeListener;
+import pt.lsts.neptus.mp.ManeuverLocation;
 import pt.lsts.neptus.plugins.PluginDescription;
 import pt.lsts.neptus.renderer2d.Renderer2DPainter;
 import pt.lsts.neptus.renderer2d.StateRenderer2D;
 import pt.lsts.neptus.types.coord.LocationType;
+import pt.lsts.neptus.types.map.PlanUtil;
 import pt.lsts.neptus.types.mission.MissionType;
 import pt.lsts.neptus.types.mission.plan.PlanType;
 import pt.lsts.neptus.types.vehicle.VehicleType;
@@ -68,7 +71,7 @@ public class MultiVehiclePlanOverlay extends ConsolePanel implements Renderer2DP
 
     private static final long serialVersionUID = 1L;
     protected LinkedHashMap<String, String> vehicleToPlanIds = new LinkedHashMap<>();
-    protected LinkedHashMap<String, Vector<LocationType>> planToLocations = new LinkedHashMap<>();
+    protected LinkedHashMap<String, ArrayList<ManeuverLocation>> planToLocations = new LinkedHashMap<>();
     protected LinkedHashMap<String, Vector<Point2D>> planPoints = new LinkedHashMap<>();
     protected double lastZoom;
     protected LocationType lastCenter;
@@ -149,7 +152,7 @@ public class MultiVehiclePlanOverlay extends ConsolePanel implements Renderer2DP
             if (!planToLocations.containsKey(entry.getValue())) {
                 PlanType pt = getConsole().getMission().getIndividualPlansList().get(entry.getValue());
                 if (pt != null)
-                    planToLocations.put(pt.getId(), pt.planPath());
+                    planToLocations.put(pt.getId(), PlanUtil.getPlanWaypoints(pt));
 
             }
 
@@ -158,7 +161,7 @@ public class MultiVehiclePlanOverlay extends ConsolePanel implements Renderer2DP
             if (points == null) {
                 points = new Vector<>();
 
-                Vector<LocationType> planLocs = planToLocations.get(entry.getValue());
+                ArrayList<ManeuverLocation> planLocs = planToLocations.get(entry.getValue());
                 if (planLocs == null)
                     continue;
                 for (LocationType l : planLocs)
