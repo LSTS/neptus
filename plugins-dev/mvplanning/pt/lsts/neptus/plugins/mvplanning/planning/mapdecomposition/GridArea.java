@@ -347,7 +347,10 @@ public class GridArea extends GeometryElement implements MapDecomposition {
     /**
      * Returns the shortest path between two given cells
      * */
-    public List<ManeuverLocation> getShortestPath(MapCell start, MapCell end) {
+    public List<ManeuverLocation> getShortestPath(LocationType startLoc, LocationType endLoc) {
+        MapCell start = this.getClosestCell(startLoc);
+        MapCell end = this.getClosestCell(endLoc);
+
         return new Astar().computeShortestPath(start, end);
     }
 
