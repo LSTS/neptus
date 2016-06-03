@@ -598,7 +598,7 @@ IMCSerialization, StatisticsProvider, PathProvider {
         man.setBearing(Math.toRadians(bearingDegs));
         man.setCrossAngle(Math.toRadians(crossAngleDegs));
         man.setCoff((short)curvOff);
-        man.setAngAperture(Math.toDegrees(angleApertureDegs));
+        man.setAngAperture(Math.toRadians(angleApertureDegs));
         man.setRange((short) range);
         man.setOverlap(overlapPercentage);
         man.setCustom(getCustomSettings());
