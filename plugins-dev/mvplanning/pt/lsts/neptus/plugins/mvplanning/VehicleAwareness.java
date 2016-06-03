@@ -32,10 +32,10 @@
 package pt.lsts.neptus.plugins.mvplanning;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.concurrent.ConcurrentHashMap;
 
 import com.google.common.eventbus.Subscribe;
 
@@ -68,7 +68,7 @@ public class VehicleAwareness {
         this.console = console;
         availableVehicles = new ArrayList<>();
         unavailableVehicles = new ArrayList<>();
-        startLocations = new HashMap<>();
+        startLocations = new ConcurrentHashMap<>();
 
         /* check vehicles' state at startup */
         for(Entry<String, ConsoleSystem> entry : console.getSystems().entrySet())
@@ -82,6 +82,10 @@ public class VehicleAwareness {
         }
         else
             NeptusLog.pub().warn("Trying to set location of " + vehicleId + ". which is not a vehicle");
+    }
+
+    public LocationType getVehicleStartLocation(String vehicleId) {
+        return startLocations.getOrDefault(vehicleId, null);
     }
 
     @Subscribe
