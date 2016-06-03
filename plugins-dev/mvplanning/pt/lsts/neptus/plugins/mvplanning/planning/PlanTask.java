@@ -73,6 +73,10 @@ public class PlanTask {
     public PlanSpecification getPlanSpecification() {
         return (PlanSpecification) IMCUtils.generatePlanSpecification(this.plan);
     }
+    
+    public PlanType asPlanType() {
+        return plan;
+    }
 
     public double getTimestamp() {
         return timestamp;

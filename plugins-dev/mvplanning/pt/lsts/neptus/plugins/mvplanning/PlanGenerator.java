@@ -2,6 +2,8 @@ package pt.lsts.neptus.plugins.mvplanning;
 
 import java.util.List;
 import java.util.Vector;
+import java.util.concurrent.locks.ReadWriteLock;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import pt.lsts.neptus.mp.maneuvers.FollowPath;
 import pt.lsts.imc.PlanManeuver;
@@ -21,6 +23,8 @@ import pt.lsts.neptus.types.mission.plan.PlanType;
 import pt.lsts.neptus.util.NameNormalizer;
 
 public class PlanGenerator {
+    private final ReadWriteLock RW_LOCK = new ReentrantReadWriteLock();
+
     private PlanAllocator planAloc;
     private ConsoleAdapter console;
     /* Map decomposition needed for some algorithms, e.g, A-star */
@@ -36,7 +40,9 @@ public class PlanGenerator {
     }
 
     public void setOperationalArea(GridArea opArea) {
+        RW_LOCK.writeLock().lock();
         operationalArea = opArea;
+        RW_LOCK.writeLock().unlock();
     }
 
     public void generatePlan(Profile planProfile, Object obj) {
@@ -69,4 +75,65 @@ public class PlanGenerator {
 
         return covArea.asPlanType();
     }
+
+    /**
+     * Adds a safe path from the start location to the first
+     * waypoint of the given plan, and from the last waypoint
+     * of the plan to the end location.
+     * */
+    public PlanSpecification closePlan(PlanTask ptask, LocationType start, LocationType end) {
+        PlanType plan = ptask.asPlanType();
+        GraphType planGraph = plan.getGraph();
+
+        LocationType planFirstLocation = ((LocatedManeuver) planGraph.getManeuver(planGraph.getInitialManeuverId())).getManeuverLocation();
+        LocationType planLastLocation = ((LocatedManeuver) planGraph.getLastManeuver()).getManeuverLocation();
+
+        RW_LOCK.readLock().lock();
+
+        List<ManeuverLocation> initialSafePath = operationalArea.getShortestPath(start, planFirstLocation);
+        List<ManeuverLocation> endSafePath = operationalArea.getShortestPath(planLastLocation, end);
+
+        RW_LOCK.readLock().unlock();
+
+
+        FollowPath initialFollowPath = new FollowPath();
+        Vector<double[]> offsets = new Vector<>();
+        for(ManeuverLocation loc : initialSafePath) {
+            double[] newPoint = new double[4];
+            double[] pOffsets = loc.getOffsetFrom(start);
+
+            newPoint[0] = pOffsets[0];
+            newPoint[1] = pOffsets[1];
+            newPoint[2] = pOffsets[2];
+
+            offsets.add(pOffsets);
+        }
+        initialFollowPath.setOffsets(offsets);
+        initialFollowPath.setId("initial_safepath");
+
+
+        FollowPath endFollowPath = new FollowPath();
+        offsets = new Vector<>();
+        for(ManeuverLocation loc : endSafePath) {
+            double[] newPoint = new double[4];
+            double[] pOffsets = loc.getOffsetFrom(start);
+
+            newPoint[0] = pOffsets[0];
+            newPoint[1] = pOffsets[1];
+            newPoint[2] = pOffsets[2];
+
+            offsets.add(pOffsets);
+        }
+        endFollowPath.setOffsets(offsets);
+        endFollowPath.setId("end_safepath");
+
+        plan.getGraph().addManeuver(initialFollowPath);
+        plan.getGraph().setInitialManeuver(initialFollowPath.id);
+        plan.getGraph().addManeuverAtEnd(endFollowPath);
+
+        return (PlanSpecification) IMCUtils.generatePlanSpecification(plan);
+    }
+
+
+
 }
