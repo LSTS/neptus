@@ -31,8 +31,13 @@
  */
 package pt.lsts.neptus.plugins.mvplanning.planning;
 
+import java.util.List;
+
 import pt.lsts.imc.PlanSpecification;
+import pt.lsts.neptus.comm.IMCUtils;
+import pt.lsts.neptus.mp.ManeuverLocation;
 import pt.lsts.neptus.plugins.mvplanning.jaxb.Profile;
+import pt.lsts.neptus.types.mission.plan.PlanType;
 
 /**
  * @author tsmarques
@@ -40,24 +45,25 @@ import pt.lsts.neptus.plugins.mvplanning.jaxb.Profile;
 
 /* Wrapper around PlanSpecification */
 public class PlanTask {
-    public static enum PLAN_TYPE {
+    public static enum TASK_TYPE {
         COVERAGE_AREA,
         VISIT_POINT
     };
 
     private String planId;
-    private PlanSpecification plan;
+    private PlanType plan;
     private Profile planProfile;
     private double timestamp;
     private byte[] md5;
-    private PLAN_TYPE planType;
+    private TASK_TYPE taskType;
 
-    public PlanTask(String id, PlanSpecification plan, Profile planProfile, byte[] planMd5) {
+    public PlanTask(String id, PlanType plan, Profile planProfile) {
         this.planId = id;
         this.plan = plan;
         this.planProfile = planProfile;
         this.timestamp = -1;
-        this.md5 = planMd5;
+
+        md5 = plan.asIMCPlan().payloadMD5();
     }
 
     public String getPlanId() {
@@ -65,7 +71,7 @@ public class PlanTask {
     }
 
     public PlanSpecification getPlanSpecification() {
-        return this.plan;
+        return (PlanSpecification) IMCUtils.generatePlanSpecification(this.plan);
     }
 
     public double getTimestamp() {
@@ -84,16 +90,12 @@ public class PlanTask {
         this.timestamp = timestamp;
     }
 
-    public void setPlan(PlanSpecification imcPlan) {
-       this.plan = imcPlan;
+    public void setPlanType(TASK_TYPE taskType) {
+        this.taskType = taskType;
     }
 
-    public void setPlanType(PLAN_TYPE pType) {
-        this.planType = pType;
-    }
-
-    public PLAN_TYPE getPlanType() {
-        return planType;
+    public TASK_TYPE getTaskType() {
+        return taskType;
     }
 
     /**
