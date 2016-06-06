@@ -276,7 +276,7 @@ public class MVPlanning extends ConsolePanel implements PlanChangeListener, Rend
 
     @Subscribe
     public void mapChanged(MapChangeEvent event) {
-        if(StateMonitor.isPluginPaused())
+        if(StateMonitor.isPluginPaused() || event == null || event.getChangedObject() == null)
             return;
 
         if(event.getChangedObject().getId().startsWith("mvp_")) {
