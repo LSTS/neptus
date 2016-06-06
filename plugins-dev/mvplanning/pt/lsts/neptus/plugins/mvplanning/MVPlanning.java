@@ -50,6 +50,7 @@ import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JList;
 import javax.swing.JScrollPane;
+import javax.swing.SwingWorker;
 
 import com.google.common.eventbus.Subscribe;
 
@@ -296,7 +297,20 @@ public class MVPlanning extends ConsolePanel implements PlanChangeListener, Rend
                     for(PlanType plan : plans) {
                         listModel.addElement(plan.getId());
                         selectedPlans.put(plan.getId(), plan);
+
+                        /* add plan to plan's tree */
+                        console.getMission().addPlan(plan);
                     }
+
+                    /* save mission */
+                    SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>() {
+                        @Override
+                        protected Void doInBackground() throws Exception {
+                            console.getMission().save(true);
+                            return null;
+                        }
+                    };
+                    worker.execute();
                 }
             }
             else if(objType.equals("Mark")) {
