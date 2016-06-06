@@ -50,7 +50,6 @@ public class RoundRobinAllocator extends AbstractAllocator {
 
     private List<PlanTask> plans;
     private List<String> vehicles;
-    private VehicleAwareness vawareness;
 
     public RoundRobinAllocator(boolean isPeriodic, boolean listenToEvents, VehicleAwareness vawareness, ConsoleAdapter console) {
         super(isPeriodic, listenToEvents, console);

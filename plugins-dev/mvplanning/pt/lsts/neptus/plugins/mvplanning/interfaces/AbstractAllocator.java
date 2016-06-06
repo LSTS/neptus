@@ -58,6 +58,7 @@ public abstract class AbstractAllocator implements IPeriodicUpdates {
     private long period = 5000;
     private boolean listenToEvents;
     protected ConsoleAdapter console;
+    protected VehicleAwareness vawareness;
 
     public AbstractAllocator(boolean isPeriodic, boolean listenToEvents, ConsoleAdapter console) {
         this.console = console;
