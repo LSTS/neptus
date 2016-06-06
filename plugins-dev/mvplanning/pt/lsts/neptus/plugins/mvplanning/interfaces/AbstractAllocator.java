@@ -35,14 +35,19 @@ import java.util.concurrent.Future;
 
 import pt.lsts.imc.PlanControl;
 import pt.lsts.imc.PlanControl.OP;
+import pt.lsts.imc.PlanSpecification;
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.comm.IMCSendMessageUtils;
+import pt.lsts.neptus.comm.manager.imc.ImcSystemsHolder;
 import pt.lsts.neptus.comm.manager.imc.ImcMsgManager.SendResult;
+import pt.lsts.neptus.comm.manager.imc.ImcSystem;
+import pt.lsts.neptus.plugins.mvplanning.PlanGenerator;
 import pt.lsts.neptus.plugins.mvplanning.StateMonitor;
 import pt.lsts.neptus.plugins.mvplanning.VehicleAwareness;
 import pt.lsts.neptus.plugins.mvplanning.planning.PlanTask;
 import pt.lsts.neptus.plugins.update.IPeriodicUpdates;
 import pt.lsts.neptus.plugins.update.PeriodicUpdatesService;
+import pt.lsts.neptus.types.coord.LocationType;
 
 /**
  * @author tsmarques
@@ -83,13 +88,13 @@ public abstract class AbstractAllocator implements IPeriodicUpdates {
     /**
      * Run the allocation algorithm. If the allocator
      * is set as periodic, this method will be
-     *  called periodically. 
+     *  called periodically.
      * */
     public abstract void doAllocation();
 
 
     /**
-     * Send the actual plan to a vehicle. 
+     * Send the actual plan to a vehicle.
      * */
     protected boolean allocateTo(String vehicle, PlanTask ptask) {
         /* TODO: Implement using sendMessage() from ConsoleAdapter */
@@ -100,7 +105,11 @@ public abstract class AbstractAllocator implements IPeriodicUpdates {
             pc.setRequestId(reqId);
             pc.setPlanId(ptask.getPlanId());
             pc.setOp(OP.START);
-            pc.setArg(ptask.getPlanSpecification());
+
+            LocationType[] locs = getVehicleLocations(vehicle);
+            PlanSpecification plan = PlanGenerator.closePlan(ptask, locs[0], locs[1]);
+
+            pc.setArg(plan);
 
             /* TODO: Handle case success is uncertain */
             Future<SendResult> cmdRes = console.sendMessageReliably(vehicle, pc);
@@ -116,8 +125,23 @@ public abstract class AbstractAllocator implements IPeriodicUpdates {
         }
     }
 
+    private LocationType[] getVehicleLocations(String vehicleId) {
+        LocationType[] locs = new LocationType[2];
+        ImcSystem sys = ImcSystemsHolder.getSystemWithName(vehicleId);
+
+        locs[0] = sys.getLocation();
+        locs[1] = vawareness.getVehicleStartLocation(vehicleId);
+
+        if(locs[1] == null) {
+            locs[1] = locs[0];
+            NeptusLog.pub().warn("Couldn't find " + vehicleId + " start/predefined location. Using it's current one");
+        }
+
+        return locs;
+    }
+
     /**
-     * Set if the allocator is periodic */    
+     * Set if the allocator is periodic */
     private void setPeriodic(boolean isPeriodic) {
         this.isPeriodic = isPeriodic;
 
