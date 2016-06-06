@@ -23,12 +23,12 @@ import pt.lsts.neptus.types.mission.plan.PlanType;
 import pt.lsts.neptus.util.NameNormalizer;
 
 public class PlanGenerator {
-    private final ReadWriteLock RW_LOCK = new ReentrantReadWriteLock();
+    private static final ReadWriteLock RW_LOCK = new ReentrantReadWriteLock();
+    private static GridArea operationalArea;
 
     private PlanAllocator planAloc;
     private ConsoleAdapter console;
     /* Map decomposition needed for some algorithms, e.g, A-star */
-    private GridArea operationalArea;
 
     public PlanGenerator(PlanAllocator planAloc, ConsoleAdapter console) {
         this.planAloc = planAloc;
@@ -81,59 +81,63 @@ public class PlanGenerator {
      * waypoint of the given plan, and from the last waypoint
      * of the plan to the end location.
      * */
-    public PlanSpecification closePlan(PlanTask ptask, LocationType start, LocationType end) {
+    public static PlanSpecification closePlan(PlanTask ptask, LocationType start, LocationType end) {
+        /* current plan */
         PlanType plan = ptask.asPlanType();
         GraphType planGraph = plan.getGraph();
+        FollowPath followPath = (FollowPath) planGraph.getAllManeuvers()[0];
+        LocationType planFirstLocation = followPath.getManeuverLocation();
+        LocationType planLastLocation = followPath.getEndLocation();
 
-        LocationType planFirstLocation = ((LocatedManeuver) planGraph.getManeuver(planGraph.getInitialManeuverId())).getManeuverLocation();
-        LocationType planLastLocation = ((LocatedManeuver) planGraph.getLastManeuver()).getManeuverLocation();
 
+        /* plan with safe paths */
+        PlanType safePlan = new PlanType(plan.getMissionType());
+        safePlan.setId(plan.getId());
+
+        FollowPath initialFollowPath = buildSafePath((FollowPath) planGraph.getAllManeuvers()[0], start, planFirstLocation);
+        FollowPath endFollowPath = buildSafePath((FollowPath) planGraph.getAllManeuvers()[0], planLastLocation, end);
+
+        safePlan.getGraph().addManeuver(initialFollowPath);
+        safePlan.getGraph().setInitialManeuver(initialFollowPath.id);
+        safePlan.getGraph().addManeuverAtEnd(plan.getGraph().getAllManeuvers()[0]);
+        safePlan.getGraph().addManeuverAtEnd(endFollowPath);
+
+        return (PlanSpecification) IMCUtils.generatePlanSpecification(safePlan);
+    }
+
+    private static FollowPath buildSafePath(FollowPath origFollowPath, LocationType start, LocationType end) {
         RW_LOCK.readLock().lock();
 
-        List<ManeuverLocation> initialSafePath = operationalArea.getShortestPath(start, planFirstLocation);
-        List<ManeuverLocation> endSafePath = operationalArea.getShortestPath(planLastLocation, end);
+        List<ManeuverLocation> safePath = operationalArea.getShortestPath(start, end);
 
         RW_LOCK.readLock().unlock();
 
-
-        FollowPath initialFollowPath = new FollowPath();
+        FollowPath safeFollowPath = new FollowPath();
         Vector<double[]> offsets = new Vector<>();
-        for(ManeuverLocation loc : initialSafePath) {
+        for(ManeuverLocation loc : safePath) {
             double[] newPoint = new double[4];
             double[] pOffsets = loc.getOffsetFrom(start);
 
             newPoint[0] = pOffsets[0];
             newPoint[1] = pOffsets[1];
             newPoint[2] = pOffsets[2];
+            newPoint[3] = 0;
 
-            offsets.add(pOffsets);
+            offsets.add(newPoint);
         }
-        initialFollowPath.setOffsets(offsets);
-        initialFollowPath.setId("initial_safepath");
 
+        /* FIXME this is repeated code */
+        ManeuverLocation manLoc = new ManeuverLocation(start);
+        manLoc.setZ(origFollowPath.getManeuverLocation().getAllZ());
+        /* TODO set according to profile's parameters */
+        manLoc.setZUnits(ManeuverLocation.Z_UNITS.DEPTH);
 
-        FollowPath endFollowPath = new FollowPath();
-        offsets = new Vector<>();
-        for(ManeuverLocation loc : endSafePath) {
-            double[] newPoint = new double[4];
-            double[] pOffsets = loc.getOffsetFrom(start);
+        safeFollowPath.setOffsets(offsets);
+        /* TODO set according to plan profile */
+        safeFollowPath.setSpeed(origFollowPath.getSpeed());
+        safeFollowPath.setSpeedUnits(origFollowPath.getUnits());
+        safeFollowPath.setManeuverLocation(manLoc);
 
-            newPoint[0] = pOffsets[0];
-            newPoint[1] = pOffsets[1];
-            newPoint[2] = pOffsets[2];
-
-            offsets.add(pOffsets);
-        }
-        endFollowPath.setOffsets(offsets);
-        endFollowPath.setId("end_safepath");
-
-        plan.getGraph().addManeuver(initialFollowPath);
-        plan.getGraph().setInitialManeuver(initialFollowPath.id);
-        plan.getGraph().addManeuverAtEnd(endFollowPath);
-
-        return (PlanSpecification) IMCUtils.generatePlanSpecification(plan);
+        return safeFollowPath;
     }
-
-
-
 }
