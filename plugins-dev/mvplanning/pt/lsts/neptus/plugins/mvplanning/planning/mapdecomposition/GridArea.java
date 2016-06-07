@@ -168,13 +168,16 @@ public class GridArea extends GeometryElement implements MapDecomposition {
                 LocationType cellLoc = new LocationType(topLeft);
                 cellLoc.translatePosition(-verticalShift, horizontalShift, 0);
 
-                boolean hasObstacle = false;
-                if(env != null)
-                    hasObstacle = env.areaHasObstacle(this.center, cellLoc, cellWidth, cellHeight, getYaw());
-
-                decomposedMap[i][j] = new GridCell(cellLoc, i, j, hasObstacle);
+                decomposedMap[i][j] = new GridCell(cellLoc, i, j);
                 decomposedMap[i][j].setId("" + nodeId);
                 decomposedMap[i][j].rotate(getYaw(), topLeft);
+
+                /* check for obstacles */
+                if(env != null) {
+                    boolean hasObstacle = env.areaHasObstacle(this.topLeft, decomposedMap[i][j].getLocation(), cellWidth, cellHeight, getYaw());
+                    decomposedMap[i][j].setHasObstacle(hasObstacle);
+                }
+
                 nodeId++;
 
                 /* neighbour cells */
@@ -225,10 +228,10 @@ public class GridArea extends GeometryElement implements MapDecomposition {
                 bottomRight.translatePosition(-newCellHeight/2, newCellWidth/2, 0);
 
                 /* TODO check if cells have an obstacle */
-                newGrid[2*i][2*j] = new GridCell(topLeft, 2*i, 2*j, false);
-                newGrid[2*i][2*j + 1] = new GridCell(topRight, 2*i, 2*j+1, false);
-                newGrid[2*i + 1][2*j] = new GridCell(bottomLeft, 2*i + 1, 2*j, false);
-                newGrid[2*i + 1][2*j + 1] = new GridCell(bottomRight, 2*i + 1, 2*j + 1, false);
+                newGrid[2*i][2*j] = new GridCell(topLeft, 2*i, 2*j);
+                newGrid[2*i][2*j + 1] = new GridCell(topRight, 2*i, 2*j+1);
+                newGrid[2*i + 1][2*j] = new GridCell(bottomLeft, 2*i + 1, 2*j);
+                newGrid[2*i + 1][2*j + 1] = new GridCell(bottomRight, 2*i + 1, 2*j + 1);
 
                 /* rotate cells into position */
                 newGrid[2*i][2*j].rotate(getYaw(), cellCenter);

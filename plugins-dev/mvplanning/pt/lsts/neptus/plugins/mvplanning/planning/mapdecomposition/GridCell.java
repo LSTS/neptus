@@ -50,8 +50,8 @@ public class GridCell extends MapCell {
     private int col;
     private int nNeighbours;
 
-    public GridCell(LocationType centerLocation, int i, int j, boolean hasObstacle) {
-        super(hasObstacle);
+    public GridCell(LocationType centerLocation, int i, int j) {
+        super(false);
 
         nNeighbours = 0;
         this.centerLoc = centerLocation;
