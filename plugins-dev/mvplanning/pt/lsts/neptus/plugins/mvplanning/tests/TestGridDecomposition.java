@@ -134,24 +134,6 @@ public class TestGridDecomposition {
         System.out.println("# Validated: " + (count == correctValue));
     }
 
-    public void testSplitDecomposition(int n) {
-        System.out.println("\n --- Testing splitDecomposition() ---");
-
-        MapDecomposition[] newDcmp = gridDcmp.split(n);
-        if(newDcmp == null)
-            System.out.println("# Can't split in " + n + " decompositions");
-        else {
-            System.out.println("# Original decomposition was split in " + newDcmp.length);
-
-            for(int i = 0; i < newDcmp.length; i++) {
-                MapCell[][] cells = ((GridArea) newDcmp[i]).getAllCells();
-                int nrows = cells.length;
-                int ncols = cells[0].length;
-                System.out.println("# Decomposition " + i + " : [" + nrows + "x" + ncols + "]");
-            }
-        }
-    }
-
     public void testSplitCells(int n) {
         System.out.println("\n --- Testing splitCells() ---");
         System.out.println("* Original Grid has " + gridDcmp.getAreaCells().size());
@@ -184,12 +166,6 @@ public class TestGridDecomposition {
 
             gridTest.testDecomposeGrid();
             gridTest.testNumberOfNeighbours();
-
-            int[] splits = {0, 1, 2, 3, 4};
-            for(int j = 0; j < splits.length; j++)
-                gridTest.testSplitDecomposition(j);
-            gridTest.testSplitCells(4);
-            System.out.println("\n########\n");
         }
     }
 }

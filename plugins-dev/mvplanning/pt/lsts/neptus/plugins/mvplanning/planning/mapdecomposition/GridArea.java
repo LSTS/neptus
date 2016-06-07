@@ -194,38 +194,6 @@ public class GridArea extends GeometryElement implements MapDecomposition {
         }
     }
 
-    @Override
-    public MapDecomposition[] split(int n) {
-        if((n == 0 || n == 1) || n > nrows)
-            return null;
-        else {
-            MapDecomposition[] parts = new GridArea[n];
-
-            for(int i = 0; i < n; i++) {
-                int newRows = nrows / n;
-
-                if((i == n-1)) /* in case matrix is not square, last part is bigger*/
-                    newRows += (nrows % n);
-
-                GridCell[][] newCells = subsetGrid(i * newRows, newRows, ncols);
-                /* TODO set new center location */
-                parts[i] = new GridArea(newCells, cellWidth, cellHeight, newRows, ncols, center, env);
-            }
-            return parts;
-        }
-    }
-
-    /**
-     * Get a nrows by ncols submatrix of the current matrix,
-     * starting at startRow
-     * */
-    private GridCell[][] subsetGrid(int startRow, int nrows, int ncols) {
-        GridCell[][] newGrid = new GridCell[nrows][ncols];
-        for(int i = startRow; i < nrows; i++)
-            newGrid[i] = decomposedMap[i].clone();
-        return newGrid;
-    }
-
     /**
      * Makes a new grid where each (old) cell is
      * split into 4 cells, i.e. increases grid's
