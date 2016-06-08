@@ -92,8 +92,12 @@ public class NetworkInterfacesUtil {
 					list.add(new NInterface(ni));
 				}
 			}
-		} catch (Exception e) {
+		}
+		catch (Exception e) {
 			e.printStackTrace();
+		}
+		catch (Error e) {
+		    e.printStackTrace();
 		}
 		return list;
 	}
