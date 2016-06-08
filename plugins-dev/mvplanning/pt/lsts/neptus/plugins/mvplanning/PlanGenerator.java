@@ -14,6 +14,7 @@ import pt.lsts.neptus.comm.IMCUtils;
 import pt.lsts.neptus.mp.Maneuver;
 import pt.lsts.neptus.mp.ManeuverLocation;
 import pt.lsts.neptus.mp.maneuvers.LocatedManeuver;
+import pt.lsts.neptus.plugins.mvplanning.exceptions.SafePathNotFoundException;
 import pt.lsts.neptus.plugins.mvplanning.interfaces.ConsoleAdapter;
 import pt.lsts.neptus.plugins.mvplanning.jaxb.Profile;
 import pt.lsts.neptus.plugins.mvplanning.planning.PlanTask;
@@ -82,8 +83,9 @@ public class PlanGenerator {
      * Adds a safe path from the start location to the first
      * waypoint of the given plan, and from the last waypoint
      * of the plan to the end location.
+     * @throws SafePathNotFoundException
      * */
-    public static PlanSpecification closePlan(PlanTask ptask, LocationType start, LocationType end) {
+    public static PlanSpecification closePlan(PlanTask ptask, LocationType start, LocationType end) throws SafePathNotFoundException {
         /* current plan */
         PlanType plan = ptask.asPlanType();
         GraphType planGraph = plan.getGraph();
@@ -107,7 +109,7 @@ public class PlanGenerator {
         return (PlanSpecification) IMCUtils.generatePlanSpecification(safePlan);
     }
 
-    private static FollowPath buildSafePath(LocationType start, LocationType end) {
+    private static FollowPath buildSafePath(LocationType start, LocationType end) throws SafePathNotFoundException {
         RW_LOCK.readLock().lock();
 
         List<ManeuverLocation> safePath = operationalArea.getShortestPath(start, end);

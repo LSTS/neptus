@@ -41,6 +41,7 @@ import java.util.List;
 
 import pt.lsts.neptus.mp.ManeuverLocation;
 import pt.lsts.neptus.plugins.mvplanning.Environment;
+import pt.lsts.neptus.plugins.mvplanning.exceptions.SafePathNotFoundException;
 import pt.lsts.neptus.plugins.mvplanning.interfaces.MapCell;
 import pt.lsts.neptus.plugins.mvplanning.interfaces.MapDecomposition;
 import pt.lsts.neptus.plugins.mvplanning.planning.algorithm.Astar;
@@ -317,12 +318,17 @@ public class GridArea extends GeometryElement implements MapDecomposition {
 
     /**
      * Returns the shortest path between two given cells
+     * @throws SafePathNotFoundException
      * */
-    public List<ManeuverLocation> getShortestPath(LocationType startLoc, LocationType endLoc) {
+    public List<ManeuverLocation> getShortestPath(LocationType startLoc, LocationType endLoc) throws SafePathNotFoundException {
         MapCell start = this.getClosestCell(startLoc);
         MapCell end = this.getClosestCell(endLoc);
+        List<ManeuverLocation> path;
 
-        return new Astar().computeShortestPath(start, end);
+        if(start == null || end == null || (path = new Astar().computeShortestPath(start, end)).isEmpty())
+            throw new SafePathNotFoundException();
+
+        return path;
     }
 
     @Override
