@@ -80,6 +80,34 @@ public class PlanGenerator {
     }
 
     /**
+     *  Generate a plan to visit the given location
+     * */
+    public PlanType generateVisitPoint(Profile planProfile, LocationType pointLoc) {
+        String id = "visit_" + NameNormalizer.getRandomID();
+
+        PlanType plan = new PlanType(console.getMission());
+        plan.setId(id);
+        /* FIXME repeated code */
+        ManeuverLocation manLoc = new ManeuverLocation(pointLoc);
+        manLoc.setZ(planProfile.getProfileZ());
+        /* TODO set according to profile's parameters */
+        manLoc.setZUnits(ManeuverLocation.Z_UNITS.DEPTH);
+
+        Goto point = new Goto();
+        point.setId("visit_point");
+        point.setManeuverLocation(manLoc);
+        point.setSpeed(planProfile.getProfileSpeed());
+
+        /* TODO set according to profile */
+        point.setSpeedUnits("m/s");
+
+        plan.getGraph().addManeuver(point);
+        planAloc.allocate(new PlanTask(id, plan, planProfile));
+
+        return plan;
+    }
+
+    /**
      * Adds a safe path from the start location to the first
      * waypoint of the given plan, and from the last waypoint
      * of the plan to the end location.
@@ -92,7 +120,6 @@ public class PlanGenerator {
         Maneuver firstMan = planGraph.getAllManeuvers()[0];
         ManeuverLocation planFirstLocation = ((LocatedManeuver) firstMan).getManeuverLocation();
         ManeuverLocation planLastLocation = ((LocatedManeuver) planGraph.getLastManeuver()).getManeuverLocation();
-
 
         /* plan with safe paths */
         PlanType safePlan = new PlanType(plan.getMissionType());

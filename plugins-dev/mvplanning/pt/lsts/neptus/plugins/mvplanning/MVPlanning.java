@@ -315,8 +315,15 @@ public class MVPlanning extends ConsolePanel implements PlanChangeListener, Rend
             }
             else if(objType.equals("Mark")) {
                 MarkElement mark = (MarkElement) event.getChangedObject();
-                String vehicleId = mark.getId().split("mvp_")[1];
-                vawareness.setVehicleStartLocation(vehicleId, mark.getCenterLocation());
+                String type = mark.getId().split("mvp_")[1];
+
+                /* generating a visit plan */
+                if(type.equals("visit")) {
+                    String desiredProfile = (String) profiles.getSelectedItem();
+                    pGen.generateVisitPoint(availableProfiles.get(desiredProfile), mark.getCenterLocation());
+                }
+                else /* marking the position of a vehicle */
+                    vawareness.setVehicleStartLocation(type, mark.getCenterLocation());
             }
         }
     }
