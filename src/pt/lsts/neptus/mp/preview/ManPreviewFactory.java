@@ -66,68 +66,100 @@ public class ManPreviewFactory {
         if (maneuver == null)
             return null;
 
-        if (previewMatchList.containsKey(maneuver.getClass())) {
-            Class<IManeuverPreview<?>> prevClass = previewMatchList.get(maneuver.getClass());
-            if (prevClass == null)
-                return null;
+        synchronized (previewMatchList) {
+            if (previewMatchList.containsKey(maneuver.getClass())) {
+                Class<IManeuverPreview<?>> prevClass = previewMatchList.get(maneuver.getClass());
+                if (prevClass == null)
+                    return null;
+                
+                try {
+                    IManeuverPreview<Maneuver> prevG = ((IManeuverPreview<Maneuver>) prevClass.newInstance());
+                    prevG.init(vehicleId, maneuver, state, manState);
+                    return prevG;
+                }
+                catch (Exception e) {
+                    NeptusLog.pub().error(e.getMessage());
+                    return null;
+                }
+            }
             
+            if (FollowTrajectory.class.isAssignableFrom(maneuver.getClass())) {
+                FollowTrajectoryPreview prev = new FollowTrajectoryPreview();
+                prev.init(vehicleId, (FollowTrajectory) maneuver, state, manState);
+                IManeuverPreview<?> p = (IManeuverPreview<?>) prev;
+                previewMatchList.put((Class<Maneuver>) maneuver.getClass(), (Class<IManeuverPreview<?>>) p.getClass());
+                return prev;
+            }
+            else if (Launch.class.isAssignableFrom(maneuver.getClass())) {
+                GotoPreview prev = new GotoPreview();
+                prev.init(vehicleId, (Launch) maneuver, state, manState);
+                IManeuverPreview<?> p = (IManeuverPreview<?>) prev;
+                previewMatchList.put((Class<Maneuver>) maneuver.getClass(), (Class<IManeuverPreview<?>>) p.getClass());
+                return prev;
+            }
+            
+            String pkn = maneuver.getClass().getPackage().getName();
+            ClassLoader cl = ClassLoader.getSystemClassLoader();
+            Class<?> prevClass = null;
             try {
-                IManeuverPreview<Maneuver> prevG = ((IManeuverPreview<Maneuver>) prevClass.newInstance());
-                prevG.init(vehicleId, maneuver, state, manState);
-                return prevG;
+                prevClass = cl.loadClass(pkn.replaceAll("\\.[A-Za-z0-9]+$", "") + ".preview."
+                        + maneuver.getClass().getSimpleName() + "Preview");
             }
-            catch (Exception e) {
-                NeptusLog.pub().error(e.getMessage());
-                return null;
-            }
-        }
-
-        if (FollowTrajectory.class.isAssignableFrom(maneuver.getClass())) {
-            FollowTrajectoryPreview prev = new FollowTrajectoryPreview();
-            prev.init(vehicleId, (FollowTrajectory) maneuver, state, manState);
-            IManeuverPreview<?> p = (IManeuverPreview<?>) prev;
-            previewMatchList.put((Class<Maneuver>) maneuver.getClass(), (Class<IManeuverPreview<?>>) p.getClass());
-            return prev;
-        }
-        else if (Launch.class.isAssignableFrom(maneuver.getClass())) {
-            GotoPreview prev = new GotoPreview();
-            prev.init(vehicleId, (Launch) maneuver, state, manState);
-            IManeuverPreview<?> p = (IManeuverPreview<?>) prev;
-            previewMatchList.put((Class<Maneuver>) maneuver.getClass(), (Class<IManeuverPreview<?>>) p.getClass());
-            return prev;
-        }
-
-        String pkn = maneuver.getClass().getPackage().getName();
-        ClassLoader cl = ClassLoader.getSystemClassLoader();
-        Class<?> prevClass = null;
-        try {
-            prevClass = cl.loadClass(pkn.replaceAll("\\.[A-Za-z0-9]+$", "") + ".preview."
-                    + maneuver.getClass().getSimpleName() + "Preview");
-        }
-        catch (ClassNotFoundException e) {
-            try {
-                prevClass = cl.loadClass(pkn + "." + maneuver.getClass().getSimpleName() + "Preview");
-            }
-            catch (Exception e1) {
-                NeptusLog.pub().error(e1.getMessage());
-            }
-        }
-        catch (Exception e) {
-            NeptusLog.pub().error(e.getMessage());
-        }
-        if (prevClass != null) {
-            try {
-                IManeuverPreview<Maneuver> prevG = (IManeuverPreview<Maneuver>) prevClass.newInstance();
-                prevG.init(vehicleId, maneuver, state, manState);
-                previewMatchList.put((Class<Maneuver>) maneuver.getClass(), (Class<IManeuverPreview<?>>) prevG.getClass());
-                return prevG;
+            catch (ClassNotFoundException e) {
+                try {
+                    prevClass = cl.loadClass(pkn + "." + maneuver.getClass().getSimpleName() + "Preview");
+                }
+                catch (Exception e1) {
+                    NeptusLog.pub().error(e1.getMessage());
+                }
             }
             catch (Exception e) {
                 NeptusLog.pub().error(e.getMessage());
             }
+            
+            if (prevClass != null) {
+                try {
+                    IManeuverPreview<Maneuver> prevG = (IManeuverPreview<Maneuver>) prevClass.newInstance();
+                    prevG.init(vehicleId, maneuver, state, manState);
+                    previewMatchList.put((Class<Maneuver>) maneuver.getClass(), (Class<IManeuverPreview<?>>) prevG.getClass());
+                    return prevG;
+                }
+                catch (Exception e) {
+                    NeptusLog.pub().error(e.getMessage());
+                }
+            }
+            
+            previewMatchList.put((Class<Maneuver>) maneuver.getClass(), (Class<IManeuverPreview<?>>) null);
+            return null;
         }
-
-        previewMatchList.put((Class<Maneuver>) maneuver.getClass(), (Class<IManeuverPreview<?>>) null);
-        return null;
+    }
+    
+    /**
+     * Utility class to register a preview for a maneuver.
+     * Only if preview is not register or register as null is register.
+     * 
+     * @param maneuver
+     * @param preview
+     * @return
+     */
+    public static boolean registerPreview(Class<Maneuver> maneuver, Class<IManeuverPreview<?>> preview) {
+        if (maneuver == null || preview == null)
+            return false;
+        
+        synchronized (previewMatchList) {
+            if (previewMatchList.containsKey(maneuver)) {
+                if (previewMatchList.get(maneuver) == null) {
+                    previewMatchList.put(maneuver, preview);
+                    return true;
+                }
+                else {
+                    return false;
+                }
+            }
+            else {
+                previewMatchList.put(maneuver, preview);
+                return true;
+            }
+        }
     }
 }
