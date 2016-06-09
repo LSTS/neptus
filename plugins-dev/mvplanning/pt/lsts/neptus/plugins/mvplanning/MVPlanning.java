@@ -299,18 +299,11 @@ public class MVPlanning extends ConsolePanel implements PlanChangeListener, Rend
                         selectedPlans.put(plan.getId(), plan);
 
                         /* add plan to plan's tree */
-                        console.getMission().addPlan(plan);
+                        console.addPlanToMission(plan);
                     }
 
                     /* save mission */
-                    SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>() {
-                        @Override
-                        protected Void doInBackground() throws Exception {
-                            console.getMission().save(true);
-                            return null;
-                        }
-                    };
-                    worker.execute();
+                    console.saveMission();
                 }
             }
             else if(objType.equals("Mark")) {
