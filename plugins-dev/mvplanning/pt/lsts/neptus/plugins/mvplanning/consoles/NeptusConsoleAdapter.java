@@ -37,6 +37,7 @@ import java.util.concurrent.Future;
 import javax.swing.SwingWorker;
 
 import pt.lsts.imc.IMCMessage;
+import pt.lsts.neptus.comm.manager.imc.ImcMsgManager;
 import pt.lsts.neptus.comm.manager.imc.ImcMsgManager.SendResult;
 import pt.lsts.neptus.console.ConsoleLayout;
 import pt.lsts.neptus.console.ConsoleSystem;
@@ -62,6 +63,12 @@ public class NeptusConsoleAdapter implements ConsoleAdapter {
     public void registerToEventBus(Object obj) {
         NeptusEvents.register(obj, console);
 
+    }
+
+
+    @Override
+    public void subscribeToIMCMessages(Object obj) {
+        ImcMsgManager.getManager().registerBusListener(obj);
     }
 
     @Override

@@ -52,6 +52,13 @@ public interface ConsoleAdapter {
      * */
     public void registerToEventBus(Object obj);
 
+    /**
+     * Allow the given object to subscribe to
+     * to the messages bus and receive IMC
+     * messages
+     * */
+    public void subscribeToIMCMessages(Object obj);
+
 
     /**
      * Post an event to the console's event bus
