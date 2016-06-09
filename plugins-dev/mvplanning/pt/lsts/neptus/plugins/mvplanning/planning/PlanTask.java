@@ -60,6 +60,7 @@ public class PlanTask {
     public PlanTask(String id, PlanType plan, Profile planProfile) {
         this.planId = id;
         this.plan = plan;
+        this.plan.setId(id);
         this.planProfile = planProfile;
         this.timestamp = -1;
 

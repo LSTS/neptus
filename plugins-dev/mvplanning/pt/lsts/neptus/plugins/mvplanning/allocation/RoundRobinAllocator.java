@@ -97,7 +97,7 @@ public class RoundRobinAllocator extends AbstractAllocator {
                         vehicles.add(vehicle);
 
                         plans.remove(ptask);
-                        console.post(new MvPlanningEventPlanAllocated(ptask.getPlanId(), ptask.getProfile().getId(), vehicle));
+                        console.post(new MvPlanningEventPlanAllocated(ptask.asPlanType(), ptask.getProfile().getId(), vehicle));
                     }
                 }
                 i++;
