@@ -7,7 +7,6 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import pt.lsts.neptus.mp.maneuvers.FollowPath;
 import pt.lsts.neptus.mp.maneuvers.Goto;
-import pt.lsts.imc.PlanManeuver;
 import pt.lsts.imc.PlanSpecification;
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.comm.IMCUtils;
@@ -87,19 +86,9 @@ public class PlanGenerator {
 
         PlanType plan = new PlanType(console.getMission());
         plan.setId(id);
-        /* FIXME repeated code */
-        ManeuverLocation manLoc = new ManeuverLocation(pointLoc);
-        manLoc.setZ(planProfile.getProfileZ());
-        /* TODO set according to profile's parameters */
-        manLoc.setZUnits(ManeuverLocation.Z_UNITS.DEPTH);
 
-        Goto point = new Goto();
+        Goto point = (Goto) MvPlanningUtils.buildManeuver(planProfile, pointLoc, PlanTask.TASK_TYPE.VISIT_POINT);
         point.setId("visit_point");
-        point.setManeuverLocation(manLoc);
-        point.setSpeed(planProfile.getProfileSpeed());
-
-        /* TODO set according to profile */
-        point.setSpeedUnits("m/s");
 
         plan.getGraph().addManeuver(point);
         planAloc.allocate(new PlanTask(id, plan, planProfile));
