@@ -40,6 +40,7 @@ import pt.lsts.neptus.console.ConsoleSystem;
 import pt.lsts.neptus.types.map.AbstractElement;
 import pt.lsts.neptus.types.map.MapGroup;
 import pt.lsts.neptus.types.mission.MissionType;
+import pt.lsts.neptus.types.mission.plan.PlanType;
 
 /**
  * @author tsmarques
@@ -93,4 +94,14 @@ public interface ConsoleAdapter {
      * Get console's current mission
      * */
     public MissionType getMission();
+
+    /**
+     * Add a plan to the console's mission
+     * */
+    public void addPlanToMission(PlanType plan);
+
+    /**
+     * Start SwingWorker and save the current console's mission
+     * */
+    public void saveMission();
 }

@@ -34,6 +34,8 @@ package pt.lsts.neptus.plugins.mvplanning.consoles;
 import java.util.Map;
 import java.util.concurrent.Future;
 
+import javax.swing.SwingWorker;
+
 import pt.lsts.imc.IMCMessage;
 import pt.lsts.neptus.comm.manager.imc.ImcMsgManager.SendResult;
 import pt.lsts.neptus.console.ConsoleLayout;
@@ -43,6 +45,7 @@ import pt.lsts.neptus.plugins.mvplanning.interfaces.ConsoleAdapter;
 import pt.lsts.neptus.types.map.AbstractElement;
 import pt.lsts.neptus.types.map.MapGroup;
 import pt.lsts.neptus.types.mission.MissionType;
+import pt.lsts.neptus.types.mission.plan.PlanType;
 
 /**
  * @author tsmarques
@@ -50,7 +53,7 @@ import pt.lsts.neptus.types.mission.MissionType;
  */
 public class NeptusConsoleAdapter implements ConsoleAdapter {
     private ConsoleLayout console;
-    
+
     public NeptusConsoleAdapter(ConsoleLayout console) {
         this.console = console;
     }
@@ -58,7 +61,7 @@ public class NeptusConsoleAdapter implements ConsoleAdapter {
     @Override
     public void registerToEventBus(Object obj) {
         NeptusEvents.register(obj, console);
-        
+
     }
 
     @Override
@@ -102,5 +105,22 @@ public class NeptusConsoleAdapter implements ConsoleAdapter {
                 generateMapGroup().
                 getObstacles().
                 toArray();
+    }
+
+    @Override
+    public void addPlanToMission(PlanType plan) {
+        console.getMission().addPlan(plan);
+    }
+
+    @Override
+    public void saveMission() {
+        SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>() {
+            @Override
+            protected Void doInBackground() throws Exception {
+                console.getMission().save(true);
+                return null;
+            }
+        };
+        worker.execute();
     }
 }
