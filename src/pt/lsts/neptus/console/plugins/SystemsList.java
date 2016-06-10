@@ -1903,6 +1903,32 @@ public class SystemsList extends ConsolePanel implements MainVehicleChangeListen
 
         boolean isLocationKnownUpToDate = SystemPainterHelper.isLocationKnown(sys.getLocation(),
                 sys.getLocationTimeMillis());
+        
+        {
+            Object obj = sys.retrieveData(ExternalSystem.WIDTH_KEY);
+            if (obj != null) {
+                double width = ((Number) obj).doubleValue();
+                obj = sys.retrieveData(ExternalSystem.LENGHT_KEY);
+                if (obj != null) {
+                    double length = ((Number) obj).doubleValue();
+
+                    double headingDegrees = sys.getYawDegrees();
+
+                    double widthOffsetFromCenter = 0;
+                    obj = sys.retrieveData(ExternalSystem.WIDTH_CENTER_OFFSET_KEY);
+                    if (obj != null)
+                        widthOffsetFromCenter = ((Number) obj).doubleValue();
+                    double lenghtOffsetFromCenter = 0;
+                    obj = sys.retrieveData(ExternalSystem.LENGHT_CENTER_OFFSET_KEY);
+                    if (obj != null)
+                        lenghtOffsetFromCenter = ((Number) obj).doubleValue();
+
+                    SystemPainterHelper.drawVesselDimentionsIconForSystem(renderer, g2, width, length, 
+                            widthOffsetFromCenter, lenghtOffsetFromCenter, headingDegrees,
+                            color, sys.getLocation(), false);
+                }
+            }
+        }
 
         // To draw the system icon
         if (useMilStd2525LikeSymbols) {
@@ -1933,8 +1959,17 @@ public class SystemsList extends ConsolePanel implements MainVehicleChangeListen
             SystemPainterHelper.drawSystemNameLabel(g2, sys.getName(), color, iconWidth, isLocationKnownUpToDate);
         }
 
-        // // To draw the course/speed vector
-        // drawCourseSpeedVectorForSystem(renderer, g2, sys, isLocationKnownUpToDate);
+        // To draw the course/speed vector
+        Object obj = sys.retrieveData(ExternalSystem.COURSE_KEY);
+        if (obj != null) {
+            double courseDegrees = ((Number) obj).doubleValue();
+            obj = sys.retrieveData(ExternalSystem.GROUND_SPEED_KEY);
+            if (obj != null) {
+                double gSpeed = ((Number) obj).doubleValue();
+                SystemPainterHelper.drawCourseSpeedVectorForSystem(renderer, g2, courseDegrees, gSpeed, Color.WHITE, iconWidth,
+                        isLocationKnownUpToDate, minimumSpeedToBeStopped);
+            }
+        }
 
         g2.dispose();
     }
