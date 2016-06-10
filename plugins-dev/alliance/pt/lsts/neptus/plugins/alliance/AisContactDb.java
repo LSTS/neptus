@@ -47,11 +47,12 @@ import de.baderjene.aistoolkit.aisparser.message.Message01;
 import de.baderjene.aistoolkit.aisparser.message.Message03;
 import de.baderjene.aistoolkit.aisparser.message.Message05;
 import pt.lsts.neptus.NeptusLog;
+import pt.lsts.neptus.comm.SystemUtils;
 import pt.lsts.neptus.comm.manager.imc.ImcSystemsHolder;
 import pt.lsts.neptus.systems.external.ExternalSystem;
 import pt.lsts.neptus.systems.external.ExternalSystemsHolder;
 import pt.lsts.neptus.types.coord.LocationType;
-import pt.lsts.neptus.types.vehicle.VehicleType.SystemTypeEnum;
+import pt.lsts.neptus.util.AISShipType;
 import pt.lsts.neptus.util.NMEAUtils;
 
 /**
@@ -214,18 +215,63 @@ public class AisContactDb implements AISObserver {
     }
 
     public void updateSystem(int mmsi, LocationType loc, double heading) {
-        String name = contacts.get(mmsi).getLabel();
-        if (name.equals(""+mmsi))
-            return;
-        
-        ExternalSystem sys = ExternalSystemsHolder.lookupSystem(name);
-        if (sys == null) {
-            sys = new ExternalSystem(name);
-            ExternalSystemsHolder.registerSystem(sys);
+        AisContact contact = contacts.get(mmsi);
+        String name = contact.getLabel();
+        ExternalSystem sys = null;
+        if (name.equals("" + mmsi)) {
+            sys = ExternalSystemsHolder.lookupSystem(name);
+            if (sys == null) {
+                sys = new ExternalSystem(name);
+                ExternalSystemsHolder.registerSystem(sys);
+            }
         }
+        else {
+            sys = ExternalSystemsHolder.lookupSystem(name);
+            ExternalSystem sysMMSI = ExternalSystemsHolder.lookupSystem("" + mmsi);
+            if (sys == null && sysMMSI == null) {
+                sys = new ExternalSystem(name);
+                ExternalSystemsHolder.registerSystem(sys);
+            }
+            else if (sys == null && sysMMSI != null) {
+                sys = new ExternalSystem(name);
+                ExternalSystemsHolder.purgeSystem("" + mmsi);
+                ExternalSystemsHolder.registerSystem(sys);
+            }
+            else {
+                // sys exists
+                if (sysMMSI != null)
+                    ExternalSystemsHolder.purgeSystem("" + mmsi);
+            }
+        }
+        
         sys.setLocation(contacts.get(mmsi).getLocation());
         sys.setAttitudeDegrees(contacts.get(mmsi).getCog());
-        sys.setType(SystemTypeEnum.UNKNOWN);
+        
+        double m_sToKnotConv = 1.94384449244;
+        
+        sys.storeData(ExternalSystem.GROUND_SPEED_KEY, contact.getSog() * m_sToKnotConv);
+        sys.storeData(ExternalSystem.COURSE_KEY, contacts.get(mmsi).getCog());
+
+        if (contact.getAdditionalProperties() != null) {
+            String shipType = AISShipType.translateShipType(contact.getAdditionalProperties().getShipType());
+            sys.storeData(ExternalSystem.SHIP_TYPE_KEY, shipType);
+            sys.setType(SystemUtils.getSystemTypeFrom(shipType));
+            sys.setTypeExternal(SystemUtils.getExternalTypeFrom(shipType));
+            sys.setTypeVehicle(SystemUtils.getVehicleTypeFrom(shipType));
+
+            sys.storeData(ExternalSystem.DRAFT_KEY, contact.getAdditionalProperties().getDraught());
+            sys.storeData(ExternalSystem.WIDTH_KEY, contact.getAdditionalProperties().getDimensionToPort()
+                    + contact.getAdditionalProperties().getDimensionToStarboard());
+            sys.storeData(ExternalSystem.WIDTH_CENTER_OFFSET_KEY, contact.getAdditionalProperties().getDimensionToPort()
+                    - contact.getAdditionalProperties().getDimensionToStarboard());
+            sys.storeData(ExternalSystem.LENGHT_KEY, contact.getAdditionalProperties().getDimensionToStern()
+                    + contact.getAdditionalProperties().getDimensionToBow());
+            sys.storeData(ExternalSystem.LENGHT_CENTER_OFFSET_KEY, contact.getAdditionalProperties().getDimensionToStern()
+                    - contact.getAdditionalProperties().getDimensionToBow());
+            
+            System.out.println(sys.getName() + " " + sys.retrieveData(ExternalSystem.LENGHT_CENTER_OFFSET_KEY) +  " " + sys.retrieveData(ExternalSystem.WIDTH_CENTER_OFFSET_KEY)
+                    + "   @" + sys.retrieveData(ExternalSystem.GROUND_SPEED_KEY));
+        }
     }
     
     @Override
