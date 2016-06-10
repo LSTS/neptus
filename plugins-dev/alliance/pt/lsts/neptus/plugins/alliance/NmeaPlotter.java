@@ -188,10 +188,10 @@ public class NmeaPlotter extends ConsoleLayer {
             public void serialEvent(SerialPortEvent arg0) {
                 try {
                     String s = serialPort.readString();
-                    if (s.contains("$")) {
-                        currentString += s.substring(0, s.indexOf('$'));
-//                        System.out.println(currentString);
+                    if (s.contains("\n")) {
+                        currentString += s.substring(0, s.indexOf('\n'));
                         if (!currentString.trim().isEmpty()) {
+                            System.out.println(">" + currentString);
                             for (NmeaListener l :listeners)
                                 l.nmeaSentence(currentString.trim());
                             parseSentence(currentString);
@@ -200,21 +200,29 @@ public class NmeaPlotter extends ConsoleLayer {
                             if (logReceivedData)
                                 LsfMessageLogger.log(new DevDataText(currentString));
                         }
-                        currentString = s.substring(s.indexOf('$'));
+                        currentString = s.substring(s.indexOf('\n')+1);                        
                     }
-//                    if (s.contains("\n")) {
-//                        currentString += s.substring(0, s.indexOf('\n'));
-//                        if (!currentString.trim().isEmpty()) {
-//                            for (NmeaListener l :listeners)
-//                                l.nmeaSentence(currentString.trim());
-//                            parseSentence(currentString);
-//                            if (retransmitToNeptus)
-//                                retransmit(currentString);
-//                            if (logReceivedData)
-//                                LsfMessageLogger.log(new DevDataText(currentString));
-//                        }
-//                        currentString = s.substring(s.indexOf('\n')+1);                        
-//                    }
+                    else if (s.contains("$") || s.contains("!")) {
+                        if (s.contains("$"))
+                            currentString += s.substring(0, s.indexOf('$'));
+                        else
+                            currentString += s.substring(0, s.indexOf('!'));
+                        if (!currentString.trim().isEmpty()) {
+//                            System.out.println(currentString);
+                            for (NmeaListener l :listeners)
+                                l.nmeaSentence(currentString.trim());
+                            parseSentence(currentString);
+                            if (retransmitToNeptus)
+                                retransmit(currentString);
+                            if (logReceivedData)
+                                LsfMessageLogger.log(new DevDataText(currentString));
+                        }
+                        if (s.contains("$"))
+                            currentString = s.substring(s.indexOf('$'));
+                        else
+                            currentString = s.substring(s.indexOf('!'));
+//                        System.out.println(">>" + currentString);
+                    }
                     else {
                         currentString += s;
                     }
