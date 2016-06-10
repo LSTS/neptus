@@ -100,6 +100,14 @@ public class ExternalSystemsHolder {
         return system;
     }
 
+    public static ExternalSystem purgeSystem(String id) {
+        ExternalSystem resLook = lookupTable.remove(id);
+        if (resLook != null)
+            return resLook;
+        
+        return null;
+    }
+
     public static ExternalSystem lookupSystem(String id) {
         ExternalSystem ret = lookupTable.get(id);
         if (ret == null) {
