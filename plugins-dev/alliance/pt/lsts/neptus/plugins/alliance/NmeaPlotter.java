@@ -191,7 +191,7 @@ public class NmeaPlotter extends ConsoleLayer {
                     if (s.contains("\n")) {
                         currentString += s.substring(0, s.indexOf('\n'));
                         if (!currentString.trim().isEmpty()) {
-                            System.out.println(">" + currentString);
+//                            System.out.println(">" + currentString);
                             for (NmeaListener l :listeners)
                                 l.nmeaSentence(currentString.trim());
                             parseSentence(currentString);
