@@ -425,9 +425,13 @@ public class NmeaPlotter extends ConsoleLayer {
                 double centerX = pt.getX();//-m.getDimensionToPort() + width/2.0;
                 double centerY = pt.getY();//-m.getDimensionToStern() + length/2.0;
 
+                double widthOffsetFromCenter = m.getDimensionToPort() - m.getDimensionToStarboard();
+                double lenghtOffsetFromCenter = m.getDimensionToStern() - m.getDimensionToBow();
+
                 copy.translate(centerX, centerY);
                 copy.rotate(Math.PI+Math.toRadians(c.getCog()) - renderer.getRotation());
                 copy.scale(renderer.getZoom(), renderer.getZoom());
+                copy.translate(widthOffsetFromCenter / 2., -lenghtOffsetFromCenter / 2.);
                 copy.scale(width/2, length/2);
                 copy.fill(ship);
                 copy.scale(1.0/(width/2), 1.0/(length/2));
