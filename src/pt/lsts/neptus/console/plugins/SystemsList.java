@@ -1966,7 +1966,7 @@ public class SystemsList extends ConsolePanel implements MainVehicleChangeListen
             obj = sys.retrieveData(ExternalSystem.GROUND_SPEED_KEY);
             if (obj != null) {
                 double gSpeed = ((Number) obj).doubleValue();
-                SystemPainterHelper.drawCourseSpeedVectorForSystem(renderer, g2, courseDegrees, gSpeed, Color.WHITE, iconWidth,
+                SystemPainterHelper.drawCourseSpeedVectorForSystem(renderer, g2, courseDegrees, gSpeed, color, iconWidth,
                         isLocationKnownUpToDate, minimumSpeedToBeStopped);
             }
         }
