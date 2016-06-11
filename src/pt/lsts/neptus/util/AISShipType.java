@@ -355,4 +355,63 @@ public class AISShipType {
         }
         return res;
     }
+    
+    public static String translateNavigationalStatus(int code) {
+        String res;
+        switch (code) {
+            case 0:
+                res = "under way using engine";
+                break;
+            case 1:
+                res = "at anchor";
+                break;
+            case 2:
+                res = "not under command ";
+                break;
+            case 3:
+                res = "restricted maneuverability";
+                break;
+            case 4:
+                res = "constrained by her draught";
+                break;
+            case 5:
+                res = "moored";
+                break;
+            case 6:
+                res = "aground ";
+                break;
+            case 7:
+                res = "engaged in fishing";
+                break;
+            case 8:
+                res = "under way sailing";
+                break;
+            case 9:
+                res = "reserved for future"; // amendment of navigational status for ships carrying DG, HS, or MP, or
+                                             // IMO hazard or pollutant category C, high-speed craft (HSC)";
+                break;
+            case 10:
+                res = "reserved for future"; // amendment of navigational status for ships carrying dangerous goods
+                                             // (DG), harmful substances (HS) or marine pollutants (MP), or IMO hazard
+                                             // or pollutant ";category A, wing in ground (WIG)
+                break;
+            case 11:
+                res = "power-driven vessel towing astern (regional use)";
+                break;
+            case 12:
+                res = "power-driven vessel pushing ahead or towing alongside (regional use)";
+                break;
+            case 13:
+                res = "reserved for future use";
+                break;
+            case 14:
+                res = "AIS-SART (active), MOB-AIS, EPIRB-AIS";
+                break;
+            case 15:
+            default:
+                res = "undefined"; // = default (also used by AIS-SART, MOB-AIS and EPIRB-AIS under test)";
+                break;
+        }
+        return res;
+    }
 }
