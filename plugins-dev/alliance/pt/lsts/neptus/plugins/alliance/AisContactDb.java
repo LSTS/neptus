@@ -37,6 +37,7 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map.Entry;
 import java.util.Vector;
@@ -63,7 +64,9 @@ public class AisContactDb implements AISObserver {
 
     private LinkedHashMap<Integer, AisContact> contacts = new LinkedHashMap<>();
     private LinkedHashMap<Integer, String> labelCache = new LinkedHashMap<>();
-    File cache = new File("conf/ais.cache");
+    private LinkedHashMap<Integer, HashMap<String, Object>> dimensionsCache = new LinkedHashMap<>();
+    
+    private File cache = new File("conf/ais.cache");
 
     public AisContactDb() {
         if (!cache.canRead())
@@ -77,6 +80,26 @@ public class AisContactDb implements AISObserver {
                 int mmsi = Integer.parseInt(parts[0]);
                 String name = parts[1].trim();    
                 labelCache.put(mmsi, name);
+                
+                HashMap<String, Object> dimV = new HashMap<>();
+                for (int i = 2; i < parts.length; i++) {
+                    String tk = parts[1].trim();
+                    String[] prs = tk.split("=");
+                    if (prs.length > 1) {
+                        String n = prs[0].trim().toLowerCase();
+                        try {
+                            double v = Double.parseDouble(prs[1].trim());
+                            dimV.put(n, v);
+                        }
+                        catch (Exception e) {
+                            NeptusLog.pub().info(String.format("Not found a number, adding as string for %s", n));
+                            dimV.put(n, prs[1].trim());
+                        }
+                    }
+                }
+                if (dimV.size() > 0)
+                    dimensionsCache.put(mmsi, dimV);
+                
                 line = reader.readLine();
                 count++;
             }
@@ -94,7 +117,19 @@ public class AisContactDb implements AISObserver {
             BufferedWriter writer = new BufferedWriter(new FileWriter(cache));
 
             for (Entry<Integer,String> entry : labelCache.entrySet()) {
-                writer.write(entry.getKey()+","+entry.getValue()+"\n");     
+                StringBuilder sb = new StringBuilder();
+                sb.append(entry.getKey()).append(",").append(entry.getValue());
+                
+                HashMap<String, Object> dimV = dimensionsCache.get(entry.getKey());
+                if (dimV != null) {
+                    for (String n : dimV.keySet()) {
+                        sb.append(",");
+                        sb.append(n).append("=").append("" + dimV.get(n));
+                    }
+                }
+
+                sb.append("\n");
+                writer.write(sb.toString());
                 count++;
             }
             writer.close();
@@ -245,10 +280,14 @@ public class AisContactDb implements AISObserver {
         }
         
         sys.setLocation(contacts.get(mmsi).getLocation());
-        sys.setAttitudeDegrees(contacts.get(mmsi).getHdg());
+        sys.setAttitudeDegrees(contact.getHdg() > 360 ? contact.getCog() : contact.getHdg());
         
         double m_sToKnotConv = 1.94384449244;
         
+        if (!dimensionsCache.containsKey(mmsi))
+            dimensionsCache.put(mmsi, new HashMap<String, Object>());
+        HashMap<String, Object> dimV = dimensionsCache.get(mmsi);
+
         sys.storeData(ExternalSystem.GROUND_SPEED_KEY, contact.getSog() * m_sToKnotConv);
         sys.storeData(ExternalSystem.COURSE_KEY, contact.getCog());
 
@@ -272,7 +311,28 @@ public class AisContactDb implements AISObserver {
                     - contact.getAdditionalProperties().getDimensionToBow());
             
             System.out.println(sys.getName() + " " + sys.retrieveData(ExternalSystem.LENGHT_CENTER_OFFSET_KEY) +  " " + sys.retrieveData(ExternalSystem.WIDTH_CENTER_OFFSET_KEY)
-                    + "   @" + sys.retrieveData(ExternalSystem.GROUND_SPEED_KEY));
+                    + "   @" + sys.retrieveData(ExternalSystem.GROUND_SPEED_KEY)
+                    + "   HDG:" + sys.getYawDegrees());
+            
+            dimV.put(ExternalSystem.DRAUGHT_KEY, sys.retrieveData(ExternalSystem.DRAUGHT_KEY));
+            dimV.put(ExternalSystem.WIDTH_KEY, sys.retrieveData(ExternalSystem.WIDTH_KEY));
+            dimV.put(ExternalSystem.LENGHT_KEY, sys.retrieveData(ExternalSystem.LENGHT_KEY));
+            dimV.put(ExternalSystem.WIDTH_CENTER_OFFSET_KEY, sys.retrieveData(ExternalSystem.WIDTH_CENTER_OFFSET_KEY));
+            dimV.put(ExternalSystem.LENGHT_CENTER_OFFSET_KEY, sys.retrieveData(ExternalSystem.LENGHT_CENTER_OFFSET_KEY));
+        }
+        else {
+            if (dimV != null) {
+                if (!sys.containsData(ExternalSystem.DRAUGHT_KEY))
+                    sys.storeData(ExternalSystem.DRAUGHT_KEY, dimV.get(ExternalSystem.DRAUGHT_KEY));
+                if (!sys.containsData(ExternalSystem.WIDTH_KEY))
+                    sys.storeData(ExternalSystem.WIDTH_KEY, dimV.get(ExternalSystem.WIDTH_KEY));
+                if (!sys.containsData(ExternalSystem.WIDTH_CENTER_OFFSET_KEY))
+                    sys.storeData(ExternalSystem.WIDTH_CENTER_OFFSET_KEY, dimV.get(ExternalSystem.WIDTH_CENTER_OFFSET_KEY));
+                if (!sys.containsData(ExternalSystem.LENGHT_KEY))
+                    sys.storeData(ExternalSystem.LENGHT_KEY, dimV.get(ExternalSystem.LENGHT_KEY));
+                if (!sys.containsData(ExternalSystem.LENGHT_CENTER_OFFSET_KEY))
+                    sys.storeData(ExternalSystem.LENGHT_CENTER_OFFSET_KEY, dimV.get(ExternalSystem.LENGHT_CENTER_OFFSET_KEY));
+            }
         }
     }
     
