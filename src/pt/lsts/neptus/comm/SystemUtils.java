@@ -62,6 +62,7 @@ public class SystemUtils {
     public static final String MMSI_KEY = "MMSI";
     public static final String SHIP_TYPE_KEY = "AIS Ship Type";
     public static final String NAV_STATUS_KEY = "AIS Navigational Status";
+    public static final String CALL_SIGN_KEY = "Call Sign";
 
     /** To avoid instantiation */
     private SystemUtils() {

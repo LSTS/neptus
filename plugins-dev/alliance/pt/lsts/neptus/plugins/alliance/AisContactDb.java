@@ -288,6 +288,8 @@ public class AisContactDb implements AISObserver {
             dimensionsCache.put(mmsi, new HashMap<String, Object>());
         HashMap<String, Object> dimV = dimensionsCache.get(mmsi);
 
+        sys.storeData(SystemUtils.MMSI_KEY, mmsi);
+        
         sys.storeData(SystemUtils.GROUND_SPEED_KEY, contact.getSog() * m_sToKnotConv);
         sys.storeData(SystemUtils.COURSE_KEY, contact.getCog());
 
@@ -299,6 +301,8 @@ public class AisContactDb implements AISObserver {
             sys.setType(SystemUtils.getSystemTypeFrom(shipType));
             sys.setTypeExternal(SystemUtils.getExternalTypeFrom(shipType));
             sys.setTypeVehicle(SystemUtils.getVehicleTypeFrom(shipType));
+
+            sys.storeData(SystemUtils.CALL_SIGN_KEY, contact.getAdditionalProperties().getCallSign());
 
             sys.storeData(SystemUtils.DRAUGHT_KEY, contact.getAdditionalProperties().getDraught());
             sys.storeData(SystemUtils.WIDTH_KEY, contact.getAdditionalProperties().getDimensionToPort()
