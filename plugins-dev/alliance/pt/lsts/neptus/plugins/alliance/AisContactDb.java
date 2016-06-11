@@ -261,7 +261,7 @@ public class AisContactDb implements AISObserver {
             sys.setTypeExternal(SystemUtils.getExternalTypeFrom(shipType));
             sys.setTypeVehicle(SystemUtils.getVehicleTypeFrom(shipType));
 
-            sys.storeData(ExternalSystem.DRAFT_KEY, contact.getAdditionalProperties().getDraught());
+            sys.storeData(ExternalSystem.DRAUGHT_KEY, contact.getAdditionalProperties().getDraught());
             sys.storeData(ExternalSystem.WIDTH_KEY, contact.getAdditionalProperties().getDimensionToPort()
                     + contact.getAdditionalProperties().getDimensionToStarboard());
             sys.storeData(ExternalSystem.WIDTH_CENTER_OFFSET_KEY, contact.getAdditionalProperties().getDimensionToPort()
