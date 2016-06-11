@@ -89,7 +89,7 @@ public class AisContact {
     
     public void update(Message05 m) {
         lastUpdate = System.currentTimeMillis();
-        label = m.getVesselName();
+        label = m.getVesselName().trim();
         additionalProperties = m;
     }
     

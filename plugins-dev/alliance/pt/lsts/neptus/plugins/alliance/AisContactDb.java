@@ -360,7 +360,7 @@ public class AisContactDb implements AISObserver {
                 if (!contacts.containsKey(mmsi))
                     contacts.put(mmsi, new AisContact(mmsi));
                 contacts.get(mmsi).update((Message05)arg0);
-                String name = ((Message05)arg0).getVesselName();
+                String name = ((Message05)arg0).getVesselName().trim();
                 labelCache.put(mmsi, name);
                 updateSystem(mmsi, contacts.get(mmsi).getLocation(), contacts.get(mmsi).getCog());
                 break;
