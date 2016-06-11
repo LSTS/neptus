@@ -35,7 +35,7 @@ import de.baderjene.aistoolkit.aisparser.message.Message01;
 import de.baderjene.aistoolkit.aisparser.message.Message03;
 import de.baderjene.aistoolkit.aisparser.message.Message05;
 import pt.lsts.neptus.types.coord.LocationType;
-import pt.lsts.neptus.util.AISShipType;
+import pt.lsts.neptus.util.AISUtil;
 
 /**
  * @author zp
@@ -70,7 +70,7 @@ public class AisContact {
         hdg = m.getTrueHeading();
         cog = m.getCourseOverGround();
         sog = m.getSpeedOverGround();
-        navStatus = AISShipType.translateNavigationalStatus(m.getNavigationStatus());
+        navStatus = AISUtil.translateNavigationalStatus(m.getNavigationStatus());
         if (label == null)
             label = ""+m.getSourceMmsi();
     }
@@ -82,7 +82,7 @@ public class AisContact {
         hdg = m.getTrueHeading();
         cog = m.getCourseOverGround();
         sog = m.getSpeedOverGround();
-        navStatus = AISShipType.translateNavigationalStatus(m.getNavigationStatus());
+        navStatus = AISUtil.translateNavigationalStatus(m.getNavigationStatus());
         if (label == null)
             label = ""+m.getSourceMmsi();
     }

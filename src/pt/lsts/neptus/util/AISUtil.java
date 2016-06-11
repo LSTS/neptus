@@ -35,9 +35,9 @@ package pt.lsts.neptus.util;
  * @author pdias
  *
  */
-public class AISShipType {
+public class AISUtil {
 
-    private AISShipType() {
+    private AISUtil() {
     }
 
     /**

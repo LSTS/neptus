@@ -52,7 +52,7 @@ import pt.lsts.neptus.comm.manager.imc.ImcSystemsHolder;
 import pt.lsts.neptus.systems.external.ExternalSystem;
 import pt.lsts.neptus.systems.external.ExternalSystemsHolder;
 import pt.lsts.neptus.types.coord.LocationType;
-import pt.lsts.neptus.util.AISShipType;
+import pt.lsts.neptus.util.AISUtil;
 import pt.lsts.neptus.util.NMEAUtils;
 
 /**
@@ -255,7 +255,7 @@ public class AisContactDb implements AISObserver {
         sys.storeData(ExternalSystem.NAV_STATUS_KEY, contact.getNavStatus());
 
         if (contact.getAdditionalProperties() != null) {
-            String shipType = AISShipType.translateShipType(contact.getAdditionalProperties().getShipType());
+            String shipType = AISUtil.translateShipType(contact.getAdditionalProperties().getShipType());
             sys.storeData(ExternalSystem.SHIP_TYPE_KEY, shipType);
             sys.setType(SystemUtils.getSystemTypeFrom(shipType));
             sys.setTypeExternal(SystemUtils.getExternalTypeFrom(shipType));
