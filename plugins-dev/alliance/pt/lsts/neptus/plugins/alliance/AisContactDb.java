@@ -245,12 +245,14 @@ public class AisContactDb implements AISObserver {
         }
         
         sys.setLocation(contacts.get(mmsi).getLocation());
-        sys.setAttitudeDegrees(contacts.get(mmsi).getCog());
+        sys.setAttitudeDegrees(contacts.get(mmsi).getHdg());
         
         double m_sToKnotConv = 1.94384449244;
         
         sys.storeData(ExternalSystem.GROUND_SPEED_KEY, contact.getSog() * m_sToKnotConv);
-        sys.storeData(ExternalSystem.COURSE_KEY, contacts.get(mmsi).getCog());
+        sys.storeData(ExternalSystem.COURSE_KEY, contact.getCog());
+
+        sys.storeData(ExternalSystem.NAV_STATUS_KEY, contact.getNavStatus());
 
         if (contact.getAdditionalProperties() != null) {
             String shipType = AISShipType.translateShipType(contact.getAdditionalProperties().getShipType());

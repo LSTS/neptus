@@ -69,7 +69,8 @@ public class ExternalSystem implements Comparable<ExternalSystem> {
     public static final String LENGHT_CENTER_OFFSET_KEY = "Lenght Center Offset";
     public static final String DRAFT_KEY = "Draft";
     public static final String MMSI_KEY = "MMSI";
-    public static final String SHIP_TYPE_KEY = "Ship Type";
+    public static final String SHIP_TYPE_KEY = "AIS Ship Type";
+    public static final String NAV_STATUS_KEY = "AIS Navigational Status";
 
     protected String id;
     protected SystemTypeEnum type = SystemTypeEnum.UNKNOWN;
