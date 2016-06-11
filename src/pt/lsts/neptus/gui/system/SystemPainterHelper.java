@@ -42,6 +42,7 @@ import java.awt.geom.Ellipse2D;
 import java.awt.geom.GeneralPath;
 import java.awt.geom.RoundRectangle2D;
 
+import pt.lsts.neptus.comm.SystemUtils;
 import pt.lsts.neptus.comm.manager.imc.ImcSystem;
 import pt.lsts.neptus.gui.system.MilStd2525LikeSymbolsDefinitions.SymbolIconEnum;
 import pt.lsts.neptus.gui.system.MilStd2525LikeSymbolsDefinitions.SymbolOperationalConditionEnum;
@@ -363,10 +364,10 @@ public class SystemPainterHelper {
         if (useTransparency != 255)
             g2.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, useTransparency / 255f));
 
-        Object obj = sys.retrieveData(ImcSystem.COURSE_KEY);
+        Object obj = sys.retrieveData(SystemUtils.COURSE_KEY);
         if (obj != null) {
             double courseDegrees = (Integer) obj;
-            obj = sys.retrieveData(ImcSystem.GROUND_SPEED_KEY);
+            obj = sys.retrieveData(SystemUtils.GROUND_SPEED_KEY);
             if (obj != null) {
                 double gSpeed = (Double) obj;
                 drawCourseSpeedVectorForSystem(renderer, g2, courseDegrees, gSpeed, colorToPaint, iconWidth,

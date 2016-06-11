@@ -41,6 +41,28 @@ import pt.lsts.neptus.types.vehicle.VehicleType.VehicleTypeEnum;
  */
 public class SystemUtils {
 
+    // Constants for ImcSystem and ExternalSystem data store
+    public final static String GROUND_SPEED_KEY = "Ground Speed";
+    public final static String VERTICAL_SPEED_KEY = "Vertical Speed";
+    public final static String TRUE_SPEED_KEY = "True Speed";
+    public final static String INDICATED_SPEED_KEY = "Indicate Speed";
+    public final static String RPM_MAP_ENTITY_KEY = "RPM";
+    public final static String COURSE_KEY = "Course";
+    public final static String HEADING_KEY = "Heading";
+    public final static String FUEL_LEVEL_KEY = "Fuel Level";
+    public final static String WEB_UPDATED_KEY = "Web Updated";
+    public final static String LBL_CONFIG_KEY = "LblConfig";
+    public final static String ACOUSTIC_SYSTEMS = "AcousticSystems";
+    public final static String ENTITY_PARAMETERS = "EntityParameters";
+    public static final String WIDTH_KEY = "Width";
+    public static final String LENGHT_KEY = "Lenght";
+    public static final String WIDTH_CENTER_OFFSET_KEY = "Width Center Offset";
+    public static final String LENGHT_CENTER_OFFSET_KEY = "Lenght Center Offset";
+    public static final String DRAUGHT_KEY = "Draught";
+    public static final String MMSI_KEY = "MMSI";
+    public static final String SHIP_TYPE_KEY = "AIS Ship Type";
+    public static final String NAV_STATUS_KEY = "AIS Navigational Status";
+
     /** To avoid instantiation */
     private SystemUtils() {
     }

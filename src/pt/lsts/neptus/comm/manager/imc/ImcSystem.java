@@ -66,20 +66,7 @@ public class ImcSystem implements Comparable<ImcSystem> {
 
     private static final int TIMEOUT_FOR_NOT_ANNOUNCE_STATE = 12000;
     
-    public final static String GROUND_SPEED_KEY = "Ground Speed";
-    public final static String VERTICAL_SPEED_KEY = "Vertical Speed";
-    public final static String TRUE_SPEED_KEY = "True Speed";
-    public final static String INDICATED_SPEED_KEY = "Indicate Speed";
-    public final static String RPM_MAP_ENTITY_KEY = "RPM";
-    public final static String COURSE_KEY = "Course";
-    public final static String HEADING_KEY = "Heading";
-    public final static String FUEL_LEVEL_KEY = "Fuel Level";
-    public final static String WEB_UPDATED_KEY = "Web Updated";
-    public final static String LBL_CONFIG_KEY = "LblConfig";
-    public final static String ACOUSTIC_SYSTEMS = "AcousticSystems";
-    public final static String ENTITY_PARAMETERS = "EntityParameters";
-    
-	protected String name = ImcId16.NULL_ID.toString();
+    protected String name = ImcId16.NULL_ID.toString();
 	protected ImcId16 id = ImcId16.NULL_ID;
 	protected SystemTypeEnum type = SystemTypeEnum.UNKNOWN;
 	protected VehicleTypeEnum typeVehicle = VehicleTypeEnum.UNKNOWN;

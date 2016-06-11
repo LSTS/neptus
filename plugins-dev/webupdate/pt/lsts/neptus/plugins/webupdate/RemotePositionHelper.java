@@ -40,6 +40,7 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 import pt.lsts.neptus.NeptusLog;
+import pt.lsts.neptus.comm.SystemUtils;
 import pt.lsts.neptus.comm.manager.imc.ImcSystem;
 import pt.lsts.neptus.comm.manager.imc.ImcSystemsHolder;
 import pt.lsts.neptus.systems.external.ExternalSystem;
@@ -171,7 +172,7 @@ class RemotePositionHelper {
                                 sys.setAttitudeDegrees(coordinateSystem.getRoll(), coordinateSystem.getPitch(),
                                         coordinateSystem.getYaw(), time);
                             }
-                            sys.storeData(ImcSystem.WEB_UPDATED_KEY, true, time, true);
+                            sys.storeData(SystemUtils.WEB_UPDATED_KEY, true, time, true);
                         }
                     }
                 }

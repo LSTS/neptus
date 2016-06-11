@@ -288,50 +288,50 @@ public class AisContactDb implements AISObserver {
             dimensionsCache.put(mmsi, new HashMap<String, Object>());
         HashMap<String, Object> dimV = dimensionsCache.get(mmsi);
 
-        sys.storeData(ExternalSystem.GROUND_SPEED_KEY, contact.getSog() * m_sToKnotConv);
-        sys.storeData(ExternalSystem.COURSE_KEY, contact.getCog());
+        sys.storeData(SystemUtils.GROUND_SPEED_KEY, contact.getSog() * m_sToKnotConv);
+        sys.storeData(SystemUtils.COURSE_KEY, contact.getCog());
 
-        sys.storeData(ExternalSystem.NAV_STATUS_KEY, contact.getNavStatus());
+        sys.storeData(SystemUtils.NAV_STATUS_KEY, contact.getNavStatus());
 
         if (contact.getAdditionalProperties() != null) {
             String shipType = AISUtil.translateShipType(contact.getAdditionalProperties().getShipType());
-            sys.storeData(ExternalSystem.SHIP_TYPE_KEY, shipType);
+            sys.storeData(SystemUtils.SHIP_TYPE_KEY, shipType);
             sys.setType(SystemUtils.getSystemTypeFrom(shipType));
             sys.setTypeExternal(SystemUtils.getExternalTypeFrom(shipType));
             sys.setTypeVehicle(SystemUtils.getVehicleTypeFrom(shipType));
 
-            sys.storeData(ExternalSystem.DRAUGHT_KEY, contact.getAdditionalProperties().getDraught());
-            sys.storeData(ExternalSystem.WIDTH_KEY, contact.getAdditionalProperties().getDimensionToPort()
+            sys.storeData(SystemUtils.DRAUGHT_KEY, contact.getAdditionalProperties().getDraught());
+            sys.storeData(SystemUtils.WIDTH_KEY, contact.getAdditionalProperties().getDimensionToPort()
                     + contact.getAdditionalProperties().getDimensionToStarboard());
-            sys.storeData(ExternalSystem.WIDTH_CENTER_OFFSET_KEY, contact.getAdditionalProperties().getDimensionToPort()
+            sys.storeData(SystemUtils.WIDTH_CENTER_OFFSET_KEY, contact.getAdditionalProperties().getDimensionToPort()
                     - contact.getAdditionalProperties().getDimensionToStarboard());
-            sys.storeData(ExternalSystem.LENGHT_KEY, contact.getAdditionalProperties().getDimensionToStern()
+            sys.storeData(SystemUtils.LENGHT_KEY, contact.getAdditionalProperties().getDimensionToStern()
                     + contact.getAdditionalProperties().getDimensionToBow());
-            sys.storeData(ExternalSystem.LENGHT_CENTER_OFFSET_KEY, contact.getAdditionalProperties().getDimensionToStern()
+            sys.storeData(SystemUtils.LENGHT_CENTER_OFFSET_KEY, contact.getAdditionalProperties().getDimensionToStern()
                     - contact.getAdditionalProperties().getDimensionToBow());
             
-            System.out.println(sys.getName() + " " + sys.retrieveData(ExternalSystem.LENGHT_CENTER_OFFSET_KEY) +  " " + sys.retrieveData(ExternalSystem.WIDTH_CENTER_OFFSET_KEY)
-                    + "   @" + sys.retrieveData(ExternalSystem.GROUND_SPEED_KEY)
+            System.out.println(sys.getName() + " " + sys.retrieveData(SystemUtils.LENGHT_CENTER_OFFSET_KEY) +  " " + sys.retrieveData(SystemUtils.WIDTH_CENTER_OFFSET_KEY)
+                    + "   @" + sys.retrieveData(SystemUtils.GROUND_SPEED_KEY)
                     + "   HDG:" + sys.getYawDegrees());
             
-            dimV.put(ExternalSystem.DRAUGHT_KEY, sys.retrieveData(ExternalSystem.DRAUGHT_KEY));
-            dimV.put(ExternalSystem.WIDTH_KEY, sys.retrieveData(ExternalSystem.WIDTH_KEY));
-            dimV.put(ExternalSystem.LENGHT_KEY, sys.retrieveData(ExternalSystem.LENGHT_KEY));
-            dimV.put(ExternalSystem.WIDTH_CENTER_OFFSET_KEY, sys.retrieveData(ExternalSystem.WIDTH_CENTER_OFFSET_KEY));
-            dimV.put(ExternalSystem.LENGHT_CENTER_OFFSET_KEY, sys.retrieveData(ExternalSystem.LENGHT_CENTER_OFFSET_KEY));
+            dimV.put(SystemUtils.DRAUGHT_KEY, sys.retrieveData(SystemUtils.DRAUGHT_KEY));
+            dimV.put(SystemUtils.WIDTH_KEY, sys.retrieveData(SystemUtils.WIDTH_KEY));
+            dimV.put(SystemUtils.LENGHT_KEY, sys.retrieveData(SystemUtils.LENGHT_KEY));
+            dimV.put(SystemUtils.WIDTH_CENTER_OFFSET_KEY, sys.retrieveData(SystemUtils.WIDTH_CENTER_OFFSET_KEY));
+            dimV.put(SystemUtils.LENGHT_CENTER_OFFSET_KEY, sys.retrieveData(SystemUtils.LENGHT_CENTER_OFFSET_KEY));
         }
         else {
             if (dimV != null) {
-                if (!sys.containsData(ExternalSystem.DRAUGHT_KEY))
-                    sys.storeData(ExternalSystem.DRAUGHT_KEY, dimV.get(ExternalSystem.DRAUGHT_KEY));
-                if (!sys.containsData(ExternalSystem.WIDTH_KEY))
-                    sys.storeData(ExternalSystem.WIDTH_KEY, dimV.get(ExternalSystem.WIDTH_KEY));
-                if (!sys.containsData(ExternalSystem.WIDTH_CENTER_OFFSET_KEY))
-                    sys.storeData(ExternalSystem.WIDTH_CENTER_OFFSET_KEY, dimV.get(ExternalSystem.WIDTH_CENTER_OFFSET_KEY));
-                if (!sys.containsData(ExternalSystem.LENGHT_KEY))
-                    sys.storeData(ExternalSystem.LENGHT_KEY, dimV.get(ExternalSystem.LENGHT_KEY));
-                if (!sys.containsData(ExternalSystem.LENGHT_CENTER_OFFSET_KEY))
-                    sys.storeData(ExternalSystem.LENGHT_CENTER_OFFSET_KEY, dimV.get(ExternalSystem.LENGHT_CENTER_OFFSET_KEY));
+                if (!sys.containsData(SystemUtils.DRAUGHT_KEY))
+                    sys.storeData(SystemUtils.DRAUGHT_KEY, dimV.get(SystemUtils.DRAUGHT_KEY));
+                if (!sys.containsData(SystemUtils.WIDTH_KEY))
+                    sys.storeData(SystemUtils.WIDTH_KEY, dimV.get(SystemUtils.WIDTH_KEY));
+                if (!sys.containsData(SystemUtils.WIDTH_CENTER_OFFSET_KEY))
+                    sys.storeData(SystemUtils.WIDTH_CENTER_OFFSET_KEY, dimV.get(SystemUtils.WIDTH_CENTER_OFFSET_KEY));
+                if (!sys.containsData(SystemUtils.LENGHT_KEY))
+                    sys.storeData(SystemUtils.LENGHT_KEY, dimV.get(SystemUtils.LENGHT_KEY));
+                if (!sys.containsData(SystemUtils.LENGHT_CENTER_OFFSET_KEY))
+                    sys.storeData(SystemUtils.LENGHT_CENTER_OFFSET_KEY, dimV.get(SystemUtils.LENGHT_CENTER_OFFSET_KEY));
             }
         }
     }

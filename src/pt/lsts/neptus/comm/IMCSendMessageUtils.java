@@ -214,9 +214,9 @@ public class IMCSendMessageUtils {
      * @return
      */
     public static boolean doesSystemWithAcousticCanReachSystem(ImcSystem acOpSystem, String system) {
-        if (acOpSystem.containsData(ImcSystem.ACOUSTIC_SYSTEMS)) {
+        if (acOpSystem.containsData(SystemUtils.ACOUSTIC_SYSTEMS)) {
             try {
-                AcousticSystems msg = (AcousticSystems) acOpSystem.retrieveData(ImcSystem.ACOUSTIC_SYSTEMS);
+                AcousticSystems msg = (AcousticSystems) acOpSystem.retrieveData(SystemUtils.ACOUSTIC_SYSTEMS);
                 String sysLst = msg.getList();
                 if (StringUtils.isTokenInList(sysLst, system))
                     return true;

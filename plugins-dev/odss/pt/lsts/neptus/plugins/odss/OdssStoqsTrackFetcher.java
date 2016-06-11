@@ -59,6 +59,7 @@ import org.w3c.dom.NodeList;
 
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.comm.IMCUtils;
+import pt.lsts.neptus.comm.SystemUtils;
 import pt.lsts.neptus.comm.manager.imc.ImcMsgManager;
 import pt.lsts.neptus.comm.manager.imc.ImcSystem;
 import pt.lsts.neptus.comm.manager.imc.ImcSystemsHolder;
@@ -495,7 +496,7 @@ public class OdssStoqsTrackFetcher extends ConsolePanel implements IPeriodicUpda
                             sys.setAttitudeDegrees(coordinateSystem.getRoll(), coordinateSystem.getPitch(),
                                     coordinateSystem.getYaw(), time);
                         }
-                        sys.storeData(ImcSystem.WEB_UPDATED_KEY, true, time, true);
+                        sys.storeData(SystemUtils.WEB_UPDATED_KEY, true, time, true);
                     }
                 }
             }

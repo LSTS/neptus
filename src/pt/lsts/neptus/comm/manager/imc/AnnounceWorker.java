@@ -56,6 +56,7 @@ import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.comm.CommUtil;
 import pt.lsts.neptus.comm.IMCSendMessageUtils;
 import pt.lsts.neptus.comm.IMCUtils;
+import pt.lsts.neptus.comm.SystemUtils;
 import pt.lsts.neptus.comm.manager.imc.ImcSystem.IMCAuthorityState;
 import pt.lsts.neptus.mystate.MyState;
 import pt.lsts.neptus.types.coord.LocationType;
@@ -607,8 +608,8 @@ public class AnnounceWorker {
             if (sys.getType() != SystemTypeEnum.VEHICLE)
                 return;
             
-            if (sys.retrieveData(ImcSystem.LBL_CONFIG_KEY) != null &&
-                    System.currentTimeMillis() - sys.retrieveDataTimeMillis(ImcSystem.LBL_CONFIG_KEY) < 20000) {
+            if (sys.retrieveData(SystemUtils.LBL_CONFIG_KEY) != null &&
+                    System.currentTimeMillis() - sys.retrieveDataTimeMillis(SystemUtils.LBL_CONFIG_KEY) < 20000) {
                 return;
             }
                 
