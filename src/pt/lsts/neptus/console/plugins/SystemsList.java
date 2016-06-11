@@ -1924,9 +1924,8 @@ public class SystemsList extends ConsolePanel implements MainVehicleChangeListen
                     if (obj != null)
                         lenghtOffsetFromCenter = ((Number) obj).doubleValue();
 
-                    SystemPainterHelper.drawVesselDimentionsIconForSystem(renderer, g2, width, length, 
-                            widthOffsetFromCenter, lenghtOffsetFromCenter, headingDegrees,
-                            color, sys.getLocation(), false);
+                    SystemPainterHelper.drawVesselDimentionsIconForSystem(renderer, g2, width, length,
+                            widthOffsetFromCenter, lenghtOffsetFromCenter, headingDegrees, color, false);
                 }
             }
         }

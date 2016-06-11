@@ -358,6 +358,7 @@ public class SystemPainterHelper {
         Graphics2D g2 = (Graphics2D) g.create();
         
         Color colorToPaint = color == null ? g2.getColor() : color;
+        @SuppressWarnings("unused")
         int vectorOffset = (int) (iconWidth / 2d);
         
         int useTransparency = (isLocationKnownUpToDate ? 255 : AGE_TRANSPARENCY);
@@ -430,7 +431,7 @@ public class SystemPainterHelper {
     
     public static final void drawVesselDimentionsIconForSystem(StateRenderer2D renderer, Graphics2D g, double width,
             double length, double widthOffsetFromCenter, double lenghtOffsetFromCenter, double headingDegrees, 
-            Color color, LocationType location, boolean isLocationKnownUpToDate) {
+            Color color, boolean isLocationKnownUpToDate) {
 
         double alfaPercentage = isLocationKnownUpToDate ? 1 : AGE_TRANSPARENCY / 255.;
         
