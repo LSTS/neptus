@@ -83,10 +83,10 @@ public class AisContactDb implements AISObserver {
                 
                 HashMap<String, Object> dimV = new HashMap<>();
                 for (int i = 2; i < parts.length; i++) {
-                    String tk = parts[1].trim();
+                    String tk = parts[i].trim();
                     String[] prs = tk.split("=");
                     if (prs.length > 1) {
-                        String n = prs[0].trim().toLowerCase();
+                        String n = prs[0].trim();
                         try {
                             double v = Double.parseDouble(prs[1].trim());
                             dimV.put(n, v);
