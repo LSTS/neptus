@@ -869,15 +869,29 @@ public class ImcSystem implements Comparable<ImcSystem> {
 	/**
 	 * This will retrieve the data stored or {@code null} if not found.
 	 * @param key
+	 * @param ageMillis
 	 * @return
 	 */
-	public Object retrieveData(String key) {
-	    Object ret = null;
+	public Object retrieveData(String key, long ageMillis) {
 	    synchronized (dataStorage) {
-	        ret = dataStorage.get(key);
+	        if (containsData(key, ageMillis))
+	            return retrieveData(key);
         }
-	    return ret;
+	    return null;
 	}
+
+	   /**
+     * This will retrieve the data stored or {@code null} if not found.
+     * @param key
+     * @return
+     */
+    public Object retrieveData(String key) {
+        Object ret = null;
+        synchronized (dataStorage) {
+            ret = dataStorage.get(key);
+        }
+        return ret;
+    }
 
 	/**
 	 * @param key

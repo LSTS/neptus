@@ -324,6 +324,21 @@ public class ExternalSystem implements Comparable<ExternalSystem> {
     /**
      * This will retrieve the data stored or {@code null} if not found.
      * @param key
+     * @param ageMillis
+     * @return
+     */
+    public Object retrieveData(String key, long ageMillis) {
+        synchronized (dataStorage) {
+            if (containsData(key, ageMillis))
+                return retrieveData(key);
+        }
+        return null;
+    }
+
+
+    /**
+     * This will retrieve the data stored or {@code null} if not found.
+     * @param key
      * @return
      */
     public Object retrieveData(String key) {
