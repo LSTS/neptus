@@ -85,6 +85,14 @@ public class SystemsInteraction extends ConsoleInteraction {
     
     public SystemsInteraction() {
     }
+    
+    /* (non-Javadoc)
+     * @see pt.lsts.neptus.console.ConsoleInteraction#isExclusive()
+     */
+    @Override
+    public boolean isExclusive() {
+        return false;
+    }
 
     /* (non-Javadoc)
      * @see pt.lsts.neptus.console.ConsoleInteraction#initInteraction()
@@ -129,11 +137,11 @@ public class SystemsInteraction extends ConsoleInteraction {
         g2.translate(0, renderer.getHeight() - RECT_HEIGHT - MARGIN);
         g2.translate(0, -40);
 
-        g2.setColor(new Color(255, 255, 255, 200));
+        g2.setColor(new Color(0, 0, 0, 200));
 
         g2.drawRoundRect(MARGIN, MARGIN, RECT_WIDTH, RECT_HEIGHT, 20, 20);
 
-        g2.setColor(new Color(255, 255, 255, 100));
+        g2.setColor(new Color(255, 255, 255, 150));
 
         g2.fillRoundRect(MARGIN, MARGIN, RECT_WIDTH, RECT_HEIGHT, 20, 20);
 
