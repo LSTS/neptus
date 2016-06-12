@@ -72,6 +72,7 @@ import java.io.InputStream;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Comparator;
@@ -88,6 +89,7 @@ import javax.sound.sampled.DataLine;
 import javax.sound.sampled.LineUnavailableException;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
+import javax.swing.JComboBox;
 import javax.swing.JComponent;
 import javax.swing.JDialog;
 import javax.swing.JEditorPane;
@@ -113,6 +115,8 @@ import com.jgoodies.looks.plastic.PlasticXPLookAndFeel;
 import com.l2fprod.common.swing.BaseDialog;
 
 import pt.lsts.neptus.NeptusLog;
+import pt.lsts.neptus.comm.manager.imc.ImcSystem;
+import pt.lsts.neptus.comm.manager.imc.ImcSystemsHolder;
 import pt.lsts.neptus.data.Pair;
 import pt.lsts.neptus.gui.ErrorMessageBox;
 import pt.lsts.neptus.gui.swing.NeptusFileView;
@@ -1251,7 +1255,22 @@ public class GuiUtils {
             return null;
         return new Pair<String, String>(login.getText(), new String(pass.getPassword()));
     }
-
+    
+    public static JComboBox<String> vehiclesCombo(boolean onlyActiveVehicles) {
+        ArrayList<String> vehicles = new ArrayList<>();
+        
+        if (onlyActiveVehicles)
+            for (ImcSystem s : ImcSystemsHolder.lookupActiveSystemVehicles())
+                vehicles.add(s.getName());
+        else
+            for (ImcSystem s : ImcSystemsHolder.lookupSystemVehicles())
+                vehicles.add(s.getName());
+        
+        return new JComboBox<>(vehicles.toArray(new String[0]));
+    }
+    
+    
+    
     /**
      * Unitary test.
      * 

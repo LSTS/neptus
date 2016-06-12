@@ -32,6 +32,7 @@
 package pt.lsts.neptus.historicdata;
 
 import java.io.ByteArrayOutputStream;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
@@ -48,16 +49,21 @@ import pt.lsts.imc.IMCDefinition;
 import pt.lsts.imc.IMCInputStream;
 import pt.lsts.imc.IMCMessage;
 import pt.lsts.imc.IMCOutputStream;
+import pt.lsts.imc.RemoteCommand;
 import pt.lsts.imc.historic.DataSample;
 import pt.lsts.imc.historic.DataStore;
 import pt.lsts.neptus.NeptusLog;
+import pt.lsts.neptus.comm.manager.imc.ImcMsgManager;
+import pt.lsts.neptus.comm.manager.imc.ImcSystemsHolder;
+import pt.lsts.neptus.console.notifications.Notification;
+import pt.lsts.neptus.i18n.I18n;
 
 /**
  * @author zp
  *
  */
 public class HistoricWebAdapter {
-    
+
     private ExecutorService executor = Executors.newSingleThreadExecutor();
     private String getURL = "http://ripples.lsts.pt/datastore/lsf";
     private String postURL = "http://ripples.lsts.pt/datastore";
@@ -71,13 +77,53 @@ public class HistoricWebAdapter {
         uploaded = new DataStore();
     }
     
-    public Future<Boolean> upload() {
-        return executor.submit(new Callable<Boolean>() {
+    public Future<Notification> command(String system, IMCMessage msg, double timeout) {
+        HistoricData data = new HistoricData();
+        RemoteCommand cmd = new RemoteCommand();
+        cmd.setDestination(ImcSystemsHolder.getSystemWithName(system).getId().intValue());
+        cmd.setOriginalSource(ImcMsgManager.getManager().getLocalId().intValue());
+        cmd.setCmd(msg);
+        cmd.setTimeout(timeout);
+        data.setData(Arrays.asList(cmd));
+        return upload(data);
+    }
+
+    public Future<Notification> upload(HistoricData data) {
+        return executor.submit(new Callable<Notification>() {
             @Override
-            public Boolean call() throws Exception {
+            public Notification call() throws Exception {
+                try {
+                    PostMethod post = new PostMethod(postURL);
+                    ByteArrayOutputStream baos = new ByteArrayOutputStream();
+                    IMCOutputStream out = new IMCOutputStream(baos);
+                    out.writeMessage(data);
+                    out.close();
+                    ByteArrayRequestEntity body = new ByteArrayRequestEntity(baos.toByteArray());
+                    post.setRequestEntity(body);
+                    NeptusLog.pub().info("Uploading message to the web");
+                    int response = client.executeMethod(post);
+                    if (response != 200)
+                        throw new Exception("HTTP Status "+response+": "+post.getResponseBodyAsString());                    
+                    return Notification.success(I18n.text("Message upload"),
+                            I18n.text("Message uploaded successfully"));
+                }
+                catch (Exception e) {
+                    e.printStackTrace();
+                    NeptusLog.pub().error(e);
+                    return Notification.error(I18n.text("Message upload"),
+                            I18n.textf("Error uploading to web: %error", e.getMessage()));
+                }
+            }
+        });
+    }
+
+    public Future<Notification> upload() {
+        return executor.submit(new Callable<Notification>() {
+            @Override
+            public Notification call() throws Exception {
                 int samplesBefore = localStore.numSamples();
                 HistoricData data = localStore.pollData(0, 64000);
-                
+
                 try {
                     PostMethod post = new PostMethod(postURL);
                     ByteArrayOutputStream baos = new ByteArrayOutputStream();
@@ -92,35 +138,37 @@ public class HistoricWebAdapter {
                         throw new Exception("HTTP Status "+response+": "+post.getResponseBodyAsString());
                     NeptusLog.pub().info("Uploaded local data to the web. Local dataStore contained "+samplesBefore+" and now contains "+localStore.numSamples()+" samples.");
                     uploaded.addData(data);
-                    return true;
+                    return Notification.info(I18n.text("Historic Data Upload"),
+                            I18n.text("Historic Data uploaded successfully"));
                 }
                 catch (Exception e) {
                     localStore.addData(data);
                     e.printStackTrace();
                     NeptusLog.pub().error(e);
-                    return false;
+                    return Notification.warning(I18n.text("Historic Data Upload"),
+                            I18n.textf("Error uploading historic data: %error", e.getMessage()));
                 }
             } 
         });
     }
-    
+
     public void addLocalData(HistoricData data) {
         localStore.addData(data);
     }
-    
-    
+
+
     public Future<Boolean> download() {
         return executor.submit(new Callable<Boolean>() {
-            
+
             @Override
             public Boolean call() throws Exception {
-                
+
                 try {
                     String query = "?since="+lastPoll;
                     GetMethod get = new GetMethod(getURL+query);
                     NeptusLog.pub().info("Polling web server for data since "+new Date(lastPoll));
                     int status = client.executeMethod(get);
-                   
+
                     if (status != 200)
                         throw new Exception("HTTP Status "+status+": "+get.getResponseBodyAsString());
                     IMCInputStream iis = new IMCInputStream(get.getResponseBodyAsStream(), IMCDefinition.getInstance());
@@ -150,5 +198,5 @@ public class HistoricWebAdapter {
             }                        
         });
     }
-    
+
 }
