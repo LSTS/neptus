@@ -69,8 +69,10 @@ import pt.lsts.neptus.plugins.mvplanning.consoles.NeptusConsoleAdapter;
 import pt.lsts.neptus.plugins.mvplanning.events.MvPlanningEventPlanAllocated;
 import pt.lsts.neptus.plugins.mvplanning.interfaces.ConsoleAdapter;
 import pt.lsts.neptus.plugins.mvplanning.interfaces.MapCell;
+import pt.lsts.neptus.plugins.mvplanning.jaxb.PlanTaskMarshaler;
 import pt.lsts.neptus.plugins.mvplanning.jaxb.ProfileMarshaler;
 import pt.lsts.neptus.plugins.mvplanning.jaxb.profiles.Profile;
+import pt.lsts.neptus.plugins.mvplanning.planning.PlanTask;
 import pt.lsts.neptus.plugins.mvplanning.planning.algorithm.MST;
 import pt.lsts.neptus.plugins.mvplanning.planning.mapdecomposition.GridArea;
 import pt.lsts.neptus.renderer2d.Renderer2DPainter;
@@ -99,6 +101,7 @@ public class MVPlanning extends ConsolePanel implements PlanChangeListener, Rend
     private PlanAllocator pAlloc;
     private PlanGenerator pGen;
     private Environment env;
+    private StateMonitor stateMonitor;
 
     private Map<String, PlanType> selectedPlans;
 
@@ -127,6 +130,7 @@ public class MVPlanning extends ConsolePanel implements PlanChangeListener, Rend
         pAlloc = new PlanAllocator(vawareness, this.console);
         pGen = new PlanGenerator(pAlloc, this.console);
         env = new Environment(this.console);
+        stateMonitor = new StateMonitor(this.console, pTaskMarsh);
 
         computeOperationalArea();
     }
@@ -267,7 +271,8 @@ public class MVPlanning extends ConsolePanel implements PlanChangeListener, Rend
 
     @Override
     public void cleanSubPanel() {
-
+        NeptusLog.pub().info("Saving unfinished plans/tasks");
+        stateMonitor.stopPlugin();
     }
 
     @Override
