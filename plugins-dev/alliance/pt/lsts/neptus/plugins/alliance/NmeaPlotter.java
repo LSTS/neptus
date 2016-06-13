@@ -78,14 +78,13 @@ import pt.lsts.neptus.types.vehicle.VehicleType.SystemTypeEnum;
 import pt.lsts.neptus.util.GuiUtils;
 import pt.lsts.neptus.util.NMEAUtils;
 
-
 /**
  * @author zp
- *
+ * @author pdias
  */
-@PluginDescription(name="NMEA Plotter")
+@PluginDescription(name = "NMEA Plotter")
 public class NmeaPlotter extends ConsoleLayer {
-    
+
     @NeptusProperty(name = "Connect to the serial port")
     public boolean serialListen = false;
 
@@ -109,28 +108,28 @@ public class NmeaPlotter extends ConsoleLayer {
 
     @NeptusProperty(name = "Listen for incoming UDP packets")
     public boolean udpListen = true;
-    
+
     @NeptusProperty(name = "Connect via TCP")
     public boolean tcpConnect = false;
-    
+
     @NeptusProperty(name = "TCP Host")
     public String tcpHost = "127.0.0.1";
-    
+
     @NeptusProperty(name = "TCP Port")
-    public int tcpPort = 13000;    
+    public int tcpPort = 13000;
 
     @NeptusProperty(name = "Maximum age in for AIS contacts (seconds)")
     public int maximumAisAge = 600;
 
-    @NeptusProperty(name = "Retransmit to other Neptus consoles", userLevel=LEVEL.ADVANCED)
+    @NeptusProperty(name = "Retransmit to other Neptus consoles", userLevel = LEVEL.ADVANCED)
     public boolean retransmitToNeptus = true;
-    
-    @NeptusProperty(name = "Log received data", userLevel=LEVEL.ADVANCED)
+
+    @NeptusProperty(name = "Log received data", userLevel = LEVEL.ADVANCED)
     public boolean logReceivedData = true;
-    
-    @NeptusProperty(name = "Number of track points", userLevel=LEVEL.ADVANCED)
+
+    @NeptusProperty(name = "Number of track points", userLevel = LEVEL.ADVANCED)
     public int trackPoints = 100;
-            
+
     private JMenuItem connectItem = null;
     private boolean connected = false;
     private boolean serialConnected = false;
@@ -152,13 +151,13 @@ public class NmeaPlotter extends ConsoleLayer {
 
     private LinkedHashMap<String, LocationType> lastLocs = new LinkedHashMap<>();
     private LinkedHashMap<String, ScatterPointsElement> tracks = new LinkedHashMap<>();
-    
-    @Periodic(millisBetweenUpdates=5000)
+
+    @Periodic(millisBetweenUpdates = 5000)
     public void updateTracks() {
         for (AisContact c : contactDb.getContacts()) {
             LocationType l = c.getLocation();
             String name = c.getLabel();
-            
+
             if (lastLocs.get(name) == null || !lastLocs.get(name).equals(l)) {
                 if (!tracks.containsKey(name)) {
                     ScatterPointsElement sc = new ScatterPointsElement();
@@ -167,21 +166,20 @@ public class NmeaPlotter extends ConsoleLayer {
                     sc.setNumberOfPoints(trackPoints);
                     tracks.put(name, sc);
                 }
-                tracks.get(name).addPoint(l);                
+                tracks.get(name).addPoint(l);
             }
         }
     }
-    
-    
+
     private void connectToSerial() throws Exception {
         serialPort = new SerialPort(uartDevice);
 
         boolean opened = serialPort.openPort();
         if (!opened)
-            throw new Exception("Unable to open port "+uartDevice);
+            throw new Exception("Unable to open port " + uartDevice);
 
         serialConnected = true;
-        
+
         serialPort.setParams(uartBaudRate, dataBits, stopBits, parity);
         serialPort.addEventListener(new SerialPortEventListener() {
 
@@ -194,8 +192,8 @@ public class NmeaPlotter extends ConsoleLayer {
                     if (s.contains("\n")) {
                         currentString += s.substring(0, s.indexOf('\n'));
                         if (!currentString.trim().isEmpty()) {
-//                            System.out.println(">" + currentString);
-                            for (NmeaListener l :listeners)
+                            // System.out.println(">" + currentString);
+                            for (NmeaListener l : listeners)
                                 l.nmeaSentence(currentString.trim());
                             parseSentence(currentString);
                             if (retransmitToNeptus)
@@ -203,7 +201,7 @@ public class NmeaPlotter extends ConsoleLayer {
                             if (logReceivedData)
                                 LsfMessageLogger.log(new DevDataText(currentString));
                         }
-                        currentString = s.substring(s.indexOf('\n')+1);                        
+                        currentString = s.substring(s.indexOf('\n') + 1);
                     }
                     else if (s.contains("$") || s.contains("!")) {
                         if (s.contains("$"))
@@ -211,8 +209,8 @@ public class NmeaPlotter extends ConsoleLayer {
                         else
                             currentString += s.substring(0, s.indexOf('!'));
                         if (!currentString.trim().isEmpty()) {
-//                            System.out.println(currentString);
-                            for (NmeaListener l :listeners)
+                            // System.out.println(currentString);
+                            for (NmeaListener l : listeners)
                                 l.nmeaSentence(currentString.trim());
                             parseSentence(currentString);
                             if (retransmitToNeptus)
@@ -224,7 +222,7 @@ public class NmeaPlotter extends ConsoleLayer {
                             currentString = s.substring(s.indexOf('$'));
                         else
                             currentString = s.substring(s.indexOf('!'));
-//                        System.out.println(">>" + currentString);
+                        // System.out.println(">>" + currentString);
                     }
                     else {
                         currentString += s;
@@ -235,21 +233,21 @@ public class NmeaPlotter extends ConsoleLayer {
                 }
             }
         });
-//        serialPort.setParams(uartBaudRate, dataBits, stopBits, parity);
+        // serialPort.setParams(uartBaudRate, dataBits, stopBits, parity);
     }
-    
+
     private void retransmit(String sentence) {
         DevDataText ddt = new DevDataText(sentence);
         for (ImcSystem s : ImcSystemsHolder.lookupSystemByType(SystemTypeEnum.CCU)) {
             ImcMsgManager.getManager().sendMessageToSystem(ddt, s.getName());
         }
     }
-    
+
     @Subscribe
     public void on(DevDataText ddt) {
         parseSentence(ddt.getValue());
     }
-    
+
     private void parseSentence(String s) {
         s = s.trim();
         String nmeaType = NMEAUtils.nmeaType(s);
@@ -263,22 +261,22 @@ public class NmeaPlotter extends ConsoleLayer {
             contactDb.processGPHDT(s);
         else {
             synchronized (parser) {
-                parser.process(s);    
+                parser.process(s);
             }
-        }            
+        }
     }
-    
+
     private void connect() throws Exception {
         if (serialListen)
             connectToSerial();
         if (udpListen) {
             final DatagramSocket socket = new DatagramSocket(udpPort);
             Thread listener = new Thread("NmeaListener") {
-                
+
                 public void run() {
                     connected = true;
                     NeptusLog.pub().info("Listening to NMEA messages over UDP.");
-                    while(connected) {
+                    while (connected) {
                         try {
                             DatagramPacket dp = new DatagramPacket(new byte[65507], 65507);
                             socket.receive(dp);
@@ -296,7 +294,7 @@ public class NmeaPlotter extends ConsoleLayer {
                                 LsfMessageLogger.log(new DevDataText(sentence));
                         }
                         catch (Exception e) {
-                            e.printStackTrace();   
+                            e.printStackTrace();
                             break;
                         }
                     }
@@ -307,11 +305,11 @@ public class NmeaPlotter extends ConsoleLayer {
             listener.setDaemon(true);
             listener.start();
         }
-        
+
         if (tcpConnect) {
             final Socket socket = new Socket();
             Thread listener = new Thread("TCP Nmea Listener") {
-                
+
                 public void run() {
                     connected = false;
                     BufferedReader reader = null;
@@ -322,12 +320,14 @@ public class NmeaPlotter extends ConsoleLayer {
                     }
                     catch (Exception e) {
                         NeptusLog.pub().error(e);
-                        getConsole().post(Notification.error("NMEA Plotter", "Error connecting via TCP to "+tcpHost+":"+tcpPort));
+                        getConsole().post(Notification.error("NMEA Plotter",
+                                "Error connecting via TCP to " + tcpHost + ":" + tcpPort));
                         return;
                     }
                     NeptusLog.pub().info("Listening to NMEA messages over TCP.");
-                    getConsole().post(Notification.success("NMEA Plotter", "Connected via TCP to "+tcpHost+":"+tcpPort));
-                    while(connected) {
+                    getConsole().post(
+                            Notification.success("NMEA Plotter", "Connected via TCP to " + tcpHost + ":" + tcpPort));
+                    while (connected) {
                         try {
                             String sentence = reader.readLine();
                             try {
@@ -342,7 +342,7 @@ public class NmeaPlotter extends ConsoleLayer {
                                 LsfMessageLogger.log(new DevDataText(sentence));
                         }
                         catch (Exception e) {
-                            e.printStackTrace();   
+                            e.printStackTrace();
                             break;
                         }
                     }
@@ -388,7 +388,7 @@ public class NmeaPlotter extends ConsoleLayer {
                 NeptusLog.pub().error(e);
             }
         }
-        
+
         getConsole().removeMenuItem(I18n.text("Tools") + ">" + I18n.text("NMEA Plotter") + ">" + I18n.text("Connect"));
         getConsole().removeMenuItem(I18n.text("Tools") + ">" + I18n.text("NMEA Plotter") + ">" + I18n.text("Settings"));
     }
@@ -397,12 +397,12 @@ public class NmeaPlotter extends ConsoleLayer {
         return false;
     }
 
-    @Periodic(millisBetweenUpdates=60000)
+    @Periodic(millisBetweenUpdates = 60000)
     public void purgeOldContacts() {
         contactDb.purge(maximumAisAge * 1000);
     }
 
-    @Periodic(millisBetweenUpdates=120000)
+    @Periodic(millisBetweenUpdates = 120000)
     public void saveCache() {
         contactDb.saveCache();
     }
@@ -414,11 +414,11 @@ public class NmeaPlotter extends ConsoleLayer {
         ArrayList<ScatterPointsElement> els = new ArrayList<>();
         els.addAll(tracks.values());
         for (ScatterPointsElement el : els)
-            el.paint((Graphics2D)g.create(), renderer, renderer.getRotation());
-        
+            el.paint((Graphics2D) g.create(), renderer, renderer.getRotation());
+
         for (AisContact c : contactDb.getContacts()) {
             LocationType l = c.getLocation();
-            if (l.getLatitudeDegs() == 0 &&  l.getLongitudeDegs() == 0)
+            if (l.getLatitudeDegs() == 0 && l.getLongitudeDegs() == 0)
                 continue;
 
             Point2D pt = renderer.getScreenPosition(l);
@@ -428,11 +428,11 @@ public class NmeaPlotter extends ConsoleLayer {
             if (c.getAdditionalProperties() != null) {
                 g.setColor(new Color(64, 124, 192, 128));
                 Message05 m = c.getAdditionalProperties();
-                Graphics2D copy = (Graphics2D)g.create();
+                Graphics2D copy = (Graphics2D) g.create();
                 double width = m.getDimensionToPort() + m.getDimensionToStarboard();
                 double length = m.getDimensionToStern() + m.getDimensionToBow();
-                double centerX = pt.getX();//-m.getDimensionToPort() + width/2.0;
-                double centerY = pt.getY();//-m.getDimensionToStern() + length/2.0;
+                double centerX = pt.getX();// -m.getDimensionToPort() + width/2.0;
+                double centerY = pt.getY();// -m.getDimensionToStern() + length/2.0;
 
                 double widthOffsetFromCenter = m.getDimensionToPort() - m.getDimensionToStarboard();
                 double lenghtOffsetFromCenter = m.getDimensionToStern() - m.getDimensionToBow();
@@ -446,39 +446,42 @@ public class NmeaPlotter extends ConsoleLayer {
                 copy.scale(1.0 / (width / 2), 1.0 / (length / 2));
             }
             g.setColor(Color.black);
-            g.fill(new Ellipse2D.Double((int) pt.getX() - 3, (int) pt.getY() - 3, 6, 6));            
-        }            
+            g.fill(new Ellipse2D.Double((int) pt.getX() - 3, (int) pt.getY() - 3, 6, 6));
+        }
     }
 
     @Override
     public void initLayer() {
-        connectItem = getConsole().addMenuItem(I18n.text("Tools") + ">" + I18n.text("NMEA Plotter") + ">" + I18n.text("Connect"), null, new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                try {
-                    if (!connected) {
-                        connect();
-                        connected = true;
-                        connectItem.setText(I18n.text("Disconnect"));
+        connectItem = getConsole().addMenuItem(
+                I18n.text("Tools") + ">" + I18n.text("NMEA Plotter") + ">" + I18n.text("Connect"), null,
+                new ActionListener() {
+                    @Override
+                    public void actionPerformed(ActionEvent e) {
+                        try {
+                            if (!connected) {
+                                connect();
+                                connected = true;
+                                connectItem.setText(I18n.text("Disconnect"));
+                            }
+                            else {
+                                disconnect();
+                                connected = false;
+                                connectItem.setText(I18n.text("Connect"));
+                            }
+                        }
+                        catch (Exception ex) {
+                            GuiUtils.errorMessage(getConsole(), ex);
+                        }
                     }
-                    else {
-                        disconnect();
-                        connected = false;
-                        connectItem.setText(I18n.text("Connect"));
-                    }
-                }
-                catch (Exception ex) {
-                    GuiUtils.errorMessage(getConsole(), ex);
-                }
-            }
-        });
+                });
 
-        getConsole().addMenuItem(I18n.text("Tools") + ">" + I18n.text("NMEA Plotter") + ">" + I18n.text("Settings"), null, new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                PluginUtils.editPluginProperties(NmeaPlotter.this, true);
-            }
-        });
+        getConsole().addMenuItem(I18n.text("Tools") + ">" + I18n.text("NMEA Plotter") + ">" + I18n.text("Settings"),
+                null, new ActionListener() {
+                    @Override
+                    public void actionPerformed(ActionEvent e) {
+                        PluginUtils.editPluginProperties(NmeaPlotter.this, true);
+                    }
+                });
         parser.register(contactDb);
     }
 }
