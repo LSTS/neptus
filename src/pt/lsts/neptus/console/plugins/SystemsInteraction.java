@@ -133,20 +133,24 @@ public class SystemsInteraction extends ConsoleInteraction {
 
         g2.setTransform(renderer.getIdentity());
         
+        int width = RECT_WIDTH;
+        int height = RECT_HEIGHT;
+        height = (int) Math.max(height, labelToPaint.getPreferredSize().getHeight());
+        
         // Pull up for lat/lon label
-        g2.translate(0, renderer.getHeight() - RECT_HEIGHT - MARGIN);
+        g2.translate(0, renderer.getHeight() - (height + MARGIN));
         g2.translate(0, -40);
 
         g2.setColor(new Color(0, 0, 0, 200));
 
-        g2.drawRoundRect(MARGIN, MARGIN, RECT_WIDTH, RECT_HEIGHT, 20, 20);
+        g2.drawRoundRect(MARGIN, MARGIN, width, height, 20, 20);
 
         g2.setColor(new Color(255, 255, 255, 150));
 
-        g2.fillRoundRect(MARGIN, MARGIN, RECT_WIDTH, RECT_HEIGHT, 20, 20);
+        g2.fillRoundRect(MARGIN, MARGIN, width, height, 20, 20);
 
         g2.translate(2.5, 2.5);
-        labelToPaint.setBounds(0, 0, RECT_WIDTH, RECT_HEIGHT);
+        labelToPaint.setBounds(0, 0, width, height);
         labelToPaint.paint(g2);
         
         g2.dispose();
