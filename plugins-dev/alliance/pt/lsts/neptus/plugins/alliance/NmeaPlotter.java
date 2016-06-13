@@ -388,6 +388,9 @@ public class NmeaPlotter extends ConsoleLayer {
                 NeptusLog.pub().error(e);
             }
         }
+        
+        getConsole().removeMenuItem(I18n.text("Tools") + ">" + I18n.text("NMEA Plotter") + ">" + I18n.text("Connect"));
+        getConsole().removeMenuItem(I18n.text("Tools") + ">" + I18n.text("NMEA Plotter") + ">" + I18n.text("Settings"));
     }
 
     public boolean userControlsOpacity() {
@@ -404,7 +407,6 @@ public class NmeaPlotter extends ConsoleLayer {
         contactDb.saveCache();
     }
 
-
     @Override
     public void paint(Graphics2D g, StateRenderer2D renderer) {
         super.paint(g, renderer);
@@ -420,11 +422,11 @@ public class NmeaPlotter extends ConsoleLayer {
                 continue;
 
             Point2D pt = renderer.getScreenPosition(l);
-            g.setColor(new Color(64,124,192));
-            g.drawString(c.getLabel(), (int)pt.getX()+17, (int)pt.getY()+2);
+            g.setColor(new Color(64, 124, 192));
+            g.drawString(c.getLabel(), (int) pt.getX() + 17, (int) pt.getY() + 2);
 
             if (c.getAdditionalProperties() != null) {
-                g.setColor(new Color(64,124,192,128));
+                g.setColor(new Color(64, 124, 192, 128));
                 Message05 m = c.getAdditionalProperties();
                 Graphics2D copy = (Graphics2D)g.create();
                 double width = m.getDimensionToPort() + m.getDimensionToStarboard();
@@ -436,15 +438,15 @@ public class NmeaPlotter extends ConsoleLayer {
                 double lenghtOffsetFromCenter = m.getDimensionToStern() - m.getDimensionToBow();
 
                 copy.translate(centerX, centerY);
-                copy.rotate(Math.PI+Math.toRadians(c.getHdg()) - renderer.getRotation());
+                copy.rotate(Math.PI + Math.toRadians(c.getHdg()) - renderer.getRotation());
                 copy.scale(renderer.getZoom(), renderer.getZoom());
                 copy.translate(widthOffsetFromCenter / 2., -lenghtOffsetFromCenter / 2.);
-                copy.scale(width/2, length/2);
+                copy.scale(width / 2, length / 2);
                 copy.fill(ship);
-                copy.scale(1.0/(width/2), 1.0/(length/2));
+                copy.scale(1.0 / (width / 2), 1.0 / (length / 2));
             }
             g.setColor(Color.black);
-            g.fill(new Ellipse2D.Double((int)pt.getX()-3, (int)pt.getY()-3, 6, 6));            
+            g.fill(new Ellipse2D.Double((int) pt.getX() - 3, (int) pt.getY() - 3, 6, 6));            
         }            
     }
 
