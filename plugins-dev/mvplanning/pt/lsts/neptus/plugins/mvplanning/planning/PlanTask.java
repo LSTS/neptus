@@ -33,10 +33,18 @@ package pt.lsts.neptus.plugins.mvplanning.planning;
 
 import java.util.List;
 
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
+
 import pt.lsts.imc.PlanSpecification;
+import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.comm.IMCUtils;
-import pt.lsts.neptus.mp.ManeuverLocation;
+import pt.lsts.neptus.plugins.mvplanning.jaxb.plans.PlanTypeJaxbAdapter;
 import pt.lsts.neptus.plugins.mvplanning.jaxb.profiles.Profile;
+import pt.lsts.neptus.types.mission.MissionType;
 import pt.lsts.neptus.types.mission.plan.PlanType;
 
 /**
@@ -44,17 +52,32 @@ import pt.lsts.neptus.types.mission.plan.PlanType;
  */
 
 /* Wrapper around PlanSpecification */
+@XmlRootElement (name="PlanTask")
+@XmlAccessorType(XmlAccessType.NONE)
 public class PlanTask {
     public static enum TASK_TYPE {
         COVERAGE_AREA,
         VISIT_POINT
     };
 
+    @XmlElement(name = "PlanId")
     private String planId;
+
+    @XmlJavaTypeAdapter(PlanTypeJaxbAdapter.class)
     private PlanType plan;
+
+    @XmlElement
     private Profile planProfile;
+
+    @XmlElement(name = "Timestamp")
     private double timestamp;
+
+    @XmlElement(name = "md5")
     private byte[] md5;
+
+    @XmlElement(name = "Completion")
+    private double completion;
+
     private TASK_TYPE taskType;
 
     public PlanTask(String id, PlanType plan, Profile planProfile) {
@@ -64,7 +87,40 @@ public class PlanTask {
         this.planProfile = planProfile;
         this.timestamp = -1;
 
+        completion = 0;
         md5 = plan.asIMCPlan().payloadMD5();
+        /* set a vehicle by default */
+        plan.setVehicle("lauv-xplore-1");
+    }
+
+    /**
+     * Constructor used by JAXB when marshaling an object of this class
+     * */
+    public PlanTask() {
+    }
+
+    /**
+     * Constructor used by JAXB when unmarshalling an object of this class
+     * */
+    public PlanTask(String id, PlanType plan, Profile planProfile, double timestamp, byte[] md5, double completion, TASK_TYPE taskType) {
+        this.planId = id;
+        this.plan = plan;
+        this.plan.setId(id);
+        this.planProfile = planProfile;
+        this.timestamp = timestamp;
+        this.md5 = md5;
+        this.completion = completion;
+        this.taskType = taskType;
+    }
+
+    @XmlElement(name = "TaskType")
+    public String getTaskTypeAsString() {
+        if(taskType == TASK_TYPE.COVERAGE_AREA)
+            return "CoverageArea";
+        else if(taskType == TASK_TYPE.VISIT_POINT)
+            return "VisitPoint";
+
+        return "unknown";
     }
 
     public String getPlanId() {
@@ -74,7 +130,7 @@ public class PlanTask {
     public PlanSpecification getPlanSpecification() {
         return (PlanSpecification) IMCUtils.generatePlanSpecification(this.plan);
     }
-    
+
     public PlanType asPlanType() {
         return plan;
     }
@@ -101,6 +157,17 @@ public class PlanTask {
 
     public TASK_TYPE getTaskType() {
         return taskType;
+    }
+
+    public void setMissionType(MissionType mtype) {
+        if(mtype != null)
+            plan.setMissionType(mtype);
+        else
+            NeptusLog.pub().warn("Trying to set a null MissionType");
+    }
+
+    public void updatePlanCompletion(double completion) {
+        this.completion = completion;
     }
 
     /**
