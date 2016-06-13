@@ -255,18 +255,19 @@ public class MVPlanning extends ConsolePanel implements PlanChangeListener, Rend
     }
 
     @Subscribe
-    public synchronized void on(MvPlanningEventPlanAllocated event) {
-        String lookupId = event.getPlanId() + " [" + event.getProfile() + "]";
-        String newId = lookupId + " [" + event.getVehicle() + "]";
-        int index;
+    public void on(MvPlanningEventPlanAllocated event) {
+        synchronized(listModel) {
+            String lookupId = event.getPlanId() + " [" + event.getProfile() + "]";
+            String newId = lookupId + " [" + event.getVehicle() + "]";
 
-        while((index = listModel.indexOf(lookupId)) == -1);
-
-        listModel.set(index, newId);
+            int index = listModel.indexOf(lookupId);
+            listModel.set(index, newId);
+        }
     }
 
     @Override
     public void cleanSubPanel() {
+
     }
 
     @Override
