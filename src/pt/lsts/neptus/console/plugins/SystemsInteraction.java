@@ -36,7 +36,6 @@ import java.awt.Graphics2D;
 import java.awt.event.MouseEvent;
 import java.awt.geom.Point2D;
 import java.util.ArrayList;
-import java.util.stream.Collectors;
 
 import javax.swing.BorderFactory;
 import javax.swing.JLabel;
@@ -197,8 +196,9 @@ public class SystemsInteraction extends ConsoleInteraction {
 
                     sb.append("<font size=\"2\">");
 
+                    Object shipType = sys.retrieveData(SystemUtils.SHIP_TYPE_KEY);
                     sb.append("<br/>").append("<b>").append(I18n.text("Type")).append(": ").append("</b>")
-                        .append(sys.getTypeExternal());
+                        .append(shipType != null ? shipType : sys.getTypeExternal());
 
                     Object mmsi = sys.retrieveData(SystemUtils.MMSI_KEY);
                     Object callSign = sys.retrieveData(SystemUtils.CALL_SIGN_KEY);
