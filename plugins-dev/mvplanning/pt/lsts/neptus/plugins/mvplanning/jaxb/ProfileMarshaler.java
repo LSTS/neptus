@@ -43,6 +43,8 @@ import javax.xml.bind.Unmarshaller;
 
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.plugins.mvplanning.MVPlanning;
+import pt.lsts.neptus.plugins.mvplanning.jaxb.profiles.Payload;
+import pt.lsts.neptus.plugins.mvplanning.jaxb.profiles.Profile;
 import pt.lsts.neptus.util.FileUtil;
 
 /**

@@ -36,7 +36,7 @@ import java.util.List;
 import pt.lsts.imc.PlanSpecification;
 import pt.lsts.neptus.comm.IMCUtils;
 import pt.lsts.neptus.mp.ManeuverLocation;
-import pt.lsts.neptus.plugins.mvplanning.jaxb.Profile;
+import pt.lsts.neptus.plugins.mvplanning.jaxb.profiles.Profile;
 import pt.lsts.neptus.types.mission.plan.PlanType;
 
 /**
