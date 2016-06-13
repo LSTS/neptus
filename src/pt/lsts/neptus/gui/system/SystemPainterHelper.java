@@ -42,6 +42,7 @@ import java.awt.geom.Ellipse2D;
 import java.awt.geom.GeneralPath;
 import java.awt.geom.RoundRectangle2D;
 
+import pt.lsts.neptus.comm.SystemUtils;
 import pt.lsts.neptus.comm.manager.imc.ImcSystem;
 import pt.lsts.neptus.gui.system.MilStd2525LikeSymbolsDefinitions.SymbolIconEnum;
 import pt.lsts.neptus.gui.system.MilStd2525LikeSymbolsDefinitions.SymbolOperationalConditionEnum;
@@ -61,6 +62,17 @@ public class SystemPainterHelper {
     public static enum CircleTypeBySystemType { AIR, SUBSURFACE, SURFACE, SURFACE_UNIT, DEFAULT };
 
     public static final int AGE_TRANSPARENCY = 128;
+    
+    protected static GeneralPath shipShape = new GeneralPath();
+    static {
+        shipShape.moveTo(0, -5);
+        shipShape.lineTo(-5, -3.5);
+        shipShape.lineTo(-5, 5);
+        shipShape.lineTo(5, 5);
+        shipShape.lineTo(5, -3.5);
+        shipShape.lineTo(0, -5);
+        shipShape.closePath();
+    }
 
     private SystemPainterHelper() {
     }
@@ -346,43 +358,104 @@ public class SystemPainterHelper {
         Graphics2D g2 = (Graphics2D) g.create();
         
         Color colorToPaint = color == null ? g2.getColor() : color;
+        @SuppressWarnings("unused")
         int vectorOffset = (int) (iconWidth / 2d);
         
         int useTransparency = (isLocationKnownUpToDate ? 255 : AGE_TRANSPARENCY);
         if (useTransparency != 255)
             g2.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, useTransparency / 255f));
 
-        Object obj = sys.retrieveData(ImcSystem.COURSE_KEY);
+        Object obj = sys.retrieveData(SystemUtils.COURSE_KEY);
         if (obj != null) {
             double courseDegrees = (Integer) obj;
-            obj = sys.retrieveData(ImcSystem.GROUND_SPEED_KEY);
+            obj = sys.retrieveData(SystemUtils.GROUND_SPEED_KEY);
             if (obj != null) {
                 double gSpeed = (Double) obj;
-                if (gSpeed > minimumSpeedToBeStopped) {
-                    g2.rotate(Math.toRadians(courseDegrees) - renderer.getRotation());
-                    Stroke cs = g2.getStroke();
-                    double zs = gSpeed * renderer.getZoom();
-                    if (zs < 50) {
-                        g2.setStroke(new BasicStroke(2, BasicStroke.CAP_BUTT, BasicStroke.JOIN_ROUND, 0,
-                                new float[] { 5, 5 }, 0));
-                        g2.setColor(Color.BLACK);
-                        g2.drawLine(2, -vectorOffset, 0, -50);
-                        g2.drawLine(-2, -vectorOffset, 0, -50);
-                        g2.setColor(colorToPaint);
-                        g2.drawLine(0, -vectorOffset, 0, -50);
-                    }
-                    g2.setStroke(new BasicStroke(2, BasicStroke.CAP_BUTT, BasicStroke.JOIN_ROUND));
-                    g2.setColor(Color.BLACK);
-                    g2.drawLine(2, -vectorOffset, 0, -(int) zs);
-                    g2.drawLine(-2, -vectorOffset, 0, -(int) zs);
-                    g2.setColor(colorToPaint);
-                    g2.drawLine(0, -vectorOffset, 0, -(int) zs);
-                    g2.setStroke(cs);
-                }
+                drawCourseSpeedVectorForSystem(renderer, g2, courseDegrees, gSpeed, colorToPaint, iconWidth,
+                        isLocationKnownUpToDate, minimumSpeedToBeStopped);
             }
         }
         
         g2.dispose();
         return;
+    }
+
+    /**
+     * @param renderer
+     * @param g
+     * @param courseDegrees
+     * @param speed
+     * @param color
+     * @param iconWidth
+     * @param isLocationKnownUpToDate
+     * @param minimumSpeedToBeStopped
+     */
+    public static final void drawCourseSpeedVectorForSystem(StateRenderer2D renderer, Graphics2D g, 
+            double courseDegrees, double speed, Color color, 
+            double iconWidth, boolean isLocationKnownUpToDate, double minimumSpeedToBeStopped) {
+        Graphics2D g2 = (Graphics2D) g.create();
+        
+        Color colorToPaint = color == null ? g2.getColor() : color;
+        int vectorOffset = (int) (iconWidth / 2d);
+        
+        int useTransparency = (isLocationKnownUpToDate ? 255 : AGE_TRANSPARENCY);
+        if (useTransparency != 255)
+            g2.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, useTransparency / 255f));
+
+        if (Double.isFinite(courseDegrees) && Double.isFinite(speed) && speed > minimumSpeedToBeStopped) {
+            g2.rotate(Math.toRadians(courseDegrees) - renderer.getRotation());
+            Stroke cs = g2.getStroke();
+            double zs = speed * renderer.getZoom();
+            if (zs < 50) {
+                g2.setStroke(new BasicStroke(2, BasicStroke.CAP_BUTT, BasicStroke.JOIN_ROUND, 0,
+                        new float[] { 5, 5 }, 0));
+                g2.setColor(Color.BLACK);
+                g2.drawLine(2, -vectorOffset, 0, -50);
+                g2.drawLine(-2, -vectorOffset, 0, -50);
+                g2.setColor(colorToPaint);
+                g2.drawLine(0, -vectorOffset, 0, -50);
+            }
+            g2.setStroke(new BasicStroke(2, BasicStroke.CAP_BUTT, BasicStroke.JOIN_ROUND));
+            g2.setColor(Color.BLACK);
+            g2.drawLine(2, -vectorOffset, 0, -(int) zs);
+            g2.drawLine(-2, -vectorOffset, 0, -(int) zs);
+            g2.setColor(colorToPaint);
+            g2.drawLine(0, -vectorOffset, 0, -(int) zs);
+            g2.setStroke(cs);
+        }
+        
+        g2.dispose();
+        return;
+    }
+    
+    
+    public static final void drawVesselDimentionsIconForSystem(StateRenderer2D renderer, Graphics2D g, double width,
+            double length, double widthOffsetFromCenter, double lenghtOffsetFromCenter, double headingDegrees, 
+            Color color, boolean isLocationKnownUpToDate) {
+
+        double alfaPercentage = isLocationKnownUpToDate ? 1 : AGE_TRANSPARENCY / 255.;
+        
+        double diameter = Math.max(length, width);
+        if (diameter > 0) {
+            Graphics2D gt = (Graphics2D) g.create();
+
+            double scaleX = (renderer.getZoom() / 10) * width;
+            double scaleY = (renderer.getZoom() / 10) * length;
+
+            diameter = diameter * renderer.getZoom();
+            Color colorCircle = new Color(color.getRed(), color.getGreen(), color.getBlue(), (int) (150 * alfaPercentage));
+            gt.setColor(colorCircle);
+
+            gt.rotate(Math.toRadians(headingDegrees) - renderer.getRotation());
+
+            gt.draw(new Ellipse2D.Double(-diameter / 2 - widthOffsetFromCenter * renderer.getZoom() / 2.,
+                    -diameter / 2 + lenghtOffsetFromCenter * renderer.getZoom() / 2., diameter, diameter));
+
+            gt.translate(-widthOffsetFromCenter * renderer.getZoom() / 2., lenghtOffsetFromCenter * renderer.getZoom() /2.);
+            gt.scale(scaleX, scaleY);
+            gt.fill(shipShape);
+            
+            gt.dispose();
+        }
     }
 }

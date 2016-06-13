@@ -31,6 +31,12 @@
  */
 package pt.lsts.neptus.systems.external;
 
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
+
 import pt.lsts.neptus.types.coord.CoordinateSystem;
 import pt.lsts.neptus.types.coord.LocationType;
 import pt.lsts.neptus.types.vehicle.VehicleType.SystemTypeEnum;
@@ -65,6 +71,10 @@ public class ExternalSystem implements Comparable<ExternalSystem> {
     protected final CoordinateSystem location = new CoordinateSystem();
     protected long locationTimeMillis = -1;
     protected long attitudeTimeMillis = -1;
+    
+    protected final Map<String, Object> dataStorage = (Map<String, Object>) Collections.synchronizedMap(new HashMap<String, Object>());
+    protected final Map<String, Long> dataStorageTime = (Map<String, Long>) Collections.synchronizedMap(new HashMap<String, Long>());
+
 
     /**
      * 
@@ -278,5 +288,115 @@ public class ExternalSystem implements Comparable<ExternalSystem> {
     @Override
     public String toString() {
         return getName();
+    }
+    
+    /**
+     * @return the dataStorage keys
+     */
+    public Collection<String> getDataStorageKeys() {
+        synchronized (dataStorage) {
+            return Arrays.asList(dataStorage.keySet().toArray(new String[0]));
+        }
+    }
+    
+    /**
+     * @param key
+     * @return
+     */
+    public boolean containsData(String key) {
+        synchronized (dataStorage) {
+            return dataStorage.containsKey(key);
+        }
+    }
+
+    public boolean containsData(String key, long ageMillis) {
+        synchronized (dataStorage) {
+            boolean ret = dataStorage.containsKey(key);
+            if (ret && ageMillis > 0) {
+                long time = dataStorageTime.get(key);
+                if (System.currentTimeMillis() - time > ageMillis)
+                    return false;
+            }
+            return ret;
+        }
+    }
+
+    /**
+     * This will retrieve the data stored or {@code null} if not found.
+     * @param key
+     * @param ageMillis
+     * @return
+     */
+    public Object retrieveData(String key, long ageMillis) {
+        synchronized (dataStorage) {
+            if (containsData(key, ageMillis))
+                return retrieveData(key);
+        }
+        return null;
+    }
+
+
+    /**
+     * This will retrieve the data stored or {@code null} if not found.
+     * @param key
+     * @return
+     */
+    public Object retrieveData(String key) {
+        Object ret = null;
+        synchronized (dataStorage) {
+            ret = dataStorage.get(key);
+        }
+        return ret;
+    }
+
+    /**
+     * @param key
+     * @return
+     */
+    public long retrieveDataTimeMillis(String key) {
+        long ret = -1;
+        synchronized (dataStorage) {
+            ret = dataStorage.containsKey(key) ? (dataStorageTime.containsKey(key) ? dataStorageTime.get(key) : -1)
+                    : -1;
+        }
+        return ret;
+    }
+
+    /**
+     * This will store some data with a {@link String} key.
+     * The previous data if existed will be overwritten.
+     * @param key
+     * @param data
+     */
+    public boolean storeData(String key, Object data) {
+        return storeData(key, data, System.currentTimeMillis(), true);
+    }
+
+    /**
+     * @param key
+     * @param data
+     * @param timeMillis
+     */
+    public boolean storeData(String key, Object data, long timeMillis, boolean keepNewest) {
+        synchronized (dataStorage) {
+            if (keepNewest && dataStorage.containsKey(key) && dataStorageTime.containsKey(key)
+                    && dataStorageTime.get(key) > timeMillis)
+                return false;
+            dataStorage.put(key, data);
+            dataStorageTime.put(key, timeMillis);
+            return true;
+        }
+    }
+
+    public boolean removeData(String key) {
+        synchronized (dataStorage) {
+            if (dataStorage.containsKey(key)) {
+                dataStorage.remove(key);
+                dataStorageTime.remove(key);
+                return true;
+            }
+            
+            return false;
+        }
     }
 }

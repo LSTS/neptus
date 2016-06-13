@@ -37,6 +37,7 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map.Entry;
 import java.util.Vector;
@@ -47,22 +48,29 @@ import de.baderjene.aistoolkit.aisparser.message.Message01;
 import de.baderjene.aistoolkit.aisparser.message.Message03;
 import de.baderjene.aistoolkit.aisparser.message.Message05;
 import pt.lsts.neptus.NeptusLog;
+import pt.lsts.neptus.comm.SystemUtils;
 import pt.lsts.neptus.comm.manager.imc.ImcSystemsHolder;
 import pt.lsts.neptus.systems.external.ExternalSystem;
 import pt.lsts.neptus.systems.external.ExternalSystemsHolder;
 import pt.lsts.neptus.types.coord.LocationType;
-import pt.lsts.neptus.types.vehicle.VehicleType.SystemTypeEnum;
+import pt.lsts.neptus.util.AISUtil;
 import pt.lsts.neptus.util.NMEAUtils;
+import pt.lsts.neptus.util.conf.ConfigFetch;
 
 /**
  * @author zp
- *
+ * @author pdias
  */
 public class AisContactDb implements AISObserver {
 
     private LinkedHashMap<Integer, AisContact> contacts = new LinkedHashMap<>();
     private LinkedHashMap<Integer, String> labelCache = new LinkedHashMap<>();
-    File cache = new File("conf/ais.cache");
+    private LinkedHashMap<Integer, HashMap<String, Object>> dimensionsCache = new LinkedHashMap<>();
+
+    private File cache = new File(ConfigFetch.getConfFolder() + "/ais.cache");
+
+    private String lastGGA = null;
+    private String lastGPHDT = null;
 
     public AisContactDb() {
         if (!cache.canRead())
@@ -74,13 +82,33 @@ public class AisContactDb implements AISObserver {
             while (line != null) {
                 String[] parts = line.split(",");
                 int mmsi = Integer.parseInt(parts[0]);
-                String name = parts[1].trim();    
+                String name = parts[1].trim();
                 labelCache.put(mmsi, name);
+
+                HashMap<String, Object> dimV = new HashMap<>();
+                for (int i = 2; i < parts.length; i++) {
+                    String tk = parts[i].trim();
+                    String[] prs = tk.split("=");
+                    if (prs.length > 1) {
+                        String n = prs[0].trim();
+                        try {
+                            double v = Double.parseDouble(prs[1].trim());
+                            dimV.put(n, v);
+                        }
+                        catch (Exception e) {
+                            NeptusLog.pub().info(String.format("Not found a number, adding as string for %s", n));
+                            dimV.put(n, prs[1].trim());
+                        }
+                    }
+                }
+                if (dimV.size() > 0)
+                    dimensionsCache.put(mmsi, dimV);
+
                 line = reader.readLine();
                 count++;
             }
             reader.close();
-            System.out.println("Read "+count+" vessel names from "+cache.getAbsolutePath());
+            NeptusLog.pub().info("Read " + count + " vessel names from " + cache.getAbsolutePath());
         }
         catch (Exception e) {
             e.printStackTrace();
@@ -92,23 +120,33 @@ public class AisContactDb implements AISObserver {
         try {
             BufferedWriter writer = new BufferedWriter(new FileWriter(cache));
 
-            for (Entry<Integer,String> entry : labelCache.entrySet()) {
-                writer.write(entry.getKey()+","+entry.getValue()+"\n");     
+            for (Entry<Integer, String> entry : labelCache.entrySet()) {
+                StringBuilder sb = new StringBuilder();
+                sb.append(entry.getKey()).append(",").append(entry.getValue());
+
+                HashMap<String, Object> dimV = dimensionsCache.get(entry.getKey());
+                if (dimV != null) {
+                    for (String n : dimV.keySet()) {
+                        sb.append(",");
+                        sb.append(n).append("=").append("" + dimV.get(n));
+                    }
+                }
+
+                sb.append("\n");
+                writer.write(sb.toString());
                 count++;
             }
             writer.close();
-            System.out.println("Wrote "+count+" vessel names to "+cache.getAbsolutePath());
+            NeptusLog.pub().info("Wrote " + count + " vessel names to " + cache.getAbsolutePath());
         }
         catch (Exception e) {
             e.printStackTrace();
-        }        
+        }
     }
 
-    
-    private String lastGGA = null;
     public void processGGA(String sentence) {
         lastGGA = sentence;
-        //System.err.println(lastGGA);
+        // System.err.println(lastGGA);
         LocationType myLoc = NMEAUtils.processGGASentence(lastGGA);
         if (ExternalSystemsHolder.lookupSystem("Ship") == null) {
             ExternalSystem es = new ExternalSystem("Ship");
@@ -117,8 +155,7 @@ public class AisContactDb implements AISObserver {
         ExternalSystem extSys = ExternalSystemsHolder.lookupSystem("Ship");
         extSys.setLocation(myLoc, System.currentTimeMillis());
     }
-    
-    private String lastGPHDT = null;
+
     public void processGPHDT(String sentence) {
         lastGPHDT = sentence;
         double myHeadingDegs = NMEAUtils.processGPHDTSentence(lastGPHDT);
@@ -129,59 +166,59 @@ public class AisContactDb implements AISObserver {
         ExternalSystem extSys = ExternalSystemsHolder.lookupSystem("Ship");
         extSys.setAttitudeDegrees(myHeadingDegs, System.currentTimeMillis());
     }
-    
+
     public void processRattm(String sentence) {
         if (lastGGA == null)
             return;
-        //$GPGGA,132446.00,3811.805048,N,00856.490411,W,2,06,1.2,30.5,M,49.7,M,3.8,0000*6F
+        // $GPGGA,132446.00,3811.805048,N,00856.490411,W,2,06,1.2,30.5,M,49.7,M,3.8,0000*6F
         LocationType myLoc = NMEAUtils.processGGASentence(lastGGA);
-        //$RATTM,17,1.25,60.9,T,7.9,358.0,T,1.11,-4.3,N,wb,T,,133714,M*27
+        // $RATTM,17,1.25,60.9,T,7.9,358.0,T,1.11,-4.3,N,wb,T,,133714,M*27
         String[] parts = sentence.trim().split(",");
         double heading = Double.parseDouble(parts[3]);
         double dist = Double.parseDouble(parts[2]) * 1852;
-        
+
         LocationType newLoc = new LocationType(myLoc);
         newLoc.setAzimuth(heading);
         newLoc.setOffsetDistance(dist);
         newLoc.convertToAbsoluteLatLonDepth();
         String id = parts[11];
         Integer rid = Integer.parseInt(parts[1]);
-        
+
         if (id.isEmpty())
-            id = "radar-"+parts[1];
-        
+            id = "radar-" + parts[1];
+
         if (ImcSystemsHolder.getSystemWithName(id) != null && ImcSystemsHolder.getSystemWithName(id).isActive()) {
             return;
         }
-            
+
         if (!contacts.containsKey(rid)) {
             AisContact contact = new AisContact(rid);
             contacts.put(rid, contact);
         }
-        
+
         AisContact contact = contacts.get(rid);
         contact.setLocation(newLoc);
         contact.setLabel(id);
     }
-    
+
     public void processBtll(String sentence) {
-        //$A-TLL,1,4330.60542,N,01623.45716,E,IVER-UPCT,,,315.4*02
+        // $A-TLL,1,4330.60542,N,01623.45716,E,IVER-UPCT,,,315.4*02
         String[] parts = sentence.replaceFirst("\\*\\w\\w$", "").trim().split(",");
         int mmsi = Integer.parseInt(parts[1]);
         double lat = 0, lon = 0;
         try {
             lat = NMEAUtils.nmeaLatOrLongToWGS84(parts[2]);
             lon = NMEAUtils.nmeaLatOrLongToWGS84(parts[4]);
-        
+
             if (parts[3].equals("S"))
                 lat = -lat;
-        
+
             if (parts[5].equals("W"))
                 lon = -lon;
         }
         catch (Exception e) {
-            NeptusLog.pub().debug("Unable to parse coordinates in "+sentence);
-            return;      
+            NeptusLog.pub().debug("Unable to parse coordinates in " + sentence);
+            return;
         }
         String id = parts[6];
 
@@ -189,22 +226,22 @@ public class AisContactDb implements AISObserver {
         if (ImcSystemsHolder.getSystemWithName(id) != null && ImcSystemsHolder.getSystemWithName(id).isActive()) {
             return;
         }
-            
+
         double heading = 0;
         try {
             heading = Double.parseDouble(parts[9]);
         }
         catch (Exception e) {
-            //e.printStackTrace();
+            // e.printStackTrace();
         }
-        
+
         LocationType loc = new LocationType(lat, lon);
-        
+
         if (!contacts.containsKey(mmsi)) {
             AisContact contact = new AisContact(mmsi);
             contacts.put(mmsi, contact);
         }
-        //System.out.println(mmsi);
+        // System.out.println(mmsi);
         AisContact contact = contacts.get(mmsi);
         contact.setLocation(loc);
         contact.setCog(heading);
@@ -214,20 +251,96 @@ public class AisContactDb implements AISObserver {
     }
 
     public void updateSystem(int mmsi, LocationType loc, double heading) {
-        String name = contacts.get(mmsi).getLabel();
-        if (name.equals(""+mmsi))
-            return;
-        
-        ExternalSystem sys = ExternalSystemsHolder.lookupSystem(name);
-        if (sys == null) {
-            sys = new ExternalSystem(name);
-            ExternalSystemsHolder.registerSystem(sys);
+        AisContact contact = contacts.get(mmsi);
+        String name = contact.getLabel();
+        ExternalSystem sys = null;
+        if (name.equals("" + mmsi)) {
+            sys = ExternalSystemsHolder.lookupSystem(name);
+            if (sys == null) {
+                sys = new ExternalSystem(name);
+                ExternalSystemsHolder.registerSystem(sys);
+            }
         }
+        else {
+            sys = ExternalSystemsHolder.lookupSystem(name);
+            ExternalSystem sysMMSI = ExternalSystemsHolder.lookupSystem("" + mmsi);
+            if (sys == null && sysMMSI == null) {
+                sys = new ExternalSystem(name);
+                ExternalSystemsHolder.registerSystem(sys);
+            }
+            else if (sys == null && sysMMSI != null) {
+                sys = new ExternalSystem(name);
+                ExternalSystemsHolder.purgeSystem("" + mmsi);
+                ExternalSystemsHolder.registerSystem(sys);
+            }
+            else {
+                // sys exists
+                if (sysMMSI != null)
+                    ExternalSystemsHolder.purgeSystem("" + mmsi);
+            }
+        }
+
         sys.setLocation(contacts.get(mmsi).getLocation());
-        sys.setAttitudeDegrees(contacts.get(mmsi).getCog());
-        sys.setType(SystemTypeEnum.UNKNOWN);
+        sys.setAttitudeDegrees(contact.getHdg() > 360 ? contact.getCog() : contact.getHdg());
+
+        double m_sToKnotConv = 1.94384449244;
+
+        if (!dimensionsCache.containsKey(mmsi))
+            dimensionsCache.put(mmsi, new HashMap<String, Object>());
+        HashMap<String, Object> dimV = dimensionsCache.get(mmsi);
+
+        sys.storeData(SystemUtils.MMSI_KEY, mmsi);
+
+        sys.storeData(SystemUtils.GROUND_SPEED_KEY, contact.getSog() * m_sToKnotConv);
+        sys.storeData(SystemUtils.COURSE_KEY, contact.getCog());
+
+        sys.storeData(SystemUtils.NAV_STATUS_KEY, contact.getNavStatus());
+
+        if (contact.getAdditionalProperties() != null) {
+            String shipType = AISUtil.translateShipType(contact.getAdditionalProperties().getShipType());
+            sys.storeData(SystemUtils.SHIP_TYPE_KEY, shipType);
+            sys.setType(SystemUtils.getSystemTypeFrom(shipType));
+            sys.setTypeExternal(SystemUtils.getExternalTypeFrom(shipType));
+            sys.setTypeVehicle(SystemUtils.getVehicleTypeFrom(shipType));
+
+            sys.storeData(SystemUtils.CALL_SIGN_KEY, contact.getAdditionalProperties().getCallSign());
+
+            sys.storeData(SystemUtils.DRAUGHT_KEY, contact.getAdditionalProperties().getDraught());
+            sys.storeData(SystemUtils.WIDTH_KEY, contact.getAdditionalProperties().getDimensionToPort()
+                    + contact.getAdditionalProperties().getDimensionToStarboard());
+            sys.storeData(SystemUtils.WIDTH_CENTER_OFFSET_KEY, contact.getAdditionalProperties().getDimensionToPort()
+                    - contact.getAdditionalProperties().getDimensionToStarboard());
+            sys.storeData(SystemUtils.LENGHT_KEY, contact.getAdditionalProperties().getDimensionToStern()
+                    + contact.getAdditionalProperties().getDimensionToBow());
+            sys.storeData(SystemUtils.LENGHT_CENTER_OFFSET_KEY, contact.getAdditionalProperties().getDimensionToStern()
+                    - contact.getAdditionalProperties().getDimensionToBow());
+
+//            System.out.println(sys.getName() + " " + sys.retrieveData(SystemUtils.LENGHT_CENTER_OFFSET_KEY) + " "
+//                    + sys.retrieveData(SystemUtils.WIDTH_CENTER_OFFSET_KEY) + "   @"
+//                    + sys.retrieveData(SystemUtils.GROUND_SPEED_KEY) + "   HDG:" + sys.getYawDegrees());
+
+            dimV.put(SystemUtils.DRAUGHT_KEY, sys.retrieveData(SystemUtils.DRAUGHT_KEY));
+            dimV.put(SystemUtils.WIDTH_KEY, sys.retrieveData(SystemUtils.WIDTH_KEY));
+            dimV.put(SystemUtils.LENGHT_KEY, sys.retrieveData(SystemUtils.LENGHT_KEY));
+            dimV.put(SystemUtils.WIDTH_CENTER_OFFSET_KEY, sys.retrieveData(SystemUtils.WIDTH_CENTER_OFFSET_KEY));
+            dimV.put(SystemUtils.LENGHT_CENTER_OFFSET_KEY, sys.retrieveData(SystemUtils.LENGHT_CENTER_OFFSET_KEY));
+        }
+        else {
+            if (dimV != null) {
+                if (!sys.containsData(SystemUtils.DRAUGHT_KEY))
+                    sys.storeData(SystemUtils.DRAUGHT_KEY, dimV.get(SystemUtils.DRAUGHT_KEY));
+                if (!sys.containsData(SystemUtils.WIDTH_KEY))
+                    sys.storeData(SystemUtils.WIDTH_KEY, dimV.get(SystemUtils.WIDTH_KEY));
+                if (!sys.containsData(SystemUtils.WIDTH_CENTER_OFFSET_KEY))
+                    sys.storeData(SystemUtils.WIDTH_CENTER_OFFSET_KEY, dimV.get(SystemUtils.WIDTH_CENTER_OFFSET_KEY));
+                if (!sys.containsData(SystemUtils.LENGHT_KEY))
+                    sys.storeData(SystemUtils.LENGHT_KEY, dimV.get(SystemUtils.LENGHT_KEY));
+                if (!sys.containsData(SystemUtils.LENGHT_CENTER_OFFSET_KEY))
+                    sys.storeData(SystemUtils.LENGHT_CENTER_OFFSET_KEY, dimV.get(SystemUtils.LENGHT_CENTER_OFFSET_KEY));
+            }
+        }
     }
-    
+
     @Override
     public synchronized void update(Message arg0) {
         int mmsi = arg0.getSourceMmsi();
@@ -235,7 +348,7 @@ public class AisContactDb implements AISObserver {
             case 1:
                 if (!contacts.containsKey(mmsi))
                     contacts.put(mmsi, new AisContact(mmsi));
-                contacts.get(mmsi).update((Message01)arg0);
+                contacts.get(mmsi).update((Message01) arg0);
                 if (labelCache.containsKey(mmsi))
                     contacts.get(mmsi).setLabel(labelCache.get(mmsi));
                 updateSystem(mmsi, contacts.get(mmsi).getLocation(), contacts.get(mmsi).getCog());
@@ -243,7 +356,7 @@ public class AisContactDb implements AISObserver {
             case 3:
                 if (!contacts.containsKey(mmsi))
                     contacts.put(mmsi, new AisContact(mmsi));
-                contacts.get(mmsi).update((Message03)arg0);
+                contacts.get(mmsi).update((Message03) arg0);
                 if (labelCache.containsKey(mmsi))
                     contacts.get(mmsi).setLabel(labelCache.get(mmsi));
                 updateSystem(mmsi, contacts.get(mmsi).getLocation(), contacts.get(mmsi).getCog());
@@ -251,28 +364,27 @@ public class AisContactDb implements AISObserver {
             case 5:
                 if (!contacts.containsKey(mmsi))
                     contacts.put(mmsi, new AisContact(mmsi));
-                contacts.get(mmsi).update((Message05)arg0);
-                String name = ((Message05)arg0).getVesselName();
+                contacts.get(mmsi).update((Message05) arg0);
+                String name = ((Message05) arg0).getVesselName().trim();
                 labelCache.put(mmsi, name);
                 updateSystem(mmsi, contacts.get(mmsi).getLocation(), contacts.get(mmsi).getCog());
                 break;
             default:
-                System.err.println("Ignoring AIS message of type "+arg0.getType());
+                NeptusLog.pub().warn("Ignoring AIS message of type " + arg0.getType());
                 break;
         }
     }
 
     public synchronized void purge(long maximumAgeMillis) {
-
         Vector<Integer> toRemove = new Vector<>();
 
         for (Entry<Integer, AisContact> entry : contacts.entrySet()) {
             if (entry.getValue().ageMillis() > maximumAgeMillis)
-                toRemove.add(entry.getKey());            
+                toRemove.add(entry.getKey());
         }
 
         for (int rem : toRemove) {
-            System.out.println("Removing "+rem+" because is more than "+maximumAgeMillis+" milliseconds old.");
+            NeptusLog.pub().info("Removing " + rem + " because is more than " + maximumAgeMillis + " milliseconds old.");
             contacts.remove(rem);
         }
     }

@@ -35,6 +35,7 @@ import de.baderjene.aistoolkit.aisparser.message.Message01;
 import de.baderjene.aistoolkit.aisparser.message.Message03;
 import de.baderjene.aistoolkit.aisparser.message.Message05;
 import pt.lsts.neptus.types.coord.LocationType;
+import pt.lsts.neptus.util.AISUtil;
 
 /**
  * @author zp
@@ -44,9 +45,11 @@ public class AisContact {
 
     private int mmsi;
     private double sog = 0, cog = 0;
+    private double hdg = 0;
     private String label = null;
     private long lastUpdate = 0;
     private LocationType loc = new LocationType();
+    private String navStatus = "underfined";
     
     private Message05 additionalProperties = null;
     
@@ -64,8 +67,10 @@ public class AisContact {
         lastUpdate = System.currentTimeMillis();
         loc.setLatitudeDegs(m.getLatitude());
         loc.setLongitudeDegs(m.getLongitude());
-        cog = m.getTrueHeading();
+        hdg = m.getTrueHeading();
+        cog = m.getCourseOverGround();
         sog = m.getSpeedOverGround();
+        navStatus = AISUtil.translateNavigationalStatus(m.getNavigationStatus());
         if (label == null)
             label = ""+m.getSourceMmsi();
     }
@@ -74,15 +79,17 @@ public class AisContact {
         lastUpdate = System.currentTimeMillis();
         loc.setLatitudeDegs(m.getLatitude());
         loc.setLongitudeDegs(m.getLongitude());
-        cog = m.getTrueHeading();
+        hdg = m.getTrueHeading();
+        cog = m.getCourseOverGround();
         sog = m.getSpeedOverGround();
+        navStatus = AISUtil.translateNavigationalStatus(m.getNavigationStatus());
         if (label == null)
             label = ""+m.getSourceMmsi();
     }
     
     public void update(Message05 m) {
         lastUpdate = System.currentTimeMillis();
-        label = m.getVesselName();
+        label = m.getVesselName().trim();
         additionalProperties = m;
     }
     
@@ -104,6 +111,13 @@ public class AisContact {
         return sog;
     }
 
+    /**
+     * @return the hdg
+     */
+    public double getHdg() {
+        return hdg;
+    }
+    
     /**
      * @return the cog
      */
@@ -146,6 +160,13 @@ public class AisContact {
         this.loc = loc;
     }
 
+    /**
+     * @return the navStatus
+     */
+    public String getNavStatus() {
+        return navStatus;
+    }
+    
     /**
      * @return the additionalProperties
      */
