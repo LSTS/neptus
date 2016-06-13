@@ -51,6 +51,7 @@ import javax.swing.JComboBox;
 import javax.swing.JList;
 import javax.swing.JScrollPane;
 import javax.swing.SwingWorker;
+import javax.xml.bind.JAXBException;
 
 import com.google.common.eventbus.Subscribe;
 
@@ -93,6 +94,7 @@ public class MVPlanning extends ConsolePanel implements PlanChangeListener, Rend
     public boolean inDegubMode = false;
 
     private final ProfileMarshaler pMarsh = new ProfileMarshaler();
+    private final PlanTaskMarshaler pTaskMarsh = new PlanTaskMarshaler();
     public final Map<String, Profile> availableProfiles = pMarsh.getAllProfiles();
 
     /* modules */
@@ -133,6 +135,33 @@ public class MVPlanning extends ConsolePanel implements PlanChangeListener, Rend
         stateMonitor = new StateMonitor(this.console, pTaskMarsh);
 
         computeOperationalArea();
+        fetchPlans();
+    }
+
+    /**
+     * If there are unfinished plans, load them
+     * */
+    private void fetchPlans() {
+        try {
+            NeptusLog.pub().info("Fetching unfinished plans");
+            List<PlanTask> unfPlans = pTaskMarsh.unmarshalAll(console.getMission());
+
+            if(unfPlans.size() == 0)
+                NeptusLog.pub().info("No plans to fetch");
+            else {
+                synchronized (selectedPlans) {
+                    for(PlanTask ptask : unfPlans) {
+                        String planId = ptask.getPlanId();
+                        listModel.addElement(planId);
+                        selectedPlans.put(planId, ptask.asPlanType());
+                    }
+                }
+            }
+        }
+        catch (JAXBException e) {
+            NeptusLog.pub().warn("Couldn't load unfinished plans");
+            e.printStackTrace();
+        }
     }
 
     private void computeOperationalArea() {
@@ -250,17 +279,19 @@ public class MVPlanning extends ConsolePanel implements PlanChangeListener, Rend
         if(plan != null) {
             String planId = plan.getId();
             if(!planId.startsWith("go_") && !planId.startsWith("sk_") && !planId.startsWith("lt_")) {
-                if(listModel.contains(planId))
-                    listModel.removeElement(planId);
-                listModel.addElement(planId);
-                selectedPlans.put(planId, plan);
+                synchronized(selectedPlans) {
+                    if(listModel.contains(planId))
+                        listModel.removeElement(planId);
+                    listModel.addElement(planId);
+                    selectedPlans.put(planId, plan);
+                }
             }
         }
     }
 
     @Subscribe
     public void on(MvPlanningEventPlanAllocated event) {
-        synchronized(listModel) {
+        synchronized(selectedPlans) {
             String lookupId = event.getPlanId() + " [" + event.getProfile() + "]";
             String newId = lookupId + " [" + event.getVehicle() + "]";
 
