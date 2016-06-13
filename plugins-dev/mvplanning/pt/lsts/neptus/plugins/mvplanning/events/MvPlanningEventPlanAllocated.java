@@ -31,6 +31,7 @@
  */
 package pt.lsts.neptus.plugins.mvplanning.events;
 
+import pt.lsts.neptus.plugins.mvplanning.planning.PlanTask;
 import pt.lsts.neptus.types.mission.plan.PlanType;
 
 /**
@@ -38,20 +39,20 @@ import pt.lsts.neptus.types.mission.plan.PlanType;
  *
  */
 public class MvPlanningEventPlanAllocated {
-    private PlanType plan;
+    private PlanTask plan;
     private String planId;
     private String planProfile;
     private String vehicle;
 
 
-    public MvPlanningEventPlanAllocated(PlanType plan, String planProfile, String vehicle) {
+    public MvPlanningEventPlanAllocated(PlanTask plan, String vehicle) {
         this.plan = plan;
-        this.planId = plan.getId();
-        this.planProfile = planProfile;
+        this.planId = plan.getPlanId();
+        this.planProfile = plan.getProfile().getId();
         this.vehicle = vehicle;
     }
 
-    public PlanType getPlan() {
+    public PlanTask getPlan() {
         return plan;
     }
 
