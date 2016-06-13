@@ -35,16 +35,20 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.event.ActionEvent;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.LinkedHashMap;
 
 import javax.swing.AbstractAction;
+import javax.swing.AbstractButton;
 import javax.swing.BorderFactory;
 import javax.swing.ButtonGroup;
 import javax.swing.ImageIcon;
 import javax.swing.JLabel;
 import javax.swing.JSeparator;
 import javax.swing.JToolBar;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 
 import com.google.common.eventbus.Subscribe;
 
@@ -140,6 +144,7 @@ CustomInteractionSupport, VehicleStateListener, ConsoleVehicleChangeListener {
     protected JLabel status = new JLabel();
     protected PlanElement mainPlanPainter = null;
     protected ButtonGroup bg = new ButtonGroup();
+    protected ArrayList<AbstractButton> nonExclusiveButtons = new ArrayList<>();
     protected JToolBar bottom = new JToolBar(JToolBar.VERTICAL);
 
     protected LinkedHashMap<VehicleType, SystemPositionAndAttitude> vehicles = new LinkedHashMap<VehicleType, SystemPositionAndAttitude>();
@@ -164,16 +169,33 @@ CustomInteractionSupport, VehicleStateListener, ConsoleVehicleChangeListener {
         bottom.setFloatable(false);
         bottom.setAlignmentX(JToolBar.CENTER_ALIGNMENT);
         renderer.addMenuExtension(new FeatureFocuser(console));
-        AbstractAction tmp = new AbstractAction(I18n.text("Translate"), null) {
+        AbstractAction tmp = new AbstractAction("dummy", null) {
             private static final long serialVersionUID = 1L;
 
             @Override
             public void actionPerformed(ActionEvent e) {
-
             }
-
         };
         dummySwitch= new ToolbarSwitch(tmp);
+        dummySwitch.addChangeListener(new ChangeListener() {
+            @Override
+            public void stateChanged(ChangeEvent e) {
+                if (!((AbstractButton) e.getSource()).isSelected()) {
+                    for (AbstractButton bt : nonExclusiveButtons) {
+                        if (bt.isSelected() == true)
+                            bt.doClick();
+                        bt.setEnabled(false);
+                    }
+                }
+                else {
+                    for (AbstractButton bt : nonExclusiveButtons) {
+                        if (bt.isSelected() == true)
+                            bt.doClick();
+                        bt.setEnabled(true);
+                    }
+                }
+            }
+        });
         bg.add(dummySwitch);
         dummySwitch.setSelected(true);
 
@@ -444,8 +466,12 @@ CustomInteractionSupport, VehicleStateListener, ConsoleVehicleChangeListener {
                 }
             };
             ToolbarSwitch tswitch = new ToolbarSwitch(I18n.text(name), custom);
-            if (tswitch.isEnabled())
-                bg.add(tswitch);
+            if (tswitch.isEnabled()) {
+                if (interaction.isExclusive())
+                    bg.add(tswitch);
+                else
+                    nonExclusiveButtons.add(tswitch);
+            }
             bottom.add(tswitch, 0);
             interactionButtons.put(interaction.getName(), tswitch);
             tswitch.setSelected(false);
@@ -471,8 +497,11 @@ CustomInteractionSupport, VehicleStateListener, ConsoleVehicleChangeListener {
     public void removeInteraction(StateRendererInteraction interaction) {
         renderer.removeInteraction(interaction);
         ToolbarSwitch sw = interactionButtons.get(interaction.getName());
-        if (sw != null)
+        if (sw != null) {
             bottom.remove(sw);
+            bg.remove(sw);
+            nonExclusiveButtons.remove(sw);
+        }
         doLayout();
     }
 
