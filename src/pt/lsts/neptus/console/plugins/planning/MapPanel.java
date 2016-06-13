@@ -447,9 +447,8 @@ CustomInteractionSupport, VehicleStateListener, ConsoleVehicleChangeListener {
 
                 @Override
                 public void actionPerformed(ActionEvent e) {
+                    StateRendererInteraction ri = interactionModes.get(name);
                     if (((ToolbarSwitch) e.getSource()).isSelected()) {
-                        StateRendererInteraction ri = interactionModes.get(name);
-
                         if (ri.isExclusive()) {
                             if (renderer.getActiveInteraction() != null) {
                                 renderer.getActiveInteraction().setActive(false, renderer);
@@ -462,6 +461,11 @@ CustomInteractionSupport, VehicleStateListener, ConsoleVehicleChangeListener {
                         }
                         renderer.setActiveInteraction(ri);
                         ri.setActive(true, renderer);
+                    }
+                    else {
+                        if (renderer.getActiveInteraction() == ri)
+                            renderer.setActiveInteraction(null);
+                        ri.setActive(false, renderer);
                     }
                 }
             };
