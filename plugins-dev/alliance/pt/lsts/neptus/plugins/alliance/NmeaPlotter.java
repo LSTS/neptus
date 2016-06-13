@@ -133,6 +133,7 @@ public class NmeaPlotter extends ConsoleLayer {
             
     private JMenuItem connectItem = null;
     private boolean connected = false;
+    private boolean serialConnected = false;
 
     GeneralPath ship = new GeneralPath();
     {
@@ -179,6 +180,8 @@ public class NmeaPlotter extends ConsoleLayer {
         if (!opened)
             throw new Exception("Unable to open port "+uartDevice);
 
+        serialConnected = true;
+        
         serialPort.setParams(uartBaudRate, dataBits, stopBits, parity);
         serialPort.addEventListener(new SerialPortEventListener() {
 
@@ -358,8 +361,11 @@ public class NmeaPlotter extends ConsoleLayer {
     }
 
     public void disconnect() throws Exception {
-        if (serialListen)
-            serialPort.closePort();
+        if (serialConnected && serialPort != null) {
+            boolean res = serialPort.closePort();
+            if (res)
+                serialConnected = false;
+        }
         connected = false;
     }
 
@@ -373,6 +379,7 @@ public class NmeaPlotter extends ConsoleLayer {
 
     @Override
     public void cleanLayer() {
+        connected = false;
         if (serialPort != null) {
             try {
                 serialPort.closePort();
