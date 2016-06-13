@@ -175,7 +175,8 @@ public class PathElement extends AbstractElement {
                     isShape = false;
             }
             else {
-                NeptusLog.pub().info("<###>Unable to find filled tag (defaulting to false)!!");
+                NeptusLog.pub().info("Unable to find filled tag (defaulting to true)!!");
+                isShape = true;
             }
 
             setFinished(true);
