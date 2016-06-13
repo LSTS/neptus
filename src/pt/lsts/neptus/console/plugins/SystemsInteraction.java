@@ -45,6 +45,7 @@ import pt.lsts.neptus.comm.SystemUtils;
 import pt.lsts.neptus.comm.manager.imc.ImcSystem;
 import pt.lsts.neptus.comm.manager.imc.ImcSystemsHolder;
 import pt.lsts.neptus.console.ConsoleInteraction;
+import pt.lsts.neptus.console.ConsoleSystem;
 import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.plugins.NeptusProperty;
 import pt.lsts.neptus.plugins.NeptusProperty.LEVEL;
@@ -68,7 +69,7 @@ public class SystemsInteraction extends ConsoleInteraction {
 
     private static final int PIXEL_DISTANCE_TO_SELECT = 5;
     private static final int RECT_WIDTH = 228;
-    private static final int RECT_HEIGHT = 70;
+    private static final int RECT_HEIGHT = 85;
     private static final int MARGIN = 5;
     
     @NeptusProperty(name = "Consider External Systems Icons", userLevel = LEVEL.REGULAR)
@@ -173,7 +174,7 @@ public class SystemsInteraction extends ConsoleInteraction {
                     sb.append("<br/>").append("<b>").append(I18n.text("Type")).append(": ").append("</b>")
                         .append(sys.getType() == SystemTypeEnum.VEHICLE ? sys.getTypeVehicle() : sys.getType());
                 
-                    sb.append("<br/>").append("<b>").append("IMC: ").append("</b>").append(sys.getId().toPrettyString());
+                    sb.append("<br/>").append("<b>").append("IMC: ").append("</b>").append(sys.getId().toPrettyString().toUpperCase());
                     
                     Object speed = sys.retrieveData(SystemUtils.GROUND_SPEED_KEY);
                     Object course = sys.retrieveData(SystemUtils.COURSE_KEY);
@@ -186,6 +187,13 @@ public class SystemsInteraction extends ConsoleInteraction {
                     sb.append("<br/>").append("<b>").append(I18n.text("Draught")).append(": ").append("</b>")
                             .append(draught == null ? "- " : MathMiscUtils.round(((Number) draught).doubleValue(), 1)).append("m");
                     
+                    ConsoleSystem consoleSys = getConsole().getSystem(sys.getName());
+                    String navStatus = "-";
+                    if (consoleSys != null)
+                        navStatus = consoleSys.getVehicleState().toString();
+                    sb.append("<br/>").append("<b>").append(I18n.text("Status")).append(": ").append("</b>")
+                        .append(navStatus);
+
                     sb.append("</font>");
                 }
                 else {
@@ -225,6 +233,10 @@ public class SystemsInteraction extends ConsoleInteraction {
                             .append(width == null ? "- " : (int) MathMiscUtils.round(((Number) width).doubleValue(), 0)).append("m")
                             .append("<b> / </b>")
                             .append(lenght == null ? "- " : (int) MathMiscUtils.round(((Number) lenght).doubleValue(), 0)).append("m");
+                        
+                        Object navStatus = sys.retrieveData(SystemUtils.NAV_STATUS_KEY);
+                        sb.append("<br/>").append("<b>").append(I18n.text("Status")).append(": ").append("</b>")
+                            .append(navStatus != null ? navStatus : "-");
                     }
 
                     sb.append("</font>");
