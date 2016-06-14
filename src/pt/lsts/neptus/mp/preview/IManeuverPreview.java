@@ -44,5 +44,8 @@ public interface IManeuverPreview<T extends Maneuver> {
     public SystemPositionAndAttitude step(SystemPositionAndAttitude state, double timestep);
     public void reset(SystemPositionAndAttitude state);
     public boolean isFinished();
+    /**
+     * @return A clone or new instance of the man. state (important).
+     */
     public Object getState();
 }

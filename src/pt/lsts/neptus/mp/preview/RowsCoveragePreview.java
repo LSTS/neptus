@@ -44,15 +44,59 @@ import pt.lsts.neptus.types.coord.LocationType;
  */
 public class RowsCoveragePreview implements IManeuverPreview<RowsCoverage> {
 
+    public static class RowsCoverageState {
+        public int locIndex = 0;
+        public double altMin;
+        public double covPred;
+        public double covActualMin;
+        public double curHstep;
+        
+        /* (non-Javadoc)
+         * @see java.lang.Object#clone()
+         */
+        @Override
+        public RowsCoverageState clone() {
+            RowsCoverageState clone = new RowsCoverageState();
+            clone.locIndex = locIndex;
+            clone.altMin = altMin;
+            clone.covPred = covPred;
+            clone.covActualMin = covActualMin;
+            clone.curHstep = curHstep;
+            return clone;
+        }
+    }
+
+    protected RowsCoverageState rowsState = new RowsCoverageState();
     protected Vector<LocationType> locs = new Vector<>();
-    protected int locIndex = 0;
     protected String vehicleId = null;
     protected double speed;
     protected UnicycleModel model = new UnicycleModel();
     protected boolean finished = false;
+    protected RowsCoverage man = null;
+    
     
     @Override
     public boolean init(String vehicleId, RowsCoverage man, SystemPositionAndAttitude state, Object manState) {
+        this.man = man;
+        
+        if (manState == null || !(manState instanceof RowsCoverageState)) {
+            rowsState = new RowsCoverageState();
+            double hstep;
+            if (man.getAngleApertureDegs() <= 0)
+                hstep = 2 * man.getRange();
+            else
+                hstep = 2 * man.getRange() * Math.sin(Math.toRadians(man.getAngleApertureDegs() / 2));
+            
+            rowsState.altMin = -1;
+            rowsState.covPred = hstep * (1 - man.getOverlapPercent() / 200.);
+            rowsState.covActualMin = rowsState.covPred;
+            rowsState.curHstep = rowsState.covPred;
+            rowsState.locIndex = 0;
+        }
+        else {
+            rowsState = (RowsCoverageState) manState;
+        }
+        
         locs.addAll(man.getPathLocations());
         for (LocationType loc : locs) {
             if (man.getManeuverLocation().getZUnits() == Z_UNITS.DEPTH)
@@ -60,8 +104,8 @@ public class RowsCoveragePreview implements IManeuverPreview<RowsCoverage> {
             else if (man.getManeuverLocation().getZUnits() == Z_UNITS.ALTITUDE)
                 loc.setDepth(-man.getManeuverLocation().getZ());
         }        
+
         this.vehicleId = vehicleId;
-        this.locIndex = 0;
         speed = man.getSpeed();
         if (man.getSpeedUnits().equals("RPM")) 
             speed = SpeedConversion.convertRpmtoMps(speed);
@@ -72,9 +116,6 @@ public class RowsCoveragePreview implements IManeuverPreview<RowsCoverage> {
         
         model.setState(state);
 
-        if (manState != null && manState instanceof Integer)
-            locIndex = (Integer)manState;
-        
         return true;
     }
     
@@ -87,18 +128,17 @@ public class RowsCoveragePreview implements IManeuverPreview<RowsCoverage> {
         //not supported for this maneuver
     };
 
-
     @Override
     public SystemPositionAndAttitude step(SystemPositionAndAttitude state, double timestep) {
-        if (locIndex >= locs.size()) {
+        if (rowsState.locIndex >= locs.size()) {
             finished = true;
             return state;
         }
         model.setState(state);
-        LocationType destination = locs.get(locIndex);
+        LocationType destination = locs.get(rowsState.locIndex);
         
         if (model.guide(destination, speed, destination.getDepth() >= 0 ? null : - destination.getDepth())) {
-            locIndex++;
+            rowsState.locIndex++;
         }
         else
             model.advance(timestep);            
@@ -108,6 +148,6 @@ public class RowsCoveragePreview implements IManeuverPreview<RowsCoverage> {
     
     @Override
     public Object getState() {
-        return new Integer(locIndex);
+        return rowsState.clone();
     }
 }
