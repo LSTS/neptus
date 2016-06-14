@@ -44,12 +44,26 @@ import pt.lsts.neptus.types.coord.LocationType;
  */
 public class RowsCoveragePreview implements IManeuverPreview<RowsCoverage> {
 
-    private static class RowsCoverageState {
+    public static class RowsCoverageState {
         public int locIndex = 0;
         public double altMin;
         public double covPred;
         public double covActualMin;
         public double curHstep;
+        
+        /* (non-Javadoc)
+         * @see java.lang.Object#clone()
+         */
+        @Override
+        public RowsCoverageState clone() {
+            RowsCoverageState clone = new RowsCoverageState();
+            clone.locIndex = locIndex;
+            clone.altMin = altMin;
+            clone.covPred = covPred;
+            clone.covActualMin = covActualMin;
+            clone.curHstep = curHstep;
+            return clone;
+        }
     }
 
     protected RowsCoverageState rowsState = new RowsCoverageState();
@@ -134,6 +148,6 @@ public class RowsCoveragePreview implements IManeuverPreview<RowsCoverage> {
     
     @Override
     public Object getState() {
-        return rowsState;
+        return rowsState.clone();
     }
 }
