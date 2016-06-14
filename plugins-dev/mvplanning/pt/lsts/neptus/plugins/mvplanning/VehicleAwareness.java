@@ -70,9 +70,9 @@ public class VehicleAwareness {
         unavailableVehicles = new ArrayList<>();
         startLocations = new ConcurrentHashMap<>();
 
-        /* check vehicles' state at startup */
-        for(Entry<String, ConsoleSystem> entry : console.getSystems().entrySet())
-            checkVehicleState(entry.getKey(), entry.getValue().getVehicleState());
+        /* Fetch available vehicles, on plugin start-up */
+        for(ImcSystem vehicle : ImcSystemsHolder.lookupActiveSystemByType(SystemTypeEnum.VEHICLE))
+            setVehicleAvailable(vehicle.getName());
     }
 
     public void setVehicleStartLocation(String vehicleId, LocationType startLocation) {
