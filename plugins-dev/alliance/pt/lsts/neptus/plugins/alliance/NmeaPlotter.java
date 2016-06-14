@@ -82,7 +82,7 @@ import pt.lsts.neptus.util.NMEAUtils;
  * @author zp
  * @author pdias
  */
-@PluginDescription(name = "NMEA Plotter")
+@PluginDescription(name = "NMEA Plotter", icon = "pt/lsts/neptus/plugins/alliance/nmea-ais.png")
 public class NmeaPlotter extends ConsoleLayer {
 
     @NeptusProperty(name = "Connect to the serial port")
