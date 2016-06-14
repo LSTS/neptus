@@ -31,19 +31,17 @@
  */
 package pt.lsts.neptus.plugins.mvplanning;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
+import java.util.concurrent.locks.ReadWriteLock;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import com.google.common.eventbus.Subscribe;
 
 import pt.lsts.neptus.NeptusLog;
-import pt.lsts.neptus.comm.SystemUtils;
 import pt.lsts.neptus.comm.manager.imc.ImcSystem;
 import pt.lsts.neptus.comm.manager.imc.ImcSystemsHolder;
-import pt.lsts.neptus.console.ConsoleSystem;
 import pt.lsts.neptus.console.events.ConsoleEventVehicleStateChanged;
 import pt.lsts.neptus.console.events.ConsoleEventVehicleStateChanged.STATE;
 import pt.lsts.neptus.plugins.mvplanning.interfaces.ConsoleAdapter;
@@ -57,22 +55,30 @@ import pt.lsts.neptus.types.vehicle.VehicleType.SystemTypeEnum;
  * to have a sense of what the vehicles' current state is.
  **/
 public class VehicleAwareness {
-    private final Object LOCK = new Object();
+    private final ReadWriteLock RW_LOCK = new ReentrantReadWriteLock();
+
+    private enum VEHICLE_STATE {
+        AVAILABLE("Available"),
+        UNAVAILABLE("Unavailable");
+
+        protected String value;
+        VEHICLE_STATE(String value) {
+            this.value = value;
+        }
+    };
 
     private ConsoleAdapter console;
-    private List<String> availableVehicles;
-    private List<String> unavailableVehicles;
     private Map<String, LocationType> startLocations;
+    private ConcurrentMap<String, VEHICLE_STATE> vehiclesState;
 
     public VehicleAwareness(ConsoleAdapter console) {
         this.console = console;
-        availableVehicles = new ArrayList<>();
-        unavailableVehicles = new ArrayList<>();
         startLocations = new ConcurrentHashMap<>();
+        vehiclesState = new ConcurrentHashMap<>();
 
         /* Fetch available vehicles, on plugin start-up */
         for(ImcSystem vehicle : ImcSystemsHolder.lookupActiveSystemByType(SystemTypeEnum.VEHICLE))
-            setVehicleAvailable(vehicle.getName());
+            setVehicleState(vehicle.getName(), VEHICLE_STATE.AVAILABLE);
     }
 
     public void setVehicleStartLocation(String vehicleId, LocationType startLocation) {
@@ -90,24 +96,35 @@ public class VehicleAwareness {
 
     @Subscribe
     public void on(ConsoleEventVehicleStateChanged event) {
-        onVehicleStateChanged(event);
-    }
+        if(event == null || event.getState() == null) {
+            NeptusLog.pub().error("I'm receiving null ConsoleEventVehicleStateChanged events");
+            return;
+        }
 
-    private void onVehicleStateChanged(ConsoleEventVehicleStateChanged event) {
         String id = event.getVehicle();
         ConsoleEventVehicleStateChanged.STATE newState = event.getState();
 
         checkVehicleState(id, newState);
     }
 
+
     /* TODO also check vehicle's medium */
     private void checkVehicleState(String vehicle, STATE state) {
-        if(state == STATE.FINISHED || state == STATE.SERVICE) {
+        VEHICLE_STATE st = VEHICLE_STATE.UNAVAILABLE;
+
+        if(state == STATE.FINISHED || state == STATE.SERVICE)
             if(hasReliableComms(vehicle))
-                setVehicleAvailable(vehicle);
-        }
-        else
-            setVehicleUnavailable(vehicle);
+                st = VEHICLE_STATE.AVAILABLE;
+
+        setVehicleState(vehicle, st);
+    }
+
+    private void setVehicleState(String vehicle, VEHICLE_STATE state) {
+        RW_LOCK.writeLock().lock();
+        vehiclesState.put(vehicle, state);
+        RW_LOCK.writeLock().unlock();
+
+        NeptusLog.pub().info("Vehicle " + vehicle + " is " + state.value);
     }
 
     /**
@@ -116,12 +133,11 @@ public class VehicleAwareness {
      * as available.
      * */
     public boolean isVehicleAvailable(String vehicle) {
-        synchronized(LOCK) {
-            if(availableVehicles.contains(vehicle) && hasReliableComms(vehicle))
-                return true;
-            else
-                return false;
-        }
+        RW_LOCK.readLock().lock();
+        VEHICLE_STATE state = vehiclesState.get(vehicle);
+        RW_LOCK.readLock().unlock();
+
+        return state != null && (state == VEHICLE_STATE.AVAILABLE && hasReliableComms(vehicle));
     }
 
     /**
@@ -133,36 +149,6 @@ public class VehicleAwareness {
      * */
     private boolean hasReliableComms(String vehicle) {
         ImcSystem sys = ImcSystemsHolder.getSystemWithName(vehicle);
-        return sys.isActive() && sys.isTCPOn() ||
-                sys.isActive() && sys.isSimulated();
-    }
-
-    private void setVehicleAvailable(String id) {
-        synchronized (LOCK) {
-            /* if vehicle is not already set as available */
-            if(!availableVehicles.contains(id)) {
-                /* if vehicle was set as unavailable, unset */
-                if(unavailableVehicles.contains(id))
-                    unavailableVehicles.remove(id);
-
-                availableVehicles.add(id);
-                /* logging */
-                NeptusLog.pub().info("Vehicle " + id + " is AVAILABLE");
-            }
-        }
-    }
-
-    private void setVehicleUnavailable(String id) {
-        synchronized (LOCK) {
-            /* if vehicle is not already set as unavailable */
-            if(!unavailableVehicles.contains(id)) {
-                /* if vehicle was set as available, unset */
-                if(availableVehicles.contains(id))
-                    availableVehicles.remove(id);
-
-                unavailableVehicles.add(id);
-                NeptusLog.pub().info("Vehicle " + id + " is UNAVAILABLE");
-            }
-        }
+        return sys.isActive() && (sys.isTCPOn() || sys.isSimulated());
     }
 }
