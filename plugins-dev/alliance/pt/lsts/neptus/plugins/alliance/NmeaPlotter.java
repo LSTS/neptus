@@ -189,6 +189,9 @@ public class NmeaPlotter extends ConsoleLayer {
             public void serialEvent(SerialPortEvent arg0) {
                 try {
                     String s = serialPort.readString();
+                    if (s == null|| s.isEmpty())
+                        return; // If null nothing to do!
+                    
                     if (s.contains("\n")) {
                         currentString += s.substring(0, s.indexOf('\n'));
                         if (!currentString.trim().isEmpty()) {
