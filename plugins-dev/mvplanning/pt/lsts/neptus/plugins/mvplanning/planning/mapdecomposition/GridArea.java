@@ -169,7 +169,7 @@ public class GridArea extends GeometryElement implements MapDecomposition {
                 LocationType cellLoc = new LocationType(topLeft);
                 cellLoc.translatePosition(-verticalShift, horizontalShift, 0);
 
-                decomposedMap[i][j] = new GridCell(cellLoc, i, j);
+                decomposedMap[i][j] = new GridCell(cellLoc, i, j, cellWidth, cellHeight, getYaw());
                 decomposedMap[i][j].setId("" + nodeId);
                 decomposedMap[i][j].rotate(getYaw(), topLeft);
 
@@ -213,37 +213,13 @@ public class GridArea extends GeometryElement implements MapDecomposition {
 
         for(int i = 0; i < nrows; i++) {
             for(int j = 0; j < ncols; j++) {
-                LocationType cellCenter = decomposedMap[i][j].getLocation();
-
-                /* Compute 4 new cells' center locations */
-                LocationType topLeft = new LocationType(cellCenter);
-                topLeft.translatePosition(newCellHeight/2, -newCellWidth/2, 0);
-
-                LocationType topRight = new LocationType(cellCenter);
-                topRight.translatePosition(newCellHeight/2, newCellWidth/2, 0);
-
-                LocationType bottomLeft = new LocationType(cellCenter);
-                bottomLeft.translatePosition(-newCellHeight/2, -newCellWidth/2, 0);
-
-                LocationType bottomRight = new LocationType(cellCenter);
-                bottomRight.translatePosition(-newCellHeight/2, newCellWidth/2, 0);
+                ArrayList<GridCell> subCells = decomposedMap[i][j].splitCell();
 
                 /* TODO check if cells have an obstacle */
-                newGrid[2*i][2*j] = new GridCell(topLeft, 2*i, 2*j);
-                newGrid[2*i][2*j + 1] = new GridCell(topRight, 2*i, 2*j+1);
-                newGrid[2*i + 1][2*j] = new GridCell(bottomLeft, 2*i + 1, 2*j);
-                newGrid[2*i + 1][2*j + 1] = new GridCell(bottomRight, 2*i + 1, 2*j + 1);
-
-                /* rotate cells into position */
-                newGrid[2*i][2*j].rotate(getYaw(), cellCenter);
-                newGrid[2*i][2*j + 1].rotate(getYaw(), cellCenter);
-                newGrid[2*i + 1][2*j].rotate(getYaw(), cellCenter);
-                newGrid[2*i + 1][2*j + 1].rotate(getYaw(), cellCenter);
-
-                decomposedMap[i][j].addSubCell(newGrid[2*i][2*j]);
-                decomposedMap[i][j].addSubCell(newGrid[2*i][2*j + 1]);
-                decomposedMap[i][j].addSubCell(newGrid[2*i + 1][2*j]);
-                decomposedMap[i][j].addSubCell(newGrid[2*i + 1][2*j + 1]);
+                newGrid[2*i][2*j] = subCells.get(0);
+                newGrid[2*i][2*j + 1] = subCells.get(1);
+                newGrid[2*i + 1][2*j] = subCells.get(2);
+                newGrid[2*i + 1][2*j + 1] = subCells.get(3);
             }
         }
         /* Set cells' id */

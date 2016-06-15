@@ -45,6 +45,10 @@ import pt.lsts.neptus.util.AngleUtils;
  */
 public class GridCell extends MapCell {
     private LocationType centerLoc;
+    private double width;
+    private double height;
+    private double yaw;
+
     private GridCell[] neighbours;
     private int row;
     private int col;
@@ -52,13 +56,17 @@ public class GridCell extends MapCell {
 
     private ArrayList<GridCell> subCells;
 
-    public GridCell(LocationType centerLocation, int i, int j) {
+    public GridCell(LocationType centerLocation, int i, int j, double width, double height, double yaw) {
         super(false);
 
         nNeighbours = 0;
         this.centerLoc = centerLocation;
         this.neighbours = new GridCell[4];
         setPosition(i, j);
+
+        this.width = width;
+        this.height = height;
+        this.yaw = yaw;
 
         /* in case this cell is itself a subcell, this will be empty */
         subCells = new ArrayList<>(4);
@@ -69,12 +77,60 @@ public class GridCell extends MapCell {
         this.col = col;
     }
 
+    public double getWidth() {
+        return width;
+    }
+
+    public double getHeight() {
+        return height;
+    }
+
+    public double getYaw() {
+        return yaw;
+    }
+
     public int getRow() {
         return row;
     }
 
     public int getColumn() {
         return col;
+    }
+
+    public ArrayList<GridCell> splitCell() {
+        double newCellWidth = width / 2;
+        double newCellHeight = height / 2;
+
+        /* Compute 4 new cells' center locations */
+        LocationType topLeft = new LocationType(centerLoc);
+        topLeft.translatePosition(newCellHeight/2, -newCellWidth/2, 0);
+
+        LocationType topRight = new LocationType(centerLoc);
+        topRight.translatePosition(newCellHeight/2, newCellWidth/2, 0);
+
+        LocationType bottomLeft = new LocationType(centerLoc);
+        bottomLeft.translatePosition(-newCellHeight/2, -newCellWidth/2, 0);
+
+        LocationType bottomRight = new LocationType(centerLoc);
+        bottomRight.translatePosition(-newCellHeight/2, newCellWidth/2, 0);
+
+        GridCell topLeftCell = new GridCell(topLeft, 2*row, 2*col, newCellWidth, newCellHeight, yaw);
+        GridCell topRightCell = new GridCell(topRight, 2*row, 2*col + 1, newCellWidth, newCellHeight, yaw);
+        GridCell bottomLeftCell = new GridCell(bottomLeft, 2*row + 1, 2*col, newCellWidth, newCellHeight, yaw);
+        GridCell bottomRightCell = new GridCell(bottomRight, 2*row + 1, 2*col + 1, newCellWidth, newCellHeight, yaw);
+
+        /* rotate cells into position */
+        topLeftCell.rotate(yaw, centerLoc);
+        topRightCell.rotate(yaw, centerLoc);
+        bottomLeftCell.rotate(yaw, centerLoc);
+        bottomRightCell.rotate(yaw, centerLoc);
+
+        addSubCell(topLeftCell);
+        addSubCell(topRightCell);
+        addSubCell(bottomLeftCell);
+        addSubCell(bottomRightCell);
+
+        return this.subCells;
     }
 
     public void addSubCell(GridCell subCell) {
