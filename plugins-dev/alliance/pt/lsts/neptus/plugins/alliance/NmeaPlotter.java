@@ -182,11 +182,10 @@ public class NmeaPlotter extends ConsoleLayer {
 
         serialPort.setParams(uartBaudRate, dataBits, stopBits, parity);
         serialPort.addEventListener(new SerialPortEventListener() {
-
             private String currentString = "";
 
             @Override
-            public void serialEvent(SerialPortEvent arg0) {
+            public void serialEvent(SerialPortEvent serEvt) {
                 try {
                     String s = serialPort.readString();
                     if (s == null|| s.isEmpty())
@@ -194,33 +193,16 @@ public class NmeaPlotter extends ConsoleLayer {
                     
                     if (s.contains("\n")) {
                         currentString += s.substring(0, s.indexOf('\n'));
-                        if (!currentString.trim().isEmpty()) {
-                            // System.out.println(">" + currentString);
-                            for (NmeaListener l : listeners)
-                                l.nmeaSentence(currentString.trim());
-                            parseSentence(currentString);
-                            if (retransmitToNeptus)
-                                retransmit(currentString);
-                            if (logReceivedData)
-                                LsfMessageLogger.log(new DevDataText(currentString));
-                        }
+                        processSentence();
                         currentString = s.substring(s.indexOf('\n') + 1);
                     }
                     else if (s.contains("$") || s.contains("!")) {
+                        // For cases where the stream is not canonical (there is without new line at the end
                         if (s.contains("$"))
                             currentString += s.substring(0, s.indexOf('$'));
                         else
                             currentString += s.substring(0, s.indexOf('!'));
-                        if (!currentString.trim().isEmpty()) {
-                            // System.out.println(currentString);
-                            for (NmeaListener l : listeners)
-                                l.nmeaSentence(currentString.trim());
-                            parseSentence(currentString);
-                            if (retransmitToNeptus)
-                                retransmit(currentString);
-                            if (logReceivedData)
-                                LsfMessageLogger.log(new DevDataText(currentString));
-                        }
+                        processSentence();
                         if (s.contains("$"))
                             currentString = s.substring(s.indexOf('$'));
                         else
@@ -235,8 +217,20 @@ public class NmeaPlotter extends ConsoleLayer {
                     e.printStackTrace();
                 }
             }
+
+            private void processSentence() {
+                if (!currentString.trim().isEmpty()) {
+                    // System.out.println(">" + currentString);
+                    for (NmeaListener l : listeners)
+                        l.nmeaSentence(currentString.trim());
+                    parseSentence(currentString);
+                    if (retransmitToNeptus)
+                        retransmit(currentString);
+                    if (logReceivedData)
+                        LsfMessageLogger.log(new DevDataText(currentString));
+                }
+            }
         });
-        // serialPort.setParams(uartBaudRate, dataBits, stopBits, parity);
     }
 
     private void retransmit(String sentence) {
@@ -312,7 +306,6 @@ public class NmeaPlotter extends ConsoleLayer {
         if (tcpConnect) {
             final Socket socket = new Socket();
             Thread listener = new Thread("TCP Nmea Listener") {
-
                 public void run() {
                     connected = false;
                     BufferedReader reader = null;
@@ -434,8 +427,8 @@ public class NmeaPlotter extends ConsoleLayer {
                 Graphics2D copy = (Graphics2D) g.create();
                 double width = m.getDimensionToPort() + m.getDimensionToStarboard();
                 double length = m.getDimensionToStern() + m.getDimensionToBow();
-                double centerX = pt.getX();// -m.getDimensionToPort() + width/2.0;
-                double centerY = pt.getY();// -m.getDimensionToStern() + length/2.0;
+                double centerX = pt.getX();
+                double centerY = pt.getY();
 
                 double widthOffsetFromCenter = m.getDimensionToPort() - m.getDimensionToStarboard();
                 double lenghtOffsetFromCenter = m.getDimensionToStern() - m.getDimensionToBow();
@@ -446,7 +439,8 @@ public class NmeaPlotter extends ConsoleLayer {
                 copy.translate(widthOffsetFromCenter / 2., -lenghtOffsetFromCenter / 2.);
                 copy.scale(width / 2, length / 2);
                 copy.fill(ship);
-                copy.scale(1.0 / (width / 2), 1.0 / (length / 2));
+                // copy.scale(1.0 / (width / 2), 1.0 / (length / 2));
+                copy.dispose();
             }
             g.setColor(Color.black);
             g.fill(new Ellipse2D.Double((int) pt.getX() - 3, (int) pt.getY() - 3, 6, 6));
@@ -456,8 +450,8 @@ public class NmeaPlotter extends ConsoleLayer {
     @Override
     public void initLayer() {
         connectItem = getConsole().addMenuItem(
-                I18n.text("Tools") + ">" + I18n.text("NMEA Plotter") + ">" + I18n.text("Connect"), null,
-                new ActionListener() {
+                I18n.text("Tools") + ">" + I18n.text("NMEA Plotter") + ">" + I18n.text("Connect"), 
+                getIcon(), new ActionListener() {
                     @Override
                     public void actionPerformed(ActionEvent e) {
                         try {
