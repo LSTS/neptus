@@ -279,8 +279,6 @@ public class SystemsInteraction extends ConsoleInteraction {
         ArrayList<ImcSystem> imcSystems = new ArrayList<>();
         ArrayList<ExternalSystem> extSystems = new ArrayList<>();
         
-        System.out.println(event.getX() + " " + source.getRealXCoord(event.getX()));
-        
         for (ImcSystem sys : ImcSystemsHolder.lookupAllSystems()) {
             if (System.currentTimeMillis() - sys.getLocationTimeMillis() > minutesToConsiderSystemsWithoutKnownLocation
                     * DateTimeUtil.MINUTE)
