@@ -321,14 +321,16 @@ public class SystemsInteraction extends ConsoleInteraction {
                 if (idx < imcSystems.size()) {
                     ImcSystem sys = imcSystems.get(idx);
                     if (sys != null) {
-                        distress = sys.retrieveData(SystemUtils.DISTRESS_MSG_KEY, minutesToShowDistress * 1000);
+                        distress = sys.retrieveData(SystemUtils.DISTRESS_MSG_KEY,
+                                minutesToShowDistress * DateTimeUtil.MINUTE);
                         loc = sys.getLocation();
                     }
                 }
                 else {
                     ExternalSystem sys = extSystems.get(idx - imcSystems.size());
                     if (sys != null) {
-                        distress = sys.retrieveData(SystemUtils.DISTRESS_MSG_KEY, minutesToShowDistress * 1000);
+                        distress = sys.retrieveData(SystemUtils.DISTRESS_MSG_KEY,
+                                minutesToShowDistress * DateTimeUtil.MINUTE);
                         loc = sys.getLocation();
                     }
                 }
