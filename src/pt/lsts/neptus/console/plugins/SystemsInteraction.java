@@ -162,7 +162,7 @@ public class SystemsInteraction extends ConsoleInteraction {
             labelToPaint.setText(txtDistress);
             
             int widthD = RECT_WIDTH;
-            int heightD = (int) labelToPaint.getPreferredSize().getHeight();
+            int heightD = (int) labelToPaint.getPreferredSize().getHeight() + MARGIN * 2;
             
             g2.translate(0, -(heightD + MARGIN));
 
@@ -180,7 +180,6 @@ public class SystemsInteraction extends ConsoleInteraction {
             if (loc != null) {
                 Graphics2D g3 = (Graphics2D) g.create();
                 Point2D pt = renderer.getScreenPosition(loc);
-                System.out.println(pt);
                 g3.translate(-renderer.getWidth() / 2., renderer.getHeight() / 2.);
                 g3.translate(pt.getX(), -pt.getY());
                 g3.setStroke(new BasicStroke(3));
@@ -312,6 +311,7 @@ public class SystemsInteraction extends ConsoleInteraction {
     private String collectTextDistressToPaint() {
         String ret = null;
         Object distress = null;
+        long distressTimeMillis = -1;
         LocationType loc = null;
 
         synchronized (this.imcSystems) {
@@ -323,6 +323,7 @@ public class SystemsInteraction extends ConsoleInteraction {
                     if (sys != null) {
                         distress = sys.retrieveData(SystemUtils.DISTRESS_MSG_KEY,
                                 minutesToShowDistress * DateTimeUtil.MINUTE);
+                        distressTimeMillis = sys.retrieveDataTimeMillis(SystemUtils.DISTRESS_MSG_KEY);
                         loc = sys.getLocation();
                     }
                 }
@@ -331,6 +332,7 @@ public class SystemsInteraction extends ConsoleInteraction {
                     if (sys != null) {
                         distress = sys.retrieveData(SystemUtils.DISTRESS_MSG_KEY,
                                 minutesToShowDistress * DateTimeUtil.MINUTE);
+                        distressTimeMillis = sys.retrieveDataTimeMillis(SystemUtils.DISTRESS_MSG_KEY);
                         loc = sys.getLocation();
                     }
                 }
@@ -346,14 +348,18 @@ public class SystemsInteraction extends ConsoleInteraction {
         distressStr = distressStr.replaceFirst("DISTRESS", "");
         distressStr = distressStr.replaceFirst(" :: ", "");
         if (loc != null)
-            distressStr += " @depth " + loc.getDepth() + "m";
+            distressStr += " @depth" + Math.round(loc.getDepth()) + "m";
         
         StringBuilder sb = new StringBuilder("<html>");
         sb.append("<font color=\"").append(String.format("#%02X%02X%02X", 228, 37, 58)).append("\">");
         sb.append("<b>").append("&gt;&gt;&gt; DISTRESS &lt;&lt;&lt;").append("</b>");
         sb.append("</font>");
-        sb.append("<br/>");
         sb.append("<font size=\"2\">");
+        if (distressTimeMillis > 0) {
+            sb.append("&nbsp;&nbsp;&nbsp;&nbsp;\u2206t ");
+            sb.append(DateTimeUtil.milliSecondsToFormatedString(System.currentTimeMillis() - distressTimeMillis, true));
+        }
+        sb.append("<br/>");
         sb.append(distressStr);
         sb.append("</font>");
         sb.append("</html>");
