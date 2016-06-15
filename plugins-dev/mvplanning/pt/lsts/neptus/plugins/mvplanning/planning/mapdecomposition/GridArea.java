@@ -333,33 +333,27 @@ public class GridArea extends GeometryElement implements MapDecomposition {
 
     @Override
     public void paint(Graphics2D g, StateRenderer2D renderer, double rotation) {
-        g.setTransform(new AffineTransform());
-        double scaledWidth = cellWidth * renderer.getZoom();
-        double scaledHeight = cellHeight * renderer.getZoom();
-        Point2D topLeftP = renderer.getScreenPosition(topLeft);
-        Point2D centerP = renderer.getScreenPosition(center);
+        g.transform(new AffineTransform());
+        double yaw = getYaw() - renderer.getRotation();
 
-        Rectangle2D.Double cellRec = new Rectangle2D.Double(0, 0, scaledWidth, scaledHeight);
+        for(MapCell[] row : decomposedMap) {
+            for(MapCell cell : row) {
+                Point2D pt = renderer.getScreenPosition(cell.getLocation());
+                g.translate(pt.getX(), pt.getY());
+                g.rotate(yaw);
 
-        g.translate(centerP.getX(), centerP.getY());
-        g.rotate(getYaw() - renderer.getRotation());
-        g.translate(-centerP.getX(), -centerP.getY());
-        for(int i = 0; i < nrows; i++) {
-            for(int j = 0; j < ncols; j++) {
-                Graphics2D g2 = (Graphics2D) g.create();
-                double verticalShift = scaledHeight * i;
-                double horizontalShift = scaledWidth * j;
+                double widthScaled = cellWidth * renderer.getZoom();
+                double lengthScaled = cellHeight * renderer.getZoom();
 
-                g2.translate(topLeftP.getX() + horizontalShift, topLeftP.getY() + verticalShift);
+                Rectangle2D.Double cellRec = new Rectangle2D.Double(-widthScaled / 2, -lengthScaled / 2, widthScaled, lengthScaled);
 
-                if(decomposedMap[i][j].hasObstacle())
-                    g2.fill(cellRec);
+                if(cell.hasObstacle())
+                    g.fill(cellRec);
                 else
-                    g2.draw(cellRec);
+                    g.draw(cellRec);
 
-                g2.translate(-(topLeftP.getX() + horizontalShift), -(topLeftP.getY() + verticalShift));
-
-                g2.dispose();
+                g.rotate(-yaw);
+                g.translate(-pt.getX(), -pt.getY());
             }
         }
     }
