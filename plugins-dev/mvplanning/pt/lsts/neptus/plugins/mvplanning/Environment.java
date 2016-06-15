@@ -70,12 +70,14 @@ public class Environment {
      * */
     public boolean areaHasObstacle(LocationType origin, LocationType center, double width, double height, double yaw) {
         double[] offsets = center.getOffsetFrom(origin);
-        Rectangle2D.Double areaRec = new Rectangle2D.Double(offsets[0] - width/2, offsets[1] - height/2, width, height);
-        AffineTransform rot = new AffineTransform();
-        rot.rotate(yaw);
+        Rectangle2D.Double areaRec = new Rectangle2D.Double(-width/2, -height/2, width, height);
+
+        AffineTransform transform = new AffineTransform();
+        transform.translate(offsets[0], offsets[1]);
+        transform.rotate(yaw);
 
         Area area = new Area(areaRec);
-        area.transform(rot);
+        area.transform(transform);
 
         area.intersect(console.getMapGroup().getObstaclesArea(origin));
         return !area.isEmpty();
