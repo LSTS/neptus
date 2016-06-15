@@ -253,32 +253,7 @@ public class AisContactDb implements AISObserver {
     public void updateSystem(int mmsi, LocationType loc, double heading) {
         AisContact contact = contacts.get(mmsi);
         String name = contact.getLabel();
-        ExternalSystem sys = null;
-        if (name.equals("" + mmsi)) {
-            sys = ExternalSystemsHolder.lookupSystem(name);
-            if (sys == null) {
-                sys = new ExternalSystem(name);
-                ExternalSystemsHolder.registerSystem(sys);
-            }
-        }
-        else {
-            sys = ExternalSystemsHolder.lookupSystem(name);
-            ExternalSystem sysMMSI = ExternalSystemsHolder.lookupSystem("" + mmsi);
-            if (sys == null && sysMMSI == null) {
-                sys = new ExternalSystem(name);
-                ExternalSystemsHolder.registerSystem(sys);
-            }
-            else if (sys == null && sysMMSI != null) {
-                sys = new ExternalSystem(name);
-                ExternalSystemsHolder.purgeSystem("" + mmsi);
-                ExternalSystemsHolder.registerSystem(sys);
-            }
-            else {
-                // sys exists
-                if (sysMMSI != null)
-                    ExternalSystemsHolder.purgeSystem("" + mmsi);
-            }
-        }
+        ExternalSystem sys = NMEAUtils.getAndRegisterExternalSystem(mmsi, name);
 
         sys.setLocation(contacts.get(mmsi).getLocation());
         sys.setAttitudeDegrees(contact.getHdg() > 360 ? contact.getCog() : contact.getHdg());
