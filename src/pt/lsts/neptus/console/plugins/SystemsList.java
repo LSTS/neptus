@@ -1974,7 +1974,7 @@ public class SystemsList extends ConsolePanel implements MainVehicleChangeListen
             }
         }
 
-        obj = sys.retrieveData(SystemUtils.DISTRESS_MSG_KEY, minutesToShowDistress * 1000);
+        obj = sys.retrieveData(SystemUtils.DISTRESS_MSG_KEY, minutesToShowDistress * DateTimeUtil.MINUTE);
         if (obj != null) {
             Graphics2D g3 = (Graphics2D) g.create();
             g3.setStroke(new BasicStroke(3));
