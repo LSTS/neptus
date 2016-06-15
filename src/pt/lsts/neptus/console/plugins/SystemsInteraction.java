@@ -223,10 +223,18 @@ public class SystemsInteraction extends ConsoleInteraction {
 
                         Object speed = sys.retrieveData(SystemUtils.GROUND_SPEED_KEY);
                         Object course = sys.retrieveData(SystemUtils.COURSE_KEY);
-                        sb.append("<br/>").append("<b>").append(I18n.text("Speed/Course")).append(": ").append("</b>");
+                        Object rateOfturn = sys.retrieveData(SystemUtils.RATE_OF_TURN_DEGS_PER_MIN_KEY);
+                        sb.append("<br/>").append("<b>").append(I18n.text("Speed")).append("/").append(I18n.text("Course"));
+                        if (rateOfturn == null)
+                            sb.append("/").append(I18n.textc("ROT", "Rate of Turn"));
+                        sb.append(": ").append("</b>");
                         sb.append(speed == null ? "- " : MathMiscUtils.round(((Number) speed).doubleValue(), 1)).append("m/s");
                         sb.append("<b> / </b>");
                         sb.append(course == null ? "- " : (int) MathMiscUtils.round(((Number) course).doubleValue(), 0)).append("\u00B0");
+                        if (rateOfturn == null) {
+                            sb.append("<b> / </b>");
+                            sb.append(course == null ? "- " : (int) MathMiscUtils.round(((Number) course).doubleValue(), 0)).append("\u00B0/min");
+                        }
 
                         Object draught = sys.retrieveData(SystemUtils.DRAUGHT_KEY);
                         sb.append("<br/>").append("<b>").append(I18n.text("Draught")).append(": ").append("</b>")
