@@ -270,6 +270,9 @@ public class SystemsList extends ConsolePanel implements MainVehicleChangeListen
     @NeptusProperty(name = "Draw Circle Arround System Icon In Render Dependent Of System Type", description = "This configures if the circle arround the symbol in render is to be drawn dependent of system type",
             category = "Renderer", userLevel = LEVEL.REGULAR)
     public boolean drawCircleInRenderDependentOfSystemType = true;
+    
+    @NeptusProperty(name = "Minutes to Show Distress Signal", category = "Test", userLevel = LEVEL.ADVANCED)
+    private int minutesToShowDistress = 5; 
 
     private final SystemDisplayComparator comparator = new SystemDisplayComparator();
 
@@ -1969,6 +1972,20 @@ public class SystemsList extends ConsolePanel implements MainVehicleChangeListen
                 SystemPainterHelper.drawCourseSpeedVectorForSystem(renderer, g2, courseDegrees, gSpeed, color, iconWidth,
                         isLocationKnownUpToDate, minimumSpeedToBeStopped);
             }
+        }
+
+        obj = sys.retrieveData(SystemUtils.DISTRESS_MSG_KEY, minutesToShowDistress * 1000);
+        if (obj != null) {
+            Graphics2D g3 = (Graphics2D) g.create();
+            g3.setStroke(new BasicStroke(3));
+            g3.setColor(new Color(255, 155, 155, 255));
+            int s = 40;
+            g3.drawOval(-s / 2, -s / 2, s, s);
+            s = 60;
+            g3.drawOval(-s / 2, -s / 2, s, s);
+            s = 80;
+            g3.drawOval(-s / 2, -s / 2, s, s);
+            g3.dispose();
         }
 
         g2.dispose();
