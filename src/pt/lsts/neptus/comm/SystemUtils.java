@@ -63,6 +63,8 @@ public class SystemUtils {
     public static final String SHIP_TYPE_KEY = "AIS Ship Type";
     public static final String NAV_STATUS_KEY = "AIS Navigational Status";
     public static final String CALL_SIGN_KEY = "Call Sign";
+    public static final String RATE_OF_TURN_DEGS_PER_MIN_KEY = "Rate of Turn (deg/min)";
+    public static final String DISTRESS_MSG_KEY = "Distress Message";
 
     /** To avoid instantiation */
     private SystemUtils() {
