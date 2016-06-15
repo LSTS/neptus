@@ -146,6 +146,10 @@ public class AisContactDb implements AISObserver {
         }
     }
 
+    public String getNameForMMSI(int mmsi) {
+        return labelCache.get(mmsi);
+    }
+    
     public void processGGA(String sentence) {
         lastGGA = sentence;
         // System.err.println(lastGGA);
