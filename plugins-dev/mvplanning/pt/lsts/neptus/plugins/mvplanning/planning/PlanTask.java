@@ -31,8 +31,6 @@
  */
 package pt.lsts.neptus.plugins.mvplanning.planning;
 
-import java.util.List;
-
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
@@ -56,8 +54,14 @@ import pt.lsts.neptus.types.mission.plan.PlanType;
 @XmlAccessorType(XmlAccessType.NONE)
 public class PlanTask {
     public static enum TASK_TYPE {
-        COVERAGE_AREA,
-        VISIT_POINT
+        COVERAGE_AREA("CoverageArea"),
+        VISIT_POINT("VisitArea"),
+        NEPTUS_PLAN("NeptusPlan");
+
+        protected String value;
+        TASK_TYPE(String value) {
+            this.value = value;
+        }
     };
 
     @XmlElement(name = "PlanId")
@@ -80,12 +84,13 @@ public class PlanTask {
 
     private TASK_TYPE taskType;
 
-    public PlanTask(String id, PlanType plan, Profile planProfile) {
+    public PlanTask(String id, PlanType plan, Profile planProfile, TASK_TYPE taskType) {
         this.planId = id;
         this.plan = plan;
         this.plan.setId(id);
         this.planProfile = planProfile;
         this.timestamp = -1;
+        this.taskType = taskType;
 
         completion = 0;
         md5 = plan.asIMCPlan().payloadMD5();
@@ -115,12 +120,7 @@ public class PlanTask {
 
     @XmlElement(name = "TaskType")
     public String getTaskTypeAsString() {
-        if(taskType == TASK_TYPE.COVERAGE_AREA)
-            return "CoverageArea";
-        else if(taskType == TASK_TYPE.VISIT_POINT)
-            return "VisitPoint";
-
-        return "unknown";
+        return taskType.value;
     }
 
     public String getPlanId() {

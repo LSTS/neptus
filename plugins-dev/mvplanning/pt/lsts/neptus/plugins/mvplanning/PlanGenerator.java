@@ -17,6 +17,7 @@ import pt.lsts.neptus.plugins.mvplanning.exceptions.SafePathNotFoundException;
 import pt.lsts.neptus.plugins.mvplanning.interfaces.ConsoleAdapter;
 import pt.lsts.neptus.plugins.mvplanning.jaxb.profiles.Profile;
 import pt.lsts.neptus.plugins.mvplanning.planning.PlanTask;
+import pt.lsts.neptus.plugins.mvplanning.planning.PlanTask.TASK_TYPE;
 import pt.lsts.neptus.plugins.mvplanning.planning.algorithm.CoverageArea;
 import pt.lsts.neptus.plugins.mvplanning.planning.mapdecomposition.GridArea;
 import pt.lsts.neptus.types.coord.LocationType;
@@ -50,7 +51,7 @@ public class PlanGenerator {
     public void generatePlan(Profile planProfile, Object obj) {
         if(obj.getClass().getSimpleName().equals("PlanType")) {
             PlanType pType = (PlanType) obj;
-            planAloc.allocate(new PlanTask(pType.getId(), pType, planProfile));
+            planAloc.allocate(new PlanTask(pType.getId(), pType, planProfile, TASK_TYPE.NEPTUS_PLAN));
         }
         else {
         }
@@ -68,7 +69,7 @@ public class PlanGenerator {
         if(!plans.isEmpty()) {
             int i = 0;
             for(PlanType planSpec : plans) {
-                planAloc.allocate(new PlanTask(id + "_" + i, planSpec, planProfile));
+                planAloc.allocate(new PlanTask(id + "_" + i, planSpec, planProfile, TASK_TYPE.COVERAGE_AREA));
                 i++;
             }
         }
@@ -91,7 +92,7 @@ public class PlanGenerator {
         point.setId("visit_point");
 
         plan.getGraph().addManeuver(point);
-        planAloc.allocate(new PlanTask(id, plan, planProfile));
+        planAloc.allocate(new PlanTask(id, plan, planProfile, TASK_TYPE.VISIT_POINT));
 
         return plan;
     }
