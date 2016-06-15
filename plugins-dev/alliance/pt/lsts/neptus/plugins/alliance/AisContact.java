@@ -44,8 +44,10 @@ import pt.lsts.neptus.util.AISUtil;
 public class AisContact {
 
     private int mmsi;
-    private double sog = 0, cog = 0;
+    private double sog = 0;
+    private double cog = 0;
     private double hdg = 0;
+    private double rateOfTurn = 0;
     private String label = null;
     private long lastUpdate = 0;
     private LocationType loc = new LocationType();
@@ -70,6 +72,7 @@ public class AisContact {
         hdg = m.getTrueHeading();
         cog = m.getCourseOverGround();
         sog = m.getSpeedOverGround();
+        rateOfTurn = m.getRateOfTurn();
         navStatus = AISUtil.translateNavigationalStatus(m.getNavigationStatus());
         if (label == null)
             label = ""+m.getSourceMmsi();
@@ -82,6 +85,7 @@ public class AisContact {
         hdg = m.getTrueHeading();
         cog = m.getCourseOverGround();
         sog = m.getSpeedOverGround();
+        rateOfTurn = m.getRateOfTurn();
         navStatus = AISUtil.translateNavigationalStatus(m.getNavigationStatus());
         if (label == null)
             label = ""+m.getSourceMmsi();
@@ -133,6 +137,13 @@ public class AisContact {
     }
 
     /**
+     * @return the rateOfTurn
+     */
+    public double getRateOfTurn() {
+        return rateOfTurn;
+    }
+    
+    /**
      * @param label the label to set
      */
     public void setLabel(String label) {
@@ -153,6 +164,13 @@ public class AisContact {
         this.cog = cog;
     }
 
+    /**
+     * @param rateOfTurn the rateOfTurn to set
+     */
+    public void setRateOfTurn(double rateOfTurn) {
+        this.rateOfTurn = rateOfTurn;
+    }
+    
     /**
      * @param loc the loc to set
      */

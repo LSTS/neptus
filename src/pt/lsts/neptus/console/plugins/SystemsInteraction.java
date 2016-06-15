@@ -31,6 +31,7 @@
  */
 package pt.lsts.neptus.console.plugins;
 
+import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.event.MouseEvent;
@@ -76,6 +77,8 @@ public class SystemsInteraction extends ConsoleInteraction {
     public boolean considerExternalSystemsIcons = true;
     @NeptusProperty(name = "Minutes To Consider Systems Without Known Location", userLevel = LEVEL.REGULAR)
     public int minutesToConsiderSystemsWithoutKnownLocation = 5;
+    @NeptusProperty(name = "Minutes to Show Distress Signal", category = "Test", userLevel = LEVEL.ADVANCED)
+    private int minutesToShowDistress = 5; 
 
     private short counterShow = 0;
     private ArrayList<ImcSystem> imcSystems = new ArrayList<>();
@@ -153,6 +156,44 @@ public class SystemsInteraction extends ConsoleInteraction {
         labelToPaint.setBounds(0, 0, width, height);
         labelToPaint.paint(g2);
         
+        g2.translate(-2.5, -2.5);
+        String txtDistress = collectTextDistressToPaint();
+        if (!txtDistress.isEmpty()) {
+            labelToPaint.setText(txtDistress);
+            
+            int widthD = RECT_WIDTH;
+            int heightD = (int) labelToPaint.getPreferredSize().getHeight() + MARGIN * 2;
+            
+            g2.translate(0, -(heightD + MARGIN));
+
+            g2.setColor(new Color(0, 0, 0, 200));
+            g2.drawRoundRect(MARGIN, MARGIN, widthD, heightD, 20, 20);
+
+            g2.setColor(new Color(255, 155, 155, 150));
+            g2.fillRoundRect(MARGIN, MARGIN, widthD, heightD, 20, 20);
+
+            g2.translate(2.5, 2.5);
+            labelToPaint.setBounds(0, 0, widthD, heightD);
+            labelToPaint.paint(g2);
+            
+            LocationType loc = collectLocation();
+            if (loc != null) {
+                Graphics2D g3 = (Graphics2D) g.create();
+                Point2D pt = renderer.getScreenPosition(loc);
+                g3.translate(-renderer.getWidth() / 2., renderer.getHeight() / 2.);
+                g3.translate(pt.getX(), -pt.getY());
+                g3.setStroke(new BasicStroke(3));
+                g3.setColor(new Color(255, 155, 155, 255));
+                int s = 40;
+                g3.drawOval(-s / 2, -s / 2, s, s);
+                s = 60;
+                g3.drawOval(-s / 2, -s / 2, s, s);
+                s = 80;
+                g3.drawOval(-s / 2, -s / 2, s, s);
+                g3.dispose();
+            }
+        }
+        
         g2.dispose();
     }
     
@@ -223,10 +264,18 @@ public class SystemsInteraction extends ConsoleInteraction {
 
                         Object speed = sys.retrieveData(SystemUtils.GROUND_SPEED_KEY);
                         Object course = sys.retrieveData(SystemUtils.COURSE_KEY);
-                        sb.append("<br/>").append("<b>").append(I18n.text("Speed/Course")).append(": ").append("</b>");
+                        Object rateOfturn = sys.retrieveData(SystemUtils.RATE_OF_TURN_DEGS_PER_MIN_KEY);
+                        sb.append("<br/>").append("<b>").append(I18n.text("Speed")).append("/").append(I18n.text("Course"));
+                        if (rateOfturn == null)
+                            sb.append("/").append(I18n.textc("ROT", "Rate of Turn"));
+                        sb.append(": ").append("</b>");
                         sb.append(speed == null ? "- " : MathMiscUtils.round(((Number) speed).doubleValue(), 1)).append("m/s");
                         sb.append("<b> / </b>");
                         sb.append(course == null ? "- " : (int) MathMiscUtils.round(((Number) course).doubleValue(), 0)).append("\u00B0");
+                        if (rateOfturn == null) {
+                            sb.append("<b> / </b>");
+                            sb.append(course == null ? "- " : (int) MathMiscUtils.round(((Number) course).doubleValue(), 0)).append("\u00B0/min");
+                        }
 
                         Object draught = sys.retrieveData(SystemUtils.DRAUGHT_KEY);
                         sb.append("<br/>").append("<b>").append(I18n.text("Draught")).append(": ").append("</b>")
@@ -256,6 +305,89 @@ public class SystemsInteraction extends ConsoleInteraction {
         return null;
     }
 
+    /**
+     * @return
+     */
+    private String collectTextDistressToPaint() {
+        String ret = null;
+        Object distress = null;
+        long distressTimeMillis = -1;
+        LocationType loc = null;
+
+        synchronized (this.imcSystems) {
+            int allCount = imcSystems.size() + extSystems.size();
+            if (allCount > 0) {
+                int idx = counterShow % allCount;
+                if (idx < imcSystems.size()) {
+                    ImcSystem sys = imcSystems.get(idx);
+                    if (sys != null) {
+                        distress = sys.retrieveData(SystemUtils.DISTRESS_MSG_KEY,
+                                minutesToShowDistress * DateTimeUtil.MINUTE);
+                        distressTimeMillis = sys.retrieveDataTimeMillis(SystemUtils.DISTRESS_MSG_KEY);
+                        loc = sys.getLocation();
+                    }
+                }
+                else {
+                    ExternalSystem sys = extSystems.get(idx - imcSystems.size());
+                    if (sys != null) {
+                        distress = sys.retrieveData(SystemUtils.DISTRESS_MSG_KEY,
+                                minutesToShowDistress * DateTimeUtil.MINUTE);
+                        distressTimeMillis = sys.retrieveDataTimeMillis(SystemUtils.DISTRESS_MSG_KEY);
+                        loc = sys.getLocation();
+                    }
+                }
+            }
+        }
+
+//        distress = "DISTRESS :: Oxygen=15.4,Battery=23.2,People=76";
+
+        if (distress == null)
+            return "";
+        
+        String distressStr = "" + distress;
+        distressStr = distressStr.replaceFirst("DISTRESS", "");
+        distressStr = distressStr.replaceFirst(" :: ", "");
+        if (loc != null)
+            distressStr += " @depth" + Math.round(loc.getDepth()) + "m";
+        
+        StringBuilder sb = new StringBuilder("<html>");
+        sb.append("<font color=\"").append(String.format("#%02X%02X%02X", 228, 37, 58)).append("\">");
+        sb.append("<b>").append("&gt;&gt;&gt; DISTRESS &lt;&lt;&lt;").append("</b>");
+        sb.append("</font>");
+        sb.append("<font size=\"2\">");
+        if (distressTimeMillis > 0) {
+            sb.append("&nbsp;&nbsp;&nbsp;&nbsp;\u2206t ");
+            sb.append(DateTimeUtil.milliSecondsToFormatedString(System.currentTimeMillis() - distressTimeMillis, true));
+        }
+        sb.append("<br/>");
+        sb.append(distressStr);
+        sb.append("</font>");
+        sb.append("</html>");
+
+        ret = sb.toString();
+        return ret;
+    }
+    
+    private LocationType collectLocation() {
+        int allCount = imcSystems.size() + extSystems.size();
+        LocationType loc = null;
+        if (allCount > 0) {
+            int idx = counterShow % allCount;
+            if (idx < imcSystems.size()) {
+                ImcSystem sys = imcSystems.get(idx);
+                loc = sys.getLocation();
+            }
+            else {
+                ExternalSystem sys = extSystems.get(idx - imcSystems.size());
+                loc = sys.getLocation();
+            }
+            
+            return loc;
+        }
+        
+        return null;
+    }
+    
     /* (non-Javadoc)
      * @see pt.lsts.neptus.console.ConsoleInteraction#mouseMoved(java.awt.event.MouseEvent, pt.lsts.neptus.renderer2d.StateRenderer2D)
      */

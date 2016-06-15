@@ -70,6 +70,7 @@ import pt.lsts.neptus.plugins.NeptusProperty;
 import pt.lsts.neptus.plugins.NeptusProperty.LEVEL;
 import pt.lsts.neptus.plugins.PluginDescription;
 import pt.lsts.neptus.plugins.PluginUtils;
+import pt.lsts.neptus.plugins.alliance.ais.CmreAisCsvParser;
 import pt.lsts.neptus.plugins.update.Periodic;
 import pt.lsts.neptus.renderer2d.StateRenderer2D;
 import pt.lsts.neptus.types.coord.LocationType;
@@ -221,8 +222,10 @@ public class NmeaPlotter extends ConsoleLayer {
             private void processSentence() {
                 if (!currentString.trim().isEmpty()) {
                     // System.out.println(">" + currentString);
-                    for (NmeaListener l : listeners)
-                        l.nmeaSentence(currentString.trim());
+                    if (hasNMEASentencePrefix(currentString)) {
+                        for (NmeaListener l : listeners)
+                            l.nmeaSentence(currentString.trim());
+                    }
                     parseSentence(currentString);
                     if (retransmitToNeptus)
                         retransmit(currentString);
@@ -233,6 +236,10 @@ public class NmeaPlotter extends ConsoleLayer {
         });
     }
 
+    private boolean hasNMEASentencePrefix(String sentence) {
+        return sentence.startsWith("$") || sentence.startsWith("!");
+    }
+    
     private void retransmit(String sentence) {
         DevDataText ddt = new DevDataText(sentence);
         for (ImcSystem s : ImcSystemsHolder.lookupSystemByType(SystemTypeEnum.CCU)) {
@@ -247,19 +254,24 @@ public class NmeaPlotter extends ConsoleLayer {
 
     private void parseSentence(String s) {
         s = s.trim();
-        String nmeaType = NMEAUtils.nmeaType(s);
-        if (nmeaType.equals("$B-TLL") || nmeaType.equals("$A-TLL"))
-            contactDb.processBtll(s);
-        else if (nmeaType.equals("$GPGGA"))
-            contactDb.processGGA(s);
-        else if (nmeaType.equals("$RATTM"))
-            contactDb.processRattm(s);
-        else if (nmeaType.equals("$GPHDT"))
-            contactDb.processGPHDT(s);
-        else {
-            synchronized (parser) {
-                parser.process(s);
+        if (hasNMEASentencePrefix(s)) {
+            String nmeaType = NMEAUtils.nmeaType(s);
+            if (nmeaType.equals("$B-TLL") || nmeaType.equals("$A-TLL"))
+                contactDb.processBtll(s);
+            else if (nmeaType.equals("$GPGGA"))
+                contactDb.processGGA(s);
+            else if (nmeaType.equals("$RATTM"))
+                contactDb.processRattm(s);
+            else if (nmeaType.equals("$GPHDT"))
+                contactDb.processGPHDT(s);
+            else {
+                synchronized (parser) {
+                    parser.process(s);
+                }
             }
+        }
+        else {
+            CmreAisCsvParser.process(s, contactDb);
         }
     }
 

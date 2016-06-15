@@ -63,6 +63,8 @@ import pt.lsts.neptus.util.conf.ConfigFetch;
  */
 public class AisContactDb implements AISObserver {
 
+    public static final double MPS_TO_KNOT_CONV = 1.94384449244;
+    
     private LinkedHashMap<Integer, AisContact> contacts = new LinkedHashMap<>();
     private LinkedHashMap<Integer, String> labelCache = new LinkedHashMap<>();
     private LinkedHashMap<Integer, HashMap<String, Object>> dimensionsCache = new LinkedHashMap<>();
@@ -144,6 +146,10 @@ public class AisContactDb implements AISObserver {
         }
     }
 
+    public String getNameForMMSI(int mmsi) {
+        return labelCache.get(mmsi);
+    }
+    
     public void processGGA(String sentence) {
         lastGGA = sentence;
         // System.err.println(lastGGA);
@@ -253,37 +259,10 @@ public class AisContactDb implements AISObserver {
     public void updateSystem(int mmsi, LocationType loc, double heading) {
         AisContact contact = contacts.get(mmsi);
         String name = contact.getLabel();
-        ExternalSystem sys = null;
-        if (name.equals("" + mmsi)) {
-            sys = ExternalSystemsHolder.lookupSystem(name);
-            if (sys == null) {
-                sys = new ExternalSystem(name);
-                ExternalSystemsHolder.registerSystem(sys);
-            }
-        }
-        else {
-            sys = ExternalSystemsHolder.lookupSystem(name);
-            ExternalSystem sysMMSI = ExternalSystemsHolder.lookupSystem("" + mmsi);
-            if (sys == null && sysMMSI == null) {
-                sys = new ExternalSystem(name);
-                ExternalSystemsHolder.registerSystem(sys);
-            }
-            else if (sys == null && sysMMSI != null) {
-                sys = new ExternalSystem(name);
-                ExternalSystemsHolder.purgeSystem("" + mmsi);
-                ExternalSystemsHolder.registerSystem(sys);
-            }
-            else {
-                // sys exists
-                if (sysMMSI != null)
-                    ExternalSystemsHolder.purgeSystem("" + mmsi);
-            }
-        }
+        ExternalSystem sys = NMEAUtils.getAndRegisterExternalSystem(mmsi, name);
 
         sys.setLocation(contacts.get(mmsi).getLocation());
         sys.setAttitudeDegrees(contact.getHdg() > 360 ? contact.getCog() : contact.getHdg());
-
-        double m_sToKnotConv = 1.94384449244;
 
         if (!dimensionsCache.containsKey(mmsi))
             dimensionsCache.put(mmsi, new HashMap<String, Object>());
@@ -291,8 +270,10 @@ public class AisContactDb implements AISObserver {
 
         sys.storeData(SystemUtils.MMSI_KEY, mmsi);
 
-        sys.storeData(SystemUtils.GROUND_SPEED_KEY, contact.getSog() / m_sToKnotConv);
+        sys.storeData(SystemUtils.GROUND_SPEED_KEY, contact.getSog() / MPS_TO_KNOT_CONV);
         sys.storeData(SystemUtils.COURSE_KEY, contact.getCog());
+        
+        sys.storeData(SystemUtils.RATE_OF_TURN_DEGS_PER_MIN_KEY, contact.getRateOfTurn());
 
         sys.storeData(SystemUtils.NAV_STATUS_KEY, contact.getNavStatus());
 
