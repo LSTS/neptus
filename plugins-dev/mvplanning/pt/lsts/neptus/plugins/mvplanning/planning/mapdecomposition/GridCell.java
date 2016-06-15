@@ -50,6 +50,8 @@ public class GridCell extends MapCell {
     private int col;
     private int nNeighbours;
 
+    private ArrayList<GridCell> subCells;
+
     public GridCell(LocationType centerLocation, int i, int j) {
         super(false);
 
@@ -57,6 +59,9 @@ public class GridCell extends MapCell {
         this.centerLoc = centerLocation;
         this.neighbours = new GridCell[4];
         setPosition(i, j);
+
+        /* in case this cell is itself a subcell, this will be empty */
+        subCells = new ArrayList<>(4);
     }
 
     public void setPosition(int row, int col) {
@@ -70,6 +75,10 @@ public class GridCell extends MapCell {
 
     public int getColumn() {
         return col;
+    }
+
+    public void addSubCell(GridCell subCell) {
+        subCells.add(subCell);
     }
 
     @Override

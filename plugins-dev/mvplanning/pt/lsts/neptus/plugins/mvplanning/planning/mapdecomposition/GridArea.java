@@ -239,6 +239,11 @@ public class GridArea extends GeometryElement implements MapDecomposition {
                 newGrid[2*i][2*j + 1].rotate(getYaw(), cellCenter);
                 newGrid[2*i + 1][2*j].rotate(getYaw(), cellCenter);
                 newGrid[2*i + 1][2*j + 1].rotate(getYaw(), cellCenter);
+
+                decomposedMap[i][j].addSubCell(newGrid[2*i][2*j]);
+                decomposedMap[i][j].addSubCell(newGrid[2*i][2*j + 1]);
+                decomposedMap[i][j].addSubCell(newGrid[2*i + 1][2*j]);
+                decomposedMap[i][j].addSubCell(newGrid[2*i + 1][2*j + 1]);
             }
         }
         /* Set cells' id */
