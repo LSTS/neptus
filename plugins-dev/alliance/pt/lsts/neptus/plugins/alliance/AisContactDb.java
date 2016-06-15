@@ -63,6 +63,8 @@ import pt.lsts.neptus.util.conf.ConfigFetch;
  */
 public class AisContactDb implements AISObserver {
 
+    public static final double MPS_TO_KNOT_CONV = 1.94384449244;
+    
     private LinkedHashMap<Integer, AisContact> contacts = new LinkedHashMap<>();
     private LinkedHashMap<Integer, String> labelCache = new LinkedHashMap<>();
     private LinkedHashMap<Integer, HashMap<String, Object>> dimensionsCache = new LinkedHashMap<>();
@@ -258,15 +260,13 @@ public class AisContactDb implements AISObserver {
         sys.setLocation(contacts.get(mmsi).getLocation());
         sys.setAttitudeDegrees(contact.getHdg() > 360 ? contact.getCog() : contact.getHdg());
 
-        double m_sToKnotConv = 1.94384449244;
-
         if (!dimensionsCache.containsKey(mmsi))
             dimensionsCache.put(mmsi, new HashMap<String, Object>());
         HashMap<String, Object> dimV = dimensionsCache.get(mmsi);
 
         sys.storeData(SystemUtils.MMSI_KEY, mmsi);
 
-        sys.storeData(SystemUtils.GROUND_SPEED_KEY, contact.getSog() / m_sToKnotConv);
+        sys.storeData(SystemUtils.GROUND_SPEED_KEY, contact.getSog() / MPS_TO_KNOT_CONV);
         sys.storeData(SystemUtils.COURSE_KEY, contact.getCog());
 
         sys.storeData(SystemUtils.NAV_STATUS_KEY, contact.getNavStatus());
