@@ -109,7 +109,13 @@ public class PlanGenerator {
         GraphType planGraph = plan.getGraph();
         Maneuver firstMan = planGraph.getAllManeuvers()[0];
         ManeuverLocation planFirstLocation = ((LocatedManeuver) firstMan).getManeuverLocation();
-        ManeuverLocation planLastLocation = ((LocatedManeuver) planGraph.getLastManeuver()).getManeuverLocation();
+        ManeuverLocation planLastLocation ;
+
+        /* FollowPath is as just one maneuver, so first and last maneuver of the graph are the same */
+        if(ptask.getTaskType() == TASK_TYPE.COVERAGE_AREA)
+            planLastLocation = ((FollowPath) firstMan).getEndLocation();
+        else
+            planLastLocation = ((LocatedManeuver) planGraph.getLastManeuver()).getManeuverLocation();
 
         /* plan with safe paths */
         PlanType safePlan = new PlanType(plan.getMissionType());
