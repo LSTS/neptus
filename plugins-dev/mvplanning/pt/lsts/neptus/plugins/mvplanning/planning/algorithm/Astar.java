@@ -43,6 +43,8 @@ import com.google.common.collect.MinMaxPriorityQueue;
 
 import pt.lsts.neptus.mp.ManeuverLocation;
 import pt.lsts.neptus.plugins.mvplanning.interfaces.MapCell;
+import pt.lsts.neptus.types.coord.CoordinateUtil;
+import pt.lsts.neptus.types.coord.LocationType;
 
 /**
  * Implementation of the A-star algorithm.
@@ -88,13 +90,24 @@ public class Astar {
         return reconstructPath(start, end, previousNodes);
     }
 
-    private List<ManeuverLocation> reconstructPath(MapCell startCell, MapCell endCell, Map<String, MapCell> previousNodes) {
+    private List<ManeuverLocation> reconstructPath(MapCell startCell, MapCell endCell, Map<String, MapCell> edges) {
         List<ManeuverLocation> path = new ArrayList<>();
 
-        MapCell currCell = endCell;
-        while(currCell != null) {
-            path.add(0, new ManeuverLocation(currCell.getLocation()));
-            currCell = previousNodes.get(currCell.id());
+        path.add(0, new ManeuverLocation(endCell.getLocation()));
+
+        MapCell currCell = edges.get(endCell.id());
+        MapCell prevCell = endCell;
+        MapCell nextCell = edges.get(currCell.id());
+
+        while(nextCell != null) {
+            boolean areColinear = CoordinateUtil.areColinearLocations(currCell.getLocation(), prevCell.getLocation(), nextCell.getLocation(), 0.1);
+
+            if(!areColinear)
+                path.add(0, new ManeuverLocation(currCell.getLocation()));
+
+            prevCell = currCell;
+            currCell = edges.get(prevCell.id());
+            nextCell = edges.get(currCell.id());
         }
 
         return path;

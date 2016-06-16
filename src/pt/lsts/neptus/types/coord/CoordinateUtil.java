@@ -1640,6 +1640,14 @@ public class CoordinateUtil {
     }
 
     /**
+     * Check if 3 locations are colinear within an error
+     * of err
+     * */
+    public static boolean areColinearLocations(LocationType point, LocationType l1, LocationType l2, double err) {
+        return Math.abs(distanceToLine(point, l1, l2)) <= err;
+    }
+
+    /**
      * Traces a line between l1 and l2 and computes the distance
      * of point to this line. If the 3 locations are colinear this
      * distance will be = 0 + e, where e should be a small error.
