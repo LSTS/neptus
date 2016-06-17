@@ -419,12 +419,12 @@ public class Tracking extends ConsolePanel implements ItemListener {
                 textCam1 =String.format("X: %.2f", xWorldCoord);
                 g.setColor(Color.BLACK);
                 g.drawString(textCam1, 60, (int)panelSize.height - 32);
-                g.setColor(Color.GREEN);
+                g.setColor(Color.RED);
                 g.drawString(textCam1, 62, (int)panelSize.height - 32);
                 textCam1 =String.format("Y: %.2f", yWorldCoord);
                 g.setColor(Color.BLACK);
                 g.drawString(textCam1, 60, (int)panelSize.height - 20);
-                g.setColor(Color.RED);
+                g.setColor(Color.GREEN);
                 g.drawString(textCam1, 62, (int)panelSize.height - 20);
                 textCam1 =String.format("Z: %.2f", zWorldCoord);
                 g.setColor(Color.BLACK);
