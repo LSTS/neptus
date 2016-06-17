@@ -424,19 +424,20 @@ public class NmeaPlotter extends ConsoleLayer {
         for (ScatterPointsElement el : els)
             el.paint((Graphics2D) g.create(), renderer, renderer.getRotation());
 
+        Graphics2D g1 = (Graphics2D) g.create();
         for (AisContact c : contactDb.getContacts()) {
             LocationType l = c.getLocation();
             if (l.getLatitudeDegs() == 0 && l.getLongitudeDegs() == 0)
                 continue;
 
             Point2D pt = renderer.getScreenPosition(l);
-            g.setColor(new Color(64, 124, 192));
-            g.drawString(c.getLabel(), (int) pt.getX() + 17, (int) pt.getY() + 2);
+            g1.setColor(new Color(64, 124, 192));
+            g1.drawString(c.getLabel(), (int) pt.getX() + 17, (int) pt.getY() + 2);
 
             if (c.getAdditionalProperties() != null) {
-                g.setColor(new Color(64, 124, 192, 128));
+                g1.setColor(new Color(64, 124, 192, 128));
                 Message05 m = c.getAdditionalProperties();
-                Graphics2D copy = (Graphics2D) g.create();
+                Graphics2D copy = (Graphics2D) g1.create();
                 double width = m.getDimensionToPort() + m.getDimensionToStarboard();
                 double length = m.getDimensionToStern() + m.getDimensionToBow();
                 double centerX = pt.getX();
@@ -448,17 +449,16 @@ public class NmeaPlotter extends ConsoleLayer {
                 copy.translate(centerX, centerY);
                 double hdg = c.getHdg() > 360 ? c.getCog() : c.getHdg();
                 copy.rotate(Math.PI + Math.toRadians(hdg) - renderer.getRotation());
-                copy.rotate(Math.PI + Math.toRadians(c.getHdg()) - renderer.getRotation());
                 copy.scale(renderer.getZoom(), renderer.getZoom());
                 copy.translate(widthOffsetFromCenter / 2., -lenghtOffsetFromCenter / 2.);
                 copy.scale(width / 2, length / 2);
                 copy.fill(ship);
-                // copy.scale(1.0 / (width / 2), 1.0 / (length / 2));
                 copy.dispose();
             }
-            g.setColor(Color.black);
-            g.fill(new Ellipse2D.Double((int) pt.getX() - 3, (int) pt.getY() - 3, 6, 6));
+            g1.setColor(Color.black);
+            g1.fill(new Ellipse2D.Double((int) pt.getX() - 3, (int) pt.getY() - 3, 6, 6));
         }
+        g1.dispose();
     }
 
     @Override
