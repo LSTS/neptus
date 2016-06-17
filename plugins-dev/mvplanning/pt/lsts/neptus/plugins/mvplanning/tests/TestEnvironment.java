@@ -31,7 +31,7 @@
  */
 package pt.lsts.neptus.plugins.mvplanning.tests;
 
-import pt.lsts.neptus.plugins.mvplanning.Environment;
+import pt.lsts.neptus.plugins.mvplanning.monitors.Environment;
 import pt.lsts.neptus.types.coord.LocationType;
 import pt.lsts.neptus.types.map.ParallelepipedElement;
 

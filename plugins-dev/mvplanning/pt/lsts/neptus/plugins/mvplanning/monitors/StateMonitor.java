@@ -29,7 +29,7 @@
  * Author: tsmarques
  * 25 May 2016
  */
-package pt.lsts.neptus.plugins.mvplanning;
+package pt.lsts.neptus.plugins.mvplanning.monitors;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -62,7 +62,7 @@ public class StateMonitor {
         WAITING("waiting"),
         PAUSED("paused");
 
-        protected String value;
+        public String value;
         STATE(String value) {
             this.value = value;
         }

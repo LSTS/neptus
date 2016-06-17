@@ -31,7 +31,7 @@
  */
 package pt.lsts.neptus.plugins.mvplanning.events;
 
-import pt.lsts.neptus.plugins.mvplanning.VehicleAwareness;
+import pt.lsts.neptus.plugins.mvplanning.monitors.VehicleAwareness;
 
 /**
  * This event is triggered whenever a vehicle is deemed available

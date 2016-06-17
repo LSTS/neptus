@@ -29,7 +29,7 @@
  * Author: tsmarques
  * 14 Mar 2016
  */
-package pt.lsts.neptus.plugins.mvplanning;
+package pt.lsts.neptus.plugins.mvplanning.monitors;
 
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Area;
