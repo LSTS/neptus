@@ -312,6 +312,8 @@ public class MVPlanning extends ConsolePanel implements PlanChangeListener, Rend
     @Override
     public void initSubPanel() {
         console.registerToEventBus(vawareness);
+        console.registerToEventBus(stateMonitor);
+        console.subscribeToIMCMessages(stateMonitor);
     }
 
     @Subscribe

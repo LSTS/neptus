@@ -94,8 +94,6 @@ public class StateMonitor {
         this.pTaskMarsh = pTaskMarsh;
         plansCompletion = new ConcurrentHashMap<>();
         plans = new ConcurrentHashMap<>();
-        console.registerToEventBus(this);
-        console.subscribeToIMCMessages(this);
     }
 
     @Subscribe

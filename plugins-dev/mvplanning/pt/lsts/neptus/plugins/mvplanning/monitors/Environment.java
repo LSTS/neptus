@@ -55,7 +55,6 @@ public class Environment {
 
     public Environment(ConsoleAdapter console) {
         this.console = console;
-        this.console.registerToEventBus(this);
         consoleObstacles = new ArrayList<>();
     }
 
