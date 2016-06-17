@@ -142,7 +142,7 @@ public class UtilVideoStream {
             return dimg;
         }
         else {
-            NeptusLog.pub().warn(I18n.text("Size in resizeBufferedImage must be != NULL"));
+            //NeptusLog.pub().warn(I18n.text("Size in resizeBufferedImage must be != NULL"));
             return null;
         }
     }
