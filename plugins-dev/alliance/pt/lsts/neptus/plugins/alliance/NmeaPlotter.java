@@ -446,6 +446,8 @@ public class NmeaPlotter extends ConsoleLayer {
                 double lenghtOffsetFromCenter = m.getDimensionToStern() - m.getDimensionToBow();
 
                 copy.translate(centerX, centerY);
+                double hdg = c.getHdg() > 360 ? c.getCog() : c.getHdg();
+                copy.rotate(Math.PI + Math.toRadians(hdg) - renderer.getRotation());
                 copy.rotate(Math.PI + Math.toRadians(c.getHdg()) - renderer.getRotation());
                 copy.scale(renderer.getZoom(), renderer.getZoom());
                 copy.translate(widthOffsetFromCenter / 2., -lenghtOffsetFromCenter / 2.);
