@@ -306,6 +306,10 @@ public class MVPlanning extends ConsolePanel implements PlanChangeListener, Rend
 
     @Override
     public void cleanSubPanel() {
+        console.unregisterToEventBus(vawareness);
+        console.unregisterToEventBus(stateMonitor);
+        console.unsubscribeToIMCMessages(stateMonitor);
+
         NeptusLog.pub().info("Saving unfinished plans/tasks");
         stateMonitor.stopPlugin();
     }
