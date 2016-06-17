@@ -53,11 +53,23 @@ public interface ConsoleAdapter {
     public void registerToEventBus(Object obj);
 
     /**
+     * Unregister the given object to the console's event bus
+     * */
+    public void unregisterToEventBus(Object obj);
+
+
+    /**
      * Allow the given object to subscribe to
      * to the messages bus and receive IMC
      * messages
      * */
     public void subscribeToIMCMessages(Object obj);
+
+
+    /**
+     * Unsubscribe from IMC messages's bus
+     * */
+    public void unsubscribeToIMCMessages(Object obj);
 
 
     /**

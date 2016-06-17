@@ -62,13 +62,21 @@ public class NeptusConsoleAdapter implements ConsoleAdapter {
     @Override
     public void registerToEventBus(Object obj) {
         NeptusEvents.register(obj, console);
+    }
 
+    @Override
+    public void unregisterToEventBus(Object obj) {
+        NeptusEvents.unregister(obj, console);
     }
 
 
     @Override
     public void subscribeToIMCMessages(Object obj) {
         ImcMsgManager.getManager().registerBusListener(obj);
+    }
+
+    public void unsubscribeToIMCMessages(Object obj) {
+        ImcMsgManager.getManager().unregisterBusListener(obj);
     }
 
     @Override
