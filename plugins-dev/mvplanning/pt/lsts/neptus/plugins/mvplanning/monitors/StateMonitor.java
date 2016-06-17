@@ -51,8 +51,10 @@ import pt.lsts.neptus.plugins.mvplanning.planning.PlanTask;
 import pt.lsts.neptus.types.mission.plan.PlanType;
 
 /**
- * "Static" class used to control the state of the plugin,
- * e.g. if the plugin is paused or running
+ * Class used to control the state of the plugin,
+ * e.g. if the plugin is paused or running.
+ * It's also responsible for saving and loading
+ * any unfinished plans from a previous session
  * @author tsmarques
  *
  */
@@ -138,5 +140,9 @@ public class StateMonitor {
             NeptusLog.pub().warn("Couldn't save unfinished plans...");
             e.printStackTrace();
         }
+    }
+
+    public List<PlanTask> loadPlans() throws JAXBException {
+        return pTaskMarsh.unmarshalAll(console.getMission());
     }
 }

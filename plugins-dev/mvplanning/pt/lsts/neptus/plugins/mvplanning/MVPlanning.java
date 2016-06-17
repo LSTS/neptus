@@ -147,17 +147,18 @@ public class MVPlanning extends ConsolePanel implements PlanChangeListener, Rend
     private void fetchPlans() {
         try {
             NeptusLog.pub().info("Fetching unfinished plans");
-            List<PlanTask> unfPlans = pTaskMarsh.unmarshalAll(console.getMission());
+            List<PlanTask> unfPlans = stateMonitor.loadPlans();
 
-            if(unfPlans.size() == 0)
+            if(unfPlans.size() == 0) {
                 NeptusLog.pub().info("No plans to fetch");
-            else {
-                synchronized (selectedPlans) {
-                    for(PlanTask ptask : unfPlans) {
-                        String planId = ptask.getPlanId();
-                        listModel.addElement(planId);
-                        selectedPlans.put(planId, ptask.asPlanType());
-                    }
+                return;
+            }
+
+            synchronized (selectedPlans) {
+                for(PlanTask ptask : unfPlans) {
+                    String planId = ptask.getPlanId();
+                    listModel.addElement(planId);
+                    selectedPlans.put(planId, ptask.asPlanType());
                 }
             }
         }
