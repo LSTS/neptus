@@ -20,6 +20,7 @@ import pt.lsts.neptus.plugins.mvplanning.planning.PlanTask;
 import pt.lsts.neptus.plugins.mvplanning.planning.PlanTask.TASK_TYPE;
 import pt.lsts.neptus.plugins.mvplanning.planning.algorithm.CoverageArea;
 import pt.lsts.neptus.plugins.mvplanning.planning.mapdecomposition.GridArea;
+import pt.lsts.neptus.plugins.mvplanning.utils.MvPlanningUtils;
 import pt.lsts.neptus.types.coord.LocationType;
 import pt.lsts.neptus.types.mission.GraphType;
 import pt.lsts.neptus.types.mission.plan.PlanType;

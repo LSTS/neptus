@@ -39,7 +39,7 @@ import pt.lsts.imc.PlanSpecification;
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.mp.ManeuverLocation;
 import pt.lsts.neptus.mp.maneuvers.FollowPath;
-import pt.lsts.neptus.plugins.mvplanning.MvPlanningUtils;
+import pt.lsts.neptus.plugins.mvplanning.utils.MvPlanningUtils;
 import pt.lsts.neptus.plugins.mvplanning.interfaces.MapDecomposition;
 import pt.lsts.neptus.plugins.mvplanning.jaxb.profiles.Profile;
 import pt.lsts.neptus.plugins.mvplanning.planning.PlanTask;

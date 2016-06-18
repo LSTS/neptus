@@ -29,7 +29,8 @@
  * Author: tsmarques
  * 8 Jun 2016
  */
-package pt.lsts.neptus.plugins.mvplanning;
+
+package pt.lsts.neptus.plugins.mvplanning.utils;
 
 import pt.lsts.neptus.mp.Maneuver;
 import pt.lsts.neptus.mp.ManeuverLocation;
