@@ -154,7 +154,7 @@ public class Astar {
                 this.add(new Node(newValue, cell, null));
         }
 
-        private class Node {
+        class Node {
             private int value;
             private MapCell cell;
             private MapCell previous;
