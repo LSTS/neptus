@@ -74,11 +74,13 @@ import pt.lsts.neptus.plugins.mvplanning.jaxb.PlanTaskMarshaler;
 import pt.lsts.neptus.plugins.mvplanning.jaxb.ProfileMarshaler;
 import pt.lsts.neptus.plugins.mvplanning.jaxb.profiles.Profile;
 import pt.lsts.neptus.plugins.mvplanning.monitors.Environment;
+import pt.lsts.neptus.plugins.mvplanning.monitors.ExternalSystemsMonitor;
 import pt.lsts.neptus.plugins.mvplanning.monitors.StateMonitor;
 import pt.lsts.neptus.plugins.mvplanning.monitors.VehicleAwareness;
 import pt.lsts.neptus.plugins.mvplanning.planning.PlanTask;
 import pt.lsts.neptus.plugins.mvplanning.planning.algorithm.MST;
 import pt.lsts.neptus.plugins.mvplanning.planning.mapdecomposition.GridArea;
+import pt.lsts.neptus.plugins.update.PeriodicUpdatesService;
 import pt.lsts.neptus.renderer2d.Renderer2DPainter;
 import pt.lsts.neptus.renderer2d.StateRenderer2D;
 import pt.lsts.neptus.types.coord.LocationType;
@@ -107,6 +109,7 @@ public class MVPlanning extends ConsolePanel implements PlanChangeListener, Rend
     private PlanGenerator pGen;
     private Environment env;
     private StateMonitor stateMonitor;
+    private ExternalSystemsMonitor extSysMonitor;
 
     private Map<String, PlanType> selectedPlans;
 
@@ -136,6 +139,7 @@ public class MVPlanning extends ConsolePanel implements PlanChangeListener, Rend
         pGen = new PlanGenerator(pAlloc, this.console);
         env = new Environment(this.console);
         stateMonitor = new StateMonitor(this.console, pTaskMarsh);
+        extSysMonitor= new ExternalSystemsMonitor(this.console, true);
 
         computeOperationalArea();
         fetchPlans();
@@ -309,6 +313,7 @@ public class MVPlanning extends ConsolePanel implements PlanChangeListener, Rend
         console.unregisterToEventBus(vawareness);
         console.unregisterToEventBus(stateMonitor);
         console.unsubscribeToIMCMessages(stateMonitor);
+        PeriodicUpdatesService.unregister(extSysMonitor);
 
         NeptusLog.pub().info("Saving unfinished plans/tasks");
         stateMonitor.stopPlugin();
@@ -319,6 +324,8 @@ public class MVPlanning extends ConsolePanel implements PlanChangeListener, Rend
         console.registerToEventBus(vawareness);
         console.registerToEventBus(stateMonitor);
         console.subscribeToIMCMessages(stateMonitor);
+
+        PeriodicUpdatesService.register(extSysMonitor);
     }
 
     @Subscribe
