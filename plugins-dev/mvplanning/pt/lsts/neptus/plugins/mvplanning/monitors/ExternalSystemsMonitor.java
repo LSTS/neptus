@@ -38,6 +38,7 @@ import pt.lsts.neptus.comm.manager.imc.ImcSystem;
 import pt.lsts.neptus.comm.manager.imc.ImcSystemsHolder;
 import pt.lsts.neptus.plugins.mvplanning.events.MvPlanningNoSafeDistanceEvent;
 import pt.lsts.neptus.plugins.mvplanning.interfaces.ConsoleAdapter;
+import pt.lsts.neptus.plugins.mvplanning.utils.ExternalSystemsSimulator;
 import pt.lsts.neptus.plugins.update.IPeriodicUpdates;
 import pt.lsts.neptus.systems.external.ExternalSystem;
 import pt.lsts.neptus.systems.external.ExternalSystemsHolder;
@@ -56,10 +57,16 @@ public class ExternalSystemsMonitor implements IPeriodicUpdates {
     private final double SAFE_DISTANCE = 10;
     private ConsoleAdapter console;
     private List<String> quarantine;
+    private ExternalSystemsSimulator extSysSimulator;
 
     public ExternalSystemsMonitor(ConsoleAdapter console, boolean debugMode) {
         this.console = console;
         quarantine = new ArrayHashSet<>();
+
+        if(debugMode) {
+            extSysSimulator = new ExternalSystemsSimulator();
+            console.registerToEventBus(extSysSimulator);
+        }
     }
 
     @Override
