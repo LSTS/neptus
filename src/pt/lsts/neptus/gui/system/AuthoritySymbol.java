@@ -79,7 +79,7 @@ public class AuthoritySymbol extends SymbolLabel {
 	        authorityType = IMCAuthorityState.OFF;
 	    else {
 	        if (authorityType == IMCAuthorityState.OFF)
-	            authorityType = IMCAuthorityState.SYSTEM_MONITOR;
+	            authorityType = IMCAuthorityState.NONE;
 	    }
 	}
 	
@@ -157,15 +157,15 @@ public class AuthoritySymbol extends SymbolLabel {
                     case SYSTEM_FULL:
                         tt = "F";
                         break;
-                    case SYSTEM_MONITOR:
-                        tt = "M";
-                        break;
-                    case PAYLOAD:
-                        tt = "P";
-                        break;
-                    case PAYLOAD_MONITOR:
-                        tt = "PM";
-                        break;
+//                    case SYSTEM_MONITOR:
+//                        tt = "M";
+//                        break;
+//                    case PAYLOAD:
+//                        tt = "P";
+//                        break;
+//                    case PAYLOAD_MONITOR:
+//                        tt = "PM";
+//                        break;
                     default:
                         tt = "?";
                         break;

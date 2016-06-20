@@ -101,8 +101,8 @@ public class ImcSystem implements Comparable<ImcSystem> {
 
     // Authority WIP
     // FIXME add description to each one of the states
-    public enum IMCAuthorityState { OFF, NONE, PAYLOAD_MONITOR, PAYLOAD, SYSTEM_MONITOR, SYSTEM_FULL };
-    protected IMCAuthorityState authorityState = IMCAuthorityState.NONE;
+    public enum IMCAuthorityState { OFF, NONE, /* PAYLOAD_MONITOR, PAYLOAD, SYSTEM_MONITOR,*/ SYSTEM_FULL };
+    protected IMCAuthorityState authorityState = IMCAuthorityState.SYSTEM_FULL;
     
 	/**
 	 * @param vehicle
