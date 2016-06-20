@@ -1,5 +1,6 @@
 package pt.lsts.neptus.plugins.mvplanning;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Vector;
 import java.util.concurrent.locks.ReadWriteLock;
@@ -126,8 +127,11 @@ public class PlanGenerator {
         FollowPath endFollowPath = buildSafePath(planLastLocation, end);
 
         safePlan.getGraph().addManeuver(initialFollowPath);
-        safePlan.getGraph().setInitialManeuver(initialFollowPath.id);
-        safePlan.getGraph().addManeuverAtEnd(plan.getGraph().getAllManeuvers()[0]);
+
+        /* Add all existing maneuvers */
+        Arrays.stream(plan.getGraph().getAllManeuvers()).
+                forEach(safePlan.getGraph()::addManeuver);
+
         safePlan.getGraph().addManeuverAtEnd(endFollowPath);
 
         return (PlanSpecification) IMCUtils.generatePlanSpecification(safePlan);
