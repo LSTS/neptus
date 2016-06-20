@@ -79,10 +79,11 @@ public class ExternalSystemsMonitor implements IPeriodicUpdates {
         for(ExternalSystem extSys : ExternalSystemsHolder.lookupActiveSystemVehicles()) {
             for(ImcSystem sys : ImcSystemsHolder.lookupActiveSystemVehicles()) {
                 boolean safeDistance = iswithinSafeDistance(extSys, sys);
-                boolean inQuarantine = !quarantine.contains(extSys.getId());
+                boolean inQuarantine = quarantine.contains(extSys.getId());
+
                 if(!safeDistance && !inQuarantine) {
                     console.post(new MvPlanningNoSafeDistanceEvent(extSys, sys));
-                    NeptusLog.pub().warn("External system with id " + extSys.getId() + " too close to " + sys.getId());
+                    NeptusLog.pub().warn("External system with id " + extSys.getId() + " too close to " + sys.getName());
 
                     quarantine.add(extSys.getId());
                 }
