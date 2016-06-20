@@ -51,17 +51,18 @@ import pt.lsts.neptus.types.mission.MissionType;
 public class PlanTaskMarshaler {
     public final static String XML_PLAN_DIR = "conf/mvplanning/";
 
-
-    public void marshalAll(List<PlanTask> plans) throws JAXBException {
-        JAXBContext jaxbContext = JAXBContext.newInstance(PlanTask.class);
-        Marshaller jaxbMarshaller = jaxbContext.createMarshaller();
-        jaxbMarshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
-
+    public PlanTaskMarshaler() {
         File xmlDir = new File(XML_PLAN_DIR);
         if(!xmlDir.exists()) {
             xmlDir.mkdir();
             NeptusLog.pub().info(XML_PLAN_DIR + " path doesn't exist. Creating...");
         }
+    }
+
+    public void marshalAll(List<PlanTask> plans) throws JAXBException {
+        JAXBContext jaxbContext = JAXBContext.newInstance(PlanTask.class);
+        Marshaller jaxbMarshaller = jaxbContext.createMarshaller();
+        jaxbMarshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
 
         for(PlanTask task : plans) {
             NeptusLog.pub().info("Marshaling PlanTask " + task.getPlanId());
