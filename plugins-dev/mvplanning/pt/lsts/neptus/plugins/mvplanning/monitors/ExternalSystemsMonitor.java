@@ -36,7 +36,10 @@ import com.jogamp.common.util.ArrayHashSet;
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.comm.manager.imc.ImcSystem;
 import pt.lsts.neptus.comm.manager.imc.ImcSystemsHolder;
+import pt.lsts.neptus.plugins.mvplanning.PlanAllocator;
+import pt.lsts.neptus.plugins.mvplanning.PlanGenerator;
 import pt.lsts.neptus.plugins.mvplanning.events.MvPlanningNoSafeDistanceEvent;
+import pt.lsts.neptus.plugins.mvplanning.interfaces.AbstractSupervisor;
 import pt.lsts.neptus.plugins.mvplanning.interfaces.ConsoleAdapter;
 import pt.lsts.neptus.plugins.mvplanning.utils.ExternalSystemsSimulator;
 import pt.lsts.neptus.plugins.update.IPeriodicUpdates;
@@ -52,15 +55,14 @@ import java.util.List;
  * @author tsmarques
  * @date 6/19/16
  */
-public class ExternalSystemsMonitor implements IPeriodicUpdates {
+public class ExternalSystemsMonitor extends AbstractSupervisor implements IPeriodicUpdates {
     /* in meters */
     private final double SAFE_DISTANCE = 100;
-    private ConsoleAdapter console;
     private List<String> quarantine;
     private ExternalSystemsSimulator extSysSimulator;
 
-    public ExternalSystemsMonitor(ConsoleAdapter console, boolean debugMode) {
-        this.console = console;
+    public ExternalSystemsMonitor(ConsoleAdapter console, PlanAllocator pAlloc, PlanGenerator pGen, boolean debugMode) {
+        super(console, pAlloc, pGen);
         quarantine = new ArrayHashSet<>();
 
         if(debugMode) {

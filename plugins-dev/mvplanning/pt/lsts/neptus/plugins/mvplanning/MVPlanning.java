@@ -143,7 +143,7 @@ public class MVPlanning extends ConsolePanel implements PlanChangeListener, Rend
         pGen = new PlanGenerator(pAlloc, this.console);
         env = new Environment(this.console, pAlloc, pGen);
         stateMonitor = new StateMonitor(this.console, pTaskMarsh);
-        extSysMonitor= new ExternalSystemsMonitor(this.console, true);
+        extSysMonitor= new ExternalSystemsMonitor(this.console, pAlloc, pGen, true);
 
         computeOperationalArea();
         fetchPlans();
