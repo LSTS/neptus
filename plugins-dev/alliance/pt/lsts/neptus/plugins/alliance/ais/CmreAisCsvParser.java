@@ -63,21 +63,19 @@ public class CmreAisCsvParser {
      * @param sentence
      * @param contactDb 
      */
-    public static void process(String sentence, AisContactDb contactDb) {
+    public static boolean process(String sentence, AisContactDb contactDb) {
         String type = getType(sentence);
         if (type.isEmpty())
-            return;
+            return false;
         
         switch (type.toUpperCase()) {
             case "AIS":
-                parseAIS(sentence, contactDb);
-                break;
+                return parseAIS(sentence, contactDb);
             case "DISTRESS_CALL":
-                parseDistressCall(sentence, contactDb);
-                break;
+                return parseDistressCall(sentence, contactDb);
             default:
                 NeptusLog.pub().error("Type not known (" + type + ")");
-                break;
+                return false;
         }
     }
 
@@ -94,13 +92,13 @@ public class CmreAisCsvParser {
      * @param sentence
      * @param contactDb 
      */
-    private static void parseAIS(String sentence, AisContactDb contactDb) {
+    private static boolean parseAIS(String sentence, AisContactDb contactDb) {
         final int AIS_ELM = 11;
         final int EXTRA_COUNTER_IDX = 12;
         final int MIN_ELMS = 13;
         String[] tk = sentence.split(",");
         if (tk.length < MIN_ELMS || !"AIS".equalsIgnoreCase(tk[0].trim()))
-            return;
+            return false;
         
         String[] msg = Arrays.copyOfRange(tk, 1, EXTRA_COUNTER_IDX);
         @SuppressWarnings("unused")
@@ -111,18 +109,19 @@ public class CmreAisCsvParser {
         }
         catch (NumberFormatException e) {
             e.printStackTrace();
-            return;
+            return false;
         }
         
         if (extraElements == 0)
-            return;
+            return false;
         if (tk.length != MIN_ELMS + AIS_ELM * extraElements)
-            return;
+            return false;
         
         for (int i = 0; i < extraElements; i++) {
             msg = Arrays.copyOfRange(tk, MIN_ELMS + AIS_ELM * i, MIN_ELMS + AIS_ELM * (i + 1));
             res |= parseOneAISWorker(msg, contactDb);
         }
+        return true;
     }
 
     /**
@@ -268,12 +267,12 @@ public class CmreAisCsvParser {
      * @param sentence
      * @param contactDb
      */
-    private static void parseDistressCall(String sentence, AisContactDb contactDb) {
+    private static boolean parseDistressCall(String sentence, AisContactDb contactDb) {
         final int MIN_ELMS = 11;
         final int MIN_BASE_ELMS = 7;
         String[] tk = sentence.split(",");
         if (tk.length < MIN_ELMS || !"DISTRESS_CALL".equalsIgnoreCase(tk[0].trim()))
-            return;
+            return false;
         
         String[] msg = Arrays.copyOfRange(tk, 1, MIN_ELMS);
         
@@ -344,11 +343,11 @@ public class CmreAisCsvParser {
                 }
             }
             if (countBaseElm < MIN_BASE_ELMS)
-                return;
+                return false;
         }
         catch (Exception e) {
             e.printStackTrace();
-            return;
+            return false;
         }
         
         long timeMillis = System.currentTimeMillis();
@@ -366,7 +365,7 @@ public class CmreAisCsvParser {
         
         ExternalSystem sys = NMEAUtils.getAndRegisterExternalSystem(mmsi, name);
         if (sys == null)
-            return;
+            return false;
         
         // OK, let us fill the data
         LocationType loc = new LocationType(latDegs, lonDegs);
@@ -394,6 +393,8 @@ public class CmreAisCsvParser {
         distressSb.insert(0, "DISTRESS");
         String distress = distressSb.toString();
         sys.storeData(SystemUtils.DISTRESS_MSG_KEY, distress, timeMillis, true);
+        
+        return true;
     }
 
     public static void main(String[] args) {
