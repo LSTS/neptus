@@ -45,6 +45,8 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.net.URL;
 import java.net.URLClassLoader;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashSet;
@@ -55,6 +57,8 @@ import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Vector;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import javax.imageio.spi.ServiceRegistry;
 import javax.swing.table.TableCellRenderer;
@@ -74,6 +78,11 @@ import pt.lsts.neptus.util.FileUtil;
 import pt.lsts.neptus.util.ReflectionUtil;
 import pt.lsts.neptus.util.conf.GeneralPreferences;
 
+/**
+ * @author zepinto
+ * @author pdias
+ *
+ */
 public class PluginUtils {
 
     public static String DEFAULT_ICON = "images/plugin.png";
@@ -510,8 +519,22 @@ public class PluginUtils {
 
                 property = props.get(name);
                 if (property == null) {
-                    NeptusLog.pub().debug("Property " + name + " will not be saved.");
-                    continue;
+                    // Try alternatives
+                    String[] alternatives = computeParamNameAlternatives(name);
+                    if (alternatives.length > 0) {
+                        for (String altName : alternatives) {
+                            property = props.get(altName);
+                            if (property != null) {
+                                NeptusLog.pub().info(String.format("Found alternative \"%s\" for property \"%s\"!",altName, name));
+                                break;
+                            }
+                        }
+                    }
+                    
+                    if (property == null) {
+                        NeptusLog.pub().debug("Property " + name + " will not be saved.");
+                        continue;
+                    }
                 }
                 try {
                     propertyValue = property.getValue();
@@ -546,13 +569,17 @@ public class PluginUtils {
                         else if ("float".equalsIgnoreCase(f.getGenericType().toString())) {
                             f.set(obj, Float.valueOf(((Double) propertyValue).floatValue()));
                         }
+                        else {
+                            // Re-throw original exception
+                            throw e;
+                        }
                     }
                     catch (Exception e2) {
-                        e2.printStackTrace();
+                        NeptusLog.pub().error(e2, e2);;
                     }
                 }
                 catch (Exception e) {
-                    e.printStackTrace();
+                    NeptusLog.pub().error(e);;
                 }
             }
         }
@@ -967,5 +994,72 @@ public class PluginUtils {
             t.printStackTrace();
             throw new IOException("Error, could not add URL to system classloader");
         }
+    }
+    
+    private static String[] computeParamNameAlternatives(String name) {
+        ArrayList<String> alternatives = new ArrayList<>();
+        
+        // To lower case
+        String pattern = "( [A-Z])";
+        Pattern r = Pattern.compile(pattern);
+        Matcher m = r.matcher(name);
+        StringBuffer sb = new StringBuffer();
+        int c = 0;
+        while (m.find()) {
+            c++;
+            m.appendReplacement(sb, m.group().toLowerCase());
+        }
+        m.appendTail(sb);
+        if (c > 0)
+            alternatives.add(sb.toString());
+
+        // To camel case
+        pattern = "( [a-z])";
+        r = Pattern.compile(pattern);
+        m = r.matcher(name);
+        sb = new StringBuffer();
+        c = 0;
+        while (m.find()) {
+            c++;
+            m.appendReplacement(sb, m.group().toUpperCase());
+        }
+        m.appendTail(sb);
+        if (c > 0)
+            alternatives.add(sb.toString());
+        
+        // As field name
+        pattern = "( [a-zA-Z0-9])";
+        r = Pattern.compile(pattern);
+        m = r.matcher(name);
+        sb = new StringBuffer();
+        c = 0;
+        while (m.find()) {
+            c++;
+            m.appendReplacement(sb, m.group().toUpperCase().trim());
+        }
+        m.appendTail(sb);
+        if (c > 0) {
+            pattern = "(^.)";
+            r = Pattern.compile(pattern);
+            m = r.matcher(sb.toString());
+            sb = new StringBuffer();
+            if (m.find()) {
+                m.appendReplacement(sb, m.group().toLowerCase());
+            }
+            m.appendTail(sb);
+
+            alternatives.add(sb.toString());
+        }
+        else {
+            alternatives.add(name.toLowerCase());
+        }
+        
+        return alternatives.toArray(new String[alternatives.size()]);
+    }
+    
+    public static void main(String[] args) {
+        String test = "Speed Units dff";
+        String[] alt = computeParamNameAlternatives(test);
+        System.out.println(Arrays.toString(alt));
     }
 }
