@@ -75,7 +75,7 @@ import pt.lsts.neptus.util.GuiUtils;
  */
 @PluginDescription(name = "Plan Simulation Preview", author = "zp", icon="images/planning/robot.png")
 @LayerPriority(priority = 60)
-public class PlanExecutionPreview extends ConsolePanel implements Renderer2DPainter, ConfigurationListener, MissionChangeListener {
+public class PlanExecutionPreview extends ConsolePanel implements Renderer2DPainter, ConfigurationListener {
 
     private static final long serialVersionUID = 1L;
 
@@ -214,16 +214,6 @@ public class PlanExecutionPreview extends ConsolePanel implements Renderer2DPain
         mainSimulator = null;
     }
     
-    @Override
-    public void missionReplaced(MissionType mission) {
-        stopSimulator();
-    }
-    
-    @Override
-    public void missionUpdated(MissionType mission) {
-        stopSimulator();        
-    }
-
     @Override
     public void cleanSubPanel() {
         stopSimulator();
