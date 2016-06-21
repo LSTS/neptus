@@ -63,6 +63,7 @@ import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
 import javax.swing.JTabbedPane;
 import javax.swing.JTextArea;
+import javax.swing.SwingWorker;
 
 import com.google.common.eventbus.Subscribe;
 
@@ -94,6 +95,7 @@ import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.mystate.MyState;
 import pt.lsts.neptus.plugins.ConfigurationListener;
 import pt.lsts.neptus.plugins.NeptusProperty;
+import pt.lsts.neptus.plugins.NeptusProperty.LEVEL;
 import pt.lsts.neptus.plugins.PluginDescription;
 import pt.lsts.neptus.plugins.PluginUtils;
 import pt.lsts.neptus.plugins.Popup;
@@ -149,6 +151,14 @@ public class MantaOperations extends ConsolePanel implements ConfigurationListen
 
     @NeptusProperty(name = "Use system discovery", description = "Instead of a static list, receive supported systems from gateway")
     public boolean sysDiscovery = true;
+
+    @NeptusProperty(name = "Separate ranging when using \"any\" gateway", category = "Any Gateway", userLevel = LEVEL.ADVANCED, 
+            description = "Introduces a time separation between messages when \"any\" gateway..")
+    private boolean separateRangingForAnyGateway = true;
+
+    @NeptusProperty(name = "Separate ranging when using \"any\" gateway time", category = "Any Gateway", userLevel = LEVEL.ADVANCED, 
+            description = "Time in seconds")
+    private short separateRangingForAnyGatewaySeconds = 2;
 
     protected LinkedHashMap<String, LocationType> systemLocations = new LinkedHashMap<>();
 
@@ -406,10 +416,10 @@ public class MantaOperations extends ConsolePanel implements ConfigurationListen
         });
         ctrlPanel.add(btn);
 
-        btn = new JButton(I18n.text("Range system"));
-        btn.setActionCommand("range");
-        cmdButtons.put("range", btn);
-        btn.addActionListener(new ActionListener() {
+        final JButton btnR = new JButton(I18n.text("Range system"));
+        btnR.setActionCommand("range");
+        cmdButtons.put("range", btnR);
+        btnR.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent event) {
                 ImcSystem[] sysLst;
@@ -438,23 +448,52 @@ public class MantaOperations extends ConsolePanel implements ConfigurationListen
                     IMCMessage m = IMCDefinition.getInstance().create("AcousticOperation", "op", "RANGE", "system",
                             selectedSystem);
 
-                    int successCount = 0;
-                    for (ImcSystem sys : sysLst)
-                        if (ImcMsgManager.getManager().sendMessage(m.cloneMessage(), sys.getId(), null))
-                            successCount++;
-
-                    if (successCount > 0) {
-                        bottomPane.setText(I18n.textf("Range %systemName commanded to %systemCount systems",
-                                selectedSystem, successCount));
-                    }
-                    else {
-                        post(Notification.error(I18n.text("Range System"), I18n.text("Unable to range selected system"))
-                                .src(I18n.text("Console")));
-                    }
+                    btnR.setEnabled(false);
+                    SwingWorker<Integer, Void> sWorker = new SwingWorker<Integer, Void>() {
+                        @Override
+                        protected Integer doInBackground() throws Exception {
+                            int successCount = 0;
+                            for (ImcSystem sys : sysLst) {
+                                if (ImcMsgManager.getManager().sendMessage(m.cloneMessage(), sys.getId(), null))
+                                    successCount++;
+                                if (separateRangingForAnyGateway && sysLst.length > 1) {
+                                    try {
+                                        Thread.sleep(separateRangingForAnyGatewaySeconds * 1000);
+                                    }
+                                    catch (Exception e) {
+                                        NeptusLog.pub().warn(e);
+                                    }
+                                }
+                            }
+                            return successCount;
+                        }
+                        @Override
+                        protected void done() {
+                            int successCount = 0;
+                            try {
+                                successCount = get();
+                            }
+                            catch (Exception e) {
+                                NeptusLog.pub().error(e);
+                            }
+                            
+                            if (successCount > 0) {
+                                bottomPane.setText(I18n.textf("Range %systemName commanded to %systemCount systems",
+                                        selectedSystem, successCount));
+                            }
+                            else {
+                                post(Notification.error(I18n.text("Range System"), I18n.text("Unable to range selected system"))
+                                        .src(I18n.text("Console")));
+                            }
+                            
+                            btnR.setEnabled(true);
+                        }
+                    };
+                    sWorker.execute();
                 }
             }
         });
-        ctrlPanel.add(btn);
+        ctrlPanel.add(btnR);
 
         btn = new JButton(I18n.text("Send command"));
         btn.setActionCommand("text");
