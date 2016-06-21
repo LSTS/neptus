@@ -47,8 +47,8 @@ public class SystemUtils {
     public final static String TRUE_SPEED_KEY = "True Speed";
     public final static String INDICATED_SPEED_KEY = "Indicate Speed";
     public final static String RPM_MAP_ENTITY_KEY = "RPM";
-    public final static String COURSE_KEY = "Course";
-    public final static String HEADING_KEY = "Heading";
+    public final static String COURSE_DEGS_KEY = "Course";
+    public final static String HEADING_DEGS_KEY = "Heading";
     public final static String FUEL_LEVEL_KEY = "Fuel Level";
     public final static String WEB_UPDATED_KEY = "Web Updated";
     public final static String LBL_CONFIG_KEY = "LblConfig";

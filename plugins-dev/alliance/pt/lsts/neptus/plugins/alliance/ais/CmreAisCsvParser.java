@@ -246,7 +246,7 @@ public class CmreAisCsvParser {
             sys.storeData(SystemUtils.MMSI_KEY, mmsi, timeMillis, true);
 
         sys.storeData(SystemUtils.GROUND_SPEED_KEY, speedKnots / AisContactDb.MPS_TO_KNOT_CONV, timeMillis, true);
-        sys.storeData(SystemUtils.COURSE_KEY, courseDegs, timeMillis, true);
+        sys.storeData(SystemUtils.COURSE_DEGS_KEY, courseDegs, timeMillis, true);
 
         sys.storeData(SystemUtils.NAV_STATUS_KEY, AISUtil.translateNavigationalStatus(navStatus), timeMillis, true);
 

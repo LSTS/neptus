@@ -1246,19 +1246,19 @@ public class SystemsList extends ConsolePanel implements MainVehicleChangeListen
                             : "");
         }
 
-        if (sys.containsData(SystemUtils.COURSE_KEY) || sys.containsData(SystemUtils.HEADING_KEY)) {
-            boolean hasCourse = sys.containsData(SystemUtils.COURSE_KEY, maxAgeTimeMillis);
-            boolean hasHeading = sys.containsData(SystemUtils.HEADING_KEY, maxAgeTimeMillis);
+        if (sys.containsData(SystemUtils.COURSE_DEGS_KEY) || sys.containsData(SystemUtils.HEADING_DEGS_KEY)) {
+            boolean hasCourse = sys.containsData(SystemUtils.COURSE_DEGS_KEY, maxAgeTimeMillis);
+            boolean hasHeading = sys.containsData(SystemUtils.HEADING_DEGS_KEY, maxAgeTimeMillis);
 
             txtInfo += (txtInfo.length() != 0 ? lineSep : "");
             if (hasCourse)
                 txtInfo += I18n.text("Course") +": " // ImcSystem.COURSE_KEY + ": "
-                        + CoordinateUtil.heading3DigitsFormat.format(sys.retrieveData(SystemUtils.COURSE_KEY))
+                        + CoordinateUtil.heading3DigitsFormat.format(sys.retrieveData(SystemUtils.COURSE_DEGS_KEY))
                         + CoordinateUtil.CHAR_DEGREE;
             if (hasHeading) {
                 txtInfo += (hasCourse ? " | " : "");
                 txtInfo += I18n.text("Heading") +": " // ImcSystem.HEADING_KEY + ": "
-                        + CoordinateUtil.heading3DigitsFormat.format(sys.retrieveData(SystemUtils.HEADING_KEY))
+                        + CoordinateUtil.heading3DigitsFormat.format(sys.retrieveData(SystemUtils.HEADING_DEGS_KEY))
                         + CoordinateUtil.CHAR_DEGREE;
             }
         }
@@ -1963,7 +1963,7 @@ public class SystemsList extends ConsolePanel implements MainVehicleChangeListen
         }
 
         // To draw the course/speed vector
-        Object obj = sys.retrieveData(SystemUtils.COURSE_KEY);
+        Object obj = sys.retrieveData(SystemUtils.COURSE_DEGS_KEY);
         if (obj != null) {
             double courseDegrees = ((Number) obj).doubleValue();
             obj = sys.retrieveData(SystemUtils.GROUND_SPEED_KEY);

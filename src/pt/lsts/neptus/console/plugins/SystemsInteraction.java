@@ -222,7 +222,7 @@ public class SystemsInteraction extends ConsoleInteraction {
                     sb.append("<br/>").append("<b>").append("IMC: ").append("</b>").append(sys.getId().toPrettyString().toUpperCase());
                     
                     Object speed = sys.retrieveData(SystemUtils.GROUND_SPEED_KEY);
-                    Object course = sys.retrieveData(SystemUtils.COURSE_KEY);
+                    Object course = sys.retrieveData(SystemUtils.COURSE_DEGS_KEY);
                     Object rateOfturn = sys.retrieveData(SystemUtils.RATE_OF_TURN_DEGS_PER_MIN_KEY);
                     sb.append("<br/>").append("<b>").append(I18n.text("Speed")).append("/").append(I18n.text("Course"));
                     if (rateOfturn != null)
@@ -270,7 +270,7 @@ public class SystemsInteraction extends ConsoleInteraction {
                             sb.append(" ").append("<b>").append(I18n.text("Call-Sign")).append(": ").append("</b>").append(callSign);
 
                         Object speed = sys.retrieveData(SystemUtils.GROUND_SPEED_KEY);
-                        Object course = sys.retrieveData(SystemUtils.COURSE_KEY);
+                        Object course = sys.retrieveData(SystemUtils.COURSE_DEGS_KEY);
                         Object rateOfturn = sys.retrieveData(SystemUtils.RATE_OF_TURN_DEGS_PER_MIN_KEY);
                         sb.append("<br/>").append("<b>").append(I18n.text("Speed")).append("/").append(I18n.text("Course"));
                         if (rateOfturn != null)

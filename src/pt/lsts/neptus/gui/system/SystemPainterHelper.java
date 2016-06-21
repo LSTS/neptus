@@ -365,7 +365,7 @@ public class SystemPainterHelper {
         if (useTransparency != 255)
             g2.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, useTransparency / 255f));
 
-        Object obj = sys.retrieveData(SystemUtils.COURSE_KEY);
+        Object obj = sys.retrieveData(SystemUtils.COURSE_DEGS_KEY);
         if (obj != null) {
             double courseDegrees = (Integer) obj;
             obj = sys.retrieveData(SystemUtils.GROUND_SPEED_KEY);

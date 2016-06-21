@@ -375,7 +375,7 @@ public class SystemImcMsgCommInfo extends SystemCommBaseInfo<IMCMessage, Message
                     double groundSpeed = Math.sqrt(vx * vx + vy * vy);
                     double verticalSpeed = vz;
 
-                    resSys.storeData(SystemUtils.COURSE_KEY,
+                    resSys.storeData(SystemUtils.COURSE_DEGS_KEY,
                             (int) AngleUtils.nomalizeAngleDegrees360(MathMiscUtils.round(Math.toDegrees(courseRad), 0)),
                             timeMillis, true);
                     resSys.storeData(SystemUtils.GROUND_SPEED_KEY, groundSpeed, timeMillis, true);
@@ -383,7 +383,7 @@ public class SystemImcMsgCommInfo extends SystemCommBaseInfo<IMCMessage, Message
 
                     double headingRad = msg.getDouble("psi");
                     resSys.storeData(
-                            SystemUtils.HEADING_KEY,
+                            SystemUtils.HEADING_DEGS_KEY,
                             (int) AngleUtils.nomalizeAngleDegrees360(MathMiscUtils.round(Math.toDegrees(headingRad), 0)),
                             timeMillis, true);
                 }
