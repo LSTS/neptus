@@ -1,6 +1,5 @@
 package pt.lsts.neptus.plugins.mvplanning;
 
-import java.util.Arrays;
 import java.util.List;
 import java.util.Vector;
 import java.util.concurrent.locks.ReadWriteLock;
@@ -107,7 +106,7 @@ public class PlanGenerator {
      * */
     public static PlanSpecification closePlan(PlanTask ptask, LocationType start, LocationType end) throws SafePathNotFoundException {
         /* current plan */
-        PlanType plan = ptask.asPlanType();
+        PlanType plan = ptask.asPlanType().clonePlan();
         GraphType planGraph = plan.getGraph();
         Maneuver firstMan = planGraph.getAllManeuvers()[0];
         ManeuverLocation planFirstLocation = ((LocatedManeuver) firstMan).getManeuverLocation();
@@ -119,22 +118,18 @@ public class PlanGenerator {
         else
             planLastLocation = ((LocatedManeuver) planGraph.getLastManeuver()).getManeuverLocation();
 
-        /* plan with safe paths */
-        PlanType safePlan = new PlanType(plan.getMissionType());
-        safePlan.setId(plan.getId());
-
         FollowPath initialFollowPath = buildSafePath(start, planFirstLocation);
         FollowPath endFollowPath = buildSafePath(planLastLocation, end);
 
-        safePlan.getGraph().addManeuver(initialFollowPath);
+        /* set new initial maneuver */
+        String currInitialManId = plan.getGraph().getInitialManeuverId();
+        plan.getGraph().addManeuver(initialFollowPath);
+        plan.getGraph().setInitialManeuver(initialFollowPath.id);
+        plan.getGraph().addTransition(initialFollowPath.id, currInitialManId, "ManeuverIsDone");
 
-        /* Add all existing maneuvers */
-        Arrays.stream(plan.getGraph().getAllManeuvers()).
-                forEach(safePlan.getGraph()::addManeuver);
+        plan.getGraph().addManeuverAtEnd(endFollowPath);
 
-        safePlan.getGraph().addManeuverAtEnd(endFollowPath);
-
-        return (PlanSpecification) IMCUtils.generatePlanSpecification(safePlan);
+        return (PlanSpecification) IMCUtils.generatePlanSpecification(plan);
     }
 
     private static FollowPath buildSafePath(LocationType start, LocationType end) throws SafePathNotFoundException {
