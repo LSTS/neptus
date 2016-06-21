@@ -98,6 +98,9 @@ public class MVPlanning extends ConsolePanel implements PlanChangeListener, Rend
     @NeptusProperty(name = "Debug mode", description = "Show or hide debug information such as grid areas, spanning trees, etc", userLevel = LEVEL.REGULAR)
     public boolean inDegubMode = false;
 
+    @NeptusProperty(name = "Show operational area", description = "Show operational area generated", userLevel = LEVEL.REGULAR)
+    public boolean showOpArea = false;
+
     private final ProfileMarshaler pMarsh = new ProfileMarshaler();
     private final PlanTaskMarshaler pTaskMarsh = new PlanTaskMarshaler();
     public final Map<String, Profile> availableProfiles = pMarsh.getAllProfiles();
@@ -110,6 +113,8 @@ public class MVPlanning extends ConsolePanel implements PlanChangeListener, Rend
     private Environment env;
     private StateMonitor stateMonitor;
     private ExternalSystemsMonitor extSysMonitor;
+    private GridArea opArea;
+    private final Object OP_AREA_LOCK = new Object();
 
     private Map<String, PlanType> selectedPlans;
 
@@ -125,7 +130,7 @@ public class MVPlanning extends ConsolePanel implements PlanChangeListener, Rend
     private JButton pluginStateButton;
 
     /* Interaction */
-    private GridArea opArea;
+    private GridArea covArea;
     private MST mst;
 
     public MVPlanning(ConsoleLayout console) {
@@ -183,9 +188,12 @@ public class MVPlanning extends ConsolePanel implements PlanChangeListener, Rend
                 pluginStateButton.setEnabled(true);
                 resumePlugin();
 
-
                 NeptusLog.pub().info("Operational area [" + width +  " x " + height + "] is set. Cells are [" + cellWidth + " x " + cellWidth + "]");
                 pGen.setOperationalArea(operationalArea);
+
+                synchronized(OP_AREA_LOCK) {
+                    opArea = operationalArea;
+                }
             }
         }.start();
     }
@@ -350,11 +358,11 @@ public class MVPlanning extends ConsolePanel implements PlanChangeListener, Rend
 
     private void handleParallelepipedElement(ParallelepipedElement elem) {
         LocationType lt = elem.getCenterLocation();
-        opArea = new GridArea(60, elem.getWidth(), elem.getLength(), elem.getYawRad(), lt, env);
-        mst = new MST(opArea.getAllCells()[0][0]);
+        covArea = new GridArea(60, elem.getWidth(), elem.getLength(), elem.getYawRad(), lt, env);
+        mst = new MST(covArea.getAllCells()[0][0]);
 
         String desiredProfile = (String) profiles.getSelectedItem();
-        List<PlanType> plans = pGen.generateCoverageArea(availableProfiles.get(desiredProfile), opArea);
+        List<PlanType> plans = pGen.generateCoverageArea(availableProfiles.get(desiredProfile), covArea);
 
         if(!plans.isEmpty()) {
             for(PlanType plan : plans) {
@@ -386,9 +394,9 @@ public class MVPlanning extends ConsolePanel implements PlanChangeListener, Rend
     public void paint(Graphics2D g, StateRenderer2D renderer) {
         if(inDegubMode) {
             g.setTransform(new AffineTransform());
-            if(opArea != null && mst != null) {
+            if(covArea != null && mst != null) {
                 g.setColor(Color.cyan);
-                opArea.paint(g, renderer, 0.0);
+                covArea.paint(g, renderer, 0.0);
 
                 g.setTransform(new AffineTransform());
                 g.setColor(Color.RED);
@@ -399,6 +407,12 @@ public class MVPlanning extends ConsolePanel implements PlanChangeListener, Rend
 
                     g.drawLine((int) p1.getX(),(int) p1.getY(),(int) p2.getX(), (int) p2.getY());
                 }
+            }
+        }
+        if(showOpArea) {
+            synchronized(OP_AREA_LOCK) {
+                if(opArea != null)
+                    opArea.paint(g, renderer, 0.0);
             }
         }
     }
