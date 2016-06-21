@@ -34,6 +34,7 @@ package pt.lsts.neptus.plugins.mvplanning.utils;
 
 import com.google.common.eventbus.Subscribe;
 import pt.lsts.neptus.NeptusLog;
+import pt.lsts.neptus.comm.manager.imc.ImcSystemsHolder;
 import pt.lsts.neptus.mp.MapChangeEvent;
 import pt.lsts.neptus.systems.external.ExternalSystem;
 import pt.lsts.neptus.systems.external.ExternalSystemsHolder;
@@ -56,13 +57,28 @@ public class ExternalSystemsSimulator {
 
         AbstractElement elem = event.getChangedObject();
         if (elem.getType().equals("Mark") && elem.getId().startsWith("ext_")) {
-            ExternalSystem extSys = new ExternalSystem(elem.getId());
-            extSys.setLocation(elem.getCenterLocation());
-            extSys.setType(VehicleType.SystemTypeEnum.VEHICLE);
-            extSys.setActive(true);
+            String id = elem.getId();
+            ExternalSystem extSys;
 
-            ExternalSystemsHolder.registerSystem(extSys);
-            NeptusLog.pub().info("Simulating, static, external element with id: " + elem.getId());
+            if(event.getEventType() == MapChangeEvent.OBJECT_ADDED) {
+                extSys = new ExternalSystem(id);
+                extSys.setLocation(elem.getCenterLocation());
+                extSys.setType(VehicleType.SystemTypeEnum.VEHICLE);
+                extSys.setActive(true);
+
+                ExternalSystemsHolder.registerSystem(extSys);
+                NeptusLog.pub().info("Simulating, static, external system with id: " + elem.getId());
+            }
+            else if(event.getEventType() == MapChangeEvent.OBJECT_REMOVED) {
+                extSys = ExternalSystemsHolder.lookupSystem(id);
+                extSys.setActive(false);
+                NeptusLog.pub().info("External system with id: " + elem.getId() + ", not active anymore");
+            }
+            else if(event.getEventType() == MapChangeEvent.OBJECT_CHANGED) {
+                extSys = ExternalSystemsHolder.lookupSystem(id);
+                extSys.setLocation(elem.getCenterLocation());
+                NeptusLog.pub().info("External system with id: " + elem.getId() + ", was moved");
+            }
         }
     }
 }
