@@ -334,45 +334,52 @@ public class MVPlanning extends ConsolePanel implements PlanChangeListener, Rend
             return;
 
         if(event.getChangedObject().getId().startsWith("mvp_")) {
+            if(event.getEventType() == MapChangeEvent.OBJECT_REMOVED)
+                return;
+
             String objType = event.getChangedObject().getType();
 
-            if(objType.equals("Parallelepiped")) {
-                ParallelepipedElement elem = (ParallelepipedElement) event.getChangedObject();
-                LocationType lt = elem.getCenterLocation();
+            if(objType.equals("Parallelepiped"))
+                handleParallelepipedElement((ParallelepipedElement) event.getChangedObject());
+            else if(objType.equals("Mark"))
+                handleMarkElement((MarkElement) event.getChangedObject());
+            else
+                NeptusLog.pub().warn(objType + " is not a valid map object to generate an MvPlanning Task");
+        }
+    }
 
-                opArea = new GridArea(60, elem.getWidth(), elem.getLength(), elem.getYawRad(), lt, env);
+    private void handleParallelepipedElement(ParallelepipedElement elem) {
+        LocationType lt = elem.getCenterLocation();
+        opArea = new GridArea(60, elem.getWidth(), elem.getLength(), elem.getYawRad(), lt, env);
+        mst = new MST(opArea.getAllCells()[0][0]);
 
-                mst = new MST(opArea.getAllCells()[0][0]);
+        String desiredProfile = (String) profiles.getSelectedItem();
+        List<PlanType> plans = pGen.generateCoverageArea(availableProfiles.get(desiredProfile), opArea);
 
-                String desiredProfile = (String) profiles.getSelectedItem();
-                List<PlanType> plans = pGen.generateCoverageArea(availableProfiles.get(desiredProfile), opArea);
-
-                if(!plans.isEmpty()) {
-                    for(PlanType plan : plans) {
-                        listModel.addElement(plan.getId());
-                        selectedPlans.put(plan.getId(), plan);
+        if(!plans.isEmpty()) {
+            for(PlanType plan : plans) {
+                listModel.addElement(plan.getId());
+                selectedPlans.put(plan.getId(), plan);
 
                         /* add plan to plan's tree */
-                        console.addPlanToMission(plan);
-                    }
+                console.addPlanToMission(plan);
+            }
 
                     /* save mission */
-                    console.saveMission();
-                }
-            }
-            else if(objType.equals("Mark")) {
-                MarkElement mark = (MarkElement) event.getChangedObject();
-                String type = mark.getId().split("mvp_")[1];
+            console.saveMission();
+        }
+    }
+
+    private void handleMarkElement(MarkElement mark) {
+        String type = mark.getId().split("mvp_")[1];
 
                 /* generating a visit plan */
-                if(type.equals("visit")) {
-                    String desiredProfile = (String) profiles.getSelectedItem();
-                    pGen.generateVisitPoint(availableProfiles.get(desiredProfile), mark.getCenterLocation());
-                }
-                else /* marking the position of a vehicle */
-                    vawareness.setVehicleStartLocation(type, mark.getCenterLocation());
-            }
+        if(type.contains("visit")) {
+            String desiredProfile = (String) profiles.getSelectedItem();
+            pGen.generateVisitPoint(availableProfiles.get(desiredProfile), mark.getCenterLocation());
         }
+        else /* marking the position of a vehicle */
+            vawareness.setVehicleStartLocation(type, mark.getCenterLocation());
     }
 
     @Override
