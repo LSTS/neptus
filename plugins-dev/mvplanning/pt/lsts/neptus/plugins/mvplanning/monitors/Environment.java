@@ -36,6 +36,9 @@ import java.awt.geom.Area;
 import java.awt.geom.Rectangle2D;
 import java.util.ArrayList;
 
+import pt.lsts.neptus.plugins.mvplanning.PlanAllocator;
+import pt.lsts.neptus.plugins.mvplanning.PlanGenerator;
+import pt.lsts.neptus.plugins.mvplanning.interfaces.AbstractSupervisor;
 import pt.lsts.neptus.plugins.mvplanning.interfaces.ConsoleAdapter;
 import pt.lsts.neptus.types.coord.LocationType;
 import pt.lsts.neptus.types.map.AbstractElement;
@@ -44,8 +47,7 @@ import pt.lsts.neptus.types.map.AbstractElement;
  * @author tsmarques
  *
  */
-public class Environment {
-    private ConsoleAdapter console;
+public class Environment extends AbstractSupervisor {
     private ArrayList<AbstractElement> consoleObstacles;
 
     public Environment() {
@@ -53,7 +55,8 @@ public class Environment {
         consoleObstacles = new ArrayList<>();
     }
 
-    public Environment(ConsoleAdapter console) {
+    public Environment(ConsoleAdapter console, PlanAllocator pAlloc, PlanGenerator pGen) {
+        super(console, pAlloc, pGen);
         this.console = console;
         consoleObstacles = new ArrayList<>();
     }

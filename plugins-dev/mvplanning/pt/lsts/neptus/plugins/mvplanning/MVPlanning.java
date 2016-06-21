@@ -50,7 +50,6 @@ import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JList;
 import javax.swing.JScrollPane;
-import javax.swing.SwingWorker;
 import javax.xml.bind.JAXBException;
 
 import com.google.common.eventbus.Subscribe;
@@ -142,7 +141,7 @@ public class MVPlanning extends ConsolePanel implements PlanChangeListener, Rend
         vawareness = new VehicleAwareness(this.console);
         pAlloc = new PlanAllocator(vawareness, this.console);
         pGen = new PlanGenerator(pAlloc, this.console);
-        env = new Environment(this.console);
+        env = new Environment(this.console, pAlloc, pGen);
         stateMonitor = new StateMonitor(this.console, pTaskMarsh);
         extSysMonitor= new ExternalSystemsMonitor(this.console, true);
 
