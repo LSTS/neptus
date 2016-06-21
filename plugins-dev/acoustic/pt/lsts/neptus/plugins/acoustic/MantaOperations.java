@@ -141,10 +141,10 @@ public class MantaOperations extends ConsolePanel implements ConfigurationListen
 
     protected LinkedHashMap<Integer, PlanControl> pendingRequests = new LinkedHashMap<>();
 
+    public HashSet<String> knownSystems = new HashSet<>();
+    
     @NeptusProperty(name = "Systems listing", description = "Use commas to separate system identifiers")
     public String sysListing = "benthos-1,benthos-2,benthos-3,benthos-4,lauv-xtreme-2,lauv-noptilus-1,lauv-noptilus-2,lauv-noptilus-3";
-
-    public HashSet<String> knownSystems = new HashSet<>();
 
     @NeptusProperty(name = "Display ranges in the map")
     public boolean showRanges = true;
@@ -165,6 +165,8 @@ public class MantaOperations extends ConsolePanel implements ConfigurationListen
     protected Vector<LocationType> rangeSources = new Vector<LocationType>();
     protected Vector<Double> rangeDistances = new Vector<Double>();
 
+    protected boolean initialized = false;
+    
     /**
      * @param console
      */
@@ -178,8 +180,6 @@ public class MantaOperations extends ConsolePanel implements ConfigurationListen
             selectedSystem = e.getActionCommand();
         }
     };
-
-    protected boolean initialized = false;
 
     private boolean sendAcoustically(String destination, IMCMessage msg) {
         ImcSystem[] sysLst = gateways();
@@ -269,7 +269,7 @@ public class MantaOperations extends ConsolePanel implements ConfigurationListen
         }
         
         addMenuItem(I18n.text("Tools") + ">" + I18n.text("Send Plan via Acoustic Modem"),
-        ImageUtils.getIcon(PluginUtils.getPluginIcon(getClass())), new ActionListener() {
+                ImageUtils.getIcon(PluginUtils.getPluginIcon(getClass())), new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 PlanType plan = getConsole().getPlan();
