@@ -54,7 +54,7 @@ import java.util.List;
  */
 public class ExternalSystemsMonitor implements IPeriodicUpdates {
     /* in meters */
-    private final double SAFE_DISTANCE = 10;
+    private final double SAFE_DISTANCE = 100;
     private ConsoleAdapter console;
     private List<String> quarantine;
     private ExternalSystemsSimulator extSysSimulator;
@@ -71,7 +71,7 @@ public class ExternalSystemsMonitor implements IPeriodicUpdates {
 
     @Override
     public long millisBetweenUpdates() {
-        return 10000;
+        return 5000;
     }
 
     @Override
