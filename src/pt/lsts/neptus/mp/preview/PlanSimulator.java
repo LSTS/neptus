@@ -61,7 +61,7 @@ public class PlanSimulator {
      * @param plan The plan to be simulated. It will simulate the plan from its initial maneuver
      */
     public PlanSimulator(final PlanType plan, SystemPositionAndAttitude start) {
-        this.plan = plan;
+        this.plan = plan.clonePlan();
         this.vehicleId = plan.getVehicle();
         engine = new SimulationEngine(plan);
         Maneuver[] mans = plan.getGraph().getManeuversSequence();
