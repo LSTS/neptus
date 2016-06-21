@@ -440,7 +440,7 @@ public class MantaOperations extends ConsolePanel implements ConfigurationListen
 
                     int successCount = 0;
                     for (ImcSystem sys : sysLst)
-                        if (ImcMsgManager.getManager().sendMessage(m, sys.getId(), null))
+                        if (ImcMsgManager.getManager().sendMessage(m.cloneMessage(), sys.getId(), null))
                             successCount++;
 
                     if (successCount > 0) {
@@ -512,7 +512,7 @@ public class MantaOperations extends ConsolePanel implements ConfigurationListen
 
                 int successCount = 0;
                 for (ImcSystem sys : sysLst)
-                    if (ImcMsgManager.getManager().sendMessage(m, sys.getId(), null))
+                    if (ImcMsgManager.getManager().sendMessage(m.cloneMessage(), sys.getId(), null))
                         successCount++;
 
                 if (successCount > 0) {
