@@ -103,8 +103,14 @@ public class PlanUtil {
         propertySpeed.setDisplayName(I18n.text("Speed"));
         Property[] props = new Property[] {units, propertySpeed};
         
-        for (Maneuver man : plan.getGraph().getAllManeuvers())
-            man.setProperties(props);
+        for (Maneuver man : plan.getGraph().getAllManeuvers()) {
+            try {
+                man.setProperties(props);
+            }
+            catch (Exception e) {
+                NeptusLog.pub().error(e, e);
+            }
+        }
     }
     
     /**

@@ -278,7 +278,12 @@ public class FunctionalitiesSettings extends JPanel {
             printErrors(errors);
         }
         else {
-            provider.setProperties(beforeProps);
+            try {
+                provider.setProperties(beforeProps);
+            }
+            catch (Exception e) {
+                NeptusLog.pub().error(e, e);
+            }
         }
     }
 
