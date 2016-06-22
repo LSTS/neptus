@@ -186,11 +186,11 @@ public class NmeaPlotter extends ConsoleLayer {
 
     private void connectToSerial() throws Exception {
         serialPort = new SerialPort(uartDevice);
-        isSerialConnected = true;
+        setSerialConnected(true);
 
         boolean opened = serialPort.openPort();
         if (!opened) {
-            isSerialConnected = false;
+            setSerialConnected(false);
             serialPort = null;
             throw new Exception("Unable to open port " + uartDevice);
         }
@@ -310,21 +310,19 @@ public class NmeaPlotter extends ConsoleLayer {
         this.tcpSocket = socket;
         Thread listener = new Thread("NMEA TCP Listener") {
             public void run() {
-//                    connected = false;
-//                isTcpConnected = false;
                 BufferedReader reader = null;
                 try {
                     socket.connect(new InetSocketAddress(tcpHost, tcpPort));
                     reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-//                    connected = true;
-                    isTcpConnected = true;
+
+                    setTcpConnected(true);
                 }
                 catch (Exception e) {
                     NeptusLog.pub().error(e);
                     getConsole().post(Notification.error("NMEA Plotter",
                             "Error connecting via TCP to " + tcpHost + ":" + tcpPort));
                     
-                    isTcpConnected = false;
+                    setTcpConnected(false);
 
                     // if still connected, we need to reconnect
                     reconnect(socket);
@@ -362,7 +360,7 @@ public class NmeaPlotter extends ConsoleLayer {
                     e.printStackTrace();
                 }
                 finally {
-                    isTcpConnected = false;
+                    setTcpConnected(false);
                 }
                 
                 // if still connected, we need to reconnect
@@ -384,7 +382,7 @@ public class NmeaPlotter extends ConsoleLayer {
             };
         };
         listener.setDaemon(true);
-        isTcpConnected = true;
+        setTcpConnected(true);
         listener.start();
     }
 
@@ -392,8 +390,8 @@ public class NmeaPlotter extends ConsoleLayer {
         final DatagramSocket socket = new DatagramSocket(udpPort);
         Thread udpListenerThread = new Thread("NMEA UDP Listener") {
             public void run() {
-//                    connected = true;
-                isUdpConnected = true;
+                setUdpConnected(true);
+
                 try {
                     socket.setSoTimeout(1000);
                 }
@@ -430,7 +428,7 @@ public class NmeaPlotter extends ConsoleLayer {
                 NeptusLog.pub().info("UDP Socket closed.");
                 getConsole().post(Notification.info("NMEA Plotter", "Stop listening via UDP."));
                 socket.close();
-                isUdpConnected = false;
+                setUdpConnected(false);
             };
         };
         udpListenerThread.setDaemon(true);
@@ -449,22 +447,23 @@ public class NmeaPlotter extends ConsoleLayer {
                 res = true;
             }
             if (res)
-                isSerialConnected = false;
+                setSerialConnected(false);
         }
         if (udpSocket != null) {
             udpSocket.close();
-            isUdpConnected = false;
+            setUdpConnected(false);
             udpSocket = null;
         }
         if (udpSocket == null)
-            isUdpConnected = false;
+            setUdpConnected(false);
+
         if (tcpSocket != null) {
             tcpSocket.close();
-            isTcpConnected = false;
+            setTcpConnected(false);
             tcpSocket = null;
         }
         if (tcpSocket == null)
-            isTcpConnected = false;
+            setTcpConnected(false);
 
         connected = isSerialConnected || isUdpConnected || isTcpConnected;
     }
@@ -595,6 +594,30 @@ public class NmeaPlotter extends ConsoleLayer {
         }
     }
 
+    /**
+     * @param isSerialConnected the isSerialConnected to set
+     */
+    public void setSerialConnected(boolean isSerialConnected) {
+        this.isSerialConnected = isSerialConnected;
+        updateConnectMenuText();
+    }
+    
+    /**
+     * @param isUdpConnected the isUdpConnected to set
+     */
+    public void setUdpConnected(boolean isUdpConnected) {
+        this.isUdpConnected = isUdpConnected;
+        updateConnectMenuText();
+    }
+    
+    /**
+     * @param isTcpConnected the isTcpConnected to set
+     */
+    public void setTcpConnected(boolean isTcpConnected) {
+        this.isTcpConnected = isTcpConnected;
+        updateConnectMenuText();
+    }
+    
     public static void main(String[] args) throws Exception {
         @SuppressWarnings("resource")
         ServerSocket tcp = new ServerSocket(13000);
