@@ -149,7 +149,7 @@ public class GridCell extends MapCell {
 
     @Override
     public void addNeighbour(MapCell neighCell) {
-        if(nNeighbours < 4 && !neighCell.hasObstacle() && !this.hasObstacle()) {
+        if(nNeighbours < 4) {
             int neighRow = ((GridCell) neighCell).getRow();
             int neighCol = ((GridCell) neighCell).getColumn();
 
@@ -180,7 +180,7 @@ public class GridCell extends MapCell {
         List<MapCell> neighboursList = new ArrayList<>();
 
         for(MapCell neighbour : neighbours)
-            if(neighbour != null)
+            if(neighbour != null && !neighbour.hasObstacle()) // added
                 neighboursList.add(neighbour);
 
         return neighboursList;
@@ -200,13 +200,17 @@ public class GridCell extends MapCell {
             if(index == -1)
                 return null;
             else {
+                int nFreeNeighbours = neighbours.size();
                 int seenNeighbours = 0;
                 neighboursAclk = new ArrayList<>();
 
-                while(seenNeighbours < nNeighbours) {
-                    neighboursAclk.add(neighbours.get(index));
+                while(seenNeighbours < nFreeNeighbours) {
+                    MapCell neighbour = neighbours.get(index);
 
-                    index = (index + 1) % nNeighbours;
+                    if(!neighbour.hasObstacle()) {
+                        neighboursAclk.add(neighbour);
+                        index = (index + 1) % nFreeNeighbours;
+                    }
                     seenNeighbours++;
                 }
 

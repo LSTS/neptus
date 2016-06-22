@@ -53,13 +53,14 @@ public abstract class MapCell {
     public abstract void addNeighbour(MapCell neighCell);
 
     /**
-     * Get a list of all the neighbour cells
+     * Get a list of all the neighbour cells that have
+     * no obstacles.
      * */
     public abstract List<MapCell> getNeighbours();
 
     /**
-     * List this cell's neighbours in an anti-clockwise
-     * manner, starting at the given cell
+     * List this cell's neighbours, that have no obstacles,
+     * in an anti-clockwise manner, starting at the given cell
      * */
     public abstract List<MapCell> getNeighboursAntiClockwise(MapCell firstNeighbour);
 
