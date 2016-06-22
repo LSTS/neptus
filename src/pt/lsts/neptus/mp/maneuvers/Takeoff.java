@@ -47,7 +47,6 @@ import com.l2fprod.common.propertysheet.DefaultProperty;
 import com.l2fprod.common.propertysheet.Property;
 
 import pt.lsts.imc.IMCMessage;
-import pt.lsts.imc.Takeoff.UAV_TYPE;
 import pt.lsts.neptus.gui.editor.SpeedUnitsEnumEditor;
 import pt.lsts.neptus.mp.Maneuver;
 import pt.lsts.neptus.mp.ManeuverLocation;
@@ -75,8 +74,6 @@ public class Takeoff extends Maneuver implements LocatedManeuver, IMCSerializati
     protected SPEED_UNITS speedUnits = SPEED_UNITS.METERS_PS;
     @NeptusProperty(name = "Takeoff Pitch Angle", description = "Minimum pitch angle during automatic takeoff.")
     protected double takeoffPitchAngleDegs = 10;
-    @NeptusProperty(name = "UAV Type")
-    protected UAV_TYPE uavType = UAV_TYPE.FIXEDWING;
 
     public Takeoff() {
     }
@@ -202,20 +199,6 @@ public class Takeoff extends Maneuver implements LocatedManeuver, IMCSerializati
             if (node != null)
                 takeoffPitchAngleDegs = Double.parseDouble(node.getText());
 
-            node = doc.selectSingleNode("//uavType");
-            if (node != null) {
-                String typeStr = node.getText();
-                try {
-                    uavType = UAV_TYPE.valueOf(typeStr);
-                }
-                catch (Exception e) {
-                    e.printStackTrace();
-                    uavType = UAV_TYPE.FIXEDWING;
-                }
-            }
-            else {
-                uavType = UAV_TYPE.FIXEDWING;
-            }
         }
         catch (Exception e) {
             e.printStackTrace();
@@ -237,9 +220,7 @@ public class Takeoff extends Maneuver implements LocatedManeuver, IMCSerializati
         }
 
         Element root = doc.getRootElement();
-        
         root.addElement("takeoffPitch").setText(String.valueOf(takeoffPitchAngleDegs));
-        root.addElement("uavType").setText(String.valueOf(uavType.name()));
         
         return doc;
     }
@@ -281,7 +262,6 @@ public class Takeoff extends Maneuver implements LocatedManeuver, IMCSerializati
     @Override
     public IMCMessage serializeToIMC() {
         pt.lsts.imc.Takeoff man = new pt.lsts.imc.Takeoff();
-        man.setUavType(uavType);
         man.setLat(Math.toRadians(latDegs));
         man.setLon(Math.toRadians(lonDegs));
         man.setZ(z);
@@ -317,8 +297,6 @@ public class Takeoff extends Maneuver implements LocatedManeuver, IMCSerializati
             return;
         }
 
-        uavType = man.getUavType();
-        
         latDegs = Math.toDegrees(man.getLat());
         lonDegs = Math.toDegrees(man.getLon());
         z = man.getZ();
