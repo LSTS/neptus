@@ -33,9 +33,17 @@ package pt.lsts.neptus.mp.maneuvers;
 
 import java.awt.BasicStroke;
 import java.awt.Color;
+import java.awt.Cursor;
+import java.awt.Font;
 import java.awt.Graphics2D;
+import java.awt.Image;
 import java.awt.Stroke;
+import java.awt.event.FocusEvent;
+import java.awt.event.KeyEvent;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseWheelEvent;
 import java.awt.geom.Line2D;
+import java.awt.geom.Point2D;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Vector;
@@ -49,13 +57,15 @@ import com.l2fprod.common.propertysheet.DefaultProperty;
 import com.l2fprod.common.propertysheet.Property;
 
 import pt.lsts.imc.IMCMessage;
-import pt.lsts.imc.Land.UAV_TYPE;
+import pt.lsts.neptus.gui.ToolbarSwitch;
 import pt.lsts.neptus.gui.editor.SpeedUnitsEnumEditor;
 import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.mp.Maneuver;
 import pt.lsts.neptus.mp.ManeuverLocation;
 import pt.lsts.neptus.plugins.NeptusProperty;
+import pt.lsts.neptus.renderer2d.InteractionAdapter;
 import pt.lsts.neptus.renderer2d.StateRenderer2D;
+import pt.lsts.neptus.renderer2d.StateRendererInteraction;
 import pt.lsts.neptus.types.map.PlanElement;
 import pt.lsts.neptus.util.AngleUtils;
 import pt.lsts.neptus.util.MathMiscUtils;
@@ -66,12 +76,20 @@ import pt.lsts.neptus.util.conf.IntegerMinMaxValidator;
  * @author pdias
  *
  */
-public class Land extends Maneuver implements LocatedManeuver, IMCSerialization {
+/**
+ * @author pdias
+ *
+ */
+public class Land extends Maneuver implements LocatedManeuver, IMCSerialization, StateRendererInteraction {
     
     protected double latDegs = 0;
     protected double lonDegs = 0;
     protected double z = 0;
     protected ManeuverLocation.Z_UNITS zUnits = ManeuverLocation.Z_UNITS.NONE;
+
+    protected InteractionAdapter adapter = new InteractionAdapter(null);
+    protected Point2D lastDragPoint = null;
+    protected boolean editing = false;
 
     @NeptusProperty(name = "Abort Z", description = "Abort altitude or height. If landing is aborted while executing, the UAV will maintain its course and attempt to climb to the abort z reference.")
     protected double zAbort = 20;
@@ -85,8 +103,6 @@ public class Land extends Maneuver implements LocatedManeuver, IMCSerialization 
     protected short glideSlope = 10;
     @NeptusProperty(name = "Glide Slope Altitude", description = "Height difference between the last waypoint to the landing point (touchdown).")
     protected float glideSlopeAltitude = 10;
-    @NeptusProperty(name = "UAV Type")
-    protected UAV_TYPE uavType = UAV_TYPE.FIXEDWING;
 
     public Land() {
     }
@@ -187,21 +203,6 @@ public class Land extends Maneuver implements LocatedManeuver, IMCSerialization 
             if (node != null)
                 glideSlopeAltitude = Float.parseFloat(node.getText());
 
-            node = doc.selectSingleNode("//uavType");
-            if (node != null) {
-                String typeStr = node.getText();
-                try {
-                    uavType = UAV_TYPE.valueOf(typeStr);
-                }
-                catch (Exception e) {
-                    e.printStackTrace();
-                    uavType = UAV_TYPE.FIXEDWING;
-                }
-            }
-            else {
-                uavType = UAV_TYPE.FIXEDWING;
-            }
-
         }
         catch (Exception e) {
             e.printStackTrace();
@@ -228,8 +229,6 @@ public class Land extends Maneuver implements LocatedManeuver, IMCSerialization 
 
         root.addElement("glideSlope").setText(String.valueOf(glideSlope));
         root.addElement("glideSlopeAltitude").setText(String.valueOf(glideSlopeAltitude));
-
-        root.addElement("uavType").setText(String.valueOf(uavType.name()));
 
         return doc;
     }
@@ -273,7 +272,6 @@ public class Land extends Maneuver implements LocatedManeuver, IMCSerialization 
     @Override
     public IMCMessage serializeToIMC() {
         pt.lsts.imc.Land man = new pt.lsts.imc.Land();
-        man.setUavType(uavType);
         man.setLat(Math.toRadians(latDegs));
         man.setLon(Math.toRadians(lonDegs));
         man.setZ(z);
@@ -312,8 +310,6 @@ public class Land extends Maneuver implements LocatedManeuver, IMCSerialization 
             return;
         }
 
-        uavType = man.getUavType();
-        
         latDegs = Math.toDegrees(man.getLat());
         lonDegs = Math.toDegrees(man.getLon());
         z = man.getZ();
@@ -344,6 +340,21 @@ public class Land extends Maneuver implements LocatedManeuver, IMCSerialization 
     @Override
     public void paintOnMap(Graphics2D g2d, PlanElement planElement, StateRenderer2D renderer) {
         super.paintOnMap(g2d, planElement, renderer);
+        
+        if (editing) {
+            Graphics2D g3 = (Graphics2D) g2d.create();
+            Point2D manL = renderer.getScreenPosition(getManeuverLocation());
+            Point2D gL = renderer.getScreenPosition(renderer.getTopLeftLocationType());
+            g3.translate(gL.getX() - manL.getX(), gL.getY() - manL.getY());
+            g3.setFont(new Font("Helvetica", Font.BOLD, 13));
+            String txt = I18n.text("Shift+Click to rotate");
+            g3.setColor(Color.BLACK);
+            g3.drawString(txt, 55, 15 + 20);
+            g3.setColor(COLOR_HELP);
+            g3.drawString(txt, 54, 14 + 20);
+            g3.dispose();
+        }
+
         ManeuverLocation startLLoc = getStartLocation();
         
         double[] dp = getEndLocation().getDistanceInPixelTo(startLLoc, renderer.getLevelOfDetail());
@@ -357,6 +368,8 @@ public class Land extends Maneuver implements LocatedManeuver, IMCSerialization 
         Stroke s1 = new BasicStroke(2);
         Stroke s2 = new BasicStroke(16);
 
+        dp = AngleUtils.rotate(renderer.getRotation(), dp[0], dp[1], true);
+        
         g2d.setColor(color2);
         g2d.setStroke(s2);
         g2d.draw(new Line2D.Double(0, 0, dp[0], dp[1]));
@@ -383,6 +396,175 @@ public class Land extends Maneuver implements LocatedManeuver, IMCSerialization 
         }
     }
     
+    /* (non-Javadoc)
+     * @see pt.lsts.neptus.renderer2d.StateRendererInteraction#getName()
+     */
+    @Override
+    public String getName() {
+        return getType();
+    }
+
+    /* (non-Javadoc)
+     * @see pt.lsts.neptus.renderer2d.StateRendererInteraction#getIconImage()
+     */
+    @Override
+    public Image getIconImage() {
+        return adapter.getIconImage();
+    }
+
+    /* (non-Javadoc)
+     * @see pt.lsts.neptus.renderer2d.StateRendererInteraction#getMouseCursor()
+     */
+    @Override
+    public Cursor getMouseCursor() {
+        return adapter.getMouseCursor();
+    }
+
+    /* (non-Javadoc)
+     * @see pt.lsts.neptus.renderer2d.StateRendererInteraction#isExclusive()
+     */
+    @Override
+    public boolean isExclusive() {
+        return true;
+    }
+
+    /* (non-Javadoc)
+     * @see pt.lsts.neptus.renderer2d.StateRendererInteraction#mouseClicked(java.awt.event.MouseEvent, pt.lsts.neptus.renderer2d.StateRenderer2D)
+     */
+    @Override
+    public void mouseClicked(MouseEvent event, StateRenderer2D source) {
+        adapter.mouseClicked(event, source);        
+    }
+
+    /* (non-Javadoc)
+     * @see pt.lsts.neptus.renderer2d.StateRendererInteraction#mousePressed(java.awt.event.MouseEvent, pt.lsts.neptus.renderer2d.StateRenderer2D)
+     */
+    @Override
+    public void mousePressed(MouseEvent event, StateRenderer2D source) {
+        adapter.mousePressed(event, source);
+        lastDragPoint = event.getPoint();
+    }
+
+    /* (non-Javadoc)
+     * @see pt.lsts.neptus.renderer2d.StateRendererInteraction#mouseDragged(java.awt.event.MouseEvent, pt.lsts.neptus.renderer2d.StateRenderer2D)
+     */
+    @Override
+    public void mouseDragged(MouseEvent event, StateRenderer2D source) {
+        if (lastDragPoint == null) {
+            adapter.mouseDragged(event, source);
+            lastDragPoint = event.getPoint();
+            return;
+        }
+        // double xammount = event.getPoint().getX() - lastDragPoint.getX();
+        double yammount = event.getPoint().getY() - lastDragPoint.getY();
+        yammount = -yammount;
+        if (event.isShiftDown()) {
+            bearingDegs += yammount / (Math.abs(yammount) < 30 ? 10 : 2);
+            bearingDegs = (int) (bearingDegs * 10) / 10.;
+            bearingDegs = AngleUtils.nomalizeAngleDegrees360(bearingDegs);
+        }
+        else {
+            adapter.mouseDragged(event, source);
+        }
+        lastDragPoint = event.getPoint();
+    }
+
+    /* (non-Javadoc)
+     * @see pt.lsts.neptus.renderer2d.StateRendererInteraction#mouseMoved(java.awt.event.MouseEvent, pt.lsts.neptus.renderer2d.StateRenderer2D)
+     */
+    @Override
+    public void mouseMoved(MouseEvent event, StateRenderer2D source) {
+        adapter.mouseMoved(event, source);
+    }
+
+    /* (non-Javadoc)
+     * @see pt.lsts.neptus.renderer2d.StateRendererInteraction#mouseReleased(java.awt.event.MouseEvent, pt.lsts.neptus.renderer2d.StateRenderer2D)
+     */
+    @Override
+    public void mouseReleased(MouseEvent event, StateRenderer2D source) {
+        adapter.mouseReleased(event, source);
+        lastDragPoint = null;
+    }
+
+    /* (non-Javadoc)
+     * @see pt.lsts.neptus.renderer2d.StateRendererInteraction#wheelMoved(java.awt.event.MouseWheelEvent, pt.lsts.neptus.renderer2d.StateRenderer2D)
+     */
+    @Override
+    public void wheelMoved(MouseWheelEvent event, StateRenderer2D source) {
+        adapter.wheelMoved(event, source);
+    }
+
+    /* (non-Javadoc)
+     * @see pt.lsts.neptus.renderer2d.StateRendererInteraction#keyPressed(java.awt.event.KeyEvent, pt.lsts.neptus.renderer2d.StateRenderer2D)
+     */
+    @Override
+    public void keyPressed(KeyEvent event, StateRenderer2D source) {
+        adapter.keyPressed(event, source);
+    }
+
+    /* (non-Javadoc)
+     * @see pt.lsts.neptus.renderer2d.StateRendererInteraction#keyReleased(java.awt.event.KeyEvent, pt.lsts.neptus.renderer2d.StateRenderer2D)
+     */
+    @Override
+    public void keyReleased(KeyEvent event, StateRenderer2D source) {
+        adapter.keyReleased(event, source);
+    }
+
+    /* (non-Javadoc)
+     * @see pt.lsts.neptus.renderer2d.StateRendererInteraction#keyTyped(java.awt.event.KeyEvent, pt.lsts.neptus.renderer2d.StateRenderer2D)
+     */
+    @Override
+    public void keyTyped(KeyEvent event, StateRenderer2D source) {
+        adapter.keyTyped(event, source);
+    }
+    
+    /* (non-Javadoc)
+     * @see pt.lsts.neptus.renderer2d.StateRendererInteraction#mouseExited(java.awt.event.MouseEvent, pt.lsts.neptus.renderer2d.StateRenderer2D)
+     */
+    @Override
+    public void mouseExited(MouseEvent event, StateRenderer2D source) {
+        adapter.mouseExited(event, source);
+    }
+    
+    /* (non-Javadoc)
+     * @see pt.lsts.neptus.renderer2d.StateRendererInteraction#focusGained(java.awt.event.FocusEvent, pt.lsts.neptus.renderer2d.StateRenderer2D)
+     */
+    @Override
+    public void focusGained(FocusEvent event, StateRenderer2D source) {
+        adapter.focusGained(event, source);        
+    }
+
+    /* (non-Javadoc)
+     * @see pt.lsts.neptus.renderer2d.StateRendererInteraction#focusLost(java.awt.event.FocusEvent, pt.lsts.neptus.renderer2d.StateRenderer2D)
+     */
+    @Override
+    public void focusLost(FocusEvent event, StateRenderer2D source) {
+        adapter.focusLost(event, source);
+    }
+    
+    /* (non-Javadoc)
+     * @see pt.lsts.neptus.renderer2d.StateRendererInteraction#setActive(boolean, pt.lsts.neptus.renderer2d.StateRenderer2D)
+     */
+    @Override
+    public void setActive(boolean mode, StateRenderer2D source) {
+        editing = mode;
+        adapter.setActive(mode, source);
+    }
+
+    /* (non-Javadoc)
+     * @see pt.lsts.neptus.renderer2d.StateRendererInteraction#setAssociatedSwitch(pt.lsts.neptus.gui.ToolbarSwitch)
+     */
+    @Override
+    public void setAssociatedSwitch(ToolbarSwitch tswitch) {
+    }
+
+    /* (non-Javadoc)
+     * @see pt.lsts.neptus.renderer2d.StateRendererInteraction#paintInteraction(java.awt.Graphics2D, pt.lsts.neptus.renderer2d.StateRenderer2D)
+     */
+    @Override
+    public void paintInteraction(Graphics2D g, StateRenderer2D source) {
+    }
+
     public static void main(String[] args) {
         Land rc = new Land();
         System.out.println(XMLUtil.getAsPrettyPrintFormatedXMLString(rc.asXML().substring(39)));
