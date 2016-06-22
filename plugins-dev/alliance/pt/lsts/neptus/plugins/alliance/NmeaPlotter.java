@@ -323,6 +323,12 @@ public class NmeaPlotter extends ConsoleLayer {
                     NeptusLog.pub().error(e);
                     getConsole().post(Notification.error("NMEA Plotter",
                             "Error connecting via TCP to " + tcpHost + ":" + tcpPort));
+                    
+                    isTcpConnected = false;
+
+                    // if still connected, we need to reconnect
+                    reconnect(socket);
+                    
                     return;
                 }
                 NeptusLog.pub().info("Listening to NMEA messages over TCP.");
@@ -357,6 +363,23 @@ public class NmeaPlotter extends ConsoleLayer {
                 }
                 finally {
                     isTcpConnected = false;
+                }
+                
+                // if still connected, we need to reconnect
+                reconnect(socket);
+            }
+
+            private void reconnect(final Socket socket) {
+                if (connected) {
+                    try {
+                        Thread.sleep(5000);
+                    }
+                    catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                    if (connected && !isTcpConnected && socket == NmeaPlotter.this.tcpSocket) {
+                        connectToTCP();
+                    }
                 }
             };
         };
