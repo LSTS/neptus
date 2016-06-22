@@ -453,7 +453,6 @@ public class NmeaPlotter extends ConsoleLayer {
         }
         if (udpSocket != null) {
             udpSocket.close();
-//            udpListenerThread.interrupt();
             isUdpConnected = false;
             udpSocket = null;
         }
