@@ -625,7 +625,8 @@ public class NmeaPlotter extends ConsoleLayer {
         while (true) {
             try {
                 Socket con = tcp.accept();
-                FileReader fr = new FileReader(new File("CMRE-AIS_example.txt"));
+//                FileReader fr = new FileReader(new File("CMRE-AIS_example.txt"));
+                FileReader fr = new FileReader(new File("CMRE-DISTRESS_example.txt"));
                 br = new BufferedReader(fr);
                 while (con.isConnected()) {
                     OutputStream os = con.getOutputStream();
