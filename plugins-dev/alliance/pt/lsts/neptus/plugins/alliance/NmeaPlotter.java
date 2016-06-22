@@ -568,10 +568,7 @@ public class NmeaPlotter extends ConsoleLayer {
                         catch (Exception ex) {
                             GuiUtils.errorMessage(getConsole(), ex);
                         }
-                        if (connected)
-                            connectItem.setText(I18n.text("Disconnect"));
-                        else
-                            connectItem.setText(I18n.text("Connect"));
+                        updateConnectMenuText();
                     }
                 });
 
@@ -584,7 +581,21 @@ public class NmeaPlotter extends ConsoleLayer {
                 });
         parser.register(contactDb);
     }
-    
+
+    private void updateConnectMenuText() {
+        if (connected) {
+            String comms = isSerialConnected ? "serial" : "";
+            comms += isUdpConnected ? (comms.isEmpty() ? "" : ", ") + "UDP" : "";
+            comms += isTcpConnected ? (comms.isEmpty() ? "" : ", ") + "TCP" : "";
+            if (!comms.isEmpty())
+                comms = " (" + comms + ")";
+            connectItem.setText(I18n.text("Disconnect") + comms);
+        }
+        else {
+            connectItem.setText(I18n.text("Connect"));
+        }
+    }
+
     public static void main(String[] args) throws Exception {
         @SuppressWarnings("resource")
         ServerSocket tcp = new ServerSocket(13000);
