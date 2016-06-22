@@ -49,6 +49,31 @@ import pt.lsts.neptus.util.NMEAUtils;
  */
 public class CmreAisCsvParser {
 
+    public static class DistressPosition {
+        public String nation = "n.a";
+        public double latDegs = 0;
+        public double lonDegs = 0;
+        public double depth = 0;
+        public double speedKnots = 0;
+        public double headingDegs = 0;
+        public long timestamp = -1;
+    }
+
+    public static class DistressStatus {
+        public String nation = "n.a";
+        public double o2Percentage = 0;
+        public double co2Percentage = 0;
+        public double coPpm = 0;
+        public double h2Percentage = 0;
+        public double presureAtm = 0;
+        public double temperatureDegCentigrade = 0;
+        public int survivors = 0;
+        public long timestamp = -1;
+    }
+
+    public static DistressPosition distressPosition = null;
+    public static DistressStatus distressStatus = null;
+
     private CmreAisCsvParser() {
     }
 
@@ -73,6 +98,10 @@ public class CmreAisCsvParser {
                 return parseAIS(sentence, contactDb);
             case "DISTRESS_CALL":
                 return parseDistressCall(sentence, contactDb);
+            case "DISTRESS_POSITION":
+                return parseDistressPosition(sentence);
+            case "DISTRESS_STATUS":
+                return parseDistressStatus(sentence);
             default:
                 NeptusLog.pub().error("Type not known (" + type + ")");
                 return false;
@@ -397,6 +426,172 @@ public class CmreAisCsvParser {
         return true;
     }
 
+    /**
+     * DISTRESS_POSITION,Nationality=PT,Latitude=-45.899387,Longitude=34.56787,
+     *           "Depth=346,Speed=8.3,Heading=45.6\r\n
+     * @param sentence
+     * @return
+     */
+    private static boolean parseDistressPosition(String sentence) {
+        final int MIN_ELMS = 7;
+        final int MIN_BASE_ELMS = 6;
+        String[] tk = sentence.split(",");
+        if (tk.length < MIN_ELMS || !"DISTRESS_POSITION".equalsIgnoreCase(tk[0].trim()))
+            return false;
+        
+        String[] msg = Arrays.copyOfRange(tk, 1, MIN_ELMS);
+        
+        int countBaseElm = 0;
+        DistressPosition dp = new DistressPosition();
+
+        try {
+            for (String st : msg) {
+                tk = st.split("=");
+                String v;
+                switch (tk[0].trim().toLowerCase()) {
+                    case "nationality":
+                        dp.nation = tk[1].trim();
+                        countBaseElm++;
+                        break;
+                    case "latitude":
+                        dp.latDegs = Double.parseDouble(tk[1].trim());
+                        countBaseElm++;
+                        break;
+                    case "longitude":
+                        dp.lonDegs = Double.parseDouble(tk[1].trim());
+                        countBaseElm++;
+                        break;
+                    case "depth":
+                        v = tk[1].trim();
+                        if (!v.toLowerCase().startsWith("n.a"))
+                            dp.depth = Double.parseDouble(v);
+                        countBaseElm++;
+                        break;
+                    case "speed":
+                        v = tk[1].trim();
+                        if (!v.toLowerCase().startsWith("n.a"))
+                            dp.speedKnots = Double.parseDouble(v);
+                        countBaseElm++;
+                        break;
+                    case "heading":
+                        v = tk[1].trim();
+                        if (!v.toLowerCase().startsWith("n.a"))
+                            dp.headingDegs = AngleUtils.nomalizeAngleDegrees360(Double.parseDouble(v));
+                        if (dp.headingDegs > 360)
+                            dp.headingDegs = 0;
+                        countBaseElm++;
+                        break;
+                    default:
+                        NeptusLog.pub().warn("Token not known (" + st + ")!");
+                        break;
+                }
+            }
+            if (countBaseElm < MIN_BASE_ELMS)
+                return false;
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
+        
+        long timeMillis = System.currentTimeMillis();
+        dp.timestamp = timeMillis;
+        
+        distressPosition = dp;
+
+        return true;
+    }
+
+    /**
+     * "DISTRESS_STATUS,Nationality=PT,O2=17.8,CO2=5,CO=180,H2=3.5,
+     *           "Pressure=42.6,Temperature=50,Survivors=43\r\n"
+     * @param sentence
+     * @return
+     */
+    private static boolean parseDistressStatus(String sentence) {
+        final int MIN_ELMS = 9;
+        final int MIN_BASE_ELMS = 8;
+        String[] tk = sentence.split(",");
+        if (tk.length < MIN_ELMS || !"DISTRESS_STATUS".equalsIgnoreCase(tk[0].trim()))
+            return false;
+        
+        String[] msg = Arrays.copyOfRange(tk, 1, MIN_ELMS);
+        
+        int countBaseElm = 0;
+        DistressStatus dp = new DistressStatus();
+
+        try {
+            for (String st : msg) {
+                tk = st.split("=");
+                String v;
+                switch (tk[0].trim().toLowerCase()) {
+                    case "nationality":
+                        dp.nation = tk[1].trim();
+                        countBaseElm++;
+                        break;
+                    case "o2":
+                        v = tk[1].trim();
+                        if (!v.toLowerCase().startsWith("n.a"))
+                            dp.o2Percentage = Double.parseDouble(v);
+                        countBaseElm++;
+                        break;
+                    case "co2":
+                        v = tk[1].trim();
+                        if (!v.toLowerCase().startsWith("n.a"))
+                            dp.co2Percentage = Double.parseDouble(v);
+                        countBaseElm++;
+                        break;
+                    case "co":
+                        v = tk[1].trim();
+                        if (!v.toLowerCase().startsWith("n.a"))
+                            dp.co2Percentage = Double.parseDouble(v);
+                        countBaseElm++;
+                        break;
+                    case "h2":
+                        v = tk[1].trim();
+                        if (!v.toLowerCase().startsWith("n.a"))
+                            dp.h2Percentage = Double.parseDouble(v);
+                        countBaseElm++;
+                        break;
+                    case "pressure":
+                        v = tk[1].trim();
+                        if (!v.toLowerCase().startsWith("n.a"))
+                            dp.presureAtm = Double.parseDouble(v);
+                        countBaseElm++;
+                        break;
+                    case "temperature":
+                        v = tk[1].trim();
+                        if (!v.toLowerCase().startsWith("n.a"))
+                            dp.temperatureDegCentigrade = Double.parseDouble(v);
+                        countBaseElm++;
+                        break;
+                    case "survivors":
+                        v = tk[1].trim();
+                        if (!v.toLowerCase().startsWith("n.a"))
+                            dp.survivors = (int) Double.parseDouble(v);
+                        countBaseElm++;
+                        break;
+                    default:
+                        NeptusLog.pub().warn("Token not known (" + st + ")!");
+                        break;
+                }
+            }
+            if (countBaseElm < MIN_BASE_ELMS)
+                return false;
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
+        
+        long timeMillis = System.currentTimeMillis();
+        dp.timestamp = timeMillis;
+        
+        distressStatus = dp;
+
+        return true;
+    }
+
     public static void main(String[] args) {
         AisContactDb contactDb = new AisContactDb();
         
@@ -418,5 +613,20 @@ public class CmreAisCsvParser {
         parseDistressCall(sentenceDistressCall, contactDb);
         
         System.out.println(Arrays.toString(ExternalSystemsHolder.lookupAllActiveSystems()));
+
+        String sentenceDistressPos = "DISTRESS_POSITION,Nationality=PT,Latitude=-45.899387,Longitude=34.56787,"
+                + "Depth=346,Speed=8.3,Heading=45.6\r\n";
+
+        parseDistressPosition(sentenceDistressPos);
+        
+        System.out.println(Arrays.toString(ExternalSystemsHolder.lookupAllActiveSystems()));
+
+        String sentenceDistressStatus = "DISTRESS_STATUS,Nationality=PT,O2=17.8,CO2=5,CO=180,H2=3.5,"
+                + "Pressure=42.6,Temperature=50,Survivors=43\r\n";
+
+        parseDistressStatus(sentenceDistressStatus);
+        
+        System.out.println(Arrays.toString(ExternalSystemsHolder.lookupAllActiveSystems()));
+
     }
 }
