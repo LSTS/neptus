@@ -29,6 +29,7 @@ import pt.lsts.neptus.util.NameNormalizer;
 public class PlanGenerator {
     private static final ReadWriteLock RW_LOCK = new ReentrantReadWriteLock();
     private static GridArea operationalArea;
+    private Thread opAreaThread; // Thread used to create the operational area
 
     private PlanAllocator planAloc;
     private ConsoleAdapter console;
@@ -46,6 +47,12 @@ public class PlanGenerator {
     public void setOperationalArea(GridArea opArea) {
         RW_LOCK.writeLock().lock();
         operationalArea = opArea;
+        RW_LOCK.writeLock().unlock();
+    }
+
+    public void updateOperationalArea() {
+        RW_LOCK.writeLock().lock();
+        operationalArea.updateCellsObstacles();
         RW_LOCK.writeLock().unlock();
     }
 

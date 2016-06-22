@@ -312,6 +312,18 @@ public class GridArea extends GeometryElement implements MapDecomposition {
         return path;
     }
 
+    /**
+     * "Force" cells to re-check if they have obstacles or not
+     * */
+    public void updateCellsObstacles() {
+        for(int i = 0; i < nrows; i++) {
+            for(int j = 0; j < ncols; j++) {
+                boolean hasObstacle = env.areaHasObstacle(this.topLeft, decomposedMap[i][j].getLocation(), cellWidth, cellHeight, getYaw());
+                decomposedMap[i][j].setHasObstacle(hasObstacle);
+            }
+        }
+    }
+
     @Override
     public void paint(Graphics2D g, StateRenderer2D renderer, double rotation) {
         g.transform(new AffineTransform());
