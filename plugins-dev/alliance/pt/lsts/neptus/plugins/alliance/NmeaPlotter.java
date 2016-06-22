@@ -39,7 +39,10 @@ import java.awt.geom.Ellipse2D;
 import java.awt.geom.GeneralPath;
 import java.awt.geom.Point2D;
 import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
 import java.io.InputStreamReader;
+import java.io.OutputStream;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetSocketAddress;
@@ -557,5 +560,36 @@ public class NmeaPlotter extends ConsoleLayer {
                     }
                 });
         parser.register(contactDb);
+    }
+    
+    public static void main(String[] args) throws Exception {
+        @SuppressWarnings("resource")
+        ServerSocket tcp = new ServerSocket(13000);
+        BufferedReader br = null;
+        while (true) {
+            try {
+                Socket con = tcp.accept();
+                FileReader fr = new FileReader(new File("CMRE-AIS_example.txt"));
+                br = new BufferedReader(fr);
+                while (con.isConnected()) {
+                    OutputStream os = con.getOutputStream();
+                    String line = br.readLine();
+                    if (line == null)
+                        break;
+                    System.out.println(line);
+                    os.write(line.getBytes("UTF-8"));
+                    os.write("\n\r".getBytes());
+                    Thread.sleep(5000);
+                }
+                System.out.println("END");
+            }
+            catch (Exception e) {
+                e.printStackTrace();
+            }
+            finally {
+                if (br != null)
+                    br.close();
+            }
+        }
     }
 }
