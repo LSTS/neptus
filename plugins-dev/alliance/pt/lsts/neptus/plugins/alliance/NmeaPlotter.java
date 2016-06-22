@@ -43,7 +43,10 @@ import java.io.InputStreamReader;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetSocketAddress;
+import java.net.ServerSocket;
 import java.net.Socket;
+import java.net.SocketException;
+import java.net.SocketTimeoutException;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
@@ -133,7 +136,6 @@ public class NmeaPlotter extends ConsoleLayer {
 
     private JMenuItem connectItem = null;
     private boolean connected = false;
-    private boolean serialConnected = false;
 
     GeneralPath ship = new GeneralPath();
     {
@@ -146,6 +148,13 @@ public class NmeaPlotter extends ConsoleLayer {
     }
 
     private SerialPort serialPort = null;
+    private DatagramSocket udpSocket = null;
+    private Socket tcpSocket = null;
+    
+    private boolean isSerialConnected = false;
+    private boolean isUdpConnected = false;
+    private boolean isTcpConnected = false;
+
     private HashSet<NmeaListener> listeners = new HashSet<>();
     private AisContactDb contactDb = new AisContactDb();
     private AISParser parser = new AISParser();
@@ -174,12 +183,14 @@ public class NmeaPlotter extends ConsoleLayer {
 
     private void connectToSerial() throws Exception {
         serialPort = new SerialPort(uartDevice);
+        isSerialConnected = true;
 
         boolean opened = serialPort.openPort();
-        if (!opened)
+        if (!opened) {
+            isSerialConnected = false;
+            serialPort = null;
             throw new Exception("Unable to open port " + uartDevice);
-
-        serialConnected = true;
+        }
 
         serialPort.setParams(uartBaudRate, dataBits, stopBits, parity);
         serialPort.addEventListener(new SerialPortEventListener() {
@@ -234,6 +245,8 @@ public class NmeaPlotter extends ConsoleLayer {
                 }
             }
         });
+        NeptusLog.pub().info("Listening to NMEA messages over serial \"" + serialPort + "\".");
+        getConsole().post(Notification.success("NMEA Plotter", "Connected via serial to \"" + uartDevice + "\"."));
     }
 
     private boolean hasNMEASentencePrefix(String sentence) {
@@ -276,105 +289,159 @@ public class NmeaPlotter extends ConsoleLayer {
     }
 
     private void connect() throws Exception {
-        if (serialListen)
+        connected = true;
+        if (serialListen) {
             connectToSerial();
-        if (udpListen) {
-            final DatagramSocket socket = new DatagramSocket(udpPort);
-            Thread listener = new Thread("NmeaListener") {
-
-                public void run() {
-                    connected = true;
-                    NeptusLog.pub().info("Listening to NMEA messages over UDP.");
-                    while (connected) {
-                        try {
-                            DatagramPacket dp = new DatagramPacket(new byte[65507], 65507);
-                            socket.receive(dp);
-                            String sentence = new String(dp.getData());
-                            sentence = sentence.substring(0, sentence.indexOf(0));
-                            try {
-                                parseSentence(sentence);
-                            }
-                            catch (Exception e) {
-                                e.printStackTrace();
-                            }
-                            if (retransmitToNeptus)
-                                retransmit(sentence);
-                            if (logReceivedData)
-                                LsfMessageLogger.log(new DevDataText(sentence));
-                        }
-                        catch (Exception e) {
-                            e.printStackTrace();
-                            break;
-                        }
-                    }
-                    NeptusLog.pub().info("UDP Socket closed.");
-                    socket.close();
-                };
-            };
-            listener.setDaemon(true);
-            listener.start();
         }
-
+        if (udpListen) {
+            connectToUDP();
+        }
         if (tcpConnect) {
-            final Socket socket = new Socket();
-            Thread listener = new Thread("TCP Nmea Listener") {
-                public void run() {
-                    connected = false;
-                    BufferedReader reader = null;
+            connectToTCP();
+        }
+        connected = isSerialConnected || isUdpConnected || isTcpConnected;
+    }
+
+    private void connectToTCP() {
+        final Socket socket = new Socket();
+        this.tcpSocket = socket;
+        Thread listener = new Thread("NMEA TCP Listener") {
+            public void run() {
+//                    connected = false;
+//                isTcpConnected = false;
+                BufferedReader reader = null;
+                try {
+                    socket.connect(new InetSocketAddress(tcpHost, tcpPort));
+                    reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+//                    connected = true;
+                    isTcpConnected = true;
+                }
+                catch (Exception e) {
+                    NeptusLog.pub().error(e);
+                    getConsole().post(Notification.error("NMEA Plotter",
+                            "Error connecting via TCP to " + tcpHost + ":" + tcpPort));
+                    return;
+                }
+                NeptusLog.pub().info("Listening to NMEA messages over TCP.");
+                getConsole().post(
+                        Notification.success("NMEA Plotter", "Connected via TCP to " + tcpHost + ":" + tcpPort));
+                while (connected && isTcpConnected) {
                     try {
-                        socket.connect(new InetSocketAddress(tcpHost, tcpPort));
-                        reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-                        connected = true;
-                    }
-                    catch (Exception e) {
-                        NeptusLog.pub().error(e);
-                        getConsole().post(Notification.error("NMEA Plotter",
-                                "Error connecting via TCP to " + tcpHost + ":" + tcpPort));
-                        return;
-                    }
-                    NeptusLog.pub().info("Listening to NMEA messages over TCP.");
-                    getConsole().post(
-                            Notification.success("NMEA Plotter", "Connected via TCP to " + tcpHost + ":" + tcpPort));
-                    while (connected) {
+                        String sentence = reader.readLine();
                         try {
-                            String sentence = reader.readLine();
-                            try {
-                                parseSentence(sentence);
-                            }
-                            catch (Exception e) {
-                                e.printStackTrace();
-                            }
-                            if (retransmitToNeptus)
-                                retransmit(sentence);
-                            if (logReceivedData)
-                                LsfMessageLogger.log(new DevDataText(sentence));
+                            parseSentence(sentence);
                         }
                         catch (Exception e) {
                             e.printStackTrace();
-                            break;
                         }
-                    }
-                    NeptusLog.pub().info("TCP Socket closed.");
-                    try {
-                        socket.close();
+                        if (retransmitToNeptus)
+                            retransmit(sentence);
+                        if (logReceivedData)
+                            LsfMessageLogger.log(new DevDataText(sentence));
                     }
                     catch (Exception e) {
                         e.printStackTrace();
+                        break;
                     }
-                };
+                }
+                NeptusLog.pub().info("TCP Socket closed.");
+                getConsole().post(Notification.info("NMEA Plotter", "Disconnected via TCP."));
+                try {
+                    socket.close();
+                }
+                catch (Exception e) {
+                    e.printStackTrace();
+                }
+                finally {
+                    isTcpConnected = false;
+                }
             };
-            listener.setDaemon(true);
-            listener.start();
-        }
+        };
+        listener.setDaemon(true);
+        isTcpConnected = true;
+        listener.start();
+    }
+
+    private void connectToUDP() throws SocketException {
+        final DatagramSocket socket = new DatagramSocket(udpPort);
+        Thread udpListenerThread = new Thread("NMEA UDP Listener") {
+            public void run() {
+//                    connected = true;
+                isUdpConnected = true;
+                try {
+                    socket.setSoTimeout(1000);
+                }
+                catch (SocketException e1) {
+                    e1.printStackTrace();
+                }
+                NeptusLog.pub().info("Listening to NMEA messages over UDP.");
+                getConsole().post(Notification.success("NMEA Plotter", "Listening via UDP to port " + udpPort + "."));
+                while (connected && isUdpConnected) {
+                    try {
+                        DatagramPacket dp = new DatagramPacket(new byte[65507], 65507);
+                        socket.receive(dp);
+                        String sentence = new String(dp.getData());
+                        sentence = sentence.substring(0, sentence.indexOf(0));
+                        try {
+                            parseSentence(sentence);
+                        }
+                        catch (Exception e) {
+                            e.printStackTrace();
+                        }
+                        if (retransmitToNeptus)
+                            retransmit(sentence);
+                        if (logReceivedData)
+                            LsfMessageLogger.log(new DevDataText(sentence));
+                    }
+                    catch (SocketTimeoutException e) {
+                        continue;
+                    }
+                    catch (Exception e) {
+                        e.printStackTrace();
+                        break;
+                    }
+                }
+                NeptusLog.pub().info("UDP Socket closed.");
+                getConsole().post(Notification.info("NMEA Plotter", "Stop listening via UDP."));
+                socket.close();
+                isUdpConnected = false;
+            };
+        };
+        udpListenerThread.setDaemon(true);
+        udpListenerThread.start();
     }
 
     public void disconnect() throws Exception {
-        if (serialConnected && serialPort != null) {
-            boolean res = serialPort.closePort();
-            if (res)
-                serialConnected = false;
-        }
         connected = false;
+        if (isSerialConnected && serialPort != null) {
+            boolean res;
+            try {
+                res = serialPort.closePort();
+            }
+            catch (Exception e) {
+                e.printStackTrace();
+                res = true;
+            }
+            if (res)
+                isSerialConnected = false;
+        }
+        if (udpSocket != null) {
+            udpSocket.close();
+//            udpListenerThread.interrupt();
+            isUdpConnected = false;
+            udpSocket = null;
+        }
+        if (udpSocket == null)
+            isUdpConnected = false;
+        if (tcpSocket != null) {
+            tcpSocket.close();
+            isTcpConnected = false;
+            tcpSocket = null;
+        }
+        if (tcpSocket == null)
+            isTcpConnected = false;
+
+        connected = isSerialConnected || isUdpConnected || isTcpConnected;
     }
 
     public void addListener(NmeaListener listener) {
@@ -388,13 +455,11 @@ public class NmeaPlotter extends ConsoleLayer {
     @Override
     public void cleanLayer() {
         connected = false;
-        if (serialPort != null) {
-            try {
-                serialPort.closePort();
-            }
-            catch (Exception e) {
-                NeptusLog.pub().error(e);
-            }
+        try {
+            disconnect();
+        }
+        catch (Exception e) {
+            e.printStackTrace();
         }
 
         getConsole().removeMenuItem(I18n.text("Tools") + ">" + I18n.text("NMEA Plotter") + ">" + I18n.text("Connect"));
@@ -469,20 +534,18 @@ public class NmeaPlotter extends ConsoleLayer {
                     @Override
                     public void actionPerformed(ActionEvent e) {
                         try {
-                            if (!connected) {
+                            if (!connected)
                                 connect();
-                                connected = true;
-                                connectItem.setText(I18n.text("Disconnect"));
-                            }
-                            else {
+                            else
                                 disconnect();
-                                connected = false;
-                                connectItem.setText(I18n.text("Connect"));
-                            }
                         }
                         catch (Exception ex) {
                             GuiUtils.errorMessage(getConsole(), ex);
                         }
+                        if (connected)
+                            connectItem.setText(I18n.text("Disconnect"));
+                        else
+                            connectItem.setText(I18n.text("Connect"));
                     }
                 });
 
