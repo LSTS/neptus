@@ -137,7 +137,7 @@ public class VehicleAwareness {
         VEHICLE_STATE state = vehiclesState.get(vehicle);
         RW_LOCK.readLock().unlock();
 
-        return state != null && (state == VEHICLE_STATE.AVAILABLE && hasReliableComms(vehicle));
+        return state != null && state == VEHICLE_STATE.AVAILABLE;
     }
 
     /**
