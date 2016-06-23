@@ -29,7 +29,7 @@
  * Author: José Pinto
  * 2009/06/10
  */
-package pt.lsts.neptus.plugins.position;
+package pt.lsts.neptus.gui;
 
 import java.awt.Color;
 import java.awt.Component;
@@ -141,7 +141,7 @@ public class OrientationIcon implements Icon {
 	
 	public static void main(String[] args) {
 		final OrientationIcon ico = new OrientationIcon(22, 2);
-		final DisplayPanel lbl = new DisplayPanel("lauv-seacon-1");
+		final JLabel lbl = new JLabel("lauv-seacon-1");
 		lbl.setText("845 m ");
 		lbl.setIcon(ico);
 		lbl.setVerticalAlignment(JLabel.CENTER);
