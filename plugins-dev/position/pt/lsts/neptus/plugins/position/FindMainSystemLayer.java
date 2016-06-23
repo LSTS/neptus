@@ -40,6 +40,7 @@ import javax.swing.JLabel;
 import pt.lsts.neptus.comm.manager.imc.ImcSystem;
 import pt.lsts.neptus.comm.manager.imc.ImcSystemsHolder;
 import pt.lsts.neptus.console.ConsoleLayer;
+import pt.lsts.neptus.gui.OrientationIcon;
 import pt.lsts.neptus.mystate.MyState;
 import pt.lsts.neptus.plugins.PluginDescription;
 import pt.lsts.neptus.plugins.position.FindVehicle.BaseOrientations;
