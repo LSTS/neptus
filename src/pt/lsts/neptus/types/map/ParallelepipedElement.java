@@ -45,6 +45,7 @@ import javax.media.j3d.BranchGroup;
 import javax.media.j3d.Canvas3D;
 import javax.swing.JFrame;
 
+import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.renderer2d.StateRenderer2D;
 import pt.lsts.neptus.renderer3d.Util3D;
 import pt.lsts.neptus.types.coord.LocationType;
@@ -115,30 +116,30 @@ public class ParallelepipedElement extends GeometryElement {
         double width = getWidth();
         double length = getLength();
         double yaw = getYawRad();
-        
+
         Rectangle2D.Double tmp = new Rectangle2D.Double(-width / 2, -length / 2, width, length);
-        
+
         AffineTransform rot = new AffineTransform();
         rot.rotate(yaw);
-        
+
         PathIterator it = tmp.getPathIterator(rot);
 
         while(!it.isDone()) {
 
-            double[] offsets = new double[6];
+            double[] xy = new double[6];
 
-            int op = it.currentSegment(offsets);
+            int op = it.currentSegment(xy);
             if (op == PathIterator.SEG_MOVETO || op == PathIterator.SEG_LINETO) {
                 LocationType loc = new LocationType(center);
-                loc.translatePosition(offsets[0], offsets[1], 0);
-                locs.add(loc); 
+                loc.translatePosition(xy[1], xy[0], 0);
+                locs.add(loc);
             }
             it.next();
         }
-        
+
         return locs;
     }
-    
+
     public static void main(String args[]) {
         JFrame frame = new JFrame("Box and Sphere");
         
