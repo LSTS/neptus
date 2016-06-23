@@ -31,6 +31,7 @@
  */
 package pt.lsts.neptus.plugins.alliance;
 
+import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.event.ActionEvent;
@@ -54,6 +55,8 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 
+import javax.swing.BorderFactory;
+import javax.swing.JLabel;
 import javax.swing.JMenuItem;
 
 import com.google.common.eventbus.Subscribe;
@@ -77,12 +80,18 @@ import pt.lsts.neptus.plugins.NeptusProperty.LEVEL;
 import pt.lsts.neptus.plugins.PluginDescription;
 import pt.lsts.neptus.plugins.PluginUtils;
 import pt.lsts.neptus.plugins.alliance.ais.CmreAisCsvParser;
+import pt.lsts.neptus.plugins.alliance.ais.CmreAisCsvParser.DistressPosition;
+import pt.lsts.neptus.plugins.alliance.ais.CmreAisCsvParser.DistressStatus;
+import pt.lsts.neptus.plugins.position.OrientationIcon;
 import pt.lsts.neptus.plugins.update.Periodic;
 import pt.lsts.neptus.renderer2d.StateRenderer2D;
+import pt.lsts.neptus.types.coord.CoordinateUtil;
 import pt.lsts.neptus.types.coord.LocationType;
 import pt.lsts.neptus.types.map.ScatterPointsElement;
 import pt.lsts.neptus.types.vehicle.VehicleType.SystemTypeEnum;
+import pt.lsts.neptus.util.DateTimeUtil;
 import pt.lsts.neptus.util.GuiUtils;
+import pt.lsts.neptus.util.MathMiscUtils;
 import pt.lsts.neptus.util.NMEAUtils;
 
 /**
@@ -91,6 +100,13 @@ import pt.lsts.neptus.util.NMEAUtils;
  */
 @PluginDescription(name = "NMEA Plotter", icon = "pt/lsts/neptus/plugins/alliance/nmea-ais.png")
 public class NmeaPlotter extends ConsoleLayer {
+
+    private static final int RECT_WIDTH = 228;
+    private static final int RECT_HEIGHT = 85;
+    private static final int MARGIN = 5;
+    
+    private static final Color COLOR_GREEN_DARK_100 = new Color(155, 255, 155, 250);
+    private static final Color COLOR_RED_DARK_100 = new Color(255, 155, 155, 250);
 
     @NeptusProperty(name = "Connect to the serial port")
     public boolean serialListen = false;
@@ -137,6 +153,11 @@ public class NmeaPlotter extends ConsoleLayer {
     @NeptusProperty(name = "Number of track points", userLevel = LEVEL.ADVANCED)
     public int trackPoints = 100;
 
+    @NeptusProperty(name = "Minutes to Show Distress Signal", category = "Distress Test", userLevel = LEVEL.ADVANCED)
+    private int minutesToShowDistress = 5; 
+
+    private JLabel distressLabelToPaint = new JLabel();
+
     private JMenuItem connectItem = null;
     private boolean connected = false;
 
@@ -149,6 +170,11 @@ public class NmeaPlotter extends ConsoleLayer {
         ship.lineTo(-1.0, 0.6);
         ship.lineTo(0, 1.0);
     }
+
+    private final OrientationIcon icon = new OrientationIcon(40, 2) {{ 
+        setBackgroundColor(COLOR_RED_DARK_100);
+        setForegroundColor(COLOR_GREEN_DARK_100);
+    }};
 
     private SerialPort serialPort = null;
     private DatagramSocket udpSocket = null;
@@ -548,6 +574,218 @@ public class NmeaPlotter extends ConsoleLayer {
             g1.fill(new Ellipse2D.Double((int) pt.getX() - 3, (int) pt.getY() - 3, 6, 6));
         }
         g1.dispose();
+        
+        paintDistress(g, renderer);
+    }
+
+    /**
+     * @param g
+     * @param renderer
+     */
+    private void paintDistress(Graphics2D g, StateRenderer2D renderer) {
+        
+        String txt = collectDistressTextToPaint();
+        
+        if (txt == null || txt.isEmpty())
+            return;
+        
+        distressLabelToPaint.setText(txt);
+        distressLabelToPaint.setForeground(Color.BLACK);
+        distressLabelToPaint.setVerticalAlignment(JLabel.NORTH);
+        distressLabelToPaint.setHorizontalTextPosition(JLabel.CENTER);
+        distressLabelToPaint.setHorizontalAlignment(JLabel.LEFT);
+        distressLabelToPaint.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
+        
+        Graphics2D g2 = (Graphics2D) g.create();
+        g2.setTransform(renderer.getIdentity());
+        
+        int width = RECT_WIDTH;
+        int height = RECT_HEIGHT;
+        height = (int) Math.max(height, distressLabelToPaint.getPreferredSize().getHeight());
+        
+        // Pull up for lat/lon label
+        g2.translate(0, renderer.getHeight() - (height + MARGIN));
+        g2.translate(0, -200);
+
+        g2.setColor(new Color(0, 0, 0, 200));
+
+        g2.drawRoundRect(MARGIN, MARGIN, width, height, 20, 20);
+
+        g2.setColor(new Color(255, 155, 155, 230));
+
+        g2.fillRoundRect(MARGIN, MARGIN, width, height, 20, 20);
+
+        g2.translate(2.5, 2.5);
+        distressLabelToPaint.setBounds(0, 0, width, height);
+        distressLabelToPaint.paint(g2);
+        
+        LocationType loc = collectDistressLocation();
+        if (loc != null) {
+            Graphics2D g3 = (Graphics2D) g.create();
+            Point2D pt = renderer.getScreenPosition(loc);
+            g3.translate(pt.getX(), pt.getY());
+            g3.setStroke(new BasicStroke(3));
+            g3.setColor(new Color(255, 155, 155, 255));
+            int s = 20;
+            g3.fillOval(-s / 2, -s / 2, s, s);
+            s = 40;
+            g3.drawOval(-s / 2, -s / 2, s, s);
+            s = 60;
+            g3.drawOval(-s / 2, -s / 2, s, s);
+            s = 80;
+            g3.drawOval(-s / 2, -s / 2, s, s);
+            g3.dispose();
+            
+            if (pt.getX() < 0 || pt.getY() < 0 || pt.getX() > renderer.getWidth() || pt.getY() > renderer.getHeight()) {
+                double[] neb = CoordinateUtil.getNEBearingDegreesAndRange(renderer.getCenter(), loc);
+                g2.translate(0, -40);
+                icon.setBackgroundColor(new Color(255, 155, 155, 250));
+                icon.setForegroundColor(new Color(155, 255, 155, 250));
+                icon.setAngleRadians(Math.toRadians(neb[0]) - renderer.getRotation());
+                icon.paintIcon(null, g2, 0, 0);
+            }
+        }
+
+        g2.dispose();
+    }
+
+    /**
+     * @return
+     */
+    private LocationType collectDistressLocation() {
+        DistressPosition dPos = CmreAisCsvParser.distressPosition;
+        if (dPos != null) {
+            LocationType loc = new LocationType(dPos.latDegs, dPos.lonDegs);
+            return loc;
+        }
+        return null;
+    }
+
+    /**
+     * @return
+     */
+    private String collectDistressTextToPaint() {
+        String ret = "";
+        
+        DistressPosition dPos = CmreAisCsvParser.distressPosition;
+        DistressStatus dSta = CmreAisCsvParser.distressStatus;
+        
+        if (dPos == null && dSta == null)
+            return "";
+        
+        long cur = System.currentTimeMillis();
+        long lastMsg = 0;
+        if (dPos != null)
+            lastMsg = Math.max(lastMsg, dPos.timestamp);
+        if (dSta != null)
+            lastMsg = Math.max(lastMsg, dSta.timestamp);
+        if (cur - lastMsg > minutesToShowDistress * DateTimeUtil.MINUTE)
+            return "";
+        
+        StringBuilder sb = new StringBuilder("<html>");
+
+        String nation = dPos != null ? dPos.nation : dSta.nation;
+        sb.append("<font color=\"").append(String.format("#%02X%02X%02X", 228, 37, 58)).append("\">");
+        sb.append("<b>").append("&gt;&gt;&gt; DISTRESS &lt;&lt;&lt;").append("</b>");
+        sb.append("</font>");
+        sb.append("&nbsp");
+        if (lastMsg > 0) {
+            sb.append("&nbsp;&nbsp;&nbsp;&nbsp;\u2206t ");
+            sb.append(DateTimeUtil.milliSecondsToFormatedString(cur - lastMsg, true));
+        }
+
+        sb.append("<br/>");
+        sb.append("<font color=\"").append(String.format("#%02X%02X%02X", 28, 37, 58)).append("\">");
+        sb.append("<b>").append(nation.toUpperCase()).append("</b>");
+        sb.append("</font>");
+
+        if (dPos != null) {
+            long lastPos = dPos.timestamp;
+            String oldTxtSTag = "";
+            String oldTxtETag = "";
+            if (cur - lastPos > minutesToShowDistress * DateTimeUtil.MINUTE) {
+                oldTxtSTag = "<font color=\"" + String.format("#%02X%02X%02X", 128, 128, 128) + "\">";
+                oldTxtETag = "</font>"; 
+            }
+                
+//            sb.append("<font size=\"2\">");
+
+            sb.append("<br/>").append("<b>").append(I18n.textc("Pos", "Short for position!")).append(": ").append("</b>");
+            sb.append(oldTxtSTag);
+            sb.append(CoordinateUtil.latitudeAsPrettyString(dPos.latDegs, false))
+                .append(" ").append(CoordinateUtil.longitudeAsPrettyString(dPos.lonDegs, false));
+            sb.append(oldTxtETag);
+            
+            sb.append("<br/>").append("<b>").append(I18n.text("Speed")).append("/").append(I18n.text("Heading"))
+                .append(": ").append("</b>");
+            sb.append(oldTxtSTag);
+            sb.append(MathMiscUtils.round(dPos.speedKnots, 1)).append(" knt");
+            sb.append(oldTxtETag);
+            sb.append("<b> | </b>");
+            sb.append(oldTxtSTag);
+            sb.append((int) MathMiscUtils.round(dPos.headingDegs, 0)).append("\u00B0");
+            sb.append(oldTxtETag);
+
+            sb.append("<br/>").append("<b>").append(I18n.text("Depth")).append(": ").append("</b>");
+            sb.append(oldTxtSTag);
+            sb.append((int) MathMiscUtils.round(dPos.depth, 0)).append(" m");
+            sb.append(oldTxtETag);
+
+//            sb.append("</font>");
+        }
+        if (dSta != null) {
+            long lastSta = dSta.timestamp;
+            String oldTxtSTag = "";
+            String oldTxtETag = "";
+            if (cur - lastSta > minutesToShowDistress * DateTimeUtil.MINUTE) {
+                oldTxtSTag = "<font color=\"" + String.format("#%02X%02X%02X", 128, 128, 128) + "\">";
+                oldTxtETag = "</font>"; 
+            }
+
+//            sb.append("<font size=\"2\">");
+
+            sb.append("<br/>");
+            sb.append("<b>").append("O2").append(": ").append("</b>");
+            sb.append(oldTxtSTag);
+            sb.append(MathMiscUtils.round(dSta.o2Percentage, 1)).append("%");
+            sb.append(oldTxtETag);
+            sb.append("<b> | </b>");
+            sb.append("<b>").append("CO2").append(": ").append("</b>");
+            sb.append(oldTxtSTag);
+            sb.append(MathMiscUtils.round(dSta.co2Percentage, 1)).append("%");
+            sb.append(oldTxtETag);
+            sb.append("<br/>");
+            sb.append("<b>").append("CO").append(": ").append("</b>");
+            sb.append(oldTxtSTag);
+            sb.append(MathMiscUtils.round(dSta.coPpm, 1)).append("ppm");
+            sb.append(oldTxtETag);
+            sb.append("<b> | </b>");
+            sb.append("<b>").append("H2").append(": ").append("</b>");
+            sb.append(oldTxtSTag);
+            sb.append(MathMiscUtils.round(dSta.h2Percentage, 1)).append("%");
+            sb.append(oldTxtETag);
+            sb.append("<br/>");
+            sb.append("<b>").append(I18n.text("Pressure")).append(": ").append("</b>");
+            sb.append(oldTxtSTag);
+            sb.append(MathMiscUtils.round(dSta.presureAtm, 1)).append("atm");
+            sb.append(oldTxtETag);
+            sb.append("<br/>");
+            sb.append("<b>").append(I18n.text("Temperature")).append(": ").append("</b>");
+            sb.append(oldTxtSTag);
+            sb.append(MathMiscUtils.round(dSta.temperatureDegCentigrade, 1)).append("\u00B0C");
+            sb.append(oldTxtETag);
+            sb.append("<br/>");
+            sb.append("<b>").append(I18n.text("Survivors")).append(": ").append("</b>");
+            sb.append(oldTxtSTag);
+            sb.append(MathMiscUtils.round(dSta.survivors, 1)).append(" pax");
+            sb.append(oldTxtETag);
+
+//            sb.append("</font>");
+        }
+
+        sb.append("</html>");
+        ret = sb.toString();
+        return ret;
     }
 
     @Override
