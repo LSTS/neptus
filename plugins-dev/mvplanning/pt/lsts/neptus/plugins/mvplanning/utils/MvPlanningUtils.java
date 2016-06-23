@@ -40,6 +40,10 @@ import pt.lsts.neptus.plugins.mvplanning.jaxb.profiles.Profile;
 import pt.lsts.neptus.plugins.mvplanning.planning.PlanTask;
 import pt.lsts.neptus.types.coord.LocationType;
 
+import java.awt.geom.AffineTransform;
+import java.awt.geom.Area;
+import java.awt.geom.Rectangle2D;
+
 /**
  * @author tsmarques
  *
@@ -86,5 +90,22 @@ public class MvPlanningUtils {
      * */
     private static void setupPayloads(Profile planProfile, Maneuver man) {
 
+    }
+
+    /**
+     * Builds an Area object with the given characteristics
+     * */
+    public static Area buildArea(LocationType origin, LocationType center, double width, double height, double yaw) {
+        double[] offsets = center.getOffsetFrom(origin);
+        Rectangle2D.Double areaRec = new Rectangle2D.Double(-width/2, -height/2, width, height);
+
+        AffineTransform transform = new AffineTransform();
+        transform.translate(offsets[0], offsets[1]);
+        transform.rotate(yaw);
+
+        Area area = new Area(areaRec);
+        area.transform(transform);
+
+        return area;
     }
 }

@@ -42,6 +42,7 @@ import pt.lsts.neptus.plugins.mvplanning.PlanAllocator;
 import pt.lsts.neptus.plugins.mvplanning.PlanGenerator;
 import pt.lsts.neptus.plugins.mvplanning.interfaces.AbstractSupervisor;
 import pt.lsts.neptus.plugins.mvplanning.interfaces.ConsoleAdapter;
+import pt.lsts.neptus.plugins.mvplanning.utils.MvPlanningUtils;
 import pt.lsts.neptus.types.coord.LocationType;
 import pt.lsts.neptus.types.map.AbstractElement;
 
@@ -73,17 +74,15 @@ public class Environment extends AbstractSupervisor {
      * Detect if a given area collides with any console obstacle
      * */
     public boolean areaHasObstacle(LocationType origin, LocationType center, double width, double height, double yaw) {
-        double[] offsets = center.getOffsetFrom(origin);
-        Rectangle2D.Double areaRec = new Rectangle2D.Double(-width/2, -height/2, width, height);
+        Area area = MvPlanningUtils.buildArea(origin, center, width, height, yaw);
+        return intersectsObstacle(area, console.getMapGroup().getObstaclesArea(origin));
+    }
 
-        AffineTransform transform = new AffineTransform();
-        transform.translate(offsets[0], offsets[1]);
-        transform.rotate(yaw);
-
-        Area area = new Area(areaRec);
-        area.transform(transform);
-
-        area.intersect(console.getMapGroup().getObstaclesArea(origin));
+    /**
+     * Returns if two areas intersect each other
+     * */
+    public boolean intersectsObstacle(Area area, Area obstacle) {
+        area.intersect(obstacle);
         return !area.isEmpty();
     }
 
@@ -96,7 +95,8 @@ public class Environment extends AbstractSupervisor {
         if(event == null || event.getChangedObject() == null)
             return;
 
-        if(event.getChangedObject().isObstacle())
+        if(event.getChangedObject().isObstacle()) {
             pGen.updateOperationalArea(); /* warn plan generator to update operational area */
+        }
     }
 }
