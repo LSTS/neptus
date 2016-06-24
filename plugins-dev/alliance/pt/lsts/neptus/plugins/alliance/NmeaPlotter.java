@@ -881,6 +881,13 @@ public class NmeaPlotter extends ConsoleLayer {
             fx = new File("CMRE-DISTRESS_example.txt");
         }
         
+        if (!fx.exists()) {
+            System.out.println("File \"" + fx.getPath() + "\" not found.");
+            return;
+        }
+        
+        System.out.println("Using source file \"" + fx.getPath() + "\".");
+        
         @SuppressWarnings("resource")
         ServerSocket tcp = new ServerSocket(13000);
         BufferedReader br = null;
