@@ -458,6 +458,7 @@ public class NmeaPlotter extends ConsoleLayer {
             };
         };
         udpListenerThread.setDaemon(true);
+        setUdpConnected(true);
         udpListenerThread.start();
     }
 
