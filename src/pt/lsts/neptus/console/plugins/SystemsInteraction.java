@@ -148,7 +148,7 @@ public class SystemsInteraction extends ConsoleInteraction {
 
         g2.drawRoundRect(MARGIN, MARGIN, width, height, 20, 20);
 
-        g2.setColor(new Color(255, 255, 255, 150));
+        g2.setColor(new Color(255, 255, 255, 230));
 
         g2.fillRoundRect(MARGIN, MARGIN, width, height, 20, 20);
 
