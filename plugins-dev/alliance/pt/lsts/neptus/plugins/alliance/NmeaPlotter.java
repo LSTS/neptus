@@ -108,37 +108,37 @@ public class NmeaPlotter extends ConsoleLayer {
     private static final Color COLOR_GREEN_DARK_100 = new Color(155, 255, 155, 250);
     private static final Color COLOR_RED_DARK_100 = new Color(255, 155, 155, 250);
 
-    @NeptusProperty(name = "Connect to the serial port")
+    @NeptusProperty(name = "Connect to the serial port", category = "Serial Port")
     public boolean serialListen = false;
 
-    @NeptusProperty(name = "Serial Port Device")
+    @NeptusProperty(name = "Serial Port Device", category = "Serial Port")
     public String uartDevice = "/dev/ttyUSB0";
 
-    @NeptusProperty(name = "Serial Port Baud Rate")
+    @NeptusProperty(name = "Serial Port Baud Rate", category = "Serial Port")
     public int uartBaudRate = 38400;
 
-    @NeptusProperty(name = "Serial Port Data Bits")
+    @NeptusProperty(name = "Serial Port Data Bits", category = "Serial Port")
     public int dataBits = 8;
 
-    @NeptusProperty(name = "Serial Port Stop Bits")
+    @NeptusProperty(name = "Serial Port Stop Bits", category = "Serial Port")
     public int stopBits = 1;
 
-    @NeptusProperty(name = "Serial Port Parity Bits")
+    @NeptusProperty(name = "Serial Port Parity Bits", category = "Serial Port")
     public int parity = 0;
 
-    @NeptusProperty(name = "UDP port to bind")
+    @NeptusProperty(name = "UDP port to bind", category = "UDP")
     public int udpPort = 7878;
 
-    @NeptusProperty(name = "Listen for incoming UDP packets")
+    @NeptusProperty(name = "Listen for incoming UDP packets", category = "UDP")
     public boolean udpListen = true;
 
-    @NeptusProperty(name = "Connect via TCP")
+    @NeptusProperty(name = "Connect via TCP", category = "TCP Client")
     public boolean tcpConnect = false;
 
-    @NeptusProperty(name = "TCP Host")
+    @NeptusProperty(name = "TCP Host", category = "TCP Client")
     public String tcpHost = "127.0.0.1";
 
-    @NeptusProperty(name = "TCP Port")
+    @NeptusProperty(name = "TCP Port", category = "TCP Client")
     public int tcpPort = 13000;
 
     @NeptusProperty(name = "Maximum age in for AIS contacts (seconds)")
