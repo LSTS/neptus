@@ -858,14 +858,36 @@ public class NmeaPlotter extends ConsoleLayer {
     }
     
     public static void main(String[] args) throws Exception {
+        File fx = null;
+        if (args.length > 0) {
+            if ("--help".equalsIgnoreCase(args[0]) 
+                    || "-h".equalsIgnoreCase(args[0])
+                    || "help".equalsIgnoreCase(args[0])
+                    || "h".equalsIgnoreCase(args[0])) {
+            
+                System.out.println("Usage: NmeaPlotter SOURCE_FILE");
+                System.out.println("Reads each line and provides to a single client.");
+                System.out.println("Use for test purposes of NmeaPlotter.");
+                return;
+            }
+            
+            fx = new File(args[0]);
+            if (!fx.exists())
+                fx = null;
+        }
+        
+        if (fx == null) {
+            // fx = new File("CMRE-AIS_example.txt");
+            fx = new File("CMRE-DISTRESS_example.txt");
+        }
+        
         @SuppressWarnings("resource")
         ServerSocket tcp = new ServerSocket(13000);
         BufferedReader br = null;
         while (true) {
             try {
                 Socket con = tcp.accept();
-//                FileReader fr = new FileReader(new File("CMRE-AIS_example.txt"));
-                FileReader fr = new FileReader(new File("CMRE-DISTRESS_example.txt"));
+                FileReader fr = new FileReader(fx);
                 br = new BufferedReader(fr);
                 while (con.isConnected()) {
                     OutputStream os = con.getOutputStream();
