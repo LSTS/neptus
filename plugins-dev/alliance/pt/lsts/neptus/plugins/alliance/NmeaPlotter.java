@@ -758,7 +758,7 @@ public class NmeaPlotter extends ConsoleLayer {
             sb.append("<br/>");
             sb.append("<b>").append("CO").append(": ").append("</b>");
             sb.append(oldTxtSTag);
-            sb.append(MathMiscUtils.round(dSta.coPpm, 1)).append("ppm");
+            sb.append(MathMiscUtils.round(dSta.coPpm, 1)).append(" ppm");
             sb.append(oldTxtETag);
             sb.append("<b> | </b>");
             sb.append("<b>").append("H2").append(": ").append("</b>");
@@ -768,7 +768,7 @@ public class NmeaPlotter extends ConsoleLayer {
             sb.append("<br/>");
             sb.append("<b>").append(I18n.text("Pressure")).append(": ").append("</b>");
             sb.append(oldTxtSTag);
-            sb.append(MathMiscUtils.round(dSta.presureAtm, 1)).append("atm");
+            sb.append(MathMiscUtils.round(dSta.presureAtm, 1)).append(" atm");
             sb.append(oldTxtETag);
             sb.append("<br/>");
             sb.append("<b>").append(I18n.text("Temperature")).append(": ").append("</b>");
@@ -778,7 +778,7 @@ public class NmeaPlotter extends ConsoleLayer {
             sb.append("<br/>");
             sb.append("<b>").append(I18n.text("Survivors")).append(": ").append("</b>");
             sb.append(oldTxtSTag);
-            sb.append(MathMiscUtils.round(dSta.survivors, 1)).append(" pax");
+            sb.append(dSta.survivors).append(" pax");
             sb.append(oldTxtETag);
 
 //            sb.append("</font>");
