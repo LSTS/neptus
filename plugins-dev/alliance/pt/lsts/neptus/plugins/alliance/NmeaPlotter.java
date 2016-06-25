@@ -338,6 +338,12 @@ public class NmeaPlotter extends ConsoleLayer {
             public void run() {
                 BufferedReader reader = null;
                 try {
+                    socket.setSoTimeout(1000);
+                }
+                catch (SocketException e1) {
+                    e1.printStackTrace();
+                }
+                try {
                     socket.connect(new InetSocketAddress(tcpHost, tcpPort));
                     reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
 
@@ -371,6 +377,9 @@ public class NmeaPlotter extends ConsoleLayer {
                             retransmit(sentence);
                         if (logReceivedData)
                             LsfMessageLogger.log(new DevDataText(sentence));
+                    }
+                    catch (SocketTimeoutException e) {
+                        continue;
                     }
                     catch (Exception e) {
                         e.printStackTrace();
