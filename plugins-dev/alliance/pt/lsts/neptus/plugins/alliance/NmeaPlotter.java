@@ -218,7 +218,12 @@ public class NmeaPlotter extends ConsoleLayer {
         if (!opened) {
             setSerialConnected(false);
             serialPort = null;
-            throw new Exception("Unable to open port " + uartDevice);
+            Exception e = new Exception("Unable to open port " + uartDevice);
+            NeptusLog.pub().error(e);
+            getConsole().post(Notification.error("NMEA Plotter",
+                    "Error connecting via serail to  \"" + serialPort + "\".").requireHumanAction(false));
+
+            throw e;
         }
 
         serialPort.setParams(uartBaudRate, dataBits, stopBits, parity);
@@ -352,7 +357,7 @@ public class NmeaPlotter extends ConsoleLayer {
                 catch (Exception e) {
                     NeptusLog.pub().error(e);
                     getConsole().post(Notification.error("NMEA Plotter",
-                            "Error connecting via TCP to " + tcpHost + ":" + tcpPort));
+                            "Error connecting via TCP to " + tcpHost + ":" + tcpPort).requireHumanAction(false));
                     
                     setTcpConnected(false);
 
