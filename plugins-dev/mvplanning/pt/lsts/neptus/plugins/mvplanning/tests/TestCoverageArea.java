@@ -44,7 +44,7 @@ public class TestCoverageArea {
     public static void testCoverageFromGrid(Profile planProfile, GridArea areaToCover) {
         System.out.println("--- Testing coverage area from a grid ---");
 
-//        CoverageArea covArea = new CoverageArea("bla bla", planProfile, areaToCover, new MissionType());
+//        CoverageAreaFactory covArea = new CoverageAreaFactory("bla bla", planProfile, areaToCover, new MissionType());
 //        GraphType planGraph = covArea.asGraphType();
 //        FollowPath covManeuver = covArea.asFollowPathManeuver();
 //

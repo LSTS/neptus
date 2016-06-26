@@ -52,14 +52,14 @@ import pt.lsts.neptus.types.mission.plan.PlanType;
  * @author tsmarques
  *
  */
-public class CoverageArea {
+public class CoverageAreaFactory {
 
     private Profile planProfile;
     private List<PlanType> plans;
     private GraphType planGraph;
     private List<ManeuverLocation> path;
 
-    public CoverageArea(String id, Profile planProfile, MapDecomposition areaToCover, MissionType mt) {
+    public CoverageAreaFactory(String id, Profile planProfile, MapDecomposition areaToCover, MissionType mt) {
         this.planProfile = planProfile;
 
         path = getPath(areaToCover);

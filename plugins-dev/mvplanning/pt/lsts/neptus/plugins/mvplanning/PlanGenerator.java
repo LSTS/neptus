@@ -18,7 +18,7 @@ import pt.lsts.neptus.plugins.mvplanning.interfaces.ConsoleAdapter;
 import pt.lsts.neptus.plugins.mvplanning.jaxb.profiles.Profile;
 import pt.lsts.neptus.plugins.mvplanning.planning.PlanTask;
 import pt.lsts.neptus.plugins.mvplanning.planning.PlanTask.TASK_TYPE;
-import pt.lsts.neptus.plugins.mvplanning.planning.algorithm.CoverageArea;
+import pt.lsts.neptus.plugins.mvplanning.planning.algorithm.CoverageAreaFactory;
 import pt.lsts.neptus.plugins.mvplanning.planning.mapdecomposition.GridArea;
 import pt.lsts.neptus.plugins.mvplanning.utils.MvPlanningUtils;
 import pt.lsts.neptus.types.coord.LocationType;
@@ -71,7 +71,7 @@ public class PlanGenerator {
     public List<PlanType> generateCoverageArea(Profile planProfile, GridArea areaToCover) {
         String id = "coverage_" + NameNormalizer.getRandomID();
 
-        CoverageArea covArea = new CoverageArea(id, planProfile, areaToCover, console.getMission());
+        CoverageAreaFactory covArea = new CoverageAreaFactory(id, planProfile, areaToCover, console.getMission());
         List<PlanType> plans = covArea.asPlanType();
 
         if(!plans.isEmpty()) {
