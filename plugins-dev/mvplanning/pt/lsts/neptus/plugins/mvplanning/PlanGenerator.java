@@ -31,12 +31,10 @@ public class PlanGenerator {
     private static GridArea operationalArea;
     private Thread opAreaThread; // Thread used to create the operational area
 
-    private PlanAllocator planAloc;
     private ConsoleAdapter console;
     /* Map decomposition needed for some algorithms, e.g, A-star */
 
-    public PlanGenerator(PlanAllocator planAloc, ConsoleAdapter console) {
-        this.planAloc = planAloc;
+    public PlanGenerator(ConsoleAdapter console) {
         this.console = console;
     }
 
@@ -57,12 +55,11 @@ public class PlanGenerator {
     }
 
     public void generatePlan(Profile planProfile, Object obj) {
-        if(obj.getClass().getSimpleName().equals("PlanType")) {
+/*        if(obj.getClass().getSimpleName().equals("PlanType")) {
             PlanType pType = (PlanType) obj;
-            planAloc.allocate(new PlanTask(pType.getId(), pType, planProfile, TASK_TYPE.NEPTUS_PLAN));
         }
         else {
-        }
+        }*/
     }
 
     /**
@@ -74,18 +71,12 @@ public class PlanGenerator {
         CoverageAreaFactory covArea = new CoverageAreaFactory(id, planProfile, areaToCover, console.getMission());
         List<PlanType> plans = covArea.asPlanType();
 
-        if(!plans.isEmpty()) {
-            int i = 0;
-            for(PlanType planSpec : plans) {
-                planAloc.allocate(new PlanTask(id + "_" + i, planSpec, planProfile, TASK_TYPE.COVERAGE_AREA));
-                i++;
-            }
-        }
-        else
+        if (plans.isEmpty())
             NeptusLog.pub().warn("No plans were generated");
 
         return covArea.asPlanType();
     }
+
 
     /**
      *  Generate a plan to visit the given location
@@ -100,7 +91,6 @@ public class PlanGenerator {
         point.setId("visit_point");
 
         plan.getGraph().addManeuver(point);
-        planAloc.allocate(new PlanTask(id, plan, planProfile, TASK_TYPE.VISIT_POINT));
 
         return plan;
     }

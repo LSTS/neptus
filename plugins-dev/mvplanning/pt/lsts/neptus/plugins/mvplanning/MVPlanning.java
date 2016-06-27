@@ -140,7 +140,7 @@ public class MVPlanning extends ConsolePanel implements PlanChangeListener, Rend
         this.console = new NeptusConsoleAdapter(console);
         vawareness = new VehicleAwareness(this.console);
         pAlloc = new PlanAllocator(vawareness, this.console);
-        pGen = new PlanGenerator(pAlloc, this.console);
+        pGen = new PlanGenerator(this.console);
         env = new Environment(this.console, pAlloc, pGen);
         stateMonitor = new StateMonitor(this.console, pTaskMarsh);
         extSysMonitor= new ExternalSystemsMonitor(this.console, pAlloc, pGen, true);
