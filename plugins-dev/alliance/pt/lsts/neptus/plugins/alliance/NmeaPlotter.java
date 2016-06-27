@@ -375,7 +375,9 @@ public class NmeaPlotter extends ConsoleLayer {
                 while (connected && isTcpConnected) {
                     try {
                         String sentence = reader.readLine();
-                        if (sentence == null || sentence.isEmpty())
+                        if (sentence == null)
+                            break;
+                        if (sentence.isEmpty())
                             continue;
                         try {
                             parseSentence(sentence);
