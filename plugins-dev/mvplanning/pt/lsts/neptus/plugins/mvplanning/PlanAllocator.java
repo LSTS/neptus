@@ -37,7 +37,7 @@ import pt.lsts.neptus.plugins.mvplanning.allocation.RoundRobinAllocator;
 import pt.lsts.neptus.plugins.mvplanning.interfaces.AbstractAllocator;
 import pt.lsts.neptus.plugins.mvplanning.interfaces.ConsoleAdapter;
 import pt.lsts.neptus.plugins.mvplanning.monitors.VehicleAwareness;
-import pt.lsts.neptus.plugins.mvplanning.planning.PlanTask;
+import pt.lsts.neptus.plugins.mvplanning.interfaces.PlanTask;
 
 /**
  * Responsible for plan allocation and allocation strategy.

@@ -76,7 +76,7 @@ import pt.lsts.neptus.plugins.mvplanning.monitors.Environment;
 import pt.lsts.neptus.plugins.mvplanning.monitors.ExternalSystemsMonitor;
 import pt.lsts.neptus.plugins.mvplanning.monitors.StateMonitor;
 import pt.lsts.neptus.plugins.mvplanning.monitors.VehicleAwareness;
-import pt.lsts.neptus.plugins.mvplanning.planning.PlanTask;
+import pt.lsts.neptus.plugins.mvplanning.interfaces.PlanTask;
 import pt.lsts.neptus.plugins.mvplanning.planning.algorithm.MST;
 import pt.lsts.neptus.plugins.mvplanning.planning.mapdecomposition.GridArea;
 import pt.lsts.neptus.plugins.update.PeriodicUpdatesService;

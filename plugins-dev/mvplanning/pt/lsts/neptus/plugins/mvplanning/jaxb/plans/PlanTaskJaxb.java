@@ -33,7 +33,7 @@
 package pt.lsts.neptus.plugins.mvplanning.jaxb.plans;
 
 import pt.lsts.neptus.plugins.mvplanning.jaxb.profiles.Profile;
-import pt.lsts.neptus.plugins.mvplanning.planning.PlanTask;
+import pt.lsts.neptus.plugins.mvplanning.interfaces.PlanTask;
 import pt.lsts.neptus.types.mission.plan.PlanType;
 
 import javax.xml.bind.annotation.XmlAccessType;

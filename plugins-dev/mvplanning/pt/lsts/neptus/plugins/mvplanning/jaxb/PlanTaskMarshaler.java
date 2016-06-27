@@ -42,7 +42,10 @@ import javax.xml.bind.Unmarshaller;
 
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.plugins.mvplanning.jaxb.plans.PlanTaskJaxb;
-import pt.lsts.neptus.plugins.mvplanning.planning.PlanTask;
+import pt.lsts.neptus.plugins.mvplanning.interfaces.PlanTask;
+import pt.lsts.neptus.plugins.mvplanning.planning.tasks.CoverageArea;
+import pt.lsts.neptus.plugins.mvplanning.planning.tasks.NeptusPlan;
+import pt.lsts.neptus.plugins.mvplanning.planning.tasks.VisitPoint;
 import pt.lsts.neptus.types.mission.MissionType;
 
 /**
@@ -81,7 +84,8 @@ public class PlanTaskMarshaler {
 
         File dir = new File(XML_PLAN_DIR);
         for(File file : dir.listFiles()) {
-            PlanTask plan = new PlanTask((PlanTaskJaxb) jaxbUnmarshaller.unmarshal(file));
+            PlanTaskJaxb taskJaxb =(PlanTaskJaxb) jaxbUnmarshaller.unmarshal(file);
+            PlanTask plan = jaxbToPlanTask(taskJaxb);
 
             plan.setMissionType(mtype);
             plans.add(plan);
@@ -89,21 +93,23 @@ public class PlanTaskMarshaler {
         return plans;
     }
 
-    private List<PlanTask> taskJaxbToPlanTask(List<PlanTaskJaxb> tasksJaxb) {
-        List<PlanTask> ptasks = new ArrayList<>();
-
-        for(PlanTaskJaxb t : tasksJaxb) {
-            ptasks.add(new PlanTask(t));
+    /**
+     * Given a task type and data, PlanTaskJaxb, from
+     * an xml file, instatiates an object of type PlanTask
+     * */
+    private PlanTask jaxbToPlanTask(PlanTaskJaxb taskJaxb) {
+        try {
+            PlanTask.TASK_TYPE type = PlanTask.string2TaskType(taskJaxb.taskType);
+            if (type == PlanTask.TASK_TYPE.COVERAGE_AREA)
+                return new CoverageArea(taskJaxb.planId, taskJaxb.plan, taskJaxb.planProfile);
+            else if (type == PlanTask.TASK_TYPE.VISIT_POINT)
+                return new VisitPoint(taskJaxb.planId, taskJaxb.plan, taskJaxb.planProfile);
+            else
+                return new NeptusPlan(taskJaxb.planId, taskJaxb.plan, taskJaxb.planProfile);
         }
-        return ptasks;
-    }
-
-    private List<PlanTaskJaxb> planTaskToTaskJaxb(List<PlanTask> ptasks) {
-        List<PlanTaskJaxb> ptasksJaxb = new ArrayList<>();
-
-        for(PlanTask t : ptasks) {
-            ptasksJaxb.add(new PlanTaskJaxb(t));
+        catch(IllegalArgumentException e) {
+            e.printStackTrace();
+            return new NeptusPlan(taskJaxb.planId, taskJaxb.plan, taskJaxb.planProfile);
         }
-        return ptasksJaxb;
     }
 }

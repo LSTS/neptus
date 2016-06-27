@@ -27,43 +27,26 @@
  * For more information please see <http://lsts.fe.up.pt/neptus>.
  *
  * Author: tsmarques
- * 4 Mar 2016
+ * 27 Jun 2016
  */
-package pt.lsts.neptus.plugins.mvplanning.events;
+
+package pt.lsts.neptus.plugins.mvplanning.planning.tasks;
 
 import pt.lsts.neptus.plugins.mvplanning.interfaces.PlanTask;
+import pt.lsts.neptus.plugins.mvplanning.jaxb.profiles.Profile;
+import pt.lsts.neptus.types.mission.plan.PlanType;
 
 /**
  * @author tsmarques
- *
+ * @date 27/06/16
  */
-public class MvPlanningEventPlanAllocated {
-    private PlanTask plan;
-    private String planId;
-    private String planProfile;
-    private String vehicle;
-
-
-    public MvPlanningEventPlanAllocated(PlanTask plan, String vehicle) {
-        this.plan = plan;
-        this.planId = plan.getPlanId();
-        this.planProfile = plan.getProfile().getId();
-        this.vehicle = vehicle;
+public class NeptusPlan extends PlanTask {
+    public NeptusPlan(String id, PlanType plan, Profile planProfile) {
+        super(id, plan, planProfile, TASK_TYPE.NEPTUS_PLAN);
     }
 
-    public PlanTask getPlan() {
-        return plan;
-    }
-
-    public String getPlanId() {
-        return planId;
-    }
-
-    public String getProfile() {
-        return planProfile;
-    }
-
-    public String getVehicle() {
-        return vehicle;
+    @Override
+    public PlanTask.TASK_TYPE getTaskType() {
+        return PlanTask.TASK_TYPE.NEPTUS_PLAN;
     }
 }

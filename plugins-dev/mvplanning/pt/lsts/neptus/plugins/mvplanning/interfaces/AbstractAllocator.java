@@ -44,7 +44,6 @@ import pt.lsts.neptus.comm.manager.imc.ImcSystem;
 import pt.lsts.neptus.plugins.mvplanning.PlanGenerator;
 import pt.lsts.neptus.plugins.mvplanning.monitors.StateMonitor;
 import pt.lsts.neptus.plugins.mvplanning.monitors.VehicleAwareness;
-import pt.lsts.neptus.plugins.mvplanning.planning.PlanTask;
 import pt.lsts.neptus.plugins.update.IPeriodicUpdates;
 import pt.lsts.neptus.plugins.update.PeriodicUpdatesService;
 import pt.lsts.neptus.types.coord.LocationType;

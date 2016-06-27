@@ -31,10 +31,8 @@
  */
 package pt.lsts.neptus.plugins.mvplanning.monitors;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map.Entry;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
@@ -47,8 +45,7 @@ import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.plugins.mvplanning.events.MvPlanningEventPlanAllocated;
 import pt.lsts.neptus.plugins.mvplanning.interfaces.ConsoleAdapter;
 import pt.lsts.neptus.plugins.mvplanning.jaxb.PlanTaskMarshaler;
-import pt.lsts.neptus.plugins.mvplanning.planning.PlanTask;
-import pt.lsts.neptus.types.mission.plan.PlanType;
+import pt.lsts.neptus.plugins.mvplanning.interfaces.PlanTask;
 
 /**
  * Class used to control the state of the plugin,

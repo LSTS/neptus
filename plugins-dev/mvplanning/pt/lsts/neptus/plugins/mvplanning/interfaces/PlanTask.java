@@ -29,7 +29,7 @@
  * Author: tsmarques
  * 15 Feb 2016
  */
-package pt.lsts.neptus.plugins.mvplanning.planning;
+package pt.lsts.neptus.plugins.mvplanning.interfaces;
 
 import pt.lsts.imc.PlanSpecification;
 import pt.lsts.neptus.NeptusLog;
@@ -40,14 +40,16 @@ import pt.lsts.neptus.types.mission.MissionType;
 import pt.lsts.neptus.types.mission.plan.PlanType;
 
 /**
+ * Base class for the tasks that can be allocated
+ * to the vehicles
  * @author tsmarques
  */
 
 /* Wrapper around PlanSpecification */
-public class PlanTask {
+public abstract class PlanTask {
     public static enum TASK_TYPE {
         COVERAGE_AREA("CoverageArea"),
-        VISIT_POINT("VisitArea"),
+        VISIT_POINT("VisitPoint"),
         NEPTUS_PLAN("NeptusPlan");
 
         protected String value;
@@ -56,14 +58,13 @@ public class PlanTask {
         }
     };
 
-    private String planId;
-    private PlanType plan;
-    private Profile planProfile;
-    private double timestamp;
-    private byte[] md5;
-    private double completion;
-
-    private TASK_TYPE taskType;
+    protected String planId;
+    protected PlanType plan;
+    protected Profile planProfile;
+    protected double timestamp;
+    protected byte[] md5;
+    protected double completion;
+    protected TASK_TYPE taskType;
 
     public PlanTask(String id, PlanType plan, Profile planProfile, TASK_TYPE taskType) {
         this.planId = id;
@@ -79,9 +80,22 @@ public class PlanTask {
         plan.setVehicle("lauv-xplore-1");
     }
 
+    public PlanTask(String id, Profile profile) {
+        planId = id;
+        planProfile = profile;
+
+        plan = null;
+        timestamp = -1;
+        completion = -1;
+        md5 = null;
+        taskType = null;
+    }
+
     public PlanTask(PlanTaskJaxb ptaskJaxb) {
         load(ptaskJaxb);
     }
+
+    public abstract TASK_TYPE getTaskType();
 
     public String getTaskTypeAsString() {
         return taskType.value;
@@ -111,16 +125,20 @@ public class PlanTask {
         return md5;
     }
 
+    public double getCompletion() {
+        return completion;
+    }
+
     public void setTimestamp(double timestamp) {
         this.timestamp = timestamp;
     }
 
-    public void setPlanType(TASK_TYPE taskType) {
-        this.taskType = taskType;
+    public void setPlan(PlanType ptype) {
+        plan = ptype;
     }
 
-    public TASK_TYPE getTaskType() {
-        return taskType;
+    public void setMd5(byte[] md5) {
+        this.md5 = md5;
     }
 
     public void setMissionType(MissionType mtype) {
@@ -132,10 +150,6 @@ public class PlanTask {
 
     public void updatePlanCompletion(double completion) {
         this.completion = completion;
-    }
-
-    public double getCompletion() {
-        return completion;
     }
 
     /**
@@ -156,7 +170,7 @@ public class PlanTask {
         this.taskType = string2TaskType(taskJaxb.taskType);
     }
 
-    private TASK_TYPE string2TaskType(String str) {
+    public static TASK_TYPE string2TaskType(String str) {
         for(TASK_TYPE type : TASK_TYPE.values())
             if(str == type.value)
                 return type;

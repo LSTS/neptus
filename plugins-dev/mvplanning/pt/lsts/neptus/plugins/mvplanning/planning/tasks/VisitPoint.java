@@ -27,43 +27,36 @@
  * For more information please see <http://lsts.fe.up.pt/neptus>.
  *
  * Author: tsmarques
- * 4 Mar 2016
+ * 27 Jun 2016
  */
-package pt.lsts.neptus.plugins.mvplanning.events;
+
+package pt.lsts.neptus.plugins.mvplanning.planning.tasks;
 
 import pt.lsts.neptus.plugins.mvplanning.interfaces.PlanTask;
+import pt.lsts.neptus.plugins.mvplanning.jaxb.profiles.Profile;
+import pt.lsts.neptus.types.mission.plan.PlanType;
 
 /**
  * @author tsmarques
- *
+ * @date 6/26/16
  */
-public class MvPlanningEventPlanAllocated {
-    private PlanTask plan;
-    private String planId;
-    private String planProfile;
-    private String vehicle;
-
-
-    public MvPlanningEventPlanAllocated(PlanTask plan, String vehicle) {
-        this.plan = plan;
-        this.planId = plan.getPlanId();
-        this.planProfile = plan.getProfile().getId();
-        this.vehicle = vehicle;
+public class VisitPoint extends PlanTask {
+    public VisitPoint(String id, Profile profile) {
+        super(id, profile);
+        System.out.println("******************* PIM");
+        taskType = TASK_TYPE.VISIT_POINT;
     }
 
-    public PlanTask getPlan() {
-        return plan;
+    /**
+     * Called when unmarshalling
+     * */
+    public VisitPoint(String id, PlanType plan, Profile planProfile) {
+        super(id, plan, planProfile, TASK_TYPE.VISIT_POINT);
+        System.out.println("******************* PAM");
     }
 
-    public String getPlanId() {
-        return planId;
-    }
-
-    public String getProfile() {
-        return planProfile;
-    }
-
-    public String getVehicle() {
-        return vehicle;
+    @Override
+    public TASK_TYPE getTaskType() {
+        return TASK_TYPE.VISIT_POINT;
     }
 }

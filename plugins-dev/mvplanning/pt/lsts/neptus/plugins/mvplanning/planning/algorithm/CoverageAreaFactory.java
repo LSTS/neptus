@@ -42,7 +42,7 @@ import pt.lsts.neptus.mp.maneuvers.FollowPath;
 import pt.lsts.neptus.plugins.mvplanning.utils.MvPlanningUtils;
 import pt.lsts.neptus.plugins.mvplanning.interfaces.MapDecomposition;
 import pt.lsts.neptus.plugins.mvplanning.jaxb.profiles.Profile;
-import pt.lsts.neptus.plugins.mvplanning.planning.PlanTask;
+import pt.lsts.neptus.plugins.mvplanning.interfaces.PlanTask;
 import pt.lsts.neptus.plugins.mvplanning.planning.mapdecomposition.GridArea;
 import pt.lsts.neptus.types.mission.GraphType;
 import pt.lsts.neptus.types.mission.MissionType;
