@@ -300,6 +300,9 @@ public class NmeaPlotter extends ConsoleLayer {
     }
 
     private void parseSentence(String s) {
+        if (s == null || s.isEmpty())
+            return;
+
         s = s.trim();
         if (hasNMEASentencePrefix(s)) {
             String nmeaType = NMEAUtils.nmeaType(s);
@@ -372,6 +375,8 @@ public class NmeaPlotter extends ConsoleLayer {
                 while (connected && isTcpConnected) {
                     try {
                         String sentence = reader.readLine();
+                        if (sentence == null || sentence.isEmpty())
+                            continue;
                         try {
                             parseSentence(sentence);
                         }
@@ -446,6 +451,8 @@ public class NmeaPlotter extends ConsoleLayer {
                         socket.receive(dp);
                         String sentence = new String(dp.getData());
                         sentence = sentence.substring(0, sentence.indexOf(0));
+                        if (sentence == null || sentence.isEmpty())
+                            continue;
                         try {
                             parseSentence(sentence);
                         }
