@@ -158,7 +158,8 @@ public class PlanTask {
 
     private TASK_TYPE string2TaskType(String str) {
         for(TASK_TYPE type : TASK_TYPE.values())
-            return type;
+            if(str == type.value)
+                return type;
 
         NeptusLog.pub().warn("Couldn't figure out task type, setting as NeptusPlan");
         return TASK_TYPE.NEPTUS_PLAN;
