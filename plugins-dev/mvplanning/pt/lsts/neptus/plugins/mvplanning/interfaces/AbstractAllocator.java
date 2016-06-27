@@ -64,9 +64,11 @@ public abstract class AbstractAllocator implements IPeriodicUpdates {
     private boolean listenToEvents;
     protected ConsoleAdapter console;
     protected VehicleAwareness vawareness;
+    protected  PlanGenerator pgen;
 
-    public AbstractAllocator(boolean isPeriodic, boolean listenToEvents, ConsoleAdapter console) {
+    public AbstractAllocator(boolean isPeriodic, boolean listenToEvents, ConsoleAdapter console, PlanGenerator pgen) {
         this.console = console;
+        this.pgen = pgen;
         setPeriodic(isPeriodic);
         setListenToEvents(listenToEvents);
     }
@@ -107,7 +109,7 @@ public abstract class AbstractAllocator implements IPeriodicUpdates {
             pc.setOp(OP.START);
 
             LocationType[] locs = getVehicleLocations(vehicle);
-            PlanSpecification plan = PlanGenerator.closePlan(ptask, locs[0], locs[1]);
+            PlanSpecification plan = pgen.closePlan(ptask, locs[0], locs[1]);
 
             pc.setArg(plan);
 

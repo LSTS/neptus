@@ -35,6 +35,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import pt.lsts.neptus.NeptusLog;
+import pt.lsts.neptus.plugins.mvplanning.PlanGenerator;
 import pt.lsts.neptus.plugins.mvplanning.events.MvPlanningEventPlanAllocated;
 import pt.lsts.neptus.plugins.mvplanning.interfaces.AbstractAllocator;
 import pt.lsts.neptus.plugins.mvplanning.interfaces.ConsoleAdapter;
@@ -51,8 +52,8 @@ public class RoundRobinAllocator extends AbstractAllocator {
     private List<PlanTask> plans;
     private List<String> vehicles;
 
-    public RoundRobinAllocator(boolean isPeriodic, boolean listenToEvents, VehicleAwareness vawareness, ConsoleAdapter console) {
-        super(isPeriodic, listenToEvents, console);
+    public RoundRobinAllocator(boolean isPeriodic, boolean listenToEvents, VehicleAwareness vawareness, ConsoleAdapter console, PlanGenerator pgen) {
+        super(isPeriodic, listenToEvents, console, pgen);
         this.console = console;
         setVehicleAwareness(vawareness);
         plans = new ArrayList<>();

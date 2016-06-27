@@ -27,7 +27,7 @@ import pt.lsts.neptus.types.mission.plan.PlanType;
 import pt.lsts.neptus.util.NameNormalizer;
 
 public class PlanGenerator {
-    private static final ReadWriteLock RW_LOCK = new ReentrantReadWriteLock();
+    private final ReadWriteLock RW_LOCK = new ReentrantReadWriteLock();
     private static GridArea operationalArea;
     private Thread opAreaThread; // Thread used to create the operational area
 
@@ -101,7 +101,7 @@ public class PlanGenerator {
      * of the plan to the end location.
      * @throws SafePathNotFoundException
      * */
-    public static PlanSpecification closePlan(PlanTask ptask, LocationType start, LocationType end) throws SafePathNotFoundException {
+    public PlanSpecification closePlan(PlanTask ptask, LocationType start, LocationType end) throws SafePathNotFoundException {
         /* current plan */
         PlanType plan = ptask.asPlanType().clonePlan();
         GraphType planGraph = plan.getGraph();
@@ -129,7 +129,7 @@ public class PlanGenerator {
         return (PlanSpecification) IMCUtils.generatePlanSpecification(plan);
     }
 
-    private static FollowPath buildSafePath(LocationType start, LocationType end) throws SafePathNotFoundException {
+    private FollowPath buildSafePath(LocationType start, LocationType end) throws SafePathNotFoundException {
         RW_LOCK.readLock().lock();
 
         List<ManeuverLocation> safePath = operationalArea.getShortestPath(start, end);

@@ -49,12 +49,13 @@ public class PlanAllocator {
     private ConsoleAdapter console;
     private AbstractAllocator allocator = null;
     private VehicleAwareness vawareness;
+    private PlanGenerator pgen;
 
     public enum AllocationStrategy {
         ROUND_ROBIN
     }
 
-    public PlanAllocator(VehicleAwareness vawareness, ConsoleAdapter console) {
+    public PlanAllocator(VehicleAwareness vawareness, ConsoleAdapter console, PlanGenerator pgen) {
         this.vawareness = vawareness;
         this.console = console;
     }
@@ -74,6 +75,6 @@ public class PlanAllocator {
     public void setAllocationStrategy(AllocationStrategy allocStrat) {
         /* for now just round-robin */
         NeptusLog.pub().info("Using Round-Robin allocation strategy");
-        allocator = new RoundRobinAllocator(true, false, vawareness, console);
+        allocator = new RoundRobinAllocator(true, false, vawareness, console, pgen);
     }
 }
