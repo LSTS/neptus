@@ -544,7 +544,7 @@ public class CmreAisCsvParser {
                     case "co":
                         v = tk[1].trim();
                         if (!v.toLowerCase().startsWith("n.a"))
-                            dp.co2Percentage = Double.parseDouble(v);
+                            dp.coPpm = Double.parseDouble(v);
                         countBaseElm++;
                         break;
                     case "h2":
