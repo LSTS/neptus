@@ -79,6 +79,8 @@ import pt.lsts.neptus.plugins.mvplanning.monitors.VehicleAwareness;
 import pt.lsts.neptus.plugins.mvplanning.interfaces.PlanTask;
 import pt.lsts.neptus.plugins.mvplanning.planning.algorithm.MST;
 import pt.lsts.neptus.plugins.mvplanning.planning.mapdecomposition.GridArea;
+import pt.lsts.neptus.plugins.mvplanning.planning.tasks.CoverageArea;
+import pt.lsts.neptus.plugins.mvplanning.planning.tasks.VisitPoint;
 import pt.lsts.neptus.plugins.update.PeriodicUpdatesService;
 import pt.lsts.neptus.renderer2d.Renderer2DPainter;
 import pt.lsts.neptus.renderer2d.StateRenderer2D;
@@ -362,20 +364,22 @@ public class MVPlanning extends ConsolePanel implements PlanChangeListener, Rend
         mst = new MST(covArea.getAllCells()[0][0]);
 
         String desiredProfile = (String) profiles.getSelectedItem();
-        List<PlanType> plans = pGen.generateCoverageArea(availableProfiles.get(desiredProfile), covArea);
+        PlanTask task = new CoverageArea("42", availableProfiles.get(desiredProfile), covArea);
+        pAlloc.allocate(task);
+        /*List<PlanType> plans = pGen.generateCoverageArea(availableProfiles.get(desiredProfile), covArea);*/
 
-        if(!plans.isEmpty()) {
+/*        if(!plans.isEmpty()) {
             for(PlanType plan : plans) {
                 listModel.addElement(plan.getId());
                 selectedPlans.put(plan.getId(), plan);
 
-                        /* add plan to plan's tree */
+                *//**//* add plan to plan's tree *//**//*
                 console.addPlanToMission(plan);
             }
 
-                    /* save mission */
+            *//* save mission *//*
             console.saveMission();
-        }
+        }*/
     }
 
     private void handleMarkElement(MarkElement mark) {
@@ -384,7 +388,8 @@ public class MVPlanning extends ConsolePanel implements PlanChangeListener, Rend
                 /* generating a visit plan */
         if(type.contains("visit")) {
             String desiredProfile = (String) profiles.getSelectedItem();
-            pGen.generateVisitPoint(availableProfiles.get(desiredProfile), mark.getCenterLocation());
+            PlanTask task = new VisitPoint("42", availableProfiles.get(desiredProfile), mark.getCenterLocation());
+            pAlloc.allocate(task);
         }
         else /* marking the position of a vehicle */
             vawareness.setVehicleStartLocation(type, mark.getCenterLocation());

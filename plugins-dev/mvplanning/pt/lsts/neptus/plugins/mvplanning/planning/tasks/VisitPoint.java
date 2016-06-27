@@ -34,6 +34,7 @@ package pt.lsts.neptus.plugins.mvplanning.planning.tasks;
 
 import pt.lsts.neptus.plugins.mvplanning.interfaces.PlanTask;
 import pt.lsts.neptus.plugins.mvplanning.jaxb.profiles.Profile;
+import pt.lsts.neptus.types.coord.LocationType;
 import pt.lsts.neptus.types.mission.plan.PlanType;
 
 /**
@@ -41,9 +42,10 @@ import pt.lsts.neptus.types.mission.plan.PlanType;
  * @date 6/26/16
  */
 public class VisitPoint extends PlanTask {
-    public VisitPoint(String id, Profile profile) {
+    private LocationType pointToVisit;
+    public VisitPoint(String id, Profile profile, LocationType loc) {
         super(id, profile);
-        System.out.println("******************* PIM");
+        pointToVisit = loc;
         taskType = TASK_TYPE.VISIT_POINT;
     }
 
@@ -52,11 +54,14 @@ public class VisitPoint extends PlanTask {
      * */
     public VisitPoint(String id, PlanType plan, Profile planProfile) {
         super(id, plan, planProfile, TASK_TYPE.VISIT_POINT);
-        System.out.println("******************* PAM");
     }
 
     @Override
     public TASK_TYPE getTaskType() {
         return TASK_TYPE.VISIT_POINT;
+    }
+
+    public LocationType getPointToVisit() {
+        return pointToVisit;
     }
 }

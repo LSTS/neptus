@@ -34,10 +34,13 @@ package pt.lsts.neptus.plugins.mvplanning;
 
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.plugins.mvplanning.allocation.RoundRobinAllocator;
+import pt.lsts.neptus.plugins.mvplanning.exceptions.BadPlanTaskException;
 import pt.lsts.neptus.plugins.mvplanning.interfaces.AbstractAllocator;
 import pt.lsts.neptus.plugins.mvplanning.interfaces.ConsoleAdapter;
 import pt.lsts.neptus.plugins.mvplanning.monitors.VehicleAwareness;
 import pt.lsts.neptus.plugins.mvplanning.interfaces.PlanTask;
+
+import java.util.List;
 
 /**
  * Responsible for plan allocation and allocation strategy.
@@ -56,6 +59,7 @@ public class PlanAllocator {
     }
 
     public PlanAllocator(VehicleAwareness vawareness, ConsoleAdapter console, PlanGenerator pgen) {
+        this.pgen = pgen;
         this.vawareness = vawareness;
         this.console = console;
     }
@@ -65,11 +69,25 @@ public class PlanAllocator {
         setAllocationStrategy(allocStrat);
     }
 
-    public void allocate(PlanTask ptask) {
+    /**
+     * Given a task, asks the plan generator to
+     * generate the corresponding plan(s) and
+     * sets them for allocation
+     * */
+    public void allocate(PlanTask task) {
         /* default allocation strategy is round-robin */
         if(allocator == null)
             setAllocationStrategy(AllocationStrategy.ROUND_ROBIN);
-        allocator.addNewPlan(ptask);
+
+        try {
+            List<PlanTask> tasks = pgen.generatePlan(task);
+            for(PlanTask ptask : tasks)
+                allocator.addNewPlan(ptask);
+
+        } catch (BadPlanTaskException e) {
+            e.printStackTrace();
+            NeptusLog.pub().warn("No plan has been allocated");
+        }
     }
 
     public void setAllocationStrategy(AllocationStrategy allocStrat) {

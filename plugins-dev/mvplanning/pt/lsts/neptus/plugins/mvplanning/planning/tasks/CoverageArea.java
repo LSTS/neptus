@@ -44,11 +44,6 @@ import pt.lsts.neptus.types.mission.plan.PlanType;
 public class CoverageArea extends PlanTask {
     private MapDecomposition mapDcmp;
 
-    public CoverageArea(String id, Profile profile) {
-        super(id, profile);
-        taskType = TASK_TYPE.COVERAGE_AREA;
-    }
-
     /**
      * Called when unmarshalling
      * */
@@ -62,8 +57,21 @@ public class CoverageArea extends PlanTask {
         taskType = TASK_TYPE.COVERAGE_AREA;
     }
 
+    public CoverageArea(String id, PlanType plan, Profile profile, MapDecomposition dcmp) {
+        super(id, plan, profile, TASK_TYPE.COVERAGE_AREA);
+        mapDcmp = dcmp;
+        taskType = TASK_TYPE.COVERAGE_AREA;
+    }
+
     @Override
     public TASK_TYPE getTaskType() {
         return TASK_TYPE.COVERAGE_AREA;
+    }
+
+    /**
+     * Returns the map decomposition used to generate this plan
+     * */
+    public MapDecomposition getDecomposition() {
+        return mapDcmp;
     }
 }

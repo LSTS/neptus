@@ -1,5 +1,6 @@
 package pt.lsts.neptus.plugins.mvplanning;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Vector;
 import java.util.concurrent.locks.ReadWriteLock;
@@ -13,13 +14,17 @@ import pt.lsts.neptus.comm.IMCUtils;
 import pt.lsts.neptus.mp.Maneuver;
 import pt.lsts.neptus.mp.ManeuverLocation;
 import pt.lsts.neptus.mp.maneuvers.LocatedManeuver;
+import pt.lsts.neptus.plugins.mvplanning.exceptions.BadPlanTaskException;
 import pt.lsts.neptus.plugins.mvplanning.exceptions.SafePathNotFoundException;
 import pt.lsts.neptus.plugins.mvplanning.interfaces.ConsoleAdapter;
+import pt.lsts.neptus.plugins.mvplanning.interfaces.MapDecomposition;
 import pt.lsts.neptus.plugins.mvplanning.jaxb.profiles.Profile;
 import pt.lsts.neptus.plugins.mvplanning.interfaces.PlanTask;
 import pt.lsts.neptus.plugins.mvplanning.interfaces.PlanTask.TASK_TYPE;
 import pt.lsts.neptus.plugins.mvplanning.planning.algorithm.CoverageAreaFactory;
 import pt.lsts.neptus.plugins.mvplanning.planning.mapdecomposition.GridArea;
+import pt.lsts.neptus.plugins.mvplanning.planning.tasks.CoverageArea;
+import pt.lsts.neptus.plugins.mvplanning.planning.tasks.VisitPoint;
 import pt.lsts.neptus.plugins.mvplanning.utils.MvPlanningUtils;
 import pt.lsts.neptus.types.coord.LocationType;
 import pt.lsts.neptus.types.mission.GraphType;
@@ -29,17 +34,12 @@ import pt.lsts.neptus.util.NameNormalizer;
 public class PlanGenerator {
     private final ReadWriteLock RW_LOCK = new ReentrantReadWriteLock();
     private static GridArea operationalArea;
-    private Thread opAreaThread; // Thread used to create the operational area
 
     private ConsoleAdapter console;
     /* Map decomposition needed for some algorithms, e.g, A-star */
 
     public PlanGenerator(ConsoleAdapter console) {
         this.console = console;
-    }
-
-    public PlanGenerator() {
-
     }
 
     public void setOperationalArea(GridArea opArea) {
@@ -55,28 +55,56 @@ public class PlanGenerator {
     }
 
     public void generatePlan(Profile planProfile, Object obj) {
-/*        if(obj.getClass().getSimpleName().equals("PlanType")) {
-            PlanType pType = (PlanType) obj;
+
+    }
+
+    /**
+     * Given a, incomplete, PlanTask generates a plan
+     * and completes it (adding it the generated PlanType).
+     * If the PlanGenerator deems it necessary, it will divide
+     * a plan into several others, hence returning a list of
+     * PlanType.
+     * */
+    public List<PlanTask> generatePlan(PlanTask task) throws BadPlanTaskException {
+        PlanTask.TASK_TYPE type = task.getTaskType();
+        List<PlanTask> plans = new ArrayList<>();
+
+        if(type == PlanTask.TASK_TYPE.COVERAGE_AREA) {
+            List<PlanType> pTypes = generateCoverageArea(task.getProfile(), ((CoverageArea) task).getDecomposition());
+
+            if(pTypes.isEmpty())
+                throw new BadPlanTaskException("No coverage area plans have been generated!");
+
+            boolean first = true;
+            for(PlanType plan : pTypes) {
+                if(first)
+                    task.setPlan(plan);
+                else {
+                    PlanTask newTask = new CoverageArea(task.getPlanId(), plan, task.getProfile(), ((CoverageArea) task).getDecomposition());
+                    plans.add(newTask);
+                }
+                first = false;
+            }
         }
-        else {
-        }*/
+        else if(type == PlanTask.TASK_TYPE.VISIT_POINT)
+            task.setPlan(generateVisitPoint(task.getProfile(), ((VisitPoint) task).getPointToVisit()));
+
+        plans.add(0, task);
+
+        return plans;
     }
 
     /**
      * Given an area generate one or more plans to cover it
      * */
-    public List<PlanType> generateCoverageArea(Profile planProfile, GridArea areaToCover) {
+    public List<PlanType> generateCoverageArea(Profile planProfile, MapDecomposition areaToCover) {
         String id = "coverage_" + NameNormalizer.getRandomID();
 
         CoverageAreaFactory covArea = new CoverageAreaFactory(id, planProfile, areaToCover, console.getMission());
         List<PlanType> plans = covArea.asPlanType();
 
-        if (plans.isEmpty())
-            NeptusLog.pub().warn("No plans were generated");
-
         return covArea.asPlanType();
     }
-
 
     /**
      *  Generate a plan to visit the given location
