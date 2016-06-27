@@ -59,8 +59,8 @@ import pt.lsts.neptus.plugins.PluginDescription.CATEGORY;
 public class GimbalPanel extends ConsolePanel implements MainVehicleChangeListener {
 
     private static final long serialVersionUID = 1L;
-    private static final short PITCH_SERVO_ID = 1;
-    private static final short ROLL_SERVO_ID = 2;
+    private static final short PITCH_SERVO_ID = 0;
+    private static final short ROLL_SERVO_ID = 1;
 
     // GUI
     private JPanel titlePanel = null;
@@ -96,7 +96,7 @@ public class GimbalPanel extends ConsolePanel implements MainVehicleChangeListen
     private void buttonPanelSetup() {
         buttonPanel = new JPanel(new MigLayout("gap 0 0, ins 0"));
 
-        JSlider rollSlider = new JSlider(JSlider.HORIZONTAL, 45, 100, 75);
+        JSlider rollSlider = new JSlider(JSlider.HORIZONTAL, 53, 100, 75);
 
         rollSlider.setMinorTickSpacing(90);
         rollSlider.setMajorTickSpacing(90);
@@ -122,7 +122,7 @@ public class GimbalPanel extends ConsolePanel implements MainVehicleChangeListen
         Hashtable<Integer, JLabel> rollLblTable = new Hashtable<>();
         rollLblTable.put( new Integer(100),  new JLabel("L"));
         rollLblTable.put( new Integer(75), new JLabel("-") );
-        rollLblTable.put( new Integer(50), new JLabel("R") );
+        rollLblTable.put( new Integer(53), new JLabel("R") );
         rollSlider.setLabelTable(rollLblTable);
         rollSlider.setInverted(true);
         buttonPanel.add(rollSlider, "w 50%, h 100%");
