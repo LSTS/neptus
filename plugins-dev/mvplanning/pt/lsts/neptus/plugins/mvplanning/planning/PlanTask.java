@@ -31,16 +31,10 @@
  */
 package pt.lsts.neptus.plugins.mvplanning.planning;
 
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
-
 import pt.lsts.imc.PlanSpecification;
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.comm.IMCUtils;
-import pt.lsts.neptus.plugins.mvplanning.jaxb.plans.PlanTypeJaxbAdapter;
+import pt.lsts.neptus.plugins.mvplanning.jaxb.plans.PlanTaskJaxb;
 import pt.lsts.neptus.plugins.mvplanning.jaxb.profiles.Profile;
 import pt.lsts.neptus.types.mission.MissionType;
 import pt.lsts.neptus.types.mission.plan.PlanType;
@@ -50,8 +44,6 @@ import pt.lsts.neptus.types.mission.plan.PlanType;
  */
 
 /* Wrapper around PlanSpecification */
-@XmlRootElement (name="PlanTask")
-@XmlAccessorType(XmlAccessType.NONE)
 public class PlanTask {
     public static enum TASK_TYPE {
         COVERAGE_AREA("CoverageArea"),
@@ -64,22 +56,11 @@ public class PlanTask {
         }
     };
 
-    @XmlElement(name = "PlanId")
     private String planId;
-
-    @XmlJavaTypeAdapter(PlanTypeJaxbAdapter.class)
     private PlanType plan;
-
-    @XmlElement
     private Profile planProfile;
-
-    @XmlElement(name = "Timestamp")
     private double timestamp;
-
-    @XmlElement(name = "md5")
     private byte[] md5;
-
-    @XmlElement(name = "Completion")
     private double completion;
 
     private TASK_TYPE taskType;
@@ -98,27 +79,10 @@ public class PlanTask {
         plan.setVehicle("lauv-xplore-1");
     }
 
-    /**
-     * Constructor used by JAXB when marshaling an object of this class
-     * */
-    public PlanTask() {
+    public PlanTask(PlanTaskJaxb ptaskJaxb) {
+        load(ptaskJaxb);
     }
 
-    /**
-     * Constructor used by JAXB when unmarshalling an object of this class
-     * */
-    public PlanTask(String id, PlanType plan, Profile planProfile, double timestamp, byte[] md5, double completion, TASK_TYPE taskType) {
-        this.planId = id;
-        this.plan = plan;
-        this.plan.setId(id);
-        this.planProfile = planProfile;
-        this.timestamp = timestamp;
-        this.md5 = md5;
-        this.completion = completion;
-        this.taskType = taskType;
-    }
-
-    @XmlElement(name = "TaskType")
     public String getTaskTypeAsString() {
         return taskType.value;
     }
@@ -170,11 +134,33 @@ public class PlanTask {
         this.completion = completion;
     }
 
+    public double getCompletion() {
+        return completion;
+    }
+
     /**
      * If the given vehicle can execute this plan with
      * the needed profile.
      * */
     public boolean containsVehicle(String vehicle) {
         return planProfile.getProfileVehicles().contains(vehicle);
+    }
+
+    private void load(PlanTaskJaxb taskJaxb) {
+        this.planId = taskJaxb.planId;
+        this.plan = taskJaxb.plan;
+        this.planProfile = taskJaxb.planProfile;
+        this.timestamp = taskJaxb.timestamp;
+        this.md5 = taskJaxb.md5;
+        this.completion = taskJaxb.completion;
+        this.taskType = string2TaskType(taskJaxb.taskType);
+    }
+
+    private TASK_TYPE string2TaskType(String str) {
+        for(TASK_TYPE type : TASK_TYPE.values())
+            return type;
+
+        NeptusLog.pub().warn("Couldn't figure out task type, setting as NeptusPlan");
+        return TASK_TYPE.NEPTUS_PLAN;
     }
 }

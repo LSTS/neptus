@@ -41,6 +41,7 @@ import javax.xml.bind.Marshaller;
 import javax.xml.bind.Unmarshaller;
 
 import pt.lsts.neptus.NeptusLog;
+import pt.lsts.neptus.plugins.mvplanning.jaxb.plans.PlanTaskJaxb;
 import pt.lsts.neptus.plugins.mvplanning.planning.PlanTask;
 import pt.lsts.neptus.types.mission.MissionType;
 
@@ -60,30 +61,49 @@ public class PlanTaskMarshaler {
     }
 
     public void marshalAll(List<PlanTask> plans) throws JAXBException {
-        JAXBContext jaxbContext = JAXBContext.newInstance(PlanTask.class);
+        JAXBContext jaxbContext = JAXBContext.newInstance(PlanTaskJaxb.class);
         Marshaller jaxbMarshaller = jaxbContext.createMarshaller();
         jaxbMarshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
 
         for(PlanTask task : plans) {
             NeptusLog.pub().info("Marshaling PlanTask " + task.getPlanId());
 
-            jaxbMarshaller.marshal(task, System.out);
-            jaxbMarshaller.marshal(task, new File(XML_PLAN_DIR + task.getPlanId() + ".xml"));
+            PlanTaskJaxb taskJaxb = new PlanTaskJaxb(task);
+            jaxbMarshaller.marshal(taskJaxb, System.out);
+            jaxbMarshaller.marshal(taskJaxb, new File(XML_PLAN_DIR + task.getPlanId() + ".xml"));
         }
     }
 
     public List<PlanTask> unmarshalAll(MissionType mtype) throws JAXBException {
         List<PlanTask> plans = new ArrayList<>();
-        JAXBContext jaxbContext = JAXBContext.newInstance(PlanTask.class);
+        JAXBContext jaxbContext = JAXBContext.newInstance(PlanTaskJaxb.class);
         Unmarshaller jaxbUnmarshaller = jaxbContext.createUnmarshaller();
 
         File dir = new File(XML_PLAN_DIR);
         for(File file : dir.listFiles()) {
-            PlanTask plan = (PlanTask) jaxbUnmarshaller.unmarshal(file);
+            PlanTask plan = new PlanTask((PlanTaskJaxb) jaxbUnmarshaller.unmarshal(file));
 
             plan.setMissionType(mtype);
             plans.add(plan);
         }
         return plans;
+    }
+
+    private List<PlanTask> taskJaxbToPlanTask(List<PlanTaskJaxb> tasksJaxb) {
+        List<PlanTask> ptasks = new ArrayList<>();
+
+        for(PlanTaskJaxb t : tasksJaxb) {
+            ptasks.add(new PlanTask(t));
+        }
+        return ptasks;
+    }
+
+    private List<PlanTaskJaxb> planTaskToTaskJaxb(List<PlanTask> ptasks) {
+        List<PlanTaskJaxb> ptasksJaxb = new ArrayList<>();
+
+        for(PlanTask t : ptasks) {
+            ptasksJaxb.add(new PlanTaskJaxb(t));
+        }
+        return ptasksJaxb;
     }
 }
