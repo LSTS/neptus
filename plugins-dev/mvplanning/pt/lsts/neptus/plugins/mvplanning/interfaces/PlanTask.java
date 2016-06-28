@@ -76,8 +76,6 @@ public abstract class PlanTask {
 
         completion = 0;
         md5 = plan.asIMCPlan().payloadMD5();
-        /* set a vehicle by default */
-        plan.setVehicle("lauv-xplore-1");
     }
 
     public PlanTask(String id, Profile profile) {

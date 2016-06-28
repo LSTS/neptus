@@ -136,6 +136,11 @@ public class PlanGenerator {
     public PlanSpecification closePlan(PlanTask ptask, LocationType start, LocationType end) throws SafePathNotFoundException {
         /* current plan */
         PlanType plan = ptask.asPlanType().clonePlan();
+
+        /* set a vehicle by default */
+        if(plan.getVehicle() == null)
+            plan.setVehicle("lauv-xplore-1");
+
         GraphType planGraph = plan.getGraph();
         Maneuver firstMan = planGraph.getAllManeuvers()[0];
         ManeuverLocation planFirstLocation = ((LocatedManeuver) firstMan).getManeuverLocation();
