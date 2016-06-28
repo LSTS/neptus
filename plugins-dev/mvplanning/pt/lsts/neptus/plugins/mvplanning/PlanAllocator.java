@@ -40,6 +40,7 @@ import pt.lsts.neptus.plugins.mvplanning.interfaces.ConsoleAdapter;
 import pt.lsts.neptus.plugins.mvplanning.monitors.VehicleAwareness;
 import pt.lsts.neptus.plugins.mvplanning.interfaces.PlanTask;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -74,7 +75,7 @@ public class PlanAllocator {
      * generate the corresponding plan(s) and
      * sets them for allocation
      * */
-    public void allocate(PlanTask task) {
+    public List<PlanTask> allocate(PlanTask task) {
         /* default allocation strategy is round-robin */
         if(allocator == null)
             setAllocationStrategy(AllocationStrategy.ROUND_ROBIN);
@@ -84,9 +85,13 @@ public class PlanAllocator {
             for(PlanTask ptask : tasks)
                 allocator.addNewPlan(ptask);
 
+            return tasks;
+
         } catch (BadPlanTaskException e) {
             e.printStackTrace();
             NeptusLog.pub().warn("No plan has been allocated");
+
+            return new ArrayList<>(0);
         }
     }
 

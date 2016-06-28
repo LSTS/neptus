@@ -70,7 +70,7 @@ public class PlanGenerator {
         List<PlanTask> plans = new ArrayList<>();
 
         if(type == PlanTask.TASK_TYPE.COVERAGE_AREA) {
-            List<PlanType> pTypes = generateCoverageArea(task.getProfile(), ((CoverageArea) task).getDecomposition());
+            List<PlanType> pTypes = generateCoverageArea(task);
 
             if(pTypes.isEmpty())
                 throw new BadPlanTaskException("No coverage area plans have been generated!");
@@ -80,14 +80,14 @@ public class PlanGenerator {
                 if(first)
                     task.setPlan(plan);
                 else {
-                    PlanTask newTask = new CoverageArea(task.getPlanId(), plan, task.getProfile(), ((CoverageArea) task).getDecomposition());
+                    PlanTask newTask = new CoverageArea(plan.getId(), plan, task.getProfile(), ((CoverageArea) task).getDecomposition());
                     plans.add(newTask);
                 }
                 first = false;
             }
         }
         else if(type == PlanTask.TASK_TYPE.VISIT_POINT)
-            task.setPlan(generateVisitPoint(task.getProfile(), ((VisitPoint) task).getPointToVisit()));
+            task.setPlan(generateVisitPoint(task));
 
         plans.add(0, task);
 
@@ -97,20 +97,24 @@ public class PlanGenerator {
     /**
      * Given an area generate one or more plans to cover it
      * */
-    public List<PlanType> generateCoverageArea(Profile planProfile, MapDecomposition areaToCover) {
-        String id = "coverage_" + NameNormalizer.getRandomID();
+    public List<PlanType> generateCoverageArea(PlanTask task) {
+        String id = task.getPlanId();
+        Profile planProfile = task.getProfile();
+        MapDecomposition areaToCover = ((CoverageArea) task).getDecomposition();
 
         CoverageAreaFactory covArea = new CoverageAreaFactory(id, planProfile, areaToCover, console.getMission());
-        List<PlanType> plans = covArea.asPlanType();
 
         return covArea.asPlanType();
     }
 
     /**
-     *  Generate a plan to visit the given location
+     * Generate a plan to visit the given location
      * */
-    public PlanType generateVisitPoint(Profile planProfile, LocationType pointLoc) {
-        String id = "visit_" + NameNormalizer.getRandomID();
+    public PlanType generateVisitPoint(PlanTask task) {
+        /*String id = "visit_" + NameNormalizer.getRandomID();*/
+        String id = task.getPlanId();
+        Profile planProfile = task.getProfile();
+        LocationType pointLoc = ((VisitPoint) task).getPointToVisit();
 
         PlanType plan = new PlanType(console.getMission());
         plan.setId(id);

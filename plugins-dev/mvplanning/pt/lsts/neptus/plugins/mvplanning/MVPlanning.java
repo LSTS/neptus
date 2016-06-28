@@ -54,6 +54,7 @@ import javax.xml.bind.JAXBException;
 
 import com.google.common.eventbus.Subscribe;
 
+import info.necsave.msgs.Plan;
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.console.ConsoleLayout;
 import pt.lsts.neptus.console.ConsolePanel;
@@ -88,6 +89,7 @@ import pt.lsts.neptus.types.coord.LocationType;
 import pt.lsts.neptus.types.map.MarkElement;
 import pt.lsts.neptus.types.map.ParallelepipedElement;
 import pt.lsts.neptus.types.mission.plan.PlanType;
+import pt.lsts.neptus.util.NameNormalizer;
 
 /**
  * @author tsmarques
@@ -363,36 +365,47 @@ public class MVPlanning extends ConsolePanel implements PlanChangeListener, Rend
         covArea = new GridArea(60, elem.getWidth(), elem.getLength(), elem.getYawRad(), lt, env);
         mst = new MST(covArea.getAllCells()[0][0]);
 
+        String id = "c_" + NameNormalizer.getRandomID();
         String desiredProfile = (String) profiles.getSelectedItem();
-        PlanTask task = new CoverageArea("42", availableProfiles.get(desiredProfile), covArea);
-        pAlloc.allocate(task);
-        /*List<PlanType> plans = pGen.generateCoverageArea(availableProfiles.get(desiredProfile), covArea);*/
+        PlanTask task = new CoverageArea(id, availableProfiles.get(desiredProfile), covArea);
+        List<PlanTask> plans = pAlloc.allocate(task);
 
-/*        if(!plans.isEmpty()) {
-            for(PlanType plan : plans) {
-                listModel.addElement(plan.getId());
-                selectedPlans.put(plan.getId(), plan);
-
-                *//**//* add plan to plan's tree *//**//*
-                console.addPlanToMission(plan);
-            }
-
-            *//* save mission *//*
-            console.saveMission();
-        }*/
+        updatePlansList(plans);
     }
+
 
     private void handleMarkElement(MarkElement mark) {
         String type = mark.getId().split("mvp_")[1];
 
-                /* generating a visit plan */
+        /* generating a visit plan */
         if(type.contains("visit")) {
+            String id = "v_" + NameNormalizer.getRandomID();
             String desiredProfile = (String) profiles.getSelectedItem();
-            PlanTask task = new VisitPoint("42", availableProfiles.get(desiredProfile), mark.getCenterLocation());
-            pAlloc.allocate(task);
+            PlanTask task = new VisitPoint(id, availableProfiles.get(desiredProfile), mark.getCenterLocation());
+            List<PlanTask> plans = pAlloc.allocate(task);
+
+            updatePlansList(plans);
         }
         else /* marking the position of a vehicle */
             vawareness.setVehicleStartLocation(type, mark.getCenterLocation());
+    }
+
+    private void updatePlansList(List<PlanTask> plans) {
+        if(!plans.isEmpty()) {
+            for(PlanTask plan : plans) {
+                String id = plan.getPlanId();
+                PlanType planType = plan.asPlanType();
+
+                listModel.addElement(id);
+                selectedPlans.put(id, planType);
+
+                 /* add plan to plan's tree */
+                console.addPlanToMission(planType);
+            }
+
+             /*save mission*/
+            console.saveMission();
+        }
     }
 
     @Override

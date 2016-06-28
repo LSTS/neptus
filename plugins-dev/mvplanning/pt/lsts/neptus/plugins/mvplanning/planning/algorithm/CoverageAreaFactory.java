@@ -125,7 +125,7 @@ public class CoverageAreaFactory {
         /* if completion time is bigger than 30 minutes, split the path */
         if(fpath.getCompletionTime(loc) >= 1800) {
             fpaths = splitPath(fpath, path);
-            NeptusLog.pub().debug("Splitting the coverage area plan");
+            NeptusLog.pub().info("Splitting the coverage area plan");
         }
         else
             fpaths.add(fpath);
