@@ -113,18 +113,6 @@ public class Tracking extends ConsolePanel implements ItemListener {
     @NeptusProperty(name = "Window Search Size", editable = true, userLevel = LEVEL.REGULAR)
     private int windowSearchSize = 90;
 
-    // Intrinsics values of cameras
-    private double[] intrinsicsCam1 = {3.26336578e+02, 0, 1.25266464e+02, 0, 3.26336578e+02, 1.06894310e+02, 0, 0, 1};
-    private double[] intrinsicsCam2 = {3.59765076e+02, 0, 1.62657486e+02, 0, 3.59765076e+02, 1.51674881e+02, 0, 0, 1};
-    private Mat camera1Matrix;
-    private Mat camera2Matrix;
-
-    // Distortion values of cameras
-    private double[] distortionCam1 = {-3.08465540e-01, 4.35592771e-01, 1.95114734e-03, -1.95597988e-02, -3.97069126e-01};
-    private double[] distortionCam2 = {-3.66452515e-01, 4.58165258e-01, -2.68907025e-02, 1.92216062e-03, -5.66232741e-01};
-    private Mat distCoeffsCam1;
-    private Mat distCoeffsCam2;
-
     // Width size of Console
     private int widhtConsole;
     // Height size of Console
@@ -263,11 +251,6 @@ public class Tracking extends ConsolePanel implements ItemListener {
      * Initialize Variables
      */
     public void initVariables() {
-        camera1Matrix = new Mat(3, 3, CvType.CV_32F);
-        distCoeffsCam1 = new Mat(5, 1, CvType.CV_32F);
-        camera2Matrix = new Mat(3, 3, CvType.CV_32F);
-        distCoeffsCam2 = new Mat(5, 1, CvType.CV_32F);
-        initParametersOfCams();
         fpsMax = 30;
         isTracking = false;
         showDebug = false;
@@ -297,25 +280,6 @@ public class Tracking extends ConsolePanel implements ItemListener {
         setupWatchDogCam(4000);
     }
     
-    /**
-     * Update/fill parameters values of cameras
-     */
-    public void initParametersOfCams() {
-        int t = 0;
-        for(int i = 0; i < camera1Matrix.total(); i++) {
-            t = i / 3;
-            camera1Matrix.put(t, i % 3, intrinsicsCam1[i]);
-            camera2Matrix.put(t, i % 3, intrinsicsCam2[i]);
-        }
-        for(int i = 0; i < distCoeffsCam1.total(); i++) {
-            distCoeffsCam1.put(i, 0, distortionCam1[i]);
-            distCoeffsCam2.put(i, 0, distortionCam2[i]);
-        }
-
-        UtilTracking.initRemapMap(camera1Matrix, distCoeffsCam1, 1);
-        UtilTracking.initRemapMap(camera2Matrix, distCoeffsCam2, 2);
-    }
-
     /* (non-Javadoc)
      * @see java.awt.event.ItemListener#itemStateChanged(java.awt.event.ItemEvent)
      */
@@ -666,8 +630,8 @@ public class Tracking extends ConsolePanel implements ItemListener {
                     if (!closePlugin && startCapture) {
                         if (!matCam1.empty() && !matCam2.empty()) {
                             long startTime = System.currentTimeMillis();
-                            offlineImageCam1 = UtilCv.matToBufferedImage(UtilTracking.undistort(matCam1, 1));
-                            offlineImageCam2 = UtilCv.matToBufferedImage(UtilTracking.undistort(matCam2, 2));
+                            offlineImageCam1 = UtilCv.matToBufferedImage(matCam1);
+                            offlineImageCam2 = UtilCv.matToBufferedImage(matCam2);
                             
                             showImage(UtilTracking.resizeBufferedImage(offlineImageCam1, panelSize, true), UtilTracking.resizeBufferedImage(offlineImageCam2, panelSize, true));
                             long stopTime = System.currentTimeMillis();
