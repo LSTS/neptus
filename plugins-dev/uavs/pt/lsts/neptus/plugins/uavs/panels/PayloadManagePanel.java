@@ -65,7 +65,7 @@ public class PayloadManagePanel extends ConsolePanel implements MainVehicleChang
 
     private static final double SERVO_OPEN = (Math.PI/2);
     private static final double SERVO_CLOSE = Math.PI;
-    private static final short SERVO_ID = 24;
+    private static final short SERVO_ID = 2;
     
     private boolean isOpenState = true;
     private final String lockTxt = I18n.text("Lock");
