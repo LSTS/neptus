@@ -29,10 +29,9 @@ import pt.lsts.neptus.plugins.mvplanning.utils.MvPlanningUtils;
 import pt.lsts.neptus.types.coord.LocationType;
 import pt.lsts.neptus.types.mission.GraphType;
 import pt.lsts.neptus.types.mission.plan.PlanType;
-import pt.lsts.neptus.util.NameNormalizer;
 
 public class PlanGenerator {
-    private final ReadWriteLock RW_LOCK = new ReentrantReadWriteLock();
+    private final ReadWriteLock OP_AREA_RW_LOCK = new ReentrantReadWriteLock();
     private static GridArea operationalArea;
 
     private ConsoleAdapter console;
@@ -43,15 +42,15 @@ public class PlanGenerator {
     }
 
     public void setOperationalArea(GridArea opArea) {
-        RW_LOCK.writeLock().lock();
+        OP_AREA_RW_LOCK.writeLock().lock();
         operationalArea = opArea;
-        RW_LOCK.writeLock().unlock();
+        OP_AREA_RW_LOCK.writeLock().unlock();
     }
 
     public void updateOperationalArea() {
-        RW_LOCK.writeLock().lock();
+        OP_AREA_RW_LOCK.writeLock().lock();
         operationalArea.updateCellsObstacles();
-        RW_LOCK.writeLock().unlock();
+        OP_AREA_RW_LOCK.writeLock().unlock();
     }
 
     public void generatePlan(Profile planProfile, Object obj) {
@@ -168,11 +167,11 @@ public class PlanGenerator {
     }
 
     private FollowPath buildSafePath(LocationType start, LocationType end) throws SafePathNotFoundException {
-        RW_LOCK.readLock().lock();
+        OP_AREA_RW_LOCK.readLock().lock();
 
         List<ManeuverLocation> safePath = operationalArea.getShortestPath(start, end);
 
-        RW_LOCK.readLock().unlock();
+        OP_AREA_RW_LOCK.readLock().unlock();
 
         FollowPath safeFollowPath = new FollowPath();
         Vector<double[]> offsets = new Vector<>();
