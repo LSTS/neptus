@@ -148,7 +148,7 @@ public class MVPlanning extends ConsolePanel implements PlanChangeListener, Rend
 
         env = new Environment(this.console, pAlloc, pGen);
         stateMonitor = new StateMonitor(this.console);
-        extSysMonitor= new ExternalSystemsMonitor(this.console, pAlloc, pGen, true);
+        extSysMonitor = new ExternalSystemsMonitor(this.console, pAlloc, pGen);
 
         /* FIXME: this values should not be hard-coded */
         pGen.computeOperationalArea(env, 1500, 1500, 10);
@@ -317,6 +317,7 @@ public class MVPlanning extends ConsolePanel implements PlanChangeListener, Rend
         console.unsubscribeToIMCMessages(stateMonitor);
         console.unregisterToEventBus(env);
         PeriodicUpdatesService.unregister(extSysMonitor);
+        extSysMonitor.cleanup();
 
         NeptusLog.pub().info("Saving unfinished plans/tasks");
         stateMonitor.stopPlugin();

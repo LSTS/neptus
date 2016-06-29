@@ -51,7 +51,7 @@ import java.util.List;
 /**
  * Module that monitors external systems and issues
  * a warning, to the allocator, if any one gets too close
- * to a current plan
+ * to an active vehicle
  * @author tsmarques
  * @date 6/19/16
  */
@@ -61,14 +61,11 @@ public class ExternalSystemsMonitor extends AbstractSupervisor implements IPerio
     private List<String> quarantine;
     private ExternalSystemsSimulator extSysSimulator;
 
-    public ExternalSystemsMonitor(ConsoleAdapter console, PlanAllocator pAlloc, PlanGenerator pGen, boolean debugMode) {
+    public ExternalSystemsMonitor(ConsoleAdapter console, PlanAllocator pAlloc, PlanGenerator pGen) {
         super(console, pAlloc, pGen);
         quarantine = new ArrayHashSet<>();
-
-        if(debugMode) {
-            extSysSimulator = new ExternalSystemsSimulator();
-            console.registerToEventBus(extSysSimulator);
-        }
+        extSysSimulator = new ExternalSystemsSimulator();
+        console.registerToEventBus(extSysSimulator);
     }
 
     @Override
@@ -78,22 +75,23 @@ public class ExternalSystemsMonitor extends AbstractSupervisor implements IPerio
 
     @Override
     public boolean update() {
-        for(ExternalSystem extSys : ExternalSystemsHolder.lookupActiveSystemVehicles()) {
-            for(ImcSystem sys : ImcSystemsHolder.lookupActiveSystemVehicles()) {
-                boolean safeDistance = iswithinSafeDistance(extSys, sys);
-                boolean inQuarantine = quarantine.contains(extSys.getId());
+        synchronized (quarantine) {
+            for (ExternalSystem extSys : ExternalSystemsHolder.lookupActiveSystemVehicles()) {
+                for (ImcSystem sys : ImcSystemsHolder.lookupActiveSystemVehicles()) {
+                    boolean safeDistance = iswithinSafeDistance(extSys, sys);
+                    boolean inQuarantine = quarantine.contains(extSys.getId());
 
-                if(!safeDistance && !inQuarantine) {
-                    console.post(new MvPlanningNoSafeDistanceEvent(extSys, sys));
-                    NeptusLog.pub().warn("External system with id " + extSys.getId() + " too close to " + sys.getName());
+                    if (!safeDistance && !inQuarantine) {
+                        console.post(new MvPlanningNoSafeDistanceEvent(extSys, sys));
+                        NeptusLog.pub().warn("External system with id " + extSys.getId() + " too close to " + sys.getName());
 
-                    quarantine.add(extSys.getId());
+                        quarantine.add(extSys.getId());
+                    } else if (safeDistance && inQuarantine)
+                        quarantine.remove(extSys.getId());
                 }
-                else if(safeDistance && inQuarantine)
-                    quarantine.remove(extSys.getId());
             }
+            return true;
         }
-        return true;
     }
 
     /**
@@ -102,5 +100,9 @@ public class ExternalSystemsMonitor extends AbstractSupervisor implements IPerio
      * */
     private boolean iswithinSafeDistance(ExternalSystem extSys, ImcSystem vehicle) {
         return extSys.getLocation().getDistanceInMeters(vehicle.getLocation()) > SAFE_DISTANCE;
+    }
+
+    public void cleanup() {
+        console.unregisterToEventBus(extSysSimulator);
     }
 }
