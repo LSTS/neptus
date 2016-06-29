@@ -375,7 +375,7 @@ public class Tracking extends ConsolePanel implements ItemListener {
             if (isTracking) {
                 g.setFont(new Font("Serif", Font.BOLD, 12));
                 fm = g.getFontMetrics();
-                textCam1 =String.format("Dist to Cam1 (m)");
+                textCam1 =String.format("Dist to Center (m)");
                 g.setColor(Color.BLACK);
                 g.drawString(textCam1, 2, (int)panelSize.height - 44);
                 g.setColor(Color.ORANGE);
@@ -393,7 +393,7 @@ public class Tracking extends ConsolePanel implements ItemListener {
                 textCam1 =String.format("Z: %.2f", zWorldCoord);
                 g.setColor(Color.BLACK);
                 g.drawString(textCam1, 60, (int)panelSize.height - 8);
-                g.setColor(Color.BLUE);
+                g.setColor(Color.CYAN);
                 g.drawString(textCam1, 62, (int)panelSize.height - 8);
                 g.drawImage(ImageUtils.toBufferedImage(ImageUtils.getImage("images/axis.png")), 4, (int)panelSize.height - 38, this);
                 g.dispose();
@@ -410,7 +410,6 @@ public class Tracking extends ConsolePanel implements ItemListener {
     /**
      * Print to panel images captured/processed
      */
-    // Print Images to console
     private void showImage(BufferedImage image1, BufferedImage image2) {
         realImageCam1 = image1;
         realImageCam2 = image2;
