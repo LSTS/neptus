@@ -32,7 +32,9 @@
 
 package pt.lsts.neptus.plugins.mvplanning.monitors;
 
+import com.google.common.collect.Multimap;
 import com.jogamp.common.util.ArrayHashSet;
+import org.apache.commons.collections15.multimap.MultiHashMap;
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.comm.manager.imc.ImcSystem;
 import pt.lsts.neptus.comm.manager.imc.ImcSystemsHolder;
@@ -46,6 +48,8 @@ import pt.lsts.neptus.plugins.update.IPeriodicUpdates;
 import pt.lsts.neptus.systems.external.ExternalSystem;
 import pt.lsts.neptus.systems.external.ExternalSystemsHolder;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -63,7 +67,7 @@ public class ExternalSystemsMonitor extends AbstractSupervisor implements IPerio
 
     public ExternalSystemsMonitor(ConsoleAdapter console, PlanAllocator pAlloc, PlanGenerator pGen) {
         super(console, pAlloc, pGen);
-        quarantine = new ArrayHashSet<>();
+        quarantine = new ArrayList<>();
         extSysSimulator = new ExternalSystemsSimulator();
         console.registerToEventBus(extSysSimulator);
     }
@@ -76,18 +80,21 @@ public class ExternalSystemsMonitor extends AbstractSupervisor implements IPerio
     @Override
     public boolean update() {
         synchronized (quarantine) {
-            for (ExternalSystem extSys : ExternalSystemsHolder.lookupActiveSystemVehicles()) {
-                for (ImcSystem sys : ImcSystemsHolder.lookupActiveSystemVehicles()) {
-                    boolean safeDistance = iswithinSafeDistance(extSys, sys);
-                    boolean inQuarantine = quarantine.contains(extSys.getId());
+            for(ImcSystem sys : ImcSystemsHolder.lookupActiveSystemVehicles()) {
+                boolean inQuarantine = quarantine.contains(sys.getName());
+                boolean safeDistance = Arrays.stream(ExternalSystemsHolder.lookupActiveSystemVehicles())
+                        .allMatch((extSys) -> iswithinSafeDistance(extSys, sys));
 
-                    if (!safeDistance && !inQuarantine) {
-                        console.post(new MvPlanningNoSafeDistanceEvent(extSys, sys));
-                        NeptusLog.pub().warn("External system with id " + extSys.getId() + " too close to " + sys.getName());
+                if(!safeDistance && !inQuarantine) {
+                    console.post(new MvPlanningNoSafeDistanceEvent(sys));
+                    NeptusLog.pub().info("[" + sys.getName() + "] : UNSAFE");
 
-                        quarantine.add(extSys.getId());
-                    } else if (safeDistance && inQuarantine)
-                        quarantine.remove(extSys.getId());
+                    quarantine.add(sys.getName());
+                }
+                else if(safeDistance && inQuarantine) {
+                    /* remove vehicle from quarantine */
+                    quarantine.remove(sys.getName());
+                    NeptusLog.pub().info("[" + sys.getName() + "] : SAFE");
                 }
             }
             return true;

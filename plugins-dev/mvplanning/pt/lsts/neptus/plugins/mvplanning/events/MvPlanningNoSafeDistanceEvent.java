@@ -10,16 +10,10 @@ import pt.lsts.neptus.systems.external.ExternalSystem;
  * @date 20/06/16
  */
 public class MvPlanningNoSafeDistanceEvent {
-    private ExternalSystem extSys;
     private ImcSystem sys;
 
-    public MvPlanningNoSafeDistanceEvent(ExternalSystem extSys, ImcSystem sys) {
-        this.extSys = extSys;
+    public MvPlanningNoSafeDistanceEvent(ImcSystem sys) {
         this.sys = sys;
-    }
-
-    public ExternalSystem getExternalSystem() {
-        return extSys;
     }
 
     public ImcSystem getImcVehicle() {
