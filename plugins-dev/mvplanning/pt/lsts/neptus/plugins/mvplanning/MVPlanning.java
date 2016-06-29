@@ -105,7 +105,6 @@ public class MVPlanning extends ConsolePanel implements PlanChangeListener, Rend
     public boolean showOpArea = false;
 
     private final ProfileMarshaler pMarsh = new ProfileMarshaler();
-    private final PlanTaskMarshaler pTaskMarsh = new PlanTaskMarshaler();
     public final Map<String, Profile> availableProfiles = pMarsh.getAllProfiles();
 
     /* modules */
@@ -147,7 +146,7 @@ public class MVPlanning extends ConsolePanel implements PlanChangeListener, Rend
         pAlloc = new PlanAllocator(vawareness, this.console, pGen);
 
         env = new Environment(this.console, pAlloc, pGen);
-        stateMonitor = new StateMonitor(this.console, pTaskMarsh);
+        stateMonitor = new StateMonitor(this.console);
         extSysMonitor= new ExternalSystemsMonitor(this.console, pAlloc, pGen, true);
 
         computeOperationalArea();

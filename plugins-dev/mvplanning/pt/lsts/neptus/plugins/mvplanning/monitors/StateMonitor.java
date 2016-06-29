@@ -83,14 +83,13 @@ public class StateMonitor {
         return isClosing || isPaused;
     }
 
+    private final PlanTaskMarshaler pTaskMarsh = new PlanTaskMarshaler();
     private ConcurrentMap<String, Double> plansCompletion = null;
     private ConcurrentMap<String, PlanTask> plans = null;
     private ConsoleAdapter console;
-    private PlanTaskMarshaler pTaskMarsh;
 
-    public StateMonitor(ConsoleAdapter console, PlanTaskMarshaler pTaskMarsh) {
+    public StateMonitor(ConsoleAdapter console) {
         this.console = console;
-        this.pTaskMarsh = pTaskMarsh;
         plansCompletion = new ConcurrentHashMap<>();
         plans = new ConcurrentHashMap<>();
     }
