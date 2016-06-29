@@ -14,6 +14,7 @@ import pt.lsts.neptus.comm.IMCUtils;
 import pt.lsts.neptus.mp.Maneuver;
 import pt.lsts.neptus.mp.ManeuverLocation;
 import pt.lsts.neptus.mp.maneuvers.LocatedManeuver;
+import pt.lsts.neptus.plugins.mvplanning.events.MvPlanningEventNewOpArea;
 import pt.lsts.neptus.plugins.mvplanning.exceptions.BadPlanTaskException;
 import pt.lsts.neptus.plugins.mvplanning.exceptions.SafePathNotFoundException;
 import pt.lsts.neptus.plugins.mvplanning.interfaces.ConsoleAdapter;
@@ -21,6 +22,7 @@ import pt.lsts.neptus.plugins.mvplanning.interfaces.MapDecomposition;
 import pt.lsts.neptus.plugins.mvplanning.jaxb.profiles.Profile;
 import pt.lsts.neptus.plugins.mvplanning.interfaces.PlanTask;
 import pt.lsts.neptus.plugins.mvplanning.interfaces.PlanTask.TASK_TYPE;
+import pt.lsts.neptus.plugins.mvplanning.monitors.Environment;
 import pt.lsts.neptus.plugins.mvplanning.planning.algorithm.CoverageAreaFactory;
 import pt.lsts.neptus.plugins.mvplanning.planning.mapdecomposition.GridArea;
 import pt.lsts.neptus.plugins.mvplanning.planning.tasks.CoverageArea;
@@ -32,10 +34,12 @@ import pt.lsts.neptus.types.mission.plan.PlanType;
 
 public class PlanGenerator {
     private final ReadWriteLock OP_AREA_RW_LOCK = new ReentrantReadWriteLock();
-    private static GridArea operationalArea;
+    private Thread opAreaWorker = new Thread();
+    private volatile boolean opAreaCreated = false;
+    /* Map decomposition needed for some algorithms, e.g, A-star */
+    private static GridArea operationalArea = null;
 
     private ConsoleAdapter console;
-    /* Map decomposition needed for some algorithms, e.g, A-star */
 
     public PlanGenerator(ConsoleAdapter console) {
         this.console = console;
@@ -47,10 +51,31 @@ public class PlanGenerator {
         OP_AREA_RW_LOCK.writeLock().unlock();
     }
 
+    public void computeOperationalArea(Environment env, double width, double height, double cellSize) {
+        new Thread() {
+            public void run() {
+                OP_AREA_RW_LOCK.writeLock().lock();
+                operationalArea = new GridArea(cellSize, width, height, 0, console.getMapGroup().getHomeRef().getCenterLocation(), env);
+                OP_AREA_RW_LOCK.writeLock().unlock();
+
+                NeptusLog.pub().info("Operational area [" + width +  " x " + height + "] is set. Cells are [" + cellSize + " x " + cellSize + "]");
+                console.post(new MvPlanningEventNewOpArea(operationalArea));
+
+            }
+        }.start();
+    }
+
+
     public void updateOperationalArea() {
-        OP_AREA_RW_LOCK.writeLock().lock();
-        operationalArea.updateCellsObstacles();
-        OP_AREA_RW_LOCK.writeLock().unlock();
+        new Thread() {
+            public void run() {
+                OP_AREA_RW_LOCK.writeLock().lock();
+                if (operationalArea != null)
+                    operationalArea.updateCellsObstacles();
+                OP_AREA_RW_LOCK.writeLock().unlock();
+                NeptusLog.pub().info("Updated operational area");
+            }
+        }.start();
     }
 
     public void generatePlan(Profile planProfile, Object obj) {

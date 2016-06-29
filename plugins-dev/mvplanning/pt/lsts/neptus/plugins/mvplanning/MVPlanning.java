@@ -67,6 +67,7 @@ import pt.lsts.neptus.plugins.PluginDescription;
 import pt.lsts.neptus.plugins.Popup;
 import pt.lsts.neptus.plugins.Popup.POSITION;
 import pt.lsts.neptus.plugins.mvplanning.consoles.NeptusConsoleAdapter;
+import pt.lsts.neptus.plugins.mvplanning.events.MvPlanningEventNewOpArea;
 import pt.lsts.neptus.plugins.mvplanning.events.MvPlanningEventPlanAllocated;
 import pt.lsts.neptus.plugins.mvplanning.interfaces.ConsoleAdapter;
 import pt.lsts.neptus.plugins.mvplanning.interfaces.MapCell;
@@ -149,7 +150,8 @@ public class MVPlanning extends ConsolePanel implements PlanChangeListener, Rend
         stateMonitor = new StateMonitor(this.console);
         extSysMonitor= new ExternalSystemsMonitor(this.console, pAlloc, pGen, true);
 
-        computeOperationalArea();
+        /* FIXME: this values should not be hard-coded */
+        pGen.computeOperationalArea(env, 1500, 1500, 10);
         fetchPlans();
     }
 
@@ -180,25 +182,14 @@ public class MVPlanning extends ConsolePanel implements PlanChangeListener, Rend
         }
     }
 
-    private void computeOperationalArea() {
-        new Thread() {
-            public void run() {
-                int width = 1500;
-                int height = 1500;
-                int cellWidth = 10;
-                GridArea operationalArea = new GridArea(cellWidth, width, height, 0, console.getMapGroup().getHomeRef().getCenterLocation(), env);
+    @Subscribe
+    public void on(MvPlanningEventNewOpArea event) {
+        synchronized(OP_AREA_LOCK) {
+            opArea = event.getArea();
 
-                pluginStateButton.setEnabled(true);
-                resumePlugin();
-
-                NeptusLog.pub().info("Operational area [" + width +  " x " + height + "] is set. Cells are [" + cellWidth + " x " + cellWidth + "]");
-                pGen.setOperationalArea(operationalArea);
-
-                synchronized(OP_AREA_LOCK) {
-                    opArea = operationalArea;
-                }
-            }
-        }.start();
+            pluginStateButton.setEnabled(true);
+            resumePlugin();
+        }
     }
 
     private void resumePlugin() {
@@ -324,6 +315,7 @@ public class MVPlanning extends ConsolePanel implements PlanChangeListener, Rend
         console.unregisterToEventBus(vawareness);
         console.unregisterToEventBus(stateMonitor);
         console.unsubscribeToIMCMessages(stateMonitor);
+        console.unregisterToEventBus(env);
         PeriodicUpdatesService.unregister(extSysMonitor);
 
         NeptusLog.pub().info("Saving unfinished plans/tasks");
@@ -335,6 +327,7 @@ public class MVPlanning extends ConsolePanel implements PlanChangeListener, Rend
         console.registerToEventBus(vawareness);
         console.registerToEventBus(stateMonitor);
         console.subscribeToIMCMessages(stateMonitor);
+        console.registerToEventBus(env);
 
         PeriodicUpdatesService.register(extSysMonitor);
     }

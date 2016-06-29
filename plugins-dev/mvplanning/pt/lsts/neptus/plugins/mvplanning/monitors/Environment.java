@@ -37,6 +37,7 @@ import java.awt.geom.Rectangle2D;
 import java.util.ArrayList;
 
 import com.google.common.eventbus.Subscribe;
+import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.mp.MapChangeEvent;
 import pt.lsts.neptus.plugins.mvplanning.PlanAllocator;
 import pt.lsts.neptus.plugins.mvplanning.PlanGenerator;
@@ -96,6 +97,7 @@ public class Environment extends AbstractSupervisor {
             return;
 
         if(event.getChangedObject().isObstacle()) {
+            NeptusLog.pub().info("New obstacles added. Updating operational area...");
             pGen.updateOperationalArea(); /* warn plan generator to update operational area */
         }
     }
