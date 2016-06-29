@@ -134,6 +134,7 @@ public class PlanGenerator {
      * @throws SafePathNotFoundException
      * */
     public PlanSpecification closePlan(PlanTask ptask, LocationType start, LocationType end) throws SafePathNotFoundException {
+        NeptusLog.pub().info("Closing plan " + ptask.getPlanId());
         /* current plan */
         PlanType plan = ptask.asPlanType().clonePlan();
 

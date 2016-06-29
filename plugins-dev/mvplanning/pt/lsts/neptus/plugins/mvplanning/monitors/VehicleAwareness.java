@@ -78,7 +78,8 @@ public class VehicleAwareness {
 
         /* Fetch available vehicles, on plugin start-up */
         for(ImcSystem vehicle : ImcSystemsHolder.lookupActiveSystemByType(SystemTypeEnum.VEHICLE))
-            setVehicleState(vehicle.getName(), VEHICLE_STATE.AVAILABLE);
+            if(hasReliableComms(vehicle.getName()))
+                setVehicleState(vehicle.getName(), VEHICLE_STATE.AVAILABLE);
     }
 
     public void setVehicleStartLocation(String vehicleId, LocationType startLocation) {
@@ -112,9 +113,11 @@ public class VehicleAwareness {
     private void checkVehicleState(String vehicle, STATE state) {
         VEHICLE_STATE st = VEHICLE_STATE.UNAVAILABLE;
 
-        if(state == STATE.FINISHED || state == STATE.SERVICE)
-            if(hasReliableComms(vehicle))
+        NeptusLog.pub().info("[" + vehicle + "]" + " : " + state.name());
+        if(state == STATE.FINISHED || state == STATE.SERVICE) {
+            if (hasReliableComms(vehicle))
                 st = VEHICLE_STATE.AVAILABLE;
+        }
 
         setVehicleState(vehicle, st);
     }
@@ -124,7 +127,7 @@ public class VehicleAwareness {
         vehiclesState.put(vehicle, state);
         RW_LOCK.writeLock().unlock();
 
-        NeptusLog.pub().info("Vehicle " + vehicle + " is " + state.value);
+        NeptusLog.pub().info("[" + vehicle + "] : " + state.name() + "\n\n");
     }
 
     /**
@@ -149,6 +152,34 @@ public class VehicleAwareness {
      * */
     private boolean hasReliableComms(String vehicle) {
         ImcSystem sys = ImcSystemsHolder.getSystemWithName(vehicle);
-        return sys.isActive() && (sys.isTCPOn() || sys.isSimulated());
+        boolean isActive = sys.isActive();
+        boolean isTCPOn = sys.isTCPOn();
+        boolean isSimulated = sys.isSimulated();
+        String debugMessage = buildDebugMessage(isActive,isTCPOn,isSimulated);
+
+        NeptusLog.pub().info("[" + vehicle + "] : " + debugMessage);
+
+        return isActive && (isTCPOn || isSimulated);
+    }
+
+    private String buildDebugMessage(boolean isActive, boolean isTCPOn, boolean isSimulated) {
+        String debugMsg = "";
+
+        if(isActive)
+            debugMsg += "ACTIVE | ";
+        else
+            debugMsg += "NOT ACTIVE | ";
+
+        if(isTCPOn)
+            debugMsg += "TCP ON| ";
+        else
+            debugMsg += "TCP OFF | ";
+
+        if(isSimulated)
+            debugMsg += "SIMULATED | ";
+        else
+            debugMsg += "NOT SIMULATED | ";
+
+        return debugMsg;
     }
 }
