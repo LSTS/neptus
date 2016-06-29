@@ -22,7 +22,7 @@
  * distributed on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF
  * ANY KIND, either express or implied. See the Licence for the specific
  * language governing permissions and limitations at
- * https://www.lsts.pt/neptus/licence.
+ * http://ec.europa.eu/idabc/eupl.html.
  *
  * For more information please see <http://lsts.fe.up.pt/neptus>.
  *
@@ -138,7 +138,7 @@ public class VehicleSelectionDialog extends JPanel {
     
     public static String[] showSelectionDialog(Window owner, String[] initialSelection) {
         JDialog dialog = owner == null ? new JDialog((Frame) ConfigFetch.getSuperParentFrame()) : new JDialog(owner);
-        VehicleSelectionDialog vs = new VehicleSelectionDialog(initialSelection);        
+        VehicleSelectionDialog vs = new VehicleSelectionDialog(initialSelection, true);        
         dialog.getContentPane().add(vs);
         dialog.setSize(500, 300);
         dialog.setModalityType(ModalityType.DOCUMENT_MODAL);
@@ -148,16 +148,17 @@ public class VehicleSelectionDialog extends JPanel {
     }
 
     public VehicleSelectionDialog() {
-        this(new String[0]);
+        this(new String[0], true);
     }
     
-    public VehicleSelectionDialog(String[] initialSelection) {
+    public VehicleSelectionDialog(String[] initialSelection, boolean showButtons) {
         setSelection(initialSelection);
         
         JPanel mainPanel = new JPanel(new BorderLayout());
 
         mainPanel.add(new JScrollPane(getVehiclesPanel()));
 
+        
         JButton btnOk = new JButton(I18n.text("OK"));
         btnOk.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent arg0) {

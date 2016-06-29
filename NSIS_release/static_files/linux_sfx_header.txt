@@ -107,7 +107,7 @@ cd "@INSTALL_DIR@"
 createLauncher Neptus
 # Neptus MRA launcher
 createLauncher "Neptus MRA" mra
-checkForUnity
+# checkForUnity
 cd -
 
 echo "Done. Type './neptus.sh' in the @INSTALL_DIR@ directory to launch Neptus"

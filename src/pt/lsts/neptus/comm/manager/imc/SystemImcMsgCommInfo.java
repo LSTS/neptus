@@ -22,7 +22,7 @@
  * distributed on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF
  * ANY KIND, either express or implied. See the Licence for the specific
  * language governing permissions and limitations at
- * https://www.lsts.pt/neptus/licence.
+ * http://ec.europa.eu/idabc/eupl.html.
  *
  * For more information please see <http://lsts.fe.up.pt/neptus>.
  *
@@ -57,6 +57,7 @@ import pt.lsts.imc.VehicleState;
 import pt.lsts.imc.lsf.LsfMessageLogger;
 import pt.lsts.imc.state.ImcSystemState;
 import pt.lsts.neptus.NeptusLog;
+import pt.lsts.neptus.comm.SystemUtils;
 import pt.lsts.neptus.comm.manager.MessageFrequencyCalculator;
 import pt.lsts.neptus.comm.manager.SystemCommBaseInfo;
 import pt.lsts.neptus.i18n.I18n;
@@ -374,15 +375,15 @@ public class SystemImcMsgCommInfo extends SystemCommBaseInfo<IMCMessage, Message
                     double groundSpeed = Math.sqrt(vx * vx + vy * vy);
                     double verticalSpeed = vz;
 
-                    resSys.storeData(ImcSystem.COURSE_KEY,
+                    resSys.storeData(SystemUtils.COURSE_DEGS_KEY,
                             (int) AngleUtils.nomalizeAngleDegrees360(MathMiscUtils.round(Math.toDegrees(courseRad), 0)),
                             timeMillis, true);
-                    resSys.storeData(ImcSystem.GROUND_SPEED_KEY, groundSpeed, timeMillis, true);
-                    resSys.storeData(ImcSystem.VERTICAL_SPEED_KEY, verticalSpeed, timeMillis, true);
+                    resSys.storeData(SystemUtils.GROUND_SPEED_KEY, groundSpeed, timeMillis, true);
+                    resSys.storeData(SystemUtils.VERTICAL_SPEED_KEY, verticalSpeed, timeMillis, true);
 
                     double headingRad = msg.getDouble("psi");
                     resSys.storeData(
-                            ImcSystem.HEADING_KEY,
+                            SystemUtils.HEADING_DEGS_KEY,
                             (int) AngleUtils.nomalizeAngleDegrees360(MathMiscUtils.round(Math.toDegrees(headingRad), 0)),
                             timeMillis, true);
                 }
@@ -415,7 +416,7 @@ public class SystemImcMsgCommInfo extends SystemCommBaseInfo<IMCMessage, Message
                 try {
                     long timeMillis = msg.getTimestampMillis();
                     double value = msg.getDouble("value");
-                    resSys.storeData(ImcSystem.INDICATED_SPEED_KEY, value, timeMillis, true);
+                    resSys.storeData(SystemUtils.INDICATED_SPEED_KEY, value, timeMillis, true);
                 }
                 catch (Exception e) {
                     e.printStackTrace();
@@ -426,7 +427,7 @@ public class SystemImcMsgCommInfo extends SystemCommBaseInfo<IMCMessage, Message
                 try {
                     long timeMillis = msg.getTimestampMillis();
                     double value = msg.getDouble("value");
-                    resSys.storeData(ImcSystem.TRUE_SPEED_KEY, value, timeMillis, true);
+                    resSys.storeData(SystemUtils.TRUE_SPEED_KEY, value, timeMillis, true);
                 }
                 catch (Exception e) {
                     e.printStackTrace();
@@ -448,25 +449,25 @@ public class SystemImcMsgCommInfo extends SystemCommBaseInfo<IMCMessage, Message
                     int entityId = (Integer) msg.getHeaderValue("src_ent");
                     final int value = msg.getInteger("value");
                     if (entityId == 0xFF) {
-                        resSys.storeData(ImcSystem.RPM_MAP_ENTITY_KEY, value, timeMillis, true);
+                        resSys.storeData(SystemUtils.RPM_MAP_ENTITY_KEY, value, timeMillis, true);
                     }
                     else {
                         final String entityName = EntitiesResolver.resolveName(resSys.getName(), entityId);
                         if (entityName != null) {
-                            long lastStoredTimeMillis = resSys.retrieveDataTimeMillis(ImcSystem.RPM_MAP_ENTITY_KEY);
-                            Object obj = resSys.retrieveData(ImcSystem.RPM_MAP_ENTITY_KEY);
+                            long lastStoredTimeMillis = resSys.retrieveDataTimeMillis(SystemUtils.RPM_MAP_ENTITY_KEY);
+                            Object obj = resSys.retrieveData(SystemUtils.RPM_MAP_ENTITY_KEY);
                             Map<String, Integer> rpms = null;
                             if (obj == null || !(obj instanceof Map<?, ?>)) {
                                 rpms = (Map<String, Integer>) Collections
                                         .synchronizedMap(new HashMap<String, Integer>());
                                 rpms.put(entityName, value);
-                                resSys.storeData(ImcSystem.RPM_MAP_ENTITY_KEY, rpms, timeMillis, true);
+                                resSys.storeData(SystemUtils.RPM_MAP_ENTITY_KEY, rpms, timeMillis, true);
                             }
                             else {
                                 rpms = (Map<String, Integer>) resSys
-                                        .retrieveData(ImcSystem.RPM_MAP_ENTITY_KEY);
+                                        .retrieveData(SystemUtils.RPM_MAP_ENTITY_KEY);
                                 rpms.put(entityName, value);
-                                resSys.storeData(ImcSystem.RPM_MAP_ENTITY_KEY, rpms, timeMillis, false);
+                                resSys.storeData(SystemUtils.RPM_MAP_ENTITY_KEY, rpms, timeMillis, false);
                             }
                             if (timeMillis - lastStoredTimeMillis > 2000) {
                                 for (String entName : rpms.keySet().toArray(new String[0])) {
@@ -487,7 +488,7 @@ public class SystemImcMsgCommInfo extends SystemCommBaseInfo<IMCMessage, Message
                 try {
                     long timeMillis = msg.getTimestampMillis();
                     FuelLevel fuelLevelMsg = (FuelLevel) msg;
-                    resSys.storeData(ImcSystem.FUEL_LEVEL_KEY, fuelLevelMsg, timeMillis, true);
+                    resSys.storeData(SystemUtils.FUEL_LEVEL_KEY, fuelLevelMsg, timeMillis, true);
                 }
                 catch (Exception e) {
                     e.printStackTrace();
@@ -497,7 +498,7 @@ public class SystemImcMsgCommInfo extends SystemCommBaseInfo<IMCMessage, Message
             case LblConfig.ID_STATIC:
                 try {
                     if (((LblConfig) msg).getOp() == OP.CUR_CFG)
-                        resSys.storeData(ImcSystem.LBL_CONFIG_KEY, (LblConfig) msg, msg.getTimestampMillis(), true);
+                        resSys.storeData(SystemUtils.LBL_CONFIG_KEY, (LblConfig) msg, msg.getTimestampMillis(), true);
                 }
                 catch (Exception e) {
                     e.printStackTrace();
@@ -508,7 +509,7 @@ public class SystemImcMsgCommInfo extends SystemCommBaseInfo<IMCMessage, Message
                 try {
                     long timeMillis = msg.getTimestampMillis();
                     AcousticSystems acousticSystemsMsg = (AcousticSystems) msg;
-                    resSys.storeData(ImcSystem.ACOUSTIC_SYSTEMS, acousticSystemsMsg, timeMillis, true);
+                    resSys.storeData(SystemUtils.ACOUSTIC_SYSTEMS, acousticSystemsMsg, timeMillis, true);
                 }
                 catch (Exception e) {
                     e.printStackTrace();
@@ -518,7 +519,7 @@ public class SystemImcMsgCommInfo extends SystemCommBaseInfo<IMCMessage, Message
                 try {
                     long timeMillis = msg.getTimestampMillis();
                     EntityParameters entityParametersMsg = (EntityParameters) msg;
-                    resSys.storeData(ImcSystem.ENTITY_PARAMETERS, entityParametersMsg, timeMillis, true);
+                    resSys.storeData(SystemUtils.ENTITY_PARAMETERS, entityParametersMsg, timeMillis, true);
                 }
                 catch (Exception e) {
                     e.printStackTrace();

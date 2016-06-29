@@ -22,7 +22,7 @@
  * distributed on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF
  * ANY KIND, either express or implied. See the Licence for the specific
  * language governing permissions and limitations at
- * https://www.lsts.pt/neptus/licence.
+ * http://ec.europa.eu/idabc/eupl.html.
  *
  * For more information please see <http://lsts.fe.up.pt/neptus>.
  *
@@ -52,7 +52,6 @@ import pt.lsts.imc.PlanControl.TYPE;
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.comm.IMCSendMessageUtils;
 import pt.lsts.neptus.comm.manager.imc.ImcSystem;
-import pt.lsts.neptus.comm.manager.imc.ImcSystem.IMCAuthorityState;
 import pt.lsts.neptus.comm.manager.imc.ImcSystemsHolder;
 import pt.lsts.neptus.console.ConsoleLayout;
 import pt.lsts.neptus.console.ConsolePanel;
@@ -188,9 +187,6 @@ public class CommandPlanner extends ConsolePanel implements IEditorMenuExtension
         });
 
         for (int i = 0; i < veh.length; i++) {
-            if (veh[i].getAuthorityState().ordinal() < IMCAuthorityState.SYSTEM_FULL.ordinal())
-                continue;
-
             VehicleType vehicle = VehiclesHolder.getVehicleWithImc(veh[i].getId());
             if (vehicle != null) {
                 if (getConsole().getMainSystem() != null

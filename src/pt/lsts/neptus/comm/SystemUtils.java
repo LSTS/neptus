@@ -22,7 +22,7 @@
  * distributed on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF
  * ANY KIND, either express or implied. See the Licence for the specific
  * language governing permissions and limitations at
- * https://www.lsts.pt/neptus/licence.
+ * http://ec.europa.eu/idabc/eupl.html.
  *
  * For more information please see <http://lsts.fe.up.pt/neptus>.
  *
@@ -40,6 +40,31 @@ import pt.lsts.neptus.types.vehicle.VehicleType.VehicleTypeEnum;
  *
  */
 public class SystemUtils {
+
+    // Constants for ImcSystem and ExternalSystem data store
+    public final static String GROUND_SPEED_KEY = "Ground Speed";
+    public final static String VERTICAL_SPEED_KEY = "Vertical Speed";
+    public final static String TRUE_SPEED_KEY = "True Speed";
+    public final static String INDICATED_SPEED_KEY = "Indicate Speed";
+    public final static String RPM_MAP_ENTITY_KEY = "RPM";
+    public final static String COURSE_DEGS_KEY = "Course";
+    public final static String HEADING_DEGS_KEY = "Heading";
+    public final static String FUEL_LEVEL_KEY = "Fuel Level";
+    public final static String WEB_UPDATED_KEY = "Web Updated";
+    public final static String LBL_CONFIG_KEY = "LblConfig";
+    public final static String ACOUSTIC_SYSTEMS = "AcousticSystems";
+    public final static String ENTITY_PARAMETERS = "EntityParameters";
+    public static final String WIDTH_KEY = "Width";
+    public static final String LENGHT_KEY = "Lenght";
+    public static final String WIDTH_CENTER_OFFSET_KEY = "Width Center Offset";
+    public static final String LENGHT_CENTER_OFFSET_KEY = "Lenght Center Offset";
+    public static final String DRAUGHT_KEY = "Draught";
+    public static final String MMSI_KEY = "MMSI";
+    public static final String SHIP_TYPE_KEY = "AIS Ship Type";
+    public static final String NAV_STATUS_KEY = "AIS Navigational Status";
+    public static final String CALL_SIGN_KEY = "Call Sign";
+    public static final String RATE_OF_TURN_DEGS_PER_MIN_KEY = "Rate of Turn (deg/min)";
+    public static final String DISTRESS_MSG_KEY = "Distress Message";
 
     /** To avoid instantiation */
     private SystemUtils() {

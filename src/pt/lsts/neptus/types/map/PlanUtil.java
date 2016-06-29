@@ -22,7 +22,7 @@
  * distributed on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF
  * ANY KIND, either express or implied. See the Licence for the specific
  * language governing permissions and limitations at
- * https://www.lsts.pt/neptus/licence.
+ * http://ec.europa.eu/idabc/eupl.html.
  *
  * For more information please see <http://lsts.fe.up.pt/neptus>.
  *
@@ -32,7 +32,7 @@
 package pt.lsts.neptus.types.map;
 
 import java.text.NumberFormat;
-import java.util.Collection;
+import java.util.ArrayList;
 import java.util.Vector;
 
 import javax.swing.JLabel;
@@ -204,8 +204,8 @@ public class PlanUtil {
     }
     
     
-    public static Collection<ManeuverLocation> getPlanWaypoints(PlanType plan) {
-        Vector<ManeuverLocation> locs = new Vector<>();
+    public static ArrayList<ManeuverLocation> getPlanWaypoints(PlanType plan) {
+        ArrayList<ManeuverLocation> locs = new ArrayList<>();
         for (Maneuver m : plan.getGraph().getManeuversSequence()) {
             if (m instanceof LocatedManeuver)
                 locs.addAll(((LocatedManeuver) m).getWaypoints());

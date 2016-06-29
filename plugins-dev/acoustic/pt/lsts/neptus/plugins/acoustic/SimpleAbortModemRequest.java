@@ -22,7 +22,7 @@
  * distributed on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF
  * ANY KIND, either express or implied. See the Licence for the specific
  * language governing permissions and limitations at
- * https://www.lsts.pt/neptus/licence.
+ * http://ec.europa.eu/idabc/eupl.html.
  *
  * For more information please see <http://lsts.fe.up.pt/neptus>.
  *
@@ -101,7 +101,7 @@ public class SimpleAbortModemRequest extends ConsolePanel implements IAbortSende
                 post(Notification.error(I18n.text("Abort Request"), I18n.textf("%manta timed out while trying to abort %systemName", source, system)));
                 break;
             case UNSUPPORTED:
-                post(Notification.error(I18n.text("Abort Request"), I18n.textf("%manta does not support aborting of %systemName", source, system)));
+                post(Notification.error(I18n.text("Abort Request"), I18n.textf("%manta does not support the requested operation", source)));
                 break;
             case NO_TXD:
                 post(Notification.error(I18n.text("Abort Request"), I18n.textf("%manta does not have a tranducer connected", source)));

@@ -22,7 +22,7 @@
  * distributed on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF
  * ANY KIND, either express or implied. See the Licence for the specific
  * language governing permissions and limitations at
- * https://www.lsts.pt/neptus/licence.
+ * http://ec.europa.eu/idabc/eupl.html.
  *
  * For more information please see <http://lsts.fe.up.pt/neptus>.
  *
@@ -201,20 +201,18 @@ public class Loiter extends Maneuver implements LocatedManeuver, StatisticsProvi
 	}
 	@Override
 	public ManeuverLocation getManeuverLocation() {
-		return location.clone();
+	    location.setRadius(getRadius());
+	    return location.clone();
 	}
 	
-    /* (non-Javadoc)
-     * @see pt.lsts.neptus.mp.maneuvers.LocationProvider#getFirstPosition()
-     */
     @Override
     public ManeuverLocation getStartLocation() {
-        return location.clone();
+        return getManeuverLocation();
     }
 
 	@Override
 	public ManeuverLocation getEndLocation() {
-	    return location.clone();
+	    return getManeuverLocation();
 	}
 	
 	public void setManeuverLocation(ManeuverLocation location) {

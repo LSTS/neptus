@@ -22,7 +22,7 @@
  * distributed on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF
  * ANY KIND, either express or implied. See the Licence for the specific
  * language governing permissions and limitations at
- * https://www.lsts.pt/neptus/licence.
+ * http://ec.europa.eu/idabc/eupl.html.
  *
  * For more information please see <http://lsts.fe.up.pt/neptus>.
  *
@@ -105,8 +105,6 @@ StateRendererInteraction, IMCSerialization, PathProvider {
     protected static final double RPM_PERCENT_CONVERSION = (1000/100);
     protected static final double PERCENT_MPS_CONVERSION = RPM_MPS_CONVERSION/RPM_PERCENT_CONVERSION;
     
-    protected static final Color COLOR_HELP = new Color(255, 125, 255);
-    
     protected String editingHelpText = I18n.text("Shift+Click to rotate | Alt+Click to remove last point");
 
     protected ManeuverLocation startLoc = new ManeuverLocation();
@@ -117,7 +115,6 @@ StateRendererInteraction, IMCSerialization, PathProvider {
     // points are [x,y,z,t] offsets 
     protected Vector<double[]> points = new Vector<double[]>();
 
-    protected static final int X = 0, Y = 1, Z = 2, T = 3;
     protected InteractionAdapter adapter = new InteractionAdapter(null);
     protected Point2D lastDragPoint = null;
     protected boolean editing = false;

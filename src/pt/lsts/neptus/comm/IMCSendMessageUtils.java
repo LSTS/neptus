@@ -22,7 +22,7 @@
  * distributed on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF
  * ANY KIND, either express or implied. See the Licence for the specific
  * language governing permissions and limitations at
- * https://www.lsts.pt/neptus/licence.
+ * http://ec.europa.eu/idabc/eupl.html.
  *
  * For more information please see <http://lsts.fe.up.pt/neptus>.
  *
@@ -214,9 +214,9 @@ public class IMCSendMessageUtils {
      * @return
      */
     public static boolean doesSystemWithAcousticCanReachSystem(ImcSystem acOpSystem, String system) {
-        if (acOpSystem.containsData(ImcSystem.ACOUSTIC_SYSTEMS)) {
+        if (acOpSystem.containsData(SystemUtils.ACOUSTIC_SYSTEMS)) {
             try {
-                AcousticSystems msg = (AcousticSystems) acOpSystem.retrieveData(ImcSystem.ACOUSTIC_SYSTEMS);
+                AcousticSystems msg = (AcousticSystems) acOpSystem.retrieveData(SystemUtils.ACOUSTIC_SYSTEMS);
                 String sysLst = msg.getList();
                 if (StringUtils.isTokenInList(sysLst, system))
                     return true;

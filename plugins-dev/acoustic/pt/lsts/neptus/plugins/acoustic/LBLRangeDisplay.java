@@ -22,7 +22,7 @@
  * distributed on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF
  * ANY KIND, either express or implied. See the Licence for the specific
  * language governing permissions and limitations at
- * https://www.lsts.pt/neptus/licence.
+ * http://ec.europa.eu/idabc/eupl.html.
  *
  * For more information please see <http://lsts.fe.up.pt/neptus>.
  *
@@ -69,6 +69,7 @@ import pt.lsts.imc.LblConfig;
 import pt.lsts.imc.LblRangeAcceptance;
 import pt.lsts.imc.LblRangeAcceptance.ACCEPTANCE;
 import pt.lsts.neptus.NeptusLog;
+import pt.lsts.neptus.comm.SystemUtils;
 import pt.lsts.neptus.comm.manager.imc.ImcSystem;
 import pt.lsts.neptus.comm.manager.imc.ImcSystemsHolder;
 import pt.lsts.neptus.console.ConsoleLayout;
@@ -740,7 +741,7 @@ SubPanelChangeListener, MissionChangeListener, MapChangeListener, ConfigurationL
 
         ImcSystem system = ImcSystemsHolder.getSystemWithName(getMainVehicleId());
         if (system != null) {
-            LblConfig lbl = (LblConfig) system.retrieveData(ImcSystem.LBL_CONFIG_KEY);
+            LblConfig lbl = (LblConfig) system.retrieveData(SystemUtils.LBL_CONFIG_KEY);
             Vector<LblBeacon> beaconList;
 
             try {
