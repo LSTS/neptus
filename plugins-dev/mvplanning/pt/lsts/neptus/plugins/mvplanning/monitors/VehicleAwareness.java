@@ -59,7 +59,8 @@ public class VehicleAwareness {
 
     private enum VEHICLE_STATE {
         AVAILABLE("Available"),
-        UNAVAILABLE("Unavailable");
+        UNAVAILABLE("Unavailable"),
+        REPLANNING("Replanning");
 
         protected String value;
         VEHICLE_STATE(String value) {
@@ -78,8 +79,10 @@ public class VehicleAwareness {
 
         /* Fetch available vehicles, on plugin start-up */
         for(ImcSystem vehicle : ImcSystemsHolder.lookupActiveSystemByType(SystemTypeEnum.VEHICLE))
-            if(hasReliableComms(vehicle.getName()))
+            if(hasReliableComms(vehicle.getName())) {
                 setVehicleState(vehicle.getName(), VEHICLE_STATE.AVAILABLE);
+                setVehicleStartLocation(vehicle.getName(), vehicle.getLocation());
+            }
     }
 
     public void setVehicleStartLocation(String vehicleId, LocationType startLocation) {
@@ -106,6 +109,11 @@ public class VehicleAwareness {
         ConsoleEventVehicleStateChanged.STATE newState = event.getState();
 
         checkVehicleState(id, newState);
+
+        if(newState == STATE.SERVICE && !startLocations.containsKey(id)) {
+            ImcSystem vehicle = ImcSystemsHolder.getSystemWithName(id);
+            setVehicleStartLocation(vehicle.getName(), vehicle.getLocation());
+        }
     }
 
 
