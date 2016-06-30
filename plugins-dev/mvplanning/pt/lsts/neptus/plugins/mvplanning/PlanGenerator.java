@@ -121,7 +121,7 @@ public class PlanGenerator {
     /**
      * Given an area generate one or more plans to cover it
      * */
-    public List<PlanType> generateCoverageArea(PlanTask task) {
+    private List<PlanType> generateCoverageArea(PlanTask task) {
         String id = task.getPlanId();
         Profile planProfile = task.getProfile();
         MapDecomposition areaToCover = ((CoverageArea) task).getDecomposition();
@@ -134,7 +134,7 @@ public class PlanGenerator {
     /**
      * Generate a plan to visit the given location
      * */
-    public PlanType generateVisitPoint(PlanTask task) {
+    private PlanType generateVisitPoint(PlanTask task) {
         /*String id = "visit_" + NameNormalizer.getRandomID();*/
         String id = task.getPlanId();
         Profile planProfile = task.getProfile();
