@@ -46,7 +46,6 @@ public class VisitPoint extends PlanTask {
     public VisitPoint(String id, Profile profile, LocationType loc) {
         super(id, profile);
         pointToVisit = loc;
-        taskType = TASK_TYPE.VISIT_POINT;
     }
 
     /**

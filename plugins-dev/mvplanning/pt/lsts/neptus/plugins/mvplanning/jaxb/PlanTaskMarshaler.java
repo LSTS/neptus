@@ -71,9 +71,11 @@ public class PlanTaskMarshaler {
         for(PlanTask task : plans) {
             NeptusLog.pub().info("Marshaling PlanTask " + task.getPlanId());
 
-            PlanTaskJaxb taskJaxb = new PlanTaskJaxb(task);
-            jaxbMarshaller.marshal(taskJaxb, System.out);
-            jaxbMarshaller.marshal(taskJaxb, new File(XML_PLAN_DIR + task.getPlanId() + ".xml"));
+            if(task.getTaskType() != PlanTask.TASK_TYPE.SAFETY) {
+                PlanTaskJaxb taskJaxb = new PlanTaskJaxb(task);
+                jaxbMarshaller.marshal(taskJaxb, System.out);
+                jaxbMarshaller.marshal(taskJaxb, new File(XML_PLAN_DIR + task.getPlanId() + ".xml"));
+            }
         }
     }
 
