@@ -50,7 +50,7 @@ public abstract class PlanTask {
     public static enum TASK_TYPE {
         COVERAGE_AREA("CoverageArea"),
         VISIT_POINT("VisitPoint"),
-        SAFETY("SafePlan"), /* task used to move a vehicle to a safe position */
+        SAFETY("Safety"), /* task used to move a vehicle to a safe position */
         NEPTUS_PLAN("NeptusPlan");
 
         protected String value;

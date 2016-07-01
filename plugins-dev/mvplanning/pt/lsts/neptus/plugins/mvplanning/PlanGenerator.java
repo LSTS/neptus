@@ -155,6 +155,7 @@ public class PlanGenerator {
      * Adds a safe path from the start location to the first
      * waypoint of the given plan, and from the last waypoint
      * of the plan to the end location.
+     * TODO Handle a safety task
      * @throws SafePathNotFoundException
      * */
     public PlanSpecification closePlan(PlanTask ptask, LocationType start, LocationType end) throws SafePathNotFoundException {

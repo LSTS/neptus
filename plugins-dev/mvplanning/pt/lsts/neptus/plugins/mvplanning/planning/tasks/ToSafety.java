@@ -15,13 +15,19 @@ import pt.lsts.neptus.types.coord.LocationType;
  */
 public class ToSafety extends PlanTask {
     private LocationType safeLoc ;
-    public ToSafety(String id, LocationType safeLoc) {
-        super(id, null);
+    private String vehicle;
+    public ToSafety(LocationType safeLoc, String vehicle) {
+        super("s_" + vehicle, null);
         this.safeLoc = safeLoc;
+        this.vehicle = vehicle;
     }
 
     @Override
     public TASK_TYPE getTaskType() {
         return TASK_TYPE.SAFETY;
+    }
+
+    public String getVehicle() {
+        return vehicle;
     }
 }

@@ -54,7 +54,6 @@ import javax.xml.bind.JAXBException;
 
 import com.google.common.eventbus.Subscribe;
 
-import info.necsave.msgs.Plan;
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.console.ConsoleLayout;
 import pt.lsts.neptus.console.ConsolePanel;

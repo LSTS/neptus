@@ -39,6 +39,9 @@ import pt.lsts.neptus.plugins.mvplanning.interfaces.AbstractAllocator;
 import pt.lsts.neptus.plugins.mvplanning.interfaces.ConsoleAdapter;
 import pt.lsts.neptus.plugins.mvplanning.monitors.VehicleAwareness;
 import pt.lsts.neptus.plugins.mvplanning.interfaces.PlanTask;
+import pt.lsts.neptus.plugins.mvplanning.planning.tasks.ToSafety;
+import pt.lsts.neptus.plugins.mvplanning.planning.tasks.VisitPoint;
+import pt.lsts.neptus.types.coord.LocationType;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -82,8 +85,12 @@ public class PlanAllocator {
 
         try {
             List<PlanTask> tasks = pgen.generatePlan(task);
-            for(PlanTask ptask : tasks)
-                allocator.addNewPlan(ptask);
+
+            if(task.getTaskType() == PlanTask.TASK_TYPE.SAFETY)
+                allocator.allocateSafetyTask((ToSafety) tasks.get(0));
+            else
+                for (PlanTask ptask : tasks)
+                    allocator.addNewPlan(ptask);
 
             return tasks;
 
@@ -99,5 +106,19 @@ public class PlanAllocator {
         /* for now just round-robin */
         NeptusLog.pub().info("Using Round-Robin allocation strategy");
         allocator = new RoundRobinAllocator(true, false, vawareness, console, pgen);
+    }
+
+    public void replan(String vehicle) {
+        /* if the vehicle is currently doing any task */
+        if(allocator != null && !vawareness.isVehicleAvailable(vehicle)) {
+            LocationType safeLoc = vawareness.getVehicleStartLocation(vehicle);
+
+            if(safeLoc == null) {
+                NeptusLog.pub().info("Something went wrong...");
+                return;
+            }
+
+            allocate(new ToSafety(safeLoc, vehicle));
+        }
     }
 }
