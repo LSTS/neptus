@@ -150,7 +150,7 @@ public class MVPlanning extends ConsolePanel implements PlanChangeListener, Rend
         extSysMonitor = new ExternalSystemsMonitor(this.console, pAlloc, pGen);
 
         /* FIXME: this values should not be hard-coded */
-        pGen.computeOperationalArea(env, 1500, 1500, 10);
+        pGen.computeOperationalArea(env, 1500, 1500, 30);
         fetchPlans();
     }
 
