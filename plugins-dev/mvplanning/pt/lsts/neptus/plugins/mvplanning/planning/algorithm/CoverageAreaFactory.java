@@ -124,7 +124,7 @@ public class CoverageAreaFactory {
 
         /* if completion time is bigger than 30 minutes, split the path */
         if(fpath.getCompletionTime(loc) >= 1800) {
-            fpaths = splitPath(fpath, path);
+            fpaths = splitPath(path);
             NeptusLog.pub().info("Splitting the coverage area plan");
         }
         else
@@ -133,18 +133,19 @@ public class CoverageAreaFactory {
         return fpaths;
     }
 
-    private List<FollowPath> splitPath(FollowPath path, List<ManeuverLocation> points) {
+    private List<FollowPath> splitPath(List<ManeuverLocation> points) {
         List<FollowPath> paths = new ArrayList<>();
 
         FollowPath fpath = null;
         Vector<double[]> offsets = null;
-        ManeuverLocation initialLoc = null;
         boolean newManeuver = true;
 
-        for(ManeuverLocation point : points) {
+        ManeuverLocation initialLoc = points.get(0);
+        int index = 0;
+        while(index < points.size()) {
+            ManeuverLocation point = points.get(index);
             if(newManeuver) {
                 offsets = new Vector<>();
-                initialLoc = point;
                 fpath = (FollowPath) MvPlanningUtils.buildManeuver(planProfile, initialLoc, PlanTask.TASK_TYPE.COVERAGE_AREA);
 
                 newManeuver = false;
@@ -156,9 +157,13 @@ public class CoverageAreaFactory {
 
             /* split in plans of 15 minutes (maximum) each */
             if(fpath.getCompletionTime(initialLoc) >= 900) {
-                newManeuver = true;
                 paths.add(fpath);
+
+                newManeuver = true;
+                initialLoc = point;
             }
+            else
+                index++;
         }
 
         paths.add(fpath);
