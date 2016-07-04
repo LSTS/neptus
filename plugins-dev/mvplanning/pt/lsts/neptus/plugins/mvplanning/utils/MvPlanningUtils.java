@@ -34,14 +34,19 @@ package pt.lsts.neptus.plugins.mvplanning.utils;
 
 import com.l2fprod.common.propertysheet.DefaultProperty;
 import com.l2fprod.common.propertysheet.Property;
+import pt.lsts.imc.EntityParameter;
+import pt.lsts.imc.IMCMessage;
+import pt.lsts.imc.SetEntityParameters;
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.gui.PropertiesEditor;
 import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.mp.Maneuver;
 import pt.lsts.neptus.mp.ManeuverLocation;
+import pt.lsts.neptus.mp.actions.PlanActions;
 import pt.lsts.neptus.mp.maneuvers.FollowPath;
 import pt.lsts.neptus.mp.maneuvers.Goto;
 import pt.lsts.neptus.mp.maneuvers.LocatedManeuver;
+import pt.lsts.neptus.plugins.mvplanning.jaxb.profiles.Payload;
 import pt.lsts.neptus.plugins.mvplanning.jaxb.profiles.Profile;
 import pt.lsts.neptus.plugins.mvplanning.interfaces.PlanTask;
 import pt.lsts.neptus.types.coord.LocationType;
@@ -49,6 +54,9 @@ import pt.lsts.neptus.types.coord.LocationType;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Area;
 import java.awt.geom.Rectangle2D;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Vector;
 
 /**
  * @author tsmarques
@@ -61,38 +69,65 @@ public class MvPlanningUtils {
      * according to the given profile
      * */
     public static Maneuver buildManeuver(Profile planProfile, LocationType manLoc, PlanTask.TASK_TYPE taskType) {
-        ManeuverLocation loc = new ManeuverLocation(manLoc);
-        loc.setZ(planProfile.getProfileZ());
-        loc.setZUnits(ManeuverLocation.Z_UNITS.DEPTH);
-
         Maneuver newMan;
         if(taskType == PlanTask.TASK_TYPE.COVERAGE_AREA)
             newMan = new FollowPath();
         else
             newMan = new Goto();
 
-        NeptusLog.pub().info("Setting maneuver");
+        /* Maneuver's Z */
+        ManeuverLocation loc = new ManeuverLocation(manLoc);
+        loc.setZ(planProfile.getProfileZ());
+        loc.setZUnits(ManeuverLocation.Z_UNITS.DEPTH);
         ((LocatedManeuver) newMan).setManeuverLocation(loc);
 
+        /* Maneuver's speed */
         DefaultProperty units = PropertiesEditor.getPropertyInstance("Speed units", String.class, planProfile.getSpeedUnits(), true);
+        DefaultProperty propertySpeed = PropertiesEditor.getPropertyInstance("Speed", Double.class, planProfile.getProfileSpeed(), true);
+        propertySpeed.setDisplayName(I18n.text("Speed"));
         units.setDisplayName(I18n.text("Speed units"));
         units.setShortDescription(I18n.text("The speed units"));
 
-        DefaultProperty propertySpeed = PropertiesEditor.getPropertyInstance("Speed", Double.class, planProfile.getProfileSpeed(), true);
-        propertySpeed.setDisplayName(I18n.text("Speed"));
-        Property[] props = new Property[] {units, propertySpeed};
+        /* start actions */
+        DefaultProperty startActionsProperty = setupPayloads(planProfile);
 
+        Property[] props = new Property[] {units, propertySpeed, startActionsProperty};
         newMan.setProperties(props);
 
         return newMan;
     }
 
     /**
-     * Setup and add the payloads defined in the profile, to the given
-     * maneuver
+     * Fetch payloads needed for the profile and returns a start-actions
+     * DefaultProperty object to be added to the maneuver's properties
+     *
+     * @return {@link DefaultProperty} object with the start-actions
      * */
-    private static void setupPayloads(Profile planProfile, Maneuver man) {
+    public static DefaultProperty setupPayloads(Profile planProfile) {
+        List<Payload> payloadList = planProfile.getPayload();
+        Vector<IMCMessage> setParamsMsg = new Vector<>();
 
+        for(Payload payload : payloadList) {
+            SetEntityParameters paramsMsg = new SetEntityParameters();
+            paramsMsg.setName(payload.getPayloadType());
+            Vector<EntityParameter> parametersList = new Vector<>();
+
+            /* create parameters according to profile */
+            payload.getPayloadParameters()
+                    .entrySet()
+                    .stream()
+                    .forEach(entry -> parametersList.add(new EntityParameter(entry.getKey(), entry.getValue())));
+
+            paramsMsg.setParams(parametersList);
+            setParamsMsg.add(paramsMsg);
+        }
+
+        PlanActions startActions = new PlanActions();
+        startActions.parseMessages(setParamsMsg);
+        DefaultProperty startActionsProperty = PropertiesEditor.getPropertyInstance("start-actions",
+                "Plan " + " start actions", PlanActions.class, startActions, true);
+
+        return startActionsProperty;
     }
 
     /**
