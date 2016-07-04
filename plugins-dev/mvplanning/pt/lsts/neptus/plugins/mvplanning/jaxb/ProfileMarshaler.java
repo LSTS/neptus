@@ -165,6 +165,8 @@ public class ProfileMarshaler {
             jaxbUnmarshaller = jaxbContext.createUnmarshaller();
             pProfiles = (Profile) jaxbUnmarshaller.unmarshal(file);
 
+            NeptusLog.pub().info("[" + pProfiles.getId() + "] : " + pProfiles.getProfileSpeed() + " " + pProfiles.getSpeedUnits() + " | " + pProfiles.getProfileZ() + " " + pProfiles.getZUnits());
+
             return pProfiles;
         }
         catch (JAXBException e) {

@@ -1,7 +1,10 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <Profile Type="Bathymetry">
-    <Z>3</Z>
+    <Z> 3 </Z>
+    <Z_Units> DEPTH </Z_Units>
     <Speed>1</Speed>
+    <Speed_Units> m/s </Speed_Units>
+
     <Payloads>
         <Payload type="Sidescan">
             <parameters>
@@ -11,6 +14,7 @@
             </parameters>
         </Payload>
     </Payloads>
+
     <vehicles>
         <vehicle>lauv-seacon-1</vehicle>
         <vehicle>lauv-seacon-2</vehicle>

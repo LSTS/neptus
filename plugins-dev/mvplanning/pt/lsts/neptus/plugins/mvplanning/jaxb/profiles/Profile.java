@@ -52,8 +52,15 @@ import javax.xml.bind.annotation.XmlSeeAlso;
 public class Profile {
     @XmlElement(name = "Z")
     private double z;
+
+    @XmlElement(name = "Z_Units")
+    private String zUnits;
+
     @XmlElement(name = "Speed")
     private double speed;
+
+    @XmlElement(name = "Speed_Units")
+    private String speedUnits;
     
     @XmlElementWrapper(name = "Payloads")
     @XmlElement(name = "Payload")
@@ -69,7 +76,9 @@ public class Profile {
     public Profile() {
         profilesId = "";
         speed = -1;
+        speedUnits = "";
         z = -1;
+        zUnits = "";
         payloads = new ArrayList<Payload>();
         vehicles = new ArrayList<String>();
     }
@@ -98,6 +107,10 @@ public class Profile {
     public double getProfileSpeed() {
         return speed;
     }
+
+    public String getSpeedUnits() {
+        return speedUnits;
+    }
     
     public void setProfileSpeed(double speed) {
         this.speed = speed;
@@ -105,6 +118,10 @@ public class Profile {
     
     public void setProfileZ(double z) {
         this.z = z;
+    }
+
+    public String getZUnits() {
+        return zUnits;
     }
     
     public String getId() {
