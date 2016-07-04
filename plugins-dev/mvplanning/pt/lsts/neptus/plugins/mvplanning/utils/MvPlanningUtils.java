@@ -32,10 +32,16 @@
 
 package pt.lsts.neptus.plugins.mvplanning.utils;
 
+import com.l2fprod.common.propertysheet.DefaultProperty;
+import com.l2fprod.common.propertysheet.Property;
+import pt.lsts.neptus.NeptusLog;
+import pt.lsts.neptus.gui.PropertiesEditor;
+import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.mp.Maneuver;
 import pt.lsts.neptus.mp.ManeuverLocation;
 import pt.lsts.neptus.mp.maneuvers.FollowPath;
 import pt.lsts.neptus.mp.maneuvers.Goto;
+import pt.lsts.neptus.mp.maneuvers.LocatedManeuver;
 import pt.lsts.neptus.plugins.mvplanning.jaxb.profiles.Profile;
 import pt.lsts.neptus.plugins.mvplanning.interfaces.PlanTask;
 import pt.lsts.neptus.types.coord.LocationType;
@@ -55,31 +61,31 @@ public class MvPlanningUtils {
      * according to the given profile
      * */
     public static Maneuver buildManeuver(Profile planProfile, LocationType manLoc, PlanTask.TASK_TYPE taskType) {
-        Maneuver newMan;
         ManeuverLocation loc = new ManeuverLocation(manLoc);
 
         loc.setZ(planProfile.getProfileZ());
         /* TODO set according to profile's parameters */
         loc.setZUnits(ManeuverLocation.Z_UNITS.DEPTH);
 
-        if(taskType == PlanTask.TASK_TYPE.COVERAGE_AREA) {
+        Maneuver newMan;
+        if(taskType == PlanTask.TASK_TYPE.COVERAGE_AREA)
             newMan = new FollowPath();
-
-            ((FollowPath) newMan).setManeuverLocation(loc);
-            ((FollowPath) newMan).setSpeed(planProfile.getProfileSpeed());
-
-            /* TODO set according to profile's parameters */
-            ((FollowPath) newMan).setSpeedUnits(ManeuverLocation.Z_UNITS.DEPTH.toString());
-        }
-        else {
+        else
             newMan = new Goto();
 
-            ((Goto) newMan).setManeuverLocation(loc);
-            ((Goto) newMan).setSpeed(planProfile.getProfileSpeed());
+        NeptusLog.pub().info("Setting maneuver");
+        ((LocatedManeuver) newMan).setManeuverLocation(loc);
 
-            /* TODO set according to profile's parameters */
-            ((Goto) newMan).setSpeedUnits("m/s");
-        }
+        /* TODO set according to profile's parameters */
+        DefaultProperty units = PropertiesEditor.getPropertyInstance("Speed units", String.class, "m/s", true);
+        units.setDisplayName(I18n.text("Speed units"));
+        units.setShortDescription(I18n.text("The speed units"));
+
+        DefaultProperty propertySpeed = PropertiesEditor.getPropertyInstance("Speed", Double.class, planProfile.getProfileSpeed(), true);
+        propertySpeed.setDisplayName(I18n.text("Speed"));
+        Property[] props = new Property[] {units, propertySpeed};
+
+        newMan.setProperties(props);
 
         return newMan;
     }
