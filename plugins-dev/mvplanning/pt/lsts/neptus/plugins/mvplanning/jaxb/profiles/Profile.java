@@ -31,6 +31,8 @@
  */
 package pt.lsts.neptus.plugins.mvplanning.jaxb.profiles;
 
+import pt.lsts.neptus.mp.ManeuverLocation;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -118,6 +120,14 @@ public class Profile {
     
     public void setProfileZ(double z) {
         this.z = z;
+    }
+
+    public void setZUnits(ManeuverLocation.Z_UNITS units) {
+        zUnits = units.name();
+    }
+
+    public void setSpeedUnits(String units) {
+        speedUnits = units;
     }
 
     public String getZUnits() {

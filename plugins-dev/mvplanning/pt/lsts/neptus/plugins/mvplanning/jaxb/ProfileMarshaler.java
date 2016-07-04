@@ -169,18 +169,22 @@ public class ProfileMarshaler {
     public static void main(String[] args) {
         ProfileMarshaler marsh = new ProfileMarshaler();
 
-/*        Payload pld1 = new Payload("sidescan");
-        pld1.addPayloadParamater("Frequency", "500");
-        pld1.addPayloadParamater("BLA BLA", "20");
-        
-        Profile prf1 = new Profile("Low scan");
-        prf1.setProfileZ(1000);
-        prf1.setProfileSpeed(35);
+        Payload pld1 = new Payload("Sidescan");
+        pld1.addPayloadParamater("Active", "True");
+        pld1.addPayloadParamater("Frequency", "770");
+        pld1.addPayloadParamater("Range", "30");
+
+        Profile prf1 = new Profile("Bathymetry");
+        prf1.setProfileZ(3);
+        prf1.setProfileSpeed(1);
+        prf1.setSpeedUnits("m/s");
+        prf1.setZUnits(ManeuverLocation.Z_UNITS.DEPTH);
         prf1.addPayload(pld1);
         prf1.addVehicle("lauv-noptilus-1");
         prf1.addVehicle("lauv-noptilus-2");
-        
-        marsh.addProfile("Low scan", prf1);
-        marsh.marshal("Low scan");*/
+        prf1.addVehicle("lauv-noptilus-3");
+
+        marsh.addProfile(prf1.getId(), prf1);
+        marsh.marshal(prf1.getId());
     }
 }
