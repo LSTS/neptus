@@ -679,7 +679,7 @@ public class DownloaderPanel extends JXPanel implements ActionListener {
                 
                 FilterDownloadDataMonitor ioS = new FilterDownloadDataMonitor(stream, threadScheduledPool);
                 boolean streamRes = StreamUtil.copyStreamToFile(ioS, outFile, begByte == 0 ? false : true);
-                outFile.setLastModified(ftpFile.getTimestamp().getTimeInMillis());
+                outFile.setLastModified(Math.max(ftpFile.getTimestamp().getTimeInMillis(), 0));
                 
                 if (debug) {
                     NeptusLog.pub().info("<###>To receive / received: " + (begByte > 0 ? fullSize - begByte: fullSize) + "/" + downloadedSize);
