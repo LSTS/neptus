@@ -877,6 +877,9 @@ public class PluginUtils {
                     dFA.add(fd);
             }
         }
+        
+        extractDefaultFieldsValues(clazz);
+        
         extractFieldsWorker(clazz.getSuperclass(), dFA);
     }
 
