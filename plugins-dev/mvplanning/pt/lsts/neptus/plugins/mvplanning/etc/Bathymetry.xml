@@ -1,18 +1,13 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<Profile Type="Batimetria">
+<Profile Type="Bathymetry">
     <Z>3</Z>
     <Speed>1</Speed>
     <Payloads>
         <Payload type="Sidescan">
             <parameters>
-                <parameter name="BLA BLA" value="20"/>
-                <parameter name="Frequency" value="500"/>
-            </parameters>
-        </Payload>
-        <Payload type="Echo Sounder">
-            <parameters>
-                <parameter name="YET ANOTHER ONE" value="12220"/>
-                <parameter name="PARAMETER" value="12312312"/>
+                <parameter name="Active" value="True"/>
+                <parameter name="Frequency" value="770"/>
+                <parameter name="Range" value="30"/>
             </parameters>
         </Payload>
     </Payloads>
@@ -22,5 +17,6 @@
         <vehicle>lauv-seacon-3</vehicle>
         <vehicle>lauv-noptilus-1</vehicle>
         <vehicle>lauv-noptilus-2</vehicle>
+        <vehicle>lauv-noptilus-3</vehicle>
     </vehicles>
 </Profile>
