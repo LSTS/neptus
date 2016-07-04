@@ -72,6 +72,7 @@ import pt.lsts.neptus.gui.editor.EnumEditor;
 import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.util.FileUtil;
 import pt.lsts.neptus.util.ReflectionUtil;
+import pt.lsts.neptus.util.conf.ConfigFetch;
 import pt.lsts.neptus.util.conf.GeneralPreferences;
 
 public class PluginUtils {
@@ -799,7 +800,7 @@ public class PluginUtils {
     }
 
     public static void loadProperties(Object obj, String instanceName) {
-        String propsFilename = "conf/plugins/" + obj.getClass().getSimpleName() + "-" + instanceName + ".properties";
+        String propsFilename = ConfigFetch.getConfFolder() + "/plugins/" + obj.getClass().getSimpleName() + "-" + instanceName + ".properties";
 
         File propsFile = new File(propsFilename);
         if (propsFile.canRead()) {
@@ -813,8 +814,8 @@ public class PluginUtils {
     }
 
     public static void saveProperties(Object obj, String instanceName) {
-        new File("conf/plugins").mkdirs();
-        String propsFilename = "conf/plugins/" + obj.getClass().getSimpleName() + "-" + instanceName + ".properties";
+        new File(ConfigFetch.getConfFolder() + "/plugins").mkdirs();
+        String propsFilename = ConfigFetch.getConfFolder() + "/plugins/" + obj.getClass().getSimpleName() + "-" + instanceName + ".properties";
 
         try {
             PluginUtils.saveProperties(propsFilename, obj);
