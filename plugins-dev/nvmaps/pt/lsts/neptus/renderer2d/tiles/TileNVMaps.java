@@ -86,7 +86,7 @@ public class TileNVMaps extends TileHttpFetcher implements ConfigurationListener
     @Override
     public void propertiesChanged() {
         if (baseUrl.length() == 0)
-            baseUrl =BASE_URL;
+            baseUrl = BASE_URL;
         if (layersUrl.length() == 0)
             layersUrl = LAYERS_URL;
     }
@@ -109,7 +109,7 @@ public class TileNVMaps extends TileHttpFetcher implements ConfigurationListener
     @Override
     protected String createTileRequestURL() {
         if (baseUrl.length() == 0)
-            baseUrl =BASE_URL;
+            baseUrl = BASE_URL;
         if (layersUrl.length() == 0)
             layersUrl = LAYERS_URL;
 
