@@ -53,7 +53,7 @@ import pt.lsts.neptus.types.mission.MissionType;
  *
  */
 public class PlanTaskMarshaler {
-    public final static String XML_PLAN_DIR = "conf/mvplanning/";
+    public final static String XML_PLAN_DIR = "conf/mvplanning/tasks/";
 
     public PlanTaskMarshaler() {
         File xmlDir = new File(XML_PLAN_DIR);
