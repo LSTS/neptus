@@ -59,12 +59,13 @@ public class TileNVMaps extends TileHttpFetcher implements ConfigurationListener
 
     private static final int MAX_LEVEL_OF_DETAIL = 22;
     private static String BASE_URL = "http://d2hcl9zx8watk4.cloudfront.net/tile/";
-    private static String LAYERS_URL = "?LAYERS=config_1_1_1&TRANSPARENT=FALSE&navtoken=TmF2aW9uaWNzX2ludGVybmFscHVycG9zZV8wMDAwMSt3ZWJhcHAubmF2aW9uaWNzLmNvbQ==";
+    private static String LAYERS_URL = "?LAYERS=config_1_20.00_1&TRANSPARENT=FALSE&navtoken=TmF2aW9uaWNzX2ludGVybmFscHVycG9zZV8wMDAwMSt3ZWJhcHAubmF2aW9uaWNzLmNvbSs2MTdwM3ZnZjFvcg==";
     
-    @NeptusProperty(name = "Base URL", description = "Default: http://d2hcl9zx8watk4.cloudfront.net/tile/")
+    @NeptusProperty(name = "Base URL", description = "The first URL part without tiles info and ending in '/'.")
     private static String baseUrl = BASE_URL;
 
-    @NeptusProperty(name = "Layers URL Part", description = "Default ?LAYERS=config_1_1_1&TRANSPARENT=FALSE&navtoken=TmF2aW9uaWNzX2ludGVybmFscHVycG9zZV8wMDAwMSt3ZWJhcHAubmF2aW9uaWNzLmNvbQ==")
+    @NeptusProperty(name = "Layers URL Part", 
+            description = "The layers, 'LAYERS=config_1_20.00_1', '1' should be one, '20.00' is the safety depth you want and the last '1' means finer bathymetry, (for lower detail use '0'). Also 'navtoken=xxx' the token to use, may change.")
     private static String layersUrl = LAYERS_URL;
 
     public TileNVMaps(Integer levelOfDetail, Integer tileX, Integer tileY, BufferedImage image) throws Exception {
