@@ -568,6 +568,7 @@ public abstract class TileHttpFetcher extends Tile {
                     {
                         String urlGet = createTileRequestURL();
                         HttpGet get = new HttpGet(urlGet);
+                        get.setHeader("User-Agent", "WorldMap (Java/" + System.getProperty("java.version") + ")");
 
                         try {
                             HttpResponse resp;
