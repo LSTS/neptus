@@ -62,9 +62,7 @@ public class MvPlanningUtils {
      * */
     public static Maneuver buildManeuver(Profile planProfile, LocationType manLoc, PlanTask.TASK_TYPE taskType) {
         ManeuverLocation loc = new ManeuverLocation(manLoc);
-
         loc.setZ(planProfile.getProfileZ());
-        /* TODO set according to profile's parameters */
         loc.setZUnits(ManeuverLocation.Z_UNITS.DEPTH);
 
         Maneuver newMan;
@@ -76,8 +74,7 @@ public class MvPlanningUtils {
         NeptusLog.pub().info("Setting maneuver");
         ((LocatedManeuver) newMan).setManeuverLocation(loc);
 
-        /* TODO set according to profile's parameters */
-        DefaultProperty units = PropertiesEditor.getPropertyInstance("Speed units", String.class, "m/s", true);
+        DefaultProperty units = PropertiesEditor.getPropertyInstance("Speed units", String.class, planProfile.getSpeedUnits(), true);
         units.setDisplayName(I18n.text("Speed units"));
         units.setShortDescription(I18n.text("The speed units"));
 
