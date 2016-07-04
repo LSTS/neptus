@@ -33,6 +33,7 @@ package pt.lsts.neptus.plugins.mvplanning.jaxb;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -42,6 +43,7 @@ import javax.xml.bind.Marshaller;
 import javax.xml.bind.Unmarshaller;
 
 import pt.lsts.neptus.NeptusLog;
+import pt.lsts.neptus.mp.ManeuverLocation;
 import pt.lsts.neptus.plugins.mvplanning.MVPlanning;
 import pt.lsts.neptus.plugins.mvplanning.jaxb.profiles.Payload;
 import pt.lsts.neptus.plugins.mvplanning.jaxb.profiles.Profile;
@@ -52,9 +54,7 @@ import pt.lsts.neptus.util.FileUtil;
  *
  */
 public class ProfileMarshaler {
-    private final String PROFILES_NAMES[] = {"Batimetria"};
-    private final String PROFILES_DIR = getProfilesDir();
-    
+    public final static String PROFILES_DIR = "conf/mvplanning/profiles/";
     private Map<String, Profile> allProfiles;
     
     public ProfileMarshaler() {
@@ -63,20 +63,12 @@ public class ProfileMarshaler {
 
     private ArrayList<File> fetchProfilesFiles() {
         ArrayList<File> profilesPaths = new ArrayList<>();
-        
-        for(String profile : PROFILES_NAMES) {
-            String prfPath = FileUtil.getResourceAsFileKeepName(PROFILES_DIR + profile + ".xml");
-            
-            if(prfPath == null)
-                NeptusLog.pub().warn("Profile " + profile + " does not exist");
-            else
-                profilesPaths.add(new File(prfPath));
-        }
-        return profilesPaths;
-    }
 
-    private String getProfilesDir() {
-        return FileUtil.getPackageAsPath(MVPlanning.class) + "/etc/";
+        File profilesDir = new File(PROFILES_DIR);
+        for(File path : profilesDir.listFiles((d, name) -> name.endsWith(".xml")))
+            profilesPaths.add(path);
+
+        return profilesPaths;
     }
 
     public void addProfile(String id, Profile profile) {
@@ -144,13 +136,11 @@ public class ProfileMarshaler {
 
         for(File file : profilesPaths) {
             String filename = file.getName();
-            if(filename.endsWith(".xml")) {
-                String type = filename.substring(0, filename.indexOf('.'));
-                Profile profile = unmarshal(file);
+            String type = filename.substring(0, filename.indexOf('.'));
+            Profile profile = unmarshal(file);
 
-                profiles.put(type, profile);
-            }
-        }     
+            profiles.put(type, profile);
+        }
         return profiles;
     }
 
@@ -165,8 +155,6 @@ public class ProfileMarshaler {
             jaxbUnmarshaller = jaxbContext.createUnmarshaller();
             pProfiles = (Profile) jaxbUnmarshaller.unmarshal(file);
 
-            NeptusLog.pub().info("[" + pProfiles.getId() + "] : " + pProfiles.getProfileSpeed() + " " + pProfiles.getSpeedUnits() + " | " + pProfiles.getProfileZ() + " " + pProfiles.getZUnits());
-
             return pProfiles;
         }
         catch (JAXBException e) {
@@ -180,8 +168,8 @@ public class ProfileMarshaler {
     /* Use to add new payload or testing */
     public static void main(String[] args) {
         ProfileMarshaler marsh = new ProfileMarshaler();
-        
-        Payload pld1 = new Payload("sidescan");
+
+/*        Payload pld1 = new Payload("sidescan");
         pld1.addPayloadParamater("Frequency", "500");
         pld1.addPayloadParamater("BLA BLA", "20");
         
@@ -193,6 +181,6 @@ public class ProfileMarshaler {
         prf1.addVehicle("lauv-noptilus-2");
         
         marsh.addProfile("Low scan", prf1);
-        marsh.marshal("Low scan");
+        marsh.marshal("Low scan");*/
     }
 }
