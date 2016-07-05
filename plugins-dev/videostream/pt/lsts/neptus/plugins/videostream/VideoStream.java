@@ -156,6 +156,10 @@ public class VideoStream extends ConsolePanel implements ItemListener {
 
     @NeptusProperty(name = "Cam Tilt Deg Value", editable = true)
     private double camTiltDeg = 45.0f;// this value may be in configuration
+    
+    @NeptusProperty(name = "Broadcast positions to other CCUs", editable = true)
+    private boolean broadcastPositions = false;
+    
 
     // Opencv library name
     private Socket clientSocket = null;
@@ -917,11 +921,15 @@ public class VideoStream extends ConsolePanel implements ItemListener {
         MapFeature feature = new MapFeature();
         feature.setFeatureType(MapFeature.FEATURE_TYPE.POI);
         feature.setFeature(Arrays.asList(point));
-        CcuEvent event = new CcuEvent();
-        event.setType(CcuEvent.TYPE.MAP_FEATURE_ADDED);
-        event.setId(id);
-        event.setArg(feature);
-        this.getConsole().getImcMsgManager().broadcastToCCUs(event);
+        if (broadcastPositions)
+        {
+          CcuEvent event = new CcuEvent();
+          event.setType(CcuEvent.TYPE.MAP_FEATURE_ADDED);
+          event.setId(id);
+          event.setArg(feature);
+          this.getConsole().getImcMsgManager().broadcastToCCUs(event);
+        }
+
         NeptusLog.pub().info("placeLocationOnMap: " + id + " - "+loc);
         return id;
     }
