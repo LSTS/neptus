@@ -335,6 +335,7 @@ public class VideoStream extends ConsolePanel implements ItemListener {
     private CameraFOV camFov = null;
     private Point2D mouseLoc = null;
     private StoredSnapshot snap = null;
+    private boolean paused = false;
     
     public VideoStream(ConsoleLayout console) {
         super(console);
@@ -368,6 +369,9 @@ public class VideoStream extends ConsolePanel implements ItemListener {
                         zoomMask = false;
                         popupzoom.setVisible(false);
                     }
+                    if (e.getKeyCode() == KeyEvent.VK_CONTROL) {
+                        paused = false;
+                    }                    
                 }
 
                 @Override
@@ -419,6 +423,9 @@ public class VideoStream extends ConsolePanel implements ItemListener {
                     }
                     else if ((e.getKeyCode() == KeyEvent.VK_S) && ((e.getModifiers() & KeyEvent.ALT_MASK) != 0)) {
                         saveSnapshot = true;
+                    }
+                    else if ((e.getKeyCode() == KeyEvent.VK_CONTROL)) {
+                        paused = true;
                     }
                 }
 
@@ -485,8 +492,13 @@ public class VideoStream extends ConsolePanel implements ItemListener {
                        mouseLoc = new Point2D.Double((x / width - 0.5) * 2, (y / height - 0.5) * 2);
                        LocationType loc = camFov.getLookAt(mouseLoc.getX(), mouseLoc.getY());
                        String id = placeLocationOnMap(loc);
-                       if (id != null)
-                           snap = new StoredSnapshot(id, loc, e.getPoint(), null, new Date());
+                       snap = new StoredSnapshot(id, loc, e.getPoint(), onScreenImage, new Date());
+                       try {
+                           snap.store();
+                       }
+                       catch (Exception ex) {
+                           NeptusLog.pub().error(ex);
+                    }
                    }
                 }
                 
@@ -928,7 +940,8 @@ public class VideoStream extends ConsolePanel implements ItemListener {
     }
 
     private void showImage(BufferedImage image) {
-        onScreenImage = image;
+        if (!paused)
+            onScreenImage = image;
         refreshTemp = true;
         repaint();
     }
@@ -1205,17 +1218,17 @@ public class VideoStream extends ConsolePanel implements ItemListener {
                                         offlineImage.getWidth() - 5, 20));
                             }
 
-                            // save image tag to disk
-                            if (snap != null) {
-                                try {
-                                    snap.capture = offlineImage;
-                                    snap.store();
-                                    snap = null;                                                                       
-                                }
-                                catch (IOException e) {
-                                    e.printStackTrace();
-                                }
-                            }
+//                            // save image tag to disk
+//                            if (snap != null) {
+//                                try {
+//                                    snap.capture = offlineImage;
+//                                    snap.store();
+//                                    snap = null;                                                                       
+//                                }
+//                                catch (IOException e) {
+//                                    e.printStackTrace();
+//                                }
+//                            }
                         }
                     }
                     else {
@@ -1395,7 +1408,8 @@ public class VideoStream extends ConsolePanel implements ItemListener {
         // System.out.println("Source Name "+msg.getSourceName()+"ID "+getMainVehicleId());
         if (msg.getSourceName().equals(getMainVehicleId()) && findOpenCV()) {
             if (camFov != null) {
-                camFov.setState(msg);
+                if (!paused)
+                    camFov.setState(msg);
                 if (mouseLoc != null) {
                     EventMouseLookAt lookAt = new EventMouseLookAt(camFov.getLookAt(mouseLoc.getX(), mouseLoc.getY()));
                     getConsole().post(lookAt);

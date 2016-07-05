@@ -149,8 +149,11 @@ public class CamFootprintLayer extends ConsoleLayer {
             NeptusLog.pub().info("Using " + camModel + " camera with " + Math.toDegrees(hAOV) + " x "
                     + Math.toDegrees(vAOV) + " AOV");
         }
-        else
-            camFov = null;      
+        else {
+            camFov = null;
+            NeptusLog.pub().error("Could not calculate camera model for "+vehicle);            
+        }
+                  
     }
     
     @Subscribe
@@ -159,11 +162,17 @@ public class CamFootprintLayer extends ConsoleLayer {
     }
     
     public String getInfoHtml() {
+        
         String html = "<html>";
-        html += "<b>Alt: </b>"+(int)camFov.getAltitude()+"<br>";
-        html += "<b>Roll: </b>"+(int)Math.toDegrees(camFov.getRoll())+"<br>";
-        html += "<b>Pitch: </b>"+(int)Math.toDegrees(camFov.getPitch())+"<br>";
-        html += "<b>Yaw: </b>"+(int)Math.toDegrees(camFov.getYaw())+"<br>";
+        if (camFov == null)
+            html += "<font color='red'>FOV not available</font>";
+        else {
+            html += "<b>Alt: </b>"+(int)camFov.getAltitude()+"<br>";
+            html += "<b>Roll: </b>"+(int)Math.toDegrees(camFov.getRoll())+"<br>";
+            html += "<b>Pitch: </b>"+(int)Math.toDegrees(camFov.getPitch())+"<br>";
+            html += "<b>Yaw: </b>"+(int)Math.toDegrees(camFov.getYaw())+"<br>";    
+            html += "<b>Tilt: </b>"+(int)Math.toDegrees(camFov.getTilt())+"<br>";
+        }        
         html +="</html>";
         return html;
     }

@@ -77,9 +77,8 @@ public class CameraFOV {
      * @return The World location on the direction of the clicked position
      */
     public LocationType getLookAt(double normalizedScreenX, double normalizedScreenY) {
-        double hDist = Math.tan(Math.toRadians(hAOV) / 2);
-        double vDist = Math.tan(Math.toRadians(vAOV) / 2);
-        System.out.println(hDist+", "+vDist);
+        double hDist = Math.tan(hAOV / 2);
+        double vDist = Math.tan(vAOV / 2);
         double x = normalizedScreenX * hDist;
         double y = normalizedScreenY * vDist;
         double pitch = Math.atan(Math.sqrt(x*x + y*y));
@@ -198,6 +197,13 @@ public class CameraFOV {
      */
     public void setTilt(double tiltRads) {
         this.tilt = tiltRads;
+    }
+
+    /**
+     * @return the tilt
+     */
+    public double getTilt() {
+        return tilt;
     }
 
     /**
