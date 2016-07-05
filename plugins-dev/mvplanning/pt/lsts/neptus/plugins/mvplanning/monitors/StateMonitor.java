@@ -113,9 +113,18 @@ public class StateMonitor {
         synchronized(plansCompletion) {
             if(plans.containsKey(id)) {
                 double progress = msg.getPlanProgress();
-                if(progress > 0) {
+                if(progress < 0)
+                    return;
+
+                if(Math.round(progress) < 100) {
                     plansCompletion.put(id, progress);
                     plans.get(id).updatePlanCompletion(progress);
+                }
+                else {
+                    if(plansCompletion.containsKey(id)) {
+                        plansCompletion.remove(id);
+                        plans.remove(id);
+                    }
                 }
             }
         }
