@@ -39,6 +39,7 @@ import javax.vecmath.Vector3d;
 
 import pt.lsts.imc.EstimatedState;
 import pt.lsts.neptus.comm.IMCUtils;
+import pt.lsts.neptus.console.GroundHeight;
 import pt.lsts.neptus.mp.SystemPositionAndAttitude;
 import pt.lsts.neptus.types.coord.LocationType;
 
@@ -76,8 +77,9 @@ public class CameraFOV {
      * @return The World location on the direction of the clicked position
      */
     public LocationType getLookAt(double normalizedScreenX, double normalizedScreenY) {
-        double hDist = Math.tan(hAOV / 2);
-        double vDist = Math.tan(vAOV / 2);
+        double hDist = Math.tan(Math.toRadians(hAOV) / 2);
+        double vDist = Math.tan(Math.toRadians(vAOV) / 2);
+        System.out.println(hDist+", "+vDist);
         double x = normalizedScreenX * hDist;
         double y = normalizedScreenY * vDist;
         double pitch = Math.atan(Math.sqrt(x*x + y*y));
@@ -216,7 +218,7 @@ public class CameraFOV {
      */
     public void setState(EstimatedState state) {
         setLocation(IMCUtils.parseLocation(state));
-        setAltitude(state.getAlt());
+        setAltitude(state.getHeight() - GroundHeight.instance().getHeight());
         setRoll(state.getPhi());
         setPitch(state.getTheta());
         setYaw(state.getPsi());

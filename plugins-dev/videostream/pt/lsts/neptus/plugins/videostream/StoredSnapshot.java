@@ -88,6 +88,9 @@ public class StoredSnapshot implements Serializable {
     
     public static Collection<StoredSnapshot> getSnapshots(File logDir) throws IOException {
         ArrayList<StoredSnapshot> snapshots = new ArrayList<>();
+        if (!logDir.isDirectory())
+            logDir.mkdirs();
+        
         for (File f : logDir.listFiles())
             if (f.getName().endsWith(".xml"))
                 snapshots.add(load(f));                                                            

@@ -79,7 +79,6 @@ import javax.swing.JDialog;
 import javax.swing.JFormattedTextField;
 import javax.swing.JLabel;
 import javax.swing.JMenuItem;
-import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
 import javax.swing.JTextField;
@@ -477,7 +476,7 @@ public class VideoStream extends ConsolePanel implements ItemListener {
             }
             
             public void mouseClicked(MouseEvent e) {
-                if (SwingUtilities.isLeftMouseButton(e) && e.getClickCount() == 2) {
+                if (SwingUtilities.isLeftMouseButton(e) && e.isControlDown()) {
                    if (camFov != null) {
                        double width = ((Component)e.getSource()).getWidth();
                        double height = ((Component)e.getSource()).getHeight();
@@ -874,19 +873,12 @@ public class VideoStream extends ConsolePanel implements ItemListener {
         long timestamp = System.currentTimeMillis();
         String id = I18n.text("Snap") + "-" + frameTagID + "-" + timestampToReadableHoursString(timestamp);
 
-        boolean validId = false;
-        while (!validId) {
-            id = JOptionPane.showInputDialog(getConsole(), I18n.text("Please enter new mark name"), id);
-            if (id == null)
-                return null;
-            AbstractElement elems[] = MapGroup.getMapGroupInstance(getConsole().getMission()).getMapObjectsByID(id);
-            if (elems.length > 0) {
-                GuiUtils.errorMessage(getConsole(), I18n.text("Add mark"),
-                        I18n.text("The given ID already exists in the map. Please choose a different one"));
-            }
-            else {
-                validId = true;
-            }
+        AbstractElement elems[] = MapGroup.getMapGroupInstance(getConsole().getMission()).getMapObjectsByID(id);
+        
+        while (elems.length > 0) {
+            frameTagID++;
+            id = I18n.text("Snap") + "-" + frameTagID + "-" + timestampToReadableHoursString(timestamp);        
+            elems = MapGroup.getMapGroupInstance(getConsole().getMission()).getMapObjectsByID(id);
         }
         frameTagID++;// increment ID
 
@@ -1390,7 +1382,11 @@ public class VideoStream extends ConsolePanel implements ItemListener {
                     + Math.toDegrees(vAOV) + " AOV");
         }
         else
-            camFov = null;      
+        {
+            NeptusLog.pub().error("Could not load camera FOV");
+            camFov = null;            
+        }
+                  
     }
     
     // IMC handle

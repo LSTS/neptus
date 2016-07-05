@@ -37,6 +37,9 @@ import java.awt.geom.Ellipse2D;
 import java.awt.geom.Point2D;
 import java.util.ArrayList;
 
+import javax.swing.BorderFactory;
+import javax.swing.JLabel;
+
 import com.google.common.eventbus.Subscribe;
 
 import pt.lsts.imc.EstimatedState;
@@ -63,7 +66,7 @@ public class CamFootprintLayer extends ConsoleLayer {
 
     @NeptusProperty
     private Color footprintColor = Color.green;
-    
+        
     private CameraFOV camFov = null;
     private PathElement groundFootprint = new PathElement();
     private EventMouseLookAt lookAt = null;
@@ -155,9 +158,30 @@ public class CamFootprintLayer extends ConsoleLayer {
         setMainVehicle(evt.getCurrent());
     }
     
+    public String getInfoHtml() {
+        String html = "<html>";
+        html += "<b>Alt: </b>"+(int)camFov.getAltitude()+"<br>";
+        html += "<b>Roll: </b>"+(int)Math.toDegrees(camFov.getRoll())+"<br>";
+        html += "<b>Pitch: </b>"+(int)Math.toDegrees(camFov.getPitch())+"<br>";
+        html += "<b>Yaw: </b>"+(int)Math.toDegrees(camFov.getYaw())+"<br>";
+        html +="</html>";
+        return html;
+    }
+    
+    
     @Override
     public void paint(Graphics2D g, StateRenderer2D renderer) {
+        JLabel lbl = new JLabel(getInfoHtml());
+        lbl.setBorder(BorderFactory.createEmptyBorder(3, 3, 3, 3));
+        lbl.setOpaque(true);
+        lbl.setBackground(new Color(255,255,255,128));
+        lbl.setSize(lbl.getPreferredSize());
+        
         g.setTransform(renderer.getIdentity());
+        g.translate(10, 10);
+        lbl.paint(g);
+        g.setTransform(renderer.getIdentity());
+        
         if (groundFootprint != null)
             groundFootprint.paint(g, renderer, renderer.getRotation());   
         
