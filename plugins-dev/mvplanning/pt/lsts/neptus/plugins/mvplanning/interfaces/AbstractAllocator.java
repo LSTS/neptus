@@ -113,6 +113,7 @@ public abstract class AbstractAllocator implements IPeriodicUpdates {
             pc.setOp(OP.START);
 
             LocationType[] locs = getVehicleLocations(vehicle);
+            ptask.asPlanType().setVehicle(vehicle);
             PlanSpecification plan = pgen.closePlan(ptask, locs[0], locs[1]);
 
             pc.setArg(plan);
