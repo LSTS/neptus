@@ -56,6 +56,7 @@ import java.awt.geom.Area;
 import java.awt.geom.Rectangle2D;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Vector;
 
 /**
@@ -107,16 +108,18 @@ public class MvPlanningUtils {
         List<Payload> payloadList = planProfile.getPayload();
         Vector<IMCMessage> setParamsMsg = new Vector<>();
 
+        NeptusLog.pub().debug("\n");
         for(Payload payload : payloadList) {
+            NeptusLog.pub().debug("[" + payload.getPayloadType() + "] ");
             SetEntityParameters paramsMsg = new SetEntityParameters();
             paramsMsg.setName(payload.getPayloadType());
             Vector<EntityParameter> parametersList = new Vector<>();
 
             /* create parameters according to profile */
-            payload.getPayloadParameters()
-                    .entrySet()
-                    .stream()
-                    .forEach(entry -> parametersList.add(new EntityParameter(entry.getKey(), entry.getValue())));
+            for(Map.Entry<String, String> entry : payload.getPayloadParameters().entrySet()) {
+                parametersList.add(new EntityParameter(entry.getKey(), entry.getValue()));
+                NeptusLog.pub().debug("[" + entry.getKey() + ", " + entry.getValue() + "]");
+            }
 
             paramsMsg.setParams(parametersList);
             setParamsMsg.add(paramsMsg);
