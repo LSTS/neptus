@@ -33,6 +33,7 @@ package pt.lsts.neptus.mp.preview;
 
 import pt.lsts.neptus.mp.ManeuverLocation;
 import pt.lsts.neptus.mp.SystemPositionAndAttitude;
+import pt.lsts.neptus.mp.Maneuver.SPEED_UNITS;
 import pt.lsts.neptus.mp.maneuvers.YoYo;
 import pt.lsts.neptus.types.coord.LocationType;
 
@@ -70,9 +71,9 @@ public class YoYoPreview implements IManeuverPreview<YoYo> {
         }
 
         speed = man.getSpeed();
-        if (man.getUnits().equals("RPM"))
+        if (man.getUnits()== SPEED_UNITS.RPM)
             speed = SpeedConversion.convertRpmtoMps(speed);
-        else if (man.getUnits().equals("%")) // convert to RPM and then to m/s
+        else if (man.getUnits() == SPEED_UNITS.PERCENTAGE) // convert to RPM and then to m/s
             speed = SpeedConversion.convertPercentageToMps(speed);
 
         speed = Math.min(speed, SpeedConversion.MAX_SPEED);
