@@ -46,7 +46,6 @@ import com.l2fprod.common.propertysheet.Property;
 
 import pt.lsts.imc.IMCMessage;
 import pt.lsts.neptus.NeptusLog;
-import pt.lsts.neptus.gui.GotoParameters;
 import pt.lsts.neptus.gui.PropertiesEditor;
 import pt.lsts.neptus.gui.editor.AngleEditorRads;
 import pt.lsts.neptus.i18n.I18n;
@@ -66,8 +65,6 @@ public class YoYo extends Maneuver implements IMCSerialization, LocatedManeuver 
     protected Maneuver.SPEED_UNITS speedUnits = SPEED_UNITS.RPM;
     protected ManeuverLocation destination = new ManeuverLocation();
     protected static final String DEFAULT_ROOT_ELEMENT = "YoYo";
-	
-	private GotoParameters params = new GotoParameters();
 	
 	private final int ANGLE_CALCULATION = -1 ;
 	private final int FIRST_ROTATE = 0 ;
@@ -207,7 +204,6 @@ public class YoYo extends Maneuver implements IMCSerialization, LocatedManeuver 
 	public Object clone() {  
 	    YoYo clone = new YoYo();
 	    super.clone(clone);
-	    clone.params = params;
 	    clone.setManeuverLocation(destination.clone());
 	    clone.setAmplitude(getAmplitude());
 	    clone.setPitchAngle(getPitchAngle());

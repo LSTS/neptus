@@ -47,7 +47,6 @@ import com.l2fprod.common.propertysheet.Property;
 
 import pt.lsts.imc.IMCMessage;
 import pt.lsts.neptus.NeptusLog;
-import pt.lsts.neptus.gui.GotoParameters;
 import pt.lsts.neptus.gui.PropertiesEditor;
 import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.mp.Maneuver;
@@ -66,8 +65,6 @@ public class Goto extends Maneuver implements IMCSerialization, LocatedManeuver 
     Maneuver.SPEED_UNITS speedUnits = SPEED_UNITS.METERS_PS;
     ManeuverLocation destination = new ManeuverLocation();
     protected static final String DEFAULT_ROOT_ELEMENT = "Goto";
-	
-	protected GotoParameters params = new GotoParameters();
 	
 	private final int ANGLE_CALCULATION = -1 ;
 	private final int FIRST_ROTATE = 0 ;
@@ -214,7 +211,6 @@ public class Goto extends Maneuver implements IMCSerialization, LocatedManeuver 
 	public Object clone() {  
 	    Goto clone = new Goto();
 	    super.clone(clone);
-	    clone.params = params;
 	    clone.setManeuverLocation(getManeuverLocation());
 	    clone.setRadiusTolerance(getRadiusTolerance());
 	    clone.setSpeedUnits(getSpeedUnits());

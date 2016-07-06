@@ -51,7 +51,6 @@ public class Launch extends Goto {
     public Object clone() {  
         Launch clone = new Launch();
         super.clone(clone);
-        clone.params = params;
         clone.setManeuverLocation(getManeuverLocation());
         clone.setRadiusTolerance(getRadiusTolerance());
         clone.setSpeedUnits(getSpeedUnits());
