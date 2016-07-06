@@ -70,13 +70,13 @@ public class Launch extends Goto {
             setSpeed(msg.getSpeed());
             switch (msg.getSpeedUnits()) {
                 case METERS_PS:
-                    setSpeedUnits("m/s");
+                    setSpeedUnits(SPEED_UNITS.METERS_PS);
                     break;
                 case PERCENTAGE:
-                    setSpeedUnits("%");
+                    setSpeedUnits(SPEED_UNITS.PERCENTAGE);
                     break;
                 case RPM:
-                    setSpeedUnits("RPM");
+                    setSpeedUnits(SPEED_UNITS.RPM);
                     break;
             }
             ManeuverLocation pos = new ManeuverLocation();
@@ -107,13 +107,13 @@ public class Launch extends Goto {
         gotoManeuver.setSpeed(this.getSpeed());
        
         switch (this.getUnits()) {
-            case "m/s":
+            case METERS_PS:
                 gotoManeuver.setSpeedUnits(pt.lsts.imc.Launch.SPEED_UNITS.METERS_PS);
                 break;
-            case "RPM":
+            case RPM:
                 gotoManeuver.setSpeedUnits(pt.lsts.imc.Launch.SPEED_UNITS.RPM);
                 break;
-            case "%":
+            case PERCENTAGE:
                 gotoManeuver.setSpeedUnits(pt.lsts.imc.Launch.SPEED_UNITS.PERCENTAGE);
                 break;
             default:
