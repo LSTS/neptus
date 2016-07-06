@@ -48,6 +48,7 @@ import com.l2fprod.common.propertysheet.Property;
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.comm.IMCUtils;
 import pt.lsts.neptus.mp.Maneuver;
+import pt.lsts.neptus.mp.Maneuver.SPEED_UNITS;
 import pt.lsts.neptus.mp.preview.SpeedConversion;
 import pt.lsts.neptus.plugins.PluginProperty;
 import pt.lsts.neptus.plugins.PluginUtils;
@@ -510,5 +511,35 @@ public class ManeuversUtil {
     
     public static <M extends Maneuver> Class<M> getManeuverFromType(String type) {
         return IMCUtils.getManeuverFromType(type);
+    }
+    
+    /**
+     * Check if the property has a name proper to "Speed Units", if yes parses the value
+     * and if not valid return a default value.
+     * If not with the right name return null.
+     * 
+     * @param p
+     * @return
+     */
+    public static Maneuver.SPEED_UNITS getSpeedUnitsFromPropertyOrNullIfInvalidName(Property p) {
+        if (p.getName().equalsIgnoreCase("Speed units") || p.getName().equalsIgnoreCase("SpeedUnits")) {
+            Object val = p.getValue();
+            if (val instanceof String) {
+                SPEED_UNITS units;
+                try {
+                    units = Maneuver.SPEED_UNITS.parse((String) val);
+                }
+                catch (Exception e) {
+                    units = SPEED_UNITS.RPM;
+                    e.printStackTrace();
+                }
+                return units;
+            }
+            else if (val instanceof Maneuver.SPEED_UNITS) {
+                return (SPEED_UNITS) val;
+            }
+        }
+
+        return null;
     }
 }
