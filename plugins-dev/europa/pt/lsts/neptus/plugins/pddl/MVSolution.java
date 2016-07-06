@@ -135,7 +135,7 @@ public class MVSolution {
             case "move":
                 Goto tmpMove = new Goto();
                 tmpMove.setSpeed(1.0);
-                tmpMove.setSpeedUnits("m/s");
+                tmpMove.setSpeedUnits(Maneuver.SPEED_UNITS.METERS_PS);
                 tmpMove.setManeuverLocation(where);
                 action.man = tmpMove;
                 break;
