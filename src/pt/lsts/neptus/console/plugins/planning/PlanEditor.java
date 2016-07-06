@@ -1059,8 +1059,8 @@ public class PlanEditor extends InteractionAdapter implements Renderer2DPainter,
 
                             DefaultProperty propVelUnits = new DefaultProperty();
                             propVelUnits.setName("Speed units");
-                            propVelUnits.setValue(velUnitNotI18n); // velUnitI18n
-                            propVelUnits.setType(String.class);
+                            propVelUnits.setValue(Maneuver.SPEED_UNITS.parse(velUnitNotI18n)); // velUnitI18n
+                            propVelUnits.setType(Maneuver.SPEED_UNITS.class);
                             propVelUnits.setDisplayName(I18n.text("Speed units"));
                             planElem.setPlanProperty(propVelUnits);
                             
