@@ -162,7 +162,7 @@ public class MVSolution {
                 SurveyAreaTask onep = (SurveyAreaTask) tasks.get(taskName);
                 onep.getPivot().setManeuverLocation(where);
                 onep.getPivot().setSpeed(1.0);
-                onep.getPivot().setSpeedUnits("m/s");
+                onep.getPivot().setSpeedUnits(Maneuver.SPEED_UNITS.METERS_PS);
                 action.man = onep.getPivot();
                 action.payloads.add(PayloadRequirement.valueOf(parts[parts.length - 1].split("_")[1]));
                 break;
@@ -170,7 +170,7 @@ public class MVSolution {
                 SurveyAreaTask twop = (SurveyAreaTask) tasks.get(taskName);
                 twop.getPivot().setManeuverLocation(where);
                 twop.getPivot().setSpeed(1.0);
-                twop.getPivot().setSpeedUnits("m/s");
+                twop.getPivot().setSpeedUnits(Maneuver.SPEED_UNITS.METERS_PS);
                 action.payloads.add(PayloadRequirement.valueOf(parts[parts.length - 1].split("_")[1]));
                 action.payloads.add(PayloadRequirement.valueOf(parts[parts.length - 2].split("_")[1]));
                 action.man = twop.getPivot();
@@ -182,7 +182,7 @@ public class MVSolution {
                 SurveyAreaTask threep = (SurveyAreaTask) tasks.get(taskName);
                 threep.getPivot().setManeuverLocation(where);
                 threep.getPivot().setSpeed(1.0);
-                threep.getPivot().setSpeedUnits("m/s");
+                threep.getPivot().setSpeedUnits(Maneuver.SPEED_UNITS.METERS_PS);
                 action.man = threep.getPivot();
                 break;
             default:
