@@ -45,6 +45,7 @@ import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.gui.PropertiesEditor;
 import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.mp.Maneuver;
+import pt.lsts.neptus.mp.Maneuver.SPEED_UNITS;
 import pt.lsts.neptus.mp.ManeuverLocation;
 import pt.lsts.neptus.mp.SystemPositionAndAttitude;
 import pt.lsts.neptus.mp.maneuvers.LocatedManeuver;
@@ -279,12 +280,12 @@ public class PlanUtil {
             else {
                 try {
                     double speed = (Double) m.getClass().getMethod("getSpeed").invoke(m);
-                    String units = (String) m.getClass().getMethod("getUnits").invoke(m);
-                    switch (units.toLowerCase()) {
-                        case "%":
+                    SPEED_UNITS units = (Maneuver.SPEED_UNITS) m.getClass().getMethod("getSpeedUnits").invoke(m);
+                    switch (units) {
+                        case PERCENTAGE:
                             speed = SpeedConversion.convertPercentageToMps(speed);
                             break;
-                        case "rpm":
+                        case RPM:
                             speed = SpeedConversion.convertRpmtoMps(speed);
                         default:
                             break;
@@ -325,10 +326,10 @@ public class PlanUtil {
             else {
                 try {
                     speed = (Double) m.getClass().getMethod("getSpeed").invoke(m);
-                    String units = (String) m.getClass().getMethod("getUnits").invoke(m);
-                    if (units.equalsIgnoreCase("%"))
+                    SPEED_UNITS units = (Maneuver.SPEED_UNITS) m.getClass().getMethod("getSpeedUnits").invoke(m);
+                    if (units == SPEED_UNITS.PERCENTAGE)
                         speed = speed/100 * speedRpmRatioSpeed;
-                    else if (units.equalsIgnoreCase("rpm"))
+                    else if (units == SPEED_UNITS.RPM)
                         speed = (speed / speedRpmRatioRpms) * speedRpmRatioSpeed;
                 }
                 catch (Exception e) {
