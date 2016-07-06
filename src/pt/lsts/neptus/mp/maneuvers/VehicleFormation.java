@@ -200,14 +200,23 @@ public class VehicleFormation extends FollowTrajectory {
         vfMessage.setStartTime(startTime/1000.0);
         vfMessage.setParticipants(getParticipantsIMC());
         vfMessage.setSpeed(speed);
-        String s_units = speed_units;
-        if (s_units.equalsIgnoreCase("%"))
-            vfMessage.setSpeedUnits(pt.lsts.imc.VehicleFormation.SPEED_UNITS.PERCENTAGE);
-        else if (s_units.equalsIgnoreCase("m/s"))
-            vfMessage.setSpeedUnits(pt.lsts.imc.VehicleFormation.SPEED_UNITS.METERS_PS);
-        else
-            vfMessage.setSpeedUnits(pt.lsts.imc.VehicleFormation.SPEED_UNITS.RPM);      
-
+        try {
+            switch (speed_units) {
+                case METERS_PS:
+                    vfMessage.setSpeedUnits(pt.lsts.imc.VehicleFormation.SPEED_UNITS.METERS_PS);
+                    break;
+                case PERCENTAGE:
+                    vfMessage.setSpeedUnits(pt.lsts.imc.VehicleFormation.SPEED_UNITS.PERCENTAGE);
+                    break;
+                case RPM:
+                default:
+                    vfMessage.setSpeedUnits(pt.lsts.imc.VehicleFormation.SPEED_UNITS.RPM);
+                    break;
+            }
+        }
+        catch (Exception ex) {
+            NeptusLog.pub().error(this, ex);                     
+        }
 
         // conversion into absolute times
         double[]  absoluteTimes = new double[points.size()];
@@ -529,14 +538,21 @@ public class VehicleFormation extends FollowTrajectory {
 
                 Point2D clicked = event.getPoint();
                 LocationType curLoc = source.getRealWorldLocation(clicked);
-                double distance, _speed;
+                double distance, speedWithConversion;
 
                 // do any required speed conversions
-                _speed = speed;            
-                if (speed_units.equalsIgnoreCase("RPM"))
-                    _speed /= RPM_MPS_CONVERSION;
-                else if (speed_units.equalsIgnoreCase("%"))
-                    _speed /= PERCENT_MPS_CONVERSION;
+                speedWithConversion = speed;
+                switch (speed_units) {
+                    case PERCENTAGE:
+                        speedWithConversion /= PERCENT_MPS_CONVERSION;
+                        break;
+                    case RPM:
+                        speedWithConversion /= RPM_MPS_CONVERSION;
+                        break;
+                    case METERS_PS:
+                    default:
+                        break;
+                }
 
                 double[] offsets = source.getRealWorldLocation(clicked).getOffsetFrom(startLoc);
 
@@ -550,7 +566,7 @@ public class VehicleFormation extends FollowTrajectory {
                         distance = curLoc.getDistanceInMeters(previousLoc);
                     else 
                         distance = curLoc.getDistanceInMeters(startLoc);
-                    xyzt[3] = distance / _speed;
+                    xyzt[3] = distance / speedWithConversion;
                 }
                 else
                     xyzt[3] = -1;
