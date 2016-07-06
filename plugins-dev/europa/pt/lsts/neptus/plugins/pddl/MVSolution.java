@@ -263,7 +263,7 @@ public class MVSolution {
                 PopUp popup = new PopUp();
                 popup.setDuration(120);
                 popup.setSpeed(1.0);
-                popup.setSpeedUnits("m/s");
+                popup.setSpeedUnits(Maneuver.SPEED_UNITS.METERS_PS);
                 ManeuverLocation loc = new ManeuverLocation(m.getStartLocation());
                 loc.setZ(DEFAULT_DEPTH);
                 loc.setZUnits(Z_UNITS.DEPTH);
