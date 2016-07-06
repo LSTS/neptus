@@ -65,7 +65,7 @@ public class HeadingSpeedDepth extends DefaultManeuver implements IMCSerializati
     
     protected double speed = 1000, speedTolerance = 100, depth = 1.5, heading = -1;
     protected int duration = 10;
-    protected Maneuver.SPEED_UNITS units = SPEED_UNITS.RPM;
+    protected Maneuver.SPEED_UNITS speedUnits = SPEED_UNITS.RPM;
     protected boolean useHeading = true, useSpeed = true, useDepth = true;
     protected static final String DEFAULT_ROOT_ELEMENT = "HeadingSpeedDepth";
 
@@ -102,7 +102,7 @@ public class HeadingSpeedDepth extends DefaultManeuver implements IMCSerializati
         Element velocity = root.addElement("speed");
         velocity.addAttribute("tolerance", String.valueOf(getSpeedTolerance()));
         velocity.addAttribute("type", "float");
-        velocity.addAttribute("unit", getUnits().getString());
+        velocity.addAttribute("unit", getSpeedUnits().getString());
         velocity.setText(String.valueOf(getSpeed()));
 
         Element heading = root.addElement("heading");
@@ -131,7 +131,7 @@ public class HeadingSpeedDepth extends DefaultManeuver implements IMCSerializati
             setSpeed(Double.parseDouble(speedNode.getText()));
 //            setUnits(speedNode.valueOf("@unit"));
             SPEED_UNITS sUnits = ManeuversXMLUtil.parseSpeedUnits((Element) speedNode);
-            setUnits(sUnits);
+            setSpeedUnits(sUnits);
             setSpeedTolerance(Double.parseDouble(speedNode.valueOf("@tolerance")));
 
             Node flagNode = rootMnv.selectSingleNode("@useHeading");
@@ -208,9 +208,9 @@ public class HeadingSpeedDepth extends DefaultManeuver implements IMCSerializati
             case HORIZONTAL_MOVE:
                 double calculatedVelocity = 1;
 
-                if (units.equals("m/s"))
+                if (speedUnits.equals("m/s"))
                     calculatedVelocity = speed;
-                else if (units.equals("RPM"))
+                else if (speedUnits.equals("RPM"))
                     calculatedVelocity = speed / 500.0;
                 double deltaTime = System.currentTimeMillis() / 1000d - startTime;
                 if (deltaTime >= getDuration()) {
@@ -284,12 +284,12 @@ public class HeadingSpeedDepth extends DefaultManeuver implements IMCSerializati
         this.depth = depth;
     }
 
-    public SPEED_UNITS getUnits() {
-        return units;
+    public SPEED_UNITS getSpeedUnits() {
+        return speedUnits;
     }
 
-    public void setUnits(SPEED_UNITS units) {
-        this.units = units;
+    public void setSpeedUnits(SPEED_UNITS speedUnits) {
+        this.speedUnits = speedUnits;
     }
 
     public double getSpeed() {
@@ -337,7 +337,7 @@ public class HeadingSpeedDepth extends DefaultManeuver implements IMCSerializati
         clone.setDepth(getDepth());
         clone.setDuration(getDuration());
         clone.setHeading(getHeading());
-        clone.setUnits(getUnits());
+        clone.setSpeedUnits(getSpeedUnits());
         clone.setSpeed(getSpeed());
         clone.setSpeedTolerance(getSpeedTolerance());
 
@@ -352,7 +352,7 @@ public class HeadingSpeedDepth extends DefaultManeuver implements IMCSerializati
     protected Vector<DefaultProperty> additionalProperties() {
         Vector<DefaultProperty> properties = new Vector<DefaultProperty>();
 
-        DefaultProperty units = PropertiesEditor.getPropertyInstance("Speed units", String.class, getUnits(), true);
+        DefaultProperty units = PropertiesEditor.getPropertyInstance("Speed units", String.class, getSpeedUnits(), true);
         units.setShortDescription(I18n.text("The speed units"));
         PropertiesEditor.getPropertyEditorRegistry().registerEditor(units,
                 new ComboEditor<String>(new String[] { "RPM", "m/s", "%" }));
@@ -420,7 +420,7 @@ public class HeadingSpeedDepth extends DefaultManeuver implements IMCSerializati
             else {
                 SPEED_UNITS speedUnits = ManeuversUtil.getSpeedUnitsFromPropertyOrNullIfInvalidName(p);
                 if (speedUnits != null)
-                    setUnits(speedUnits);
+                    setSpeedUnits(speedUnits);
             }
         }
     }
@@ -433,7 +433,7 @@ public class HeadingSpeedDepth extends DefaultManeuver implements IMCSerializati
     public String getTooltipText() {
 
         return super.getTooltipText() + "<hr>" + "heading: <b>" + (int) getHeading() + " \u00B0</b>" + "<br>speed: <b>"
-                + getSpeed() + " " + getUnits() + "</b>" + "<br>depth: <b>" + (int) getDepth() + " m</b>"
+                + getSpeed() + " " + getSpeedUnits() + "</b>" + "<br>depth: <b>" + (int) getDepth() + " m</b>"
                 + "<br>duration: <b>" + getDuration() + " s</b>" + "<br>using: <b>"
                 + (isUseHeading() ? " heading" : "") + (isUseSpeed() ? " speed" : "") + (isUseDepth() ? " depth" : "")
                 + "</b>";
@@ -449,10 +449,10 @@ public class HeadingSpeedDepth extends DefaultManeuver implements IMCSerializati
 
         try {
             String speedUnits = message.getString("speed_units");
-            setUnits(Maneuver.SPEED_UNITS.parse(speedUnits));
+            setSpeedUnits(Maneuver.SPEED_UNITS.parse(speedUnits));
         }
         catch (Exception e) {
-            setUnits(Maneuver.SPEED_UNITS.RPM);
+            setSpeedUnits(Maneuver.SPEED_UNITS.RPM);
             e.printStackTrace();
         }
 

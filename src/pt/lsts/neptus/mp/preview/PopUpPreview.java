@@ -58,9 +58,9 @@ public class PopUpPreview implements IManeuverPreview<PopUp> {
         duration = man.getDuration();
         speed = man.getSpeed();
         model.setMaxSteeringRad(Math.toRadians(9));
-        if (man.getUnits() == SPEED_UNITS.RPM) 
+        if (man.getSpeedUnits() == SPEED_UNITS.RPM) 
             speed = SpeedConversion.convertRpmtoMps(speed);
-        else if (man.getUnits() == SPEED_UNITS.PERCENTAGE) // convert to RPM and then to m/s
+        else if (man.getSpeedUnits() == SPEED_UNITS.PERCENTAGE) // convert to RPM and then to m/s
             speed = SpeedConversion.convertPercentageToMps(speed);
 
         speed = Math.min(speed, SpeedConversion.MAX_SPEED);           

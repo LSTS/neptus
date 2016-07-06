@@ -63,7 +63,7 @@ import pt.lsts.neptus.util.GuiUtils;
 public class Goto extends Maneuver implements IMCSerialization, LocatedManeuver {
 
     double speed = 1, speedTolerance = 0, radiusTolerance = 2;
-    Maneuver.SPEED_UNITS units = SPEED_UNITS.METERS_PS;
+    Maneuver.SPEED_UNITS speedUnits = SPEED_UNITS.METERS_PS;
     ManeuverLocation destination = new ManeuverLocation();
     protected static final String DEFAULT_ROOT_ELEMENT = "Goto";
 	
@@ -100,7 +100,7 @@ public class Goto extends Maneuver implements IMCSerialization, LocatedManeuver 
 	    Element velocity = root.addElement("speed");
 	    velocity.addAttribute("tolerance", String.valueOf(getSpeedTolerance()));
 	    velocity.addAttribute("type", "float");
-	    velocity.addAttribute("unit", getUnits().getString());
+	    velocity.addAttribute("unit", getSpeedUnits().getString());
 	    velocity.setText(String.valueOf(getSpeed()));
 	    
 	    Element trajectoryTolerance = root.addElement("trajectoryTolerance");
@@ -185,9 +185,9 @@ public class Goto extends Maneuver implements IMCSerialization, LocatedManeuver 
 			case HORIZONTAL_MOVE:
 				double calculatedSpeed = 1;
 				
-				if (units.equals("m/s"))
+				if (speedUnits.equals("m/s"))
 					calculatedSpeed = speed;
-				else if (units.equals("RPM"))
+				else if (speedUnits.equals("RPM"))
 					calculatedSpeed = speed/500.0;
 				double dist = nextVehicleState.getPosition().getHorizontalDistanceInMeters(destination);
 				if (dist <= calculatedSpeed) {
@@ -217,7 +217,7 @@ public class Goto extends Maneuver implements IMCSerialization, LocatedManeuver 
 	    clone.params = params;
 	    clone.setManeuverLocation(getManeuverLocation());
 	    clone.setRadiusTolerance(getRadiusTolerance());
-	    clone.setSpeedUnits(getUnits());
+	    clone.setSpeedUnits(getSpeedUnits());
 	    clone.setSpeed(getSpeed());
 	    clone.setSpeedTolerance(getSpeedTolerance());
 	    
@@ -232,12 +232,12 @@ public class Goto extends Maneuver implements IMCSerialization, LocatedManeuver 
         this.radiusTolerance = radiusTolerance;
     }
     
-    public SPEED_UNITS getUnits() {
-        return units;
+    public SPEED_UNITS getSpeedUnits() {
+        return speedUnits;
     }
     
-    public void setSpeedUnits(Maneuver.SPEED_UNITS units) {
-        this.units = units;
+    public void setSpeedUnits(Maneuver.SPEED_UNITS speedUnits) {
+        this.speedUnits = speedUnits;
     }
     
     public double getSpeed() {
@@ -264,7 +264,7 @@ public class Goto extends Maneuver implements IMCSerialization, LocatedManeuver 
     protected Vector<DefaultProperty> additionalProperties() {
     	Vector<DefaultProperty> properties = new Vector<DefaultProperty>();
 
-    	DefaultProperty units = PropertiesEditor.getPropertyInstance("Speed units", Maneuver.SPEED_UNITS.class, getUnits(), true);
+    	DefaultProperty units = PropertiesEditor.getPropertyInstance("Speed units", Maneuver.SPEED_UNITS.class, getSpeedUnits(), true);
     	units.setDisplayName(I18n.text("Speed units"));
     	units.setShortDescription(I18n.text("The speed units"));
     
@@ -342,7 +342,7 @@ public class Goto extends Maneuver implements IMCSerialization, LocatedManeuver 
     	NumberFormat nf = GuiUtils.getNeptusDecimalFormat(2);
 		
 		return super.getTooltipText()+"<hr>"+
-		I18n.text("speed") + ": <b>"+nf.format(getSpeed())+" "+I18n.text(getUnits().getString())+"</b>"+
+		I18n.text("speed") + ": <b>"+nf.format(getSpeed())+" "+I18n.text(getSpeedUnits().getString())+"</b>"+
 		"<br>"+I18n.text(destination.getZUnits().toString())+": <b>"+nf.format(destination.getZ())+" " + I18n.textc("m", "meters") + "</b>";
 	}
     
@@ -394,7 +394,7 @@ public class Goto extends Maneuver implements IMCSerialization, LocatedManeuver 
 		gotoManeuver.setZUnits(pt.lsts.imc.Goto.Z_UNITS.valueOf(getManeuverLocation().getZUnits().name()));
 		gotoManeuver.setSpeed(this.getSpeed());
        
-		switch (this.getUnits()) {
+		switch (this.getSpeedUnits()) {
             case METERS_PS:
                 gotoManeuver.setSpeedUnits(pt.lsts.imc.Goto.SPEED_UNITS.METERS_PS);
                 break;

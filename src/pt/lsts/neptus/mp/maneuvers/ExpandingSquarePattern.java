@@ -261,7 +261,7 @@ public class ExpandingSquarePattern extends FollowPath {
 
         //speed
         Element speedElem = root.addElement("speed");        
-        speedElem.addAttribute("unit", speed_units.getString());
+        speedElem.addAttribute("unit", speedUnits.getString());
         speedElem.setText("" + speed);
 
         return document;

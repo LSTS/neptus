@@ -67,7 +67,7 @@ public class FollowPath extends FollowTrajectory {
         LocationType trajectoryStart = gotoF.destination;
         setId(gotoSequence.getManeuver(gotoSequence.getInitialManeuverId()).getId());
         setSpeed(gotoF.getSpeed());
-        setSpeedUnits(gotoF.getUnits());
+        setSpeedUnits(gotoF.getSpeedUnits());
         Maneuver[] mans = gotoSequence.getAllManeuvers();
         for (Maneuver m : mans) {
             Goto g = (Goto)m;
@@ -86,10 +86,10 @@ public class FollowPath extends FollowTrajectory {
     @Override
     public double getCompletionTime(LocationType initialPosition) {
         double speed = this.speed;
-        if (this.speed_units == Maneuver.SPEED_UNITS.RPM) {
+        if (this.speedUnits == Maneuver.SPEED_UNITS.RPM) {
             speed = speed/769.230769231; //1.3 m/s for 1000 RPMs
         }
-        else if (this.speed_units == Maneuver.SPEED_UNITS.PERCENTAGE) {
+        else if (this.speedUnits == Maneuver.SPEED_UNITS.PERCENTAGE) {
             speed = speed/76.923076923; //1.3 m/s for 100% speed
         }
 

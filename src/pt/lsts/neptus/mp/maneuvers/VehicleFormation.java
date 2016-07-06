@@ -149,7 +149,7 @@ public class VehicleFormation extends FollowTrajectory {
         VehicleFormation clone = new VehicleFormation();
         super.clone(clone);
         clone.speed = speed;
-        clone.speed_units = speed_units;
+        clone.speedUnits = speedUnits;
         clone.setManeuverLocation(getManeuverLocation());
         clone.points.addAll(points);                
         clone.setStartTime(getStartTime());
@@ -201,7 +201,7 @@ public class VehicleFormation extends FollowTrajectory {
         vfMessage.setParticipants(getParticipantsIMC());
         vfMessage.setSpeed(speed);
         try {
-            switch (speed_units) {
+            switch (speedUnits) {
                 case METERS_PS:
                     vfMessage.setSpeedUnits(pt.lsts.imc.VehicleFormation.SPEED_UNITS.METERS_PS);
                     break;
@@ -542,7 +542,7 @@ public class VehicleFormation extends FollowTrajectory {
 
                 // do any required speed conversions
                 speedWithConversion = speed;
-                switch (speed_units) {
+                switch (speedUnits) {
                     case PERCENTAGE:
                         speedWithConversion /= PERCENT_MPS_CONVERSION;
                         break;

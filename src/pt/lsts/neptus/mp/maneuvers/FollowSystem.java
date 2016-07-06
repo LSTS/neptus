@@ -59,7 +59,7 @@ import pt.lsts.neptus.util.MathMiscUtils;
 public class FollowSystem extends DefaultManeuver implements IMCSerialization {
 
     private double speed = 1000, speedTolerance = 100;
-    private Maneuver.SPEED_UNITS units = SPEED_UNITS.RPM;
+    private Maneuver.SPEED_UNITS speedUnits = SPEED_UNITS.RPM;
     private int duration = 60;
     private String system = "";
     private double xOffset = 1, yOffset = 1, zOffset = 1;
@@ -94,7 +94,7 @@ public class FollowSystem extends DefaultManeuver implements IMCSerialization {
 	    Element velocity = root.addElement("speed");
 	    velocity.addAttribute("tolerance", String.valueOf(getSpeedTolerance()));
 	    velocity.addAttribute("type", "float");
-	    velocity.addAttribute("unit", getUnits().getString());
+	    velocity.addAttribute("unit", getSpeedUnits().getString());
 	    velocity.setText(String.valueOf(getSpeed()));
 
 	    return document;
@@ -190,12 +190,12 @@ public class FollowSystem extends DefaultManeuver implements IMCSerialization {
         this.zOffset = zOffset;
     }
 
-    public SPEED_UNITS getUnits() {
-        return units;
+    public SPEED_UNITS getSpeedUnits() {
+        return speedUnits;
     }
     
     public void setUnits(SPEED_UNITS units) {
-        this.units = units;
+        this.speedUnits = units;
     }
     
     public double getSpeed() {
@@ -223,7 +223,7 @@ public class FollowSystem extends DefaultManeuver implements IMCSerialization {
         clone.setXOffset(getXOffset());
         clone.setYOffset(getYOffset());
         clone.setZOffset(getZOffset());
-	    clone.setUnits(getUnits());
+	    clone.setUnits(getSpeedUnits());
 	    clone.setSpeed(getSpeed());
 	    clone.setSpeedTolerance(getSpeedTolerance());
 		
@@ -244,7 +244,7 @@ public class FollowSystem extends DefaultManeuver implements IMCSerialization {
         properties.add(PropertiesEditor.getPropertyInstance("y offset", Double.class, getYOffset(), true));
         properties.add(PropertiesEditor.getPropertyInstance("z offset", Double.class, getZOffset(), true));
 
-    	DefaultProperty units = PropertiesEditor.getPropertyInstance("Speed units", Maneuver.SPEED_UNITS.class, getUnits(), true);
+    	DefaultProperty units = PropertiesEditor.getPropertyInstance("Speed units", Maneuver.SPEED_UNITS.class, getSpeedUnits(), true);
     	units.setShortDescription("The speed units");
     
     	properties.add(PropertiesEditor.getPropertyInstance("Speed", Double.class, getSpeed(), true));
@@ -304,7 +304,7 @@ public class FollowSystem extends DefaultManeuver implements IMCSerialization {
 	@Override
 	public String getTooltipText() {
 		return super.getTooltipText()+"<hr>"+
-		"speed" + ": <b>"+getSpeed()+" "+I18n.text(getUnits().getString())+"</b>"+
+		"speed" + ": <b>"+getSpeed()+" "+I18n.text(getSpeedUnits().getString())+"</b>"+
 		"<br>" + I18n.text("duration") + ": <b>"+(int)getDuration()+" " + I18n.textc("s", "seconds") + "</b>" +
 		"<br>" + I18n.text("system") + ": <b>"+getSystem()+"</b>" +
 		"<br>" + I18n.text("system") + ": <b>" + I18n.textc("nOff", "north offset") + "=</b>'" + MathMiscUtils.round(getXOffset(), 1) +
@@ -353,7 +353,7 @@ public class FollowSystem extends DefaultManeuver implements IMCSerialization {
 		//msgManeuver.setValue("velocity", new NativeFLOAT(this.getSpeed()));
 		msgManeuver.setValue("speed",this.getSpeed());
 		try {
-            switch (this.getUnits()) {
+            switch (this.getSpeedUnits()) {
                 case METERS_PS:
                     ((pt.lsts.imc.FollowSystem) msgManeuver).setSpeedUnits(pt.lsts.imc.FollowSystem.SPEED_UNITS.METERS_PS);
                     break;

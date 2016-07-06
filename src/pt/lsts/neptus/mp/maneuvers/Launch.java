@@ -54,7 +54,7 @@ public class Launch extends Goto {
         clone.params = params;
         clone.setManeuverLocation(getManeuverLocation());
         clone.setRadiusTolerance(getRadiusTolerance());
-        clone.setSpeedUnits(getUnits());
+        clone.setSpeedUnits(getSpeedUnits());
         clone.setSpeed(getSpeed());
         clone.setSpeedTolerance(getSpeedTolerance());
         
@@ -106,7 +106,7 @@ public class Launch extends Goto {
         gotoManeuver.setZUnits(pt.lsts.imc.Launch.Z_UNITS.valueOf(getManeuverLocation().getZUnits().name()));
         gotoManeuver.setSpeed(this.getSpeed());
        
-        switch (this.getUnits()) {
+        switch (this.getSpeedUnits()) {
             case METERS_PS:
                 gotoManeuver.setSpeedUnits(pt.lsts.imc.Launch.SPEED_UNITS.METERS_PS);
                 break;

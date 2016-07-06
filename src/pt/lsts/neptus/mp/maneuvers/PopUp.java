@@ -68,7 +68,7 @@ public class PopUp extends Maneuver implements LocatedManeuver, IMCSerialization
 
     protected double speed = 1000, speedTolerance = 100, radiusTolerance = 2;
     protected int duration = 5;
-    protected Maneuver.SPEED_UNITS units = SPEED_UNITS.RPM;
+    protected Maneuver.SPEED_UNITS speedUnits = SPEED_UNITS.RPM;
     protected ManeuverLocation destination = new ManeuverLocation();
     protected static final String DEFAULT_ROOT_ELEMENT = "PopUp";
 	
@@ -106,7 +106,7 @@ public class PopUp extends Maneuver implements LocatedManeuver, IMCSerialization
 	    Element velocity = root.addElement("speed");
 	    velocity.addAttribute("tolerance", String.valueOf(getSpeedTolerance()));
 	    velocity.addAttribute("type", "float");
-	    velocity.addAttribute("unit", getUnits().getString());
+	    velocity.addAttribute("unit", getSpeedUnits().getString());
 	    velocity.setText(String.valueOf(getSpeed()));
 	    
 	    Element flags = root.addElement("flags");
@@ -185,9 +185,9 @@ public class PopUp extends Maneuver implements LocatedManeuver, IMCSerialization
 			case HORIZONTAL_MOVE:
 				double calculatedSpeed = 1;
 				
-				if (units.equals("m/s"))
+				if (speedUnits.equals("m/s"))
 					calculatedSpeed = speed;
-				else if (units.equals("RPM"))
+				else if (speedUnits.equals("RPM"))
 					calculatedSpeed = speed/500.0;
 				double dist = nextVehicleState.getPosition().getHorizontalDistanceInMeters(destination);
 				if (dist <= calculatedSpeed) {
@@ -217,7 +217,7 @@ public class PopUp extends Maneuver implements LocatedManeuver, IMCSerialization
 		clone.setManeuverLocation(destination.clone());
 	    clone.setDuration(getDuration());
 	    clone.setRadiusTolerance((getRadiusTolerance()));
-	    clone.setSpeedUnits(getUnits());
+	    clone.setSpeedUnits(getSpeedUnits());
 	    clone.setSpeed(getSpeed());
 	    clone.setSpeedTolerance(getSpeedTolerance());
 	    clone.setCurrPos(isCurrPos());
@@ -250,12 +250,12 @@ public class PopUp extends Maneuver implements LocatedManeuver, IMCSerialization
 		this.duration = duration;
 	}
 
-	public SPEED_UNITS getUnits() {
-        return units;
+	public SPEED_UNITS getSpeedUnits() {
+        return speedUnits;
     }
     
-    public void setSpeedUnits(SPEED_UNITS units) {
-        this.units = units;
+    public void setSpeedUnits(SPEED_UNITS speedUnits) {
+        this.speedUnits = speedUnits;
     }
     
     public double getSpeed() {
@@ -282,7 +282,7 @@ public class PopUp extends Maneuver implements LocatedManeuver, IMCSerialization
     protected Vector<DefaultProperty> additionalProperties() {
     	Vector<DefaultProperty> properties = new Vector<DefaultProperty>();
 
-    	DefaultProperty units = PropertiesEditor.getPropertyInstance("Speed units", Maneuver.SPEED_UNITS.class, getUnits(), true);
+    	DefaultProperty units = PropertiesEditor.getPropertyInstance("Speed units", Maneuver.SPEED_UNITS.class, getSpeedUnits(), true);
     	units.setShortDescription("The speed units");
     
     	properties.add(PropertiesEditor.getPropertyInstance("Speed", Double.class, getSpeed(), true));
@@ -412,7 +412,7 @@ public class PopUp extends Maneuver implements LocatedManeuver, IMCSerialization
     @Override
 	public String getTooltipText() {
 		return super.getTooltipText()+"<hr>"+
-		I18n.text("speed") + ": <b>"+getSpeed()+" "+I18n.text(getUnits().getString())+"</b>"+
+		I18n.text("speed") + ": <b>"+getSpeed()+" "+I18n.text(getSpeedUnits().getString())+"</b>"+
 		"<br>" + I18n.text("cruise depth") + ": <b>"+(int)destination.getDepth()+" " + I18n.textc("m", "meters") + "</b>"+
 		"<br>" + I18n.text("duration") + ": <b>"+getDuration()+" " + I18n.textc("s", "seconds") + "</b>";
 	}
@@ -490,7 +490,7 @@ public class PopUp extends Maneuver implements LocatedManeuver, IMCSerialization
 	    msg.setSpeed(speed);
 	    
 	    try {
-            switch (this.getUnits()) {
+            switch (this.getSpeedUnits()) {
                 case METERS_PS:
                     msg.setSpeedUnits(pt.lsts.imc.PopUp.SPEED_UNITS.METERS_PS);
                     break;

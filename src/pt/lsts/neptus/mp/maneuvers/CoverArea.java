@@ -83,7 +83,7 @@ public class CoverArea extends Maneuver implements LocatedManeuver, IMCSerializa
 
     protected InteractionAdapter adapter = new InteractionAdapter(null);
     private double speed = 1000, speedTolerance = 0, radiusTolerance = 2;
-    private Maneuver.SPEED_UNITS units = SPEED_UNITS.RPM;
+    private Maneuver.SPEED_UNITS speedUnits = SPEED_UNITS.RPM;
     private ManeuverLocation location = new ManeuverLocation();
 
 //    private final int ANGLE_CALCULATION = -1 ;
@@ -152,7 +152,7 @@ public class CoverArea extends Maneuver implements LocatedManeuver, IMCSerializa
         coverArea.setSpeed(this.getSpeed());
        
         try {
-            switch (this.getUnits()) {
+            switch (this.getSpeedUnits()) {
                 case METERS_PS:
                     coverArea.setSpeedUnits(pt.lsts.imc.CoverArea.SPEED_UNITS.METERS_PS);
                     break;
@@ -507,12 +507,12 @@ public class CoverArea extends Maneuver implements LocatedManeuver, IMCSerializa
     /**
      * @param speedUnit
      */
-    private void setSpeedUnits(SPEED_UNITS units) {
-        this.units = units;
+    private void setSpeedUnits(SPEED_UNITS speedUnits) {
+        this.speedUnits = speedUnits;
     }
     
-    public SPEED_UNITS getUnits() {
-        return units;
+    public SPEED_UNITS getSpeedUnits() {
+        return speedUnits;
     }
 
     /**
@@ -537,7 +537,7 @@ public class CoverArea extends Maneuver implements LocatedManeuver, IMCSerializa
         }
         super.clone(clone);
         clone.speed = speed;
-        clone.units = units;
+        clone.speedUnits = speedUnits;
         clone.setManeuverLocation(location.getNewAbsoluteLatLonDepth());
         for (LocationType lc : points) {
             clone.points.addElement(lc.getNewAbsoluteLatLonDepth());
@@ -565,7 +565,7 @@ public class CoverArea extends Maneuver implements LocatedManeuver, IMCSerializa
         Element velocity = root.addElement("speed");
         velocity.addAttribute("tolerance", String.valueOf(getSpeedTolerance()));
         velocity.addAttribute("type", "float");
-        velocity.addAttribute("unit", getUnits().getString());
+        velocity.addAttribute("unit", getSpeedUnits().getString());
         velocity.setText(String.valueOf(getSpeed()));
         
         Element trajectoryTolerance = root.addElement("trajectoryTolerance");
@@ -587,7 +587,7 @@ public class CoverArea extends Maneuver implements LocatedManeuver, IMCSerializa
     protected Vector<DefaultProperty> additionalProperties() {
         Vector<DefaultProperty> properties = new Vector<DefaultProperty>();
 
-        DefaultProperty units = PropertiesEditor.getPropertyInstance("Speed units", Maneuver.SPEED_UNITS.class, getUnits(), true);
+        DefaultProperty units = PropertiesEditor.getPropertyInstance("Speed units", Maneuver.SPEED_UNITS.class, getSpeedUnits(), true);
         units.setDisplayName(I18n.text("Speed units"));
         units.setShortDescription(I18n.text("The speed units"));
     

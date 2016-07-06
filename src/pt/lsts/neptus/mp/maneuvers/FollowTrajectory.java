@@ -108,7 +108,7 @@ StateRendererInteraction, IMCSerialization, PathProvider {
     protected ManeuverLocation startLoc = new ManeuverLocation();
     LocationType previousLoc = null;
     protected double speed = 1;
-    protected SPEED_UNITS speed_units = SPEED_UNITS.METERS_PS;
+    protected SPEED_UNITS speedUnits = SPEED_UNITS.METERS_PS;
 
     // points are [x,y,z,t] offsets 
     protected Vector<double[]> points = new Vector<double[]>();
@@ -192,7 +192,7 @@ StateRendererInteraction, IMCSerialization, PathProvider {
 
         //velocity
         Element velocity = root.addElement("speed");        
-        velocity.addAttribute("unit", speed_units.getString());
+        velocity.addAttribute("unit", speedUnits.getString());
         velocity.setText(""+speed);
 
         return document;
@@ -210,7 +210,7 @@ StateRendererInteraction, IMCSerialization, PathProvider {
         }
         super.clone(clone);
         clone.speed = speed;
-        clone.speed_units = speed_units;
+        clone.speedUnits = speedUnits;
         clone.setManeuverLocation(startLoc);
         for (double[] val : points)
             clone.points.add(Arrays.copyOf(val, val.length));
@@ -340,9 +340,9 @@ StateRendererInteraction, IMCSerialization, PathProvider {
 
                 // do any required speed conversions
                 _speed = speed;            
-                if (speed_units == SPEED_UNITS.RPM)
+                if (speedUnits == SPEED_UNITS.RPM)
                     _speed /= RPM_MPS_CONVERSION;
-                else if (speed_units == SPEED_UNITS.PERCENTAGE)
+                else if (speedUnits == SPEED_UNITS.PERCENTAGE)
                     _speed /= PERCENT_MPS_CONVERSION;
 
                 double[] offsets = source.getRealWorldLocation(clicked).getOffsetFrom(startLoc);
@@ -472,10 +472,10 @@ StateRendererInteraction, IMCSerialization, PathProvider {
         double initialDistance = startLoc.getDistanceInMeters(initialPosition);
         double speed = this.speed;
 
-        if (this.speed_units == SPEED_UNITS.RPM)
+        if (this.speedUnits == SPEED_UNITS.RPM)
             speed = speed/RPM_MPS_CONVERSION;
 
-        else if (this.speed_units == SPEED_UNITS.PERCENTAGE)
+        else if (this.speedUnits == SPEED_UNITS.PERCENTAGE)
             speed = speed/PERCENT_MPS_CONVERSION;
 
         double time = initialDistance / speed;
@@ -633,7 +633,7 @@ StateRendererInteraction, IMCSerialization, PathProvider {
                     getManeuverLocation().getZUnits().toString()));
             trajMessage.setSpeed(speed);
             try {
-                switch (this.getUnits()) {
+                switch (this.getSpeedUnits()) {
                     case METERS_PS:
                         trajMessage.setSpeedUnits(pt.lsts.imc.FollowTrajectory.SPEED_UNITS.METERS_PS);
                         break;
@@ -673,7 +673,7 @@ StateRendererInteraction, IMCSerialization, PathProvider {
                     getManeuverLocation().getZUnits().toString()));            
             pathMessage.setSpeed(speed);
             try {
-                switch (this.getUnits()) {
+                switch (this.getSpeedUnits()) {
                     case METERS_PS:
                         pathMessage.setSpeedUnits(pt.lsts.imc.FollowPath.SPEED_UNITS.METERS_PS);
                         break;
@@ -734,12 +734,12 @@ StateRendererInteraction, IMCSerialization, PathProvider {
         }
     }
 
-    public SPEED_UNITS getUnits() {
-        return speed_units;
+    public SPEED_UNITS getSpeedUnits() {
+        return speedUnits;
     }
 
-    public void setSpeedUnits(SPEED_UNITS units) {
-        this.speed_units = units;
+    public void setSpeedUnits(SPEED_UNITS speedUnits) {
+        this.speedUnits = speedUnits;
         recalculateTimes();
     }
 
@@ -759,9 +759,9 @@ StateRendererInteraction, IMCSerialization, PathProvider {
 
         // do any required speed conversions
         _speed = speed;            
-        if (speed_units == SPEED_UNITS.RPM)
+        if (speedUnits == SPEED_UNITS.RPM)
             _speed /= RPM_MPS_CONVERSION;
-        else if (speed_units == SPEED_UNITS.PERCENTAGE)
+        else if (speedUnits == SPEED_UNITS.PERCENTAGE)
             _speed /= PERCENT_MPS_CONVERSION;
 
         for (int i = 0; i < points.size(); i++) {
@@ -781,7 +781,7 @@ StateRendererInteraction, IMCSerialization, PathProvider {
     public String getTooltipText() {
         NumberFormat nf = GuiUtils.getNeptusDecimalFormat(2);
         return super.getTooltipText() + "<hr>" + I18n.text("speed") + ": <b>" + nf.format(speed) + " "
-                + I18n.text(speed_units.getString()) + "</b>" + "<br>" + I18n.text("points") + ": <b>" + points.size()
+                + I18n.text(speedUnits.getString()) + "</b>" + "<br>" + I18n.text("points") + ": <b>" + points.size()
                 + "</b>";
     }
 
@@ -801,7 +801,7 @@ StateRendererInteraction, IMCSerialization, PathProvider {
     protected Vector<DefaultProperty> additionalProperties() {
         Vector<DefaultProperty> properties = new Vector<DefaultProperty>();
 
-        DefaultProperty units = PropertiesEditor.getPropertyInstance("Speed units", Maneuver.SPEED_UNITS.class, getUnits(), true);
+        DefaultProperty units = PropertiesEditor.getPropertyInstance("Speed units", Maneuver.SPEED_UNITS.class, getSpeedUnits(), true);
         units.setShortDescription("The speed units");
 
         properties.add(PropertiesEditor.getPropertyInstance("Speed", Double.class, getSpeed(), true));

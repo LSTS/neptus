@@ -96,7 +96,7 @@ IMCSerialization, StatisticsProvider, PathProvider {
     protected float alternationPercentage = 1.0f;
     protected boolean squareCurve = true, firstCurveRight = true;
     protected boolean paintSSRangeShadow = true;
-    protected Maneuver.SPEED_UNITS speed_units = SPEED_UNITS.RPM;
+    protected Maneuver.SPEED_UNITS speedUnits = SPEED_UNITS.RPM;
     protected ManeuverLocation.Z_UNITS zunits = ManeuverLocation.Z_UNITS.NONE;
 
     protected InteractionAdapter adapter = new InteractionAdapter(null);
@@ -239,7 +239,7 @@ IMCSerialization, StatisticsProvider, PathProvider {
         clone.hstep = hstep;        
         clone.length = length;
         clone.speed = speed;
-        clone.speed_units = speed_units;
+        clone.speedUnits = speedUnits;
         clone.width = width;
 
         clone.alternationPercentage = alternationPercentage;
@@ -290,7 +290,7 @@ IMCSerialization, StatisticsProvider, PathProvider {
 
         //speed
         Element speedElem = root.addElement("speed");        
-        speedElem.addAttribute("unit", speed_units.getString());
+        speedElem.addAttribute("unit", speedUnits.getString());
         speedElem.setText(""+speed);
 
         if (!paintSSRangeShadow) {
@@ -681,7 +681,7 @@ IMCSerialization, StatisticsProvider, PathProvider {
         man.setFlags((short) ((squareCurve ? Rows.FLG_SQUARE_CURVE : 0) + (firstCurveRight ? Rows.FLG_CURVE_RIGHT : 0)));
 
         try {
-            switch (this.getUnits()) {
+            switch (this.getSpeedUnits()) {
                 case METERS_PS:
                     man.setSpeedUnits(pt.lsts.imc.Rows.SPEED_UNITS.METERS_PS);
                     break;
@@ -855,9 +855,9 @@ IMCSerialization, StatisticsProvider, PathProvider {
         speed.setShortDescription("The vehicle's desired speed");
         props.add(speed);
 
-        DefaultProperty speedUnits = PropertiesEditor.getPropertyInstance("Speed Units", Maneuver.SPEED_UNITS.class, speed_units, true);
-        speedUnits.setShortDescription("The units to consider in the speed parameters");
-        props.add(speedUnits);
+        DefaultProperty speedUnitsProp = PropertiesEditor.getPropertyInstance("Speed Units", Maneuver.SPEED_UNITS.class, speedUnits, true);
+        speedUnitsProp.setShortDescription("The units to consider in the speed parameters");
+        props.add(speedUnitsProp);
 
         DefaultProperty curvOffset = PropertiesEditor.getPropertyInstance("Curve Offset", Double.class, curvOff, true);
         curvOffset.setShortDescription("The extra length to use for the curve");       
@@ -893,12 +893,12 @@ IMCSerialization, StatisticsProvider, PathProvider {
         this.speed = speed;
     }
 
-    public SPEED_UNITS getUnits() {
-        return speed_units;
+    public SPEED_UNITS getSpeedUnits() {
+        return speedUnits;
     }
 
     public void setSpeedUnits(SPEED_UNITS speedUnits) {
-        this.speed_units = speedUnits;
+        this.speedUnits = speedUnits;
     }
 
     /* (non-Javadoc)
@@ -908,10 +908,10 @@ IMCSerialization, StatisticsProvider, PathProvider {
     public double getCompletionTime(LocationType initialPosition) {
 
         double speed = this.speed;
-        if (this.speed_units == Maneuver.SPEED_UNITS.RPM) {
+        if (this.speedUnits == Maneuver.SPEED_UNITS.RPM) {
             speed = speed/769.230769231; //1.3 m/s for 1000 RPMs
         }
-        else if (this.speed_units == Maneuver.SPEED_UNITS.PERCENTAGE) {
+        else if (this.speedUnits == Maneuver.SPEED_UNITS.PERCENTAGE) {
             speed = speed/76.923076923; //1.3 m/s for 100% speed
         }
 
@@ -971,7 +971,7 @@ IMCSerialization, StatisticsProvider, PathProvider {
         I18n.text("hstep") + ": <b>"+nf.format(hstep)+" " + I18n.textc("m", "meters") + "</b><br/>"+
         I18n.text("bearing") + ": <b>"+nf.format(Math.toDegrees(bearingRad))+" \u00B0</b><br/>"+
         I18n.text("cross angle") + ": <b>"+nf.format(Math.toDegrees(crossAngleRadians))+" \u00B0</b><br/>"+
-        I18n.text("speed") + ": <b>"+nf.format(getSpeed())+" "+getUnits()+"</b><br/>"+
+        I18n.text("speed") + ": <b>"+nf.format(getSpeed())+" "+getSpeedUnits()+"</b><br/>"+
         I18n.text("distance") + ": <b>"+MathMiscUtils.parseToEngineeringNotation(getDistanceTravelled((LocationType)getStartLocation()), 2)+I18n.textc("m", "meters") + "</b><br/>"+
         (paintSSRangeShadow ? I18n.textc("ss range", "sidescan range") + ": <b>"+(short)(ssRangeShadow)+" " + I18n.textc("m", "meters") + "</b><br/>" : "") +
         "<br>" + I18n.text("depth") + ": <b>"+nf.format(z)+" " + I18n.textc("m", "meters") + "</b>";    }

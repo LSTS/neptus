@@ -357,7 +357,7 @@ public class RowsPattern extends FollowPath {
 
         //speed
         Element speedElem = root.addElement("speed");        
-        speedElem.addAttribute("unit", speed_units.getString());
+        speedElem.addAttribute("unit", speedUnits.getString());
         speedElem.setText(""+speed);
 
         return document;
@@ -601,9 +601,9 @@ public class RowsPattern extends FollowPath {
         speed.setShortDescription("The vehicle's desired speed");
         props.add(speed);
 
-        DefaultProperty speedUnits = PropertiesEditor.getPropertyInstance("Speed Units", Maneuver.SPEED_UNITS.class, speed_units, true);
-        speedUnits.setShortDescription("The units to consider in the speed parameters");
-        props.add(speedUnits);
+        DefaultProperty speedUnitsProp = PropertiesEditor.getPropertyInstance("Speed Units", Maneuver.SPEED_UNITS.class, speedUnits, true);
+        speedUnitsProp.setShortDescription("The units to consider in the speed parameters");
+        props.add(speedUnitsProp);
 
         DefaultProperty curvOffset = PropertiesEditor.getPropertyInstance("Curve Offset", Double.class, curvOff, true);
         curvOffset.setShortDescription("The extra length to use for the curve");       

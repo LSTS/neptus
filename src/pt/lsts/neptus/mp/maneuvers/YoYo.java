@@ -63,7 +63,7 @@ public class YoYo extends Maneuver implements IMCSerialization, LocatedManeuver 
 
     protected double speed = 1000, speedTolerance = 100, amplitude = 2;
     protected float pitchAngle = (float) (Math.PI/4);
-    protected Maneuver.SPEED_UNITS units = SPEED_UNITS.RPM;
+    protected Maneuver.SPEED_UNITS speedUnits = SPEED_UNITS.RPM;
     protected ManeuverLocation destination = new ManeuverLocation();
     protected static final String DEFAULT_ROOT_ELEMENT = "YoYo";
 	
@@ -97,7 +97,7 @@ public class YoYo extends Maneuver implements IMCSerialization, LocatedManeuver 
 	    Element velocity = root.addElement("speed");
 	    velocity.addAttribute("tolerance", String.valueOf(getSpeedTolerance()));
 	    velocity.addAttribute("type", "float");
-	    velocity.addAttribute("unit", getUnits().getString());
+	    velocity.addAttribute("unit", getSpeedUnits().getString());
 	    velocity.setText(String.valueOf(getSpeed()));
 	    
 	    Element amplitude = root.addElement("amplitude");
@@ -177,9 +177,9 @@ public class YoYo extends Maneuver implements IMCSerialization, LocatedManeuver 
 			case HORIZONTAL_MOVE:
 				double calculatedSpeed = 1;
 				
-				if (units.equals("m/s"))
+				if (speedUnits.equals("m/s"))
 					calculatedSpeed = speed;
-				else if (units.equals("RPM"))
+				else if (speedUnits.equals("RPM"))
 					calculatedSpeed = speed/500.0;
 				double dist = nextVehicleState.getPosition().getHorizontalDistanceInMeters(destination);
 				if (dist <= calculatedSpeed) {
@@ -211,7 +211,7 @@ public class YoYo extends Maneuver implements IMCSerialization, LocatedManeuver 
 	    clone.setManeuverLocation(destination.clone());
 	    clone.setAmplitude(getAmplitude());
 	    clone.setPitchAngle(getPitchAngle());
-	    clone.setSpeedUnits(getUnits());
+	    clone.setSpeedUnits(getSpeedUnits());
 	    clone.setSpeed(getSpeed());
 	    clone.setSpeedTolerance(getSpeedTolerance());
 	    
@@ -240,12 +240,12 @@ public class YoYo extends Maneuver implements IMCSerialization, LocatedManeuver 
 		this.pitchAngle = pitchAngle;
 	}
     
-    public SPEED_UNITS getUnits() {
-        return units;
+    public SPEED_UNITS getSpeedUnits() {
+        return speedUnits;
     }
     
-    public void setSpeedUnits(SPEED_UNITS units) {
-        this.units = units;
+    public void setSpeedUnits(SPEED_UNITS speedUnits) {
+        this.speedUnits = speedUnits;
     }
     
     public double getSpeed() {
@@ -272,7 +272,7 @@ public class YoYo extends Maneuver implements IMCSerialization, LocatedManeuver 
     protected Vector<DefaultProperty> additionalProperties() {
     	Vector<DefaultProperty> properties = new Vector<DefaultProperty>();
 
-    	DefaultProperty units = PropertiesEditor.getPropertyInstance("Speed units", Maneuver.SPEED_UNITS.class, getUnits(), true);
+    	DefaultProperty units = PropertiesEditor.getPropertyInstance("Speed units", Maneuver.SPEED_UNITS.class, getSpeedUnits(), true);
     	units.setShortDescription("The speed units");
     
     	properties.add(PropertiesEditor.getPropertyInstance("Speed", Double.class, getSpeed(), true));
@@ -353,7 +353,7 @@ public class YoYo extends Maneuver implements IMCSerialization, LocatedManeuver 
     	NumberFormat nf = GuiUtils.getNeptusDecimalFormat(2);
 		
 		return super.getTooltipText()+"<hr>"+
-		I18n.text("speed") + ": <b>"+nf.format(getSpeed())+" "+getUnits()+"</b>"+
+		I18n.text("speed") + ": <b>"+nf.format(getSpeed())+" "+getSpeedUnits()+"</b>"+
 		"<br>"+I18n.text(destination.getZUnits().toString())+": <b>"+nf.format(destination.getZ())+" " + I18n.textc("m", "meters") + "</b>" +
 		"<br>" + I18n.text("amplitude") + ": <b>"+nf.format(getAmplitude())+" " + I18n.textc("m", "meters") + "</b>"+
 		"<br>" + I18n.text("pitch") + ": <b>"+nf.format(Math.toDegrees(getPitchAngle()))+" \u00B0</b>";
@@ -402,7 +402,7 @@ public class YoYo extends Maneuver implements IMCSerialization, LocatedManeuver 
 		yoyo.setPitch(getPitchAngle());
 
 		try {
-            switch (this.getUnits()) {
+            switch (this.getSpeedUnits()) {
                 case METERS_PS:
                     yoyo.setSpeedUnits(pt.lsts.imc.YoYo.SPEED_UNITS.METERS_PS);
                     break;
