@@ -48,9 +48,9 @@ import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.comm.IMCUtils;
 import pt.lsts.neptus.comm.manager.imc.ImcMsgManager;
 import pt.lsts.neptus.gui.PropertiesEditor;
-import pt.lsts.neptus.gui.editor.SpeedUnitsEditor;
-import pt.lsts.neptus.gui.editor.renderer.I18nCellRenderer;
+import pt.lsts.neptus.gui.editor.SpeedUnitsEnumEditor;
 import pt.lsts.neptus.i18n.I18n;
+import pt.lsts.neptus.mp.Maneuver;
 import pt.lsts.neptus.mp.ManeuverLocation;
 import pt.lsts.neptus.mp.SystemPositionAndAttitude;
 import pt.lsts.neptus.types.coord.LocationType;
@@ -62,7 +62,7 @@ import pt.lsts.neptus.types.coord.LocationType;
 public class CommsRelay extends DefaultManeuver implements IMCSerialization, LocatedManeuver {
 
     private double speed = 1000;
-    private String units = "RPM";
+    private Maneuver.SPEED_UNITS units = SPEED_UNITS.RPM;
     private int duration = 60;
     private String sys_a = "", sys_b = "";
     private ManeuverLocation startLoc = new ManeuverLocation();
@@ -102,7 +102,7 @@ public class CommsRelay extends DefaultManeuver implements IMCSerialization, Loc
         
 	    Element velocity = root.addElement("speed");
 	    velocity.addAttribute("type", "float");
-	    velocity.addAttribute("unit", getUnits());
+	    velocity.addAttribute("unit", getUnits().getString());
 	    velocity.setText(String.valueOf(getSpeed()));
 
 	    return document;
@@ -126,7 +126,9 @@ public class CommsRelay extends DefaultManeuver implements IMCSerialization, Loc
 	        	speedNode = doc.selectSingleNode("//velocity");
 
 	        setSpeed(Double.parseDouble(speedNode.getText()));
-	        setUnits(speedNode.valueOf("@unit"));   
+//	        setUnits(speedNode.valueOf("@unit"));
+	        SPEED_UNITS sUnits = ManeuversXMLUtil.parseSpeedUnits((Element) speedNode);
+            setUnits(sUnits);
 	    }
 	    catch (Exception e) {
 	        NeptusLog.pub().error(this, e);
@@ -162,11 +164,11 @@ public class CommsRelay extends DefaultManeuver implements IMCSerialization, Loc
         this.duration = duration;
     }
 
-    public String getUnits() {
+    public SPEED_UNITS getUnits() {
         return units;
     }
     
-    public void setUnits(String units) {
+    public void setUnits(SPEED_UNITS units) {
         this.units = units;
     }
     
@@ -219,10 +221,10 @@ public class CommsRelay extends DefaultManeuver implements IMCSerialization, Loc
 
     	properties.add(PropertiesEditor.getPropertyInstance("Move threshold", Double.class, getMoveThreshold(), true));
 
-    	DefaultProperty units = PropertiesEditor.getPropertyInstance("Speed units", String.class, getUnits(), true);
+    	DefaultProperty units = PropertiesEditor.getPropertyInstance("Speed units", Maneuver.SPEED_UNITS.class, getUnits(), true);
     	units.setShortDescription("The speed units");
-    	PropertiesEditor.getPropertyEditorRegistry().registerEditor(units, new SpeedUnitsEditor());   
-    	PropertiesEditor.getPropertyRendererRegistry().registerRenderer(units, new I18nCellRenderer());
+    	PropertiesEditor.getPropertyEditorRegistry().registerEditor(units, new SpeedUnitsEnumEditor());
+//    	PropertiesEditor.getPropertyRendererRegistry().registerRenderer(units, new I18nCellRenderer());
     
     	properties.add(PropertiesEditor.getPropertyInstance("Speed", Double.class, getSpeed(), true));
     	properties.add(units);
@@ -238,23 +240,25 @@ public class CommsRelay extends DefaultManeuver implements IMCSerialization, Loc
     	super.setProperties(properties);
     	
     	for (Property p : properties) {
-    		if (p.getName().equals("Speed units")) {
-    			setUnits((String)p.getValue());
-    		}
     		if (p.getName().equals("Speed")) {
     			setSpeed((Double)p.getValue());
     		}
-    		if (p.getName().equals("Duration")) {
+    		else if (p.getName().equals("Duration")) {
     			setDuration((Integer)p.getValue());
     		}
-    		if (p.getName().equals("System A")) {
+    		else if (p.getName().equals("System A")) {
     			setSystemA((String)p.getValue());
     		}
-            if (p.getName().equals("System B")) {
+    		else if (p.getName().equals("System B")) {
                 setSystemB((String)p.getValue());
             }
-            if (p.getName().equals("Move threshold")) {
+    		else if (p.getName().equals("Move threshold")) {
                 setMoveThreshold((Double)p.getValue());
+            }
+            else {
+                SPEED_UNITS speedUnits = ManeuversUtil.getSpeedUnitsFromPropertyOrNullIfInvalidName(p);
+                if (speedUnits != null)
+                    setUnits(speedUnits);
             }
     	}
     }
@@ -266,7 +270,7 @@ public class CommsRelay extends DefaultManeuver implements IMCSerialization, Loc
 	@Override
 	public String getTooltipText() {
 		return super.getTooltipText()+"<hr>"+
-		        I18n.text("speed") + ": <b>"+getSpeed()+" "+I18n.text(getUnits())+"</b>"+
+		        I18n.text("speed") + ": <b>"+getSpeed()+" "+I18n.text(getUnits().getString())+"</b>"+
         		"<br>" + I18n.text("duration") + ": <b>"+(int)getDuration()+" " + I18n.textc("s", "seconds") + "</b>" +
         		"<br>" + I18n.text("system a") + ": <b>"+getSystemA()+"</b>" +
         		"<br>" + I18n.text("system b") + ": <b>"+getSystemB()+"</b>";
@@ -286,13 +290,14 @@ public class CommsRelay extends DefaultManeuver implements IMCSerialization, Loc
 		startLoc.setZUnits(ManeuverLocation.Z_UNITS.DEPTH);
 		setMoveThreshold(message.getDouble("move_threshold"));
 		setSpeed(message.getDouble("speed"));
-		String speed_units = message.getString("speed_units");
-		if (speed_units.equals("METERS_PS"))
-			setUnits("m/s");
-		else if (speed_units.equals("RPM"))
-			setUnits("RPM");
-		else
-			setUnits("%");
+		try {
+            String speedUnits = message.getString("speed_units");
+            setUnits(Maneuver.SPEED_UNITS.parse(speedUnits));
+        }
+        catch (Exception e) {
+            setUnits(Maneuver.SPEED_UNITS.RPM);
+            e.printStackTrace();
+        }
 		
 		setMoveThreshold(message.getDouble("move_threshold"));
 	}
@@ -335,14 +340,23 @@ public class CommsRelay extends DefaultManeuver implements IMCSerialization, Loc
         msg.setLon(startLoc.getLongitudeRads());
 
 		msg.setSpeed(this.getSpeed());
-		if ("m/s".equalsIgnoreCase(getUnits()))
-            msg.setSpeedUnits(pt.lsts.imc.CommsRelay.SPEED_UNITS.METERS_PS);
-        else if ("RPM".equalsIgnoreCase(getUnits()))
-            msg.setSpeedUnits(pt.lsts.imc.CommsRelay.SPEED_UNITS.RPM);
-        else if ("%".equalsIgnoreCase(getUnits()))
-            msg.setSpeedUnits(pt.lsts.imc.CommsRelay.SPEED_UNITS.PERCENTAGE);
-        else if ("percentage".equalsIgnoreCase(getUnits()))
-            msg.setSpeedUnits(pt.lsts.imc.CommsRelay.SPEED_UNITS.PERCENTAGE);
+		try {
+            switch (this.getUnits()) {
+                case METERS_PS:
+                    msg.setSpeedUnits(pt.lsts.imc.CommsRelay.SPEED_UNITS.METERS_PS);
+                    break;
+                case PERCENTAGE:
+                    msg.setSpeedUnits(pt.lsts.imc.CommsRelay.SPEED_UNITS.PERCENTAGE);
+                    break;
+                case RPM:
+                default:
+                    msg.setSpeedUnits(pt.lsts.imc.CommsRelay.SPEED_UNITS.RPM);
+                    break;
+            }
+        }
+        catch (Exception ex) {
+            NeptusLog.pub().error(this, ex);                     
+        }
 		
 		msg.setMoveThreshold(getMoveThreshold());
 		
@@ -388,7 +402,7 @@ public class CommsRelay extends DefaultManeuver implements IMCSerialization, Loc
         cr.setSystemA("lauv-xtreme-2");
         cr.setSystemB("lauv-seacon-1");
         cr.setSpeed(1000);
-        cr.setUnits("RPM");
+        cr.setUnits(SPEED_UNITS.RPM);
         cr.setMoveThreshold(30);
         
         IMCMessage msg = cr.serializeToIMC();
