@@ -64,8 +64,7 @@ import pt.lsts.imc.PolygonVertex;
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.gui.PropertiesEditor;
 import pt.lsts.neptus.gui.ToolbarSwitch;
-import pt.lsts.neptus.gui.editor.SpeedUnitsEditor;
-import pt.lsts.neptus.gui.editor.renderer.I18nCellRenderer;
+import pt.lsts.neptus.gui.editor.SpeedUnitsEnumEditor;
 import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.mp.Maneuver;
 import pt.lsts.neptus.mp.ManeuverLocation;
@@ -85,7 +84,7 @@ public class CoverArea extends Maneuver implements LocatedManeuver, IMCSerializa
 
     protected InteractionAdapter adapter = new InteractionAdapter(null);
     private double speed = 1000, speedTolerance = 0, radiusTolerance = 2;
-    private String units = "RPM";
+    private Maneuver.SPEED_UNITS units = SPEED_UNITS.RPM;
     private ManeuverLocation location = new ManeuverLocation();
 
 //    private final int ANGLE_CALCULATION = -1 ;
@@ -113,16 +112,13 @@ public class CoverArea extends Maneuver implements LocatedManeuver, IMCSerializa
             pt.lsts.imc.CoverArea area = pt.lsts.imc.CoverArea.clone(message);
             
             setSpeed(area.getSpeed());
-            switch (area.getSpeedUnits()) {
-                case METERS_PS:
-                    setSpeedUnits("m/s");
-                    break;
-                case PERCENTAGE:
-                    setSpeedUnits("%");
-                    break;
-                case RPM:
-                    setSpeedUnits("RPM");
-                    break;
+            try {
+                String speedUnits = area.getString("speed_units");
+                setSpeedUnits(Maneuver.SPEED_UNITS.parse(speedUnits));
+            }
+            catch (Exception e) {
+                setSpeedUnits(Maneuver.SPEED_UNITS.RPM);
+                e.printStackTrace();
             }
             ManeuverLocation pos = new ManeuverLocation();
             pos.setLatitudeRads(area.getLat());
@@ -156,19 +152,22 @@ public class CoverArea extends Maneuver implements LocatedManeuver, IMCSerializa
         coverArea.setZUnits(pt.lsts.imc.CoverArea.Z_UNITS.valueOf(getManeuverLocation().getZUnits().name()));
         coverArea.setSpeed(this.getSpeed());
        
-        switch (this.getUnits()) {
-            case "m/s":
-                coverArea.setSpeedUnits(pt.lsts.imc.CoverArea.SPEED_UNITS.METERS_PS);
-                break;
-            case "RPM":
-                coverArea.setSpeedUnits(pt.lsts.imc.CoverArea.SPEED_UNITS.RPM);
-                break;
-            case "%":
-                coverArea.setSpeedUnits(pt.lsts.imc.CoverArea.SPEED_UNITS.PERCENTAGE);
-                break;
-            default:
-                coverArea.setSpeedUnits(pt.lsts.imc.CoverArea.SPEED_UNITS.RPM);
-                break;
+        try {
+            switch (this.getUnits()) {
+                case METERS_PS:
+                    coverArea.setSpeedUnits(pt.lsts.imc.CoverArea.SPEED_UNITS.METERS_PS);
+                    break;
+                case PERCENTAGE:
+                    coverArea.setSpeedUnits(pt.lsts.imc.CoverArea.SPEED_UNITS.PERCENTAGE);
+                    break;
+                case RPM:
+                default:
+                    coverArea.setSpeedUnits(pt.lsts.imc.CoverArea.SPEED_UNITS.RPM);
+                    break;
+            }
+        }
+        catch (Exception ex) {
+            NeptusLog.pub().error(this, ex);                     
         }
         
         Vector<PolygonVertex> vertices = new Vector<PolygonVertex>();
@@ -454,8 +453,10 @@ public class CoverArea extends Maneuver implements LocatedManeuver, IMCSerializa
             if (speedNode == null) 
                 speedNode = doc.selectSingleNode(getType()+"/velocity");
             setSpeed(Double.parseDouble(speedNode.getText()));
-            String speedUnit = speedNode.valueOf("@unit");
-            setSpeedUnits(speedUnit);
+//            String speedUnit = speedNode.valueOf("@unit");
+//            setSpeedUnits(speedUnit);
+            SPEED_UNITS sUnits = ManeuversXMLUtil.parseSpeedUnits((Element) speedNode);
+            setSpeedUnits(sUnits);
             setSpeedTolerance(Double.parseDouble(speedNode.valueOf("@tolerance")));
             
             Node vertexPoints = doc.selectSingleNode(getType()+"/vertexPoints");
@@ -507,11 +508,11 @@ public class CoverArea extends Maneuver implements LocatedManeuver, IMCSerializa
     /**
      * @param speedUnit
      */
-    private void setSpeedUnits(String units) {
+    private void setSpeedUnits(SPEED_UNITS units) {
         this.units = units;
     }
     
-    public String getUnits() {
+    public SPEED_UNITS getUnits() {
         return units;
     }
 
@@ -565,7 +566,7 @@ public class CoverArea extends Maneuver implements LocatedManeuver, IMCSerializa
         Element velocity = root.addElement("speed");
         velocity.addAttribute("tolerance", String.valueOf(getSpeedTolerance()));
         velocity.addAttribute("type", "float");
-        velocity.addAttribute("unit", getUnits());
+        velocity.addAttribute("unit", getUnits().getString());
         velocity.setText(String.valueOf(getSpeed()));
         
         Element trajectoryTolerance = root.addElement("trajectoryTolerance");
@@ -587,11 +588,11 @@ public class CoverArea extends Maneuver implements LocatedManeuver, IMCSerializa
     protected Vector<DefaultProperty> additionalProperties() {
         Vector<DefaultProperty> properties = new Vector<DefaultProperty>();
 
-        DefaultProperty units = PropertiesEditor.getPropertyInstance("Speed units", String.class, getUnits(), true);
+        DefaultProperty units = PropertiesEditor.getPropertyInstance("Speed units", Maneuver.SPEED_UNITS.class, getUnits(), true);
         units.setDisplayName(I18n.text("Speed units"));
         units.setShortDescription(I18n.text("The speed units"));
-        PropertiesEditor.getPropertyEditorRegistry().registerEditor(units, new SpeedUnitsEditor());
-        PropertiesEditor.getPropertyRendererRegistry().registerRenderer(units, new I18nCellRenderer());
+        PropertiesEditor.getPropertyEditorRegistry().registerEditor(units, new SpeedUnitsEnumEditor());
+//        PropertiesEditor.getPropertyRendererRegistry().registerRenderer(units, new I18nCellRenderer());
     
         DefaultProperty propertySpeed = PropertiesEditor.getPropertyInstance("Speed", Double.class, getSpeed(), true);
         propertySpeed.setDisplayName(I18n.text("Speed"));
@@ -611,10 +612,10 @@ public class CoverArea extends Maneuver implements LocatedManeuver, IMCSerializa
         super.setProperties(properties);
         
         for (Property p : properties) {
-            if (p.getName().equals("Speed units")) {
-                setSpeedUnits((String)p.getValue());
-            }
-            else if (p.getName().equals("Speed tolerance")) {
+//            if (p.getName().equals("Speed units")) {
+//                setSpeedUnits((String)p.getValue());
+//            }
+            if (p.getName().equals("Speed tolerance")) {
                 setSpeedTolerance((Double)p.getValue());
             }
             else if (p.getName().equals("Speed")) {
@@ -624,6 +625,12 @@ public class CoverArea extends Maneuver implements LocatedManeuver, IMCSerializa
                 setRadiusTolerance((Double)p.getValue());
             }
             else {
+                SPEED_UNITS speedUnits = ManeuversUtil.getSpeedUnitsFromPropertyOrNullIfInvalidName(p);
+                if (speedUnits != null) {
+                    setSpeedUnits(speedUnits);
+                    continue;
+                }
+
                 NeptusLog.pub().debug("Property "+p.getName()+" ignored.");
             }
         }
