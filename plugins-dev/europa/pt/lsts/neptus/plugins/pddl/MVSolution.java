@@ -153,7 +153,7 @@ public class MVSolution {
                 Loiter tmpLoiter = new Loiter();
                 tmpLoiter.setManeuverLocation(where);
                 tmpLoiter.setSpeed(1.0);
-                tmpLoiter.setSpeedUnits("m/s");
+                tmpLoiter.setSpeedUnits(Maneuver.SPEED_UNITS.METERS_PS);
                 tmpLoiter.setLoiterDuration(60); // FIXME
                 action.payloads.add(PayloadRequirement.valueOf(parts[parts.length - 1].split("_")[1]));
                 action.man = tmpLoiter;
