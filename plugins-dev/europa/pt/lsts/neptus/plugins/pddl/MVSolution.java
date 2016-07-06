@@ -143,7 +143,7 @@ public class MVSolution {
                 StationKeeping tmpSk = new StationKeeping();
                 tmpSk.setManeuverLocation(where);
                 tmpSk.setSpeed(1.0);
-                tmpSk.setSpeedUnits("m/s");
+                tmpSk.setSpeedUnits(Maneuver.SPEED_UNITS.METERS_PS);
                 where.setZ(0);
                 where.setZUnits(Z_UNITS.DEPTH);
                 tmpSk.setDuration(60); // FIXME
