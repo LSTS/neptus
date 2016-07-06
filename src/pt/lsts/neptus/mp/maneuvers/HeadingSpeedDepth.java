@@ -49,12 +49,14 @@ import pt.lsts.neptus.gui.PropertiesEditor;
 import pt.lsts.neptus.gui.editor.ComboEditor;
 import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.messages.Bitmask;
+import pt.lsts.neptus.mp.Maneuver;
 import pt.lsts.neptus.mp.SystemPositionAndAttitude;
 
 /**
  * @author pdias
  * 
  */
+@Deprecated
 public class HeadingSpeedDepth extends DefaultManeuver implements IMCSerialization {
 
     private final int ANGLE_CALCULATION = -1;
@@ -63,7 +65,7 @@ public class HeadingSpeedDepth extends DefaultManeuver implements IMCSerializati
     
     protected double speed = 1000, speedTolerance = 100, depth = 1.5, heading = -1;
     protected int duration = 10;
-    protected String units = "RPM";
+    protected Maneuver.SPEED_UNITS units = SPEED_UNITS.RPM;
     protected boolean useHeading = true, useSpeed = true, useDepth = true;
     protected static final String DEFAULT_ROOT_ELEMENT = "HeadingSpeedDepth";
 
@@ -100,7 +102,7 @@ public class HeadingSpeedDepth extends DefaultManeuver implements IMCSerializati
         Element velocity = root.addElement("speed");
         velocity.addAttribute("tolerance", String.valueOf(getSpeedTolerance()));
         velocity.addAttribute("type", "float");
-        velocity.addAttribute("unit", getUnits());
+        velocity.addAttribute("unit", getUnits().getString());
         velocity.setText(String.valueOf(getSpeed()));
 
         Element heading = root.addElement("heading");
@@ -127,7 +129,9 @@ public class HeadingSpeedDepth extends DefaultManeuver implements IMCSerializati
             if (durNode != null)
                 setDuration(Integer.parseInt(durNode.getText()));
             setSpeed(Double.parseDouble(speedNode.getText()));
-            setUnits(speedNode.valueOf("@unit"));
+//            setUnits(speedNode.valueOf("@unit"));
+            SPEED_UNITS sUnits = ManeuversXMLUtil.parseSpeedUnits((Element) speedNode);
+            setUnits(sUnits);
             setSpeedTolerance(Double.parseDouble(speedNode.valueOf("@tolerance")));
 
             Node flagNode = rootMnv.selectSingleNode("@useHeading");
@@ -280,11 +284,11 @@ public class HeadingSpeedDepth extends DefaultManeuver implements IMCSerializati
         this.depth = depth;
     }
 
-    public String getUnits() {
+    public SPEED_UNITS getUnits() {
         return units;
     }
 
-    public void setUnits(String units) {
+    public void setUnits(SPEED_UNITS units) {
         this.units = units;
     }
 
@@ -389,29 +393,34 @@ public class HeadingSpeedDepth extends DefaultManeuver implements IMCSerializati
             if (p.getName().equals("Use Speed")) {
                 setUseSpeed((Boolean) p.getValue());
             }
-            if (p.getName().equals("Speed units")) {
-                setUnits((String) p.getValue());
-            }
-            if (p.getName().equals("Speed tolerance")) {
+//            if (p.getName().equals("Speed units")) {
+//                setUnits((String) p.getValue());
+//            }
+            else if (p.getName().equals("Speed tolerance")) {
                 setSpeedTolerance((Double) p.getValue());
             }
-            if (p.getName().equals("Speed")) {
+            else if (p.getName().equals("Speed")) {
                 setSpeed((Double) p.getValue());
             }
-            if (p.getName().equals("Use Depth")) {
+            else if (p.getName().equals("Use Depth")) {
                 setUseDepth((Boolean) p.getValue());
             }
-            if (p.getName().equals("Depth")) {
+            else if (p.getName().equals("Depth")) {
                 setDepth((Double) p.getValue());
             }
-            if (p.getName().equals("Use Heading")) {
+            else if (p.getName().equals("Use Heading")) {
                 setUseHeading((Boolean) p.getValue());
             }
-            if (p.getName().equals("Heading (degrees)")) {
+            else if (p.getName().equals("Heading (degrees)")) {
                 setHeading((Double) p.getValue());
             }
-            if (p.getName().equals("Duration")) {
+            else if (p.getName().equals("Duration")) {
                 setDuration((Integer) p.getValue());
+            }
+            else {
+                SPEED_UNITS speedUnits = ManeuversUtil.getSpeedUnitsFromPropertyOrNullIfInvalidName(p);
+                if (speedUnits != null)
+                    setUnits(speedUnits);
             }
         }
     }
@@ -438,13 +447,14 @@ public class HeadingSpeedDepth extends DefaultManeuver implements IMCSerializati
         setHeading(message.getDouble("heading"));
         setDuration((int) message.getDouble("duration"));
 
-        String speed_units = message.getString("speed_units");
-        if (speed_units.equals("METERS_PS"))
-            setUnits("m/s");
-        else if (speed_units.equals("RPM"))
-            setUnits("RPM");
-        else
-            setUnits("%");
+        try {
+            String speedUnits = message.getString("speed_units");
+            setUnits(Maneuver.SPEED_UNITS.parse(speedUnits));
+        }
+        catch (Exception e) {
+            setUnits(Maneuver.SPEED_UNITS.RPM);
+            e.printStackTrace();
+        }
 
         LinkedHashMap<String, Boolean> indValue = message.getBitmask("ind");
         if (indValue.get("HEADING"))
@@ -475,22 +485,27 @@ public class HeadingSpeedDepth extends DefaultManeuver implements IMCSerializati
 
         msgManeuver.setValue("velocity", this.getSpeed());
         msgManeuver.setValue("speed", this.getSpeed());
-        String enumerated = "";
-        String speedU = this.getUnits();
-        try {
-            if ("m/s".equalsIgnoreCase(speedU))
-                enumerated = "METERS_PS";
-            else if ("RPM".equalsIgnoreCase(speedU))
-                enumerated = "RPM";
-            else if ("%".equalsIgnoreCase(speedU))
-                enumerated = "PERCENTAGE";
-            else if ("percentage".equalsIgnoreCase(speedU))
-                enumerated = "PERCENTAGE";
-        }
-        catch (Exception ex) {
-            NeptusLog.pub().error(this, ex);
-        }
-        msgManeuver.setValue("speed_units", enumerated);
+
+        new Exception("Please fix speed setting!").printStackTrace();;
+        
+//        msgManeuver.setValue("speed_units", enumerated);
+//        try {
+//            switch (this.getUnits()) {
+//                case METERS_PS:
+//                    msgManeuver.setSpeedUnits(pt.lsts.imc.FollowTrajectory.SPEED_UNITS.METERS_PS);
+//                    break;
+//                case PERCENTAGE:
+//                    msgManeuver.setSpeedUnits(pt.lsts.imc.FollowTrajectory.SPEED_UNITS.PERCENTAGE);
+//                    break;
+//                case RPM:
+//                default:
+//                    msgManeuver.setSpeedUnits(pt.lsts.imc.FollowTrajectory.SPEED_UNITS.RPM);
+//                    break;
+//            }
+//        }
+//        catch (Exception ex) {
+//            NeptusLog.pub().error(this, ex);                     
+//        }
 
         // msgManeuver.setValue("velocity", new NativeFLOAT(this.getSpeed()));
         // Enumerated enumerated = (Enumerated) msgManeuver.getValueAsObject("velocity_units");

@@ -36,6 +36,7 @@ package pt.lsts.neptus.mp.maneuvers;
  * @author pdias
  *
  */
+@Deprecated
 public class HeadingVelocityDepth extends HeadingSpeedDepth {
 
 	/**
