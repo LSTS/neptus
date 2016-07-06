@@ -32,12 +32,16 @@
 package pt.lsts.neptus.gui.editor;
 
 import pt.lsts.neptus.i18n.I18n;
+import pt.lsts.neptus.mp.Maneuver;
 
 
 /**
+ * @deprecated Use {@link SpeedUnitsEnumEditor} with {@link Maneuver.SPEED_UNITS}
+ * 
  * @author pdias
  *
  */
+@Deprecated
 public class SpeedUnitsEditor extends ComboEditor<String> {
 
     /**
