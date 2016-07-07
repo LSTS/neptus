@@ -62,7 +62,7 @@ import pt.lsts.neptus.renderer2d.StateRenderer2D;
 import pt.lsts.neptus.types.coord.LocationType;
 import pt.lsts.neptus.types.map.PlanElement;
 
-public class Loiter extends Maneuver implements LocatedManeuver, StatisticsProvider, IMCSerialization {
+public class Loiter extends Maneuver implements LocatedManeuver, ManeuverWithSpeed, StatisticsProvider, IMCSerialization {
 
 	public static final int INFINITY_DURATION = 0;
 	

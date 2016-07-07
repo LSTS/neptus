@@ -58,7 +58,7 @@ import pt.lsts.neptus.util.GuiUtils;
  * @author Zé Carlos
  */
 
-public class Goto extends Maneuver implements IMCSerialization, LocatedManeuver {
+public class Goto extends Maneuver implements IMCSerialization, LocatedManeuver, ManeuverWithSpeed {
 
     double speed = 1, speedTolerance = 0, radiusTolerance = 2;
     Maneuver.SPEED_UNITS speedUnits = SPEED_UNITS.METERS_PS;

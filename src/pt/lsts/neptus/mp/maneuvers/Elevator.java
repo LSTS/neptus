@@ -65,7 +65,7 @@ import pt.lsts.neptus.types.map.PlanElement;
  * @author pdias
  *
  */
-public class Elevator extends Maneuver implements LocatedManeuver, IMCSerialization, StatisticsProvider {
+public class Elevator extends Maneuver implements LocatedManeuver, ManeuverWithSpeed, IMCSerialization, StatisticsProvider {
 
     protected static final String DEFAULT_ROOT_ELEMENT = "Elevator";
 

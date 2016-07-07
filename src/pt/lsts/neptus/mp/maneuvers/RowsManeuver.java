@@ -79,7 +79,7 @@ import pt.lsts.neptus.util.MathMiscUtils;
  * @author zp
  * @author pdias
  */
-public class RowsManeuver extends Maneuver implements LocatedManeuver, StateRendererInteraction,
+public class RowsManeuver extends Maneuver implements LocatedManeuver, ManeuverWithSpeed, StateRendererInteraction,
 IMCSerialization, StatisticsProvider, PathProvider {
 
     static boolean unblockNewRows = false;

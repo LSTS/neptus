@@ -93,7 +93,7 @@ import pt.lsts.neptus.util.GuiUtils;
  * @author zp
  * @author pdias
  */
-public class FollowTrajectory extends Maneuver implements LocatedManeuver, StatisticsProvider,
+public class FollowTrajectory extends Maneuver implements LocatedManeuver, ManeuverWithSpeed, StatisticsProvider,
 StateRendererInteraction, IMCSerialization, PathProvider {
 
     protected boolean hasTime = true;

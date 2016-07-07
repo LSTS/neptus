@@ -79,7 +79,7 @@ import pt.lsts.neptus.util.FileUtil;
  * @author zp
  * 
  */
-public class CoverArea extends Maneuver implements LocatedManeuver, IMCSerialization, StateRendererInteraction {
+public class CoverArea extends Maneuver implements LocatedManeuver, ManeuverWithSpeed, IMCSerialization, StateRendererInteraction {
 
     protected InteractionAdapter adapter = new InteractionAdapter(null);
     private double speed = 1000, speedTolerance = 0, radiusTolerance = 2;
@@ -431,7 +431,7 @@ public class CoverArea extends Maneuver implements LocatedManeuver, IMCSerializa
     /**
      * @param parseDouble
      */
-    private void setSpeed(double speed) {
+    public void setSpeed(double speed) {
         this.speed = speed;
     }
     
@@ -442,7 +442,7 @@ public class CoverArea extends Maneuver implements LocatedManeuver, IMCSerializa
     /**
      * @param speedUnit
      */
-    private void setSpeedUnits(SPEED_UNITS speedUnits) {
+    public void setSpeedUnits(SPEED_UNITS speedUnits) {
         this.speedUnits = speedUnits;
     }
     

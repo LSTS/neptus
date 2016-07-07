@@ -57,7 +57,7 @@ import pt.lsts.neptus.renderer2d.StateRenderer2D;
 import pt.lsts.neptus.types.coord.LocationType;
 import pt.lsts.neptus.types.map.PlanElement;
 
-public class StationKeeping extends Maneuver implements LocatedManeuver, IMCSerialization, StatisticsProvider {
+public class StationKeeping extends Maneuver implements LocatedManeuver, ManeuverWithSpeed, IMCSerialization, StatisticsProvider {
 
 	public static final int INFINITY_DURATION = 0;
 	public static final double MINIMUM_SK_RADIUS = 10;

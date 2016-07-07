@@ -78,7 +78,7 @@ import pt.lsts.neptus.util.XMLUtil;
 /**
  * @author pdias
  */
-public class RowsCoverage extends Maneuver implements LocatedManeuver, StateRendererInteraction,
+public class RowsCoverage extends Maneuver implements LocatedManeuver, ManeuverWithSpeed, StateRendererInteraction,
 IMCSerialization, StatisticsProvider, PathProvider {
 
     protected double latDegs = 0;

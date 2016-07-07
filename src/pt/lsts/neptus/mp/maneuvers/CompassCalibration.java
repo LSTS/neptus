@@ -65,7 +65,8 @@ import pt.lsts.neptus.types.map.PlanElement;
  * @author pdias
  *
  */
-public class CompassCalibration extends Maneuver implements LocatedManeuver, IMCSerialization, StatisticsProvider {
+public class CompassCalibration extends Maneuver
+        implements LocatedManeuver, ManeuverWithSpeed, IMCSerialization, StatisticsProvider {
 
     protected static final String DEFAULT_ROOT_ELEMENT = "CompassCalibration";
 
@@ -94,6 +95,34 @@ public class CompassCalibration extends Maneuver implements LocatedManeuver, IMC
     public DIRECTION direction = DIRECTION.CLOCKW;
 
     public CompassCalibration() {
+    }
+
+    /**
+     * @return the speed
+     */
+    public double getSpeed() {
+        return speed;
+    }
+
+    /**
+     * @param speed the speed to set
+     */
+    public void setSpeed(double speed) {
+        this.speed = speed;
+    }
+
+    /**
+     * @return the speedUnits
+     */
+    public Maneuver.SPEED_UNITS getSpeedUnits() {
+        return speedUnits;
+    }
+
+    /**
+     * @param speedUnits the speedUnits to set
+     */
+    public void setSpeedUnits(Maneuver.SPEED_UNITS speedUnits) {
+        this.speedUnits = speedUnits;
     }
 
     @Override

@@ -63,7 +63,7 @@ import pt.lsts.neptus.types.map.PlanElement;
  * @author pdias
  * @author Zé Carlos
  */
-public class PopUp extends Maneuver implements LocatedManeuver, IMCSerialization {
+public class PopUp extends Maneuver implements LocatedManeuver, ManeuverWithSpeed, IMCSerialization {
 
     protected double speed = 1000, speedTolerance = 100, radiusTolerance = 2;
     protected int duration = 5;

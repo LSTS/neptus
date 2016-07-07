@@ -51,14 +51,13 @@ import pt.lsts.neptus.gui.PropertiesEditor;
 import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.mp.Maneuver;
 import pt.lsts.neptus.mp.ManeuverLocation;
-import pt.lsts.neptus.mp.SystemPositionAndAttitude;
 import pt.lsts.neptus.types.coord.LocationType;
 
 /**
  * @author zp
  *
  */
-public class CommsRelay extends DefaultManeuver implements IMCSerialization, LocatedManeuver {
+public class CommsRelay extends DefaultManeuver implements IMCSerialization, LocatedManeuver, ManeuverWithSpeed {
 
     private double speed = 1000;
     private Maneuver.SPEED_UNITS speedUnits = SPEED_UNITS.RPM;

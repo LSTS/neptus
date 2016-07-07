@@ -57,7 +57,7 @@ import pt.lsts.neptus.util.GuiUtils;
 /**
  * @author Paulo Dias
  */
-public class YoYo extends Maneuver implements IMCSerialization, LocatedManeuver {
+public class YoYo extends Maneuver implements IMCSerialization, LocatedManeuver, ManeuverWithSpeed {
 
     protected double speed = 1000, speedTolerance = 100, amplitude = 2;
     protected float pitchAngle = (float) (Math.PI/4);

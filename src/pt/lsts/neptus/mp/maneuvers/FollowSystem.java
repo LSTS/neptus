@@ -55,7 +55,7 @@ import pt.lsts.neptus.util.MathMiscUtils;
  * @author pdias
  *
  */
-public class FollowSystem extends DefaultManeuver implements IMCSerialization {
+public class FollowSystem extends DefaultManeuver implements ManeuverWithSpeed, IMCSerialization {
 
     private double speed = 1000, speedTolerance = 100;
     private Maneuver.SPEED_UNITS speedUnits = SPEED_UNITS.RPM;
@@ -117,7 +117,7 @@ public class FollowSystem extends DefaultManeuver implements IMCSerialization {
 	        setSpeed(Double.parseDouble(speedNode.getText()));
 //	        setUnits(speedNode.valueOf("@unit"));
 	        SPEED_UNITS sUnits = ManeuversXMLUtil.parseSpeedUnits((Element) speedNode);
-            setUnits(sUnits);
+            setSpeedUnits(sUnits);
 	        setSpeedTolerance(Double.parseDouble(speedNode.valueOf("@tolerance")));
 	        
 	    }
@@ -189,7 +189,7 @@ public class FollowSystem extends DefaultManeuver implements IMCSerialization {
         return speedUnits;
     }
     
-    public void setUnits(SPEED_UNITS units) {
+    public void setSpeedUnits(SPEED_UNITS units) {
         this.speedUnits = units;
     }
     
@@ -218,7 +218,7 @@ public class FollowSystem extends DefaultManeuver implements IMCSerialization {
         clone.setXOffset(getXOffset());
         clone.setYOffset(getYOffset());
         clone.setZOffset(getZOffset());
-	    clone.setUnits(getSpeedUnits());
+	    clone.setSpeedUnits(getSpeedUnits());
 	    clone.setSpeed(getSpeed());
 	    clone.setSpeedTolerance(getSpeedTolerance());
 		
@@ -286,7 +286,7 @@ public class FollowSystem extends DefaultManeuver implements IMCSerialization {
     		else {
                 SPEED_UNITS speedUnits = ManeuversUtil.getSpeedUnitsFromPropertyOrNullIfInvalidName(p);
                 if (speedUnits != null)
-                    setUnits(speedUnits);
+                    setSpeedUnits(speedUnits);
             }
     	}
     }
@@ -322,10 +322,10 @@ public class FollowSystem extends DefaultManeuver implements IMCSerialization {
 		setSpeed(message.getDouble("speed"));
 		try {
             String speedUnits = message.getString("speed_units");
-            setUnits(Maneuver.SPEED_UNITS.parse(speedUnits));
+            setSpeedUnits(Maneuver.SPEED_UNITS.parse(speedUnits));
         }
         catch (Exception e) {
-            setUnits(Maneuver.SPEED_UNITS.RPM);
+            setSpeedUnits(Maneuver.SPEED_UNITS.RPM);
             e.printStackTrace();
         }
 

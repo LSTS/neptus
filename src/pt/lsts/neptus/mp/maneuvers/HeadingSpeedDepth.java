@@ -56,7 +56,7 @@ import pt.lsts.neptus.mp.Maneuver;
  * 
  */
 @Deprecated
-public class HeadingSpeedDepth extends DefaultManeuver implements IMCSerialization {
+public class HeadingSpeedDepth extends DefaultManeuver implements ManeuverWithSpeed, IMCSerialization {
 
     protected double speed = 1000, speedTolerance = 100, depth = 1.5, heading = -1;
     protected int duration = 10;
