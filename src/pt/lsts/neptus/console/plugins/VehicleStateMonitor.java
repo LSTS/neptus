@@ -151,8 +151,10 @@ public class VehicleStateMonitor extends ConsolePanel implements IPeriodicUpdate
         
         String src = msg.getSourceName();
         ConsoleSystem vehicle = getConsole().getSystem(src);
-        if(vehicleIsAvailable && (vehicle.getVehicleState() != STATE.FINISHED))
+        if(vehicleIsAvailable && (vehicle.getVehicleState() != STATE.FINISHED)) {
+            vehicle.setVehicleState(STATE.FINISHED);
             post(new ConsoleEventVehicleStateChanged(src, "", STATE.FINISHED));
+        }
     }
 
     @Override
