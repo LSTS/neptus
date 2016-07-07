@@ -31,6 +31,7 @@
  */
 package pt.lsts.neptus.mp.preview;
 
+import pt.lsts.neptus.mp.Maneuver.SPEED_UNITS;
 import pt.lsts.neptus.mp.ManeuverLocation.Z_UNITS;
 import pt.lsts.neptus.mp.SystemPositionAndAttitude;
 import pt.lsts.neptus.mp.maneuvers.Drop;
@@ -55,9 +56,9 @@ public class DropPreview implements IManeuverPreview<Drop> {
             destination.setDepth(-man.getManeuverLocation().getZ());
         
         speed = man.getSpeed();
-        if (man.getUnits().equals("RPM")) 
+        if (man.getSpeedUnits() == SPEED_UNITS.RPM) 
             speed = SpeedConversion.convertRpmtoMps(speed);
-        else if (man.getUnits().equals("%")) // convert to RPM and then to m/s
+        else if (man.getSpeedUnits() == SPEED_UNITS.PERCENTAGE) // convert to RPM and then to m/s
             speed = SpeedConversion.convertPercentageToMps(speed);
 
         speed = Math.min(speed, SpeedConversion.MAX_SPEED);             

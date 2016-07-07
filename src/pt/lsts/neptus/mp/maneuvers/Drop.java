@@ -45,17 +45,16 @@ public class Drop extends Goto {
 
     @Override
     public String getType() {
-        return "Drop";
+        return DEFAULT_ROOT_ELEMENT;
     }
 
     @Override
     public Object clone() {  
         Drop clone = new Drop();
         super.clone(clone);
-        clone.params = params;
         clone.setManeuverLocation(getManeuverLocation());
         clone.setRadiusTolerance(getRadiusTolerance());
-        clone.setSpeedUnits(getUnits());
+        clone.setSpeedUnits(getSpeedUnits());
         clone.setSpeed(getSpeed());
         clone.setSpeedTolerance(getSpeedTolerance());
         
@@ -71,13 +70,13 @@ public class Drop extends Goto {
             setSpeed(msg.getSpeed());
             switch (msg.getSpeedUnits()) {
                 case METERS_PS:
-                    setSpeedUnits("m/s");
+                    setSpeedUnits(SPEED_UNITS.METERS_PS);
                     break;
                 case PERCENTAGE:
-                    setSpeedUnits("%");
+                    setSpeedUnits(SPEED_UNITS.PERCENTAGE);
                     break;
                 case RPM:
-                    setSpeedUnits("RPM");
+                    setSpeedUnits(SPEED_UNITS.RPM);
                     break;
             }
             ManeuverLocation pos = new ManeuverLocation();
@@ -87,7 +86,6 @@ public class Drop extends Goto {
             pos.setZUnits(ManeuverLocation.Z_UNITS.valueOf(msg.getZUnits().toString()));
             setManeuverLocation(pos);
             setCustomSettings(msg.getCustom());
-            
         }
         catch (Exception e) {
             e.printStackTrace();
@@ -107,14 +105,14 @@ public class Drop extends Goto {
         dropManeuver.setZUnits(pt.lsts.imc.Drop.Z_UNITS.valueOf(getManeuverLocation().getZUnits().name()));
         dropManeuver.setSpeed(this.getSpeed());
        
-        switch (this.getUnits()) {
-            case "m/s":
+        switch (this.getSpeedUnits()) {
+            case METERS_PS:
                 dropManeuver.setSpeedUnits(pt.lsts.imc.Drop.SPEED_UNITS.METERS_PS);
                 break;
-            case "RPM":
+            case RPM:
                 dropManeuver.setSpeedUnits(pt.lsts.imc.Drop.SPEED_UNITS.RPM);
                 break;
-            case "%":
+            case PERCENTAGE:
                 dropManeuver.setSpeedUnits(pt.lsts.imc.Drop.SPEED_UNITS.PERCENTAGE);
                 break;
             default:
