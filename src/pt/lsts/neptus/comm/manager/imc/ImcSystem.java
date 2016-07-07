@@ -102,7 +102,7 @@ public class ImcSystem implements Comparable<ImcSystem> {
     // Authority WIP
     // FIXME add description to each one of the states
     public enum IMCAuthorityState { OFF, NONE, /* PAYLOAD_MONITOR, PAYLOAD, SYSTEM_MONITOR,*/ SYSTEM_FULL };
-    protected IMCAuthorityState authorityState = IMCAuthorityState.SYSTEM_FULL;
+    protected IMCAuthorityState authorityState = IMCAuthorityState.NONE;
     
 	/**
 	 * @param vehicle
@@ -315,6 +315,10 @@ public class ImcSystem implements Comparable<ImcSystem> {
 	 * @param type the type to set
 	 */
 	public void setType(SystemTypeEnum type) {
+	    if (this.type == SystemTypeEnum.UNKNOWN && type != SystemTypeEnum.UNKNOWN) {
+	        if (type != SystemTypeEnum.CCU)
+                setAuthorityState(IMCAuthorityState.SYSTEM_FULL);
+	    }
 		this.type = type;
 	}
 

@@ -78,6 +78,7 @@ import pt.lsts.neptus.comm.SystemUtils;
 import pt.lsts.neptus.comm.manager.CommBaseManager;
 import pt.lsts.neptus.comm.manager.CommManagerStatusChangeListener;
 import pt.lsts.neptus.comm.manager.MessageFrequencyCalculator;
+import pt.lsts.neptus.comm.manager.imc.ImcSystem.IMCAuthorityState;
 import pt.lsts.neptus.comm.transports.ImcTcpTransport;
 import pt.lsts.neptus.comm.transports.ImcUdpTransport;
 import pt.lsts.neptus.console.ConsolePanel;
@@ -385,6 +386,8 @@ CommBaseManager<IMCMessage, MessageInfo, SystemImcMsgCommInfo, ImcId16, CommMana
                 resSys = new ImcSystem(vehTmp);
                 resSys.setType(ImcSystem.translateSystemTypeFromMessage(vehTmp.getType().toUpperCase()));
                 resSys.setTypeVehicle(ImcSystem.translateVehicleTypeFromMessage(vehTmp.getType().toUpperCase()));
+                if (resSys.getType() != SystemTypeEnum.CCU)
+                    resSys.setAuthorityState(IMCAuthorityState.SYSTEM_FULL);
                 ImcSystemsHolder.registerSystem(resSys);
             }
             else {
