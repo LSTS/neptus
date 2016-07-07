@@ -39,9 +39,10 @@ import javax.swing.AbstractAction;
 import javax.swing.Action;
 import javax.swing.ImageIcon;
 
-import pt.lsts.imc.Abort;
-import pt.lsts.imc.IMCMessage;
+import pt.lsts.imc.ImageTracking;
+import pt.lsts.imc.PlanControl;
 import pt.lsts.neptus.NeptusLog;
+import pt.lsts.neptus.comm.IMCSendMessageUtils;
 import pt.lsts.neptus.console.ConsoleLayout;
 import pt.lsts.neptus.console.ConsolePanel;
 import pt.lsts.neptus.console.plugins.LockableSubPanel;
@@ -96,8 +97,13 @@ public class ImageTrackingStartPanel extends ConsolePanel implements LockableSub
             public void actionPerformed(final ActionEvent ev) {
                 final Object action = getValue(Action.NAME);
                 NeptusLog.action().debug(action);
-                IMCMessage message = new Abort();
-                send(message);
+                PlanControl pc = new PlanControl();
+                pc.setType(PlanControl.TYPE.REQUEST);
+                pc.setOp(PlanControl.OP.START);
+                pc.setRequestId(IMCSendMessageUtils.getNextRequestId());
+                pc.setPlanId("imagetracking");
+                pc.setArg(new ImageTracking());
+                send(pc);
             };
         };
     }
