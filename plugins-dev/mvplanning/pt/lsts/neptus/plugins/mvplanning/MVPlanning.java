@@ -57,6 +57,7 @@ import com.google.common.eventbus.Subscribe;
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.console.ConsoleLayout;
 import pt.lsts.neptus.console.ConsolePanel;
+import pt.lsts.neptus.console.notifications.Notification;
 import pt.lsts.neptus.console.plugins.PlanChangeListener;
 import pt.lsts.neptus.data.Pair;
 import pt.lsts.neptus.mp.MapChangeEvent;
@@ -301,6 +302,8 @@ public class MVPlanning extends ConsolePanel implements PlanChangeListener, Rend
     @Subscribe
     public void on(MvPlanningEventPlanAllocated event) {
         synchronized(selectedPlans) {
+            console.post(Notification.success("MvPlanning: Allocated plan " + event.getPlanId() +
+                    " " + event.getVehicle(), ""));
             String lookupId = event.getPlanId() + " [" + event.getProfile() + "]";
             String newId = lookupId + " [" + event.getVehicle() + "]";
 
