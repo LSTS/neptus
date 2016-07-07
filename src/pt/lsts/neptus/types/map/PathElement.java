@@ -72,7 +72,7 @@ public class PathElement extends AbstractElement {
     /**
      * This shape is in meters [east, -north] point tuples.
      */
-    private final GeneralPath myPath;
+    private GeneralPath myPath;
     private GeneralPath scaledPath = null;
     private final DrawingParameters params = new DrawingParameters();
     private boolean finished = false;
@@ -94,6 +94,11 @@ public class PathElement extends AbstractElement {
         super();
         this.myPath = new GeneralPath();
         // myPath.moveTo((float)0, (float)0);
+    }
+    
+    public void clear() {
+        this.myPath = new GeneralPath();
+        firstPoint = true;
     }
 
     /**

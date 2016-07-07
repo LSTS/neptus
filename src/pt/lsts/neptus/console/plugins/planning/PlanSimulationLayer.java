@@ -97,8 +97,13 @@ public class PlanSimulationLayer extends ConsoleLayer implements PlanSimulationL
 
     @Subscribe
     public void on(ConsoleEventPlanChange evt) {
+        try {
         this.mainPlan = evt.getCurrent();
         refreshOverlay();
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     @Subscribe
