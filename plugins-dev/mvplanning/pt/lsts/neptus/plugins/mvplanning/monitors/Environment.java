@@ -93,11 +93,11 @@ public class Environment extends AbstractSupervisor {
 
     @Subscribe
     public void mapChanged(MapChangeEvent event) {
-        if(event == null || event.getChangedObject() == null)
+        if(event == null)
             return;
 
-        if(event.getChangedObject().isObstacle()) {
-            NeptusLog.pub().info("New obstacles added. Updating operational area...");
+        if(event.getChangedObject() == null || event.getChangedObject().isObstacle()) {
+            NeptusLog.pub().info("Updating operational area...");
             pGen.updateOperationalArea(); /* warn plan generator to update operational area */
         }
     }
