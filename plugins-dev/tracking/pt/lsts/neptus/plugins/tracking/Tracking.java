@@ -90,7 +90,8 @@ import pt.lsts.neptus.util.UtilCv;
  */
 @Popup(pos = POSITION.RIGHT, width = 640, height = 480, accelerator = 'O')
 @LayerPriority(priority = 0)
-@PluginDescription(name = "Tracking", version = "1.0", author = "Pedro Gonçalves", description = "Plugin for tracking objects over IPCam", icon = "images/downloader/camera.png")
+@PluginDescription(name = "Tracking", version = "1.0", author = "Pedro Gonçalves", description = "Plugin for tracking objects over IPCam", 
+    icon = "pt/lsts/neptus/plugins/tracking/tracking.png")
 public class Tracking extends ConsolePanel implements ItemListener {
     
     private static final long serialVersionUID = 1L;
