@@ -43,9 +43,7 @@ import org.dom4j.Node;
 import pt.lsts.neptus.mp.Maneuver;
 import pt.lsts.neptus.mp.Maneuver.SPEED_UNITS;
 import pt.lsts.neptus.mp.ManeuverLocation;
-import pt.lsts.neptus.mp.ManeuverLocation.Z_UNITS;
 import pt.lsts.neptus.plugins.NeptusProperty;
-import pt.lsts.neptus.util.XMLUtil;
 
 /**
  * Utility to create an load base data (location and speed from and to XML.
@@ -112,7 +110,16 @@ public class ManeuversXMLUtil {
 
     public static <M extends Maneuver> Element addSpeed(Element root, M maneuver) throws Exception {
         Field sField = getFieldByName(maneuver, "Speed");
+        if (sField == null)
+            sField = getFieldByName(maneuver, "speed");
         Field sUField = getFieldByName(maneuver, "Speed Units");
+        if (sUField == null)
+            sUField = getFieldByName(maneuver, "Speed units");
+        if (sUField == null)
+            sUField = getFieldByName(maneuver, "speed units");
+        if (sUField == null)
+            sUField = getFieldByName(maneuver, "speedUnits");
+
         if (sField != null && sUField != null) {
             double speed = (double) sField.get(maneuver);
             Maneuver.SPEED_UNITS speedUnits = (SPEED_UNITS) sUField.get(maneuver);
@@ -147,8 +154,16 @@ public class ManeuversXMLUtil {
         double speed = Double.parseDouble(speedNode.getText());
         SPEED_UNITS speedUnits = SPEED_UNITS.parse(speedNode.valueOf("@unit"));
         Field sField = getFieldByName(maneuver, "Speed");
+        if (sField == null)
+            sField = getFieldByName(maneuver, "speed");
         sField.set(maneuver, speed);
         Field sUField = getFieldByName(maneuver, "Speed Units");
+        if (sUField == null)
+            sUField = getFieldByName(maneuver, "Speed units");
+        if (sUField == null)
+            sUField = getFieldByName(maneuver, "speed units");
+        if (sUField == null)
+            sUField = getFieldByName(maneuver, "speedUnits");
         sUField.set(maneuver, speedUnits);
         return speed;
     }

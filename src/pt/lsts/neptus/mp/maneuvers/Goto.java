@@ -288,8 +288,11 @@ public class Goto extends Maneuver implements IMCSerialization, LocatedManeuver 
     	super.setProperties(properties);
     	
     	for (Property p : properties) {
-    		if (p.getName().equals("Speed units")) {
-    			setSpeedUnits((String)p.getValue());
+    		if (p.getName().equalsIgnoreCase("Speed units")) {
+    		    if (p.getValue() instanceof Maneuver.SPEED_UNITS)
+    		        setSpeedUnits(((Maneuver.SPEED_UNITS)p.getValue()).getString());
+    		    else
+    		        setSpeedUnits((String) p.getValue());
     		}
     		else if (p.getName().equals("Speed tolerance")) {
     			setSpeedTolerance((Double)p.getValue());

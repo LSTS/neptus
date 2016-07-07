@@ -1711,10 +1711,14 @@ public class PlanEditor extends InteractionAdapter implements Renderer2DPainter,
         Maneuver man = mf.getManeuver(manType);
         if (man == null)
             return null;
-
         
         if (copyFrom != null) {
-            man.setProperties(copyFrom.getProperties());
+            try {
+                man.setProperties(copyFrom.getProperties());
+            }
+            catch (Exception e) {
+                NeptusLog.pub().error(e, e);
+            }
             man.cloneActions(copyFrom);
         }
 

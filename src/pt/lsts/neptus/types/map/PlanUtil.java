@@ -95,7 +95,7 @@ public class PlanUtil {
      * @param speedMps The speed to be set to all maneuvers (that accept a speed parameter) in meters per second
      */
     public static void setPlanSpeed(PlanType plan, double speedMps) {
-        DefaultProperty units = PropertiesEditor.getPropertyInstance("Speed units", String.class, "m/s", true);
+        DefaultProperty units = PropertiesEditor.getPropertyInstance("Speed units", Maneuver.SPEED_UNITS.class, Maneuver.SPEED_UNITS.METERS_PS, true);
         units.setDisplayName(I18n.text("Speed units"));
         units.setShortDescription(I18n.text("The speed units"));
         
@@ -103,8 +103,14 @@ public class PlanUtil {
         propertySpeed.setDisplayName(I18n.text("Speed"));
         Property[] props = new Property[] {units, propertySpeed};
         
-        for (Maneuver man : plan.getGraph().getAllManeuvers())
-            man.setProperties(props);
+        for (Maneuver man : plan.getGraph().getAllManeuvers()) {
+            try {
+                man.setProperties(props);
+            }
+            catch (Exception e) {
+                NeptusLog.pub().error(e, e);
+            }
+        }
     }
     
     /**
