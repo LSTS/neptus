@@ -22,7 +22,7 @@
  * distributed on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF
  * ANY KIND, either express or implied. See the Licence for the specific
  * language governing permissions and limitations at
- * https://www.lsts.pt/neptus/licence.
+ * http://ec.europa.eu/idabc/eupl.html.
  *
  * For more information please see <http://lsts.fe.up.pt/neptus>.
  *
@@ -536,12 +536,6 @@ public abstract class Maneuver implements XmlOutputMethods, PropertiesProvider, 
         clone.endActions.load(endActions.asElement("end-actions"));
         return clone;
     }
-
-    /**
-     * The mission preview will call this function every second to refresh the vehicle state. <br>
-     * Implement this function to show how this maneuver is performed by the vehicle.
-     */
-    //public abstract SystemPositionAndAttitude ManeuverFunction(SystemPositionAndAttitude lastVehicleState);
 
     /**
      * When the maneuver has ended, this function must be called to end the iteration

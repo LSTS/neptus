@@ -22,7 +22,7 @@
  * distributed on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF
  * ANY KIND, either express or implied. See the Licence for the specific
  * language governing permissions and limitations at
- * https://www.lsts.pt/neptus/licence.
+ * http://ec.europa.eu/idabc/eupl.html.
  *
  * For more information please see <http://lsts.fe.up.pt/neptus>.
  *
@@ -544,7 +544,7 @@ public class CmreAisCsvParser {
                     case "co":
                         v = tk[1].trim();
                         if (!v.toLowerCase().startsWith("n.a"))
-                            dp.co2Percentage = Double.parseDouble(v);
+                            dp.coPpm = Double.parseDouble(v);
                         countBaseElm++;
                         break;
                     case "h2":

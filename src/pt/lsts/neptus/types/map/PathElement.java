@@ -22,7 +22,7 @@
  * distributed on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF
  * ANY KIND, either express or implied. See the Licence for the specific
  * language governing permissions and limitations at
- * https://www.lsts.pt/neptus/licence.
+ * http://ec.europa.eu/idabc/eupl.html.
  *
  * For more information please see <http://lsts.fe.up.pt/neptus>.
  *
@@ -72,7 +72,7 @@ public class PathElement extends AbstractElement {
     /**
      * This shape is in meters [east, -north] point tuples.
      */
-    private final GeneralPath myPath;
+    private GeneralPath myPath;
     private GeneralPath scaledPath = null;
     private final DrawingParameters params = new DrawingParameters();
     private boolean finished = false;
@@ -94,6 +94,11 @@ public class PathElement extends AbstractElement {
         super();
         this.myPath = new GeneralPath();
         // myPath.moveTo((float)0, (float)0);
+    }
+    
+    public void clear() {
+        this.myPath = new GeneralPath();
+        firstPoint = true;
     }
 
     /**

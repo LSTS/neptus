@@ -22,7 +22,7 @@
  * distributed on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF
  * ANY KIND, either express or implied. See the Licence for the specific
  * language governing permissions and limitations at
- * https://www.lsts.pt/neptus/licence.
+ * http://ec.europa.eu/idabc/eupl.html.
  *
  * For more information please see <http://lsts.fe.up.pt/neptus>.
  *
@@ -91,10 +91,9 @@ public class ScheduledGoto extends Goto {
     public Object clone() {  
         ScheduledGoto clone = new ScheduledGoto();
         super.clone(clone);
-        clone.params = params;
         clone.setManeuverLocation(getManeuverLocation());
         clone.setRadiusTolerance(getRadiusTolerance());
-        clone.setSpeedUnits(getUnits());
+        clone.setSpeedUnits(getSpeedUnits());
         clone.setSpeed(getSpeed());
         clone.setSpeedTolerance(getSpeedTolerance());
         clone.setTravelUnits(getTravelUnits());

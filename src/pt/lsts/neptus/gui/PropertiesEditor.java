@@ -22,7 +22,7 @@
  * distributed on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF
  * ANY KIND, either express or implied. See the Licence for the specific
  * language governing permissions and limitations at
- * https://www.lsts.pt/neptus/licence.
+ * http://ec.europa.eu/idabc/eupl.html.
  *
  * For more information please see <http://lsts.fe.up.pt/neptus>.
  *
@@ -61,6 +61,7 @@ import com.l2fprod.common.propertysheet.PropertySheetPanel;
 import com.l2fprod.common.swing.BannerPanel;
 import com.l2fprod.common.swing.renderer.DefaultCellRenderer;
 
+import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.colormap.ColorMap;
 import pt.lsts.neptus.comm.manager.imc.ImcId16;
 import pt.lsts.neptus.console.ConsoleLayout;
@@ -263,7 +264,12 @@ public class PropertiesEditor {
             }
             else {
                 end = true;
-                provider.setProperties(propsUnlocalized);
+                try {
+                    provider.setProperties(propsUnlocalized);
+                }
+                catch (Exception e) {
+                    NeptusLog.pub().error(e, e);
+                }
             }
         }
         return canceled;

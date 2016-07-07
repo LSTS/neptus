@@ -22,7 +22,7 @@
  * distributed on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF
  * ANY KIND, either express or implied. See the Licence for the specific
  * language governing permissions and limitations at
- * https://www.lsts.pt/neptus/licence.
+ * http://ec.europa.eu/idabc/eupl.html.
  *
  * For more information please see <http://lsts.fe.up.pt/neptus>.
  *
@@ -60,6 +60,7 @@ import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.comm.SystemUtils;
 import pt.lsts.neptus.comm.manager.MessageFrequencyCalculator;
 import pt.lsts.neptus.comm.manager.SystemCommBaseInfo;
+import pt.lsts.neptus.comm.manager.imc.ImcSystem.IMCAuthorityState;
 import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.messages.listener.MessageInfo;
 import pt.lsts.neptus.types.comm.CommMean;
@@ -212,6 +213,7 @@ public class SystemImcMsgCommInfo extends SystemCommBaseInfo<IMCMessage, Message
         if (resSys == null) {
             if (vehicleaux != null) {
                 resSys = new ImcSystem(vehicleaux);
+                resSys.setAuthorityState(IMCAuthorityState.SYSTEM_FULL);
                 ImcSystemsHolder.registerSystem(resSys);
             }
         }

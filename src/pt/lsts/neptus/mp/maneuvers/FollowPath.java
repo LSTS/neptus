@@ -22,7 +22,7 @@
  * distributed on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF
  * ANY KIND, either express or implied. See the Licence for the specific
  * language governing permissions and limitations at
- * https://www.lsts.pt/neptus/licence.
+ * http://ec.europa.eu/idabc/eupl.html.
  *
  * For more information please see <http://lsts.fe.up.pt/neptus>.
  *
@@ -67,7 +67,7 @@ public class FollowPath extends FollowTrajectory {
         LocationType trajectoryStart = gotoF.destination;
         setId(gotoSequence.getManeuver(gotoSequence.getInitialManeuverId()).getId());
         setSpeed(gotoF.getSpeed());
-        setSpeedUnits(gotoF.getUnits());
+        setSpeedUnits(gotoF.getSpeedUnits());
         Maneuver[] mans = gotoSequence.getAllManeuvers();
         for (Maneuver m : mans) {
             Goto g = (Goto)m;
@@ -86,10 +86,10 @@ public class FollowPath extends FollowTrajectory {
     @Override
     public double getCompletionTime(LocationType initialPosition) {
         double speed = this.speed;
-        if (this.speed_units.equalsIgnoreCase("RPM")) {
+        if (this.speedUnits == Maneuver.SPEED_UNITS.RPM) {
             speed = speed/769.230769231; //1.3 m/s for 1000 RPMs
         }
-        else if (this.speed_units.equalsIgnoreCase("%")) {
+        else if (this.speedUnits == Maneuver.SPEED_UNITS.PERCENTAGE) {
             speed = speed/76.923076923; //1.3 m/s for 100% speed
         }
 
@@ -146,11 +146,11 @@ public class FollowPath extends FollowTrajectory {
         traj.loadFromXML("<FollowPath kind=\"automatic\"><basePoint type=\"pointType\"><point><id>id_53802104</id><name>id_53802104</name><coordinate><latitude>0N0'0''</latitude><longitude>0E0'0''</longitude><depth>0.0</depth></coordinate></point><radiusTolerance>0.0</radiusTolerance></basePoint><path><nedOffsets northOffset=\"0.0\" eastOffset=\"1.0\" depthOffset=\"2.0\" timeOffset=\"3.0\"/><nedOffsets northOffset=\"4.0\" eastOffset=\"5.0\" depthOffset=\"6.0\" timeOffset=\"7.0\"/></path><speed unit=\"RPM\">1000.0</speed></FollowPath>");
         //NeptusLog.pub().info("<###> "+FileUtil.getAsPrettyPrintFormatedXMLString(traj.getManeuverAsDocument("FollowTrajectory")));
         traj.setSpeed(1);
-        traj.setSpeedUnits("m/s");        
+        traj.setSpeedUnits(Maneuver.SPEED_UNITS.METERS_PS);        
         NeptusLog.pub().info("<###> "+FileUtil.getAsPrettyPrintFormatedXMLString(traj.getManeuverAsDocument("FollowPath")));
 
         traj.setSpeed(2);
-        traj.setSpeedUnits("m/s");        
+        traj.setSpeedUnits(Maneuver.SPEED_UNITS.METERS_PS);        
         NeptusLog.pub().info("<###> "+FileUtil.getAsPrettyPrintFormatedXMLString(traj.getManeuverAsDocument("FollowPath")));
 
     }

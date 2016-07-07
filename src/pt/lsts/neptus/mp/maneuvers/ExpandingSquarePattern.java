@@ -22,7 +22,7 @@
  * distributed on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF
  * ANY KIND, either express or implied. See the Licence for the specific
  * language governing permissions and limitations at
- * https://www.lsts.pt/neptus/licence.
+ * http://ec.europa.eu/idabc/eupl.html.
  *
  * For more information please see <http://lsts.fe.up.pt/neptus>.
  *
@@ -214,7 +214,9 @@ public class ExpandingSquarePattern extends FollowPath {
             // Speed
             Node speedNode = doc.selectSingleNode("//speed");
             speed = Double.parseDouble(speedNode.getText());
-            speed_units = speedNode.valueOf("@unit");
+//            speed_units = speedNode.valueOf("@unit");
+            SPEED_UNITS sUnits = ManeuversXMLUtil.parseSpeedUnits((Element) speedNode);
+            setSpeedUnits(sUnits);
 
             bearingDeg = Double.parseDouble(doc.selectSingleNode("//bearing").getText());
 
@@ -259,7 +261,7 @@ public class ExpandingSquarePattern extends FollowPath {
 
         //speed
         Element speedElem = root.addElement("speed");        
-        speedElem.addAttribute("unit", speed_units);
+        speedElem.addAttribute("unit", speedUnits.getString());
         speedElem.setText("" + speed);
 
         return document;

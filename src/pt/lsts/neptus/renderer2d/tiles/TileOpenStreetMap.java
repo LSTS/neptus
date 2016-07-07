@@ -22,7 +22,7 @@
  * distributed on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF
  * ANY KIND, either express or implied. See the Licence for the specific
  * language governing permissions and limitations at
- * https://www.lsts.pt/neptus/licence.
+ * http://ec.europa.eu/idabc/eupl.html.
  *
  * For more information please see <http://lsts.fe.up.pt/neptus>.
  *
@@ -38,6 +38,7 @@ import java.util.Map;
 import java.util.Vector;
 
 import pt.lsts.neptus.plugins.MapTileProvider;
+import pt.lsts.neptus.util.coord.MapTileUtil;
 
 /**
  * @author pdias
@@ -76,8 +77,11 @@ public class TileOpenStreetMap extends TileHttpFetcher {
 
     private static final int MAX_LEVEL_OF_DETAIL = 18;
 
+    private static boolean alreadyInitialize = false;
+
     public TileOpenStreetMap(Integer levelOfDetail, Integer tileX, Integer tileY, BufferedImage image) throws Exception {
         super(levelOfDetail, tileX, tileY, image);
+        initialize();
     }
 
     /**
@@ -86,6 +90,14 @@ public class TileOpenStreetMap extends TileHttpFetcher {
      */
     public TileOpenStreetMap(String id) throws Exception {
         super(id);
+        initialize();
+    }
+    
+    private synchronized void initialize() {
+        if (alreadyInitialize)
+            return;
+        alreadyInitialize = true;
+        httpComm.getHttpConnectionManager().setMaxTotal(2);
     }
 
     public static int getMaxLevelOfDetail() {
@@ -161,5 +173,23 @@ public class TileOpenStreetMap extends TileHttpFetcher {
      */
     public static <T extends Tile> Vector<T> loadCache() {
         return Tile.loadCache(tileClassId);
+    }
+    
+    @SuppressWarnings("serial")
+    public static void main(String[] args) throws Exception {
+        //7/63/42
+        String quad = MapTileUtil.tileXYToQuadKey(63, 42, 7);
+        TileOpenStreetMap tile = new TileOpenStreetMap(quad) {
+            @Override
+            public boolean loadTile() {
+                return false;
+            }
+        };
+        tile.setState(TileState.ERROR);
+        tile.retryLoadingTile();;
+        while (true) {
+            Thread.yield();
+            
+        }
     }
 }
