@@ -135,10 +135,6 @@ public class CommsRelay extends DefaultManeuver implements IMCSerialization, Loc
 	    }
     }
 	
-	public SystemPositionAndAttitude ManeuverFunction(SystemPositionAndAttitude lastVehicleState) {
-		return lastVehicleState;
-	}
-
     public String getSystemA() {
         return sys_a;
     }

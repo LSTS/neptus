@@ -50,7 +50,6 @@ import pt.lsts.neptus.gui.editor.ComboEditor;
 import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.messages.Bitmask;
 import pt.lsts.neptus.mp.Maneuver;
-import pt.lsts.neptus.mp.SystemPositionAndAttitude;
 
 /**
  * @author pdias
@@ -59,19 +58,11 @@ import pt.lsts.neptus.mp.SystemPositionAndAttitude;
 @Deprecated
 public class HeadingSpeedDepth extends DefaultManeuver implements IMCSerialization {
 
-    private final int ANGLE_CALCULATION = -1;
-    private final int FIRST_ROTATE = 0;
-    private final int HORIZONTAL_MOVE = 1;
-    
     protected double speed = 1000, speedTolerance = 100, depth = 1.5, heading = -1;
     protected int duration = 10;
     protected Maneuver.SPEED_UNITS speedUnits = SPEED_UNITS.RPM;
     protected boolean useHeading = true, useSpeed = true, useDepth = true;
     protected static final String DEFAULT_ROOT_ELEMENT = "HeadingSpeedDepth";
-
-    protected int current_state = ANGLE_CALCULATION;
-
-    private double targetAngle, rotateIncrement, startTime = -1;
 
     public HeadingSpeedDepth() {
     }
@@ -155,83 +146,6 @@ public class HeadingSpeedDepth extends DefaultManeuver implements IMCSerializati
             NeptusLog.pub().error(this, e);
             return;
         }
-    }
-
-    private int count = 0;
-
-    public SystemPositionAndAttitude ManeuverFunction(SystemPositionAndAttitude lastVehicleState) {
-
-        SystemPositionAndAttitude nextVehicleState = (SystemPositionAndAttitude) lastVehicleState.clone();
-
-        switch (current_state) {
-
-            case (ANGLE_CALCULATION):
-                if (getHeading() < 0) {
-                    count = 0;
-                    this.current_state = HORIZONTAL_MOVE;
-                    nextVehicleState = ManeuverFunction(lastVehicleState);
-                    break;
-                }
-                targetAngle = Math.toRadians(getHeading());
-
-                double angleDiff = (targetAngle - lastVehicleState.getYaw());
-
-                while (angleDiff < 0)
-                    angleDiff += Math.PI * 2; // 360º
-
-                while (angleDiff > Math.PI * 2)
-                    angleDiff -= Math.PI * 2;
-
-                if (angleDiff > Math.PI)
-                    angleDiff = angleDiff - Math.PI * 2;
-
-                rotateIncrement = angleDiff / 3;// (-25.0f / 180.0f) * (float)
-                                                // Math.PI;
-                count = 0;
-                this.current_state = FIRST_ROTATE;
-                startTime = System.currentTimeMillis() / 1000d;
-                nextVehicleState = ManeuverFunction(lastVehicleState);
-                break;
-
-            // Initial rotation towards the target point
-            case FIRST_ROTATE:
-                if (count++ < 3)
-                    nextVehicleState.rotateXY(rotateIncrement);
-                else {
-                    nextVehicleState.setYaw(targetAngle);
-                    current_state = HORIZONTAL_MOVE;
-                }
-                break;
-
-            // The movement between the initial and final point, in the plane xy
-            // (horizontal)
-            case HORIZONTAL_MOVE:
-                double calculatedVelocity = 1;
-
-                if (speedUnits.equals("m/s"))
-                    calculatedVelocity = speed;
-                else if (speedUnits.equals("RPM"))
-                    calculatedVelocity = speed / 500.0;
-                double deltaTime = System.currentTimeMillis() / 1000d - startTime;
-                if (deltaTime >= getDuration()) {
-                    nextVehicleState.setPosition(lastVehicleState.getPosition());
-                    endManeuver();
-                }
-                else {
-                    nextVehicleState.moveForward(calculatedVelocity);
-                    double depthDiff = getDepth() - nextVehicleState.getPosition().getDepth();
-
-                    double depthIncr = Math.min(depthDiff, calculatedVelocity);
-                    double curDepth = nextVehicleState.getPosition().getDepth();
-                    nextVehicleState.getPosition().setDepth(curDepth + depthIncr);
-                }
-                break;
-
-            default:
-                endManeuver();
-        }
-
-        return nextVehicleState;
     }
 
     /**

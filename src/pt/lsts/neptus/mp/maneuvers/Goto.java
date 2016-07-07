@@ -51,7 +51,6 @@ import pt.lsts.neptus.gui.PropertiesEditor;
 import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.mp.Maneuver;
 import pt.lsts.neptus.mp.ManeuverLocation;
-import pt.lsts.neptus.mp.SystemPositionAndAttitude;
 import pt.lsts.neptus.types.coord.LocationType;
 import pt.lsts.neptus.util.GuiUtils;
 
@@ -65,12 +64,6 @@ public class Goto extends Maneuver implements IMCSerialization, LocatedManeuver 
     Maneuver.SPEED_UNITS speedUnits = SPEED_UNITS.METERS_PS;
     ManeuverLocation destination = new ManeuverLocation();
     protected static final String DEFAULT_ROOT_ELEMENT = "Goto";
-	
-	private final int ANGLE_CALCULATION = -1 ;
-	private final int FIRST_ROTATE = 0 ;
-	private final int HORIZONTAL_MOVE = 1 ;
-	
-	int current_state = ANGLE_CALCULATION;
 	
 	protected double targetAngle, rotateIncrement;
 	protected double roll, pitch, yaw;
@@ -138,75 +131,6 @@ public class Goto extends Maneuver implements IMCSerialization, LocatedManeuver 
 	        return;
 	    }
     }
-	
-	private int count = 0;
-	
-	public SystemPositionAndAttitude ManeuverFunction(SystemPositionAndAttitude lastVehicleState) {
-	    
-	 SystemPositionAndAttitude nextVehicleState = (SystemPositionAndAttitude) lastVehicleState.clone();
-	 
-	 
-		switch (current_state) {
-		
-			case(ANGLE_CALCULATION):
-				targetAngle = lastVehicleState.getPosition().getXYAngle(destination);
-				
-				double angleDiff = (targetAngle - lastVehicleState.getYaw());
-				
-				while (angleDiff < 0)
-					angleDiff += Math.PI*2; //360º
-				
-				while (angleDiff > Math.PI*2)
-					angleDiff -= Math.PI*2;
-				
-				if (angleDiff > Math.PI)
-					angleDiff = angleDiff - Math.PI*2;
-				
-				rotateIncrement = angleDiff/3;//(-25.0f / 180.0f) * (float) Math.PI;
-				count = 0;
-				this.current_state = FIRST_ROTATE;
-				nextVehicleState = ManeuverFunction(lastVehicleState);
-			break;
-		
-			// Initial rotation towards the target point
-			case FIRST_ROTATE:
-				if (count++<3)
-					nextVehicleState.rotateXY(rotateIncrement);
-				else {
-					nextVehicleState.setYaw(targetAngle);		
-					current_state = HORIZONTAL_MOVE;
-				}			
-				break;
-		
-			// The movement between the initial and final point, in the plane xy (horizontal)
-			case HORIZONTAL_MOVE:
-				double calculatedSpeed = 1;
-				
-				if (speedUnits.equals("m/s"))
-					calculatedSpeed = speed;
-				else if (speedUnits.equals("RPM"))
-					calculatedSpeed = speed/500.0;
-				double dist = nextVehicleState.getPosition().getHorizontalDistanceInMeters(destination);
-				if (dist <= calculatedSpeed) {
-					nextVehicleState.setPosition(destination);
-					endManeuver();
-				}
-				else {					
-						nextVehicleState.moveForward(calculatedSpeed);
-						double depthDiff = destination.getDepth()-nextVehicleState.getPosition().getDepth();
-						
-						double depthIncr = depthDiff / (dist/calculatedSpeed);
-						double curDepth = nextVehicleState.getPosition().getDepth();
-						nextVehicleState.getPosition().setDepth(curDepth+depthIncr);
-				}
-				break;
-			
-			default:
-				endManeuver();
-		}
-		
-		return nextVehicleState;
-	}
 	
 	public Object clone() {  
 	    Goto clone = new Goto();

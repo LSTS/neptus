@@ -49,7 +49,6 @@ import pt.lsts.neptus.comm.IMCUtils;
 import pt.lsts.neptus.gui.PropertiesEditor;
 import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.mp.Maneuver;
-import pt.lsts.neptus.mp.SystemPositionAndAttitude;
 import pt.lsts.neptus.util.MathMiscUtils;
 
 /**
@@ -128,10 +127,6 @@ public class FollowSystem extends DefaultManeuver implements IMCSerialization {
 	    }
     }
 	
-	public SystemPositionAndAttitude ManeuverFunction(SystemPositionAndAttitude lastVehicleState) {
-		return lastVehicleState;
-	}
-
     public String getSystem() {
         return system;
     }
