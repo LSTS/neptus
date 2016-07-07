@@ -45,6 +45,7 @@ import pt.lsts.neptus.console.ConsoleInteraction;
 import pt.lsts.neptus.plugins.PluginDescription;
 import pt.lsts.neptus.renderer2d.StateRenderer2D;
 import pt.lsts.neptus.types.coord.LocationType;
+import pt.lsts.neptus.types.map.PathElement;
 import pt.lsts.neptus.util.ImageUtils;
 
 /**
@@ -112,6 +113,19 @@ public class SnapshotsInteraction extends ConsoleInteraction {
             g2.setColor(Color.red);
             g2.draw(new Line2D.Double(pivot.imgPoint.x - 8, pivot.imgPoint.y, pivot.imgPoint.x + 8, pivot.imgPoint.y));
             g2.draw(new Line2D.Double(pivot.imgPoint.x, pivot.imgPoint.y - 8, pivot.imgPoint.x, pivot.imgPoint.y + 8));
+            
+            if (pivot.groundQuad != null) {
+                PathElement groundQuad = new PathElement();
+                groundQuad.setMyColor(Color.blue);
+                ArrayList<LocationType> locs = new ArrayList<>();
+                for (Point2D.Double pt : pivot.groundQuad)
+                    locs.add(new LocationType(pt.getX(), pt.getY()));
+                
+                groundQuad.setCenterLocation(locs.get(0));
+                for (LocationType l : locs)
+                    groundQuad.addPoint(l);
+                groundQuad.paint(g, source, source.getRotation());   
+            }
             
             Image scaled = ImageUtils.getScaledImage(pivot.capture, 200, 200, false);
             g.drawImage(scaled, source.getWidth() - scaled.getWidth(source) - 5,

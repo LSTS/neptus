@@ -105,6 +105,7 @@ import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.console.ConsoleLayout;
 import pt.lsts.neptus.console.ConsolePanel;
 import pt.lsts.neptus.console.events.ConsoleEventMainSystemChange;
+import pt.lsts.neptus.console.notifications.Notification;
 import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.mp.preview.payloads.CameraFOV;
 import pt.lsts.neptus.params.ConfigurationManager;
@@ -497,6 +498,7 @@ public class VideoStream extends ConsolePanel implements ItemListener {
                        LocationType loc = camFov.getLookAt(mouseLoc.getX(), mouseLoc.getY());
                        String id = placeLocationOnMap(loc);
                        snap = new StoredSnapshot(id, loc, e.getPoint(), onScreenImage, new Date());
+                       snap.setCamFov(camFov);
                        try {
                            snap.store();
                        }
@@ -1405,9 +1407,9 @@ public class VideoStream extends ConsolePanel implements ItemListener {
         else
         {
             NeptusLog.pub().error("Could not load camera FOV");
-            camFov = null;            
-        }
-                  
+            getConsole().post(Notification.warning(I18n.text("CameraFOV"), I18n.text("Could not load camera FOV")));
+            camFov = CameraFOV.defaultFov();
+        }   
     }
     
     // IMC handle

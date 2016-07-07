@@ -69,6 +69,12 @@ public class CameraFOV {
         quad[2].setEuler(new Vector3d(-getDiagAOV() / 2, 0, Math.PI + getDiagAngle()));
         quad[3].setEuler(new Vector3d(-getDiagAOV() / 2, 0, -getDiagAngle()));
     }
+    
+    public static  CameraFOV defaultFov() {
+        CameraFOV fov = new CameraFOV(Math.toRadians(60), Math.toRadians(45));
+        fov.setTilt(-60);
+        return fov;
+    }
 
     /**
      * Retrieve world coordinates from (normalized) camera coords

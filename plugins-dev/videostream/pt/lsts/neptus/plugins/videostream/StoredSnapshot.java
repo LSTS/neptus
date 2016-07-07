@@ -45,6 +45,7 @@ import javax.xml.bind.JAXB;
 
 import org.mozilla.javascript.edu.emory.mathcs.backport.java.util.Collections;
 
+import pt.lsts.neptus.mp.preview.payloads.CameraFOV;
 import pt.lsts.neptus.types.coord.LocationType;
 
 /**
@@ -56,6 +57,7 @@ public class StoredSnapshot implements Serializable {
     private static final long serialVersionUID = 6711177101700850479L;
     public double latDegs, lonDegs;
     public Point2D.Double imgPoint= new Point2D.Double(0, 0);
+    public Point2D.Double groundQuad[];
     public String description = "";
     transient public BufferedImage capture;
     public Date timestamp;
@@ -76,6 +78,17 @@ public class StoredSnapshot implements Serializable {
         this.timestamp = timestamp;        
         this.capture = image;
         this.description = description;
+    }
+    
+    public void setCamFov(CameraFOV camFov) {
+        
+        ArrayList<LocationType> quad = camFov.getFootprintQuad();
+        groundQuad = new Point2D.Double[quad.size()];
+        
+        for (int i = 0; i < quad.size(); i++) {
+            LocationType l = quad.get(i).convertToAbsoluteLatLonDepth();
+            groundQuad[i] = new Point2D.Double(l.getLatitudeDegs(), l.getLongitudeDegs());
+        }
     }
     
     public void store() throws IOException {

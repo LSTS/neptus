@@ -150,7 +150,7 @@ public class CamFootprintLayer extends ConsoleLayer {
                     + Math.toDegrees(vAOV) + " AOV");
         }
         else {
-            camFov = null;
+            camFov = CameraFOV.defaultFov();
             NeptusLog.pub().error("Could not calculate camera model for "+vehicle);            
         }
                   
