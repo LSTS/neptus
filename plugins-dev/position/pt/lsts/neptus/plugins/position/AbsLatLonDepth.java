@@ -22,7 +22,7 @@
  * distributed on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF
  * ANY KIND, either express or implied. See the Licence for the specific
  * language governing permissions and limitations at
- * https://www.lsts.pt/neptus/licence.
+ * http://ec.europa.eu/idabc/eupl.html.
  *
  * For more information please see <http://lsts.fe.up.pt/neptus>.
  *
@@ -34,6 +34,8 @@ package pt.lsts.neptus.plugins.position;
 import java.awt.Color;
 import java.awt.GridLayout;
 import java.text.DecimalFormat;
+
+import com.google.common.eventbus.Subscribe;
 
 import pt.lsts.imc.IMCMessage;
 import pt.lsts.neptus.comm.manager.imc.ImcSystem;
@@ -51,8 +53,6 @@ import pt.lsts.neptus.types.coord.CoordinateUtil;
 import pt.lsts.neptus.types.coord.LocationType;
 import pt.lsts.neptus.types.mission.MissionType;
 import pt.lsts.neptus.util.coord.egm96.EGM96Util;
-
-import com.google.common.eventbus.Subscribe;
 
 /**
  * @author zp

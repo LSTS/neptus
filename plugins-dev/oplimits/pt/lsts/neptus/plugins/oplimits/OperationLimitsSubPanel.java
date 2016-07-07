@@ -22,7 +22,7 @@
  * distributed on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF
  * ANY KIND, either express or implied. See the Licence for the specific
  * language governing permissions and limitations at
- * https://www.lsts.pt/neptus/licence.
+ * http://ec.europa.eu/idabc/eupl.html.
  *
  * For more information please see <http://lsts.fe.up.pt/neptus>.
  *
@@ -64,6 +64,8 @@ import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
 import javax.swing.border.EmptyBorder;
 
+import com.google.common.eventbus.Subscribe;
+
 import pt.lsts.imc.GetOperationalLimits;
 import pt.lsts.imc.IMCDefinition;
 import pt.lsts.imc.IMCMessage;
@@ -98,8 +100,6 @@ import pt.lsts.neptus.util.FileUtil;
 import pt.lsts.neptus.util.GuiUtils;
 import pt.lsts.neptus.util.ImageUtils;
 import pt.lsts.neptus.util.MathMiscUtils;
-
-import com.google.common.eventbus.Subscribe;
 
 /**
  * @author zp
@@ -714,7 +714,7 @@ public class OperationLimitsSubPanel extends ConsolePanel implements Configurati
             }
             else if (rectangle != null) {
                 rectangle.setMyColor(Color.red);
-                rectangle.setFill(true);
+                rectangle.setFilled(true);
                 rectangle.paint((Graphics2D) g.create(), renderer, -renderer.getRotation());
             }
             g.dispose();

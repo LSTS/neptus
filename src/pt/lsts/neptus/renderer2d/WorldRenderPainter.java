@@ -22,7 +22,7 @@
  * distributed on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF
  * ANY KIND, either express or implied. See the Licence for the specific
  * language governing permissions and limitations at
- * https://www.lsts.pt/neptus/licence.
+ * http://ec.europa.eu/idabc/eupl.html.
  *
  * For more information please see <http://lsts.fe.up.pt/neptus>.
  *
@@ -85,11 +85,13 @@ import javax.swing.border.EmptyBorder;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
-import net.miginfocom.swing.MigLayout;
-
 import org.jdesktop.swingx.JXBusyLabel;
 import org.jdesktop.swingx.JXStatusBar;
 
+import com.l2fprod.common.propertysheet.DefaultProperty;
+import com.l2fprod.common.propertysheet.Property;
+
+import net.miginfocom.swing.MigLayout;
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.comm.proxy.ProxyInfoProvider;
 import pt.lsts.neptus.doc.NeptusDoc;
@@ -117,9 +119,6 @@ import pt.lsts.neptus.util.ReflectionUtil;
 import pt.lsts.neptus.util.StringUtils;
 import pt.lsts.neptus.util.conf.ConfigFetch;
 import pt.lsts.neptus.util.coord.MapTileUtil;
-
-import com.l2fprod.common.propertysheet.DefaultProperty;
-import com.l2fprod.common.propertysheet.Property;
 
 /**
  * @author pdias
@@ -1459,9 +1458,15 @@ public class WorldRenderPainter implements Renderer2DPainter, MouseListener, Mou
     private PropertiesProvider createPropertiesProvider(final String mapStyle, Vector<Field> dFA) {
         final Class<?> clazz = getClassForStyle(mapStyle);
         final LinkedHashMap<String, PluginProperty> props = new LinkedHashMap<String, PluginProperty>();
+        Map<String, PluginProperty> defaults = PluginUtils.getDefaultsValues(clazz);
         for (Field field : dFA) {
             try {
-                PluginProperty pp = PluginUtils.createPluginProperty(null, field);
+                String defaultStr = null;
+                
+                if (defaults.containsKey(field.getName()))
+                    defaultStr = defaults.get(field.getName()).serialize();
+                
+                PluginProperty pp = PluginUtils.createPluginProperty(null, field, defaultStr, true);
                 if (pp != null)
                     props.put(pp.getName(), pp);
             }

@@ -22,7 +22,7 @@
  * distributed on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF
  * ANY KIND, either express or implied. See the Licence for the specific
  * language governing permissions and limitations at
- * https://www.lsts.pt/neptus/licence.
+ * http://ec.europa.eu/idabc/eupl.html.
  *
  * For more information please see <http://lsts.fe.up.pt/neptus>.
  *
@@ -31,15 +31,16 @@
  */
 package pt.lsts.neptus.mp.preview.payloads;
 
+import java.awt.Color;
 import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.Vector;
 
-import pt.lsts.neptus.mp.Maneuver;
-import pt.lsts.neptus.types.mission.plan.PlanType;
 import pt.lsts.imc.EntityParameter;
 import pt.lsts.imc.IMCMessage;
 import pt.lsts.imc.SetEntityParameters;
+import pt.lsts.neptus.mp.Maneuver;
+import pt.lsts.neptus.types.mission.plan.PlanType;
 
 /**
  * @author zp
@@ -47,6 +48,8 @@ import pt.lsts.imc.SetEntityParameters;
  */
 public class PayloadFactory {
 
+    public static final double LumeneraHFOV = 59.3, LumeneraVFOV = 45.2; 
+    
     public static Collection<PayloadFingerprint> getPayloads(Maneuver m) {
         Vector<PayloadFingerprint> payloads = new Vector<>();
         IMCMessage[] msgs = m.getStartActions().getAllMessages();
@@ -102,6 +105,41 @@ public class PayloadFactory {
             if (active) {
                 pf.add(new MultibeamFingerprint(range, Math.toRadians(120)));
             }
+        }
+        else if (msg.getName().equals("Camera")) {
+            boolean active = false;
+            for (EntityParameter p : msg.getParams()) {
+                if (p.getName().equals("Active")) {
+                    active = p.getValue().equalsIgnoreCase("true");
+                }                
+            }
+            if (active)
+                pf.add(new CameraFootprint(Math.toRadians(LumeneraHFOV), Math.toRadians(LumeneraVFOV), 6, Color.magenta.darker().darker()));
+        }
+        else if (msg.getName().equals("UAVCamera")) {
+            boolean active = false;
+            String model = "";
+            for (EntityParameter p : msg.getParams()) {
+                if (p.getName().equals("Active")) {
+                    active = p.getValue().equalsIgnoreCase("true");
+                }
+                if (p.getName().equals("Onboard Camera"))
+                    model = ""+p.getValue();
+            }
+            Color color = new Color(100,0,100,128);
+            switch (model) {
+                case "FLIR":
+                    color = new Color(150, 0, 0, 128);
+                    break;
+                case "AXIS":
+                    color = new Color(0, 150, 0, 128);
+                    break;
+                default:
+                    break;
+            }
+            if (active)
+                pf.add(new CameraFootprint(model, color));
+            
         }
         return pf;
     }    

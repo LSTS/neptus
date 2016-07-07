@@ -22,7 +22,7 @@
  * distributed on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF
  * ANY KIND, either express or implied. See the Licence for the specific
  * language governing permissions and limitations at
- * https://www.lsts.pt/neptus/licence.
+ * http://ec.europa.eu/idabc/eupl.html.
  *
  * For more information please see <http://lsts.fe.up.pt/neptus>.
  *
@@ -71,9 +71,12 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.SwingUtilities;
 
+import com.google.common.eventbus.Subscribe;
+
 import pt.lsts.imc.EntityParameters;
 import pt.lsts.imc.FuelLevel;
 import pt.lsts.neptus.NeptusLog;
+import pt.lsts.neptus.comm.SystemUtils;
 import pt.lsts.neptus.comm.manager.imc.ImcId16;
 import pt.lsts.neptus.comm.manager.imc.ImcMsgManager;
 import pt.lsts.neptus.comm.manager.imc.ImcSystem;
@@ -143,8 +146,6 @@ import pt.lsts.neptus.util.MathMiscUtils;
 import pt.lsts.neptus.util.ReflectionUtil;
 import pt.lsts.neptus.util.StringUtils;
 import pt.lsts.neptus.util.conf.ConfigFetch;
-
-import com.google.common.eventbus.Subscribe;
 
 /**
  * @author pdias
@@ -269,6 +270,9 @@ public class SystemsList extends ConsolePanel implements MainVehicleChangeListen
     @NeptusProperty(name = "Draw Circle Arround System Icon In Render Dependent Of System Type", description = "This configures if the circle arround the symbol in render is to be drawn dependent of system type",
             category = "Renderer", userLevel = LEVEL.REGULAR)
     public boolean drawCircleInRenderDependentOfSystemType = true;
+    
+    @NeptusProperty(name = "Minutes to Show Distress Signal", category = "Test", userLevel = LEVEL.ADVANCED)
+    private int minutesToShowDistress = 5; 
 
     private final SystemDisplayComparator comparator = new SystemDisplayComparator();
 
@@ -961,10 +965,10 @@ public class SystemsList extends ConsolePanel implements MainVehicleChangeListen
                         + sd.getAttentionToolTip());
             }
 
-            if (sys.containsData(ImcSystem.FUEL_LEVEL_KEY)) {
+            if (sys.containsData(SystemUtils.FUEL_LEVEL_KEY)) {
                 sd.setFuelLevel(true);
-                FuelLevel fuelLevelMsg = (FuelLevel) sys.retrieveData(ImcSystem.FUEL_LEVEL_KEY);
-                long time = sys.retrieveDataTimeMillis(ImcSystem.FUEL_LEVEL_KEY);
+                FuelLevel fuelLevelMsg = (FuelLevel) sys.retrieveData(SystemUtils.FUEL_LEVEL_KEY);
+                long time = sys.retrieveDataTimeMillis(SystemUtils.FUEL_LEVEL_KEY);
                 sd.setFuelLevelPercentage(fuelLevelMsg.getValue());
                 sd.setFuelLevelToolTip(I18n.textf("Fuel Level: %fuelValue% with %confidanceValue% confidance",
                         ((long) MathMiscUtils.round(fuelLevelMsg.getValue(), 0)),
@@ -975,7 +979,7 @@ public class SystemsList extends ConsolePanel implements MainVehicleChangeListen
             }
             else {
                 sd.setFuelLevel(false);
-                if (!sys.containsData(ImcSystem.FUEL_LEVEL_KEY))
+                if (!sys.containsData(SystemUtils.FUEL_LEVEL_KEY))
                     sd.setFuelLevelPercentage(-1);
             }
             
@@ -1046,7 +1050,7 @@ public class SystemsList extends ConsolePanel implements MainVehicleChangeListen
             }
 
             
-            Object epObj = sys.retrieveData(ImcSystem.ENTITY_PARAMETERS);
+            Object epObj = sys.retrieveData(SystemUtils.ENTITY_PARAMETERS);
             if (epObj != null && (epObj instanceof EntityParameters)) {
                 sd.updateSystemParameters((EntityParameters) epObj); 
             }
@@ -1207,8 +1211,8 @@ public class SystemsList extends ConsolePanel implements MainVehicleChangeListen
             txtInfo += I18n.text("SIMULATION");
         }
 
-        if (sys.containsData(ImcSystem.WEB_UPDATED_KEY)) {
-            if (System.currentTimeMillis() - sys.retrieveDataTimeMillis(ImcSystem.WEB_UPDATED_KEY) < DateTimeUtil.MINUTE) {
+        if (sys.containsData(SystemUtils.WEB_UPDATED_KEY)) {
+            if (System.currentTimeMillis() - sys.retrieveDataTimeMillis(SystemUtils.WEB_UPDATED_KEY) < DateTimeUtil.MINUTE) {
                 txtInfo += (txtInfo.length() != 0 ? lineSep : "");
                 txtInfo += I18n.text("WEB POS RECEIVED");
             }
@@ -1242,37 +1246,37 @@ public class SystemsList extends ConsolePanel implements MainVehicleChangeListen
                             : "");
         }
 
-        if (sys.containsData(ImcSystem.COURSE_KEY) || sys.containsData(ImcSystem.HEADING_KEY)) {
-            boolean hasCourse = sys.containsData(ImcSystem.COURSE_KEY, maxAgeTimeMillis);
-            boolean hasHeading = sys.containsData(ImcSystem.HEADING_KEY, maxAgeTimeMillis);
+        if (sys.containsData(SystemUtils.COURSE_DEGS_KEY) || sys.containsData(SystemUtils.HEADING_DEGS_KEY)) {
+            boolean hasCourse = sys.containsData(SystemUtils.COURSE_DEGS_KEY, maxAgeTimeMillis);
+            boolean hasHeading = sys.containsData(SystemUtils.HEADING_DEGS_KEY, maxAgeTimeMillis);
 
             txtInfo += (txtInfo.length() != 0 ? lineSep : "");
             if (hasCourse)
                 txtInfo += I18n.text("Course") +": " // ImcSystem.COURSE_KEY + ": "
-                        + CoordinateUtil.heading3DigitsFormat.format(sys.retrieveData(ImcSystem.COURSE_KEY))
+                        + CoordinateUtil.heading3DigitsFormat.format(sys.retrieveData(SystemUtils.COURSE_DEGS_KEY))
                         + CoordinateUtil.CHAR_DEGREE;
             if (hasHeading) {
                 txtInfo += (hasCourse ? " | " : "");
                 txtInfo += I18n.text("Heading") +": " // ImcSystem.HEADING_KEY + ": "
-                        + CoordinateUtil.heading3DigitsFormat.format(sys.retrieveData(ImcSystem.HEADING_KEY))
+                        + CoordinateUtil.heading3DigitsFormat.format(sys.retrieveData(SystemUtils.HEADING_DEGS_KEY))
                         + CoordinateUtil.CHAR_DEGREE;
             }
         }
 
-        if (sys.containsData(ImcSystem.GROUND_SPEED_KEY, maxAgeTimeMillis)) {
+        if (sys.containsData(SystemUtils.GROUND_SPEED_KEY, maxAgeTimeMillis)) {
             txtInfo += (txtInfo.length() != 0 ? lineSep : "") + I18n.text("Ground Speed") +": " // ImcSystem.GROUND_SPEED_KEY
                                                                                             // + ": "
-                    + MathMiscUtils.round((Double) sys.retrieveData(ImcSystem.GROUND_SPEED_KEY), 1) + " m/s";
+                    + MathMiscUtils.round((Double) sys.retrieveData(SystemUtils.GROUND_SPEED_KEY), 1) + " m/s";
         }
 
-        if (sys.containsData(ImcSystem.VERTICAL_SPEED_KEY, maxAgeTimeMillis)) {
+        if (sys.containsData(SystemUtils.VERTICAL_SPEED_KEY, maxAgeTimeMillis)) {
             txtInfo += (txtInfo.length() != 0 ? lineSep : "") + I18n.text("Vertical Speed") +": " // ImcSystem.VERTICAL_SPEED_KEY
                                                                                               // + ": "
-                    + MathMiscUtils.round((Double) sys.retrieveData(ImcSystem.VERTICAL_SPEED_KEY), 1) + " m/s";
+                    + MathMiscUtils.round((Double) sys.retrieveData(SystemUtils.VERTICAL_SPEED_KEY), 1) + " m/s";
         }
 
-        if (sys.containsData(ImcSystem.RPM_MAP_ENTITY_KEY, maxAgeTimeMillis)) {
-            String rpms = "" + sys.retrieveData(ImcSystem.RPM_MAP_ENTITY_KEY);
+        if (sys.containsData(SystemUtils.RPM_MAP_ENTITY_KEY, maxAgeTimeMillis)) {
+            String rpms = "" + sys.retrieveData(SystemUtils.RPM_MAP_ENTITY_KEY);
             Matcher m = RPM_PATTERN_SEARCH.matcher(rpms);
             if (m.find())
                 rpms = m.group(1);
@@ -1903,6 +1907,31 @@ public class SystemsList extends ConsolePanel implements MainVehicleChangeListen
 
         boolean isLocationKnownUpToDate = SystemPainterHelper.isLocationKnown(sys.getLocation(),
                 sys.getLocationTimeMillis());
+        
+        {
+            Object obj = sys.retrieveData(SystemUtils.WIDTH_KEY);
+            if (obj != null) {
+                double width = ((Number) obj).doubleValue();
+                obj = sys.retrieveData(SystemUtils.LENGHT_KEY);
+                if (obj != null) {
+                    double length = ((Number) obj).doubleValue();
+
+                    double headingDegrees = sys.getYawDegrees();
+
+                    double widthOffsetFromCenter = 0;
+                    obj = sys.retrieveData(SystemUtils.WIDTH_CENTER_OFFSET_KEY);
+                    if (obj != null)
+                        widthOffsetFromCenter = ((Number) obj).doubleValue();
+                    double lenghtOffsetFromCenter = 0;
+                    obj = sys.retrieveData(SystemUtils.LENGHT_CENTER_OFFSET_KEY);
+                    if (obj != null)
+                        lenghtOffsetFromCenter = ((Number) obj).doubleValue();
+
+                    SystemPainterHelper.drawVesselDimentionsIconForSystem(renderer, g2, width, length,
+                            widthOffsetFromCenter, lenghtOffsetFromCenter, headingDegrees, color, false);
+                }
+            }
+        }
 
         // To draw the system icon
         if (useMilStd2525LikeSymbols) {
@@ -1933,8 +1962,31 @@ public class SystemsList extends ConsolePanel implements MainVehicleChangeListen
             SystemPainterHelper.drawSystemNameLabel(g2, sys.getName(), color, iconWidth, isLocationKnownUpToDate);
         }
 
-        // // To draw the course/speed vector
-        // drawCourseSpeedVectorForSystem(renderer, g2, sys, isLocationKnownUpToDate);
+        // To draw the course/speed vector
+        Object obj = sys.retrieveData(SystemUtils.COURSE_DEGS_KEY);
+        if (obj != null) {
+            double courseDegrees = ((Number) obj).doubleValue();
+            obj = sys.retrieveData(SystemUtils.GROUND_SPEED_KEY);
+            if (obj != null) {
+                double gSpeed = ((Number) obj).doubleValue();
+                SystemPainterHelper.drawCourseSpeedVectorForSystem(renderer, g2, courseDegrees, gSpeed, color, iconWidth,
+                        isLocationKnownUpToDate, minimumSpeedToBeStopped);
+            }
+        }
+
+        obj = sys.retrieveData(SystemUtils.DISTRESS_MSG_KEY, minutesToShowDistress * DateTimeUtil.MINUTE);
+        if (obj != null) {
+            Graphics2D g3 = (Graphics2D) g.create();
+            g3.setStroke(new BasicStroke(3));
+            g3.setColor(new Color(255, 155, 155, 255));
+            int s = 40;
+            g3.drawOval(-s / 2, -s / 2, s, s);
+            s = 60;
+            g3.drawOval(-s / 2, -s / 2, s, s);
+            s = 80;
+            g3.drawOval(-s / 2, -s / 2, s, s);
+            g3.dispose();
+        }
 
         g2.dispose();
     }

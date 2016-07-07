@@ -22,7 +22,7 @@
  * distributed on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF
  * ANY KIND, either express or implied. See the Licence for the specific
  * language governing permissions and limitations at
- * https://www.lsts.pt/neptus/licence.
+ * http://ec.europa.eu/idabc/eupl.html.
  *
  * For more information please see <http://lsts.fe.up.pt/neptus>.
  *
@@ -51,11 +51,11 @@ import javax.vecmath.Point3d;
 import javax.vecmath.TexCoord2f;
 import javax.vecmath.Vector3d;
 
+import com.sun.j3d.utils.geometry.GeometryInfo;
+
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.console.plugins.JVideoPanelConsole;
 import pt.lsts.neptus.types.vehicle.VehicleType;
-
-import com.sun.j3d.utils.geometry.GeometryInfo;
 
 public class ProjectionObj {
 

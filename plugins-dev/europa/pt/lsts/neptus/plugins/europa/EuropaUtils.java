@@ -22,7 +22,7 @@
  * distributed on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF
  * ANY KIND, either express or implied. See the Licence for the specific
  * language governing permissions and limitations at
- * https://www.lsts.pt/neptus/licence.
+ * http://ec.europa.eu/idabc/eupl.html.
  *
  * For more information please see <http://lsts.fe.up.pt/neptus>.
  *
@@ -33,11 +33,12 @@ package pt.lsts.neptus.plugins.europa;
 
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.util.Arrays;
 import java.util.Vector;
 
 import org.apache.commons.lang.StringUtils;
-import java.util.Arrays;
 
+import Jama.Matrix;
 import psengine.PSEngine;
 import psengine.PSLanguageExceptionList;
 import psengine.PSSolver;
@@ -45,7 +46,6 @@ import psengine.PSStringList;
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.loader.helper.CheckJavaOSArch;
 import pt.lsts.neptus.util.FileUtil;
-import Jama.Matrix;
 
 /**
  * @author zp

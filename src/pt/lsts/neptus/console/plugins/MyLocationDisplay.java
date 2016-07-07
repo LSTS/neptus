@@ -22,7 +22,7 @@
  * distributed on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF
  * ANY KIND, either express or implied. See the Licence for the specific
  * language governing permissions and limitations at
- * https://www.lsts.pt/neptus/licence.
+ * http://ec.europa.eu/idabc/eupl.html.
  *
  * For more information please see <http://lsts.fe.up.pt/neptus>.
  *
@@ -283,7 +283,7 @@ public class MyLocationDisplay extends ConsolePanel implements IPeriodicUpdates,
                 headingDegreesTime = sys.getAttitudeTimeMillis();
             }
             else {
-                ExternalSystem ext = ExternalSystemsHolder.lookupSystem(followHeadingOf);
+                ExternalSystem ext = followHeadingOf == null || followHeadingOf.isEmpty() ? null : ExternalSystemsHolder.lookupSystem(followHeadingOf);
                 if (ext != null) {
                     headingDegrees = ext.getYawDegrees();
                     headingDegreesTime = ext.getAttitudeTimeMillis();

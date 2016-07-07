@@ -22,7 +22,7 @@
  * distributed on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF
  * ANY KIND, either express or implied. See the Licence for the specific
  * language governing permissions and limitations at
- * https://www.lsts.pt/neptus/licence.
+ * http://ec.europa.eu/idabc/eupl.html.
  *
  * For more information please see <http://lsts.fe.up.pt/neptus>.
  *
@@ -43,7 +43,6 @@ import java.io.FileWriter;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.Hashtable;
-import java.util.Vector;
 
 import javax.imageio.ImageIO;
 import javax.swing.JFrame;
@@ -61,6 +60,7 @@ import pt.lsts.neptus.colormap.ColorMapFactory;
 import pt.lsts.neptus.colormap.ColormapOverlay;
 import pt.lsts.neptus.comm.IMCUtils;
 import pt.lsts.neptus.i18n.I18n;
+import pt.lsts.neptus.mp.ManeuverLocation;
 import pt.lsts.neptus.mra.MRAProperties;
 import pt.lsts.neptus.mra.WorldImage;
 import pt.lsts.neptus.mra.api.BathymetryParser;
@@ -80,6 +80,7 @@ import pt.lsts.neptus.plugins.PluginDescription;
 import pt.lsts.neptus.plugins.PluginUtils;
 import pt.lsts.neptus.renderer2d.ImageLayer;
 import pt.lsts.neptus.types.coord.LocationType;
+import pt.lsts.neptus.types.map.PlanUtil;
 import pt.lsts.neptus.types.mission.MissionType;
 import pt.lsts.neptus.types.mission.plan.PlanType;
 import pt.lsts.neptus.util.FileUtil;
@@ -216,7 +217,7 @@ public class KMLExporter implements MRAExporter {
         return ret;
     }
 
-    public String path(Vector<LocationType> coords, String name, String style) {
+    public String path(ArrayList<ManeuverLocation> coords, String name, String style) {
         String retAll = "";
         int idx = 0;
         int pathNumber = 0;
@@ -729,7 +730,7 @@ public class KMLExporter implements MRAExporter {
             bw.write(kmlHeader(name));
 
             // To account for multiple systems paths
-            Hashtable<String, Vector<LocationType>> pathsForSystems = new Hashtable<>();
+            Hashtable<String, ArrayList<ManeuverLocation>> pathsForSystems = new Hashtable<>();
             Hashtable<String, IMCMessage> lastEstimatedStateForSystems = new Hashtable<>();
             // Vector<LocationType> states = new Vector<>();
 
@@ -752,9 +753,9 @@ public class KMLExporter implements MRAExporter {
                 if (systemName == null || systemName.isEmpty()) {
                     continue;
                 }
-                Vector<LocationType> statesSys = pathsForSystems.get(systemName);
+                ArrayList<ManeuverLocation> statesSys = pathsForSystems.get(systemName);
                 if (statesSys == null) {
-                    statesSys = new Vector<>();
+                    statesSys = new ArrayList<>();
                     pathsForSystems.put(systemName, statesSys);
                 }
                 IMCMessage lastEsSys = lastEstimatedStateForSystems.get(systemName);
@@ -762,7 +763,7 @@ public class KMLExporter implements MRAExporter {
                     statesSys.add(null);
                 }
                 lastEstimatedStateForSystems.put(systemName, s);
-                statesSys.add(loc);
+                statesSys.add(new ManeuverLocation(loc));
                 
                 if (bottomRight == null) {
                     bottomRight = new LocationType(loc);
@@ -788,7 +789,7 @@ public class KMLExporter implements MRAExporter {
             pmonitor.setNote(I18n.text("Writing path to file"));
             // bw.write(path(states, "Estimated State", "estate"));
             for (String sys : pathsForSystems.keySet()) {
-                Vector<LocationType> st = pathsForSystems.get(sys);
+                ArrayList<ManeuverLocation> st = pathsForSystems.get(sys);
                 bw.write(path(st, "Estimated State " + sys, "estate"));
             }
             pmonitor.setProgress(70);
@@ -803,7 +804,8 @@ public class KMLExporter implements MRAExporter {
             }
             if (plan != null) {
                 pmonitor.setNote(I18n.text("Writing plan"));
-                bw.write(path(plan.planPath(), "Planned waypoints", "plan"));
+                ArrayList<ManeuverLocation> locs = PlanUtil.getPlanWaypoints(plan);
+                bw.write(path(locs, "Planned waypoints", "plan"));
                 pmonitor.setProgress(90);
             }
 

@@ -22,7 +22,7 @@
  * distributed on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF
  * ANY KIND, either express or implied. See the Licence for the specific
  * language governing permissions and limitations at
- * https://www.lsts.pt/neptus/licence.
+ * http://ec.europa.eu/idabc/eupl.html.
  *
  * For more information please see <http://lsts.fe.up.pt/neptus>.
  *
@@ -44,6 +44,10 @@ import org.dom4j.Element;
 import org.dom4j.Node;
 import org.dom4j.io.SAXReader;
 
+import com.l2fprod.common.beans.editor.AbstractPropertyEditor;
+import com.l2fprod.common.beans.editor.BooleanAsCheckBoxPropertyEditor;
+import com.l2fprod.common.swing.renderer.DefaultCellRenderer;
+
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.gui.editor.ArrayListEditor;
 import pt.lsts.neptus.gui.editor.ComboEditor;
@@ -61,10 +65,6 @@ import pt.lsts.neptus.params.renderer.I18nSystemPropertyRenderer;
 import pt.lsts.neptus.params.renderer.SystemPropertyRenderer;
 import pt.lsts.neptus.util.FileUtil;
 import pt.lsts.neptus.util.conf.GeneralPreferences;
-
-import com.l2fprod.common.beans.editor.AbstractPropertyEditor;
-import com.l2fprod.common.beans.editor.BooleanAsCheckBoxPropertyEditor;
-import com.l2fprod.common.swing.renderer.DefaultCellRenderer;
 
 /**
  * @author pdias
@@ -694,7 +694,16 @@ public class ConfigurationManager {
      */
     public static Object getValueTypedFromString(String valueStr, SystemProperty.ValueTypeEnum type) {
         if (type == SystemProperty.ValueTypeEnum.BOOLEAN) {
-            return Boolean.parseBoolean(valueStr);
+            if (valueStr == null)
+                return false;
+            switch (valueStr.toLowerCase().trim()) {
+                case "true":
+                case "yes":
+                case "1":
+                    return true;
+                default:
+                    return false;
+            }
         }
         else if (type == SystemProperty.ValueTypeEnum.INTEGER) {
             try {

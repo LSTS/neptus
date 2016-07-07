@@ -20,23 +20,25 @@
  * distributed on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF
  * ANY KIND, either express or implied. See the Licence for the specific
  * language governing permissions and limitations at
- * https://www.lsts.pt/neptus/licence.
+ * http://ec.europa.eu/idabc/eupl.html.
  *
  * For more information please see <http://lsts.fe.up.pt/neptus>.
  */
 
 package pt.lsts.neptus.plugins.mjpeg.containers.avi;
 
-import pt.lsts.neptus.plugins.mjpeg.containers.riff.*;
-import pt.lsts.neptus.plugins.mjpeg.containers.riff.List;
-
-import javax.imageio.ImageIO;
-import javax.imageio.stream.ImageInputStream;
-import java.awt.*;
+import java.awt.Image;
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+
+import javax.imageio.ImageIO;
+import javax.imageio.stream.ImageInputStream;
+
+import pt.lsts.neptus.plugins.mjpeg.containers.riff.Chunk;
+import pt.lsts.neptus.plugins.mjpeg.containers.riff.List;
+import pt.lsts.neptus.plugins.mjpeg.containers.riff.RiffFile;
 
 /**
  * Parser for AVI encoded MJPEG streams.

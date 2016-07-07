@@ -22,7 +22,7 @@
  * distributed on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF
  * ANY KIND, either express or implied. See the Licence for the specific
  * language governing permissions and limitations at
- * https://www.lsts.pt/neptus/licence.
+ * http://ec.europa.eu/idabc/eupl.html.
  *
  * For more information please see <http://lsts.fe.up.pt/neptus>.
  *
@@ -46,13 +46,13 @@ import javax.swing.JScrollPane;
 import javax.swing.JTextField;
 import javax.swing.SwingUtilities;
 
-import pt.lsts.neptus.fileeditor.SyntaxDocument;
-import pt.lsts.neptus.util.GuiUtils;
-import pt.lsts.neptus.util.conf.StringProperty;
-
 import com.l2fprod.common.beans.editor.AbstractPropertyEditor;
 import com.l2fprod.common.beans.editor.FixedButton;
 import com.l2fprod.common.swing.LookAndFeelTweaks;
+
+import pt.lsts.neptus.fileeditor.SyntaxDocument;
+import pt.lsts.neptus.util.GuiUtils;
+import pt.lsts.neptus.util.conf.StringProperty;
 
 /**
  * @author zp

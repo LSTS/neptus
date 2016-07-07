@@ -22,7 +22,7 @@
  * distributed on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF
  * ANY KIND, either express or implied. See the Licence for the specific
  * language governing permissions and limitations at
- * https://www.lsts.pt/neptus/licence.
+ * http://ec.europa.eu/idabc/eupl.html.
  *
  * For more information please see <http://lsts.fe.up.pt/neptus>.
  *
@@ -43,6 +43,11 @@ import javax.swing.JToggleButton;
 import javax.swing.border.TitledBorder;
 import javax.swing.undo.UndoManager;
 
+import com.l2fprod.common.propertysheet.DefaultProperty;
+import com.l2fprod.common.propertysheet.Property;
+import com.l2fprod.common.propertysheet.PropertySheetPanel;
+
+import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.gui.PropertiesEditor;
 import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.mp.Maneuver;
@@ -52,10 +57,6 @@ import pt.lsts.neptus.renderer2d.StateRendererInteraction;
 import pt.lsts.neptus.types.mission.plan.PlanType;
 import pt.lsts.neptus.util.GuiUtils;
 import pt.lsts.neptus.util.ImageUtils;
-
-import com.l2fprod.common.propertysheet.DefaultProperty;
-import com.l2fprod.common.propertysheet.Property;
-import com.l2fprod.common.propertysheet.PropertySheetPanel;
 
 /**
  * @author zp
@@ -111,11 +112,15 @@ public class ManeuverPropertiesPanel extends JPanel {
     }
 
     public void setProps() {
-        
         String before = maneuver.getManeuverXml();        
         payloadConfig.setProperties(propsPanel.getProperties());
         boolean wasInitialManeuver = maneuver.isInitialManeuver();
-        maneuver.setProperties(propsPanel.getProperties());
+        try {
+            maneuver.setProperties(propsPanel.getProperties());
+        }
+        catch (Exception e) {
+            NeptusLog.pub().error(e, e);
+        }
         if (maneuver.isInitialManeuver())
             plan.getGraph().setInitialManeuver(maneuver.getId());
         else {

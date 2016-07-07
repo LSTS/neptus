@@ -22,7 +22,7 @@
  * distributed on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF
  * ANY KIND, either express or implied. See the Licence for the specific
  * language governing permissions and limitations at
- * https://www.lsts.pt/neptus/licence.
+ * http://ec.europa.eu/idabc/eupl.html.
  *
  * For more information please see <http://lsts.fe.up.pt/neptus>.
  *
@@ -45,19 +45,29 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.net.URL;
 import java.net.URLClassLoader;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.InvalidPropertiesFormatException;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Vector;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import javax.imageio.spi.ServiceRegistry;
+import javax.swing.table.TableCellRenderer;
 
 import org.apache.commons.io.IOUtils;
+
+import com.l2fprod.common.propertysheet.DefaultProperty;
+import com.l2fprod.common.propertysheet.Property;
+import com.l2fprod.common.swing.renderer.DefaultCellRenderer;
 
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.gui.PropertiesEditor;
@@ -66,12 +76,14 @@ import pt.lsts.neptus.gui.editor.EnumEditor;
 import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.util.FileUtil;
 import pt.lsts.neptus.util.ReflectionUtil;
+import pt.lsts.neptus.util.conf.ConfigFetch;
 import pt.lsts.neptus.util.conf.GeneralPreferences;
 
-import com.l2fprod.common.propertysheet.DefaultProperty;
-import com.l2fprod.common.propertysheet.Property;
-import com.l2fprod.common.swing.renderer.DefaultCellRenderer;
-
+/**
+ * @author zepinto
+ * @author pdias
+ *
+ */
 public class PluginUtils {
 
     public static String DEFAULT_ICON = "images/plugin.png";
@@ -238,6 +250,7 @@ public class PluginUtils {
                         + "</code></b>\"]]</i>";
             }
             Class<? extends PropertyEditor> editClass = null;
+            Class<? extends TableCellRenderer> rendererClass = null;
             String category = a.category();
 
             if (a.name().length() == 0) {
@@ -249,6 +262,10 @@ public class PluginUtils {
 
             if (a.editorClass() != PropertyEditor.class) {
                 editClass = a.editorClass();
+            }
+
+            if (a.rendererClass() != TableCellRenderer.class) {
+                rendererClass = a.rendererClass();
             }
 
             if (category == null || category.length() == 0) {
@@ -277,14 +294,15 @@ public class PluginUtils {
                 pp.setCategory(category);
             }
 
-            if (editClass != null)
+            if (editClass != null) {
                 PropertiesEditor.getPropertyEditorRegistry().registerEditor(pp, editClass);
+            }
             else {
                 if (ReflectionUtil.hasInterface(f.getType(), PropertyType.class)) {
                     PropertyType pt = (PropertyType) o;
                     PropertiesEditor.getPropertyEditorRegistry().registerEditor(pp, pt.getPropertyEditor());
                 }
-                if (f.getType().getEnumConstants() != null)
+                if (f.getType().getEnumConstants() != null) {
                     if (o != null) {
                         PropertiesEditor.getPropertyEditorRegistry().registerEditor(pp,
                                 new EnumEditor((Class<? extends Enum<?>>) o.getClass()));
@@ -299,7 +317,11 @@ public class PluginUtils {
                             }
                         });
                     }
+                }
             }
+            
+            if (rendererClass != null)
+                PropertiesEditor.getPropertyRendererRegistry().registerRenderer(pp, rendererClass);
 
             return pp;
         }
@@ -434,13 +456,11 @@ public class PluginUtils {
                         continue;
                     }
                     catch (SecurityException e) {
-                        // TODO Auto-generated catch block
                         e.printStackTrace();
                         continue;
                     }
                 }
                 catch (SecurityException e1) {
-                    // TODO Auto-generated catch block
                     e1.printStackTrace();
                     continue;
                 }
@@ -451,7 +471,6 @@ public class PluginUtils {
                     res = m.invoke(obj, propValue);
                 }
                 catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
-                    // TODO Auto-generated catch block
                     e.printStackTrace();
                     continue;
                 }
@@ -471,7 +490,7 @@ public class PluginUtils {
         else
             c = o.getClass();
         
-        HashSet<Field> fields = new HashSet<>(); 
+        HashSet<Field> fields = new LinkedHashSet<>(); 
         for (Field f : c.getFields())
             fields.add(f);
         for (Field f : c.getDeclaredFields()) {
@@ -501,8 +520,22 @@ public class PluginUtils {
 
                 property = props.get(name);
                 if (property == null) {
-                    NeptusLog.pub().debug("Property " + name + " will not be saved.");
-                    continue;
+                    // Try alternatives
+                    String[] alternatives = computeParamNameAlternatives(name);
+                    if (alternatives.length > 0) {
+                        for (String altName : alternatives) {
+                            property = props.get(altName);
+                            if (property != null) {
+                                NeptusLog.pub().info(String.format("Found alternative \"%s\" for property \"%s\"!",altName, name));
+                                break;
+                            }
+                        }
+                    }
+                    
+                    if (property == null) {
+                        NeptusLog.pub().debug("Property " + name + " will not be saved.");
+                        continue;
+                    }
                 }
                 try {
                     propertyValue = property.getValue();
@@ -537,13 +570,17 @@ public class PluginUtils {
                         else if ("float".equalsIgnoreCase(f.getGenericType().toString())) {
                             f.set(obj, Float.valueOf(((Double) propertyValue).floatValue()));
                         }
+                        else {
+                            // Re-throw original exception
+                            throw e;
+                        }
                     }
                     catch (Exception e2) {
-                        e2.printStackTrace();
+                        NeptusLog.pub().error(e2, e2);;
                     }
                 }
                 catch (Exception e) {
-                    e.printStackTrace();
+                    NeptusLog.pub().error(e);;
                 }
             }
         }
@@ -790,7 +827,7 @@ public class PluginUtils {
     }
 
     public static void loadProperties(Object obj, String instanceName) {
-        String propsFilename = "conf/plugins/" + obj.getClass().getSimpleName() + "-" + instanceName + ".properties";
+        String propsFilename = ConfigFetch.getConfFolder() + "/plugins/" + obj.getClass().getSimpleName() + "-" + instanceName + ".properties";
 
         File propsFile = new File(propsFilename);
         if (propsFile.canRead()) {
@@ -804,8 +841,8 @@ public class PluginUtils {
     }
 
     public static void saveProperties(Object obj, String instanceName) {
-        new File("conf/plugins").mkdirs();
-        String propsFilename = "conf/plugins/" + obj.getClass().getSimpleName() + "-" + instanceName + ".properties";
+        new File(ConfigFetch.getConfFolder() + "/plugins").mkdirs();
+        String propsFilename = ConfigFetch.getConfFolder() + "/plugins/" + obj.getClass().getSimpleName() + "-" + instanceName + ".properties";
 
         try {
             PluginUtils.saveProperties(propsFilename, obj);
@@ -868,6 +905,9 @@ public class PluginUtils {
                     dFA.add(fd);
             }
         }
+        
+        extractDefaultFieldsValues(clazz);
+        
         extractFieldsWorker(clazz.getSuperclass(), dFA);
     }
 
@@ -958,5 +998,72 @@ public class PluginUtils {
             t.printStackTrace();
             throw new IOException("Error, could not add URL to system classloader");
         }
+    }
+    
+    private static String[] computeParamNameAlternatives(String name) {
+        ArrayList<String> alternatives = new ArrayList<>();
+        
+        // To lower case
+        String pattern = "( [A-Z])";
+        Pattern r = Pattern.compile(pattern);
+        Matcher m = r.matcher(name);
+        StringBuffer sb = new StringBuffer();
+        int c = 0;
+        while (m.find()) {
+            c++;
+            m.appendReplacement(sb, m.group().toLowerCase());
+        }
+        m.appendTail(sb);
+        if (c > 0)
+            alternatives.add(sb.toString());
+
+        // To camel case
+        pattern = "( [a-z])";
+        r = Pattern.compile(pattern);
+        m = r.matcher(name);
+        sb = new StringBuffer();
+        c = 0;
+        while (m.find()) {
+            c++;
+            m.appendReplacement(sb, m.group().toUpperCase());
+        }
+        m.appendTail(sb);
+        if (c > 0)
+            alternatives.add(sb.toString());
+        
+        // As field name
+        pattern = "( [a-zA-Z0-9])";
+        r = Pattern.compile(pattern);
+        m = r.matcher(name);
+        sb = new StringBuffer();
+        c = 0;
+        while (m.find()) {
+            c++;
+            m.appendReplacement(sb, m.group().toUpperCase().trim());
+        }
+        m.appendTail(sb);
+        if (c > 0) {
+            pattern = "(^.)";
+            r = Pattern.compile(pattern);
+            m = r.matcher(sb.toString());
+            sb = new StringBuffer();
+            if (m.find()) {
+                m.appendReplacement(sb, m.group().toLowerCase());
+            }
+            m.appendTail(sb);
+
+            alternatives.add(sb.toString());
+        }
+        else {
+            alternatives.add(name.toLowerCase());
+        }
+        
+        return alternatives.toArray(new String[alternatives.size()]);
+    }
+    
+    public static void main(String[] args) {
+        String test = "Speed Units dff";
+        String[] alt = computeParamNameAlternatives(test);
+        System.out.println(Arrays.toString(alt));
     }
 }

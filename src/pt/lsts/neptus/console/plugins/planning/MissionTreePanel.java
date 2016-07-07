@@ -22,7 +22,7 @@
  * distributed on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF
  * ANY KIND, either express or implied. See the Licence for the specific
  * language governing permissions and limitations at
- * https://www.lsts.pt/neptus/licence.
+ * http://ec.europa.eu/idabc/eupl.html.
  *
  * For more information please see <http://lsts.fe.up.pt/neptus>.
  *
@@ -56,6 +56,8 @@ import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPopupMenu;
 import javax.swing.SwingWorker;
+
+import com.google.common.eventbus.Subscribe;
 
 import pt.lsts.imc.IMCDefinition;
 import pt.lsts.imc.IMCMessage;
@@ -108,8 +110,6 @@ import pt.lsts.neptus.types.map.TransponderElement;
 import pt.lsts.neptus.types.mission.HomeReference;
 import pt.lsts.neptus.types.mission.MissionType;
 import pt.lsts.neptus.types.mission.plan.PlanType;
-
-import com.google.common.eventbus.Subscribe;
 
 
 /**
@@ -312,9 +312,9 @@ public class MissionTreePanel extends ConsolePanel implements MissionChangeListe
                 try {
                     LblConfig msgLBLConfiguration = new LblConfig();
                     msgLBLConfiguration.setOp(LblConfig.OP.GET_CFG);
-                    IMCSendMessageUtils.sendMessage(msgLBLConfiguration,
-                            I18n.textf("Unable to get %vehicle list of transponders.", getMainVehicleId()),
-                            true, getMainVehicleId());
+                    IMCSendMessageUtils.sendMessage(msgLBLConfiguration, 
+                            I18n.textf("Unable to get %vehicle list of transponders.", getMainVehicleId()), 
+                            true, true, getMainVehicleId());
                 }
                 catch (Exception e) {
                     e.printStackTrace();
@@ -858,7 +858,7 @@ public class MissionTreePanel extends ConsolePanel implements MissionChangeListe
             boolean acousticOpUserAprovedQuestion = true;
             IMCSendMessageUtils.sendMessage(msgLBLConfiguration, ImcMsgManager.TRANSPORT_TCP, listener,
                     MissionTreePanel.this, errorTextForDialog, ignoreAcousticSending, acousticOpServiceName,
-                    acousticOpUseOnlyActive, acousticOpUserAprovedQuestion, getMainVehicleId());
+                    acousticOpUseOnlyActive, acousticOpUserAprovedQuestion, true, getMainVehicleId());
         }
 
         MessageDeliveryListener listener = new MessageDeliveryListener() {

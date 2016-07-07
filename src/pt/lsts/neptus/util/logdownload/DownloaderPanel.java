@@ -22,7 +22,7 @@
  * distributed on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF
  * ANY KIND, either express or implied. See the Licence for the specific
  * language governing permissions and limitations at
- * https://www.lsts.pt/neptus/licence.
+ * http://ec.europa.eu/idabc/eupl.html.
  *
  * For more information please see <http://lsts.fe.up.pt/neptus>.
  *
@@ -61,6 +61,8 @@ import org.jdesktop.swingx.painter.CompoundPainter;
 import org.jdesktop.swingx.painter.GlossPainter;
 import org.jdesktop.swingx.painter.RectanglePainter;
 
+import foxtrot.AsyncTask;
+import foxtrot.AsyncWorker;
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.ftp.FtpDownloader;
 import pt.lsts.neptus.gui.MiniButton;
@@ -73,8 +75,6 @@ import pt.lsts.neptus.util.MovingAverage;
 import pt.lsts.neptus.util.StreamUtil;
 import pt.lsts.neptus.util.concurrency.QueueWorkTickets;
 import pt.lsts.neptus.util.conf.GeneralPreferences;
-import foxtrot.AsyncTask;
-import foxtrot.AsyncWorker;
 
 /**
  * @author pdias
@@ -679,7 +679,7 @@ public class DownloaderPanel extends JXPanel implements ActionListener {
                 
                 FilterDownloadDataMonitor ioS = new FilterDownloadDataMonitor(stream, threadScheduledPool);
                 boolean streamRes = StreamUtil.copyStreamToFile(ioS, outFile, begByte == 0 ? false : true);
-                outFile.setLastModified(ftpFile.getTimestamp().getTimeInMillis());
+                outFile.setLastModified(Math.max(ftpFile.getTimestamp().getTimeInMillis(), 0));
                 
                 if (debug) {
                     NeptusLog.pub().info("<###>To receive / received: " + (begByte > 0 ? fullSize - begByte: fullSize) + "/" + downloadedSize);

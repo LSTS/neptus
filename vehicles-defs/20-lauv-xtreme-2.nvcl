@@ -16,8 +16,8 @@
             <presentation-image-2D>../vehicles-files/lauv/lauv-seacon0-presentation.png</presentation-image-2D>
             <model-3D>../vehicles-files/lauv/lauv-xtreme-2.x3d</model-3D>
             <icon-color>
-                <r>160</r>
-                <g>160</g>
+                <r>204</r>
+                <g>153</g>
                 <b>0</b>
             </icon-color>
         </appearance>
@@ -366,6 +366,35 @@
                 </annotation>
             </Launch>
         </maneuver>
+        <maneuver>
+            <ScheduledGoto kind="automatic">
+                <finalPoint type="pointType">
+                    <point>
+                        <id>Destination</id>
+                        <name>Destination</name>
+                        <coordinate>
+                            <latitude>0N</latitude>
+                            <longitude>0E</longitude>
+                            <depth>2</depth>
+                        </coordinate>
+                        <z>0.0</z>
+          				<zunits>DEPTH</zunits>
+                    </point>
+                    <radiusTolerance>5</radiusTolerance>
+                </finalPoint>
+                <velocity tolerance="10" type="float" unit="RPM">900</velocity>
+                <trajectoryTolerance>
+                    <radiusTolerance type="float">1</radiusTolerance>
+                </trajectoryTolerance>    
+                <DelayedBehavior>SKIP</DelayedBehavior>
+      	  		<TravelZ>3</TravelZ>
+      	  		<TravelUnits>DEPTH</TravelUnits>
+                <annotation>
+                    <documentation>No documentation available</documentation>
+                    <implementation-class>pt.lsts.neptus.mp.maneuvers.ScheduledGoto</implementation-class>
+                </annotation>
+            </ScheduledGoto>
+        </maneuver>   
     </feasibleManeuvers>
     <protocols-supported>
         <protocols>gsm iridium</protocols>

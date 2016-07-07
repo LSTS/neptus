@@ -22,7 +22,7 @@
  * distributed on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF
  * ANY KIND, either express or implied. See the Licence for the specific
  * language governing permissions and limitations at
- * https://www.lsts.pt/neptus/licence.
+ * http://ec.europa.eu/idabc/eupl.html.
  *
  * For more information please see <http://lsts.fe.up.pt/neptus>.
  *
@@ -44,9 +44,6 @@ import java.net.UnknownHostException;
 import java.util.ArrayList;
 
 import org.opencv.core.Size;
-
-import pt.lsts.neptus.NeptusLog;
-import pt.lsts.neptus.i18n.I18n;
 
 /** 
  * @author pedrog
@@ -134,7 +131,7 @@ public class UtilVideoStream {
     }
     
     public static BufferedImage resizeBufferedImage(BufferedImage img, Size size) {
-        if(size != null){
+        if(size != null && size.width != 0 && size.height != 0){
             BufferedImage dimg = new BufferedImage((int)size.width, (int)size.height, img.getType());
             Graphics2D g2d = dimg.createGraphics();
             g2d.drawImage(img.getScaledInstance((int)size.width, (int)size.height, Image.SCALE_SMOOTH), 0, 0, null);
@@ -142,7 +139,7 @@ public class UtilVideoStream {
             return dimg;
         }
         else {
-            //NeptusLog.pub().warn(I18n.text("Size in resizeBufferedImage must be != NULL"));
+            //NeptusLog.pub().warn(I18n.text("Size in resizeBufferedImage must be != NULL and not 0"));
             return null;
         }
     }

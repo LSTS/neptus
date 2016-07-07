@@ -22,7 +22,7 @@
  * distributed on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF
  * ANY KIND, either express or implied. See the Licence for the specific
  * language governing permissions and limitations at
- * https://www.lsts.pt/neptus/licence.
+ * http://ec.europa.eu/idabc/eupl.html.
  *
  * For more information please see <http://lsts.fe.up.pt/neptus>.
  *
@@ -46,6 +46,12 @@ import java.util.zip.ZipInputStream;
 
 import org.jfree.chart.JFreeChart;
 
+import com.lowagie.text.Document;
+import com.lowagie.text.Rectangle;
+import com.lowagie.text.pdf.PdfContentByte;
+import com.lowagie.text.pdf.PdfTemplate;
+import com.lowagie.text.pdf.PdfWriter;
+
 import pt.lsts.imc.EstimatedState;
 import pt.lsts.imc.GpsFix;
 import pt.lsts.imc.IMCMessage;
@@ -64,20 +70,9 @@ import pt.lsts.neptus.comm.IMCUtils;
 import pt.lsts.neptus.comm.manager.imc.ImcId16;
 import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.mp.Maneuver;
-import pt.lsts.neptus.mp.ManeuverFactory;
 import pt.lsts.neptus.mp.OperationLimits;
 import pt.lsts.neptus.mp.SystemPositionAndAttitude;
-import pt.lsts.neptus.mp.maneuvers.Elevator;
-import pt.lsts.neptus.mp.maneuvers.FollowPath;
-import pt.lsts.neptus.mp.maneuvers.FollowTrajectory;
-import pt.lsts.neptus.mp.maneuvers.Goto;
-import pt.lsts.neptus.mp.maneuvers.IMCSerialization;
-import pt.lsts.neptus.mp.maneuvers.Loiter;
-import pt.lsts.neptus.mp.maneuvers.PopUp;
-import pt.lsts.neptus.mp.maneuvers.RowsManeuver;
-import pt.lsts.neptus.mp.maneuvers.StationKeeping;
 import pt.lsts.neptus.mp.maneuvers.Unconstrained;
-import pt.lsts.neptus.mp.maneuvers.YoYo;
 import pt.lsts.neptus.mra.LogMarker;
 import pt.lsts.neptus.mra.api.CorrectedPosition;
 import pt.lsts.neptus.mra.importers.IMraLog;
@@ -98,12 +93,6 @@ import pt.lsts.neptus.types.vehicle.VehiclesHolder;
 import pt.lsts.neptus.util.DateTimeUtil;
 import pt.lsts.neptus.util.FileUtil;
 import pt.lsts.neptus.util.GuiUtils;
-
-import com.lowagie.text.Document;
-import com.lowagie.text.Rectangle;
-import com.lowagie.text.pdf.PdfContentByte;
-import com.lowagie.text.pdf.PdfTemplate;
-import com.lowagie.text.pdf.PdfWriter;
 
 /** 
  * @author pdias
@@ -637,52 +626,22 @@ public class LogUtils {
             return null;
         }
     }
-
     
     /**
      * See {@link IMCUtils#parseManeuver(IMCMessage)}
      */
     protected static Maneuver parseManeuver(String manId, IMCMessage msg) {
-        String manType = msg.getAbbrev();
-        Maneuver maneuver = null;
-        if ("Goto".equalsIgnoreCase(manType))
-            maneuver = new Goto();
-        else if ("Popup".equalsIgnoreCase(manType))
-            maneuver = new PopUp();
-        else if ("Loiter".equalsIgnoreCase(manType))
-            maneuver = new Loiter();
-        else if ("Teleoperation".equalsIgnoreCase(manType))
-            maneuver = new Unconstrained();
-        else if ("Rows".equalsIgnoreCase(manType))
-            maneuver = new RowsManeuver();
-        else if ("FollowTrajectory".equalsIgnoreCase(manType))
-            maneuver = new FollowTrajectory();
-        else if ("FollowPath".equalsIgnoreCase(manType))
-            maneuver = FollowPath.createFollowPathOrPattern(msg);
-        else if ("StationKeeping".equalsIgnoreCase(manType))
-            maneuver = new StationKeeping();
-        else if ("Elevator".equalsIgnoreCase(manType))
-            maneuver = new Elevator();
-        else if ("YoYo".equalsIgnoreCase(manType))
-            maneuver = new YoYo();
-        else {
-            try {
-                maneuver = ManeuverFactory.createManeuver(manType, "pt.lsts.neptus.mp.maneuvers." + manType);
-            }
-            catch (Exception e) {
-                e.printStackTrace();
-            }
+        Maneuver maneuver = IMCUtils.parseManeuver(msg);
+        if (maneuver != null) {
+            maneuver.setId(manId);
         }
-
-        if (maneuver == null)
-            return null;
-        maneuver.setId(manId);
-
-        if (maneuver instanceof IMCSerialization)
-            ((IMCSerialization) maneuver).parseIMCMessage(msg);
-
+        else {
+            String manType = msg.getAbbrev();
+            if (!"Teleoperation".equalsIgnoreCase(manType) && (maneuver instanceof Unconstrained))
+                maneuver = null;
+        }
+        
         return maneuver;
-
     }
 
     public static String parseInlineName(String data) {

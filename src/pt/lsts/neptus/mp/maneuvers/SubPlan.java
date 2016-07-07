@@ -22,7 +22,7 @@
  * distributed on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF
  * ANY KIND, either express or implied. See the Licence for the specific
  * language governing permissions and limitations at
- * https://www.lsts.pt/neptus/licence.
+ * http://ec.europa.eu/idabc/eupl.html.
  *
  * For more information please see <http://lsts.fe.up.pt/neptus>.
  *
@@ -39,32 +39,28 @@ import org.dom4j.Document;
 import org.dom4j.DocumentHelper;
 import org.dom4j.Element;
 
+import com.l2fprod.common.propertysheet.DefaultProperty;
+import com.l2fprod.common.propertysheet.Property;
+
 import pt.lsts.imc.IMCDefinition;
 import pt.lsts.imc.IMCMessage;
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.gui.PropertiesEditor;
 import pt.lsts.neptus.mp.Maneuver;
-import pt.lsts.neptus.mp.SystemPositionAndAttitude;
 import pt.lsts.neptus.renderer2d.StateRenderer2D;
 import pt.lsts.neptus.types.map.PlanElement;
 import pt.lsts.neptus.types.mission.plan.PlanType;
-
-import com.l2fprod.common.propertysheet.DefaultProperty;
-import com.l2fprod.common.propertysheet.Property;
 
 
 /**
  * @author zepinto
  */
 public class SubPlan extends Maneuver implements IMCSerialization {
-
 	
 	protected String planId = "";
 	protected String startNodeId = "";
 	protected boolean drawSubPlan = true;
 	protected PlanElement subplan;
-	
-	
 
 	public void loadFromXML(String xml) {
 		try {
@@ -142,22 +138,12 @@ public class SubPlan extends Maneuver implements IMCSerialization {
 	}
 
 	public Object clone() {
-		
 		SubPlan u = new SubPlan();
 		super.clone(u);
 		u.setPlanId(getPlanId());
 		u.setStartNodeId(getStartNodeId());
 		return u;
 	}
-
-	public SystemPositionAndAttitude ManeuverFunction(SystemPositionAndAttitude lastVehicleState) {
-		endManeuver();
-		//JOptionPane.showMessageDialog(new JFrame(), "<html>The current maneuver is unconstrained (tele-operation)<br>"+
-		//		"Click to proceed to the next maneuver", "Unconstrained Maneuver", JOptionPane.INFORMATION_MESSAGE
-		//	);
-		return lastVehicleState;		
-	}
-	
 
 	public Document getManeuverAsDocument(String rootElementName) {
 	    Document document = DocumentHelper.createDocument();
@@ -167,7 +153,6 @@ public class SubPlan extends Maneuver implements IMCSerialization {
 	    root.addAttribute("startNodeId", startNodeId);
 	    return document;
 	}
-
 	
 	@Override
 	public void parseIMCMessage(IMCMessage message) {
@@ -175,8 +160,7 @@ public class SubPlan extends Maneuver implements IMCSerialization {
 		setStartNodeId(message.getAsString("node_id"));		
 	}
 	
-	public IMCMessage serializeToIMC()
-	{
+	public IMCMessage serializeToIMC() {
 		IMCMessage man = IMCDefinition.getInstance().create("SubPlan");
 		man.setValue("plan_id", getPlanId());
 		man.setValue("node_id", getStartNodeId());

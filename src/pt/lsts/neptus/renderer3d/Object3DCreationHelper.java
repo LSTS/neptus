@@ -22,7 +22,7 @@
  * distributed on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF
  * ANY KIND, either express or implied. See the Licence for the specific
  * language governing permissions and limitations at
- * https://www.lsts.pt/neptus/licence.
+ * http://ec.europa.eu/idabc/eupl.html.
  *
  * For more information please see <http://lsts.fe.up.pt/neptus>.
  *
@@ -69,6 +69,14 @@ import javax.vecmath.Vector3f;
 
 import org.dom4j.Node;
 
+import com.mnstarfire.loaders3d.Inspector3DS;
+import com.sun.j3d.loaders.Loader;
+import com.sun.j3d.loaders.Scene;
+import com.sun.j3d.utils.geometry.Box;
+import com.sun.j3d.utils.geometry.Sphere;
+import com.sun.j3d.utils.image.TextureLoader;
+import com.sun.j3d.utils.scenegraph.io.SceneGraphFileReader;
+
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.mp.Maneuver;
@@ -97,14 +105,6 @@ import pt.lsts.neptus.util.StreamUtil;
 import pt.lsts.neptus.util.X3dParse;
 import pt.lsts.neptus.util.conf.ConfigFetch;
 import pt.lsts.neptus.viewer3d.Viewer3D;
-
-import com.mnstarfire.loaders3d.Inspector3DS;
-import com.sun.j3d.loaders.Loader;
-import com.sun.j3d.loaders.Scene;
-import com.sun.j3d.utils.geometry.Box;
-import com.sun.j3d.utils.geometry.Sphere;
-import com.sun.j3d.utils.image.TextureLoader;
-import com.sun.j3d.utils.scenegraph.io.SceneGraphFileReader;
 
 /**
  * @author pdias (code essentially from RJPG)
@@ -1231,7 +1231,7 @@ public class Object3DCreationHelper {
             image3D.maxvalue = img.getMaxHeight();
             image3D.minvalue = img.getMaxDepth();
             // System.err.println("max"+maxHeight +"min"+maxDepth);
-            image3D.setResolution(img.getResolution());
+            image3D.setResolution((int)img.getResolution());
         }
         TransformGroup model = image3D.getModel3D();
         // Util3D.enablePicking(model);

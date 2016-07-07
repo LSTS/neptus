@@ -22,7 +22,7 @@
  * distributed on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF
  * ANY KIND, either express or implied. See the Licence for the specific
  * language governing permissions and limitations at
- * https://www.lsts.pt/neptus/licence.
+ * http://ec.europa.eu/idabc/eupl.html.
  *
  * For more information please see <http://lsts.fe.up.pt/neptus>.
  *
@@ -101,6 +101,7 @@ import pt.lsts.neptus.console.plugins.planning.edit.ManeuverRemoved;
 import pt.lsts.neptus.console.plugins.planning.edit.ManeuverTranslated;
 import pt.lsts.neptus.console.plugins.planning.edit.PlanRotated;
 import pt.lsts.neptus.console.plugins.planning.edit.PlanSettingsChanged;
+import pt.lsts.neptus.console.plugins.planning.edit.PlanTransitionsReversed;
 import pt.lsts.neptus.console.plugins.planning.edit.PlanTranslated;
 import pt.lsts.neptus.console.plugins.planning.edit.PlanZChanged;
 import pt.lsts.neptus.gui.PropertiesEditor;
@@ -1058,8 +1059,8 @@ public class PlanEditor extends InteractionAdapter implements Renderer2DPainter,
 
                             DefaultProperty propVelUnits = new DefaultProperty();
                             propVelUnits.setName("Speed units");
-                            propVelUnits.setValue(velUnitNotI18n); // velUnitI18n
-                            propVelUnits.setType(String.class);
+                            propVelUnits.setValue(Maneuver.SPEED_UNITS.parse(velUnitNotI18n)); // velUnitI18n
+                            propVelUnits.setType(Maneuver.SPEED_UNITS.class);
                             propVelUnits.setDisplayName(I18n.text("Speed units"));
                             planElem.setPlanProperty(propVelUnits);
                             
@@ -1155,6 +1156,26 @@ public class PlanEditor extends InteractionAdapter implements Renderer2DPainter,
                             new ImageIcon(ImageUtils.getScaledImage("images/buttons/wizard.png", 16, 16)));
                     planSettings.add(pVehicle);
 
+                    AbstractAction pTrans = new AbstractAction(I18n.text("Reverse plan transitions...")) {
+                        private static final long serialVersionUID = 1L;
+
+                        @Override
+                        public void actionPerformed(ActionEvent e) {
+                            Maneuver[] manSeq = plan.getGraph().getManeuversSequence();
+                            if (manSeq.length > 1) {
+                                Maneuver startManeuver = manSeq[0];
+                                Maneuver endManeuver = manSeq[manSeq.length - 1];
+                                PlanTransitionsReversed ptr = new PlanTransitionsReversed(plan, startManeuver, endManeuver);
+                                ptr.redo();
+                                manager.addEdit(ptr);
+                            }
+                        }
+                    };
+                    pTrans.putValue(AbstractAction.SMALL_ICON,
+                            new ImageIcon(ImageUtils.getScaledImage("images/buttons/wizard.png", 16, 16)));
+                    planSettings.add(pTrans);
+                    
+                    
                     planSettings.setIcon(new ImageIcon(ImageUtils.getScaledImage("images/buttons/wizard.png", 16, 16)));
                     popup.add(planSettings);
 
@@ -1690,10 +1711,14 @@ public class PlanEditor extends InteractionAdapter implements Renderer2DPainter,
         Maneuver man = mf.getManeuver(manType);
         if (man == null)
             return null;
-
         
         if (copyFrom != null) {
-            man.setProperties(copyFrom.getProperties());
+            try {
+                man.setProperties(copyFrom.getProperties());
+            }
+            catch (Exception e) {
+                NeptusLog.pub().error(e, e);
+            }
             man.cloneActions(copyFrom);
         }
 

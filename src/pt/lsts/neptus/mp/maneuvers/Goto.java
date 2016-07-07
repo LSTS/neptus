@@ -22,7 +22,7 @@
  * distributed on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF
  * ANY KIND, either express or implied. See the Licence for the specific
  * language governing permissions and limitations at
- * https://www.lsts.pt/neptus/licence.
+ * http://ec.europa.eu/idabc/eupl.html.
  *
  * For more information please see <http://lsts.fe.up.pt/neptus>.
  *
@@ -42,46 +42,32 @@ import org.dom4j.DocumentHelper;
 import org.dom4j.Element;
 import org.dom4j.Node;
 
+import com.l2fprod.common.propertysheet.DefaultProperty;
+import com.l2fprod.common.propertysheet.Property;
+
 import pt.lsts.imc.IMCMessage;
 import pt.lsts.neptus.NeptusLog;
-import pt.lsts.neptus.gui.GotoParameters;
 import pt.lsts.neptus.gui.PropertiesEditor;
-import pt.lsts.neptus.gui.editor.SpeedUnitsEditor;
-import pt.lsts.neptus.gui.editor.renderer.I18nCellRenderer;
 import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.mp.Maneuver;
 import pt.lsts.neptus.mp.ManeuverLocation;
-import pt.lsts.neptus.mp.SystemPositionAndAttitude;
 import pt.lsts.neptus.types.coord.LocationType;
 import pt.lsts.neptus.util.GuiUtils;
-import pt.lsts.neptus.util.NameNormalizer;
-
-import com.l2fprod.common.propertysheet.DefaultProperty;
-import com.l2fprod.common.propertysheet.Property;
 
 /**
  * @author Zé Carlos
  */
 
-public class Goto extends Maneuver implements IMCSerialization, LocatedManeuver {
+public class Goto extends Maneuver implements IMCSerialization, LocatedManeuver, ManeuverWithSpeed {
 
-    double speed = 1000, speedTolerance = 0, radiusTolerance = 2;
-    String units = "RPM";
+    double speed = 1, speedTolerance = 0, radiusTolerance = 2;
+    Maneuver.SPEED_UNITS speedUnits = SPEED_UNITS.METERS_PS;
     ManeuverLocation destination = new ManeuverLocation();
     protected static final String DEFAULT_ROOT_ELEMENT = "Goto";
-	
-	protected GotoParameters params = new GotoParameters();
-	
-	private final int ANGLE_CALCULATION = -1 ;
-	private final int FIRST_ROTATE = 0 ;
-	private final int HORIZONTAL_MOVE = 1 ;
-	
-	int current_state = ANGLE_CALCULATION;
 	
 	protected double targetAngle, rotateIncrement;
 	protected double roll, pitch, yaw;
 	
-	public String id = NameNormalizer.getRandomID();
 	LinkedHashMap<String, String> custom = new LinkedHashMap<>();
 	
 	public String getType() {
@@ -104,7 +90,7 @@ public class Goto extends Maneuver implements IMCSerialization, LocatedManeuver 
 	    Element velocity = root.addElement("speed");
 	    velocity.addAttribute("tolerance", String.valueOf(getSpeedTolerance()));
 	    velocity.addAttribute("type", "float");
-	    velocity.addAttribute("unit", getUnits());
+	    velocity.addAttribute("unit", getSpeedUnits().getString());
 	    velocity.setText(String.valueOf(getSpeed()));
 	    
 	    Element trajectoryTolerance = root.addElement("trajectoryTolerance");
@@ -119,18 +105,25 @@ public class Goto extends Maneuver implements IMCSerialization, LocatedManeuver 
 	    try {
 	        Document doc = DocumentHelper.parseText(xml);
 	        Node node = doc.selectSingleNode(getType()+"/finalPoint/point");
-	        ManeuverLocation loc = new ManeuverLocation();
-	        loc.load(node.asXML());
-	        setManeuverLocation(loc);
-	        setRadiusTolerance(Double.parseDouble(doc.selectSingleNode(getType()+"/finalPoint/radiusTolerance").getText()));
+	        if (node != null) {
+	            ManeuverLocation loc = new ManeuverLocation();
+	            loc.load(node.asXML());
+	            setManeuverLocation(loc);
+	            
+	            //setRadiusTolerance(Double.parseDouble(doc.selectSingleNode(getType()+"/finalPoint/radiusTolerance").getText()));
+	        }
+	        
 	        Node speedNode = doc.selectSingleNode(getType()+"/speed");
 	        if (speedNode == null) 
 	        	speedNode = doc.selectSingleNode(getType()+"/velocity");
-	        setSpeed(Double.parseDouble(speedNode.getText()));
-	        String speedUnit = speedNode.valueOf("@unit");
-	        setSpeedUnits(speedUnit);
-	        setSpeedTolerance(Double.parseDouble(speedNode.valueOf("@tolerance")));
-	        
+	        if (speedNode != null) {
+	            setSpeed(Double.parseDouble(speedNode.getText()));
+//	            String speedUnit = speedNode.valueOf("@unit");
+	            SPEED_UNITS sUnits = ManeuversXMLUtil.parseSpeedUnits((Element) speedNode);
+	            setSpeedUnits(sUnits);
+	            if (speedNode.selectSingleNode("@tolerance") != null)
+	                setSpeedTolerance(Double.parseDouble(speedNode.valueOf("@tolerance")));
+	        }
 	    }
 	    catch (Exception e) {
 	        NeptusLog.pub().info("<###> "+I18n.text("Error while loading the XML:")+"{" + xml + "}");
@@ -139,97 +132,18 @@ public class Goto extends Maneuver implements IMCSerialization, LocatedManeuver 
 	    }
     }
 	
-	private int count = 0;
-	
-	public SystemPositionAndAttitude ManeuverFunction(SystemPositionAndAttitude lastVehicleState) {
-	    
-	 SystemPositionAndAttitude nextVehicleState = (SystemPositionAndAttitude) lastVehicleState.clone();
-	 
-	 
-		switch (current_state) {
-		
-			case(ANGLE_CALCULATION):
-				targetAngle = lastVehicleState.getPosition().getXYAngle(destination);
-				
-				double angleDiff = (targetAngle - lastVehicleState.getYaw());
-				
-				while (angleDiff < 0)
-					angleDiff += Math.PI*2; //360º
-				
-				while (angleDiff > Math.PI*2)
-					angleDiff -= Math.PI*2;
-				
-				if (angleDiff > Math.PI)
-					angleDiff = angleDiff - Math.PI*2;
-				
-				rotateIncrement = angleDiff/3;//(-25.0f / 180.0f) * (float) Math.PI;
-				count = 0;
-				this.current_state = FIRST_ROTATE;
-				nextVehicleState = ManeuverFunction(lastVehicleState);
-			break;
-		
-			// Initial rotation towards the target point
-			case FIRST_ROTATE:
-				if (count++<3)
-					nextVehicleState.rotateXY(rotateIncrement);
-				else {
-					nextVehicleState.setYaw(targetAngle);		
-					current_state = HORIZONTAL_MOVE;
-				}			
-				break;
-		
-			// The movement between the initial and final point, in the plane xy (horizontal)
-			case HORIZONTAL_MOVE:
-				double calculatedSpeed = 1;
-				
-				if (units.equals("m/s"))
-					calculatedSpeed = speed;
-				else if (units.equals("RPM"))
-					calculatedSpeed = speed/500.0;
-				double dist = nextVehicleState.getPosition().getHorizontalDistanceInMeters(destination);
-				if (dist <= calculatedSpeed) {
-					nextVehicleState.setPosition(destination);
-					endManeuver();
-				}
-				else {					
-						nextVehicleState.moveForward(calculatedSpeed);
-						double depthDiff = destination.getDepth()-nextVehicleState.getPosition().getDepth();
-						
-						double depthIncr = depthDiff / (dist/calculatedSpeed);
-						double curDepth = nextVehicleState.getPosition().getDepth();
-						nextVehicleState.getPosition().setDepth(curDepth+depthIncr);
-				}
-				break;
-			
-			default:
-				endManeuver();
-		}
-		
-		return nextVehicleState;
-	}
-	
-
 	public Object clone() {  
 	    Goto clone = new Goto();
 	    super.clone(clone);
-	    clone.params = params;
 	    clone.setManeuverLocation(getManeuverLocation());
 	    clone.setRadiusTolerance(getRadiusTolerance());
-	    clone.setSpeedUnits(getUnits());
+	    clone.setSpeedUnits(getSpeedUnits());
 	    clone.setSpeed(getSpeed());
 	    clone.setSpeedTolerance(getSpeedTolerance());
 	    
 	    return clone;
 	}
 
-    public String getId() {
-        return id;
-    }
-    
-    public void setId(String id) {
-        this.id = id;
-    }
-    
     public double getRadiusTolerance() {
         return radiusTolerance;
     }
@@ -238,12 +152,12 @@ public class Goto extends Maneuver implements IMCSerialization, LocatedManeuver 
         this.radiusTolerance = radiusTolerance;
     }
     
-    public String getUnits() {
-        return units;
+    public SPEED_UNITS getSpeedUnits() {
+        return speedUnits;
     }
     
-    public void setSpeedUnits(String units) {
-        this.units = units;
+    public void setSpeedUnits(Maneuver.SPEED_UNITS speedUnits) {
+        this.speedUnits = speedUnits;
     }
     
     public double getSpeed() {
@@ -270,11 +184,9 @@ public class Goto extends Maneuver implements IMCSerialization, LocatedManeuver 
     protected Vector<DefaultProperty> additionalProperties() {
     	Vector<DefaultProperty> properties = new Vector<DefaultProperty>();
 
-    	DefaultProperty units = PropertiesEditor.getPropertyInstance("Speed units", String.class, getUnits(), true);
+    	DefaultProperty units = PropertiesEditor.getPropertyInstance("Speed units", Maneuver.SPEED_UNITS.class, getSpeedUnits(), true);
     	units.setDisplayName(I18n.text("Speed units"));
     	units.setShortDescription(I18n.text("The speed units"));
-    	PropertiesEditor.getPropertyEditorRegistry().registerEditor(units, new SpeedUnitsEditor());
-    	PropertiesEditor.getPropertyRendererRegistry().registerRenderer(units, new I18nCellRenderer());
     
     	DefaultProperty propertySpeed = PropertiesEditor.getPropertyInstance("Speed", Double.class, getSpeed(), true);
     	propertySpeed.setDisplayName(I18n.text("Speed"));
@@ -294,20 +206,27 @@ public class Goto extends Maneuver implements IMCSerialization, LocatedManeuver 
     	super.setProperties(properties);
     	
     	for (Property p : properties) {
-    		if (p.getName().equals("Speed units")) {
-    			setSpeedUnits((String)p.getValue());
-    		}
-    		else if (p.getName().equals("Speed tolerance")) {
+//    		if (p.getName().equalsIgnoreCase("Speed units")) {
+//    		    if (p.getValue() instanceof Maneuver.SPEED_UNITS)
+//    		        setSpeedUnits(((Maneuver.SPEED_UNITS)p.getValue()));
+////    		    else
+////    		        setSpeedUnits((String) p.getValue());
+//    		}
+    		if (p.getName().equalsIgnoreCase("Speed tolerance")) {
     			setSpeedTolerance((Double)p.getValue());
     		}
-    		else if (p.getName().equals("Speed")) {
+    		else if (p.getName().equalsIgnoreCase("Speed")) {
     			setSpeed((Double)p.getValue());
     		}
-    		else if (p.getName().equals("Radius tolerance")) {
+    		else if (p.getName().equalsIgnoreCase("Radius tolerance")) {
     			setRadiusTolerance((Double)p.getValue());
     		}
     		else {
-    			NeptusLog.pub().debug("Property "+p.getName()+" ignored.");
+    		    SPEED_UNITS speedUnits = ManeuversUtil.getSpeedUnitsFromPropertyOrNullIfInvalidName(p);
+    		    if (speedUnits != null)
+    		        setSpeedUnits(speedUnits);
+    		    else
+    		        NeptusLog.pub().debug("Property "+p.getName()+" ignored.");
     		}
     	}
     }
@@ -343,7 +262,7 @@ public class Goto extends Maneuver implements IMCSerialization, LocatedManeuver 
     	NumberFormat nf = GuiUtils.getNeptusDecimalFormat(2);
 		
 		return super.getTooltipText()+"<hr>"+
-		I18n.text("speed") + ": <b>"+nf.format(getSpeed())+" "+I18n.text(getUnits())+"</b>"+
+		I18n.text("speed") + ": <b>"+nf.format(getSpeed())+" "+I18n.text(getSpeedUnits().getString())+"</b>"+
 		"<br>"+I18n.text(destination.getZUnits().toString())+": <b>"+nf.format(destination.getZ())+" " + I18n.textc("m", "meters") + "</b>";
 	}
     
@@ -356,13 +275,13 @@ public class Goto extends Maneuver implements IMCSerialization, LocatedManeuver 
             setSpeed(msg.getSpeed());
             switch (msg.getSpeedUnits()) {
                 case METERS_PS:
-                    setSpeedUnits("m/s");
+                    setSpeedUnits(SPEED_UNITS.METERS_PS);
                     break;
                 case PERCENTAGE:
-                    setSpeedUnits("%");
+                    setSpeedUnits(SPEED_UNITS.PERCENTAGE);
                     break;
                 case RPM:
-                    setSpeedUnits("RPM");
+                    setSpeedUnits(SPEED_UNITS.RPM);
                     break;
             }
             ManeuverLocation pos = new ManeuverLocation();
@@ -395,14 +314,14 @@ public class Goto extends Maneuver implements IMCSerialization, LocatedManeuver 
 		gotoManeuver.setZUnits(pt.lsts.imc.Goto.Z_UNITS.valueOf(getManeuverLocation().getZUnits().name()));
 		gotoManeuver.setSpeed(this.getSpeed());
        
-		switch (this.getUnits()) {
-            case "m/s":
+		switch (this.getSpeedUnits()) {
+            case METERS_PS:
                 gotoManeuver.setSpeedUnits(pt.lsts.imc.Goto.SPEED_UNITS.METERS_PS);
                 break;
-            case "RPM":
+            case RPM:
                 gotoManeuver.setSpeedUnits(pt.lsts.imc.Goto.SPEED_UNITS.RPM);
                 break;
-            case "%":
+            case PERCENTAGE:
                 gotoManeuver.setSpeedUnits(pt.lsts.imc.Goto.SPEED_UNITS.PERCENTAGE);
                 break;
             default:

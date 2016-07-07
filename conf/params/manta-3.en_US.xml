@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<config format="1" version="2016.01.0 (master,dd196ec,dirty)" system="manta-3" i18n="en_US">
+<config format="1" version="2016.05.0 (master,5a841ca)" system="manta-3" i18n="en_US">
   <section name="Navigation" name-i18n="Navigation">
     <param name="Entity Label">
       <name-i18n>Entity Label</name-i18n>
@@ -1963,6 +1963,15 @@
       <default>ppp0</default>
       <units/>
       <desc>PPP Interface</desc>
+    </param>
+    <param name="Enable IP Forwarding">
+      <name-i18n>Enable IP Forwarding</name-i18n>
+      <type>boolean</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>true</default>
+      <units/>
+      <desc>Enable or disable IP forward</desc>
     </param>
   </section>
   <section name="UDP" name-i18n="UDP">

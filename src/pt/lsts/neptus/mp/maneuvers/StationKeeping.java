@@ -22,7 +22,7 @@
  * distributed on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF
  * ANY KIND, either express or implied. See the Licence for the specific
  * language governing permissions and limitations at
- * https://www.lsts.pt/neptus/licence.
+ * http://ec.europa.eu/idabc/eupl.html.
  *
  * For more information please see <http://lsts.fe.up.pt/neptus>.
  *
@@ -44,11 +44,12 @@ import org.dom4j.DocumentHelper;
 import org.dom4j.Element;
 import org.dom4j.Node;
 
+import com.l2fprod.common.propertysheet.DefaultProperty;
+import com.l2fprod.common.propertysheet.Property;
+
 import pt.lsts.imc.IMCMessage;
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.gui.PropertiesEditor;
-import pt.lsts.neptus.gui.editor.SpeedUnitsEditor;
-import pt.lsts.neptus.gui.editor.renderer.I18nCellRenderer;
 import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.mp.Maneuver;
 import pt.lsts.neptus.mp.ManeuverLocation;
@@ -56,17 +57,14 @@ import pt.lsts.neptus.renderer2d.StateRenderer2D;
 import pt.lsts.neptus.types.coord.LocationType;
 import pt.lsts.neptus.types.map.PlanElement;
 
-import com.l2fprod.common.propertysheet.DefaultProperty;
-import com.l2fprod.common.propertysheet.Property;
-
-public class StationKeeping extends Maneuver implements LocatedManeuver, IMCSerialization, StatisticsProvider {
+public class StationKeeping extends Maneuver implements LocatedManeuver, ManeuverWithSpeed, IMCSerialization, StatisticsProvider {
 
 	public static final int INFINITY_DURATION = 0;
-	public static final double MINIMUM_SK_RADIUS = 20;
+	public static final double MINIMUM_SK_RADIUS = 10;
 	
 	private int duration = 60;
-	private double radius = MINIMUM_SK_RADIUS, speed = 30;
-	private String speedUnits = "m/s";
+	private double radius = 10, speed = 30;
+	private Maneuver.SPEED_UNITS speedUnits = Maneuver.SPEED_UNITS.METERS_PS;
 	private ManeuverLocation location = new ManeuverLocation();	 
 
 	@Override
@@ -108,7 +106,7 @@ public class StationKeeping extends Maneuver implements LocatedManeuver, IMCSeri
 	    Element velocity = root.addElement("speed");
 	    //velocity.addAttribute("tolerance", String.valueOf(getSpeedTolerance()));
 	    velocity.addAttribute("type", "float");
-	    velocity.addAttribute("unit", getSpeedUnits());
+	    velocity.addAttribute("unit", getSpeedUnits().getString());
 	    velocity.setText(String.valueOf(getSpeed()));
 	    
 	    return document;
@@ -133,7 +131,9 @@ public class StationKeeping extends Maneuver implements LocatedManeuver, IMCSeri
 	        // Speed
 	        Node speedNode = doc.selectSingleNode("StationKeeping/speed");
 	        setSpeed(Double.parseDouble(speedNode.getText()));
-	        setSpeedUnits(speedNode.valueOf("@unit"));
+//	        setSpeedUnits(speedNode.valueOf("@unit"));
+	        SPEED_UNITS sUnits = ManeuversXMLUtil.parseSpeedUnits((Element) speedNode);
+            setSpeedUnits(sUnits);
 	        
 	        // Duration
 	        setDuration(Integer.parseInt(doc.selectSingleNode("StationKeeping/duration").getText()));
@@ -188,10 +188,8 @@ public class StationKeeping extends Maneuver implements LocatedManeuver, IMCSeri
 		speed.setShortDescription("The vehicle's desired speed when Station Keeping");
 		props.add(speed);
 		
-		DefaultProperty speedUnits = PropertiesEditor.getPropertyInstance("Speed Units", String.class, this.speedUnits, true);
+		DefaultProperty speedUnits = PropertiesEditor.getPropertyInstance("Speed Units", Maneuver.SPEED_UNITS.class, this.speedUnits, true);
 		speedUnits.setShortDescription("The units to consider in the speed parameters");
-		PropertiesEditor.getPropertyEditorRegistry().registerEditor(speedUnits, new SpeedUnitsEditor());
-		PropertiesEditor.getPropertyRendererRegistry().registerRenderer(speedUnits, new I18nCellRenderer());
 		props.add(speedUnits);
 		
 		DefaultProperty radius = PropertiesEditor.getPropertyInstance("Radius", Double.class, this.radius, true);
@@ -217,22 +215,27 @@ public class StationKeeping extends Maneuver implements LocatedManeuver, IMCSeri
 				continue;
 			}
 			
-			if (p.getName().equalsIgnoreCase("Speed Units")) {
-				setSpeedUnits((String)p.getValue());
-				continue;
-			}
+//			if (p.getName().equalsIgnoreCase("Speed Units")) {
+//				setSpeedUnits((String)p.getValue());
+//				continue;
+//			}
 			
 			if (p.getName().equals("Radius")) {
 				setRadius(Math.max(MINIMUM_SK_RADIUS, (Double)p.getValue()));
 				continue;
 			}
+			
+			// "Speed Units" parsing
+            SPEED_UNITS speedUnits = ManeuversUtil.getSpeedUnitsFromPropertyOrNullIfInvalidName(p);
+            if (speedUnits != null)
+                setSpeedUnits(speedUnits);
 		}
 	}
 	
 	@Override
 	public String getTooltipText() {
 		return super.getTooltipText()+"<hr>"+
-		"<br>" + I18n.text("speed") + ": <b>"+(int)speed+" "+I18n.text(speedUnits)+"</b>"+
+		"<br>" + I18n.text("speed") + ": <b>"+(int)speed+" "+I18n.text(speedUnits.getString())+"</b>"+
 		"<br>" + I18n.text("radius") + ": <b>"+radius+" " + I18n.textc("m", "meters") + "</b>"+
 		"<br>" + I18n.text("duration") + ": <b>"+duration+" " + I18n.textc("s", "seconds") + "</b><br>";
 	}
@@ -265,24 +268,24 @@ public class StationKeeping extends Maneuver implements LocatedManeuver, IMCSeri
 		this.speed = speed;
 	}
 
-	public String getSpeedUnits() {
+	public SPEED_UNITS getSpeedUnits() {
 		return speedUnits;
 	}
 
-	public void setSpeedUnits(String speedUnits) {
+	public void setSpeedUnits(SPEED_UNITS speedUnits) {
 		this.speedUnits = speedUnits;
 	}
 	
-	protected double getVelocityInMetersPerSeconds() {
-		if (speedUnits.equals("m/s"))
-			return speed;
-		if (speedUnits.equalsIgnoreCase("Km/h"))
-			return speed * (1.0/3.6);
-		if (speedUnits.equalsIgnoreCase("MPH"))
-			return speed * 0.4471;
-		
-		return 0;		
-	}
+//	protected double getVelocityInMetersPerSeconds() {
+//		if (speedUnits == Maneuver.SPEED_UNITS.METERS_PS)
+//			return speed;
+//		if (speedUnits.equalsIgnoreCase("Km/h"))
+//			return speed * (1.0/3.6);
+//		if (speedUnits.equalsIgnoreCase("MPH"))
+//			return speed * 0.4471;
+//		
+//		return 0;		
+//	}
 	
 	
 	@Override
@@ -314,13 +317,14 @@ public class StationKeeping extends Maneuver implements LocatedManeuver, IMCSeri
     	    pos.setZUnits(ManeuverLocation.Z_UNITS.valueOf(zunits));
     	setManeuverLocation(pos);
     	
-    	String speed_units = message.getString("speed_units");
-		if (speed_units.equals("METERS_PS"))
-			setSpeedUnits("m/s");
-		else if (speed_units.equals("RPM"))
-			setSpeedUnits("RPM");
-		else
-			setSpeedUnits("%");
+		try {
+            String speedUnits = message.getString("speed_units");
+            setSpeedUnits(Maneuver.SPEED_UNITS.parse(speedUnits));
+        }
+        catch (Exception e) {
+            setSpeedUnits(Maneuver.SPEED_UNITS.RPM);
+            e.printStackTrace();
+        }
 		
 		setDuration((int)message.getDouble("duration"));
 		setRadius(message.getDouble("radius"));
@@ -338,20 +342,22 @@ public class StationKeeping extends Maneuver implements LocatedManeuver, IMCSeri
 		message.setZUnits(pt.lsts.imc.StationKeeping.Z_UNITS.valueOf(getManeuverLocation().getZUnits().toString()));
 		message.setDuration(getDuration());
 		message.setSpeed(this.getSpeed());
-		String speedU = this.getSpeedUnits();
-        
 		try {
-            if ("m/s".equalsIgnoreCase(speedU))
-                message.setSpeedUnits(pt.lsts.imc.StationKeeping.SPEED_UNITS.METERS_PS);
-            else if ("RPM".equalsIgnoreCase(speedU))
-                message.setSpeedUnits(pt.lsts.imc.StationKeeping.SPEED_UNITS.RPM);
-            else if ("%".equalsIgnoreCase(speedU))
-                message.setSpeedUnits(pt.lsts.imc.StationKeeping.SPEED_UNITS.PERCENTAGE);
-            else if ("percentage".equalsIgnoreCase(speedU))
-                message.setSpeedUnits(pt.lsts.imc.StationKeeping.SPEED_UNITS.PERCENTAGE);
+            switch (this.getSpeedUnits()) {
+                case METERS_PS:
+                    message.setSpeedUnits(pt.lsts.imc.StationKeeping.SPEED_UNITS.METERS_PS);
+                    break;
+                case PERCENTAGE:
+                    message.setSpeedUnits(pt.lsts.imc.StationKeeping.SPEED_UNITS.PERCENTAGE);
+                    break;
+                case RPM:
+                default:
+                    message.setSpeedUnits(pt.lsts.imc.StationKeeping.SPEED_UNITS.RPM);
+                    break;
+            }
         }
         catch (Exception ex) {
-            NeptusLog.pub().error(this, ex);                        
+            NeptusLog.pub().error(this, ex);                     
         }
         
 		message.setRadius(this.getRadius());
@@ -366,10 +372,10 @@ public class StationKeeping extends Maneuver implements LocatedManeuver, IMCSeri
     @Override
     public double getCompletionTime(LocationType initialPosition) {
         double speed = this.speed;
-        if (this.speedUnits.equalsIgnoreCase("RPM")) {
+        if (this.speedUnits == Maneuver.SPEED_UNITS.RPM) {
             speed = speed/769.230769231; //1.3 m/s for 1000 RPMs
         }
-        else if (this.speedUnits.equalsIgnoreCase("%")) {
+        else if (this.speedUnits == Maneuver.SPEED_UNITS.PERCENTAGE) {
             speed = speed/76.923076923; //1.3 m/s for 100% speed
         }
 

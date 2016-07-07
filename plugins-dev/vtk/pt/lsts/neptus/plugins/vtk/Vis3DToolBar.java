@@ -22,7 +22,7 @@
  * distributed on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF
  * ANY KIND, either express or implied. See the Licence for the specific
  * language governing permissions and limitations at
- * https://www.lsts.pt/neptus/licence.
+ * http://ec.europa.eu/idabc/eupl.html.
  *
  * For more information please see <http://lsts.fe.up.pt/neptus>.
  *
@@ -52,9 +52,9 @@ import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.util.GuiUtils;
 import pt.lsts.neptus.util.ImageUtils;
 import pt.lsts.neptus.vtk.mravisualizer.EventsHandler;
-import pt.lsts.neptus.vtk.mravisualizer.VtkOptions;
 import pt.lsts.neptus.vtk.mravisualizer.EventsHandler.RepresentationType;
 import pt.lsts.neptus.vtk.mravisualizer.EventsHandler.SensorTypeInteraction;
+import pt.lsts.neptus.vtk.mravisualizer.VtkOptions;
 import pt.lsts.neptus.vtk.pointcloud.APointCloud;
 import pt.lsts.neptus.vtk.pointcloud.DepthExaggeration;
 import pt.lsts.neptus.vtk.surface.PointCloudMesh;

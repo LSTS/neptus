@@ -22,7 +22,7 @@
  * distributed on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF
  * ANY KIND, either express or implied. See the Licence for the specific
  * language governing permissions and limitations at
- * https://www.lsts.pt/neptus/licence.
+ * http://ec.europa.eu/idabc/eupl.html.
  *
  * For more information please see <http://lsts.fe.up.pt/neptus>.
  *
@@ -49,6 +49,19 @@ import javax.swing.JButton;
 import javax.swing.JLayeredPane;
 import javax.swing.JPanel;
 
+import com.l2fprod.common.beans.editor.AbstractPropertyEditor;
+import com.l2fprod.common.beans.editor.ComboBoxPropertyEditor;
+import com.l2fprod.common.propertysheet.DefaultProperty;
+import com.l2fprod.common.propertysheet.Property;
+import com.l2fprod.common.propertysheet.PropertyEditorRegistry;
+import com.l2fprod.common.propertysheet.PropertyRendererRegistry;
+import com.l2fprod.common.propertysheet.PropertySheet;
+import com.l2fprod.common.propertysheet.PropertySheetDialog;
+import com.l2fprod.common.propertysheet.PropertySheetPanel;
+import com.l2fprod.common.swing.BannerPanel;
+import com.l2fprod.common.swing.renderer.DefaultCellRenderer;
+
+import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.colormap.ColorMap;
 import pt.lsts.neptus.comm.manager.imc.ImcId16;
 import pt.lsts.neptus.console.ConsoleLayout;
@@ -64,10 +77,13 @@ import pt.lsts.neptus.gui.editor.RenderSelectionEditor;
 import pt.lsts.neptus.gui.editor.RenderType;
 import pt.lsts.neptus.gui.editor.Script;
 import pt.lsts.neptus.gui.editor.ScriptSelectionEditor;
+import pt.lsts.neptus.gui.editor.SpeedUnitsEnumEditor;
 import pt.lsts.neptus.gui.editor.VehicleSelectionEditor;
+import pt.lsts.neptus.gui.editor.renderer.SpeedUnitsEnumRenderer;
 import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.messages.Bitmask;
 import pt.lsts.neptus.messages.Enumerated;
+import pt.lsts.neptus.mp.Maneuver.SPEED_UNITS;
 import pt.lsts.neptus.mp.ManeuverLocation;
 import pt.lsts.neptus.mp.ManeuverLocationEditor;
 import pt.lsts.neptus.mp.actions.PlanActions;
@@ -78,18 +94,6 @@ import pt.lsts.neptus.util.ImageUtils;
 import pt.lsts.neptus.util.conf.ConfigFetch;
 import pt.lsts.neptus.util.credentials.Credentials;
 import pt.lsts.neptus.util.credentials.CredentialsEditor;
-
-import com.l2fprod.common.beans.editor.AbstractPropertyEditor;
-import com.l2fprod.common.beans.editor.ComboBoxPropertyEditor;
-import com.l2fprod.common.propertysheet.DefaultProperty;
-import com.l2fprod.common.propertysheet.Property;
-import com.l2fprod.common.propertysheet.PropertyEditorRegistry;
-import com.l2fprod.common.propertysheet.PropertyRendererRegistry;
-import com.l2fprod.common.propertysheet.PropertySheet;
-import com.l2fprod.common.propertysheet.PropertySheetDialog;
-import com.l2fprod.common.propertysheet.PropertySheetPanel;
-import com.l2fprod.common.swing.BannerPanel;
-import com.l2fprod.common.swing.renderer.DefaultCellRenderer;
 
 /**
  * This provides a simple way of editing any properties that are provide
@@ -260,7 +264,12 @@ public class PropertiesEditor {
             }
             else {
                 end = true;
-                provider.setProperties(propsUnlocalized);
+                try {
+                    provider.setProperties(propsUnlocalized);
+                }
+                catch (Exception e) {
+                    NeptusLog.pub().error(e, e);
+                }
             }
         }
         return canceled;
@@ -528,6 +537,7 @@ public class PropertiesEditor {
 			per.registerEditor(Float.class, NeptusDoubleEditor.class);
 			per.registerEditor(ManeuverLocation.class, ManeuverLocationEditor.class);
 			per.registerEditor(Credentials.class, CredentialsEditor.class);
+            per.registerEditor(SPEED_UNITS.class, SpeedUnitsEnumEditor.class); // This one does not seams to work.
 		}
 		return per;
 	}
@@ -599,6 +609,7 @@ public class PropertiesEditor {
                     return I18n.text(Arrays.toString((String[]) value).toString());
                 }
             });
+            prr.registerRenderer(SPEED_UNITS.class, new SpeedUnitsEnumRenderer());
         }
 	    return prr;
 	}

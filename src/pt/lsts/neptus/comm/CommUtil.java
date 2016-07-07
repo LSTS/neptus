@@ -22,7 +22,7 @@
  * distributed on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF
  * ANY KIND, either express or implied. See the Licence for the specific
  * language governing permissions and limitations at
- * https://www.lsts.pt/neptus/licence.
+ * http://ec.europa.eu/idabc/eupl.html.
  *
  * For more information please see <http://lsts.fe.up.pt/neptus>.
  *
@@ -30,8 +30,6 @@
  * 2005/06/22
  */
 package pt.lsts.neptus.comm;
-
-import gnu.io.CommPortIdentifier;
 
 import java.io.File;
 import java.lang.reflect.Field;
@@ -45,6 +43,7 @@ import java.util.LinkedList;
 import java.util.StringTokenizer;
 import java.util.Vector;
 
+import gnu.io.CommPortIdentifier;
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.types.comm.CommMean;
 import pt.lsts.neptus.types.vehicle.VehicleType;

@@ -22,7 +22,7 @@
  * distributed on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF
  * ANY KIND, either express or implied. See the Licence for the specific
  * language governing permissions and limitations at
- * https://www.lsts.pt/neptus/licence.
+ * http://ec.europa.eu/idabc/eupl.html.
  *
  * For more information please see <http://lsts.fe.up.pt/neptus>.
  *
@@ -178,8 +178,9 @@ public class ReflectionUtil {
         return "(" + stack[3].getFileName() + ":" + stack[3].getLineNumber() + ")";
     }
 
-    public static Class<?>[] listManeuvers() {
-        Vector<Class<?>> maneuvers = new Vector<Class<?>>();
+    @SuppressWarnings("unchecked")
+    public static ArrayList<Class<Maneuver>> listManeuvers() {
+        ArrayList<Class<Maneuver>> maneuvers = new ArrayList<Class<Maneuver>>();
         try {
             List<Class<?>> classes = ReflectionUtil.getClassesForPackage(Maneuver.class.getPackage().getName());
 
@@ -188,14 +189,14 @@ public class ReflectionUtil {
                     continue;
 
                 if (hasAnySuperClass(c, Maneuver.class)) {
-                    maneuvers.add(c);
+                    maneuvers.add((Class<Maneuver>) c);
                 }
             }
         }
         catch (Exception e) {
             e.printStackTrace();
         }
-        return maneuvers.toArray(new Class<?>[0]);
+        return maneuvers;
     }
 
     public static Class<?>[] listPlanTemplates() {
@@ -320,6 +321,8 @@ public class ReflectionUtil {
             NeptusLog.pub().info("<###> "+c.getName());
         }
 
+        for (Class<?> c : listManeuvers()) {
+            NeptusLog.pub().info("<Maneuver> "+c.getName());
+        }
     }
-
 }

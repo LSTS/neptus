@@ -22,7 +22,7 @@
  * distributed on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF
  * ANY KIND, either express or implied. See the Licence for the specific
  * language governing permissions and limitations at
- * https://www.lsts.pt/neptus/licence.
+ * http://ec.europa.eu/idabc/eupl.html.
  *
  * For more information please see <http://lsts.fe.up.pt/neptus>.
  *
@@ -65,7 +65,7 @@ public class AcousticModemSender implements ITextMsgSender {
         TextMessage tm = new TextMessage();
         tm.setText(command);
         tm.setOrigin(source);
-        final boolean result = IMCSendMessageUtils.sendMessageByAcousticModem(tm, destination,
+        final boolean result = IMCSendMessageUtils.sendMessageByAcousticModem(tm, destination, true,
                 ImcSystemsHolder.lookupSystemByService("acoustic/operation", SystemTypeEnum.ALL, true));
         
         return new Future<String>() {

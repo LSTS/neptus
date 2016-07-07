@@ -22,7 +22,7 @@
  * distributed on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF
  * ANY KIND, either express or implied. See the Licence for the specific
  * language governing permissions and limitations at
- * https://www.lsts.pt/neptus/licence.
+ * http://ec.europa.eu/idabc/eupl.html.
  *
  * For more information please see <http://lsts.fe.up.pt/neptus>.
  *
@@ -31,11 +31,11 @@
  */
 package pt.lsts.neptus.plugins.sunfish.awareness;
 
+import com.google.common.eventbus.Subscribe;
+
 import pt.lsts.imc.Announce;
 import pt.lsts.imc.IMCDefinition;
 import pt.lsts.imc.RemoteSensorInfo;
-
-import com.google.common.eventbus.Subscribe;
 
 /**
  * @author zp

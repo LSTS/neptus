@@ -22,7 +22,7 @@
  * distributed on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF
  * ANY KIND, either express or implied. See the Licence for the specific
  * language governing permissions and limitations at
- * https://www.lsts.pt/neptus/licence.
+ * http://ec.europa.eu/idabc/eupl.html.
  *
  * For more information please see <http://lsts.fe.up.pt/neptus>.
  *
@@ -169,7 +169,7 @@ public class ShortestPathPlanner extends SimpleRendererInteraction implements Re
                             state = EDITION_STATES.ADDING_OBSTACLE;
                             LocationType loc = renderer.getRealWorldLocation(mousePosition);
                             currentObstacle = new PathElement(renderer.getMapGroup(), null, loc);
-                            currentObstacle.setFill(true);
+                            currentObstacle.setFilled(true);
                             currentObstacle.setShape(true);
                             currentObstacle.setMyColor(Color.yellow);
                             currentObstacle.addPoint(0, 0, 0, false);

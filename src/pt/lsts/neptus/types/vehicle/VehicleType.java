@@ -22,7 +22,7 @@
  * distributed on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF
  * ANY KIND, either express or implied. See the Licence for the specific
  * language governing permissions and limitations at
- * https://www.lsts.pt/neptus/licence.
+ * http://ec.europa.eu/idabc/eupl.html.
  *
  * For more information please see <http://lsts.fe.up.pt/neptus>.
  *
@@ -60,8 +60,8 @@ import pt.lsts.neptus.types.XmlInputMethodsFromFile;
 import pt.lsts.neptus.types.XmlOutputMethods;
 import pt.lsts.neptus.types.comm.CommMean;
 import pt.lsts.neptus.types.comm.protocol.FTPArgs;
-import pt.lsts.neptus.types.comm.protocol.IMCArgs;
 import pt.lsts.neptus.types.comm.protocol.GsmArgs;
+import pt.lsts.neptus.types.comm.protocol.IMCArgs;
 import pt.lsts.neptus.types.comm.protocol.IridiumArgs;
 import pt.lsts.neptus.types.comm.protocol.ProtocolArgs;
 import pt.lsts.neptus.types.coord.CoordinateSystem;

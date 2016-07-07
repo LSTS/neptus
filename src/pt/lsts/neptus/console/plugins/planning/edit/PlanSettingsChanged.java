@@ -22,7 +22,7 @@
  * distributed on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF
  * ANY KIND, either express or implied. See the Licence for the specific
  * language governing permissions and limitations at
- * https://www.lsts.pt/neptus/licence.
+ * http://ec.europa.eu/idabc/eupl.html.
  *
  * For more information please see <http://lsts.fe.up.pt/neptus>.
  *
@@ -41,11 +41,12 @@ import javax.swing.undo.CannotUndoException;
 
 import org.apache.commons.lang.StringUtils;
 
+import com.l2fprod.common.propertysheet.DefaultProperty;
+
+import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.mp.Maneuver;
 import pt.lsts.neptus.types.mission.plan.PlanType;
-
-import com.l2fprod.common.propertysheet.DefaultProperty;
 
 /**
  * @author zp
@@ -86,14 +87,24 @@ public class PlanSettingsChanged extends AbstractUndoableEdit {
     @Override
     public void undo() throws CannotUndoException {
         for (String key : previousSettings.keySet()) {
-            plan.getGraph().getManeuver(key).setProperties(previousSettings.get(key).toArray(new DefaultProperty[0]));
+            try {
+                plan.getGraph().getManeuver(key).setProperties(previousSettings.get(key).toArray(new DefaultProperty[0]));
+            }
+            catch (Exception e) {
+                NeptusLog.pub().error(e, e);
+            }
         }
     }
 
     @Override
     public void redo() throws CannotRedoException {      
         for (Maneuver m : plan.getGraph().getAllManeuvers()) {
-            m.setProperties(newSettings.toArray(new DefaultProperty[0]));
+            try {
+                m.setProperties(newSettings.toArray(new DefaultProperty[0]));
+            }
+            catch (Exception e) {
+                NeptusLog.pub().error(e, e);
+            }
         }
     }
 

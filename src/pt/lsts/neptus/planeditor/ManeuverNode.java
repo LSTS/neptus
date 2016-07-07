@@ -22,7 +22,7 @@
  * distributed on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF
  * ANY KIND, either express or implied. See the Licence for the specific
  * language governing permissions and limitations at
- * https://www.lsts.pt/neptus/licence.
+ * http://ec.europa.eu/idabc/eupl.html.
  *
  * For more information please see <http://lsts.fe.up.pt/neptus>.
  *
@@ -38,14 +38,15 @@ import java.awt.geom.Rectangle2D;
 import java.util.Arrays;
 import java.util.Vector;
 
+import com.l2fprod.common.propertysheet.DefaultProperty;
+import com.l2fprod.common.propertysheet.Property;
+
+import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.graph.DefaultNode;
 import pt.lsts.neptus.graph.NeptusEdgeElement;
 import pt.lsts.neptus.graph.NeptusGraph;
 import pt.lsts.neptus.gui.PropertiesProvider;
 import pt.lsts.neptus.mp.Maneuver;
-
-import com.l2fprod.common.propertysheet.DefaultProperty;
-import com.l2fprod.common.propertysheet.Property;
 /**
  * 
  * @author ZP
@@ -129,7 +130,12 @@ public class ManeuverNode extends DefaultNode<Maneuver> {
 	@Override
 	public void setProperties(Property[] properties) {
 		if (getUserObject() instanceof PropertiesProvider) {
-			((PropertiesProvider)getUserObject()).setProperties(properties);
+		    try {
+                ((PropertiesProvider) getUserObject()).setProperties(properties);
+            }
+            catch (Exception e) {
+                NeptusLog.pub().error(e, e);
+            }
 		}
 		super.setProperties(properties);
 	}

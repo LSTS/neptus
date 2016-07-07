@@ -22,7 +22,7 @@
  * distributed on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF
  * ANY KIND, either express or implied. See the Licence for the specific
  * language governing permissions and limitations at
- * https://www.lsts.pt/neptus/licence.
+ * http://ec.europa.eu/idabc/eupl.html.
  *
  * For more information please see <http://lsts.fe.up.pt/neptus>.
  *
@@ -51,11 +51,11 @@ import java.util.Vector;
 import org.apache.commons.codec.binary.Hex;
 import org.apache.commons.io.IOUtils;
 
+import com.google.gson.Gson;
+
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.comm.iridium.Position.PosType;
 import pt.lsts.neptus.util.ByteUtil;
-
-import com.google.gson.Gson;
 
 /**
  * @author zp
@@ -90,8 +90,10 @@ public class HubIridiumMessenger implements IridiumMessenger {
         
         DeviceUpdate up = new DeviceUpdate();
         for (HubSystemMsg s : sys) {
+            if (s.imcid > Integer.MAX_VALUE)
+                continue;
             Position pos = new Position();
-            pos.id = s.imcid;
+            pos.id = (int) s.imcid;
             pos.latRads = s.coordinates[0];
             pos.lonRads = s.coordinates[1];
             pos.timestamp = stringToDate(s.updated_at).getTime() / 1000.0;
@@ -288,7 +290,7 @@ public class HubIridiumMessenger implements IridiumMessenger {
     
     public static class HubSystemMsg {
         
-        public int imcid;
+        public long imcid;
         public String name;
         public String updated_at;
         public String created_at;

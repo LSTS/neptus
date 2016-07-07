@@ -22,7 +22,7 @@
  * distributed on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF
  * ANY KIND, either express or implied. See the Licence for the specific
  * language governing permissions and limitations at
- * https://www.lsts.pt/neptus/licence.
+ * http://ec.europa.eu/idabc/eupl.html.
  *
  * For more information please see <http://lsts.fe.up.pt/neptus>.
  *
@@ -80,7 +80,6 @@ public class ImageObjectParameters extends ParametersPanel {
 	private JLabel jLabel3 = null;
 	private JFormattedTextField scale = null;
 	private NumberFormat df = GuiUtils.getNeptusDecimalFormat();
-	private NumberFormat dfI = GuiUtils.getNeptusIntegerFormat();
 	
 	private String imageFileName = null;
 	private LocationType center = new LocationType();
@@ -520,7 +519,7 @@ public class ImageObjectParameters extends ParametersPanel {
      */
     private JFormattedTextField getResolutionFormattedTextField() {
         if (resolutionFormattedTextField == null) {
-            resolutionFormattedTextField = new JFormattedTextField(dfI);
+            resolutionFormattedTextField = new JFormattedTextField(df);
             resolutionFormattedTextField.setPreferredSize(new java.awt.Dimension(70, 20));
             resolutionFormattedTextField.setText("" + ImageElement.DEFAULT_RESOLUTION);
             resolutionFormattedTextField.setEnabled(false);
@@ -556,8 +555,8 @@ public class ImageObjectParameters extends ParametersPanel {
 		return Integer.parseInt(getResolutionFormattedTextField().getText());
 	}
 	
-	public void setResolution(int val) {
-		getResolutionFormattedTextField().setText(Integer.toString(val));
+	public void setResolution(double val) {
+		getResolutionFormattedTextField().setText(Double.toString(val));
 	}
 	
 	public File getBathimFile() {

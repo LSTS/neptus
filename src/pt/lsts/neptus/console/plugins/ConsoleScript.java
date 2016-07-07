@@ -22,7 +22,7 @@
  * distributed on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF
  * ANY KIND, either express or implied. See the Licence for the specific
  * language governing permissions and limitations at
- * https://www.lsts.pt/neptus/licence.
+ * http://ec.europa.eu/idabc/eupl.html.
  *
  * For more information please see <http://lsts.fe.up.pt/neptus>.
  *
@@ -43,10 +43,10 @@ import javax.script.ScriptEngine;
 import javax.script.ScriptEngineManager;
 import javax.script.ScriptException;
 
+import com.l2fprod.common.beans.editor.StringPropertyEditor;
+
 import pt.lsts.imc.state.ImcSystemState;
 import pt.lsts.neptus.plugins.PropertyType;
-
-import com.l2fprod.common.beans.editor.StringPropertyEditor;
 
 /**
  * @author zp

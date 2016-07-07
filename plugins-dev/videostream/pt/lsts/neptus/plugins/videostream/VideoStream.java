@@ -22,7 +22,7 @@
  * distributed on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF
  * ANY KIND, either express or implied. See the Licence for the specific
  * language governing permissions and limitations at
- * https://www.lsts.pt/neptus/licence.
+ * http://ec.europa.eu/idabc/eupl.html.
  *
  * For more information please see <http://lsts.fe.up.pt/neptus>.
  *
@@ -49,6 +49,7 @@ import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.awt.geom.Point2D;
 import java.awt.image.BufferedImage;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
@@ -61,6 +62,7 @@ import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.Socket;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.LinkedHashMap;
@@ -77,7 +79,6 @@ import javax.swing.JDialog;
 import javax.swing.JFormattedTextField;
 import javax.swing.JLabel;
 import javax.swing.JMenuItem;
-import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
 import javax.swing.JTextField;
@@ -103,7 +104,14 @@ import pt.lsts.imc.MapPoint;
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.console.ConsoleLayout;
 import pt.lsts.neptus.console.ConsolePanel;
+import pt.lsts.neptus.console.events.ConsoleEventMainSystemChange;
+import pt.lsts.neptus.console.notifications.Notification;
 import pt.lsts.neptus.i18n.I18n;
+import pt.lsts.neptus.mp.preview.payloads.CameraFOV;
+import pt.lsts.neptus.params.ConfigurationManager;
+import pt.lsts.neptus.params.SystemProperty;
+import pt.lsts.neptus.params.SystemProperty.Scope;
+import pt.lsts.neptus.params.SystemProperty.Visibility;
 import pt.lsts.neptus.plugins.NeptusProperty;
 import pt.lsts.neptus.plugins.PluginDescription;
 import pt.lsts.neptus.plugins.Popup;
@@ -135,7 +143,7 @@ import pt.lsts.neptus.util.conf.ConfigFetch;
 @PluginDescription(name = "Video Stream", version = "1.3", author = "Pedro Gonçalves", description = "Plugin for View video Stream TCP-Ip/IPCam", icon = "pt/lsts/neptus/plugins/IPCam/camera.png")
 public class VideoStream extends ConsolePanel implements ItemListener {
 
-    private static final String BASE_FOLDER_FOR_IMAGES = "log/images";
+    private static final String BASE_FOLDER_FOR_IMAGES = ConfigFetch.getLogsFolder() + "/images";
     private static final String BASE_FOLDER_FOR_URLINI = "ipUrl.ini";
 
     @NeptusProperty(name = "Axis Camera RTPS URL", editable = false)
@@ -149,6 +157,10 @@ public class VideoStream extends ConsolePanel implements ItemListener {
 
     @NeptusProperty(name = "Cam Tilt Deg Value", editable = true)
     private double camTiltDeg = 45.0f;// this value may be in configuration
+    
+    @NeptusProperty(name = "Broadcast positions to other CCUs", editable = true)
+    private boolean broadcastPositions = false;
+    
 
     // Opencv library name
     private Socket clientSocket = null;
@@ -179,10 +191,6 @@ public class VideoStream extends ConsolePanel implements ItemListener {
     private float xScale;
     // Scale factor of y pixel
     private float yScale;
-    // x pixel cord
-    private int xPixel;
-    // y pixel cord
-    private int yPixel;
     // read size of pack compress
     private String line;
     // Buffer for data receive from DUNE over TCP
@@ -193,7 +201,7 @@ public class VideoStream extends ConsolePanel implements ItemListener {
     private byte[] data;
     // Buffer image for showImage
     private BufferedImage offlineImage;
-    private BufferedImage realImage;
+    private BufferedImage onScreenImage;
     // Flag - start acquired image
     private boolean raspiCam = false;
     // Flag - Lost connection to the vehicle
@@ -202,16 +210,13 @@ public class VideoStream extends ConsolePanel implements ItemListener {
     private boolean show_menu = false;
     // Flag state of IP CAM
     private boolean ipCam = false;
-    // Save image tag flag
-    private boolean captureFrame = false;
     // Close comTCP state
     private boolean closeComState = false;
     // Url of IPCam
     private String[][] dataUrlIni;
-
     private boolean closingPanel = false;
+    private boolean refreshTemp;
 
-    boolean refreshTemp;
     // JPanel for info and config values
     private JPanel config;
     // JText info of data receive
@@ -228,9 +233,9 @@ public class VideoStream extends ConsolePanel implements ItemListener {
     private JCheckBox saveToDiskCheckBox;
     // JPopup Menu
     private JPopupMenu popup;
+
     // Flag to enable/disable zoom
     private boolean zoomMask = false;
-
     // String for the info treatment
     private String info;
     // String for the info of Image Size Stream
@@ -240,9 +245,9 @@ public class VideoStream extends ConsolePanel implements ItemListener {
     // Location of log folder
     private String logDir;
     // Decompress data received
-    Inflater decompresser = new Inflater(false);
+    private Inflater decompresser = new Inflater(false);
     // Create an expandable byte array to hold the decompressed data
-    ByteArrayOutputStream bos;
+    private ByteArrayOutputStream bos;
     // Image resize
     private Mat matResize;
     // Image receive
@@ -251,18 +256,12 @@ public class VideoStream extends ConsolePanel implements ItemListener {
     private Mat matSaveImg;
     // Size of output frame
     private Size size = null;
-    // Counter for image tag
-    private int cntTag = 1;
 
     // counter for frame tag ID
     private short frameTagID = 1;
-    // lat, lon: frame Tag pos to be marked as POI
-    private double lat, lon;
-    // Flag of ctrl key for tag image
-    private boolean ctrlOn;
-
+    
     // Flag for IPCam Ip Check
-    boolean statePingOk = false;
+    private boolean statePingOk = false;
     // JPanel for color state of ping to host IPCam
     private JPanel colorStateIPCam;
     // JDialog for IPCam Select
@@ -331,17 +330,24 @@ public class VideoStream extends ConsolePanel implements ItemListener {
     private Thread saveImg = null;
     // worker thread create ipUrl.ini in conf folder
     private Thread createIPUrl = null;
-    
+
     // WatchDog variables/objects
     private Thread watchDog;
     private long endTimeMillis;
     private boolean virtualEndThread;
     private boolean isAliveIPCam;
     private boolean isCleanTurnOffCam;
-
+    private CameraFOV camFov = null;
+    private Point2D mouseLoc = null;
+    private StoredSnapshot snap = null;
+    private boolean paused = false;
+    
     public VideoStream(ConsoleLayout console) {
         super(console);
 
+        // Initialize size variables
+        updateSizeVariables(this);
+        
         if (findOpenCV()) {
             // clears all the unused initializations of the standard ConsolePanel
             removeAll();
@@ -350,11 +356,7 @@ public class VideoStream extends ConsolePanel implements ItemListener {
                 public void componentResized(ComponentEvent evt) {
                     Component c = evt.getComponent();
                     // System.out.println("Valor: "+widhtConsole+" : "+heightConsole+" INFO: "+evt.toString());
-                    widhtConsole = c.getSize().width;
-                    heightConsole = c.getSize().height;
-                    xScale = (float) widhtConsole / widthImgRec;
-                    yScale = (float) heightConsole / heightImgRec;
-                    size = new Size(widhtConsole, heightConsole);
+                    updateSizeVariables(c);
                     matResize = new Mat((int) size.height, (int) size.width, CvType.CV_8UC3);
                     if (!raspiCam && !ipCam)
                         initImage();
@@ -372,15 +374,13 @@ public class VideoStream extends ConsolePanel implements ItemListener {
                         zoomMask = false;
                         popupzoom.setVisible(false);
                     }
-                    if (e.getKeyCode() == KeyEvent.VK_CONTROL)
-                        ctrlOn = false;
+                    if (e.getKeyCode() == KeyEvent.VK_CONTROL) {
+                        paused = false;
+                    }                    
                 }
 
                 @Override
                 public void keyPressed(KeyEvent e) {
-                    if (e.getKeyCode() == KeyEvent.VK_CONTROL)
-                        ctrlOn = true;
-                    
                     if ((e.getKeyCode() == KeyEvent.VK_Z) && ((e.getModifiers() & KeyEvent.ALT_MASK) != 0)
                             && !zoomMask) {
                         if (raspiCam || ipCam) {
@@ -429,6 +429,9 @@ public class VideoStream extends ConsolePanel implements ItemListener {
                     else if ((e.getKeyCode() == KeyEvent.VK_S) && ((e.getModifiers() & KeyEvent.ALT_MASK) != 0)) {
                         saveSnapshot = true;
                     }
+                    else if ((e.getKeyCode() == KeyEvent.VK_CONTROL)) {
+                        paused = true;
+                    }
                 }
 
                 @Override
@@ -452,24 +455,59 @@ public class VideoStream extends ConsolePanel implements ItemListener {
         return;
     }
 
+    private void updateSizeVariables(Component comp) {
+        widhtConsole = comp.getSize().width;
+        heightConsole = comp.getSize().height;
+        xScale = (float) widhtConsole / widthImgRec;
+        yScale = (float) heightConsole / heightImgRec;
+        size = new Size(widhtConsole, heightConsole);
+    }
+
     // Mouse click Listener
     private void mouseListenerInit() {
-        addMouseListener(new MouseAdapter() {
-            public void mouseClicked(MouseEvent e) {
-                //TODO                
-                if (e.getButton() == MouseEvent.BUTTON1 && ctrlOn) {
-                    if (raspiCam || ipCam) {
-                        xPixel = (int) ((e.getX() - 11) / xScale); // shift window bar
-                        yPixel = (int) ((e.getY() - 11) / yScale); // shift window bar
-                        if (raspiCam && !ipCam && tcpOK) {
-                            if (xPixel >= 0 && yPixel >= 0 && xPixel <= widthImgRec && yPixel <= heightImgRec)
-                                out.printf("%d#%d;\0", xPixel, yPixel);
-                        }
-                        // place mark on map as POI
-                        placeLocationOnMap();
-                    }
-                    ctrlOn = false;
+        
+        addMouseMotionListener(new MouseAdapter() {
+            @Override
+            public void mouseMoved(MouseEvent e) {
+                if (camFov != null) {
+                    double width = ((Component)e.getSource()).getWidth();
+                    double height = ((Component)e.getSource()).getHeight();
+                    double x = e.getX();
+                    double y = height-e.getY();
+                    mouseLoc = new Point2D.Double((x / width - 0.5) * 2, (y / height - 0.5) * 2);
                 }
+            }
+        });
+        
+        addMouseListener(new MouseAdapter() {
+            
+            @Override
+            public void mouseExited(MouseEvent e) {
+                mouseLoc = null;
+                post(new EventMouseLookAt(null));
+            }
+            
+            public void mouseClicked(MouseEvent e) {
+                if (SwingUtilities.isLeftMouseButton(e) && e.isControlDown()) {
+                   if (camFov != null) {
+                       double width = ((Component)e.getSource()).getWidth();
+                       double height = ((Component)e.getSource()).getHeight();
+                       double x = e.getX();
+                       double y = height-e.getY();
+                       mouseLoc = new Point2D.Double((x / width - 0.5) * 2, (y / height - 0.5) * 2);
+                       LocationType loc = camFov.getLookAt(mouseLoc.getX(), mouseLoc.getY());
+                       String id = placeLocationOnMap(loc);
+                       snap = new StoredSnapshot(id, loc, e.getPoint(), onScreenImage, new Date());
+                       snap.setCamFov(camFov);
+                       try {
+                           snap.store();
+                       }
+                       catch (Exception ex) {
+                           NeptusLog.pub().error(ex);
+                    }
+                   }
+                }
+                
                 if (e.getButton() == MouseEvent.BUTTON3) {
                     popup = new JPopupMenu();
                     JMenuItem item1;
@@ -552,7 +590,8 @@ public class VideoStream extends ConsolePanel implements ItemListener {
 
     // Check ip given by user
     private void checkHostIp() {
-        ipHostPing = new JDialog(SwingUtilities.getWindowAncestor(VideoStream.this), I18n.text("Host IP") + " - RasPiCam");
+        ipHostPing = new JDialog(SwingUtilities.getWindowAncestor(VideoStream.this),
+                I18n.text("Host IP") + " - RasPiCam");
         ipHostPing.setModalityType(ModalityType.DOCUMENT_MODAL);
         ipHostPing.setSize(340, 80);
         ipHostPing.setLocationRelativeTo(VideoStream.this);
@@ -842,37 +881,31 @@ public class VideoStream extends ConsolePanel implements ItemListener {
     /**
      * Adapted from ContactMarker.placeLocationOnMap()
      */
-    private void placeLocationOnMap() {
+    private String placeLocationOnMap(LocationType loc) {
         if (getConsole().getMission() == null)
-            return;
+            return null;
 
-        double lat = this.lat;
-        double lon = this.lon;
+        loc.convertToAbsoluteLatLonDepth();
+        double lat = loc.getLatitudeDegs();
+        double lon = loc.getLongitudeDegs();
         long timestamp = System.currentTimeMillis();
-        String id = I18n.text("FrameTag") + "-" + frameTagID + "-" + timestampToReadableHoursString(timestamp);
+        String id = I18n.text("Snap") + "-" + frameTagID + "-" + timestampToReadableHoursString(timestamp);
 
-        boolean validId = false;
-        while (!validId) {
-            id = JOptionPane.showInputDialog(getConsole(), I18n.text("Please enter new mark name"), id);
-            if (id == null)
-                return;
-            AbstractElement elems[] = MapGroup.getMapGroupInstance(getConsole().getMission()).getMapObjectsByID(id);
-            if (elems.length > 0) {
-                GuiUtils.errorMessage(getConsole(), I18n.text("Add mark"),
-                        I18n.text("The given ID already exists in the map. Please choose a different one"));
-            }
-            else {
-                validId = true;
-            }
+        AbstractElement elems[] = MapGroup.getMapGroupInstance(getConsole().getMission()).getMapObjectsByID(id);
+        
+        while (elems.length > 0) {
+            frameTagID++;
+            id = I18n.text("Snap") + "-" + frameTagID + "-" + timestampToReadableHoursString(timestamp);        
+            elems = MapGroup.getMapGroupInstance(getConsole().getMission()).getMapObjectsByID(id);
         }
         frameTagID++;// increment ID
 
         MissionType mission = getConsole().getMission();
         LinkedHashMap<String, MapMission> mapList = mission.getMapsList();
         if (mapList == null)
-            return;
+            return id;
         if (mapList.size() == 0)
-            return;
+            return id;
         // MapMission mapMission = mapList.values().iterator().next();
         MapGroup.resetMissionInstance(getConsole().getMission());
         MapType mapType = MapGroup.getMapGroupInstance(getConsole().getMission()).getMaps()[0];// mapMission.getMap();
@@ -890,20 +923,24 @@ public class VideoStream extends ConsolePanel implements ItemListener {
         MapFeature feature = new MapFeature();
         feature.setFeatureType(MapFeature.FEATURE_TYPE.POI);
         feature.setFeature(Arrays.asList(point));
-        CcuEvent event = new CcuEvent();
-        event.setType(CcuEvent.TYPE.MAP_FEATURE_ADDED);
-        event.setId(id);
-        event.setArg(feature);
-        this.getConsole().getImcMsgManager().broadcastToCCUs(event);
-        NeptusLog.pub().info("placeLocationOnMap: " + id + " - Pos: lat: " + this.lat + " ; lon: " + this.lon);
-        captureFrame = true;
+        if (broadcastPositions)
+        {
+          CcuEvent event = new CcuEvent();
+          event.setType(CcuEvent.TYPE.MAP_FEATURE_ADDED);
+          event.setId(id);
+          event.setArg(feature);
+          this.getConsole().getImcMsgManager().broadcastToCCUs(event);
+        }
+
+        NeptusLog.pub().info("placeLocationOnMap: " + id + " - "+loc);
+        return id;
     }
 
     // Print Image to JPanel
     @Override
     protected void paintComponent(Graphics g) {
-        if (refreshTemp && realImage != null) {
-            g.drawImage(realImage, 0, 0, this);
+        if (refreshTemp && onScreenImage != null) {
+            g.drawImage(onScreenImage, 0, 0, this);
             refreshTemp = false;
         }
         else {
@@ -913,7 +950,8 @@ public class VideoStream extends ConsolePanel implements ItemListener {
     }
 
     private void showImage(BufferedImage image) {
-        realImage = image;
+        if (!paused)
+            onScreenImage = image;
         refreshTemp = true;
         repaint();
     }
@@ -927,22 +965,7 @@ public class VideoStream extends ConsolePanel implements ItemListener {
         zoomImg.setSize(300, 300);
         popupzoom = new JPopupMenu();
         popupzoom.setSize(300, 300);
-        // Create folder to save image data
-        // Create folder image in log if don't exist
-        File dir = new File(String.format(BASE_FOLDER_FOR_IMAGES));
-        dir.mkdir();
-        // Create folder Image to save data received
-        dir = new File(String.format(BASE_FOLDER_FOR_IMAGES + "/%s", date.toString().replace(":", "-")));
-        dir.mkdir();
-        // Create folder Image Tag
-        dir = new File(String.format(BASE_FOLDER_FOR_IMAGES + "/%s/imageTag", date.toString().replace(":", "-")));
-        dir.mkdir();
-        // Create folder Image Save
-        dir = new File(String.format(BASE_FOLDER_FOR_IMAGES + "/%s/imageSave", date.toString().replace(":", "-")));
-        dir.mkdir();
-        // Create folder Image Snapshot Save
-        dir = new File(String.format(BASE_FOLDER_FOR_IMAGES + "/%s/snapshotImage", date.toString().replace(":", "-")));
-        dir.mkdir();
+        
         logDir = String.format(BASE_FOLDER_FOR_IMAGES + "/%s", date.toString().replace(":", "-"));
 
         // JPanel for info and config values
@@ -1038,6 +1061,7 @@ public class VideoStream extends ConsolePanel implements ItemListener {
             closingPanel = true;
             return;
         }
+        setMainVehicle(getConsole().getMainSystem());
     }
 
     private Thread createFile() {
@@ -1125,7 +1149,6 @@ public class VideoStream extends ConsolePanel implements ItemListener {
                             capture.open(camRtpsUrl);
                             if (capture.isOpened()) {
                                 state = true;
-                                cntTag = 1;
                                 NeptusLog.pub().info("Video Strem from IPCam is captured");
                                 startWatchDog();
                                 isCleanTurnOffCam = false;
@@ -1161,7 +1184,7 @@ public class VideoStream extends ConsolePanel implements ItemListener {
                                 NeptusLog.pub().error(I18n.text("ERROR capturing img of IPCam"));
                                 continue;
                             }
-                            
+
                             xScale = (float) widhtConsole / mat.cols();
                             yScale = (float) heightConsole / mat.rows();
                             Imgproc.resize(mat, matResize, size);
@@ -1205,28 +1228,17 @@ public class VideoStream extends ConsolePanel implements ItemListener {
                                         offlineImage.getWidth() - 5, 20));
                             }
 
-                            // save image tag to disk
-                            if (captureFrame) {
-                                xPixel = xPixel - widhtConsole / 2;
-                                yPixel = -(yPixel - heightConsole / 2);
-                                String imageTag = null;
-                                if (info.length() < 12)
-                                    imageTag = String.format("%s/imageTag/(%d)_(IMC) ERROR_X=%d_Y=%d.jpeg", logDir,
-                                            cntTag, xPixel, yPixel);
-                                else
-                                    imageTag = String.format("%s/imageTag/(%d)_%s_X=%d_Y=%d.jpeg", logDir, cntTag, info,
-                                            xPixel, yPixel);
-
-                                outputfile = new File(imageTag);
-                                try {
-                                    ImageIO.write(offlineImage, "jpeg", outputfile);
-                                }
-                                catch (IOException e) {
-                                    e.printStackTrace();
-                                }
-                                captureFrame = false;
-                                cntTag++;
-                            }
+//                            // save image tag to disk
+//                            if (snap != null) {
+//                                try {
+//                                    snap.capture = offlineImage;
+//                                    snap.store();
+//                                    snap = null;                                                                       
+//                                }
+//                                catch (IOException e) {
+//                                    e.printStackTrace();
+//                                }
+//                            }
                         }
                     }
                     else {
@@ -1247,6 +1259,14 @@ public class VideoStream extends ConsolePanel implements ItemListener {
         return ret;
     }
 
+    private static File checkExistenceOfFolderForFile(File fx) {
+        File p = fx.getParentFile();
+        if (!p.exists())
+            p.mkdirs();
+        
+        return fx;
+    }
+    
     // Thread to handle save image
     private Thread updaterThreadSave() {
         Thread si = new Thread("Save Image") {
@@ -1260,7 +1280,6 @@ public class VideoStream extends ConsolePanel implements ItemListener {
                         captureSave = new VideoCapture();
                         captureSave.open(camRtpsUrl);
                         if (captureSave.isOpened()) {
-                            cntTag = 1;
                             stateSetUrl = true;
                         }
                     }
@@ -1272,12 +1291,12 @@ public class VideoStream extends ConsolePanel implements ItemListener {
                             try {
                                 if (histogramflag) {
                                     imageJpeg = String.format("%s/imageSave/%d_H.jpeg", logDir, cnt);
-                                    outputfile = new File(imageJpeg);
+                                    outputfile = checkExistenceOfFolderForFile(new File(imageJpeg));
                                     ImageIO.write(UtilCv.histogramCv(offlineImage), "jpeg", outputfile);
                                 }
                                 else {
                                     imageJpeg = String.format("%s/imageSave/%d.jpeg", logDir, cnt);
-                                    outputfile = new File(imageJpeg);
+                                    outputfile = checkExistenceOfFolderForFile(new File(imageJpeg));
                                     ImageIO.write(offlineImage, "jpeg", outputfile);
                                 }
                             }
@@ -1308,13 +1327,13 @@ public class VideoStream extends ConsolePanel implements ItemListener {
                                 try {
                                     if (histogramflag) {
                                         imageJpeg = String.format("%s/imageSave/%d_H.jpeg", logDir, cnt);
-                                        outputfile = new File(imageJpeg);
+                                        outputfile = checkExistenceOfFolderForFile(new File(imageJpeg));
                                         ImageIO.write(UtilCv.histogramCv(UtilCv.matToBufferedImage(matSaveImg)), "jpeg",
                                                 outputfile);
                                     }
                                     else {
                                         imageJpeg = String.format("%s/imageSave/%d.jpeg", logDir, cnt);
-                                        outputfile = new File(imageJpeg);
+                                        outputfile = checkExistenceOfFolderForFile(new File(imageJpeg));
                                         ImageIO.write(UtilCv.matToBufferedImage(matSaveImg), "jpeg", outputfile);
                                     }
                                 }
@@ -1354,62 +1373,59 @@ public class VideoStream extends ConsolePanel implements ItemListener {
         return si;
     }
 
+    @Subscribe
+    public void consume(ConsoleEventMainSystemChange evt) {
+        setMainVehicle(evt.getCurrent());
+    }
+    
+    private void setMainVehicle(String vehicle) {
+        camFov = null;
+        
+        ArrayList<SystemProperty> props = ConfigurationManager.getInstance().getPropertiesByEntity(vehicle, "UAVCamera",
+                Visibility.DEVELOPER, Scope.GLOBAL);
+
+        String camModel = "";
+        double hAOV = 0, vAOV = 0, camTilt = 0;
+        
+        for (SystemProperty p : props) {
+            if (p.getName().equals("Onboard Camera"))
+                camModel = ""+p.getValue();
+            else if (p.getName().equals("("+camModel+") Horizontal AOV"))
+                hAOV = Math.toRadians(Double.valueOf(""+p.getValue()));
+            else if (p.getName().equals("("+camModel+") Vertical AOV"))
+                vAOV = Math.toRadians(Double.valueOf(""+p.getValue()));
+            else if (p.getName().equals("("+camModel+") Tilt Angle"))
+                camTilt = Math.PI/2+Math.toRadians(Double.valueOf(""+p.getValue()));            
+        }
+        
+        if (!camModel.isEmpty()) {
+            camFov = new CameraFOV(hAOV, vAOV);
+            camFov.setTilt(camTilt);
+            NeptusLog.pub().info("Using " + camModel + " camera with " + Math.toDegrees(hAOV) + " x "
+                    + Math.toDegrees(vAOV) + " AOV");
+        }
+        else
+        {
+            NeptusLog.pub().error("Could not load camera FOV");
+            getConsole().post(Notification.warning(I18n.text("CameraFOV"), I18n.text("Could not load camera FOV")));
+            camFov = CameraFOV.defaultFov();
+        }   
+    }
+    
     // IMC handle
     @Subscribe
     public void consume(EstimatedState msg) {
         // System.out.println("Source Name "+msg.getSourceName()+"ID "+getMainVehicleId());
         if (msg.getSourceName().equals(getMainVehicleId()) && findOpenCV()) {
-            try {
-                // update the position of target
-                // LAT and LON rad
-                double latRad = msg.getLat();
-                double lonRad = msg.getLon();
-                // LAT and LON deg
-                double latDeg = Math.toDegrees(latRad);
-                double lonDeg = Math.toDegrees(lonRad);
-
-                LocationType locationType = new LocationType(latDeg, lonDeg);
-
-                // Offset (m)
-                double offsetN = msg.getX();
-                double offsetE = msg.getY();
-
-                // Height of Vehicle
-                double heightRelative = msg.getHeight() - msg.getZ();// absolute altitude - zero of that location
-                locationType.setOffsetNorth(offsetN);
-                locationType.setOffsetEast(offsetE);
-                locationType.setHeight(heightRelative);
-
-                info = String.format("(IMC) LAT: %f # LON: %f # ALT: %.2f m", lat, lon, heightRelative);
-                LocationType tagLocationType = calcTagPosition(locationType.convertToAbsoluteLatLonDepth(),
-                        Math.toDegrees(msg.getPsi()), camTiltDeg);
-                this.lat = tagLocationType.convertToAbsoluteLatLonDepth().getLatitudeDegs();
-                this.lon = tagLocationType.convertToAbsoluteLatLonDepth().getLongitudeDegs();
-                txtData.setText(info);
-            }
-            catch (Exception e) {
-                NeptusLog.pub().error(e.getMessage(), e);
-            }
+            if (camFov != null) {
+                if (!paused)
+                    camFov.setState(msg);
+                if (mouseLoc != null) {
+                    EventMouseLookAt lookAt = new EventMouseLookAt(camFov.getLookAt(mouseLoc.getX(), mouseLoc.getY()));
+                    getConsole().post(lookAt);
+                }                    
+            }           
         }
-    }
-
-    /**
-     *
-     * @param locationType
-     * @param orientationDegrees
-     * @param camTiltDeg
-     * @return tagLocationType
-     */
-    private LocationType calcTagPosition(LocationType locationType, double orientationDegrees, double camTiltDeg) {
-        double altitude = locationType.getHeight();
-        double dist = Math.tan(Math.toRadians(camTiltDeg)) * (Math.abs(altitude));// hypotenuse
-        double offsetN = Math.cos(Math.toRadians(orientationDegrees)) * dist;// oposite side
-        double offsetE = Math.sin(Math.toRadians(orientationDegrees)) * dist;// adjacent side
-
-        LocationType tagLocationType = locationType.convertToAbsoluteLatLonDepth();
-        tagLocationType.setOffsetNorth(offsetN);
-        tagLocationType.setOffsetEast(offsetE);
-        return tagLocationType.convertToAbsoluteLatLonDepth();
     }
 
     // Fill cv::Mat image with zeros
@@ -1446,8 +1462,8 @@ public class VideoStream extends ConsolePanel implements ItemListener {
             e1.printStackTrace();
         }
         if (line == null) {
-            GuiUtils.errorMessage(VideoStream.this, I18n.text("Connection error"), I18n.text("Lost connection with vehicle"),
-                    ModalityType.DOCUMENT_MODAL);
+            GuiUtils.errorMessage(VideoStream.this, I18n.text("Connection error"),
+                    I18n.text("Lost connection with vehicle"), ModalityType.DOCUMENT_MODAL);
             raspiCam = false;
             state = false;
             // closeTcpCom();
@@ -1702,8 +1718,8 @@ public class VideoStream extends ConsolePanel implements ItemListener {
         endTimeMillis = (long) (System.currentTimeMillis() + miliseconds);
         virtualEndThread = false;
         while (true) {
-            if (System.currentTimeMillis() > endTimeMillis && !virtualEndThread) {                
-                if(!isCleanTurnOffCam) {
+            if (System.currentTimeMillis() > endTimeMillis && !virtualEndThread) {
+                if (!isCleanTurnOffCam) {
                     NeptusLog.pub().error("TIME OUT IPCAM");
                     NeptusLog.pub().info("Clossing all Video Stream...");
                     noVideoLogoState = false;

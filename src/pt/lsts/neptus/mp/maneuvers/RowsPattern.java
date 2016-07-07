@@ -22,7 +22,7 @@
  * distributed on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF
  * ANY KIND, either express or implied. See the Licence for the specific
  * language governing permissions and limitations at
- * https://www.lsts.pt/neptus/licence.
+ * http://ec.europa.eu/idabc/eupl.html.
  *
  * For more information please see <http://lsts.fe.up.pt/neptus>.
  *
@@ -41,21 +41,23 @@ import org.dom4j.DocumentHelper;
 import org.dom4j.Element;
 import org.dom4j.Node;
 
+import com.l2fprod.common.propertysheet.DefaultProperty;
+import com.l2fprod.common.propertysheet.Property;
+
 import pt.lsts.imc.IMCMessage;
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.gui.PropertiesEditor;
-import pt.lsts.neptus.gui.editor.SpeedUnitsEditor;
-import pt.lsts.neptus.gui.editor.renderer.I18nCellRenderer;
+import pt.lsts.neptus.i18n.I18n;
+import pt.lsts.neptus.mp.Maneuver;
 import pt.lsts.neptus.mp.ManeuverLocation;
 import pt.lsts.neptus.renderer2d.StateRenderer2D;
 import pt.lsts.neptus.types.map.MapGroup;
 import pt.lsts.neptus.types.map.PlanElement;
 import pt.lsts.neptus.types.mission.MissionType;
 import pt.lsts.neptus.types.mission.plan.PlanType;
+import pt.lsts.neptus.util.AngleUtils;
 import pt.lsts.neptus.util.GuiUtils;
-
-import com.l2fprod.common.propertysheet.DefaultProperty;
-import com.l2fprod.common.propertysheet.Property;
+import pt.lsts.neptus.util.MathMiscUtils;
 
 /**
  * @author pdias
@@ -75,6 +77,7 @@ public class RowsPattern extends FollowPath {
 
     public RowsPattern() {
         super();
+        editingHelpText = I18n.text("Ctrl+Click to grow | Shift+Click to rotate");
         recalcPoints();
     }
 
@@ -92,7 +95,7 @@ public class RowsPattern extends FollowPath {
         double zoom = renderer.getZoom();
         g2d.rotate(-renderer.getRotation());
         g2d.rotate(-Math.PI/2);
-        ManeuversUtil.paintBox(g2d, zoom, width, length, 0, 0, bearingRad, crossAngleRadians, !firstCurveRight, editing);
+        ManeuversUtil.paintBox(g2d, zoom, width, length, 0, 0, bearingRad, crossAngleRadians, false, !firstCurveRight, editing);
         ManeuversUtil.paintPointLineList(g2d, zoom, points, true, sRange, editing); // FIXME
         //        ManeuversUtil.paintPointLineList(g2d, zoom, points, false, sRange);
         g2d.rotate(Math.PI/2);
@@ -197,10 +200,18 @@ public class RowsPattern extends FollowPath {
         double yammount = event.getPoint().getY() - lastDragPoint.getY();
         yammount = -yammount;
         if (event.isControlDown()) {
-            width += xammount / (Math.abs(yammount) < 30 ? 10 : 2);
+            double norm = Math.sqrt(xammount * xammount + yammount * yammount);
+            double angle = AngleUtils.calcAngle(lastDragPoint.getY(), lastDragPoint.getX(), event.getPoint().getY(),
+                    event.getPoint().getX());
+            double nx = norm * Math.cos(bearingRad - angle);
+            double ny = norm * Math.sin(bearingRad - angle);
+
+            width += nx / (Math.abs(nx) < 30 ? 10 : 2);
+            width = MathMiscUtils.round(width, 1);
             width = Math.max(1, width);
             if (!ignoreLength) {
-                length += yammount / (Math.abs(yammount) < 30 ? 10 : 2);
+                length += ny / (Math.abs(ny) < 30 ? 10 : 2);
+                length = MathMiscUtils.round(length, 1);
                 length = Math.max(1, length);
             }
             recalcPoints();
@@ -244,7 +255,9 @@ public class RowsPattern extends FollowPath {
             // Speed
             Node speedNode = doc.selectSingleNode("//speed");
             speed = Double.parseDouble(speedNode.getText());
-            speed_units = speedNode.valueOf("@unit");
+//            speed_units = speedNode.valueOf("@unit");
+            SPEED_UNITS sUnits = ManeuversXMLUtil.parseSpeedUnits((Element) speedNode);
+            setSpeedUnits(sUnits);
 
             bearingRad = Math.toRadians(Double.parseDouble(doc.selectSingleNode("//bearing").getText()));
 
@@ -344,7 +357,7 @@ public class RowsPattern extends FollowPath {
 
         //speed
         Element speedElem = root.addElement("speed");        
-        speedElem.addAttribute("unit", speed_units);
+        speedElem.addAttribute("unit", speedUnits.getString());
         speedElem.setText(""+speed);
 
         return document;
@@ -380,13 +393,13 @@ public class RowsPattern extends FollowPath {
     public void parseIMCMessage(IMCMessage message) {
         super.parseIMCMessage(message);
 
-        LinkedHashMap<String, String> customValues = message.getTupleList("custom");
+        LinkedHashMap<String, String> customValues = customSettings; // message.getTupleList("custom");
 
-        String pattern = customValues.get("Pattern");
+        String pattern = customValues.remove("Pattern");
         if (!getName().equalsIgnoreCase(pattern))
             return;
 
-        String value = customValues.get("bearingRad");
+        String value = customValues.remove("bearingRad");
         try {
             bearingRad = Double.parseDouble(value);
         }
@@ -394,7 +407,7 @@ public class RowsPattern extends FollowPath {
             e.printStackTrace();
         }
 
-        value = customValues.get("width");
+        value = customValues.remove("width");
         try {
             width = Double.parseDouble(value);
         }
@@ -402,8 +415,8 @@ public class RowsPattern extends FollowPath {
             e.printStackTrace();
         }
 
+        value = customValues.remove("length");
         if (!ignoreLength) {
-            value = customValues.get("length");
             try {
                 length = Double.parseDouble(value);
             }
@@ -412,7 +425,7 @@ public class RowsPattern extends FollowPath {
             }
         }
 
-        value = customValues.get("hstep");
+        value = customValues.remove("hstep");
         try {
             hstep = Double.parseDouble(value);
         }
@@ -420,7 +433,7 @@ public class RowsPattern extends FollowPath {
             e.printStackTrace();
         }
 
-        value = customValues.get("sRange");
+        value = customValues.remove("sRange");
         try {
             sRange = Double.parseDouble(value);
         }
@@ -428,8 +441,8 @@ public class RowsPattern extends FollowPath {
             e.printStackTrace();
         }
 
+        value = customValues.remove("crossAngleRadians");
         if (!ignoreCrossAngle) {
-            value = customValues.get("crossAngleRadians");
             try {
                 crossAngleRadians = Double.parseDouble(value);
             }
@@ -438,7 +451,7 @@ public class RowsPattern extends FollowPath {
             }
         }
 
-        value = customValues.get("curvOff");
+        value = customValues.remove("curvOff");
         try {
             curvOff = Double.parseDouble(value);
         }
@@ -446,8 +459,8 @@ public class RowsPattern extends FollowPath {
             e.printStackTrace();
         }
 
+        value = customValues.remove("alternationPercentage");
         if (!ignoreAlternationPercentage) {
-            value = customValues.get("alternationPercentage");
             try {
                 alternationPercentage = (float) Float.parseFloat(value);
             }
@@ -455,11 +468,11 @@ public class RowsPattern extends FollowPath {
                 e.printStackTrace();
             }
         }
-        value = customValues.get("squareCurve");
+        value = customValues.remove("squareCurve");
         squareCurve = Boolean.parseBoolean(value);
 
+        value = customValues.remove("firstCurveRight");
         if (!ignoreFirstCurveRight) {
-            value = customValues.get("firstCurveRight");
             firstCurveRight = Boolean.parseBoolean(value);
         }
 
@@ -499,11 +512,6 @@ public class RowsPattern extends FollowPath {
                 continue;
             }
 
-            if (p.getName().equalsIgnoreCase("Speed Units")) {
-                speed_units = (String)p.getValue();
-                continue;
-            }
-
             if (p.getName().equals("Bearing")) {
                 bearingRad = Math.toRadians((Double)p.getValue());
                 continue;
@@ -540,6 +548,11 @@ public class RowsPattern extends FollowPath {
                     continue;
                 }
             }
+            
+            // "Speed Units" parsing
+            SPEED_UNITS speedUnits = ManeuversUtil.getSpeedUnitsFromPropertyOrNullIfInvalidName(p);
+            if (speedUnits != null)
+                setSpeedUnits(speedUnits);
         }
         recalcPoints();
     }
@@ -588,11 +601,9 @@ public class RowsPattern extends FollowPath {
         speed.setShortDescription("The vehicle's desired speed");
         props.add(speed);
 
-        DefaultProperty speedUnits = PropertiesEditor.getPropertyInstance("Speed Units", String.class, speed_units, true);
-        speedUnits.setShortDescription("The units to consider in the speed parameters");
-        PropertiesEditor.getPropertyEditorRegistry().registerEditor(speedUnits, new SpeedUnitsEditor());
-        PropertiesEditor.getPropertyRendererRegistry().registerRenderer(speedUnits, new I18nCellRenderer());
-        props.add(speedUnits);
+        DefaultProperty speedUnitsProp = PropertiesEditor.getPropertyInstance("Speed Units", Maneuver.SPEED_UNITS.class, speedUnits, true);
+        speedUnitsProp.setShortDescription("The units to consider in the speed parameters");
+        props.add(speedUnitsProp);
 
         DefaultProperty curvOffset = PropertiesEditor.getPropertyInstance("Curve Offset", Double.class, curvOff, true);
         curvOffset.setShortDescription("The extra length to use for the curve");       
@@ -648,11 +659,11 @@ public class RowsPattern extends FollowPath {
         //man("<FollowPath kind=\"automatic\"><basePoint type=\"pointType\"><point><id>id_53802104</id><name>id_53802104</name><coordinate><latitude>0N0'0''</latitude><longitude>0E0'0''</longitude><depth>0.0</depth></coordinate></point><radiusTolerance>0.0</radiusTolerance></basePoint><path><nedOffsets northOffset=\"0.0\" eastOffset=\"1.0\" depthOffset=\"2.0\" timeOffset=\"3.0\"/><nedOffsets northOffset=\"4.0\" eastOffset=\"5.0\" depthOffset=\"6.0\" timeOffset=\"7.0\"/></path><speed unit=\"RPM\">1000.0</speed></FollowPath>");
         //NeptusLog.pub().info("<###> "+FileUtil.getAsPrettyPrintFormatedXMLString(man.getManeuverAsDocument("FollowTrajectory")));
         man.setSpeed(1);
-        man.setSpeedUnits("m/s");        
+        man.setSpeedUnits(Maneuver.SPEED_UNITS.METERS_PS);        
         //        NeptusLog.pub().info("<###> "+FileUtil.getAsPrettyPrintFormatedXMLString(man.getManeuverAsDocument("RIPattern")));
 
         man.setSpeed(2);
-        man.setSpeedUnits("m/s");        
+        man.setSpeedUnits(Maneuver.SPEED_UNITS.METERS_PS);        
         //        NeptusLog.pub().info("<###> "+FileUtil.getAsPrettyPrintFormatedXMLString(man.getManeuverAsDocument("RIPattern")));
 
 

@@ -22,7 +22,7 @@
  * distributed on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF
  * ANY KIND, either express or implied. See the Licence for the specific
  * language governing permissions and limitations at
- * https://www.lsts.pt/neptus/licence.
+ * http://ec.europa.eu/idabc/eupl.html.
  *
  * For more information please see <http://lsts.fe.up.pt/neptus>.
  *
@@ -31,6 +31,12 @@
  */
 package pt.lsts.neptus.console;
 
+import com.google.common.eventbus.Subscribe;
+
+import pt.lsts.imc.CcuEvent;
+import pt.lsts.imc.LogBookEntry;
+import pt.lsts.imc.MapFeature;
+import pt.lsts.imc.MapPoint;
 import pt.lsts.neptus.comm.IMCUtils;
 import pt.lsts.neptus.comm.manager.imc.ImcMsgManager;
 import pt.lsts.neptus.plugins.PluginDescription;
@@ -38,12 +44,6 @@ import pt.lsts.neptus.types.coord.LocationType;
 import pt.lsts.neptus.types.map.MapGroup;
 import pt.lsts.neptus.types.map.MarkElement;
 import pt.lsts.neptus.types.mission.plan.PlanType;
-import pt.lsts.imc.CcuEvent;
-import pt.lsts.imc.LogBookEntry;
-import pt.lsts.imc.MapFeature;
-import pt.lsts.imc.MapPoint;
-
-import com.google.common.eventbus.Subscribe;
 
 /**
  * @author zp

@@ -22,7 +22,7 @@
  * distributed on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF
  * ANY KIND, either express or implied. See the Licence for the specific
  * language governing permissions and limitations at
- * https://www.lsts.pt/neptus/licence.
+ * http://ec.europa.eu/idabc/eupl.html.
  *
  * For more information please see <http://lsts.fe.up.pt/neptus>.
  *
@@ -39,17 +39,6 @@ import java.util.Vector;
 
 import javax.swing.ProgressMonitor;
 
-import pt.lsts.imc.IMCFieldType;
-import pt.lsts.imc.IMCMessage;
-import pt.lsts.neptus.i18n.I18n;
-import pt.lsts.neptus.mra.importers.IMraLog;
-import pt.lsts.neptus.mra.importers.IMraLogGroup;
-import pt.lsts.neptus.plugins.NeptusProperty;
-import pt.lsts.neptus.plugins.PluginDescription;
-import pt.lsts.neptus.plugins.PluginUtils;
-import pt.lsts.neptus.util.GuiUtils;
-import pt.lsts.neptus.util.llf.LsfLogSource;
-
 import com.jmatio.io.MatFileWriter;
 import com.jmatio.types.MLArray;
 import com.jmatio.types.MLCell;
@@ -62,6 +51,17 @@ import com.jmatio.types.MLSingle;
 import com.jmatio.types.MLStructure;
 import com.jmatio.types.MLUInt64;
 import com.jmatio.types.MLUInt8;
+
+import pt.lsts.imc.IMCFieldType;
+import pt.lsts.imc.IMCMessage;
+import pt.lsts.neptus.i18n.I18n;
+import pt.lsts.neptus.mra.importers.IMraLog;
+import pt.lsts.neptus.mra.importers.IMraLogGroup;
+import pt.lsts.neptus.plugins.NeptusProperty;
+import pt.lsts.neptus.plugins.PluginDescription;
+import pt.lsts.neptus.plugins.PluginUtils;
+import pt.lsts.neptus.util.GuiUtils;
+import pt.lsts.neptus.util.llf.LsfLogSource;
 
 /**
  * @author pdias

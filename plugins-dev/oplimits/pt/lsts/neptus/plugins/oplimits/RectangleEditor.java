@@ -22,7 +22,7 @@
  * distributed on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF
  * ANY KIND, either express or implied. See the Licence for the specific
  * language governing permissions and limitations at
- * https://www.lsts.pt/neptus/licence.
+ * http://ec.europa.eu/idabc/eupl.html.
  *
  * For more information please see <http://lsts.fe.up.pt/neptus>.
  *
@@ -172,7 +172,7 @@ public class RectangleEditor extends JPanel implements Renderer2DPainter, StateR
 		}
 		else if (rectangle != null) {
 			rectangle.setMyColor(Color.red);
-			rectangle.setFill(true);
+			rectangle.setFilled(true);
 			rectangle.paint((Graphics2D)g.create(), renderer, -renderer.getRotation());
 		}
 		g.dispose();

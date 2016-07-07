@@ -45,6 +45,7 @@ import pt.lsts.imc.LblBeacon;
 import pt.lsts.imc.LblConfig;
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.comm.HTTPUtils;
+import pt.lsts.neptus.comm.SystemUtils;
 import pt.lsts.neptus.comm.manager.imc.ImcMsgManager;
 import pt.lsts.neptus.comm.manager.imc.ImcSystem;
 import pt.lsts.neptus.comm.manager.imc.ImcSystemsHolder;
@@ -974,7 +975,7 @@ public class MissionBrowser extends JPanel implements PlanChangeListener {
     private Vector<LblBeacon> getRemoteTrans(String sysName) {
         try {
             return ((LblConfig) ImcSystemsHolder.lookupSystemByName(sysName).retrieveData(
-                    ImcSystem.LBL_CONFIG_KEY)).getBeacons();
+                    SystemUtils.LBL_CONFIG_KEY)).getBeacons();
         }
         catch (NullPointerException e) {
             // NeptusLog.pub().warn("I cannot find remote beacon configuration for " + sysName);

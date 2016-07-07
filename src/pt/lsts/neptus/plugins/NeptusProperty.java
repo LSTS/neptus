@@ -22,7 +22,7 @@
  * distributed on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF
  * ANY KIND, either express or implied. See the Licence for the specific
  * language governing permissions and limitations at
- * https://www.lsts.pt/neptus/licence.
+ * http://ec.europa.eu/idabc/eupl.html.
  *
  * For more information please see <http://lsts.fe.up.pt/neptus>.
  *
@@ -36,6 +36,8 @@ import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
+
+import javax.swing.table.TableCellRenderer;
 
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.FIELD)
@@ -95,6 +97,11 @@ public @interface NeptusProperty {
      * The (full) class name of the editor to be used for this property
      */
     Class<? extends PropertyEditor> editorClass() default PropertyEditor.class;
+
+    /**
+     * The (full) class name of the renderer to be used for this property
+     */
+    Class<? extends TableCellRenderer> rendererClass() default TableCellRenderer.class;
     
     /**
      * Whether this property is to be not editable in user-input dialogs (changed only in code)

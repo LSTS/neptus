@@ -22,7 +22,7 @@
  * distributed on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF
  * ANY KIND, either express or implied. See the Licence for the specific
  * language governing permissions and limitations at
- * https://www.lsts.pt/neptus/licence.
+ * http://ec.europa.eu/idabc/eupl.html.
  *
  * For more information please see <http://lsts.fe.up.pt/neptus>.
  *
@@ -34,6 +34,7 @@ package pt.lsts.neptus.mp.maneuvers;
 import java.awt.Graphics2D;
 import java.util.Vector;
 
+import pt.lsts.neptus.mp.Maneuver;
 import pt.lsts.neptus.renderer2d.StateRenderer2D;
 import pt.lsts.neptus.types.map.MapGroup;
 import pt.lsts.neptus.types.map.PlanElement;
@@ -65,9 +66,9 @@ public class RIPattern extends RowsPattern {
         double zoom = renderer.getZoom();
         g2d.rotate(-renderer.getRotation());
         g2d.rotate(-Math.PI/2);
-        ManeuversUtil.paintBox(g2d, zoom, width, width, -width/2, -width/2, bearingRad, crossAngleRadians, editing);
-        ManeuversUtil.paintBox(g2d, zoom, width, width, -width/2, -width/2, bearingRad+Math.toRadians(-60), crossAngleRadians, editing);
-        ManeuversUtil.paintBox(g2d, zoom, width, width, -width/2, -width/2, bearingRad+Math.toRadians(-120), crossAngleRadians, editing);
+        ManeuversUtil.paintBox(g2d, zoom, width, width, -width/2, -width/2, bearingRad, crossAngleRadians, false, false, editing);
+        ManeuversUtil.paintBox(g2d, zoom, width, width, -width/2, -width/2, bearingRad+Math.toRadians(-60), crossAngleRadians, false, false, editing);
+        ManeuversUtil.paintBox(g2d, zoom, width, width, -width/2, -width/2, bearingRad+Math.toRadians(-120), crossAngleRadians, false, false, editing);
 //        ManeuversUtil.paintPointLineList(g2d, zoom, points, false, sRange);
         g2d.rotate(Math.PI/2);
         g2d.rotate(renderer.getRotation());
@@ -115,11 +116,11 @@ public class RIPattern extends RowsPattern {
         //man("<FollowPath kind=\"automatic\"><basePoint type=\"pointType\"><point><id>id_53802104</id><name>id_53802104</name><coordinate><latitude>0N0'0''</latitude><longitude>0E0'0''</longitude><depth>0.0</depth></coordinate></point><radiusTolerance>0.0</radiusTolerance></basePoint><path><nedOffsets northOffset=\"0.0\" eastOffset=\"1.0\" depthOffset=\"2.0\" timeOffset=\"3.0\"/><nedOffsets northOffset=\"4.0\" eastOffset=\"5.0\" depthOffset=\"6.0\" timeOffset=\"7.0\"/></path><speed unit=\"RPM\">1000.0</speed></FollowPath>");
         //NeptusLog.pub().info("<###> "+FileUtil.getAsPrettyPrintFormatedXMLString(man.getManeuverAsDocument("FollowTrajectory")));
         man.setSpeed(1);
-        man.setSpeedUnits("m/s");        
+        man.setSpeedUnits(Maneuver.SPEED_UNITS.METERS_PS);        
 //        NeptusLog.pub().info("<###> "+FileUtil.getAsPrettyPrintFormatedXMLString(man.getManeuverAsDocument("RIPattern")));
 
         man.setSpeed(2);
-        man.setSpeedUnits("m/s");        
+        man.setSpeedUnits(Maneuver.SPEED_UNITS.METERS_PS);        
 //        NeptusLog.pub().info("<###> "+FileUtil.getAsPrettyPrintFormatedXMLString(man.getManeuverAsDocument("RIPattern")));
 
         

@@ -22,7 +22,7 @@
  * distributed on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF
  * ANY KIND, either express or implied. See the Licence for the specific
  * language governing permissions and limitations at
- * https://www.lsts.pt/neptus/licence.
+ * http://ec.europa.eu/idabc/eupl.html.
  *
  * For more information please see <http://lsts.fe.up.pt/neptus>.
  *
@@ -38,12 +38,14 @@ import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.Vector;
 
+import com.google.common.eventbus.Subscribe;
+
 import pt.lsts.imc.LogBookControl;
 import pt.lsts.imc.LogBookControl.COMMAND;
 import pt.lsts.imc.LogBookEntry;
 import pt.lsts.neptus.comm.manager.imc.ImcSystem;
-import pt.lsts.neptus.comm.manager.imc.ImcSystemsHolder;
 import pt.lsts.neptus.comm.manager.imc.ImcSystem.IMCAuthorityState;
+import pt.lsts.neptus.comm.manager.imc.ImcSystemsHolder;
 import pt.lsts.neptus.console.ConsoleLayout;
 import pt.lsts.neptus.console.ConsolePanel;
 import pt.lsts.neptus.console.events.ConsoleEventSystemAuthorityStateChanged;
@@ -58,8 +60,6 @@ import pt.lsts.neptus.plugins.Popup.POSITION;
 import pt.lsts.neptus.plugins.logs.HistoryMessage.msg_type;
 import pt.lsts.neptus.plugins.update.IPeriodicUpdates;
 import pt.lsts.neptus.types.vehicle.VehicleType.SystemTypeEnum;
-
-import com.google.common.eventbus.Subscribe;
 
 /**
  * @author zp

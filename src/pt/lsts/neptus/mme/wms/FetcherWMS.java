@@ -22,7 +22,7 @@
  * distributed on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF
  * ANY KIND, either express or implied. See the Licence for the specific
  * language governing permissions and limitations at
- * https://www.lsts.pt/neptus/licence.
+ * http://ec.europa.eu/idabc/eupl.html.
  *
  * For more information please see <http://lsts.fe.up.pt/neptus>.
  *
@@ -41,13 +41,13 @@ import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 
-import pt.lsts.neptus.NeptusLog;
-import pt.lsts.neptus.types.coord.LocationType;
-import pt.lsts.neptus.util.GuiUtils;
-
 import com.vividsolutions.wms.BoundingBox;
 import com.vividsolutions.wms.MapRequest;
 import com.vividsolutions.wms.WMService;
+
+import pt.lsts.neptus.NeptusLog;
+import pt.lsts.neptus.types.coord.LocationType;
+import pt.lsts.neptus.util.GuiUtils;
 
 /**
  * @author zp

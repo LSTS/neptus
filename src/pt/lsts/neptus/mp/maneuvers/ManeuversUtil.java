@@ -22,7 +22,7 @@
  * distributed on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF
  * ANY KIND, either express or implied. See the Licence for the specific
  * language governing permissions and limitations at
- * https://www.lsts.pt/neptus/licence.
+ * http://ec.europa.eu/idabc/eupl.html.
  *
  * For more information please see <http://lsts.fe.up.pt/neptus>.
  *
@@ -42,15 +42,17 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Vector;
 
+import com.l2fprod.common.propertysheet.DefaultProperty;
+import com.l2fprod.common.propertysheet.Property;
+
 import pt.lsts.neptus.NeptusLog;
+import pt.lsts.neptus.comm.IMCUtils;
 import pt.lsts.neptus.mp.Maneuver;
+import pt.lsts.neptus.mp.Maneuver.SPEED_UNITS;
 import pt.lsts.neptus.mp.preview.SpeedConversion;
 import pt.lsts.neptus.plugins.PluginProperty;
 import pt.lsts.neptus.plugins.PluginUtils;
 import pt.lsts.neptus.util.AngleUtils;
-
-import com.l2fprod.common.propertysheet.DefaultProperty;
-import com.l2fprod.common.propertysheet.Property;
 
 /**
  * @author pdias
@@ -59,6 +61,9 @@ import com.l2fprod.common.propertysheet.Property;
 public class ManeuversUtil {
     
     protected static final int X = 0, Y = 1, Z = 2, T = 3;
+
+    public static final Color noEditBoxColor = new Color(255, 160, 0, 100);
+    public static final Color editBoxColor = new Color(255, 125, 255, 200);
 
     private ManeuversUtil() {
     }
@@ -242,6 +247,69 @@ public class ManeuversUtil {
         return newPoints;
     }
 
+    public static Vector<double[]> calcExpansiveSquarePatternPointsMaxBox(
+            double width, double hstep, double bearingRad, boolean invertY) {
+
+        Vector<double[]> newPoints = new Vector<double[]>();
+        
+        final short left = 0, up = 1, right = 2, down = 3;
+        
+        double[] point;;
+        
+        double x = 0;
+        double y = 0;
+        short stepDir = left;
+        int stepX = 1;
+        int stepY = 1;
+        do {
+            point = new double[] { x, y, 0, -1 };
+            newPoints.add(point);
+
+            switch (stepDir) {
+                case left:
+                    x += hstep * stepX;
+                    // y = y;
+                    stepX++;
+                    break;
+                case up:
+                    // x = x;
+                    y += hstep * stepY;
+                    stepY++;
+                    break;
+                case right:
+                    x -= hstep * stepX;
+                    // y = y;
+                    stepX++;
+                    break;
+                case down:
+                    // x = x;;
+                    y -= hstep * stepY;
+                    stepY++;
+                    break;
+                default:
+                    throw new RuntimeException("Something went wrong!!");
+            }
+            stepDir = (short) (++stepDir % 4);
+        } while (Math.abs(x) <= width / 2 || Math.abs(y) <= width / 2);
+
+        double[] le = newPoints.lastElement();
+        le[0] = Math.signum(le[0]) * Math.min(Math.abs(le[0]), width / 2);
+        le[1] = Math.signum(le[1]) * Math.min(Math.abs(le[1]), width / 2);
+        
+        for (double[] pt : newPoints) {
+            double[] res = AngleUtils.rotate(0, pt[X], 0, false);
+            pt[X] = res[0];
+            pt[Y] = pt[Y] + res[1];
+            if (invertY)
+                pt[Y] = -pt[Y];
+            res = AngleUtils.rotate(bearingRad, pt[X], pt[Y], false);
+            pt[X] = res[0];
+            pt[Y] = res[1];
+        }
+
+        return newPoints;
+    }
+
     /**
      * @param g2d
      * @param zoom
@@ -275,7 +343,7 @@ public class ManeuversUtil {
         Stroke s3 = new BasicStroke(3);
         Stroke sR = new BasicStroke((float) (2 * sRange * zoom), BasicStroke.CAP_BUTT, BasicStroke.JOIN_MITER);
         
-        for (int i = 0; i < points.size(); i+=2) {
+        for (int i = 0; i < points.size(); i += 2) {
             pointI = points.get(i);
             //NeptusLog.pub().info("<###>[" + pointI[X] + ", " + pointI[Y] + "]");
             try {
@@ -291,11 +359,13 @@ public class ManeuversUtil {
                 pointN = null;
             }
             int ellisRadius = !editMode ? 3 : 4;
+            int factor = 2;
             Ellipse2D el = new Ellipse2D.Double(-ellisRadius, -ellisRadius, ellisRadius * 2, ellisRadius * 2);
+            Ellipse2D ex = new Ellipse2D.Double(-ellisRadius * factor, -ellisRadius * factor, ellisRadius * factor * 2, ellisRadius * factor * 2);
             if (i == 0) {
                 g2d.translate(pointI[X] * zoom, pointI[Y] * zoom);
-                g2d.setColor(new Color(0, 255, 0));
-                g2d.fill(el);
+                g2d.setColor(new Color(0, 0, 255));
+                g2d.fill(ex);
                 g2d.translate(-pointI[X] * zoom, -pointI[Y] * zoom);
             }
             if (pointF != null) {
@@ -316,7 +386,15 @@ public class ManeuversUtil {
 
                 g2d.translate(pointF[X] * zoom, pointF[Y] * zoom);
                 g2d.setColor(new Color(255, 0, 0));
-                g2d.fill(el);
+                if (i == points.size() - 2) {
+                    g2d.setColor(new Color(0, 0, 255));
+                    g2d.fill(ex);
+                    g2d.setColor(Color.WHITE);
+                    g2d.fill(el);
+                }
+                else {
+                    g2d.fill(el);
+                }
                 g2d.translate(-pointF[X] * zoom, -pointF[Y] * zoom);
 
                 if (pointN != null) {
@@ -332,7 +410,15 @@ public class ManeuversUtil {
                     
                     g2d.translate(pointN[X] * zoom, pointN[Y] * zoom);
                     g2d.setColor(new Color(0, 255, 0));
-                    g2d.fill(el);
+                    if (i == points.size() - 3) {
+                        g2d.setColor(new Color(0, 0, 255));
+                        g2d.fill(ex);
+                        g2d.setColor(Color.WHITE);
+                        g2d.fill(el);
+                    }
+                    else {
+                        g2d.fill(el);
+                    }
                     g2d.translate(-pointN[X] * zoom, -pointN[Y] * zoom);
                 }
             }
@@ -345,52 +431,36 @@ public class ManeuversUtil {
      * @param zoom
      * @param width
      * @param length
-     * @param bearingRad
-     * @param crossAngleRadians
-     * @param editMode
-     */
-    public static void paintBox(Graphics2D g2d, double zoom, double width, double length,
-            double x0, double y0,
-            double bearingRad, double crossAngleRadians, boolean editMode) {
-        paintBox(g2d, zoom, width, length, x0, y0, bearingRad, crossAngleRadians, false, editMode);
-    }
-
-    /**
-     * @param g2d
-     * @param zoom
-     * @param width
-     * @param length
      * @param x0
      * @param y0
      * @param bearingRad
      * @param crossAngleRadians
+     * @param fill
      * @param invertY
      * @param editMode
      */
-    public static void paintBox(Graphics2D g2d, double zoom, double width, double length, double x0, double y0,
-            double bearingRad, double crossAngleRadians, boolean invertY, boolean editMode) {
+    public static void paintBox(Graphics2D g, double zoom, double width, double length, double x0, double y0,
+            double bearingRad, double crossAngleRadians, boolean fill, boolean invertY, boolean editMode) {
+        Graphics2D g2d = (Graphics2D) g.create();
         double mult = !invertY ? 1 : -1;
         GeneralPath sp = new GeneralPath();
         sp.moveTo(x0 * zoom, y0 * zoom);
         double[] resT = AngleUtils.rotate(-crossAngleRadians, length, 0, false);
         sp.lineTo(x0 * zoom + resT[0] * zoom, mult * (y0 * zoom + resT[1] * zoom));
-//        resT = AngleCalc.rotate(crossAngleRadians, length, 0, false);
         sp.lineTo(x0 * zoom + resT[0] * zoom, mult * (y0 * zoom + (width + resT[1]) * zoom));
         sp.lineTo(x0 * zoom, mult * (y0 * zoom + width * zoom));
         sp.closePath();
-        g2d.setColor(!editMode ? new Color(255, 255, 255, 100) : new Color(255, 125, 255, 200));
+        g2d.setColor(!editMode ? noEditBoxColor : editBoxColor);
         g2d.rotate(bearingRad + (!invertY ? -1 : 1) * -crossAngleRadians);
-        Stroke sO = g2d.getStroke();
-        Stroke s1 = new BasicStroke(1);
-        Stroke s3 = new BasicStroke(2);
+        Stroke s1 = new BasicStroke(2);
+        Stroke s3 = new BasicStroke(3);
         g2d.setStroke(!editMode ? s1 : s3);
         g2d.draw(sp);
-//        if (editMode) {
-//            g2d.setColor(new Color(255, 125, 255, 100));
-//            g2d.fill(sp);
-//        }
-        g2d.setStroke(sO);
-        g2d.rotate(-bearingRad + (!invertY ? 1 : -1) * -crossAngleRadians);
+        if (fill) {
+            g2d.setColor(editMode ? editBoxColor : noEditBoxColor);
+            g2d.fill(sp);
+        }
+        g2d.dispose();
     }
     
     public static double getSpeedMps(Maneuver man) {
@@ -437,5 +507,39 @@ public class ManeuversUtil {
      */
     public static void setPropertiesToManeuver(Maneuver man, Property[] properties) {
         PluginUtils.setPluginProperties(man, properties);
+    }
+    
+    public static <M extends Maneuver> Class<M> getManeuverFromType(String type) {
+        return IMCUtils.getManeuverFromType(type);
+    }
+    
+    /**
+     * Check if the property has a name proper to "Speed Units", if yes parses the value
+     * and if not valid return a default value.
+     * If not with the right name return null.
+     * 
+     * @param p
+     * @return
+     */
+    public static Maneuver.SPEED_UNITS getSpeedUnitsFromPropertyOrNullIfInvalidName(Property p) {
+        if (p.getName().equalsIgnoreCase("Speed units") || p.getName().equalsIgnoreCase("SpeedUnits")) {
+            Object val = p.getValue();
+            if (val instanceof String) {
+                SPEED_UNITS units;
+                try {
+                    units = Maneuver.SPEED_UNITS.parse((String) val);
+                }
+                catch (Exception e) {
+                    units = SPEED_UNITS.RPM;
+                    e.printStackTrace();
+                }
+                return units;
+            }
+            else if (val instanceof Maneuver.SPEED_UNITS) {
+                return (SPEED_UNITS) val;
+            }
+        }
+
+        return null;
     }
 }

@@ -22,7 +22,7 @@
  * distributed on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF
  * ANY KIND, either express or implied. See the Licence for the specific
  * language governing permissions and limitations at
- * https://www.lsts.pt/neptus/licence.
+ * http://ec.europa.eu/idabc/eupl.html.
  *
  * For more information please see <http://lsts.fe.up.pt/neptus>.
  *
@@ -42,6 +42,8 @@ import pt.lsts.neptus.NeptusLog;
 public class ImcId16 extends Number implements Comparable<ImcId16>{
 
 	private static final long serialVersionUID = 4540568234437157049L;
+
+	public static final long MAX_VALUE = 0xFFFF;
 
 	public static final ImcId16 BROADCAST_ID = new ImcId16(0xFFF0);
     public static final ImcId16 ANNOUNCE     = new ImcId16(0x0000);

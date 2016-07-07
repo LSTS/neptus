@@ -22,7 +22,7 @@
  * distributed on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF
  * ANY KIND, either express or implied. See the Licence for the specific
  * language governing permissions and limitations at
- * https://www.lsts.pt/neptus/licence.
+ * http://ec.europa.eu/idabc/eupl.html.
  *
  * For more information please see <http://lsts.fe.up.pt/neptus>.
  *
@@ -31,6 +31,7 @@
  */
 package pt.lsts.neptus.mp.preview;
 
+import pt.lsts.imc.EstimatedState;
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.mp.Maneuver;
 import pt.lsts.neptus.mp.ManeuverLocation;
@@ -38,7 +39,6 @@ import pt.lsts.neptus.mp.SystemPositionAndAttitude;
 import pt.lsts.neptus.mp.maneuvers.LocatedManeuver;
 import pt.lsts.neptus.types.coord.LocationType;
 import pt.lsts.neptus.types.mission.plan.PlanType;
-import pt.lsts.imc.EstimatedState;
 
 /**
  * This class simulates the execution of a plan (roughly)
@@ -61,7 +61,7 @@ public class PlanSimulator {
      * @param plan The plan to be simulated. It will simulate the plan from its initial maneuver
      */
     public PlanSimulator(final PlanType plan, SystemPositionAndAttitude start) {
-        this.plan = plan;
+        this.plan = plan.clonePlan();
         this.vehicleId = plan.getVehicle();
         engine = new SimulationEngine(plan);
         Maneuver[] mans = plan.getGraph().getManeuversSequence();
