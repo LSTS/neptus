@@ -15,40 +15,51 @@
  *
  * European Union Public Licence - EUPL v.1.1 Usage
  * Alternatively, this file may be used under the terms of the EUPL,
- * Version 1.1 only (the "Licence"), appearing in the file LICENCE.md
+ * Version 1.1 only (the "Licence"), appearing in the file LICENSE.md
  * included in the packaging of this file. You may not use this work
  * except in compliance with the Licence. Unless required by applicable
  * law or agreed to in writing, software distributed under the Licence is
  * distributed on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF
  * ANY KIND, either express or implied. See the Licence for the specific
  * language governing permissions and limitations at
- * http://ec.europa.eu/idabc/eupl.html.
+ * https://www.lsts.pt/neptus/licence.
  *
  * For more information please see <http://lsts.fe.up.pt/neptus>.
  *
- * Author: Paulo Dias
- * 18 de Nov de 2011
+ * Author: pdias
+ * 07/07/2016
  */
-package pt.lsts.neptus.gui.editor;
+package pt.lsts.neptus.mp.maneuvers;
 
-import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.mp.Maneuver;
-
+import pt.lsts.neptus.mp.Maneuver.SPEED_UNITS;
 
 /**
- * @deprecated Use {@link SpeedUnitsEnumEditor} with {@link Maneuver.SPEED_UNITS}
- * 
  * @author pdias
  *
  */
-@Deprecated
-public class SpeedUnitsEditor extends ComboEditor<String> {
-
+public interface ManeuverWithSpeed {
     /**
-     * @param options
+     * @return The speed value.
      */
-    public SpeedUnitsEditor() {
-        //Don't I18n.text this. See super implementation
-        super(new String[] {I18n.textmark("m/s"), I18n.textmarkc("RPM", "Rotations per Minutes"), "%"});
-    }
+    public double getSpeed();
+    
+    /**
+     * Sets the speed value
+     * 
+     * @param speed
+     */
+    public void setSpeed(double speed);
+    
+    /**
+     * @return The speed units.
+     */
+    public SPEED_UNITS getSpeedUnits();
+    
+    /**
+     * Sets the speed units
+     * 
+     * @param units
+     */
+    public void setSpeedUnits(Maneuver.SPEED_UNITS units);
 }

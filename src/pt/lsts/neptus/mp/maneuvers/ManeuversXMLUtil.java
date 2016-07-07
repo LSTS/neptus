@@ -137,20 +137,24 @@ public class ManeuversXMLUtil {
 
     public static double parseSpeed(Element root) {
         Node speedNode = root.selectSingleNode("//speed");
+        if (speedNode == null)
+            speedNode = root.selectSingleNode("//velocity"); // Is deprecated but to load old defs
         double speed = Double.parseDouble(speedNode.getText());
-//        speedUnits = SPEED_UNITS.parse(speedNode.valueOf("@unit"));
         return speed;
     }
     
     public static Maneuver.SPEED_UNITS parseSpeedUnits(Element root) {
         Node speedNode = root.selectSingleNode("//speed");
-//        double speed = Double.parseDouble(speedNode.getText());
+        if (speedNode == null)
+            speedNode = root.selectSingleNode("//velocity"); // Is deprecated but to load old defs
         SPEED_UNITS speedUnits = SPEED_UNITS.parse(speedNode.valueOf("@unit"));
         return speedUnits;
     }
 
     public static <M extends Maneuver>  double parseSpeed(Element root, M maneuver) throws Exception {
         Node speedNode = root.selectSingleNode("//speed");
+        if (speedNode == null)
+            speedNode = root.selectSingleNode("//velocity"); // Is deprecated but to load old defs
         double speed = Double.parseDouble(speedNode.getText());
         SPEED_UNITS speedUnits = SPEED_UNITS.parse(speedNode.valueOf("@unit"));
         Field sField = getFieldByName(maneuver, "Speed");

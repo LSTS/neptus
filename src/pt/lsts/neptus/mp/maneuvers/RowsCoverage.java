@@ -78,7 +78,7 @@ import pt.lsts.neptus.util.XMLUtil;
 /**
  * @author pdias
  */
-public class RowsCoverage extends Maneuver implements LocatedManeuver, StateRendererInteraction,
+public class RowsCoverage extends Maneuver implements LocatedManeuver, ManeuverWithSpeed, StateRendererInteraction,
 IMCSerialization, StatisticsProvider, PathProvider {
 
     protected double latDegs = 0;
@@ -605,16 +605,23 @@ IMCSerialization, StatisticsProvider, PathProvider {
         man.setFlags((short) ((squareCurve ? pt.lsts.imc.RowsCoverage.FLG_SQUARE_CURVE : 0) 
                 + (firstCurveRight ? pt.lsts.imc.RowsCoverage.FLG_CURVE_RIGHT : 0)));
 
-        String speedU = this.getSpeedUnits().name();
-        if ("m/s".equalsIgnoreCase(speedU))
-            man.setSpeedUnits(pt.lsts.imc.RowsCoverage.SPEED_UNITS.METERS_PS);
-        else if ("RPM".equalsIgnoreCase(speedU))
-            man.setSpeedUnits(pt.lsts.imc.RowsCoverage.SPEED_UNITS.RPM);
-        else if ("%".equalsIgnoreCase(speedU))
-            man.setSpeedUnits(pt.lsts.imc.RowsCoverage.SPEED_UNITS.PERCENTAGE);
-        else if ("percentage".equalsIgnoreCase(speedU))
-            man.setSpeedUnits(pt.lsts.imc.RowsCoverage.SPEED_UNITS.PERCENTAGE);
-
+        try {
+            switch (this.getSpeedUnits()) {
+                case PERCENTAGE:
+                    man.setSpeedUnits(pt.lsts.imc.RowsCoverage.SPEED_UNITS.PERCENTAGE);
+                    break;
+                case RPM:
+                    man.setSpeedUnits(pt.lsts.imc.RowsCoverage.SPEED_UNITS.RPM);
+                    break;
+                case METERS_PS:
+                default:
+                    man.setSpeedUnits(pt.lsts.imc.RowsCoverage.SPEED_UNITS.METERS_PS);
+                    break;
+            }
+        }
+        catch (Exception ex) {
+            NeptusLog.pub().error(this, ex);                     
+        }
         return man;
     }
 
