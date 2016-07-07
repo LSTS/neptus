@@ -724,7 +724,7 @@
       <type>ipv4-address</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>10.0.10.110</default>
+      <default>10.0.10.40</default>
       <units/>
       <desc>Remote server address</desc>
     </param>
