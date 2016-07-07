@@ -43,6 +43,7 @@ import org.apache.commons.lang.StringUtils;
 
 import com.l2fprod.common.propertysheet.DefaultProperty;
 
+import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.mp.Maneuver;
 import pt.lsts.neptus.types.mission.plan.PlanType;
@@ -86,14 +87,24 @@ public class PlanSettingsChanged extends AbstractUndoableEdit {
     @Override
     public void undo() throws CannotUndoException {
         for (String key : previousSettings.keySet()) {
-            plan.getGraph().getManeuver(key).setProperties(previousSettings.get(key).toArray(new DefaultProperty[0]));
+            try {
+                plan.getGraph().getManeuver(key).setProperties(previousSettings.get(key).toArray(new DefaultProperty[0]));
+            }
+            catch (Exception e) {
+                NeptusLog.pub().error(e, e);
+            }
         }
     }
 
     @Override
     public void redo() throws CannotRedoException {      
         for (Maneuver m : plan.getGraph().getAllManeuvers()) {
-            m.setProperties(newSettings.toArray(new DefaultProperty[0]));
+            try {
+                m.setProperties(newSettings.toArray(new DefaultProperty[0]));
+            }
+            catch (Exception e) {
+                NeptusLog.pub().error(e, e);
+            }
         }
     }
 

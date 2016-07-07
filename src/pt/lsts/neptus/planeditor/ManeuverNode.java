@@ -41,6 +41,7 @@ import java.util.Vector;
 import com.l2fprod.common.propertysheet.DefaultProperty;
 import com.l2fprod.common.propertysheet.Property;
 
+import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.graph.DefaultNode;
 import pt.lsts.neptus.graph.NeptusEdgeElement;
 import pt.lsts.neptus.graph.NeptusGraph;
@@ -129,7 +130,12 @@ public class ManeuverNode extends DefaultNode<Maneuver> {
 	@Override
 	public void setProperties(Property[] properties) {
 		if (getUserObject() instanceof PropertiesProvider) {
-			((PropertiesProvider)getUserObject()).setProperties(properties);
+		    try {
+                ((PropertiesProvider) getUserObject()).setProperties(properties);
+            }
+            catch (Exception e) {
+                NeptusLog.pub().error(e, e);
+            }
 		}
 		super.setProperties(properties);
 	}

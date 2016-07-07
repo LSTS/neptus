@@ -53,6 +53,7 @@ import pt.lsts.neptus.console.ConsoleLayout;
 import pt.lsts.neptus.console.ConsolePanel;
 import pt.lsts.neptus.console.plugins.MissionChangeListener;
 import pt.lsts.neptus.i18n.I18n;
+import pt.lsts.neptus.mp.Maneuver;
 import pt.lsts.neptus.mp.ManeuverLocation;
 import pt.lsts.neptus.mp.ManeuverLocation.Z_UNITS;
 import pt.lsts.neptus.mp.maneuvers.FollowTrajectory;
@@ -239,7 +240,7 @@ public class VerticalFormationWizard extends ConsolePanel implements MissionChan
             first.setZUnits(Z_UNITS.DEPTH);
             FollowTrajectory formation = new FollowTrajectory();
             formation.setManeuverLocation(new ManeuverLocation(first));
-            formation.setSpeedUnits("m/s");
+            formation.setSpeedUnits(Maneuver.SPEED_UNITS.METERS_PS);
             formation.setSpeed(params.speedMps);
             formation.setId("3");
             Vector<double[]> waypoints = new Vector<>();

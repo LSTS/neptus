@@ -50,7 +50,7 @@ import com.l2fprod.common.propertysheet.Property;
 
 import pt.lsts.imc.IMCMessage;
 import pt.lsts.neptus.NeptusLog;
-import pt.lsts.neptus.gui.editor.SpeedUnitsEditor;
+import pt.lsts.neptus.gui.editor.SpeedUnitsEnumEditor;
 import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.mp.Maneuver;
 import pt.lsts.neptus.mp.ManeuverLocation;
@@ -65,7 +65,7 @@ import pt.lsts.neptus.types.map.PlanElement;
  * @author pdias
  *
  */
-public class Elevator extends Maneuver implements LocatedManeuver, IMCSerialization, StatisticsProvider {
+public class Elevator extends Maneuver implements LocatedManeuver, ManeuverWithSpeed, IMCSerialization, StatisticsProvider {
 
     protected static final String DEFAULT_ROOT_ELEMENT = "Elevator";
 
@@ -75,8 +75,8 @@ public class Elevator extends Maneuver implements LocatedManeuver, IMCSerializat
     @NeptusProperty(name="Speed", description="The speed to be used")
     public double speed = 1000; 
 
-    @NeptusProperty(name="Speed units", description="The speed units", editorClass=SpeedUnitsEditor.class)
-    public String speedUnits = "RPM";
+    @NeptusProperty(name="Speed units", description="The speed units", editorClass = SpeedUnitsEnumEditor.class)
+    public Maneuver.SPEED_UNITS speedUnits = SPEED_UNITS.RPM;
 
     @NeptusProperty(name="Start from current position", description="Start from current position or use the location field")
     public boolean startFromCurrentPosition = false;
@@ -125,7 +125,7 @@ public class Elevator extends Maneuver implements LocatedManeuver, IMCSerializat
         Element velocity = root.addElement("speed");
         velocity.addAttribute("tolerance", String.valueOf(speedTolerance));
         velocity.addAttribute("type", "float");
-        velocity.addAttribute("unit", getSpeedUnits());
+        velocity.addAttribute("unit", getSpeedUnits().getString());
         velocity.setText(String.valueOf(getSpeed()));
 
         Element flags = root.addElement("flags");
@@ -149,7 +149,9 @@ public class Elevator extends Maneuver implements LocatedManeuver, IMCSerializat
             setManeuverLocation(loc);
             Node speedNode = doc.selectSingleNode(DEFAULT_ROOT_ELEMENT+ "/speed");
             setSpeed(Double.parseDouble(speedNode.getText()));
-            setSpeedUnits(speedNode.valueOf("@unit"));
+//            setSpeedUnits(speedNode.valueOf("@unit"));
+            SPEED_UNITS sUnits = ManeuversXMLUtil.parseSpeedUnits((Element) speedNode);
+            setSpeedUnits(sUnits);
 
             Node sz = doc.selectSingleNode(DEFAULT_ROOT_ELEMENT+ "/startZ");
             if (sz == null)
@@ -233,7 +235,7 @@ public class Elevator extends Maneuver implements LocatedManeuver, IMCSerializat
 
     @Override
     public String getTooltipText() {
-        return super.getTooltipText() + "<hr>" + I18n.text("speed") + ": <b>" + speed + " " + I18n.text(speedUnits) + "</b>" + 
+        return super.getTooltipText() + "<hr>" + I18n.text("speed") + ": <b>" + speed + " " + I18n.text(speedUnits.getString()) + "</b>" + 
                 (!startFromCurrentPosition ? "<br>" + I18n.text("cruise depth") + ": <b>" + (int) getStartLocation().getDepth() + " " + I18n.textc("m", "meters") + "</b>":"") + 
                 "<br>" + I18n.text("start") + "" + ": <b>" + startZ + " " + I18n.textc("m", "meters") + " (" + I18n.text(startZUnits.toString()) + ")</b>" +
                 "<br>" + I18n.text("end z") + ": <b>" + getManeuverLocation().getZ() + " " + I18n.textc("m", "meters") + " (" + I18n.text(getManeuverLocation().getZUnits().toString()) + ")</b>" +
@@ -280,16 +282,22 @@ public class Elevator extends Maneuver implements LocatedManeuver, IMCSerializat
         elevator.setSpeed(getSpeed());
         elevator.setCustom(getCustomSettings());
         
-        switch (getSpeedUnits()) {
-            case "m/s":
-                elevator.setSpeedUnits(pt.lsts.imc.Elevator.SPEED_UNITS.METERS_PS);
-                break;
-            case "RPM":
-                elevator.setSpeedUnits(pt.lsts.imc.Elevator.SPEED_UNITS.RPM);
-                break;
-            default:
-                elevator.setSpeedUnits(pt.lsts.imc.Elevator.SPEED_UNITS.PERCENTAGE);
-                break;
+        try {
+            switch (this.getSpeedUnits()) {
+                case METERS_PS:
+                    elevator.setSpeedUnits(pt.lsts.imc.Elevator.SPEED_UNITS.METERS_PS);
+                    break;
+                case PERCENTAGE:
+                    elevator.setSpeedUnits(pt.lsts.imc.Elevator.SPEED_UNITS.PERCENTAGE);
+                    break;
+                case RPM:
+                default:
+                    elevator.setSpeedUnits(pt.lsts.imc.Elevator.SPEED_UNITS.RPM);
+                    break;
+            }
+        }
+        catch (Exception ex) {
+            NeptusLog.pub().error(this, ex);                     
         }
 
         if (isStartFromCurrentPosition())
@@ -328,18 +336,13 @@ public class Elevator extends Maneuver implements LocatedManeuver, IMCSerializat
         setStartFromCurrentPosition((elev.getFlags() & pt.lsts.imc.Elevator.FLG_CURR_POS) != 0);
         setCustomSettings(elev.getCustom());
         
-        switch (elev.getSpeedUnits()) {
-            case RPM:
-                speedUnits = "RPM";
-                break;
-            case METERS_PS:
-                speedUnits = "m/s";
-                break;
-            case PERCENTAGE:
-                speedUnits = "%";
-                break;
-            default:
-                break;
+        try {
+            String speedUnitsStr = message.getString("speed_units");
+            speedUnits = Maneuver.SPEED_UNITS.parse(speedUnitsStr);
+        }
+        catch (Exception e) {
+            speedUnits = Maneuver.SPEED_UNITS.RPM;
+            e.printStackTrace();
         }
     }
 
@@ -388,14 +391,14 @@ public class Elevator extends Maneuver implements LocatedManeuver, IMCSerializat
     /**
      * @return the units
      */
-    public String getSpeedUnits() {
+    public SPEED_UNITS getSpeedUnits() {
         return speedUnits;
     }
 
     /**
      * @param units the units to set
      */
-    public void setSpeedUnits(String units) {
+    public void setSpeedUnits(SPEED_UNITS units) {
         this.speedUnits = units;
     }
 
@@ -479,10 +482,10 @@ public class Elevator extends Maneuver implements LocatedManeuver, IMCSerializat
     @Override
     public double getCompletionTime(LocationType initialPosition) {
         double speed = this.speed;
-        if (this.speedUnits.equalsIgnoreCase("RPM")) {
+        if (this.speedUnits == SPEED_UNITS.RPM) {
             speed = speed/769.230769231; //1.3 m/s for 1000 RPMs
         }
-        else if (this.speedUnits.equalsIgnoreCase("%")) {
+        else if (this.speedUnits == SPEED_UNITS.PERCENTAGE) {
             speed = speed/76.923076923; //1.3 m/s for 100% speed
         }
       

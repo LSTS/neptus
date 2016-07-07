@@ -538,12 +538,6 @@ public abstract class Maneuver implements XmlOutputMethods, PropertiesProvider, 
     }
 
     /**
-     * The mission preview will call this function every second to refresh the vehicle state. <br>
-     * Implement this function to show how this maneuver is performed by the vehicle.
-     */
-    //public abstract SystemPositionAndAttitude ManeuverFunction(SystemPositionAndAttitude lastVehicleState);
-
-    /**
      * When the maneuver has ended, this function must be called to end the iteration
      */
     public void endManeuver() {
