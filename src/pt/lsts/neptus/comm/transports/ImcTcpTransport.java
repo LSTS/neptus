@@ -332,7 +332,7 @@ public class ImcTcpTransport {
                             }
                             catch (IOException e) {
                                 if (!"Unrecognized Sync word: 00".equalsIgnoreCase(e.getMessage()))
-                                        e.printStackTrace();
+                                    NeptusLog.pub().debug(e);
                             }
 //                            byte[] ba = new byte[pis.available()];
 //                            if (ba.length > 0) {
