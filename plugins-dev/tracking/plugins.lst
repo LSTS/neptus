@@ -1,7 +1,2 @@
-# DATE=@DATE@
-# TIME=@TIME@
-# COMPILED BY=@COMPILED BY@
-# LEGAL_COPY=@LEGAL_COPY@
-
 pt.lsts.neptus.plugins.tracking.Tracking
-pt.lsts.neptus.plugins.tracking.UtilTracking
+pt.lsts.neptus.plugins.tracking.ImageTrackingStartPanel
