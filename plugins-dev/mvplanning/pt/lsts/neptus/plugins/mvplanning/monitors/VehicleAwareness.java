@@ -138,12 +138,8 @@ public class VehicleAwareness implements IPeriodicUpdates {
     }
 
     public void setVehicleStartLocation(String vehicleId, LocationType startLocation) {
-        if(ImcSystemsHolder.getSystemWithName(vehicleId) != null) {
-            startLocations.put(vehicleId, startLocation);
-            NeptusLog.pub().info("[" + vehicleId + "]" + " start location's set");
-        }
-        else
-            NeptusLog.pub().warn("Trying to set location of " + vehicleId + ". which is not a vehicle");
+        startLocations.put(vehicleId, startLocation);
+        NeptusLog.pub().info("[" + vehicleId + "]" + " start location's set");
     }
 
     public LocationType getVehicleStartLocation(String vehicleId) {
