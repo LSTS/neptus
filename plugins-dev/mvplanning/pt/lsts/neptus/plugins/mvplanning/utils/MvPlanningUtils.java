@@ -49,6 +49,7 @@ import pt.lsts.neptus.mp.maneuvers.LocatedManeuver;
 import pt.lsts.neptus.plugins.mvplanning.jaxb.profiles.Payload;
 import pt.lsts.neptus.plugins.mvplanning.jaxb.profiles.Profile;
 import pt.lsts.neptus.plugins.mvplanning.interfaces.PlanTask;
+import pt.lsts.neptus.plugins.position.painter.SystemInfoPainter;
 import pt.lsts.neptus.types.coord.LocationType;
 
 import java.awt.geom.AffineTransform;
@@ -71,10 +72,15 @@ public class MvPlanningUtils {
      * */
     public static Maneuver buildManeuver(Profile planProfile, LocationType manLoc, PlanTask.TASK_TYPE taskType) {
         Maneuver newMan;
-        if(taskType == PlanTask.TASK_TYPE.COVERAGE_AREA)
+        String manType;
+        if(taskType == PlanTask.TASK_TYPE.COVERAGE_AREA) {
             newMan = new FollowPath();
-        else
+            manType = "FollowPath";
+        }
+        else {
             newMan = new Goto();
+            manType = "Goto";
+        }
 
         /* Maneuver's Z */
         ManeuverLocation loc = new ManeuverLocation(manLoc);
@@ -83,6 +89,7 @@ public class MvPlanningUtils {
         ((LocatedManeuver) newMan).setManeuverLocation(loc);
 
         /* Maneuver's speed */
+        System.out.println("** " + planProfile.getProfileSpeed() + " " + planProfile.getSpeedUnits());
         DefaultProperty units = PropertiesEditor.getPropertyInstance("Speed units", String.class, planProfile.getSpeedUnits(), true);
         DefaultProperty propertySpeed = PropertiesEditor.getPropertyInstance("Speed", Double.class, planProfile.getProfileSpeed(), true);
         propertySpeed.setDisplayName(I18n.text("Speed"));
@@ -90,7 +97,7 @@ public class MvPlanningUtils {
         units.setShortDescription(I18n.text("The speed units"));
 
         /* start actions */
-        DefaultProperty startActionsProperty = setupPayloads(planProfile);
+        Property startActionsProperty = setupPayloads(planProfile, manType);
 
         Property[] props = new Property[] {units, propertySpeed, startActionsProperty};
         newMan.setProperties(props);
@@ -100,11 +107,11 @@ public class MvPlanningUtils {
 
     /**
      * Fetch payloads needed for the profile and returns a start-actions
-     * DefaultProperty object to be added to the maneuver's properties
+     * Property object to be added to the maneuver's properties
      *
-     * @return {@link DefaultProperty} object with the start-actions
+     * @return {@link Property} object with the start-actions
      * */
-    public static DefaultProperty setupPayloads(Profile planProfile) {
+    public static Property setupPayloads(Profile planProfile, String manType) {
         List<Payload> payloadList = planProfile.getPayload();
         Vector<IMCMessage> setParamsMsg = new Vector<>();
 
@@ -127,8 +134,11 @@ public class MvPlanningUtils {
 
         PlanActions startActions = new PlanActions();
         startActions.parseMessages(setParamsMsg);
-        DefaultProperty startActionsProperty = PropertiesEditor.getPropertyInstance("start-actions",
-                "Plan " + " start actions", PlanActions.class, startActions, true);
+        Property startActionsProperty = PropertiesEditor.getPropertyInstance("start-actions", manType + " start actions",
+                PlanActions.class, startActions, false);
+
+        System.out.println(startActionsProperty.getCategory().equalsIgnoreCase("%s start actions"));
+        System.out.println(startActionsProperty.getCategory());
 
         return startActionsProperty;
     }
