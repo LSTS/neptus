@@ -189,7 +189,6 @@
               </basePoint>
               <speed unit="m/s">17.0</speed>
               <takeoffPitch>10.0</takeoffPitch>
-              <uavType>FIXEDWING</uavType>
               <annotation>
                 <documentation>No documentation available</documentation>
                 <implementation-class>pt.lsts.neptus.mp.maneuvers.Takeoff</implementation-class>
@@ -215,7 +214,6 @@
               <bearing>0.0</bearing>
               <glideSlope>10</glideSlope>
               <glideSlopeAltitude>10.0</glideSlopeAltitude>
-              <uavType>FIXEDWING</uavType>
               <annotation>
                 <documentation>No documentation available</documentation>
                 <implementation-class>pt.lsts.neptus.mp.maneuvers.Land</implementation-class>
