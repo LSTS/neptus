@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<config format="1" version="2016.05.0 (mission/apdl-20160616,5aa1158)" system="lauv-noptilus-2" i18n="pt_PT">
+<config format="1" version="2016.05.0 (master,8efd134)" system="lauv-noptilus-2" i18n="pt_PT">
   <section name="Motor Controller" name-i18n="Controlador de Motor">
     <param name="Entity Label">
       <name-i18n>Nome da Entidade</name-i18n>
@@ -1615,15 +1615,6 @@
       <units>°</units>
       <desc>Slope hysteresis when recovering from avoidance</desc>
     </param>
-    <param name="Bottom Track -- Minimum Altitude">
-      <name-i18n>Bottom Track -- Minimum Altitude</name-i18n>
-      <type>real</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>1.2</default>
-      <units>m</units>
-      <desc>Minimum admissible altitude for bottom tracking</desc>
-    </param>
     <param name="Bottom Track -- Minimum Range">
       <name-i18n>Bottom Track -- Minimum Range</name-i18n>
       <type>real</type>
@@ -2667,6 +2658,103 @@
       <desc>Maximum CPU usage. When this value is hit an error will be raised</desc>
       <min>0</min>
       <max>100</max>
+    </param>
+  </section>
+  <section name="Clock" name-i18n="Relógio">
+    <param name="Entity Label">
+      <name-i18n>Nome da Entidade</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>Clock</default>
+      <units/>
+      <desc>Nome principal da entidade</desc>
+    </param>
+    <param name="Execution Priority">
+      <name-i18n>Prioridade de Execução</name-i18n>
+      <type>integer</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>10</default>
+      <units/>
+      <desc>Prioridade de execução</desc>
+    </param>
+    <param name="Activation Time">
+      <name-i18n>Tempo de Ativação</name-i18n>
+      <type>integer</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>0</default>
+      <units/>
+      <desc/>
+    </param>
+    <param name="Deactivation Time">
+      <name-i18n>Tempo de Desativação</name-i18n>
+      <type>integer</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>0</default>
+      <units/>
+      <desc/>
+    </param>
+    <param name="Debug Level">
+      <name-i18n>Nível de Depuração</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>None</default>
+      <units/>
+      <desc/>
+      <values>None, Debug, Trace, Spew</values>
+      <values-i18n>None, Debug, Trace, Spew</values-i18n>
+    </param>
+    <param name="Minimum GPS Fixes">
+      <name-i18n>Minimum GPS Fixes</name-i18n>
+      <type>integer</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>30</default>
+      <units/>
+      <desc>Minimum number of GPS fixes required to compute the clock offset</desc>
+      <min>0</min>
+    </param>
+    <param name="Maximum Clock Offset">
+      <name-i18n>Maximum Clock Offset</name-i18n>
+      <type>real</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>2</default>
+      <units>s</units>
+      <desc>Maximum Clock Offset. If the clock offset is above this value the clock will be syncronized</desc>
+      <min>0</min>
+    </param>
+    <param name="Boot Synchronization Timeout">
+      <name-i18n>Boot Synchronization Timeout</name-i18n>
+      <type>real</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>60</default>
+      <units>s</units>
+      <desc>At boot the system tries to synchronize clocks. It continues unsynched after timeout</desc>
+      <min>0</min>
+    </param>
+    <param name="Hardware Clock Synchronization Command">
+      <name-i18n>Hardware Clock Synchronization Command</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>hwclock -w</default>
+      <units/>
+      <desc>System command to execute everytime the clock is synchronized</desc>
+    </param>
+    <param name="Change Log">
+      <name-i18n>Change Log</name-i18n>
+      <type>boolean</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>false</default>
+      <units/>
+      <desc>Change log file after synchronization</desc>
     </param>
   </section>
   <section name="Collisions" name-i18n="Colisões">
@@ -4387,7 +4475,7 @@
       <scope>global</scope>
       <default>1.015e-3</default>
       <units/>
-      <desc>Kalman Filter initial revolutions to speed multiplicative factor state value</desc>
+      <desc>Kalman Filter initial revolutions to speed factor value</desc>
       <min>0.8e-3</min>
       <max>2.0e-3</max>
     </param>
@@ -4922,6 +5010,15 @@
       <desc>Once this value is hit the system will enter emergency mode</desc>
       <min>9</min>
       <max>25</max>
+    </param>
+    <param name="Wakeup Operating Voltage">
+      <name-i18n>Wakeup Operating Voltage</name-i18n>
+      <type>real</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>24</default>
+      <units>V</units>
+      <desc>Minimum voltage required to leave emergency mode, should be greater than the minimum operating voltage</desc>
     </param>
     <param name="Watchdog Timeout">
       <name-i18n>Watchdog Timeout</name-i18n>
@@ -6283,6 +6380,33 @@
       <values>None, Debug, Trace, Spew</values>
       <values-i18n>None, Debug, Trace, Spew</values-i18n>
     </param>
+    <param name="Active - Scope">
+      <name-i18n>Ativa - Escopo</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>idle</default>
+      <units/>
+      <desc>Escopo do parâmetro 'Ativa'</desc>
+    </param>
+    <param name="Active - Visibility">
+      <name-i18n>Ativa - Visibilidade</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>user</default>
+      <units/>
+      <desc>Visibilidade do parâmetro 'Ativa'</desc>
+    </param>
+    <param name="Active">
+      <name-i18n>Ativa</name-i18n>
+      <type>boolean</type>
+      <visibility>user</visibility>
+      <scope>idle</scope>
+      <default>false</default>
+      <units/>
+      <desc>Verdadeiro para ativar tarefa, falso caso contrário</desc>
+    </param>
     <param name="Serial Port - Device">
       <name-i18n>Serial Port - Device</name-i18n>
       <type>string</type>
@@ -6451,6 +6575,15 @@
       <default>false</default>
       <units/>
       <desc>Enable to activate device when at surface</desc>
+    </param>
+    <param name="Automatic Activation">
+      <name-i18n>Ativação Automática</name-i18n>
+      <type>boolean</type>
+      <visibility>user</visibility>
+      <scope>idle</scope>
+      <default>true</default>
+      <units/>
+      <desc>Operator is able to control device</desc>
     </param>
   </section>
   <section name="Depth Sensor" name-i18n="Sensor de Profundidade">
@@ -6659,7 +6792,7 @@
       <type>integer</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>100</default>
+      <default>50</default>
       <units>Hz</units>
       <desc>Output frequency</desc>
       <min>1</min>
@@ -6752,6 +6885,33 @@
       <desc/>
       <values>None, Debug, Trace, Spew</values>
       <values-i18n>None, Debug, Trace, Spew</values-i18n>
+    </param>
+    <param name="Active - Scope">
+      <name-i18n>Ativa - Escopo</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>idle</default>
+      <units/>
+      <desc>Escopo do parâmetro 'Ativa'</desc>
+    </param>
+    <param name="Active - Visibility">
+      <name-i18n>Ativa - Visibilidade</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>user</default>
+      <units/>
+      <desc>Visibilidade do parâmetro 'Ativa'</desc>
+    </param>
+    <param name="Active">
+      <name-i18n>Ativa</name-i18n>
+      <type>boolean</type>
+      <visibility>user</visibility>
+      <scope>idle</scope>
+      <default>false</default>
+      <units/>
+      <desc>Verdadeiro para ativar tarefa, falso caso contrário</desc>
     </param>
     <param name="Serial Port - Device">
       <name-i18n>Serial Port - Device</name-i18n>
@@ -6880,16 +7040,14 @@
       <units/>
       <desc>Enable to activate device when at surface</desc>
     </param>
-    <param name="Control Override">
-      <name-i18n>Controlo sobre Dispositivo</name-i18n>
-      <type>string</type>
+    <param name="Automatic Activation">
+      <name-i18n>Ativação Automática</name-i18n>
+      <type>boolean</type>
       <visibility>user</visibility>
       <scope>idle</scope>
-      <default>None</default>
+      <default>true</default>
       <units/>
       <desc>Operator is able to control device</desc>
-      <values>None, Deactivate, Activate</values>
-      <values-i18n>Nenhum, Desativar, Ativar</values-i18n>
     </param>
     <param name="Power Channel">
       <name-i18n>Power Channel</name-i18n>
@@ -8560,7 +8718,7 @@
       <type>list:string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>Abort, Acceleration, AcousticLink, AllocatedControlTorques, AlignmentState, AngularVelocity, Announce, Brake, Chlorophyll, ClockControl, CompassCalibration, Collision, Conductivity, ControlLoops, ControlParcel, CpuUsage, Current, DataSanity, Depth, DesiredControl, DesiredZ, DesiredHeading, DesiredHeadingRate, DesiredPath, DesiredPitch, DesiredSpeed, DevCalibrationControl, DevCalibrationState, DevDataBinary, DevDataText, Distance, DvlRejection, Elevator, EmergencyControl, EmergencyControlState, EntityActivationState, EntityList, EntityMonitoringState, EntityParameters, EntityState, EstimatedState, EstimatedStreamVelocity, EulerAngles, EulerAnglesDelta, Fluorescein, FollowPath, FollowRefState, FuelLevel, Goto, GpsFix, GpsFixRejection, GroundVelocity, Heartbeat, HistoricData, HistoricDataQuery, HistoricEvent, HistoricCTD, HistoricTelemetry, IdleManeuver, IridiumMsgRx, IridiumMsgTx, IridiumTxStatus, LblConfig, LblEstimate, LblRange, LblRangeAcceptance, LogBookEntry, Loiter, ManeuverControlState, MagneticField, NavigationData, NavigationUncertainty, OperationalLimits, PathControlState, Phycocyanin, Phycoerythrin, PlanControl, PlanControlState, PlanDB, PlanGeneration, PlanSpecification, PlanStatistics, PopEntityParameters, PopUp, PowerChannelControl, PowerChannelState, Pulse, PushEntityParameters, Pressure, Rows, QueryEntityParameters, Reference, RemoteActions, RemoteActionsRequest, RemoteState, ReportControl, RhodamineDye, Rpm, RSSI, Salinity, SaveEntityParameters, ServoPosition, SetEntityParameters, SetServoPosition, SetThrusterActuation, SonarData, SimulatedState, Sms, SoundSpeed, StationKeeping, StopManeuver, Teleoperation, TeleoperationDone, Temperature, TextMessage, TrexObservation, TrexOperation, TrexPlan, TrexToken, TransportBindings, UamRxFrame, UamTxFrame, UamTxStatus, UamRxRange, VehicleCommand, VehicleMedium, VehicleState, VelocityDelta, Voltage, WaterDensity, WaterVelocity, YoYo</default>
+      <default>Abort, Acceleration, AcousticLink, AcousticOperation, AllocatedControlTorques, AlignmentState, AngularVelocity, Announce, Brake, Chlorophyll, ClockControl, CompassCalibration, Collision, Conductivity, ControlLoops, ControlParcel, CpuUsage, Current, DataSanity, Depth, DesiredControl, DesiredZ, DesiredHeading, DesiredHeadingRate, DesiredPath, DesiredPitch, DesiredSpeed, DevCalibrationControl, DevCalibrationState, DevDataBinary, DevDataText, Distance, DvlRejection, Elevator, EmergencyControl, EmergencyControlState, EntityActivationState, EntityList, EntityMonitoringState, EntityParameters, EntityState, EstimatedState, EstimatedStreamVelocity, EulerAngles, EulerAnglesDelta, Fluorescein, FollowPath, FollowRefState, FuelLevel, Goto, GpsFix, GpsFixRejection, GroundVelocity, Heartbeat, IdleManeuver, IridiumMsgRx, IridiumMsgTx, IridiumTxStatus, LblConfig, LblEstimate, LblRange, LblRangeAcceptance, LogBookEntry, Loiter, ManeuverControlState, MagneticField, NavigationData, NavigationUncertainty, OperationalLimits, PathControlState, Phycocyanin, Phycoerythrin, PlanControl, PlanControlState, PlanDB, PlanGeneration, PlanSpecification, PlanStatistics, PopEntityParameters, PopUp, PowerChannelControl, PowerChannelState, Pulse, PushEntityParameters, Pressure, Rows, QueryEntityParameters, Reference, RemoteActions, RemoteActionsRequest, RemoteState, ReportControl, RhodamineDye, Rpm, RSSI, Salinity, SaveEntityParameters, ServoPosition, SetEntityParameters, SetServoPosition, SetThrusterActuation, SonarData, SimulatedState, Sms, SoundSpeed, StationKeeping, StopManeuver, Teleoperation, TeleoperationDone, Temperature, TextMessage, TrexObservation, TrexOperation, TrexPlan, TrexToken, TransportBindings, UamRxFrame, UamTxFrame, UamTxStatus, UamRxRange, VehicleCommand, VehicleMedium, VehicleState, VelocityDelta, Voltage, WaterDensity, WaterVelocity, YoYo</default>
       <units/>
       <desc/>
     </param>
@@ -8775,7 +8933,7 @@
       <type>list:string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>AlignmentState, CpuUsage, Current, DevCalibrationControl, DevCalibrationState, Distance, EntityList, EntityParameters, EntityState, EstimatedState, FollowRefState, FuelLevel, Heartbeat, HistoricData, HistoricDataQuery, IridiumMsgRx, IridiumMsgTx, IridiumTxStatus, LblEstimate, LblRangeAcceptance, LblConfig, LogBookEntry, LogBookControl, OperationalLimits, PathControlState, PlanControl, PlanControlState, PlanDB, PlanGeneration, PowerChannelState, ReportControl, RemoteActions, RemoteActionsRequest, Rpm, RSSI, SimulatedState, StorageUsage, Temperature, TrexObservation, TrexOperation, TrexToken, TrexPlan, VehicleMedium, VehicleState, Voltage</default>
+      <default>AcousticOperation, AlignmentState, CpuUsage, Current, DevCalibrationControl, DevCalibrationState, Distance, EntityList, EntityParameters, EntityState, EstimatedState, FollowRefState, FuelLevel, Heartbeat, IridiumMsgRx, IridiumMsgTx, IridiumTxStatus, LblEstimate, LblRangeAcceptance, LblConfig, LogBookEntry, LogBookControl, OperationalLimits, PathControlState, PlanControl, PlanControlState, PlanDB, PlanGeneration, PowerChannelState, ReportControl, RemoteActions, RemoteActionsRequest, Rpm, RSSI, SimulatedState, StorageUsage, Temperature, TrexObservation, TrexOperation, TrexToken, TrexPlan, VehicleMedium, VehicleState, Voltage</default>
       <units/>
       <desc>List of messages to transport</desc>
     </param>
@@ -8805,15 +8963,6 @@
       <default>false</default>
       <units/>
       <desc>Only transmit messsages from local system.</desc>
-    </param>
-    <param name="Send Addressed Messages">
-      <name-i18n>Send Addressed Messages</name-i18n>
-      <type>boolean</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>true</default>
-      <units/>
-      <desc>Send messages that have been addressed to a unique system even if it is not a peer.</desc>
     </param>
   </section>
   <section name="LEDs" name-i18n="LEDs">
