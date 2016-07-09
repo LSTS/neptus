@@ -76,11 +76,7 @@ import pt.lsts.neptus.util.conf.IntegerMinMaxValidator;
  * @author pdias
  *
  */
-/**
- * @author pdias
- *
- */
-public class Land extends Maneuver implements LocatedManeuver, IMCSerialization, StateRendererInteraction {
+public class Land extends Maneuver implements LocatedManeuver, ManeuverWithSpeed, IMCSerialization, StateRendererInteraction {
     
     protected double latDegs = 0;
     protected double lonDegs = 0;
@@ -175,6 +171,34 @@ public class Land extends Maneuver implements LocatedManeuver, IMCSerialization,
         return wps;
     }
 
+    /**
+     * @return the speed
+     */
+    public double getSpeed() {
+        return speed;
+    }
+    
+    /**
+     * @param speed the speed to set
+     */
+    public void setSpeed(double speed) {
+        this.speed = speed;
+    }
+    
+    /**
+     * @return the speedUnits
+     */
+    public SPEED_UNITS getSpeedUnits() {
+        return speedUnits;
+    }
+    
+    /**
+     * @param speedUnits the speedUnits to set
+     */
+    public void setSpeedUnits(SPEED_UNITS speedUnits) {
+        this.speedUnits = speedUnits;
+    }
+    
     /* (non-Javadoc)
      * @see pt.lsts.neptus.mp.Maneuver#loadFromXML(java.lang.String)
      */
@@ -278,15 +302,19 @@ public class Land extends Maneuver implements LocatedManeuver, IMCSerialization,
         man.setZUnits(pt.lsts.imc.Land.Z_UNITS.valueOf(getManeuverLocation().getZUnits().toString()));        
         man.setSpeed(speed);
         
-        String speedU = speedUnits.name();
-        if ("m/s".equalsIgnoreCase(speedU))
-            man.setSpeedUnits(pt.lsts.imc.Land.SPEED_UNITS.METERS_PS);
-        else if ("RPM".equalsIgnoreCase(speedU))
-            man.setSpeedUnits(pt.lsts.imc.Land.SPEED_UNITS.RPM);
-        else if ("%".equalsIgnoreCase(speedU))
-            man.setSpeedUnits(pt.lsts.imc.Land.SPEED_UNITS.PERCENTAGE);
-        else if ("percentage".equalsIgnoreCase(speedU))
-            man.setSpeedUnits(pt.lsts.imc.Land.SPEED_UNITS.PERCENTAGE);
+        SPEED_UNITS speedU = speedUnits;
+        switch (speedU) {
+            case RPM:
+                man.setSpeedUnits(pt.lsts.imc.Land.SPEED_UNITS.RPM);
+                break;
+            case PERCENTAGE:
+                man.setSpeedUnits(pt.lsts.imc.Land.SPEED_UNITS.PERCENTAGE);
+                break;
+            case METERS_PS:
+            default:
+                man.setSpeedUnits(pt.lsts.imc.Land.SPEED_UNITS.METERS_PS);
+                break;
+        }
 
         man.setAbortZ(zAbort);
         man.setBearing(Math.toRadians(bearingDegs));
