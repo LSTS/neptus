@@ -61,7 +61,7 @@ import pt.lsts.neptus.util.XMLUtil;
  * @author pdias
  *
  */
-public class Takeoff extends Maneuver implements LocatedManeuver, IMCSerialization {
+public class Takeoff extends Maneuver implements LocatedManeuver, ManeuverWithSpeed, IMCSerialization {
     
     protected double latDegs = 0;
     protected double lonDegs = 0;
@@ -268,15 +268,19 @@ public class Takeoff extends Maneuver implements LocatedManeuver, IMCSerializati
         man.setZUnits(pt.lsts.imc.Takeoff.Z_UNITS.valueOf(getManeuverLocation().getZUnits().toString()));        
         man.setSpeed(speed);
         
-        String speedU = this.getSpeedUnits().name();
-        if ("m/s".equalsIgnoreCase(speedU))
-            man.setSpeedUnits(pt.lsts.imc.Takeoff.SPEED_UNITS.METERS_PS);
-        else if ("RPM".equalsIgnoreCase(speedU))
-            man.setSpeedUnits(pt.lsts.imc.Takeoff.SPEED_UNITS.RPM);
-        else if ("%".equalsIgnoreCase(speedU))
-            man.setSpeedUnits(pt.lsts.imc.Takeoff.SPEED_UNITS.PERCENTAGE);
-        else if ("percentage".equalsIgnoreCase(speedU))
-            man.setSpeedUnits(pt.lsts.imc.Takeoff.SPEED_UNITS.PERCENTAGE);
+        SPEED_UNITS speedU = this.getSpeedUnits();
+        switch (speedU) {
+            case RPM:
+                man.setSpeedUnits(pt.lsts.imc.Takeoff.SPEED_UNITS.RPM);
+                break;
+            case PERCENTAGE:
+                man.setSpeedUnits(pt.lsts.imc.Takeoff.SPEED_UNITS.PERCENTAGE);
+                break;
+            case METERS_PS:
+            default:
+                man.setSpeedUnits(pt.lsts.imc.Takeoff.SPEED_UNITS.METERS_PS);
+                break;
+        }
 
         man.setTakeoffPitch(Math.toRadians(takeoffPitchAngleDegs));
         
@@ -304,14 +308,15 @@ public class Takeoff extends Maneuver implements LocatedManeuver, IMCSerializati
 
         speed = man.getSpeed();
         switch (man.getSpeedUnits()) {
-            case METERS_PS:
-                speedUnits = SPEED_UNITS.METERS_PS;
-                break;
             case RPM:
                 speedUnits = SPEED_UNITS.RPM;
                 break;
-            default:
+            case PERCENTAGE:
                 speedUnits = SPEED_UNITS.PERCENTAGE;
+                break;
+            default:
+            case METERS_PS:
+                speedUnits = SPEED_UNITS.METERS_PS;
                 break;
         }
         
