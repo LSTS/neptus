@@ -194,7 +194,7 @@
                 </annotation>
             </Drop>
         </maneuver>
-        </maneuver>
+        <maneuver>
             <Takeoff kind="automatic">
               <basePoint>
                 <point>
@@ -211,7 +211,6 @@
               </basePoint>
               <speed unit="m/s">5.0</speed>
               <takeoffPitch>0.0</takeoffPitch>
-              <uavType>COPTER</uavType>
               <annotation>
                 <documentation>No documentation available</documentation>
                 <implementation-class>pt.lsts.neptus.mp.maneuvers.Takeoff</implementation-class>
@@ -233,17 +232,16 @@
                   <zunits>NONE</zunits>
                 </point>
               </basePoint>
-              <speed unit="m/s">17.0</speed>
+              <speed unit="m/s">5.0</speed>
               <bearing>0.0</bearing>
               <glideSlope>0</glideSlope>
               <glideSlopeAltitude>10.0</glideSlopeAltitude>
-              <uavType>COPTER</uavType>
               <annotation>
                 <documentation>No documentation available</documentation>
                 <implementation-class>pt.lsts.neptus.mp.maneuvers.Land</implementation-class>
               </annotation>
             </Land>
-        </maneuver>
+        </maneuver>        
     </feasibleManeuvers>
     <communication-means>
         <comm-mean>
