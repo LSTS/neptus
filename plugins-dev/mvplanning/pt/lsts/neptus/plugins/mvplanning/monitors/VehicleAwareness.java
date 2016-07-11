@@ -139,7 +139,11 @@ public class VehicleAwareness implements IPeriodicUpdates {
 
     public void setVehicleStartLocation(String vehicleId, LocationType startLocation) {
         startLocations.put(vehicleId, startLocation);
-        NeptusLog.pub().info("[" + vehicleId + "]" + " start location's set");
+        LocationType tmp = startLocation.getNewAbsoluteLatLonDepth();
+        NeptusLog.pub().info("[" + vehicleId + "]" + " start location's set in " + tmp.getLatitudeAsPrettyString() +
+                " " + tmp.getLongitudeAsPrettyString());
+        NeptusLog.pub().debug("[" + vehicleId + "]" + " start location's set in " + tmp.getLatitudeAsPrettyString() +
+                " " + tmp.getLongitudeAsPrettyString());
     }
 
     public LocationType getVehicleStartLocation(String vehicleId) {
