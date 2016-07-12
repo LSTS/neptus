@@ -84,10 +84,6 @@ public class VehicleAwareness implements IPeriodicUpdates {
         startLocations = new ConcurrentHashMap<>();
         vehiclesState = new ConcurrentHashMap<>();
         consoleStates = new HashMap<>();
-
-        /* Fetch available vehicles, on plugin start-up */
-        for(ImcSystem vehicle : ImcSystemsHolder.lookupActiveSystemByType(SystemTypeEnum.VEHICLE))
-            setVehicleStartLocation(vehicle.getName(), vehicle.getLocation());
     }
 
     /**
@@ -140,10 +136,10 @@ public class VehicleAwareness implements IPeriodicUpdates {
     public void setVehicleStartLocation(String vehicleId, LocationType startLocation) {
         startLocations.put(vehicleId, startLocation);
         LocationType tmp = startLocation.getNewAbsoluteLatLonDepth();
-        NeptusLog.pub().info("[" + vehicleId + "]" + " start location's set in " + tmp.getLatitudeAsPrettyString() +
-                " " + tmp.getLongitudeAsPrettyString());
-        NeptusLog.pub().debug("[" + vehicleId + "]" + " start location's set in " + tmp.getLatitudeAsPrettyString() +
-                " " + tmp.getLongitudeAsPrettyString());
+        String message = "[" + vehicleId + "]" + " start location's set in " + tmp.getLatitudeAsPrettyString() +
+                " " + tmp.getLongitudeAsPrettyString();
+        NeptusLog.pub().info(message);
+        NeptusLog.pub().debug(message);
     }
 
     public LocationType getVehicleStartLocation(String vehicleId) {
@@ -161,7 +157,7 @@ public class VehicleAwareness implements IPeriodicUpdates {
         NeptusLog.pub().info(getStatusMessage(id));
         ConsoleEventVehicleStateChanged.STATE newState = event.getState();
 
-        if(newState == STATE.SERVICE && !startLocations.containsKey(id)) {
+        if(!startLocations.containsKey(id)) {
             ImcSystem vehicle = ImcSystemsHolder.getSystemWithName(id);
             setVehicleStartLocation(vehicle.getName(), vehicle.getLocation());
         }
