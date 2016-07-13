@@ -77,6 +77,7 @@ import pt.lsts.imc.sender.MessageEditor;
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.colormap.ColorMap;
 import pt.lsts.neptus.colormap.ColorMapFactory;
+import pt.lsts.neptus.comm.manager.imc.ImcMsgManager;
 import pt.lsts.neptus.comm.manager.imc.ImcSystemsHolder;
 import pt.lsts.neptus.console.ConsoleInteraction;
 import pt.lsts.neptus.console.notifications.Notification;
@@ -270,9 +271,17 @@ public class HistoricDataInteraction extends ConsoleInteraction {
     }
 
     @Subscribe
+    public void on(HistoricData data) {
+        if (data.getDst() == ImcMsgManager.getManager().getLocalId().intValue()) {
+            webAdapter.addLocalData(data);
+            process(data);
+        }
+    }
+    
+    @Subscribe
     public void on(HistoricDataQuery query) {
         try {
-            if (query.getType() == HistoricDataQuery.TYPE.REPLY) {
+            if (query.getType() == HistoricDataQuery.TYPE.REPLY && query.getDst() == ImcMsgManager.getManager().getLocalId().intValue()) {
                 webAdapter.addLocalData(query.getData());
                 process(query.getData());
                 HistoricDataQuery clear = new HistoricDataQuery();
@@ -291,6 +300,8 @@ public class HistoricDataInteraction extends ConsoleInteraction {
             e.printStackTrace();
         }
     }
+    
+    
     
     private MessageEditor editor = new MessageEditor();
     private JFormattedTextField timeoutMins = new JFormattedTextField(GuiUtils.getNeptusIntegerFormat());
