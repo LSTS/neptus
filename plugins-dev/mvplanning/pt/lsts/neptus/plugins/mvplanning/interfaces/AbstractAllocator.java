@@ -38,10 +38,12 @@ import pt.lsts.imc.PlanControl.OP;
 import pt.lsts.imc.PlanSpecification;
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.comm.IMCSendMessageUtils;
+import pt.lsts.neptus.comm.IMCUtils;
 import pt.lsts.neptus.comm.manager.imc.ImcSystemsHolder;
 import pt.lsts.neptus.comm.manager.imc.ImcMsgManager.SendResult;
 import pt.lsts.neptus.comm.manager.imc.ImcSystem;
 import pt.lsts.neptus.plugins.mvplanning.PlanGenerator;
+import pt.lsts.neptus.plugins.mvplanning.exceptions.SafePathNotFoundException;
 import pt.lsts.neptus.plugins.mvplanning.monitors.StateMonitor;
 import pt.lsts.neptus.plugins.mvplanning.monitors.VehicleAwareness;
 import pt.lsts.neptus.plugins.mvplanning.planning.tasks.ToSafety;
@@ -113,9 +115,13 @@ public abstract class AbstractAllocator implements IPeriodicUpdates {
             pc.setOp(OP.START);
 
             LocationType[] locs = getVehicleLocations(vehicle);
+
+            /* can't compute safe path */
+            if(locs == null)
+                throw new SafePathNotFoundException();
+
             ptask.asPlanType().setVehicle(vehicle);
             PlanSpecification plan = pgen.closePlan(ptask, locs[0], locs[1]);
-
             pc.setArg(plan);
 
             /* TODO: Handle case success is uncertain */
@@ -127,7 +133,7 @@ public abstract class AbstractAllocator implements IPeriodicUpdates {
         }
         catch(Exception e) {
             e.printStackTrace();
-            NeptusLog.pub().warn("Failed to allocate plan " + ptask.getPlanId() + " to " + vehicle);
+            NeptusLog.pub().warn("Failed to allocate plan " + ptask.getPlanId() + " to " + vehicle + "\n");
             return false;
         }
     }
@@ -139,10 +145,8 @@ public abstract class AbstractAllocator implements IPeriodicUpdates {
         locs[0] = sys.getLocation();
         locs[1] = vawareness.getVehicleStartLocation(vehicleId);
 
-        if(locs[1] == null) {
-            locs[1] = locs[0];
-            NeptusLog.pub().warn("Couldn't find " + vehicleId + " start/predefined location. Using it's current one");
-        }
+        if(locs[1] == null)
+            return null;
 
         return locs;
     }
