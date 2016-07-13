@@ -194,6 +194,7 @@ public class VehicleAwareness implements IPeriodicUpdates {
                 consoleState != null && (consoleState == STATE.FINISHED || consoleState == STATE.SERVICE);
         isAvailable = isAvailable &&
                 (sys.isActive() && (sys.isTCPOn() || sys.isSimulated()));
+        isAvailable = isAvailable && (getVehicleStartLocation(vehicle) != null);
 
         return isAvailable;
 
@@ -211,6 +212,7 @@ public class VehicleAwareness implements IPeriodicUpdates {
         boolean isTCPOn = sys.isTCPOn();
         boolean isSimulated = sys.isSimulated();
         VEHICLE_STATE state = vehiclesState.get(vehicle);
+        boolean hasSafeLocation = (getVehicleStartLocation(vehicle) != null);
         String debugMsg = "";
 
         if(state != null)
@@ -232,6 +234,11 @@ public class VehicleAwareness implements IPeriodicUpdates {
             debugMsg += "SIMULATED | ";
         else
             debugMsg += "NOT SIMULATED | ";
+
+        if(hasSafeLocation)
+            debugMsg += "SAFE LOC | ";
+        else
+            debugMsg += "NO SAFE LOC";
 
         return debugMsg;
     }
