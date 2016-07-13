@@ -114,7 +114,7 @@ public class PlanAllocator {
             LocationType safeLoc = vawareness.getVehicleStartLocation(vehicle);
 
             if(safeLoc == null) {
-                NeptusLog.pub().info("Something went wrong...");
+                NeptusLog.pub().info("[" + vehicle + "]" + "Can't replan because don't know where to the vehicle to");
                 return;
             }
 
