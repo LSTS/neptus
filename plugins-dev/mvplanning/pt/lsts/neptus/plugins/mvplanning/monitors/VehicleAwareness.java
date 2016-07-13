@@ -102,7 +102,7 @@ public class VehicleAwareness implements IPeriodicUpdates {
             if(validConstraints(vehicle))
                 newState = VEHICLE_STATE.AVAILABLE;
 
-            if(newState == null || newState != vehiclesState.get(vehicle)) {
+            if(newState != vehiclesState.get(vehicle)) {
                 vehiclesState.put(vehicle, newState);
                 notify(vehicle, newState);
             }
