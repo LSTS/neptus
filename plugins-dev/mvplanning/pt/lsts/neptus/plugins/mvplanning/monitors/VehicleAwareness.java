@@ -157,11 +157,6 @@ public class VehicleAwareness implements IPeriodicUpdates {
         NeptusLog.pub().info(getStatusMessage(id));
         ConsoleEventVehicleStateChanged.STATE newState = event.getState();
 
-        if(!startLocations.containsKey(id)) {
-            ImcSystem vehicle = ImcSystemsHolder.getSystemWithName(id);
-            setVehicleStartLocation(vehicle.getName(), vehicle.getLocation());
-        }
-
         RW_LOCK.writeLock().lock();
         if(!vehiclesState.containsKey(id))
             vehiclesState.put(id, VEHICLE_STATE.UNAVAILABLE);
