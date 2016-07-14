@@ -36,8 +36,8 @@ package pt.lsts.neptus.plugins.mvplanning.exceptions;
  *
  */
 public class SafePathNotFoundException extends Exception {
-    public SafePathNotFoundException() {
-        super("Couldn't compute safe path between two locations.\n"
-                + "This happened because either some location is null or there's no possible path between them.");
+    public SafePathNotFoundException(String message) {
+        super(message + "\n"
+                + "Because of this no safe ");
     }
 }

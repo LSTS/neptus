@@ -39,6 +39,7 @@ import java.awt.geom.Rectangle2D;
 import java.util.ArrayList;
 import java.util.List;
 
+import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.mp.ManeuverLocation;
 import pt.lsts.neptus.plugins.mvplanning.exceptions.SafePathNotFoundException;
 import pt.lsts.neptus.plugins.mvplanning.interfaces.MapCell;
@@ -305,10 +306,25 @@ public class GridArea extends GeometryElement implements MapDecomposition {
     public List<ManeuverLocation> getShortestPath(LocationType startLoc, LocationType endLoc) throws SafePathNotFoundException {
         MapCell start = this.getClosestCell(startLoc);
         MapCell end = this.getClosestCell(endLoc);
-        List<ManeuverLocation> path;
+        List<ManeuverLocation> path = new Astar().computeShortestPath(start, end);
 
-        if(start == null || end == null || (path = new Astar().computeShortestPath(start, end)).isEmpty())
-            throw new SafePathNotFoundException();
+        String debugMsg = "";
+        boolean failed = false;
+        if(start == null) {
+            debugMsg += "Start position is null!!";
+            failed = true;
+        }
+        else if(end == null) {
+            debugMsg += "End position is null!!";
+            failed = true;
+        }
+        else if(path.isEmpty()) {
+            debugMsg += "Empty shortest path!!";
+            failed = true;
+        }
+
+        if(failed)
+            throw new SafePathNotFoundException(debugMsg);
 
         return path;
     }
