@@ -483,6 +483,11 @@ public class MapEditor extends ConsolePanel implements StateRendererInteraction,
     }
 
     protected void removeElement(String elemId) {
+        if (mg.getMapObjectsByID(elemId).length == 0) {
+            NeptusLog.pub().error("Trying to delete unexisting object: "+elemId);
+            return;
+        }
+        
         AbstractElement elem = mg.getMapObjectsByID(elemId)[0];
 
         RemoveObjectEdit edit = new RemoveObjectEdit(elem);
