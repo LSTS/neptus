@@ -100,9 +100,9 @@ public class Astar {
         MapCell nextCell = edges.get(currCell.id());
 
         while(nextCell != null) {
-            boolean areColinear = CoordinateUtil.areColinearLocations(currCell.getLocation(), prevCell.getLocation(), nextCell.getLocation(), 0.1);
+            /*boolean areColinear = CoordinateUtil.areColinearLocations(currCell.getLocation(), prevCell.getLocation(), nextCell.getLocation(), 0.1);
 
-            if(!areColinear)
+            if(!areColinear)*/
                 path.add(0, new ManeuverLocation(currCell.getLocation()));
 
             prevCell = currCell;
