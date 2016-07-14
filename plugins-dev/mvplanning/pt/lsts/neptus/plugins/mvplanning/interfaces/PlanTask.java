@@ -34,6 +34,8 @@ package pt.lsts.neptus.plugins.mvplanning.interfaces;
 import pt.lsts.imc.PlanSpecification;
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.comm.IMCUtils;
+import pt.lsts.neptus.mp.ManeuverLocation;
+import pt.lsts.neptus.mp.maneuvers.LocatedManeuver;
 import pt.lsts.neptus.plugins.mvplanning.jaxb.plans.PlanTaskJaxb;
 import pt.lsts.neptus.plugins.mvplanning.jaxb.profiles.Profile;
 import pt.lsts.neptus.types.mission.MissionType;
@@ -95,6 +97,15 @@ public abstract class PlanTask {
     }
 
     public abstract TASK_TYPE getTaskType();
+
+    public abstract ManeuverLocation getLastLocation();
+
+    public ManeuverLocation getFirstLocation() {
+        return ((LocatedManeuver) plan
+                .getGraph()
+                .getAllManeuvers()[0])
+                .getManeuverLocation();
+    }
 
     public String getTaskTypeAsString() {
         return taskType.value;

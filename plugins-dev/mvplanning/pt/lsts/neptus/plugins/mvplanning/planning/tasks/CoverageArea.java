@@ -32,6 +32,8 @@
 
 package pt.lsts.neptus.plugins.mvplanning.planning.tasks;
 
+import pt.lsts.neptus.mp.ManeuverLocation;
+import pt.lsts.neptus.mp.maneuvers.FollowPath;
 import pt.lsts.neptus.plugins.mvplanning.interfaces.MapDecomposition;
 import pt.lsts.neptus.plugins.mvplanning.interfaces.PlanTask;
 import pt.lsts.neptus.plugins.mvplanning.jaxb.profiles.Profile;
@@ -68,10 +70,20 @@ public class CoverageArea extends PlanTask {
         return TASK_TYPE.COVERAGE_AREA;
     }
 
+    @Override
+    public ManeuverLocation getLastLocation() {
+        return ((FollowPath) plan
+                .getGraph()
+                .getManeuversSequence()[0])
+                .getEndLocation();
+    }
+
     /**
      * Returns the map decomposition used to generate this plan
      * */
     public MapDecomposition getDecomposition() {
         return mapDcmp;
     }
+
+
 }

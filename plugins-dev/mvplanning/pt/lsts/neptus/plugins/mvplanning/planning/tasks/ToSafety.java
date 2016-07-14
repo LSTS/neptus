@@ -1,5 +1,7 @@
 package pt.lsts.neptus.plugins.mvplanning.planning.tasks;
 
+import pt.lsts.neptus.mp.ManeuverLocation;
+import pt.lsts.neptus.mp.maneuvers.LocatedManeuver;
 import pt.lsts.neptus.plugins.mvplanning.interfaces.PlanTask;
 import pt.lsts.neptus.plugins.mvplanning.jaxb.profiles.Profile;
 import pt.lsts.neptus.types.coord.LocationType;
@@ -25,6 +27,14 @@ public class ToSafety extends PlanTask {
     @Override
     public TASK_TYPE getTaskType() {
         return TASK_TYPE.SAFETY;
+    }
+
+    @Override
+    public ManeuverLocation getLastLocation() {
+        return ((LocatedManeuver) plan
+                .getGraph()
+                .getLastManeuver())
+                .getManeuverLocation();
     }
 
     public String getVehicle() {

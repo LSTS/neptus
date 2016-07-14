@@ -167,19 +167,8 @@ public class PlanGenerator {
         if(plan.getVehicle() == null)
             plan.setVehicle("lauv-xplore-1");
 
-        GraphType planGraph = plan.getGraph();
-        Maneuver firstMan = planGraph.getAllManeuvers()[0];
-        ManeuverLocation planFirstLocation = ((LocatedManeuver) firstMan).getManeuverLocation();
-        ManeuverLocation planLastLocation ;
-
-        /* FollowPath is as just one maneuver, so first and last maneuver of the graph are the same */
-        if(ptask.getTaskType() == TASK_TYPE.COVERAGE_AREA)
-            planLastLocation = ((FollowPath) firstMan).getEndLocation();
-        else
-            planLastLocation = ((LocatedManeuver) planGraph.getLastManeuver()).getManeuverLocation();
-
-        FollowPath initialFollowPath = buildSafePath(start, planFirstLocation);
-        FollowPath endFollowPath = buildSafePath(planLastLocation, end);
+        FollowPath initialFollowPath = buildSafePath(start, ptask.getFirstLocation());
+        FollowPath endFollowPath = buildSafePath(ptask.getLastLocation(), end);
 
         /* set new initial maneuver */
         String currInitialManId = plan.getGraph().getInitialManeuverId();

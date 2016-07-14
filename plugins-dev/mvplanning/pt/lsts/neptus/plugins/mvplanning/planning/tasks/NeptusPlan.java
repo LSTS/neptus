@@ -32,6 +32,8 @@
 
 package pt.lsts.neptus.plugins.mvplanning.planning.tasks;
 
+import pt.lsts.neptus.mp.ManeuverLocation;
+import pt.lsts.neptus.mp.maneuvers.LocatedManeuver;
 import pt.lsts.neptus.plugins.mvplanning.interfaces.PlanTask;
 import pt.lsts.neptus.plugins.mvplanning.jaxb.profiles.Profile;
 import pt.lsts.neptus.types.mission.plan.PlanType;
@@ -48,5 +50,13 @@ public class NeptusPlan extends PlanTask {
     @Override
     public PlanTask.TASK_TYPE getTaskType() {
         return PlanTask.TASK_TYPE.NEPTUS_PLAN;
+    }
+
+    @Override
+    public ManeuverLocation getLastLocation() {
+        return ((LocatedManeuver) plan
+                .getGraph()
+                .getLastManeuver())
+                .getManeuverLocation();
     }
 }
