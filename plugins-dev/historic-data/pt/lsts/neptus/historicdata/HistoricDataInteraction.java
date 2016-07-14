@@ -43,6 +43,7 @@ import java.awt.geom.Ellipse2D;
 import java.awt.geom.Point2D;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.TimeZone;
@@ -71,6 +72,7 @@ import pt.lsts.imc.HistoricDataQuery.TYPE;
 import pt.lsts.imc.HistoricEvent;
 import pt.lsts.imc.IMCMessage;
 import pt.lsts.imc.PlanControl;
+import pt.lsts.imc.RemoteCommand;
 import pt.lsts.imc.PlanControl.OP;
 import pt.lsts.imc.historic.DataSample;
 import pt.lsts.imc.sender.MessageEditor;
@@ -329,12 +331,18 @@ public class HistoricDataInteraction extends ConsoleInteraction {
         form.add(new JLabel(I18n.text("Plan:")));
         form.add(plansCombo, "wrap");
         
+        form.add(new JLabel(I18n.text("Comm Mean:")));
+        String[] means = new String[] {"Acoustic", "Web", "Wi-Fi"};
+        JComboBox<String> commMeans = new JComboBox<String>(means);
+        
+        form.add(commMeans, "wrap");
+        
         form.add(new JLabel(I18n.text("Timeut (mins):")));
         form.add(timeoutMins, "wrap");
         
         JButton send = new JButton(I18n.text("Command Plan"));
         form.add(send, "span 2");
-        JDialog dialog = new JDialog(getConsole(), "Command Plan via web", ModalityType.DOCUMENT_MODAL);
+        JDialog dialog = new JDialog(getConsole(), "Command Plan", ModalityType.DOCUMENT_MODAL);
         dialog.setContentPane(form);
         dialog.setSize(300, 150);
         GuiUtils.centerParent(dialog, getConsole());
@@ -351,9 +359,25 @@ public class HistoricDataInteraction extends ConsoleInteraction {
                         .setType(pt.lsts.imc.PlanControl.TYPE.REQUEST);
                 double timeout = System.currentTimeMillis();
                 timeout += 60.0 * Double.parseDouble(timeoutMins.getText());
-                synchronized (uploadStatuses) {
-                    uploadStatuses.add(webAdapter.command("" + vehiclesCombo.getSelectedItem(), pc, timeout));
-                }                
+                if ((""+commMeans.getSelectedItem()).equals("Web")) {
+                    synchronized (uploadStatuses) {
+                        uploadStatuses.add(webAdapter.command("" + vehiclesCombo.getSelectedItem(), pc, timeout));
+                    }    
+                }
+                else if ((""+commMeans.getSelectedItem()).equals("Wi-Fi")) {
+                    HistoricData data = new HistoricData();
+                    RemoteCommand cmd = new RemoteCommand();
+                    cmd.setDestination(ImcSystemsHolder.getSystemWithName(""+vehiclesCombo.getSelectedItem()).getId().intValue());
+                    cmd.setOriginalSource(ImcMsgManager.getManager().getLocalId().intValue());
+                    cmd.setCmd(pc);
+                    cmd.setTimeout(timeout);
+                    data.setData(Arrays.asList(cmd));
+                    ImcMsgManager.getManager().sendMessageToSystem(data, getConsole().getMainSystem());
+                }
+                else if ((""+commMeans.getSelectedItem()).equals("Acoustic")) {
+                    
+                }
+                                
                 dialog.setVisible(false);
                 dialog.dispose();
             }
