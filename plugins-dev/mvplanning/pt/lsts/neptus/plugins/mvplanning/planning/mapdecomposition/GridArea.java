@@ -292,8 +292,9 @@ public class GridArea extends GeometryElement implements MapDecomposition {
             }
         }
 
-        if(min > cellWidth)
-            closestCell = null;
+        /* FIXME another way to check out of bounds location */
+        // if(min > cellWidth)
+        //    closestCell = null;
         return closestCell;
     }
 
