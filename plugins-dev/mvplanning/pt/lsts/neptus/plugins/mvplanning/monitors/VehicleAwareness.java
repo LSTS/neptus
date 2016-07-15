@@ -201,6 +201,12 @@ public class VehicleAwareness implements IPeriodicUpdates {
         return 1000;
     }
 
+    /**
+     * Method that generates a debug message
+     * concerning the status of vehicles's
+     * constraints (tcp on, vehicle state, etc)
+     * for a given vehicle.
+     * */
     private String getStatusMessage(String vehicle) {
         ImcSystem sys = ImcSystemsHolder.lookupSystemByName(vehicle);
         boolean isActive = sys.isActive();
