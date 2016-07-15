@@ -66,6 +66,7 @@
 	<classpathentry kind="src" path="plugins-dev/necsave"/>
 	<classpathentry kind="src" path="plugins-dev/land"/>
 	<classpathentry kind="src" path="plugins-dev/historic-data"/>
+	<classpathentry kind="src" path="plugins-dev/txtmsg"/>
 	<classpathentry kind="lib" path="lib/log4j-1.2.17.jar"/>
 	<classpathentry kind="lib" path="lib/xerces-2.7.1/xml-apis.jar"/>
 	<classpathentry kind="lib" path="lib/xerces-2.7.1/xercesImpl.jar"/>
