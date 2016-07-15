@@ -87,16 +87,16 @@ public class Astar {
                 }
         }
 
-        return reconstructPath(start, end, previousNodes);
+        return reconstructPath(end, previousNodes);
     }
 
-    private List<ManeuverLocation> reconstructPath(MapCell startCell, MapCell endCell, Map<String, MapCell> edges) {
+    private List<ManeuverLocation> reconstructPath(MapCell endCell, Map<String, MapCell> edges) {
         List<ManeuverLocation> path = new ArrayList<>();
 
         path.add(0, new ManeuverLocation(endCell.getLocation()));
 
         MapCell currCell = edges.get(endCell.id());
-        MapCell prevCell = endCell;
+        MapCell prevCell;
         MapCell nextCell = edges.get(currCell.id());
 
         while(nextCell != null) {
