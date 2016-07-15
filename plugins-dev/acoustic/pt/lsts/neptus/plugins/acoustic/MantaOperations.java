@@ -34,6 +34,8 @@ package pt.lsts.neptus.plugins.acoustic;
 import java.awt.BasicStroke;
 import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.Dialog.ModalityType;
+import java.awt.FlowLayout;
 import java.awt.Graphics2D;
 import java.awt.GridLayout;
 import java.awt.Rectangle;
@@ -70,17 +72,22 @@ import com.google.common.eventbus.Subscribe;
 import pt.lsts.imc.AcousticOperation;
 import pt.lsts.imc.AcousticSystems;
 import pt.lsts.imc.AcousticSystemsQuery;
+import pt.lsts.imc.Elevator;
+import pt.lsts.imc.EntityParameter;
 import pt.lsts.imc.GpsFix;
 import pt.lsts.imc.IMCDefinition;
 import pt.lsts.imc.IMCMessage;
 import pt.lsts.imc.MessagePart;
 import pt.lsts.imc.PlanControl;
+import pt.lsts.imc.PlanControl.OP;
+import pt.lsts.imc.PlanControl.TYPE;
 import pt.lsts.imc.PlanDB;
 import pt.lsts.imc.RSSI;
+import pt.lsts.imc.SetEntityParameters;
 import pt.lsts.imc.StorageUsage;
-import pt.lsts.imc.TextMessage;
 import pt.lsts.imc.Voltage;
 import pt.lsts.imc.net.IMCFragmentHandler;
+import pt.lsts.imc.sender.MessageEditor;
 import pt.lsts.imc.state.ImcSystemState;
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.comm.IMCSendMessageUtils;
@@ -138,7 +145,7 @@ public class MantaOperations extends ConsolePanel implements ConfigurationListen
     protected String selectedSystem = null;
     protected String gateway = "any";
     protected JLabel lblState = new JLabel("<html><h1>" + I18n.text("Please select a gateway") + "</h1>");
-
+    protected MessageEditor editor = new MessageEditor();
     protected LinkedHashMap<Integer, PlanControl> pendingRequests = new LinkedHashMap<>();
 
     public HashSet<String> knownSystems = new HashSet<>();
@@ -171,7 +178,49 @@ public class MantaOperations extends ConsolePanel implements ConfigurationListen
      * @param console
      */
     public MantaOperations(ConsoleLayout console) {
-        super(console);
+        super(console);      
+        addTemplates();
+    }
+    
+    private void addTemplates() {
+        PlanControl pc = new PlanControl();
+        pc.setPlanId("dislodge");
+        pc.setType(TYPE.REQUEST);
+        pc.setRequestId(1);
+        pc.setFlags(PlanControl.FLG_IGNORE_ERRORS);
+        pc.setOp(OP.START);
+        
+        editor.addTemplate("(Template) Dislodge", pc);
+        
+        PlanControl surf = new PlanControl();
+        Elevator elev = new Elevator();
+        elev.setEndZ(0);
+        elev.setEndZUnits(Elevator.END_Z_UNITS.DEPTH);
+        elev.setStartZ(0);
+        elev.setStartZUnits(Elevator.START_Z_UNITS.DEPTH);
+        elev.setRadius(15);
+        elev.setSpeed(1.2);
+        elev.setSpeedUnits(Elevator.SPEED_UNITS.METERS_PS);
+        surf.setPlanId("surface");
+        surf.setArg(elev);
+        surf.setType(TYPE.REQUEST);
+        surf.setRequestId(1);
+        surf.setFlags(PlanControl.FLG_IGNORE_ERRORS);
+        surf.setOp(OP.START);
+        
+        editor.addTemplate("(Template) Surface", surf);
+        
+        SetEntityParameters setParams = new SetEntityParameters();
+        setParams.setName("Report Supervisor");
+        EntityParameter p1 = new EntityParameter();
+        p1.setName("Acoustic Reports");
+        p1.setValue("true");
+        EntityParameter p2 = new EntityParameter();
+        p2.setName("Acoustic Reports Periodicity");
+        p2.setValue("60");
+        setParams.setParams(Arrays.asList(p1, p2));
+        
+        editor.addTemplate("(Template) Acoustic Reports", setParams);
     }
 
     protected ActionListener systemActionListener = new ActionListener() {
@@ -200,7 +249,7 @@ public class MantaOperations extends ConsolePanel implements ConfigurationListen
 
         if (successCount > 0) {
             bottomPane.setText(I18n.textf(
-                    "Message sent to %systemName via %systemCount acoustic gateways", selectedSystem,
+                    "Request to send message to %systemName via %systemCount acoustic gateways", selectedSystem,
                     successCount));
             return true;
         }
@@ -495,25 +544,29 @@ public class MantaOperations extends ConsolePanel implements ConfigurationListen
         });
         ctrlPanel.add(btnR);
 
-        btn = new JButton(I18n.text("Send command"));
+        btn = new JButton(I18n.text("Send Message"));
         btn.setActionCommand("text");
         cmdButtons.put("text", btn);
         btn.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent event) {
-                if (selectedSystem == null)
-                    return;
-                String cmd = JOptionPane.showInputDialog(getConsole(),
-                        I18n.textf("Enter command to send to %vehicle", selectedSystem));
-                if (cmd == null)
-                    return;
-                if (cmd.length() > 64) {
-                    GuiUtils.errorMessage(getConsole(), I18n.text("Send command"),
-                            I18n.text("Cannot send command because it has more than 64 characters."));
-                    return;
-                }
-                TextMessage msg = new TextMessage("", cmd);
-                sendAcoustically(selectedSystem, msg);
+                JDialog dialog = new JDialog(getConsole(), I18n.text("Send message acoustically"));
+                dialog.setLayout(new BorderLayout());
+                dialog.getContentPane().add(editor, BorderLayout.CENTER);
+                JPanel bottom = new JPanel(new FlowLayout(FlowLayout.TRAILING));
+                JButton btn = new JButton(I18n.text("Send"));
+                btn.addActionListener(new ActionListener() {
+                    @Override
+                    public void actionPerformed(ActionEvent e) {
+                        sendAcoustically(selectedSystem, editor.getMessage());
+                    }
+                });
+                bottom.add(btn);
+                dialog.getContentPane().add(bottom, BorderLayout.SOUTH);
+                dialog.setSize(600, 500);
+                dialog.setModalityType(ModalityType.DOCUMENT_MODAL);
+                GuiUtils.centerParent(dialog, getConsole());
+                dialog.setVisible(true);
             }
         });
         ctrlPanel.add(btn);
@@ -646,7 +699,7 @@ public class MantaOperations extends ConsolePanel implements ConfigurationListen
             if (selectedSystem.startsWith("lsts"))
                 cmdButtons.get("abort").setEnabled(false);
         }
-    }
+    }    
 
     public void addText(String text) {
         bottomPane.setText(bottomPane.getText() + " \n" + text);
