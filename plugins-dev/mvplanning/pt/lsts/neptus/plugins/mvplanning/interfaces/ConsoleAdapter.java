@@ -123,4 +123,19 @@ public interface ConsoleAdapter {
      * Start SwingWorker and save the current console's mission
      * */
     public void saveMission();
+
+    /**
+     * Posts a success notification
+     * */
+    public void notifiySuccess(String title, String text);
+
+    /**
+     * Posts a warning notification
+     * */
+    public void notifyWarning(String title, String text);
+
+    /**
+     * Posts an error notification
+     * */
+    public void notifiyError(String title, String text);
 }

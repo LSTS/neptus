@@ -41,6 +41,7 @@ import pt.lsts.neptus.comm.manager.imc.ImcMsgManager;
 import pt.lsts.neptus.comm.manager.imc.ImcMsgManager.SendResult;
 import pt.lsts.neptus.console.ConsoleLayout;
 import pt.lsts.neptus.console.ConsoleSystem;
+import pt.lsts.neptus.console.notifications.Notification;
 import pt.lsts.neptus.events.NeptusEvents;
 import pt.lsts.neptus.plugins.mvplanning.interfaces.ConsoleAdapter;
 import pt.lsts.neptus.types.map.AbstractElement;
@@ -137,5 +138,20 @@ public class NeptusConsoleAdapter implements ConsoleAdapter {
             }
         };
         worker.execute();
+    }
+
+    @Override
+    public void notifiySuccess(String title, String text) {
+        console.post(Notification.success(title, text));
+    }
+
+    @Override
+    public void notifyWarning(String title, String text) {
+        console.post(Notification.warning(title, text));
+    }
+
+    @Override
+    public void notifiyError(String title, String text) {
+        console.post(Notification.error(title, text));
     }
 }

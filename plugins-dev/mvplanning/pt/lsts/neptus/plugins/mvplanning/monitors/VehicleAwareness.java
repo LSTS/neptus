@@ -128,9 +128,9 @@ public class VehicleAwareness implements IPeriodicUpdates {
     private void notify(String vehicle, VEHICLE_STATE newState) {
         String message = "MvPlanning: " + getStatusMessage(vehicle);
         if(newState == VEHICLE_STATE.AVAILABLE)
-            console.post(Notification.success(message, ""));
+            console.notifiySuccess(message, "");
         else
-            console.post(Notification.warning(message, ""));
+            console.notifyWarning(message, "");
     }
 
     public void setVehicleStartLocation(String vehicleId, LocationType startLocation) {

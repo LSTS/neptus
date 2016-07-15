@@ -302,8 +302,12 @@ public class MVPlanning extends ConsolePanel implements PlanChangeListener, Rend
     @Subscribe
     public void on(MvPlanningEventPlanAllocated event) {
         synchronized(selectedPlans) {
-            console.post(Notification.success("MvPlanning: Allocated plan " + event.getPlanId() +
-                    " " + event.getVehicle(), ""));
+            if(event.getPlan().getTaskType() == PlanTask.TASK_TYPE.SAFETY)
+                console.notifyWarning("MvPlanning: " + event.getVehicle() + " is replanning", "");
+            else
+                console.notifiySuccess("MvPlanning: Allocated plan " + event.getPlanId() +
+                    " " + event.getVehicle(), "");
+
             String lookupId = event.getPlanId() + " [" + event.getProfile() + "]";
             String newId = lookupId + " [" + event.getVehicle() + "]";
 
