@@ -85,6 +85,7 @@ import pt.lsts.imc.PlanDB;
 import pt.lsts.imc.RSSI;
 import pt.lsts.imc.SetEntityParameters;
 import pt.lsts.imc.StorageUsage;
+import pt.lsts.imc.TextMessage;
 import pt.lsts.imc.Voltage;
 import pt.lsts.imc.net.IMCFragmentHandler;
 import pt.lsts.imc.sender.MessageEditor;
@@ -221,6 +222,14 @@ public class MantaOperations extends ConsolePanel implements ConfigurationListen
         setParams.setParams(Arrays.asList(p1, p2));
         
         editor.addTemplate("(Template) Acoustic Reports", setParams);
+        
+        AcousticOperation acText = new AcousticOperation();
+        acText.setOp(AcousticOperation.OP.MSG);
+        acText.setSystem("broadcast");
+        TextMessage txt = new TextMessage().setText("your text here.");
+        acText.setMsg(txt);
+        
+        editor.addTemplate("(Template) Acoustic Text", acText);
     }
 
     protected ActionListener systemActionListener = new ActionListener() {
