@@ -296,7 +296,7 @@ public class GridArea extends GeometryElement implements MapDecomposition {
         /* FIXME another way to check out of bounds location */
         // if(min > cellWidth)
         //    closestCell = null;
-        if(closestCell != null)
+        if(closestCell == null)
             NeptusLog.pub().warn("Closest cell is null!!");
         else
             NeptusLog.pub().info("Closest cell id: " + closestCell.id() +
