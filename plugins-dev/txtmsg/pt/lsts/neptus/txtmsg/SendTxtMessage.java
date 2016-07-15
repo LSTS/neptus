@@ -282,8 +282,6 @@ public class SendTxtMessage extends ConsolePanel {
         String origin = msg.getOrigin();
         String txt = msg.getText().trim();
         
-        System.out.println(txt);
-        
         if (txt == null || txt.isEmpty() || !txt.trim().startsWith(TXT_PREFIX))
             return;
         
