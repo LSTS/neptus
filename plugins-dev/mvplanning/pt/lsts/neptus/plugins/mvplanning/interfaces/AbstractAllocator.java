@@ -118,7 +118,7 @@ public abstract class AbstractAllocator implements IPeriodicUpdates {
 
             /* can't compute safe path */
             if(locs == null)
-                throw new SafePathNotFoundException();
+                throw new SafePathNotFoundException("Locations not found.");
 
             ptask.asPlanType().setVehicle(vehicle);
             PlanSpecification plan = pgen.closePlan(ptask, locs[0], locs[1]);
