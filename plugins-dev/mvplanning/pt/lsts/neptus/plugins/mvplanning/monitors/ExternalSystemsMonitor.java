@@ -86,7 +86,7 @@ public class ExternalSystemsMonitor extends AbstractSupervisor implements IPerio
                         .allMatch((extSys) -> iswithinSafeDistance(extSys, sys));
 
                 if(!safeDistance && !inQuarantine) {
-                    console.post(new MvPlanningNoSafeDistanceEvent(sys));
+                    planAlloc.replan(sys.getName());
                     NeptusLog.pub().info("[" + sys.getName() + "] : UNSAFE");
 
                     quarantine.add(sys.getName());

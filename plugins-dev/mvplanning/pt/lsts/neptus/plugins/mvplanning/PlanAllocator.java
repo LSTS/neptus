@@ -36,6 +36,7 @@ import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.comm.manager.imc.ImcSystemsHolder;
 import pt.lsts.neptus.plugins.mvplanning.allocation.RoundRobinAllocator;
 import pt.lsts.neptus.plugins.mvplanning.exceptions.BadPlanTaskException;
+import pt.lsts.neptus.plugins.mvplanning.exceptions.SafePathNotFoundException;
 import pt.lsts.neptus.plugins.mvplanning.interfaces.AbstractAllocator;
 import pt.lsts.neptus.plugins.mvplanning.interfaces.ConsoleAdapter;
 import pt.lsts.neptus.plugins.mvplanning.monitors.VehicleAwareness;
@@ -95,7 +96,7 @@ public class PlanAllocator {
 
             return tasks;
 
-        } catch (BadPlanTaskException e) {
+        } catch (BadPlanTaskException | SafePathNotFoundException e) {
             e.printStackTrace();
             NeptusLog.pub().warn("No plan has been allocated");
 
@@ -109,6 +110,14 @@ public class PlanAllocator {
         allocator = new RoundRobinAllocator(true, false, vawareness, console, pgen);
     }
 
+    /**
+     * If the given vehicle is currently executing a
+     * task this method puts it "on hold" by allocating
+     * a plan that moves it to its safe position.
+     * <p>
+     * This is called, for instance, when an external
+     * system gets too close to the given vehicle
+     * */
     public void replan(String vehicle) {
         /* if the vehicle is currently doing any task */
         if(allocator != null && !vawareness.isVehicleAvailable(vehicle)) {
@@ -119,7 +128,6 @@ public class PlanAllocator {
                 NeptusLog.pub().info("[" + vehicle + "]" + "Can't replan because some location is null!");
                 return;
             }
-
             allocate(new ToSafety(currLoc, safeLoc, vehicle));
         }
     }

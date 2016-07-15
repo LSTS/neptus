@@ -96,7 +96,13 @@ public abstract class AbstractAllocator implements IPeriodicUpdates {
      * */
     public abstract void doAllocation();
 
+
+    /**
+     * Issues an immediate allocation
+     * of a safety task
+     * */
     public void allocateSafetyTask(ToSafety safetyTask) {
+        NeptusLog.pub().info("[" + safetyTask.getVehicle() + "] : moving to safety");
         allocateTo(safetyTask.getVehicle(), safetyTask);
     }
 
@@ -120,7 +126,13 @@ public abstract class AbstractAllocator implements IPeriodicUpdates {
                 throw new SafePathNotFoundException("Locations not found.");
 
             ptask.asPlanType().setVehicle(vehicle);
-            PlanSpecification plan = pgen.closePlan(ptask, locs[0], locs[1]);
+
+            PlanSpecification plan;
+            if(ptask.getTaskType() != PlanTask.TASK_TYPE.SAFETY)
+                plan = pgen.closePlan(ptask, locs[0], locs[1]);
+            else
+                plan = (PlanSpecification) IMCUtils.generatePlanSpecification(ptask.asPlanType());
+
             pc.setArg(plan);
 
             Future<SendResult> cmdRes = console.sendMessageReliably(vehicle, pc);

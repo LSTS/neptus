@@ -91,7 +91,7 @@ public class PlanGenerator {
      * a plan into several others, hence returning a list of
      * PlanType.
      * */
-    public List<PlanTask> generatePlan(PlanTask task) throws BadPlanTaskException {
+    public List<PlanTask> generatePlan(PlanTask task) throws BadPlanTaskException, SafePathNotFoundException {
         PlanTask.TASK_TYPE type = task.getTaskType();
         List<PlanTask> plans = new ArrayList<>();
 
@@ -114,6 +114,8 @@ public class PlanGenerator {
         }
         else if(type == PlanTask.TASK_TYPE.VISIT_POINT)
             task.setPlan(generateVisitPoint(task));
+        else if(type == TASK_TYPE.SAFETY)
+            task.setPlan(generateSafetyPlan((ToSafety) task));
 
         plans.add(0, task);
 
@@ -153,6 +155,20 @@ public class PlanGenerator {
         return plan;
     }
 
+    private PlanType generateSafetyPlan(ToSafety task) throws SafePathNotFoundException {
+        PlanType plan = new PlanType(console.getMission());
+        plan.setId(task.getPlanId());
+
+        LocationType[] locs = task.getLocations();
+        FollowPath path = task.buildSafePath(computeSafePath(locs[0], locs[1]));
+
+        plan.getGraph().addManeuver(path);
+        StationKeeping sk = (StationKeeping) ToSafety.getDefaultManeuver(locs[1]);
+        plan.getGraph().addManeuverAtEnd(sk);
+
+        return plan;
+    }
+
     /**
      * Adds a safe path from the start location to the first
      * waypoint of the given plan, and from the lsst waypoint
@@ -186,8 +202,7 @@ public class PlanGenerator {
         plan.getGraph().addTransition(currInitialManId, endFollowPath.id, "ManeuverIsDone");
 
         StationKeeping sk = (StationKeeping) ToSafety.getDefaultManeuver(end);
-        plan.getGraph().addManeuver(sk);
-        plan.getGraph().addTransition(endFollowPath.id, sk.id, "ManeuverIsDone");
+        plan.getGraph().addManeuverAtEnd(sk);
 
         return (PlanSpecification) IMCUtils.generatePlanSpecification(plan);
     }
