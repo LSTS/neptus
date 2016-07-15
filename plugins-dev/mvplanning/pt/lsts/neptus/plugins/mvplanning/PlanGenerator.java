@@ -14,6 +14,7 @@ import pt.lsts.neptus.comm.IMCUtils;
 import pt.lsts.neptus.mp.Maneuver;
 import pt.lsts.neptus.mp.ManeuverLocation;
 import pt.lsts.neptus.mp.maneuvers.LocatedManeuver;
+import pt.lsts.neptus.mp.maneuvers.StationKeeping;
 import pt.lsts.neptus.plugins.mvplanning.events.MvPlanningEventNewOpArea;
 import pt.lsts.neptus.plugins.mvplanning.exceptions.BadPlanTaskException;
 import pt.lsts.neptus.plugins.mvplanning.exceptions.SafePathNotFoundException;
@@ -26,6 +27,7 @@ import pt.lsts.neptus.plugins.mvplanning.monitors.Environment;
 import pt.lsts.neptus.plugins.mvplanning.planning.algorithm.CoverageAreaFactory;
 import pt.lsts.neptus.plugins.mvplanning.planning.mapdecomposition.GridArea;
 import pt.lsts.neptus.plugins.mvplanning.planning.tasks.CoverageArea;
+import pt.lsts.neptus.plugins.mvplanning.planning.tasks.ToSafety;
 import pt.lsts.neptus.plugins.mvplanning.planning.tasks.VisitPoint;
 import pt.lsts.neptus.plugins.mvplanning.utils.MvPlanningUtils;
 import pt.lsts.neptus.types.coord.LocationType;
@@ -153,7 +155,7 @@ public class PlanGenerator {
 
     /**
      * Adds a safe path from the start location to the first
-     * waypoint of the given plan, and from the last waypoint
+     * waypoint of the given plan, and from the lsst waypoint
      * of the plan to the end location.
      * TODO Handle a safety task
      * @throws SafePathNotFoundException
@@ -162,13 +164,17 @@ public class PlanGenerator {
         NeptusLog.pub().info("Closing plan " + ptask.getPlanId());
         /* current plan */
         PlanType plan = ptask.asPlanType().clonePlan();
+        String vehicleId = plan.getVehicle();
 
         /* set a vehicle by default */
-        if(plan.getVehicle() == null)
+        if(vehicleId == null)
             plan.setVehicle("lauv-xplore-1");
 
-        FollowPath initialFollowPath = buildSafePath(start, ptask.getFirstLocation());
-        FollowPath endFollowPath = buildSafePath(ptask.getLastLocation(), end);
+
+        List<ManeuverLocation> initialSafePath = computeSafePath(start, ptask.getFirstLocation());
+        List<ManeuverLocation> endSafePath = computeSafePath(ptask.getLastLocation(), end);
+        FollowPath initialFollowPath = new ToSafety(start, ptask.getFirstLocation(), vehicleId).buildSafePath(initialSafePath);
+        FollowPath endFollowPath = new ToSafety(ptask.getLastLocation(), end, vehicleId).buildSafePath(endSafePath);
 
         /* set new initial maneuver */
         String currInitialManId = plan.getGraph().getInitialManeuverId();
@@ -176,44 +182,21 @@ public class PlanGenerator {
         plan.getGraph().setInitialManeuver(initialFollowPath.id);
         plan.getGraph().addTransition(initialFollowPath.id, currInitialManId, "ManeuverIsDone");
 
-        plan.getGraph().addManeuverAtEnd(endFollowPath);
+        plan.getGraph().addManeuver(endFollowPath);
+        plan.getGraph().addTransition(currInitialManId, endFollowPath.id, "ManeuverIsDone");
+
+        StationKeeping sk = (StationKeeping) ToSafety.getDefaultManeuver(end);
+        plan.getGraph().addManeuver(sk);
+        plan.getGraph().addTransition(endFollowPath.id, sk.id, "ManeuverIsDone");
 
         return (PlanSpecification) IMCUtils.generatePlanSpecification(plan);
     }
 
-    private FollowPath buildSafePath(LocationType start, LocationType end) throws SafePathNotFoundException {
+    private List<ManeuverLocation> computeSafePath(LocationType start, LocationType end) throws SafePathNotFoundException {
         OP_AREA_RW_LOCK.readLock().lock();
-
         List<ManeuverLocation> safePath = operationalArea.getShortestPath(start, end);
-
         OP_AREA_RW_LOCK.readLock().unlock();
 
-        FollowPath safeFollowPath = new FollowPath();
-        Vector<double[]> offsets = new Vector<>();
-        for(ManeuverLocation loc : safePath) {
-            double[] newPoint = new double[4];
-            double[] pOffsets = loc.getOffsetFrom(start);
-
-            newPoint[0] = pOffsets[0];
-            newPoint[1] = pOffsets[1];
-            newPoint[2] = pOffsets[2];
-            newPoint[3] = 0;
-
-            offsets.add(newPoint);
-        }
-
-        /* FIXME this is repeated code */
-        ManeuverLocation manLoc = new ManeuverLocation(start);
-        manLoc.setZ(end.getAllZ());
-        /* TODO set according to profile's parameters */
-        manLoc.setZUnits(ManeuverLocation.Z_UNITS.DEPTH);
-
-        safeFollowPath.setOffsets(offsets);
-        /* TODO set according to plan profile */
-        safeFollowPath.setSpeed(1.3);
-        safeFollowPath.setSpeedUnits("m/s");
-        safeFollowPath.setManeuverLocation(manLoc);
-
-        return safeFollowPath;
+        return safePath;
     }
 }

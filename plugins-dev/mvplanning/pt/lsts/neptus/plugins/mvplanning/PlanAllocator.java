@@ -33,6 +33,7 @@
 package pt.lsts.neptus.plugins.mvplanning;
 
 import pt.lsts.neptus.NeptusLog;
+import pt.lsts.neptus.comm.manager.imc.ImcSystemsHolder;
 import pt.lsts.neptus.plugins.mvplanning.allocation.RoundRobinAllocator;
 import pt.lsts.neptus.plugins.mvplanning.exceptions.BadPlanTaskException;
 import pt.lsts.neptus.plugins.mvplanning.interfaces.AbstractAllocator;
@@ -111,14 +112,15 @@ public class PlanAllocator {
     public void replan(String vehicle) {
         /* if the vehicle is currently doing any task */
         if(allocator != null && !vawareness.isVehicleAvailable(vehicle)) {
+            LocationType currLoc = ImcSystemsHolder.lookupSystemByName(vehicle).getLocation();
             LocationType safeLoc = vawareness.getVehicleStartLocation(vehicle);
 
-            if(safeLoc == null) {
-                NeptusLog.pub().info("[" + vehicle + "]" + "Can't replan because don't know where to the vehicle to");
+            if(currLoc == null || safeLoc == null) {
+                NeptusLog.pub().info("[" + vehicle + "]" + "Can't replan because some location is null!");
                 return;
             }
 
-            allocate(new ToSafety(safeLoc, vehicle));
+            allocate(new ToSafety(currLoc, safeLoc, vehicle));
         }
     }
 }
