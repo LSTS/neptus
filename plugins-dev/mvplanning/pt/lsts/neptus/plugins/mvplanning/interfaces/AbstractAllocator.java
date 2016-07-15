@@ -105,7 +105,6 @@ public abstract class AbstractAllocator implements IPeriodicUpdates {
      * Send the actual plan to a vehicle.
      * */
     protected boolean allocateTo(String vehicle, PlanTask ptask) {
-        /* TODO: Implement using sendMessage() from ConsoleAdapter */
         try {
             int reqId = IMCSendMessageUtils.getNextRequestId();
             PlanControl pc = new PlanControl();
@@ -124,8 +123,8 @@ public abstract class AbstractAllocator implements IPeriodicUpdates {
             PlanSpecification plan = pgen.closePlan(ptask, locs[0], locs[1]);
             pc.setArg(plan);
 
-            /* TODO: Handle case success is uncertain */
             Future<SendResult> cmdRes = console.sendMessageReliably(vehicle, pc);
+            NeptusLog.pub().info("[" + vehicle + "] : " + ptask.getPlanId() + "'s send result was " + cmdRes.get().name());
 
             return cmdRes.get() == SendResult.SUCCESS ||
                     cmdRes.get() == SendResult.UNCERTAIN_DELIVERY;
