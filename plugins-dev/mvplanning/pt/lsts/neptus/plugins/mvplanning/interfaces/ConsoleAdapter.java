@@ -50,12 +50,12 @@ public interface ConsoleAdapter {
     /**
      * Register the given object to the console's event bus
      * */
-    public void registerToEventBus(Object obj);
+    void registerToEventBus(Object obj);
 
     /**
      * Unregister the given object to the console's event bus
      * */
-    public void unregisterToEventBus(Object obj);
+    void unregisterToEventBus(Object obj);
 
 
     /**
@@ -63,79 +63,79 @@ public interface ConsoleAdapter {
      * to the messages bus and receive IMC
      * messages
      * */
-    public void subscribeToIMCMessages(Object obj);
+    void subscribeToIMCMessages(Object obj);
 
 
     /**
      * Unsubscribe from IMC messages's bus
      * */
-    public void unsubscribeToIMCMessages(Object obj);
+    void unsubscribeToIMCMessages(Object obj);
 
 
     /**
      * Post an event to the console's event bus
      * */
-    public void post(Object event);
+    void post(Object event);
 
 
     /**
      * Send an IMC message to a given system
      * */
-    public boolean sendMessage(String dest, IMCMessage msg);
+    boolean sendMessage(String dest, IMCMessage msg);
 
 
     /**
      * Same as {@link #sendMessage(String, IMCMessage)} but
      * uses TCP instead.
      * */
-    public Future<SendResult> sendMessageReliably(String dest, IMCMessage message);
+    Future<SendResult> sendMessageReliably(String dest, IMCMessage message);
 
 
     /**
      * Get the console systems
      * */
-    public Map<String, ConsoleSystem> getSystems();
+    Map<String, ConsoleSystem> getSystems();
 
 
     /**
      * Get obstacles drawn on the console's map
      * */
-    public AbstractElement[] getMapObstacles();
+    AbstractElement[] getMapObstacles();
 
 
     /**
      * Get the map group of the console's current map
      * */
-    public MapGroup getMapGroup();
+    MapGroup getMapGroup();
 
 
     /**
      * Get console's current mission
      * */
-    public MissionType getMission();
+    MissionType getMission();
 
     /**
      * Add a plan to the console's mission
      * */
-    public void addPlanToMission(PlanType plan);
+    void addPlanToMission(PlanType plan);
 
     /**
      * Start SwingWorker and save the current console's mission
      * */
-    public void saveMission();
+    void saveMission();
 
     /**
      * Posts a success notification
      * */
-    public void notifiySuccess(String title, String text);
+    void notifiySuccess(String title, String text);
 
     /**
      * Posts a warning notification
      * */
-    public void notifyWarning(String title, String text);
+    void notifyWarning(String title, String text);
 
     /**
      * Posts an error notification
      * */
-    public void notifiyError(String title, String text);
+    void notifiyError(String title, String text);
 }
