@@ -45,11 +45,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import javax.swing.DefaultListModel;
-import javax.swing.JButton;
-import javax.swing.JComboBox;
-import javax.swing.JList;
-import javax.swing.JScrollPane;
+import javax.swing.*;
 import javax.xml.bind.JAXBException;
 
 import com.google.common.eventbus.Subscribe;
@@ -57,7 +53,6 @@ import com.google.common.eventbus.Subscribe;
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.console.ConsoleLayout;
 import pt.lsts.neptus.console.ConsolePanel;
-import pt.lsts.neptus.console.notifications.Notification;
 import pt.lsts.neptus.console.plugins.PlanChangeListener;
 import pt.lsts.neptus.data.Pair;
 import pt.lsts.neptus.mp.MapChangeEvent;
@@ -71,7 +66,6 @@ import pt.lsts.neptus.plugins.mvplanning.events.MvPlanningEventNewOpArea;
 import pt.lsts.neptus.plugins.mvplanning.events.MvPlanningEventPlanAllocated;
 import pt.lsts.neptus.plugins.mvplanning.interfaces.ConsoleAdapter;
 import pt.lsts.neptus.plugins.mvplanning.interfaces.MapCell;
-import pt.lsts.neptus.plugins.mvplanning.jaxb.PlanTaskMarshaler;
 import pt.lsts.neptus.plugins.mvplanning.jaxb.ProfileMarshaler;
 import pt.lsts.neptus.plugins.mvplanning.jaxb.profiles.Profile;
 import pt.lsts.neptus.plugins.mvplanning.monitors.Environment;
@@ -136,6 +130,7 @@ public class MVPlanning extends ConsolePanel implements PlanChangeListener, Rend
     private GridArea covArea;
     private MST mst;
 
+
     public MVPlanning(ConsoleLayout console) {
         super(console);
         selectedPlans = new HashMap<>();
@@ -151,7 +146,7 @@ public class MVPlanning extends ConsolePanel implements PlanChangeListener, Rend
         extSysMonitor = new ExternalSystemsMonitor(this.console, pAlloc, pGen);
 
         /* FIXME: this values should not be hard-coded */
-        pGen.computeOperationalArea(env, 1500, 1500, 30);
+        pGen.computeOperationalArea(env, 1000, 1000, 10);
         fetchPlans();
     }
 
@@ -188,7 +183,8 @@ public class MVPlanning extends ConsolePanel implements PlanChangeListener, Rend
             opArea = event.getArea();
 
             pluginStateButton.setEnabled(true);
-            resumePlugin();
+            console.notifiySuccess("MvPlanning: Operational area updated", "");
+            pausePlugin();
         }
     }
 
