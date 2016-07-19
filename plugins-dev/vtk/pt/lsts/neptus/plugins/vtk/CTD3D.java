@@ -77,7 +77,7 @@ public class CTD3D extends JPanel implements MRAVisualization, PropertiesProvide
     private CTD3DToolbar toolbar;
 
     public PointCloudCTD pointcloud;
-
+    
     // private vtkScalarBarActor lutActor = new vtkScalarBarActor();
     public ScalarBar scalarBar;
 
@@ -149,9 +149,11 @@ public class CTD3D extends JPanel implements MRAVisualization, PropertiesProvide
         pointcloud = loadData.getPointcloud();
     }
 
+    
+    
     @Override
     public boolean canBeApplied(IMraLogGroup source) {
-        return (NeptusMRA.vtkEnabled && source.getLsfIndex().getEntityId("CTD") != 255 && source.getLsfIndex()
+        return (NeptusMRA.vtkEnabled && source.getLsfIndex()
                 .containsMessagesOfType("Conductivity"));
     }
 

@@ -31,6 +31,9 @@
  */
 package pt.lsts.neptus.plugins.vtk.ctd3d;
 
+import java.util.Arrays;
+import java.util.List;
+
 import pt.lsts.imc.EstimatedState;
 import pt.lsts.imc.Salinity;
 import pt.lsts.imc.Temperature;
@@ -59,6 +62,9 @@ public class LoadData {
     private final vtkDoubleArray salinityArray;
     private final vtkDoubleArray pressureArray;
 
+    List<String> validEntities = Arrays.asList("CTD", "Water Quality Sensor");
+
+    
     /**
      * @param source
      */
@@ -84,11 +90,11 @@ public class LoadData {
         int count = 0;
         while (true) {
             Temperature temp = indexScanner.next(Temperature.class);
-            while (temp != null && !temp.getEntityName().equals("CTD"))
+            while (temp != null && !validEntities.contains(temp.getEntityName()))
                 temp = indexScanner.next(Temperature.class);
             
             Salinity salinity = indexScanner.next(Salinity.class);
-            while (salinity != null && !salinity.getEntityName().equals("CTD"))
+            while (salinity != null && !validEntities.contains(temp.getEntityName()))
                 salinity = indexScanner.next(Salinity.class);
             
             if (temp == null && salinity == null) {
