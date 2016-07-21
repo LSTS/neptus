@@ -315,6 +315,7 @@ public class MVPlanning extends ConsolePanel implements PlanChangeListener, Rend
     @Override
     public void cleanSubPanel() {
         console.unregisterToEventBus(vawareness);
+        console.unsubscribeToIMCMessages(vawareness);
         console.unregisterToEventBus(stateMonitor);
         console.unsubscribeToIMCMessages(stateMonitor);
         console.unregisterToEventBus(env);
@@ -329,6 +330,7 @@ public class MVPlanning extends ConsolePanel implements PlanChangeListener, Rend
     @Override
     public void initSubPanel() {
         console.registerToEventBus(vawareness);
+        console.subscribeToIMCMessages(vawareness);
         console.registerToEventBus(stateMonitor);
         console.subscribeToIMCMessages(stateMonitor);
         console.registerToEventBus(env);
