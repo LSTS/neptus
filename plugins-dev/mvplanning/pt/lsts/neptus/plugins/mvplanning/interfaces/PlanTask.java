@@ -38,8 +38,12 @@ import pt.lsts.neptus.mp.ManeuverLocation;
 import pt.lsts.neptus.mp.maneuvers.LocatedManeuver;
 import pt.lsts.neptus.plugins.mvplanning.jaxb.plans.PlanTaskJaxb;
 import pt.lsts.neptus.plugins.mvplanning.jaxb.profiles.Profile;
+import pt.lsts.neptus.plugins.mvplanning.planning.constraints.*;
 import pt.lsts.neptus.types.mission.MissionType;
 import pt.lsts.neptus.types.mission.plan.PlanType;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Base class for the tasks that can be allocated
@@ -68,6 +72,7 @@ public abstract class PlanTask {
     protected byte[] md5;
     protected double completion;
     protected TASK_TYPE taskType;
+    protected List<TaskConstraint> constraints;
 
     public PlanTask(String id, PlanType plan, Profile planProfile, TASK_TYPE taskType) {
         this.planId = id;
@@ -79,6 +84,7 @@ public abstract class PlanTask {
 
         completion = 0;
         md5 = plan.asIMCPlan().payloadMD5();
+        constraints = setTaskConstraints();
     }
 
     public PlanTask(String id, Profile profile) {
@@ -90,14 +96,16 @@ public abstract class PlanTask {
         completion = -1;
         md5 = null;
         taskType = null;
+        constraints = setTaskConstraints();
+        constraints.add(0, new IsActive());
     }
 
     public PlanTask(PlanTaskJaxb ptaskJaxb) {
         load(ptaskJaxb);
+        constraints = setTaskConstraints();
     }
 
     public abstract TASK_TYPE getTaskType();
-
     public abstract ManeuverLocation getLastLocation();
 
     public ManeuverLocation getFirstLocation() {
@@ -170,6 +178,10 @@ public abstract class PlanTask {
         return planProfile.getProfileVehicles().contains(vehicle);
     }
 
+    public List<TaskConstraint> getConstraints() {
+        return constraints;
+    }
+
     private void load(PlanTaskJaxb taskJaxb) {
         this.planId = taskJaxb.planId;
         this.plan = taskJaxb.plan;
@@ -187,5 +199,17 @@ public abstract class PlanTask {
 
         NeptusLog.pub().warn("Couldn't figure out task type, setting as NeptusPlan");
         return TASK_TYPE.NEPTUS_PLAN;
+    }
+
+    public List<TaskConstraint> setTaskConstraints() {
+        List<TaskConstraint> constraints = new ArrayList<>();
+
+        constraints.add(new IsActive());
+        constraints.add(new HasPayload(getProfile()));
+        constraints.add(new HasTcpOn());
+        constraints.add(new HasSafeLocationSet());
+        constraints.add(new BatteryLevel(50, BatteryLevel.OPERATION.GEQUAL));
+
+        return constraints;
     }
 }

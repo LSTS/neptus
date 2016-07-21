@@ -3,7 +3,7 @@ package pt.lsts.neptus.plugins.mvplanning.planning.constraints;
 import pt.lsts.neptus.plugins.mvplanning.interfaces.TaskConstraint;
 
 public class BatteryLevel extends TaskConstraint {
-    static enum OPERATION {
+    public static enum OPERATION {
         GTHAN,
         GEQUAL,
         LTHEN,
