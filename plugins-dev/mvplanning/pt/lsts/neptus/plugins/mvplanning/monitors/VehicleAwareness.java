@@ -40,6 +40,7 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import com.google.common.eventbus.Subscribe;
 
+import pt.lsts.imc.FuelLevel;
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.comm.manager.imc.ImcSystem;
 import pt.lsts.neptus.comm.manager.imc.ImcSystemsHolder;
@@ -75,6 +76,7 @@ public class VehicleAwareness implements IPeriodicUpdates {
     private ConsoleAdapter console;
     private Map<String, LocationType> startLocations;
     private ConcurrentMap<String, VEHICLE_STATE> vehiclesState;
+    private ConcurrentMap<String, Double> vehiclesFuel;
     private Map<String, STATE> consoleStates;
 
     private long startTime = -1;
@@ -84,6 +86,7 @@ public class VehicleAwareness implements IPeriodicUpdates {
         startLocations = new ConcurrentHashMap<>();
         vehiclesState = new ConcurrentHashMap<>();
         consoleStates = new HashMap<>();
+        vehiclesFuel = new ConcurrentHashMap<>();
     }
 
     /**
@@ -162,6 +165,11 @@ public class VehicleAwareness implements IPeriodicUpdates {
             vehiclesState.put(id, VEHICLE_STATE.UNAVAILABLE);
         consoleStates.put(id, newState);
         RW_LOCK.writeLock().unlock();
+    }
+
+    @Subscribe
+    public void consume(FuelLevel msg) {
+        vehiclesFuel.put(msg.getSourceName(), msg.getValue());
     }
 
     /**
