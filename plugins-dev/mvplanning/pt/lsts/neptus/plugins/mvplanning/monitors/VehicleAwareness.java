@@ -49,6 +49,8 @@ import pt.lsts.neptus.console.events.ConsoleEventVehicleStateChanged;
 import pt.lsts.neptus.console.events.ConsoleEventVehicleStateChanged.STATE;
 import pt.lsts.neptus.console.notifications.Notification;
 import pt.lsts.neptus.plugins.mvplanning.interfaces.ConsoleAdapter;
+import pt.lsts.neptus.plugins.mvplanning.interfaces.PlanTask;
+import pt.lsts.neptus.plugins.mvplanning.interfaces.TaskConstraint;
 import pt.lsts.neptus.plugins.update.IPeriodicUpdates;
 import pt.lsts.neptus.types.coord.LocationType;
 import pt.lsts.neptus.types.vehicle.VehicleType.SystemTypeEnum;
@@ -62,7 +64,7 @@ import pt.lsts.neptus.types.vehicle.VehicleType.SystemTypeEnum;
 public class VehicleAwareness implements IPeriodicUpdates {
     private final ReadWriteLock RW_LOCK = new ReentrantReadWriteLock();
 
-    private enum VEHICLE_STATE {
+    public enum VEHICLE_STATE {
         AVAILABLE("Available"),
         UNAVAILABLE("Unavailable"),
         REPLANNING("Replanning");
