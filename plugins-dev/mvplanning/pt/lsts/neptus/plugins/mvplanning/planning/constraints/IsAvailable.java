@@ -12,4 +12,9 @@ public class IsAvailable extends TaskConstraint {
         VehicleAwareness.VEHICLE_STATE state = (VehicleAwareness.VEHICLE_STATE) value;
         return state == VehicleAwareness.VEHICLE_STATE.AVAILABLE;
     }
+
+    @Override
+    public NAME getName() {
+        return NAME.IsAvailable;
+    }
 }

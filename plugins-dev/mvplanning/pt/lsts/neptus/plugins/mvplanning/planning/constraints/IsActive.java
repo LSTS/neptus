@@ -11,4 +11,9 @@ public class IsActive extends TaskConstraint {
     public boolean isValidated(Object value) {
         return ImcSystemsHolder.getSystemWithName((String) value).isActive();
     }
+
+    @Override
+    public NAME getName() {
+        return NAME.IsActive;
+    }
 }

@@ -13,4 +13,9 @@ public class HasTcpOn extends TaskConstraint {
         ImcSystem sys = ImcSystemsHolder.getSystemWithName((String) value);
         return sys.isSimulated() || sys.isTCPOn();
     }
+
+    @Override
+    public NAME getName() {
+        return NAME.HasTcpOn;
+    }
 }

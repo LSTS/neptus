@@ -14,6 +14,11 @@ public class HasPayload extends TaskConstraint {
     }
 
     @Override
+    public NAME getName() {
+        return NAME.HasPayload;
+    }
+
+    @Override
     public boolean isValidated(Object value) {
         return profile.getProfileVehicles().contains(value);
     }

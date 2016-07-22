@@ -7,6 +7,10 @@ import pt.lsts.neptus.plugins.mvplanning.interfaces.TaskConstraint;
  */
 public class HasSafeLocationSet extends TaskConstraint {
     @Override
+    public NAME getName() {
+        return NAME.HasSafeLocationSet;
+    }
+    @Override
     public boolean isValidated(Object value) {
         return ((boolean) value);
     }

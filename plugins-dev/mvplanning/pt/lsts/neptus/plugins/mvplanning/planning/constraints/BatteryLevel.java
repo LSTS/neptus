@@ -29,6 +29,11 @@ public class BatteryLevel extends TaskConstraint {
     }
 
     @Override
+    public NAME getName() {
+        return NAME.BatteryLevel;
+    }
+
+    @Override
     public boolean isValidated(Object value) {
         double v = (double) value;
 
