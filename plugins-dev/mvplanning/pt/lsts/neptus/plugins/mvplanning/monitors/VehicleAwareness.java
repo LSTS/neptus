@@ -62,8 +62,6 @@ import pt.lsts.neptus.types.vehicle.VehicleType.SystemTypeEnum;
  * to have a sense of what the vehicles' current state is.
  **/
 public class VehicleAwareness implements IPeriodicUpdates {
-    private final ReadWriteLock RW_LOCK = new ReentrantReadWriteLock();
-
     public enum VEHICLE_STATE {
         AVAILABLE("Available"),
         UNAVAILABLE("Unavailable"),
@@ -97,7 +95,6 @@ public class VehicleAwareness implements IPeriodicUpdates {
      * */
     @Override
     public boolean update() {
-        RW_LOCK.writeLock().lock();
         boolean restartCounter = false;
         if(startTime == -1)
             startTime = System.currentTimeMillis();
@@ -123,7 +120,6 @@ public class VehicleAwareness implements IPeriodicUpdates {
             startTime = System.currentTimeMillis();
             System.out.println("\n");
         }
-        RW_LOCK.writeLock().unlock();
         return true;
     }
 
@@ -162,11 +158,12 @@ public class VehicleAwareness implements IPeriodicUpdates {
         NeptusLog.pub().info(getStatusMessage(id));
         ConsoleEventVehicleStateChanged.STATE newState = event.getState();
 
-        RW_LOCK.writeLock().lock();
-        if(!vehiclesState.containsKey(id))
-            vehiclesState.put(id, VEHICLE_STATE.UNAVAILABLE);
+        synchronized(vehiclesState) {
+            if (!vehiclesState.containsKey(id))
+                vehiclesState.put(id, VEHICLE_STATE.UNAVAILABLE);
+        }
+
         consoleStates.put(id, newState);
-        RW_LOCK.writeLock().unlock();
     }
 
     @Subscribe
@@ -179,9 +176,7 @@ public class VehicleAwareness implements IPeriodicUpdates {
      * available
      * */
     public boolean isVehicleAvailable(String vehicle) {
-        RW_LOCK.readLock().lock();
         VEHICLE_STATE state = vehiclesState.get(vehicle);
-        RW_LOCK.readLock().unlock();
 
         return state != null && state == VEHICLE_STATE.AVAILABLE;
     }
