@@ -205,6 +205,42 @@ public class VehicleAwareness implements IPeriodicUpdates {
 
     }
 
+    /**
+     * Given a vehicle and task checks if
+     * the vehicle meets/validates all of the
+     * task's constraints, hence being able to
+     * execute it.
+     * */
+    public boolean isVehicleAvailable(String vehicleId, PlanTask task) {
+        ImcSystem sys = ImcSystemsHolder.getSystemWithName(vehicleId);
+        for(TaskConstraint constraint : task.getConstraints()) {
+            switch (constraint.getName()) {
+                case BatteryLevel:
+                    if(!sys.isSimulated() && !constraint.isValidated(vehiclesFuel.get(vehicleId)))
+                        return false;
+                case HasPayload:
+                    if(!constraint.isValidated(vehicleId))
+                        return false;
+                case HasSafeLocationSet:
+                    if(!constraint.isValidated(startLocations.get(vehicleId) != null))
+                        return false;
+                case HasTcpOn:
+                    if(!constraint.isValidated(vehicleId))
+                        return false;
+                case IsActive:
+                    if(!constraint.isValidated(vehicleId))
+                        return false;
+                case IsAvailable:
+                    if(!constraint.isValidated(vehiclesState.get(vehicleId)))
+                        return false;
+                default:
+                    NeptusLog.pub().warn("Unknown constraint");
+                    return false;
+            }
+        }
+        return true;
+    }
+
 
     @Override
     public long millisBetweenUpdates() {
