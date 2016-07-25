@@ -110,9 +110,9 @@ public class Tracking extends ConsolePanel implements ItemListener {
     private String cam2RtpsUrl = "rtsp://10.0.20.209:554/live/ch01_0";*/
 
     @NeptusProperty(name = "TPL Size", editable = true, userLevel = LEVEL.REGULAR)
-    private int tplsize = 50;
+    private int tplsize = 60;
     @NeptusProperty(name = "Window Search Size", editable = true, userLevel = LEVEL.REGULAR)
-    private int windowSearchSize = 90;
+    private int windowSearchSize = 160;
 
     // Width size of Console
     private int widhtConsole;
