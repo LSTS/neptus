@@ -127,6 +127,9 @@ public class Tracking extends ConsolePanel implements ItemListener {
     // flag for state of neptus logo
     private boolean noVideoLogoState;
     // Buffer image for showImage
+    // Logo Neptus
+    private Mat logoNeptus;
+    private Size logoSizeNeptus;
     private BufferedImage offlineImageCam1;
     private BufferedImage offlineImageCam2;
     private BufferedImage realImageCam1;
@@ -252,6 +255,8 @@ public class Tracking extends ConsolePanel implements ItemListener {
      * Initialize Variables
      */
     public void initVariables() {
+        logoSizeNeptus = new Size(108, 20);
+        logoNeptus = new Mat();
         fpsMax = 30;
         isTracking = false;
         showDebug = false;
@@ -325,6 +330,8 @@ public class Tracking extends ConsolePanel implements ItemListener {
                     showImage(offlineImageCam1, offlineImageCam2);
                     noVideoLogoState = true;
                 }
+
+                logoNeptus = UtilCv.bufferedImageToMat(UtilCv.resize(ImageUtils.toBufferedImage(ImageUtils.getImage("images/neptus_loader_light.png")), (int)logoSizeNeptus.width, (int)logoSizeNeptus.height));
             }
             else {
                 offlineImageCam1 = UtilTracking.resizeBufferedImage(ImageUtils.toBufferedImage(ImageUtils.getImage("images/novideo.png")), panelSize, true);
@@ -430,7 +437,7 @@ public class Tracking extends ConsolePanel implements ItemListener {
                 }
                 catch (InterruptedException e) {
                 }
-                matCam1 = new Mat(320, 180, CvType.CV_8UC3);
+                matCam1 = new Mat(640, 360, CvType.CV_8UC3);
                 boolean isAliveIPCams;
                 boolean stateIPCams = false;
                 while (true) {
@@ -476,6 +483,7 @@ public class Tracking extends ConsolePanel implements ItemListener {
                             else {
                                 frameSizeCam1.width = matCam1.width();
                                 frameSizeCam1.height = matCam1.height();
+                                logoNeptus.copyTo(matCam1.submat(340, 360, 530, 638));
                             }
 
                             if (isTracking) {
@@ -530,7 +538,7 @@ public class Tracking extends ConsolePanel implements ItemListener {
                 }
                 catch (InterruptedException e) {
                 }
-                matCam2 = new Mat(320, 180, CvType.CV_8UC3);
+                matCam2 = new Mat(640, 360, CvType.CV_8UC3);
                 boolean isAliveIPCams;
                 boolean stateIPCams = false;
                 while (true) {
@@ -572,6 +580,7 @@ public class Tracking extends ConsolePanel implements ItemListener {
                             else {
                                 frameSizeCam2.width = matCam2.width();
                                 frameSizeCam2.height = matCam2.height();
+                                logoNeptus.copyTo(matCam2.submat(340, 360, 530, 638));
                             }
 
                             if (isTracking) {
@@ -630,6 +639,7 @@ public class Tracking extends ConsolePanel implements ItemListener {
                     if (!closePlugin && startCapture) {
                         if (!matCam1.empty() && !matCam2.empty()) {
                             long startTime = System.currentTimeMillis();
+
                             offlineImageCam1 = UtilCv.matToBufferedImage(matCam1);
                             offlineImageCam2 = UtilCv.matToBufferedImage(matCam2);
                             
