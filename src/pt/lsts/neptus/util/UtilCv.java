@@ -37,6 +37,7 @@ import java.awt.FontMetrics;
 import java.awt.Graphics2D;
 import java.awt.Image;
 import java.awt.image.BufferedImage;
+import java.awt.image.ColorConvertOp;
 import java.awt.image.DataBufferByte;
 import java.io.File;
 import java.io.IOException;
@@ -98,6 +99,9 @@ public class UtilCv {
     /**  Convert bufferedImage to Mat */
     public static Mat bufferedImageToMat(BufferedImage in) {
         Mat out;
+        if (in.getType() == BufferedImage.TYPE_INT_ARGB) {
+            in = convertColorspace(in, BufferedImage.TYPE_3BYTE_BGR);
+        }
 
         if (in.getType() == BufferedImage.TYPE_3BYTE_BGR) {
             out = new Mat(in.getHeight(), in.getWidth(), CvType.CV_8UC3);
@@ -121,6 +125,22 @@ public class UtilCv {
             out.put(0, 0, pixels);
         }
         return out;
+    }
+
+    /**
+     * convert a BufferedImage to new colourspace
+     */
+    public static BufferedImage convertColorspace(BufferedImage image, int newType) {
+        try {
+            BufferedImage raw_image = image;
+            image = new BufferedImage( raw_image.getWidth(), raw_image.getHeight(), newType);
+            ColorConvertOp xformOp = new ColorConvertOp(null);
+            xformOp.filter(raw_image, image);
+        } catch (Exception e) {
+            NeptusLog.pub().error("Exception " + e + " converting image");
+        }
+
+        return image;
     }
 
     /**  Resize Buffered Image */
