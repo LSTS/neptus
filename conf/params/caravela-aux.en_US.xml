@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<config format="1" version="2016.05.0 (feature/tracking3d,59abe0c)" system="caravela-aux" i18n="en_US">
+<config format="1" version="2016.05.0 (feature/tracking3d,ca56334)" system="caravela-aux" i18n="en_US">
   <section name="TemperatureRpi" name-i18n="TemperatureRpi">
     <param name="Entity Label">
       <name-i18n>Entity Label</name-i18n>
@@ -1195,7 +1195,7 @@
       <type>integer</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>50</default>
+      <default>60</default>
       <units/>
       <desc>Size of TPL match</desc>
     </param>
@@ -1204,7 +1204,7 @@
       <type>integer</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>90</default>
+      <default>140</default>
       <units/>
       <desc>Size of Window Search Size</desc>
     </param>
