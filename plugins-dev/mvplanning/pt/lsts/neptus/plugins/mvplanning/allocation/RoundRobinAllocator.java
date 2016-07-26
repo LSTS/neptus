@@ -88,7 +88,7 @@ public class RoundRobinAllocator extends AbstractAllocator {
             /* iterate over profile's vehicles and find the first one available */
             while(!allocated && (i < vehicles.size())) {
                 String vehicle = vehicles.get(i);
-                if(vawareness.isVehicleAvailable(vehicle) && ptask.containsVehicle(vehicle)) {
+                if(vawareness.isVehicleAvailable(vehicle, ptask)) {
                     allocated = allocateTo(vehicle, ptask);
 
                     if(allocated) {
