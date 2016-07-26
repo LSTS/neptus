@@ -204,6 +204,7 @@ public abstract class PlanTask {
     public List<TaskConstraint> setTaskConstraints() {
         List<TaskConstraint> constraints = new ArrayList<>();
 
+        constraints.add(new IsAvailable());
         constraints.add(new IsActive());
         constraints.add(new HasPayload(getProfile()));
         constraints.add(new HasTcpOn());
