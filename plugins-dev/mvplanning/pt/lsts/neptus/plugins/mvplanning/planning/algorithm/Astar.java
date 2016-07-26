@@ -31,20 +31,10 @@
  */
 package pt.lsts.neptus.plugins.mvplanning.planning.algorithm;
 
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.PriorityQueue;
-
-import com.google.common.collect.MinMaxPriorityQueue;
-
 import pt.lsts.neptus.mp.ManeuverLocation;
 import pt.lsts.neptus.plugins.mvplanning.interfaces.MapCell;
-import pt.lsts.neptus.types.coord.CoordinateUtil;
-import pt.lsts.neptus.types.coord.LocationType;
+
+import java.util.*;
 
 /**
  * Implementation of the A-star algorithm.

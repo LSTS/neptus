@@ -31,10 +31,10 @@
  */
 package pt.lsts.neptus.plugins.mvplanning.jaxb.plans;
 
+import pt.lsts.neptus.types.mission.plan.PlanType;
+
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.adapters.XmlAdapter;
-
-import pt.lsts.neptus.types.mission.plan.PlanType;
 
 
 /**

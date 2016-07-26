@@ -31,12 +31,12 @@
  */
 package pt.lsts.neptus.plugins.mvplanning.planning.algorithm;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.data.Pair;
 import pt.lsts.neptus.plugins.mvplanning.interfaces.MapCell;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * @author tsmarques

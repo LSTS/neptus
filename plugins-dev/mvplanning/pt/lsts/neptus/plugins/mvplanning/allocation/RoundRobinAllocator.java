@@ -31,16 +31,16 @@
  */
 package pt.lsts.neptus.plugins.mvplanning.allocation;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.plugins.mvplanning.PlanGenerator;
 import pt.lsts.neptus.plugins.mvplanning.events.MvPlanningEventPlanAllocated;
 import pt.lsts.neptus.plugins.mvplanning.interfaces.AbstractAllocator;
 import pt.lsts.neptus.plugins.mvplanning.interfaces.ConsoleAdapter;
-import pt.lsts.neptus.plugins.mvplanning.monitors.VehicleAwareness;
 import pt.lsts.neptus.plugins.mvplanning.interfaces.PlanTask;
+import pt.lsts.neptus.plugins.mvplanning.monitors.VehicleAwareness;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * @author tsmarques

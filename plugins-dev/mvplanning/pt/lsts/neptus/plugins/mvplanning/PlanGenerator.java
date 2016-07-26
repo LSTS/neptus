@@ -1,28 +1,20 @@
 package pt.lsts.neptus.plugins.mvplanning;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Vector;
-import java.util.concurrent.locks.ReadWriteLock;
-import java.util.concurrent.locks.ReentrantReadWriteLock;
-
-import pt.lsts.neptus.mp.maneuvers.FollowPath;
-import pt.lsts.neptus.mp.maneuvers.Goto;
 import pt.lsts.imc.PlanSpecification;
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.comm.IMCUtils;
-import pt.lsts.neptus.mp.Maneuver;
 import pt.lsts.neptus.mp.ManeuverLocation;
-import pt.lsts.neptus.mp.maneuvers.LocatedManeuver;
+import pt.lsts.neptus.mp.maneuvers.FollowPath;
+import pt.lsts.neptus.mp.maneuvers.Goto;
 import pt.lsts.neptus.mp.maneuvers.StationKeeping;
 import pt.lsts.neptus.plugins.mvplanning.events.MvPlanningEventNewOpArea;
 import pt.lsts.neptus.plugins.mvplanning.exceptions.BadPlanTaskException;
 import pt.lsts.neptus.plugins.mvplanning.exceptions.SafePathNotFoundException;
 import pt.lsts.neptus.plugins.mvplanning.interfaces.ConsoleAdapter;
 import pt.lsts.neptus.plugins.mvplanning.interfaces.MapDecomposition;
-import pt.lsts.neptus.plugins.mvplanning.jaxb.profiles.Profile;
 import pt.lsts.neptus.plugins.mvplanning.interfaces.PlanTask;
 import pt.lsts.neptus.plugins.mvplanning.interfaces.PlanTask.TASK_TYPE;
+import pt.lsts.neptus.plugins.mvplanning.jaxb.profiles.Profile;
 import pt.lsts.neptus.plugins.mvplanning.monitors.Environment;
 import pt.lsts.neptus.plugins.mvplanning.planning.algorithm.CoverageAreaFactory;
 import pt.lsts.neptus.plugins.mvplanning.planning.mapdecomposition.GridArea;
@@ -31,8 +23,12 @@ import pt.lsts.neptus.plugins.mvplanning.planning.tasks.ToSafety;
 import pt.lsts.neptus.plugins.mvplanning.planning.tasks.VisitPoint;
 import pt.lsts.neptus.plugins.mvplanning.utils.MvPlanningUtils;
 import pt.lsts.neptus.types.coord.LocationType;
-import pt.lsts.neptus.types.mission.GraphType;
 import pt.lsts.neptus.types.mission.plan.PlanType;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.locks.ReadWriteLock;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 public class PlanGenerator {
     private final ReadWriteLock OP_AREA_RW_LOCK = new ReentrantReadWriteLock();

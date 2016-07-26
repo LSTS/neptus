@@ -31,23 +31,19 @@
  */
 package pt.lsts.neptus.plugins.mvplanning.jaxb;
 
-import java.io.File;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
+import pt.lsts.neptus.NeptusLog;
+import pt.lsts.neptus.mp.ManeuverLocation;
+import pt.lsts.neptus.plugins.mvplanning.jaxb.profiles.Payload;
+import pt.lsts.neptus.plugins.mvplanning.jaxb.profiles.Profile;
 
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Marshaller;
 import javax.xml.bind.Unmarshaller;
-
-import pt.lsts.neptus.NeptusLog;
-import pt.lsts.neptus.mp.ManeuverLocation;
-import pt.lsts.neptus.plugins.mvplanning.MVPlanning;
-import pt.lsts.neptus.plugins.mvplanning.jaxb.profiles.Payload;
-import pt.lsts.neptus.plugins.mvplanning.jaxb.profiles.Profile;
-import pt.lsts.neptus.util.FileUtil;
+import java.io.File;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * @author tsmarques

@@ -34,7 +34,6 @@ package pt.lsts.neptus.plugins.mvplanning.utils;
 
 import com.google.common.eventbus.Subscribe;
 import pt.lsts.neptus.NeptusLog;
-import pt.lsts.neptus.comm.manager.imc.ImcSystemsHolder;
 import pt.lsts.neptus.mp.MapChangeEvent;
 import pt.lsts.neptus.systems.external.ExternalSystem;
 import pt.lsts.neptus.systems.external.ExternalSystemsHolder;

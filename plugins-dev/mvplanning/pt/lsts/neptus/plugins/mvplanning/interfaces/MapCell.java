@@ -31,9 +31,9 @@
  */
 package pt.lsts.neptus.plugins.mvplanning.interfaces;
 
-import java.util.List;
-
 import pt.lsts.neptus.types.coord.LocationType;
+
+import java.util.List;
 
 /**
  * @author tsmarques

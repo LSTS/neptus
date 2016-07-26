@@ -46,16 +46,14 @@ import pt.lsts.neptus.mp.actions.PlanActions;
 import pt.lsts.neptus.mp.maneuvers.FollowPath;
 import pt.lsts.neptus.mp.maneuvers.Goto;
 import pt.lsts.neptus.mp.maneuvers.LocatedManeuver;
+import pt.lsts.neptus.plugins.mvplanning.interfaces.PlanTask;
 import pt.lsts.neptus.plugins.mvplanning.jaxb.profiles.Payload;
 import pt.lsts.neptus.plugins.mvplanning.jaxb.profiles.Profile;
-import pt.lsts.neptus.plugins.mvplanning.interfaces.PlanTask;
-import pt.lsts.neptus.plugins.position.painter.SystemInfoPainter;
 import pt.lsts.neptus.types.coord.LocationType;
 
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Area;
 import java.awt.geom.Rectangle2D;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Vector;

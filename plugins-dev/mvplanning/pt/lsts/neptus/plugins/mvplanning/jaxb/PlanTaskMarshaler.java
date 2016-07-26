@@ -31,22 +31,21 @@
  */
 package pt.lsts.neptus.plugins.mvplanning.jaxb;
 
-import java.io.File;
-import java.util.ArrayList;
-import java.util.List;
+import pt.lsts.neptus.NeptusLog;
+import pt.lsts.neptus.plugins.mvplanning.interfaces.PlanTask;
+import pt.lsts.neptus.plugins.mvplanning.jaxb.plans.PlanTaskJaxb;
+import pt.lsts.neptus.plugins.mvplanning.planning.tasks.CoverageArea;
+import pt.lsts.neptus.plugins.mvplanning.planning.tasks.NeptusPlan;
+import pt.lsts.neptus.plugins.mvplanning.planning.tasks.VisitPoint;
+import pt.lsts.neptus.types.mission.MissionType;
 
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Marshaller;
 import javax.xml.bind.Unmarshaller;
-
-import pt.lsts.neptus.NeptusLog;
-import pt.lsts.neptus.plugins.mvplanning.jaxb.plans.PlanTaskJaxb;
-import pt.lsts.neptus.plugins.mvplanning.interfaces.PlanTask;
-import pt.lsts.neptus.plugins.mvplanning.planning.tasks.CoverageArea;
-import pt.lsts.neptus.plugins.mvplanning.planning.tasks.NeptusPlan;
-import pt.lsts.neptus.plugins.mvplanning.planning.tasks.VisitPoint;
-import pt.lsts.neptus.types.mission.MissionType;
+import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * @author tsmarques

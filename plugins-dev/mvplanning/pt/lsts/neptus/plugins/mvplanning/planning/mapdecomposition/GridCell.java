@@ -31,13 +31,13 @@
  */
 package pt.lsts.neptus.plugins.mvplanning.planning.mapdecomposition;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.plugins.mvplanning.interfaces.MapCell;
 import pt.lsts.neptus.types.coord.LocationType;
 import pt.lsts.neptus.util.AngleUtils;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * @author tsmarques

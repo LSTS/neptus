@@ -31,9 +31,6 @@
  */
 package pt.lsts.neptus.plugins.mvplanning.interfaces;
 
-import java.util.Map;
-import java.util.concurrent.Future;
-
 import pt.lsts.imc.IMCMessage;
 import pt.lsts.neptus.comm.manager.imc.ImcMsgManager.SendResult;
 import pt.lsts.neptus.console.ConsoleSystem;
@@ -41,6 +38,9 @@ import pt.lsts.neptus.types.map.AbstractElement;
 import pt.lsts.neptus.types.map.MapGroup;
 import pt.lsts.neptus.types.mission.MissionType;
 import pt.lsts.neptus.types.mission.plan.PlanType;
+
+import java.util.Map;
+import java.util.concurrent.Future;
 
 /**
  * @author tsmarques

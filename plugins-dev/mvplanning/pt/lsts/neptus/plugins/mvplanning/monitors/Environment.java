@@ -31,11 +31,6 @@
  */
 package pt.lsts.neptus.plugins.mvplanning.monitors;
 
-import java.awt.geom.AffineTransform;
-import java.awt.geom.Area;
-import java.awt.geom.Rectangle2D;
-import java.util.ArrayList;
-
 import com.google.common.eventbus.Subscribe;
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.mp.MapChangeEvent;
@@ -46,6 +41,9 @@ import pt.lsts.neptus.plugins.mvplanning.interfaces.ConsoleAdapter;
 import pt.lsts.neptus.plugins.mvplanning.utils.MvPlanningUtils;
 import pt.lsts.neptus.types.coord.LocationType;
 import pt.lsts.neptus.types.map.AbstractElement;
+
+import java.awt.geom.Area;
+import java.util.ArrayList;
 
 /**
  * @author tsmarques

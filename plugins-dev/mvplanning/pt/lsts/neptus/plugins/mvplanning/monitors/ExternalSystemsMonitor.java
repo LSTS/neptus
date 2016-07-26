@@ -32,15 +32,11 @@
 
 package pt.lsts.neptus.plugins.mvplanning.monitors;
 
-import com.google.common.collect.Multimap;
-import com.jogamp.common.util.ArrayHashSet;
-import org.apache.commons.collections15.multimap.MultiHashMap;
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.comm.manager.imc.ImcSystem;
 import pt.lsts.neptus.comm.manager.imc.ImcSystemsHolder;
 import pt.lsts.neptus.plugins.mvplanning.PlanAllocator;
 import pt.lsts.neptus.plugins.mvplanning.PlanGenerator;
-import pt.lsts.neptus.plugins.mvplanning.events.MvPlanningNoSafeDistanceEvent;
 import pt.lsts.neptus.plugins.mvplanning.interfaces.AbstractSupervisor;
 import pt.lsts.neptus.plugins.mvplanning.interfaces.ConsoleAdapter;
 import pt.lsts.neptus.plugins.mvplanning.utils.ExternalSystemsSimulator;

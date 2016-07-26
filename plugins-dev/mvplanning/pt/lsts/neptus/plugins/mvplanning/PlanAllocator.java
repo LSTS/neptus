@@ -39,10 +39,9 @@ import pt.lsts.neptus.plugins.mvplanning.exceptions.BadPlanTaskException;
 import pt.lsts.neptus.plugins.mvplanning.exceptions.SafePathNotFoundException;
 import pt.lsts.neptus.plugins.mvplanning.interfaces.AbstractAllocator;
 import pt.lsts.neptus.plugins.mvplanning.interfaces.ConsoleAdapter;
-import pt.lsts.neptus.plugins.mvplanning.monitors.VehicleAwareness;
 import pt.lsts.neptus.plugins.mvplanning.interfaces.PlanTask;
+import pt.lsts.neptus.plugins.mvplanning.monitors.VehicleAwareness;
 import pt.lsts.neptus.plugins.mvplanning.planning.tasks.ToSafety;
-import pt.lsts.neptus.plugins.mvplanning.planning.tasks.VisitPoint;
 import pt.lsts.neptus.types.coord.LocationType;
 
 import java.util.ArrayList;
