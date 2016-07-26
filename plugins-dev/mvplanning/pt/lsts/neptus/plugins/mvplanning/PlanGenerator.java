@@ -116,6 +116,8 @@ public class PlanGenerator {
             task.setPlan(generateVisitPoint(task));
         else if(type == TASK_TYPE.SAFETY)
             task.setPlan(generateSafetyPlan((ToSafety) task));
+        else
+            throw new BadPlanTaskException("Unhandled task type " + type.name());
 
         plans.add(0, task);
 
