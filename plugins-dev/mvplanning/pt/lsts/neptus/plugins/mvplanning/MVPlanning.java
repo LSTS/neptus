@@ -320,7 +320,6 @@ public class MVPlanning extends ConsolePanel implements PlanChangeListener, Rend
         console.unsubscribeToIMCMessages(stateMonitor);
         console.unregisterToEventBus(env);
         PeriodicUpdatesService.unregister(extSysMonitor);
-        PeriodicUpdatesService.unregister(vawareness);
         extSysMonitor.cleanup();
 
         NeptusLog.pub().info("Saving unfinished plans/tasks");
@@ -336,7 +335,6 @@ public class MVPlanning extends ConsolePanel implements PlanChangeListener, Rend
         console.registerToEventBus(env);
 
         PeriodicUpdatesService.register(extSysMonitor);
-        PeriodicUpdatesService.register(vawareness);
     }
 
     @Subscribe

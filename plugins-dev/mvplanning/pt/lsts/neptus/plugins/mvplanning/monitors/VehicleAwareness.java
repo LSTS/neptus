@@ -56,7 +56,7 @@ import pt.lsts.neptus.types.coord.LocationType;
  * It listens to {@link ConsoleEventVehicleStateChanged} events
  * to have a sense of what the vehicles' current state is.
  **/
-public class VehicleAwareness implements IPeriodicUpdates {
+public class VehicleAwareness {
     public enum VEHICLE_STATE {
         Available("Available"),
         Unavailable("Unavailable"),
@@ -72,62 +72,14 @@ public class VehicleAwareness implements IPeriodicUpdates {
     private Map<String, LocationType> startLocations;
     private ConcurrentMap<String, VEHICLE_STATE> vehiclesState;
     private ConcurrentMap<String, Double> vehiclesFuel;
-    private Map<String, STATE> consoleStates;
-
-    private long startTime = -1;
 
     public VehicleAwareness(ConsoleAdapter console) {
         this.console = console;
         startLocations = new ConcurrentHashMap<>();
         vehiclesState = new ConcurrentHashMap<>();
-        consoleStates = new HashMap<>();
         vehiclesFuel = new ConcurrentHashMap<>();
     }
 
-    /**
-     * Check vehicles' state and contraints
-     * and update if necessary
-     * */
-    @Override
-    public boolean update() {
-        boolean restartCounter = false;
-        if(startTime == -1)
-            startTime = System.currentTimeMillis();
-
-        for(String vehicle : vehiclesState.keySet()) {
-            VEHICLE_STATE newState = VEHICLE_STATE.Unavailable;
-            if(validConstraints(vehicle))
-                newState = VEHICLE_STATE.Available;
-
-            if(newState != vehiclesState.get(vehicle)) {
-                vehiclesState.put(vehicle, newState);
-                notify(vehicle, newState);
-            }
-
-            /* Every 30 seconds display status info */
-            if(System.currentTimeMillis() - startTime >= 60000) {
-                NeptusLog.pub().info(getStatusMessage(vehicle));
-                restartCounter = true;
-            }
-        }
-
-        if(restartCounter) {
-            startTime = System.currentTimeMillis();
-            System.out.println("\n");
-        }
-        return true;
-    }
-
-    /**
-     * Posts a new notification to the console
-     * */
-    private void notify(String vehicle, VEHICLE_STATE newState) {
-        String message = "MvPlanning: " + getStatusMessage(vehicle);
-        if(newState == VEHICLE_STATE.Available)
-            console.notifiySuccess(message, "");
-        else
-            console.notifyWarning(message, "");
-    }
 
     public void setVehicleStartLocation(String vehicleId, LocationType startLocation) {
         startLocations.put(vehicleId, startLocation);
@@ -150,15 +102,18 @@ public class VehicleAwareness implements IPeriodicUpdates {
         }
 
         String id = event.getVehicle();
-        NeptusLog.pub().info(getStatusMessage(id));
         ConsoleEventVehicleStateChanged.STATE newState = event.getState();
 
         synchronized(vehiclesState) {
-            if (!vehiclesState.containsKey(id))
-                vehiclesState.put(id, VEHICLE_STATE.Unavailable);
-        }
+            VEHICLE_STATE vState;
+            if (newState == STATE.FINISHED || newState == STATE.SERVICE)
+                vState = VEHICLE_STATE.Available;
+            else
+                vState = VEHICLE_STATE.Unavailable;
 
-        consoleStates.put(id, newState);
+            vehiclesState.put(id, vState);
+            console.notifiySuccess("MvPlanning: [" + id + "] " + vState.value, "");
+        }
     }
 
     @Subscribe
@@ -174,25 +129,6 @@ public class VehicleAwareness implements IPeriodicUpdates {
         VEHICLE_STATE state = vehiclesState.get(vehicle);
 
         return state != null && state == VEHICLE_STATE.Available;
-    }
-
-    /**
-     * Constraints that dictate if a vehicle is
-     * to be considered as available for allocation
-     * */
-    private boolean validConstraints(String vehicle) {
-        boolean isAvailable = true;
-        ImcSystem sys = ImcSystemsHolder.getSystemWithName(vehicle);
-
-        STATE consoleState = consoleStates.get(vehicle);
-        isAvailable = isAvailable &&
-                consoleState != null && (consoleState == STATE.FINISHED || consoleState == STATE.SERVICE);
-        isAvailable = isAvailable &&
-                (sys.isActive() && (sys.isTCPOn() || sys.isSimulated()));
-        isAvailable = isAvailable && (getVehicleStartLocation(vehicle) != null);
-
-        return isAvailable;
-
     }
 
     /**
@@ -240,54 +176,5 @@ public class VehicleAwareness implements IPeriodicUpdates {
                 return false;
         }
         return true;
-    }
-
-
-    @Override
-    public long millisBetweenUpdates() {
-        return 1000;
-    }
-
-    /**
-     * Method that generates a debug message
-     * concerning the status of vehicles's
-     * constraints (tcp on, vehicle state, etc)
-     * for a given vehicle.
-     * */
-    private String getStatusMessage(String vehicle) {
-        ImcSystem sys = ImcSystemsHolder.lookupSystemByName(vehicle);
-        boolean isActive = sys.isActive();
-        boolean isTCPOn = sys.isTCPOn();
-        boolean isSimulated = sys.isSimulated();
-        VEHICLE_STATE state = vehiclesState.get(vehicle);
-        boolean hasSafeLocation = (getVehicleStartLocation(vehicle) != null);
-        String debugMsg = "";
-
-        if(state != null)
-            debugMsg += state.name() + " | ";
-        else
-            debugMsg += "Unavailable | ";
-
-        if(isActive)
-            debugMsg += "ACTIVE | ";
-        else
-            debugMsg += "NOT ACTIVE | ";
-
-        if (isTCPOn)
-            debugMsg += "TCP ON| ";
-        else
-            debugMsg += "TCP OFF | ";
-
-        if(isSimulated)
-            debugMsg += "SIMULATED | ";
-        else
-            debugMsg += "NOT SIMULATED | ";
-
-        if(hasSafeLocation)
-            debugMsg += "SAFE LOC | ";
-        else
-            debugMsg += "NO SAFE LOC";
-
-        return debugMsg;
     }
 }
