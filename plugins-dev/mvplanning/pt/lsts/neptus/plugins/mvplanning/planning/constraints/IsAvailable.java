@@ -10,7 +10,7 @@ public class IsAvailable extends TaskConstraint {
     @Override
     public boolean isValidated(Object value) {
         VehicleAwareness.VEHICLE_STATE state = (VehicleAwareness.VEHICLE_STATE) value;
-        return state == VehicleAwareness.VEHICLE_STATE.AVAILABLE;
+        return state == VehicleAwareness.VEHICLE_STATE.Available;
     }
 
     @Override

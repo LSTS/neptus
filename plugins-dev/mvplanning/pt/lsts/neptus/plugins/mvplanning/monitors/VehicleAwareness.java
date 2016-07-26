@@ -35,8 +35,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
-import java.util.concurrent.locks.ReadWriteLock;
-import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import com.google.common.eventbus.Subscribe;
 
@@ -44,16 +42,13 @@ import pt.lsts.imc.FuelLevel;
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.comm.manager.imc.ImcSystem;
 import pt.lsts.neptus.comm.manager.imc.ImcSystemsHolder;
-import pt.lsts.neptus.console.events.ConsoleEventNewNotification;
 import pt.lsts.neptus.console.events.ConsoleEventVehicleStateChanged;
 import pt.lsts.neptus.console.events.ConsoleEventVehicleStateChanged.STATE;
-import pt.lsts.neptus.console.notifications.Notification;
 import pt.lsts.neptus.plugins.mvplanning.interfaces.ConsoleAdapter;
 import pt.lsts.neptus.plugins.mvplanning.interfaces.PlanTask;
 import pt.lsts.neptus.plugins.mvplanning.interfaces.TaskConstraint;
 import pt.lsts.neptus.plugins.update.IPeriodicUpdates;
 import pt.lsts.neptus.types.coord.LocationType;
-import pt.lsts.neptus.types.vehicle.VehicleType.SystemTypeEnum;
 
 /**
  * Class responsible for keeping a list of available and
@@ -63,9 +58,9 @@ import pt.lsts.neptus.types.vehicle.VehicleType.SystemTypeEnum;
  **/
 public class VehicleAwareness implements IPeriodicUpdates {
     public enum VEHICLE_STATE {
-        AVAILABLE("Available"),
-        UNAVAILABLE("Unavailable"),
-        REPLANNING("Replanning");
+        Available("Available"),
+        Unavailable("Unavailable"),
+        Replanning("Replanning");
 
         protected String value;
         VEHICLE_STATE(String value) {
@@ -100,9 +95,9 @@ public class VehicleAwareness implements IPeriodicUpdates {
             startTime = System.currentTimeMillis();
 
         for(String vehicle : vehiclesState.keySet()) {
-            VEHICLE_STATE newState = VEHICLE_STATE.UNAVAILABLE;
+            VEHICLE_STATE newState = VEHICLE_STATE.Unavailable;
             if(validConstraints(vehicle))
-                newState = VEHICLE_STATE.AVAILABLE;
+                newState = VEHICLE_STATE.Available;
 
             if(newState != vehiclesState.get(vehicle)) {
                 vehiclesState.put(vehicle, newState);
@@ -128,7 +123,7 @@ public class VehicleAwareness implements IPeriodicUpdates {
      * */
     private void notify(String vehicle, VEHICLE_STATE newState) {
         String message = "MvPlanning: " + getStatusMessage(vehicle);
-        if(newState == VEHICLE_STATE.AVAILABLE)
+        if(newState == VEHICLE_STATE.Available)
             console.notifiySuccess(message, "");
         else
             console.notifyWarning(message, "");
@@ -160,7 +155,7 @@ public class VehicleAwareness implements IPeriodicUpdates {
 
         synchronized(vehiclesState) {
             if (!vehiclesState.containsKey(id))
-                vehiclesState.put(id, VEHICLE_STATE.UNAVAILABLE);
+                vehiclesState.put(id, VEHICLE_STATE.Unavailable);
         }
 
         consoleStates.put(id, newState);
@@ -178,7 +173,7 @@ public class VehicleAwareness implements IPeriodicUpdates {
     public boolean isVehicleAvailable(String vehicle) {
         VEHICLE_STATE state = vehiclesState.get(vehicle);
 
-        return state != null && state == VEHICLE_STATE.AVAILABLE;
+        return state != null && state == VEHICLE_STATE.Available;
     }
 
     /**
@@ -260,7 +255,7 @@ public class VehicleAwareness implements IPeriodicUpdates {
         if(state != null)
             debugMsg += state.name() + " | ";
         else
-            debugMsg += "UNAVAILABLE | ";
+            debugMsg += "Unavailable | ";
 
         if(isActive)
             debugMsg += "ACTIVE | ";
