@@ -204,29 +204,40 @@ public class VehicleAwareness implements IPeriodicUpdates {
     public boolean isVehicleAvailable(String vehicleId, PlanTask task) {
         ImcSystem sys = ImcSystemsHolder.getSystemWithName(vehicleId);
         for(TaskConstraint constraint : task.getConstraints()) {
+            boolean validated = true;
             switch (constraint.getName()) {
                 case BatteryLevel:
                     if(!sys.isSimulated() && !constraint.isValidated(vehiclesFuel.get(vehicleId)))
-                        return false;
+                        validated = false;
+                    break;
                 case HasPayload:
                     if(!constraint.isValidated(vehicleId))
-                        return false;
+                        validated = false;
+                    break;
                 case HasSafeLocationSet:
                     if(!constraint.isValidated(startLocations.get(vehicleId) != null))
-                        return false;
+                        validated = false;
+                    break;
                 case HasTcpOn:
                     if(!constraint.isValidated(vehicleId))
-                        return false;
+                        validated = false;
+                    break;
                 case IsActive:
                     if(!constraint.isValidated(vehicleId))
-                        return false;
+                        validated = false;
+                    break;
                 case IsAvailable:
                     if(!constraint.isValidated(vehiclesState.get(vehicleId)))
-                        return false;
+                        validated = false;
+                    break;
                 default:
-                    NeptusLog.pub().warn("Unknown constraint");
-                    return false;
+                    NeptusLog.pub().warn("Unhandled constraint: " + constraint.getName().name());
+                    validated = false;
+                    break;
             }
+
+            if(!validated)
+                return false;
         }
         return true;
     }
