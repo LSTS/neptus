@@ -1,5 +1,6 @@
 package pt.lsts.neptus.plugins.mvplanning.planning.constraints;
 
+import pt.lsts.neptus.comm.manager.imc.ImcSystem;
 import pt.lsts.neptus.comm.manager.imc.ImcSystemsHolder;
 import pt.lsts.neptus.plugins.mvplanning.interfaces.TaskConstraint;
 
@@ -9,7 +10,8 @@ import pt.lsts.neptus.plugins.mvplanning.interfaces.TaskConstraint;
 public class IsActive extends TaskConstraint {
     @Override
     public boolean isValidated(Object value) {
-        return ImcSystemsHolder.getSystemWithName((String) value).isActive();
+        ImcSystem sys = ImcSystemsHolder.getSystemWithName((String) value);
+        return sys != null && sys.isActive();
     }
 
     @Override

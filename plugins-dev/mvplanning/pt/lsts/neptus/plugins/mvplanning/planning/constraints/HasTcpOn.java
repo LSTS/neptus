@@ -11,7 +11,7 @@ public class HasTcpOn extends TaskConstraint {
     @Override
     public boolean isValidated(Object value) {
         ImcSystem sys = ImcSystemsHolder.getSystemWithName((String) value);
-        return sys.isSimulated() || sys.isTCPOn();
+        return sys != null && (sys.isSimulated() || sys.isTCPOn());
     }
 
     @Override
