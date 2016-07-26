@@ -12,6 +12,6 @@ public abstract class TaskConstraint {
         IsActive,
         IsAvailable;
     }
-    public abstract boolean isValidated(Object value);
+    public abstract boolean isValidated(Object... value);
     public abstract NAME getName();
 }

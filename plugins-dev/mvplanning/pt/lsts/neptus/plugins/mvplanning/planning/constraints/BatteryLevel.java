@@ -34,8 +34,8 @@ public class BatteryLevel extends TaskConstraint {
     }
 
     @Override
-    public boolean isValidated(Object value) {
-        double v = (double) value;
+    public boolean isValidated(Object... value) {
+        double v = (double) value[0];
 
         if(op == OPERATION.Equal)
             return v == constraintValue;
