@@ -208,7 +208,7 @@ public abstract class PlanTask {
         constraints.add(new HasPayload(getProfile()));
         constraints.add(new HasTcpOn());
         constraints.add(new HasSafeLocationSet());
-        constraints.add(new BatteryLevel(50, BatteryLevel.OPERATION.GEQUAL));
+        constraints.add(new BatteryLevel(50, BatteryLevel.OPERATION.Gequal));
 
         return constraints;
     }

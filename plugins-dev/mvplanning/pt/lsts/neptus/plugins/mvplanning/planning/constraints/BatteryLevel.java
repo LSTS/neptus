@@ -4,12 +4,12 @@ import pt.lsts.neptus.plugins.mvplanning.interfaces.TaskConstraint;
 
 public class BatteryLevel extends TaskConstraint {
     public static enum OPERATION {
-        GTHAN,
-        GEQUAL,
-        LTHEN,
-        LEQUAL,
-        EQUAL,
-        BETWEEN;
+        Gthan,
+        Gequal,
+        Lthen,
+        Lequal,
+        Equal,
+        Interval;
     }
 
     private double constraintValue;
@@ -25,7 +25,7 @@ public class BatteryLevel extends TaskConstraint {
     public BatteryLevel(double minVal, double maxVal) {
         constraintValue = minVal;
         constraintValue2 = maxVal;
-        op = OPERATION.BETWEEN;
+        op = OPERATION.Interval;
     }
 
     @Override
@@ -37,15 +37,15 @@ public class BatteryLevel extends TaskConstraint {
     public boolean isValidated(Object value) {
         double v = (double) value;
 
-        if(op == OPERATION.EQUAL)
+        if(op == OPERATION.Equal)
             return v == constraintValue;
-        else if(op == OPERATION.GTHAN)
+        else if(op == OPERATION.Gthan)
             return v > constraintValue;
-        else if(op == OPERATION.GEQUAL)
+        else if(op == OPERATION.Gequal)
             return v >= constraintValue;
-        else if(op == OPERATION.LTHEN)
+        else if(op == OPERATION.Lthen)
             return v < constraintValue;
-        else if(op == OPERATION.LEQUAL)
+        else if(op == OPERATION.Lequal)
             return v <= constraintValue;
         else
             return v > constraintValue && v < constraintValue2;
