@@ -170,14 +170,6 @@ public abstract class PlanTask {
         this.completion = completion;
     }
 
-    /**
-     * If the given vehicle can execute this plan with
-     * the needed profile.
-     * */
-    public boolean containsVehicle(String vehicle) {
-        return planProfile.getProfileVehicles().contains(vehicle);
-    }
-
     public List<TaskConstraint> getConstraints() {
         return constraints;
     }
