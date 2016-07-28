@@ -16,6 +16,10 @@ public class BatteryLevel extends TaskConstraint {
     private double constraintValue2;
     private OPERATION op;
 
+    public BatteryLevel(String pddlSpec) {
+
+    }
+
     public BatteryLevel(double constraintValue, OPERATION op) {
         this.constraintValue = constraintValue;
         constraintValue2 = Double.MAX_VALUE;

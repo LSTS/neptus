@@ -7,6 +7,15 @@ import pt.lsts.neptus.plugins.mvplanning.monitors.VehicleAwareness;
  * Created by tsmarques on 21/07/16.
  */
 public class IsAvailable extends TaskConstraint {
+
+    public IsAvailable() {
+
+    }
+
+    public IsAvailable(String pddlSpec) {
+
+    }
+
     @Override
     public boolean isValidated(Object... value) {
         VehicleAwareness.VEHICLE_STATE state = (VehicleAwareness.VEHICLE_STATE) value[0];
