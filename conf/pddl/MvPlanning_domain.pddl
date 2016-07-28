@@ -21,7 +21,7 @@
             (battery-consumption-payload ?p - payload) ;;battery consumption of the payload per 1 time unit
 
             ;; task constraints ;;
-            (battery-level ?v - vehicle)
+            (BatteryLevel ?v - vehicle)
 )
 
 
@@ -33,6 +33,6 @@
                                   (at start (HasPayload ?t ?v))
                                   (at start (HasTcpOn ?v))
                                   (at start (HasSafeLocationSet ?v))
-                                  (at start (>= (battery-level ?v) 60))
+                                  (at start (>= (BatteryLevel ?v) 60))
                                   )
                   )
