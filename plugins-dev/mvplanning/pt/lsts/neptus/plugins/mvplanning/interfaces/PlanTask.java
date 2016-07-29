@@ -192,7 +192,7 @@ public abstract class PlanTask {
 
     public static TASK_TYPE string2TaskType(String str) {
         for(TASK_TYPE type : TASK_TYPE.values())
-            if(str == type.value)
+            if(str.equals(type.value))
                 return type;
 
         NeptusLog.pub().warn("Couldn't figure out task type, setting as NeptusPlan");
