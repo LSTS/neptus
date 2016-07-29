@@ -219,10 +219,11 @@ public abstract class PlanTask {
     private void loadTaskPddlSpecs() {
         /* load task constraints */
         this.constraints = new ArrayList<>();
-        Map<String, String> taskConstraints = TaskPddlParser.getTaskConstraints(getTaskType().name());
+        Map<String, String> taskConstraints = TaskPddlParser.getTaskConstraints(getTaskType().value);
 
         if(taskConstraints == null || taskConstraints.isEmpty()) {
-            NeptusLog.pub().warn("[" + getTaskType().value + "] No constraints found/parsed. Using default ones...");
+            System.out.println("* [" + planId + "]");
+            System.out.println("** [" + getTaskType().value + "] No constraints found/parsed. Using default ones...");
             constraints = setDefaultTaskConstraints();
         }
         else {
