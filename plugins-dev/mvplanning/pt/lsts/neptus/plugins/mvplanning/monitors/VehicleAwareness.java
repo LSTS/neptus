@@ -136,6 +136,12 @@ public class VehicleAwareness {
      * */
     public boolean isVehicleAvailable(String vehicleId, PlanTask task) {
         ImcSystem sys = ImcSystemsHolder.getSystemWithName(vehicleId);
+
+        if(sys == null) {
+            System.out.println("[" + vehicleId + "] is null. Something went wrong");
+            return false;
+        }
+
         for(TaskConstraint constraint : task.getConstraints()) {
             boolean validated = true;
             switch (constraint.getName()) {
