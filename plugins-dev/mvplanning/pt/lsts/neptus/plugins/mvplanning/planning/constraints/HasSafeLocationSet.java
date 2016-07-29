@@ -20,7 +20,7 @@ public class HasSafeLocationSet extends TaskConstraint {
         return NAME.HasSafeLocationSet;
     }
     @Override
-    public boolean isValidated(Object... value) {
-        return ((boolean) value[0]);
+    public <T> boolean isValidated(T... value) {
+        return (Boolean) value[0];
     }
 }
