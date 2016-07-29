@@ -50,7 +50,7 @@ public class CoverageArea extends PlanTask {
      * Called when unmarshalling
      * */
     public CoverageArea(String id, PlanType plan, Profile planProfile) {
-        super(id, plan, planProfile, TASK_TYPE.COVERAGE_AREA);
+        super(id, plan, planProfile);
     }
 
     public CoverageArea(String id, Profile profile, MapDecomposition dcmp) {
@@ -60,7 +60,7 @@ public class CoverageArea extends PlanTask {
     }
 
     public CoverageArea(String id, PlanType plan, Profile profile, MapDecomposition dcmp) {
-        super(id, plan, profile, TASK_TYPE.COVERAGE_AREA);
+        super(id, plan, profile);
         mapDcmp = dcmp;
         taskType = TASK_TYPE.COVERAGE_AREA;
     }

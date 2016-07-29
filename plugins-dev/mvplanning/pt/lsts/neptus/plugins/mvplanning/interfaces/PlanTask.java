@@ -74,13 +74,13 @@ public abstract class PlanTask {
     protected TASK_TYPE taskType;
     protected List<TaskConstraint> constraints;
 
-    public PlanTask(String id, PlanType plan, Profile planProfile, TASK_TYPE taskType) {
+    public PlanTask(String id, PlanType plan, Profile planProfile) {
         this.planId = id;
         this.plan = plan;
         this.plan.setId(id);
         this.planProfile = planProfile;
         this.timestamp = -1;
-        this.taskType = taskType;
+        this.taskType = getTaskType();
 
         completion = 0;
         md5 = plan.asIMCPlan().payloadMD5();

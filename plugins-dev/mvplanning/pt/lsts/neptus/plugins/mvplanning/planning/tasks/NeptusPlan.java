@@ -44,7 +44,7 @@ import pt.lsts.neptus.types.mission.plan.PlanType;
  */
 public class NeptusPlan extends PlanTask {
     public NeptusPlan(String id, PlanType plan, Profile planProfile) {
-        super(id, plan, planProfile, TASK_TYPE.NEPTUS_PLAN);
+        super(id, plan, planProfile);
     }
 
     @Override
