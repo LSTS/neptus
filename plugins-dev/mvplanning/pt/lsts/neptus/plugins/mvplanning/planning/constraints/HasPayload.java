@@ -19,7 +19,7 @@ public class HasPayload extends TaskConstraint {
     }
 
     @Override
-    public boolean isValidated(Object... value) {
+    public <T> boolean isValidated(T... value) {
         return profile.getProfileVehicles().contains(value);
     }
 }
