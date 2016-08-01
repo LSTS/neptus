@@ -36,3 +36,33 @@
                                   (at start (>= (BatteryLevel ?v) 60))
                                   )
                   )
+
+(:durative-action VisitPoint
+                  :parameters (?v - vehicle ?t - task)
+                  :duration (= ?duration -1)
+                  :condition (and (at start (IsAvailable ?v))
+                                  (at start (IsActive ?v))
+                                  (at start (HasPayload ?t ?v))
+                                  (at start (HasTcpOn ?v))
+                                  (at start (HasSafeLocationSet ?v))
+                                  (at start (>= (BatteryLevel ?v) 60))
+                                  )
+                  )
+
+(:durative-action Safety
+                  :parameters (?v - vehicle ?t - task)
+                  :duration (= ?duration -1)
+                  :condition (and (at start (IsActive ?v))
+                                  (at start (HasSafeLocationSet ?v))
+                                  )
+                  )
+
+(:durative-action NeptusPlan
+                  :parameters (?v - vehicle ?t - task)
+                  :duration (= ?duration -1)
+                  :condition (and (at start (IsAvailable ?v))
+                                  (at start (IsActive ?v))
+                                  (at start (HasTcpOn ?v))
+                                  (at start (HasSafeLocationSet ?v))
+                                  )
+                  )
