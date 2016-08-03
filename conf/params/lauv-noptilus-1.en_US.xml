@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<config format="1" version="2016.05.0 (feature/everun,ecaffc3)" system="lauv-noptilus-1" i18n="en_US">
+<config format="1" version="2016.05.0 (feature/everun,0c02aa4)" system="lauv-noptilus-1" i18n="en_US">
   <section name="Motor Controller" name-i18n="Motor Controller">
     <param name="Entity Label">
       <name-i18n>Entity Label</name-i18n>
@@ -2947,37 +2947,10 @@
       <values>None, Debug, Trace, Spew</values>
       <values-i18n>None, Debug, Trace, Spew</values-i18n>
     </param>
-    <param name="Active - Scope">
-      <name-i18n>Active - Scope</name-i18n>
-      <type>string</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>maneuver</default>
-      <units/>
-      <desc>Scoped of the 'Active' parameter</desc>
-    </param>
-    <param name="Active - Visibility">
-      <name-i18n>Active - Visibility</name-i18n>
-      <type>string</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>user</default>
-      <units/>
-      <desc>Visibility of the 'Active' parameter</desc>
-    </param>
-    <param name="Active">
-      <name-i18n>Active</name-i18n>
-      <type>boolean</type>
-      <visibility>user</visibility>
-      <scope>maneuver</scope>
-      <default>0</default>
-      <units/>
-      <desc>True to activate task, false otherwise</desc>
-    </param>
     <param name="Slave System Name">
       <name-i18n>Slave System Name</name-i18n>
       <type>string</type>
-      <visibility>developer</visibility>
+      <visibility>user</visibility>
       <scope>global</scope>
       <default>bbb-everun</default>
       <units/>
@@ -2986,7 +2959,7 @@
     <param name="Power Channel">
       <name-i18n>Power Channel</name-i18n>
       <type>string</type>
-      <visibility>developer</visibility>
+      <visibility>user</visibility>
       <scope>global</scope>
       <default>Everun</default>
       <units/>
@@ -2995,7 +2968,7 @@
     <param name="Turn On System">
       <name-i18n>Turn On System</name-i18n>
       <type>boolean</type>
-      <visibility>developer</visibility>
+      <visibility>user</visibility>
       <scope>global</scope>
       <default>false</default>
       <units/>
@@ -3004,7 +2977,7 @@
     <param name="Ip Host">
       <name-i18n>Ip Host</name-i18n>
       <type>string</type>
-      <visibility>developer</visibility>
+      <visibility>user</visibility>
       <scope>global</scope>
       <default>10.0.10.86</default>
       <units/>
@@ -3013,7 +2986,7 @@
     <param name="Port Host">
       <name-i18n>Port Host</name-i18n>
       <type>integer</type>
-      <visibility>developer</visibility>
+      <visibility>user</visibility>
       <scope>global</scope>
       <default>9090</default>
       <units/>
@@ -3022,7 +2995,7 @@
     <param name="Number of attempts to connect">
       <name-i18n>Number of attempts to connect</name-i18n>
       <type>integer</type>
-      <visibility>developer</visibility>
+      <visibility>user</visibility>
       <scope>global</scope>
       <default>1</default>
       <units/>
@@ -3031,7 +3004,7 @@
     <param name="Sampling Time">
       <name-i18n>Sampling Time</name-i18n>
       <type>integer</type>
-      <visibility>developer</visibility>
+      <visibility>user</visibility>
       <scope>global</scope>
       <default>60</default>
       <units/>
@@ -3040,7 +3013,7 @@
     <param name="Rate">
       <name-i18n>Rate</name-i18n>
       <type>integer</type>
-      <visibility>developer</visibility>
+      <visibility>user</visibility>
       <scope>global</scope>
       <default>10</default>
       <units/>
@@ -3049,7 +3022,7 @@
     <param name="Input Data">
       <name-i18n>Input Data</name-i18n>
       <type>string</type>
-      <visibility>developer</visibility>
+      <visibility>user</visibility>
       <scope>global</scope>
       <default>1,2,3,4,5,6,7</default>
       <units/>

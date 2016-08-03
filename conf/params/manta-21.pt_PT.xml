@@ -1,5 +1,135 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<config format="1" version="2016.05.0 (master,5a841ca)" system="manta-21" i18n="pt_PT">
+<config format="1" version="2016.05.0 (feature/everun,0c02aa4)" system="manta-21" i18n="pt_PT">
+  <section name="Everun" name-i18n="Everun">
+    <param name="Entity Label">
+      <name-i18n>Nome da Entidade</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>Everun</default>
+      <units/>
+      <desc>Nome principal da entidade</desc>
+    </param>
+    <param name="Execution Priority">
+      <name-i18n>Prioridade de Execução</name-i18n>
+      <type>integer</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>10</default>
+      <units/>
+      <desc>Prioridade de execução</desc>
+    </param>
+    <param name="Activation Time">
+      <name-i18n>Tempo de Ativação</name-i18n>
+      <type>integer</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>0</default>
+      <units/>
+      <desc/>
+    </param>
+    <param name="Deactivation Time">
+      <name-i18n>Tempo de Desativação</name-i18n>
+      <type>integer</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>0</default>
+      <units/>
+      <desc/>
+    </param>
+    <param name="Debug Level">
+      <name-i18n>Nível de Depuração</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>None</default>
+      <units/>
+      <desc/>
+      <values>None, Debug, Trace, Spew</values>
+      <values-i18n>None, Debug, Trace, Spew</values-i18n>
+    </param>
+    <param name="Slave System Name">
+      <name-i18n>Slave System Name</name-i18n>
+      <type>string</type>
+      <visibility>user</visibility>
+      <scope>global</scope>
+      <default>bbb-everun</default>
+      <units/>
+      <desc>Name of the slave system</desc>
+    </param>
+    <param name="Power Channel">
+      <name-i18n>Power Channel</name-i18n>
+      <type>string</type>
+      <visibility>user</visibility>
+      <scope>global</scope>
+      <default>Everun</default>
+      <units/>
+      <desc>Power channel</desc>
+    </param>
+    <param name="Turn On System">
+      <name-i18n>Turn On System</name-i18n>
+      <type>boolean</type>
+      <visibility>user</visibility>
+      <scope>global</scope>
+      <default>false</default>
+      <units/>
+      <desc>Initial state of power in slave.</desc>
+    </param>
+    <param name="Ip Host">
+      <name-i18n>Ip Host</name-i18n>
+      <type>string</type>
+      <visibility>user</visibility>
+      <scope>global</scope>
+      <default>10.0.30.86</default>
+      <units/>
+      <desc>Ip Host.</desc>
+    </param>
+    <param name="Port Host">
+      <name-i18n>Port Host</name-i18n>
+      <type>integer</type>
+      <visibility>user</visibility>
+      <scope>global</scope>
+      <default>9090</default>
+      <units/>
+      <desc>Port Host.</desc>
+    </param>
+    <param name="Number of attempts to connect">
+      <name-i18n>Number of attempts to connect</name-i18n>
+      <type>integer</type>
+      <visibility>user</visibility>
+      <scope>global</scope>
+      <default>1</default>
+      <units/>
+      <desc>Number of attempts to connect (1 ~ 2 mim).</desc>
+    </param>
+    <param name="Sampling Time">
+      <name-i18n>Sampling Time</name-i18n>
+      <type>integer</type>
+      <visibility>user</visibility>
+      <scope>global</scope>
+      <default>60</default>
+      <units/>
+      <desc>Sampling Time.</desc>
+    </param>
+    <param name="Rate">
+      <name-i18n>Rate</name-i18n>
+      <type>integer</type>
+      <visibility>user</visibility>
+      <scope>global</scope>
+      <default>10</default>
+      <units/>
+      <desc>Rate.</desc>
+    </param>
+    <param name="Input Data">
+      <name-i18n>Input Data</name-i18n>
+      <type>string</type>
+      <visibility>user</visibility>
+      <scope>global</scope>
+      <default>1,2,3,4,5,6,7</default>
+      <units/>
+      <desc>Input Data.</desc>
+    </param>
+  </section>
   <section name="Navigation" name-i18n="Navegação">
     <param name="Entity Label">
       <name-i18n>Nome da Entidade</name-i18n>
@@ -540,7 +670,7 @@
       <type>string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>GPS</default>
+      <default>Everun</default>
       <units/>
       <desc/>
     </param>
@@ -1591,6 +1721,15 @@
       <units/>
       <desc>Source level when medium is underwater</desc>
     </param>
+    <param name="Address Section">
+      <name-i18n>Address Section</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>Evologics Addresses</default>
+      <units/>
+      <desc>Name of the configuration section with modem addresses</desc>
+    </param>
   </section>
   <section name="FTP Server" name-i18n="Servidor FTP">
     <param name="Entity Label">
@@ -1797,7 +1936,7 @@
       <type>list:string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>Chlorophyll, Conductivity, CpuUsage, Current, Depth, Distance, EntityState, Fluorescein, FuelLevel, GpsFix, Heartbeat, LblConfig, LblRange, LblRangeAcceptance, Phycocyanin, Phycoerythrin, PowerChannelState, Pressure, RhodamineDye, RSSI, Rpm, Salinity, SoundSpeed, StorageUsage, Temperature, Voltage</default>
+      <default>Chlorophyll, Conductivity, CpuUsage, Current, Depth, Distance, EntityState, Fluorescein, FuelLevel, GpsFix, Heartbeat, LblConfig, LblRange, LblRangeAcceptance, Phycocyanin, Phycoerythrin, PowerChannelState, Pressure, RhodamineDye, RSSI, Rpm, Salinity, SoundSpeed, StorageUsage, Temperature, Voltage, PH, Redox</default>
       <units/>
       <desc>List of messages to transport</desc>
     </param>
@@ -2052,7 +2191,7 @@
       <type>list:string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>Abort, Announce, AcousticOperation, CpuUsage, Current, Depth, DevDataText, EntityList, EntityState, GpsFix, Heartbeat, IridiumMsgRx, IridiumMsgTx, IridiumTxStatus, LblRange, LblRangeAcceptance, LogBookControl, LogBookEntry, PlanControl, PowerChannelControl, RemoteSensorInfo, RSSI, StorageUsage, Temperature, UamRxFrame, UamTxFrame, UamTxStatus, UamRxRange, Voltage</default>
+      <default>Abort, Announce, AcousticLink, AcousticOperation, CpuUsage, Current, Depth, DevDataText, EntityList, EntityState, GpsFix, Heartbeat, IridiumMsgRx, IridiumMsgTx, IridiumTxStatus, LblRange, LblRangeAcceptance, LogBookControl, LogBookEntry, PlanControl, PowerChannelControl, RemoteSensorInfo, RSSI, StorageUsage, Temperature, UamRxFrame, UamTxFrame, UamTxStatus, UamRxRange, UsblAnglesExtended, UsblPositionExtended, UsblFixExtended, UsblModem, UsblConfig, Voltage</default>
       <units/>
       <desc/>
     </param>
@@ -2271,6 +2410,54 @@
       <units/>
       <desc>Enable system state reporting</desc>
     </param>
+    <param name="USBL Node -- Enabled">
+      <name-i18n>USBL Node -- Enabled</name-i18n>
+      <type>boolean</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>false</default>
+      <units/>
+      <desc>USBL target request activation</desc>
+    </param>
+    <param name="USBL Node -- Period">
+      <name-i18n>USBL Node -- Period</name-i18n>
+      <type>integer</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>60.0</default>
+      <units>s</units>
+      <desc>USBL target necessary period</desc>
+      <min>2.0</min>
+    </param>
+    <param name="USBL Node -- Absolute Fix">
+      <name-i18n>USBL Node -- Absolute Fix</name-i18n>
+      <type>boolean</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>false</default>
+      <units/>
+      <desc>USBL can either send an absolute fix, or relative positioning.</desc>
+    </param>
+    <param name="USBL Node -- Quick, No Range">
+      <name-i18n>USBL Node -- Quick, No Range</name-i18n>
+      <type>boolean</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>false</default>
+      <units/>
+      <desc>In this mode, the USBL node does not require ranging information. With this mode enabled, there's only a two-way travel between the node and the USBL modem. The node actively requests data. This parameter overrides absolute fix</desc>
+    </param>
+    <param name="USBL Modem -- Max Waiting Time">
+      <name-i18n>USBL Modem -- Max Waiting Time</name-i18n>
+      <type>real</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>10.0</default>
+      <units>s</units>
+      <desc>Maximum amount of time that the modem will wait for target system's reply.</desc>
+      <min>2.0</min>
+      <max>20.0</max>
+    </param>
   </section>
   <section name="UDP" name-i18n="UDP">
     <param name="Entity Label">
@@ -2424,7 +2611,7 @@
       <type>list:string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>Abort, AcousticOperation, AcousticSystemsQuery, AcousticSystems, CpuUsage, Current, Depth, Distance, EntityList, EntityParameters, EntityState, EstimatedState, FuelLevel, GpsFix, Heartbeat, IridiumMsgRx, IridiumMsgTx, IridiumTxStatus, LblRange, LblRangeAcceptance, LogBookControl, LoggingControl, NavigationUncertainty, PlanControl, PlanControlState, RemoteSensorInfo, RSSI, StorageUsage, Temperature, Voltage</default>
+      <default>Abort, AcousticOperation, AcousticSystemsQuery, AcousticSystems, CpuUsage, Current, Depth, Distance, EntityList, EntityParameters, EntityState, EstimatedState, FuelLevel, GpsFix, Heartbeat, IridiumMsgRx, IridiumMsgTx, IridiumTxStatus, LblRange, LblRangeAcceptance, LogBookControl, LoggingControl, NavigationUncertainty, PlanControl, PlanControlState, PowerChannelControl, RemoteSensorInfo, RSSI, StorageUsage, Temperature, UsblAnglesExtended, UsblPositionExtended, UsblFixExtended, UsblModem, UsblConfig, Voltage</default>
       <units/>
       <desc>List of messages to transport</desc>
     </param>
