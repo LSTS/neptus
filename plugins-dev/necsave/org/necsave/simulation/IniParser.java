@@ -30,7 +30,8 @@ public class IniParser {
 	private File backupFile = null;
 	private String configFile;
 	private LinkedHashMap<SectionField, FileValue> newValues = new LinkedHashMap<>();
-	private HashMap<String, Ini> iniTable;
+	private LinkedHashMap<String, Ini> iniTable = new LinkedHashMap<>();
+	private LinkedHashMap<String, Ini> sub_IniTable = new LinkedHashMap<>();
 	private Simulator simulator;
 
 	public IniParser(String configPath, Simulator sim) {
@@ -58,11 +59,26 @@ public class IniParser {
 				plat.setPlatformType("DummyPlatform");
 
 			updateList(plat.getPlatformType());
-
-			iniTable = checkRequirements(mainIniFile);
+			LinkedHashMap<String, Ini> temp = new LinkedHashMap<>();
+			
+			checkRequirements(mainIniFile, iniTable);
 			for (Entry<String, Ini> conf : iniTable.entrySet()) {
 				Ini file = conf.getValue();
+				checkRequirements(file, sub_IniTable);
+				
+				for (Entry<String, Ini> sub_conf : sub_IniTable.entrySet()) {
+	                Ini sub_file = sub_conf.getValue();
+	                temp.put(sub_file.getFile().getName(), sub_file);
+	                
+	                if (DEBUG) {
+	                    System.out.println("--------------DEBUG--------------");
+	                    System.out.println("From sub file: "+ sub_file.getFile().getName());
+	                }
 
+	                readValues(sub_file, plat.getPlatformType());
+				}
+				sub_IniTable.clear();
+				
 				if (DEBUG) {
 					System.out.println("--------------DEBUG--------------");
 					System.out.println("From file: "+ file.getFile().getName());
@@ -75,7 +91,11 @@ public class IniParser {
 				System.out.println("--------------DEBUG--------------");
 				System.out.println("From file: "+ mainIniFile.getFile().getName());
 			}
-
+			
+			for (Entry<String, Ini> s : temp.entrySet()) {
+                iniTable.put(s.getKey(), s.getValue());
+			}
+			
 			//add main ini file to the map
 			configFile = mainIniFile.getFile().getName();
 			iniTable.put(configFile, mainIniFile);
@@ -89,7 +109,6 @@ public class IniParser {
 
 		} catch (IOException e) {
 			isValidConfig = false;
-			System.out.println("NewParser: ERROR reading config file");
 			e.printStackTrace();
 		}
 	}
@@ -137,7 +156,9 @@ public class IniParser {
 				filesToUpdate.add(struct.getValue().file);
 		}
 		for (String updateFile : filesToUpdate) {
-			System.out.println("Updating: " + updateFile);
+		    if (DEBUG)
+		        System.out.println("Updating: " + updateFile);
+		    
 			ArrayList<ArrayList<String>> list = new ArrayList<>();
 
 			for (Entry<SectionField, FileValue> struct : newValues.entrySet()) {
@@ -160,41 +181,54 @@ public class IniParser {
 				String field = l.get(1);
 				String value = l.get(2);
 
-				System.out.println(ini.getFile().getAbsolutePath() +" ["+section+"] " + field + " = " + value);
+				if (DEBUG)
+				    System.out.println(ini.getFile().getAbsolutePath() +" ["+section+"] " + field + " = " + value);
+				
 				ini.put(section, field, value);
 
 			}
 			try {
+			    //before saving, comment requires lines so they don't get messed up
+			    BufferedReader read = new BufferedReader(new FileReader(iniTable.get(updateFile).getFile().getAbsolutePath()));
+			    ArrayList<String> reqlines = new ArrayList<>();
 
-				ini.store();
+			    String dataRow = read.readLine(); 
+			    while (dataRow != null){
+			        if (dataRow != null) {
+			            if (dataRow.startsWith("[Require")) {
+			                reqlines.add(dataRow);
+			            }
+			        }
+			        dataRow = read.readLine(); 
+			    }
+			    read.close();
 
-				//add requires that where deleted when update ini file
-				if (ini.getFile().getName().equalsIgnoreCase(configFile)) {
-					BufferedReader read = new BufferedReader(new FileReader(iniTable.get(configFile).getFile().getAbsolutePath()));
-					ArrayList<String> lines = new ArrayList<>();
+			    //now store the changes
+			    ini.store();
 
-					String dataRow = read.readLine(); 
-					while (dataRow != null){
-						lines.add(dataRow);
-						dataRow = read.readLine(); 
-					}
-					read.close();
+			    read = new BufferedReader(new FileReader(iniTable.get(updateFile).getFile().getAbsolutePath()));
+			    ArrayList<String> lines = new ArrayList<>();
 
-					String mainFilePath = plat.getPath();
-					FileWriter writer = new FileWriter(iniTable.get(configFile).getFile().getAbsolutePath()); //same as your file name above so that it will replace it
-
-					for (Entry<String, Ini> a : iniTable.entrySet()) {
-						if (a.getKey() != configFile) 
-							writer.append("[Require "+a.getValue().getFile().getAbsolutePath().replace(mainFilePath+"/", "") + "]\r\n");
-					}
-
-					for (int i = 0; i < lines.size(); i++){
-						writer.append(System.getProperty("line.separator"));
-						writer.append((String) lines.get(i));
-					}
-					writer.flush();
-					writer.close();
-				}
+			    dataRow = read.readLine(); 
+			    while (dataRow != null){
+			        lines.add(dataRow);
+			        dataRow = read.readLine(); 
+			    }
+			    read.close();
+			    
+			    FileWriter writer = new FileWriter(iniTable.get(updateFile).getFile().getAbsolutePath());
+			    
+			    for (int i = 0; i < reqlines.size(); i++){
+                    writer.append((String) reqlines.get(i));
+                    writer.append(System.getProperty("line.separator"));
+                }
+			    
+			    for (int i = 0; i < lines.size(); i++){
+			        writer.append(System.getProperty("line.separator"));
+			        writer.append((String) lines.get(i));
+			    }
+			    writer.flush();
+			    writer.close();
 
 				done = true;
 
@@ -267,31 +301,29 @@ public class IniParser {
 			return false;
 
 	}
+	
+	private void checkRequirements(Ini confFile, LinkedHashMap<String, Ini> toIncludeConfs) {
+	    for (String section : confFile.keySet()) {
+	        if (section.contains("Require ") && section.contains(".ini")) {
+	            String[] line = section.split(" ");
+	            StringBuilder toInclude = new StringBuilder();
 
-	private HashMap<String, Ini> checkRequirements(Ini confFile) {
-		HashMap<String, Ini> toIncludeConfs = new HashMap<>();
-		for (String section : confFile.keySet()) {
-			if (section.contains("Require ") && section.contains(".ini")) {
-				String[] line = section.split(" ");
-				StringBuilder toInclude = new StringBuilder();
-
-				for (int i=1; i < line.length; i++) {
-					toInclude.append(plat.getPath().concat("/"+line[i]));
-					Ini conf = null;
-					try {
-						File toBeIncluded = new File(toInclude.toString());
-						conf = new Ini(toBeIncluded);
-						toIncludeConfs.put(toBeIncluded.getName(), conf);
-					} catch (InvalidFileFormatException e) {
-						e.printStackTrace();
-					} catch (IOException e) {
-						e.printStackTrace();
-					}
-				}
-			}
-		}
-
-		return toIncludeConfs;
+	            for (int i=1; i < line.length; i++) {
+	                toInclude.append(confFile.getFile().getParentFile().getAbsolutePath().concat("/"+line[i]));
+	                Ini conf = null;
+	                try {
+	                    File toBeIncluded = new File(toInclude.toString());
+	                    conf = new Ini(toBeIncluded);
+	                    toIncludeConfs.put(toBeIncluded.getName(), conf);
+	                } catch (InvalidFileFormatException e) {
+	                    e.printStackTrace();
+	                } catch (IOException e) {
+	                    e.printStackTrace();
+	                }
+	            }
+	        }
+	    }
+	   
 	}
 
 	private void readValues(Ini file, String platformType) {
