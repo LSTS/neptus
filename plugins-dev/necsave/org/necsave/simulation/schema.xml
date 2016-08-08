@@ -92,4 +92,13 @@
   <Field name="Resolution" type="textfield"/>
 </Section>
 
+<Section name="Test Specification" show="false" platform="All">
+  <Field name="Test Name" type="textfield"/>
+  <Field name="Rule Of Operations" type="textfield"/>
+  <Field name="Network Topology" type="textfield"/>
+  <Field name="Master Platform" type="textfield"/>
+  <Field name="Failing Platform" type="textfield"/>
+  <Field name="Gateway Platform" type="textfield"/>
+</Section>
+
 </xml>
