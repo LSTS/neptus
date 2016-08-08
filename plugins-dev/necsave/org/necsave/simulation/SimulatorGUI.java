@@ -64,8 +64,7 @@ public class SimulatorGUI {
 
     private HashMap<Integer, Simulator> platforms = new HashMap<>();
     private CustomJTabbedPane tabbedPane;
-    private static String DUNE_BUILD_PATH = "/home/manuel/workspace/NECSAVE/dune/build/";
-    private static String NECSAVE_BUILD_PATH = "/home/manuel/workspace/NECSAVE/build/";
+    private static String SCRIPTS_PATH;
     private static String XML_FILE;
     private static String LAUNCH_SCRIPT;
     private static String LAUNCH_DUNE_SCRIPT;
@@ -155,12 +154,11 @@ public class SimulatorGUI {
 
             @Override
             public void actionPerformed(ActionEvent e) {
-                if (!confDiag.validDunePath(DUNE_BUILD_PATH) || !confDiag.validNecsavePath(NECSAVE_BUILD_PATH)) {
-                    String path = !confDiag.validDunePath(DUNE_BUILD_PATH) ? "Dune" : "Necsave";
-                    JOptionPane.showMessageDialog(frame, "Wrong build path for "+path+".", "Error", JOptionPane.ERROR_MESSAGE);
+                if (LAUNCH_DUNE_SCRIPT == null || LAUNCH_SCRIPT == null) {
+                       JOptionPane.showMessageDialog(frame, "Wrong scripts path.", "Error", JOptionPane.ERROR_MESSAGE);
+                       return;
                 } 
-
-
+                
                 if (resultDiag != null)
                     resultDiag.dispose();
 
@@ -177,18 +175,20 @@ public class SimulatorGUI {
 
                 StringBuilder platformsArgs = new StringBuilder();
                 StringBuilder duneArgs = new StringBuilder();
-
+                String path = null;
+                
                 for (Entry<Integer, Simulator> plat : platforms.entrySet()) {
                     platformsArgs.append(plat.getValue().getConfigPath()+ " ");
+                    path = (new File(plat.getValue().getConfigPath()).getParentFile().getPath());
                     if (!plat.getValue().getPlatformType().equals("DummyPlatform")) {
                         duneArgs.append("vn_"+plat.getValue().getName()+" ");
                     }
                 }
 
-                new ExecThread(LAUNCH_SCRIPT+" "+NECSAVE_BUILD_PATH+" "+platformsArgs, true).start();
+                new ExecThread(LAUNCH_SCRIPT+" "+path.concat("/")+" "+platformsArgs, true).start();
 
                 System.out.println(duneArgs.toString());
-                new ExecThread(LAUNCH_DUNE_SCRIPT+" "+DUNE_BUILD_PATH+" "+duneArgs, true).start();
+                new ExecThread(LAUNCH_DUNE_SCRIPT+" "+duneArgs, true).start();
 
                 runSimBtn.setEnabled(false);
 
@@ -207,46 +207,18 @@ public class SimulatorGUI {
     }
 
     private void copyTempFiles() {
-
-        InputStream xmlStream = getClass().getResourceAsStream("../utils/schema.xml");
-        InputStream necsaveScriptStream = getClass().getResourceAsStream("../utils/launch.sh");
-        InputStream necsave2ScriptStream = getClass().getResourceAsStream("../utils/launch-one-platform.sh");
-        InputStream duneScriptStream = getClass().getResourceAsStream("../utils/launch-dune.sh");
-
+        InputStream xmlStream = getClass().getResourceAsStream("schema.xml");
         Set<PosixFilePermission> perms = PosixFilePermissions.fromString("rwxrwxr-x");
         FileAttribute<Set<PosixFilePermission>> fileAttributes = PosixFilePermissions.asFileAttribute(perms);
-
         Path temp = null;
-        String launch = null;
-        String launch_one = null;
-        String launch_dune = null;
         String xml = null;
         
         try {
             temp = Files.createTempDirectory("necsave");
-
-            launch = temp.toString()+"/launch.sh";
-            launch_one = temp.toString()+"/launch-one-platform.sh";
-            launch_dune = temp.toString()+"/launch-dune.sh";
             xml = temp.toString()+"/schema.xml";
-
-            File nec1File = new File(launch);
-            File nec2File = new File(launch_one);
-            File duneFile = new File(launch_dune);
             File xmlFile = new File(xml);
-            
-            Path launchFile = Files.createFile(nec1File.toPath(), fileAttributes);
-            Path launchNecFile = Files.createFile(nec2File.toPath(), fileAttributes);
-            Path launchDuneFile = Files.createFile(duneFile.toPath(), fileAttributes);
             Path schemaFile = Files.createFile(xmlFile.toPath(), fileAttributes);
-
-//            System.out.printf("Wrote text to temporary file %s%n", launchNecFile.toString());
-//            System.out.printf("Wrote text to temporary file %s%n", launchFile.toString());
-//            System.out.printf("Wrote text to temporary file %s%n", launchDuneFile.toString());
-//            System.out.printf("Wrote text to temporary file %s%n", schemaFile.toString());
-            
-            LAUNCH_DUNE_SCRIPT = launchDuneFile.toString();
-            LAUNCH_SCRIPT = launchFile.toString();
+//          System.out.printf("Wrote text to temporary file %s%n", schemaFile.toString());
             XML_FILE = schemaFile.toString();
         }
         catch (IOException e1) {
@@ -254,40 +226,16 @@ public class SimulatorGUI {
         }
 
         if (xmlStream == null)
-            NeptusLog.pub().error("../utils/schema.xml (resource not found)");
-
-        if (necsaveScriptStream == null)
-            NeptusLog.pub().error("../utils/launch.sh (resource not found)");
-
-        if (necsave2ScriptStream == null)
-            NeptusLog.pub().error("../utils/launch-one-platform.sh (resource not found)");
-
-        
-        if (duneScriptStream == null)
-            NeptusLog.pub().error("../utils/launch-dune.sh (resource not found)");
-
+            NeptusLog.pub().error("schema.xml (resource not found)");
         try {
-            FileWriter launchWriter = new FileWriter(launch);
-            FileWriter launchOneWriter = new FileWriter(launch_one);
-            FileWriter launchDuneWriter = new FileWriter(launch_dune);
+
             FileWriter schemaWriter = new FileWriter(xml);
-            
-            IOUtils.copy(necsaveScriptStream, launchWriter, "UTF-8");
-            IOUtils.copy(necsave2ScriptStream, launchOneWriter, "UTF-8");
-            IOUtils.copy(duneScriptStream, launchDuneWriter, "UTF-8");
             IOUtils.copy(xmlStream, schemaWriter, "UTF-8");
             
             xmlStream.close();
-            necsaveScriptStream.close();
-            necsave2ScriptStream.close();
-            duneScriptStream.close();
-            launchWriter.close();
-            launchOneWriter.close();
-            launchDuneWriter.close();
             schemaWriter.close();
         }
         catch (IOException e1) {
-            System.out.println("ERROR");
             e1.printStackTrace();
         }
     }
@@ -347,7 +295,7 @@ public class SimulatorGUI {
         public ConfigWindow() {
 
             JPanel statusBar = new JPanel();
-            JTextField duneTxtField, necsaveTxtField;
+            JTextField scriptsPathTxtField;
             JLabel msg = new JLabel();
             msg.setFont(new Font("DialogInput", Font.BOLD, 11));
 
@@ -361,39 +309,32 @@ public class SimulatorGUI {
 
             JPanel centerPanel = new JPanel();
             getContentPane().add(centerPanel, BorderLayout.CENTER);
-            centerPanel.setLayout(new MigLayout("", "[114px,grow][5px][48px][5px][90px][5px][114px]", "[19px][35px][][][][][]"));
+            centerPanel.setLayout(new MigLayout("", "[300px,grow][5px][48px][5px][90px][5px][114px]", "[35px][][][][][]"));
 
-            JLabel lblDuneBuildPath = new JLabel("DUNE Build Path:");
-            centerPanel.add(lblDuneBuildPath, "cell 0 0");
+            JLabel lblScriptsPath = new JLabel("Scripts Path:");
+            centerPanel.add(lblScriptsPath, "cell 0 0");
 
-            duneTxtField = new JTextField(DUNE_BUILD_PATH);
-            centerPanel.add(duneTxtField, "cell 0 1 7 1,growx");
-            duneTxtField.setColumns(10);
-
-            JLabel lblNecsaveBuildPath = new JLabel("NECSAVE Build Path:");
-            centerPanel.add(lblNecsaveBuildPath, "cell 0 2");
-
-            necsaveTxtField = new JTextField(NECSAVE_BUILD_PATH);
-            centerPanel.add(necsaveTxtField, "cell 0 3 7 1,growx");
-            necsaveTxtField.setColumns(10);
+            scriptsPathTxtField = new JTextField(SCRIPTS_PATH);
+            centerPanel.add(scriptsPathTxtField, "cell 0 1 7 1,growx");
+            scriptsPathTxtField.setColumns(10);
 
             JButton btnSave = new JButton("Save");
             btnSave.addActionListener(new ActionListener() {
 
                 @Override
                 public void actionPerformed(ActionEvent e) {
-                    DUNE_BUILD_PATH = duneTxtField.getText();
-                    NECSAVE_BUILD_PATH = necsaveTxtField.getText();
-                    if (validDunePath(duneTxtField.getText())) {
-                        msg.setText("DUNE Path: OK!");
-                    } else
-                        msg.setText("DUNE Path: ERROR!");
-                    if (validNecsavePath(necsaveTxtField.getText())) {
-                        msg.setText(msg.getText() + " | NECSAVE Path: OK!");
-                    } else
-                        msg.setText(msg.getText() + " | NECSAVE Path: ERROR!");
+                    SCRIPTS_PATH = scriptsPathTxtField.getText();
 
-
+                    if (validScriptsPath(scriptsPathTxtField.getText())) {
+                        msg.setText("Scripts Path: OK!");
+                        LAUNCH_SCRIPT = SCRIPTS_PATH.concat("/launch.sh");
+                        LAUNCH_DUNE_SCRIPT = SCRIPTS_PATH.concat("/launch-dune.sh");
+                    } 
+                    else {
+                        msg.setText("Scripts Path: ERROR!");
+                        LAUNCH_SCRIPT = null;
+                        LAUNCH_DUNE_SCRIPT = null;
+                    }
                 }
             });
 
@@ -413,23 +354,9 @@ public class SimulatorGUI {
 
         }
 
-        public boolean validDunePath(String path) {
+        public boolean validScriptsPath(String path) {
 
-            Path pathDir = FileSystems.getDefault().getPath(path, "dune");
-
-            if (Files.exists(pathDir)) {
-                if (Files.isExecutable(pathDir))
-                    return true;
-                else
-                    return false;
-            }
-
-            return false;
-        }
-
-        public boolean validNecsavePath(String path) {
-
-            Path pathDir = FileSystems.getDefault().getPath(path, "nec_perception");
+            Path pathDir = FileSystems.getDefault().getPath(path, "launch.sh");
 
             if (Files.exists(pathDir)) {
                 if (Files.isExecutable(pathDir))
