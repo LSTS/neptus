@@ -1,5 +1,14 @@
 <xml>
 
+<Section name="Test Specification" show="true" platform="All">
+  <Field name="Test Name" type="textfield"/>
+  <Field name="Rule Of Operations" type="textfield"/>
+  <Field name="Network Topology" type="textfield"/>
+  <Field name="Master Platform" type="textfield"/>
+  <Field name="Failing Platform" type="textfield"/>
+  <Field name="Gateway Platform" type="textfield"/>
+</Section>
+
 <Section name="General" show="true" platform="All">
   <Field name="Platform Id" type="textfield"/>
   <Field name="Platform Name" type="textfield"/>
@@ -16,7 +25,7 @@
   <Field name="Move Consumption" type="textfield"/>
 </Section>
 
-<Section name="$PLATFORM$/InitialState" show="true" platform="All">
+<Section name="$PLATFORM$/InitialState" show="false" platform="All">
   <Field name="Latitude" type="textfield"/>
   <Field name="Longitude" type="textfield"/>
   <Field name="Depth" type="textfield"/>
@@ -90,15 +99,6 @@
   <Field name="Consumption" type="textfield"/>
   <Field name="Depth" type="textfield"/>
   <Field name="Resolution" type="textfield"/>
-</Section>
-
-<Section name="Test Specification" show="false" platform="All">
-  <Field name="Test Name" type="textfield"/>
-  <Field name="Rule Of Operations" type="textfield"/>
-  <Field name="Network Topology" type="textfield"/>
-  <Field name="Master Platform" type="textfield"/>
-  <Field name="Failing Platform" type="textfield"/>
-  <Field name="Gateway Platform" type="textfield"/>
 </Section>
 
 </xml>
