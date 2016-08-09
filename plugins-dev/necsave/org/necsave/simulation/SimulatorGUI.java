@@ -29,6 +29,7 @@ import java.nio.file.attribute.PosixFilePermissions;
 import java.util.HashMap;
 import java.util.Map.Entry;
 import java.util.Set;
+import java.util.prefs.Preferences;
 
 import javax.swing.AbstractAction;
 import javax.swing.JButton;
@@ -73,9 +74,12 @@ public class SimulatorGUI {
     private ResultWindow resultDiag;
     private JButton runSimBtn;
     private File prevOpenFile;
+    private Preferences prefs;
+    private boolean isRunning;
 
     public SimulatorGUI() {
         copyTempFiles();
+        prefs = Preferences.userRoot().node(this.getClass().getName());
         
         //Create and set up the window.
         frame = new JDialog();
@@ -83,7 +87,7 @@ public class SimulatorGUI {
         frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         frame.setResizable(false);
         tabbedPane = new CustomJTabbedPane();
-
+        
         confDiag = new ConfigWindow();
         JMenuBar menuBar = new JMenuBar();
 
@@ -154,44 +158,47 @@ public class SimulatorGUI {
 
             @Override
             public void actionPerformed(ActionEvent e) {
-                if (LAUNCH_DUNE_SCRIPT == null || LAUNCH_SCRIPT == null) {
-                       JOptionPane.showMessageDialog(frame, "Wrong scripts path.", "Error", JOptionPane.ERROR_MESSAGE);
-                       return;
-                } 
-                
-                if (resultDiag != null)
-                    resultDiag.dispose();
+                if (!isRunning)  {
+                    if (LAUNCH_DUNE_SCRIPT == null || LAUNCH_SCRIPT == null) {
+                        JOptionPane.showMessageDialog(frame, "Wrong scripts path.", "Error", JOptionPane.ERROR_MESSAGE);
+                        return;
+                    } 
 
-                // Kill any open simulator
-                new ExecThread("ps --no-headers axk comm o pid,args | awk '$2 ~ \"../build/\"{print $1}' | xargs kill -9 | echo 'Killing all necsave procs...'", false).start();
+                    if (resultDiag != null)
+                        resultDiag.dispose();
 
-                resultDiag = new ResultWindow();
+                    // Kill any open simulator
+                    new ExecThread("ps --no-headers axk comm o pid,args | awk '$2 ~ \"../build/\"{print $1}' | xargs kill -9 | echo 'Killing all necsave procs...'", false).start();
 
-                javax.swing.SwingUtilities.invokeLater(new Runnable() {
-                    public void run() {
-                        resultDiag.setVisible(true);
+                    resultDiag = new ResultWindow();
+
+                    javax.swing.SwingUtilities.invokeLater(new Runnable() {
+                        public void run() {
+                            resultDiag.setVisible(true);
+                        }
+                    });
+
+                    StringBuilder platformsArgs = new StringBuilder();
+                    StringBuilder duneArgs = new StringBuilder();
+                    String path = null;
+
+                    for (Entry<Integer, Simulator> plat : platforms.entrySet()) {
+                        platformsArgs.append(plat.getValue().getConfigPath()+ " ");
+                        path = (new File(plat.getValue().getConfigPath()).getParentFile().getPath());
+                        if (!plat.getValue().getPlatformType().equals("DummyPlatform")) {
+                            duneArgs.append("vn_"+plat.getValue().getName()+" ");
+                        }
                     }
-                });
 
-                StringBuilder platformsArgs = new StringBuilder();
-                StringBuilder duneArgs = new StringBuilder();
-                String path = null;
-                
-                for (Entry<Integer, Simulator> plat : platforms.entrySet()) {
-                    platformsArgs.append(plat.getValue().getConfigPath()+ " ");
-                    path = (new File(plat.getValue().getConfigPath()).getParentFile().getPath());
-                    if (!plat.getValue().getPlatformType().equals("DummyPlatform")) {
-                        duneArgs.append("vn_"+plat.getValue().getName()+" ");
-                    }
+                    new ExecThread(LAUNCH_SCRIPT+" "+path.concat("/")+" "+platformsArgs, true).start();
+                    new ExecThread(LAUNCH_DUNE_SCRIPT+" "+duneArgs, true).start();
+
+                    isRunning = true;
+                    runSimBtn.setText("Simulation State");
+                    
+                } else {
+                    resultDiag.toFront();
                 }
-
-                new ExecThread(LAUNCH_SCRIPT+" "+path.concat("/")+" "+platformsArgs, true).start();
-
-                System.out.println(duneArgs.toString());
-                new ExecThread(LAUNCH_DUNE_SCRIPT+" "+duneArgs, true).start();
-
-                runSimBtn.setEnabled(false);
-
             }
 
         });
@@ -241,10 +248,12 @@ public class SimulatorGUI {
     }
     
     private int fileChooser() {
-        JFileChooser fileChooser = new JFileChooser();
+        
+        String path = prefs.get("PATH", "");
+        JFileChooser fileChooser = new JFileChooser(path);
         fileChooser.setAcceptAllFileFilterUsed(false);
         fileChooser.setMultiSelectionEnabled(true);
-        fileChooser.setCurrentDirectory(prevOpenFile);
+       // fileChooser.setCurrentDirectory(prevOpenFile);
         fileChooser.addChoosableFileFilter(new FileFilter() {
 
             public String getDescription() {
@@ -265,8 +274,10 @@ public class SimulatorGUI {
         if (returnVal == JFileChooser.APPROVE_OPTION) {
             File[] files = fileChooser.getSelectedFiles();
             for (File file : files ) {
-                prevOpenFile = file;
+               // prevOpenFile = file;
                 System.out.println("Opening '" +file.getPath()+"'");
+                path = file.getParent();
+                prefs.put("PATH", path);
                 Simulator newPlatfConfig = new Simulator(file.getPath(), XML_FILE);
 
                 if (newPlatfConfig.isValidSimulator())
@@ -314,17 +325,24 @@ public class SimulatorGUI {
             JLabel lblScriptsPath = new JLabel("Scripts Path:");
             centerPanel.add(lblScriptsPath, "cell 0 0");
 
+            SCRIPTS_PATH = prefs.get("SCRIPTS", "");
             scriptsPathTxtField = new JTextField(SCRIPTS_PATH);
             centerPanel.add(scriptsPathTxtField, "cell 0 1 7 1,growx");
             scriptsPathTxtField.setColumns(10);
 
+            if (validScriptsPath(scriptsPathTxtField.getText())) {
+                msg.setText("Scripts Path: OK!");
+                LAUNCH_SCRIPT = SCRIPTS_PATH.concat("/launch.sh");
+                LAUNCH_DUNE_SCRIPT = SCRIPTS_PATH.concat("/launch-dune.sh");
+            } 
             JButton btnSave = new JButton("Save");
             btnSave.addActionListener(new ActionListener() {
 
                 @Override
                 public void actionPerformed(ActionEvent e) {
                     SCRIPTS_PATH = scriptsPathTxtField.getText();
-
+ 
+                    prefs.put("SCRIPTS", SCRIPTS_PATH);
                     if (validScriptsPath(scriptsPathTxtField.getText())) {
                         msg.setText("Scripts Path: OK!");
                         LAUNCH_SCRIPT = SCRIPTS_PATH.concat("/launch.sh");
@@ -382,10 +400,16 @@ public class SimulatorGUI {
         public void run() {
             try {
                 Process process = Runtime.getRuntime().exec(new String[] { "/bin/bash", "-c", cmd });
-
                 BufferedReader buf = new BufferedReader(new InputStreamReader(process.getInputStream()));
                 String line = "";
+                
                 while ((line = buf.readLine()) != null) {
+                    if (line.contains("Killing all necsave procs...")) {
+                        resultDiag.dispose();
+                        isRunning = false;
+                        runSimBtn.setText("Run Simulation");
+                    }
+                    
                     if (showOnTxtArea) {
                         resultDiag.setTxt(line.concat("\n"));
                         System.out.println("Response: " + line);
@@ -452,6 +476,8 @@ public class SimulatorGUI {
                 public void actionPerformed(ActionEvent e) {
                     new ExecThread("ps --no-headers axk comm o pid,args | awk '$2 ~ \"../build/\"{print $1}' | xargs kill -9 | echo 'Killing all necsave procs...'", true).start();
                     runSimBtn.setEnabled(true);
+                    runSimBtn.setText("Run Simulation");
+                    isRunning = false;
                 }
             });
             panel.add(btnKillSim);
