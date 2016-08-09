@@ -33,6 +33,8 @@ package pt.lsts.neptus.mra.markermanagement;
 
 import java.text.DateFormat;
 import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.Iterator;
 
 import pt.lsts.neptus.mra.LogMarker;
 import pt.lsts.neptus.types.coord.LocationType;
@@ -53,6 +55,7 @@ public class LogMarkerItem extends LogMarker {
     private double depth;
     private double range;
     private Classification classification;
+    private HashSet<String> tagList = new HashSet<>();
 
     public enum Classification {
         UNDEFINED(-1), 
@@ -82,7 +85,7 @@ public class LogMarkerItem extends LogMarker {
      * @param lon
      */
     public LogMarkerItem(int index, String label, double timestamp, double lat, double lon, String sidescanImgPath, String drawImgPath, 
-            String annot, double altitude, double depth, double range, Classification classif, ArrayList<String> photos) {
+            String annot, double altitude, double depth, double range, Classification classif, ArrayList<String> photos, HashSet<String> tags) {
         super(label, annot, timestamp, lat, lon);
         this.index = index;
         this.sidescanImgPath = sidescanImgPath;
@@ -93,6 +96,7 @@ public class LogMarkerItem extends LogMarker {
         this.range = range;
         this.classification = classif;
         this.photoList = photos;
+        this.tagList = tags;
     }
 
     /**
@@ -172,7 +176,8 @@ public class LogMarkerItem extends LogMarker {
     public void copy(LogMarkerItem from) {
         this.annotation = from.annotation;
         this.classification = from.classification;
-        this.photoList = from.photoList;
+        this.photoList = new ArrayList<>(from.photoList);
+        this.tagList = new HashSet<>(from.tagList);
     }
 
     /**
@@ -243,5 +248,39 @@ public class LogMarkerItem extends LogMarker {
      */
     public void setPhotosPath(ArrayList<String> photosPath) {
         this.photoList = photosPath;
+    }
+    
+    /**
+     * @return the taglist
+     */
+    public HashSet<String> getTags() {
+        return tagList;
+    }
+
+    /**
+     * @param Set list of tags
+     */
+    public void setTags(HashSet<String> tags) {
+        this.tagList = tags;
+    }
+    
+    /**
+     * @param Add Tag to list
+     */
+    public void addTag(String tag) {
+        tagList.add(tag);
+    }
+    
+    /**
+     * @param remove tag from the list
+     */
+    public void removeTag(String tag) {
+        Iterator<String> it = tagList.iterator();
+        while (it.hasNext()) {
+            String currElement = it.next();
+            if (tag.equals(currElement)) {
+                it.remove();
+            }
+        }
     }
 }

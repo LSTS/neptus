@@ -509,6 +509,7 @@ public class MarkerManagement {
         double depth = altAndHeight[1];
         
         ArrayList<String> photoList = new ArrayList<>();
+        HashSet<String> tagList = new HashSet<>();
         
         String description;
         if (ssLogMarker.getDescription() != null && !ssLogMarker.getDescription().isEmpty())
@@ -517,7 +518,7 @@ public class MarkerManagement {
             description = "<Your annotation here.>";
        
         LogMarkerItem marker = new LogMarkerItem(index, ssLogMarker.getLabel(), ssLogMarker.getTimestamp(), loc.getLatitudeDegs(), 
-                loc.getLongitudeDegs(), getImgPath(ssLogMarker.getLabel()), null, description, alt, depth, range, Classification.UNDEFINED, photoList);
+                loc.getLongitudeDegs(), getImgPath(ssLogMarker.getLabel()), null, description, alt, depth, range, Classification.UNDEFINED, photoList, tagList);
 
         //format date timestamp
         String date = DateTimeUtil.dateFormatterXMLUTC.format(ssLogMarker.getTimestamp());
@@ -946,6 +947,7 @@ public class MarkerManagement {
         String path = null;
         String drawPath = null;
         ArrayList<String> photoList = null;
+        HashSet<String> tagList = null;
         double ts = 0;
         double lon = 0;
         double lat = 0;
@@ -970,6 +972,7 @@ public class MarkerManagement {
             cls = Classification.valueOf(getTextValue(markerEl,"Classification"));
             annot = getTextValue(markerEl, "Annotation");
             photoList = getListValue(markerEl, "Photos");
+            //tagList = getListValue(markerEl, "Tags"); FIXME
         }
         catch (ParseException e1) {
             e1.printStackTrace();
@@ -981,7 +984,7 @@ public class MarkerManagement {
         }
 
         //Create new LogMarkerItem with the value read from xml
-        LogMarkerItem e = new LogMarkerItem(index, name, ts, lat, lon, path, drawPath, annot, altitude, depth, range, cls, photoList);
+        LogMarkerItem e = new LogMarkerItem(index, name, ts, lat, lon, path, drawPath, annot, altitude, depth, range, cls, photoList, tagList);
 
         return e;
     }
