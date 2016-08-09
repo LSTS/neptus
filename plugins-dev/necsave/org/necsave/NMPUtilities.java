@@ -37,6 +37,7 @@ import java.util.TimeZone;
 import java.util.Vector;
 
 import info.necsave.msgs.PlatformInfo;
+import info.necsave.msgs.Header.MEDIUM;
 import info.necsave.proto.Message;
 
 /**
@@ -94,6 +95,8 @@ public class NMPUtilities {
     
     public static void main(String[] args) {
         PlatformInfo pinfo = new PlatformInfo();
+        pinfo.setMedium(MEDIUM.ACOUSTIC);
+        System.out.println(pinfo.getHeader().getString("medium"));
         System.out.println(getAsHtml(pinfo));
     }
 }

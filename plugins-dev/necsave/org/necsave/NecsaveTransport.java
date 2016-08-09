@@ -119,8 +119,11 @@ public class NecsaveTransport {
     };
 
     private void process(PlatformInfo msg, String host, int port) {
-        platformNames.put(msg.getSrc(), msg.getPlatformName());
-        platformAddrs.put(msg.getSrc(), new InetSocketAddress(host, msg.getPort()));
+        if (msg.getPlatformId() != msg.getSrc())
+            return;
+        System.out.println(msg);
+        platformNames.put(msg.getPlatformId(), msg.getPlatformName());
+        platformAddrs.put(msg.getPlatformId(), new InetSocketAddress(host, msg.getPort()));
     }
 
     private Message readMessage() throws Exception {

@@ -290,7 +290,7 @@ public class NecsaveUI extends ConsoleInteraction {
         loc.setLatitudeDegs(Math.toDegrees(msg.getLatitude()));
         loc.setLongitudeDegs(Math.toDegrees(msg.getLongitude()));
         loc.setDepth(msg.getZ());
-        update(msg.getSrc(), loc, 0);
+        update(msg.getOriginPlatformId(), loc, 0);
     }
     
     @Subscribe
@@ -383,7 +383,7 @@ public class NecsaveUI extends ConsoleInteraction {
             x += 20;
         }
     }
-
+    
     @Override
     public void cleanInteraction() {
         if (transport != null)
