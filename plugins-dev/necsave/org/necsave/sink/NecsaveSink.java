@@ -67,6 +67,7 @@ import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.plugins.ConfigurationListener;
 import pt.lsts.neptus.plugins.NeptusProperty;
 import pt.lsts.neptus.plugins.PluginDescription;
+import pt.lsts.neptus.plugins.PluginUtils;
 import pt.lsts.neptus.plugins.Popup;
 import pt.lsts.neptus.plugins.Popup.POSITION;
 
@@ -74,17 +75,31 @@ import pt.lsts.neptus.plugins.Popup.POSITION;
  * @author zp
  *
  */
-@PluginDescription(name = "NECSAVE Perception Sink")
+@PluginDescription(name = "NECSAVE Perception Sink", icon="org/necsave/necsave.png")
 @Popup(name = "NECSAVE Messages", pos = POSITION.CENTER, height = 500, width = 800)
 public class NecsaveSink extends ConsolePanel implements ConfigurationListener {
 
     private static final long serialVersionUID = -8156866308151145063L;
+    
+    @NeptusProperty(name="Port to listen for incoming messages")
+    public int listeningPort = 32123;
+
+    @NeptusProperty(name="Show incoming messages")
+    public boolean listenIncomingMessages = true;
+    
+    @NeptusProperty(name="Post messages to Neptus")
+    public boolean postToNeptus = true;
+    
+    private DatagramSocket socket = null;
+    private boolean stopped = true;
     private NMPTableModel model = new NMPTableModel();
     private JXTable table = new JXTable(model);
 
     private JPanel bottomPanel = new JPanel();
     private JToggleButton autoScroll = new JToggleButton(I18n.text("Auto scroll"));
-    private JButton clear = new JButton(I18n.text("Clear"));
+    private JButton clear = new JButton(I18n.text("Clear")), 
+            settings = new JButton(I18n.text("Settings"));
+            
     private JTextField highlight = new JTextField(40);
     
     
@@ -94,6 +109,8 @@ public class NecsaveSink extends ConsolePanel implements ConfigurationListener {
     public NecsaveSink(ConsoleLayout console) {
         super(console);
         table.setSortable(false);
+        
+        // Show message HTML when a row is double-clicked
         table.addMouseListener(new java.awt.event.MouseAdapter() {
             @Override
             public void mouseClicked(java.awt.event.MouseEvent e) {
@@ -110,18 +127,13 @@ public class NecsaveSink extends ConsolePanel implements ConfigurationListener {
                 }
             }
         });
+        
+        // add table to layout
         setLayout(new BorderLayout());
         JScrollPane pane = new JScrollPane(table);
-        add(pane, BorderLayout.CENTER);
-        bottomPanel.add(clear);
-        bottomPanel.add(autoScroll);
-        bottomPanel.add(highlight);
-        highlight.setText("PlatformInfo");
-        highlight.setBackground(Color.yellow);
-        highlight.setForeground(Color.red.darker());
-        updateHighlighters();
+        add(pane, BorderLayout.CENTER);        
 
-        add(bottomPanel, BorderLayout.SOUTH);
+        // scroll to last message if autoscroll is selected
         table.addComponentListener(new ComponentAdapter() {
             public void componentResized(ComponentEvent e) {
                 if (autoScroll.isSelected())
@@ -129,7 +141,22 @@ public class NecsaveSink extends ConsolePanel implements ConfigurationListener {
             }
         });
         
+        // add buttons to layout
+        bottomPanel.add(settings);
+        bottomPanel.add(clear);
+        bottomPanel.add(autoScroll);
+        bottomPanel.add(highlight);
+        add(bottomPanel, BorderLayout.SOUTH);
+        
+        // set default highlighter text to be displayed
+        highlight.setText("PlatformInfo");
+        highlight.setBackground(Color.yellow);
+        highlight.setForeground(Color.red.darker());
+        updateHighlighters();
+        
+        settings.addActionListener(this::showSettings);
         clear.addActionListener(this::clearMessages);
+        autoScroll.setSelected(true);
         highlight.getDocument().addDocumentListener(new DocumentListener() {
             
             @Override
@@ -146,17 +173,23 @@ public class NecsaveSink extends ConsolePanel implements ConfigurationListener {
             public void changedUpdate(DocumentEvent e) {
                 updateHighlighters();
             }
-        });
-        autoScroll.setSelected(true);
+        });        
+        
+        // tooltips
         highlight.setToolTipText(I18n.text("Text to highlight on the table"));
         autoScroll.setToolTipText(I18n.text("Advance to last received message automatically"));
         clear.setToolTipText(I18n.text("Clear table"));
+        settings.setToolTipText(I18n.text("Change plug-in settings"));
     }
 
     public void clearMessages(ActionEvent evt) {
         model.clear();
     }
     
+    public void showSettings(ActionEvent evt) {
+        PluginUtils.editPluginProperties(this, true);
+    }
+
     public void updateHighlighters() {
         PatternPredicate predicate = new PatternPredicate(".*"+highlight.getText()+".*");
         ColorHighlighter pattern = new ColorHighlighter(predicate, null, Color.BLUE, null,Color.BLACK);
@@ -165,11 +198,6 @@ public class NecsaveSink extends ConsolePanel implements ConfigurationListener {
         table.setHighlighters(pattern);
     }
 
-    @NeptusProperty
-    public int listeningPort = 32123;
-
-    private DatagramSocket socket = null;
-    private boolean stopped = true;
 
     @Override
     public void cleanSubPanel() {
@@ -205,17 +233,19 @@ public class NecsaveSink extends ConsolePanel implements ConfigurationListener {
                     DatagramPacket receivePacket = new DatagramPacket(receiveData, receiveData.length);
                     socket.receive(receivePacket);
 
-                    ProtoInputStream pis = new ProtoInputStream(new ByteArrayInputStream(receiveData),
-                            ProtoDefinition.getInstance());
+                    if (listenIncomingMessages) {
+                        ProtoInputStream pis = new ProtoInputStream(new ByteArrayInputStream(receiveData),
+                                ProtoDefinition.getInstance());
+                        Message msg = ProtoDefinition.getInstance().nextMessage(pis);
+                        process(receivePacket.getAddress().getHostName(), receivePacket.getPort(), msg);
+                    }
 
-                    Message msg = ProtoDefinition.getInstance().nextMessage(pis);
-                    process(receivePacket.getAddress().getHostName(), receivePacket.getPort(), msg);
+                    
                 }
                 catch (SocketTimeoutException e) {
                     // no messages received for 3 secs
                 }
                 catch (Exception e) {
-                    e.printStackTrace();
                     NeptusLog.pub().error(e);
                 }
             }
@@ -225,6 +255,9 @@ public class NecsaveSink extends ConsolePanel implements ConfigurationListener {
 
     void process(String source, int port, Message msg) {
         model.addMessage(source+":"+port, msg);
+        
+        if (postToNeptus)
+            post(msg);
     }
 
     @Override

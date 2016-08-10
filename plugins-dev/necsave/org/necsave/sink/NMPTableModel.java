@@ -53,12 +53,14 @@ public class NMPTableModel extends AbstractTableModel {
     private SimpleDateFormat sdf = new SimpleDateFormat("HH:mm:ss.SSS");
     private LinkedHashMap<Integer, String> platformNames = new LinkedHashMap<>();
     private LinkedHashMap<String, String> senderNames = new LinkedHashMap<>();
+    
     private ArrayList<Message> messages = new ArrayList<>();
+    private ArrayList<Long> timeReceived = new ArrayList<>();
     private ArrayList<String> senders = new ArrayList<>();
     private ArrayList<String> columns = new ArrayList<>();
     long startId = 0;
     {
-        columns.addAll(Arrays.asList("ID", "Time", "Medium", "Sender", "Source", "Destination", "Type", "Size"));
+        columns.addAll(Arrays.asList("ID", "Time", "Medium", "Sender", "Source", "Destination", "Type", "Size", "Latency (ms)"));
         sdf.setTimeZone(TimeZone.getTimeZone("UTC"));
         platformNames.put(65535, "broadcast");
     }
@@ -96,6 +98,8 @@ public class NMPTableModel extends AbstractTableModel {
                 return String.class;
             case 7:
                 return Integer.class;
+            case 8:
+                return Long.class;                
             default:
                 return Object.class;
         }
@@ -112,12 +116,13 @@ public class NMPTableModel extends AbstractTableModel {
             PlatformInfo pi = (PlatformInfo) m;
             synchronized (platformNames) {
                 platformNames.put(pi.getPlatformId(), pi.getPlatformName());      
-                senderNames.put(sender, pi.getPlatformName());
+                senderNames.put(sender, pi.getPlatformName());                
             }        
         }
         synchronized (messages) {
             messages.add(m);       
             senders.add(sender);
+            timeReceived.add(System.currentTimeMillis());
         }
         fireTableRowsInserted(messages.size()-2, messages.size()-1);
     }
@@ -129,6 +134,7 @@ public class NMPTableModel extends AbstractTableModel {
             messages.clear();
             startId = size+1;       
             senders.clear();
+            timeReceived.clear();
         }
         fireTableRowsDeleted(0, size);
     }
@@ -157,9 +163,7 @@ public class NMPTableModel extends AbstractTableModel {
                 case 2:
                     return msg.getHeader().getString("medium");
                 case 3:
-                    synchronized (senderNames) {
-                        return senders.get(rowIndex);        
-                    }                    
+                    return senders.get(rowIndex);                                               
                 case 4:
                     synchronized (platformNames) {
                         if (platformNames.containsKey(msg.getSrc()))
@@ -178,6 +182,8 @@ public class NMPTableModel extends AbstractTableModel {
                     return msg.getAbbrev();
                 case 7:
                     return msg.getSize();
+                case 8:
+                    return timeReceived.get(rowIndex) - msg.getTimestampMillis();                     
                 default:
                     return "";
             }

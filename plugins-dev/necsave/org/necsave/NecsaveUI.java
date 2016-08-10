@@ -39,6 +39,7 @@ import java.util.Map.Entry;
 import java.util.Vector;
 import java.util.concurrent.Future;
 
+import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 
 import com.google.common.eventbus.Subscribe;
@@ -46,6 +47,9 @@ import com.google.common.eventbus.Subscribe;
 import info.necsave.msgs.AbortMission;
 import info.necsave.msgs.AbortMission.TYPE;
 import info.necsave.msgs.Area;
+import info.necsave.msgs.Capabilities;
+import info.necsave.msgs.CapabilityPlanMission;
+import info.necsave.msgs.CapabilityScanArea;
 import info.necsave.msgs.Contact;
 import info.necsave.msgs.ContactList;
 import info.necsave.msgs.Header.MEDIUM;
@@ -55,13 +59,14 @@ import info.necsave.msgs.MissionCompleted;
 import info.necsave.msgs.MissionGoal;
 import info.necsave.msgs.MissionGoal.GOAL_TYPE;
 import info.necsave.msgs.MissionReadyToStart;
+import info.necsave.msgs.Plan;
 import info.necsave.msgs.PlatformInfo;
 import info.necsave.msgs.PlatformPlanProgress;
 import info.necsave.msgs.PlatformState;
 import info.necsave.msgs.Resurface;
 import info.necsave.proto.Message;
 import pt.lsts.neptus.NeptusLog;
-import pt.lsts.neptus.console.ConsoleInteraction;
+import pt.lsts.neptus.console.ConsoleLayer;
 import pt.lsts.neptus.console.notifications.Notification;
 import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.plugins.NeptusMenuItem;
@@ -82,22 +87,25 @@ import pt.lsts.neptus.util.GuiUtils;
  * @author zp
  * 
  */
-@PluginDescription(name = "NECSAVE UI")
-public class NecsaveUI extends ConsoleInteraction {
+@PluginDescription(name = "NECSAVE UI", icon="org/necsave/necsave.png")
+public class NecsaveUI extends ConsoleLayer {
 
     @NeptusProperty(description="Select if the commands should be sent using TCP communications")
     public boolean sendCommandsReliably = true;
-
+    
     private NecsaveTransport transport = null;
     private LinkedHashMap<Integer, String> platformNames = new LinkedHashMap<>();
     private LinkedHashMap<Integer, PlatformPlanProgress> planProgresses = new LinkedHashMap<>();
+    private LinkedHashMap<Integer, PlatformState> platfStates = new LinkedHashMap<>();
+    private LinkedHashMap<Integer, PlatformInfo> platfInfos = new LinkedHashMap<>();
     private LinkedHashMap<String, LocationType> contacts = new LinkedHashMap<>();
+    private Plan plan = null;
     private ParallelepipedElement elem = null;
     private LocationType corner = null; 
     private double width, height;
 
     @Override
-    public void initInteraction() {
+    public void initLayer() {
         try {
             transport = new NecsaveTransport(getConsole());
         }
@@ -286,6 +294,7 @@ public class NecsaveUI extends ConsoleInteraction {
 
     @Subscribe
     public void on(PlatformState msg) {
+        platfStates.put(msg.getSrc(), msg);
         LocationType loc = new LocationType();
         loc.setLatitudeDegs(Math.toDegrees(msg.getLatitude()));
         loc.setLongitudeDegs(Math.toDegrees(msg.getLongitude()));
@@ -349,6 +358,7 @@ public class NecsaveUI extends ConsoleInteraction {
 
     @Subscribe
     public void on(PlatformInfo msg) {
+        platfInfos.put(msg.getSrc(), msg);
         platformNames.put(msg.getSrc(), msg.getPlatformName());
     }
 
@@ -372,21 +382,101 @@ public class NecsaveUI extends ConsoleInteraction {
         loc.setDepth(msg.getObject().getDepth());
         contacts.put(msg.getSrc() + "." + msg.getContactId(), loc);
     }
-
-    @Override
-    public void paintInteraction(Graphics2D g, StateRenderer2D source) {
-        super.paintInteraction(g, source);
-        g.setColor(Color.black);
-        int x = 50;
-        for (int id : platformNames.keySet()) {
-            g.drawString(platformNames.get(id)+": "+transport.addressOf(id), 50, x);
-            x += 20;
+    
+    @Subscribe
+    public void on(Plan msg) {
+        System.out.println("Received Plan from "+msg.getSrc());
+        this.plan = msg;
+    }
+    
+    
+    private boolean isMaster(int platformId) {
+        if (!platfInfos.containsKey(platformId))
+            return false;
+        
+        Capabilities cap = platfInfos.get(platformId).getCapabilities();
+        @SuppressWarnings("unchecked")
+        Vector<Message> caps = (Vector<Message>) cap.getValue("capabilities"); 
+        for (Message m : caps) {
+            if (m.getMgid() == CapabilityPlanMission.ID_STATIC) {
+                return m.getString("planner_mode").equals("MASTER");
+            }
+        }
+        return false;
+    }
+    
+    @SuppressWarnings("unused")
+    private boolean hasScanArea(int platformId) {
+        if (!platfInfos.containsKey(platformId))
+            return false;
+        
+        Capabilities cap = platfInfos.get(platformId).getCapabilities();
+        @SuppressWarnings("unchecked")
+        Vector<Message> caps = (Vector<Message>) cap.getValue("capabilities"); 
+        for (Message m : caps) {
+            if (m.getMgid() == CapabilityScanArea.ID_STATIC)
+                return true;            
+        }
+        return false;
+    }
+    
+    private String getDelta(int platformId) {
+        if (!platfStates.containsKey(platformId))
+            return "\u221E";
+        
+        return ""+(int)platfStates.get(platformId).getAgeInSeconds()+"s";
+    }
+    
+    private String getProgress(int plataformId) {
+        if (!platfStates.containsKey(plataformId))
+            return "";
+        int state = platfStates.get(plataformId).getInteger("state");
+        
+        switch (state) {
+            case 200:
+                return "Idle";
+            case 201:
+                return "Error";
+            case 202:
+                return "Surfacing";
+            case 203:
+                return "Aborted";
+            case 255:
+                return "";
+            default:
+                return ""+state;
         }
     }
     
+    public String stateHtml() {
+        String html = "<html><table>";
+        
+        for (int id : platformNames.keySet()) {
+            html += "<tr><td>"+platformNames.get(id)+"</td><td>"+(isMaster(id)? "master" : "slave")+"</td><td>"+getDelta(id)+"</td><td>"+getProgress(id)+"</td></tr>";            
+        }
+        html+="</table></html>";
+        return html;
+    }
+    
+
     @Override
-    public void cleanInteraction() {
+    public void paint(Graphics2D g, StateRenderer2D renderer) {
+        JLabel lbl = new JLabel(stateHtml());
+        lbl.setOpaque(true);
+        lbl.setBackground(new Color(255,255,255,128));
+        lbl.setSize(lbl.getPreferredSize());
+        g.translate(10, 10);
+        lbl.paint(g);
+    }
+    
+    @Override
+    public void cleanLayer() {
         if (transport != null)
             transport.stop();
+    }
+
+    @Override
+    public boolean userControlsOpacity() {
+        return false;
     }
 }

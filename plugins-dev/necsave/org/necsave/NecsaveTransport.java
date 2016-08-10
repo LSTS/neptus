@@ -121,7 +121,6 @@ public class NecsaveTransport {
     private void process(PlatformInfo msg, String host, int port) {
         if (msg.getPlatformId() != msg.getSrc())
             return;
-        System.out.println(msg);
         platformNames.put(msg.getPlatformId(), msg.getPlatformName());
         platformAddrs.put(msg.getPlatformId(), new InetSocketAddress(host, msg.getPort()));
     }
@@ -138,7 +137,7 @@ public class NecsaveTransport {
         if (msg instanceof PlatformInfo)
             process((PlatformInfo)msg, receivePacket.getAddress().getHostAddress(), receivePacket.getPort());        
 
-        System.out.println("Received message of type '" + msg.getAbbrev() + "' from " + receivePacket.getAddress()
+        NeptusLog.pub().debug("Received message of type '" + msg.getAbbrev() + "' from " + receivePacket.getAddress()
                 + " - Platform " + platformNames.get(msg.getSrc()));
         
         return msg;
