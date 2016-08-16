@@ -38,6 +38,8 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.ObjectInputStream;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.Vector;
@@ -502,7 +504,7 @@ public class LogUtils {
     }
 
     /**
-     * Return from a log folder a valid {@link FileUtil#FILE_TYPE_LSF} (compressed or not.
+     * Return from a log folder a valid {@link FileUtil#FILE_TYPE_LSF} (compressed or not)
      * 
      * @param logFolder
      * @return
@@ -514,27 +516,30 @@ public class LogUtils {
         File logLsf = null;
         File logLsfGz = null;
         File logLsfBz2 = null;
+        ArrayList<File> files = new ArrayList<File>(Arrays.asList(logFolder.listFiles()));
+        Collections.sort(files);
         
-        for (File fx : logFolder.listFiles()) {
-            switch (FileUtil.getFileExtension(fx)) {
-                case FileUtil.FILE_TYPE_LSF:
-                    logLsf = fx;;
-                    break;
-                case "gz":
-                    String fex = FileUtil.getFileNameWithoutExtension(fx.getName());
-                    if (FileUtil.getFileExtension(fex).equalsIgnoreCase(FileUtil.FILE_TYPE_LSF))
-                        logLsfGz = fx;
-                    break;
-                case "bz2":
-                    fex = FileUtil.getFileNameWithoutExtension(fx.getName());
-                    if (FileUtil.getFileExtension(fex).equalsIgnoreCase(FileUtil.FILE_TYPE_LSF))
-                        logLsfBz2 = fx;
-                    break;
-                default:
-                    break;
+        sel : 
+            for (File fx : files) {
+                switch (FileUtil.getFileExtension(fx)) {
+                    case FileUtil.FILE_TYPE_LSF:
+                        logLsf = fx;
+                        break sel;
+                    case "gz":
+                        String fex = FileUtil.getFileNameWithoutExtension(fx.getName());
+                        if (FileUtil.getFileExtension(fex).equalsIgnoreCase(FileUtil.FILE_TYPE_LSF))
+                            logLsfGz = fx;
+                        break sel;
+                    case "bz2":
+                        fex = FileUtil.getFileNameWithoutExtension(fx.getName());
+                        if (FileUtil.getFileExtension(fex).equalsIgnoreCase(FileUtil.FILE_TYPE_LSF))
+                            logLsfBz2 = fx;
+                        break sel;
+                    default:
+                        break;
+                }
             }
-        }
-        
+
         File ret = null;
         if (logLsf != null)
             ret = logLsf;
@@ -542,7 +547,7 @@ public class LogUtils {
             ret = logLsfGz;
         else if (logLsfBz2 != null)
             ret = logLsfBz2;
-
+        
         return ret;
     }
     
