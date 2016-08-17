@@ -107,12 +107,13 @@ public class InteractionAdapter extends ConsolePanel implements StateRendererInt
                 g.setColor(new Color(0, 0, 0, 100));
                 Point2D start = source.getScreenPosition(firstDragPoint);
 
-                int angle = (int) Math.toDegrees(Math.PI / 2
-                        + Math.atan2(lastDragPoint.getY() - start.getY(), lastDragPoint.getX() - start.getX()));
+                double[] offsets = end.getOffsetFrom(firstDragPoint);
+                int angle = (int) Math.toDegrees(Math.atan2(offsets[1], offsets[0]));
                 if (angle < 0)
                     angle += 360;
                 String angleTxt = String.format("%dº", angle);
-                g.fillArc((int) start.getX() - 15, (int) start.getY() - 15, 30, 30, 90, -angle);
+                g.fillArc((int) start.getX() - 15, (int) start.getY() - 15, 30, 30,
+                          (int) Math.toDegrees(Math.PI / 2 + source.getRotation()), -angle);
                 g.draw(new Line2D.Double(start, lastDragPoint));
                 g.setColor(Color.black);
                 g.setStroke(new BasicStroke(2.5f));
