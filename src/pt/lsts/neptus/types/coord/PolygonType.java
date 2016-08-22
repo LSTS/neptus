@@ -91,6 +91,15 @@ public class PolygonType implements Renderer2DPainter {
         return Collections.unmodifiableList(vertices);
     }    
     
+    public void removeVertex(Vertex v) {
+        if (v == null)
+            return;
+        synchronized (vertices) {
+            vertices.remove(v);
+        }
+        recomputePath();
+    }
+    
     /**
      * @param filled the filled to set
      */
@@ -110,11 +119,13 @@ public class PolygonType implements Renderer2DPainter {
      */
     @Override
     public void paint(Graphics2D g, StateRenderer2D renderer) {
-        if (elem != null)
+        
+        if (elem != null) {
             elem.paint(g, renderer, renderer.getRotation());
+        }
     }
 
-    private void recomputePath() {
+    public void recomputePath() {
         synchronized (vertices) {
             if (vertices.isEmpty()) {
                 elem = null;
@@ -131,6 +142,24 @@ public class PolygonType implements Renderer2DPainter {
             elem.setFinished(true);
         }
     }
+    
+    @Override
+    public String toString() {
+        return "Polygon ("+vertices.size()+" vertices)";
+    }
+
+    public PolygonType clone() {
+        StringWriter writer = new StringWriter();
+        JAXB.marshal(this, writer);
+        return JAXB.unmarshal(new StringReader(writer.toString()), getClass());
+    }
+
+    /**
+     * @return the color
+     */
+    public final Color getColor() {
+        return color;
+    }
 
     @XmlType
     public static class Vertex {
@@ -145,12 +174,18 @@ public class PolygonType implements Renderer2DPainter {
             lat = latDegs;
             lon = lonDegs;
         }
+        
+        @Override
+        public int hashCode() {
+            return (""+lat+","+lon).hashCode();
+        }
     }
    
     public static void main(String[] args) {
         PolygonType pt = new PolygonType();
         pt.addVertex(41, -8);
         pt.addVertex(42, -8);
+        pt.addVertex(42, -7);
         pt.addVertex(41, -8);
         
         StringWriter writer = new StringWriter();
@@ -164,5 +199,6 @@ public class PolygonType implements Renderer2DPainter {
         String xml2 = writer.toString();
         System.out.println(xml2);
         System.out.println(xml1.equals(xml2));
+        System.out.println(other.clone());
     }
 }
