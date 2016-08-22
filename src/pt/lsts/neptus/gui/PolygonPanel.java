@@ -44,9 +44,9 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseWheelEvent;
 import java.awt.geom.Ellipse2D;
 import java.awt.geom.Point2D;
-import java.io.File;
 
 import javax.swing.JPopupMenu;
+import javax.swing.SwingUtilities;
 
 import pt.lsts.neptus.gui.objparams.ParametersPanel;
 import pt.lsts.neptus.i18n.I18n;
@@ -124,7 +124,10 @@ public class PolygonPanel extends ParametersPanel implements StateRendererIntera
 
     @Override
     public void mouseClicked(MouseEvent event, StateRenderer2D source) {
-        adapter.mouseClicked(event, source);
+        if (!SwingUtilities.isRightMouseButton(event)) {
+            adapter.mouseClicked(event, source);
+            return;
+        }
         
         Vertex v = intercepted(event, source);
         JPopupMenu popup = new JPopupMenu();
@@ -253,11 +256,10 @@ public class PolygonPanel extends ParametersPanel implements StateRendererIntera
     
     public static void main(String[] args) {
         PolygonType pt = new PolygonType();
-        pt.setColor(Color.yellow);
         pt.addVertex(41.180293, -8.701072);
         pt.addVertex(41.183136, -8.703647);
         pt.addVertex(41.181198, -8.706651);
         
-        GuiUtils.testFrame(new PolygonPanel(pt, new MissionType(new File("missions/APDL/missao-apdl.nmisz").getAbsolutePath())));
+        GuiUtils.testFrame(new PolygonPanel(pt, null));//new MissionType(new File("missions/APDL/missao-apdl.nmisz").getAbsolutePath())));
     }
 }
