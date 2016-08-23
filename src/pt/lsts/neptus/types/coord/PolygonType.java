@@ -59,7 +59,6 @@ public class PolygonType implements Renderer2DPainter {
     
     protected PathElement elem = null;
     protected boolean filled = true;
-    protected Color color = Color.white;    
     
     /**
      * Add a polygon vertex
@@ -108,13 +107,6 @@ public class PolygonType implements Renderer2DPainter {
     }
 
     /**
-     * @param color the color to set
-     */
-    public final void setColor(Color color) {
-        this.color = color;
-    }
-
-    /**
      * @see Renderer2DPainter
      */
     @Override
@@ -134,7 +126,7 @@ public class PolygonType implements Renderer2DPainter {
 
             elem = new PathElement();
             elem.setFilled(filled);
-            elem.setMyColor(color);
+            elem.setMyColor(Color.yellow);
             
             elem.setCenterLocation(new LocationType(vertices.get(0).lat, vertices.get(0).lon));
             for (Vertex v : vertices)
@@ -152,13 +144,6 @@ public class PolygonType implements Renderer2DPainter {
         StringWriter writer = new StringWriter();
         JAXB.marshal(this, writer);
         return JAXB.unmarshal(new StringReader(writer.toString()), getClass());
-    }
-
-    /**
-     * @return the color
-     */
-    public final Color getColor() {
-        return color;
     }
 
     @XmlType
@@ -179,6 +164,18 @@ public class PolygonType implements Renderer2DPainter {
         public int hashCode() {
             return (""+lat+","+lon).hashCode();
         }
+    }
+    
+    public void translate(double offsetNorth, double offsetEast) {
+        synchronized (vertices) {
+            vertices.forEach(v -> {
+                LocationType l = new LocationType(v.lat, v.lon);
+                l.translatePosition(offsetNorth, offsetEast, 0).convertToAbsoluteLatLonDepth();
+                v.lat = l.getLatitudeDegs();
+                v.lon = l.getLongitudeDegs();
+            });
+        }
+        recomputePath();
     }
    
     public static void main(String[] args) {

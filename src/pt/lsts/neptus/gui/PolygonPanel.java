@@ -73,7 +73,6 @@ public class PolygonPanel extends ParametersPanel implements StateRendererIntera
     private PolygonType.Vertex vertex = null;
     private InteractionAdapter adapter;
     
-    
     public PolygonPanel(PolygonType polygon, MissionType missionType) {
         super();
         
@@ -94,6 +93,23 @@ public class PolygonPanel extends ParametersPanel implements StateRendererIntera
         renderer2d = new StateRenderer2D(MapGroup.getMapGroupInstance(getMissionType()));
         adapter = new InteractionAdapter(null);
         initialize();
+    }
+    
+    public PolygonPanel(PolygonType polygon, MissionType missionType, StateRenderer2D renderer) {
+        if (polygon == null)
+            polygon = new PolygonType();
+        if (missionType == null) {
+            missionType = new MissionType();
+            if (!polygon.getVertices().isEmpty()) {
+                HomeReference home = new HomeReference();
+                home.setLocation(new LocationType(polygon.getVertices().get(0).lat, polygon.getVertices().get(0).lon));
+                missionType.setHomeRef(home);
+            }
+        }
+        setMissionType(missionType);
+        this.polygon = polygon;
+        this.renderer2d = renderer;
+        renderer2d.setActiveInteraction(this);
     }
     
     private  void initialize() {
@@ -131,13 +147,27 @@ public class PolygonPanel extends ParametersPanel implements StateRendererIntera
         
         Vertex v = intercepted(event, source);
         JPopupMenu popup = new JPopupMenu();
-        if (v != null)
+        if (v != null) {
+            popup.add(I18n.text("Edit location")).addActionListener(new ActionListener() {
+                public void actionPerformed(ActionEvent e) {
+                    LocationType l = new LocationType(v.lat, v.lon);
+                    LocationType newLoc = LocationPanel.showLocationDialog(renderer2d, I18n.text("Edit Vertex Location"), l, getMissionType(), true);
+                    if (newLoc != null) {
+                        newLoc.convertToAbsoluteLatLonDepth();
+                        v.lat = newLoc.getLatitudeDegs();
+                        v.lon = newLoc.getLongitudeDegs();
+                        polygon.recomputePath();
+                    }                        
+                    repaint();                    
+                }
+            });            
             popup.add(I18n.text("Remove vertex")).addActionListener(new ActionListener() {
                 public void actionPerformed(ActionEvent e) {
                     polygon.removeVertex(v);
                     repaint();
                 }
             });            
+        }
         else
             popup.add(I18n.text("Add vertex")).addActionListener(new ActionListener() {
                 public void actionPerformed(ActionEvent e) {
@@ -246,7 +276,7 @@ public class PolygonPanel extends ParametersPanel implements StateRendererIntera
         polygon.getVertices().forEach(v -> {
             Point2D pt = source.getScreenPosition(new LocationType(v.lat, v.lon));
             Ellipse2D ellis = new Ellipse2D.Double(pt.getX()-5, pt.getY()-5, 10, 10);
-            Color c = polygon.getColor();
+            Color c = Color.yellow;
             g.setColor(new Color(255-c.getRed(),255-c.getGreen(),255-c.getBlue(),200));
             g.fill(ellis);
             g.setColor(c);
