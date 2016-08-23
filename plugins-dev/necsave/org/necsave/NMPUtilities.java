@@ -31,14 +31,20 @@
  */
 package org.necsave;
 
+import java.io.ByteArrayInputStream;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.TimeZone;
 import java.util.Vector;
+import java.util.zip.Inflater;
 
+import com.google.common.io.LittleEndianDataInputStream;
+
+import info.necsave.msgs.CompressedMsg;
 import info.necsave.msgs.PlatformInfo;
 import info.necsave.msgs.Header.MEDIUM;
 import info.necsave.proto.Message;
+import info.necsave.proto.ProtoDefinition;
 
 /**
  * @author zp
@@ -91,6 +97,22 @@ public class NMPUtilities {
             ret += "<tr><td align=center width=225>"+fieldName+"</td><td width=225>"+value+"</td></tr>";
         }       
         return ret+"</table>";
+    }
+    
+    public static Message decompress(CompressedMsg msg) {
+        Inflater inflater = new Inflater();
+        inflater.setInput(msg.getPayload());
+        byte[] out = new byte[65535];
+        try {
+            int len = inflater.inflate(out);
+            Message decompressed = ProtoDefinition.getFactory().createMessage(msg.getMsgType(), ProtoDefinition.getInstance());
+            ProtoDefinition.getInstance().deserializeFields(decompressed, new LittleEndianDataInputStream(new ByteArrayInputStream(out, 0, len)));
+            return decompressed;
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
     }
     
     public static void main(String[] args) {
