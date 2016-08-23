@@ -33,18 +33,27 @@ package pt.lsts.neptus.gui;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.Component;
 import java.awt.Cursor;
 import java.awt.Graphics2D;
 import java.awt.Image;
+import java.awt.Window;
+import java.awt.Dialog.ModalityType;
+import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.FocusEvent;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseWheelEvent;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import java.awt.geom.Ellipse2D;
 import java.awt.geom.Point2D;
 
+import javax.swing.JButton;
+import javax.swing.JDialog;
+import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
 import javax.swing.SwingUtilities;
 
@@ -60,6 +69,7 @@ import pt.lsts.neptus.types.map.MapGroup;
 import pt.lsts.neptus.types.mission.HomeReference;
 import pt.lsts.neptus.types.mission.MissionType;
 import pt.lsts.neptus.util.GuiUtils;
+import pt.lsts.neptus.util.conf.ConfigFetch;
 
 /**
  * @author zp
@@ -72,8 +82,9 @@ public class PolygonPanel extends ParametersPanel implements StateRendererIntera
     private PolygonType polygon;
     private PolygonType.Vertex vertex = null;
     private InteractionAdapter adapter;
+    private JButton btnOk, btnCancel;
     
-    public PolygonPanel(PolygonType polygon, MissionType missionType) {
+    private PolygonPanel(PolygonType polygon, MissionType missionType) {
         super();
         
         if (polygon == null)
@@ -95,7 +106,7 @@ public class PolygonPanel extends ParametersPanel implements StateRendererIntera
         initialize();
     }
     
-    public PolygonPanel(PolygonType polygon, MissionType missionType, StateRenderer2D renderer) {
+    private PolygonPanel(PolygonType polygon, MissionType missionType, StateRenderer2D renderer) {
         if (polygon == null)
             polygon = new PolygonType();
         if (missionType == null) {
@@ -115,7 +126,34 @@ public class PolygonPanel extends ParametersPanel implements StateRendererIntera
     private  void initialize() {
         setLayout(new BorderLayout());
         add(renderer2d, BorderLayout.CENTER);
+        btnOk = new JButton(I18n.text("Save"));
+        btnCancel = new JButton(I18n.text("Cancel"));
+        
+        JPanel bottom = new JPanel(new FlowLayout(FlowLayout.TRAILING));
+        bottom.add(btnOk);
+        btnOk.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                setUserCancel(false);
+                if (dialog != null) {
+                    dialog.dispose();
+                    dialog.setVisible(false);
+                }
+            }
+        });
+        bottom.add(btnCancel);
+        btnCancel.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                setUserCancel(true);
+                if (dialog != null) {
+                    dialog.dispose();
+                    dialog.setVisible(false);
+                }                
+            }
+        });
+        add(bottom, BorderLayout.SOUTH);
+        
         renderer2d.setActiveInteraction(this);
+        polygon.recomputePath();        
     }
     
     @Override
@@ -283,13 +321,64 @@ public class PolygonPanel extends ParametersPanel implements StateRendererIntera
             g.draw(ellis);
         });
     }
+    private JDialog dialog;
+    private boolean userCancel = false;
+    
+    public boolean isUserCancel() {
+        return userCancel;
+    }
+
+    public void setUserCancel(boolean userCancel) {
+        this.userCancel = userCancel;
+    }
+    
+    private JDialog getDialog(Component parent, String title) {
+        
+        if (parent instanceof Window)
+            dialog = new JDialog((Window)parent);
+        else
+            dialog = new JDialog(SwingUtilities.getWindowAncestor(parent));
+        
+        dialog.setTitle(title);
+        dialog.setSize(500, 500);
+        dialog.setLayout(new BorderLayout());
+        dialog.getContentPane().add(this, BorderLayout.CENTER);
+        dialog.setModalityType(ModalityType.DOCUMENT_MODAL);
+        dialog.setAlwaysOnTop(false);
+        GuiUtils.centerOnScreen(dialog);
+        dialog.setResizable(false);
+        
+        dialog.addWindowListener(new WindowAdapter() {
+            public void windowClosing(WindowEvent e) {
+                polygon = null;
+                setUserCancel(true);
+                dialog.setVisible(false);
+                dialog.dispose();
+            }
+        });
+        dialog.setVisible(true);
+        return dialog;
+    }
+    
+    public static PolygonType showPolygonDialog(Component parent, String title, PolygonType previous, MissionType mt, boolean editable) {
+        PolygonType polygon = previous.clone();
+        PolygonPanel panel = new PolygonPanel(polygon, mt);
+        panel.setEditable(editable);
+        if (parent == null)
+            panel.getDialog(ConfigFetch.getSuperParentAsFrame(), title);
+        else
+            panel.getDialog(parent, title);
+        
+        if (panel.isUserCancel())
+            return null;
+        return panel.polygon;
+    }
     
     public static void main(String[] args) {
         PolygonType pt = new PolygonType();
         pt.addVertex(41.180293, -8.701072);
         pt.addVertex(41.183136, -8.703647);
         pt.addVertex(41.181198, -8.706651);
-        
-        GuiUtils.testFrame(new PolygonPanel(pt, null));//new MissionType(new File("missions/APDL/missao-apdl.nmisz").getAbsolutePath())));
+        PolygonPanel.showPolygonDialog(null, "Edit polygon", pt, null, true);
     }
 }

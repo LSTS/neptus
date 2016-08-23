@@ -43,8 +43,8 @@ import com.l2fprod.common.beans.editor.AbstractPropertyEditor;
 import com.l2fprod.common.beans.editor.FixedButton;
 import com.l2fprod.common.swing.LookAndFeelTweaks;
 
-import pt.lsts.neptus.gui.LocationPanel;
-import pt.lsts.neptus.types.coord.LocationType;
+import pt.lsts.neptus.gui.PolygonPanel;
+import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.types.coord.PolygonType;
 
 /**
@@ -69,14 +69,12 @@ public class PolygonPropertyEditor extends AbstractPropertyEditor {
         button.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 PolygonType edit = polygon.clone();
-//                edit = LocationPanel.showLocationDialog(editor, "Set Location", locationType, null, true);
-//                if (newLoc != null) {
-//                    setValue(newLoc);
-//                    //System.err.println("->_>_>_>_>Depois:"+newLoc.getLatitude());
-//                    //locationType.setLocation(newLoc);
-//                    firePropertyChange(oldLoc, newLoc);
-//                    textField.setText(locationType.toString());
-//                }
+                edit = PolygonPanel.showPolygonDialog(editor, I18n.text("Edit Polygon"), edit, null, true);
+                if (edit != null) {
+                    setValue(edit);
+                    firePropertyChange(polygon, edit);
+                    textField.setText(edit.toString());
+                }
             }
         });
     }
