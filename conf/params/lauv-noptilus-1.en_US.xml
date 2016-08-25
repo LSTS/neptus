@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<config format="1" version="2016.05.0 (feature/historic_data,2c2e6b2)" system="lauv-noptilus-1" i18n="en_US">
+<config format="1" version="2016.05.0 (master,126112c)" system="lauv-noptilus-1" i18n="en_US">
   <section name="Motor Controller" name-i18n="Motor Controller">
     <param name="Entity Label">
       <name-i18n>Entity Label</name-i18n>
@@ -757,18 +757,18 @@
       <scope>global</scope>
       <default>0.0</default>
       <units>°</units>
-      <desc>Extra pitch to increase maximum reference ('m_args.max_pitch') when vertical errors  are beyond 'm_ags.zref_extra'</desc>
+      <desc>Extra pitch beyond "Maximum Pitch Reference"</desc>
       <min>0.0</min>
       <max>15.0</max>
     </param>
-    <param name="Z Error to Apply Extra Pitch">
-      <name-i18n>Z Error to Apply Extra Pitch</name-i18n>
+    <param name="Extra Pitch -- Vertical Error">
+      <name-i18n>Extra Pitch -- Vertical Error</name-i18n>
       <type>real</type>
       <visibility>developer</visibility>
       <scope>global</scope>
       <default>10.0</default>
       <units>m</units>
-      <desc>Error to vertical reference when we add extra pitch beyond what is configured as maximum reference ('m_args.max_pitch')</desc>
+      <desc>"Extra Pitch" is added to "Maximum Pitch Reference" if error to vertical reference is greater than this</desc>
       <min>0.0</min>
     </param>
     <param name="Use Fixed Depth Offset">
@@ -1620,27 +1620,9 @@
       <type>real</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>4.0</default>
+      <default>8.0</default>
       <units>m</units>
       <desc>Minimum admissible forward range for bottom tracking</desc>
-    </param>
-    <param name="Bottom Track -- Altitude Tolerance">
-      <name-i18n>Bottom Track -- Altitude Tolerance</name-i18n>
-      <type>real</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>2.0</default>
-      <units>m</units>
-      <desc>Altitude tolerance below which altitude is ignored</desc>
-    </param>
-    <param name="Bottom Track -- Depth Tolerance">
-      <name-i18n>Bottom Track -- Depth Tolerance</name-i18n>
-      <type>real</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>2.5</default>
-      <units>m</units>
-      <desc>Depth tolerance below which altitude is ignored</desc>
     </param>
     <param name="Bottom Track -- Check Trend">
       <name-i18n>Bottom Track -- Check Trend</name-i18n>
@@ -2881,10 +2863,10 @@
       <type>real</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>1.0</default>
+      <default>0.5</default>
       <units/>
       <desc>Depth value below which collisions will be ignored</desc>
-      <min>0.5</min>
+      <min>0.3</min>
       <max>10.0</max>
     </param>
     <param name="Collision Output Frequency">
@@ -3001,6 +2983,17 @@
       <units>s</units>
       <desc>Lost Communications Timeout</desc>
       <min>60.0</min>
+    </param>
+    <param name="Transmission Interface">
+      <name-i18n>Transmission Interface</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>Both</default>
+      <units/>
+      <desc>Desired transmission interface</desc>
+      <values>GSM, Iridium, Both</values>
+      <values-i18n>GSM, Iridium, Both</values-i18n>
     </param>
     <param name="Expiration Time - Abort SMS">
       <name-i18n>Expiration Time - Abort SMS</name-i18n>
@@ -3563,10 +3556,10 @@
       <type>real</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>30.0</default>
+      <default>20.0</default>
       <units>s</units>
       <desc>Time to wait at beginning before assessing vehicle medium</desc>
-      <min>20.0</min>
+      <min>10.0</min>
       <max>60.0</max>
     </param>
     <param name="Wet Data Timeout">
@@ -3606,8 +3599,9 @@
       <visibility>developer</visibility>
       <scope>global</scope>
       <default>12.0</default>
-      <units>m</units>
+      <units>m/s</units>
       <desc>Minimum air speed necessary to consider a vehicle in air</desc>
+      <min>0.0</min>
     </param>
     <param name="Ground Speed Threshold">
       <name-i18n>Ground Speed Threshold</name-i18n>
@@ -3615,8 +3609,9 @@
       <visibility>developer</visibility>
       <scope>global</scope>
       <default>2.0</default>
-      <units>m</units>
+      <units>m/s</units>
       <desc>Minimum ground speed necessary to consider a vehicle has landed</desc>
+      <min>0.0</min>
     </param>
     <param name="Altitude Threshold">
       <name-i18n>Altitude Threshold</name-i18n>
@@ -3643,11 +3638,11 @@
       <type>string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>FixedWing</default>
+      <default>None</default>
       <units/>
-      <desc>Sub-Type of vehicle</desc>
-      <values>FixedWing, Copter</values>
-      <values-i18n>FixedWing, Copter</values-i18n>
+      <desc>Sub-Type of vehicle, if applicable</desc>
+      <values>None, FixedWing, Copter</values>
+      <values-i18n>None, FixedWing, Copter</values-i18n>
     </param>
     <param name="Entity Label - Medium Sensor">
       <name-i18n>Entity Label - Medium Sensor</name-i18n>
@@ -3861,14 +3856,14 @@
       <type>string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>user</default>
+      <default>developer</default>
       <units/>
       <desc>Visibility of the 'Active' parameter</desc>
     </param>
     <param name="Active">
       <name-i18n>Active</name-i18n>
       <type>boolean</type>
-      <visibility>user</visibility>
+      <visibility>developer</visibility>
       <scope>global</scope>
       <default>true</default>
       <units/>
@@ -3888,8 +3883,8 @@
       <type>real</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>0.2</default>
-      <units>rad</units>
+      <default>12.0</default>
+      <units>°</units>
       <desc>Threshold for position error in fault detection</desc>
       <min>0.0</min>
     </param>
@@ -5635,100 +5630,6 @@
       <desc>ESCC device where PSU is connected</desc>
     </param>
   </section>
-  <section name="Data Store Source" name-i18n="Data Store Source">
-    <param name="Entity Label">
-      <name-i18n>Entity Label</name-i18n>
-      <type>string</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>Data Store Source</default>
-      <units/>
-      <desc>Main entity label</desc>
-    </param>
-    <param name="Execution Priority">
-      <name-i18n>Execution Priority</name-i18n>
-      <type>integer</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>10</default>
-      <units/>
-      <desc>Execution priority</desc>
-    </param>
-    <param name="Activation Time">
-      <name-i18n>Activation Time</name-i18n>
-      <type>integer</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>0</default>
-      <units/>
-      <desc/>
-    </param>
-    <param name="Deactivation Time">
-      <name-i18n>Deactivation Time</name-i18n>
-      <type>integer</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>0</default>
-      <units/>
-      <desc/>
-    </param>
-    <param name="Debug Level">
-      <name-i18n>Debug Level</name-i18n>
-      <type>string</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>None</default>
-      <units/>
-      <desc/>
-      <values>None, Debug, Trace, Spew</values>
-      <values-i18n>None, Debug, Trace, Spew</values-i18n>
-    </param>
-    <param name="CTD Sample Period">
-      <name-i18n>CTD Sample Period</name-i18n>
-      <type>real</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>1</default>
-      <units/>
-      <desc>Time, in seconds, between CTD samples. Values lower than 0 will disable these samples.</desc>
-    </param>
-    <param name="CTD Entity Name">
-      <name-i18n>CTD Entity Name</name-i18n>
-      <type>string</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>CTD</default>
-      <units/>
-      <desc>Entity to use for getting temperature and conductivity.</desc>
-    </param>
-    <param name="Telemetry Sample Period">
-      <name-i18n>Telemetry Sample Period</name-i18n>
-      <type>real</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>3</default>
-      <units/>
-      <desc>Time, in seconds, between telemetry samples. Values lower than 0 will disable these samples.</desc>
-    </param>
-    <param name="Sonar Sample Period">
-      <name-i18n>Sonar Sample Period</name-i18n>
-      <type>real</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>-1</default>
-      <units/>
-      <desc>Time, in seconds, between sidescan sonar samples. Values lower than 0 will disable these samples.</desc>
-    </param>
-    <param name="Log Events">
-      <name-i18n>Log Events</name-i18n>
-      <type>boolean</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>false</default>
-      <units/>
-      <desc>Whether to log historic events</desc>
-    </param>
-  </section>
   <section name="GPS" name-i18n="GPS">
     <param name="Entity Label">
       <name-i18n>Entity Label</name-i18n>
@@ -7062,7 +6963,7 @@
       <type>string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>Spew</default>
+      <default>None</default>
       <units/>
       <desc/>
       <values>None, Debug, Trace, Spew</values>
@@ -8060,118 +7961,6 @@
       <desc>List of messages ordered by loading order</desc>
     </param>
   </section>
-  <section name="Data Store" name-i18n="Data Store">
-    <param name="Entity Label">
-      <name-i18n>Entity Label</name-i18n>
-      <type>string</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>Data Store</default>
-      <units/>
-      <desc>Main entity label</desc>
-    </param>
-    <param name="Execution Priority">
-      <name-i18n>Execution Priority</name-i18n>
-      <type>integer</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>10</default>
-      <units/>
-      <desc>Execution priority</desc>
-    </param>
-    <param name="Activation Time">
-      <name-i18n>Activation Time</name-i18n>
-      <type>integer</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>0</default>
-      <units/>
-      <desc/>
-    </param>
-    <param name="Deactivation Time">
-      <name-i18n>Deactivation Time</name-i18n>
-      <type>integer</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>0</default>
-      <units/>
-      <desc/>
-    </param>
-    <param name="Debug Level">
-      <name-i18n>Debug Level</name-i18n>
-      <type>string</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>None</default>
-      <units/>
-      <desc/>
-      <values>None, Debug, Trace, Spew</values>
-      <values-i18n>None, Debug, Trace, Spew</values-i18n>
-    </param>
-    <param name="Messages">
-      <name-i18n>Messages</name-i18n>
-      <type>list:string</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>HistoricTelemetry:1, HistoricCTD:1, HistoricEvent:20</default>
-      <units/>
-      <desc>List of &lt;Message&gt;:&lt;Frequency&gt;</desc>
-    </param>
-    <param name="WiFi Gateway">
-      <name-i18n>WiFi Gateway</name-i18n>
-      <type>string</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default/>
-      <units/>
-      <desc>If set, messages will be forwarded to gateway using wifi</desc>
-    </param>
-    <param name="Acoustic Gateway">
-      <name-i18n>Acoustic Gateway</name-i18n>
-      <type>string</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default/>
-      <units/>
-      <desc>If set, messages will be forwarded to gateway using acoustic modem</desc>
-    </param>
-    <param name="WiFi Forward Period">
-      <name-i18n>WiFi Forward Period</name-i18n>
-      <type>integer</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>30</default>
-      <units/>
-      <desc>WiFi forwarding period, in seconds</desc>
-    </param>
-    <param name="Acoustic Forward Period">
-      <name-i18n>Acoustic Forward Period</name-i18n>
-      <type>integer</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>300</default>
-      <units/>
-      <desc>Acoustic forwarding period, in seconds</desc>
-    </param>
-    <param name="Iridium Upload Period">
-      <name-i18n>Iridium Upload Period</name-i18n>
-      <type>integer</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>0</default>
-      <units/>
-      <desc>Iridium upload period, in seconds. 0 Deactivates uploading via Iridium.</desc>
-    </param>
-    <param name="Variable priorities">
-      <name-i18n>Variable priorities</name-i18n>
-      <type>boolean</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>true</default>
-      <units/>
-      <desc>Apply variable priorities to local samples</desc>
-    </param>
-  </section>
   <section name="Service Discovery" name-i18n="Service Discovery">
     <param name="Entity Label">
       <name-i18n>Entity Label</name-i18n>
@@ -8326,7 +8115,7 @@
     <param name="Source Level">
       <name-i18n>Source Level</name-i18n>
       <type>integer</type>
-      <visibility>user</visibility>
+      <visibility>developer</visibility>
       <scope>global</scope>
       <default>1</default>
       <units/>
@@ -9074,7 +8863,7 @@
       <type>integer</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>1</default>
+      <default>2</default>
       <units/>
       <desc>Execution priority</desc>
     </param>
@@ -9148,7 +8937,7 @@
       <type>list:string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>Abort, AcousticLink, AcousticOperation, AllocatedControlTorques, AlignmentState, AngularVelocity, Announce, Brake, Chlorophyll, ClockControl, CompassCalibration, Collision, Conductivity, ControlLoops, ControlParcel, CpuUsage, Current, DataSanity, Depth, DesiredControl, DesiredZ, DesiredHeading, DesiredHeadingRate, DesiredPath, DesiredPitch, DesiredSpeed, DevCalibrationControl, DevCalibrationState, DevDataBinary, DevDataText, Distance, DvlRejection, Elevator, EmergencyControl, EmergencyControlState, EntityActivationState, EntityList, EntityMonitoringState, EntityParameters, EntityState, EstimatedState, EstimatedStreamVelocity, EulerAngles, Fluorescein, FollowPath, FollowRefState, FuelLevel, Goto, GpsFix, GpsFixRejection, GroundVelocity, Heartbeat, HistoricData, HistoricDataQuery, HistoricEvent, HistoricCTD, HistoricTelemetry, IdleManeuver, IridiumMsgRx, IridiumMsgTx, IridiumTxStatus, LblConfig, LblEstimate, LblRange, LblRangeAcceptance, LogBookEntry, Loiter, ManeuverControlState, MagneticField, NavigationData, NavigationUncertainty, OperationalLimits, PathControlState, Phycocyanin, Phycoerythrin, PlanControl, PlanControlState, PlanDB, PlanGeneration, PlanSpecification, PlanStatistics, PopEntityParameters, PopUp, PowerChannelControl, PowerChannelState, Pulse, PushEntityParameters, Pressure, Rows, QueryEntityParameters, Reference, RemoteActions, RemoteActionsRequest, RemoteState, ReportControl, RhodamineDye, Rpm, RSSI, Salinity, SaveEntityParameters, ServoPosition, SetEntityParameters, SetServoPosition, SetThrusterActuation, SonarData, SimulatedState, Sms, SoundSpeed, StationKeeping, StopManeuver, Teleoperation, TeleoperationDone, Temperature, TextMessage, TrexObservation, TrexOperation, TrexPlan, TrexToken, TransportBindings, UamRxFrame, UamTxFrame, UamTxStatus, UamRxRange, VehicleCommand, VehicleMedium, VehicleState, Voltage, WaterDensity, WaterVelocity, YoYo, PH, Redox</default>
+      <default>Abort, Acceleration, AcousticLink, AcousticOperation, AllocatedControlTorques, AlignmentState, AngularVelocity, Announce, Brake, Chlorophyll, ClockControl, CompassCalibration, Collision, Conductivity, ControlLoops, ControlParcel, CpuUsage, Current, DataSanity, Depth, DesiredControl, DesiredZ, DesiredHeading, DesiredHeadingRate, DesiredPath, DesiredPitch, DesiredSpeed, DevCalibrationControl, DevCalibrationState, DevDataBinary, DevDataText, Distance, DvlRejection, Elevator, EmergencyControl, EmergencyControlState, EntityActivationState, EntityList, EntityMonitoringState, EntityParameters, EntityState, EstimatedState, EstimatedStreamVelocity, EulerAngles, EulerAnglesDelta, Fluorescein, FollowPath, FollowRefState, FuelLevel, Goto, GpsFix, GpsFixRejection, GroundVelocity, Heartbeat, IdleManeuver, IridiumMsgRx, IridiumMsgTx, IridiumTxStatus, LblConfig, LblEstimate, LblRange, LblRangeAcceptance, LogBookEntry, Loiter, ManeuverControlState, MagneticField, NavigationData, NavigationUncertainty, OperationalLimits, PathControlState, PH, Phycocyanin, Phycoerythrin, PlanControl, PlanControlState, PlanDB, PlanGeneration, PlanSpecification, PlanStatistics, PopEntityParameters, PopUp, PowerChannelControl, PowerChannelState, Pulse, PulseDetectionControl, PushEntityParameters, Pressure, Redox, Rows, QueryEntityParameters, Reference, RemoteActions, RemoteActionsRequest, RemoteState, ReportControl, RhodamineDye, Rpm, RSSI, Salinity, SaveEntityParameters, ServoPosition, SetEntityParameters, SetServoPosition, SetThrusterActuation, SonarData, SimulatedState, Sms, SoundSpeed, StationKeeping, StopManeuver, Teleoperation, TeleoperationDone, Temperature, TextMessage, TrexObservation, TrexOperation, TrexPlan, TrexToken, TransportBindings, UamRxFrame, UamTxFrame, UamTxStatus, UamRxRange, UsblAnglesExtended, UsblPositionExtended, UsblFixExtended, UsblModem, UsblConfig, VehicleCommand, VehicleMedium, VehicleState, VelocityDelta, Voltage, WaterDensity, WaterVelocity, YoYo</default>
       <units/>
       <desc/>
     </param>
@@ -9208,7 +8997,64 @@
       <scope>global</scope>
       <default>true</default>
       <units/>
-      <desc>Enable system state reporting</desc>
+      <desc>Enable system state acoustic reporting. When enabled, systems shall acknowledge reception of requests to broadcast acoustic messages containing the overall state of the system. When disabled, those requests shall be ignored</desc>
+    </param>
+    <param name="USBL Node -- Enabled">
+      <name-i18n>USBL Node -- Enabled</name-i18n>
+      <type>boolean</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>false</default>
+      <units/>
+      <desc>Enable system's USBL mode. When active, this system will start using USBL by actively broadcasting an acoustic message containing a request to get USBL feedback. The request contains the period for transmissions, if quick (two-way travel) or ranging (three-way travel) mode is desired, and, if in ranging mode (not "quick"), to use absolute or relative positioning. If a USBL modem is in reach, they will start exchanging acoustic transmissions to provide USBL positioning to the system. Any system can be configured to request USBL information including modems with built-in USBL capabilities</desc>
+    </param>
+    <param name="USBL Node -- Period">
+      <name-i18n>USBL Node -- Period</name-i18n>
+      <type>integer</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>60.0</default>
+      <units>s</units>
+      <desc>USBL's period. This value determines the period of USBL positioning data. If "Quick" mode is selected, modem shall ping the USBL modem with this period to get bearing and elevation (two-way travel transmission). If "Quick" mode is disabled, ranging information is included for a proper fix. In this case, the USBL modem pings the node, hears the reply, computes the position and transmits back to the node (three-way travel transmission)</desc>
+      <min>2.0</min>
+    </param>
+    <param name="USBL Node -- Absolute Fix">
+      <name-i18n>USBL Node -- Absolute Fix</name-i18n>
+      <type>boolean</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>false</default>
+      <units/>
+      <desc>If this argument is enabled, USBL sends an absolute fix using WGS-84 lat/lon coordinates. If disabled, then the positioning is relative to the origin of a system where the center of the reference frame is the USBL modem</desc>
+    </param>
+    <param name="USBL Node -- Quick, No Range">
+      <name-i18n>USBL Node -- Quick, No Range</name-i18n>
+      <type>boolean</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>false</default>
+      <units/>
+      <desc>In this mode, the USBL node does not request ranging information. Thus, with this mode enabled, there's only a two-way travel transmission between the node and the USBL modem. The node will actively ping the modem to get bearing/elevation information With this mode enabled "Absolute Fix" argument is ignored</desc>
+    </param>
+    <param name="USBL Modem -- Announce Service">
+      <name-i18n>USBL Modem -- Announce Service</name-i18n>
+      <type>boolean</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>false</default>
+      <units/>
+      <desc>This argument only concerns systems with USBL modems installed. This parameter statically adds a USBL announce, even if service has not been detected yet (eg. modem not connected)</desc>
+    </param>
+    <param name="USBL Modem -- Max Waiting Time">
+      <name-i18n>USBL Modem -- Max Waiting Time</name-i18n>
+      <type>real</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>10.0</default>
+      <units>s</units>
+      <desc>This argument only concerns systems with USBL modems installed. This value establishes the maximum amount of time that the modem waits for the target system's reply</desc>
+      <min>2.0</min>
+      <max>20.0</max>
     </param>
   </section>
   <section name="UDP" name-i18n="UDP">
@@ -9318,7 +9164,7 @@
       <type>list:string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>AlignmentState:0.5, CpuUsage:0.2, Distance:0.2, EntityState:1, EstimatedState:2, FuelLevel:0.1, Rpm:1, SimulatedState:0.5, StorageUsage:0.05, Voltage:0.1</default>
+      <default>AlignmentState:0.5, CpuUsage:0.2, Distance:0.2, EntityState:1, EstimatedState:2, FuelLevel:0.1, Rpm:1, SimulatedState:0.5, StorageUsage:0.05, Temperature:0.1, Voltage:0.1</default>
       <units/>
       <desc>List of &lt;Message&gt;:&lt;Frequency&gt;</desc>
     </param>
@@ -9327,7 +9173,7 @@
       <type>list:string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>CpuUsage:Daemon, Distance:Altimeter+DVL Filtered+Echo Sounder, Temperature:CTD+Depth Sensor+Motor 0+Motor 1+Motor 2+Motor 3, Voltage:Batteries+Motor 0+Motor 1+Motor 2+Motor 3, Current:Motor 0+Motor 1+Motor 2+Motor 3,</default>
+      <default>CpuUsage:Daemon, Distance:Altimeter+DVL Filtered+Echo Sounder, Temperature:CTD+Depth Sensor, Voltage:Batteries</default>
       <units/>
       <desc>List of &lt;Message&gt;:&lt;Entity&gt;+&lt;Entity&gt; that define the source entities allowed to pass message of a specific message type.</desc>
     </param>
@@ -9363,7 +9209,7 @@
       <type>list:string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>AcousticOperation, AlignmentState, CpuUsage, Current, DevCalibrationControl, DevCalibrationState, Distance, EntityList, EntityParameters, EntityState, EstimatedState, FollowRefState, FuelLevel, Heartbeat, HistoricData, HistoricDataQuery, IridiumMsgRx, IridiumMsgTx, IridiumTxStatus, LblEstimate, LblRangeAcceptance, LblConfig, LogBookEntry, LogBookControl, OperationalLimits, PathControlState, PlanControl, PlanControlState, PlanDB, PlanGeneration, PowerChannelState, ReportControl, RemoteActions, RemoteActionsRequest, Rpm, RSSI, SimulatedState, StorageUsage, Temperature, TrexObservation, TrexOperation, TrexToken, TrexPlan, VehicleMedium, VehicleState, Voltage</default>
+      <default>AcousticOperation, AlignmentState, CpuUsage, DevCalibrationControl, DevCalibrationState, Distance, EntityList, EntityParameters, EntityState, EstimatedState, FollowRefState, FuelLevel, Heartbeat, IridiumMsgRx, IridiumMsgTx, IridiumTxStatus, LblEstimate, LblRangeAcceptance, LblConfig, LogBookEntry, LogBookControl, OperationalLimits, PathControlState, PlanControl, PlanControlState, PlanDB, PlanGeneration, PowerChannelState, ReportControl, RemoteActions, RemoteActionsRequest, Rpm, RSSI, SimulatedState, StorageUsage, Temperature, TrexObservation, TrexOperation, TrexToken, TrexPlan, UsblAnglesExtended, UsblPositionExtended, UsblFixExtended, UsblModem, UsblConfig, VehicleMedium, VehicleState, Voltage</default>
       <units/>
       <desc>List of messages to transport</desc>
     </param>
@@ -9393,15 +9239,6 @@
       <default>false</default>
       <units/>
       <desc>Only transmit messsages from local system.</desc>
-    </param>
-    <param name="Send Addressed Messages">
-      <name-i18n>Send Addressed Messages</name-i18n>
-      <type>boolean</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>true</default>
-      <units/>
-      <desc>Send messages that have been addressed to a unique system even if it is not a peer.</desc>
     </param>
   </section>
   <section name="LEDs" name-i18n="LEDs">
