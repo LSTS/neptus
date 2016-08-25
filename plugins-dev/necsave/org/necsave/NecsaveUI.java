@@ -33,12 +33,16 @@ package org.necsave;
 
 import java.awt.Color;
 import java.awt.Graphics2D;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map.Entry;
 import java.util.Vector;
 import java.util.concurrent.Future;
 
+import javax.swing.JCheckBox;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 
@@ -52,6 +56,7 @@ import info.necsave.msgs.CapabilityPlanMission;
 import info.necsave.msgs.CapabilityScanArea;
 import info.necsave.msgs.Contact;
 import info.necsave.msgs.ContactList;
+import info.necsave.msgs.Formation;
 import info.necsave.msgs.Header.MEDIUM;
 import info.necsave.msgs.Kinematics;
 import info.necsave.msgs.MissionArea;
@@ -60,6 +65,8 @@ import info.necsave.msgs.MissionGoal;
 import info.necsave.msgs.MissionGoal.GOAL_TYPE;
 import info.necsave.msgs.MissionReadyToStart;
 import info.necsave.msgs.Plan;
+import info.necsave.msgs.PlatformFollower;
+import info.necsave.msgs.PlatformFollower.PAYLOAD;
 import info.necsave.msgs.PlatformInfo;
 import info.necsave.msgs.PlatformPlanProgress;
 import info.necsave.msgs.PlatformState;
@@ -92,7 +99,10 @@ public class NecsaveUI extends ConsoleLayer {
 
     @NeptusProperty(description="Select if the commands should be sent using TCP communications")
     public boolean sendCommandsReliably = true;
-    
+
+    @NeptusProperty(description="RFU - Safe Range in meters between vehicles in a formation mission")
+    public double safeDistance = 25;
+
     private NecsaveTransport transport = null;
     private LinkedHashMap<Integer, String> platformNames = new LinkedHashMap<>();
     private LinkedHashMap<Integer, PlatformPlanProgress> planProgresses = new LinkedHashMap<>();
@@ -113,61 +123,17 @@ public class NecsaveUI extends ConsoleLayer {
             NeptusLog.pub().error(e);
         }
     }
-    
+
     @NeptusMenuItem("Advanced>NECSAVE>Set Mission")
     public void setMission() {
         MapGroup mg = MapGroup.getMapGroupInstance(getConsole().getMission());
-        Vector<ParallelepipedElement> pps = mg.getAllObjectsOfType(ParallelepipedElement.class);
 
-        if (pps.isEmpty()) {
-            GuiUtils.errorMessage(getConsole(), I18n.text("Set mission area"),
-                    I18n.text("Please add at least one rectangle to the map"));
-            return;
-        }
-
-        Object ret = JOptionPane.showInputDialog(getConsole(), I18n.text("Select area"),
-                I18n.text("Select area"), JOptionPane.QUESTION_MESSAGE, null,
-                pps.toArray(new ParallelepipedElement[0]), pps.iterator().next());
-        if (ret == null)
-            return;
-
-        elem = (ParallelepipedElement) ret;
-
-        double a = elem.getYawRad();
-        width = elem.getWidth();
-        height = elem.getLength();
-
-        corner = new LocationType(elem.getCenterLocation());
-        corner.setOffsetDistance(-height / 2);
-        corner.setAzimuth(Math.toDegrees(a));
-        corner.convertToAbsoluteLatLonDepth();
-        corner.setOffsetDistance(-width / 2);
-        corner.setAzimuth(Math.toDegrees(a + Math.PI / 2));
-        corner.convertToAbsoluteLatLonDepth();
-        corner.convertToAbsoluteLatLonDepth();
-
-        NecsaveUI.this.width = elem.getWidth();
-        NecsaveUI.this.height = elem.getLength();
-        Area area = new Area();
-        area.setLatitude(corner.getLatitudeRads());
-        area.setLongitude(corner.getLongitudeRads());
-        area.setBearing(a);
-        area.setWidth(elem.getWidth());
-        area.setLength(elem.getLength());
-
-        try {
-            sendMessage(new MissionArea(area));                    
-        }
-        catch (Exception ex) {
-            GuiUtils.errorMessage(getConsole(), ex);
-            ex.printStackTrace();
-        }
-
-        String[] goals = getNames(GOAL_TYPE.class);
-
+        ArrayList<String> goalsList = new ArrayList<>(Arrays.asList(getNames(GOAL_TYPE.class)));
+        Collections.sort(goalsList);
+        
         Object goal_ret = JOptionPane.showInputDialog(getConsole(), I18n.text("Select goal"),
                 I18n.text("Select goal"), JOptionPane.QUESTION_MESSAGE, null,
-                goals, goals[0]);
+                goalsList.toArray(), goalsList.toArray()[1]);
         if (goal_ret == null)
             return;
 
@@ -182,6 +148,165 @@ public class NecsaveUI extends ConsoleLayer {
             ex.printStackTrace();
         }
 
+        if (goal.equals(GOAL_TYPE.ENV_ASSESSMENT)) {
+
+            Vector<ParallelepipedElement> pps = mg.getAllObjectsOfType(ParallelepipedElement.class);
+
+            if (pps.isEmpty()) {
+                GuiUtils.errorMessage(getConsole(), I18n.text("Set mission area"),
+                        I18n.text("Please add at least one rectangle to the map"));
+                return;
+            }
+
+            Object ret = JOptionPane.showInputDialog(getConsole(), I18n.text("Select area"),
+                    I18n.text("Select area"), JOptionPane.QUESTION_MESSAGE, null,
+                    pps.toArray(new ParallelepipedElement[0]), pps.iterator().next());
+            if (ret == null)
+                return;
+
+            elem = (ParallelepipedElement) ret;
+
+            double a = elem.getYawRad();
+            width = elem.getWidth();
+            height = elem.getLength();
+
+            corner = new LocationType(elem.getCenterLocation());
+            corner.setOffsetDistance(-height / 2);
+            corner.setAzimuth(Math.toDegrees(a));
+            corner.convertToAbsoluteLatLonDepth();
+            corner.setOffsetDistance(-width / 2);
+            corner.setAzimuth(Math.toDegrees(a + Math.PI / 2));
+            corner.convertToAbsoluteLatLonDepth();
+            corner.convertToAbsoluteLatLonDepth();
+
+            NecsaveUI.this.width = elem.getWidth();
+            NecsaveUI.this.height = elem.getLength();
+            Area area = new Area();
+            area.setLatitude(corner.getLatitudeRads());
+            area.setLongitude(corner.getLongitudeRads());
+            area.setBearing(a);
+            area.setWidth(elem.getWidth());
+            area.setLength(elem.getLength());
+
+            try {
+                sendMessage(new MissionArea(area));                    
+            }
+            catch (Exception ex) {
+                GuiUtils.errorMessage(getConsole(), ex);
+                ex.printStackTrace();
+            }
+        } 
+        else if (goal.equals(GOAL_TYPE.AREA_SWEEP)) {
+            Formation formation = new Formation();
+            formation.setSafeDistance(safeDistance);
+
+            ArrayList<PlatformFollower> followers_list = new ArrayList<>();
+
+            if (platformNames.isEmpty()) {
+                JOptionPane.showMessageDialog (null, "There are no platforms available.", "No platforms", JOptionPane.INFORMATION_MESSAGE);
+                return;
+            }
+
+            String leader = (String) JOptionPane.showInputDialog(getConsole(), I18n.text("Select formation leader"),
+                    I18n.text("Formation leader"), JOptionPane.QUESTION_MESSAGE, null,
+                    platformNames.values().toArray(), platformNames.values().iterator().next());
+            if (leader == null)
+                return;
+
+            String[] typesOfFormation = new String[]{"Horizontal Line", "Vertical Line", "Triangle"};
+            String formType = (String) JOptionPane.showInputDialog(getConsole(), I18n.text("Select formation type"),
+                    I18n.text("Formation type"), JOptionPane.QUESTION_MESSAGE, null,
+                    typesOfFormation, typesOfFormation[0]);
+            if (formType == null)
+                return;
+
+            if (platformNames.containsValue(leader)) {
+                for (final Integer id : platformNames.keySet()) {
+                    if (platformNames.get(id).equals(leader)) {
+                        formation.setLeaderPlatformId(id);
+                        break;
+                    }
+                }
+            }
+
+            HashMap<Integer, JCheckBox> platfAvailable = new HashMap<>();
+
+            for (Entry<Integer, String> plat : platformNames.entrySet()) {
+                if (!plat.getValue().equals(leader)) {
+                    JCheckBox checkbox = new JCheckBox(plat.getValue());
+                    platfAvailable.put(plat.getKey(), checkbox);
+
+                }
+            }
+
+            Object[] params = platfAvailable.values().toArray();
+            JOptionPane.showConfirmDialog(null, params, "Choose followers:", JOptionPane.OK_CANCEL_OPTION);
+
+            for (Entry<Integer, JCheckBox> plat : platfAvailable.entrySet()) {
+                if (plat.getValue().isSelected()) {
+                    PlatformFollower follower = new PlatformFollower();
+                    follower.setPayload(PAYLOAD.SIDESCAN);
+                    follower.setFollowerPlatformId(plat.getKey());
+
+                    followers_list.add(follower);
+                }
+            }
+
+            if (followers_list.isEmpty()) {
+                JOptionPane.showMessageDialog(null,
+                        "No platforms were choosen to be followers.",
+                        "Error",
+                        JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+            else {
+                formation.setFollowersList(followers_list);
+
+                int dist = 25;
+                if (formType.equals("Horizontal Line")) {
+                    for (PlatformFollower f : followers_list) {
+                        f.setBearing(Math.toRadians(270));
+                        f.setRadius(dist);
+                        dist += dist;
+
+                    }
+                } 
+                else if (formType.equals("Vertical Line")) {
+                    for (PlatformFollower f : followers_list) {
+                        f.setBearing(Math.toRadians(0));
+                        f.setRadius(dist);
+                        dist += dist;
+
+                    }
+                }
+                else if (formType.equals("Triangle")) {
+                    if (followers_list.size() == 2) {
+                        double[] bearing = {Math.toRadians(150), Math.toRadians(-150)};
+                        for (int i=0; i < followers_list.size(); i++) {
+                            PlatformFollower f = followers_list.get(i);
+                            f.setBearing(bearing[i]);
+                            f.setRadius(dist);
+                        }
+                    }
+                    else {
+                        JOptionPane.showMessageDialog(null,
+                                "Choose only 2 platforms for triangle formation.",
+                                "Error",
+                                JOptionPane.ERROR_MESSAGE);
+                        return;
+                    }
+                }
+
+                try {
+                    sendMessage(formation);
+                }
+                catch (Exception ex) {
+                    GuiUtils.errorMessage(getConsole(), ex);
+                    ex.printStackTrace();
+                }
+            }
+        }
+
         String description = JOptionPane.showInputDialog(getConsole(), I18n.text("Please enter test description"), I18n.text("Start Mission"), JOptionPane.OK_CANCEL_OPTION);
 
         if (description == null)
@@ -189,7 +314,7 @@ public class NecsaveUI extends ConsoleLayer {
 
         MissionReadyToStart start = new MissionReadyToStart();
         start.setInfo(description);
-        
+
         try {
             sendMessage(start);
         }
@@ -198,7 +323,7 @@ public class NecsaveUI extends ConsoleLayer {
             ex.printStackTrace();
         }
     }
-    
+
     @NeptusMenuItem("Advanced>NECSAVE>Abort Mission")
     public void abortMission() {
         AbortMission abort = new AbortMission();
@@ -211,7 +336,7 @@ public class NecsaveUI extends ConsoleLayer {
             ex.printStackTrace();
         }
     }
-    
+
     @NeptusMenuItem("Advanced>NECSAVE>Send MissionCompleted")
     public void missionCompleted() {
         MissionCompleted msg = new MissionCompleted();
@@ -223,7 +348,7 @@ public class NecsaveUI extends ConsoleLayer {
             ex.printStackTrace();
         }
     }
-    
+
     @NeptusMenuItem("Advanced>NECSAVE>Clear Platforms")
     public void clearPlatforms() {
         platformNames.clear();
@@ -301,20 +426,20 @@ public class NecsaveUI extends ConsoleLayer {
         loc.setDepth(msg.getZ());
         update(msg.getOriginPlatformId(), loc, 0);
     }
-    
+
     @Subscribe
     public void on(AbortMission msg) {
         getConsole().post(Notification.warning("NECSAVE AbortMission",
                 "AbortMission message sent from " + platformNames.get(msg.getSrc())));
     }
-    
+
     @Subscribe
     public void on(Resurface msg) {
         getConsole().post(Notification.warning("NECSAVE Resurface",
                 "Resurface message sent from " + platformNames.get(msg.getSrc())));
     }
-    
-    
+
+
     private void update(int src, LocationType loc, double headingDegs) {
         try {
             if (!platformNames.containsKey(src))
@@ -329,14 +454,14 @@ public class NecsaveUI extends ConsoleLayer {
                 es.setType(SystemTypeEnum.UNKNOWN);
             }
             ExternalSystem extSys = ExternalSystemsHolder.lookupSystem(name);
-                extSys.setLocation(loc, System.currentTimeMillis());
-                extSys.setAttitudeDegrees(headingDegs);            
+            extSys.setLocation(loc, System.currentTimeMillis());
+            extSys.setAttitudeDegrees(headingDegs);            
         }
         catch (Exception e) {
             e.printStackTrace();
         }
     }
-    
+
     @Subscribe
     public void on(Kinematics msg) {
         try {
@@ -382,18 +507,18 @@ public class NecsaveUI extends ConsoleLayer {
         loc.setDepth(msg.getObject().getDepth());
         contacts.put(msg.getSrc() + "." + msg.getContactId(), loc);
     }
-    
+
     @Subscribe
     public void on(Plan msg) {
         System.out.println("Received Plan from "+msg.getSrc());
         this.plan = msg;
     }
-    
-    
+
+
     private boolean isMaster(int platformId) {
         if (!platfInfos.containsKey(platformId))
             return false;
-        
+
         Capabilities cap = platfInfos.get(platformId).getCapabilities();
         @SuppressWarnings("unchecked")
         Vector<Message> caps = (Vector<Message>) cap.getValue("capabilities"); 
@@ -404,12 +529,12 @@ public class NecsaveUI extends ConsoleLayer {
         }
         return false;
     }
-    
+
     @SuppressWarnings("unused")
     private boolean hasScanArea(int platformId) {
         if (!platfInfos.containsKey(platformId))
             return false;
-        
+
         Capabilities cap = platfInfos.get(platformId).getCapabilities();
         @SuppressWarnings("unchecked")
         Vector<Message> caps = (Vector<Message>) cap.getValue("capabilities"); 
@@ -419,19 +544,19 @@ public class NecsaveUI extends ConsoleLayer {
         }
         return false;
     }
-    
+
     private String getDelta(int platformId) {
         if (!platfStates.containsKey(platformId))
             return "\u221E";
-        
+
         return ""+(int)platfStates.get(platformId).getAgeInSeconds()+"s";
     }
-    
+
     private String getProgress(int plataformId) {
         if (!platfStates.containsKey(plataformId))
             return "";
         int state = platfStates.get(plataformId).getInteger("state");
-        
+
         switch (state) {
             case 200:
                 return "Idle";
@@ -447,17 +572,17 @@ public class NecsaveUI extends ConsoleLayer {
                 return ""+state;
         }
     }
-    
+
     public String stateHtml() {
         String html = "<html><table>";
-        
+
         for (int id : platformNames.keySet()) {
             html += "<tr><td>"+platformNames.get(id)+"</td><td>"+(isMaster(id)? "master" : "slave")+"</td><td>"+getDelta(id)+"</td><td>"+getProgress(id)+"</td></tr>";            
         }
         html+="</table></html>";
         return html;
     }
-    
+
 
     @Override
     public void paint(Graphics2D g, StateRenderer2D renderer) {
@@ -468,7 +593,7 @@ public class NecsaveUI extends ConsoleLayer {
         g.translate(10, 10);
         lbl.paint(g);
     }
-    
+
     @Override
     public void cleanLayer() {
         if (transport != null)
