@@ -31,6 +31,9 @@
  */
 package pt.lsts.neptus.mra.plots;
 
+import java.util.Arrays;
+import java.util.List;
+
 import pt.lsts.imc.IMCMessage;
 import pt.lsts.imc.lsf.LsfIndex;
 import pt.lsts.neptus.i18n.I18n;
@@ -44,6 +47,9 @@ import pt.lsts.neptus.plugins.PluginDescription;
 @PluginDescription(name="CTD chart", active=false)
 public class CtdPlot extends MRACombinedPlot {
 
+    
+    List<String> validEntities = Arrays.asList("CTD", "Water Quality Sensor");
+    
     public CtdPlot(MRAPanel panel) {
         super(panel);
     }
@@ -62,20 +68,20 @@ public class CtdPlot extends MRACombinedPlot {
         
         for (IMCMessage c : source.getIterator("Conductivity")) {
             String entity = source.getEntityName(c.getSrc(), c.getSrcEnt());
-            if ("CTD".equals(entity))
+            if (validEntities.contains(entity))
                 addValue(c.getTimestampMillis(), "Conductivity."+c.getSourceName(), c.getDouble("value"));
         }
 
         
         for (IMCMessage c : source.getIterator("Temperature")) {
             String entity = source.getEntityName(c.getSrc(), c.getSrcEnt());
-            if ("CTD".equals(entity))
+            if (validEntities.contains(entity))
                 addValue(c.getTimestampMillis(), "Temperature."+c.getSourceName(), c.getDouble("value"));
         }
 
         for (IMCMessage c : source.getIterator("Pressure")) {
             String entity = source.getEntityName(c.getSrc(), c.getSrcEnt());
-            if ("CTD".equals(entity))
+            if (validEntities.contains(entity))
                 addValue(c.getTimestampMillis(), "Pressure."+c.getSourceName(), c.getDouble("value"));
         }
     }
