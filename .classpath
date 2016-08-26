@@ -232,6 +232,7 @@
 	<classpathentry kind="lib" path="plugins-dev/alliance/lib/ais-lib-messages-2.2.jar"/>
 	<classpathentry kind="lib" path="plugins-dev/alliance/lib/ais-lib-utils-2.2.jar"/>
 	<classpathentry kind="lib" path="lib/gdal.jar"/>
+	<classpathentry kind="lib" path="lib/sanselan-0.97-incubator.jar"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.junit.JUNIT_CONTAINER/4"/>
 	<classpathentry kind="lib" path="conf"/>
