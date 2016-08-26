@@ -42,7 +42,6 @@ import java.util.Map.Entry;
 import java.util.Vector;
 import java.util.concurrent.Future;
 
-import javax.swing.JCheckBox;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 
@@ -229,29 +228,35 @@ public class NecsaveUI extends ConsoleLayer {
                 }
             }
 
-            HashMap<Integer, JCheckBox> platfAvailable = new HashMap<>();
+            HashMap<Integer, String> platfAvailable = new HashMap<>();
 
             for (Entry<Integer, String> plat : platformNames.entrySet()) {
-                if (!plat.getValue().equals(leader)) {
-                    JCheckBox checkbox = new JCheckBox(plat.getValue());
-                    platfAvailable.put(plat.getKey(), checkbox);
-
-                }
+                if (!plat.getValue().equals(leader))
+                    platfAvailable.put(plat.getKey(), plat.getValue());
             }
 
-            Object[] params = platfAvailable.values().toArray();
-            JOptionPane.showConfirmDialog(null, params, "Choose followers:", JOptionPane.OK_CANCEL_OPTION);
+            String follower1 = (String) JOptionPane.showInputDialog(getConsole(), I18n.text("Select follower 1:"),
+                    I18n.text("Follower 1"), JOptionPane.QUESTION_MESSAGE, null,
+                    platfAvailable.values().toArray(), platfAvailable.values().iterator().next());
+            
+            platfAvailable.remove(getId(follower1));
+            
+            String follower2 = (String) JOptionPane.showInputDialog(getConsole(), I18n.text("Select follower 2:"),
+                    I18n.text("Follower 2"), JOptionPane.QUESTION_MESSAGE, null,
+                    platfAvailable.values().toArray(), platfAvailable.values().iterator().next());
+            
+            
+            PlatformFollower pf1 = new PlatformFollower();
+            pf1.setPayload(PAYLOAD.SIDESCAN);
+            pf1.setFollowerPlatformId(getId(follower1));
 
-            for (Entry<Integer, JCheckBox> plat : platfAvailable.entrySet()) {
-                if (plat.getValue().isSelected()) {
-                    PlatformFollower follower = new PlatformFollower();
-                    follower.setPayload(PAYLOAD.SIDESCAN);
-                    follower.setFollowerPlatformId(plat.getKey());
-
-                    followers_list.add(follower);
-                }
-            }
-
+            PlatformFollower pf2 = new PlatformFollower();
+            pf2.setPayload(PAYLOAD.SIDESCAN);
+            pf2.setFollowerPlatformId(getId(follower2));
+            
+            followers_list.add(pf1);
+            followers_list.add(pf2);
+            
             if (followers_list.isEmpty()) {
                 JOptionPane.showMessageDialog(null,
                         "No platforms were choosen to be followers.",
@@ -262,7 +267,7 @@ public class NecsaveUI extends ConsoleLayer {
             else {
                 formation.setFollowersList(followers_list);
 
-                int dist = 25;
+                double dist = safeDistance;
                 if (formType.equals("Horizontal Line")) {
                     for (PlatformFollower f : followers_list) {
                         f.setBearing(Math.toRadians(270));
@@ -290,7 +295,7 @@ public class NecsaveUI extends ConsoleLayer {
                     }
                     else {
                         JOptionPane.showMessageDialog(null,
-                                "Choose only 2 platforms for triangle formation.",
+                                "Must choose 2 platforms for triangle formation.",
                                 "Error",
                                 JOptionPane.ERROR_MESSAGE);
                         return;
@@ -322,6 +327,15 @@ public class NecsaveUI extends ConsoleLayer {
             GuiUtils.errorMessage(getConsole(), ex);
             ex.printStackTrace();
         }
+    }
+
+    private int getId(String platName) {
+        for (Entry<Integer, String> e : platformNames.entrySet()) {
+            if (e.getValue().equals(platName))
+                return e.getKey();
+        }
+        
+        return -1;
     }
 
     @NeptusMenuItem("Advanced>NECSAVE>Abort Mission")
