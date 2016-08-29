@@ -81,6 +81,10 @@ public class StateMonitor {
         return isClosing || isPaused;
     }
 
+    public static boolean isPluginClosing() {
+        return isClosing;
+    }
+
     private final PlanTaskMarshaler pTaskMarsh = new PlanTaskMarshaler();
     private ConcurrentMap<String, Double> plansCompletion = null;
     private ConcurrentMap<String, PlanTask> plans = null;
