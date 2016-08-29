@@ -136,7 +136,7 @@ public class MVPlanning extends ConsolePanel implements PlanChangeListener, Rend
         pAlloc = new PlanAllocator(vawareness, this.console, pGen);
 
         env = new Environment(this.console, pAlloc, pGen);
-        stateMonitor = new StateMonitor(this.console);
+        stateMonitor = new StateMonitor();
         extSysMonitor = new ExternalSystemsMonitor(this.console, pAlloc, pGen);
 
         /* FIXME: this values should not be hard-coded */
@@ -150,7 +150,7 @@ public class MVPlanning extends ConsolePanel implements PlanChangeListener, Rend
     private void fetchPlans() {
         try {
             NeptusLog.pub().info("Fetching unfinished plans");
-            List<PlanTask> unfPlans = stateMonitor.loadPlans();
+            List<PlanTask> unfPlans = pAlloc.loadPlans();
 
             if(unfPlans.size() == 0) {
                 NeptusLog.pub().info("No plans to fetch");
@@ -318,6 +318,7 @@ public class MVPlanning extends ConsolePanel implements PlanChangeListener, Rend
 
         NeptusLog.pub().info("Saving unfinished plans/tasks");
         stateMonitor.stopPlugin();
+        pAlloc.cleanup();
     }
 
     @Override

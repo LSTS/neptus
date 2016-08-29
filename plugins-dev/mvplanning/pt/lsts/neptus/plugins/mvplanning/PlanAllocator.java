@@ -32,32 +32,46 @@
 
 package pt.lsts.neptus.plugins.mvplanning;
 
+import com.google.common.eventbus.Subscribe;
+import pt.lsts.imc.PlanControlState;
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.comm.manager.imc.ImcSystemsHolder;
 import pt.lsts.neptus.plugins.mvplanning.allocation.RoundRobinAllocator;
+import pt.lsts.neptus.plugins.mvplanning.events.MvPlanningEventPlanAllocated;
 import pt.lsts.neptus.plugins.mvplanning.exceptions.BadPlanTaskException;
 import pt.lsts.neptus.plugins.mvplanning.exceptions.SafePathNotFoundException;
 import pt.lsts.neptus.plugins.mvplanning.interfaces.AbstractAllocator;
 import pt.lsts.neptus.plugins.mvplanning.interfaces.ConsoleAdapter;
 import pt.lsts.neptus.plugins.mvplanning.interfaces.PlanTask;
+import pt.lsts.neptus.plugins.mvplanning.jaxb.PlanTaskMarshaler;
+import pt.lsts.neptus.plugins.mvplanning.monitors.StateMonitor;
 import pt.lsts.neptus.plugins.mvplanning.monitors.VehicleAwareness;
 import pt.lsts.neptus.plugins.mvplanning.planning.tasks.ToSafety;
 import pt.lsts.neptus.types.coord.LocationType;
 
+import javax.xml.bind.JAXBException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 
 /**
  * Responsible for plan allocation and allocation strategy.
  * Holds an object, the allocator, that should extend the
  * {@link AbstractAllocator} class and implement an allocation
  * strategy.
+ * It's also responsible for saving and loading any unfinished tasks
+ * from a previous session
  * */
 public class PlanAllocator {
     private ConsoleAdapter console;
     private AbstractAllocator allocator = null;
     private VehicleAwareness vawareness;
     private PlanGenerator pgen;
+
+    private final PlanTaskMarshaler pTaskMarsh = new PlanTaskMarshaler();
+    private ConcurrentMap<String, Double> plansCompletion = null;
+    private ConcurrentMap<String, PlanTask> plans = null;
 
     public enum AllocationStrategy {
         ROUND_ROBIN
@@ -67,11 +81,16 @@ public class PlanAllocator {
         this.pgen = pgen;
         this.vawareness = vawareness;
         this.console = console;
+        plansCompletion = new ConcurrentHashMap<>();
+        plans = new ConcurrentHashMap<>();
+
     }
 
     public PlanAllocator(AllocationStrategy allocStrat, VehicleAwareness vawareness) {
         this.vawareness = vawareness;
         setAllocationStrategy(allocStrat);
+        plansCompletion = new ConcurrentHashMap<>();
+        plans = new ConcurrentHashMap<>();
     }
 
     /**
@@ -129,5 +148,56 @@ public class PlanAllocator {
             }
             allocate(new ToSafety(currLoc, safeLoc, vehicle));
         }
+    }
+
+    @Subscribe
+    public void on(MvPlanningEventPlanAllocated event) {
+        if(StateMonitor.isPluginClosing())
+            return;
+
+        plansCompletion.putIfAbsent(event.getPlanId(), 100.0);
+        plans.putIfAbsent(event.getPlanId(), event.getPlan());
+    }
+
+    @Subscribe
+    public void on(PlanControlState msg) {
+        if(StateMonitor.isPluginClosing())
+            return;
+
+        String id = msg.getPlanId();
+        /* put() and containsKeys() are not thread-safe */
+        synchronized(plansCompletion) {
+            if(plans.containsKey(id)) {
+                double progress = msg.getPlanProgress();
+                if(progress < 0)
+                    return;
+
+                if(Math.round(progress) < 100) {
+                    plansCompletion.put(id, progress);
+                    plans.get(id).updatePlanCompletion(progress);
+                }
+                else {
+                    if(plansCompletion.containsKey(id)) {
+                        plansCompletion.remove(id);
+                        plans.remove(id);
+                    }
+                }
+            }
+        }
+    }
+
+    public void cleanup() {
+        List<PlanTask> plansList = new ArrayList<PlanTask>(plans.values());
+        try {
+            pTaskMarsh.marshalAll(plansList);
+        }
+        catch (JAXBException e) {
+            NeptusLog.pub().warn("Couldn't save unfinished plans...");
+            e.printStackTrace();
+        }
+    }
+
+    public List<PlanTask> loadPlans() throws JAXBException {
+        return pTaskMarsh.unmarshalAll(console.getMission());
     }
 }
