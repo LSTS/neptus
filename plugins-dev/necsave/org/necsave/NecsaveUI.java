@@ -35,10 +35,12 @@ import java.awt.Color;
 import java.awt.Graphics2D;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map.Entry;
+import java.util.Set;
 import java.util.Vector;
 import java.util.concurrent.Future;
 
@@ -55,6 +57,8 @@ import info.necsave.msgs.CapabilityPlanMission;
 import info.necsave.msgs.CapabilityScanArea;
 import info.necsave.msgs.Contact;
 import info.necsave.msgs.ContactList;
+import info.necsave.msgs.Coordinate;
+import info.necsave.msgs.Coordinate.TEMPORAL;
 import info.necsave.msgs.Formation;
 import info.necsave.msgs.Header.MEDIUM;
 import info.necsave.msgs.Kinematics;
@@ -70,11 +74,19 @@ import info.necsave.msgs.PlatformInfo;
 import info.necsave.msgs.PlatformPlanProgress;
 import info.necsave.msgs.PlatformState;
 import info.necsave.msgs.Resurface;
+import info.necsave.msgs.SweepPath;
 import info.necsave.proto.Message;
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.console.ConsoleLayer;
 import pt.lsts.neptus.console.notifications.Notification;
 import pt.lsts.neptus.i18n.I18n;
+import pt.lsts.neptus.mp.Maneuver;
+import pt.lsts.neptus.mp.Maneuver.SPEED_UNITS;
+import pt.lsts.neptus.mp.ManeuverLocation;
+import pt.lsts.neptus.mp.ManeuverLocation.Z_UNITS;
+import pt.lsts.neptus.mp.maneuvers.LocatedManeuver;
+import pt.lsts.neptus.mp.maneuvers.ManeuverWithSpeed;
+import pt.lsts.neptus.mp.preview.SpeedConversion;
 import pt.lsts.neptus.plugins.NeptusMenuItem;
 import pt.lsts.neptus.plugins.NeptusProperty;
 import pt.lsts.neptus.plugins.PluginDescription;
@@ -84,6 +96,7 @@ import pt.lsts.neptus.systems.external.ExternalSystemsHolder;
 import pt.lsts.neptus.types.coord.LocationType;
 import pt.lsts.neptus.types.map.MapGroup;
 import pt.lsts.neptus.types.map.ParallelepipedElement;
+import pt.lsts.neptus.types.mission.plan.PlanType;
 import pt.lsts.neptus.types.vehicle.VehicleType.SystemTypeEnum;
 import pt.lsts.neptus.util.GuiUtils;
 
@@ -196,6 +209,7 @@ public class NecsaveUI extends ConsoleLayer {
             }
         } 
         else if (goal.equals(GOAL_TYPE.AREA_SWEEP)) {
+            
             Formation formation = new Formation();
             formation.setSafeDistance(safeDistance);
 
@@ -304,6 +318,51 @@ public class NecsaveUI extends ConsoleLayer {
 
                 try {
                     sendMessage(formation);
+                }
+                catch (Exception ex) {
+                    GuiUtils.errorMessage(getConsole(), ex);
+                    ex.printStackTrace();
+                }
+                
+                //choose plan from available list to be considered as path
+                Set<String> plans = getConsole().getMission().getIndividualPlansList().keySet();
+                String plan = (String) JOptionPane.showInputDialog(getConsole(), I18n.text("Select plan"),
+                        I18n.text("Sweep Path"), JOptionPane.QUESTION_MESSAGE, null,
+                        plans.toArray(), plans.iterator().next());
+                if (plan == null)
+                    return;
+                
+                PlanType pt = getConsole().getMission().getIndividualPlansList().get(plan);
+                Maneuver firstMan = pt.getGraph().getManeuver(pt.getGraph().getInitialManeuverId());
+
+                double speed = 0;
+                if (firstMan instanceof ManeuverWithSpeed) {
+                    speed = ((ManeuverWithSpeed) firstMan).getSpeed();
+                    if (((ManeuverWithSpeed) firstMan).getSpeedUnits().equals(SPEED_UNITS.RPM))
+                        speed = SpeedConversion.convertRpmtoMps(speed);
+                    else if (((ManeuverWithSpeed) firstMan).getSpeedUnits().equals(SPEED_UNITS.RPM))
+                        speed = SpeedConversion.convertPercentageToMps(speed);
+                }
+                
+                Collection<Coordinate> points_list = new ArrayList<>();
+                for (Maneuver m : pt.getGraph().getManeuversSequence()) {
+                    ManeuverLocation manLoc = ((LocatedManeuver) m).getManeuverLocation();
+                    Z_UNITS zUnits = manLoc.getZUnits();
+                    float alt = -1;
+                    float depth = -1;
+                    
+                    if (zUnits.equals(Z_UNITS.ALTITUDE))
+                        alt = (float) manLoc.getZ();
+                    else if (zUnits.equals(Z_UNITS.DEPTH))
+                        depth = (float) manLoc.getZ();
+                    
+                    Coordinate co = new Coordinate(manLoc.getLatitudeRads(), manLoc.getLongitudeRads(), alt, depth, 0, TEMPORAL.FALSE);
+                    points_list.add(co);
+                }
+                SweepPath path = new SweepPath((float) speed, points_list);
+                
+                try {
+                    sendMessage(path);
                 }
                 catch (Exception ex) {
                     GuiUtils.errorMessage(getConsole(), ex);
