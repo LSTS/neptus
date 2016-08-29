@@ -310,8 +310,8 @@ public class MVPlanning extends ConsolePanel implements PlanChangeListener, Rend
     public void cleanSubPanel() {
         console.unregisterToEventBus(vawareness);
         console.unsubscribeToIMCMessages(vawareness);
-        console.unregisterToEventBus(stateMonitor);
-        console.unsubscribeToIMCMessages(stateMonitor);
+        console.unregisterToEventBus(pAlloc);
+        console.unsubscribeToIMCMessages(pAlloc);
         console.unregisterToEventBus(env);
         PeriodicUpdatesService.unregister(extSysMonitor);
         extSysMonitor.cleanup();
@@ -325,8 +325,8 @@ public class MVPlanning extends ConsolePanel implements PlanChangeListener, Rend
     public void initSubPanel() {
         console.registerToEventBus(vawareness);
         console.subscribeToIMCMessages(vawareness);
-        console.registerToEventBus(stateMonitor);
-        console.subscribeToIMCMessages(stateMonitor);
+        console.registerToEventBus(pAlloc);
+        console.subscribeToIMCMessages(pAlloc);
         console.registerToEventBus(env);
 
         PeriodicUpdatesService.register(extSysMonitor);
