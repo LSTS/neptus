@@ -33,6 +33,7 @@
 package pt.lsts.neptus.plugins.mvplanning;
 
 import com.google.common.eventbus.Subscribe;
+import pt.lsts.imc.PlanControl;
 import pt.lsts.imc.PlanControlState;
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.comm.manager.imc.ImcSystemsHolder;
@@ -172,14 +173,35 @@ public class PlanAllocator {
                 if(progress < 0)
                     return;
 
-                if(Math.round(progress) < 100) {
+                if(progress == 0) {
                     plansCompletion.put(id, progress);
                     plans.get(id).updatePlanCompletion(progress);
                 }
+                // if the task was started
                 else {
-                    if(plansCompletion.containsKey(id)) {
+                    PlanControlState.LAST_OUTCOME last = msg.getLastOutcome();
+                    PlanControlState.STATE current = msg.getState();
+
+                    // task interrupted
+                    if (current != PlanControlState.STATE.EXECUTING && last == PlanControlState.LAST_OUTCOME.FAILURE) {
+                        plansCompletion.put(id, 0.0); // task has to be restarted
+                        plans.get(id).updatePlanCompletion(0.0);
+
+                        // add the plan for allocation, again
+                        allocator.addNewPlan(plans.get(id));
+                        console.notifiyError("Task " + id + " has been interrupted, trying to re-allocate","");
+                    }
+                    // everything is ok; task has finished
+                    else if(Math.round(progress) == 100) {
                         plansCompletion.remove(id);
                         plans.remove(id);
+
+                        console.notifiySuccess("Task " + id + "has been completed with success", "");
+                    }
+                    // everything is ok; update its completion
+                    else {
+                        plansCompletion.put(id, progress);
+                        plans.get(id).updatePlanCompletion(progress);
                     }
                 }
             }
