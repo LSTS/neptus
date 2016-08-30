@@ -636,7 +636,9 @@ public class MapEditor extends ConsolePanel implements StateRendererInteraction,
 
             add.addSeparator();
 
-            add.add(I18n.text("Image from World File")).addActionListener(new ActionListener() {
+            JMenuItem AddWorldFile = add.add(I18n.text("Image from World File"));
+            AddWorldFile.setToolTipText(I18n.text("Will position the image in currently visible UTM zone."));
+            AddWorldFile.addActionListener(new ActionListener() {
 
                 @Override
                 public void actionPerformed(ActionEvent e) {
@@ -664,7 +666,7 @@ public class MapEditor extends ConsolePanel implements StateRendererInteraction,
 
                                 final MapType pivot = m != null ? m : mg.getMaps()[0];
 
-                                ImageElement el = new ImageElement(choice, file);
+                                ImageElement el = new ImageElement(choice, file, renderer.getCenter());
                                 el.setMapGroup(mg);
                                 el.showParametersDialog(MapEditor.this, pivot.getObjectIds(), pivot, true);
 

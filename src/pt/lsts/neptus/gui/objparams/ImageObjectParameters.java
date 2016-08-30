@@ -551,8 +551,8 @@ public class ImageObjectParameters extends ParametersPanel {
 		getMaxDepthFormattedTextField().setText(Double.toString(val));
 	}
 
-	public int getResolution() {
-		return Integer.parseInt(getResolutionFormattedTextField().getText());
+	public double getResolution() {
+		return Double.parseDouble(getResolutionFormattedTextField().getText());
 	}
 	
 	public void setResolution(double val) {
