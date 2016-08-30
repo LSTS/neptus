@@ -170,39 +170,35 @@ public class PlanAllocator {
         synchronized(plansCompletion) {
             if(plans.containsKey(id)) {
                 double progress = msg.getPlanProgress();
-                if(progress < 0)
-                    return;
+                PlanControlState.LAST_OUTCOME last = msg.getLastOutcome();
+                PlanControlState.STATE current = msg.getState();
 
-                if(progress == 0) {
-                    plansCompletion.put(id, progress);
-                    plans.get(id).updatePlanCompletion(progress);
-                }
-                // if the task was started
-                else {
-                    PlanControlState.LAST_OUTCOME last = msg.getLastOutcome();
-                    PlanControlState.STATE current = msg.getState();
-
-                    // task interrupted
-                    if (current != PlanControlState.STATE.EXECUTING && last == PlanControlState.LAST_OUTCOME.FAILURE) {
-                        plansCompletion.put(id, 0.0); // task has to be restarted
-                        plans.get(id).updatePlanCompletion(0.0);
-
-                        // add the plan for allocation, again
-                        allocator.addNewPlan(plans.get(id));
-                        console.notifiyError("Task " + id + " has been interrupted, trying to re-allocate","");
-                    }
+                if(current == PlanControlState.STATE.EXECUTING) {
                     // everything is ok; task has finished
-                    else if(Math.round(progress) == 100) {
+                    if(Math.round(progress) == 100) {
                         plansCompletion.remove(id);
                         plans.remove(id);
 
                         console.notifiySuccess("Task " + id + "has been completed with success", "");
                     }
-                    // everything is ok; update its completion
+                    // everything is ok; update task completion
                     else {
                         plansCompletion.put(id, progress);
                         plans.get(id).updatePlanCompletion(progress);
                     }
+                }
+                // task interrupted
+                else if(last == PlanControlState.LAST_OUTCOME.FAILURE) {
+                    // already handled
+                    if(plansCompletion.get(id) == -1)
+                        return;
+
+                    plansCompletion.put(id, -1.0); // task has to be restarted
+                    plans.get(id).updatePlanCompletion(0.0);
+
+                    // add the plan for allocation, again
+                    allocator.addNewPlan(plans.get(id));
+                    console.notifiyError("Task " + id + " has been interrupted, trying to re-allocate","");
                 }
             }
         }
