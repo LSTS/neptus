@@ -52,6 +52,8 @@ import com.google.common.eventbus.Subscribe;
 import info.necsave.msgs.AbortMission;
 import info.necsave.msgs.AbortMission.TYPE;
 import info.necsave.msgs.Area;
+import info.necsave.msgs.Behavior;
+import info.necsave.msgs.BehaviorScanArea;
 import info.necsave.msgs.Capabilities;
 import info.necsave.msgs.CapabilityPlanMission;
 import info.necsave.msgs.CapabilityScanArea;
@@ -71,6 +73,7 @@ import info.necsave.msgs.Plan;
 import info.necsave.msgs.PlatformFollower;
 import info.necsave.msgs.PlatformFollower.PAYLOAD;
 import info.necsave.msgs.PlatformInfo;
+import info.necsave.msgs.PlatformPlan;
 import info.necsave.msgs.PlatformPlanProgress;
 import info.necsave.msgs.PlatformState;
 import info.necsave.msgs.Resurface;
@@ -98,6 +101,7 @@ import pt.lsts.neptus.types.map.MapGroup;
 import pt.lsts.neptus.types.map.ParallelepipedElement;
 import pt.lsts.neptus.types.mission.plan.PlanType;
 import pt.lsts.neptus.types.vehicle.VehicleType.SystemTypeEnum;
+import pt.lsts.neptus.util.ColorUtils;
 import pt.lsts.neptus.util.GuiUtils;
 
 /**
@@ -583,7 +587,6 @@ public class NecsaveUI extends ConsoleLayer {
 
     @Subscribe
     public void on(Plan msg) {
-        System.out.println("Received Plan from "+msg.getSrc());
         this.plan = msg;
     }
 
@@ -665,6 +668,32 @@ public class NecsaveUI extends ConsoleLayer {
         lbl.setSize(lbl.getPreferredSize());
         g.translate(10, 10);
         lbl.paint(g);
+        
+        paintPlan(g, renderer);
+    }
+    
+    private void paintPlan(Graphics2D g, StateRenderer2D source) {
+        if (plan == null)
+            return;
+        
+        Vector<PlatformPlan> platfPlans = plan.getPlatformPlans();
+        
+        Vector<Color> colors = new Vector<>();
+        colors.addAll(Arrays.asList(ColorUtils.generateVisuallyDistinctColors(platfPlans.size(), 0.5f, 0.5f)));
+        
+        for (int i = 0; i < platfPlans.size(); i++) {
+            Color c = colors.get(i);
+            PlatformPlan p = platfPlans.get(i);
+            for (Behavior b : p.getBehaviors()) {
+                if (b instanceof BehaviorScanArea) {
+                    paintScanArea((BehaviorScanArea)b, c);
+                }
+            }
+        }        
+    }
+    
+    private void paintScanArea(BehaviorScanArea b, Color c) {
+        System.out.println("paint "+b.getAbbrev());
     }
 
     @Override
