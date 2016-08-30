@@ -79,13 +79,13 @@ public abstract class PlanTask {
     protected TASK_TYPE taskType;
     protected List<TaskConstraint> constraints;
 
-    public PlanTask(String id, PlanType plan, Profile planProfile, TASK_TYPE taskType) {
+    public PlanTask(String id, PlanType plan, Profile planProfile) {
         this.planId = id;
         this.plan = plan;
         this.plan.setId(id);
         this.planProfile = planProfile;
         this.timestamp = -1;
-        this.taskType = taskType;
+        this.taskType = getTaskType();
 
         completion = 0;
         md5 = plan.asIMCPlan().payloadMD5();
@@ -192,7 +192,7 @@ public abstract class PlanTask {
 
     public static TASK_TYPE string2TaskType(String str) {
         for(TASK_TYPE type : TASK_TYPE.values())
-            if(str == type.value)
+            if(str.equals(type.value))
                 return type;
 
         NeptusLog.pub().warn("Couldn't figure out task type, setting as NeptusPlan");
@@ -219,10 +219,11 @@ public abstract class PlanTask {
     private void loadTaskPddlSpecs() {
         /* load task constraints */
         this.constraints = new ArrayList<>();
-        Map<String, String> taskConstraints = TaskPddlParser.getTaskConstraints(getTaskType().name());
+        Map<String, String> taskConstraints = TaskPddlParser.getTaskConstraints(getTaskType().value);
 
         if(taskConstraints == null || taskConstraints.isEmpty()) {
-            NeptusLog.pub().warn("[" + getTaskType().value + "] No constraints found/parsed. Using default ones...");
+            System.out.println("* [" + planId + "]");
+            System.out.println("** [" + getTaskType().value + "] No constraints found/parsed. Using default ones...");
             constraints = setDefaultTaskConstraints();
         }
         else {

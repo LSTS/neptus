@@ -56,7 +56,7 @@ public class VisitPoint extends PlanTask {
      * Called when unmarshalling
      * */
     public VisitPoint(String id, PlanType plan, Profile planProfile) {
-        super(id, plan, planProfile, TASK_TYPE.VISIT_POINT);
+        super(id, plan, planProfile);
     }
 
     @Override
