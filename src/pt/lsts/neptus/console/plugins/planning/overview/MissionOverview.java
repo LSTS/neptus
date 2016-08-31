@@ -53,7 +53,9 @@ public class MissionOverview extends JPanel {
     private static final long serialVersionUID = 1L;
     private JTable table;
     private PlanType selectedPlan = null;
+    private Maneuver selectedManeuver = null;
     PlanTableModel model = null;
+    private int prevSelectedRow = -1;
 
     public MissionOverview(PlanEditor pE, PlanType plan) {
 
@@ -85,6 +87,7 @@ public class MissionOverview extends JPanel {
                 if (me.getClickCount() == 1 && row != -1) {
                     Maneuver m = model.getManeuver(row);
                     pE.updateSelected(m);
+                    prevSelectedRow = row;
                 }
             }
         });
@@ -94,4 +97,25 @@ public class MissionOverview extends JPanel {
         setPreferredSize(getPreferredSize());
     }
 
+    private int getRowFromManeuver(Maneuver man) {
+        return model.getManeuverIndex(man);
+    }
+
+    public void setSelectedManeuver(Maneuver man) {
+        selectedManeuver = man;
+        int row = getRowFromManeuver(selectedManeuver);
+
+        if (row != -1) {
+            table.setRowSelectionInterval(row, row);
+            prevSelectedRow = row;
+        }
+    }
+
+    public void updatePlan(PlanType plan) {
+        model.updateTable(plan);
+
+        if (prevSelectedRow != -1 && prevSelectedRow < model.getRowCount())
+            table.setRowSelectionInterval(prevSelectedRow, prevSelectedRow);
+        
+    }
 }

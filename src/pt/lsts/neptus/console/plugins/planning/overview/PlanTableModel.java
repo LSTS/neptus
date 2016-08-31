@@ -90,6 +90,15 @@ public class PlanTableModel extends AbstractTableModel {
         return list.size();
     }
 
+    public int getManeuverIndex(Maneuver man) {
+        for (int i=0; i < list.size(); i++) {
+            ExtendedManeuver m = list.get(i);
+            if (m.maneuver.equals(man))
+                return i;
+        }
+        return -1;
+    }
+
     public Maneuver getManeuver(int index) {
         return list.get(index).maneuver;
     }
@@ -189,6 +198,12 @@ public class PlanTableModel extends AbstractTableModel {
     @Override
     public String getColumnName(int columnIndex) {
         return columnNames[columnIndex];
+    }
+
+    public void updateTable(PlanType plan) {
+        this.plan = plan;
+
+        fireTableDataChanged();
     }
 
     private class ExtendedManeuver {
