@@ -33,6 +33,9 @@ package pt.lsts.neptus.console.plugins.planning.overview;
 
 import java.awt.Color;
 import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.LinkedHashMap;
+import java.util.LinkedList;
 import java.util.Map.Entry;
 
 import javax.swing.table.AbstractTableModel;
@@ -211,7 +214,69 @@ public class PlanTableModel extends AbstractTableModel {
     }
 
     private void sortManeuverList() {
-        //TODO : populate list
+        Maneuver initial = plan.getGraph().getManeuver(plan.getGraph().getInitialManeuverId());
+        LinkedHashMap<String, TransitionType> trans = (LinkedHashMap<String, TransitionType>) plan.getGraph().getTransitions().clone();
+        list.clear();
+
+        //add initial maneuver if exists
+        list.add(new ExtendedManeuver(initial, "0"));
+
+        Maneuver in = initial;
+        ArrayList<Maneuver> visited = new ArrayList<>();
+        visited.add(in);
+        Iterator<Entry<String, TransitionType>> it = trans.entrySet().iterator();
+        while (true) {
+            while (it.hasNext()) {
+                Entry<String, TransitionType> t = it.next();
+                String source = t.getValue().getSourceManeuver();
+                Maneuver srcManeuver = plan.getGraph().getManeuver(source);
+                String dest = t.getValue().getTargetManeuver();
+                Maneuver destManeuver = plan.getGraph().getManeuver(dest);
+
+                if (source.equals(in.id)) {
+                    if (!alreadyAdded(srcManeuver)) {
+
+                        ExtendedManeuver e = new ExtendedManeuver(srcManeuver, "-1");
+                        list.add(e);
+                    }
+
+                    ExtendedManeuver e = new ExtendedManeuver(destManeuver, "-1");
+                    list.add(e);
+
+                    if (!visited.contains(destManeuver)) visited.add(destManeuver);
+                    it.remove();
+
+                    if (allOutManeuvers(in, trans).isEmpty()) {
+                        in = destManeuver;
+                    }
+                }
+
+                if (allOutManeuvers(in, trans).isEmpty()) {
+                    if (visited.isEmpty()) {
+                        in = srcManeuver;
+                    }
+                    else {
+                        in = visited.get(visited.size()-1);
+                        visited.remove(visited.size()-1);
+                    }
+                }
+            }
+
+            if (trans.isEmpty())
+                break;
+            else
+                it = trans.entrySet().iterator();
+        }
+        visited.clear();
+
+        //check for missing not reachable maneuvers
+        LinkedList<Maneuver> allNotReachable = notReachableManeuvers();
+        for (Maneuver m : allNotReachable) {
+            if (!alreadyAdded(m)) {
+                ExtendedManeuver e = new ExtendedManeuver(m, "-1");
+                list.add(e);
+            }
+        }
     }
 
     private boolean reachable(Maneuver m) {
@@ -220,6 +285,35 @@ public class PlanTableModel extends AbstractTableModel {
                 return true;
         }
 
+        return false;
+    }
+
+    private LinkedList<Maneuver> allOutManeuvers(Maneuver m, LinkedHashMap<String, TransitionType> trans) {
+        LinkedList<Maneuver> list = new LinkedList<>();
+        for (Entry<String, TransitionType> e : trans.entrySet()) {
+            if (e.getValue().getSourceManeuver().equals(m.id)) {
+                list.add(plan.getGraph().getManeuver(e.getValue().getTargetManeuver()));
+            }
+
+        }
+        return list;
+    }
+
+    private LinkedList<Maneuver> notReachableManeuvers() {
+        LinkedList<Maneuver> list = new LinkedList<>();
+        for (Maneuver m : plan.getGraph().getAllManeuvers()) {
+            if (!reachable(m) && !plan.getGraph().getInitialManeuverId().equals(m.getId())) {
+                list.add(m);
+            }
+        }
+        return list;
+    }
+
+    private boolean alreadyAdded(Maneuver srcManeuver) {
+        for (ExtendedManeuver m : list) {
+            if (m.maneuver.equals(srcManeuver))
+                return true;
+        }
         return false;
     }
 
