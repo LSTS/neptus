@@ -33,6 +33,7 @@ package pt.lsts.neptus.console.plugins.planning.overview;
 
 import java.awt.Color;
 import java.util.ArrayList;
+import java.util.Map.Entry;
 
 import javax.swing.table.AbstractTableModel;
 
@@ -43,6 +44,7 @@ import pt.lsts.neptus.mp.maneuvers.LocatedManeuver;
 import pt.lsts.neptus.mp.maneuvers.ManeuverWithSpeed;
 import pt.lsts.neptus.types.coord.LocationType;
 import pt.lsts.neptus.types.map.PlanUtil;
+import pt.lsts.neptus.types.mission.TransitionType;
 import pt.lsts.neptus.types.mission.plan.PlanType;
 import pt.lsts.neptus.util.DateTimeUtil;
 import pt.lsts.neptus.util.GuiUtils;
@@ -82,7 +84,8 @@ public class PlanTableModel extends AbstractTableModel {
 
     public PlanTableModel(PlanType plan) {
         this.plan = plan;
-
+        sortManeuverList();
+        fireTableDataChanged();
     }
 
     @Override
@@ -202,8 +205,22 @@ public class PlanTableModel extends AbstractTableModel {
 
     public void updateTable(PlanType plan) {
         this.plan = plan;
+        sortManeuverList();
 
         fireTableDataChanged();
+    }
+
+    private void sortManeuverList() {
+        //TODO : populate list
+    }
+
+    private boolean reachable(Maneuver m) {
+        for (Entry<String, TransitionType> e : plan.getGraph().getTransitions().entrySet()) {
+            if (e.getValue().getTargetManeuver().equals(m.getId()))
+                return true;
+        }
+
+        return false;
     }
 
     private class ExtendedManeuver {
