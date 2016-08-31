@@ -104,6 +104,7 @@ import pt.lsts.neptus.console.plugins.planning.edit.PlanSettingsChanged;
 import pt.lsts.neptus.console.plugins.planning.edit.PlanTransitionsReversed;
 import pt.lsts.neptus.console.plugins.planning.edit.PlanTranslated;
 import pt.lsts.neptus.console.plugins.planning.edit.PlanZChanged;
+import pt.lsts.neptus.console.plugins.planning.overview.MissionOverview;
 import pt.lsts.neptus.gui.PropertiesEditor;
 import pt.lsts.neptus.gui.VehicleChooser;
 import pt.lsts.neptus.gui.VehicleSelectionDialog;
@@ -173,6 +174,8 @@ public class PlanEditor extends InteractionAdapter implements Renderer2DPainter,
     protected JLabel statsLabel = null;
     protected static final String maneuverPreamble = "[Neptus:Maneuver]\n";
     protected PlanSimulationOverlay overlay = null;
+    protected MissionOverview overviewPanel = null;
+    protected JPanel bottomPanel = new JPanel(new BorderLayout());
 
     public enum ToolbarLocation {
         Right,
@@ -192,11 +195,15 @@ public class PlanEditor extends InteractionAdapter implements Renderer2DPainter,
     @NeptusProperty(name = "Toolbar Location", userLevel = LEVEL.REGULAR)
     public ToolbarLocation toolbarLocation = ToolbarLocation.Right;
 
+    @NeptusProperty(name = "Mission Overview", userLevel = LEVEL.REGULAR)
+    public boolean missionOverview = false;
+
     /**
      * @param console
      */
     public PlanEditor(ConsoleLayout console) {
         super(console);
+
     }
 
     @Override
@@ -212,6 +219,8 @@ public class PlanEditor extends InteractionAdapter implements Renderer2DPainter,
 
     @Override
     public boolean update() {
+        if (plan != null && overviewPanel != null)
+            overviewPanel.updatePlan(plan);
 
         Maneuver curManeuver = getPropertiesPanel().getManeuver();
 
@@ -285,15 +294,34 @@ public class PlanEditor extends InteractionAdapter implements Renderer2DPainter,
                         break;
                 }
 
+                if (plan == null && getConsole().getPlan() != null) {
+                    setPlan(getConsole().getPlan().clonePlan());
+                    if (missionOverview) {
+                        if (overviewPanel == null) {
+                            overviewPanel = new MissionOverview(this, plan);
+                        }
+                        else
+                            overviewPanel.updatePlan(plan);
+
+
+                        bottomPanel.setLayout(new BorderLayout(0, 0));
+                        bottomPanel.add(overviewPanel, BorderLayout.CENTER);
+
+                        c.add(bottomPanel, BorderLayout.SOUTH);
+                    }
+                }
+
                 c.invalidate();
                 c.validate();
                 if (c instanceof JComponent)
                     ((JComponent) c).setBorder(new LineBorder(Color.orange.darker(), 3));
 
+
             }
 
-            if (plan == null && getConsole().getPlan() != null)
+            if (plan == null && getConsole().getPlan() != null) {
                 setPlan(getConsole().getPlan().clonePlan());
+            }
             else if (plan == null) {
 
                 VehicleType choice = null;
@@ -332,6 +360,15 @@ public class PlanEditor extends InteractionAdapter implements Renderer2DPainter,
                 c = c.getParent();
             if (c.getLayout() instanceof BorderLayout) {
                 c.remove(getSidePanel());
+
+                if (missionOverview) {
+                    if (overviewPanel != null) {
+                        c.remove(bottomPanel);
+                        bottomPanel.removeAll();
+                        overviewPanel = null;
+                    }
+                }
+
                 c.invalidate();
                 c.validate();
                 if (c instanceof JComponent)
@@ -342,8 +379,8 @@ public class PlanEditor extends InteractionAdapter implements Renderer2DPainter,
                 plan = null;
             planElem = null;
             renderer.setToolTipText("");
-
             overlay = null;
+
         }
     }
 
@@ -1168,14 +1205,19 @@ public class PlanEditor extends InteractionAdapter implements Renderer2DPainter,
                                 PlanTransitionsReversed ptr = new PlanTransitionsReversed(plan, startManeuver, endManeuver);
                                 ptr.redo();
                                 manager.addEdit(ptr);
+
+                                if (missionOverview) {
+                                    if (plan != null && overviewPanel != null)
+                                        overviewPanel.updatePlan(plan);
+                                }
                             }
                         }
                     };
                     pTrans.putValue(AbstractAction.SMALL_ICON,
                             new ImageIcon(ImageUtils.getScaledImage("images/buttons/wizard.png", 16, 16)));
                     planSettings.add(pTrans);
-                    
-                    
+
+
                     planSettings.setIcon(new ImageIcon(ImageUtils.getScaledImage("images/buttons/wizard.png", 16, 16)));
                     popup.add(planSettings);
 
@@ -1510,6 +1552,8 @@ public class PlanEditor extends InteractionAdapter implements Renderer2DPainter,
         if (event.getButton() == MouseEvent.BUTTON1) {
             if (planElem != null && event.getPoint() != null) {
                 selectedManeuver = planElem.iterateManeuverUnder(event.getPoint());
+                if (overviewPanel != null && missionOverview)
+                    overviewPanel.setSelectedManeuver(selectedManeuver);
                 lastDragPoint = event.getPoint();
                 if (selectedManeuver != null && selectedManeuver instanceof LocatedManeuver) {
                     maneuverLocationBeforeMoving = ((LocatedManeuver) selectedManeuver).getManeuverLocation();
@@ -1864,5 +1908,14 @@ public class PlanEditor extends InteractionAdapter implements Renderer2DPainter,
                 new PlanTemplatesDialog(getConsole()).showDialog();
             }
         });
+    }
+
+    public void updateSelected(Maneuver m) {
+        if (m != null) {
+            getPropertiesPanel().setManeuver(m);
+            planElem.setSelectedManeuver(m.id);
+            if (overviewPanel != null)
+                overviewPanel.setSelectedManeuver(m);
+        }
     }
 }
