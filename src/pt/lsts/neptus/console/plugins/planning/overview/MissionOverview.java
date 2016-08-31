@@ -31,6 +31,8 @@
  */
 package pt.lsts.neptus.console.plugins.planning.overview;
 
+import java.awt.Color;
+import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
@@ -38,6 +40,8 @@ import java.awt.event.MouseEvent;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
+import javax.swing.SwingConstants;
+import javax.swing.table.DefaultTableCellRenderer;
 
 import net.miginfocom.swing.MigLayout;
 import pt.lsts.neptus.console.plugins.planning.PlanEditor;
@@ -57,6 +61,22 @@ public class MissionOverview extends JPanel {
         setLayout(new MigLayout("", "[][grow]", "[]"));
         model = new PlanTableModel(selectedPlan);
         table = new JTable(model);
+
+        table.setDefaultRenderer(Object.class, new DefaultTableCellRenderer() {
+            private static final long serialVersionUID = -4859420619704314087L;
+
+            @Override
+            public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row,
+                    int column) {
+                super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
+
+                Color color = model.getRowColour(row, isSelected);
+                setHorizontalAlignment(SwingConstants.CENTER);
+                setBackground(color);
+
+                return this;
+            }
+        });
 
         table.addMouseListener(new MouseAdapter() {
             public void mousePressed(MouseEvent me) {

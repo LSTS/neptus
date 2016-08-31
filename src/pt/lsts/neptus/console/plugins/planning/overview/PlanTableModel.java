@@ -176,6 +176,16 @@ public class PlanTableModel extends AbstractTableModel {
         }
     }
 
+    public Color getRowColour(int row, boolean isSelected) {
+        if (list.isEmpty() || row >= getRowCount() )
+            return null;
+
+        if (isSelected)
+            return SELECTED_MANEUVER_COLOR;
+        else
+            return list.get(row).getColor();
+    }
+
     @Override
     public String getColumnName(int columnIndex) {
         return columnNames[columnIndex];
