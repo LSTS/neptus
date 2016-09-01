@@ -34,12 +34,21 @@ package pt.lsts.neptus.console.plugins.planning.overview;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
+import java.awt.Toolkit;
+import java.awt.datatransfer.Clipboard;
+import java.awt.datatransfer.StringSelection;
+import java.awt.event.ActionEvent;
+import java.awt.event.InputEvent;
+import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 
+import javax.swing.AbstractAction;
+import javax.swing.Action;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
+import javax.swing.KeyStroke;
 import javax.swing.SwingConstants;
 import javax.swing.table.DefaultTableCellRenderer;
 
@@ -55,7 +64,7 @@ public class MissionOverview extends JPanel {
     private PlanType selectedPlan = null;
     private Maneuver selectedManeuver = null;
     PlanTableModel model = null;
-    private int prevSelectedRow = -1;
+    private int prevSelectedRow, row, col = -1;
 
     public MissionOverview(PlanEditor pE, PlanType plan) {
 
@@ -64,6 +73,14 @@ public class MissionOverview extends JPanel {
         model = new PlanTableModel(selectedPlan);
         table = new JTable(model);
 
+        setupTable(pE);
+
+        add(new JScrollPane(table), "cell 0 1 2 1,grow");
+        setPreferredSize(getPreferredSize());
+    }
+
+    private void setupTable(PlanEditor pE) {
+        //Set renderer
         table.setDefaultRenderer(Object.class, new DefaultTableCellRenderer() {
             private static final long serialVersionUID = -4859420619704314087L;
 
@@ -80,21 +97,41 @@ public class MissionOverview extends JPanel {
             }
         });
 
+
+        //Add mouselistener
         table.addMouseListener(new MouseAdapter() {
-            public void mousePressed(MouseEvent me) {
-                JTable table = (JTable) me.getSource();
-                int row = table.getSelectedRow();
-                if (me.getClickCount() == 1 && row != -1) {
-                    Maneuver m = model.getManeuver(row);
-                    pE.updateSelected(m);
-                    prevSelectedRow = row;
+            @Override
+            public void mousePressed(MouseEvent e) {
+                JTable table = (JTable) e.getSource();
+                row = table.getSelectedRow();
+
+                if (e.getClickCount() == 1 && row != -1) {
+                        col = table.columnAtPoint(e.getPoint());
+                        Maneuver m = model.getManeuver(row);
+                        pE.updateSelected(m);
+                        prevSelectedRow = row;
                 }
             }
         });
-        
+
+        //Add Keybinding
+        table.getInputMap(JPanel.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke(KeyEvent.VK_C, InputEvent.CTRL_MASK),"copy");
+        Action copy = new AbstractAction() {
+
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                if (row != -1 || col != -1) {
+                    String value = (String) model.getValueAt(row, col);
+                    StringSelection selection = new StringSelection(value);
+                    Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
+                    clipboard.setContents(selection, selection);
+                }
+            }
+        };
+        table.getActionMap().put("copy", copy);
+
+        //Set prefered size
         table.setPreferredScrollableViewportSize(new Dimension(700, 80));
-        add(new JScrollPane(table), "cell 0 1 2 1,grow");
-        setPreferredSize(getPreferredSize());
     }
 
     private int getRowFromManeuver(Maneuver man) {
@@ -116,6 +153,6 @@ public class MissionOverview extends JPanel {
 
         if (prevSelectedRow != -1 && prevSelectedRow < model.getRowCount())
             table.setRowSelectionInterval(prevSelectedRow, prevSelectedRow);
-        
+
     }
 }

@@ -48,7 +48,6 @@ import pt.lsts.neptus.mp.Maneuver.SPEED_UNITS;
 import pt.lsts.neptus.mp.ManeuverLocation;
 import pt.lsts.neptus.mp.maneuvers.LocatedManeuver;
 import pt.lsts.neptus.mp.maneuvers.ManeuverWithSpeed;
-import pt.lsts.neptus.types.coord.LocationType;
 import pt.lsts.neptus.types.map.PlanUtil;
 import pt.lsts.neptus.types.mission.TransitionType;
 import pt.lsts.neptus.types.mission.plan.PlanType;
@@ -136,7 +135,7 @@ public class PlanTableModel extends AbstractTableModel {
                 returnValue = man.maneuver.getType();
                 break;
             case COLUMN_LOCATION:
-                returnValue = man.getManeuverLocation();
+                returnValue = man.getManeuverLocation().toString();
                 break;
             case COLUMN_DEPTH_ALTITUDE:
                 returnValue = man.getManeuverLocation().getZ() + " " + man.getManeuverLocation().getZUnits().name();
@@ -178,7 +177,7 @@ public class PlanTableModel extends AbstractTableModel {
             case 2:
                 return String.class;
             case 3:
-                return LocationType.class;
+                return String.class;
             case 4:
                 return String.class;
             case 5:
