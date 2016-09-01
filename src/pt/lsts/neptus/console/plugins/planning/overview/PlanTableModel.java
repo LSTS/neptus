@@ -118,7 +118,7 @@ public class PlanTableModel extends AbstractTableModel {
     public Object getValueAt(int rowIndex, int columnIndex) {
         if (list.isEmpty() || rowIndex >= getRowCount())
             return null;
-        
+
         Object returnValue = null;
         ExtendedManeuver man = list.get(rowIndex);
 
@@ -192,7 +192,7 @@ public class PlanTableModel extends AbstractTableModel {
     }
 
     public Color getRowColour(int row, boolean isSelected) {
-        if (list.isEmpty() || row >= getRowCount() )
+        if (list.isEmpty() || row >= getRowCount())
             return null;
 
         if (isSelected)
@@ -277,11 +277,12 @@ public class PlanTableModel extends AbstractTableModel {
                 list.add(e);
             }
         }
+
     }
 
-    private boolean reachable(Maneuver m) {
-        for (Entry<String, TransitionType> e : plan.getGraph().getTransitions().entrySet()) {
-            if (e.getValue().getTargetManeuver().equals(m.getId()))
+    private boolean alreadyAdded(Maneuver srcManeuver) {
+        for (ExtendedManeuver m : list) {
+            if (m.maneuver.equals(srcManeuver))
                 return true;
         }
 
@@ -291,29 +292,30 @@ public class PlanTableModel extends AbstractTableModel {
     private LinkedList<Maneuver> allOutManeuvers(Maneuver m, LinkedHashMap<String, TransitionType> trans) {
         LinkedList<Maneuver> list = new LinkedList<>();
         for (Entry<String, TransitionType> e : trans.entrySet()) {
-            if (e.getValue().getSourceManeuver().equals(m.id)) {
+            if (e.getValue().getSourceManeuver().equals(m.id))
                 list.add(plan.getGraph().getManeuver(e.getValue().getTargetManeuver()));
-            }
-
         }
+
         return list;
     }
 
     private LinkedList<Maneuver> notReachableManeuvers() {
         LinkedList<Maneuver> list = new LinkedList<>();
         for (Maneuver m : plan.getGraph().getAllManeuvers()) {
-            if (!reachable(m) && !plan.getGraph().getInitialManeuverId().equals(m.getId())) {
+            if (!reachable(m) && !plan.getGraph().getInitialManeuverId().equals(m.getId()))
                 list.add(m);
-            }
         }
+
         return list;
     }
 
-    private boolean alreadyAdded(Maneuver srcManeuver) {
-        for (ExtendedManeuver m : list) {
-            if (m.maneuver.equals(srcManeuver))
+    private boolean reachable(Maneuver m) {
+        for (Entry<String, TransitionType> e : plan.getGraph().getTransitions().entrySet()) {
+            if (e.getValue().getTargetManeuver().equals(m.getId()))
                 return true;
+
         }
+
         return false;
     }
 
@@ -327,7 +329,7 @@ public class PlanTableModel extends AbstractTableModel {
         private String distance;
         private String payload;
         private Color color;
-        
+
         public ExtendedManeuver(Maneuver man, String index) {
             this.maneuverLoc = ((LocatedManeuver) man).getManeuverLocation();
             double speed = -1;
@@ -384,7 +386,7 @@ public class PlanTableModel extends AbstractTableModel {
             this.distance = dist;
             this.duration = duration;
         }
-        
+
         public void calcDurationAndDistance(Maneuver inRelationTo) {
 
             ManeuverLocation prevMan = ((LocatedManeuver) inRelationTo).getManeuverLocation();
@@ -405,7 +407,5 @@ public class PlanTableModel extends AbstractTableModel {
         public void setColor(Color color) {
             this.color = color;
         }
-
     }
-
 }
