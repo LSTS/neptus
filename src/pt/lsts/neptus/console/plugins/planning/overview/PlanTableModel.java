@@ -40,6 +40,9 @@ import java.util.Map.Entry;
 
 import javax.swing.table.AbstractTableModel;
 
+import pt.lsts.imc.EntityParameter;
+import pt.lsts.imc.IMCMessage;
+import pt.lsts.imc.SetEntityParameters;
 import pt.lsts.neptus.mp.Maneuver;
 import pt.lsts.neptus.mp.Maneuver.SPEED_UNITS;
 import pt.lsts.neptus.mp.ManeuverLocation;
@@ -379,6 +382,96 @@ public class PlanTableModel extends AbstractTableModel {
                     count++;
         }
         return count;
+    }
+
+    /**
+     * Retrieve the payload of a given Maneuver
+     *
+     * @param m The maneuver to get the payload section from.
+     * @return formated payload string for this maneuver
+     */
+    private String getPayloads(Maneuver m) {
+        StringBuilder sb = new StringBuilder();
+        String delim = "";
+
+        if (m.getStartActions() == null)
+            return sb.toString();
+
+        IMCMessage[] msgs = m.getStartActions().getAllMessages();
+        for (IMCMessage msg : msgs) {
+            if (msg instanceof SetEntityParameters) {
+                String payload = parse((SetEntityParameters) msg);
+                if (payload != null) {
+                    sb.append(delim).append(payload);
+                    delim = ", ";
+                }
+            }
+        }
+        return sb.toString();
+    }
+
+    /**
+     * Parses the payload of a given SetEntityParameters message
+     *
+     * @param msg The message to be parsed
+     * @return formated payload string
+     */
+    private String parse(SetEntityParameters msg) {
+        if (msg.getName().equals("Sidescan")) {
+            boolean active = false;
+            double range = -1;
+            double freq = -1;
+            for (EntityParameter p : msg.getParams()) {
+                if (p.getName().equals("Range") ||
+                        p.getName().equals("High-Frequency Range") ||
+                        p.getName().equals("Low-Frequency Range")) {
+                    range = Double.parseDouble(p.getValue());
+                }
+                else if (p.getName().equals("Frequency")) {
+                    freq = Double.parseDouble(p.getValue());
+                }
+                else if (p.getName().equals("Active")) {
+                    active = p.getValue().equalsIgnoreCase("true");
+                }
+            }
+            if (active)
+                return "SS {R:"+range+", F:"+freq+"}";
+        }
+        else if (msg.getName().equals("Multibeam")) {
+            double range = 0;
+            boolean active = false;
+            for (EntityParameter p : msg.getParams()) {
+                if (p.getName().equals("Active")) {
+                    active = p.getValue().equalsIgnoreCase("true");
+                }
+                else if (p.getName().equals("Range")) {
+                    range = Double.parseDouble(p.getValue());
+                }
+            }
+            if (active)
+                return "MB {"+range+"}";
+        }
+        else if (msg.getName().equals("Camera")) {
+            boolean active = false;
+            for (EntityParameter p : msg.getParams()) {
+                if (p.getName().equals("Active")) {
+                    active = p.getValue().equalsIgnoreCase("true");
+                }
+            }
+            if (active)
+                return "CAM";
+        }
+        else if (msg.getName().equals("Ranger")) {
+            boolean active = false;
+            for (EntityParameter p : msg.getParams()) {
+                if (p.getName().equals("Active")) {
+                    active = p.getValue().equalsIgnoreCase("true");
+                }
+            }
+            if (active)
+                return "R";
+        }
+        return null;
     }
 
     private class ExtendedManeuver {
