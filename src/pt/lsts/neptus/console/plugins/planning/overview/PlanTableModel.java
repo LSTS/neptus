@@ -503,6 +503,7 @@ public class PlanTableModel extends AbstractTableModel {
             this.maneuver = man;
             this.index = index;
             this.speed = speed;
+            this.payload = getPayloads(maneuver);
         }
 
         public ManeuverLocation getManeuverLocation() {
