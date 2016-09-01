@@ -104,7 +104,7 @@ import pt.lsts.neptus.console.plugins.planning.edit.PlanSettingsChanged;
 import pt.lsts.neptus.console.plugins.planning.edit.PlanTransitionsReversed;
 import pt.lsts.neptus.console.plugins.planning.edit.PlanTranslated;
 import pt.lsts.neptus.console.plugins.planning.edit.PlanZChanged;
-import pt.lsts.neptus.console.plugins.planning.overview.MissionOverview;
+import pt.lsts.neptus.console.plugins.planning.overview.MissionOverviewPanel;
 import pt.lsts.neptus.gui.PropertiesEditor;
 import pt.lsts.neptus.gui.VehicleChooser;
 import pt.lsts.neptus.gui.VehicleSelectionDialog;
@@ -174,7 +174,7 @@ public class PlanEditor extends InteractionAdapter implements Renderer2DPainter,
     protected JLabel statsLabel = null;
     protected static final String maneuverPreamble = "[Neptus:Maneuver]\n";
     protected PlanSimulationOverlay overlay = null;
-    protected MissionOverview overviewPanel = null;
+    protected MissionOverviewPanel overviewPanel = null;
     protected JPanel bottomPanel = new JPanel(new BorderLayout());
 
     public enum ToolbarLocation {
@@ -298,7 +298,7 @@ public class PlanEditor extends InteractionAdapter implements Renderer2DPainter,
                     setPlan(getConsole().getPlan().clonePlan());
                     if (missionOverview) {
                         if (overviewPanel == null) {
-                            overviewPanel = new MissionOverview(this, plan);
+                            overviewPanel = new MissionOverviewPanel(this, plan);
                         }
                         else
                             overviewPanel.updatePlan(plan);

@@ -57,7 +57,7 @@ import pt.lsts.neptus.console.plugins.planning.PlanEditor;
 import pt.lsts.neptus.mp.Maneuver;
 import pt.lsts.neptus.types.mission.plan.PlanType;
 
-public class MissionOverview extends JPanel {
+public class MissionOverviewPanel extends JPanel {
 
     private static final long serialVersionUID = 1L;
     private JTable table;
@@ -66,7 +66,7 @@ public class MissionOverview extends JPanel {
     PlanTableModel model = null;
     private int prevSelectedRow, row, col = -1;
 
-    public MissionOverview(PlanEditor pE, PlanType plan) {
+    public MissionOverviewPanel(PlanEditor pE, PlanType plan) {
 
         selectedPlan = plan;
         setLayout(new MigLayout("", "[][grow]", "[]"));
