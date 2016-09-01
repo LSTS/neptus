@@ -278,6 +278,52 @@ public class PlanTableModel extends AbstractTableModel {
             }
         }
 
+        int index = 0;
+        int aux = 0;
+        int count = 0;
+        for (ExtendedManeuver m : list) {
+            if (m.maneuver.isInitialManeuver() && index == 0) {
+                index = 0;
+                index++;
+                m.setColor(INIT_MANEUVER_COLOR);
+            }
+            else {
+                count = hasMultipleOutTransTo(m.maneuver);
+                if (count > 1) {
+                    m.setIndex(index+"."+(aux));
+                    m.calcDurationAndDistance(getSourceManeuver(m.maneuver));
+                    if (notReachableManeuvers().contains(m.maneuver))
+                        m.setColor(UNREACH_MANEUVER_COLOR);
+                    aux++;
+
+                    if (aux == count)
+                        index++;
+                }
+                else {
+                    m.setIndex(index+"");
+                    Maneuver src = getSourceManeuver(m.maneuver);
+                    if (src != null) {
+                        m.calcDurationAndDistance(src);
+                        m.setColor(Color.WHITE);
+                    }
+                    aux = 0;
+                    index++;
+
+                    if (notReachableManeuvers().contains(m.maneuver)) {
+                        m.setColor(UNREACH_MANEUVER_COLOR);
+                        m.setDistanceAndDuration("0", "0s");
+                    }
+                }
+            }
+        }
+    }
+
+    private Maneuver getSourceManeuver(Maneuver m) {
+        for (Entry<String, TransitionType> e : plan.getGraph().getTransitions().entrySet()) {
+            if (e.getValue().getTargetManeuver().equals(m.getId()))
+                return plan.getGraph().getManeuver(e.getValue().getSourceManeuver());
+        }
+        return null;
     }
 
     private boolean alreadyAdded(Maneuver srcManeuver) {
@@ -317,6 +363,22 @@ public class PlanTableModel extends AbstractTableModel {
         }
 
         return false;
+    }
+
+    private int hasMultipleOutTransTo(Maneuver m) {
+        Maneuver top = null;
+        int count = 0;
+        for (TransitionType t : plan.getGraph().getTransitions().values()) {
+            if (plan.getGraph().getManeuver(t.getTargetManeuver()).equals(m))
+                top = plan.getGraph().getManeuver(t.getSourceManeuver());
+        }
+
+        if (top != null) {
+            for (TransitionType t : plan.getGraph().getTransitions().values())
+                if (plan.getGraph().getManeuver(t.getSourceManeuver()).equals(top))
+                    count++;
+        }
+        return count;
     }
 
     private class ExtendedManeuver {
