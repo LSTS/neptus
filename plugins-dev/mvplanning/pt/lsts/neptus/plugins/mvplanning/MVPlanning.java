@@ -139,8 +139,6 @@ public class MVPlanning extends ConsolePanel implements PlanChangeListener, Rend
         stateMonitor = new StateMonitor();
         extSysMonitor = new ExternalSystemsMonitor(this.console, pAlloc, pGen);
 
-        /* FIXME: this values should not be hard-coded */
-        pGen.computeOperationalArea(env, 1000, 1000, 10);
         fetchPlans();
     }
 
@@ -378,6 +376,8 @@ public class MVPlanning extends ConsolePanel implements PlanChangeListener, Rend
 
             updatePlansList(plans);
         }
+        else if(type.contains("op")) // operational area is being changed
+            pGen.computeOperationalArea(env, 1000, 1000, 10, mark.getCenterLocation());
         else /* marking the position of a vehicle */
             vawareness.setVehicleStartLocation(type, mark.getCenterLocation());
     }

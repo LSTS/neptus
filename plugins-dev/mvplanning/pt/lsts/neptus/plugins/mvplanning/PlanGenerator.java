@@ -49,11 +49,11 @@ public class PlanGenerator {
         OP_AREA_RW_LOCK.writeLock().unlock();
     }
 
-    public void computeOperationalArea(Environment env, double width, double height, double cellSize) {
+    public void computeOperationalArea(Environment env, double width, double height, double cellSize, LocationType center) {
         new Thread() {
             public void run() {
                 OP_AREA_RW_LOCK.writeLock().lock();
-                operationalArea = new GridArea(cellSize, width, height, 0, console.getMapGroup().getHomeRef().getCenterLocation(), env);
+                operationalArea = new GridArea(cellSize, width, height, 0, center, env);
                 OP_AREA_RW_LOCK.writeLock().unlock();
 
                 NeptusLog.pub().info("Operational area [" + width +  " x " + height + "] is set. Cells are [" + cellSize + " x " + cellSize + "]");
