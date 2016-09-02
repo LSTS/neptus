@@ -10,6 +10,7 @@ package pt.lsts.neptus.messages;
 import java.lang.reflect.Constructor;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 
 import pt.lsts.neptus.NeptusLog;
@@ -62,6 +63,16 @@ public class TupleList implements Comparable<TupleList>
         String[] kv = p.split("=",2);
         map.put(kv[0],kv[1]);
       }
+    }
+    
+    public void parse(LinkedHashMap<String, ?> spec)
+    {
+      if(spec == null) 
+          return;
+
+      map.clear();
+      for(Entry<String, ?> e : spec.entrySet())
+          map.put(e.getKey(), ""+e.getValue());       
     }
 
     /**
