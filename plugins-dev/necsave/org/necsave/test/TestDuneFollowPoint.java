@@ -90,6 +90,7 @@ public class TestDuneFollowPoint {
                     .setType(TYPE.REQUEST)
                     .setFlags(0)
                     .setArg(new FollowPoint()
+                                .setTarget(leader)
                                 .setMaxSpeed(max_speed)
                                 .setSpeedUnits(SPEED_UNITS.METERS_PS)
                                 .setZ(0)
