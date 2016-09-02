@@ -332,7 +332,7 @@ public class MVPlanning extends ConsolePanel implements PlanChangeListener, Rend
 
     @Subscribe
     public void mapChanged(MapChangeEvent event) {
-        if(StateMonitor.isPluginPaused() || event == null || event.getChangedObject() == null)
+        if(event == null || event.getChangedObject() == null)
             return;
 
         if(event.getChangedObject().getId().startsWith("mvp_")) {
@@ -376,8 +376,13 @@ public class MVPlanning extends ConsolePanel implements PlanChangeListener, Rend
 
             updatePlansList(plans);
         }
-        else if(type.contains("op")) // operational area is being changed
-            pGen.computeOperationalArea(env, 1000, 1000, 10, mark.getCenterLocation());
+        else if(type.contains("oparea")) {// operational area is being changed
+            synchronized(OP_AREA_LOCK) {
+                if(opArea == null)
+                    console.notifiySuccess("MVPlanning: creating operational area", "");
+                pGen.computeOperationalArea(env, 1000, 1000, 10, mark.getCenterLocation());
+            }
+        }
         else /* marking the position of a vehicle */
             vawareness.setVehicleStartLocation(type, mark.getCenterLocation());
     }
