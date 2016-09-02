@@ -64,7 +64,7 @@ public class TestDuneFollowPoint {
     @NeptusProperty
     protected double max_speed = 2.0;
     
-    
+    protected static final String PLANID = "TestFollowPoint";
     protected IMCProtocol imc = null;
     protected EstimatedState state = null;
     protected boolean controlling = false;
@@ -72,7 +72,7 @@ public class TestDuneFollowPoint {
     @Consume
     void on(PlanControlState msg) {
         if (msg.getSourceName().equals(follower))
-            controlling = msg.getState() == STATE.EXECUTING && msg.getPlanId().equals("TestFollowPoint");
+            controlling = msg.getState() == STATE.EXECUTING && msg.getPlanId().equals(PLANID);
     }
     
     @Consume
@@ -84,37 +84,38 @@ public class TestDuneFollowPoint {
     @Periodic(1000)
     void step() {
         if (!controlling) {
-            System.err.println("Not controlling...");
-            FollowPoint maneuver = new FollowPoint()
-                    .setMaxSpeed(max_speed)
-                    .setSpeedUnits(SPEED_UNITS.METERS_PS)
-                    .setZ(0)
-                    .setZUnits(Z_UNITS.DEPTH);
-            PlanControl pc = new PlanControl();
-            pc.setPlanId("TestFollowPoint");
-            pc.setOp(OP.START);
-            pc.setType(TYPE.REQUEST);
-            pc.setFlags(0);
-            pc.setArg(maneuver);
+            PlanControl pc = new PlanControl()
+                    .setPlanId(PLANID)
+                    .setOp(OP.START)
+                    .setType(TYPE.REQUEST)
+                    .setFlags(0)
+                    .setArg(new FollowPoint()
+                                .setMaxSpeed(max_speed)
+                                .setSpeedUnits(SPEED_UNITS.METERS_PS)
+                                .setZ(0)
+                                .setZUnits(Z_UNITS.DEPTH));
+            
             imc.sendMessage(follower, pc);
+            System.err.println("Not controlling...");
             return;
         }
         else {
             EstimatedState toSend = state;
             state = null;
+            
             if (toSend == null) {
                 System.err.println("Target state is unknown...");
                 return;
             }
             
-            RemoteSensorInfo sinfo = new RemoteSensorInfo();
-            sinfo.setId(leader);
             double lld[] = WGS84Utilities.toLatLonDepth(toSend);
-            
-            sinfo.setLat(Math.toRadians(lld[0]));
-            sinfo.setLon(Math.toRadians(lld[1]));
-            sinfo.setHeading(toSend.getPsi());
-            sinfo.setData("speed="+toSend.getU());
+
+            RemoteSensorInfo sinfo = new RemoteSensorInfo()
+                .setId(leader)
+                .setLat(Math.toRadians(lld[0]))
+                .setLon(Math.toRadians(lld[1]))
+                .setHeading(toSend.getPsi())
+                .setData("speed="+toSend.getU());
             
             imc.sendMessage(follower, sinfo);
             System.out.println("Sent position to follower.");
