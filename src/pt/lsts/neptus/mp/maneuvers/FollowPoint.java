@@ -72,7 +72,7 @@ public class FollowPoint extends Maneuver
     protected SPEED_UNITS speedUnits = SPEED_UNITS.METERS_PS;
 
     @NeptusProperty(name = "Position Source", description = "IMC ID of the position source to follow")
-    protected int idToFollow = 0;
+    protected String idToFollow = "lauv-noptilus-1";
 
     @Override
     public void loadFromXML(String xml) {
@@ -89,9 +89,9 @@ public class FollowPoint extends Maneuver
 
             Node node = doc.selectSingleNode("//idToFollow");
             if (node != null)
-                idToFollow = Integer.parseInt(node.getText());
+                idToFollow = node.getText();
             else
-                idToFollow = 0;
+                idToFollow = "lauv-xplore-1";
 
             node = doc.selectSingleNode("//customData");
             if (node != null)
@@ -119,7 +119,7 @@ public class FollowPoint extends Maneuver
         }
 
         Element root = doc.getRootElement();
-        root.addElement("idToFollow").setText("" + idToFollow);
+        root.addElement("idToFollow").setText(idToFollow);
         root.addElement("customData").setText("" + customData);
 
         return doc;
