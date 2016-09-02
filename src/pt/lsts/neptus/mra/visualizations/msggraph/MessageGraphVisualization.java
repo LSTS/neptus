@@ -36,6 +36,7 @@ import java.awt.Dialog.ModalityType;
 import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.File;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -44,6 +45,7 @@ import java.util.Map.Entry;
 import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JDialog;
+import javax.swing.JFileChooser;
 import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
 
@@ -72,7 +74,7 @@ import pt.lsts.neptus.util.GuiUtils;
  * @author zp
  *
  */
-@PluginDescription
+@PluginDescription(name="Messages Graph", active=false)
 public class MessageGraphVisualization extends SimpleMRAVisualization {
     private static final long serialVersionUID = 8203929813051504069L;
 
@@ -239,6 +241,8 @@ public class MessageGraphVisualization extends SimpleMRAVisualization {
         List<String> componentsOfInterest = settings.selectedMessages();
         
         for (String s : componentsOfInterest) {
+            if (!componentNames.containsKey(s))
+                continue;
             int entity = componentNames.get(s);
             for (Entry<String, HashSet<Integer>> entry : consumers.entrySet()) {
                 if (entry.getValue().contains(entity)) {
@@ -253,9 +257,20 @@ public class MessageGraphVisualization extends SimpleMRAVisualization {
 
     }
     
+    private File saveDir = null;
     private void save(ActionEvent event) {
-        graph.addAttribute("ui.screenshot", source.getDir().getAbsolutePath()+"/mra/graph_snapshot.png");
-        NeptusLog.pub().info("Saved to "+source.getDir().getAbsolutePath()+"/mra/graph_snapshot.png");
+        if (saveDir == null)
+            saveDir = new File(source.getDir().getAbsolutePath()+"/mra/graph_snapshot.png");
+        
+        JFileChooser fileChooser = new JFileChooser(saveDir);
+        fileChooser.setDialogTitle("Save Graph snapshot");
+        fileChooser.setFileFilter(GuiUtils.getCustomFileFilter("PNG Images", "png"));
+        int op = fileChooser.showSaveDialog(this);
+        if (op != JFileChooser.APPROVE_OPTION)
+            return;
+        saveDir = fileChooser.getSelectedFile();
+        graph.addAttribute("ui.screenshot", saveDir.getAbsolutePath());
+        NeptusLog.pub().info("Saved to "+saveDir.getAbsolutePath());
     }
 
     @Override
