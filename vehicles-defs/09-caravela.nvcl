@@ -321,7 +321,55 @@
                     <implementation-class>pt.lsts.neptus.mp.maneuvers.RowsCoverage</implementation-class>
                 </annotation>
             </RowsCoverage>
-        </maneuver>
+         </maneuver>
+         <maneuver>           
+            <FollowPoint kind="automatic">
+              <basePoint>
+                <point>
+                  <id>id_qnotbp</id>
+                  <name>id_qnotbp</name>
+                  <coordinate>
+                    <latitude>0N</latitude>
+                    <longitude>0E</longitude>
+                    <height>0.0</height>
+                  </coordinate>
+                  <z>0</z>
+                  <zunits>DEPTH</zunits>
+                </point>
+              </basePoint>
+              <speed unit="m/s">2.0</speed>
+              <idToFollow>0</idToFollow>
+              <customData></customData>
+              <annotation>
+                    <documentation>No documentation available</documentation>
+                    <implementation-class>pt.lsts.neptus.mp.maneuvers.FollowPoint</implementation-class>
+                </annotation>
+            </FollowPoint>
+       </maneuver>        
+       <maneuver>           
+            <FollowPoint kind="automatic">
+              <basePoint>
+                <point>
+                  <id>id_qnotbp</id>
+                  <name>id_qnotbp</name>
+                  <coordinate>
+                    <latitude>0N</latitude>
+                    <longitude>0E</longitude>
+                    <height>0.0</height>
+                  </coordinate>
+                  <z>0</z>
+                  <zunits>DEPTH</zunits>
+                </point>
+              </basePoint>
+              <speed unit="m/s">2.0</speed>
+              <idToFollow>0</idToFollow>
+              <customData></customData>
+              <annotation>
+                    <documentation>No documentation available</documentation>
+                    <implementation-class>pt.lsts.neptus.mp.maneuvers.FollowPoint</implementation-class>
+                </annotation>
+            </FollowPoint>
+       </maneuver>
     </feasibleManeuvers>
     <protocols-supported>
         <protocols></protocols>
