@@ -40,14 +40,14 @@ import pt.lsts.imc.PlanControl;
 import pt.lsts.imc.PlanControl.OP;
 import pt.lsts.imc.PlanControl.TYPE;
 import pt.lsts.imc.PlanControlState;
+import pt.lsts.imc.PlanControlState.STATE;
 import pt.lsts.imc.RemoteSensorInfo;
 import pt.lsts.imc.net.Consume;
 import pt.lsts.imc.net.IMCProtocol;
-import pt.lsts.neptus.comm.IMCUtils;
 import pt.lsts.neptus.messages.listener.Periodic;
 import pt.lsts.neptus.plugins.NeptusProperty;
 import pt.lsts.neptus.plugins.PluginUtils;
-import pt.lsts.neptus.types.coord.LocationType;
+import pt.lsts.util.WGS84Utilities;
 
 /**
  * @author zp
@@ -72,7 +72,7 @@ public class TestDuneFollowPoint {
     @Consume
     void on(PlanControlState msg) {
         if (msg.getSourceName().equals(follower))
-            controlling = msg.getManType() == FollowPoint.ID_STATIC;        
+            controlling = msg.getState() == STATE.EXECUTING && msg.getPlanId().equals("TestFollowPoint");
     }
     
     @Consume
@@ -94,32 +94,31 @@ public class TestDuneFollowPoint {
             pc.setPlanId("TestFollowPoint");
             pc.setOp(OP.START);
             pc.setType(TYPE.REQUEST);
+            pc.setFlags(0);
             pc.setArg(maneuver);
             imc.sendMessage(follower, pc);
-            System.out.println(pc.asJSON());
             return;
         }
-        
-        EstimatedState toSend = state;
-        state = null;
-        if (toSend == null) {
-            System.err.println("Target state is unknown...");
-            return;
+        else {
+            EstimatedState toSend = state;
+            state = null;
+            if (toSend == null) {
+                System.err.println("Target state is unknown...");
+                return;
+            }
+            
+            RemoteSensorInfo sinfo = new RemoteSensorInfo();
+            sinfo.setId(leader);
+            double lld[] = WGS84Utilities.toLatLonDepth(toSend);
+            
+            sinfo.setLat(Math.toRadians(lld[0]));
+            sinfo.setLon(Math.toRadians(lld[1]));
+            sinfo.setHeading(toSend.getPsi());
+            sinfo.setData("speed="+toSend.getU());
+            
+            imc.sendMessage(follower, sinfo);
+            System.out.println("Sent position to follower.");
         }
-        
-        RemoteSensorInfo sinfo = new RemoteSensorInfo();
-        sinfo.setId(leader);
-        LocationType loc = IMCUtils.parseLocation(state).convertToAbsoluteLatLonDepth();
-        
-        sinfo.setLat(loc.getLatitudeRads());
-        sinfo.setLon(loc.getLongitudeRads());
-        sinfo.setHeading(state.getPsi());
-        sinfo.setData("speed="+state.getU());
-        
-        imc.sendMessage(follower, sinfo);
-        System.out.println("Sent position to follower.");
-        System.out.println(sinfo.asJSON());
-        
     }
     
     void init() {
