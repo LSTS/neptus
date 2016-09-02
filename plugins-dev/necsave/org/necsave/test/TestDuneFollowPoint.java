@@ -97,7 +97,6 @@ public class TestDuneFollowPoint {
             
             imc.sendMessage(follower, pc);
             System.err.println("Not controlling...");
-            return;
         }
         else {
             EstimatedState toSend = state;
@@ -133,9 +132,7 @@ public class TestDuneFollowPoint {
         TestDuneFollowPoint followPointTest = new TestDuneFollowPoint();
         boolean cancelled = PluginUtils.editPluginProperties(followPointTest, true);
         
-        if (cancelled)
-            return;
-        
-        followPointTest.init();
+        if (!cancelled)
+            followPointTest.init();
     }
 }
