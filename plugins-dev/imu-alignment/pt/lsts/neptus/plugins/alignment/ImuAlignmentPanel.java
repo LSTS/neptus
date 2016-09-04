@@ -75,7 +75,7 @@ import pt.lsts.neptus.util.ImageUtils;
 import pt.lsts.neptus.util.speech.SpeechUtil;
 
 /**
- * This panel will allow monitoring and alignment of navigation for dead reckoning purposess
+ * This panel will allow monitoring and alignment of navigation for dead reckoning purposes
  * @author zp
  */
 @PluginDescription(author = "ZP", name = "Navigation Alignment")
@@ -234,11 +234,11 @@ public class ImuAlignmentPanel extends ConsolePanel implements IPeriodicUpdates 
     }
 
     public void doAlignment() {
-
-        int opt = GuiUtils.confirmDialog(getConsole(), I18n.text("Alignment Procedure"), "<html><h2>" + I18n.text("Alignment Procedure") + "</h2>"
-                +I18n.text("To align navigation, the vehicle must do straigth segments at the surface.") + "<br>"
-                +"<b>" + I18n.text("Do you want me to create a plan at surface for you?") + "</b>");
-
+        int opt = GuiUtils.confirmDialog(getConsole(), I18n.text("Alignment Procedure"), "<html><h2>" 
+                + I18n.text("Alignment Procedure") + "</h2>"
+                + I18n.text("To align navigation, the vehicle must do straigth segments at the surface.") + "<br>"
+                + "<b>" + I18n.text("Do you want me to create a plan at surface for you?") + "</b><br>"
+                + I18n.text("(The plan generated may not be safe, please revise it.)")); 
 
         if (opt == JOptionPane.YES_OPTION) {
             EstimatedState lastState = getState().last(EstimatedState.class);
