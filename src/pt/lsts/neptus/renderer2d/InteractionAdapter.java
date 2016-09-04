@@ -112,7 +112,7 @@ public class InteractionAdapter extends ConsolePanel implements StateRendererInt
                 if (angle < 0)
                     angle += 360;
                 String angleTxt = String.format("%dº", angle);
-                g.fillArc((int) start.getX() - 15, (int) start.getY() - 15, 30, 30,
+                g.fillArc((int) start.getX() - 30, (int) start.getY() - 30, 60, 60,
                           (int) Math.toDegrees(Math.PI / 2 + source.getRotation()), -angle);
                 g.draw(new Line2D.Double(start, lastDragPoint));
                 g.setColor(Color.black);
@@ -124,12 +124,13 @@ public class InteractionAdapter extends ConsolePanel implements StateRendererInt
                 g.drawString(txt, (int) (lastDragPoint.getX() + 12), (int) (lastDragPoint.getY() + 11));
                 g.drawString(txt, (int) (lastDragPoint.getX() + 12), (int) (lastDragPoint.getY() + 12));
 
-                g.setFont(new Font("Arial", Font.BOLD, 12));
+                g.setFont(new Font("Arial", Font.BOLD, 14));
                 g.drawString(angleTxt, (int) (start.getX() + 7), (int) (start.getY() + 6));
                 g.drawString(angleTxt, (int) (start.getX() + 6), (int) (start.getY() + 6));
 
-                g.setFont(new Font("Arial", Font.BOLD, 12));
-                g.setColor(Color.gray.brighter());
+                g.setFont(new Font("Arial", Font.BOLD, 14));
+//                g.setColor(Color.gray.brighter());
+                g.setColor(Color.white);
                 g.drawString(angleTxt, (int) (start.getX() + 5), (int) (start.getY() + 5));
 
                 g.setColor(Color.white);
