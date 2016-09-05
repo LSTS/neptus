@@ -165,7 +165,9 @@ public class MVPlanning extends ConsolePanel implements PlanChangeListener, Rend
             }
         }
         catch (JAXBException e) {
-            NeptusLog.pub().warn("Couldn't load unfinished plans");
+            String msg = "Couldn't load unfinished plans";
+            NeptusLog.pub().warn(msg);
+            console.notifiyError(msg, "");
             e.printStackTrace();
         }
     }
