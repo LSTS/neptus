@@ -32,8 +32,6 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 public class PlanGenerator {
     private final ReadWriteLock OP_AREA_RW_LOCK = new ReentrantReadWriteLock();
-    private Thread opAreaWorker = new Thread();
-    private volatile boolean opAreaCreated = false;
     /* Map decomposition needed for some algorithms, e.g, A-star */
     private static GridArea operationalArea = null;
 
