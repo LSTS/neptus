@@ -119,6 +119,7 @@ public class TestDuneFollowPoint {
             
             if (finished) {
                 imc.sendMessage(follower, new RemoteSensorInfo().setId(leader).setData("finished=true"));
+                System.out.println("Maneuver is finished.");
             }
             else {
                 EstimatedState toSend = state;
@@ -135,13 +136,32 @@ public class TestDuneFollowPoint {
                     .setId(leader)
                     .setLat(Math.toRadians(lld[0]))
                     .setLon(Math.toRadians(lld[1]))
-                    .setHeading(toSend.getPsi())
+                    .setHeading(getCourse())
                     .setData("speed="+toSend.getU());
                 
                 imc.sendMessage(follower, sinfo);
                 System.out.println("Sent position to follower.");
             }
         }
+    }
+    
+    double getCourse() {
+        PathControlState path = pathState;
+        EstimatedState pos = state;
+        
+        if (path != null) {
+            double startLat = Math.toDegrees(path.getStartLat());
+            double endLat = Math.toDegrees(path.getEndLat());
+            double startLon = Math.toDegrees(path.getStartLon());
+            double endLon = Math.toDegrees(path.getEndLon());
+            double[] displacement = WGS84Utilities.WGS84displacement(startLat, startLon, 0, endLat, endLon, 0);
+            return Math.atan2(displacement[1], displacement[0]);
+        }
+        
+        if (pos != null)
+            return pos.getPsi();
+        
+        return 0;
     }
     
     void init() {
