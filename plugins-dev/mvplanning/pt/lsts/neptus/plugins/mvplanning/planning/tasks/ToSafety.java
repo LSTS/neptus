@@ -65,7 +65,7 @@ public class ToSafety extends PlanTask {
 
     public static Maneuver getDefaultManeuver(LocationType loc) {
         StationKeeping sk = new StationKeeping();
-        sk.setId("StationKeepin");
+        sk.setId("StationKeeping");
         sk.setManeuverLocation(new ManeuverLocation(loc));
         sk.setRadius(10);
         sk.setDuration(-1);
