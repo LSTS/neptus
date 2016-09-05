@@ -99,13 +99,16 @@ public class PlanGenerator {
 
             boolean first = true;
             for(PlanType plan : pTypes) {
-                if(first)
+                if(first) {
                     task.setPlan(plan);
+                    plans.add(task);
+
+                    first = false;
+                }
                 else {
                     PlanTask newTask = new CoverageArea(plan.getId(), plan, task.getProfile(), ((CoverageArea) task).getDecomposition());
                     plans.add(newTask);
                 }
-                first = false;
             }
         }
         else if(type == PlanTask.TASK_TYPE.VISIT_POINT)
@@ -114,8 +117,6 @@ public class PlanGenerator {
             task.setPlan(generateSafetyPlan((ToSafety) task));
         else
             throw new BadPlanTaskException("Unhandled task type " + type.name());
-
-        plans.add(0, task);
 
         return plans;
     }
