@@ -84,7 +84,8 @@ public class VehicleAwareness {
         String message = "[" + vehicleId + "]" + " start location's set in " + tmp.getLatitudeAsPrettyString() +
                 " " + tmp.getLongitudeAsPrettyString();
         NeptusLog.pub().info(message);
-        NeptusLog.pub().debug(message);
+
+        console.notifiySuccess(message, "");
     }
 
     public LocationType getVehicleStartLocation(String vehicleId) {
