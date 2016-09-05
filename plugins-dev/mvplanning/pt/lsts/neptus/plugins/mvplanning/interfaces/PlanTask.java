@@ -159,6 +159,7 @@ public abstract class PlanTask {
 
     public void setPlan(PlanType ptype) {
         plan = ptype;
+        planId = plan.getId();
     }
 
     public void setMd5(byte[] md5) {
