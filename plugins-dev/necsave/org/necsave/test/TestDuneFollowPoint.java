@@ -36,6 +36,7 @@ import pt.lsts.imc.EstimatedState;
 import pt.lsts.imc.FollowPoint;
 import pt.lsts.imc.FollowPoint.SPEED_UNITS;
 import pt.lsts.imc.FollowPoint.Z_UNITS;
+import pt.lsts.imc.PathControlState;
 import pt.lsts.imc.PlanControl;
 import pt.lsts.imc.PlanControl.OP;
 import pt.lsts.imc.PlanControl.TYPE;
@@ -64,15 +65,26 @@ public class TestDuneFollowPoint {
     @NeptusProperty
     protected double max_speed = 2.0;
     
+    @NeptusProperty(description="Duration, in seconds, after which maneuver is finished.")
+    protected double duration = 60.0;
+    
     protected static final String PLANID = "TestFollowPoint";
     protected IMCProtocol imc = null;
     protected EstimatedState state = null;
-    protected boolean controlling = false;
+    protected PathControlState pathState = null;
+    protected boolean controlling = false, finished = false;
+    protected long controlStart = 0;
     
     @Consume
     void on(PlanControlState msg) {
         if (msg.getSourceName().equals(follower))
             controlling = msg.getState() == STATE.EXECUTING && msg.getPlanId().equals(PLANID);
+    }
+    
+    @Consume
+    void on(PathControlState msg) {
+        if (msg.getSourceName().equals(leader))
+            pathState = msg;
     }
     
     @Consume
@@ -83,7 +95,7 @@ public class TestDuneFollowPoint {
     
     @Periodic(1000)
     void step() {
-        if (!controlling) {
+        if (!controlling && !finished) {
             PlanControl pc = new PlanControl()
                     .setPlanId(PLANID)
                     .setOp(OP.START)
@@ -100,25 +112,35 @@ public class TestDuneFollowPoint {
             System.err.println("Not controlling...");
         }
         else {
-            EstimatedState toSend = state;
-            state = null;
+            if (controlStart == 0)
+                controlStart = System.currentTimeMillis();
             
-            if (toSend == null) {
-                System.err.println("Target state is unknown...");
-                return;
+            finished = System.currentTimeMillis() - controlStart > duration * 1000; 
+            
+            if (finished) {
+                imc.sendMessage(follower, new RemoteSensorInfo().setId(leader).setData("finished=true"));
             }
-            
-            double lld[] = WGS84Utilities.toLatLonDepth(toSend);
+            else {
+                EstimatedState toSend = state;
+                state = null;
+                
+                if (toSend == null) {
+                    System.err.println("Target state is unknown...");
+                    return;
+                }
+                
+                double lld[] = WGS84Utilities.toLatLonDepth(toSend);
 
-            RemoteSensorInfo sinfo = new RemoteSensorInfo()
-                .setId(leader)
-                .setLat(Math.toRadians(lld[0]))
-                .setLon(Math.toRadians(lld[1]))
-                .setHeading(toSend.getPsi())
-                .setData("speed="+toSend.getU());
-            
-            imc.sendMessage(follower, sinfo);
-            System.out.println("Sent position to follower.");
+                RemoteSensorInfo sinfo = new RemoteSensorInfo()
+                    .setId(leader)
+                    .setLat(Math.toRadians(lld[0]))
+                    .setLon(Math.toRadians(lld[1]))
+                    .setHeading(toSend.getPsi())
+                    .setData("speed="+toSend.getU());
+                
+                imc.sendMessage(follower, sinfo);
+                System.out.println("Sent position to follower.");
+            }
         }
     }
     
