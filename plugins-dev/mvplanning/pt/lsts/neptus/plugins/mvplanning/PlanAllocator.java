@@ -33,7 +33,6 @@
 package pt.lsts.neptus.plugins.mvplanning;
 
 import com.google.common.eventbus.Subscribe;
-import pt.lsts.imc.PlanControl;
 import pt.lsts.imc.PlanControlState;
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.comm.manager.imc.ImcSystemsHolder;

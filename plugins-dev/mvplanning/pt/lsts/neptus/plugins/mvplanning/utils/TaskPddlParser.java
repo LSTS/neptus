@@ -1,7 +1,6 @@
 package pt.lsts.neptus.plugins.mvplanning.utils;
 
 import com.google.common.io.Files;
-import info.necsave.msgs.Plan;
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.plugins.mvplanning.interfaces.PlanTask;
 import pt.lsts.neptus.plugins.mvplanning.interfaces.TaskConstraint;
