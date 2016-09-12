@@ -8,6 +8,15 @@ import pt.lsts.neptus.plugins.mvplanning.interfaces.TaskConstraint;
  * Created by tsmarques on 21/07/16.
  */
 public class HasTcpOn extends TaskConstraint {
+
+    public HasTcpOn() {
+
+    }
+
+    public HasTcpOn(String pddlSpec) {
+
+    }
+
     @Override
     public <T> boolean isValidated(T... value) {
         ImcSystem sys = ImcSystemsHolder.getSystemWithName((String) value[0]);

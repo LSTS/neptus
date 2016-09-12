@@ -16,6 +16,10 @@ public class BatteryLevel extends TaskConstraint {
     private double constraintValue2;
     private OPERATION op;
 
+    public BatteryLevel(String pddlSpec) {
+
+    }
+
     public BatteryLevel(double constraintValue, OPERATION op) {
         this.constraintValue = constraintValue;
         constraintValue2 = Double.MAX_VALUE;
@@ -35,8 +39,11 @@ public class BatteryLevel extends TaskConstraint {
 
     @Override
     public <T> boolean isValidated(T... value) {
-        double v = (Double) value[0];
+        // if there's no info about fuel level, yet
+        if(value[0] == null)
+            return false;
 
+        double v = (Double) value[0];
         if(op == OPERATION.Equal)
             return v == constraintValue;
         else if(op == OPERATION.Gthan)

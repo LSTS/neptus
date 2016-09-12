@@ -84,7 +84,8 @@ public class VehicleAwareness {
         String message = "[" + vehicleId + "]" + " start location's set in " + tmp.getLatitudeAsPrettyString() +
                 " " + tmp.getLongitudeAsPrettyString();
         NeptusLog.pub().info(message);
-        NeptusLog.pub().debug(message);
+
+        console.notifiySuccess(message, "");
     }
 
     public LocationType getVehicleStartLocation(String vehicleId) {
@@ -135,9 +136,17 @@ public class VehicleAwareness {
      * execute it.
      * */
     public boolean isVehicleAvailable(String vehicleId, PlanTask task) {
+        System.out.println("* [" + vehicleId + "] checking if available for " + task.getPlanId());
         ImcSystem sys = ImcSystemsHolder.getSystemWithName(vehicleId);
+
+        if(sys == null) {
+            System.out.println("* [" + vehicleId + "] is null. Something went wrong\n");
+            return false;
+        }
+
         for(TaskConstraint constraint : task.getConstraints()) {
             boolean validated = true;
+            System.out.print("* [" + vehicleId + "] " + constraint.getName());
             switch (constraint.getName()) {
                 case BatteryLevel:
                     if(!sys.isSimulated() && !constraint.isValidated(vehiclesFuel.get(vehicleId)))
@@ -169,9 +178,14 @@ public class VehicleAwareness {
                     break;
             }
 
-            if(!validated)
+            System.out.println(" validated? " + validated);
+
+            if(!validated) {
+                System.out.println();
                 return false;
+            }
         }
+        System.out.println();
         return true;
     }
 }

@@ -9,6 +9,10 @@ import pt.lsts.neptus.plugins.mvplanning.jaxb.profiles.Profile;
 public class HasPayload extends TaskConstraint {
     private Profile profile;
 
+    public HasPayload(String pddlSpec, Profile profile) {
+        this.profile = profile;
+    }
+
     public HasPayload(Profile profile) {
         this.profile = profile;
     }

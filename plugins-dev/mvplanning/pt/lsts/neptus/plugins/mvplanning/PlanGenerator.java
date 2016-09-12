@@ -32,8 +32,6 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 public class PlanGenerator {
     private final ReadWriteLock OP_AREA_RW_LOCK = new ReentrantReadWriteLock();
-    private Thread opAreaWorker = new Thread();
-    private volatile boolean opAreaCreated = false;
     /* Map decomposition needed for some algorithms, e.g, A-star */
     private static GridArea operationalArea = null;
 
@@ -49,11 +47,11 @@ public class PlanGenerator {
         OP_AREA_RW_LOCK.writeLock().unlock();
     }
 
-    public void computeOperationalArea(Environment env, double width, double height, double cellSize) {
+    public void computeOperationalArea(Environment env, double width, double height, double cellSize, LocationType center) {
         new Thread() {
             public void run() {
                 OP_AREA_RW_LOCK.writeLock().lock();
-                operationalArea = new GridArea(cellSize, width, height, 0, console.getMapGroup().getHomeRef().getCenterLocation(), env);
+                operationalArea = new GridArea(cellSize, width, height, 0, center, env);
                 OP_AREA_RW_LOCK.writeLock().unlock();
 
                 NeptusLog.pub().info("Operational area [" + width +  " x " + height + "] is set. Cells are [" + cellSize + " x " + cellSize + "]");
@@ -99,13 +97,16 @@ public class PlanGenerator {
 
             boolean first = true;
             for(PlanType plan : pTypes) {
-                if(first)
+                if(first) {
                     task.setPlan(plan);
+                    plans.add(task);
+
+                    first = false;
+                }
                 else {
                     PlanTask newTask = new CoverageArea(plan.getId(), plan, task.getProfile(), ((CoverageArea) task).getDecomposition());
                     plans.add(newTask);
                 }
-                first = false;
             }
         }
         else if(type == PlanTask.TASK_TYPE.VISIT_POINT)
@@ -114,8 +115,6 @@ public class PlanGenerator {
             task.setPlan(generateSafetyPlan((ToSafety) task));
         else
             throw new BadPlanTaskException("Unhandled task type " + type.name());
-
-        plans.add(0, task);
 
         return plans;
     }

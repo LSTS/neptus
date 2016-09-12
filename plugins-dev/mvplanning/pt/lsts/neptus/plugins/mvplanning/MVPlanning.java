@@ -136,12 +136,11 @@ public class MVPlanning extends ConsolePanel implements PlanChangeListener, Rend
         pAlloc = new PlanAllocator(vawareness, this.console, pGen);
 
         env = new Environment(this.console, pAlloc, pGen);
-        stateMonitor = new StateMonitor(this.console);
+        stateMonitor = new StateMonitor();
         extSysMonitor = new ExternalSystemsMonitor(this.console, pAlloc, pGen);
 
-        /* FIXME: this values should not be hard-coded */
-        pGen.computeOperationalArea(env, 1000, 1000, 10);
         fetchPlans();
+        this.console.notifyWarning("MVPlanning: Don't forget to add operational area!", "");
     }
 
     /**
@@ -150,7 +149,7 @@ public class MVPlanning extends ConsolePanel implements PlanChangeListener, Rend
     private void fetchPlans() {
         try {
             NeptusLog.pub().info("Fetching unfinished plans");
-            List<PlanTask> unfPlans = stateMonitor.loadPlans();
+            List<PlanTask> unfPlans = pAlloc.loadPlans();
 
             if(unfPlans.size() == 0) {
                 NeptusLog.pub().info("No plans to fetch");
@@ -166,7 +165,9 @@ public class MVPlanning extends ConsolePanel implements PlanChangeListener, Rend
             }
         }
         catch (JAXBException e) {
-            NeptusLog.pub().warn("Couldn't load unfinished plans");
+            String msg = "Couldn't load unfinished plans";
+            NeptusLog.pub().warn(msg);
+            console.notifiyError(msg, "");
             e.printStackTrace();
         }
     }
@@ -310,22 +311,23 @@ public class MVPlanning extends ConsolePanel implements PlanChangeListener, Rend
     public void cleanSubPanel() {
         console.unregisterToEventBus(vawareness);
         console.unsubscribeToIMCMessages(vawareness);
-        console.unregisterToEventBus(stateMonitor);
-        console.unsubscribeToIMCMessages(stateMonitor);
+        console.unregisterToEventBus(pAlloc);
+        console.unsubscribeToIMCMessages(pAlloc);
         console.unregisterToEventBus(env);
         PeriodicUpdatesService.unregister(extSysMonitor);
         extSysMonitor.cleanup();
 
         NeptusLog.pub().info("Saving unfinished plans/tasks");
         stateMonitor.stopPlugin();
+        pAlloc.cleanup();
     }
 
     @Override
     public void initSubPanel() {
         console.registerToEventBus(vawareness);
         console.subscribeToIMCMessages(vawareness);
-        console.registerToEventBus(stateMonitor);
-        console.subscribeToIMCMessages(stateMonitor);
+        console.registerToEventBus(pAlloc);
+        console.subscribeToIMCMessages(pAlloc);
         console.registerToEventBus(env);
 
         PeriodicUpdatesService.register(extSysMonitor);
@@ -333,7 +335,7 @@ public class MVPlanning extends ConsolePanel implements PlanChangeListener, Rend
 
     @Subscribe
     public void mapChanged(MapChangeEvent event) {
-        if(StateMonitor.isPluginPaused() || event == null || event.getChangedObject() == null)
+        if(event == null || event.getChangedObject() == null)
             return;
 
         if(event.getChangedObject().getId().startsWith("mvp_")) {
@@ -376,6 +378,13 @@ public class MVPlanning extends ConsolePanel implements PlanChangeListener, Rend
             List<PlanTask> plans = pAlloc.allocate(task);
 
             updatePlansList(plans);
+        }
+        else if(type.contains("oparea")) {// operational area is being changed
+            synchronized(OP_AREA_LOCK) {
+                if(opArea == null)
+                    console.notifiySuccess("MVPlanning: creating operational area", "");
+                pGen.computeOperationalArea(env, 1000, 1000, 10, mark.getCenterLocation());
+            }
         }
         else /* marking the position of a vehicle */
             vawareness.setVehicleStartLocation(type, mark.getCenterLocation());

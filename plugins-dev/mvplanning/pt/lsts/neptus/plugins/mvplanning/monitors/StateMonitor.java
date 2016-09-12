@@ -31,25 +31,9 @@
  */
 package pt.lsts.neptus.plugins.mvplanning.monitors;
 
-import com.google.common.eventbus.Subscribe;
-import pt.lsts.imc.PlanControlState;
-import pt.lsts.neptus.NeptusLog;
-import pt.lsts.neptus.plugins.mvplanning.events.MvPlanningEventPlanAllocated;
-import pt.lsts.neptus.plugins.mvplanning.interfaces.ConsoleAdapter;
-import pt.lsts.neptus.plugins.mvplanning.interfaces.PlanTask;
-import pt.lsts.neptus.plugins.mvplanning.jaxb.PlanTaskMarshaler;
-
-import javax.xml.bind.JAXBException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentMap;
-
 /**
  * Class used to control the state of the plugin,
  * e.g. if the plugin is paused or running.
- * It's also responsible for saving and loading
- * any unfinished plans from a previous session
  * @author tsmarques
  *
  */
@@ -81,71 +65,14 @@ public class StateMonitor {
         return isClosing || isPaused;
     }
 
-    private final PlanTaskMarshaler pTaskMarsh = new PlanTaskMarshaler();
-    private ConcurrentMap<String, Double> plansCompletion = null;
-    private ConcurrentMap<String, PlanTask> plans = null;
-    private ConsoleAdapter console;
-
-    public StateMonitor(ConsoleAdapter console) {
-        this.console = console;
-        plansCompletion = new ConcurrentHashMap<>();
-        plans = new ConcurrentHashMap<>();
+    public static boolean isPluginClosing() {
+        return isClosing;
     }
 
-    @Subscribe
-    public void on(MvPlanningEventPlanAllocated event) {
-        if(isClosing)
-            return;
-
-        plansCompletion.putIfAbsent(event.getPlanId(), 100.0);
-        plans.putIfAbsent(event.getPlanId(), event.getPlan());
-    }
-
-    @Subscribe
-    public void on(PlanControlState msg) {
-        if(isClosing)
-            return;
-
-        String id = msg.getPlanId();
-        /* put() and containsKeys() are not thread-safe */
-        synchronized(plansCompletion) {
-            if(plans.containsKey(id)) {
-                double progress = msg.getPlanProgress();
-                if(progress < 0)
-                    return;
-
-                if(Math.round(progress) < 100) {
-                    plansCompletion.put(id, progress);
-                    plans.get(id).updatePlanCompletion(progress);
-                }
-                else {
-                    if(plansCompletion.containsKey(id)) {
-                        plansCompletion.remove(id);
-                        plans.remove(id);
-                    }
-                }
-            }
-        }
+    public StateMonitor() {
     }
 
     public void stopPlugin() {
         isClosing = true;
-
-        savePlans();
-    }
-
-    private void savePlans() {
-        List<PlanTask> plansList = new ArrayList<PlanTask>(plans.values());
-        try {
-            pTaskMarsh.marshalAll(plansList);
-        }
-        catch (JAXBException e) {
-            NeptusLog.pub().warn("Couldn't save unfinished plans...");
-            e.printStackTrace();
-        }
-    }
-
-    public List<PlanTask> loadPlans() throws JAXBException {
-        return pTaskMarsh.unmarshalAll(console.getMission());
     }
 }

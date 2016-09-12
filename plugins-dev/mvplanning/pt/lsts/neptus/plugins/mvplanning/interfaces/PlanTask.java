@@ -39,11 +39,16 @@ import pt.lsts.neptus.mp.maneuvers.LocatedManeuver;
 import pt.lsts.neptus.plugins.mvplanning.jaxb.plans.PlanTaskJaxb;
 import pt.lsts.neptus.plugins.mvplanning.jaxb.profiles.Profile;
 import pt.lsts.neptus.plugins.mvplanning.planning.constraints.*;
+import pt.lsts.neptus.plugins.mvplanning.utils.TaskPddlParser;
 import pt.lsts.neptus.types.mission.MissionType;
 import pt.lsts.neptus.types.mission.plan.PlanType;
 
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Base class for the tasks that can be allocated
@@ -59,7 +64,7 @@ public abstract class PlanTask {
         SAFETY("Safety"), /* task used to move a vehicle to a safe position */
         NEPTUS_PLAN("NeptusPlan");
 
-        protected String value;
+        public String value;
         TASK_TYPE(String value) {
             this.value = value;
         }
@@ -84,7 +89,8 @@ public abstract class PlanTask {
 
         completion = 0;
         md5 = plan.asIMCPlan().payloadMD5();
-        constraints = setTaskConstraints();
+
+        loadTaskPddlSpecs();
     }
 
     public PlanTask(String id, Profile profile) {
@@ -96,13 +102,13 @@ public abstract class PlanTask {
         completion = -1;
         md5 = null;
         taskType = null;
-        constraints = setTaskConstraints();
-        constraints.add(0, new IsActive());
+
+        loadTaskPddlSpecs();
     }
 
     public PlanTask(PlanTaskJaxb ptaskJaxb) {
         load(ptaskJaxb);
-        constraints = setTaskConstraints();
+        loadTaskPddlSpecs();
     }
 
     public abstract TASK_TYPE getTaskType();
@@ -153,6 +159,7 @@ public abstract class PlanTask {
 
     public void setPlan(PlanType ptype) {
         plan = ptype;
+        planId = plan.getId();
     }
 
     public void setMd5(byte[] md5) {
@@ -186,14 +193,14 @@ public abstract class PlanTask {
 
     public static TASK_TYPE string2TaskType(String str) {
         for(TASK_TYPE type : TASK_TYPE.values())
-            if(str == type.value)
+            if(str.equals(type.value))
                 return type;
 
         NeptusLog.pub().warn("Couldn't figure out task type, setting as NeptusPlan");
         return TASK_TYPE.NEPTUS_PLAN;
     }
 
-    public List<TaskConstraint> setTaskConstraints() {
+    public List<TaskConstraint> setDefaultTaskConstraints() {
         List<TaskConstraint> constraints = new ArrayList<>();
 
         constraints.add(new IsAvailable());
@@ -204,5 +211,50 @@ public abstract class PlanTask {
         constraints.add(new BatteryLevel(50, BatteryLevel.OPERATION.Gequal));
 
         return constraints;
+    }
+
+    /**
+     * From a PDDL domain load the specifications of this task,
+     * like duration, constraints, etc
+     * */
+    private void loadTaskPddlSpecs() {
+        /* load task constraints */
+        this.constraints = new ArrayList<>();
+        Map<String, String> taskConstraints = TaskPddlParser.getTaskConstraints(getTaskType().value);
+
+        if(taskConstraints == null || taskConstraints.isEmpty()) {
+            System.out.println("* [" + planId + "]");
+            System.out.println("** [" + getTaskType().value + "] No constraints found/parsed. Using default ones...");
+            constraints = setDefaultTaskConstraints();
+        }
+        else {
+            for(Map.Entry<String, String> entry : taskConstraints.entrySet()) {
+                TaskConstraint.NAME constrName = Arrays.asList(TaskConstraint.NAME.values())
+                        .stream()
+                        .filter(c -> c.name().equals(entry.getKey()))
+                        .findFirst()
+                        .get();
+
+                /* instantiate the needed TaskContraint's */
+                switch (constrName) {
+                    case HasPayload:
+                        constraints.add(new HasPayload(entry.getValue(), planProfile));
+                        break;
+                    default:
+                        try {
+                            Class<?> clazz = Class.forName("pt.lsts.neptus.plugins.mvplanning.planning.constraints." + constrName);
+                            Constructor<?> constructor = clazz.getConstructor(String.class);
+                            constraints.add((TaskConstraint) constructor.newInstance(entry.getValue()));
+                        } catch (ClassNotFoundException
+                                | NoSuchMethodException
+                                | IllegalAccessException
+                                | InstantiationException
+                                | InvocationTargetException e) {
+                            e.printStackTrace();
+                        }
+                        break;
+                }
+            }
+        }
     }
 }
