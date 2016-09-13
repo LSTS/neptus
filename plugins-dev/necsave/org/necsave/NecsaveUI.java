@@ -309,7 +309,7 @@ public class NecsaveUI extends ConsoleLayer {
                     }
                 }
                 else if (formType.equals("Triangle")) {
-                    if (followers_list.size() == 2) {
+                    if (followers_list.size() == 3) {
                         double[] bearing = {Math.toRadians(150), Math.toRadians(-150)};
                         for (int i=0; i < followers_list.size(); i++) {
                             PlatformFollower f = followers_list.get(i);
