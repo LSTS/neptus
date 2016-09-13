@@ -372,7 +372,6 @@ public class NecsaveUI extends ConsoleLayer {
                 
                 try {
                     sendMessage(path);
-                    System.out.println(path.toString());   
                 }
                 catch (Exception ex) {
                     GuiUtils.errorMessage(getConsole(), ex);
@@ -386,13 +385,11 @@ public class NecsaveUI extends ConsoleLayer {
         if (description == null)
             return;
         
-        System.out.println("Read to send missionreadytostart");
         MissionReadyToStart start = new MissionReadyToStart();
         start.setInfo(description);
 
         try {
             sendMessage(start);
-            System.out.println(start.toString());
         }
         catch (Exception ex) {
             GuiUtils.errorMessage(getConsole(), ex);
