@@ -263,6 +263,11 @@ public class NecsaveUI extends ConsoleLayer {
                     I18n.text("Follower 2"), JOptionPane.QUESTION_MESSAGE, null,
                     platfAvailable.values().toArray(), platfAvailable.values().iterator().next());
             
+            PlatformFollower pfLeader = new PlatformFollower();
+            pfLeader.setPayload(PAYLOAD.SIDESCAN);
+            pfLeader.setFollowerPlatformId(getId(leader));
+            pfLeader.setRadius(0);
+            pfLeader.setBearing(0);
             
             PlatformFollower pf1 = new PlatformFollower();
             pf1.setPayload(PAYLOAD.SIDESCAN);
@@ -272,6 +277,7 @@ public class NecsaveUI extends ConsoleLayer {
             pf2.setPayload(PAYLOAD.SIDESCAN);
             pf2.setFollowerPlatformId(getId(follower2));
             
+            followers_list.add(pfLeader);
             followers_list.add(pf1);
             followers_list.add(pf2);
             
