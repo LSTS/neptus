@@ -276,8 +276,7 @@ public class NecsaveUI extends ConsoleLayer {
             PlatformFollower pf2 = new PlatformFollower();
             pf2.setPayload(PAYLOAD.SIDESCAN);
             pf2.setFollowerPlatformId(getId(follower2));
-            
-            followers_list.add(pfLeader);
+
             followers_list.add(pf1);
             followers_list.add(pf2);
             
@@ -290,7 +289,6 @@ public class NecsaveUI extends ConsoleLayer {
             }
             else {
                 formation.setFollowersList(followers_list);
-
                 double dist = safeDistance;
                 if (formType.equals("Horizontal Line")) {
                     for (PlatformFollower f : followers_list) {
@@ -309,7 +307,7 @@ public class NecsaveUI extends ConsoleLayer {
                     }
                 }
                 else if (formType.equals("Triangle")) {
-                    if (followers_list.size() == 3) {
+                    if (followers_list.size() == 2) {
                         double[] bearing = {Math.toRadians(150), Math.toRadians(-150)};
                         for (int i=0; i < followers_list.size(); i++) {
                             PlatformFollower f = followers_list.get(i);
@@ -326,6 +324,7 @@ public class NecsaveUI extends ConsoleLayer {
                     }
                 }
 
+                followers_list.add(pfLeader);
                 try {
                     sendMessage(formation);
                 }
@@ -373,6 +372,7 @@ public class NecsaveUI extends ConsoleLayer {
                 
                 try {
                     sendMessage(path);
+                    System.out.println(path.toString());   
                 }
                 catch (Exception ex) {
                     GuiUtils.errorMessage(getConsole(), ex);
@@ -385,12 +385,14 @@ public class NecsaveUI extends ConsoleLayer {
 
         if (description == null)
             return;
-
+        
+        System.out.println("Read to send missionreadytostart");
         MissionReadyToStart start = new MissionReadyToStart();
         start.setInfo(description);
 
         try {
             sendMessage(start);
+            System.out.println(start.toString());
         }
         catch (Exception ex) {
             GuiUtils.errorMessage(getConsole(), ex);
