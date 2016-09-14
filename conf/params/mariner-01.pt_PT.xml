@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<config format="1" version="2016.05.0 (master,d0ca5a3,dirty)" system="mariner-01" i18n="pt_PT">
+<config format="1" version="2016.05.0 (master,cae2b98)" system="mariner-01" i18n="pt_PT">
   <section name="Autopilot" name-i18n="Piloto Automático">
     <param name="Entity Label">
       <name-i18n>Nome da Entidade</name-i18n>
@@ -302,6 +302,15 @@
       <units/>
       <desc>Convert altitude extracted from the Ardupilot to WGS84 height</desc>
     </param>
+    <param name="Loiter in Idle">
+      <name-i18n>Loiter in Idle</name-i18n>
+      <type>boolean</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>true</default>
+      <units/>
+      <desc>Loiter when in idle.</desc>
+    </param>
   </section>
   <section name="Communications Relay Maneuver" name-i18n="Manobra de Retransmissão de Comunicações">
     <param name="Entity Label">
@@ -435,6 +444,7 @@
       <default>100</default>
       <units>m</units>
       <desc>Radius of loitering circle after arriving at destination</desc>
+      <min>0.0</min>
     </param>
     <param name="Default Speed">
       <name-i18n>Default Speed</name-i18n>
@@ -444,6 +454,7 @@
       <default>18</default>
       <units/>
       <desc>Speed to use in case no speed is given by reference source.</desc>
+      <min>0.0</min>
     </param>
     <param name="Default Speed Units">
       <name-i18n>Default Speed Units</name-i18n>
@@ -453,6 +464,8 @@
       <default>m/s</default>
       <units/>
       <desc>Units to use for default speed (one of 'm/s', 'rpm' or '%').</desc>
+      <values>m/s, rpm, %</values>
+      <values-i18n>m/s, rpm, %</values-i18n>
     </param>
     <param name="Default Z">
       <name-i18n>Default Z</name-i18n>
@@ -619,15 +632,6 @@
       <default>ScheduledGoto Maneuver</default>
       <units/>
       <desc>ScheduledGoto maneuver's entity label</desc>
-    </param>
-    <param name="Entity Label -- Drop">
-      <name-i18n>Entity Label -- Drop</name-i18n>
-      <type>string</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>Drop Maneuver</default>
-      <units/>
-      <desc>Drop maneuver's entity label</desc>
     </param>
     <param name="Unsupported">
       <name-i18n>Unsupported</name-i18n>
@@ -863,103 +867,6 @@
       <default>1.6</default>
       <units>m/s</units>
       <desc>Maximum commanded speed</desc>
-    </param>
-    <param name="Drop -- Servo Id">
-      <name-i18n>Drop -- Servo Id</name-i18n>
-      <type>integer</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>2</default>
-      <units/>
-      <desc>Servo Id.</desc>
-    </param>
-    <param name="Drop -- Servo Value">
-      <name-i18n>Drop -- Servo Value</name-i18n>
-      <type>real</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>3.14159</default>
-      <units/>
-      <desc>Servo Value in radians.</desc>
-    </param>
-  </section>
-  <section name="CPU" name-i18n="CPU">
-    <param name="Entity Label">
-      <name-i18n>Nome da Entidade</name-i18n>
-      <type>string</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>CPU</default>
-      <units/>
-      <desc>Nome principal da entidade</desc>
-    </param>
-    <param name="Execution Priority">
-      <name-i18n>Prioridade de Execução</name-i18n>
-      <type>integer</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>10</default>
-      <units/>
-      <desc>Prioridade de execução</desc>
-    </param>
-    <param name="Activation Time">
-      <name-i18n>Tempo de Ativação</name-i18n>
-      <type>integer</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>0</default>
-      <units/>
-      <desc/>
-    </param>
-    <param name="Deactivation Time">
-      <name-i18n>Tempo de Desativação</name-i18n>
-      <type>integer</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>0</default>
-      <units/>
-      <desc/>
-    </param>
-    <param name="Debug Level">
-      <name-i18n>Nível de Depuração</name-i18n>
-      <type>string</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>None</default>
-      <units/>
-      <desc/>
-      <values>None, Debug, Trace, Spew</values>
-      <values-i18n>None, Debug, Trace, Spew</values-i18n>
-    </param>
-    <param name="Execution Frequency">
-      <name-i18n>Frequência de Execução</name-i18n>
-      <type>real</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>1</default>
-      <units>Hz</units>
-      <desc>Frequência com que a tarefa é executada</desc>
-    </param>
-    <param name="CPU - Moving Average Samples">
-      <name-i18n>CPU - Moving Average Samples</name-i18n>
-      <type>integer</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>10</default>
-      <units/>
-      <desc>Number of moving average samples to smooth CPU usage</desc>
-      <min>0</min>
-    </param>
-    <param name="CPU - Maximum Usage">
-      <name-i18n>CPU - Maximum Usage</name-i18n>
-      <type>real</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>85</default>
-      <units/>
-      <desc>Maximum CPU usage. When this value is hit an error will be raised</desc>
-      <min>0</min>
-      <max>100</max>
     </param>
   </section>
   <section name="Clock" name-i18n="Relógio">
@@ -1247,7 +1154,7 @@
       <default>15.0</default>
       <units>s</units>
       <desc>Time to wait at beginning before assessing vehicle medium</desc>
-      <min>20.0</min>
+      <min>5.0</min>
       <max>60.0</max>
     </param>
     <param name="Wet Data Timeout">
@@ -1287,8 +1194,9 @@
       <visibility>developer</visibility>
       <scope>global</scope>
       <default>12.5</default>
-      <units>m</units>
+      <units>m/s</units>
       <desc>Minimum air speed necessary to consider a vehicle in air</desc>
+      <min>0.0</min>
     </param>
     <param name="Ground Speed Threshold">
       <name-i18n>Ground Speed Threshold</name-i18n>
@@ -1296,8 +1204,9 @@
       <visibility>developer</visibility>
       <scope>global</scope>
       <default>2.0</default>
-      <units>m</units>
+      <units>m/s</units>
       <desc>Minimum ground speed necessary to consider a vehicle has landed</desc>
+      <min>0.0</min>
     </param>
     <param name="Altitude Threshold">
       <name-i18n>Altitude Threshold</name-i18n>
@@ -1326,9 +1235,9 @@
       <scope>global</scope>
       <default>Copter</default>
       <units/>
-      <desc>Sub-Type of vehicle</desc>
-      <values>FixedWing, Copter</values>
-      <values-i18n>FixedWing, Copter</values-i18n>
+      <desc>Sub-Type of vehicle, if applicable</desc>
+      <values>None, FixedWing, Copter</values>
+      <values-i18n>None, FixedWing, Copter</values-i18n>
     </param>
     <param name="Entity Label - Medium Sensor">
       <name-i18n>Entity Label - Medium Sensor</name-i18n>
@@ -2444,7 +2353,7 @@
       <type>list:string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>Acceleration, AngularVelocity, Announce, AutopilotMode, ControlLoops, CpuUsage, Current, DesiredHeading, DesiredPath, DesiredRoll, DesiredSpeed, DesiredVerticalRate, DesiredZ, DevCalibrationControl, EntityList, EntityState, EstimatedState, EstimatedStreamVelocity, FollowReference, FollowRefState, FuelLevel, GpsFix, IndicatedSpeed, LeaderState, LinkLevel, LogBookEntry, MagneticField, ManeuverControlState, PathControlState, PlanControl, PlanSpecification, PlanControlState, PlanDB, PowerChannelControl, Pressure, Reference, Rpm, RSSI, ServoPosition, SetControlSurfaceDeflection, SetServoPosition, SetThrusterActuation, SimulatedState, StopManeuver, StorageUsage, Temperature, TrueSpeed, TrexObservation, TrexPlan, TrexToken, TrueSpeed, VehicleCommand, VehicleMedium, VehicleState, Voltage</default>
+      <default>Acceleration, AngularVelocity, Announce, AutopilotMode, ControlLoops, CpuUsage, Current, DesiredHeading, DesiredPath, DesiredRoll, DesiredSpeed, DesiredVerticalRate, DesiredZ, DevCalibrationControl, EntityList, EntityState, EstimatedState, EstimatedStreamVelocity, FollowReference, FollowRefState, FuelLevel, GpsFix, IndicatedSpeed, LeaderState, LinkLevel, LogBookEntry, MagneticField, ManeuverControlState, PathControlState, PlanControl, PlanSpecification, PlanControlState, PlanDB, PowerChannelControl, Pressure, Reference, Rpm, RSSI, SetControlSurfaceDeflection, SetThrusterActuation, SimulatedState, StopManeuver, StorageUsage, Temperature, TrueSpeed, TrexObservation, TrexPlan, TrexToken, TrueSpeed, VehicleCommand, VehicleMedium, VehicleState, Voltage</default>
       <units/>
       <desc/>
     </param>

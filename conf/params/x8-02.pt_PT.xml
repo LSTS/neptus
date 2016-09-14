@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<config format="1" version="2016.05.0 (feature/historic_data,9de9fce)" system="x8-02" i18n="pt_PT">
+<config format="1" version="2016.05.0 (master,cae2b98)" system="x8-02" i18n="pt_PT">
   <section name="Height Control" name-i18n="Controlo de Altitude">
     <param name="Entity Label">
       <name-i18n>Nome da Entidade</name-i18n>
@@ -423,6 +423,15 @@
       <units/>
       <desc>Convert altitude extracted from the Ardupilot to WGS84 height</desc>
     </param>
+    <param name="Loiter in Idle">
+      <name-i18n>Loiter in Idle</name-i18n>
+      <type>boolean</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>true</default>
+      <units/>
+      <desc>Loiter when in idle.</desc>
+    </param>
   </section>
   <section name="Path Control" name-i18n="Controlo de Caminho">
     <param name="Entity Label">
@@ -656,24 +665,6 @@
       <units>m</units>
       <desc>Minimum admissible forward range for bottom tracking</desc>
     </param>
-    <param name="Bottom Track -- Altitude Tolerance">
-      <name-i18n>Bottom Track -- Altitude Tolerance</name-i18n>
-      <type>real</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>2.0</default>
-      <units>m</units>
-      <desc>Altitude tolerance below which altitude is ignored</desc>
-    </param>
-    <param name="Bottom Track -- Depth Tolerance">
-      <name-i18n>Bottom Track -- Depth Tolerance</name-i18n>
-      <type>real</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>1.0</default>
-      <units>m</units>
-      <desc>Depth tolerance below which altitude is ignored</desc>
-    </param>
     <param name="Bottom Track -- Check Trend">
       <name-i18n>Bottom Track -- Check Trend</name-i18n>
       <type>boolean</type>
@@ -890,6 +881,7 @@
       <default>100</default>
       <units>m</units>
       <desc>Radius of loitering circle after arriving at destination</desc>
+      <min>0.0</min>
     </param>
     <param name="Default Speed">
       <name-i18n>Default Speed</name-i18n>
@@ -899,6 +891,7 @@
       <default>18</default>
       <units/>
       <desc>Speed to use in case no speed is given by reference source.</desc>
+      <min>0.0</min>
     </param>
     <param name="Default Speed Units">
       <name-i18n>Default Speed Units</name-i18n>
@@ -908,6 +901,8 @@
       <default>m/s</default>
       <units/>
       <desc>Units to use for default speed (one of 'm/s', 'rpm' or '%').</desc>
+      <values>m/s, rpm, %</values>
+      <values-i18n>m/s, rpm, %</values-i18n>
     </param>
     <param name="Default Z">
       <name-i18n>Default Z</name-i18n>
@@ -1596,7 +1591,7 @@
       <default>15.0</default>
       <units>s</units>
       <desc>Time to wait at beginning before assessing vehicle medium</desc>
-      <min>20.0</min>
+      <min>5.0</min>
       <max>60.0</max>
     </param>
     <param name="Wet Data Timeout">
@@ -1636,8 +1631,9 @@
       <visibility>developer</visibility>
       <scope>global</scope>
       <default>12.5</default>
-      <units>m</units>
+      <units>m/s</units>
       <desc>Minimum air speed necessary to consider a vehicle in air</desc>
+      <min>0.0</min>
     </param>
     <param name="Ground Speed Threshold">
       <name-i18n>Ground Speed Threshold</name-i18n>
@@ -1645,15 +1641,16 @@
       <visibility>developer</visibility>
       <scope>global</scope>
       <default>2.0</default>
-      <units>m</units>
+      <units>m/s</units>
       <desc>Minimum ground speed necessary to consider a vehicle has landed</desc>
+      <min>0.0</min>
     </param>
     <param name="Altitude Threshold">
       <name-i18n>Altitude Threshold</name-i18n>
       <type>real</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>1</default>
+      <default>2.5</default>
       <units>m</units>
       <desc>Minimum altitude necessary to consider a vehicle (Copter) in air</desc>
     </param>
@@ -1675,9 +1672,9 @@
       <scope>global</scope>
       <default>FixedWing</default>
       <units/>
-      <desc>Sub-Type of vehicle</desc>
-      <values>FixedWing, Copter</values>
-      <values-i18n>FixedWing, Copter</values-i18n>
+      <desc>Sub-Type of vehicle, if applicable</desc>
+      <values>None, FixedWing, Copter</values>
+      <values-i18n>None, FixedWing, Copter</values-i18n>
     </param>
     <param name="Entity Label - Medium Sensor">
       <name-i18n>Entity Label - Medium Sensor</name-i18n>
@@ -2369,118 +2366,6 @@
       <desc>List of messages ordered by loading order</desc>
     </param>
   </section>
-  <section name="Data Store" name-i18n="Data Store">
-    <param name="Entity Label">
-      <name-i18n>Nome da Entidade</name-i18n>
-      <type>string</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>Data Store</default>
-      <units/>
-      <desc>Nome principal da entidade</desc>
-    </param>
-    <param name="Execution Priority">
-      <name-i18n>Prioridade de Execução</name-i18n>
-      <type>integer</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>10</default>
-      <units/>
-      <desc>Prioridade de execução</desc>
-    </param>
-    <param name="Activation Time">
-      <name-i18n>Tempo de Ativação</name-i18n>
-      <type>integer</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>0</default>
-      <units/>
-      <desc/>
-    </param>
-    <param name="Deactivation Time">
-      <name-i18n>Tempo de Desativação</name-i18n>
-      <type>integer</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>0</default>
-      <units/>
-      <desc/>
-    </param>
-    <param name="Debug Level">
-      <name-i18n>Nível de Depuração</name-i18n>
-      <type>string</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>None</default>
-      <units/>
-      <desc/>
-      <values>None, Debug, Trace, Spew</values>
-      <values-i18n>None, Debug, Trace, Spew</values-i18n>
-    </param>
-    <param name="Messages">
-      <name-i18n>Messages</name-i18n>
-      <type>list:string</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>HistoricTelemetry:1, HistoricCTD:1, HistoricEvent:20</default>
-      <units/>
-      <desc>List of &lt;Message&gt;:&lt;Frequency&gt;</desc>
-    </param>
-    <param name="WiFi Gateway">
-      <name-i18n>WiFi Gateway</name-i18n>
-      <type>string</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default/>
-      <units/>
-      <desc>If set, messages will be forwarded to gateway using wifi</desc>
-    </param>
-    <param name="Acoustic Gateway">
-      <name-i18n>Acoustic Gateway</name-i18n>
-      <type>string</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default/>
-      <units/>
-      <desc>If set, messages will be forwarded to gateway using acoustic modem</desc>
-    </param>
-    <param name="WiFi Forward Period">
-      <name-i18n>WiFi Forward Period</name-i18n>
-      <type>integer</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>30</default>
-      <units/>
-      <desc>WiFi forwarding period, in seconds</desc>
-    </param>
-    <param name="Acoustic Forward Period">
-      <name-i18n>Acoustic Forward Period</name-i18n>
-      <type>integer</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>300</default>
-      <units/>
-      <desc>Acoustic forwarding period, in seconds</desc>
-    </param>
-    <param name="Iridium Upload Period">
-      <name-i18n>Iridium Upload Period</name-i18n>
-      <type>integer</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>0</default>
-      <units/>
-      <desc>Iridium upload period, in seconds. 0 Deactivates uploading via Iridium.</desc>
-    </param>
-    <param name="Variable priorities">
-      <name-i18n>Variable priorities</name-i18n>
-      <type>boolean</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>true</default>
-      <units/>
-      <desc>Apply variable priorities to local samples</desc>
-    </param>
-  </section>
   <section name="Discovery" name-i18n="Descoberta">
     <param name="Entity Label">
       <name-i18n>Nome da Entidade</name-i18n>
@@ -2905,7 +2790,7 @@
       <type>list:string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>Acceleration, AngularVelocity, Announce, AutopilotMode, ControlLoops, CpuUsage, Current, DesiredHeading, DesiredPath, DesiredRoll, DesiredSpeed, DesiredVerticalRate, DesiredZ, DevCalibrationControl, EntityList, EntityState, EstimatedState, EstimatedStreamVelocity, FollowReference, FollowRefState, FuelLevel, GpsFix, HistoricData, HistoricDataQuery, IndicatedSpeed, LeaderState, LinkLevel, LogBookEntry, MagneticField, ManeuverControlState, PathControlState, PlanControl, PlanSpecification, PlanControlState, PlanDB, PowerChannelControl, Pressure, Reference, Rpm, RSSI, SetControlSurfaceDeflection, SetThrusterActuation, SimulatedState, StopManeuver, StorageUsage, Temperature, TrueSpeed, TrexObservation, TrexPlan, TrexToken, TrueSpeed, VehicleCommand, VehicleMedium, VehicleState, Voltage</default>
+      <default>Acceleration, AngularVelocity, Announce, AutopilotMode, ControlLoops, CpuUsage, Current, DesiredHeading, DesiredPath, DesiredRoll, DesiredSpeed, DesiredVerticalRate, DesiredZ, DevCalibrationControl, EntityList, EntityState, EstimatedState, EstimatedStreamVelocity, FollowReference, FollowRefState, FuelLevel, GpsFix, IndicatedSpeed, LeaderState, LinkLevel, LogBookEntry, MagneticField, ManeuverControlState, PathControlState, PlanControl, PlanSpecification, PlanControlState, PlanDB, PowerChannelControl, Pressure, Reference, Rpm, RSSI, SetControlSurfaceDeflection, SetThrusterActuation, SimulatedState, StopManeuver, StorageUsage, Temperature, TrueSpeed, TrexObservation, TrexPlan, TrexToken, TrueSpeed, VehicleCommand, VehicleMedium, VehicleState, Voltage</default>
       <units/>
       <desc/>
     </param>
@@ -3138,7 +3023,7 @@
       <type>list:string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>Acceleration, AngularVelocity, AutopilotMode, CpuUsage, Current, DesiredPath, DesiredRoll, DesiredSpeed, DesiredVerticalRate, DesiredZ, EntityList, EntityParameters, EntityState, EstimatedState, EstimatedStreamVelocity, FollowRefState, FuelLevel, GpsFix, Heartbeat, HistoricData, HistoricDataQuery, IndicatedSpeed, LeaderState, LinkLevel, LogBookControl, LoggingControl, MagneticField, OperationalLimits, PathControlState, PlanControl, PlanControlState, PlanDB, PlanGeneration, PlanSpecification, PowerChannelControl, Pressure, QueryEntityParameters, RemoteActionsRequest, Rpm, RSSI, SaveEntityParameters, ServoPosition, SetEntityParameters, SetServoPosition, SimulatedState, StorageUsage, Target, Temperature, TrexOperation, TrueSpeed, VehicleMedium, VehicleState, Voltage</default>
+      <default>Acceleration, AngularVelocity, AutopilotMode, CpuUsage, Current, DesiredPath, DesiredRoll, DesiredSpeed, DesiredVerticalRate, DesiredZ, EntityList, EntityParameters, EntityState, EstimatedState, EstimatedStreamVelocity, FollowRefState, FuelLevel, GpsFix, Heartbeat, IndicatedSpeed, LeaderState, LinkLevel, LogBookControl, LoggingControl, MagneticField, OperationalLimits, PathControlState, PlanControl, PlanControlState, PlanDB, PlanGeneration, PlanSpecification, PowerChannelControl, Pressure, QueryEntityParameters, RemoteActionsRequest, Rpm, RSSI, SaveEntityParameters, ServoPosition, SetEntityParameters, SetServoPosition, SimulatedState, StorageUsage, Target, Temperature, TrexOperation, TrueSpeed, VehicleMedium, VehicleState, Voltage</default>
       <units/>
       <desc>List of messages to transport</desc>
     </param>
@@ -3168,15 +3053,6 @@
       <default>false</default>
       <units/>
       <desc>Only transmit messsages from local system.</desc>
-    </param>
-    <param name="Send Addressed Messages">
-      <name-i18n>Send Addressed Messages</name-i18n>
-      <type>boolean</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>true</default>
-      <units/>
-      <desc>Send messages that have been addressed to a unique system even if it is not a peer.</desc>
     </param>
   </section>
 </config>
