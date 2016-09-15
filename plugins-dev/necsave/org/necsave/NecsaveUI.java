@@ -33,6 +33,9 @@ package org.necsave;
 
 import java.awt.Color;
 import java.awt.Graphics2D;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.MouseEvent;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -45,12 +48,17 @@ import java.util.Vector;
 import java.util.concurrent.Future;
 
 import javax.swing.JLabel;
+import javax.swing.JMenu;
+import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
+import javax.swing.JPopupMenu;
 
 import com.google.common.eventbus.Subscribe;
 
 import info.necsave.msgs.AbortMission;
 import info.necsave.msgs.AbortMission.TYPE;
+import info.necsave.msgs.ActionIdle;
+import info.necsave.msgs.ActionIdle.IDLE_AT_HOME;
 import info.necsave.msgs.Area;
 import info.necsave.msgs.Behavior;
 import info.necsave.msgs.BehaviorScanArea;
@@ -61,7 +69,6 @@ import info.necsave.msgs.Contact;
 import info.necsave.msgs.ContactList;
 import info.necsave.msgs.Coordinate;
 import info.necsave.msgs.Coordinate.TEMPORAL;
-import info.necsave.msgs.ErrorMsg;
 import info.necsave.msgs.Formation;
 import info.necsave.msgs.Header.MEDIUM;
 import info.necsave.msgs.Kinematics;
@@ -71,6 +78,7 @@ import info.necsave.msgs.MissionGoal;
 import info.necsave.msgs.MissionGoal.GOAL_TYPE;
 import info.necsave.msgs.MissionReadyToStart;
 import info.necsave.msgs.Plan;
+import info.necsave.msgs.PlatformExit;
 import info.necsave.msgs.PlatformFollower;
 import info.necsave.msgs.PlatformFollower.PAYLOAD;
 import info.necsave.msgs.PlatformInfo;
@@ -78,10 +86,11 @@ import info.necsave.msgs.PlatformPlan;
 import info.necsave.msgs.PlatformPlanProgress;
 import info.necsave.msgs.PlatformState;
 import info.necsave.msgs.Resurface;
+import info.necsave.msgs.SetHomeLocation;
 import info.necsave.msgs.SweepPath;
-import info.necsave.msgs.WarningMsg;
 import info.necsave.proto.Message;
 import pt.lsts.neptus.NeptusLog;
+import pt.lsts.neptus.console.ConsoleInteraction;
 import pt.lsts.neptus.console.ConsoleLayer;
 import pt.lsts.neptus.console.notifications.Notification;
 import pt.lsts.neptus.i18n.I18n;
@@ -131,15 +140,124 @@ public class NecsaveUI extends ConsoleLayer {
     private ParallelepipedElement elem = null;
     private LocationType corner = null; 
     private double width, height;
-
+    private ConsoleInteraction interaction;
     @Override
     public void initLayer() {
+        
         try {
             transport = new NecsaveTransport(getConsole());
         }
         catch (Exception e) {
             NeptusLog.pub().error(e);
         }
+        
+       setupInteraction();
+       getConsole().addInteraction(interaction);
+    }
+
+    private void setupInteraction() {
+        interaction = new ConsoleInteraction() {
+
+            @Override
+            public void initInteraction() {
+
+            }
+
+            @Override
+            public void cleanInteraction() {
+
+            }
+            
+            @Override
+            public void mouseClicked(MouseEvent event, StateRenderer2D source) {
+                if (event.getButton() == MouseEvent.BUTTON3) {
+                    JPopupMenu popup = new JPopupMenu();
+                    for (Entry<Integer, String> plat : platformNames.entrySet()) {
+
+                        JMenu cmdMenu = new JMenu(I18n.text("Command ")+ plat.getValue());
+                        popup.add(cmdMenu);
+
+                        cmdMenu.add(new JMenuItem(I18n.text("Set Home Position"))).addActionListener(new ActionListener() {
+                            @Override
+                            public void actionPerformed(ActionEvent e) {
+                                LocationType loc = source.getRealWorldLocation(event.getPoint());
+                                Coordinate homeLoc = new Coordinate();
+                                homeLoc.setLatitude(loc.getLatitudeRads());
+                                homeLoc.setLongitude(loc.getLongitudeRads());
+
+                                SetHomeLocation home = new SetHomeLocation(homeLoc);
+
+                                try {
+                                    transport.sendMessage(home, plat.getKey());
+                                }
+                                catch (Exception ex) {
+                                    GuiUtils.errorMessage(getConsole(), ex);
+                                    ex.printStackTrace();
+                                }
+
+                            }
+                        });
+                        cmdMenu.add(new JMenuItem(I18n.text("Go to Home Position"))).addActionListener(new ActionListener() {
+                            @Override
+                            public void actionPerformed(ActionEvent e) {
+
+                                ActionIdle goIdle = new ActionIdle();
+                                goIdle.setIdleAtHome(ActionIdle.IDLE_AT_HOME.TRUE);
+
+                                try {
+                                    transport.sendMessage(goIdle, plat.getKey());
+                                }
+                                catch (Exception ex) {
+                                    GuiUtils.errorMessage(getConsole(), ex);
+                                    ex.printStackTrace();
+                                }
+
+                            }
+                        });
+                        cmdMenu.add(new JMenuItem(I18n.text("Idle here"))).addActionListener(new ActionListener() {
+                            @Override
+                            public void actionPerformed(ActionEvent e) {
+                                LocationType loc = source.getRealWorldLocation(event.getPoint());
+                                Coordinate hereLoc = new Coordinate();
+                                hereLoc.setLatitude(loc.getLatitudeRads());
+                                hereLoc.setLongitude(loc.getLongitudeRads());
+
+                                ActionIdle goIdle = new ActionIdle();
+                                goIdle.setIdleAtHome(ActionIdle.IDLE_AT_HOME.FALSE);
+                                goIdle.setWaypoint(hereLoc);
+
+                                try {
+                                    transport.sendMessage(goIdle, plat.getKey());
+                                }
+                                catch (Exception ex) {
+                                    GuiUtils.errorMessage(getConsole(), ex);
+                                    ex.printStackTrace();
+                                }
+
+                            }
+                        });
+
+                        cmdMenu.add(new JMenuItem(I18n.text("Quit Platform"))).addActionListener(new ActionListener() {
+                            @Override
+                            public void actionPerformed(ActionEvent e) {
+
+                                PlatformExit exit = new PlatformExit();
+
+                                try {
+                                    transport.sendMessage(exit, plat.getKey());
+                                }
+                                catch (Exception ex) {
+                                    GuiUtils.errorMessage(getConsole(), ex);
+                                    ex.printStackTrace();
+                                }
+
+                            }
+                        });
+                    }
+                    popup.show(source, event.getX(), event.getY());
+                }
+            }
+        };
     }
 
     @NeptusMenuItem("Advanced>NECSAVE>Set Mission")
@@ -433,6 +551,22 @@ public class NecsaveUI extends ConsoleLayer {
         }
     }
 
+    @NeptusMenuItem("Advanced>NECSAVE>Set All Platforms Idle")
+    public void setPlatformsIdle() {
+        for (Entry<Integer, String> plat : platformNames.entrySet()) {
+            ActionIdle goIdle = new ActionIdle();
+            goIdle.setIdleAtHome(IDLE_AT_HOME.FALSE);
+
+            try {
+                transport.sendMessage(goIdle, plat.getKey());
+            }
+            catch (Exception ex) {
+                GuiUtils.errorMessage(getConsole(), ex);
+                ex.printStackTrace();
+            }
+        }
+    }
+    
     @NeptusMenuItem("Advanced>NECSAVE>Clear Platforms")
     public void clearPlatforms() {
         platformNames.clear();
