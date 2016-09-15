@@ -90,6 +90,7 @@ import info.necsave.msgs.SetHomeLocation;
 import info.necsave.msgs.SweepPath;
 import info.necsave.proto.Message;
 import pt.lsts.neptus.NeptusLog;
+import pt.lsts.neptus.comm.manager.imc.ImcSystemsHolder;
 import pt.lsts.neptus.console.ConsoleInteraction;
 import pt.lsts.neptus.console.ConsoleLayer;
 import pt.lsts.neptus.console.notifications.Notification;
@@ -638,11 +639,13 @@ public class NecsaveUI extends ConsoleLayer {
     @Subscribe
     public void on(PlatformState msg) {
         platfStates.put(msg.getSrc(), msg);
+        
         LocationType loc = new LocationType();
         loc.setLatitudeDegs(Math.toDegrees(msg.getLatitude()));
         loc.setLongitudeDegs(Math.toDegrees(msg.getLongitude()));
         loc.setDepth(msg.getZ());
-        update(msg.getOriginPlatformId(), loc, 0);
+        double radians = msg.getHeading() * ((Math.PI * 2) / 65535d);
+        update(msg.getOriginPlatformId(), loc, Math.toDegrees(radians));
     }
 
     @Subscribe
@@ -665,15 +668,22 @@ public class NecsaveUI extends ConsoleLayer {
 
             String name = platformNames.get(src);
 
-            if (ExternalSystemsHolder.lookupSystem(name) == null) {
+            if (ImcSystemsHolder.lookupSystemByName(name) != null) {
+                ImcSystemsHolder.lookupSystemByName(name).setLocation(loc);
+                ImcSystemsHolder.lookupSystemByName(name).setAttitudeDegrees(headingDegs);
+                
+            }
+            else if (ExternalSystemsHolder.lookupSystem(name) == null) {
                 ExternalSystem es = new ExternalSystem(name);
                 ExternalSystemsHolder.registerSystem(es);
                 es.setActive(true);
                 es.setType(SystemTypeEnum.UNKNOWN);
             }
-            ExternalSystem extSys = ExternalSystemsHolder.lookupSystem(name);
-            extSys.setLocation(loc, System.currentTimeMillis());
-            extSys.setAttitudeDegrees(headingDegs);            
+            else {
+                ExternalSystem extSys = ExternalSystemsHolder.lookupSystem(name);
+                extSys.setLocation(loc, System.currentTimeMillis());
+                extSys.setAttitudeDegrees(headingDegs);
+            }
         }
         catch (Exception e) {
             e.printStackTrace();
