@@ -219,17 +219,27 @@ public class PlanEditor extends InteractionAdapter implements Renderer2DPainter,
 
     @Override
     public boolean update() {
-        if (plan != null && overviewPanel != null)
-            overviewPanel.updatePlan(plan);
+        try {
+            if (plan != null && overviewPanel != null)
+                overviewPanel.updatePlan(plan);
+        }
+        catch (Exception e) {
+            NeptusLog.pub().error(e.getMessage(), e);
+        }
 
-        Maneuver curManeuver = getPropertiesPanel().getManeuver();
+        try {
+            Maneuver curManeuver = getPropertiesPanel().getManeuver();
 
-        if (curManeuver != null && renderer.isFocusOwner()) {
-            getPropertiesPanel().setManeuver(curManeuver);
-            getPropertiesPanel().setPlan(plan);
-            getPropertiesPanel().setManager(manager);
-            if (delegate != null)
-                getPropertiesPanel().getEditBtn().setSelected(true);
+            if (curManeuver != null && renderer.isFocusOwner()) {
+                getPropertiesPanel().setManeuver(curManeuver);
+                getPropertiesPanel().setPlan(plan);
+                getPropertiesPanel().setManager(manager);
+                if (delegate != null)
+                    getPropertiesPanel().getEditBtn().setSelected(true);
+            }
+        }
+        catch (Exception e) {
+            NeptusLog.pub().error(e.getMessage(), e);
         }
 
         try {
