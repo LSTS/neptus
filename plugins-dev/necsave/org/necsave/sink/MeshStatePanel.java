@@ -57,7 +57,7 @@ import sun.misc.resources.Messages_ja;
  *
  */
 @PluginDescription(name = "Necsave MeshState Panel")
-@Popup(name = "Necsave MeshState Panel", pos = POSITION.CENTER, height = 500, width = 800)
+@Popup(name = "Necsave MeshState Panel", pos = POSITION.BOTTOM_RIGHT, height = 230, width = 400)
 public class MeshStatePanel extends ConsolePanel {
 
     private static final long serialVersionUID = 7428286049668789699L;

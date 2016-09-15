@@ -61,6 +61,7 @@ import info.necsave.msgs.Contact;
 import info.necsave.msgs.ContactList;
 import info.necsave.msgs.Coordinate;
 import info.necsave.msgs.Coordinate.TEMPORAL;
+import info.necsave.msgs.ErrorMsg;
 import info.necsave.msgs.Formation;
 import info.necsave.msgs.Header.MEDIUM;
 import info.necsave.msgs.Kinematics;
@@ -78,6 +79,7 @@ import info.necsave.msgs.PlatformPlanProgress;
 import info.necsave.msgs.PlatformState;
 import info.necsave.msgs.Resurface;
 import info.necsave.msgs.SweepPath;
+import info.necsave.msgs.WarningMsg;
 import info.necsave.proto.Message;
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.console.ConsoleLayer;
@@ -212,7 +214,7 @@ public class NecsaveUI extends ConsoleLayer {
                 ex.printStackTrace();
             }
         } 
-        else if (goal.equals(GOAL_TYPE.AREA_SWEEP)) {
+        else if (goal.equals(GOAL_TYPE.MINE_SWEEP) || goal.equals(GOAL_TYPE.AREA_SWEEP)) {
             
             Formation formation = new Formation();
             formation.setSafeDistance(safeDistance);
@@ -594,8 +596,7 @@ public class NecsaveUI extends ConsoleLayer {
     public void on(Plan msg) {
         this.plan = msg;
     }
-
-
+    
     private boolean isMaster(int platformId) {
         if (!platfInfos.containsKey(platformId))
             return false;
