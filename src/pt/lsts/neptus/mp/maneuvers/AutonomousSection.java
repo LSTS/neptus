@@ -89,7 +89,6 @@ import pt.lsts.neptus.util.FileUtil;
  */
 public class AutonomousSection extends Maneuver
         implements ManeuverWithSpeed, IMCSerialization, LocatedManeuver, StateRendererInteraction, StatisticsProvider {
-
     
     protected double latitudeDegs = 0, longitudeDegs = 0;
     
@@ -575,6 +574,7 @@ public class AutonomousSection extends Maneuver
         ManeuversUtil.setPropertiesToManeuver(this, properties);
         areaLimits.recomputePath();
     }
+    
     @Override
     public void paintOnMap(Graphics2D g2d, PlanElement planElement, StateRenderer2D renderer) {
         AffineTransform t = g2d.getTransform();
