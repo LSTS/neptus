@@ -83,6 +83,8 @@ public class PolygonPanel extends ParametersPanel implements StateRendererIntera
     private PolygonType.Vertex vertex = null;
     private InteractionAdapter adapter;
     private JButton btnOk, btnCancel;
+    private JDialog dialog;
+    private boolean userCancel = false;
     
     private PolygonPanel(PolygonType polygon, MissionType missionType) {
         super();
@@ -321,8 +323,6 @@ public class PolygonPanel extends ParametersPanel implements StateRendererIntera
             g.draw(ellis);
         });
     }
-    private JDialog dialog;
-    private boolean userCancel = false;
     
     public boolean isUserCancel() {
         return userCancel;
