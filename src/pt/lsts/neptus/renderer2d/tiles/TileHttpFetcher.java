@@ -126,7 +126,7 @@ public abstract class TileHttpFetcher extends Tile {
         if (httpComm != null)
             return;
         
-        httpComm = new HttpClientConnectionHelper();
+        httpComm = new HttpClientConnectionHelper("NMaps v1");
         httpComm.initializeComm();
 
 //        SchemeRegistry schemeRegistry = new SchemeRegistry();

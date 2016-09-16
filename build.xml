@@ -940,10 +940,12 @@ For simple use the main targets are:
 			<include name="pt/lsts/neptus/gui/PropertiesEditor*.class"/>
 			<include name="pt/lsts/neptus/gui/checklist/**/*.class"/>
 			<include name="pt/lsts/neptus/gui/editor/*.class"/>
+			<include name="pt/lsts/neptus/gui/editor/renderer/SpeedUnitsEnumRenderer*.class"/>
 			<include name="pt/lsts/neptus/gui/swing/NeptusFileView.class"/>
 			<include name="pt/lsts/neptus/messages/listener/**/*.class"/>
 			<include name="pt/lsts/neptus/messages/*.class"/>
 			<include name="pt/lsts/neptus/mp/actions/PlanActions*.class"/>
+			<include name="pt/lsts/neptus/mp/Maneuver*.class"/>
 			<include name="pt/lsts/neptus/mp/ManeuverLocation*.class"/>
 			<include name="pt/lsts/neptus/plugins/ConfigurationListener*.class"/>
 			<include name="pt/lsts/neptus/plugins/NeptusProperty*.class"/>

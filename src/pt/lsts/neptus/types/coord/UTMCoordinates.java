@@ -93,7 +93,7 @@ public class UTMCoordinates {
         //hemisphere, this is the only time we use the letter So even
         //if the Zone letter isn't exactly correct it should indicate
         //the hemisphere correctly
-        if (zoneLetter == 'S') {
+        if (zoneLetter < 'N') {
             y -= 10000000.0d;//remove 10,000,000 meter offset used
                              // for southern hemisphere
         }

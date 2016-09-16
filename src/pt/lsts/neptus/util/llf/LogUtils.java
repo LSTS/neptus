@@ -38,9 +38,14 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.ObjectInputStream;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Vector;
+import java.util.stream.Collectors;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
@@ -502,7 +507,7 @@ public class LogUtils {
     }
 
     /**
-     * Return from a log folder a valid {@link FileUtil#FILE_TYPE_LSF} (compressed or not.
+     * Return from a log folder a valid {@link FileUtil#FILE_TYPE_LSF} (compressed or not)
      * 
      * @param logFolder
      * @return
@@ -514,35 +519,78 @@ public class LogUtils {
         File logLsf = null;
         File logLsfGz = null;
         File logLsfBz2 = null;
+        ArrayList<File> files = new ArrayList<File>(Arrays.asList(logFolder.listFiles()));
+        Collections.sort(files);
         
-        for (File fx : logFolder.listFiles()) {
-            switch (FileUtil.getFileExtension(fx)) {
-                case FileUtil.FILE_TYPE_LSF:
-                    logLsf = fx;;
-                    break;
-                case "gz":
-                    String fex = FileUtil.getFileNameWithoutExtension(fx.getName());
-                    if (FileUtil.getFileExtension(fex).equalsIgnoreCase(FileUtil.FILE_TYPE_LSF))
-                        logLsfGz = fx;
-                    break;
-                case "bz2":
-                    fex = FileUtil.getFileNameWithoutExtension(fx.getName());
-                    if (FileUtil.getFileExtension(fex).equalsIgnoreCase(FileUtil.FILE_TYPE_LSF))
-                        logLsfBz2 = fx;
-                    break;
-                default:
-                    break;
-            }
+        File fxLogFound = null;
+        String fxBase = "Data";
+        List<String> acceptableFiles = Arrays.asList(fxBase + "." + FileUtil.FILE_TYPE_LSF,
+                fxBase + "." + FileUtil.FILE_TYPE_LSF_COMPRESSED,
+                fxBase + "." + FileUtil.FILE_TYPE_LSF_COMPRESSED_BZIP2);
+        List<File> rLogs = files.stream().filter(f -> acceptableFiles.contains(f.getName()))
+                .collect(Collectors.toList());
+        if (!rLogs.isEmpty()) {
+            rLogs.sort(new Comparator<File>() {
+                @Override
+                public int compare(File f1, File f2) {
+                    String e1 = FileUtil.getFileExtension(f1);
+                    String e2 = FileUtil.getFileExtension(f2);
+                    if (e1.equalsIgnoreCase(e2)) {
+                        return f1.compareTo(f2);
+                    }
+                    else {
+                        if (e1.endsWith("lsf"))
+                            return -1;
+                        else if (e2.endsWith("lsf"))
+                            return 1;
+                        else if (e1.endsWith("gz"))
+                            return -1;
+                        else if (e2.endsWith("gz"))
+                            return 1;
+                        else if (e1.endsWith("bz2"))
+                            return -1;
+                        else if (e2.endsWith("bz2"))
+                            return 1;
+                    }
+                    return 0;
+                }
+            });
+            fxLogFound = rLogs.get(0);
         }
         
+        if (fxLogFound == null) {
+            sel : 
+                for (File fx : files) {
+                    switch (FileUtil.getFileExtension(fx)) {
+                        case FileUtil.FILE_TYPE_LSF:
+                            logLsf = fx;
+                            break sel;
+                        case "gz":
+                            String fex = FileUtil.getFileNameWithoutExtension(fx.getName());
+                            if (FileUtil.getFileExtension(fex).equalsIgnoreCase(FileUtil.FILE_TYPE_LSF))
+                                logLsfGz = fx;
+                            break sel;
+                        case "bz2":
+                            fex = FileUtil.getFileNameWithoutExtension(fx.getName());
+                            if (FileUtil.getFileExtension(fex).equalsIgnoreCase(FileUtil.FILE_TYPE_LSF))
+                                logLsfBz2 = fx;
+                            break sel;
+                        default:
+                            break;
+                    }
+                }
+        }
+
         File ret = null;
-        if (logLsf != null)
+        if (fxLogFound != null)
+            ret = fxLogFound;
+        else if (logLsf != null)
             ret = logLsf;
         else if (logLsfGz != null)
             ret = logLsfGz;
         else if (logLsfBz2 != null)
             ret = logLsfBz2;
-
+        
         return ret;
     }
     

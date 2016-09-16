@@ -515,9 +515,22 @@ public abstract class Maneuver implements XmlOutputMethods, PropertiesProvider, 
     }
 
     /**
-     * A maneuver must have a way to clone itself.
+     * Clone this maneuver
      */
-    public abstract Object clone();
+    public Object clone() {
+        Maneuver m;
+        try {
+            m = getClass().newInstance();
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
+        clone(m);
+        m.loadFromXML(getManeuverXml());
+        return m;
+    }
+    
 
     public Object clone(Maneuver clone) {
         clone.setMaxTime(getMaxTime());
