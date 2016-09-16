@@ -81,6 +81,7 @@ import pt.lsts.neptus.types.coord.LocationType;
 import pt.lsts.neptus.types.coord.PolygonType;
 import pt.lsts.neptus.types.coord.PolygonType.Vertex;
 import pt.lsts.neptus.types.map.PlanElement;
+import pt.lsts.neptus.util.FileUtil;
 
 /**
  * @author zp
@@ -119,7 +120,7 @@ public class AutonomousSection extends Maneuver
     @NeptusProperty(name = "Enforce Area Limits")
     protected boolean enforceArea = true;
     
-    @NeptusProperty(name="Area limits", editorClass=PolygonPropertyEditor.class)
+    @NeptusProperty(name="Area limits", editorClass = PolygonPropertyEditor.class)
     protected PolygonType areaLimits = new PolygonType();
 
     @NeptusProperty(name = "Controlling Agent")
@@ -127,7 +128,6 @@ public class AutonomousSection extends Maneuver
     
     protected InteractionAdapter adapter = new InteractionAdapter(null);
     protected PolygonType.Vertex vertex = null;
-    
     
     @Override
     public double getCompletionTime(LocationType initialPosition) {
@@ -606,6 +606,8 @@ public class AutonomousSection extends Maneuver
             sec.areaLimits.addVertex(l.getLatitudeDegs(), l.getLongitudeDegs());
         }
         String xml = sec.getManeuverAsDocument("AutonomousSection").asXML();
+        
+        System.out.println(FileUtil.getAsPrettyPrintFormatedXMLString(FileUtil.getAsCompactFormatedXMLString(xml)));
         
         sec.loadFromXML(xml);
     }
