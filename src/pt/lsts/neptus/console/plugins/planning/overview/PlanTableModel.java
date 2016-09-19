@@ -68,17 +68,19 @@ public class PlanTableModel extends AbstractTableModel {
     private static final int COLUMN_INDEX          = 0;
     private static final int COLUMN_LABEL          = 1;
     private static final int COLUMN_TYPE           = 2;
-    private static final int COLUMN_LOCATION       = 3;
-    private static final int COLUMN_DEPTH_ALTITUDE = 4;
-    private static final int COLUMN_SPEED          = 5;
-    private static final int COLUMN_DURATION       = 6;
-    private static final int COLUMN_DISTANCE       = 7;
-    private static final int COLUMN_PAYLOAD        = 8;
+    private static final int COLUMN_OUT_TRANS      = 3;
+    private static final int COLUMN_LOCATION       = 4;
+    private static final int COLUMN_DEPTH_ALTITUDE = 5;
+    private static final int COLUMN_SPEED          = 6;
+    private static final int COLUMN_DURATION       = 7;
+    private static final int COLUMN_DISTANCE       = 8;
+    private static final int COLUMN_PAYLOAD        = 9;
 
     private String[] columnNames = {
             "#",
             "Label",
             "Type",
+            "Out",
             "Location",
             "Depth/Altitude (m)",
             "Speed",
@@ -134,6 +136,9 @@ public class PlanTableModel extends AbstractTableModel {
             case COLUMN_TYPE:
                 returnValue = man.maneuver.getType();
                 break;
+            case COLUMN_OUT_TRANS:
+                returnValue = man.getOutTransitions();
+                break;
             case COLUMN_LOCATION:
                 returnValue = man.getManeuverLocation().toString();
                 break;
@@ -188,6 +193,8 @@ public class PlanTableModel extends AbstractTableModel {
                 return String.class;
             case 8:
                 return String.class;
+            case 9:
+                return String.class;
             default:
                 return Object.class;
         }
@@ -217,6 +224,10 @@ public class PlanTableModel extends AbstractTableModel {
 
     private void sortManeuverList() {
         Maneuver initial = plan.getGraph().getManeuver(plan.getGraph().getInitialManeuverId());
+
+        if (initial == null)
+            return;
+
         LinkedHashMap<String, TransitionType> trans = (LinkedHashMap<String, TransitionType>) plan.getGraph().getTransitions().clone();
         list.clear();
 
@@ -417,24 +428,44 @@ public class PlanTableModel extends AbstractTableModel {
      */
     private String parse(SetEntityParameters msg) {
         if (msg.getName().equals("Sidescan")) {
+            StringBuilder sb = new StringBuilder();
             boolean active = false;
-            double range = -1;
-            double freq = -1;
             for (EntityParameter p : msg.getParams()) {
                 if (p.getName().equals("Range") ||
                         p.getName().equals("High-Frequency Range") ||
                         p.getName().equals("Low-Frequency Range")) {
-                    range = Double.parseDouble(p.getValue());
+                    if (!sb.toString().isEmpty())
+                        sb.append(" ");
+                    sb.append(p.getName().replaceAll("([a-z0$-/:-?{-~!^_`@#\" ]+)+", ""))
+                    .append(":")
+                    .append(Double.parseDouble(p.getValue()));
+                    System.out.println(sb.toString());
                 }
+
+                if (p.getName().equals("High-Frequency Channels") ||
+                        p.getName().equals("Low-Frequency Channels")) {
+                    if (!sb.toString().isEmpty())
+                        sb.append(" ");
+                    sb.append(p.getName().replaceAll("([a-z0$-/:-?{-~!^_`@#\" ]+)+", ""))
+                    .append(":")
+                    .append(p.getValue());
+                    System.out.println(sb.toString());
+                }
+
                 else if (p.getName().equals("Frequency")) {
-                    freq = Double.parseDouble(p.getValue());
+                    if (!sb.toString().isEmpty())
+                        sb.append(" ");
+                    sb.append(p.getName().replaceAll("([a-z0$-/:-?{-~!^_`@#\" ]+)+", ""))
+                    .append(":"+ Double.parseDouble(p.getValue()));
+                    System.out.println(sb.toString());
                 }
                 else if (p.getName().equals("Active")) {
                     active = p.getValue().equalsIgnoreCase("true");
                 }
             }
-            if (active)
-                return "SS {R:"+range+", F:"+freq+"}";
+            if (active) {
+                return "SS { "+sb.toString()+" }";
+            }
         }
         else if (msg.getName().equals("Multibeam")) {
             double range = 0;
@@ -503,6 +534,18 @@ public class PlanTableModel extends AbstractTableModel {
             this.index = index;
             this.speed = speed;
             this.payload = getPayloads(maneuver);
+        }
+
+        public String getOutTransitions() {
+            StringBuilder str = new StringBuilder();
+            String delim = "";
+
+            LinkedList<Maneuver> list = allOutManeuvers(maneuver, plan.getGraph().getTransitions());
+            for (Maneuver m : list) {
+                str.append(delim).append(m.getId());
+                delim = ", ";
+            }
+            return str.toString();
         }
 
         public ManeuverLocation getManeuverLocation() {
