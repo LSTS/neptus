@@ -111,6 +111,8 @@ import pt.lsts.neptus.types.coord.LocationType;
 import pt.lsts.neptus.types.map.MapGroup;
 import pt.lsts.neptus.types.map.ParallelepipedElement;
 import pt.lsts.neptus.types.mission.plan.PlanType;
+import pt.lsts.neptus.types.vehicle.VehiclesHolder;
+import pt.lsts.neptus.types.vehicle.VehicleType;
 import pt.lsts.neptus.types.vehicle.VehicleType.SystemTypeEnum;
 import pt.lsts.neptus.util.ColorUtils;
 import pt.lsts.neptus.util.GuiUtils;
@@ -142,6 +144,10 @@ public class NecsaveUI extends ConsoleLayer {
     private LocationType corner = null; 
     private double width, height;
     private ConsoleInteraction interaction;
+    
+    private LinkedHashMap<Integer, Color> platformColors = new LinkedHashMap<>();
+    
+    
     @Override
     public void initLayer() {
         
@@ -809,7 +815,7 @@ public class NecsaveUI extends ConsoleLayer {
         lbl.setSize(lbl.getPreferredSize());
         g.translate(10, 10);
         lbl.paint(g);
-        
+        g.translate(-10, -10);
         paintPlan(g, renderer);
     }
     
@@ -822,6 +828,25 @@ public class NecsaveUI extends ConsoleLayer {
         if (platfPlans.isEmpty())
             return;
         
+        if (platfPlans.size() != platformColors.size()) {
+            platformColors.clear();
+            Vector<Color> colors = new Vector<>();
+            colors.addAll(Arrays.asList(ColorUtils.generateVisuallyDistinctColors(platfPlans.size(), 0.5f, 0.5f)));
+            
+            for (int i = 0; i < platfPlans.size(); i++) {
+                PlatformPlan p = (PlatformPlan) platfPlans.get(i);
+                Color c = platformColors.get(i);
+                
+                if (platformNames.containsKey(p.getPlatformId())) {
+                    VehicleType vt = VehiclesHolder.getVehicleById(platformNames.get(p.getPlatformId()));
+                    if (vt != null)
+                        c = vt.getIconColor();
+                }
+                
+                platformColors.put(p.getPlatformId(), c);                
+            }
+        }
+        
         Vector<Color> colors = new Vector<>();
         colors.addAll(Arrays.asList(ColorUtils.generateVisuallyDistinctColors(platfPlans.size(), 0.5f, 0.5f)));
         
@@ -831,7 +856,7 @@ public class NecsaveUI extends ConsoleLayer {
             Vector<Message> behaviors = (Vector<Message>) p.getValue("behaviors"); 
             for (Message b : behaviors) {
                 if (b.getMgid() == BehaviorScanArea.ID_STATIC) {
-                    paintScanArea((BehaviorScanArea)b, c, g, source);
+                    paintScanArea((BehaviorScanArea)b, platformColors.get(p.getPlatformId()), g, source);
                 }
             }
         }        
@@ -839,6 +864,8 @@ public class NecsaveUI extends ConsoleLayer {
     
     private void paintScanArea(BehaviorScanArea b, Color c, Graphics2D g, StateRenderer2D source) {
 
+        
+        //g.setTransform(source.getIdentity());
         AffineTransform old = g.getTransform();
         LocationType lt = new LocationType();
         lt.setLatitudeRads(b.getScanArea().getLatitude());
@@ -859,15 +886,17 @@ public class NecsaveUI extends ConsoleLayer {
         JLabel areaID = new JLabel(Long.toString(b.getScanArea().getAreaId()));
         Point2D p = source.getScreenPosition(area.centerLocation);
         
+        area.setCenterLocation(lt);
+        area.paint(g, source, 0);
+        g.setTransform(old);
+        
         areaID.setOpaque(false);
         areaID.setSize(areaID.getPreferredSize());
         g.translate(p.getX(), p.getY());
         areaID.paint(g);
         g.setTransform(old);
         
-        area.setCenterLocation(lt);
-        area.paint(g, source, 0);
-        g.setTransform(old);
+        
         
     }
     
