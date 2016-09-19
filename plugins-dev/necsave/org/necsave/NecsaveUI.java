@@ -36,6 +36,8 @@ import java.awt.Graphics2D;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
+import java.awt.geom.AffineTransform;
+import java.awt.geom.Point2D;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -60,7 +62,6 @@ import info.necsave.msgs.AbortMission.TYPE;
 import info.necsave.msgs.ActionIdle;
 import info.necsave.msgs.ActionIdle.IDLE_AT_HOME;
 import info.necsave.msgs.Area;
-import info.necsave.msgs.Behavior;
 import info.necsave.msgs.BehaviorScanArea;
 import info.necsave.msgs.Capabilities;
 import info.necsave.msgs.CapabilityPlanMission;
@@ -80,7 +81,6 @@ import info.necsave.msgs.MissionReadyToStart;
 import info.necsave.msgs.Plan;
 import info.necsave.msgs.PlatformExit;
 import info.necsave.msgs.PlatformFollower;
-import info.necsave.msgs.PlatformFollower.PAYLOAD;
 import info.necsave.msgs.PlatformInfo;
 import info.necsave.msgs.PlatformPlan;
 import info.necsave.msgs.PlatformPlanProgress;
@@ -138,6 +138,7 @@ public class NecsaveUI extends ConsoleLayer {
     private LinkedHashMap<String, LocationType> contacts = new LinkedHashMap<>();
     private Plan plan = null;
     private ParallelepipedElement elem = null;
+    private ParallelepipedElement area = new ParallelepipedElement();
     private LocationType corner = null; 
     private double width, height;
     private ConsoleInteraction interaction;
@@ -313,7 +314,7 @@ public class NecsaveUI extends ConsoleLayer {
             corner.setOffsetDistance(-width / 2);
             corner.setAzimuth(Math.toDegrees(a + Math.PI / 2));
             corner.convertToAbsoluteLatLonDepth();
-            corner.convertToAbsoluteLatLonDepth();
+            corner.convertToAbsoluteLatLonDepth(); //TODO he
 
             NecsaveUI.this.width = elem.getWidth();
             NecsaveUI.this.height = elem.getLength();
@@ -384,17 +385,17 @@ public class NecsaveUI extends ConsoleLayer {
                     platfAvailable.values().toArray(), platfAvailable.values().iterator().next());
             
             PlatformFollower pfLeader = new PlatformFollower();
-            pfLeader.setPayload(PAYLOAD.SIDESCAN);
+            pfLeader.setPayload(info.necsave.msgs.PlatformFollower.PAYLOAD.SIDESCAN);
             pfLeader.setFollowerPlatformId(getId(leader));
             pfLeader.setRadius(0);
             pfLeader.setBearing(0);
             
             PlatformFollower pf1 = new PlatformFollower();
-            pf1.setPayload(PAYLOAD.SIDESCAN);
+            pf1.setPayload(info.necsave.msgs.PlatformFollower.PAYLOAD.SIDESCAN);
             pf1.setFollowerPlatformId(getId(follower1));
 
             PlatformFollower pf2 = new PlatformFollower();
-            pf2.setPayload(PAYLOAD.SIDESCAN);
+            pf2.setPayload(info.necsave.msgs.PlatformFollower.PAYLOAD.SIDESCAN);
             pf2.setFollowerPlatformId(getId(follower2));
 
             followers_list.add(pf1);
@@ -816,26 +817,60 @@ public class NecsaveUI extends ConsoleLayer {
         if (plan == null)
             return;
         
-        Vector<PlatformPlan> platfPlans = plan.getPlatformPlans();
+        @SuppressWarnings("unchecked")
+        Vector<Message> platfPlans = (Vector<Message>) plan.getValue("platform_plans"); 
+        if (platfPlans.isEmpty())
+            return;
         
         Vector<Color> colors = new Vector<>();
         colors.addAll(Arrays.asList(ColorUtils.generateVisuallyDistinctColors(platfPlans.size(), 0.5f, 0.5f)));
         
         for (int i = 0; i < platfPlans.size(); i++) {
             Color c = colors.get(i);
-            PlatformPlan p = platfPlans.get(i);
-            for (Behavior b : p.getBehaviors()) {
-                if (b instanceof BehaviorScanArea) {
-                    paintScanArea((BehaviorScanArea)b, c);
+            PlatformPlan p = (PlatformPlan) platfPlans.get(i);
+            Vector<Message> behaviors = (Vector<Message>) p.getValue("behaviors"); 
+            for (Message b : behaviors) {
+                if (b.getMgid() == BehaviorScanArea.ID_STATIC) {
+                    paintScanArea((BehaviorScanArea)b, c, g, source);
                 }
             }
         }        
     }
     
-    private void paintScanArea(BehaviorScanArea b, Color c) {
-        System.out.println("paint "+b.getAbbrev());
-    }
+    private void paintScanArea(BehaviorScanArea b, Color c, Graphics2D g, StateRenderer2D source) {
 
+        AffineTransform old = g.getTransform();
+        LocationType lt = new LocationType();
+        lt.setLatitudeRads(b.getScanArea().getLatitude());
+        lt.setLongitudeRads(b.getScanArea().getLongitude());
+        
+        area.setColor(c.brighter());
+        area.setLength(b.getScanArea().getLength());
+        area.setWidth(b.getScanArea().getWidth());
+        area.setYaw(Math.toDegrees(b.getScanArea().getBearing())); 
+        
+        lt.setOffsetDistance(area.getLength() / 2);
+        lt.setAzimuth(Math.toDegrees(b.getScanArea().getBearing()));
+        lt.convertToAbsoluteLatLonDepth();
+        lt.setOffsetDistance(area.getWidth() / 2);
+        lt.setAzimuth(Math.toDegrees(b.getScanArea().getBearing() + Math.PI / 2));
+        lt.convertToAbsoluteLatLonDepth();
+        
+        JLabel areaID = new JLabel(Long.toString(b.getScanArea().getAreaId()));
+        Point2D p = source.getScreenPosition(area.centerLocation);
+        
+        areaID.setOpaque(false);
+        areaID.setSize(areaID.getPreferredSize());
+        g.translate(p.getX(), p.getY());
+        areaID.paint(g);
+        g.setTransform(old);
+        
+        area.setCenterLocation(lt);
+        area.paint(g, source, 0);
+        g.setTransform(old);
+        
+    }
+    
     @Override
     public void cleanLayer() {
         if (transport != null)
