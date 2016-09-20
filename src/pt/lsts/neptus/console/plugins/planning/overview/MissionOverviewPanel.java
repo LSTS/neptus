@@ -35,7 +35,6 @@ import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Toolkit;
-import java.awt.datatransfer.Clipboard;
 import java.awt.datatransfer.StringSelection;
 import java.awt.event.ActionEvent;
 import java.awt.event.InputEvent;
@@ -45,6 +44,7 @@ import java.awt.event.MouseEvent;
 
 import javax.swing.AbstractAction;
 import javax.swing.Action;
+import javax.swing.JComponent;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
@@ -106,10 +106,10 @@ public class MissionOverviewPanel extends JPanel {
                 row = table.getSelectedRow();
 
                 if (e.getClickCount() == 1 && row != -1) {
-                        col = table.columnAtPoint(e.getPoint());
-                        Maneuver m = model.getManeuver(row);
-                        pE.updateSelected(m);
-                        prevSelectedRow = row;
+                    col = table.columnAtPoint(e.getPoint());
+                    Maneuver m = model.getManeuver(row);
+                    pE.updateSelected(m);
+                    prevSelectedRow = row;
                 }
             }
         });
@@ -117,18 +117,56 @@ public class MissionOverviewPanel extends JPanel {
         //Add Keybinding
         table.getInputMap(JPanel.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke(KeyEvent.VK_C, InputEvent.CTRL_MASK),"copy");
         Action copy = new AbstractAction() {
+            private static final long serialVersionUID = 1L;
 
             @Override
             public void actionPerformed(ActionEvent e) {
-                if (row != -1 || col != -1) {
-                    String value = (String) model.getValueAt(row, col);
-                    StringSelection selection = new StringSelection(value);
-                    Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
-                    clipboard.setContents(selection, selection);
+                if (row != -1 && col != -1) {
+                    String value = null;
+                    if (col == 0) //Copy entire row
+                        value = model.getManeuverToString(row);
+                    else
+                        if (col == PlanTableModel.COLUMN_LOCATION)
+                            value = model.getManeuverLocation(row);
+                        else
+                            value = (String) model.getValueAt(row, col);
+
+                    if (value != null)
+                        Toolkit.getDefaultToolkit().getSystemClipboard()
+                        .setContents(new StringSelection(value), null);
                 }
             }
         };
         table.getActionMap().put("copy", copy);
+
+        table.getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(KeyStroke.getKeyStroke(KeyEvent.VK_UP, 0), "prevMark");
+        Action prevMark = new AbstractAction() {
+            private static final long serialVersionUID = 1L;
+
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                int row = (prevSelectedRow <= 0) ? model.getRowCount() -1 :  prevSelectedRow - 1;
+                Maneuver m = model.getManeuver(row);
+                pE.updateSelected(m);
+                prevSelectedRow = row;
+            }
+        };
+        table.getActionMap().put("prevMark", prevMark);
+
+        table.getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(KeyStroke.getKeyStroke(KeyEvent.VK_DOWN, 0), "nextMark");
+        Action nextMark = new AbstractAction() {
+            private static final long serialVersionUID = 1L;
+
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                int row = (prevSelectedRow >=  model.getRowCount() - 1) ? 0 :  prevSelectedRow + 1;
+                Maneuver m = model.getManeuver(row);
+                pE.updateSelected(m);
+                prevSelectedRow = row;
+            }
+        };
+
+        table.getActionMap().put("nextMark", nextMark);
 
         //Set prefered size
         table.setPreferredScrollableViewportSize(new Dimension(700, 80));
