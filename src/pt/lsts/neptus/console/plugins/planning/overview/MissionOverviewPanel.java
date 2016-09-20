@@ -155,4 +155,10 @@ public class MissionOverviewPanel extends JPanel {
             table.setRowSelectionInterval(prevSelectedRow, prevSelectedRow);
 
     }
+
+    public void reset() {
+        selectedManeuver = null;
+        prevSelectedRow = -1;
+        table.clearSelection();
+    }
 }

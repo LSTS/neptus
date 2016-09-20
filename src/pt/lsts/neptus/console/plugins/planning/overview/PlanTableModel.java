@@ -65,16 +65,16 @@ public class PlanTableModel extends AbstractTableModel {
     public static final Color SELECTED_MANEUVER_COLOR = new Color(0xCECECE);
     private PlanType plan;
     private ArrayList<ExtendedManeuver> list = new ArrayList<>();
-    private static final int COLUMN_INDEX          = 0;
-    private static final int COLUMN_LABEL          = 1;
-    private static final int COLUMN_TYPE           = 2;
-    private static final int COLUMN_OUT_TRANS      = 3;
-    private static final int COLUMN_LOCATION       = 4;
-    private static final int COLUMN_DEPTH_ALTITUDE = 5;
-    private static final int COLUMN_SPEED          = 6;
-    private static final int COLUMN_DURATION       = 7;
-    private static final int COLUMN_DISTANCE       = 8;
-    private static final int COLUMN_PAYLOAD        = 9;
+    public static final int COLUMN_INDEX          = 0;
+    public static final int COLUMN_LABEL          = 1;
+    public static final int COLUMN_TYPE           = 2;
+    public static final int COLUMN_OUT_TRANS      = 3;
+    public static final int COLUMN_LOCATION       = 4;
+    public static final int COLUMN_DEPTH_ALTITUDE = 5;
+    public static final int COLUMN_SPEED          = 6;
+    public static final int COLUMN_DURATION       = 7;
+    public static final int COLUMN_DISTANCE       = 8;
+    public static final int COLUMN_PAYLOAD        = 9;
 
     private String[] columnNames = {
             "#",
@@ -111,6 +111,14 @@ public class PlanTableModel extends AbstractTableModel {
 
     public Maneuver getManeuver(int index) {
         return list.get(index).maneuver;
+    }
+
+    public String getManeuverToString(int index) {
+        return list.get(index).toString();
+    }
+
+    public String getManeuverLocation(int index) {
+        return list.get(index).getManeuverLocation().getClipboardText();
     }
 
     @Override
@@ -509,6 +517,7 @@ public class PlanTableModel extends AbstractTableModel {
     }
 
     private class ExtendedManeuver {
+
         private Maneuver maneuver;
         private ManeuverLocation maneuverLoc;
         private String index;
@@ -608,6 +617,13 @@ public class PlanTableModel extends AbstractTableModel {
 
         public void setColor(Color color) {
             this.color = color;
+        }
+
+        @Override
+        public String toString() {
+            return "[index=" + index + " maneuver=" + maneuver.getId() + ", maneuverLoc=" + maneuverLoc
+                    + ", speedStr=" + speedStr + ", duration=" + duration + ", distance="
+                    + distance + "m, payload=" + payload +"]";
         }
     }
 }
