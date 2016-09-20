@@ -224,12 +224,12 @@ public class PlanTableModel extends AbstractTableModel {
 
     private void sortManeuverList() {
         Maneuver initial = plan.getGraph().getManeuver(plan.getGraph().getInitialManeuverId());
+        list.clear();
 
         if (initial == null)
             return;
 
         LinkedHashMap<String, TransitionType> trans = (LinkedHashMap<String, TransitionType>) plan.getGraph().getTransitions().clone();
-        list.clear();
 
         //add initial maneuver if exists
         list.add(new ExtendedManeuver(initial, "0"));
@@ -290,7 +290,7 @@ public class PlanTableModel extends AbstractTableModel {
                 list.add(e);
             }
         }
-
+        LinkedList<Maneuver> unfeasible = new LinkedList<>();
         int index = 0;
         int aux = 0;
         int count = 0;
@@ -303,10 +303,13 @@ public class PlanTableModel extends AbstractTableModel {
             else {
                 count = hasMultipleOutTransTo(m.maneuver);
                 if (count > 1) {
+                    Maneuver src = getSourceManeuver(m.maneuver);
                     m.setIndex(index+"."+(aux));
-                    m.calcDurationAndDistance(getSourceManeuver(m.maneuver));
-                    if (notReachableManeuvers().contains(m.maneuver))
+                    m.calcDurationAndDistance(src);
+                    if (allNotReachable.contains(src) || aux > 0) {
                         m.setColor(UNREACH_MANEUVER_COLOR);
+                        unfeasible.add(m.maneuver);
+                    }
                     aux++;
 
                     if (aux == count)
@@ -322,13 +325,17 @@ public class PlanTableModel extends AbstractTableModel {
                     aux = 0;
                     index++;
 
-                    if (notReachableManeuvers().contains(m.maneuver)) {
+                    if (allNotReachable.contains(m.maneuver) || allNotReachable.contains(src) || unfeasible.contains(src)) {
                         m.setColor(UNREACH_MANEUVER_COLOR);
                         m.setDistanceAndDuration("0", "0s");
+                        unfeasible.add(m.maneuver);
                     }
                 }
             }
         }
+        trans.clear();
+        unfeasible.clear();
+        allNotReachable.clear();
     }
 
     private Maneuver getSourceManeuver(Maneuver m) {
@@ -439,7 +446,6 @@ public class PlanTableModel extends AbstractTableModel {
                     sb.append(p.getName().replaceAll("([a-z0$-/:-?{-~!^_`@#\" ]+)+", ""))
                     .append(":")
                     .append(Double.parseDouble(p.getValue()));
-                    System.out.println(sb.toString());
                 }
 
                 if (p.getName().equals("High-Frequency Channels") ||
@@ -449,7 +455,6 @@ public class PlanTableModel extends AbstractTableModel {
                     sb.append(p.getName().replaceAll("([a-z0$-/:-?{-~!^_`@#\" ]+)+", ""))
                     .append(":")
                     .append(p.getValue());
-                    System.out.println(sb.toString());
                 }
 
                 else if (p.getName().equals("Frequency")) {
@@ -457,7 +462,6 @@ public class PlanTableModel extends AbstractTableModel {
                         sb.append(" ");
                     sb.append(p.getName().replaceAll("([a-z0$-/:-?{-~!^_`@#\" ]+)+", ""))
                     .append(":"+ Double.parseDouble(p.getValue()));
-                    System.out.println(sb.toString());
                 }
                 else if (p.getName().equals("Active")) {
                     active = p.getValue().equalsIgnoreCase("true");
