@@ -68,13 +68,11 @@ import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JDialog;
-import javax.swing.JEditorPane;
 import javax.swing.JLabel;
 import javax.swing.JMenu;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
-import javax.swing.JScrollPane;
 import javax.swing.SwingUtilities;
 import javax.swing.SwingWorker;
 import javax.swing.border.EmptyBorder;
@@ -309,6 +307,7 @@ public class PlanEditor extends InteractionAdapter implements Renderer2DPainter,
                     if (missionOverview) {
                         if (overviewPanel == null) {
                             overviewPanel = new MissionOverviewPanel(this, plan);
+                            overviewPanel.setVisible(false);
                         }
                         else
                             overviewPanel.updatePlan(plan);
@@ -420,11 +419,7 @@ public class PlanEditor extends InteractionAdapter implements Renderer2DPainter,
             controls.add(new JButton(getNewAction()));
             controls.add(new JButton(getSaveAction()));
             controls.add(new JButton(getCloseAction()));
-            controls.add(new JButton(getSettingsAction()) {
-                {
-                    setEnabled(false);
-                }
-            });
+            controls.add(new JButton(getSettingsAction()));
             controls.add(new JButton(getUndoAction()));
             controls.add(new JButton(getRedoAction()));
             updateUndoRedo();
@@ -475,21 +470,18 @@ public class PlanEditor extends InteractionAdapter implements Renderer2DPainter,
     }
 
     protected AbstractAction getSettingsAction() {
-        return new AbstractAction(I18n.text("Statistics"), ImageUtils.getScaledIcon(
+        return new AbstractAction(I18n.text("Overview"), ImageUtils.getScaledIcon(
                 "images/planning/edit_settings.png", 16, 16)) {
             private static final long serialVersionUID = 1L;
 
             @Override
             public void actionPerformed(ActionEvent e) {
-                JDialog dialog = new JDialog(getConsole(), I18n.text("Edited plan statistics"));
-                JEditorPane editor = new JEditorPane("text/html", PlanUtil.getPlanStatisticsAsText(plan,
-                        I18n.textf("%planName statistics", plan.getId()), false, false));
-                editor.setEditable(false);
-                dialog.getContentPane().add(new JScrollPane(editor));
-                dialog.setSize(400, 400);
-                dialog.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
-                GuiUtils.centerOnScreen(dialog);
-                dialog.setVisible(true);
+                if (overviewPanel.isVisible())
+                    overviewPanel.setVisible(false);
+                else {
+                    overviewPanel.reset();
+                    overviewPanel.setVisible(true);
+                }
             }
         };
     }
@@ -540,6 +532,11 @@ public class PlanEditor extends InteractionAdapter implements Renderer2DPainter,
         if (getAssociatedSwitch() != null && !getAssociatedSwitch().isSelected())
             getAssociatedSwitch().doClick();
 
+        if (missionOverview) {
+            if (plan != null && overviewPanel != null) {
+                overviewPanel.reset();
+            }
+        }
     }
 
     protected AbstractAction getNewAction() {
