@@ -32,9 +32,10 @@
 package pt.lsts.neptus.gui.objparams;
 
 import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
-import java.awt.FlowLayout;
+import java.awt.Font;
 import java.awt.Image;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -45,6 +46,7 @@ import java.awt.event.ItemListener;
 import java.io.File;
 import java.text.NumberFormat;
 
+import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
@@ -76,58 +78,39 @@ public class ImageObjectParameters extends ParametersPanel {
 
 	private static final long serialVersionUID = 1L;
 
-	private JPanel jPanel = null;
+	private JPanel imageSelPanel = null;
 	private JLabel imgLabel = null;
-	private JButton selectImage = null;
-	private JPanel lat = null;
-	private JPanel jPanel2 = null;
-	private JLabel jLabel1 = null;
+	private JButton selectImageButton = null;
+	private JPanel locAndScalePanel = null;
+	private JLabel centerLocLabel = null;
 	private JButton changeCenter = null;
-	private JPanel jPanel4 = null;
-	private JLabel jLabel3 = null;
+	private JPanel imgScalePanel = null;
+	private JLabel imgScaleLabel = null;
 	private JCheckBox vScaleCheckBox = null;
 	private JFormattedTextField scale = null;
     private JFormattedTextField scaleV = null;
-	private NumberFormat df = GuiUtils.getNeptusDecimalFormat();
+	private JButton twoLocationsButton = null;
+	private JPanel bathymetryPanel = null;
+	private JPanel maxHeightPanel = null;
+	private JCheckBox bathCheckBox = null;
+	private JLabel maxHeightLabel = null;
+	private JFormattedTextField maxHeightFormattedTextField = null;
+	private JPanel maxDepthPanel = null;
+	private JPanel resolutionPanel = null;
+	private JLabel maxDepthLabel = null;
+	private JLabel resolutionLabel = null;
+	private JFormattedTextField maxDepthFormattedTextField = null;
+	private JFormattedTextField resolutionFormattedTextField = null;
+	private JButton bathImageSelect = null;
+	private JPanel transparencyRotationPanel = null;
+	private JSlider transparencySlider = null;
+	private JSlider rotationSlider = null;
+	private JFormattedTextField rotationFormattedTextField = null;
+	
+    private NumberFormat df = GuiUtils.getNeptusDecimalFormat();
 	
 	private String imageFileName = null;
 	private LocationType center = new LocationType();
-	
-	private JPanel jPanel1 = null;
-	
-	private JPanel jPanel3 = null;
-	private JButton jButton = null;
-
-	private JPanel batPanel = null;
-
-	private JPanel jPanel5 = null;
-
-	private JCheckBox batCheckBox = null;
-
-	private JLabel maxHeightLabel = null;
-
-	private JFormattedTextField maxHeightFormattedTextField = null;
-
-	private JPanel jPanel6 = null;
-
-	private JPanel jPanel7 = null;
-
-	private JLabel maxDepthLabel = null;
-
-	private JLabel resolutionLabel = null;
-
-	private JFormattedTextField maxDepthFormattedTextField = null;
-
-	private JFormattedTextField resolutionFormattedTextField = null;
-
-	private JPanel jPanel8 = null;
-
-	private JButton bathImageSelect = null;
-	
-	private JPanel transparencyRotationPanel = null;
-	private JSlider transparencySlider = null;
-    private JSlider rotationSlider = null;
-    private JFormattedTextField rotationFormattedTextField = null;
 	
 	private File selectedBathymetricImage = null;
 
@@ -149,9 +132,9 @@ public class ImageObjectParameters extends ParametersPanel {
 	private void initialize() {
         this.setLayout(new MigLayout());
         this.setSize(505, 181);
-        this.add(getJPanel1(), "wmin pref");
-        this.add(getLat(), "gapleft 0, wmin pref");
-        this.add(getBatPanel(), "gapleft 0, wrap, wmin pref");
+        this.add(getImageSelPanel(), "wmin pref");
+        this.add(getLocAndScalePanel(), "gapleft 0, wmin pref");
+        this.add(getBathymetryPanel(), "gapleft 0, wrap, wmin pref");
         this.add(getTransparencyRotationPanel(), "span 3, alignx center");
 	}
 
@@ -160,11 +143,11 @@ public class ImageObjectParameters extends ParametersPanel {
 			return I18n.text("The selected image is invalid");
 		}
 		
-		if (batCheckBox.isSelected() && selectedBathymetricImage == null) {
+		if (bathCheckBox.isSelected() && selectedBathymetricImage == null) {
 			return I18n.text("You must select a bathymetric image");
 		}
 		
-		if (batCheckBox.isSelected() && !selectedBathymetricImage.canRead()) {
+		if (bathCheckBox.isSelected() && !selectedBathymetricImage.canRead()) {
 			return I18n.text("Unable to read the bathymetric image file");
 		}
 		
@@ -176,18 +159,20 @@ public class ImageObjectParameters extends ParametersPanel {
 	 * 	
 	 * @return javax.swing.JPanel	
 	 */    
-	private JPanel getJPanel() {
-		if (jPanel == null) {
-			//jLabel = new JLabel();
-			jPanel = new JPanel();
-			jPanel.setLayout(new BorderLayout());
-			jPanel.setPreferredSize(new java.awt.Dimension(150,170));
-			jPanel.setBorder(javax.swing.BorderFactory.createTitledBorder(null, I18n.text("Image"), javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Dialog", java.awt.Font.BOLD, 12), new java.awt.Color(51,51,51)));
+	private JPanel getImageSelPanel() {
+		if (imageSelPanel == null) {
+			imageSelPanel = new JPanel();
+			imageSelPanel.setLayout(new BorderLayout());
+			imageSelPanel.setPreferredSize(new Dimension(150,170));
+            imageSelPanel.setBorder(BorderFactory.createTitledBorder(null, I18n.text("Image"),
+                    javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION,
+                    javax.swing.border.TitledBorder.DEFAULT_POSITION,
+                    new java.awt.Font("Dialog", Font.BOLD, 12), new Color(51, 51, 51)));
 			
-			jPanel.add(getImgLabel(), java.awt.BorderLayout.NORTH);
-			jPanel.add(getSelectImage(), java.awt.BorderLayout.SOUTH);
+			imageSelPanel.add(getImgLabel(), BorderLayout.NORTH);
+			imageSelPanel.add(getSelectImageButton(), BorderLayout.SOUTH);
 		}
-		return jPanel;
+		return imageSelPanel;
 	}
 	
 	/**
@@ -195,12 +180,12 @@ public class ImageObjectParameters extends ParametersPanel {
 	 * 	
 	 * @return javax.swing.JButton	
 	 */    
-	private JButton getSelectImage() {
-		if (selectImage == null) {
-			selectImage = new JButton();
-			selectImage.setText(I18n.text("Select image..."));
-			selectImage.setPreferredSize(new java.awt.Dimension(90,25));
-			selectImage.addActionListener(new ActionListener() {
+	private JButton getSelectImageButton() {
+		if (selectImageButton == null) {
+			selectImageButton = new JButton();
+			selectImageButton.setText(I18n.text("Select image..."));
+			selectImageButton.setPreferredSize(new Dimension(90,25));
+			selectImageButton.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent e) {
 					File f = ImageFileChooser.showOpenImageDialog();
 					if (f != null) {
@@ -209,42 +194,27 @@ public class ImageObjectParameters extends ParametersPanel {
 				}
 			});
 		}
-		return selectImage;
+		return selectImageButton;
 	}
 	
 	/**
-	 * This method initializes lat	
+	 * This method initializes locAndScalePanel	
 	 * 	
 	 * @return javax.swing.JPanel	
 	 */    
-	private JPanel getLat() {
-		if (lat == null) {
-			lat = new JPanel();
-			lat.setLayout(new BorderLayout());
-			lat.add(getJPanel3(), java.awt.BorderLayout.NORTH);
-			lat.add(getJPanel2(), java.awt.BorderLayout.CENTER);
-		}
-		return lat;
-	}
-	
-	/**
-	 * This method initializes jPanel2	
-	 * 	
-	 * @return javax.swing.JPanel	
-	 */    
-	private JPanel getJPanel2() {
-		if (jPanel2 == null) {
+	private JPanel getLocAndScalePanel() {
+		if (locAndScalePanel == null) {
 			MigLayout layout = new MigLayout();
-			jLabel1 = new JLabel();
-			jPanel2 = new JPanel();
-			jPanel2.setLayout(layout);
-			jLabel1.setText(I18n.text("Center"));
-			jPanel2.add(jLabel1, "push, alignx right");
-			jPanel2.add(getChangeCenter(), "gap 2, alignx left, push, wrap 15");
-			jPanel2.add(getJPanel4(), "span, wrap 15");
-			jPanel2.add(getJButton(), "span, alignx center");
+			centerLocLabel = new JLabel();
+			locAndScalePanel = new JPanel();
+			locAndScalePanel.setLayout(layout);
+			centerLocLabel.setText(I18n.text("Center"));
+			locAndScalePanel.add(centerLocLabel, "push, alignx right");
+			locAndScalePanel.add(getChangeCenter(), "gap 2, alignx left, push, wrap 15");
+			locAndScalePanel.add(getImgScalePanel(), "span, wrap 15");
+			locAndScalePanel.add(getTwoLocationsButton(), "span, alignx center");
 		}
-		return jPanel2;
+		return locAndScalePanel;
 	}
 	
 	/**
@@ -261,7 +231,6 @@ public class ImageObjectParameters extends ParametersPanel {
 					LocationType tmp = LocationPanel.showLocationDialog(I18n.text("Set the center location"), getCenter(), null);
 					if (tmp != null)
 						getCenter().setLocation(tmp);
-					
 				}
 			});
 		}
@@ -269,17 +238,17 @@ public class ImageObjectParameters extends ParametersPanel {
 	}
 	
 	/**
-	 * This method initializes jPanel4	
+	 * This method initializes imgScalePanel	
 	 * 	
 	 * @return javax.swing.JPanel	
 	 */    
-	private JPanel getJPanel4() {
-		if (jPanel4 == null) {
-		    jPanel4 = new JPanel(new MigLayout());
-			jLabel3 = new JLabel();
-			jLabel3.setText(I18n.text("Scale (m/pixel)"));
-			jPanel4.add(jLabel3, "");
-			jPanel4.add(getScale(), "wmin pref, wrap");
+	private JPanel getImgScalePanel() {
+		if (imgScalePanel == null) {
+		    imgScalePanel = new JPanel(new MigLayout());
+			imgScaleLabel = new JLabel();
+			imgScaleLabel.setText(I18n.text("Scale (m/pixel)"));
+			imgScalePanel.add(imgScaleLabel, "");
+			imgScalePanel.add(getScale(), "wmin pref, wrap");
 			vScaleCheckBox = new JCheckBox(I18n.text("Vertical scale"));
 			vScaleCheckBox.addItemListener(new ItemListener() {
 			    public void itemStateChanged(java.awt.event.ItemEvent e) {
@@ -289,10 +258,10 @@ public class ImageObjectParameters extends ParametersPanel {
 			            getScaleV().setEnabled(false);
 			    }
 			});
-			jPanel4.add(vScaleCheckBox);
-			jPanel4.add(getScaleV(), "wmin pref, wrap");
+			imgScalePanel.add(vScaleCheckBox);
+			imgScalePanel.add(getScaleV(), "wmin pref, wrap");
 		}
-		return jPanel4;
+		return imgScalePanel;
 	}
 	
 	/**
@@ -303,7 +272,7 @@ public class ImageObjectParameters extends ParametersPanel {
 	private JFormattedTextField getScale() {
 		if (scale == null) {
 			scale = new JFormattedTextField(df);
-			scale.setPreferredSize(new java.awt.Dimension(60,20));
+			scale.setPreferredSize(new Dimension(60,20));
 			scale.setText("1.0");
 		}
 		return scale;
@@ -312,7 +281,7 @@ public class ImageObjectParameters extends ParametersPanel {
 	private JFormattedTextField getScaleV() {
 	    if (scaleV == null) {
 	        scaleV = new JFormattedTextField(df);
-	        scaleV.setPreferredSize(new java.awt.Dimension(60,20));
+	        scaleV.setPreferredSize(new Dimension(60,20));
 	        scaleV.setText("1.0");
 	    }
 	    return scaleV;
@@ -461,43 +430,15 @@ public class ImageObjectParameters extends ParametersPanel {
 	}
 
 	/**
-	 * This method initializes jPanel1	
-	 * 	
-	 * @return javax.swing.JPanel	
-	 */    
-	private JPanel getJPanel1() {
-		if (jPanel1 == null) {
-			jPanel1 = new JPanel();
-			jPanel1.add(getJPanel(), null);
-		}
-		return jPanel1;
-	}
-	
-	/**
-	 * This method initializes jPanel3	
-	 * 	
-	 * @return javax.swing.JPanel	
-	 */    
-	private JPanel getJPanel3() {
-		if (jPanel3 == null) {
-			jPanel3 = new JPanel();
-			jPanel3.setLayout(new BorderLayout());
-			jPanel3.setSize(192, 122);
-		}
-		return jPanel3;
-	}
-
-	/**
-	 * This method initializes jButton	
+	 * This method initializes twoLocationsButton	
 	 * @return javax.swing.JButton	
 	 */    
-	private JButton getJButton() {
-		if (jButton == null) {
-			jButton = new JButton();
-			jButton.setPreferredSize(new java.awt.Dimension(120,26));
-			jButton.setText(I18n.text("2 locations..."));
-			jButton.addActionListener(new java.awt.event.ActionListener() { 
-				
+	private JButton getTwoLocationsButton() {
+		if (twoLocationsButton == null) {
+			twoLocationsButton = new JButton();
+			twoLocationsButton.setPreferredSize(new Dimension(120,26));
+			twoLocationsButton.setText(I18n.text("2 locations..."));
+			twoLocationsButton.addActionListener(new java.awt.event.ActionListener() { 
 				public void actionPerformed(java.awt.event.ActionEvent e) {  
 					try {
 						ImageElement tmp = new ImageElement();
@@ -515,12 +456,13 @@ public class ImageObjectParameters extends ParametersPanel {
 					}
 					catch (Exception exception) {
 					    NeptusLog.pub().warn(exception.getMessage());
-						GuiUtils.errorMessage(SwingUtilities.getRoot((Component)e.getSource()), I18n.text("Select an image first"), I18n.text("You have to select an image fisrt."));
+                        GuiUtils.errorMessage(SwingUtilities.getRoot((Component) e.getSource()),
+                                I18n.text("Select an image first"), I18n.text("You have to select an image fisrt."));
 					}
 				}
 			});
 		}
-		return jButton;
+		return twoLocationsButton;
 	}
 	
 	private JLabel getImgLabel() {
@@ -538,47 +480,46 @@ public class ImageObjectParameters extends ParametersPanel {
      * 
      * @return javax.swing.JPanel
      */
-    private JPanel getBatPanel() {
-        if (batPanel == null) {
+    private JPanel getBathymetryPanel() {
+        if (bathymetryPanel == null) {
             MigLayout layout = new MigLayout();
-//            flowLayout.setAlignment(java.awt.FlowLayout.LEFT);
-            batPanel = new JPanel();
-            batPanel.setLayout(layout);
-            batPanel.add(getBatCheckBox(), "wrap");
-            batPanel.add(getJPanel5(), "wrap 0");
-            batPanel.add(getJPanel6(), "wrap 0");
-            batPanel.add(getJPanel7(), "wrap");
-            batPanel.add(getJPanel8(), null);
+            bathymetryPanel = new JPanel();
+            bathymetryPanel.setLayout(layout);
+            bathymetryPanel.add(getBathCheckBox(), "wrap");
+            bathymetryPanel.add(getMaxHeightPanel(), "wrap 0");
+            bathymetryPanel.add(getMaxDepthPanel(), "wrap 0");
+            bathymetryPanel.add(getResolutionPanel(), "wrap");
+            bathymetryPanel.add(getBathImageSelect(), null);
         }
-        return batPanel;
+        return bathymetryPanel;
     }
 
     /**
-     * This method initializes jPanel5
+     * This method initializes maxHeightPanel
      * 
      * @return javax.swing.JPanel
      */
-    private JPanel getJPanel5() {
-        if (jPanel5 == null) {
+    private JPanel getMaxHeightPanel() {
+        if (maxHeightPanel == null) {
             maxHeightLabel = new JLabel();
             maxHeightLabel.setText(I18n.text("Max height"));
-            jPanel5 = new JPanel();
-            jPanel5.add(maxHeightLabel, null);
-            jPanel5.add(getMaxHeightFormattedTextField(), null);
+            maxHeightPanel = new JPanel();
+            maxHeightPanel.add(maxHeightLabel, null);
+            maxHeightPanel.add(getMaxHeightFormattedTextField(), null);
         }
-        return jPanel5;
+        return maxHeightPanel;
     }
 
     /**
-     * This method initializes batCheckBox
+     * This method initializes bathCheckBox
      * 
      * @return javax.swing.JCheckBox
      */
-    private JCheckBox getBatCheckBox() {
-        if (batCheckBox == null) {
-            batCheckBox = new JCheckBox();
-            batCheckBox.setText(I18n.text("Is bathymetric"));
-            batCheckBox.addItemListener(new java.awt.event.ItemListener() {
+    private JCheckBox getBathCheckBox() {
+        if (bathCheckBox == null) {
+            bathCheckBox = new JCheckBox();
+            bathCheckBox.setText(I18n.text("Is bathymetric"));
+            bathCheckBox.addItemListener(new java.awt.event.ItemListener() {
                 public void itemStateChanged(java.awt.event.ItemEvent e) {
                     NeptusLog.pub().info("<###>itemStateChanged()"
                             + ((e.getStateChange() == ItemEvent.SELECTED) ? "Sel." : "Desel."));
@@ -597,7 +538,7 @@ public class ImageObjectParameters extends ParametersPanel {
                 }
             });
         }
-        return batCheckBox;
+        return bathCheckBox;
     }
 
     /**
@@ -608,7 +549,7 @@ public class ImageObjectParameters extends ParametersPanel {
     private JFormattedTextField getMaxHeightFormattedTextField() {
         if (maxHeightFormattedTextField == null) {
             maxHeightFormattedTextField = new JFormattedTextField(df);
-            maxHeightFormattedTextField.setPreferredSize(new java.awt.Dimension(50, 20));
+            maxHeightFormattedTextField.setPreferredSize(new Dimension(50, 20));
             maxHeightFormattedTextField.setText("1.0");
             maxHeightFormattedTextField.setEnabled(false);
         }
@@ -616,35 +557,35 @@ public class ImageObjectParameters extends ParametersPanel {
     }
 
     /**
-     * This method initializes jPanel6
+     * This method initializes maxDepthPanel
      * 
      * @return javax.swing.JPanel
      */
-    private JPanel getJPanel6() {
-        if (jPanel6 == null) {
+    private JPanel getMaxDepthPanel() {
+        if (maxDepthPanel == null) {
             maxDepthLabel = new JLabel();
             maxDepthLabel.setText(I18n.text("Max depth"));
-            jPanel6 = new JPanel();
-            jPanel6.add(maxDepthLabel, null);
-            jPanel6.add(getMaxDepthFormattedTextField(), null);
+            maxDepthPanel = new JPanel();
+            maxDepthPanel.add(maxDepthLabel, null);
+            maxDepthPanel.add(getMaxDepthFormattedTextField(), null);
         }
-        return jPanel6;
+        return maxDepthPanel;
     }
 
     /**
-     * This method initializes jPanel7
+     * This method initializes resolutionPanel
      * 
      * @return javax.swing.JPanel
      */
-    private JPanel getJPanel7() {
-        if (jPanel7 == null) {
+    private JPanel getResolutionPanel() {
+        if (resolutionPanel == null) {
             resolutionLabel = new JLabel();
             resolutionLabel.setText(I18n.text("Resolution"));
-            jPanel7 = new JPanel();
-            jPanel7.add(resolutionLabel, null);
-            jPanel7.add(getResolutionFormattedTextField(), null);
+            resolutionPanel = new JPanel();
+            resolutionPanel.add(resolutionLabel, null);
+            resolutionPanel.add(getResolutionFormattedTextField(), null);
         }
-        return jPanel7;
+        return resolutionPanel;
     }
 
     /**
@@ -655,7 +596,7 @@ public class ImageObjectParameters extends ParametersPanel {
     private JFormattedTextField getMaxDepthFormattedTextField() {
         if (maxDepthFormattedTextField == null) {
             maxDepthFormattedTextField = new JFormattedTextField(df);
-            maxDepthFormattedTextField.setPreferredSize(new java.awt.Dimension(50, 20));
+            maxDepthFormattedTextField.setPreferredSize(new Dimension(50, 20));
             maxDepthFormattedTextField.setText("0.0");
             maxDepthFormattedTextField.setEnabled(false);
         }
@@ -678,11 +619,11 @@ public class ImageObjectParameters extends ParametersPanel {
     }
 	
 	public boolean getIsBathymetric() {
-		return getBatCheckBox().isSelected();
+		return getBathCheckBox().isSelected();
 	}
 	
 	public void setIsBathymetric(boolean val) {
-		getBatCheckBox().setSelected(val);
+		getBathCheckBox().setSelected(val);
 	}
 
 	public double getMaxHeight() {
@@ -719,24 +660,6 @@ public class ImageObjectParameters extends ParametersPanel {
 	public void setBathimFile(String filename) {
 		if (filename != null)
 			this.selectedBathymetricImage = new File(filename);
-	}
-
-	/**
-	 * This method initializes jPanel8	
-	 * 	
-	 * @return javax.swing.JPanel	
-	 */
-	private JPanel getJPanel8() {
-		if (jPanel8 == null) {
-			FlowLayout flowLayout2 = new FlowLayout();
-			flowLayout2.setHgap(0);
-			flowLayout2.setVgap(0);
-			jPanel8 = new JPanel();
-			jPanel8.setLayout(flowLayout2);
-			jPanel8.setPreferredSize(new Dimension(145, 30));
-			jPanel8.add(getBathImageSelect(), null);
-		}
-		return jPanel8;
 	}
 
 	/**
