@@ -529,6 +529,8 @@ public class KmlImport extends ConsolePanel {
         double scaleH = meterDistanceH / imgWidth;
         double scaleV = meterDistanceV / imgHeight;
         
+        imgElement.setId(idByUser);
+        
         imgElement.setCenterLocation(centerLoc);
         imgElement.setTransparency(transparency);
         imgElement.setYawDeg(rotationDeg);
