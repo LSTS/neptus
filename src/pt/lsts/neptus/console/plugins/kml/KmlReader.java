@@ -101,15 +101,31 @@ public class KmlReader {
 
         for (Feature pm : features) {
             String featureName = parseFeatureName(pm);
-            f.put(featureName, pm);
+            if (!f.containsKey(featureName)) {
+                f.put(featureName, pm);
+            }
+            else {
+                int maxTries = 100;
+                for (int i = 1; i < maxTries; i++) {
+                    String alternative = featureName + "_" + i;
+                    if (!f.containsKey(alternative)) {
+                        f.put(alternative, pm);
+                        break;
+                    }
+                }
+            }
         }
 
         return f;
     }
     
     private String parseFeatureName(Feature pm) {
-        String str = pm.getName().substring(pm.getName().lastIndexOf("/")+1);
+        String str = pm.getName().substring(pm.getName().lastIndexOf("/") + 1);
         String featName = str.split(",")[0];
+        featName = featName.trim();
+        
+        if (featName.isEmpty())
+            featName = pm.getId();
         
         return featName;
     }
