@@ -70,7 +70,7 @@ public class ZPlot extends MRATimeSeriesPlot {
         EstimatedState firstState = source.getFirst(EstimatedState.class);
 
         // check if its an UAV...
-        if (firstState != null && firstState.getEntityName().equals("Autopilot")) {
+        if (firstState != null && "Autopilot".equals(firstState.getEntityName())) {
             for (EstimatedState state : source.getIterator(EstimatedState.class, (long) (timestep * 1000))) {
                 double alt = state.getHeight() - state.getZ();
                 addValue(state.getTimestampMillis(), state.getSourceName() + "." + I18n.text("Altitude"), alt);
