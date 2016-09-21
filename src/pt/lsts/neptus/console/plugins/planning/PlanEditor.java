@@ -476,11 +476,13 @@ public class PlanEditor extends InteractionAdapter implements Renderer2DPainter,
 
             @Override
             public void actionPerformed(ActionEvent e) {
-                if (overviewPanel.isVisible())
-                    overviewPanel.setVisible(false);
-                else {
-                    overviewPanel.reset();
-                    overviewPanel.setVisible(true);
+                if (overviewPanel != null) {
+                    if (overviewPanel.isVisible())
+                        overviewPanel.setVisible(false);
+                    else {
+                        overviewPanel.reset();
+                        overviewPanel.setVisible(true);
+                    }
                 }
             }
         };
@@ -2061,5 +2063,9 @@ public class PlanEditor extends InteractionAdapter implements Renderer2DPainter,
             if (overviewPanel != null)
                 overviewPanel.setSelectedManeuver(m);
         }
+    }
+
+    public static String getManeuverpreamble() {
+        return maneuverPreamble;
     }
 }
