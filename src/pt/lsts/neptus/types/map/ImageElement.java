@@ -67,6 +67,7 @@ public class ImageElement extends AbstractElement implements ScalableElement, Ro
 
     private String imageFileName = null;
     private double imageScale = 1.0; // meters per pixel
+    private double imageScaleV = Double.NaN; // meters per pixel
 
     private String bathymetricImageFileName = null;
 
@@ -183,10 +184,23 @@ public class ImageElement extends AbstractElement implements ScalableElement, Ro
                 this.image = ImageUtils.getImage(this.imageFileName);
             }
             nd = doc.selectSingleNode("//scale");
-            if (nd == null)
+            if (nd == null) {
                 this.imageScale = 1.0;
-            else
+                this.imageScaleV = Double.NaN;
+            }
+            else {
                 this.imageScale = Double.parseDouble(nd.getText());
+                this.imageScaleV = Double.NaN;
+                Node vScaleNode = nd.selectSingleNode("@vertical");
+                if (vScaleNode != null) {
+                    try {
+                        this.imageScaleV = Double.parseDouble(vScaleNode.getText());
+                    }
+                    catch (Exception e) {
+                        NeptusLog.pub().error(this, e);
+                    }
+                }
+            }
 
             // Tests if it is a batimetric image
             nd = doc.selectSingleNode("//max-height");
@@ -268,6 +282,26 @@ public class ImageElement extends AbstractElement implements ScalableElement, Ro
      */
     public void setImageScale(double imageScale) {
         this.imageScale = imageScale;
+    }
+    
+    /**
+     * This if different than {@link Double#NaN} will allow different 
+     * vertical scale than horizontal.
+     * 
+     * @return the imageScaleV
+     */
+    public double getImageScaleV() {
+        return imageScaleV;
+    }
+    
+    /**
+     * Sets, if different than {@link Double#NaN},  a different 
+     * vertical scale than horizontal.
+     * 
+     * @param imageScaleV the imageScaleV to set
+     */
+    public void setImageScaleV(double imageScaleV) {
+        this.imageScaleV = imageScaleV;
     }
 
     /**
@@ -409,10 +443,12 @@ public class ImageElement extends AbstractElement implements ScalableElement, Ro
         else
             root.addElement("href")
                     .addText(FileUtil.relativizeFilePathAsURI(getOriginalFilePath(), getImageFileName()));
-        root.addElement("scale").addText(Double.toString(getImageScale()));
-        // root.addElement("yaw").addText(
-        // Double.toString(getYaw()));
-
+        Element scaleElm = root.addElement("scale");
+        scaleElm.addText(Double.toString(getImageScale()));
+        if (!Double.isNaN(imageScaleV)) {
+            scaleElm.addAttribute("vertical", "" + imageScaleV);
+        }
+            
         if (isBathymetric()) {
             root.addElement("max-height").addText(Double.toString(getMaxHeight()));
             root.addElement("max-depth").addText(Double.toString(getMaxDepth()));
@@ -501,8 +537,11 @@ public class ImageElement extends AbstractElement implements ScalableElement, Ro
 
         Point2D center = renderer.getScreenPosition(getCenterLocation());
         g.translate(center.getX(), center.getY());
-        g.scale(getImageScale() * renderer.getZoom(), getImageScale() * renderer.getZoom());
+        double scaleH = getImageScale() * renderer.getZoom();
+        double scaleV = (Double.isNaN(getImageScaleV()) ? getImageScale() : getImageScaleV()) * renderer.getZoom();
         g.rotate(getYawRad() - renderer.getRotation());
+        g.scale(scaleH, scaleV);
+        if (transparency >= 0 && transparency < 100)
         g.drawImage(getImage(), -getImage().getWidth(renderer) / 2, -getImage().getHeight(renderer) / 2, null);
     }
 
