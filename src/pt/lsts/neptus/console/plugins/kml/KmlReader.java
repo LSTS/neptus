@@ -130,32 +130,6 @@ public class KmlReader {
         return featName;
     }
 
-//    private List<Placemark> listPlacemarks(String path, Feature f) {
-//        if (f instanceof Placemark || f instanceof GroundOverlay) {
-//            Placemark mark = (Placemark) f;
-//            mark.setName(path+mark.getName());
-//            return Arrays.asList((Placemark)f);
-//        }
-//
-//        else if (f instanceof Folder) {
-//            ArrayList<Placemark> ret = new ArrayList<>();
-//            Folder folder = (Folder)f;
-//            for (Feature j : folder.getFeature())
-//                ret.addAll(listPlacemarks(path+folder.getName()+"/", j));  
-//            return ret;
-//        }
-//
-//        else if (f instanceof Document) {
-//            ArrayList<Placemark> ret = new ArrayList<>();
-//            Document d = (Document)f;
-//            for (Feature j : d.getFeature())
-//                ret.addAll(listPlacemarks("/", j));
-//            return ret;
-//        }
-//        else 
-//            return new ArrayList<>();
-//    }   
-
     private List<Feature> listSupportedFearures(String path, Feature f) {
         if (f instanceof Placemark || f instanceof GroundOverlay) {
             f.setName(path + f.getName());
