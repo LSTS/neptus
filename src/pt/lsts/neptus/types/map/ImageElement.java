@@ -31,6 +31,7 @@
  */
 package pt.lsts.neptus.types.map;
 
+import java.awt.AlphaComposite;
 import java.awt.Graphics2D;
 import java.awt.Image;
 import java.awt.geom.Point2D;
@@ -469,7 +470,6 @@ public class ImageElement extends AbstractElement implements ScalableElement, Ro
             if (getBathymetricImageFileName() != null)
                 root.addElement("href-altitude").addText(
                         FileUtil.relativizeFilePathAsURI(getOriginalFilePath(), getBathymetricImageFileName()));
-
         }
 
         return document;
@@ -542,6 +542,7 @@ public class ImageElement extends AbstractElement implements ScalableElement, Ro
         g.rotate(getYawRad() - renderer.getRotation());
         g.scale(scaleH, scaleV);
         if (transparency >= 0 && transparency < 100)
+            g.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, (100 - transparency) / 1E2f));
         g.drawImage(getImage(), -getImage().getWidth(renderer) / 2, -getImage().getHeight(renderer) / 2, null);
     }
 
