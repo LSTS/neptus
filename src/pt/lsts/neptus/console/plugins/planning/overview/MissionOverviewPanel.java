@@ -34,7 +34,9 @@ package pt.lsts.neptus.console.plugins.planning.overview;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
+import java.awt.Point;
 import java.awt.Toolkit;
+import java.awt.datatransfer.ClipboardOwner;
 import java.awt.datatransfer.StringSelection;
 import java.awt.event.ActionEvent;
 import java.awt.event.InputEvent;
@@ -46,17 +48,25 @@ import javax.swing.AbstractAction;
 import javax.swing.Action;
 import javax.swing.JComponent;
 import javax.swing.JPanel;
+import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.KeyStroke;
 import javax.swing.SwingConstants;
+import javax.swing.SwingUtilities;
+import javax.swing.event.PopupMenuEvent;
+import javax.swing.event.PopupMenuListener;
 import javax.swing.table.DefaultTableCellRenderer;
 
 import net.miginfocom.swing.MigLayout;
 import pt.lsts.neptus.console.plugins.planning.PlanEditor;
+import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.mp.Maneuver;
 import pt.lsts.neptus.types.mission.plan.PlanType;
 
+/**
+* @author Manuel Ribeiro
+*/
 public class MissionOverviewPanel extends JPanel {
 
     private static final long serialVersionUID = 1L;
@@ -80,6 +90,9 @@ public class MissionOverviewPanel extends JPanel {
     }
 
     private void setupTable(PlanEditor pE) {
+
+        JPopupMenu menu = new JPopupMenu();
+
         //Set renderer
         table.setDefaultRenderer(Object.class, new DefaultTableCellRenderer() {
             private static final long serialVersionUID = -4859420619704314087L;
@@ -111,6 +124,12 @@ public class MissionOverviewPanel extends JPanel {
                     pE.updateSelected(m);
                     prevSelectedRow = row;
                 }
+            }
+
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                if (SwingUtilities.isRightMouseButton(e))
+                    menu.show(table, e.getX(), e.getY());
             }
         });
 
@@ -168,8 +187,55 @@ public class MissionOverviewPanel extends JPanel {
 
         table.getActionMap().put("nextMark", nextMark);
 
+        menu.addPopupMenuListener(new PopupMenuListener() {
+
+            @Override
+            public void popupMenuWillBecomeVisible(PopupMenuEvent e) {
+                SwingUtilities.invokeLater(new Runnable() {
+                    @Override
+                    public void run() {
+                        int rowAtPoint = table.rowAtPoint(SwingUtilities.convertPoint(menu, new Point(0, 0), table));
+                        if (rowAtPoint > -1) {
+                            Maneuver m = model.getManeuver(rowAtPoint);
+                            pE.updateSelected(m);
+                            prevSelectedRow = rowAtPoint;
+                        }
+                    }
+                });
+            }
+
+            @Override
+            public void popupMenuWillBecomeInvisible(PopupMenuEvent e) {
+                // TODO Auto-generated method stub
+            }
+
+            @Override
+            public void popupMenuCanceled(PopupMenuEvent e) {
+                // TODO Auto-generated method stub
+            }
+        });
+
+        AbstractAction copyAction = new AbstractAction(I18n.text("Copy maneuver to clipboard")) {
+
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                System.out.println("HERE");
+                ClipboardOwner owner = new ClipboardOwner() {
+                    @Override
+                    public void lostOwnership(java.awt.datatransfer.Clipboard clipboard,
+                            java.awt.datatransfer.Transferable contents) {
+                    }
+                };
+                Toolkit.getDefaultToolkit().getSystemClipboard()
+                        .setContents(new StringSelection(PlanEditor.getManeuverpreamble() + selectedManeuver.getManeuverXml()), owner);
+            }
+        };
+
+        menu.add(copyAction);
+        table.add(menu);
         //Set prefered size
         table.setPreferredScrollableViewportSize(new Dimension(700, 80));
+
     }
 
     private int getRowFromManeuver(Maneuver man) {

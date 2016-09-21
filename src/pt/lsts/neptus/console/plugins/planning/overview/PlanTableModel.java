@@ -55,7 +55,7 @@ import pt.lsts.neptus.util.DateTimeUtil;
 import pt.lsts.neptus.util.GuiUtils;
 
 /**
- * @author Manuel R.
+ * @author Manuel Ribeiro
  *
  */
 public class PlanTableModel extends AbstractTableModel {
