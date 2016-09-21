@@ -279,10 +279,14 @@ public class ImageElement extends AbstractElement implements ScalableElement, Ro
     }
 
     /**
+     * Please note that setting this will set the scale horizontal
+     * equal to the vertical.
+     * 
      * @param imageScale The imageScale to set.
      */
     public void setImageScale(double imageScale) {
         this.imageScale = imageScale;
+        setImageScaleV(Double.NaN);;
     }
     
     /**
@@ -501,6 +505,7 @@ public class ImageElement extends AbstractElement implements ScalableElement, Ro
         params.setCenter(getCenterLocation());
         params.setImageFileName(getImageFileName());
         params.setImageScale(getImageScale());
+        params.setImageScaleV(getImageScaleV());
         params.setIsBathymetric(isBathymetric());
         params.setMaxHeight(getMaxHeight());
         params.setMaxDepth(getMaxDepth());
@@ -519,6 +524,7 @@ public class ImageElement extends AbstractElement implements ScalableElement, Ro
         setCenterLocation(params.getCenter());
         setImageFileName(params.getImageFileName());
         setImageScale(params.getImageScale());
+        setImageScaleV(params.getImageScaleV());
         setBathymetric(params.getIsBathymetric());
         setMaxHeight(params.getMaxHeight());
         setMaxDepth(params.getMaxDepth());

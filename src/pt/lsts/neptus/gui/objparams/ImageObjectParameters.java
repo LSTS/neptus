@@ -40,6 +40,7 @@ import java.awt.Image;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
 import java.io.File;
 import java.text.NumberFormat;
 
@@ -51,6 +52,7 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
 
+import net.miginfocom.swing.MigLayout;
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.gui.ImageFileChooser;
 import pt.lsts.neptus.gui.ImageScaleAndLocationPanel;
@@ -78,7 +80,9 @@ public class ImageObjectParameters extends ParametersPanel {
 	private JButton changeCenter = null;
 	private JPanel jPanel4 = null;
 	private JLabel jLabel3 = null;
+	private JCheckBox vScaleCheckBox = null;
 	private JFormattedTextField scale = null;
+    private JFormattedTextField scaleV = null;
 	private NumberFormat df = GuiUtils.getNeptusDecimalFormat();
 	
 	private String imageFileName = null;
@@ -228,7 +232,7 @@ public class ImageObjectParameters extends ParametersPanel {
 			jPanel2 = new JPanel();
 			jPanel2.setLayout(flowLayout1);
 			jLabel1.setText(I18n.text("Center:"));
-			flowLayout1.setVgap(30);
+			flowLayout1.setVgap(15);
 			jPanel2.add(jLabel1, null);
 			jPanel2.add(getChangeCenter(), null);
 			jPanel2.add(getJPanel4(), null);
@@ -265,11 +269,22 @@ public class ImageObjectParameters extends ParametersPanel {
 	 */    
 	private JPanel getJPanel4() {
 		if (jPanel4 == null) {
+		    jPanel4 = new JPanel(new MigLayout());
 			jLabel3 = new JLabel();
-			jPanel4 = new JPanel();
 			jLabel3.setText(I18n.text("Scale (m/pixel):"));
-			jPanel4.add(jLabel3, null);
-			jPanel4.add(getScale(), null);
+			jPanel4.add(jLabel3, "");
+			jPanel4.add(getScale(), "wrap");
+			vScaleCheckBox = new JCheckBox(I18n.text("Vertical Scale:"));
+			vScaleCheckBox.addItemListener(new ItemListener() {
+			    public void itemStateChanged(java.awt.event.ItemEvent e) {
+			        if (e.getStateChange() == ItemEvent.SELECTED)
+			            getScaleV().setEnabled(true);
+			        else 
+			            getScaleV().setEnabled(false);
+			    }
+			});
+			jPanel4.add(vScaleCheckBox);
+			jPanel4.add(getScaleV(), "wrap");
 		}
 		return jPanel4;
 	}
@@ -282,12 +297,21 @@ public class ImageObjectParameters extends ParametersPanel {
 	private JFormattedTextField getScale() {
 		if (scale == null) {
 			scale = new JFormattedTextField(df);
-			scale.setPreferredSize(new java.awt.Dimension(40,20));
+			scale.setPreferredSize(new java.awt.Dimension(60,20));
 			scale.setText("1.0");
 		}
 		return scale;
 	}
-	
+
+	private JFormattedTextField getScaleV() {
+	    if (scaleV == null) {
+	        scaleV = new JFormattedTextField(df);
+	        scaleV.setPreferredSize(new java.awt.Dimension(60,20));
+	        scaleV.setText("1.0");
+	    }
+	    return scaleV;
+	}
+
 	public LocationType getCenter() {
 		return center;
 	}
@@ -314,7 +338,27 @@ public class ImageObjectParameters extends ParametersPanel {
 	public void setImageScale(double scale) {
 		getScale().setText(String.valueOf(scale));
 	}
-	
+
+	public double getImageScaleV() {
+	    if (vScaleCheckBox.isSelected())
+	        return Double.parseDouble(getScaleV().getText());
+	    else
+	        return Double.NaN;
+	}
+
+	public void setImageScaleV(double scaleV) {
+	    if (Double.isNaN(scaleV)) {
+	        vScaleCheckBox.setSelected(!false);
+	        vScaleCheckBox.doClick();
+            getScaleV().setText("1.0");
+	    }
+	    else {
+            vScaleCheckBox.setSelected(!true);
+            vScaleCheckBox.doClick();
+	        getScaleV().setText(String.valueOf(scaleV));
+	    }
+	}
+
 	/**
 	 * This method initializes jPanel1	
 	 * 	
@@ -360,6 +404,9 @@ public class ImageObjectParameters extends ParametersPanel {
                         if (ImageScaleAndLocationPanel.showDialog(tmp,
                                 SwingUtilities.getWindowAncestor(ImageObjectParameters.this))) {
 							getScale().setText(String.valueOf(tmp.getImageScale()));
+                            getScaleV().setText(String.valueOf(
+                                    Double.isNaN(tmp.getImageScaleV()) ? tmp.getImageScale() : tmp.getImageScaleV()));
+                            vScaleCheckBox.setSelected(!Double.isNaN(tmp.getImageScaleV()));
 							center = tmp.getCenterLocation();
 						}
 					}
