@@ -35,16 +35,22 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
+import java.awt.Image;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.io.File;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.net.URLConnection;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.TreeMap;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipInputStream;
 
 import javax.swing.DefaultListModel;
 import javax.swing.JFileChooser;
@@ -59,10 +65,15 @@ import javax.swing.ListCellRenderer;
 import javax.swing.SwingUtilities;
 
 import de.micromata.opengis.kml.v_2_2_0.Coordinate;
+import de.micromata.opengis.kml.v_2_2_0.Feature;
+import de.micromata.opengis.kml.v_2_2_0.GroundOverlay;
+import de.micromata.opengis.kml.v_2_2_0.Kml;
+import de.micromata.opengis.kml.v_2_2_0.LatLonBox;
 import de.micromata.opengis.kml.v_2_2_0.LineString;
 import de.micromata.opengis.kml.v_2_2_0.Placemark;
 import de.micromata.opengis.kml.v_2_2_0.Point;
 import de.micromata.opengis.kml.v_2_2_0.Polygon;
+import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.console.ConsoleLayout;
 import pt.lsts.neptus.console.ConsolePanel;
 import pt.lsts.neptus.i18n.I18n;
@@ -74,14 +85,18 @@ import pt.lsts.neptus.plugins.Popup;
 import pt.lsts.neptus.plugins.Popup.POSITION;
 import pt.lsts.neptus.renderer2d.LayerPriority;
 import pt.lsts.neptus.types.coord.LocationType;
+import pt.lsts.neptus.types.map.ImageElement;
 import pt.lsts.neptus.types.map.MapGroup;
 import pt.lsts.neptus.types.map.MapType;
 import pt.lsts.neptus.types.map.MarkElement;
 import pt.lsts.neptus.types.map.PathElement;
 import pt.lsts.neptus.types.mission.MissionType;
 import pt.lsts.neptus.types.mission.plan.PlanType;
+import pt.lsts.neptus.util.AngleUtils;
+import pt.lsts.neptus.util.FileUtil;
 import pt.lsts.neptus.util.GuiUtils;
 import pt.lsts.neptus.util.ImageUtils;
+import pt.lsts.neptus.util.StreamUtil;
 import pt.lsts.neptus.util.conf.ConfigFetch;
 
 /**
@@ -106,15 +121,14 @@ public class KmlImport extends ConsolePanel {
     private JMenuItem rightClickAddItem;
     private JMenuItem rightClickAddAsPlan; /* add kml LineStrings as vehicles plans */
 
-
     private JList<JLabel> listingPanel; /* actual listing of kml features */
     private final DefaultListModel<JLabel> listModel = new DefaultListModel<>();
     private JFileChooser fileChooser;
 
-    private TreeMap<String, Placemark> kmlFeatures; /* init in listKmlFeatures()*/
+    private TreeMap<String, Feature> kmlFeatures; /* init in listKmlFeatures()*/
     private TreeMap<String, String> featuresGeom; /* init in listKmlFeatures()*/
+    private TreeMap<String, File> overlayImages;
     private ArrayList<String> addedFeatures; /* features already added to the map */    
-
 
     public KmlImport(ConsoleLayout console) {
         super(console);
@@ -122,7 +136,6 @@ public class KmlImport extends ConsolePanel {
         initPluginPanel();        
         initListingPanel();  
     }
-
 
     private void initPluginPanel() {
         setLayout(new BorderLayout());
@@ -227,10 +240,18 @@ public class KmlImport extends ConsolePanel {
         featuresGeom = new TreeMap<>();
 
         for(String fname : kmlFeatures.keySet()) {
-            String fgeom = kmlFeatures.get(fname).getGeometry().getClass().getSimpleName();
+            String fgeom = extractFeatureType(fname);
             featuresGeom.put(fname, fgeom);
             listModel.addElement(getFeatureLabel(fname, fgeom));
         }
+    }
+
+    private String extractFeatureType(String fname) {
+        Feature f = kmlFeatures.get(fname);
+        if (f instanceof Placemark)
+            return ((Placemark) f).getGeometry().getClass().getSimpleName();
+
+        return f.getClass().getSimpleName();
     }
     
     private JLabel getFeatureLabel(String fname, String fgeom) {
@@ -243,6 +264,8 @@ public class KmlImport extends ConsolePanel {
             iconUrl = "pt/lsts/neptus/plugins/map/interactions/draw-line.png";
         else if(fgeom.equals("Polygon"))
             iconUrl = "pt/lsts/neptus/plugins/map/interactions/poly.png";
+        else if (fgeom.equals("GroundOverlay"))
+            iconUrl = "images/buttons/new_image.png";
         
         feature.setName(fname);
         feature.setIcon(ImageUtils.getScaledIcon(iconUrl, 15, 15));        
@@ -258,6 +281,7 @@ public class KmlImport extends ConsolePanel {
                     File selectedFile = fileChooser.getSelectedFile();                 
                     try {
                         URL fileUrl = selectedFile.toURI().toURL();
+                        kmlFeatUrl = fileUrl.toString();
                         listKmlFeatures(fileUrl, true);
                     }
                     catch(MalformedURLException e1) {
@@ -285,21 +309,28 @@ public class KmlImport extends ConsolePanel {
     }
 
     private void addFeatureToMap(String featName, String idByUser, boolean addAsPlan) {
-        Placemark feature = kmlFeatures.get(featName);
+        Feature f = kmlFeatures.get(featName);
         String featGeom = featuresGeom.get(featName);
         
-        if(featGeom.equals("Point"))
-            addAsPoint((Point)((Placemark) feature).getGeometry(), idByUser);
-        
-        else if(featGeom.equals("LineString"))
-            if(!addAsPlan)
-                addAsPathElement(feature, idByUser, false);
-            else
-                addLineStringAsPlan(feature, idByUser);
-        
-        else if(featGeom.equals("Polygon"))
-            addAsPathElement(feature, idByUser, true);
-
+        if (f instanceof Placemark) {
+            Placemark feature = (Placemark) f;
+            
+            if(featGeom.equals("Point")) {
+                addAsPoint((Point) feature.getGeometry(), idByUser);
+            }
+            else if(featGeom.equals("LineString")) {
+                if(!addAsPlan)
+                    addAsPathElement(feature, idByUser, false);
+                else
+                    addLineStringAsPlan(feature, idByUser);
+            }
+            else if(featGeom.equals("Polygon")) {
+                addAsPathElement(feature, idByUser, true);
+            }
+        }
+        else if (f instanceof GroundOverlay) {
+            addAsImage((GroundOverlay) f, idByUser);
+        }
         
         addedFeatures.add(featName);
     }
@@ -307,7 +338,7 @@ public class KmlImport extends ConsolePanel {
     private void addAsPoint(Point point, String idByUser) {
         Coordinate coords = point.getCoordinates().get(0);
         
-        MapType mapType = MapGroup.getMapGroupInstance(getConsole().getMission()).getMaps()[0];
+        MapType mapType = getMapToAddElements();
         MarkElement kmlPoint = new MarkElement(mapType.getMapGroup(), mapType);
         LocationType kmlPointLoc = new LocationType(coords.getLatitude(), coords.getLongitude());
 
@@ -321,7 +352,7 @@ public class KmlImport extends ConsolePanel {
     
     /* Add a LineString or Polygon as a Neptus PathElement */
     private void addAsPathElement(Placemark feature, String idByUser, boolean isFilled) {
-        MapType mapType = MapGroup.getMapGroupInstance(getConsole().getMission()).getMaps()[0];
+        MapType mapType = getMapToAddElements();
         List<Coordinate> coords = getPathCoordinates(feature, isFilled);       
         
         LocationType firstLoc = new LocationType(coords.get(0).getLatitude(), coords.get(0).getLongitude());
@@ -392,6 +423,214 @@ public class KmlImport extends ConsolePanel {
         return coords;
     }
     
+    /**
+     * @param feature
+     * @param idByUser
+     */
+    private void addAsImage(GroundOverlay feature, String idByUser) {
+        MapType mapType = getMapToAddElements();
+//        mapType.asDocument();
+        
+        String fHref = feature.getIcon().getHref();
+        
+        ImageElement imgElement = new ImageElement(mapType.getMapGroup(), mapType);
+        
+        boolean fVisible = feature.isVisibility() == null ? true : feature.isVisibility();
+        int transparency = 100; // 0 to 100
+        try {
+            String fColor = feature.getColor(); // aabbggrr
+            if (fColor != null && fColor.length() == 8) {
+                transparency = Integer.parseUnsignedInt(fColor.substring(0, 2), 16);
+                transparency = transparency * 100 / 255;
+            }
+        }
+        catch (NumberFormatException e) {
+            e.printStackTrace();
+        }
+        if (!fVisible)
+            transparency = 0;
+        
+        double nLat = 0;
+        double sLat = 0;
+        double eLon = 0;
+        double wLon = 0;
+        LatLonBox latLonBox = feature.getLatLonBox();
+        if (latLonBox != null) {
+            nLat = latLonBox.getNorth();
+            sLat = latLonBox.getSouth();
+            eLon = latLonBox.getEast();
+            wLon = latLonBox.getWest();
+        }
+        else {
+            return;
+        }
+        
+        // Not supported by ImageElement
+        double rotationDeg = latLonBox.getRotation(); // CounterClockWise
+        rotationDeg = AngleUtils.nomalizeAngleDegrees360(360 - rotationDeg); // Make it ClockWise
+        
+        LocationType topLeftLoc = new LocationType(nLat, wLon);
+        LocationType topRightLoc = new LocationType(nLat, eLon);
+        LocationType bottomLeftLoc = new LocationType(sLat, wLon);
+        LocationType bottomRightLoc = new LocationType(sLat, eLon);
+        
+        addPathElement(rotationDeg, topLeftLoc, topRightLoc, bottomRightLoc, bottomLeftLoc);
+        
+        double meterDistanceH = topLeftLoc.getHorizontalDistanceInMeters(topRightLoc);
+        double meterDistanceV = topLeftLoc.getHorizontalDistanceInMeters(bottomLeftLoc);
+        
+        LocationType centerLoc = topLeftLoc.getNewAbsoluteLatLonDepth();
+        centerLoc.setOffsetSouth(meterDistanceV / 2);
+        centerLoc.setOffsetEast(meterDistanceH / 2);
+        centerLoc.convertToAbsoluteLatLonDepth();
+        
+        // Getting the image to local storage
+        
+        URL urlKml;
+        try {
+            urlKml = new URL(kmlFeatUrl);
+        }
+        catch (MalformedURLException e) {
+            e.printStackTrace();
+            return;
+        }
+        File imgFile = getImageFileFromKml(urlKml, fHref);
+        if (imgFile == null || !imgFile.exists())
+            return;
+        
+        Image img = ImageUtils.getImage(imgFile.getAbsolutePath());
+        
+        int imgWidth = img.getWidth(null);
+        int imgHeight = img.getHeight(null);
+        double scaleH = meterDistanceH / imgWidth;
+        double scaleV = meterDistanceV / imgHeight;
+        
+        imgElement.setCenterLocation(centerLoc);
+        imgElement.setTransparency(transparency);
+        imgElement.setYawDeg(rotationDeg);
+        imgElement.setImage(img);
+        imgElement.setImageFileName(imgFile.getAbsolutePath());
+        imgElement.setImageScale(scaleH);
+        
+        mapType.addObject(imgElement);
+        
+        MissionType mission = getConsole().getMission();
+        mission.save(false);
+    }
+
+    /**
+     * @param urlKml
+     * @param fHref
+     * @return
+     */
+    private File getImageFileFromKml(URL urlKml, String fHref) {
+        try {
+            // Try if path is absolute
+            File refFx = new File(fHref);
+            if (refFx.exists()) {
+                return refFx;
+            }
+            else {
+                try {
+                    // Try if path is URL
+                    URL refUrl = new URL(fHref);
+                    String fxName = new File(refUrl.getPath()).getName();
+                    URLConnection conn = refUrl.openConnection();
+                    InputStream reader = conn.getInputStream();
+                    File outFx = new File(new File(ConfigFetch.getNeptusTmpDir()), fxName);
+                    outFx.getParentFile().mkdirs();
+                    outFx.createNewFile();
+                    StreamUtil.copyStreamToFile(reader, outFx);
+                    if (outFx.exists())
+                        return outFx;
+                }
+                catch (MalformedURLException  e) {
+                    NeptusLog.pub().warn(e);
+                }
+            }
+            
+            switch (urlKml.getProtocol()) {
+                case "file":
+                    File kmlFx = new File(urlKml.toURI());
+                    String extFx = FileUtil.getFileExtension(kmlFx);
+                    if ("kml".equalsIgnoreCase(extFx)) {
+                        // At this stage the path must be relative
+                        File outFx = new File(kmlFx, fHref);
+                        if (outFx.exists())
+                            return outFx;
+                    }
+                    else if ("kmz".equalsIgnoreCase(extFx)) {
+                        ZipInputStream zip = new ZipInputStream(urlKml.openStream());
+                        ZipEntry entry;
+                        while ((entry = zip.getNextEntry()) != null) {
+                            String nm = entry.getName();
+                            if (fHref.equals(entry.getName())) {
+                                File outFx = new File(new File(ConfigFetch.getNeptusTmpDir()), nm);
+                                outFx.getParentFile().mkdirs();
+                                outFx.createNewFile();
+                                outFx.deleteOnExit();
+                                StreamUtil.copyStreamToFile(zip, outFx);
+                                if (outFx.exists())
+                                    return outFx;
+                            }
+                        }
+                    }
+                    break;
+                case "http":
+                case "https":
+                    break;
+                default:
+                    return null;
+            }
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    private void addPathElement(double rotationDegs, LocationType... locs) {
+        if (locs.length < 3)
+            return;
+        
+        MapType mapType = getMapToAddElements();
+
+        LocationType firstLoc = locs[0];
+        PathElement pathElem = new PathElement(mapType.getMapGroup(), mapType, firstLoc);
+        pathElem.addPoint(0, 0, 0, false);
+
+        /* add points to the path */
+        for(int i = 1; i < locs.length; i++) {
+            LocationType elemLoc = locs[i];
+            double offsets[] = elemLoc.getOffsetFrom(firstLoc);
+            pathElem.addPoint(offsets[1], offsets[0], offsets[2], false);
+        }    
+        
+        pathElem.setFilled(true);
+        pathElem.setShape(true);
+        
+        pathElem.setYawDeg(rotationDegs);
+        
+        mapType.addObject(pathElem);
+    }
+//    private void calculate(double nLat, double sLat, double eLon, double wLon, ImageElement img) {
+//        double pixelDistance = mark1.getCenterLocation().getHorizontalDistanceInMeters(mark2.getCenterLocation());
+//        double meterDistance = lt1.getHorizontalDistanceInMeters(lt2);      
+//        double scale = meterDistance / pixelDistance;
+//        
+//        double[] pixelOffsets = (new LocationType()).getOffsetFrom(mark1.getCenterLocation());
+//        
+//        LocationType finalLoc = new LocationType(lt1);
+//        finalLoc.translatePosition(pixelOffsets[0]*scale, pixelOffsets[1]*scale, pixelOffsets[2]*scale);        
+//        
+//        imgObject.setCenterLocation(finalLoc);
+//        imgObject.setImageScale(scale);
+//    }
+
+    private MapType getMapToAddElements() {
+        return MapGroup.getMapGroupInstance(getConsole().getMission()).getMaps()[0];
+    }
+
     private void cleanListing() {
         int nElements = listModel.getSize();
         if(nElements != 0)           
@@ -401,7 +640,6 @@ public class KmlImport extends ConsolePanel {
     private void showErrorMessage(String msg) {
         GuiUtils.errorMessage(this, this.getName(), msg);
     }
-
 
     private class CustomListCellRenderer implements ListCellRenderer<JLabel> {
         @Override
