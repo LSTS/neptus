@@ -219,7 +219,6 @@ public class MissionOverviewPanel extends JPanel {
 
             @Override
             public void actionPerformed(ActionEvent e) {
-                System.out.println("HERE");
                 ClipboardOwner owner = new ClipboardOwner() {
                     @Override
                     public void lostOwnership(java.awt.datatransfer.Clipboard clipboard,
