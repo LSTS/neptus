@@ -96,6 +96,7 @@ import pt.lsts.neptus.util.AngleUtils;
 import pt.lsts.neptus.util.FileUtil;
 import pt.lsts.neptus.util.GuiUtils;
 import pt.lsts.neptus.util.ImageUtils;
+import pt.lsts.neptus.util.NameNormalizer;
 import pt.lsts.neptus.util.StreamUtil;
 import pt.lsts.neptus.util.conf.ConfigFetch;
 
@@ -165,7 +166,8 @@ public class KmlImport extends ConsolePanel {
             public void actionPerformed(ActionEvent e) {
                 int selectedFeatureIndex = listingPanel.getSelectedIndex();
                 String featName = ((JLabel) listModel.getElementAt(selectedFeatureIndex)).getText();
-                String idByUser = JOptionPane.showInputDialog(I18n.text("Element ID"), featName);
+                String validID = NameNormalizer.asIdentifier(featName);
+                String idByUser = JOptionPane.showInputDialog(I18n.text("Element ID"), validID);
                 
                 String ret = null;
                 try {
@@ -189,7 +191,8 @@ public class KmlImport extends ConsolePanel {
             public void actionPerformed(ActionEvent e) {
                 int selectedFeatureIndex = listingPanel.getSelectedIndex();
                 String featName = ((JLabel) listModel.getElementAt(selectedFeatureIndex)).getText();
-                String idByUser = JOptionPane.showInputDialog(I18n.text("Plan ID"), featName);
+                String validID = NameNormalizer.asIdentifier(featName);
+                String idByUser = JOptionPane.showInputDialog(I18n.text("Plan ID"), validID);
                 
                 String ret = null;
                 try {

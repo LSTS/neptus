@@ -125,7 +125,7 @@ public class KmlReader {
         featName = featName.trim();
         
         if (featName.isEmpty())
-            featName = pm.getId();
+            featName = "id" + pm.getId();
         
         return featName;
     }
