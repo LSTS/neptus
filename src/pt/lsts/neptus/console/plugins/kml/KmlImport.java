@@ -442,6 +442,7 @@ public class KmlImport extends ConsolePanel {
             if (fColor != null && fColor.length() == 8) {
                 transparency = Integer.parseUnsignedInt(fColor.substring(0, 2), 16);
                 transparency = transparency * 100 / 255;
+                transparency = 100 - transparency; // It is the reverse!
             }
         }
         catch (NumberFormatException e) {
