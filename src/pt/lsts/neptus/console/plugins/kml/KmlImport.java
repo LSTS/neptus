@@ -453,6 +453,7 @@ public class KmlImport extends ConsolePanel {
         LocationType topLeftLoc = null;
         LocationType topRightLoc = null;
         LocationType bottomLeftLoc = null;
+        @SuppressWarnings("unused")
         LocationType bottomRightLoc = null;
         LatLonBox latLonBox = feature.getLatLonBox();
         if (latLonBox != null) {
@@ -498,7 +499,7 @@ public class KmlImport extends ConsolePanel {
         double rotationDeg = latLonBox == null ? 0 : latLonBox.getRotation(); // CounterClockWise
         rotationDeg = AngleUtils.nomalizeAngleDegrees360(360 - rotationDeg); // Make it ClockWise
         
-        addPathElement(rotationDeg, topLeftLoc, topRightLoc, bottomRightLoc, bottomLeftLoc);
+        // addPathElement(rotationDeg, topLeftLoc, topRightLoc, bottomRightLoc, bottomLeftLoc);
         
         double meterDistanceH = topLeftLoc.getHorizontalDistanceInMeters(topRightLoc);
         double meterDistanceV = topLeftLoc.getHorizontalDistanceInMeters(bottomLeftLoc);
@@ -616,6 +617,7 @@ public class KmlImport extends ConsolePanel {
         return null;
     }
 
+    @SuppressWarnings("unused")
     private void addPathElement(double rotationDegs, LocationType... locs) {
         if (locs.length < 3)
             return;
