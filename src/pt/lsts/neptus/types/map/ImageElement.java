@@ -511,6 +511,8 @@ public class ImageElement extends AbstractElement implements ScalableElement, Ro
         params.setMaxDepth(getMaxDepth());
         params.setResolution(getResolution());
         params.setBathimFile(getBathymetricImageFileName());
+        params.setTransparency(getTransparency());
+        params.setRotationDegs(getYawDeg());
         return params;
     }
 
@@ -529,6 +531,8 @@ public class ImageElement extends AbstractElement implements ScalableElement, Ro
         setMaxHeight(params.getMaxHeight());
         setMaxDepth(params.getMaxDepth());
         setResolution(params.getResolution());
+        setTransparency(params.getTransparency());
+        setYawDeg(params.getRotationDegs());
 
         if (isBathymetric() && params.getBathimFile() != null)
             setBathymetricImageFileName(params.getBathimFile().getAbsolutePath());

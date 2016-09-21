@@ -717,7 +717,6 @@ public abstract class AbstractElement
      */
     @Override
     public void actionPerformed(ActionEvent action) {
-        
         if ("add".equals(action.getActionCommand())) {
             
             if (!NameNormalizer.isNeptusValidIdentifier(objName.getText())) {
@@ -738,7 +737,6 @@ public abstract class AbstractElement
                     }
                 }
             }
-        
                         
             if (paramsPanel.getErrors() != null) {
                 JOptionPane.showMessageDialog(paramsPanel, paramsPanel.getErrors());
@@ -750,6 +748,10 @@ public abstract class AbstractElement
             setObstacle(obstacleCheck.isSelected());
             transparency = hiddenCheck.isSelected() ? 100 : 0;
             initialize(paramsPanel);
+
+            // We need to recheck the transparency for images
+            if (hiddenCheck.isSelected())
+                transparency = 100;
             
             dialog.setVisible(false);
             dialog.dispose();
