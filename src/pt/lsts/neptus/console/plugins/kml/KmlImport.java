@@ -101,10 +101,11 @@ import pt.lsts.neptus.util.conf.ConfigFetch;
 
 /**
  * @author tsmarques
- *
+ * @author pdias
  */
 @SuppressWarnings("serial")
-@PluginDescription(name = "Kml Import", description = "Import map features from KML, from a file or URL", author = "tsmarques", version = "0.1")
+@PluginDescription(name = "Kml Import", description = "Import map features from KML, from a file or URL", 
+    author = "tsmarques", version = "0.6", icon = "pt/lsts/neptus/console/plugins/kml/kml-icon.png")
 @Popup(name = "Kml Import", pos = POSITION.CENTER, width = 230, height = 500)
 @LayerPriority(priority = 50)
 public class KmlImport extends ConsolePanel {
