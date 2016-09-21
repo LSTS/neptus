@@ -511,6 +511,7 @@ public class KmlImport extends ConsolePanel {
         imgElement.setImage(img);
         imgElement.setImageFileName(imgFile.getAbsolutePath());
         imgElement.setImageScale(scaleH);
+        imgElement.setImageScaleV(scaleV);
         
         mapType.addObject(imgElement);
         
