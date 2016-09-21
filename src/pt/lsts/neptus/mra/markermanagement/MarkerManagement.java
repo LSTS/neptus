@@ -32,10 +32,14 @@
 
 package pt.lsts.neptus.mra.markermanagement;
 
+import java.awt.BorderLayout;
 import java.awt.Dialog.ModalityType;
 import java.awt.Dimension;
+import java.awt.FlowLayout;
+import java.awt.Font;
 import java.awt.Point;
 import java.awt.Toolkit;
+import java.awt.Window;
 import java.awt.datatransfer.Clipboard;
 import java.awt.datatransfer.StringSelection;
 import java.awt.event.ActionEvent;
@@ -50,6 +54,7 @@ import java.io.IOException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
@@ -58,12 +63,20 @@ import java.util.Set;
 import javax.imageio.ImageIO;
 import javax.swing.AbstractAction;
 import javax.swing.Action;
+import javax.swing.DefaultComboBoxModel;
 import javax.swing.JButton;
+import javax.swing.JComboBox;
 import javax.swing.JDialog;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JMenu;
+import javax.swing.JMenuBar;
+import javax.swing.JMenuItem;
 import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
+import javax.swing.JTextField;
 import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
 import javax.xml.parsers.DocumentBuilder;
@@ -77,6 +90,7 @@ import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 
 import org.apache.commons.io.FileUtils;
+import org.jdesktop.swingx.JXBusyLabel;
 import org.w3c.dom.Attr;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -99,6 +113,7 @@ import pt.lsts.neptus.mra.api.SidescanParser;
 import pt.lsts.neptus.mra.api.SidescanParserFactory;
 import pt.lsts.neptus.mra.importers.IMraLogGroup;
 import pt.lsts.neptus.mra.markermanagement.LogMarkerItem.Classification;
+import pt.lsts.neptus.plugins.messages.Java2sAutoTextField;
 import pt.lsts.neptus.types.coord.LocationType;
 import pt.lsts.neptus.util.DateTimeUtil;
 import pt.lsts.neptus.util.Dom4JUtil;
@@ -114,24 +129,27 @@ import pt.lsts.neptus.util.llf.LsfReportProperties;
 public class MarkerManagement {
 
     private final int DEFAULT_COLUMN_TO_SORT = 0;
+    private static final String SHOW_ICON = "images/buttons/show.png";
+    private static final String ANY_TXT = I18n.text("<ANY>");
+    private final ArrayList<SidescanLogMarker> logMarkers = new ArrayList<>();
+    protected MRAPanel mraPanel;
+    private static InfiniteProgressPanel loader = InfiniteProgressPanel.createInfinitePanelBeans("");
+    private FinderDialog find = null;
     private JDialog frmMarkerManagement;
     private JPanel panel;
-    protected MRAPanel mraPanel;
     private JTable table;
     private LogMarkerItemModel tableModel;
     private MarkerEdit markerEditFrame;
-    private final ArrayList<SidescanLogMarker> logMarkers = new ArrayList<>();
     private List<LogMarkerItem> markerList = new ArrayList<>();
     private String markerFilePath;
     private Document dom;
-    private static InfiniteProgressPanel loader = InfiniteProgressPanel.createInfinitePanelBeans("");
 
     public MarkerManagement(NeptusMRA mra, MRAPanel mraPanel) {
         this.mraPanel = mraPanel;
         initialize();
     }
 
-    private double depth(long timestamp) { 
+    private double depth(long timestamp) {
         IMraLogGroup source = mraPanel.getSource();
         CorrectedPosition pos = new CorrectedPosition(source);
         return pos.getPosition(timestamp / 1000.0).toEstimatedState().getDepth();
@@ -179,16 +197,16 @@ public class MarkerManagement {
 
     }
 
-    private void setupPrintButton() {
-        JButton prntButton = new JButton();
+    private void setupExportButton() {
+        JButton exportButton = new JButton();
 
-        prntButton.setHorizontalTextPosition(SwingConstants.CENTER);
-        prntButton.setVerticalTextPosition(SwingConstants.BOTTOM);
-        prntButton.setIcon(ImageUtils.getIcon("images/menus/print.png"));
+        exportButton.setHorizontalTextPosition(SwingConstants.CENTER);
+        exportButton.setVerticalTextPosition(SwingConstants.BOTTOM);
+        exportButton.setIcon(ImageUtils.getIcon("images/menus/print.png"));
 
-        panel.add(prntButton, "cell 0 0");
+        panel.add(exportButton, "cell 0 0");
 
-        prntButton.addActionListener(new ActionListener() {
+        exportButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 if (table != null) {
@@ -201,6 +219,142 @@ public class MarkerManagement {
             }
         });
     }
+
+    private class FinderDialog extends JDialog {
+        private Java2sAutoTextField lblTxt;
+        private JButton prevBtn, nextBtn, findBtn;
+        private JLabel statusLbl;
+        private JXBusyLabel busyLbl;
+        private Window parent;
+        private ArrayList<String> lblList = new ArrayList<>();
+        
+        public FinderDialog(Window parent) {
+            super(parent, ModalityType.MODELESS);
+            this.parent = parent;
+
+            initComponents();
+        }
+        
+        public void updateList() {
+            //TODO:
+        }
+        
+        private void initComponents() {
+
+           // setIconImage(MarkerManagement.this.getIcon().getImage());
+            setSize(290,270);
+            setTitle(I18n.text("Find"));
+            setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+            setResizable(false);
+
+            getContentPane().setLayout(new MigLayout("", "[][grow]", "[][][][][][]"));
+
+            new Thread(new LoadComponentsThread()).start();
+
+        }
+
+        private class LoadComponentsThread implements Runnable {
+
+            @SuppressWarnings({ "unchecked", "rawtypes" })
+            @Override
+            public void run() {
+                
+                Font defaultFont = new Font("Dialog", Font.BOLD, 11);
+                JPanel buttonPane = new JPanel();
+                buttonPane.setLayout(new FlowLayout(FlowLayout.RIGHT));
+                JPanel panel = new JPanel();
+                getContentPane().add(buttonPane, BorderLayout.SOUTH);
+                getContentPane().add(panel, BorderLayout.CENTER);
+
+                prevBtn = new JButton("Prev.");
+                nextBtn = new JButton("Next");
+                findBtn = new JButton("Find");
+                
+                getRootPane().setDefaultButton(findBtn);
+                panel.setLayout(new MigLayout("", "[][grow]", "[][][][][][][]"));
+                JLabel labelLbl = new JLabel("Label:");
+                JLabel altLbl = new JLabel("Altitude:");
+                JLabel depthLbl = new JLabel("Depth:");
+                JLabel locRadLbl = new JLabel("Radius:");
+                JLabel classLbl = new JLabel("Class.:");
+                JLabel annotLbl = new JLabel("Annot.:");
+                JLabel tagsLbl = new JLabel("Tags:");
+                
+                JTextField altValueTxt = new JTextField();
+                JTextField depthValueTxt = new JTextField();
+                
+                ArrayList<String> model1 = new ArrayList<>();
+                
+                JComboBox depthParamCBox = new JComboBox();
+                JComboBox altParamCBox = new JComboBox();
+                JComboBox classCBox = new JComboBox();
+                JTextField tagsTxt = new JTextField();
+                
+                model1.add(ANY_TXT);
+                Classification[] classifList = LogMarkerItem.Classification.values();
+                for (int i=0; i < classifList.length; i++) {
+                    model1.add(classifList[i].toString());
+                }
+                
+                altParamCBox.setModel(new DefaultComboBoxModel(new String[] {ANY_TXT, "<=", ">="}));
+                depthParamCBox.setModel(new DefaultComboBoxModel(new String[] {ANY_TXT, "<=", ">="}));
+                classCBox.setModel(new DefaultComboBoxModel(model1.toArray()));
+    
+                altValueTxt.setColumns(5);
+                depthValueTxt.setColumns(5);
+                tagsTxt.setColumns(10);
+                
+                for (LogMarkerItem lbl : markerList) 
+                    if (!lblList.contains(lbl.getLabel()))
+                        lblList.add(lbl.getLabel());
+                
+                Collections.sort(lblList, String.CASE_INSENSITIVE_ORDER);
+                lblList.add(0, ANY_TXT);
+                
+                initTypeField(lblList);
+                panel.add(labelLbl, "cell 0 0,alignx trailing");
+                panel.add(lblTxt, "cell 1 0,growx");
+                panel.add(altLbl, "cell 0 1,alignx trailing");
+                panel.add(altParamCBox, "cell 1 1,growx");
+                panel.add(altValueTxt, "cell 1 1");
+                panel.add(depthLbl, "cell 0 2,alignx trailing");
+                panel.add(depthParamCBox, "cell 1 2,growx");
+                panel.add(depthValueTxt, "cell 1 2");
+                panel.add(locRadLbl, "cell 0 3,alignx trailing");
+                panel.add(classLbl, "cell 0 4,alignx trailing");
+                panel.add(classCBox, "cell 1 4,growx");
+                panel.add(annotLbl, "cell 0 5,alignx trailing");
+                panel.add(tagsLbl, "cell 0 6,alignx trailing");
+                panel.add(tagsTxt, "cell 1 6,growx");
+                
+                buttonPane.add(prevBtn);
+                buttonPane.add(nextBtn);
+                buttonPane.add(findBtn);
+                
+                pack();
+            }
+        }
+        
+        private void initTypeField(ArrayList<String> items) {
+            lblTxt = new Java2sAutoTextField(items);
+            lblTxt.setFont(new Font("Dialog", Font.PLAIN, 11));
+            lblTxt.setColumns(10);
+            lblTxt.addMouseListener(new MouseAdapter() {
+                @Override
+                public void mouseClicked(MouseEvent e) {
+                    if (e.getClickCount() == 2) {
+                        lblTxt.selectAll();
+                    }
+                }
+            });
+            lblTxt.addActionListener(new ActionListener(){
+                public void actionPerformed(ActionEvent e){
+                    findBtn.doClick();
+                }});
+        }
+    }
+
+
     private class LoadMarkers implements Runnable {
 
         @Override
@@ -216,7 +370,65 @@ public class MarkerManagement {
             loader.stop();
             panel.remove(loader);
 
-            setupPrintButton();
+            // setupPrintButton();
+
+            JButton findBtn = new JButton();
+            findBtn.setHorizontalTextPosition(SwingConstants.CENTER);
+            findBtn.setVerticalTextPosition(SwingConstants.BOTTOM);
+            findBtn.setIcon(ImageUtils.createScaleImageIcon(SHOW_ICON, 13, 13));
+            findBtn.addActionListener(new ActionListener() {
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    if (find == null)
+                        find = new FinderDialog(SwingUtilities.windowForComponent(mraPanel));
+
+                    if (!find.isVisible()) {
+                        find.setVisible(true);
+                        find.pack();
+                    }
+                    else {
+                        find.setVisible(false);
+                        find.dispose();
+                    }
+                }
+            });
+
+            panel.add(findBtn, "cell 2 0,alignx right");
+
+            JMenuBar menuBar;
+            JMenu menu;
+            JMenuItem storeMenuItm, exitMenuItm;
+
+            menu = new JMenu("File");
+            menuBar = new JMenuBar();
+            menuBar.add(menu);
+
+            AbstractAction storeAction = new AbstractAction(I18n.text("Store in DB")) {
+
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    //TODO
+                }
+            };
+            
+            AbstractAction exitAction = new AbstractAction(I18n.text("Exit")) {
+
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    frmMarkerManagement.dispose();
+                }
+            };
+            
+            //a group of JMenuItems
+            storeMenuItm = new JMenuItem(storeAction);
+            exitMenuItm = new JMenuItem(exitAction);
+
+            menu.add(storeMenuItm);
+            menu.add(exitMenuItm);
+
+            menuBar.add(menu);
+
+            frmMarkerManagement.setJMenuBar(menuBar);
 
             tableModel = new LogMarkerItemModel(markerList);
             table = new JTable(tableModel);
@@ -230,6 +442,7 @@ public class MarkerManagement {
             tableModel.setTableSorter(DEFAULT_COLUMN_TO_SORT, table);
 
             table.addMouseListener(new MouseAdapter() {
+                @Override
                 public void mousePressed(MouseEvent me) {
                     JTable table =(JTable) me.getSource();
                     int rowIndex = table.getSelectedRow();

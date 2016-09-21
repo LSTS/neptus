@@ -179,7 +179,7 @@ public class MarkerEdit extends JDialog {
         panel.addFocusListener(l);
         getContentPane().add(panel, BorderLayout.CENTER);
         panel.setLayout(new MigLayout("", "[][][][][grow][][][][grow]", "[][][][][][][grow][][grow]"));
-        //FIXME
+
         markerImage = new JLabel() {
             @Override
             protected void paintComponent(Graphics g) {
@@ -503,7 +503,7 @@ public class MarkerEdit extends JDialog {
         int X = (int) MathMiscUtils.clamp(mouseX - RULER_SIZE -1, ZOOM_BOX_SIZE / 2, image.getWidth() - ZOOM_BOX_SIZE / 2);
         int Y = (int) MathMiscUtils.clamp(mouseY - RULER_SIZE -1, ZOOM_BOX_SIZE / 2, image.getHeight() - ZOOM_BOX_SIZE / 2);
 
-        //TODO : ir buscar crop da imagem ao proprio ficheiro, pq tem melhor resolução
+        //TODO : Crop from image file (better resolution)
 
         BufferedImage zoomImage = image.getSubimage(X - ZOOM_BOX_SIZE / 2, Y - ZOOM_BOX_SIZE / 2, 50, ZOOM_BOX_SIZE);
 
@@ -646,6 +646,8 @@ public class MarkerEdit extends JDialog {
             try {
                 String path = parent.mraPanel.getSource().getFile("Data.lsf").getParent();
                 File f = new File(path + selectedMarker.getSidescanImgPath());
+                //FIXME: Image is not being correctly show. Appears to be cut on the right side.
+                
 
                 image = ImageIO.read(f);
 
