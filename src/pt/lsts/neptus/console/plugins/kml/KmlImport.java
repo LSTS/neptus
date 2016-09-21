@@ -42,7 +42,6 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.io.File;
 import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
@@ -64,15 +63,16 @@ import javax.swing.JPopupMenu;
 import javax.swing.ListCellRenderer;
 import javax.swing.SwingUtilities;
 
+import de.micromata.opengis.kml.v_2_2_0.AbstractObject;
 import de.micromata.opengis.kml.v_2_2_0.Coordinate;
 import de.micromata.opengis.kml.v_2_2_0.Feature;
 import de.micromata.opengis.kml.v_2_2_0.GroundOverlay;
-import de.micromata.opengis.kml.v_2_2_0.Kml;
 import de.micromata.opengis.kml.v_2_2_0.LatLonBox;
 import de.micromata.opengis.kml.v_2_2_0.LineString;
 import de.micromata.opengis.kml.v_2_2_0.Placemark;
 import de.micromata.opengis.kml.v_2_2_0.Point;
 import de.micromata.opengis.kml.v_2_2_0.Polygon;
+import de.micromata.opengis.kml.v_2_2_0.gx.LatLonQuad;
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.console.ConsoleLayout;
 import pt.lsts.neptus.console.ConsolePanel;
@@ -127,7 +127,6 @@ public class KmlImport extends ConsolePanel {
 
     private TreeMap<String, Feature> kmlFeatures; /* init in listKmlFeatures()*/
     private TreeMap<String, String> featuresGeom; /* init in listKmlFeatures()*/
-    private TreeMap<String, File> overlayImages;
     private ArrayList<String> addedFeatures; /* features already added to the map */    
 
     public KmlImport(ConsoleLayout console) {
@@ -451,29 +450,53 @@ public class KmlImport extends ConsolePanel {
         if (!fVisible)
             transparency = 0;
         
-        double nLat = 0;
-        double sLat = 0;
-        double eLon = 0;
-        double wLon = 0;
+        LocationType topLeftLoc = null;
+        LocationType topRightLoc = null;
+        LocationType bottomLeftLoc = null;
+        LocationType bottomRightLoc = null;
         LatLonBox latLonBox = feature.getLatLonBox();
         if (latLonBox != null) {
-            nLat = latLonBox.getNorth();
-            sLat = latLonBox.getSouth();
-            eLon = latLonBox.getEast();
-            wLon = latLonBox.getWest();
+            double nLat = latLonBox.getNorth();
+            double sLat = latLonBox.getSouth();
+            double eLon = latLonBox.getEast();
+            double wLon = latLonBox.getWest();
+            topLeftLoc = new LocationType(nLat, wLon);
+            topRightLoc = new LocationType(nLat, eLon);
+            bottomLeftLoc = new LocationType(sLat, wLon);
+            bottomRightLoc = new LocationType(sLat, eLon);
         }
         else {
-            return;
+            List<AbstractObject> oExt = feature.getGroundOverlayObjectExtension();
+            for (AbstractObject abstractObject : oExt) {
+                if (abstractObject instanceof LatLonQuad) {
+                    // The coordinates must be specified in counter-clockwise order with the first
+                    // coordinate corresponding to the lower-left corner of the overlayed image.
+                    LatLonQuad latLonQuad = (LatLonQuad) abstractObject;
+                    List<Coordinate> coords = latLonQuad.getCoordinates();
+                    if (coords.size() == 4) {
+                        Coordinate cll = coords.get(0);
+                        bottomLeftLoc = new LocationType(cll.getLatitude(), cll.getLongitude());
+                        Coordinate clr = coords.get(1);
+                        bottomRightLoc = new LocationType(clr.getLatitude(), clr.getLongitude());
+                        Coordinate cur = coords.get(2);
+                        topRightLoc = new LocationType(cur.getLatitude(), cur.getLongitude());
+                        Coordinate cul = coords.get(3);
+                        topLeftLoc = new LocationType(cul.getLatitude(), cul.getLongitude());
+                    }
+                    break;
+                }
+            }
+            if (topLeftLoc == null)
+                return;
         }
         
-        // Not supported by ImageElement
-        double rotationDeg = latLonBox.getRotation(); // CounterClockWise
-        rotationDeg = AngleUtils.nomalizeAngleDegrees360(360 - rotationDeg); // Make it ClockWise
+        // For now only LatLonBox is supported!!!
+        if (latLonBox == null)
+            return;
         
-        LocationType topLeftLoc = new LocationType(nLat, wLon);
-        LocationType topRightLoc = new LocationType(nLat, eLon);
-        LocationType bottomLeftLoc = new LocationType(sLat, wLon);
-        LocationType bottomRightLoc = new LocationType(sLat, eLon);
+        // Not supported by ImageElement
+        double rotationDeg = latLonBox == null ? 0 : latLonBox.getRotation(); // CounterClockWise
+        rotationDeg = AngleUtils.nomalizeAngleDegrees360(360 - rotationDeg); // Make it ClockWise
         
         addPathElement(rotationDeg, topLeftLoc, topRightLoc, bottomRightLoc, bottomLeftLoc);
         
