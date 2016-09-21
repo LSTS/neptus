@@ -138,7 +138,7 @@ public class ImageObjectParameters extends ParametersPanel {
 	public ImageObjectParameters() {
 		super();
 		initialize();
-		setPreferredSize(new Dimension(525,320));
+		setPreferredSize(new Dimension(525, 350));
 	}
 	
 	/**
@@ -328,8 +328,10 @@ public class ImageObjectParameters extends ParametersPanel {
             transparencyTextField.setEnabled(false);
 
             transparencySlider = new JSlider(JSlider.HORIZONTAL, 0, 100, 0);
-            transparencySlider.setMajorTickSpacing(10);
+            transparencySlider.setMajorTickSpacing(20);
+            transparencySlider.setMinorTickSpacing(10);
             transparencySlider.setPaintTicks(true);
+            transparencySlider.setPaintLabels(true);
             transparencySlider.addChangeListener(new ChangeListener() {
                 @Override
                 public void stateChanged(ChangeEvent e) {
@@ -343,6 +345,7 @@ public class ImageObjectParameters extends ParametersPanel {
             rotationSlider.setMajorTickSpacing(90);
             rotationSlider.setMinorTickSpacing(10);
             rotationSlider.setPaintTicks(true);
+            rotationSlider.setPaintLabels(true);
             rotationSlider.addChangeListener(new ChangeListener() {
                 @Override
                 public void stateChanged(ChangeEvent e) {
@@ -351,8 +354,10 @@ public class ImageObjectParameters extends ParametersPanel {
                     double rotDeg = rotI;
                     try {
                         double txtVal = Double.parseDouble(rotationFormattedTextField.getText());
-                        if ((int) txtVal != (int) rotDeg)
+                        if ((int) txtVal != (int) rotDeg) {
                             rotationFormattedTextField.setText(String.valueOf(rotDeg));
+                            rotationFormattedTextField.setCaretPosition(0);
+                        }
                     }
                     catch (NumberFormatException e1) {
                         e1.printStackTrace();
@@ -403,6 +408,7 @@ public class ImageObjectParameters extends ParametersPanel {
     public void setRotationDegs(double rotationDegs) {
         rotationSlider.setValue((int) rotationDegs);
         rotationFormattedTextField.setText(String.valueOf(rotationDegs));
+        rotationFormattedTextField.setCaretPosition(0);
     }
     
 	public LocationType getCenter() {
@@ -430,6 +436,7 @@ public class ImageObjectParameters extends ParametersPanel {
 	
 	public void setImageScale(double scale) {
 		getScale().setText(String.valueOf(scale));
+		getScale().setCaretPosition(0);
 	}
 
 	public double getImageScaleV() {
@@ -449,6 +456,7 @@ public class ImageObjectParameters extends ParametersPanel {
             vScaleCheckBox.setSelected(!true);
             vScaleCheckBox.doClick();
 	        getScaleV().setText(String.valueOf(scaleV));
+	        getScaleV().setCaretPosition(0);
 	    }
 	}
 
@@ -497,8 +505,10 @@ public class ImageObjectParameters extends ParametersPanel {
                         if (ImageScaleAndLocationPanel.showDialog(tmp,
                                 SwingUtilities.getWindowAncestor(ImageObjectParameters.this))) {
 							getScale().setText(String.valueOf(tmp.getImageScale()));
+							getScale().setCaretPosition(0);
                             getScaleV().setText(String.valueOf(
                                     Double.isNaN(tmp.getImageScaleV()) ? tmp.getImageScale() : tmp.getImageScaleV()));
+                            getScaleV().setCaretPosition(0);
                             vScaleCheckBox.setSelected(!Double.isNaN(tmp.getImageScaleV()));
 							center = tmp.getCenterLocation();
 						}
@@ -681,6 +691,7 @@ public class ImageObjectParameters extends ParametersPanel {
 	
 	public void setMaxHeight(double val) {
 		getMaxHeightFormattedTextField().setText(Double.toString(val));
+		getMaxHeightFormattedTextField().setCaretPosition(0);
 	}
 
 	public double getMaxDepth() {
@@ -689,6 +700,7 @@ public class ImageObjectParameters extends ParametersPanel {
 	
 	public void setMaxDepth(double val) {
 		getMaxDepthFormattedTextField().setText(Double.toString(val));
+		getMaxDepthFormattedTextField().setCaretPosition(0);
 	}
 
 	public double getResolution() {
@@ -697,6 +709,7 @@ public class ImageObjectParameters extends ParametersPanel {
 	
 	public void setResolution(double val) {
 		getResolutionFormattedTextField().setText(Double.toString(val));
+		getResolutionFormattedTextField().setCaretPosition(0);
 	}
 	
 	public File getBathimFile() {
