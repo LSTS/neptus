@@ -35,10 +35,11 @@ import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
-import java.awt.GridLayout;
 import java.awt.Image;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.FocusAdapter;
+import java.awt.event.FocusEvent;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.io.File;
@@ -50,7 +51,11 @@ import javax.swing.JCheckBox;
 import javax.swing.JFormattedTextField;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JSlider;
+import javax.swing.JTextField;
 import javax.swing.SwingUtilities;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 
 import net.miginfocom.swing.MigLayout;
 import pt.lsts.neptus.NeptusLog;
@@ -119,6 +124,11 @@ public class ImageObjectParameters extends ParametersPanel {
 
 	private JButton bathImageSelect = null;
 	
+	private JPanel transparencyRotationPanel = null;
+	private JSlider transparencySlider = null;
+    private JSlider rotationSlider = null;
+    private JFormattedTextField rotationFormattedTextField = null;
+	
 	private File selectedBathymetricImage = null;
 
 	/**
@@ -128,7 +138,7 @@ public class ImageObjectParameters extends ParametersPanel {
 	public ImageObjectParameters() {
 		super();
 		initialize();
-		setPreferredSize(new java.awt.Dimension(505,300));
+		setPreferredSize(new Dimension(525,320));
 	}
 	
 	/**
@@ -137,28 +147,25 @@ public class ImageObjectParameters extends ParametersPanel {
 	 * @return void
 	 */
 	private void initialize() {
-        GridLayout gridLayout6 = new GridLayout();
-        this.setLayout(gridLayout6);
-        //this.setSize(396, 181);
+        this.setLayout(new MigLayout());
         this.setSize(505, 181);
-        gridLayout6.setRows(1);
-        gridLayout6.setColumns(3);
-        this.add(getJPanel1(), null);
-        this.add(getLat(), null);
-        this.add(getBatPanel(), null);
+        this.add(getJPanel1(), "wmin pref");
+        this.add(getLat(), "gapleft 0, wmin pref");
+        this.add(getBatPanel(), "gapleft 0, wrap, wmin pref");
+        this.add(getTransparencyRotationPanel(), "span 3, alignx center");
 	}
 
 	public String getErrors() {
 		if (getImageFileName() == null) {
-			return "The selected image is invalid";
+			return I18n.text("The selected image is invalid");
 		}
 		
 		if (batCheckBox.isSelected() && selectedBathymetricImage == null) {
-			return "You must select a bathymetric image";
+			return I18n.text("You must select a bathymetric image");
 		}
 		
 		if (batCheckBox.isSelected() && !selectedBathymetricImage.canRead()) {
-			return "Unable to read the bathymetric image file";
+			return I18n.text("Unable to read the bathymetric image file");
 		}
 		
 		return null;
@@ -227,16 +234,15 @@ public class ImageObjectParameters extends ParametersPanel {
 	 */    
 	private JPanel getJPanel2() {
 		if (jPanel2 == null) {
-			FlowLayout flowLayout1 = new FlowLayout();
+			MigLayout layout = new MigLayout();
 			jLabel1 = new JLabel();
 			jPanel2 = new JPanel();
-			jPanel2.setLayout(flowLayout1);
-			jLabel1.setText(I18n.text("Center:"));
-			flowLayout1.setVgap(15);
-			jPanel2.add(jLabel1, null);
-			jPanel2.add(getChangeCenter(), null);
-			jPanel2.add(getJPanel4(), null);
-			jPanel2.add(getJButton(), null);
+			jPanel2.setLayout(layout);
+			jLabel1.setText(I18n.text("Center"));
+			jPanel2.add(jLabel1, "push, alignx right");
+			jPanel2.add(getChangeCenter(), "gap 2, alignx left, push, wrap 15");
+			jPanel2.add(getJPanel4(), "span, wrap 15");
+			jPanel2.add(getJButton(), "span, alignx center");
 		}
 		return jPanel2;
 	}
@@ -271,10 +277,10 @@ public class ImageObjectParameters extends ParametersPanel {
 		if (jPanel4 == null) {
 		    jPanel4 = new JPanel(new MigLayout());
 			jLabel3 = new JLabel();
-			jLabel3.setText(I18n.text("Scale (m/pixel):"));
+			jLabel3.setText(I18n.text("Scale (m/pixel)"));
 			jPanel4.add(jLabel3, "");
-			jPanel4.add(getScale(), "wrap");
-			vScaleCheckBox = new JCheckBox(I18n.text("Vertical Scale:"));
+			jPanel4.add(getScale(), "wmin pref, wrap");
+			vScaleCheckBox = new JCheckBox(I18n.text("Vertical scale"));
 			vScaleCheckBox.addItemListener(new ItemListener() {
 			    public void itemStateChanged(java.awt.event.ItemEvent e) {
 			        if (e.getStateChange() == ItemEvent.SELECTED)
@@ -284,7 +290,7 @@ public class ImageObjectParameters extends ParametersPanel {
 			    }
 			});
 			jPanel4.add(vScaleCheckBox);
-			jPanel4.add(getScaleV(), "wrap");
+			jPanel4.add(getScaleV(), "wmin pref, wrap");
 		}
 		return jPanel4;
 	}
@@ -312,6 +318,93 @@ public class ImageObjectParameters extends ParametersPanel {
 	    return scaleV;
 	}
 
+	/**
+     * @return the transparencyRotationPanel
+     */
+    public JPanel getTransparencyRotationPanel() {
+        if (transparencyRotationPanel == null) {
+            JTextField transparencyTextField = new JTextField("0");
+            transparencyTextField.setPreferredSize(new Dimension(40,20));
+            transparencyTextField.setEnabled(false);
+
+            transparencySlider = new JSlider(JSlider.HORIZONTAL, 0, 100, 0);
+            transparencySlider.setMajorTickSpacing(10);
+            transparencySlider.setPaintTicks(true);
+            transparencySlider.addChangeListener(new ChangeListener() {
+                @Override
+                public void stateChanged(ChangeEvent e) {
+                    JSlider slider = (JSlider) e.getSource();
+                    int val = slider.getValue();
+                    transparencyTextField.setText(String.valueOf(val));
+                }
+            });
+
+            rotationSlider = new JSlider(JSlider.HORIZONTAL, 0, 360, 0);
+            rotationSlider.setMajorTickSpacing(90);
+            rotationSlider.setMinorTickSpacing(10);
+            rotationSlider.setPaintTicks(true);
+            rotationSlider.addChangeListener(new ChangeListener() {
+                @Override
+                public void stateChanged(ChangeEvent e) {
+                    JSlider slider = (JSlider) e.getSource();
+                    int rotI = slider.getValue();
+                    double rotDeg = rotI;
+                    try {
+                        double txtVal = Double.parseDouble(rotationFormattedTextField.getText());
+                        if ((int) txtVal != (int) rotDeg)
+                            rotationFormattedTextField.setText(String.valueOf(rotDeg));
+                    }
+                    catch (NumberFormatException e1) {
+                        e1.printStackTrace();
+                    }
+                }
+            });
+
+            rotationFormattedTextField = new JFormattedTextField(df);
+            rotationFormattedTextField.setPreferredSize(new Dimension(40,20));
+            rotationFormattedTextField.setText("0.0");
+            rotationFormattedTextField.addFocusListener(new FocusAdapter() {
+                @Override
+                public void focusLost(FocusEvent e) {
+                    JFormattedTextField txtF = (JFormattedTextField) e.getSource();
+                    double rotDeg = Double.parseDouble(txtF.getText());
+                    rotationSlider.setValueIsAdjusting(true);
+                    rotationSlider.setValue((int) rotDeg);
+                    rotationSlider.setValueIsAdjusting(false);
+                }
+            });
+
+            transparencyRotationPanel = new JPanel();
+            transparencyRotationPanel.setLayout(new MigLayout("center"));
+
+            transparencyRotationPanel.add(new JLabel(I18n.text("Transparency")), "");
+            transparencyRotationPanel.add(transparencyTextField, "wmin pref");
+            transparencyRotationPanel.add(transparencySlider, "");
+            transparencyRotationPanel.add(new JLabel(I18n.text("Rotation")), "");
+            transparencyRotationPanel.add(rotationFormattedTextField, "wmin pref");
+            transparencyRotationPanel.add(rotationSlider, "");
+        }
+        return transparencyRotationPanel;
+    }
+	
+    public int getTransparency() {
+        return transparencySlider.getValue();
+    }
+
+    public void setTransparency(int transparency) {
+        transparencySlider.setValue(transparency);
+    }
+    
+    public double getRotationDegs() {
+        double rot = Double.parseDouble(rotationFormattedTextField.getText());
+        return rot;
+    }
+    
+    public void setRotationDegs(double rotationDegs) {
+        rotationSlider.setValue((int) rotationDegs);
+        rotationFormattedTextField.setText(String.valueOf(rotationDegs));
+    }
+    
 	public LocationType getCenter() {
 		return center;
 	}
@@ -437,14 +530,14 @@ public class ImageObjectParameters extends ParametersPanel {
      */
     private JPanel getBatPanel() {
         if (batPanel == null) {
-            FlowLayout flowLayout = new FlowLayout();
-            flowLayout.setAlignment(java.awt.FlowLayout.LEFT);
+            MigLayout layout = new MigLayout();
+//            flowLayout.setAlignment(java.awt.FlowLayout.LEFT);
             batPanel = new JPanel();
-            batPanel.setLayout(flowLayout);
-            batPanel.add(getBatCheckBox(), null);
-            batPanel.add(getJPanel5(), null);
-            batPanel.add(getJPanel6(), null);
-            batPanel.add(getJPanel7(), null);
+            batPanel.setLayout(layout);
+            batPanel.add(getBatCheckBox(), "wrap");
+            batPanel.add(getJPanel5(), "wrap 0");
+            batPanel.add(getJPanel6(), "wrap 0");
+            batPanel.add(getJPanel7(), "wrap");
             batPanel.add(getJPanel8(), null);
         }
         return batPanel;
@@ -505,7 +598,7 @@ public class ImageObjectParameters extends ParametersPanel {
     private JFormattedTextField getMaxHeightFormattedTextField() {
         if (maxHeightFormattedTextField == null) {
             maxHeightFormattedTextField = new JFormattedTextField(df);
-            maxHeightFormattedTextField.setPreferredSize(new java.awt.Dimension(70, 20));
+            maxHeightFormattedTextField.setPreferredSize(new java.awt.Dimension(50, 20));
             maxHeightFormattedTextField.setText("1.0");
             maxHeightFormattedTextField.setEnabled(false);
         }
@@ -552,7 +645,7 @@ public class ImageObjectParameters extends ParametersPanel {
     private JFormattedTextField getMaxDepthFormattedTextField() {
         if (maxDepthFormattedTextField == null) {
             maxDepthFormattedTextField = new JFormattedTextField(df);
-            maxDepthFormattedTextField.setPreferredSize(new java.awt.Dimension(70, 20));
+            maxDepthFormattedTextField.setPreferredSize(new java.awt.Dimension(50, 20));
             maxDepthFormattedTextField.setText("0.0");
             maxDepthFormattedTextField.setEnabled(false);
         }
@@ -567,7 +660,7 @@ public class ImageObjectParameters extends ParametersPanel {
     private JFormattedTextField getResolutionFormattedTextField() {
         if (resolutionFormattedTextField == null) {
             resolutionFormattedTextField = new JFormattedTextField(df);
-            resolutionFormattedTextField.setPreferredSize(new java.awt.Dimension(70, 20));
+            resolutionFormattedTextField.setPreferredSize(new java.awt.Dimension(50, 20));
             resolutionFormattedTextField.setText("" + ImageElement.DEFAULT_RESOLUTION);
             resolutionFormattedTextField.setEnabled(false);
         }
@@ -633,7 +726,6 @@ public class ImageObjectParameters extends ParametersPanel {
 		return jPanel8;
 	}
 
-
 	/**
 	 * This method initializes bathImageSelect	
 	 * 	
@@ -643,7 +735,7 @@ public class ImageObjectParameters extends ParametersPanel {
 		if (bathImageSelect == null) {
 			bathImageSelect = new JButton();
 			bathImageSelect.setPreferredSize(new Dimension(145, 26));
-			bathImageSelect.setText(I18n.text("Bathymetric Image..."));
+			bathImageSelect.setText(I18n.text("Bathymetric image"));
 			bathImageSelect.addActionListener(new java.awt.event.ActionListener() {
 				public void actionPerformed(java.awt.event.ActionEvent e) {
 					File imgFile = ImageFileChooser.showOpenImageDialog();
@@ -665,6 +757,7 @@ public class ImageObjectParameters extends ParametersPanel {
 	}
 
     public static void main(String args[]) {
-        GuiUtils.testFrame(new ImageObjectParameters(), "test");
+        GuiUtils.setLookAndFeel();
+        GuiUtils.testFrame(new ImageObjectParameters(), "test", 505,300);
     }
 }
