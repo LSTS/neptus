@@ -167,8 +167,19 @@ public class KmlImport extends ConsolePanel {
                 String featName = ((JLabel) listModel.getElementAt(selectedFeatureIndex)).getText();
                 String idByUser = JOptionPane.showInputDialog(I18n.text("Element ID"), featName);
                 
-                if(idByUser != null)
-                  addFeatureToMap(featName, idByUser, false);
+                String ret = null;
+                try {
+                    if(idByUser != null && !idByUser.isEmpty())
+                        ret = addFeatureToMap(featName, idByUser, false);
+                }
+                catch (Exception e1) {
+                    ret = e1.getMessage();
+                }
+                if (ret != null && !ret.isEmpty()) {
+                    if (ret != null && !ret.isEmpty())
+                        GuiUtils.errorMessage(SwingUtilities.windowForComponent(KmlImport.this), KmlImport.this.getName(),
+                                ret);
+                }
             }
         });
         
@@ -180,8 +191,19 @@ public class KmlImport extends ConsolePanel {
                 String featName = ((JLabel) listModel.getElementAt(selectedFeatureIndex)).getText();
                 String idByUser = JOptionPane.showInputDialog(I18n.text("Plan ID"), featName);
                 
-                if(idByUser != null)
-                  addFeatureToMap(featName, idByUser, true);
+                String ret = null;
+                try {
+                if(idByUser != null && !idByUser.isEmpty())
+                    ret = addFeatureToMap(featName, idByUser, true);
+                }
+                catch (Exception e1) {
+                    ret = e1.getMessage();
+                }
+                if (ret != null && !ret.isEmpty()) {
+                    if (ret != null && !ret.isEmpty())
+                        GuiUtils.errorMessage(SwingUtilities.windowForComponent(KmlImport.this), KmlImport.this.getName(),
+                                ret);
+                }
             }
         });
     }
@@ -308,7 +330,9 @@ public class KmlImport extends ConsolePanel {
         });
     }
 
-    private void addFeatureToMap(String featName, String idByUser, boolean addAsPlan) {
+    private String addFeatureToMap(String featName, String idByUser, boolean addAsPlan) {
+        String errorMsg = null;
+        
         Feature f = kmlFeatures.get(featName);
         String featGeom = featuresGeom.get(featName);
         
@@ -329,10 +353,13 @@ public class KmlImport extends ConsolePanel {
             }
         }
         else if (f instanceof GroundOverlay) {
-            addAsImage((GroundOverlay) f, idByUser);
+            errorMsg = addAsImage((GroundOverlay) f, idByUser);
         }
         
-        addedFeatures.add(featName);
+        if (errorMsg == null)
+            addedFeatures.add(featName);
+        
+        return errorMsg;
     }
     
     private void addAsPoint(Point point, String idByUser) {
@@ -427,9 +454,8 @@ public class KmlImport extends ConsolePanel {
      * @param feature
      * @param idByUser
      */
-    private void addAsImage(GroundOverlay feature, String idByUser) {
+    private String addAsImage(GroundOverlay feature, String idByUser) {
         MapType mapType = getMapToAddElements();
-//        mapType.asDocument();
         
         String fHref = feature.getIcon().getHref();
         
@@ -489,12 +515,12 @@ public class KmlImport extends ConsolePanel {
                 }
             }
             if (topLeftLoc == null)
-                return;
+                return I18n.text("Error parsing LatLonQuad element.");
         }
         
         // For now only LatLonBox is supported!!!
         if (latLonBox == null)
-            return;
+            return I18n.text("Only LatLonBox is supported at this time.");
         
         // Not supported by ImageElement
         double rotationDeg = latLonBox == null ? 0 : latLonBox.getRotation(); // CounterClockWise
@@ -518,11 +544,11 @@ public class KmlImport extends ConsolePanel {
         }
         catch (MalformedURLException e) {
             e.printStackTrace();
-            return;
+            return I18n.textf("Some problem with KML file location (%URL).", kmlFeatUrl);
         }
         File imgFile = getImageFileFromKml(urlKml, fHref);
         if (imgFile == null || !imgFile.exists())
-            return;
+            return I18n.textf("Not possible to find image '%file'.", fHref);
         
         Image img = ImageUtils.getImage(imgFile.getAbsolutePath());
         
@@ -546,6 +572,8 @@ public class KmlImport extends ConsolePanel {
         
         MissionType mission = getConsole().getMission();
         mission.save(false);
+        
+        return null;
     }
 
     /**
