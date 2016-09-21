@@ -435,7 +435,7 @@ public class KmlImport extends ConsolePanel {
         ImageElement imgElement = new ImageElement(mapType.getMapGroup(), mapType);
         
         boolean fVisible = feature.isVisibility() == null ? true : feature.isVisibility();
-        int transparency = 100; // 0 to 100
+        int transparency = 0; // 0 to 100
         try {
             String fColor = feature.getColor(); // aabbggrr
             if (fColor != null && fColor.length() == 8) {
@@ -448,7 +448,7 @@ public class KmlImport extends ConsolePanel {
             e.printStackTrace();
         }
         if (!fVisible)
-            transparency = 0;
+            transparency = 100;
         
         LocationType topLeftLoc = null;
         LocationType topRightLoc = null;
