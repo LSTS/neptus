@@ -832,7 +832,12 @@ public class NecsaveUI extends ConsoleLayer {
     private void paintPlan(Graphics2D g, StateRenderer2D source) {
         if (plan == null)
             return;
-        
+
+        if (platformNames.isEmpty()) {
+            plan = null;
+            return;
+        }
+
         @SuppressWarnings("unchecked")
         Vector<Message> platfPlans = (Vector<Message>) plan.getValue("platform_plans"); 
         if (platfPlans.isEmpty())
@@ -845,8 +850,8 @@ public class NecsaveUI extends ConsoleLayer {
             
             for (int i = 0; i < platfPlans.size(); i++) {
                 PlatformPlan p = (PlatformPlan) platfPlans.get(i);
-                Color c = platformColors.get(i);
-                
+                Color c = colors.get(i);
+
                 if (platformNames.containsKey(p.getPlatformId())) {
                     VehicleType vt = VehiclesHolder.getVehicleById(platformNames.get(p.getPlatformId()));
                     if (vt != null)
