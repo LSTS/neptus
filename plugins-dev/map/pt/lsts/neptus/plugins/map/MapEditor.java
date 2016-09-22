@@ -994,8 +994,10 @@ public class MapEditor extends ConsolePanel implements StateRendererInteraction,
                         "Error removing toolbar of " + MapEditor.class.getSimpleName() + " from "
                                 + MapPanel.class.getSimpleName(), e);
             }
-            parent.invalidate();
-            parent.validate();
+            if (parent != null) {
+                parent.invalidate();
+                parent.validate();
+            }
             
             SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>() {
                 @Override

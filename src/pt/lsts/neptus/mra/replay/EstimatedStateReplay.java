@@ -41,7 +41,6 @@ import java.util.LinkedHashMap;
 import java.util.Vector;
 
 import pt.lsts.imc.IMCMessage;
-import pt.lsts.neptus.comm.manager.imc.ImcId16;
 import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.mra.importers.IMraLog;
 import pt.lsts.neptus.mra.importers.IMraLogGroup;
@@ -97,11 +96,11 @@ public class EstimatedStateReplay implements LogReplayLayer {
             if((pos = positions.get(src)) == null) {
                 pos = new Vector<LocationType>();
                 VehiclePaths paths = new VehiclePaths();
-                VehicleType vt = VehiclesHolder.getVehicleWithImc(new ImcId16(src));
+                VehicleType vt = VehiclesHolder.getVehicleById(m.getSourceName());
                 if (vt != null)
-                    paths.setColor(VehiclesHolder.getVehicleWithImc(new ImcId16(src)).getIconColor());
-                else
-                    paths.setColor(new Color(0, 0, 0, 128));
+                    paths.setColor(VehiclesHolder.getVehicleById(m.getSourceName()).getIconColor());
+                else 
+                    paths.setColor(new Color(255, 255, 255, 128));
                 
                 pathsList.put(src, paths);
                 positions.put(src, pos);
@@ -111,7 +110,7 @@ public class EstimatedStateReplay implements LogReplayLayer {
             loc.convertToAbsoluteLatLonDepth();
             pos.add(loc);
             timestamps.add(m.getTimestamp());
-            log.advance(500);
+            //log.advance(200);
         }
     }
 
