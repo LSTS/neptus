@@ -444,87 +444,32 @@ public class PlanTableModel extends AbstractTableModel {
      * @return formated payload string
      */
     private String parse(SetEntityParameters msg) {
-        if (msg.getName().equals("Sidescan")) {
-            StringBuilder sb = new StringBuilder();
-            boolean active = false;
-            for (EntityParameter p : msg.getParams()) {
-                if (p.getName().equals("Range") ||
-                        p.getName().equals("High-Frequency Range") ||
-                        p.getName().equals("Low-Frequency Range")) {
-                    if (!sb.toString().isEmpty())
-                        sb.append(" ");
-                    sb.append(p.getName().replaceAll("([a-z0$-/:-?{-~!^_`@#\" ]+)+", ""))
-                    .append(":")
-                    .append(Double.parseDouble(p.getValue()));
-                }
+        boolean active = false;
+        StringBuilder sb = new StringBuilder();
+        String payload = msg.getName();
+        if (payload.equalsIgnoreCase("Sidescan"))
+            payload = "SS";
+        else if (payload.equalsIgnoreCase("Multibeam"))
+            payload = "MB";
+        else if (payload.equalsIgnoreCase("Camera"))
+            payload = "CAM";
+        else
+            payload = payload.replaceAll("([a-z0$-/:-?{-~!^_`@#\" ]+)+", "");
 
-                if (p.getName().equals("High-Frequency Channels") ||
-                        p.getName().equals("Low-Frequency Channels")) {
-                    if (!sb.toString().isEmpty())
-                        sb.append(" ");
-                    sb.append(p.getName().replaceAll("([a-z0$-/:-?{-~!^_`@#\" ]+)+", ""))
-                    .append(":")
-                    .append(p.getValue());
-                }
+        for (EntityParameter p : msg.getParams()) {
+            if (p.getName().equals("Active")) {
+                active = p.getValue().equalsIgnoreCase("true");
+            }
+            else {
+                if (!sb.toString().isEmpty())
+                    sb.append(" ");
+                sb.append(p.getName().replaceAll("([a-z0$-/:-?{-~!^_`@#\" ]+)+", "")).append(":").append(p.getValue());
+            }
+        }
 
-                else if (p.getName().equals("Frequency")) {
-                    if (!sb.toString().isEmpty())
-                        sb.append(" ");
-                    sb.append(p.getName().replaceAll("([a-z0$-/:-?{-~!^_`@#\" ]+)+", ""))
-                    .append(":"+ Double.parseDouble(p.getValue()));
-                }
-                else if (p.getName().equals("Active")) {
-                    active = p.getValue().equalsIgnoreCase("true");
-                }
-            }
-            if (active) {
-                return "SS { "+sb.toString()+" }";
-            }
-        }
-        else if (msg.getName().equals("Multibeam")) {
-            double range = 0;
-            boolean active = false;
-            for (EntityParameter p : msg.getParams()) {
-                if (p.getName().equals("Active")) {
-                    active = p.getValue().equalsIgnoreCase("true");
-                }
-                else if (p.getName().equals("Range")) {
-                    range = Double.parseDouble(p.getValue());
-                }
-            }
-            if (active)
-                return "MB {"+range+"}";
-        }
-        else if (msg.getName().equals("Camera")) {
-            boolean active = false;
-            for (EntityParameter p : msg.getParams()) {
-                if (p.getName().equals("Active")) {
-                    active = p.getValue().equalsIgnoreCase("true");
-                }
-            }
-            if (active)
-                return "CAM";
-        }
-        else if (msg.getName().equals("Ranger")) {
-            boolean active = false;
-            for (EntityParameter p : msg.getParams()) {
-                if (p.getName().equals("Active")) {
-                    active = p.getValue().equalsIgnoreCase("true");
-                }
-            }
-            if (active)
-                return "R";
-        }
-        else if (msg.getName().equals("LBL")) {
-            boolean active = false;
-            for (EntityParameter p : msg.getParams()) {
-                if (p.getName().equals("Active")) {
-                    active = p.getValue().equalsIgnoreCase("true");
-                }
-            }
-            if (active)
-                return "LBL";
-        }
+        if (active)
+            return sb.toString().isEmpty() ? payload : payload + "{" + sb.toString() + "}";
+
 
         return null;
     }
