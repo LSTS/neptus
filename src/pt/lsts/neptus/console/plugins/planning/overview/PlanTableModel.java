@@ -90,6 +90,8 @@ public class PlanTableModel extends AbstractTableModel {
     };
 
     public PlanTableModel(PlanType plan) {
+        if (plan == null)
+            return;
         this.plan = plan;
         sortManeuverList();
         fireTableDataChanged();
@@ -513,6 +515,17 @@ public class PlanTableModel extends AbstractTableModel {
             if (active)
                 return "R";
         }
+        else if (msg.getName().equals("LBL")) {
+            boolean active = false;
+            for (EntityParameter p : msg.getParams()) {
+                if (p.getName().equals("Active")) {
+                    active = p.getValue().equalsIgnoreCase("true");
+                }
+            }
+            if (active)
+                return "LBL";
+        }
+
         return null;
     }
 
