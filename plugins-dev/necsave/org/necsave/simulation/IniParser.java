@@ -53,10 +53,12 @@ public class IniParser {
 			mainIniFile.setFile(new File(configFilePath));
 			mainIniFile.load(new File(configFilePath));
 
-			if (!isDummyPlatform(mainIniFile)) 
-				plat.setPlatformType("DunePlatform");
+            if (isDummyPlatform(mainIniFile))
+                plat.setPlatformType("DummyPlatform");
+            else if (isCalPlatform(mainIniFile))
+                plat.setPlatformType("CalPlatform");
 			else
-				plat.setPlatformType("DummyPlatform");
+                plat.setPlatformType("DunePlatform");
 
 			updateList(plat.getPlatformType());
 			LinkedHashMap<String, Ini> temp = new LinkedHashMap<>();
@@ -377,6 +379,15 @@ public class IniParser {
 		}
 		return false;
 	}
+
+    private boolean isCalPlatform(Ini file) {
+        for (String section : file.keySet()) {
+            if (section.contains("CalPlatform")) {
+                return true;
+            }
+        }
+        return false;
+    }
 
 	private class SectionField {
 		private String section;

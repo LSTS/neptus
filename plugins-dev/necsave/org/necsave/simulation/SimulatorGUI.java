@@ -55,6 +55,7 @@ import javax.swing.border.EtchedBorder;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import javax.swing.filechooser.FileFilter;
+import javax.swing.text.DefaultCaret;
 
 import org.apache.commons.io.IOUtils;
 
@@ -123,7 +124,7 @@ public class SimulatorGUI {
         openMnItem.addActionListener(openAction);
         menu.add(openMnItem);
 
-        JMenuItem confMnItem = new JMenuItem("Config Paths (Ctrl+C)");
+        JMenuItem confMnItem = new JMenuItem("Config (Ctrl+P)");
         ActionListener confAction = new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -142,7 +143,8 @@ public class SimulatorGUI {
             }
         };
 
-        menuBar.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke(KeyEvent.VK_C, InputEvent.CTRL_MASK), "Config");
+        menuBar.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW)
+                .put(KeyStroke.getKeyStroke(KeyEvent.VK_P, InputEvent.CTRL_MASK), "Config");
         menuBar.getActionMap().put("Config", config);
 
         confMnItem.addActionListener(confAction);
@@ -162,13 +164,10 @@ public class SimulatorGUI {
                     if (LAUNCH_DUNE_SCRIPT == null || LAUNCH_SCRIPT == null) {
                         JOptionPane.showMessageDialog(frame, "Wrong scripts path.", "Error", JOptionPane.ERROR_MESSAGE);
                         return;
-                    } 
+                    }
 
                     if (resultDiag != null)
                         resultDiag.dispose();
-
-                    // Kill any open simulator
-                    new ExecThread("ps --no-headers axk comm o pid,args | awk '$2 ~ \"../build/\"{print $1}' | xargs kill -9 | echo 'Killing all necsave procs...'", false).start();
 
                     resultDiag = new ResultWindow();
 
@@ -185,16 +184,14 @@ public class SimulatorGUI {
                     for (Entry<Integer, Simulator> plat : platforms.entrySet()) {
                         platformsArgs.append(plat.getValue().getConfigPath()+ " ");
                         path = (new File(plat.getValue().getConfigPath()).getParentFile().getPath());
-                        if (!plat.getValue().getPlatformType().equals("DummyPlatform")) {
+                        if (!plat.getValue().getPlatformType().equalsIgnoreCase("DummyPlatform")
+                                || !plat.getValue().getPlatformType().equalsIgnoreCase("DummyPlatform")) {
                             duneArgs.append("vn_"+plat.getValue().getName()+" ");
                         }
                     }
 
-                    new ExecThread(LAUNCH_SCRIPT+" "+path.concat("/")+" "+platformsArgs, true).start();
-                    new ExecThread(LAUNCH_DUNE_SCRIPT+" "+duneArgs, true).start();
-
-                    isRunning = true;
-                    runSimBtn.setText("Simulation State");
+                    new ExecThread(LAUNCH_SCRIPT + " " + path.concat("/") + " " + platformsArgs, true, false).start();
+                    new ExecThread(LAUNCH_DUNE_SCRIPT + " " + duneArgs, true, false).start();
                     
                 } else {
                     resultDiag.toFront();
@@ -390,11 +387,13 @@ public class SimulatorGUI {
     class ExecThread extends Thread {
         private String cmd;
         private boolean showOnTxtArea;
+        private boolean kill;
 
-        public ExecThread(String cmd, boolean showOnTxtArea) {
+        public ExecThread(String cmd, boolean showOnTxtArea, boolean kill) {
             super(cmd);
             this.cmd = cmd;
             this.showOnTxtArea = showOnTxtArea;
+            this.kill = kill;
         }
 
         public void run() {
@@ -404,15 +403,26 @@ public class SimulatorGUI {
                 String line = "";
                 
                 while ((line = buf.readLine()) != null) {
-                    if (line.contains("Killing all necsave procs...")) {
-                        resultDiag.dispose();
+
+                    if (kill && line.contains("Killing all necsave procs...")) {
+                        if (resultDiag != null)
+                            resultDiag.dispose();
                         isRunning = false;
                         runSimBtn.setText("Run Simulation");
                     }
-                    
+                    else if (!kill && line.contains("Killing all necsave procs...")) {
+                        resultDiag.txtArea.setText(null);
+                    }
+
+                    if (line.contains("Starting necsave platforms")) {
+                        isRunning = true;
+                        runSimBtn.setText("Simulation State");
+                    }
+
                     if (showOnTxtArea) {
-                        resultDiag.setTxt(line.concat("\n"));
-                        System.out.println("Response: " + line);
+                        if (resultDiag != null) {
+                            resultDiag.setTxt(line.concat("\n"));
+                        }
                     }
                     else
                         System.out.println("Exec response: " + line);
@@ -464,6 +474,9 @@ public class SimulatorGUI {
             txtArea.setTabSize(20);
             txtArea.setRows(13);
 
+            DefaultCaret caret = (DefaultCaret) txtArea.getCaret();
+            caret.setUpdatePolicy(DefaultCaret.ALWAYS_UPDATE);
+
             JScrollPane scrollPane = new JScrollPane(txtArea);
             contentPanel.add(scrollPane, BorderLayout.CENTER);
 
@@ -474,7 +487,9 @@ public class SimulatorGUI {
             btnKillSim.addActionListener(new ActionListener() {
                 @Override
                 public void actionPerformed(ActionEvent e) {
-                    new ExecThread("ps --no-headers axk comm o pid,args | awk '$2 ~ \"../build/\"{print $1}' | xargs kill -9 | echo 'Killing all necsave procs...'", true).start();
+                    new ExecThread(
+                            "ps --no-headers axk comm o pid,args | awk '$2 ~ \"../build/\"{print $1}' | xargs kill -9 | echo 'Killing all necsave procs...'",
+                            true, true).start();
                     runSimBtn.setEnabled(true);
                     runSimBtn.setText("Run Simulation");
                     isRunning = false;
@@ -630,9 +645,11 @@ public class SimulatorGUI {
     }
 
     public boolean isVisible() {
-        // TODO Auto-generated method stub
         return frame.isVisible();
     }
 
+    public void toFront() {
+        frame.toFront();
+    }
 
 }

@@ -61,6 +61,7 @@
 <Section name="MissionPlanner" show="true" platform="All">
   <Field name="Planner Mode" type="textfield"/>
   <Field name="Planner Implementation" type="textfield"/>
+  <Field name="AreaDivider Implementation" type="textfield"/>
   <Field name="Number of sub-areas" type="textfield"/>
   <Field name="PlatformPlanProgress interval" type="textfield"/>
   <Field name="Verbose" type="checkbox"/>

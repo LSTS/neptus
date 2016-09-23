@@ -208,10 +208,12 @@ public class NecsaveUI extends ConsoleInteraction {
     public void simulationManager() {
         if (simulator == null)
             simulator = new SimulatorGUI();
-        else
-            if (!simulator.isVisible()) {
+        else {
+            if (!simulator.isVisible())
                 simulator = new SimulatorGUI();
-            }
+            else
+                simulator.toFront();
+        }
     }
     
     @NeptusMenuItem("Advanced>NECSAVE>Abort Mission")
