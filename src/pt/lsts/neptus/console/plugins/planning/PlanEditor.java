@@ -174,6 +174,7 @@ public class PlanEditor extends InteractionAdapter implements Renderer2DPainter,
     protected PlanSimulationOverlay overlay = null;
     protected MissionOverviewPanel overviewPanel = null;
     protected JPanel bottomPanel = new JPanel(new BorderLayout());
+    private boolean overviewIsVisible = false;
 
     public enum ToolbarLocation {
         Right,
@@ -192,9 +193,6 @@ public class PlanEditor extends InteractionAdapter implements Renderer2DPainter,
 
     @NeptusProperty(name = "Toolbar Location", userLevel = LEVEL.REGULAR)
     public ToolbarLocation toolbarLocation = ToolbarLocation.Right;
-
-    @NeptusProperty(name = "Mission Overview", userLevel = LEVEL.REGULAR)
-    public boolean missionOverview = false;
 
     /**
      * @param console
@@ -302,24 +300,6 @@ public class PlanEditor extends InteractionAdapter implements Renderer2DPainter,
                         break;
                 }
 
-                if (plan == null && getConsole().getPlan() != null) {
-                    setPlan(getConsole().getPlan().clonePlan());
-                    if (missionOverview) {
-                        if (overviewPanel == null) {
-                            overviewPanel = new MissionOverviewPanel(this, plan);
-                            overviewPanel.setVisible(false);
-                        }
-                        else
-                            overviewPanel.updatePlan(plan);
-
-
-                        bottomPanel.setLayout(new BorderLayout(0, 0));
-                        bottomPanel.add(overviewPanel, BorderLayout.CENTER);
-
-                        c.add(bottomPanel, BorderLayout.SOUTH);
-                    }
-                }
-
                 c.invalidate();
                 c.validate();
                 if (c instanceof JComponent)
@@ -354,6 +334,19 @@ public class PlanEditor extends InteractionAdapter implements Renderer2DPainter,
             else {
                 setPlan(plan);
             }
+
+            if (overviewPanel == null) {
+                overviewPanel = new MissionOverviewPanel(this, plan);
+                overviewPanel.setVisible(overviewIsVisible);
+            }
+            else {
+                overviewPanel.updatePlan(plan);
+                overviewPanel.setVisible(overviewIsVisible);
+            }
+
+            bottomPanel.setLayout(new BorderLayout(0, 0));
+            bottomPanel.add(overviewPanel, BorderLayout.CENTER);
+            c.add(bottomPanel, BorderLayout.SOUTH);
         }
 
         else {
@@ -370,12 +363,10 @@ public class PlanEditor extends InteractionAdapter implements Renderer2DPainter,
             if (c.getLayout() instanceof BorderLayout) {
                 c.remove(getSidePanel());
 
-                if (missionOverview) {
-                    if (overviewPanel != null) {
-                        c.remove(bottomPanel);
-                        bottomPanel.removeAll();
-                        overviewPanel = null;
-                    }
+                if (overviewPanel != null) {
+                    c.remove(bottomPanel);
+                    bottomPanel.removeAll();
+                    overviewPanel = null;
                 }
 
                 c.invalidate();
@@ -477,11 +468,14 @@ public class PlanEditor extends InteractionAdapter implements Renderer2DPainter,
             @Override
             public void actionPerformed(ActionEvent e) {
                 if (overviewPanel != null) {
-                    if (overviewPanel.isVisible())
+                    if (overviewPanel.isVisible()) {
                         overviewPanel.setVisible(false);
+                        overviewIsVisible = false;
+                    }
                     else {
                         overviewPanel.reset();
                         overviewPanel.setVisible(true);
+                        overviewIsVisible = true;
                     }
                 }
             }
@@ -534,10 +528,8 @@ public class PlanEditor extends InteractionAdapter implements Renderer2DPainter,
         if (getAssociatedSwitch() != null && !getAssociatedSwitch().isSelected())
             getAssociatedSwitch().doClick();
 
-        if (missionOverview) {
-            if (plan != null && overviewPanel != null) {
-                overviewPanel.reset();
-            }
+        if (plan != null && overviewPanel != null) {
+            overviewPanel.reset();
         }
     }
 
@@ -1352,10 +1344,8 @@ public class PlanEditor extends InteractionAdapter implements Renderer2DPainter,
                                 ptr.redo();
                                 manager.addEdit(ptr);
 
-                                if (missionOverview) {
-                                    if (plan != null && overviewPanel != null)
-                                        overviewPanel.updatePlan(plan);
-                                }
+                                if (plan != null && overviewPanel != null)
+                                    overviewPanel.updatePlan(plan);
                             }
                         }
                     };
@@ -1698,7 +1688,7 @@ public class PlanEditor extends InteractionAdapter implements Renderer2DPainter,
         if (event.getButton() == MouseEvent.BUTTON1) {
             if (planElem != null && event.getPoint() != null) {
                 selectedManeuver = planElem.iterateManeuverUnder(event.getPoint());
-                if (overviewPanel != null && missionOverview)
+                if (overviewPanel != null)
                     overviewPanel.setSelectedManeuver(selectedManeuver);
                 lastDragPoint = event.getPoint();
                 if (selectedManeuver != null && selectedManeuver instanceof LocatedManeuver) {
