@@ -65,19 +65,17 @@ public class PlanTableModel extends AbstractTableModel {
     public static final Color SELECTED_MANEUVER_COLOR = new Color(0x0077CC);
     private PlanType plan;
     private ArrayList<ExtendedManeuver> list = new ArrayList<>();
-    public static final int COLUMN_INDEX          = 0;
-    public static final int COLUMN_LABEL          = 1;
-    public static final int COLUMN_TYPE           = 2;
-    public static final int COLUMN_OUT_TRANS      = 3;
-    public static final int COLUMN_LOCATION       = 4;
-    public static final int COLUMN_DEPTH_ALTITUDE = 5;
-    public static final int COLUMN_SPEED          = 6;
-    public static final int COLUMN_DURATION       = 7;
-    public static final int COLUMN_DISTANCE       = 8;
-    public static final int COLUMN_PAYLOAD        = 9;
+    public static final int COLUMN_LABEL = 0;
+    public static final int COLUMN_TYPE = 1;
+    public static final int COLUMN_OUT_TRANS = 2;
+    public static final int COLUMN_LOCATION = 3;
+    public static final int COLUMN_DEPTH_ALTITUDE = 4;
+    public static final int COLUMN_SPEED = 5;
+    public static final int COLUMN_DURATION = 6;
+    public static final int COLUMN_DISTANCE = 7;
+    public static final int COLUMN_PAYLOAD = 8;
 
     private String[] columnNames = {
-            "#",
             "Label",
             "Type",
             "Out",
@@ -137,9 +135,6 @@ public class PlanTableModel extends AbstractTableModel {
         ExtendedManeuver man = list.get(rowIndex);
 
         switch (columnIndex) {
-            case COLUMN_INDEX:
-                returnValue = man.index;
-                break;
             case COLUMN_LABEL:
                 returnValue = man.maneuver.getId();
                 break;
@@ -264,9 +259,11 @@ public class PlanTableModel extends AbstractTableModel {
                     }
 
                     ExtendedManeuver e = new ExtendedManeuver(destManeuver, "-1");
-                    list.add(e);
+                    if (!alreadyAdded(destManeuver))
+                        list.add(e);
 
                     if (!visited.contains(destManeuver)) visited.add(destManeuver);
+
                     it.remove();
 
                     if (allOutManeuvers(in, trans).isEmpty()) {
@@ -300,6 +297,7 @@ public class PlanTableModel extends AbstractTableModel {
                 list.add(e);
             }
         }
+
         LinkedList<Maneuver> unfeasible = new LinkedList<>();
         int index = 0;
         int aux = 0;
@@ -399,8 +397,10 @@ public class PlanTableModel extends AbstractTableModel {
         Maneuver top = null;
         int count = 0;
         for (TransitionType t : plan.getGraph().getTransitions().values()) {
-            if (plan.getGraph().getManeuver(t.getTargetManeuver()).equals(m))
+            if (plan.getGraph().getManeuver(t.getTargetManeuver()).equals(m)) {
                 top = plan.getGraph().getManeuver(t.getSourceManeuver());
+                break;
+            }
         }
 
         if (top != null) {
