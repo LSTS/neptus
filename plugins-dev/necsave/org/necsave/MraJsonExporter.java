@@ -140,11 +140,6 @@ public class MraJsonExporter implements MRAExporter {
         return true;
     }
     
-    private void processAcousticLink(AcousticLink msg, BufferedWriter writer, Gson gson) throws IOException {
-        
-    }
-    
-    
     @Override
     public String process(IMraLogGroup source, ProgressMonitor pmonitor) {
         first = true;

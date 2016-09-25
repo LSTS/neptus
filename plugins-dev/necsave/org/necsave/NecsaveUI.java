@@ -112,9 +112,9 @@ import pt.lsts.neptus.types.coord.LocationType;
 import pt.lsts.neptus.types.map.MapGroup;
 import pt.lsts.neptus.types.map.ParallelepipedElement;
 import pt.lsts.neptus.types.mission.plan.PlanType;
-import pt.lsts.neptus.types.vehicle.VehiclesHolder;
 import pt.lsts.neptus.types.vehicle.VehicleType;
 import pt.lsts.neptus.types.vehicle.VehicleType.SystemTypeEnum;
+import pt.lsts.neptus.types.vehicle.VehiclesHolder;
 import pt.lsts.neptus.util.ColorUtils;
 import pt.lsts.neptus.util.GuiUtils;
 
@@ -141,7 +141,7 @@ public class NecsaveUI extends ConsoleLayer {
     private LinkedHashMap<String, LocationType> contacts = new LinkedHashMap<>();
     private Plan plan = null;
     private ParallelepipedElement elem = null;
-    private ParallelepipedElement area = new ParallelepipedElement();
+    private ParallelepipedElement area;
     private LocationType corner = null; 
     private double width, height;
     private ConsoleInteraction interaction;
@@ -161,6 +161,7 @@ public class NecsaveUI extends ConsoleLayer {
         
        setupInteraction();
        getConsole().addInteraction(interaction);
+       area = new ParallelepipedElement();
     }
 
     private void setupInteraction() {
@@ -866,8 +867,8 @@ public class NecsaveUI extends ConsoleLayer {
         colors.addAll(Arrays.asList(ColorUtils.generateVisuallyDistinctColors(platfPlans.size(), 0.5f, 0.5f)));
         
         for (int i = 0; i < platfPlans.size(); i++) {
-            Color c = colors.get(i);
             PlatformPlan p = (PlatformPlan) platfPlans.get(i);
+            @SuppressWarnings("unchecked")
             Vector<Message> behaviors = (Vector<Message>) p.getValue("behaviors"); 
             for (Message b : behaviors) {
                 if (b.getMgid() == BehaviorScanArea.ID_STATIC) {

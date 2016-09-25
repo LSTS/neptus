@@ -36,7 +36,6 @@ import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedHashMap;
-import java.util.Map.Entry;
 
 import javax.swing.JEditorPane;
 import javax.swing.JScrollPane;
@@ -50,7 +49,6 @@ import pt.lsts.neptus.console.ConsolePanel;
 import pt.lsts.neptus.plugins.PluginDescription;
 import pt.lsts.neptus.plugins.Popup;
 import pt.lsts.neptus.plugins.Popup.POSITION;
-import sun.misc.resources.Messages_ja;
 
 /**
  * @author zp
