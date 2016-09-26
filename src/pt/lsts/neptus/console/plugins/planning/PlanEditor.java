@@ -499,6 +499,9 @@ public class PlanEditor extends InteractionAdapter implements Renderer2DPainter,
                         overviewPanel.reset();
                         overviewPanel.setVisible(true);
                         overviewIsVisible = true;
+
+                        int t = (int) renderer.getHeight() - 100;
+                        verticalSplit.setDividerLocation(t);
                     }
                 }
             }
