@@ -35,12 +35,16 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
+import java.awt.Graphics;
 import java.awt.Image;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.awt.image.BufferedImage;
+import java.awt.image.RenderedImage;
 import java.io.File;
+import java.io.IOException;
 import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -51,6 +55,7 @@ import java.util.TreeMap;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
+import javax.imageio.ImageIO;
 import javax.swing.DefaultListModel;
 import javax.swing.JFileChooser;
 import javax.swing.JLabel;
@@ -522,25 +527,16 @@ public class KmlImport extends ConsolePanel {
         }
         
         // For now only LatLonBox is supported!!!
-        if (latLonBox == null)
-            return I18n.text("Only LatLonBox is supported at this time.");
+//        if (latLonBox == null)
+//            return I18n.text("Only LatLonBox is supported at this time.");
         
         // Not supported by ImageElement
         double rotationDeg = latLonBox == null ? 0 : latLonBox.getRotation(); // CounterClockWise
         rotationDeg = AngleUtils.nomalizeAngleDegrees360(360 - rotationDeg); // Make it ClockWise
         
         // addPathElement(rotationDeg, topLeftLoc, topRightLoc, bottomRightLoc, bottomLeftLoc);
-        
-        double meterDistanceH = topLeftLoc.getHorizontalDistanceInMeters(topRightLoc);
-        double meterDistanceV = topLeftLoc.getHorizontalDistanceInMeters(bottomLeftLoc);
-        
-        LocationType centerLoc = topLeftLoc.getNewAbsoluteLatLonDepth();
-        centerLoc.setOffsetSouth(meterDistanceV / 2);
-        centerLoc.setOffsetEast(meterDistanceH / 2);
-        centerLoc.convertToAbsoluteLatLonDepth();
-        
+
         // Getting the image to local storage
-        
         URL urlKml;
         try {
             urlKml = new URL(kmlFeatUrl);
@@ -554,6 +550,48 @@ public class KmlImport extends ConsolePanel {
             return I18n.textf("Not possible to find image '%file'.", fHref);
         
         Image img = ImageUtils.getImage(imgFile.getAbsolutePath());
+
+        if (latLonBox == null) {
+            Image imageAlt = getAdjustedLatLonQuadedImage(img, topLeftLoc, topRightLoc, bottomRightLoc, bottomLeftLoc);
+            double maxLat = Math.max(topLeftLoc.getLatitudeDegs(), topRightLoc.getLatitudeDegs());
+            maxLat = Math.max(maxLat, bottomRightLoc.getLatitudeDegs());
+            maxLat = Math.max(maxLat, bottomLeftLoc.getLatitudeDegs());
+            double minLat = Math.min(topLeftLoc.getLatitudeDegs(), topRightLoc.getLatitudeDegs());
+            minLat = Math.min(minLat, bottomRightLoc.getLatitudeDegs());
+            minLat = Math.min(minLat, bottomLeftLoc.getLatitudeDegs());
+            double maxLon = Math.max(topLeftLoc.getLongitudeDegs(), topRightLoc.getLongitudeDegs());
+            maxLon = Math.max(maxLon, bottomRightLoc.getLongitudeDegs());
+            maxLon = Math.max(maxLon, bottomLeftLoc.getLongitudeDegs());
+            double minLon = Math.min(topLeftLoc.getLongitudeDegs(), topRightLoc.getLongitudeDegs());
+            minLon = Math.min(minLon, bottomRightLoc.getLongitudeDegs());
+            minLon = Math.min(minLon, bottomLeftLoc.getLongitudeDegs());
+            
+            topLeftLoc = new LocationType(maxLat, minLon); 
+            topRightLoc = new LocationType(maxLat, maxLon);
+            bottomRightLoc = new LocationType(minLat, maxLon);
+            bottomLeftLoc = new LocationType(minLat, minLon);
+            
+            img = imageAlt;
+            
+            File newImgFile = new File(ConfigFetch.getNeptusTmpDir(), FileUtil.getFileNameWithoutExtension(imgFile)
+                    + "_alt" + ".png");
+            imgFile = newImgFile;
+            try {
+                ImageIO.write((RenderedImage) img, "png", imgFile);
+            }
+            catch (IOException e) {
+                e.printStackTrace();
+                return I18n.text("Error transforming image!");
+            }
+        }
+        
+        double meterDistanceH = topLeftLoc.getHorizontalDistanceInMeters(topRightLoc);
+        double meterDistanceV = topLeftLoc.getHorizontalDistanceInMeters(bottomLeftLoc);
+        
+        LocationType centerLoc = topLeftLoc.getNewAbsoluteLatLonDepth();
+        centerLoc.setOffsetSouth(meterDistanceV / 2);
+        centerLoc.setOffsetEast(meterDistanceH / 2);
+        centerLoc.convertToAbsoluteLatLonDepth();
         
         int imgWidth = img.getWidth(null);
         int imgHeight = img.getHeight(null);
@@ -577,6 +615,78 @@ public class KmlImport extends ConsolePanel {
         mission.save(false);
         
         return null;
+    }
+
+    /**
+     * @param img
+     * @param topLeftLoc
+     * @param topRightLoc
+     * @param bottomRightLoc
+     * @param bottomLeftLoc
+     * @return
+     */
+    private Image getAdjustedLatLonQuadedImage(Image img, LocationType topLeftLoc, LocationType topRightLoc,
+            LocationType bottomRightLoc, LocationType bottomLeftLoc) {
+        double maxLat = Math.max(topLeftLoc.getLatitudeDegs(), topRightLoc.getLatitudeDegs());
+        maxLat = Math.max(maxLat, bottomRightLoc.getLatitudeDegs());
+        maxLat = Math.max(maxLat, bottomLeftLoc.getLatitudeDegs());
+        double minLat = Math.min(topLeftLoc.getLatitudeDegs(), topRightLoc.getLatitudeDegs());
+        minLat = Math.min(minLat, bottomRightLoc.getLatitudeDegs());
+        minLat = Math.min(minLat, bottomLeftLoc.getLatitudeDegs());
+        double maxLon = Math.max(topLeftLoc.getLongitudeDegs(), topRightLoc.getLongitudeDegs());
+        maxLon = Math.max(maxLon, bottomRightLoc.getLongitudeDegs());
+        maxLon = Math.max(maxLon, bottomLeftLoc.getLongitudeDegs());
+        double minLon = Math.min(topLeftLoc.getLongitudeDegs(), topRightLoc.getLongitudeDegs());
+        minLon = Math.min(minLon, bottomRightLoc.getLongitudeDegs());
+        minLon = Math.min(minLon, bottomLeftLoc.getLongitudeDegs());
+        
+        int w = img.getWidth(null);
+        int h = img.getHeight(null);
+        
+        BufferedImage srcImg = new BufferedImage(img.getWidth(null), img.getHeight(null),
+                BufferedImage.TYPE_INT_ARGB);
+        Graphics g = srcImg.createGraphics();
+        g.drawImage(img, 0, 0, null);
+        g.dispose(); 
+        
+        float uly = (float) ((maxLat - topLeftLoc.getLatitudeDegs()) / (maxLat - minLat));
+        float ulx = (float) ((topLeftLoc.getLongitudeDegs() - minLon) / (maxLon - minLon));
+
+        float ury = (float) ((maxLat - topRightLoc.getLatitudeDegs()) / (maxLat - minLat));
+        float urx = (float) ((topRightLoc.getLongitudeDegs() - minLon) / (maxLon - minLon));
+
+        float lry = (float) ((maxLat - bottomRightLoc.getLatitudeDegs()) / (maxLat - minLat));
+        float lrx = (float) ((bottomRightLoc.getLongitudeDegs() - minLon) / (maxLon - minLon));
+
+        float lly = (float) ((maxLat - bottomLeftLoc.getLatitudeDegs()) / (maxLat - minLat));
+        float llx = (float) ((bottomLeftLoc.getLongitudeDegs() - minLon) / (maxLon - minLon));
+
+        uly = Math.abs(h * uly);
+        ulx = Math.abs(w * ulx);
+
+        ury = Math.abs(h * ury);
+        urx = Math.abs(w * urx);
+
+        lry = Math.abs(h * lry);
+        lrx = Math.abs(w * lrx);
+
+        lly = Math.abs(h * lly);
+        llx = Math.abs(w * llx);
+
+        SkewImage skew = new SkewImage(srcImg);
+        BufferedImage outImg = skew.setCorners(ulx, uly, // UL
+                urx, ury,  // UR
+                lrx, lry,  // LR
+                llx, lly); // LL
+        
+//        try {
+//            ImageIO.write(outImg, "png", new File("a.png"));
+//        }
+//        catch (IOException e) {
+//            e.printStackTrace();
+//        }
+        
+        return outImg;
     }
 
     /**
