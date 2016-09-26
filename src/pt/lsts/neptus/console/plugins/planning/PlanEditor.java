@@ -33,6 +33,7 @@ package pt.lsts.neptus.console.plugins.planning;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.Component;
 import java.awt.Container;
 import java.awt.Cursor;
 import java.awt.Dialog.ModalityType;
@@ -57,10 +58,12 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map.Entry;
 import java.util.Vector;
 
 import javax.swing.AbstractAction;
@@ -73,6 +76,7 @@ import javax.swing.JMenu;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
+import javax.swing.JSplitPane;
 import javax.swing.SwingUtilities;
 import javax.swing.SwingWorker;
 import javax.swing.border.EmptyBorder;
@@ -175,6 +179,8 @@ public class PlanEditor extends InteractionAdapter implements Renderer2DPainter,
     protected MissionOverviewPanel overviewPanel = null;
     protected JPanel bottomPanel = new JPanel(new BorderLayout());
     private boolean overviewIsVisible = false;
+    private HashMap<Component, Object> componentList = new HashMap<>();
+    private JSplitPane verticalSplit = null;
 
     public enum ToolbarLocation {
         Right,
@@ -284,6 +290,8 @@ public class PlanEditor extends InteractionAdapter implements Renderer2DPainter,
         super.setActive(mode, source);
         getPropertiesPanel().setManeuver(null);
         this.renderer = source;
+
+        JSplitPane horizontalSplit = null;
         if (mode) {
             PeriodicUpdatesService.register(this);
 
@@ -291,20 +299,31 @@ public class PlanEditor extends InteractionAdapter implements Renderer2DPainter,
             while (c.getParent() != null && !(c.getLayout() instanceof BorderLayout))
                 c = c.getParent();
             if (c.getLayout() instanceof BorderLayout) {
+                componentList.clear();
+
+                BorderLayout bl = (BorderLayout) c.getLayout();
+                for (Component component : c.getComponents()) {
+                    Object constraint = bl.getConstraints(component);
+                    componentList.put(component, constraint);
+                }
+
+                Component comp = bl.getLayoutComponent(BorderLayout.CENTER);
+
                 switch (toolbarLocation) {
                     case Left:
-                        c.add(getSidePanel(), BorderLayout.WEST);
+                        horizontalSplit = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, true, getSidePanel(), comp);
                         break;
                     default:
-                        c.add(getSidePanel(), BorderLayout.EAST);
+                        horizontalSplit = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, true, comp, getSidePanel());
                         break;
                 }
+
+                horizontalSplit.setResizeWeight(1.0);
 
                 c.invalidate();
                 c.validate();
                 if (c instanceof JComponent)
                     ((JComponent) c).setBorder(new LineBorder(Color.orange.darker(), 3));
-
 
             }
 
@@ -344,9 +363,11 @@ public class PlanEditor extends InteractionAdapter implements Renderer2DPainter,
                 overviewPanel.setVisible(overviewIsVisible);
             }
 
-            bottomPanel.setLayout(new BorderLayout(0, 0));
-            bottomPanel.add(overviewPanel, BorderLayout.CENTER);
-            c.add(bottomPanel, BorderLayout.SOUTH);
+            verticalSplit = new JSplitPane(JSplitPane.VERTICAL_SPLIT, horizontalSplit, overviewPanel);
+            verticalSplit.setResizeWeight(1.0);
+            verticalSplit.getRightComponent().setMinimumSize(overviewPanel.getPreferredSize());
+
+            c.add(verticalSplit);
         }
 
         else {
@@ -361,10 +382,12 @@ public class PlanEditor extends InteractionAdapter implements Renderer2DPainter,
             while (c.getParent() != null && !(c.getLayout() instanceof BorderLayout))
                 c = c.getParent();
             if (c.getLayout() instanceof BorderLayout) {
-                c.remove(getSidePanel());
+                c.removeAll();
+                for (Entry<Component, Object> e : componentList.entrySet()) {
+                    c.add(e.getKey(), e.getValue());
+                }
 
                 if (overviewPanel != null) {
-                    c.remove(bottomPanel);
                     bottomPanel.removeAll();
                     overviewPanel = null;
                 }
