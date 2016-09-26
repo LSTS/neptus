@@ -32,12 +32,13 @@
 package org.necsave;
 
 import java.awt.Color;
+import java.awt.Font;
 import java.awt.Graphics2D;
+import java.awt.RenderingHints;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.awt.geom.AffineTransform;
-import java.awt.geom.Point2D;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -899,21 +900,12 @@ public class NecsaveUI extends ConsoleLayer {
         lt.setAzimuth(Math.toDegrees(b.getScanArea().getBearing() + Math.PI / 2));
         lt.convertToAbsoluteLatLonDepth();
         
-        JLabel areaID = new JLabel(Long.toString(b.getScanArea().getAreaId()));
-        Point2D p = source.getScreenPosition(area.centerLocation);
-        
         area.setCenterLocation(lt);
         area.paint(g, source, 0);
-        g.setTransform(old);
-        
-        areaID.setOpaque(false);
-        areaID.setSize(areaID.getPreferredSize());
-        g.translate(p.getX(), p.getY());
-        areaID.paint(g);
-        g.setTransform(old);
-        
-        
-        
+        g.setFont(new Font("Helvetica", Font.BOLD, 18));
+        g.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
+        g.drawString(""+b.getScanArea().getAreaId(), -5, 5);
+        g.setTransform(old);        
     }
     
     @Override
