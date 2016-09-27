@@ -61,9 +61,8 @@ import pt.lsts.neptus.util.llf.LogUtils;
 public class EstimatedStateReplay implements LogReplayLayer {
 
     protected HashMap<Integer, Vector<LocationType>> positions = new LinkedHashMap<Integer, Vector<LocationType>>();
-    protected Vector<Double> timestamps = new Vector<Double>();
     protected HashMap<Integer, VehiclePaths> pathsList = new LinkedHashMap<Integer, VehiclePaths>();
-    protected int currentPos = 0;
+    protected HashMap<Integer, Double> lastPositionTime = new HashMap<>(); 
     protected double lastZoom = -1;
     protected double lastRotation = 0;
     
@@ -75,7 +74,6 @@ public class EstimatedStateReplay implements LogReplayLayer {
     @Override
     public void cleanup() {
         positions.clear();
-        timestamps.clear();
         pathsList.clear();
     }
 
@@ -104,26 +102,21 @@ public class EstimatedStateReplay implements LogReplayLayer {
                 
                 pathsList.put(src, paths);
                 positions.put(src, pos);
+                lastPositionTime.put(src, 0d);                
             }
             
-            LocationType loc = LogUtils.getLocation(m);
-            loc.convertToAbsoluteLatLonDepth();
-            pos.add(loc);
-            timestamps.add(m.getTimestamp());
-            //log.advance(200);
+            if (m.getTimestamp() - lastPositionTime.get(src) >= 1.0) {
+                LocationType loc = LogUtils.getLocation(m);
+                loc.convertToAbsoluteLatLonDepth();
+                pos.add(loc);
+                lastPositionTime.put(src, m.getTimestamp());
+            }
         }
     }
 
     @Override
     public String[] getObservedMessages() {
-        return new String[] { "EstimatedState" };
-    }
-
-    @Override
-    public void onMessage(IMCMessage message) {
-        double curTime = message.getTimestamp();
-        while (currentPos < timestamps.size() && timestamps.get(currentPos) < curTime)
-            currentPos++;
+        return new String[] {  };
     }
 
     @Override
@@ -185,5 +178,11 @@ public class EstimatedStateReplay implements LogReplayLayer {
     @Override
     public boolean getVisibleByDefault() {
         return true;
+    }
+
+    @Override
+    public void onMessage(IMCMessage message) {
+        // TODO Auto-generated method stub
+        
     }
 }
