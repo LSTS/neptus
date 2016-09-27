@@ -482,13 +482,10 @@ public class KmlImport extends ConsolePanel {
         catch (NumberFormatException e) {
             e.printStackTrace();
         }
-//        if (!fVisible)
-//            transparency = 100;
         
         LocationType topLeftLoc = null;
         LocationType topRightLoc = null;
         LocationType bottomLeftLoc = null;
-        @SuppressWarnings("unused")
         LocationType bottomRightLoc = null;
         LatLonBox latLonBox = feature.getLatLonBox();
         if (latLonBox != null) {
@@ -526,11 +523,6 @@ public class KmlImport extends ConsolePanel {
                 return I18n.text("Error parsing LatLonQuad element.");
         }
         
-        // For now only LatLonBox is supported!!!
-//        if (latLonBox == null)
-//            return I18n.text("Only LatLonBox is supported at this time.");
-        
-        // Not supported by ImageElement
         double rotationDeg = latLonBox == null ? 0 : latLonBox.getRotation(); // CounterClockWise
         rotationDeg = AngleUtils.nomalizeAngleDegrees360(360 - rotationDeg); // Make it ClockWise
         
@@ -550,9 +542,10 @@ public class KmlImport extends ConsolePanel {
             return I18n.textf("Not possible to find image '%file'.", fHref);
         
         Image img = ImageUtils.getImage(imgFile.getAbsolutePath());
-
+        if (img == null)
+            return I18n.textf("Not possible to find image '%file'.", fHref);
+        
         if (latLonBox == null) {
-            Image imageAlt = getAdjustedLatLonQuadedImage(img, topLeftLoc, topRightLoc, bottomRightLoc, bottomLeftLoc);
             double maxLat = Math.max(topLeftLoc.getLatitudeDegs(), topRightLoc.getLatitudeDegs());
             maxLat = Math.max(maxLat, bottomRightLoc.getLatitudeDegs());
             maxLat = Math.max(maxLat, bottomLeftLoc.getLatitudeDegs());
@@ -565,7 +558,10 @@ public class KmlImport extends ConsolePanel {
             double minLon = Math.min(topLeftLoc.getLongitudeDegs(), topRightLoc.getLongitudeDegs());
             minLon = Math.min(minLon, bottomRightLoc.getLongitudeDegs());
             minLon = Math.min(minLon, bottomLeftLoc.getLongitudeDegs());
-            
+
+            Image imageAlt = getAdjustedLatLonQuadedImage(img, topLeftLoc, topRightLoc, bottomRightLoc, bottomLeftLoc,
+                    minLat, maxLat, minLon, maxLon);
+
             topLeftLoc = new LocationType(maxLat, minLon); 
             topRightLoc = new LocationType(maxLat, maxLon);
             bottomRightLoc = new LocationType(minLat, maxLon);
@@ -623,22 +619,15 @@ public class KmlImport extends ConsolePanel {
      * @param topRightLoc
      * @param bottomRightLoc
      * @param bottomLeftLoc
+     * @param minLat
+     * @param maxLat
+     * @param minLon
+     * @param maxLon
      * @return
      */
     private Image getAdjustedLatLonQuadedImage(Image img, LocationType topLeftLoc, LocationType topRightLoc,
-            LocationType bottomRightLoc, LocationType bottomLeftLoc) {
-        double maxLat = Math.max(topLeftLoc.getLatitudeDegs(), topRightLoc.getLatitudeDegs());
-        maxLat = Math.max(maxLat, bottomRightLoc.getLatitudeDegs());
-        maxLat = Math.max(maxLat, bottomLeftLoc.getLatitudeDegs());
-        double minLat = Math.min(topLeftLoc.getLatitudeDegs(), topRightLoc.getLatitudeDegs());
-        minLat = Math.min(minLat, bottomRightLoc.getLatitudeDegs());
-        minLat = Math.min(minLat, bottomLeftLoc.getLatitudeDegs());
-        double maxLon = Math.max(topLeftLoc.getLongitudeDegs(), topRightLoc.getLongitudeDegs());
-        maxLon = Math.max(maxLon, bottomRightLoc.getLongitudeDegs());
-        maxLon = Math.max(maxLon, bottomLeftLoc.getLongitudeDegs());
-        double minLon = Math.min(topLeftLoc.getLongitudeDegs(), topRightLoc.getLongitudeDegs());
-        minLon = Math.min(minLon, bottomRightLoc.getLongitudeDegs());
-        minLon = Math.min(minLon, bottomLeftLoc.getLongitudeDegs());
+            LocationType bottomRightLoc, LocationType bottomLeftLoc,
+            double minLat, double maxLat, double minLon, double maxLon) {
         
         int w = img.getWidth(null);
         int h = img.getHeight(null);
@@ -678,13 +667,6 @@ public class KmlImport extends ConsolePanel {
                 urx, ury,  // UR
                 lrx, lry,  // LR
                 llx, lly); // LL
-        
-//        try {
-//            ImageIO.write(outImg, "png", new File("a.png"));
-//        }
-//        catch (IOException e) {
-//            e.printStackTrace();
-//        }
         
         return outImg;
     }
