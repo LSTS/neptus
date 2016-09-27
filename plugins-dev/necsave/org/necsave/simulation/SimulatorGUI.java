@@ -184,8 +184,11 @@ public class SimulatorGUI {
                         platformsArgs.append(plat.getValue().getConfigPath()+ " ");
                         path = (new File(plat.getValue().getConfigPath()).getParentFile().getPath());
                         if (!plat.getValue().getPlatformType().equalsIgnoreCase("DummyPlatform")
-                                || !plat.getValue().getPlatformType().equalsIgnoreCase("DummyPlatform")) {
-                            duneArgs.append("vn_"+plat.getValue().getName()+" ");
+                                || !plat.getValue().getPlatformType().equalsIgnoreCase("CalPlatform")) {
+                            if (plat.getValue().getName().equalsIgnoreCase("gcs"))
+                                duneArgs.append(plat.getValue().getName() + " ");
+                            else
+                                duneArgs.append("vn_" + plat.getValue().getName() + " ");
                         }
                     }
 
