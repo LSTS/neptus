@@ -551,7 +551,7 @@ public class ImageElement extends AbstractElement implements ScalableElement, Ro
         double scaleV = (Double.isNaN(getImageScaleV()) ? getImageScale() : getImageScaleV()) * renderer.getZoom();
         g.rotate(getYawRad() - renderer.getRotation());
         g.scale(scaleH, scaleV);
-        if (transparency >= 0 && transparency < 100)
+        if (transparency > 0 && transparency <= 100)
             g.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, (100 - transparency) / 1E2f));
         g.drawImage(getImage(), -getImage().getWidth(renderer) / 2, -getImage().getHeight(renderer) / 2, null);
     }
