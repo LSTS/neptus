@@ -138,6 +138,7 @@ public class ManeuverPropertiesPanel extends JPanel {
     }
 
     public void setManeuver(Maneuver man) {
+        boolean sameMan = this.maneuver == man;
         
         if (this.maneuver != null) {
             
@@ -152,7 +153,8 @@ public class ManeuverPropertiesPanel extends JPanel {
                 
         payloadConfig = new ManeuverPayloadConfig(vehicle, man, propsPanel);
         this.maneuver = man;
-        editBtn.setSelected(false);
+        if (!sameMan)
+            editBtn.setSelected(false);
         changed = false;
         if (man == null) {
             setBorder(new TitledBorder(I18n.text("No maneuver selected")));
@@ -186,7 +188,8 @@ public class ManeuverPropertiesPanel extends JPanel {
         setBorder(new TitledBorder(man.getId()));
         
         deleteBtn.setEnabled(true);
-        editBtn.setSelected(false);
+        if (!sameMan)
+            editBtn.setSelected(false);
         
         if (maneuver instanceof StateRendererInteraction)               
             editBtn.setEnabled(true);
