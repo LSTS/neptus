@@ -22,7 +22,7 @@
  * distributed on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF
  * ANY KIND, either express or implied. See the Licence for the specific
  * language governing permissions and limitations at
- * https://www.lsts.pt/neptus/licence.
+ * http://ec.europa.eu/idabc/eupl.html.
  *
  * For more information please see <http://lsts.fe.up.pt/neptus>.
  *
@@ -45,10 +45,10 @@ import java.util.TimerTask;
 
 import javax.swing.JPanel;
 
-import pt.lsts.neptus.util.GuiUtils;
-
 import com.l2fprod.common.propertysheet.DefaultProperty;
 import com.l2fprod.common.propertysheet.Property;
+
+import pt.lsts.neptus.util.GuiUtils;
 
 /**
  * 

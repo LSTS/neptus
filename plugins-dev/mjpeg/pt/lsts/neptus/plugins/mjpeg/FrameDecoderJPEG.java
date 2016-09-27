@@ -20,20 +20,26 @@
  * distributed on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF
  * ANY KIND, either express or implied. See the Licence for the specific
  * language governing permissions and limitations at
- * https://www.lsts.pt/neptus/licence.
+ * http://ec.europa.eu/idabc/eupl.html.
  *
  * For more information please see <http://lsts.fe.up.pt/neptus>.
  */
 
 package pt.lsts.neptus.plugins.mjpeg;
 
-import org.apache.commons.io.FileUtils;
-import pt.lsts.neptus.NeptusLog;
-
-import javax.imageio.ImageIO;
 import java.io.File;
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.ListIterator;
+import java.util.Locale;
+
+import javax.imageio.ImageIO;
+
+import org.apache.commons.io.FileUtils;
+
+import pt.lsts.neptus.NeptusLog;
 
 /**
  * Decoder for video streams encoded and separate JPEG files.

@@ -1,3 +1,4 @@
 pt.lsts.neptus.plugins.alliance.NmeaPlotter
 pt.lsts.neptus.plugins.efolaga.KmlPlanExporter
 pt.lsts.neptus.plugins.gpx.GpxImportExport
+pt.lsts.neptus.plugins.alliance.NMEAPositionSender

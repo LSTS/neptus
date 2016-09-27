@@ -22,7 +22,7 @@
  * distributed on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF
  * ANY KIND, either express or implied. See the Licence for the specific
  * language governing permissions and limitations at
- * https://www.lsts.pt/neptus/licence.
+ * http://ec.europa.eu/idabc/eupl.html.
  *
  * For more information please see <http://lsts.fe.up.pt/neptus>.
  *
@@ -39,6 +39,9 @@ import org.dom4j.DocumentHelper;
 import org.dom4j.Element;
 import org.dom4j.Node;
 
+import com.l2fprod.common.propertysheet.DefaultProperty;
+import com.l2fprod.common.propertysheet.Property;
+
 import pt.lsts.imc.IMCDefinition;
 import pt.lsts.imc.IMCMessage;
 import pt.lsts.neptus.NeptusLog;
@@ -46,41 +49,22 @@ import pt.lsts.neptus.gui.PropertiesEditor;
 import pt.lsts.neptus.gui.editor.ComboEditor;
 import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.messages.Bitmask;
-import pt.lsts.neptus.mp.SystemPositionAndAttitude;
-import pt.lsts.neptus.util.NameNormalizer;
-
-import com.l2fprod.common.propertysheet.DefaultProperty;
-import com.l2fprod.common.propertysheet.Property;
+import pt.lsts.neptus.mp.Maneuver;
 
 /**
  * @author pdias
  * 
  */
-public class HeadingSpeedDepth extends DefaultManeuver implements IMCSerialization {
+@Deprecated
+public class HeadingSpeedDepth extends DefaultManeuver implements ManeuverWithSpeed, IMCSerialization {
 
-    double speed = 1000, speedTolerance = 100, depth = 1.5, heading = -1;
-    int duration = 10;
-    String units = "RPM";
-    boolean useHeading = true, useSpeed = true, useDepth = true;
+    protected double speed = 1000, speedTolerance = 100, depth = 1.5, heading = -1;
+    protected int duration = 10;
+    protected Maneuver.SPEED_UNITS speedUnits = SPEED_UNITS.RPM;
+    protected boolean useHeading = true, useSpeed = true, useDepth = true;
     protected static final String DEFAULT_ROOT_ELEMENT = "HeadingSpeedDepth";
 
-    private final int ANGLE_CALCULATION = -1;
-    private final int FIRST_ROTATE = 0;
-    private final int HORIZONTAL_MOVE = 1;
-
-    int current_state = ANGLE_CALCULATION;
-
-    private double targetAngle, rotateIncrement, startTime = -1;
-
-    // private GotoParameters params = new GotoParameters();
-
-    public String id = NameNormalizer.getRandomID();
-
-    /**
-	 * 
-	 */
     public HeadingSpeedDepth() {
-        // TODO Auto-generated constructor stub
     }
 
     public String getType() {
@@ -109,7 +93,7 @@ public class HeadingSpeedDepth extends DefaultManeuver implements IMCSerializati
         Element velocity = root.addElement("speed");
         velocity.addAttribute("tolerance", String.valueOf(getSpeedTolerance()));
         velocity.addAttribute("type", "float");
-        velocity.addAttribute("unit", getUnits());
+        velocity.addAttribute("unit", getSpeedUnits().getString());
         velocity.setText(String.valueOf(getSpeed()));
 
         Element heading = root.addElement("heading");
@@ -136,7 +120,9 @@ public class HeadingSpeedDepth extends DefaultManeuver implements IMCSerializati
             if (durNode != null)
                 setDuration(Integer.parseInt(durNode.getText()));
             setSpeed(Double.parseDouble(speedNode.getText()));
-            setUnits(speedNode.valueOf("@unit"));
+//            setUnits(speedNode.valueOf("@unit"));
+            SPEED_UNITS sUnits = ManeuversXMLUtil.parseSpeedUnits((Element) speedNode);
+            setSpeedUnits(sUnits);
             setSpeedTolerance(Double.parseDouble(speedNode.valueOf("@tolerance")));
 
             Node flagNode = rootMnv.selectSingleNode("@useHeading");
@@ -160,91 +146,6 @@ public class HeadingSpeedDepth extends DefaultManeuver implements IMCSerializati
             NeptusLog.pub().error(this, e);
             return;
         }
-    }
-
-    private int count = 0;
-
-    public SystemPositionAndAttitude ManeuverFunction(SystemPositionAndAttitude lastVehicleState) {
-
-        SystemPositionAndAttitude nextVehicleState = (SystemPositionAndAttitude) lastVehicleState.clone();
-
-        switch (current_state) {
-
-            case (ANGLE_CALCULATION):
-                if (getHeading() < 0) {
-                    count = 0;
-                    this.current_state = HORIZONTAL_MOVE;
-                    nextVehicleState = ManeuverFunction(lastVehicleState);
-                    break;
-                }
-                targetAngle = Math.toRadians(getHeading());
-
-                double angleDiff = (targetAngle - lastVehicleState.getYaw());
-
-                while (angleDiff < 0)
-                    angleDiff += Math.PI * 2; // 360º
-
-                while (angleDiff > Math.PI * 2)
-                    angleDiff -= Math.PI * 2;
-
-                if (angleDiff > Math.PI)
-                    angleDiff = angleDiff - Math.PI * 2;
-
-                rotateIncrement = angleDiff / 3;// (-25.0f / 180.0f) * (float)
-                                                // Math.PI;
-                count = 0;
-                this.current_state = FIRST_ROTATE;
-                startTime = System.currentTimeMillis() / 1000d;
-                nextVehicleState = ManeuverFunction(lastVehicleState);
-                break;
-
-            // Initial rotation towards the target point
-            case FIRST_ROTATE:
-                if (count++ < 3)
-                    nextVehicleState.rotateXY(rotateIncrement);
-                else {
-                    nextVehicleState.setYaw(targetAngle);
-                    current_state = HORIZONTAL_MOVE;
-                }
-                break;
-
-            // The movement between the initial and final point, in the plane xy
-            // (horizontal)
-            case HORIZONTAL_MOVE:
-                double calculatedVelocity = 1;
-
-                if (units.equals("m/s"))
-                    calculatedVelocity = speed;
-                else if (units.equals("RPM"))
-                    calculatedVelocity = speed / 500.0;
-                double deltaTime = System.currentTimeMillis() / 1000d - startTime;
-                if (deltaTime >= getDuration()) {
-                    nextVehicleState.setPosition(lastVehicleState.getPosition());
-                    endManeuver();
-                }
-                else {
-                    nextVehicleState.moveForward(calculatedVelocity);
-                    double depthDiff = getDepth() - nextVehicleState.getPosition().getDepth();
-
-                    double depthIncr = Math.min(depthDiff, calculatedVelocity);
-                    double curDepth = nextVehicleState.getPosition().getDepth();
-                    nextVehicleState.getPosition().setDepth(curDepth + depthIncr);
-                }
-                break;
-
-            default:
-                endManeuver();
-        }
-
-        return nextVehicleState;
-    }
-
-    public String getId() {
-        return id;
-    }
-
-    public void setId(String id) {
-        this.id = id;
     }
 
     /**
@@ -297,12 +198,12 @@ public class HeadingSpeedDepth extends DefaultManeuver implements IMCSerializati
         this.depth = depth;
     }
 
-    public String getUnits() {
-        return units;
+    public SPEED_UNITS getSpeedUnits() {
+        return speedUnits;
     }
 
-    public void setUnits(String units) {
-        this.units = units;
+    public void setSpeedUnits(SPEED_UNITS speedUnits) {
+        this.speedUnits = speedUnits;
     }
 
     public double getSpeed() {
@@ -350,7 +251,7 @@ public class HeadingSpeedDepth extends DefaultManeuver implements IMCSerializati
         clone.setDepth(getDepth());
         clone.setDuration(getDuration());
         clone.setHeading(getHeading());
-        clone.setUnits(getUnits());
+        clone.setSpeedUnits(getSpeedUnits());
         clone.setSpeed(getSpeed());
         clone.setSpeedTolerance(getSpeedTolerance());
 
@@ -365,7 +266,7 @@ public class HeadingSpeedDepth extends DefaultManeuver implements IMCSerializati
     protected Vector<DefaultProperty> additionalProperties() {
         Vector<DefaultProperty> properties = new Vector<DefaultProperty>();
 
-        DefaultProperty units = PropertiesEditor.getPropertyInstance("Speed units", String.class, getUnits(), true);
+        DefaultProperty units = PropertiesEditor.getPropertyInstance("Speed units", String.class, getSpeedUnits(), true);
         units.setShortDescription(I18n.text("The speed units"));
         PropertiesEditor.getPropertyEditorRegistry().registerEditor(units,
                 new ComboEditor<String>(new String[] { "RPM", "m/s", "%" }));
@@ -406,29 +307,34 @@ public class HeadingSpeedDepth extends DefaultManeuver implements IMCSerializati
             if (p.getName().equals("Use Speed")) {
                 setUseSpeed((Boolean) p.getValue());
             }
-            if (p.getName().equals("Speed units")) {
-                setUnits((String) p.getValue());
-            }
-            if (p.getName().equals("Speed tolerance")) {
+//            if (p.getName().equals("Speed units")) {
+//                setUnits((String) p.getValue());
+//            }
+            else if (p.getName().equals("Speed tolerance")) {
                 setSpeedTolerance((Double) p.getValue());
             }
-            if (p.getName().equals("Speed")) {
+            else if (p.getName().equals("Speed")) {
                 setSpeed((Double) p.getValue());
             }
-            if (p.getName().equals("Use Depth")) {
+            else if (p.getName().equals("Use Depth")) {
                 setUseDepth((Boolean) p.getValue());
             }
-            if (p.getName().equals("Depth")) {
+            else if (p.getName().equals("Depth")) {
                 setDepth((Double) p.getValue());
             }
-            if (p.getName().equals("Use Heading")) {
+            else if (p.getName().equals("Use Heading")) {
                 setUseHeading((Boolean) p.getValue());
             }
-            if (p.getName().equals("Heading (degrees)")) {
+            else if (p.getName().equals("Heading (degrees)")) {
                 setHeading((Double) p.getValue());
             }
-            if (p.getName().equals("Duration")) {
+            else if (p.getName().equals("Duration")) {
                 setDuration((Integer) p.getValue());
+            }
+            else {
+                SPEED_UNITS speedUnits = ManeuversUtil.getSpeedUnitsFromPropertyOrNullIfInvalidName(p);
+                if (speedUnits != null)
+                    setSpeedUnits(speedUnits);
             }
         }
     }
@@ -441,7 +347,7 @@ public class HeadingSpeedDepth extends DefaultManeuver implements IMCSerializati
     public String getTooltipText() {
 
         return super.getTooltipText() + "<hr>" + "heading: <b>" + (int) getHeading() + " \u00B0</b>" + "<br>speed: <b>"
-                + getSpeed() + " " + getUnits() + "</b>" + "<br>depth: <b>" + (int) getDepth() + " m</b>"
+                + getSpeed() + " " + getSpeedUnits() + "</b>" + "<br>depth: <b>" + (int) getDepth() + " m</b>"
                 + "<br>duration: <b>" + getDuration() + " s</b>" + "<br>using: <b>"
                 + (isUseHeading() ? " heading" : "") + (isUseSpeed() ? " speed" : "") + (isUseDepth() ? " depth" : "")
                 + "</b>";
@@ -455,13 +361,14 @@ public class HeadingSpeedDepth extends DefaultManeuver implements IMCSerializati
         setHeading(message.getDouble("heading"));
         setDuration((int) message.getDouble("duration"));
 
-        String speed_units = message.getString("speed_units");
-        if (speed_units.equals("METERS_PS"))
-            setUnits("m/s");
-        else if (speed_units.equals("RPM"))
-            setUnits("RPM");
-        else
-            setUnits("%");
+        try {
+            String speedUnits = message.getString("speed_units");
+            setSpeedUnits(Maneuver.SPEED_UNITS.parse(speedUnits));
+        }
+        catch (Exception e) {
+            setSpeedUnits(Maneuver.SPEED_UNITS.RPM);
+            e.printStackTrace();
+        }
 
         LinkedHashMap<String, Boolean> indValue = message.getBitmask("ind");
         if (indValue.get("HEADING"))
@@ -492,22 +399,27 @@ public class HeadingSpeedDepth extends DefaultManeuver implements IMCSerializati
 
         msgManeuver.setValue("velocity", this.getSpeed());
         msgManeuver.setValue("speed", this.getSpeed());
-        String enumerated = "";
-        String speedU = this.getUnits();
-        try {
-            if ("m/s".equalsIgnoreCase(speedU))
-                enumerated = "METERS_PS";
-            else if ("RPM".equalsIgnoreCase(speedU))
-                enumerated = "RPM";
-            else if ("%".equalsIgnoreCase(speedU))
-                enumerated = "PERCENTAGE";
-            else if ("percentage".equalsIgnoreCase(speedU))
-                enumerated = "PERCENTAGE";
-        }
-        catch (Exception ex) {
-            NeptusLog.pub().error(this, ex);
-        }
-        msgManeuver.setValue("speed_units", enumerated);
+
+        new Exception("Please fix speed setting!").printStackTrace();;
+        
+//        msgManeuver.setValue("speed_units", enumerated);
+//        try {
+//            switch (this.getUnits()) {
+//                case METERS_PS:
+//                    msgManeuver.setSpeedUnits(pt.lsts.imc.FollowTrajectory.SPEED_UNITS.METERS_PS);
+//                    break;
+//                case PERCENTAGE:
+//                    msgManeuver.setSpeedUnits(pt.lsts.imc.FollowTrajectory.SPEED_UNITS.PERCENTAGE);
+//                    break;
+//                case RPM:
+//                default:
+//                    msgManeuver.setSpeedUnits(pt.lsts.imc.FollowTrajectory.SPEED_UNITS.RPM);
+//                    break;
+//            }
+//        }
+//        catch (Exception ex) {
+//            NeptusLog.pub().error(this, ex);                     
+//        }
 
         // msgManeuver.setValue("velocity", new NativeFLOAT(this.getSpeed()));
         // Enumerated enumerated = (Enumerated) msgManeuver.getValueAsObject("velocity_units");

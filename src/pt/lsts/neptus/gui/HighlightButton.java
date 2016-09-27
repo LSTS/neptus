@@ -22,7 +22,7 @@
  * distributed on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF
  * ANY KIND, either express or implied. See the Licence for the specific
  * language governing permissions and limitations at
- * https://www.lsts.pt/neptus/licence.
+ * http://ec.europa.eu/idabc/eupl.html.
  *
  * For more information please see <http://lsts.fe.up.pt/neptus>.
  *
@@ -47,11 +47,11 @@ import javax.swing.JLabel;
 import javax.swing.UIManager;
 import javax.swing.border.Border;
 
-import pt.lsts.neptus.NeptusLog;
-import pt.lsts.neptus.platform.OsInfo;
-
 import com.jgoodies.looks.LookUtils;
 import com.jgoodies.looks.plastic.PlasticXPLookAndFeel;
+
+import pt.lsts.neptus.NeptusLog;
+import pt.lsts.neptus.platform.OsInfo;
 
 /**
  * @author zp

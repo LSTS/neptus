@@ -22,7 +22,7 @@
  * distributed on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF
  * ANY KIND, either express or implied. See the Licence for the specific
  * language governing permissions and limitations at
- * https://www.lsts.pt/neptus/licence.
+ * http://ec.europa.eu/idabc/eupl.html.
  *
  * For more information please see <http://lsts.fe.up.pt/neptus>.
  *
@@ -126,7 +126,7 @@ public abstract class TileHttpFetcher extends Tile {
         if (httpComm != null)
             return;
         
-        httpComm = new HttpClientConnectionHelper();
+        httpComm = new HttpClientConnectionHelper("NMaps v1");
         httpComm.initializeComm();
 
 //        SchemeRegistry schemeRegistry = new SchemeRegistry();
@@ -568,6 +568,7 @@ public abstract class TileHttpFetcher extends Tile {
                     {
                         String urlGet = createTileRequestURL();
                         HttpGet get = new HttpGet(urlGet);
+                        get.setHeader("User-Agent", "WorldMap (Java/" + System.getProperty("java.version") + ")");
 
                         try {
                             HttpResponse resp;

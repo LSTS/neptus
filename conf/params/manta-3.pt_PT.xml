@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<config format="1" version="2016.01.0 (master,dd196ec,dirty)" system="manta-3" i18n="pt_PT">
+<config format="1" version="2016.05.0 (master,126112c)" system="manta-3" i18n="pt_PT">
   <section name="Navigation" name-i18n="Navegação">
     <param name="Entity Label">
       <name-i18n>Nome da Entidade</name-i18n>
@@ -1669,7 +1669,7 @@
       <type>list:string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>Chlorophyll, Conductivity, CpuUsage, Current, Depth, Distance, EntityState, Fluorescein, FuelLevel, GpsFix, Heartbeat, LblConfig, LblRange, LblRangeAcceptance, Phycocyanin, Phycoerythrin, PowerChannelState, Pressure, RhodamineDye, RSSI, Rpm, Salinity, SoundSpeed, StorageUsage, Temperature, Voltage</default>
+      <default>Chlorophyll, Conductivity, CpuUsage, Current, Depth, Distance, EntityState, Fluorescein, FuelLevel, GpsFix, Heartbeat, LblConfig, LblRange, LblRangeAcceptance, Phycocyanin, Phycoerythrin, PowerChannelState, Pressure, RhodamineDye, RSSI, Rpm, Salinity, SoundSpeed, StorageUsage, Temperature, Voltage, PH, Redox</default>
       <units/>
       <desc>List of messages to transport</desc>
     </param>
@@ -1963,6 +1963,15 @@
       <default>ppp0</default>
       <units/>
       <desc>PPP Interface</desc>
+    </param>
+    <param name="Enable IP Forwarding">
+      <name-i18n>Enable IP Forwarding</name-i18n>
+      <type>boolean</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>true</default>
+      <units/>
+      <desc>Enable or disable IP forward</desc>
     </param>
   </section>
   <section name="UDP" name-i18n="UDP">

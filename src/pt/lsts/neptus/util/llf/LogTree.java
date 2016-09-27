@@ -22,7 +22,7 @@
  * distributed on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF
  * ANY KIND, either express or implied. See the Licence for the specific
  * language governing permissions and limitations at
- * https://www.lsts.pt/neptus/licence.
+ * http://ec.europa.eu/idabc/eupl.html.
  *
  * For more information please see <http://lsts.fe.up.pt/neptus>.
  *
@@ -35,7 +35,9 @@ import java.awt.Component;
 import java.awt.event.ActionEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
+import java.util.function.Function;
 
 import javax.swing.AbstractAction;
 import javax.swing.ImageIcon;
@@ -46,7 +48,6 @@ import javax.swing.tree.DefaultTreeCellRenderer;
 import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreePath;
 
-import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.mra.LogMarker;
 import pt.lsts.neptus.mra.MRAPanel;
@@ -56,179 +57,252 @@ import pt.lsts.neptus.mra.visualizations.MRAVisualization;
 import pt.lsts.neptus.util.GuiUtils;
 import pt.lsts.neptus.util.ImageUtils;
 
-
 /**
  * @author jqcorreia
- *
  */
 @SuppressWarnings("serial")
 public class LogTree extends JTree {
+    private final MRAPanel panel;
 
-    MRAPanel panel;
-
-    LinkedHashMap<String, Component> visList = new LinkedHashMap<String, Component>();
-    IMraLogGroup source;
-
-    private 
     // Root node
-    DefaultMutableTreeNode root = new DefaultMutableTreeNode("root");
+    private final DefaultMutableTreeNode root = new DefaultMutableTreeNode("root");
 
     // Top level nodes
-    DefaultMutableTreeNode visualizationsNode = new DefaultMutableTreeNode(I18n.text("Visualizations"));
-    DefaultMutableTreeNode chartsNode = new DefaultMutableTreeNode(I18n.text("Charts"));
-    DefaultMutableTreeNode tablesNode = new DefaultMutableTreeNode(I18n.text("Tables"));
-    DefaultMutableTreeNode markersNode;
+    private final DefaultMutableTreeNode visualizationsNode = new DefaultMutableTreeNode(I18n.text("Visualizations"));
+    private final DefaultMutableTreeNode tablesNode = new DefaultMutableTreeNode(I18n.text("Tables"));
+    private final DefaultMutableTreeNode chartsNode = new DefaultMutableTreeNode(I18n.text("Charts"));
+    private DefaultMutableTreeNode markersNode;
 
-    // Misc Nodes
-    DefaultMutableTreeNode newPlotNode = new DefaultMutableTreeNode(I18n.text("New Plot"));
+    private final DefaultTreeModel treeModel = new DefaultTreeModel(root);
 
-    DefaultTreeModel treeModel = new DefaultTreeModel(root);
-    DefaultTreeCellRenderer treeRenderer = new DefaultTreeCellRenderer() {
-        
-        private LinkedHashMap<Object, ImageIcon> iconCache = new LinkedHashMap<>();
-        
-        @Override
-        public Component getTreeCellRendererComponent(JTree tree, Object value, boolean selected, boolean expanded,
-                boolean leaf, int row, boolean hasFocus) {
-            
-            
-            
-            DefaultMutableTreeNode node = (DefaultMutableTreeNode) value;
-            super.getTreeCellRendererComponent(tree, value, selected, expanded, leaf, row, hasFocus);
-
-            if(node.getUserObject() instanceof MRAVisualization) {
-                MRAVisualization viz = (MRAVisualization) node.getUserObject();
-                setText(viz.getName());
-                if (!iconCache.containsKey(viz))
-                    iconCache.put(viz, viz.getIcon());
-                setIcon(iconCache.get(viz));                    
-            }
-            if(node.getUserObject() instanceof LogMarker) {
-                LogMarker mark = (LogMarker) node.getUserObject();
-                setText(mark.getLabel());
-                if (!iconCache.containsKey("markers"))
-                    iconCache.put("markers", ImageUtils.getIcon("images/menus/marker.png"));
-                setIcon(iconCache.get("markers"));                
-            }
-
-            return this;
-        }
-    };
-
-    MouseAdapter mouseAdapter = new MouseAdapter() {
-        @Override
-        public void mouseClicked(MouseEvent e) {
-            if(e.getButton()==MouseEvent.BUTTON1) {
-
-                if(e.getClickCount()==1) {
-                    // Single Click
-                    // TODO 
-                }
-                if(e.getClickCount()==2){ 
-                    // Double Click
-                    TreePath path = getPathForLocation(e.getX(), e.getY());
-
-                    // This takes care of clicking outside item area
-                    if (path != null) {
-                        DefaultMutableTreeNode n = (DefaultMutableTreeNode) path.getLastPathComponent();
-
-                        // MRAVisualization case
-                        if (n.getUserObject() instanceof MRAVisualization) {
-                            panel.openVisualization(((MRAVisualization) n.getUserObject()));
-                        }
-                        // 'New plot' case
-                        if (n == newPlotNode ) {
-                            NeptusLog.pub().info("<###>New Plot");
-                        }
-
-                        // MRAVisualization case
-                        if (n.getUserObject() instanceof LogMarker) {
-                            panel.synchVisualizations((LogMarker)n.getUserObject());
-                        }
-
-                        //TODO more case to follow
-                    }
-                }
-            }
-            if(e.getButton() == MouseEvent.BUTTON3) {
-                JPopupMenu menu = new JPopupMenu();
-                TreePath path = getPathForLocation(e.getX(), e.getY());
-                setSelectionPath(path);
-                boolean showMenu = false;
-
-                // This takes care of clicking outside item area
-                if (path != null) {
-                    final DefaultMutableTreeNode n = (DefaultMutableTreeNode) path.getLastPathComponent();
-
-                    // MRAVisualization case
-                    if (n.getUserObject() instanceof MRAVisualization) {
-
-                    }
-                    if(n.getUserObject() instanceof LogMarker) {
-                        menu.add(new AbstractAction(I18n.text("Remove")) {
-
-                            @Override
-                            public void actionPerformed(ActionEvent e) {
-                                if (LsfReportProperties.generatingReport==true){
-                                    GuiUtils.infoMessage(panel.getRootPane(), I18n.text("Can not remove Marks"), I18n.text("Can not remove Marks - Generating Report."));
-                                    return;
-                                }
-                                panel.removeMarker((LogMarker)n.getUserObject());
-                            }
-                        });
-
-                        menu.add(new AbstractAction(I18n.text("GoTo")) {
-                            @Override
-                            public void actionPerformed(ActionEvent e) {
-                                panel.synchVisualizations((LogMarker)n.getUserObject());
-                            }
-                        });
-                        showMenu = true;
-                    }
-                    else if (n.getUserObject() instanceof LogTableVisualization || 
-                            n.getUserObject() instanceof GenericPlot ||
-                            n.getUserObject() instanceof MessageHtmlVisualization) {
-
-                        menu.add(new AbstractAction(I18n.text("Remove")) {
-
-                            @Override
-                            public void actionPerformed(ActionEvent e) {
-                                panel.removeTreeObject(n.getUserObject());
-                            }
-                        });
-                        showMenu = true;                        
-                    }
-
-                    if (showMenu)
-                        menu.show(LogTree.this, e.getX(), e.getY());
-                }
-            }
-            // Let the original event go the UI Thread
-            super.mouseClicked(e);
-        }
-    };
-
-
-    public LogTree(IMraLogGroup source,MRAPanel panel) {
-        this.source = source;
+    public LogTree(IMraLogGroup source, MRAPanel panel) {
         this.panel = panel;
 
         setModel(treeModel);
-        setCellRenderer(treeRenderer);
+        initializeTreeRenderer();
+
         setRootVisible(false);
         setShowsRootHandles(true);
 
-        addMouseListener(mouseAdapter);
+        initializeMouseAdapter();
 
         loadDefaultNodes();
         treeModel.nodeStructureChanged(root);
+
+        // Multiple selections may only contains items of the same compatible type.
+        addTreeSelectionListener((e) -> setSelectionPaths(getSelectionsFiltered(null)));
     }
 
-    public void loadDefaultNodes() {
+    private void initializeTreeRenderer() {
+        DefaultTreeCellRenderer treeRenderer = new DefaultTreeCellRenderer() {
+            private final LinkedHashMap<Object, ImageIcon> iconCache = new LinkedHashMap<>();
+
+            @Override
+            public Component getTreeCellRendererComponent(JTree tree, Object value,
+                                                          boolean selected, boolean expanded,
+                                                          boolean leaf, int row, boolean hasFocus) {
+                DefaultMutableTreeNode node = (DefaultMutableTreeNode) value;
+                super.getTreeCellRendererComponent(tree, value, selected, expanded, leaf, row, hasFocus);
+
+                if (node.getUserObject() instanceof MRAVisualization) {
+                    MRAVisualization viz = (MRAVisualization) node.getUserObject();
+                    setText(viz.getName());
+                    if (!iconCache.containsKey(viz))
+                        iconCache.put(viz, viz.getIcon());
+                    setIcon(iconCache.get(viz));
+                }
+
+                if (node.getUserObject() instanceof LogMarker) {
+                    LogMarker mark = (LogMarker) node.getUserObject();
+                    setText(mark.getLabel());
+                    if (!iconCache.containsKey("markers"))
+                        iconCache.put("markers", ImageUtils.getIcon("images/menus/marker.png"));
+                    setIcon(iconCache.get("markers"));
+                }
+
+                return this;
+            }
+        };
+
+        setCellRenderer(treeRenderer);
+    }
+
+    private void initializeMouseAdapter() {
+        MouseAdapter mouseAdapter = new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                final TreePath path = getPathForLocation(e.getX(), e.getY());
+
+                if (e.getButton() == MouseEvent.BUTTON1) {
+                    if (e.getClickCount() == 2) {
+                        // This takes care of clicking outside item area
+                        if (path != null) {
+                            DefaultMutableTreeNode n = (DefaultMutableTreeNode) path.getLastPathComponent();
+
+                            // MRAVisualization case
+                            if (n.getUserObject() instanceof MRAVisualization) {
+                                panel.openVisualization(((MRAVisualization) n.getUserObject()));
+                            }
+
+                            // Log marker case.
+                            if (n.getUserObject() instanceof LogMarker) {
+                                panel.synchVisualizations((LogMarker) n.getUserObject());
+                            }
+                        }
+                    }
+                }
+
+                if (e.getButton() == MouseEvent.BUTTON3) {
+                    // This takes care of clicking outside item area
+                    if (path != null) {
+                        final JPopupMenu menu = new JPopupMenu();
+                        if (initializeLogMarkerNodeMenu(menu) || initializeDynamicViewNodeMenu(menu))
+                            menu.show(LogTree.this, e.getX(), e.getY());
+                    }
+                }
+
+                // Let the original event go the UI Thread
+                super.mouseClicked(e);
+            }
+        };
+
+        addMouseListener(mouseAdapter);
+    }
+
+    /**
+     * Tests if a tree node is a log marker.
+     *
+     * @param node tree node
+     * @return true if node is a log marker, false otherwise.
+     */
+    private Boolean nodeIsLogMarker(final DefaultMutableTreeNode node) {
+        return node.getUserObject() instanceof LogMarker;
+    }
+
+    /**
+     * Tests if a tree node is a dynamic view (i.e., not a builtin/predefined).
+     *
+     * @param node tree node
+     * @return true if node is a user item, false otherwise.
+     */
+    private Boolean nodeIsDynamicView(final DefaultMutableTreeNode node) {
+        Object userObject = node.getUserObject();
+        return userObject instanceof LogTableVisualization
+                || userObject instanceof GenericPlot
+                || userObject instanceof MessageHtmlVisualization;
+    }
+
+    /**
+     * Retrieves an array of the current selected tree items. This selection shall contain only
+     * items of the same compatible type.
+     *
+     * @param filter optional node filter.
+     * @return array of tree paths.
+     * @see #nodeTypeIsCompatible
+     */
+    private TreePath[] getSelectionsFiltered(Function<DefaultMutableTreeNode, Boolean> filter) {
+        TreePath[] paths = getSelectionPaths();
+        if (paths == null)
+            return new TreePath[]{};
+
+        final ArrayList<TreePath> list = new ArrayList<>();
+        Object firstUserObject = null;
+
+        for (TreePath path : paths) {
+            final Object node = path.getLastPathComponent();
+            final DefaultMutableTreeNode treeNode = (DefaultMutableTreeNode) node;
+            final Object userObject = treeNode.getUserObject();
+
+            if (firstUserObject == null) {
+                firstUserObject = userObject;
+            }
+
+            if (!nodeTypeIsCompatible(firstUserObject, userObject) || (filter != null && !filter.apply(treeNode)))
+                break;
+
+            list.add(path);
+        }
+
+        return list.toArray(new TreePath[list.size()]);
+    }
+
+    /**
+     * Tests if two objects have compatible types (i.e., are used in similar ways, have the same menu).
+     * @param a first object.
+     * @param b second object.
+     * @return true if nodes are compatible, false otherwise.
+     */
+    private boolean nodeTypeIsCompatible(Object a, Object b) {
+        return a.getClass().isInstance(b) || b.getClass().isInstance(a);
+    }
+
+    /**
+     * Initializes a menu containing actions applicable to log markers.
+     *
+     * @param menu menu object.
+     * @return true if menu is applicable to current selection and was initialized, false otherwise.
+     */
+    private boolean initializeLogMarkerNodeMenu(final JPopupMenu menu) {
+        TreePath[] paths = getSelectionsFiltered(this::nodeIsLogMarker);
+        if (paths.length == 0)
+            return false;
+
+        menu.add(new AbstractAction(I18n.text("Remove")) {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                if (LsfReportProperties.generatingReport) {
+                    GuiUtils.infoMessage(panel.getRootPane(),
+                            I18n.text("Can not remove Marks"),
+                            I18n.text("Can not remove Marks - Generating Report."));
+                    return;
+                }
+
+                for (TreePath path : paths) {
+                    final DefaultMutableTreeNode node = (DefaultMutableTreeNode) path.getLastPathComponent();
+                    panel.removeMarker((LogMarker) node.getUserObject());
+                }
+            }
+        });
+
+        menu.add(new AbstractAction(I18n.text("GoTo")) {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                final DefaultMutableTreeNode node = (DefaultMutableTreeNode) paths[0].getLastPathComponent();
+                panel.synchVisualizations((LogMarker) node.getUserObject());
+            }
+        });
+
+        return true;
+    }
+
+    /**
+     * Initializes a menu containing actions applicable to user items.
+     *
+     * @param menu menu object.
+     * @return true if menu is applicable to current selection and was initialized, false otherwise.
+     */
+    private boolean initializeDynamicViewNodeMenu(final JPopupMenu menu) {
+        TreePath[] paths = getSelectionsFiltered(this::nodeIsDynamicView);
+        if (paths.length == 0)
+            return false;
+
+        menu.add(new AbstractAction(I18n.text("Remove")) {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                for (TreePath path : paths) {
+                    final DefaultMutableTreeNode node = (DefaultMutableTreeNode) path.getLastPathComponent();
+                    panel.removeTreeObject(node.getUserObject());
+                }
+            }
+        });
+
+        return true;
+    }
+
+    private void loadDefaultNodes() {
         root.add(visualizationsNode);
         root.add(chartsNode);
         root.add(tablesNode);
-        //        chartsNode.add(newPlotNode);
     }
 
     public void addVisualization(MRAVisualization vis) {
@@ -236,32 +310,48 @@ public class LogTree extends JTree {
         DefaultMutableTreeNode node = new DefaultMutableTreeNode(vis);
 
         // Choose parent node based on visualization type
-        switch(vis.getType()) {
-            case VISUALIZATION : parent = visualizationsNode; break;
-            case CHART : parent = chartsNode; break;
-            case TABLE : parent = tablesNode; break;
-            default : parent = visualizationsNode;
+        switch (vis.getType()) {
+            case VISUALIZATION:
+                parent = visualizationsNode;
+                break;
+            case CHART:
+                parent = chartsNode;
+                break;
+            case TABLE:
+                parent = tablesNode;
+                break;
+            default:
+                parent = visualizationsNode;
         }
         parent.add(node);
         treeModel.nodeStructureChanged(root);
         expandAllTree();
     }
-    
-    public void remove(Object obj, DefaultMutableTreeNode parent) {
+
+    /**
+     * Retrieves the tree node that contains charts.
+     *
+     * @return chart tree node.
+     */
+    DefaultMutableTreeNode getChartsNode() {
+        return chartsNode;
+    }
+
+    private void remove(Object obj, DefaultMutableTreeNode parent) {
         for (int i = 0; i < parent.getChildCount(); i++) {
-            if (! (parent.getChildAt(i) instanceof DefaultMutableTreeNode))
+            if (!(parent.getChildAt(i) instanceof DefaultMutableTreeNode))
                 continue;
             DefaultMutableTreeNode node = (DefaultMutableTreeNode) parent.getChildAt(i);
 
             if (!node.isLeaf())
-                remove(obj, (DefaultMutableTreeNode)node);
+                remove(obj, node);
             else if (node.isLeaf()) {
                 if (node.getUserObject().equals(obj)) {
                     parent.remove(node);
                     if (parent.getChildCount() == 0 && parent.getParent() instanceof DefaultMutableTreeNode) {
-                        ((DefaultMutableTreeNode)parent.getParent()).remove(parent);
+                        ((DefaultMutableTreeNode) parent.getParent()).remove(parent);
                     }
-                        
+
                     treeModel.nodeStructureChanged(root);
                     expandAllTree();
                     return;
@@ -272,10 +362,10 @@ public class LogTree extends JTree {
 
     public void remove(Object obj) {
         remove(obj, root);
-    }        
+    }
 
     public void addMarker(LogMarker marker) {
-        if(markersNode == null) {
+        if (markersNode == null) {
             markersNode = new DefaultMutableTreeNode(I18n.text("Markers"));
             root.add(markersNode);
         }
@@ -286,13 +376,13 @@ public class LogTree extends JTree {
 
     public void removeMarker(LogMarker marker) {
         DefaultMutableTreeNode node;
-        for(int i = 0; i < markersNode.getChildCount(); i++) {
+        for (int i = 0; i < markersNode.getChildCount(); i++) {
             node = (DefaultMutableTreeNode) markersNode.getChildAt(i);
-            if(((LogMarker)node.getUserObject()) == marker) {
+            if (node.getUserObject() == marker) {
                 markersNode.remove(node);
             }
         }
-        if(markersNode.getChildCount() == 0) {
+        if (markersNode.getChildCount() == 0) {
             root.remove(markersNode);
             markersNode = null;
         }
@@ -303,9 +393,8 @@ public class LogTree extends JTree {
 
     // Util methods
     private void expandAllTree() {
-        for(int i = 0; i < getRowCount(); i++) {
+        for (int i = 0; i < getRowCount(); i++) {
             expandRow(i);
         }
     }
-
 }

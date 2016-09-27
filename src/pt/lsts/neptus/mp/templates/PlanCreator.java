@@ -22,7 +22,7 @@
  * distributed on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF
  * ANY KIND, either express or implied. See the Licence for the specific
  * language governing permissions and limitations at
- * https://www.lsts.pt/neptus/licence.
+ * http://ec.europa.eu/idabc/eupl.html.
  *
  * For more information please see <http://lsts.fe.up.pt/neptus>.
  *
@@ -32,6 +32,7 @@
 package pt.lsts.neptus.mp.templates;
 
 import java.lang.reflect.Method;
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -42,6 +43,7 @@ import pt.lsts.neptus.mp.ManeuverLocation;
 import pt.lsts.neptus.mp.maneuvers.Goto;
 import pt.lsts.neptus.mp.maneuvers.LocatedManeuver;
 import pt.lsts.neptus.mp.maneuvers.Loiter;
+import pt.lsts.neptus.mp.maneuvers.ManeuverWithSpeed;
 import pt.lsts.neptus.mp.maneuvers.PopUp;
 import pt.lsts.neptus.mp.maneuvers.Unconstrained;
 import pt.lsts.neptus.types.coord.LocationType;
@@ -62,8 +64,8 @@ public class PlanCreator {
 
     private LinkedHashMap<String, Class<?>> maneuvers = new LinkedHashMap<String, Class<?>>();
     {
-        Class<?> mans[] = ReflectionUtil.listManeuvers();
-        for (Class<?> c : mans) {
+        ArrayList<Class<Maneuver>> mans = ReflectionUtil.listManeuvers();
+        for (Class<Maneuver> c : mans) {
             maneuvers.put(c.getSimpleName().toLowerCase(), c);
             // NeptusLog.pub().info("<###>Maneuver: "+c.getSimpleName().toLowerCase());
         }
@@ -144,22 +146,65 @@ public class PlanCreator {
         String before = "" + (count - 1);
         String id = "" + count;
         try {
-            Method speedSetter = man.getClass().getMethod("setSpeed", double.class);
-            Method speedUnitsSetter = man.getClass().getMethod("setSpeedUnits", String.class);
-
-            speedSetter.invoke(man, speed);
-            switch (speed_units) {
-                case RPM:
-                    speedUnitsSetter.invoke(man, "RPM");
-                    break;
-                case METERS_PS:
-                    speedUnitsSetter.invoke(man, "m/s");
-                    break;
-                case PERCENTAGE:
-                    speedUnitsSetter.invoke(man, "%");
-                    break;
-                default:
-                    break;
+            Object speedPropValue = properties.get("speed");
+            Object speedUnitsPropValue = properties.get("speedUnits");
+            double usedSpeed = speed;
+            SPEED_UNITS usedSpeedUnits = speed_units;
+            try {
+                usedSpeed = (double) speedPropValue;
+            }
+            catch (Exception e) {
+                e.printStackTrace();
+            }
+            if (speedUnitsPropValue instanceof String) {
+                try {
+                    usedSpeedUnits = Maneuver.SPEED_UNITS.parse(speedUnitsPropValue.toString());
+                }
+                catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+            else if (speedUnitsPropValue instanceof Maneuver.SPEED_UNITS) {
+                usedSpeedUnits = (SPEED_UNITS) speedUnitsPropValue;
+            }
+            
+            if (man instanceof ManeuverWithSpeed) {
+                ((ManeuverWithSpeed) man).setSpeed(usedSpeed);
+                ((ManeuverWithSpeed) man).setSpeedUnits(usedSpeedUnits);
+            }
+            else {
+                Method speedSetter = man.getClass().getMethod("setSpeed", double.class);
+                speedSetter.invoke(man, usedSpeed);
+                
+                Method speedUnitsSetter = man.getClass().getMethod("setSpeedUnits", Maneuver.SPEED_UNITS.class);
+                boolean foundSpeedUnitsSetter = false;
+                boolean speedUnitsTypeEnumOrString = true;
+                if (speedUnitsSetter != null) {
+                    speedUnitsTypeEnumOrString = true;
+                }
+                if (!foundSpeedUnitsSetter) {
+                    speedUnitsSetter = man.getClass().getMethod("setSpeedUnits", String.class);
+                    if (speedUnitsSetter != null) {
+                        speedUnitsTypeEnumOrString = false;
+                        foundSpeedUnitsSetter = true;
+                    }
+                }
+                if (!foundSpeedUnitsSetter) {
+                    speedUnitsSetter = man.getClass().getMethod("setUnits",  Maneuver.SPEED_UNITS.class);
+                    if (speedUnitsSetter != null) {
+                        speedUnitsTypeEnumOrString = true;
+                        foundSpeedUnitsSetter = true;
+                    }
+                }
+                if (!foundSpeedUnitsSetter) {
+                    speedUnitsSetter = man.getClass().getMethod("setUnits", String.class);
+                    if (speedUnitsSetter != null) {
+                        speedUnitsTypeEnumOrString = false;
+                        foundSpeedUnitsSetter = true;
+                    }
+                }
+                if (foundSpeedUnitsSetter)
+                    speedUnitsSetter.invoke(man, speedUnitsTypeEnumOrString ? usedSpeedUnits : usedSpeedUnits.getString());
             }
         }
         catch (Exception e) {

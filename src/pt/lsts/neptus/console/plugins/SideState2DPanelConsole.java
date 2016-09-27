@@ -22,7 +22,7 @@
  * distributed on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF
  * ANY KIND, either express or implied. See the Licence for the specific
  * language governing permissions and limitations at
- * https://www.lsts.pt/neptus/licence.
+ * http://ec.europa.eu/idabc/eupl.html.
  *
  * For more information please see <http://lsts.fe.up.pt/neptus>.
  *
@@ -37,6 +37,10 @@ import java.awt.GridLayout;
 
 import javax.swing.JPanel;
 
+import com.google.common.eventbus.Subscribe;
+import com.rickyclarkson.java.awt.layout.PercentLayout;
+
+import pt.lsts.imc.EstimatedState;
 import pt.lsts.neptus.comm.IMCUtils;
 import pt.lsts.neptus.console.ConsoleLayout;
 import pt.lsts.neptus.console.ConsolePanel;
@@ -48,10 +52,6 @@ import pt.lsts.neptus.plugins.Popup;
 import pt.lsts.neptus.plugins.Popup.POSITION;
 import pt.lsts.neptus.plugins.update.IPeriodicUpdates;
 import pt.lsts.neptus.util.ConsoleParse;
-import pt.lsts.imc.EstimatedState;
-
-import com.google.common.eventbus.Subscribe;
-import com.rickyclarkson.java.awt.layout.PercentLayout;
 
 @Popup(pos = POSITION.RIGHT, width = 500, height = 500)
 @PluginDescription(name = "2D Side View", icon = "images/buttons/sensorstatus2dbutt.png")

@@ -22,7 +22,7 @@
  * distributed on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF
  * ANY KIND, either express or implied. See the Licence for the specific
  * language governing permissions and limitations at
- * https://www.lsts.pt/neptus/licence.
+ * http://ec.europa.eu/idabc/eupl.html.
  *
  * For more information please see <http://lsts.fe.up.pt/neptus>.
  *
@@ -50,10 +50,10 @@ import javax.swing.JPanel;
 import javax.vecmath.Point3d;
 import javax.vecmath.Vector3d;
 
+import com.sun.j3d.exp.swing.JCanvas3D;
+
 import pt.lsts.neptus.types.map.AbstractElement;
 import pt.lsts.neptus.types.vehicle.VehicleType;
-
-import com.sun.j3d.exp.swing.JCanvas3D;
 
 /**
  * @author RJPG This class is used to create a view point in 3D space using spherical coordinates and setting an pivot

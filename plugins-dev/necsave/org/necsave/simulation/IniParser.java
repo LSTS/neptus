@@ -26,12 +26,11 @@ public class IniParser {
 	private Platform plat;
 	private HashMap<SectionField, FileValue> readValues;
 	private boolean isValidConfig;
-	private static final boolean DEBUG = false;
-	private File backupFile = null;
+    private static final boolean DEBUG = false;
+    private ArrayList<File> backupFile = new ArrayList<>();
 	private String configFile;
 	private LinkedHashMap<SectionField, FileValue> newValues = new LinkedHashMap<>();
 	private LinkedHashMap<String, Ini> iniTable = new LinkedHashMap<>();
-	private LinkedHashMap<String, Ini> sub_IniTable = new LinkedHashMap<>();
 	private Simulator simulator;
 
 	public IniParser(String configPath, Simulator sim) {
@@ -42,7 +41,6 @@ public class IniParser {
 
 	private void loadConfiguration(String configFilePath, boolean backup) {
 		plat = new Platform(configFilePath);
-		backupFile = null;
 		Ini mainIniFile;
 		readValues = new HashMap<>();
 
@@ -61,51 +59,31 @@ public class IniParser {
                 plat.setPlatformType("DunePlatform");
 
 			updateList(plat.getPlatformType());
-			LinkedHashMap<String, Ini> temp = new LinkedHashMap<>();
+            checkRequirements(mainIniFile, iniTable);
 			
-			checkRequirements(mainIniFile, iniTable);
 			for (Entry<String, Ini> conf : iniTable.entrySet()) {
 				Ini file = conf.getValue();
-				checkRequirements(file, sub_IniTable);
-				
-				for (Entry<String, Ini> sub_conf : sub_IniTable.entrySet()) {
-	                Ini sub_file = sub_conf.getValue();
-	                temp.put(sub_file.getFile().getName(), sub_file);
-	                
-	                if (DEBUG) {
-	                    System.out.println("--------------DEBUG--------------");
-	                    System.out.println("From sub file: "+ sub_file.getFile().getName());
-	                }
-
-	                readValues(sub_file, plat.getPlatformType());
-				}
-				sub_IniTable.clear();
 				
 				if (DEBUG) {
 					System.out.println("--------------DEBUG--------------");
-					System.out.println("From file: "+ file.getFile().getName());
+                    System.out.println("From file: " + file.getFile().getAbsolutePath());
 				}
-				readValues(file, plat.getPlatformType());
-
+                readValues(file, plat.getPlatformType());
 			}
 
 			if (DEBUG) {
 				System.out.println("--------------DEBUG--------------");
-				System.out.println("From file: "+ mainIniFile.getFile().getName());
+                System.out.println("From file: " + mainIniFile.getFile().getAbsolutePath());
 			}
-			
-			for (Entry<String, Ini> s : temp.entrySet()) {
-                iniTable.put(s.getKey(), s.getValue());
-			}
-			
+
 			//add main ini file to the map
 			configFile = mainIniFile.getFile().getName();
-			iniTable.put(configFile, mainIniFile);
+            iniTable.put(mainIniFile.getFile().getAbsolutePath(), mainIniFile);
 
-			readValues(mainIniFile, plat.getPlatformType());
+            readValues(mainIniFile, plat.getPlatformType());
 
 			if (backup)
-				backupFile(new File(configFilePath));
+                backupFiles();
 
 			isValidConfig = true;
 
@@ -135,8 +113,8 @@ public class IniParser {
 					}
 				} else {
 					if (!value.isEmpty()) {
-						newValues.put(new SectionField(section, field), new FileValue(configFile, value));
-						readValues.put(new SectionField(section, field), new FileValue(configFile, value));
+                        newValues.put(new SectionField(section, field), new FileValue(plat.getConfigPath(), value));
+                        readValues.put(new SectionField(section, field), new FileValue(plat.getConfigPath(), value));
 					}
 				}
 			}
@@ -171,7 +149,8 @@ public class IniParser {
 
 				if (updateFile.equals(file)) {
 					list.add(new ArrayList<>(Arrays.asList(section, field, value)));
-					//System.out.println("["+section + "] " + field + " = "+value);
+                    if (DEBUG)
+                        System.out.println("[" + section + "] " + field + " = " + value);
 				}
 			}
 
@@ -241,61 +220,78 @@ public class IniParser {
 
 		}
 
-		loadConfiguration(iniTable.get(configFile).getFile().getAbsolutePath(), false);
+        loadConfiguration(iniTable.get(plat.getConfigPath()).getFile().getAbsolutePath(), false);
 		newValues.clear();
 		return done;
 	}
 
 	@SuppressWarnings("resource")
-	private void backupFile(File file) {
-		//copy backup
-		File backup = new File(file.getPath().concat(".bak"));
-		FileChannel source = null;
-		FileChannel destination = null;
+    private void backupFiles() {
+        for (Entry<String, Ini> e : iniTable.entrySet()) {
+            Ini ini = e.getValue();
 
-		try {
-			if(!backup.exists())
-				backup.createNewFile();
+            if (DEBUG)
+                System.out.println("Backup ... " + ini.getFile().getAbsolutePath());
+            // copy backup
+            File backup = new File(ini.getFile().getPath().concat(".bak"));
+            FileChannel source = null;
+            FileChannel destination = null;
 
-			source = new FileInputStream(file).getChannel();
-			destination = new FileOutputStream(backup).getChannel();
-			destination.transferFrom(source, 0, source.size());
+            try {
+                if (backup.exists())
+                    backup.delete();
+                else
+                    backup.createNewFile();
 
-			backupFile = backup;
-		} catch (FileNotFoundException e1) {
-			e1.printStackTrace();
-		} catch (IOException e1) {
-			e1.printStackTrace();
-		}
+                source = new FileInputStream(ini.getFile()).getChannel();
+                destination = new FileOutputStream(backup).getChannel();
+                destination.transferFrom(source, 0, source.size());
 
-		finally {
-			try {
-				if(source != null)
-					source.close();
+                backupFile.add(backup);
+            }
+            catch (FileNotFoundException e1) {
+                e1.printStackTrace();
+            }
+            catch (IOException e1) {
+                e1.printStackTrace();
+            }
 
-				if(destination != null)
-					destination.close();
+            finally {
+                try {
+                    if (source != null)
+                        source.close();
 
-			} catch (IOException e1) {
-				e1.printStackTrace();
-			}
-		}
+                    if (destination != null)
+                        destination.close();
 
+                }
+                catch (IOException e1) {
+                    e1.printStackTrace();
+                }
+            }
+
+        }
 	}
 
 	public boolean resetConfig() {
-		if (backupFile != null) {
-			Path sourcePath = Paths.get(backupFile.getAbsolutePath());
-			Path destinationPath = Paths.get(plat.getConfigPath());
 
-			try {
-				Files.move(sourcePath, destinationPath,
-						StandardCopyOption.REPLACE_EXISTING);
-			} catch (IOException e) {
-				return false;
-			}
+        if (!backupFile.isEmpty()) {
 
-			loadConfiguration(iniTable.get(configFile).getFile().getAbsolutePath(), false);
+            for (File f : backupFile) {
+                if (DEBUG)
+                    System.out.println("Restoring " + f.getAbsolutePath());
+                Path sourcePath = Paths.get(f.getAbsolutePath());
+                Path destinationPath = Paths.get(f.getAbsolutePath().replace(".bak", ""));
+
+                try {
+                    Path ret = Files.copy(sourcePath, destinationPath, StandardCopyOption.REPLACE_EXISTING);
+                }
+                catch (IOException e) {
+                    return false;
+                }
+            }
+
+            loadConfiguration(iniTable.get(plat.getConfigPath()).getFile().getAbsolutePath(), false);
 
 			return true;
 		}
@@ -305,6 +301,7 @@ public class IniParser {
 	}
 	
 	private void checkRequirements(Ini confFile, LinkedHashMap<String, Ini> toIncludeConfs) {
+
 	    for (String section : confFile.keySet()) {
 	        if (section.contains("Require ") && section.contains(".ini")) {
 	            String[] line = section.split(" ");
@@ -316,7 +313,9 @@ public class IniParser {
 	                try {
 	                    File toBeIncluded = new File(toInclude.toString());
 	                    conf = new Ini(toBeIncluded);
-	                    toIncludeConfs.put(toBeIncluded.getName(), conf);
+                        checkRequirements(conf, toIncludeConfs);
+                        toIncludeConfs.put(toBeIncluded.getAbsolutePath(), conf);
+
 	                } catch (InvalidFileFormatException e) {
 	                    e.printStackTrace();
 	                } catch (IOException e) {
@@ -332,23 +331,24 @@ public class IniParser {
 		for (String section : simulator.getSectionList()) {
 			Ini.Section readSection = file.get(section);
 
-			if (DEBUG)
-				System.out.println("["+ section+"]");
+            if (DEBUG)
+                System.out.println("[" + section + "]");
 
 			if (readSection != null) {
 				for (String field : simulator.getSectionFieldList(section)) {
 					String value = readSection.get(field);
 					if (value != null) {
 						simulator.updateFieldWithValue(section, field, value);
-						readValues.put(new SectionField(section, field), new FileValue(file.getFile().getName(), value));
-						if (DEBUG)
-							System.out.println(field +" = "+value);
+                        readValues.put(new SectionField(section, field),
+                                new FileValue(file.getFile().getAbsolutePath(), value));
+                        if (DEBUG)
+                            System.out.println(field + " = " + value);
 					}
 				}
 			}
 
-			if (DEBUG)
-				System.out.println();
+            if (DEBUG)
+                System.out.println();
 		}
 
 		simulator.updateUI();
@@ -367,7 +367,7 @@ public class IniParser {
 		return plat;
 	}
 
-	public File getBackupFile() {
+    public ArrayList<File> getBackupFile() {
 		return backupFile;
 	}
 

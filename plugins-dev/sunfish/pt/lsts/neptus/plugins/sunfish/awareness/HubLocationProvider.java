@@ -22,7 +22,7 @@
  * distributed on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF
  * ANY KIND, either express or implied. See the Licence for the specific
  * language governing permissions and limitations at
- * https://www.lsts.pt/neptus/licence.
+ * http://ec.europa.eu/idabc/eupl.html.
  *
  * For more information please see <http://lsts.fe.up.pt/neptus>.
  *
@@ -36,6 +36,9 @@ import java.net.URL;
 import java.util.Date;
 import java.util.LinkedHashMap;
 
+import com.google.common.eventbus.Subscribe;
+import com.google.gson.Gson;
+
 import pt.lsts.imc.Announce;
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.comm.IMCUtils;
@@ -43,9 +46,6 @@ import pt.lsts.neptus.comm.iridium.HubIridiumMessenger;
 import pt.lsts.neptus.comm.iridium.HubIridiumMessenger.HubSystemMsg;
 import pt.lsts.neptus.console.notifications.Notification;
 import pt.lsts.neptus.plugins.update.Periodic;
-
-import com.google.common.eventbus.Subscribe;
-import com.google.gson.Gson;
 
 
 /**

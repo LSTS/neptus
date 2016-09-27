@@ -22,7 +22,7 @@
  * distributed on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF
  * ANY KIND, either express or implied. See the Licence for the specific
  * language governing permissions and limitations at
- * https://www.lsts.pt/neptus/licence.
+ * http://ec.europa.eu/idabc/eupl.html.
  *
  * For more information please see <http://lsts.fe.up.pt/neptus>.
  *
@@ -119,8 +119,10 @@ public class NecsaveTransport {
     };
 
     private void process(PlatformInfo msg, String host, int port) {
-        platformNames.put(msg.getSrc(), msg.getPlatformName());
-        platformAddrs.put(msg.getSrc(), new InetSocketAddress(host, msg.getPort()));
+        if (msg.getPlatformId() != msg.getSrc())
+            return;
+        platformNames.put(msg.getPlatformId(), msg.getPlatformName());
+        platformAddrs.put(msg.getPlatformId(), new InetSocketAddress(host, msg.getPort()));
     }
 
     private Message readMessage() throws Exception {
@@ -135,7 +137,7 @@ public class NecsaveTransport {
         if (msg instanceof PlatformInfo)
             process((PlatformInfo)msg, receivePacket.getAddress().getHostAddress(), receivePacket.getPort());        
 
-        System.out.println("Received message of type '" + msg.getAbbrev() + "' from " + receivePacket.getAddress()
+        NeptusLog.pub().debug("Received message of type '" + msg.getAbbrev() + "' from " + receivePacket.getAddress()
                 + " - Platform " + platformNames.get(msg.getSrc()));
         
         return msg;

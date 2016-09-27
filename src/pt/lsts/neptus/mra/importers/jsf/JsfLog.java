@@ -22,7 +22,7 @@
  * distributed on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF
  * ANY KIND, either express or implied. See the Licence for the specific
  * language governing permissions and limitations at
- * https://www.lsts.pt/neptus/licence.
+ * http://ec.europa.eu/idabc/eupl.html.
  *
  * For more information please see <http://lsts.fe.up.pt/neptus>.
  *
@@ -40,9 +40,9 @@ import java.nio.channels.FileChannel.MapMode;
 import java.util.Collection;
 import java.util.LinkedHashMap;
 
-import pt.lsts.neptus.mra.importers.IMraLog;
 import pt.lsts.imc.IMCMessage;
 import pt.lsts.imc.IMCMessageType;
+import pt.lsts.neptus.mra.importers.IMraLog;
 
 /**
  * @author jqcorreia

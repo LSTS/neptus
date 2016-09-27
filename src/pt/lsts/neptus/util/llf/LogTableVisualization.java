@@ -22,7 +22,7 @@
  * distributed on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF
  * ANY KIND, either express or implied. See the Licence for the specific
  * language governing permissions and limitations at
- * https://www.lsts.pt/neptus/licence.
+ * http://ec.europa.eu/idabc/eupl.html.
  *
  * For more information please see <http://lsts.fe.up.pt/neptus>.
  *
@@ -54,11 +54,12 @@ import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import javax.swing.table.TableCellRenderer;
 
-import net.miginfocom.swing.MigLayout;
-
 import org.jdesktop.swingx.JXTable;
 import org.jdesktop.swingx.decorator.HighlighterFactory;
 
+import com.l2fprod.common.swing.renderer.DefaultCellRenderer;
+
+import net.miginfocom.swing.MigLayout;
 import pt.lsts.imc.lsf.LsfIndex;
 import pt.lsts.neptus.gui.swing.RangeSlider;
 import pt.lsts.neptus.i18n.I18n;
@@ -69,8 +70,6 @@ import pt.lsts.neptus.mra.importers.IMraLogGroup;
 import pt.lsts.neptus.mra.plots.LogMarkerListener;
 import pt.lsts.neptus.mra.visualizations.MRAVisualization;
 import pt.lsts.neptus.util.ImageUtils;
-
-import com.l2fprod.common.swing.renderer.DefaultCellRenderer;
 
 /**
  * @author jqcorreia

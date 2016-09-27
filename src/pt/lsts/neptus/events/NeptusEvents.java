@@ -22,7 +22,7 @@
  * distributed on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF
  * ANY KIND, either express or implied. See the Licence for the specific
  * language governing permissions and limitations at
- * https://www.lsts.pt/neptus/licence.
+ * http://ec.europa.eu/idabc/eupl.html.
  *
  * For more information please see <http://lsts.fe.up.pt/neptus>.
  *
@@ -39,15 +39,15 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import pt.lsts.neptus.NeptusLog;
-import pt.lsts.neptus.console.ConsoleLayout;
-import pt.lsts.neptus.console.ConsolePanel;
-import pt.lsts.neptus.renderer2d.InteractionAdapter;
-
 import com.google.common.eventbus.AsyncEventBus;
 import com.google.common.eventbus.DeadEvent;
 import com.google.common.eventbus.EventBus;
 import com.google.common.eventbus.Subscribe;
+
+import pt.lsts.neptus.NeptusLog;
+import pt.lsts.neptus.console.ConsoleLayout;
+import pt.lsts.neptus.console.ConsolePanel;
+import pt.lsts.neptus.renderer2d.InteractionAdapter;
 
 /**
  * @author Hugo
@@ -227,7 +227,7 @@ public enum NeptusEvents {
      */
     @Subscribe
     public void onDeadEvent(DeadEvent e) {
-        NeptusLog.pub().info("Dead event of type "+e.getEvent().getClass().getSimpleName()+", sent by "+e.getSource().getClass().getSimpleName()+" has not been received by anyone.");
+        NeptusLog.pub().debug("Dead event of type "+e.getEvent().getClass().getSimpleName()+", sent by "+e.getSource().getClass().getSimpleName()+" has not been received by anyone.");
     }
 
 }

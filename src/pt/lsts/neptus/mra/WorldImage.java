@@ -22,7 +22,7 @@
  * distributed on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF
  * ANY KIND, either express or implied. See the Licence for the specific
  * language governing permissions and limitations at
- * https://www.lsts.pt/neptus/licence.
+ * http://ec.europa.eu/idabc/eupl.html.
  *
  * For more information please see <http://lsts.fe.up.pt/neptus>.
  *
@@ -38,6 +38,7 @@ import pt.lsts.neptus.colormap.ColorMap;
 import pt.lsts.neptus.colormap.ColorMapUtils;
 import pt.lsts.neptus.colormap.DataDiscretizer;
 import pt.lsts.neptus.types.coord.LocationType;
+import pt.lsts.neptus.types.map.ImageElement;
 
 /**
  * @author zp
@@ -95,6 +96,34 @@ public class WorldImage {
         return dd.getAmountDataPoints();
     }
     
+    public ImageElement asImageElement() {
+        BufferedImage image = processData();
+        ImageElement elem = new ImageElement();
+        if (dd.getAmountDataPoints() < 2)
+            return null;
+        LocationType center = new LocationType(getSouthWest());
+        double[] offsets = getNorthEast().getOffsetFrom(center);
+        center.translatePosition(offsets[0]/2, offsets[1]/2, 0);
+        elem.setImage(image);
+        elem.setCenterLocation(center);
+        elem.setImageScale(offsets[1]/image.getWidth());    
+        return elem;
+    }
+    
+    /**
+     * @return the cmap
+     */
+    public ColorMap getColormap() {
+        return cmap;
+    }
+
+    /**
+     * @param cmap the cmap to set
+     */
+    public void setColormap(ColorMap cmap) {
+        this.cmap = cmap;
+    }
+
     public BufferedImage processData() {
         if (getAmountDataPoints() == 0)
             return null;
@@ -112,7 +141,7 @@ public class WorldImage {
         double ratio2 = dx/dy;
 
         if (ratio2 < ratio1)        
-            dx = dy * ratio1;
+            dx = dy * ratio2;
         else
             dy = dx/ratio1;
 

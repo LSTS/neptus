@@ -22,7 +22,7 @@
  * distributed on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF
  * ANY KIND, either express or implied. See the Licence for the specific
  * language governing permissions and limitations at
- * https://www.lsts.pt/neptus/licence.
+ * http://ec.europa.eu/idabc/eupl.html.
  *
  * For more information please see <http://lsts.fe.up.pt/neptus>.
  *
@@ -30,6 +30,12 @@
  * 24 de Jun de 2012
  */
 package pt.lsts.neptus.systems.external;
+
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 
 import pt.lsts.neptus.types.coord.CoordinateSystem;
 import pt.lsts.neptus.types.coord.LocationType;
@@ -42,7 +48,18 @@ import pt.lsts.neptus.types.vehicle.VehicleType.VehicleTypeEnum;
  */
 public class ExternalSystem implements Comparable<ExternalSystem> {
 
-    public static enum ExternalTypeEnum {UNKNOWN, VEHICLE, CCU, STATICSENSOR, MOBILESENSOR, MANNED_SHIP, MANNED_CAR, MANNED_AIRPLANE, PERSON, ALL};
+    public static enum ExternalTypeEnum {
+        UNKNOWN,
+        VEHICLE,
+        CCU,
+        STATICSENSOR,
+        MOBILESENSOR,
+        MANNED_SHIP,
+        MANNED_CAR,
+        MANNED_AIRPLANE,
+        PERSON,
+        ALL
+    };
     
     protected String id;
     protected SystemTypeEnum type = SystemTypeEnum.UNKNOWN;
@@ -54,6 +71,10 @@ public class ExternalSystem implements Comparable<ExternalSystem> {
     protected final CoordinateSystem location = new CoordinateSystem();
     protected long locationTimeMillis = -1;
     protected long attitudeTimeMillis = -1;
+    
+    protected final Map<String, Object> dataStorage = (Map<String, Object>) Collections.synchronizedMap(new HashMap<String, Object>());
+    protected final Map<String, Long> dataStorageTime = (Map<String, Long>) Collections.synchronizedMap(new HashMap<String, Long>());
+
 
     /**
      * 
@@ -80,7 +101,7 @@ public class ExternalSystem implements Comparable<ExternalSystem> {
      * @return the active
      */
     public boolean isActive() {
-        return active;
+        return active || (locationTimeMillis - System.currentTimeMillis() < 10000);
     }
     
     /**
@@ -107,10 +128,19 @@ public class ExternalSystem implements Comparable<ExternalSystem> {
         setLocationTimeMillis(System.currentTimeMillis());
     }
 
-    public void setLocation(LocationType location, long locationTimeMillis) {
+    /**
+     * Only is override if locationTimeMillis is newer than already there.
+     * 
+     * @param location
+     * @param locationTimeMillis
+     */
+    public boolean setLocation(LocationType location, long locationTimeMillis) {
+        if (locationTimeMillis < getLocationTimeMillis())
+            return false;
         this.location.setLocation(location);
         this.location.convertToAbsoluteLatLonDepth();
         setLocationTimeMillis(locationTimeMillis);
+        return true;
     }
 
     public void setAttitudeDegrees(double rollDegrees, double pitchDegrees, double yawDegrees) {
@@ -120,11 +150,22 @@ public class ExternalSystem implements Comparable<ExternalSystem> {
         setAttitudeTimeMillis(System.currentTimeMillis());
     }
 
-    public void setAttitudeDegrees(double rollDegrees, double pitchDegrees, double yawDegrees, long locationTimeMillis) {
+    /**
+     * Only is override if attitudeTimeMillis is newer than already there.
+     * 
+     * @param rollDegrees
+     * @param pitchDegrees
+     * @param yawDegrees
+     * @param locationTimeMillis
+     */
+    public boolean setAttitudeDegrees(double rollDegrees, double pitchDegrees, double yawDegrees, long attitudeTimeMillis) {
+        if (attitudeTimeMillis < getAttitudeTimeMillis())
+            return false;
         location.setRoll(rollDegrees);
         location.setPitch(pitchDegrees);
         location.setYaw(yawDegrees);
-        setAttitudeTimeMillis(locationTimeMillis);
+        setAttitudeTimeMillis(attitudeTimeMillis);
+        return true;
     }
 
     public void setAttitudeDegrees(double yawDegrees) {
@@ -134,11 +175,20 @@ public class ExternalSystem implements Comparable<ExternalSystem> {
         setAttitudeTimeMillis(System.currentTimeMillis());
     }
 
-    public void setAttitudeDegrees(double yawDegrees, long locationTimeMillis) {
+    /**
+     * Only is override if attitudeTimeMillis is newer than already there.
+     * 
+     * @param yawDegrees
+     * @param locationTimeMillis
+     */
+    public boolean setAttitudeDegrees(double yawDegrees, long attitudeTimeMillis) {
+        if (attitudeTimeMillis < getAttitudeTimeMillis())
+            return false;
         location.setRoll(0);
         location.setPitch(0);
         location.setYaw(yawDegrees);
-        setAttitudeTimeMillis(locationTimeMillis);
+        setAttitudeTimeMillis(attitudeTimeMillis);
+        return true;
     }
 
     public double getRollDegrees() {
@@ -238,5 +288,115 @@ public class ExternalSystem implements Comparable<ExternalSystem> {
     @Override
     public String toString() {
         return getName();
+    }
+    
+    /**
+     * @return the dataStorage keys
+     */
+    public Collection<String> getDataStorageKeys() {
+        synchronized (dataStorage) {
+            return Arrays.asList(dataStorage.keySet().toArray(new String[0]));
+        }
+    }
+    
+    /**
+     * @param key
+     * @return
+     */
+    public boolean containsData(String key) {
+        synchronized (dataStorage) {
+            return dataStorage.containsKey(key);
+        }
+    }
+
+    public boolean containsData(String key, long ageMillis) {
+        synchronized (dataStorage) {
+            boolean ret = dataStorage.containsKey(key);
+            if (ret && ageMillis > 0) {
+                long time = dataStorageTime.get(key);
+                if (System.currentTimeMillis() - time > ageMillis)
+                    return false;
+            }
+            return ret;
+        }
+    }
+
+    /**
+     * This will retrieve the data stored or {@code null} if not found.
+     * @param key
+     * @param ageMillis
+     * @return
+     */
+    public Object retrieveData(String key, long ageMillis) {
+        synchronized (dataStorage) {
+            if (containsData(key, ageMillis))
+                return retrieveData(key);
+        }
+        return null;
+    }
+
+
+    /**
+     * This will retrieve the data stored or {@code null} if not found.
+     * @param key
+     * @return
+     */
+    public Object retrieveData(String key) {
+        Object ret = null;
+        synchronized (dataStorage) {
+            ret = dataStorage.get(key);
+        }
+        return ret;
+    }
+
+    /**
+     * @param key
+     * @return
+     */
+    public long retrieveDataTimeMillis(String key) {
+        long ret = -1;
+        synchronized (dataStorage) {
+            ret = dataStorage.containsKey(key) ? (dataStorageTime.containsKey(key) ? dataStorageTime.get(key) : -1)
+                    : -1;
+        }
+        return ret;
+    }
+
+    /**
+     * This will store some data with a {@link String} key.
+     * The previous data if existed will be overwritten.
+     * @param key
+     * @param data
+     */
+    public boolean storeData(String key, Object data) {
+        return storeData(key, data, System.currentTimeMillis(), true);
+    }
+
+    /**
+     * @param key
+     * @param data
+     * @param timeMillis
+     */
+    public boolean storeData(String key, Object data, long timeMillis, boolean keepNewest) {
+        synchronized (dataStorage) {
+            if (keepNewest && dataStorage.containsKey(key) && dataStorageTime.containsKey(key)
+                    && dataStorageTime.get(key) > timeMillis)
+                return false;
+            dataStorage.put(key, data);
+            dataStorageTime.put(key, timeMillis);
+            return true;
+        }
+    }
+
+    public boolean removeData(String key) {
+        synchronized (dataStorage) {
+            if (dataStorage.containsKey(key)) {
+                dataStorage.remove(key);
+                dataStorageTime.remove(key);
+                return true;
+            }
+            
+            return false;
+        }
     }
 }

@@ -22,7 +22,7 @@
  * distributed on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF
  * ANY KIND, either express or implied. See the Licence for the specific
  * language governing permissions and limitations at
- * https://www.lsts.pt/neptus/licence.
+ * http://ec.europa.eu/idabc/eupl.html.
  *
  * For more information please see <http://lsts.fe.up.pt/neptus>.
  *
@@ -39,7 +39,6 @@ import java.util.Vector;
 
 import javax.vecmath.Point2d;
 
-import pt.lsts.neptus.NeptusLog;
 import drasys.or.graph.DuplicateVertexException;
 import drasys.or.graph.EdgeI;
 import drasys.or.graph.GraphI;
@@ -53,6 +52,7 @@ import drasys.or.graph.vrp.ImproveI;
 import drasys.or.graph.vrp.ImproveWithTSP;
 import drasys.or.graph.vrp.SolutionNotFoundException;
 import drasys.or.graph.vrp.VRPException;
+import pt.lsts.neptus.NeptusLog;
 
 /**
  * @author Rui Gonçalves

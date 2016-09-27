@@ -22,7 +22,7 @@
  * distributed on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF
  * ANY KIND, either express or implied. See the Licence for the specific
  * language governing permissions and limitations at
- * https://www.lsts.pt/neptus/licence.
+ * http://ec.europa.eu/idabc/eupl.html.
  *
  * For more information please see <http://lsts.fe.up.pt/neptus>.
  *
@@ -31,13 +31,15 @@
  */
 package pt.lsts.neptus.plugins.preflight.check.automated;
 
-import java.util.Vector;
+import java.util.Collection;
 
+import pt.lsts.neptus.mp.ManeuverLocation;
 import pt.lsts.neptus.plugins.preflight.Preflight;
 import pt.lsts.neptus.plugins.preflight.check.WithinRangeCheck;
 import pt.lsts.neptus.plugins.preflight.utils.PlanState;
 import pt.lsts.neptus.plugins.update.Periodic;
 import pt.lsts.neptus.types.coord.LocationType;
+import pt.lsts.neptus.types.map.PlanUtil;
 import pt.lsts.neptus.types.mission.HomeReference;
 import pt.lsts.neptus.types.mission.plan.PlanType;
 
@@ -119,7 +121,7 @@ public class CheckHomeRef extends WithinRangeCheck {
                     getIndividualPlansList().
                         get("lost_comms");
           
-        Vector<LocationType> planPath = lostComms.planPath();
+        Collection<ManeuverLocation> planPath = PlanUtil.getPlanWaypoints(lostComms);
 
         for(LocationType loc : planPath)
             if(!isWithinRange(home.getDistanceInMeters(loc)))

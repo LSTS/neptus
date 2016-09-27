@@ -1,3 +1,5 @@
 # Active plug-ins
 org.necsave.NecsaveUI
 org.necsave.MraJsonExporter
+org.necsave.sink.NecsaveSink
+org.necsave.sink.MeshStatePanel

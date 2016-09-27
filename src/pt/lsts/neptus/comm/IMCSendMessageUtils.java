@@ -22,7 +22,7 @@
  * distributed on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF
  * ANY KIND, either express or implied. See the Licence for the specific
  * language governing permissions and limitations at
- * https://www.lsts.pt/neptus/licence.
+ * http://ec.europa.eu/idabc/eupl.html.
  *
  * For more information please see <http://lsts.fe.up.pt/neptus>.
  *
@@ -32,9 +32,16 @@
 package pt.lsts.neptus.comm;
 
 import java.awt.Component;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 
 import javax.swing.JOptionPane;
 
+import pt.lsts.imc.AcousticOperation;
+import pt.lsts.imc.AcousticSystems;
+import pt.lsts.imc.IMCDefinition;
+import pt.lsts.imc.IMCMessage;
 import pt.lsts.neptus.comm.manager.imc.ImcMsgManager;
 import pt.lsts.neptus.comm.manager.imc.ImcSystem;
 import pt.lsts.neptus.comm.manager.imc.ImcSystemsHolder;
@@ -45,9 +52,6 @@ import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.types.vehicle.VehicleType.SystemTypeEnum;
 import pt.lsts.neptus.util.GuiUtils;
 import pt.lsts.neptus.util.StringUtils;
-import pt.lsts.imc.AcousticSystems;
-import pt.lsts.imc.IMCDefinition;
-import pt.lsts.imc.IMCMessage;
 
 /**
  * @author pdias
@@ -83,28 +87,29 @@ public class IMCSendMessageUtils {
         }
     }
 
-    public static boolean sendMessage(IMCMessage msg, String errorTextForDialog,
+    public static boolean sendMessage(IMCMessage msg, String errorTextForDialog, boolean sendOnlyThroughOneAcoustically,
             String... ids) {
-        return sendMessage(msg, errorTextForDialog, false, ids);
+        return sendMessage(msg, errorTextForDialog, false, sendOnlyThroughOneAcoustically, ids);
     }
 
     public static boolean sendMessage(IMCMessage msg, String errorTextForDialog,
-            boolean ignoreAcousticSending, String... ids) {
+            boolean ignoreAcousticSending, boolean sendOnlyThroughOneAcoustically, String... ids) {
         return sendMessage(msg, null, errorTextForDialog, ignoreAcousticSending, "acoustic/operation",
-                false, true, ids);
+                false, true, sendOnlyThroughOneAcoustically, ids);
     }
 
     public static boolean sendMessage(IMCMessage msg, Component parent, String errorTextForDialog,
-            boolean ignoreAcousticSending, boolean acousticOpUserAprovedQuestion, String... ids) {
+            boolean ignoreAcousticSending, boolean acousticOpUserAprovedQuestion,
+            boolean sendOnlyThroughOneAcoustically, String... ids) {
         return sendMessage(msg, null, errorTextForDialog, ignoreAcousticSending, "acoustic/operation",
-                false, acousticOpUserAprovedQuestion, ids);
+                false, acousticOpUserAprovedQuestion, sendOnlyThroughOneAcoustically, ids);
     }
     
     public static boolean sendMessage(IMCMessage msg, Component parent, String errorTextForDialog,
             boolean ignoreAcousticSending, String acousticOpServiceName, boolean acousticOpUseOnlyActive,
-            boolean acousticOpUserAprovedQuestion, String... ids) {
+            boolean acousticOpUserAprovedQuestion, boolean sendOnlyThroughOneAcoustically, String... ids) {
         return sendMessage(msg, null, null, parent, errorTextForDialog, ignoreAcousticSending, acousticOpServiceName,
-                acousticOpUseOnlyActive, acousticOpUserAprovedQuestion, ids);
+                acousticOpUseOnlyActive, acousticOpUserAprovedQuestion, sendOnlyThroughOneAcoustically, ids);
     }
 
     /**
@@ -122,13 +127,13 @@ public class IMCSendMessageUtils {
      */
     public static boolean sendMessage(IMCMessage msg, String sendProperties, MessageDeliveryListener listener, Component parent, String errorTextForDialog,
             boolean ignoreAcousticSending, String acousticOpServiceName, boolean acousticOpUseOnlyActive,
-            boolean acousticOpUserAprovedQuestion, String... ids) {
+            boolean acousticOpUserAprovedQuestion, boolean sendOnlyThroughOneAcoustically, String... ids) {
 
         ImcSystem[] acousticOpSysLst = !ignoreAcousticSending ? ImcSystemsHolder.lookupSystemByService(
                 acousticOpServiceName, SystemTypeEnum.ALL, acousticOpUseOnlyActive)
                 : new ImcSystem[0];
 
-        boolean acousticOpUserAprovalRequired = true;
+        boolean acousticOpUserAprovalRequired = acousticOpUserAprovedQuestion;
         boolean acousticOpUserAproved = !acousticOpUserAprovedQuestion;
         boolean retAll = true;
         for (String sid : ids) {
@@ -141,7 +146,7 @@ public class IMCSendMessageUtils {
                     acousticOpUserAprovalRequired = false;
                 }
                 if (acousticOpUserAproved)
-                    ret = sendMessageByAcousticModem(msg, sid, acousticOpSysLst);
+                    ret = sendMessageByAcousticModem(msg, sid, sendOnlyThroughOneAcoustically, acousticOpSysLst);
                 else
                     ret = false;
             }
@@ -170,24 +175,34 @@ public class IMCSendMessageUtils {
      * @return
      */
     public static boolean sendMessageByAcousticModem(IMCMessage msg, String system,
-            ImcSystem[] acousticOpSysLst) {
+            boolean sendOnlyThroughOne, ImcSystem[] acousticOpSysLst) {
         // TODO listen for the responses back from the systems with modems
+        
+        List<ImcSystem> lst = Arrays.asList(acousticOpSysLst);
+        if (sendOnlyThroughOne)
+            Collections.shuffle(lst); // Randomizes the order for not using always the same
+        
         boolean retAll = false;
-        for (ImcSystem acOpSystem : acousticOpSysLst) {
+        for (ImcSystem acOpSystem : lst) {
             boolean canReach = doesSystemWithAcousticCanReachSystem(acOpSystem, system);
             if (!canReach)
                 continue;
             
             String id = acOpSystem.getName();
-            IMCMessage msgAcousticOperation = IMCDefinition.getInstance().create("AcousticOperation");
+            IMCMessage msgAcousticOperation = msg;
+            if (!(msg instanceof AcousticOperation)) {
+                msgAcousticOperation = IMCDefinition.getInstance().create("AcousticOperation");
+                msgAcousticOperation.setValue("op", "MSG");
+                msgAcousticOperation.setValue("system", system);
+                msgAcousticOperation.setValue("msg", msg);
+            }
 
-            msgAcousticOperation.setValue("op", "MSG");
-            msgAcousticOperation.setValue("system", system);
-            msgAcousticOperation.setValue("msg", msg);
-
-            boolean ret = sendMessage(msgAcousticOperation, I18n.text("Error sending message by acoustic modem!"),
-                    true, id);
+            boolean ret = sendMessage(msgAcousticOperation,
+                    I18n.textf("Error sending message by acoustic modem to %sys!", msg.getAbbrev(), system), true, id);
             retAll = retAll || ret;
+            
+            if (sendOnlyThroughOne && ret)
+                break;
         }
         return retAll;
     }
@@ -199,9 +214,9 @@ public class IMCSendMessageUtils {
      * @return
      */
     public static boolean doesSystemWithAcousticCanReachSystem(ImcSystem acOpSystem, String system) {
-        if (acOpSystem.containsData(ImcSystem.ACOUSTIC_SYSTEMS)) {
+        if (acOpSystem.containsData(SystemUtils.ACOUSTIC_SYSTEMS)) {
             try {
-                AcousticSystems msg = (AcousticSystems) acOpSystem.retrieveData(ImcSystem.ACOUSTIC_SYSTEMS);
+                AcousticSystems msg = (AcousticSystems) acOpSystem.retrieveData(SystemUtils.ACOUSTIC_SYSTEMS);
                 String sysLst = msg.getList();
                 if (StringUtils.isTokenInList(sysLst, system))
                     return true;

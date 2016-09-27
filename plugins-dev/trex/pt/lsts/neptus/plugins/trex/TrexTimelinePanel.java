@@ -22,7 +22,7 @@
  * distributed on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF
  * ANY KIND, either express or implied. See the Licence for the specific
  * language governing permissions and limitations at
- * https://www.lsts.pt/neptus/licence.
+ * http://ec.europa.eu/idabc/eupl.html.
  *
  * For more information please see <http://lsts.fe.up.pt/neptus>.
  *
@@ -50,6 +50,9 @@ import org.jfree.data.gantt.TaskSeriesCollection;
 import org.jfree.data.time.SimpleTimePeriod;
 import org.jfree.data.time.TimePeriod;
 
+import com.google.common.eventbus.Subscribe;
+import com.jogamp.newt.event.KeyEvent;
+
 import pt.lsts.imc.TrexToken;
 import pt.lsts.imc.VehicleState;
 import pt.lsts.neptus.console.ConsoleLayout;
@@ -57,9 +60,6 @@ import pt.lsts.neptus.console.ConsolePanel;
 import pt.lsts.neptus.plugins.PluginDescription;
 import pt.lsts.neptus.plugins.Popup;
 import pt.lsts.neptus.plugins.Popup.POSITION;
-
-import com.google.common.eventbus.Subscribe;
-import com.jogamp.newt.event.KeyEvent;
 
 /**
  * @author zp

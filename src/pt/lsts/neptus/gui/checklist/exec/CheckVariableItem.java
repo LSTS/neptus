@@ -22,7 +22,7 @@
  * distributed on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF
  * ANY KIND, either express or implied. See the Licence for the specific
  * language governing permissions and limitations at
- * https://www.lsts.pt/neptus/licence.
+ * http://ec.europa.eu/idabc/eupl.html.
  *
  * For more information please see <http://lsts.fe.up.pt/neptus>.
  *
@@ -37,13 +37,13 @@ import javax.swing.BoxLayout;
 import javax.swing.JLabel;
 import javax.swing.border.EmptyBorder;
 
+import pt.lsts.imc.IMCMessage;
 import pt.lsts.neptus.comm.manager.imc.EntitiesResolver;
 import pt.lsts.neptus.comm.manager.imc.ImcMsgManager;
 import pt.lsts.neptus.gui.checklist.CheckItemPanel;
-import pt.lsts.neptus.types.checklist.CheckAutoVarIntervalItem;
-import pt.lsts.imc.IMCMessage;
 import pt.lsts.neptus.messages.listener.MessageInfo;
 import pt.lsts.neptus.messages.listener.MessageListener;
+import pt.lsts.neptus.types.checklist.CheckAutoVarIntervalItem;
 
 public class CheckVariableItem extends CheckSubItemExe implements MessageListener<MessageInfo, IMCMessage> {
     private static final long serialVersionUID = 1L;

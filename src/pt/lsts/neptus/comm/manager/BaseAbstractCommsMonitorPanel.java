@@ -22,7 +22,7 @@
  * distributed on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF
  * ANY KIND, either express or implied. See the Licence for the specific
  * language governing permissions and limitations at
- * https://www.lsts.pt/neptus/licence.
+ * http://ec.europa.eu/idabc/eupl.html.
  *
  * For more information please see <http://lsts.fe.up.pt/neptus>.
  *
@@ -63,21 +63,21 @@ import javax.swing.SwingWorker;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
+import com.l2fprod.common.swing.JOutlookBar;
+
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.gui.StatusLed;
 import pt.lsts.neptus.gui.swing.JRoundButton;
 import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.messages.IMessage;
+import pt.lsts.neptus.messages.listener.MessageInfo;
+import pt.lsts.neptus.messages.listener.MessageListener;
 import pt.lsts.neptus.types.vehicle.VehicleType;
 import pt.lsts.neptus.util.DateTimeUtil;
 import pt.lsts.neptus.util.ImageUtils;
 import pt.lsts.neptus.util.MathMiscUtils;
 import pt.lsts.neptus.util.conf.GeneralPreferences;
 import pt.lsts.neptus.util.conf.PreferencesListener;
-import pt.lsts.neptus.messages.listener.MessageInfo;
-import pt.lsts.neptus.messages.listener.MessageListener;
-
-import com.l2fprod.common.swing.JOutlookBar;
 
 /**
  * @author Paulo Dias

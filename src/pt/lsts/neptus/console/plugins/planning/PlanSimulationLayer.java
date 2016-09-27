@@ -22,7 +22,7 @@
  * distributed on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF
  * ANY KIND, either express or implied. See the Licence for the specific
  * language governing permissions and limitations at
- * https://www.lsts.pt/neptus/licence.
+ * http://ec.europa.eu/idabc/eupl.html.
  *
  * For more information please see <http://lsts.fe.up.pt/neptus>.
  *
@@ -37,6 +37,8 @@ import java.awt.Image;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Vector;
+
+import com.google.common.eventbus.Subscribe;
 
 import pt.lsts.neptus.console.ConsoleLayer;
 import pt.lsts.neptus.console.events.ConsoleEventMainSystemChange;
@@ -59,8 +61,6 @@ import pt.lsts.neptus.types.vehicle.VehicleType;
 import pt.lsts.neptus.types.vehicle.VehiclesHolder;
 import pt.lsts.neptus.util.DateTimeUtil;
 import pt.lsts.neptus.util.ImageUtils;
-
-import com.google.common.eventbus.Subscribe;
 
 /**
  * @author zp
@@ -97,8 +97,13 @@ public class PlanSimulationLayer extends ConsoleLayer implements PlanSimulationL
 
     @Subscribe
     public void on(ConsoleEventPlanChange evt) {
+        try {
         this.mainPlan = evt.getCurrent();
         refreshOverlay();
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     @Subscribe

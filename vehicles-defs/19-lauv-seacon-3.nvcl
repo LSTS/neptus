@@ -126,48 +126,6 @@
             </StationKeeping>
         </maneuver>
         <maneuver>
-            <FollowPath kind="automatic">
-                <basePoint type="pointType">
-                    <point>
-                        <id/>
-                        <coordinate>
-                            <latitude>0N</latitude>
-                            <longitude>0E</longitude>
-                            <depth>0.0</depth>
-                        </coordinate>
-                    </point>
-                    <radiusTolerance>0.0</radiusTolerance>
-                </basePoint>
-                <path/>
-                <speed unit="m/s">1.0</speed>
-                <annotation>
-                    <documentation>No documentation available</documentation>
-                    <implementation-class>pt.lsts.neptus.mp.maneuvers.FollowPath</implementation-class>
-                </annotation>
-            </FollowPath>
-        </maneuver>
-        <maneuver>
-            <FollowTrajectory kind="automatic">
-                <basePoint type="pointType">
-                    <point>
-                        <id/>
-                        <coordinate>
-                            <latitude>0N</latitude>
-                            <longitude>0E</longitude>
-                            <depth>0.0</depth>
-                        </coordinate>
-                    </point>
-                    <radiusTolerance>0.0</radiusTolerance>
-                </basePoint>
-                <trajectory/>
-                <speed unit="m/s">1.0</speed>
-                <annotation>
-                    <documentation>No documentation available</documentation>
-                    <implementation-class>pt.lsts.neptus.mp.maneuvers.FollowTrajectory</implementation-class>
-                </annotation>
-            </FollowTrajectory>
-        </maneuver>
-        <maneuver>
             <RowsManeuver kind="automatic">
                 <basePoint type="pointType">
                     <point>
@@ -265,29 +223,6 @@
                     <implementation-class>pt.lsts.neptus.mp.maneuvers.Elevator</implementation-class>
                 </annotation>
             </Elevator>
-        </maneuver>
-        <maneuver>
-            <CommsRelay>
-                <sys_a>lauv-seacon-2</sys_a>
-                <sys_b>lauv-seacon-1</sys_b>
-                <duration>3600</duration>
-                <startPoint type="pointType">
-                    <point>
-                        <id>Start-Point</id>
-                        <coordinate>
-                            <latitude>0N</latitude>
-                            <longitude>0E</longitude>
-                            <depth>2</depth>
-                        </coordinate>
-                    </point>
-                </startPoint>
-                <move_threshold>30.0</move_threshold>
-                <speed unit="m/s">1.0</speed>
-                <annotation>
-                    <documentation>No documentation available</documentation>
-                    <implementation-class>pt.lsts.neptus.mp.maneuvers.CommsRelay</implementation-class>
-                </annotation>
-            </CommsRelay>
         </maneuver>
         <maneuver>
             <PopUp kind="automatic">

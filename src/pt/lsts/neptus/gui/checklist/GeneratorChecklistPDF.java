@@ -22,7 +22,7 @@
  * distributed on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF
  * ANY KIND, either express or implied. See the Licence for the specific
  * language governing permissions and limitations at
- * https://www.lsts.pt/neptus/licence.
+ * http://ec.europa.eu/idabc/eupl.html.
  *
  * For more information please see <http://lsts.fe.up.pt/neptus>.
  *
@@ -43,20 +43,6 @@ import java.util.LinkedList;
 import org.apache.batik.dom.svg.SAXSVGDocumentFactory;
 import org.apache.batik.util.XMLResourceDescriptor;
 
-import pt.lsts.neptus.i18n.I18n;
-import pt.lsts.neptus.types.checklist.CheckAutoSubItem;
-import pt.lsts.neptus.types.checklist.CheckAutoUserActionItem;
-import pt.lsts.neptus.types.checklist.CheckAutoUserLogItem;
-import pt.lsts.neptus.types.checklist.CheckAutoVarIntervalItem;
-import pt.lsts.neptus.types.checklist.CheckItem;
-import pt.lsts.neptus.types.checklist.ChecklistType;
-import pt.lsts.neptus.util.BarCodesUtil;
-import pt.lsts.neptus.util.DateTimeUtil;
-import pt.lsts.neptus.util.FileUtil;
-import pt.lsts.neptus.util.GuiUtils;
-import pt.lsts.neptus.util.SvgUtil;
-import pt.lsts.neptus.util.conf.ConfigFetch;
-
 import com.lowagie.text.Chunk;
 import com.lowagie.text.Document;
 import com.lowagie.text.Element;
@@ -75,6 +61,20 @@ import com.lowagie.text.pdf.PdfPTable;
 import com.lowagie.text.pdf.PdfPageEventHelper;
 import com.lowagie.text.pdf.PdfTemplate;
 import com.lowagie.text.pdf.PdfWriter;
+
+import pt.lsts.neptus.i18n.I18n;
+import pt.lsts.neptus.types.checklist.CheckAutoSubItem;
+import pt.lsts.neptus.types.checklist.CheckAutoUserActionItem;
+import pt.lsts.neptus.types.checklist.CheckAutoUserLogItem;
+import pt.lsts.neptus.types.checklist.CheckAutoVarIntervalItem;
+import pt.lsts.neptus.types.checklist.CheckItem;
+import pt.lsts.neptus.types.checklist.ChecklistType;
+import pt.lsts.neptus.util.BarCodesUtil;
+import pt.lsts.neptus.util.DateTimeUtil;
+import pt.lsts.neptus.util.FileUtil;
+import pt.lsts.neptus.util.GuiUtils;
+import pt.lsts.neptus.util.SvgUtil;
+import pt.lsts.neptus.util.conf.ConfigFetch;
 
 /**
  * @author pdias

@@ -22,7 +22,7 @@
  * distributed on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF
  * ANY KIND, either express or implied. See the Licence for the specific
  * language governing permissions and limitations at
- * https://www.lsts.pt/neptus/licence.
+ * http://ec.europa.eu/idabc/eupl.html.
  *
  * For more information please see <http://lsts.fe.up.pt/neptus>.
  *
@@ -39,6 +39,8 @@ import java.util.Vector;
 import javax.servlet.Servlet;
 import javax.swing.JMenuItem;
 
+import com.l2fprod.common.propertysheet.DefaultProperty;
+
 import pt.lsts.neptus.console.ConsoleLayout;
 import pt.lsts.neptus.console.ConsolePanel;
 import pt.lsts.neptus.i18n.I18n;
@@ -49,8 +51,6 @@ import pt.lsts.neptus.plugins.PluginUtils;
 import pt.lsts.neptus.plugins.web.IConsoleMenuItemServlet.ConsoleMenuItem;
 import pt.lsts.neptus.util.ImageUtils;
 import pt.lsts.neptus.util.ReflectionUtil;
-
-import com.l2fprod.common.propertysheet.DefaultProperty;
 
 /**
  * @author ZP

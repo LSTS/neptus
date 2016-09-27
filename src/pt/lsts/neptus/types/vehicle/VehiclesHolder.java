@@ -22,7 +22,7 @@
  * distributed on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF
  * ANY KIND, either express or implied. See the Licence for the specific
  * language governing permissions and limitations at
- * https://www.lsts.pt/neptus/licence.
+ * http://ec.europa.eu/idabc/eupl.html.
  *
  * For more information please see <http://lsts.fe.up.pt/neptus>.
  *
@@ -45,6 +45,8 @@ import java.util.List;
 import javax.swing.ImageIcon;
 import javax.swing.JOptionPane;
 
+import foxtrot.AsyncTask;
+import foxtrot.AsyncWorker;
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.comm.manager.imc.ImcId16;
 import pt.lsts.neptus.console.ConsoleLayout;
@@ -57,8 +59,6 @@ import pt.lsts.neptus.types.mission.plan.PlanType;
 import pt.lsts.neptus.util.ConsoleParse;
 import pt.lsts.neptus.util.GuiUtils;
 import pt.lsts.neptus.util.conf.ConfigFetch;
-import foxtrot.AsyncTask;
-import foxtrot.AsyncWorker;
 
 /**
  * @author Paulo Dias

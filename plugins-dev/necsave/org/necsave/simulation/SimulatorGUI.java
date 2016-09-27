@@ -74,7 +74,6 @@ public class SimulatorGUI {
     private ConfigWindow confDiag;
     private ResultWindow resultDiag;
     private JButton runSimBtn;
-    private File prevOpenFile;
     private Preferences prefs;
     private boolean isRunning;
 

@@ -22,7 +22,7 @@
  * distributed on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF
  * ANY KIND, either express or implied. See the Licence for the specific
  * language governing permissions and limitations at
- * https://www.lsts.pt/neptus/licence.
+ * http://ec.europa.eu/idabc/eupl.html.
  *
  * For more information please see <http://lsts.fe.up.pt/neptus>.
  *
@@ -30,9 +30,6 @@
  * Feb 10, 2012
  */
 package pt.lsts.neptus.plugins.messages;
-
-import info.monitorenter.gui.chart.ZoomableChart;
-import info.monitorenter.gui.chart.traces.Trace2DLtd;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
@@ -44,6 +41,8 @@ import java.util.LinkedHashMap;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 
+import info.monitorenter.gui.chart.ZoomableChart;
+import info.monitorenter.gui.chart.traces.Trace2DLtd;
 import pt.lsts.imc.IMCMessage;
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.comm.manager.imc.ImcId16;

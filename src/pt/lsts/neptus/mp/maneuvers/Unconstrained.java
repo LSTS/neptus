@@ -22,7 +22,7 @@
  * distributed on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF
  * ANY KIND, either express or implied. See the Licence for the specific
  * language governing permissions and limitations at
- * https://www.lsts.pt/neptus/licence.
+ * http://ec.europa.eu/idabc/eupl.html.
  *
  * For more information please see <http://lsts.fe.up.pt/neptus>.
  *
@@ -30,9 +30,6 @@
  * May 11, 2005
  */
 package pt.lsts.neptus.mp.maneuvers;
-
-import javax.swing.JFrame;
-import javax.swing.JOptionPane;
 
 import org.dom4j.Document;
 import org.dom4j.DocumentHelper;
@@ -42,8 +39,6 @@ import pt.lsts.imc.IMCMessage;
 import pt.lsts.imc.Teleoperation;
 import pt.lsts.neptus.gui.objparams.ParametersPanel;
 import pt.lsts.neptus.mp.Maneuver;
-import pt.lsts.neptus.mp.SystemPositionAndAttitude;
-
 
 /**
  * @author zepinto
@@ -51,7 +46,6 @@ import pt.lsts.neptus.mp.SystemPositionAndAttitude;
 public class Unconstrained extends Maneuver implements IMCSerialization {
 
 	public void loadFromXML(String xml) {
-		
 	}
 
 	public void initializeManeuver(ParametersPanel params) {
@@ -63,20 +57,10 @@ public class Unconstrained extends Maneuver implements IMCSerialization {
 	}
 
 	public Object clone() {
-		
 		Unconstrained u = new Unconstrained();
 		super.clone(u);
 		return u;
 	}
-
-	public SystemPositionAndAttitude ManeuverFunction(SystemPositionAndAttitude lastVehicleState) {
-		endManeuver();
-		JOptionPane.showMessageDialog(new JFrame(), "<html>The current maneuver is unconstrained (tele-operation)<br>"+
-				"Click to proceed to the next maneuver", "Unconstrained Maneuver", JOptionPane.INFORMATION_MESSAGE
-			);
-		return lastVehicleState;		
-	}
-	
 
 	public Document getManeuverAsDocument(String rootElementName) {
 	    Document document = DocumentHelper.createDocument();
@@ -85,7 +69,6 @@ public class Unconstrained extends Maneuver implements IMCSerialization {
 	    return document;
 	}
 
-	
 	@Override
 	public void parseIMCMessage(IMCMessage message) {
 		setCustomSettings(message.getTupleList("custom"));

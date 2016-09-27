@@ -22,7 +22,7 @@
  * distributed on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF
  * ANY KIND, either express or implied. See the Licence for the specific
  * language governing permissions and limitations at
- * https://www.lsts.pt/neptus/licence.
+ * http://ec.europa.eu/idabc/eupl.html.
  *
  * For more information please see <http://lsts.fe.up.pt/neptus>.
  *
@@ -34,13 +34,13 @@ package pt.lsts.neptus.params;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 
-import pt.lsts.neptus.i18n.I18n;
-import pt.lsts.neptus.params.editor.custom.CustomSystemPropertyEditor;
-import pt.lsts.neptus.params.renderer.SystemPropertyRenderer;
-
 import com.l2fprod.common.beans.editor.AbstractPropertyEditor;
 import com.l2fprod.common.propertysheet.DefaultProperty;
 import com.l2fprod.common.swing.renderer.DefaultCellRenderer;
+
+import pt.lsts.neptus.i18n.I18n;
+import pt.lsts.neptus.params.editor.custom.CustomSystemPropertyEditor;
+import pt.lsts.neptus.params.renderer.SystemPropertyRenderer;
 
 /**
  * @author jqcorreia

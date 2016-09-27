@@ -22,7 +22,7 @@
  * distributed on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF
  * ANY KIND, either express or implied. See the Licence for the specific
  * language governing permissions and limitations at
- * https://www.lsts.pt/neptus/licence.
+ * http://ec.europa.eu/idabc/eupl.html.
  *
  * For more information please see <http://lsts.fe.up.pt/neptus>.
  *
@@ -56,6 +56,13 @@ import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
 import javax.swing.filechooser.FileFilter;
 
+import com.mnstarfire.loaders3d.Inspector3DS;
+import com.sun.j3d.loaders.Loader;
+import com.sun.j3d.loaders.Scene;
+import com.sun.j3d.utils.scenegraph.io.SceneGraphFileReader;
+import com.sun.j3d.utils.scenegraph.io.SceneGraphFileWriter;
+import com.sun.j3d.utils.scenegraph.io.UnsupportedUniverseException;
+
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.gui.WaitPanel;
 import pt.lsts.neptus.gui.swing.NeptusFileView;
@@ -69,13 +76,6 @@ import pt.lsts.neptus.util.ImageUtils;
 import pt.lsts.neptus.util.RecentlyOpenedFilesUtil;
 import pt.lsts.neptus.util.X3dParse;
 import pt.lsts.neptus.util.conf.ConfigFetch;
-
-import com.mnstarfire.loaders3d.Inspector3DS;
-import com.sun.j3d.loaders.Loader;
-import com.sun.j3d.loaders.Scene;
-import com.sun.j3d.utils.scenegraph.io.SceneGraphFileReader;
-import com.sun.j3d.utils.scenegraph.io.SceneGraphFileWriter;
-import com.sun.j3d.utils.scenegraph.io.UnsupportedUniverseException;
 
 /**
  * 

@@ -22,7 +22,7 @@
  * distributed on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF
  * ANY KIND, either express or implied. See the Licence for the specific
  * language governing permissions and limitations at
- * https://www.lsts.pt/neptus/licence.
+ * http://ec.europa.eu/idabc/eupl.html.
  *
  * For more information please see <http://lsts.fe.up.pt/neptus>.
  *
@@ -47,7 +47,7 @@ import com.l2fprod.common.swing.LookAndFeelTweaks;
  */
 public class NeptusDoubleEditor extends AbstractPropertyEditor {
 
-    private Object lastGoodValue;
+    protected Object lastGoodValue;
     protected DecimalFormat format = new DecimalFormat("0.0########");
     {
         format.setDecimalFormatSymbols(DecimalFormatSymbols.getInstance(Locale.US));
@@ -101,7 +101,7 @@ public class NeptusDoubleEditor extends AbstractPropertyEditor {
         lastGoodValue = value;
     }
 
-    private Object getDefaultValue() {
+    protected Object getDefaultValue() {
        return 0d;
     }
 }

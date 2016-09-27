@@ -22,7 +22,7 @@
  * distributed on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF
  * ANY KIND, either express or implied. See the Licence for the specific
  * language governing permissions and limitations at
- * https://www.lsts.pt/neptus/licence.
+ * http://ec.europa.eu/idabc/eupl.html.
  *
  * For more information please see <http://lsts.fe.up.pt/neptus>.
  *
@@ -43,13 +43,13 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 
+import com.l2fprod.common.beans.editor.AbstractPropertyEditor;
+
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.comm.manager.imc.ImcId16;
 import pt.lsts.neptus.gui.SelectAllFocusListener;
 import pt.lsts.neptus.gui.tablelayout.TableLayout;
 import pt.lsts.neptus.util.GuiUtils;
-
-import com.l2fprod.common.beans.editor.AbstractPropertyEditor;
 
 public class ImcId16Editor extends AbstractPropertyEditor {
 

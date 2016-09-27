@@ -22,7 +22,7 @@
  * distributed on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF
  * ANY KIND, either express or implied. See the Licence for the specific
  * language governing permissions and limitations at
- * https://www.lsts.pt/neptus/licence.
+ * http://ec.europa.eu/idabc/eupl.html.
  *
  * For more information please see <http://lsts.fe.up.pt/neptus>.
  *
@@ -79,7 +79,7 @@ public class AuthoritySymbol extends SymbolLabel {
 	        authorityType = IMCAuthorityState.OFF;
 	    else {
 	        if (authorityType == IMCAuthorityState.OFF)
-	            authorityType = IMCAuthorityState.SYSTEM_MONITOR;
+	            authorityType = IMCAuthorityState.NONE;
 	    }
 	}
 	
@@ -157,15 +157,15 @@ public class AuthoritySymbol extends SymbolLabel {
                     case SYSTEM_FULL:
                         tt = "F";
                         break;
-                    case SYSTEM_MONITOR:
-                        tt = "M";
-                        break;
-                    case PAYLOAD:
-                        tt = "P";
-                        break;
-                    case PAYLOAD_MONITOR:
-                        tt = "PM";
-                        break;
+//                    case SYSTEM_MONITOR:
+//                        tt = "M";
+//                        break;
+//                    case PAYLOAD:
+//                        tt = "P";
+//                        break;
+//                    case PAYLOAD_MONITOR:
+//                        tt = "PM";
+//                        break;
                     default:
                         tt = "?";
                         break;

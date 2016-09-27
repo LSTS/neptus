@@ -22,7 +22,7 @@
  * distributed on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF
  * ANY KIND, either express or implied. See the Licence for the specific
  * language governing permissions and limitations at
- * https://www.lsts.pt/neptus/licence.
+ * http://ec.europa.eu/idabc/eupl.html.
  *
  * For more information please see <http://lsts.fe.up.pt/neptus>.
  *
@@ -32,6 +32,8 @@
 package pt.lsts.neptus.params;
 
 import java.awt.BorderLayout;
+
+import com.google.common.eventbus.Subscribe;
 
 import pt.lsts.imc.IMCMessage;
 import pt.lsts.neptus.console.ConsoleLayout;
@@ -44,8 +46,6 @@ import pt.lsts.neptus.plugins.NeptusMessageListener;
 import pt.lsts.neptus.plugins.PluginDescription;
 import pt.lsts.neptus.plugins.Popup;
 import pt.lsts.neptus.plugins.Popup.POSITION;
-
-import com.google.common.eventbus.Subscribe;
 
 /**
  * @author zp

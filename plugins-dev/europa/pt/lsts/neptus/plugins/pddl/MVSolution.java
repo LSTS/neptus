@@ -22,7 +22,7 @@
  * distributed on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF
  * ANY KIND, either express or implied. See the Licence for the specific
  * language governing permissions and limitations at
- * https://www.lsts.pt/neptus/licence.
+ * http://ec.europa.eu/idabc/eupl.html.
  *
  * For more information please see <http://lsts.fe.up.pt/neptus>.
  *
@@ -135,7 +135,7 @@ public class MVSolution {
             case "move":
                 Goto tmpMove = new Goto();
                 tmpMove.setSpeed(1.0);
-                tmpMove.setSpeedUnits("m/s");
+                tmpMove.setSpeedUnits(Maneuver.SPEED_UNITS.METERS_PS);
                 tmpMove.setManeuverLocation(where);
                 action.man = tmpMove;
                 break;
@@ -143,7 +143,7 @@ public class MVSolution {
                 StationKeeping tmpSk = new StationKeeping();
                 tmpSk.setManeuverLocation(where);
                 tmpSk.setSpeed(1.0);
-                tmpSk.setSpeedUnits("m/s");
+                tmpSk.setSpeedUnits(Maneuver.SPEED_UNITS.METERS_PS);
                 where.setZ(0);
                 where.setZUnits(Z_UNITS.DEPTH);
                 tmpSk.setDuration(60); // FIXME
@@ -153,7 +153,7 @@ public class MVSolution {
                 Loiter tmpLoiter = new Loiter();
                 tmpLoiter.setManeuverLocation(where);
                 tmpLoiter.setSpeed(1.0);
-                tmpLoiter.setSpeedUnits("m/s");
+                tmpLoiter.setSpeedUnits(Maneuver.SPEED_UNITS.METERS_PS);
                 tmpLoiter.setLoiterDuration(60); // FIXME
                 action.payloads.add(PayloadRequirement.valueOf(parts[parts.length - 1].split("_")[1]));
                 action.man = tmpLoiter;
@@ -162,7 +162,7 @@ public class MVSolution {
                 SurveyAreaTask onep = (SurveyAreaTask) tasks.get(taskName);
                 onep.getPivot().setManeuverLocation(where);
                 onep.getPivot().setSpeed(1.0);
-                onep.getPivot().setSpeedUnits("m/s");
+                onep.getPivot().setSpeedUnits(Maneuver.SPEED_UNITS.METERS_PS);
                 action.man = onep.getPivot();
                 action.payloads.add(PayloadRequirement.valueOf(parts[parts.length - 1].split("_")[1]));
                 break;
@@ -170,7 +170,7 @@ public class MVSolution {
                 SurveyAreaTask twop = (SurveyAreaTask) tasks.get(taskName);
                 twop.getPivot().setManeuverLocation(where);
                 twop.getPivot().setSpeed(1.0);
-                twop.getPivot().setSpeedUnits("m/s");
+                twop.getPivot().setSpeedUnits(Maneuver.SPEED_UNITS.METERS_PS);
                 action.payloads.add(PayloadRequirement.valueOf(parts[parts.length - 1].split("_")[1]));
                 action.payloads.add(PayloadRequirement.valueOf(parts[parts.length - 2].split("_")[1]));
                 action.man = twop.getPivot();
@@ -182,7 +182,7 @@ public class MVSolution {
                 SurveyAreaTask threep = (SurveyAreaTask) tasks.get(taskName);
                 threep.getPivot().setManeuverLocation(where);
                 threep.getPivot().setSpeed(1.0);
-                threep.getPivot().setSpeedUnits("m/s");
+                threep.getPivot().setSpeedUnits(Maneuver.SPEED_UNITS.METERS_PS);
                 action.man = threep.getPivot();
                 break;
             default:
@@ -263,7 +263,7 @@ public class MVSolution {
                 PopUp popup = new PopUp();
                 popup.setDuration(120);
                 popup.setSpeed(1.0);
-                popup.setSpeedUnits("m/s");
+                popup.setSpeedUnits(Maneuver.SPEED_UNITS.METERS_PS);
                 ManeuverLocation loc = new ManeuverLocation(m.getStartLocation());
                 loc.setZ(DEFAULT_DEPTH);
                 loc.setZUnits(Z_UNITS.DEPTH);

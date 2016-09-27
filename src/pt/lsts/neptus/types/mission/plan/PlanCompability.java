@@ -22,7 +22,7 @@
  * distributed on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF
  * ANY KIND, either express or implied. See the Licence for the specific
  * language governing permissions and limitations at
- * https://www.lsts.pt/neptus/licence.
+ * http://ec.europa.eu/idabc/eupl.html.
  *
  * For more information please see <http://lsts.fe.up.pt/neptus>.
  *
@@ -34,6 +34,8 @@ package pt.lsts.neptus.types.mission.plan;
 import java.util.Collection;
 import java.util.HashSet;
 
+import com.l2fprod.common.propertysheet.Property;
+
 import pt.lsts.neptus.mp.Maneuver;
 import pt.lsts.neptus.params.ConfigurationManager;
 import pt.lsts.neptus.params.ManeuverPayloadConfig;
@@ -41,8 +43,6 @@ import pt.lsts.neptus.params.SystemProperty;
 import pt.lsts.neptus.params.SystemProperty.Scope;
 import pt.lsts.neptus.params.SystemProperty.Visibility;
 import pt.lsts.neptus.types.vehicle.VehicleType;
-
-import com.l2fprod.common.propertysheet.Property;
 
 /**
  * This class provides some utility methods for testing vehicle-compatibility for given plans. <br/>

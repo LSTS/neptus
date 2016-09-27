@@ -22,7 +22,7 @@
  * distributed on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF
  * ANY KIND, either express or implied. See the Licence for the specific
  * language governing permissions and limitations at
- * https://www.lsts.pt/neptus/licence.
+ * http://ec.europa.eu/idabc/eupl.html.
  *
  * For more information please see <http://lsts.fe.up.pt/neptus>.
  *
@@ -54,21 +54,6 @@ import javax.swing.JTextField;
 import javax.swing.JToggleButton;
 import javax.swing.SwingConstants;
 
-import net.miginfocom.swing.MigLayout;
-import pt.lsts.neptus.NeptusLog;
-import pt.lsts.neptus.console.ConsoleLayout;
-import pt.lsts.neptus.console.ConsolePanel;
-import pt.lsts.neptus.gui.PropertiesEditor;
-import pt.lsts.neptus.i18n.I18n;
-import pt.lsts.neptus.plugins.ConfigurationListener;
-import pt.lsts.neptus.plugins.NeptusProperty;
-import pt.lsts.neptus.plugins.PluginDescription;
-import pt.lsts.neptus.plugins.Popup;
-import pt.lsts.neptus.plugins.NeptusProperty.LEVEL;
-import pt.lsts.neptus.plugins.Popup.POSITION;
-import pt.lsts.neptus.renderer2d.LayerPriority;
-import pt.lsts.neptus.util.conf.StringPatternValidator;
-
 import com.xuggle.mediatool.IMediaListener;
 import com.xuggle.mediatool.IMediaReader;
 import com.xuggle.mediatool.IMediaWriter;
@@ -77,6 +62,21 @@ import com.xuggle.mediatool.ToolFactory;
 import com.xuggle.mediatool.event.IVideoPictureEvent;
 import com.xuggle.xuggler.ICodec;
 import com.xuggle.xuggler.IError;
+
+import net.miginfocom.swing.MigLayout;
+import pt.lsts.neptus.NeptusLog;
+import pt.lsts.neptus.console.ConsoleLayout;
+import pt.lsts.neptus.console.ConsolePanel;
+import pt.lsts.neptus.gui.PropertiesEditor;
+import pt.lsts.neptus.i18n.I18n;
+import pt.lsts.neptus.plugins.ConfigurationListener;
+import pt.lsts.neptus.plugins.NeptusProperty;
+import pt.lsts.neptus.plugins.NeptusProperty.LEVEL;
+import pt.lsts.neptus.plugins.PluginDescription;
+import pt.lsts.neptus.plugins.Popup;
+import pt.lsts.neptus.plugins.Popup.POSITION;
+import pt.lsts.neptus.renderer2d.LayerPriority;
+import pt.lsts.neptus.util.conf.StringPatternValidator;
 
 enum Status{
     OFF,INIT,CONN,STOP,RCON;

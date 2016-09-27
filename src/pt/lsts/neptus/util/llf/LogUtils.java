@@ -22,7 +22,7 @@
  * distributed on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF
  * ANY KIND, either express or implied. See the Licence for the specific
  * language governing permissions and limitations at
- * https://www.lsts.pt/neptus/licence.
+ * http://ec.europa.eu/idabc/eupl.html.
  *
  * For more information please see <http://lsts.fe.up.pt/neptus>.
  *
@@ -38,13 +38,24 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.ObjectInputStream;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Vector;
+import java.util.stream.Collectors;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
 import org.jfree.chart.JFreeChart;
+
+import com.lowagie.text.Document;
+import com.lowagie.text.Rectangle;
+import com.lowagie.text.pdf.PdfContentByte;
+import com.lowagie.text.pdf.PdfTemplate;
+import com.lowagie.text.pdf.PdfWriter;
 
 import pt.lsts.imc.EstimatedState;
 import pt.lsts.imc.GpsFix;
@@ -64,20 +75,9 @@ import pt.lsts.neptus.comm.IMCUtils;
 import pt.lsts.neptus.comm.manager.imc.ImcId16;
 import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.mp.Maneuver;
-import pt.lsts.neptus.mp.ManeuverFactory;
 import pt.lsts.neptus.mp.OperationLimits;
 import pt.lsts.neptus.mp.SystemPositionAndAttitude;
-import pt.lsts.neptus.mp.maneuvers.Elevator;
-import pt.lsts.neptus.mp.maneuvers.FollowPath;
-import pt.lsts.neptus.mp.maneuvers.FollowTrajectory;
-import pt.lsts.neptus.mp.maneuvers.Goto;
-import pt.lsts.neptus.mp.maneuvers.IMCSerialization;
-import pt.lsts.neptus.mp.maneuvers.Loiter;
-import pt.lsts.neptus.mp.maneuvers.PopUp;
-import pt.lsts.neptus.mp.maneuvers.RowsManeuver;
-import pt.lsts.neptus.mp.maneuvers.StationKeeping;
 import pt.lsts.neptus.mp.maneuvers.Unconstrained;
-import pt.lsts.neptus.mp.maneuvers.YoYo;
 import pt.lsts.neptus.mra.LogMarker;
 import pt.lsts.neptus.mra.api.CorrectedPosition;
 import pt.lsts.neptus.mra.importers.IMraLog;
@@ -98,12 +98,6 @@ import pt.lsts.neptus.types.vehicle.VehiclesHolder;
 import pt.lsts.neptus.util.DateTimeUtil;
 import pt.lsts.neptus.util.FileUtil;
 import pt.lsts.neptus.util.GuiUtils;
-
-import com.lowagie.text.Document;
-import com.lowagie.text.Rectangle;
-import com.lowagie.text.pdf.PdfContentByte;
-import com.lowagie.text.pdf.PdfTemplate;
-import com.lowagie.text.pdf.PdfWriter;
 
 /** 
  * @author pdias
@@ -513,7 +507,7 @@ public class LogUtils {
     }
 
     /**
-     * Return from a log folder a valid {@link FileUtil#FILE_TYPE_LSF} (compressed or not.
+     * Return from a log folder a valid {@link FileUtil#FILE_TYPE_LSF} (compressed or not)
      * 
      * @param logFolder
      * @return
@@ -525,35 +519,78 @@ public class LogUtils {
         File logLsf = null;
         File logLsfGz = null;
         File logLsfBz2 = null;
+        ArrayList<File> files = new ArrayList<File>(Arrays.asList(logFolder.listFiles()));
+        Collections.sort(files);
         
-        for (File fx : logFolder.listFiles()) {
-            switch (FileUtil.getFileExtension(fx)) {
-                case FileUtil.FILE_TYPE_LSF:
-                    logLsf = fx;;
-                    break;
-                case "gz":
-                    String fex = FileUtil.getFileNameWithoutExtension(fx.getName());
-                    if (FileUtil.getFileExtension(fex).equalsIgnoreCase(FileUtil.FILE_TYPE_LSF))
-                        logLsfGz = fx;
-                    break;
-                case "bz2":
-                    fex = FileUtil.getFileNameWithoutExtension(fx.getName());
-                    if (FileUtil.getFileExtension(fex).equalsIgnoreCase(FileUtil.FILE_TYPE_LSF))
-                        logLsfBz2 = fx;
-                    break;
-                default:
-                    break;
-            }
+        File fxLogFound = null;
+        String fxBase = "Data";
+        List<String> acceptableFiles = Arrays.asList(fxBase + "." + FileUtil.FILE_TYPE_LSF,
+                fxBase + "." + FileUtil.FILE_TYPE_LSF_COMPRESSED,
+                fxBase + "." + FileUtil.FILE_TYPE_LSF_COMPRESSED_BZIP2);
+        List<File> rLogs = files.stream().filter(f -> acceptableFiles.contains(f.getName()))
+                .collect(Collectors.toList());
+        if (!rLogs.isEmpty()) {
+            rLogs.sort(new Comparator<File>() {
+                @Override
+                public int compare(File f1, File f2) {
+                    String e1 = FileUtil.getFileExtension(f1);
+                    String e2 = FileUtil.getFileExtension(f2);
+                    if (e1.equalsIgnoreCase(e2)) {
+                        return f1.compareTo(f2);
+                    }
+                    else {
+                        if (e1.endsWith("lsf"))
+                            return -1;
+                        else if (e2.endsWith("lsf"))
+                            return 1;
+                        else if (e1.endsWith("gz"))
+                            return -1;
+                        else if (e2.endsWith("gz"))
+                            return 1;
+                        else if (e1.endsWith("bz2"))
+                            return -1;
+                        else if (e2.endsWith("bz2"))
+                            return 1;
+                    }
+                    return 0;
+                }
+            });
+            fxLogFound = rLogs.get(0);
         }
         
+        if (fxLogFound == null) {
+            sel : 
+                for (File fx : files) {
+                    switch (FileUtil.getFileExtension(fx)) {
+                        case FileUtil.FILE_TYPE_LSF:
+                            logLsf = fx;
+                            break sel;
+                        case "gz":
+                            String fex = FileUtil.getFileNameWithoutExtension(fx.getName());
+                            if (FileUtil.getFileExtension(fex).equalsIgnoreCase(FileUtil.FILE_TYPE_LSF))
+                                logLsfGz = fx;
+                            break sel;
+                        case "bz2":
+                            fex = FileUtil.getFileNameWithoutExtension(fx.getName());
+                            if (FileUtil.getFileExtension(fex).equalsIgnoreCase(FileUtil.FILE_TYPE_LSF))
+                                logLsfBz2 = fx;
+                            break sel;
+                        default:
+                            break;
+                    }
+                }
+        }
+
         File ret = null;
-        if (logLsf != null)
+        if (fxLogFound != null)
+            ret = fxLogFound;
+        else if (logLsf != null)
             ret = logLsf;
         else if (logLsfGz != null)
             ret = logLsfGz;
         else if (logLsfBz2 != null)
             ret = logLsfBz2;
-
+        
         return ret;
     }
     
@@ -637,52 +674,22 @@ public class LogUtils {
             return null;
         }
     }
-
     
     /**
      * See {@link IMCUtils#parseManeuver(IMCMessage)}
      */
     protected static Maneuver parseManeuver(String manId, IMCMessage msg) {
-        String manType = msg.getAbbrev();
-        Maneuver maneuver = null;
-        if ("Goto".equalsIgnoreCase(manType))
-            maneuver = new Goto();
-        else if ("Popup".equalsIgnoreCase(manType))
-            maneuver = new PopUp();
-        else if ("Loiter".equalsIgnoreCase(manType))
-            maneuver = new Loiter();
-        else if ("Teleoperation".equalsIgnoreCase(manType))
-            maneuver = new Unconstrained();
-        else if ("Rows".equalsIgnoreCase(manType))
-            maneuver = new RowsManeuver();
-        else if ("FollowTrajectory".equalsIgnoreCase(manType))
-            maneuver = new FollowTrajectory();
-        else if ("FollowPath".equalsIgnoreCase(manType))
-            maneuver = FollowPath.createFollowPathOrPattern(msg);
-        else if ("StationKeeping".equalsIgnoreCase(manType))
-            maneuver = new StationKeeping();
-        else if ("Elevator".equalsIgnoreCase(manType))
-            maneuver = new Elevator();
-        else if ("YoYo".equalsIgnoreCase(manType))
-            maneuver = new YoYo();
-        else {
-            try {
-                maneuver = ManeuverFactory.createManeuver(manType, "pt.lsts.neptus.mp.maneuvers." + manType);
-            }
-            catch (Exception e) {
-                e.printStackTrace();
-            }
+        Maneuver maneuver = IMCUtils.parseManeuver(msg);
+        if (maneuver != null) {
+            maneuver.setId(manId);
         }
-
-        if (maneuver == null)
-            return null;
-        maneuver.setId(manId);
-
-        if (maneuver instanceof IMCSerialization)
-            ((IMCSerialization) maneuver).parseIMCMessage(msg);
-
+        else {
+            String manType = msg.getAbbrev();
+            if (!"Teleoperation".equalsIgnoreCase(manType) && (maneuver instanceof Unconstrained))
+                maneuver = null;
+        }
+        
         return maneuver;
-
     }
 
     public static String parseInlineName(String data) {

@@ -22,7 +22,7 @@
  * distributed on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF
  * ANY KIND, either express or implied. See the Licence for the specific
  * language governing permissions and limitations at
- * https://www.lsts.pt/neptus/licence.
+ * http://ec.europa.eu/idabc/eupl.html.
  *
  * For more information please see <http://lsts.fe.up.pt/neptus>.
  *
@@ -65,8 +65,19 @@ public class HttpClientConnectionHelper {
     private int defaultMaxConnectionsPerRoute = DEFAULT_MAX_CONNECTIONS_PER_ROUTE;
     private int connectionTimeout = CONNECTION_TIMEOUT;
     private boolean initializeProxyRoutePlanner = true;
+    private String userAgent = null;
     
     public HttpClientConnectionHelper() {
+    }
+
+    public HttpClientConnectionHelper(String userAgent) {
+        this.userAgent = userAgent;
+    }
+
+    public HttpClientConnectionHelper(int maxTotalConnections, int defaultMaxConnectionsPerRoute,
+            int connectionTimeout, boolean initializeProxyRoutePlanner, String userAgent) {
+        this(maxTotalConnections, defaultMaxConnectionsPerRoute, connectionTimeout, initializeProxyRoutePlanner);
+        this.userAgent = userAgent;
     }
 
     /**
@@ -121,6 +132,9 @@ public class HttpClientConnectionHelper {
         if (initializeProxyRoutePlanner)
             ProxyInfoProvider.setRoutePlanner(clientBuilder); // client
 
+        if (userAgent != null && !userAgent.isEmpty())
+            clientBuilder.setUserAgent(userAgent);
+        
         client = clientBuilder.build();
     }
     

@@ -22,7 +22,7 @@
  * distributed on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF
  * ANY KIND, either express or implied. See the Licence for the specific
  * language governing permissions and limitations at
- * https://www.lsts.pt/neptus/licence.
+ * http://ec.europa.eu/idabc/eupl.html.
  *
  * For more information please see <http://lsts.fe.up.pt/neptus>.
  *
@@ -70,7 +70,7 @@ public class ZPlot extends MRATimeSeriesPlot {
         EstimatedState firstState = source.getFirst(EstimatedState.class);
 
         // check if its an UAV...
-        if (firstState != null && firstState.getEntityName().equals("Autopilot")) {
+        if (firstState != null && "Autopilot".equals(firstState.getEntityName())) {
             for (EstimatedState state : source.getIterator(EstimatedState.class, (long) (timestep * 1000))) {
                 double alt = state.getHeight() - state.getZ();
                 addValue(state.getTimestampMillis(), state.getSourceName() + "." + I18n.text("Altitude"), alt);

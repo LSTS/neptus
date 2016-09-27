@@ -22,7 +22,7 @@
  * distributed on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF
  * ANY KIND, either express or implied. See the Licence for the specific
  * language governing permissions and limitations at
- * https://www.lsts.pt/neptus/licence.
+ * http://ec.europa.eu/idabc/eupl.html.
  *
  * For more information please see <http://lsts.fe.up.pt/neptus>.
  *
@@ -39,7 +39,9 @@ import java.awt.RenderingHints;
 import java.awt.geom.Line2D;
 import java.awt.geom.Point2D;
 import java.awt.image.BufferedImage;
+import java.util.Arrays;
 import java.util.Collections;
+import java.util.List;
 import java.util.Locale;
 import java.util.Vector;
 
@@ -70,6 +72,8 @@ public class CTDSidePlot extends SimpleMRAVisualization {
     private static final long serialVersionUID = -2237994701546034699L;
     private JTabbedPane tabs = new JTabbedPane();
     private MRAPanel panel;
+    List<String> validEntities = Arrays.asList("CTD", "Water Quality Sensor");
+    String ctdEntity = null;
     
     public CTDSidePlot(MRAPanel panel) {
         super(panel);
@@ -83,7 +87,12 @@ public class CTDSidePlot extends SimpleMRAVisualization {
 
     @Override
     public boolean canBeApplied(IMraLogGroup source) {
-        return source.getLsfIndex().getEntityId("CTD") != 255;
+        for (String e : validEntities)
+            if (source.getLsfIndex().getEntityId(e) != 255) {
+                ctdEntity = e;
+                return true;
+            }
+        return false;
     }
 
     
@@ -167,8 +176,8 @@ public class CTDSidePlot extends SimpleMRAVisualization {
         Vector<Double> temp = new Vector<>();
         Vector<Double> sal = new Vector<>();
         while (true) {
-            Temperature t = scanner.next(Temperature.class, "CTD");
-            Salinity s = scanner.next(Salinity.class, "CTD");
+            Temperature t = scanner.next(Temperature.class, ctdEntity);
+            Salinity s = scanner.next(Salinity.class, ctdEntity);
             
             EstimatedState d = scanner.next(EstimatedState.class);
             if (t == null || s == null || d == null) {

@@ -22,7 +22,7 @@
  * distributed on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF
  * ANY KIND, either express or implied. See the Licence for the specific
  * language governing permissions and limitations at
- * https://www.lsts.pt/neptus/licence.s
+ * http://ec.europa.eu/idabc/eupl.html.s
  *
  * For more information please see <http://lsts.fe.up.pt/neptus>.
  *
@@ -36,6 +36,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Vector;
 
+import pt.lsts.imc.IMCMessage;
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.comm.manager.CommManagerStatusChangeListener;
 import pt.lsts.neptus.comm.manager.imc.ImcId16;
@@ -43,11 +44,10 @@ import pt.lsts.neptus.comm.manager.imc.ImcMsgManager;
 import pt.lsts.neptus.comm.manager.imc.ImcSystem;
 import pt.lsts.neptus.comm.manager.imc.ImcSystemsHolder;
 import pt.lsts.neptus.loader.NeptusMain;
-import pt.lsts.neptus.types.vehicle.VehicleType;
-import pt.lsts.neptus.types.vehicle.VehiclesHolder;
-import pt.lsts.imc.IMCMessage;
 import pt.lsts.neptus.messages.listener.MessageInfo;
 import pt.lsts.neptus.messages.listener.MessageListener;
+import pt.lsts.neptus.types.vehicle.VehicleType;
+import pt.lsts.neptus.types.vehicle.VehiclesHolder;
 
 /**
  * This Class will hook itself to the {@link ImcMsgManager} to filter messages and systems of interest controlled by

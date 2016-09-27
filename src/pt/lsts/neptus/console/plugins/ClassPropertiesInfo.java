@@ -22,7 +22,7 @@
  * distributed on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF
  * ANY KIND, either express or implied. See the Licence for the specific
  * language governing permissions and limitations at
- * https://www.lsts.pt/neptus/licence.
+ * http://ec.europa.eu/idabc/eupl.html.
  *
  * For more information please see <http://lsts.fe.up.pt/neptus>.
  *
@@ -33,11 +33,11 @@ package pt.lsts.neptus.console.plugins;
 
 import javax.swing.ImageIcon;
 
+import com.l2fprod.common.propertysheet.PropertySheetPanel;
+
 import pt.lsts.neptus.gui.PropertiesProvider;
 import pt.lsts.neptus.plugins.PluginDescription.CATEGORY;
 import pt.lsts.neptus.util.ImageUtils;
-
-import com.l2fprod.common.propertysheet.PropertySheetPanel;
 
 /**
  * Data structure to hold all the information relevant to one class for settings editing
