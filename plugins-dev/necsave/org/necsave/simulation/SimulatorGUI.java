@@ -61,6 +61,7 @@ import org.apache.commons.io.IOUtils;
 
 import net.miginfocom.swing.MigLayout;
 import pt.lsts.neptus.NeptusLog;
+import pt.lsts.neptus.i18n.I18n;
 
 public class SimulatorGUI {
 
@@ -83,7 +84,7 @@ public class SimulatorGUI {
         
         //Create and set up the window.
         frame = new JDialog();
-        frame.setTitle("Simulation Manager");
+        frame.setTitle(I18n.text("Simulation Manager"));
         frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         frame.setResizable(false);
         tabbedPane = new CustomJTabbedPane();
@@ -96,7 +97,7 @@ public class SimulatorGUI {
         menuBar.add(menu);
 
         //a group of JMenuItems
-        JMenuItem openMnItem = new JMenuItem("Open Config(s). (Ctrl+O)");
+        JMenuItem openMnItem = new JMenuItem(I18n.text("Open Config(s). (Ctrl+O)"));
 
         ActionListener openAction = new ActionListener() {
             @Override
@@ -123,7 +124,7 @@ public class SimulatorGUI {
         openMnItem.addActionListener(openAction);
         menu.add(openMnItem);
 
-        JMenuItem confMnItem = new JMenuItem("Config (Ctrl+P)");
+        JMenuItem confMnItem = new JMenuItem(I18n.text("Config (Ctrl+P)"));
         ActionListener confAction = new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -152,7 +153,7 @@ public class SimulatorGUI {
         frame.setJMenuBar(menuBar);
 
         JPanel btnPanel = new JPanel();
-        runSimBtn = new JButton("Run Simulation");
+        runSimBtn = new JButton(I18n.text("Run Simulation"));
         runSimBtn.setEnabled(false);
         btnPanel.add(runSimBtn);
         runSimBtn.addActionListener(new ActionListener() {
@@ -161,7 +162,8 @@ public class SimulatorGUI {
             public void actionPerformed(ActionEvent e) {
                 if (!isRunning)  {
                     if (LAUNCH_DUNE_SCRIPT == null || LAUNCH_SCRIPT == null) {
-                        JOptionPane.showMessageDialog(frame, "Wrong scripts path.", "Error", JOptionPane.ERROR_MESSAGE);
+                        JOptionPane.showMessageDialog(frame, I18n.text("Wrong scripts path."), I18n.text("Error"),
+                                JOptionPane.ERROR_MESSAGE);
                         return;
                     }
 
@@ -252,11 +254,10 @@ public class SimulatorGUI {
         JFileChooser fileChooser = new JFileChooser(path);
         fileChooser.setAcceptAllFileFilterUsed(false);
         fileChooser.setMultiSelectionEnabled(true);
-       // fileChooser.setCurrentDirectory(prevOpenFile);
         fileChooser.addChoosableFileFilter(new FileFilter() {
 
             public String getDescription() {
-                return "Platform Config. Files (*.ini)";
+                return I18n.text("Platform Config. Files (*.ini)");
             }
 
             public boolean accept(File f) {
@@ -273,8 +274,7 @@ public class SimulatorGUI {
         if (returnVal == JFileChooser.APPROVE_OPTION) {
             File[] files = fileChooser.getSelectedFiles();
             for (File file : files ) {
-               // prevOpenFile = file;
-                System.out.println("Opening '" +file.getPath()+"'");
+                NeptusLog.pub().info(I18n.textf("Opening %s", file.getPath()));
                 path = file.getParent();
                 prefs.put("PATH", path);
                 Simulator newPlatfConfig = new Simulator(file.getPath(), XML_FILE);
@@ -290,7 +290,9 @@ public class SimulatorGUI {
                     frame.pack();
                 } 
                 else {
-                    JOptionPane.showMessageDialog(frame, "Error opening "+file.getPath(), "Error", JOptionPane.ERROR_MESSAGE);
+                    JOptionPane.showMessageDialog(frame, I18n.textf("Error opening %s", file.getPath()),
+                            I18n.text("Error"),
+                            JOptionPane.ERROR_MESSAGE);
                 }
             }
             return 0;
@@ -313,7 +315,7 @@ public class SimulatorGUI {
             statusBar.setBorder(new BevelBorder(BevelBorder.LOWERED, null, null, null, null));
             statusBar.add(msg, BorderLayout.WEST);
 
-            setTitle("Configurations");
+            setTitle(I18n.text("Configurations"));
             setResizable(false);
             getContentPane().add(statusBar, BorderLayout.SOUTH);
 
@@ -330,11 +332,11 @@ public class SimulatorGUI {
             scriptsPathTxtField.setColumns(10);
 
             if (validScriptsPath(scriptsPathTxtField.getText())) {
-                msg.setText("Scripts Path: OK!");
+                msg.setText(I18n.text("Scripts Path: OK!"));
                 LAUNCH_SCRIPT = SCRIPTS_PATH.concat("/launch.sh");
                 LAUNCH_DUNE_SCRIPT = SCRIPTS_PATH.concat("/launch-dune.sh");
             } 
-            JButton btnSave = new JButton("Save");
+            JButton btnSave = new JButton(I18n.text("Save"));
             btnSave.addActionListener(new ActionListener() {
 
                 @Override
@@ -343,12 +345,12 @@ public class SimulatorGUI {
  
                     prefs.put("SCRIPTS", SCRIPTS_PATH);
                     if (validScriptsPath(scriptsPathTxtField.getText())) {
-                        msg.setText("Scripts Path: OK!");
+                        msg.setText(I18n.text("Scripts Path: OK!"));
                         LAUNCH_SCRIPT = SCRIPTS_PATH.concat("/launch.sh");
                         LAUNCH_DUNE_SCRIPT = SCRIPTS_PATH.concat("/launch-dune.sh");
                     } 
                     else {
-                        msg.setText("Scripts Path: ERROR!");
+                        msg.setText(I18n.text("Scripts Path: ERROR!"));
                         LAUNCH_SCRIPT = null;
                         LAUNCH_DUNE_SCRIPT = null;
                     }
@@ -410,7 +412,7 @@ public class SimulatorGUI {
                         if (resultDiag != null)
                             resultDiag.dispose();
                         isRunning = false;
-                        runSimBtn.setText("Run Simulation");
+                        runSimBtn.setText(I18n.text("Run Simulation"));
                     }
                     else if (!kill && line.contains("Killing all necsave procs...")) {
                         resultDiag.txtArea.setText(null);
@@ -418,7 +420,7 @@ public class SimulatorGUI {
 
                     if (line.contains("Starting necsave platforms")) {
                         isRunning = true;
-                        runSimBtn.setText("Simulation State");
+                        runSimBtn.setText(I18n.text("Simulation State"));
                     }
 
                     if (showOnTxtArea) {
@@ -485,7 +487,7 @@ public class SimulatorGUI {
             JPanel panel = new JPanel();
             contentPanel.add(panel, BorderLayout.SOUTH);
 
-            btnKillSim = new JButton("Kill Simulation");
+            btnKillSim = new JButton(I18n.text("Kill Simulation"));
             btnKillSim.addActionListener(new ActionListener() {
                 @Override
                 public void actionPerformed(ActionEvent e) {
@@ -493,7 +495,7 @@ public class SimulatorGUI {
                             "ps --no-headers axk comm o pid,args | awk '$2 ~ \"../build/\"{print $1}' | xargs kill -9 | echo 'Killing all necsave procs...'",
                             true, true).start();
                     runSimBtn.setEnabled(true);
-                    runSimBtn.setText("Run Simulation");
+                    runSimBtn.setText(I18n.text("Run Simulation"));
                     isRunning = false;
                 }
             });
@@ -516,11 +518,11 @@ public class SimulatorGUI {
 
         public CustomJTabbedPane() {
 
-            initialLbl = new JLabel("No Platforms to be simulated!");
+            initialLbl = new JLabel(I18n.text("No Platforms to be simulated!"));
             initialLbl.setHorizontalAlignment(SwingConstants.CENTER);
             initialLbl.setFont(new Font("Dialog", Font.BOLD, 20));
 
-            addTab("Intro", null, initialLbl, null);
+            addTab(I18n.text("Intro"), null, initialLbl, null);
 
             // tab to add new tab when click
             add(new JPanel(), "+", 1);
