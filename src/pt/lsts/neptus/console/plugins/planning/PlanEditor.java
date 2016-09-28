@@ -1387,6 +1387,7 @@ public class PlanEditor extends InteractionAdapter implements Renderer2DPainter,
                         m.setId(getNewManeuverName(maneuverType));
                         if (m instanceof LocatedManeuver) {
                             ManeuverLocation originalPos = ((LocatedManeuver) m).getManeuverLocation().clone();
+                            originalPos.convertToAbsoluteLatLonDepth();
                             LocationType pos = renderer.getRealWorldLocation(mousePoint);
                             originalPos.setLatitudeRads(pos.getLatitudeRads());
                             originalPos.setLongitudeRads(pos.getLongitudeRads());
