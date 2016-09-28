@@ -79,7 +79,7 @@ public class MissionOverviewPanel extends JPanel {
     public MissionOverviewPanel(PlanEditor pE, PlanType plan) {
 
         selectedPlan = plan;
-        setLayout(new MigLayout("", "[][grow]", "[]"));
+        setLayout(new MigLayout("", "[][grow]", "[top][grow]"));
         model = new PlanTableModel(selectedPlan);
         table = new JTable(model);
 
