@@ -235,6 +235,7 @@
 	<classpathentry kind="lib" path="lib/sanselan-0.97-incubator.jar"/>
 	<classpathentry kind="lib" path="lib/graphstream/gs-core-1.3.jar"/>
 	<classpathentry kind="lib" path="lib/graphstream/gs-ui-1.3.jar"/>
+	<classpathentry kind="lib" path="plugins-dev/necsave/lib/minimal-json-0.9.4.jar"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.junit.JUNIT_CONTAINER/4"/>
 	<classpathentry kind="lib" path="conf"/>

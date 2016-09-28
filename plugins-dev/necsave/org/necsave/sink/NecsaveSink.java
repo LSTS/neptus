@@ -57,6 +57,8 @@ import org.jdesktop.swingx.decorator.ColorHighlighter;
 import org.jdesktop.swingx.decorator.PatternPredicate;
 import org.necsave.NMPUtilities;
 
+import com.google.common.eventbus.Subscribe;
+
 import info.necsave.proto.Message;
 import info.necsave.proto.ProtoDefinition;
 import info.necsave.proto.ProtoInputStream;
@@ -252,12 +254,13 @@ public class NecsaveSink extends ConsolePanel implements ConfigurationListener {
         };
     };
     
+    @Subscribe
+    public void on(Message msg) {
+        model.addMessage(msg);
+    }    
 
-    void process(String source, int port, Message msg) {
-        model.addMessage(source+":"+port, msg);
-        
-        if (postToNeptus)
-            post(msg);
+    void process(String source, int port, Message msg) {        
+        post(msg);        
     }
 
     @Override

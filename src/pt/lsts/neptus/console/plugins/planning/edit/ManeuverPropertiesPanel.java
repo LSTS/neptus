@@ -138,6 +138,7 @@ public class ManeuverPropertiesPanel extends JPanel {
     }
 
     public void setManeuver(Maneuver man) {
+        boolean sameMan = this.maneuver == man;
         
         if (this.maneuver != null) {
             
@@ -152,12 +153,15 @@ public class ManeuverPropertiesPanel extends JPanel {
                 
         payloadConfig = new ManeuverPayloadConfig(vehicle, man, propsPanel);
         this.maneuver = man;
-        editBtn.setSelected(false);
+        if (!sameMan)
+            editBtn.setSelected(false);
         changed = false;
         if (man == null) {
             setBorder(new TitledBorder(I18n.text("No maneuver selected")));
             try {
-                propsPanel.setProperties(new Property[0]);
+                synchronized (propsPanel) {
+                    propsPanel.setProperties(new Property[0]);
+                }
             }
             catch (Exception e) {
                 e.printStackTrace();
@@ -181,12 +185,16 @@ public class ManeuverPropertiesPanel extends JPanel {
         for (int j = 0; j < payloadProps.length; j++)
             combinedProps[j+i] = payloadProps[j];
         
-        propsPanel.setProperties(combinedProps);
+        // To avoid ConcurrentModificationException on the PropertySheetTableModel
+        synchronized (propsPanel) {
+            propsPanel.setProperties(combinedProps);
+        }
         
         setBorder(new TitledBorder(man.getId()));
         
         deleteBtn.setEnabled(true);
-        editBtn.setSelected(false);
+        if (!sameMan)
+            editBtn.setSelected(false);
         
         if (maneuver instanceof StateRendererInteraction)               
             editBtn.setEnabled(true);

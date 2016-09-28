@@ -501,8 +501,8 @@ public class ImageElement extends AbstractElement implements ScalableElement, Ro
 
         Point2D center = renderer.getScreenPosition(getCenterLocation());
         g.translate(center.getX(), center.getY());
-        g.scale(getImageScale() * renderer.getZoom(), getImageScale() * renderer.getZoom());
         g.rotate(getYawRad() - renderer.getRotation());
+        g.scale(getImageScale() * renderer.getZoom(), getImageScale() * renderer.getZoom());
         g.drawImage(getImage(), -getImage().getWidth(renderer) / 2, -getImage().getHeight(renderer) / 2, null);
     }
 

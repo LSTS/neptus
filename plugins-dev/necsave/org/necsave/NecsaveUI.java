@@ -32,12 +32,13 @@
 package org.necsave;
 
 import java.awt.Color;
+import java.awt.Font;
 import java.awt.Graphics2D;
+import java.awt.RenderingHints;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.awt.geom.AffineTransform;
-import java.awt.geom.Point2D;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -112,9 +113,9 @@ import pt.lsts.neptus.types.coord.LocationType;
 import pt.lsts.neptus.types.map.MapGroup;
 import pt.lsts.neptus.types.map.ParallelepipedElement;
 import pt.lsts.neptus.types.mission.plan.PlanType;
-import pt.lsts.neptus.types.vehicle.VehiclesHolder;
 import pt.lsts.neptus.types.vehicle.VehicleType;
 import pt.lsts.neptus.types.vehicle.VehicleType.SystemTypeEnum;
+import pt.lsts.neptus.types.vehicle.VehiclesHolder;
 import pt.lsts.neptus.util.ColorUtils;
 import pt.lsts.neptus.util.GuiUtils;
 
@@ -141,7 +142,7 @@ public class NecsaveUI extends ConsoleLayer {
     private LinkedHashMap<String, LocationType> contacts = new LinkedHashMap<>();
     private Plan plan = null;
     private ParallelepipedElement elem = null;
-    private ParallelepipedElement area = new ParallelepipedElement();
+    private ParallelepipedElement area;
     private LocationType corner = null; 
     private double width, height;
     private ConsoleInteraction interaction;
@@ -161,6 +162,7 @@ public class NecsaveUI extends ConsoleLayer {
         
        setupInteraction();
        getConsole().addInteraction(interaction);
+       area = new ParallelepipedElement();
     }
 
     private void setupInteraction() {
@@ -866,8 +868,8 @@ public class NecsaveUI extends ConsoleLayer {
         colors.addAll(Arrays.asList(ColorUtils.generateVisuallyDistinctColors(platfPlans.size(), 0.5f, 0.5f)));
         
         for (int i = 0; i < platfPlans.size(); i++) {
-            Color c = colors.get(i);
             PlatformPlan p = (PlatformPlan) platfPlans.get(i);
+            @SuppressWarnings("unchecked")
             Vector<Message> behaviors = (Vector<Message>) p.getValue("behaviors"); 
             for (Message b : behaviors) {
                 if (b.getMgid() == BehaviorScanArea.ID_STATIC) {
@@ -898,21 +900,12 @@ public class NecsaveUI extends ConsoleLayer {
         lt.setAzimuth(Math.toDegrees(b.getScanArea().getBearing() + Math.PI / 2));
         lt.convertToAbsoluteLatLonDepth();
         
-        JLabel areaID = new JLabel(Long.toString(b.getScanArea().getAreaId()));
-        Point2D p = source.getScreenPosition(area.centerLocation);
-        
         area.setCenterLocation(lt);
         area.paint(g, source, 0);
-        g.setTransform(old);
-        
-        areaID.setOpaque(false);
-        areaID.setSize(areaID.getPreferredSize());
-        g.translate(p.getX(), p.getY());
-        areaID.paint(g);
-        g.setTransform(old);
-        
-        
-        
+        g.setFont(new Font("Helvetica", Font.BOLD, 18));
+        g.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
+        g.drawString(""+b.getScanArea().getAreaId(), -5, 5);
+        g.setTransform(old);        
     }
     
     @Override
