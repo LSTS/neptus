@@ -110,8 +110,7 @@ public class MissionOverviewPanel extends JPanel {
             }
         });
 
-
-        //Add mouselistener
+        //Add mouse listener
         table.addMouseListener(new MouseAdapter() {
             @Override
             public void mousePressed(MouseEvent e) {
@@ -133,7 +132,7 @@ public class MissionOverviewPanel extends JPanel {
             }
         });
 
-        //Add Keybinding
+        //Add key binding
         table.getInputMap(JPanel.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke(KeyEvent.VK_C, InputEvent.CTRL_MASK),"copy");
         Action copy = new AbstractAction() {
             private static final long serialVersionUID = 1L;
@@ -188,7 +187,6 @@ public class MissionOverviewPanel extends JPanel {
         table.getActionMap().put("nextMark", nextMark);
 
         menu.addPopupMenuListener(new PopupMenuListener() {
-
             @Override
             public void popupMenuWillBecomeVisible(PopupMenuEvent e) {
                 SwingUtilities.invokeLater(new Runnable() {
@@ -206,17 +204,15 @@ public class MissionOverviewPanel extends JPanel {
 
             @Override
             public void popupMenuWillBecomeInvisible(PopupMenuEvent e) {
-                // TODO Auto-generated method stub
             }
 
             @Override
             public void popupMenuCanceled(PopupMenuEvent e) {
-                // TODO Auto-generated method stub
             }
         });
 
+        @SuppressWarnings("serial")
         AbstractAction copyAction = new AbstractAction(I18n.text("Copy maneuver to clipboard")) {
-
             @Override
             public void actionPerformed(ActionEvent e) {
                 ClipboardOwner owner = new ClipboardOwner() {
@@ -232,9 +228,8 @@ public class MissionOverviewPanel extends JPanel {
 
         menu.add(copyAction);
         table.add(menu);
-        //Set prefered size
+        //Set preferred size
         table.setPreferredScrollableViewportSize(new Dimension(700, 80));
-
     }
 
     private int getRowFromManeuver(Maneuver man) {
@@ -256,7 +251,6 @@ public class MissionOverviewPanel extends JPanel {
 
         if (prevSelectedRow != -1 && prevSelectedRow < model.getRowCount())
             table.setRowSelectionInterval(prevSelectedRow, prevSelectedRow);
-
     }
 
     public void reset() {
