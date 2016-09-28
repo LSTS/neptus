@@ -433,7 +433,7 @@ public class PlanEditor extends InteractionAdapter implements Renderer2DPainter,
             controls.add(new JButton(getNewAction()));
             controls.add(new JButton(getSaveAction()));
             controls.add(new JButton(getCloseAction()));
-            controls.add(new JButton(getSettingsAction()));
+            controls.add(new JButton(getOverviewAction()));
             controls.add(new JButton(getUndoAction()));
             controls.add(new JButton(getRedoAction()));
             updateUndoRedo();
@@ -483,9 +483,9 @@ public class PlanEditor extends InteractionAdapter implements Renderer2DPainter,
         return sidePanel;
     }
 
-    protected AbstractAction getSettingsAction() {
+    protected AbstractAction getOverviewAction() {
         return new AbstractAction(I18n.text("Overview"), ImageUtils.getScaledIcon(
-                "images/planning/edit_settings.png", 16, 16)) {
+                "images/buttons/log.png", 16, 16)) {
             private static final long serialVersionUID = 1L;
 
             @Override
