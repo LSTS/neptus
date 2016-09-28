@@ -1434,6 +1434,7 @@ public class PlanEditor extends InteractionAdapter implements Renderer2DPainter,
                         manager.addEdit(new ManeuverAdded(m, plan, addedTransitions, removedTransitions));
 
                         getPropertiesPanel().setManeuver(m);
+                        PlanEditor.this.updateSelected(m);
 
                         repaint();
                     }
