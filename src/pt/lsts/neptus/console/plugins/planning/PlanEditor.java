@@ -320,11 +320,14 @@ public class PlanEditor extends InteractionAdapter implements Renderer2DPainter,
 
                 horizontalSplit.setResizeWeight(1.0);
 
+                verticalSplit = new JSplitPane(JSplitPane.VERTICAL_SPLIT, horizontalSplit, null);
+                verticalSplit.setResizeWeight(1.0);
+                c.add(verticalSplit);
+                
                 c.invalidate();
                 c.validate();
                 if (c instanceof JComponent)
                     ((JComponent) c).setBorder(new LineBorder(Color.orange.darker(), 3));
-
             }
 
             if (plan == null && getConsole().getPlan() != null) {
@@ -340,7 +343,6 @@ public class PlanEditor extends InteractionAdapter implements Renderer2DPainter,
                     choice = VehicleChooser.showVehicleDialog(null, null, getConsole());
 
                 if (choice == null) {
-
                     if (getAssociatedSwitch() != null)
                         getAssociatedSwitch().doClick();
 
@@ -363,13 +365,9 @@ public class PlanEditor extends InteractionAdapter implements Renderer2DPainter,
                 overviewPanel.setVisible(overviewIsVisible);
             }
 
-            verticalSplit = new JSplitPane(JSplitPane.VERTICAL_SPLIT, horizontalSplit, overviewPanel);
-            verticalSplit.setResizeWeight(1.0);
+            verticalSplit.setBottomComponent(overviewPanel);
             verticalSplit.getRightComponent().setMinimumSize(overviewPanel.getPreferredSize());
-
-            c.add(verticalSplit);
         }
-
         else {
             PeriodicUpdatesService.unregister(this);
 
@@ -386,6 +384,7 @@ public class PlanEditor extends InteractionAdapter implements Renderer2DPainter,
                 for (Entry<Component, Object> e : componentList.entrySet()) {
                     c.add(e.getKey(), e.getValue());
                 }
+                componentList.clear();
 
                 if (overviewPanel != null) {
                     bottomPanel.removeAll();
