@@ -1502,6 +1502,10 @@ public class PlanEditor extends InteractionAdapter implements Renderer2DPainter,
                             HashSet<TransitionType> removedTransitions = new HashSet<TransitionType>();
 
                             ManeuverLocation worldLoc = new ManeuverLocation(renderer.getCenter());
+                            if (m instanceof LocatedManeuver)
+                                worldLoc = ((LocatedManeuver) m).getManeuverLocation().clone();
+                            else
+                                worldLoc = new ManeuverLocation(renderer.getCenter());
                                 
                             if (previousMan instanceof LocatedManeuver
                                     && nextMan instanceof LocatedManeuver) {
@@ -1512,6 +1516,7 @@ public class PlanEditor extends InteractionAdapter implements Renderer2DPainter,
 
                                 loc1.translatePosition(offsets[0] / 2, offsets[1] / 2, 0);
                                 loc1.setDepth(loc1.getDepth());
+                                loc1.convertToAbsoluteLatLonDepth();
                                 worldLoc.setLocation(loc1);
                             }
                             else {
