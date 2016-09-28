@@ -159,7 +159,9 @@ public class ManeuverPropertiesPanel extends JPanel {
         if (man == null) {
             setBorder(new TitledBorder(I18n.text("No maneuver selected")));
             try {
-                propsPanel.setProperties(new Property[0]);
+                synchronized (propsPanel) {
+                    propsPanel.setProperties(new Property[0]);
+                }
             }
             catch (Exception e) {
                 e.printStackTrace();
@@ -183,7 +185,10 @@ public class ManeuverPropertiesPanel extends JPanel {
         for (int j = 0; j < payloadProps.length; j++)
             combinedProps[j+i] = payloadProps[j];
         
-        propsPanel.setProperties(combinedProps);
+        // To avoid ConcurrentModificationException on the PropertySheetTableModel
+        synchronized (propsPanel) {
+            propsPanel.setProperties(combinedProps);
+        }
         
         setBorder(new TitledBorder(man.getId()));
         
