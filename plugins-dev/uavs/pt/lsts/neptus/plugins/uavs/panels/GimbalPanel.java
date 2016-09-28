@@ -138,7 +138,6 @@ public class GimbalPanel extends ConsolePanel implements MainVehicleChangeListen
         pitchSlider.setLabelTable( pitchLblTable );
         pitchSlider.setPaintLabels(true);
         pitchSlider.setInverted(true);
-        
 
         pitchSlider.addChangeListener(new ChangeListener() {
             @Override
@@ -163,7 +162,8 @@ public class GimbalPanel extends ConsolePanel implements MainVehicleChangeListen
 
     @Override
     public void cleanSubPanel() {
-        // TODO Auto-generated method stub
-
+        titlePanel.removeAll();
+        buttonPanel.removeAll();
+        removeAll();
     }
 }
