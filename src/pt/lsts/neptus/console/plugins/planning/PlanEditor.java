@@ -922,142 +922,6 @@ public class PlanEditor extends InteractionAdapter implements Renderer2DPainter,
         return actions;
     }
 
-
-    private AbstractAction getPasteBeforeAction(Point mousePoint, Maneuver man) {
-        Transferable contents = null;
-        try {
-            contents = Toolkit.getDefaultToolkit().getSystemClipboard().getContents(null);
-        }
-        catch (Exception e1) {
-            NeptusLog.pub().warn(e1);
-        }
-
-        boolean enabled = false;
-
-        boolean hasTransferableText = (contents != null) && contents.isDataFlavorSupported(DataFlavor.stringFlavor);
-
-        if (hasTransferableText) {
-            try {
-                String text = (String) contents.getTransferData(DataFlavor.stringFlavor);
-                if (text.startsWith(maneuverPreamble))
-                    enabled = true;
-            }
-            catch (Exception e) {
-                NeptusLog.pub().error(e);
-            }
-        }
-        AbstractAction paste = new AbstractAction(I18n.textf("Paste maneuver from clipboard before %man", man.getId())) {
-
-            private static final long serialVersionUID = 1L;
-
-            @Override
-            public void actionPerformed(ActionEvent e) {
-
-                Transferable contents = Toolkit.getDefaultToolkit().getSystemClipboard().getContents(null);
-                try {
-                    String text = (String) contents.getTransferData(DataFlavor.stringFlavor);
-                    String xml = text.substring(maneuverPreamble.length());
-                    Document doc = DocumentHelper.parseText(xml);
-
-                    String maneuverType = doc.getRootElement().getName();
-                    Maneuver m = mf.getManeuver(maneuverType);
-                    if (m != null) {
-                        m.loadFromXML(xml);
-                        m.setId(getNewManeuverName(maneuverType));
-
-                        Vector<TransitionType> trans = plan.getGraph().getIncomingTransitions(man);
-
-                        if (trans.isEmpty()) {
-                            if (m instanceof LocatedManeuver) {
-                                ManeuverLocation originalPos = ((LocatedManeuver) m).getManeuverLocation().clone();
-                                LocationType pos = renderer.getRealWorldLocation(mousePoint);
-                                originalPos.setLatitudeRads(pos.getLatitudeRads());
-                                originalPos.setLongitudeRads(pos.getLongitudeRads());
-                                ((LocatedManeuver) m).setManeuverLocation(originalPos);
-                            }
-
-                            String initial = plan.getGraph().getInitialManeuverId();
-                            Vector<TransitionType> addedTransitions = new Vector<TransitionType>();
-                            plan.getGraph().addManeuver(m);
-
-                            if (initial != null)
-                                addedTransitions.add(plan.getGraph().addTransition(m.getId(), initial, defaultCondition));
-
-                            plan.getGraph().setInitialManeuver(m.getId());
-                            parsePlan();
-                            manager.addEdit(new ManeuverAdded(m, plan, addedTransitions, new Vector<TransitionType>()));
-
-                            selectedManeuver = m;
-                            getPropertiesPanel().setManeuver(m);
-                        }
-                        else {
-                            String currManID = trans.firstElement().getSourceManeuver();
-                            Maneuver nextMan = plan.getGraph().getFollowingManeuver(currManID);
-                            Maneuver previousMan = plan.getGraph().getManeuver(currManID);
-                            ManeuverLocation worldLoc = new ManeuverLocation(renderer.getCenter());
-                            HashSet<TransitionType> addedTransitions = new HashSet<TransitionType>();
-                            HashSet<TransitionType> removedTransitions = new HashSet<TransitionType>();
-
-                            if (previousMan instanceof LocatedManeuver
-                                    && nextMan instanceof LocatedManeuver) {
-                                ManeuverLocation loc1 = ((LocatedManeuver) previousMan).getManeuverLocation().clone();
-                                ManeuverLocation loc2 = ((LocatedManeuver) nextMan).getManeuverLocation().clone();
-
-                                double offsets[] = loc2.getOffsetFrom(loc1);
-
-                                loc1.translatePosition(offsets[0] / 2, offsets[1] / 2, 0);
-                                loc1.setDepth(loc1.getDepth());
-                                worldLoc.setLocation(loc1);
-                            }
-                            else {
-                                if (previousMan instanceof LocatedManeuver) {
-                                    LocationType loc1 = new LocationType(((LocatedManeuver) previousMan).getManeuverLocation());
-                                    loc1.translatePosition(0, 30, 0);
-                                    worldLoc.setLocation(loc1);
-                                }
-                                if (nextMan instanceof LocatedManeuver) {
-                                    LocationType loc1 = new LocationType(((LocatedManeuver) nextMan).getManeuverLocation());
-                                    loc1.translatePosition(0, -30, 0);
-                                    worldLoc.setLocation(loc1);
-                                }
-                            }
-
-                            if (m instanceof LocatedManeuver)
-                                ((LocatedManeuver) m).setManeuverLocation(worldLoc);
-
-                            plan.getGraph().addManeuver(m);
-
-                            if (plan.getGraph().getExitingTransitions(previousMan).size() != 0) {
-                                for (TransitionType exitingTrans : plan.getGraph().getExitingTransitions(previousMan)) {
-                                    removedTransitions.add(plan.getGraph().removeTransition(exitingTrans.getSourceManeuver(), exitingTrans.getTargetManeuver()));
-                                }
-                            }
-
-                            addedTransitions.add(plan.getGraph().addTransition(previousMan.getId(), m.getId(), defaultCondition));
-
-                            if (nextMan != null) {
-                                removedTransitions.add(plan.getGraph().removeTransition(previousMan.getId(), nextMan.getId()));
-                                addedTransitions.add(plan.getGraph().addTransition(m.getId(), nextMan.getId(), defaultCondition));
-                            }
-
-                            parsePlan();
-
-                            manager.addEdit(new ManeuverAdded(m, plan, addedTransitions, removedTransitions));
-                            getPropertiesPanel().setManeuver(m);
-
-                        }
-                    }
-                }
-                catch (Exception ex) {
-                    GuiUtils.errorMessage(getConsole(), ex);
-                }
-            }
-        };
-        paste.putValue(AbstractAction.SMALL_ICON, new ImageIcon(ImageUtils.getImage("images/menus/editpaste.png")));
-        paste.setEnabled(enabled);
-        return paste;
-    }
-
     private String xml = null;
 
     @Override
@@ -1532,35 +1396,13 @@ public class PlanEditor extends InteractionAdapter implements Renderer2DPainter,
     }
 
     protected AbstractAction getPasteAction(final Point mousePoint) {
-        Transferable contents = null;
-        try {
-            contents = Toolkit.getDefaultToolkit().getSystemClipboard().getContents(null);
-        }
-        catch (Exception e1) {
-            NeptusLog.pub().warn(e1);
-        }
+        boolean enabled = isClipboardTextAManeuver();
         
-        boolean enabled = false;
-
-        boolean hasTransferableText = (contents != null) && contents.isDataFlavorSupported(DataFlavor.stringFlavor);
-
-        if (hasTransferableText) {
-            try {
-                String text = (String) contents.getTransferData(DataFlavor.stringFlavor);
-                if (text.startsWith(maneuverPreamble))
-                    enabled = true;
-            }
-            catch (Exception e) {
-                NeptusLog.pub().error(e);
-            }
-        }
         AbstractAction paste = new AbstractAction(I18n.text("Paste maneuver from clipboard")) {
-
             private static final long serialVersionUID = 1L;
 
             @Override
             public void actionPerformed(ActionEvent e) {
-
                 Transferable contents = Toolkit.getDefaultToolkit().getSystemClipboard().getContents(null);
                 try {
                     String text = (String) contents.getTransferData(DataFlavor.stringFlavor);
@@ -1601,9 +1443,153 @@ public class PlanEditor extends InteractionAdapter implements Renderer2DPainter,
                 }
             }
         };
+        
         paste.putValue(AbstractAction.SMALL_ICON, new ImageIcon(ImageUtils.getImage("images/menus/editpaste.png")));
         paste.setEnabled(enabled);
         return paste;
+    }
+
+    private AbstractAction getPasteBeforeAction(Point mousePoint, Maneuver man) {
+        boolean enabled = isClipboardTextAManeuver();
+        
+        AbstractAction paste = new AbstractAction(I18n.textf("Paste maneuver from clipboard before %man", man.getId())) {
+            private static final long serialVersionUID = 1L;
+
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                Transferable contents = Toolkit.getDefaultToolkit().getSystemClipboard().getContents(null);
+                try {
+                    String text = (String) contents.getTransferData(DataFlavor.stringFlavor);
+                    String xml = text.substring(maneuverPreamble.length());
+                    Document doc = DocumentHelper.parseText(xml);
+
+                    String maneuverType = doc.getRootElement().getName();
+                    Maneuver m = mf.getManeuver(maneuverType);
+                    if (m != null) {
+                        m.loadFromXML(xml);
+                        m.setId(getNewManeuverName(maneuverType));
+
+                        Vector<TransitionType> trans = plan.getGraph().getIncomingTransitions(man);
+
+                        if (trans.isEmpty()) {
+                            if (m instanceof LocatedManeuver) {
+                                ManeuverLocation originalPos = ((LocatedManeuver) m).getManeuverLocation().clone();
+                                LocationType pos = renderer.getRealWorldLocation(mousePoint);
+                                originalPos.setLatitudeRads(pos.getLatitudeRads());
+                                originalPos.setLongitudeRads(pos.getLongitudeRads());
+                                ((LocatedManeuver) m).setManeuverLocation(originalPos);
+                            }
+
+                            String initial = plan.getGraph().getInitialManeuverId();
+                            Vector<TransitionType> addedTransitions = new Vector<TransitionType>();
+                            plan.getGraph().addManeuver(m);
+
+                            if (initial != null)
+                                addedTransitions.add(plan.getGraph().addTransition(m.getId(), initial, defaultCondition));
+
+                            plan.getGraph().setInitialManeuver(m.getId());
+                            parsePlan();
+                            manager.addEdit(new ManeuverAdded(m, plan, addedTransitions, new Vector<TransitionType>()));
+
+                            selectedManeuver = m;
+                            getPropertiesPanel().setManeuver(m);
+                        }
+                        else {
+                            String currManID = trans.firstElement().getSourceManeuver();
+                            Maneuver nextMan = plan.getGraph().getFollowingManeuver(currManID);
+                            Maneuver previousMan = plan.getGraph().getManeuver(currManID);
+                            HashSet<TransitionType> addedTransitions = new HashSet<TransitionType>();
+                            HashSet<TransitionType> removedTransitions = new HashSet<TransitionType>();
+
+                            ManeuverLocation worldLoc = new ManeuverLocation(renderer.getCenter());
+                                
+                            if (previousMan instanceof LocatedManeuver
+                                    && nextMan instanceof LocatedManeuver) {
+                                ManeuverLocation loc1 = ((LocatedManeuver) previousMan).getManeuverLocation().clone();
+                                ManeuverLocation loc2 = ((LocatedManeuver) nextMan).getManeuverLocation().clone();
+
+                                double offsets[] = loc2.getOffsetFrom(loc1);
+
+                                loc1.translatePosition(offsets[0] / 2, offsets[1] / 2, 0);
+                                loc1.setDepth(loc1.getDepth());
+                                worldLoc.setLocation(loc1);
+                            }
+                            else {
+                                if (previousMan instanceof LocatedManeuver) {
+                                    LocationType loc1 = new LocationType(((LocatedManeuver) previousMan).getManeuverLocation());
+                                    loc1.translatePosition(0, 30, 0);
+                                    worldLoc.setLocation(loc1);
+                                }
+                                if (nextMan instanceof LocatedManeuver) {
+                                    LocationType loc1 = new LocationType(((LocatedManeuver) nextMan).getManeuverLocation());
+                                    loc1.translatePosition(0, -30, 0);
+                                    worldLoc.setLocation(loc1);
+                                }
+                            }
+
+                            if (m instanceof LocatedManeuver)
+                                ((LocatedManeuver) m).setManeuverLocation(worldLoc);
+
+                            plan.getGraph().addManeuver(m);
+
+                            if (plan.getGraph().getExitingTransitions(previousMan).size() != 0) {
+                                for (TransitionType exitingTrans : plan.getGraph().getExitingTransitions(previousMan)) {
+                                    removedTransitions.add(plan.getGraph().removeTransition(exitingTrans.getSourceManeuver(), exitingTrans.getTargetManeuver()));
+                                }
+                            }
+
+                            addedTransitions.add(plan.getGraph().addTransition(previousMan.getId(), m.getId(), defaultCondition));
+
+                            if (nextMan != null) {
+                                removedTransitions.add(plan.getGraph().removeTransition(previousMan.getId(), nextMan.getId()));
+                                addedTransitions.add(plan.getGraph().addTransition(m.getId(), nextMan.getId(), defaultCondition));
+                            }
+
+                            parsePlan();
+
+                            manager.addEdit(new ManeuverAdded(m, plan, addedTransitions, removedTransitions));
+                            getPropertiesPanel().setManeuver(m);
+
+                        }
+                    }
+                }
+                catch (Exception ex) {
+                    GuiUtils.errorMessage(getConsole(), ex);
+                }
+            }
+        };
+        paste.putValue(AbstractAction.SMALL_ICON, new ImageIcon(ImageUtils.getImage("images/menus/editpaste.png")));
+        paste.setEnabled(enabled);
+        return paste;
+    }
+
+    /**
+     * @return
+     */
+    private boolean isClipboardTextAManeuver() {
+        Transferable contents = null;
+        try {
+            contents = Toolkit.getDefaultToolkit().getSystemClipboard().getContents(null);
+        }
+        catch (Exception e1) {
+            NeptusLog.pub().warn(e1);
+        }
+        
+        boolean enabled = false;
+
+        boolean hasTransferableText = (contents != null) && contents.isDataFlavorSupported(DataFlavor.stringFlavor);
+
+        if (hasTransferableText) {
+            try {
+                String text = (String) contents.getTransferData(DataFlavor.stringFlavor);
+                if (text.startsWith(maneuverPreamble))
+                    enabled = true;
+            }
+            catch (Exception e) {
+                NeptusLog.pub().error(e);
+            }
+        }
+        return enabled;
     }
 
     @Override
