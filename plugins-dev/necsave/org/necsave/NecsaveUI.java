@@ -138,6 +138,9 @@ public class NecsaveUI extends ConsoleLayer {
     @NeptusProperty(description="RFU - Safe Range in meters between vehicles in a formation mission")
     public double safeDistance = 25;
 
+    @NeptusProperty(description = "Paint formation lines between vehicles on a formation")
+    public boolean paintFormation = true;
+
     private NecsaveTransport transport = null;
     private LinkedHashMap<Integer, String> platformNames = new LinkedHashMap<>();
     private LinkedHashMap<Integer, PlatformPlanProgress> planProgresses = new LinkedHashMap<>();
@@ -836,7 +839,8 @@ public class NecsaveUI extends ConsoleLayer {
         g.translate(-10, -10);
         paintPlan(g, renderer);
 
-        paintFormation(g, renderer);
+        if (paintFormation)
+            paintFormation(g, renderer);
     }
     
     private void paintPlan(Graphics2D g, StateRenderer2D source) {
