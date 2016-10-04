@@ -407,6 +407,9 @@ public class LsfReport {
 
             r2d.setSize(width - 100, height - 100);
             r2d.focusLocation(path.getCenterPoint());
+            
+            r2d.setLevelOfDetail(16); // FIXME
+            
             SwingUtilities.invokeAndWait(new Runnable() {
                 @Override
                 public void run() {
