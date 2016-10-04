@@ -110,7 +110,11 @@ public class AttitudeReplayPanel extends JPanel implements LogReplayPanel {
             revalidate();
         }
         sidePanels.get(id).setPitch(message.getFloat("theta"));
-        sidePanels.get(id).setDepth(message.getFloat("depth"));
+        if (message.getFloat("depth") != -1)
+            sidePanels.get(id).setDepth(message.getFloat("depth"));
+        else
+            sidePanels.get(id).setDepth(-message.getFloat("height") + message.getFloat("z"));
+        
         backPanels.get(id).setRoll(message.getFloat("phi"));
         repaint();
     }
