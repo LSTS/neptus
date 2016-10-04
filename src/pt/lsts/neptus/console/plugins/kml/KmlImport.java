@@ -22,7 +22,7 @@
  * distributed on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF
  * ANY KIND, either express or implied. See the Licence for the specific
  * language governing permissions and limitations at
- * https://www.lsts.pt/neptus/licence.
+ * http://ec.europa.eu/idabc/eupl.html.
  *
  * For more information please see <http://lsts.fe.up.pt/neptus>.
  *
@@ -66,6 +66,7 @@ import de.micromata.opengis.kml.v_2_2_0.Polygon;
 import pt.lsts.neptus.console.ConsoleLayout;
 import pt.lsts.neptus.console.ConsolePanel;
 import pt.lsts.neptus.i18n.I18n;
+import pt.lsts.neptus.mp.Maneuver;
 import pt.lsts.neptus.mp.ManeuverLocation;
 import pt.lsts.neptus.mp.maneuvers.Goto;
 import pt.lsts.neptus.plugins.PluginDescription;
@@ -368,7 +369,7 @@ public class KmlImport extends ConsolePanel {
             mloc.setZ(0);
             
             maneuver.setSpeed(1.3);
-            maneuver.setSpeedUnits("m/s");
+            maneuver.setSpeedUnits(Maneuver.SPEED_UNITS.METERS_PS);
             maneuver.setManeuverLocation(mloc);
             plan.getGraph().addManeuverAtEnd(maneuver);
         }

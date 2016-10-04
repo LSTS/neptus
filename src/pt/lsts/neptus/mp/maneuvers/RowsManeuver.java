@@ -22,7 +22,7 @@
  * distributed on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF
  * ANY KIND, either express or implied. See the Licence for the specific
  * language governing permissions and limitations at
- * https://www.lsts.pt/neptus/licence.
+ * http://ec.europa.eu/idabc/eupl.html.
  *
  * For more information please see <http://lsts.fe.up.pt/neptus>.
  *
@@ -61,8 +61,6 @@ import pt.lsts.imc.Rows;
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.gui.PropertiesEditor;
 import pt.lsts.neptus.gui.ToolbarSwitch;
-import pt.lsts.neptus.gui.editor.SpeedUnitsEditor;
-import pt.lsts.neptus.gui.editor.renderer.I18nCellRenderer;
 import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.mp.Maneuver;
 import pt.lsts.neptus.mp.ManeuverLocation;
@@ -81,10 +79,8 @@ import pt.lsts.neptus.util.MathMiscUtils;
  * @author zp
  * @author pdias
  */
-public class RowsManeuver extends Maneuver implements LocatedManeuver, StateRendererInteraction,
+public class RowsManeuver extends Maneuver implements LocatedManeuver, ManeuverWithSpeed, StateRendererInteraction,
 IMCSerialization, StatisticsProvider, PathProvider {
-
-    private static final Color COLOR_HELP = new Color(255, 125, 255);
 
     static boolean unblockNewRows = false;
 
@@ -100,7 +96,7 @@ IMCSerialization, StatisticsProvider, PathProvider {
     protected float alternationPercentage = 1.0f;
     protected boolean squareCurve = true, firstCurveRight = true;
     protected boolean paintSSRangeShadow = true;
-    protected String speed_units = "RPM";
+    protected Maneuver.SPEED_UNITS speedUnits = SPEED_UNITS.RPM;
     protected ManeuverLocation.Z_UNITS zunits = ManeuverLocation.Z_UNITS.NONE;
 
     protected InteractionAdapter adapter = new InteractionAdapter(null);
@@ -109,8 +105,6 @@ IMCSerialization, StatisticsProvider, PathProvider {
     protected boolean editing = false;
 
     protected Vector<double[]> points = new Vector<double[]>();
-
-    protected static final int X = 0, Y = 1, Z = 2, T = 3;
 
     /**
      * 
@@ -155,7 +149,9 @@ IMCSerialization, StatisticsProvider, PathProvider {
             // Velocity
             Node speedNode = doc.selectSingleNode("//speed");
             speed = Double.parseDouble(speedNode.getText());
-            speed_units = speedNode.valueOf("@unit");
+//            speed_units = speedNode.valueOf("@unit");
+            SPEED_UNITS sUnits = ManeuversXMLUtil.parseSpeedUnits((Element) speedNode);
+            setSpeedUnits(sUnits);
 
             bearingRad = Math.toRadians(Double.parseDouble(doc.selectSingleNode("//bearing").getText()));
 
@@ -243,7 +239,7 @@ IMCSerialization, StatisticsProvider, PathProvider {
         clone.hstep = hstep;        
         clone.length = length;
         clone.speed = speed;
-        clone.speed_units = speed_units;
+        clone.speedUnits = speedUnits;
         clone.width = width;
 
         clone.alternationPercentage = alternationPercentage;
@@ -294,7 +290,7 @@ IMCSerialization, StatisticsProvider, PathProvider {
 
         //speed
         Element speedElem = root.addElement("speed");        
-        speedElem.addAttribute("unit", speed_units);
+        speedElem.addAttribute("unit", speedUnits.getString());
         speedElem.setText(""+speed);
 
         if (!paintSSRangeShadow) {
@@ -644,7 +640,7 @@ IMCSerialization, StatisticsProvider, PathProvider {
 
         g2d.rotate(-Math.PI/2);
         //        recalcPoints();
-        ManeuversUtil.paintBox(g2d, zoom, width, length, 0, 0, bearingRad, crossAngleRadians, !firstCurveRight, editing);
+        ManeuversUtil.paintBox(g2d, zoom, width, length, 0, 0, bearingRad, crossAngleRadians, false, !firstCurveRight, editing);
         ManeuversUtil.paintPointLineList(g2d, zoom, points, paintSSRangeShadow, ssRangeShadow, editing);
         //        ManeuversUtil.paintBox(g2d, zoom, width, width, -width/2, -width/2, bearingRad, crossAngleRadians);
         //        ManeuversUtil.paintBox(g2d, zoom, width, width, -width/2, -width/2, bearingRad+Math.toRadians(-60), crossAngleRadians);
@@ -684,16 +680,23 @@ IMCSerialization, StatisticsProvider, PathProvider {
         man.setCustom(getCustomSettings());
         man.setFlags((short) ((squareCurve ? Rows.FLG_SQUARE_CURVE : 0) + (firstCurveRight ? Rows.FLG_CURVE_RIGHT : 0)));
 
-        String speedU = this.getUnits();
-        if ("m/s".equalsIgnoreCase(speedU))
-            man.setSpeedUnits(pt.lsts.imc.Rows.SPEED_UNITS.METERS_PS);
-        else if ("RPM".equalsIgnoreCase(speedU))
-            man.setSpeedUnits(pt.lsts.imc.Rows.SPEED_UNITS.RPM);
-        else if ("%".equalsIgnoreCase(speedU))
-            man.setSpeedUnits(pt.lsts.imc.Rows.SPEED_UNITS.PERCENTAGE);
-        else if ("percentage".equalsIgnoreCase(speedU))
-            man.setSpeedUnits(pt.lsts.imc.Rows.SPEED_UNITS.PERCENTAGE);
-
+        try {
+            switch (this.getSpeedUnits()) {
+                case METERS_PS:
+                    man.setSpeedUnits(pt.lsts.imc.Rows.SPEED_UNITS.METERS_PS);
+                    break;
+                case PERCENTAGE:
+                    man.setSpeedUnits(pt.lsts.imc.Rows.SPEED_UNITS.PERCENTAGE);
+                    break;
+                case RPM:
+                default:
+                    man.setSpeedUnits(pt.lsts.imc.Rows.SPEED_UNITS.RPM);
+                    break;
+            }
+        }
+        catch (Exception ex) {
+            NeptusLog.pub().error(this, ex);                     
+        }
         return man;
     }
 
@@ -720,16 +723,13 @@ IMCSerialization, StatisticsProvider, PathProvider {
         bearingRad = man.getBearing();
         hstep = man.getHstep();
 
-        switch (man.getSpeedUnits()) {
-            case METERS_PS:
-                speed_units = "m/s";
-                break;
-            case RPM:
-                speed_units = "RPM";
-                break;
-            default:
-                speed_units = "%";
-                break;
+        try {
+            String speedUnits = message.getString("speed_units");
+            setSpeedUnits(Maneuver.SPEED_UNITS.parse(speedUnits));
+        }
+        catch (Exception e) {
+            setSpeedUnits(Maneuver.SPEED_UNITS.RPM);
+            e.printStackTrace();
         }
         crossAngleRadians = man.getCrossAngle();
         curvOff = man.getCoff();
@@ -771,10 +771,10 @@ IMCSerialization, StatisticsProvider, PathProvider {
                 continue;
             }
 
-            if (p.getName().equalsIgnoreCase("Speed Units")) {
-                speed_units = (String)p.getValue();
-                continue;
-            }
+//            if (p.getName().equalsIgnoreCase("Speed Units")) {
+//                speed_units = (String)p.getValue();
+//                continue;
+//            }
 
             if (p.getName().equals("Bearing")) {
                 bearingRad = Math.toRadians((Double)p.getValue());
@@ -814,6 +814,11 @@ IMCSerialization, StatisticsProvider, PathProvider {
                 ssRangeShadow = (Short)p.getValue();
                 continue;
             }
+            
+            // Speed Units parse
+            SPEED_UNITS speedUnits = ManeuversUtil.getSpeedUnitsFromPropertyOrNullIfInvalidName(p);
+            if (speedUnits != null)
+                setSpeedUnits(speedUnits);
         }
         recalcPoints();
     }
@@ -850,11 +855,9 @@ IMCSerialization, StatisticsProvider, PathProvider {
         speed.setShortDescription("The vehicle's desired speed");
         props.add(speed);
 
-        DefaultProperty speedUnits = PropertiesEditor.getPropertyInstance("Speed Units", String.class, speed_units, true);
-        speedUnits.setShortDescription("The units to consider in the speed parameters");
-        PropertiesEditor.getPropertyEditorRegistry().registerEditor(speedUnits, new SpeedUnitsEditor());
-        PropertiesEditor.getPropertyRendererRegistry().registerRenderer(speedUnits, new I18nCellRenderer());
-        props.add(speedUnits);
+        DefaultProperty speedUnitsProp = PropertiesEditor.getPropertyInstance("Speed Units", Maneuver.SPEED_UNITS.class, speedUnits, true);
+        speedUnitsProp.setShortDescription("The units to consider in the speed parameters");
+        props.add(speedUnitsProp);
 
         DefaultProperty curvOffset = PropertiesEditor.getPropertyInstance("Curve Offset", Double.class, curvOff, true);
         curvOffset.setShortDescription("The extra length to use for the curve");       
@@ -890,12 +893,12 @@ IMCSerialization, StatisticsProvider, PathProvider {
         this.speed = speed;
     }
 
-    public String getUnits() {
-        return speed_units;
+    public SPEED_UNITS getSpeedUnits() {
+        return speedUnits;
     }
 
-    public void setSpeedUnits(String speed_units) {
-        this.speed_units = speed_units;
+    public void setSpeedUnits(SPEED_UNITS speedUnits) {
+        this.speedUnits = speedUnits;
     }
 
     /* (non-Javadoc)
@@ -905,10 +908,10 @@ IMCSerialization, StatisticsProvider, PathProvider {
     public double getCompletionTime(LocationType initialPosition) {
 
         double speed = this.speed;
-        if (this.speed_units.equalsIgnoreCase("RPM")) {
+        if (this.speedUnits == Maneuver.SPEED_UNITS.RPM) {
             speed = speed/769.230769231; //1.3 m/s for 1000 RPMs
         }
-        else if (this.speed_units.equalsIgnoreCase("%")) {
+        else if (this.speedUnits == Maneuver.SPEED_UNITS.PERCENTAGE) {
             speed = speed/76.923076923; //1.3 m/s for 100% speed
         }
 
@@ -968,7 +971,7 @@ IMCSerialization, StatisticsProvider, PathProvider {
         I18n.text("hstep") + ": <b>"+nf.format(hstep)+" " + I18n.textc("m", "meters") + "</b><br/>"+
         I18n.text("bearing") + ": <b>"+nf.format(Math.toDegrees(bearingRad))+" \u00B0</b><br/>"+
         I18n.text("cross angle") + ": <b>"+nf.format(Math.toDegrees(crossAngleRadians))+" \u00B0</b><br/>"+
-        I18n.text("speed") + ": <b>"+nf.format(getSpeed())+" "+getUnits()+"</b><br/>"+
+        I18n.text("speed") + ": <b>"+nf.format(getSpeed())+" "+getSpeedUnits()+"</b><br/>"+
         I18n.text("distance") + ": <b>"+MathMiscUtils.parseToEngineeringNotation(getDistanceTravelled((LocationType)getStartLocation()), 2)+I18n.textc("m", "meters") + "</b><br/>"+
         (paintSSRangeShadow ? I18n.textc("ss range", "sidescan range") + ": <b>"+(short)(ssRangeShadow)+" " + I18n.textc("m", "meters") + "</b><br/>" : "") +
         "<br>" + I18n.text("depth") + ": <b>"+nf.format(z)+" " + I18n.textc("m", "meters") + "</b>";    }

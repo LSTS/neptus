@@ -22,7 +22,7 @@
  * distributed on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF
  * ANY KIND, either express or implied. See the Licence for the specific
  * language governing permissions and limitations at
- * https://www.lsts.pt/neptus/licence.
+ * http://ec.europa.eu/idabc/eupl.html.
  *
  * For more information please see <http://lsts.fe.up.pt/neptus>.
  *
@@ -33,6 +33,7 @@ package pt.lsts.neptus.console.plugins;
 
 import java.awt.BasicStroke;
 import java.awt.Color;
+import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Image;
@@ -96,7 +97,8 @@ public class SideVehiclePanel extends JPanel {
 
     @Override
     public void paint(Graphics arg0) {
-
+        //setBackground(Color.white);
+        //setOpaque(true);
         super.paint(arg0);
         update(arg0);
 
@@ -173,6 +175,13 @@ public class SideVehiclePanel extends JPanel {
 
             g.draw(new Line2D.Double(0, getHeight() / 2, getWidth(), getHeight() / 2));
             g2.drawImage(bi, 0, 0, this);
+            
+            g2.setFont(new Font("Helvetica", Font.BOLD, 14));
+            g2.setColor(Color.BLACK);
+            if (depth > 0)
+                g2.drawString(String.format("D: %.2f", depth), 10, 15);
+            else
+                g2.drawString(String.format("A: %.2f", -depth), 10, 15);
     }
 
     public void drawImage(Graphics2D g, Image img, int imgx, int imgy, int x, int y, int w, int h) {

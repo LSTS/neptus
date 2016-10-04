@@ -22,7 +22,7 @@
  * distributed on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF
  * ANY KIND, either express or implied. See the Licence for the specific
  * language governing permissions and limitations at
- * https://www.lsts.pt/neptus/licence.
+ * http://ec.europa.eu/idabc/eupl.html.
  *
  * For more information please see <http://lsts.fe.up.pt/neptus>.
  *
@@ -86,6 +86,8 @@ import pt.lsts.neptus.util.NameNormalizer;
  */
 
 public abstract class Maneuver implements XmlOutputMethods, PropertiesProvider, Comparable<Maneuver> {
+    protected static final Color COLOR_HELP = new Color(255, 125, 255);
+    protected static final int X = 0, Y = 1, Z = 2, T = 3;
 
     public enum Z_UNITS {
         NONE(0, "None"), DEPTH(1, "Depth"), ALTITUDE(2, "Altitude"), HEIGHT(3, "Height (WGS84)");
@@ -108,7 +110,7 @@ public abstract class Maneuver implements XmlOutputMethods, PropertiesProvider, 
     }
 
     public enum SPEED_UNITS {
-        METERS_PS(0, "Meters per second"), RPM(1, "RPM"), PERCENTAGE(2, "Percentage");
+        METERS_PS(0, "m/s"), RPM(1, "RPM"), PERCENTAGE(2, "%");
 
         private int value;
         private String name;
@@ -124,6 +126,19 @@ public abstract class Maneuver implements XmlOutputMethods, PropertiesProvider, 
 
         public String getString() {
             return name;
+        }
+        
+        public static SPEED_UNITS parse(String str) {
+            try {
+                return SPEED_UNITS.valueOf(str);
+            }
+            catch (IllegalArgumentException e) {
+                for (SPEED_UNITS vs : values()) {
+                    if (vs.getString().equalsIgnoreCase(str))
+                        return vs;
+                }
+                throw e;
+            }
         }
     }
 
@@ -500,9 +515,22 @@ public abstract class Maneuver implements XmlOutputMethods, PropertiesProvider, 
     }
 
     /**
-     * A maneuver must have a way to clone itself.
+     * Clone this maneuver
      */
-    public abstract Object clone();
+    public Object clone() {
+        Maneuver m;
+        try {
+            m = getClass().newInstance();
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
+        clone(m);
+        m.loadFromXML(getManeuverXml());
+        return m;
+    }
+    
 
     public Object clone(Maneuver clone) {
         clone.setMaxTime(getMaxTime());
@@ -521,12 +549,6 @@ public abstract class Maneuver implements XmlOutputMethods, PropertiesProvider, 
         clone.endActions.load(endActions.asElement("end-actions"));
         return clone;
     }
-
-    /**
-     * The mission preview will call this function every second to refresh the vehicle state. <br>
-     * Implement this function to show how this maneuver is performed by the vehicle.
-     */
-    //public abstract SystemPositionAndAttitude ManeuverFunction(SystemPositionAndAttitude lastVehicleState);
 
     /**
      * When the maneuver has ended, this function must be called to end the iteration

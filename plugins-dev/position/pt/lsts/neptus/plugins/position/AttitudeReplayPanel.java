@@ -22,7 +22,7 @@
  * distributed on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF
  * ANY KIND, either express or implied. See the Licence for the specific
  * language governing permissions and limitations at
- * https://www.lsts.pt/neptus/licence.
+ * http://ec.europa.eu/idabc/eupl.html.
  *
  * For more information please see <http://lsts.fe.up.pt/neptus>.
  *
@@ -110,7 +110,11 @@ public class AttitudeReplayPanel extends JPanel implements LogReplayPanel {
             revalidate();
         }
         sidePanels.get(id).setPitch(message.getFloat("theta"));
-        sidePanels.get(id).setDepth(message.getFloat("depth"));
+        if (message.getFloat("depth") != -1)
+            sidePanels.get(id).setDepth(message.getFloat("depth"));
+        else
+            sidePanels.get(id).setDepth(-message.getFloat("height") + message.getFloat("z"));
+        
         backPanels.get(id).setRoll(message.getFloat("phi"));
         repaint();
     }

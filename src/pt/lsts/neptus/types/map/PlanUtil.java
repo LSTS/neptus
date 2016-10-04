@@ -22,7 +22,7 @@
  * distributed on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF
  * ANY KIND, either express or implied. See the Licence for the specific
  * language governing permissions and limitations at
- * https://www.lsts.pt/neptus/licence.
+ * http://ec.europa.eu/idabc/eupl.html.
  *
  * For more information please see <http://lsts.fe.up.pt/neptus>.
  *
@@ -32,7 +32,7 @@
 package pt.lsts.neptus.types.map;
 
 import java.text.NumberFormat;
-import java.util.Collection;
+import java.util.ArrayList;
 import java.util.Vector;
 
 import javax.swing.JLabel;
@@ -45,6 +45,7 @@ import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.gui.PropertiesEditor;
 import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.mp.Maneuver;
+import pt.lsts.neptus.mp.Maneuver.SPEED_UNITS;
 import pt.lsts.neptus.mp.ManeuverLocation;
 import pt.lsts.neptus.mp.SystemPositionAndAttitude;
 import pt.lsts.neptus.mp.maneuvers.LocatedManeuver;
@@ -95,7 +96,7 @@ public class PlanUtil {
      * @param speedMps The speed to be set to all maneuvers (that accept a speed parameter) in meters per second
      */
     public static void setPlanSpeed(PlanType plan, double speedMps) {
-        DefaultProperty units = PropertiesEditor.getPropertyInstance("Speed units", String.class, "m/s", true);
+        DefaultProperty units = PropertiesEditor.getPropertyInstance("Speed units", Maneuver.SPEED_UNITS.class, Maneuver.SPEED_UNITS.METERS_PS, true);
         units.setDisplayName(I18n.text("Speed units"));
         units.setShortDescription(I18n.text("The speed units"));
         
@@ -103,8 +104,14 @@ public class PlanUtil {
         propertySpeed.setDisplayName(I18n.text("Speed"));
         Property[] props = new Property[] {units, propertySpeed};
         
-        for (Maneuver man : plan.getGraph().getAllManeuvers())
-            man.setProperties(props);
+        for (Maneuver man : plan.getGraph().getAllManeuvers()) {
+            try {
+                man.setProperties(props);
+            }
+            catch (Exception e) {
+                NeptusLog.pub().error(e, e);
+            }
+        }
     }
     
     /**
@@ -204,8 +211,8 @@ public class PlanUtil {
     }
     
     
-    public static Collection<ManeuverLocation> getPlanWaypoints(PlanType plan) {
-        Vector<ManeuverLocation> locs = new Vector<>();
+    public static ArrayList<ManeuverLocation> getPlanWaypoints(PlanType plan) {
+        ArrayList<ManeuverLocation> locs = new ArrayList<>();
         for (Maneuver m : plan.getGraph().getManeuversSequence()) {
             if (m instanceof LocatedManeuver)
                 locs.addAll(((LocatedManeuver) m).getWaypoints());
@@ -273,12 +280,12 @@ public class PlanUtil {
             else {
                 try {
                     double speed = (Double) m.getClass().getMethod("getSpeed").invoke(m);
-                    String units = (String) m.getClass().getMethod("getUnits").invoke(m);
-                    switch (units.toLowerCase()) {
-                        case "%":
+                    SPEED_UNITS units = (Maneuver.SPEED_UNITS) m.getClass().getMethod("getSpeedUnits").invoke(m);
+                    switch (units) {
+                        case PERCENTAGE:
                             speed = SpeedConversion.convertPercentageToMps(speed);
                             break;
-                        case "rpm":
+                        case RPM:
                             speed = SpeedConversion.convertRpmtoMps(speed);
                         default:
                             break;
@@ -319,10 +326,10 @@ public class PlanUtil {
             else {
                 try {
                     speed = (Double) m.getClass().getMethod("getSpeed").invoke(m);
-                    String units = (String) m.getClass().getMethod("getUnits").invoke(m);
-                    if (units.equalsIgnoreCase("%"))
+                    SPEED_UNITS units = (Maneuver.SPEED_UNITS) m.getClass().getMethod("getSpeedUnits").invoke(m);
+                    if (units == SPEED_UNITS.PERCENTAGE)
                         speed = speed/100 * speedRpmRatioSpeed;
-                    else if (units.equalsIgnoreCase("rpm"))
+                    else if (units == SPEED_UNITS.RPM)
                         speed = (speed / speedRpmRatioRpms) * speedRpmRatioSpeed;
                 }
                 catch (Exception e) {

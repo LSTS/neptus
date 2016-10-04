@@ -16,9 +16,9 @@
             <presentation-image-2D>../vehicles-files/lauv/lauv-seacon0-presentation.png</presentation-image-2D>
             <model-3D>../vehicles-files/lauv/lauv-xtreme-2.x3d</model-3D>
             <icon-color>
-                <r>128</r>
-                <g>64</g>
-                <b>64</b>
+                <r>255</r>
+                <g>51</g>
+                <b>153</b>
             </icon-color>
         </appearance>
         <coordinate-system-label>SNAME</coordinate-system-label>
@@ -294,6 +294,58 @@
                 </annotation>
             </CommsRelay>
         </maneuver>
+        <maneuver>
+            <RowsCoverage kind="automatic">
+              <basePoint>
+                <point>
+                  <id>id_omvbvr</id>
+                  <name>id_omvbvr</name>
+                  <coordinate>
+                    <latitude>0N0'0.00''</latitude>
+                    <longitude>0E0'0.00''</longitude>
+                    <height>0.0</height>
+                  </coordinate>
+                  <z>0</z>
+                  <zunits>DEPTH</zunits>
+                </point>
+              </basePoint>
+              <speed unit="m/s">1.0</speed>
+              <width>100.0</width>
+              <length>200.0</length>
+              <bearing>0.0</bearing>
+              <angleAperture>120.0</angleAperture>
+              <range>30</range>
+              <overlapPercentage>10</overlapPercentage>
+                <annotation>
+                    <documentation>No documentation available</documentation>
+                    <implementation-class>pt.lsts.neptus.mp.maneuvers.RowsCoverage</implementation-class>
+                </annotation>
+            </RowsCoverage>
+         </maneuver>
+         <maneuver>           
+            <FollowPoint kind="automatic">
+              <basePoint>
+                <point>
+                  <id>id_qnotbp</id>
+                  <name>id_qnotbp</name>
+                  <coordinate>
+                    <latitude>0N</latitude>
+                    <longitude>0E</longitude>
+                    <height>0.0</height>
+                  </coordinate>
+                  <z>0</z>
+                  <zunits>DEPTH</zunits>
+                </point>
+              </basePoint>
+              <speed unit="m/s">2.0</speed>
+              <idToFollow>lauv-noptilus-1</idToFollow>
+              <customData></customData>
+              <annotation>
+                    <documentation>No documentation available</documentation>
+                    <implementation-class>pt.lsts.neptus.mp.maneuvers.FollowPoint</implementation-class>
+                </annotation>
+            </FollowPoint>
+       </maneuver>
     </feasibleManeuvers>
     <protocols-supported>
         <protocols></protocols>

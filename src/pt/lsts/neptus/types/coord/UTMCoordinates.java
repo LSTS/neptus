@@ -22,7 +22,7 @@
  * distributed on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF
  * ANY KIND, either express or implied. See the Licence for the specific
  * language governing permissions and limitations at
- * https://www.lsts.pt/neptus/licence.
+ * http://ec.europa.eu/idabc/eupl.html.
  *
  * For more information please see <http://lsts.fe.up.pt/neptus>.
  *
@@ -93,7 +93,7 @@ public class UTMCoordinates {
         //hemisphere, this is the only time we use the letter So even
         //if the Zone letter isn't exactly correct it should indicate
         //the hemisphere correctly
-        if (zoneLetter == 'S') {
+        if (zoneLetter < 'N') {
             y -= 10000000.0d;//remove 10,000,000 meter offset used
                              // for southern hemisphere
         }

@@ -22,7 +22,7 @@
  * distributed on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF
  * ANY KIND, either express or implied. See the Licence for the specific
  * language governing permissions and limitations at
- * https://www.lsts.pt/neptus/licence.
+ * http://ec.europa.eu/idabc/eupl.html.
  *
  * For more information please see <http://lsts.fe.up.pt/neptus>.
  *
@@ -148,7 +148,9 @@ public class LogSliceExporter implements MRAExporter {
         
         for (int i = 0; i < index.getNumberOfMessages(); i++) {
             int type = index.typeOf(i);
-            availableMessages.add(index.getDefinitions().getMessageName(type));
+            String name = index.getDefinitions().getMessageName(type);
+            if (name != null)
+                availableMessages.add(name);
         }
         
         ArrayList<String> selectedMsgs = new ArrayList<>();

@@ -22,7 +22,7 @@
  * distributed on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF
  * ANY KIND, either express or implied. See the Licence for the specific
  * language governing permissions and limitations at
- * https://www.lsts.pt/neptus/licence.
+ * http://ec.europa.eu/idabc/eupl.html.
  *
  * For more information please see <http://lsts.fe.up.pt/neptus>.
  *
@@ -278,7 +278,12 @@ public class FunctionalitiesSettings extends JPanel {
             printErrors(errors);
         }
         else {
-            provider.setProperties(beforeProps);
+            try {
+                provider.setProperties(beforeProps);
+            }
+            catch (Exception e) {
+                NeptusLog.pub().error(e, e);
+            }
         }
     }
 

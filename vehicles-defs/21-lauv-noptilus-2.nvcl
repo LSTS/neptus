@@ -17,8 +17,8 @@
             <model-3D>../vehicles-files/lauv/lauv-xtreme-2.x3d</model-3D>
             <icon-color>
                 <r>255</r>
-                <g>32</g>
-                <b>32</b>
+                <g>153</g>
+                <b>51</b>
             </icon-color>
         </appearance>
         <coordinate-system-label>SNAME</coordinate-system-label>

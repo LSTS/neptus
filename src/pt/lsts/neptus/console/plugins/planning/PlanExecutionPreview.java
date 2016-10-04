@@ -22,7 +22,7 @@
  * distributed on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF
  * ANY KIND, either express or implied. See the Licence for the specific
  * language governing permissions and limitations at
- * https://www.lsts.pt/neptus/licence.
+ * http://ec.europa.eu/idabc/eupl.html.
  *
  * For more information please see <http://lsts.fe.up.pt/neptus>.
  *
@@ -52,7 +52,6 @@ import pt.lsts.neptus.comm.manager.imc.ImcMsgManager;
 import pt.lsts.neptus.console.ConsoleLayout;
 import pt.lsts.neptus.console.ConsolePanel;
 import pt.lsts.neptus.console.events.ConsoleEventPositionEstimation;
-import pt.lsts.neptus.console.plugins.MissionChangeListener;
 import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.mp.SystemPositionAndAttitude;
 import pt.lsts.neptus.mp.preview.PlanSimulationOverlay;
@@ -63,7 +62,6 @@ import pt.lsts.neptus.plugins.PluginDescription;
 import pt.lsts.neptus.renderer2d.LayerPriority;
 import pt.lsts.neptus.renderer2d.Renderer2DPainter;
 import pt.lsts.neptus.renderer2d.StateRenderer2D;
-import pt.lsts.neptus.types.mission.MissionType;
 import pt.lsts.neptus.types.mission.plan.PlanType;
 import pt.lsts.neptus.types.vehicle.VehicleType;
 import pt.lsts.neptus.types.vehicle.VehiclesHolder;
@@ -75,7 +73,7 @@ import pt.lsts.neptus.util.GuiUtils;
  */
 @PluginDescription(name = "Plan Simulation Preview", author = "zp", icon="images/planning/robot.png")
 @LayerPriority(priority = 60)
-public class PlanExecutionPreview extends ConsolePanel implements Renderer2DPainter, ConfigurationListener, MissionChangeListener {
+public class PlanExecutionPreview extends ConsolePanel implements Renderer2DPainter, ConfigurationListener {
 
     private static final long serialVersionUID = 1L;
 
@@ -97,6 +95,7 @@ public class PlanExecutionPreview extends ConsolePanel implements Renderer2DPain
 
     protected PlanSimulator mainSimulator = null;
     protected boolean forceSimVisualization = false;
+    protected long lastEstimateTime = 0;
 
     @NeptusProperty(name = "Active")
     public boolean activated = true;
@@ -187,8 +186,6 @@ public class PlanExecutionPreview extends ConsolePanel implements Renderer2DPain
         }
     }
 
-    protected long lastEstimateTime = 0;
-
     @Subscribe
     public void consume(ConsoleEventPositionEstimation estimate) {
         lastEstimateTime = System.currentTimeMillis();
@@ -206,7 +203,6 @@ public class PlanExecutionPreview extends ConsolePanel implements Renderer2DPain
     }
 
     protected void stopSimulator() {
-
         for (PlanSimulator s : simulators.values())
             s.stopSimulation();
 
@@ -214,16 +210,6 @@ public class PlanExecutionPreview extends ConsolePanel implements Renderer2DPain
         mainSimulator = null;
     }
     
-    @Override
-    public void missionReplaced(MissionType mission) {
-        stopSimulator();
-    }
-    
-    @Override
-    public void missionUpdated(MissionType mission) {
-        stopSimulator();        
-    }
-
     @Override
     public void cleanSubPanel() {
         stopSimulator();
@@ -295,7 +281,6 @@ public class PlanExecutionPreview extends ConsolePanel implements Renderer2DPain
                     simulator.setManId(msg.getManId());
             }
             catch (Exception e) {
-//                e.printStackTrace();
                 NeptusLog.pub().error(e);
             }
         }
@@ -367,8 +352,6 @@ public class PlanExecutionPreview extends ConsolePanel implements Renderer2DPain
                 ypos += 15;
             }
         }
-
-
     }
 
     @Override
@@ -389,7 +372,6 @@ public class PlanExecutionPreview extends ConsolePanel implements Renderer2DPain
 
     @Override
     public void initSubPanel() {
-
     }
 
     public int getLayerPriority() {

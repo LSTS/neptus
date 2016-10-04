@@ -22,7 +22,7 @@
  * distributed on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF
  * ANY KIND, either express or implied. See the Licence for the specific
  * language governing permissions and limitations at
- * https://www.lsts.pt/neptus/licence.
+ * http://ec.europa.eu/idabc/eupl.html.
  *
  * For more information please see <http://lsts.fe.up.pt/neptus>.
  *
@@ -551,8 +551,8 @@ public class ImageObjectParameters extends ParametersPanel {
 		getMaxDepthFormattedTextField().setText(Double.toString(val));
 	}
 
-	public int getResolution() {
-		return Integer.parseInt(getResolutionFormattedTextField().getText());
+	public double getResolution() {
+		return Double.parseDouble(getResolutionFormattedTextField().getText());
 	}
 	
 	public void setResolution(double val) {

@@ -22,7 +22,7 @@
  * distributed on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF
  * ANY KIND, either express or implied. See the Licence for the specific
  * language governing permissions and limitations at
- * https://www.lsts.pt/neptus/licence.
+ * http://ec.europa.eu/idabc/eupl.html.
  *
  * For more information please see <http://lsts.fe.up.pt/neptus>.
  *
@@ -31,13 +31,20 @@
  */
 package org.necsave;
 
+import java.io.ByteArrayInputStream;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.TimeZone;
 import java.util.Vector;
+import java.util.zip.Inflater;
 
+import com.google.common.io.LittleEndianDataInputStream;
+
+import info.necsave.msgs.CompressedMsg;
 import info.necsave.msgs.PlatformInfo;
+import info.necsave.msgs.Header.MEDIUM;
 import info.necsave.proto.Message;
+import info.necsave.proto.ProtoDefinition;
 
 /**
  * @author zp
@@ -92,8 +99,26 @@ public class NMPUtilities {
         return ret+"</table>";
     }
     
+    public static Message decompress(CompressedMsg msg) {
+        Inflater inflater = new Inflater();
+        inflater.setInput(msg.getPayload());
+        byte[] out = new byte[65535];
+        try {
+            int len = inflater.inflate(out);
+            Message decompressed = ProtoDefinition.getFactory().createMessage(msg.getMsgType(), ProtoDefinition.getInstance());
+            ProtoDefinition.getInstance().deserializeFields(decompressed, new LittleEndianDataInputStream(new ByteArrayInputStream(out, 0, len)));
+            return decompressed;
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+    
     public static void main(String[] args) {
         PlatformInfo pinfo = new PlatformInfo();
+        pinfo.setMedium(MEDIUM.ACOUSTIC);
+        System.out.println(pinfo.getHeader().getString("medium"));
         System.out.println(getAsHtml(pinfo));
     }
 }

@@ -22,7 +22,7 @@
  * distributed on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF
  * ANY KIND, either express or implied. See the Licence for the specific
  * language governing permissions and limitations at
- * https://www.lsts.pt/neptus/licence.
+ * http://ec.europa.eu/idabc/eupl.html.
  *
  * For more information please see <http://lsts.fe.up.pt/neptus>.
  *
@@ -38,7 +38,6 @@ import java.io.ByteArrayOutputStream;
 import java.security.MessageDigest;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.LinkedList;
 import java.util.Vector;
 
 import org.dom4j.Attribute;
@@ -68,7 +67,6 @@ import pt.lsts.neptus.mp.ManeuverLocation.Z_UNITS;
 import pt.lsts.neptus.mp.actions.PlanActions;
 import pt.lsts.neptus.mp.maneuvers.IMCSerialization;
 import pt.lsts.neptus.mp.maneuvers.LocatedManeuver;
-import pt.lsts.neptus.mp.maneuvers.PathProvider;
 import pt.lsts.neptus.mp.maneuvers.RowsManeuver;
 import pt.lsts.neptus.params.ManeuverPayloadConfig;
 import pt.lsts.neptus.renderer2d.StateRenderer2D;
@@ -870,24 +868,6 @@ public class PlanType implements XmlOutputMethods, PropertiesProvider, NameId {
             NeptusLog.pub().info("<###> "+Long.toHexString(Double.doubleToLongBits(latRad)));
 
         }
-    }
-    
-    public Vector<LocationType> planPath() {
-        Vector<LocationType> locations = new Vector<>();
-        LinkedList<Maneuver> mans = getGraph().getGraphAsManeuversList();
-
-        for (Maneuver man : mans) {
-
-            if (!(man instanceof LocatedManeuver))
-                continue;
-
-            LocationType destTo = ((LocatedManeuver) man).getManeuverLocation();                         
-            if (man instanceof PathProvider)
-                locations.addAll(((PathProvider) man).getPathLocations());
-            else
-                locations.add(destTo);
-        }        
-        return locations;
     }
     
     public boolean isCompatibleWith(VehicleType vehicle) {

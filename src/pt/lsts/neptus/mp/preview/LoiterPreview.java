@@ -22,7 +22,7 @@
  * distributed on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF
  * ANY KIND, either express or implied. See the Licence for the specific
  * language governing permissions and limitations at
- * https://www.lsts.pt/neptus/licence.
+ * http://ec.europa.eu/idabc/eupl.html.
  *
  * For more information please see <http://lsts.fe.up.pt/neptus>.
  *
@@ -33,6 +33,7 @@ package pt.lsts.neptus.mp.preview;
 
 import pt.lsts.neptus.mp.ManeuverLocation;
 import pt.lsts.neptus.mp.SystemPositionAndAttitude;
+import pt.lsts.neptus.mp.Maneuver.SPEED_UNITS;
 import pt.lsts.neptus.mp.maneuvers.Loiter;
 import pt.lsts.neptus.types.coord.LocationType;
 
@@ -67,9 +68,9 @@ public class LoiterPreview implements IManeuverPreview<Loiter> {
         duration = man.getLoiterDuration();
         speed = man.getSpeed();
 
-        if (man.getSpeedUnits().equals("RPM")) 
+        if (man.getSpeedUnits() == SPEED_UNITS.RPM) 
             speed = SpeedConversion.convertRpmtoMps(speed);
-        else if (man.getSpeedUnits().equals("%")) // convert to RPM and then to m/s
+        else if (man.getSpeedUnits() == SPEED_UNITS.PERCENTAGE) // convert to RPM and then to m/s
             speed = SpeedConversion.convertPercentageToMps(speed);
 
         speed = Math.min(speed, SpeedConversion.MAX_SPEED);

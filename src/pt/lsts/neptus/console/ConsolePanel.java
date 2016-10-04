@@ -22,7 +22,7 @@
  * distributed on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF
  * ANY KIND, either express or implied. See the Licence for the specific
  * language governing permissions and limitations at
- * https://www.lsts.pt/neptus/licence.
+ * http://ec.europa.eu/idabc/eupl.html.
  *
  * For more information please see <http://lsts.fe.up.pt/neptus>.
  *
@@ -329,6 +329,7 @@ public abstract class ConsolePanel extends JPanel implements PropertiesProvider,
                     + "  isVisible=" + ConsolePanel.this.isVisible() + "  isShowing=" + ConsolePanel.this.isShowing()
                     + "  isValid=" + ConsolePanel.this.isValid() + "  isDisplayable=" + ConsolePanel.this.isDisplayable()
                     + "  isEnabled=" + ConsolePanel.this.isEnabled()
+                    + "  dialog size=" + dialog.getSize()
                     + "  Parent: " + prt);
             if (prt == null || (!ConsolePanel.this.isShowing()
                     && !SwingUtilities.isDescendingFrom(ConsolePanel.this.getParent(), dialog)))
@@ -336,6 +337,10 @@ public abstract class ConsolePanel extends JPanel implements PropertiesProvider,
             
             if (SwingUtilities.isDescendingFrom(ConsolePanel.this.getParent(), dialog)) {
                 dialog.setVisible(!dialog.isVisible());
+                if (dialog.isVisible())
+                    popupShown();
+                else
+                    popupHidden();
                 setPopupPosition(popupPosition);
             }
         }
@@ -586,6 +591,14 @@ public abstract class ConsolePanel extends JPanel implements PropertiesProvider,
     }
 
     public abstract void initSubPanel();
+    
+    public void popupShown() {
+        // do nothing by default
+    }
+    
+    public void popupHidden() {
+        // do nothing by default
+    }
 
     public void parseXML(String str) {
         Document document = null;

@@ -22,7 +22,7 @@
  * distributed on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF
  * ANY KIND, either express or implied. See the Licence for the specific
  * language governing permissions and limitations at
- * https://www.lsts.pt/neptus/licence.
+ * http://ec.europa.eu/idabc/eupl.html.
  *
  * For more information please see <http://lsts.fe.up.pt/neptus>.
  *
@@ -31,6 +31,7 @@
  */
 package pt.lsts.neptus.plugins.position;
 
+import java.awt.Color;
 import java.awt.Toolkit;
 import java.awt.datatransfer.Clipboard;
 import java.awt.datatransfer.ClipboardOwner;
@@ -58,6 +59,7 @@ import com.google.common.eventbus.Subscribe;
 import pt.lsts.imc.CcuEvent;
 import pt.lsts.imc.CcuEvent.TYPE;
 import pt.lsts.imc.DevDataBinary;
+import pt.lsts.imc.IMCMessage;
 import pt.lsts.imc.MapFeature;
 import pt.lsts.imc.MapFeature.FEATURE_TYPE;
 import pt.lsts.imc.MapPoint;
@@ -85,6 +87,7 @@ import pt.lsts.neptus.types.map.AbstractElement;
 import pt.lsts.neptus.types.map.MapGroup;
 import pt.lsts.neptus.types.map.MapType;
 import pt.lsts.neptus.types.map.MarkElement;
+import pt.lsts.neptus.types.map.PathElement;
 import pt.lsts.neptus.types.mission.MapMission;
 import pt.lsts.neptus.types.mission.MissionType;
 import pt.lsts.neptus.types.vehicle.VehicleType;
@@ -329,6 +332,83 @@ SubPanelChangeListener, MainVehicleChangeListener {
 
         return menus;
     }
+    
+    private AbstractElement parseFeature(DevDataBinary msg) {
+        String xml = new String(msg.getValue());
+        
+        try {
+            Document doc = DocumentHelper.parseText(xml);
+            switch(doc.getRootElement().getName()) {
+                case "mark":
+                    MarkElement el = new MarkElement(xml);
+                    return el;
+                default:
+                    NeptusLog.pub().error(I18n.textf("Features of type %type are not supported.", 
+                                    doc.getRootElement().getName()));
+                    return null;
+            }
+        }
+        catch (DocumentException e) {
+            NeptusLog.pub().error(e);                   
+            return null;
+        }        
+    }
+    
+    private AbstractElement parseFeature(MapFeature msg) {
+        AbstractElement el = null;
+        
+        switch (msg.getFeatureType()) {
+            case FILLEDPOLY:
+            case LINE:
+            {
+                PathElement pel = new PathElement();
+                if (msg.getFeature().size() < 2) {
+                    NeptusLog.pub().error("Feature must have at least 2 points.");
+                    return null;
+                }
+                
+                for (MapPoint point : msg.getFeature())
+                    pel.addPoint(new LocationType(Math.toDegrees(point.getLat()), Math.toDegrees(point.getLon())));
+                
+                pel.setFilled(msg.getFeatureType() == FEATURE_TYPE.FILLEDPOLY);
+                pel.setMyColor(new Color(msg.getRgbRed(), msg.getRgbGreen(), msg.getRgbBlue()));
+                pel.setFinished(true);
+                el = pel;
+                
+            }
+                break;
+            case POI:
+                el = new MarkElement();
+                if (msg.getFeature().size() != 1) {
+                    NeptusLog.pub().error("POI features must have a single point.");
+                    return null;
+                }
+                MapPoint point = msg.getFeature().firstElement();
+                el.setCenterLocation(new LocationType(Math.toDegrees(point.getLat()), Math.toDegrees(point.getLon())));
+                
+                break;
+            default:
+                NeptusLog.pub().error("Unsupported feature type: "+msg.getFeatureTypeStr());
+                return null;
+        }
+        
+        el.setId(msg.getId());
+        
+        return el;
+
+    }
+        
+    private AbstractElement parseFeature(IMCMessage feature) {
+        switch (feature.getMgid()) {
+            case DevDataBinary.ID_STATIC:
+                return parseFeature((DevDataBinary)feature);
+            case MapFeature.ID_STATIC:
+                return parseFeature((MapFeature)feature);
+            default:
+                NeptusLog.pub().error("Unrecognized feature message: "+feature.getAbbrev());
+                return null;
+        }        
+    }
 
     @Subscribe
     public void on(CcuEvent ev) {
@@ -336,41 +416,27 @@ SubPanelChangeListener, MainVehicleChangeListener {
             int answer = GuiUtils.confirmDialog(getConsole(), I18n.text("Map Feature Added"), 
                     I18n.textf("Do you wish to add the feature '%featureId' disseminated by '%senderName' to the map?", 
                             ev.getId(), ev.getSourceName()));
+                        
             if (answer == JOptionPane.OK_OPTION) {
-                DevDataBinary data = (DevDataBinary)ev.getArg();
-                String xml = new String(data.getValue());
-
-                try {
-                    Document doc = DocumentHelper.parseText(xml);
-                    switch(doc.getRootElement().getName()) {
-                        case "mark":
-                            MarkElement el = new MarkElement(xml);
-                            
-                            MapGroup mg = MapGroup.getMapGroupInstance(getConsole().getMission());
-                            AbstractElement[] els = mg.getMapObjectsByID(el.getId());
-                            if (els.length != 0) {
-                                int resp = GuiUtils.confirmDialog(getConsole(), I18n.text("Add mark"), 
-                                        I18n.text("Existing map element will be updated. Proceed?"));
-                                if (resp == JOptionPane.OK_OPTION) {
-                                    els[0].setCenterLocation(el.getCenterLocation());
-                                }
-                            }
-                            else {
-                                MapType mapType = mg.getMaps()[0];// mapMission.getMap();
-                                mapType.addObject(el);
-                                getConsole().getMission().save(true);
-                                getConsole().warnMissionListeners();                                
-                            }
-                            break;
-                        default:
-                            GuiUtils.errorMessage(getConsole(), I18n.text("Add map feature"), 
-                                    I18n.textf("Features of type %type are not supported.", 
-                                            doc.getRootElement().getName()));
-                            break;
+                
+                AbstractElement el = parseFeature(ev.getArg());
+                if (el == null)
+                    return;
+                
+                MapGroup mg = MapGroup.getMapGroupInstance(getConsole().getMission());
+                AbstractElement[] els = mg.getMapObjectsByID(el.getId());
+                if (els.length != 0) {
+                    int resp = GuiUtils.confirmDialog(getConsole(), I18n.text("Add mark"), 
+                            I18n.text("Existing map element will be updated. Proceed?"));
+                    if (resp == JOptionPane.OK_OPTION) {
+                        els[0].setCenterLocation(el.getCenterLocation());
                     }
                 }
-                catch (DocumentException e) {
-                    NeptusLog.pub().error(e);                    
+                else {
+                    MapType mapType = mg.getMaps()[0];// mapMission.getMap();
+                    mapType.addObject(el);
+                    getConsole().getMission().save(true);
+                    getConsole().warnMissionListeners();                                
                 }
             }
         }

@@ -23,7 +23,7 @@ rem # law or agreed to in writing, software distributed under the Licence  is   
 rem # distributed on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF      #
 rem # ANY KIND, either express or implied. See the Licence for the specific     #
 rem # language governing permissions and limitations at                         #
-rem # https://www.lsts.pt/neptus/licence.                                       #
+rem # http://ec.europa.eu/idabc/eupl.html.                                       #
 rem #                                                                           #
 rem # For more information please see <http://lsts.fe.up.pt/neptus>.            #
 rem #############################################################################

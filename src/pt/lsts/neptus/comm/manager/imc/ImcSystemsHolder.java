@@ -22,7 +22,7 @@
  * distributed on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF
  * ANY KIND, either express or implied. See the Licence for the specific
  * language governing permissions and limitations at
- * https://www.lsts.pt/neptus/licence.
+ * http://ec.europa.eu/idabc/eupl.html.
  *
  * For more information please see <http://lsts.fe.up.pt/neptus>.
  *
@@ -31,8 +31,10 @@
  */
 package pt.lsts.neptus.comm.manager.imc;
 
+import java.util.Collections;
 import java.util.Hashtable;
 import java.util.LinkedList;
+import java.util.Map;
 
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.types.vehicle.VehicleType;
@@ -44,24 +46,28 @@ import pt.lsts.neptus.types.vehicle.VehicleType.SystemTypeEnum;
  */
 public class ImcSystemsHolder {
 	
-	private static Hashtable<ImcId16, ImcSystem> lookupTable = new Hashtable<ImcId16, ImcSystem>();
-	private static Hashtable<String, ImcSystem> namesTable = new Hashtable<String, ImcSystem>();
+	private static Map<ImcId16, ImcSystem> lookupTable = (Map<ImcId16, ImcSystem>) Collections.synchronizedMap(new Hashtable<ImcId16, ImcSystem>());
+	private static Map<String, ImcSystem> namesTable = (Map<String, ImcSystem>) Collections.synchronizedMap(new Hashtable<String, ImcSystem>());
     
 	public static boolean registerSystem(ImcSystem system) {
-		ImcSystem resLook = lookupTable.get(system.getId());
-		if (resLook != null){
-		    namesTable.put(system.getName(), system);
-			return true; //false;
-		}
-		
-		lookupTable.put(system.getId(), system);
-		namesTable.put(system.getName(), system);
+	    synchronized (lookupTable) {
+	        ImcSystem resLook = lookupTable.get(system.getId());
+	        if (resLook != null){
+	            namesTable.put(system.getName(), system);
+	            return true; //false;
+	        }
+	        
+	        lookupTable.put(system.getId(), system);
+	        namesTable.put(system.getName(), system);
+        }
 		
 		return true;
 	}
 	
 	public static ImcSystem lookupSystem(ImcId16 id) {
-		return id == null ? null : lookupTable.get(id);
+        synchronized (lookupTable) {
+            return id == null ? null : lookupTable.get(id);
+        }
 	}
 	
 	public static ImcSystem lookupSystem(int imcid) {
@@ -69,7 +75,9 @@ public class ImcSystemsHolder {
 	}
 	
 	public static ImcSystem getSystemWithName(String name) {
-	    return name == null ? null : namesTable.get(name);
+	    synchronized (lookupTable) {
+	        return name == null ? null : namesTable.get(name);
+	    }
 	}	
 	
 	/**
@@ -77,23 +85,22 @@ public class ImcSystemsHolder {
 	 * @return
 	 */
 	public static ImcSystem lookupSystemByName(String name) {
-		//NeptusLog.pub().info("<###>... lookupSystemByName()"+name);
 		if (name == null)
 			return null; // new ImcSystem[0];
 		else if ("".equalsIgnoreCase(name))
 			return null; // new ImcSystem[0];
 		LinkedList<ImcSystem> list = new LinkedList<ImcSystem>();
-		for (ImcSystem is : lookupTable.values()) {
-			//NeptusLog.pub().info("<###>... lookupSystemByName()"+is.getName());
-			if (name.equalsIgnoreCase(is.getName())) {
-				list.add(is);
-				break;
-			}
+		synchronized (lookupTable) {
+		    for (ImcSystem is : lookupTable.values()) {
+		        //NeptusLog.pub().info("<###>... lookupSystemByName()"+is.getName());
+		        if (name.equalsIgnoreCase(is.getName())) {
+		            list.add(is);
+		            break;
+		        }
+		    }
 		}
-		//NeptusLog.pub().info("<###>... lookupSystemByName()"+list.size());
 		return list.isEmpty() ? null : list.getFirst();
 	}
-	
 	
 	/**
 	 * @param type
@@ -104,16 +111,15 @@ public class ImcSystemsHolder {
 		if (type == null)
 			allTypes = true;
 		LinkedList<ImcSystem> list = new LinkedList<ImcSystem>();
-		for (ImcSystem is : lookupTable.values()) {
-			//NeptusLog.pub().info("<###>... lookupSystemByName()"+is.getName());
-			if (allTypes || type == SystemTypeEnum.ALL || type == is.getType()) {
-				if (onlyActiveSystems && !is.isActive()) {
-					continue;
-				}
-				list.add(is);
-			}
-		}
-		//NeptusLog.pub().info("<###>... lookupSystemByName()"+list.size());
+        synchronized (lookupTable) {
+            for (ImcSystem is : lookupTable.values()) {
+                if (allTypes || type == SystemTypeEnum.ALL || type == is.getType()) {
+                    if (onlyActiveSystems && !is.isActive())
+                        continue;
+                    list.add(is);
+                }
+            }
+        }
 		return list.toArray(new ImcSystem[list.size()]);
 	}
 	
@@ -124,7 +130,6 @@ public class ImcSystemsHolder {
 	public static final ImcSystem[] lookupAllActiveSystems () {
 		return lookupSystemByType(null, true);
 	}
-
 
 	/**
 	 * @param type
@@ -138,7 +143,6 @@ public class ImcSystemsHolder {
 		return lookupSystemByType(type, true);
 	}
 
-	
 	/**
 	 * @return
 	 */
@@ -160,7 +164,6 @@ public class ImcSystemsHolder {
 	public static final ImcSystem[] lookupActiveSystemVehicles () {
 		return lookupSystemByType(VehicleType.SystemTypeEnum.VEHICLE, true);
 	}
-
 	
 	// Lookup systems by services
 	public static final ImcSystem[] lookupSystemByService (String service, 
@@ -169,17 +172,16 @@ public class ImcSystemsHolder {
 		if (type == null)
 			allTypes = true;
 		LinkedList<ImcSystem> list = new LinkedList<ImcSystem>();
-		for (ImcSystem is : lookupTable.values()) {
-			//NeptusLog.pub().info("<###>... lookupSystemByService()"+is.getName());
-			if (allTypes || type == SystemTypeEnum.ALL || type == is.getType()) {
-				if (onlyActiveSystems && !is.isActive()) {
-					continue;
-				}
-				if (is.isServiceProvided(service))
-					list.add(is);
-			}
-		}
-		//NeptusLog.pub().info("<###>... lookupSystemByService()"+list.size());
+        synchronized (lookupTable) {
+            for (ImcSystem is : lookupTable.values()) {
+                if (allTypes || type == SystemTypeEnum.ALL || type == is.getType()) {
+                    if (onlyActiveSystems && !is.isActive())
+                        continue;
+                    if (is.isServiceProvided(service))
+                        list.add(is);
+                }
+            }
+        }
 		return list.toArray(new ImcSystem[list.size()]);
 	}
 

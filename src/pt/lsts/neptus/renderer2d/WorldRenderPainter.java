@@ -22,7 +22,7 @@
  * distributed on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF
  * ANY KIND, either express or implied. See the Licence for the specific
  * language governing permissions and limitations at
- * https://www.lsts.pt/neptus/licence.
+ * http://ec.europa.eu/idabc/eupl.html.
  *
  * For more information please see <http://lsts.fe.up.pt/neptus>.
  *
@@ -1458,9 +1458,15 @@ public class WorldRenderPainter implements Renderer2DPainter, MouseListener, Mou
     private PropertiesProvider createPropertiesProvider(final String mapStyle, Vector<Field> dFA) {
         final Class<?> clazz = getClassForStyle(mapStyle);
         final LinkedHashMap<String, PluginProperty> props = new LinkedHashMap<String, PluginProperty>();
+        Map<String, PluginProperty> defaults = PluginUtils.getDefaultsValues(clazz);
         for (Field field : dFA) {
             try {
-                PluginProperty pp = PluginUtils.createPluginProperty(null, field);
+                String defaultStr = null;
+                
+                if (defaults.containsKey(field.getName()))
+                    defaultStr = defaults.get(field.getName()).serialize();
+                
+                PluginProperty pp = PluginUtils.createPluginProperty(null, field, defaultStr, true);
                 if (pp != null)
                     props.put(pp.getName(), pp);
             }

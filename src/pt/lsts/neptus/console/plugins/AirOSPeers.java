@@ -22,7 +22,7 @@
  * distributed on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF
  * ANY KIND, either express or implied. See the Licence for the specific
  * language governing permissions and limitations at
- * https://www.lsts.pt/neptus/licence.
+ * http://ec.europa.eu/idabc/eupl.html.
  *
  * For more information please see <http://lsts.fe.up.pt/neptus>.
  *
@@ -42,6 +42,7 @@ import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 
 import javax.swing.JFileChooser;
 
@@ -149,6 +150,9 @@ public class AirOSPeers extends ConsolePanel {
                 if (ts != null)
                     ts.addOrUpdate(new Millisecond(new Date(System.currentTimeMillis())), null);
             }
+        }
+        catch (TimeoutException timeout) {
+            NeptusLog.pub().error("Timeout while trying to connect to "+host+":"+port);
         }
         catch (Exception e) {
             e.printStackTrace();

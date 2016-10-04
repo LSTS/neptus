@@ -22,7 +22,7 @@
  * distributed on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF
  * ANY KIND, either express or implied. See the Licence for the specific
  * language governing permissions and limitations at
- * https://www.lsts.pt/neptus/licence.
+ * http://ec.europa.eu/idabc/eupl.html.
  *
  * For more information please see <http://lsts.fe.up.pt/neptus>.
  *
@@ -44,5 +44,8 @@ public interface IManeuverPreview<T extends Maneuver> {
     public SystemPositionAndAttitude step(SystemPositionAndAttitude state, double timestep);
     public void reset(SystemPositionAndAttitude state);
     public boolean isFinished();
+    /**
+     * @return A clone or new instance of the man. state (important).
+     */
     public Object getState();
 }

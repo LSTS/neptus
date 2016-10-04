@@ -22,7 +22,7 @@
  * distributed on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF
  * ANY KIND, either express or implied. See the Licence for the specific
  * language governing permissions and limitations at
- * https://www.lsts.pt/neptus/licence.
+ * http://ec.europa.eu/idabc/eupl.html.
  *
  * For more information please see <http://lsts.fe.up.pt/neptus>.
  *
@@ -34,6 +34,8 @@ package pt.lsts.neptus.plugins.acoustic;
 import java.awt.BasicStroke;
 import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.Dialog.ModalityType;
+import java.awt.FlowLayout;
 import java.awt.Graphics2D;
 import java.awt.GridLayout;
 import java.awt.Rectangle;
@@ -63,23 +65,30 @@ import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
 import javax.swing.JTabbedPane;
 import javax.swing.JTextArea;
+import javax.swing.SwingWorker;
 
 import com.google.common.eventbus.Subscribe;
 
 import pt.lsts.imc.AcousticOperation;
 import pt.lsts.imc.AcousticSystems;
 import pt.lsts.imc.AcousticSystemsQuery;
+import pt.lsts.imc.Elevator;
+import pt.lsts.imc.EntityParameter;
 import pt.lsts.imc.GpsFix;
 import pt.lsts.imc.IMCDefinition;
 import pt.lsts.imc.IMCMessage;
 import pt.lsts.imc.MessagePart;
 import pt.lsts.imc.PlanControl;
+import pt.lsts.imc.PlanControl.OP;
+import pt.lsts.imc.PlanControl.TYPE;
 import pt.lsts.imc.PlanDB;
 import pt.lsts.imc.RSSI;
+import pt.lsts.imc.SetEntityParameters;
 import pt.lsts.imc.StorageUsage;
 import pt.lsts.imc.TextMessage;
 import pt.lsts.imc.Voltage;
 import pt.lsts.imc.net.IMCFragmentHandler;
+import pt.lsts.imc.sender.MessageEditor;
 import pt.lsts.imc.state.ImcSystemState;
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.comm.IMCSendMessageUtils;
@@ -94,6 +103,7 @@ import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.mystate.MyState;
 import pt.lsts.neptus.plugins.ConfigurationListener;
 import pt.lsts.neptus.plugins.NeptusProperty;
+import pt.lsts.neptus.plugins.NeptusProperty.LEVEL;
 import pt.lsts.neptus.plugins.PluginDescription;
 import pt.lsts.neptus.plugins.PluginUtils;
 import pt.lsts.neptus.plugins.Popup;
@@ -136,13 +146,13 @@ public class MantaOperations extends ConsolePanel implements ConfigurationListen
     protected String selectedSystem = null;
     protected String gateway = "any";
     protected JLabel lblState = new JLabel("<html><h1>" + I18n.text("Please select a gateway") + "</h1>");
-
+    protected MessageEditor editor = new MessageEditor();
     protected LinkedHashMap<Integer, PlanControl> pendingRequests = new LinkedHashMap<>();
 
+    public HashSet<String> knownSystems = new HashSet<>();
+    
     @NeptusProperty(name = "Systems listing", description = "Use commas to separate system identifiers")
     public String sysListing = "benthos-1,benthos-2,benthos-3,benthos-4,lauv-xtreme-2,lauv-noptilus-1,lauv-noptilus-2,lauv-noptilus-3";
-
-    public HashSet<String> knownSystems = new HashSet<>();
 
     @NeptusProperty(name = "Display ranges in the map")
     public boolean showRanges = true;
@@ -150,16 +160,76 @@ public class MantaOperations extends ConsolePanel implements ConfigurationListen
     @NeptusProperty(name = "Use system discovery", description = "Instead of a static list, receive supported systems from gateway")
     public boolean sysDiscovery = true;
 
+    @NeptusProperty(name = "Separate ranging when using \"any\" gateway", category = "Any Gateway", userLevel = LEVEL.ADVANCED, 
+            description = "Introduces a time separation between messages when \"any\" gateway..")
+    private boolean separateRangingForAnyGateway = true;
+
+    @NeptusProperty(name = "Separate ranging when using \"any\" gateway time", category = "Any Gateway", userLevel = LEVEL.ADVANCED, 
+            description = "Time in seconds")
+    private short separateRangingForAnyGatewaySeconds = 2;
+
     protected LinkedHashMap<String, LocationType> systemLocations = new LinkedHashMap<>();
 
     protected Vector<LocationType> rangeSources = new Vector<LocationType>();
     protected Vector<Double> rangeDistances = new Vector<Double>();
 
+    protected boolean initialized = false;
+    
     /**
      * @param console
      */
     public MantaOperations(ConsoleLayout console) {
-        super(console);
+        super(console);      
+        addTemplates();
+    }
+    
+    private void addTemplates() {
+        PlanControl pc = new PlanControl();
+        pc.setPlanId("dislodge");
+        pc.setType(TYPE.REQUEST);
+        pc.setRequestId(1);
+        pc.setFlags(PlanControl.FLG_IGNORE_ERRORS);
+        pc.setOp(OP.START);
+        
+        editor.addTemplate("(Template) Dislodge", pc);
+        
+        PlanControl surf = new PlanControl();
+        Elevator elev = new Elevator();
+        elev.setEndZ(0);
+        elev.setEndZUnits(Elevator.END_Z_UNITS.DEPTH);
+        elev.setStartZ(0);
+        elev.setStartZUnits(Elevator.START_Z_UNITS.DEPTH);
+        elev.setRadius(15);
+        elev.setSpeed(1.2);
+        elev.setSpeedUnits(Elevator.SPEED_UNITS.METERS_PS);
+        surf.setPlanId("surface");
+        surf.setArg(elev);
+        surf.setType(TYPE.REQUEST);
+        surf.setRequestId(1);
+        surf.setFlags(PlanControl.FLG_IGNORE_ERRORS);
+        surf.setOp(OP.START);
+        
+        editor.addTemplate("(Template) Surface", surf);
+        
+        SetEntityParameters setParams = new SetEntityParameters();
+        setParams.setName("Report Supervisor");
+        EntityParameter p1 = new EntityParameter();
+        p1.setName("Acoustic Reports");
+        p1.setValue("true");
+        EntityParameter p2 = new EntityParameter();
+        p2.setName("Acoustic Reports Periodicity");
+        p2.setValue("60");
+        setParams.setParams(Arrays.asList(p1, p2));
+        
+        editor.addTemplate("(Template) Acoustic Reports", setParams);
+        
+        AcousticOperation acText = new AcousticOperation();
+        acText.setOp(AcousticOperation.OP.MSG);
+        acText.setSystem("broadcast");
+        TextMessage txt = new TextMessage().setText("your text here.");
+        acText.setMsg(txt);
+        
+        editor.addTemplate("(Template) Acoustic Text", acText);
     }
 
     protected ActionListener systemActionListener = new ActionListener() {
@@ -168,8 +238,6 @@ public class MantaOperations extends ConsolePanel implements ConfigurationListen
             selectedSystem = e.getActionCommand();
         }
     };
-
-    protected boolean initialized = false;
 
     private boolean sendAcoustically(String destination, IMCMessage msg) {
         ImcSystem[] sysLst = gateways();
@@ -190,7 +258,7 @@ public class MantaOperations extends ConsolePanel implements ConfigurationListen
 
         if (successCount > 0) {
             bottomPane.setText(I18n.textf(
-                    "Message sent to %systemName via %systemCount acoustic gateways", selectedSystem,
+                    "Request to send message to %systemName via %systemCount acoustic gateways", selectedSystem,
                     successCount));
             return true;
         }
@@ -259,7 +327,7 @@ public class MantaOperations extends ConsolePanel implements ConfigurationListen
         }
         
         addMenuItem(I18n.text("Tools") + ">" + I18n.text("Send Plan via Acoustic Modem"),
-        ImageUtils.getIcon(PluginUtils.getPluginIcon(getClass())), new ActionListener() {
+                ImageUtils.getIcon(PluginUtils.getPluginIcon(getClass())), new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 PlanType plan = getConsole().getPlan();
@@ -406,10 +474,10 @@ public class MantaOperations extends ConsolePanel implements ConfigurationListen
         });
         ctrlPanel.add(btn);
 
-        btn = new JButton(I18n.text("Range system"));
-        btn.setActionCommand("range");
-        cmdButtons.put("range", btn);
-        btn.addActionListener(new ActionListener() {
+        final JButton btnR = new JButton(I18n.text("Range system"));
+        btnR.setActionCommand("range");
+        cmdButtons.put("range", btnR);
+        btnR.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent event) {
                 ImcSystem[] sysLst;
@@ -438,43 +506,76 @@ public class MantaOperations extends ConsolePanel implements ConfigurationListen
                     IMCMessage m = IMCDefinition.getInstance().create("AcousticOperation", "op", "RANGE", "system",
                             selectedSystem);
 
-                    int successCount = 0;
-                    for (ImcSystem sys : sysLst)
-                        if (ImcMsgManager.getManager().sendMessage(m, sys.getId(), null))
-                            successCount++;
-
-                    if (successCount > 0) {
-                        bottomPane.setText(I18n.textf("Range %systemName commanded to %systemCount systems",
-                                selectedSystem, successCount));
-                    }
-                    else {
-                        post(Notification.error(I18n.text("Range System"), I18n.text("Unable to range selected system"))
-                                .src(I18n.text("Console")));
-                    }
+                    btnR.setEnabled(false);
+                    SwingWorker<Integer, Void> sWorker = new SwingWorker<Integer, Void>() {
+                        @Override
+                        protected Integer doInBackground() throws Exception {
+                            int successCount = 0;
+                            for (ImcSystem sys : sysLst) {
+                                if (ImcMsgManager.getManager().sendMessage(m.cloneMessage(), sys.getId(), null))
+                                    successCount++;
+                                if (separateRangingForAnyGateway && sysLst.length > 1) {
+                                    try {
+                                        Thread.sleep(separateRangingForAnyGatewaySeconds * 1000);
+                                    }
+                                    catch (Exception e) {
+                                        NeptusLog.pub().warn(e);
+                                    }
+                                }
+                            }
+                            return successCount;
+                        }
+                        @Override
+                        protected void done() {
+                            int successCount = 0;
+                            try {
+                                successCount = get();
+                            }
+                            catch (Exception e) {
+                                NeptusLog.pub().error(e);
+                            }
+                            
+                            if (successCount > 0) {
+                                bottomPane.setText(I18n.textf("Range %systemName commanded to %systemCount systems",
+                                        selectedSystem, successCount));
+                            }
+                            else {
+                                post(Notification.error(I18n.text("Range System"), I18n.text("Unable to range selected system"))
+                                        .src(I18n.text("Console")));
+                            }
+                            
+                            btnR.setEnabled(true);
+                        }
+                    };
+                    sWorker.execute();
                 }
             }
         });
-        ctrlPanel.add(btn);
+        ctrlPanel.add(btnR);
 
-        btn = new JButton(I18n.text("Send command"));
+        btn = new JButton(I18n.text("Send Message"));
         btn.setActionCommand("text");
         cmdButtons.put("text", btn);
         btn.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent event) {
-                if (selectedSystem == null)
-                    return;
-                String cmd = JOptionPane.showInputDialog(getConsole(),
-                        I18n.textf("Enter command to send to %vehicle", selectedSystem));
-                if (cmd == null)
-                    return;
-                if (cmd.length() > 64) {
-                    GuiUtils.errorMessage(getConsole(), I18n.text("Send command"),
-                            I18n.text("Cannot send command because it has more than 64 characters."));
-                    return;
-                }
-                TextMessage msg = new TextMessage("", cmd);
-                sendAcoustically(selectedSystem, msg);
+                JDialog dialog = new JDialog(getConsole(), I18n.text("Send message acoustically"));
+                dialog.setLayout(new BorderLayout());
+                dialog.getContentPane().add(editor, BorderLayout.CENTER);
+                JPanel bottom = new JPanel(new FlowLayout(FlowLayout.TRAILING));
+                JButton btn = new JButton(I18n.text("Send"));
+                btn.addActionListener(new ActionListener() {
+                    @Override
+                    public void actionPerformed(ActionEvent e) {
+                        sendAcoustically(selectedSystem, editor.getMessage());
+                    }
+                });
+                bottom.add(btn);
+                dialog.getContentPane().add(bottom, BorderLayout.SOUTH);
+                dialog.setSize(600, 500);
+                dialog.setModalityType(ModalityType.DOCUMENT_MODAL);
+                GuiUtils.centerParent(dialog, getConsole());
+                dialog.setVisible(true);
             }
         });
         ctrlPanel.add(btn);
@@ -512,7 +613,7 @@ public class MantaOperations extends ConsolePanel implements ConfigurationListen
 
                 int successCount = 0;
                 for (ImcSystem sys : sysLst)
-                    if (ImcMsgManager.getManager().sendMessage(m, sys.getId(), null))
+                    if (ImcMsgManager.getManager().sendMessage(m.cloneMessage(), sys.getId(), null))
                         successCount++;
 
                 if (successCount > 0) {
@@ -607,7 +708,7 @@ public class MantaOperations extends ConsolePanel implements ConfigurationListen
             if (selectedSystem.startsWith("lsts"))
                 cmdButtons.get("abort").setEnabled(false);
         }
-    }
+    }    
 
     public void addText(String text) {
         bottomPane.setText(bottomPane.getText() + " \n" + text);

@@ -22,7 +22,7 @@
  * distributed on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF
  * ANY KIND, either express or implied. See the Licence for the specific
  * language governing permissions and limitations at
- * https://www.lsts.pt/neptus/licence.
+ * http://ec.europa.eu/idabc/eupl.html.
  *
  * For more information please see <http://lsts.fe.up.pt/neptus>.
  *
@@ -48,6 +48,7 @@ import pt.lsts.neptus.gui.objparams.ImageObjectParameters;
 import pt.lsts.neptus.gui.objparams.ParametersPanel;
 import pt.lsts.neptus.renderer2d.StateRenderer2D;
 import pt.lsts.neptus.types.coord.LocationType;
+import pt.lsts.neptus.types.coord.UTMCoordinates;
 import pt.lsts.neptus.util.FileUtil;
 import pt.lsts.neptus.util.ImageUtils;
 import pt.lsts.neptus.util.conf.ConfigFetch;
@@ -87,7 +88,7 @@ public class ImageElement extends AbstractElement implements ScalableElement, Ro
         super();
     }
 
-    public ImageElement(File imgFile, File worldFile) throws Exception {
+    public ImageElement(File imgFile, File worldFile, LocationType utmReference) throws Exception {
         originalFilePath = imgFile.getAbsolutePath();
         setId(imgFile.getName());
         String[] lines = FileUtil.getFileAsString(worldFile).split("\n");
@@ -95,35 +96,40 @@ public class ImageElement extends AbstractElement implements ScalableElement, Ro
         image = ImageUtils.getImage(imgFile.getAbsolutePath());
 
         if (lines.length != 6)
-            throw new Exception("World file not understood");
+            throw new Exception("World file not understood (6 text lines expected but "+lines.length+" lines found)");
 
         double scaleX = Double.parseDouble(lines[0]);
-        double rotX = Double.parseDouble(lines[1]);
-        double rotY = Double.parseDouble(lines[2]);
         double scaleY = Double.parseDouble(lines[3]);
         double coordX = Double.parseDouble(lines[4]);
         double coordY = Double.parseDouble(lines[5]);
 
-        LocationType loc = new LocationType(coordY, coordX);
-        LocationType loc2 = new LocationType(coordY, coordX + scaleX);
+        if (scaleX != -scaleY)
+            throw new Exception("World file not understood (x and y scales differ)");
 
-        double scale = loc2.getHorizontalDistanceInMeters(loc);
+        double rotX = Double.parseDouble(lines[1]);
+        double rotY = Double.parseDouble(lines[2]);
 
-        /*
-         * if (scaleX != scaleY) {
-         * NeptusLog.pub().warn("loading an image file with different X and Y scales may lead to errors..."); }
-         */
+        if (rotX != 0 || rotY != 0)
+            throw new Exception("World files with rotation are not supported");
+        
+        utmReference.convertToAbsoluteLatLonDepth();
+        UTMCoordinates refCoords = new UTMCoordinates(utmReference.getLatitudeDegs(), utmReference.getLongitudeDegs());
+        UTMCoordinates coords2 = new UTMCoordinates(coordX, coordY, refCoords.getZoneNumber(), refCoords.getZoneLetter());
+        coordX = coords2.getLatitudeDegrees();
+        coordY = coords2.getLongitudeDegrees();
+        
+        double scale = Math.abs(scaleX);
 
-        if (rotX != rotY) {
-            NeptusLog.pub().warn("loading an image file with different X and Y rotations may lead to errors...");
-        }
         setImageFileName(imgFile.getAbsolutePath());
         setImageScale(scale);
-        setYawDeg(rotX);
-
+        
         double width = image.getWidth(null) * scaleX;
         double height = image.getHeight(null) * scaleY;
-        setCenterLocation(new LocationType(coordY + height / 2, coordX + width / 2));
+        
+        LocationType center = new LocationType(coordX, coordY);
+        center.translatePosition(height / 2, width / 2, 0);
+        
+        setCenterLocation(center);
     }
 
     /**
@@ -495,8 +501,8 @@ public class ImageElement extends AbstractElement implements ScalableElement, Ro
 
         Point2D center = renderer.getScreenPosition(getCenterLocation());
         g.translate(center.getX(), center.getY());
-        g.scale(getImageScale() * renderer.getZoom(), getImageScale() * renderer.getZoom());
         g.rotate(getYawRad() - renderer.getRotation());
+        g.scale(getImageScale() * renderer.getZoom(), getImageScale() * renderer.getZoom());
         g.drawImage(getImage(), -getImage().getWidth(renderer) / 2, -getImage().getHeight(renderer) / 2, null);
     }
 

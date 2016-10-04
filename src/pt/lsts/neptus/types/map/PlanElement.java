@@ -22,7 +22,7 @@
  * distributed on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF
  * ANY KIND, either express or implied. See the Licence for the specific
  * language governing permissions and limitations at
- * https://www.lsts.pt/neptus/licence.
+ * http://ec.europa.eu/idabc/eupl.html.
  *
  * For more information please see <http://lsts.fe.up.pt/neptus>.
  *
@@ -52,6 +52,7 @@ import javax.vecmath.Point3d;
 import com.l2fprod.common.propertysheet.DefaultProperty;
 import com.l2fprod.common.propertysheet.Property;
 
+import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.gui.objparams.ParametersPanel;
 import pt.lsts.neptus.mp.Maneuver;
 import pt.lsts.neptus.mp.ManeuverLocation;
@@ -642,8 +643,14 @@ public class PlanElement extends AbstractElement implements Renderer2DPainter, P
     public void setPlanProperty(DefaultProperty property) {
         lastSetProperties.put(property.getName(), property);
 
-        for (Maneuver man : plan.getGraph().getAllManeuvers())
-            man.setProperties(new Property[] { property });
+        for (Maneuver man : plan.getGraph().getAllManeuvers()) {
+            try {
+                man.setProperties(new Property[] { property });
+            }
+            catch (Exception e) {
+                NeptusLog.pub().error(e, e);
+            }
+        }
     }
 
     public void translatePlan(double offsetNorth, double offsetEast, double offsetDown) {

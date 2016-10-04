@@ -22,7 +22,7 @@
  * distributed on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF
  * ANY KIND, either express or implied. See the Licence for the specific
  * language governing permissions and limitations at
- * https://www.lsts.pt/neptus/licence.
+ * http://ec.europa.eu/idabc/eupl.html.
  *
  * For more information please see <http://lsts.fe.up.pt/neptus>.
  *
@@ -38,6 +38,7 @@ import java.awt.event.ComponentEvent;
 import java.awt.geom.Ellipse2D;
 import java.awt.geom.Line2D;
 import java.awt.geom.Point2D;
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.Map.Entry;
 import java.util.Vector;
@@ -50,10 +51,13 @@ import pt.lsts.neptus.comm.manager.imc.ImcSystemsHolder;
 import pt.lsts.neptus.console.ConsoleLayout;
 import pt.lsts.neptus.console.ConsolePanel;
 import pt.lsts.neptus.console.plugins.MissionChangeListener;
+import pt.lsts.neptus.data.Pair;
+import pt.lsts.neptus.mp.ManeuverLocation;
 import pt.lsts.neptus.plugins.PluginDescription;
 import pt.lsts.neptus.renderer2d.Renderer2DPainter;
 import pt.lsts.neptus.renderer2d.StateRenderer2D;
 import pt.lsts.neptus.types.coord.LocationType;
+import pt.lsts.neptus.types.map.PlanUtil;
 import pt.lsts.neptus.types.mission.MissionType;
 import pt.lsts.neptus.types.mission.plan.PlanType;
 import pt.lsts.neptus.types.vehicle.VehicleType;
@@ -68,8 +72,8 @@ public class MultiVehiclePlanOverlay extends ConsolePanel implements Renderer2DP
 
     private static final long serialVersionUID = 1L;
     protected LinkedHashMap<String, String> vehicleToPlanIds = new LinkedHashMap<>();
-    protected LinkedHashMap<String, Vector<LocationType>> planToLocations = new LinkedHashMap<>();
-    protected LinkedHashMap<String, Vector<Point2D>> planPoints = new LinkedHashMap<>();
+    protected LinkedHashMap<String, ArrayList<ManeuverLocation>> planToLocations = new LinkedHashMap<>();
+    protected LinkedHashMap<String, Vector<Pair<Point2D, Double>>> planPoints = new LinkedHashMap<>();
     protected double lastZoom;
     protected LocationType lastCenter;
     protected double lastRotation = 0;
@@ -120,6 +124,10 @@ public class MultiVehiclePlanOverlay extends ConsolePanel implements Renderer2DP
                 break;
         }
     }
+    
+    private double getAngle(Point2D first, Point2D second) {
+        return Math.atan2(second.getY() - first.getY(), second.getX() - first.getX());
+    }
 
     @Override
     public void paint(Graphics2D g, StateRenderer2D renderer) {
@@ -149,34 +157,52 @@ public class MultiVehiclePlanOverlay extends ConsolePanel implements Renderer2DP
             if (!planToLocations.containsKey(entry.getValue())) {
                 PlanType pt = getConsole().getMission().getIndividualPlansList().get(entry.getValue());
                 if (pt != null)
-                    planToLocations.put(pt.getId(), pt.planPath());
+                    planToLocations.put(pt.getId(), PlanUtil.getPlanWaypoints(pt));
 
             }
 
-            Vector<Point2D> points = planPoints.get(entry.getValue());
+            Vector<Pair<Point2D,Double>> points = planPoints.get(entry.getValue());
 
             if (points == null) {
                 points = new Vector<>();
 
-                Vector<LocationType> planLocs = planToLocations.get(entry.getValue());
+                ArrayList<ManeuverLocation> planLocs = planToLocations.get(entry.getValue());
                 if (planLocs == null)
                     continue;
-                for (LocationType l : planLocs)
-                    points.add(renderer.getScreenPosition(l));
+                for (ManeuverLocation l : planLocs)
+                    points.add(new Pair<>(renderer.getScreenPosition(l), l.getRadius() * renderer.getZoom()));
                 lastZoom = renderer.getZoom();
                 lastCenter = new LocationType(renderer.getCenter());
                 lastRotation = renderer.getRotation();
             }
             planPoints.put(entry.getValue(), points);
 
-            Point2D prev = null;
-            for (Point2D cur : planPoints.get(entry.getValue())) {
+            Pair<Point2D,Double> prev = null;
+            for (Pair<Point2D,Double> cur : planPoints.get(entry.getValue())) {
                 g.setColor(c.darker());
-                if (prev != null)
-                    g.draw(new Line2D.Double(prev, cur));
+                
+                if (prev != null) {
+                    Point2D start = (Point2D) prev.first().clone(), end = (Point2D) cur.first().clone();    
+                    
+                    if (prev.second() > 0) {
+                        double ang = getAngle(prev.first(), cur.first());
+                        start.setLocation(start.getX() + Math.cos(ang)*prev.second(), start.getY()+Math.sin(ang)*prev.second());
+                    }
+                    
+                    if (cur.second() > 0) {
+                        double ang = getAngle(cur.first(), prev.first());
+                        end.setLocation(end.getX() + Math.cos(ang)*cur.second(), end.getY()+Math.sin(ang)*cur.second());
+                    }                    
+                    g.draw(new Line2D.Double(start, end));
+                }
                 prev = cur;
                 g.setColor(c.brighter());
-                g.fill(new Ellipse2D.Double(cur.getX() - 2, cur.getY() - 2, 4, 4));
+                if (cur.second() == 0)
+                    g.fill(new Ellipse2D.Double(cur.first().getX() - 2, cur.first().getY() - 2, 4, 4));
+                else {
+                    g.draw(new Ellipse2D.Double(cur.first().getX() - cur.second(), cur.first().getY() - cur.second(),
+                            cur.second() * 2, cur.second() * 2));
+                }
             }
         }
     }

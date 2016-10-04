@@ -22,7 +22,7 @@
  * distributed on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF
  * ANY KIND, either express or implied. See the Licence for the specific
  * language governing permissions and limitations at
- * https://www.lsts.pt/neptus/licence.
+ * http://ec.europa.eu/idabc/eupl.html.
  *
  * For more information please see <http://lsts.fe.up.pt/neptus>.
  *
@@ -483,6 +483,11 @@ public class MapEditor extends ConsolePanel implements StateRendererInteraction,
     }
 
     protected void removeElement(String elemId) {
+        if (mg.getMapObjectsByID(elemId).length == 0) {
+            NeptusLog.pub().error("Trying to delete unexisting object: "+elemId);
+            return;
+        }
+        
         AbstractElement elem = mg.getMapObjectsByID(elemId)[0];
 
         RemoveObjectEdit edit = new RemoveObjectEdit(elem);
@@ -631,7 +636,9 @@ public class MapEditor extends ConsolePanel implements StateRendererInteraction,
 
             add.addSeparator();
 
-            add.add(I18n.text("Image from World File")).addActionListener(new ActionListener() {
+            JMenuItem AddWorldFile = add.add(I18n.text("Image from World File"));
+            AddWorldFile.setToolTipText(I18n.text("Will position the image in currently visible UTM zone."));
+            AddWorldFile.addActionListener(new ActionListener() {
 
                 @Override
                 public void actionPerformed(ActionEvent e) {
@@ -659,7 +666,7 @@ public class MapEditor extends ConsolePanel implements StateRendererInteraction,
 
                                 final MapType pivot = m != null ? m : mg.getMaps()[0];
 
-                                ImageElement el = new ImageElement(choice, file);
+                                ImageElement el = new ImageElement(choice, file, renderer.getCenter());
                                 el.setMapGroup(mg);
                                 el.showParametersDialog(MapEditor.this, pivot.getObjectIds(), pivot, true);
 
@@ -987,8 +994,10 @@ public class MapEditor extends ConsolePanel implements StateRendererInteraction,
                         "Error removing toolbar of " + MapEditor.class.getSimpleName() + " from "
                                 + MapPanel.class.getSimpleName(), e);
             }
-            parent.invalidate();
-            parent.validate();
+            if (parent != null) {
+                parent.invalidate();
+                parent.validate();
+            }
             
             SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>() {
                 @Override

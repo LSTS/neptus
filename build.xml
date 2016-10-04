@@ -25,7 +25,7 @@ law or agreed to in writing, software distributed under the Licence is
 distributed on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF
 ANY KIND, either express or implied. See the Licence for the specific
 language governing permissions and limitations at
-https://www.lsts.pt/neptus/licence.
+http://ec.europa.eu/idabc/eupl.html.
 
 For more information please see <http://lsts.fe.up.pt/neptus>.
 
@@ -55,17 +55,16 @@ For simple use the main targets are:
 	<!-- =================================================================== -->
 	<!-- Defines variables used by the other targets                         -->
 	<!-- =================================================================== -->
-	<property name="version.MAJOR" value="4" />
-	<property name="version.MINOR" value="3" />
+	<property name="version.MAJOR" value="2016" />
+	<property name="version.MINOR" value="10" />
 	<property name="version.PATCH" value="0" />
 	<!-- Set this to '-dev' if a developer release; blank "" if maintenance release; or '-rcX' for release candidate X (X number) -->
 	<property name="version.DEVELOPER" value="" />
-	<!-- Set the release number. Use the form 'R14.01' for release 1 of year 2014. Or leave it blank for a non release -->
-	<property name="release.NAME" value="R16.05" />
-	<property name="release.INFO" value="${release.NAME}"/>
+	
+	<property name="release.NAME" value="${version.MAJOR}.${version.MINOR}.${version.PATCH}${version.DEVELOPER}" />
 
 	<!-- EITHER the developer release number, or a maintenance release number -->
-	<property name="version" value="${version.MAJOR}.${version.MINOR}.${version.PATCH}${version.DEVELOPER}_${release.INFO}" />
+	<property name="version" value="${release.NAME}" />
 	<property name="version.numeric" value="${version.MAJOR}.${version.MINOR}.${version.PATCH}" />
 
 	<property name="full.release" value="${version}" />
@@ -941,10 +940,12 @@ For simple use the main targets are:
 			<include name="pt/lsts/neptus/gui/PropertiesEditor*.class"/>
 			<include name="pt/lsts/neptus/gui/checklist/**/*.class"/>
 			<include name="pt/lsts/neptus/gui/editor/*.class"/>
+			<include name="pt/lsts/neptus/gui/editor/renderer/SpeedUnitsEnumRenderer*.class"/>
 			<include name="pt/lsts/neptus/gui/swing/NeptusFileView.class"/>
 			<include name="pt/lsts/neptus/messages/listener/**/*.class"/>
 			<include name="pt/lsts/neptus/messages/*.class"/>
 			<include name="pt/lsts/neptus/mp/actions/PlanActions*.class"/>
+			<include name="pt/lsts/neptus/mp/Maneuver*.class"/>
 			<include name="pt/lsts/neptus/mp/ManeuverLocation*.class"/>
 			<include name="pt/lsts/neptus/plugins/ConfigurationListener*.class"/>
 			<include name="pt/lsts/neptus/plugins/NeptusProperty*.class"/>

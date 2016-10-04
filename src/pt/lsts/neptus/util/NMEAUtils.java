@@ -22,7 +22,7 @@
  * distributed on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF
  * ANY KIND, either express or implied. See the Licence for the specific
  * language governing permissions and limitations at
- * https://www.lsts.pt/neptus/licence.
+ * http://ec.europa.eu/idabc/eupl.html.
  *
  * For more information please see <http://lsts.fe.up.pt/neptus>.
  *
@@ -46,6 +46,8 @@ import pt.lsts.imc.IMCMessageType;
 import pt.lsts.imc.lsf.LsfMessageLogger;
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.comm.manager.imc.ImcId16;
+import pt.lsts.neptus.systems.external.ExternalSystem;
+import pt.lsts.neptus.systems.external.ExternalSystemsHolder;
 import pt.lsts.neptus.types.coord.LocationType;
 
 /**
@@ -287,6 +289,45 @@ public class NMEAUtils {
 		}
 	}
 	
+    /**
+     * Searches an external system with mmsi or name and return an external system or
+     * a new one created (the name is prevalent, if name is not known make it the same
+     * as MMSI).
+     * 
+     * @param mmsi
+     * @param name
+     * @return
+     */
+    public static synchronized ExternalSystem getAndRegisterExternalSystem(int mmsi, String name) {
+        ExternalSystem sys = null;
+        if (name.equals("" + mmsi)) {
+            sys = ExternalSystemsHolder.lookupSystem(name);
+            if (sys == null) {
+                sys = new ExternalSystem(name);
+                ExternalSystemsHolder.registerSystem(sys);
+            }
+        }
+        else {
+            sys = ExternalSystemsHolder.lookupSystem(name);
+            ExternalSystem sysMMSI = ExternalSystemsHolder.lookupSystem("" + mmsi);
+            if (sys == null && sysMMSI == null) {
+                sys = new ExternalSystem(name);
+                ExternalSystemsHolder.registerSystem(sys);
+            }
+            else if (sys == null && sysMMSI != null) {
+                sys = new ExternalSystem(name);
+                ExternalSystemsHolder.purgeSystem("" + mmsi);
+                ExternalSystemsHolder.registerSystem(sys);
+            }
+            else {
+                // sys exists
+                if (sysMMSI != null)
+                    ExternalSystemsHolder.purgeSystem("" + mmsi);
+            }
+        }
+        return sys;
+    }
+    
 	public static void main(String[] args) {
 		String nmea = "$GPGGA,120602.476,4112.4827,N,00832.0861,W,1,03,3.4,-51.3,M,51.3,M,,0000*5C";
 		LocationType lt = NMEAUtils.processGGASentence(nmea);
