@@ -148,7 +148,9 @@ public class LogSliceExporter implements MRAExporter {
         
         for (int i = 0; i < index.getNumberOfMessages(); i++) {
             int type = index.typeOf(i);
-            availableMessages.add(index.getDefinitions().getMessageName(type));
+            String name = index.getDefinitions().getMessageName(type);
+            if (name != null)
+                availableMessages.add(name);
         }
         
         ArrayList<String> selectedMsgs = new ArrayList<>();
