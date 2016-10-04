@@ -57,9 +57,9 @@ For simple use the main targets are:
 	<!-- =================================================================== -->
 	<property name="version.MAJOR" value="2016" />
 	<property name="version.MINOR" value="10" />
-	<property name="version.PATCH" value="0" />
+	<property name="version.PATCH" value="1" />
 	<!-- Set this to '-dev' if a developer release; blank "" if maintenance release; or '-rcX' for release candidate X (X number) -->
-	<property name="version.DEVELOPER" value="" />
+	<property name="version.DEVELOPER" value="-dev" />
 	
 	<property name="release.NAME" value="${version.MAJOR}.${version.MINOR}.${version.PATCH}${version.DEVELOPER}" />
 
