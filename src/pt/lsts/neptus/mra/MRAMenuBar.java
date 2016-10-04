@@ -842,9 +842,8 @@ public class MRAMenuBar {
             public void actionPerformed(ActionEvent e) {
                 if (markerMngmt == null)
                     markerMngmt = new MarkerManagement(mra, mra.getMraPanel());
-                else
-                    if (!markerMngmt.isVisible())
-                        markerMngmt = new MarkerManagement(mra, mra.getMraPanel());
+                else if (!markerMngmt.isVisible())
+                        markerMngmt.setVisible(true);
 
             }
         };

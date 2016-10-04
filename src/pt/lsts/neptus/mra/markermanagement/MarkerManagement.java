@@ -126,7 +126,7 @@ import pt.lsts.neptus.util.llf.LsfReportProperties;
  *
  */
 @SuppressWarnings("serial")
-public class MarkerManagement {
+public class MarkerManagement extends JDialog {
 
     private final int DEFAULT_COLUMN_TO_SORT = 0;
     private static final String SHOW_ICON = "images/buttons/show.png";
@@ -135,7 +135,6 @@ public class MarkerManagement {
     protected MRAPanel mraPanel;
     private static InfiniteProgressPanel loader = InfiniteProgressPanel.createInfinitePanelBeans("");
     private FinderDialog find = null;
-    private JDialog frmMarkerManagement;
     private JPanel panel;
     private JTable table;
     private LogMarkerItemModel tableModel;
@@ -147,6 +146,8 @@ public class MarkerManagement {
     public MarkerManagement(NeptusMRA mra, MRAPanel mraPanel) {
         this.mraPanel = mraPanel;
         initialize();
+
+        setModalityType(ModalityType.MODELESS);
     }
 
     private double depth(long timestamp) {
@@ -162,25 +163,27 @@ public class MarkerManagement {
             return;
         }
 
-        frmMarkerManagement = new JDialog(SwingUtilities.windowForComponent(mraPanel), ModalityType.MODELESS);
-        frmMarkerManagement.setIconImage(Toolkit.getDefaultToolkit().getImage(MarkerManagement.class.getResource("/images/menus/marker.png")));
-        frmMarkerManagement.setTitle(I18n.text("Marker Management"));
-        frmMarkerManagement.setBounds(100, 100, 687, 426);
-        frmMarkerManagement.addWindowListener(new WindowAdapter()
+        // frmMarkerManagement = new JDialog(SwingUtilities.windowForComponent(mraPanel), ModalityType.MODELESS);
+        setIconImage(
+                Toolkit.getDefaultToolkit().getImage(MarkerManagement.class.getResource("/images/menus/marker.png")));
+        setTitle(I18n.text("Marker Management"));
+        setBounds(100, 100, 687, 426);
+        addWindowListener(new WindowAdapter()
         {
             @Override
             public void windowClosing(WindowEvent e)
             {
                 if (markerEditFrame != null)
                     markerEditFrame.dispose();
-                e.getWindow().dispose();
+
+                e.getWindow().setVisible(false);
             }
         });
-        frmMarkerManagement.getContentPane().setLayout(new MigLayout("", "[grow]", "[grow]"));
-        frmMarkerManagement.setVisible(true);
-        frmMarkerManagement.setResizable(false);
+        getContentPane().setLayout(new MigLayout("", "[grow]", "[grow]"));
+        setVisible(true);
+        setResizable(false);
 
-        markerEditFrame = new MarkerEdit(this, SwingUtilities.windowForComponent(frmMarkerManagement));
+        markerEditFrame = new MarkerEdit(this, SwingUtilities.windowForComponent(this));
 
         //Add existing LogMarkers (only SidescanLogMarker ones)
         for (LogMarker m : mraPanel.getMarkers()) {
@@ -190,7 +193,7 @@ public class MarkerManagement {
         }
 
         panel = new JPanel();
-        frmMarkerManagement.getContentPane().add(panel, "cell 0 0,grow");
+        getContentPane().add(panel, "cell 0 0,grow");
         panel.setLayout(new MigLayout("", "[][][grow]", "[][][grow]"));
 
         new Thread(new LoadMarkers()).start();
@@ -415,7 +418,7 @@ public class MarkerManagement {
 
                 @Override
                 public void actionPerformed(ActionEvent e) {
-                    frmMarkerManagement.dispose();
+                    dispose();
                 }
             };
             
@@ -428,7 +431,7 @@ public class MarkerManagement {
 
             menuBar.add(menu);
 
-            frmMarkerManagement.setJMenuBar(menuBar);
+            setJMenuBar(menuBar);
 
             tableModel = new LogMarkerItemModel(markerList);
             table = new JTable(tableModel);
@@ -1250,10 +1253,10 @@ public class MarkerManagement {
     public Point getwindowLocation() {
         Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
         double width = screenSize.getWidth();
-        int locationX = frmMarkerManagement.getLocation().x + frmMarkerManagement.getSize().width;
-        int locationY = frmMarkerManagement.getLocation().y;
-        if (frmMarkerManagement.getLocation().x + frmMarkerManagement.getWidth() + (markerEditFrame.getWidth())> width ) {
-            locationX = new Double(width).intValue() - frmMarkerManagement.getWidth() - frmMarkerManagement.getLocation().x;
+        int locationX = getLocation().x + getSize().width;
+        int locationY = getLocation().y;
+        if (getLocation().x + getWidth() + (markerEditFrame.getWidth()) > width) {
+            locationX = new Double(width).intValue() - getWidth() - getLocation().x;
         }
         Point p = new Point(locationX, locationY);
 
@@ -1266,8 +1269,11 @@ public class MarkerManagement {
     public void cleanup() {
         markerList.clear();
         logMarkers.clear();
-        if (frmMarkerManagement != null)
-            frmMarkerManagement.dispose();
+
+        if (markerEditFrame != null)
+            markerEditFrame.dispose();
+
+        dispose();
     }
 
     private LogMarkerItem findMarker(String label) {
@@ -1327,10 +1333,5 @@ public class MarkerManagement {
                 openMarkerEditor(table.getValueAt(rowToOpen, 1).toString(), rowToOpen);
                 table.setRowSelectionInterval(rowToOpen, rowToOpen);
             }
-    }
-
-    public boolean isVisible() {
-       
-        return frmMarkerManagement.isVisible();
     }
 }
