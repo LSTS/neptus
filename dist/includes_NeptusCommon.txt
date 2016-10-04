@@ -14,7 +14,8 @@ conf/planscripts/*.js
 conf/mraplots/*.plot
 conf/waypoints/
 conf/controllers/
-conf/i18n/
+conf/i18n/*.pot
+conf/i18n/**/*.po
 conf/neptus-coordinateSystems.xml
 conf/neptus-misc-systems.xml
 conf/params/manta*.xml
