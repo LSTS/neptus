@@ -411,9 +411,9 @@ public class MRAFilesHandler implements FileHandler {
         SwingWorker<Boolean, Void> worker = new SwingWorker<Boolean, Void>() {
             @Override
             protected Boolean doInBackground() throws Exception {
-                GuiUtils.infoMessage(mra, I18n.text("Generating PDF Report..."), I18n.text("Generating PDF Report..."));
+//                GuiUtils.infoMessage(mra, I18n.text("Generating PDF Report..."), I18n.text("Generating PDF Report..."));
                 mra.getMRAMenuBar().getReportMenuItem().setEnabled(false);
-                LsfReportProperties.generatingReport=true;
+                LsfReportProperties.generatingReport = true;
                 mra.getMraPanel().addStatusBarMsg("Generating Report...");
                 return LsfReport.generateReport(mra.getMraPanel().getSource(), f, mra.getMraPanel());
             }
