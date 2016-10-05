@@ -36,6 +36,7 @@ import java.awt.Color;
 import java.awt.Component;
 import java.awt.Container;
 import java.awt.Cursor;
+import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Image;
 import java.awt.Point;
@@ -795,14 +796,13 @@ public class MapEditor extends ConsolePanel implements StateRendererInteraction,
             return;
         }
 
-        
         if (event.getButton() != MouseEvent.BUTTON1) {
             return;
         }
 
         testMouseIntersections();
 
-        if (!intersectedObjects.isEmpty()) {
+        if (!intersectedObjects.isEmpty() && event.getClickCount() > 1) {
             draggedObject = intersectedObjects.lastElement();
             orignalXML = draggedObject.asXML();
             originalObjLocation = new LocationType(draggedObject.getCenterLocation());
@@ -813,11 +813,11 @@ public class MapEditor extends ConsolePanel implements StateRendererInteraction,
 
             objectMoved = false;
         }
-        else 
+        else {
             adapter.mousePressed(event, source);
+        }
 
         mousePoint = event.getPoint();
-
     }
 
     @Override
@@ -1044,6 +1044,17 @@ public class MapEditor extends ConsolePanel implements StateRendererInteraction,
     @Override
     public void paintInteraction(Graphics2D g, StateRenderer2D source) {
         adapter.paintInteraction(g, source);
+
+        if (draggedObject != null && mousePoint != null) {
+            Graphics2D g2 = (Graphics2D) g.create();
+            g2.setColor(Color.CYAN);
+            g2.fillOval(mousePoint.x - 10, mousePoint.y - 10, 20, 20);
+            g2.setColor(Color.BLACK);
+            g2.drawOval(mousePoint.x - 10, mousePoint.y - 10, 20, 20);
+            g2.setColor(Color.BLACK);
+            g2.fillOval(mousePoint.x - 5, mousePoint.y - 5, 10, 10);
+            g2.dispose();
+        }
     }
 
     /*
