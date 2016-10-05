@@ -278,7 +278,7 @@ public class KmlImport extends ConsolePanel {
 
     private String extractFeatureType(String fname) {
         Feature f = kmlFeatures.get(fname);
-        if (f instanceof Placemark)
+        if (f instanceof Placemark && ((Placemark) f).getGeometry() != null)
             return ((Placemark) f).getGeometry().getClass().getSimpleName();
 
         return f.getClass().getSimpleName();
@@ -359,9 +359,15 @@ public class KmlImport extends ConsolePanel {
             else if(featGeom.equals("Polygon")) {
                 addAsPathElement(feature, idByUser, true);
             }
+            else {
+                errorMsg = "No valid geometry foung in Placemark!";
+            }
         }
         else if (f instanceof GroundOverlay) {
             errorMsg = addAsImage((GroundOverlay) f, idByUser);
+        }
+        else {
+            errorMsg = "Feature not supported!";
         }
         
         if (errorMsg == null)
