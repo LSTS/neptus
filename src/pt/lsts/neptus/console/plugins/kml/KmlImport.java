@@ -68,6 +68,7 @@ import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
 import javax.swing.ListCellRenderer;
 import javax.swing.SwingUtilities;
+import javax.swing.SwingWorker;
 
 import de.micromata.opengis.kml.v_2_2_0.AbstractObject;
 import de.micromata.opengis.kml.v_2_2_0.Coordinate;
@@ -177,18 +178,31 @@ public class KmlImport extends ConsolePanel {
                 String validID = NameNormalizer.asIdentifier(featName);
                 String idByUser = JOptionPane.showInputDialog(I18n.text("Element ID"), validID);
                 
-                String ret = null;
-                try {
-                    if(idByUser != null && !idByUser.isEmpty())
-                        ret = addFeatureToMap(featName, idByUser, false);
-                }
-                catch (Exception e1) {
-                    ret = e1.getMessage();
-                }
-                if (ret != null && !ret.isEmpty()) {
-                    if (ret != null && !ret.isEmpty())
-                        GuiUtils.errorMessage(SwingUtilities.windowForComponent(KmlImport.this), KmlImport.this.getName(),
-                                ret);
+                if(idByUser != null && !idByUser.isEmpty()) {
+                    SwingWorker<String, Void> sw = new SwingWorker<String, Void>() {
+                        String ret = null;
+
+                        @Override
+                        protected String doInBackground() throws Exception {
+                            try {
+                                ret = addFeatureToMap(featName, idByUser, false);
+                            }
+                            catch (Exception e1) {
+                                ret = e1.getMessage();
+                            }
+                            return ret;
+                        }
+                        
+                        @Override
+                        protected void done() {
+                            if (ret != null && !ret.isEmpty()) {
+                                if (ret != null && !ret.isEmpty())
+                                    GuiUtils.errorMessage(SwingUtilities.windowForComponent(KmlImport.this), KmlImport.this.getName(),
+                                            ret);
+                            }
+                        }
+                    };
+                    sw.execute();
                 }
             }
         });
@@ -202,18 +216,31 @@ public class KmlImport extends ConsolePanel {
                 String validID = NameNormalizer.asIdentifier(featName);
                 String idByUser = JOptionPane.showInputDialog(I18n.text("Plan ID"), validID);
                 
-                String ret = null;
-                try {
-                if(idByUser != null && !idByUser.isEmpty())
-                    ret = addFeatureToMap(featName, idByUser, true);
-                }
-                catch (Exception e1) {
-                    ret = e1.getMessage();
-                }
-                if (ret != null && !ret.isEmpty()) {
-                    if (ret != null && !ret.isEmpty())
-                        GuiUtils.errorMessage(SwingUtilities.windowForComponent(KmlImport.this), KmlImport.this.getName(),
-                                ret);
+                if(idByUser != null && !idByUser.isEmpty()) {
+                    SwingWorker<String, Void> sw = new SwingWorker<String, Void>() {
+                        String ret = null;
+
+                        @Override
+                        protected String doInBackground() throws Exception {
+                            try {
+                                ret = addFeatureToMap(featName, idByUser, true);
+                            }
+                            catch (Exception e1) {
+                                ret = e1.getMessage();
+                            }
+                            return ret;
+                        }
+                        
+                        @Override
+                        protected void done() {
+                            if (ret != null && !ret.isEmpty()) {
+                                if (ret != null && !ret.isEmpty())
+                                    GuiUtils.errorMessage(SwingUtilities.windowForComponent(KmlImport.this), KmlImport.this.getName(),
+                                            ret);
+                            }
+                        }
+                    };
+                    sw.execute();
                 }
             }
         });
