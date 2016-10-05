@@ -65,6 +65,7 @@ import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPopupMenu;
+import javax.swing.JScrollPane;
 import javax.swing.ListCellRenderer;
 import javax.swing.SwingUtilities;
 
@@ -220,8 +221,11 @@ public class KmlImport extends ConsolePanel {
 
     private void initListingPanel() {
         listingPanel = new JList<>(listModel);
-        listingPanel.setPreferredSize(new Dimension(WIDTH, HEIGHT));
-        add(listingPanel);
+        
+        JScrollPane scrollPane = new JScrollPane(listingPanel, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED,
+                JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+        scrollPane.setPreferredSize(new Dimension(WIDTH, HEIGHT));
+        add(scrollPane);
 
         listingPanel.setCellRenderer(new CustomListCellRenderer());
 
