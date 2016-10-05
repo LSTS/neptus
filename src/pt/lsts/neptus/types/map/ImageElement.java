@@ -495,7 +495,7 @@ public class ImageElement extends AbstractElement implements ScalableElement, Ro
     @Override
     public void paint(Graphics2D g, StateRenderer2D renderer, double rotation) {
         if (getImage() == null) {
-            NeptusLog.pub().error(this + ": Tried to draw a null image: " + getImageFileName());
+            NeptusLog.pub().debug(this + ": Tried to draw a null image: " + getImageFileName());
             return;
         }
 
