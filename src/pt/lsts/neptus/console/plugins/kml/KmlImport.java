@@ -115,6 +115,8 @@ import pt.lsts.neptus.util.conf.ConfigFetch;
 @Popup(name = "Kml Import", pos = POSITION.CENTER, width = 230, height = 500)
 @LayerPriority(priority = 50)
 public class KmlImport extends ConsolePanel {
+    private static final int MAX_NUMBER_OF_MANEUVERS_TO_IMPORT = 50;
+
     private static final Color COLOR_SELECTED = new Color(200, 255, 200);
 
     private JMenuBar menuBar;
@@ -354,7 +356,7 @@ public class KmlImport extends ConsolePanel {
                 if(!addAsPlan)
                     addAsPathElement(feature, idByUser, false);
                 else
-                    addLineStringAsPlan(feature, idByUser);
+                    errorMsg = addLineStringAsPlan(feature, idByUser);
             }
             else if(featGeom.equals("Polygon")) {
                 addAsPathElement(feature, idByUser, true);
@@ -419,7 +421,7 @@ public class KmlImport extends ConsolePanel {
         mission.save(false);
     }
     
-    private void addLineStringAsPlan(Placemark lineString, String idByUser) {
+    private String addLineStringAsPlan(Placemark lineString, String idByUser) {
         MissionType mission = getConsole().getMission();
         
         String mainVehicle = getConsole().getMainSystem();
@@ -432,6 +434,9 @@ public class KmlImport extends ConsolePanel {
         int nManeuver = 0;
         for (Coordinate coord : coords) {
             nManeuver++;
+            
+            if (nManeuver > MAX_NUMBER_OF_MANEUVERS_TO_IMPORT)
+                return I18n.textf("Excessive number of maneuvers to add to plan (%n)", MAX_NUMBER_OF_MANEUVERS_TO_IMPORT);
             
             Goto maneuver = new Goto();
             maneuver.setId("point " + nManeuver);
@@ -448,6 +453,8 @@ public class KmlImport extends ConsolePanel {
         mission.addPlan(plan);
         mission.save(false);
         getConsole().warnMissionListeners();
+        
+        return null;
     }
     
     private List<Coordinate> getPathCoordinates(Placemark feature, boolean featureIsPolygon) {
