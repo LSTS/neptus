@@ -585,7 +585,16 @@ public class KmlImport extends ConsolePanel {
         if (imgFile == null || !imgFile.exists())
             return I18n.textf("Not possible to find image '%file'.", fHref);
         
-        Image img = ImageUtils.getImage(imgFile.getAbsolutePath());
+        Image img = null;
+        try {
+            img = ImageIO.read(imgFile.toURI().toURL());
+        }
+        catch (Exception e1) {
+            e1.printStackTrace();
+        } // ImageUtils.getImageWaitLoad(imgFile.getAbsolutePath());
+        if (img == null)
+            img = ImageUtils.getImageWaitLoad(imgFile.getAbsolutePath());
+        
         if (img == null)
             return I18n.textf("Not possible to find image '%file'.", fHref);
         
