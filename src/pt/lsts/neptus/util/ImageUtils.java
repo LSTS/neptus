@@ -285,10 +285,17 @@ public class ImageUtils {
             catch (Exception e) {
                 image = new ImageIcon(imageUrl).getImage();
             }
-            if (image == null)
+            if (image == null) {
                 NeptusLog.waste().debug("[ImageLoader] Loading image " + imageUrl + " failed");
-            else
+            }
+            else {
+                if (image.getWidth(null) <= 0 || image.getHeight(null) <= 0) {
+                    String addInfo = "Image loaded with width and height wrong (" + image.getWidth(null) 
+                    + ", " + image.getHeight(null) + ")";
+                    NeptusLog.waste().error("[ImageLoader] Loading image " + imageUrl + " succeeded. " + addInfo);
+                }
                 NeptusLog.waste().debug("[ImageLoader] Loading image " + imageUrl + " succeeded");
+            }
         }
 
         public Image getImage() {

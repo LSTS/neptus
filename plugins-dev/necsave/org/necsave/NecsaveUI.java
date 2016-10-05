@@ -31,6 +31,7 @@
  */
 package org.necsave;
 
+import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Font;
 import java.awt.Graphics2D;
@@ -39,6 +40,8 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.awt.geom.AffineTransform;
+import java.awt.geom.Point2D;
+import java.awt.geom.Rectangle2D;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -63,6 +66,7 @@ import info.necsave.msgs.AbortMission.TYPE;
 import info.necsave.msgs.ActionIdle;
 import info.necsave.msgs.ActionIdle.IDLE_AT_HOME;
 import info.necsave.msgs.Area;
+import info.necsave.msgs.BehaviorPatternFormation;
 import info.necsave.msgs.BehaviorScanArea;
 import info.necsave.msgs.Capabilities;
 import info.necsave.msgs.CapabilityPlanMission;
@@ -134,21 +138,24 @@ public class NecsaveUI extends ConsoleLayer {
     @NeptusProperty(description="RFU - Safe Range in meters between vehicles in a formation mission")
     public double safeDistance = 25;
 
+    @NeptusProperty(description = "Paint formation lines between vehicles on a formation")
+    public boolean paintFormation = true;
+
     private NecsaveTransport transport = null;
     private LinkedHashMap<Integer, String> platformNames = new LinkedHashMap<>();
     private LinkedHashMap<Integer, PlatformPlanProgress> planProgresses = new LinkedHashMap<>();
     private LinkedHashMap<Integer, PlatformState> platfStates = new LinkedHashMap<>();
     private LinkedHashMap<Integer, PlatformInfo> platfInfos = new LinkedHashMap<>();
+    private LinkedHashMap<Integer, Kinematics> platfKinematics = new LinkedHashMap<>();
     private LinkedHashMap<String, LocationType> contacts = new LinkedHashMap<>();
+    private LinkedHashMap<Integer, Color> platformColors = new LinkedHashMap<>();
+    private Vector<PlatformFollower> followers = new Vector<>();
     private Plan plan = null;
     private ParallelepipedElement elem = null;
     private ParallelepipedElement area;
     private LocationType corner = null; 
     private double width, height;
     private ConsoleInteraction interaction;
-    
-    private LinkedHashMap<Integer, Color> platformColors = new LinkedHashMap<>();
-    
     
     @Override
     public void initLayer() {
@@ -706,6 +713,8 @@ public class NecsaveUI extends ConsoleLayer {
                 LocationType loc = new LocationType(Math.toDegrees(msg.getWaypoint().getLatitude()),
                         Math.toDegrees(msg.getWaypoint().getLongitude()));
                 loc.setDepth(msg.getWaypoint().getDepth());
+
+                platfKinematics.put(msg.getSrc(), msg);
                 update(msg.getSrc(), loc, Math.toDegrees(msg.getHeading()));
             }
             else {
@@ -829,6 +838,9 @@ public class NecsaveUI extends ConsoleLayer {
         lbl.paint(g);
         g.translate(-10, -10);
         paintPlan(g, renderer);
+
+        if (paintFormation)
+            paintFormation(g, renderer);
     }
     
     private void paintPlan(Graphics2D g, StateRenderer2D source) {
@@ -878,7 +890,90 @@ public class NecsaveUI extends ConsoleLayer {
             }
         }        
     }
-    
+
+    private void paintFormation(Graphics2D g, StateRenderer2D renderer) {
+        if (platfKinematics.isEmpty() || plan == null)
+            return;
+
+        if (platformNames.isEmpty()) {
+            plan = null;
+            return;
+        }
+
+        @SuppressWarnings("unchecked")
+        Vector<Message> platfPlans = (Vector<Message>) plan.getValue("platform_plans");
+        if (platfPlans.isEmpty())
+            return;
+
+        followers.clear();
+
+        PlatformPlan p = (PlatformPlan) platfPlans.get(0);
+        @SuppressWarnings("unchecked")
+        Vector<Message> behaviors = (Vector<Message>) p.getValue("behaviors");
+        for (Message b : behaviors) {
+            if (b.getMgid() == BehaviorPatternFormation.ID_STATIC) {
+                BehaviorPatternFormation form = (BehaviorPatternFormation) b;
+                Formation f = form.getFormation();
+                Vector<PlatformFollower> a = (Vector<PlatformFollower>) f.getValue("followers_list");
+                followers.addAll(a);
+                break;
+            }
+        }
+
+        AffineTransform old = g.getTransform();
+        
+        int j = 0;
+        for (int i = 0; i < followers.size(); i++) {
+            Kinematics kin0 = platfKinematics.get(followers.get(i).getFollowerPlatformId());
+
+            if (i == followers.size() - 1)
+                j = 0;
+            else
+                j = j + 1;
+
+            Kinematics kin1 = platfKinematics.get(followers.get(j).getFollowerPlatformId());
+            LocationType loc0 = new LocationType(Math.toDegrees(kin0.getWaypoint().getLatitude()),
+                    Math.toDegrees(kin0.getWaypoint().getLongitude()));
+            loc0.setDepth(kin0.getWaypoint().getDepth());
+            LocationType loc1 = new LocationType(Math.toDegrees(kin1.getWaypoint().getLatitude()),
+                    Math.toDegrees(kin1.getWaypoint().getLongitude()));
+            loc1.setDepth(kin1.getWaypoint().getDepth());
+            Point2D point0 = renderer.getScreenPosition(loc0);
+            Point2D point1 = renderer.getScreenPosition(loc1);
+
+            g.setColor(new Color(255, 255, 0));
+            g.setStroke(new BasicStroke(3));
+            g.drawLine((int) point0.getX(), (int) point0.getY(), (int) point1.getX(), (int) point1.getY());
+
+            double angle = Math.atan2(point0.getY() - point1.getY(), point0.getX() - point1.getX());
+
+            g.translate(point0.getX(), point0.getY());
+            g.rotate(angle - Math.PI / 2);
+
+            double distance = point0.distance(point1);
+            g.translate(0, -distance / 2);
+            g.rotate(Math.PI / 2);
+
+            if (Math.abs(angle) > Math.PI / 2) {
+                g.rotate(Math.PI);
+            }
+
+            String txt = GuiUtils.getNeptusDecimalFormat(0).format(loc0.getDistanceInMeters(loc1)) + " m";
+            Font oldFont = g.getFont();
+            g.setFont(new Font("Arial", Font.PLAIN, 11));
+
+            Rectangle2D stringBounds = g.getFontMetrics().getStringBounds(txt, g);
+            g.setColor(Color.BLACK);
+            g.drawString(txt, -(int) stringBounds.getWidth() / 2 + 1, -2);
+            g.setColor(Color.WHITE);
+            g.drawString(txt, -(int) stringBounds.getWidth() / 2, -3);
+            g.setFont(oldFont);
+
+            g.setTransform(old);
+        }
+
+    }
+
     private void paintScanArea(BehaviorScanArea b, Color c, Graphics2D g, StateRenderer2D source) {
 
         

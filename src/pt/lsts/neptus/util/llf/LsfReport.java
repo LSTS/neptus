@@ -84,6 +84,7 @@ import pt.lsts.neptus.mra.api.SidescanParameters;
 import pt.lsts.neptus.mra.api.SidescanParser;
 import pt.lsts.neptus.mra.api.SidescanParserFactory;
 import pt.lsts.neptus.mra.importers.IMraLogGroup;
+import pt.lsts.neptus.mra.plots.ScriptedPlot;
 import pt.lsts.neptus.renderer2d.StateRenderer2D;
 import pt.lsts.neptus.types.coord.CoordinateUtil;
 import pt.lsts.neptus.types.map.MapGroup;
@@ -363,21 +364,24 @@ public class LsfReport {
             doc.newPage();
 
             for (LLFChart llfChart : llfCharts) {
-
-                java.awt.Graphics2D g2 = cb.createGraphicsShapes(pageSize.getWidth(), pageSize.getHeight());
-                int width = (int) pageSize.getWidth();
-                int height = (int) pageSize.getHeight();
-
-                JFreeChart chart = llfChart.getChart(source, llfChart.getDefaultTimeStep());
-                chart.setBackgroundPaint(Color.white);
-                chart.draw(g2, new Rectangle2D.Double(25, 25, width - 50, height - 50));
-
-                g2.dispose();
-                writePageNumber(cb, page++);
-                writeHeader(cb, source);
-                writeFooter(cb, source);
-                doc.newPage();
-
+                if (!(llfChart instanceof ScriptedPlot)) {
+                    java.awt.Graphics2D g2 = cb.createGraphicsShapes(pageSize.getWidth(), pageSize.getHeight());
+                    int width = (int) pageSize.getWidth();
+                    int height = (int) pageSize.getHeight();
+                    
+                    JFreeChart chart = llfChart.getChart(source, llfChart.getDefaultTimeStep());
+                    chart.setBackgroundPaint(Color.white);
+                    chart.draw(g2, new Rectangle2D.Double(25, 25, width - 50, height - 50));
+                    
+                    g2.dispose();
+                    writePageNumber(cb, page++);
+                    writeHeader(cb, source);
+                    writeFooter(cb, source);
+                    doc.newPage();
+                }
+                else {
+                    NeptusLog.pub().warn("ScriptedPlot skiped!");
+                }
             }
 
             int width = (int) pageSize.getWidth();
@@ -403,6 +407,9 @@ public class LsfReport {
 
             r2d.setSize(width - 100, height - 100);
             r2d.focusLocation(path.getCenterPoint());
+            
+            r2d.setLevelOfDetail(16); // FIXME
+            
             SwingUtilities.invokeAndWait(new Runnable() {
                 @Override
                 public void run() {
@@ -443,8 +450,12 @@ public class LsfReport {
             throws DocumentException {
 
         try {
-
             SidescanParser ssParser = SidescanParserFactory.build(source);
+            if (ssParser == null) {
+                NeptusLog.pub().warn("No sidescan to use for PDF");
+                return;
+            }
+            
             int nSubsys = ssParser.getSubsystemList().size();
             SidescanConfig config = new SidescanConfig();
             int colorMapCode = LsfReportProperties.sidescanColorMap;
@@ -486,7 +497,7 @@ public class LsfReport {
         }
         catch (Exception e) {
             e.printStackTrace();
-            GuiUtils.errorMessage(I18n.text("Error creating PDF table"), e.getMessage());
+            GuiUtils.errorMessage(I18n.text("Error creating PDF table for sidescan"), e.getMessage());
         }
     }
 

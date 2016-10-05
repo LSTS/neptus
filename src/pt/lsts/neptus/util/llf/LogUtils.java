@@ -810,6 +810,7 @@ public class LogUtils {
             }
         }
         pe.setMyColor(Color.green);
+        pe.setFilled(false);
         pe.setFinished(true);
 
         MapMission mm = new MapMission();
