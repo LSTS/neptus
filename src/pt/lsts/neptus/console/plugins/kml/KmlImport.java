@@ -393,7 +393,7 @@ public class KmlImport extends ConsolePanel {
                 addAsPathElement(feature, idByUser, true);
             }
             else {
-                errorMsg = "No valid geometry foung in Placemark!";
+                errorMsg = "No valid geometry found in Placemark!";
             }
         }
         else if (f instanceof GroundOverlay) {
