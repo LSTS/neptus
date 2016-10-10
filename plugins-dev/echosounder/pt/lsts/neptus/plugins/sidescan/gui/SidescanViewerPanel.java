@@ -292,6 +292,13 @@ public class SidescanViewerPanel extends JPanel {
         }
     }
     
+    /**
+     * @return the rangeForRulerMeters
+     */
+    public int getRangeForRulerMeters() {
+        return rangeForRulerMeters;
+    }
+    
     private void setRangeForRuler(int rangeForRuler) {
         this.rangeForRulerMeters = rangeForRuler;
         this.rangeForRulerStepMeters = SidescanGuiUtils.calcStepForRangeForRuler(rangeForRulerMeters);
