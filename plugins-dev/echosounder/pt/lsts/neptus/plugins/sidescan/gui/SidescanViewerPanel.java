@@ -95,6 +95,7 @@ public class SidescanViewerPanel extends JPanel {
     private boolean speedCorrection = true;
 
     // GUI
+    private JPanel ruller = null;
     private JPanel viewer = null;
     
     private BufferedImage ssImage = null;
@@ -140,11 +141,35 @@ public class SidescanViewerPanel extends JPanel {
     private void initialize() {
         removeAll();
         
+        ruller = createRullerPanel();
         viewer = createViewerPanel();
         
-        setLayout(new MigLayout("ins 0, gap 5"));
-        // add(toolbar, "w 100%, wrap");
-        add(viewer, "w 100%, h 100%");
+        setLayout(new MigLayout("ins 0, gap 0", "[][grow]", "[top][grow]"));
+        add(ruller, "w 100%, h " + MAX_RULER_SIZE + "px, wrap");
+        add(viewer, "w 100%, grow");
+    }
+
+    /**
+     * @return
+     */
+    private JPanel createRullerPanel() {
+        JPanel rPanel = new JPanel() {
+            private static final long serialVersionUID = 1L;
+
+            @Override
+            protected void paintComponent(Graphics g) {
+                try {
+                    super.paintComponent(g);
+                    SidescanGuiUtils.drawRuler(g, this.getWidth(), MAX_RULER_SIZE, rangeForRulerMeters,
+                            rangeForRulerStepMeters);
+                }
+                catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        };
+
+        return rPanel;
     }
 
     /**
@@ -169,7 +194,7 @@ public class SidescanViewerPanel extends JPanel {
                         if (preLayerPainter != null)
                             preLayerPainter.paint(ssLayer.getGraphics(), ssLayer);
                         
-                        SidescanGuiUtils.drawRuler(ssLayer, MAX_RULER_SIZE, rangeForRulerMeters, rangeForRulerStepMeters);;
+                        // SidescanGuiUtils.drawRuler(ssLayer, MAX_RULER_SIZE, rangeForRulerMeters, rangeForRulerStepMeters);;
 
                         if (postLayerPainter != null)
                             postLayerPainter.paint(ssLayer.getGraphics(), ssLayer);
@@ -458,6 +483,7 @@ public class SidescanViewerPanel extends JPanel {
             @Override
             public void run() {
                 viewer.repaint();
+                ruller.repaint();
             }
         });
     }
