@@ -33,6 +33,7 @@ package pt.lsts.neptus.mra.api;
 
 import java.awt.image.BufferedImage;
 
+import pt.lsts.imc.IMCMessage;
 import pt.lsts.imc.SonarData;
 import pt.lsts.neptus.mp.SystemPositionAndAttitude;
 import pt.lsts.neptus.types.coord.LocationType;
@@ -238,6 +239,10 @@ public class SidescanUtil {
     /**
      * Converts a {@link SonarData} into a {@link SidescanLine} and applies the {@link SidescanParameters}.
      * 
+     * MRA to be able to use a larger range of IMC versions should not use typed messages,
+     * call {@link SidescanUtil#getSidescanLine(SonarData, SystemPositionAndAttitude, SidescanParameters)}
+     * or {@link SidescanUtil#getSidescanLine(IMCMessage, SystemPositionAndAttitude)}.
+     * 
      * @param sonarData
      * @param pose
      * @param sidescanParams
@@ -245,7 +250,25 @@ public class SidescanUtil {
      */
     public static SidescanLine getSidescanLine(SonarData sonarData, SystemPositionAndAttitude pose,
             SidescanParameters sidescanParams) {
-        SidescanLine line = getSidescanLine(sonarData, pose);
+        return getSidescanLine((IMCMessage) sonarData, pose,sidescanParams);
+    }
+
+    /**
+     * Converts a SonarData {@link IMCMessage} into a {@link SidescanLine} and applies the {@link SidescanParameters}.
+     * 
+     * @param sonarData
+     * @param pose
+     * @param sidescanParams
+     * @return
+     */
+    public static SidescanLine getSidescanLine(IMCMessage sonarData, SystemPositionAndAttitude pose,
+            SidescanParameters sidescanParams) {
+        SidescanLine line = null;
+        if (sonarData instanceof SonarData)
+            line = getSidescanLine((SonarData) sonarData, pose);
+        else
+            line = getSidescanLine(sonarData, pose);
+        
         if (line == null)
             return null;
         
@@ -263,6 +286,10 @@ public class SidescanUtil {
 
     /**
      * Converts a {@link SonarData} into a {@link SidescanLine} without any extra conversion.
+     * 
+     * MRA to be able to use a larger range of IMC versions should not use typed messages,
+     * call {@link SidescanUtil#getSidescanLine(SonarData, SystemPositionAndAttitude, SidescanParameters)}
+     * or {@link SidescanUtil#getSidescanLine(IMCMessage, SystemPositionAndAttitude)}.
      * 
      * @param sonarData
      * @param pose
@@ -284,7 +311,34 @@ public class SidescanUtil {
         SidescanLine line = new SidescanLine(timeMillis, range, pose, freq, sData);
         return line;
     }
-    
+
+    /**
+     * Converts a SonarData {@link IMCMessage} into a {@link SidescanLine} without any extra conversion.
+     * 
+     * @param sonarData
+     * @param pose
+     * @return
+     */
+    public static SidescanLine getSidescanLine(IMCMessage sonarData, SystemPositionAndAttitude pose) {
+        if (!"SonarData".equalsIgnoreCase(sonarData.getAbbrev()) 
+                || sonarData.getInteger("type") != SonarData.TYPE.SIDESCAN.value()) {
+            return null;
+        }
+ 
+        int range = sonarData.getInteger("range");
+        if (range == 0)
+            range = sonarData.getInteger("max_range");
+        byte[] data = sonarData.getRawData("data");
+        double scaleFactor = sonarData.getDouble("scale_factor");
+        short bitsPerPoint = (short) sonarData.getInteger("bits_per_point");
+        double[] sData = getData(data, scaleFactor, bitsPerPoint);
+        
+        long timeMillis = sonarData.getTimestampMillis();
+        long freq = sonarData.getLong("frequency");
+        SidescanLine line = new SidescanLine(timeMillis, range, pose, freq, sData);
+        return line;
+    }
+
     /**
      * Applies normalization and TVG to data.
      * This does not touch the input data. 
@@ -335,6 +389,7 @@ public class SidescanUtil {
         return outData;
     }
 
+    @SuppressWarnings("unused")
     private static double[] applyNormalizationAndTVGMethod2(double[] data, double range,
             SidescanParameters sidescanParams) {
         double max = 0;
