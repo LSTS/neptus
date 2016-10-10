@@ -513,37 +513,42 @@ public class SidescanViewerPanel extends JPanel {
         
 //        System.in.read();
 
-        String fxStr;
-        fxStr = "D:\\LSTS-Logs\\TestsSpeedsSideScan\\NP1\\113431_ss-speed-test-np1\\Data.lsf";
-        fxStr = "D:\\LSTS-Logs\\2015-05-28-netmar\\lauv-np3-20150528-075930_sss_np3\\\\Data.lsf";
-        LsfLogSource ls = new LsfLogSource(fxStr, null);
-        LsfIndex index = ls.getLsfIndex();
-        SonarData sd1 = index.getFirst(SonarData.class);
-        //csl.setMainSystem(sd1.getSourceName());
-        IMraLog eState = ls.getLog(EstimatedState.class.getSimpleName());
-        SidescanParameters sidescanParams = new SidescanParameters(0.2, 280);
-        for (int i = 0; i < 10; i++) {
-            for (SonarData sd : index.getIterator(SonarData.class)) {
-                if (sd.getType() != SonarData.TYPE.SIDESCAN) {
-                    continue;
+        ArrayList<String> fxStrList = new ArrayList<>();
+        fxStrList.add("D:\\LSTS-Logs\\TestsSpeedsSideScan\\NP1\\113431_ss-speed-test-np1\\Data.lsf");
+        fxStrList.add("D:\\LSTS-Logs\\2015-05-28-netmar\\lauv-np3-20150528-075930_sss_np3\\Data.lsf");
+
+        int repeatTimes = 1;
+
+        for (String fxStr : fxStrList) {
+            LsfLogSource ls = new LsfLogSource(fxStr, null);
+            LsfIndex index = ls.getLsfIndex();
+            SonarData sd1 = index.getFirst(SonarData.class);
+            //csl.setMainSystem(sd1.getSourceName());
+            IMraLog eState = ls.getLog(EstimatedState.class.getSimpleName());
+            SidescanParameters sidescanParams = new SidescanParameters(0.2, 280);
+            for (int i = 0; i < repeatTimes; i++) {
+                for (SonarData sd : index.getIterator(SonarData.class)) {
+                    if (sd.getType() != SonarData.TYPE.SIDESCAN) {
+                        continue;
+                    }
+                    
+                    EstimatedState estState = (EstimatedState) eState.getEntryAtOrAfter(sd.getTimestampMillis()); 
+                    SystemPositionAndAttitude pose;
+                    if (estState == null
+                            || Math.abs(estState.getTimestampMillis() - sd.getTimestampMillis()) > 500) {
+                        pose = new SystemPositionAndAttitude();
+                        // return;
+                    }
+                    else {
+                        pose = new SystemPositionAndAttitude(estState);
+                    }
+                    SidescanLine line = SidescanUtil.getSidescanLine(sd, pose, sidescanParams);
+                    if (line != null)
+                        ssPanel.addNewSidescanLine(line);
+//                  System.out.println(sd.getTimestampMillis());
+                    Thread.sleep(5);
+                    Thread.yield();
                 }
-                
-                EstimatedState estState = (EstimatedState) eState.getEntryAtOrAfter(sd.getTimestampMillis()); 
-                SystemPositionAndAttitude pose;
-                if (estState == null
-                        || Math.abs(estState.getTimestampMillis() - sd.getTimestampMillis()) > 500) {
-                    pose = new SystemPositionAndAttitude();
-                    // return;
-                }
-                else {
-                    pose = new SystemPositionAndAttitude(estState);
-                }
-                SidescanLine line = SidescanUtil.getSidescanLine(sd, pose, sidescanParams);
-                if (line != null)
-                    ssPanel.addNewSidescanLine(line);
-//            System.out.println(sd.getTimestampMillis());
-                Thread.sleep(5);
-                Thread.yield();
             }
         }
     }
