@@ -56,12 +56,10 @@ public class SystemPositionAndAttitude implements Cloneable, Comparable<SystemPo
 
     private LocationType position = new LocationType(), guine = new LocationType();
 
-
     /**
      * Empty constructor
      */
     public SystemPositionAndAttitude() {
-
     }
 
     /**
@@ -115,6 +113,8 @@ public class SystemPositionAndAttitude implements Cloneable, Comparable<SystemPo
         setPQR(vs.getP(), vs.getQ(), vs.getR());
         setUVW(vs.getU(), vs.getV(), vs.getW());
         setVxyz(vs.getVx(), vs.getVy(), vs.getVz());
+        
+        setAltitude(vs.altitude);
     }
 
     public SystemPositionAndAttitude(EstimatedState state) {
@@ -130,6 +130,8 @@ public class SystemPositionAndAttitude implements Cloneable, Comparable<SystemPo
         setPQR(state.getP(), state.getQ(), state.getR());
         setUVW(state.getU(), state.getV(), state.getW());
         setVxyz(state.getVx(), state.getVy(), state.getVz());
+        
+        setAltitude(state.getAlt());
     }
 
     /**
