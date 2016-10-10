@@ -38,6 +38,7 @@ import pt.lsts.neptus.mp.SystemPositionAndAttitude;
 import pt.lsts.neptus.mra.api.SidescanLine;
 import pt.lsts.neptus.mra.api.SidescanParameters;
 import pt.lsts.neptus.mra.api.SidescanParser;
+import pt.lsts.neptus.mra.api.SidescanUtil;
 
 public class SdfSidescanParser implements SidescanParser {
     private SdfParser parser;
@@ -87,37 +88,15 @@ public class SdfSidescanParser implements SidescanParser {
             SdfData sboardPboard = ping; // one ping contains both Sboard and Portboard samples
             int nSamples = sboardPboard != null ? sboardPboard.getNumSamples() : 0;
             double fData[] = new double[nSamples * 2]; // x2 (portboard + sboard in the same ping)
-            double avgSboard = 0, avgPboard = 0;
 
+            // Port side
             for (int i = 0; i < nSamples; i++) {
-                double r = ping.getPortData()[i];
-                avgPboard += r;
+                fData[nSamples - i - 1] = sboardPboard.getPortData()[i];
             }
 
+            // Starboard side
             for (int i = 0; i < nSamples; i++) {
-                double r = ping.getStbdData()[i];
-                avgSboard += r;
-            }
-
-            avgPboard /= nSamples * config.getNormalization();
-            avgSboard /= nSamples * config.getNormalization();
-
-            // Calculate Portboard
-            for (int i = 0; i < nSamples; i++) {
-                double r = 1 - (i / (double) nSamples);
-                double gain = Math.abs(30.0 * Math.log(r));
-                double pb = sboardPboard.getPortData()[i] * Math.pow(10, gain / config.getTvgGain());
-
-                fData[nSamples - i - 1] = pb / avgPboard;
-            }
-
-            // Calculate Starboard
-            for (int i = 0; i < nSamples; i++) {
-                double r = 1 - (i / (double) nSamples);
-                double gain = Math.abs(30.0 * Math.log(r));
-                double sb = sboardPboard.getStbdData()[i] * Math.pow(10, gain / config.getTvgGain());
-
-                fData[i + nSamples] = sb / avgSboard;
+                fData[i + nSamples] = sboardPboard.getStbdData()[i];
             }
 
             SystemPositionAndAttitude pose = new SystemPositionAndAttitude();
@@ -135,6 +114,8 @@ public class SdfSidescanParser implements SidescanParser {
             float frequency = ping.getHeader().getSonarFreq();
             float range = ping.getHeader().getRange();
 
+            fData = SidescanUtil.applyNormalizationAndTVG(fData, range, config);
+            
             list.add(new SidescanLine(ping.getTimestamp(), range, pose, frequency, fData));
 
             try {
