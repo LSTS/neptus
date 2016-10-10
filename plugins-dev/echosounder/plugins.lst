@@ -5,3 +5,4 @@
 
 pt.lsts.neptus.plugins.echosounder.EchoSounderMRA
 pt.lsts.neptus.plugins.sidescan.SidescanAnalyzer
+pt.lsts.neptus.plugins.sidescan.console.SidescanRealTimeWaterfall
