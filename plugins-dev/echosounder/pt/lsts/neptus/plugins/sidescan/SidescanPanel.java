@@ -73,6 +73,7 @@ import pt.lsts.neptus.console.plugins.propertiesproviders.SidescanConfig;
 import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.mra.LogMarker;
 import pt.lsts.neptus.mra.SidescanLogMarker;
+import pt.lsts.neptus.mra.api.SidescanGuiUtils;
 import pt.lsts.neptus.mra.api.SidescanLine;
 import pt.lsts.neptus.mra.api.SidescanParameters;
 import pt.lsts.neptus.mra.api.SidescanParser;
@@ -910,11 +911,7 @@ public class SidescanPanel extends JPanel implements MouseListener, MouseMotionL
      */
     private void setRangeForRuler(float rangeForRuler) {
         this.rangeForRuler = rangeForRuler;
-        rangeForRulerStep = 1;
-        if (rangeForRuler > 100)
-            this.rangeForRulerStep = 20;
-        else if (rangeForRuler > 10)
-            this.rangeForRulerStep = 10;
+        rangeForRulerStep = SidescanGuiUtils.calcStepForRangeForRuler((int) rangeForRuler);
     }
 
     public BufferedImage getImage() {
