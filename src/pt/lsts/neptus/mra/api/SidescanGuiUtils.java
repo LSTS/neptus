@@ -62,27 +62,42 @@ public class SidescanGuiUtils {
         
         return rangeForRulerStep;
     }
-    
+
     /**
      * Draws a ruler in a image for sidescan.
      * 
      * @param layerImage The image to draw.
-     * @param maxRullerVerticalSizePixels The vertical size in pixels for the ruler.
+     * @param heightOfRullerInPixels The vertical size in pixels for the ruler.
      * @param rangeForRulerMeters The range of the sidescan in meters.
      * @param rangeForRulerStepMeters The range steps in meters for the ruler.
      */
-    public static void drawRuler(BufferedImage layerImage, int maxRullerVerticalSizePixels, int rangeForRulerMeters,
+    public static void drawRuler(BufferedImage layerImage, int heightOfRullerInPixels, int rangeForRulerMeters,
             int rangeForRulerStepMeters) {
         
-        Graphics g = layerImage.getGraphics();
+        drawRuler(layerImage.getGraphics(), layerImage.getWidth(), heightOfRullerInPixels, rangeForRulerMeters,
+                rangeForRulerStepMeters);
+    }
+
+    /**
+     * Draws a ruler in a image for sidescan.
+     * 
+     * @param g The graphics to draw on.
+     * @param widthOfTheRullerInPixels The horizontal size in pixels for the ruler.
+     * @param heightOfRullerInPixels The vertical size in pixels for the ruler.
+     * @param rangeForRulerMeters The range of the sidescan in meters.
+     * @param rangeForRulerStepMeters The range steps in meters for the ruler.
+     */
+    public static void drawRuler(Graphics g, int widthOfTheRullerInPixels, int heightOfRullerInPixels, 
+            int rangeForRulerMeters, int rangeForRulerStepMeters) {
+
         Graphics2D g2d = (Graphics2D) g.create();
 
         int fontSize = 11;
 
         // Draw Horizontal Line
-        g2d.drawLine(0, 0, layerImage.getWidth(), 0);
+        g2d.drawLine(0, 0, widthOfTheRullerInPixels, 0);
 
-        Rectangle drawRulerHere = new Rectangle(0, 0, layerImage.getWidth(), maxRullerVerticalSizePixels);
+        Rectangle drawRulerHere = new Rectangle(0, 0, widthOfTheRullerInPixels, heightOfRullerInPixels);
         g2d.setColor(Color.LIGHT_GRAY);
         g2d.fill(drawRulerHere);
 
@@ -90,33 +105,32 @@ public class SidescanGuiUtils {
         g2d.setColor(Color.BLACK);
 
         // Draw top line
-        g2d.drawLine(0, 0, layerImage.getWidth(), 0);
+        g2d.drawLine(0, 0, widthOfTheRullerInPixels, 0);
 
         // Draw the zero
-        g2d.drawLine(layerImage.getWidth() / 2, 0, layerImage.getWidth() / 2, maxRullerVerticalSizePixels);
-        g2d.drawString("0", layerImage.getWidth() / 2 - 10, fontSize);
+        g2d.drawLine(widthOfTheRullerInPixels / 2, 0, widthOfTheRullerInPixels / 2, heightOfRullerInPixels);
+        g2d.drawString("0", widthOfTheRullerInPixels / 2 - 10, fontSize);
 
         // Draw the axes
         g2d.drawLine(0, 0, 0, 15);
         g2d.drawString("" + (int) rangeForRulerMeters, 2, 11);
 
-        g2d.drawLine(layerImage.getWidth() - 1, 0, layerImage.getWidth() - 1, maxRullerVerticalSizePixels);
-        g2d.drawString("" + (int) rangeForRulerMeters, layerImage.getWidth() - 20, fontSize);
+        g2d.drawLine(widthOfTheRullerInPixels - 1, 0, widthOfTheRullerInPixels - 1, heightOfRullerInPixels);
+        g2d.drawString("" + (int) rangeForRulerMeters, widthOfTheRullerInPixels - 20, fontSize);
 
-        double step = (layerImage.getWidth() / ((rangeForRulerMeters * 2) / rangeForRulerStepMeters));
+        double step = (widthOfTheRullerInPixels / ((rangeForRulerMeters * 2) / rangeForRulerStepMeters));
         double r = rangeForRulerStepMeters;
 
-        int c1 = (int) (layerImage.getWidth() / 2 - step);
-        int c2 = (int) (layerImage.getWidth() / 2 + step);
+        int c1 = (int) (widthOfTheRullerInPixels / 2 - step);
+        int c2 = (int) (widthOfTheRullerInPixels / 2 + step);
 
         for (; c1 > 0; c1 -= step, c2 += step, r += rangeForRulerStepMeters) {
-            g2d.drawLine(c1, 0, c1, maxRullerVerticalSizePixels);
-            g2d.drawLine(c2, 0, c2, maxRullerVerticalSizePixels);
+            g2d.drawLine(c1, 0, c1, heightOfRullerInPixels);
+            g2d.drawLine(c2, 0, c2, heightOfRullerInPixels);
             g2d.drawString("" + (int) r, c1 + 5, fontSize);
             g2d.drawString("" + (int) r, c2 - 20, fontSize);
         }
 
         g2d.dispose();
     }
-
 }
