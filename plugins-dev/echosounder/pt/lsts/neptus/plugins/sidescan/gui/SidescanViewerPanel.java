@@ -78,7 +78,7 @@ import pt.lsts.neptus.util.sidescan.SlantRangeImageFilter;
  * 
  * Lines need to be already normalized. Any value <0 and >1 are saturated to 0 and 1.
  * 
- * Also you should call {@link #updateRequest()} in a periodic of your choosing
+ * Also you should call {@link #updateRequest()} in a period of your choosing
  * in order to the new lines be added to the image.
  * 
  * @author pdias
