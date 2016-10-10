@@ -72,6 +72,7 @@ public class DrawPathInteraction extends InteractionAdapter {
         LocationType lt = source.getRealWorldLocation(event.getPoint());
 
         curDrawing = new PathElement(pivot.getMapGroup(), pivot, lt);
+        curDrawing.setShape(false);
         curDrawing.addPoint(0, 0, 0, false);
         pivot.addObject(curDrawing);
         MapChangeEvent changeEvent = new MapChangeEvent(MapChangeEvent.OBJECT_ADDED);
