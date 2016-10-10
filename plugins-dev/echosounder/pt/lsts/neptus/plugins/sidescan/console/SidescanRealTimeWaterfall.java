@@ -198,6 +198,7 @@ public class SidescanRealTimeWaterfall extends ConsolePanel
      */
     @Override
     public void cleanSubPanel() {
+        threadExecutor.shutdownNow();
     }
 
     @Subscribe
