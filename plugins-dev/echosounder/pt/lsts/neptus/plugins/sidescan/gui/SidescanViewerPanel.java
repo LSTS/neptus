@@ -240,6 +240,15 @@ public class SidescanViewerPanel extends JPanel {
     }
     
     /**
+     * Exposing the panel with the sidescan image waterfall.
+     * 
+     * @return
+     */
+    public JPanel getSsImamagePanel() {
+        return viewer;
+    }
+    
+    /**
      * @return the ssImage
      */
     public BufferedImage getSsImage() {
