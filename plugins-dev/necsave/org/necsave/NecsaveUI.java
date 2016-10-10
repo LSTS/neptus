@@ -502,6 +502,7 @@ public class NecsaveUI extends ConsoleLayer {
                     else if (zUnits.equals(Z_UNITS.DEPTH))
                         depth = (float) manLoc.getZ();
                     
+                    manLoc = manLoc.getNewAbsoluteLatLonDepth();
                     Coordinate co = new Coordinate(manLoc.getLatitudeRads(), manLoc.getLongitudeRads(), alt, depth, 0, TEMPORAL.FALSE);
                     points_list.add(co);
                 }
