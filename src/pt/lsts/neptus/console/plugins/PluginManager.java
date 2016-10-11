@@ -482,7 +482,23 @@ public class PluginManager extends ConsolePanel {
             pluginsMap.put(interaction.getName(), interaction);
         }
 
-        Collections.sort(names);
+        String firstPanel = names.isEmpty() ? null : names.get(0);
+        // Natural sort
+        Collections.sort(names, new Comparator<String>() {
+            private Collator collator = Collator.getInstance(Locale.US);
+            @Override
+            public int compare(String o1, String o2) {
+                if (firstPanel != null) {
+                    if (firstPanel.equals(o1))
+                        return -1;
+                    if (firstPanel.equals(o2))
+                        return 1;
+                }
+                
+                return collator.compare(o1, o2);
+            }
+        });
+
         activePluginsList.setListData(names.toArray(new String[0]));
     }
 
