@@ -42,6 +42,7 @@ import java.awt.event.MouseEvent;
 import java.text.Collator;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -481,6 +482,7 @@ public class PluginManager extends ConsolePanel {
             pluginsMap.put(interaction.getName(), interaction);
         }
 
+        Collections.sort(names);
         activePluginsList.setListData(names.toArray(new String[0]));
     }
 
