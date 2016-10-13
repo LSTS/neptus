@@ -158,7 +158,6 @@ public class NecsaveUI extends ConsoleLayer {
     private double width, height;
     private ConsoleInteraction interaction;
     private MissionArea sentArea = null;
-    private MeshState lastState = null;
     
     @Override
     public void initLayer() {
@@ -926,6 +925,7 @@ public class NecsaveUI extends ConsoleLayer {
             if (b.getMgid() == BehaviorPatternFormation.ID_STATIC) {
                 BehaviorPatternFormation form = (BehaviorPatternFormation) b;
                 Formation f = form.getFormation();
+                @SuppressWarnings("unchecked")
                 Vector<PlatformFollower> a = (Vector<PlatformFollower>) f.getValue("followers_list");
                 followers.addAll(a);
                 break;
