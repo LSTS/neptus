@@ -31,6 +31,9 @@
  */
 package org.necsave;
 
+import java.awt.Color;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Vector;
 
@@ -42,6 +45,8 @@ import info.necsave.msgs.MissionArea;
 import info.necsave.msgs.Plan;
 import info.necsave.msgs.PlatformPlan;
 import pt.lsts.neptus.types.coord.LocationType;
+import pt.lsts.neptus.types.vehicle.VehiclesHolder;
+import pt.lsts.neptus.util.ColorUtils;
 
 /**
  * @author zp
@@ -52,24 +57,37 @@ public class MeshStateWrapper {
     public final int numPlatforms;
     public final int numAreas;
     public final int allocation[];
-    
+    public final LinkedHashMap<Integer, Integer> currentAreas = new LinkedHashMap<>();
     public MeshStateWrapper(MeshState state) {
         byte[] data = state.getState();
         numPlatforms = data[0];
         numAreas = data[1];
         allocation = new int[numAreas];
-        for (int i = 0; i < numAreas; i++)
-            allocation[i] = data[i+2];        
+        ArrayList<Integer> platforms = new ArrayList<>();
+        for (int i = 0; i < numAreas; i++) {
+            allocation[i] = data[i+2];
+            if (allocation[i] < 0)
+                continue;
+            if (!platforms.contains(allocation[i]))
+                platforms.add(allocation[i]);
+        }
+        int pos = 2+numAreas+numPlatforms;
+        
+        Collections.sort(platforms);
+        for (int i = 0; i < numPlatforms; i++)
+            currentAreas.put(platforms.get(i), (int)data[pos+i]);        
     }
     
     public Plan generatePlan(MissionArea area, int subareas) {
         Plan p = new Plan();
         p.setPlanId(1);
+        
         LinkedHashMap<Integer, Vector<Behavior>> plans = new LinkedHashMap<>();
         for (int i = 0; i < numAreas; i++) {
             int platform = allocation[i];
             if (platform < 0)
                 continue;
+
             
             if (!plans.containsKey(platform)) {
                 plans.put(platform, new Vector<>());
@@ -118,5 +136,28 @@ public class MeshStateWrapper {
         p.setPlatformPlans(planList);
         
         return p;
+    }
+    
+    public String toHtml(LinkedHashMap<Integer, String> platformNames) {
+        String html = "<table border='0'><tr>";
+        for (int i = 0; i < allocation.length; i++) {
+            if (platformNames.containsKey(allocation[i])) {
+                Color c = VehiclesHolder.getVehicleById(platformNames.get(allocation[i])).getIconColor().brighter();
+                Integer area = currentAreas.get(allocation[i]);
+                if (area != null && area.equals(i))
+                    html += "<td bgcolor='"+ColorUtils.getHtmlColor(c)+"'><u>"+allocation[i]+"</u></td>\n";    
+                else
+                    html += "<td bgcolor='"+ColorUtils.getHtmlColor(c)+"'>"+allocation[i]+"</td>\n";
+            }
+            else if (allocation[i] == -1) {
+                html += "<td bgcolor='#99FF99'>--</td>\n";
+            }
+            else {
+                html += "<td bgcolor='#999999'>[]</td>\n";
+            }
+        }
+        
+        html += "</tr></table>";
+        return html;
     }
 }

@@ -40,6 +40,8 @@ import java.util.LinkedHashMap;
 import javax.swing.JEditorPane;
 import javax.swing.JScrollPane;
 
+import org.necsave.MeshStateWrapper;
+
 import com.google.common.eventbus.Subscribe;
 
 import info.necsave.msgs.MeshState;
@@ -61,7 +63,7 @@ public class MeshStatePanel extends ConsolePanel {
     private static final long serialVersionUID = 7428286049668789699L;
     private LinkedHashMap<Integer, String> platformNames = new LinkedHashMap<>();
     private JEditorPane editor = new JEditorPane("text/html", "");
-    private LinkedHashMap<Integer, byte[]> states = new LinkedHashMap<>();
+    private LinkedHashMap<Integer, MeshState> states = new LinkedHashMap<>();
 
     /**
      * @param console
@@ -91,7 +93,7 @@ public class MeshStatePanel extends ConsolePanel {
     @Subscribe
     public void on(MeshState state) {
         try {
-        states.put(state.getSrc(), state.getState());
+        states.put(state.getSrc(), state);
 
         updateHtml();
         }
@@ -109,18 +111,14 @@ public class MeshStatePanel extends ConsolePanel {
         
         for (int p : platforms) {
             if (states.containsKey(p)) {
-                byte[] state = states.get(p);
+                MeshState state = states.get(p);
                 String name = nameOf(p);
                 html.append("<strong>" + name + ":</strong><blockquote>");
-                for (int i = 0; i < state.length; i++) {
-                    html.append(" " + state[i] + " ");                    
-                }
+                html.append(new MeshStateWrapper(state).toHtml(platformNames));
                 html.append("</blockquote>\n");
                 html.append("<hr/>\n");
             }
         }
-  
-
         editor.setText(html.toString());
     }
 
