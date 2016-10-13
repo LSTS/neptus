@@ -203,22 +203,6 @@ public class ColorUtils {
         return sum;
     }
 
-    private static double worstFit(Color[] colors) {
-        float worst = 8888;
-        float[] a = new float[3], b = new float[3];
-        for (int i = 1; i < colors.length; i++) {
-            colors[i].getColorComponents(a);
-            for (int j = 0; j < i; j++) {
-                colors[j].getColorComponents(b);
-                float dist = sqrdist(a, b);
-                if (dist < worst) {
-                    worst = dist;
-                }
-            }
-        }
-        return Math.sqrt(worst);
-    }
-
     private static float[] randYUVBetterThan(float bestDistSqrd, float minComponent, float maxComponent, float[][] in) {
         for (int attempt = 1; attempt < 100 * in.length; attempt++) {
             float[] candidate = randYUVinRGBRange(minComponent, maxComponent);
@@ -233,6 +217,9 @@ public class ColorUtils {
     }
 
     public static void main(String[] args) {
+        
+        System.out.println(getHtmlColor(Color.red));
+        System.out.println(getHtmlColor(Color.cyan.darker()));
         JPanel t1 = new JPanel();
         // t1.setLayout(new BoxLayout(t1, BoxLayout.PAGE_AXIS));
 
@@ -246,5 +233,9 @@ public class ColorUtils {
         }
 
         GuiUtils.testFrame(t1);
+    }
+    
+    public static String getHtmlColor(Color c) {
+        return String.format("#%02X%02X%02X", c.getRed(), c.getGreen(), c.getBlue());
     }
 }
