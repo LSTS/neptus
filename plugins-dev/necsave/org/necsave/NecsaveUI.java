@@ -78,6 +78,7 @@ import info.necsave.msgs.Coordinate.TEMPORAL;
 import info.necsave.msgs.Formation;
 import info.necsave.msgs.Header.MEDIUM;
 import info.necsave.msgs.Kinematics;
+import info.necsave.msgs.MeshState;
 import info.necsave.msgs.MissionArea;
 import info.necsave.msgs.MissionCompleted;
 import info.necsave.msgs.MissionGoal;
@@ -156,6 +157,8 @@ public class NecsaveUI extends ConsoleLayer {
     private LocationType corner = null; 
     private double width, height;
     private ConsoleInteraction interaction;
+    private MissionArea sentArea = null;
+    private MeshState lastState = null;
     
     @Override
     public void initLayer() {
@@ -342,7 +345,8 @@ public class NecsaveUI extends ConsoleLayer {
             area.setLength(elem.getLength());
 
             try {
-                sendMessage(new MissionArea(area));                    
+                this.sentArea = new MissionArea(area);
+                sendMessage(sentArea);                    
             }
             catch (Exception ex) {
                 GuiUtils.errorMessage(getConsole(), ex);
@@ -758,6 +762,13 @@ public class NecsaveUI extends ConsoleLayer {
     @Subscribe
     public void on(Plan msg) {
         this.plan = msg;
+    }
+    
+    @Subscribe
+    public void on(MeshState msg) {
+        MeshStateWrapper wrapper = new MeshStateWrapper(msg);
+        if (sentArea != null)
+            this.plan = wrapper.generatePlan(sentArea, 3);
     }
     
     private boolean isMaster(int platformId) {
