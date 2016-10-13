@@ -733,8 +733,8 @@ public class NecsaveUI extends ConsoleLayer {
 
     @Subscribe
     public void on(PlatformInfo msg) {
-        platfInfos.put(msg.getSrc(), msg);
-        platformNames.put(msg.getSrc(), msg.getPlatformName());
+        platfInfos.put(msg.getPlatformId(), msg);
+        platformNames.put(msg.getPlatformId(), msg.getPlatformName());
     }
 
     @Subscribe

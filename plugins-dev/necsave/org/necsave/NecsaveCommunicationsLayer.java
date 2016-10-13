@@ -43,6 +43,7 @@ import java.util.LinkedHashMap;
 
 import com.google.common.eventbus.Subscribe;
 
+import info.necsave.msgs.Header.MEDIUM;
 import info.necsave.msgs.PlatformInfo;
 import info.necsave.proto.Message;
 import info.necsave.proto.ProtoDefinition;
@@ -105,8 +106,7 @@ public class NecsaveCommunicationsLayer extends ConsoleLayer {
                 platformNames.put(pinfo.getPlatformId(), pinfo.getPlatformName());    
             }            
         }
-        
-        if (msg.getDst() != 0xFFFF)
+        if (msg.getMedium() != MEDIUM.UNKNOWN && msg.getDst() != 0xFFFF)
             communications.add(new Communication(msg));        
     }
     
