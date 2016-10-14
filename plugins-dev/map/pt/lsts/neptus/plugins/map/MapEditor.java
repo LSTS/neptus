@@ -31,12 +31,12 @@
  */
 package pt.lsts.neptus.plugins.map;
 
+import java.awt.AlphaComposite;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Container;
 import java.awt.Cursor;
-import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Image;
 import java.awt.Point;
@@ -52,6 +52,7 @@ import java.util.Collections;
 import java.util.Timer;
 import java.util.Vector;
 
+import javax.swing.ImageIcon;
 import javax.swing.JFileChooser;
 import javax.swing.JMenu;
 import javax.swing.JMenuItem;
@@ -115,6 +116,9 @@ public class MapEditor extends ConsolePanel implements StateRendererInteraction,
         MissionChangeListener, ConfigurationListener {
 
     private static final long serialVersionUID = 1L;
+
+    protected static ImageIcon handIcon = ImageUtils.createImageIcon("images/icons/hand.png");
+    
     protected InteractionAdapter adapter;
     protected InteractionAdapter currentInteraction = null;
     protected UndoManager manager = createManager();
@@ -1047,12 +1051,12 @@ public class MapEditor extends ConsolePanel implements StateRendererInteraction,
 
         if (draggedObject != null && mousePoint != null) {
             Graphics2D g2 = (Graphics2D) g.create();
-            g2.setColor(Color.CYAN);
-            g2.fillOval(mousePoint.x - 10, mousePoint.y - 10, 20, 20);
-            g2.setColor(Color.BLACK);
-            g2.drawOval(mousePoint.x - 10, mousePoint.y - 10, 20, 20);
-            g2.setColor(Color.BLACK);
-            g2.fillOval(mousePoint.x - 5, mousePoint.y - 5, 10, 10);
+            g2.translate(mousePoint.x - handIcon.getImage().getWidth(null) / 2, 
+                    mousePoint.y - handIcon.getImage().getHeight(null) / 2);
+            g2.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 0.5f));
+            g2.drawImage(handIcon.getImage(), 0, 0, handIcon.getImage().getWidth(null),
+                    handIcon.getImage().getHeight(null), 0, 0, handIcon.getImage().getWidth(null),
+                    handIcon.getImage().getHeight(null), null);
             g2.dispose();
         }
     }
