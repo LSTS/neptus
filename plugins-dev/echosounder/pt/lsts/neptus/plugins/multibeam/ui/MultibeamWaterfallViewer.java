@@ -29,7 +29,7 @@
  * Author: tsm
  * 12 Oct 2016
  */
-package pt.lsts.neptus.plugins.multibeam.console;
+package pt.lsts.neptus.plugins.multibeam.ui;
 
 import javax.swing.JPanel;
 
