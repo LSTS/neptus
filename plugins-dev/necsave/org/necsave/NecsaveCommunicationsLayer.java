@@ -35,6 +35,7 @@ import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.geom.AffineTransform;
+import java.awt.geom.Ellipse2D;
 import java.awt.geom.Line2D;
 import java.awt.geom.Point2D;
 import java.util.ArrayList;
@@ -50,6 +51,7 @@ import info.necsave.proto.ProtoDefinition;
 import pt.lsts.neptus.comm.manager.imc.ImcSystem;
 import pt.lsts.neptus.comm.manager.imc.ImcSystemsHolder;
 import pt.lsts.neptus.console.ConsoleLayer;
+import pt.lsts.neptus.plugins.NeptusProperty;
 import pt.lsts.neptus.plugins.PluginDescription;
 import pt.lsts.neptus.plugins.update.Periodic;
 import pt.lsts.neptus.renderer2d.StateRenderer2D;
@@ -61,6 +63,11 @@ import pt.lsts.neptus.renderer2d.StateRenderer2D;
 @PluginDescription(name="Necsave Communications Layer", icon="org/necsave/necsave.png")
 public class NecsaveCommunicationsLayer extends ConsoleLayer {
 
+    @NeptusProperty
+    public long displayMilliseconds = 4000;
+    
+    private StateRenderer2D renderer = null;
+    
     HashSet<Communication> communications = new HashSet<>();
     LinkedHashMap<Integer, String> platformNames = new LinkedHashMap<>();
     {
@@ -118,26 +125,29 @@ public class NecsaveCommunicationsLayer extends ConsoleLayer {
         return ""+platformId;
     }
     
-    @Periodic(millisBetweenUpdates=500)
+    @Periodic(millisBetweenUpdates=50)
     private void purgeComms() {
         HashSet<Communication> copy = new HashSet<>();
         synchronized (communications) {
             communications.forEach(c -> {
-                if (System.currentTimeMillis() - c.timestamp < 5000)
+                if (System.currentTimeMillis() - c.timestamp < displayMilliseconds)
                     copy.add(c);
             });
             communications = copy;
         }
+        if (!communications.isEmpty() && renderer != null)
+            renderer.repaint();
     }
     
     @Override
     public void paint(Graphics2D g, StateRenderer2D renderer) {
+        this.renderer = renderer;
         super.paint(g, renderer);
         ArrayList<Communication> copy = new ArrayList<>();
         synchronized (communications) {
             copy.addAll(communications);    
         }
-        communications.forEach(c -> {
+        copy.forEach(c -> {
             ImcSystem src = ImcSystemsHolder.getSystemWithName(c.src);
             ImcSystem dst = ImcSystemsHolder.getSystemWithName(c.dst);
             if (src == null || dst == null || src.getLocation() == null || dst.getLocation() == null)
@@ -149,24 +159,39 @@ public class NecsaveCommunicationsLayer extends ConsoleLayer {
             double distance = pt1.distance(pt2);
             AffineTransform transform = g.getTransform();
             g.translate(pt1.getX(), pt1.getY());
-            g.rotate(ang-Math.PI/2 + renderer.getRotation());
+            g.rotate(ang-Math.PI/2 - renderer.getRotation());
             if (distance > 10) {
                 g.translate(5, 0);
                 distance -= 10;
             }
             
+            Color color = Color.white;
+            
             if (msgColors.containsKey(c.msg))
-                g.setColor(msgColors.get(c.msg));
-            else
-                g.setColor(Color.white);
+                color = msgColors.get(c.msg);
+            
+            double pos = ((System.currentTimeMillis()-c.timestamp)/(double)displayMilliseconds);
+            pos = distance * Math.min(1.0, pos);
+            
+            g.setColor(color);
             
             g.setStroke(new BasicStroke(2f));
             g.draw(new Line2D.Double(0, 0, distance, 0));
-            g.draw(new Line2D.Double(distance, 0, distance-4, -4));
-            g.draw(new Line2D.Double(distance, 0, distance-4, 4));
+            g.fill(new Ellipse2D.Double(pos-4, -4, 8, 8));
             g.setStroke(new BasicStroke(1f));
-            g.setColor(Color.black);            
-            g.drawString(c.msg, 10, -10);
+            g.setTransform(transform);
+            
+            int width = g.getFontMetrics().stringWidth(c.msg);
+            
+            g.translate((pt1.getX()+pt2.getX())/2.0, (pt1.getY()+pt2.getY())/2.0);
+            if (ang > Math.PI)
+                ang -= Math.PI;
+            
+            g.rotate(ang-Math.PI/2 - renderer.getRotation());
+            
+            g.setColor(Color.white);            
+            g.drawString(c.msg, -width/2, 5);
+            
             g.setTransform(transform);
         });
     }
