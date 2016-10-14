@@ -679,6 +679,48 @@ public class MissionTreePanel extends ConsolePanel implements MissionChangeListe
         // });
         // }
 
+        private void addActionRenamePlan(final ConsoleLayout console2, final ArrayList<NameId> selectedItems,
+                JPopupMenu popupMenu) {
+            popupMenu.add(
+            I18n.textf("Rename %planName", getPlanNamesString(selectedItems, true), console2.getMainSystem()))
+            .addActionListener(new ActionListener() {
+                
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    String newName = null;
+                    while (true) {
+                        String oldPlanName = getPlanNamesString(selectedItems, true).toString();
+                        newName = JOptionPane.showInputDialog("New plan name:", oldPlanName);
+                        if (newName == null)
+                            return;
+
+                        if (!getConsole().getMission().getIndividualPlansList().containsKey(newName)) {
+                            if (!newName.isEmpty()) {
+                                PlanType plan = getConsole().getMission().getIndividualPlansList()
+                                        .get(oldPlanName);
+                                if (plan != null) {
+                                    plan.setMissionType(getConsole().getMission());
+
+                                    getConsole().getMission().renamePlan(plan, newName);
+                                    SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>() {
+                                        @Override
+                                        protected Void doInBackground() throws Exception {
+                                            getConsole().getMission().save(true);
+                                            return null;
+                                        }
+                                    };
+                                    worker.execute();
+                                    browser.refreshBrowser(getConsole().getMission(),
+                                            getMainVehicleId(), getConsole());
+                                    return;
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
         @Override
         public void mousePressed(MouseEvent e) {
             if (e.getButton() != MouseEvent.BUTTON3)
@@ -692,6 +734,10 @@ public class MissionTreePanel extends ConsolePanel implements MissionChangeListe
             ItemTypes selecType = findSelecMissionElem(selectedItems);
             switch (selecType) {
                 case Plans:
+
+                    if (selectedItems.size() == 1)
+                        addActionRenamePlan(getConsole(), selectedItems, popupMenu);
+
                     popupMenu.addSeparator();
                     // ArrayList<NameId> synAndUnsyncPlans = new ArrayList<NameId>();
                     // ArrayList<NameId> remotePlans = new ArrayList<NameId>();
