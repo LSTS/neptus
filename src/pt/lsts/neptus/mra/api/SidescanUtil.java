@@ -33,6 +33,9 @@ package pt.lsts.neptus.mra.api;
 
 import java.awt.image.BufferedImage;
 
+import pt.lsts.imc.IMCMessage;
+import pt.lsts.imc.SonarData;
+import pt.lsts.neptus.mp.SystemPositionAndAttitude;
 import pt.lsts.neptus.types.coord.LocationType;
 
 /**
@@ -196,5 +199,210 @@ public class SidescanUtil {
         // Height
         double h = l * a / r;
         return h;
+    }
+    
+    /**
+     * Takes the data byte array transforms it to a double array applying the scale factor. 
+     * 
+     * @param data
+     * @param scaleFactor
+     * @param bitsPerPoint
+     * @return
+     */
+    public static double[] getData(byte[] data, double scaleFactor, short bitsPerPoint) {
+        if (bitsPerPoint % 8 != 0)
+            return null;
+        
+        int bytesPerPoint = bitsPerPoint < 8 ? 1 : (bitsPerPoint / 8);
+        double[] fData = new double[data.length / bytesPerPoint];
+        
+        int k = 0;
+        for (int i = 0; i < data.length; i++) {
+            double val = 0;
+            for (int j = 0; j < bytesPerPoint; j++) {
+                i = i + j; // progressing index of data
+                int v = data[i] & 0xFF;
+                v = (v << 8 * j);
+                val += v;
+            }
+            fData[k++] = val;
+        }
+        
+        // Lets apply scaling
+        for (int i = 0; i < fData.length; i++) {
+            fData[i] *= scaleFactor;
+        }
+        
+        return fData;
+    }
+
+    /**
+     * Converts a {@link SonarData} into a {@link SidescanLine} and applies the {@link SidescanParameters}.
+     * 
+     * MRA to be able to use a larger range of IMC versions should not use typed messages,
+     * call {@link SidescanUtil#getSidescanLine(SonarData, SystemPositionAndAttitude, SidescanParameters)}
+     * or {@link SidescanUtil#getSidescanLine(IMCMessage, SystemPositionAndAttitude)}.
+     * 
+     * @param sonarData
+     * @param pose
+     * @param sidescanParams
+     * @return
+     */
+    public static SidescanLine getSidescanLine(SonarData sonarData, SystemPositionAndAttitude pose,
+            SidescanParameters sidescanParams) {
+        return getSidescanLine((IMCMessage) sonarData, pose,sidescanParams);
+    }
+
+    /**
+     * Converts a SonarData {@link IMCMessage} into a {@link SidescanLine} and applies the {@link SidescanParameters}.
+     * 
+     * @param sonarData
+     * @param pose
+     * @param sidescanParams
+     * @return
+     */
+    public static SidescanLine getSidescanLine(IMCMessage sonarData, SystemPositionAndAttitude pose,
+            SidescanParameters sidescanParams) {
+        SidescanLine line = null;
+        if (sonarData instanceof SonarData)
+            line = getSidescanLine((SonarData) sonarData, pose);
+        else
+            line = getSidescanLine(sonarData, pose);
+        
+        if (line == null)
+            return null;
+        
+        if (sidescanParams != null) {
+            float range = line.getRange();
+            double[] sData = line.getData();
+            sData = applyNormalizationAndTVG(sData, range, sidescanParams);
+            for (int i = 0; i < sData.length; i++) {
+                line.getData()[i] = sData[i];
+            }
+        }
+
+        return line;
+    }
+
+    /**
+     * Converts a {@link SonarData} into a {@link SidescanLine} without any extra conversion.
+     * 
+     * MRA to be able to use a larger range of IMC versions should not use typed messages,
+     * call {@link SidescanUtil#getSidescanLine(SonarData, SystemPositionAndAttitude, SidescanParameters)}
+     * or {@link SidescanUtil#getSidescanLine(IMCMessage, SystemPositionAndAttitude)}.
+     * 
+     * @param sonarData
+     * @param pose
+     * @return
+     */
+    public static SidescanLine getSidescanLine(SonarData sonarData, SystemPositionAndAttitude pose) {
+        if (sonarData.getType() != SonarData.TYPE.SIDESCAN) {
+            return null;
+        }
+ 
+        int range = sonarData.getMaxRange();
+        byte[] data = sonarData.getData();
+        double scaleFactor = sonarData.getScaleFactor();
+        short bitsPerPoint = sonarData.getBitsPerPoint();
+        double[] sData = getData(data, scaleFactor, bitsPerPoint);
+        
+        long timeMillis = sonarData.getTimestampMillis();
+        long freq = sonarData.getFrequency();
+        SidescanLine line = new SidescanLine(timeMillis, range, pose, freq, sData);
+        return line;
+    }
+
+    /**
+     * Converts a SonarData {@link IMCMessage} into a {@link SidescanLine} without any extra conversion.
+     * 
+     * @param sonarData
+     * @param pose
+     * @return
+     */
+    public static SidescanLine getSidescanLine(IMCMessage sonarData, SystemPositionAndAttitude pose) {
+        if (!"SonarData".equalsIgnoreCase(sonarData.getAbbrev()) 
+                || sonarData.getInteger("type") != SonarData.TYPE.SIDESCAN.value()) {
+            return null;
+        }
+ 
+        int range = sonarData.getInteger("range");
+        if (range == 0)
+            range = sonarData.getInteger("max_range");
+        byte[] data = sonarData.getRawData("data");
+        double scaleFactor = sonarData.getDouble("scale_factor");
+        short bitsPerPoint = (short) sonarData.getInteger("bits_per_point");
+        double[] sData = getData(data, scaleFactor, bitsPerPoint);
+        
+        long timeMillis = sonarData.getTimestampMillis();
+        long freq = sonarData.getLong("frequency");
+        SidescanLine line = new SidescanLine(timeMillis, range, pose, freq, sData);
+        return line;
+    }
+
+    /**
+     * Applies normalization and TVG to data.
+     * This does not touch the input data. 
+     * 
+     * @param data
+     * @param range
+     * @param sidescanParams
+     * @return
+     */
+    public static double[] applyNormalizationAndTVG(double[] data, double range, SidescanParameters sidescanParams) {
+        return applyNormalizationAndTVGMethod1(data, range, sidescanParams);
+    }
+    
+    private static double[] applyNormalizationAndTVGMethod1(double[] data, double range,
+            SidescanParameters sidescanParams) {
+        int middle = data.length / 2;
+        double[] outData = new double[data.length]; 
+
+        double avgSboard = 0;
+        double avgPboard = 0;
+        for (int c = 0; c < data.length; c++) {
+            double r = data[c];
+            if (c < middle)
+                avgPboard += r;
+            else
+                avgSboard += r;                        
+        }
+        
+        avgPboard /= (double) middle * sidescanParams.getNormalization();
+        avgSboard /= (double) middle * sidescanParams.getNormalization();
+        
+        for (int c = 0; c < data.length; c++) {
+            double r;
+            double avg;
+            if (c < middle) {
+                r =  c / (double) middle;
+                avg = avgPboard;
+            }
+            else {
+                r =  1 - (c - middle) / (double) middle;
+                avg = avgSboard;
+            }
+            double gain = Math.abs(30.0 * Math.log(r));
+            double pb = data[c] * Math.pow(10, gain / sidescanParams.getTvgGain());
+            outData[c] = pb / avg;
+        }
+        
+        return outData;
+    }
+
+    @SuppressWarnings("unused")
+    private static double[] applyNormalizationAndTVGMethod2(double[] data, double range,
+            SidescanParameters sidescanParams) {
+        double max = 0;
+        double[] outData = new double[data.length]; 
+
+        for (int i = 0; i < data.length; i++) {
+            max = Math.max(max, data[i]);
+        }
+
+        for (int i = 0; i < data.length; i++) {
+            outData[i] = data[i] / max;
+        }
+        
+        return outData;
     }
 }

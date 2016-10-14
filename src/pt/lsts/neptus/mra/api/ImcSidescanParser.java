@@ -33,6 +33,7 @@ package pt.lsts.neptus.mra.api;
 
 import java.util.ArrayList;
 
+import pt.lsts.imc.EstimatedState;
 import pt.lsts.imc.IMCMessage;
 import pt.lsts.imc.SonarData;
 import pt.lsts.neptus.mp.SystemPositionAndAttitude;
@@ -97,7 +98,7 @@ public class ImcSidescanParser implements SidescanParser {
             SidescanParameters params) {
         // Preparation
         ArrayList<SidescanLine> list = new ArrayList<SidescanLine>();
-        double[] fData = null;
+//        double[] fData = null;
 
         if (lastTimestampRequested > timestamp1) {
             pingParser.firstLogEntry();
@@ -133,53 +134,9 @@ public class ImcSidescanParser implements SidescanParser {
             if (ping == null || state == null)
                 break;
 
-            fData = new double[ping.getRawData("data").length];
-            SystemPositionAndAttitude pose = new SystemPositionAndAttitude();
-            pose.setAltitude(state.getDouble("alt"));
-            pose.getPosition().setLatitudeRads(state.getDouble("lat"));
-            pose.getPosition().setLongitudeRads(state.getDouble("lon"));
-            pose.getPosition().setOffsetNorth(state.getDouble("x"));
-            pose.getPosition().setOffsetEast(state.getDouble("y"));
-            pose.setRoll(state.getDouble("phi"));
-            pose.setYaw(state.getDouble("psi"));
-            pose.setP(state.getDouble("p"));
-            pose.setQ(state.getDouble("q"));
-            pose.setR(state.getDouble("r"));
-            pose.setU(state.getDouble("u"));
-
-            // Image building. Calculate and draw a line, scale and save it
-            byte[] data = ping.getRawData("data");
-            int middle = data.length / 2;
-
-            double avgSboard = 0, avgPboard = 0;
-            for (int c = 0; c < data.length; c++) {
-                double r = data[c] & 0xFF;
-                if (c < middle)
-                    avgPboard += r;
-                else
-                    avgSboard += r;                        
-            }
-            
-            avgPboard /= (double) middle * params.getNormalization();
-            avgSboard /= (double) middle * params.getNormalization();
-            
-            for (int c = 0; c < data.length; c++) {
-                double r;
-                double avg;
-                if (c < middle) {
-                    r =  c / (double) middle;
-                    avg = avgPboard;
-                }
-                else {
-                    r =  1 - (c - middle) / (double) middle;
-                    avg = avgSboard;
-                }
-                double gain = Math.abs(30.0 * Math.log(r));
-                double pb = (data[c] & 0xFF) * Math.pow(10, gain / params.getTvgGain());
-                fData[c] = pb / avg;
-            }
-            
-            list.add(new SidescanLine(ping.getTimestampMillis(), range, pose, ping.getFloat("frequency"), fData));
+            SystemPositionAndAttitude pose = new SystemPositionAndAttitude((EstimatedState) state);
+            SidescanLine line = SidescanUtil.getSidescanLine(ping, pose, params);
+            list.add(line);
             
             ping = getNextMessage(pingParser);
             if (ping != null)
