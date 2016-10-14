@@ -1020,4 +1020,14 @@ public class MissionType implements XmlOutputMethods, XmlInputMethods, XmlInputM
     public void setCompressedFilePath(String compressedFilePath) {
         this.compressedFilePath = compressedFilePath;
     }
+
+    /**
+     * @param plan the plan to be renamed
+     * @param newName new name
+     */
+    public void renamePlan(PlanType plan, String newName) {
+        individualPlansList.remove(plan.getId());
+        plan.setId(newName);
+        individualPlansList.put(newName, plan);
+    }
 }
