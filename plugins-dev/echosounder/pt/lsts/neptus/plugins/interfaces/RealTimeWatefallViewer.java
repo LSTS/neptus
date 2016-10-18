@@ -63,47 +63,47 @@ import pt.lsts.neptus.util.ImageUtils;
  */
 @SuppressWarnings("serial")
 public abstract class RealTimeWatefallViewer<T> extends JPanel {
-    
+
     // abstract methods
     protected abstract void updateImage();
-    
-    
-    
+
+
+
     protected static final int MAX_RULER_SIZE = 15;
-    
+
     // Parameters
     protected ColorMap colorMap = ColorMapFactory.createBronzeColormap();
 
     // GUI
     protected JPanel ruller = null;
     protected JPanel viewer = null;
-    
+
     protected BufferedImage ssImage = null;
     protected BufferedImage ssImageTmp = null;
     protected BufferedImage ssLayer = null;
-    
+
     // Data
     protected List<T> dataList = Collections.synchronizedList(new ArrayList<T>());
     protected List<T> queuedData = Collections.synchronizedList(new ArrayList<T>());
-    
+
     protected int rangeForRulerMeters = 30;
     protected int rangeForRulerStepMeters = 10;
-    
+
     protected ExecutorService threadExecutor;
-    
+
     public interface LayerPainter {
         public void paint(Graphics g, BufferedImage layer);
     }
-    
+
     protected LayerPainter preLayerPainter = null;
     protected LayerPainter postLayerPainter = null;
     protected LayerPainter overPainter = null;
-    
+
     public RealTimeWatefallViewer(Class<?> clazz) {
         threadExecutor = Executors.newCachedThreadPool(new ThreadFactory() {
             String nameBase = new StringBuilder().append(clazz.getSimpleName())
                     .append("::").append(Integer.toHexString(clazz.hashCode()))
-                            .append("::").toString();
+                    .append("::").toString();
             ThreadGroup group = new ThreadGroup(nameBase);
             AtomicLong c = new AtomicLong(0);
             @Override
@@ -115,18 +115,18 @@ public abstract class RealTimeWatefallViewer<T> extends JPanel {
         });
         initialize();
     }
-    
+
     protected void initialize() {
         removeAll();
-        
+
         ruller = createRullerPanel();
         viewer = createViewerPanel();
-        
+
         setLayout(new MigLayout("ins 0, gap 0", "[][grow]", "[top][grow]"));
         add(ruller, "w 100%, h " + MAX_RULER_SIZE + "px, wrap");
         add(viewer, "w 100%, grow");
     }
-    
+
     protected JPanel createRullerPanel() {
         JPanel rPanel = new JPanel() {
             private static final long serialVersionUID = 1L;
@@ -168,14 +168,14 @@ public abstract class RealTimeWatefallViewer<T> extends JPanel {
 
                         if (preLayerPainter != null)
                             preLayerPainter.paint(ssLayer.getGraphics(), ssLayer);
-                        
+
                         // SidescanGuiUtils.drawRuler(ssLayer, MAX_RULER_SIZE, rangeForRulerMeters, rangeForRulerStepMeters);;
 
                         if (postLayerPainter != null)
                             postLayerPainter.paint(ssLayer.getGraphics(), ssLayer);
 
                         g.drawImage(ssLayer, 0, 0, null); // Draw layer
-                        
+
                         if (overPainter != null)
                             overPainter.paint(g, ssLayer);
                     }
@@ -185,7 +185,7 @@ public abstract class RealTimeWatefallViewer<T> extends JPanel {
                 }
             }
         };
-        
+
         // Deal with panel resize by recreating the image buffers
         vPanel.addComponentListener(new ComponentAdapter() {
             @Override
@@ -195,53 +195,53 @@ public abstract class RealTimeWatefallViewer<T> extends JPanel {
                         ssImage = ImageUtils.createCompatibleImage(viewer.getWidth(), viewer.getHeight(), Transparency.OPAQUE);
                         ssImageTmp = ImageUtils.createCompatibleImage(viewer.getWidth(), viewer.getHeight(), Transparency.OPAQUE);
                         ssLayer = ImageUtils.createCompatibleImage(viewer.getWidth(), viewer.getHeight(), Transparency.TRANSLUCENT);
-//                    clearLines();
+                        //                    clearLines();
                     }
                 }
             }
         });
-        
+
         return vPanel;
     }
-    
+
     protected void setRangeForRuler(int rangeForRuler) {
         this.rangeForRulerMeters = rangeForRuler;
         this.rangeForRulerStepMeters = SidescanGuiUtils.calcStepForRangeForRuler(rangeForRulerMeters);
     }
-    
+
     /**
      * This returns the sidescan lines.
      * Please synchronize it on use!
-     * 
+     *
      * @return the lineList
      */
     public List<T> getDataList() {
         return Collections.unmodifiableList(dataList);
     }
-    
+
     /**
      * Exposing the panel with the sidescan image waterfall.
-     * 
+     *
      * @return
      */
     public JPanel getSsImamagePanel() {
         return viewer;
     }
-    
+
     /**
      * @return the ssImage
      */
     public BufferedImage getSsImage() {
         return ssImage;
     }
-    
+
     /**
      * @return the colorMap
      */
     public ColorMap getColorMap() {
         return colorMap;
     }
-    
+
 
     /**
      * @param colorMap the colorMap to set
@@ -250,14 +250,14 @@ public abstract class RealTimeWatefallViewer<T> extends JPanel {
         this.colorMap = colorMap;
     }
 
-    
+
     /**
      * @param overPainter the overPainter to set
      */
     public void setOverPainter(LayerPainter overPainter) {
         this.overPainter = overPainter;
     }
-    
+
     public void clearLines() {
         synchronized (dataList) {
             dataList.clear();
@@ -265,7 +265,7 @@ public abstract class RealTimeWatefallViewer<T> extends JPanel {
             ssImageTmp.getGraphics().clearRect(0, 0, ssImage.getWidth(), ssImage.getHeight());
         }
     }
-    
+
     /**
      * @return the rangeForRulerMeters
      */
@@ -276,16 +276,16 @@ public abstract class RealTimeWatefallViewer<T> extends JPanel {
     /**
      * @param line
      */
-    public void addNewDataine(T... data) {
+    public void addNewData(T... data) {
         if (data.length == 0)
             return;
-        addNewDataLine(Arrays.asList(data));
+        addNewData(Arrays.asList(data));
     }
-    
-    public void addNewDataLine(List<T> lineList) {
+
+    public void addNewData(List<T> lineList) {
         if (lineList.size() == 0)
             return;
-        
+
         threadExecutor.execute(new Runnable() {
             @Override
             public void run() {
@@ -295,10 +295,10 @@ public abstract class RealTimeWatefallViewer<T> extends JPanel {
             }
         });
     }
-    
+
     public void updateRequest() {
         updateImage();
-        
+
         SwingUtilities.invokeLater(new Runnable() {
             @Override
             public void run() {
