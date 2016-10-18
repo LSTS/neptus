@@ -31,12 +31,27 @@
  */
 package pt.lsts.neptus.plugins.multibeam.ui;
 
-import javax.swing.JPanel;
+import pt.lsts.neptus.mra.api.BathymetrySwath;
+import pt.lsts.neptus.plugins.interfaces.RealTimeWatefallViewer;
 
 /**
  * @author tsm
  *
  */
-public class MultibeamWaterfallViewer extends JPanel {
+@SuppressWarnings("serial")
+public class MultibeamWaterfallViewer extends RealTimeWatefallViewer<BathymetrySwath> {
+
+    /**
+     * @param clazz
+     */
+    public MultibeamWaterfallViewer() {
+        super(MultibeamWaterfallViewer.class);
+    }
+
+    @Override
+    public void updateImage() {
+        // TODO Auto-generated method stub
+
+    }
 
 }
