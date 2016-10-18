@@ -31,8 +31,14 @@
  */
 package pt.lsts.neptus.plugins.multibeam.console;
 
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ThreadFactory;
+import java.util.concurrent.atomic.AtomicLong;
+
 import com.google.common.eventbus.Subscribe;
 
+import net.miginfocom.swing.MigLayout;
 import pt.lsts.imc.SonarData;
 import pt.lsts.neptus.colormap.ColorMap;
 import pt.lsts.neptus.colormap.ColorMapFactory;
@@ -44,6 +50,8 @@ import pt.lsts.neptus.plugins.NeptusProperty.LEVEL;
 import pt.lsts.neptus.plugins.PluginDescription;
 import pt.lsts.neptus.plugins.Popup;
 import pt.lsts.neptus.plugins.Popup.POSITION;
+import pt.lsts.neptus.plugins.interfaces.RealTimeWatefallViewer;
+import pt.lsts.neptus.plugins.multibeam.ui.MultibeamWaterfallViewer;
 
 /**
  * This plugin receives sonar data through IMCSonarData,
@@ -52,19 +60,47 @@ import pt.lsts.neptus.plugins.Popup.POSITION;
  * @author tsm
  *
  */
-@PluginDescription(author = "Tiago Marques", version = "0.1", name = "Multibeam Real-Time Waterfall")
+@PluginDescription(author = "Tiago Marques", version = "0.1", name = "Multibeam Real-Time Waterfall Viewer")
 @Popup(pos = POSITION.TOP_LEFT, width = 300, height = 500)
 public class MultibeamRealTimeWaterfall extends ConsolePanel {
-    
+
     // Parameters
     @NeptusProperty (name="Color map to use", category="Visualization parameters", userLevel = LEVEL.REGULAR)
     private ColorMap colorMap = ColorMapFactory.createBronzeColormap();
 
+    private ExecutorService threadExecutor = Executors.newCachedThreadPool(new ThreadFactory() {
+        String nameBase = new StringBuilder().append(MultibeamRealTimeWaterfall.class.getSimpleName())
+                .append("::").append(Integer.toHexString(MultibeamRealTimeWaterfall.this.hashCode()))
+                .append("::").toString();
+        ThreadGroup group = new ThreadGroup(nameBase);
+        AtomicLong c = new AtomicLong(0);
+        @Override
+        public Thread newThread(Runnable r) {
+            Thread td = new Thread(group, r, nameBase + c.getAndIncrement());
+            td.setDaemon(true);
+            return td;
+        }
+    });
+
+    RealTimeWatefallViewer<BathymetrySwath> mbViewer;
+
+
     public MultibeamRealTimeWaterfall(ConsoleLayout console) {
         super(console);
+        initialize();
     }
 
-    
+
+    private void initialize() {
+        mbViewer = new MultibeamWaterfallViewer();
+        mbViewer.setColorMap(colorMap);
+
+        setLayout(new MigLayout("ins 0, gap 5"));
+        // add(toolbar, "w 100%, wrap");
+        add(mbViewer, "w 100%, h 100%");
+    }
+
+
     @Override
     public void cleanSubPanel() {
 
@@ -75,22 +111,11 @@ public class MultibeamRealTimeWaterfall extends ConsolePanel {
 
     }
 
-    
+
     @Subscribe
     public void onSonarData(SonarData msg) {
         // only interested in multibeam
         if(msg.getType() != SonarData.TYPE.MULTIBEAM)
             return;
-        
-        byte[] data = msg.getData();
-        
-        // call adequate parser for data and transform it into a BathymetrySwath
-        BathymetrySwath swath = null;
-        publish(swath);
-    }
-    
-    // Send data to panel so that it can be painted
-    public void publish(BathymetrySwath data) {
-        
     }
 }
