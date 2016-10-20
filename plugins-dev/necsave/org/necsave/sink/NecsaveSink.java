@@ -78,7 +78,7 @@ import pt.lsts.neptus.plugins.Popup.POSITION;
  *
  */
 @PluginDescription(name = "NECSAVE Perception Sink", icon="org/necsave/necsave.png")
-@Popup(name = "NECSAVE Messages", pos = POSITION.CENTER, height = 500, width = 800)
+@Popup(name = "NECSAVE Messages", pos = POSITION.CENTER, height = 500, width = 800, accelerator = 'N')
 public class NecsaveSink extends ConsolePanel implements ConfigurationListener {
 
     private static final long serialVersionUID = -8156866308151145063L;
