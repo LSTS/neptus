@@ -33,6 +33,10 @@ package pt.lsts.neptus.types.map;
 
 import java.awt.Color;
 import java.awt.Image;
+import java.awt.geom.AffineTransform;
+import java.awt.geom.Ellipse2D;
+import java.awt.geom.PathIterator;
+import java.util.Vector;
 
 import org.dom4j.Document;
 import org.dom4j.DocumentHelper;
@@ -426,6 +430,38 @@ public abstract class GeometryElement extends AbstractElement implements Rotatab
         this.height -= ammount * (height / maxDim);
         this.length -= ammount * (length / maxDim);
 
+    }
+
+    @Override
+    public Vector<LocationType> getShapePoints() {
+        LocationType center = new LocationType(getCenterLocation());
+        Vector<LocationType> locs = new Vector<>();
+
+        double width = getWidth();
+        double length = getLength();
+        double yaw = getYawRad();
+
+        Ellipse2D.Double tmp = new Ellipse2D.Double(-width / 2, -length / 2, width, length);
+
+        AffineTransform rot = new AffineTransform();
+        rot.rotate(yaw);
+
+        PathIterator it = tmp.getPathIterator(rot, 2f);
+
+        while(!it.isDone()) {
+
+            double[] offsets = new double[6];
+
+            int op = it.currentSegment(offsets);
+            if (op == PathIterator.SEG_MOVETO || op == PathIterator.SEG_LINETO) {
+                LocationType loc = new LocationType(center);
+                loc.translatePosition(offsets[0], offsets[1], 0);
+                locs.add(loc);
+            }
+            it.next();
+        }
+
+        return locs;
     }
 
     public Color getColor() {
