@@ -35,8 +35,11 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.GraphicsConfiguration;
+import java.awt.geom.AffineTransform;
+import java.awt.geom.PathIterator;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
+import java.util.Vector;
 
 import javax.media.j3d.BranchGroup;
 import javax.media.j3d.Canvas3D;
@@ -79,6 +82,38 @@ public class ParallelepipedElement extends GeometryElement {
     @Override
     public String getTypeAbbrev() {
         return "pp";
+    }
+
+    @Override
+    public Vector<LocationType> getShapePoints() {
+        LocationType center = new LocationType(getCenterLocation());
+        Vector<LocationType> locs = new Vector<>();
+
+        double width = getWidth();
+        double length = getLength();
+        double yaw = getYawRad();
+
+        Rectangle2D.Double tmp = new Rectangle2D.Double(-width / 2, -length / 2, width, length);
+
+        AffineTransform rot = new AffineTransform();
+        rot.rotate(yaw);
+
+        PathIterator it = tmp.getPathIterator(rot);
+
+        while(!it.isDone()) {
+
+            double[] xy = new double[6];
+
+            int op = it.currentSegment(xy);
+            if (op == PathIterator.SEG_MOVETO || op == PathIterator.SEG_LINETO) {
+                LocationType loc = new LocationType(center);
+                loc.translatePosition(xy[1], xy[0], 0);
+                locs.add(loc);
+            }
+            it.next();
+        }
+
+        return locs;
     }
 
     @Override
