@@ -86,9 +86,6 @@ public abstract class RealTimeWatefallViewer<T> extends JPanel {
     protected List<T> dataList = Collections.synchronizedList(new ArrayList<T>());
     protected List<T> queuedData = Collections.synchronizedList(new ArrayList<T>());
 
-    protected int rangeForRulerMeters = 30;
-    protected int rangeForRulerStepMeters = 10;
-
     protected ExecutorService threadExecutor;
 
     public interface LayerPainter {
@@ -119,32 +116,11 @@ public abstract class RealTimeWatefallViewer<T> extends JPanel {
     protected void initialize() {
         removeAll();
 
-        ruller = createRullerPanel();
         viewer = createViewerPanel();
 
         setLayout(new MigLayout("ins 0, gap 0", "[][grow]", "[top][grow]"));
         add(ruller, "w 100%, h " + MAX_RULER_SIZE + "px, wrap");
         add(viewer, "w 100%, grow");
-    }
-
-    protected JPanel createRullerPanel() {
-        JPanel rPanel = new JPanel() {
-            private static final long serialVersionUID = 1L;
-
-            @Override
-            protected void paintComponent(Graphics g) {
-                try {
-                    super.paintComponent(g);
-                    SidescanGuiUtils.drawRuler(g, this.getWidth(), MAX_RULER_SIZE, rangeForRulerMeters,
-                            rangeForRulerStepMeters);
-                }
-                catch (Exception e) {
-                    e.printStackTrace();
-                }
-            }
-        };
-
-        return rPanel;
     }
 
     /**
@@ -204,11 +180,6 @@ public abstract class RealTimeWatefallViewer<T> extends JPanel {
         return vPanel;
     }
 
-    protected void setRangeForRuler(int rangeForRuler) {
-        this.rangeForRulerMeters = rangeForRuler;
-        this.rangeForRulerStepMeters = SidescanGuiUtils.calcStepForRangeForRuler(rangeForRulerMeters);
-    }
-
     /**
      * This returns the sidescan lines.
      * Please synchronize it on use!
@@ -266,16 +237,7 @@ public abstract class RealTimeWatefallViewer<T> extends JPanel {
         }
     }
 
-    /**
-     * @return the rangeForRulerMeters
-     */
-    public int getRangeForRulerMeters() {
-        return rangeForRulerMeters;
-    }
 
-    /**
-     * @param line
-     */
     public void addNewData(T... data) {
         if (data.length == 0)
             return;
