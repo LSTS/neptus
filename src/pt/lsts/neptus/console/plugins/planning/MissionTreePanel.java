@@ -701,7 +701,7 @@ public class MissionTreePanel extends ConsolePanel implements MissionChangeListe
                                 if (plan != null) {
                                     plan.setMissionType(getConsole().getMission());
 
-                                    getConsole().getMission().renamePlan(plan, newName);
+                                    getConsole().getMission().renamePlan(plan, newName, true);
                                     SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>() {
                                         @Override
                                         protected Void doInBackground() throws Exception {

@@ -1022,12 +1022,18 @@ public class MissionType implements XmlOutputMethods, XmlInputMethods, XmlInputM
     }
 
     /**
-     * @param plan the plan to be renamed
-     * @param newName new name
+     * @param plan The plan to be renamed.
+     * @param newName New name.
+     * @param override Forces override if a plan with newName exists. 
+     * @return Return if the rename was made. 
      */
-    public void renamePlan(PlanType plan, String newName) {
+    public boolean renamePlan(PlanType plan, String newName, boolean override) {
+        if (!override && individualPlansList.containsKey(newName))
+            return false;
+        
         individualPlansList.remove(plan.getId());
         plan.setId(newName);
         individualPlansList.put(newName, plan);
+        return true;
     }
 }
