@@ -75,7 +75,6 @@ public abstract class RealTimeWatefallViewer<T> extends JPanel {
     protected ColorMap colorMap = ColorMapFactory.createBronzeColormap();
 
     // GUI
-    protected JPanel ruller = null;
     protected JPanel viewer = null;
 
     protected BufferedImage dataImage = null;
@@ -119,7 +118,6 @@ public abstract class RealTimeWatefallViewer<T> extends JPanel {
         viewer = createViewerPanel();
 
         setLayout(new MigLayout("ins 0, gap 0", "[][grow]", "[top][grow]"));
-        add(ruller, "w 100%, h " + MAX_RULER_SIZE + "px, wrap");
         add(viewer, "w 100%, grow");
     }
 
@@ -266,7 +264,6 @@ public abstract class RealTimeWatefallViewer<T> extends JPanel {
             @Override
             public void run() {
                 viewer.repaint();
-                ruller.repaint();
             }
         });
     }
