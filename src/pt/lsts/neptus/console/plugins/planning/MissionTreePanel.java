@@ -690,30 +690,28 @@ public class MissionTreePanel extends ConsolePanel implements MissionChangeListe
                     String newName = null;
                     while (true) {
                         String oldPlanName = getPlanNamesString(selectedItems, true).toString();
-                        newName = JOptionPane.showInputDialog("New plan name:", oldPlanName);
+                        newName = JOptionPane.showInputDialog(I18n.text("New plan name"), oldPlanName);
                         if (newName == null)
                             return;
 
-                        if (!getConsole().getMission().getIndividualPlansList().containsKey(newName)) {
-                            if (!newName.isEmpty()) {
-                                PlanType plan = getConsole().getMission().getIndividualPlansList()
-                                        .get(oldPlanName);
-                                if (plan != null) {
-                                    plan.setMissionType(getConsole().getMission());
-
-                                    getConsole().getMission().renamePlan(plan, newName, true);
-                                    SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>() {
-                                        @Override
-                                        protected Void doInBackground() throws Exception {
-                                            getConsole().getMission().save(true);
-                                            return null;
-                                        }
-                                    };
-                                    worker.execute();
-                                    browser.refreshBrowser(getConsole().getMission(),
-                                            getMainVehicleId(), getConsole());
-                                    return;
-                                }
+                        if (!newName.isEmpty() && !getConsole().getMission().getIndividualPlansList().containsKey(newName)) {
+                            PlanType plan = getConsole().getMission().getIndividualPlansList()
+                                    .get(oldPlanName);
+                            if (plan != null) {
+                                if (!getConsole().getMission().renamePlan(plan, newName, true))
+                                    continue;
+                                
+                                SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>() {
+                                    @Override
+                                    protected Void doInBackground() throws Exception {
+                                        getConsole().getMission().save(true);
+                                        return null;
+                                    }
+                                };
+                                worker.execute();
+                                browser.refreshBrowser(getConsole().getMission(), getMainVehicleId(),
+                                        getConsole());
+                                return;
                             }
                         }
                     }
