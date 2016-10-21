@@ -78,9 +78,9 @@ public abstract class RealTimeWatefallViewer<T> extends JPanel {
     protected JPanel ruller = null;
     protected JPanel viewer = null;
 
-    protected BufferedImage ssImage = null;
-    protected BufferedImage ssImageTmp = null;
-    protected BufferedImage ssLayer = null;
+    protected BufferedImage dataImage = null;
+    protected BufferedImage dataImageTmp = null;
+    protected BufferedImage dataLayer = null;
 
     // Data
     protected List<T> dataList = Collections.synchronizedList(new ArrayList<T>());
@@ -135,25 +135,25 @@ public abstract class RealTimeWatefallViewer<T> extends JPanel {
                 try {
                     super.paintComponent(g);
 
-                    if (ssImage != null && ssLayer != null) {
-                        g.drawImage(ssImage, 0, 0, null); // Draw sidescan image
+                    if (dataImage != null && dataLayer != null) {
+                        g.drawImage(dataImage, 0, 0, null); // Draw sidescan image
 
-                        Graphics2D lg2d = (Graphics2D) ssLayer.getGraphics();
+                        Graphics2D lg2d = (Graphics2D) dataLayer.getGraphics();
                         lg2d.setBackground(new Color(255, 255, 255, 0));
-                        lg2d.clearRect(0, 0, ssLayer.getWidth(), ssLayer.getHeight()); // Clear layer image
+                        lg2d.clearRect(0, 0, dataLayer.getWidth(), dataLayer.getHeight()); // Clear layer image
 
                         if (preLayerPainter != null)
-                            preLayerPainter.paint(ssLayer.getGraphics(), ssLayer);
+                            preLayerPainter.paint(dataLayer.getGraphics(), dataLayer);
 
                         // SidescanGuiUtils.drawRuler(ssLayer, MAX_RULER_SIZE, rangeForRulerMeters, rangeForRulerStepMeters);;
 
                         if (postLayerPainter != null)
-                            postLayerPainter.paint(ssLayer.getGraphics(), ssLayer);
+                            postLayerPainter.paint(dataLayer.getGraphics(), dataLayer);
 
-                        g.drawImage(ssLayer, 0, 0, null); // Draw layer
+                        g.drawImage(dataLayer, 0, 0, null); // Draw layer
 
                         if (overPainter != null)
-                            overPainter.paint(g, ssLayer);
+                            overPainter.paint(g, dataLayer);
                     }
                 }
                 catch (Exception e) {
@@ -168,9 +168,9 @@ public abstract class RealTimeWatefallViewer<T> extends JPanel {
             public void componentResized(ComponentEvent e) {
                 if (e.getID() == ComponentEvent.COMPONENT_RESIZED) {
                     synchronized (dataList) {
-                        ssImage = ImageUtils.createCompatibleImage(viewer.getWidth(), viewer.getHeight(), Transparency.OPAQUE);
-                        ssImageTmp = ImageUtils.createCompatibleImage(viewer.getWidth(), viewer.getHeight(), Transparency.OPAQUE);
-                        ssLayer = ImageUtils.createCompatibleImage(viewer.getWidth(), viewer.getHeight(), Transparency.TRANSLUCENT);
+                        dataImage = ImageUtils.createCompatibleImage(viewer.getWidth(), viewer.getHeight(), Transparency.OPAQUE);
+                        dataImageTmp = ImageUtils.createCompatibleImage(viewer.getWidth(), viewer.getHeight(), Transparency.OPAQUE);
+                        dataLayer = ImageUtils.createCompatibleImage(viewer.getWidth(), viewer.getHeight(), Transparency.TRANSLUCENT);
                         //                    clearLines();
                     }
                 }
@@ -191,19 +191,20 @@ public abstract class RealTimeWatefallViewer<T> extends JPanel {
     }
 
     /**
-     * Exposing the panel with the sidescan image waterfall.
+     * Exposing the panel with the data image waterfall.
      *
      * @return
      */
-    public JPanel getSsImamagePanel() {
+    public JPanel getDataImagePanel() {
         return viewer;
     }
 
     /**
-     * @return the ssImage
+     * @return the BufferedImage where the data
+     * is painted
      */
-    public BufferedImage getSsImage() {
-        return ssImage;
+    public BufferedImage getDataImage() {
+        return dataImage;
     }
 
     /**
@@ -232,8 +233,8 @@ public abstract class RealTimeWatefallViewer<T> extends JPanel {
     public void clearLines() {
         synchronized (dataList) {
             dataList.clear();
-            ssImage.getGraphics().clearRect(0, 0, ssImage.getWidth(), ssImage.getHeight());
-            ssImageTmp.getGraphics().clearRect(0, 0, ssImage.getWidth(), ssImage.getHeight());
+            dataImage.getGraphics().clearRect(0, 0, dataImage.getWidth(), dataImage.getHeight());
+            dataImageTmp.getGraphics().clearRect(0, 0, dataImage.getWidth(), dataImage.getHeight());
         }
     }
 
