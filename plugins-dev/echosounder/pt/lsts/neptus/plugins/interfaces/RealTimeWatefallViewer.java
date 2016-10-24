@@ -153,6 +153,8 @@ public abstract class RealTimeWatefallViewer<T> extends JPanel {
                         if (overPainter != null)
                             overPainter.paint(g, dataLayer);
                     }
+                    else if(dataImage == null)
+                        createImages();
                 }
                 catch (Exception e) {
                     e.printStackTrace();
@@ -166,16 +168,20 @@ public abstract class RealTimeWatefallViewer<T> extends JPanel {
             public void componentResized(ComponentEvent e) {
                 if (e.getID() == ComponentEvent.COMPONENT_RESIZED) {
                     synchronized (dataList) {
-                        dataImage = ImageUtils.createCompatibleImage(viewer.getWidth(), viewer.getHeight(), Transparency.OPAQUE);
-                        dataImageTmp = ImageUtils.createCompatibleImage(viewer.getWidth(), viewer.getHeight(), Transparency.OPAQUE);
-                        dataLayer = ImageUtils.createCompatibleImage(viewer.getWidth(), viewer.getHeight(), Transparency.TRANSLUCENT);
-                        //                    clearLines();
+                        createImages();
                     }
                 }
             }
         });
 
         return vPanel;
+    }
+
+    // Create images and layer to display the data
+    private void createImages() {
+        dataImage = ImageUtils.createCompatibleImage(viewer.getWidth(), viewer.getHeight(), Transparency.OPAQUE);
+        dataImageTmp = ImageUtils.createCompatibleImage(viewer.getWidth(), viewer.getHeight(), Transparency.OPAQUE);
+        dataLayer = ImageUtils.createCompatibleImage(viewer.getWidth(), viewer.getHeight(), Transparency.TRANSLUCENT);
     }
 
     /**
