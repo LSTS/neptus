@@ -31,10 +31,7 @@
  */
 package pt.lsts.neptus.plugins.interfaces;
 
-import java.awt.Color;
-import java.awt.Graphics;
-import java.awt.Graphics2D;
-import java.awt.Transparency;
+import java.awt.*;
 import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
 import java.awt.image.BufferedImage;
@@ -118,7 +115,7 @@ public abstract class RealTimeWatefallViewer<T> extends JPanel {
         viewer = createViewerPanel();
 
         setLayout(new MigLayout("ins 0, gap 0", "[][grow]", "[top][grow]"));
-        add(viewer, "w 100%, grow");
+        add(viewer, "w 100%, h 100%,  grow");
     }
 
     /**
@@ -174,6 +171,8 @@ public abstract class RealTimeWatefallViewer<T> extends JPanel {
             }
         });
 
+        System.out.println("** " + this.getWidth() + " " + this.getHeight());
+        vPanel.setPreferredSize(new Dimension(this.getWidth(), this.getHeight()));
         return vPanel;
     }
 
