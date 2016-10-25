@@ -51,6 +51,7 @@ import net.miginfocom.swing.MigLayout;
 import pt.lsts.neptus.colormap.ColorMap;
 import pt.lsts.neptus.colormap.ColorMapFactory;
 import pt.lsts.neptus.mra.api.SidescanGuiUtils;
+import pt.lsts.neptus.plugins.update.Periodic;
 import pt.lsts.neptus.util.ImageUtils;
 
 /**
@@ -264,12 +265,6 @@ public abstract class RealTimeWatefallViewer<T> extends JPanel {
 
     public void updateRequest() {
         updateImage();
-
-        SwingUtilities.invokeLater(new Runnable() {
-            @Override
-            public void run() {
-                viewer.repaint();
-            }
-        });
+        SwingUtilities.invokeLater(() -> viewer.repaint());
     }
 }
