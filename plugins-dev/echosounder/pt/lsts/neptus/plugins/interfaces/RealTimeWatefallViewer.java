@@ -169,8 +169,6 @@ public abstract class RealTimeWatefallViewer<T> extends JPanel {
                 }
             }
         });
-
-        System.out.println("** " + this.getWidth() + " " + this.getHeight());
         vPanel.setPreferredSize(new Dimension(this.getWidth(), this.getHeight()));
         return vPanel;
     }
