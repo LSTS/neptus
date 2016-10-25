@@ -165,9 +165,7 @@ public abstract class RealTimeWatefallViewer<T> extends JPanel {
             @Override
             public void componentResized(ComponentEvent e) {
                 if (e.getID() == ComponentEvent.COMPONENT_RESIZED) {
-                    synchronized (dataList) {
-                        createImages();
-                    }
+                    createImages();
                 }
             }
         });
@@ -179,9 +177,11 @@ public abstract class RealTimeWatefallViewer<T> extends JPanel {
 
     // Create images and layer to display the data
     private void createImages() {
-        dataImage = ImageUtils.createCompatibleImage(viewer.getWidth(), viewer.getHeight(), Transparency.OPAQUE);
-        dataImageTmp = ImageUtils.createCompatibleImage(viewer.getWidth(), viewer.getHeight(), Transparency.OPAQUE);
-        dataLayer = ImageUtils.createCompatibleImage(viewer.getWidth(), viewer.getHeight(), Transparency.TRANSLUCENT);
+        synchronized (dataList) {
+            dataImage = ImageUtils.createCompatibleImage(viewer.getWidth(), viewer.getHeight(), Transparency.OPAQUE);
+            dataImageTmp = ImageUtils.createCompatibleImage(viewer.getWidth(), viewer.getHeight(), Transparency.OPAQUE);
+            dataLayer = ImageUtils.createCompatibleImage(viewer.getWidth(), viewer.getHeight(), Transparency.TRANSLUCENT);
+        }
     }
 
     /**
