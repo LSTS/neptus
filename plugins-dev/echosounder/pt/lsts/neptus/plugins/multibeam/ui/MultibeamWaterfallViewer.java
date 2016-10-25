@@ -31,8 +31,14 @@
  */
 package pt.lsts.neptus.plugins.multibeam.ui;
 
+import pt.lsts.neptus.mra.api.BathymetryPoint;
 import pt.lsts.neptus.mra.api.BathymetrySwath;
 import pt.lsts.neptus.plugins.interfaces.RealTimeWatefallViewer;
+import pt.lsts.neptus.util.ImageUtils;
+
+import java.awt.*;
+import java.awt.image.BufferedImage;
+import java.util.ArrayList;
 
 /**
  * @author tsm
@@ -40,7 +46,6 @@ import pt.lsts.neptus.plugins.interfaces.RealTimeWatefallViewer;
  */
 @SuppressWarnings("serial")
 public class MultibeamWaterfallViewer extends RealTimeWatefallViewer<BathymetrySwath> {
-
     /**
      * @param clazz
      */
@@ -48,10 +53,22 @@ public class MultibeamWaterfallViewer extends RealTimeWatefallViewer<BathymetryS
         super(MultibeamWaterfallViewer.class);
     }
 
+
+    private BufferedImage datatToImage(BathymetrySwath data) {
+        BathymetryPoint[] points = data.getData();
+        BufferedImage image = new BufferedImage(points.length, 1, BufferedImage.TYPE_INT_RGB);
+
+        // apply color map
+        for(int i = 0; i < points.length; i++)
+            if(points[i] != null)
+                image.setRGB(i, 0, colorMap.getColor(points[i].intensity).getRGB());
+            else
+                image.setRGB(i, 0, Color.BLACK.getRGB());
+        return image;
+    }
+
     @Override
     public void updateImage() {
-        // TODO Auto-generated method stub
 
-    }
 
 }
