@@ -220,6 +220,9 @@ public class DeltaTParser implements BathymetryParser {
                 for (int c = 0; c < bs.getNumBeams(); c++) {
                     BathymetryPoint p = bs.getData()[c];
 
+                    if(p == null)
+                        continue;
+
                     info.minDepth = Math.min(info.minDepth, p.depth);
                     info.maxDepth = Math.max(info.maxDepth, p.depth);
                 }
@@ -550,14 +553,14 @@ public class DeltaTParser implements BathymetryParser {
                 if (header.hasIntensity) {
                     short intensity = buf.getShort(480 + (c * 2) - 1); // sometimes there's a return = 0
                     int intensityInt = 0xffff & intensity;
-                    data[realNumberOfBeams] = new BathymetryPoint(ox, oy, height, intensityInt);
-                    data[realNumberOfBeams].intensityMaxValue = 65535;
+                    data[c] = new BathymetryPoint(ox, oy, height, intensityInt);
+                    data[c].intensityMaxValue = 65535;
                     if (generateProcessReport)
                         intensityStr.append(" " + intensityInt);
                 }
                 else {
-                    data[realNumberOfBeams] = new BathymetryPoint(ox, oy, height);
-                    data[realNumberOfBeams].intensityMaxValue = 65535;
+                    data[c] = new BathymetryPoint(ox, oy, height);
+                    data[c].intensityMaxValue = 65535;
                     if (generateProcessReport)
                         intensityStr.append(" " + Double.NaN);
                 }
@@ -598,6 +601,7 @@ public class DeltaTParser implements BathymetryParser {
             curPos += header.numBytes; // Advance current position
 
             BathymetrySwath swath = new BathymetrySwath(header.timestamp, pose, data);
+            realNumberOfBeams = header.numBeams;
             swath.setNumBeams(realNumberOfBeams);
 
             return swath;
@@ -606,6 +610,10 @@ public class DeltaTParser implements BathymetryParser {
             e.printStackTrace();
             return null;
         }
+    }
+
+    public BathymetrySwath nextSwathRealData() {
+        return null;
     }
 
     public BathymetrySwath nextSwathNoData() {
