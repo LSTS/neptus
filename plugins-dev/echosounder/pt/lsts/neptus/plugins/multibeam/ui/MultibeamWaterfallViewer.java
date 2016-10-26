@@ -36,8 +36,10 @@ import pt.lsts.neptus.mra.api.BathymetrySwath;
 import pt.lsts.neptus.plugins.interfaces.RealTimeWatefallViewer;
 import pt.lsts.neptus.util.ImageUtils;
 
+import java.awt.*;
 import java.awt.image.BufferedImage;
-import java.util.ArrayList;
+import java.util.*;
+import java.util.List;
 
 /**
  * @author tsm
@@ -52,14 +54,59 @@ public class MultibeamWaterfallViewer extends RealTimeWatefallViewer<BathymetryS
         super(MultibeamWaterfallViewer.class);
     }
 
+    // code adapted from mra API's
+    @Override
+    public void updateImage() {
+        if (dataImage == null)
+            return;
+
+        ArrayList<BathymetrySwath> addList = new ArrayList<>();
+        ArrayList<BathymetrySwath> removeList = new ArrayList<>();
+
+        synchronized (queuedData) {
+            addList.addAll(queuedData);
+            queuedData.clear();
+        }
+
+        synchronized (dataList) {
+            int yRef = addList.size();
+
+            boolean dataImageChanged = lastImgSizeH != dataImage.getHeight()
+                    || lastImgSizeW != dataImage.getWidth();
+            lastImgSizeH = dataImage.getHeight();
+            lastImgSizeW = dataImage.getWidth();
+
+            boolean someChangesToImageMade = dataImageChanged;
+
+            initNewData(addList, yRef);
+            removeUndisplayedData(addList, removeList, yRef);
+
+            // This check is to prevent negative array indexes (from dragging too much)
+            if (yRef <= dataImage.getHeight()) {
+                if (!dataImageChanged && yRef > 0) {
+                    someChangesToImageMade = true;
+                    ImageUtils.copySrcIntoDst(dataImage, dataImageTmp, 0, 0, dataImage.getWidth(),
+                            dataImage.getHeight() - yRef, 0, yRef, dataImage.getWidth(), dataImage.getHeight());
+                }
+            }
+
+            if(someChangesToImageMade)
+                applyDataChanges(dataImageChanged, addList);
+
+            addList.clear();
+            removeList.clear();
+        }
+    }
+
 
     private BufferedImage datatToImage(BathymetrySwath data) {
         BathymetryPoint[] points = data.getData();
         BufferedImage image = new BufferedImage(points.length, 1, BufferedImage.TYPE_INT_RGB);
 
+        // calculate max depth in order to normalize data
         double max = Double.MIN_VALUE;
         for(int j = 0; j < points.length; j++) {
-            if(points[j] == null && points[j].depth > max)
+            if(points[j] != null && points[j].depth > max)
                 max = points[j].depth;
         }
 
@@ -71,42 +118,47 @@ public class MultibeamWaterfallViewer extends RealTimeWatefallViewer<BathymetryS
         return image;
     }
 
-    @Override
-    public void updateImage() {
-        if(getDataImage() == null)
-            return;
+    /**
+     * Removes from memory data that won't be displayed in the viewer (because
+     * it won't fit)
+     * */
+    private void removeUndisplayedData(ArrayList<BathymetrySwath> addList, ArrayList<BathymetrySwath> removeList, int yRef) {
+        BathymetrySwath swath;
+        Iterator<BathymetrySwath> i = dataList.iterator(); // Must be in synchronized block
+        while (i.hasNext()) {
+            swath = i.next();
+            setYPos(swath, getYPos(swath) + yRef);
+            if (getYPos(swath) > dataImage.getHeight())
+                removeList.add(swath);
+        }
+        dataList.addAll(addList);
+        dataList.removeAll(removeList);
+        removeYPos(removeList);
+    }
 
-        // new swaths to draw (for the first time)
-        ArrayList<BathymetrySwath> queuedSwaths = new ArrayList<>();
 
-        // fetch new swaths to draw
-        synchronized (queuedData) {
-            queuedSwaths.addAll(queuedData);
-            queuedData.clear();
+    /**
+     * Sets Y position and BufferedImage for the
+     * data in addList
+     * */
+    private void initNewData(List<BathymetrySwath> addList, int yRef) {
+        int d = 0;
+        for (BathymetrySwath swath : addList) {
+            setYPos(swath, yRef - d);
+            swath.setImage(datatToImage(swath));
+            d++;
+        }
+    }
+
+    private void applyDataChanges(boolean dataImageChanged, List<BathymetrySwath> addList) {
+        Graphics2D g2d = (Graphics2D) dataImageTmp.getGraphics();
+        // either paint everything again, or just the new data
+        for (BathymetrySwath swath: (dataImageChanged ? dataList : addList)) {
+            g2d.drawImage(ImageUtils.getScaledImage(swath.asBufferedImage(), dataImage.getWidth(), 1, true), 0,
+                    getYPos(swath), null);
         }
 
-        // draw old + new data
-        synchronized(dataList) {
-            int allowedNData = getDataImage().getHeight();
-
-            // don't allow stored data to get too big
-            // clean undisplayed data
-            if(dataList.size() >= 2 * allowedNData) {
-                dataList.subList(0, allowedNData).clear();
-                System.out.println("** Trimmed data");
-            }
-
-            // new data at the beginning of the list
-            dataList.addAll(0, queuedSwaths);
-            queuedSwaths.clear();
-
-            // draw swaths
-            for(int i = 0; i < dataList.size(); i++) {
-                BufferedImage swathImg = datatToImage(dataList.get(i));
-                getDataImage().getGraphics().drawImage(ImageUtils.getScaledImage(swathImg, dataImage.getWidth(),
-                        swathImg.getHeight(), true), 0, i, null);
-            }
-            queuedSwaths.clear();
-        }
+        Graphics2D g3d = (Graphics2D) dataImage.getGraphics();
+        g3d.drawImage(dataImageTmp, 0, 0, null);
     }
 }
