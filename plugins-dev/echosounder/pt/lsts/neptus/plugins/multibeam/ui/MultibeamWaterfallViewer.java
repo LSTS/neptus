@@ -98,12 +98,6 @@ public class MultibeamWaterfallViewer extends RealTimeWatefallViewer<BathymetryS
 
             // draw swaths
             for(int i = 0; i < dataList.size(); i++) {
-                BathymetrySwath swath = dataList.get(i);
-
-                // noisy or inexistent data
-                if(swath.getNumBeams() == 0)
-                    continue;
-
                 BufferedImage swathImg = datatToImage(dataList.get(i));
                 getDataImage().getGraphics().drawImage(ImageUtils.getScaledImage(swathImg, dataImage.getWidth(),
                         swathImg.getHeight(), true), 0, i, null);
