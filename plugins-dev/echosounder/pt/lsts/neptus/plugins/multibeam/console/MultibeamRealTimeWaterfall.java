@@ -31,6 +31,9 @@
  */
 package pt.lsts.neptus.plugins.multibeam.console;
 
+import java.nio.ByteBuffer;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadFactory;
@@ -39,12 +42,21 @@ import java.util.concurrent.atomic.AtomicLong;
 import com.google.common.eventbus.Subscribe;
 
 import net.miginfocom.swing.MigLayout;
+import pt.lsts.imc.EstimatedState;
 import pt.lsts.imc.SonarData;
+import pt.lsts.imc.lsf.LsfIndex;
+import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.colormap.ColorMap;
 import pt.lsts.neptus.colormap.ColorMapFactory;
 import pt.lsts.neptus.console.ConsoleLayout;
 import pt.lsts.neptus.console.ConsolePanel;
+import pt.lsts.neptus.mp.SystemPositionAndAttitude;
+import pt.lsts.neptus.mra.api.BathymetryPoint;
 import pt.lsts.neptus.mra.api.BathymetrySwath;
+import pt.lsts.neptus.mra.api.MultibeamUtil;
+import pt.lsts.neptus.mra.importers.IMraLog;
+import pt.lsts.neptus.mra.importers.deltat.DeltaTParser;
+import pt.lsts.neptus.plugins.ConfigurationListener;
 import pt.lsts.neptus.plugins.NeptusProperty;
 import pt.lsts.neptus.plugins.NeptusProperty.LEVEL;
 import pt.lsts.neptus.plugins.PluginDescription;
@@ -52,6 +64,8 @@ import pt.lsts.neptus.plugins.Popup;
 import pt.lsts.neptus.plugins.Popup.POSITION;
 import pt.lsts.neptus.plugins.interfaces.RealTimeWatefallViewer;
 import pt.lsts.neptus.plugins.multibeam.ui.MultibeamWaterfallViewer;
+import pt.lsts.neptus.plugins.update.Periodic;
+import pt.lsts.neptus.util.llf.LsfLogSource;
 
 /**
  * This plugin receives sonar data through IMCSonarData,
@@ -62,7 +76,7 @@ import pt.lsts.neptus.plugins.multibeam.ui.MultibeamWaterfallViewer;
  */
 @PluginDescription(author = "Tiago Marques", version = "0.1", name = "Multibeam Real-Time Waterfall Viewer")
 @Popup(pos = POSITION.TOP_LEFT, width = 300, height = 500)
-public class MultibeamRealTimeWaterfall extends ConsolePanel {
+public class MultibeamRealTimeWaterfall extends ConsolePanel implements ConfigurationListener {
 
     // Parameters
     @NeptusProperty (name="Color map to use", category="Visualization parameters", userLevel = LEVEL.REGULAR)
@@ -82,12 +96,15 @@ public class MultibeamRealTimeWaterfall extends ConsolePanel {
         }
     });
 
-    RealTimeWatefallViewer<BathymetrySwath> mbViewer;
+    private RealTimeWatefallViewer<BathymetrySwath> mbViewer;
+    private EstimatedState currentEstimatedState = null;
+    private DeltaTParser mbParser;
 
 
     public MultibeamRealTimeWaterfall(ConsoleLayout console) {
         super(console);
         initialize();
+        testDataDisplay();
     }
 
 
@@ -96,14 +113,13 @@ public class MultibeamRealTimeWaterfall extends ConsolePanel {
         mbViewer.setColorMap(colorMap);
 
         setLayout(new MigLayout("ins 0, gap 5"));
-        // add(toolbar, "w 100%, wrap");
         add(mbViewer, "w 100%, h 100%");
     }
 
 
     @Override
     public void cleanSubPanel() {
-
+        threadExecutor.shutdownNow();
     }
 
     @Override
@@ -117,5 +133,53 @@ public class MultibeamRealTimeWaterfall extends ConsolePanel {
         // only interested in multibeam
         if(msg.getType() != SonarData.TYPE.MULTIBEAM)
             return;
+
+        SystemPositionAndAttitude pose;
+        if (currentEstimatedState == null || Math.abs(currentEstimatedState.getTimestampMillis() - msg.getTimestampMillis()) > 500)
+            pose = new SystemPositionAndAttitude();
+        else
+            pose = new SystemPositionAndAttitude(currentEstimatedState);
+
+        BathymetrySwath swath = MultibeamUtil.getMultibeamSwath(msg, pose);
+        if(swath != null)
+            mbViewer.addNewData(swath);
+        else
+            NeptusLog.pub().warn("** Null Bathymetry swath!!!");
+    }
+
+    public void onBathymetrySwath(BathymetrySwath swath) {
+        if(mbViewer == null)
+            return;
+        mbViewer.addNewData(swath);
+    }
+
+    private void testDataDisplay() {
+        String dataFile = (System.getProperty("user.dir") + "/" + "../log/maridan-multibeam/Data.lsf.gz");
+
+        try {
+            LsfLogSource source = new LsfLogSource(dataFile, null);
+            mbParser = new DeltaTParser(source);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Periodic(millisBetweenUpdates = 200)
+    public void update() {
+        if(mbViewer == null || mbParser == null)
+            return;
+
+        BathymetrySwath currSwath;
+        if((currSwath = mbParser.nextSwath()) != null) {
+            mbViewer.addNewData(currSwath);
+            threadExecutor.execute(() -> mbViewer.updateRequest());
+        }
+        else
+            System.out.println("Finished");
+    }
+
+    @Override
+    public void propertiesChanged() {
+        mbViewer.setColorMap(colorMap);
     }
 }
