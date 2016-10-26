@@ -35,10 +35,9 @@ import java.awt.*;
 import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
 import java.awt.image.BufferedImage;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
+import java.util.*;
 import java.util.List;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadFactory;
@@ -50,6 +49,7 @@ import javax.swing.SwingUtilities;
 import net.miginfocom.swing.MigLayout;
 import pt.lsts.neptus.colormap.ColorMap;
 import pt.lsts.neptus.colormap.ColorMapFactory;
+import pt.lsts.neptus.mra.api.BathymetrySwath;
 import pt.lsts.neptus.mra.api.SidescanGuiUtils;
 import pt.lsts.neptus.plugins.update.Periodic;
 import pt.lsts.neptus.util.ImageUtils;
@@ -75,9 +75,15 @@ public abstract class RealTimeWatefallViewer<T> extends JPanel {
     protected BufferedImage dataImageTmp = null;
     protected BufferedImage dataLayer = null;
 
+    protected int lastImgSizeH = -1;
+    protected int lastImgSizeW = -1;
+
     // Data
     protected List<T> dataList = Collections.synchronizedList(new ArrayList<T>());
     protected List<T> queuedData = Collections.synchronizedList(new ArrayList<T>());
+
+    // y pos of a given swath, in the waterfall viewer
+    private Map<T, Integer> yPos = new ConcurrentHashMap<>();
 
     protected ExecutorService threadExecutor;
 
@@ -174,6 +180,29 @@ public abstract class RealTimeWatefallViewer<T> extends JPanel {
             dataImageTmp = ImageUtils.createCompatibleImage(viewer.getWidth(), viewer.getHeight(), Transparency.OPAQUE);
             dataLayer = ImageUtils.createCompatibleImage(viewer.getWidth(), viewer.getHeight(), Transparency.TRANSLUCENT);
         }
+    }
+
+    /**
+     * Set Y position in the viewer of the given data line
+     * */
+    protected void setYPos(T data, int y) {
+        yPos.put(data, y);
+    }
+
+
+    /**
+     * Get Y position in the viewer of the given data line
+     * */
+    protected int getYPos(T data) {
+        return yPos.get(data);
+    }
+
+    /**
+     * Remove Y positions of all the given data lines
+     * */
+    protected void removeYPos(ArrayList<BathymetrySwath> data) {
+        data.stream()
+                .forEach(dataLine -> yPos.remove(dataLine));
     }
 
     /**
