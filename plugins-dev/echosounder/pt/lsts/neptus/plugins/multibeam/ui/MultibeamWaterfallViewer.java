@@ -36,7 +36,6 @@ import pt.lsts.neptus.mra.api.BathymetrySwath;
 import pt.lsts.neptus.plugins.interfaces.RealTimeWatefallViewer;
 import pt.lsts.neptus.util.ImageUtils;
 
-import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 
@@ -58,12 +57,19 @@ public class MultibeamWaterfallViewer extends RealTimeWatefallViewer<BathymetryS
         BathymetryPoint[] points = data.getData();
         BufferedImage image = new BufferedImage(points.length, 1, BufferedImage.TYPE_INT_RGB);
 
+        int max = Integer.MIN_VALUE;
+        for(int j = 0; j < points.length; j++) {
+            if(points[j] == null || points[j].intensity == points[j].intensityMaxValue)
+                continue;
+            if (points[j].intensity > max)
+                max = points[j].intensity;
+        }
+
         // apply color map
         for(int i = 0; i < points.length; i++)
-            if(points[i] != null)
-                image.setRGB(i, 0, colorMap.getColor(points[i].intensity).getRGB());
-            else
-                image.setRGB(i, 0, Color.BLACK.getRGB());
+            if (points[i] != null)
+                image.setRGB(i, 0, colorMap.getColor(points[i].intensity / (double) max).getRGB());
+
         return image;
     }
 
