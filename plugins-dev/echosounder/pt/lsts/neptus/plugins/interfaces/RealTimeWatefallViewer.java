@@ -65,10 +65,6 @@ public abstract class RealTimeWatefallViewer<T> extends JPanel {
     // abstract methods
     protected abstract void updateImage();
 
-
-
-    protected static final int MAX_RULER_SIZE = 15;
-
     // Parameters
     protected ColorMap colorMap = ColorMapFactory.createBronzeColormap();
 
@@ -86,7 +82,7 @@ public abstract class RealTimeWatefallViewer<T> extends JPanel {
     protected ExecutorService threadExecutor;
 
     public interface LayerPainter {
-        public void paint(Graphics g, BufferedImage layer);
+        void paint(Graphics g, BufferedImage layer);
     }
 
     protected LayerPainter preLayerPainter = null;
@@ -132,7 +128,7 @@ public abstract class RealTimeWatefallViewer<T> extends JPanel {
                     super.paintComponent(g);
 
                     if (dataImage != null && dataLayer != null) {
-                        g.drawImage(dataImage, 0, 0, null); // Draw sidescan image
+                        g.drawImage(dataImage, 0, 0, null); // Draw data image
 
                         Graphics2D lg2d = (Graphics2D) dataLayer.getGraphics();
                         lg2d.setBackground(new Color(255, 255, 255, 0));
@@ -140,8 +136,6 @@ public abstract class RealTimeWatefallViewer<T> extends JPanel {
 
                         if (preLayerPainter != null)
                             preLayerPainter.paint(dataLayer.getGraphics(), dataLayer);
-
-                        // SidescanGuiUtils.drawRuler(ssLayer, MAX_RULER_SIZE, rangeForRulerMeters, rangeForRulerStepMeters);;
 
                         if (postLayerPainter != null)
                             postLayerPainter.paint(dataLayer.getGraphics(), dataLayer);
@@ -251,12 +245,9 @@ public abstract class RealTimeWatefallViewer<T> extends JPanel {
         if (lineList.size() == 0)
             return;
 
-        threadExecutor.execute(new Runnable() {
-            @Override
-            public void run() {
-                synchronized (queuedData) {
-                    queuedData.addAll(lineList);
-                }
+        threadExecutor.execute(() -> {
+            synchronized (queuedData) {
+                queuedData.addAll(lineList);
             }
         });
     }
