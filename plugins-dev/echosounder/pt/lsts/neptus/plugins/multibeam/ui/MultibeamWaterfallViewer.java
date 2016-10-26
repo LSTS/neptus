@@ -57,18 +57,16 @@ public class MultibeamWaterfallViewer extends RealTimeWatefallViewer<BathymetryS
         BathymetryPoint[] points = data.getData();
         BufferedImage image = new BufferedImage(points.length, 1, BufferedImage.TYPE_INT_RGB);
 
-        int max = Integer.MIN_VALUE;
+        double max = Double.MIN_VALUE;
         for(int j = 0; j < points.length; j++) {
-            if(points[j] == null || points[j].intensity == points[j].intensityMaxValue)
-                continue;
-            if (points[j].intensity > max)
-                max = points[j].intensity;
+            if(points[j] == null && points[j].depth > max)
+                max = points[j].depth;
         }
 
         // apply color map
         for(int i = 0; i < points.length; i++)
             if (points[i] != null)
-                image.setRGB(i, 0, colorMap.getColor(points[i].intensity / (double) max).getRGB());
+                image.setRGB(i, 0, colorMap.getColor(1 - points[i].depth / max).getRGB());
 
         return image;
     }
