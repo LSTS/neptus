@@ -112,7 +112,7 @@ public class OdssStoqsTrackFetcher extends ConsolePanel implements IPeriodicUpda
     private static final String SHIP_URL_FRAGMENT = "ship/";
     
     @NeptusProperty(name = "Web address")
-    public String fetchURL = "http://beach.mbari.org/trackingdb/";
+    public String fetchURL = "http://odss.mbari.org/trackingdb/";
 
     @NeptusProperty(name = "AUV", category = "System Filter")
     public boolean fetchAUVType = true;
