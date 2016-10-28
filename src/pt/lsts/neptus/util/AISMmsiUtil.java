@@ -33,7 +33,9 @@ package pt.lsts.neptus.util;
 
 import java.io.InputStreamReader;
 import java.net.URL;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 import com.google.gson.Gson;
@@ -46,15 +48,13 @@ import pt.lsts.neptus.util.conf.GeneralPreferences;
  *
  */
 public class AISMmsiUtil {
+    
+    private static Map<Long, String> labelCache = Collections.synchronizedMap(new LinkedHashMap<Long, String>());
 
     private AISMmsiUtil() {
     }
 
     public static Map<String, Object> queryFromMmsi(long mmsi) {
-        return queryFromMmsi("" + mmsi);
-    }
-
-    public static Map<String, Object> queryFromMmsi(String mmsi) {
         try {
             // "http://api.ais.owm.io/1.2/vessels/338415000.json?api_key=f7a0da8eacb49740eb45b5e74d130459"
             String spec = GeneralPreferences.aisMmsiQueryUrlPrefix + mmsi + GeneralPreferences.aisMmsiQueryUrlSufix;
@@ -62,6 +62,16 @@ public class AISMmsiUtil {
             Gson gson = new Gson();
             @SuppressWarnings("unchecked")
             Map<String, Object> mp = (Map<String, Object>) gson.fromJson(new InputStreamReader(url.openStream()), Map.class);
+            
+            if (mp.containsKey("name")) {
+                try {
+                    String name = (String) mp.get("name");
+                    labelCache.put(mmsi, name);
+                }
+                catch (Exception e) {
+                }
+            }
+            
             return mp;
         }
         catch (Exception e) {
@@ -71,10 +81,9 @@ public class AISMmsiUtil {
     }
 
     public static String queryNameFromMmsi(long mmsi) {
-        return queryNameFromMmsi("" + mmsi);
-    }
-    
-    public static String queryNameFromMmsi(String mmsi) {
+        if (labelCache.containsKey(mmsi))
+            return labelCache.get(mmsi);
+            
         Map<String, Object> mp = queryFromMmsi(mmsi);
         if (!mp.containsKey("name")) {
             return null;
@@ -82,6 +91,7 @@ public class AISMmsiUtil {
         
         try {
             String name = (String) mp.get("name");
+            labelCache.put(mmsi, name);
             return name;
         }
         catch (Exception e) {
@@ -92,7 +102,7 @@ public class AISMmsiUtil {
 
     public static void main(String[] args) throws Exception {
         // String spec = "http://api.ais.owm.io/1.2/vessels/338415000.json?api_key=f7a0da8eacb49740eb45b5e74d130459";
-        System.out.println(queryNameFromMmsi("338415000"));
-        System.out.println(queryFromMmsi("338415000"));
+        System.out.println(queryNameFromMmsi(338415000));
+        System.out.println(queryFromMmsi(338415000));
     }
 }
