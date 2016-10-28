@@ -50,6 +50,10 @@ public class AISMmsiUtil {
     private AISMmsiUtil() {
     }
 
+    public static Map<String, Object> queryFromMmsi(long mmsi) {
+        return queryFromMmsi("" + mmsi);
+    }
+
     public static Map<String, Object> queryFromMmsi(String mmsi) {
         try {
             // "http://api.ais.owm.io/1.2/vessels/338415000.json?api_key=f7a0da8eacb49740eb45b5e74d130459"
@@ -66,6 +70,10 @@ public class AISMmsiUtil {
         }
     }
 
+    public static String queryNameFromMmsi(long mmsi) {
+        return queryNameFromMmsi("" + mmsi);
+    }
+    
     public static String queryNameFromMmsi(String mmsi) {
         Map<String, Object> mp = queryFromMmsi(mmsi);
         if (!mp.containsKey("name")) {
