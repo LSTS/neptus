@@ -232,6 +232,14 @@ public class GeneralPreferences implements PropertiesProvider {
     public static boolean placeMainVehicleComboOnMenuOrStatusBar = true;
         
     // -------------------------------------------------------------------------
+
+    @NeptusProperty(name = "AIS MMSI Query Prefix", category = "AIS MMSI Query", userLevel = LEVEL.ADVANCED)
+    public static String aisMmsiQueryUrlPrefix = "http://api.ais.owm.io/1.2/vessels/";
+    
+    @NeptusProperty(name = "AIS MMSI Query Sufix", category = "AIS MMSI Query", userLevel = LEVEL.ADVANCED)
+    public static String aisMmsiQueryUrlSufix = ".json?api_key=f7a0da8eacb49740eb45b5e74d130459";
+    
+    // -------------------------------------------------------------------------
     // Constructor and initialize
 
     public GeneralPreferences() {
