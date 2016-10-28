@@ -130,7 +130,7 @@ public class OdssStoqsTrackFetcher extends ConsolePanel implements IPeriodicUpda
     public boolean fetchAISType = true;
     
     @NeptusProperty(name = "Period to fetch (hours)")
-    public short periodHoursToFetch = 3;
+    public int periodHoursToFetch = 3;
 
     @NeptusProperty(name = "Update period (ms)", description = "The period to fetch the systems' positions. "
             + "Zero means disconnected.")
@@ -582,7 +582,7 @@ public class OdssStoqsTrackFetcher extends ConsolePanel implements IPeriodicUpda
         }
     }
     
-    public String validatePeriodHoursToFetch(short value) {
+    public String validatePeriodHoursToFetch(int value) {
         String ret = new IntegerMinMaxValidator(1, 300, true, true).validate(value);
         if (value < 1)
             value = periodHoursToFetch = 1;
