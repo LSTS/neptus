@@ -84,6 +84,7 @@ import pt.lsts.neptus.types.vehicle.VehicleType.VehicleTypeEnum;
 import pt.lsts.neptus.types.vehicle.VehiclesHolder;
 import pt.lsts.neptus.util.DateTimeUtil;
 import pt.lsts.neptus.util.FileUtil;
+import pt.lsts.neptus.util.NMEAUtils;
 import pt.lsts.neptus.util.conf.IntegerMinMaxValidator;
 import pt.lsts.neptus.util.http.client.HttpClientConnectionHelper;
 
@@ -501,7 +502,12 @@ public class OdssStoqsTrackFetcher extends ConsolePanel implements IPeriodicUpda
                 }
             }
             else {
-                ExternalSystem ext = ExternalSystemsHolder.lookupSystem(id);
+                ExternalSystem ext;
+                if (pr.getMmsi() > 0)
+                    ext = NMEAUtils.getAndRegisterExternalSystem((int) pr.getMmsi(), pr.getName());
+                else
+                    ext = ExternalSystemsHolder.lookupSystem(id);
+                
                 boolean registerNewExternal = false;
                 if (ext == null) {
                     registerNewExternal = true;
@@ -530,6 +536,9 @@ public class OdssStoqsTrackFetcher extends ConsolePanel implements IPeriodicUpda
                         ext.setTypeExternal(ExternalTypeEnum.MANNED_SHIP);
                     } 
                     ext.setType(type);
+                    
+                    if (pr.getMmsi() > 0)
+                        ext.storeData(SystemUtils.MMSI_KEY, pr.getMmsi(), time, true);
                     
                     // See better because this should not be here
                     ext.setLocation(coordinateSystem, time);
