@@ -47,6 +47,8 @@ import java.nio.ByteBuffer;
  */
 public class MultibeamUtil {
 
+    private static final int DATA_START_BYTE = 3;
+
     public static BathymetrySwath getMultibeamSwath(SonarData sonarData, SystemPositionAndAttitude pose) {
         byte[] dataBytes = sonarData.getData();
         double scaleFactor = sonarData.getScaleFactor();
@@ -58,8 +60,11 @@ public class MultibeamUtil {
         int nPoints = sonarData.getBeamConfig().size();
         short startAngle = bytes.getShort(0);
         float angleIncrement = ((float) bytes.get(1)) / 10;
-        double[] ranges = getData(bytes, nPoints, scaleFactor, bitsPerPoint);
-        int[] intensities = getIntensityInfo(bytes, nPoints);
+
+        // data
+        Pair<double[], int[]> tmp = splitRangeAndIntensity(getData(bytes, scaleFactor, bitsPerPoint));
+        double[] ranges = tmp.first();
+        int[] intensities = tmp.second();
 
 
         if(ranges.length != intensities.length)
@@ -91,13 +96,12 @@ public class MultibeamUtil {
         return new BathymetrySwath(sonarData.getTimestampMillis(), pose, points);
     }
 
-    public static double[] getData(ByteBuffer bytes, int nPoints, double scaleFactor, short bitsPerPoint) {
+    public static double[] getData(ByteBuffer bytes, double scaleFactor, short bitsPerPoint) {
         if (bitsPerPoint % 8 != 0)
             return null;
 
-        // fetch data relative to ranges
-        byte[] data = new byte[nPoints];
-        bytes.get(data, bytes.position(), nPoints);
+        byte[] data = new byte[bytes.remaining()];
+        bytes.get(data, DATA_START_BYTE, bytes.remaining());
 
         int bytesPerPoint = bitsPerPoint < 8 ? 1 : (bitsPerPoint / 8);
         double[] fData = new double[data.length / bytesPerPoint];
@@ -114,20 +118,32 @@ public class MultibeamUtil {
             fData[k++] = val;
         }
 
-        // Lets apply scaling
-        for (int i = 0; i < fData.length; i++) {
+        // Only apply scale factor to ranges data
+        for (int i = 0; i < fData.length/2; i++) {
             fData[i] *= scaleFactor;
         }
 
         return fData;
     }
-    
-    public static int[] getIntensityInfo(ByteBuffer bytes, int nPoints) {
-        int[] intensities = new int[nPoints];
-        for(int i = 0; i < nPoints; i++) {
-            intensities[i] = bytes.getInt();
+
+
+    /**
+     * Split IMC SonarData's data into
+     * ranges and intensity
+     * */
+    private static Pair<double[], int[]> splitRangeAndIntensity(double[] data) {
+        double[] d = new double[data.length/2];
+        int[] intensities = new int[data.length/2];
+
+        for(int i = 0; i < data.length/2; i++) {
+            data[i] = data[i];
+            intensities[i] = (int) data[data.length/2 + i];
         }
 
-        return intensities;
+        return new Pair<>(data, intensities);
+    }
+
+    public static void main(String []args) {
+
     }
 }
