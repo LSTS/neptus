@@ -31,15 +31,19 @@
  */
 package pt.lsts.neptus.mra.api;
 
+import pt.lsts.imc.BeamConfig;
 import pt.lsts.imc.IMCMessage;
 import pt.lsts.imc.SonarData;
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.data.Pair;
+import pt.lsts.neptus.gui.editor.ArrayListEditor;
 import pt.lsts.neptus.mp.SystemPositionAndAttitude;
 import pt.lsts.neptus.mra.importers.deltat.DeltaTParser;
 import pt.lsts.neptus.util.llf.LsfLogSource;
 
 import java.nio.ByteBuffer;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * @author tsm
@@ -47,9 +51,8 @@ import java.nio.ByteBuffer;
  */
 public class MultibeamUtil {
 
-    private static final int DATA_START_BYTE = 3;
-
     public static BathymetrySwath getMultibeamSwath(SonarData sonarData, SystemPositionAndAttitude pose) {
+        NeptusLog.pub().debug("************** TO SWATH");
         byte[] dataBytes = sonarData.getData();
         double scaleFactor = sonarData.getScaleFactor();
         short bitsPerPoint = sonarData.getBitsPerPoint();
@@ -57,9 +60,9 @@ public class MultibeamUtil {
         ByteBuffer bytes = ByteBuffer.wrap(dataBytes);
 
         // fetch necessary data to compute BathymetrySwath's points
-        int nPoints = sonarData.getBeamConfig().size();
-        short startAngle = bytes.getShort(0);
-        float angleIncrement = ((float) bytes.get(1)) / 10;
+        double startAngle = ((double) bytes.getShort()) / 100.0;
+
+        NeptusLog.pub().debug("** Start angle of: " + startAngle);
 
         // data
         Pair<double[], int[]> tmp = splitRangeAndIntensity(getData(bytes, scaleFactor, bitsPerPoint));
@@ -77,21 +80,40 @@ public class MultibeamUtil {
         float north;
         float east;
         float depth;
+        double angleIncrement = sonarData.getBeamConfig().get(0).getBeamWidth();
+
+        NeptusLog.pub().debug("** Angle increment: " + angleIncrement);
 
         BathymetryPoint[] points = new BathymetryPoint[ranges.length];
+        int rangeZero = 0;
         for(int i = 0; i < ranges.length; i++) {
-            if(ranges[i] == 0)
+            if(ranges[i] == 0) {
+                /*NeptusLog.pub().debug("** Range is 0");*/
+                rangeZero++;
                 continue;
+            }
 
             angle = startAngle + angleIncrement * i;
             depth = (float) ((ranges[i] * Math.toRadians(angle)) + pose.getPosition().getDepth());
             x = ranges[i] * Math.sin(Math.toRadians(angle));
             yawAngle = -pose.getYaw();
-            north = (float) (x * Math.sin(yawAngle));;
+            north = (float) (x * Math.sin(yawAngle));
             east = (float) (x * Math.cos(yawAngle));
+
+            NeptusLog.pub().debug("** angle: " + angle);
+            NeptusLog.pub().debug("** range: " + depth);
+            NeptusLog.pub().debug("** x: " + x);
+            NeptusLog.pub().debug("** yawAngle: " + yawAngle);
+            NeptusLog.pub().debug("** north: " + north);
+            NeptusLog.pub().debug("** east: " + east);
+            NeptusLog.pub().debug("");
 
             points[i] = new BathymetryPoint(north, east, depth, intensities[i]);
         }
+
+        NeptusLog.pub().debug("** Range zero: " + rangeZero + " of " + ranges.length);
+        NeptusLog.pub().debug("");
+        NeptusLog.pub().debug("");
 
         return new BathymetrySwath(sonarData.getTimestampMillis(), pose, points);
     }
@@ -101,7 +123,7 @@ public class MultibeamUtil {
             return null;
 
         byte[] data = new byte[bytes.remaining()];
-        bytes.get(data, DATA_START_BYTE, bytes.remaining());
+         bytes.get(data, 0, bytes.remaining());
 
         int bytesPerPoint = bitsPerPoint < 8 ? 1 : (bitsPerPoint / 8);
         double[] fData = new double[data.length / bytesPerPoint];
@@ -121,6 +143,7 @@ public class MultibeamUtil {
         // Only apply scale factor to ranges data
         for (int i = 0; i < fData.length/2; i++) {
             fData[i] *= scaleFactor;
+            NeptusLog.pub().debug("** Converting " + fData[i]);
         }
 
         return fData;
@@ -132,37 +155,68 @@ public class MultibeamUtil {
      * ranges and intensity
      * */
     private static Pair<double[], int[]> splitRangeAndIntensity(double[] data) {
-        double[] d = new double[data.length/2];
+        double[] ranges = new double[data.length/2];
         int[] intensities = new int[data.length/2];
 
         for(int i = 0; i < data.length/2; i++) {
-            data[i] = data[i];
+            ranges[i] = data[i];
             intensities[i] = (int) data[data.length/2 + i];
         }
 
-        return new Pair<>(data, intensities);
+        return new Pair<>(ranges, intensities);
     }
 
     public static SonarData swathToSonarData(BathymetrySwath swath) {
-        SonarData sonarData = null;
+        SonarData sonarData = new SonarData();
+
+        BathymetryPoint[] points = swath.getData();
+        ByteBuffer bytes = ByteBuffer.allocate(Double.BYTES * (points.length * 2 + 1));
+        List<BeamConfig> beamConfig = new ArrayList<>();
+
+        // startAngles
+        double startAngleDouble = -59.870003 * 100;
+        short startAngle  = (short) startAngleDouble;
+        NeptusLog.pub().debug("** AS SHORT " + startAngle);
+        bytes.putShort(0, startAngle);
+
+        // ranges and intensities
+        int nullPoints = 0;
+        for(int i = 0; i < points.length; i++) {
+            int index = i + 1;
+            double range = 0;
+            double intensity = Integer.MAX_VALUE;
+
+            if(points[i] != null) {
+                range = points[i].depth;
+                intensity = points[i].intensity;
+            }
+            else
+                nullPoints++;
+
+            bytes.putDouble(index, range);
+            bytes.putDouble(index + points.length, intensity);
+
+            // BeamConfig
+            BeamConfig c = new BeamConfig();
+            c.setBeamWidth(0.25);
+            beamConfig.add(c);
+        }
+
+        NeptusLog.pub().debug("***** Swath to SonarData: " + nullPoints + " of " + points.length);
+
+        sonarData.setScaleFactor(8);
+        sonarData.setTimestampMillis(swath.getTimestamp());
+        sonarData.setData(bytes.array());
+        sonarData.setBeamConfig(beamConfig);
+        sonarData.setType(SonarData.TYPE.MULTIBEAM);
+
+        // debug
+
         return sonarData;
     }
 
     public static void main(String []args) {
         String dataFile = (System.getProperty("user.dir") + "/" + "../log/maridan-multibeam/Data.lsf.gz");
         DeltaTParser mbParser;
-        try {
-            LsfLogSource source = new LsfLogSource(dataFile, null);
-            mbParser = new DeltaTParser(source);
-
-            BathymetrySwath swath = null;
-            int i = 0;
-            while(i < 10)
-                swath = mbParser.nextSwath();
-
-            SonarData sonarData = MultibeamUtil.swathToSonarData(swath);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
     }
 }
