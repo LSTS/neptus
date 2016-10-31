@@ -134,15 +134,16 @@ public class MultibeamRealTimeWaterfall extends ConsolePanel implements Configur
         if(msg.getType() != SonarData.TYPE.MULTIBEAM)
             return;
 
-        SystemPositionAndAttitude pose;
-        if (currentEstimatedState == null || Math.abs(currentEstimatedState.getTimestampMillis() - msg.getTimestampMillis()) > 500)
-            pose = new SystemPositionAndAttitude();
-        else
+        SystemPositionAndAttitude pose = new SystemPositionAndAttitude();
+        if (currentEstimatedState != null &&
+                Math.abs(currentEstimatedState.getTimestampMillis() - msg.getTimestampMillis()) < 500)
             pose = new SystemPositionAndAttitude(currentEstimatedState);
 
         BathymetrySwath swath = MultibeamUtil.getMultibeamSwath(msg, pose);
-        if(swath != null)
+        if(swath != null) {
             mbViewer.addNewData(swath);
+            threadExecutor.execute(() -> mbViewer.updateRequest());
+        }
         else
             NeptusLog.pub().warn("** Null Bathymetry swath!!!");
     }
@@ -164,16 +165,14 @@ public class MultibeamRealTimeWaterfall extends ConsolePanel implements Configur
         }
     }
 
-    @Periodic(millisBetweenUpdates = 200)
+    @Periodic(millisBetweenUpdates = 1000)
     public void update() {
         if(mbViewer == null || mbParser == null)
             return;
 
         BathymetrySwath currSwath;
-        if((currSwath = mbParser.nextSwath()) != null) {
-            mbViewer.addNewData(currSwath);
-            threadExecutor.execute(() -> mbViewer.updateRequest());
-        }
+        if((currSwath = mbParser.nextSwath()) != null)
+            onSonarData(MultibeamUtil.swathToSonarData(currSwath));
         else
             System.out.println("Finished");
     }
