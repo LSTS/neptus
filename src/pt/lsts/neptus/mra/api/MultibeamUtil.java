@@ -204,7 +204,7 @@ public class MultibeamUtil {
 
         NeptusLog.pub().debug("***** Swath to SonarData: " + nullPoints + " of " + points.length);
 
-        sonarData.setScaleFactor(8);
+        sonarData.setScaleFactor(1.0f);
         sonarData.setTimestampMillis(swath.getTimestamp());
         sonarData.setData(bytes.array());
         sonarData.setBeamConfig(beamConfig);
