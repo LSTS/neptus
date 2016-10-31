@@ -143,7 +143,26 @@ public class MultibeamUtil {
         return new Pair<>(data, intensities);
     }
 
-    public static void main(String []args) {
+    public static SonarData swathToSonarData(BathymetrySwath swath) {
+        SonarData sonarData = null;
+        return sonarData;
+    }
 
+    public static void main(String []args) {
+        String dataFile = (System.getProperty("user.dir") + "/" + "../log/maridan-multibeam/Data.lsf.gz");
+        DeltaTParser mbParser;
+        try {
+            LsfLogSource source = new LsfLogSource(dataFile, null);
+            mbParser = new DeltaTParser(source);
+
+            BathymetrySwath swath = null;
+            int i = 0;
+            while(i < 10)
+                swath = mbParser.nextSwath();
+
+            SonarData sonarData = MultibeamUtil.swathToSonarData(swath);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 }
