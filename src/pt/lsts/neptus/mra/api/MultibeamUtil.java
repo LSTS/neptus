@@ -174,47 +174,40 @@ public class MultibeamUtil {
         SonarData sonarData = new SonarData();
 
         BathymetryPoint[] points = swath.getData();
-        ByteBuffer bytes = ByteBuffer.allocate(Double.BYTES * (points.length * 2 + 1));
+        ByteBuffer bytes = ByteBuffer.allocate(Short.BYTES + Double.BYTES * (points.length * 2));
         List<BeamConfig> beamConfig = new ArrayList<>();
 
         // startAngles
         double startAngleDouble = -59.870003 * 100;
         short startAngle  = (short) startAngleDouble;
-        NeptusLog.pub().debug("** AS SHORT " + startAngle);
-        bytes.putShort(0, startAngle);
+        bytes.putShort(startAngle);
 
-        // ranges and intensities
-        int nullPoints = 0;
+        // put ranges and intensities
         for(int i = 0; i < points.length; i++) {
-            int index = i + 1;
             double range = 0;
-            double intensity = Integer.MAX_VALUE;
+            double intensity = (double) Integer.MAX_VALUE;
 
             if(points[i] != null) {
                 range = points[i].depth;
-                intensity = points[i].intensity;
+                intensity = (double) points[i].intensity;
+                System.out.println(range);
             }
-            else
-                nullPoints++;
 
-            bytes.putDouble(index, range);
-            bytes.putDouble(index + points.length, intensity);
+            bytes.putDouble(range);
+            int intensityIndex = Short.BYTES + Double.BYTES * (points.length + i);
+            bytes.putDouble(intensityIndex, intensity);
 
-            // BeamConfig
             BeamConfig c = new BeamConfig();
             c.setBeamWidth(0.25);
             beamConfig.add(c);
         }
 
-        NeptusLog.pub().debug("***** Swath to SonarData: " + nullPoints + " of " + points.length);
-
+        sonarData.setType(SonarData.TYPE.MULTIBEAM);
+        sonarData.setBitsPerPoint((short)Double.SIZE);
         sonarData.setScaleFactor(1.0f);
         sonarData.setTimestampMillis(swath.getTimestamp());
         sonarData.setData(bytes.array());
         sonarData.setBeamConfig(beamConfig);
-        sonarData.setType(SonarData.TYPE.MULTIBEAM);
-
-        // debug
 
         return sonarData;
     }
