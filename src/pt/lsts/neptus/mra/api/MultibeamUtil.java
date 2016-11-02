@@ -249,7 +249,6 @@ public class MultibeamUtil {
 
         ByteBuffer newBuffer = ByteBuffer.wrap(bytes);
         int readNBytes = newBuffer.array().length;
-        newBuffer.rewind();
 
         System.out.println("** Reading " + readNBytes + " bytes");
         System.out.println("** Validated " + (readNBytes == nBytes) + "\n\n");
