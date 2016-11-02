@@ -39,10 +39,14 @@ import pt.lsts.neptus.data.Pair;
 import pt.lsts.neptus.gui.editor.ArrayListEditor;
 import pt.lsts.neptus.mp.SystemPositionAndAttitude;
 import pt.lsts.neptus.mra.importers.deltat.DeltaTParser;
+import pt.lsts.neptus.util.DateTimeUtil;
 import pt.lsts.neptus.util.llf.LsfLogSource;
 
 import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
+import java.nio.ShortBuffer;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -216,7 +220,53 @@ public class MultibeamUtil {
     }
 
     public static void main(String []args) {
-        String dataFile = (System.getProperty("user.dir") + "/" + "../log/maridan-multibeam/Data.lsf.gz");
-        DeltaTParser mbParser;
+        double data[] = {1.0,2.0,3.0,4.0,5.0,6.0,7.131,8.0,9.0,21.0,450.0,60.3242};
+        int intensities[] = {1231,1243,436,867867,8978, 31, 312, 342, 654, 123, 68, 3123};
+
+        if(data.length != intensities.length) {
+            System.out.println("ERROR");
+            return;
+        }
+
+        // Build and send Data
+        System.out.println("* Writting");
+
+        short startAngle = 96;
+        int nBytes = Short.BYTES + Double.BYTES * data.length * 2;
+        ByteBuffer buffer = ByteBuffer.allocate(nBytes);
+
+        // put start angle
+        buffer.putShort(startAngle);
+
+        // put ranges and intensities
+        for(int i = 0; i < data.length; i++) {
+            buffer.putDouble(data[i]);
+
+            int intensityIndex = Short.BYTES + Double.BYTES * (data.length + i);
+            buffer.putDouble(intensityIndex, (double)intensities[i]);
+        }
+
+
+        byte[] bytes = buffer.array().clone();
+        System.out.println("** Wrote " + bytes.length + " bytes");
+        System.out.println("** Validated: " + (bytes.length == nBytes));
+
+        // read data
+        System.out.println("\n\n* Reading");
+
+        ByteBuffer newBuffer = ByteBuffer.wrap(bytes);
+        int readNBytes = newBuffer.array().length;
+        newBuffer.rewind();
+
+        System.out.println("** Reading " + readNBytes + " bytes");
+        System.out.println("** Validated " + (readNBytes == nBytes) + "\n\n");
+
+        short readAngle = newBuffer.getShort();
+        System.out.println("** Start angle: " + readAngle);
+
+        for(int i = 0; i < data.length * 2; i++) {
+            double v = newBuffer.getDouble();
+            System.out.println("** " + v);
+        }
     }
 }
