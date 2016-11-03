@@ -187,19 +187,23 @@ public class MultibeamUtil {
         short startAngle  = (short) startAngleDouble;
         bytes.putShort(startAngle);
 
-        // put ranges and intensities
+        // put range and intensities
         for(int i = 0; i < points.length; i++) {
             double range = 0;
             double intensity = (double) Integer.MAX_VALUE;
 
             if(points[i] != null) {
-                range = ((int)(points[i].depth / scaleFactor)) & 0xFF;
-                intensity = points[i].intensity & 0xFF;
+                range = points[i].depth;
+                intensity = points[i].intensity;
             }
 
-            bytes.putDouble(range);
-            int intensityIndex = Short.BYTES + Double.BYTES * (points.length + i);
-            bytes.putDouble(intensityIndex, intensity);
+            byte[] rangeBytes = valueToBytes(range, bytesPerPoint, scaleFactor);
+            byte[] intensitiyBytes = valueToBytes(intensity, bytesPerPoint, scaleFactor);
+
+            int intensityIndex = headerBytes + bytesPerPoint * (points.length + i);
+
+            bytes.put(rangeBytes);
+            putBytesAt(bytes, intensityIndex, intensitiyBytes);
 
             BeamConfig c = new BeamConfig();
             c.setBeamWidth(0.25);
