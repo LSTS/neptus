@@ -191,7 +191,6 @@ public class TextCommands extends ConsolePanel {
     private void preview() {
         parse();
 
-
         ITextCommand cmd = commands.get(comboCmd.getSelectedItem());
         PlanType pt = cmd.resultingPlan(getConsole().getMission());
 
@@ -244,8 +243,9 @@ public class TextCommands extends ConsolePanel {
             Future<String> result = sender.sendToVehicle("neptus", getConsole().getMainSystem(), command);
             GuiUtils.infoMessage(getConsole(), I18n.text("Send command"), result.get());
             PlanType pt = cmd.resultingPlan(getConsole().getMission());
-            pt.setVehicle(getMainVehicleId());
+
             if (pt != null) {
+                pt.setVehicle(getMainVehicleId());
                 getConsole().getMission().addPlan(pt);
                 getConsole().getMission().save(true);
                 getConsole().warnMissionListeners();
