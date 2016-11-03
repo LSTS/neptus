@@ -120,7 +120,7 @@ public class CommandYoyo extends AbstractTextCommand {
 
     @Override
     public void setCenter(LocationType loc) {
-	dest = new LocationType(loc);
+        dest = new LocationType(loc);
     }
 
     public static void main(String[] args) {

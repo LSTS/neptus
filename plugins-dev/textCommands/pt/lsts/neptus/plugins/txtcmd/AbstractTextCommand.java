@@ -80,8 +80,9 @@ public abstract class AbstractTextCommand implements ITextCommand {
                 ret +="lat="+GuiUtils.getNeptusDecimalFormat(8).format(loc.getLatitudeDegs());
                 ret +=";lon="+GuiUtils.getNeptusDecimalFormat(8).format(loc.getLongitudeDegs());
             }
-            else
+            else {
                 ret += p.getName()+"="+p.getValue();
+            }
             added = true;
         }
         return ret;

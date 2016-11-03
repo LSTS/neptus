@@ -55,6 +55,7 @@ public interface ITextCommand extends PropertiesProvider {
 
     /**
      * Set's command center location
+     * May be an empty implementation.
      */
     public void setCenter(LocationType loc);
 
