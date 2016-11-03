@@ -173,9 +173,14 @@ public class MultibeamUtil {
     public static SonarData swathToSonarData(BathymetrySwath swath) {
         SonarData sonarData = new SonarData();
 
+        int bytesPerPoint = Short.BYTES;
+        int headerBytes = Short.BYTES;
+
         BathymetryPoint[] points = swath.getData();
-        ByteBuffer bytes = ByteBuffer.allocate(Short.BYTES + Double.BYTES * (points.length * 2));
+        ByteBuffer bytes = ByteBuffer.allocate(headerBytes + bytesPerPoint * (points.length * 2));
         List<BeamConfig> beamConfig = new ArrayList<>();
+
+        float scaleFactor = 1.0f;
 
         // startAngles
         double startAngleDouble = -59.870003 * 100;
@@ -188,9 +193,8 @@ public class MultibeamUtil {
             double intensity = (double) Integer.MAX_VALUE;
 
             if(points[i] != null) {
-                range = points[i].depth;
-                intensity = (double) points[i].intensity;
-                System.out.println(range);
+                range = ((int)(points[i].depth / scaleFactor)) & 0xFF;
+                intensity = points[i].intensity & 0xFF;
             }
 
             bytes.putDouble(range);
@@ -204,12 +208,38 @@ public class MultibeamUtil {
 
         sonarData.setType(SonarData.TYPE.MULTIBEAM);
         sonarData.setBitsPerPoint((short)Double.SIZE);
-        sonarData.setScaleFactor(1.0f);
+        sonarData.setScaleFactor(scaleFactor);
         sonarData.setTimestampMillis(swath.getTimestamp());
         sonarData.setData(bytes.array());
         sonarData.setBeamConfig(beamConfig);
 
         return sonarData;
+    }
+
+    /**
+     * Converts a given value into a byte a representation of
+     * `bytesPerPoint` bytes.
+     * */
+    public static byte[] valueToBytes(double value, int bytesPerPoint, float scaleFactor) {
+        System.out.println("* Converting: " + value);
+        byte[] bytes = new byte[bytesPerPoint];
+        int valueScaled = (int) (value / scaleFactor);
+
+        for(int i = 0; i < bytesPerPoint; i++) {
+            System.out.println(((valueScaled >> 8 * i)));
+            bytes[i] = (byte) (((valueScaled >> 8 * i)) & 0xFF);
+        }
+        System.out.println();
+        return bytes;
+    }
+
+    /**
+     * Puts the given bytes in the buffer starting at the
+     * given position
+     * */
+    public static void putBytesAt(ByteBuffer buffer, int startPos, byte[] bytes) {
+        for(int i = 0; i < bytes.length; i++)
+            buffer.put(startPos + i, bytes[i]);
     }
 
     public static void main(String []args) {
@@ -224,19 +254,26 @@ public class MultibeamUtil {
         // Build and send Data
         System.out.println("* Writting");
 
+        int bytesPerPoint = Short.BYTES;
+        int headerBytes = Short.BYTES;
+
         short startAngle = 96;
-        int nBytes = Short.BYTES + Double.BYTES * data.length * 2;
+        int nBytes = headerBytes + bytesPerPoint * data.length * 2;
         ByteBuffer buffer = ByteBuffer.allocate(nBytes);
+        float scaleFactor = 1.0f;
 
         // put start angle
         buffer.putShort(startAngle);
 
         // put ranges and intensities
         for(int i = 0; i < data.length; i++) {
-            buffer.putDouble(data[i]);
+            byte[] rangeBytes = valueToBytes(data[i], bytesPerPoint, scaleFactor);
+            byte[] intensitiyBytes = valueToBytes(intensities[i], bytesPerPoint, scaleFactor);
 
-            int intensityIndex = Short.BYTES + Double.BYTES * (data.length + i);
-            buffer.putDouble(intensityIndex, (double)intensities[i]);
+            int intensityIndex = headerBytes + bytesPerPoint * (data.length + i);
+
+            buffer.put(rangeBytes);
+            putBytesAt(buffer, intensityIndex, intensitiyBytes);
         }
 
 
@@ -256,9 +293,27 @@ public class MultibeamUtil {
         short readAngle = newBuffer.getShort();
         System.out.println("** Start angle: " + readAngle);
 
-        for(int i = 0; i < data.length * 2; i++) {
-            double v = newBuffer.getDouble();
-            System.out.println("** " + v);
+        byte[] newData = new byte[newBuffer.remaining()];
+        newBuffer.get(newData, 0, newBuffer.remaining());
+
+        double fData[] = new double[newData.length / bytesPerPoint];
+
+        for (int i = 0; i < fData.length; i++) {
+            double val = 0;
+            for (int j = 0; j < bytesPerPoint; j++) {
+                int index = i * bytesPerPoint + j; // progressing index of data
+                int v = newData[index] & 0xFF;
+                v = (v << 8 * j);
+                val += v;
+            }
+            fData[i] = val;
+            //System.out.println(val);
+        }
+
+        // Lets apply scaling
+        for (int i = 0; i < fData.length; i++) {
+            //fData[i] *= scaleFactor;
+            System.out.println(fData[i]);
         }
     }
 }
