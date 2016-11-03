@@ -211,7 +211,7 @@ public class MultibeamUtil {
         }
 
         sonarData.setType(SonarData.TYPE.MULTIBEAM);
-        sonarData.setBitsPerPoint((short)Double.SIZE);
+        sonarData.setBitsPerPoint((short)Short.SIZE);
         sonarData.setScaleFactor(scaleFactor);
         sonarData.setTimestampMillis(swath.getTimestamp());
         sonarData.setData(bytes.array());
