@@ -107,6 +107,8 @@ public class TextCommands extends ConsolePanel {
                 if (!Modifier.isAbstract(c.getModifiers())) {
                     try {
                         ITextCommand cmd = (ITextCommand)c.newInstance();
+                        StateRenderer2D r2d = new StateRenderer2D(MapGroup.getMapGroupInstance(getConsole().getMission()));
+                        cmd.setCenter(r2d.getCenter());
                         commands.put(cmd.getCommand(), cmd);
                     }
                     catch (Exception e) {

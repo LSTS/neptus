@@ -45,6 +45,7 @@ import pt.lsts.neptus.util.GuiUtils;
  *
  */
 public abstract class AbstractTextCommand implements ITextCommand {
+    LocationType center = new LocationType();
 
     @Override
     public DefaultProperty[] getProperties() {
@@ -95,5 +96,10 @@ public abstract class AbstractTextCommand implements ITextCommand {
     @Override
     public void parseCommand(String text) throws Exception {
         throw new Exception("Not implemented");
+    }
+
+    @Override
+    public void setCenter(LocationType loc) {
+       center = new LocationType(loc);
     }
 }

@@ -70,7 +70,12 @@ public class CommandGoto extends AbstractTextCommand {
         pt.setId("go");
         return pt;        
     }
-    
+
+    @Override
+    public void setCenter(LocationType loc) {
+	dest = new LocationType(loc);
+    }
+
     public static void main(String[] args) {
         CommandGoto gt = new CommandGoto();
         PluginUtils.editPluginProperties(gt, true);
