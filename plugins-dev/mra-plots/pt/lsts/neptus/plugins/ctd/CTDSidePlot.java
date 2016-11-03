@@ -95,7 +95,25 @@ public class CTDSidePlot extends SimpleMRAVisualization {
         return false;
     }
 
-    
+    /*
+     * Filter vector readings
+     */
+    private void filter(Vector<Double> values, double mean) {
+        double var = 0;
+        for (int i = 0; i < values.size(); i++)
+            var += (values.get(i) - mean) * (values.get(i) - mean);
+
+        var /= values.size();
+
+        for (int i = values.size() - 1; i >= 0; i--) {
+            if (Math.abs(values.get(i) - mean) > 2 * Math.sqrt(var))
+                values.remove(i);
+        }
+    }
+
+    /*
+     * Build image
+     */
     private JImagePanel buildImage(String name, Vector<Double> xCoords, Vector<Double> yCoords, Vector<Double> values) {
         double maxDepth = Collections.max(yCoords);
         double maxTemp = Collections.max(values);
@@ -127,14 +145,21 @@ public class CTDSidePlot extends SimpleMRAVisualization {
         g2d.drawRect(75, 25, 1000, 600);
         g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
         g2d.setColor(new Color(255,255,255,128));
-        for(int d = 0; d < maxDepth; d++) {
+
+        int inc = 1;
+        if (maxDepth > 20.0)
+            inc = 2;
+        if (maxDepth > 50.0)
+            inc = 5;
+
+        for(int d = 0; d < maxDepth; d = d + inc) {
             double ycoord = depthFactor * d + 25;
             g2d.draw(new Line2D.Double(70, ycoord, 1075, ycoord));
         }
         g2d.setColor(Color.black);
         g2d.setStroke(new BasicStroke(3.0f));
         g2d.setFont(new Font("Arial", Font.PLAIN, 20));
-        for(int d = 0; d < maxDepth; d++) {
+        for(int d = 0; d < maxDepth; d = d + inc) {
             double ycoord = depthFactor * d + 25;
             g2d.draw(new Line2D.Double(70, ycoord, 75, ycoord));
             g2d.drawString(""+d, 40, (int)ycoord+10);
@@ -175,10 +200,13 @@ public class CTDSidePlot extends SimpleMRAVisualization {
         Vector<Double> yCoords = new Vector<>();
         Vector<Double> temp = new Vector<>();
         Vector<Double> sal = new Vector<>();
+
+        double sum_sal = 0;
+
         while (true) {
             Temperature t = scanner.next(Temperature.class, ctdEntity);
             Salinity s = scanner.next(Salinity.class, ctdEntity);
-            
+
             EstimatedState d = scanner.next(EstimatedState.class);
             if (t == null || s == null || d == null) {
                 break;
@@ -189,8 +217,14 @@ public class CTDSidePlot extends SimpleMRAVisualization {
             yCoords.add(d.getDepth());
             temp.add(t.getValue());
             sal.add(s.getValue());
+
+            sum_sal += s.getValue();
         }
-        
+
+        // compute salinity mean.
+        double mean_sal = sum_sal / sal.size();
+        filter(sal, mean_sal);
+
         for (int i = 0; !temp.isEmpty() && i < 20; i++) {
             temp.remove(0);
             sal.remove(0);
