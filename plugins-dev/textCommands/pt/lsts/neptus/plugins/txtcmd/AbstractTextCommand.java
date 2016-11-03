@@ -80,8 +80,9 @@ public abstract class AbstractTextCommand implements ITextCommand {
                 ret +="lat="+GuiUtils.getNeptusDecimalFormat(8).format(loc.getLatitudeDegs());
                 ret +=";lon="+GuiUtils.getNeptusDecimalFormat(8).format(loc.getLongitudeDegs());
             }
-            else
+            else {
                 ret += p.getName()+"="+p.getValue();
+            }
             added = true;
         }
         return ret;
@@ -95,5 +96,15 @@ public abstract class AbstractTextCommand implements ITextCommand {
     @Override
     public void parseCommand(String text) throws Exception {
         throw new Exception("Not implemented");
+    }
+
+    /**
+     * Empty implementation
+     * 
+     * @see pt.lsts.neptus.plugins.txtcmd.ITextCommand#setCenter(pt.lsts.neptus.types.coord.LocationType)
+     */
+    @Override
+    public void setCenter(LocationType loc) {
+        // Empty implementation
     }
 }

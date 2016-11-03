@@ -46,7 +46,7 @@ import pt.lsts.neptus.types.mission.plan.PlanType;
 public class CommandYoyo extends AbstractTextCommand {
 
     @NeptusProperty(description="Survey center (the vehicle will move around this point)")
-    LocationType loc = new LocationType();
+    LocationType dest = new LocationType();
     
     @NeptusProperty(description="Side length of the survey (in meters)")
     double size=50;
@@ -85,7 +85,7 @@ public class CommandYoyo extends AbstractTextCommand {
         PlanCreator planCreator = new PlanCreator(mt);
         planCreator.setSpeed(speed, SPEED_UNITS.METERS_PS);
         
-        LocationType center = new LocationType(loc);
+        LocationType center = new LocationType(dest);
         double radius = Math.sqrt((size * size)/2);
         double ang = Math.toRadians(45 + rot);
         double time = 0;
@@ -117,7 +117,12 @@ public class CommandYoyo extends AbstractTextCommand {
         pt.setId("yoyo");
         return pt;
     }
-    
+
+    @Override
+    public void setCenter(LocationType loc) {
+        dest = new LocationType(loc);
+    }
+
     public static void main(String[] args) {
         CommandYoyo gt = new CommandYoyo();
         PluginUtils.editPluginProperties(gt, true);

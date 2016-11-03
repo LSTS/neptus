@@ -32,6 +32,7 @@
 package pt.lsts.neptus.plugins.txtcmd;
 
 import pt.lsts.neptus.gui.PropertiesProvider;
+import pt.lsts.neptus.types.coord.LocationType;
 import pt.lsts.neptus.types.mission.MissionType;
 import pt.lsts.neptus.types.mission.plan.PlanType;
 
@@ -51,7 +52,13 @@ public interface ITextCommand extends PropertiesProvider {
      * Constructs the text message to be sent to the vehicle
      */
     public String buildCommand();
-    
+
+    /**
+     * Set's command center location
+     * May be an empty implementation.
+     */
+    public void setCenter(LocationType loc);
+
     /**
      * Given a text message, parse its context into the various command parameters
      * @param text The message contents

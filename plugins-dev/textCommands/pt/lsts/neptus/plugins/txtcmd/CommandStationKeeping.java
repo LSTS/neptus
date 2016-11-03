@@ -67,7 +67,12 @@ public class CommandStationKeeping extends AbstractTextCommand {
         pt.setId("sk");
         return pt;
     }
-    
+
+    @Override
+    public void setCenter(LocationType loc) {
+        dest = new LocationType(loc);
+    }
+
     public static void main(String[] args) {
         CommandStationKeeping gt = new CommandStationKeeping();
         PluginUtils.editPluginProperties(gt, true);
