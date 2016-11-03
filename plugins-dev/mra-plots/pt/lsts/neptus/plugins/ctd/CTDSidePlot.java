@@ -95,7 +95,7 @@ public class CTDSidePlot extends SimpleMRAVisualization {
         return false;
     }
 
-    /*
+    /**
      * Filter vector readings
      */
     private void filter(Vector<Double> values, double mean) {
@@ -111,7 +111,7 @@ public class CTDSidePlot extends SimpleMRAVisualization {
         }
     }
 
-    /*
+    /**
      * Build image
      */
     private JImagePanel buildImage(String name, Vector<Double> xCoords, Vector<Double> yCoords, Vector<Double> values) {
@@ -125,7 +125,6 @@ public class CTDSidePlot extends SimpleMRAVisualization {
         ColorMap cmap = ColorMapFactory.createJetColorMap();
         double depthFactor = 600 / maxDepth;
         double timeFactor = 1000 / (maxTime - minTime);
-        
         
         Point2D[] points = new Point2D[values.size()];
         
@@ -201,7 +200,7 @@ public class CTDSidePlot extends SimpleMRAVisualization {
         Vector<Double> temp = new Vector<>();
         Vector<Double> sal = new Vector<>();
 
-        double sum_sal = 0;
+        double sumSal = 0;
 
         while (true) {
             Temperature t = scanner.next(Temperature.class, ctdEntity);
@@ -218,12 +217,12 @@ public class CTDSidePlot extends SimpleMRAVisualization {
             temp.add(t.getValue());
             sal.add(s.getValue());
 
-            sum_sal += s.getValue();
+            sumSal += s.getValue();
         }
 
         // compute salinity mean.
-        double mean_sal = sum_sal / sal.size();
-        filter(sal, mean_sal);
+        double meanSal = sumSal / sal.size();
+        filter(sal, meanSal);
 
         for (int i = 0; !temp.isEmpty() && i < 20; i++) {
             temp.remove(0);
@@ -241,5 +240,4 @@ public class CTDSidePlot extends SimpleMRAVisualization {
         pmonitor.close();
         return tabs;
     }
-
 }
