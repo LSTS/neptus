@@ -113,7 +113,7 @@ public class MultibeamWaterfallViewer extends RealTimeWatefallViewer<BathymetryS
         // apply color map
         for(int i = 0; i < points.length; i++)
             if (points[i] != null)
-                image.setRGB(i, 0, colorMap.getColor(1 - points[i].depth / max).getRGB());
+                image.setRGB(i, 0, colorMap.getColor(points[i].depth / max).getRGB());
 
         return image;
     }
