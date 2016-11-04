@@ -123,32 +123,32 @@ public class MultibeamUtil {
     }
 
     public static double[] getData(ByteBuffer bytes, double scaleFactor, short bitsPerPoint) {
-        if (bitsPerPoint % 8 != 0)
+        if (bitsPerPoint % 8 != 0) {
+            System.out.println("ERROR: Bits per point should be multiple of eight");
             return null;
-
-        byte[] data = new byte[bytes.remaining()];
-         bytes.get(data, 0, bytes.remaining());
+        }
 
         int bytesPerPoint = bitsPerPoint < 8 ? 1 : (bitsPerPoint / 8);
-        double[] fData = new double[data.length / bytesPerPoint];
+        double[] fData = new double[bytes.remaining() / bytesPerPoint];
 
-        int k = 0;
-        for (int i = 0; i < data.length; i++) {
+
+        byte[] data = new byte[bytes.remaining()];
+        bytes.get(data, 0, bytes.remaining());
+
+        for (int i = 0; i < fData.length; i++) {
             double val = 0;
             for (int j = 0; j < bytesPerPoint; j++) {
-                i = i + j; // progressing index of data
-                int v = data[i] & 0xFF;
+                int index = i * bytesPerPoint + j; // progressing index of data
+                int v = data[index] & 0xFF;
                 v = (v << 8 * j);
                 val += v;
             }
-            fData[k++] = val;
+            fData[i] = val;
         }
 
-        // Only apply scale factor to ranges data
-        for (int i = 0; i < fData.length/2; i++) {
+        // apply scalling
+        for(int i = 0; i < fData.length/2; i++)
             fData[i] *= scaleFactor;
-            NeptusLog.pub().debug("** Converting " + fData[i]);
-        }
 
         return fData;
     }
