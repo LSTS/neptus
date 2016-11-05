@@ -152,6 +152,7 @@ public class MultibeamRealTimeWaterfall extends ConsolePanel implements Configur
         if(mbViewer == null)
             return;
         mbViewer.addNewData(swath);
+        threadExecutor.execute(() -> mbViewer.updateRequest());
     }
 
     private void testDataDisplay() {
@@ -172,8 +173,10 @@ public class MultibeamRealTimeWaterfall extends ConsolePanel implements Configur
 
         BathymetrySwath currSwath;
         if((currSwath = mbParser.nextSwath()) != null) {
-            currentEstimatedState = currSwath.getPose().toEstimatedState();
-            onSonarData(MultibeamUtil.swathToSonarData(currSwath));
+            SystemPositionAndAttitude pose = currSwath.getPose();
+            currentEstimatedState = pose.toEstimatedState();
+            onSonarData(MultibeamUtil.swathToSonarData(currSwath, pose));
+            //onBathymetrySwath(currSwath);
         }
         else
             System.out.println("Finished");
