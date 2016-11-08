@@ -374,7 +374,8 @@ public class ImcTcpTransport {
 	            else {
 	                pos.write(req.getBuffer());
 	            }
-	        } catch (IOException e) {
+	        }
+	        catch (IOException e) {
 	            e.printStackTrace();
 	        }
 	    }
