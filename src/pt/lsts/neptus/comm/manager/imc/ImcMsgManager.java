@@ -74,6 +74,7 @@ import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.comm.CommUtil;
 import pt.lsts.neptus.comm.IMCSendMessageUtils;
 import pt.lsts.neptus.comm.IMCUtils;
+import pt.lsts.neptus.comm.NoTransportAvailableException;
 import pt.lsts.neptus.comm.SystemUtils;
 import pt.lsts.neptus.comm.manager.CommBaseManager;
 import pt.lsts.neptus.comm.manager.CommManagerStatusChangeListener;
@@ -1553,7 +1554,7 @@ CommBaseManager<IMCMessage, MessageInfo, SystemImcMsgCommInfo, ImcId16, CommMana
         // this depends on the transports available locally and on the system
         try {
             if (transportChoiceToSend.isEmpty()) {
-                throw new IOException(I18n.textf("No transport available to send message %message to %system.", 
+                throw new NoTransportAvailableException(I18n.textf("No transport available to send message %message to %system.", 
                         message.getAbbrev(), imcSystem.getName()));
             }
 
@@ -1574,6 +1575,12 @@ CommBaseManager<IMCMessage, MessageInfo, SystemImcMsgCommInfo, ImcId16, CommMana
                         break;
                 } 
             }
+        }
+        catch (NoTransportAvailableException e) {
+            NeptusLog.pub().error(this.getClass().getSimpleName() + ": Error sending message!");
+
+            if (listener != null)
+                listener.deliveryError(message, e);
         }
         catch (Exception e) {
             NeptusLog.pub().error(this.getClass().getSimpleName() + ": Error sending message!", e);
