@@ -213,7 +213,8 @@ public class IMCUtils {
         while (is.available() > 0) {
             try {
                 IMCMessage m = imcDef.nextMessage(is);
-                msgs.add(m);
+                if (m != null)
+                    msgs.add(m);
             }
             catch (Exception e) {
                 e.printStackTrace();

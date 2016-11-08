@@ -923,9 +923,11 @@ public class TCPTransport {
                             }
                             try {
                                 IMCMessage msg = imcDef.nextMessage(pis);
-                                msg.dump(System.out);
-                                //double timeMillis = msg.getTimestampMillis();
-                                msgArrived(/*(long) timeMillis,*/ msg);
+                                if (msg != null) {
+                                    msg.dump(System.out);
+                                    //double timeMillis = msg.getTimestampMillis();
+                                    msgArrived(/*(long) timeMillis,*/ msg);
+                                }
                             }
 //                            catch (EOFException e) {
 //                                if (isInputClosed)
