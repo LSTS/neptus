@@ -126,12 +126,9 @@ CommBaseManager<IMCMessage, MessageInfo, SystemImcMsgCommInfo, ImcId16, CommMana
     private boolean sameIdErrorDetected = false;
     private long sameIdErrorDetectedTimeMillis = -1;
 
-    protected IMCFragmentHandler fragmentHandler = new IMCFragmentHandler(IMCDefinition.getInstance());
+    protected IMCFragmentHandler fragmentHandler;;
     
-    protected ImcSystemState imcState = new ImcSystemState(IMCDefinition.getInstance());
-    {
-        imcState.setIgnoreEntities(true);
-    }
+    protected ImcSystemState imcState;
 
     // public static String CCU_VEH_STRING = "CCU-VEH";
     // public static String VEH_CCU_STRING = "VEH-CCU";
@@ -270,8 +267,11 @@ CommBaseManager<IMCMessage, MessageInfo, SystemImcMsgCommInfo, ImcId16, CommMana
         };
         this.imcDefinition = imcDefinition;
         announceWorker = new AnnounceWorker(this, imcDefinition);
+        
+        fragmentHandler = new IMCFragmentHandler(imcDefinition);
+        imcState = new ImcSystemState(imcDefinition);
+        imcState.setIgnoreEntities(true);
 
-        //        GeneralPreferencesPropertiesProvider.addPreferencesListener(gplistener);
         GeneralPreferences.addPreferencesListener(gplistener);
         gplistener.preferencesUpdated();
     }
@@ -1576,14 +1576,28 @@ CommBaseManager<IMCMessage, MessageInfo, SystemImcMsgCommInfo, ImcId16, CommMana
                 } 
             }
         }
-        catch (NoTransportAvailableException e) {
-            NeptusLog.pub().error(this.getClass().getSimpleName() + ": Error sending message!");
-
-            if (listener != null)
-                listener.deliveryError(message, e);
-        }
         catch (Exception e) {
-            NeptusLog.pub().error(this.getClass().getSimpleName() + ": Error sending message!", e);
+            sentResult = false;
+            
+            boolean isNoTransportAvailable = false;
+            if (e instanceof NoTransportAvailableException)
+                isNoTransportAvailable = true;
+            
+            StringBuilder sb = new StringBuilder();
+            sb.append("[");
+            if (!isNoTransportAvailable && message != null)
+                sb.append("msg: ").append(message.getAbbrev());
+            if (!isNoTransportAvailable && systemCommId != null)
+                sb.append(sb.length() > 1 ? ", " : "").append("to: ").append(imcSystem.getName()).append("::").append(systemCommId);
+            if (sendProperties != null && !sendProperties.isEmpty())
+                sb.append(sb.length() > 1 ? ", " : "").append("prop: ").append(sendProperties);
+            sb.append("]");
+            String what = sb.toString();
+
+            if (isNoTransportAvailable)
+                NeptusLog.pub().error(this.getClass().getSimpleName() + ": Error sending message! " + what + " " + e.getMessage());
+            else
+                NeptusLog.pub().error(this.getClass().getSimpleName() + ": Error sending message! " + what, e);
 
             if (listener != null)
                 listener.deliveryError(message, e);
