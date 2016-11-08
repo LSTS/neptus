@@ -673,31 +673,36 @@ public class MRAMenuBar {
         
         for (String name : names) {
             final MRAExporter exp = exporters.get(name);
-            if (exp.canBeApplied(source)) {
-                JMenuItem item = new JMenuItem(new AbstractAction(name) {
-                    @Override
-                    public void actionPerformed(ActionEvent e) {
-                        Thread t = new Thread(name + " processing") {
-                            @Override
-                            public void run() {
-                                ProgressMonitor monitor = new ProgressMonitor(mra.getMraPanel(), name, "", 0, 100);
-                                monitor.setProgress(0);
-                                String res = exp.process(source, monitor);
-                                if (res != null)
-                                    GuiUtils.infoMessage(mra.getMraPanel(), name, res);
-                                monitor.close();
+            try {
+                if (exp.canBeApplied(source)) {
+                    JMenuItem item = new JMenuItem(new AbstractAction(name) {
+                        @Override
+                        public void actionPerformed(ActionEvent e) {
+                            Thread t = new Thread(name + " processing") {
+                                @Override
+                                public void run() {
+                                    ProgressMonitor monitor = new ProgressMonitor(mra.getMraPanel(), name, "", 0, 100);
+                                    monitor.setProgress(0);
+                                    String res = exp.process(source, monitor);
+                                    if (res != null)
+                                        GuiUtils.infoMessage(mra.getMraPanel(), name, res);
+                                    monitor.close();
+                                };
                             };
-                        };
-                        t.setDaemon(true);
-                        t.start();
-                    }
-                });
-                item.setIcon(ImageUtils.getIcon("images/menus/export.png"));
-                
-                if (PluginUtils.isPluginExperimental(exp.getClass()))
-                    experimental.add(item);
-                else
-                    getExportersMenu().add(item);
+                            t.setDaemon(true);
+                            t.start();
+                        }
+                    });
+                    item.setIcon(ImageUtils.getIcon("images/menus/export.png"));
+                    
+                    if (PluginUtils.isPluginExperimental(exp.getClass()))
+                        experimental.add(item);
+                    else
+                        getExportersMenu().add(item);
+                }
+            }
+            catch (Exception e) {
+                e.printStackTrace();
             }
         }
 
