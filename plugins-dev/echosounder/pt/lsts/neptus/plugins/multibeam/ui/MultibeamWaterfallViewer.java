@@ -47,6 +47,8 @@ import java.util.List;
  */
 @SuppressWarnings("serial")
 public class MultibeamWaterfallViewer extends RealTimeWatefallViewer<BathymetrySwath> {
+    private double maxDepth = Double.MIN_VALUE;
+    private boolean useAdaptiveMaxDepth = false;
     /**
      * @param clazz
      */
@@ -103,17 +105,18 @@ public class MultibeamWaterfallViewer extends RealTimeWatefallViewer<BathymetryS
         BathymetryPoint[] points = data.getData();
         BufferedImage image = new BufferedImage(points.length, 1, BufferedImage.TYPE_INT_RGB);
 
-        // calculate max depth in order to normalize data
-        double max = Double.MIN_VALUE;
-        for(int j = 0; j < points.length; j++) {
-            if(points[j] != null && points[j].depth > max)
-                max = points[j].depth;
-        }
-
         // apply color map
-        for(int i = 0; i < points.length; i++)
-            if (points[i] != null)
-                image.setRGB(i, 0, 1 - colorMap.getColor(points[i].depth / max).getRGB());
+        for(int i = 0; i < points.length; i++) {
+            if (points[i] != null) {
+                // compute new max depth
+                if(useAdaptiveMaxDepth && points[i].depth > maxDepth) {
+                    maxDepth = points[i].depth;
+                    System.out.println("New max is: " + maxDepth);
+                }
+
+                image.setRGB(i, 0, 1 - colorMap.getColor(points[i].depth / maxDepth).getRGB());
+            }
+        }
 
         return image;
     }
@@ -160,5 +163,13 @@ public class MultibeamWaterfallViewer extends RealTimeWatefallViewer<BathymetryS
 
         Graphics2D g3d = (Graphics2D) dataImage.getGraphics();
         g3d.drawImage(dataImageTmp, 0, 0, null);
+    }
+
+    public void setMaxDepth(double maxDepth) {
+        this.maxDepth = maxDepth;
+    }
+
+    public void useAdaptiveMaxDepth(boolean value) {
+        useAdaptiveMaxDepth = value;
     }
 }
