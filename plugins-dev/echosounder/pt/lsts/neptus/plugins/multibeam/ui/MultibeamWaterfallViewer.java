@@ -33,7 +33,7 @@ package pt.lsts.neptus.plugins.multibeam.ui;
 
 import pt.lsts.neptus.mra.api.BathymetryPoint;
 import pt.lsts.neptus.mra.api.BathymetrySwath;
-import pt.lsts.neptus.plugins.interfaces.RealTimeWatefallViewer;
+import pt.lsts.neptus.plugins.interfaces.SonarWatefallViewer;
 import pt.lsts.neptus.util.ImageUtils;
 
 import java.awt.*;
@@ -46,7 +46,7 @@ import java.util.List;
  *
  */
 @SuppressWarnings("serial")
-public class MultibeamWaterfallViewer extends RealTimeWatefallViewer<BathymetrySwath> {
+public class MultibeamWaterfallViewer extends SonarWatefallViewer<BathymetrySwath> {
     private double maxDepth = Double.MIN_VALUE;
     private boolean useAdaptiveMaxDepth = false;
     /**

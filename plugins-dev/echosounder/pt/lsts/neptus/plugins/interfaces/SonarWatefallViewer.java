@@ -60,7 +60,7 @@ import pt.lsts.neptus.util.ImageUtils;
  *
  */
 @SuppressWarnings("serial")
-public abstract class RealTimeWatefallViewer<T> extends JPanel {
+public abstract class SonarWatefallViewer<T> extends JPanel {
 
     // abstract methods
     protected abstract void updateImage();
@@ -95,7 +95,7 @@ public abstract class RealTimeWatefallViewer<T> extends JPanel {
     protected LayerPainter postLayerPainter = null;
     protected LayerPainter overPainter = null;
 
-    public RealTimeWatefallViewer(Class<?> clazz) {
+    public SonarWatefallViewer(Class<?> clazz) {
         threadExecutor = Executors.newCachedThreadPool(new ThreadFactory() {
             String nameBase = new StringBuilder().append(clazz.getSimpleName())
                     .append("::").append(Integer.toHexString(clazz.hashCode()))
