@@ -66,7 +66,7 @@ public abstract class RealTimeWatefallViewer<T> extends JPanel {
     protected abstract void updateImage();
 
     // Parameters
-    protected ColorMap colorMap = ColorMapFactory.createBronzeColormap();
+    protected ColorMap colorMap = null;
 
     // GUI
     protected JPanel viewer = null;
@@ -282,6 +282,8 @@ public abstract class RealTimeWatefallViewer<T> extends JPanel {
     }
 
     public void updateRequest() {
+        if(colorMap == null)
+            return;
         updateImage();
         SwingUtilities.invokeLater(() -> viewer.repaint());
     }

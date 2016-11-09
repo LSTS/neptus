@@ -80,7 +80,7 @@ public class MultibeamRealTimeWaterfall extends ConsolePanel implements Configur
 
     // Parameters
     @NeptusProperty (name="Color map to use", category="Visualization parameters", userLevel = LEVEL.REGULAR)
-    private ColorMap colorMap = ColorMapFactory.createBronzeColormap();
+    private ColorMap colorMap = ColorMapFactory.createJetColorMap();
 
     private ExecutorService threadExecutor = Executors.newCachedThreadPool(new ThreadFactory() {
         String nameBase = new StringBuilder().append(MultibeamRealTimeWaterfall.class.getSimpleName())
