@@ -36,7 +36,6 @@ import java.net.InetSocketAddress;
 import java.net.URI;
 import java.net.URL;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
@@ -57,6 +56,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import javax.naming.InvalidNameException;
 import javax.swing.JFrame;
 
+import com.google.common.collect.HashBiMap;
 import com.google.common.eventbus.AsyncEventBus;
 
 import pt.lsts.imc.Announce;
@@ -136,7 +136,7 @@ CommBaseManager<IMCMessage, MessageInfo, SystemImcMsgCommInfo, ImcId16, CommMana
     //
     // public static String CONNECTION4CCU = "Connection4CCUALL";
 
-    private final HashMap<String, ImcId16> udpOnIpMapper = new HashMap<String, ImcId16>();
+    private final HashBiMap<String, ImcId16> udpOnIpMapper = HashBiMap.create(); // new HashBiMap<String, ImcId16>();
     private boolean isFilterByPort = false;
 
     private boolean isRedirectToFirst = false;
@@ -331,7 +331,7 @@ CommBaseManager<IMCMessage, MessageInfo, SystemImcMsgCommInfo, ImcId16, CommMana
     private void updateUdpOnIpMapper() {
         for (SystemImcMsgCommInfo vsci : commInfo.values()) {
             if (isUdpOn())
-                udpOnIpMapper.put(vsci.getIpAddress() + (isFilterByPort ? ":" + vsci.getIpRemotePort() : ""),
+                udpOnIpMapper.forcePut(vsci.getIpAddress() + (isFilterByPort ? ":" + vsci.getIpRemotePort() : ""),
                         vsci.getSystemCommId());
             else
                 udpOnIpMapper.remove(vsci.getIpAddress() + (isFilterByPort ? ":" + vsci.getIpRemotePort() : ""));
@@ -340,7 +340,7 @@ CommBaseManager<IMCMessage, MessageInfo, SystemImcMsgCommInfo, ImcId16, CommMana
 
     private void updateUdpOnIpMapper(SystemImcMsgCommInfo vsci) {
         if (isUdpOn())
-            udpOnIpMapper.put(vsci.getIpAddress() + (isFilterByPort ? ":" + vsci.getIpRemotePort() : ""),
+            udpOnIpMapper.forcePut(vsci.getIpAddress() + (isFilterByPort ? ":" + vsci.getIpRemotePort() : ""),
                     vsci.getSystemCommId());
         else
             udpOnIpMapper.remove(vsci.getIpAddress() + (isFilterByPort ? ":" + vsci.getIpRemotePort() : ""));
@@ -439,16 +439,16 @@ CommBaseManager<IMCMessage, MessageInfo, SystemImcMsgCommInfo, ImcId16, CommMana
     /**
      * @param vsci
      */
-    void mapUdpIpPort(SystemImcMsgCommInfo vsci) {
-        if (vsci == null)
-            return;
-
-        if (isUdpOn())
-            udpOnIpMapper.put(vsci.getIpAddress() + (isFilterByPort ? ":" + vsci.getIpRemotePort() : ""),
-                    vsci.getSystemCommId());
-        else
-            udpOnIpMapper.remove(vsci.getIpAddress() + (isFilterByPort ? ":" + vsci.getIpRemotePort() : ""));
-    }
+//    void mapUdpIpPort(SystemImcMsgCommInfo vsci) {
+//        if (vsci == null)
+//            return;
+//
+//        if (isUdpOn())
+//            udpOnIpMapper.put(vsci.getIpAddress() + (isFilterByPort ? ":" + vsci.getIpRemotePort() : ""),
+//                    vsci.getSystemCommId());
+//        else
+//            udpOnIpMapper.remove(vsci.getIpAddress() + (isFilterByPort ? ":" + vsci.getIpRemotePort() : ""));
+//    }
 
     protected String getAnnounceServicesList() {
         String ret = "";
