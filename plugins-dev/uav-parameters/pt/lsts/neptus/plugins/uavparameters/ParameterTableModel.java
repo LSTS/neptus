@@ -27,16 +27,35 @@
  * For more information please see <http://lsts.fe.up.pt/neptus>.
  *
  * Author: Manuel R.
- * 07/11/2016
+ * Nov 11, 2016
  */
 package pt.lsts.neptus.plugins.uavparameters;
 
-import javax.swing.JPanel;
+import java.util.HashMap;
+
+import javax.swing.table.AbstractTableModel;
 
 /**
  * @author Manuel R.
  *
  */
-public class ParameterEditorPanel extends JPanel {
+public class ParameterTableModel extends AbstractTableModel  {
+    private int parameterSize = 0;
+    private HashMap<String, Object> params = new HashMap<>();
+    
+    @Override
+    public int getRowCount() {
+        return 0;
+    }
 
+    @Override
+    public int getColumnCount() {
+        return 0;
+    }
+
+    @Override
+    public Object getValueAt(int rowIndex, int columnIndex) {
+        return null;
+    }
+    
 }
