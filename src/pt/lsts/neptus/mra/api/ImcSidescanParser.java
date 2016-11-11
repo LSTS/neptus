@@ -51,6 +51,8 @@ public class ImcSidescanParser implements SidescanParser {
     private long firstTimestamp = -1;
     private long lastTimestamp = -1;
 
+    private ArrayList<Long> subSystemsList = new ArrayList<>();
+    
     private long lastTimestampRequested;
 
     public ImcSidescanParser(IMraLogGroup source) {
@@ -70,9 +72,22 @@ public class ImcSidescanParser implements SidescanParser {
                 firstTimestamp = msg.getTimestampMillis();
             }
             lastTimestamp = msg.getTimestampMillis();
+            
+            Object subSysObj = msg.getValue("frequency");
+            if (subSysObj instanceof Number) {
+                try {
+                    long freq = (long) Double.parseDouble(subSysObj.toString());
+                    if (!subSystemsList.contains(freq))
+                        subSystemsList.add(freq);
+                }
+                catch (NumberFormatException e) {
+                    e.printStackTrace();
+                }
+            }
         }
 
         pingParser.firstLogEntry();
+        subSystemsList.sort(null);
     }
 
     @Override
@@ -87,9 +102,11 @@ public class ImcSidescanParser implements SidescanParser {
 
     @Override
     public ArrayList<Integer> getSubsystemList() {
-        // For now just return a list with 1 item. In the future IMC will accommodate various SonarData subsystems.
+        // SonarData subsystems are accommodated by the frequency field.
         ArrayList<Integer> l = new ArrayList<Integer>();
-        l.add(1);
+        for (int i = 0; i < subSystemsList.size(); i++) {
+            l.add(subSystemsList.get(i).intValue());
+        }
         return l;
     };
 
@@ -99,8 +116,12 @@ public class ImcSidescanParser implements SidescanParser {
         // Preparation
         ArrayList<SidescanLine> list = new ArrayList<SidescanLine>();
 //        double[] fData = null;
+        
+        if (!subSystemsList.contains((long) subsystem))
+            return list;
 
-        if (lastTimestampRequested > timestamp1) {
+        if (subSystemsList.size() > 1 && lastTimestampRequested >= timestamp1
+                || subSystemsList.size() <= 1 && lastTimestampRequested > timestamp1) {
             pingParser.firstLogEntry();
             stateParser.firstLogEntry();
         }
@@ -134,9 +155,12 @@ public class ImcSidescanParser implements SidescanParser {
             if (ping == null || state == null)
                 break;
 
-            SystemPositionAndAttitude pose = new SystemPositionAndAttitude((EstimatedState) state);
-            SidescanLine line = SidescanUtil.getSidescanLine(ping, pose, params);
-            list.add(line);
+            long pingFreq = ping.getLong("frequency");
+            if (subsystem == pingFreq) {
+                SystemPositionAndAttitude pose = new SystemPositionAndAttitude((EstimatedState) state);
+                SidescanLine line = SidescanUtil.getSidescanLine(ping, pose, params);
+                list.add(line);
+            }
             
             ping = getNextMessage(pingParser);
             if (ping != null)
