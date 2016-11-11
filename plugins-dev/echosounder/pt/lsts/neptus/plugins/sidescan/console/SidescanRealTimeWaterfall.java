@@ -268,12 +268,7 @@ public class SidescanRealTimeWaterfall extends ConsolePanel
     
     @Periodic(millisBetweenUpdates = 200)
     private boolean periodicUpdaterSSImage() {
-        threadExecutor.execute(new Runnable() {
-            @Override
-            public void run() {
-                ssViewer.updateRequest();;
-            }
-        });
+        threadExecutor.execute(() -> ssViewer.updateRequest());
         return true;
     }
 }

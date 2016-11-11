@@ -354,12 +354,9 @@ public class SidescanViewerPanel extends JPanel {
         if (lineList.size() == 0)
             return;
         
-        threadExecutor.execute(new Runnable() {
-            @Override
-            public void run() {
-                synchronized (queuedlines) {
-                    queuedlines.addAll(lineList);
-                }
+        threadExecutor.execute(() -> {
+            synchronized (queuedlines) {
+                queuedlines.addAll(lineList);
             }
         });
     }
@@ -444,8 +441,7 @@ public class SidescanViewerPanel extends JPanel {
                 if (slantRangeCorrection) {
                     sidescanLine.setImage(Scalr.apply(sidescanLine.getImage(),
                             new SlantRangeImageFilter(sidescanLine.getState().getAltitude(), sidescanLine.getRange(),
-                                    sidescanLine.getImage().getWidth())),
-                            true);
+                                    sidescanLine.getImage().getWidth())), true);
                 }
             }
 
@@ -488,12 +484,9 @@ public class SidescanViewerPanel extends JPanel {
             addList.clear();
             removeList.clear();
         }
-        SwingUtilities.invokeLater(new Runnable() {
-            @Override
-            public void run() {
-                viewer.repaint();
-                ruller.repaint();
-            }
+        SwingUtilities.invokeLater(() -> {
+            viewer.repaint();
+            ruller.repaint();
         });
     }
     
