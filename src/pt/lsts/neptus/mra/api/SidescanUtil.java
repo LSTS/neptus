@@ -210,7 +210,7 @@ public class SidescanUtil {
      * @return
      */
     public static double[] getData(byte[] data, double scaleFactor, short bitsPerPoint) {
-        if (bitsPerPoint % 8 != 0)
+        if (bitsPerPoint % 8 != 0 || bitsPerPoint > 32 || bitsPerPoint < 8)
             return null;
         
         int bytesPerPoint = bitsPerPoint < 8 ? 1 : (bitsPerPoint / 8);
