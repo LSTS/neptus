@@ -148,13 +148,6 @@ public class MultibeamRealTimeWaterfall extends ConsolePanel implements Configur
             NeptusLog.pub().warn("** Null Bathymetry swath!!!");
     }
 
-    public void onBathymetrySwath(BathymetrySwath swath) {
-        if(mbViewer == null)
-            return;
-        mbViewer.addNewData(swath);
-        threadExecutor.execute(() -> mbViewer.updateRequest());
-    }
-
     private void testDataDisplay() {
         String dataFile = (System.getProperty("user.dir") + "/" + "../log/maridan-multibeam/Data.lsf.gz");
 
@@ -176,7 +169,6 @@ public class MultibeamRealTimeWaterfall extends ConsolePanel implements Configur
             SystemPositionAndAttitude pose = currSwath.getPose();
             currentEstimatedState = pose.toEstimatedState();
             onSonarData(MultibeamUtil.swathToSonarData(currSwath, pose));
-            //onBathymetrySwath(currSwath);
         }
         else
             System.out.println("Finished");
