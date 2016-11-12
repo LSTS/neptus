@@ -104,7 +104,7 @@ public class MultibeamRealTimeWaterfall extends ConsolePanel implements Configur
     public MultibeamRealTimeWaterfall(ConsoleLayout console) {
         super(console);
         initialize();
-        testDataDisplay();
+/*        testDataDisplay();*/
     }
 
 
