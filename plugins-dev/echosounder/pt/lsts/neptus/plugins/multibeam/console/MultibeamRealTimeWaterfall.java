@@ -76,7 +76,7 @@ public class MultibeamRealTimeWaterfall extends ConsolePanel implements Configur
     private ColorMap colorMap = ColorMapFactory.createJetColorMap();
 
     @NeptusProperty (name="Max depth", description="Max depth used to normalize depth data", category="Visualization parameters", userLevel = LEVEL.REGULAR)
-    private double maxDepth = Double.MIN_VALUE;
+    private double maxDepth = 40;
 
     @NeptusProperty (name="Use adaptive max depth", description = "Use the highest value processed as max depth. Minimum value will be 'Max depth'",category="Visualization parameters", userLevel = LEVEL.REGULAR)
     private boolean adaptativeMaxDepth = false;
@@ -111,6 +111,7 @@ public class MultibeamRealTimeWaterfall extends ConsolePanel implements Configur
     private void initialize() {
         mbViewer = new MultibeamWaterfallViewer();
         mbViewer.setColorMap(colorMap);
+        setViewerProperties();
 
         setLayout(new MigLayout("ins 0, gap 5"));
         add(mbViewer, "w 100%, h 100%");
@@ -164,6 +165,10 @@ public class MultibeamRealTimeWaterfall extends ConsolePanel implements Configur
 
     @Override
     public void propertiesChanged() {
+        setViewerProperties();
+    }
+
+    private void setViewerProperties() {
         mbViewer.setColorMap(colorMap);
         mbViewer.setMaxDepth(maxDepth);
         mbViewer.useAdaptiveMaxDepth(adaptativeMaxDepth);
