@@ -47,8 +47,16 @@ import java.util.List;
  */
 @SuppressWarnings("serial")
 public class MultibeamWaterfallViewer extends SonarWatefallViewer<BathymetrySwath> {
+
+    // Max depth defined by the user
     private double maxDepth = Double.MIN_VALUE;
+
+    // adapt max depth to maximum depth found in the data
+    // min value is maxDepth
     private boolean useAdaptiveMaxDepth = false;
+
+    // max depth found in the data
+    private double adaptiveMaxDepth = Double.MIN_VALUE;
     /**
      * @param clazz
      */
@@ -105,16 +113,19 @@ public class MultibeamWaterfallViewer extends SonarWatefallViewer<BathymetrySwat
         BathymetryPoint[] points = data.getData();
         BufferedImage image = new BufferedImage(points.length, 1, BufferedImage.TYPE_INT_RGB);
 
+        double max;
         // apply color map
         for(int i = 0; i < points.length; i++) {
             if (points[i] != null) {
                 // compute new max depth
-                if(useAdaptiveMaxDepth && points[i].depth > maxDepth) {
-                    maxDepth = points[i].depth;
-                    System.out.println("New max is: " + maxDepth);
+                if(useAdaptiveMaxDepth && points[i].depth > adaptiveMaxDepth) {
+                    adaptiveMaxDepth = points[i].depth;
+                    max = adaptiveMaxDepth;
                 }
+                else
+                    max = maxDepth;
 
-                image.setRGB(i, 0, 1 - colorMap.getColor(points[i].depth / maxDepth).getRGB());
+                image.setRGB(i, 0, 1 - colorMap.getColor(points[i].depth / max).getRGB());
             }
         }
 
@@ -171,5 +182,8 @@ public class MultibeamWaterfallViewer extends SonarWatefallViewer<BathymetrySwat
 
     public void useAdaptiveMaxDepth(boolean value) {
         useAdaptiveMaxDepth = value;
+
+        if(value)
+            adaptiveMaxDepth = maxDepth;
     }
 }

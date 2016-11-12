@@ -78,7 +78,7 @@ public class MultibeamRealTimeWaterfall extends ConsolePanel implements Configur
     @NeptusProperty (name="Max depth", description="Max depth used to normalize depth data", category="Visualization parameters", userLevel = LEVEL.REGULAR)
     private double maxDepth = Double.MIN_VALUE;
 
-    @NeptusProperty (name="Use adaptive max depth", description = "Use the highest value processed, as max depth. If true then the value set for max depth is ignored.",category="Visualization parameters", userLevel = LEVEL.REGULAR)
+    @NeptusProperty (name="Use adaptive max depth", description = "Use the highest value processed as max depth. Minimum value will be 'Max depth'",category="Visualization parameters", userLevel = LEVEL.REGULAR)
     private boolean adaptativeMaxDepth = false;
 
 
