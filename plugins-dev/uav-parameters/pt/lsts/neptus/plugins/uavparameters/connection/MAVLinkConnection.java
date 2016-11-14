@@ -33,31 +33,21 @@ package pt.lsts.neptus.plugins.uavparameters.connection;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.net.SocketException;
 import java.net.SocketTimeoutException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.LinkedBlockingQueue;
 
 import com.MAVLink.MAVLinkPacket;
 import com.MAVLink.Parser;
 import com.MAVLink.Messages.MAVLinkMessage;
 import com.MAVLink.common.msg_param_value;
-import com.MAVLink.common.msg_statustext;
 
-import pt.lsts.imc.DevDataText;
-import pt.lsts.imc.lsf.LsfMessageLogger;
 import pt.lsts.neptus.NeptusLog;
-import pt.lsts.neptus.console.notifications.Notification;
-import pt.lsts.neptus.plugins.alliance.NmeaPlotter;
 import pt.lsts.neptus.plugins.uavparameters.MAVLinkParameters;
-import pt.lsts.neptus.plugins.uavparameters.Parameter;
 
 /**
  * @author Manuel R.
@@ -72,57 +62,13 @@ public class MAVLinkConnection {
     private Socket tcpSocket = null;
     private String tcpHost;
     private int tcpPort;
-    BufferedOutputStream writer = null;
-    private final HashMap<Integer, Parameter> parameters = new HashMap<Integer, Parameter>();
-    public final ArrayList<Parameter> parameterList = new ArrayList<Parameter>();
-    private static final int TIMEOUT = 1000;
-    private int expectedParams;
+    private BufferedOutputStream writer = null;
+    private final ConcurrentHashMap<String, MAVLinkConnectionListener> mListeners = new ConcurrentHashMap<String, MAVLinkConnectionListener>();
+    
 
     public MAVLinkConnection(String address, int port) {
         this.tcpHost = address;
         this.tcpPort = port;
-    }
-
-    public void refreshParameters() {
-        parameters.clear();
-        parameterList.clear();
-
-        //TODO send parameter request
-    }
-
-    public List<Parameter> getParametersList(){
-        return parameterList;
-    }
-
-    /**
-     * Try to process a Mavlink message if it is a parameter related message
-     * 
-     * @param msg
-     *            Mavlink message to process
-     * @return Returns true if the message has been processed
-     */
-    public boolean processMessage(MAVLinkMessage msg) {
-        if (msg.msgid == msg_param_value.MAVLINK_MSG_ID_PARAM_VALUE) {
-            processReceivedParam((msg_param_value) msg);
-            return true;
-        }
-        return false;
-    }
-
-    private void processReceivedParam(msg_param_value m_value) {
-        // collect params in parameter list
-        Parameter param = new Parameter(m_value);
-        parameters.put((int) m_value.param_index, param);
-
-        expectedParams = m_value.param_count;
-
-        // Are all parameters here? Notify the listener with the parameters
-        if (parameters.size() >= m_value.param_count) {
-            parameterList.clear();
-            for (int key : parameters.keySet()) {
-                parameterList.add(parameters.get(key));
-            }
-        }
     }
 
     public void connect() {
@@ -136,7 +82,7 @@ public class MAVLinkConnection {
 
                 BufferedInputStream reader = null;
                 try {
-                    socket.setSoTimeout(1000);
+                    socket.setSoTimeout(2000);
                 }
                 catch (SocketException e) {
                     e.printStackTrace();
@@ -172,19 +118,18 @@ public class MAVLinkConnection {
                             if(packet != null){
                                 //System.out.println(packet.msgid + " " + packet.sysid);
                                 MAVLinkMessage msg = (MAVLinkMessage) packet.unpack();
-                                //System.out.println(msg);
+                                
+                                //System.out.println("MSG "+ msg.toString());
                                 if (msg != null) {
+                                    for (MAVLinkConnectionListener l : mListeners.values())
+                                        l.onReceiveMessage(msg);
+                                    
                                     if (msg.msgid == msg_param_value.MAVLINK_MSG_ID_PARAM_VALUE) {
-                                        System.out.println(msg.toString());
+                                       // System.out.println(msg.toString());
                                         msg_param_value param = (msg_param_value) msg;
                                         System.out.println(param.toString());
                                     }
-                                
-//                                    if (msg.msgid == msg_statustext.MAVLINK_MSG_ID_STATUSTEXT) {
-//                                        System.out.println(msg.toString());
-//                                        msg_statustext status = (msg_statustext) msg;
-//                                        System.out.println(status.toString());
-//                                    }
+                               
                                 }
                             }  
                         }
@@ -227,7 +172,7 @@ public class MAVLinkConnection {
                 }
             };
         };
-        listenerTask.setDaemon(false); //FIXME
+        listenerTask.setDaemon(true);
         setMAVLinkConnected(true);
         listenerTask.start();
     }
@@ -257,7 +202,7 @@ public class MAVLinkConnection {
 
             }
         };
-        writerTask.setDaemon(false); //FIXME
+        writerTask.setDaemon(true);
         writerTask.start();
     }
 
@@ -270,7 +215,15 @@ public class MAVLinkConnection {
             System.out.println("Disconnected!");
         }
     }
+    
+    public void addMavLinkConnectionListener(String tag, MAVLinkConnectionListener listener) {
+        mListeners.put(tag, listener);
+    }
 
+    public void removeMavLinkConnectionListener(String tag) {
+        mListeners.remove(tag);
+    }
+    
     public void sendMavPacket(MAVLinkPacket packet) {
         final byte[] packetData = packet.encodePacket();
         if (!mPacketsToSend.offer(packetData)) {
@@ -333,13 +286,13 @@ public class MAVLinkConnection {
     /**
      * @param toInitiateConnection the toInitiateConnection to set
      */
-    public void setToInitiateConnection(boolean toInitiateConnection) {
+    public void initiateConnection(boolean toInitiateConnection) {
         this.toInitiateConnection = toInitiateConnection;
     }
 
     public static void main(String argv[]) {
         MAVLinkConnection mav = new MAVLinkConnection("10.0.20.125", 9999);
-        mav.setToInitiateConnection(true);
+        mav.initiateConnection(true);
         mav.connect();
         mav.send();
         try {
