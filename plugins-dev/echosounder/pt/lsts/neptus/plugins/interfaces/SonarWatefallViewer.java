@@ -62,8 +62,12 @@ import pt.lsts.neptus.util.ImageUtils;
 @SuppressWarnings("serial")
 public abstract class SonarWatefallViewer<T> extends JPanel {
 
-    // abstract methods
+    /* abstract methods */
+
+    // how to display sonar data
     protected abstract void updateImage();
+    // allow derived classes to handle viewer parameters update
+    public abstract void onViewerPropertiesUpdate();
 
     // Parameters
     protected ColorMap colorMap = null;

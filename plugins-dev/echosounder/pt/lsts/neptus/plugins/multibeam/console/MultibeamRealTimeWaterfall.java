@@ -171,5 +171,7 @@ public class MultibeamRealTimeWaterfall extends ConsolePanel implements Configur
         mbViewer.setColorMap(colorMap);
         mbViewer.setMaxDepth(maxDepth);
         mbViewer.useAdaptiveMaxDepth(adaptativeMaxDepth);
+
+        mbViewer.onViewerPropertiesUpdate();
     }
 }

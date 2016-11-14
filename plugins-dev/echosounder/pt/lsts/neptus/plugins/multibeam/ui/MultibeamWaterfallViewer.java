@@ -195,4 +195,9 @@ public class MultibeamWaterfallViewer extends SonarWatefallViewer<BathymetrySwat
     public void useAdaptiveMaxDepth(boolean value) {
         useAdaptiveMaxDepth = value;
     }
+
+    @Override
+    public void onViewerPropertiesUpdate() {
+        colorBar.setCmap(this.colorMap);
+    }
 }
