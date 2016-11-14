@@ -397,8 +397,7 @@ public class MantaOperations extends ConsolePanel implements ConfigurationListen
                             return;
                         NeptusLog.pub().warn("Start plan " + option.toString());
 
-                        ImcSystem[] sysLst = ImcSystemsHolder.lookupSystemByService("acoustic/operation",
-                                SystemTypeEnum.ALL, true);
+                        ImcSystem[] sysLst = gateways();
 
                         if (sysLst.length == 0) {
                             post(Notification
@@ -437,7 +436,7 @@ public class MantaOperations extends ConsolePanel implements ConfigurationListen
                     }
                 });
 
-        ImcMsgManager.getManager().addListener(this);
+        getConsole().getImcMsgManager().addListener(this);
 
         JPanel ctrlPanel = new JPanel();
         ctrlPanel.setLayout(new GridLayout(0, 1, 2, 2));
@@ -861,7 +860,7 @@ public class MantaOperations extends ConsolePanel implements ConfigurationListen
      */
     @Override
     public void cleanSubPanel() {
-        ImcMsgManager.getManager().removeListener(this);
+        getConsole().getImcMsgManager().removeListener(this);
         removeMenuItem(I18n.text("Tools") + ">" + I18n.text("Send Plan via Acoustic Modem"));
         removeMenuItem(I18n.text("Tools") + ">" + I18n.text("Start Plan via Acoustic Modem"));
     }
