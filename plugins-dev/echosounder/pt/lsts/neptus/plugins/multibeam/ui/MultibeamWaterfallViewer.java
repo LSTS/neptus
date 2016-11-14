@@ -199,5 +199,7 @@ public class MultibeamWaterfallViewer extends SonarWatefallViewer<BathymetrySwat
     @Override
     public void onViewerPropertiesUpdate() {
         colorBar.setCmap(this.colorMap);
+        colorBar.revalidate();
+        colorBar.repaint();
     }
 }
