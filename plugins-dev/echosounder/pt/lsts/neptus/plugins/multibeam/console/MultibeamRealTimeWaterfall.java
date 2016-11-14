@@ -45,6 +45,7 @@ import pt.lsts.imc.SonarData;
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.colormap.ColorMap;
 import pt.lsts.neptus.colormap.ColorMapFactory;
+import pt.lsts.neptus.colormap.InterpolationColorMap;
 import pt.lsts.neptus.console.ConsoleLayout;
 import pt.lsts.neptus.console.ConsolePanel;
 import pt.lsts.neptus.mp.SystemPositionAndAttitude;
@@ -181,7 +182,8 @@ public class MultibeamRealTimeWaterfall extends ConsolePanel implements Configur
     }
 
     private void setViewerProperties() {
-        mbViewer.setColorMap(colorMap);
+        mbViewer.setColorMap(ColorMapFactory
+                .createInvertedColorMap((InterpolationColorMap) colorMap));
         mbViewer.setMaxDepth(maxDepth);
         mbViewer.useAdaptiveMaxDepth(adaptativeMaxDepth);
 

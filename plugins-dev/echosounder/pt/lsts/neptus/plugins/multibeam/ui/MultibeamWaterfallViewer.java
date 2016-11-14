@@ -136,7 +136,7 @@ public class MultibeamWaterfallViewer extends SonarWatefallViewer<BathymetrySwat
                 else
                     max = maxDepth;
 
-                image.setRGB(i, 0, 1 - colorMap.getColor(points[i].depth / max).getRGB());
+                image.setRGB(i, 0, colorMap.getColor(points[i].depth / max).getRGB());
             }
         }
 
