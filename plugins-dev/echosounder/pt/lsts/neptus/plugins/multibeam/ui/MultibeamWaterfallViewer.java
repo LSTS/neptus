@@ -31,6 +31,7 @@
  */
 package pt.lsts.neptus.plugins.multibeam.ui;
 
+import pt.lsts.neptus.colormap.ColorBar;
 import pt.lsts.neptus.mra.api.BathymetryPoint;
 import pt.lsts.neptus.mra.api.BathymetrySwath;
 import pt.lsts.neptus.plugins.interfaces.SonarWatefallViewer;
@@ -47,6 +48,7 @@ import java.util.List;
  */
 @SuppressWarnings("serial")
 public class MultibeamWaterfallViewer extends SonarWatefallViewer<BathymetrySwath> {
+    private static final int MAX_COLORBAR_SIZE = 15;
 
     // Max depth defined by the user
     private double maxDepth = Double.MIN_VALUE;
@@ -57,11 +59,20 @@ public class MultibeamWaterfallViewer extends SonarWatefallViewer<BathymetrySwat
 
     // max depth found in the data
     private double adaptiveMaxDepth = Double.MIN_VALUE;
+
+    // color bar panel
+    private final ColorBar colorBar = new ColorBar(ColorBar.HORIZONTAL_ORIENTATION, this.colorMap);
+
     /**
      * @param clazz
      */
     public MultibeamWaterfallViewer() {
         super(MultibeamWaterfallViewer.class);
+
+        remove(viewer);
+
+        add(colorBar, "w 100%, h " + MAX_COLORBAR_SIZE + "px, wrap");
+        add(viewer, "w 100%, grow");
     }
 
     // code adapted from mra API's
