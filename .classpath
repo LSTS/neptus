@@ -220,6 +220,7 @@
 	<classpathentry kind="lib" path="lib/xmpcore-5.1.2.jar"/>
 	<classpathentry kind="lib" path="lib/JavaAPIforKml-2.2.0.jar"/>
 	<classpathentry kind="lib" path="plugins-dev/necsave/lib/NMPJava.jar"/>
+	<classpathentry kind="lib" path="plugins-dev/uav-parameters/lib/mavlink.jar"/>
 	<classpathentry kind="lib" path="lib/jsch-0.1.53.jar"/>
 	<classpathentry kind="lib" path="lib/javacsv.jar"/>
 	<classpathentry kind="lib" path="lib/commons-collections-3.2.1.jar"/>
