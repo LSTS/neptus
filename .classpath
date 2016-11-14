@@ -35,7 +35,6 @@
 	<classpathentry kind="src" path="plugins-dev/oplimits"/>
 	<classpathentry kind="src" path="plugins-dev/position"/>
 	<classpathentry kind="src" path="plugins-dev/s57"/>
-	<classpathentry kind="src" path="plugins-dev/s57-client"/>
 	<classpathentry kind="src" path="plugins-dev/simulation"/>
 	<classpathentry kind="src" path="plugins-dev/spot"/>
 	<classpathentry kind="src" path="plugins-dev/state"/>
