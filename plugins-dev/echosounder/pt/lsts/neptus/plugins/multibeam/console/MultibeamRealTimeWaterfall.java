@@ -110,7 +110,6 @@ public class MultibeamRealTimeWaterfall extends ConsolePanel implements Configur
 
     private void initialize() {
         mbViewer = new MultibeamWaterfallViewer();
-        mbViewer.setColorMap(colorMap);
         setViewerProperties();
 
         setLayout(new MigLayout("ins 0, gap 5"));
