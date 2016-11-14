@@ -258,12 +258,13 @@ public class MantaOperations extends ConsolePanel implements ConfigurationListen
 
         if (successCount > 0) {
             bottomPane.setText(I18n.textf(
-                    "Request to send message to %systemName via %systemCount acoustic gateways", selectedSystem,
+                    "Request to send message to %systemName via %systemCount acoustic gateways", destination,
                     successCount));
             return true;
         }
         else {
-            post(Notification.error(I18n.text("Send message"), I18n.text("Unable to send message to selected system"))
+            post(Notification.error(I18n.text("Send message"), 
+                    I18n.textf("Unable to send message to system %systemName", destination))
                     .src(I18n.text("Console")));
             return false;
         }
@@ -402,7 +403,7 @@ public class MantaOperations extends ConsolePanel implements ConfigurationListen
                         if (sysLst.length == 0) {
                             post(Notification
                                     .error(I18n.text("Start Plan"),
-                                            I18n.text("No acoustic device is capable of sending this request"))
+                                    I18n.textf("No acoustic device is capable of sending this request to %systemName", choice.getId()))
                                     .src(I18n.text("Console")));
                             return;
                         }
@@ -430,7 +431,7 @@ public class MantaOperations extends ConsolePanel implements ConfigurationListen
                         if (successCount == 0) {
                             post(Notification
                                     .error(I18n.text("Error sending start plan"),
-                                            I18n.text("No system was able to send the message"))
+                                    I18n.textf("No system was able to send the message to %systemName", choice.getId()))
                                     .src(I18n.text("Console")));
                         }
                     }
