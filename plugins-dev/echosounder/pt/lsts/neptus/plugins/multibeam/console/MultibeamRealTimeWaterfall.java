@@ -38,6 +38,7 @@ import java.util.concurrent.atomic.AtomicLong;
 
 import com.google.common.eventbus.Subscribe;
 
+import com.sun.org.apache.xpath.internal.operations.Mult;
 import net.miginfocom.swing.MigLayout;
 import pt.lsts.imc.EstimatedState;
 import pt.lsts.imc.SonarData;
@@ -104,7 +105,7 @@ public class MultibeamRealTimeWaterfall extends ConsolePanel implements Configur
     public MultibeamRealTimeWaterfall(ConsoleLayout console) {
         super(console);
         initialize();
-/*        testDataDisplay();*/
+        //testDataDisplay();
     }
 
 
@@ -160,6 +161,18 @@ public class MultibeamRealTimeWaterfall extends ConsolePanel implements Configur
     @Periodic(millisBetweenUpdates = 50)
     public void update() {
         threadExecutor.execute(() -> mbViewer.updateRequest());
+    }
+
+    //@Periodic(millisBetweenUpdates = 30)
+    public void onBathymetrySwath() {
+        BathymetrySwath swath = mbParser.nextSwath();
+        if(swath != null) {
+            SystemPositionAndAttitude pose = swath.getPose();
+            currentEstimatedState = pose.toEstimatedState();
+            SonarData sd = MultibeamUtil.swathToSonarData(swath, pose);
+
+            onSonarData(sd);
+        }
     }
 
     @Override
