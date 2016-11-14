@@ -210,6 +210,8 @@ public class SidescanRealTimeWaterfall extends ConsolePanel
         if (cleanLinesOnVehicleChange)
             ssViewer.clearLines();
         
+        curEstimatedState = null;
+        
         sssEntitiesComboBoxModel.clear();
         subSystemsComboBoxModel.clear();
         sssEntitiesComboBox.setSelectedItem(null);
@@ -233,6 +235,9 @@ public class SidescanRealTimeWaterfall extends ConsolePanel
     
     @Subscribe
     public void onEstimatedState(EstimatedState msg) {
+        if (!msg.getSourceName().equals(getMainVehicleId()))
+            return;
+
         curEstimatedState = msg;
     }
     
