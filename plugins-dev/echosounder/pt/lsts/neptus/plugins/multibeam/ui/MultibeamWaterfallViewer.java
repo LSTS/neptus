@@ -178,12 +178,10 @@ public class MultibeamWaterfallViewer extends SonarWatefallViewer<BathymetrySwat
 
     public void setMaxDepth(double maxDepth) {
         this.maxDepth = maxDepth;
+        adaptiveMaxDepth = maxDepth;
     }
 
     public void useAdaptiveMaxDepth(boolean value) {
         useAdaptiveMaxDepth = value;
-
-        if(value)
-            adaptiveMaxDepth = maxDepth;
     }
 }
