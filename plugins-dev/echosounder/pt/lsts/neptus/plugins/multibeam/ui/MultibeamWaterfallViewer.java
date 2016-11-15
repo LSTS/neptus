@@ -35,9 +35,11 @@ import pt.lsts.neptus.colormap.ColorBar;
 import pt.lsts.neptus.mra.api.BathymetryPoint;
 import pt.lsts.neptus.mra.api.BathymetrySwath;
 import pt.lsts.neptus.plugins.interfaces.SonarWatefallViewer;
+import pt.lsts.neptus.util.ColorUtils;
 import pt.lsts.neptus.util.ImageUtils;
 
 import java.awt.*;
+import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
 import java.util.*;
 import java.util.List;
@@ -78,20 +80,25 @@ public class MultibeamWaterfallViewer extends SonarWatefallViewer<BathymetrySwat
                 super.paint(g);
 
                 Graphics g2 = g.create();
-                g2.setColor(Color.WHITE.brighter());
 
-                g2.drawString("0", 2, colorBar.getHeight() - 3);
+                g2.setColor(ColorUtils.invertColor(this.getCmap().getColor(0)));
+                g2.drawString("0m", 2, colorBar.getHeight() - 3);
 
-                String maxString;
-
-                if(useAdaptiveMaxDepth) {
-                    maxString = String.format("%.1f", adaptiveMaxDepth);
+                long maxVal = Math.round(useAdaptiveMaxDepth ? adaptiveMaxDepth : maxDepth);
+                long medVal = Math.round(maxVal / 2d);
+                if (maxVal != medVal && this.getWidth() > 150) {
+                    String medString = String.valueOf(medVal) + "m";
+                    Rectangle2D strBnds = g2.getFontMetrics().getStringBounds(medString, g2);
+                    g2.setColor(ColorUtils.invertColor(this.getCmap().getColor(0.5)));
+                    g2.drawString(medString, (int) (colorBar.getWidth() / 2d - strBnds.getWidth() / 2d), colorBar.getHeight() - 3);
                 }
-                else {
-                    maxString = String.format("%.1f", maxDepth);
-                }
-
-                g2.drawString(maxString, colorBar.getWidth() - 30, colorBar.getHeight() - 3);
+                
+                String maxString = String.valueOf(maxVal) + "m";
+                Rectangle2D strBnds = g2.getFontMetrics().getStringBounds(maxString, g2);
+                g2.setColor(ColorUtils.invertColor(this.getCmap().getColor(1)));
+                g2.drawString(maxString, (int) (colorBar.getWidth() - strBnds.getWidth() - 2), colorBar.getHeight() - 3);
+                
+                g2.dispose();
             }
         };
 
@@ -99,7 +106,6 @@ public class MultibeamWaterfallViewer extends SonarWatefallViewer<BathymetrySwat
 
         add(colorBar, "w 100%, h " + MAX_COLORBAR_SIZE + "px, wrap");
         add(viewer, "w 100%, grow");
-
     }
 
     // code adapted from mra API's
@@ -143,9 +149,11 @@ public class MultibeamWaterfallViewer extends SonarWatefallViewer<BathymetrySwat
 
             addList.clear();
             removeList.clear();
+            
+            if (useAdaptiveMaxDepth)
+                repaintColorBar();
         }
     }
-
 
     private BufferedImage datatToImage(BathymetrySwath data) {
         BathymetryPoint[] points = data.getData();
@@ -162,8 +170,9 @@ public class MultibeamWaterfallViewer extends SonarWatefallViewer<BathymetrySwat
 
                     max = adaptiveMaxDepth;
                 }
-                else
+                else {
                     max = maxDepth;
+                }
                 image.setRGB(i, 0, colorMap.getColor(points[i].depth / max).getRGB());
             }
         }
@@ -188,7 +197,6 @@ public class MultibeamWaterfallViewer extends SonarWatefallViewer<BathymetrySwat
         dataList.removeAll(removeList);
         removeYPos(removeList);
     }
-
 
     /**
      * Sets Y position and BufferedImage for the
@@ -226,6 +234,10 @@ public class MultibeamWaterfallViewer extends SonarWatefallViewer<BathymetrySwat
 
     @Override
     public void onViewerPropertiesUpdate() {
+        repaintColorBar();
+    }
+
+    private void repaintColorBar() {
         if(colorBar != null) {
             colorBar.setCmap(this.colorMap);
             colorBar.revalidate();
