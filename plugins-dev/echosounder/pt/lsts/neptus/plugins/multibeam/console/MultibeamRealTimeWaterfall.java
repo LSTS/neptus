@@ -38,7 +38,6 @@ import java.util.concurrent.atomic.AtomicLong;
 
 import com.google.common.eventbus.Subscribe;
 
-import com.sun.org.apache.xpath.internal.operations.Mult;
 import net.miginfocom.swing.MigLayout;
 import pt.lsts.imc.EstimatedState;
 import pt.lsts.imc.SonarData;
@@ -69,6 +68,7 @@ import pt.lsts.neptus.util.llf.LsfLogSource;
  * @author tsm
  *
  */
+@SuppressWarnings("serial")
 @PluginDescription(author = "Tiago Marques", version = "0.1", name = "Multibeam Real-Time Waterfall Viewer")
 @Popup(pos = POSITION.TOP_LEFT, width = 300, height = 500)
 public class MultibeamRealTimeWaterfall extends ConsolePanel implements ConfigurationListener {
@@ -77,12 +77,13 @@ public class MultibeamRealTimeWaterfall extends ConsolePanel implements Configur
     @NeptusProperty (name="Color map to use", category="Visualization parameters", userLevel = LEVEL.REGULAR)
     private ColorMap colorMap = ColorMapFactory.createJetColorMap();
 
-    @NeptusProperty (name="Max depth", description="Max depth used to normalize depth data", category="Visualization parameters", userLevel = LEVEL.REGULAR)
+    @NeptusProperty (name="Max depth", description="Max depth used to normalize depth data", 
+            category="Visualization parameters", userLevel = LEVEL.REGULAR)
     private double maxDepth = 40;
 
-    @NeptusProperty (name="Use adaptive max depth", description = "Use the highest value processed as max depth. Minimum value will be 'Max depth'",category="Visualization parameters", userLevel = LEVEL.REGULAR)
+    @NeptusProperty (name="Use adaptive max depth", description = "Use the highest value processed as max depth. Minimum value will be 'Max depth'",
+            category="Visualization parameters", userLevel = LEVEL.REGULAR)
     private boolean adaptativeMaxDepth = false;
-
 
     private ExecutorService threadExecutor = Executors.newCachedThreadPool(new ThreadFactory() {
         String nameBase = new StringBuilder().append(MultibeamRealTimeWaterfall.class.getSimpleName())
@@ -102,13 +103,11 @@ public class MultibeamRealTimeWaterfall extends ConsolePanel implements Configur
     private EstimatedState currentEstimatedState = null;
     private DeltaTParser mbParser;
 
-
     public MultibeamRealTimeWaterfall(ConsoleLayout console) {
         super(console);
         initialize();
         //testDataDisplay();
     }
-
 
     private void initialize() {
         mbViewer = new MultibeamWaterfallViewer();
@@ -118,7 +117,6 @@ public class MultibeamRealTimeWaterfall extends ConsolePanel implements Configur
         add(mbViewer, "w 100%, h 100%");
     }
 
-
     @Override
     public void cleanSubPanel() {
         threadExecutor.shutdownNow();
@@ -126,9 +124,7 @@ public class MultibeamRealTimeWaterfall extends ConsolePanel implements Configur
 
     @Override
     public void initSubPanel() {
-
     }
-
 
     @Subscribe
     public void onSonarData(SonarData msg) {
@@ -154,7 +150,8 @@ public class MultibeamRealTimeWaterfall extends ConsolePanel implements Configur
         try {
             LsfLogSource source = new LsfLogSource(dataFile, null);
             mbParser = new DeltaTParser(source);
-        } catch (Exception e) {
+        }
+        catch (Exception e) {
             e.printStackTrace();
         }
     }
