@@ -88,7 +88,8 @@ import pt.lsts.neptus.util.llf.LsfLogSource;
 @SuppressWarnings("serial")
 @PluginDescription(author = "Tiago Marques", version = "0.1", name = "Multibeam Real-Time Waterfall Viewer")
 @Popup(pos = POSITION.TOP_LEFT, width = 300, height = 500)
-public class MultibeamRealTimeWaterfall extends ConsolePanel implements ConfigurationListener {
+public class MultibeamRealTimeWaterfall extends ConsolePanel implements ConfigurationListener,
+    MainVehicleChangeListener {
 
     // Parameters
     @NeptusProperty (name="Color map to use", category="Visualization parameters", userLevel = LEVEL.REGULAR)
@@ -187,6 +188,13 @@ public class MultibeamRealTimeWaterfall extends ConsolePanel implements Configur
         mbViewer.useAdaptiveMaxDepth(adaptativeMaxDepth);
 
         mbViewer.onViewerPropertiesUpdate();
+    }
+    
+    @Subscribe
+    public void mainVehicleChangeNotification(ConsoleEventMainSystemChange ev) {
+        currentEstimatedState = null;
+        if (cleanLinesOnVehicleChange)
+            mbViewer.clearLines();
     }
 
     public static void main(String[] args) {
