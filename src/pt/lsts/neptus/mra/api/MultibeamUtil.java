@@ -31,19 +31,15 @@
  */
 package pt.lsts.neptus.mra.api;
 
-import pt.lsts.imc.BeamConfig;
-import pt.lsts.imc.SonarData;
-import pt.lsts.neptus.data.Pair;
-import pt.lsts.neptus.mp.SystemPositionAndAttitude;
-import pt.lsts.neptus.util.DateTimeUtil;
-
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
-import java.nio.DoubleBuffer;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Date;
 import java.util.List;
+
+import pt.lsts.imc.BeamConfig;
+import pt.lsts.imc.SonarData;
+import pt.lsts.neptus.mp.SystemPositionAndAttitude;
 
 /**
  * @author tsm
@@ -63,11 +59,25 @@ public class MultibeamUtil {
         int numberOfBeams = bytes.getShort() & 0xFFFF;
         double startAngleDeg = ((double) bytes.getShort()) / 100.0;
 
+        int numberOfBytesEffData = numberOfBeams * (bitsPerPoint / 8);
+        byte[] rangeByteData = new byte[numberOfBytesEffData];
+        bytes.get(rangeByteData, 0, numberOfBytesEffData);
+        byte[] intensityByteData = (numberOfBytesEffData <= bytes.remaining())
+                ? new byte[numberOfBytesEffData] : null;        
+        if (intensityByteData != null)
+            bytes.get(intensityByteData, 0, numberOfBytesEffData);
+            
         // data
-        Pair<double[], int[]> tmp = splitRangeAndIntensity(getData(bytes, scaleFactor, bitsPerPoint));
-        double[] ranges = tmp.first();
-        int[] intensities = tmp.second();
-
+        // Pair<double[], int[]> tmp = splitRangeAndIntensity(getData(bytes, scaleFactor, bitsPerPoint));
+        double[] ranges = SidescanUtil.getData(rangeByteData, scaleFactor, bitsPerPoint);
+        long[] intensities;
+        if (intensityByteData != null) {
+            intensities = SidescanUtil.transformData(intensityByteData, bitsPerPoint);
+        }
+        else {
+            intensities = new long[numberOfBeams];
+            Arrays.fill(intensities, 0);   
+        }
 
         if(ranges.length != intensities.length)
             return null;
@@ -88,64 +98,21 @@ public class MultibeamUtil {
             float north = (float) (x * Math.sin(yawAngle));
             float east = (float) (x * Math.cos(yawAngle));
 
-            points[i] = new BathymetryPoint(north, east, depth, intensities[i]);
+            points[i] = new BathymetryPoint(north, east, depth, (int) intensities[i]);
         }
 
         return new BathymetrySwath(sonarData.getTimestampMillis(), pose, points);
     }
 
     public static double[] getData(ByteBuffer bytes, double scaleFactor, short bitsPerPoint) {
-        if (bitsPerPoint % 8 != 0) {
-            System.out.println("ERROR: Bits per point should be multiple of eight");
-            return null;
-        }
-
-        int bytesPerPoint = bitsPerPoint < 8 ? 1 : (bitsPerPoint / 8);
-        double[] fData = new double[bytes.remaining() / bytesPerPoint];
-
-
-        byte[] data = new byte[bytes.remaining()];
-        bytes.get(data, 0, bytes.remaining());
-
-        for (int i = 0; i < fData.length; i++) {
-            double val = 0;
-            for (int j = 0; j < bytesPerPoint; j++) {
-                int index = i * bytesPerPoint + j; // progressing index of data
-                int v = data[index] & 0xFF;
-                v = (v << 8 * j);
-                val += v;
-            }
-            fData[i] = val;
-        }
-
-        // apply scalling
-        for(int i = 0; i < fData.length/2; i++)
-            fData[i] /= scaleFactor;
-
-        return fData;
-    }
-
-    /**
-     * Split IMC SonarData's data into
-     * ranges and intensity
-     * */
-    private static Pair<double[], int[]> splitRangeAndIntensity(double[] data) {
-        double[] ranges = new double[data.length/2];
-        int[] intensities = new int[data.length/2];
-
-        for(int i = 0; i < data.length/2; i++) {
-            ranges[i] = data[i];
-            intensities[i] = (int) data[data.length/2 + i];
-        }
-
-        return new Pair<>(ranges, intensities);
+        return SidescanUtil.getData(bytes.array(), scaleFactor, bitsPerPoint);
     }
 
     public static SonarData swathToSonarData(BathymetrySwath swath, SystemPositionAndAttitude pose) {
         SonarData sonarData = new SonarData();
 
         int bytesPerPoint = Short.BYTES;
-        int headerBytes = Short.BYTES;
+        int headerBytes = Short.BYTES * 2;
 
         BathymetryPoint[] points = swath.getData();
         ByteBuffer bytes = ByteBuffer.allocate(headerBytes + bytesPerPoint * (points.length * 2));
@@ -155,6 +122,10 @@ public class MultibeamUtil {
         float scaleFactor = 0.008f;
         double angleIncrementDeg = 0.25;
 
+        // number of beams
+        short numberOfBeams = (short) points.length;
+        bytes.putShort(numberOfBeams);
+        
         // startAngles
         double startAngleDoubleDeg = -59.870003 * 100;
         short startAngleCentiDeg  = (short) startAngleDoubleDeg;
@@ -179,11 +150,12 @@ public class MultibeamUtil {
 
             bytes.put(rangeBytes);
             putBytesAt(bytes, intensityIndex, intensitiyBytes);
-
-            BeamConfig c = new BeamConfig();
-            c.setBeamWidth(0.25);
-            beamConfig.add(c);
         }
+
+        BeamConfig c = new BeamConfig();
+        c.setBeamWidth(Math.toRadians(angleIncrementDeg));
+        c.setBeamHeight(Math.toRadians(angleIncrementDeg));
+        beamConfig.add(c);
 
         sonarData.setFrequency(260000);
         sonarData.setMinRange(0); // 0.5m
