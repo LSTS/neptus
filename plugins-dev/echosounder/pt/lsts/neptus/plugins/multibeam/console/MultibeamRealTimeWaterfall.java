@@ -171,7 +171,7 @@ public class MultibeamRealTimeWaterfall extends ConsolePanel implements Configur
             NeptusLog.pub().warn("** Null Bathymetry swath!!!");
     }
 
-    @Periodic(millisBetweenUpdates = 50)
+    @Periodic(millisBetweenUpdates = 200)
     public void update() {
         threadExecutor.execute(() -> mbViewer.updateRequest());
     }
