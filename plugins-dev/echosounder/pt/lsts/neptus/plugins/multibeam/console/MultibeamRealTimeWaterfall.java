@@ -37,12 +37,14 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.io.ByteArrayOutputStream;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.atomic.AtomicLong;
 
+import javax.swing.JComboBox;
 import javax.swing.JMenuItem;
 import javax.swing.JPopupMenu;
 import javax.swing.SwingUtilities;
@@ -62,6 +64,7 @@ import pt.lsts.neptus.console.ConsoleLayout;
 import pt.lsts.neptus.console.ConsolePanel;
 import pt.lsts.neptus.console.events.ConsoleEventMainSystemChange;
 import pt.lsts.neptus.console.plugins.MainVehicleChangeListener;
+import pt.lsts.neptus.gui.model.ArrayListComboBoxModel;
 import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.mp.SystemPositionAndAttitude;
 import pt.lsts.neptus.mra.api.BathymetrySwath;
@@ -120,21 +123,33 @@ public class MultibeamRealTimeWaterfall extends ConsolePanel implements Configur
         }
     });
 
+    // GUI
     private MultibeamWaterfallViewer mbViewer;
+    private JComboBox<String> mbEntitiesComboBox;
+    private ArrayListComboBoxModel<String> mbEntitiesComboBoxModel;
+    private JComboBox<Long> subSystemsComboBox;
+    private ArrayListComboBoxModel<Long> subSystemsComboBoxModel;
+    
     private EstimatedState currentEstimatedState = null;
 
     public MultibeamRealTimeWaterfall(ConsoleLayout console) {
         super(console);
         initialize();
-        // testDataDisplay();
     }
 
     private void initialize() {
         mbViewer = new MultibeamWaterfallViewer();
         setViewerProperties();
 
+        mbEntitiesComboBoxModel = new ArrayListComboBoxModel<>(new ArrayList<String>(), true);
+        mbEntitiesComboBox = new JComboBox<>(mbEntitiesComboBoxModel);
+        subSystemsComboBoxModel = new ArrayListComboBoxModel<>(new ArrayList<Long>(), true);
+        subSystemsComboBox = new JComboBox<>(subSystemsComboBoxModel);
+        
         setLayout(new MigLayout("ins 0, gap 5"));
-        add(mbViewer, "w 100%, h 100%");
+        add(mbEntitiesComboBox, "sg 1, w :50%:50%");
+        add(subSystemsComboBox, "sg 1, w :40%:40%, wrap");
+        add(mbViewer, "w 100%, h 100%, spanx");
         
         mbViewer.addMouseListener(getMouseListener());
     }
@@ -179,22 +194,47 @@ public class MultibeamRealTimeWaterfall extends ConsolePanel implements Configur
     
     @Subscribe
     public void onSonarData(SonarData msg) {
-        if (!msg.getSourceName().equals(getMainVehicleId()))
-            return;
-        // only interested in multibeam
-        if(msg.getType() != SonarData.TYPE.MULTIBEAM)
-            return;
+        try {
+            if (!msg.getSourceName().equals(getMainVehicleId()))
+                return;
+            // only interested in multibeam
+            if(msg.getType() != SonarData.TYPE.MULTIBEAM)
+                return;
 
-        SystemPositionAndAttitude pose = new SystemPositionAndAttitude();
-        if (currentEstimatedState != null &&
-                Math.abs(currentEstimatedState.getTimestampMillis() - msg.getTimestampMillis()) < 500)
-            pose = new SystemPositionAndAttitude(currentEstimatedState);
+            boolean firstEnt = mbEntitiesComboBoxModel.getSize() == 0;
+            boolean firstSubSys = subSystemsComboBoxModel.getSize() == 0;
+            mbEntitiesComboBoxModel.addValue(msg.getEntityName());
+            subSystemsComboBoxModel.addValue(msg.getFrequency());
+            if (firstEnt && mbEntitiesComboBoxModel.getSize() > 0)
+                mbEntitiesComboBox.setSelectedItem(mbEntitiesComboBoxModel.getValue(0));
+            if (firstSubSys && subSystemsComboBoxModel.getSize() > 0)
+                subSystemsComboBox.setSelectedItem(subSystemsComboBoxModel.getValue(0));
 
-        BathymetrySwath swath = MultibeamUtil.getMultibeamSwath(msg, pose);
-        if(swath != null)
-            mbViewer.addNewData(swath);
-        else
-            NeptusLog.pub().warn("** Null Bathymetry swath!!!");
+            String selEnt = (String) mbEntitiesComboBoxModel.getSelectedItem();
+            Long selSubSys = (Long) subSystemsComboBoxModel.getSelectedItem();
+
+            if (selSubSys == null)
+                return;
+
+            if (selEnt != null && !selEnt.equals(msg.getEntityName()))
+                return;
+            if (!selSubSys.equals(msg.getFrequency()))
+                return;
+
+            SystemPositionAndAttitude pose = new SystemPositionAndAttitude();
+            if (currentEstimatedState != null &&
+                    Math.abs(currentEstimatedState.getTimestampMillis() - msg.getTimestampMillis()) < 500)
+                pose = new SystemPositionAndAttitude(currentEstimatedState);
+
+            BathymetrySwath swath = MultibeamUtil.getMultibeamSwath(msg, pose);
+            if(swath != null)
+                mbViewer.addNewData(swath);
+            else
+                NeptusLog.pub().warn("** Null Bathymetry swath!!!");
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     @Periodic(millisBetweenUpdates = 200)
@@ -221,6 +261,11 @@ public class MultibeamRealTimeWaterfall extends ConsolePanel implements Configur
         currentEstimatedState = null;
         if (cleanLinesOnVehicleChange)
             mbViewer.clearLines();
+        
+        mbEntitiesComboBoxModel.clear();
+        subSystemsComboBoxModel.clear();
+        mbEntitiesComboBox.setSelectedItem(null);
+        subSystemsComboBoxModel.setSelectedItem(null);
     }
 
     public static void main(String[] args) {
