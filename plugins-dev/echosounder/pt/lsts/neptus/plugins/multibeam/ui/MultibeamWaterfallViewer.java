@@ -61,18 +61,45 @@ public class MultibeamWaterfallViewer extends SonarWatefallViewer<BathymetrySwat
     private double adaptiveMaxDepth = Double.MIN_VALUE;
 
     // color bar panel
-    private final ColorBar colorBar = new ColorBar(ColorBar.HORIZONTAL_ORIENTATION, this.colorMap);
+    private ColorBar colorBar;
 
     /**
      * @param clazz
      */
     public MultibeamWaterfallViewer() {
         super(MultibeamWaterfallViewer.class);
+        createColorBar();
+    }
+
+    private void createColorBar() {
+        colorBar = new ColorBar(ColorBar.HORIZONTAL_ORIENTATION, this.colorMap) {
+            @Override
+            public void paint(Graphics g) {
+                super.paint(g);
+
+                Graphics g2 = g.create();
+                g2.setColor(Color.WHITE.brighter());
+
+                g2.drawString("0", 2, colorBar.getHeight() - 3);
+
+                String maxString;
+
+                if(useAdaptiveMaxDepth) {
+                    maxString = String.format("%.1f", adaptiveMaxDepth);
+                }
+                else {
+                    maxString = String.format("%.1f", maxDepth);
+                }
+
+                g2.drawString(maxString, colorBar.getWidth() - 30, colorBar.getHeight() - 3);
+            }
+        };
 
         remove(viewer);
 
         add(colorBar, "w 100%, h " + MAX_COLORBAR_SIZE + "px, wrap");
         add(viewer, "w 100%, grow");
+
     }
 
     // code adapted from mra API's
@@ -199,8 +226,10 @@ public class MultibeamWaterfallViewer extends SonarWatefallViewer<BathymetrySwat
 
     @Override
     public void onViewerPropertiesUpdate() {
-        colorBar.setCmap(this.colorMap);
-        colorBar.revalidate();
-        colorBar.repaint();
+        if(colorBar != null) {
+            colorBar.setCmap(this.colorMap);
+            colorBar.revalidate();
+            colorBar.repaint();
+        }
     }
 }
