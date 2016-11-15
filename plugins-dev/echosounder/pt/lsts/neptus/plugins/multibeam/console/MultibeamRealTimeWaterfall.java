@@ -143,7 +143,17 @@ public class MultibeamRealTimeWaterfall extends ConsolePanel implements Configur
     }
 
     @Subscribe
+    public void onEstimatedState(EstimatedState msg) {
+        if (!msg.getSourceName().equals(getMainVehicleId()))
+            return;
+
+       currentEstimatedState = msg;
+    }
+    
+    @Subscribe
     public void onSonarData(SonarData msg) {
+        if (!msg.getSourceName().equals(getMainVehicleId()))
+            return;
         // only interested in multibeam
         if(msg.getType() != SonarData.TYPE.MULTIBEAM)
             return;
