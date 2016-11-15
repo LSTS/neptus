@@ -31,12 +31,19 @@
  */
 package pt.lsts.neptus.plugins.interfaces;
 
-import java.awt.*;
+import java.awt.Color;
+import java.awt.Dimension;
+import java.awt.Graphics;
+import java.awt.Graphics2D;
+import java.awt.Transparency;
 import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
 import java.awt.image.BufferedImage;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -48,10 +55,7 @@ import javax.swing.SwingUtilities;
 
 import net.miginfocom.swing.MigLayout;
 import pt.lsts.neptus.colormap.ColorMap;
-import pt.lsts.neptus.colormap.ColorMapFactory;
 import pt.lsts.neptus.mra.api.BathymetrySwath;
-import pt.lsts.neptus.mra.api.SidescanGuiUtils;
-import pt.lsts.neptus.plugins.update.Periodic;
 import pt.lsts.neptus.util.ImageUtils;
 
 /**
@@ -193,7 +197,6 @@ public abstract class SonarWatefallViewer<T> extends JPanel {
         yPos.put(data, y);
     }
 
-
     /**
      * Get Y position in the viewer of the given data line
      * */
@@ -243,14 +246,12 @@ public abstract class SonarWatefallViewer<T> extends JPanel {
         return colorMap;
     }
 
-
     /**
      * @param colorMap the colorMap to set
      */
     public void setColorMap(ColorMap colorMap) {
         this.colorMap = colorMap;
     }
-
 
     /**
      * @param overPainter the overPainter to set
@@ -267,7 +268,7 @@ public abstract class SonarWatefallViewer<T> extends JPanel {
         }
     }
 
-
+    @SuppressWarnings("unchecked")
     public void addNewData(T... data) {
         if (data.length == 0)
             return;
