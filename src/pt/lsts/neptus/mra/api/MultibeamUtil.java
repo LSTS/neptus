@@ -152,7 +152,7 @@ public class MultibeamUtil {
         bytes.order(ByteOrder.LITTLE_ENDIAN);
         List<BeamConfig> beamConfig = new ArrayList<>();
 
-        float scaleFactor = 1000;
+        float scaleFactor = 0.008f;
         double angleIncrementDeg = 0.25;
 
         // startAngles
@@ -163,7 +163,7 @@ public class MultibeamUtil {
         // put range and intensities
         for(int i = 0; i < points.length; i++) {
             double range = 0;
-            double intensity = (double) Integer.MAX_VALUE;
+            double intensity = 0;
             double angle = Math.cos(Math.toRadians(startAngleDoubleDeg / 100 + angleIncrementDeg * i));
 
             if(points[i] != null) {
@@ -173,7 +173,7 @@ public class MultibeamUtil {
             }
 
             byte[] rangeBytes = valueToBytes(range, bytesPerPoint, scaleFactor);
-            byte[] intensitiyBytes = valueToBytes(intensity, bytesPerPoint, scaleFactor);
+            byte[] intensitiyBytes = valueToBytes(intensity, bytesPerPoint, 1);
 
             int intensityIndex = headerBytes + bytesPerPoint * (points.length + i);
 
@@ -185,6 +185,9 @@ public class MultibeamUtil {
             beamConfig.add(c);
         }
 
+        sonarData.setFrequency(260000);
+        sonarData.setMinRange(0); // 0.5m
+        sonarData.setMaxRange(40);
         sonarData.setType(SonarData.TYPE.MULTIBEAM);
         sonarData.setBitsPerPoint((short)Short.SIZE);
         sonarData.setScaleFactor(scaleFactor);
@@ -201,7 +204,7 @@ public class MultibeamUtil {
      * */
     public static byte[] valueToBytes(double value, int bytesPerPoint, float scaleFactor) {
         byte[] bytes = new byte[bytesPerPoint];
-        int valueScaled = (int) (value * scaleFactor);
+        int valueScaled = (int) (value / scaleFactor);
 
         for(int i = 0; i < bytesPerPoint; i++)
             bytes[i] = (byte) (((valueScaled >> 8 * i)) & 0xFF);
