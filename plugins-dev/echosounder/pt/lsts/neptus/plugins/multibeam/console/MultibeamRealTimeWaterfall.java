@@ -118,12 +118,11 @@ public class MultibeamRealTimeWaterfall extends ConsolePanel implements Configur
 
     private MultibeamWaterfallViewer mbViewer;
     private EstimatedState currentEstimatedState = null;
-    private DeltaTParser mbParser;
 
     public MultibeamRealTimeWaterfall(ConsoleLayout console) {
         super(console);
         initialize();
-        //testDataDisplay();
+        // testDataDisplay();
     }
 
     private void initialize() {
@@ -161,33 +160,9 @@ public class MultibeamRealTimeWaterfall extends ConsolePanel implements Configur
             NeptusLog.pub().warn("** Null Bathymetry swath!!!");
     }
 
-    private void testDataDisplay() {
-        String dataFile = (System.getProperty("user.dir") + "/" + "../log/maridan-multibeam/Data.lsf.gz");
-
-        try {
-            LsfLogSource source = new LsfLogSource(dataFile, null);
-            mbParser = new DeltaTParser(source);
-        }
-        catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-
     @Periodic(millisBetweenUpdates = 50)
     public void update() {
         threadExecutor.execute(() -> mbViewer.updateRequest());
-    }
-
-    //@Periodic(millisBetweenUpdates = 30)
-    public void onBathymetrySwath() {
-        BathymetrySwath swath = mbParser.nextSwath();
-        if(swath != null) {
-            SystemPositionAndAttitude pose = swath.getPose();
-            currentEstimatedState = pose.toEstimatedState();
-            SonarData sd = MultibeamUtil.swathToSonarData(swath, pose);
-
-            onSonarData(sd);
-        }
     }
 
     @Override
@@ -202,5 +177,52 @@ public class MultibeamRealTimeWaterfall extends ConsolePanel implements Configur
         mbViewer.useAdaptiveMaxDepth(adaptativeMaxDepth);
 
         mbViewer.onViewerPropertiesUpdate();
+    }
+
+    public static void main(String[] args) {
+        String dataFile = (System.getProperty("user.dir") + "/" + "../log/maridan-multibeam/Data.lsf.gz");
+        // dataFile = "D:\\REP15-Data\\to_upload_20150717\\lauv-noptilus-3\\20150717\\120741_horta-m01\\Data.lsf.gz";
+
+        UDPTransport udp = new UDPTransport(6002);
+        
+        try {
+            LsfLogSource source = new LsfLogSource(dataFile, null);
+            DeltaTParser mbParser = new DeltaTParser(source);
+            
+            Collection<Integer> vehSrcs = source.getVehicleSources();
+            if (vehSrcs.size() < 1)
+                return;
+            
+            int mainVehSrc = vehSrcs.iterator().next();
+
+            ByteArrayOutputStream baos = new ByteArrayOutputStream();
+            IMCOutputStream imcOs = new IMCOutputStream(baos);
+
+            BathymetrySwath swath = mbParser.nextSwath();
+            while (swath != null) {
+                SystemPositionAndAttitude pose = swath.getPose();
+                EstimatedState currentEstimatedState = pose.toEstimatedState();
+                SonarData sd = MultibeamUtil.swathToSonarData(swath, pose);
+                
+                currentEstimatedState.setSrc(mainVehSrc);
+                sd.setSrc(mainVehSrc);
+                
+                currentEstimatedState.setTimestamp(sd.getTimestamp());
+
+                baos.reset();
+                currentEstimatedState.serialize(imcOs);
+                udp.sendMessage("localhost", 6001, baos.toByteArray());
+                baos.reset();
+                sd.serialize(imcOs);
+                udp.sendMessage("localhost", 6001, baos.toByteArray());
+                
+                Thread.sleep(50);
+                
+                swath = mbParser.nextSwath();
+            }
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 }
