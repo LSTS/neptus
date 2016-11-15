@@ -210,20 +210,20 @@ public class SidescanUtil {
      * @return
      */
     public static double[] getData(byte[] data, double scaleFactor, short bitsPerPoint) {
-        if (bitsPerPoint % 8 != 0)
+        if (bitsPerPoint % 8 != 0 || bitsPerPoint > 32 || bitsPerPoint < 8)
             return null;
         
         int bytesPerPoint = bitsPerPoint < 8 ? 1 : (bitsPerPoint / 8);
         double[] fData = new double[data.length / bytesPerPoint];
         
         int k = 0;
-        for (int i = 0; i < data.length; i++) {
+        for (int i = 0; i < data.length; /* i incremented inside the 2nd loop */) {
             double val = 0;
             for (int j = 0; j < bytesPerPoint; j++) {
-                i = i + j; // progressing index of data
                 int v = data[i] & 0xFF;
                 v = (v << 8 * j);
                 val += v;
+                i++; // progressing index of data
             }
             fData[k++] = val;
         }
