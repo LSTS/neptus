@@ -202,23 +202,22 @@ public class SidescanUtil {
     }
     
     /**
-     * Takes the data byte array transforms it to a double array applying the scale factor. 
+     * Transform a byte array into long (little-endian) according with bitsPerPoint.
      * 
      * @param data
-     * @param scaleFactor
      * @param bitsPerPoint
      * @return
      */
-    public static double[] getData(byte[] data, double scaleFactor, short bitsPerPoint) {
+    public static long[] transformData(byte[] data, short bitsPerPoint) {
         if (bitsPerPoint % 8 != 0 || bitsPerPoint > 32 || bitsPerPoint < 8)
             return null;
         
         int bytesPerPoint = bitsPerPoint < 8 ? 1 : (bitsPerPoint / 8);
-        double[] fData = new double[data.length / bytesPerPoint];
+        long[] fData = new long[data.length / bytesPerPoint];
         
         int k = 0;
         for (int i = 0; i < data.length; /* i incremented inside the 2nd loop */) {
-            double val = 0;
+            long val = 0;
             for (int j = 0; j < bytesPerPoint; j++) {
                 int v = data[i] & 0xFF;
                 v = (v << 8 * j);
@@ -227,10 +226,27 @@ public class SidescanUtil {
             }
             fData[k++] = val;
         }
+        return fData;
+    }
+    
+    /**
+     * Takes the data byte array transforms it to a double array applying the scale factor. 
+     * 
+     * @param data
+     * @param scaleFactor
+     * @param bitsPerPoint
+     * @return
+     */
+    public static double[] getData(byte[] data, double scaleFactor, short bitsPerPoint) {
+        long[] longData = transformData(data, bitsPerPoint);
+        if (longData == null)
+            return null;
+        
+        double[] fData = new double[longData.length];
         
         // Lets apply scaling
         for (int i = 0; i < fData.length; i++) {
-            fData[i] *= scaleFactor;
+            fData[i] = longData[i] * scaleFactor;
         }
         
         return fData;
