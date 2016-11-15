@@ -55,7 +55,7 @@ import pt.lsts.neptus.plugins.uavparameters.MAVLinkParameters;
  */
 public class MAVLinkConnection {
 
-    private static final int READ_BUFFER_SIZE = 1024;
+    private static final int READ_BUFFER_SIZE = 4096;
     private final LinkedBlockingQueue<byte[]> mPacketsToSend = new LinkedBlockingQueue<>();
     private boolean toInitiateConnection = false;
     private boolean isMAVLinkConnected = false;
@@ -106,19 +106,18 @@ public class MAVLinkConnection {
                     return;
                 }
                 NeptusLog.pub().info("Listening to MAVLink messages over TCP.");
+                Parser parser = new Parser();
                 while (toInitiateConnection && isMAVLinkConnected) {
                     try {
                         MAVLinkPacket packet;
-                        Parser parser = new Parser();
 
                         reader.read(readBuffer);
 
                         for (byte c : readBuffer) {
                             packet = parser.mavlink_parse_char(c & 0xFF);
-                            if(packet != null){
+                            if (packet != null){
                                 //System.out.println(packet.msgid + " " + packet.sysid);
                                 MAVLinkMessage msg = (MAVLinkMessage) packet.unpack();
-                                
                                 //System.out.println("MSG "+ msg.toString());
                                 if (msg != null) {
                                     for (MAVLinkConnectionListener l : mListeners.values())
@@ -127,12 +126,14 @@ public class MAVLinkConnection {
                                     if (msg.msgid == msg_param_value.MAVLINK_MSG_ID_PARAM_VALUE) {
                                        // System.out.println(msg.toString());
                                         msg_param_value param = (msg_param_value) msg;
-                                        System.out.println(param.toString());
+                                        
+                                        //System.out.println(param.toString());
                                     }
                                
                                 }
                             }  
                         }
+                        Thread.sleep(300);
                     }
                     catch (SocketTimeoutException e) {
                         e.printStackTrace();
@@ -212,7 +213,6 @@ public class MAVLinkConnection {
             tcpSocket = null;
             toInitiateConnection = false;
             setMAVLinkConnected(false);
-            System.out.println("Disconnected!");
         }
     }
     
