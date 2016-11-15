@@ -31,22 +31,38 @@
  */
 package pt.lsts.neptus.plugins.multibeam.console;
 
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
+import java.io.ByteArrayOutputStream;
+import java.util.Collection;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.atomic.AtomicLong;
 
+import javax.swing.JMenuItem;
+import javax.swing.JPopupMenu;
+import javax.swing.SwingUtilities;
+
 import com.google.common.eventbus.Subscribe;
 
 import net.miginfocom.swing.MigLayout;
 import pt.lsts.imc.EstimatedState;
+import pt.lsts.imc.IMCOutputStream;
 import pt.lsts.imc.SonarData;
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.colormap.ColorMap;
 import pt.lsts.neptus.colormap.ColorMapFactory;
 import pt.lsts.neptus.colormap.InterpolationColorMap;
+import pt.lsts.neptus.comm.transports.udp.UDPTransport;
 import pt.lsts.neptus.console.ConsoleLayout;
 import pt.lsts.neptus.console.ConsolePanel;
+import pt.lsts.neptus.console.events.ConsoleEventMainSystemChange;
+import pt.lsts.neptus.console.plugins.MainVehicleChangeListener;
+import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.mp.SystemPositionAndAttitude;
 import pt.lsts.neptus.mra.api.BathymetrySwath;
 import pt.lsts.neptus.mra.api.MultibeamUtil;
@@ -65,8 +81,9 @@ import pt.lsts.neptus.util.llf.LsfLogSource;
  * This plugin receives sonar data through IMCSonarData,
  * transforms it into BathymetrySwath and paints it, in real-time
  * and waterfall manner
+ * 
  * @author tsm
- *
+ * @author pdias
  */
 @SuppressWarnings("serial")
 @PluginDescription(author = "Tiago Marques", version = "0.1", name = "Multibeam Real-Time Waterfall Viewer")
