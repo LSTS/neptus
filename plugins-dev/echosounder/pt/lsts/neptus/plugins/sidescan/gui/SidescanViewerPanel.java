@@ -319,6 +319,9 @@ public class SidescanViewerPanel extends JPanel {
     }
     
     public void clearLines() {
+        synchronized (queuedlines) {
+            queuedlines.clear();
+        }
         synchronized (lineList) {
             lineList.clear();
             ssImage.getGraphics().clearRect(0, 0, ssImage.getWidth(), ssImage.getHeight());
