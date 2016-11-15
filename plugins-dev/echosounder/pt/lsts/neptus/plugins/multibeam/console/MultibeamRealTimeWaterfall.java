@@ -102,6 +102,9 @@ public class MultibeamRealTimeWaterfall extends ConsolePanel implements Configur
     @NeptusProperty (name="Use adaptive max depth", description = "Use the highest value processed as max depth. Minimum value will be 'Max depth'",
             category="Visualization parameters", userLevel = LEVEL.REGULAR)
     private boolean adaptativeMaxDepth = false;
+    
+    @NeptusProperty (name="Clean lines on vehicle change", category="Visualization parameters", userLevel = LEVEL.REGULAR)
+    private boolean cleanLinesOnVehicleChange = false;
 
     private ExecutorService threadExecutor = Executors.newCachedThreadPool(new ThreadFactory() {
         String nameBase = new StringBuilder().append(MultibeamRealTimeWaterfall.class.getSimpleName())
@@ -132,6 +135,29 @@ public class MultibeamRealTimeWaterfall extends ConsolePanel implements Configur
 
         setLayout(new MigLayout("ins 0, gap 5"));
         add(mbViewer, "w 100%, h 100%");
+        
+        mbViewer.addMouseListener(getMouseListener());
+    }
+
+    private MouseListener getMouseListener() {
+        MouseAdapter ma = new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent me) {
+                if (SwingUtilities.isRightMouseButton(me)) {
+                    JPopupMenu popup = new JPopupMenu();
+                    JMenuItem menu = new JMenuItem(I18n.text("Clear"));
+                    menu.addActionListener(new ActionListener() {
+                        @Override
+                        public void actionPerformed(ActionEvent e) {
+                            mbViewer.clearLines();                            
+                        }
+                    });
+                    popup.add(menu);
+                    popup.show(me.getComponent(), me.getX(), me.getY());
+                }
+            }
+        };
+        return ma;
     }
 
     @Override
