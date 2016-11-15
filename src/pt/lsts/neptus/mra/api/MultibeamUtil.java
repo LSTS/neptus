@@ -60,7 +60,8 @@ public class MultibeamUtil {
         bytes.order(ByteOrder.LITTLE_ENDIAN);
 
         // fetch necessary data to compute BathymetrySwath's points
-        double startAngle = ((double) bytes.getShort()) / 100.0;
+        int numberOfBeams = bytes.getShort() & 0xFFFF;
+        double startAngleDeg = ((double) bytes.getShort()) / 100.0;
 
         // data
         Pair<double[], int[]> tmp = splitRangeAndIntensity(getData(bytes, scaleFactor, bitsPerPoint));
@@ -71,17 +72,17 @@ public class MultibeamUtil {
         if(ranges.length != intensities.length)
             return null;
 
-        double angleIncrement = sonarData.getBeamConfig().get(0).getBeamWidth();
+        double angleIncrementRad = sonarData.getBeamConfig().get(0).getBeamWidth();
 
         BathymetryPoint[] points = new BathymetryPoint[ranges.length];
         for(int i = 0; i < ranges.length; i++) {
             if(ranges[i] == 0)
                 continue;
 
-            double angle = startAngle + angleIncrement * i;
-            float depth = (float) (ranges[i] * Math.cos(Math.toRadians(angle)) + pose.getPosition().getDepth());
+            double angleDeg = startAngleDeg + Math.toDegrees(angleIncrementRad) * i;
+            float depth = (float) (ranges[i] * Math.cos(Math.toRadians(angleDeg)) + pose.getPosition().getDepth());
 
-            double x = ranges[i] * Math.sin(Math.toRadians(angle));
+            double x = ranges[i] * Math.sin(Math.toRadians(angleDeg));
             double yawAngle = -pose.getYaw();
 
             float north = (float) (x * Math.sin(yawAngle));
@@ -152,18 +153,18 @@ public class MultibeamUtil {
         List<BeamConfig> beamConfig = new ArrayList<>();
 
         float scaleFactor = 1000;
-        double angleIncrement = 0.25;
+        double angleIncrementDeg = 0.25;
 
         // startAngles
-        double startAngleDouble = -59.870003 * 100;
-        short startAngle  = (short) startAngleDouble;
-        bytes.putShort(startAngle);
+        double startAngleDoubleDeg = -59.870003 * 100;
+        short startAngleCentiDeg  = (short) startAngleDoubleDeg;
+        bytes.putShort(startAngleCentiDeg);
 
         // put range and intensities
         for(int i = 0; i < points.length; i++) {
             double range = 0;
             double intensity = (double) Integer.MAX_VALUE;
-            double angle = Math.cos(Math.toRadians(startAngleDouble/100 + angleIncrement * i));
+            double angle = Math.cos(Math.toRadians(startAngleDoubleDeg / 100 + angleIncrementDeg * i));
 
             if(points[i] != null) {
                 // remove transformation made by DeltaT parser
