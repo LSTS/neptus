@@ -261,6 +261,9 @@ public abstract class SonarWatefallViewer<T> extends JPanel {
     }
 
     public void clearLines() {
+        synchronized (queuedData) {
+            queuedData.clear();
+        }
         synchronized (dataList) {
             dataList.clear();
             dataImage.getGraphics().clearRect(0, 0, dataImage.getWidth(), dataImage.getHeight());
