@@ -108,6 +108,13 @@ public class MultibeamUtil {
         return SidescanUtil.getData(bytes.array(), scaleFactor, bitsPerPoint);
     }
 
+    /**
+     * This is to be used for testing purposes. It assumes that the data, swath, comes from DeltaT MB.
+     * 
+     * @param swath
+     * @param pose
+     * @return
+     */
     public static SonarData swathToSonarData(BathymetrySwath swath, SystemPositionAndAttitude pose) {
         SonarData sonarData = new SonarData();
 
