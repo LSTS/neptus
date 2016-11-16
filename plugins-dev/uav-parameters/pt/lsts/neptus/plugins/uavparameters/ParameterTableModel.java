@@ -32,16 +32,14 @@
 package pt.lsts.neptus.plugins.uavparameters;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 
 import javax.swing.table.AbstractTableModel;
-
-import org.mozilla.javascript.edu.emory.mathcs.backport.java.util.Collections;
 
 /**
  * @author Manuel R.
  *
  */
+@SuppressWarnings("serial")
 public class ParameterTableModel extends AbstractTableModel  {
     private ArrayList<Parameter> params = new ArrayList<>();
     private static final int COLUMN_PARAM_NAME = 0;
@@ -52,7 +50,6 @@ public class ParameterTableModel extends AbstractTableModel  {
 
     public ParameterTableModel(ArrayList<Parameter> params) {
         this.params = params;
-        Collections.sort(params);
     }
 
     private String[] columnNames = {
@@ -85,15 +82,25 @@ public class ParameterTableModel extends AbstractTableModel  {
         else
             return false;
     }
-
+    @Override
+    public void setValueAt(Object value, int rowIndex, int columnIndex) {
+        if (columnIndex != COLUMN_VALUE)
+            return;
+       
+        Parameter param = params.get(rowIndex);
+        String oldValue = param.getValue();
+        param.value = Double.parseDouble((String) value);
+        System.out.println("Updating: "+ param.name + "(" + oldValue +") with " + value);
+        
+        fireTableCellUpdated(rowIndex, columnIndex);
+    }
 
     @Override
     public Object getValueAt(int rowIndex, int columnIndex) {
-        if (params.isEmpty())
+        if (params.isEmpty() || rowIndex >= getRowCount())
             return null;
 
         Object returnValue = null;
-
         Parameter param = params.get(rowIndex);
 
         switch (columnIndex) {
@@ -104,11 +111,16 @@ public class ParameterTableModel extends AbstractTableModel  {
                 returnValue = param.getValue();
                 break;
             case COLUMN_UNITS:
+                returnValue = "";
                 break;
             case COLUMN_OPTIONS:
+                returnValue = "";
                 break;
             case COLUMN_DESCRIPTION:
+                returnValue = "";
                 break;
+            default:
+                throw new IllegalArgumentException("Invalid column index");
         }
 
         return returnValue;
@@ -119,25 +131,12 @@ public class ParameterTableModel extends AbstractTableModel  {
         if (params.isEmpty())
             return Object.class;
 
-        switch (columnIndex) {
-            case 0:
-                return String.class;
-            case 1:
-                return String.class;
-            case 2:
-                return String.class;
-            case 3:
-                return String.class;
-            case 4:
-                return String.class;
-            default:
-                return Object.class;
-        }
+            return getValueAt(0, columnIndex).getClass();
     }
 
     public void updateParamList(ArrayList<Parameter> newParamList) {
         this.params = newParamList;
-        Collections.sort(params);
+        
         fireTableDataChanged();
     }
 

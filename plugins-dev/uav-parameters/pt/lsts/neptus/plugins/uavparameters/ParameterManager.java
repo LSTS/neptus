@@ -32,6 +32,8 @@
 package pt.lsts.neptus.plugins.uavparameters;
 
 import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Component;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.IOException;
@@ -45,7 +47,9 @@ import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.JTextField;
 import javax.swing.SwingWorker;
-import javax.swing.table.DefaultTableModel;
+import javax.swing.event.TableModelEvent;
+import javax.swing.event.TableModelListener;
+import javax.swing.table.DefaultTableCellRenderer;
 
 import com.MAVLink.Messages.MAVLinkMessage;
 import com.MAVLink.common.msg_param_value;
@@ -63,7 +67,6 @@ import pt.lsts.neptus.plugins.Popup;
 import pt.lsts.neptus.plugins.Popup.POSITION;
 import pt.lsts.neptus.plugins.uavparameters.connection.MAVLinkConnection;
 import pt.lsts.neptus.plugins.uavparameters.connection.MAVLinkConnectionListener;
-import javax.swing.JProgressBar;
 
 /**
  * @author Manuel R.
@@ -74,8 +77,8 @@ import javax.swing.JProgressBar;
 @PluginDescription(name = "UAV Parameter Configuration", icon = "images/settings2.png")
 @Popup(name = "UAV Parameter Configuration Panel", pos = POSITION.CENTER, height = 500, width = 800, accelerator = '0')
 public class ParameterManager extends ConsolePanel implements MainVehicleChangeListener, MAVLinkConnectionListener {
-    private static final int TIMEOUT = 15000;
-    private static final int RETRYS = 3;
+    private static final int TIMEOUT = 5000;
+    private static final int RETRYS = 10;
     private JTextField findTxtField;
     private JTable table;
     private MAVLinkConnection mavlink = null;
@@ -122,8 +125,19 @@ public class ParameterManager extends ConsolePanel implements MainVehicleChangeL
         findTxtField.setColumns(10);
 
         model = new ParameterTableModel(parameterList);
-        
+
         table = new JTable(model);
+        
+        model.addTableModelListener(
+                new TableModelListener() 
+                {
+                    public void tableChanged(TableModelEvent evt) 
+                    {
+                         System.out.println("Something changed...");
+                         
+                         //TODO
+                    }
+                });
         
         scrollPane.setViewportView(table);
         setResizable(false);
@@ -133,6 +147,20 @@ public class ParameterManager extends ConsolePanel implements MainVehicleChangeL
         loader.setBusy(false);
         tablePanel.add(loader, "cell 0 9,growx");
         
+        table.setDefaultRenderer(Object.class, new DefaultTableCellRenderer() {
+            private static final long serialVersionUID = -4859420619704314087L;
+
+            @Override
+            public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row,
+                    int column) {
+                super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
+
+                setBackground(row % 2 == 0 ? Color.gray : Color.gray.darker());
+
+                return this;
+            }
+        });
+        
         btnGetParams.addActionListener(new ActionListener() {
 
             @Override
@@ -141,6 +169,7 @@ public class ParameterManager extends ConsolePanel implements MainVehicleChangeL
 
                     @Override
                     protected Void doInBackground() throws Exception {
+                        loader.setText("");
                         loader.setVisible(true);
                         loader.setBusy(true);
                         
@@ -265,7 +294,6 @@ public class ParameterManager extends ConsolePanel implements MainVehicleChangeL
 
     @Override
     public void onReceiveMessage(MAVLinkMessage msg) {
-        //System.out.println("Receiving PARAMETERS");
         processMessage(msg);
     }
 
