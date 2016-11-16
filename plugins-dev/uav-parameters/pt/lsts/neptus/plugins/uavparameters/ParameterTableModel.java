@@ -31,31 +31,114 @@
  */
 package pt.lsts.neptus.plugins.uavparameters;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 
 import javax.swing.table.AbstractTableModel;
+
+import org.mozilla.javascript.edu.emory.mathcs.backport.java.util.Collections;
 
 /**
  * @author Manuel R.
  *
  */
 public class ParameterTableModel extends AbstractTableModel  {
-    private int parameterSize = 0;
-    private HashMap<String, Object> params = new HashMap<>();
-    
+    private ArrayList<Parameter> params = new ArrayList<>();
+    private static final int COLUMN_PARAM_NAME = 0;
+    private static final int COLUMN_VALUE = 1;
+    private static final int COLUMN_UNITS = 2;
+    private static final int COLUMN_OPTIONS = 3;
+    private static final int COLUMN_DESCRIPTION = 4;
+
+    public ParameterTableModel(ArrayList<Parameter> params) {
+        this.params = params;
+        Collections.sort(params);
+    }
+
+    private String[] columnNames = {
+            "Name",
+            "Value",
+            "Units",
+            "Options",
+            "Description"
+    };
+
     @Override
     public int getRowCount() {
-        return 0;
+        return params.size();
+    }
+
+    @Override
+    public String getColumnName(int columnIndex) {
+        return columnNames[columnIndex];
     }
 
     @Override
     public int getColumnCount() {
-        return 0;
+        return columnNames.length;
     }
 
     @Override
-    public Object getValueAt(int rowIndex, int columnIndex) {
-        return null;
+    public boolean isCellEditable(int rowIndex, int columnIndex) {
+        if (columnIndex == COLUMN_VALUE)
+            return true;
+        else
+            return false;
     }
-    
+
+
+    @Override
+    public Object getValueAt(int rowIndex, int columnIndex) {
+        if (params.isEmpty())
+            return null;
+
+        Object returnValue = null;
+
+        Parameter param = params.get(rowIndex);
+
+        switch (columnIndex) {
+            case COLUMN_PARAM_NAME:
+                returnValue = param.name;
+                break;
+            case COLUMN_VALUE:
+                returnValue = param.getValue();
+                break;
+            case COLUMN_UNITS:
+                break;
+            case COLUMN_OPTIONS:
+                break;
+            case COLUMN_DESCRIPTION:
+                break;
+        }
+
+        return returnValue;
+    }
+
+    @Override
+    public Class<?> getColumnClass(int columnIndex) {
+        if (params.isEmpty())
+            return Object.class;
+
+        switch (columnIndex) {
+            case 0:
+                return String.class;
+            case 1:
+                return String.class;
+            case 2:
+                return String.class;
+            case 3:
+                return String.class;
+            case 4:
+                return String.class;
+            default:
+                return Object.class;
+        }
+    }
+
+    public void updateParamList(ArrayList<Parameter> newParamList) {
+        this.params = newParamList;
+        Collections.sort(params);
+        fireTableDataChanged();
+    }
+
 }
