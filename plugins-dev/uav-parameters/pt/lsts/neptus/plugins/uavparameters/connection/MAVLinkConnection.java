@@ -106,7 +106,11 @@ public class MAVLinkConnection {
                     return;
                 }
                 NeptusLog.pub().info("Listening to MAVLink messages over TCP.");
+                
+                //Initiate sending task
+                initSendTask();
                 Parser parser = new Parser();
+                
                 while (toInitiateConnection && isMAVLinkConnected) {
                     try {
                         MAVLinkPacket packet;
@@ -178,7 +182,7 @@ public class MAVLinkConnection {
         listenerTask.start();
     }
 
-    public void send() {
+    public void initSendTask() {
         Thread writerTask = new Thread("MAVLink TCP Writer") {
             public void run() {
 
@@ -294,7 +298,7 @@ public class MAVLinkConnection {
         MAVLinkConnection mav = new MAVLinkConnection("10.0.20.125", 9999);
         mav.initiateConnection(true);
         mav.connect();
-        mav.send();
+        mav.initSendTask();
         try {
             Thread.sleep(2000);
         }
