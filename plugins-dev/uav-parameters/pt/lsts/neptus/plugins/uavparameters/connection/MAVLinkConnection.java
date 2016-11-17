@@ -44,6 +44,7 @@ import java.util.concurrent.LinkedBlockingQueue;
 import com.MAVLink.MAVLinkPacket;
 import com.MAVLink.Parser;
 import com.MAVLink.Messages.MAVLinkMessage;
+import com.MAVLink.common.msg_param_value;
 
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.plugins.uavparameters.MAVLinkParameters;
@@ -89,7 +90,6 @@ public class MAVLinkConnection {
                 try {
 
                     socket.connect(new InetSocketAddress(tcpHost, tcpPort));
-                    
                     reader = new BufferedInputStream(socket.getInputStream());
                     writer = new BufferedOutputStream(socket.getOutputStream());
 
@@ -98,23 +98,20 @@ public class MAVLinkConnection {
                     //notify listeners - Disconnected state
                     for (MAVLinkConnectionListener l : mListeners.values())
                         l.onDisconnect();
-                    
+
                     NeptusLog.pub().error("Error connecting via TCP to " + tcpHost + ":" + tcpPort);
-
                     setMAVLinkConnected(false);
-
                     reconnect(socket);
 
                     return;
                 }
                 NeptusLog.pub().info("Listening to MAVLink messages over TCP.");
                 setMAVLinkConnected(true);
-                
-                
+
                 //notify listeners - Connected state
                 for (MAVLinkConnectionListener l : mListeners.values())
                     l.onConnect();
-                
+
                 //Initiate sending task
                 initSendTask();
                 Parser parser = new Parser();
@@ -122,14 +119,17 @@ public class MAVLinkConnection {
                 while (toInitiateConnection && isMAVLinkConnected) {
                     try {
                         MAVLinkPacket packet;
+
                         reader.read(readBuffer);
 
                         for (byte c : readBuffer) {
                             packet = parser.mavlink_parse_char(c & 0xFF);
                             if (packet != null){
-                                MAVLinkMessage msg = (MAVLinkMessage) packet.unpack();
 
+                                MAVLinkMessage msg = (MAVLinkMessage) packet.unpack();
+                                //System.out.println("MSG "+ msg.toString());
                                 if (msg != null) {
+
                                     //notify listeners - New MavLinkMessage incoming...
                                     for (MAVLinkConnectionListener l : mListeners.values())
                                         l.onReceiveMessage(msg);
@@ -140,7 +140,9 @@ public class MAVLinkConnection {
                         Thread.sleep(300);
                     }
                     catch (SocketTimeoutException e) {
-                        e.printStackTrace();
+                        for (MAVLinkConnectionListener l : mListeners.values())
+                            l.onComError(e.getMessage());
+
                         continue;
                     }
                     catch (Exception e) {
@@ -151,7 +153,7 @@ public class MAVLinkConnection {
                 NeptusLog.pub().info("MAVLink TCP Socket closed.");
                 for (MAVLinkConnectionListener l : mListeners.values())
                     l.onDisconnect();
-                
+
                 try {
                     socket.close();
                 }
@@ -187,9 +189,8 @@ public class MAVLinkConnection {
     public void initSendTask() {
         Thread writerTask = new Thread("MAVLink TCP Writer") {
             public void run() {
-
-                try {
-                    while (toInitiateConnection && isMAVLinkConnected) {
+                while (toInitiateConnection && isMAVLinkConnected) {
+                    try {
                         System.out.println("Waiting for data to be sent...");
                         byte[] buffer = mPacketsToSend.take();
 
@@ -197,14 +198,13 @@ public class MAVLinkConnection {
                             writer.write(buffer);
                             writer.flush();
                         }
-
                     }
-                }
-                catch (IOException e) {
-                    e.printStackTrace();
-                }
-                catch (InterruptedException e) {
-                    e.printStackTrace();
+                    catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                    catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
                 }
 
             }
@@ -215,6 +215,7 @@ public class MAVLinkConnection {
 
     public void closeConnection() throws IOException {
         if (tcpSocket != null) {
+            writer.close();
             tcpSocket.close();
             tcpSocket = null;
             toInitiateConnection = false;
@@ -295,7 +296,7 @@ public class MAVLinkConnection {
     public void initiateConnection(boolean toInitiateConnection) {
         this.toInitiateConnection = toInitiateConnection;
     }
-    
+
     public boolean isConnected() {
         return tcpSocket.isConnected();
     }

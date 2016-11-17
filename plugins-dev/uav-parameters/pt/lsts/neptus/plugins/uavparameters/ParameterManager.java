@@ -83,7 +83,7 @@ import pt.lsts.neptus.plugins.uavparameters.connection.MAVLinkConnectionListener
 @Popup(name = "UAV Parameter Configuration Panel", pos = POSITION.CENTER, height = 500, width = 800, accelerator = '0')
 public class ParameterManager extends ConsolePanel implements MainVehicleChangeListener, MAVLinkConnectionListener {
     private static final int TIMEOUT = 5000;
-    private static final int RETRYS = 2;
+    private static final int RETRYS = 10;
     private JTextField findTxtField;
     private JTable table;
     private MAVLinkConnection mavlink = null;
@@ -93,13 +93,44 @@ public class ParameterManager extends ConsolePanel implements MainVehicleChangeL
     private ArrayList<Parameter> parameterList = new ArrayList<Parameter>();
     private ParameterTableModel model = null;
     private static InfiniteProgressPanel loader = InfiniteProgressPanel.createInfinitePanelBeans("", 100);
-
+    private JButton btnGetParams, btnWriteParams, btnSaveToFile, btnLoadFromFile, btnFind;
     private JXStatusBar statusBar = null;
     private JLabel messageBarLabel = null;
     private StatusLed statusLed = null;
 
     public ParameterManager(ConsoleLayout console) {
         super(console);
+    }
+
+    private JLabel getMessageBarLabel() {
+        if (messageBarLabel == null) {
+            messageBarLabel = new JLabel();
+            messageBarLabel.setText("");
+        }
+        return messageBarLabel;
+    }
+
+    private StatusLed getStatusLed() {
+        if (statusLed == null) {
+            statusLed = new StatusLed();
+            statusLed.setLevel(StatusLed.LEVEL_OFF);
+        }
+        return statusLed;
+
+    }
+    private void setActivity(String message, short level) {
+        getMessageBarLabel().setText(message);
+        getStatusLed().setLevel(level);
+    }
+
+
+    private void setActivity(String message, short level, String tooltip) {
+        getMessageBarLabel().setText(message);
+        getStatusLed().setLevel(level, tooltip);
+    }
+
+    @Override
+    public void initSubPanel() {
 
         setActivity("", StatusLed.LEVEL_OFF);
         mavlink = new MAVLinkConnection("10.0.20.125", 9999);
@@ -110,11 +141,11 @@ public class ParameterManager extends ConsolePanel implements MainVehicleChangeL
         setLayout(new BorderLayout(0, 0));
         JPanel mainPanel = new JPanel();
         JPanel tablePanel = new JPanel();
-        JButton btnGetParams = new JButton("Load Parameters");
-        JButton btnWriteParams = new JButton("Write Parameters");
-        JButton btnSaveToFile = new JButton("Save to File");
-        JButton btnLoadFromFile = new JButton("Load from File");
-        JButton btnFind = new JButton("Find");
+        btnGetParams = new JButton("Load Parameters");
+        btnWriteParams = new JButton("Write Parameters");
+        btnSaveToFile = new JButton("Save to File");
+        btnLoadFromFile = new JButton("Load from File");
+        btnFind = new JButton("Find");
         findTxtField = new JTextField();
         JScrollPane scrollPane = new JScrollPane();
 
@@ -208,14 +239,14 @@ public class ParameterManager extends ConsolePanel implements MainVehicleChangeL
                             while(((System.currentTimeMillis() - now) < TIMEOUT) && !success)
                             {
                                 Thread.sleep(1000);
-                                System.out.println("...");
-
                             }
-                            
+
                             // Didn't receive parameter count within TIMEOUT so we break loop
-                            if (expectedParams == 0)
+                            if (expectedParams == 0) {
+                                setActivity("Failed to load parameters. Autopilot missing data...", StatusLed.LEVEL_1);
                                 num_of_retries = RETRYS + 1;
-                            
+                            }
+
                             // Re-request missing parameters
                             if (!success && expectedParams > 0)
                                 reRequestMissingParams(expectedParams);
@@ -224,17 +255,15 @@ public class ParameterManager extends ConsolePanel implements MainVehicleChangeL
                             num_of_retries++;
                         }
 
-                        System.out.println(expectedParams + " " + getParametersList().size() );
-                        if ((expectedParams != getParametersList().size()) || expectedParams == 0) {
+                        if (success){
+                            setActivity("Parameters loaded successfully...", StatusLed.LEVEL_0);
+                            updateTable();
+                        }
+                        else {
                             setActivity("Failed to load parameters...", StatusLed.LEVEL_0);
                             loader.setVisible(false);
                             loader.setBusy(false);
                             loader.setText("");
-
-                        }
-                        else if (getParametersList().size() > 0){
-                            setActivity("Parameters loaded successfully...", StatusLed.LEVEL_0);
-                            updateTable();
                         }
                         return null;
                     }
@@ -248,43 +277,9 @@ public class ParameterManager extends ConsolePanel implements MainVehicleChangeL
 
             @Override
             public void actionPerformed(ActionEvent e) {
-                findTxtField.setText(parameters.size() +
-                        " " + parameters.size());
-
-                System.out.println("STATUS: " + mavlink.isConnected());
+                //TODO
             }
         });
-    }
-
-    private JLabel getMessageBarLabel() {
-        if (messageBarLabel == null) {
-            messageBarLabel = new JLabel();
-            messageBarLabel.setText("");
-        }
-        return messageBarLabel;
-    }
-
-    private StatusLed getStatusLed() {
-        if (statusLed == null) {
-            statusLed = new StatusLed();
-            statusLed.setLevel(StatusLed.LEVEL_OFF);
-        }
-        return statusLed;
-
-    }
-    private void setActivity(String message, short level) {
-        getMessageBarLabel().setText(message);
-        getStatusLed().setLevel(level);
-    }
-            
-
-    private void setActivity(String message, short level, String tooltip) {
-        getMessageBarLabel().setText(message);
-        getStatusLed().setLevel(level, tooltip);
-    }
-
-    @Override
-    public void initSubPanel() {
 
     }
 
@@ -317,7 +312,6 @@ public class ParameterManager extends ConsolePanel implements MainVehicleChangeL
         parameters.put((int) m_value.param_index, param);
 
         expectedParams = m_value.param_count;
-
         SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>() {
             @Override
             protected Void doInBackground() throws Exception {
@@ -355,6 +349,8 @@ public class ParameterManager extends ConsolePanel implements MainVehicleChangeL
 
     @Override
     public void onReceiveMessage(MAVLinkMessage msg) {
+        setBtnsEnabled(true);
+
         processMessage(msg);
     }
 
@@ -378,17 +374,34 @@ public class ParameterManager extends ConsolePanel implements MainVehicleChangeL
     @Override
     public void onConnect() {
         setActivity("Connected successfully...", StatusLed.LEVEL_0, "Connected!");
+        setBtnsEnabled(true);
     }
 
     @Override
     public void onDisconnect() {
         setActivity("No connection. Retrying...", StatusLed.LEVEL_2, "Not connected!");
+        setBtnsEnabled(false);
 
+    }
+
+    private void setBtnsEnabled(boolean state) {
+        if (btnGetParams.isEnabled() == state)
+            return;
+
+        btnGetParams.setEnabled(state); 
+        btnWriteParams.setEnabled(state);
+        btnSaveToFile.setEnabled(state);
+        btnLoadFromFile.setEnabled(state);
+        btnFind.setEnabled(state);
     }
 
     @Override
     public void onComError(String errMsg) {
-        setActivity(errMsg, StatusLed.LEVEL_1);
-
+        if (errMsg.contains("timed out")) {
+            setActivity("Autopilot missing data...", StatusLed.LEVEL_1);
+            setBtnsEnabled(false);
+        }
+        else
+            setActivity(errMsg, StatusLed.LEVEL_1);
     }
 }
