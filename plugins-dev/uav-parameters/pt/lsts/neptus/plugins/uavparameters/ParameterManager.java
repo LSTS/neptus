@@ -41,7 +41,9 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
+import javax.swing.BorderFactory;
 import javax.swing.JButton;
+import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
@@ -50,6 +52,8 @@ import javax.swing.SwingWorker;
 import javax.swing.event.TableModelEvent;
 import javax.swing.event.TableModelListener;
 import javax.swing.table.DefaultTableCellRenderer;
+
+import org.jdesktop.swingx.JXStatusBar;
 
 import com.MAVLink.Messages.MAVLinkMessage;
 import com.MAVLink.common.msg_param_value;
@@ -61,6 +65,7 @@ import pt.lsts.neptus.console.ConsolePanel;
 import pt.lsts.neptus.console.events.ConsoleEventMainSystemChange;
 import pt.lsts.neptus.console.plugins.MainVehicleChangeListener;
 import pt.lsts.neptus.gui.InfiniteProgressPanel;
+import pt.lsts.neptus.gui.StatusLed;
 import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.plugins.PluginDescription;
 import pt.lsts.neptus.plugins.Popup;
@@ -78,21 +83,25 @@ import pt.lsts.neptus.plugins.uavparameters.connection.MAVLinkConnectionListener
 @Popup(name = "UAV Parameter Configuration Panel", pos = POSITION.CENTER, height = 500, width = 800, accelerator = '0')
 public class ParameterManager extends ConsolePanel implements MainVehicleChangeListener, MAVLinkConnectionListener {
     private static final int TIMEOUT = 5000;
-    private static final int RETRYS = 10;
+    private static final int RETRYS = 2;
     private JTextField findTxtField;
     private JTable table;
     private MAVLinkConnection mavlink = null;
     private boolean success = false;
-
     private int expectedParams;
     private HashMap<Integer, Parameter> parameters = new HashMap<Integer, Parameter>();
     private ArrayList<Parameter> parameterList = new ArrayList<Parameter>();
     private ParameterTableModel model = null;
     private static InfiniteProgressPanel loader = InfiniteProgressPanel.createInfinitePanelBeans("", 100);
-    
+
+    private JXStatusBar statusBar = null;
+    private JLabel messageBarLabel = null;
+    private StatusLed statusLed = null;
+
     public ParameterManager(ConsoleLayout console) {
         super(console);
-        
+
+        setActivity("", StatusLed.LEVEL_OFF);
         mavlink = new MAVLinkConnection("10.0.20.125", 9999);
         mavlink.initiateConnection(true);
         mavlink.addMavLinkConnectionListener("ParameterManager", this);
@@ -114,7 +123,7 @@ public class ParameterManager extends ConsolePanel implements MainVehicleChangeL
         mainPanel.setLayout(new BorderLayout(0, 0));
         mainPanel.add(tablePanel, BorderLayout.EAST);
         tablePanel.setLayout(new MigLayout("", "[grow]", "[][][][][][][][][][]"));
-        
+
         tablePanel.add(btnGetParams, "cell 0 0,growx");
         tablePanel.add(btnWriteParams, "cell 0 1,growx");
         tablePanel.add(btnSaveToFile, "cell 0 2,growx");
@@ -127,26 +136,43 @@ public class ParameterManager extends ConsolePanel implements MainVehicleChangeL
         model = new ParameterTableModel(parameterList);
 
         table = new JTable(model);
-        
+
         model.addTableModelListener(
                 new TableModelListener() 
                 {
                     public void tableChanged(TableModelEvent evt) 
                     {
-                         System.out.println("Something changed...");
-                         
-                         //TODO
+                        if (!parameterList.isEmpty())
+                            System.out.println("Something changed...");
+
+                        //TODO
                     }
                 });
-        
+
         scrollPane.setViewportView(table);
+
+        scrollPane.setBorder(BorderFactory.createMatteBorder(0, 0, 0, 1, Color.BLACK));
         setResizable(false);
-        
+
         loader.setOpaque(false);
         loader.setVisible(false);
         loader.setBusy(false);
         tablePanel.add(loader, "cell 0 9,growx");
-        
+
+        JPanel statusPanel = new JPanel();
+        mainPanel.add(statusPanel, BorderLayout.SOUTH);
+        statusPanel.setLayout(new BorderLayout(0, 0));
+
+        statusPanel.setBorder(BorderFactory.createMatteBorder(1, 0, 0, 0, Color.BLACK));
+
+        statusBar = new JXStatusBar();
+        statusBar.add(getMessageBarLabel(), JXStatusBar.Constraint.ResizeBehavior.FILL);
+        statusBar.add(getStatusLed());
+
+        statusPanel.add(statusBar);
+
+        mainPanel.add(statusPanel, BorderLayout.SOUTH);
+
         table.setDefaultRenderer(Object.class, new DefaultTableCellRenderer() {
             private static final long serialVersionUID = -4859420619704314087L;
 
@@ -160,7 +186,7 @@ public class ParameterManager extends ConsolePanel implements MainVehicleChangeL
                 return this;
             }
         });
-        
+
         btnGetParams.addActionListener(new ActionListener() {
 
             @Override
@@ -169,10 +195,11 @@ public class ParameterManager extends ConsolePanel implements MainVehicleChangeL
 
                     @Override
                     protected Void doInBackground() throws Exception {
+                        setActivity("Loading parameters...", StatusLed.LEVEL_0);
                         loader.setText("");
                         loader.setVisible(true);
                         loader.setBusy(true);
-                        
+
                         int num_of_retries = 1;
                         long now = System.currentTimeMillis();
                         requestParameters();
@@ -184,22 +211,29 @@ public class ParameterManager extends ConsolePanel implements MainVehicleChangeL
                                 System.out.println("...");
 
                             }
-                            if (!success)
-                                onParameterStreamStopped();
+                            
+                            // Didn't receive parameter count within TIMEOUT so we break loop
+                            if (expectedParams == 0)
+                                num_of_retries = RETRYS + 1;
+                            
+                            // Re-request missing parameters
+                            if (!success && expectedParams > 0)
+                                reRequestMissingParams(expectedParams);
 
                             now = System.currentTimeMillis();
                             num_of_retries++;
                         }
 
-                        if (expectedParams != getParametersList().size()) {
-                            System.out.println("FAIL: Unable to load all parameters");
+                        System.out.println(expectedParams + " " + getParametersList().size() );
+                        if ((expectedParams != getParametersList().size()) || expectedParams == 0) {
+                            setActivity("Failed to load parameters...", StatusLed.LEVEL_0);
                             loader.setVisible(false);
                             loader.setBusy(false);
                             loader.setText("");
 
                         }
-                        else {
-                            System.out.println("SUCCESS: All parameters loaded");
+                        else if (getParametersList().size() > 0){
+                            setActivity("Parameters loaded successfully...", StatusLed.LEVEL_0);
                             updateTable();
                         }
                         return null;
@@ -216,13 +250,42 @@ public class ParameterManager extends ConsolePanel implements MainVehicleChangeL
             public void actionPerformed(ActionEvent e) {
                 findTxtField.setText(parameters.size() +
                         " " + parameters.size());
+
+                System.out.println("STATUS: " + mavlink.isConnected());
             }
         });
     }
 
+    private JLabel getMessageBarLabel() {
+        if (messageBarLabel == null) {
+            messageBarLabel = new JLabel();
+            messageBarLabel.setText("");
+        }
+        return messageBarLabel;
+    }
+
+    private StatusLed getStatusLed() {
+        if (statusLed == null) {
+            statusLed = new StatusLed();
+            statusLed.setLevel(StatusLed.LEVEL_OFF);
+        }
+        return statusLed;
+
+    }
+    private void setActivity(String message, short level) {
+        getMessageBarLabel().setText(message);
+        getStatusLed().setLevel(level);
+    }
+            
+
+    private void setActivity(String message, short level, String tooltip) {
+        getMessageBarLabel().setText(message);
+        getStatusLed().setLevel(level, tooltip);
+    }
+
     @Override
     public void initSubPanel() {
-       
+
     }
 
     private void updateTable() {
@@ -230,9 +293,11 @@ public class ParameterManager extends ConsolePanel implements MainVehicleChangeL
     }
 
     private void requestParameters() {
+        expectedParams = 0;
         parameters.clear();
         parameterList.clear();
         success = false;
+        updateTable();
 
         if (mavlink != null)
             MAVLinkParameters.requestParametersList(mavlink);
@@ -275,10 +340,6 @@ public class ParameterManager extends ConsolePanel implements MainVehicleChangeL
         }
     }
 
-    private void onParameterStreamStopped() {
-        reRequestMissingParams(expectedParams);
-    }
-
     private void reRequestMissingParams(int howManyParams) {
         for (int i = 0; i < howManyParams; i++) {
             if (!parameters.containsKey(i)) {
@@ -312,5 +373,22 @@ public class ParameterManager extends ConsolePanel implements MainVehicleChangeL
             }
 
         }
+    }
+
+    @Override
+    public void onConnect() {
+        setActivity("Connected successfully...", StatusLed.LEVEL_0, "Connected!");
+    }
+
+    @Override
+    public void onDisconnect() {
+        setActivity("No connection. Retrying...", StatusLed.LEVEL_2, "Not connected!");
+
+    }
+
+    @Override
+    public void onComError(String errMsg) {
+        setActivity(errMsg, StatusLed.LEVEL_1);
+
     }
 }

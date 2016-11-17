@@ -44,7 +44,6 @@ import java.util.concurrent.LinkedBlockingQueue;
 import com.MAVLink.MAVLinkPacket;
 import com.MAVLink.Parser;
 import com.MAVLink.Messages.MAVLinkMessage;
-import com.MAVLink.common.msg_param_value;
 
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.plugins.uavparameters.MAVLinkParameters;
@@ -64,7 +63,7 @@ public class MAVLinkConnection {
     private int tcpPort;
     private BufferedOutputStream writer = null;
     private final ConcurrentHashMap<String, MAVLinkConnectionListener> mListeners = new ConcurrentHashMap<String, MAVLinkConnectionListener>();
-    
+
 
     public MAVLinkConnection(String address, int port) {
         this.tcpHost = address;
@@ -90,14 +89,17 @@ public class MAVLinkConnection {
                 try {
 
                     socket.connect(new InetSocketAddress(tcpHost, tcpPort));
+                    
                     reader = new BufferedInputStream(socket.getInputStream());
                     writer = new BufferedOutputStream(socket.getOutputStream());
 
-                    setMAVLinkConnected(true);
-
                 }
                 catch (Exception e) {
-                    NeptusLog.pub().error("Error connecting via TCP to " + tcpHost + ":" + tcpPort + "\n" + e.getMessage());
+                    //notify listeners - Disconnected state
+                    for (MAVLinkConnectionListener l : mListeners.values())
+                        l.onDisconnect();
+                    
+                    NeptusLog.pub().error("Error connecting via TCP to " + tcpHost + ":" + tcpPort);
 
                     setMAVLinkConnected(false);
 
@@ -106,34 +108,32 @@ public class MAVLinkConnection {
                     return;
                 }
                 NeptusLog.pub().info("Listening to MAVLink messages over TCP.");
+                setMAVLinkConnected(true);
+                
+                
+                //notify listeners - Connected state
+                for (MAVLinkConnectionListener l : mListeners.values())
+                    l.onConnect();
                 
                 //Initiate sending task
                 initSendTask();
                 Parser parser = new Parser();
-                
+
                 while (toInitiateConnection && isMAVLinkConnected) {
                     try {
                         MAVLinkPacket packet;
-
                         reader.read(readBuffer);
 
                         for (byte c : readBuffer) {
                             packet = parser.mavlink_parse_char(c & 0xFF);
                             if (packet != null){
-                                //System.out.println(packet.msgid + " " + packet.sysid);
                                 MAVLinkMessage msg = (MAVLinkMessage) packet.unpack();
-                                //System.out.println("MSG "+ msg.toString());
+
                                 if (msg != null) {
+                                    //notify listeners - New MavLinkMessage incoming...
                                     for (MAVLinkConnectionListener l : mListeners.values())
                                         l.onReceiveMessage(msg);
-                                    
-                                    if (msg.msgid == msg_param_value.MAVLINK_MSG_ID_PARAM_VALUE) {
-                                       // System.out.println(msg.toString());
-                                        msg_param_value param = (msg_param_value) msg;
-                                        
-                                        //System.out.println(param.toString());
-                                    }
-                               
+
                                 }
                             }  
                         }
@@ -149,6 +149,9 @@ public class MAVLinkConnection {
                     }
                 }
                 NeptusLog.pub().info("MAVLink TCP Socket closed.");
+                for (MAVLinkConnectionListener l : mListeners.values())
+                    l.onDisconnect();
+                
                 try {
                     socket.close();
                 }
@@ -160,7 +163,6 @@ public class MAVLinkConnection {
                 }
 
                 reconnect(socket);
-
             }
 
             private void reconnect(final Socket socket) {
@@ -178,7 +180,7 @@ public class MAVLinkConnection {
             };
         };
         listenerTask.setDaemon(true);
-        setMAVLinkConnected(true);
+        setMAVLinkConnected(false);
         listenerTask.start();
     }
 
@@ -219,7 +221,7 @@ public class MAVLinkConnection {
             setMAVLinkConnected(false);
         }
     }
-    
+
     public void addMavLinkConnectionListener(String tag, MAVLinkConnectionListener listener) {
         mListeners.put(tag, listener);
     }
@@ -227,7 +229,7 @@ public class MAVLinkConnection {
     public void removeMavLinkConnectionListener(String tag) {
         mListeners.remove(tag);
     }
-    
+
     public void sendMavPacket(MAVLinkPacket packet) {
         final byte[] packetData = packet.encodePacket();
         if (!mPacketsToSend.offer(packetData)) {
@@ -292,6 +294,10 @@ public class MAVLinkConnection {
      */
     public void initiateConnection(boolean toInitiateConnection) {
         this.toInitiateConnection = toInitiateConnection;
+    }
+    
+    public boolean isConnected() {
+        return tcpSocket.isConnected();
     }
 
     public static void main(String argv[]) {
