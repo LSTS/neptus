@@ -34,9 +34,12 @@ package pt.lsts.neptus.plugins.uavparameters;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
+import java.awt.Font;
+import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.IOException;
+import java.net.URI;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -44,6 +47,7 @@ import java.util.List;
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
@@ -57,13 +61,12 @@ import org.jdesktop.swingx.JXStatusBar;
 
 import com.MAVLink.Messages.MAVLinkMessage;
 import com.MAVLink.common.msg_param_value;
-import com.google.common.eventbus.Subscribe;
 
 import net.miginfocom.swing.MigLayout;
+import pt.lsts.neptus.comm.manager.imc.ImcSystem;
+import pt.lsts.neptus.comm.manager.imc.ImcSystemsHolder;
 import pt.lsts.neptus.console.ConsoleLayout;
 import pt.lsts.neptus.console.ConsolePanel;
-import pt.lsts.neptus.console.events.ConsoleEventMainSystemChange;
-import pt.lsts.neptus.console.plugins.MainVehicleChangeListener;
 import pt.lsts.neptus.gui.InfiniteProgressPanel;
 import pt.lsts.neptus.gui.StatusLed;
 import pt.lsts.neptus.i18n.I18n;
@@ -81,7 +84,7 @@ import pt.lsts.neptus.plugins.uavparameters.connection.MAVLinkConnectionListener
 @SuppressWarnings("serial")
 @PluginDescription(name = "UAV Parameter Configuration", icon = "images/settings2.png")
 @Popup(name = "UAV Parameter Configuration Panel", pos = POSITION.CENTER, height = 500, width = 800, accelerator = '0')
-public class ParameterManager extends ConsolePanel implements MainVehicleChangeListener, MAVLinkConnectionListener {
+public class ParameterManager extends ConsolePanel implements MAVLinkConnectionListener {
     private static final int TIMEOUT = 5000;
     private static final int RETRYS = 10;
     private JTextField findTxtField;
@@ -97,46 +100,12 @@ public class ParameterManager extends ConsolePanel implements MainVehicleChangeL
     private JXStatusBar statusBar = null;
     private JLabel messageBarLabel = null;
     private StatusLed statusLed = null;
+    private JButton btnConnect;
 
     public ParameterManager(ConsoleLayout console) {
         super(console);
-    }
-
-    private JLabel getMessageBarLabel() {
-        if (messageBarLabel == null) {
-            messageBarLabel = new JLabel();
-            messageBarLabel.setText("");
-        }
-        return messageBarLabel;
-    }
-
-    private StatusLed getStatusLed() {
-        if (statusLed == null) {
-            statusLed = new StatusLed();
-            statusLed.setLevel(StatusLed.LEVEL_OFF);
-        }
-        return statusLed;
-
-    }
-    private void setActivity(String message, short level) {
-        getMessageBarLabel().setText(message);
-        getStatusLed().setLevel(level);
-    }
-
-
-    private void setActivity(String message, short level, String tooltip) {
-        getMessageBarLabel().setText(message);
-        getStatusLed().setLevel(level, tooltip);
-    }
-
-    @Override
-    public void initSubPanel() {
 
         setActivity("", StatusLed.LEVEL_OFF);
-        mavlink = new MAVLinkConnection("10.0.20.125", 9999);
-        mavlink.initiateConnection(true);
-        mavlink.addMavLinkConnectionListener("ParameterManager", this);
-        mavlink.connect();
 
         setLayout(new BorderLayout(0, 0));
         JPanel mainPanel = new JPanel();
@@ -147,6 +116,8 @@ public class ParameterManager extends ConsolePanel implements MainVehicleChangeL
         btnLoadFromFile = new JButton("Load from File");
         btnFind = new JButton("Find");
         findTxtField = new JTextField();
+        btnConnect = new JButton("Connect");
+        setBtnsEnabled(false);
         JScrollPane scrollPane = new JScrollPane();
 
         add(mainPanel);
@@ -154,6 +125,8 @@ public class ParameterManager extends ConsolePanel implements MainVehicleChangeL
         mainPanel.setLayout(new BorderLayout(0, 0));
         mainPanel.add(tablePanel, BorderLayout.EAST);
         tablePanel.setLayout(new MigLayout("", "[grow]", "[][][][][][][][][][]"));
+        btnConnect.setFont(new Font("Dialog", Font.BOLD, 10));
+        btnConnect.setMargin( new Insets(2, 2, 2, 2) );
 
         tablePanel.add(btnGetParams, "cell 0 0,growx");
         tablePanel.add(btnWriteParams, "cell 0 1,growx");
@@ -165,9 +138,7 @@ public class ParameterManager extends ConsolePanel implements MainVehicleChangeL
         findTxtField.setColumns(10);
 
         model = new ParameterTableModel(parameterList);
-
         table = new JTable(model);
-
         model.addTableModelListener(
                 new TableModelListener() 
                 {
@@ -198,10 +169,10 @@ public class ParameterManager extends ConsolePanel implements MainVehicleChangeL
 
         statusBar = new JXStatusBar();
         statusBar.add(getMessageBarLabel(), JXStatusBar.Constraint.ResizeBehavior.FILL);
+        statusBar.add(btnConnect);
         statusBar.add(getStatusLed());
 
         statusPanel.add(statusBar);
-
         mainPanel.add(statusPanel, BorderLayout.SOUTH);
 
         table.setDefaultRenderer(Object.class, new DefaultTableCellRenderer() {
@@ -281,6 +252,125 @@ public class ParameterManager extends ConsolePanel implements MainVehicleChangeL
             }
         });
 
+        btnConnect.addActionListener(new ActionListener() {
+
+            @Override
+            public void actionPerformed(ActionEvent e) {
+
+                if (mavlink == null || (!mavlink.isMAVLinkConnected() && !mavlink.isToInitiateConnection())) {
+
+                    HashMap<String, ImcSystem> validSystems = new HashMap<>();
+                    ImcSystem[] syss = ImcSystemsHolder.lookupActiveSystemVehicles();
+                    for (ImcSystem s : syss) {
+                        String services = s.getServicesProvided();
+                        if (services.contains(MAVLinkConnection.MAV_SCHEME))
+                            validSystems.put(s.getName(), s);
+                    }
+                    
+                    if (validSystems.isEmpty()) {
+                        Object[] options = {"OK"};
+                        JOptionPane.showOptionDialog(null, 
+                                "No MAVLink compatible systems found.", 
+                                "MAVLink Connection", JOptionPane.PLAIN_MESSAGE,
+                                JOptionPane.QUESTION_MESSAGE,
+                                null,
+                                options,
+                                options[0]);
+                        return;
+                    }
+                    
+                    String system = (String) JOptionPane.showInputDialog(getConsole(), I18n.text("Connect to:"),
+                            I18n.text("MAVLink Connection"), JOptionPane.QUESTION_MESSAGE, null,
+                            validSystems.keySet().toArray(), validSystems.keySet().iterator().next());
+                    if (system == null)
+                        return;
+
+                    ImcSystem sys = validSystems.get(system);
+                    String[] listSer = sys.getServicesProvided().split(";");
+                    String address = null;
+                    int port = -1;
+                    for (String rs : listSer) {
+                        if (rs.trim().startsWith(MAVLinkConnection.MAV_SCHEME+":")) {
+                            URI url1 = URI.create(rs.trim());
+                            address = url1.getHost();
+                            port = url1.getPort();
+
+                            break;
+                        }
+                    }
+
+                    if (address != null && port != -1) {
+                        beginMavConnection(address, 9999);
+                        setActivity("Connecting...", StatusLed.LEVEL_1, "Connecting!");
+                    }
+
+                } 
+                else {
+                    if (mavlink != null)
+                        try {
+                            mavlink.closeConnection();
+                            setActivity("Not connected...", StatusLed.LEVEL_OFF, "Not connected!");
+                            updateConnectMenuText();
+                            setBtnsEnabled(false);
+                        }
+                        catch (IOException e1) {
+                            e1.printStackTrace();
+                        }
+                }
+
+            }
+        });
+
+    }
+
+    private void updateConnectMenuText() {
+
+        if (mavlink.isMAVLinkConnected() || mavlink.isToInitiateConnection()) {
+            btnConnect.setText(I18n.text("Disconnect"));
+        }
+        else {
+            btnConnect.setText(I18n.text("Connect"));
+        }
+    }
+
+    private JLabel getMessageBarLabel() {
+        if (messageBarLabel == null) {
+            messageBarLabel = new JLabel();
+            messageBarLabel.setText("");
+        }
+        return messageBarLabel;
+    }
+
+    private StatusLed getStatusLed() {
+        if (statusLed == null) {
+            statusLed = new StatusLed();
+            statusLed.setLevel(StatusLed.LEVEL_OFF);
+        }
+        return statusLed;
+
+    }
+    private void setActivity(String message, short level) {
+        getMessageBarLabel().setText(message);
+        getStatusLed().setLevel(level);
+    }
+
+    private void beginMavConnection(String address, int port) {
+        if (mavlink == null)
+            mavlink = new MAVLinkConnection(address, port);
+        else
+            mavlink.setAddressAndPort(address, port);
+        mavlink.addMavLinkConnectionListener("ParameterManager", this);
+        mavlink.connect();
+    }
+
+    private void setActivity(String message, short level, String tooltip) {
+        getMessageBarLabel().setText(message);
+        getStatusLed().setLevel(level, tooltip);
+    }
+
+    @Override
+    public void initSubPanel() {
+
     }
 
     private void updateTable() {
@@ -342,11 +432,6 @@ public class ParameterManager extends ConsolePanel implements MainVehicleChangeL
         }
     }
 
-    @Subscribe
-    public void mainVehicleChangeNotification(ConsoleEventMainSystemChange e) {
-        System.out.println("Vehicle changed "+ e.getCurrent() );
-    }
-
     @Override
     public void onReceiveMessage(MAVLinkMessage msg) {
         if (!btnGetParams.isEnabled()) {
@@ -379,12 +464,18 @@ public class ParameterManager extends ConsolePanel implements MainVehicleChangeL
     public void onConnect() {
         setActivity("Connected successfully...", StatusLed.LEVEL_0, "Connected!");
         setBtnsEnabled(true);
+        updateConnectMenuText();
     }
 
     @Override
     public void onDisconnect() {
-        setActivity("No connection. Retrying...", StatusLed.LEVEL_2, "Not connected!");
+        if (mavlink.isToInitiateConnection())
+            setActivity("Not connection. Retrying...", StatusLed.LEVEL_2, "Not connected!");
+        else
+            setActivity("Not connected...", StatusLed.LEVEL_OFF, "Not connected!");
+        
         setBtnsEnabled(false);
+        updateConnectMenuText();
 
     }
 

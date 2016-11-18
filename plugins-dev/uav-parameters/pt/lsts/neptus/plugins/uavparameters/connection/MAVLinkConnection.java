@@ -56,6 +56,7 @@ import pt.lsts.neptus.plugins.uavparameters.MAVLinkParameters;
 public class MAVLinkConnection {
 
     private static final int READ_BUFFER_SIZE = 4096;
+    public static final String MAV_SCHEME = "mavlink+tcp";
     private final LinkedBlockingQueue<byte[]> mPacketsToSend = new LinkedBlockingQueue<>();
     private boolean toInitiateConnection = false;
     private boolean isMAVLinkConnected = false;
@@ -71,6 +72,11 @@ public class MAVLinkConnection {
     }
     
     public void connect() {
+        toInitiateConnection = true;
+        initConnection();
+    }
+
+    private void initConnection() {
         final Socket socket = new Socket();
         final byte[] readBuffer = new byte[READ_BUFFER_SIZE];
         this.tcpSocket = socket;
@@ -87,7 +93,7 @@ public class MAVLinkConnection {
                     e.printStackTrace();
                 }
                 try {
-
+                    
                     socket.connect(new InetSocketAddress(tcpHost, tcpPort));
                     reader = new BufferedInputStream(socket.getInputStream());
                     writer = new BufferedOutputStream(socket.getOutputStream());
@@ -181,7 +187,7 @@ public class MAVLinkConnection {
                         e.printStackTrace();
                     }
                     if (toInitiateConnection && !isMAVLinkConnected) {
-                        connect();
+                        initConnection();
                     }
                 }
             };
@@ -301,14 +307,10 @@ public class MAVLinkConnection {
         this.toInitiateConnection = toInitiateConnection;
     }
 
-    public boolean isConnected() {
-        return tcpSocket.isConnected();
-    }
-
     public static void main(String argv[]) {
         MAVLinkConnection mav = new MAVLinkConnection("10.0.20.125", 9999);
         mav.initiateConnection(true);
-        mav.connect();
+        mav.initConnection();
         mav.initSendTask();
         try {
             Thread.sleep(2000);
