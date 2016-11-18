@@ -101,15 +101,29 @@ public class ParameterManager extends ConsolePanel implements MAVLinkConnectionL
     private JLabel messageBarLabel = null;
     private StatusLed statusLed = null;
     private JButton btnConnect;
+    private boolean requesting = false;
 
     public ParameterManager(ConsoleLayout console) {
         super(console);
+    }
 
+    @Override
+    public void initSubPanel() {
+        
+        setupGUI();
+        addListenersAndRenderer();
+    }
+    
+    
+    private void setupGUI() {
         setActivity("", StatusLed.LEVEL_OFF);
-
+        setResizable(false);
         setLayout(new BorderLayout(0, 0));
+        
         JPanel mainPanel = new JPanel();
         JPanel tablePanel = new JPanel();
+        JPanel statusPanel = new JPanel();
+        JScrollPane scrollPane = new JScrollPane();
         btnGetParams = new JButton("Load Parameters");
         btnWriteParams = new JButton("Write Parameters");
         btnSaveToFile = new JButton("Save to File");
@@ -117,16 +131,26 @@ public class ParameterManager extends ConsolePanel implements MAVLinkConnectionL
         btnFind = new JButton("Find");
         findTxtField = new JTextField();
         btnConnect = new JButton("Connect");
+        statusBar = new JXStatusBar();
         setBtnsEnabled(false);
-        JScrollPane scrollPane = new JScrollPane();
-
-        add(mainPanel);
 
         mainPanel.setLayout(new BorderLayout(0, 0));
-        mainPanel.add(tablePanel, BorderLayout.EAST);
         tablePanel.setLayout(new MigLayout("", "[grow]", "[][][][][][][][][][]"));
+        scrollPane.setViewportView(table);
+        scrollPane.setBorder(BorderFactory.createMatteBorder(0, 0, 0, 1, Color.BLACK));
+        statusPanel.setLayout(new BorderLayout(0, 0));
+        statusPanel.setBorder(BorderFactory.createMatteBorder(1, 0, 0, 0, Color.BLACK));
+        findTxtField.setColumns(10);
         btnConnect.setFont(new Font("Dialog", Font.BOLD, 10));
         btnConnect.setMargin( new Insets(2, 2, 2, 2) );
+        loader.setOpaque(false);
+        loader.setVisible(false);
+        loader.setBusy(false);
+
+        
+        mainPanel.add(tablePanel, BorderLayout.EAST);
+        mainPanel.add(scrollPane, BorderLayout.CENTER);
+        mainPanel.add(statusPanel, BorderLayout.SOUTH);
 
         tablePanel.add(btnGetParams, "cell 0 0,growx");
         tablePanel.add(btnWriteParams, "cell 0 1,growx");
@@ -134,61 +158,35 @@ public class ParameterManager extends ConsolePanel implements MAVLinkConnectionL
         tablePanel.add(btnLoadFromFile, "cell 0 3,growx");
         tablePanel.add(btnFind, "cell 0 6,growx");
         tablePanel.add(findTxtField, "cell 0 7,growx");
-        mainPanel.add(scrollPane, BorderLayout.CENTER);
-        findTxtField.setColumns(10);
-
-        model = new ParameterTableModel(parameterList);
-        table = new JTable(model);
-        model.addTableModelListener(
-                new TableModelListener() 
-                {
-                    public void tableChanged(TableModelEvent evt) 
-                    {
-                        if (!parameterList.isEmpty())
-                            System.out.println("Something changed...");
-
-                        //TODO
-                    }
-                });
-
-        scrollPane.setViewportView(table);
-
-        scrollPane.setBorder(BorderFactory.createMatteBorder(0, 0, 0, 1, Color.BLACK));
-        setResizable(false);
-
-        loader.setOpaque(false);
-        loader.setVisible(false);
-        loader.setBusy(false);
         tablePanel.add(loader, "cell 0 9,growx");
-
-        JPanel statusPanel = new JPanel();
-        mainPanel.add(statusPanel, BorderLayout.SOUTH);
-        statusPanel.setLayout(new BorderLayout(0, 0));
-
-        statusPanel.setBorder(BorderFactory.createMatteBorder(1, 0, 0, 0, Color.BLACK));
-
-        statusBar = new JXStatusBar();
+        
+        statusPanel.add(statusBar);
+        
+        add(mainPanel);
+        
         statusBar.add(getMessageBarLabel(), JXStatusBar.Constraint.ResizeBehavior.FILL);
         statusBar.add(btnConnect);
         statusBar.add(getStatusLed());
 
-        statusPanel.add(statusBar);
-        mainPanel.add(statusPanel, BorderLayout.SOUTH);
-
-        table.setDefaultRenderer(Object.class, new DefaultTableCellRenderer() {
-            private static final long serialVersionUID = -4859420619704314087L;
-
-            @Override
-            public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row,
-                    int column) {
-                super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
-
-                setBackground(row % 2 == 0 ? Color.gray : Color.gray.darker());
-
-                return this;
+        model = new ParameterTableModel(parameterList);
+        table = new JTable(model);
+    }
+    
+    private void addListenersAndRenderer() {
+        
+        model.addTableModelListener(new TableModelListener() 
+        {
+            public void tableChanged(TableModelEvent evt) 
+            {
+                if (!parameterList.isEmpty()) {
+                    if (evt.getType() == TableModelEvent.UPDATE &&  !requesting) {
+                        System.out.println("UPDATED ELEMENTS");
+                        //TODO
+                    }
+                }
             }
         });
-
+        
         btnGetParams.addActionListener(new ActionListener() {
 
             @Override
@@ -197,6 +195,7 @@ public class ParameterManager extends ConsolePanel implements MAVLinkConnectionL
 
                     @Override
                     protected Void doInBackground() throws Exception {
+                        requesting = true;
                         setActivity("Loading parameters...", StatusLed.LEVEL_0);
                         loader.setText("");
                         loader.setVisible(true);
@@ -236,6 +235,7 @@ public class ParameterManager extends ConsolePanel implements MAVLinkConnectionL
                             loader.setBusy(false);
                             loader.setText("");
                         }
+                        requesting = false;
                         return null;
                     }
 
@@ -266,7 +266,7 @@ public class ParameterManager extends ConsolePanel implements MAVLinkConnectionL
                         if (services.contains(MAVLinkConnection.MAV_SCHEME))
                             validSystems.put(s.getName(), s);
                     }
-                    
+
                     if (validSystems.isEmpty()) {
                         Object[] options = {"OK"};
                         JOptionPane.showOptionDialog(null, 
@@ -278,7 +278,7 @@ public class ParameterManager extends ConsolePanel implements MAVLinkConnectionL
                                 options[0]);
                         return;
                     }
-                    
+
                     String system = (String) JOptionPane.showInputDialog(getConsole(), I18n.text("Connect to:"),
                             I18n.text("MAVLink Connection"), JOptionPane.QUESTION_MESSAGE, null,
                             validSystems.keySet().toArray(), validSystems.keySet().iterator().next());
@@ -313,14 +313,28 @@ public class ParameterManager extends ConsolePanel implements MAVLinkConnectionL
                             updateConnectMenuText();
                             setBtnsEnabled(false);
                         }
-                        catch (IOException e1) {
-                            e1.printStackTrace();
-                        }
+                    catch (IOException e1) {
+                        e1.printStackTrace();
+                    }
                 }
 
             }
         });
+        
+        table.setDefaultRenderer(Object.class, new DefaultTableCellRenderer() {
+            private static final long serialVersionUID = -4859420619704314087L;
 
+            @Override
+            public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row,
+                    int column) {
+                super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
+
+                setBackground(row % 2 == 0 ? Color.gray : Color.gray.darker());
+
+                return this;
+            }
+        });
+        
     }
 
     private void updateConnectMenuText() {
@@ -368,10 +382,6 @@ public class ParameterManager extends ConsolePanel implements MAVLinkConnectionL
         getStatusLed().setLevel(level, tooltip);
     }
 
-    @Override
-    public void initSubPanel() {
-
-    }
 
     private void updateTable() {
         model.updateParamList(parameterList);
@@ -473,7 +483,7 @@ public class ParameterManager extends ConsolePanel implements MAVLinkConnectionL
             setActivity("Not connection. Retrying...", StatusLed.LEVEL_2, "Not connected!");
         else
             setActivity("Not connected...", StatusLed.LEVEL_OFF, "Not connected!");
-        
+
         setBtnsEnabled(false);
         updateConnectMenuText();
 

@@ -42,6 +42,7 @@ import javax.swing.table.AbstractTableModel;
 @SuppressWarnings("serial")
 public class ParameterTableModel extends AbstractTableModel  {
     private ArrayList<Parameter> params = new ArrayList<>();
+    private ArrayList<Parameter> modifiedParams = new ArrayList<>();
     private static final int COLUMN_PARAM_NAME = 0;
     private static final int COLUMN_VALUE = 1;
     private static final int COLUMN_UNITS = 2;
@@ -90,11 +91,19 @@ public class ParameterTableModel extends AbstractTableModel  {
         Parameter param = params.get(rowIndex);
         String oldValue = param.getValue();
         param.value = Double.parseDouble((String) value);
-        System.out.println("Updating: "+ param.name + "(" + oldValue +") with " + value);
         
-        fireTableCellUpdated(rowIndex, columnIndex);
+        if (!oldValue.equals(value)) {
+            System.out.println("Updating: "+ param.name + "(" + oldValue +") with " + value);
+        
+            modifiedParams.add(param);
+            fireTableCellUpdated(rowIndex, columnIndex);
+        }
     }
 
+    public void clearModifiedParams() {
+        modifiedParams.clear();
+    }
+    
     @Override
     public Object getValueAt(int rowIndex, int columnIndex) {
         if (params.isEmpty() || rowIndex >= getRowCount())
