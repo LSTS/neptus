@@ -44,9 +44,9 @@ import java.util.concurrent.LinkedBlockingQueue;
 import com.MAVLink.MAVLinkPacket;
 import com.MAVLink.Parser;
 import com.MAVLink.Messages.MAVLinkMessage;
-import com.MAVLink.common.msg_param_value;
 
 import pt.lsts.neptus.NeptusLog;
+import pt.lsts.neptus.comm.manager.imc.ImcSystemsHolder;
 import pt.lsts.neptus.plugins.uavparameters.MAVLinkParameters;
 
 /**
@@ -65,12 +65,11 @@ public class MAVLinkConnection {
     private BufferedOutputStream writer = null;
     private final ConcurrentHashMap<String, MAVLinkConnectionListener> mListeners = new ConcurrentHashMap<String, MAVLinkConnectionListener>();
 
-
     public MAVLinkConnection(String address, int port) {
         this.tcpHost = address;
         this.tcpPort = port;
     }
-
+    
     public void connect() {
         final Socket socket = new Socket();
         final byte[] readBuffer = new byte[READ_BUFFER_SIZE];
@@ -120,8 +119,9 @@ public class MAVLinkConnection {
                     try {
                         MAVLinkPacket packet;
 
-                        reader.read(readBuffer);
-
+                        if (reader.read(readBuffer) == -1)
+                            throw new SocketTimeoutException();
+                            
                         for (byte c : readBuffer) {
                             packet = parser.mavlink_parse_char(c & 0xFF);
                             if (packet != null){
@@ -140,10 +140,15 @@ public class MAVLinkConnection {
                         Thread.sleep(300);
                     }
                     catch (SocketTimeoutException e) {
+                        if (!ImcSystemsHolder.getSystemWithName("mariner-01").isActive()) {
+                            reconnect(socket);
+                            break;
+                        }
+                        
                         for (MAVLinkConnectionListener l : mListeners.values())
-                            l.onComError(e.getMessage());
-
-                        continue;
+                            l.onComError("Read error");
+                        
+                        
                     }
                     catch (Exception e) {
                         e.printStackTrace();
@@ -191,7 +196,6 @@ public class MAVLinkConnection {
             public void run() {
                 while (toInitiateConnection && isMAVLinkConnected) {
                     try {
-                        System.out.println("Waiting for data to be sent...");
                         byte[] buffer = mPacketsToSend.take();
 
                         if (writer != null) {

@@ -349,6 +349,10 @@ public class ParameterManager extends ConsolePanel implements MainVehicleChangeL
 
     @Override
     public void onReceiveMessage(MAVLinkMessage msg) {
+        if (!btnGetParams.isEnabled()) {
+            setActivity("Connected successfully...", StatusLed.LEVEL_0, "Connected!");
+        }
+
         setBtnsEnabled(true);
 
         processMessage(msg);
@@ -397,11 +401,7 @@ public class ParameterManager extends ConsolePanel implements MainVehicleChangeL
 
     @Override
     public void onComError(String errMsg) {
-        if (errMsg.contains("timed out")) {
-            setActivity("Autopilot missing data...", StatusLed.LEVEL_1);
-            setBtnsEnabled(false);
-        }
-        else
-            setActivity(errMsg, StatusLed.LEVEL_1);
+        setActivity(errMsg, StatusLed.LEVEL_1);
+        setBtnsEnabled(false);
     }
 }
