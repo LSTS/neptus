@@ -1105,7 +1105,7 @@ public class RhodamineOilVisualizer extends ConsoleLayer implements Configuratio
             paintData(renderer, g2);
             g2.dispose();
         }            
-        offScreenImageControlData.paintPhaseEndFinishImageRecreateAndPainImageCacheToRenderer(g, renderer);
+        offScreenImageControlData.paintPhaseEndFinishImageRecreateAndPaintImageCacheToRenderer(g, renderer);
 
         paintColorBar(g, renderer);            
 
@@ -1204,7 +1204,7 @@ public class RhodamineOilVisualizer extends ConsoleLayer implements Configuratio
             }
             g2.dispose();
         }
-        offScreenImageControlColorBar.paintPhaseEndFinishImageRecreateAndPainImageCacheToRenderer(g, renderer);
+        offScreenImageControlColorBar.paintPhaseEndFinishImageRecreateAndPaintImageCacheToRenderer(g, renderer);
     }
     
     private void paintData(StateRenderer2D renderer, Graphics2D g2) {
@@ -1453,7 +1453,7 @@ public class RhodamineOilVisualizer extends ConsoleLayer implements Configuratio
                 paintPredictionData(renderer, g2);
                 g2.dispose();
             }            
-            offScreenImageControlPrediction.paintPhaseEndFinishImageRecreateAndPainImageCacheToRenderer(g, renderer);
+            offScreenImageControlPrediction.paintPhaseEndFinishImageRecreateAndPaintImageCacheToRenderer(g, renderer);
 
             paintColorBar(g, renderer);            
 

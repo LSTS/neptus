@@ -169,7 +169,7 @@ public class ShapeFilesLayer extends ConsoleLayer implements ConfigurationListen
             Graphics2D g2 = offScreenImageControl.getImageGraphics();
             paintShapes(renderer, g2);
         }            
-        offScreenImageControl.paintPhaseEndFinishImageRecreateAndPainImageCacheToRenderer(g, renderer);
+        offScreenImageControl.paintPhaseEndFinishImageRecreateAndPaintImageCacheToRenderer(g, renderer);
         
         // Legend
         Graphics2D gl = (Graphics2D) g.create();

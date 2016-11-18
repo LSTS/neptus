@@ -60,7 +60,7 @@ import pt.lsts.neptus.util.AngleUtils;
  *          // Paint what you want in the graphics
  *          ...
  *      }            
- *      offScreenImageControl.paintPhaseEndFinishImageRecreateAndPainImageCacheToRenderer(g, renderer);
+ *      offScreenImageControl.paintPhaseEndFinishImageRecreateAndPaintImageCacheToRenderer(g, renderer);
  *       
  *      ...
  *  }
@@ -177,7 +177,7 @@ public class OffScreenLayerImageControl {
         return imageGraphics;
     }
 
-    public void paintPhaseEndFinishImageRecreateAndPainImageCacheToRenderer(Graphics2D g, StateRenderer2D renderer) {
+    public void paintPhaseEndFinishImageRecreateAndPaintImageCacheToRenderer(Graphics2D g, StateRenderer2D renderer) {
         if (imageGraphics != null) {
             imageGraphics.dispose();
             imageGraphics = null;
