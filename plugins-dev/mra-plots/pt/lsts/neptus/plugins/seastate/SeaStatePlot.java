@@ -43,8 +43,13 @@ import pt.lsts.neptus.plugins.PluginDescription;
  * @author zp
  *
  */
-@PluginDescription(name = "Sea State Plot", experimental = true)
+@PluginDescription(name = "Sea State", experimental = true)
 public class SeaStatePlot extends MRATimeSeriesPlot {
+
+    private final double minDepth = 0.3;
+    private final double maxSpeed = 0.5;
+    private final double maxPeriod = 10.0;
+    private final double minPeriod = 0.5;
 
     public SeaStatePlot(MRAPanel panel) {
         super(panel);
@@ -69,13 +74,15 @@ public class SeaStatePlot extends MRATimeSeriesPlot {
         double amplitude = Math.abs(pt2.getAlt() - pt1.getAlt());
         double period = pt2.getTimestamp() - pt1.getTimestamp();
 
-        if (period > 10 || period < 0.5)
+        if (period > maxPeriod || period < minPeriod)
             return;
 
         addValue(pt2.getTimestampMillis(), pt1.getSourceName()+".amplitude", amplitude);
         addValue(pt2.getTimestampMillis(), pt1.getSourceName()+".period", period);
-        //
-        System.out.println("wave from "+pt1.getAlt()+" to "+pt2.getAlt()+" time: "+(pt2.getTimestamp()-pt1.getTimestamp()));
+    }
+
+    private double getSpeed(EstimatedState state) {
+        return Math.sqrt(state.getVx() * state.getVx() + state.getVy() * state.getVy());
     }
 
     @Override
@@ -85,7 +92,7 @@ public class SeaStatePlot extends MRATimeSeriesPlot {
         boolean ascending = false;
         EstimatedState lastMin = it.next();
 
-        while(lastMin.getDepth() > 0.5 && it.hasNext() || lastMin.getVx() > 0.2)
+        while(lastMin.getDepth() > minDepth && it.hasNext() || getSpeed(lastMin) > maxSpeed)
             lastMin = it.next();
 
         EstimatedState lastMax = lastMin;
@@ -95,7 +102,7 @@ public class SeaStatePlot extends MRATimeSeriesPlot {
 
         while (it.hasNext()) {
             EstimatedState state = it.next();
-            if (state.getDepth() > 0.5 || state.getVx() > 0.2)
+            if (state.getDepth() > minDepth || getSpeed(state) > maxSpeed)
                 continue;
             if (state.getAlt() == -1)
                 continue;
