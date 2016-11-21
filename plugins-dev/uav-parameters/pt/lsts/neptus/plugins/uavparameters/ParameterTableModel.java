@@ -74,7 +74,7 @@ public class ParameterTableModel extends AbstractTableModel  {
     }
 
     public Color getRowColor(int row, int columnIndex) {
-        return ((modifiedParams.containsKey(row) && columnIndex == COLUMN_VALUE) ? (Color.green.darker()) : (row % 2 == 0 ? Color.gray : Color.gray.darker()));
+        return ((modifiedParams.containsKey(getValueAt(row, COLUMN_PARAM_NAME)) && columnIndex == COLUMN_VALUE) ? (Color.green.darker()) : (row % 2 == 0 ? Color.gray : Color.gray.darker()));
     }
 
     @Override
