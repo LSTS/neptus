@@ -31,7 +31,9 @@
  */
 package pt.lsts.neptus.plugins.uavparameters;
 
+import java.awt.Color;
 import java.util.ArrayList;
+import java.util.HashMap;
 
 import javax.swing.table.AbstractTableModel;
 
@@ -42,7 +44,7 @@ import javax.swing.table.AbstractTableModel;
 @SuppressWarnings("serial")
 public class ParameterTableModel extends AbstractTableModel  {
     private ArrayList<Parameter> params = new ArrayList<>();
-    private ArrayList<Parameter> modifiedParams = new ArrayList<>();
+    private HashMap<String, Parameter> modifiedParams = new HashMap<>();
     private static final int COLUMN_PARAM_NAME = 0;
     private static final int COLUMN_VALUE = 1;
     private static final int COLUMN_UNITS = 2;
@@ -71,6 +73,10 @@ public class ParameterTableModel extends AbstractTableModel  {
         return columnNames[columnIndex];
     }
 
+    public Color getRowColor(int row, int columnIndex) {
+        return ((modifiedParams.containsKey(row) && columnIndex == COLUMN_VALUE) ? (Color.green.darker()) : (row % 2 == 0 ? Color.gray : Color.gray.darker()));
+    }
+
     @Override
     public int getColumnCount() {
         return columnNames.length;
@@ -87,15 +93,16 @@ public class ParameterTableModel extends AbstractTableModel  {
     public void setValueAt(Object value, int rowIndex, int columnIndex) {
         if (columnIndex != COLUMN_VALUE)
             return;
-       
+
         Parameter param = params.get(rowIndex);
         String oldValue = param.getValue();
         param.value = Double.parseDouble((String) value);
-        
+
         if (!oldValue.equals(value)) {
             System.out.println("Updating: "+ param.name + "(" + oldValue +") with " + value);
-        
-            modifiedParams.add(param);
+
+            modifiedParams.put(param.name, param);
+
             fireTableCellUpdated(rowIndex, columnIndex);
         }
     }
@@ -103,7 +110,7 @@ public class ParameterTableModel extends AbstractTableModel  {
     public void clearModifiedParams() {
         modifiedParams.clear();
     }
-    
+
     @Override
     public Object getValueAt(int rowIndex, int columnIndex) {
         if (params.isEmpty() || rowIndex >= getRowCount())
@@ -140,13 +147,37 @@ public class ParameterTableModel extends AbstractTableModel  {
         if (params.isEmpty())
             return Object.class;
 
-            return getValueAt(0, columnIndex).getClass();
+        return getValueAt(0, columnIndex).getClass();
     }
 
     public void updateParamList(ArrayList<Parameter> newParamList) {
         this.params = newParamList;
-        
+
         fireTableDataChanged();
     }
 
+    /**
+     * @return the modifiedParams
+     */
+    public HashMap<String, Parameter> getModifiedParams() {
+        return modifiedParams;
+    }
+
+    /**
+     * @param name
+     * @param value
+     * @return
+     */
+    public boolean checkAndUpdateParameter(String name, String value) {
+        Parameter e = modifiedParams.get(name);
+        if (e != null && e.getValue().equals(value)) {
+
+            modifiedParams.remove(name);
+            return true;
+        }
+        else {
+            System.out.println("FALSE ");
+            return false;
+        }
+    }
 }

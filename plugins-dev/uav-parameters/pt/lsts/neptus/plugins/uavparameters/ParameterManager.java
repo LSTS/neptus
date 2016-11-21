@@ -85,23 +85,25 @@ import pt.lsts.neptus.plugins.uavparameters.connection.MAVLinkConnectionListener
 @PluginDescription(name = "UAV Parameter Configuration", icon = "images/settings2.png")
 @Popup(name = "UAV Parameter Configuration Panel", pos = POSITION.CENTER, height = 500, width = 800, accelerator = '0')
 public class ParameterManager extends ConsolePanel implements MAVLinkConnectionListener {
+
     private static final int TIMEOUT = 5000;
     private static final int RETRYS = 10;
+    private static final InfiniteProgressPanel loader = InfiniteProgressPanel.createInfinitePanelBeans("", 100);
     private JTextField findTxtField;
     private JTable table;
     private MAVLinkConnection mavlink = null;
-    private boolean success = false;
+    private boolean isFinished = false;
+    private boolean writeWithSuccess = false;
     private int expectedParams;
     private HashMap<Integer, Parameter> parameters = new HashMap<Integer, Parameter>();
     private ArrayList<Parameter> parameterList = new ArrayList<Parameter>();
     private ParameterTableModel model = null;
-    private static InfiniteProgressPanel loader = InfiniteProgressPanel.createInfinitePanelBeans("", 100);
-    private JButton btnGetParams, btnWriteParams, btnSaveToFile, btnLoadFromFile, btnFind;
+    private JButton btnGetParams, btnWriteParams, btnSaveToFile, btnLoadFromFile, btnFind, btnConnect;
     private JXStatusBar statusBar = null;
     private JLabel messageBarLabel = null;
     private StatusLed statusLed = null;
-    private JButton btnConnect;
-    private boolean requesting = false;
+    private boolean requestingParams = false;
+    private boolean requestingWriting = false;
 
     public ParameterManager(ConsoleLayout console) {
         super(console);
@@ -109,17 +111,17 @@ public class ParameterManager extends ConsolePanel implements MAVLinkConnectionL
 
     @Override
     public void initSubPanel() {
-        
+
         setupGUI();
         addListenersAndRenderer();
     }
-    
-    
+
+
     private void setupGUI() {
         setActivity("", StatusLed.LEVEL_OFF);
         setResizable(false);
         setLayout(new BorderLayout(0, 0));
-        
+
         JPanel mainPanel = new JPanel();
         JPanel tablePanel = new JPanel();
         JPanel statusPanel = new JPanel();
@@ -134,6 +136,9 @@ public class ParameterManager extends ConsolePanel implements MAVLinkConnectionL
         statusBar = new JXStatusBar();
         setBtnsEnabled(false);
 
+        model = new ParameterTableModel(parameterList);
+        table = new JTable(model);
+
         mainPanel.setLayout(new BorderLayout(0, 0));
         tablePanel.setLayout(new MigLayout("", "[grow]", "[][][][][][][][][][]"));
         scrollPane.setViewportView(table);
@@ -147,7 +152,6 @@ public class ParameterManager extends ConsolePanel implements MAVLinkConnectionL
         loader.setVisible(false);
         loader.setBusy(false);
 
-        
         mainPanel.add(tablePanel, BorderLayout.EAST);
         mainPanel.add(scrollPane, BorderLayout.CENTER);
         mainPanel.add(statusPanel, BorderLayout.SOUTH);
@@ -159,34 +163,69 @@ public class ParameterManager extends ConsolePanel implements MAVLinkConnectionL
         tablePanel.add(btnFind, "cell 0 6,growx");
         tablePanel.add(findTxtField, "cell 0 7,growx");
         tablePanel.add(loader, "cell 0 9,growx");
-        
+
         statusPanel.add(statusBar);
-        
+
         add(mainPanel);
-        
+
         statusBar.add(getMessageBarLabel(), JXStatusBar.Constraint.ResizeBehavior.FILL);
         statusBar.add(btnConnect);
         statusBar.add(getStatusLed());
-
-        model = new ParameterTableModel(parameterList);
-        table = new JTable(model);
     }
-    
+
+    private boolean updateParameters() {
+        SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>() {
+
+            @Override
+            protected Void doInBackground() throws Exception {
+                requestingWriting = true;
+                long now = System.currentTimeMillis();
+
+                System.out.println(model.getModifiedParams().size());
+                setActivity("Updating parameters...", StatusLed.LEVEL_1);
+                for (Parameter param : model.getModifiedParams().values()) {
+                    System.out.println("Sending new parameter value : " + param.name + " " + param.getValue());
+                    MAVLinkParameters.sendParameter(mavlink, param);
+                }
+
+                while(((System.currentTimeMillis() - now) < TIMEOUT) && !writeWithSuccess && requestingWriting)
+                {
+                    Thread.sleep(1000);
+                }
+                
+                if (writeWithSuccess) {
+                    
+                }
+                else {
+                    
+                }
+                
+                requestingWriting = false;
+
+                return null;
+            }
+        };
+
+        worker.execute();
+
+        return true;
+    }
+
     private void addListenersAndRenderer() {
-        
+
         model.addTableModelListener(new TableModelListener() 
         {
             public void tableChanged(TableModelEvent evt) 
             {
                 if (!parameterList.isEmpty()) {
-                    if (evt.getType() == TableModelEvent.UPDATE &&  !requesting) {
+                    if (evt.getType() == TableModelEvent.UPDATE && !requestingParams) {
                         System.out.println("UPDATED ELEMENTS");
                         //TODO
                     }
                 }
             }
         });
-        
+
         btnGetParams.addActionListener(new ActionListener() {
 
             @Override
@@ -195,7 +234,7 @@ public class ParameterManager extends ConsolePanel implements MAVLinkConnectionL
 
                     @Override
                     protected Void doInBackground() throws Exception {
-                        requesting = true;
+                        requestingParams = true;
                         setActivity("Loading parameters...", StatusLed.LEVEL_0);
                         loader.setText("");
                         loader.setVisible(true);
@@ -205,29 +244,39 @@ public class ParameterManager extends ConsolePanel implements MAVLinkConnectionL
                         long now = System.currentTimeMillis();
                         requestParameters();
 
-                        while (num_of_retries <= RETRYS && !success) {
-                            while(((System.currentTimeMillis() - now) < TIMEOUT) && !success)
+                        while (num_of_retries <= RETRYS && !isFinished) {
+                            while(((System.currentTimeMillis() - now) < TIMEOUT) && !isFinished)
                             {
                                 Thread.sleep(1000);
                             }
 
                             // Didn't receive parameter count within TIMEOUT so we break loop
                             if (expectedParams == 0) {
-                                setActivity("Failed to load parameters. Autopilot missing data...", StatusLed.LEVEL_1);
+                                setActivity("Failed to load parameters...", StatusLed.LEVEL_1);
                                 num_of_retries = RETRYS + 1;
                             }
 
                             // Re-request missing parameters
-                            if (!success && expectedParams > 0)
+                            if (!isFinished && expectedParams > 0)
                                 reRequestMissingParams(expectedParams);
 
                             now = System.currentTimeMillis();
                             num_of_retries++;
                         }
 
-                        if (success){
+                        if (isFinished){
                             setActivity("Parameters loaded successfully...", StatusLed.LEVEL_0);
                             updateTable();
+
+                            //    Request 'stop' of Parameters datastream 
+                            //                            msg_command_int msg = new msg_command_int();
+                            //                            msg.target_system = 0;
+                            //                            msg.target_component = 0;
+                            //                            msg.param1 = msg_param_value.MAVLINK_MSG_ID_PARAM_VALUE;
+                            //                            msg.param2 = -1;
+                            //                            msg.command = MAV_CMD.MAV_CMD_SET_MESSAGE_INTERVAL;
+                            //
+                            //                            mavlink.sendMavPacket(msg.pack());
                         }
                         else {
                             setActivity("Failed to load parameters...", StatusLed.LEVEL_0);
@@ -235,7 +284,7 @@ public class ParameterManager extends ConsolePanel implements MAVLinkConnectionL
                             loader.setBusy(false);
                             loader.setText("");
                         }
-                        requesting = false;
+                        requestingParams = false;
                         return null;
                     }
 
@@ -244,6 +293,16 @@ public class ParameterManager extends ConsolePanel implements MAVLinkConnectionL
             }
         });
 
+        btnWriteParams.addActionListener(new ActionListener() {
+
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                updateParameters();
+
+                //model.clearModifiedParams();
+
+            }
+        });
         btnSaveToFile.addActionListener(new ActionListener() {
 
             @Override
@@ -320,7 +379,7 @@ public class ParameterManager extends ConsolePanel implements MAVLinkConnectionL
 
             }
         });
-        
+
         table.setDefaultRenderer(Object.class, new DefaultTableCellRenderer() {
             private static final long serialVersionUID = -4859420619704314087L;
 
@@ -329,12 +388,13 @@ public class ParameterManager extends ConsolePanel implements MAVLinkConnectionL
                     int column) {
                 super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
 
-                setBackground(row % 2 == 0 ? Color.gray : Color.gray.darker());
+                setForeground(Color.WHITE);
+                setBackground(model.getRowColor(row, column));
 
                 return this;
             }
         });
-        
+
     }
 
     private void updateConnectMenuText() {
@@ -391,7 +451,7 @@ public class ParameterManager extends ConsolePanel implements MAVLinkConnectionL
         expectedParams = 0;
         parameters.clear();
         parameterList.clear();
-        success = false;
+        isFinished = false;
         updateTable();
 
         if (mavlink != null)
@@ -421,6 +481,20 @@ public class ParameterManager extends ConsolePanel implements MAVLinkConnectionL
         };
         worker.execute();
 
+
+        //check if incoming parameter has name and value EQUAL to one on the modified parameters list
+        if (requestingWriting) {
+            if (model.checkAndUpdateParameter(param.name, param.getValue())) {
+                System.out.println("Updated parameter " + param.name + " successfully");
+            }
+            
+            // all parameters were successfuly updated
+            if (model.getModifiedParams().isEmpty()) {
+                requestingWriting = false;
+                writeWithSuccess = true;
+            }
+        }
+
         //All parameters here!
         if (parameters.size() >= m_value.param_count) {
             parameterList.clear();
@@ -430,7 +504,7 @@ public class ParameterManager extends ConsolePanel implements MAVLinkConnectionL
 
             loader.setVisible(false);
             loader.setBusy(false);
-            success = true;
+            isFinished = true;
         }
     }
 
