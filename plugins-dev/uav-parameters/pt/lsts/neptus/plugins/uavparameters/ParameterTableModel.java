@@ -37,12 +37,15 @@ import java.util.HashMap;
 
 import javax.swing.table.AbstractTableModel;
 
+import pt.lsts.neptus.NeptusLog;
+
 /**
  * @author Manuel R.
  *
  */
 @SuppressWarnings("serial")
 public class ParameterTableModel extends AbstractTableModel  {
+    private String system = null;
     private ArrayList<Parameter> params = new ArrayList<>();
     private HashMap<String, Parameter> modifiedParams = new HashMap<>();
     private static final int COLUMN_PARAM_NAME = 0;
@@ -99,7 +102,7 @@ public class ParameterTableModel extends AbstractTableModel  {
         param.value = Double.parseDouble((String) value);
 
         if (!oldValue.equals(value)) {
-            System.out.println("Updating: "+ param.name + "(" + oldValue +") with " + value);
+            NeptusLog.pub().info("Updating ["+ system +"]: "+ param.name + "(" + oldValue +") with " + value);
 
             modifiedParams.put(param.name, param);
 
@@ -119,11 +122,18 @@ public class ParameterTableModel extends AbstractTableModel  {
         Object returnValue = null;
         Parameter param = params.get(rowIndex);
 
+        if (param == null)
+            return null;
+
         switch (columnIndex) {
             case COLUMN_PARAM_NAME:
                 returnValue = param.name;
                 break;
             case COLUMN_VALUE:
+                if (modifiedParams.containsKey(param.name)) {
+                    returnValue = modifiedParams.get(param.name).getValue();
+                    break;
+                }
                 returnValue = param.getValue();
                 break;
             case COLUMN_UNITS:
@@ -150,9 +160,10 @@ public class ParameterTableModel extends AbstractTableModel  {
         return getValueAt(0, columnIndex).getClass();
     }
 
-    public void updateParamList(ArrayList<Parameter> newParamList) {
+    public void updateParamList(ArrayList<Parameter> newParamList, String system) {
         this.params = newParamList;
-
+        this.system = system;
+        
         fireTableDataChanged();
     }
 
@@ -164,20 +175,22 @@ public class ParameterTableModel extends AbstractTableModel  {
     }
 
     /**
-     * @param name
-     * @param value
+     * Compare incoming parameter's name and value to one on the modified parameters list
+     * @param name Incoming parameter name
+     * @param value Incoming parameter most recent value
      * @return
      */
     public boolean checkAndUpdateParameter(String name, String value) {
         Parameter e = modifiedParams.get(name);
-        if (e != null && e.getValue().equals(value)) {
-
-            modifiedParams.remove(name);
-            return true;
-        }
-        else {
-            System.out.println("FALSE ");
+        if (e == null)
             return false;
-        }
+
+        if (!e.getValue().equals(value))
+            return false;
+
+        if (modifiedParams.remove(name) != null)
+            return true;
+        else
+            return false;
     }
 }

@@ -56,7 +56,7 @@ import pt.lsts.neptus.plugins.uavparameters.MAVLinkParameters;
 public class MAVLinkConnection {
 
     private static final int READ_BUFFER_SIZE = 4096;
-    public static final String MAV_SCHEME = "mavlink+tcp";
+    public static final String MAV_SCHEME = "imc+udp";
     private final LinkedBlockingQueue<byte[]> mPacketsToSend = new LinkedBlockingQueue<>();
     private boolean toInitiateConnection = false;
     private boolean isMAVLinkConnected = false;
@@ -64,13 +64,16 @@ public class MAVLinkConnection {
     private String tcpHost;
     private int tcpPort;
     private BufferedOutputStream writer = null;
+    private BufferedInputStream reader = null;
     private final ConcurrentHashMap<String, MAVLinkConnectionListener> mListeners = new ConcurrentHashMap<String, MAVLinkConnectionListener>();
+    private String system = null;
 
-    public MAVLinkConnection(String address, int port) {
+    public MAVLinkConnection(String address, int port, String system) {
         this.tcpHost = address;
         this.tcpPort = port;
+        this.system = system;
     }
-    
+
     public void connect() {
         toInitiateConnection = true;
         initConnection();
@@ -85,7 +88,6 @@ public class MAVLinkConnection {
             @Override
             public void run() {
 
-                BufferedInputStream reader = null;
                 try {
                     socket.setSoTimeout(2000);
                 }
@@ -93,7 +95,7 @@ public class MAVLinkConnection {
                     e.printStackTrace();
                 }
                 try {
-                    
+
                     socket.connect(new InetSocketAddress(tcpHost, tcpPort));
                     reader = new BufferedInputStream(socket.getInputStream());
                     writer = new BufferedOutputStream(socket.getOutputStream());
@@ -127,7 +129,7 @@ public class MAVLinkConnection {
 
                         if (reader.read(readBuffer) == -1)
                             throw new SocketTimeoutException();
-                            
+
                         for (byte c : readBuffer) {
                             packet = parser.mavlink_parse_char(c & 0xFF);
                             if (packet != null){
@@ -146,15 +148,15 @@ public class MAVLinkConnection {
                         Thread.sleep(300);
                     }
                     catch (SocketTimeoutException e) {
-                        if (!ImcSystemsHolder.getSystemWithName("mariner-01").isActive()) {
+                        if (!ImcSystemsHolder.getSystemWithName(system).isActive()) {
                             reconnect(socket);
                             break;
                         }
-                        
+
                         for (MAVLinkConnectionListener l : mListeners.values())
                             l.onComError("Read error");
-                        
-                        
+
+
                     }
                     catch (Exception e) {
                         e.printStackTrace();
@@ -226,6 +228,7 @@ public class MAVLinkConnection {
     public void closeConnection() throws IOException {
         if (tcpSocket != null) {
             writer.close();
+            reader.close();
             tcpSocket.close();
             tcpSocket = null;
             toInitiateConnection = false;
@@ -307,8 +310,22 @@ public class MAVLinkConnection {
         this.toInitiateConnection = toInitiateConnection;
     }
 
+    /**
+     * @return the system
+     */
+    public String getSystem() {
+        return system;
+    }
+
+    /**
+     * @param system the system to set
+     */
+    public void setSystem(String system) {
+        this.system = system;
+    }
+
     public static void main(String argv[]) {
-        MAVLinkConnection mav = new MAVLinkConnection("10.0.20.125", 9999);
+        MAVLinkConnection mav = new MAVLinkConnection("10.0.20.125", 9999, "mariner-01");
         mav.initiateConnection(true);
         mav.initConnection();
         mav.initSendTask();

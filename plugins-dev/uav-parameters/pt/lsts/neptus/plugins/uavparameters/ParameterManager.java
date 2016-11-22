@@ -46,6 +46,7 @@ import java.util.List;
 
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
+import javax.swing.JFileChooser;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
@@ -75,6 +76,7 @@ import pt.lsts.neptus.plugins.Popup;
 import pt.lsts.neptus.plugins.Popup.POSITION;
 import pt.lsts.neptus.plugins.uavparameters.connection.MAVLinkConnection;
 import pt.lsts.neptus.plugins.uavparameters.connection.MAVLinkConnectionListener;
+import pt.lsts.neptus.util.GuiUtils;
 
 /**
  * @author Manuel R.
@@ -92,6 +94,7 @@ public class ParameterManager extends ConsolePanel implements MAVLinkConnectionL
     private JTextField findTxtField;
     private JTable table;
     private MAVLinkConnection mavlink = null;
+    private ParameterWriter writer = null;
     private boolean isFinished = false;
     private boolean writeWithSuccess = false;
     private int expectedParams;
@@ -178,28 +181,33 @@ public class ParameterManager extends ConsolePanel implements MAVLinkConnectionL
 
             @Override
             protected Void doInBackground() throws Exception {
+                if (model.getModifiedParams().isEmpty())
+                    return null;
+                
                 requestingWriting = true;
+                writeWithSuccess = false;
                 long now = System.currentTimeMillis();
 
-                System.out.println(model.getModifiedParams().size());
-                setActivity("Updating parameters...", StatusLed.LEVEL_1);
-                for (Parameter param : model.getModifiedParams().values()) {
-                    System.out.println("Sending new parameter value : " + param.name + " " + param.getValue());
+                setActivity("Updating "+ model.getModifiedParams().size() +" parameters...", StatusLed.LEVEL_1);
+
+                for (Parameter param : model.getModifiedParams().values())
                     MAVLinkParameters.sendParameter(mavlink, param);
-                }
 
                 while(((System.currentTimeMillis() - now) < TIMEOUT) && !writeWithSuccess && requestingWriting)
                 {
                     Thread.sleep(1000);
                 }
-                
+
                 if (writeWithSuccess) {
-                    
+                    setActivity("All parameters updated successfully...", StatusLed.LEVEL_0);
                 }
                 else {
-                    
+                    System.out.println("FAILED TO update all parameters!");
+                    for (String n : model.getModifiedParams().keySet()) {
+                        System.out.println(n);
+                    }
                 }
-                
+
                 requestingWriting = false;
 
                 return null;
@@ -267,16 +275,6 @@ public class ParameterManager extends ConsolePanel implements MAVLinkConnectionL
                         if (isFinished){
                             setActivity("Parameters loaded successfully...", StatusLed.LEVEL_0);
                             updateTable();
-
-                            //    Request 'stop' of Parameters datastream 
-                            //                            msg_command_int msg = new msg_command_int();
-                            //                            msg.target_system = 0;
-                            //                            msg.target_component = 0;
-                            //                            msg.param1 = msg_param_value.MAVLINK_MSG_ID_PARAM_VALUE;
-                            //                            msg.param2 = -1;
-                            //                            msg.command = MAV_CMD.MAV_CMD_SET_MESSAGE_INTERVAL;
-                            //
-                            //                            mavlink.sendMavPacket(msg.pack());
                         }
                         else {
                             setActivity("Failed to load parameters...", StatusLed.LEVEL_0);
@@ -299,15 +297,25 @@ public class ParameterManager extends ConsolePanel implements MAVLinkConnectionL
             public void actionPerformed(ActionEvent e) {
                 updateParameters();
 
-                //model.clearModifiedParams();
-
             }
         });
         btnSaveToFile.addActionListener(new ActionListener() {
 
             @Override
             public void actionPerformed(ActionEvent e) {
-                //TODO
+                if (parameterList.isEmpty())
+                    return;
+                
+                writer = new ParameterWriter(parameterList);
+                
+                String path = System.getProperty("user.home");
+                
+                JFileChooser fc = GuiUtils.getFileChooser(path, "", ".param");
+                int res = fc.showOpenDialog(ParameterManager.this);
+                if (fc != null) {
+                    if (res == JFileChooser.APPROVE_OPTION)
+                        writer.saveParametersToFile(fc.getSelectedFile().getPath());
+                }
             }
         });
 
@@ -359,7 +367,7 @@ public class ParameterManager extends ConsolePanel implements MAVLinkConnectionL
                     }
 
                     if (address != null && port != -1) {
-                        beginMavConnection(address, 9999);
+                        beginMavConnection(address, 9999, system);
                         setActivity("Connecting...", StatusLed.LEVEL_1, "Connecting!");
                     }
 
@@ -428,9 +436,9 @@ public class ParameterManager extends ConsolePanel implements MAVLinkConnectionL
         getStatusLed().setLevel(level);
     }
 
-    private void beginMavConnection(String address, int port) {
+    private void beginMavConnection(String address, int port, String system) {
         if (mavlink == null)
-            mavlink = new MAVLinkConnection(address, port);
+            mavlink = new MAVLinkConnection(address, port, system);
         else
             mavlink.setAddressAndPort(address, port);
         mavlink.addMavLinkConnectionListener("ParameterManager", this);
@@ -444,13 +452,14 @@ public class ParameterManager extends ConsolePanel implements MAVLinkConnectionL
 
 
     private void updateTable() {
-        model.updateParamList(parameterList);
+        model.updateParamList(parameterList, mavlink.getSystem());
     }
 
     private void requestParameters() {
         expectedParams = 0;
         parameters.clear();
         parameterList.clear();
+        model.clearModifiedParams();
         isFinished = false;
         updateTable();
 
@@ -482,12 +491,11 @@ public class ParameterManager extends ConsolePanel implements MAVLinkConnectionL
         worker.execute();
 
 
-        //check if incoming parameter has name and value EQUAL to one on the modified parameters list
+        //check if we're trying to write parameters
         if (requestingWriting) {
-            if (model.checkAndUpdateParameter(param.name, param.getValue())) {
-                System.out.println("Updated parameter " + param.name + " successfully");
-            }
             
+            model.checkAndUpdateParameter(param.name, param.getValue());
+
             // all parameters were successfuly updated
             if (model.getModifiedParams().isEmpty()) {
                 requestingWriting = false;
