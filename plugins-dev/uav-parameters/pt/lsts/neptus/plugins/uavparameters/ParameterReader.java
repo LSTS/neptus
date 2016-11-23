@@ -39,78 +39,78 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class ParameterReader {
-	private List<Parameter> parameters;
+    private List<Parameter> parameters;
 
-	public ParameterReader() {
-		this.parameters = new ArrayList<Parameter>();
-	}
+    public ParameterReader() {
+        this.parameters = new ArrayList<Parameter>();
+    }
 
-	public boolean openFile(String file) {
-		if (file == null) {
-			return false;
-		}
-		try {
-			FileInputStream in = new FileInputStream(file);
-			BufferedReader reader = new BufferedReader(new InputStreamReader(in));
+    public boolean openFile(String file) {
+        if (file == null) {
+            return false;
+        }
+        try {
+            FileInputStream in = new FileInputStream(file);
+            BufferedReader reader = new BufferedReader(new InputStreamReader(in));
 
-			if (!isParameterFile(reader)) {
-				in.close();
-				return false;
-			}
-			parseWaypointLines(reader);
+            if (!isParameterFile(reader)) {
+                in.close();
+                return false;
+            }
+            parseWaypointLines(reader);
 
-			in.close();
+            in.close();
 
-		} catch (Exception e) {
-			e.printStackTrace();
-			return false;
-		}
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
 
-		return true;
-	}
+        return true;
+    }
 
-	private void parseWaypointLines(BufferedReader reader) throws IOException {
-		String line;
-		parameters.clear();
-		while ((line = reader.readLine()) != null) {
-			try {
-				parseLine(line);
-			} catch (Exception e) {
-			        e.printStackTrace();
-			}
-		}
-	}
+    private void parseWaypointLines(BufferedReader reader) throws IOException {
+        String line;
+        parameters.clear();
+        while ((line = reader.readLine()) != null) {
+            try {
+                parseLine(line);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+    }
 
-	private void parseLine(String line) throws Exception {
-		String[] rowData = splitLine(line);
-		String name = rowData[0];
-		Double value = Double.valueOf(rowData[1]);
+    private void parseLine(String line) throws Exception {
+        String[] rowData = splitLine(line);
+        String name = rowData[0];
+        Double value = Double.valueOf(rowData[1]);
 
-		parameters.add(new Parameter(name, value));
-	}
+        parameters.add(new Parameter(name, value));
+    }
 
-	private String[] splitLine(String line) throws Exception {
-		String[] rowData = line.split(",");
-		if (rowData.length != 2) {
-			throw new Exception("Invalid Length");
-		}
-		rowData[0] = rowData[0].trim();
-		return rowData;
-	}
+    private String[] splitLine(String line) throws Exception {
+        String[] rowData = line.split(",");
+        if (rowData.length != 2) {
+            throw new Exception("Invalid Length");
+        }
+        rowData[0] = rowData[0].trim();
+        return rowData;
+    }
 
-	private static boolean isParameterFile(BufferedReader reader) throws IOException {
-		return reader.readLine().contains("#NOTE");
-	}
+    private static boolean isParameterFile(BufferedReader reader) throws IOException {
+        return reader.readLine().contains("#NOTE");
+    }
 
-	public List<Parameter> getParameters() {
-		return parameters;
-	}
-	
+    public List<Parameter> getParameters() {
+        return parameters;
+    }
+
     public static void main(String[] args) {
         ParameterReader reader = new ParameterReader();
         reader.openFile("/home/manuel/Downloads/mariner-01.param");
         System.out.println(reader.getParameters().size());
-        
+
         ParameterWriter writer = new ParameterWriter(reader.getParameters());
         boolean r = writer.saveParametersToFile("/home/manuel/Downloads/mariner-01.copy");
         System.out.println(r);
