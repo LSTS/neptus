@@ -31,8 +31,9 @@
  */
 package pt.lsts.neptus.plugins.uavparameters;
 
-import java.io.FileReader;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.Reader;
 import java.util.HashMap;
 
@@ -52,13 +53,13 @@ public class ParameterMetadataMapReader {
     private static final String METADATA_VALUES = "Values";
     private static final String METADATA_RANGE = "Range";
 
-    public static HashMap<String, ParameterMetadata> open(String input, String metadataType) throws IOException {
+    public static HashMap<String, ParameterMetadata> open(InputStream input, String metadataType) throws IOException {
         XmlPullParserFactory factory = null;
         XmlPullParser parser = null;
         Reader r = null;
 
         try {
-            r = new FileReader(input);
+            r = new InputStreamReader(input);
             factory = XmlPullParserFactory.newInstance();
             parser = factory.newPullParser();
             parser.setFeature(XmlPullParser.FEATURE_PROCESS_NAMESPACES, false);
