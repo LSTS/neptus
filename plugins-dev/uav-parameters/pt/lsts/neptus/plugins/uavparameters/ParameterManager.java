@@ -95,6 +95,7 @@ public class ParameterManager extends ConsolePanel implements MAVLinkConnectionL
     private JTable table;
     private MAVLinkConnection mavlink = null;
     private ParameterWriter writer = null;
+    private ParameterReader reader = null;
     private boolean isFinished = false;
     private boolean writeWithSuccess = false;
     private int expectedParams;
@@ -183,7 +184,7 @@ public class ParameterManager extends ConsolePanel implements MAVLinkConnectionL
             protected Void doInBackground() throws Exception {
                 if (model.getModifiedParams().isEmpty())
                     return null;
-                
+
                 requestingWriting = true;
                 writeWithSuccess = false;
                 long now = System.currentTimeMillis();
@@ -198,16 +199,13 @@ public class ParameterManager extends ConsolePanel implements MAVLinkConnectionL
                     Thread.sleep(1000);
                 }
 
-                if (writeWithSuccess) {
+                if (writeWithSuccess)
                     setActivity("All parameters updated successfully...", StatusLed.LEVEL_0);
-                }
                 else {
-                    System.out.println("FAILED TO update all parameters!");
-                    for (String n : model.getModifiedParams().keySet()) {
+                    setActivity("Failed to update "+model.getModifiedParams().size() + " parameters...", StatusLed.LEVEL_2);
+                    for (String n : model.getModifiedParams().keySet())
                         System.out.println(n);
-                    }
                 }
-
                 requestingWriting = false;
 
                 return null;
@@ -299,22 +297,45 @@ public class ParameterManager extends ConsolePanel implements MAVLinkConnectionL
 
             }
         });
+
         btnSaveToFile.addActionListener(new ActionListener() {
 
             @Override
             public void actionPerformed(ActionEvent e) {
                 if (parameterList.isEmpty())
                     return;
-                
+
                 writer = new ParameterWriter(parameterList);
-                
                 String path = System.getProperty("user.home");
-                
                 JFileChooser fc = GuiUtils.getFileChooser(path, "", ".param");
-                int res = fc.showOpenDialog(ParameterManager.this);
-                if (fc != null) {
-                    if (res == JFileChooser.APPROVE_OPTION)
-                        writer.saveParametersToFile(fc.getSelectedFile().getPath());
+                
+                if (fc.showOpenDialog(ParameterManager.this) == JFileChooser.APPROVE_OPTION) {
+                    boolean saved = writer.saveParametersToFile(fc.getSelectedFile().getPath());
+                    if (saved)
+                        setActivity("Wrote "+ reader.getParameters().size() +" parameters to file...", StatusLed.LEVEL_0, "Ok!");
+                }
+            }
+        });
+
+        btnLoadFromFile.addActionListener(new ActionListener() {
+
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                parameterList.clear();
+                parameters.clear();
+                model.clearModifiedParams();
+                model.updateParamList(parameterList, mavlink.getSystem());
+
+                reader = new ParameterReader();
+                String path = System.getProperty("user.home");
+                JFileChooser fc = GuiUtils.getFileChooser(path, "", ".param");
+
+                if (fc.showOpenDialog(ParameterManager.this) == JFileChooser.APPROVE_OPTION) {
+                    boolean f = reader.openFile(fc.getSelectedFile().getPath());
+                    if (f) {
+                        model.updateParamList((ArrayList<Parameter>) reader.getParameters(), mavlink.getSystem());
+                        setActivity("Loaded "+ reader.getParameters().size() +" parameters from file...", StatusLed.LEVEL_0, "Ok!");
+                    }
                 }
             }
         });
@@ -429,8 +450,8 @@ public class ParameterManager extends ConsolePanel implements MAVLinkConnectionL
             statusLed.setLevel(StatusLed.LEVEL_OFF);
         }
         return statusLed;
-
     }
+
     private void setActivity(String message, short level) {
         getMessageBarLabel().setText(message);
         getStatusLed().setLevel(level);
@@ -493,7 +514,7 @@ public class ParameterManager extends ConsolePanel implements MAVLinkConnectionL
 
         //check if we're trying to write parameters
         if (requestingWriting) {
-            
+
             model.checkAndUpdateParameter(param.name, param.getValue());
 
             // all parameters were successfuly updated
