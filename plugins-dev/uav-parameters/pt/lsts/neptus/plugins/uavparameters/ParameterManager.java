@@ -53,10 +53,13 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.JTextField;
+import javax.swing.RowSorter;
+import javax.swing.SortOrder;
 import javax.swing.SwingWorker;
 import javax.swing.event.TableModelEvent;
 import javax.swing.event.TableModelListener;
 import javax.swing.table.DefaultTableCellRenderer;
+import javax.swing.table.TableRowSorter;
 
 import org.jdesktop.swingx.JXStatusBar;
 
@@ -142,6 +145,13 @@ public class ParameterManager extends ConsolePanel implements MAVLinkConnectionL
 
         model = new ParameterTableModel(parameterList);
         table = new JTable(model);
+        
+        TableRowSorter<ParameterTableModel> sorter = new TableRowSorter<ParameterTableModel>(model);
+        table.setRowSorter(sorter);
+
+        List<RowSorter.SortKey> sortKeys = new ArrayList<>(1);
+        sortKeys.add(new RowSorter.SortKey(0, SortOrder.ASCENDING));
+        sorter.setSortKeys(sortKeys);
 
         mainPanel.setLayout(new BorderLayout(0, 0));
         tablePanel.setLayout(new MigLayout("", "[grow]", "[][][][][][][][][][]"));
