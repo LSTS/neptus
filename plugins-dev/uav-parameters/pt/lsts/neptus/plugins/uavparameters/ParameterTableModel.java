@@ -32,6 +32,7 @@
 package pt.lsts.neptus.plugins.uavparameters;
 
 import java.awt.Color;
+import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -60,7 +61,6 @@ public class ParameterTableModel extends AbstractTableModel  {
 
     public ParameterTableModel(ArrayList<Parameter> params) {
         this.params = params;
-        paramMetadataXML = getClass().getResourceAsStream("ParameterMetaData.xml");
     }
 
     private String[] columnNames = {
@@ -122,38 +122,38 @@ public class ParameterTableModel extends AbstractTableModel  {
     private String getDisplayName(String param) {
         if (metadata == null)
             return "";
-        
+
         return metadata.get(param) == null ? "" : metadata.get(param).getDisplayName();
     }
 
     private String getDescription(String param) {
         if (metadata == null)
             return "";
-        
+
         return metadata.get(param) == null ? "" : metadata.get(param).getDescription();
     }
 
     private String getUnits(String param) {
         if (metadata == null)
             return "";
-        
+
         return metadata.get(param) == null ? "" : metadata.get(param).getUnits();
     }
 
     private String getRange(String param) {
         if (metadata == null)
             return "";
-        
+
         return metadata.get(param) == null ? "" : metadata.get(param).getRange();
     }
-    
+
     private String getValues(String param) {
         if (metadata == null)
             return "";
-        
+
         return metadata.get(param) == null ? "" : metadata.get(param).getValues();
     }
-    
+
     @Override
     public Object getValueAt(int rowIndex, int columnIndex) {
         if (params.isEmpty() || rowIndex >= getRowCount())
@@ -213,15 +213,17 @@ public class ParameterTableModel extends AbstractTableModel  {
     public void updateParamList(ArrayList<Parameter> newParamList, String system, String type) {
         this.params = newParamList;
         this.system = system;
-        
-//        try {
-//            System.out.println("Type. "+ type);
-//            metadata = ParameterMetadataMapReader.open(paramMetadataXML, type);
-//        }
-//        catch (IOException e) {
-//            e.printStackTrace();
-//        }
-        
+
+        if (type != null) {
+            try {
+                paramMetadataXML = getClass().getResourceAsStream("ParameterMetaData.xml");
+                metadata = ParameterMetadataMapReader.open(paramMetadataXML, type);
+            }
+            catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+
         fireTableDataChanged();
     }
 
