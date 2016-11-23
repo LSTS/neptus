@@ -82,21 +82,20 @@ public class ParameterReader {
 	}
 
 	private void parseLine(String line) throws Exception {
-		String[] RowData = splitLine(line);
-
-		String name = RowData[0];
-		Double value = Double.valueOf(RowData[1]);
+		String[] rowData = splitLine(line);
+		String name = rowData[0];
+		Double value = Double.valueOf(rowData[1]);
 
 		parameters.add(new Parameter(name, value));
 	}
 
 	private String[] splitLine(String line) throws Exception {
-		String[] RowData = line.split(",");
-		if (RowData.length != 2) {
+		String[] rowData = line.split(",");
+		if (rowData.length != 2) {
 			throw new Exception("Invalid Length");
 		}
-		RowData[0] = RowData[0].trim();
-		return RowData;
+		rowData[0] = rowData[0].trim();
+		return rowData;
 	}
 
 	private static boolean isParameterFile(BufferedReader reader) throws IOException {

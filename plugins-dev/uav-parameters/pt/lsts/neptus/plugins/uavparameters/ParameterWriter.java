@@ -33,6 +33,8 @@ package pt.lsts.neptus.plugins.uavparameters;
 
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.text.DecimalFormat;
+import java.text.DecimalFormatSymbols;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
@@ -40,9 +42,11 @@ import java.util.Locale;
 
 public class ParameterWriter {
     private List<Parameter> parameterList;
+    private DecimalFormat df = null;
 
     public ParameterWriter(List<Parameter> param) {
         this.parameterList = param;
+        df = new DecimalFormat("0.#########", DecimalFormatSymbols.getInstance(Locale.ENGLISH));
     }
 
     public boolean saveParametersToFile(String file) {
@@ -63,7 +67,7 @@ public class ParameterWriter {
     }
 
     private void writeFirstLine(FileOutputStream out) throws IOException {
-        SimpleDateFormat sdfDate = new SimpleDateFormat("dd-MM-yyyy HH:mm:ss");//dd/MM/yyyy
+        SimpleDateFormat sdfDate = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");//dd/MM/yyyy
         Date now = new Date();
         String strDate = sdfDate.format(now);
 
@@ -72,7 +76,7 @@ public class ParameterWriter {
 
     private void writeWaypointsLines(FileOutputStream out) throws IOException {
         for (Parameter param : parameterList) {
-            out.write(String.format(Locale.ENGLISH, "%s , %f\n", param.name, param.value)
+            out.write(String.format(Locale.ENGLISH, "%s,%s\n", param.name, df.format(param.value))
                     .getBytes());
         }
     }
