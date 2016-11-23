@@ -146,7 +146,7 @@ public class ParameterTableModel extends AbstractTableModel  {
                 returnValue = "";
                 break;
             default:
-                throw new IllegalArgumentException("Invalid column index");
+                return Object.class;
         }
 
         return returnValue;
@@ -154,10 +154,20 @@ public class ParameterTableModel extends AbstractTableModel  {
 
     @Override
     public Class<?> getColumnClass(int columnIndex) {
-        if (params.isEmpty())
-            return Object.class;
-
-        return getValueAt(0, columnIndex).getClass();
+        switch (columnIndex) {
+            case 0:
+                return String.class;
+            case 1:
+                return String.class;
+            case 2:
+                return String.class;
+            case 3:
+                return String.class;
+            case 4:
+                return String.class;
+            default:
+                return Object.class;
+        }
     }
 
     public void updateParamList(ArrayList<Parameter> newParamList, String system) {

@@ -53,9 +53,12 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.JTextField;
+import javax.swing.RowFilter;
 import javax.swing.RowSorter;
 import javax.swing.SortOrder;
 import javax.swing.SwingWorker;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
 import javax.swing.event.TableModelEvent;
 import javax.swing.event.TableModelListener;
 import javax.swing.table.DefaultTableCellRenderer;
@@ -96,6 +99,7 @@ public class ParameterManager extends ConsolePanel implements MAVLinkConnectionL
     private static final InfiniteProgressPanel loader = InfiniteProgressPanel.createInfinitePanelBeans("", 100);
     private JTextField findTxtField;
     private JTable table;
+    private TableRowSorter<ParameterTableModel> sorter;
     private MAVLinkConnection mavlink = null;
     private ParameterWriter writer = null;
     private ParameterReader reader = null;
@@ -146,7 +150,7 @@ public class ParameterManager extends ConsolePanel implements MAVLinkConnectionL
         model = new ParameterTableModel(parameterList);
         table = new JTable(model);
         
-        TableRowSorter<ParameterTableModel> sorter = new TableRowSorter<ParameterTableModel>(model);
+        sorter = new TableRowSorter<ParameterTableModel>(model);
         table.setRowSorter(sorter);
 
         List<RowSorter.SortKey> sortKeys = new ArrayList<>(1);
@@ -187,6 +191,17 @@ public class ParameterManager extends ConsolePanel implements MAVLinkConnectionL
         statusBar.add(getStatusLed());
     }
 
+    private void applyFilter() {
+        RowFilter<ParameterTableModel, Object> rf = null;
+        //If current expression doesn't parse, don't update.
+        try {
+            rf = RowFilter.regexFilter("(?i)" + findTxtField.getText(), 0);
+        } catch (java.util.regex.PatternSyntaxException e) {
+            return;
+        }
+        sorter.setRowFilter(rf);
+    }
+    
     private boolean updateParameters() {
         SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>() {
 
@@ -434,6 +449,23 @@ public class ParameterManager extends ConsolePanel implements MAVLinkConnectionL
             }
         });
 
+        findTxtField.getDocument().addDocumentListener(new DocumentListener() {
+            
+            @Override
+            public void removeUpdate(DocumentEvent e) {
+                applyFilter();
+            }
+            
+            @Override
+            public void insertUpdate(DocumentEvent e) {
+                applyFilter();
+            }
+            
+            @Override
+            public void changedUpdate(DocumentEvent e) {
+                applyFilter();
+            }
+        });
     }
 
     private void updateConnectMenuText() {
