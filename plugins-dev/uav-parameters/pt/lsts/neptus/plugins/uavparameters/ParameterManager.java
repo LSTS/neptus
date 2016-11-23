@@ -93,7 +93,6 @@ import pt.lsts.neptus.util.GuiUtils;
 @PluginDescription(name = "UAV Parameter Configuration", icon = "images/settings2.png")
 @Popup(name = "UAV Parameter Configuration Panel", pos = POSITION.CENTER, height = 500, width = 800, accelerator = '0')
 public class ParameterManager extends ConsolePanel implements MAVLinkConnectionListener {
-
     private static final int TIMEOUT = 5000;
     private static final int RETRYS = 10;
     private static final InfiniteProgressPanel loader = InfiniteProgressPanel.createInfinitePanelBeans("", 100);
@@ -329,7 +328,7 @@ public class ParameterManager extends ConsolePanel implements MAVLinkConnectionL
             public void actionPerformed(ActionEvent e) {
                 if (parameterList.isEmpty())
                     return;
-
+                
                 writer = new ParameterWriter(parameterList);
                 String path = System.getProperty("user.home");
                 JFileChooser fc = GuiUtils.getFileChooser(path, "", ".param");
@@ -349,7 +348,7 @@ public class ParameterManager extends ConsolePanel implements MAVLinkConnectionL
                 parameterList.clear();
                 parameters.clear();
                 model.clearModifiedParams();
-                model.updateParamList(parameterList, mavlink.getSystem());
+                updateTable();
 
                 reader = new ParameterReader();
                 String path = System.getProperty("user.home");
@@ -358,7 +357,7 @@ public class ParameterManager extends ConsolePanel implements MAVLinkConnectionL
                 if (fc.showOpenDialog(ParameterManager.this) == JFileChooser.APPROVE_OPTION) {
                     boolean f = reader.openFile(fc.getSelectedFile().getPath());
                     if (f) {
-                        model.updateParamList((ArrayList<Parameter>) reader.getParameters(), mavlink.getSystem());
+                        model.updateParamList((ArrayList<Parameter>) reader.getParameters(), mavlink.getSystem(), mavlink.getSystemType());
                         setActivity("Loaded "+ reader.getParameters().size() +" parameters from file...", StatusLed.LEVEL_0, "Ok!");
                     }
                 }
@@ -415,6 +414,7 @@ public class ParameterManager extends ConsolePanel implements MAVLinkConnectionL
                     if (address != null && port != -1) {
                         beginMavConnection(address, 9999, system);
                         setActivity("Connecting...", StatusLed.LEVEL_1, "Connecting!");
+                        
                     }
 
                 } 
@@ -513,9 +513,9 @@ public class ParameterManager extends ConsolePanel implements MAVLinkConnectionL
         getStatusLed().setLevel(level, tooltip);
     }
 
-
     private void updateTable() {
-        model.updateParamList(parameterList, mavlink.getSystem());
+        
+        model.updateParamList(parameterList, mavlink.getSystem(), mavlink.getSystemType());
     }
 
     private void requestParameters() {

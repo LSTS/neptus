@@ -44,10 +44,12 @@ import java.util.concurrent.LinkedBlockingQueue;
 import com.MAVLink.MAVLinkPacket;
 import com.MAVLink.Parser;
 import com.MAVLink.Messages.MAVLinkMessage;
+import com.MAVLink.ardupilotmega.msg_autopilot_version_request;
+import com.MAVLink.common.msg_heartbeat;
+import com.MAVLink.enums.MAV_TYPE;
 
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.comm.manager.imc.ImcSystemsHolder;
-import pt.lsts.neptus.plugins.uavparameters.MAVLinkParameters;
 
 /**
  * @author Manuel R.
@@ -55,8 +57,10 @@ import pt.lsts.neptus.plugins.uavparameters.MAVLinkParameters;
  */
 public class MAVLinkConnection {
 
-    private static final int READ_BUFFER_SIZE = 4096;
+    private static final String ARDUCOPTER = "ArduCopter2";
+    private static final String ARDUPLANE = "ArduPlane";
     public static final String MAV_SCHEME = "imc+udp";
+    private static final int READ_BUFFER_SIZE = 4096;
     private final LinkedBlockingQueue<byte[]> mPacketsToSend = new LinkedBlockingQueue<>();
     private boolean toInitiateConnection = false;
     private boolean isMAVLinkConnected = false;
@@ -67,6 +71,7 @@ public class MAVLinkConnection {
     private BufferedInputStream reader = null;
     private final ConcurrentHashMap<String, MAVLinkConnectionListener> mListeners = new ConcurrentHashMap<String, MAVLinkConnectionListener>();
     private String system = null;
+    private short sysType;
 
     public MAVLinkConnection(String address, int port, String system) {
         this.tcpHost = address;
@@ -137,6 +142,11 @@ public class MAVLinkConnection {
                                 MAVLinkMessage msg = (MAVLinkMessage) packet.unpack();
                                 //System.out.println("MSG "+ msg.toString());
                                 if (msg != null) {
+
+                                    if ( msg.msgid == msg_heartbeat.MAVLINK_MSG_ID_HEARTBEAT) {
+                                        msg_heartbeat hb = (msg_heartbeat) msg;
+                                        sysType = hb.type;
+                                    }
 
                                     //notify listeners - New MavLinkMessage incoming...
                                     for (MAVLinkConnectionListener l : mListeners.values())
@@ -335,8 +345,26 @@ public class MAVLinkConnection {
         catch (InterruptedException e) {
             e.printStackTrace();
         }
-        System.out.println("Sending request of parameter list");
-        MAVLinkParameters.requestParametersList(mav);
+        msg_autopilot_version_request msg = new msg_autopilot_version_request();
+        msg.target_system = 1;
+        msg.target_component = 1;
+        mav.sendMavPacket(msg.pack());
+        //System.out.println("Sending request of parameter list");
+        //MAVLinkParameters.requestParametersList(mav);
     }
 
+    public String getSystemType() {
+        String type = null;
+        if (sysType == MAV_TYPE.MAV_TYPE_FIXED_WING) {
+            type = MAVLinkConnection.ARDUPLANE;
+        } else 
+            if (sysType == MAV_TYPE.MAV_TYPE_QUADROTOR || 
+                sysType == MAV_TYPE.MAV_TYPE_HEXAROTOR || 
+                sysType == MAV_TYPE.MAV_TYPE_OCTOROTOR) {
+                
+                type = MAVLinkConnection.ARDUCOPTER;
+            }
+
+        return type;
+    }
 }

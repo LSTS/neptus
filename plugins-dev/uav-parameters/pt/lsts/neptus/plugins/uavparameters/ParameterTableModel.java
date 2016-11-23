@@ -32,6 +32,7 @@
 package pt.lsts.neptus.plugins.uavparameters;
 
 import java.awt.Color;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 
@@ -45,6 +46,9 @@ import pt.lsts.neptus.NeptusLog;
  */
 @SuppressWarnings("serial")
 public class ParameterTableModel extends AbstractTableModel  {
+
+    private HashMap<String, ParameterMetadata> metadata = null;
+    private InputStream paramMetadataXML = null;
     private String system = null;
     private ArrayList<Parameter> params = new ArrayList<>();
     private HashMap<String, Parameter> modifiedParams = new HashMap<>();
@@ -56,13 +60,14 @@ public class ParameterTableModel extends AbstractTableModel  {
 
     public ParameterTableModel(ArrayList<Parameter> params) {
         this.params = params;
+        paramMetadataXML = getClass().getResourceAsStream("ParameterMetaData.xml");
     }
 
     private String[] columnNames = {
             "Name",
             "Value",
             "Units",
-            "Options",
+            "Range",
             "Description"
     };
 
@@ -114,6 +119,41 @@ public class ParameterTableModel extends AbstractTableModel  {
         modifiedParams.clear();
     }
 
+    private String getDisplayName(String param) {
+        if (metadata == null)
+            return "";
+        
+        return metadata.get(param) == null ? "" : metadata.get(param).getDisplayName();
+    }
+
+    private String getDescription(String param) {
+        if (metadata == null)
+            return "";
+        
+        return metadata.get(param) == null ? "" : metadata.get(param).getDescription();
+    }
+
+    private String getUnits(String param) {
+        if (metadata == null)
+            return "";
+        
+        return metadata.get(param) == null ? "" : metadata.get(param).getUnits();
+    }
+
+    private String getRange(String param) {
+        if (metadata == null)
+            return "";
+        
+        return metadata.get(param) == null ? "" : metadata.get(param).getRange();
+    }
+    
+    private String getValues(String param) {
+        if (metadata == null)
+            return "";
+        
+        return metadata.get(param) == null ? "" : metadata.get(param).getValues();
+    }
+    
     @Override
     public Object getValueAt(int rowIndex, int columnIndex) {
         if (params.isEmpty() || rowIndex >= getRowCount())
@@ -137,13 +177,13 @@ public class ParameterTableModel extends AbstractTableModel  {
                 returnValue = param.getValue();
                 break;
             case COLUMN_UNITS:
-                returnValue = "";
+                returnValue = getUnits(param.name);
                 break;
             case COLUMN_OPTIONS:
-                returnValue = "";
+                returnValue = getRange(param.name);
                 break;
             case COLUMN_DESCRIPTION:
-                returnValue = "";
+                returnValue = getDescription(param.name);
                 break;
             default:
                 return Object.class;
@@ -170,9 +210,17 @@ public class ParameterTableModel extends AbstractTableModel  {
         }
     }
 
-    public void updateParamList(ArrayList<Parameter> newParamList, String system) {
+    public void updateParamList(ArrayList<Parameter> newParamList, String system, String type) {
         this.params = newParamList;
         this.system = system;
+        
+//        try {
+//            System.out.println("Type. "+ type);
+//            metadata = ParameterMetadataMapReader.open(paramMetadataXML, type);
+//        }
+//        catch (IOException e) {
+//            e.printStackTrace();
+//        }
         
         fireTableDataChanged();
     }
