@@ -103,6 +103,9 @@ public class MultibeamCrossSection extends ConsolePanel implements MainVehicleCh
     // layer with range's scale
     private BufferedImage gridLayer;
 
+    // when the window is resized
+    private boolean gridInvalidated = false;
+
     // information labels
     private JLabel latLabel;
     private JLabel lonLabel;
@@ -150,6 +153,7 @@ public class MultibeamCrossSection extends ConsolePanel implements MainVehicleCh
             public void componentResized(ComponentEvent e) {
                 if (e.getID() == ComponentEvent.COMPONENT_RESIZED) {
                     createImages();
+                    gridInvalidated = true;
                 }
             }
         });
@@ -167,7 +171,10 @@ public class MultibeamCrossSection extends ConsolePanel implements MainVehicleCh
             protected void paintComponent(Graphics g) {
                 super.paintComponent(g);
 
-                gridLayer = createGridImage();
+                if(gridInvalidated) {
+                    gridLayer = createGridImage();
+                    gridInvalidated = false;
+                }
                 g.drawImage(gridLayer, 0, 0, null);
             }
         };
@@ -226,9 +233,29 @@ public class MultibeamCrossSection extends ConsolePanel implements MainVehicleCh
         BufferedImage grid = new BufferedImage(gridWidth,
                 gridHeight, BufferedImage.TYPE_INT_ARGB);
         Graphics2D g = (Graphics2D) grid.getGraphics();
-
         g.setColor(Color.GREEN.darker());
-        g.drawRect(0, 0, gridWidth - 1, gridHeight - 1);
+
+        // vertical lines
+        for(int i = 0; i <= N_COLS; i++) {
+            int x = cellSize * i;
+            int y = gridHeight;
+
+            if(i == N_COLS)
+                x--;
+
+            g.drawLine(x, 0, x, y);
+        }
+
+        // horizontal lines
+        for(int i = 0; i <= N_ROWS; i++) {
+            int x = gridWidth;
+            int y = cellSize * i;
+
+            if(i == N_ROWS)
+                y--;
+
+            g.drawLine(0, y, x, y);
+        }
 
         return grid;
     }
