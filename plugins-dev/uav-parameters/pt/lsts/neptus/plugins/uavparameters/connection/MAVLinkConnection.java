@@ -59,7 +59,7 @@ public class MAVLinkConnection {
 
     private static final String ARDUCOPTER = "ArduCopter2";
     private static final String ARDUPLANE = "ArduPlane";
-    public static final String MAV_SCHEME = "imc+udp";
+    public static final String MAV_SCHEME = "mavlink+tcp";
     private static final int READ_BUFFER_SIZE = 4096;
     private final LinkedBlockingQueue<byte[]> mPacketsToSend = new LinkedBlockingQueue<>();
     private boolean toInitiateConnection = false;

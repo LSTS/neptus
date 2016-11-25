@@ -245,7 +245,8 @@ public class ParameterManager extends ConsolePanel implements MAVLinkConnectionL
 
         model.addTableModelListener(new TableModelListener() 
         {
-            public void tableChanged(TableModelEvent evt) 
+            @Override
+            public void tableChanged(TableModelEvent evt)
             {
                 if (!parameterList.isEmpty()) {
                     if (evt.getType() == TableModelEvent.UPDATE && !requestingParams) {
@@ -412,7 +413,7 @@ public class ParameterManager extends ConsolePanel implements MAVLinkConnectionL
                     }
 
                     if (address != null && port != -1) {
-                        beginMavConnection(address, 9999, system);
+                        beginMavConnection(address, port, system);
                         setActivity("Connecting...", StatusLed.LEVEL_1, "Connecting!");
                         
                     }
