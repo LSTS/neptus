@@ -37,6 +37,7 @@ import java.util.ArrayList;
 
 import javax.imageio.ImageIO;
 
+import org.apache.sanselan.ImageReadException;
 import org.apache.sanselan.Sanselan;
 import org.gdal.gdal.Dataset;
 import org.gdal.gdal.gdal;
@@ -111,7 +112,7 @@ public class GdalDataSet {
         hDataset.GetGeoTransform(adfGeoTransform);
         
         if (adfGeoTransform[2] == 0.0 && adfGeoTransform[4] == 0.0)
-            return new double[] {adfGeoTransform[1], -adfGeoTransform[2]};
+            return new double[] {adfGeoTransform[1], -adfGeoTransform[5]};
             
         LocationType corners[] = getCornerCoordinates();
         double distY = corners[0].getHorizontalDistanceInMeters(corners[1]);
@@ -125,10 +126,14 @@ public class GdalDataSet {
         if (!outputDir.isDirectory())
             outputDir = outputDir.getParentFile();
         File file = new File(outputDir, el.getId()+".png");
-        ImageIO.write(getGroundOverlay(), "png", file);
+        try {
+            ImageIO.write(getGroundOverlay(), "png", file);    
+        }
+        catch (ImageReadException e) {
+            throw new Exception("Unable to read source image: "+e.getMessage(), e);
+        }
         
-        el.setImageFileName(file.getAbsolutePath());
-        
+        el.setImageFileName(file.getAbsolutePath());       
         el.setImageScale(getMetersPerPixel()[0]);
         el.setImageScaleV(getMetersPerPixel()[1]);
         el.setYaw(getRotationRads());

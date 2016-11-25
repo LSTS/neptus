@@ -714,22 +714,36 @@ public class MapEditor extends ConsolePanel implements StateRendererInteraction,
                             final MapType pivot = m != null ? m : mg.getMaps()[0];
                             
                             GdalDataSet tiff = new GdalDataSet(chooser.getSelectedFile());
-                            ImageElement el = tiff.asImageElement(getConsole().getMission().getMissionFile());
-                            
-                            el.setMapGroup(mg);
-                            el.showParametersDialog(MapEditor.this, pivot.getObjectIds(), pivot, true);
+                            try {
+                                ImageElement el = tiff.asImageElement(getConsole().getMission().getMissionFile());    
+                                if (el.getCenterLocation().isLocationEqual(new LocationType())) {
+                                    GuiUtils.errorMessage(MapEditor.this, I18n.text("Add GeoTIFF ground overlay."),
+                                            I18n.text("Unable to get geographic location for overlay."));
+                                }
+                                
+                                el.setMapGroup(mg);
+                                el.showParametersDialog(MapEditor.this, pivot.getObjectIds(), pivot, true);
 
-                            if (!el.userCancel) {
-                                pivot.addObject(el);
+                                if (!el.userCancel) {
+                                    pivot.addObject(el);
 
-                                MapChangeEvent mce = new MapChangeEvent(MapChangeEvent.OBJECT_ADDED);
-                                mce.setSourceMap(pivot);
-                                mce.setChangedObject(draggedObject);
-                                pivot.warnChangeListeners(mce);
+                                    MapChangeEvent mce = new MapChangeEvent(MapChangeEvent.OBJECT_ADDED);
+                                    mce.setSourceMap(pivot);
+                                    mce.setChangedObject(draggedObject);
+                                    pivot.warnChangeListeners(mce);
 
-                                AddObjectEdit edit = new AddObjectEdit(el);
-                                manager.addEdit(edit);
+                                    AddObjectEdit edit = new AddObjectEdit(el);
+                                    manager.addEdit(edit);
+                                }
                             }
+                            catch (Exception ex) {
+                                
+                                GuiUtils.errorMessage(MapEditor.this, I18n.text("Add GeoTIFF ground overlay."),
+                                        I18n.text("Image format not understood: "+ex.getMessage()));
+                                ex.printStackTrace();                                
+                            }
+                            
+                            
                         }
                         catch (Exception ex) {
                             NeptusLog.pub().error(ex);
