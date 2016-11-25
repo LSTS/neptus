@@ -191,12 +191,44 @@ public class MultibeamCrossSection extends ConsolePanel implements MainVehicleCh
     }
 
     private BufferedImage createGridImage() {
-        BufferedImage grid = new BufferedImage(dataPanel.getWidth(),
-                dataPanel.getHeight(), BufferedImage.TYPE_INT_ARGB);
+        int gridWidth;
+        int gridHeight;
+        int cellSize;
+
+        // adjust grid's dimensions
+
+        if(dataPanel.getWidth() < dataPanel.getHeight()) {
+            cellSize = dataPanel.getWidth() / N_COLS;
+            gridHeight = N_ROWS * cellSize;
+            gridWidth = N_COLS * cellSize;
+
+            if(gridHeight > dataPanel.getHeight()) {
+                float ratio = 1 - dataPanel.getHeight() / (float) gridHeight;
+                cellSize -= cellSize * ratio;
+                gridWidth = N_COLS * cellSize;
+                gridHeight = N_ROWS * cellSize;
+            }
+        }
+        else {
+            cellSize = dataPanel.getHeight() / N_ROWS;
+            gridWidth = N_COLS * cellSize;
+            gridHeight = N_ROWS * cellSize;
+
+            if(gridWidth > dataPanel.getWidth()) {
+                float ratio = 1 - dataPanel.getWidth() / (float) gridWidth;
+                cellSize -= cellSize * ratio;
+                gridWidth = N_COLS * cellSize;
+                gridHeight = N_ROWS * cellSize;
+            }
+        }
+
+
+        BufferedImage grid = new BufferedImage(gridWidth,
+                gridHeight, BufferedImage.TYPE_INT_ARGB);
         Graphics2D g = (Graphics2D) grid.getGraphics();
 
         g.setColor(Color.GREEN.darker());
-        g.drawRect(0, 0, grid.getWidth() - 1, grid.getHeight() - 1);
+        g.drawRect(0, 0, gridWidth - 1, gridHeight - 1);
 
         return grid;
     }
