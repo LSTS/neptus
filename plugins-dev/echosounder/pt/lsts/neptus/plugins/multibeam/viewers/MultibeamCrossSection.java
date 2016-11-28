@@ -35,6 +35,7 @@ package pt.lsts.neptus.plugins.multibeam.viewers;
 
 import com.google.common.eventbus.Subscribe;
 import net.miginfocom.swing.MigLayout;
+import pt.lsts.imc.EstimatedState;
 import pt.lsts.imc.SonarData;
 import pt.lsts.neptus.colormap.ColorBar;
 import pt.lsts.neptus.colormap.ColorMap;
@@ -42,9 +43,11 @@ import pt.lsts.neptus.colormap.ColorMapFactory;
 import pt.lsts.neptus.console.ConsoleLayout;
 import pt.lsts.neptus.console.ConsolePanel;
 import pt.lsts.neptus.console.plugins.MainVehicleChangeListener;
+import pt.lsts.neptus.mp.SystemPositionAndAttitude;
 import pt.lsts.neptus.mra.api.BathymetrySwath;
 import pt.lsts.neptus.plugins.PluginDescription;
 import pt.lsts.neptus.plugins.Popup;
+import pt.lsts.neptus.types.coord.LocationType;
 import pt.lsts.neptus.util.ImageUtils;
 
 import javax.swing.*;
@@ -111,6 +114,12 @@ public class MultibeamCrossSection extends ConsolePanel implements MainVehicleCh
     private boolean gridInvalidated = false;
 
     // information labels
+    private final JLabel vehicleIdLabel = new JLabel("ID: ");
+    private final JLabel vehicleIdValue = new JLabel("n/a");
+
+    private final JLabel headingLabel = new JLabel("HDG: ");
+    private final JLabel headingValue = new JLabel("n/a");
+
     private final JLabel latLabel = new JLabel("LAT: ");
     private final JLabel latValue = new JLabel("n/a");
 
@@ -134,6 +143,7 @@ public class MultibeamCrossSection extends ConsolePanel implements MainVehicleCh
 
     // Data
     private List<BathymetrySwath> dataList = Collections.synchronizedList(new ArrayList<BathymetrySwath>());
+    private SystemPositionAndAttitude currState = null;
 
 
     public MultibeamCrossSection(ConsoleLayout console) {
@@ -207,47 +217,60 @@ public class MultibeamCrossSection extends ConsolePanel implements MainVehicleCh
             }
         };
 
-        infoPanel.setLayout(new MigLayout("", "300[]10[]150[][]", "[][][]"));
+        infoPanel.setLayout(new MigLayout("wrap", "300[]10[]150[][]", "[][][][]"));
         infoPanel.setBackground(Color.black);
         infoPanel.setPreferredSize(new Dimension(viewer.getWidth(), viewer.getHeight()));
 
         final Font f = latLabel.getFont().deriveFont(18.0f);
 
+
+        vehicleIdLabel.setFont(f);
+        vehicleIdLabel.setForeground(LABELS_COLOR);
+        vehicleIdValue.setForeground(GRID_COLOR);
+        infoPanel.add(vehicleIdLabel);
+        infoPanel.add(vehicleIdValue);
+
+        headingLabel.setFont(f);
+        headingLabel.setForeground(LABELS_COLOR);
+        headingValue.setForeground(GRID_COLOR);
+        infoPanel.add(headingLabel);
+        infoPanel.add(headingValue);
+
         latLabel.setFont(f);
         latLabel.setForeground(LABELS_COLOR);
         latValue.setForeground(GRID_COLOR);
-        infoPanel.add(latLabel, "cell 0 0");
-        infoPanel.add(latValue, "cell 1 0");
+        infoPanel.add(latLabel);
+        infoPanel.add(latValue);
 
         lonLabel.setFont(f);
         lonLabel.setForeground(LABELS_COLOR);
         lonValue.setForeground(GRID_COLOR);
-        infoPanel.add(lonLabel, "cell 0 1");
-        infoPanel.add(lonValue, "cell 1 1");
+        infoPanel.add(lonLabel);
+        infoPanel.add(lonValue);
 
         speedLabel.setFont(f);
         speedLabel.setForeground(LABELS_COLOR);
         speedValue.setForeground(GRID_COLOR);
-        infoPanel.add(speedLabel, "cell 0 2");
-        infoPanel.add(speedValue, "cell 1 2");
+        infoPanel.add(speedLabel);
+        infoPanel.add(speedValue);
 
         pitchLabel.setFont(f);
         pitchLabel.setForeground(LABELS_COLOR);
         pitchValue.setForeground(GRID_COLOR);
-        infoPanel.add(pitchLabel, "cell 2 0");
-        infoPanel.add(pitchValue, "cell 3 0");
+        infoPanel.add(pitchLabel);
+        infoPanel.add(pitchValue);
 
         rollLabel.setFont(f);
         rollLabel.setForeground(LABELS_COLOR);
         rollvalue.setForeground(GRID_COLOR);
-        infoPanel.add(rollLabel, "cell 2 1");
-        infoPanel.add(rollvalue, "cell 3 1");
+        infoPanel.add(rollLabel);
+        infoPanel.add(rollvalue);
 
         altLabel.setFont(f);
         altLabel.setForeground(LABELS_COLOR);
         altValue.setForeground(GRID_COLOR);
-        infoPanel.add(altLabel, "cell 2 2");
-        infoPanel.add(altValue, "cell 3 2");
+        infoPanel.add(altLabel);
+        infoPanel.add(altValue);
         return infoPanel;
     }
 
@@ -365,5 +388,36 @@ public class MultibeamCrossSection extends ConsolePanel implements MainVehicleCh
             return;
 
         // handle multibeam data
+    }
+
+    @Subscribe
+    public void onEstimatedState(EstimatedState msg) {
+        if(!msg.getSourceName().equals(getMainVehicleId()))
+            return;
+
+        currState = new SystemPositionAndAttitude(msg);
+
+        if(currState != null) {
+            vehicleIdValue.setText(getMainVehicleId());
+            double heading = currState.getYaw() * 180 / Math.PI;
+            headingValue.setText(toRoundedString(heading));
+
+            LocationType loc = currState.getPosition();
+            latValue.setText(loc.getLatitudeAsPrettyString());
+            lonValue.setText(loc.getLongitudeAsPrettyString());
+
+            speedValue.setText(toRoundedString(currState.getV()));
+            pitchValue.setText(toRoundedString(currState.getPitch()));
+            rollvalue.setText(toRoundedString(currState.getRoll()));
+            altValue.setText(toRoundedString(currState.getAltitude()));
+        }
+    }
+
+    /**
+     * From a given estimated state value returns
+     * it rounded and in string format
+     * */
+    private String toRoundedString(double value) {
+        return Double.toString(Math.round(value * 100000) / 100000.0);
     }
 }
