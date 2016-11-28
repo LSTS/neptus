@@ -232,7 +232,6 @@ public class MultibeamCrossSection extends ConsolePanel implements MainVehicleCh
 
         final Font f = latLabel.getFont().deriveFont(18.0f);
 
-
         vehicleIdLabel.setFont(f);
         vehicleIdLabel.setForeground(LABELS_COLOR);
         vehicleIdValue.setForeground(GRID_COLOR);
@@ -440,6 +439,7 @@ public class MultibeamCrossSection extends ConsolePanel implements MainVehicleCh
 
     @Override
     public void propertiesChanged() {
-
+        gridInvalidated = true;
+        dataPanel.repaint();
     }
 }
