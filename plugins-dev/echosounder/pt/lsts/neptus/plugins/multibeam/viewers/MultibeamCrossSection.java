@@ -108,15 +108,15 @@ public class MultibeamCrossSection extends ConsolePanel implements MainVehicleCh
     private boolean gridInvalidated = false;
 
     // information labels
-    private JLabel latLabel;
-    private JLabel lonLabel;
-    private JLabel speedLabel;
-    private JLabel pitchLabel;
-    private JLabel rollLabel;
-    private JLabel altLabel;
+    private final JLabel latLabel = new JLabel();
+    private final JLabel lonLabel = new JLabel();
+    private final JLabel speedLabel = new JLabel();
+    private final JLabel pitchLabel = new JLabel();
+    private final JLabel rollLabel = new JLabel();
+    private final JLabel altLabel  = new JLabel();
 
-    private ColorBar colorBar;
     private ColorMap colorMap = ColorMapFactory.createJetColorMap();
+    private final ColorBar colorBar = new ColorBar(ColorBar.VERTICAL_ORIENTATION, colorMap);
 
     // Data
     private List<BathymetrySwath> dataList = Collections.synchronizedList(new ArrayList<BathymetrySwath>());
