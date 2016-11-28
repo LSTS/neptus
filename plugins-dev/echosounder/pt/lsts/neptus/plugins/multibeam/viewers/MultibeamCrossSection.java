@@ -51,6 +51,7 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
+import java.awt.geom.Arc2D;
 import java.awt.image.BufferedImage;
 import java.util.*;
 import java.util.List;
@@ -232,8 +233,12 @@ public class MultibeamCrossSection extends ConsolePanel implements MainVehicleCh
 
         BufferedImage grid = new BufferedImage(gridWidth,
                 gridHeight, BufferedImage.TYPE_INT_ARGB);
-        Graphics2D g = (Graphics2D) grid.getGraphics();
-        g.setColor(Color.GREEN.darker());
+
+        Graphics2D g = (Graphics2D) grid.getGraphics().create();
+        g.setColor(Color.GREEN.darker().darker());
+
+        // dotted line
+        g.setStroke(new BasicStroke(1, BasicStroke.CAP_BUTT, BasicStroke.JOIN_BEVEL, 0, new float[] {3,2}, 0));
 
         // vertical lines
         for(int i = 0; i <= N_COLS; i++) {
@@ -257,7 +262,30 @@ public class MultibeamCrossSection extends ConsolePanel implements MainVehicleCh
             g.drawLine(0, y, x, y);
         }
 
+        drawBeamScale(g, gridWidth, gridHeight, cellSize);
+
         return grid;
+    }
+
+    private void drawBeamScale(Graphics2D g, int gridWidth, int gridHeight, int cellSize) {
+        int xi = gridWidth  / 2;
+        int yi = 0;
+        int xf = cellSize - cellSize / 4;
+        int yf = gridHeight / 2;
+
+        // left side
+        g.drawLine(xi, yi, xf, yf);
+
+        xf = gridWidth - cellSize + cellSize / 4;
+        g.drawLine(xi, yi, xf, yf);
+
+        int arcX = cellSize - cellSize / 4;
+        int arcY = 0;
+        int arcWidth = gridWidth - 2*arcX;
+        int arcHeight = gridHeight;
+
+
+        g.drawArc(arcX, arcY, arcWidth, arcHeight, 180, 180);
     }
 
     // Create images and layer to display the data
