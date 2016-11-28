@@ -118,6 +118,7 @@ public class MultibeamCrossSection extends ConsolePanel implements MainVehicleCh
 
     // layer with range's scale
     private BufferedImage gridLayer;
+    private int cellSize;
 
     // when the window is resized
     private boolean gridInvalidated = false;
@@ -285,7 +286,6 @@ public class MultibeamCrossSection extends ConsolePanel implements MainVehicleCh
     private BufferedImage createGridImage() {
         int gridWidth;
         int gridHeight;
-        int cellSize;
 
         // adjust grid's dimensions
 
