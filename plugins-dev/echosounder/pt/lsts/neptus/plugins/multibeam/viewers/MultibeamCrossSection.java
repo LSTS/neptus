@@ -45,6 +45,8 @@ import pt.lsts.neptus.console.ConsolePanel;
 import pt.lsts.neptus.console.plugins.MainVehicleChangeListener;
 import pt.lsts.neptus.mp.SystemPositionAndAttitude;
 import pt.lsts.neptus.mra.api.BathymetrySwath;
+import pt.lsts.neptus.plugins.ConfigurationListener;
+import pt.lsts.neptus.plugins.NeptusProperty;
 import pt.lsts.neptus.plugins.PluginDescription;
 import pt.lsts.neptus.plugins.Popup;
 import pt.lsts.neptus.types.coord.LocationType;
@@ -68,7 +70,7 @@ import java.util.concurrent.atomic.AtomicLong;
  * */
 @PluginDescription(author = "Tiago Marques", version = "0.1", name = "Multibeam cross section viewer")
 @Popup(pos = Popup.POSITION.TOP_LEFT, width = 1000, height = 800)
-public class MultibeamCrossSection extends ConsolePanel implements MainVehicleChangeListener {
+public class MultibeamCrossSection extends ConsolePanel implements MainVehicleChangeListener, ConfigurationListener {
 
     private ExecutorService threadExecutor = Executors.newCachedThreadPool(new ThreadFactory() {
         String nameBase = new StringBuilder().append(MultibeamCrossSection.class.getSimpleName())
@@ -83,6 +85,13 @@ public class MultibeamCrossSection extends ConsolePanel implements MainVehicleCh
             return td;
         }
     });
+
+    // viewe's parameters
+    @NeptusProperty(name="Sensor's range", category="Visualization parameters", userLevel = NeptusProperty.LEVEL.REGULAR)
+    public double mbRange = 30;
+
+    @NeptusProperty(name="Data's color map", category="Visualization parameters", userLevel = NeptusProperty.LEVEL.REGULAR)
+    private ColorMap colorMap = ColorMapFactory.createJetColorMap();
 
     // grid's number of rows
     private final int N_ROWS = 5;
@@ -138,7 +147,6 @@ public class MultibeamCrossSection extends ConsolePanel implements MainVehicleCh
     private final JLabel altLabel  = new JLabel("ALT: ");
     private final JLabel altValue = new JLabel("n/a");
 
-    private ColorMap colorMap = ColorMapFactory.createJetColorMap();
     private final ColorBar colorBar = new ColorBar(ColorBar.VERTICAL_ORIENTATION, colorMap);
 
     // Data
@@ -339,6 +347,7 @@ public class MultibeamCrossSection extends ConsolePanel implements MainVehicleCh
         }
 
         drawBeamScale(g, gridWidth, gridHeight, cellSize);
+        drawRangeScale(g, cellSize);
 
         return grid;
     }
@@ -369,6 +378,14 @@ public class MultibeamCrossSection extends ConsolePanel implements MainVehicleCh
         synchronized (dataList) {
             dataImage = ImageUtils.createCompatibleImage(viewer.getWidth(), viewer.getHeight(), Transparency.OPAQUE);
         }
+    }
+
+    private void drawRangeScale(Graphics2D g, int cellSize) {
+        g.setColor(LABELS_COLOR);
+        g.setFont(g.getFont().deriveFont(Font.BOLD, 16.0f));
+        double rangeScale = mbRange / N_ROWS;
+        for(int i = 1; i <= N_ROWS; i++)
+            g.drawString(Double.toString(i * rangeScale), 10, i * cellSize - 2);
     }
 
     @Override
@@ -419,5 +436,10 @@ public class MultibeamCrossSection extends ConsolePanel implements MainVehicleCh
      * */
     private String toRoundedString(double value) {
         return Double.toString(Math.round(value * 100000) / 100000.0);
+    }
+
+    @Override
+    public void propertiesChanged() {
+
     }
 }
