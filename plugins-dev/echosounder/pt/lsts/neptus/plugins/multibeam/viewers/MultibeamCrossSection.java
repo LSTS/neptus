@@ -87,6 +87,9 @@ public class MultibeamCrossSection extends ConsolePanel implements MainVehicleCh
     // grid's number of columns
     private final int N_COLS = 10;
 
+    private final Color GRID_COLOR = Color.GREEN.darker().darker();
+    private final Color LABELS_COLOR = Color.GRAY;
+
     /* Viewer's GUI */
 
     // contains data's panel and info labels
@@ -108,12 +111,23 @@ public class MultibeamCrossSection extends ConsolePanel implements MainVehicleCh
     private boolean gridInvalidated = false;
 
     // information labels
-    private final JLabel latLabel = new JLabel();
-    private final JLabel lonLabel = new JLabel();
-    private final JLabel speedLabel = new JLabel();
-    private final JLabel pitchLabel = new JLabel();
-    private final JLabel rollLabel = new JLabel();
-    private final JLabel altLabel  = new JLabel();
+    private final JLabel latLabel = new JLabel("LAT: ");
+    private final JLabel latValue = new JLabel("n/a");
+
+    private final JLabel lonLabel = new JLabel("LON: ");
+    private final JLabel lonValue = new JLabel("n/a");
+
+    private final JLabel speedLabel = new JLabel("SPEED: ");
+    private final JLabel speedValue = new JLabel("n/a");
+
+    private final JLabel pitchLabel = new JLabel("PITCH: ");
+    private final JLabel pitchValue = new JLabel("n/a");
+
+    private final JLabel rollLabel = new JLabel("ROLL: ");
+    private final JLabel rollvalue = new JLabel("n/a");
+
+    private final JLabel altLabel  = new JLabel("ALT: ");
+    private final JLabel altValue = new JLabel("n/a");
 
     private ColorMap colorMap = ColorMapFactory.createJetColorMap();
     private final ColorBar colorBar = new ColorBar(ColorBar.VERTICAL_ORIENTATION, colorMap);
@@ -193,8 +207,47 @@ public class MultibeamCrossSection extends ConsolePanel implements MainVehicleCh
             }
         };
 
-        infoPanel.setBackground(Color.lightGray);
+        infoPanel.setLayout(new MigLayout("", "300[]10[]150[][]", "[][][]"));
+        infoPanel.setBackground(Color.black);
         infoPanel.setPreferredSize(new Dimension(viewer.getWidth(), viewer.getHeight()));
+
+        final Font f = latLabel.getFont().deriveFont(18.0f);
+
+        latLabel.setFont(f);
+        latLabel.setForeground(LABELS_COLOR);
+        latValue.setForeground(GRID_COLOR);
+        infoPanel.add(latLabel, "cell 0 0");
+        infoPanel.add(latValue, "cell 1 0");
+
+        lonLabel.setFont(f);
+        lonLabel.setForeground(LABELS_COLOR);
+        lonValue.setForeground(GRID_COLOR);
+        infoPanel.add(lonLabel, "cell 0 1");
+        infoPanel.add(lonValue, "cell 1 1");
+
+        speedLabel.setFont(f);
+        speedLabel.setForeground(LABELS_COLOR);
+        speedValue.setForeground(GRID_COLOR);
+        infoPanel.add(speedLabel, "cell 0 2");
+        infoPanel.add(speedValue, "cell 1 2");
+
+        pitchLabel.setFont(f);
+        pitchLabel.setForeground(LABELS_COLOR);
+        pitchValue.setForeground(GRID_COLOR);
+        infoPanel.add(pitchLabel, "cell 2 0");
+        infoPanel.add(pitchValue, "cell 3 0");
+
+        rollLabel.setFont(f);
+        rollLabel.setForeground(LABELS_COLOR);
+        rollvalue.setForeground(GRID_COLOR);
+        infoPanel.add(rollLabel, "cell 2 1");
+        infoPanel.add(rollvalue, "cell 3 1");
+
+        altLabel.setFont(f);
+        altLabel.setForeground(LABELS_COLOR);
+        altValue.setForeground(GRID_COLOR);
+        infoPanel.add(altLabel, "cell 2 2");
+        infoPanel.add(altValue, "cell 3 2");
         return infoPanel;
     }
 
