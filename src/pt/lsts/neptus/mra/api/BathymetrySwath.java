@@ -33,6 +33,8 @@ package pt.lsts.neptus.mra.api;
 
 import pt.lsts.neptus.mp.SystemPositionAndAttitude;
 
+import java.awt.image.BufferedImage;
+
 /**
  * @author jqcorreia
  *
@@ -43,6 +45,8 @@ public class BathymetrySwath {
     
     SystemPositionAndAttitude pose;
     BathymetryPoint data[];
+
+    private BufferedImage image;
     
     
     /**
@@ -113,6 +117,12 @@ public class BathymetrySwath {
         this.numBeams = numBeams;
     }
     
-    
+    public void setImage(BufferedImage image) {
+        this.image = image;
+    }
+
+    public BufferedImage asBufferedImage() {
+        return image;
+    }
     
 }
