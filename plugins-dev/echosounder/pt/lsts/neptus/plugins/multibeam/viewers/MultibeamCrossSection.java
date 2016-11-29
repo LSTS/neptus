@@ -51,6 +51,7 @@ import pt.lsts.neptus.plugins.NeptusProperty;
 import pt.lsts.neptus.plugins.PluginDescription;
 import pt.lsts.neptus.plugins.Popup;
 import pt.lsts.neptus.types.coord.LocationType;
+import pt.lsts.neptus.util.ColorUtils;
 import pt.lsts.neptus.util.ImageUtils;
 
 import javax.swing.*;
@@ -58,6 +59,7 @@ import java.awt.*;
 import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
 import java.awt.geom.Arc2D;
+import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
 import java.util.*;
 import java.util.List;
@@ -149,7 +151,7 @@ public class MultibeamCrossSection extends ConsolePanel implements MainVehicleCh
     private final JLabel altLabel  = new JLabel("ALT: ");
     private final JLabel altValue = new JLabel("n/a");
 
-    private final ColorBar colorBar = new ColorBar(ColorBar.HORIZONTAL_ORIENTATION, colorMap);
+    private ColorBar colorBar = null;
 
     // Data
     private List<BathymetrySwath> dataList = Collections.synchronizedList(new ArrayList<BathymetrySwath>());
@@ -281,6 +283,7 @@ public class MultibeamCrossSection extends ConsolePanel implements MainVehicleCh
         infoPanel.add(altLabel);
         infoPanel.add(altValue);
 
+        colorBar = createColorBar();
         infoPanel.add(colorBar, "span, growx");
 
         return infoPanel;
@@ -374,6 +377,38 @@ public class MultibeamCrossSection extends ConsolePanel implements MainVehicleCh
 
 
         g.drawArc(arcX, arcY, arcWidth, arcHeight, 180, 180);
+    }
+
+    private ColorBar createColorBar() {
+        ColorBar cBar = new ColorBar(ColorBar.HORIZONTAL_ORIENTATION, this.colorMap) {
+            @Override
+            public void paint(Graphics g) {
+                super.paint(g);
+
+                Graphics g2 = g.create();
+
+                g2.setColor(ColorUtils.invertColor(this.getCmap().getColor(0)));
+                g2.drawString("0m", 2, colorBar.getHeight() - 3);
+
+                long maxVal = Math.round(mbRange);
+                long medVal = Math.round(maxVal / 2d);
+                if (maxVal != medVal && this.getWidth() > 150) {
+                    String medString = String.valueOf(medVal) + "m";
+                    Rectangle2D strBnds = g2.getFontMetrics().getStringBounds(medString, g2);
+                    g2.setColor(ColorUtils.invertColor(this.getCmap().getColor(0.5)));
+                    g2.drawString(medString, (int) (colorBar.getWidth() / 2d - strBnds.getWidth() / 2d), colorBar.getHeight() - 3);
+                }
+
+                String maxString = String.valueOf(maxVal) + "m";
+                Rectangle2D strBnds = g2.getFontMetrics().getStringBounds(maxString, g2);
+                g2.setColor(ColorUtils.invertColor(this.getCmap().getColor(1)));
+                g2.drawString(maxString, (int) (colorBar.getWidth() - strBnds.getWidth() - 2), colorBar.getHeight() - 3);
+
+                g2.dispose();
+            }
+        };
+
+        return cBar;
     }
 
     // Create images and layer to display the data
