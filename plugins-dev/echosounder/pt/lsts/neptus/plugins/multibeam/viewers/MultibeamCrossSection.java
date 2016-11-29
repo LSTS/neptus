@@ -40,6 +40,7 @@ import pt.lsts.imc.SonarData;
 import pt.lsts.neptus.colormap.ColorBar;
 import pt.lsts.neptus.colormap.ColorMap;
 import pt.lsts.neptus.colormap.ColorMapFactory;
+import pt.lsts.neptus.colormap.InterpolationColorMap;
 import pt.lsts.neptus.console.ConsoleLayout;
 import pt.lsts.neptus.console.ConsolePanel;
 import pt.lsts.neptus.console.plugins.MainVehicleChangeListener;
@@ -148,7 +149,7 @@ public class MultibeamCrossSection extends ConsolePanel implements MainVehicleCh
     private final JLabel altLabel  = new JLabel("ALT: ");
     private final JLabel altValue = new JLabel("n/a");
 
-    private final ColorBar colorBar = new ColorBar(ColorBar.VERTICAL_ORIENTATION, colorMap);
+    private final ColorBar colorBar = new ColorBar(ColorBar.HORIZONTAL_ORIENTATION, colorMap);
 
     // Data
     private List<BathymetrySwath> dataList = Collections.synchronizedList(new ArrayList<BathymetrySwath>());
@@ -279,6 +280,9 @@ public class MultibeamCrossSection extends ConsolePanel implements MainVehicleCh
         altValue.setForeground(GRID_COLOR);
         infoPanel.add(altLabel);
         infoPanel.add(altValue);
+
+        infoPanel.add(colorBar, "span, growx");
+
         return infoPanel;
     }
 
@@ -439,6 +443,9 @@ public class MultibeamCrossSection extends ConsolePanel implements MainVehicleCh
 
     @Override
     public void propertiesChanged() {
+        colorBar.setCmap(ColorMapFactory
+                .createInvertedColorMap((InterpolationColorMap) colorMap));
+
         gridInvalidated = true;
         dataPanel.repaint();
     }
