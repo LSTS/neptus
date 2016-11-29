@@ -220,6 +220,7 @@ public class MultibeamCrossSection extends ConsolePanel implements MainVehicleCh
                     gridInvalidated = false;
                 }
                 g.drawImage(gridLayer, 0, 0, null);
+                g.drawImage(dataImage, 0, 0, null);
             }
         };
         dataPanel.setBackground(Color.black);
@@ -421,7 +422,7 @@ public class MultibeamCrossSection extends ConsolePanel implements MainVehicleCh
     // Create images and layer to display the data
     private void createImages() {
         synchronized (dataList) {
-            dataImage = ImageUtils.createCompatibleImage(viewer.getWidth(), viewer.getHeight(), Transparency.OPAQUE);
+            dataImage = ImageUtils.createCompatibleImage(viewer.getWidth(), viewer.getHeight(), Transparency.TRANSLUCENT);
         }
     }
 
