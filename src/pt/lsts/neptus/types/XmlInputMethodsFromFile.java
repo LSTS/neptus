@@ -33,6 +33,8 @@ package pt.lsts.neptus.types;
 
 import java.io.File;
 
+import pt.lsts.neptus.util.FileUtil;
+
 
 /**
  * This interface is to used to every class that loads it self from XML.
@@ -48,12 +50,8 @@ import java.io.File;
  *  
  * @author Paulo Dias
  */
-public interface XmlInputMethodsFromFile
+public interface XmlInputMethodsFromFile extends XmlInputMethods
 {
-    /**
-     * @return If the load of the XML was successful.
-     */
-    public abstract boolean isLoadOk();
     
     /**
      * Should set {@link #isLoadOk()} return value.
@@ -62,7 +60,10 @@ public interface XmlInputMethodsFromFile
      * @param url
      * @return
      */
-    public abstract boolean loadFile (String url);
+    public default boolean loadFile (String url) {
+        String xml = FileUtil.getFileAsString(url);
+        return load(xml);
+    }
 
     /**
      * Should set {@link #isLoadOk()} return value.
@@ -71,7 +72,9 @@ public interface XmlInputMethodsFromFile
      * @param file
      * @return
      */
-    public abstract boolean loadFile (File file);
+    public default boolean loadFile (File file) {
+        return loadFile(file.getAbsolutePath());
+    }
 
     
     //public abstract boolean validate(String xml);

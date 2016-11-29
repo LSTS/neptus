@@ -31,6 +31,9 @@
  */
 package pt.lsts.neptus.types;
 
+import org.dom4j.Document;
+import org.dom4j.DocumentException;
+import org.dom4j.DocumentHelper;
 import org.dom4j.Element;
 
 /**
@@ -59,7 +62,17 @@ public interface XmlInputMethods
      * @param xml
      * @return
      */
-    public abstract boolean load (String xml);
+    public default boolean load (String xml) {
+        try {
+            Document doc = DocumentHelper.parseText(xml);
+            return load(doc.getRootElement());
+        }
+        catch (DocumentException e) {
+            e.printStackTrace();
+            return false;
+        }        
+    }
+     
 
     /**
      * Should set {@link #isLoadOk()} return value.
