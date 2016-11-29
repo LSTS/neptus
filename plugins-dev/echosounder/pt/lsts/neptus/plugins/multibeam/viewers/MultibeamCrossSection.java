@@ -37,6 +37,7 @@ import com.google.common.eventbus.Subscribe;
 import net.miginfocom.swing.MigLayout;
 import pt.lsts.imc.EstimatedState;
 import pt.lsts.imc.SonarData;
+import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.colormap.ColorBar;
 import pt.lsts.neptus.colormap.ColorMap;
 import pt.lsts.neptus.colormap.ColorMapFactory;
@@ -46,6 +47,7 @@ import pt.lsts.neptus.console.ConsolePanel;
 import pt.lsts.neptus.console.plugins.MainVehicleChangeListener;
 import pt.lsts.neptus.mp.SystemPositionAndAttitude;
 import pt.lsts.neptus.mra.api.BathymetrySwath;
+import pt.lsts.neptus.mra.api.MultibeamUtil;
 import pt.lsts.neptus.plugins.ConfigurationListener;
 import pt.lsts.neptus.plugins.NeptusProperty;
 import pt.lsts.neptus.plugins.PluginDescription;
@@ -442,7 +444,17 @@ public class MultibeamCrossSection extends ConsolePanel implements MainVehicleCh
                 msg.getType() != SonarData.TYPE.MULTIBEAM)
             return;
 
-        // handle multibeam data
+        if(currState == null)
+            currState = new SystemPositionAndAttitude();
+
+        BathymetrySwath swath = MultibeamUtil.getMultibeamSwath(msg, currState);
+
+        if(swath == null) {
+            NeptusLog.pub().warn("Null bathymetry swath from " + msg.getSourceName() + " at " + msg.getTimestampMillis());
+            return;
+        }
+
+        // display data
     }
 
     @Subscribe
