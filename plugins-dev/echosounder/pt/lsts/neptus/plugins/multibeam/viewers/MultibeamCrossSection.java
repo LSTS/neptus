@@ -360,31 +360,36 @@ public class MultibeamCrossSection extends ConsolePanel implements MainVehicleCh
             g.drawLine(0, y, x, y);
         }
 
-        drawBeamScale(g, gridWidth, gridHeight, cellSize);
+        drawBeamScale(g, gridWidth, gridHeight);
         drawRangeScale(g, cellSize);
 
         return grid;
     }
 
-    private void drawBeamScale(Graphics2D g, int gridWidth, int gridHeight, int cellSize) {
+    private void drawBeamScale(Graphics2D g, int gridWidth, int gridHeight) {
+        double alpha = Math.toRadians(60);
         int xi = gridWidth  / 2;
         int yi = 0;
-        int xf = cellSize - cellSize / 4;
+        int xf = (int) Math.round(xi - Math.sin(alpha) * gridHeight);
         int yf = gridHeight / 2;
 
         // left side
         g.drawLine(xi, yi, xf, yf);
 
-        xf = gridWidth - cellSize + cellSize / 4;
+        // right side
+        xf = (int) Math.round(xi + Math.sin(alpha) * gridHeight);
         g.drawLine(xi, yi, xf, yf);
 
-        int arcX = cellSize - cellSize / 4;
+        // setup and draw arc
+        // read g.drawArc() docs
+        int startAngle = 180;
+        int angleExtend = 180;
+        int arcX = (int) Math.round(xi - Math.sin(alpha) * gridHeight);
         int arcY = 0;
         int arcWidth = gridWidth - 2*arcX;
         int arcHeight = gridHeight;
 
-
-        g.drawArc(arcX, arcY, arcWidth, arcHeight, 180, 180);
+        g.drawArc(arcX, arcY, arcWidth, arcHeight, startAngle, angleExtend);
     }
 
     private ColorBar createColorBar() {
