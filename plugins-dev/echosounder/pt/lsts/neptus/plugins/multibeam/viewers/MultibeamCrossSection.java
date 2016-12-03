@@ -173,9 +173,6 @@ public class MultibeamCrossSection extends ConsolePanel implements MainVehicleCh
     private List<BathymetrySwath> dataList = Collections.synchronizedList(new ArrayList<BathymetrySwath>());
     private SystemPositionAndAttitude currState = null;
 
-    // in case the data's depth is greater than mbRange
-    private boolean depthOverflow = false;
-
 
     public MultibeamCrossSection(ConsoleLayout console) {
         super(console);
@@ -444,16 +441,8 @@ public class MultibeamCrossSection extends ConsolePanel implements MainVehicleCh
         g.setColor(LABELS_COLOR);
         g.setFont(g.getFont().deriveFont(Font.BOLD, 16.0f));
         double rangeScale = mbRange / N_ROWS;
-        for(int i = 1; i <= N_ROWS; i++) {
-            // warn operator of depth overflow
-            System.out.println("** " + depthOverflow);
-            if(i == N_ROWS && depthOverflow) {
-                System.out.println("PAM");
-                g.setColor(Color.RED.brighter());
-            }
-
+        for(int i = 1; i <= N_ROWS; i++)
             g.drawString(Double.toString(i * rangeScale), 10, i * cellSize - 2);
-        }
     }
 
     @Override
@@ -466,6 +455,16 @@ public class MultibeamCrossSection extends ConsolePanel implements MainVehicleCh
 
     }
 
+    private double getDataMaxDepth(BathymetrySwath swath) {
+        double max = mbRange;
+        BathymetryPoint[] data = swath.getData();
+        for(int i = 0; i < data.length; i++)
+            if(data[i] != null && data[i].depth > max)
+                max = data[i].depth;
+
+        return max;
+    }
+
     private void drawMultibeamData(BathymetrySwath swath) {
         // flush previous data
         dataImage = ImageUtils.createCompatibleImage(viewer.getWidth(), viewer.getHeight(), Transparency.TRANSLUCENT);
@@ -475,11 +474,6 @@ public class MultibeamCrossSection extends ConsolePanel implements MainVehicleCh
         for(int i = 0; i < data.length; i++) {
             if(data[i] == null)
                 continue;
-
-            if(data[i].depth >= mbRange) {
-                depthOverflow = true;
-                continue;
-            }
 
             // translate to the center of the display
             int x = gridLayer.getWidth() / 2;
@@ -511,6 +505,14 @@ public class MultibeamCrossSection extends ConsolePanel implements MainVehicleCh
             if (swath == null) {
                 NeptusLog.pub().warn("Null bathymetry swath from " + msg.getSourceName() + " at " + msg.getTimestampMillis());
                 return;
+            }
+
+            // update grid's scale if necessary
+            double maxDepth = getDataMaxDepth(swath);
+            if(maxDepth != mbRange) {
+                int factor = (int) Math.round(maxDepth / mbRange);
+                mbRange +=  factor*10;
+                gridInvalidated = true;
             }
 
             drawMultibeamData(swath);
