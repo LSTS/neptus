@@ -126,9 +126,16 @@ public class MultibeamCrossSection extends ConsolePanel implements MainVehicleCh
     // where data will be displayed
     private BufferedImage dataImage;
 
-    // layer with range's scale
+    // layer with range and beam's scale
     private BufferedImage gridLayer;
     private int cellSize;
+    private final double alpha = Math.toRadians(60);
+    private final int startAngle = 180;
+    private final int angleExtend = 180;
+    private int arcX;
+    private int arcY;
+    private int arcWidth;
+    private int arcHeight;
 
     // when the window is resized
     private boolean gridInvalidated = false;
@@ -367,27 +374,24 @@ public class MultibeamCrossSection extends ConsolePanel implements MainVehicleCh
     }
 
     private void drawBeamScale(Graphics2D g, int gridWidth, int gridHeight) {
-        double alpha = Math.toRadians(60);
         int xi = gridWidth  / 2;
         int yi = 0;
-        int xf = (int) Math.round(xi - Math.sin(alpha) * gridHeight);
+        int xf = (int) Math.round(xi - Math.sin(this.alpha/2) * gridHeight);
         int yf = gridHeight / 2;
 
         // left side
         g.drawLine(xi, yi, xf, yf);
 
         // right side
-        xf = (int) Math.round(xi + Math.sin(alpha) * gridHeight);
+        xf = (int) Math.round(xi + Math.sin(this.alpha/2) * gridHeight);
         g.drawLine(xi, yi, xf, yf);
 
         // setup and draw arc
         // read g.drawArc() docs
-        int startAngle = 180;
-        int angleExtend = 180;
-        int arcX = (int) Math.round(xi - Math.sin(alpha) * gridHeight);
-        int arcY = 0;
-        int arcWidth = gridWidth - 2*arcX;
-        int arcHeight = gridHeight;
+        this.arcX = (int) Math.round(xi - Math.sin(this.alpha/2) * gridHeight);
+        this.arcY = 0;
+        this.arcWidth = gridWidth - 2*arcX;
+        this.arcHeight = gridHeight;
 
         g.drawArc(arcX, arcY, arcWidth, arcHeight, startAngle, angleExtend);
     }
