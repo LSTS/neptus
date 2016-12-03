@@ -48,6 +48,7 @@ import pt.lsts.neptus.console.ConsoleLayout;
 import pt.lsts.neptus.console.ConsolePanel;
 import pt.lsts.neptus.console.plugins.MainVehicleChangeListener;
 import pt.lsts.neptus.mp.SystemPositionAndAttitude;
+import pt.lsts.neptus.mra.api.BathymetryPoint;
 import pt.lsts.neptus.mra.api.BathymetrySwath;
 import pt.lsts.neptus.mra.api.MultibeamUtil;
 import pt.lsts.neptus.mra.importers.deltat.DeltaTParser;
@@ -125,6 +126,7 @@ public class MultibeamCrossSection extends ConsolePanel implements MainVehicleCh
 
     // where data will be displayed
     private BufferedImage dataImage;
+    private final AlphaComposite transparentComposite = AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 0.5f);
 
     // layer with range and beam's scale
     private BufferedImage gridLayer;
@@ -170,6 +172,9 @@ public class MultibeamCrossSection extends ConsolePanel implements MainVehicleCh
     // Data
     private List<BathymetrySwath> dataList = Collections.synchronizedList(new ArrayList<BathymetrySwath>());
     private SystemPositionAndAttitude currState = null;
+
+    // in case the data's depth is greater than mbRange
+    private boolean depthOverflow = false;
 
 
     public MultibeamCrossSection(ConsoleLayout console) {
@@ -439,8 +444,16 @@ public class MultibeamCrossSection extends ConsolePanel implements MainVehicleCh
         g.setColor(LABELS_COLOR);
         g.setFont(g.getFont().deriveFont(Font.BOLD, 16.0f));
         double rangeScale = mbRange / N_ROWS;
-        for(int i = 1; i <= N_ROWS; i++)
+        for(int i = 1; i <= N_ROWS; i++) {
+            // warn operator of depth overflow
+            System.out.println("** " + depthOverflow);
+            if(i == N_ROWS && depthOverflow) {
+                System.out.println("PAM");
+                g.setColor(Color.RED.brighter());
+            }
+
             g.drawString(Double.toString(i * rangeScale), 10, i * cellSize - 2);
+        }
     }
 
     @Override
@@ -453,30 +466,65 @@ public class MultibeamCrossSection extends ConsolePanel implements MainVehicleCh
 
     }
 
-    @Subscribe
-    public void onSonarData(SonarData msg){
-        if(!msg.getSourceName().equals(getMainVehicleId()) ||
-                msg.getType() != SonarData.TYPE.MULTIBEAM)
-            return;
+    private void drawMultibeamData(BathymetrySwath swath) {
+        // flush previous data
+        dataImage = ImageUtils.createCompatibleImage(viewer.getWidth(), viewer.getHeight(), Transparency.TRANSLUCENT);
 
-        if(currState == null)
-            currState = new SystemPositionAndAttitude();
+        // draw new data
+        BathymetryPoint[] data = swath.getData();
+        for(int i = 0; i < data.length; i++) {
+            if(data[i] == null)
+                continue;
 
-        BathymetrySwath swath = MultibeamUtil.getMultibeamSwath(msg, currState);
+            if(data[i].depth >= mbRange) {
+                depthOverflow = true;
+                continue;
+            }
 
-        if(swath == null) {
-            NeptusLog.pub().warn("Null bathymetry swath from " + msg.getSourceName() + " at " + msg.getTimestampMillis());
-            return;
+            // translate to the center of the display
+            int x = gridLayer.getWidth() / 2;
+            int y = 0;
+
+            // scale coordinates
+            double scale = gridLayer.getHeight() / mbRange;
+            x += (int) (Math.round(data[i].east * scale));
+            y += (int) (Math.round(data[i].depth * scale));
+
+            dataImage.setRGB(x, y, colorMap.getColor(data[i].depth / mbRange).getRGB());
         }
 
-        // display data
+        dataPanel.repaint();
+    }
+
+    @Subscribe
+    public void onSonarData(SonarData msg){
+        try {
+            if (!msg.getSourceName().equals(getMainVehicleId()) || msg.getType() != SonarData.TYPE.MULTIBEAM ||
+                    gridLayer == null || dataImage == null)
+                return;
+
+            if (currState == null)
+                currState = new SystemPositionAndAttitude();
+
+            BathymetrySwath swath = MultibeamUtil.getMultibeamSwath(msg, currState);
+
+            if (swath == null) {
+                NeptusLog.pub().warn("Null bathymetry swath from " + msg.getSourceName() + " at " + msg.getTimestampMillis());
+                return;
+            }
+
+            drawMultibeamData(swath);
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+            System.out.println();
+        }
     }
 
     @Subscribe
     public void onEstimatedState(EstimatedState msg) {
         if(!msg.getSourceName().equals(getMainVehicleId()))
             return;
-
         currState = new SystemPositionAndAttitude(msg);
 
         if(currState != null) {
@@ -514,7 +562,7 @@ public class MultibeamCrossSection extends ConsolePanel implements MainVehicleCh
 
     // for testing
     public static void main(String[] args) {
-        String dataFile = (System.getProperty("user.dir") + "/" + "../log/maridan-multibeam/Data.lsf.gz");
+        String dataFile = (System.getProperty("user.dir") + "/" + "log/maridan-multibeam/Data.lsf.gz");
         System.out.println("** Reading: " + dataFile);
 
         UDPTransport udp = new UDPTransport(6002, 1);
