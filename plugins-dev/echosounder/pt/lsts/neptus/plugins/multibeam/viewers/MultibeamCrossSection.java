@@ -131,7 +131,7 @@ public class MultibeamCrossSection extends ConsolePanel implements MainVehicleCh
     // layer with range and beam's scale
     private BufferedImage gridLayer;
     private int cellSize;
-    private final double alpha = Math.toRadians(60);
+    private final double alpha = Math.toRadians(120);
     private final int startAngle = 180;
     private final int angleExtend = 180;
     private int arcX;
