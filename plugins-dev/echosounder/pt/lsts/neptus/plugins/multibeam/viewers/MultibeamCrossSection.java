@@ -79,7 +79,7 @@ import java.util.concurrent.atomic.AtomicLong;
 /**
  * Cross section viewer for Multibeam data
  * */
-@PluginDescription(author = "Tiago Marques", version = "0.1", name = "Multibeam cross section viewer")
+@PluginDescription(author = "Tiago Marques", version = "0.1", name = "Multibeam: Cross-Section Viewer")
 @Popup(pos = Popup.POSITION.TOP_LEFT, width = 1000, height = 800)
 public class MultibeamCrossSection extends ConsolePanel implements MainVehicleChangeListener, ConfigurationListener {
 
