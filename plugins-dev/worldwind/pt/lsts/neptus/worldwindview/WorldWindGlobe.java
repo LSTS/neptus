@@ -1,0 +1,202 @@
+/*
+ * Copyright (c) 2004-2016 Universidade do Porto - Faculdade de Engenharia
+ * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
+ * All rights reserved.
+ * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
+ *
+ * This file is part of Neptus, Command and Control Framework.
+ *
+ * Commercial Licence Usage
+ * Licencees holding valid commercial Neptus licences may use this file
+ * in accordance with the commercial licence agreement provided with the
+ * Software or, alternatively, in accordance with the terms contained in a
+ * written agreement between you and Universidade do Porto. For licensing
+ * terms, conditions, and further information contact lsts@fe.up.pt.
+ *
+ * European Union Public Licence - EUPL v.1.1 Usage
+ * Alternatively, this file may be used under the terms of the EUPL,
+ * Version 1.1 only (the "Licence"), appearing in the file LICENSE.md
+ * included in the packaging of this file. You may not use this work
+ * except in compliance with the Licence. Unless required by applicable
+ * law or agreed to in writing, software distributed under the Licence is
+ * distributed on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF
+ * ANY KIND, either express or implied. See the Licence for the specific
+ * language governing permissions and limitations at
+ * http://ec.europa.eu/idabc/eupl.html.
+ *
+ * For more information please see <http://lsts.fe.up.pt/neptus>.
+ *
+ * Author: manuel
+ * Nov 30, 2016
+ */
+package pt.lsts.neptus.worldwindview;
+
+/**
+ * @author manuel
+ *
+ */
+
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.util.HashMap;
+
+import com.google.common.eventbus.Subscribe;
+
+import gov.nasa.worldwind.BasicModel;
+import gov.nasa.worldwind.View;
+import gov.nasa.worldwind.WorldWind;
+import gov.nasa.worldwind.avlist.AVKey;
+import gov.nasa.worldwind.awt.WorldWindowGLCanvas;
+import gov.nasa.worldwind.event.PositionEvent;
+import gov.nasa.worldwind.event.PositionListener;
+import gov.nasa.worldwind.geom.Position;
+import gov.nasa.worldwind.layers.RenderableLayer;
+import gov.nasa.worldwind.layers.Earth.MSVirtualEarthLayer;
+import gov.nasa.worldwind.render.BasicShapeAttributes;
+import gov.nasa.worldwind.render.Box;
+import gov.nasa.worldwind.render.Material;
+import gov.nasa.worldwind.render.ShapeAttributes;
+import gov.nasa.worldwindx.examples.util.LayerManagerLayer;
+import pt.lsts.imc.EstimatedState;
+import pt.lsts.neptus.comm.IMCUtils;
+import pt.lsts.neptus.comm.manager.imc.ImcSystem;
+import pt.lsts.neptus.comm.manager.imc.ImcSystemsHolder;
+import pt.lsts.neptus.console.ConsoleLayout;
+import pt.lsts.neptus.console.ConsolePanel;
+import pt.lsts.neptus.plugins.NeptusProperty;
+import pt.lsts.neptus.plugins.PluginDescription;
+import pt.lsts.neptus.plugins.Popup;
+import pt.lsts.neptus.plugins.Popup.POSITION;
+import pt.lsts.neptus.plugins.update.IPeriodicUpdates;
+import pt.lsts.neptus.types.coord.LocationType;
+
+@PluginDescription(name = "WorldWind Renderer Panel")
+@Popup(name = "WorldWind Panel", pos = POSITION.CENTER, height = 600, width = 600)
+public class WorldWindGlobe extends ConsolePanel implements IPeriodicUpdates {
+
+    private static final long serialVersionUID = -4031214492375928720L;
+    WorldWindowGLCanvas wwd;
+    RenderableLayer vehLayer = null;
+    HashMap<String, Box> systems = new HashMap<>();
+
+    @NeptusProperty
+    public int updateMillis = 1000;
+
+    public WorldWindGlobe(ConsoleLayout console) {
+        super(console);
+        wwd = new WorldWindowGLCanvas();
+        wwd.setModel(new BasicModel());
+        wwd.addPositionListener(new PositionListener() {
+
+            @Override
+            public void moved(PositionEvent arg0) {
+                //System.out.println(arg0.getPosition());
+
+            }
+        });
+
+        vehLayer = new RenderableLayer();
+        vehLayer.setName("Vehicles");
+        vehLayer.setPickEnabled(true);
+
+        LayerManagerLayer mng = new LayerManagerLayer(wwd);
+
+        wwd.getModel().getLayers().addIfAbsent(new MSVirtualEarthLayer());
+        wwd.getModel().getLayers().addIfAbsent(mng);
+
+        ImcSystem[] sys = ImcSystemsHolder.lookupActiveSystemVehicles(); 
+        double[] eye = {-1, -1, -1};
+
+        for (int i=0; i<sys.length; i++) {
+            LocationType vehLoc = sys[i].getLocation();
+
+            Color vehColor = sys[i].getVehicle().getIconColor();
+
+            addVehicleToWorld(sys[i].getName(), vehColor, vehLoc.getLatitudeDegs(), vehLoc.getLongitudeDegs(), vehLoc.getHeight());
+
+            eye[0] = vehLoc.getLatitudeDegs();
+            eye[1] = vehLoc.getLongitudeDegs();
+            eye[2] = vehLoc.getHeight();
+
+        }
+
+        wwd.getModel().getLayers().add(vehLayer);
+        mng.update();
+
+        // Adjust the view so that it looks at the vehicle
+        if (eye[0] != -1) {
+            View view = wwd.getView();
+            view.setEyePosition(Position.fromDegrees(eye[0], eye[1], 1e3));
+        }
+        
+        setLayout(new BorderLayout());
+        add(wwd, BorderLayout.CENTER);
+
+    }
+
+    private void addVehicleToWorld(String name, Color color, double lat, double lon, double height) {
+        ShapeAttributes attrs = new BasicShapeAttributes();
+        attrs.setInteriorMaterial(new Material(color));
+        attrs.setInteriorOpacity(0.7);
+        attrs.setEnableLighting(true);
+        attrs.setOutlineMaterial(new Material(color));
+        attrs.setOutlineWidth(2d);
+        attrs.setDrawInterior(true);
+        attrs.setDrawOutline(false);
+
+        Box vehBox = new Box(Position.fromDegrees(lat, lon, height), 10, 10, 10);
+        vehBox.setAltitudeMode(WorldWind.ABSOLUTE);
+        vehBox.setAttributes(attrs);
+        vehBox.setVisible(true);
+        vehLayer.addRenderable(vehBox);
+
+        systems.put(name, vehBox);
+    }
+
+    @Override
+    public boolean update() {
+        if (vehLayer != null)
+            vehLayer.firePropertyChange(AVKey.LAYER, null, null);
+
+        return true;
+    }
+
+    @Subscribe
+    public void consume(EstimatedState msg) {
+        if (msg.getLat() != 0 || msg.getLon() != 0) {
+            ImcSystem veh = ImcSystemsHolder.getSystemWithName(msg.getSourceName());
+            if (veh.getVehicle() == null || msg.getSourceName().equals("lauv-xplore-1"))
+                return;
+
+            EstimatedState es = IMCUtils.parseState(msg).toEstimatedState();
+            if (!systems.containsKey(msg.getSourceName())) {
+                Color c = veh.getVehicle().getIconColor();
+                addVehicleToWorld(msg.getSourceName(), c, Math.toDegrees(es.getLat()), Math.toDegrees(es.getLon()), es.getHeight());
+            } 
+            else {
+                Box vehBox = systems.get(veh.getName());
+                //update vehicle position
+                vehBox.setCenterPosition(Position.fromDegrees(Math.toDegrees(es.getLat()), Math.toDegrees(es.getLon()), msg.getHeight()));
+                systems.put(veh.getName(), vehBox);
+            }
+        }
+    }
+
+    @Override
+    public void cleanSubPanel() {
+        // TODO Auto-generated method stub
+
+    }
+
+    @Override
+    public void initSubPanel() {
+        // TODO Auto-generated method stub
+
+    }
+
+    @Override
+    public long millisBetweenUpdates() {
+        // TODO Auto-generated method stub
+        return updateMillis;
+    }
+}
