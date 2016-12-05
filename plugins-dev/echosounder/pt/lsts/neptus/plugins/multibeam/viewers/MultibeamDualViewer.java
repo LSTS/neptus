@@ -29,8 +29,8 @@ public class MultibeamDualViewer extends ConsolePanel {
 
     public MultibeamDualViewer(ConsoleLayout console) {
         super(console);
-        crossSection = new MultibeamCrossSection(console);
-        waterfall = new MultibeamRealTimeWaterfall(console);
+        crossSection = new MultibeamCrossSection(null);
+        waterfall = new MultibeamRealTimeWaterfall(null);
 
         crossSection.mainVehicleChange(getMainVehicleId());
         waterfall.mainVehicleChange(getMainVehicleId());
