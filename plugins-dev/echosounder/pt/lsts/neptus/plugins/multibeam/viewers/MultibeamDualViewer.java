@@ -46,6 +46,19 @@ public class MultibeamDualViewer extends ConsolePanel {
         this.add(viewersPanel, "w 100%, h 100%,  grow");
     }
 
+    @Subscribe
+    public void onSonardata(SonarData msg) {
+        new Thread(() -> crossSection.onSonarData(msg)).start();
+        new Thread(() -> waterfall.onSonarData(msg)).start();
+    }
+
+    @Subscribe
+    public void onEstimatedState(EstimatedState msg) {
+        new Thread(() -> crossSection.onEstimatedState(msg)).start();
+        new Thread(() -> waterfall.onEstimatedState(msg)).start();
+    }
+
+
     @Override
     public void cleanSubPanel() {
         crossSection.cleanSubPanel();
