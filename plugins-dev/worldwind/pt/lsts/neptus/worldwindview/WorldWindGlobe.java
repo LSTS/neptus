@@ -293,20 +293,29 @@ public class WorldWindGlobe extends ConsolePanel implements IPeriodicUpdates {
     @Subscribe
     public void consume(EstimatedState msg) {
         if (msg.getLat() != 0 || msg.getLon() != 0) {
-            ImcSystem veh = ImcSystemsHolder.getSystemWithName(msg.getSourceName());
-            if (veh.getVehicle() == null)
+            ImcSystem system = ImcSystemsHolder.getSystemWithName(msg.getSourceName());
+            
+            if (system.getVehicle() == null)
                 return;
 
             EstimatedState es = IMCUtils.parseState(msg).toEstimatedState();
             if (!systems.containsKey(msg.getSourceName())) {
-                Color c = veh.getVehicle().getIconColor();
+                Color c = system.getVehicle().getIconColor();
                 addVehicleToWorld(msg.getSourceName(), c, Math.toDegrees(es.getLat()), Math.toDegrees(es.getLon()), es.getHeight());
             } 
             else {
-                Box vehBox = systems.get(veh.getName());
-                //update vehicle position
+                Box vehBox = systems.get(system.getName());
+                // Update vehicle color if it's the main vehicle
+                Color c = system.getVehicle().getIconColor();
+                if (msg.getSourceName().equals(console.getMainSystem()))
+                    c = Color.GREEN;
+                
+                vehBox.getAttributes().setInteriorMaterial(new Material(c));
+                vehBox.getAttributes().setOutlineMaterial(new Material(c));
+                // Update vehicle position
                 vehBox.setCenterPosition(Position.fromDegrees(Math.toDegrees(es.getLat()), Math.toDegrees(es.getLon()), msg.getHeight()));
-                systems.put(veh.getName(), vehBox);
+                
+                systems.put(system.getName(), vehBox);
             }
         }
     }
