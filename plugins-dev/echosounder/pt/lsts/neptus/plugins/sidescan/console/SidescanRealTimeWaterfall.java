@@ -36,11 +36,13 @@ import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
+import java.util.ArrayList;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.atomic.AtomicLong;
 
+import javax.swing.JComboBox;
 import javax.swing.JMenuItem;
 import javax.swing.JPopupMenu;
 import javax.swing.SwingUtilities;
@@ -58,6 +60,7 @@ import pt.lsts.neptus.console.events.ConsoleEventMainSystemChange;
 import pt.lsts.neptus.console.plugins.MainVehicleChangeListener;
 import pt.lsts.neptus.console.plugins.SubPanelChangeEvent;
 import pt.lsts.neptus.console.plugins.SubPanelChangeListener;
+import pt.lsts.neptus.gui.model.ArrayListComboBoxModel;
 import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.mp.SystemPositionAndAttitude;
 import pt.lsts.neptus.mra.api.SidescanLine;
@@ -98,22 +101,20 @@ public class SidescanRealTimeWaterfall extends ConsolePanel
     @NeptusProperty (name="Speed correction", category="Visualization parameters", userLevel = LEVEL.REGULAR)
     private boolean speedCorrection = true;
 
-    @NeptusProperty (name="Sidescan entity", category="Visualization parameters", userLevel = LEVEL.REGULAR,
-            description = "Leave it empty for using the first came, first served.")
-    private String sidescanEntity = "";
-
     @NeptusProperty (name="Clean lines on vehicle change", category="Visualization parameters", userLevel = LEVEL.REGULAR)
     private boolean cleanLinesOnVehicleChange = false;
 
     // GUI
     private SidescanViewerPanel ssViewer = null;
+    private JComboBox<String> sssEntitiesComboBox;
+    private ArrayListComboBoxModel<String> sssEntitiesComboBoxModel;
+    private JComboBox<Long> subSystemsComboBox;
+    private ArrayListComboBoxModel<Long> subSystemsComboBoxModel;
 
     // Data
     private SidescanParameters sidescanParams = new SidescanParameters(normalization, tvgGain);
     
     private EstimatedState curEstimatedState = null;
-    
-    private String currentSSSEntity = "";
     
     private ExecutorService threadExecutor = Executors.newCachedThreadPool(new ThreadFactory() {
         String nameBase = new StringBuilder().append(SidescanRealTimeWaterfall.class.getSimpleName())
@@ -143,9 +144,15 @@ public class SidescanRealTimeWaterfall extends ConsolePanel
         ssViewer = new SidescanViewerPanel();
         updateViewerParameters();
         
+        sssEntitiesComboBoxModel = new ArrayListComboBoxModel<>(new ArrayList<String>(), true);
+        sssEntitiesComboBox = new JComboBox<>(sssEntitiesComboBoxModel);
+        subSystemsComboBoxModel = new ArrayListComboBoxModel<>(new ArrayList<Long>(), true);
+        subSystemsComboBox = new JComboBox<>(subSystemsComboBoxModel);
+        
         setLayout(new MigLayout("ins 0, gap 5"));
-        // add(toolbar, "w 100%, wrap");
-        add(ssViewer, "w 100%, h 100%");
+        add(sssEntitiesComboBox, "sg 1, w :50%:50%");
+        add(subSystemsComboBox, "sg 1, w :40%:40%, wrap");
+        add(ssViewer, "w 100%, h 100%, spanx");
         
         ssViewer.addMouseListener(getMouseListener());
     }
@@ -181,9 +188,6 @@ public class SidescanRealTimeWaterfall extends ConsolePanel
         
         sidescanParams.setNormalization(normalization);
         sidescanParams.setTvgGain(tvgGain);
-        
-        if (sidescanEntity.isEmpty())
-            currentSSSEntity = "";
     }
     
     /* (non-Javadoc)
@@ -203,9 +207,15 @@ public class SidescanRealTimeWaterfall extends ConsolePanel
 
     @Subscribe
     public void mainVehicleChangeNotification(ConsoleEventMainSystemChange ev) {
-        currentSSSEntity = "";
         if (cleanLinesOnVehicleChange)
             ssViewer.clearLines();
+        
+        curEstimatedState = null;
+        
+        sssEntitiesComboBoxModel.clear();
+        subSystemsComboBoxModel.clear();
+        sssEntitiesComboBox.setSelectedItem(null);
+        subSystemsComboBoxModel.setSelectedItem(null);
     }
     
     /* (non-Javadoc)
@@ -224,56 +234,62 @@ public class SidescanRealTimeWaterfall extends ConsolePanel
     }
     
     @Subscribe
-    public void onSidescanData(EstimatedState msg) {
+    public void onEstimatedState(EstimatedState msg) {
+        if (!msg.getSourceName().equals(getMainVehicleId()))
+            return;
+
         curEstimatedState = msg;
     }
     
     @Subscribe
     public void onSidescanData(SonarData msg) {
-        if (!msg.getSourceName().equals(getMainVehicleId())) {
-            return;
-        }
-        if (msg.getType() != SonarData.TYPE.SIDESCAN) {
-            return;
-        }
-        
-        if (sidescanEntity.isEmpty()) {
-            if (currentSSSEntity.isEmpty()) {
-                currentSSSEntity = msg.getEntityName();
+        try {
+            if (!msg.getSourceName().equals(getMainVehicleId()))
+                return;
+            if (msg.getType() != SonarData.TYPE.SIDESCAN)
+                return;
+
+            boolean firstEnt = sssEntitiesComboBoxModel.getSize() == 0;
+            boolean firstSubSys = subSystemsComboBoxModel.getSize() == 0;
+            sssEntitiesComboBoxModel.addValue(msg.getEntityName());
+            subSystemsComboBoxModel.addValue(msg.getFrequency());
+            if (firstEnt && sssEntitiesComboBoxModel.getSize() > 0)
+                sssEntitiesComboBox.setSelectedItem(sssEntitiesComboBoxModel.getValue(0));
+            if (firstSubSys && subSystemsComboBoxModel.getSize() > 0)
+                subSystemsComboBox.setSelectedItem(subSystemsComboBoxModel.getValue(0));
+
+            String selEnt = (String) sssEntitiesComboBoxModel.getSelectedItem();
+            Long selSubSys = (Long) subSystemsComboBoxModel.getSelectedItem();
+
+            if (selSubSys == null)
+                return;
+
+            if (selEnt != null && !selEnt.equals(msg.getEntityName()))
+                return;
+            if (!selSubSys.equals(msg.getFrequency()))
+                return;
+
+            SystemPositionAndAttitude pose;
+            if (curEstimatedState == null
+                    || Math.abs(curEstimatedState.getTimestampMillis() - msg.getTimestampMillis()) > 500) {
+                pose = new SystemPositionAndAttitude();
+                // return;
             }
             else {
-                if (!currentSSSEntity.equals(msg.getEntityName()))
-                    return;
+                pose = new SystemPositionAndAttitude(curEstimatedState);
             }
+
+            SidescanLine line = SidescanUtil.getSidescanLine(msg, pose, sidescanParams);
+            ssViewer.addNewSidescanLine(line);
         }
-        else {
-            currentSSSEntity = sidescanEntity;
-            if (!currentSSSEntity.equals(msg.getEntityName()))
-                return;
+        catch (Exception e) {
+            e.printStackTrace();
         }
-        
-        SystemPositionAndAttitude pose;
-        if (curEstimatedState == null
-                || Math.abs(curEstimatedState.getTimestampMillis() - msg.getTimestampMillis()) > 500) {
-            pose = new SystemPositionAndAttitude();
-            // return;
-        }
-        else {
-            pose = new SystemPositionAndAttitude(curEstimatedState);
-        }
-        
-        SidescanLine line = SidescanUtil.getSidescanLine(msg, pose, sidescanParams);
-        ssViewer.addNewSidescanLine(line);
     }
-    
+
     @Periodic(millisBetweenUpdates = 200)
     private boolean periodicUpdaterSSImage() {
-        threadExecutor.execute(new Runnable() {
-            @Override
-            public void run() {
-                ssViewer.updateRequest();;
-            }
-        });
+        threadExecutor.execute(() -> ssViewer.updateRequest());
         return true;
     }
 }
