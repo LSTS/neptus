@@ -58,6 +58,11 @@ public class MultibeamDualViewer extends ConsolePanel {
         new Thread(() -> waterfall.onEstimatedState(msg)).start();
     }
 
+    @Subscribe
+    public void onMainVehicleChange(ConsoleEventMainSystemChange msg) {
+        crossSection.mainVehicleChange(msg.getCurrent());
+        waterfall.mainVehicleChange(msg.getCurrent());
+    }
 
     @Override
     public void cleanSubPanel() {
