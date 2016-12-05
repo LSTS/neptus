@@ -531,7 +531,7 @@ public class MultibeamCrossSection extends ConsolePanel implements MainVehicleCh
 
         if(currState != null) {
             vehicleIdValue.setText(getMainVehicleId());
-            double heading = currState.getYaw() * 180 / Math.PI;
+            double heading = Math.toDegrees(currState.getYaw());
             headingValue.setText(toRoundedString(heading));
 
             LocationType loc = currState.getPosition();
@@ -539,8 +539,8 @@ public class MultibeamCrossSection extends ConsolePanel implements MainVehicleCh
             lonValue.setText(loc.getLongitudeAsPrettyString());
 
             speedValue.setText(toRoundedString(currState.getV()));
-            pitchValue.setText(toRoundedString(currState.getPitch()));
-            rollvalue.setText(toRoundedString(currState.getRoll()));
+            pitchValue.setText(toRoundedString(Math.toDegrees(currState.getPitch())));
+            rollvalue.setText(toRoundedString(Math.toDegrees(currState.getRoll())));
             altValue.setText(toRoundedString(currState.getAltitude()));
         }
     }
@@ -564,7 +564,7 @@ public class MultibeamCrossSection extends ConsolePanel implements MainVehicleCh
 
     // for testing
     public static void main(String[] args) {
-        String dataFile = (System.getProperty("user.dir") + "/" + "log/maridan-multibeam/Data.lsf.gz");
+        String dataFile = (System.getProperty("user.dir") + "/" + "../log/maridan-multibeam/Data.lsf.gz");
         System.out.println("** Reading: " + dataFile);
 
         UDPTransport udp = new UDPTransport(6002, 1);
