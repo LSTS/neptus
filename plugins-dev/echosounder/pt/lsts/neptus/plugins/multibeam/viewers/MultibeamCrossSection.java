@@ -169,8 +169,8 @@ public class MultibeamCrossSection extends ConsolePanel implements MainVehicleCh
     private final JLabel rollLabel = new JLabel("ROLL: ");
     private final JLabel rollvalue = new JLabel("n/a");
 
-    private final JLabel altLabel  = new JLabel("ALT: ");
-    private final JLabel altValue = new JLabel("n/a");
+    private final JLabel depthLabel  = new JLabel("DEPTH: ");
+    private final JLabel depthValue = new JLabel("n/a");
 
     private ColorBar colorBar = null;
 
@@ -299,11 +299,11 @@ public class MultibeamCrossSection extends ConsolePanel implements MainVehicleCh
         infoPanel.add(rollLabel);
         infoPanel.add(rollvalue);
 
-        altLabel.setFont(f);
-        altLabel.setForeground(LABELS_COLOR);
-        altValue.setForeground(GRID_COLOR);
-        infoPanel.add(altLabel);
-        infoPanel.add(altValue);
+        depthLabel.setFont(f);
+        depthLabel.setForeground(LABELS_COLOR);
+        depthValue.setForeground(GRID_COLOR);
+        infoPanel.add(depthLabel);
+        infoPanel.add(depthValue);
 
         colorBar = createColorBar();
         infoPanel.add(colorBar, "span, growx");
@@ -535,6 +535,9 @@ public class MultibeamCrossSection extends ConsolePanel implements MainVehicleCh
         currState = new SystemPositionAndAttitude(msg);
 
         if(currState != null) {
+            // this is not set at SystemPositionAttitude's constructor
+            currState.setDepth(msg.getDepth());
+
             vehicleIdValue.setText(getMainVehicleId());
             double heading = Math.toDegrees(currState.getYaw());
             headingValue.setText(toRoundedString(heading) + DEGREE_UNITS);
@@ -546,7 +549,7 @@ public class MultibeamCrossSection extends ConsolePanel implements MainVehicleCh
             speedValue.setText(toRoundedString(currState.getV()) + SPD_UNITS);
             pitchValue.setText(toRoundedString(Math.toDegrees(currState.getPitch())) + DEGREE_UNITS);
             rollvalue.setText(toRoundedString(Math.toDegrees(currState.getRoll())) + DEGREE_UNITS);
-            altValue.setText(toRoundedString(currState.getAltitude()) + Z_UNITS);
+            depthValue.setText(toRoundedString(currState.getDepth()) + Z_UNITS);
         }
     }
 
