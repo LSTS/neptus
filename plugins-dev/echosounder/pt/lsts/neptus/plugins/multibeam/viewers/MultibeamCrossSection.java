@@ -113,6 +113,11 @@ public class MultibeamCrossSection extends ConsolePanel implements MainVehicleCh
     private final Color GRID_COLOR = Color.GREEN.darker().darker();
     private final Color LABELS_COLOR = Color.GRAY;
 
+    // units' strings
+    private final String SPD_UNITS = "m/s";
+    private final String DEGREE_UNITS = "º";
+    private final String Z_UNITS = "m";
+
     /* Viewer's GUI */
 
     // contains data's panel and info labels
@@ -532,16 +537,16 @@ public class MultibeamCrossSection extends ConsolePanel implements MainVehicleCh
         if(currState != null) {
             vehicleIdValue.setText(getMainVehicleId());
             double heading = Math.toDegrees(currState.getYaw());
-            headingValue.setText(toRoundedString(heading));
+            headingValue.setText(toRoundedString(heading) + DEGREE_UNITS);
 
             LocationType loc = currState.getPosition();
             latValue.setText(loc.getLatitudeAsPrettyString());
             lonValue.setText(loc.getLongitudeAsPrettyString());
 
-            speedValue.setText(toRoundedString(currState.getV()));
-            pitchValue.setText(toRoundedString(Math.toDegrees(currState.getPitch())));
-            rollvalue.setText(toRoundedString(Math.toDegrees(currState.getRoll())));
-            altValue.setText(toRoundedString(currState.getAltitude()));
+            speedValue.setText(toRoundedString(currState.getV()) + SPD_UNITS);
+            pitchValue.setText(toRoundedString(Math.toDegrees(currState.getPitch())) + DEGREE_UNITS);
+            rollvalue.setText(toRoundedString(Math.toDegrees(currState.getRoll())) + DEGREE_UNITS);
+            altValue.setText(toRoundedString(currState.getAltitude()) + Z_UNITS);
         }
     }
 
