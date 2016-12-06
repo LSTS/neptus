@@ -63,14 +63,11 @@ import pt.lsts.neptus.util.llf.LsfLogSource;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.ComponentAdapter;
-import java.awt.event.ComponentEvent;
-import java.awt.geom.Arc2D;
+import java.awt.event.*;
 import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayOutputStream;
 import java.util.*;
-import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadFactory;
@@ -237,6 +234,7 @@ public class MultibeamCrossSection extends ConsolePanel implements MainVehicleCh
             }
         };
         dataPanel.setBackground(Color.black);
+        dataPanel.addMouseListener(getMouseListener());
         return dataPanel;
     }
 
@@ -545,6 +543,26 @@ public class MultibeamCrossSection extends ConsolePanel implements MainVehicleCh
             rollvalue.setText(toRoundedString(Math.toDegrees(currState.getRoll()), 100000.0) + DEGREE_UNITS);
             depthValue.setText(toRoundedString(currState.getDepth(), 100.0) + Z_UNITS);
         }
+    }
+
+    private MouseListener getMouseListener() {
+        MouseAdapter ma = new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent me) {
+                if (SwingUtilities.isRightMouseButton(me)) {
+                    try {
+                        String depthStr = JOptionPane.showInputDialog("New depth: ");
+                        double d = Double.parseDouble(depthStr);
+
+                        mbRange = d;
+                        propertiesChanged();
+                    } catch(NullPointerException | NumberFormatException e) {
+                        JOptionPane.showMessageDialog(null, "Invalid depth value", "", JOptionPane.ERROR_MESSAGE);
+                    }
+                }
+            }
+        };
+        return ma;
     }
 
     /**
