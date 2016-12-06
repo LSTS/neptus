@@ -174,7 +174,6 @@ public class MultibeamCrossSection extends ConsolePanel implements MainVehicleCh
     private ColorBar colorBar = null;
 
     // Data
-    private List<BathymetrySwath> dataList = Collections.synchronizedList(new ArrayList<BathymetrySwath>());
     private SystemPositionAndAttitude currState = null;
 
 
@@ -209,7 +208,8 @@ public class MultibeamCrossSection extends ConsolePanel implements MainVehicleCh
             @Override
             public void componentResized(ComponentEvent e) {
                 if (e.getID() == ComponentEvent.COMPONENT_RESIZED) {
-                    createImages();
+                    dataImage = ImageUtils.createCompatibleImage(viewer.getWidth(), viewer.getHeight(),
+                            Transparency.TRANSLUCENT);
                     gridInvalidated = true;
                 }
             }
@@ -432,13 +432,6 @@ public class MultibeamCrossSection extends ConsolePanel implements MainVehicleCh
         };
 
         return cBar;
-    }
-
-    // Create images and layer to display the data
-    private void createImages() {
-        synchronized (dataList) {
-            dataImage = ImageUtils.createCompatibleImage(viewer.getWidth(), viewer.getHeight(), Transparency.TRANSLUCENT);
-        }
     }
 
     private void drawRangeScale(Graphics2D g, int cellSize) {
