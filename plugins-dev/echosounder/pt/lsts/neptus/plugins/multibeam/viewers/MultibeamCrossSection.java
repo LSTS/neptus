@@ -131,7 +131,6 @@ public class MultibeamCrossSection extends ConsolePanel implements MainVehicleCh
 
     // where data will be displayed
     private BufferedImage dataImage;
-    private final AlphaComposite transparentComposite = AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 0.5f);
 
     // layer with range and beam's scale
     private BufferedImage gridLayer;
@@ -472,7 +471,9 @@ public class MultibeamCrossSection extends ConsolePanel implements MainVehicleCh
 
     private void drawMultibeamData(BathymetrySwath swath) {
         // flush previous data
-        dataImage = ImageUtils.createCompatibleImage(viewer.getWidth(), viewer.getHeight(), Transparency.TRANSLUCENT);
+        Graphics2D g2 = (Graphics2D) dataImage.getGraphics();
+        g2.setBackground(new Color(255, 255, 255, 0));
+        g2.clearRect(0, 0, viewer.getWidth(), viewer.getHeight());
 
         // draw new data
         BathymetryPoint[] data = swath.getData();
