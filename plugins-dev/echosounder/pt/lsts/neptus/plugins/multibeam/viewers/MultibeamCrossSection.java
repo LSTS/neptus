@@ -115,7 +115,7 @@ public class MultibeamCrossSection extends ConsolePanel implements MainVehicleCh
 
     // units' strings
     private final String SPD_UNITS = "m/s";
-    private final String DEGREE_UNITS = "º";
+    private final String DEGREE_UNITS = "\u00b0";
     private final String Z_UNITS = "m";
 
     /* Viewer's GUI */
