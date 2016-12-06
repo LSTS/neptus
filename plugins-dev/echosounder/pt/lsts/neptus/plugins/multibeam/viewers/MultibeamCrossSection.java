@@ -534,16 +534,16 @@ public class MultibeamCrossSection extends ConsolePanel implements MainVehicleCh
 
             vehicleIdValue.setText(getMainVehicleId());
             double heading = Math.toDegrees(currState.getYaw());
-            headingValue.setText(toRoundedString(heading) + DEGREE_UNITS);
+            headingValue.setText(toRoundedString(heading, 10.0) + DEGREE_UNITS);
 
             LocationType loc = currState.getPosition();
             latValue.setText(loc.getLatitudeAsPrettyString());
             lonValue.setText(loc.getLongitudeAsPrettyString());
 
-            speedValue.setText(toRoundedString(currState.getV()) + SPD_UNITS);
-            pitchValue.setText(toRoundedString(Math.toDegrees(currState.getPitch())) + DEGREE_UNITS);
-            rollvalue.setText(toRoundedString(Math.toDegrees(currState.getRoll())) + DEGREE_UNITS);
-            depthValue.setText(toRoundedString(currState.getDepth()) + Z_UNITS);
+            speedValue.setText(toRoundedString(currState.getV(), 10.0) + SPD_UNITS);
+            pitchValue.setText(toRoundedString(Math.toDegrees(currState.getPitch()), 100000.0) + DEGREE_UNITS);
+            rollvalue.setText(toRoundedString(Math.toDegrees(currState.getRoll()), 100000.0) + DEGREE_UNITS);
+            depthValue.setText(toRoundedString(currState.getDepth(), 100.0) + Z_UNITS);
         }
     }
 
@@ -551,8 +551,8 @@ public class MultibeamCrossSection extends ConsolePanel implements MainVehicleCh
      * From a given estimated state value returns
      * it rounded and in string format
      * */
-    private String toRoundedString(double value) {
-        return Double.toString(Math.round(value * 100000) / 100000.0);
+    private String toRoundedString(double value, double factor) {
+        return Double.toString(Math.round(value * factor) / factor);
     }
 
     @Override
@@ -566,7 +566,7 @@ public class MultibeamCrossSection extends ConsolePanel implements MainVehicleCh
 
     // for testing
     public static void main(String[] args) {
-        String dataFile = (System.getProperty("user.dir") + "/" + "../log/maridan-multibeam/Data.lsf.gz");
+        String dataFile = (System.getProperty("user.dir") + "/" + "log/maridan-multibeam/Data.lsf.gz");
         System.out.println("** Reading: " + dataFile);
 
         UDPTransport udp = new UDPTransport(6002, 1);
