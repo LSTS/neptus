@@ -486,7 +486,7 @@ public class MultibeamCrossSection extends ConsolePanel implements MainVehicleCh
             dataImage.setRGB(x, y, colorMap.getColor(data[i].depth / mbRange).getRGB());
         }
 
-        dataPanel.repaint();
+        SwingUtilities.invokeLater(() -> dataPanel.repaint());
     }
 
     @Subscribe
@@ -561,7 +561,7 @@ public class MultibeamCrossSection extends ConsolePanel implements MainVehicleCh
                 .createInvertedColorMap((InterpolationColorMap) colorMap));
 
         gridInvalidated = true;
-        dataPanel.repaint();
+        SwingUtilities.invokeLater(() -> dataPanel.repaint());
     }
 
     // for testing
