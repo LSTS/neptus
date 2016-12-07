@@ -63,14 +63,11 @@ import pt.lsts.neptus.util.llf.LsfLogSource;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.ComponentAdapter;
-import java.awt.event.ComponentEvent;
-import java.awt.geom.Arc2D;
+import java.awt.event.*;
 import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayOutputStream;
 import java.util.*;
-import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadFactory;
@@ -115,7 +112,7 @@ public class MultibeamCrossSection extends ConsolePanel implements MainVehicleCh
 
     // units' strings
     private final String SPD_UNITS = "m/s";
-    private final String DEGREE_UNITS = "º";
+    private final String DEGREE_UNITS = "\u00b0";
     private final String Z_UNITS = "m";
 
     /* Viewer's GUI */
@@ -131,7 +128,6 @@ public class MultibeamCrossSection extends ConsolePanel implements MainVehicleCh
 
     // where data will be displayed
     private BufferedImage dataImage;
-    private final AlphaComposite transparentComposite = AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 0.5f);
 
     // layer with range and beam's scale
     private BufferedImage gridLayer;
@@ -175,7 +171,6 @@ public class MultibeamCrossSection extends ConsolePanel implements MainVehicleCh
     private ColorBar colorBar = null;
 
     // Data
-    private List<BathymetrySwath> dataList = Collections.synchronizedList(new ArrayList<BathymetrySwath>());
     private SystemPositionAndAttitude currState = null;
 
 
@@ -210,7 +205,8 @@ public class MultibeamCrossSection extends ConsolePanel implements MainVehicleCh
             @Override
             public void componentResized(ComponentEvent e) {
                 if (e.getID() == ComponentEvent.COMPONENT_RESIZED) {
-                    createImages();
+                    dataImage = ImageUtils.createCompatibleImage(viewer.getWidth(), viewer.getHeight(),
+                            Transparency.TRANSLUCENT);
                     gridInvalidated = true;
                 }
             }
@@ -238,6 +234,7 @@ public class MultibeamCrossSection extends ConsolePanel implements MainVehicleCh
             }
         };
         dataPanel.setBackground(Color.black);
+        dataPanel.addMouseListener(getMouseListener());
         return dataPanel;
     }
 
@@ -435,13 +432,6 @@ public class MultibeamCrossSection extends ConsolePanel implements MainVehicleCh
         return cBar;
     }
 
-    // Create images and layer to display the data
-    private void createImages() {
-        synchronized (dataList) {
-            dataImage = ImageUtils.createCompatibleImage(viewer.getWidth(), viewer.getHeight(), Transparency.TRANSLUCENT);
-        }
-    }
-
     private void drawRangeScale(Graphics2D g, int cellSize) {
         g.setColor(LABELS_COLOR);
         g.setFont(g.getFont().deriveFont(Font.BOLD, 16.0f));
@@ -472,7 +462,9 @@ public class MultibeamCrossSection extends ConsolePanel implements MainVehicleCh
 
     private void drawMultibeamData(BathymetrySwath swath) {
         // flush previous data
-        dataImage = ImageUtils.createCompatibleImage(viewer.getWidth(), viewer.getHeight(), Transparency.TRANSLUCENT);
+        Graphics2D g2 = (Graphics2D) dataImage.getGraphics();
+        g2.setBackground(new Color(255, 255, 255, 0));
+        g2.clearRect(0, 0, viewer.getWidth(), viewer.getHeight());
 
         // draw new data
         BathymetryPoint[] data = swath.getData();
@@ -492,7 +484,7 @@ public class MultibeamCrossSection extends ConsolePanel implements MainVehicleCh
             dataImage.setRGB(x, y, colorMap.getColor(data[i].depth / mbRange).getRGB());
         }
 
-        dataPanel.repaint();
+        SwingUtilities.invokeLater(() -> dataPanel.repaint());
     }
 
     @Subscribe
@@ -540,25 +532,45 @@ public class MultibeamCrossSection extends ConsolePanel implements MainVehicleCh
 
             vehicleIdValue.setText(getMainVehicleId());
             double heading = Math.toDegrees(currState.getYaw());
-            headingValue.setText(toRoundedString(heading) + DEGREE_UNITS);
+            headingValue.setText(toRoundedString(heading, 10.0) + DEGREE_UNITS);
 
             LocationType loc = currState.getPosition();
             latValue.setText(loc.getLatitudeAsPrettyString());
             lonValue.setText(loc.getLongitudeAsPrettyString());
 
-            speedValue.setText(toRoundedString(currState.getV()) + SPD_UNITS);
-            pitchValue.setText(toRoundedString(Math.toDegrees(currState.getPitch())) + DEGREE_UNITS);
-            rollvalue.setText(toRoundedString(Math.toDegrees(currState.getRoll())) + DEGREE_UNITS);
-            depthValue.setText(toRoundedString(currState.getDepth()) + Z_UNITS);
+            speedValue.setText(toRoundedString(currState.getV(), 10.0) + SPD_UNITS);
+            pitchValue.setText(toRoundedString(Math.toDegrees(currState.getPitch()), 100000.0) + DEGREE_UNITS);
+            rollvalue.setText(toRoundedString(Math.toDegrees(currState.getRoll()), 100000.0) + DEGREE_UNITS);
+            depthValue.setText(toRoundedString(currState.getDepth(), 100.0) + Z_UNITS);
         }
+    }
+
+    private MouseListener getMouseListener() {
+        MouseAdapter ma = new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent me) {
+                if (SwingUtilities.isRightMouseButton(me)) {
+                    try {
+                        String depthStr = JOptionPane.showInputDialog("New depth: ");
+                        double d = Double.parseDouble(depthStr);
+
+                        mbRange = d;
+                        propertiesChanged();
+                    } catch(NullPointerException | NumberFormatException e) {
+                        JOptionPane.showMessageDialog(null, "Invalid depth value", "", JOptionPane.ERROR_MESSAGE);
+                    }
+                }
+            }
+        };
+        return ma;
     }
 
     /**
      * From a given estimated state value returns
      * it rounded and in string format
      * */
-    private String toRoundedString(double value) {
-        return Double.toString(Math.round(value * 100000) / 100000.0);
+    private String toRoundedString(double value, double factor) {
+        return Double.toString(Math.round(value * factor) / factor);
     }
 
     @Override
@@ -567,12 +579,12 @@ public class MultibeamCrossSection extends ConsolePanel implements MainVehicleCh
                 .createInvertedColorMap((InterpolationColorMap) colorMap));
 
         gridInvalidated = true;
-        dataPanel.repaint();
+        SwingUtilities.invokeLater(() -> dataPanel.repaint());
     }
 
     // for testing
     public static void main(String[] args) {
-        String dataFile = (System.getProperty("user.dir") + "/" + "../log/maridan-multibeam/Data.lsf.gz");
+        String dataFile = (System.getProperty("user.dir") + "/" + "log/maridan-multibeam/Data.lsf.gz");
         System.out.println("** Reading: " + dataFile);
 
         UDPTransport udp = new UDPTransport(6002, 1);
