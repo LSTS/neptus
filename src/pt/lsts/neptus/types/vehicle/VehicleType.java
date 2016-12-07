@@ -34,6 +34,7 @@ package pt.lsts.neptus.types.vehicle;
 import java.awt.Color;
 import java.awt.Image;
 import java.io.File;
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
@@ -68,6 +69,7 @@ import pt.lsts.neptus.types.coord.CoordinateSystem;
 import pt.lsts.neptus.types.misc.FileType;
 import pt.lsts.neptus.types.mission.MissionType;
 import pt.lsts.neptus.types.mission.plan.PlanType;
+import pt.lsts.neptus.types.vehicle.VehicleType.VehicleTypeEnum;
 import pt.lsts.neptus.util.Dom4JUtil;
 import pt.lsts.neptus.util.FileUtil;
 import pt.lsts.neptus.util.ImageUtils;
@@ -105,6 +107,24 @@ public class VehicleType implements XmlOutputMethods, XmlInputMethods, XmlInputM
         UAV,
         ALL
     };
+    
+    public static enum IdentityTypeEnum {
+        UNKNOWN,
+        PENDING,
+        FRIEND,
+        NEUTRAL,
+        HOSTILE,
+        ASSUMED_FRIEND,
+        SUSPECT,
+        EXERCISE_PENDING,
+        EXERCISE_UNKNOWN,
+        EXERCISE_ASSUMED_FRIEND,
+        EXERCISE_FRIEND,
+        EXERCISE_NEUTRAL,
+        JOKER,
+        FAKER
+    };
+
 
     protected static final String DEFAULT_ROOT_ELEMENT_DEPREC = "vehicle";
     protected static final String DEFAULT_ROOT_ELEMENT = "system";
@@ -1105,5 +1125,71 @@ public class VehicleType implements XmlOutputMethods, XmlInputMethods, XmlInputM
         }
 
         return manFactory;
+    }
+    
+    public static String getMilStd2525TypeString(VehicleTypeEnum vehType, IdentityTypeEnum stdIdType) {
+        StringBuilder milStd2525String = new StringBuilder();
+        
+        milStd2525String.append("S"); // CODING SCHEME - 'S' WARFIGHTING
+        
+        
+        switch (stdIdType) {
+            case FRIEND:
+                milStd2525String.append("F"); // FRIEND
+                break;
+            default:
+                milStd2525String.append("U"); // UNKNOWN
+                break;
+        }
+        
+        String status = "P"; // PRESENT
+
+        switch (vehType) {
+            case UAV:
+                milStd2525String.append("A"); //AIR "A"
+                milStd2525String.append(status);
+                milStd2525String.append("MFQ--------"); //DRONE (RPV/UA)
+                
+                break;
+            case UUV:
+                milStd2525String.append("U"); //SEA SUBSURFACE "U"
+                milStd2525String.append(status);
+                milStd2525String.append("SU---------");
+                
+                break;
+            case UGV:
+                milStd2525String.append("G"); //GROUND "G"
+                milStd2525String.append(status);
+                milStd2525String.append("EV---------");
+                
+                break;
+            case USV:
+                milStd2525String.append("S"); //SEA SURFACE "S"
+                milStd2525String.append(status);
+                milStd2525String.append("CU---------");
+                
+                break;
+            default:
+                milStd2525String.append("Z"); //UNKNOWN "Z"
+                milStd2525String.append(status);
+                milStd2525String.append("-----------");
+                
+                break;
+        }
+        
+        return milStd2525String.toString();
+    }
+    
+    public static void main(String[] args) {
+        VehicleTypeEnum[] types = VehicleTypeEnum.values();
+        IdentityTypeEnum[] ids = IdentityTypeEnum.values();
+        
+        for (VehicleTypeEnum e : types) {
+            for (IdentityTypeEnum id : ids) {
+                if (id.equals(IdentityTypeEnum.UNKNOWN) || id.equals(IdentityTypeEnum.FRIEND))
+                    System.out.println(e + " "+ id+ " : "+ VehicleType.getMilStd2525TypeString(e, id));
+            }
+        }
+        
     }
 }
