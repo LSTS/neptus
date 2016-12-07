@@ -67,20 +67,24 @@ import gov.nasa.worldwind.render.BasicShapeAttributes;
 import gov.nasa.worldwind.render.Box;
 import gov.nasa.worldwind.render.Material;
 import gov.nasa.worldwind.render.ShapeAttributes;
+import gov.nasa.worldwind.symbology.TacticalSymbol;
 import gov.nasa.worldwindx.examples.util.LayerManagerLayer;
 import pt.lsts.imc.EstimatedState;
 import pt.lsts.neptus.comm.IMCUtils;
+import pt.lsts.neptus.comm.SystemUtils;
 import pt.lsts.neptus.comm.manager.imc.ImcSystem;
 import pt.lsts.neptus.comm.manager.imc.ImcSystemsHolder;
 import pt.lsts.neptus.console.ConsoleLayout;
 import pt.lsts.neptus.console.ConsolePanel;
 import pt.lsts.neptus.console.events.ConsoleEventMainSystemChange;
+import pt.lsts.neptus.console.plugins.SystemsList.MilStd2525SymbolsFilledEnum;
 import pt.lsts.neptus.gui.MenuScroller;
 import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.mystate.MyState;
 import pt.lsts.neptus.plugins.NeptusProperty;
 import pt.lsts.neptus.plugins.PluginDescription;
 import pt.lsts.neptus.plugins.Popup;
+import pt.lsts.neptus.plugins.NeptusProperty.LEVEL;
 import pt.lsts.neptus.plugins.Popup.POSITION;
 import pt.lsts.neptus.plugins.update.IPeriodicUpdates;
 import pt.lsts.neptus.types.coord.LocationType;
@@ -88,20 +92,43 @@ import pt.lsts.neptus.types.vehicle.VehicleType;
 import pt.lsts.neptus.types.vehicle.VehiclesHolder;
 
 @PluginDescription(name = "WorldWind Renderer Panel")
-@Popup(name = "WorldWind Panel", pos = POSITION.CENTER, height = 600, width = 600)
+@Popup(name = "WorldWind Panel", pos = POSITION.CENTER, height = 600, width = 900)
 public class WorldWindGlobe extends ConsolePanel implements IPeriodicUpdates {
+
+    @NeptusProperty(name = "Systems Icons Size", description = "Configures the state symbols size for the system box", 
+            category = "List", userLevel = LEVEL.REGULAR)
+    public int iconsSize = 15;
+
+    @NeptusProperty(name = "Use Mil Std 2525 Like Symbols", description = "This configures if the location symbols to draw on the renderer will use the MIL-STD-2525 standard", 
+            category = "MilStd-2525", userLevel = LEVEL.REGULAR)
+    public boolean useMilStd2525LikeSymbols = false;
+    
+    @NeptusProperty(name = "Mil Std 2525 Icons Size", description = "Configures the state Mil Std 2525 symbols size", 
+            category = "List", userLevel = LEVEL.REGULAR)
+    public double  milStd2525IconsSize = 0.7;
+
+    @NeptusProperty(name = "Mil Std 2525 Symbols Filled Or Not", description = "This configures if the symbol is to be filled or not", 
+            category = "MilStd-2525", userLevel = LEVEL.REGULAR)
+    public MilStd2525SymbolsFilledEnum milStd2525FilledOrNot = MilStd2525SymbolsFilledEnum.FILLED;
+
+    @NeptusProperty(name = "Mil Std 2525 Show Location Or Not", description = "This configures if the location is to be shown near the symbol or not", 
+            category = "MilStd-2525", userLevel = LEVEL.REGULAR)
+    public boolean milStd2525ShowLocation = false;
+
+    @NeptusProperty
+    public int updateMillis = 300;
 
     private static final long serialVersionUID = -4031214492375928720L;
     private WorldWindowGLCanvas wwd;
     private RenderableLayer vehLayer = null;
+    private RenderableLayer tacticalLayer = null;
     private HashMap<String, Box> systems = new HashMap<>();
+    private TacticalSymbolMap systemSymbolMap = new TacticalSymbolMap();
     private JPopupMenu menu = new JPopupMenu("Popup");
     private View view = null;
+    private LayerManagerLayer layerManager = null;
     private ConsoleLayout console = null;
     private Runnable layerUpdateTask;
-
-    @NeptusProperty
-    public int updateMillis = 300;
 
     public WorldWindGlobe(ConsoleLayout console) {
         super(console);
@@ -111,7 +138,7 @@ public class WorldWindGlobe extends ConsolePanel implements IPeriodicUpdates {
 
     @Override
     public void initSubPanel() {
-        
+
         // Initialize WorldWind
         wwd = new WorldWindowGLCanvas();
         wwd.setModel(new BasicModel());
@@ -135,18 +162,23 @@ public class WorldWindGlobe extends ConsolePanel implements IPeriodicUpdates {
 
         // Setup Listeners
         setupListeners();
-        
+
     }
 
     private void setupLayers() {
         vehLayer = new RenderableLayer();
         vehLayer.setName("Vehicles");
         vehLayer.setPickEnabled(true);
+        vehLayer.setEnabled(false);
 
-        LayerManagerLayer mng = new LayerManagerLayer(wwd);
+        tacticalLayer = new RenderableLayer();
+        tacticalLayer.setName("Tactical Symbols");
+        tacticalLayer.setPickEnabled(true);
+        tacticalLayer.setEnabled(false);
+
+        layerManager = new LayerManagerLayer(wwd);
 
         wwd.getModel().getLayers().addIfAbsent(new MSVirtualEarthLayer());
-        wwd.getModel().getLayers().addIfAbsent(mng);
 
         ImcSystem[] sys = ImcSystemsHolder.lookupActiveSystemVehicles(); 
 
@@ -159,16 +191,29 @@ public class WorldWindGlobe extends ConsolePanel implements IPeriodicUpdates {
         // Add vehicle layer to layer manager
         wwd.getModel().getLayers().add(vehLayer);
 
+        // Add vehicle layer to layer manager
+        wwd.getModel().getLayers().add(tacticalLayer);
+
+        // Add layer manager to list
+        wwd.getModel().getLayers().addIfAbsent(layerManager);
+
         // Update layer manager
-        mng.update();
+        layerManager.update();
+
+        // Hide layer manager
+        layerManager.setMinimized(true);
 
         layerUpdateTask = new Runnable() {
             @Override
             public void run() {
                 if (vehLayer != null)
                     vehLayer.firePropertyChange(AVKey.LAYER, null, null);
+
+                if (tacticalLayer != null)
+                    tacticalLayer.firePropertyChange(AVKey.LAYER, null, null);
             }
         };
+
     }
 
     private void setupListeners() {
@@ -186,8 +231,7 @@ public class WorldWindGlobe extends ConsolePanel implements IPeriodicUpdates {
         }
     }
 
-    private void setupPopupMenu() {
-
+    private JMenu getVehiclesMenu() {
         JMenu centerMap = new JMenu(I18n.text("Center map in..."));
 
         Comparator<ImcSystem> imcComparator = new Comparator<ImcSystem>() {
@@ -220,7 +264,12 @@ public class WorldWindGlobe extends ConsolePanel implements IPeriodicUpdates {
         }
         MenuScroller.setScrollerFor(centerMap);
 
-        menu.add(centerMap);
+        return centerMap;
+    }
+
+    private void setupPopupMenu() {
+
+        menu.add(getVehiclesMenu());
 
         //setup right-click menu
         wwd.addMouseListener(new MouseListener(){
@@ -269,14 +318,30 @@ public class WorldWindGlobe extends ConsolePanel implements IPeriodicUpdates {
         vehBox.setAltitudeMode(WorldWind.ABSOLUTE);
         vehBox.setAttributes(attrs);
         vehBox.setVisible(true);
-        
+
         vehLayer.addRenderable(vehBox);
         systems.put(name, vehBox);
+
+        ImcSystem sys = ImcSystemsHolder.lookupSystemByName(name);
+        Integer heading = 0;
+        if (sys.containsData(SystemUtils.HEADING_DEGS_KEY))
+            heading = (Integer) sys.retrieveData(SystemUtils.HEADING_DEGS_KEY);
+
+        TacticalSymbol mil2525Symbol = systemSymbolMap.addSystem(name, sys.getTypeVehicle(), new LocationType(lat, lon), heading);
+        
+        tacticalLayer.addRenderable(mil2525Symbol);
     }
 
     @Override
     public boolean update() {
         updateLayers();
+
+        if (useMilStd2525LikeSymbols)
+            vehLayer.setEnabled(false);
+        else
+            vehLayer.setEnabled(true);
+
+        systemSymbolMap.setIconScale(milStd2525IconsSize);
         
         return true;
     }
@@ -289,12 +354,12 @@ public class WorldWindGlobe extends ConsolePanel implements IPeriodicUpdates {
     public void mainVehicleChangeNotification(ConsoleEventMainSystemChange ev) {
         //TODO
     }
-    
+
     @Subscribe
     public void consume(EstimatedState msg) {
         if (msg.getLat() != 0 || msg.getLon() != 0) {
             ImcSystem system = ImcSystemsHolder.getSystemWithName(msg.getSourceName());
-            
+
             if (system.getVehicle() == null)
                 return;
 
@@ -302,27 +367,32 @@ public class WorldWindGlobe extends ConsolePanel implements IPeriodicUpdates {
             if (!systems.containsKey(msg.getSourceName())) {
                 Color c = system.getVehicle().getIconColor();
                 addVehicleToWorld(msg.getSourceName(), c, Math.toDegrees(es.getLat()), Math.toDegrees(es.getLon()), es.getHeight());
-            } 
+            }
             else {
                 Box vehBox = systems.get(system.getName());
                 // Update vehicle color if it's the main vehicle
                 Color c = system.getVehicle().getIconColor();
                 if (msg.getSourceName().equals(console.getMainSystem()))
                     c = Color.GREEN;
-                
+
                 vehBox.getAttributes().setInteriorMaterial(new Material(c));
                 vehBox.getAttributes().setOutlineMaterial(new Material(c));
                 // Update vehicle position
                 vehBox.setCenterPosition(Position.fromDegrees(Math.toDegrees(es.getLat()), Math.toDegrees(es.getLon()), msg.getHeight()));
-                
+
                 systems.put(system.getName(), vehBox);
+
+                ImcSystem sys = ImcSystemsHolder.lookupSystemByName(system.getName());
+                if (sys.containsData(SystemUtils.HEADING_DEGS_KEY))
+                    systemSymbolMap.updateSysPosAndHeading(system.getName(), (Integer) sys.retrieveData(SystemUtils.HEADING_DEGS_KEY), 
+                            Position.fromDegrees(Math.toDegrees(es.getLat()), Math.toDegrees(es.getLon()), msg.getHeight()));
             }
         }
     }
 
     @Override
     public void cleanSubPanel() {
-        wwd.shutdown();
+        // wwd.shutdown();
     }
 
     @Override
