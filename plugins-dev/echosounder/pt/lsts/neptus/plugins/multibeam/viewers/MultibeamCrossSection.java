@@ -99,7 +99,8 @@ public class MultibeamCrossSection extends ConsolePanel implements MainVehicleCh
     public double mbRange = 30;
 
     @NeptusProperty(name="Data's color map", category="Visualization parameters", userLevel = NeptusProperty.LEVEL.REGULAR)
-    private ColorMap colorMap = ColorMapFactory.createJetColorMap();
+    private ColorMap colorMap = ColorMapFactory
+            .createInvertedColorMap((InterpolationColorMap) ColorMapFactory.createJetColorMap());
 
     // grid's number of rows
     private final int N_ROWS = 5;
