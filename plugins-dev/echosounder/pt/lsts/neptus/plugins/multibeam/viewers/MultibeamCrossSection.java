@@ -552,11 +552,13 @@ public class MultibeamCrossSection extends ConsolePanel implements MainVehicleCh
                 if (SwingUtilities.isRightMouseButton(me)) {
                     try {
                         String depthStr = JOptionPane.showInputDialog("New depth: ");
-                        double d = Double.parseDouble(depthStr);
 
-                        mbRange = d;
+                        if(depthStr == null)
+                            return;
+
+                        mbRange = Double.parseDouble(depthStr);
                         propertiesChanged();
-                    } catch(NullPointerException | NumberFormatException e) {
+                    } catch(NumberFormatException e) {
                         JOptionPane.showMessageDialog(null, "Invalid depth value", "", JOptionPane.ERROR_MESSAGE);
                     }
                 }
