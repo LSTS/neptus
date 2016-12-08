@@ -44,10 +44,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.atomic.AtomicLong;
 
-import javax.swing.JComboBox;
-import javax.swing.JMenuItem;
-import javax.swing.JPopupMenu;
-import javax.swing.SwingUtilities;
+import javax.swing.*;
 
 import com.google.common.eventbus.Subscribe;
 
@@ -160,14 +157,32 @@ public class MultibeamRealTimeWaterfall extends ConsolePanel implements Configur
             public void mouseClicked(MouseEvent me) {
                 if (SwingUtilities.isRightMouseButton(me)) {
                     JPopupMenu popup = new JPopupMenu();
+                    JPopupMenu depth = new JPopupMenu();
+
                     JMenuItem menu = new JMenuItem(I18n.text("Clear"));
-                    menu.addActionListener(new ActionListener() {
-                        @Override
-                        public void actionPerformed(ActionEvent e) {
-                            mbViewer.clearLines();                            
+                    JMenuItem depthItem = new JMenuItem(I18n.text("Change depth scale"));
+
+                    menu.addActionListener(e -> mbViewer.clearLines());
+
+                    depthItem.addActionListener(e -> {
+                        if (SwingUtilities.isRightMouseButton(me)) {
+                            try {
+                                String depthStr = JOptionPane.showInputDialog(I18n.text("New depth: "));
+
+                                if(depthStr == null)
+                                    return;
+
+                                maxDepth = Double.parseDouble(depthStr);
+                                propertiesChanged();
+                            } catch(NumberFormatException exc) {
+                                JOptionPane.showMessageDialog(null, I18n.text("Invalid depth value"), "",
+                                        JOptionPane.ERROR_MESSAGE);
+                            }
                         }
                     });
+
                     popup.add(menu);
+                    popup.add(depthItem);
                     popup.show(me.getComponent(), me.getX(), me.getY());
                 }
             }
