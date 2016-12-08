@@ -99,7 +99,8 @@ public class MultibeamCrossSection extends ConsolePanel implements MainVehicleCh
     public double mbRange = 30;
 
     @NeptusProperty(name="Data's color map", category="Visualization parameters", userLevel = NeptusProperty.LEVEL.REGULAR)
-    private ColorMap colorMap = ColorMapFactory.createJetColorMap();
+    private ColorMap colorMap = ColorMapFactory
+            .createInvertedColorMap((InterpolationColorMap) ColorMapFactory.createJetColorMap());
 
     // grid's number of rows
     private final int N_ROWS = 5;
@@ -552,11 +553,13 @@ public class MultibeamCrossSection extends ConsolePanel implements MainVehicleCh
                 if (SwingUtilities.isRightMouseButton(me)) {
                     try {
                         String depthStr = JOptionPane.showInputDialog("New depth: ");
-                        double d = Double.parseDouble(depthStr);
 
-                        mbRange = d;
+                        if(depthStr == null)
+                            return;
+
+                        mbRange = Double.parseDouble(depthStr);
                         propertiesChanged();
-                    } catch(NullPointerException | NumberFormatException e) {
+                    } catch(NumberFormatException e) {
                         JOptionPane.showMessageDialog(null, "Invalid depth value", "", JOptionPane.ERROR_MESSAGE);
                     }
                 }
