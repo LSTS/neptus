@@ -2,14 +2,14 @@ package pt.lsts.neptus.plugins.multibeam.viewers;
 
 import com.google.common.eventbus.Subscribe;
 import net.miginfocom.swing.MigLayout;
-import pt.lsts.imc.EstimatedState;
-import pt.lsts.imc.SonarData;
+import pt.lsts.neptus.comm.manager.imc.ImcMsgManager;
 import pt.lsts.neptus.console.ConsoleLayout;
 import pt.lsts.neptus.console.ConsolePanel;
 import pt.lsts.neptus.console.events.ConsoleEventMainSystemChange;
 import pt.lsts.neptus.plugins.PluginDescription;
 import pt.lsts.neptus.plugins.Popup;
 import pt.lsts.neptus.plugins.multibeam.console.MultibeamRealTimeWaterfall;
+import pt.lsts.neptus.plugins.update.PeriodicUpdatesService;
 
 import javax.swing.*;
 import java.awt.*;
@@ -29,8 +29,15 @@ public class MultibeamDualViewer extends ConsolePanel {
 
     public MultibeamDualViewer(ConsoleLayout console) {
         super(console);
-        crossSection = new MultibeamCrossSection(null);
-        waterfall = new MultibeamRealTimeWaterfall(null);
+        crossSection = new MultibeamCrossSection(console);
+        waterfall = new MultibeamRealTimeWaterfall(console);
+
+        // imc messages
+        ImcMsgManager.getManager().registerBusListener(crossSection);
+        ImcMsgManager.getManager().registerBusListener(waterfall);
+
+        // periodic calls
+        PeriodicUpdatesService.registerPojo(waterfall);
 
         crossSection.mainVehicleChange(getMainVehicleId());
         waterfall.mainVehicleChange(getMainVehicleId());
@@ -47,18 +54,6 @@ public class MultibeamDualViewer extends ConsolePanel {
     }
 
     @Subscribe
-    public void onSonardata(SonarData msg) {
-        new Thread(() -> crossSection.onSonarData(msg)).start();
-        new Thread(() -> waterfall.onSonarData(msg)).start();
-    }
-
-    @Subscribe
-    public void onEstimatedState(EstimatedState msg) {
-        new Thread(() -> crossSection.onEstimatedState(msg)).start();
-        new Thread(() -> waterfall.onEstimatedState(msg)).start();
-    }
-
-    @Subscribe
     public void onMainVehicleChange(ConsoleEventMainSystemChange msg) {
         crossSection.mainVehicleChange(msg.getCurrent());
         waterfall.mainVehicleChange(msg.getCurrent());
@@ -66,6 +61,12 @@ public class MultibeamDualViewer extends ConsolePanel {
 
     @Override
     public void cleanSubPanel() {
+        ImcMsgManager.getManager().unregisterBusListener(crossSection);
+        ImcMsgManager.getManager().unregisterBusListener(waterfall);
+
+        // periodic calls
+        PeriodicUpdatesService.unregisterPojo(waterfall);
+
         crossSection.cleanSubPanel();
         waterfall.cleanSubPanel();
     }
