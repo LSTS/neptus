@@ -193,7 +193,7 @@ public class DeltaT83PToCorrectedPos83P implements MRAExporter {
         for (double val : valsLat) {
             System.out.print(val);
             System.out.print("\t::\t");
-            System.out.print(CoordinateUtil.latitudeAsPrettyString(val, false));
+            System.out.print(CoordinateUtil.latitudeAsPrettyString(val));
             System.out.print("\t::\t");
             String fmt = CoordinateUtil.latTo83PFormatWorker(val);
             System.out.print(fmt);
@@ -205,7 +205,7 @@ public class DeltaT83PToCorrectedPos83P implements MRAExporter {
         for (double val : valsLon) {
             System.out.print(val);
             System.out.print("\t::\t");
-            System.out.print(CoordinateUtil.longitudeAsPrettyString(val, false));
+            System.out.print(CoordinateUtil.longitudeAsPrettyString(val));
             System.out.print("\t::\t");
             String fmt = CoordinateUtil.lonTo83PFormatWorker(val);
             System.out.print(fmt);

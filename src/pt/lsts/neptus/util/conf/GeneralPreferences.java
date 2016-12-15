@@ -53,6 +53,7 @@ import pt.lsts.neptus.gui.PropertiesProvider;
 import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.plugins.NeptusProperty;
 import pt.lsts.neptus.plugins.NeptusProperty.LEVEL;
+import pt.lsts.neptus.types.coord.LatLonFormatEnum;
 import pt.lsts.neptus.plugins.PluginUtils;
 import pt.lsts.neptus.util.GuiUtils;
 import pt.lsts.neptus.util.PropertiesLoader;
@@ -239,6 +240,11 @@ public class GeneralPreferences implements PropertiesProvider {
     @NeptusProperty(name = "AIS MMSI Query Sufix", category = "AIS MMSI Query", userLevel = LEVEL.ADVANCED)
     public static String aisMmsiQueryUrlSufix = ".json?api_key=f7a0da8eacb49740eb45b5e74d130459";
     
+    // -------------------------------------------------------------------------
+
+    @NeptusProperty(name = "Lat/Lon Preferable Display Format", category = "Location", userLevel = LEVEL.REGULAR)
+    public static LatLonFormatEnum latLonPrefFormat = LatLonFormatEnum.DM;
+
     // -------------------------------------------------------------------------
     // Constructor and initialize
 

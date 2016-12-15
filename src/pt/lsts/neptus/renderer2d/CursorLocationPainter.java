@@ -120,8 +120,8 @@ public class CursorLocationPainter implements Renderer2DPainter {
 		StringBuilder loc = new StringBuilder();
 		loc.append("<html>");
 		double[] latLonDepth = curLocation.getAbsoluteLatLonDepth();		
-		loc.append(""+CoordinateUtil.latitudeAsString(latLonDepth[0], true));
-		loc.append(" / "+CoordinateUtil.longitudeAsString(latLonDepth[1], true));
+		loc.append(""+CoordinateUtil.latitudeAsPrettyString(latLonDepth[0]));
+		loc.append(" / "+CoordinateUtil.longitudeAsPrettyString(latLonDepth[1]));
 
 		loc.append("</html>");
 		
