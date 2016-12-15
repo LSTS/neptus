@@ -608,8 +608,8 @@ public class LsfReport {
     public static void createPdfMarksRows(PdfPTable table, LogMarker m){
         table.addCell(DateTimeUtil.formatTime((long)m.getTimestamp()));
         table.addCell(m.getLabel());
-        String lat = CoordinateUtil.latitudeAsPrettyString(Math.toDegrees(m.getLatRads()), false);
-        String lon = CoordinateUtil.longitudeAsPrettyString(Math.toDegrees(m.getLonRads()), false);
+        String lat = CoordinateUtil.latitudeAsPrettyString(Math.toDegrees(m.getLatRads()));
+        String lon = CoordinateUtil.longitudeAsPrettyString(Math.toDegrees(m.getLonRads()));
         table.addCell(lat + " " + lon);
     }
 

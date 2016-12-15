@@ -341,18 +341,18 @@ public class MonitorIMCComms extends
         else if (System.currentTimeMillis() - MyState.getLastLocationUpdateTimeMillis() > DateTimeUtil.SECOND * 10) {
             ret += "<span color='red'>"
                     + CoordinateUtil.latitudeAsPrettyString(
-                            MathMiscUtils.round(MyState.getLocation().getLatitudeDegs(), 6), false)
+                            MathMiscUtils.round(MyState.getLocation().getLatitudeDegs(), 6))
                     + " "
                     + CoordinateUtil.longitudeAsPrettyString(
-                            MathMiscUtils.round(MyState.getLocation().getLongitudeDegs(), 6), false)
+                            MathMiscUtils.round(MyState.getLocation().getLongitudeDegs(), 6))
                     + "</span><br>";
         }
         else
             ret += CoordinateUtil.latitudeAsPrettyString(
-                    MathMiscUtils.round(MyState.getLocation().getLatitudeDegs(), 6), false)
+                    MathMiscUtils.round(MyState.getLocation().getLatitudeDegs(), 6))
                     + " "
                     + CoordinateUtil.longitudeAsPrettyString(
-                            MathMiscUtils.round(MyState.getLocation().getLongitudeDegs(), 6), false) + "<br>";
+                            MathMiscUtils.round(MyState.getLocation().getLongitudeDegs(), 6)) + "<br>";
 
         ret += "<br><b>" + I18n.text("State Listeners:") + "</b><br>";
         ret += getCommManager().getStatusListenersAsHtmlFragment();
@@ -439,18 +439,18 @@ public class MonitorIMCComms extends
         else if (System.currentTimeMillis() - sys.getLocationTimeMillis() > DateTimeUtil.SECOND * 10) {
             ret += "<span color='red'>"
                     + CoordinateUtil.latitudeAsPrettyString(
-                            MathMiscUtils.round(sys.getLocation().getLatitudeDegs(), 6), false)
+                            MathMiscUtils.round(sys.getLocation().getLatitudeDegs(), 6))
                     + " "
                     + CoordinateUtil.longitudeAsPrettyString(
-                            MathMiscUtils.round(sys.getLocation().getLongitudeDegs(), 6), false)
+                            MathMiscUtils.round(sys.getLocation().getLongitudeDegs(), 6))
                     + "</span><br>";
         }
         else
             ret += CoordinateUtil.latitudeAsPrettyString(
-                    MathMiscUtils.round(sys.getLocation().getLatitudeDegs(), 6), false)
+                    MathMiscUtils.round(sys.getLocation().getLatitudeDegs(), 6))
                     + " "
                     + CoordinateUtil.longitudeAsPrettyString(
-                            MathMiscUtils.round(sys.getLocation().getLongitudeDegs(), 6), false) + "<br>";
+                            MathMiscUtils.round(sys.getLocation().getLongitudeDegs(), 6)) + "<br>";
 
         ret += "<br><b>" + I18n.text("Entities:") + "</b>";
         Map<Integer, String> entLst = EntitiesResolver.getEntities(sys.getName());

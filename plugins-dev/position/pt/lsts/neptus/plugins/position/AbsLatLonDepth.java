@@ -294,8 +294,8 @@ public class AbsLatLonDepth extends ConsolePanel implements ConfigurationListene
 		                    break;
 		            }
 
-		            displayLat.setText(CoordinateUtil.latitudeAsPrettyString(Math.toDegrees(lat), showSeconds));
-		            displayLon.setText(CoordinateUtil.longitudeAsPrettyString(Math.toDegrees(lon), showSeconds));
+		            displayLat.setText(CoordinateUtil.latitudeAsPrettyString(Math.toDegrees(lat)));
+		            displayLon.setText(CoordinateUtil.longitudeAsPrettyString(Math.toDegrees(lon)));
 
 		            displayDepth.setText(formatter.format(depth));
 

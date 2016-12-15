@@ -736,8 +736,8 @@ public class NmeaPlotter extends ConsoleLayer {
 
             sb.append("<br/>").append("<b>").append(I18n.textc("Pos", "Short for position!")).append(": ").append("</b>");
             sb.append(oldTxtSTag);
-            sb.append(CoordinateUtil.latitudeAsPrettyString(dPos.latDegs, false))
-                .append(" ").append(CoordinateUtil.longitudeAsPrettyString(dPos.lonDegs, false));
+            sb.append(CoordinateUtil.latitudeAsPrettyString(dPos.latDegs))
+                .append(" ").append(CoordinateUtil.longitudeAsPrettyString(dPos.lonDegs));
             sb.append(oldTxtETag);
             
             sb.append("<br/>").append("<b>").append(I18n.text("Speed")).append("/").append(I18n.text("Heading"))

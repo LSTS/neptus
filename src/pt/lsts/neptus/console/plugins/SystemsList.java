@@ -1236,12 +1236,10 @@ public class SystemsList extends ConsolePanel implements MainVehicleChangeListen
             loc = loc.convertToAbsoluteLatLonDepth();
             txtInfo += (txtInfo.length() != 0 ? lineSep + "" : "");
             txtInfo += I18n.text("Lat") +": "
-                    + CoordinateUtil.latitudeAsPrettyString(MathMiscUtils.round(loc.getLatitudeDegs(), 6),
-                            false)
+                    + CoordinateUtil.latitudeAsPrettyString(MathMiscUtils.round(loc.getLatitudeDegs(), 6))
                     + " "
                     + I18n.text("Lon") +": "
-                    + CoordinateUtil.longitudeAsPrettyString(MathMiscUtils.round(loc.getLongitudeDegs(), 6),
-                            false)
+                    + CoordinateUtil.longitudeAsPrettyString(MathMiscUtils.round(loc.getLongitudeDegs(), 6))
                     + (showHeight ? lineSep + I18n.text("Height") +": " + MathMiscUtils.round(loc.getHeight(), 1) + " m"
                             : "");
         }
