@@ -84,6 +84,7 @@ import pt.lsts.neptus.types.vehicle.VehicleType.VehicleTypeEnum;
 import pt.lsts.neptus.types.vehicle.VehiclesHolder;
 import pt.lsts.neptus.util.DateTimeUtil;
 import pt.lsts.neptus.util.FileUtil;
+import pt.lsts.neptus.util.NMEAUtils;
 import pt.lsts.neptus.util.conf.IntegerMinMaxValidator;
 import pt.lsts.neptus.util.http.client.HttpClientConnectionHelper;
 
@@ -112,7 +113,7 @@ public class OdssStoqsTrackFetcher extends ConsolePanel implements IPeriodicUpda
     private static final String SHIP_URL_FRAGMENT = "ship/";
     
     @NeptusProperty(name = "Web address")
-    public String fetchURL = "http://beach.mbari.org/trackingdb/";
+    public String fetchURL = "http://odss.mbari.org/trackingdb/";
 
     @NeptusProperty(name = "AUV", category = "System Filter")
     public boolean fetchAUVType = true;
@@ -130,7 +131,7 @@ public class OdssStoqsTrackFetcher extends ConsolePanel implements IPeriodicUpda
     public boolean fetchAISType = true;
     
     @NeptusProperty(name = "Period to fetch (hours)")
-    public short periodHoursToFetch = 3;
+    public int periodHoursToFetch = 3;
 
     @NeptusProperty(name = "Update period (ms)", description = "The period to fetch the systems' positions. "
             + "Zero means disconnected.")
@@ -501,7 +502,12 @@ public class OdssStoqsTrackFetcher extends ConsolePanel implements IPeriodicUpda
                 }
             }
             else {
-                ExternalSystem ext = ExternalSystemsHolder.lookupSystem(id);
+                ExternalSystem ext;
+                if (pr.getMmsi() > 0)
+                    ext = NMEAUtils.getAndRegisterExternalSystem((int) pr.getMmsi(), pr.getName());
+                else
+                    ext = ExternalSystemsHolder.lookupSystem(id);
+                
                 boolean registerNewExternal = false;
                 if (ext == null) {
                     registerNewExternal = true;
@@ -530,6 +536,9 @@ public class OdssStoqsTrackFetcher extends ConsolePanel implements IPeriodicUpda
                         ext.setTypeExternal(ExternalTypeEnum.MANNED_SHIP);
                     } 
                     ext.setType(type);
+                    
+                    if (pr.getMmsi() > 0)
+                        ext.storeData(SystemUtils.MMSI_KEY, pr.getMmsi(), time, true);
                     
                     // See better because this should not be here
                     ext.setLocation(coordinateSystem, time);
@@ -582,7 +591,7 @@ public class OdssStoqsTrackFetcher extends ConsolePanel implements IPeriodicUpda
         }
     }
     
-    public String validatePeriodHoursToFetch(short value) {
+    public String validatePeriodHoursToFetch(int value) {
         String ret = new IntegerMinMaxValidator(1, 300, true, true).validate(value);
         if (value < 1)
             value = periodHoursToFetch = 1;

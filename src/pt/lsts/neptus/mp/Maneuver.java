@@ -807,7 +807,7 @@ public abstract class Maneuver implements XmlOutputMethods, PropertiesProvider, 
             loc.convertToAbsoluteLatLonDepth();
             //props.add(PropertiesEditor.getPropertyInstance("Latitude", "Location", String.class, loc.getLatitudeAsPrettyString(), false, "Maneuver's latitude"));
             //props.add(PropertiesEditor.getPropertyInstance("Longitude", "Location", String.class, loc.getLongitudeAsPrettyString(), false, "Maneuver's longitude"));
-            DefaultProperty propertyLocation = PropertiesEditor.getPropertyInstance("Location", I18n.text("Location"), ManeuverLocation.class, loc, true, I18n.text("Maneuver's location"));
+            DefaultProperty propertyLocation = PropertiesEditor.getPropertyInstance("Location", I18n.text("Location"), LocationType.class, loc, true, I18n.text("Maneuver's location"));
             propertyLocation.setDisplayName(I18n.text("Location"));
             props.add(propertyLocation);
             DefaultProperty propertyZ = PropertiesEditor.getPropertyInstance("Z", I18n.text("Location"), Double.class, loc.getZ(), true, I18n.text("Maneuver's z value"));
@@ -912,8 +912,10 @@ public abstract class Maneuver implements XmlOutputMethods, PropertiesProvider, 
                     manLoc.setZUnits((ManeuverLocation.Z_UNITS)p.getValue());                                        
                     ((LocatedManeuver)this).setManeuverLocation(manLoc);
                 }
-                else if (p.getName().equalsIgnoreCase("Location") && this instanceof LocatedManeuver) {                    
-                    ((LocatedManeuver)this).getManeuverLocation().setLocation((LocationType)p.getValue());
+                else if (p.getName().equalsIgnoreCase("Location") && this instanceof LocatedManeuver) {
+                    ManeuverLocation loc = ((LocatedManeuver)this).getManeuverLocation();
+                    loc.setLocation((LocationType)p.getValue());
+                    ((LocatedManeuver)this).setManeuverLocation(loc);
                 }
                 else if (p.getCategory() != null
                         && p.getCategory().equalsIgnoreCase(I18n.textf("%s custom settings", getType()))) {
