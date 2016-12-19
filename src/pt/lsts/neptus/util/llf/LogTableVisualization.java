@@ -193,7 +193,7 @@ public class LogTableVisualization implements MRAVisualization, LogMarkerListene
             }
         };
 
-        //table.setAutoCreateRowSorter(true);
+        table.setAutoCreateRowSorter(true);
         table.setFillsViewportHeight(true);
         table.setCellSelectionEnabled(true);
         table.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
@@ -273,6 +273,7 @@ public class LogTableVisualization implements MRAVisualization, LogMarkerListene
         .put(KeyStroke.getKeyStroke(KeyEvent.VK_F, InputEvent.CTRL_MASK), "finder");
         table.getActionMap().put("finder", finder);
 
+        panel.add(btnFilter, "");
 
         return panel;
     }
