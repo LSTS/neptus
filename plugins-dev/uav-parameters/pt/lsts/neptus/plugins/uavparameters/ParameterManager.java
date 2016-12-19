@@ -59,8 +59,6 @@ import javax.swing.SortOrder;
 import javax.swing.SwingWorker;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
-import javax.swing.event.TableModelEvent;
-import javax.swing.event.TableModelListener;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.TableRowSorter;
 
@@ -228,7 +226,8 @@ public class ParameterManager extends ConsolePanel implements MAVLinkConnectionL
                 else {
                     setActivity("Failed to update "+model.getModifiedParams().size() + " parameters...", StatusLed.LEVEL_2);
                     for (String n : model.getModifiedParams().keySet())
-                        System.out.println(n);
+                        model.updateModified(n, Color.RED.darker());
+                    
                 }
                 requestingWriting = false;
 
@@ -242,20 +241,6 @@ public class ParameterManager extends ConsolePanel implements MAVLinkConnectionL
     }
 
     private void addListenersAndRenderer() {
-
-        model.addTableModelListener(new TableModelListener() 
-        {
-            @Override
-            public void tableChanged(TableModelEvent evt)
-            {
-                if (!parameterList.isEmpty()) {
-                    if (evt.getType() == TableModelEvent.UPDATE && !requestingParams) {
-                        System.out.println("UPDATED ELEMENTS");
-                        //TODO
-                    }
-                }
-            }
-        });
 
         btnGetParams.addActionListener(new ActionListener() {
 
@@ -358,7 +343,7 @@ public class ParameterManager extends ConsolePanel implements MAVLinkConnectionL
                 if (fc.showOpenDialog(ParameterManager.this) == JFileChooser.APPROVE_OPTION) {
                     boolean f = reader.openFile(fc.getSelectedFile().getPath());
                     if (f) {
-                        model.updateParamList((ArrayList<Parameter>) reader.getParameters(), mavlink.getSystem(), mavlink.getSystemType());
+                        model.updateParamList((ArrayList<Parameter>) reader.getParameters(), mavlink.getSystemType());
                         setActivity("Loaded "+ reader.getParameters().size() +" parameters from file...", StatusLed.LEVEL_0, "Ok!");
                     }
                 }
@@ -444,7 +429,9 @@ public class ParameterManager extends ConsolePanel implements MAVLinkConnectionL
                 super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
 
                 setForeground(Color.WHITE);
-                setBackground(model.getRowColor(row, column));
+                String param = model.getValueAt(table.convertRowIndexToModel(row), 0).toString();
+        
+                setBackground(model.getRowColor(row, column, param));
 
                 return this;
             }
@@ -516,7 +503,7 @@ public class ParameterManager extends ConsolePanel implements MAVLinkConnectionL
 
     private void updateTable() {
         
-        model.updateParamList(parameterList, mavlink.getSystem(), mavlink.getSystemType());
+        model.updateParamList(parameterList, mavlink.getSystemType());
     }
 
     private void requestParameters() {
@@ -564,6 +551,7 @@ public class ParameterManager extends ConsolePanel implements MAVLinkConnectionL
             if (model.getModifiedParams().isEmpty()) {
                 requestingWriting = false;
                 writeWithSuccess = true;
+                model.fireTableDataChanged();
             }
         }
 
@@ -577,6 +565,7 @@ public class ParameterManager extends ConsolePanel implements MAVLinkConnectionL
             loader.setVisible(false);
             loader.setBusy(false);
             isFinished = true;
+            parameters.clear();
         }
     }
 
@@ -626,7 +615,7 @@ public class ParameterManager extends ConsolePanel implements MAVLinkConnectionL
     @Override
     public void onDisconnect() {
         if (mavlink.isToInitiateConnection())
-            setActivity("Not connection. Retrying...", StatusLed.LEVEL_2, "Not connected!");
+            setActivity("No connection. Retrying...", StatusLed.LEVEL_2, "Not connected!");
         else
             setActivity("Not connected...", StatusLed.LEVEL_OFF, "Not connected!");
 

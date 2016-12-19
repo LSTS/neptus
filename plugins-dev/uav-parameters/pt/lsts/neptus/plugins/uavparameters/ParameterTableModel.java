@@ -36,10 +36,9 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Map.Entry;
 
 import javax.swing.table.AbstractTableModel;
-
-import pt.lsts.neptus.NeptusLog;
 
 /**
  * @author Manuel R.
@@ -50,9 +49,8 @@ public class ParameterTableModel extends AbstractTableModel  {
 
     private HashMap<String, ParameterMetadata> metadata = null;
     private InputStream paramMetadataXML = null;
-    private String system = null;
     private ArrayList<Parameter> params = new ArrayList<>();
-    private HashMap<String, Parameter> modifiedParams = new HashMap<>();
+    private HashMap<String, ParameterExtended> modifiedParams = new HashMap<>();
     private static final int COLUMN_PARAM_NAME = 0;
     private static final int COLUMN_VALUE = 1;
     private static final int COLUMN_UNITS = 2;
@@ -81,8 +79,9 @@ public class ParameterTableModel extends AbstractTableModel  {
         return columnNames[columnIndex];
     }
 
-    public Color getRowColor(int row, int columnIndex) {
-        return ((modifiedParams.containsKey(getValueAt(row, COLUMN_PARAM_NAME)) && columnIndex == COLUMN_VALUE) ? (Color.green.darker()) : (row % 2 == 0 ? Color.gray : Color.gray.darker()));
+    public Color getRowColor(int row, int columnIndex, String value) {
+        return ((modifiedParams.containsKey(value) && columnIndex == COLUMN_VALUE) ? 
+                (modifiedParams.get(value).getColor()) : (row % 2 == 0 ? Color.gray : Color.gray.darker()));
     }
 
     @Override
@@ -107,9 +106,8 @@ public class ParameterTableModel extends AbstractTableModel  {
         param.value = Double.parseDouble((String) value);
 
         if (!oldValue.equals(value)) {
-            NeptusLog.pub().info("Updating ["+ system +"]: "+ param.name + "(" + oldValue +") with " + value);
-
-            modifiedParams.put(param.name, param);
+            ParameterExtended p = new ParameterExtended(param, Color.GREEN.darker());
+            modifiedParams.put(param.name, p);
 
             fireTableCellUpdated(rowIndex, columnIndex);
         }
@@ -161,7 +159,6 @@ public class ParameterTableModel extends AbstractTableModel  {
 
         Object returnValue = null;
         Parameter param = params.get(rowIndex);
-
         if (param == null)
             return null;
 
@@ -171,7 +168,7 @@ public class ParameterTableModel extends AbstractTableModel  {
                 break;
             case COLUMN_VALUE:
                 if (modifiedParams.containsKey(param.name)) {
-                    returnValue = modifiedParams.get(param.name).getValue();
+                    returnValue = modifiedParams.get(param.name).getParameter().getValue();
                     break;
                 }
                 returnValue = param.getValue();
@@ -210,9 +207,8 @@ public class ParameterTableModel extends AbstractTableModel  {
         }
     }
 
-    public void updateParamList(ArrayList<Parameter> newParamList, String system, String type) {
+    public void updateParamList(ArrayList<Parameter> newParamList, String type) {
         this.params = newParamList;
-        this.system = system;
 
         if (type != null) {
             try {
@@ -231,7 +227,12 @@ public class ParameterTableModel extends AbstractTableModel  {
      * @return the modifiedParams
      */
     public HashMap<String, Parameter> getModifiedParams() {
-        return modifiedParams;
+        HashMap<String, Parameter> list = new HashMap<>();
+
+        for (Entry<String, ParameterExtended> p : modifiedParams.entrySet())
+            list.put(p.getKey(), p.getValue().getParameter());
+
+        return list;
     }
 
     /**
@@ -241,7 +242,9 @@ public class ParameterTableModel extends AbstractTableModel  {
      * @return
      */
     public boolean checkAndUpdateParameter(String name, String value) {
-        Parameter e = modifiedParams.get(name);
+        ParameterExtended p = modifiedParams.get(name);
+        Parameter e = p.getParameter();
+
         if (e == null)
             return false;
 
@@ -252,5 +255,49 @@ public class ParameterTableModel extends AbstractTableModel  {
             return true;
         else
             return false;
+    }
+
+    private class ParameterExtended {
+        private Color color;
+        private Parameter parameter;
+
+        public ParameterExtended(Parameter param, Color color) {
+            this.setParameter(param);
+            this.color = color;
+        }
+
+        /**
+         * @return the color
+         */
+        public Color getColor() {
+            return color;
+        }
+
+        /**
+         * @param color the color to set
+         */
+        public void setColor(Color color) {
+            this.color = color;
+        }
+
+        /**
+         * @return the parameter
+         */
+        public Parameter getParameter() {
+            return parameter;
+        }
+
+        /**
+         * @param parameter the parameter to set
+         */
+        public void setParameter(Parameter parameter) {
+            this.parameter = parameter;
+        }
+
+    }
+
+    public void updateModified(String paramName, Color color) {
+        modifiedParams.get(paramName).setColor(color);
+        fireTableDataChanged();
     }
 }
