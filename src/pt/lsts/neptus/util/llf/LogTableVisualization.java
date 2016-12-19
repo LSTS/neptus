@@ -31,28 +31,56 @@
  */
 package pt.lsts.neptus.util.llf;
 
+import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
+import java.awt.Dimension;
+import java.awt.Window;
 import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.InputEvent;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.Date;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.TimeZone;
 
 import javax.swing.AbstractAction;
 import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
+import javax.swing.JCheckBox;
+import javax.swing.JComponent;
+import javax.swing.JDialog;
 import javax.swing.JLabel;
+import javax.swing.JList;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
+import javax.swing.JTextField;
+import javax.swing.KeyStroke;
+import javax.swing.ListCellRenderer;
 import javax.swing.ListSelectionModel;
+import javax.swing.RowFilter;
+import javax.swing.SwingConstants;
+import javax.swing.UIManager;
+import javax.swing.border.Border;
+import javax.swing.border.EmptyBorder;
+import javax.swing.border.EtchedBorder;
+import javax.swing.border.TitledBorder;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import javax.swing.table.TableCellRenderer;
+import javax.swing.table.TableRowSorter;
+import javax.swing.text.Position;
 
 import org.jdesktop.swingx.JXTable;
 import org.jdesktop.swingx.decorator.HighlighterFactory;
@@ -72,38 +100,30 @@ import pt.lsts.neptus.mra.visualizations.MRAVisualization;
 import pt.lsts.neptus.util.ImageUtils;
 
 /**
- * @author jqcorreia
+ * @author jqcorreia, Manuel R.
  * 
  */
 @SuppressWarnings("serial")
 public class LogTableVisualization implements MRAVisualization, LogMarkerListener {
+
+    private static final String SHOW_ICON = "images/buttons/show.png";
     private IMraLog log;
     private MRAPanel mraPanel;
     private LinkedHashMap<Integer, LogMarker> markerList = new LinkedHashMap<Integer, LogMarker>();
     protected SimpleDateFormat fmt = new SimpleDateFormat("HH:mm:ss.SSS");
     private IndexedLogTableModel model;
     private JXTable table;
-
+    private TableRowSorter<IndexedLogTableModel> sorter;
     private JPanel panel = new JPanel(new MigLayout());
-    private RangeSlider rangeSlider;
-
-    private JButton btnFilter = new JButton(new AbstractAction(I18n.text("Filter")) {
-        @Override
-        public void actionPerformed(ActionEvent e) {
-            long initTime = log.firstLogEntry().getTimestampMillis();
-            model = new IndexedLogTableModel(mraPanel.getSource(), log.name(), initTime + rangeSlider.getValue(),
-                    initTime + rangeSlider.getUpperValue());
-            table.setModel(model);
-            table.revalidate();
-            table.repaint();
-        }
-    });
+    private FilterList filterDialog;
+    private JButton btnFilter;
 
     private long finalTime;
     private long initTime;
 
     private JLabel lblInitTime = new JLabel();
     private JLabel lblFinalTime = new JLabel();
+    private boolean closingUp;
 
     public LogTableVisualization(IMraLog source, MRAPanel panel) {
         this.log = source;
@@ -114,6 +134,36 @@ public class LogTableVisualization implements MRAVisualization, LogMarkerListene
     @Override
     public String getName() {
         return log.name();
+    }
+
+    private void applyFilter(ArrayList<String> msgsToFilter, int initTS, int finalTS) {
+        long initT = log.firstLogEntry().getTimestampMillis() + initTS;
+        long finalT = initTime + finalTS;
+
+        model = new IndexedLogTableModel(mraPanel.getSource(), log.name(), initT, finalT);
+
+        table.setModel(model);
+        table.revalidate();
+        table.repaint();
+
+        sorter.setModel(model);
+
+        table.setRowSorter(sorter);
+        List<RowFilter<Object,Object>> filters = new ArrayList<RowFilter<Object,Object>>(msgsToFilter.size());
+
+        RowFilter<IndexedLogTableModel, Object> rf = null;
+        //If current expression doesn't parse, don't update.
+
+        for (String msg : msgsToFilter) {
+            filters.add(RowFilter.regexFilter(msg, 2));
+        }
+
+        rf = RowFilter.orFilter(filters);
+
+        if (filters.isEmpty())
+            sorter.setRowFilter(null);
+        else
+            sorter.setRowFilter(rf);
     }
 
     @Override
@@ -143,7 +193,7 @@ public class LogTableVisualization implements MRAVisualization, LogMarkerListene
             }
         };
 
-        table.setAutoCreateRowSorter(true);
+        //table.setAutoCreateRowSorter(true);
         table.setFillsViewportHeight(true);
         table.setCellSelectionEnabled(true);
         table.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
@@ -159,6 +209,9 @@ public class LogTableVisualization implements MRAVisualization, LogMarkerListene
         });
         table.setAutoResizeMode(JXTable.AUTO_RESIZE_OFF);
 
+        //remove default swingx's find
+        table.getActionMap().remove("find");
+
         LsfIndex idx = source.getLsfIndex();
 
         finalTime = (long) (idx.getEndTime() * 1000.0);
@@ -167,27 +220,59 @@ public class LogTableVisualization implements MRAVisualization, LogMarkerListene
         if (finalTime < initTime) {
             return new JLabel(I18n.text("Cannot show visualization because messages are unordered"));
         }
-        
-        rangeSlider = new RangeSlider(0, (int) (finalTime - initTime));
-        rangeSlider.setUpperValue((int) (finalTime - initTime));
-        rangeSlider.addChangeListener(new ChangeListener() {
-            @Override
-            public void stateChanged(ChangeEvent e) {
-                lblInitTime.setText(fmt.format(new Date(rangeSlider.getValue() + initTime)));
-                lblFinalTime.setText(fmt.format(new Date(rangeSlider.getUpperValue() + initTime)));
-            }
-        });
-
-        rangeSlider.setValue(0);
 
         // Build Panel
         panel.setBorder(BorderFactory.createTitledBorder(BorderFactory.createEmptyBorder(5, 0, 0, 0),
                 I18n.textf("%msgtype messages", log.name())));
         panel.add(new JScrollPane(table), "w 100%, h 100%, wrap");
-        panel.add(lblInitTime, "split");
-        panel.add(rangeSlider, "w 100%");
-        panel.add(lblFinalTime, "");
-        panel.add(btnFilter, "wrap");
+
+        ArrayList<String> srcEntList = new ArrayList<>();
+
+        for (int row = 0; row < model.getRowCount(); row++) {
+            if (closingUp)
+                break;
+
+            String srcEnt = (String) model.getValueAt(row, 2); //SourceEntity
+
+            if (srcEnt != null) {
+                if (!srcEntList.contains(srcEnt))
+                    srcEntList.add(srcEnt);
+            }
+        }
+
+        sorter = new TableRowSorter<>(model);
+        table.setRowSorter(sorter);
+
+        filterDialog = new FilterList(srcEntList, null);
+
+        AbstractAction finder = new AbstractAction() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                if (filterDialog.isVisible())
+                    filterDialog.setVisible(false);
+                else
+                    filterDialog.setVisible(true);
+            }
+        };
+
+        btnFilter = new JButton(new AbstractAction() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                if (filterDialog.isVisible())
+                    filterDialog.setVisible(false);
+                else
+                    filterDialog.setVisible(true);
+            }
+        });
+
+        btnFilter.setHorizontalTextPosition(SwingConstants.CENTER);
+        btnFilter.setVerticalTextPosition(SwingConstants.BOTTOM);
+        btnFilter.setIcon(ImageUtils.createScaleImageIcon(SHOW_ICON, 13, 13));
+
+        table.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW)
+        .put(KeyStroke.getKeyStroke(KeyEvent.VK_F, InputEvent.CTRL_MASK), "finder");
+        table.getActionMap().put("finder", finder);
+
 
         return panel;
     }
@@ -220,10 +305,19 @@ public class LogTableVisualization implements MRAVisualization, LogMarkerListene
     @Override
     public void onCleanup() {
         mraPanel = null;
+        closingUp = true;
+        if (filterDialog != null)
+            filterDialog.dispose();
+
+        filterDialog = null;
     }
 
     @Override
     public void onHide() {
+        if (filterDialog != null)
+            filterDialog.dispose();
+
+        mraPanel.getActionMap().remove("finder");
     }
 
     @Override
@@ -255,5 +349,279 @@ public class LogTableVisualization implements MRAVisualization, LogMarkerListene
 
     @Override
     public void goToMarker(LogMarker marker) {
+    }
+
+    @SuppressWarnings({"rawtypes", "unchecked"})
+    private class FilterList extends JDialog {
+        private static final long serialVersionUID = 1L;
+        protected JList m_list;
+        private JTextField findTxtField = null;
+        private RangeSlider rangeSlider;
+
+        public FilterList(ArrayList<String> logs, Window parent) {
+            super(parent, I18n.text("Filter"), ModalityType.DOCUMENT_MODAL);
+            setType(Type.NORMAL);
+            getContentPane().setLayout(new MigLayout("", "[240px]", "[300px]"));
+            setSize(240, 330);
+
+            ArrayList<LogItem> options = new ArrayList<>();
+            Collections.sort(logs, String.CASE_INSENSITIVE_ORDER);
+
+            for (String log : logs )
+                options.add(new LogItem(log, false, true));
+
+            m_list = new JList(options.toArray());
+            CheckListCellRenderer renderer = new CheckListCellRenderer();
+            m_list.setCellRenderer(renderer);
+            m_list.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+            CheckListener lst = new CheckListener(this);
+            m_list.addMouseListener(lst);
+            m_list.addKeyListener(lst);
+
+            JScrollPane ps = new JScrollPane();
+            JPanel p = new JPanel();
+            JPanel btnPanel = new JPanel();
+            JPanel timeRestPanel = new JPanel();
+            JButton filterBtn = new JButton(I18n.text("Filter"));
+            JButton resetBtn = new JButton("Reset");
+
+            ps.setViewportView(m_list);
+            ps.setMaximumSize(new Dimension(210, 200));
+            ps.setMinimumSize (new Dimension (210,200));
+
+            p.setLayout(new BorderLayout());
+            p.add(ps, BorderLayout.CENTER);
+            p.setBorder(new TitledBorder(new EtchedBorder(), I18n.text("Filter messages")+":") );
+
+            final ActionListener entAct = new ActionListener() {
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    int index = m_list.getNextMatch(findTxtField.getText(), 0, Position.Bias.Forward);
+                    m_list.setSelectedIndex(index);
+                    m_list.ensureIndexIsVisible(index);
+                }
+            };
+
+            AbstractAction finder = new AbstractAction() {
+                private final int ADDED_HEIGHT = 50;
+
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    if (findTxtField != null) {
+                        getContentPane().remove(findTxtField);
+                        findTxtField = null;
+
+                        Dimension szDim = FilterList.this.getSize();
+                        szDim.setSize(szDim.getWidth(), szDim.getHeight() - ADDED_HEIGHT);
+                        FilterList.this.setSize(szDim);
+                    }
+                    else {
+                        findTxtField = new JTextField();
+                        findTxtField.setColumns(10);
+                        getContentPane().add(findTxtField, "cell 0 0,alignx center");
+                        findTxtField.addActionListener(entAct);
+
+                        Dimension szDim = FilterList.this.getSize();
+                        szDim.setSize(szDim.getWidth(), szDim.getHeight() + ADDED_HEIGHT);
+                        FilterList.this.setSize(szDim);
+                    }
+                    getContentPane().revalidate();
+                    getContentPane().repaint();
+                }
+            };
+
+            mraPanel.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW)
+            .put(KeyStroke.getKeyStroke(KeyEvent.VK_F, InputEvent.CTRL_MASK), "finder");
+            mraPanel.getActionMap().put("finder", finder);
+
+            getContentPane().add(p, "cell 0 1,alignx left,aligny top");
+
+            AbstractAction filterAction = new AbstractAction() {
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    applyFilter(new ArrayList<String>(getSelectedItems()), rangeSlider.getValue(), rangeSlider.getUpperValue());
+                }
+            };
+            filterBtn.addActionListener(filterAction);
+
+            AbstractAction resetAction = new AbstractAction() {
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    int listSize = m_list.getModel().getSize();
+
+                    // Get all the selected items using the indices
+                    for (int i = 0; i < listSize; i++) {
+                        LogItem sel = (LogItem)m_list.getModel().getElementAt(i);
+                        if (sel.m_selected) {
+                            sel.setSelected(false);
+                        }
+                    }
+                    m_list.revalidate();
+                    m_list.repaint();
+
+                    rangeSlider.setValue(0);
+                    rangeSlider.setUpperValue((int) (finalTime - initTime));
+
+                }
+            };
+
+            resetBtn.addActionListener(resetAction);
+
+            getContentPane().add(timeRestPanel, "flowx,cell 0 2,growx");
+            timeRestPanel.setLayout(new BorderLayout());
+
+            rangeSlider = new RangeSlider(0, (int) (finalTime - initTime));
+            rangeSlider.setUpperValue((int) (finalTime - initTime));
+            rangeSlider.addChangeListener(new ChangeListener() {
+                @Override
+                public void stateChanged(ChangeEvent e) {
+                    lblInitTime.setText(fmt.format(new Date(rangeSlider.getValue() + initTime)));
+                    lblFinalTime.setText(fmt.format(new Date(rangeSlider.getUpperValue() + initTime)));
+                }
+            });
+
+            rangeSlider.setValue(0);
+
+            timeRestPanel.add(lblInitTime, BorderLayout.WEST);
+            timeRestPanel.add(rangeSlider, BorderLayout.NORTH);
+            timeRestPanel.add(lblFinalTime, BorderLayout.EAST);
+
+            getContentPane().add(btnPanel, "flowx,cell 0 3,growx");
+            btnPanel.setLayout(new BorderLayout(0, 0));
+
+            btnPanel.add(filterBtn, BorderLayout.EAST);
+            btnPanel.add(resetBtn, BorderLayout.WEST);
+
+            setLocationRelativeTo(null);
+            setResizable(false);
+            setVisible(false);
+        }
+
+        /**
+         * @return 
+         * 
+         */
+        private Collection<String> getSelectedItems() {
+            List<String> selected = new ArrayList<>();
+
+            int listSize = m_list.getModel().getSize();
+
+            // Get all the selected items using the indices
+            for (int i = 0; i < listSize; i++) {
+                LogItem sel = (LogItem)m_list.getModel().getElementAt(i);
+                if (sel.m_selected) {
+                    selected.add(sel.logName);
+                }
+
+            }
+            return selected;            
+        }
+
+        class CheckListCellRenderer extends JCheckBox implements ListCellRenderer {
+
+            protected Border m_noFocusBorder = new EmptyBorder(1, 1, 1, 1);
+
+            public CheckListCellRenderer() {
+                super();
+                setOpaque(true);
+                setBorder(m_noFocusBorder);
+            }
+
+            public Component getListCellRendererComponent(JList list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
+                setText(value.toString());
+                setBackground(isSelected ? list.getSelectionBackground() : list.getBackground());
+                setForeground(isSelected ? list.getSelectionForeground() : list.getForeground());
+                LogItem data = (LogItem)value;
+                setSelected(data.isSelected());
+                setEnabled(data.isEnabled());
+                setFont(list.getFont());
+                setBorder((cellHasFocus) ? UIManager.getBorder("List.focusCellHighlightBorder") : m_noFocusBorder);
+
+                return this;
+            }
+        }
+
+        private class CheckListener implements MouseListener, KeyListener {
+            protected JList m_list;
+            public CheckListener(FilterList parent) {
+                m_list = parent.m_list;
+            }
+
+            public void mouseClicked(MouseEvent e) {
+                if (e.getX() < 20)
+                    doCheck();
+            }
+
+            public void mousePressed(MouseEvent e) {}
+
+            public void mouseReleased(MouseEvent e) {}
+
+            public void mouseEntered(MouseEvent e) {}
+
+            public void mouseExited(MouseEvent e) {}
+
+            public void keyPressed(KeyEvent e) {
+                if (e.getKeyChar() == ' ')
+                    doCheck();
+            }
+
+            public void keyTyped(KeyEvent e) {}
+
+            public void keyReleased(KeyEvent e) {}
+
+            protected void doCheck() {
+
+                int index = m_list.getSelectedIndex();
+                if (index < 0)
+                    return;
+                LogItem data = (LogItem)m_list.getModel().getElementAt(index);
+                if (data.isEnabled())
+                    data.invertSelected();
+                m_list.repaint();
+            }
+
+        }
+
+        private class LogItem implements Comparable<LogItem> {
+            protected String logName;
+            protected boolean m_selected;
+            protected boolean m_enabled;
+
+            public LogItem(String name, boolean selected, boolean enabled) {
+                this.logName = name;
+                this.m_selected = selected;
+                this.m_enabled = enabled;
+            }
+
+            public boolean isEnabled() {
+                return m_enabled;
+            }
+
+            @SuppressWarnings("unused")
+            public String getName() { return logName; }
+
+            @SuppressWarnings("unused")
+            public void setSelected(boolean selected) {
+                m_selected = selected;
+            }
+
+            public void invertSelected() { 
+                m_selected = !m_selected; 
+            }
+
+            public boolean isSelected() { 
+                return m_selected; 
+            }
+
+            public String toString() { 
+                return logName; 
+            }
+
+            @Override
+            public int compareTo(LogItem anotherLog) {
+                return logName.compareTo(anotherLog.logName);
+            }
+
+        }
     }
 }
