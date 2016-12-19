@@ -237,8 +237,11 @@ public class MAVLinkConnection {
 
     public void closeConnection() throws IOException {
         if (tcpSocket != null) {
-            writer.close();
-            reader.close();
+            if (writer != null)
+                writer.close();
+            if (reader != null)
+                reader.close();
+            
             tcpSocket.close();
             tcpSocket = null;
             toInitiateConnection = false;
