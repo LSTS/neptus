@@ -57,8 +57,6 @@ import pt.lsts.s57.painters.NeptusS57Painter;
 import pt.lsts.s57.ui.MarinerControlsOptionsPanel;
 import pt.lsts.s57.ui.OptionsDialog;
 import pt.lsts.s57.ui.S57OptionsPanel;
-import pt.lsts.s63.S63;
-import pt.lsts.s63.ui.S63OptionsPanel;
 
 /**
  * @author Hugo Dias
@@ -69,7 +67,7 @@ import pt.lsts.s63.ui.S63OptionsPanel;
 public class S57Chart implements MapPainterProvider {
 
     private final S57 s57;
-    private S63 s63;
+//    private S63 s63;
     private final MarinerControls mc;
 
     private final Map<StateRenderer2D, NeptusS57Painter> painterList = new ConcurrentHashMap<StateRenderer2D, NeptusS57Painter>();
@@ -78,12 +76,12 @@ public class S57Chart implements MapPainterProvider {
         File cacheFile = new File(System.getProperty("user.dir") + "/.cache/s57");
         cacheFile.mkdirs();
         this.s57 = S57Factory.build(cacheFile, new File("libJNI/gdal/" + S57Utils.getPlatformPath()));
-        try {
-            this.s63 = S63.forge(this.s57);
-        }
-        catch (NoClassDefFoundError e) {
-            this.s63 = null;
-        }
+//        try {
+//            this.s63 = S63.forge(this.s57);
+//        }
+//        catch (NoClassDefFoundError e) {
+//            this.s63 = null;
+//        }
         this.mc = MarinerControls.forge();
         
         S57Utils.loadSession(s57);
@@ -115,8 +113,8 @@ public class S57Chart implements MapPainterProvider {
         };
         dialog.setIconImages(ConfigFetch.getIconImagesForFrames());
         dialog.addTab("S57", dialog.getIconMedium("icons/location.png"), new S57OptionsPanel(s57, dialog), "Settings for S57 Maps");
-        if(this.s63 != null) 
-            dialog.addTab("S63", dialog.getIconMedium("icons/location2.png"), new S63OptionsPanel(s57, s63, dialog), "Settings for S63 Maps");
+//        if(this.s63 != null) 
+//            dialog.addTab("S63", dialog.getIconMedium("icons/location2.png"), new S63OptionsPanel(s57, s63, dialog), "Settings for S63 Maps");
         dialog.addTab("Mariner Controls", dialog.getIconMedium("icons/cog2.png"), new MarinerControlsOptionsPanel(mc,dialog), "Mariner Controls");
         dialog.setRenderer(renderer);
         // painter for this renderer
