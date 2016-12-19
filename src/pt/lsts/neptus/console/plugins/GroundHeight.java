@@ -29,7 +29,7 @@
  * Author: zp
  * 05/07/2016
  */
-package pt.lsts.neptus.console;
+package pt.lsts.neptus.console.plugins;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -41,14 +41,12 @@ import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.comm.manager.imc.ImcSystem;
 import pt.lsts.neptus.comm.manager.imc.ImcSystemsHolder;
 import pt.lsts.neptus.plugins.NeptusProperty;
-import pt.lsts.neptus.plugins.PluginDescription;
 import pt.lsts.neptus.plugins.PluginUtils;
 
 /**
  * @author zp
  *
  */
-@PluginDescription
 public class GroundHeight {
 
     @NeptusProperty(name="WGS84 height at ground level")

@@ -39,7 +39,7 @@ import javax.vecmath.Vector3d;
 
 import pt.lsts.imc.EstimatedState;
 import pt.lsts.neptus.comm.IMCUtils;
-import pt.lsts.neptus.console.GroundHeight;
+import pt.lsts.neptus.console.plugins.GroundHeight;
 import pt.lsts.neptus.mp.SystemPositionAndAttitude;
 import pt.lsts.neptus.types.coord.LocationType;
 

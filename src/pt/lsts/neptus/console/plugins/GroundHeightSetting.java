@@ -33,7 +33,6 @@ package pt.lsts.neptus.console.plugins;
 
 import pt.lsts.neptus.console.ConsoleLayout;
 import pt.lsts.neptus.console.ConsolePanel;
-import pt.lsts.neptus.console.GroundHeight;
 import pt.lsts.neptus.plugins.NeptusMenuItem;
 import pt.lsts.neptus.plugins.PluginDescription;
 
