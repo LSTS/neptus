@@ -35,6 +35,7 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
+import java.awt.Font;
 import java.awt.Window;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -54,7 +55,6 @@ import java.util.List;
 import java.util.TimeZone;
 
 import javax.swing.AbstractAction;
-import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
@@ -101,7 +101,7 @@ import pt.lsts.neptus.util.ImageUtils;
 
 /**
  * @author jqcorreia, Manuel R.
- * 
+ *
  */
 @SuppressWarnings("serial")
 public class LogTableVisualization implements MRAVisualization, LogMarkerListener {
@@ -114,7 +114,7 @@ public class LogTableVisualization implements MRAVisualization, LogMarkerListene
     private IndexedLogTableModel model;
     private JXTable table;
     private TableRowSorter<IndexedLogTableModel> sorter;
-    private JPanel panel = new JPanel(new MigLayout());
+    private JPanel panel = new JPanel(new MigLayout("", "[450px,grow]", "[23px][277px,grow]"));
     private FilterList filterDialog;
     private JButton btnFilter;
 
@@ -222,9 +222,17 @@ public class LogTableVisualization implements MRAVisualization, LogMarkerListene
         }
 
         // Build Panel
-        panel.setBorder(BorderFactory.createTitledBorder(BorderFactory.createEmptyBorder(5, 0, 0, 0),
-                I18n.textf("%msgtype messages", log.name())));
-        panel.add(new JScrollPane(table), "w 100%, h 100%, wrap");
+        JPanel content = new JPanel();
+        content.setBorder(new EmptyBorder(0, 2, 0, 2));
+        panel.add(content, "cell 0 0,growx,aligny top");
+        content.setLayout(new BorderLayout(0, 0));
+
+        JLabel titleLabel = new JLabel(I18n.textf("%msgtype messages", log.name()));
+        titleLabel.setFont(new Font("Arial", Font.BOLD, 14));
+        content.add(titleLabel, BorderLayout.WEST);
+
+        table.setAutoResizeMode(JTable.AUTO_RESIZE_ALL_COLUMNS);
+        panel.add(new JScrollPane(table), "cell 0 1,grow");
 
         ArrayList<String> srcEntList = new ArrayList<>();
 
@@ -265,6 +273,8 @@ public class LogTableVisualization implements MRAVisualization, LogMarkerListene
             }
         });
 
+        content.add(btnFilter, BorderLayout.EAST);
+
         btnFilter.setHorizontalTextPosition(SwingConstants.CENTER);
         btnFilter.setVerticalTextPosition(SwingConstants.BOTTOM);
         btnFilter.setIcon(ImageUtils.createScaleImageIcon(SHOW_ICON, 13, 13));
@@ -273,7 +283,7 @@ public class LogTableVisualization implements MRAVisualization, LogMarkerListene
         .put(KeyStroke.getKeyStroke(KeyEvent.VK_F, InputEvent.CTRL_MASK), "finder");
         table.getActionMap().put("finder", finder);
 
-        panel.add(btnFilter, "");
+        //panel.add(btnFilter, "");
 
         return panel;
     }
@@ -403,7 +413,7 @@ public class LogTableVisualization implements MRAVisualization, LogMarkerListene
                 }
             };
 
-            AbstractAction finder = new AbstractAction() {
+            AbstractAction dlgFinderAction = new AbstractAction() {
                 private final int ADDED_HEIGHT = 50;
 
                 @Override
@@ -431,9 +441,9 @@ public class LogTableVisualization implements MRAVisualization, LogMarkerListene
                 }
             };
 
-            mraPanel.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW)
-            .put(KeyStroke.getKeyStroke(KeyEvent.VK_F, InputEvent.CTRL_MASK), "finder");
-            mraPanel.getActionMap().put("finder", finder);
+            m_list.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW)
+            .put(KeyStroke.getKeyStroke(KeyEvent.VK_F, InputEvent.CTRL_MASK), "finderDialog");
+            m_list.getActionMap().put("finderDialog", dlgFinderAction);
 
             getContentPane().add(p, "cell 0 1,alignx left,aligny top");
 
@@ -499,8 +509,8 @@ public class LogTableVisualization implements MRAVisualization, LogMarkerListene
         }
 
         /**
-         * @return 
-         * 
+         * @return
+         *
          */
         private Collection<String> getSelectedItems() {
             List<String> selected = new ArrayList<>();
@@ -515,7 +525,7 @@ public class LogTableVisualization implements MRAVisualization, LogMarkerListene
                 }
 
             }
-            return selected;            
+            return selected;
         }
 
         class CheckListCellRenderer extends JCheckBox implements ListCellRenderer {
@@ -528,6 +538,7 @@ public class LogTableVisualization implements MRAVisualization, LogMarkerListene
                 setBorder(m_noFocusBorder);
             }
 
+            @Override
             public Component getListCellRendererComponent(JList list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
                 setText(value.toString());
                 setBackground(isSelected ? list.getSelectionBackground() : list.getBackground());
@@ -548,26 +559,34 @@ public class LogTableVisualization implements MRAVisualization, LogMarkerListene
                 m_list = parent.m_list;
             }
 
+            @Override
             public void mouseClicked(MouseEvent e) {
                 if (e.getX() < 20)
                     doCheck();
             }
 
+            @Override
             public void mousePressed(MouseEvent e) {}
 
+            @Override
             public void mouseReleased(MouseEvent e) {}
 
+            @Override
             public void mouseEntered(MouseEvent e) {}
 
+            @Override
             public void mouseExited(MouseEvent e) {}
 
+            @Override
             public void keyPressed(KeyEvent e) {
                 if (e.getKeyChar() == ' ')
                     doCheck();
             }
 
+            @Override
             public void keyTyped(KeyEvent e) {}
 
+            @Override
             public void keyReleased(KeyEvent e) {}
 
             protected void doCheck() {
@@ -601,21 +620,21 @@ public class LogTableVisualization implements MRAVisualization, LogMarkerListene
             @SuppressWarnings("unused")
             public String getName() { return logName; }
 
-            @SuppressWarnings("unused")
             public void setSelected(boolean selected) {
                 m_selected = selected;
             }
 
-            public void invertSelected() { 
-                m_selected = !m_selected; 
+            public void invertSelected() {
+                m_selected = !m_selected;
             }
 
-            public boolean isSelected() { 
-                return m_selected; 
+            public boolean isSelected() {
+                return m_selected;
             }
 
-            public String toString() { 
-                return logName; 
+            @Override
+            public String toString() {
+                return logName;
             }
 
             @Override
