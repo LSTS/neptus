@@ -27,11 +27,9 @@
  * For more information please see <http://lsts.fe.up.pt/neptus>.
  *
  * Author: tsm
- * Nov 14, 2013
+ * Nov 24, 2016
  */
-
 package pt.lsts.neptus.plugins.multibeam.viewers;
-
 
 import com.google.common.eventbus.Subscribe;
 import net.miginfocom.swing.MigLayout;
@@ -76,6 +74,7 @@ import java.util.concurrent.atomic.AtomicLong;
 /**
  * Cross section viewer for Multibeam data
  * */
+@SuppressWarnings("serial")
 @PluginDescription(author = "Tiago Marques", version = "0.1", name = "Multibeam: Cross-Section Viewer")
 @Popup(pos = Popup.POSITION.TOP_LEFT, width = 1000, height = 800)
 public class MultibeamCrossSection extends ConsolePanel implements MainVehicleChangeListener, ConfigurationListener {
@@ -402,6 +401,7 @@ public class MultibeamCrossSection extends ConsolePanel implements MainVehicleCh
     }
 
     private ColorBar createColorBar() {
+        @SuppressWarnings("serial")
         ColorBar cBar = new ColorBar(ColorBar.HORIZONTAL_ORIENTATION, this.colorMap) {
             @Override
             public void paint(Graphics g) {
