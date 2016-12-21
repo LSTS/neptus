@@ -81,6 +81,9 @@ import java.util.concurrent.atomic.AtomicLong;
 @Popup(pos = Popup.POSITION.TOP_LEFT, width = 1000, height = 800)
 public class MultibeamCrossSection extends ConsolePanel implements MainVehicleChangeListener, ConfigurationListener {
 
+    private static final String STRING_COLON_SPACE = ": ";
+    private static final String N_A_TEXT = I18n.textc("n/a", "Not available. Try to use equal number of characters.");
+
     private ExecutorService threadExecutor = Executors.newCachedThreadPool(new ThreadFactory() {
         String nameBase = new StringBuilder().append(MultibeamCrossSection.class.getSimpleName())
                 .append("::").append(Integer.toHexString(MultibeamCrossSection.this.hashCode()))
@@ -146,29 +149,29 @@ public class MultibeamCrossSection extends ConsolePanel implements MainVehicleCh
     private boolean gridInvalidated = false;
 
     // information labels
-    private final JLabel vehicleIdLabel = new JLabel(I18n.textf("ID", "Try to use equal number of characters.") + ": ");
-    private final JLabel vehicleIdValue = new JLabel(I18n.textc("n/a", "Not available. Try to use equal number of characters."));
+    private final JLabel vehicleIdLabel = new JLabel(I18n.textf("ID", "Try to use equal number of characters.") + STRING_COLON_SPACE);
+    private final JLabel vehicleIdValue = new JLabel(N_A_TEXT);
 
-    private final JLabel headingLabel = new JLabel(I18n.textf("HDG", "Heading. Try to use equal number of characters.") + ": ");
-    private final JLabel headingValue = new JLabel(I18n.textc("n/a", "Not available. Try to use equal number of characters."));
+    private final JLabel headingLabel = new JLabel(I18n.textf("HDG", "Heading. Try to use equal number of characters.") + STRING_COLON_SPACE);
+    private final JLabel headingValue = new JLabel(N_A_TEXT);
 
-    private final JLabel latLabel = new JLabel(I18n.textf("LAT", "Latitude. Try to use equal number of characters.") + ": ");
-    private final JLabel latValue = new JLabel(I18n.textc("n/a", "Not available. Try to use equal number of characters."));
+    private final JLabel latLabel = new JLabel(I18n.textf("LAT", "Latitude. Try to use equal number of characters.") + STRING_COLON_SPACE);
+    private final JLabel latValue = new JLabel(N_A_TEXT);
 
-    private final JLabel lonLabel = new JLabel(I18n.textf("LON", "Longitude. Try to use equal number of characters.") + ": ");
-    private final JLabel lonValue = new JLabel(I18n.textc("n/a", "Not available. Try to use equal number of characters."));
+    private final JLabel lonLabel = new JLabel(I18n.textf("LON", "Longitude. Try to use equal number of characters.") + STRING_COLON_SPACE);
+    private final JLabel lonValue = new JLabel(N_A_TEXT);
 
-    private final JLabel speedLabel = new JLabel(I18n.textf("SPEED", "Try to use equal number of characters.") + ": ");
-    private final JLabel speedValue = new JLabel(I18n.textc("n/a", "Not available. Try to use equal number of characters."));
+    private final JLabel speedLabel = new JLabel(I18n.textf("SPEED", "Try to use equal number of characters.") + STRING_COLON_SPACE);
+    private final JLabel speedValue = new JLabel(N_A_TEXT);
 
-    private final JLabel pitchLabel = new JLabel(I18n.textf("PITCH", "Try to use equal number of characters.") + ": ");
-    private final JLabel pitchValue = new JLabel(I18n.textc("n/a", "Not available. Try to use equal number of characters."));
+    private final JLabel pitchLabel = new JLabel(I18n.textf("PITCH", "Try to use equal number of characters.") + STRING_COLON_SPACE);
+    private final JLabel pitchValue = new JLabel(N_A_TEXT);
 
-    private final JLabel rollLabel = new JLabel(I18n.textf("ROLL", "Try to use equal number of characters.") + ": ");
-    private final JLabel rollvalue = new JLabel(I18n.textc("n/a", "Not available. Try to use equal number of characters."));
+    private final JLabel rollLabel = new JLabel(I18n.textf("ROLL", "Try to use equal number of characters.") + STRING_COLON_SPACE);
+    private final JLabel rollvalue = new JLabel(N_A_TEXT);
 
-    private final JLabel depthLabel  = new JLabel(I18n.textc("DEPTH", "Try to use equal number of characters.") + ": ");
-    private final JLabel depthValue = new JLabel(I18n.textc("n/a", "Not available. Try to use equal number of characters."));
+    private final JLabel depthLabel  = new JLabel(I18n.textc("DEPTH", "Try to use equal number of characters.") + STRING_COLON_SPACE);
+    private final JLabel depthValue = new JLabel(N_A_TEXT);
 
     private ColorBar colorBar = null;
 
@@ -193,14 +196,7 @@ public class MultibeamCrossSection extends ConsolePanel implements MainVehicleCh
     }
 
     private JPanel initViewerPanel() {
-        JPanel vPanel = new JPanel() {
-            private static final long serialVersionUID = 1L;
-
-            @Override
-            protected void paintComponent(Graphics g) {
-                super.paintComponent(g);
-            }
-        };
+        JPanel vPanel = new JPanel();
 
         // Deal with panel resize by recreating the image buffers
         vPanel.addComponentListener(new ComponentAdapter() {
@@ -403,7 +399,6 @@ public class MultibeamCrossSection extends ConsolePanel implements MainVehicleCh
     }
 
     private ColorBar createColorBar() {
-        @SuppressWarnings("serial")
         ColorBar cBar = new ColorBar(ColorBar.HORIZONTAL_ORIENTATION, this.colorMap) {
             @Override
             public void paint(Graphics g) {
