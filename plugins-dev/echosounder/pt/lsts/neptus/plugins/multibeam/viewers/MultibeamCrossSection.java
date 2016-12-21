@@ -92,7 +92,7 @@ import pt.lsts.neptus.util.llf.LsfLogSource;
  */
 @SuppressWarnings("serial")
 @PluginDescription(author = "Tiago Marques", version = "0.1", name = "Multibeam: Cross-Section Viewer")
-@Popup(pos = Popup.POSITION.TOP_LEFT, width = 1000, height = 800)
+@Popup(pos = Popup.POSITION.TOP_LEFT, width = 600, height = 480)
 public class MultibeamCrossSection extends ConsolePanel implements MainVehicleChangeListener, ConfigurationListener {
 
     private static final String STRING_COLON_SPACE = ": ";
@@ -186,7 +186,7 @@ public class MultibeamCrossSection extends ConsolePanel implements MainVehicleCh
         dataPanel = initDataPanel();
         infoPanel = initInfoPanel();
 
-        viewer.add(infoPanel, "w 100%, h 20%, wrap");
+        viewer.add(infoPanel, "alignx center, h 20%, spanx, wrap");
         viewer.add(dataPanel, "w 100%, h 80%");
         setLayout(new MigLayout("ins 0, gap 0", "[][grow]", "[top][grow]"));
         add(viewer, "w 100%, h 100%,  grow");
@@ -236,7 +236,7 @@ public class MultibeamCrossSection extends ConsolePanel implements MainVehicleCh
     private JPanel initInfoPanel() {
         JPanel infoPanel = new JPanel();
 
-        infoPanel.setLayout(new MigLayout("wrap", "300[]10[]150[][]", "[][][][]"));
+        infoPanel.setLayout(new MigLayout("wrap", "[]10[]150[][]", "[][][][]"));
         infoPanel.setBackground(Color.black);
         infoPanel.setPreferredSize(new Dimension(viewer.getWidth(), viewer.getHeight()));
 
