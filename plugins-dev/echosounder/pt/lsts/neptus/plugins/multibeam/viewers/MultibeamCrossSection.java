@@ -590,9 +590,8 @@ public class MultibeamCrossSection extends ConsolePanel implements MainVehicleCh
 
     @Override
     public void propertiesChanged() {
-        colorBar.setCmap(ColorMapFactory
-                .createInvertedColorMap((InterpolationColorMap) colorMap));
-
+        colorBar.setCmap(colorMap);
+        
         gridInvalidated = true;
         SwingUtilities.invokeLater(() -> dataPanel.repaint());
     }
