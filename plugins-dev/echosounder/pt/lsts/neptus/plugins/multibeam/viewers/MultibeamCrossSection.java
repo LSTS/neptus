@@ -45,6 +45,7 @@ import pt.lsts.neptus.comm.transports.udp.UDPTransport;
 import pt.lsts.neptus.console.ConsoleLayout;
 import pt.lsts.neptus.console.ConsolePanel;
 import pt.lsts.neptus.console.plugins.MainVehicleChangeListener;
+import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.mp.SystemPositionAndAttitude;
 import pt.lsts.neptus.mra.api.BathymetryPoint;
 import pt.lsts.neptus.mra.api.BathymetrySwath;
@@ -145,29 +146,29 @@ public class MultibeamCrossSection extends ConsolePanel implements MainVehicleCh
     private boolean gridInvalidated = false;
 
     // information labels
-    private final JLabel vehicleIdLabel = new JLabel("ID: ");
-    private final JLabel vehicleIdValue = new JLabel("n/a");
+    private final JLabel vehicleIdLabel = new JLabel(I18n.textf("ID", "Try to use equal number of characters.") + ": ");
+    private final JLabel vehicleIdValue = new JLabel(I18n.textc("n/a", "Not available. Try to use equal number of characters."));
 
-    private final JLabel headingLabel = new JLabel("HDG: ");
-    private final JLabel headingValue = new JLabel("n/a");
+    private final JLabel headingLabel = new JLabel(I18n.textf("HDG", "Heading. Try to use equal number of characters.") + ": ");
+    private final JLabel headingValue = new JLabel(I18n.textc("n/a", "Not available. Try to use equal number of characters."));
 
-    private final JLabel latLabel = new JLabel("LAT: ");
-    private final JLabel latValue = new JLabel("n/a");
+    private final JLabel latLabel = new JLabel(I18n.textf("LAT", "Latitude. Try to use equal number of characters.") + ": ");
+    private final JLabel latValue = new JLabel(I18n.textc("n/a", "Not available. Try to use equal number of characters."));
 
-    private final JLabel lonLabel = new JLabel("LON: ");
-    private final JLabel lonValue = new JLabel("n/a");
+    private final JLabel lonLabel = new JLabel(I18n.textf("LON", "Longitude. Try to use equal number of characters.") + ": ");
+    private final JLabel lonValue = new JLabel(I18n.textc("n/a", "Not available. Try to use equal number of characters."));
 
-    private final JLabel speedLabel = new JLabel("SPEED: ");
-    private final JLabel speedValue = new JLabel("n/a");
+    private final JLabel speedLabel = new JLabel(I18n.textf("SPEED", "Try to use equal number of characters.") + ": ");
+    private final JLabel speedValue = new JLabel(I18n.textc("n/a", "Not available. Try to use equal number of characters."));
 
-    private final JLabel pitchLabel = new JLabel("PITCH: ");
-    private final JLabel pitchValue = new JLabel("n/a");
+    private final JLabel pitchLabel = new JLabel(I18n.textf("PITCH", "Try to use equal number of characters.") + ": ");
+    private final JLabel pitchValue = new JLabel(I18n.textc("n/a", "Not available. Try to use equal number of characters."));
 
-    private final JLabel rollLabel = new JLabel("ROLL: ");
-    private final JLabel rollvalue = new JLabel("n/a");
+    private final JLabel rollLabel = new JLabel(I18n.textf("ROLL", "Try to use equal number of characters.") + ": ");
+    private final JLabel rollvalue = new JLabel(I18n.textc("n/a", "Not available. Try to use equal number of characters."));
 
-    private final JLabel depthLabel  = new JLabel("DEPTH: ");
-    private final JLabel depthValue = new JLabel("n/a");
+    private final JLabel depthLabel  = new JLabel(I18n.textc("DEPTH", "Try to use equal number of characters.") + ": ");
+    private final JLabel depthValue = new JLabel(I18n.textc("n/a", "Not available. Try to use equal number of characters."));
 
     private ColorBar colorBar = null;
 
