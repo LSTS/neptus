@@ -77,6 +77,7 @@ import pt.lsts.neptus.plugins.Popup;
 import pt.lsts.neptus.plugins.Popup.POSITION;
 import pt.lsts.neptus.plugins.multibeam.ui.MultibeamWaterfallViewer;
 import pt.lsts.neptus.plugins.update.Periodic;
+import pt.lsts.neptus.util.GuiUtils;
 import pt.lsts.neptus.util.llf.LsfLogSource;
 
 /**
@@ -159,7 +160,6 @@ public class MultibeamRealTimeWaterfall extends ConsolePanel implements Configur
             public void mouseClicked(MouseEvent me) {
                 if (SwingUtilities.isRightMouseButton(me)) {
                     JPopupMenu popup = new JPopupMenu();
-                    JPopupMenu depth = new JPopupMenu();
 
                     JMenuItem menu = new JMenuItem(I18n.text("Clear"));
                     JMenuItem depthItem = new JMenuItem(I18n.text("Change depth scale"));
@@ -169,16 +169,18 @@ public class MultibeamRealTimeWaterfall extends ConsolePanel implements Configur
                     depthItem.addActionListener(e -> {
                         if (SwingUtilities.isRightMouseButton(me)) {
                             try {
-                                String depthStr = JOptionPane.showInputDialog(I18n.text("New depth: "));
+                                String depthStr = JOptionPane.showInputDialog(MultibeamRealTimeWaterfall.this,
+                                        I18n.text("New depth: "));
 
                                 if(depthStr == null)
                                     return;
 
                                 maxDepth = Double.parseDouble(depthStr);
                                 propertiesChanged();
-                            } catch(NumberFormatException exc) {
-                                JOptionPane.showMessageDialog(null, I18n.text("Invalid depth value"), "",
-                                        JOptionPane.ERROR_MESSAGE);
+                            } 
+                            catch(NumberFormatException exc) {
+                                GuiUtils.errorMessage(MultibeamRealTimeWaterfall.this, I18n.text("Error"),
+                                        I18n.text("Invalid depth value"));
                             }
                         }
                     });
