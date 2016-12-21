@@ -31,7 +31,34 @@
  */
 package pt.lsts.neptus.plugins.multibeam.viewers;
 
+import java.awt.BasicStroke;
+import java.awt.Color;
+import java.awt.Dimension;
+import java.awt.Font;
+import java.awt.Graphics;
+import java.awt.Graphics2D;
+import java.awt.Transparency;
+import java.awt.event.ComponentAdapter;
+import java.awt.event.ComponentEvent;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
+import java.awt.geom.Rectangle2D;
+import java.awt.image.BufferedImage;
+import java.io.ByteArrayOutputStream;
+import java.util.Collection;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ThreadFactory;
+import java.util.concurrent.atomic.AtomicLong;
+
+import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.SwingUtilities;
+
 import com.google.common.eventbus.Subscribe;
+
 import net.miginfocom.swing.MigLayout;
 import pt.lsts.imc.EstimatedState;
 import pt.lsts.imc.IMCOutputStream;
@@ -40,7 +67,6 @@ import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.colormap.ColorBar;
 import pt.lsts.neptus.colormap.ColorMap;
 import pt.lsts.neptus.colormap.ColorMapFactory;
-import pt.lsts.neptus.colormap.InterpolationColorMap;
 import pt.lsts.neptus.comm.transports.udp.UDPTransport;
 import pt.lsts.neptus.console.ConsoleLayout;
 import pt.lsts.neptus.console.ConsolePanel;
@@ -60,18 +86,6 @@ import pt.lsts.neptus.util.AngleUtils;
 import pt.lsts.neptus.util.ColorUtils;
 import pt.lsts.neptus.util.ImageUtils;
 import pt.lsts.neptus.util.llf.LsfLogSource;
-
-import javax.swing.*;
-import java.awt.*;
-import java.awt.event.*;
-import java.awt.geom.Rectangle2D;
-import java.awt.image.BufferedImage;
-import java.io.ByteArrayOutputStream;
-import java.util.*;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ThreadFactory;
-import java.util.concurrent.atomic.AtomicLong;
 
 /**
  * Cross section viewer for Multibeam data
@@ -542,7 +556,7 @@ public class MultibeamCrossSection extends ConsolePanel implements MainVehicleCh
             currState.setDepth(msg.getDepth());
 
             vehicleIdValue.setText(getMainVehicleId());
-            double heading = Math.toDegrees(currState.getYaw());
+            double heading = AngleUtils.nomalizeAngleDegrees360(Math.toDegrees(currState.getYaw()));
             headingValue.setText(toRoundedString(heading, 10.0) + DEGREE_UNITS);
 
             LocationType loc = currState.getPosition();
@@ -552,10 +566,9 @@ public class MultibeamCrossSection extends ConsolePanel implements MainVehicleCh
             double speed = Math.sqrt(currState.getVx() * currState.getVx() + currState.getVy() * currState.getVy() 
                     + currState.getVz() + currState.getVz());
             speedValue.setText(toRoundedString(speed, 10.0) + SPD_UNITS);
-            speedValue.setText(toRoundedString(currState.getV(), 10.0) + SPD_UNITS);
-            pitchValue.setText(toRoundedString(Math.toDegrees(currState.getPitch()), 100000.0) + DEGREE_UNITS);
-            rollvalue.setText(toRoundedString(Math.toDegrees(currState.getRoll()), 100000.0) + DEGREE_UNITS);
-            depthValue.setText(toRoundedString(currState.getDepth(), 100.0) + Z_UNITS);
+            pitchValue.setText(toRoundedString(Math.toDegrees(currState.getPitch()), 10.0) + DEGREE_UNITS);
+            rollvalue.setText(toRoundedString(Math.toDegrees(currState.getRoll()), 10.0) + DEGREE_UNITS);
+            depthValue.setText(toRoundedString(currState.getDepth(), 10.0) + Z_UNITS);
         }
         
         MultibeamCrossSection.this.repaint();
