@@ -70,7 +70,6 @@ import javax.swing.KeyStroke;
 import javax.swing.ListCellRenderer;
 import javax.swing.ListSelectionModel;
 import javax.swing.RowFilter;
-import javax.swing.SwingConstants;
 import javax.swing.UIManager;
 import javax.swing.border.Border;
 import javax.swing.border.EmptyBorder;
@@ -137,8 +136,8 @@ public class LogTableVisualization implements MRAVisualization, LogMarkerListene
     }
 
     private void applyFilter(ArrayList<String> msgsToFilter, int initTS, int finalTS) {
-        long initT = log.firstLogEntry().getTimestampMillis() + initTS;
-        long finalT = initTime + finalTS;
+        long initT = initTime + initTS - 1;
+        long finalT = initTime + finalTS + 1;
 
         model = new IndexedLogTableModel(mraPanel.getSource(), log.name(), initT, finalT);
 
@@ -212,10 +211,14 @@ public class LogTableVisualization implements MRAVisualization, LogMarkerListene
         //remove default swingx's find
         table.getActionMap().remove("find");
 
-        LsfIndex idx = source.getLsfIndex();
+        finalTime = log.getLastEntry().getTimestampMillis();
+        initTime = log.firstLogEntry().getTimestampMillis();
 
-        finalTime = (long) (idx.getEndTime() * 1000.0);
-        initTime = (long) (idx.getStartTime() * 1000.0);
+        if ((int) (finalTime - initTime) < 0) {
+            LsfIndex idx = source.getLsfIndex();
+            finalTime = (long) (idx.getEndTime() * 1000.0);
+            initTime = (long) (idx.getStartTime() * 1000.0);
+        }
 
         if (finalTime < initTime) {
             return new JLabel(I18n.text("Cannot show visualization because messages are unordered"));
@@ -263,7 +266,8 @@ public class LogTableVisualization implements MRAVisualization, LogMarkerListene
             }
         };
 
-        btnFilter = new JButton(new AbstractAction() {
+        btnFilter = new JButton("Filter");
+        btnFilter.addActionListener(new AbstractAction() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 if (filterDialog.isVisible())
@@ -275,15 +279,11 @@ public class LogTableVisualization implements MRAVisualization, LogMarkerListene
 
         content.add(btnFilter, BorderLayout.EAST);
 
-        btnFilter.setHorizontalTextPosition(SwingConstants.CENTER);
-        btnFilter.setVerticalTextPosition(SwingConstants.BOTTOM);
         btnFilter.setIcon(ImageUtils.createScaleImageIcon(SHOW_ICON, 13, 13));
 
         table.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW)
         .put(KeyStroke.getKeyStroke(KeyEvent.VK_F, InputEvent.CTRL_MASK), "finder");
         table.getActionMap().put("finder", finder);
-
-        //panel.add(btnFilter, "");
 
         return panel;
     }
