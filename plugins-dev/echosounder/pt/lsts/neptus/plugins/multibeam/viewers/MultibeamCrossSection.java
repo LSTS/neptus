@@ -103,8 +103,7 @@ public class MultibeamCrossSection extends ConsolePanel implements MainVehicleCh
     public double mbRange = 30;
 
     @NeptusProperty(name="Color map to use", category="Visualization parameters", userLevel = NeptusProperty.LEVEL.REGULAR)
-    private ColorMap colorMap = ColorMapFactory
-            .createInvertedColorMap((InterpolationColorMap) ColorMapFactory.createJetColorMap());
+    private ColorMap colorMap = ColorMapFactory.createJetColorMap();
 
     // grid's number of rows
     private final int N_ROWS = 5;
@@ -176,7 +175,6 @@ public class MultibeamCrossSection extends ConsolePanel implements MainVehicleCh
 
     // Data
     private SystemPositionAndAttitude currState = null;
-
 
     public MultibeamCrossSection(ConsoleLayout console) {
         super(console);
@@ -401,11 +399,15 @@ public class MultibeamCrossSection extends ConsolePanel implements MainVehicleCh
         ColorBar cBar = new ColorBar(ColorBar.HORIZONTAL_ORIENTATION, this.colorMap) {
             @Override
             public void paint(Graphics g) {
-                super.paint(g);
+                Graphics2D g0 = (Graphics2D) g.create();
+                g0.scale(-1, 1);
+                g0.translate(-getWidth(), 0);
+                super.paint(g0);
+                g0.dispose();
 
                 Graphics g2 = g.create();
 
-                g2.setColor(ColorUtils.invertColor(this.getCmap().getColor(0)));
+                g2.setColor(ColorUtils.invertColor(this.getCmap().getColor(1))); // We are using inverted colormap
                 g2.drawString("0m", 2, colorBar.getHeight() - 3);
 
                 long maxVal = Math.round(mbRange);
@@ -419,7 +421,7 @@ public class MultibeamCrossSection extends ConsolePanel implements MainVehicleCh
 
                 String maxString = String.valueOf(maxVal) + "m";
                 Rectangle2D strBnds = g2.getFontMetrics().getStringBounds(maxString, g2);
-                g2.setColor(ColorUtils.invertColor(this.getCmap().getColor(1)));
+                g2.setColor(ColorUtils.invertColor(this.getCmap().getColor(0))); // We are using inverted colormap
                 g2.drawString(maxString, (int) (colorBar.getWidth() - strBnds.getWidth() - 2), colorBar.getHeight() - 3);
 
                 g2.dispose();
@@ -481,7 +483,7 @@ public class MultibeamCrossSection extends ConsolePanel implements MainVehicleCh
                 x += (int) (Math.round(rightOffset[1] * scale));
                 y += (int) (Math.round(data[i].depth * scale));
 
-                dataImage.setRGB(x, y, colorMap.getColor(data[i].depth / mbRange).getRGB());
+                dataImage.setRGB(x, y, colorMap.getColor(1 - data[i].depth / mbRange).getRGB());
             }
             catch (Exception e) {
                 NeptusLog.pub().debug(e);
