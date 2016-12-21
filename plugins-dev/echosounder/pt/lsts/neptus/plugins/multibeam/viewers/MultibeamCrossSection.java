@@ -84,6 +84,7 @@ import pt.lsts.neptus.plugins.Popup;
 import pt.lsts.neptus.types.coord.LocationType;
 import pt.lsts.neptus.util.AngleUtils;
 import pt.lsts.neptus.util.ColorUtils;
+import pt.lsts.neptus.util.GuiUtils;
 import pt.lsts.neptus.util.ImageUtils;
 import pt.lsts.neptus.util.llf.LsfLogSource;
 
@@ -541,7 +542,6 @@ public class MultibeamCrossSection extends ConsolePanel implements MainVehicleCh
         }
         catch (Exception e) {
             e.printStackTrace();
-            System.out.println();
         }
     }
 
@@ -549,6 +549,7 @@ public class MultibeamCrossSection extends ConsolePanel implements MainVehicleCh
     public void onEstimatedState(EstimatedState msg) {
         if(!msg.getSourceName().equals(getMainVehicleId()))
             return;
+        
         currState = new SystemPositionAndAttitude(msg);
 
         if(currState != null) {
@@ -580,15 +581,18 @@ public class MultibeamCrossSection extends ConsolePanel implements MainVehicleCh
             public void mouseClicked(MouseEvent me) {
                 if (SwingUtilities.isRightMouseButton(me)) {
                     try {
-                        String depthStr = JOptionPane.showInputDialog("New depth: ");
+                        String depthStr = JOptionPane.showInputDialog(MultibeamCrossSection.this,
+                                I18n.text("New depth") + ": ");
 
                         if(depthStr == null)
                             return;
 
                         mbRange = Double.parseDouble(depthStr);
                         propertiesChanged();
-                    } catch(NumberFormatException e) {
-                        JOptionPane.showMessageDialog(null, "Invalid depth value", "", JOptionPane.ERROR_MESSAGE);
+                    }
+                    catch(NumberFormatException e) {
+                        GuiUtils.errorMessage(MultibeamCrossSection.this, I18n.text("Error"),
+                                I18n.text("Invalid depth value"));
                     }
                 }
             }
