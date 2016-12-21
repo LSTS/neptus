@@ -61,16 +61,6 @@ public class MultibeamDualViewer extends ConsolePanel {
         crossSection = new MultibeamCrossSection(console);
         waterfall = new MultibeamRealTimeWaterfall(console);
 
-        // imc messages
-        ImcMsgManager.getManager().registerBusListener(crossSection);
-        ImcMsgManager.getManager().registerBusListener(waterfall);
-
-        // periodic calls
-        PeriodicUpdatesService.registerPojo(waterfall);
-
-        crossSection.mainVehicleChange(getMainVehicleId());
-        waterfall.mainVehicleChange(getMainVehicleId());
-
         viewersPanel = new JPanel();
         viewersPanel.setLayout(new MigLayout());
         viewersPanel.setPreferredSize(new Dimension(this.getWidth(), this.getHeight()));
@@ -82,27 +72,31 @@ public class MultibeamDualViewer extends ConsolePanel {
         this.add(viewersPanel, "w 100%, h 100%,  grow");
     }
 
-    @Subscribe
-    public void onMainVehicleChange(ConsoleEventMainSystemChange msg) {
-        crossSection.mainVehicleChange(msg.getCurrent());
-        waterfall.mainVehicleChange(msg.getCurrent());
-    }
-
     @Override
     public void cleanSubPanel() {
-        ImcMsgManager.getManager().unregisterBusListener(crossSection);
-        ImcMsgManager.getManager().unregisterBusListener(waterfall);
-
-        // periodic calls
-        PeriodicUpdatesService.unregisterPojo(waterfall);
-
-        crossSection.cleanSubPanel();
-        waterfall.cleanSubPanel();
     }
 
     @Override
     public void initSubPanel() {
-        crossSection.initSubPanel();
-        waterfall.initSubPanel();
+    }
+    
+    /* (non-Javadoc)
+     * @see pt.lsts.neptus.console.ConsolePanel#init()
+     */
+    @Override
+    public void init() { // Needed overwritten in order to proper initialize the "sub" ConsolePanels
+        crossSection.init();
+        waterfall.init();
+        super.init();
+    }
+    
+    /* (non-Javadoc)
+     * @see pt.lsts.neptus.console.ConsolePanel#clean()
+     */
+    @Override
+    public void clean() { // Needed overwritten in order to proper clean the "sub" ConsolePanels
+        super.clean();
+        crossSection.clean();
+        waterfall.clean();
     }
 }
