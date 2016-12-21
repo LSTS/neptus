@@ -55,6 +55,7 @@ import pt.lsts.neptus.plugins.NeptusProperty;
 import pt.lsts.neptus.plugins.PluginDescription;
 import pt.lsts.neptus.plugins.Popup;
 import pt.lsts.neptus.types.coord.LocationType;
+import pt.lsts.neptus.util.AngleUtils;
 import pt.lsts.neptus.util.ColorUtils;
 import pt.lsts.neptus.util.ImageUtils;
 import pt.lsts.neptus.util.llf.LsfLogSource;
@@ -479,10 +480,17 @@ public class MultibeamCrossSection extends ConsolePanel implements MainVehicleCh
 
             // scale coordinates
             double scale = gridLayer.getHeight() / mbRange;
-            x += (int) (Math.round(data[i].east * scale));
-            y += (int) (Math.round(data[i].depth * scale));
+            try {
+                // We need to get the offset in the vehicle coord frame
+                double[] rightOffset = AngleUtils.rotate(swath.getPose().getYaw(), data[i].north, data[i].east, true);
+                x += (int) (Math.round(rightOffset[1] * scale));
+                y += (int) (Math.round(data[i].depth * scale));
 
-            dataImage.setRGB(x, y, colorMap.getColor(data[i].depth / mbRange).getRGB());
+                dataImage.setRGB(x, y, colorMap.getColor(data[i].depth / mbRange).getRGB());
+            }
+            catch (Exception e) {
+                NeptusLog.pub().debug(e);
+            }
         }
 
         SwingUtilities.invokeLater(() -> dataPanel.repaint());
