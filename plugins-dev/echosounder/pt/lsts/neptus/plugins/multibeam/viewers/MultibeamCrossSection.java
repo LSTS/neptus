@@ -75,7 +75,10 @@ import java.util.concurrent.atomic.AtomicLong;
 
 /**
  * Cross section viewer for Multibeam data
- * */
+ * 
+ * @author tsm
+ * @author pdias
+ */
 @SuppressWarnings("serial")
 @PluginDescription(author = "Tiago Marques", version = "0.1", name = "Multibeam: Cross-Section Viewer")
 @Popup(pos = Popup.POSITION.TOP_LEFT, width = 1000, height = 800)
@@ -234,65 +237,66 @@ public class MultibeamCrossSection extends ConsolePanel implements MainVehicleCh
     }
 
     private JPanel initInfoPanel() {
-        JPanel infoPanel = new JPanel() {
-            private static final long serialVersionUID = 1L;
-
-            @Override
-            protected void paintComponent(Graphics g) {
-                super.paintComponent(g);
-            }
-        };
+        JPanel infoPanel = new JPanel();
 
         infoPanel.setLayout(new MigLayout("wrap", "300[]10[]150[][]", "[][][][]"));
         infoPanel.setBackground(Color.black);
         infoPanel.setPreferredSize(new Dimension(viewer.getWidth(), viewer.getHeight()));
 
-        final Font f = latLabel.getFont().deriveFont(18.0f);
+        final Font f = latLabel.getFont().deriveFont(14.0f);
 
         vehicleIdLabel.setFont(f);
         vehicleIdLabel.setForeground(LABELS_COLOR);
+        vehicleIdValue.setFont(f);
         vehicleIdValue.setForeground(GRID_COLOR);
         infoPanel.add(vehicleIdLabel);
         infoPanel.add(vehicleIdValue);
 
         headingLabel.setFont(f);
         headingLabel.setForeground(LABELS_COLOR);
+        headingValue.setFont(f);
         headingValue.setForeground(GRID_COLOR);
         infoPanel.add(headingLabel);
         infoPanel.add(headingValue);
 
         latLabel.setFont(f);
         latLabel.setForeground(LABELS_COLOR);
+        latValue.setFont(f);
         latValue.setForeground(GRID_COLOR);
         infoPanel.add(latLabel);
         infoPanel.add(latValue);
 
         lonLabel.setFont(f);
         lonLabel.setForeground(LABELS_COLOR);
+        lonValue.setFont(f);
         lonValue.setForeground(GRID_COLOR);
         infoPanel.add(lonLabel);
         infoPanel.add(lonValue);
 
         speedLabel.setFont(f);
         speedLabel.setForeground(LABELS_COLOR);
+        speedValue.setFont(f);
         speedValue.setForeground(GRID_COLOR);
         infoPanel.add(speedLabel);
         infoPanel.add(speedValue);
 
         pitchLabel.setFont(f);
         pitchLabel.setForeground(LABELS_COLOR);
+        pitchValue.setFont(f);
         pitchValue.setForeground(GRID_COLOR);
         infoPanel.add(pitchLabel);
         infoPanel.add(pitchValue);
 
         rollLabel.setFont(f);
         rollLabel.setForeground(LABELS_COLOR);
+        rollvalue.setFont(f);
         rollvalue.setForeground(GRID_COLOR);
         infoPanel.add(rollLabel);
         infoPanel.add(rollvalue);
 
         depthLabel.setFont(f);
         depthLabel.setForeground(LABELS_COLOR);
+        depthValue.setFont(f);
         depthValue.setForeground(GRID_COLOR);
         infoPanel.add(depthLabel);
         infoPanel.add(depthValue);
@@ -446,7 +450,6 @@ public class MultibeamCrossSection extends ConsolePanel implements MainVehicleCh
 
     @Override
     public void initSubPanel() {
-
     }
 
     private double getDataMaxDepth(BathymetrySwath swath) {
@@ -497,8 +500,10 @@ public class MultibeamCrossSection extends ConsolePanel implements MainVehicleCh
     public void onSonarData(SonarData msg){
         try {
             if (!msg.getSourceName().equals(getMainVehicleId()) || msg.getType() != SonarData.TYPE.MULTIBEAM ||
-                    gridLayer == null || dataImage == null)
+                    gridLayer == null || dataImage == null) {
+                MultibeamCrossSection.this.repaint();
                 return;
+            }
 
             if (currState == null)
                 currState = new SystemPositionAndAttitude();
@@ -549,6 +554,8 @@ public class MultibeamCrossSection extends ConsolePanel implements MainVehicleCh
             rollvalue.setText(toRoundedString(Math.toDegrees(currState.getRoll()), 100000.0) + DEGREE_UNITS);
             depthValue.setText(toRoundedString(currState.getDepth(), 100.0) + Z_UNITS);
         }
+        
+        MultibeamCrossSection.this.repaint();
     }
 
     private MouseListener getMouseListener() {
@@ -576,7 +583,7 @@ public class MultibeamCrossSection extends ConsolePanel implements MainVehicleCh
     /**
      * From a given estimated state value returns
      * it rounded and in string format
-     * */
+     */
     private String toRoundedString(double value, double factor) {
         return Double.toString(Math.round(value * factor) / factor);
     }
