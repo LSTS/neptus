@@ -31,8 +31,6 @@
  */
 package pt.lsts.neptus.plugins.multibeam.console;
 
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
@@ -44,7 +42,11 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.atomic.AtomicLong;
 
-import javax.swing.*;
+import javax.swing.JComboBox;
+import javax.swing.JMenuItem;
+import javax.swing.JOptionPane;
+import javax.swing.JPopupMenu;
+import javax.swing.SwingUtilities;
 
 import com.google.common.eventbus.Subscribe;
 
@@ -292,6 +294,7 @@ public class MultibeamRealTimeWaterfall extends ConsolePanel implements Configur
         try {
             LsfLogSource source = new LsfLogSource(dataFile, null);
             DeltaTParser mbParser = new DeltaTParser(source);
+            mbParser.debugOn = true;
             
             Collection<Integer> vehSrcs = source.getVehicleSources();
             if (vehSrcs.size() < 1)
@@ -321,6 +324,24 @@ public class MultibeamRealTimeWaterfall extends ConsolePanel implements Configur
                 udp.sendMessage("localhost", 6001, baos.toByteArray());
                 
                 Thread.sleep(50);
+                
+                int av = System.in.available();
+                if (av > 0) {
+                    byte[] buffer = new byte[5000];
+                    while (av > 0) {
+                        System.in.read(buffer);
+                        av = System.in.available();
+                    }
+                    av = System.in.available();
+                    while (av < 1) {
+                        Thread.sleep(50);
+                        av = System.in.available();
+                    }
+                    while (av > 0) {
+                        System.in.read(buffer);
+                        av = System.in.available();
+                    }
+                }
                 
                 swath = mbParser.nextSwath();
             }
