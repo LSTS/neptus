@@ -473,6 +473,11 @@ public class LogTableVisualization implements MRAVisualization, LogMarkerListene
                     rangeSlider.setValue(0);
                     rangeSlider.setUpperValue((int) (finalTime - initTime));
 
+                    model = new IndexedLogTableModel(mraPanel.getSource(), log.name());
+                    table.setModel(model);
+                    table.revalidate();
+                    table.repaint();
+
                 }
             };
 
