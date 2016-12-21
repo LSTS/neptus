@@ -47,10 +47,6 @@ import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayOutputStream;
 import java.util.Collection;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ThreadFactory;
-import java.util.concurrent.atomic.AtomicLong;
 
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
@@ -101,20 +97,6 @@ public class MultibeamCrossSection extends ConsolePanel implements MainVehicleCh
 
     private static final String STRING_COLON_SPACE = ": ";
     private static final String N_A_TEXT = I18n.textc("n/a", "Not available. Try to use equal number of characters.");
-
-    private ExecutorService threadExecutor = Executors.newCachedThreadPool(new ThreadFactory() {
-        String nameBase = new StringBuilder().append(MultibeamCrossSection.class.getSimpleName())
-                .append("::").append(Integer.toHexString(MultibeamCrossSection.this.hashCode()))
-                .append("::").toString();
-        ThreadGroup group = new ThreadGroup(nameBase);
-        AtomicLong c = new AtomicLong(0);
-        @Override
-        public Thread newThread(Runnable r) {
-            Thread td = new Thread(group, r, nameBase + c.getAndIncrement());
-            td.setDaemon(true);
-            return td;
-        }
-    });
 
     // viewe's parameters
     @NeptusProperty(name="Sensor's range", category="Visualization parameters", userLevel = NeptusProperty.LEVEL.REGULAR)
@@ -460,7 +442,6 @@ public class MultibeamCrossSection extends ConsolePanel implements MainVehicleCh
 
     @Override
     public void cleanSubPanel() {
-        threadExecutor.shutdownNow();
     }
 
     @Override
