@@ -599,6 +599,7 @@ public class MultibeamCrossSection extends ConsolePanel implements MainVehicleCh
         
         gridInvalidated = true;
         SwingUtilities.invokeLater(() -> dataPanel.repaint());
+        SwingUtilities.invokeLater(() -> colorBar.repaint());
     }
 
     // for testing
