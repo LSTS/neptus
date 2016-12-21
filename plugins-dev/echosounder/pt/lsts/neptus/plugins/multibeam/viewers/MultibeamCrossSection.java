@@ -102,13 +102,12 @@ public class MultibeamCrossSection extends ConsolePanel implements MainVehicleCh
     @NeptusProperty(name="Sensor's range", category="Visualization parameters", userLevel = NeptusProperty.LEVEL.REGULAR)
     public double mbRange = 30;
 
-    @NeptusProperty(name="Data's color map", category="Visualization parameters", userLevel = NeptusProperty.LEVEL.REGULAR)
+    @NeptusProperty(name="Color map to use", category="Visualization parameters", userLevel = NeptusProperty.LEVEL.REGULAR)
     private ColorMap colorMap = ColorMapFactory
             .createInvertedColorMap((InterpolationColorMap) ColorMapFactory.createJetColorMap());
 
     // grid's number of rows
     private final int N_ROWS = 5;
-
     // grid's number of columns
     private final int N_COLS = 10;
 
@@ -137,9 +136,9 @@ public class MultibeamCrossSection extends ConsolePanel implements MainVehicleCh
     // layer with range and beam's scale
     private BufferedImage gridLayer;
     private int cellSize;
-    private final double alpha = Math.toRadians(120);
-    private final int startAngle = 180;
-    private final int angleExtend = 180;
+    private final double alphaRad = Math.toRadians(120);
+    private final int startAngleDeg = 180;
+    private final int angleExtendDeg = 180;
     private int arcX;
     private int arcY;
     private int arcWidth;
@@ -378,24 +377,24 @@ public class MultibeamCrossSection extends ConsolePanel implements MainVehicleCh
     private void drawBeamScale(Graphics2D g, int gridWidth, int gridHeight) {
         int xi = gridWidth  / 2;
         int yi = 0;
-        int xf = (int) Math.round(xi - Math.sin(this.alpha/2) * gridHeight);
+        int xf = (int) Math.round(xi - Math.sin(this.alphaRad/2) * gridHeight);
         int yf = gridHeight / 2;
 
         // left side
         g.drawLine(xi, yi, xf, yf);
 
         // right side
-        xf = (int) Math.round(xi + Math.sin(this.alpha/2) * gridHeight);
+        xf = (int) Math.round(xi + Math.sin(this.alphaRad/2) * gridHeight);
         g.drawLine(xi, yi, xf, yf);
 
         // setup and draw arc
         // read g.drawArc() docs
-        this.arcX = (int) Math.round(xi - Math.sin(this.alpha/2) * gridHeight);
+        this.arcX = (int) Math.round(xi - Math.sin(this.alphaRad/2) * gridHeight);
         this.arcY = 0;
         this.arcWidth = gridWidth - 2*arcX;
         this.arcHeight = gridHeight;
 
-        g.drawArc(arcX, arcY, arcWidth, arcHeight, startAngle, angleExtend);
+        g.drawArc(arcX, arcY, arcWidth, arcHeight, startAngleDeg, angleExtendDeg);
     }
 
     private ColorBar createColorBar() {
