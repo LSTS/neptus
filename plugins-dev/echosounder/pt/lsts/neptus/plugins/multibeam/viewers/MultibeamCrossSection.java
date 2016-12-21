@@ -549,6 +549,9 @@ public class MultibeamCrossSection extends ConsolePanel implements MainVehicleCh
             latValue.setText(loc.getLatitudeAsPrettyString());
             lonValue.setText(loc.getLongitudeAsPrettyString());
 
+            double speed = Math.sqrt(currState.getVx() * currState.getVx() + currState.getVy() * currState.getVy() 
+                    + currState.getVz() + currState.getVz());
+            speedValue.setText(toRoundedString(speed, 10.0) + SPD_UNITS);
             speedValue.setText(toRoundedString(currState.getV(), 10.0) + SPD_UNITS);
             pitchValue.setText(toRoundedString(Math.toDegrees(currState.getPitch()), 100000.0) + DEGREE_UNITS);
             rollvalue.setText(toRoundedString(Math.toDegrees(currState.getRoll()), 100000.0) + DEGREE_UNITS);
