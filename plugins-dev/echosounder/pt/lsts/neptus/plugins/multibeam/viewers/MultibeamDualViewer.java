@@ -32,13 +32,25 @@
 package pt.lsts.neptus.plugins.multibeam.viewers;
 
 import java.awt.Dimension;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.function.Predicate;
 
 import javax.swing.JPanel;
+
+import org.dom4j.DocumentHelper;
+import org.dom4j.Element;
+
+import com.google.common.collect.ObjectArrays;
+import com.l2fprod.common.propertysheet.DefaultProperty;
+import com.l2fprod.common.propertysheet.Property;
 
 import net.miginfocom.swing.MigLayout;
 import pt.lsts.neptus.console.ConsoleLayout;
 import pt.lsts.neptus.console.ConsolePanel;
 import pt.lsts.neptus.plugins.PluginDescription;
+import pt.lsts.neptus.plugins.PluginUtils;
 import pt.lsts.neptus.plugins.Popup;
 import pt.lsts.neptus.plugins.multibeam.console.MultibeamRealTimeWaterfall;
 
@@ -98,5 +110,79 @@ public class MultibeamDualViewer extends ConsolePanel {
         super.clean();
         crossSection.clean();
         waterfall.clean();
+    }
+    
+    /* (non-Javadoc)
+     * @see pt.lsts.neptus.console.ConsolePanel#XML_PropertiesRead(org.dom4j.Element)
+     */
+    public void XML_PropertiesRead(Element e) {
+        super.XML_PropertiesRead(e);
+        
+        PluginUtils.setConfigXml(crossSection, e.asXML());
+        PluginUtils.setConfigXml(waterfall, e.asXML());
+    }
+
+    /* (non-Javadoc)
+     * @see pt.lsts.neptus.console.ConsolePanel#XML_PropertiesWrite(org.dom4j.Element)
+     */
+    public void XML_PropertiesWrite(Element e) {
+        //super.XML_PropertiesWrite(e);
+        
+        String xml = PluginUtils.getConfigXml(this, waterfall, crossSection);
+        try {
+            Element el = DocumentHelper.parseText(xml).getRootElement();
+
+            for (Object child : el.elements()) {
+                Element aux = (Element) child;
+                aux.detach();
+                e.add(aux);
+            }
+        }
+        catch (Exception ex) {
+            ex.printStackTrace();
+        }
+    }
+    
+    @Override
+    public DefaultProperty[] getProperties() {
+        DefaultProperty[] props = super.getProperties();
+        
+        DefaultProperty[] props1 = waterfall.getProperties();
+        DefaultProperty[] props2 = crossSection.getProperties();
+
+        List<DefaultProperty> propsLst = new ArrayList<>(Arrays.asList(props));
+        
+        DefaultProperty[] propsTmp = ObjectArrays.concat(props1, props2, DefaultProperty.class);
+
+        for (DefaultProperty p : propsTmp) {
+            Predicate<DefaultProperty> p1 = pr -> pr.getName().equalsIgnoreCase(p.getName());
+            if (propsLst.stream().anyMatch(p1))
+                continue;
+            else
+                propsLst.add(p);
+        }
+        
+        return propsLst.toArray(new DefaultProperty[propsLst.size()]);
+    }
+
+    @Override
+    public String[] getPropertiesErrors(Property[] properties) {
+        String[] errors0 = super.getPropertiesErrors(properties);
+        
+        String[] errors1 = waterfall.getPropertiesErrors(properties);
+        String[] errors2 = crossSection.getPropertiesErrors(properties);
+        
+        String[] errors = ObjectArrays.concat(errors0, errors1, String.class);
+        errors = ObjectArrays.concat(errors, errors2, String.class);
+        
+        return errors;
+    }
+
+    @Override
+    public void setProperties(Property[] properties) {
+        super.setProperties(properties);
+        
+        waterfall.setProperties(properties);
+        crossSection.setProperties(properties);
     }
 }
