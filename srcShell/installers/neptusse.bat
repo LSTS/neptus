@@ -14,8 +14,8 @@ rem # Software or, alternatively, in accordance with the terms contained in a   
 rem # written agreement between you and Universidade do Porto. For licensing    #
 rem # terms, conditions, and further information contact lsts@fe.up.pt.         #
 rem #                                                                           #
-rem # European Union Public Licence - EUPL v.1.1 Usage                          #
-rem # Alternatively, this file may be used under the terms of the EUPL,         #
+rem # Modified European Union Public Licence - EUPL v.1.1 Usage                 #
+rem # Alternatively, this file may be used under the terms of the Modified EUPL,#
 rem # Version 1.1 only (the "Licence"), appearing in the file LICENCE.md        #
 rem # included in the packaging of this file. You may not use this  work        #
 rem # except in compliance with the Licence. Unless required by  applicable     #
@@ -23,7 +23,8 @@ rem # law or agreed to in writing, software distributed under the Licence  is   
 rem # distributed on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF      #
 rem # ANY KIND, either express or implied. See the Licence for the specific     #
 rem # language governing permissions and limitations at                         #
-rem # http://ec.europa.eu/idabc/eupl.html.                                       #
+rem # https://github.com/LSTS/neptus/blob/develop/LICENSE.md                    #
+rem # and http://ec.europa.eu/idabc/eupl.html.                                  #
 rem #                                                                           #
 rem # For more information please see <http://lsts.fe.up.pt/neptus>.            #
 rem #############################################################################
