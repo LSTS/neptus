@@ -266,7 +266,7 @@ public class LogTableVisualization implements MRAVisualization, LogMarkerListene
             }
         };
 
-        btnFilter = new JButton("Filter");
+        btnFilter = new JButton(I18n.text("Filter"));
         btnFilter.addActionListener(new AbstractAction() {
             @Override
             public void actionPerformed(ActionEvent e) {
