@@ -11,7 +11,7 @@
  * terms, conditions, and further information contact lsts@fe.up.pt.
  *
  * Modified European Union Public Licence - EUPL v.1.1 Usage
- \* Alternatively, this file may be used under the terms of the Modified EUPL,
+ * Alternatively, this file may be used under the terms of the Modified EUPL,
  * Version 1.1 only (the "Licence"), appearing in the file LICENCE.md
  * included in the packaging of this file. You may not use this work
  * except in compliance with the Licence. Unless required by applicable
