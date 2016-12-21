@@ -71,6 +71,8 @@ import pt.lsts.neptus.util.llf.LsfLogSource;
  * @author pdias
  */
 public class DeltaTParser implements BathymetryParser {
+    public boolean debugOn = false;
+    
     private final IMraLogGroup source;
     private CorrectedPosition position = null;
     
@@ -515,7 +517,7 @@ public class DeltaTParser implements BathymetryParser {
                 double range = buf.getShort(c * 2) * (header.rangeResolution / 1000.0); // rangeResolution in mm 
 
                 if (range == 0.0 || Math.random() > prob) {
-                    if (generateProcessReport) {
+                    if (generateProcessReport || debugOn) {
                         if (range != 0) {
                             recordMsgln("% Skip swath beam " + c + " range=" + range);
                         }
@@ -537,7 +539,7 @@ public class DeltaTParser implements BathymetryParser {
                     range = range * header.soundVelocity / 1500f;
                 }
 
-                if (generateProcessReport) {
+                if (generateProcessReport || debugOn) {
                     rangesStr.append(" " + MathMiscUtils.round(range, 3));
                 }
                 
@@ -555,18 +557,18 @@ public class DeltaTParser implements BathymetryParser {
                     int intensityInt = 0xffff & intensity;
                     data[c] = new BathymetryPoint(ox, oy, height, intensityInt);
                     data[c].intensityMaxValue = 65535;
-                    if (generateProcessReport)
+                    if (generateProcessReport || debugOn)
                         intensityStr.append(" " + intensityInt);
                 }
                 else {
                     data[c] = new BathymetryPoint(ox, oy, height);
                     data[c].intensityMaxValue = 65535;
-                    if (generateProcessReport)
+                    if (generateProcessReport || debugOn)
                         intensityStr.append(" " + Double.NaN);
                 }
                 realNumberOfBeams++;
                 
-                if (generateProcessReport) {
+                if (generateProcessReport || debugOn) {
                     heightStr.append(" " + MathMiscUtils.round(height, 3));
                     oxStr.append(" " + MathMiscUtils.round(ox, 3));
                     oyStr.append(" " + MathMiscUtils.round(oy, 3));
@@ -604,6 +606,40 @@ public class DeltaTParser implements BathymetryParser {
             realNumberOfBeams = header.numBeams;
             swath.setNumBeams(realNumberOfBeams);
 
+            if (debugOn) {
+                StringBuilder sb = new StringBuilder();
+                sb.append("----------------------------------------------------------------\n");
+                sb.append("% Swath position       : " + pose.getPosition().toString().replaceAll("\n", " ") + 
+                        "m depth  :: " + MathMiscUtils.round(pose.getAltitude(), 2) + "m altitude" + 
+                        (poseFromCorrected ? " from corrected position" : " from data"));
+                sb.append("\n");
+                sb.append("% Swath attitude       : R" + MathMiscUtils.round(Math.toDegrees(pose.getRoll()), 1) +
+                        "\u00B0 P" + MathMiscUtils.round(Math.toDegrees(pose.getPitch()), 1) +
+                        "\u00B0 Y" + MathMiscUtils.round(Math.toDegrees(pose.getYaw()), 1) + "\u00B0");
+                sb.append("\n");
+                
+                sb.append("% Angle start/increment: " + header.startAngle + "\u00B0" + ", " + header.angleIncrement + "\u00B0");
+                sb.append("\n");
+                sb.append("% Beams                : " + header.numBeams);
+                sb.append("\n");
+                sb.append("% Range                : " + header.range + "m");
+                sb.append("\n");
+
+                sb.append("% Ping number          : " + header.pingNumber);
+                sb.append("\n");
+                sb.append("% Sector size          : " + header.sectorSize + "\u00B0 :: " +
+                        (header.angleIncrement * header.numBeams) + "\u00B0 calculated");
+                sb.append("\n");
+                sb.append("% Speed                : " + MathMiscUtils.round(header.speed, 1) + "m/s");
+                sb.append("\n");
+                sb.append("% Altitude             : " + header.altitude + "m");
+                sb.append("\n");
+                sb.append(heightStr.toString());
+                sb.append("\n");
+                
+                System.out.println(sb.toString());
+            }
+            
             return swath;
         }
         catch (Exception e) {
