@@ -102,7 +102,7 @@ public class WorldWindGlobe extends ConsolePanel implements IPeriodicUpdates {
     @NeptusProperty(name = "Use Mil Std 2525 Like Symbols", description = "This configures if the location symbols to draw on the renderer will use the MIL-STD-2525 standard", 
             category = "MilStd-2525", userLevel = LEVEL.REGULAR)
     public boolean useMilStd2525LikeSymbols = false;
-    
+
     @NeptusProperty(name = "Mil Std 2525 Icons Size", description = "Configures the state Mil Std 2525 symbols size", 
             category = "List", userLevel = LEVEL.REGULAR)
     public double  milStd2525IconsSize = 0.7;
@@ -129,6 +129,7 @@ public class WorldWindGlobe extends ConsolePanel implements IPeriodicUpdates {
     private LayerManagerLayer layerManager = null;
     private ConsoleLayout console = null;
     private Runnable layerUpdateTask;
+    private JMenu centerMap;
 
     public WorldWindGlobe(ConsoleLayout console) {
         super(console);
@@ -232,7 +233,7 @@ public class WorldWindGlobe extends ConsolePanel implements IPeriodicUpdates {
     }
 
     private JMenu getVehiclesMenu() {
-        JMenu centerMap = new JMenu(I18n.text("Center map in..."));
+        centerMap = new JMenu(I18n.text("Center map in..."));
 
         Comparator<ImcSystem> imcComparator = new Comparator<ImcSystem>() {
             @Override
@@ -248,7 +249,7 @@ public class WorldWindGlobe extends ConsolePanel implements IPeriodicUpdates {
                 return o1.compareTo(o2);
             }
         };
-        ImcSystem[] veh = ImcSystemsHolder.lookupSystemVehicles();
+        ImcSystem[] veh = ImcSystemsHolder.lookupActiveSystemVehicles();
         Arrays.sort(veh, imcComparator);
         for (ImcSystem sys : veh) {
             final LocationType l = sys.getLocation();
@@ -269,8 +270,6 @@ public class WorldWindGlobe extends ConsolePanel implements IPeriodicUpdates {
 
     private void setupPopupMenu() {
 
-        menu.add(getVehiclesMenu());
-
         //setup right-click menu
         wwd.addMouseListener(new MouseListener(){
 
@@ -281,6 +280,8 @@ public class WorldWindGlobe extends ConsolePanel implements IPeriodicUpdates {
 
             @Override
             public void mousePressed(MouseEvent e) {
+                menu.removeAll();
+                menu.add(getVehiclesMenu());
                 checkPopup(e);
             }
 
@@ -328,7 +329,7 @@ public class WorldWindGlobe extends ConsolePanel implements IPeriodicUpdates {
             heading = (Integer) sys.retrieveData(SystemUtils.HEADING_DEGS_KEY);
 
         TacticalSymbol mil2525Symbol = systemSymbolMap.addSystem(name, sys.getTypeVehicle(), new LocationType(lat, lon), heading);
-        
+
         tacticalLayer.addRenderable(mil2525Symbol);
     }
 
@@ -342,7 +343,7 @@ public class WorldWindGlobe extends ConsolePanel implements IPeriodicUpdates {
             vehLayer.setEnabled(true);
 
         systemSymbolMap.setIconScale(milStd2525IconsSize);
-        
+
         return true;
     }
 
@@ -367,6 +368,7 @@ public class WorldWindGlobe extends ConsolePanel implements IPeriodicUpdates {
             if (!systems.containsKey(msg.getSourceName())) {
                 Color c = system.getVehicle().getIconColor();
                 addVehicleToWorld(msg.getSourceName(), c, Math.toDegrees(es.getLat()), Math.toDegrees(es.getLon()), es.getHeight());
+                updateMenu(msg.getSourceName());
             }
             else {
                 Box vehBox = systems.get(system.getName());
@@ -388,6 +390,21 @@ public class WorldWindGlobe extends ConsolePanel implements IPeriodicUpdates {
                             Position.fromDegrees(Math.toDegrees(es.getLat()), Math.toDegrees(es.getLon()), msg.getHeight()));
             }
         }
+    }
+
+    private void updateMenu(String sourceName) {
+        ImcSystem sys = ImcSystemsHolder.getSystemWithName(sourceName);
+        LocationType l = sys.getLocation();
+        VehicleType vehS = VehiclesHolder.getVehicleById(sys.getName());
+        JMenuItem menuItem = vehS != null ? new JMenuItem(vehS.getId(), vehS.getIcon()) : new JMenuItem(sys.getName());
+        menuItem.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                focusLocation(l);
+            }
+        });
+        centerMap.add(menuItem);
+
     }
 
     @Override
