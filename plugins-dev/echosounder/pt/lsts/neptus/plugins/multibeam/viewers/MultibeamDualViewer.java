@@ -58,8 +58,8 @@ public class MultibeamDualViewer extends ConsolePanel {
 
     public MultibeamDualViewer(ConsoleLayout console) {
         super(console);
-        crossSection = new MultibeamCrossSection(console);
-        waterfall = new MultibeamRealTimeWaterfall(console);
+        crossSection = new MultibeamCrossSection(console, true);
+        waterfall = new MultibeamRealTimeWaterfall(console, true);
 
         viewersPanel = new JPanel();
         viewersPanel.setLayout(new MigLayout());

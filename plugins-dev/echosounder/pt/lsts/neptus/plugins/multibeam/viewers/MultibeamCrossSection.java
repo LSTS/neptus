@@ -177,7 +177,11 @@ public class MultibeamCrossSection extends ConsolePanel implements MainVehicleCh
     private SystemPositionAndAttitude currState = null;
 
     public MultibeamCrossSection(ConsoleLayout console) {
-        super(console);
+        this(console, false);
+    }
+
+    public MultibeamCrossSection(ConsoleLayout console, boolean usedInsideAnotherConsolePanel) {
+        super(console, usedInsideAnotherConsolePanel);
         initGUI();
     }
 

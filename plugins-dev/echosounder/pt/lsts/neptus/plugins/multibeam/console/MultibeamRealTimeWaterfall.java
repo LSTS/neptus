@@ -133,10 +133,14 @@ public class MultibeamRealTimeWaterfall extends ConsolePanel implements Configur
     private EstimatedState currentEstimatedState = null;
 
     public MultibeamRealTimeWaterfall(ConsoleLayout console) {
-        super(console);
-        initialize();
+        this(console, false);
     }
 
+    public MultibeamRealTimeWaterfall(ConsoleLayout console, boolean usedInsideAnotherConsolePanel) {
+        super(console, usedInsideAnotherConsolePanel);
+        initialize();
+    }
+    
     private void initialize() {
         mbViewer = new MultibeamWaterfallViewer();
         setViewerProperties();
