@@ -47,6 +47,8 @@ import com.l2fprod.common.propertysheet.DefaultProperty;
 import com.l2fprod.common.propertysheet.Property;
 
 import net.miginfocom.swing.MigLayout;
+import pt.lsts.neptus.colormap.ColorMap;
+import pt.lsts.neptus.colormap.ColorMapFactory;
 import pt.lsts.neptus.console.ConsoleLayout;
 import pt.lsts.neptus.console.ConsolePanel;
 import pt.lsts.neptus.plugins.NeptusProperty;
@@ -100,8 +102,8 @@ public class MultibeamDualViewer extends ConsolePanel {
         viewersPanel.setPreferredSize(new Dimension(this.getWidth(), this.getHeight()));
         viewersPanel.setLayout(new MigLayout());
 
-        viewersPanel.add(waterfall, "w 33%, h 100%");
-        viewersPanel.add(crossSection, "w 66%, h 100%");
+        viewersPanel.add(waterfall, "w 38%, h 100%");
+        viewersPanel.add(crossSection, "w 62%, h 100%");
         this.setLayout(new MigLayout("ins 0, gap 0", "[][]"));
         this.add(viewersPanel, "w 100%, h 100%,  grow");
     }
