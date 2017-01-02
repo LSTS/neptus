@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2016 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2017 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -13,8 +13,8 @@
  * written agreement between you and Universidade do Porto. For licensing
  * terms, conditions, and further information contact lsts@fe.up.pt.
  *
- * European Union Public Licence - EUPL v.1.1 Usage
- * Alternatively, this file may be used under the terms of the EUPL,
+ * Modified European Union Public Licence - EUPL v.1.1 Usage
+ * Alternatively, this file may be used under the terms of the Modified EUPL,
  * Version 1.1 only (the "Licence"), appearing in the file LICENCE.md
  * included in the packaging of this file. You may not use this work
  * except in compliance with the Licence. Unless required by applicable
@@ -22,7 +22,8 @@
  * distributed on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF
  * ANY KIND, either express or implied. See the Licence for the specific
  * language governing permissions and limitations at
- * http://ec.europa.eu/idabc/eupl.html.
+ * https://github.com/LSTS/neptus/blob/develop/LICENSE.md
+ * and http://ec.europa.eu/idabc/eupl.html.
  *
  * For more information please see <http://lsts.fe.up.pt/neptus>.
  *
@@ -262,7 +263,7 @@ public class SidescanPanel extends JPanel implements MouseListener, MouseMotionL
     // private SidescanPoint mouseSidescanPoint; // Mouse position geographical location
     private SidescanLine mouseSidescanLine;
 
-    private BufferedImage mouseLocationImage = ImageUtils.createCompatibleImage(120, 87, Transparency.BITMASK);
+    private BufferedImage mouseLocationImage = ImageUtils.createCompatibleImage(120, 98, Transparency.BITMASK);
 
     private List<SidescanLine> lineList = Collections.synchronizedList(new ArrayList<SidescanLine>());
     //    private ArrayList<SidescanLine> drawList = new ArrayList<SidescanLine>();
@@ -273,7 +274,7 @@ public class SidescanPanel extends JPanel implements MouseListener, MouseMotionL
     private SidescanParser ssParser;
 
     private String altStr = I18n.text("Altitude");
-    // private String depthStr = I18n.text("Depth");
+    private String depthStr = I18n.text("Depth");
     private String rollStr = I18n.text("Roll");
     private String yawStr = I18n.text("Yaw");
     private String sRangeStr = I18n.text("S Range");
@@ -628,13 +629,14 @@ public class SidescanPanel extends JPanel implements MouseListener, MouseMotionL
                     CoordinateUtil.dmToLatString(CoordinateUtil.decimalDegreesToDM(hloc.getLatitudeDegs())), 5, 15);
             location2d.drawString(
                     CoordinateUtil.dmToLonString(CoordinateUtil.decimalDegreesToDM(hloc.getLongitudeDegs())), 5, 26);
-            location2d.drawString(altStr + ": " + altFormat.format(mouseSidescanLine.getState().getAltitude()) + " m", 5, 37);
+            location2d.drawString(depthStr + ": " + altFormat.format(mouseSidescanLine.getState().getDepth()) + " m", 5, 37);
+            location2d.drawString(altStr + ": " + altFormat.format(mouseSidescanLine.getState().getAltitude()) + " m", 5, 48);
             location2d.drawString(rollStr + ": " + altFormat.format(Math.toDegrees(mouseSidescanLine.getState().getRoll()))
-                    + "\u00B0", 5, 48);
-            location2d.drawString(yawStr + ": " + altFormat.format(Math.toDegrees(mouseSidescanLine.getState().getYaw()))
                     + "\u00B0", 5, 59);
-            location2d.drawString(hRangeStr+": " + altFormat.format(hdist) + " m", 5, 70);
-            location2d.drawString(sRangeStr+": " + altFormat.format(sdist) + " m", 5, 81);
+            location2d.drawString(yawStr + ": " + altFormat.format(Math.toDegrees(mouseSidescanLine.getState().getYaw()))
+                    + "\u00B0", 5, 70);
+            location2d.drawString(hRangeStr+": " + altFormat.format(hdist) + " m", 5, 81);
+            location2d.drawString(sRangeStr+": " + altFormat.format(sdist) + " m", 5, 92);
 
             g.drawImage(mouseLocationImage, 10, 20, null);
         }
