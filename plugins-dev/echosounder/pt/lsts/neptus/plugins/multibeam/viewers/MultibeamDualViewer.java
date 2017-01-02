@@ -49,16 +49,20 @@ import com.l2fprod.common.propertysheet.Property;
 import net.miginfocom.swing.MigLayout;
 import pt.lsts.neptus.console.ConsoleLayout;
 import pt.lsts.neptus.console.ConsolePanel;
+import pt.lsts.neptus.plugins.NeptusProperty;
 import pt.lsts.neptus.plugins.PluginDescription;
 import pt.lsts.neptus.plugins.PluginUtils;
 import pt.lsts.neptus.plugins.Popup;
+import pt.lsts.neptus.plugins.NeptusProperty.LEVEL;
 import pt.lsts.neptus.plugins.multibeam.console.MultibeamRealTimeWaterfall;
 
 /**
- * Created by tsm on 05/12/16.
+ * @author tsm
+ * @author pdias
+ *
  */
 @SuppressWarnings("serial")
-@PluginDescription(author = "Tiago Marques", version = "0.1", name = "Multibeam: Dual Viewer", description = "Displays multibeam waterfall and cross-section viewers")
+@PluginDescription(author = "Tiago Marques", version = "0.5", name = "Multibeam: Dual Viewer", description = "Displays multibeam waterfall and cross-section viewers")
 @Popup(pos = Popup.POSITION.TOP_LEFT, width = 900, height = 480)
 public class MultibeamDualViewer extends ConsolePanel {
     // GUI
