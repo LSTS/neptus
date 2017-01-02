@@ -108,6 +108,7 @@ public class MultibeamUtil {
         return SidescanUtil.getData(bytes.array(), scaleFactor, bitsPerPoint);
     }
 
+    static int i = 0;
     /**
      * This is to be used for testing purposes. It assumes that the data, swath, comes from DeltaT MB.
      * 
@@ -164,7 +165,8 @@ public class MultibeamUtil {
         c.setBeamHeight(Math.toRadians(angleIncrementDeg));
         beamConfig.add(c);
 
-        sonarData.setFrequency(260000);
+        // i = ++i % 3;
+        sonarData.setFrequency(260000+i);
         sonarData.setMinRange(0); // 0.5m
         sonarData.setMaxRange(40);
         sonarData.setType(SonarData.TYPE.MULTIBEAM);

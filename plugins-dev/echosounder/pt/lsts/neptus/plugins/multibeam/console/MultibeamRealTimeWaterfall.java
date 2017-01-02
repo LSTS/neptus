@@ -32,6 +32,8 @@
 package pt.lsts.neptus.plugins.multibeam.console;
 
 import java.awt.Color;
+import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
@@ -93,7 +95,7 @@ import pt.lsts.neptus.util.llf.LsfLogSource;
 @PluginDescription(author = "Tiago Marques", version = "0.5", name = "Multibeam Real-Time Waterfall Viewer")
 @Popup(pos = POSITION.TOP_LEFT, width = 300, height = 500)
 public class MultibeamRealTimeWaterfall extends ConsolePanel implements ConfigurationListener,
-    MainVehicleChangeListener {
+    MainVehicleChangeListener, MultibeamEntityAndChannelChangeListener {
 
     // Parameters
     @NeptusProperty (name="Color map to use", category="Visualization parameters", userLevel = LEVEL.REGULAR)
@@ -130,6 +132,7 @@ public class MultibeamRealTimeWaterfall extends ConsolePanel implements Configur
     private ArrayListComboBoxModel<String> mbEntitiesComboBoxModel;
     private JComboBox<Long> subSystemsComboBox;
     private ArrayListComboBoxModel<Long> subSystemsComboBoxModel;
+    private ArrayList<MultibeamEntityAndChannelChangeListener> selListeners = new ArrayList<>();
     
     private EstimatedState currentEstimatedState = null;
 
@@ -148,8 +151,10 @@ public class MultibeamRealTimeWaterfall extends ConsolePanel implements Configur
 
         mbEntitiesComboBoxModel = new ArrayListComboBoxModel<>(new ArrayList<String>(), true);
         mbEntitiesComboBox = new JComboBox<>(mbEntitiesComboBoxModel);
+        mbEntitiesComboBox.addItemListener(createMbEntitiesComboBoxItemListener());
         subSystemsComboBoxModel = new ArrayListComboBoxModel<>(new ArrayList<Long>(), true);
         subSystemsComboBox = new JComboBox<>(subSystemsComboBoxModel);
+        subSystemsComboBox.addItemListener(createMbChannelComboBoxItemListener());
         
         setLayout(new MigLayout("ins 0, gap 5", "center", ""));
         add(mbEntitiesComboBox, "sg 1, w :50%:50%");
@@ -159,6 +164,67 @@ public class MultibeamRealTimeWaterfall extends ConsolePanel implements Configur
         setBackground(Color.BLACK);
         
         mbViewer.addMouseListener(getMouseListener());
+    }
+
+    public void addListener(MultibeamEntityAndChannelChangeListener listener) {
+        if (!selListeners.contains(listener))
+            selListeners.add(listener);
+    }
+
+    public void removeListener(MultibeamEntityAndChannelChangeListener listener) {
+        selListeners.remove(listener);
+    }
+
+    /**
+     * @return
+     */
+    private ItemListener createMbEntitiesComboBoxItemListener() {
+        ItemListener list = new ItemListener() {
+            @Override
+            public void itemStateChanged(ItemEvent e) {
+                if (e.getStateChange() == ItemEvent.SELECTED) {
+                    @SuppressWarnings("unchecked")
+                    String sel = (String) ((JComboBox<String>) e.getItemSelectable()).getSelectedItem();
+                    selListeners.stream().forEach(l -> l.triggerMultibeamEntitySelection(sel));
+                }
+            }
+        };
+        return list;
+    }
+
+    /**
+     * @return
+     */
+    private ItemListener createMbChannelComboBoxItemListener() {
+        ItemListener list = new ItemListener() {
+            @Override
+            public void itemStateChanged(ItemEvent e) {
+                if (e.getStateChange() == ItemEvent.SELECTED) {
+                    @SuppressWarnings("unchecked")
+                    Long sel = (Long) ((JComboBox<Long>) e.getItemSelectable()).getSelectedItem();
+                    selListeners.stream().forEach(l -> l.triggerMultibeamChannelSelection(sel));
+                }
+            }
+        };
+        return list;
+    }
+
+    /* (non-Javadoc)
+     * @see pt.lsts.neptus.plugins.multibeam.console.MultibeamEntityAndChannelChangeListener#triggerMultibeamEntitySelection(java.lang.String)
+     */
+    @Override
+    public void triggerMultibeamEntitySelection(String entity) {
+        if (!entity.equalsIgnoreCase((String) mbEntitiesComboBox.getSelectedItem()))
+            mbEntitiesComboBoxModel.setSelectedItem(entity);
+    }
+
+    /* (non-Javadoc)
+     * @see pt.lsts.neptus.plugins.multibeam.console.MultibeamEntityAndChannelChangeListener#triggerMultibeamChannelSelection(long)
+     */
+    @Override
+    public void triggerMultibeamChannelSelection(long channel) {
+        if (channel != (Long) subSystemsComboBox.getSelectedItem())
+            subSystemsComboBox.setSelectedItem(channel);
     }
 
     private MouseListener getMouseListener() {
@@ -204,6 +270,7 @@ public class MultibeamRealTimeWaterfall extends ConsolePanel implements Configur
     @Override
     public void cleanSubPanel() {
         threadExecutor.shutdownNow();
+        selListeners.clear();
     }
 
     @Override
@@ -315,6 +382,7 @@ public class MultibeamRealTimeWaterfall extends ConsolePanel implements Configur
             IMCOutputStream imcOs = new IMCOutputStream(baos);
 
             BathymetrySwath swath = mbParser.nextSwath();
+            int c = 0;
             while (swath != null) {
                 SystemPositionAndAttitude pose = swath.getPose();
                 EstimatedState currentEstimatedState = pose.toEstimatedState();
@@ -322,6 +390,8 @@ public class MultibeamRealTimeWaterfall extends ConsolePanel implements Configur
                 
                 currentEstimatedState.setSrc(mainVehSrc);
                 sd.setSrc(mainVehSrc);
+                
+                sd.setSrcEnt(c++ % 2 + 1000);
                 
                 currentEstimatedState.setTimestamp(sd.getTimestamp());
 

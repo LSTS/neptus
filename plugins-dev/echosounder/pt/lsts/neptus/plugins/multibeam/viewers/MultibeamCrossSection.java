@@ -40,6 +40,8 @@ import java.awt.Graphics2D;
 import java.awt.Transparency;
 import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
+import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
@@ -80,6 +82,7 @@ import pt.lsts.neptus.plugins.ConfigurationListener;
 import pt.lsts.neptus.plugins.NeptusProperty;
 import pt.lsts.neptus.plugins.PluginDescription;
 import pt.lsts.neptus.plugins.Popup;
+import pt.lsts.neptus.plugins.multibeam.console.MultibeamEntityAndChannelChangeListener;
 import pt.lsts.neptus.types.coord.LocationType;
 import pt.lsts.neptus.util.AngleUtils;
 import pt.lsts.neptus.util.ColorUtils;
@@ -96,7 +99,8 @@ import pt.lsts.neptus.util.llf.LsfLogSource;
 @SuppressWarnings("serial")
 @PluginDescription(author = "Tiago Marques", version = "0.5", name = "Multibeam: Cross-Section Viewer")
 @Popup(pos = Popup.POSITION.TOP_LEFT, width = 560, height = 480)
-public class MultibeamCrossSection extends ConsolePanel implements MainVehicleChangeListener, ConfigurationListener {
+public class MultibeamCrossSection extends ConsolePanel
+        implements MainVehicleChangeListener, ConfigurationListener, MultibeamEntityAndChannelChangeListener {
 
     private static final String STRING_COLON_SPACE = ": ";
     private static final String N_A_TEXT = I18n.textc("n/a", "Not available. Try to use equal number of characters.");
@@ -153,6 +157,7 @@ public class MultibeamCrossSection extends ConsolePanel implements MainVehicleCh
     private ArrayListComboBoxModel<String> mbEntitiesComboBoxModel;
     private JComboBox<Long> subSystemsComboBox;
     private ArrayListComboBoxModel<Long> subSystemsComboBoxModel;
+    private ArrayList<MultibeamEntityAndChannelChangeListener> selListeners = new ArrayList<>();
 
     // information labels
     private final JLabel vehicleIdLabel = new JLabel(I18n.textf("ID", "Try to use equal number of characters.") + STRING_COLON_SPACE);
@@ -315,17 +320,82 @@ public class MultibeamCrossSection extends ConsolePanel implements MainVehicleCh
         mbEntitiesComboBox.setForeground(Color.BLACK);
         mbEntitiesComboBox.setBackground(GRID_COLOR);
         mbEntitiesComboBox.setFont(f);
+        mbEntitiesComboBox.addItemListener(createMbEntitiesComboBoxItemListener());
         subSystemsComboBoxModel = new ArrayListComboBoxModel<>(new ArrayList<Long>(), true);
         subSystemsComboBox = new JComboBox<>(subSystemsComboBoxModel);
         subSystemsComboBox.setForeground(Color.BLACK);
         subSystemsComboBox.setBackground(GRID_COLOR);
         subSystemsComboBox.setFont(f);
+        subSystemsComboBox.addItemListener(createMbChannelComboBoxItemListener());
+        
         infoPanel.add(mbEntitiesComboBox, "sg 1, w :50%:50%, spanx 2");
         infoPanel.add(subSystemsComboBox, "sg 1, w :40%:40%, spanx 2, wrap");
+
         colorBar = createColorBar();
         infoPanel.add(colorBar, "span, growx");
 
         return infoPanel;
+    }
+
+    public void addListener(MultibeamEntityAndChannelChangeListener listener) {
+        if (!selListeners.contains(listener))
+            selListeners.add(listener);
+    }
+
+    public void removeListener(MultibeamEntityAndChannelChangeListener listener) {
+        selListeners.remove(listener);
+    }
+
+    /**
+     * @return
+     */
+    private ItemListener createMbEntitiesComboBoxItemListener() {
+        ItemListener list = new ItemListener() {
+            @Override
+            public void itemStateChanged(ItemEvent e) {
+                if (e.getStateChange() == ItemEvent.SELECTED) {
+                    @SuppressWarnings("unchecked")
+                    String sel = (String) ((JComboBox<String>) e.getItemSelectable()).getSelectedItem();
+                    selListeners.stream().forEach(l -> l.triggerMultibeamEntitySelection(sel));
+                }
+            }
+        };
+        return list;
+    }
+
+    /**
+     * @return
+     */
+    private ItemListener createMbChannelComboBoxItemListener() {
+        ItemListener list = new ItemListener() {
+            @Override
+            public void itemStateChanged(ItemEvent e) {
+                if (e.getStateChange() == ItemEvent.SELECTED) {
+                    @SuppressWarnings("unchecked")
+                    Long sel = (Long) ((JComboBox<Long>) e.getItemSelectable()).getSelectedItem();
+                    selListeners.stream().forEach(l -> l.triggerMultibeamChannelSelection(sel));
+                }
+            }
+        };
+        return list;
+    }
+
+    /* (non-Javadoc)
+     * @see pt.lsts.neptus.plugins.multibeam.console.MultibeamEntityAndChannelChangeListener#triggerMultibeamEntitySelection(java.lang.String)
+     */
+    @Override
+    public void triggerMultibeamEntitySelection(String entity) {
+        if (!entity.equalsIgnoreCase((String) mbEntitiesComboBox.getSelectedItem()))
+            mbEntitiesComboBoxModel.setSelectedItem(entity);
+    }
+
+    /* (non-Javadoc)
+     * @see pt.lsts.neptus.plugins.multibeam.console.MultibeamEntityAndChannelChangeListener#triggerMultibeamChannelSelection(long)
+     */
+    @Override
+    public void triggerMultibeamChannelSelection(long channel) {
+        if (channel != (Long) subSystemsComboBox.getSelectedItem())
+            subSystemsComboBox.setSelectedItem(channel);
     }
 
     private BufferedImage createGridImage() {
@@ -466,6 +536,7 @@ public class MultibeamCrossSection extends ConsolePanel implements MainVehicleCh
 
     @Override
     public void cleanSubPanel() {
+        selListeners.clear();
     }
 
     @Override

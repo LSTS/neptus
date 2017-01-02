@@ -67,6 +67,7 @@ import pt.lsts.neptus.plugins.multibeam.console.MultibeamRealTimeWaterfall;
 @PluginDescription(author = "Tiago Marques", version = "0.5", name = "Multibeam: Dual Viewer", description = "Displays multibeam waterfall and cross-section viewers")
 @Popup(pos = Popup.POSITION.TOP_LEFT, width = 900, height = 480)
 public class MultibeamDualViewer extends ConsolePanel {
+    
     // Parameters Tmp
     @NeptusProperty (name="Color map to use", category="Visualization parameters", userLevel = LEVEL.REGULAR)
     private ColorMap colorMap = ColorMapFactory.createJetColorMap();
@@ -96,6 +97,9 @@ public class MultibeamDualViewer extends ConsolePanel {
         super(console);
         crossSection = new MultibeamCrossSection(console, true);
         waterfall = new MultibeamRealTimeWaterfall(console, true);
+        
+        crossSection.addListener(waterfall);
+        waterfall.addListener(crossSection);
 
         viewersPanel = new JPanel();
         viewersPanel.setLayout(new MigLayout());
