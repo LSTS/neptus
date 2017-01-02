@@ -91,16 +91,16 @@ import pt.lsts.neptus.util.llf.LsfLogSource;
  * @author pdias
  */
 @SuppressWarnings("serial")
-@PluginDescription(author = "Tiago Marques", version = "0.1", name = "Multibeam: Cross-Section Viewer")
-@Popup(pos = Popup.POSITION.TOP_LEFT, width = 600, height = 480)
+@PluginDescription(author = "Tiago Marques", version = "0.5", name = "Multibeam: Cross-Section Viewer")
+@Popup(pos = Popup.POSITION.TOP_LEFT, width = 560, height = 480)
 public class MultibeamCrossSection extends ConsolePanel implements MainVehicleChangeListener, ConfigurationListener {
 
     private static final String STRING_COLON_SPACE = ": ";
     private static final String N_A_TEXT = I18n.textc("n/a", "Not available. Try to use equal number of characters.");
 
-    // viewe's parameters
+    // viewer's parameters
     @NeptusProperty(name="Sensor's range", category="Visualization parameters", userLevel = NeptusProperty.LEVEL.REGULAR)
-    public double mbRange = 30;
+    private double mbRange = 30;
 
     @NeptusProperty(name="Color map to use", category="Visualization parameters", userLevel = NeptusProperty.LEVEL.REGULAR)
     private ColorMap colorMap = ColorMapFactory.createJetColorMap();
