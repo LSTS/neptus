@@ -33,19 +33,19 @@ public class Json2Lsf implements LogProcessor {
 		return "JSON 2 LSF";
 	}
 
+	public void PlatformInfo(JsonObject obj) {
+	    if (!isSourceKnown(obj)) {
+            Announce announce = new Announce();
+            announce.setSrc(getPlatformSrc(obj));
+            announce.setSysName(obj.get("platform_name").asString());
+            announce.setTimestamp(getTimestamp(obj)/1000.0);
+            LsfMessageLogger.log(announce);
+        }
+        platformNames.put(getPlatformSrc(obj), obj.get("platform_name").asString());
+	}
+	
 	public void process(JsonObject obj) {
 		String msgName = obj.get("abbrev").asString();
-		if (msgName.equals("PlatformInfo")) {
-			if (!isSourceKnown(obj)) {
-				Announce announce = new Announce();
-				announce.setSrc(getPlatformSrc(obj));
-				announce.setSysName(obj.get("platform_name").asString());
-				announce.setTimestamp(getTimestamp(obj)/1000.0);
-				LsfMessageLogger.log(announce);
-			}
-			platformNames.put(getPlatformSrc(obj), obj.get("platform_name").asString());
-		}
-		
 		
 		if (methods.containsKey(msgName)) {
 			try {
@@ -53,6 +53,9 @@ public class Json2Lsf implements LogProcessor {
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
+		}
+		else {
+		    System.out.println(msgName + " was not processed.");
 		}
 	}
 
