@@ -6,3 +6,4 @@ org.necsave.sink.NecsaveSink
 org.necsave.sink.MeshStatePanel
 org.necsave.NecsaveCommunicationsLayer
 org.necsave.MraPositionAccuracyPlot
+org.necsave.MraConsumptionPlot
