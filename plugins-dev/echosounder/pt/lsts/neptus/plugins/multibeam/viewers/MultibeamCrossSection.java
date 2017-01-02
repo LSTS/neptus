@@ -46,8 +46,10 @@ import java.awt.event.MouseListener;
 import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayOutputStream;
+import java.util.ArrayList;
 import java.util.Collection;
 
+import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
@@ -67,6 +69,7 @@ import pt.lsts.neptus.comm.transports.udp.UDPTransport;
 import pt.lsts.neptus.console.ConsoleLayout;
 import pt.lsts.neptus.console.ConsolePanel;
 import pt.lsts.neptus.console.plugins.MainVehicleChangeListener;
+import pt.lsts.neptus.gui.model.ArrayListComboBoxModel;
 import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.mp.SystemPositionAndAttitude;
 import pt.lsts.neptus.mra.api.BathymetryPoint;
@@ -145,6 +148,11 @@ public class MultibeamCrossSection extends ConsolePanel implements MainVehicleCh
 
     // when the window is resized
     private boolean gridInvalidated = false;
+    
+    private JComboBox<String> mbEntitiesComboBox;
+    private ArrayListComboBoxModel<String> mbEntitiesComboBoxModel;
+    private JComboBox<Long> subSystemsComboBox;
+    private ArrayListComboBoxModel<Long> subSystemsComboBoxModel;
 
     // information labels
     private final JLabel vehicleIdLabel = new JLabel(I18n.textf("ID", "Try to use equal number of characters.") + STRING_COLON_SPACE);
@@ -302,6 +310,18 @@ public class MultibeamCrossSection extends ConsolePanel implements MainVehicleCh
         infoPanel.add(depthLabel);
         infoPanel.add(depthValue);
 
+        mbEntitiesComboBoxModel = new ArrayListComboBoxModel<>(new ArrayList<String>(), true);
+        mbEntitiesComboBox = new JComboBox<>(mbEntitiesComboBoxModel);
+        mbEntitiesComboBox.setForeground(Color.BLACK);
+        mbEntitiesComboBox.setBackground(GRID_COLOR);
+        mbEntitiesComboBox.setFont(f);
+        subSystemsComboBoxModel = new ArrayListComboBoxModel<>(new ArrayList<Long>(), true);
+        subSystemsComboBox = new JComboBox<>(subSystemsComboBoxModel);
+        subSystemsComboBox.setForeground(Color.BLACK);
+        subSystemsComboBox.setBackground(GRID_COLOR);
+        subSystemsComboBox.setFont(f);
+        infoPanel.add(mbEntitiesComboBox, "sg 1, w :50%:50%, spanx 2");
+        infoPanel.add(subSystemsComboBox, "sg 1, w :40%:40%, spanx 2, wrap");
         colorBar = createColorBar();
         infoPanel.add(colorBar, "span, growx");
 
@@ -504,6 +524,26 @@ public class MultibeamCrossSection extends ConsolePanel implements MainVehicleCh
                 MultibeamCrossSection.this.repaint();
                 return;
             }
+
+            boolean firstEnt = mbEntitiesComboBoxModel.getSize() == 0;
+            boolean firstSubSys = subSystemsComboBoxModel.getSize() == 0;
+            mbEntitiesComboBoxModel.addValue(msg.getEntityName());
+            subSystemsComboBoxModel.addValue(msg.getFrequency());
+            if (firstEnt && mbEntitiesComboBoxModel.getSize() > 0)
+                mbEntitiesComboBox.setSelectedItem(mbEntitiesComboBoxModel.getValue(0));
+            if (firstSubSys && subSystemsComboBoxModel.getSize() > 0)
+                subSystemsComboBox.setSelectedItem(subSystemsComboBoxModel.getValue(0));
+
+            String selEnt = (String) mbEntitiesComboBoxModel.getSelectedItem();
+            Long selSubSys = (Long) subSystemsComboBoxModel.getSelectedItem();
+
+            if (selSubSys == null)
+                return;
+
+            if (selEnt != null && !selEnt.equals(msg.getEntityName()))
+                return;
+            if (!selSubSys.equals(msg.getFrequency()))
+                return;
 
             if (currState == null)
                 currState = new SystemPositionAndAttitude();
