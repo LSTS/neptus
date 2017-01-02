@@ -107,6 +107,9 @@ public abstract class ConsolePanel extends JPanel implements PropertiesProvider,
     private static final String DEFAULT_ROOT_ELEMENT = "subpanel";
     private static final long serialVersionUID = -2131046685846552482L;
 
+    /** This is use to disable some configurations to be able to be used inside another {@link ConsolePanel} */
+    private boolean usedInsideAnotherConsolePanel = false;
+    
     private final Vector<String> addedMenus = new Vector<String>();
     private final ConsoleLayout console;
     private final MainPanel mainpanel;
@@ -127,8 +130,28 @@ public abstract class ConsolePanel extends JPanel implements PropertiesProvider,
     private boolean popupPositionFlag = false;
     private boolean resizable = true;
     private boolean visibility = true;
-    
+
+    /**
+     * The default constructor.
+     * 
+     * @param console
+     */
     public ConsolePanel(ConsoleLayout console) {
+        this(console, false);
+    }
+
+    /**
+     * The constructor if you intend to use it inside another {@link ConsolePanel}
+     * (usedInsideAnotherConsolePanel should be true).
+     * 
+     * If you don't intend to use it, don't need to override it.
+     * 
+     * @param console
+     * @param usedInsideAnotherConsolePanel
+     */
+    public ConsolePanel(ConsoleLayout console, boolean usedInsideAnotherConsolePanel) {
+        this.usedInsideAnotherConsolePanel = usedInsideAnotherConsolePanel;
+
         this.console = console;
         this.mainpanel = console == null ? null : console.getMainPanel();
         if (console != null)
@@ -313,6 +336,26 @@ public abstract class ConsolePanel extends JPanel implements PropertiesProvider,
         // dialog.add(this); This cannot be done here, because if the component is on the initial layout it will not show
     }
 
+    private void cleanPopup() {
+        if (menuItem != null || dialog != null) {
+            JMenu menu = getConsole().getOrCreateJMenu(new String[] { I18n.text("View") });
+            if(menu != null)
+                menu.remove(menuItem);
+            if (dialog != null) {
+                NeptusLog.pub().info("Closing popup dialog for: " + this.getName());
+                dialog.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
+                dialog.dispose();
+            }
+            
+            if (popUpAction != null)
+                getConsole().unRegisterGlobalKeyBinding(popUpAction);
+        }
+        
+        menuItem = null;
+        dialog = null;
+        popUpAction = null;
+    }
+
     /**
      * @param popupPosition
      */
@@ -412,19 +455,8 @@ public abstract class ConsolePanel extends JPanel implements PropertiesProvider,
                 p.removePostRenderPainter((Renderer2DPainter) this);
         }
 
-        if (menuItem != null || dialog != null) {
-            JMenu menu = getConsole().getOrCreateJMenu(new String[] { I18n.text("View") });
-            if(menu != null)
-                menu.remove(menuItem);
-            if (dialog != null) {
-                NeptusLog.pub().info("Closing popup dialog for: " + this.getName());
-                dialog.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
-                dialog.dispose();
-            }
-            
-            if (popUpAction != null)
-                getConsole().unRegisterGlobalKeyBinding(popUpAction);
-        }
+        cleanPopup();
+        
         cleanSubPanel();
     }
 
@@ -549,7 +581,8 @@ public abstract class ConsolePanel extends JPanel implements PropertiesProvider,
             setVisible(false);
         }
 
-        this.buildPopup();
+        if (!usedInsideAnotherConsolePanel)
+            this.buildPopup();
         
         initSubPanel();
 
