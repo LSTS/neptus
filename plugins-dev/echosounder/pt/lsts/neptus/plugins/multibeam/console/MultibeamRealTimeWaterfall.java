@@ -31,6 +31,7 @@
  */
 package pt.lsts.neptus.plugins.multibeam.console;
 
+import java.awt.Color;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
@@ -89,7 +90,7 @@ import pt.lsts.neptus.util.llf.LsfLogSource;
  * @author pdias
  */
 @SuppressWarnings("serial")
-@PluginDescription(author = "Tiago Marques", version = "0.1", name = "Multibeam Real-Time Waterfall Viewer")
+@PluginDescription(author = "Tiago Marques", version = "0.5", name = "Multibeam Real-Time Waterfall Viewer")
 @Popup(pos = POSITION.TOP_LEFT, width = 300, height = 500)
 public class MultibeamRealTimeWaterfall extends ConsolePanel implements ConfigurationListener,
     MainVehicleChangeListener {
@@ -150,10 +151,12 @@ public class MultibeamRealTimeWaterfall extends ConsolePanel implements Configur
         subSystemsComboBoxModel = new ArrayListComboBoxModel<>(new ArrayList<Long>(), true);
         subSystemsComboBox = new JComboBox<>(subSystemsComboBoxModel);
         
-        setLayout(new MigLayout("ins 0, gap 5"));
+        setLayout(new MigLayout("ins 0, gap 5", "center", ""));
         add(mbEntitiesComboBox, "sg 1, w :50%:50%");
         add(subSystemsComboBox, "sg 1, w :40%:40%, wrap");
         add(mbViewer, "w 100%, h 100%, spanx");
+
+        setBackground(Color.BLACK);
         
         mbViewer.addMouseListener(getMouseListener());
     }
