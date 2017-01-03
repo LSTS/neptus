@@ -698,7 +698,6 @@ public class MapEditor extends ConsolePanel implements StateRendererInteraction,
             JMenuItem addGeotiff = add.add(I18n.text("GeoTIFF overlay"));
             addGeotiff.setToolTipText(I18n.text("Add GeoTIFF ground overlay."));
             addGeotiff.addActionListener(new ActionListener() {
-
                 @Override
                 public void actionPerformed(ActionEvent e) {
                     JFileChooser chooser = GuiUtils.getFileChooser(ConfigFetch.getUserHomeFolder(), 
@@ -717,12 +716,12 @@ public class MapEditor extends ConsolePanel implements StateRendererInteraction,
                             try {
                                 ImageElement el = tiff.asImageElement(getConsole().getMission().getMissionFile());    
                                 if (el.getCenterLocation().isLocationEqual(new LocationType())) {
-                                    GuiUtils.errorMessage(MapEditor.this, I18n.text("Add GeoTIFF ground overlay."),
+                                    GuiUtils.errorMessage(MapEditor.this.getConsole(), I18n.text("Add GeoTIFF ground overlay."),
                                             I18n.text("Unable to get geographic location for overlay."));
                                 }
                                 
                                 el.setMapGroup(mg);
-                                el.showParametersDialog(MapEditor.this, pivot.getObjectIds(), pivot, true);
+                                el.showParametersDialog(MapEditor.this.getConsole(), pivot.getObjectIds(), pivot, true);
 
                                 if (!el.userCancel) {
                                     pivot.addObject(el);
@@ -738,12 +737,10 @@ public class MapEditor extends ConsolePanel implements StateRendererInteraction,
                             }
                             catch (Exception ex) {
                                 
-                                GuiUtils.errorMessage(MapEditor.this, I18n.text("Add GeoTIFF ground overlay."),
+                                GuiUtils.errorMessage(MapEditor.this.getConsole(), I18n.text("Add GeoTIFF ground overlay."),
                                         I18n.text("Image format not understood: "+ex.getMessage()));
                                 ex.printStackTrace();                                
                             }
-                            
-                            
                         }
                         catch (Exception ex) {
                             NeptusLog.pub().error(ex);
