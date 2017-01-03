@@ -99,7 +99,7 @@ import pt.lsts.neptus.util.llf.LsfLogSource;
  */
 @SuppressWarnings("serial")
 @PluginDescription(author = "Tiago Marques", version = "0.5", name = "Multibeam: Cross-Section Viewer")
-@Popup(pos = Popup.POSITION.TOP_LEFT, width = 560, height = 480)
+@Popup(pos = Popup.POSITION.TOP_LEFT, width = 600, height = 480)
 public class MultibeamCrossSection extends ConsolePanel
         implements MainVehicleChangeListener, ConfigurationListener, MultibeamEntityAndChannelChangeListener {
 
@@ -204,7 +204,7 @@ public class MultibeamCrossSection extends ConsolePanel
         dataPanel = initDataPanel();
         infoPanel = initInfoPanel();
 
-        viewer.add(infoPanel, "alignx center, h 20%, spanx, wrap");
+        viewer.add(infoPanel, "alignx center, w 580::,h 20%, spanx, wrap");
         viewer.add(dataPanel, "w 100%, h 80%");
         setLayout(new MigLayout("ins 0, gap 0", "[][grow]", "[top][grow]"));
         add(viewer, "w 100%, h 100%,  grow");
@@ -254,7 +254,7 @@ public class MultibeamCrossSection extends ConsolePanel
     private JPanel initInfoPanel() {
         JPanel infoPanel = new JPanel();
 
-        infoPanel.setLayout(new MigLayout("wrap", "[]10[]150[][]", "[][][][]"));
+        infoPanel.setLayout(new MigLayout("wrap", "[]10[]130[][]", "[][][][]"));
         infoPanel.setBackground(Color.black);
         infoPanel.setPreferredSize(new Dimension(viewer.getWidth(), viewer.getHeight()));
 
@@ -716,7 +716,7 @@ public class MultibeamCrossSection extends ConsolePanel
 
     // for testing
     public static void main(String[] args) {
-        String dataFile = (System.getProperty("user.dir") + "/" + "log/maridan-multibeam/Data.lsf.gz");
+        String dataFile = (System.getProperty("user.dir") + "/" + "../log/maridan-multibeam/Data.lsf.gz");
         System.out.println("** Reading: " + dataFile);
 
         UDPTransport udp = new UDPTransport(6002, 1);

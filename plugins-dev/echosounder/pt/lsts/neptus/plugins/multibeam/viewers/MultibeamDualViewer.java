@@ -66,7 +66,7 @@ import pt.lsts.neptus.plugins.multibeam.console.MultibeamRealTimeWaterfall;
  */
 @SuppressWarnings("serial")
 @PluginDescription(author = "Tiago Marques", version = "0.5", name = "Multibeam: Dual Viewer", description = "Displays multibeam waterfall and cross-section viewers")
-@Popup(pos = Popup.POSITION.TOP_LEFT, width = 900, height = 480)
+@Popup(pos = Popup.POSITION.TOP_LEFT, width = 920, height = 500)
 public class MultibeamDualViewer extends ConsolePanel {
     
     // Parameters Tmp
@@ -107,8 +107,8 @@ public class MultibeamDualViewer extends ConsolePanel {
         viewersPanel.setPreferredSize(new Dimension(this.getWidth(), this.getHeight()));
         viewersPanel.setLayout(new MigLayout());
 
-        viewersPanel.add(waterfall, "w 38%, h 100%");
-        viewersPanel.add(crossSection, "w 62%, h 100%");
+        viewersPanel.add(waterfall, "w 37%, h 100%");
+        viewersPanel.add(crossSection, "w 63%, h 100%");
         this.setLayout(new MigLayout("ins 0, gap 0", "[][]"));
         this.add(viewersPanel, "w 100%, h 100%,  grow");
     }
