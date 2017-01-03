@@ -99,6 +99,7 @@ public class MultibeamUtil {
             float north = (float) (x * Math.sin(yawAngle));
             float east = (float) (x * Math.cos(yawAngle));
 
+            // FIXME: intensities data are being truncated (from long to int)
             points[i] = new BathymetryPoint(north, east, depth, (int) intensities[i]);
         }
 
