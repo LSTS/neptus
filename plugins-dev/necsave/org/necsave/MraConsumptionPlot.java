@@ -45,7 +45,7 @@ import pt.lsts.neptus.plugins.PluginDescription;
  * @author zp
  *
  */
-@PluginDescription(name = "Consumption Plot")
+@PluginDescription(name = "Consumption", description="Plot the battery consumption", active=false)
 public class MraConsumptionPlot extends MRATimeSeriesPlot {
 
     /**
@@ -65,7 +65,8 @@ public class MraConsumptionPlot extends MRATimeSeriesPlot {
 
     private LinkedHashMap<Integer, Double> totalConsumption = new LinkedHashMap<>();
     private ArrayList<Double> consumptionValues = new ArrayList<>();
-
+    
+    
     @Override
     public void process(LsfIndex source) {
 
@@ -96,7 +97,7 @@ public class MraConsumptionPlot extends MRATimeSeriesPlot {
                     long ilast = (long) lastCurrent.getTimestamp();
                     long ithis = (long) msg.getTimestamp();
 
-                    if (ilast == ithis)
+                    if (ilast == ithis || consumptionValues.isEmpty())
                         consumptionValues.add(msg.getValue());
                     else {
                         double average = consumptionValues.stream().mapToDouble(a -> a).average().getAsDouble();
