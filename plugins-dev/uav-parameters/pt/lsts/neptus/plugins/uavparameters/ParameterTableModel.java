@@ -32,13 +32,17 @@
 package pt.lsts.neptus.plugins.uavparameters;
 
 import java.awt.Color;
+import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
+import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map.Entry;
 
+import javax.swing.JComboBox;
 import javax.swing.table.AbstractTableModel;
+
+import pt.lsts.neptus.plugins.uavparameters.ParameterMetadata.Item;
 
 /**
  * @author Manuel R.
@@ -48,14 +52,14 @@ import javax.swing.table.AbstractTableModel;
 public class ParameterTableModel extends AbstractTableModel  {
 
     private HashMap<String, ParameterMetadata> metadata = null;
-    private InputStream paramMetadataXML = null;
+    private File paramMetadataXML = null;
     private ArrayList<Parameter> params = new ArrayList<>();
     private HashMap<String, ParameterExtended> modifiedParams = new HashMap<>();
-    private static final int COLUMN_PARAM_NAME = 0;
-    private static final int COLUMN_VALUE = 1;
-    private static final int COLUMN_UNITS = 2;
-    private static final int COLUMN_OPTIONS = 3;
-    private static final int COLUMN_DESCRIPTION = 4;
+    public static final int COLUMN_PARAM_NAME = 0;
+    public static final int COLUMN_VALUE = 1;
+    public static final int COLUMN_UNITS = 2;
+    public static final int COLUMN_OPTIONS = 3;
+    public static final int COLUMN_DESCRIPTION = 4;
 
     public ParameterTableModel(ArrayList<Parameter> params) {
         this.params = params;
@@ -145,11 +149,34 @@ public class ParameterTableModel extends AbstractTableModel  {
         return metadata.get(param) == null ? "" : metadata.get(param).getRange();
     }
 
-    private String getValues(String param) {
+    private Object getValue(Parameter param) {
         if (metadata == null)
-            return "";
+            return param.getValue();
 
-        return metadata.get(param) == null ? "" : metadata.get(param).getValues();
+        ParameterMetadata meta = metadata.get(param.name);
+        if (meta == null)
+            return param.getValue();
+
+        if (meta.getBitmask() == null && !meta.getValues().isEmpty()) {
+            System.out.println(meta.getBitmask() + " " + meta.getValues().toString());
+
+            JComboBox<Item> valuesComboBox = new JComboBox<Item>();
+            for (Entry<String, String> e : meta.getValues().entrySet()) {
+                Item item = meta.new Item(e.getKey(), e.getValue());
+                valuesComboBox.addItem(item);
+
+                if (param.getValue().equalsIgnoreCase(e.getKey()))
+                    valuesComboBox.setSelectedItem(item);
+            }
+
+            return valuesComboBox;
+        }
+
+        if (meta.getBitmask() != null) {
+
+        }
+
+        return param.getValue();
     }
 
     @Override
@@ -207,15 +234,18 @@ public class ParameterTableModel extends AbstractTableModel  {
         }
     }
 
-    public void updateParamList(ArrayList<Parameter> newParamList, String type) {
+    public void updateParamList(ArrayList<Parameter> newParamList, String type, boolean reParseMetadata) {
         this.params = newParamList;
 
-        if (type != null) {
+        if (reParseMetadata && type != null) {
             try {
-                paramMetadataXML = getClass().getResourceAsStream("ParameterMetaData.xml");
-                metadata = ParameterMetadataMapReader.open(paramMetadataXML, type);
+                paramMetadataXML = new File(getClass().getResource("ParameterMetaDataV2.xml").toURI());
+                metadata = ParameterMetadataMapReader.parseMetadata(paramMetadataXML, type);
             }
             catch (IOException e) {
+                e.printStackTrace();
+            }
+            catch (URISyntaxException e) {
                 e.printStackTrace();
             }
         }
@@ -243,6 +273,9 @@ public class ParameterTableModel extends AbstractTableModel  {
      */
     public boolean checkAndUpdateParameter(String name, String value) {
         ParameterExtended p = modifiedParams.get(name);
+        if (p == null)
+            return false;
+
         Parameter e = p.getParameter();
 
         if (e == null)

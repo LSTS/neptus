@@ -32,10 +32,7 @@
 package pt.lsts.neptus.plugins.uavparameters;
 
 import java.io.Serializable;
-import java.text.DecimalFormat;
-import java.text.ParseException;
-import java.util.LinkedHashMap;
-import java.util.Map;
+import java.util.HashMap;
 
 public class ParameterMetadata implements Serializable {
     private static final long serialVersionUID = 1L;
@@ -43,12 +40,14 @@ public class ParameterMetadata implements Serializable {
     public static final int RANGE_HIGH = 1;
 
     private String name;
-    private String displayName;
-    private String description;
+    private String humanName;
+    private String documentation;
 
-    private String units;
     private String range;
-    private String values;
+    private String increment;
+    private String units;
+    private String bitmask;
+    private HashMap<String, String> values = new HashMap<>();
 
     public String getName() {
         return name;
@@ -59,19 +58,19 @@ public class ParameterMetadata implements Serializable {
     }
 
     public String getDisplayName() {
-        return displayName;
+        return humanName;
     }
 
     public void setDisplayName(String displayName) {
-        this.displayName = displayName;
+        this.humanName = displayName;
     }
 
     public String getDescription() {
-        return description;
+        return documentation;
     }
 
     public void setDescription(String description) {
-        this.description = description;
+        this.documentation = description;
     }
 
     public String getUnits() {
@@ -90,47 +89,82 @@ public class ParameterMetadata implements Serializable {
         this.range = range;
     }
 
-    public String getValues() {
+    public HashMap<String, String> getValues() {
         return values;
     }
 
-    public void setValues(String values) {
+    public void setValues(HashMap<String, String> values) {
         this.values = values;
     }
 
     public boolean hasInfo() {
-        return (description != null && !description.isEmpty())
+        return (documentation != null && !documentation.isEmpty())
                 || (values != null && !values.isEmpty());
     }
 
-    public double[] parseRange() throws ParseException {
-        final DecimalFormat format = Parameter.getFormat();
-
-        final String[] parts = this.range.split(" ");
-        if (parts.length != 2) {
-            throw new IllegalArgumentException();
-        }
-
-        final double[] outRange = new double[2];
-        outRange[RANGE_LOW] = format.parse(parts[RANGE_LOW]).doubleValue();
-        outRange[RANGE_HIGH] = format.parse(parts[RANGE_HIGH]).doubleValue();
-
-        return outRange;
+    /**
+     * @return the increment
+     */
+    public String getIncrement() {
+        return increment;
     }
 
-    public Map<Double, String> parseValues() throws ParseException {
-        final DecimalFormat format = Parameter.getFormat();
+    /**
+     * @param increment the increment to set
+     */
+    public void setIncrement(String increment) {
+        this.increment = increment;
+    }
 
-        final Map<Double, String> outValues = new LinkedHashMap<Double, String>();
-        if (values != null) {
-            final String[] tparts = this.values.split(",");
-            for (String tpart : tparts) {
-                final String[] parts = tpart.split(":");
-                if (parts.length != 2)
-                    throw new IllegalArgumentException();
-                outValues.put(format.parse(parts[0].trim()).doubleValue(), parts[1].trim());
-            }
+    /**
+     * @param attribute
+     * @param textContent
+     */
+    public void parseValues(String codeAttribute, String value) {
+        values.put(codeAttribute.trim(), value.trim());
+    }
+
+    /**
+     * @return bitmask
+     */
+    public String getBitmask() {
+        return bitmask;
+    }
+    
+    /**
+     * @param bitmask
+     */
+    public void setBitmask(String bitmask) {
+        this.bitmask = bitmask;
+    }
+
+    class Item {
+        private String value;
+        private String text;
+
+        public Item(String value, String text) {
+            this.setValue(value);
+            this.text = text;
         }
-        return outValues;
+
+        @Override
+        public String toString() {
+            return text;
+        }
+
+        /**
+         * @return the value
+         */
+        public String getValue() {
+            return value;
+        }
+
+        /**
+         * @param value the value to set
+         */
+        public void setValue(String value) {
+            this.value = value;
+        }
+
     }
 }

@@ -26,120 +26,192 @@
  *
  * For more information please see <http://lsts.fe.up.pt/neptus>.
  *
- * Author: dronekit.io, Manuel R.
+ * Author: Manuel R.
  * Nov 22, 2016
  */
 package pt.lsts.neptus.plugins.uavparameters;
 
+import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.Reader;
 import java.util.HashMap;
 
-import org.xmlpull.v1.XmlPullParser;
-import org.xmlpull.v1.XmlPullParserException;
-import org.xmlpull.v1.XmlPullParserFactory;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
+
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
+import org.xml.sax.SAXException;
 
 /**
+ * @author Manuel R
  * Parameter metadata parser extracted from parameters
  * 
  */
 public class ParameterMetadataMapReader {
 
-    private static final String METADATA_DISPLAYNAME = "DisplayName";
-    private static final String METADATA_DESCRIPTION = "Description";
+    private static final boolean DEBUG = false;
+    private static final String METADATA_NAME = "name";
+    private static final String METADATA_DISPLAYNAME = "humanName";
+    private static final String METADATA_DESCRIPTION = "documentation";
     private static final String METADATA_UNITS = "Units";
-    private static final String METADATA_VALUES = "Values";
     private static final String METADATA_RANGE = "Range";
+    private static final String METADATA_INCREMENT = "Increment";
+    private static final String METADATA_BITMASK = "Bitmask";
+    private static final String METADATA_VALUES = "values";
+    private static final String METADATA_VALUE = "value";
+    private static final String METADATA_VALUE_CODE = "code";
+    private static final String METADATA_PARAMETERS = "parameters";
+    private static final String METADATA_LIBRARY = "libraries";
+    private static final String METADATA_VEHICLES = "vehicles";
 
-    public static HashMap<String, ParameterMetadata> open(InputStream input, String metadataType) throws IOException {
-        XmlPullParserFactory factory = null;
-        XmlPullParser parser = null;
-        Reader r = null;
+    public static HashMap<String, ParameterMetadata> parseMetadata(File input, String vehType) throws IOException {
+        File fXmlFile = new File("/home/manuel/workspace/neptus/develop/plugins-dev/uav-parameters/pt/lsts/neptus/plugins/uavparameters/ParameterMetaDataV2.xml");
+        if (!fXmlFile.isFile())
+            return null;
 
-        try {
-            r = new InputStreamReader(input);
-            factory = XmlPullParserFactory.newInstance();
-            parser = factory.newPullParser();
-            parser.setFeature(XmlPullParser.FEATURE_PROCESS_NAMESPACES, false);
-            parser.setInput(r);
-
-            return parseMetadata(parser, metadataType);
-
-        } catch (XmlPullParserException e) {
-            e.printStackTrace();
-        } finally {
-            try {
-                r.close();
-            } catch (IOException e) { /* nop */
-            }
-        }
-        return null;
-    }
-
-    private static HashMap<String, ParameterMetadata> parseMetadata(XmlPullParser parser, String metadataType) {
-        String name;
-        boolean parsing = false;
-        ParameterMetadata metadata = null;
         HashMap<String, ParameterMetadata> metadataMap = new HashMap<String, ParameterMetadata>();
-
+        DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
+        DocumentBuilder dBuilder = null;
+        Document doc = null;
         try {
-            int eventType = parser.getEventType();
-            while (eventType != XmlPullParser.END_DOCUMENT) {
+            dBuilder = dbFactory.newDocumentBuilder();
+            doc = dBuilder.parse(fXmlFile);
+        }
+        catch (ParserConfigurationException e) {
+            e.printStackTrace();
+            return null;
+        }
+        catch (SAXException | IOException e) {
+            e.printStackTrace();
+            return null;
+        }
 
-                switch (eventType) {
-                    case XmlPullParser.START_TAG:
-                        name = parser.getName();
-                        // name == metadataType: start collecting metadata(s)
-                        // metadata == null: create new metadata w/ name
-                        // metadata != null: add to metadata as property
-                        if (metadataType.equals(name)) {
-                            parsing = true;
-                        } else if (parsing) {
-                            if (metadata == null) {
-                                metadata = new ParameterMetadata();
-                                metadata.setName(name);
-                            } else {
-                                addMetaDataProperty(metadata, name, parser.nextText());
+        doc.getDocumentElement().normalize();
+        Element root = doc.getDocumentElement();
+        printDebug("Root element :" + root.getNodeName());
+
+        NodeList vehTypes = doc.getElementsByTagName(METADATA_PARAMETERS);
+
+        for (int temp = 0; temp < vehTypes.getLength(); temp++) {
+            Node nNode = vehTypes.item(temp);
+
+            if (nNode.getNodeType() == Node.ELEMENT_NODE) {
+                Element eElement = (Element) nNode;
+                if (eElement.getParentNode().getNodeName().equals(METADATA_VEHICLES) && eElement.getAttribute(METADATA_NAME).equals(vehType)) {
+                    printDebug("name : " + eElement.getAttribute(METADATA_NAME));
+                    NodeList childs = eElement.getChildNodes();
+                    for (int tempChild = 0; tempChild < childs.getLength(); tempChild++) {
+                        Node nNodeChild = childs.item(tempChild);
+                        if (nNodeChild.getNodeType() == Node.ELEMENT_NODE) {
+                            Element eElementChild = (Element) nNodeChild;
+                            String displayName = eElementChild.getAttribute(METADATA_DISPLAYNAME);
+                            String description = eElementChild.getAttribute(METADATA_DESCRIPTION);
+                            String paramName = eElementChild.getAttribute(METADATA_NAME).split(":")[1];
+                            printDebug("   humanName : " + displayName + " | " + paramName + " | " + description);
+
+                            if (paramName != null && displayName != null) {
+                                ParameterMetadata metadata = parseElement(eElementChild);
+                                metadata.setDisplayName(displayName);
+                                metadata.setName(paramName);
+                                metadata.setDescription(description);
+                                metadataMap.put(paramName, metadata);
                             }
                         }
-                        break;
-
-                    case XmlPullParser.END_TAG:
-                        name = parser.getName();
-                        // name == metadataType: done
-                        // name == metadata.name: add metadata to metadataMap
-                        if (metadataType.equals(name)) {
-                            return metadataMap;
-                        } else if (metadata != null && metadata.getName().equals(name)) {
-                            metadataMap.put(metadata.getName(), metadata);
-                            metadata = null;
-                        }
-                        break;
+                    }
                 }
-                eventType = parser.next();
+
+                if (eElement.getParentNode().getNodeName().equals(METADATA_LIBRARY)) {
+                    printDebug("name : " + eElement.getAttribute(METADATA_NAME));
+
+                    NodeList childs = eElement.getChildNodes();
+                    for (int tempChild = 0; tempChild < childs.getLength(); tempChild++) {
+                        Node nNodeChild = childs.item(tempChild);
+                        if (nNodeChild.getNodeType() == Node.ELEMENT_NODE) {
+                            Element eElementChild = (Element) nNodeChild;
+                            String displayName = eElementChild.getAttribute(METADATA_DISPLAYNAME);
+                            String description = eElementChild.getAttribute(METADATA_DESCRIPTION);
+                            String paramName = eElementChild.getAttribute(METADATA_NAME);
+                            printDebug("   humanName : " + displayName + " | " + paramName + " | " + description);
+
+                            if (paramName != null && displayName != null) {
+                                ParameterMetadata metadata = parseElement(eElementChild);
+                                metadata.setDisplayName(displayName);
+                                metadata.setName(paramName);
+                                metadata.setDescription(description);
+                                metadataMap.put(paramName, metadata);
+                            }
+                        }
+                    }
+                }
             }
-        } catch (IOException e) {
-            e.printStackTrace();
-        } catch (XmlPullParserException e) {
-            e.printStackTrace();
         }
 
-        // no metadata
-        return null;
+        return metadataMap;
+
     }
 
-    private static void addMetaDataProperty(ParameterMetadata metaData, String name, String text) {
-        if (name.equals(METADATA_DISPLAYNAME))
-            metaData.setDisplayName(text);
-        else if (name.equals(METADATA_DESCRIPTION))
-            metaData.setDescription(text);
-        else if (name.equals(METADATA_UNITS))
-            metaData.setUnits(text);
-        else if (name.equals(METADATA_RANGE))
-            metaData.setRange(text);
-        else if (name.equals(METADATA_VALUES))
-            metaData.setValues(text);
+    private static ParameterMetadata parseElement(Element parent) {
+        ParameterMetadata metadata = new ParameterMetadata();
+
+        NodeList childList = parent.getChildNodes();
+        for (int temp = 0; temp < childList.getLength(); temp++) {
+            Node child = childList.item(temp);
+
+            if (child.getNodeType() == Node.ELEMENT_NODE) {
+                Element childElem = (Element) child;
+                printDebug("                > " + childElem.getNodeName() + " " + childElem.getAttribute(METADATA_NAME));
+
+                switch (childElem.getAttribute(METADATA_NAME)) {
+                    case METADATA_RANGE:
+                        String range = childElem.getTextContent();
+                        metadata.setRange(range);
+
+                        break;
+                    case METADATA_INCREMENT:
+                        String increment = childElem.getTextContent();
+                        metadata.setIncrement(increment);
+
+                        break;
+                    case METADATA_UNITS:
+                        String units = childElem.getTextContent();
+                        metadata.setUnits(units);
+
+                        break;
+                    case METADATA_BITMASK:
+                        String bitmask = childElem.getTextContent();
+                        metadata.setBitmask(bitmask);
+
+                        break;
+                    default:
+                        break;
+                }
+
+                if (childElem.getNodeName().equals(METADATA_VALUES)) {
+                    NodeList valueList = childElem.getChildNodes();
+                    for (int temp2 = 0; temp2 < valueList.getLength(); temp2++) {
+                        Node valueChild = valueList.item(temp2);
+
+                        if (valueChild.getNodeType() == Node.ELEMENT_NODE) {
+                            Element valueChildElem = (Element) valueChild;
+                            printDebug("                     > " + valueChildElem.getAttribute(METADATA_VALUE_CODE) + " " + valueChildElem.getTextContent());
+                            metadata.parseValues(valueChildElem.getAttribute(METADATA_VALUE_CODE), valueChildElem.getTextContent());
+                        }
+                    }
+                    //printDebug("                     > " + metadata.getValues().toString());
+
+                }
+            }
+
+        }
+
+        return metadata;
+    }
+
+    private static void printDebug(String toPrint) {
+        if (DEBUG)
+            System.out.println(toPrint);
     }
 }

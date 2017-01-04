@@ -282,7 +282,7 @@ public class ParameterManager extends ConsolePanel implements MAVLinkConnectionL
 
                         if (isFinished){
                             setActivity("Parameters loaded successfully...", StatusLed.LEVEL_0);
-                            updateTable();
+                            updateTable(false);
                         }
                         else {
                             setActivity("Failed to load parameters...", StatusLed.LEVEL_0);
@@ -334,7 +334,7 @@ public class ParameterManager extends ConsolePanel implements MAVLinkConnectionL
                 parameterList.clear();
                 parameters.clear();
                 model.clearModifiedParams();
-                updateTable();
+                updateTable(false);
 
                 reader = new ParameterReader();
                 String path = System.getProperty("user.home");
@@ -343,7 +343,7 @@ public class ParameterManager extends ConsolePanel implements MAVLinkConnectionL
                 if (fc.showOpenDialog(ParameterManager.this) == JFileChooser.APPROVE_OPTION) {
                     boolean f = reader.openFile(fc.getSelectedFile().getPath());
                     if (f) {
-                        model.updateParamList((ArrayList<Parameter>) reader.getParameters(), mavlink.getSystemType());
+                        model.updateParamList((ArrayList<Parameter>) reader.getParameters(), mavlink.getSystemType(), true);
                         setActivity("Loaded "+ reader.getParameters().size() +" parameters from file...", StatusLed.LEVEL_0, "Ok!");
                     }
                 }
@@ -398,7 +398,7 @@ public class ParameterManager extends ConsolePanel implements MAVLinkConnectionL
                     }
 
                     if (address != null && port != -1) {
-                        beginMavConnection(address, port, system);
+                        beginMavConnection(address, 9999, system);
                         setActivity("Connecting...", StatusLed.LEVEL_1, "Connecting!");
                         
                     }
@@ -432,7 +432,11 @@ public class ParameterManager extends ConsolePanel implements MAVLinkConnectionL
                 String param = model.getValueAt(table.convertRowIndexToModel(row), 0).toString();
         
                 setBackground(model.getRowColor(row, column, param));
-
+                JLabel c = (JLabel)super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
+                
+                //TODO : trim tooltip text for long description texts. <html> use <br>
+                c.setToolTipText((String) model.getValueAt(table.convertRowIndexToModel(row), ParameterTableModel.COLUMN_DESCRIPTION));
+                
                 return this;
             }
         });
@@ -501,9 +505,9 @@ public class ParameterManager extends ConsolePanel implements MAVLinkConnectionL
         getStatusLed().setLevel(level, tooltip);
     }
 
-    private void updateTable() {
+    private void updateTable(boolean reParseMetadata) {
         
-        model.updateParamList(parameterList, mavlink.getSystemType());
+        model.updateParamList(parameterList, mavlink.getSystemType(), reParseMetadata);
     }
 
     private void requestParameters() {
@@ -512,12 +516,11 @@ public class ParameterManager extends ConsolePanel implements MAVLinkConnectionL
         parameterList.clear();
         model.clearModifiedParams();
         isFinished = false;
-        updateTable();
+        updateTable(true);
 
         if (mavlink != null)
             MAVLinkParameters.requestParametersList(mavlink);
     }
-
 
     private boolean processMessage(MAVLinkMessage msg) {
         if (msg.msgid == msg_param_value.MAVLINK_MSG_ID_PARAM_VALUE) {
