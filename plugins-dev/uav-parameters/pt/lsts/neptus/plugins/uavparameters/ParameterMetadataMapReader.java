@@ -39,6 +39,7 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
+import org.apache.commons.lang3.StringUtils;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -100,57 +101,45 @@ public class ParameterMetadataMapReader {
 
             if (nNode.getNodeType() == Node.ELEMENT_NODE) {
                 Element eElement = (Element) nNode;
-                if (eElement.getParentNode().getNodeName().equals(METADATA_VEHICLES) && eElement.getAttribute(METADATA_NAME).equals(vehType)) {
-                    printDebug("name : " + eElement.getAttribute(METADATA_NAME));
-                    NodeList childs = eElement.getChildNodes();
-                    for (int tempChild = 0; tempChild < childs.getLength(); tempChild++) {
-                        Node nNodeChild = childs.item(tempChild);
-                        if (nNodeChild.getNodeType() == Node.ELEMENT_NODE) {
-                            Element eElementChild = (Element) nNodeChild;
-                            String displayName = eElementChild.getAttribute(METADATA_DISPLAYNAME);
-                            String description = eElementChild.getAttribute(METADATA_DESCRIPTION);
-                            String paramName = eElementChild.getAttribute(METADATA_NAME).split(":")[1];
-                            printDebug("   humanName : " + displayName + " | " + paramName + " | " + description);
 
-                            if (paramName != null && displayName != null) {
-                                ParameterMetadata metadata = parseElement(eElementChild);
-                                metadata.setDisplayName(displayName);
-                                metadata.setName(paramName);
-                                metadata.setDescription(description);
-                                metadataMap.put(paramName, metadata);
-                            }
-                        }
-                    }
-                }
+                parseNode(eElement, metadataMap, METADATA_VEHICLES, "ArduCopter");
+                parseNode(eElement, metadataMap, METADATA_LIBRARY, null);
 
-                if (eElement.getParentNode().getNodeName().equals(METADATA_LIBRARY)) {
-                    printDebug("name : " + eElement.getAttribute(METADATA_NAME));
+            }
+        }
+        return metadataMap;
+    }
 
-                    NodeList childs = eElement.getChildNodes();
-                    for (int tempChild = 0; tempChild < childs.getLength(); tempChild++) {
-                        Node nNodeChild = childs.item(tempChild);
-                        if (nNodeChild.getNodeType() == Node.ELEMENT_NODE) {
-                            Element eElementChild = (Element) nNodeChild;
-                            String displayName = eElementChild.getAttribute(METADATA_DISPLAYNAME);
-                            String description = eElementChild.getAttribute(METADATA_DESCRIPTION);
-                            String paramName = eElementChild.getAttribute(METADATA_NAME);
-                            printDebug("   humanName : " + displayName + " | " + paramName + " | " + description);
+    private static void parseNode(Element eElement, HashMap<String, ParameterMetadata> metadataMap, String metaType, String vehType) {
+        boolean validate = true;
+        if (vehType != null)
+            validate = eElement.getAttribute(METADATA_NAME).equals(vehType);
 
-                            if (paramName != null && displayName != null) {
-                                ParameterMetadata metadata = parseElement(eElementChild);
-                                metadata.setDisplayName(displayName);
-                                metadata.setName(paramName);
-                                metadata.setDescription(description);
-                                metadataMap.put(paramName, metadata);
-                            }
-                        }
+        if (eElement.getParentNode().getNodeName().equals(metaType) && validate) {
+            printDebug("name : " + eElement.getAttribute(METADATA_NAME));
+            NodeList childs = eElement.getChildNodes();
+            for (int tempChild = 0; tempChild < childs.getLength(); tempChild++) {
+                Node nNodeChild = childs.item(tempChild);
+                if (nNodeChild.getNodeType() == Node.ELEMENT_NODE) {
+                    Element eElementChild = (Element) nNodeChild;
+                    String displayName = eElementChild.getAttribute(METADATA_DISPLAYNAME);
+                    String description = StringUtils.capitalize(eElementChild.getAttribute(METADATA_DESCRIPTION));
+                    String paramNameStr = eElementChild.getAttribute(METADATA_NAME);
+                    String[] paramNameArr = paramNameStr.split(":");
+                    String paramName = (paramNameArr.length > 1 ? paramNameArr[1] : paramNameStr);
+
+                    printDebug("   humanName : " + displayName + " | " + paramName + " | " + description);
+
+                    if (paramName != null && displayName != null) {
+                        ParameterMetadata metadata = parseElement(eElementChild);
+                        metadata.setDisplayName(displayName);
+                        metadata.setName(paramName);
+                        metadata.setDescription(description);
+                        metadataMap.put(paramName, metadata);
                     }
                 }
             }
         }
-
-        return metadataMap;
-
     }
 
     private static ParameterMetadata parseElement(Element parent) {
@@ -200,11 +189,9 @@ public class ParameterMetadataMapReader {
                             metadata.parseValues(valueChildElem.getAttribute(METADATA_VALUE_CODE), valueChildElem.getTextContent());
                         }
                     }
-                    //printDebug("                     > " + metadata.getValues().toString());
-
+                    printDebug("                     > " + metadata.getValues().toString());
                 }
             }
-
         }
 
         return metadata;
