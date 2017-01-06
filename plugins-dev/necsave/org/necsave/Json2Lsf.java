@@ -26,6 +26,7 @@ public class Json2Lsf implements LogProcessor {
 
     // store last positions at surface from all vehicles
     protected LinkedHashMap<String, EstimatedState> lastPositions = new LinkedHashMap<>();
+    protected LinkedHashMap<String, EstimatedState> lastSurfacePositions = new LinkedHashMap<>();
 
     // store timestamps of plan generation
     protected LinkedHashMap<Integer, Long> planGenerationTime = new LinkedHashMap<>();
@@ -81,27 +82,35 @@ public class Json2Lsf implements LogProcessor {
 
     public void on(EstimatedState state) {
         String src = platformNames.get(state.getSrc());
-
-        if (!lastPositions.containsKey(src)) {
-            lastPositions.put(src, state);
-            return;
-        }
-        else {
-            if (state.getTimestamp() - lastPositions.get(src).getTimestamp() < 5) {
+        double dist = 0;
+        if (state.getDepth() < 0.1) {
+            if (!lastPositions.containsKey(src)) {
+                lastPositions.put(src, state);
+            } else if (state.getTimestamp() - lastPositions.get(src).getTimestamp() < 5) {
                 LocationType prev = IMCUtils.getLocation(lastPositions.get(src));
                 LocationType cur = IMCUtils.getLocation(state);
-                try {
-                    if (cur.getHorizontalDistanceInMeters(prev) > 2) {
+                dist = cur.getHorizontalDistanceInMeters(prev);
+            }
+            lastPositions.put(src, state);
+
+            if (!lastSurfacePositions.containsKey(src)) {
+                lastSurfacePositions.put(src, state);
+                return;
+            }
+
+            if (dist > 2) {
+                if (state.getTimestamp() - lastSurfacePositions.get(src).getTimestamp() > 10) {
+                    try {
                         navError.write(state.getTimestampMillis() + "," + src + ","
-                                + (state.getTimestamp() - lastPositions.get(src).getTimestamp()) + ","
-                                + cur.getHorizontalDistanceInMeters(prev) + "\n");
+                                + (state.getTimestamp() - lastSurfacePositions.get(src).getTimestamp()) + ","
+                                + dist + "\n");
+                    } catch (Exception e) {
+                        e.printStackTrace();
                     }
-                } catch (Exception e) {
-                    e.printStackTrace();
                 }
+                lastSurfacePositions.put(src, state);
             }
         }
-        lastPositions.put(src, state);
     }
 
     public void Plan(JsonObject obj) {
