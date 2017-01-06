@@ -83,15 +83,19 @@ public class Json2Lsf implements LogProcessor {
         String src = platformNames.get(state.getSrc());
         
         if (state.getDepth() == 0) {
-            if (!lastSurfaceLocations.containsKey(src))
+            if (!lastSurfaceLocations.containsKey(src)) {
                 lastSurfaceLocations.put(src, state);
-            else if (state.getTimestamp() - lastSurfaceLocations.get(src).getTimestamp() > 5) {
+                return;
+            }
+            else if (state.getTimestamp() - lastSurfaceLocations.get(src).getTimestamp() < 0.5) {
                 LocationType prev = IMCUtils.getLocation(lastSurfaceLocations.get(src));
                 LocationType cur = IMCUtils.getLocation(state);
                 try {
-                    navError.write(state.getTimestampMillis() + "," + src + ","
+                    if (cur.getHorizontalDistanceInMeters(prev) > 1) {
+                        navError.write(state.getTimestampMillis() + "," + src + ","
                             + (state.getTimestamp() - lastSurfaceLocations.get(src).getTimestamp()) + ","
                             + cur.getHorizontalDistanceInMeters(prev) + "\n");
+                    }
                 }
                 catch (Exception e) {
                     e.printStackTrace();
