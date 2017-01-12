@@ -152,7 +152,6 @@ public class ParameterTableModel extends AbstractTableModel  {
             if (!oldValue.equals(itm.getValue())) {
                 ParameterExtended p = new ParameterExtended(updatedParam, Color.GREEN.darker());
                 modifiedParams.put(updatedParam.name, p);
-                editedComboBox.setSelectedItem(itm);
                 fireTableCellUpdated(rowIndex, columnIndex);
             }
             else {
@@ -178,6 +177,10 @@ public class ParameterTableModel extends AbstractTableModel  {
 
     public Object getValue(int rowIndex, boolean selectItem) {
         Parameter param = params.get(rowIndex);
+        if (modifiedParams.containsKey(param.name)) {
+            ParameterExtended extParam = modifiedParams.get(param.name);
+            param = extParam.getParameter();
+        }
 
         if (param == null)
             return null;
