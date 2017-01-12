@@ -45,7 +45,9 @@ import java.util.HashMap;
 import java.util.List;
 
 import javax.swing.BorderFactory;
+import javax.swing.DefaultCellEditor;
 import javax.swing.JButton;
+import javax.swing.JComboBox;
 import javax.swing.JFileChooser;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
@@ -60,8 +62,10 @@ import javax.swing.SwingWorker;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import javax.swing.table.DefaultTableCellRenderer;
+import javax.swing.table.TableCellEditor;
 import javax.swing.table.TableRowSorter;
 
+import org.apache.commons.lang3.text.WordUtils;
 import org.jdesktop.swingx.JXStatusBar;
 
 import com.MAVLink.Messages.MAVLinkMessage;
@@ -78,6 +82,7 @@ import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.plugins.PluginDescription;
 import pt.lsts.neptus.plugins.Popup;
 import pt.lsts.neptus.plugins.Popup.POSITION;
+import pt.lsts.neptus.plugins.uavparameters.ParameterMetadata.Item;
 import pt.lsts.neptus.plugins.uavparameters.connection.MAVLinkConnection;
 import pt.lsts.neptus.plugins.uavparameters.connection.MAVLinkConnectionListener;
 import pt.lsts.neptus.util.GuiUtils;
@@ -145,8 +150,24 @@ public class ParameterManager extends ConsolePanel implements MAVLinkConnectionL
         setBtnsEnabled(false);
 
         model = new ParameterTableModel(parameterList);
-        table = new JTable(model);
-        
+        table = new JTable(model) {
+            public TableCellEditor getCellEditor(int row, int column) {
+                int modelColumn = convertColumnIndexToModel( column );
+                int rowIndex = convertRowIndexToModel(row);
+                Object value = model.getValue(rowIndex, true);
+
+                if (modelColumn == ParameterTableModel.COLUMN_VALUE && value instanceof JComboBox) {
+                    model.setEditedComboBox((JComboBox<Item>) value);
+
+                    DefaultCellEditor editor = new DefaultCellEditor(model.getEditedComboBox());
+                    editor.setClickCountToStart(2);
+                    return editor;
+                }
+                else
+                    return super.getCellEditor(rowIndex, column);
+            }
+        };
+
         sorter = new TableRowSorter<ParameterTableModel>(model);
         table.setRowSorter(sorter);
 
@@ -198,7 +219,7 @@ public class ParameterManager extends ConsolePanel implements MAVLinkConnectionL
         }
         sorter.setRowFilter(rf);
     }
-    
+
     private boolean updateParameters() {
         SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>() {
 
@@ -227,7 +248,7 @@ public class ParameterManager extends ConsolePanel implements MAVLinkConnectionL
                     setActivity("Failed to update "+model.getModifiedParams().size() + " parameters...", StatusLed.LEVEL_2);
                     for (String n : model.getModifiedParams().keySet())
                         model.updateModified(n, Color.RED.darker());
-                    
+
                 }
                 requestingWriting = false;
 
@@ -314,11 +335,11 @@ public class ParameterManager extends ConsolePanel implements MAVLinkConnectionL
             public void actionPerformed(ActionEvent e) {
                 if (parameterList.isEmpty())
                     return;
-                
+
                 writer = new ParameterWriter(parameterList);
                 String path = System.getProperty("user.home");
                 JFileChooser fc = GuiUtils.getFileChooser(path, "", ".param");
-                
+
                 if (fc.showOpenDialog(ParameterManager.this) == JFileChooser.APPROVE_OPTION) {
                     boolean saved = writer.saveParametersToFile(fc.getSelectedFile().getPath());
                     if (saved)
@@ -400,7 +421,7 @@ public class ParameterManager extends ConsolePanel implements MAVLinkConnectionL
                     if (address != null && port != -1) {
                         beginMavConnection(address, 9999, system);
                         setActivity("Connecting...", StatusLed.LEVEL_1, "Connecting!");
-                        
+
                     }
 
                 } 
@@ -429,30 +450,35 @@ public class ParameterManager extends ConsolePanel implements MAVLinkConnectionL
                 super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
 
                 setForeground(Color.WHITE);
-                String param = model.getValueAt(table.convertRowIndexToModel(row), 0).toString();
-        
+                String param = model.getValueAt(table.convertRowIndexToModel(row), ParameterTableModel.COLUMN_PARAM_NAME).toString();
+
                 setBackground(model.getRowColor(row, column, param));
+
                 JLabel c = (JLabel)super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
-                
-                //TODO : trim tooltip text for long description texts. <html> use <br>
-                c.setToolTipText((String) model.getValueAt(table.convertRowIndexToModel(row), ParameterTableModel.COLUMN_DESCRIPTION));
-                
+                if (column == ParameterTableModel.COLUMN_DESCRIPTION) {
+                    String desc = (String) model.getValueAt(table.convertRowIndexToModel(row), ParameterTableModel.COLUMN_DESCRIPTION);
+
+                    c.setToolTipText("<html>"+ WordUtils.wrap(desc, 40, "<br>", false) + "</html>");
+                }
+                else
+                    c.setToolTipText(null);
+
                 return this;
             }
         });
 
         findTxtField.getDocument().addDocumentListener(new DocumentListener() {
-            
+
             @Override
             public void removeUpdate(DocumentEvent e) {
                 applyFilter();
             }
-            
+
             @Override
             public void insertUpdate(DocumentEvent e) {
                 applyFilter();
             }
-            
+
             @Override
             public void changedUpdate(DocumentEvent e) {
                 applyFilter();
@@ -505,11 +531,21 @@ public class ParameterManager extends ConsolePanel implements MAVLinkConnectionL
         getStatusLed().setLevel(level, tooltip);
     }
 
+    /**
+     * Updates table model, notifying all listeners that table cell values 
+     * in the table's rows may have changed
+     * 
+     * @param reParseMetadata : if true forces a metadata reparse, 
+     *        else use same previously reparsed metadata
+     */
     private void updateTable(boolean reParseMetadata) {
-        
+
         model.updateParamList(parameterList, mavlink.getSystemType(), reParseMetadata);
     }
 
+    /**
+     * Request parameter list and updates table accordingly
+     */
     private void requestParameters() {
         expectedParams = 0;
         parameters.clear();
@@ -522,12 +558,14 @@ public class ParameterManager extends ConsolePanel implements MAVLinkConnectionL
             MAVLinkParameters.requestParametersList(mavlink);
     }
 
-    private boolean processMessage(MAVLinkMessage msg) {
-        if (msg.msgid == msg_param_value.MAVLINK_MSG_ID_PARAM_VALUE) {
+    /**
+     * Validate incoming MavLinkMessage and process if it's a parameter message
+     * @param msg the message to be validated/processed
+     */
+
+    private void validateMessage(MAVLinkMessage msg) {
+        if (msg.msgid == msg_param_value.MAVLINK_MSG_ID_PARAM_VALUE) 
             processReceivedParam((msg_param_value) msg);
-            return true;
-        }
-        return false;
     }
 
     private void processReceivedParam(msg_param_value m_value) {
@@ -588,7 +626,7 @@ public class ParameterManager extends ConsolePanel implements MAVLinkConnectionL
 
         setBtnsEnabled(true);
 
-        processMessage(msg);
+        validateMessage(msg);
     }
 
     public List<Parameter> getParametersList(){

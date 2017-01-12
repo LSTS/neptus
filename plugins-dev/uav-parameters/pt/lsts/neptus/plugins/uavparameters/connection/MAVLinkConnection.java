@@ -358,9 +358,9 @@ public class MAVLinkConnection {
 
     public String getSystemType() {
         String type = null;
-        if (sysType == MAV_TYPE.MAV_TYPE_FIXED_WING) {
+        if (sysType == MAV_TYPE.MAV_TYPE_FIXED_WING)
             type = MAVLinkConnection.ARDUPLANE;
-        } else 
+        else 
             if (sysType == MAV_TYPE.MAV_TYPE_QUADROTOR || 
                 sysType == MAV_TYPE.MAV_TYPE_HEXAROTOR || 
                 sysType == MAV_TYPE.MAV_TYPE_OCTOROTOR) {

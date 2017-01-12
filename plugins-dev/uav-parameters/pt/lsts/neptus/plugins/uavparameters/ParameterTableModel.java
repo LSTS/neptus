@@ -60,6 +60,7 @@ public class ParameterTableModel extends AbstractTableModel  {
     public static final int COLUMN_UNITS = 2;
     public static final int COLUMN_OPTIONS = 3;
     public static final int COLUMN_DESCRIPTION = 4;
+    private JComboBox<Item> editedComboBox = new JComboBox<>();
 
     public ParameterTableModel(ArrayList<Parameter> params) {
         this.params = params;
@@ -100,22 +101,6 @@ public class ParameterTableModel extends AbstractTableModel  {
         else
             return false;
     }
-    @Override
-    public void setValueAt(Object value, int rowIndex, int columnIndex) {
-        if (columnIndex != COLUMN_VALUE)
-            return;
-
-        Parameter param = params.get(rowIndex);
-        String oldValue = param.getValue();
-        param.value = Double.parseDouble((String) value);
-
-        if (!oldValue.equals(value)) {
-            ParameterExtended p = new ParameterExtended(param, Color.GREEN.darker());
-            modifiedParams.put(param.name, p);
-
-            fireTableCellUpdated(rowIndex, columnIndex);
-        }
-    }
 
     public void clearModifiedParams() {
         modifiedParams.clear();
@@ -149,7 +134,54 @@ public class ParameterTableModel extends AbstractTableModel  {
         return metadata.get(param) == null ? "" : metadata.get(param).getRange();
     }
 
-    private Object getValue(Parameter param) {
+    @Override
+    public void setValueAt(Object value, int rowIndex, int columnIndex) {
+        if (columnIndex != COLUMN_VALUE)
+            return;
+
+        Parameter param = params.get(rowIndex);
+        String oldValue = param.getValue();
+
+        Object v = getValue(rowIndex, false);
+
+        if (v instanceof JComboBox) {
+            Item itm = (Item) editedComboBox.getSelectedItem();
+            Parameter updatedParam = new Parameter(param.name, param.value, param.type);
+            updatedParam.value = Double.parseDouble((String) itm.getValue());
+
+            if (!oldValue.equals(itm.getValue())) {
+                ParameterExtended p = new ParameterExtended(updatedParam, Color.GREEN.darker());
+                modifiedParams.put(updatedParam.name, p);
+                editedComboBox.setSelectedItem(itm);
+                fireTableCellUpdated(rowIndex, columnIndex);
+            }
+            else {
+                modifiedParams.remove(updatedParam.name);
+            }
+
+            return;
+        }
+        else
+            if (v instanceof String) {
+                param.value = Double.parseDouble((String) value);
+
+                if (!oldValue.equals(value)) {
+                    ParameterExtended p = new ParameterExtended(param, Color.GREEN.darker());
+                    modifiedParams.put(param.name, p);
+
+                    fireTableCellUpdated(rowIndex, columnIndex);
+                }
+            }
+            else
+                return;
+    }
+
+    public Object getValue(int rowIndex, boolean selectItem) {
+        Parameter param = params.get(rowIndex);
+
+        if (param == null)
+            return null;
+
         if (metadata == null)
             return param.getValue();
 
@@ -158,18 +190,17 @@ public class ParameterTableModel extends AbstractTableModel  {
             return param.getValue();
 
         if (meta.getBitmask() == null && !meta.getValues().isEmpty()) {
-            System.out.println(meta.getBitmask() + " " + meta.getValues().toString());
-
-            JComboBox<Item> valuesComboBox = new JComboBox<Item>();
+            JComboBox<Item> value = new JComboBox<Item>();
             for (Entry<String, String> e : meta.getValues().entrySet()) {
                 Item item = meta.new Item(e.getKey(), e.getValue());
-                valuesComboBox.addItem(item);
+                value.addItem(item);
 
-                if (param.getValue().equalsIgnoreCase(e.getKey()))
-                    valuesComboBox.setSelectedItem(item);
+                if (param.getValue().equalsIgnoreCase(e.getKey()) && selectItem) {
+                    value.setSelectedItem(item);
+                }
             }
 
-            return valuesComboBox;
+            return (JComboBox<Item>) value;
         }
 
         if (meta.getBitmask() != null) {
@@ -199,6 +230,7 @@ public class ParameterTableModel extends AbstractTableModel  {
                     break;
                 }
                 returnValue = param.getValue();
+
                 break;
             case COLUMN_UNITS:
                 returnValue = getUnits(param.name);
@@ -218,20 +250,10 @@ public class ParameterTableModel extends AbstractTableModel  {
 
     @Override
     public Class<?> getColumnClass(int columnIndex) {
-        switch (columnIndex) {
-            case 0:
-                return String.class;
-            case 1:
-                return String.class;
-            case 2:
-                return String.class;
-            case 3:
-                return String.class;
-            case 4:
-                return String.class;
-            default:
-                return Object.class;
-        }
+        if (getValueAt(0, columnIndex) != null)
+            return getValueAt(0, columnIndex).getClass();
+        else
+            return Object.class;
     }
 
     public void updateParamList(ArrayList<Parameter> newParamList, String type, boolean reParseMetadata) {
@@ -239,6 +261,8 @@ public class ParameterTableModel extends AbstractTableModel  {
 
         if (reParseMetadata && type != null) {
             try {
+                //FIXME
+                System.out.println("Reparsing metadata...");
                 paramMetadataXML = new File(getClass().getResource("ParameterMetaDataV2.xml").toURI());
                 metadata = ParameterMetadataMapReader.parseMetadata(paramMetadataXML, type);
             }
@@ -332,5 +356,16 @@ public class ParameterTableModel extends AbstractTableModel  {
     public void updateModified(String paramName, Color color) {
         modifiedParams.get(paramName).setColor(color);
         fireTableDataChanged();
+    }
+
+    /**
+     * @return
+     */
+    public JComboBox<Item> getEditedComboBox() {
+        return editedComboBox;
+    }
+
+    public void setEditedComboBox(JComboBox<Item> c) {
+        editedComboBox = c;
     }
 }
