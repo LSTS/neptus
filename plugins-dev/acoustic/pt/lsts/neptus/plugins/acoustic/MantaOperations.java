@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2016 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2017 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -13,8 +13,8 @@
  * written agreement between you and Universidade do Porto. For licensing
  * terms, conditions, and further information contact lsts@fe.up.pt.
  *
- * European Union Public Licence - EUPL v.1.1 Usage
- * Alternatively, this file may be used under the terms of the EUPL,
+ * Modified European Union Public Licence - EUPL v.1.1 Usage
+ * Alternatively, this file may be used under the terms of the Modified EUPL,
  * Version 1.1 only (the "Licence"), appearing in the file LICENCE.md
  * included in the packaging of this file. You may not use this work
  * except in compliance with the Licence. Unless required by applicable
@@ -22,7 +22,8 @@
  * distributed on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF
  * ANY KIND, either express or implied. See the Licence for the specific
  * language governing permissions and limitations at
- * http://ec.europa.eu/idabc/eupl.html.
+ * https://github.com/LSTS/neptus/blob/develop/LICENSE.md
+ * and http://ec.europa.eu/idabc/eupl.html.
  *
  * For more information please see <http://lsts.fe.up.pt/neptus>.
  *
@@ -258,12 +259,13 @@ public class MantaOperations extends ConsolePanel implements ConfigurationListen
 
         if (successCount > 0) {
             bottomPane.setText(I18n.textf(
-                    "Request to send message to %systemName via %systemCount acoustic gateways", selectedSystem,
+                    "Request to send message to %systemName via %systemCount acoustic gateways", destination,
                     successCount));
             return true;
         }
         else {
-            post(Notification.error(I18n.text("Send message"), I18n.text("Unable to send message to selected system"))
+            post(Notification.error(I18n.text("Send message"), 
+                    I18n.textf("Unable to send message to system %systemName", destination))
                     .src(I18n.text("Console")));
             return false;
         }
@@ -396,13 +398,12 @@ public class MantaOperations extends ConsolePanel implements ConfigurationListen
                             return;
                         NeptusLog.pub().warn("Start plan " + option.toString());
 
-                        ImcSystem[] sysLst = ImcSystemsHolder.lookupSystemByService("acoustic/operation",
-                                SystemTypeEnum.ALL, true);
+                        ImcSystem[] sysLst = gateways();
 
                         if (sysLst.length == 0) {
                             post(Notification
                                     .error(I18n.text("Start Plan"),
-                                            I18n.text("No acoustic device is capable of sending this request"))
+                                    I18n.textf("No acoustic device is capable of sending this request to %systemName", choice.getId()))
                                     .src(I18n.text("Console")));
                             return;
                         }
@@ -430,13 +431,13 @@ public class MantaOperations extends ConsolePanel implements ConfigurationListen
                         if (successCount == 0) {
                             post(Notification
                                     .error(I18n.text("Error sending start plan"),
-                                            I18n.text("No system was able to send the message"))
+                                    I18n.textf("No system was able to send the message to %systemName", choice.getId()))
                                     .src(I18n.text("Console")));
                         }
                     }
                 });
 
-        ImcMsgManager.getManager().addListener(this);
+        getConsole().getImcMsgManager().addListener(this);
 
         JPanel ctrlPanel = new JPanel();
         ctrlPanel.setLayout(new GridLayout(0, 1, 2, 2));
@@ -860,7 +861,7 @@ public class MantaOperations extends ConsolePanel implements ConfigurationListen
      */
     @Override
     public void cleanSubPanel() {
-        ImcMsgManager.getManager().removeListener(this);
+        getConsole().getImcMsgManager().removeListener(this);
         removeMenuItem(I18n.text("Tools") + ">" + I18n.text("Send Plan via Acoustic Modem"));
         removeMenuItem(I18n.text("Tools") + ">" + I18n.text("Start Plan via Acoustic Modem"));
     }

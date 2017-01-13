@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2016 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2017 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -13,8 +13,8 @@
  * written agreement between you and Universidade do Porto. For licensing
  * terms, conditions, and further information contact lsts@fe.up.pt.
  *
- * European Union Public Licence - EUPL v.1.1 Usage
- * Alternatively, this file may be used under the terms of the EUPL,
+ * Modified European Union Public Licence - EUPL v.1.1 Usage
+ * Alternatively, this file may be used under the terms of the Modified EUPL,
  * Version 1.1 only (the "Licence"), appearing in the file LICENCE.md
  * included in the packaging of this file. You may not use this work
  * except in compliance with the Licence. Unless required by applicable
@@ -22,7 +22,8 @@
  * distributed on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF
  * ANY KIND, either express or implied. See the Licence for the specific
  * language governing permissions and limitations at
- * http://ec.europa.eu/idabc/eupl.html.
+ * https://github.com/LSTS/neptus/blob/develop/LICENSE.md
+ * and http://ec.europa.eu/idabc/eupl.html.
  *
  * For more information please see <http://lsts.fe.up.pt/neptus>.
  *
@@ -203,22 +204,6 @@ public class ColorUtils {
         return sum;
     }
 
-    private static double worstFit(Color[] colors) {
-        float worst = 8888;
-        float[] a = new float[3], b = new float[3];
-        for (int i = 1; i < colors.length; i++) {
-            colors[i].getColorComponents(a);
-            for (int j = 0; j < i; j++) {
-                colors[j].getColorComponents(b);
-                float dist = sqrdist(a, b);
-                if (dist < worst) {
-                    worst = dist;
-                }
-            }
-        }
-        return Math.sqrt(worst);
-    }
-
     private static float[] randYUVBetterThan(float bestDistSqrd, float minComponent, float maxComponent, float[][] in) {
         for (int attempt = 1; attempt < 100 * in.length; attempt++) {
             float[] candidate = randYUVinRGBRange(minComponent, maxComponent);
@@ -233,6 +218,9 @@ public class ColorUtils {
     }
 
     public static void main(String[] args) {
+        
+        System.out.println(getHtmlColor(Color.red));
+        System.out.println(getHtmlColor(Color.cyan.darker()));
         JPanel t1 = new JPanel();
         // t1.setLayout(new BoxLayout(t1, BoxLayout.PAGE_AXIS));
 
@@ -246,5 +234,9 @@ public class ColorUtils {
         }
 
         GuiUtils.testFrame(t1);
+    }
+    
+    public static String getHtmlColor(Color c) {
+        return String.format("#%02X%02X%02X", c.getRed(), c.getGreen(), c.getBlue());
     }
 }

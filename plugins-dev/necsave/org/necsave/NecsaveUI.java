@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2016 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2017 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -13,8 +13,8 @@
  * written agreement between you and Universidade do Porto. For licensing
  * terms, conditions, and further information contact lsts@fe.up.pt.
  *
- * European Union Public Licence - EUPL v.1.1 Usage
- * Alternatively, this file may be used under the terms of the EUPL,
+ * Modified European Union Public Licence - EUPL v.1.1 Usage
+ * Alternatively, this file may be used under the terms of the Modified EUPL,
  * Version 1.1 only (the "Licence"), appearing in the file LICENSE.md
  * included in the packaging of this file. You may not use this work
  * except in compliance with the Licence. Unless required by applicable
@@ -22,7 +22,8 @@
  * distributed on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF
  * ANY KIND, either express or implied. See the Licence for the specific
  * language governing permissions and limitations at
- * http://ec.europa.eu/idabc/eupl.html.
+ * https://github.com/LSTS/neptus/blob/develop/LICENSE.md
+ * and http://ec.europa.eu/idabc/eupl.html.
  *
  * For more information please see <http://lsts.fe.up.pt/neptus>.
  *
@@ -78,6 +79,7 @@ import info.necsave.msgs.Coordinate.TEMPORAL;
 import info.necsave.msgs.Formation;
 import info.necsave.msgs.Header.MEDIUM;
 import info.necsave.msgs.Kinematics;
+import info.necsave.msgs.MeshState;
 import info.necsave.msgs.MissionArea;
 import info.necsave.msgs.MissionCompleted;
 import info.necsave.msgs.MissionGoal;
@@ -156,6 +158,7 @@ public class NecsaveUI extends ConsoleLayer {
     private LocationType corner = null; 
     private double width, height;
     private ConsoleInteraction interaction;
+    private MissionArea sentArea = null;
     
     @Override
     public void initLayer() {
@@ -342,7 +345,8 @@ public class NecsaveUI extends ConsoleLayer {
             area.setLength(elem.getLength());
 
             try {
-                sendMessage(new MissionArea(area));                    
+                this.sentArea = new MissionArea(area);
+                sendMessage(sentArea);                    
             }
             catch (Exception ex) {
                 GuiUtils.errorMessage(getConsole(), ex);
@@ -502,6 +506,7 @@ public class NecsaveUI extends ConsoleLayer {
                     else if (zUnits.equals(Z_UNITS.DEPTH))
                         depth = (float) manLoc.getZ();
                     
+                    manLoc = manLoc.getNewAbsoluteLatLonDepth();
                     Coordinate co = new Coordinate(manLoc.getLatitudeRads(), manLoc.getLongitudeRads(), alt, depth, 0, TEMPORAL.FALSE);
                     points_list.add(co);
                 }
@@ -729,8 +734,8 @@ public class NecsaveUI extends ConsoleLayer {
 
     @Subscribe
     public void on(PlatformInfo msg) {
-        platfInfos.put(msg.getSrc(), msg);
-        platformNames.put(msg.getSrc(), msg.getPlatformName());
+        platfInfos.put(msg.getPlatformId(), msg);
+        platformNames.put(msg.getPlatformId(), msg.getPlatformName());
     }
 
     @Subscribe
@@ -757,6 +762,13 @@ public class NecsaveUI extends ConsoleLayer {
     @Subscribe
     public void on(Plan msg) {
         this.plan = msg;
+    }
+    
+    @Subscribe
+    public void on(MeshState msg) {
+        MeshStateWrapper wrapper = new MeshStateWrapper(msg);
+        if (sentArea != null)
+            this.plan = wrapper.generatePlan(sentArea, 3);
     }
     
     private boolean isMaster(int platformId) {
@@ -914,6 +926,7 @@ public class NecsaveUI extends ConsoleLayer {
             if (b.getMgid() == BehaviorPatternFormation.ID_STATIC) {
                 BehaviorPatternFormation form = (BehaviorPatternFormation) b;
                 Formation f = form.getFormation();
+                @SuppressWarnings("unchecked")
                 Vector<PlatformFollower> a = (Vector<PlatformFollower>) f.getValue("followers_list");
                 followers.addAll(a);
                 break;

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2016 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2017 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -13,8 +13,8 @@
  * written agreement between you and Universidade do Porto. For licensing
  * terms, conditions, and further information contact lsts@fe.up.pt.
  *
- * European Union Public Licence - EUPL v.1.1 Usage
- * Alternatively, this file may be used under the terms of the EUPL,
+ * Modified European Union Public Licence - EUPL v.1.1 Usage
+ * Alternatively, this file may be used under the terms of the Modified EUPL,
  * Version 1.1 only (the "Licence"), appearing in the file LICENCE.md
  * included in the packaging of this file. You may not use this work
  * except in compliance with the Licence. Unless required by applicable
@@ -22,7 +22,8 @@
  * distributed on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF
  * ANY KIND, either express or implied. See the Licence for the specific
  * language governing permissions and limitations at
- * http://ec.europa.eu/idabc/eupl.html.
+ * https://github.com/LSTS/neptus/blob/develop/LICENSE.md
+ * and http://ec.europa.eu/idabc/eupl.html.
  *
  * For more information please see <http://lsts.fe.up.pt/neptus>.
  *
@@ -32,6 +33,7 @@
 package pt.lsts.neptus.params;
 
 import java.io.File;
+import java.io.FilenameFilter;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -64,6 +66,7 @@ import pt.lsts.neptus.params.renderer.BooleanSystemPropertyRenderer;
 import pt.lsts.neptus.params.renderer.I18nSystemPropertyRenderer;
 import pt.lsts.neptus.params.renderer.SystemPropertyRenderer;
 import pt.lsts.neptus.util.FileUtil;
+import pt.lsts.neptus.util.conf.ConfigFetch;
 import pt.lsts.neptus.util.conf.GeneralPreferences;
 
 /**
@@ -72,7 +75,7 @@ import pt.lsts.neptus.util.conf.GeneralPreferences;
  */
 public class ConfigurationManager {
 
-    public static final String CONF_DIR = "conf/params/";
+    private static final String CONF_DIR = "/params/";
 
     private HashMap<String, HashMap<String, SystemProperty>> map = new LinkedHashMap<String, HashMap<String, SystemProperty>>();
     private List<String> sections = new ArrayList<String>();
@@ -113,9 +116,9 @@ public class ConfigurationManager {
     private void loadConfigurations() {
         String lang = GeneralPreferences.language;
 
-        File fx = new File(CONF_DIR);
+        File fx = new File(ConfigFetch.getConfFolder() + CONF_DIR);
         if (fx.exists()) {
-            for(File f : fx.listFiles()) {
+            for(File f : fx.listFiles(getFileFilterForConfigurationFiles())) {
                 if (!f.isFile())
                     continue;
                 String fname = f.getName();
@@ -134,6 +137,27 @@ public class ConfigurationManager {
                }
             }
         }
+    }
+
+    /**
+     * @return
+     */
+    private FilenameFilter getFileFilterForConfigurationFiles() {
+        return new FilenameFilter() {
+            @Override
+            public boolean accept(File dir, String name) {
+                if (name == null || name.isEmpty())
+                    return false;
+                
+                if (name.endsWith("~") || name.startsWith("#"))
+                    return false;
+                
+                if (name.toLowerCase().endsWith(".xml"))
+                    return true;
+                
+                return false;
+            }
+        };
     }
 
     private String getTagContents(Element root, String name) {

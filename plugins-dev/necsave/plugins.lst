@@ -1,5 +1,9 @@
 # Active plug-ins
 org.necsave.NecsaveUI
 org.necsave.MraJsonExporter
+org.necsave.MraDistancesPlot
 org.necsave.sink.NecsaveSink
 org.necsave.sink.MeshStatePanel
+org.necsave.NecsaveCommunicationsLayer
+org.necsave.MraPositionAccuracyPlot
+org.necsave.MraConsumptionPlot

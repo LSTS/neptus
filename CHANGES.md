@@ -3,6 +3,10 @@ Changes
 
 Neptus 2016.10.0 (04-10-2016)
 ----------------
+ * MapEditor: You need now to double-click on the object to drag/rotate on the map, otherwise you will be able to drag the map.
+
+Neptus 2016.10.0 (04-10-2016)
+----------------
  * IMC: Updated IMC (b3d1e8f) and IMCJava (f4669d3) (v5.4.11.x).
  * |Too many changes to list here, check git log.|
 

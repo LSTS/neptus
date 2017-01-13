@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2016 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2017 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -13,8 +13,8 @@
  * written agreement between you and Universidade do Porto. For licensing
  * terms, conditions, and further information contact lsts@fe.up.pt.
  *
- * European Union Public Licence - EUPL v.1.1 Usage
- * Alternatively, this file may be used under the terms of the EUPL,
+ * Modified European Union Public Licence - EUPL v.1.1 Usage
+ * Alternatively, this file may be used under the terms of the Modified EUPL,
  * Version 1.1 only (the "Licence"), appearing in the file LICENSE.md
  * included in the packaging of this file. You may not use this work
  * except in compliance with the Licence. Unless required by applicable
@@ -22,7 +22,8 @@
  * distributed on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF
  * ANY KIND, either express or implied. See the Licence for the specific
  * language governing permissions and limitations at
- * http://ec.europa.eu/idabc/eupl.html.
+ * https://github.com/LSTS/neptus/blob/develop/LICENSE.md
+ * and http://ec.europa.eu/idabc/eupl.html.
  *
  * For more information please see <http://lsts.fe.up.pt/neptus>.
  *
@@ -39,6 +40,8 @@ import java.util.LinkedHashMap;
 
 import javax.swing.JEditorPane;
 import javax.swing.JScrollPane;
+
+import org.necsave.MeshStateWrapper;
 
 import com.google.common.eventbus.Subscribe;
 
@@ -61,7 +64,7 @@ public class MeshStatePanel extends ConsolePanel {
     private static final long serialVersionUID = 7428286049668789699L;
     private LinkedHashMap<Integer, String> platformNames = new LinkedHashMap<>();
     private JEditorPane editor = new JEditorPane("text/html", "");
-    private LinkedHashMap<Integer, byte[]> states = new LinkedHashMap<>();
+    private LinkedHashMap<Integer, MeshState> states = new LinkedHashMap<>();
 
     /**
      * @param console
@@ -91,7 +94,7 @@ public class MeshStatePanel extends ConsolePanel {
     @Subscribe
     public void on(MeshState state) {
         try {
-        states.put(state.getSrc(), state.getState());
+        states.put(state.getSrc(), state);
 
         updateHtml();
         }
@@ -109,18 +112,14 @@ public class MeshStatePanel extends ConsolePanel {
         
         for (int p : platforms) {
             if (states.containsKey(p)) {
-                byte[] state = states.get(p);
+                MeshState state = states.get(p);
                 String name = nameOf(p);
                 html.append("<strong>" + name + ":</strong><blockquote>");
-                for (int i = 0; i < state.length; i++) {
-                    html.append(" " + state[i] + " ");                    
-                }
+                html.append(new MeshStateWrapper(state).toHtml(platformNames));
                 html.append("</blockquote>\n");
                 html.append("<hr/>\n");
             }
         }
-  
-
         editor.setText(html.toString());
     }
 
