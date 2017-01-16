@@ -179,7 +179,7 @@ public class ParameterTableModel extends AbstractTableModel  {
             updatedParam.value = Double.parseDouble((String) itm.getValue());
 
             if (!oldValue.equals(itm.getValue())) {
-                ParameterExtended p = new ParameterExtended(updatedParam, Color.GREEN.darker());
+                ParameterExtended p = new ParameterExtended(updatedParam, Color.RED.darker());
                 modifiedParams.put(updatedParam.name, p);
                 fireTableCellUpdated(rowIndex, columnIndex);
             }
@@ -194,7 +194,7 @@ public class ParameterTableModel extends AbstractTableModel  {
                 param.value = Double.parseDouble((String) value);
 
                 if (!oldValue.equals(value)) {
-                    ParameterExtended p = new ParameterExtended(param, Color.GREEN.darker());
+                    ParameterExtended p = new ParameterExtended(param, Color.RED.darker());
                     modifiedParams.put(param.name, p);
 
                     fireTableCellUpdated(rowIndex, columnIndex);
