@@ -134,6 +134,35 @@ public class ParameterTableModel extends AbstractTableModel  {
         return metadata.get(param) == null ? "" : metadata.get(param).getRange();
     }
 
+    private String getMetaValue(Parameter param) {
+        if (metadata == null) {
+            if (modifiedParams.containsKey(param.name))
+                return modifiedParams.get(param.name).getParameter().getValue();
+            else
+                return param.getValue();
+        }
+
+        ParameterMetadata info = metadata.get(param.name);
+        if (info == null) {
+            if (modifiedParams.containsKey(param.name))
+                return modifiedParams.get(param.name).getParameter().getValue();
+            else
+                return param.getValue();
+        }
+
+        if (info.getValues().isEmpty()) {
+            if (modifiedParams.containsKey(param.name))
+                return modifiedParams.get(param.name).getParameter().getValue();
+            else
+                return param.getValue();
+        }
+
+        if (modifiedParams.containsKey(param.name))
+            return info.getValues().get(modifiedParams.get(param.name).getParameter().getValue());
+        else
+            return info.getValues().get(param.getValue());
+    }
+
     @Override
     public void setValueAt(Object value, int rowIndex, int columnIndex) {
         if (columnIndex != COLUMN_VALUE)
@@ -228,12 +257,7 @@ public class ParameterTableModel extends AbstractTableModel  {
                 returnValue = param.name;
                 break;
             case COLUMN_VALUE:
-                if (modifiedParams.containsKey(param.name)) {
-                    returnValue = modifiedParams.get(param.name).getParameter().getValue();
-                    break;
-                }
-                returnValue = param.getValue();
-
+                returnValue = getMetaValue(param);
                 break;
             case COLUMN_UNITS:
                 returnValue = getUnits(param.name);
