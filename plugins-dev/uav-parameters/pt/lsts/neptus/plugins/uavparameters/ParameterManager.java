@@ -158,9 +158,9 @@ public class ParameterManager extends ConsolePanel implements MAVLinkConnectionL
 
                 if (modelColumn == ParameterTableModel.COLUMN_VALUE && value instanceof JComboBox) {
                     model.setEditedComboBox((JComboBox<Item>) value);
-
                     DefaultCellEditor editor = new DefaultCellEditor(model.getEditedComboBox());
                     editor.setClickCountToStart(2);
+
                     return editor;
                 }
                 else
@@ -367,6 +367,8 @@ public class ParameterManager extends ConsolePanel implements MAVLinkConnectionL
                         model.updateParamList((ArrayList<Parameter>) reader.getParameters(), mavlink.getSystemType(), true);
                         setActivity("Loaded "+ reader.getParameters().size() +" parameters from file...", StatusLed.LEVEL_0, "Ok!");
                     }
+                    else
+                        setActivity("Failed to load "+ reader.getParameters().size() +" parameters from file...", StatusLed.LEVEL_0, "Fail!");
                 }
             }
         });
@@ -455,10 +457,13 @@ public class ParameterManager extends ConsolePanel implements MAVLinkConnectionL
                 setBackground(model.getRowColor(row, column, param));
 
                 JLabel c = (JLabel)super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
-                if (column == ParameterTableModel.COLUMN_DESCRIPTION) {
-                    String desc = (String) model.getValueAt(table.convertRowIndexToModel(row), ParameterTableModel.COLUMN_DESCRIPTION);
-
-                    c.setToolTipText("<html>"+ WordUtils.wrap(desc, 40, "<br>", false) + "</html>");
+                if (column == ParameterTableModel.COLUMN_DESCRIPTION || column == ParameterTableModel.COLUMN_UNITS) {
+                    String desc = (String) model.getValueAt(table.convertRowIndexToModel(row), column);
+                    
+                    if (desc != null) {
+                        if (!desc.isEmpty())
+                            c.setToolTipText("<html>"+ WordUtils.wrap(desc, 40, "<br>", false) + "</html>");
+                    }
                 }
                 else
                     c.setToolTipText(null);
