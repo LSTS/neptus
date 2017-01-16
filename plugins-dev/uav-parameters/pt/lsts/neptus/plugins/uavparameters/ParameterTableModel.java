@@ -55,12 +55,12 @@ public class ParameterTableModel extends AbstractTableModel  {
     private File paramMetadataXML = null;
     private ArrayList<Parameter> params = new ArrayList<>();
     private HashMap<String, ParameterExtended> modifiedParams = new HashMap<>();
+    private JComboBox<Item> editedComboBox = new JComboBox<>();
     public static final int COLUMN_PARAM_NAME = 0;
     public static final int COLUMN_VALUE = 1;
     public static final int COLUMN_UNITS = 2;
     public static final int COLUMN_OPTIONS = 3;
     public static final int COLUMN_DESCRIPTION = 4;
-    private JComboBox<Item> editedComboBox = new JComboBox<>();
 
     public ParameterTableModel(ArrayList<Parameter> params) {
         this.params = params;
@@ -106,13 +106,6 @@ public class ParameterTableModel extends AbstractTableModel  {
         modifiedParams.clear();
     }
 
-    private String getDisplayName(String param) {
-        if (metadata == null)
-            return "";
-
-        return metadata.get(param) == null ? "" : metadata.get(param).getDisplayName();
-    }
-
     private String getDescription(String param) {
         if (metadata == null)
             return "";
@@ -128,10 +121,12 @@ public class ParameterTableModel extends AbstractTableModel  {
     }
 
     private String getRange(String param) {
-        if (metadata == null)
+        if (metadata == null || metadata.get(param) == null || metadata.get(param).getRange() == null)
             return "";
-
-        return metadata.get(param) == null ? "" : metadata.get(param).getRange();
+        
+        String[] range = metadata.get(param).getRange().split(" ");
+        
+        return (range.length < 2) ? "" : (range[0] + " ... " + range[1]);
     }
 
     private String getMetaValue(Parameter param) {
