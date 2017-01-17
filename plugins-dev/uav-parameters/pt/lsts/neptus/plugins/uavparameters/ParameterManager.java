@@ -303,7 +303,7 @@ public class ParameterManager extends ConsolePanel implements MAVLinkConnectionL
 
                         if (isFinished){
                             setActivity("Parameters loaded successfully...", StatusLed.LEVEL_0);
-                            updateTable(false);
+                            updateTable();
                         }
                         else {
                             setActivity("Failed to load parameters...", StatusLed.LEVEL_0);
@@ -355,7 +355,7 @@ public class ParameterManager extends ConsolePanel implements MAVLinkConnectionL
                 parameterList.clear();
                 parameters.clear();
                 model.clearModifiedParams();
-                updateTable(false);
+                updateTable();
 
                 reader = new ParameterReader();
                 String path = System.getProperty("user.home");
@@ -364,7 +364,7 @@ public class ParameterManager extends ConsolePanel implements MAVLinkConnectionL
                 if (fc.showOpenDialog(ParameterManager.this) == JFileChooser.APPROVE_OPTION) {
                     boolean f = reader.openFile(fc.getSelectedFile().getPath());
                     if (f) {
-                        model.updateParamList((ArrayList<Parameter>) reader.getParameters(), mavlink.getSystemType(), true);
+                        model.updateParamList((ArrayList<Parameter>) reader.getParameters(), mavlink.getSystemType());
                         setActivity("Loaded "+ reader.getParameters().size() +" parameters from file...", StatusLed.LEVEL_0, "Ok!");
                     }
                     else
@@ -543,9 +543,9 @@ public class ParameterManager extends ConsolePanel implements MAVLinkConnectionL
      * @param reParseMetadata : if true forces a metadata reparse, 
      *        else use same previously reparsed metadata
      */
-    private void updateTable(boolean reParseMetadata) {
+    private void updateTable() {
 
-        model.updateParamList(parameterList, mavlink.getSystemType(), reParseMetadata);
+        model.updateParamList(parameterList, mavlink.getSystemType());
     }
 
     /**
@@ -557,7 +557,7 @@ public class ParameterManager extends ConsolePanel implements MAVLinkConnectionL
         parameterList.clear();
         model.clearModifiedParams();
         isFinished = false;
-        updateTable(true);
+        updateTable();
 
         if (mavlink != null)
             MAVLinkParameters.requestParametersList(mavlink);

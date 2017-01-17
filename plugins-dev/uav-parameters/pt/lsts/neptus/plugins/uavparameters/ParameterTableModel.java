@@ -56,6 +56,7 @@ public class ParameterTableModel extends AbstractTableModel  {
     private ArrayList<Parameter> params = new ArrayList<>();
     private HashMap<String, ParameterExtended> modifiedParams = new HashMap<>();
     private JComboBox<Item> editedComboBox = new JComboBox<>();
+    private String currType;
     public static final int COLUMN_PARAM_NAME = 0;
     public static final int COLUMN_VALUE = 1;
     public static final int COLUMN_UNITS = 2;
@@ -123,9 +124,9 @@ public class ParameterTableModel extends AbstractTableModel  {
     private String getRange(String param) {
         if (metadata == null || metadata.get(param) == null || metadata.get(param).getRange() == null)
             return "";
-        
+
         String[] range = metadata.get(param).getRange().split(" ");
-        
+
         return (range.length < 2) ? "" : (range[0] + " ... " + range[1]);
     }
 
@@ -278,21 +279,23 @@ public class ParameterTableModel extends AbstractTableModel  {
             return Object.class;
     }
 
-    public void updateParamList(ArrayList<Parameter> newParamList, String type, boolean reParseMetadata) {
+    public void updateParamList(ArrayList<Parameter> newParamList, String type) {
         this.params = newParamList;
 
-        if (reParseMetadata && type != null) {
-            try {
-                //FIXME
-                System.out.println("Reparsing metadata...");
-                paramMetadataXML = new File(getClass().getResource("ParameterMetaDataV2.xml").toURI());
-                metadata = ParameterMetadataMapReader.parseMetadata(paramMetadataXML, type);
-            }
-            catch (IOException e) {
-                e.printStackTrace();
-            }
-            catch (URISyntaxException e) {
-                e.printStackTrace();
+        if (type != null) {
+            if (!type.equals(currType)) {
+                try {
+                    System.out.println("reparsing...");
+                    paramMetadataXML = new File(getClass().getResource("ParameterMetaDataV2.xml").toURI());
+                    metadata = ParameterMetadataMapReader.parseMetadata(paramMetadataXML, type);
+                    currType = type;
+                }
+                catch (IOException e) {
+                    e.printStackTrace();
+                }
+                catch (URISyntaxException e) {
+                    e.printStackTrace();
+                }
             }
         }
 
