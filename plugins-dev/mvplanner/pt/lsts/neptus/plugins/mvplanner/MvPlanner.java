@@ -113,7 +113,7 @@ public class MvPlanner extends ConsoleInteraction implements Renderer2DPainter {
      */
     public PolygonType.Vertex intercepted(MouseEvent evt, StateRenderer2D source) {
         for (PolygonType.Vertex v : currentPolygon.getVertices()) {
-            Point2D pt = source.getScreenPosition(new LocationType(v.lat, v.lon));
+            Point2D pt = source.getScreenPosition(new LocationType(v.getLocation()));
             if (pt.distance(evt.getPoint()) < 5) {
                 return v;
             }
@@ -143,13 +143,11 @@ public class MvPlanner extends ConsoleInteraction implements Renderer2DPainter {
         JPopupMenu popup = new JPopupMenu();
         if (v != null) {
             popup.add(I18n.text("Edit location")).addActionListener(e -> {
-                LocationType l = new LocationType(v.lat, v.lon);
+                LocationType l = new LocationType(v.getLocation());
                 LocationType newLoc = LocationPanel.showLocationDialog(source, I18n.text("Edit Vertex Location"), l,
                         getConsole().getMission(), true);
                 if (newLoc != null) {
-                    newLoc.convertToAbsoluteLatLonDepth();
-                    v.lat = newLoc.getLatitudeDegs();
-                    v.lon = newLoc.getLongitudeDegs();
+                    v.setLocation(new LocationType(newLoc));
                     currentPolygon.recomputePath();
                 }
                 source.repaint();
@@ -224,9 +222,7 @@ public class MvPlanner extends ConsoleInteraction implements Renderer2DPainter {
         if (vertex == null)
             super.mouseDragged(event, source);
         else {
-            LocationType loc = source.getRealWorldLocation(event.getPoint());
-            vertex.lat = loc.getLatitudeDegs();
-            vertex.lon = loc.getLongitudeDegs();
+            vertex.setLocation(source.getRealWorldLocation(event.getPoint()));
             currentPolygon.recomputePath();
         }
     }
@@ -251,7 +247,7 @@ public class MvPlanner extends ConsoleInteraction implements Renderer2DPainter {
         g.setTransform(source.getIdentity());
         paint(g, source);
         currentPolygon.getVertices().forEach(v -> {
-            Point2D pt = source.getScreenPosition(new LocationType(v.lat, v.lon));
+            Point2D pt = source.getScreenPosition(new LocationType(v.getLocation()));
             Ellipse2D ellis = new Ellipse2D.Double(pt.getX() - 5, pt.getY() - 5, 10, 10);
             Color c = Color.yellow;
             g.setColor(new Color(255 - c.getRed(), 255 - c.getGreen(), 255 - c.getBlue(), 200));

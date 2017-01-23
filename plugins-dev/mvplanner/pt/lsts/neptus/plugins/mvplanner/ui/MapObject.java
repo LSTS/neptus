@@ -43,7 +43,7 @@ public class MapObject {
         List<LocationType> locations = new ArrayList<>();
 
         for(PolygonType.Vertex v : polygon.getVertices())
-            locations.add(new LocationType(v.lat, v.lon));
+            locations.add(new LocationType(v.getLocation()));
 
         return locations;
     }

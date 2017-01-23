@@ -87,6 +87,15 @@ public class PolygonType implements Renderer2DPainter {
     }
 
     /**
+     * Add new vertex given its LocationType
+     * */
+    public void addVertex(LocationType loc) {
+        synchronized (vertices) {
+            vertices.add(new Vertex(loc));
+        }
+    }
+
+    /**
      * Remove all polygon vertices
      */
     public void clearVertices() {
@@ -147,9 +156,9 @@ public class PolygonType implements Renderer2DPainter {
             elem.setFilled(filled);
             elem.setMyColor(Color.yellow);
 
-            elem.setCenterLocation(new LocationType(vertices.get(0).lat, vertices.get(0).lon));
+            elem.setCenterLocation(new LocationType(vertices.get(0).getLocation()));
             for (Vertex v : vertices)
-                elem.addPoint(new LocationType(v.lat, v.lon));
+                elem.addPoint(new LocationType(v.getLocation()));
             elem.setFinished(true);
         }
     }
@@ -167,49 +176,41 @@ public class PolygonType implements Renderer2DPainter {
 
     @XmlType
     public static class Vertex {
-        @XmlElement
-        public double lat, lon;
-
         private LocationType lt;
-
-        public Vertex() {
-            lat = lon = 0;
-            lt = new LocationType(lat, lon).getNewAbsoluteLatLonDepth();
-        }
 
         public Vertex(LocationType lt) {
             this.lt = new LocationType(lt);
-
-            lat = lt.getNewAbsoluteLatLonDepth().getLatitudeDegs();
-            lon = lt.getNewAbsoluteLatLonDepth().getLongitudeDegs();
         }
 
         public Vertex(double latDegs, double lonDegs) {
-            lat = latDegs;
-            lon = lonDegs;
-            lt = new LocationType(lat, lon).getNewAbsoluteLatLonDepth();
+            lt = new LocationType(latDegs, lonDegs);
         }
 
         @Override
         public int hashCode() {
-            return (""+lat+","+lon).hashCode();
+            return (""+lt.getLatitudeDegs()+","+lt.getLongitudeDegs()).hashCode();
         }
 
         public void setLocation(LocationType newLt) {
-            lt = new LocationType(newLt).getNewAbsoluteLatLonDepth();
-            lat = lt.getLatitudeDegs();
-            lon = lt.getLongitudeDegs();
+            lt = new LocationType(newLt);
+        }
+
+        public LocationType getLocation() {
+            return lt;
+        }
+
+        public double getLatitudeDegs() {
+         return lt.getNewAbsoluteLatLonDepth().getLatitudeDegs();
+        }
+
+        public double getLongitudeDegs() {
+            return lt.getNewAbsoluteLatLonDepth().getLongitudeDegs();
         }
     }
 
     public void translate(double offsetNorth, double offsetEast) {
         synchronized (vertices) {
-            vertices.forEach(v -> {
-                LocationType l = new LocationType(v.lat, v.lon);
-                l.translatePosition(offsetNorth, offsetEast, 0).convertToAbsoluteLatLonDepth();
-                v.lat = l.getLatitudeDegs();
-                v.lon = l.getLongitudeDegs();
-            });
+            vertices.forEach(v -> v.getLocation().translatePosition(offsetNorth, offsetEast, 0));
         }
         recomputePath();
     }
