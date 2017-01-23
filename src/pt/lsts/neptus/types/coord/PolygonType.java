@@ -33,6 +33,8 @@ package pt.lsts.neptus.types.coord;
 
 import java.awt.Color;
 import java.awt.Graphics2D;
+import java.awt.geom.AffineTransform;
+import java.awt.geom.Line2D;
 import java.io.StringReader;
 import java.io.StringWriter;
 import java.util.ArrayList;
@@ -43,6 +45,7 @@ import javax.xml.bind.JAXB;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlType;
 
+import info.necsave.proto.parser.WGS84Utilities;
 import pt.lsts.neptus.renderer2d.Renderer2DPainter;
 import pt.lsts.neptus.renderer2d.StateRenderer2D;
 import pt.lsts.neptus.types.map.PathElement;
@@ -167,18 +170,35 @@ public class PolygonType implements Renderer2DPainter {
         @XmlElement
         public double lat, lon;
 
+        private LocationType lt;
+
         public Vertex() {
             lat = lon = 0;
+            lt = new LocationType(lat, lon).getNewAbsoluteLatLonDepth();
+        }
+
+        public Vertex(LocationType lt) {
+            this.lt = new LocationType(lt);
+
+            lat = lt.getNewAbsoluteLatLonDepth().getLatitudeDegs();
+            lon = lt.getNewAbsoluteLatLonDepth().getLongitudeDegs();
         }
 
         public Vertex(double latDegs, double lonDegs) {
             lat = latDegs;
             lon = lonDegs;
+            lt = new LocationType(lat, lon).getNewAbsoluteLatLonDepth();
         }
 
         @Override
         public int hashCode() {
             return (""+lat+","+lon).hashCode();
+        }
+
+        public void setLocation(LocationType newLt) {
+            lt = new LocationType(newLt).getNewAbsoluteLatLonDepth();
+            lat = lt.getLatitudeDegs();
+            lon = lt.getLongitudeDegs();
         }
     }
 
@@ -190,6 +210,29 @@ public class PolygonType implements Renderer2DPainter {
                 v.lat = l.getLatitudeDegs();
                 v.lon = l.getLongitudeDegs();
             });
+        }
+        recomputePath();
+    }
+
+    /**
+     * Rotate this polygon by yaw rads
+     * */
+    public void rotate(double yawRads) {
+        synchronized (vertices) {
+            LocationType pivot = elem.getCenterPoint().getNewAbsoluteLatLonDepth();
+            for (PolygonType.Vertex v : vertices) {
+                v.lt.convertToAbsoluteLatLonDepth();
+
+                double pivotLat = pivot.getLatitudeRads();
+                double pivotLon = pivot.getLongitudeRads();
+                double shiftLat = v.lt.getLatitudeRads() - pivotLat;
+                double shiftLon = v.lt.getLongitudeRads() - pivotLon;
+
+                double newLon = pivotLon + Math.cos(yawRads) * shiftLon - Math.sin(yawRads) * shiftLat;
+                double newLat = pivotLat + Math.sin(yawRads) * shiftLon + Math.cos(yawRads) * shiftLat;
+
+                v.setLocation(new LocationType(Math.toDegrees(newLat), Math.toDegrees(newLon)));
+            }
         }
         recomputePath();
     }
