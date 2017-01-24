@@ -285,7 +285,6 @@ public class ParameterTableModel extends AbstractTableModel  {
         if (type != null) {
             if (!type.equals(currType)) {
                 try {
-                    System.out.println("reparsing...");
                     paramMetadataXML = new File(getClass().getResource("ParameterMetaDataV2.xml").toURI());
                     metadata = ParameterMetadataMapReader.parseMetadata(paramMetadataXML, type);
                     currType = type;

@@ -115,7 +115,6 @@ public class ParameterManager extends ConsolePanel implements MAVLinkConnectionL
     private JXStatusBar statusBar = null;
     private JLabel messageBarLabel = null;
     private StatusLed statusLed = null;
-    private boolean requestingParams = false;
     private boolean requestingWriting = false;
 
     public ParameterManager(ConsoleLayout console) {
@@ -151,6 +150,7 @@ public class ParameterManager extends ConsolePanel implements MAVLinkConnectionL
 
         model = new ParameterTableModel(parameterList);
         table = new JTable(model) {
+            @SuppressWarnings("unchecked")
             public TableCellEditor getCellEditor(int row, int column) {
                 int modelColumn = convertColumnIndexToModel( column );
                 int rowIndex = convertRowIndexToModel(row);
@@ -271,7 +271,6 @@ public class ParameterManager extends ConsolePanel implements MAVLinkConnectionL
 
                     @Override
                     protected Void doInBackground() throws Exception {
-                        requestingParams = true;
                         setActivity("Loading parameters...", StatusLed.LEVEL_0);
                         loader.setText("");
                         loader.setVisible(true);
@@ -311,7 +310,6 @@ public class ParameterManager extends ConsolePanel implements MAVLinkConnectionL
                             loader.setBusy(false);
                             loader.setText("");
                         }
-                        requestingParams = false;
                         return null;
                     }
 
