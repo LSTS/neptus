@@ -16,6 +16,7 @@ import pt.lsts.neptus.console.plugins.planning.MapPanel;
 import pt.lsts.neptus.gui.LocationPanel;
 import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.plugins.PluginDescription;
+import pt.lsts.neptus.plugins.mvplanner.mapdecomposition.GridArea;
 import pt.lsts.neptus.plugins.mvplanner.ui.MapObject;
 import pt.lsts.neptus.renderer2d.LayerPriority;
 import pt.lsts.neptus.renderer2d.Renderer2DPainter;
@@ -45,6 +46,8 @@ public class MvPlanner extends ConsoleInteraction implements Renderer2DPainter {
     protected PolygonType.Vertex vertex = null;
     protected Vector<MapPanel> maps = new Vector<>();
 
+    private GridArea operationalArea = null;
+
     /** If currently adding an object to the map **/
     private boolean addingObject = false;
 
@@ -54,10 +57,8 @@ public class MvPlanner extends ConsoleInteraction implements Renderer2DPainter {
             // add obstacle
             return;
         }
-        else if(obj.isOpArea()) {
-            // add operational area
-            return;
-        }
+        else if(obj.isOpArea())
+            operationalArea = new GridArea(obj.getPolygon(), 10);
 
         onNewTaskAdded(obj.getPolygon());
     }
@@ -78,6 +79,7 @@ public class MvPlanner extends ConsoleInteraction implements Renderer2DPainter {
         else if(nPoints > 2){
 
         }
+        addedPolygons.add(currentPolygon);
     }
 
     /**
@@ -176,7 +178,6 @@ public class MvPlanner extends ConsoleInteraction implements Renderer2DPainter {
                     MapObject obj = closeObject();
                     if (obj != null) {
                         currentPolygon.setColor(Color.YELLOW.darker());
-                        addedPolygons.add(currentPolygon);
                         currentPolygon = new PolygonType();
                         source.repaint();
 
@@ -267,6 +268,9 @@ public class MvPlanner extends ConsoleInteraction implements Renderer2DPainter {
 
         for(PolygonType p : addedPolygons)
             p.paint(g, renderer);
+
+        if(operationalArea != null)
+            operationalArea.displayArea(g, renderer);
     }
 
     public class ParametersWindow {

@@ -37,6 +37,7 @@ import pt.lsts.neptus.types.coord.LocationType;
 import pt.lsts.neptus.types.coord.PolygonType;
 
 import java.awt.*;
+import java.awt.geom.Point2D;
 import java.util.List;
 
 public class GridArea {
@@ -118,9 +119,24 @@ public class GridArea {
         // area dimensions
         gridWidth = topRight.getDistanceInMeters(topLeft);
         gridHeight = topRight.getDistanceInMeters(bottomRight);
+
+        center = polygon.getCentroid();
+    }
+
+    public LocationType getCenterLocation() {
+        return center;
     }
 
     public void displayArea(Graphics2D g, StateRenderer2D source) {
-        polygon.paint(g, source);
+        Graphics2D g2 = (Graphics2D) g.create();
+        Point2D p = source.getScreenPosition(this.center);
+        double scale = source.getZoom();
+        int w = (int) (this.gridWidth * scale);
+        int h = (int) (this.gridHeight * scale);
+        int x = (int) (p.getX() - w/2);
+        int y = (int) (p.getY() - h/2);
+
+        g2.setColor(Color.BLACK);
+        g2.drawRect(x, y, w, h);
     }
 }
