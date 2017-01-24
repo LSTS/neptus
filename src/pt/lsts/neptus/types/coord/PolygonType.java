@@ -103,6 +103,7 @@ public class PolygonType implements Renderer2DPainter {
             vertices.clear();
         }
         recomputePath();
+
     }
 
     /**
@@ -112,6 +113,7 @@ public class PolygonType implements Renderer2DPainter {
     public List<Vertex> getVertices() {
         return Collections.unmodifiableList(vertices);
     }
+
 
     public void removeVertex(Vertex v) {
         if (v == null)
@@ -172,6 +174,23 @@ public class PolygonType implements Renderer2DPainter {
         StringWriter writer = new StringWriter();
         JAXB.marshal(this, writer);
         return JAXB.unmarshal(new StringReader(writer.toString()), getClass());
+    }
+
+    /**
+     * Given a list of locations, calculates and returns its centroid's
+     * location
+     * */
+    public LocationType getCentroid() {
+        double sumLatDegs = 0;
+        double sumLonDegs = 0;
+
+        for(PolygonType.Vertex v : vertices) {
+            LocationType tmp = v.lt.getNewAbsoluteLatLonDepth();
+            sumLatDegs += tmp.getLatitudeDegs();
+            sumLonDegs += tmp.getLongitudeDegs();
+        }
+
+        return new LocationType(sumLatDegs/vertices.size(), sumLonDegs/vertices.size());
     }
 
     @XmlType
