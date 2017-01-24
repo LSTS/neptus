@@ -57,7 +57,7 @@ import pt.lsts.neptus.comm.manager.imc.ImcSystemsHolder;
  */
 public class MAVLinkConnection {
 
-    private static final String ARDUCOPTER = "ArduCopter2";
+    private static final String ARDUCOPTER = "ArduCopter";
     private static final String ARDUPLANE = "ArduPlane";
     public static final String MAV_SCHEME = "mavlink+tcp";
     private static final int READ_BUFFER_SIZE = 4096;

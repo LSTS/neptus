@@ -69,8 +69,7 @@ public class ParameterMetadataMapReader {
     private static final String METADATA_VEHICLES = "vehicles";
 
     public static HashMap<String, ParameterMetadata> parseMetadata(File input, String vehType) throws IOException {
-        File fXmlFile = new File("/home/manuel/workspace/neptus/develop/plugins-dev/uav-parameters/pt/lsts/neptus/plugins/uavparameters/ParameterMetaDataV2.xml");
-        if (!fXmlFile.isFile())
+        if (!input.isFile())
             return null;
 
         HashMap<String, ParameterMetadata> metadataMap = new HashMap<String, ParameterMetadata>();
@@ -79,7 +78,7 @@ public class ParameterMetadataMapReader {
         Document doc = null;
         try {
             dBuilder = dbFactory.newDocumentBuilder();
-            doc = dBuilder.parse(fXmlFile);
+            doc = dBuilder.parse(input);
         }
         catch (ParserConfigurationException e) {
             e.printStackTrace();
@@ -102,7 +101,7 @@ public class ParameterMetadataMapReader {
             if (nNode.getNodeType() == Node.ELEMENT_NODE) {
                 Element eElement = (Element) nNode;
 
-                parseNode(eElement, metadataMap, METADATA_VEHICLES, "ArduCopter");
+                parseNode(eElement, metadataMap, METADATA_VEHICLES, vehType);
                 parseNode(eElement, metadataMap, METADATA_LIBRARY, null);
 
             }
