@@ -43,8 +43,8 @@ import java.util.List;
 public class GridArea {
     private PolygonType polygon;
 
-    private double cellWidth;
-    private double cellHeight;
+    private int cellWidth;
+    private int cellHeight;
 
     private double gridWidth;
     private double gridHeight;
@@ -62,7 +62,7 @@ public class GridArea {
     private LocationType bottomLeft = null;
     private LocationType bottomRight = null;
 
-    public GridArea(PolygonType mapObject, double cellWidth) {
+    public GridArea(PolygonType mapObject, int cellWidth) {
         polygon = mapObject;
         this.cellWidth = cellWidth;
         this.cellHeight = this.cellWidth;
@@ -80,6 +80,15 @@ public class GridArea {
 
     public double getYawRads() {
         return yawRads;
+    }
+
+    public void setYawRads(double yawRads) {
+        this.yawRads = yawRads;
+    }
+
+    public void recomputeDimensions(PolygonType polygon) {
+        this.polygon = polygon;
+        computeAreaDimensions();
     }
 
     /**
@@ -127,7 +136,7 @@ public class GridArea {
         return center;
     }
 
-    public void displayArea(Graphics2D g, StateRenderer2D source) {
+    public void displayArea(Graphics2D g, StateRenderer2D source, Color color) {
         Graphics2D g2 = (Graphics2D) g.create();
         Point2D p = source.getScreenPosition(this.center);
         double scale = source.getZoom();
@@ -136,7 +145,7 @@ public class GridArea {
         int x = (int) (p.getX() - w/2);
         int y = (int) (p.getY() - h/2);
 
-        g2.setColor(Color.BLACK);
+        g2.setColor(color);
         g2.drawRect(x, y, w, h);
     }
 }

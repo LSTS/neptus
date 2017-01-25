@@ -41,11 +41,17 @@ import javax.swing.*;
 @LayerPriority(priority = 90)
 public class MvPlanner extends ConsoleInteraction implements Renderer2DPainter {
     protected List<PolygonType> addedPolygons = new ArrayList<>();
-
     protected PolygonType currentPolygon = new PolygonType();
     protected PolygonType.Vertex vertex = null;
     protected Vector<MapPanel> maps = new Vector<>();
 
+    /**
+     * The preview of the area to be generated for the
+     * current polygon, it it has more than 2 vertices
+     * */
+    private GridArea areaPreview = null;
+
+    /** Area used to compute safe paths **/
     private GridArea operationalArea = null;
 
     /** If currently adding an object to the map **/
@@ -131,7 +137,7 @@ public class MvPlanner extends ConsoleInteraction implements Renderer2DPainter {
         if (!SwingUtilities.isRightMouseButton(event)) {
             if (event.getClickCount() == 2) {
                 LocationType loc = source.getRealWorldLocation(event.getPoint());
-                currentPolygon.addVertex(loc.getLatitudeDegs(), loc.getLongitudeDegs());
+                addNewVertex(loc);
                 source.repaint();
                 return;
             }
@@ -151,6 +157,9 @@ public class MvPlanner extends ConsoleInteraction implements Renderer2DPainter {
                 if (newLoc != null) {
                     v.setLocation(new LocationType(newLoc));
                     currentPolygon.recomputePath();
+
+                    if(areaPreview != null)
+                        areaPreview.recomputeDimensions(currentPolygon);
                 }
                 source.repaint();
             });
@@ -158,17 +167,18 @@ public class MvPlanner extends ConsoleInteraction implements Renderer2DPainter {
                 currentPolygon.removeVertex(v);
                 source.repaint();
 
-                if(currentPolygon.getVertices().size() == 0)
+                int nVertices = currentPolygon.getVertices().size();
+                if(nVertices == 0)
                     addingObject = false;
+                else if(nVertices < 3)
+                    areaPreview = null;
             });
         }
         else {
             popup.add(I18n.text("Add vertex")).addActionListener(e -> {
                 LocationType loc = source.getRealWorldLocation(event.getPoint());
-                currentPolygon.addVertex(loc.getLatitudeDegs(), loc.getLongitudeDegs());
+                addNewVertex(loc);
                 source.repaint();
-
-                addingObject = true;
             });
 
             int nVertex = currentPolygon.getVertices().size();
@@ -183,11 +193,13 @@ public class MvPlanner extends ConsoleInteraction implements Renderer2DPainter {
 
                         onNewObjectAdded(obj);
                         addingObject = false;
+                        areaPreview = null;
                     }
                 });
                 popup.add(I18n.text("Cancel")).addActionListener(e -> {
                     addingObject = false;
                     currentPolygon = new PolygonType();
+                    areaPreview = null;
                 });
             }
 
@@ -198,6 +210,18 @@ public class MvPlanner extends ConsoleInteraction implements Renderer2DPainter {
         }
 
         popup.show(source, event.getX(), event.getY());
+    }
+
+    private void addNewVertex(LocationType loc) {
+        currentPolygon.addVertex(loc.getLatitudeDegs(), loc.getLongitudeDegs());
+
+        addingObject = true;
+
+        System.out.println(areaPreview == null);
+        if(areaPreview != null)
+            areaPreview.recomputeDimensions(currentPolygon);
+        else if(currentPolygon.getVertices().size() >= 3)
+            areaPreview = new GridArea(currentPolygon, 10);
     }
 
     private MapObject closeObject() {
@@ -236,6 +260,10 @@ public class MvPlanner extends ConsoleInteraction implements Renderer2DPainter {
         super.mouseReleased(event, source);
         if (vertex != null)
             currentPolygon.recomputePath();
+
+        if(areaPreview != null)
+            areaPreview.recomputeDimensions(currentPolygon);
+
         vertex = null;
     }
 
@@ -270,7 +298,11 @@ public class MvPlanner extends ConsoleInteraction implements Renderer2DPainter {
             p.paint(g, renderer);
 
         if(operationalArea != null)
-            operationalArea.displayArea(g, renderer);
+            operationalArea.displayArea(g, renderer, Color.BLACK);
+
+        if(areaPreview != null) {
+            areaPreview.displayArea(g, renderer, Color.CYAN.darker());
+        }
     }
 
     public class ParametersWindow {
