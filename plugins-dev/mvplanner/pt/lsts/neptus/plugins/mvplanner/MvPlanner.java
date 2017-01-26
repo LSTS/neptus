@@ -7,9 +7,7 @@ import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.awt.geom.Ellipse2D;
 import java.awt.geom.Point2D;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Vector;
+import java.util.*;
 
 import pt.lsts.neptus.console.ConsoleInteraction;
 import pt.lsts.neptus.console.plugins.planning.MapPanel;
@@ -18,6 +16,7 @@ import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.plugins.NeptusProperty;
 import pt.lsts.neptus.plugins.PluginDescription;
 import pt.lsts.neptus.plugins.mvplanner.mapdecomposition.GridArea;
+import pt.lsts.neptus.plugins.mvplanner.tasks.SurveyTask;
 import pt.lsts.neptus.plugins.mvplanner.ui.MapObject;
 import pt.lsts.neptus.renderer2d.LayerPriority;
 import pt.lsts.neptus.renderer2d.Renderer2DPainter;
@@ -48,7 +47,7 @@ public class MvPlanner extends ConsoleInteraction implements Renderer2DPainter {
     @NeptusProperty(name = "Display operational area's grid", userLevel = NeptusProperty.LEVEL.REGULAR)
     public boolean displayOpAreaGrid = false;
 
-    protected List<PolygonType> addedPolygons = new ArrayList<>();
+    private Deque<PlanTask> tasksStack = new ArrayDeque<>();
     protected PolygonType currentPolygon = new PolygonType();
     protected PolygonType.Vertex vertex = null;
     protected Vector<MapPanel> maps = new Vector<>();
@@ -90,10 +89,8 @@ public class MvPlanner extends ConsoleInteraction implements Renderer2DPainter {
 
         }
         // survey
-        else if(nPoints > 2){
-
-        }
-        addedPolygons.add(currentPolygon);
+        else if(nPoints > 2)
+            tasksStack.push(new SurveyTask(taskPolygon));
     }
 
     /**
@@ -225,7 +222,6 @@ public class MvPlanner extends ConsoleInteraction implements Renderer2DPainter {
 
         addingObject = true;
 
-        System.out.println(areaPreview == null);
         if(areaPreview != null)
             areaPreview.recomputeDimensions(currentPolygon);
         else if(currentPolygon.getVertices().size() >= 3)
@@ -302,8 +298,8 @@ public class MvPlanner extends ConsoleInteraction implements Renderer2DPainter {
     public void paint(Graphics2D g, StateRenderer2D renderer) {
         currentPolygon.paint(g, renderer);
 
-        for(PolygonType p : addedPolygons)
-            p.paint(g, renderer);
+        for(PlanTask task : tasksStack)
+            task.paintTask(g, renderer);
 
         if(operationalArea != null)
             operationalArea.paint(g, renderer, Color.BLACK, displayOpAreaGrid, false);
