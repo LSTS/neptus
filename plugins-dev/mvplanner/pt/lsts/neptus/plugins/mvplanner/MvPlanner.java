@@ -15,6 +15,7 @@ import pt.lsts.neptus.console.ConsoleInteraction;
 import pt.lsts.neptus.console.plugins.planning.MapPanel;
 import pt.lsts.neptus.gui.LocationPanel;
 import pt.lsts.neptus.i18n.I18n;
+import pt.lsts.neptus.plugins.NeptusProperty;
 import pt.lsts.neptus.plugins.PluginDescription;
 import pt.lsts.neptus.plugins.mvplanner.mapdecomposition.GridArea;
 import pt.lsts.neptus.plugins.mvplanner.ui.MapObject;
@@ -40,6 +41,13 @@ import javax.swing.*;
         version = "0.1", category = PluginDescription.CATEGORY.INTERFACE)
 @LayerPriority(priority = 90)
 public class MvPlanner extends ConsoleInteraction implements Renderer2DPainter {
+
+    @NeptusProperty(name = "Operational area's cell size", userLevel = NeptusProperty.LEVEL.REGULAR)
+    public int opAreaCellSize = 10;
+
+    @NeptusProperty(name = "Display operational area's grid", userLevel = NeptusProperty.LEVEL.REGULAR)
+    public boolean displayOpAreaGrid = false;
+
     protected List<PolygonType> addedPolygons = new ArrayList<>();
     protected PolygonType currentPolygon = new PolygonType();
     protected PolygonType.Vertex vertex = null;
@@ -64,7 +72,7 @@ public class MvPlanner extends ConsoleInteraction implements Renderer2DPainter {
             return;
         }
         else if(obj.isOpArea())
-            operationalArea = new GridArea(obj.getPolygon());
+            operationalArea = new GridArea(obj.getPolygon(), opAreaCellSize);
 
         onNewTaskAdded(obj.getPolygon());
     }
@@ -298,11 +306,10 @@ public class MvPlanner extends ConsoleInteraction implements Renderer2DPainter {
             p.paint(g, renderer);
 
         if(operationalArea != null)
-            operationalArea.displayArea(g, renderer, Color.BLACK);
+            operationalArea.paint(g, renderer, Color.BLACK, displayOpAreaGrid);
 
-        if(areaPreview != null) {
-            areaPreview.displayArea(g, renderer, Color.CYAN.darker());
-        }
+        if(areaPreview != null)
+            areaPreview.paint(g, renderer, Color.CYAN.darker(), false);
     }
 
     public class ParametersWindow {

@@ -32,15 +32,17 @@
  */
 package pt.lsts.neptus.plugins.mvplanner.mapdecomposition;
 
-import org.mozilla.javascript.edu.emory.mathcs.backport.java.util.Arrays;
 import pt.lsts.neptus.renderer2d.StateRenderer2D;
 import pt.lsts.neptus.types.coord.CoordinateUtil;
 import pt.lsts.neptus.types.coord.LocationType;
 import pt.lsts.neptus.types.coord.PolygonType;
+import pt.lsts.neptus.util.AngleUtils;
 
 import java.awt.*;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Point2D;
+import java.awt.geom.Rectangle2D;
+import java.util.Arrays;
 import java.util.List;
 
 public class GridArea {
@@ -79,6 +81,11 @@ public class GridArea {
         this.cellHeight = this.cellWidth;
 
         computeAreaDimensions();
+
+        this.nrows = (int) Math.ceil(gridHeight / cellHeight);
+        this.ncols = (int) Math.ceil(gridWidth / cellWidth);
+        grid = new GridCell[nrows][ncols];
+        decompose();
     }
 
     public double getWidth() {
@@ -95,6 +102,43 @@ public class GridArea {
 
     public void setYawRads(double yawRads) {
         this.yawRads = yawRads;
+    }
+
+    /**
+     * Decompose area in a grid with cells' size
+     * of cellWidth x cellWidth.
+     * If cells' width is <= 0 then nothing happens
+     * */
+    private void decompose() {
+        if(this.cellWidth <= 0)
+            return;
+
+        int id = 0;
+        for(int i = 0; i < nrows; i++) {
+            for(int j = 0; j < ncols; j++) {
+                double horizontalShift = (j * cellWidth) + cellWidth / 2;
+                double verticalShift = (i * cellHeight) + cellHeight / 2;
+
+                LocationType cellLoc = new LocationType(topLeft);
+                cellLoc.translatePosition(-verticalShift, horizontalShift, 0);
+
+                grid[i][j] = new GridCell(Integer.toString(id), cellLoc, i, j, cellWidth, cellHeight);
+                grid[i][j].rotate(getYawRads(), topLeft);
+                id++;
+
+                // set neighbour relation
+                if(i != 0) {
+                    grid[i][j].addNeighbour(grid[i-1][j]);
+                    grid[i-1][j].addNeighbour(grid[i][j]);
+                }
+
+                if(j != 0) {
+                    grid[i][j].addNeighbour(grid[i][j-1]);
+                    grid[i][j-1].addNeighbour(grid[i][j]);
+                }
+            }
+        }
+
     }
 
     public void recomputeDimensions(PolygonType polygon) {
@@ -148,7 +192,14 @@ public class GridArea {
         return center;
     }
 
-    public void displayArea(Graphics2D g, StateRenderer2D source, Color color) {
+    public void paint(Graphics2D g, StateRenderer2D source, Color color, boolean paintGrid) {
+        if(paintGrid)
+            displayGrid(g, source, color);
+        else
+            displayArea(g, source, color);
+    }
+
+    private void displayArea(Graphics2D g, StateRenderer2D source, Color color) {
         Graphics2D g2 = (Graphics2D) g.create();
         Point2D p = source.getScreenPosition(this.center);
         double scale = source.getZoom();
@@ -157,7 +208,7 @@ public class GridArea {
 
         AffineTransform transform = new AffineTransform();
         transform.translate(p.getX(), p.getY());
-        transform.rotate(-source.getRotation());
+        transform.rotate(getYawRads() - source.getRotation());
 
         g2.transform(transform);
         g2.setColor(color);
@@ -165,6 +216,35 @@ public class GridArea {
 
         int radius = 10;
         g2.setColor(Color.green);
-        g2.fillOval(-w/2, -h/2, radius, radius);
+        g2.fillOval(-w/2, -h/2,  radius, radius);
+    }
+
+    private void displayGrid(Graphics2D g, StateRenderer2D source, Color color) {
+        Graphics2D g2 = (Graphics2D) g.create();
+        g2.setColor(color);
+
+        g2.transform(new AffineTransform());
+        double yaw = getYawRads() - source.getRotation();
+
+        for(GridCell[] row : grid) {
+            for(GridCell cell : row) {
+                Point2D pt = source.getScreenPosition(cell.getLocation());
+                g.translate(pt.getX(), pt.getY());
+                g.rotate(yaw);
+
+                double widthScaled = cellWidth * source.getZoom();
+                double lengthScaled = cellHeight * source.getZoom();
+
+                Rectangle2D.Double cellRec = new Rectangle2D.Double(-widthScaled / 2, -lengthScaled / 2, widthScaled, lengthScaled);
+
+                if(cell.hasObstacle())
+                    g.fill(cellRec);
+                else
+                    g.draw(cellRec);
+
+                g.rotate(-yaw);
+                g.translate(-pt.getX(), -pt.getY());
+            }
+        }
     }
 }

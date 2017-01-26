@@ -58,7 +58,7 @@ public class GridCell {
     private GridCell[] subCells;
     private int nSubCells;
 
-    public GridCell(String id, LocationType center, int row, int col, double w, double h, double yawRads) {
+    public GridCell(String id, LocationType center, int row, int col, double w, double h) {
         this.id = id;
         this.hasObstacle = false;
         centerLocation = center;
@@ -68,7 +68,7 @@ public class GridCell {
 
         width = w;
         height = h;
-        this.yawRads = yawRads;
+        this.yawRads = 0;
 
         neighbours = new GridCell[4];
         nNeighbours = 0;
@@ -146,10 +146,10 @@ public class GridCell {
         LocationType bottomRight = new LocationType(centerLocation);
         bottomRight.translatePosition(-newCellHeight/2, newCellWidth/2, 0);
 
-        GridCell topLeftCell = new GridCell("Top left", topLeft, 2*row, 2*col,newCellWidth, newCellHeight, yawRads);
-        GridCell topRightCell = new GridCell("Top right", topRight, 2*row, 2*col + 1, newCellWidth, newCellHeight, yawRads);
-        GridCell bottomLeftCell = new GridCell("Bottom left", bottomLeft, 2*row + 1, 2*col, newCellWidth, newCellHeight, yawRads);
-        GridCell bottomRightCell = new GridCell("Bottom right", bottomRight, 2*row + 1, 2*col + 1, newCellWidth, newCellHeight, yawRads);
+        GridCell topLeftCell = new GridCell("Top left", topLeft, 2*row, 2*col,newCellWidth, newCellHeight);
+        GridCell topRightCell = new GridCell("Top right", topRight, 2*row, 2*col + 1, newCellWidth, newCellHeight);
+        GridCell bottomLeftCell = new GridCell("Bottom left", bottomLeft, 2*row + 1, 2*col, newCellWidth, newCellHeight);
+        GridCell bottomRightCell = new GridCell("Bottom right", bottomRight, 2*row + 1, 2*col + 1, newCellWidth, newCellHeight);
 
         /* rotate cells into position */
         topLeftCell.rotate(yawRads, centerLocation);
@@ -169,15 +169,15 @@ public class GridCell {
      * Rotate this cell by yaw radians arount the
      * given pivot location
      * */
-    public void rotate(double yaw, LocationType pivot) {
+    public void rotate(double yawRads, LocationType pivot) {
         if(!pivot.isLocationEqual(centerLocation)) {
+            this.yawRads += yawRads;
             double offsets[] = pivot.getOffsetFrom(centerLocation);
-            double deltas[] = AngleUtils.rotate(yaw, offsets[0], offsets[1], false);
+            double deltas[] = AngleUtils.rotate(yawRads, offsets[0], offsets[1], false);
 
             centerLocation.translatePosition(offsets[0] - deltas[0], offsets[1] - deltas[1], 0);
         }
     }
-
     /**
      * Returns this cell's row in
      * its GridArea
