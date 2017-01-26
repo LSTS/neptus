@@ -49,6 +49,7 @@ import info.necsave.proto.parser.WGS84Utilities;
 import pt.lsts.neptus.renderer2d.Renderer2DPainter;
 import pt.lsts.neptus.renderer2d.StateRenderer2D;
 import pt.lsts.neptus.types.map.PathElement;
+import pt.lsts.neptus.ws.Location;
 
 /**
  * @author zp
@@ -181,16 +182,10 @@ public class PolygonType implements Renderer2DPainter {
      * location
      * */
     public LocationType getCentroid() {
-        double sumLatDegs = 0;
-        double sumLonDegs = 0;
+        List<LocationType> locations = new ArrayList<>();
+        vertices.forEach(v -> locations.add(v.lt.getNewAbsoluteLatLonDepth()));
 
-        for(PolygonType.Vertex v : vertices) {
-            LocationType tmp = v.lt.getNewAbsoluteLatLonDepth();
-            sumLatDegs += tmp.getLatitudeDegs();
-            sumLonDegs += tmp.getLongitudeDegs();
-        }
-
-        return new LocationType(sumLatDegs/vertices.size(), sumLonDegs/vertices.size());
+        return CoordinateUtil.computeLocationsCentroid(locations);
     }
 
     @XmlType
