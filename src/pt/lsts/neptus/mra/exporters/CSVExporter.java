@@ -113,8 +113,9 @@ public class CSVExporter implements MRAExporter {
                     && m.getMessageType().getFieldPossibleValues(field) != null) {
                 if (m.getUnitsOf(field).equals("tuplelist")
                         || m.getUnitsOf(field).equals("enumerated")) {
-                    return m.getMessageType().getFieldPossibleValues(field).get(
+                    String str = m.getMessageType().getFieldPossibleValues(field).get(
                             ((Number) v).longValue());
+                    ret += ", " + str;
                 }
                 else {
 
