@@ -37,6 +37,7 @@ import pt.lsts.neptus.types.coord.LocationType;
 import pt.lsts.neptus.types.coord.PolygonType;
 
 import java.awt.*;
+import java.awt.geom.AffineTransform;
 import java.awt.geom.Point2D;
 import java.util.List;
 
@@ -142,10 +143,13 @@ public class GridArea {
         double scale = source.getZoom();
         int w = (int) (this.gridWidth * scale);
         int h = (int) (this.gridHeight * scale);
-        int x = (int) (p.getX() - w/2);
-        int y = (int) (p.getY() - h/2);
 
+        AffineTransform transform = new AffineTransform();
+        transform.translate(p.getX(), p.getY());
+        transform.rotate(-source.getRotation());
+
+        g2.transform(transform);
         g2.setColor(color);
-        g2.drawRect(x, y, w, h);
+        g2.drawRect(-w/2, -h/2, w, h);
     }
 }
