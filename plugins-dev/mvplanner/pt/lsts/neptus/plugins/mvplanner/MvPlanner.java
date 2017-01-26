@@ -306,10 +306,10 @@ public class MvPlanner extends ConsoleInteraction implements Renderer2DPainter {
             p.paint(g, renderer);
 
         if(operationalArea != null)
-            operationalArea.paint(g, renderer, Color.BLACK, displayOpAreaGrid);
+            operationalArea.paint(g, renderer, Color.BLACK, displayOpAreaGrid, false);
 
         if(areaPreview != null)
-            areaPreview.paint(g, renderer, Color.CYAN.darker(), false);
+            areaPreview.paint(g, renderer, Color.CYAN.darker(), false, false);
     }
 
     public class ParametersWindow {

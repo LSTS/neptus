@@ -192,14 +192,14 @@ public class GridArea {
         return center;
     }
 
-    public void paint(Graphics2D g, StateRenderer2D source, Color color, boolean paintGrid) {
+    public void paint(Graphics2D g, StateRenderer2D source, Color color, boolean paintGrid, boolean filled) {
         if(paintGrid)
             displayGrid(g, source, color);
         else
-            displayArea(g, source, color);
+            displayArea(g, source, color, filled);
     }
 
-    private void displayArea(Graphics2D g, StateRenderer2D source, Color color) {
+    private void displayArea(Graphics2D g, StateRenderer2D source, Color color, boolean filled) {
         Graphics2D g2 = (Graphics2D) g.create();
         Point2D p = source.getScreenPosition(this.center);
         double scale = source.getZoom();
@@ -209,10 +209,15 @@ public class GridArea {
         AffineTransform transform = new AffineTransform();
         transform.translate(p.getX(), p.getY());
         transform.rotate(getYawRads() - source.getRotation());
-
         g2.transform(transform);
+
         g2.setColor(color);
-        g2.drawRect(-w/2, -h/2, w, h);
+        if(filled) {
+            g2.fillRect(-w / 2, -h / 2, w, h);
+            g2.setColor(Color.BLACK);
+        }
+
+        g2.drawRect(-w / 2, -h / 2, w, h);
 
         int radius = 10;
         g2.setColor(Color.green);
