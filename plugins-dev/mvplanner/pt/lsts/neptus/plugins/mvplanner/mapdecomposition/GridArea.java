@@ -32,13 +32,16 @@
  */
 package pt.lsts.neptus.plugins.mvplanner.mapdecomposition;
 
+import org.mozilla.javascript.edu.emory.mathcs.backport.java.util.Arrays;
 import pt.lsts.neptus.renderer2d.StateRenderer2D;
+import pt.lsts.neptus.types.coord.CoordinateUtil;
 import pt.lsts.neptus.types.coord.LocationType;
 import pt.lsts.neptus.types.coord.PolygonType;
 
 import java.awt.*;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Point2D;
+import java.util.ArrayList;
 import java.util.List;
 
 public class GridArea {
@@ -130,7 +133,8 @@ public class GridArea {
         gridWidth = topRight.getDistanceInMeters(topLeft);
         gridHeight = topRight.getDistanceInMeters(bottomRight);
 
-        center = polygon.getCentroid();
+        center = CoordinateUtil.computeLocationsCentroid(Arrays.asList(
+                new LocationType[]{topLeft, topRight, bottomLeft, bottomRight}));
     }
 
     public LocationType getCenterLocation() {
@@ -151,5 +155,9 @@ public class GridArea {
         g2.transform(transform);
         g2.setColor(color);
         g2.drawRect(-w/2, -h/2, w, h);
+
+        int radius = 10;
+        g2.setColor(Color.green);
+        g2.fillOval(-w/2, -h/2, radius, radius);
     }
 }
