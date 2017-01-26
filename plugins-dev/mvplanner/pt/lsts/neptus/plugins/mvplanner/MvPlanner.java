@@ -64,7 +64,7 @@ public class MvPlanner extends ConsoleInteraction implements Renderer2DPainter {
             return;
         }
         else if(obj.isOpArea())
-            operationalArea = new GridArea(obj.getPolygon(), 10);
+            operationalArea = new GridArea(obj.getPolygon());
 
         onNewTaskAdded(obj.getPolygon());
     }
@@ -221,7 +221,7 @@ public class MvPlanner extends ConsoleInteraction implements Renderer2DPainter {
         if(areaPreview != null)
             areaPreview.recomputeDimensions(currentPolygon);
         else if(currentPolygon.getVertices().size() >= 3)
-            areaPreview = new GridArea(currentPolygon, 10);
+            areaPreview = new GridArea(currentPolygon);
     }
 
     private MapObject closeObject() {

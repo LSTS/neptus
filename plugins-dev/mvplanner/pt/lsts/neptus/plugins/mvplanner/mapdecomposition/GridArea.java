@@ -41,7 +41,6 @@ import pt.lsts.neptus.types.coord.PolygonType;
 import java.awt.*;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Point2D;
-import java.util.ArrayList;
 import java.util.List;
 
 public class GridArea {
@@ -65,6 +64,14 @@ public class GridArea {
     private LocationType topRight = null;
     private LocationType bottomLeft = null;
     private LocationType bottomRight = null;
+
+    public GridArea(PolygonType mapObject) {
+        polygon = mapObject;
+        this.cellWidth = 0;
+        this.cellHeight = this.cellWidth;
+
+        computeAreaDimensions();
+    }
 
     public GridArea(PolygonType mapObject, int cellWidth) {
         polygon = mapObject;
