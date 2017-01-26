@@ -40,6 +40,6 @@ import java.util.regex.PatternSyntaxException;
  */
 public class StringListEditor extends StringPatternEditor {
     public StringListEditor() throws IllegalArgumentException, PatternSyntaxException {
-        super("\\!?[A-Za-z0-9]+(,[A-Za-z0-9]+)?");
+        super("\\!?[A-Za-z0-9]+(,[A-Za-z0-9]+)*?");
     }
 }
