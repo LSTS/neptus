@@ -88,6 +88,22 @@ public class GridArea {
         decompose();
     }
 
+    public GridCell getCellAt(int row, int col) {
+        return grid[row][col];
+    }
+
+    public GridCell[][] getGrid() {
+        return grid;
+    }
+
+    public int getNrows() {
+        return nrows;
+    }
+
+    public int getNcols() {
+        return  ncols;
+    }
+
     public double getWidth() {
         return gridWidth;
     }
@@ -124,7 +140,6 @@ public class GridArea {
 
                 grid[i][j] = new GridCell(Integer.toString(id), cellLoc, i, j, cellWidth, cellHeight);
                 grid[i][j].rotate(getYawRads(), topLeft);
-                id++;
 
                 // set neighbour relation
                 if(i != 0) {
@@ -136,9 +151,9 @@ public class GridArea {
                     grid[i][j].addNeighbour(grid[i][j-1]);
                     grid[i][j-1].addNeighbour(grid[i][j]);
                 }
+                id++;
             }
         }
-
     }
 
     public void recomputeDimensions(PolygonType polygon) {
