@@ -42,50 +42,18 @@ import pt.lsts.neptus.types.coord.PolygonType;
 public class GridAreaTests {
     @Test
     public void testGridDimensions() {
-        LocationType x1 = new LocationType(LocationType.FEUP)
-                .getNewAbsoluteLatLonDepth();
-        LocationType x2 = new LocationType(LocationType.FEUP).translatePosition(0, 1000, 0)
-                .getNewAbsoluteLatLonDepth();
-
-        LocationType x3 = new LocationType(LocationType.FEUP).translatePosition(-1000, 0, 0)
-                .getNewAbsoluteLatLonDepth();
-        LocationType x4 = new LocationType(LocationType.FEUP).translatePosition(-1000, 1000, 0)
-                .getNewAbsoluteLatLonDepth();
-
-        PolygonType polygon = new PolygonType();
-        polygon.addVertex(x1.getLatitudeDegs(), x1.getLongitudeDegs());
-        polygon.addVertex(x2.getLatitudeDegs(), x2.getLongitudeDegs());
-        polygon.addVertex(x3.getLatitudeDegs(), x3.getLongitudeDegs());
-        polygon.addVertex(x4.getLatitudeDegs(), x4.getLongitudeDegs());
-
-        GridArea area = new GridArea(polygon, 100);
+        GridArea area = buildArea(1000, 1000, 100);
         Assert.assertEquals("Number of rows", 10, area.getNrows());
         Assert.assertEquals("Number of cols", 10, area.getNcols());
 
-        area = new GridArea(polygon, 60);
+        area = buildArea(1000, 1000, 60);
         Assert.assertEquals("Number of rows", 17, area.getNrows());
         Assert.assertEquals("Number of cols", 17, area.getNcols());
     }
 
     @Test
     public void testNeighbours() {
-        LocationType x1 = new LocationType(LocationType.FEUP)
-                .getNewAbsoluteLatLonDepth();
-        LocationType x2 = new LocationType(LocationType.FEUP).translatePosition(0, 1000, 0)
-                .getNewAbsoluteLatLonDepth();
-
-        LocationType x3 = new LocationType(LocationType.FEUP).translatePosition(-1000, 0, 0)
-                .getNewAbsoluteLatLonDepth();
-        LocationType x4 = new LocationType(LocationType.FEUP).translatePosition(-1000, 1000, 0)
-                .getNewAbsoluteLatLonDepth();
-
-        PolygonType polygon = new PolygonType();
-        polygon.addVertex(x1.getLatitudeDegs(), x1.getLongitudeDegs());
-        polygon.addVertex(x2.getLatitudeDegs(), x2.getLongitudeDegs());
-        polygon.addVertex(x3.getLatitudeDegs(), x3.getLongitudeDegs());
-        polygon.addVertex(x4.getLatitudeDegs(), x4.getLongitudeDegs());
-
-        GridArea area = new GridArea(polygon, 50);
+        GridArea area = buildArea(1000, 1000, 50);
         int nrows = area.getNrows();
         int ncols = area.getNcols();
 
@@ -104,6 +72,26 @@ public class GridAreaTests {
 
             }
         }
+    }
+
+    private GridArea buildArea(int w, int h, int cellWidth) {
+        LocationType x1 = new LocationType(LocationType.FEUP)
+                .getNewAbsoluteLatLonDepth();
+        LocationType x2 = new LocationType(LocationType.FEUP).translatePosition(0, w, 0)
+                .getNewAbsoluteLatLonDepth();
+
+        LocationType x3 = new LocationType(LocationType.FEUP).translatePosition(-h, 0, 0)
+                .getNewAbsoluteLatLonDepth();
+        LocationType x4 = new LocationType(LocationType.FEUP).translatePosition(-w, h, 0)
+                .getNewAbsoluteLatLonDepth();
+
+        PolygonType polygon = new PolygonType();
+        polygon.addVertex(x1.getLatitudeDegs(), x1.getLongitudeDegs());
+        polygon.addVertex(x2.getLatitudeDegs(), x2.getLongitudeDegs());
+        polygon.addVertex(x3.getLatitudeDegs(), x3.getLongitudeDegs());
+        polygon.addVertex(x4.getLatitudeDegs(), x4.getLongitudeDegs());
+
+        return new GridArea(polygon, cellWidth);
     }
 
     private boolean isCornerCell(int row, int col, int nrows, int ncols) {
