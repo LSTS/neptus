@@ -32,6 +32,7 @@
  */
 package pt.lsts.neptus.plugins.mvplanner.mapdecomposition;
 
+import dk.dma.enav.model.geometry.grid.Grid;
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.types.coord.LocationType;
 import pt.lsts.neptus.util.AngleUtils;
@@ -230,7 +231,12 @@ public class GridCell {
      * Get this cell's neighbours as list
      * */
     public List<GridCell> getNeighboursList() {
-        return Arrays.asList(neighbours);
+        List<GridCell> neighboursList = new ArrayList<>();
+        for(GridCell n : neighbours) {
+            if(n != null)
+                neighboursList.add(n);
+        }
+        return neighboursList;
     }
 
     /**
