@@ -48,6 +48,10 @@ public class SpanningTree {
         nodeSequence = generateMST(startCell);
     }
 
+    public GridCell getStartNode() {
+        return startCell;
+    }
+
     /**
      * Generates the spanning tree edges and the node sequence to
      * traverse it
