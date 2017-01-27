@@ -74,6 +74,34 @@ public class GridAreaTests {
         }
     }
 
+
+    @Test
+    public void testFirstFreeCell() {
+        GridArea area = buildArea(1000, 1000, 50);
+
+        GridCell freeCell = area.getFirstFreeCell();
+        Assert.assertEquals(freeCell.getRow(), 0);
+        Assert.assertEquals(freeCell.getColumn(), 0);
+
+        // add some obstacles
+        for(int i = 0; i < 3; i++) {
+            int maxCol;
+
+            if(i == 2)
+                maxCol = 3;
+            else
+                maxCol = area.getNcols();
+
+            for (int j = 0; j < maxCol; j++)
+                area.setObstacleAt(true, i, j);
+        }
+
+        freeCell = area.getFirstFreeCell();
+        Assert.assertEquals(freeCell.getRow(), 2);
+        Assert.assertEquals(freeCell.getColumn(), 3);
+    }
+
+
     private GridArea buildArea(int w, int h, int cellWidth) {
         LocationType x1 = new LocationType(LocationType.FEUP)
                 .getNewAbsoluteLatLonDepth();

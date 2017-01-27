@@ -121,6 +121,27 @@ public class GridArea {
     }
 
     /**
+     * Set if the given cell has an obstacle or not
+     * */
+    public void setObstacleAt(boolean value, int row, int col) {
+        grid[row][col].setHasObstacle(value);
+    }
+
+
+    /**
+     * Get the first cell without an obstacle,
+     * starting the search at (0,0)
+     * */
+    public GridCell getFirstFreeCell() {
+        for(GridCell[] row : grid)
+            for(GridCell cell : row)
+                if(!cell.hasObstacle())
+                    return cell;
+
+        return null;
+    }
+
+    /**
      * Decompose area in a grid with cells' size
      * of cellWidth x cellWidth.
      * If cells' width is <= 0 then nothing happens
