@@ -32,31 +32,20 @@
  */
 package pt.lsts.neptus.plugins.pddl;
 
-import java.io.File;
+import java.util.Vector;
 
 /**
  * @author zp
  *
  */
-public enum MVDomainModel {
+public interface PddlTranslator {
+   
+    String getInitialState(MVProblemSpecification problem);
 
-    V1(new File("conf/pddl/LSTS_domain.pddl"), new LstsDomainModelV1()),
-    V2(new File("conf/pddl/LSTS_domain-v2.pddl"), new LstsDomainModelV2()),
-    OneRound(new File("conf/pddl/LSTS_domain-one_round.pddl"), new LstsDomainModelOneRound());
-    
-    private final File domainFile;
-    private final PddlTranslator translator;
-    
-    public File file() {
-        return domainFile;
-    }
-    
-    public PddlTranslator translator() {
-        return translator;
-    }
-    
-    private MVDomainModel(File domainFile, PddlTranslator translator) {
-        this.domainFile = domainFile;
-        this.translator = translator;
+    default MVSolution parseSolution(MVProblemSpecification problem, String solution) {
+        Vector<MVPlannerTask> tasks = new Vector<MVPlannerTask>();
+        tasks.addAll(problem.sampleTasks);
+        tasks.addAll(problem.surveyTasks);
+        return new MVSolution(problem.calculateLocations(), solution, tasks);  
     }
 }

@@ -111,12 +111,7 @@ public class MVPlannerInteraction extends ConsoleInteraction {
                 break;
             }
         }
-
-        // if (clicked == null) {
-        // super.mouseClicked(event, source);
-        // return;
-        // }
-
+        
         JPopupMenu popup = new JPopupMenu();
         final MVPlannerTask clickedTask = clicked;
 
