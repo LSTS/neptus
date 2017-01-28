@@ -40,22 +40,22 @@ import java.io.File;
  */
 public enum MVDomainModel {
 
-    V1(new File("conf/pddl/LSTS_domain.pddl"), new LstsDomainModelV1()),
+    V1(new File("conf/pddl/LSTS_domain.pddl"), new LstsDomainModel()),
     V2(new File("conf/pddl/LSTS_domain-v2.pddl"), new LstsDomainModelV2()),
     OneRound(new File("conf/pddl/LSTS_domain-one_round.pddl"), new LstsDomainModelOneRound());
     
     private final File domainFile;
-    private final LstsDomainModelV1 translator;
+    private final LstsDomainModel translator;
     
     public File file() {
         return domainFile;
     }
     
-    public LstsDomainModelV1 translator() {
+    public LstsDomainModel translator() {
         return translator;
     }
     
-    private MVDomainModel(File domainFile, LstsDomainModelV1 translator) {
+    private MVDomainModel(File domainFile, LstsDomainModel translator) {
         this.domainFile = domainFile;
         this.translator = translator;
     }

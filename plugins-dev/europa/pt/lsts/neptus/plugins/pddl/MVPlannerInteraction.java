@@ -80,12 +80,17 @@ public class MVPlannerInteraction extends ConsoleInteraction {
     private MVPlannerTask selectedTask = null;
     private Point2D lastPoint = null;
     private MVProblemSpecification problem = null;
-    private static final int NUM_TRIES = 50;
     private LinkedHashMap<String, PlanType> generatedPlans = new LinkedHashMap<String, PlanType>();
     
     @NeptusProperty(name = "Domain Model to use")
     private MVDomainModel domainModel = MVDomainModel.V1;
     
+    @NeptusProperty(name = "Seconds to search for optimal solution. Use 0 for multiple fast solutions.")
+    private int seconds = 0;
+    
+    @NeptusProperty(name = "Number of fast solutions (if not optimizing).")
+    private int numTries = 50;
+        
     @Override
     public void paintInteraction(Graphics2D g, StateRenderer2D source) {
 
@@ -183,7 +188,7 @@ public class MVPlannerInteraction extends ConsoleInteraction {
     private void generate(ActionEvent action) {
         Thread t = new Thread("Generating Multi-Vehicle plan...") {
             public void run() {
-                ProgressMonitor pm = new ProgressMonitor(getConsole(), "Searching for solutions...", "Generating initial state", 0, 5+NUM_TRIES);
+                ProgressMonitor pm = new ProgressMonitor(getConsole(), "Searching for solutions...", "Generating initial state", 0, 5+numTries);
                 
                 Vector<VehicleType> activeVehicles = new Vector<VehicleType>();
                 for (ImcSystem s : ImcSystemsHolder.lookupActiveSystemVehicles()) {
@@ -194,40 +199,74 @@ public class MVPlannerInteraction extends ConsoleInteraction {
                 problem = new MVProblemSpecification(domainModel, activeVehicles, tasks, null);
                 FileUtil.saveToFile("initial_state.pddl", problem.asPDDL());
                 pm.setProgress(5);
+                pm.setMillisToPopup(0);
                 double bestYet = 0;
                 String bestSolution = null;
                 
-                for (int i = 0; i < NUM_TRIES; i++) {
-                    String best = "N/A";
-                    if (bestSolution != null)
-                        best = DateTimeUtil.milliSecondsToFormatedString((long)(bestYet * 1000));
-                    if (pm.isCanceled())
-                        return;
-                    pm.setNote("Current best solution time: "+best);
-                    pm.setProgress(5+i);
-                    
-                    try {
-                        String solution = problem.solve();
-                        if (solution.isEmpty())
-                            continue;                
-                        if (bestSolution == null) {
-                            bestSolution = solution;
-                            bestYet = solutionCost(solution);
-                        }
-                        else {
-                            if (solutionCost(solution) < bestYet) {
-                                bestYet = solutionCost(solution);
+                if (seconds == 0) {
+                    for (int i = 0; i < numTries; i++) {
+                        String best = "N/A";
+                        if (bestSolution != null)
+                            best = DateTimeUtil.milliSecondsToFormatedString((long)(bestYet * 1000));
+                        if (pm.isCanceled())
+                            return;
+                        pm.setNote("Current best solution time: "+best);
+                        pm.setProgress(5+i);
+                        
+                        try {
+                            String solution = problem.solve(0);
+                            if (solution.isEmpty())
+                                continue;                
+                            if (bestSolution == null) {
                                 bestSolution = solution;
-                                
+                                bestYet = solutionCost(solution);
                             }
-                        }                                
+                            else {
+                                if (solutionCost(solution) < bestYet) {
+                                    bestYet = solutionCost(solution);
+                                    bestSolution = solution;
+                                    
+                                }
+                            }                                
+                        }
+                        catch (Exception ex) {
+                            NeptusLog.pub().error(ex);
+                        }
+                        pm.setProgress(5+numTries);                        
+                    }
+                    pm.close();
+                }
+                else {
+                    try {                        
+                        bestSolution = problem.solve(seconds);
+                        
+                        Thread progress = new Thread("Progress updater") {
+                            public void run() {
+                                pm.setMaximum(seconds*10);
+                                pm.setProgress(0);
+                                
+                                for (int i = 0; i < seconds * 10; i++) {
+                                    pm.setNote("Seconds ellapsed: "+i);
+                                    pm.setProgress(i);
+                                    try {
+                                        Thread.sleep(100);
+                                    }
+                                    catch (Exception e) {
+                                        e.printStackTrace();
+                                    }
+                                }
+                                pm.setProgress(pm.getMaximum());
+                                pm.close();
+                            };
+                        };
+                        progress.setDaemon(true);
+                        progress.start();
                     }
                     catch (Exception ex) {
                         NeptusLog.pub().error(ex);
                     }
                 }
-                pm.setProgress(5+NUM_TRIES);
-                pm.close();
+
                 generatedPlans.clear();
                 if (bestSolution != null) {
                     MVSolution solution = problem.getSolution();

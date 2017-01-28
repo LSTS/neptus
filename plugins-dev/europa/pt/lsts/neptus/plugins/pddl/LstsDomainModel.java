@@ -48,7 +48,7 @@ import pt.lsts.neptus.types.vehicle.VehicleType;
  * @author zp
  *
  */
-public class LstsDomainModelV1 {
+public class LstsDomainModel {
 
     LinkedHashMap<String, LocationType> locations = new LinkedHashMap<String, LocationType>();
     LinkedHashMap<String, Integer> vehicleBattery = new LinkedHashMap<String, Integer>();
@@ -140,25 +140,23 @@ public class LstsDomainModelV1 {
         StringBuilder sb = new StringBuilder();
 
         if (!problem.surveyTasks.isEmpty()) {
-            sb.append(" ");
             for (SurveyAreaTask t : problem.surveyTasks) {
-                sb.append(" " + t.getName() + "_area");
+                sb.append("  " + t.getName() + "_area");
             }
             sb.append(" - area\n");
         }
         else {
-            sb.append(" dummy_area - area\n");
+            sb.append("  dummy_area - area\n");
         }
 
         if (!problem.sampleTasks.isEmpty()) {
-            sb.append("  ");
             for (SamplePointTask t : problem.sampleTasks) {
-                sb.append(" " + t.getName() + "_obj");
+                sb.append("  " + t.getName() + "_obj");
             }
             sb.append(" - oi\n");
         }
         else {
-            sb.append(" dummy_obj - oi\n");
+            sb.append("  dummy_obj - oi\n");
         }
 
         sb.append("  ");
@@ -199,36 +197,29 @@ public class LstsDomainModelV1 {
         return sb.toString();
     }
 
-    protected String vehicleDetails(MVProblemSpecification problem) {
-
+    protected String vehicleDetails(VehicleType v, MVProblemSpecification problem) {
         StringBuilder sb = new StringBuilder();
-
-        // details of all vehicles
-        for (VehicleType v : problem.vehicles) {
-            sb.append("\n;" + v.getId() + ":\n");
-            double moveConsumption = VehicleParams.moveConsumption(v) * MVProblemSpecification.powerUnitMultiplier
-                    / 3600.0;
-            sb.append("  (=(speed " + v.getNickname() + ") " + MVProblemSpecification.constantSpeed + ")\n");
-            sb.append("  (= (battery-consumption-move " + v.getNickname() + ") "
-                    + String.format(Locale.US, "%.2f", moveConsumption) + ")\n");
-            sb.append("  (= (battery-level " + v.getNickname() + ") "
-                    + vehicleBattery.get(v.getId()) * MVProblemSpecification.powerUnitMultiplier + ")\n");
-            sb.append("  (base " + v.getNickname() + " " + v.getNickname() + "_depot)\n\n");
-            sb.append("  (at " + v.getNickname() + " " + v.getNickname() + "_depot" + ")\n");
-            for (Entry<String, Vector<String>> entry : payloadNames.entrySet()) {
-                for (String n : entry.getValue()) {
-                    if (n.startsWith(v.getNickname() + "_")) {
-                        double consumption = ((PayloadRequirement.valueOf(entry.getKey()).getConsumptionPerHour()
-                                / 3600.0) * MVProblemSpecification.powerUnitMultiplier);
-                        sb.append("  (= (battery-consumption-payload " + n + ") "
-                                + String.format(Locale.US, "%.2f", consumption) + ")\n");
-                        sb.append("  (having " + n + " " + v.getNickname() + ")\n");
-                    }
+        sb.append("\n  ;" + v.getId() + ":\n");
+        double moveConsumption = VehicleParams.moveConsumption(v) * MVProblemSpecification.powerUnitMultiplier
+                / 3600.0;
+        sb.append("  (= (speed " + v.getNickname() + ") " + MVProblemSpecification.constantSpeed + ")\n");
+        sb.append("  (= (battery-consumption-move " + v.getNickname() + ") "
+                + String.format(Locale.US, "%.2f", moveConsumption) + ")\n");
+        sb.append("  (= (battery-level " + v.getNickname() + ") "
+                + vehicleBattery.get(v.getId()) * MVProblemSpecification.powerUnitMultiplier + ")\n");
+        sb.append("  (base " + v.getNickname() + " " + v.getNickname() + "_depot)\n\n");
+        sb.append("  (at " + v.getNickname() + " " + v.getNickname() + "_depot" + ")\n");
+        for (Entry<String, Vector<String>> entry : payloadNames.entrySet()) {
+            for (String n : entry.getValue()) {
+                if (n.startsWith(v.getNickname() + "_")) {
+                    double consumption = ((PayloadRequirement.valueOf(entry.getKey()).getConsumptionPerHour()
+                            / 3600.0) * MVProblemSpecification.powerUnitMultiplier);
+                    sb.append("  (= (battery-consumption-payload " + n + ") "
+                            + String.format(Locale.US, "%.2f", consumption) + ")\n");
+                    sb.append("  (having " + n + " " + v.getNickname() + ")\n");
                 }
             }
-        }
-
-        sb.append("\n");
+        }        
         return sb.toString();
     }
     
@@ -236,7 +227,7 @@ public class LstsDomainModelV1 {
 
         StringBuilder sb = new StringBuilder();
         for (SamplePointTask t : problem.sampleTasks) {
-            sb.append("\n;" + t.getName() + " object of interest:\n");
+            sb.append("\n  ;" + t.getName() + " object of interest:\n");
             sb.append("  (free " + t.getName() + "_oi)\n");
             sb.append("  (at_oi " + t.getName() + "_obj " + t.getName() + "_oi" + ")\n");
             for (PayloadRequirement r : t.getRequiredPayloads()) {
@@ -327,8 +318,10 @@ public class LstsDomainModelV1 {
         sb.append(distances(problem));
 
         // details of all vehicles
-        sb.append(vehicleDetails(problem));
-
+        for (VehicleType v : problem.vehicles) {
+            sb.append(vehicleDetails(v, problem));
+        }
+        
         // survey tasks
         sb.append(surveyTasks(problem));
         

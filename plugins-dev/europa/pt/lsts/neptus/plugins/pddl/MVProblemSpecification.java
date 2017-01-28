@@ -59,7 +59,9 @@ public class MVProblemSpecification {
     Vector<SurveyAreaTask> surveyTasks = new Vector<SurveyAreaTask>();
     Vector<VehicleType> vehicles = new Vector<VehicleType>();
     LocationType defaultLoc = null;
-    private String command = "lpg -o DOMAIN -f INITIAL_STATE -speed";
+    private String command_speed = "lpg -o DOMAIN -f INITIAL_STATE -speed";
+    private String command_secs = "lpg -o DOMAIN -f INITIAL_STATE -n 10 -cputime ";
+    
     private MVSolution solution;
 
     private MVDomainModel domainModel = MVDomainModel.V1;
@@ -90,10 +92,14 @@ public class MVProblemSpecification {
         return locations;
     }
 
-    public String solve() throws Exception {
+    public String solve(int secs) throws Exception {
         FileUtil.saveToFile("conf/pddl/initial_state.pddl", asPDDL());
         Pattern pat = Pattern.compile(".*([\\d\\.]+)\\:.*\\((.*)\\).* \\[(.*)\\]");
-        String cmd = command.replaceAll("DOMAIN", domainModel.file().getAbsolutePath());
+        String cmd = command_secs+secs;
+        if (secs == 0)
+            cmd = command_speed;
+        
+        cmd = cmd.replaceAll("DOMAIN", domainModel.file().getAbsolutePath());
         cmd = cmd.replaceAll("INITIAL_STATE", "initial_state.pddl");
         cmd = cmd.replaceAll("/", System.getProperty("file.separator"));
         Process p = Runtime.getRuntime().exec(cmd, null, new File("conf/pddl"));

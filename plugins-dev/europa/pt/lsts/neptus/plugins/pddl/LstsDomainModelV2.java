@@ -32,9 +32,94 @@
  */
 package pt.lsts.neptus.plugins.pddl;
 
+import pt.lsts.neptus.types.vehicle.VehicleType;
+
 /**
  * @author zp
  *
  */
-public class LstsDomainModelV2 extends LstsDomainModelV1 {
+public class LstsDomainModelV2 extends LstsDomainModel {
+
+    @Override
+    protected String vehicleDetails(VehicleType v, MVProblemSpecification problem) {
+
+        StringBuilder sb = new StringBuilder();
+
+        sb.append(super.vehicleDetails(v, problem));
+
+        sb.append("  (can-move " + v.getNickname() + ") ;required always\n");
+        sb.append("  (= (from-base " + v.getNickname() +") 0) ;how long the vehicle is away from its depots \n"); // FIXME
+        sb.append("  (= (max-to-base " + v.getNickname() +") 1000) ;the maximum time before returning to the depot\n");
+        sb.append("\n");
+
+        return sb.toString();
+    }
+
+    @Override
+    protected String goals(MVProblemSpecification problem) {
+
+        StringBuilder sb = new StringBuilder();
+        sb.append("(:metric minimize (+ (total-time)(base-returns)))\n");
+        
+        sb.append("(:goal (and\n");
+        for (SamplePointTask t : problem.sampleTasks) {
+            for (PayloadRequirement r : t.getRequiredPayloads()) {
+                sb.append("  (communicated_data " + t.getName() + "_" + r.name() + ")\n");
+            }
+        }
+        for (SurveyAreaTask t : problem.surveyTasks) {
+            for (PayloadRequirement r : t.getRequiredPayloads()) {
+                sb.append("  (communicated_data " + t.getName() + "_" + r.name() + ")\n");
+            }
+        }
+        sb.append("))\n");
+        return sb.toString();
+    }
+
+    @Override
+    public String getInitialState(MVProblemSpecification problem) {
+
+        init(problem);
+
+        // start printing...
+        StringBuilder sb = new StringBuilder();
+        sb.append("(define (problem LSTSprob)(:domain LSTS)\n(:objects\n  ");
+
+        // print location names
+        sb.append(locationNames(problem));
+
+        // print vehicle names
+        sb.append(vehicles(problem));
+
+        // print payload names
+        sb.append(payloadNames(problem));
+
+        // print task names
+        sb.append(taskNames(problem));
+
+        sb.append(")\n(:init\n");
+
+        // distance between all locations
+        sb.append(distances(problem));
+
+        sb.append("  (= (base-returns) 0) ; \"cost\" of returning to the depots \n");
+
+        // details of all vehicles
+        for (VehicleType v : problem.vehicles) {
+            sb.append(vehicleDetails(v, problem));
+        }
+
+        // survey tasks
+        sb.append(surveyTasks(problem));
+
+        // sample tasks
+        sb.append(sampleTasks(problem));
+        sb.append(")\n");
+
+        // goals to solve
+        sb.append(goals(problem));
+
+        return sb.toString();
+    }
+
 }

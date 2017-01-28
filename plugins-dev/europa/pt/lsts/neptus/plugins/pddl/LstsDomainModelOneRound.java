@@ -36,6 +36,6 @@ package pt.lsts.neptus.plugins.pddl;
  * @author zp
  *
  */
-public class LstsDomainModelOneRound extends LstsDomainModelV1 {
+public class LstsDomainModelOneRound extends LstsDomainModelV2 {
 
 }
