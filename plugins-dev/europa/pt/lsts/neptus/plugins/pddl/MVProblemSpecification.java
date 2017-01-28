@@ -72,6 +72,8 @@ public class MVProblemSpecification {
     private LocationType defaultLoc = null;
     private String command = "lpg -o DOMAIN -f INITIAL_STATE -speed";
     private MVSolution solution;
+
+    private MVDomainModel domainModel = MVDomainModel.V1;
     
     LinkedHashMap<String, LocationType> calculateLocations() {
         LinkedHashMap<String, LocationType> locations = new LinkedHashMap<String, LocationType>();
@@ -102,7 +104,7 @@ public class MVProblemSpecification {
     public String solve() throws Exception {
         FileUtil.saveToFile("conf/pddl/initial_state.pddl", asPDDL());
         Pattern pat = Pattern.compile(".*([\\d\\.]+)\\:.*\\((.*)\\).* \\[(.*)\\]");
-        String cmd = command.replaceAll("DOMAIN", "LSTS_domain.pddl");
+        String cmd = command.replaceAll("DOMAIN", domainModel.file().getAbsolutePath());
         cmd = cmd.replaceAll("INITIAL_STATE", "initial_state.pddl");
         cmd = cmd.replaceAll("/", System.getProperty("file.separator"));
         Process p = Runtime.getRuntime().exec(cmd, null, new File("conf/pddl"));
@@ -131,8 +133,9 @@ public class MVProblemSpecification {
     }
 
 
-    public MVProblemSpecification(Collection<VehicleType> vehicles, Collection<MVPlannerTask> tasks, LocationType defaultLoc) {
+    public MVProblemSpecification(MVDomainModel model, Collection<VehicleType> vehicles, Collection<MVPlannerTask> tasks, LocationType defaultLoc) {
 
+        this.domainModel = model;
         this.defaultLoc = defaultLoc;
 
         for (MVPlannerTask t : tasks) {
@@ -396,7 +399,7 @@ public class MVProblemSpecification {
         }
 
         LocationType defaultLoc = new LocationType(center).translatePosition(r.nextDouble()*300-150, r.nextDouble()*300-150, 0);
-        return new MVProblemSpecification(vehiclTypes, generatedTasks, defaultLoc);
+        return new MVProblemSpecification(MVDomainModel.V1, vehiclTypes, generatedTasks, defaultLoc);
     }
     
     public MVSolution getSolution() {
