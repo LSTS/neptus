@@ -45,17 +45,17 @@ public enum MVDomainModel {
     OneRound(new File("conf/pddl/LSTS_domain-one_round.pddl"), new LstsDomainModelOneRound());
     
     private final File domainFile;
-    private final PddlTranslator translator;
+    private final LstsDomainModelV1 translator;
     
     public File file() {
         return domainFile;
     }
     
-    public PddlTranslator translator() {
+    public LstsDomainModelV1 translator() {
         return translator;
     }
     
-    private MVDomainModel(File domainFile, PddlTranslator translator) {
+    private MVDomainModel(File domainFile, LstsDomainModelV1 translator) {
         this.domainFile = domainFile;
         this.translator = translator;
     }

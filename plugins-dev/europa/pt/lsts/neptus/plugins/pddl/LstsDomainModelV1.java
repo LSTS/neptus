@@ -48,15 +48,18 @@ import pt.lsts.neptus.types.vehicle.VehicleType;
  * @author zp
  *
  */
-public class LstsDomainModelV1 implements PddlTranslator {
+public class LstsDomainModelV1 {
 
-    @Override
-    public String getInitialState(MVProblemSpecification problem) {
+    LinkedHashMap<String, LocationType> locations = new LinkedHashMap<String, LocationType>();
+    LinkedHashMap<String, Integer> vehicleBattery = new LinkedHashMap<String, Integer>();
+    LinkedHashMap<String, Vector<String>> payloadNames = new LinkedHashMap<String, Vector<String>>();
 
-        LinkedHashMap<String, LocationType> locations = new LinkedHashMap<String, LocationType>();
-        LinkedHashMap<String, Integer> vehicleBattery = new LinkedHashMap<String, Integer>();
-        LinkedHashMap<String, Vector<String>> payloadNames = new LinkedHashMap<String, Vector<String>>();
+    protected void init(MVProblemSpecification problem) {
 
+        locations.clear();
+        vehicleBattery.clear();
+        payloadNames.clear();
+        
         // calculate all positions to be given to the planner, first from vehicles
         for (VehicleType v : problem.vehicles) {
 
@@ -97,29 +100,44 @@ public class LstsDomainModelV1 implements PddlTranslator {
                 payloadNames.get(pr.name()).add(v.getNickname() + "_" + pr.name());
             }
         }
+    }
 
-        // start printing...
+    protected String locationNames(MVProblemSpecification problem) {
         StringBuilder sb = new StringBuilder();
-        sb.append("(define (problem LSTSprob)(:domain LSTS)\n(:objects\n  ");
 
-        // print location names
         for (String loc : locations.keySet()) {
             sb.append(" " + loc);
         }
         sb.append(" - location\n  ");
 
-        // print vehicle names
+        return sb.toString();
+    }
+
+    protected String vehicles(MVProblemSpecification problem) {
+        StringBuilder sb = new StringBuilder();
+
         for (VehicleType v : problem.vehicles)
             sb.append(" " + v.getNickname());
         sb.append(" - auv\n  ");
 
-        // print payload names
+        return sb.toString();
+    }
+
+    protected String payloadNames(MVProblemSpecification problem) {
+        StringBuilder sb = new StringBuilder();
+
         for (String ptype : payloadNames.keySet()) {
             for (String name : payloadNames.get(ptype)) {
                 sb.append(" " + name);
             }
             sb.append(" - " + ptype + "\n  ");
         }
+
+        return sb.toString();
+    }
+
+    protected String taskNames(MVProblemSpecification problem) {
+        StringBuilder sb = new StringBuilder();
 
         if (!problem.surveyTasks.isEmpty()) {
             sb.append(" ");
@@ -156,7 +174,12 @@ public class LstsDomainModelV1 implements PddlTranslator {
         }
         sb.append(" - task\n");
 
-        sb.append(")\n(:init\n");
+        return sb.toString();
+    }
+
+    protected String distances(MVProblemSpecification problem) {
+
+        StringBuilder sb = new StringBuilder();
 
         // distance between all locations
         Vector<String> locNames = new Vector<String>();
@@ -173,6 +196,12 @@ public class LstsDomainModelV1 implements PddlTranslator {
             }
         }
         sb.append("\n");
+        return sb.toString();
+    }
+
+    protected String vehicleDetails(MVProblemSpecification problem) {
+
+        StringBuilder sb = new StringBuilder();
 
         // details of all vehicles
         for (VehicleType v : problem.vehicles) {
@@ -197,10 +226,39 @@ public class LstsDomainModelV1 implements PddlTranslator {
                     }
                 }
             }
+        }
 
+        sb.append("\n");
+        return sb.toString();
+    }
+    
+    protected String sampleTasks(MVProblemSpecification problem) {
+
+        StringBuilder sb = new StringBuilder();
+        for (SamplePointTask t : problem.sampleTasks) {
+            sb.append("\n;" + t.getName() + " object of interest:\n");
+            sb.append("  (free " + t.getName() + "_oi)\n");
+            sb.append("  (at_oi " + t.getName() + "_obj " + t.getName() + "_oi" + ")\n");
+            for (PayloadRequirement r : t.getRequiredPayloads()) {
+
+                if (!payloadNames.containsKey(r.name())) {
+                    System.err.println("No vehicle is capable of executing task " + t.getName() + " with " + r.name());
+                    continue;
+                }
+
+                for (String alternative : payloadNames.get(r.name())) {
+                    sb.append("  (task_desc " + t.getName() + "_" + r.name() + " " + t.getName() + "_obj " + alternative
+                            + ")\n");
+                }
+            }
         }
         sb.append("\n");
+        return sb.toString();
+    }
+    
+    protected String surveyTasks(MVProblemSpecification problem) {
 
+        StringBuilder sb = new StringBuilder();
         for (SurveyAreaTask t : problem.surveyTasks) {
             sb.append("\n;" + t.getName() + " survey:\n");
             sb.append("  (available " + t.getName() + "_area)\n");
@@ -222,26 +280,11 @@ public class LstsDomainModelV1 implements PddlTranslator {
                 }
             }
         }
+        return sb.toString();
+    }
 
-        for (SamplePointTask t : problem.sampleTasks) {
-            sb.append("\n;" + t.getName() + " object of interest:\n");
-            sb.append("  (free " + t.getName() + "_oi)\n");
-            sb.append("  (at_oi " + t.getName() + "_obj " + t.getName() + "_oi" + ")\n");
-            for (PayloadRequirement r : t.getRequiredPayloads()) {
-
-                if (!payloadNames.containsKey(r.name())) {
-                    System.err.println("No vehicle is capable of executing task " + t.getName() + " with " + r.name());
-                    continue;
-                }
-
-                for (String alternative : payloadNames.get(r.name())) {
-                    sb.append("  (task_desc " + t.getName() + "_" + r.name() + " " + t.getName() + "_obj " + alternative
-                            + ")\n");
-                }
-            }
-        }
-
-        sb.append("\n)");
+    protected String goals(MVProblemSpecification problem) {
+        StringBuilder sb = new StringBuilder();
         sb.append("(:goal (and\n");
         for (SamplePointTask t : problem.sampleTasks) {
             for (PayloadRequirement r : t.getRequiredPayloads()) {
@@ -255,8 +298,54 @@ public class LstsDomainModelV1 implements PddlTranslator {
         }
         sb.append("))\n");
         sb.append("(:metric minimize (total-time)))\n");
+        return sb.toString();
+    }
+    
+    public String getInitialState(MVProblemSpecification problem) {
+
+        init(problem);
+
+        // start printing...
+        StringBuilder sb = new StringBuilder();
+        sb.append("(define (problem LSTSprob)(:domain LSTS)\n(:objects\n  ");
+
+        // print location names
+        sb.append(locationNames(problem));
+
+        // print vehicle names
+        sb.append(vehicles(problem));
+
+        // print payload names
+        sb.append(payloadNames(problem));
+
+        // print task names
+        sb.append(taskNames(problem));
+
+        sb.append(")\n(:init\n");
+
+        // distance between all locations
+        sb.append(distances(problem));
+
+        // details of all vehicles
+        sb.append(vehicleDetails(problem));
+
+        // survey tasks
+        sb.append(surveyTasks(problem));
+        
+        // sample tasks
+        sb.append(sampleTasks(problem));
+        sb.append(")\n");
+        
+        // goals to solve
+        sb.append(goals(problem));
 
         return sb.toString();
     }
 
+    public MVSolution parseSolution(MVProblemSpecification problem, String solution) {
+        Vector<MVPlannerTask> tasks = new Vector<MVPlannerTask>();
+        tasks.addAll(problem.sampleTasks);
+        tasks.addAll(problem.surveyTasks);
+        return new MVSolution(problem.calculateLocations(), solution, tasks);
+    }
 }
