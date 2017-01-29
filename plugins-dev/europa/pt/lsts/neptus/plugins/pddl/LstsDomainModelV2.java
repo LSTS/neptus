@@ -48,29 +48,30 @@ public class LstsDomainModelV2 extends LstsDomainModel {
 
         StringBuilder sb = new StringBuilder();
 
-        double timeToStart = (states.get(v).getTime()- System.currentTimeMillis()) / 1000.0;
+        double timeToStart = (states.get(v).getTime() - System.currentTimeMillis()) / 1000.0;
         if (timeToStart < 10)
             timeToStart = 0;
-        
+
         sb.append("\n  ;" + v.getId() + ":\n");
         sb.append("  (= (speed " + v.getNickname() + ") " + MVProblemSpecification.constantSpeed + ")\n");
         sb.append("  (base " + v.getNickname() + " " + v.getNickname() + "_depot)\n\n");
         if (timeToStart == 0)
             sb.append("  (at " + v.getNickname() + " " + v.getNickname() + "_depot" + ")\n");
         else
-            sb.append("  (at "+timeToStart+" (at " + v.getNickname() + " " + v.getNickname() + "_depot" + "))\n");
-            
+            sb.append("  (at " + timeToStart + " (at " + v.getNickname() + " " + v.getNickname() + "_depot" + "))\n");
+
         for (Entry<String, Vector<String>> entry : payloadNames.entrySet()) {
             for (String n : entry.getValue()) {
                 if (n.startsWith(v.getNickname() + "_")) {
                     sb.append("  (having " + n + " " + v.getNickname() + ")\n");
                 }
             }
-        }        
-                
+        }
+
         sb.append("  (can-move " + v.getNickname() + ") ;required always\n");
-        sb.append("  (= (from-base " + v.getNickname() +") 0) ;how long the vehicle is away from its depot \n"); // FIXME
-        sb.append("  (= (max-to-base " + v.getNickname() +") 1000) ;the maximum time before returning to the depot\n");
+        sb.append("  (= (from-base " + v.getNickname() + ") 0) ;how long the vehicle is away from its depot \n"); // FIXME
+        sb.append("  (= (max-to-base " + v.getNickname() + ") " + problem.secondsAwayFromDepot
+                + ") ;the maximum time before returning to the depot\n");
         sb.append("\n");
 
         return sb.toString();
@@ -80,7 +81,7 @@ public class LstsDomainModelV2 extends LstsDomainModel {
     protected String goals(MVProblemSpecification problem) {
 
         StringBuilder sb = new StringBuilder();
-        
+
         sb.append("\n(:goal (and\n");
         for (SamplePointTask t : problem.sampleTasks) {
             for (PayloadRequirement r : t.getRequiredPayloads()) {
@@ -93,9 +94,9 @@ public class LstsDomainModelV2 extends LstsDomainModel {
             }
         }
         sb.append("))\n\n");
-        
+
         sb.append("(:metric minimize (+ (total-time)(base-returns))))\n");
-        
+
         return sb.toString();
     }
 

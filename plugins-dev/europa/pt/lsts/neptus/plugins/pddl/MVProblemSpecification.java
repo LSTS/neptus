@@ -63,28 +63,29 @@ public class MVProblemSpecification {
     Vector<SurveyAreaTask> surveyTasks = new Vector<SurveyAreaTask>();
     LinkedHashMap<VehicleType, SystemPositionAndAttitude> vehicleStates = new LinkedHashMap<>();
     LocationType defaultLoc = null;
-    
+    int secondsAwayFromDepot = 1000;
+
     private String command_speed = "lpg -o DOMAIN -f INITIAL_STATE -out OUTFILE -speed";
     private String command_secs = "lpg -o DOMAIN -f INITIAL_STATE -out OUTFILE -n 10 -cputime ";
-    
+
     private MVSolution solution;
 
     private MVDomainModel domainModel = MVDomainModel.V1;
-    
+
     LinkedHashMap<String, LocationType> calculateLocations() {
         LinkedHashMap<String, LocationType> locations = new LinkedHashMap<String, LocationType>();
 
         // Vehicle depots (present and future)
         for (Entry<VehicleType, SystemPositionAndAttitude> entry : vehicleStates.entrySet())
-            locations.put(entry.getKey().getNickname()+"_depot", entry.getValue().getPosition());
-        
+            locations.put(entry.getKey().getNickname() + "_depot", entry.getValue().getPosition());
+
         // and then tasks
         for (SurveyAreaTask task : surveyTasks) {
-            locations.put(task.getName()+"_entry", task.getEntryPoint());
-            locations.put(task.getName()+"_exit", task.getEndPoint());
+            locations.put(task.getName() + "_entry", task.getEntryPoint());
+            locations.put(task.getName() + "_exit", task.getEndPoint());
         }
         for (SamplePointTask task : sampleTasks) {
-            locations.put(task.getName()+"_oi", task.getLocation());            
+            locations.put(task.getName() + "_oi", task.getLocation());
         }
 
         return locations;
@@ -94,19 +95,18 @@ public class MVProblemSpecification {
         SimpleDateFormat fmt = new SimpleDateFormat("yyyyMMdd-HHmmss");
         fmt.setTimeZone(TimeZone.getTimeZone("UTC"));
         String timestamp = fmt.format(new Date());
-        String input_file = "log/pddl/problem_"+timestamp+".pddl";
-        String output_file = "log/pddl/solution_"+timestamp+".SOL";
-        
-        
+        String input_file = "log/pddl/problem_" + timestamp + ".pddl";
+        String output_file = "log/pddl/solution_" + timestamp + ".SOL";
+
         FileUtil.saveToFile(input_file, asPDDL());
-        String cmd = command_secs+secs;
+        String cmd = command_secs + secs;
         if (secs == 0)
             cmd = command_speed;
-        
+
         cmd = cmd.replaceAll("DOMAIN", domainModel.file().getAbsolutePath());
-        cmd = cmd.replaceAll("INITIAL_STATE", "problem_"+timestamp+".pddl");
-        cmd = cmd.replaceAll("OUTFILE", "solution_"+timestamp+".SOL");
-        
+        cmd = cmd.replaceAll("INITIAL_STATE", "problem_" + timestamp + ".pddl");
+        cmd = cmd.replaceAll("OUTFILE", "solution_" + timestamp + ".SOL");
+
         cmd = cmd.replaceAll("/", System.getProperty("file.separator"));
         Process p = Runtime.getRuntime().exec(cmd, null, new File("log/pddl"));
         StringBuilder result = new StringBuilder();
@@ -114,7 +114,7 @@ public class MVProblemSpecification {
         String line = reader.readLine();
 
         while (line != null) {
-            result.append(line.toLowerCase().trim()+"\n");
+            result.append(line.toLowerCase().trim() + "\n");
             System.out.println(line);
             line = reader.readLine();
         }
@@ -122,16 +122,18 @@ public class MVProblemSpecification {
         if (outputFile.canRead()) {
             solution = domainModel.translator().parseSolution(this, FileUtil.getFileAsString(outputFile));
             return FileUtil.getFileAsString(outputFile);
-        }        
-        
-        return "";        
+        }
+
+        return "";
     }
 
-
-    public MVProblemSpecification(MVDomainModel model, Collection<VehicleType> vehicles, Collection<MVPlannerTask> tasks, Collection<ConsoleEventFutureState> futureStates, LocationType defaultLoc) {
+    public MVProblemSpecification(MVDomainModel model, Collection<VehicleType> vehicles,
+            Collection<MVPlannerTask> tasks, Collection<ConsoleEventFutureState> futureStates,
+            LocationType defaultLoc, int secondsAwayFromDepot) {
 
         this.domainModel = model;
         this.defaultLoc = defaultLoc;
+        this.secondsAwayFromDepot = secondsAwayFromDepot;
         
         // connected vehicles
         for (VehicleType v : vehicles) {
@@ -141,22 +143,22 @@ public class MVProblemSpecification {
             }
             catch (Exception e) {
             }
-            SystemPositionAndAttitude pos = new SystemPositionAndAttitude(loc, 0,0,0);
+            SystemPositionAndAttitude pos = new SystemPositionAndAttitude(loc, 0, 0, 0);
             vehicleStates.put(v, pos);
         }
-        
+
         // vehicles currently executing plans (connected or not)
         for (ConsoleEventFutureState futureState : futureStates) {
             SystemPositionAndAttitude state = new SystemPositionAndAttitude(futureState.getState());
             state.setTime(futureState.getDate().getTime());
             vehicleStates.put(VehiclesHolder.getVehicleById(futureState.getVehicle()), state);
         }
-        
+
         for (MVPlannerTask t : tasks) {
-            if (t instanceof SurveyAreaTask) 
-                surveyTasks.add((SurveyAreaTask)t);
+            if (t instanceof SurveyAreaTask)
+                surveyTasks.add((SurveyAreaTask) t);
             else if (t instanceof SamplePointTask) {
-                sampleTasks.add((SamplePointTask)t);
+                sampleTasks.add((SamplePointTask) t);
             }
         }
     }
@@ -164,10 +166,9 @@ public class MVProblemSpecification {
     public String asPDDL() {
         return domainModel.translator().getInitialState(this);
     }
-    
+
     public MVSolution getSolution() {
         return solution;
     }
 
-    
 }

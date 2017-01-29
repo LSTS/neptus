@@ -113,7 +113,7 @@ public class MVPlannerTest {
 
         LocationType defaultLoc = new LocationType(center).translatePosition(r.nextDouble() * 300 - 150,
                 r.nextDouble() * 300 - 150, 0);
-        return new MVProblemSpecification(MVDomainModel.V1, vehiclTypes, generatedTasks, new ArrayList<>(), defaultLoc);
+        return new MVProblemSpecification(MVDomainModel.V1, vehiclTypes, generatedTasks, new ArrayList<>(), defaultLoc, 1000);
     }
 
     /**

@@ -60,6 +60,7 @@ import pt.lsts.neptus.console.ConsoleLayout;
 import pt.lsts.neptus.console.events.ConsoleEventFutureState;
 import pt.lsts.neptus.gui.PropertiesEditor;
 import pt.lsts.neptus.plugins.NeptusProperty;
+import pt.lsts.neptus.plugins.NeptusProperty.LEVEL;
 import pt.lsts.neptus.plugins.PluginDescription;
 import pt.lsts.neptus.plugins.PluginUtils;
 import pt.lsts.neptus.renderer2d.StateRenderer2D;
@@ -87,16 +88,19 @@ public class MVPlannerInteraction extends ConsoleInteraction {
     private LinkedHashMap<String, ConsoleEventFutureState> futureStates = new LinkedHashMap<String, ConsoleEventFutureState>();
 
 
-    @NeptusProperty(name = "Domain Model to use")
+    @NeptusProperty(category="Problem Specification", name = "Domain Model to use")
     private MVDomainModel domainModel = MVDomainModel.V1;
 
-    @NeptusProperty(name = "Seconds to search for optimal solution. Use 0 for multiple fast solutions.")
-    private int seconds = 0;
+    @NeptusProperty(category="Problem Specification", name = "Time (seconds) vehicles can stay away from depot")
+    private int secondsAway = 1000;
 
-    @NeptusProperty(name = "Number of fast solutions (if not optimizing).")
+    @NeptusProperty(category="Plan Generation", name = "Time (seconds) to search for optimal solution.")
+    private int searchSeconds = 0;
+
+    @NeptusProperty(category="Plan Generation", name = "Number of alternative solutions (if not timed).", userLevel=LEVEL.ADVANCED)
     private int numTries = 50;
     
-    @NeptusProperty(name = "Pop up at surface right before surveys.")
+    @NeptusProperty(category="Plan Generation", name = "Include pop-ups in generated plans.")
     private boolean generatePopups = false;
     
 
@@ -210,14 +214,14 @@ public class MVPlannerInteraction extends ConsoleInteraction {
                     futures.addAll(futureStates.values());
                 }
                 
-                problem = new MVProblemSpecification(domainModel, activeVehicles, tasks, futures, null);
+                problem = new MVProblemSpecification(domainModel, activeVehicles, tasks, futures, null, secondsAway);
                 FileUtil.saveToFile("initial_state.pddl", problem.asPDDL());
                 pm.setProgress(5);
                 pm.setMillisToPopup(0);
                 double bestYet = 0;
                 String bestSolution = null;
 
-                if (seconds == 0) {
+                if (searchSeconds == 0) {
                     for (int i = 0; i < numTries; i++) {
                         String best = "N/A";
                         if (bestSolution != null)
@@ -253,11 +257,11 @@ public class MVPlannerInteraction extends ConsoleInteraction {
                     try {                        
                         Thread progress = new Thread("Progress updater") {
                             public void run() {
-                                pm.setMaximum(seconds*10);
+                                pm.setMaximum(searchSeconds*10);
                                 pm.setProgress(0);
 
-                                for (int i = 0; i < seconds * 10; i++) {
-                                    pm.setNote(String.format("Time left : %.1f seconds", (seconds-i/10.0)));
+                                for (int i = 0; i < searchSeconds * 10; i++) {
+                                    pm.setNote(String.format("Time left : %.1f seconds", (searchSeconds-i/10.0)));
                                     pm.setProgress(i);
                                     try {
                                         Thread.sleep(100);
@@ -272,7 +276,7 @@ public class MVPlannerInteraction extends ConsoleInteraction {
                         };
                         progress.setDaemon(true);
                         progress.start();
-                        bestSolution = problem.solve(seconds);
+                        bestSolution = problem.solve(searchSeconds);
                         progress.interrupt();
                         pm.setProgress(pm.getMaximum());
                         pm.close();
