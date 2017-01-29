@@ -32,7 +32,14 @@
  */
 package pt.lsts.neptus.plugins.mvplanner;
 
+import javafx.beans.DefaultProperty;
 import pt.lsts.imc.PlanSpecification;
+import pt.lsts.neptus.mp.Maneuver;
+import pt.lsts.neptus.mp.ManeuverLocation;
+import pt.lsts.neptus.mp.maneuvers.FollowPath;
+import pt.lsts.neptus.mp.maneuvers.Goto;
+import pt.lsts.neptus.mp.maneuvers.LocatedManeuver;
+import pt.lsts.neptus.plugins.mvplanner.jaxb.Profile;
 import pt.lsts.neptus.plugins.mvplanner.ui.MapObject;
 import pt.lsts.neptus.renderer2d.StateRenderer2D;
 import pt.lsts.neptus.types.coord.LocationType;
@@ -78,15 +85,16 @@ public abstract class PlanTask {
     protected TaskStateEnum taskState;
 
     /** Profile associated to this task  **/
-    protected String taskPofile;
+    protected Profile taskPofile;
 
     /** Plan generated for this task **/
     protected PlanType plan;
 
-    public PlanTask(PolygonType object) {
+    public PlanTask(PolygonType object, Profile taskProfile) {
         this.object = object;
         setWaitingState();
         vehicleId = null;
+        this.taskPofile = taskProfile;
     }
 
     /**
@@ -169,7 +177,7 @@ public abstract class PlanTask {
         return object.getCentroid();
     }
 
-    public String getProfile() {
+    public Profile getProfile() {
         return this.taskPofile;
     }
 }

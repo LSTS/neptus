@@ -33,6 +33,7 @@
 package pt.lsts.neptus.plugins.mvplanner.tasks;
 
 import pt.lsts.neptus.plugins.mvplanner.PlanTask;
+import pt.lsts.neptus.plugins.mvplanner.algorithms.SpiralSTC;
 import pt.lsts.neptus.plugins.mvplanner.mapdecomposition.GridArea;
 import pt.lsts.neptus.renderer2d.StateRenderer2D;
 import pt.lsts.neptus.types.coord.PolygonType;
@@ -42,8 +43,8 @@ import java.awt.Graphics2D;
 public class SurveyTask extends PlanTask {
     private GridArea area;
 
-    public SurveyTask(PolygonType object) {
-        super(object);
+    public SurveyTask(PolygonType object, Profile taskProfile) {
+        super(object, taskProfile);
         area = new GridArea(object, 60);
     }
 

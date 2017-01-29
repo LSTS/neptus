@@ -8,6 +8,7 @@ import java.awt.event.WindowEvent;
 import java.awt.geom.Ellipse2D;
 import java.awt.geom.Point2D;
 import java.util.*;
+import java.util.List;
 
 import pt.lsts.neptus.console.ConsoleInteraction;
 import pt.lsts.neptus.console.plugins.planning.MapPanel;
@@ -78,7 +79,7 @@ public class MvPlanner extends ConsoleInteraction implements Renderer2DPainter {
         else if(obj.isOpArea())
             operationalArea = new GridArea(obj.getPolygon(), opAreaCellSize);
 
-        onNewTaskAdded(obj.getPolygon());
+        onNewTaskAdded(obj.getPolygon(), obj.getSelectedProfile());
     }
 
     /**
@@ -86,7 +87,7 @@ public class MvPlanner extends ConsoleInteraction implements Renderer2DPainter {
      * its corresponding PlanTask and adds it to the
      * planning problem
      * */
-    private void onNewTaskAdded(PolygonType taskPolygon) {
+    private void onNewTaskAdded(PolygonType taskPolygon, Profile taskProfile) {
         int nPoints = taskPolygon.getVertices().size();
 
         // visit point
@@ -94,8 +95,9 @@ public class MvPlanner extends ConsoleInteraction implements Renderer2DPainter {
 
         }
         // survey
-        else if(nPoints > 2)
-            tasksStack.push(new SurveyTask(taskPolygon));
+        else if(nPoints > 2) {
+            tasksStack.push(new SurveyTask(taskPolygon, taskProfile));
+        }
     }
 
     /**
@@ -410,6 +412,9 @@ public class MvPlanner extends ConsoleInteraction implements Renderer2DPainter {
                     outcome.setAsOpArea();
                 else if(obstacleCheck.isSelected())
                     outcome.setAsObstacle();
+
+                if(profilesBox.isEnabled())
+                    outcome.associateProfile((Profile) profilesBox.getSelectedItem());
 
                 dialog.setVisible(false);
                 dialog.dispose();
