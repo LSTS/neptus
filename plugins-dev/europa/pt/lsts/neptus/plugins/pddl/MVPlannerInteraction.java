@@ -43,7 +43,6 @@ import java.util.LinkedHashMap;
 import java.util.Map.Entry;
 import java.util.Vector;
 
-import javax.swing.JOptionPane;
 import javax.swing.JPopupMenu;
 import javax.swing.ProgressMonitor;
 
@@ -138,18 +137,6 @@ public class MVPlannerInteraction extends ConsoleInteraction {
                 }
             });
             
-            if (clickedTask instanceof SurveyAreaTask) {
-                popup.add("Split " + clickedTask.getName()).addActionListener(new ActionListener() {
-                    @Override
-                    public void actionPerformed(ActionEvent e) {
-                        String answer = JOptionPane.showInputDialog(source, "Enter maximum time, in minutes, per task", (int)((SurveyAreaTask) clickedTask).getLength() / 60)+1;
-                        if (answer != null) {
-                            
-                        }
-                    }
-                });
-            }
-
             popup.addSeparator();
 
         }
@@ -224,8 +211,7 @@ public class MVPlannerInteraction extends ConsoleInteraction {
                             else {
                                 if (solutionCost(solution) < bestYet) {
                                     bestYet = solutionCost(solution);
-                                    bestSolution = solution;
-                                    
+                                    bestSolution = solution;                                    
                                 }
                             }                                
                         }
@@ -238,21 +224,18 @@ public class MVPlannerInteraction extends ConsoleInteraction {
                 }
                 else {
                     try {                        
-                        bestSolution = problem.solve(seconds);
-                        
                         Thread progress = new Thread("Progress updater") {
                             public void run() {
                                 pm.setMaximum(seconds*10);
                                 pm.setProgress(0);
                                 
                                 for (int i = 0; i < seconds * 10; i++) {
-                                    pm.setNote("Seconds ellapsed: "+i);
+                                    pm.setNote(String.format("Time left : %.1f seconds", (seconds-i/10.0)));
                                     pm.setProgress(i);
                                     try {
                                         Thread.sleep(100);
                                     }
                                     catch (Exception e) {
-                                        e.printStackTrace();
                                     }
                                 }
                                 pm.setProgress(pm.getMaximum());
@@ -261,8 +244,13 @@ public class MVPlannerInteraction extends ConsoleInteraction {
                         };
                         progress.setDaemon(true);
                         progress.start();
+                        bestSolution = problem.solve(seconds);
+                        progress.interrupt();
+                        pm.setProgress(pm.getMaximum());
+                        pm.close();
                     }
                     catch (Exception ex) {
+                        ex.printStackTrace();
                         NeptusLog.pub().error(ex);
                     }
                 }

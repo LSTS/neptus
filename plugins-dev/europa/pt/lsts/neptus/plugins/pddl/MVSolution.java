@@ -78,7 +78,9 @@ public class MVSolution {
         this.locations = locations;
 
         for (String line : pddlSolution.split("\n")) {
-            Action act = createAction(line);
+            if (line.trim().isEmpty() || line.trim().startsWith(";"))
+                continue;
+            Action act = createAction(line.toLowerCase());
             if (act != null)
                 actions.add(act);
         }
@@ -134,6 +136,9 @@ public class MVSolution {
         
         switch (parts[0]) {
             case "move":
+            case "move-to-area":
+            case "move-to-oi":
+            case "move-to-base":
                 Goto tmpMove = new Goto();
                 tmpMove.setSpeed(1.0);
                 tmpMove.setSpeedUnits(Maneuver.SPEED_UNITS.METERS_PS);

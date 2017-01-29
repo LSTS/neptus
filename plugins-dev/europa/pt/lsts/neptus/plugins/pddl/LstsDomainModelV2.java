@@ -32,6 +32,9 @@
  */
 package pt.lsts.neptus.plugins.pddl;
 
+import java.util.Map.Entry;
+import java.util.Vector;
+
 import pt.lsts.neptus.types.vehicle.VehicleType;
 
 /**
@@ -45,7 +48,17 @@ public class LstsDomainModelV2 extends LstsDomainModel {
 
         StringBuilder sb = new StringBuilder();
 
-        sb.append(super.vehicleDetails(v, problem));
+        sb.append("\n  ;" + v.getId() + ":\n");
+        sb.append("  (= (speed " + v.getNickname() + ") " + MVProblemSpecification.constantSpeed + ")\n");
+        sb.append("  (base " + v.getNickname() + " " + v.getNickname() + "_depot)\n\n");
+        sb.append("  (at " + v.getNickname() + " " + v.getNickname() + "_depot" + ")\n");
+        for (Entry<String, Vector<String>> entry : payloadNames.entrySet()) {
+            for (String n : entry.getValue()) {
+                if (n.startsWith(v.getNickname() + "_")) {
+                    sb.append("  (having " + n + " " + v.getNickname() + ")\n");
+                }
+            }
+        }        
 
         sb.append("  (can-move " + v.getNickname() + ") ;required always\n");
         sb.append("  (= (from-base " + v.getNickname() +") 0) ;how long the vehicle is away from its depots \n"); // FIXME
@@ -59,9 +72,8 @@ public class LstsDomainModelV2 extends LstsDomainModel {
     protected String goals(MVProblemSpecification problem) {
 
         StringBuilder sb = new StringBuilder();
-        sb.append("(:metric minimize (+ (total-time)(base-returns)))\n");
         
-        sb.append("(:goal (and\n");
+        sb.append("\n(:goal (and\n");
         for (SamplePointTask t : problem.sampleTasks) {
             for (PayloadRequirement r : t.getRequiredPayloads()) {
                 sb.append("  (communicated_data " + t.getName() + "_" + r.name() + ")\n");
@@ -72,7 +84,10 @@ public class LstsDomainModelV2 extends LstsDomainModel {
                 sb.append("  (communicated_data " + t.getName() + "_" + r.name() + ")\n");
             }
         }
-        sb.append("))\n");
+        sb.append("))\n\n");
+        
+        sb.append("(:metric minimize (+ (total-time)(base-returns))))\n");
+        
         return sb.toString();
     }
 

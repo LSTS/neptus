@@ -35,11 +35,12 @@ package pt.lsts.neptus.plugins.pddl;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.InputStreamReader;
+import java.text.SimpleDateFormat;
 import java.util.Collection;
+import java.util.Date;
 import java.util.LinkedHashMap;
+import java.util.TimeZone;
 import java.util.Vector;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.comm.manager.imc.ImcSystemsHolder;
@@ -59,8 +60,8 @@ public class MVProblemSpecification {
     Vector<SurveyAreaTask> surveyTasks = new Vector<SurveyAreaTask>();
     Vector<VehicleType> vehicles = new Vector<VehicleType>();
     LocationType defaultLoc = null;
-    private String command_speed = "lpg -o DOMAIN -f INITIAL_STATE -speed";
-    private String command_secs = "lpg -o DOMAIN -f INITIAL_STATE -n 10 -cputime ";
+    private String command_speed = "lpg -o DOMAIN -f INITIAL_STATE -out OUTFILE -speed";
+    private String command_secs = "lpg -o DOMAIN -f INITIAL_STATE -out OUTFILE -n 10 -cputime ";
     
     private MVSolution solution;
 
@@ -93,33 +94,40 @@ public class MVProblemSpecification {
     }
 
     public String solve(int secs) throws Exception {
-        FileUtil.saveToFile("conf/pddl/initial_state.pddl", asPDDL());
-        Pattern pat = Pattern.compile(".*([\\d\\.]+)\\:.*\\((.*)\\).* \\[(.*)\\]");
+        SimpleDateFormat fmt = new SimpleDateFormat("yyyyMMdd-HHmmss");
+        fmt.setTimeZone(TimeZone.getTimeZone("UTC"));
+        String timestamp = fmt.format(new Date());
+        String input_file = "log/pddl/problem_"+timestamp+".pddl";
+        String output_file = "log/pddl/solution_"+timestamp+".SOL";
+        
+        
+        FileUtil.saveToFile(input_file, asPDDL());
         String cmd = command_secs+secs;
         if (secs == 0)
             cmd = command_speed;
         
         cmd = cmd.replaceAll("DOMAIN", domainModel.file().getAbsolutePath());
-        cmd = cmd.replaceAll("INITIAL_STATE", "initial_state.pddl");
+        cmd = cmd.replaceAll("INITIAL_STATE", "problem_"+timestamp+".pddl");
+        cmd = cmd.replaceAll("OUTFILE", "solution_"+timestamp+".SOL");
+        
         cmd = cmd.replaceAll("/", System.getProperty("file.separator"));
-        Process p = Runtime.getRuntime().exec(cmd, null, new File("conf/pddl"));
+        Process p = Runtime.getRuntime().exec(cmd, null, new File("log/pddl"));
         StringBuilder result = new StringBuilder();
-        StringBuilder allText = new StringBuilder();
         BufferedReader reader = new BufferedReader(new InputStreamReader(p.getInputStream()));
         String line = reader.readLine();
 
         while (line != null) {
-            Matcher m = pat.matcher(line);
-            if (m.matches())
-                result.append(line.toLowerCase().trim()+"\n");
-            allText.append(line+"\n");
+            result.append(line.toLowerCase().trim()+"\n");
+            System.out.println(line);
             line = reader.readLine();
         }
-        NeptusLog.pub().info("Planner output:\n\n"+allText);
+        File outputFile = new File(output_file);
+        if (outputFile.canRead()) {
+            solution = domainModel.translator().parseSolution(this, FileUtil.getFileAsString(outputFile));
+            return FileUtil.getFileAsString(outputFile);
+        }        
         
-        solution = domainModel.translator().parseSolution(this, result.toString());
-
-        return result.toString();        
+        return "";        
     }
 
 
