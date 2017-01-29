@@ -32,10 +32,12 @@
  */
 package pt.lsts.neptus.plugins.mvplanner;
 
+import pt.lsts.imc.PlanSpecification;
 import pt.lsts.neptus.plugins.mvplanner.ui.MapObject;
 import pt.lsts.neptus.renderer2d.StateRenderer2D;
 import pt.lsts.neptus.types.coord.LocationType;
 import pt.lsts.neptus.types.coord.PolygonType;
+import pt.lsts.neptus.types.mission.plan.PlanType;
 
 import java.awt.*;
 
@@ -77,6 +79,9 @@ public abstract class PlanTask {
 
     /** Profile associated to this task  **/
     protected String taskPofile;
+
+    /** Plan generated for this task **/
+    protected PlanType plan;
 
     public PlanTask(PolygonType object) {
         this.object = object;
@@ -142,6 +147,18 @@ public abstract class PlanTask {
         this.taskState = TaskStateEnum.Allocated;
         this.vehicleId = null;
         objectColor = Color.RED.darker();
+    }
+
+    public void associatePlan(PlanType plan) {
+        this.plan = plan;
+    }
+
+    public PlanSpecification asPlanSpecification() {
+        return (PlanSpecification) this.plan.asIMCPlan();
+    }
+
+    public PlanType asPlanType() {
+        return plan;
     }
 
     /**
