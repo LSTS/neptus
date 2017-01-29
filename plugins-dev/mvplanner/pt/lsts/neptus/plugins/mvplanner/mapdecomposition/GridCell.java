@@ -32,7 +32,6 @@
  */
 package pt.lsts.neptus.plugins.mvplanner.mapdecomposition;
 
-import dk.dma.enav.model.geometry.grid.Grid;
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.types.coord.LocationType;
 import pt.lsts.neptus.util.AngleUtils;
