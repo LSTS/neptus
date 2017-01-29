@@ -409,7 +409,6 @@ public class MvPlanner extends ConsoleInteraction implements Renderer2DPainter {
             JButton cancel = new JButton(I18n.text("Cancel"));
             cancel.setActionCommand("cancel");
             cancel.addActionListener(e -> {
-                currentPolygon = new PolygonType();
                 dialog.setVisible(false);
                 dialog.dispose();
             });
