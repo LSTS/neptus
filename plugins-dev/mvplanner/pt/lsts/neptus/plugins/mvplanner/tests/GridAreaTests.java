@@ -101,6 +101,21 @@ public class GridAreaTests {
         Assert.assertEquals(freeCell.getColumn(), 3);
     }
 
+    @Test
+    public void testSubCellsDecomposition() {
+        GridArea area = buildArea(1000, 1000, 50);
+        GridArea subCells = area.splitMegaCells();
+
+        Assert.assertEquals(subCells.getNrows(), area.getNrows() * 2);
+        Assert.assertEquals(subCells.getNcols(), area.getNcols() * 2);
+        Assert.assertEquals(subCells.getCenterLocation(), area.getCenterLocation());
+
+        for(GridCell[] row : subCells.getGrid())
+            for(GridCell cell : row) {
+                Assert.assertNotNull(cell);
+            }
+    }
+
 
     private GridArea buildArea(int w, int h, int cellWidth) {
         LocationType x1 = new LocationType(LocationType.FEUP)

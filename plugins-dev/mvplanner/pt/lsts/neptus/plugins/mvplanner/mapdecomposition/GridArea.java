@@ -42,6 +42,7 @@ import java.awt.*;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -86,6 +87,19 @@ public class GridArea {
         this.ncols = (int) Math.round(gridWidth / cellWidth);
         grid = new GridCell[nrows][ncols];
         decompose();
+    }
+
+    /**
+     * Copy constructor.
+     * Build a GridArea based on another's grid
+     * */
+    private GridArea(GridCell[][] cells, int cellW, int cellH, LocationType center) {
+        this.grid = cells;
+        this.cellWidth = cellW;
+        this.cellHeight = cellH;
+        this.nrows = cells.length;
+        this.ncols = cells[0].length;
+        this.center = new LocationType(center);
     }
 
     public GridCell getCellAt(int row, int col) {
@@ -223,6 +237,42 @@ public class GridArea {
         center = CoordinateUtil.computeLocationsCentroid(Arrays.asList(
                 new LocationType[]{topLeft, topRight, bottomLeft, bottomRight}));
     }
+
+    /**
+     * Makes a new grid where each (old) cell is
+     * split into 4 cells, i.e. increases grid's
+     * resolution.
+     * */
+    public GridArea splitMegaCells() {
+        int newRows = 2 * nrows;
+        int newCols = 2 * ncols;
+        int newCellWidth = Math.round(cellWidth / 2);
+        int newCellHeight = Math.round(cellHeight / 2);
+
+        GridCell[][] newGrid = new GridCell[newRows][newCols];
+
+        for(int i = 0; i < nrows; i++) {
+            for(int j = 0; j < ncols; j++) {
+                GridCell[] subCells = grid[i][j].splitCell();
+
+                newGrid[2*i][2*j] = subCells[0];
+                newGrid[2*i][2*j + 1] = subCells[1];
+                newGrid[2*i + 1][2*j] = subCells[2];
+                newGrid[2*i + 1][2*j + 1] = subCells[3];
+            }
+        }
+        /* Set cells' id */
+        /* TODO improve */
+        int id = 0;
+        for(int i = 0; i < newRows; i++)
+            for(int j = 0; j < newCols; j++) {
+                newGrid[i][j].setId("" + id);
+                id++;
+            }
+
+        return new GridArea(newGrid, newCellWidth, newCellHeight, this.center);
+    }
+
 
     public LocationType getCenterLocation() {
         return center;
