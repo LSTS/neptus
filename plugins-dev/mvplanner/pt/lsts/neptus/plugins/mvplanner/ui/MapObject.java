@@ -1,5 +1,6 @@
 package pt.lsts.neptus.plugins.mvplanner.ui;
 
+import pt.lsts.neptus.plugins.mvplanner.jaxb.Profile;
 import pt.lsts.neptus.types.coord.LocationType;
 import pt.lsts.neptus.types.coord.PolygonType;
 
@@ -15,6 +16,8 @@ public class MapObject {
 
     /** @see isOpArea **/
     private boolean isOpArea;
+
+    private Profile profile = null;
 
     public MapObject(PolygonType pType) {
         polygon = pType;
@@ -60,6 +63,18 @@ public class MapObject {
      * */
     public boolean isOpArea() {
         return isOpArea;
+    }
+
+    /**
+     * If this object represents a task then
+     * associate a profile to it
+     * */
+    public void associateProfile(Profile profile) {
+        this.profile = profile;
+    }
+
+    public Profile getSelectedProfile() {
+        return profile;
     }
 
 

@@ -15,6 +15,8 @@ import pt.lsts.neptus.gui.LocationPanel;
 import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.plugins.NeptusProperty;
 import pt.lsts.neptus.plugins.PluginDescription;
+import pt.lsts.neptus.plugins.mvplanner.jaxb.Profile;
+import pt.lsts.neptus.plugins.mvplanner.jaxb.ProfileMarshaler;
 import pt.lsts.neptus.plugins.mvplanner.mapdecomposition.GridArea;
 import pt.lsts.neptus.plugins.mvplanner.tasks.SurveyTask;
 import pt.lsts.neptus.plugins.mvplanner.ui.MapObject;
@@ -46,6 +48,9 @@ public class MvPlanner extends ConsoleInteraction implements Renderer2DPainter {
 
     @NeptusProperty(name = "Display operational area's grid", userLevel = NeptusProperty.LEVEL.REGULAR)
     public boolean displayOpAreaGrid = false;
+
+    private final ProfileMarshaler profileMarshaler = new ProfileMarshaler();
+    private final Map<String, Profile> availableProfiles = profileMarshaler.getAllProfiles();
 
     private Deque<PlanTask> tasksStack = new ArrayDeque<>();
     protected PolygonType currentPolygon = new PolygonType();
@@ -229,7 +234,7 @@ public class MvPlanner extends ConsoleInteraction implements Renderer2DPainter {
     }
 
     private MapObject closeObject() {
-        ParametersWindow window = new ParametersWindow(currentPolygon);
+        ParametersWindow window = new ParametersWindow(currentPolygon, availableProfiles);
         window.show();
         return window.getOutcome();
     }
@@ -311,9 +316,11 @@ public class MvPlanner extends ConsoleInteraction implements Renderer2DPainter {
     public class ParametersWindow {
         private MapObject outcome = null;
         private PolygonType polygon;
+        private Map<String, Profile> profiles;
 
-        public ParametersWindow(PolygonType currentObject) {
+        public ParametersWindow(PolygonType currentObject, Map<String, Profile> availableProfiles) {
             polygon = currentObject;
+            profiles = availableProfiles;
         }
 
         public MapObject getOutcome() {
@@ -329,7 +336,7 @@ public class MvPlanner extends ConsoleInteraction implements Renderer2DPainter {
             flow.setAlignment(FlowLayout.LEFT);
             idPanel.setLayout(flow);
 
-            JComboBox<String> availableProfiles = new JComboBox<>();
+            JComboBox<String> profilesBox = loadProfiles();
             JComboBox<String> objectType = new JComboBox<>();
 
         /* Parameters */
@@ -353,7 +360,7 @@ public class MvPlanner extends ConsoleInteraction implements Renderer2DPainter {
                     obstacleCheck.setSelected(false);
                 }
 
-                availableProfiles.setEnabled(enabledValue);
+                profilesBox.setEnabled(enabledValue);
                 objectType.setEnabled(!enabledValue);
                 obstacleCheck.setEnabled(!enabledValue);
 
@@ -366,7 +373,7 @@ public class MvPlanner extends ConsoleInteraction implements Renderer2DPainter {
                     opAreaCheck.setSelected(false);
                 }
 
-                availableProfiles.setEnabled(!enabledValue);
+                profilesBox.setEnabled(!enabledValue);
                 objectType.setEnabled(!enabledValue);
 
                 if(polygon.getVertices().size() <= 2) {
@@ -376,17 +383,21 @@ public class MvPlanner extends ConsoleInteraction implements Renderer2DPainter {
 
             });
 
+            JPanel checksPanel = new JPanel();
+            checksPanel.setLayout(new BoxLayout(checksPanel, BoxLayout.PAGE_AXIS));
+            checksPanel.add(opAreaCheck);
+            checksPanel.add(obstacleCheck);
+
             idPanel.add(new JLabel(I18n.text("Object Name:")));
             idPanel.add(objName);
-            idPanel.add(obstacleCheck);
-            idPanel.add(opAreaCheck);
-            idPanel.add(availableProfiles);
+            idPanel.add(profilesBox);
+            idPanel.add(checksPanel);
 
 
         /* buttons */
             JPanel buttonsPanel = new JPanel();
             FlowLayout layout = new FlowLayout();
-            layout.setAlignment(FlowLayout.RIGHT);
+            layout.setAlignment(FlowLayout.LEFT);
             buttonsPanel.setLayout(layout);
 
             JButton add = new JButton(I18n.text("OK"));
@@ -437,6 +448,14 @@ public class MvPlanner extends ConsoleInteraction implements Renderer2DPainter {
                 }
             });
             dialog.setVisible(true);
+        }
+
+        private JComboBox<String> loadProfiles() {
+            DefaultComboBoxModel model = new DefaultComboBoxModel();
+            JComboBox<String> profilesBox = new JComboBox<>(model);
+            profiles.keySet().forEach(model::addElement);
+
+            return profilesBox;
         }
     }
 }
