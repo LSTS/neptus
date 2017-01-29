@@ -36,6 +36,7 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.InputStreamReader;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
 import java.util.LinkedHashMap;
@@ -43,6 +44,7 @@ import java.util.TimeZone;
 import java.util.Vector;
 
 import pt.lsts.neptus.comm.manager.imc.ImcSystemsHolder;
+import pt.lsts.neptus.console.events.ConsoleEventFutureState;
 import pt.lsts.neptus.types.coord.LocationType;
 import pt.lsts.neptus.types.vehicle.VehicleType;
 import pt.lsts.neptus.util.FileUtil;
@@ -59,6 +61,8 @@ public class MVProblemSpecification {
     Vector<SurveyAreaTask> surveyTasks = new Vector<SurveyAreaTask>();
     Vector<VehicleType> vehicles = new Vector<VehicleType>();
     LocationType defaultLoc = null;
+    ArrayList<ConsoleEventFutureState> futureStates = new ArrayList<>();
+    
     private String command_speed = "lpg -o DOMAIN -f INITIAL_STATE -out OUTFILE -speed";
     private String command_secs = "lpg -o DOMAIN -f INITIAL_STATE -out OUTFILE -n 10 -cputime ";
     
@@ -130,11 +134,12 @@ public class MVProblemSpecification {
     }
 
 
-    public MVProblemSpecification(MVDomainModel model, Collection<VehicleType> vehicles, Collection<MVPlannerTask> tasks, LocationType defaultLoc) {
+    public MVProblemSpecification(MVDomainModel model, Collection<VehicleType> vehicles, Collection<MVPlannerTask> tasks, Collection<ConsoleEventFutureState> futureStates, LocationType defaultLoc) {
 
         this.domainModel = model;
         this.defaultLoc = defaultLoc;
-
+        this.futureStates.addAll(futureStates);
+        
         for (MVPlannerTask t : tasks) {
             if (t instanceof SurveyAreaTask) 
                 surveyTasks.add((SurveyAreaTask)t);

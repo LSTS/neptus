@@ -38,6 +38,7 @@ import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Point2D;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.Map.Entry;
@@ -45,6 +46,8 @@ import java.util.Vector;
 
 import javax.swing.JPopupMenu;
 import javax.swing.ProgressMonitor;
+
+import com.google.common.eventbus.Subscribe;
 
 import pt.lsts.imc.PlanControl;
 import pt.lsts.neptus.NeptusLog;
@@ -54,6 +57,7 @@ import pt.lsts.neptus.comm.manager.imc.ImcSystem;
 import pt.lsts.neptus.comm.manager.imc.ImcSystemsHolder;
 import pt.lsts.neptus.console.ConsoleInteraction;
 import pt.lsts.neptus.console.ConsoleLayout;
+import pt.lsts.neptus.console.events.ConsoleEventFutureState;
 import pt.lsts.neptus.gui.PropertiesEditor;
 import pt.lsts.neptus.plugins.NeptusProperty;
 import pt.lsts.neptus.plugins.PluginDescription;
@@ -80,16 +84,31 @@ public class MVPlannerInteraction extends ConsoleInteraction {
     private Point2D lastPoint = null;
     private MVProblemSpecification problem = null;
     private LinkedHashMap<String, PlanType> generatedPlans = new LinkedHashMap<String, PlanType>();
-    
+    private LinkedHashMap<String, ConsoleEventFutureState> futureStates = new LinkedHashMap<String, ConsoleEventFutureState>();
+
+
     @NeptusProperty(name = "Domain Model to use")
     private MVDomainModel domainModel = MVDomainModel.V1;
-    
+
     @NeptusProperty(name = "Seconds to search for optimal solution. Use 0 for multiple fast solutions.")
     private int seconds = 0;
-    
+
     @NeptusProperty(name = "Number of fast solutions (if not optimizing).")
     private int numTries = 50;
-        
+
+
+    @Subscribe
+    public void on(ConsoleEventFutureState future) {
+        synchronized (futureStates) {
+            if (future.getState() == null)
+                futureStates.remove(future.getVehicle());
+            else {
+                futureStates.put(future.getVehicle(), future);  
+                System.out.println(future);
+            }
+        }
+    }
+
     @Override
     public void paintInteraction(Graphics2D g, StateRenderer2D source) {
 
@@ -115,7 +134,7 @@ public class MVPlannerInteraction extends ConsoleInteraction {
                 break;
             }
         }
-        
+
         JPopupMenu popup = new JPopupMenu();
         final MVPlannerTask clickedTask = clicked;
 
@@ -136,7 +155,7 @@ public class MVPlannerInteraction extends ConsoleInteraction {
                     PropertiesEditor.editProperties(clickedTask, true);
                 }
             });
-            
+
             popup.addSeparator();
 
         }
@@ -151,7 +170,7 @@ public class MVPlannerInteraction extends ConsoleInteraction {
                 source.repaint();
             }
         });
-        
+
         popup.add("Add sample task").addActionListener(new ActionListener() {
 
             @Override
@@ -168,28 +187,33 @@ public class MVPlannerInteraction extends ConsoleInteraction {
         popup.add("Start execution").addActionListener(this::startExecution);
         popup.addSeparator();
         popup.add("Settings").addActionListener(this::settings);
-        
+
         popup.show(source, event.getX(), event.getY());
     }
-    
+
     private void generate(ActionEvent action) {
         Thread t = new Thread("Generating Multi-Vehicle plan...") {
             public void run() {
                 ProgressMonitor pm = new ProgressMonitor(getConsole(), "Searching for solutions...", "Generating initial state", 0, 5+numTries);
-                
+
                 Vector<VehicleType> activeVehicles = new Vector<VehicleType>();
                 for (ImcSystem s : ImcSystemsHolder.lookupActiveSystemVehicles()) {
                     if (s.getTypeVehicle() == VehicleTypeEnum.UUV)
                         activeVehicles.addElement(VehiclesHolder.getVehicleById(s.getName()));
                 }
+
+                ArrayList<ConsoleEventFutureState> futures = new ArrayList<>();
+                synchronized (futureStates) {
+                    futures.addAll(futureStates.values());
+                }
                 
-                problem = new MVProblemSpecification(domainModel, activeVehicles, tasks, null);
+                problem = new MVProblemSpecification(domainModel, activeVehicles, tasks, futures, null);
                 FileUtil.saveToFile("initial_state.pddl", problem.asPDDL());
                 pm.setProgress(5);
                 pm.setMillisToPopup(0);
                 double bestYet = 0;
                 String bestSolution = null;
-                
+
                 if (seconds == 0) {
                     for (int i = 0; i < numTries; i++) {
                         String best = "N/A";
@@ -199,7 +223,7 @@ public class MVPlannerInteraction extends ConsoleInteraction {
                             return;
                         pm.setNote("Current best solution time: "+best);
                         pm.setProgress(5+i);
-                        
+
                         try {
                             String solution = problem.solve(0);
                             if (solution.isEmpty())
@@ -228,7 +252,7 @@ public class MVPlannerInteraction extends ConsoleInteraction {
                             public void run() {
                                 pm.setMaximum(seconds*10);
                                 pm.setProgress(0);
-                                
+
                                 for (int i = 0; i < seconds * 10; i++) {
                                     pm.setNote(String.format("Time left : %.1f seconds", (seconds-i/10.0)));
                                     pm.setProgress(i);
@@ -279,7 +303,7 @@ public class MVPlannerInteraction extends ConsoleInteraction {
         t.setDaemon(true);
         t.start();
     }
-    
+
     private void startExecution(ActionEvent action) {
         for (Entry<String, PlanType> generated : generatedPlans.entrySet()) {
             PlanControl startPlan = new PlanControl();
@@ -292,7 +316,7 @@ public class MVPlannerInteraction extends ConsoleInteraction {
             ImcMsgManager.getManager().sendMessageToVehicle(startPlan, generated.getKey(), null);                    
         }
     }
-    
+
     private void settings(ActionEvent action) {
         PluginUtils.editPluginProperties(this, true);
     }
@@ -350,7 +374,7 @@ public class MVPlannerInteraction extends ConsoleInteraction {
         else if (event.isShiftDown()) {
             double angle = selectedTask.getCenterLocation().getXYAngle(now);
             selectedTask.setYaw(angle);
-            
+
         }
         else {
             double offsets[] = now.getOffsetFrom(prev);

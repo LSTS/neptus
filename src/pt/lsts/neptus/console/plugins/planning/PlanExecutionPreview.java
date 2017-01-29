@@ -38,6 +38,7 @@ import java.awt.geom.GeneralPath;
 import java.awt.geom.Point2D;
 import java.awt.geom.RoundRectangle2D;
 import java.util.Collections;
+import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.Vector;
 
@@ -245,10 +246,12 @@ public class PlanExecutionPreview extends ConsolePanel implements Renderer2DPain
             if (forceSimVisualization && main)
                 return;
             else {
-                //stopSimulator();
                 if (simulators.containsKey(src)) {
                     simulators.get(src).stopSimulation();
                     simulators.remove(src);
+                    // remove future state...
+                    ConsoleEventFutureState futureState = new ConsoleEventFutureState(src, new Date(), null);
+                    getConsole().post(futureState);
                 }
 
                 if (main) {

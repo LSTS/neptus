@@ -102,7 +102,7 @@ public class PlanSimulationOverlay implements Renderer2DPainter {
                 while (!engine.isFinished() && ellapsedTime < 10 * 3600) {
                     ellapsedTime += engine.getTimestep();
                     engine.simulationStep();
-                    if (ellapsedTime - lastPoint > 1) {
+                    if (ellapsedTime - lastPoint >= 1) {
                         Color c = cmap.getColor(1 - ((ellapsedTime + usedBatt) / totalBattTime));
                         SystemPositionAndAttitude state = engine.getState();
                         addPoint(state, c,
