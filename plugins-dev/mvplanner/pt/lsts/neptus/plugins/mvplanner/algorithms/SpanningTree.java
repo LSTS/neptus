@@ -42,10 +42,13 @@ public class SpanningTree {
     /* Sequence of nodes used to traverse this tree */
     private List<GridCell> nodeSequence;
     private GridCell startCell;
+    private SpTreeIterator it;
+
 
     public SpanningTree(GridCell startCell) {
         this.startCell = startCell;
         nodeSequence = generateMST(startCell);
+        it = iterator();
     }
 
     public GridCell getStartNode() {
@@ -128,11 +131,61 @@ public class SpanningTree {
         return shifted;
     }
 
+    public boolean hasNext() {
+        return it.hasNext();
+    }
+
+    public GridCell next() {
+        return it.next();
+    }
+
+    public GridCell peekNext() {
+        return it.peekNext();
+    }
+
     /**
      * Provide a means to traverse the generated
      * node sequence
      * */
-    public Iterator<GridCell> iterator() {
-        return nodeSequence.iterator();
+    private SpTreeIterator iterator() {
+        return new SpTreeIterator(nodeSequence);
+    }
+
+    private class SpTreeIterator implements Iterator<GridCell> {
+        private List<GridCell> nodeSequence;
+        private Iterator<GridCell> it;
+        private int curr = -1;
+
+        public SpTreeIterator(List<GridCell> sequence) {
+            nodeSequence = sequence;
+            it = nodeSequence.iterator();
+        }
+
+        @Override
+        public boolean hasNext() {
+            return it.hasNext();
+        }
+
+        @Override
+        public GridCell next() {
+            curr++;
+            return it.next();
+        }
+
+        /**
+         * Returns the next element in the iterator,
+         * without advancing it
+         *
+         * Throws NoSuchElementException in case there's
+         * no next element (same as next())
+         * */
+        public GridCell peekNext() {
+            if(curr == -1)
+                return nodeSequence.get(0);
+            else if(!hasNext())
+                throw new NoSuchElementException();
+
+            return nodeSequence.get(curr + 1);
+        }
     }
 }

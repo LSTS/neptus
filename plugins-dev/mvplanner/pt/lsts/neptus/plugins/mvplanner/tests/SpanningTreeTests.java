@@ -70,12 +70,11 @@ public class SpanningTreeTests {
         SpanningTree tree = new SpanningTree(grid.getCellAt(0, 0));
         Assert.assertNotNull("Tree is null", tree);
 
-        Iterator<GridCell> nodeSequence = tree.iterator();
-        Assert.assertEquals("Tree is empty", nodeSequence.hasNext(), true);
+        Assert.assertEquals("Tree is empty", tree.hasNext(), true);
 
         // traverse and validate tree
-        while(nodeSequence.hasNext()) {
-            GridCell cell = nodeSequence.next();
+        while(tree.hasNext()) {
+            GridCell cell = tree.next();
             Assert.assertNotNull(cell);
         }
     }
