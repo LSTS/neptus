@@ -44,6 +44,7 @@ import java.util.Vector;
 
 import pt.lsts.neptus.colormap.ColorMap;
 import pt.lsts.neptus.colormap.ColorMapFactory;
+import pt.lsts.neptus.data.Pair;
 import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.mp.SystemPositionAndAttitude;
 import pt.lsts.neptus.mp.maneuvers.LocatedManeuver;
@@ -192,13 +193,11 @@ public class PlanSimulationOverlay implements Renderer2DPainter {
     public final Vector<SystemPositionAndAttitude> getStates() {
         return states;
     }
-
-
-
-    public SimulationState nearestState(SystemPositionAndAttitude state, double minDistThreshold) {
+    
+    public Pair<Integer, SimulationState> nearestState(SystemPositionAndAttitude state, double minDistThreshold) {
         int nearest = 0;
         double nearestDistance = Double.MAX_VALUE;
-
+        
         for (int i = 0; i < simStates.size(); i++) {
             LocationType center = states.get(i).getPosition();
             double dist = center.getHorizontalDistanceInMeters(state.getPosition()) + 2 * Math.abs(state.getYaw() - states.get(i).getYaw());
@@ -209,7 +208,7 @@ public class PlanSimulationOverlay implements Renderer2DPainter {
         }
 
         if (nearestDistance < minDistThreshold)
-            return simStates.get(nearest);
+            return new Pair<Integer, SimulationState>(nearest, simStates.get(nearest));
         else
             return null;
     }
@@ -221,7 +220,7 @@ public class PlanSimulationOverlay implements Renderer2DPainter {
             SimulationState nearest = simStates.get(0);
 
             if (state != null)
-                nearest = nearestState(state, Integer.MAX_VALUE);
+                nearest = nearestState(state, Integer.MAX_VALUE).second();
 
             int pos = simStates.indexOf(nearest);
 

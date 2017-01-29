@@ -42,7 +42,6 @@ import java.util.LinkedHashMap;
 import java.util.TimeZone;
 import java.util.Vector;
 
-import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.comm.manager.imc.ImcSystemsHolder;
 import pt.lsts.neptus.types.coord.LocationType;
 import pt.lsts.neptus.types.vehicle.VehicleType;
