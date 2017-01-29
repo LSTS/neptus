@@ -54,4 +54,9 @@ public class SurveyTask extends PlanTask {
 
         area.paint(g, source, objectColor, false, true);
     }
+
+    @Override
+    public TaskTypeEnum getTaskType() {
+        return TaskTypeEnum.Survey;
+    }
 }

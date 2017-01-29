@@ -56,6 +56,13 @@ public abstract class PlanTask {
         Interrupted
     }
 
+    /**
+     * Which type of task this is
+     * */
+    public enum TaskTypeEnum {
+        Survey
+    }
+
     /** Map object that represents this task **/
     protected PolygonType object;
 
@@ -87,6 +94,8 @@ public abstract class PlanTask {
      * Dark red for interrupted
      * */
     public abstract void paintTask(Graphics2D g, StateRenderer2D source);
+
+    public abstract TaskTypeEnum getTaskType();
 
     /**
      * Get vehicle ID to which the task
