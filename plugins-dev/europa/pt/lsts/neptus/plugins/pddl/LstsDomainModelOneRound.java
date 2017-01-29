@@ -32,10 +32,97 @@
  */
 package pt.lsts.neptus.plugins.pddl;
 
+import java.util.ArrayList;
+
+import pt.lsts.neptus.types.vehicle.VehicleType;
+
 /**
  * @author zp
  *
  */
 public class LstsDomainModelOneRound extends LstsDomainModelV2 {
+    
+    @Override
+    protected String goals(MVProblemSpecification problem) {
+        StringBuilder sb = new StringBuilder();
+        sb.append("(:goal (and\n");
+        for (SamplePointTask t : problem.sampleTasks) {
+            for (PayloadRequirement r : t.getRequiredPayloads()) {
+                sb.append("  (communicated_data " + t.getName() + "_" + r.name() + ")\n");
+            }
+        }
+        for (SurveyAreaTask t : problem.surveyTasks) {
+            for (PayloadRequirement r : t.getRequiredPayloads()) {
+                sb.append("  (communicated_data " + t.getName() + "_" + r.name() + ")\n");
+            }
+        }
+        
+        sb.append("\n  (>= (tasks-completed) 1)\n\n");
+        
+        for (VehicleType v : states.keySet())
+            sb.append("  (at "+v.getNickname()+" "+v.getNickname()+"_depot)\n");
+        
+        ArrayList<MVPlannerTask> allTasks = new ArrayList<>();
+        allTasks.addAll(problem.sampleTasks);
+        allTasks.addAll(problem.surveyTasks);
+        
+        for (MVPlannerTask t : allTasks) {
+            if (t.firstPriority) {
+                sb.append("  (completed "+t.name+")\n");
+            }
+        }
+        
+        sb.append("))\n");
+        sb.append("(:metric maximize (tasks-completed)))\n");
+        return sb.toString();
+    }
+    
+    @Override
+    public String getInitialState(MVProblemSpecification problem) {
 
+        init(problem);
+
+        // start printing...
+        StringBuilder sb = new StringBuilder();
+        sb.append("(define (problem LSTSprob)(:domain LSTS)\n(:objects\n  ");
+
+        // print location names
+        sb.append(locationNames(problem));
+
+        // print vehicle names
+        sb.append(vehicles(problem));
+
+        // print payload names
+        sb.append(payloadNames(problem));
+
+        // print task names
+        sb.append(taskNames(problem));
+
+        sb.append(")\n(:init\n");
+
+        // distance between all locations
+        sb.append(distances(problem));
+
+        sb.append("  (= (base-returns) 0) ; \"cost\" of returning to the depots \n");
+
+        // details of all vehicles
+        for (VehicleType v : states.keySet()) {
+            sb.append(vehicleDetails(v, problem));
+        }
+
+        // survey tasks
+        sb.append(surveyTasks(problem));
+
+        // sample tasks
+        sb.append(sampleTasks(problem));
+        
+        sb.append("  (= (tasks-completed) 0)\n");
+        
+        sb.append(")\n");
+
+        // goals to solve
+        sb.append(goals(problem));
+
+        return sb.toString();
+    }
 }

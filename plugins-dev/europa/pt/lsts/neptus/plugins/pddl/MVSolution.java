@@ -71,6 +71,8 @@ public class MVSolution {
     private LinkedHashMap<String, LocationType> locations = null;
     private LinkedHashMap<String, MVPlannerTask> tasks = new LinkedHashMap<String, MVPlannerTask>();
 
+    private boolean generatePopups = false;
+    
     public MVSolution(LinkedHashMap<String, LocationType> locations, String pddlSolution, List<MVPlannerTask> tasks) {
         for (MVPlannerTask t : tasks)
             this.tasks.put(t.getName(), t);
@@ -248,6 +250,13 @@ public class MVSolution {
 
     }
 
+    /**
+     * @param generatePopups the generatePopups to set
+     */
+    public void setGeneratePopups(boolean generatePopups) {
+        this.generatePopups = generatePopups;
+    }
+
     public Collection<PlanType> generatePlans() {
 
         LinkedHashMap<String, PlanType> plansPerVehicle = new LinkedHashMap<String, PlanType>();
@@ -262,9 +271,9 @@ public class MVSolution {
                 newPlan.setId("mvplanner_"+act.vehicle.getId());
                 newPlan.setVehicle(act.vehicle.getId());
                 plansPerVehicle.put(act.vehicle.getId(), newPlan);                
-            }
+            }            
             
-            if (maneuver instanceof RowsManeuver || maneuver instanceof Loiter) {
+            if (generatePopups && (maneuver instanceof RowsManeuver || maneuver instanceof Loiter)) {
                 LocatedManeuver m = (LocatedManeuver) maneuver;
                 PopUp popup = new PopUp();
                 popup.setDuration(120);

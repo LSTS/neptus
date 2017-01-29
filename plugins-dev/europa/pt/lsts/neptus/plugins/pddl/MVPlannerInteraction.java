@@ -95,7 +95,10 @@ public class MVPlannerInteraction extends ConsoleInteraction {
 
     @NeptusProperty(name = "Number of fast solutions (if not optimizing).")
     private int numTries = 50;
-
+    
+    @NeptusProperty(name = "Pop up at surface right before surveys.")
+    private boolean generatePopups = false;
+    
 
     @Subscribe
     public void on(ConsoleEventFutureState future) {
@@ -259,7 +262,8 @@ public class MVPlannerInteraction extends ConsoleInteraction {
                                     try {
                                         Thread.sleep(100);
                                     }
-                                    catch (Exception e) {
+                                    catch (InterruptedException e) {
+                                        break;
                                     }
                                 }
                                 pm.setProgress(pm.getMaximum());
@@ -283,6 +287,7 @@ public class MVPlannerInteraction extends ConsoleInteraction {
                 if (bestSolution != null) {
                     MVSolution solution = problem.getSolution();
                     if (solution != null) {
+                        solution.setGeneratePopups(generatePopups);
                         Collection<PlanType> plans = solution.generatePlans();
                         for (PlanType pt : plans) {
                             pt.setMissionType(getConsole().getMission());
