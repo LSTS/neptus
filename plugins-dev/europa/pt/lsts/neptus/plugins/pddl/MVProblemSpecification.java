@@ -36,17 +36,19 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.InputStreamReader;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
 import java.util.LinkedHashMap;
+import java.util.Map.Entry;
 import java.util.TimeZone;
 import java.util.Vector;
 
 import pt.lsts.neptus.comm.manager.imc.ImcSystemsHolder;
 import pt.lsts.neptus.console.events.ConsoleEventFutureState;
+import pt.lsts.neptus.mp.SystemPositionAndAttitude;
 import pt.lsts.neptus.types.coord.LocationType;
 import pt.lsts.neptus.types.vehicle.VehicleType;
+import pt.lsts.neptus.types.vehicle.VehiclesHolder;
 import pt.lsts.neptus.util.FileUtil;
 
 /**
@@ -59,9 +61,8 @@ public class MVProblemSpecification {
     public static final int powerUnitMultiplier = 1000;
     Vector<SamplePointTask> sampleTasks = new Vector<SamplePointTask>();
     Vector<SurveyAreaTask> surveyTasks = new Vector<SurveyAreaTask>();
-    Vector<VehicleType> vehicles = new Vector<VehicleType>();
+    LinkedHashMap<VehicleType, SystemPositionAndAttitude> vehicleStates = new LinkedHashMap<>();
     LocationType defaultLoc = null;
-    ArrayList<ConsoleEventFutureState> futureStates = new ArrayList<>();
     
     private String command_speed = "lpg -o DOMAIN -f INITIAL_STATE -out OUTFILE -speed";
     private String command_secs = "lpg -o DOMAIN -f INITIAL_STATE -out OUTFILE -n 10 -cputime ";
@@ -73,17 +74,10 @@ public class MVProblemSpecification {
     LinkedHashMap<String, LocationType> calculateLocations() {
         LinkedHashMap<String, LocationType> locations = new LinkedHashMap<String, LocationType>();
 
-        // calculate all positions to be given to the planner, first from vehicles
-        for (VehicleType v : vehicles) {
-            LocationType depot = new LocationType(defaultLoc);
-            try {
-                depot = ImcSystemsHolder.getSystemWithName(v.getId()).getLocation();
-            }
-            catch (Exception e) {};
-
-            locations.put(v.getNickname()+"_depot", depot);               
-        }
-
+        // Vehicle depots (present and future)
+        for (Entry<VehicleType, SystemPositionAndAttitude> entry : vehicleStates.entrySet())
+            locations.put(entry.getKey().getNickname()+"_depot", entry.getValue().getPosition());
+        
         // and then tasks
         for (SurveyAreaTask task : surveyTasks) {
             locations.put(task.getName()+"_entry", task.getEntryPoint());
@@ -138,7 +132,25 @@ public class MVProblemSpecification {
 
         this.domainModel = model;
         this.defaultLoc = defaultLoc;
-        this.futureStates.addAll(futureStates);
+        
+        // connected vehicles
+        for (VehicleType v : vehicles) {
+            LocationType loc = defaultLoc;
+            try {
+                loc = ImcSystemsHolder.getSystemWithName(v.getId()).getLocation();
+            }
+            catch (Exception e) {
+            }
+            SystemPositionAndAttitude pos = new SystemPositionAndAttitude(loc, 0,0,0);
+            vehicleStates.put(v, pos);
+        }
+        
+        // vehicles currently executing plans (connected or not)
+        for (ConsoleEventFutureState futureState : futureStates) {
+            SystemPositionAndAttitude state = new SystemPositionAndAttitude(futureState.getState());
+            state.setTime(futureState.getDate().getTime());
+            vehicleStates.put(VehiclesHolder.getVehicleById(futureState.getVehicle()), state);
+        }
         
         for (MVPlannerTask t : tasks) {
             if (t instanceof SurveyAreaTask) 
@@ -147,8 +159,6 @@ public class MVProblemSpecification {
                 sampleTasks.add((SamplePointTask)t);
             }
         }
-
-        this.vehicles.addAll(vehicles);
     }
 
     public String asPDDL() {

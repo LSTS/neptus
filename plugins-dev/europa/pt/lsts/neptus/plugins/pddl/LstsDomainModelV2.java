@@ -48,10 +48,18 @@ public class LstsDomainModelV2 extends LstsDomainModel {
 
         StringBuilder sb = new StringBuilder();
 
+        double timeToStart = (states.get(v).getTime()- System.currentTimeMillis()) / 1000.0;
+        if (timeToStart < 10)
+            timeToStart = 0;
+        
         sb.append("\n  ;" + v.getId() + ":\n");
         sb.append("  (= (speed " + v.getNickname() + ") " + MVProblemSpecification.constantSpeed + ")\n");
         sb.append("  (base " + v.getNickname() + " " + v.getNickname() + "_depot)\n\n");
-        sb.append("  (at " + v.getNickname() + " " + v.getNickname() + "_depot" + ")\n");
+        if (timeToStart == 0)
+            sb.append("  (at " + v.getNickname() + " " + v.getNickname() + "_depot" + ")\n");
+        else
+            sb.append("  (at "+timeToStart+" (at " + v.getNickname() + " " + v.getNickname() + "_depot" + "))\n");
+            
         for (Entry<String, Vector<String>> entry : payloadNames.entrySet()) {
             for (String n : entry.getValue()) {
                 if (n.startsWith(v.getNickname() + "_")) {
@@ -59,9 +67,9 @@ public class LstsDomainModelV2 extends LstsDomainModel {
                 }
             }
         }        
-
+                
         sb.append("  (can-move " + v.getNickname() + ") ;required always\n");
-        sb.append("  (= (from-base " + v.getNickname() +") 0) ;how long the vehicle is away from its depots \n"); // FIXME
+        sb.append("  (= (from-base " + v.getNickname() +") 0) ;how long the vehicle is away from its depot \n"); // FIXME
         sb.append("  (= (max-to-base " + v.getNickname() +") 1000) ;the maximum time before returning to the depot\n");
         sb.append("\n");
 
@@ -120,7 +128,7 @@ public class LstsDomainModelV2 extends LstsDomainModel {
         sb.append("  (= (base-returns) 0) ; \"cost\" of returning to the depots \n");
 
         // details of all vehicles
-        for (VehicleType v : problem.vehicles) {
+        for (VehicleType v : states.keySet()) {
             sb.append(vehicleDetails(v, problem));
         }
 

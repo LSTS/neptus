@@ -232,6 +232,8 @@ public class PlanSimulator {
     }
 
     public SimulatedFutureState getFutureState() {
+        if (simulatedPath == null || simulatedPath.states.isEmpty())
+            return null;
         long curtime = System.currentTimeMillis();
         double remainingTime = simulatedPath.getTotalTime() - simTime;
         return new SimulatedFutureState(vehicleId, new Date(curtime + (long) (remainingTime * 1000.0)),

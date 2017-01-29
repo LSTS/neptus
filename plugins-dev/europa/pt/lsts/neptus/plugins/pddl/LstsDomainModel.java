@@ -34,13 +34,13 @@ package pt.lsts.neptus.plugins.pddl;
 
 import java.util.LinkedHashMap;
 import java.util.Locale;
-import java.util.Vector;
 import java.util.Map.Entry;
+import java.util.Vector;
 
 import pt.lsts.imc.FuelLevel;
 import pt.lsts.imc.state.ImcSystemState;
 import pt.lsts.neptus.comm.manager.imc.ImcMsgManager;
-import pt.lsts.neptus.comm.manager.imc.ImcSystemsHolder;
+import pt.lsts.neptus.mp.SystemPositionAndAttitude;
 import pt.lsts.neptus.types.coord.LocationType;
 import pt.lsts.neptus.types.vehicle.VehicleType;
 
@@ -53,34 +53,30 @@ public class LstsDomainModel {
     LinkedHashMap<String, LocationType> locations = new LinkedHashMap<String, LocationType>();
     LinkedHashMap<String, Integer> vehicleBattery = new LinkedHashMap<String, Integer>();
     LinkedHashMap<String, Vector<String>> payloadNames = new LinkedHashMap<String, Vector<String>>();
-
+    LinkedHashMap<VehicleType, SystemPositionAndAttitude> states = new LinkedHashMap<>();
+    
     protected void init(MVProblemSpecification problem) {
 
         locations.clear();
         vehicleBattery.clear();
         payloadNames.clear();
-        
+        states.clear();
+        states.putAll(problem.vehicleStates);
+
         // calculate all positions to be given to the planner, first from vehicles
-        for (VehicleType v : problem.vehicles) {
-
-            ImcSystemState state = ImcMsgManager.getManager().getState(v);
-            LocationType depot = new LocationType(problem.defaultLoc);
-            try {
-                depot = ImcSystemsHolder.getSystemWithName(v.getId()).getLocation();
-            }
-            catch (Exception e) {
-            }
-            ;
-
-            locations.put(v.getNickname() + "_depot", depot);
-
+        for (Entry<VehicleType, SystemPositionAndAttitude> state : problem.vehicleStates.entrySet()) {
+            locations.put(state.getKey().getNickname() + "_depot", state.getValue().getPosition());
             double fuelPercent = 100.0;
-            FuelLevel fuel = state.last(FuelLevel.class);
-            if (fuel != null && (System.currentTimeMillis() - fuel.getTimestampMillis()) < 600) {
-                fuelPercent = state.last(FuelLevel.class).getValue();
+            ImcSystemState sysState = ImcMsgManager.getManager().getState(state.getKey().getId());
+            if (sysState != null) {
+                FuelLevel fuel = sysState.last(FuelLevel.class);
+                if (fuel != null && (System.currentTimeMillis() - fuel.getTimestampMillis()) < 600) {
+                    fuelPercent = sysState.last(FuelLevel.class).getValue();
+                }
+                int fuelUnits = (int) (VehicleParams.maxBattery(state.getKey()) * (fuelPercent / 100.0));
+                vehicleBattery.put(state.getKey().getId(), fuelUnits);
             }
-            int fuelUnits = (int) (VehicleParams.maxBattery(v) * (fuelPercent / 100.0));
-            vehicleBattery.put(v.getId(), fuelUnits);
+
         }
 
         // and then tasks
@@ -93,7 +89,7 @@ public class LstsDomainModel {
         }
 
         // calculate all payload names
-        for (VehicleType v : problem.vehicles) {
+        for (VehicleType v : states.keySet()) {
             for (PayloadRequirement pr : VehicleParams.payloadsFor(v)) {
                 if (!payloadNames.containsKey(pr.name()))
                     payloadNames.put(pr.name(), new Vector<String>());
@@ -116,7 +112,7 @@ public class LstsDomainModel {
     protected String vehicles(MVProblemSpecification problem) {
         StringBuilder sb = new StringBuilder();
 
-        for (VehicleType v : problem.vehicles)
+        for (VehicleType v : states.keySet())
             sb.append(" " + v.getNickname());
         sb.append(" - auv\n  ");
 
@@ -200,8 +196,7 @@ public class LstsDomainModel {
     protected String vehicleDetails(VehicleType v, MVProblemSpecification problem) {
         StringBuilder sb = new StringBuilder();
         sb.append("\n  ;" + v.getId() + ":\n");
-        double moveConsumption = VehicleParams.moveConsumption(v) * MVProblemSpecification.powerUnitMultiplier
-                / 3600.0;
+        double moveConsumption = VehicleParams.moveConsumption(v) * MVProblemSpecification.powerUnitMultiplier / 3600.0;
         sb.append("  (= (speed " + v.getNickname() + ") " + MVProblemSpecification.constantSpeed + ")\n");
         sb.append("  (= (battery-consumption-move " + v.getNickname() + ") "
                 + String.format(Locale.US, "%.2f", moveConsumption) + ")\n");
@@ -212,17 +207,17 @@ public class LstsDomainModel {
         for (Entry<String, Vector<String>> entry : payloadNames.entrySet()) {
             for (String n : entry.getValue()) {
                 if (n.startsWith(v.getNickname() + "_")) {
-                    double consumption = ((PayloadRequirement.valueOf(entry.getKey()).getConsumptionPerHour()
-                            / 3600.0) * MVProblemSpecification.powerUnitMultiplier);
+                    double consumption = ((PayloadRequirement.valueOf(entry.getKey()).getConsumptionPerHour() / 3600.0)
+                            * MVProblemSpecification.powerUnitMultiplier);
                     sb.append("  (= (battery-consumption-payload " + n + ") "
                             + String.format(Locale.US, "%.2f", consumption) + ")\n");
                     sb.append("  (having " + n + " " + v.getNickname() + ")\n");
                 }
             }
-        }        
+        }
         return sb.toString();
     }
-    
+
     protected String sampleTasks(MVProblemSpecification problem) {
 
         StringBuilder sb = new StringBuilder();
@@ -246,7 +241,7 @@ public class LstsDomainModel {
         sb.append("\n");
         return sb.toString();
     }
-    
+
     protected String surveyTasks(MVProblemSpecification problem) {
 
         StringBuilder sb = new StringBuilder();
@@ -291,7 +286,7 @@ public class LstsDomainModel {
         sb.append("(:metric minimize (total-time)))\n");
         return sb.toString();
     }
-    
+
     public String getInitialState(MVProblemSpecification problem) {
 
         init(problem);
@@ -318,17 +313,17 @@ public class LstsDomainModel {
         sb.append(distances(problem));
 
         // details of all vehicles
-        for (VehicleType v : problem.vehicles) {
+        for (VehicleType v : states.keySet()) {
             sb.append(vehicleDetails(v, problem));
         }
-        
+
         // survey tasks
         sb.append(surveyTasks(problem));
-        
+
         // sample tasks
         sb.append(sampleTasks(problem));
         sb.append(")\n");
-        
+
         // goals to solve
         sb.append(goals(problem));
 

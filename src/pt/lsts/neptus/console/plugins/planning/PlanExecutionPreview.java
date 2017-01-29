@@ -135,6 +135,7 @@ public class PlanExecutionPreview extends ConsolePanel implements Renderer2DPain
 
     @Subscribe
     public void consume(EstimatedState msg) {
+        try {
         String src = msg.getSourceName();
         if (src == null)
             return;
@@ -144,6 +145,10 @@ public class PlanExecutionPreview extends ConsolePanel implements Renderer2DPain
             lastStates.put(src, msg);
             lastStateTimes.put(src, System.currentTimeMillis());
             updateFutureState(src);
+        }
+        }
+        catch (Exception e) {
+            e.printStackTrace();
         }
     }
 
@@ -216,6 +221,9 @@ public class PlanExecutionPreview extends ConsolePanel implements Renderer2DPain
             return;
         
         SimulatedFutureState future = simulator.getFutureState();
+        if (future == null)
+            return;
+        
         ConsoleEventFutureState futureState = new ConsoleEventFutureState(future);
         getConsole().post(futureState);        
     }
