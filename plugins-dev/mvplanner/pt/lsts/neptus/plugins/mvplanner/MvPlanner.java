@@ -10,6 +10,7 @@ import java.awt.geom.Point2D;
 import java.util.*;
 import java.util.List;
 
+import pt.lsts.imc.PlanSpecification;
 import pt.lsts.neptus.console.ConsoleInteraction;
 import pt.lsts.neptus.console.plugins.planning.MapPanel;
 import pt.lsts.neptus.gui.LocationPanel;
@@ -26,6 +27,7 @@ import pt.lsts.neptus.renderer2d.Renderer2DPainter;
 import pt.lsts.neptus.renderer2d.StateRenderer2D;
 import pt.lsts.neptus.types.coord.LocationType;
 import pt.lsts.neptus.types.coord.PolygonType;
+import pt.lsts.neptus.types.mission.plan.PlanType;
 import pt.lsts.neptus.util.GuiUtils;
 import pt.lsts.neptus.util.NameNormalizer;
 import pt.lsts.neptus.util.conf.ConfigFetch;
@@ -52,6 +54,7 @@ public class MvPlanner extends ConsoleInteraction implements Renderer2DPainter {
 
     private final ProfileMarshaler profileMarshaler = new ProfileMarshaler();
     private final Map<String, Profile> availableProfiles = profileMarshaler.getAllProfiles();
+    private final PlanGenerator planGenerator = new PlanGenerator();
 
     private Deque<PlanTask> tasksStack = new ArrayDeque<>();
     protected PolygonType currentPolygon = new PolygonType();
@@ -96,7 +99,9 @@ public class MvPlanner extends ConsoleInteraction implements Renderer2DPainter {
         }
         // survey
         else if(nPoints > 2) {
-            tasksStack.push(new SurveyTask(taskPolygon, taskProfile));
+            PlanTask surveyTask = new SurveyTask(taskPolygon, taskProfile);
+            surveyTask.associatePlan(planGenerator.generate(surveyTask));
+            tasksStack.push(surveyTask);
         }
     }
 
@@ -105,6 +110,7 @@ public class MvPlanner extends ConsoleInteraction implements Renderer2DPainter {
      */
     @Override
     public void initInteraction() {
+        planGenerator.setConsole(getConsole());
         maps = getConsole().getSubPanelsOfClass(MapPanel.class);
         for (MapPanel p : maps)
             p.addPreRenderPainter(this);
