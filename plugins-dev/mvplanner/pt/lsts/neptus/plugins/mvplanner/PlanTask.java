@@ -110,6 +110,10 @@ public abstract class PlanTask {
 
     public abstract TaskTypeEnum getTaskType();
 
+    public String getId() {
+        return object.getId();
+    }
+
     /**
      * Get vehicle ID to which the task
      * has been allocated to
