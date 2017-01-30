@@ -131,7 +131,8 @@ public abstract class PlanTask {
      * */
     public void setWaitingState() {
         this.taskState = TaskStateEnum.Waiting;
-        objectColor = Color.ORANGE.darker();
+        Color orange = Color.ORANGE.darker();
+        objectColor = new Color(orange.getRed(), orange.getGreen(), orange.getBlue(), 100);
     }
 
     /**
@@ -149,7 +150,8 @@ public abstract class PlanTask {
     public void setAllocated(String vehicleId) {
         this.taskState = TaskStateEnum.Allocated;
         this.vehicleId = vehicleId;
-        objectColor = Color.GREEN.darker();
+        Color green = Color.GREEN.darker();
+        objectColor = new Color(green.getRed(), green.getGreen(), green.getBlue(), 100);
     }
 
     /**
@@ -158,7 +160,8 @@ public abstract class PlanTask {
     public void setInterrupted() {
         this.taskState = TaskStateEnum.Allocated;
         this.vehicleId = null;
-        objectColor = Color.RED.darker();
+        Color red = Color.RED.darker();
+        objectColor = new Color(red.getRed(), red.getGreen(), red.getBlue(), 100);
     }
 
     public void associatePlan(PlanType plan) {
