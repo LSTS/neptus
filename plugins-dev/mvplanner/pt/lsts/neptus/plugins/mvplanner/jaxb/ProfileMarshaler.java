@@ -185,7 +185,7 @@ public class ProfileMarshaler {
         prf1.addPayload(pld1);
         prf1.addVehicle("lauv-noptilus-1");
         prf1.addVehicle("lauv-noptilus-2");
-        prf1.addVehicle("lauv-noptilus-3");
+        prf1.addVehicle("lauv-noptilus-4");
 
         marsh.addProfile(prf1.getId(), prf1);
         marsh.marshal(prf1.getId());
