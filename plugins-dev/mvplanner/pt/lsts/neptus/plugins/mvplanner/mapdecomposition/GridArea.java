@@ -83,8 +83,8 @@ public class GridArea {
 
         computeAreaDimensions();
 
-        this.nrows = (int) Math.round(gridHeight / cellHeight);
-        this.ncols = (int) Math.round(gridWidth / cellWidth);
+        this.nrows = (int) Math.ceil(gridHeight / cellHeight);
+        this.ncols = (int) Math.ceil(gridWidth / cellWidth);
         grid = new GridCell[nrows][ncols];
         decompose();
     }
