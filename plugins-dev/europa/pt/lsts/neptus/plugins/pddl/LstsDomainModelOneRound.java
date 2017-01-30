@@ -46,16 +46,16 @@ public class LstsDomainModelOneRound extends LstsDomainModelV2 {
     protected String goals(MVProblemSpecification problem) {
         StringBuilder sb = new StringBuilder();
         sb.append("(:goal (and\n");
-        for (SamplePointTask t : problem.sampleTasks) {
-            for (PayloadRequirement r : t.getRequiredPayloads()) {
-                sb.append("  (communicated_data " + t.getName() + "_" + r.name() + ")\n");
-            }
-        }
-        for (SurveyAreaTask t : problem.surveyTasks) {
-            for (PayloadRequirement r : t.getRequiredPayloads()) {
-                sb.append("  (communicated_data " + t.getName() + "_" + r.name() + ")\n");
-            }
-        }
+//        for (SamplePointTask t : problem.sampleTasks) {
+//            for (PayloadRequirement r : t.getRequiredPayloads()) {
+//                sb.append("  (communicated_data " + t.getName() + "_" + r.name() + ")\n");
+//            }
+//        }
+//        for (SurveyAreaTask t : problem.surveyTasks) {
+//            for (PayloadRequirement r : t.getRequiredPayloads()) {
+//                sb.append("  (communicated_data " + t.getName() + "_" + r.name() + ")\n");
+//            }
+//        }
         
         sb.append("\n  (>= (tasks-completed) 1)\n\n");
         
@@ -68,7 +68,9 @@ public class LstsDomainModelOneRound extends LstsDomainModelV2 {
         
         for (MVPlannerTask t : allTasks) {
             if (t.firstPriority) {
-                sb.append("  (completed "+t.name+")\n");
+                for (PayloadRequirement pr : t.getRequiredPayloads()) {
+                    sb.append("  (completed "+t.getName()+"_"+pr.name()+")\n");
+                }                
             }
         }
         
