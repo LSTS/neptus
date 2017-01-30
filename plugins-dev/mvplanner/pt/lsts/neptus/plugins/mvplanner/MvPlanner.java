@@ -52,6 +52,9 @@ public class MvPlanner extends ConsoleInteraction implements Renderer2DPainter {
     @NeptusProperty(name = "Display operational area's grid", userLevel = NeptusProperty.LEVEL.REGULAR)
     public boolean displayOpAreaGrid = false;
 
+    @NeptusProperty(name = "Display finished tasks", userLevel = NeptusProperty.LEVEL.REGULAR)
+    public boolean displayFinishedtasks = false;
+
     private final ProfileMarshaler profileMarshaler = new ProfileMarshaler();
     private final Map<String, Profile> availableProfiles = profileMarshaler.getAllProfiles();
     private final PlanGenerator planGenerator = new PlanGenerator();
@@ -311,8 +314,13 @@ public class MvPlanner extends ConsoleInteraction implements Renderer2DPainter {
     public void paint(Graphics2D g, StateRenderer2D renderer) {
         currentPolygon.paint(g, renderer);
 
-        for(PlanTask task : tasksStack)
+        for(PlanTask task : tasksStack) {
+            // operator doesn't want to see finished tasks
+            if(task.getState() == PlanTask.TaskStateEnum.Completed && !displayFinishedtasks)
+                continue;
+
             task.paintTask(g, renderer);
+        }
 
         if(operationalArea != null)
             operationalArea.paint(g, renderer, Color.BLACK, displayOpAreaGrid, false);
