@@ -414,7 +414,7 @@ public class MvPlanner extends ConsoleInteraction implements Renderer2DPainter {
                     outcome.setAsObstacle();
 
                 if(profilesBox.isEnabled())
-                    outcome.associateProfile((Profile) profilesBox.getSelectedItem());
+                    outcome.associateProfile(availableProfiles.get(profilesBox.getSelectedItem()));
 
                 dialog.setVisible(false);
                 dialog.dispose();
