@@ -69,7 +69,8 @@ public abstract class PlanTask {
      * Which type of task this is
      * */
     public enum TaskTypeEnum {
-        Survey
+        Survey,
+        NeptusTask
     }
 
     /** Map object that represents this task **/
