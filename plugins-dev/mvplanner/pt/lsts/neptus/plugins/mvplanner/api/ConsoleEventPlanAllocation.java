@@ -35,44 +35,47 @@ package pt.lsts.neptus.plugins.mvplanner.api;
 import java.util.Date;
 
 import pt.lsts.neptus.plugins.mvplanner.PlanTask;
+import pt.lsts.neptus.types.mission.plan.PlanType;
 
 /**
  * @author zp
  * @author tsm 
  *
  */
-public class ConsoleEventPlanTask {
-
-    protected PlanTask task;
+public class ConsoleEventPlanAllocation {
+    protected PlanType plan;
+    protected String vehicle;
     protected Date startTime;
     protected Operation op;
     
-    public ConsoleEventPlanTask(PlanTask task, Date startTime, Operation op) {
-        this.startTime = startTime;
+    
+    public ConsoleEventPlanAllocation(ConsoleEventPlanAllocation task, Operation op) {
+        this.startTime = task.getStartTime();
+        this.plan = task.plan;
         this.op = op;
+        this.vehicle = task.vehicle;
     }
+
     
-    // TODO add construct with vehicle + plantype
-    
-    /**
-     * @return the task
-     */
-    public final PlanTask getTask() {
-        return task;
+    public ConsoleEventPlanAllocation(PlanType plan, Date startTime, Operation op) {
+        this.startTime = startTime;
+        this.vehicle = plan.getVehicle();
+        this.plan = plan;
+        this.op = op;
     }
     
     /**
      * @return the vehicle
      */
     public final String getVehicle() {
-        return task.getAllocatedVehicle();
+        return plan.getVehicle();
     }
     
     /**
-     * @return the vehicle
+     * @return the task id
      */
     public final String getId() {
-        return task.getId();
+        return plan.getId();
     }
 
     /**
@@ -90,7 +93,7 @@ public class ConsoleEventPlanTask {
     }
 
     public enum Operation {
-        REQUEST,
+        ALLOCATED,
         FINISHED,
         INTERRUPTED
     }
