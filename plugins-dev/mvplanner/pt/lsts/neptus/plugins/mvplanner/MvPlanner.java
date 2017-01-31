@@ -120,6 +120,13 @@ public class MvPlanner extends ConsoleInteraction implements Renderer2DPainter {
     @Subscribe
     public void consume(PlanControlState event) {
         vawareness.onPlanControlState(event);
+
+        PlanTask task = tasks.getOrDefault(event.getPlanId(), null);
+
+        if (task != null)
+            synchronized (task) {
+                task.setCompletion(event.getPlanProgress());
+            }
     }
 
     /**

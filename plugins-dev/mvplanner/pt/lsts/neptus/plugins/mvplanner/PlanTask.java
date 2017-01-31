@@ -90,11 +90,15 @@ public abstract class PlanTask {
     /** Plan generated for this task **/
     protected PlanType plan;
 
+    /** Completion percentage **/
+    protected double completion;
+
     public PlanTask(PolygonType object, Profile taskProfile) {
         this.object = object;
         setWaitingState();
         vehicleId = null;
         this.taskPofile = taskProfile;
+        completion = 0;
     }
 
     /**
@@ -124,6 +128,16 @@ public abstract class PlanTask {
 
     public TaskStateEnum getState() {
         return taskState;
+    }
+
+    /**
+     * Set the current completion percentage of this task
+     * */
+    public void setCompletion(double completion) {
+        this.completion = completion;
+
+        if(completion == 100)
+            setCompleted();
     }
 
     /**
