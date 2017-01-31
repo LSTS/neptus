@@ -56,6 +56,7 @@ public abstract class MVPlannerTask implements Renderer2DPainter, PropertiesProv
     protected static int count = 1;
     protected String name = String.format(Locale.US, "t%02d", count++);
     protected HashSet<PayloadRequirement> requiredPayloads = new HashSet<PayloadRequirement>();
+    protected boolean firstPriority = false;
     
     public abstract boolean containsPoint(LocationType lt, StateRenderer2D renderer);
     public abstract LocationType getCenterLocation();
@@ -79,6 +80,8 @@ public abstract class MVPlannerTask implements Renderer2DPainter, PropertiesProv
     @Override
     public DefaultProperty[] getProperties() {
         Vector<DefaultProperty> props = new Vector<DefaultProperty>();
+        props.add(PropertiesEditor.getPropertyInstance("First Priority", "Urgency", Boolean.class, firstPriority, true));
+        
         for (PayloadRequirement pr : PayloadRequirement.values()) {
             props.add(PropertiesEditor.getPropertyInstance(pr.name(), "Payload Requirements", Boolean.class, requiredPayloads.contains(pr), true));
         }
@@ -102,6 +105,10 @@ public abstract class MVPlannerTask implements Renderer2DPainter, PropertiesProv
         HashSet<PayloadRequirement> newReqs = new HashSet<PayloadRequirement>();
         
         for (Property p : properties) {
+            if (p.getName().equals("First Priority")) {
+                this.firstPriority = "true".equals(""+p.getValue());
+                continue;
+            }
             PayloadRequirement pr = PayloadRequirement.valueOf(p.getName());
             if (pr != null && "true".equals(""+p.getValue())) {
                 newReqs.add(pr);

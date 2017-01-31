@@ -38,14 +38,16 @@ import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Point2D;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.Map.Entry;
 import java.util.Vector;
 
-import javax.swing.JOptionPane;
 import javax.swing.JPopupMenu;
 import javax.swing.ProgressMonitor;
+
+import com.google.common.eventbus.Subscribe;
 
 import pt.lsts.imc.PlanControl;
 import pt.lsts.neptus.NeptusLog;
@@ -55,8 +57,12 @@ import pt.lsts.neptus.comm.manager.imc.ImcSystem;
 import pt.lsts.neptus.comm.manager.imc.ImcSystemsHolder;
 import pt.lsts.neptus.console.ConsoleInteraction;
 import pt.lsts.neptus.console.ConsoleLayout;
+import pt.lsts.neptus.console.events.ConsoleEventFutureState;
 import pt.lsts.neptus.gui.PropertiesEditor;
+import pt.lsts.neptus.plugins.NeptusProperty;
+import pt.lsts.neptus.plugins.NeptusProperty.LEVEL;
 import pt.lsts.neptus.plugins.PluginDescription;
+import pt.lsts.neptus.plugins.PluginUtils;
 import pt.lsts.neptus.renderer2d.StateRenderer2D;
 import pt.lsts.neptus.types.coord.LocationType;
 import pt.lsts.neptus.types.mission.plan.PlanType;
@@ -78,9 +84,38 @@ public class MVPlannerInteraction extends ConsoleInteraction {
     private MVPlannerTask selectedTask = null;
     private Point2D lastPoint = null;
     private MVProblemSpecification problem = null;
-    private static final int NUM_TRIES = 50;
     private LinkedHashMap<String, PlanType> generatedPlans = new LinkedHashMap<String, PlanType>();
+    private LinkedHashMap<String, ConsoleEventFutureState> futureStates = new LinkedHashMap<String, ConsoleEventFutureState>();
+
+
+    @NeptusProperty(category="Problem Specification", name = "Domain Model to use")
+    private MVDomainModel domainModel = MVDomainModel.V1;
+
+    @NeptusProperty(category="Problem Specification", name = "Time (seconds) vehicles can stay away from depot")
+    private int secondsAway = 1000;
+
+    @NeptusProperty(category="Plan Generation", name = "Time (seconds) to search for optimal solution.")
+    private int searchSeconds = 0;
+
+    @NeptusProperty(category="Plan Generation", name = "Number of alternative solutions (if not timed).", userLevel=LEVEL.ADVANCED)
+    private int numTries = 50;
     
+    @NeptusProperty(category="Plan Generation", name = "Include pop-ups in generated plans.")
+    private boolean generatePopups = false;
+    
+
+    @Subscribe
+    public void on(ConsoleEventFutureState future) {
+        synchronized (futureStates) {
+            if (future.getState() == null)
+                futureStates.remove(future.getVehicle());
+            else {
+                futureStates.put(future.getVehicle(), future);  
+                System.out.println(future);
+            }
+        }
+    }
+
     @Override
     public void paintInteraction(Graphics2D g, StateRenderer2D source) {
 
@@ -107,11 +142,6 @@ public class MVPlannerInteraction extends ConsoleInteraction {
             }
         }
 
-        // if (clicked == null) {
-        // super.mouseClicked(event, source);
-        // return;
-        // }
-
         JPopupMenu popup = new JPopupMenu();
         final MVPlannerTask clickedTask = clicked;
 
@@ -132,18 +162,6 @@ public class MVPlannerInteraction extends ConsoleInteraction {
                     PropertiesEditor.editProperties(clickedTask, true);
                 }
             });
-            
-            if (clickedTask instanceof SurveyAreaTask) {
-                popup.add("Split " + clickedTask.getName()).addActionListener(new ActionListener() {
-                    @Override
-                    public void actionPerformed(ActionEvent e) {
-                        String answer = JOptionPane.showInputDialog(source, "Enter maximum time, in minutes, per task", (int)((SurveyAreaTask) clickedTask).getLength() / 60)+1;
-                        if (answer != null) {
-                            
-                        }
-                    }
-                });
-            }
 
             popup.addSeparator();
 
@@ -159,6 +177,7 @@ public class MVPlannerInteraction extends ConsoleInteraction {
                 source.repaint();
             }
         });
+
         popup.add("Add sample task").addActionListener(new ActionListener() {
 
             @Override
@@ -170,104 +189,145 @@ public class MVPlannerInteraction extends ConsoleInteraction {
             }
         });
 
-        popup.add("Generate").addActionListener(new ActionListener() {
-
-            @Override
-            public void actionPerformed(ActionEvent e) {
-
-                Thread t = new Thread("Generating Multi-Vehicle plan...") {
-                    public void run() {
-                        ProgressMonitor pm = new ProgressMonitor(getConsole(), "Searching for solutions...", "Generating initial state", 0, 5+NUM_TRIES);
-                        
-                        Vector<VehicleType> activeVehicles = new Vector<VehicleType>();
-                        for (ImcSystem s : ImcSystemsHolder.lookupActiveSystemVehicles()) {
-                            if (s.getTypeVehicle() == VehicleTypeEnum.UUV)
-                                activeVehicles.addElement(VehiclesHolder.getVehicleById(s.getName()));
-                        }
-                        
-                        problem = new MVProblemSpecification(activeVehicles, tasks, null);
-                        FileUtil.saveToFile("initial_state.pddl", problem.asPDDL());
-                        pm.setProgress(5);
-                        double bestYet = 0;
-                        String bestSolution = null;
-                        
-                        for (int i = 0; i < NUM_TRIES; i++) {
-                            String best = "N/A";
-                            if (bestSolution != null)
-                                best = DateTimeUtil.milliSecondsToFormatedString((long)(bestYet * 1000));
-                            if (pm.isCanceled())
-                                return;
-                            pm.setNote("Current best solution time: "+best);
-                            pm.setProgress(5+i);
-                            
-                            try {
-                                String solution = problem.solve();
-                                if (solution.isEmpty())
-                                    continue;                
-                                if (bestSolution == null) {
-                                    bestSolution = solution;
-                                    bestYet = solutionCost(solution);
-                                }
-                                else {
-                                    if (solutionCost(solution) < bestYet) {
-                                        bestYet = solutionCost(solution);
-                                        bestSolution = solution;
-                                        
-                                    }
-                                }                                
-                            }
-                            catch (Exception ex) {
-                                NeptusLog.pub().error(ex);
-                            }
-                        }
-                        pm.setProgress(5+NUM_TRIES);
-                        pm.close();
-                        generatedPlans.clear();
-                        if (bestSolution != null) {
-                            MVSolution solution = problem.getSolution();
-                            if (solution != null) {
-                                Collection<PlanType> plans = solution.generatePlans();
-                                for (PlanType pt : plans) {
-                                    pt.setMissionType(getConsole().getMission());
-                                    getConsole().getMission().getIndividualPlansList().put(pt.getId(), pt);
-                                    generatedPlans.put(pt.getVehicle(), pt);
-                                }
-                                getConsole().warnMissionListeners();
-                                getConsole().getMission().save(true);
-                            }
-                            GuiUtils.htmlMessage(getConsole(), "Multi-Vehicle Planner", "Valid solution found", "<html><pre>" + bestSolution
-                                    + "</pre></html>");
-                            System.out.println(bestSolution);
-                        }
-                        else
-                            GuiUtils.errorMessage(getConsole(), new Exception("No solution has been found."));
-                    }
-                };
-                t.setDaemon(true);
-                t.start();
-            };
-
-        });
+        popup.add("Generate").addActionListener(this::generate);
         popup.addSeparator();
-        popup.add("Start execution").addActionListener(new ActionListener() {
-
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                //start execution of the generated plans
-                for (Entry<String, PlanType> generated : generatedPlans.entrySet()) {
-                    PlanControl startPlan = new PlanControl();
-                    startPlan.setType(pt.lsts.imc.PlanControl.TYPE.REQUEST);
-                    startPlan.setOp(pt.lsts.imc.PlanControl.OP.START);
-                    startPlan.setPlanId(generated.getValue().getId());
-                    startPlan.setArg(generated.getValue().asIMCPlan(true));
-                    int reqId = IMCSendMessageUtils.getNextRequestId();
-                    startPlan.setRequestId(reqId);
-                    ImcMsgManager.getManager().sendMessageToVehicle(startPlan, generated.getKey(), null);                    
-                }
-            }
-        });
+        popup.add("Start execution").addActionListener(this::startExecution);
+        popup.addSeparator();
+        popup.add("Settings").addActionListener(this::settings);
 
         popup.show(source, event.getX(), event.getY());
+    }
+
+    private void generate(ActionEvent action) {
+        Thread t = new Thread("Generating Multi-Vehicle plan...") {
+            public void run() {
+                ProgressMonitor pm = new ProgressMonitor(getConsole(), "Searching for solutions...", "Generating initial state", 0, 5+numTries);
+
+                Vector<VehicleType> activeVehicles = new Vector<VehicleType>();
+                for (ImcSystem s : ImcSystemsHolder.lookupActiveSystemVehicles()) {
+                    if (s.getTypeVehicle() == VehicleTypeEnum.UUV)
+                        activeVehicles.addElement(VehiclesHolder.getVehicleById(s.getName()));
+                }
+
+                ArrayList<ConsoleEventFutureState> futures = new ArrayList<>();
+                synchronized (futureStates) {
+                    futures.addAll(futureStates.values());
+                }
+                
+                problem = new MVProblemSpecification(domainModel, activeVehicles, tasks, futures, null, secondsAway);
+                FileUtil.saveToFile("initial_state.pddl", problem.asPDDL());
+                pm.setProgress(5);
+                pm.setMillisToPopup(0);
+                double bestYet = 0;
+                String bestSolution = null;
+
+                if (searchSeconds == 0) {
+                    for (int i = 0; i < numTries; i++) {
+                        String best = "N/A";
+                        if (bestSolution != null)
+                            best = DateTimeUtil.milliSecondsToFormatedString((long)(bestYet * 1000));
+                        if (pm.isCanceled())
+                            return;
+                        pm.setNote("Current best solution time: "+best);
+                        pm.setProgress(5+i);
+
+                        try {
+                            String solution = problem.solve(0);
+                            if (solution.isEmpty())
+                                continue;                
+                            if (bestSolution == null) {
+                                bestSolution = solution;
+                                bestYet = solutionCost(solution);
+                            }
+                            else {
+                                if (solutionCost(solution) < bestYet) {
+                                    bestYet = solutionCost(solution);
+                                    bestSolution = solution;                                    
+                                }
+                            }                                
+                        }
+                        catch (Exception ex) {
+                            NeptusLog.pub().error(ex);
+                        }
+                        pm.setProgress(5+numTries);                        
+                    }
+                    pm.close();
+                }
+                else {
+                    try {                        
+                        Thread progress = new Thread("Progress updater") {
+                            public void run() {
+                                pm.setMaximum(searchSeconds*10);
+                                pm.setProgress(0);
+
+                                for (int i = 0; i < searchSeconds * 10; i++) {
+                                    pm.setNote(String.format("Time left : %.1f seconds", (searchSeconds-i/10.0)));
+                                    pm.setProgress(i);
+                                    try {
+                                        Thread.sleep(100);
+                                    }
+                                    catch (InterruptedException e) {
+                                        break;
+                                    }
+                                }
+                                pm.setProgress(pm.getMaximum());
+                                pm.close();
+                            };
+                        };
+                        progress.setDaemon(true);
+                        progress.start();
+                        bestSolution = problem.solve(searchSeconds);
+                        progress.interrupt();
+                        pm.setProgress(pm.getMaximum());
+                        pm.close();
+                    }
+                    catch (Exception ex) {
+                        ex.printStackTrace();
+                        NeptusLog.pub().error(ex);
+                    }
+                }
+
+                generatedPlans.clear();
+                if (bestSolution != null) {
+                    MVSolution solution = problem.getSolution();
+                    if (solution != null) {
+                        solution.setGeneratePopups(generatePopups);
+                        Collection<PlanType> plans = solution.generatePlans();
+                        for (PlanType pt : plans) {
+                            pt.setMissionType(getConsole().getMission());
+                            getConsole().getMission().getIndividualPlansList().put(pt.getId(), pt);
+                            generatedPlans.put(pt.getVehicle(), pt);
+                        }
+                        getConsole().warnMissionListeners();
+                        getConsole().getMission().save(true);
+                    }
+                    GuiUtils.htmlMessage(getConsole(), "Multi-Vehicle Planner", "Valid solution found", "<html><pre>" + bestSolution
+                            + "</pre></html>");
+                    System.out.println(bestSolution);
+                }
+                else
+                    GuiUtils.errorMessage(getConsole(), new Exception("No solution has been found."));
+            }
+        };
+        t.setDaemon(true);
+        t.start();
+    }
+
+    private void startExecution(ActionEvent action) {
+        for (Entry<String, PlanType> generated : generatedPlans.entrySet()) {
+            PlanControl startPlan = new PlanControl();
+            startPlan.setType(pt.lsts.imc.PlanControl.TYPE.REQUEST);
+            startPlan.setOp(pt.lsts.imc.PlanControl.OP.START);
+            startPlan.setPlanId(generated.getValue().getId());
+            startPlan.setArg(generated.getValue().asIMCPlan(true));
+            int reqId = IMCSendMessageUtils.getNextRequestId();
+            startPlan.setRequestId(reqId);
+            ImcMsgManager.getManager().sendMessageToVehicle(startPlan, generated.getKey(), null);                    
+        }
+    }
+
+    private void settings(ActionEvent action) {
+        PluginUtils.editPluginProperties(this, true);
     }
 
     private double solutionCost(String solution) {
@@ -323,7 +383,7 @@ public class MVPlannerInteraction extends ConsoleInteraction {
         else if (event.isShiftDown()) {
             double angle = selectedTask.getCenterLocation().getXYAngle(now);
             selectedTask.setYaw(angle);
-            
+
         }
         else {
             double offsets[] = now.getOffsetFrom(prev);
