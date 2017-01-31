@@ -33,8 +33,6 @@ package pt.lsts.neptus.types.coord;
 
 import java.awt.Color;
 import java.awt.Graphics2D;
-import java.awt.geom.AffineTransform;
-import java.awt.geom.Line2D;
 import java.io.StringReader;
 import java.io.StringWriter;
 import java.util.ArrayList;
@@ -45,11 +43,9 @@ import javax.xml.bind.JAXB;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlType;
 
-import info.necsave.proto.parser.WGS84Utilities;
 import pt.lsts.neptus.renderer2d.Renderer2DPainter;
 import pt.lsts.neptus.renderer2d.StateRenderer2D;
 import pt.lsts.neptus.types.map.PathElement;
-import pt.lsts.neptus.ws.Location;
 
 /**
  * @author zp
