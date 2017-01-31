@@ -101,6 +101,14 @@ public abstract class PlanTask {
         completion = 0;
     }
 
+    public PlanTask(PlanType plan) {
+        this.plan = plan;
+        setWaitingState();
+        vehicleId = null;
+        this.taskPofile = null;
+        completion = 0;
+    }
+
     /**
      * Display the task on the map according to its type
      * and allocation state.
@@ -115,6 +123,12 @@ public abstract class PlanTask {
     public abstract TaskTypeEnum getTaskType();
 
     public String getId() {
+        String id = null;
+        
+        if(object != null)
+            object.getId();
+        else if(plan != null)
+            plan.getId();
         return object.getId();
     }
 
