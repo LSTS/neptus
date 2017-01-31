@@ -123,13 +123,10 @@ public abstract class PlanTask {
     public abstract TaskTypeEnum getTaskType();
 
     public String getId() {
-        String id = null;
-        
         if(object != null)
-            object.getId();
-        else if(plan != null)
-            plan.getId();
-        return object.getId();
+            return object.getId();
+
+        return plan.getId();
     }
 
     /**
