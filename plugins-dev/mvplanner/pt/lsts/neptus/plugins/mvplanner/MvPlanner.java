@@ -10,8 +10,10 @@ import java.awt.geom.Point2D;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
-import pt.lsts.imc.PlanSpecification;
+import com.google.common.eventbus.Subscribe;
+import pt.lsts.imc.PlanControlState;
 import pt.lsts.neptus.console.ConsoleInteraction;
+import pt.lsts.neptus.console.events.ConsoleEventVehicleStateChanged;
 import pt.lsts.neptus.console.plugins.planning.MapPanel;
 import pt.lsts.neptus.gui.LocationPanel;
 import pt.lsts.neptus.i18n.I18n;
@@ -57,6 +59,8 @@ public class MvPlanner extends ConsoleInteraction implements Renderer2DPainter {
     private final ProfileMarshaler profileMarshaler = new ProfileMarshaler();
     private final Map<String, Profile> availableProfiles = profileMarshaler.getAllProfiles();
     private final PlanGenerator planGenerator = new PlanGenerator();
+    private final VehicleAwareness vawareness = new VehicleAwareness();
+
     /** Mapping of current tasks and their IDs **/
     private final ConcurrentHashMap<String, PlanTask> tasks = new ConcurrentHashMap<>();
 
@@ -108,12 +112,23 @@ public class MvPlanner extends ConsoleInteraction implements Renderer2DPainter {
         }
     }
 
+    @Subscribe
+    public void consume(ConsoleEventVehicleStateChanged event) {
+        vawareness.onVehicleStateChange(event);
+    }
+
+    @Subscribe
+    public void consume(PlanControlState event) {
+        vawareness.onPlanControlState(event);
+    }
+
     /**
      * Adds a layer to all map panels that paints the current currentPolygon
      */
     @Override
     public void initInteraction() {
         planGenerator.setConsole(getConsole());
+        vawareness.setConsole(getConsole());
         maps = getConsole().getSubPanelsOfClass(MapPanel.class);
         for (MapPanel p : maps)
             p.addPreRenderPainter(this);
