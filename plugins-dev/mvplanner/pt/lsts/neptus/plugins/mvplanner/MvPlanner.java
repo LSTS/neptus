@@ -8,7 +8,7 @@ import java.awt.event.WindowEvent;
 import java.awt.geom.Ellipse2D;
 import java.awt.geom.Point2D;
 import java.util.*;
-import java.util.List;
+import java.util.concurrent.ConcurrentHashMap;
 
 import pt.lsts.imc.PlanSpecification;
 import pt.lsts.neptus.console.ConsoleInteraction;
@@ -27,7 +27,6 @@ import pt.lsts.neptus.renderer2d.Renderer2DPainter;
 import pt.lsts.neptus.renderer2d.StateRenderer2D;
 import pt.lsts.neptus.types.coord.LocationType;
 import pt.lsts.neptus.types.coord.PolygonType;
-import pt.lsts.neptus.types.mission.plan.PlanType;
 import pt.lsts.neptus.util.GuiUtils;
 import pt.lsts.neptus.util.NameNormalizer;
 import pt.lsts.neptus.util.conf.ConfigFetch;
@@ -58,8 +57,9 @@ public class MvPlanner extends ConsoleInteraction implements Renderer2DPainter {
     private final ProfileMarshaler profileMarshaler = new ProfileMarshaler();
     private final Map<String, Profile> availableProfiles = profileMarshaler.getAllProfiles();
     private final PlanGenerator planGenerator = new PlanGenerator();
+    /** Mapping of current tasks and their IDs **/
+    private final ConcurrentHashMap<String, PlanTask> tasks = new ConcurrentHashMap<>();
 
-    private Deque<PlanTask> tasksStack = new ArrayDeque<>();
     protected PolygonType currentPolygon = new PolygonType();
     protected PolygonType.Vertex vertex = null;
     protected Vector<MapPanel> maps = new Vector<>();
@@ -104,7 +104,7 @@ public class MvPlanner extends ConsoleInteraction implements Renderer2DPainter {
         else if(nPoints > 2) {
             PlanTask surveyTask = new SurveyTask(taskPolygon, taskProfile);
             surveyTask.associatePlan(planGenerator.generate(surveyTask));
-            tasksStack.push(surveyTask);
+            tasks.put(surveyTask.getId(), surveyTask);
         }
     }
 
@@ -314,7 +314,7 @@ public class MvPlanner extends ConsoleInteraction implements Renderer2DPainter {
     public void paint(Graphics2D g, StateRenderer2D renderer) {
         currentPolygon.paint(g, renderer);
 
-        for(PlanTask task : tasksStack) {
+        for(PlanTask task : tasks.values()) {
             // operator doesn't want to see finished tasks
             if(task.getState() == PlanTask.TaskStateEnum.Completed && !displayFinishedtasks)
                 continue;
