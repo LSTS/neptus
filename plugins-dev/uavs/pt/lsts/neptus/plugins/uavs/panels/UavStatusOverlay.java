@@ -36,6 +36,7 @@ import java.awt.Graphics2D;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Rectangle2D;
 
+import javax.swing.BorderFactory;
 import javax.swing.JLabel;
 
 import com.google.common.eventbus.Subscribe;
@@ -44,7 +45,9 @@ import pt.lsts.imc.ApmStatus;
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.console.ConsoleLayout;
 import pt.lsts.neptus.console.ConsolePanel;
+import pt.lsts.neptus.console.events.ConsoleEventMainSystemChange;
 import pt.lsts.neptus.plugins.NeptusProperty;
+import pt.lsts.neptus.plugins.NeptusProperty.LEVEL;
 import pt.lsts.neptus.plugins.PluginDescription;
 import pt.lsts.neptus.renderer2d.LayerPriority;
 import pt.lsts.neptus.renderer2d.Renderer2DPainter;
@@ -59,63 +62,74 @@ import pt.lsts.neptus.renderer2d.StateRenderer2D;
 @LayerPriority(priority = 100)
 public class UavStatusOverlay extends ConsolePanel implements Renderer2DPainter {
 
-    public UavStatusOverlay(ConsoleLayout console) {
-        super(console);
-    }
+    private static final int FONT_SIZE = 3;
+    private String color;
+    private String status = new String();
+    private String mainSysName;
+    private long lastMsgReceived = 0;
+    private JLabel lblToDraw = new JLabel();
 
     @NeptusProperty(name="Timeout period (ms)", description="Timeout to consider a status as old, in milliseconds")
     public long oldStatusTimeout = 5000;
 
-    private String status = new String();
-    private String statusUntouched = new String();
-    private long lastMsgReceived = 0;
+    @NeptusProperty(name = "Overlay Location", userLevel = LEVEL.REGULAR)
+    public OverlayLocation overlayLocation = OverlayLocation.TOP;
+
+    public enum OverlayLocation {
+        BOTTOM,
+        TOP
+    };
+
+    public UavStatusOverlay(ConsoleLayout console) {
+        super(console);
+        mainSysName = console.getMainSystem();
+    }
 
     @Subscribe
-    public void on(ApmStatus status) {
-        if (!status.getSourceName().equals(getConsole().getMainSystem()))
-            return;
+    public void on(ApmStatus rcvStatus) {
 
-        switch (status.getSeverity()) {
+        switch (rcvStatus.getSeverity()) {
             case ALERT:
                 //Not needed for now
                 break;
             case CRITICAL: //arming_checks & common "Bad ? Health" messages
-                setUavStatus(status.getText(), "red");
+                setUavStatus(rcvStatus.getText(), "red");
                 break;
             case DEBUG:
                 //Not needed for now
                 break;
             case EMERGENCY: //crash check
-                setUavStatus(status.getText(), "orange");
+                setUavStatus(rcvStatus.getText(), "orange");
                 break;
             case ERROR:
-                setUavStatus(status.getText(), "red");
+                setUavStatus(rcvStatus.getText(), "red");
                 break;
             case INFO:
-                setUavStatus(status.getText(), "yellow");
+                setUavStatus(rcvStatus.getText(), "yellow");
                 break;
             case NOTICE:
-                setUavStatus(status.getText(), "yellow");
+                setUavStatus(rcvStatus.getText(), "yellow");
                 break;
             case WARNING:
-                setUavStatus(status.getText(), "orange");
+                setUavStatus(rcvStatus.getText(), "orange");
                 break;
         }
 
-        statusUntouched = status.getText();
         lastMsgReceived = System.currentTimeMillis();
-        NeptusLog.pub().info(status.getSeverity() + " " + status.getText());
+        NeptusLog.pub().info("[" + rcvStatus.getSeverity() + "] " + rcvStatus.getText() + " ("+mainSysName+")");
     }
 
     private void setUavStatus(String text, String color) {
-        this.status = "<font color="+color+" size=5>"+text+"</font>";
+        this.status = text;
+        this.color = color;
     }
 
     private String getUavStatus() {
         String html = "<html><table>";
-
-        html += "<tr><td align=center>"+status+"</td></tr>";   
-        html+="</table></html>";
+        html += "<tr><td align=center><font color="+color+" size="+FONT_SIZE+"><b>";
+        html += status;
+        html += "</b></font></td></tr>";
+        html += "</table></html>";
 
         return html;
     }
@@ -128,17 +142,50 @@ public class UavStatusOverlay extends ConsolePanel implements Renderer2DPainter 
             return;
 
         AffineTransform old = g.getTransform();
-        JLabel lbl = new JLabel(getUavStatus());
-        lbl.setOpaque(true);
-        lbl.setBackground(new Color(255,255,255,128));
-        lbl.setSize(lbl.getPreferredSize());
+        lblToDraw.setText(getUavStatus());
+        lblToDraw.setOpaque(true);
+        lblToDraw.setBackground(new Color(255,255,255,128));
+        lblToDraw.setSize(lblToDraw.getPreferredSize());
+        lblToDraw.setBorder(BorderFactory.createLineBorder(Color.black));
 
-        Rectangle2D stringBounds = g.getFontMetrics().getStringBounds(statusUntouched, g);
-        int advance = (int) (renderer.getWidth() - 20 - stringBounds.getWidth()) / 2;
+        Rectangle2D stringBounds = g.getFontMetrics().getStringBounds(status, g);
 
-        g.translate(advance, 10);
-        lbl.paint(g);
+        int[] offsets = getOffsets(renderer, stringBounds);
+
+        g.translate(offsets[0], offsets[1]);
+        lblToDraw.paint(g);
         g.setTransform(old);
+    }
+
+
+    /** Calculate offsets for label based on @NeptusPropery overlayLocation 
+     * index 0 - X offset
+     * index 1 - Y offset
+     * @return the offsets for the label
+     */
+    private int[] getOffsets(StateRenderer2D renderer, Rectangle2D stringBounds) {
+        int[] offsets = new int[2];
+        switch (overlayLocation) {
+            case TOP:
+                offsets[0] = (int) (renderer.getWidth() - 30 - stringBounds.getWidth()) / 2;
+                offsets[1] = 10;
+                break;
+            case BOTTOM:
+                offsets[0] = (int) (renderer.getWidth() - 30 - stringBounds.getWidth()) / 2;
+                offsets[1] = (int) (renderer.getHeight() - 50 - stringBounds.getHeight());
+                break;
+            default:
+                offsets[0] = (int) (renderer.getWidth() - 30 - stringBounds.getWidth()) / 2;
+                offsets[1] = 10;
+                break;
+        }
+
+        return offsets;
+    }
+
+    @Subscribe
+    public void consume(ConsoleEventMainSystemChange ev) {
+        mainSysName = ev.getCurrent();
     }
 
     @Override
