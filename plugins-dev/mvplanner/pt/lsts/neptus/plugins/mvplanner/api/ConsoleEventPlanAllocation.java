@@ -92,6 +92,10 @@ public class ConsoleEventPlanAllocation {
         return op;
     }
 
+    public final PlanType getPlan() {
+        return plan;
+    }
+
     public enum Operation {
         ALLOCATED,
         FINISHED,
