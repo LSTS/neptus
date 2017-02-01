@@ -34,6 +34,7 @@ package pt.lsts.neptus.plugins.mvplanner;
 
 import javafx.beans.DefaultProperty;
 import pt.lsts.imc.PlanSpecification;
+import pt.lsts.neptus.comm.IMCUtils;
 import pt.lsts.neptus.mp.Maneuver;
 import pt.lsts.neptus.mp.ManeuverLocation;
 import pt.lsts.neptus.mp.maneuvers.FollowPath;
@@ -213,12 +214,26 @@ public abstract class PlanTask {
         objectColor = new Color(red.getRed(), red.getGreen(), red.getBlue(), 100);
     }
 
-    public void associatePlan(PlanType plan) {
-        this.plan = plan;
+    /**
+     * When time comes to allocate this task, do it
+     * to the given vehicle
+     * */
+    public void associateVehicle(String vehicleId) {
+        this.vehicleId = vehicleId;
+
+        if(plan != null)
+            plan.setVehicle(vehicleId);
     }
 
-    public PlanSpecification asPlanSpecification() {
-        return (PlanSpecification) this.plan.asIMCPlan();
+    public void associatePlan(PlanType plan) {
+        this.plan = plan;
+
+        if(this.vehicleId != null)
+            this.plan.setVehicle(vehicleId);
+    }
+
+    public PlanSpecification asIMCPlan() {
+        return (PlanSpecification) IMCUtils.generatePlanSpecification(plan);
     }
 
     public PlanType asPlanType() {
