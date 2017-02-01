@@ -47,6 +47,7 @@ import pt.lsts.neptus.types.coord.PolygonType;
 import pt.lsts.neptus.types.mission.plan.PlanType;
 
 import java.awt.*;
+import java.util.Date;
 
 public abstract class PlanTask {
     /**
@@ -94,12 +95,15 @@ public abstract class PlanTask {
     /** Completion percentage **/
     protected double completion;
 
+    protected Date startDate;
+
     public PlanTask(PolygonType object, Profile taskProfile) {
         this.object = object;
         setWaitingState();
         vehicleId = null;
         this.taskPofile = taskProfile;
         completion = 0;
+        startDate = null;
     }
 
     public PlanTask(PlanType plan) {
@@ -108,6 +112,7 @@ public abstract class PlanTask {
         vehicleId = null;
         this.taskPofile = null;
         completion = 0;
+        startDate = null;
     }
 
     /**
@@ -138,8 +143,26 @@ public abstract class PlanTask {
         return vehicleId;
     }
 
+    /**
+     * Set time at which this task should start
+     * */
+    public void setStartDate(Date start) {
+        startDate = start;
+    }
+
     public TaskStateEnum getState() {
         return taskState;
+    }
+
+    /**
+     * Get start time of this task.
+     * If not value was set it will return
+     * the current time.
+     * */
+    public Date getStartTime() {
+        if(startDate == null)
+            return new Date();
+        return startDate;
     }
 
     /**
