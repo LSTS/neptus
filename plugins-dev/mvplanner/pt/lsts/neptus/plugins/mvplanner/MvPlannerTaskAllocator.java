@@ -92,7 +92,7 @@ public class MvPlannerTaskAllocator extends ConsolePanel implements Renderer2DPa
             case ALLOCATED:
                 task = new NeptusTask(event.getPlan());
                 task.associateVehicle(event.getVehicle());
-
+                task.setStartDate(event.getStartTime());
                 taskHeap.add(task);
                 tasks.put(task.getId(), task);
                 break;
