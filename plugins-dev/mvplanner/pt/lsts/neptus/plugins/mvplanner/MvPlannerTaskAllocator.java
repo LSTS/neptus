@@ -117,13 +117,10 @@ public class MvPlannerTaskAllocator extends ConsolePanel implements Renderer2DPa
 
     @Periodic(millisBetweenUpdates = 5000)
     private void doAllocation() {
-        if(taskHeap.isEmpty())
-            return;
-
         int ntries = 5;
         Date currDate = new Date();
-        while(currDate.compareTo(taskHeap.peek().getStartTime()) >= 0 && ntries >= 0)
-            if(allocateTask(taskHeap.peek())) {
+        while(!taskHeap.isEmpty() && currDate.compareTo(taskHeap.peek().getStartTime()) >= 0 && ntries >= 0)
+            if (allocateTask(taskHeap.peek())) {
                 taskHeap.poll();
                 ntries = 5;
             }
