@@ -47,8 +47,10 @@ import pt.lsts.neptus.plugins.update.Periodic;
 import pt.lsts.neptus.renderer2d.Renderer2DPainter;
 import pt.lsts.neptus.renderer2d.StateRenderer2D;
 import pt.lsts.neptus.comm.manager.imc.ImcMsgManager.SendResult;
+import pt.lsts.neptus.types.mission.plan.PlanType;
 
 import java.awt.Graphics2D;
+import java.util.Calendar;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.PriorityQueue;
@@ -177,5 +179,35 @@ public class MvPlannerTaskAllocator extends ConsolePanel implements Renderer2DPa
     @Override
     public void initSubPanel() {
 
+    }
+
+    private void runTests() {
+        Calendar tmp = Calendar.getInstance();
+
+        tmp.set(Calendar.MINUTE, tmp.get(Calendar.MINUTE) + 2);
+        Date d1 = tmp.getTime();
+        PlanType p1 = new PlanType(console.getMission());
+        p1.setId("--test-- p1");
+
+        tmp = Calendar.getInstance();
+        tmp.set(Calendar.MINUTE, tmp.get(Calendar.MINUTE) + 4);
+        Date d2 = tmp.getTime();
+        PlanType p2 = new PlanType(console.getMission());
+        p2.setId("--test-- p2");
+
+        tmp = Calendar.getInstance();
+        tmp.set(Calendar.MINUTE, tmp.get(Calendar.MINUTE) + 1);
+        Date d3 = tmp.getTime();
+        PlanType p3 = new PlanType(console.getMission());
+        p3.setId("--test-- p3");
+
+        NeptusLog.pub().info("Plan 1 " + d1.toString());
+        NeptusLog.pub().info("Plan 2 " + d2.toString());
+        NeptusLog.pub().info("Plan 3 " + d3.toString());
+        System.out.println("\n");
+
+        console.post(new ConsoleEventPlanAllocation(p1, d1, ConsoleEventPlanAllocation.Operation.ALLOCATED));
+        console.post(new ConsoleEventPlanAllocation(p2, d2, ConsoleEventPlanAllocation.Operation.ALLOCATED));
+        console.post(new ConsoleEventPlanAllocation(p3, d3, ConsoleEventPlanAllocation.Operation.ALLOCATED));
     }
 }
