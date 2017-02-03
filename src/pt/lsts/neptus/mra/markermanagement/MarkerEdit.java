@@ -45,8 +45,6 @@ import java.awt.Toolkit;
 import java.awt.Transparency;
 import java.awt.Window;
 import java.awt.event.ActionEvent;
-import java.awt.event.FocusEvent;
-import java.awt.event.FocusListener;
 import java.awt.event.InputEvent;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
@@ -90,11 +88,14 @@ import javax.swing.KeyStroke;
 import javax.swing.ScrollPaneConstants;
 import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
+import javax.swing.border.EmptyBorder;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import javax.swing.filechooser.FileFilter;
 
 import org.apache.commons.io.FileUtils;
+import org.imgscalr.Scalr;
+import org.imgscalr.Scalr.Method;
 import org.jdesktop.swingx.JXStatusBar;
 
 import net.miginfocom.swing.MigLayout;
@@ -122,7 +123,7 @@ public class MarkerEdit extends JDialog {
     private static final String PHOTOS_REL_PATH = "/mra/markers/photos/";
     private String path;
     private int selectMarkerRowIndex = -1;
-    private JPanel panel = new JPanel(); 
+    private JPanel imgPanel, infoPanel = new JPanel(); 
     private MarkerManagement parent;
     private AbstractAction save, del;
     private LogMarkerItem selectedMarker;
@@ -131,7 +132,7 @@ public class MarkerEdit extends JDialog {
     private JTextArea annotationValue;
     private JButton rectDrawBtn, circleDrawBtn, freeDrawBtn, exportImgBtn;
     private JXStatusBar statusBar = new JXStatusBar();
-    private JScrollPane listScroll;
+    private JScrollPane photoListScroll;
     private DefaultListModel<String> photoListModel = new DefaultListModel<String>();
     private JList<String> photoList;
     private int mouseX, mouseY, initialX, initialY, lastMouseX, lastMouseY, zoomScale = 2;
@@ -143,47 +144,111 @@ public class MarkerEdit extends JDialog {
     private boolean enableZoom = false;
     private boolean mouseDown = false;
     private boolean toDeleteDraw = false;
-    private BufferedImage layer,  rulerLayer, image, drawImageOverlay, zoomLayer;
+    private BufferedImage layer, rulerLayer, image, drawImageOverlay, zoomLayer;
     private ArrayList<Point> pointsList = new ArrayList<>();
-    
+
     public MarkerEdit(MarkerManagement parent, Window window) {
         super(window, ModalityType.MODELESS);
         this.parent = parent;
-
-        setResizable(false);
-        setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
-        setBounds(100, 100, 590, 395);
-        setIconImage(Toolkit.getDefaultToolkit().getImage(MarkerEdit.class.getResource("/images/menus/edit.png")));
-        
-        //define log location path
-        path = parent.mraPanel.getSource().getFile("Data.lsf").getParent() + MARKERS_REL_PATH;
 
         setupMenu();
         initialize();
     }
 
-
     @SuppressWarnings({ "unchecked", "rawtypes" })
     private void initialize() {
-        panel.requestFocus();
-        FocusListener l = new FocusListener() {
+        //Log location path
+        path = parent.mraPanel.getSource().getFile("Data.lsf").getParent() + MARKERS_REL_PATH;
 
-            @Override
-            public void focusLost(FocusEvent e) {
-            }
+        // setResizable(false);
+        setLocationRelativeTo(null);
+        setBounds(getLocation().x, getLocation().y, 600, 420);
+        setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
+        setIconImage(Toolkit.getDefaultToolkit().getImage(this.getClass().getResource("/images/menus/edit.png")));
 
-            @Override
-            public void focusGained(FocusEvent e) {
-            }
-        };
-        panel.addFocusListener(l);
-        getContentPane().add(panel, BorderLayout.CENTER);
-        panel.setLayout(new MigLayout("", "[][][][][grow][][][][grow]", "[][][][][][][grow][][grow]"));
+        infoPanel = new JPanel();
+        infoPanel.requestFocus();
+        JPanel paintPanel = new JPanel();
+        JPanel statusPanel = new JPanel(new BorderLayout());
+        JPanel scrollPanel = new JPanel(new BorderLayout());
+        infoPanel.setBorder(new EmptyBorder(0, 1, 0, 0));
+        infoPanel.setLayout(new MigLayout("", "[5.00][3px,grow][5.00]", "[3px][][][][][][][][][][][][][][][grow]"));
+        statusPanel.setBorder(BorderFactory.createMatteBorder(1, 0, 1, 0, Color.GRAY));
+        paintPanel.setLayout(new BorderLayout());
+
+        JScrollPane annotationScrollPane = new JScrollPane();
+        photoListScroll = new JScrollPane();
+
+        JLabel nameLabel = new JLabel(I18n.text("Label:"));
+        Font f = nameLabel.getFont(); // bold 
+        nameLabel.setFont(f.deriveFont(f.getStyle() ^ Font.BOLD)); 
+        nameLabelValue = new JLabel("LABEL_NAME");
+        JLabel timeStampLabel = new JLabel("Date:");
+        timeStampLabel.setFont(f.deriveFont(f.getStyle() ^ Font.BOLD)); 
+        JLabel locationLabel = new JLabel("Location:");
+        locationLabel.setFont(f.deriveFont(f.getStyle() ^ Font.BOLD)); 
+        JLabel altitudeLabel = new JLabel("Altitude:");
+        altitudeLabel.setFont(f.deriveFont(f.getStyle() ^ Font.BOLD)); 
+        timeStampValue = new JLabel("LABEL_DATE");
+        altitudeValue = new JLabel("LABEL_ALT");
+        JLabel depthLabel = new JLabel("Depth:");
+        depthLabel.setFont(f.deriveFont(f.getStyle() ^ Font.BOLD)); 
+        locationValue  = new JLabel("LABEL_LOCATION");
+        depthValue = new JLabel("LABEL_DEPTH");
+        JLabel classifLabel = new JLabel("Classification:");
+        classifLabel.setFont(f.deriveFont(f.getStyle() ^ Font.BOLD)); 
+        JLabel annotationLabel = new JLabel("Annotation:");
+        annotationLabel.setFont(f.deriveFont(f.getStyle() ^ Font.BOLD)); 
+        annotationValue = new JTextArea();
+        classifValue = new JComboBox<String>();
+        photoList = new JList<String>();
+
+        annotationValue.setColumns(10);
+        annotationValue.setTabSize(5);
+        annotationValue.setText(I18n.text("<Annotations here>"));
+        annotationValue.setLineWrap(true); //Auto down line if the line is too long
+        annotationValue.setWrapStyleWord(true); //Auto set up the style of words
+        annotationValue.setRows(3);
+
+        annotationScrollPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
+        annotationScrollPane.setViewportView(annotationValue);
+
+        classifValue.setBackground(Color.WHITE);
+        classifValue.setModel(new DefaultComboBoxModel(Classification.values()));
+
+        photoList.setModel(photoListModel);
+        photoListScroll.setViewportView(photoList);
+        photoListScroll.setVisible(false);
+
+        infoPanel.add(nameLabel, "cell 1 1");
+        infoPanel.add(nameLabelValue, "cell 1 2,growx");
+        infoPanel.add(timeStampLabel, "cell 1 3");
+        infoPanel.add(timeStampValue, "cell 1 4,growx");
+
+        infoPanel.add(locationLabel, "cell 1 5");
+        infoPanel.add(locationValue, "cell 1 6,growx");
+
+        infoPanel.add(altitudeLabel, "cell 1 7");
+        infoPanel.add(altitudeValue, "cell 1 8,growx");
+        infoPanel.add(depthLabel, "cell 1 9");
+        infoPanel.add(depthValue, "cell 1 10,growx");
+        infoPanel.add(classifLabel, "cell 1 11");
+        infoPanel.add(classifValue, "cell 1 12,growx");
+        infoPanel.add(annotationLabel, "cell 1 13");
+        infoPanel.add(annotationScrollPane, "cell 1 14,growx");
+        scrollPanel.add(photoListScroll, BorderLayout.CENTER);
+        infoPanel.add(scrollPanel, "cell 1 15,grow");
+        statusPanel.add(statusBar);
+
+        getContentPane().add(new JScrollPane(infoPanel, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, 
+                JScrollPane.HORIZONTAL_SCROLLBAR_NEVER), BorderLayout.EAST);
+        getContentPane().add(paintPanel, BorderLayout.CENTER);
+        getContentPane().add(statusPanel, BorderLayout.SOUTH);
 
         markerImage = new JLabel() {
             @Override
             protected void paintComponent(Graphics g) {
-                super.paintComponent(g);
+                //super.paintComponent(g);
 
                 if (image!=null && layer!=null) {
                     Graphics2D lg2d = (Graphics2D) layer.getGraphics();
@@ -232,6 +297,7 @@ public class MarkerEdit extends JDialog {
                     g.drawImage(zoomLayer, RULER_SIZE+1, RULER_SIZE+1, null);
                 }
             }
+
         };
 
         markerImage.setHorizontalAlignment(SwingConstants.CENTER);
@@ -291,77 +357,12 @@ public class MarkerEdit extends JDialog {
             }
         });
 
-        panel.add(markerImage, "cell 0 0 7 7,alignx left,aligny top");
+        imgPanel = new JPanel();
+        imgPanel.setBackground(Color.GRAY);
+        imgPanel.add(markerImage);
 
-        JLabel nameLabel = new JLabel(I18n.text("Label:"));
-        nameLabelValue = new JLabel();
-        JLabel timeStampLabel = new JLabel(I18n.text("Timestamp:"));
-        timeStampValue = new JLabel("TS");
-        JLabel locationLabel = new JLabel(I18n.text("Location:"));
-        locationValue = new JLabel("LOCATION");
-        JLabel altitudeLabel = new JLabel(I18n.text("Altitude:"));
-        altitudeValue = new JLabel("ALTITUDE");
-        JLabel classifLabel = new JLabel(I18n.text("Classification:"));
-        classifValue = new JComboBox<>();
-        JLabel annotationLabel = new JLabel(I18n.text("Annotation:"));
-        JLabel depthLabel = new JLabel(I18n.text(" / Depth:"));
-        depthValue = new JLabel("DEPTH");
+        paintPanel.add(new JScrollPane(imgPanel), BorderLayout.CENTER);
 
-        nameLabelValue.setBackground(Color.WHITE);
-        nameLabelValue.setText("MARKER_LABEL");
-        panel.add(nameLabel, "cell 7 0,alignx left");
-        panel.add(nameLabelValue, "cell 8 0,alignx left");
-        panel.add(timeStampLabel, "cell 7 1,alignx left");
-        panel.add(timeStampValue, "cell 8 1,alignx left");
-        panel.add(locationLabel, "cell 7 2,alignx left");
-        panel.add(locationValue, "cell 8 2,alignx left");
-        panel.add(altitudeLabel, "cell 7 3,alignx left");
-        panel.add(altitudeValue, "flowx,cell 8 3,alignx left");
-        panel.add(classifLabel, "cell 7 4,alignx trailing");
-        classifValue.setBackground(Color.WHITE);
-        classifValue.setModel(new DefaultComboBoxModel(Classification.values()));
-        panel.add(classifValue, "cell 8 4,alignx left");
-        panel.add(annotationLabel, "cell 7 5");
-
-        JPanel panelTwo = new JPanel();
-        panel.add(panelTwo, "cell 7 6 2 1, growx, aligny top");
-        panelTwo.setLayout(new BorderLayout(5, 5));
-        JScrollPane scrollPane = new JScrollPane();
-        panelTwo.add(scrollPane, BorderLayout.NORTH);
-        annotationValue = new JTextArea();
-        annotationValue.setColumns(5);
-        annotationValue.setTabSize(5);
-        scrollPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
-        annotationValue.setText(I18n.text("<Your annotations here>"));
-        annotationValue.setLineWrap(true); //Auto down line if the line is too long
-        annotationValue.setWrapStyleWord(true); //Auto set up the style of words
-        annotationValue.setRows(3);
-        scrollPane.setViewportView(annotationValue);
-
-        JPanel southPanel = new JPanel();
-        panelTwo.add(southPanel, BorderLayout.SOUTH);
-        southPanel.setLayout(new BorderLayout(0, 0));
-
-        JPanel eastPanel = new JPanel();
-        southPanel.add(eastPanel, BorderLayout.EAST);
-        eastPanel.setLayout(new BorderLayout(0, 0));
-
-        listScroll = new JScrollPane();
-        eastPanel.add(listScroll, BorderLayout.EAST);
-
-        photoList = new JList();
-        photoList.setModel(photoListModel);
-        listScroll.setViewportView(photoList);
-        listScroll.setVisible(false);
-
-        panel.add(depthLabel, "cell 8 3");
-        panel.add(depthValue, "cell 8 3");
-
-        JPanel statusPanel = new JPanel(new BorderLayout());
-        statusPanel.setBorder(BorderFactory.createMatteBorder(1, 0, 1, 0, Color.GRAY));
-
-        statusPanel.add(statusBar);
-        getContentPane().add(statusPanel, BorderLayout.SOUTH);
     }
 
     private boolean addPhoto() {
@@ -384,7 +385,7 @@ public class MarkerEdit extends JDialog {
                         showPhotoList();
                     }
                 }
-                addStatusBarMsg("Added new photo(s)...");
+                updateStatusBar("Added new photo(s)...");
             }
         } 
         return false;
@@ -401,7 +402,6 @@ public class MarkerEdit extends JDialog {
         selectedMarker.getPhotosPath().add(path.concat(name));
         return true;
     }
-
 
     private String createFolder(String path) {
         File folder = new File(path.concat("/photos/"));
@@ -427,12 +427,12 @@ public class MarkerEdit extends JDialog {
         String remPath = PHOTOS_REL_PATH+selectedMarker.getLabel()+"/" + toRemove;
         String absPath = parent.mraPanel.getSource().getFile("Data.lsf").getParent();
         File toRemoveFile = new File(absPath + remPath);
-            
+
         FileUtils.deleteQuietly(toRemoveFile);
-      
+
         selectedMarker.getPhotosPath().remove(remPath);
         photoListModel.removeElement(toRemove);
-       
+
         File markerFile = new File(absPath + PHOTOS_REL_PATH+selectedMarker.getLabel()+"/");
         try {
             //Delete folder if it's empty
@@ -442,18 +442,18 @@ public class MarkerEdit extends JDialog {
         catch (IOException e) {
             e.printStackTrace();
         }
-        
+
         if (selectedMarker.getPhotosPath().isEmpty())
             hidePhotoList();
     }
-    
+
     private static boolean isDirEmpty(final Path directory) throws IOException {
         try(DirectoryStream<Path> dirStream = Files.newDirectoryStream(directory)) {
             return !dirStream.iterator().hasNext();
         }
     }
 
-    public void addStatusBarMsg(String msg){
+    public void updateStatusBar(String msg){
         JLabel jlabel = new JLabel(msg);
         jlabel.setFont(new Font("SansSerif", Font.PLAIN, 11));
         statusBar.removeAll();
@@ -566,7 +566,7 @@ public class MarkerEdit extends JDialog {
 
         //set range (width) and height
         double range = selectedMarker.getRange();
-        
+
         float zoomRangeStep = 2;
         if (range >= 10.0 && range < 30.0)
             zoomRangeStep = 3;
@@ -586,7 +586,7 @@ public class MarkerEdit extends JDialog {
 
         g2d.setColor(Color.BLACK);
 
-        // horizontal ruler (range)
+        //Horizontal ruler (range)
 
         double step = zoomRangeStep * (image.getWidth()+margin) / range;
         double r = zoomRangeStep;
@@ -610,8 +610,8 @@ public class MarkerEdit extends JDialog {
         }
 
         /*
-        // vertical ruler (height)
-        
+        //Vertical ruler (height)
+
         double zoomRangeStepV = 2.0;
         double stepV = zoomRangeStepV * (image.getHeight()) / height;
         double rV = 0;
@@ -631,7 +631,7 @@ public class MarkerEdit extends JDialog {
                 g2d.drawLine(RULER_SIZE, cV, (RULER_SIZE)-lineWith, cV);
             }
         }
-        */
+         */
     }
 
     public void loadMarker(LogMarkerItem log, int rowIndex) {
@@ -640,30 +640,35 @@ public class MarkerEdit extends JDialog {
         selectedMarker = log;
         selectMarkerRowIndex = rowIndex;
         int prefWidth = 265;
-        int prefHeight = 80+30;
+        int prefHeight = 110;
 
         if (selectedMarker.getSidescanImgPath() != null ) {
             try {
                 String path = parent.mraPanel.getSource().getFile("Data.lsf").getParent();
                 File f = new File(path + selectedMarker.getSidescanImgPath());
-                //FIXME: Image is not being correctly show. Appears to be cut on the right side.
-                
+                //FIXME: Image is not being correctly show.
 
                 image = ImageIO.read(f);
 
                 int width = image.getWidth();
                 int height = image.getHeight();
-                if (width > 300 || height > 300) {
-                    width = height = 300;
-                    image = (BufferedImage) ImageUtils.getFasterScaledInstance(image, 300, 300);
-                }
+                System.out.println("W: " + width + " H: "+height);
+
+                Dimension newMaxSize = new Dimension(300, 300);
+
+
+                image = Scalr.resize(image, Method.ULTRA_QUALITY, newMaxSize.width, newMaxSize.height);
+                width = image.getWidth();
+                height = image.getHeight();
+                System.out.println("After W: " + width + " H: "+height);
 
                 markerImage.setIcon(null);
                 markerImage.repaint();
                 markerImage.setPreferredSize(new Dimension(width + RULER_SIZE + 10, height + RULER_SIZE + 10));
 
-                setBounds(parent.getwindowLocation().x, 100, width + prefWidth + RULER_SIZE + 10, height + prefHeight + RULER_SIZE + 10);
+                System.out.println(markerImage.getPreferredSize().getWidth() + " " + markerImage.getPreferredSize().getHeight());
                 setLocation(parent.getwindowLocation());
+
 
                 if (selectedMarker.getDrawImgPath() != null && !selectedMarker.getDrawImgPath().toString().equals("N/A")) {
                     File fDraw = new File(path + selectedMarker.getDrawImgPath());
@@ -679,6 +684,8 @@ public class MarkerEdit extends JDialog {
                 zoomLayer = ImageUtils.createCompatibleImage(image.getWidth(), 
                         image.getHeight(), Transparency.TRANSLUCENT);
                 clearLayer();
+
+                //TODO: Set size of window according to image shown
             } catch (IOException e) {
                 NeptusLog.pub().error(I18n.text("Error reading image file for marker: ")+ selectedMarker.getLabel() + " ...");
                 image = null;
@@ -726,7 +733,7 @@ public class MarkerEdit extends JDialog {
         VehicleType veh = LogUtils.getVehicle(parent.mraPanel.getSource());
         String vehicle = (veh != null ? " | "+veh.getName() : "");
         setTitle(I18n.text("Marker: ") + nameLabelValue.getText() + " | " + timeStampValue.getText() + " | " + parent.mraPanel.getSource().name() + vehicle);
-        
+
         if (selectedMarker.getPhotosPath().isEmpty())
             hidePhotoList();
         else
@@ -738,7 +745,7 @@ public class MarkerEdit extends JDialog {
             path = path + ".png";
 
         GuiUtils.showInfoPopup(I18n.text("Success"), I18n.text("Image exported to: ")+path);
-        addStatusBarMsg("Image '"+path+"' exported successfully...");
+        updateStatusBar("Image '"+path+"' exported successfully...");
     }
 
     private String chooseSaveFile(BufferedImage image, String path) {
@@ -849,7 +856,7 @@ public class MarkerEdit extends JDialog {
 
         JButton addPhotoBtn = createBtn("images/menus/attach.png", I18n.text("Add Photo"));
         JButton remPhotoBtn = createBtn("images/menus/no.png", I18n.text("Remove selected photos"));
-        
+
         JButton previousMarkBtn = createBtn("images/menus/previous.png", I18n.text("Previous Mark"));
         JButton nextMarkBtn = createBtn("images/menus/next.png", I18n.text("Next Mark"));
 
@@ -885,7 +892,7 @@ public class MarkerEdit extends JDialog {
                     ImageIO.write(img, "PNG", drawFile);
                 } catch (IOException ie) {
                     NeptusLog.pub().error(I18n.text("Error writing image to file..."));
-                    addStatusBarMsg("Error writing image to file...");
+                    updateStatusBar("Error writing image to file...");
                 }
 
                 g2d.dispose();
@@ -896,15 +903,15 @@ public class MarkerEdit extends JDialog {
                 selectedMarker.setDrawImgPath(relPath);
                 selectedMarker.setClassification(classif);
                 selectedMarker.setAnnotation(annotation);
-                
+
                 if (toDeleteDraw) {
                     parent.deleteImage(drawFile.toString());
                     selectedMarker.setDrawImgPath("N/A");
                 }
-                
+
                 parent.updateLogMarker(selectedMarker, selectMarkerRowIndex);
                 markerImage.repaint();
-                addStatusBarMsg("Saving completed...");
+                updateStatusBar("Saving completed...");
             }
         };
 
@@ -925,10 +932,7 @@ public class MarkerEdit extends JDialog {
 
             @Override
             public void actionPerformed(ActionEvent e) {
-                if (enableGrid)
-                    enableGrid = false;
-                else
-                    enableGrid = true;
+                enableGrid = !enableGrid;
 
                 markerImage.repaint();
             }
@@ -937,14 +941,13 @@ public class MarkerEdit extends JDialog {
 
             @Override
             public void actionPerformed(ActionEvent e) {
-                if (enableRuler) {
-                    enableRuler = false;
-                    addStatusBarMsg("Showing ruler...");
-                }
-                else {
-                    enableRuler = true;
-                    addStatusBarMsg("Hiding Ruler...");
-                }
+                enableRuler = !enableRuler;
+
+                if (enableRuler) 
+                    updateStatusBar("Showing ruler...");
+                else
+                    updateStatusBar("Hiding Ruler...");
+
                 markerImage.repaint();
             }
         };
@@ -961,7 +964,7 @@ public class MarkerEdit extends JDialog {
 
                 //delete draw image if exists
                 toDeleteDraw = true;
-                addStatusBarMsg("Clearing all drawings...");
+                updateStatusBar("Clearing all drawings...");
             }
         };
         AbstractAction drawRect = new AbstractAction() {
@@ -1131,7 +1134,7 @@ public class MarkerEdit extends JDialog {
                 }
             }
         };
-        
+
         AbstractAction addPhotoAction = new AbstractAction(I18n.text("Add Photo")) {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -1157,7 +1160,7 @@ public class MarkerEdit extends JDialog {
             }
         };
         separator1.setOrientation(JSeparator.VERTICAL);
-        
+
         JSeparator separator2 = new JSeparator(){
             @Override
             public Dimension getMaximumSize(){
@@ -1165,7 +1168,7 @@ public class MarkerEdit extends JDialog {
             }
         };
         separator2.setOrientation(JSeparator.VERTICAL);
-        
+
         JSeparator separator3 = new JSeparator(){
             @Override
             public Dimension getMaximumSize(){
@@ -1228,23 +1231,23 @@ public class MarkerEdit extends JDialog {
             }
         });
         //setup shortcuts - key bindings
-        panel.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke(KeyEvent.VK_S, InputEvent.CTRL_MASK), "save");
-        panel.getActionMap().put("save", save);
+        toolBar.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke(KeyEvent.VK_S, InputEvent.CTRL_MASK), "save");
+        toolBar.getActionMap().put("save", save);
 
-        panel.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke(KeyEvent.VK_DELETE, InputEvent.CTRL_MASK), "delete");
-        panel.getActionMap().put("delete", del);
+        toolBar.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke(KeyEvent.VK_DELETE, InputEvent.CTRL_MASK), "delete");
+        toolBar.getActionMap().put("delete", del);
 
-        panel.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke(KeyEvent.VK_G, InputEvent.CTRL_MASK), "showGrid");
-        panel.getActionMap().put("showGrid", showGrid);
+        toolBar.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke(KeyEvent.VK_G, InputEvent.CTRL_MASK), "showGrid");
+        toolBar.getActionMap().put("showGrid", showGrid);
 
-        panel.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke(KeyEvent.VK_R, InputEvent.CTRL_MASK), "showRuler");
-        panel.getActionMap().put("showRuler", showRuler);
+        toolBar.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke(KeyEvent.VK_R, InputEvent.CTRL_MASK), "showRuler");
+        toolBar.getActionMap().put("showRuler", showRuler);
 
-        panel.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke(KeyEvent.VK_RIGHT, 0), "nextMark");
-        panel.getActionMap().put("nextMark", nextMark);
+        toolBar.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke(KeyEvent.VK_RIGHT, 0), "nextMark");
+        toolBar.getActionMap().put("nextMark", nextMark);
 
-        panel.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke(KeyEvent.VK_LEFT, 0), "prevMark");
-        panel.getActionMap().put("prevMark", previousMark);
+        toolBar.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke(KeyEvent.VK_LEFT, 0), "prevMark");
+        toolBar.getActionMap().put("prevMark", previousMark);
 
         toolBar.getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(KeyStroke.getKeyStroke(KeyEvent.VK_RIGHT, 0), "nextMark");
         toolBar.getActionMap().put("nextMark", nextMark);
@@ -1269,7 +1272,7 @@ public class MarkerEdit extends JDialog {
     }
 
     private void hidePhotoList() {
-        listScroll.setVisible(false);
+        photoListScroll.setVisible(false);
     }
 
     private void showPhotoList() {
@@ -1278,6 +1281,6 @@ public class MarkerEdit extends JDialog {
             String p = photo.substring(photo.lastIndexOf("/")+1, photo.length());
             photoListModel.addElement(p);
         }
-        listScroll.setVisible(true);
+        photoListScroll.setVisible(true);
     }
 }

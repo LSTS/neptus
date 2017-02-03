@@ -123,12 +123,14 @@ import pt.lsts.neptus.util.llf.LsfReport;
 import pt.lsts.neptus.util.llf.LsfReportProperties;
 /**
  * @author Manuel R.
- *
+ * TODO: Add right-click "Show marker on map"
  */
 @SuppressWarnings("serial")
 public class MarkerManagement extends JDialog {
 
-    private final int DEFAULT_COLUMN_TO_SORT = 0;
+    private static final int DEFAULT_COLUMN_TO_SORT = 0;
+    private static final int WIDTH = 690;
+    private static final int HEIGHT = 430;
     private static final String SHOW_ICON = "images/buttons/show.png";
     private static final String ANY_TXT = I18n.text("<ANY>");
     private final ArrayList<SidescanLogMarker> logMarkers = new ArrayList<>();
@@ -147,6 +149,7 @@ public class MarkerManagement extends JDialog {
         this.mraPanel = mraPanel;
         initialize();
 
+        setLocationRelativeTo(null);
         setModalityType(ModalityType.MODELESS);
     }
 
@@ -167,7 +170,7 @@ public class MarkerManagement extends JDialog {
         setIconImage(
                 Toolkit.getDefaultToolkit().getImage(MarkerManagement.class.getResource("/images/menus/marker.png")));
         setTitle(I18n.text("Marker Management"));
-        setBounds(100, 100, 687, 426);
+        setBounds(100, 100, WIDTH, HEIGHT);
         addWindowListener(new WindowAdapter()
         {
             @Override
@@ -262,7 +265,6 @@ public class MarkerManagement extends JDialog {
             @Override
             public void run() {
                 
-                Font defaultFont = new Font("Dialog", Font.BOLD, 11);
                 JPanel buttonPane = new JPanel();
                 buttonPane.setLayout(new FlowLayout(FlowLayout.RIGHT));
                 JPanel panel = new JPanel();
