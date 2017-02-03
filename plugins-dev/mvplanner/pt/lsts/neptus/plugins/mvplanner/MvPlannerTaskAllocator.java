@@ -97,20 +97,28 @@ public class MvPlannerTaskAllocator extends ConsolePanel implements Renderer2DPa
                 task.setStartDate(event.getStartTime());
                 taskHeap.add(task);
                 tasks.put(task.getId(), task);
+
+                NeptusLog.pub().info("Allocation request for task " + task.getId() + " at " + task.getStartTime().toString());
                 break;
 
             case FINISHED:
                 task = tasks.get(event.getPlan().getId());
 
-                if(task != null)
-                    task.setCompleted();
+                if(task == null)
+                    break;
+
+                task.setCompleted();
+                NeptusLog.pub().info("Task " + task.getId() + " has been completed");
                 break;
 
             case INTERRUPTED:
                 task = tasks.get(event.getPlan().getId());
 
-                if(task != null)
-                    task.setInterrupted();
+                if(task == null)
+                    break;
+
+                task.setInterrupted();
+                NeptusLog.pub().warn("Task " + task.getId() + " has been interrupted");
                 break;
             default:
                 NeptusLog.pub().error("Unknown ConsoleEventPlanAllocation operation");
