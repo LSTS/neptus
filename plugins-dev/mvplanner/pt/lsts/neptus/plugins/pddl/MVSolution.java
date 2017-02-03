@@ -34,14 +34,11 @@ package pt.lsts.neptus.plugins.pddl;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashMap;
+import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map.Entry;
-import java.util.TreeMap;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
+import pt.lsts.imc.ScheduledGoto.DELAYED;
 import pt.lsts.neptus.mp.Maneuver;
 import pt.lsts.neptus.mp.ManeuverLocation;
 import pt.lsts.neptus.mp.ManeuverLocation.Z_UNITS;
@@ -50,14 +47,16 @@ import pt.lsts.neptus.mp.maneuvers.LocatedManeuver;
 import pt.lsts.neptus.mp.maneuvers.Loiter;
 import pt.lsts.neptus.mp.maneuvers.PopUp;
 import pt.lsts.neptus.mp.maneuvers.RowsManeuver;
+import pt.lsts.neptus.mp.maneuvers.ScheduledGoto;
 import pt.lsts.neptus.mp.maneuvers.StationKeeping;
 import pt.lsts.neptus.params.ManeuverPayloadConfig;
 import pt.lsts.neptus.params.SystemProperty;
 import pt.lsts.neptus.params.SystemProperty.ValueTypeEnum;
+import pt.lsts.neptus.plugins.mvplanner.api.ConsoleEventPlanAllocation;
+import pt.lsts.neptus.plugins.mvplanner.api.ConsoleEventPlanAllocation.Operation;
 import pt.lsts.neptus.types.coord.LocationType;
 import pt.lsts.neptus.types.mission.plan.PlanType;
 import pt.lsts.neptus.types.vehicle.VehicleType;
-import pt.lsts.neptus.types.vehicle.VehiclesHolder;
 
 /**
  * @author zp
@@ -66,14 +65,15 @@ import pt.lsts.neptus.types.vehicle.VehiclesHolder;
 public class MVSolution {
 
     private static final double DEFAULT_DEPTH = 3;
-    private ArrayList<Action> actions = new ArrayList<MVSolution.Action>();
-    private final Pattern pat = Pattern.compile("(.*)\\:.*\\((.*)\\).* \\[(.*)\\]");
+    private ArrayList<PddlAction> actions = new ArrayList<MVSolution.PddlAction>();
     private LinkedHashMap<String, LocationType> locations = null;
     private LinkedHashMap<String, MVPlannerTask> tasks = new LinkedHashMap<String, MVPlannerTask>();
 
     private boolean generatePopups = false;
-    
-    public MVSolution(LinkedHashMap<String, LocationType> locations, String pddlSolution, List<MVPlannerTask> tasks) {
+    private boolean useScheduledGoto = false;
+
+    public MVSolution(LinkedHashMap<String, LocationType> locations, String pddlSolution, List<MVPlannerTask> tasks)
+            throws Exception {
         for (MVPlannerTask t : tasks)
             this.tasks.put(t.getName(), t);
 
@@ -82,119 +82,82 @@ public class MVSolution {
         for (String line : pddlSolution.split("\n")) {
             if (line.trim().isEmpty() || line.trim().startsWith(";"))
                 continue;
-            Action act = createAction(line.toLowerCase());
+            PddlAction act = createAction(line.toLowerCase());
             if (act != null)
                 actions.add(act);
         }
     }
 
-    private Action createAction(String line) {
-        Matcher m = pat.matcher(line);
-        if (!m.matches())
-            System.err.println("Bad output format: " + line);
-        double timestamp = Double.parseDouble(m.group(1).trim());
-        String a = m.group(2).trim();
+    private PddlAction createAction(String line) throws Exception {
+        line = line.trim();
+        String regex = "[\\:\\(\\)\\[\\] ]+";
+        String[] parts = line.split(regex);
+        PddlAction action = new PddlAction();
+        String actionStr;
 
-        Action action = new Action();
-        action.startTimestamp = (long) (1000 * timestamp);
+        try {
+            actionStr = parts[1];
 
-        String[] parts = a.split(" ");
-        action.vehicle = VehicleParams.getVehicleFromNickname(parts[1]);
-        ManeuverLocation where = new ManeuverLocation(locations.get(parts[2]));
-        String taskName = parts[2].split("_")[0];
-        MVPlannerTask task = null;
-        
-        int i = 0;
-        while (task == null) {
-            taskName = parts[i++].split("_")[0];
-            task = tasks.get(taskName);
+            action.type = actionStr;
+            if (actionStr.contains("-"))
+                action.type = actionStr.substring(0, actionStr.indexOf('-'));
+
+            action.startTime = (long) (1000 * Double.parseDouble(parts[0]) + System.currentTimeMillis());
+            action.endTime = (long) (1000 * Double.parseDouble(parts[parts.length - 1])) + action.startTime;
+            action.name = parts[3].split("_")[0];
+            action.vehicle = VehicleParams.getVehicleFromNickname(parts[2]);
+            if (action.type.equals("move"))
+                action.location = new ManeuverLocation(locations.get(parts[4]));
+            else
+                action.location = new ManeuverLocation(locations.get(parts[3]));
+            
         }
-        
+        catch (Exception e) {
+            throw new Exception("Unrecognized PDDL syntax on line '" + line + "'", e);
+        }
+
+        MVPlannerTask task = tasks.get(action.name);
+
         double minDepth = Double.MAX_VALUE;
         double maxDepth = -Double.MAX_VALUE;
-        
-        if (parts[0].contains("survey") || parts[0].contains("sample")) {
+
+        if (actionStr.contains("survey") || actionStr.contains("sample")) {
             if (task.requiredPayloads == null || task.requiredPayloads.isEmpty()) {
-                minDepth = maxDepth = DEFAULT_DEPTH;            
+                minDepth = maxDepth = DEFAULT_DEPTH;
             }
             for (PayloadRequirement r : task.requiredPayloads) {
                 minDepth = Math.min(minDepth, r.getMinDepth());
                 maxDepth = Math.max(maxDepth, r.getMaxDepth());
             }
-            
+
             if (minDepth < 0) {
-                where.setZUnits(Z_UNITS.ALTITUDE);
-                where.setZ(-minDepth);
+                action.location.setZUnits(Z_UNITS.ALTITUDE);
+                action.location.setZ(-minDepth);
             }
             else {
-                where.setZUnits(Z_UNITS.DEPTH);
-                where.setZ(DEFAULT_DEPTH);    
-            }                
+                action.location.setZUnits(Z_UNITS.DEPTH);
+                action.location.setZ(DEFAULT_DEPTH);
+            }
         }
         else {
-            where.setZUnits(Z_UNITS.DEPTH);
-            where.setZ(DEFAULT_DEPTH);    
+            action.location.setZUnits(Z_UNITS.DEPTH);
+            action.location.setZ(DEFAULT_DEPTH);
         }
-        
-        switch (parts[0]) {
-            case "move":
-            case "move-to-area":
-            case "move-to-oi":
-            case "move-to-base":
-                Goto tmpMove = new Goto();
-                tmpMove.setSpeed(1.0);
-                tmpMove.setSpeedUnits(Maneuver.SPEED_UNITS.METERS_PS);
-                tmpMove.setManeuverLocation(where);
-                action.man = tmpMove;
-                break;
-            case "communicate":
-                StationKeeping tmpSk = new StationKeeping();
-                tmpSk.setManeuverLocation(where);
-                tmpSk.setSpeed(1.0);
-                tmpSk.setSpeedUnits(Maneuver.SPEED_UNITS.METERS_PS);
-                where.setZ(0);
-                where.setZUnits(Z_UNITS.DEPTH);
-                tmpSk.setDuration(60); // FIXME
-                action.man = tmpSk;
-                break;
-            case "sample":
-                Loiter tmpLoiter = new Loiter();
-                tmpLoiter.setManeuverLocation(where);
-                tmpLoiter.setSpeed(1.0);
-                tmpLoiter.setSpeedUnits(Maneuver.SPEED_UNITS.METERS_PS);
-                tmpLoiter.setLoiterDuration(60); // FIXME
-                action.payloads.add(PayloadRequirement.valueOf(parts[parts.length - 1].split("_")[1]));
-                action.man = tmpLoiter;
-                break;
+
+        switch (actionStr) {
             case "survey-one-payload":
-                SurveyAreaTask onep = (SurveyAreaTask) tasks.get(taskName);
-                onep.getPivot().setManeuverLocation(where);
-                onep.getPivot().setSpeed(1.0);
-                onep.getPivot().setSpeedUnits(Maneuver.SPEED_UNITS.METERS_PS);
-                action.man = onep.getPivot();
-                action.payloads.add(PayloadRequirement.valueOf(parts[parts.length - 1].split("_")[1]));
+                action.payloads.add(PayloadRequirement.valueOf(parts[parts.length - 2].split("_")[1]));
                 break;
             case "survey-two-payload":
-                SurveyAreaTask twop = (SurveyAreaTask) tasks.get(taskName);
-                twop.getPivot().setManeuverLocation(where);
-                twop.getPivot().setSpeed(1.0);
-                twop.getPivot().setSpeedUnits(Maneuver.SPEED_UNITS.METERS_PS);
-                action.payloads.add(PayloadRequirement.valueOf(parts[parts.length - 1].split("_")[1]));
+                action.payloads.add(PayloadRequirement.valueOf(parts[parts.length - 3].split("_")[1]));
                 action.payloads.add(PayloadRequirement.valueOf(parts[parts.length - 2].split("_")[1]));
-                action.man = twop.getPivot();
                 break;
             case "survey-three-payload":
-                action.payloads.add(PayloadRequirement.valueOf(parts[parts.length - 1].split("_")[1]));
-                action.payloads.add(PayloadRequirement.valueOf(parts[parts.length - 2].split("_")[1]));
+                action.payloads.add(PayloadRequirement.valueOf(parts[parts.length - 4].split("_")[1]));
                 action.payloads.add(PayloadRequirement.valueOf(parts[parts.length - 3].split("_")[1]));
-                SurveyAreaTask threep = (SurveyAreaTask) tasks.get(taskName);
-                threep.getPivot().setManeuverLocation(where);
-                threep.getPivot().setSpeed(1.0);
-                threep.getPivot().setSpeedUnits(Maneuver.SPEED_UNITS.METERS_PS);
-                action.man = threep.getPivot();
+                action.payloads.add(PayloadRequirement.valueOf(parts[parts.length - 2].split("_")[1]));
                 break;
             default:
-                System.err.println("Unrecognized action: " + line);
                 break;
         }
         return action;
@@ -203,14 +166,13 @@ public class MVSolution {
     private void enablePayloads(ManeuverPayloadConfig manPayloads, ArrayList<PayloadRequirement> requiredPayloads) {
 
         for (SystemProperty e : manPayloads.getProperties()) {
-            System.out.println(e.toString());
 
             if (requiredPayloads.contains(PayloadRequirement.ctd)) {
                 // System.out.println("I need CTD : "+ true);
             }
-            
+
             if (e.getCategory().startsWith("UAN") && e.getValueType().equals(ValueTypeEnum.BOOLEAN)) {
-                    e.setValue(true);
+                e.setValue(true);
             }
 
             if (e.getCategory().startsWith("Camera") && e.getValueType().equals(ValueTypeEnum.BOOLEAN)) {
@@ -251,27 +213,48 @@ public class MVSolution {
     }
 
     /**
-     * @param generatePopups the generatePopups to set
+     * @param generatePopups If <code>true</code>, move actions will be appended a Popup maneuver
      */
     public void setGeneratePopups(boolean generatePopups) {
         this.generatePopups = generatePopups;
     }
 
-    public Collection<PlanType> generatePlans() {
+    /**
+     * @param useScheduledGoto If <code>true</code>, move actions will be scheduled in time
+     */
+    public void setScheduledGotosUsed(boolean useScheduledGoto) {
+        this.useScheduledGoto = useScheduledGoto;
+    }
 
+    private Collection<String> actionsForVehicle(String vehicle) {
+        ArrayList<String> ret = new ArrayList<>();
+        for (PddlAction act : actions)
+            if (act.vehicle.getId().equals(vehicle))
+                ret.add(act.name);
+        return ret;
+    }
+    
+    public Collection<ConsoleEventPlanAllocation> allocations() {
         LinkedHashMap<String, PlanType> plansPerVehicle = new LinkedHashMap<String, PlanType>();
+        LinkedHashMap<String, Date> startTimes = new LinkedHashMap<String, Date>();
 
-        for (Action act : actions) {
-            ManeuverPayloadConfig payload = new ManeuverPayloadConfig(act.vehicle.getId(), act.man, null);
+        int i = 1;
+        for (PddlAction act : actions) {
+            Maneuver maneuver = generateManeuver(act);
+            maneuver.setId(""+(i++));
+            ManeuverPayloadConfig payload = new ManeuverPayloadConfig(act.vehicle.getId(), maneuver, null);
             enablePayloads(payload, act.payloads);
-            Maneuver maneuver = (Maneuver) act.man.clone();
-
+            
             if (!plansPerVehicle.containsKey(act.vehicle.getId())) {
                 PlanType newPlan = new PlanType(null);
-                newPlan.setId("mvplanner_"+act.vehicle.getId());
+                newPlan.setId("mvplan_" + act.vehicle.getNickname());
                 newPlan.setVehicle(act.vehicle.getId());
-                plansPerVehicle.put(act.vehicle.getId(), newPlan);                
-            }            
+                plansPerVehicle.put(act.vehicle.getId(), newPlan);
+                startTimes.put(act.vehicle.getId(), new Date(act.startTime));
+            }
+
+            
+            int numMans = plansPerVehicle.get(act.vehicle.getId()).getGraph().getAllManeuvers().length;
             
             if (generatePopups && (maneuver instanceof RowsManeuver || maneuver instanceof Loiter)) {
                 LocatedManeuver m = (LocatedManeuver) maneuver;
@@ -283,137 +266,100 @@ public class MVSolution {
                 loc.setZ(DEFAULT_DEPTH);
                 loc.setZUnits(Z_UNITS.DEPTH);
                 popup.setManeuverLocation(loc);
-                plansPerVehicle.get(act.vehicle.getId()).getGraph().addManeuverAtEnd(popup);                    
+                popup.setId(""+(++numMans));
+                plansPerVehicle.get(act.vehicle.getId()).getGraph().addManeuverAtEnd(popup);
             }
-            plansPerVehicle.get(act.vehicle.getId()).getGraph().addManeuverAtEnd(maneuver);        
+            maneuver.setId(""+(++numMans));
+            plansPerVehicle.get(act.vehicle.getId()).getGraph().addManeuverAtEnd(maneuver);
         }
         
-        return plansPerVehicle.values();
-    }
-
-    public ArrayList<MVPlans> generatePlansPerAction() {
-
-        TreeMap<String, ArrayList<Maneuver>> manListperVehicle = new TreeMap<>();
-        HashMap<String, ArrayList<Long>> tsPerVehicle = new HashMap<>();
-
-        for (Action act : actions) {
-            ManeuverPayloadConfig payload = new ManeuverPayloadConfig(act.vehicle.getId(), act.man, null);
-            enablePayloads(payload, act.payloads);
-
-            if (!manListperVehicle.containsKey(act.vehicle.getId())) {
-
-                Maneuver maneuver = (Maneuver) act.man.clone();
-
-                // store maneuvers
-                ArrayList<Maneuver> manList = new ArrayList<Maneuver>();
-                manList.add(maneuver);
-                manListperVehicle.put(act.vehicle.getId(), manList);
-                // store timestamps
-                ArrayList<Long> tsList = new ArrayList<>();
-                tsList.add(act.startTimestamp);
-                tsPerVehicle.put(act.vehicle.getId(), tsList);
-            }
-            else {
-                ArrayList<Maneuver> storedManeuvers = manListperVehicle.get(act.vehicle.getId());
-                ArrayList<Long> storedTimestamps = tsPerVehicle.get(act.vehicle.getId());
-
-                storedManeuvers.add((Maneuver) act.man.clone());
-                storedTimestamps.add(act.startTimestamp);
-
-            }
+        ArrayList<ConsoleEventPlanAllocation> planAllocations = new ArrayList<>();
+        
+        for (String s : plansPerVehicle.keySet()) {
+            planAllocations.add(new ConsoleEventPlanAllocation(plansPerVehicle.get(s), startTimes.get(s), Operation.ALLOCATED));
         }
-        TreeMap<String, ArrayList<PlanType>> planListperVehicle = new TreeMap<String, ArrayList<PlanType>>();
+        
+        return planAllocations;
+    }
+    
+    public Maneuver generateManeuver(PddlAction action) {
 
-        for (Entry<String, ArrayList<Maneuver>> v : manListperVehicle.entrySet()) {
+        Maneuver m = null;
 
-            for (Maneuver m : v.getValue()) {
-                if (planListperVehicle.get(v.getKey()) == null) {
-                    PlanType plan = new PlanType(null);
-                    plan.getGraph().addManeuver(m);
-                    ArrayList<PlanType> planos = new ArrayList<PlanType>();
-                    planos.add(plan);
-                    planListperVehicle.put(v.getKey(), planos);
+        switch (action.type) {
+            case "communicate":
+                action.location.setZ(0);
+                action.location.setZUnits(Z_UNITS.DEPTH);
+                StationKeeping tmpSk = new StationKeeping();
+                tmpSk.setManeuverLocation(action.location);
+                tmpSk.setSpeed(1.0);
+                tmpSk.setSpeedUnits(Maneuver.SPEED_UNITS.METERS_PS);
+                tmpSk.setDuration(60);
+                m = tmpSk;
+                break;
+            case "move":
+                if (useScheduledGoto) {
+                    ScheduledGoto tmpMove = new ScheduledGoto();
+                    tmpMove.setSpeed(1.0);
+                    tmpMove.setSpeedUnits(Maneuver.SPEED_UNITS.METERS_PS);
+                    tmpMove.setManeuverLocation(action.location);
+                    tmpMove.setArrivalTime(new Date(action.endTime));
+                    tmpMove.setDelayedBehavior(DELAYED.RESUME);
+                    m = tmpMove;
+                    break;
                 }
                 else {
-                    PlanType plan = new PlanType(null);
-                    plan.getGraph().addManeuver(m);
-
-                    planListperVehicle.get(v.getKey()).add(plan);
+                    Goto tmpMove = new Goto();
+                    tmpMove.setSpeed(1.0);
+                    tmpMove.setSpeedUnits(Maneuver.SPEED_UNITS.METERS_PS);
+                    tmpMove.setManeuverLocation(action.location);
+                    m = tmpMove;
+                    break;
                 }
+            case "sample": {
+                Loiter tmpLoiter = new Loiter();
+                tmpLoiter.setManeuverLocation(action.location);
+                tmpLoiter.setSpeed(1.0);
+                tmpLoiter.setSpeedUnits(Maneuver.SPEED_UNITS.METERS_PS);
+                tmpLoiter.setLoiterDuration((int) ((action.endTime - action.startTime) / 1000));
+                ManeuverPayloadConfig payloadConfig = new ManeuverPayloadConfig(action.vehicle.getId(), tmpLoiter, null);
+                enablePayloads(payloadConfig, action.payloads);
+                m = tmpLoiter;
+                break;
             }
-        }
-
-        ArrayList<MVPlans> list = new ArrayList<>();
-
-        for (Entry<String, ArrayList<PlanType>> e : planListperVehicle.entrySet()) {
-
-            int i = 0;
-            VehicleType veh = VehiclesHolder.getVehicleById(e.getKey());
-            MVPlans vehiclePlans = new MVPlans(veh);
-
-            for (PlanType plan : e.getValue()) {
-                plan.setVehicle(e.getKey());
-
-                if (plan.getGraph().getAllManeuvers().length > 0) // ensure that plan has maneuver
-                    plan.setId("pl_" + e.getKey() + "_" + plan.getGraph().getAllManeuvers()[0].getType() + i);
-
-                vehiclePlans.addPlan(tsPerVehicle.get(veh.getId()).get(i), plan);
-                i++;
-
+            case "survey": {
+                SurveyAreaTask surveyTask = (SurveyAreaTask) tasks.get(action.name);
+                RowsManeuver rows = (RowsManeuver) surveyTask.getPivot().clone();
+                rows.setManeuverLocation(action.location);
+                rows.setSpeed(1.0);
+                rows.setSpeedUnits(Maneuver.SPEED_UNITS.METERS_PS);
+                ManeuverPayloadConfig payloadConfig = new ManeuverPayloadConfig(action.vehicle.getId(), rows, null);
+                enablePayloads(payloadConfig, action.payloads);
+                m = rows;
+                break;
             }
-
-            list.add(vehiclePlans);
+            default:
+                System.err.println("Unrecognized action type: " + action.type);
+                return null;
         }
-        for (int i = 0; i < list.size(); i++)
-            System.out.println("tamanho lista : " + list.get(i).planList.toString());
-
-        return list;
-
+        //m.setId(action.name);
+        return m;
     }
 
-    static class Action {
-        public long startTimestamp;
+
+    static class PddlAction {
+        public long startTime, endTime;
         public ArrayList<PayloadRequirement> payloads = new ArrayList<PayloadRequirement>();
-        public Maneuver man;
+        public ManeuverLocation location;
+        // public Maneuver man;
         public VehicleType vehicle;
+        public String type;
+        public String name;
 
         @Override
         public String toString() {
-            return man.getType() + " with payloads " + payloads + ", using vehicle " + vehicle + " at time "
-                    + startTimestamp;
+            return type + " @"+location+" with payloads " + payloads + ", using vehicle " + vehicle + " on " + new Date(startTime);
         }
 
     }
-
-    class MVPlans {
-        private VehicleType vehicle;
-        private LinkedHashMap<Long, PlanType> planList;
-
-        public MVPlans(VehicleType vehicle) {
-            this.setVehicle(vehicle);
-            this.planList = new LinkedHashMap<>();
-
-        }
-
-        public void addPlan(long ts, PlanType planToAdd) {
-            planList.put((Long) ts, planToAdd);
-        }
-
-        public VehicleType getVehicle() {
-            return vehicle;
-        }
-
-        public void setVehicle(VehicleType vehicle) {
-            this.vehicle = vehicle;
-        }
-
-        /**
-         * @return the planList
-         */
-        public HashMap<Long, PlanType> getPlanList() {
-            return planList;
-        }
-
-    }
-
 }

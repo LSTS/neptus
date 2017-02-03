@@ -58,11 +58,13 @@ import pt.lsts.neptus.comm.manager.imc.ImcSystemsHolder;
 import pt.lsts.neptus.console.ConsoleInteraction;
 import pt.lsts.neptus.console.ConsoleLayout;
 import pt.lsts.neptus.console.events.ConsoleEventFutureState;
+import pt.lsts.neptus.console.notifications.Notification;
 import pt.lsts.neptus.gui.PropertiesEditor;
 import pt.lsts.neptus.plugins.NeptusProperty;
 import pt.lsts.neptus.plugins.NeptusProperty.LEVEL;
 import pt.lsts.neptus.plugins.PluginDescription;
 import pt.lsts.neptus.plugins.PluginUtils;
+import pt.lsts.neptus.plugins.mvplanner.api.ConsoleEventPlanAllocation;
 import pt.lsts.neptus.renderer2d.StateRenderer2D;
 import pt.lsts.neptus.types.coord.LocationType;
 import pt.lsts.neptus.types.mission.plan.PlanType;
@@ -77,32 +79,33 @@ import pt.lsts.neptus.util.GuiUtils;
  * @author zp
  *
  */
-@PluginDescription(name = "Multi-Vehicle Planner Interaction", icon="pt/lsts/neptus/plugins/pddl/wizard.png")
+@PluginDescription(name = "Multi-Vehicle Planner Interaction", icon = "pt/lsts/neptus/plugins/pddl/wizard.png")
 public class MVPlannerInteraction extends ConsoleInteraction {
 
-    private Vector<MVPlannerTask> tasks = new Vector<MVPlannerTask>();
+    private ArrayList<MVPlannerTask> tasks = new ArrayList<MVPlannerTask>();
     private MVPlannerTask selectedTask = null;
     private Point2D lastPoint = null;
     private MVProblemSpecification problem = null;
     private LinkedHashMap<String, PlanType> generatedPlans = new LinkedHashMap<String, PlanType>();
     private LinkedHashMap<String, ConsoleEventFutureState> futureStates = new LinkedHashMap<String, ConsoleEventFutureState>();
 
+    @NeptusProperty(category = "Problem Specification", name = "Domain Model to use")
+    private MVDomainModel domainModel = MVDomainModel.V2;
 
-    @NeptusProperty(category="Problem Specification", name = "Domain Model to use")
-    private MVDomainModel domainModel = MVDomainModel.V1;
-
-    @NeptusProperty(category="Problem Specification", name = "Time (seconds) vehicles can stay away from depot")
+    @NeptusProperty(category = "Problem Specification", name = "Time (seconds) vehicles can stay away from depot")
     private int secondsAway = 1000;
 
-    @NeptusProperty(category="Plan Generation", name = "Time (seconds) to search for optimal solution.")
-    private int searchSeconds = 0;
+    @NeptusProperty(category = "Plan Generation", name = "Time (seconds) to search for optimal solution.")
+    private int searchSeconds = 10;
 
-    @NeptusProperty(category="Plan Generation", name = "Number of alternative solutions (if not timed).", userLevel=LEVEL.ADVANCED)
+    @NeptusProperty(category = "Plan Generation", name = "Number of alternative solutions (if not timed).", userLevel = LEVEL.ADVANCED)
     private int numTries = 50;
-    
-    @NeptusProperty(category="Plan Generation", name = "Include pop-ups in generated plans.")
+
+    @NeptusProperty(category = "Plan Generation", name = "Include pop-ups in generated plans.")
     private boolean generatePopups = false;
-    
+
+    @NeptusProperty(category = "Plan Generation", name = "Use scheduled waypoints.")
+    private boolean useScheduledGotos = true;
 
     @Subscribe
     public void on(ConsoleEventFutureState future) {
@@ -110,8 +113,8 @@ public class MVPlannerInteraction extends ConsoleInteraction {
             if (future.getState() == null)
                 futureStates.remove(future.getVehicle());
             else {
-                futureStates.put(future.getVehicle(), future);  
-                System.out.println(future);
+                futureStates.put(future.getVehicle(), future);
+                // System.out.println(future);
             }
         }
     }
@@ -201,7 +204,8 @@ public class MVPlannerInteraction extends ConsoleInteraction {
     private void generate(ActionEvent action) {
         Thread t = new Thread("Generating Multi-Vehicle plan...") {
             public void run() {
-                ProgressMonitor pm = new ProgressMonitor(getConsole(), "Searching for solutions...", "Generating initial state", 0, 5+numTries);
+                ProgressMonitor pm = new ProgressMonitor(getConsole(), "Searching for solutions...",
+                        "Generating initial state", 0, 5 + numTries);
 
                 Vector<VehicleType> activeVehicles = new Vector<VehicleType>();
                 for (ImcSystem s : ImcSystemsHolder.lookupActiveSystemVehicles()) {
@@ -213,7 +217,7 @@ public class MVPlannerInteraction extends ConsoleInteraction {
                 synchronized (futureStates) {
                     futures.addAll(futureStates.values());
                 }
-                
+
                 problem = new MVProblemSpecification(domainModel, activeVehicles, tasks, futures, null, secondsAway);
                 FileUtil.saveToFile("initial_state.pddl", problem.asPDDL());
                 pm.setProgress(5);
@@ -225,85 +229,105 @@ public class MVPlannerInteraction extends ConsoleInteraction {
                     for (int i = 0; i < numTries; i++) {
                         String best = "N/A";
                         if (bestSolution != null)
-                            best = DateTimeUtil.milliSecondsToFormatedString((long)(bestYet * 1000));
+                            best = DateTimeUtil.milliSecondsToFormatedString((long) (bestYet * 1000));
                         if (pm.isCanceled())
                             return;
-                        pm.setNote("Current best solution time: "+best);
-                        pm.setProgress(5+i);
+                        pm.setNote("Current best solution time: " + best);
+                        pm.setProgress(5 + i);
 
                         try {
-                            String solution = problem.solve(0);
-                            if (solution.isEmpty())
-                                continue;                
+                            if (!problem.solve(0))
+                                continue;
+                            
                             if (bestSolution == null) {
-                                bestSolution = solution;
-                                bestYet = solutionCost(solution);
+                                bestSolution = problem.toString();
+                                bestYet = solutionCost(problem.toString());
                             }
                             else {
-                                if (solutionCost(solution) < bestYet) {
-                                    bestYet = solutionCost(solution);
-                                    bestSolution = solution;                                    
+                                if (solutionCost(problem.toString()) < bestYet) {
+                                    bestYet = solutionCost(problem.toString());
+                                    bestSolution = problem.toString();
                                 }
-                            }                                
+                            }
                         }
                         catch (Exception ex) {
+                            getConsole().post(Notification.error("PDDL Solver", ex.getMessage()));
                             NeptusLog.pub().error(ex);
                         }
-                        pm.setProgress(5+numTries);                        
+                        pm.setProgress(5 + numTries);
                     }
                     pm.close();
                 }
                 else {
-                    try {                        
-                        Thread progress = new Thread("Progress updater") {
-                            public void run() {
-                                pm.setMaximum(searchSeconds*10);
-                                pm.setProgress(0);
+                    Thread progress = new Thread("Progress updater") {
+                        public void run() {
+                            pm.setMaximum(searchSeconds * 10);
+                            pm.setProgress(0);
 
-                                for (int i = 0; i < searchSeconds * 10; i++) {
-                                    pm.setNote(String.format("Time left : %.1f seconds", (searchSeconds-i/10.0)));
-                                    pm.setProgress(i);
-                                    try {
-                                        Thread.sleep(100);
-                                    }
-                                    catch (InterruptedException e) {
-                                        break;
-                                    }
+                            for (int i = 0; i < searchSeconds * 10; i++) {
+                                pm.setNote(String.format("Time left : %.1f seconds", (searchSeconds - i / 10.0)));
+                                pm.setProgress(i);
+                                try {
+                                    Thread.sleep(100);
                                 }
-                                pm.setProgress(pm.getMaximum());
-                                pm.close();
-                            };
+                                catch (InterruptedException e) {
+                                    break;
+                                }
+                            }
+                            pm.setProgress(pm.getMaximum());
+                            pm.close();
                         };
+                    };
+
+                    try {
                         progress.setDaemon(true);
                         progress.start();
-                        bestSolution = problem.solve(searchSeconds);
+                        if (problem.solve(searchSeconds))
+                            bestSolution = problem.toString();
                         progress.interrupt();
                         pm.setProgress(pm.getMaximum());
                         pm.close();
                     }
                     catch (Exception ex) {
+                        bestSolution = null;
+                        progress.interrupt();
+                        pm.setProgress(pm.getMaximum());
+                        pm.close();
                         ex.printStackTrace();
                         NeptusLog.pub().error(ex);
+                        GuiUtils.errorMessage(getConsole(), new Exception("No solution has been found.", ex));
+                        return;
                     }
                 }
 
                 generatedPlans.clear();
                 if (bestSolution != null) {
-                    MVSolution solution = problem.getSolution();
-                    if (solution != null) {
-                        solution.setGeneratePopups(generatePopups);
-                        Collection<PlanType> plans = solution.generatePlans();
-                        for (PlanType pt : plans) {
-                            pt.setMissionType(getConsole().getMission());
-                            getConsole().getMission().getIndividualPlansList().put(pt.getId(), pt);
-                            generatedPlans.put(pt.getVehicle(), pt);
+                    try {
+                        MVSolution solution = problem.getSolution();
+
+                        if (solution != null) {
+                            solution.setGeneratePopups(generatePopups);
+                            solution.setScheduledGotosUsed(useScheduledGotos);
+
+                            Collection<ConsoleEventPlanAllocation> allocations = solution.allocations();
+                            for (ConsoleEventPlanAllocation alloc : allocations) {
+                                alloc.getPlan().setMissionType(getConsole().getMission());
+                                getConsole().getMission().getIndividualPlansList().put(alloc.getPlan().getId(),
+                                        alloc.getPlan());
+                                generatedPlans.put(alloc.getVehicle(), alloc.getPlan());
+                            }
+                            getConsole().warnMissionListeners();
+                            getConsole().getMission().save(true);
                         }
-                        getConsole().warnMissionListeners();
-                        getConsole().getMission().save(true);
+                        GuiUtils.htmlMessage(getConsole(), "Multi-Vehicle Planner", "Valid solution found",
+                                "<html><pre>" + bestSolution + "</pre></html>");
+                        System.out.println(bestSolution);
                     }
-                    GuiUtils.htmlMessage(getConsole(), "Multi-Vehicle Planner", "Valid solution found", "<html><pre>" + bestSolution
-                            + "</pre></html>");
-                    System.out.println(bestSolution);
+                    catch (Exception e) {
+                        GuiUtils.errorMessage(getConsole(), new Exception("Error parsing PDDL.", e));
+                        return;
+                    }
+
                 }
                 else
                     GuiUtils.errorMessage(getConsole(), new Exception("No solution has been found."));
@@ -322,7 +346,7 @@ public class MVPlannerInteraction extends ConsoleInteraction {
             startPlan.setArg(generated.getValue().asIMCPlan(true));
             int reqId = IMCSendMessageUtils.getNextRequestId();
             startPlan.setRequestId(reqId);
-            ImcMsgManager.getManager().sendMessageToVehicle(startPlan, generated.getKey(), null);                    
+            ImcMsgManager.getManager().sendMessageToVehicle(startPlan, generated.getKey(), null);
         }
     }
 
@@ -334,8 +358,8 @@ public class MVPlannerInteraction extends ConsoleInteraction {
         String parts[] = solution.split("\n");
         if (parts.length == 0)
             return Double.MAX_VALUE;
-        String line = parts[parts.length-1]; 
-        return Double.parseDouble(line.substring(0, line.indexOf(':')-1));
+        String line = parts[parts.length - 1];
+        return Double.parseDouble(line.substring(0, line.indexOf(':') - 1));
     }
 
     @Override
@@ -407,7 +431,7 @@ public class MVPlannerInteraction extends ConsoleInteraction {
     /**
      * @return the tasks
      */
-    public Vector<MVPlannerTask> getTasks() {
+    public ArrayList<MVPlannerTask> getTasks() {
         return tasks;
     }
 

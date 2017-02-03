@@ -95,7 +95,7 @@ public abstract class MVPlannerTask implements Renderer2DPainter, PropertiesProv
         payloads = payloads.replaceAll("multibeam", "mb");
         payloads = payloads.replaceAll("edgetech", "et");
         payloads = payloads.replaceAll("sidescan", "sss");
-        payloads = payloads.replaceAll("rhodmanine", "rd");
+        payloads = payloads.replaceAll("rhodamine", "rd");
         return payloads;
     }
     

@@ -34,7 +34,6 @@ package pt.lsts.neptus.plugins.mvplanner.api;
 
 import java.util.Date;
 
-import pt.lsts.neptus.plugins.mvplanner.PlanTask;
 import pt.lsts.neptus.types.mission.plan.PlanType;
 
 /**

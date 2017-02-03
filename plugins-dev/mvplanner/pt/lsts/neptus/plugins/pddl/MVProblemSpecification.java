@@ -43,6 +43,7 @@ import java.util.Map.Entry;
 import java.util.TimeZone;
 import java.util.Vector;
 
+import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.comm.manager.imc.ImcSystemsHolder;
 import pt.lsts.neptus.console.events.ConsoleEventFutureState;
 import pt.lsts.neptus.mp.SystemPositionAndAttitude;
@@ -64,11 +65,10 @@ public class MVProblemSpecification {
     LinkedHashMap<VehicleType, SystemPositionAndAttitude> vehicleStates = new LinkedHashMap<>();
     LocationType defaultLoc = null;
     int secondsAwayFromDepot = 1000;
+    private String solutionStr = "";
 
     private String command_speed = "lpg -o DOMAIN -f INITIAL_STATE -out OUTFILE -speed";
     private String command_secs = "lpg -o DOMAIN -f INITIAL_STATE -out OUTFILE -n 10 -cputime ";
-
-    private MVSolution solution;
 
     private MVDomainModel domainModel = MVDomainModel.V1;
 
@@ -91,7 +91,8 @@ public class MVProblemSpecification {
         return locations;
     }
 
-    public String solve(int secs) throws Exception {
+    public boolean solve(int secs) throws Exception {
+        solutionStr = "";
         SimpleDateFormat fmt = new SimpleDateFormat("yyyyMMdd-HHmmss");
         fmt.setTimeZone(TimeZone.getTimeZone("UTC"));
         String timestamp = fmt.format(new Date());
@@ -112,19 +113,18 @@ public class MVProblemSpecification {
         StringBuilder result = new StringBuilder();
         BufferedReader reader = new BufferedReader(new InputStreamReader(p.getInputStream()));
         String line = reader.readLine();
-
+        
         while (line != null) {
             result.append(line.toLowerCase().trim() + "\n");
-            System.out.println(line);
+            NeptusLog.pub().debug(line);
             line = reader.readLine();
         }
         File outputFile = new File(output_file);
         if (outputFile.canRead()) {
-            solution = domainModel.translator().parseSolution(this, FileUtil.getFileAsString(outputFile));
-            return FileUtil.getFileAsString(outputFile);
+            solutionStr = FileUtil.getFileAsString(outputFile);
+            return true;
         }
-
-        return "";
+        return false;
     }
 
     public MVProblemSpecification(MVDomainModel model, Collection<VehicleType> vehicles,
@@ -167,8 +167,15 @@ public class MVProblemSpecification {
         return domainModel.translator().getInitialState(this);
     }
 
-    public MVSolution getSolution() {
-        return solution;
+    public MVSolution getSolution() throws Exception {
+        return domainModel.translator().parseSolution(this, solutionStr);
+    }
+
+    /**
+     * @return the solutionStr
+     */
+    public String toString() {
+        return solutionStr;
     }
 
 }

@@ -330,7 +330,7 @@ public class LstsDomainModel {
         return sb.toString();
     }
 
-    public MVSolution parseSolution(MVProblemSpecification problem, String solution) {
+    public final MVSolution parseSolution(MVProblemSpecification problem, String solution) throws Exception {
         Vector<MVPlannerTask> tasks = new Vector<MVPlannerTask>();
         tasks.addAll(problem.sampleTasks);
         tasks.addAll(problem.surveyTasks);
