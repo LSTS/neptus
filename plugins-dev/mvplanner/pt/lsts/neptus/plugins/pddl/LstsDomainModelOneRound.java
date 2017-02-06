@@ -67,7 +67,7 @@ public class LstsDomainModelOneRound extends LstsDomainModelV2 {
         allTasks.addAll(problem.surveyTasks);
         
         for (MVPlannerTask t : allTasks) {
-            if (t.firstPriority) {
+            if (t.isFirstPriority()) {
                 for (PayloadRequirement pr : t.getRequiredPayloads()) {
                     sb.append("  (completed "+t.getName()+"_"+pr.name()+")\n");
                 }                

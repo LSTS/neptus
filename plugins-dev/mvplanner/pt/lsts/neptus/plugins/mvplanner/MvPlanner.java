@@ -492,7 +492,7 @@ public class MvPlanner extends ConsoleInteraction implements Renderer2DPainter {
         }
 
         private JComboBox<String> loadProfiles() {
-            DefaultComboBoxModel model = new DefaultComboBoxModel();
+            DefaultComboBoxModel<String> model = new DefaultComboBoxModel<String>();
             JComboBox<String> profilesBox = new JComboBox<>(model);
             profiles.keySet().forEach(model::addElement);
 

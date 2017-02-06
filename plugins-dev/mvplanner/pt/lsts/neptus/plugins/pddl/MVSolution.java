@@ -123,10 +123,10 @@ public class MVSolution {
         double maxDepth = -Double.MAX_VALUE;
 
         if (actionStr.contains("survey") || actionStr.contains("sample")) {
-            if (task.requiredPayloads == null || task.requiredPayloads.isEmpty()) {
+            if (task.getRequiredPayloads() == null || task.getRequiredPayloads().isEmpty()) {
                 minDepth = maxDepth = DEFAULT_DEPTH;
             }
-            for (PayloadRequirement r : task.requiredPayloads) {
+            for (PayloadRequirement r : task.getRequiredPayloads()) {
                 minDepth = Math.min(minDepth, r.getMinDepth());
                 maxDepth = Math.max(maxDepth, r.getMaxDepth());
             }

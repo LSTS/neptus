@@ -61,14 +61,14 @@ public class SamplePointTask extends MVPlannerTask {
         Point2D pt = renderer.getScreenPosition(elem.getCenterLocation());
         
         loadImages();
-        if (associatedAllocation == null)
+        if (getAssociatedAllocation() == null)
             g.drawImage(orangeLed, (int)pt.getX()-8, (int)pt.getY()-8, null);
         else
             g.drawImage(greenLed, (int)pt.getX()-8, (int)pt.getY()-8, null);
             
         g.setColor(Color.black);
         g.drawString(getName()+" ("+payloads+")", (int)pt.getX()+8, (int)pt.getY()+8);
-        if (associatedAllocation != null) {
+        if (getAssociatedAllocation() != null) {
             g.setColor(Color.green.brighter().brighter());
             g.drawString(getName()+" ("+payloads+")", (int)pt.getX()+7, (int)pt.getY()+7);
         }

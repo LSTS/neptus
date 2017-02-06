@@ -44,6 +44,7 @@ import com.l2fprod.common.propertysheet.Property;
 
 import pt.lsts.neptus.gui.PropertiesEditor;
 import pt.lsts.neptus.gui.PropertiesProvider;
+import pt.lsts.neptus.plugins.mvplanner.api.ConsoleEventPlanAllocation;
 import pt.lsts.neptus.renderer2d.Renderer2DPainter;
 import pt.lsts.neptus.renderer2d.StateRenderer2D;
 import pt.lsts.neptus.types.coord.LocationType;
@@ -55,11 +56,13 @@ import pt.lsts.neptus.util.ImageUtils;
  */
 public abstract class MVPlannerTask implements Renderer2DPainter, PropertiesProvider {
 
-    protected static int count = 1;
-    protected String name = String.format(Locale.US, "t%02d", count++);
-    protected HashSet<PayloadRequirement> requiredPayloads = new HashSet<PayloadRequirement>();
-    protected boolean firstPriority = false;
-    protected String associatedAllocation = null;
+    private static int count = 1;
+    private String name = String.format(Locale.US, "t%02d", count++);
+    private HashSet<PayloadRequirement> requiredPayloads = new HashSet<PayloadRequirement>();
+    private boolean firstPriority = false;
+    private String associatedAllocation = null;
+    private String associatedVehicle = null;
+    
     
     public abstract boolean containsPoint(LocationType lt, StateRenderer2D renderer);
     public abstract LocationType getCenterLocation();
@@ -144,6 +147,18 @@ public abstract class MVPlannerTask implements Renderer2DPainter, PropertiesProv
         return null;
     }
     /**
+     * @return the firstPriority
+     */
+    public boolean isFirstPriority() {
+        return firstPriority;
+    }
+    /**
+     * @param firstPriority the firstPriority to set
+     */
+    public void setFirstPriority(boolean firstPriority) {
+        this.firstPriority = firstPriority;
+    }
+    /**
      * @return the requiredPayloads
      */
     public final HashSet<PayloadRequirement> getRequiredPayloads() {
@@ -161,6 +176,28 @@ public abstract class MVPlannerTask implements Renderer2DPainter, PropertiesProv
     public void setAssociatedAllocation(String associatedAllocation) {
         this.associatedAllocation = associatedAllocation;
     }
+    /**
+     * @return the associatedVehicle
+     */
+    public String getAssociatedVehicle() {
+        return associatedVehicle;
+    }
+    /**
+     * @param associatedVehicle the associatedVehicle to set
+     */
+    public void setAssociatedVehicle(String associatedVehicle) {
+        this.associatedVehicle = associatedVehicle;
+    }
     
+    public void setAllocation(ConsoleEventPlanAllocation alloc) {
+        if (alloc == null) {
+            setAssociatedAllocation(null);
+            setAssociatedVehicle(null);
+        }
+        else {
+            setAssociatedVehicle(alloc.getVehicle());
+            setAssociatedAllocation(alloc.getId());            
+        }
+    }
     
 }

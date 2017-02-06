@@ -34,6 +34,7 @@ package pt.lsts.neptus.plugins.mvplanner;
 
 
 import java.awt.Graphics2D;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Comparator;
 import java.util.Date;
@@ -66,6 +67,8 @@ import pt.lsts.neptus.types.mission.plan.PlanType;
         icon = "pt/lsts/neptus/plugins/map/map-edit.png",
         version = "0.1", category = PluginDescription.CATEGORY.INTERFACE)
 public class MvPlannerTaskAllocator extends ConsolePanel implements Renderer2DPainter {
+    private static final long serialVersionUID = -7052505428515767469L;
+
     /** Maintain to-be-allocated tasks sorted by start time **/
     private final PriorityQueue<PlanTask> taskHeap = new PriorityQueue<>(Comparator.comparing(PlanTask::getStartTime));
 
@@ -104,7 +107,20 @@ public class MvPlannerTaskAllocator extends ConsolePanel implements Renderer2DPa
 
                 NeptusLog.pub().info("Allocation request for task " + task.getId() + " at " + task.getStartTime().toString());
                 break;
-
+            case CANCELLED:
+                tasks.remove(event.getId());
+                ArrayList<PlanTask> existing = new ArrayList<>();
+                synchronized (taskHeap) {
+                    while(!taskHeap.isEmpty()) {
+                        PlanTask t = taskHeap.poll();
+                        if (!t.plan.getId().equals(event.getId()))
+                            existing.add(t);
+                    }
+                    taskHeap.addAll(existing);
+                }
+                
+                NeptusLog.pub().info("Allocation cancelled for task " + event.getId());
+                break;
             case FINISHED:
                 task = tasks.get(event.getPlan().getId());
 
@@ -166,13 +182,15 @@ public class MvPlannerTaskAllocator extends ConsolePanel implements Renderer2DPa
     private void doAllocation() {
         int ntries = 5;
         Date currDate = new Date();
-        while(!taskHeap.isEmpty() && currDate.compareTo(taskHeap.peek().getStartTime()) >= 0 && ntries >= 0)
-            if (allocateTask(taskHeap.peek())) {
-                taskHeap.poll();
-                ntries = 5;
-            }
-            else
-                ntries--;
+        synchronized (taskHeap) {
+            while(!taskHeap.isEmpty() && currDate.compareTo(taskHeap.peek().getStartTime()) >= 0 && ntries >= 0)
+                if (allocateTask(taskHeap.peek())) {
+                    taskHeap.poll();
+                    ntries = 5;
+                }
+                else
+                    ntries--;
+        }       
     }
 
     /**
@@ -226,7 +244,7 @@ public class MvPlannerTaskAllocator extends ConsolePanel implements Renderer2DPa
 
     }
 
-    private void runTests() {
+    public void runTests() {
         Calendar tmp = Calendar.getInstance();
 
         tmp.set(Calendar.MINUTE, tmp.get(Calendar.MINUTE) + 2);

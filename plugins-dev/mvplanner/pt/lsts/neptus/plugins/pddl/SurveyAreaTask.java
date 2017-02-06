@@ -135,7 +135,7 @@ public class SurveyAreaTask extends MVPlannerTask {
         double minHorStep = area.getWidth()/3;
         double minDepth = Double.MAX_VALUE;
         double maxDepth = -Double.MAX_VALUE;
-        for (PayloadRequirement p : requiredPayloads) {
+        for (PayloadRequirement p : getRequiredPayloads()) {
             minHorStep = Math.min(minHorStep, p.getSwathWidth());
             if (p.getMinDepth() < 0)
                 minDepth = p.getMinDepth();
@@ -175,14 +175,14 @@ public class SurveyAreaTask extends MVPlannerTask {
         ManeuversUtil.paintPointLineList(copy, renderer.getZoom(), pivot.getPathPoints(), false, 0);
         String payloads = getPayloadsAbbreviated();
         loadImages();
-        if (associatedAllocation == null)
+        if (getAssociatedAllocation() == null)
             g.drawImage(orangeLed, (int)pt.getX()-8, (int)pt.getY()-8, null);
         else
             g.drawImage(greenLed, (int)pt.getX()-8, (int)pt.getY()-8, null);        
         g.drawImage(poiImg, (int)pt.getX()-8, (int)pt.getY()-8, null);
         g.setColor(Color.black);
         g.drawString(getName()+" ("+payloads+")", (int)pt.getX()+8, (int)pt.getY()+8);
-        if(associatedAllocation != null)
+        if(getAssociatedAllocation() != null)
             g.setColor(Color.green.brighter().brighter());
         else
             g.setColor(Color.orange);

@@ -32,23 +32,17 @@
  */
 package pt.lsts.neptus.plugins.mvplanner;
 
-import javafx.beans.DefaultProperty;
+import java.awt.Color;
+import java.awt.Graphics2D;
+import java.util.Date;
+
 import pt.lsts.imc.PlanSpecification;
 import pt.lsts.neptus.comm.IMCUtils;
-import pt.lsts.neptus.mp.Maneuver;
-import pt.lsts.neptus.mp.ManeuverLocation;
-import pt.lsts.neptus.mp.maneuvers.FollowPath;
-import pt.lsts.neptus.mp.maneuvers.Goto;
-import pt.lsts.neptus.mp.maneuvers.LocatedManeuver;
 import pt.lsts.neptus.plugins.mvplanner.jaxb.Profile;
-import pt.lsts.neptus.plugins.mvplanner.ui.MapObject;
 import pt.lsts.neptus.renderer2d.StateRenderer2D;
 import pt.lsts.neptus.types.coord.LocationType;
 import pt.lsts.neptus.types.coord.PolygonType;
 import pt.lsts.neptus.types.mission.plan.PlanType;
-
-import java.awt.*;
-import java.util.Date;
 
 public abstract class PlanTask {
     /**

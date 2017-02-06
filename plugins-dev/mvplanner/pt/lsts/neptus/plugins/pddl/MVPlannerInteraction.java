@@ -39,12 +39,13 @@ import java.awt.event.MouseEvent;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Point2D;
 import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.Map.Entry;
 import java.util.Vector;
 
-import javax.swing.JFrame;
 import javax.swing.JPopupMenu;
 import javax.swing.ProgressMonitor;
 
@@ -67,6 +68,7 @@ import pt.lsts.neptus.plugins.NeptusProperty.LEVEL;
 import pt.lsts.neptus.plugins.PluginDescription;
 import pt.lsts.neptus.plugins.PluginUtils;
 import pt.lsts.neptus.plugins.mvplanner.api.ConsoleEventPlanAllocation;
+import pt.lsts.neptus.plugins.mvplanner.api.ConsoleEventPlanAllocation.Operation;
 import pt.lsts.neptus.renderer2d.StateRenderer2D;
 import pt.lsts.neptus.types.coord.LocationType;
 import pt.lsts.neptus.types.mission.plan.PlanType;
@@ -126,8 +128,6 @@ public class MVPlannerInteraction extends ConsoleInteraction {
 
     @Subscribe
     public void on(ConsoleEventPlanAllocation allocation) {
-
-        System.out.println(allocation.getId()+" : "+allocation.getOp());
         try {
             switch (allocation.getOp()) {
                 case FINISHED:
@@ -135,19 +135,30 @@ public class MVPlannerInteraction extends ConsoleInteraction {
                         Iterator<MVPlannerTask> it = tasks.iterator();
                         while (it.hasNext()) {
                             MVPlannerTask t = it.next();
-                            if (t.associatedAllocation.equals(allocation.getId()))
+                            if (t.getAssociatedAllocation() != null && t.getAssociatedAllocation().equals(allocation.getId()))
                                 it.remove();
                         }
                     }
                     break;
                 case INTERRUPTED:
                     synchronized (tasks) {
+                        HashSet<String> allocationsToCancel = new HashSet<>();
                         Iterator<MVPlannerTask> it = tasks.iterator();
                         while (it.hasNext()) {
                             MVPlannerTask t = it.next();
-                            if (t.associatedAllocation.equals(allocation.getId()))
-                                t.associatedAllocation = null;                            
+                            if (t.getAssociatedAllocation() != null && t.getAssociatedVehicle().equals(allocation.getVehicle())) {
+                                if (!t.getAssociatedAllocation().equals(allocation.getId()))
+                                    allocationsToCancel.add(t.getAssociatedAllocation());
+                                t.setAllocation(null);
+                            }
                         }
+                        
+                        for (String cancelledAlloc : allocationsToCancel) {
+                            PlanType plan = new PlanType(getConsole().getMission());
+                            plan.setId(cancelledAlloc);
+                            ConsoleEventPlanAllocation cancel = new ConsoleEventPlanAllocation(plan, new Date(), Operation.CANCELLED);
+                            getConsole().post(cancel);
+                        }                        
                     }
                 default:
                     break;
@@ -232,18 +243,39 @@ public class MVPlannerInteraction extends ConsoleInteraction {
                 source.repaint();
             }
         });
-
+        
+        popup.add("Clear Tasks").addActionListener(this::clear);
+        
         popup.add("Generate").addActionListener(this::generate);
         popup.addSeparator();
         if (manualExec) {
             popup.add("Execute now").addActionListener(this::startExecution);
             popup.addSeparator();
         }
+        
         popup.add("Settings").addActionListener(this::settings);
 
         popup.show(source, event.getX(), event.getY());
     }
 
+    private void clear(ActionEvent action) {
+        HashSet<String> allocationsToCancel = new HashSet<>();
+        Iterator<MVPlannerTask> it = tasks.iterator();
+        while (it.hasNext()) {
+            MVPlannerTask t = it.next();
+            if (t.getAssociatedAllocation() != null)
+                allocationsToCancel.add(t.getAssociatedAllocation());
+            it.remove();
+        }
+        
+        for (String cancelledAlloc : allocationsToCancel) {
+            PlanType plan = new PlanType(getConsole().getMission());
+            plan.setId(cancelledAlloc);
+            ConsoleEventPlanAllocation cancel = new ConsoleEventPlanAllocation(plan, new Date(), Operation.CANCELLED);
+            getConsole().post(cancel);
+        }
+    }
+    
     private void generate(ActionEvent action) {
         Thread t = new Thread("Generating Multi-Vehicle plan...") {
             public void run() {
@@ -365,8 +397,8 @@ public class MVPlannerInteraction extends ConsoleInteraction {
 
                                 for (String action : associatedActions) {
                                     for (MVPlannerTask task : tasks) {
-                                        if (task.name.equals(action)) {
-                                            task.setAssociatedAllocation(allocation.getId());
+                                        if (task.getName().equals(action)) {
+                                            task.setAllocation(allocation);
                                         }
                                     }
                                 }

@@ -98,6 +98,7 @@ public class ConsoleEventPlanAllocation {
     public enum Operation {
         ALLOCATED,
         FINISHED,
-        INTERRUPTED
+        INTERRUPTED,
+        CANCELLED
     }
 }
