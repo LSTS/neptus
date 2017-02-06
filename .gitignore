@@ -144,6 +144,7 @@
 /conf/plugins/
 /tmpBuild/
 Thumbs.db
+.DS_Store
 *.bak
 *.edited
 \#*#
