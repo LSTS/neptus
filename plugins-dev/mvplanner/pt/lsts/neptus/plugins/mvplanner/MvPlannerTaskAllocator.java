@@ -35,6 +35,7 @@ package pt.lsts.neptus.plugins.mvplanner;
 
 import com.google.common.eventbus.Subscribe;
 import pt.lsts.imc.PlanControl;
+import pt.lsts.imc.PlanControlState;
 import pt.lsts.imc.PlanSpecification;
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.comm.IMCSendMessageUtils;
@@ -123,6 +124,19 @@ public class MvPlannerTaskAllocator extends ConsolePanel implements Renderer2DPa
             default:
                 NeptusLog.pub().error("Unknown ConsoleEventPlanAllocation operation");
         }
+    }
+
+    @Subscribe
+    public void consume(PlanControlState state) {
+        if(state == null)
+            return;
+
+        String planId = state.getPlanId();
+        double progression = state.getPlanProgress();
+        PlanTask task = tasks.get(planId);
+        if(task != null && progression == 100 && task.getState() != PlanTask.TaskStateEnum.Completed)
+            console.post(new ConsoleEventPlanAllocation(task.asPlanType(), task.getStartTime(),
+                    ConsoleEventPlanAllocation.Operation.FINISHED));
     }
 
     @Periodic(millisBetweenUpdates = 5000)
