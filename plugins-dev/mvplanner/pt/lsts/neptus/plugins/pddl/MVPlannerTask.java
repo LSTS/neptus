@@ -32,6 +32,7 @@
  */
 package pt.lsts.neptus.plugins.pddl;
 
+import java.awt.Image;
 import java.util.HashSet;
 import java.util.Locale;
 import java.util.Vector;
@@ -46,6 +47,7 @@ import pt.lsts.neptus.gui.PropertiesProvider;
 import pt.lsts.neptus.renderer2d.Renderer2DPainter;
 import pt.lsts.neptus.renderer2d.StateRenderer2D;
 import pt.lsts.neptus.types.coord.LocationType;
+import pt.lsts.neptus.util.ImageUtils;
 
 /**
  * @author zp
@@ -67,6 +69,16 @@ public abstract class MVPlannerTask implements Renderer2DPainter, PropertiesProv
     public abstract void growWidth(double amount);
     public abstract void growLength(double amount);
     
+    protected Image greenLed = null;
+    protected Image orangeLed = null;
+    
+    protected synchronized void loadImages() {
+        if (greenLed == null)
+            greenLed = ImageUtils.getImage("pt/lsts/neptus/plugins/pddl/led.png");
+        if (orangeLed == null)
+            orangeLed = ImageUtils.getImage("pt/lsts/neptus/plugins/pddl/orangeled.png");
+       
+    }
     
     /**
      * @return the name
@@ -149,4 +161,6 @@ public abstract class MVPlannerTask implements Renderer2DPainter, PropertiesProv
     public void setAssociatedAllocation(String associatedAllocation) {
         this.associatedAllocation = associatedAllocation;
     }
+    
+    
 }

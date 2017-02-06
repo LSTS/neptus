@@ -173,6 +173,8 @@ public class MVPlannerInteraction extends ConsoleInteraction {
         MVPlannerTask clicked = null;
         LocationType lt = source.getRealWorldLocation(event.getPoint());
         for (MVPlannerTask t : tasks) {
+            if (t.getAssociatedAllocation() != null)
+                continue;
             if (t.containsPoint(lt, source)) {
                 clicked = t;
                 break;
@@ -417,6 +419,8 @@ public class MVPlannerInteraction extends ConsoleInteraction {
         MVPlannerTask selected = null;
         LocationType lt = source.getRealWorldLocation(event.getPoint());
         for (MVPlannerTask t : tasks) {
+            if (t.getAssociatedAllocation() != null)
+                continue;
             if (t.containsPoint(lt, source)) {
                 selected = t;
                 break;

@@ -46,7 +46,6 @@ import pt.lsts.neptus.types.coord.LocationType;
 import pt.lsts.neptus.types.map.MarkElement;
 import pt.lsts.neptus.types.map.ParallelepipedElement;
 import pt.lsts.neptus.util.GuiUtils;
-import pt.lsts.neptus.util.ImageUtils;
 
 /**
  * @author zp
@@ -175,14 +174,15 @@ public class SurveyAreaTask extends MVPlannerTask {
         copy.rotate(-renderer.getRotation()-Math.PI/2);
         ManeuversUtil.paintPointLineList(copy, renderer.getZoom(), pivot.getPathPoints(), false, 0);
         String payloads = getPayloadsAbbreviated();
-        if (poiImg == null)
-            poiImg = ImageUtils.getImage("pt/lsts/neptus/plugins/pddl/led.png");
-        if (poiImg == null)
-            poiImg = ImageUtils.getImage("pt/lsts/neptus/plugins/pddl/led.png");
+        loadImages();
+        if (associatedAllocation == null)
+            g.drawImage(orangeLed, (int)pt.getX()-8, (int)pt.getY()-8, null);
+        else
+            g.drawImage(greenLed, (int)pt.getX()-8, (int)pt.getY()-8, null);        
         g.drawImage(poiImg, (int)pt.getX()-8, (int)pt.getY()-8, null);
         g.setColor(Color.black);
         g.drawString(getName()+" ("+payloads+")", (int)pt.getX()+8, (int)pt.getY()+8);
-        if(associatedAllocation == null)
+        if(associatedAllocation != null)
             g.setColor(Color.green.brighter().brighter());
         else
             g.setColor(Color.orange);

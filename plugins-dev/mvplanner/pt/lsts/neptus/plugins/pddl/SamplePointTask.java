@@ -34,13 +34,11 @@ package pt.lsts.neptus.plugins.pddl;
 
 import java.awt.Color;
 import java.awt.Graphics2D;
-import java.awt.Image;
 import java.awt.geom.Point2D;
 
 import pt.lsts.neptus.renderer2d.StateRenderer2D;
 import pt.lsts.neptus.types.coord.LocationType;
 import pt.lsts.neptus.types.map.MarkElement;
-import pt.lsts.neptus.util.ImageUtils;
 
 /**
  * @author zp
@@ -49,7 +47,6 @@ import pt.lsts.neptus.util.ImageUtils;
 public class SamplePointTask extends MVPlannerTask {
 
     private MarkElement elem;
-    private Image poiImg = null;
     
     public SamplePointTask(LocationType loc) {
         elem = new MarkElement();
@@ -60,13 +57,18 @@ public class SamplePointTask extends MVPlannerTask {
     @Override
     public void paint(Graphics2D g, StateRenderer2D renderer) {
         String payloads = getPayloadsAbbreviated();
-        if (poiImg == null)
-            poiImg = ImageUtils.getImage("pt/lsts/neptus/plugins/pddl/led.png");
+        
         Point2D pt = renderer.getScreenPosition(elem.getCenterLocation());
-        g.drawImage(poiImg, (int)pt.getX()-8, (int)pt.getY()-8, null);
+        
+        loadImages();
+        if (associatedAllocation == null)
+            g.drawImage(orangeLed, (int)pt.getX()-8, (int)pt.getY()-8, null);
+        else
+            g.drawImage(greenLed, (int)pt.getX()-8, (int)pt.getY()-8, null);
+            
         g.setColor(Color.black);
         g.drawString(getName()+" ("+payloads+")", (int)pt.getX()+8, (int)pt.getY()+8);
-        if (associatedAllocation == null) {
+        if (associatedAllocation != null) {
             g.setColor(Color.green.brighter().brighter());
             g.drawString(getName()+" ("+payloads+")", (int)pt.getX()+7, (int)pt.getY()+7);
         }
