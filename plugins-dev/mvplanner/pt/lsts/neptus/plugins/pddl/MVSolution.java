@@ -33,12 +33,12 @@
 package pt.lsts.neptus.plugins.pddl;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.List;
 
 import pt.lsts.imc.ScheduledGoto.DELAYED;
+import pt.lsts.neptus.data.Pair;
 import pt.lsts.neptus.mp.Maneuver;
 import pt.lsts.neptus.mp.ManeuverLocation;
 import pt.lsts.neptus.mp.ManeuverLocation.Z_UNITS;
@@ -65,6 +65,7 @@ import pt.lsts.neptus.types.vehicle.VehicleType;
 public class MVSolution {
 
     private static final double DEFAULT_DEPTH = 3;
+    private static int allocationCounter = 1;
     private ArrayList<PddlAction> actions = new ArrayList<MVSolution.PddlAction>();
     private LinkedHashMap<String, LocationType> locations = null;
     private LinkedHashMap<String, MVPlannerTask> tasks = new LinkedHashMap<String, MVPlannerTask>();
@@ -110,7 +111,7 @@ public class MVSolution {
                 action.location = new ManeuverLocation(locations.get(parts[4]));
             else
                 action.location = new ManeuverLocation(locations.get(parts[3]));
-            
+
         }
         catch (Exception e) {
             throw new Exception("Unrecognized PDDL syntax on line '" + line + "'", e);
@@ -226,36 +227,41 @@ public class MVSolution {
         this.useScheduledGoto = useScheduledGoto;
     }
 
-    private Collection<String> actionsForVehicle(String vehicle) {
-        ArrayList<String> ret = new ArrayList<>();
-        for (PddlAction act : actions)
-            if (act.vehicle.getId().equals(vehicle))
-                ret.add(act.name);
-        return ret;
-    }
-    
-    public Collection<ConsoleEventPlanAllocation> allocations() {
+    /**
+     * Generate allocations for this solution
+     * 
+     * @return For each allocation, a pair with its allocated action IDs and the event to execute the allocation
+     */
+    public ArrayList<Pair<ArrayList<String>, ConsoleEventPlanAllocation>> allocations() {
         LinkedHashMap<String, PlanType> plansPerVehicle = new LinkedHashMap<String, PlanType>();
         LinkedHashMap<String, Date> startTimes = new LinkedHashMap<String, Date>();
+        LinkedHashMap<String, ArrayList<String>> actionsPerVehicle = new LinkedHashMap<>();
 
         int i = 1;
         for (PddlAction act : actions) {
             Maneuver maneuver = generateManeuver(act);
-            maneuver.setId(""+(i++));
+            maneuver.setId("" + (i++));
             ManeuverPayloadConfig payload = new ManeuverPayloadConfig(act.vehicle.getId(), maneuver, null);
             enablePayloads(payload, act.payloads);
-            
+
             if (!plansPerVehicle.containsKey(act.vehicle.getId())) {
                 PlanType newPlan = new PlanType(null);
                 newPlan.setId("mvplan_" + act.vehicle.getNickname());
                 newPlan.setVehicle(act.vehicle.getId());
                 plansPerVehicle.put(act.vehicle.getId(), newPlan);
+                actionsPerVehicle.put(act.vehicle.getId(), new ArrayList<>());
                 startTimes.put(act.vehicle.getId(), new Date(act.startTime));
             }
 
-            
+            // just account for valid actions and not movements to depots...
+            if (act.name.matches("t[0-9]+")) {
+                ArrayList<String> actions = actionsPerVehicle.get(act.vehicle.getId());
+                if (!actions.contains(act.name))
+                    actions.add(act.name);
+            }
+
             int numMans = plansPerVehicle.get(act.vehicle.getId()).getGraph().getAllManeuvers().length;
-            
+
             if (generatePopups && (maneuver instanceof RowsManeuver || maneuver instanceof Loiter)) {
                 LocatedManeuver m = (LocatedManeuver) maneuver;
                 PopUp popup = new PopUp();
@@ -266,22 +272,26 @@ public class MVSolution {
                 loc.setZ(DEFAULT_DEPTH);
                 loc.setZUnits(Z_UNITS.DEPTH);
                 popup.setManeuverLocation(loc);
-                popup.setId(""+(++numMans));
+                popup.setId("" + (++numMans));
                 plansPerVehicle.get(act.vehicle.getId()).getGraph().addManeuverAtEnd(popup);
             }
-            maneuver.setId(""+(++numMans));
+            maneuver.setId("" + (++numMans));
             plansPerVehicle.get(act.vehicle.getId()).getGraph().addManeuverAtEnd(maneuver);
         }
-        
-        ArrayList<ConsoleEventPlanAllocation> planAllocations = new ArrayList<>();
+
+        ArrayList<Pair<ArrayList<String>, ConsoleEventPlanAllocation>> result = new ArrayList<>();
         
         for (String s : plansPerVehicle.keySet()) {
-            planAllocations.add(new ConsoleEventPlanAllocation(plansPerVehicle.get(s), startTimes.get(s), Operation.ALLOCATED));
+            PlanType plan = plansPerVehicle.get(s);
+            plan.setId(String.format("mvplanner-%03d-%s", allocationCounter++, plan.getVehicleType().getNickname()));
+            Pair<ArrayList<String>, ConsoleEventPlanAllocation> p = new Pair<>(actionsPerVehicle.get(s),
+                    new ConsoleEventPlanAllocation(plansPerVehicle.get(s), startTimes.get(s), Operation.ALLOCATED));
+            result.add(p);
         }
-        
-        return planAllocations;
+
+        return result;
     }
-    
+
     public Maneuver generateManeuver(PddlAction action) {
 
         Maneuver m = null;
@@ -322,7 +332,8 @@ public class MVSolution {
                 tmpLoiter.setSpeed(1.0);
                 tmpLoiter.setSpeedUnits(Maneuver.SPEED_UNITS.METERS_PS);
                 tmpLoiter.setLoiterDuration((int) ((action.endTime - action.startTime) / 1000));
-                ManeuverPayloadConfig payloadConfig = new ManeuverPayloadConfig(action.vehicle.getId(), tmpLoiter, null);
+                ManeuverPayloadConfig payloadConfig = new ManeuverPayloadConfig(action.vehicle.getId(), tmpLoiter,
+                        null);
                 enablePayloads(payloadConfig, action.payloads);
                 m = tmpLoiter;
                 break;
@@ -342,10 +353,9 @@ public class MVSolution {
                 System.err.println("Unrecognized action type: " + action.type);
                 return null;
         }
-        //m.setId(action.name);
+        // m.setId(action.name);
         return m;
     }
-
 
     static class PddlAction {
         public long startTime, endTime;
@@ -358,7 +368,8 @@ public class MVSolution {
 
         @Override
         public String toString() {
-            return type + " @"+location+" with payloads " + payloads + ", using vehicle " + vehicle + " on " + new Date(startTime);
+            return type + " @" + location + " with payloads " + payloads + ", using vehicle " + vehicle + " on "
+                    + new Date(startTime);
         }
 
     }

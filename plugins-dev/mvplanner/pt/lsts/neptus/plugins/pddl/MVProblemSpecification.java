@@ -155,6 +155,8 @@ public class MVProblemSpecification {
         }
 
         for (MVPlannerTask t : tasks) {
+            if (t.getAssociatedAllocation() != null)
+                continue;
             if (t instanceof SurveyAreaTask)
                 surveyTasks.add((SurveyAreaTask) t);
             else if (t instanceof SamplePointTask) {

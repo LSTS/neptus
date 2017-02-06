@@ -39,7 +39,7 @@ import java.awt.event.MouseEvent;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Point2D;
 import java.util.ArrayList;
-import java.util.Collection;
+import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.Map.Entry;
 import java.util.Vector;
@@ -59,6 +59,7 @@ import pt.lsts.neptus.console.ConsoleInteraction;
 import pt.lsts.neptus.console.ConsoleLayout;
 import pt.lsts.neptus.console.events.ConsoleEventFutureState;
 import pt.lsts.neptus.console.notifications.Notification;
+import pt.lsts.neptus.data.Pair;
 import pt.lsts.neptus.gui.PropertiesEditor;
 import pt.lsts.neptus.plugins.NeptusProperty;
 import pt.lsts.neptus.plugins.NeptusProperty.LEVEL;
@@ -106,6 +107,10 @@ public class MVPlannerInteraction extends ConsoleInteraction {
 
     @NeptusProperty(category = "Plan Generation", name = "Use scheduled waypoints.")
     private boolean useScheduledGotos = true;
+    
+    @NeptusProperty(category = "Plan Generation", name = "Manual execution.")
+    private boolean manualExec = false;
+    
 
     @Subscribe
     public void on(ConsoleEventFutureState future) {
@@ -116,6 +121,35 @@ public class MVPlannerInteraction extends ConsoleInteraction {
                 futureStates.put(future.getVehicle(), future);
                 // System.out.println(future);
             }
+        }
+    }
+    
+    @Subscribe
+    public void on(ConsoleEventPlanAllocation allocation) {
+        switch (allocation.getOp()) {
+            case FINISHED:
+                synchronized (tasks) {
+                    Iterator<MVPlannerTask> it = tasks.iterator();
+                    while(it.hasNext()) {
+                        MVPlannerTask t = it.next();
+                        if (t.associatedAllocation.equals(allocation.getId()))
+                            it.remove();
+                        it.next();
+                    }
+                }
+                break;
+            case INTERRUPTED:
+                synchronized (tasks) {
+                    Iterator<MVPlannerTask> it = tasks.iterator();
+                    while(it.hasNext()) {
+                        MVPlannerTask t = it.next();
+                        if (t.associatedAllocation.equals(allocation.getId()))
+                            t.associatedAllocation = null;
+                        it.next();
+                    }
+                }
+            default:
+                break;
         }
     }
 
@@ -194,8 +228,10 @@ public class MVPlannerInteraction extends ConsoleInteraction {
 
         popup.add("Generate").addActionListener(this::generate);
         popup.addSeparator();
-        popup.add("Start execution").addActionListener(this::startExecution);
-        popup.addSeparator();
+        if (manualExec) {
+            popup.add("Execute now").addActionListener(this::startExecution);
+            popup.addSeparator();
+        }
         popup.add("Settings").addActionListener(this::settings);
 
         popup.show(source, event.getX(), event.getY());
@@ -309,12 +345,26 @@ public class MVPlannerInteraction extends ConsoleInteraction {
                             solution.setGeneratePopups(generatePopups);
                             solution.setScheduledGotosUsed(useScheduledGotos);
 
-                            Collection<ConsoleEventPlanAllocation> allocations = solution.allocations();
-                            for (ConsoleEventPlanAllocation alloc : allocations) {
-                                alloc.getPlan().setMissionType(getConsole().getMission());
-                                getConsole().getMission().getIndividualPlansList().put(alloc.getPlan().getId(),
-                                        alloc.getPlan());
-                                generatedPlans.put(alloc.getVehicle(), alloc.getPlan());
+                            ArrayList<Pair<ArrayList<String>, ConsoleEventPlanAllocation>> allocations = solution
+                                    .allocations();
+                            
+                            for (Pair<ArrayList<String>, ConsoleEventPlanAllocation> entry : allocations) {
+                                ArrayList<String> associatedActions = entry.first();
+                                ConsoleEventPlanAllocation allocation = entry.second();
+                                allocation.getPlan().setMissionType(getConsole().getMission());
+                                getConsole().getMission().getIndividualPlansList().put(allocation.getPlan().getId(),
+                                        allocation.getPlan());
+                                generatedPlans.put(allocation.getVehicle(), allocation.getPlan());
+                                
+                                for (String action : associatedActions) {
+                                    for (MVPlannerTask task : tasks) {
+                                        if (task.name.equals(action)) {
+                                            task.setAssociatedAllocation(allocation.getId());
+                                        }
+                                    }
+                                }
+                                
+                                getConsole().post(allocation);
                             }
                             getConsole().warnMissionListeners();
                             getConsole().getMission().save(true);

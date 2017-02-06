@@ -57,6 +57,7 @@ public abstract class MVPlannerTask implements Renderer2DPainter, PropertiesProv
     protected String name = String.format(Locale.US, "t%02d", count++);
     protected HashSet<PayloadRequirement> requiredPayloads = new HashSet<PayloadRequirement>();
     protected boolean firstPriority = false;
+    protected String associatedAllocation = null;
     
     public abstract boolean containsPoint(LocationType lt, StateRenderer2D renderer);
     public abstract LocationType getCenterLocation();
@@ -65,6 +66,7 @@ public abstract class MVPlannerTask implements Renderer2DPainter, PropertiesProv
     public abstract void rotate(double amountRads);
     public abstract void growWidth(double amount);
     public abstract void growLength(double amount);
+    
     
     /**
      * @return the name
@@ -134,5 +136,17 @@ public abstract class MVPlannerTask implements Renderer2DPainter, PropertiesProv
      */
     public final HashSet<PayloadRequirement> getRequiredPayloads() {
         return requiredPayloads;
+    }
+    /**
+     * @return the associatedAllocation
+     */
+    public String getAssociatedAllocation() {
+        return associatedAllocation;
+    }
+    /**
+     * @param associatedAllocation the associatedAllocation to set
+     */
+    public void setAssociatedAllocation(String associatedAllocation) {
+        this.associatedAllocation = associatedAllocation;
     }
 }

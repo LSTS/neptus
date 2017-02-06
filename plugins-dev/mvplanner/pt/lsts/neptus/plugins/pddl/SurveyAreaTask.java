@@ -182,7 +182,10 @@ public class SurveyAreaTask extends MVPlannerTask {
         g.drawImage(poiImg, (int)pt.getX()-8, (int)pt.getY()-8, null);
         g.setColor(Color.black);
         g.drawString(getName()+" ("+payloads+")", (int)pt.getX()+8, (int)pt.getY()+8);
-        g.setColor(Color.green.brighter().brighter());
+        if(associatedAllocation == null)
+            g.setColor(Color.green.brighter().brighter());
+        else
+            g.setColor(Color.orange);
         g.drawString(getName()+" ("+payloads+")", (int)pt.getX()+7, (int)pt.getY()+7);
         
     }

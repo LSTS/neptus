@@ -66,8 +66,14 @@ public class SamplePointTask extends MVPlannerTask {
         g.drawImage(poiImg, (int)pt.getX()-8, (int)pt.getY()-8, null);
         g.setColor(Color.black);
         g.drawString(getName()+" ("+payloads+")", (int)pt.getX()+8, (int)pt.getY()+8);
-        g.setColor(Color.green.brighter().brighter());
-        g.drawString(getName()+" ("+payloads+")", (int)pt.getX()+7, (int)pt.getY()+7);
+        if (associatedAllocation == null) {
+            g.setColor(Color.green.brighter().brighter());
+            g.drawString(getName()+" ("+payloads+")", (int)pt.getX()+7, (int)pt.getY()+7);
+        }
+        else {
+            g.setColor(Color.orange);
+            g.drawString(getName()+" ("+payloads+")", (int)pt.getX()+7, (int)pt.getY()+7);
+        }        
     }
 
     @Override
