@@ -44,6 +44,7 @@ import java.util.LinkedHashMap;
 import java.util.Map.Entry;
 import java.util.Vector;
 
+import javax.swing.JFrame;
 import javax.swing.JPopupMenu;
 import javax.swing.ProgressMonitor;
 
@@ -107,10 +108,9 @@ public class MVPlannerInteraction extends ConsoleInteraction {
 
     @NeptusProperty(category = "Plan Generation", name = "Use scheduled waypoints.")
     private boolean useScheduledGotos = true;
-    
+
     @NeptusProperty(category = "Plan Generation", name = "Manual execution.")
     private boolean manualExec = false;
-    
 
     @Subscribe
     public void on(ConsoleEventFutureState future) {
@@ -123,33 +123,38 @@ public class MVPlannerInteraction extends ConsoleInteraction {
             }
         }
     }
-    
+
     @Subscribe
     public void on(ConsoleEventPlanAllocation allocation) {
-        switch (allocation.getOp()) {
-            case FINISHED:
-                synchronized (tasks) {
-                    Iterator<MVPlannerTask> it = tasks.iterator();
-                    while(it.hasNext()) {
-                        MVPlannerTask t = it.next();
-                        if (t.associatedAllocation.equals(allocation.getId()))
-                            it.remove();
-                        it.next();
+
+        System.out.println(allocation.getId()+" : "+allocation.getOp());
+        try {
+            switch (allocation.getOp()) {
+                case FINISHED:
+                    synchronized (tasks) {
+                        Iterator<MVPlannerTask> it = tasks.iterator();
+                        while (it.hasNext()) {
+                            MVPlannerTask t = it.next();
+                            if (t.associatedAllocation.equals(allocation.getId()))
+                                it.remove();
+                        }
                     }
-                }
-                break;
-            case INTERRUPTED:
-                synchronized (tasks) {
-                    Iterator<MVPlannerTask> it = tasks.iterator();
-                    while(it.hasNext()) {
-                        MVPlannerTask t = it.next();
-                        if (t.associatedAllocation.equals(allocation.getId()))
-                            t.associatedAllocation = null;
-                        it.next();
+                    break;
+                case INTERRUPTED:
+                    synchronized (tasks) {
+                        Iterator<MVPlannerTask> it = tasks.iterator();
+                        while (it.hasNext()) {
+                            MVPlannerTask t = it.next();
+                            if (t.associatedAllocation.equals(allocation.getId()))
+                                t.associatedAllocation = null;                            
+                        }
                     }
-                }
-            default:
-                break;
+                default:
+                    break;
+            }
+        }
+        catch (Exception e) {
+            e.printStackTrace();
         }
     }
 
@@ -276,7 +281,7 @@ public class MVPlannerInteraction extends ConsoleInteraction {
                         try {
                             if (!problem.solve(0))
                                 continue;
-                            
+
                             if (bestSolution == null) {
                                 bestSolution = problem.toString();
                                 bestYet = solutionCost(problem.toString());
@@ -349,7 +354,7 @@ public class MVPlannerInteraction extends ConsoleInteraction {
 
                             ArrayList<Pair<ArrayList<String>, ConsoleEventPlanAllocation>> allocations = solution
                                     .allocations();
-                            
+
                             for (Pair<ArrayList<String>, ConsoleEventPlanAllocation> entry : allocations) {
                                 ArrayList<String> associatedActions = entry.first();
                                 ConsoleEventPlanAllocation allocation = entry.second();
@@ -357,7 +362,7 @@ public class MVPlannerInteraction extends ConsoleInteraction {
                                 getConsole().getMission().getIndividualPlansList().put(allocation.getPlan().getId(),
                                         allocation.getPlan());
                                 generatedPlans.put(allocation.getVehicle(), allocation.getPlan());
-                                
+
                                 for (String action : associatedActions) {
                                     for (MVPlannerTask task : tasks) {
                                         if (task.name.equals(action)) {
@@ -365,7 +370,7 @@ public class MVPlannerInteraction extends ConsoleInteraction {
                                         }
                                     }
                                 }
-                                
+
                                 getConsole().post(allocation);
                             }
                             getConsole().warnMissionListeners();
@@ -379,7 +384,6 @@ public class MVPlannerInteraction extends ConsoleInteraction {
                         GuiUtils.errorMessage(getConsole(), new Exception("Error parsing PDDL.", e));
                         return;
                     }
-
                 }
                 else
                     GuiUtils.errorMessage(getConsole(), new Exception("No solution has been found."));

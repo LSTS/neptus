@@ -356,8 +356,16 @@ public class MVSolution {
         // m.setId(action.name);
         return m;
     }
+    
 
-    static class PddlAction {
+    /**
+     * @return the actions
+     */
+    public ArrayList<PddlAction> getActions() {
+        return actions;
+    }
+
+    public static class PddlAction {
         public long startTime, endTime;
         public ArrayList<PayloadRequirement> payloads = new ArrayList<PayloadRequirement>();
         public ManeuverLocation location;
@@ -373,4 +381,5 @@ public class MVSolution {
         }
 
     }
+
 }

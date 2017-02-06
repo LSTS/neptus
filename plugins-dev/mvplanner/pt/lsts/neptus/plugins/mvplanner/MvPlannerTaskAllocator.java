@@ -33,23 +33,6 @@
 package pt.lsts.neptus.plugins.mvplanner;
 
 
-import com.google.common.eventbus.Subscribe;
-import pt.lsts.imc.PlanControl;
-import pt.lsts.imc.PlanControlState;
-import pt.lsts.imc.PlanSpecification;
-import pt.lsts.neptus.NeptusLog;
-import pt.lsts.neptus.comm.IMCSendMessageUtils;
-import pt.lsts.neptus.console.ConsoleLayout;
-import pt.lsts.neptus.console.ConsolePanel;
-import pt.lsts.neptus.plugins.PluginDescription;
-import pt.lsts.neptus.plugins.mvplanner.api.ConsoleEventPlanAllocation;
-import pt.lsts.neptus.plugins.mvplanner.tasks.NeptusTask;
-import pt.lsts.neptus.plugins.update.Periodic;
-import pt.lsts.neptus.renderer2d.Renderer2DPainter;
-import pt.lsts.neptus.renderer2d.StateRenderer2D;
-import pt.lsts.neptus.comm.manager.imc.ImcMsgManager.SendResult;
-import pt.lsts.neptus.types.mission.plan.PlanType;
-
 import java.awt.Graphics2D;
 import java.util.Calendar;
 import java.util.Comparator;
@@ -58,6 +41,26 @@ import java.util.PriorityQueue;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
+
+import com.google.common.eventbus.Subscribe;
+
+import pt.lsts.imc.PlanControl;
+import pt.lsts.imc.PlanControlState;
+import pt.lsts.imc.PlanControlState.LAST_OUTCOME;
+import pt.lsts.imc.PlanControlState.STATE;
+import pt.lsts.imc.PlanSpecification;
+import pt.lsts.neptus.NeptusLog;
+import pt.lsts.neptus.comm.IMCSendMessageUtils;
+import pt.lsts.neptus.comm.manager.imc.ImcMsgManager.SendResult;
+import pt.lsts.neptus.console.ConsoleLayout;
+import pt.lsts.neptus.console.ConsolePanel;
+import pt.lsts.neptus.plugins.PluginDescription;
+import pt.lsts.neptus.plugins.mvplanner.api.ConsoleEventPlanAllocation;
+import pt.lsts.neptus.plugins.mvplanner.tasks.NeptusTask;
+import pt.lsts.neptus.plugins.update.Periodic;
+import pt.lsts.neptus.renderer2d.Renderer2DPainter;
+import pt.lsts.neptus.renderer2d.StateRenderer2D;
+import pt.lsts.neptus.types.mission.plan.PlanType;
 
 @PluginDescription(author = "José Pinto, Tiago Marques", name = "MvPlannerAllocator",
         icon = "pt/lsts/neptus/plugins/map/map-edit.png",
@@ -131,12 +134,32 @@ public class MvPlannerTaskAllocator extends ConsolePanel implements Renderer2DPa
         if(state == null)
             return;
 
-        String planId = state.getPlanId();
-        double progression = state.getPlanProgress();
-        PlanTask task = tasks.get(planId);
-        if(task != null && progression == 100 && task.getState() != PlanTask.TaskStateEnum.Completed)
+        PlanTask task = tasks.get(state.getPlanId());
+        if (task == null)
+            return;
+        
+        boolean success = false;
+        boolean failure = false;
+        if (state.getState() == STATE.READY || state.getState() == STATE.BLOCKED) {
+            success = state.getLastOutcome() == LAST_OUTCOME.SUCCESS;
+            failure = !success;
+        }
+        else if (state.getState() == STATE.EXECUTING) {
+            if (state.getPlanProgress() == 100)
+                success = true;
+        }
+        
+        if (success) {
             console.post(new ConsoleEventPlanAllocation(task.asPlanType(), task.getStartTime(),
                     ConsoleEventPlanAllocation.Operation.FINISHED));
+            tasks.remove(state.getPlanId());
+        }
+        if (failure) {
+            console.post(new ConsoleEventPlanAllocation(task.asPlanType(), task.getStartTime(),
+                    ConsoleEventPlanAllocation.Operation.INTERRUPTED));            
+            tasks.remove(state.getPlanId());
+        }
+        
     }
 
     @Periodic(millisBetweenUpdates = 5000)
