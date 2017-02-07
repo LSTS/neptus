@@ -349,141 +349,11 @@ public class MVPlannerInteraction extends ConsoleInteraction {
             public void run() {
                 ProgressMonitor pm = new ProgressMonitor(getConsole(), "Searching for solutions...",
                         "Generating initial state", 0, 5 + numTries);
-
-                Vector<VehicleType> activeVehicles = new Vector<VehicleType>();
-                for (ImcSystem s : ImcSystemsHolder.lookupActiveSystemVehicles()) {
-                    if (s.getTypeVehicle() == VehicleTypeEnum.UUV)
-                        activeVehicles.addElement(VehiclesHolder.getVehicleById(s.getName()));
-                }
-
-                ArrayList<ConsoleEventFutureState> futures = new ArrayList<>();
-                synchronized (futureStates) {
-                    futures.addAll(futureStates.values());
-                }
-
-                problem = new MVProblemSpecification(domainModel, activeVehicles, tasks, futures, null, secondsAway);
-                FileUtil.saveToFile("initial_state.pddl", problem.asPDDL());
-                pm.setProgress(5);
-                pm.setMillisToPopup(0);
-                double bestYet = 0;
-                String bestSolution = null;
-
-                if (searchSeconds == 0) {
-                    for (int i = 0; i < numTries; i++) {
-                        String best = "N/A";
-                        if (bestSolution != null)
-                            best = DateTimeUtil.milliSecondsToFormatedString((long) (bestYet * 1000));
-                        if (pm.isCanceled())
-                            return;
-                        pm.setNote("Current best solution time: " + best);
-                        pm.setProgress(5 + i);
-
-                        try {
-                            if (!problem.solve(0))
-                                continue;
-
-                            if (bestSolution == null) {
-                                bestSolution = problem.toString();
-                                bestYet = solutionCost(problem.toString());
-                            }
-                            else {
-                                if (solutionCost(problem.toString()) < bestYet) {
-                                    bestYet = solutionCost(problem.toString());
-                                    bestSolution = problem.toString();
-                                }
-                            }
-                        }
-                        catch (Exception ex) {
-                            getConsole().post(Notification.error("PDDL Solver", ex.getMessage()));
-                            NeptusLog.pub().error(ex);
-                        }
-                        pm.setProgress(5 + numTries);
-                    }
-                    pm.close();
-                }
-                else {
-                    Thread progress = new Thread("Progress updater") {
-                        public void run() {
-                            pm.setMaximum(searchSeconds * 10);
-                            pm.setProgress(0);
-
-                            for (int i = 0; i < searchSeconds * 10; i++) {
-                                pm.setNote(String.format("Time left : %.1f seconds", (searchSeconds - i / 10.0)));
-                                pm.setProgress(i);
-                                try {
-                                    Thread.sleep(100);
-                                }
-                                catch (InterruptedException e) {
-                                    break;
-                                }
-                            }
-                            pm.setProgress(pm.getMaximum());
-                            pm.close();
-                        };
-                    };
-
-                    try {
-                        progress.setDaemon(true);
-                        progress.start();
-                        if (problem.solve(searchSeconds))
-                            bestSolution = problem.toString();
-                        progress.interrupt();
-                        pm.setProgress(pm.getMaximum());
-                        pm.close();
-                    }
-                    catch (Exception ex) {
-                        bestSolution = null;
-                        progress.interrupt();
-                        pm.setProgress(pm.getMaximum());
-                        pm.close();
-                        ex.printStackTrace();
-                        NeptusLog.pub().error(ex);
-                        GuiUtils.errorMessage(getConsole(), new Exception("No solution has been found.", ex));
-                        return;
-                    }
-                }
-
-                generatedPlans.clear();
+                String bestSolution = createPlan(pm);
+                
                 if (bestSolution != null) {
-                    try {
-                        MVSolution solution = problem.getSolution();
-
-                        if (solution != null) {
-                            solution.setGeneratePopups(generatePopups);
-                            solution.setScheduledGotosUsed(useScheduledGotos);
-
-                            ArrayList<Pair<ArrayList<String>, ConsoleEventPlanAllocation>> allocations = solution
-                                    .allocations();
-
-                            for (Pair<ArrayList<String>, ConsoleEventPlanAllocation> entry : allocations) {
-                                ArrayList<String> associatedActions = entry.first();
-                                ConsoleEventPlanAllocation allocation = entry.second();
-                                allocation.getPlan().setMissionType(getConsole().getMission());
-                                getConsole().getMission().getIndividualPlansList().put(allocation.getPlan().getId(),
-                                        allocation.getPlan());
-                                generatedPlans.put(allocation.getVehicle(), allocation.getPlan());
-
-                                for (String action : associatedActions) {
-                                    for (MVPlannerTask task : tasks) {
-                                        if (task.getName().equals(action)) {
-                                            task.setAllocation(allocation);
-                                        }
-                                    }
-                                }
-
-                                getConsole().post(allocation);
-                            }
-                            getConsole().warnMissionListeners();
-                            getConsole().getMission().save(true);
-                        }
-                        GuiUtils.htmlMessage(getConsole(), "Multi-Vehicle Planner", "Valid solution found",
-                                "<html><pre>" + bestSolution + "</pre></html>");
-                        System.out.println(bestSolution);
-                    }
-                    catch (Exception e) {
-                        GuiUtils.errorMessage(getConsole(), new Exception("Error parsing PDDL.", e));
-                        return;
-                    }
+                    generatedPlans.clear();
+                    allocatePlan(bestSolution);
                 }
                 else
                     GuiUtils.errorMessage(getConsole(), new Exception("No solution has been found."));
@@ -610,6 +480,161 @@ public class MVPlannerInteraction extends ConsoleInteraction {
      */
     public ArrayList<MVPlannerTask> getTasks() {
         return tasks;
+    }
+    
+    private String createPlan(ProgressMonitor pm) {
+        
+        Vector<VehicleType> activeVehicles = new Vector<VehicleType>();
+        for (ImcSystem s : ImcSystemsHolder.lookupActiveSystemVehicles()) {
+            if (s.getTypeVehicle() == VehicleTypeEnum.UUV)
+                activeVehicles.addElement(VehiclesHolder.getVehicleById(s.getName()));
+        }
+
+        ArrayList<ConsoleEventFutureState> futures = new ArrayList<>();
+        synchronized (futureStates) {
+            futures.addAll(futureStates.values());
+        }
+
+        problem = new MVProblemSpecification(domainModel, activeVehicles, tasks, futures, null, secondsAway);
+        FileUtil.saveToFile("initial_state.pddl", problem.asPDDL());
+        if (pm != null) {
+            pm.setProgress(5);
+            pm.setMillisToPopup(0);
+        }
+        
+        double bestYet = 0;
+        String bestSolution = null;
+
+        if (searchSeconds == 0) {
+            for (int i = 0; i < numTries; i++) {
+                String best = "N/A";
+                if (bestSolution != null)
+                    best = DateTimeUtil.milliSecondsToFormatedString((long) (bestYet * 1000));
+                
+                if (pm != null && pm.isCanceled())
+                    return null;
+                if (pm != null) {
+                    pm.setNote("Current best solution time: " + best);
+                    pm.setProgress(5 + i);
+                }
+               
+
+                try {
+                    if (!problem.solve(0))
+                        continue;
+
+                    if (bestSolution == null) {
+                        bestSolution = problem.toString();
+                        bestYet = solutionCost(problem.toString());
+                    }
+                    else {
+                        if (solutionCost(problem.toString()) < bestYet) {
+                            bestYet = solutionCost(problem.toString());
+                            bestSolution = problem.toString();
+                        }
+                    }
+                }
+                catch (Exception ex) {
+                    getConsole().post(Notification.error("PDDL Solver", ex.getMessage()));
+                    NeptusLog.pub().error(ex);
+                }
+                if (pm != null)
+                    pm.setProgress(5 + numTries);
+            }
+            if (pm!= null)
+                pm.close();
+        }
+        else {
+            if (pm != null) {
+                Thread progress = new Thread("Progress updater") {
+                    public void run() {
+                        pm.setMaximum(searchSeconds * 10);
+                        pm.setProgress(0);
+
+                        for (int i = 0; i < searchSeconds * 10; i++) {
+                            pm.setNote(String.format("Time left : %.1f seconds", (searchSeconds - i / 10.0)));
+                            pm.setProgress(i);
+                            try {
+                                Thread.sleep(100);
+                            }
+                            catch (InterruptedException e) {
+                                break;
+                            }
+                        }
+                        pm.setProgress(pm.getMaximum());
+                        pm.close();
+
+                    };
+                };
+                try {
+                    progress.setDaemon(true);
+                    progress.start();
+                    if (problem.solve(searchSeconds))
+                        bestSolution = problem.toString();
+                    progress.interrupt();
+                    if (pm != null)
+                    pm.setProgress(pm.getMaximum());
+                    pm.close();
+                }
+                catch (Exception ex) {
+                    bestSolution = null;
+                    progress.interrupt();
+                    pm.setProgress(pm.getMaximum());
+                    pm.close();
+                    ex.printStackTrace();
+                    NeptusLog.pub().error(ex);
+                    GuiUtils.errorMessage(getConsole(), new Exception("No solution has been found.", ex));
+                    return null;
+                }
+            }
+        }
+
+        return bestSolution;
+    }
+    
+    private void allocatePlan(String pddlPlan) {
+        generatedPlans.clear();
+        if (pddlPlan != null) {
+            try {
+                MVSolution solution = problem.getSolution();
+
+                if (solution != null) {
+                    solution.setGeneratePopups(generatePopups);
+                    solution.setScheduledGotosUsed(useScheduledGotos);
+
+                    ArrayList<Pair<ArrayList<String>, ConsoleEventPlanAllocation>> allocations = solution
+                            .allocations();
+
+                    for (Pair<ArrayList<String>, ConsoleEventPlanAllocation> entry : allocations) {
+                        ArrayList<String> associatedActions = entry.first();
+                        ConsoleEventPlanAllocation allocation = entry.second();
+                        allocation.getPlan().setMissionType(getConsole().getMission());
+                        getConsole().getMission().getIndividualPlansList().put(allocation.getPlan().getId(),
+                                allocation.getPlan());
+                        generatedPlans.put(allocation.getVehicle(), allocation.getPlan());
+
+                        for (String action : associatedActions) {
+                            for (MVPlannerTask task : tasks) {
+                                if (task.getName().equals(action)) {
+                                    task.setAllocation(allocation);
+                                }
+                            }
+                        }
+
+                        getConsole().post(allocation);
+                    }
+                    getConsole().warnMissionListeners();
+                    getConsole().getMission().save(true);
+                }
+                GuiUtils.htmlMessage(getConsole(), "Multi-Vehicle Planner", "Valid solution found",
+                        "<html><pre>" + pddlPlan + "</pre></html>");
+                System.out.println(pddlPlan);
+            }
+            catch (Exception e) {
+                GuiUtils.errorMessage(getConsole(), new Exception("Error parsing PDDL.", e));
+                return;
+            }
+        }
     }
 
     public static void main(String[] args) {
