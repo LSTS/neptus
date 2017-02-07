@@ -107,7 +107,7 @@ public class PlanSimulationOverlay implements Renderer2DPainter {
                         SystemPositionAndAttitude state = engine.getState();
                         addPoint(state, c,
                                 new SimulationState(engine.getManId(), engine.getCurPreview() == null ? null : engine
-                                        .getCurPreview().getState(), state));
+                                        .getCurPreview().getState(), state, ellapsedTime));
                         
                         lastPoint = ellapsedTime;
                     }
@@ -200,7 +200,8 @@ public class PlanSimulationOverlay implements Renderer2DPainter {
         
         for (int i = 0; i < simStates.size(); i++) {
             LocationType center = states.get(i).getPosition();
-            double dist = center.getHorizontalDistanceInMeters(state.getPosition()) + 2 * Math.abs(state.getYaw() - states.get(i).getYaw());
+            
+            double dist = center.getHorizontalDistanceInMeters(state.getPosition()) + 100 * Math.abs(state.getYaw() - states.get(i).getYaw());
             if (dist < nearestDistance) {
                 nearestDistance = dist;
                 nearest = i;

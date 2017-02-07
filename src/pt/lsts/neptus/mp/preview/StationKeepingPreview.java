@@ -74,7 +74,7 @@ public class StationKeepingPreview implements IManeuverPreview<StationKeeping> {
     }
 
     @Override
-    public SystemPositionAndAttitude step(SystemPositionAndAttitude state, double timestep) {
+    public SystemPositionAndAttitude step(SystemPositionAndAttitude state, double timestep, double ellapsedTime) {
         if (!arrived) {
             model.setState(state);
             arrived = model.guide(destination, speed, destination.getDepth() >= 0 ? null : -destination.getDepth());

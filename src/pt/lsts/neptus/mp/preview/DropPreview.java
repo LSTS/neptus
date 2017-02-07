@@ -70,7 +70,7 @@ public class DropPreview implements IManeuverPreview<Drop> {
     
 
     @Override
-    public SystemPositionAndAttitude step(SystemPositionAndAttitude state, double timestep) {
+    public SystemPositionAndAttitude step(SystemPositionAndAttitude state, double timestep, double ellapsedTime) {
         model.setState(state);
         if (model.guide(destination, speed, destination.getDepth() >= 0 ? null : - destination.getDepth()))
             finished = true;        
