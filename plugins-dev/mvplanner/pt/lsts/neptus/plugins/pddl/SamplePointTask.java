@@ -35,6 +35,8 @@ package pt.lsts.neptus.plugins.pddl;
 import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.geom.Point2D;
+import java.io.IOException;
+import java.util.Scanner;
 
 import pt.lsts.neptus.renderer2d.StateRenderer2D;
 import pt.lsts.neptus.types.coord.LocationType;
@@ -116,5 +118,43 @@ public class SamplePointTask extends MVPlannerTask {
     @Override
     public LocationType getCenterLocation() {
         return getLocation();
+    }
+
+    @Override
+    public String marshall() throws IOException {
+        LocationType loc = new LocationType(getCenterLocation());
+        loc.convertToAbsoluteLatLonDepth();
+        return String.format("sample %s %s %f %f %s", getName(), isFirstPriority(), loc.getLatitudeDegs(), loc.getLongitudeDegs(), getRequiredPayloads());
+    }
+
+    @Override
+    public void unmarshall(String data) throws IOException {
+        Scanner input = new Scanner(data);
+        input.next("[\\w]+");
+        this.name = input.next("[\\w]+");
+        this.firstPriority = input.nextBoolean();
+        double latDegs = input.nextDouble();
+        double lonDegs = input.nextDouble();
+        elem.setCenterLocation(new LocationType(latDegs, lonDegs));
+        String[] payloads = input.nextLine().replaceAll("[\\[\\]]", "").trim().split("[, ]+");
+        getRequiredPayloads().clear();
+        for (String p : payloads)
+            getRequiredPayloads().add(PayloadRequirement.valueOf(p));
+        input.close();        
+    }
+    
+    public static void main(String[] args) throws Exception {
+        SamplePointTask pt = new SamplePointTask(new LocationType(41.4534, -8.23434));
+        pt.name = "t01";
+        pt.firstPriority = true;
+        pt.requiredPayloads.add(PayloadRequirement.ctd);
+        pt.requiredPayloads.add(PayloadRequirement.camera);
+
+        
+        System.out.println(pt.marshall());
+        
+        SamplePointTask pt2 = new SamplePointTask(new LocationType());
+        pt2.unmarshall(pt.marshall());
+        System.out.println(pt2.marshall());
     }
 }

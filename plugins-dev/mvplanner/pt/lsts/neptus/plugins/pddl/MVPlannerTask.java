@@ -33,6 +33,13 @@
 package pt.lsts.neptus.plugins.pddl;
 
 import java.awt.Image;
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Locale;
 import java.util.Vector;
@@ -57,9 +64,9 @@ import pt.lsts.neptus.util.ImageUtils;
 public abstract class MVPlannerTask implements Renderer2DPainter, PropertiesProvider {
 
     private static int count = 1;
-    private String name = String.format(Locale.US, "t%02d", count++);
-    private HashSet<PayloadRequirement> requiredPayloads = new HashSet<PayloadRequirement>();
-    private boolean firstPriority = false;
+    protected String name = String.format(Locale.US, "t%02d", count++);
+    protected HashSet<PayloadRequirement> requiredPayloads = new HashSet<PayloadRequirement>();
+    protected boolean firstPriority = false;
     private String associatedAllocation = null;
     private String associatedVehicle = null;
     
@@ -71,16 +78,17 @@ public abstract class MVPlannerTask implements Renderer2DPainter, PropertiesProv
     public abstract void rotate(double amountRads);
     public abstract void growWidth(double amount);
     public abstract void growLength(double amount);
+    public abstract String marshall() throws IOException;
+    public abstract void unmarshall(String data) throws IOException;
     
-    protected Image greenLed = null;
-    protected Image orangeLed = null;
+    transient protected Image greenLed = null;
+    transient protected Image orangeLed = null;
     
     protected synchronized void loadImages() {
         if (greenLed == null)
             greenLed = ImageUtils.getImage("pt/lsts/neptus/plugins/pddl/led.png");
         if (orangeLed == null)
-            orangeLed = ImageUtils.getImage("pt/lsts/neptus/plugins/pddl/orangeled.png");
-       
+            orangeLed = ImageUtils.getImage("pt/lsts/neptus/plugins/pddl/orangeled.png");       
     }
     
     /**
@@ -200,4 +208,37 @@ public abstract class MVPlannerTask implements Renderer2DPainter, PropertiesProv
         }
     }
     
+    public static ArrayList<MVPlannerTask> loadFile(File f) throws IOException {
+        BufferedReader reader = new BufferedReader(new FileReader(f));
+        String line = reader.readLine();
+        ArrayList<MVPlannerTask> tasks = new ArrayList<>();
+        while (line != null) {
+            if (line.startsWith("#")) {
+                // ignore
+            }                
+            else if (line.startsWith("sample")) {
+                SamplePointTask task = new SamplePointTask(new LocationType());
+                task.unmarshall(line);
+                tasks.add(task);
+            }
+            else if (line.startsWith("survey")) {
+                SurveyAreaTask task = new SurveyAreaTask(new LocationType());
+                task.unmarshall(line);
+                tasks.add(task);
+            }
+            else {
+                System.err.println("Unrecognized line: '" + line + "'");
+            }
+            line = reader.readLine();
+        }
+        reader.close();
+        return tasks;
+    }
+
+    public static void saveFile(File f, ArrayList<MVPlannerTask> tasks) throws IOException {
+        BufferedWriter writer = new BufferedWriter(new FileWriter(f));
+        for (MVPlannerTask task : tasks)
+            writer.write(task.marshall() + "\n");
+        writer.close();
+    }
 }

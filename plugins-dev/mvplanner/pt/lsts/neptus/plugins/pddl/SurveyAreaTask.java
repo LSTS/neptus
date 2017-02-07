@@ -34,9 +34,10 @@ package pt.lsts.neptus.plugins.pddl;
 
 import java.awt.Color;
 import java.awt.Graphics2D;
-import java.awt.Image;
 import java.awt.geom.Point2D;
+import java.io.IOException;
 import java.util.HashSet;
+import java.util.Scanner;
 
 import pt.lsts.neptus.mp.ManeuverLocation;
 import pt.lsts.neptus.mp.maneuvers.ManeuversUtil;
@@ -56,7 +57,6 @@ public class SurveyAreaTask extends MVPlannerTask {
     private RowsManeuver pivot = new RowsManeuver();
     private ParallelepipedElement area = null;
     MarkElement entry = new MarkElement(), exit = new MarkElement();
-    private Image poiImg = null;
     
     public SurveyAreaTask(LocationType clickedLocation) {
         area = new ParallelepipedElement();
@@ -179,7 +179,6 @@ public class SurveyAreaTask extends MVPlannerTask {
             g.drawImage(orangeLed, (int)pt.getX()-8, (int)pt.getY()-8, null);
         else
             g.drawImage(greenLed, (int)pt.getX()-8, (int)pt.getY()-8, null);        
-        g.drawImage(poiImg, (int)pt.getX()-8, (int)pt.getY()-8, null);
         g.setColor(Color.black);
         g.drawString(getName()+" ("+payloads+")", (int)pt.getX()+8, (int)pt.getY()+8);
         if(getAssociatedAllocation() != null)
@@ -206,10 +205,52 @@ public class SurveyAreaTask extends MVPlannerTask {
         return pivot;
     }
 
-    public static void main(String[] args) {
+    @Override
+    public String marshall() throws IOException {
+        LocationType loc = new LocationType(getCenterLocation());
+        loc.convertToAbsoluteLatLonDepth();
+        double length = area.getLength(), width = area.getWidth(), bearing = area.getYawDeg();
+        return String.format("survey %s %s %f %f %f %f %f %s", getName(), isFirstPriority(), loc.getLatitudeDegs(),
+                loc.getLongitudeDegs(), length, width, bearing, getRequiredPayloads());
+    }
+
+    @Override
+    public void unmarshall(String data) throws IOException {
+        Scanner input = new Scanner(data);
+        input.next("[\\w]+");
+        this.name = input.next("[\\w]+");
+        this.firstPriority = input.nextBoolean();
+        double latDegs = input.nextDouble();
+        double lonDegs = input.nextDouble();
+        area.setCenterLocation(new LocationType(latDegs, lonDegs));
+        area.setWidth(input.nextDouble());
+        area.setLength(input.nextDouble());
+        area.setYawDeg(input.nextDouble());
+        String[] payloads = input.nextLine().replaceAll("[\\[\\]]", "").trim().split("[, ]+");
+        getRequiredPayloads().clear();
+        for (String p : payloads)
+            getRequiredPayloads().add(PayloadRequirement.valueOf(p));
+        updateManeuver();
+        input.close();
+    }
+    
+    public static void main(String[] args) throws Exception {
         SurveyAreaTask task = new SurveyAreaTask(new LocationType(41, -8));
+        task.area.setWidth(200);
+        task.area.setLength(120);
+        task.setYaw(Math.PI/4);
+        task.requiredPayloads.add(PayloadRequirement.sidescan);
+        task.updateManeuver();
+        System.out.println(task.marshall());
+        SurveyAreaTask task2 = new SurveyAreaTask(new LocationType());
+        task2.unmarshall(task.marshall());
+        System.out.println(task2.marshall());
         StateRenderer2D renderer = new StateRenderer2D(new LocationType(41, -8));
         renderer.addPostRenderPainter(task, "task");
         GuiUtils.testFrame(renderer);
+        
+        
     }
+    
+    
 }

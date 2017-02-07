@@ -38,6 +38,7 @@ import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Point2D;
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashSet;
@@ -46,6 +47,7 @@ import java.util.LinkedHashMap;
 import java.util.Map.Entry;
 import java.util.Vector;
 
+import javax.swing.JFileChooser;
 import javax.swing.JPopupMenu;
 import javax.swing.ProgressMonitor;
 
@@ -63,6 +65,7 @@ import pt.lsts.neptus.console.events.ConsoleEventFutureState;
 import pt.lsts.neptus.console.notifications.Notification;
 import pt.lsts.neptus.data.Pair;
 import pt.lsts.neptus.gui.PropertiesEditor;
+import pt.lsts.neptus.plugins.NeptusMenuItem;
 import pt.lsts.neptus.plugins.NeptusProperty;
 import pt.lsts.neptus.plugins.NeptusProperty.LEVEL;
 import pt.lsts.neptus.plugins.PluginDescription;
@@ -113,7 +116,9 @@ public class MVPlannerInteraction extends ConsoleInteraction {
 
     @NeptusProperty(category = "Plan Generation", name = "Manual execution.")
     private boolean manualExec = false;
-
+    
+    private static final File TASKS_FILE = new File("conf/mvplanner.tasks");
+    
     @Subscribe
     public void on(ConsoleEventFutureState future) {
         synchronized (futureStates) {
@@ -168,6 +173,36 @@ public class MVPlannerInteraction extends ConsoleInteraction {
             e.printStackTrace();
         }
     }
+    
+    @NeptusMenuItem("File>Multi-Vehicle Planner>Load Tasks")
+    public void loadTasks() {
+        JFileChooser chooser = GuiUtils.getFileChooser(".", "Multi-Vehicle Planner Tasks (.tasks)", "tasks");
+        if (chooser.showOpenDialog(getConsole()) == JFileChooser.APPROVE_OPTION) {
+            File tasksFile = chooser.getSelectedFile();
+            try {
+                ArrayList<MVPlannerTask> readTasks = MVPlannerTask.loadFile(tasksFile);
+                clear(null);
+                tasks = readTasks;
+            }
+            catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+    }
+    
+    @NeptusMenuItem("File>Multi-Vehicle Planner>Save Tasks")
+    public void saveTasks() {
+        JFileChooser chooser = GuiUtils.getFileChooser(".", "Multi-Vehicle Planner Tasks (.tasks)", "tasks");
+        if (chooser.showSaveDialog(getConsole()) == JFileChooser.APPROVE_OPTION) {
+            File tasksFile = chooser.getSelectedFile();
+            try {
+                MVPlannerTask.saveFile(tasksFile, tasks);
+            }
+            catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+    }
 
     @Override
     public void paintInteraction(Graphics2D g, StateRenderer2D source) {
@@ -207,6 +242,7 @@ public class MVPlannerInteraction extends ConsoleInteraction {
                 public void actionPerformed(ActionEvent e) {
                     tasks.remove(clickedTask);
                     source.repaint();
+                    saveState();
                 }
             });
 
@@ -215,6 +251,7 @@ public class MVPlannerInteraction extends ConsoleInteraction {
                 @Override
                 public void actionPerformed(ActionEvent e) {
                     PropertiesEditor.editProperties(clickedTask, true);
+                    saveState();
                 }
             });
 
@@ -226,9 +263,23 @@ public class MVPlannerInteraction extends ConsoleInteraction {
 
             @Override
             public void actionPerformed(ActionEvent e) {
-                SurveyAreaTask task = new SurveyAreaTask(source.getRealWorldLocation(event.getPoint()));
-                if (!PropertiesEditor.editProperties(task, true))
+                SurveyAreaTask task = null;
+                while (true) {
+                    task = new SurveyAreaTask(source.getRealWorldLocation(event.getPoint()));
+                    boolean found = false;
+                    for (MVPlannerTask t : tasks) {
+                        if (t.getName().equals(task.getName())) {
+                            found = true;
+                            break;
+                        }
+                    }
+                    if (!found)
+                        break;
+                }
+                if (!PropertiesEditor.editProperties(task, true)) {
                     tasks.add(task);
+                    saveState();
+                }
                 source.repaint();
             }
         });
@@ -237,9 +288,24 @@ public class MVPlannerInteraction extends ConsoleInteraction {
 
             @Override
             public void actionPerformed(ActionEvent e) {
-                SamplePointTask task = new SamplePointTask(source.getRealWorldLocation(event.getPoint()));
-                if (!PropertiesEditor.editProperties(task, true))
+                SamplePointTask task = null;
+                while (true) {
+                    task = new SamplePointTask(source.getRealWorldLocation(event.getPoint()));
+                    boolean found = false;
+                    for (MVPlannerTask t : tasks) {
+                        if (t.getName().equals(task.getName())) {
+                            found = true;
+                            break;
+                        }
+                    }
+                    if (!found)
+                        break;
+                }
+                
+                if (!PropertiesEditor.editProperties(task, true)) {
                     tasks.add(task);
+                    saveState();
+                }
                 source.repaint();
             }
         });
@@ -274,6 +340,8 @@ public class MVPlannerInteraction extends ConsoleInteraction {
             ConsoleEventPlanAllocation cancel = new ConsoleEventPlanAllocation(plan, new Date(), Operation.CANCELLED);
             getConsole().post(cancel);
         }
+        
+        saveState();
     }
     
     private void generate(ActionEvent action) {
@@ -472,6 +540,9 @@ public class MVPlannerInteraction extends ConsoleInteraction {
 
     @Override
     public void mouseReleased(MouseEvent event, StateRenderer2D source) {
+        if (selectedTask != null)
+            saveState();
+        
         selectedTask = null;
         lastPoint = null;
         super.mouseReleased(event, source);
@@ -496,8 +567,7 @@ public class MVPlannerInteraction extends ConsoleInteraction {
         }
         else if (event.isShiftDown()) {
             double angle = selectedTask.getCenterLocation().getXYAngle(now);
-            selectedTask.setYaw(angle);
-
+            selectedTask.setYaw(angle);            
         }
         else {
             double offsets[] = now.getOffsetFrom(prev);
@@ -510,7 +580,24 @@ public class MVPlannerInteraction extends ConsoleInteraction {
 
     @Override
     public void initInteraction() {
-
+        try {
+            if (TASKS_FILE.canRead()) {
+                ArrayList<MVPlannerTask> readTasks = MVPlannerTask.loadFile(TASKS_FILE);
+                tasks = readTasks;
+            }            
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+    
+    private void saveState() {
+        try {
+            MVPlannerTask.saveFile(TASKS_FILE, tasks);
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     @Override
