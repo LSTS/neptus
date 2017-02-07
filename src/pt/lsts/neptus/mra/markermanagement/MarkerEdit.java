@@ -73,6 +73,7 @@ import javax.swing.JComboBox;
 import javax.swing.JComponent;
 import javax.swing.JDialog;
 import javax.swing.JFileChooser;
+import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.JMenuItem;
@@ -113,11 +114,15 @@ import pt.lsts.neptus.util.llf.LogUtils;
 
 /**
  * @author Manuel R.
- *
+ * TODO: On add photo, if fileName already exists, ask user to replace?
  */
 @SuppressWarnings("serial")
-public class MarkerEdit extends JDialog {
+public class MarkerEdit extends JFrame {
 
+    private static final int WIDTH = 600;
+    private static final int HEIGHT = 420;
+    private static final int MAX_IMG_WIDTH = 600;
+    private static final int MAX_IMG_HEIGHT = 420;
     private static final int RULER_SIZE = 15;
     private static final String MARKERS_REL_PATH = "/mra/markers/";
     private static final String PHOTOS_REL_PATH = "/mra/markers/photos/";
@@ -127,7 +132,7 @@ public class MarkerEdit extends JDialog {
     private MarkerManagement parent;
     private AbstractAction save, del;
     private LogMarkerItem selectedMarker;
-    private JLabel markerImage, nameLabelValue, timeStampValue, locationValue, altitudeValue, depthValue;
+    private JLabel markerImage, nameLabelValue, timeStampValue, locationValue, altitudeValue, depthValue, statusLabel;
     private JComboBox<String> classifValue;
     private JTextArea annotationValue;
     private JButton rectDrawBtn, circleDrawBtn, freeDrawBtn, exportImgBtn;
@@ -148,7 +153,6 @@ public class MarkerEdit extends JDialog {
     private ArrayList<Point> pointsList = new ArrayList<>();
 
     public MarkerEdit(MarkerManagement parent, Window window) {
-        super(window, ModalityType.MODELESS);
         this.parent = parent;
 
         setupMenu();
@@ -160,9 +164,8 @@ public class MarkerEdit extends JDialog {
         //Log location path
         path = parent.mraPanel.getSource().getFile("Data.lsf").getParent() + MARKERS_REL_PATH;
 
-        // setResizable(false);
         setLocationRelativeTo(null);
-        setBounds(getLocation().x, getLocation().y, 600, 420);
+        setBounds(getLocation().x, getLocation().y, WIDTH, HEIGHT);
         setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
         setIconImage(Toolkit.getDefaultToolkit().getImage(this.getClass().getResource("/images/menus/edit.png")));
 
@@ -199,6 +202,10 @@ public class MarkerEdit extends JDialog {
         classifLabel.setFont(f.deriveFont(f.getStyle() ^ Font.BOLD)); 
         JLabel annotationLabel = new JLabel("Annotation:");
         annotationLabel.setFont(f.deriveFont(f.getStyle() ^ Font.BOLD)); 
+
+        statusLabel = new JLabel();
+        statusLabel.setFont(new Font("SansSerif", Font.PLAIN, 11));
+
         annotationValue = new JTextArea();
         classifValue = new JComboBox<String>();
         photoList = new JList<String>();
@@ -427,7 +434,7 @@ public class MarkerEdit extends JDialog {
         String remPath = PHOTOS_REL_PATH+selectedMarker.getLabel()+"/" + toRemove;
         String absPath = parent.mraPanel.getSource().getFile("Data.lsf").getParent();
         File toRemoveFile = new File(absPath + remPath);
-
+        File photosPath = new File(absPath + PHOTOS_REL_PATH);
         FileUtils.deleteQuietly(toRemoveFile);
 
         selectedMarker.getPhotosPath().remove(remPath);
@@ -438,6 +445,10 @@ public class MarkerEdit extends JDialog {
             //Delete folder if it's empty
             if (isDirEmpty(markerFile.toPath()))
                 FileUtils.deleteDirectory(markerFile);
+
+            //Delete PHOTOS_REL_PATH folder if it's empty
+            if (isDirEmpty(photosPath.toPath()))
+                FileUtils.deleteDirectory(photosPath);
         }
         catch (IOException e) {
             e.printStackTrace();
@@ -454,12 +465,13 @@ public class MarkerEdit extends JDialog {
     }
 
     public void updateStatusBar(String msg){
-        JLabel jlabel = new JLabel(msg);
-        jlabel.setFont(new Font("SansSerif", Font.PLAIN, 11));
+        statusLabel.setText(msg);
         statusBar.removeAll();
+        statusBar.add(statusLabel);
         statusBar.updateUI();
-        statusBar.add(jlabel);
-        statusBar.updateUI();
+        statusBar.repaint();
+        repaint();
+
     }
 
     private void drawRect(Graphics g, int endX, int endY) {
@@ -646,34 +658,29 @@ public class MarkerEdit extends JDialog {
             try {
                 String path = parent.mraPanel.getSource().getFile("Data.lsf").getParent();
                 File f = new File(path + selectedMarker.getSidescanImgPath());
-                //FIXME: Image is not being correctly show.
-
                 image = ImageIO.read(f);
 
                 int width = image.getWidth();
                 int height = image.getHeight();
-                System.out.println("W: " + width + " H: "+height);
 
-                Dimension newMaxSize = new Dimension(300, 300);
+                if (width > MAX_IMG_WIDTH)
+                    width = width / 2;
 
+                if (height > MAX_IMG_HEIGHT)
+                    height = height / 2;
 
-                image = Scalr.resize(image, Method.ULTRA_QUALITY, newMaxSize.width, newMaxSize.height);
-                width = image.getWidth();
-                height = image.getHeight();
-                System.out.println("After W: " + width + " H: "+height);
+                image = Scalr.resize(image, Method.ULTRA_QUALITY, width, height);
 
                 markerImage.setIcon(null);
                 markerImage.repaint();
                 markerImage.setPreferredSize(new Dimension(width + RULER_SIZE + 10, height + RULER_SIZE + 10));
-
-                System.out.println(markerImage.getPreferredSize().getWidth() + " " + markerImage.getPreferredSize().getHeight());
                 setLocation(parent.getwindowLocation());
-
 
                 if (selectedMarker.getDrawImgPath() != null && !selectedMarker.getDrawImgPath().toString().equals("N/A")) {
                     File fDraw = new File(path + selectedMarker.getDrawImgPath());
                     drawImageOverlay = ImageIO.read(fDraw);
-                } else 
+                }
+                else
                     drawImageOverlay = null;
 
                 layer = ImageUtils.createCompatibleImage(image.getWidth(), 
@@ -683,9 +690,12 @@ public class MarkerEdit extends JDialog {
                         markerImage.getPreferredSize().height, Transparency.TRANSLUCENT);
                 zoomLayer = ImageUtils.createCompatibleImage(image.getWidth(), 
                         image.getHeight(), Transparency.TRANSLUCENT);
-                clearLayer();
 
-                //TODO: Set size of window according to image shown
+                clearLayer();
+                imgPanel.revalidate();
+                imgPanel.repaint();
+                setBounds(getLocation().x, getLocation().y, WIDTH, HEIGHT);
+
             } catch (IOException e) {
                 NeptusLog.pub().error(I18n.text("Error reading image file for marker: ")+ selectedMarker.getLabel() + " ...");
                 image = null;
@@ -933,6 +943,11 @@ public class MarkerEdit extends JDialog {
             @Override
             public void actionPerformed(ActionEvent e) {
                 enableGrid = !enableGrid;
+
+                if (enableGrid)
+                    updateStatusBar("Showing Grid...");
+                else
+                    updateStatusBar("Hiding Grid...");
 
                 markerImage.repaint();
             }
