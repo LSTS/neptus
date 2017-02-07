@@ -262,7 +262,8 @@ StateRendererInteraction, IMCSerialization, PathProvider {
                 .append(">");
         
         times.append("# ").append(title.toString()).append("\n");
-        times.append("# ").append("If using \"N|S\" in N field and \"W|E\" in E field parsing as absolute coordinates will be done.").append("\n");
+        times.append("# ").append(I18n.text(
+                "If using \"N|S\" in N field and \"W|E\" in E field parsing as absolute coordinates will be done.")).append("\n");
         for (double[] pt : points) {
             times.append(nf.format(pt[0]));
             times.append(", ");
