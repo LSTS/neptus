@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2016 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2017 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -13,8 +13,8 @@
  * written agreement between you and Universidade do Porto. For licensing
  * terms, conditions, and further information contact lsts@fe.up.pt.
  *
- * European Union Public Licence - EUPL v.1.1 Usage
- * Alternatively, this file may be used under the terms of the EUPL,
+ * Modified European Union Public Licence - EUPL v.1.1 Usage
+ * Alternatively, this file may be used under the terms of the Modified EUPL,
  * Version 1.1 only (the "Licence"), appearing in the file LICENCE.md
  * included in the packaging of this file. You may not use this work
  * except in compliance with the Licence. Unless required by applicable
@@ -22,7 +22,8 @@
  * distributed on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF
  * ANY KIND, either express or implied. See the Licence for the specific
  * language governing permissions and limitations at
- * https://www.lsts.pt/neptus/licence.
+ * https://github.com/LSTS/neptus/blob/develop/LICENSE.md
+ * and http://ec.europa.eu/idabc/eupl.html.
  *
  * For more information please see <http://lsts.fe.up.pt/neptus>.
  *
@@ -149,7 +150,7 @@ public class VehicleFormation extends FollowTrajectory {
         VehicleFormation clone = new VehicleFormation();
         super.clone(clone);
         clone.speed = speed;
-        clone.speed_units = speed_units;
+        clone.speedUnits = speedUnits;
         clone.setManeuverLocation(getManeuverLocation());
         clone.points.addAll(points);                
         clone.setStartTime(getStartTime());
@@ -200,14 +201,23 @@ public class VehicleFormation extends FollowTrajectory {
         vfMessage.setStartTime(startTime/1000.0);
         vfMessage.setParticipants(getParticipantsIMC());
         vfMessage.setSpeed(speed);
-        String s_units = speed_units;
-        if (s_units.equalsIgnoreCase("%"))
-            vfMessage.setSpeedUnits(pt.lsts.imc.VehicleFormation.SPEED_UNITS.PERCENTAGE);
-        else if (s_units.equalsIgnoreCase("m/s"))
-            vfMessage.setSpeedUnits(pt.lsts.imc.VehicleFormation.SPEED_UNITS.METERS_PS);
-        else
-            vfMessage.setSpeedUnits(pt.lsts.imc.VehicleFormation.SPEED_UNITS.RPM);      
-
+        try {
+            switch (speedUnits) {
+                case METERS_PS:
+                    vfMessage.setSpeedUnits(pt.lsts.imc.VehicleFormation.SPEED_UNITS.METERS_PS);
+                    break;
+                case PERCENTAGE:
+                    vfMessage.setSpeedUnits(pt.lsts.imc.VehicleFormation.SPEED_UNITS.PERCENTAGE);
+                    break;
+                case RPM:
+                default:
+                    vfMessage.setSpeedUnits(pt.lsts.imc.VehicleFormation.SPEED_UNITS.RPM);
+                    break;
+            }
+        }
+        catch (Exception ex) {
+            NeptusLog.pub().error(this, ex);                     
+        }
 
         // conversion into absolute times
         double[]  absoluteTimes = new double[points.size()];
@@ -529,14 +539,21 @@ public class VehicleFormation extends FollowTrajectory {
 
                 Point2D clicked = event.getPoint();
                 LocationType curLoc = source.getRealWorldLocation(clicked);
-                double distance, _speed;
+                double distance, speedWithConversion;
 
                 // do any required speed conversions
-                _speed = speed;            
-                if (speed_units.equalsIgnoreCase("RPM"))
-                    _speed /= RPM_MPS_CONVERSION;
-                else if (speed_units.equalsIgnoreCase("%"))
-                    _speed /= PERCENT_MPS_CONVERSION;
+                speedWithConversion = speed;
+                switch (speedUnits) {
+                    case PERCENTAGE:
+                        speedWithConversion /= PERCENT_MPS_CONVERSION;
+                        break;
+                    case RPM:
+                        speedWithConversion /= RPM_MPS_CONVERSION;
+                        break;
+                    case METERS_PS:
+                    default:
+                        break;
+                }
 
                 double[] offsets = source.getRealWorldLocation(clicked).getOffsetFrom(startLoc);
 
@@ -550,7 +567,7 @@ public class VehicleFormation extends FollowTrajectory {
                         distance = curLoc.getDistanceInMeters(previousLoc);
                     else 
                         distance = curLoc.getDistanceInMeters(startLoc);
-                    xyzt[3] = distance / _speed;
+                    xyzt[3] = distance / speedWithConversion;
                 }
                 else
                     xyzt[3] = -1;

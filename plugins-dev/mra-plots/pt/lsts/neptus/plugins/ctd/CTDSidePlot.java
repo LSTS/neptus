@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2016 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2017 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -13,8 +13,8 @@
  * written agreement between you and Universidade do Porto. For licensing
  * terms, conditions, and further information contact lsts@fe.up.pt.
  *
- * European Union Public Licence - EUPL v.1.1 Usage
- * Alternatively, this file may be used under the terms of the EUPL,
+ * Modified European Union Public Licence - EUPL v.1.1 Usage
+ * Alternatively, this file may be used under the terms of the Modified EUPL,
  * Version 1.1 only (the "Licence"), appearing in the file LICENSE.md
  * included in the packaging of this file. You may not use this work
  * except in compliance with the Licence. Unless required by applicable
@@ -22,7 +22,8 @@
  * distributed on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF
  * ANY KIND, either express or implied. See the Licence for the specific
  * language governing permissions and limitations at
- * https://www.lsts.pt/neptus/licence.
+ * https://github.com/LSTS/neptus/blob/develop/LICENSE.md
+ * and http://ec.europa.eu/idabc/eupl.html.
  *
  * For more information please see <http://lsts.fe.up.pt/neptus>.
  *
@@ -39,7 +40,9 @@ import java.awt.RenderingHints;
 import java.awt.geom.Line2D;
 import java.awt.geom.Point2D;
 import java.awt.image.BufferedImage;
+import java.util.Arrays;
 import java.util.Collections;
+import java.util.List;
 import java.util.Locale;
 import java.util.Vector;
 
@@ -70,6 +73,8 @@ public class CTDSidePlot extends SimpleMRAVisualization {
     private static final long serialVersionUID = -2237994701546034699L;
     private JTabbedPane tabs = new JTabbedPane();
     private MRAPanel panel;
+    List<String> validEntities = Arrays.asList("CTD", "Water Quality Sensor");
+    String ctdEntity = null;
     
     public CTDSidePlot(MRAPanel panel) {
         super(panel);
@@ -83,10 +88,33 @@ public class CTDSidePlot extends SimpleMRAVisualization {
 
     @Override
     public boolean canBeApplied(IMraLogGroup source) {
-        return source.getLsfIndex().getEntityId("CTD") != 255;
+        for (String e : validEntities)
+            if (source.getLsfIndex().getEntityId(e) != 255) {
+                ctdEntity = e;
+                return true;
+            }
+        return false;
     }
 
-    
+    /**
+     * Filter vector readings
+     */
+    private void filter(Vector<Double> values, double mean) {
+        double var = 0;
+        for (int i = 0; i < values.size(); i++)
+            var += (values.get(i) - mean) * (values.get(i) - mean);
+
+        var /= values.size();
+
+        for (int i = values.size() - 1; i >= 0; i--) {
+            if (Math.abs(values.get(i) - mean) > 2 * Math.sqrt(var))
+                values.remove(i);
+        }
+    }
+
+    /**
+     * Build image
+     */
     private JImagePanel buildImage(String name, Vector<Double> xCoords, Vector<Double> yCoords, Vector<Double> values) {
         double maxDepth = Collections.max(yCoords);
         double maxTemp = Collections.max(values);
@@ -98,7 +126,6 @@ public class CTDSidePlot extends SimpleMRAVisualization {
         ColorMap cmap = ColorMapFactory.createJetColorMap();
         double depthFactor = 600 / maxDepth;
         double timeFactor = 1000 / (maxTime - minTime);
-        
         
         Point2D[] points = new Point2D[values.size()];
         
@@ -118,14 +145,21 @@ public class CTDSidePlot extends SimpleMRAVisualization {
         g2d.drawRect(75, 25, 1000, 600);
         g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
         g2d.setColor(new Color(255,255,255,128));
-        for(int d = 0; d < maxDepth; d++) {
+
+        int inc = 1;
+        if (maxDepth > 20.0)
+            inc = 2;
+        if (maxDepth > 50.0)
+            inc = 5;
+
+        for(int d = 0; d < maxDepth; d = d + inc) {
             double ycoord = depthFactor * d + 25;
             g2d.draw(new Line2D.Double(70, ycoord, 1075, ycoord));
         }
         g2d.setColor(Color.black);
         g2d.setStroke(new BasicStroke(3.0f));
         g2d.setFont(new Font("Arial", Font.PLAIN, 20));
-        for(int d = 0; d < maxDepth; d++) {
+        for(int d = 0; d < maxDepth; d = d + inc) {
             double ycoord = depthFactor * d + 25;
             g2d.draw(new Line2D.Double(70, ycoord, 75, ycoord));
             g2d.drawString(""+d, 40, (int)ycoord+10);
@@ -166,10 +200,13 @@ public class CTDSidePlot extends SimpleMRAVisualization {
         Vector<Double> yCoords = new Vector<>();
         Vector<Double> temp = new Vector<>();
         Vector<Double> sal = new Vector<>();
+
+        double sumSal = 0;
+
         while (true) {
-            Temperature t = scanner.next(Temperature.class, "CTD");
-            Salinity s = scanner.next(Salinity.class, "CTD");
-            
+            Temperature t = scanner.next(Temperature.class, ctdEntity);
+            Salinity s = scanner.next(Salinity.class, ctdEntity);
+
             EstimatedState d = scanner.next(EstimatedState.class);
             if (t == null || s == null || d == null) {
                 break;
@@ -180,8 +217,14 @@ public class CTDSidePlot extends SimpleMRAVisualization {
             yCoords.add(d.getDepth());
             temp.add(t.getValue());
             sal.add(s.getValue());
+
+            sumSal += s.getValue();
         }
-        
+
+        // compute salinity mean.
+        double meanSal = sumSal / sal.size();
+        filter(sal, meanSal);
+
         for (int i = 0; !temp.isEmpty() && i < 20; i++) {
             temp.remove(0);
             sal.remove(0);
@@ -198,5 +241,4 @@ public class CTDSidePlot extends SimpleMRAVisualization {
         pmonitor.close();
         return tabs;
     }
-
 }

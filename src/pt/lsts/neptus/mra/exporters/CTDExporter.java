@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2016 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2017 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -13,8 +13,8 @@
  * written agreement between you and Universidade do Porto. For licensing
  * terms, conditions, and further information contact lsts@fe.up.pt.
  *
- * European Union Public Licence - EUPL v.1.1 Usage
- * Alternatively, this file may be used under the terms of the EUPL,
+ * Modified European Union Public Licence - EUPL v.1.1 Usage
+ * Alternatively, this file may be used under the terms of the Modified EUPL,
  * Version 1.1 only (the "Licence"), appearing in the file LICENSE.md
  * included in the packaging of this file. You may not use this work
  * except in compliance with the Licence. Unless required by applicable
@@ -22,7 +22,8 @@
  * distributed on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF
  * ANY KIND, either express or implied. See the Licence for the specific
  * language governing permissions and limitations at
- * https://www.lsts.pt/neptus/licence.
+ * https://github.com/LSTS/neptus/blob/develop/LICENSE.md
+ * and http://ec.europa.eu/idabc/eupl.html.
  *
  * For more information please see <http://lsts.fe.up.pt/neptus>.
  *
@@ -83,7 +84,7 @@ public class CTDExporter implements MRAExporter {
         catch (Exception e) {
             NeptusLog.pub().error(e);
         }
-        return "Exported "+count+" samples";
+        return I18n.textf("Exported %count samples", count);
     }
     @SuppressWarnings("resource")
     @Override
@@ -98,7 +99,7 @@ public class CTDExporter implements MRAExporter {
         while(startSel.isEmpty()) {
         startSel = JOptionPane.showInputDialog(ConfigFetch.getSuperParentFrame(), I18n.text("Select start time (UTC)"), sdf.format(start));        
             if (startSel == null)
-                return "Cancelled by the user";
+                return I18n.text("Cancelled by the user");
             try {
                 start = sdf.parse(startSel);
             }
@@ -113,7 +114,7 @@ public class CTDExporter implements MRAExporter {
         while (endSel.isEmpty()) {
             endSel = JOptionPane.showInputDialog(ConfigFetch.getSuperParentFrame(), I18n.text("Select end time (UTC)"), sdf.format(end));
             if (endSel == null)
-                return "Cancelled by the user";
+                return I18n.text("Cancelled by the user");
             try {
                 end = sdf.parse(endSel);
             }
@@ -125,7 +126,7 @@ public class CTDExporter implements MRAExporter {
         }
         
         if (start.after(end)) {
-            return "Start time must be before end time";
+            return I18n.text("Start time must be before end time");
         }
         
         //System.out.println(start +" --> "+end);
@@ -134,12 +135,12 @@ public class CTDExporter implements MRAExporter {
         IndexScanner scanner = new IndexScanner(index);
         pmonitor.setMaximum(index.getNumberOfMessages());
         pmonitor.setMinimum(index.getNumberOfMessages());
-        pmonitor.setNote("Creating output folder...");
+        pmonitor.setNote(I18n.text("Creating output folder..."));
         boolean containsSalinity = source.getLsfIndex().containsMessagesOfType("Salinity");
         
         File dir = new File(source.getFile("mra"), "csv");
         dir.mkdirs();
-        pmonitor.setNote("Generating corrected positions...");
+        pmonitor.setNote(I18n.text("Generating corrected positions..."));
         pmonitor.setProgress(10);
         CorrectedPosition cp = new CorrectedPosition(source);
         
@@ -154,7 +155,7 @@ public class CTDExporter implements MRAExporter {
         }
         catch (Exception e) {
             NeptusLog.pub().error(e);
-            return "Error creating output file: "+e.getMessage();            
+            return I18n.textf("Error creating output file: %error", e.getMessage());            
         }
 
         SimpleDateFormat dateFormat = new SimpleDateFormat("HH:mm:ss.SSS");
@@ -199,7 +200,7 @@ public class CTDExporter implements MRAExporter {
             LocationType loc = IMCUtils.parseLocation(d).convertToAbsoluteLatLonDepth();
             SystemPositionAndAttitude p = cp.getPosition(d.getTimestamp());
             if (p==null)
-                return "error positions is Empty";
+                return I18n.text("Error positions is Empty");
             
             try {
                 String medium = "UNKNOWN";
@@ -221,7 +222,7 @@ public class CTDExporter implements MRAExporter {
             catch (Exception e) {
                 e.printStackTrace();
                 NeptusLog.pub().error(e);
-                return "Error writing to file: "+e.getMessage();       
+                return I18n.textf("Error writing to file: %error", e.getMessage());       
             }
             pmonitor.setProgress(scanner.getIndex());            
         }

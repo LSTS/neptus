@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2016 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2017 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -13,8 +13,8 @@
  * written agreement between you and Universidade do Porto. For licensing
  * terms, conditions, and further information contact lsts@fe.up.pt.
  *
- * European Union Public Licence - EUPL v.1.1 Usage
- * Alternatively, this file may be used under the terms of the EUPL,
+ * Modified European Union Public Licence - EUPL v.1.1 Usage
+ * Alternatively, this file may be used under the terms of the Modified EUPL,
  * Version 1.1 only (the "Licence"), appearing in the file LICENCE.md
  * included in the packaging of this file. You may not use this work
  * except in compliance with the Licence. Unless required by applicable
@@ -22,7 +22,8 @@
  * distributed on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF
  * ANY KIND, either express or implied. See the Licence for the specific
  * language governing permissions and limitations at
- * https://www.lsts.pt/neptus/licence.
+ * https://github.com/LSTS/neptus/blob/develop/LICENSE.md
+ * and http://ec.europa.eu/idabc/eupl.html.
  *
  * For more information please see <http://lsts.fe.up.pt/neptus>.
  *
@@ -46,6 +47,8 @@ import pt.lsts.imc.IMCMessageType;
 import pt.lsts.imc.lsf.LsfMessageLogger;
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.comm.manager.imc.ImcId16;
+import pt.lsts.neptus.systems.external.ExternalSystem;
+import pt.lsts.neptus.systems.external.ExternalSystemsHolder;
 import pt.lsts.neptus.types.coord.LocationType;
 
 /**
@@ -287,6 +290,45 @@ public class NMEAUtils {
 		}
 	}
 	
+    /**
+     * Searches an external system with mmsi or name and return an external system or
+     * a new one created (the name is prevalent, if name is not known make it the same
+     * as MMSI).
+     * 
+     * @param mmsi
+     * @param name
+     * @return
+     */
+    public static synchronized ExternalSystem getAndRegisterExternalSystem(int mmsi, String name) {
+        ExternalSystem sys = null;
+        if (name.equals("" + mmsi)) {
+            sys = ExternalSystemsHolder.lookupSystem(name);
+            if (sys == null) {
+                sys = new ExternalSystem(name);
+                ExternalSystemsHolder.registerSystem(sys);
+            }
+        }
+        else {
+            sys = ExternalSystemsHolder.lookupSystem(name);
+            ExternalSystem sysMMSI = ExternalSystemsHolder.lookupSystem("" + mmsi);
+            if (sys == null && sysMMSI == null) {
+                sys = new ExternalSystem(name);
+                ExternalSystemsHolder.registerSystem(sys);
+            }
+            else if (sys == null && sysMMSI != null) {
+                sys = new ExternalSystem(name);
+                ExternalSystemsHolder.purgeSystem("" + mmsi);
+                ExternalSystemsHolder.registerSystem(sys);
+            }
+            else {
+                // sys exists
+                if (sysMMSI != null)
+                    ExternalSystemsHolder.purgeSystem("" + mmsi);
+            }
+        }
+        return sys;
+    }
+    
 	public static void main(String[] args) {
 		String nmea = "$GPGGA,120602.476,4112.4827,N,00832.0861,W,1,03,3.4,-51.3,M,51.3,M,,0000*5C";
 		LocationType lt = NMEAUtils.processGGASentence(nmea);

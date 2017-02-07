@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2016 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2017 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -13,8 +13,8 @@
  * written agreement between you and Universidade do Porto. For licensing
  * terms, conditions, and further information contact lsts@fe.up.pt.
  *
- * European Union Public Licence - EUPL v.1.1 Usage
- * Alternatively, this file may be used under the terms of the EUPL,
+ * Modified European Union Public Licence - EUPL v.1.1 Usage
+ * Alternatively, this file may be used under the terms of the Modified EUPL,
  * Version 1.1 only (the "Licence"), appearing in the file LICENCE.md
  * included in the packaging of this file. You may not use this work
  * except in compliance with the Licence. Unless required by applicable
@@ -22,7 +22,8 @@
  * distributed on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF
  * ANY KIND, either express or implied. See the Licence for the specific
  * language governing permissions and limitations at
- * https://www.lsts.pt/neptus/licence.
+ * https://github.com/LSTS/neptus/blob/develop/LICENSE.md
+ * and http://ec.europa.eu/idabc/eupl.html.
  *
  * For more information please see <http://lsts.fe.up.pt/neptus>.
  *
@@ -93,7 +94,7 @@ public class CSVBathymetryExporter implements MRAExporter {
 
     public String process(IMraLogGroup source, ProgressMonitor pmonitor) {
         if (!canBeApplied(source))
-            return "No data to process!";
+            return I18n.text("No data to process!");
         
         PluginUtils.editPluginProperties(this, true);
         
@@ -113,26 +114,20 @@ public class CSVBathymetryExporter implements MRAExporter {
         // Create all beams csv file and file descriptor
         processResultOutputFileNameAllBeams = new File(folder, parentFolder + "-bathymetry-process-all-beams.csv").getAbsolutePath();
         boolean fileChecker = initResultOutputFile(processResultOutputFileNameAllBeams, processResultOutputWriterAllBeams);
-        if (!fileChecker) {
-            if (pmonitor != null)
-                pmonitor.setNote("File already exists!");
-            return "File already exists!";
-        }
-        if (fileChecker) {
+        if (!fileChecker)
+            return I18n.text("File already exists!");
+        
+        if (fileChecker)
             processResultOutputWriterAllBeams = initializeWriter(processResultOutputFileNameAllBeams);
-        }
         
         // Create center beam csv file and file descriptor
         processResultOutputFileNameCenterBeam = new File(folder, parentFolder + "-bathymetry-process-center-beam.csv").getAbsolutePath();
         fileChecker = initResultOutputFile(processResultOutputFileNameCenterBeam, processResultOutputWriterCenterBeam);
-        if (!fileChecker) {
-            if (pmonitor != null)
-                pmonitor.setNote("File already exists!");
-            return "File already exists!";
-        }
-        if (fileChecker) {
+        if (!fileChecker)
+            return I18n.text("File already exists!");
+        
+        if (fileChecker)
             processResultOutputWriterCenterBeam = initializeWriter(processResultOutputFileNameCenterBeam);
-        }
         
         log = source;
         
@@ -264,11 +259,11 @@ public class CSVBathymetryExporter implements MRAExporter {
                     return "Export interrupted!";
             }
             
-            return "Export completed successfully";
+            return I18n.text("Export completed successfully");
         }
         catch (Exception e) {
             e.printStackTrace();
-            return "Export completed with errors! (" + e.getMessage() + ")";
+            return I18n.textf("Export completed with errors! (%error)", e.getMessage());
         }
         finally {
             cleanupResultOutputFile();

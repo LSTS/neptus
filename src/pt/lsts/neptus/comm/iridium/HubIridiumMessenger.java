@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2016 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2017 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -13,8 +13,8 @@
  * written agreement between you and Universidade do Porto. For licensing
  * terms, conditions, and further information contact lsts@fe.up.pt.
  *
- * European Union Public Licence - EUPL v.1.1 Usage
- * Alternatively, this file may be used under the terms of the EUPL,
+ * Modified European Union Public Licence - EUPL v.1.1 Usage
+ * Alternatively, this file may be used under the terms of the Modified EUPL,
  * Version 1.1 only (the "Licence"), appearing in the file LICENSE.md
  * included in the packaging of this file. You may not use this work
  * except in compliance with the Licence. Unless required by applicable
@@ -22,7 +22,8 @@
  * distributed on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF
  * ANY KIND, either express or implied. See the Licence for the specific
  * language governing permissions and limitations at
- * https://www.lsts.pt/neptus/licence.
+ * https://github.com/LSTS/neptus/blob/develop/LICENSE.md
+ * and http://ec.europa.eu/idabc/eupl.html.
  *
  * For more information please see <http://lsts.fe.up.pt/neptus>.
  *
@@ -51,11 +52,11 @@ import java.util.Vector;
 import org.apache.commons.codec.binary.Hex;
 import org.apache.commons.io.IOUtils;
 
+import com.google.gson.Gson;
+
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.comm.iridium.Position.PosType;
 import pt.lsts.neptus.util.ByteUtil;
-
-import com.google.gson.Gson;
 
 /**
  * @author zp
@@ -90,8 +91,10 @@ public class HubIridiumMessenger implements IridiumMessenger {
         
         DeviceUpdate up = new DeviceUpdate();
         for (HubSystemMsg s : sys) {
+            if (s.imcid > Integer.MAX_VALUE)
+                continue;
             Position pos = new Position();
-            pos.id = s.imcid;
+            pos.id = (int) s.imcid;
             pos.latRads = s.coordinates[0];
             pos.lonRads = s.coordinates[1];
             pos.timestamp = stringToDate(s.updated_at).getTime() / 1000.0;
@@ -288,7 +291,7 @@ public class HubIridiumMessenger implements IridiumMessenger {
     
     public static class HubSystemMsg {
         
-        public int imcid;
+        public long imcid;
         public String name;
         public String updated_at;
         public String created_at;

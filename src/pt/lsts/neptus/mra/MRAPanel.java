@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2016 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2017 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -13,8 +13,8 @@
  * written agreement between you and Universidade do Porto. For licensing
  * terms, conditions, and further information contact lsts@fe.up.pt.
  *
- * European Union Public Licence - EUPL v.1.1 Usage
- * Alternatively, this file may be used under the terms of the EUPL,
+ * Modified European Union Public Licence - EUPL v.1.1 Usage
+ * Alternatively, this file may be used under the terms of the Modified EUPL,
  * Version 1.1 only (the "Licence"), appearing in the file LICENCE.md
  * included in the packaging of this file. You may not use this work
  * except in compliance with the Licence. Unless required by applicable
@@ -22,7 +22,8 @@
  * distributed on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF
  * ANY KIND, either express or implied. See the Licence for the specific
  * language governing permissions and limitations at
- * https://www.lsts.pt/neptus/licence.
+ * https://github.com/LSTS/neptus/blob/develop/LICENSE.md
+ * and http://ec.europa.eu/idabc/eupl.html.
  *
  * For more information please see <http://lsts.fe.up.pt/neptus>.
  *
@@ -38,7 +39,6 @@ import java.lang.reflect.Constructor;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.Vector;
@@ -96,11 +96,11 @@ public class MRAPanel extends JPanel {
     private JScrollPane jspMessageTree;
     private JScrollPane jspLogTree;
 
-    private final LinkedHashMap<String, MRAVisualization> visualizationList = new LinkedHashMap<String, MRAVisualization>();
-    private final LinkedHashMap<String, Component> openVisualizationList = new LinkedHashMap<String, Component>();
-    private final ArrayList<String> loadingVisualizations = new ArrayList<String>();
+    private final LinkedHashMap<String, MRAVisualization> visualizationList = new LinkedHashMap<>();
+    private final LinkedHashMap<String, Component> openVisualizationList = new LinkedHashMap<>();
+    private final ArrayList<String> loadingVisualizations = new ArrayList<>();
 
-    private final ArrayList<LogMarker> logMarkers = new ArrayList<LogMarker>();
+    private final ArrayList<LogMarker> logMarkers = new ArrayList<>();
     private MRAVisualization shownViz = null;
     private Vector<MissionChangeListener> mcl = new Vector<>();
     private NeptusMRA mra;
@@ -109,7 +109,7 @@ public class MRAPanel extends JPanel {
 
     /**
      * Constructor
-     * 
+     *
      * @param source
      * @param mra
      */
@@ -118,7 +118,7 @@ public class MRAPanel extends JPanel {
         this.mra = mra;
 
         TidesMraLoader.setDefaultTideIfNotExisted(source);
-        
+
         // ------- Setup interface --------
         setLayout(new BorderLayout(3, 3));
 
@@ -195,7 +195,7 @@ public class MRAPanel extends JPanel {
                     usedTideStr = hF;
             }
         }
-        
+
         statusBar.add(new JLabel("<html><b>" + I18n.text("Log") + ":</b> " + source.name() + date
                 + ((veh != null) ? " | <b>" + I18n.text("System") + ":</b> " + veh.getName() : "")
                 + (" | <b>" + I18n.text("Tides") + ":</b> " + usedTideStr)));
@@ -230,14 +230,14 @@ public class MRAPanel extends JPanel {
                 Constructor<?>[] constructors = vis.getDeclaredConstructors();
                 boolean instantiated = false;
                 MRAVisualization visualization = null;
-                
+
                 for (Constructor<?> c : constructors) {
                     if (c.getParameterTypes().length == 1 && c.getParameterTypes()[0].equals(MRAPanel.class)) {
                         instantiated = true;
                         visualization = (MRAVisualization) vis.getDeclaredConstructor(MRAPanel.class)
                                 .newInstance(this);
                         PluginUtils.loadProperties(visualization, "mra");
-                        
+
                     }
                 }
                 if (!instantiated) {
@@ -245,7 +245,7 @@ public class MRAPanel extends JPanel {
                     PluginUtils.loadProperties(visualization, "mra");
                     instantiated = true;
                 }
-                
+
                 if (visualization.canBeApplied(MRAPanel.this.source)) {
                     visualizations.add(visualization);
                 }
@@ -269,17 +269,12 @@ public class MRAPanel extends JPanel {
 
         visualizations.addAll(MRAChartFactory.getScriptedPlots(this));
 
-        Collections.sort(visualizations, new Comparator<MRAVisualization>() {
-            @Override
-            public int compare(MRAVisualization o1, MRAVisualization o2) {
-                return o1.getName().compareTo(o2.getName());
-            }
-        });
+        Collections.sort(visualizations, (o1, o2) -> o1.getName().compareTo(o2.getName()));
 
         // Load PluginVisualizations
         for (MRAVisualization viz : visualizations) {
             try {
-                loadVisualization(viz, false);               
+                loadVisualization(viz, false);
             }
             catch (Exception e1) {
                 NeptusLog.pub().error(
@@ -295,7 +290,7 @@ public class MRAPanel extends JPanel {
     }
 
     /**
-     * 
+     *
      * @param vis
      * @param open
      */
@@ -360,11 +355,10 @@ public class MRAPanel extends JPanel {
         if (mra.getMRAMenuBar().getMarkerManagement() != null) {
             mra.getMRAMenuBar().MarkerManagementCleanup();
         }
-
     }
 
     /**
-     * 
+     *
      * @param obj
      */
     public void removeTreeObject(Object obj) {
@@ -382,7 +376,7 @@ public class MRAPanel extends JPanel {
     }
 
     /**
-     * 
+     *
      * @param marker
      * @return
      */
@@ -395,7 +389,7 @@ public class MRAPanel extends JPanel {
     }
 
     /**
-     * 
+     *
      * @param marker
      * @param distance
      */
@@ -414,12 +408,11 @@ public class MRAPanel extends JPanel {
     }
 
     /**
-     * 
+     *
      * @param marker
      */
     public void addMarker(LogMarker marker) {
-
-        if (LsfReportProperties.generatingReport==true){
+        if (LsfReportProperties.generatingReport){
             //GuiUtils.infoMessage(getRootPane(), I18n.text("Can not add Marks"), I18n.text("Can not add Marks - Generating Report."));
             return;
         }
@@ -456,12 +449,14 @@ public class MRAPanel extends JPanel {
     }
 
     /**
-     * 
+     *
      * @param marker
      */
     public void removeMarker(LogMarker marker) {
-        if (LsfReportProperties.generatingReport==true){
-            GuiUtils.infoMessage(getRootPane(), I18n.text("Can not remove Marks"), I18n.text("Can not remove Marks - Generating Report."));
+        if (LsfReportProperties.generatingReport){
+            GuiUtils.infoMessage(getRootPane(),
+                    I18n.text("Can not remove Marks"),
+                    I18n.text("Can not remove Marks - Generating Report."));
             return;
         }
 
@@ -503,7 +498,7 @@ public class MRAPanel extends JPanel {
     /**
      * Load markers
      */
-    public void loadMarkers() {
+    private void loadMarkers() {
         logMarkers.clear();
         logMarkers.addAll(LogMarker.load(source));
         Collections.sort(logMarkers);
@@ -566,11 +561,10 @@ public class MRAPanel extends JPanel {
         }
     }
 
-
     /**
      *
      */
-    class LoadTask implements Runnable {
+    private class LoadTask implements Runnable {
         MRAVisualization vis;
 
         public LoadTask(MRAVisualization vis) {

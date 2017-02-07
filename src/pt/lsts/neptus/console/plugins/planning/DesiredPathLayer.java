@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2016 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2017 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -13,8 +13,8 @@
  * written agreement between you and Universidade do Porto. For licensing
  * terms, conditions, and further information contact lsts@fe.up.pt.
  *
- * European Union Public Licence - EUPL v.1.1 Usage
- * Alternatively, this file may be used under the terms of the EUPL,
+ * Modified European Union Public Licence - EUPL v.1.1 Usage
+ * Alternatively, this file may be used under the terms of the Modified EUPL,
  * Version 1.1 only (the "Licence"), appearing in the file LICENCE.md
  * included in the packaging of this file. You may not use this work
  * except in compliance with the Licence. Unless required by applicable
@@ -22,7 +22,8 @@
  * distributed on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF
  * ANY KIND, either express or implied. See the Licence for the specific
  * language governing permissions and limitations at
- * https://www.lsts.pt/neptus/licence.
+ * https://github.com/LSTS/neptus/blob/develop/LICENSE.md
+ * and http://ec.europa.eu/idabc/eupl.html.
  *
  * For more information please see <http://lsts.fe.up.pt/neptus>.
  *
@@ -42,6 +43,8 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Vector;
 
+import com.google.common.eventbus.Subscribe;
+
 import pt.lsts.imc.PathControlState;
 import pt.lsts.neptus.comm.manager.imc.ImcSystem;
 import pt.lsts.neptus.comm.manager.imc.ImcSystemsHolder;
@@ -52,8 +55,6 @@ import pt.lsts.neptus.plugins.update.Periodic;
 import pt.lsts.neptus.renderer2d.LayerPriority;
 import pt.lsts.neptus.renderer2d.StateRenderer2D;
 import pt.lsts.neptus.types.coord.LocationType;
-
-import com.google.common.eventbus.Subscribe;
 
 /**
  * @author zp
@@ -89,23 +90,38 @@ public class DesiredPathLayer extends ConsoleLayer {
             LocationType src = new LocationType(Math.toDegrees(pcs.getStartLat()), Math.toDegrees(pcs.getStartLon()));
             ImcSystem system = ImcSystemsHolder.lookupSystem(pcs.getSrc());
 
-            Point2D pt = renderer.getScreenPosition(dest);
-            g.setColor(Color.black.darker());
-            g.fill(new Ellipse2D.Double(pt.getX() - 5, pt.getY() - 5, 10, 10));
+            if (system!= null && startFromCurrentLocation)
+                src = system.getLocation();
 
-            if (system != null) {
-                if (startFromCurrentLocation) {
-                    src = system.getLocation();
-                }
-                Point2D ptSrc = renderer.getScreenPosition(src);
-                
-                g.setStroke(new BasicStroke(3));
-                g.draw(new Line2D.Double(ptSrc, pt));
-                g.setColor(Color.yellow);
-                g.setStroke(new BasicStroke(1.5f));                
-                g.draw(new Line2D.Double(ptSrc, pt));
-                g.fill(new Ellipse2D.Double(pt.getX() - 4, pt.getY() - 4, 8, 8));                
+            double lradius = pcs.getLradius() * renderer.getZoom();
+            LocationType destCenter = new LocationType(dest);
+            
+            if (lradius > 0) {
+                dest.setAzimuth(Math.toDegrees(dest.getXYAngle(src)));
+                dest.setOffsetDistance(pcs.getLradius());
             }
+            
+            Point2D pt = renderer.getScreenPosition(dest);
+            Point2D ptCenter = renderer.getScreenPosition(destCenter);
+            g.setStroke(new BasicStroke(3));
+            g.setColor(Color.black.darker());
+            
+            if (lradius == 0)
+                g.fill(new Ellipse2D.Double(pt.getX() - 5, pt.getY() - 5, 10, 10));
+            else                 
+                g.draw(new Ellipse2D.Double(ptCenter.getX() - lradius, ptCenter.getY()-lradius, lradius*2, lradius*2));
+            
+            Point2D ptSrc = renderer.getScreenPosition(src);
+            
+            g.draw(new Line2D.Double(ptSrc, pt));
+            g.setColor(Color.yellow);
+            g.setStroke(new BasicStroke(1.5f));                
+            g.draw(new Line2D.Double(ptSrc, pt));
+            if (lradius == 0)
+                g.fill(new Ellipse2D.Double(pt.getX() - 4, pt.getY() - 4, 8, 8));
+            else
+                g.draw(new Ellipse2D.Double(ptCenter.getX() - lradius, ptCenter.getY()-lradius, lradius*2, lradius*2));
+
         }
     }
 

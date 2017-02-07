@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2016 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2017 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -13,8 +13,8 @@
  * written agreement between you and Universidade do Porto. For licensing
  * terms, conditions, and further information contact lsts@fe.up.pt.
  *
- * European Union Public Licence - EUPL v.1.1 Usage
- * Alternatively, this file may be used under the terms of the EUPL,
+ * Modified European Union Public Licence - EUPL v.1.1 Usage
+ * Alternatively, this file may be used under the terms of the Modified EUPL,
  * Version 1.1 only (the "Licence"), appearing in the file LICENCE.md
  * included in the packaging of this file. You may not use this work
  * except in compliance with the Licence. Unless required by applicable
@@ -22,7 +22,8 @@
  * distributed on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF
  * ANY KIND, either express or implied. See the Licence for the specific
  * language governing permissions and limitations at
- * https://www.lsts.pt/neptus/licence.
+ * https://github.com/LSTS/neptus/blob/develop/LICENSE.md
+ * and http://ec.europa.eu/idabc/eupl.html.
  *
  * For more information please see <http://lsts.fe.up.pt/neptus>.
  *
@@ -43,7 +44,6 @@ import java.io.FileWriter;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.Hashtable;
-import java.util.Vector;
 
 import javax.imageio.ImageIO;
 import javax.swing.JFrame;
@@ -61,6 +61,7 @@ import pt.lsts.neptus.colormap.ColorMapFactory;
 import pt.lsts.neptus.colormap.ColormapOverlay;
 import pt.lsts.neptus.comm.IMCUtils;
 import pt.lsts.neptus.i18n.I18n;
+import pt.lsts.neptus.mp.ManeuverLocation;
 import pt.lsts.neptus.mra.MRAProperties;
 import pt.lsts.neptus.mra.WorldImage;
 import pt.lsts.neptus.mra.api.BathymetryParser;
@@ -80,6 +81,7 @@ import pt.lsts.neptus.plugins.PluginDescription;
 import pt.lsts.neptus.plugins.PluginUtils;
 import pt.lsts.neptus.renderer2d.ImageLayer;
 import pt.lsts.neptus.types.coord.LocationType;
+import pt.lsts.neptus.types.map.PlanUtil;
 import pt.lsts.neptus.types.mission.MissionType;
 import pt.lsts.neptus.types.mission.plan.PlanType;
 import pt.lsts.neptus.util.FileUtil;
@@ -216,7 +218,7 @@ public class KMLExporter implements MRAExporter {
         return ret;
     }
 
-    public String path(Vector<LocationType> coords, String name, String style) {
+    public String path(ArrayList<ManeuverLocation> coords, String name, String style) {
         String retAll = "";
         int idx = 0;
         int pathNumber = 0;
@@ -714,10 +716,11 @@ public class KMLExporter implements MRAExporter {
         pmonitor.setMinimum(0);
         pmonitor.setMaximum(320);
 
-        PluginUtils.editPluginProperties(this, true);
+        if (PluginUtils.editPluginProperties(this, true))
+            return I18n.text("Cancelled by the user.");
 
         try {
-            pmonitor.setNote("Generating output dirs");
+            pmonitor.setNote(I18n.text("Generating output dirs"));
             File out = new File(source.getFile("mra"), "kml");
             out.mkdirs();
 
@@ -728,7 +731,7 @@ public class KMLExporter implements MRAExporter {
             bw.write(kmlHeader(name));
 
             // To account for multiple systems paths
-            Hashtable<String, Vector<LocationType>> pathsForSystems = new Hashtable<>();
+            Hashtable<String, ArrayList<ManeuverLocation>> pathsForSystems = new Hashtable<>();
             Hashtable<String, IMCMessage> lastEstimatedStateForSystems = new Hashtable<>();
             // Vector<LocationType> states = new Vector<>();
 
@@ -737,7 +740,7 @@ public class KMLExporter implements MRAExporter {
             // Path
             Iterable<IMCMessage> it = source.getLsfIndex().getIterator("EstimatedState", 0, 3000);
             pmonitor.setProgress(1);
-            pmonitor.setNote("Generating path");
+            pmonitor.setNote(I18n.text("Generating path"));
             double start = source.getLsfIndex().getStartTime();
             double end = source.getLsfIndex().getEndTime();
             for (IMCMessage s : it) {
@@ -751,9 +754,9 @@ public class KMLExporter implements MRAExporter {
                 if (systemName == null || systemName.isEmpty()) {
                     continue;
                 }
-                Vector<LocationType> statesSys = pathsForSystems.get(systemName);
+                ArrayList<ManeuverLocation> statesSys = pathsForSystems.get(systemName);
                 if (statesSys == null) {
-                    statesSys = new Vector<>();
+                    statesSys = new ArrayList<>();
                     pathsForSystems.put(systemName, statesSys);
                 }
                 IMCMessage lastEsSys = lastEstimatedStateForSystems.get(systemName);
@@ -761,7 +764,7 @@ public class KMLExporter implements MRAExporter {
                     statesSys.add(null);
                 }
                 lastEstimatedStateForSystems.put(systemName, s);
-                statesSys.add(loc);
+                statesSys.add(new ManeuverLocation(loc));
                 
                 if (bottomRight == null) {
                     bottomRight = new LocationType(loc);
@@ -784,10 +787,10 @@ public class KMLExporter implements MRAExporter {
                 bw.close();
                 throw new Exception("This log doesn't have required data (EstimatedState)");
             }
-            pmonitor.setNote("Writing path to file");
+            pmonitor.setNote(I18n.text("Writing path to file"));
             // bw.write(path(states, "Estimated State", "estate"));
             for (String sys : pathsForSystems.keySet()) {
-                Vector<LocationType> st = pathsForSystems.get(sys);
+                ArrayList<ManeuverLocation> st = pathsForSystems.get(sys);
                 bw.write(path(st, "Estimated State " + sys, "estate"));
             }
             pmonitor.setProgress(70);
@@ -801,8 +804,9 @@ public class KMLExporter implements MRAExporter {
                 NeptusLog.pub().error(e);
             }
             if (plan != null) {
-                pmonitor.setNote("Writing plan");
-                bw.write(path(plan.planPath(), "Planned waypoints", "plan"));
+                pmonitor.setNote(I18n.text("Writing plan"));
+                ArrayList<ManeuverLocation> locs = PlanUtil.getPlanWaypoints(plan);
+                bw.write(path(locs, "Planned waypoints", "plan"));
                 pmonitor.setProgress(90);
             }
 
@@ -812,7 +816,7 @@ public class KMLExporter implements MRAExporter {
             bottomRight.convertToAbsoluteLatLonDepth();
 
             if (exportSidescan) {
-                pmonitor.setNote("Generating sidescan overlay");
+                pmonitor.setNote(I18n.text("Generating sidescan overlay"));
                 
                 if (separateLineSegments) {
                     double lastTime = 0;
@@ -834,7 +838,7 @@ public class KMLExporter implements MRAExporter {
             }
 
             if (exportBathymetry) {
-                pmonitor.setNote("Generating bathymetry overlay");
+                pmonitor.setNote(I18n.text("Generating bathymetry overlay"));
                 String mb = multibeamOverlay(out.getParentFile());
                 if (!mb.isEmpty())
                     bw.write(mb);
@@ -865,9 +869,9 @@ public class KMLExporter implements MRAExporter {
             bw.close();
 
             if (pmonitor.isCanceled())
-                return "Cancelled by the user";
+                return I18n.text("Cancelled by the user");
             if (compressOutput) {
-                pmonitor.setNote("Compressing output");
+                pmonitor.setNote(I18n.text("Compressing output"));
                 
                 System.out.println(new File(source.getFile("mra"), "Data.kmz"));
                 System.out.println(new File(source.getFile("mra"), "kml"));
@@ -876,14 +880,14 @@ public class KMLExporter implements MRAExporter {
                 pmonitor.setNote("Deleting old directory");
                 FileUtil.deltree(out.getAbsolutePath());
                 pmonitor.close();
-                return "Log exported to " + new File(source.getFile("mra"), "Data.kmz").getAbsolutePath();
+                return I18n.textf("Log exported to %path", new File(source.getFile("mra"), "Data.kmz").getAbsolutePath());
             }
             else
-                return "Log exported to " + out.getAbsolutePath();
+                return  I18n.textf("Log exported to %path", out.getAbsolutePath());
         }
         catch (Exception e) {
-            GuiUtils.errorMessage("Error while exporting to KML", "Exception of type " + e.getClass().getSimpleName()
-                    + " occurred: " + e.getMessage());
+            GuiUtils.errorMessage(I18n.text("Error while exporting to KML"), I18n.textf(
+                    "Exception of type %exception occurred: %message", e.getClass().getSimpleName(), e.getMessage()));
             e.printStackTrace();
             pmonitor.close();
             return null;

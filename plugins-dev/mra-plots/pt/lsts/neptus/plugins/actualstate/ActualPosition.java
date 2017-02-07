@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2016 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2017 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -13,8 +13,8 @@
  * written agreement between you and Universidade do Porto. For licensing
  * terms, conditions, and further information contact lsts@fe.up.pt.
  *
- * European Union Public Licence - EUPL v.1.1 Usage
- * Alternatively, this file may be used under the terms of the EUPL,
+ * Modified European Union Public Licence - EUPL v.1.1 Usage
+ * Alternatively, this file may be used under the terms of the Modified EUPL,
  * Version 1.1 only (the "Licence"), appearing in the file LICENSE.md
  * included in the packaging of this file. You may not use this work
  * except in compliance with the Licence. Unless required by applicable
@@ -22,7 +22,8 @@
  * distributed on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF
  * ANY KIND, either express or implied. See the Licence for the specific
  * language governing permissions and limitations at
- * https://www.lsts.pt/neptus/licence.
+ * https://github.com/LSTS/neptus/blob/develop/LICENSE.md
+ * and http://ec.europa.eu/idabc/eupl.html.
  *
  * For more information please see <http://lsts.fe.up.pt/neptus>.
  *
@@ -31,15 +32,24 @@
  */
 package pt.lsts.neptus.plugins.actualstate;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.LinkedHashMap;
+import java.util.Map;
 import java.util.Vector;
 
 import org.jfree.data.xy.XYSeries;
+
 import pt.lsts.imc.EstimatedState;
 import pt.lsts.imc.IMCMessage;
+import pt.lsts.imc.Announce;
+import pt.lsts.imc.Announce.SYS_TYPE;
 import pt.lsts.imc.lsf.LsfIndex;
 import pt.lsts.imc.lsf.LsfIterator;
+import pt.lsts.neptus.mp.SystemPositionAndAttitude;
 import pt.lsts.neptus.mra.LogMarker;
 import pt.lsts.neptus.mra.MRAPanel;
+import pt.lsts.neptus.mra.api.CorrectedPositionBuilder;
 import pt.lsts.neptus.mra.plots.MRA2DPlot;
 import pt.lsts.neptus.mra.plots.TimedXYDataItem;
 import pt.lsts.neptus.plugins.PluginDescription;
@@ -93,67 +103,57 @@ public class ActualPosition extends MRA2DPlot {
 
     @Override
     public void process(LsfIndex source) {
-        LsfIterator<EstimatedState> it = source.getIterator(EstimatedState.class, (long) (timestep * 1000));
+        LsfIterator<EstimatedState> it = source.getIterator(EstimatedState.class);
+        long stepTime = (long) (timestep * 1000);
+        
+         Vector<Announce> uuvSys = source.getSystemsOfType(SYS_TYPE.UUV);
+         Collection<Integer> systemsLst = new ArrayList<>();
+         uuvSys.forEach(an -> systemsLst.add(an.getSrc()));
+         
+         Map<Integer, CorrectedPositionBuilder> cpBuilders = new LinkedHashMap<>(systemsLst.size());
+         systemsLst.forEach(src -> cpBuilders.put(src, new CorrectedPositionBuilder()));
+         
+         Map<Integer, Long> timesLst = new LinkedHashMap<>(systemsLst.size());
+         
+         for (EstimatedState es = it.next(); es != null; es = it.next()) {
+             long prevTime = -1;
+             if (timesLst.containsKey(es.getSrc()))
+                 prevTime = timesLst.get(es.getSrc());
+             
+             long diffT = es.getTimestampMillis() - prevTime;
+             if (diffT < stepTime)
+                 continue;
 
-        Vector<EstimatedState> nonAdjusted = new Vector<>();
-        Vector<LocationType> nonAdjustedLocs = new Vector<>();
-
-        LocationType lastLoc = null;
-        double lastTime = 0;
-
-        for (EstimatedState es = it.next(); es != null; es = it.next()) {
-            LocationType thisLoc = new LocationType();
-            thisLoc.setLatitudeRads(es.getLat());
-            thisLoc.setLongitudeRads(es.getLon());
-            if (es.getDepth() > 0)
-                thisLoc.setDepth(es.getDepth());
-            if (es.getAlt() > 0)
-                thisLoc.setDepth(-es.getAlt());
-            thisLoc.translatePosition(es.getX(), es.getY(), 0);
-            double speed = Math.sqrt(es.getU() * es.getU() + es.getV() * es.getV() + es.getW() * es.getW());
-
-            thisLoc.convertToAbsoluteLatLonDepth();
-
-            if (lastLoc != null) {
-                double expectedDiff = speed * (es.getTimestamp() - lastTime);
-
-                lastTime = es.getTimestamp();
-
-                double diff = lastLoc.getHorizontalDistanceInMeters(thisLoc);
-                addValue(es.getTimestampMillis(), thisLoc.getLatitudeDegs(), thisLoc.getLongitudeDegs(),
-                        es.getSourceName(), "Estimated Position");
-                if (diff < expectedDiff * 3) {
-                    nonAdjusted.add(es);
-                    nonAdjustedLocs.add(thisLoc);
-
-                }
-                else {
-                    if (!nonAdjusted.isEmpty()) {
-                        double[] adjustment = thisLoc.getOffsetFrom(lastLoc);
-                        EstimatedState firstNonAdjusted = nonAdjusted.firstElement();
-                        double timeOfAdjustment = es.getTimestamp() - firstNonAdjusted.getTimestamp();
-                        double xIncPerSec = adjustment[0] / timeOfAdjustment;
-                        double yIncPerSec = adjustment[1] / timeOfAdjustment;
-
-                        for (int i = 0; i < nonAdjusted.size(); i++) {
-                            EstimatedState adj = nonAdjusted.get(i);
-                            LocationType loc = nonAdjustedLocs.get(i);
-                            loc.translatePosition(xIncPerSec * (adj.getTimestamp() - firstNonAdjusted.getTimestamp()),
-                                    yIncPerSec * (adj.getTimestamp() - firstNonAdjusted.getTimestamp()), 0);
-
-                            loc.convertToAbsoluteLatLonDepth();
-                            addValue(adj.getTimestampMillis(), loc.getLatitudeDegs(), loc.getLongitudeDegs(),
-                                    adj.getSourceName(), "Actual Position");
-                        }
-                        nonAdjusted.clear();
-                        nonAdjustedLocs.clear();
-                        nonAdjusted.add(es);
-                        nonAdjustedLocs.add(thisLoc);
-                    }
-                }
-            }
-            lastLoc = thisLoc;
-            lastTime = es.getTimestamp();
+             timesLst.put(es.getSrc(), es.getTimestampMillis());
+             
+             LocationType thisLoc = new LocationType();
+             thisLoc.setLatitudeRads(es.getLat());
+             thisLoc.setLongitudeRads(es.getLon());
+             if (es.getDepth() > 0)
+                 thisLoc.setDepth(es.getDepth());
+             if (es.getAlt() > 0)
+                 thisLoc.setDepth(-es.getAlt());
+             thisLoc.translatePosition(es.getX(), es.getY(), 0);
+             thisLoc.convertToAbsoluteLatLonDepth();
+             addValue(es.getTimestampMillis(), thisLoc.getLatitudeDegs(), thisLoc.getLongitudeDegs(),
+                     es.getSourceName(), "Estimated Position");
+             
+             CorrectedPositionBuilder builder = cpBuilders.get(es.getSrc());
+             if (builder == null)
+                 continue;
+             
+             builder.update(es);
+         }
+         
+         for (int src : cpBuilders.keySet()) {
+             CorrectedPositionBuilder builder = cpBuilders.get(src);
+             ArrayList<SystemPositionAndAttitude> posLst = builder.getPositions();
+             for (SystemPositionAndAttitude sysPosAtt : posLst) {
+                String sysName = source.getSystemName(src);
+                LocationType pos = sysPosAtt.getPosition();
+                addValue(sysPosAtt.getTime(), pos.getLatitudeDegs(), pos.getLongitudeDegs(),
+                        sysName, "Actual Position");
+             }
         }
     }
 }

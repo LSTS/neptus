@@ -1,3 +1,4 @@
+conf/mraplots/*.plot
 plugins/blue-eye.jar
 plugins/caoAgent.jar
 plugins/cmre*.jar

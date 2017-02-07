@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2016 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2017 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -13,8 +13,8 @@
  * written agreement between you and Universidade do Porto. For licensing
  * terms, conditions, and further information contact lsts@fe.up.pt.
  *
- * European Union Public Licence - EUPL v.1.1 Usage
- * Alternatively, this file may be used under the terms of the EUPL,
+ * Modified European Union Public Licence - EUPL v.1.1 Usage
+ * Alternatively, this file may be used under the terms of the Modified EUPL,
  * Version 1.1 only (the "Licence"), appearing in the file LICENCE.md
  * included in the packaging of this file. You may not use this work
  * except in compliance with the Licence. Unless required by applicable
@@ -22,7 +22,8 @@
  * distributed on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF
  * ANY KIND, either express or implied. See the Licence for the specific
  * language governing permissions and limitations at
- * https://www.lsts.pt/neptus/licence.
+ * https://github.com/LSTS/neptus/blob/develop/LICENSE.md
+ * and http://ec.europa.eu/idabc/eupl.html.
  *
  * For more information please see <http://lsts.fe.up.pt/neptus>.
  *
@@ -32,16 +33,20 @@
 package pt.lsts.neptus.types.map;
 
 import java.text.NumberFormat;
-import java.util.Collection;
+import java.util.ArrayList;
 import java.util.Vector;
 
 import javax.swing.JLabel;
 import javax.swing.JMenu;
 
+import com.l2fprod.common.propertysheet.DefaultProperty;
+import com.l2fprod.common.propertysheet.Property;
+
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.gui.PropertiesEditor;
 import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.mp.Maneuver;
+import pt.lsts.neptus.mp.Maneuver.SPEED_UNITS;
 import pt.lsts.neptus.mp.ManeuverLocation;
 import pt.lsts.neptus.mp.SystemPositionAndAttitude;
 import pt.lsts.neptus.mp.maneuvers.LocatedManeuver;
@@ -55,9 +60,6 @@ import pt.lsts.neptus.util.DateTimeUtil;
 import pt.lsts.neptus.util.GuiUtils;
 import pt.lsts.neptus.util.MathMiscUtils;
 import pt.lsts.neptus.util.StringUtils;
-
-import com.l2fprod.common.propertysheet.DefaultProperty;
-import com.l2fprod.common.propertysheet.Property;
 
 /**
  * Initially moved from {@link pt.lsts.neptus.console.plugins.planning.PlanStatistics}
@@ -95,7 +97,7 @@ public class PlanUtil {
      * @param speedMps The speed to be set to all maneuvers (that accept a speed parameter) in meters per second
      */
     public static void setPlanSpeed(PlanType plan, double speedMps) {
-        DefaultProperty units = PropertiesEditor.getPropertyInstance("Speed units", String.class, "m/s", true);
+        DefaultProperty units = PropertiesEditor.getPropertyInstance("Speed units", Maneuver.SPEED_UNITS.class, Maneuver.SPEED_UNITS.METERS_PS, true);
         units.setDisplayName(I18n.text("Speed units"));
         units.setShortDescription(I18n.text("The speed units"));
         
@@ -103,8 +105,14 @@ public class PlanUtil {
         propertySpeed.setDisplayName(I18n.text("Speed"));
         Property[] props = new Property[] {units, propertySpeed};
         
-        for (Maneuver man : plan.getGraph().getAllManeuvers())
-            man.setProperties(props);
+        for (Maneuver man : plan.getGraph().getAllManeuvers()) {
+            try {
+                man.setProperties(props);
+            }
+            catch (Exception e) {
+                NeptusLog.pub().error(e, e);
+            }
+        }
     }
     
     /**
@@ -204,8 +212,8 @@ public class PlanUtil {
     }
     
     
-    public static Collection<ManeuverLocation> getPlanWaypoints(PlanType plan) {
-        Vector<ManeuverLocation> locs = new Vector<>();
+    public static ArrayList<ManeuverLocation> getPlanWaypoints(PlanType plan) {
+        ArrayList<ManeuverLocation> locs = new ArrayList<>();
         for (Maneuver m : plan.getGraph().getManeuversSequence()) {
             if (m instanceof LocatedManeuver)
                 locs.addAll(((LocatedManeuver) m).getWaypoints());
@@ -273,12 +281,12 @@ public class PlanUtil {
             else {
                 try {
                     double speed = (Double) m.getClass().getMethod("getSpeed").invoke(m);
-                    String units = (String) m.getClass().getMethod("getUnits").invoke(m);
-                    switch (units.toLowerCase()) {
-                        case "%":
+                    SPEED_UNITS units = (Maneuver.SPEED_UNITS) m.getClass().getMethod("getSpeedUnits").invoke(m);
+                    switch (units) {
+                        case PERCENTAGE:
                             speed = SpeedConversion.convertPercentageToMps(speed);
                             break;
-                        case "rpm":
+                        case RPM:
                             speed = SpeedConversion.convertRpmtoMps(speed);
                         default:
                             break;
@@ -319,10 +327,10 @@ public class PlanUtil {
             else {
                 try {
                     speed = (Double) m.getClass().getMethod("getSpeed").invoke(m);
-                    String units = (String) m.getClass().getMethod("getUnits").invoke(m);
-                    if (units.equalsIgnoreCase("%"))
+                    SPEED_UNITS units = (Maneuver.SPEED_UNITS) m.getClass().getMethod("getSpeedUnits").invoke(m);
+                    if (units == SPEED_UNITS.PERCENTAGE)
                         speed = speed/100 * speedRpmRatioSpeed;
-                    else if (units.equalsIgnoreCase("rpm"))
+                    else if (units == SPEED_UNITS.RPM)
                         speed = (speed / speedRpmRatioRpms) * speedRpmRatioSpeed;
                 }
                 catch (Exception e) {

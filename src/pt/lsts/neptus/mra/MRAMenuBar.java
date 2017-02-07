@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2016 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2017 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -13,8 +13,8 @@
  * written agreement between you and Universidade do Porto. For licensing
  * terms, conditions, and further information contact lsts@fe.up.pt.
  *
- * European Union Public Licence - EUPL v.1.1 Usage
- * Alternatively, this file may be used under the terms of the EUPL,
+ * Modified European Union Public Licence - EUPL v.1.1 Usage
+ * Alternatively, this file may be used under the terms of the Modified EUPL,
  * Version 1.1 only (the "Licence"), appearing in the file LICENSE.md
  * included in the packaging of this file. You may not use this work
  * except in compliance with the Licence. Unless required by applicable
@@ -22,7 +22,8 @@
  * distributed on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF
  * ANY KIND, either express or implied. See the Licence for the specific
  * language governing permissions and limitations at
- * https://www.lsts.pt/neptus/licence.
+ * https://github.com/LSTS/neptus/blob/develop/LICENSE.md
+ * and http://ec.europa.eu/idabc/eupl.html.
  *
  * For more information please see <http://lsts.fe.up.pt/neptus>.
  *
@@ -203,19 +204,29 @@ public class MRAMenuBar {
 
                 if (fileChooser.showOpenDialog(mra) == JFileChooser.APPROVE_OPTION) {
                     final File log = fileChooser.getSelectedFile();
+                    boolean proceed = true;
+                    
                     LogValidity validity = LogUtils.isValidLSFSource(log.getParentFile());
                     if (validity != LogUtils.LogValidity.VALID) {
-                        String message = null;
-                        if(validity == LogValidity.NO_DIRECTORY)
-                            message = "No such directory / No read permissions";
-                        if(validity == LogValidity.NO_VALID_LOG_FILE)
-                            message = "No valid LSF log file present";
-                        if(validity == LogValidity.NO_XML_DEFS)
-                            message = "No valid XML definition present";
-
-                        GuiUtils.errorMessage(mra, I18n.text("Open LSF log"),
-                                I18n.text(message));
-                        return;
+                        if(validity == LogValidity.NO_XML_DEFS) {
+                            int op = GuiUtils.confirmDialog(mra, I18n.text("Open LSF log"),
+                                    I18n.text("The log folder does not include IMC (xml) definitions. Use defaults?"));
+                            if (op != JOptionPane.YES_OPTION) {
+                                proceed = false;
+                            }
+                        }
+                        else if(validity == LogValidity.NO_DIRECTORY) {
+                            GuiUtils.errorMessage(mra, I18n.text("Open LSF log"),
+                                    I18n.text("No such directory / No read permissions"));
+                            proceed = false;
+                        }
+                        else if(validity == LogValidity.NO_VALID_LOG_FILE) {
+                            GuiUtils.errorMessage(mra, I18n.text("Open LSF log"),
+                                    I18n.text("No valid LSF log file present"));
+                            proceed = false;
+                        }
+                        if (!proceed)
+                            return;
                     }
 
                     new Thread("Open Log") {
@@ -668,31 +679,36 @@ public class MRAMenuBar {
         
         for (String name : names) {
             final MRAExporter exp = exporters.get(name);
-            if (exp.canBeApplied(source)) {
-                JMenuItem item = new JMenuItem(new AbstractAction(name) {
-                    @Override
-                    public void actionPerformed(ActionEvent e) {
-                        Thread t = new Thread(name + " processing") {
-                            @Override
-                            public void run() {
-                                ProgressMonitor monitor = new ProgressMonitor(mra.getMraPanel(), name, "", 0, 100);
-                                monitor.setProgress(0);
-                                String res = exp.process(source, monitor);
-                                if (res != null)
-                                    GuiUtils.infoMessage(mra.getMraPanel(), name, res);
-                                monitor.close();
+            try {
+                if (exp.canBeApplied(source)) {
+                    JMenuItem item = new JMenuItem(new AbstractAction(name) {
+                        @Override
+                        public void actionPerformed(ActionEvent e) {
+                            Thread t = new Thread(name + " processing") {
+                                @Override
+                                public void run() {
+                                    ProgressMonitor monitor = new ProgressMonitor(mra.getMraPanel(), name, "", 0, 100);
+                                    monitor.setProgress(0);
+                                    String res = exp.process(source, monitor);
+                                    if (res != null)
+                                        GuiUtils.infoMessage(mra.getMraPanel(), name, res);
+                                    monitor.close();
+                                };
                             };
-                        };
-                        t.setDaemon(true);
-                        t.start();
-                    }
-                });
-                item.setIcon(ImageUtils.getIcon("images/menus/export.png"));
-                
-                if (PluginUtils.isPluginExperimental(exp.getClass()))
-                    experimental.add(item);
-                else
-                    getExportersMenu().add(item);
+                            t.setDaemon(true);
+                            t.start();
+                        }
+                    });
+                    item.setIcon(ImageUtils.getIcon("images/menus/export.png"));
+                    
+                    if (PluginUtils.isPluginExperimental(exp.getClass()))
+                        experimental.add(item);
+                    else
+                        getExportersMenu().add(item);
+                }
+            }
+            catch (Exception e) {
+                e.printStackTrace();
             }
         }
 

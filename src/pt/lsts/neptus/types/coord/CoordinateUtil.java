@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2016 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2017 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -13,8 +13,8 @@
  * written agreement between you and Universidade do Porto. For licensing
  * terms, conditions, and further information contact lsts@fe.up.pt.
  *
- * European Union Public Licence - EUPL v.1.1 Usage
- * Alternatively, this file may be used under the terms of the EUPL,
+ * Modified European Union Public Licence - EUPL v.1.1 Usage
+ * Alternatively, this file may be used under the terms of the Modified EUPL,
  * Version 1.1 only (the "Licence"), appearing in the file LICENCE.md
  * included in the packaging of this file. You may not use this work
  * except in compliance with the Licence. Unless required by applicable
@@ -22,7 +22,8 @@
  * distributed on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF
  * ANY KIND, either express or implied. See the Licence for the specific
  * language governing permissions and limitations at
- * https://www.lsts.pt/neptus/licence.
+ * https://github.com/LSTS/neptus/blob/develop/LICENSE.md
+ * and http://ec.europa.eu/idabc/eupl.html.
  *
  * For more information please see <http://lsts.fe.up.pt/neptus>.
  *
@@ -34,6 +35,8 @@ package pt.lsts.neptus.types.coord;
 import java.awt.Toolkit;
 import java.awt.datatransfer.ClipboardOwner;
 import java.awt.datatransfer.StringSelection;
+import java.awt.geom.Line2D;
+import java.awt.geom.Point2D;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.util.Locale;
@@ -41,8 +44,10 @@ import java.util.StringTokenizer;
 
 import javax.vecmath.Matrix3d;
 
+import cern.colt.Arrays;
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.util.AngleUtils;
+import pt.lsts.neptus.util.conf.GeneralPreferences;
 import pt.lsts.neptus.util.coord.MapTileUtil;
 
 /**
@@ -398,7 +403,7 @@ public class CoordinateUtil {
      */
     private static String dmsToLatLonString(double[] dms, boolean isLat, boolean dmonly, int maxDecimalHouses) {
         if (maxDecimalHouses < 0)
-            maxDecimalHouses = 3;
+            maxDecimalHouses = dmonly ? DEFAULT_DHOUSES_FOR_DM : DEFAULT_DHOUSES_FOR_DMS;
         String l = "N";
         if (!isLat)
             l = "E";
@@ -1414,6 +1419,72 @@ public class CoordinateUtil {
 
         return new double[] { UTMNorthing * 1000.0, UTMEasting * 1000.0 };
     }
+    
+    /**
+     * @param latitudeDegs The value of lat
+     * @param format The format, or null to use the {@link GeneralPreferences#latLonPrefFormat}
+     * @return
+     */
+    public static String latitudeAsPrettyString(double latitudeDegs, LatLonFormatEnum format) {
+        return latlongAsPrettyStringWorker(true, latitudeDegs, format);
+    }
+
+    /**
+     * The format will be the {@link GeneralPreferences#latLonPrefFormat}
+     *
+     * @param latitudeDegs The value of lat
+     * @return
+     */
+    public static String latitudeAsPrettyString(double latitudeDegs) {
+        return latlongAsPrettyStringWorker(true, latitudeDegs, null);
+    }
+
+    /**
+     * @param longitudeDegs The value of lon
+     * @param format The format, or null to use the {@link GeneralPreferences#latLonPrefFormat}
+     * @return
+     */
+    public static String longitudeAsPrettyString(double longitudeDegs, LatLonFormatEnum format) {
+        return latlongAsPrettyStringWorker(false, longitudeDegs, format);
+    }
+
+    /**
+     * The format will be the {@link GeneralPreferences#latLonPrefFormat}
+     *
+     * @param longitudeDegs The value of lon
+     * @return
+     */
+    public static String longitudeAsPrettyString(double longitudeDegs) {
+        return latlongAsPrettyStringWorker(false, longitudeDegs, null);
+    }
+
+    /**
+     * @param isLat To denote if is lat or lon
+     * @param latlongitudeDegs The value of lat or lon
+     * @param format The format, or null to use the {@link GeneralPreferences#latLonPrefFormat}
+     * @return
+     */
+    private static String latlongAsPrettyStringWorker(boolean isLat, double latlongitudeDegs, LatLonFormatEnum format) {
+        if (format == null)
+            format = GeneralPreferences.latLonPrefFormat;
+        
+        boolean showSeconds = true;
+        switch (format) {
+            case DECIMAL_DEGREES:
+                NumberFormat nformat = DecimalFormat.getInstance(Locale.US);
+                nformat.setMaximumFractionDigits(10);
+                nformat.setMinimumFractionDigits(5);
+                nformat.setGroupingUsed(false);
+                return (Math.signum(latlongitudeDegs) >= 0 ? (isLat ? "N" : "E") : (isLat ? "S" : "W"))
+                        + nformat.format(Math.abs(latlongitudeDegs));
+            case DM:
+                showSeconds = false;
+            case DMS:
+            default:
+                return isLat ? latitudeAsString(latlongitudeDegs, !showSeconds, showSeconds ? 6 : 8)
+                        : longitudeAsString(latlongitudeDegs, !showSeconds, showSeconds ? 6 : 8);
+        }
+    }
 
     public static String latitudeAsString(double latitude) {
         return latitudeAsString(latitude, true);
@@ -1423,13 +1494,13 @@ public class CoordinateUtil {
         return longitudeAsString(longitude, true);
     }
 
-    public static String latitudeAsPrettyString(double latitude, boolean showSeconds) {
-        return latitudeAsString(latitude, !showSeconds, showSeconds ? 6 : 8);
-    }
-
-    public static String longitudeAsPrettyString(double longitude, boolean showSeconds) {
-        return longitudeAsString(longitude, !showSeconds, showSeconds ? 6 : 8);
-    }
+//    public static String latitudeAsPrettyString(double latitude, boolean showSeconds) {
+//        return latitudeAsString(latitude, !showSeconds, showSeconds ? 6 : 8);
+//    }
+//
+//    public static String longitudeAsPrettyString(double longitude, boolean showSeconds) {
+//        return longitudeAsString(longitude, !showSeconds, showSeconds ? 6 : 8);
+//    }
 
     public static String latitudeAsString(double latitude, boolean minutesOnly) {
         return latitudeAsString(latitude, minutesOnly, -1);
@@ -1637,6 +1708,18 @@ public class CoordinateUtil {
         return new double[] { Math.toDegrees(bearing), range };
     }
 
+    /**
+     * Traces a line between l1 and l2 and computes the distance
+     * of point to this line. If the 3 locations are colinear this
+     * distance will be = 0 + e, where e should be a small error.
+     * */
+    public static double distanceToLine(LocationType point, LocationType l1, LocationType l2) {
+        double[] pt1 = l1.getOffsetFrom(point);
+        double[] pt2 = l2.getOffsetFrom(point);
+        Line2D line = new Line2D.Double(pt1[0], pt1[1], pt2[0], pt2[1]);
+        return line.ptLineDist(new Point2D.Double());
+    }
+
     // ---------------------------------------------------------------------------------------------
 
     /**
@@ -1824,7 +1907,9 @@ public class CoordinateUtil {
          * lt2.getOffsetFrom(lt1)[1]; offLat = lt2.getOffsetFrom(lt1)[0]; NeptusLog.pub().info("Offset lat: "+offLat+", Offset lon: "+offLong);
          * NeptusLog.pub().info("lat: "+newCoords[0]+", lon: "+newCoords[1]);
          */
-        NeptusLog.pub().info(latitudeAsPrettyString(39.543, false));
+        
+        //NeptusLog.pub().info(latitudeAsPrettyString(39.543, false));
+        NeptusLog.pub().info(latitudeAsPrettyString(39.543, LatLonFormatEnum.DM));
 
         double lat1 = 41.3456345678343434;
         String lat1Str = dmsToLatString(CoordinateUtil.decimalDegreesToDMS(lat1));
@@ -1833,7 +1918,8 @@ public class CoordinateUtil {
         NeptusLog.pub().info(lat1);
         NeptusLog.pub().info(lat1Str);
         NeptusLog.pub().info(lat1M);
-        NeptusLog.pub().info(latitudeAsPrettyString(lat1, true));
+        //NeptusLog.pub().info(latitudeAsPrettyString(lat1, true));
+        NeptusLog.pub().info(latitudeAsPrettyString(lat1, LatLonFormatEnum.DMS));
         
         NeptusLog.pub().info("_________________________________________________________");
         NeptusLog.pub().info(locC);
@@ -1853,5 +1939,31 @@ public class CoordinateUtil {
         LocationType locA1 = new LocationType(0, 0);
         LocationType locA2 = new LocationType(0.000001, 0);
         NeptusLog.pub().info(locA1.getDistanceInMeters(locA2));
+        
+        NeptusLog.pub().info("_________________________________________________________");
+
+        LocationType loc = new LocationType(41.73827393783, -9.783637266382);
+        // NeptusLog.pub().info("latitudeAsPrettyString lat true " + latitudeAsPrettyString(loc.getLatitudeDegs(), true));
+        // NeptusLog.pub().info("latitudeAsPrettyString lat false " + latitudeAsPrettyString(loc.getLatitudeDegs(), false));
+
+        NeptusLog.pub().info("latitudeAsPrettyString lat DECIMAL_DEGREES " + latitudeAsPrettyString(loc.getLatitudeDegs(), LatLonFormatEnum.DECIMAL_DEGREES));
+        NeptusLog.pub().info("latitudeAsPrettyString lat DM " + latitudeAsPrettyString(loc.getLatitudeDegs(), LatLonFormatEnum.DM));
+        NeptusLog.pub().info("latitudeAsPrettyString lat DMS " + latitudeAsPrettyString(loc.getLatitudeDegs(), LatLonFormatEnum.DMS));
+
+        NeptusLog.pub().info(Arrays.toString(parseCoordToStringArray(latitudeAsPrettyString(loc.getLatitudeDegs(), LatLonFormatEnum.DECIMAL_DEGREES))));
+        NeptusLog.pub().info(Arrays.toString(parseCoordToStringArray(latitudeAsPrettyString(loc.getLatitudeDegs(), LatLonFormatEnum.DM))));
+        NeptusLog.pub().info(Arrays.toString(parseCoordToStringArray(latitudeAsPrettyString(loc.getLatitudeDegs(), LatLonFormatEnum.DMS))));
+
+        NeptusLog.pub().info(parseLatitudeCoordToDoubleValue(latitudeAsPrettyString(loc.getLatitudeDegs(), LatLonFormatEnum.DECIMAL_DEGREES)));
+        NeptusLog.pub().info(parseLatitudeCoordToDoubleValue(latitudeAsPrettyString(loc.getLatitudeDegs(), LatLonFormatEnum.DM)));
+        NeptusLog.pub().info(parseLatitudeCoordToDoubleValue(latitudeAsPrettyString(loc.getLatitudeDegs(), LatLonFormatEnum.DMS)));
+
+        
+//        latitudeAsPrettyString(double latitude, boolean showSeconds)
+//        latitudeAsString(latitude, !showSeconds, showSeconds ? 6 : 8);
+//
+//        longitudeAsPrettyString(double longitude, boolean showSeconds)
+//        longitudeAsString(longitude, !showSeconds, showSeconds ? 6 : 8)
+
     }
 }

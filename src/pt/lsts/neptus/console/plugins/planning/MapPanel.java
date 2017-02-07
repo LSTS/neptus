@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2016 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2017 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -13,8 +13,8 @@
  * written agreement between you and Universidade do Porto. For licensing
  * terms, conditions, and further information contact lsts@fe.up.pt.
  *
- * European Union Public Licence - EUPL v.1.1 Usage
- * Alternatively, this file may be used under the terms of the EUPL,
+ * Modified European Union Public Licence - EUPL v.1.1 Usage
+ * Alternatively, this file may be used under the terms of the Modified EUPL,
  * Version 1.1 only (the "Licence"), appearing in the file LICENCE.md
  * included in the packaging of this file. You may not use this work
  * except in compliance with the Licence. Unless required by applicable
@@ -22,7 +22,8 @@
  * distributed on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF
  * ANY KIND, either express or implied. See the Licence for the specific
  * language governing permissions and limitations at
- * https://www.lsts.pt/neptus/licence.
+ * https://github.com/LSTS/neptus/blob/develop/LICENSE.md
+ * and http://ec.europa.eu/idabc/eupl.html.
  *
  * For more information please see <http://lsts.fe.up.pt/neptus>.
  *
@@ -35,16 +36,22 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.event.ActionEvent;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.LinkedHashMap;
 
 import javax.swing.AbstractAction;
+import javax.swing.AbstractButton;
 import javax.swing.BorderFactory;
 import javax.swing.ButtonGroup;
 import javax.swing.ImageIcon;
 import javax.swing.JLabel;
 import javax.swing.JSeparator;
 import javax.swing.JToolBar;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
+
+import com.google.common.eventbus.Subscribe;
 
 import pt.lsts.imc.PlanControlState;
 import pt.lsts.neptus.NeptusLog;
@@ -83,8 +90,6 @@ import pt.lsts.neptus.types.mission.MissionType;
 import pt.lsts.neptus.types.mission.plan.PlanType;
 import pt.lsts.neptus.types.vehicle.VehicleType;
 import pt.lsts.neptus.util.ImageUtils;
-
-import com.google.common.eventbus.Subscribe;
 
 /**
  * @author zp
@@ -140,6 +145,7 @@ CustomInteractionSupport, VehicleStateListener, ConsoleVehicleChangeListener {
     protected JLabel status = new JLabel();
     protected PlanElement mainPlanPainter = null;
     protected ButtonGroup bg = new ButtonGroup();
+    protected ArrayList<AbstractButton> nonExclusiveButtons = new ArrayList<>();
     protected JToolBar bottom = new JToolBar(JToolBar.VERTICAL);
 
     protected LinkedHashMap<VehicleType, SystemPositionAndAttitude> vehicles = new LinkedHashMap<VehicleType, SystemPositionAndAttitude>();
@@ -164,16 +170,33 @@ CustomInteractionSupport, VehicleStateListener, ConsoleVehicleChangeListener {
         bottom.setFloatable(false);
         bottom.setAlignmentX(JToolBar.CENTER_ALIGNMENT);
         renderer.addMenuExtension(new FeatureFocuser(console));
-        AbstractAction tmp = new AbstractAction(I18n.text("Translate"), null) {
+        AbstractAction tmp = new AbstractAction("dummy", null) {
             private static final long serialVersionUID = 1L;
 
             @Override
             public void actionPerformed(ActionEvent e) {
-
             }
-
         };
         dummySwitch= new ToolbarSwitch(tmp);
+        dummySwitch.addChangeListener(new ChangeListener() {
+            @Override
+            public void stateChanged(ChangeEvent e) {
+                if (!((AbstractButton) e.getSource()).isSelected()) {
+                    for (AbstractButton bt : nonExclusiveButtons) {
+                        if (bt.isSelected() == true)
+                            bt.doClick();
+                        bt.setEnabled(false);
+                    }
+                }
+                else {
+                    for (AbstractButton bt : nonExclusiveButtons) {
+                        if (bt.isSelected() == true)
+                            bt.doClick();
+                        bt.setEnabled(true);
+                    }
+                }
+            }
+        });
         bg.add(dummySwitch);
         dummySwitch.setSelected(true);
 
@@ -425,9 +448,8 @@ CustomInteractionSupport, VehicleStateListener, ConsoleVehicleChangeListener {
 
                 @Override
                 public void actionPerformed(ActionEvent e) {
+                    StateRendererInteraction ri = interactionModes.get(name);
                     if (((ToolbarSwitch) e.getSource()).isSelected()) {
-                        StateRendererInteraction ri = interactionModes.get(name);
-
                         if (ri.isExclusive()) {
                             if (renderer.getActiveInteraction() != null) {
                                 renderer.getActiveInteraction().setActive(false, renderer);
@@ -441,11 +463,20 @@ CustomInteractionSupport, VehicleStateListener, ConsoleVehicleChangeListener {
                         renderer.setActiveInteraction(ri);
                         ri.setActive(true, renderer);
                     }
+                    else {
+                        if (renderer.getActiveInteraction() == ri)
+                            renderer.setActiveInteraction(null);
+                        ri.setActive(false, renderer);
+                    }
                 }
             };
             ToolbarSwitch tswitch = new ToolbarSwitch(I18n.text(name), custom);
-            if (tswitch.isEnabled())
-                bg.add(tswitch);
+            if (tswitch.isEnabled()) {
+                if (interaction.isExclusive())
+                    bg.add(tswitch);
+                else
+                    nonExclusiveButtons.add(tswitch);
+            }
             bottom.add(tswitch, 0);
             interactionButtons.put(interaction.getName(), tswitch);
             tswitch.setSelected(false);
@@ -471,8 +502,11 @@ CustomInteractionSupport, VehicleStateListener, ConsoleVehicleChangeListener {
     public void removeInteraction(StateRendererInteraction interaction) {
         renderer.removeInteraction(interaction);
         ToolbarSwitch sw = interactionButtons.get(interaction.getName());
-        if (sw != null)
+        if (sw != null) {
             bottom.remove(sw);
+            bg.remove(sw);
+            nonExclusiveButtons.remove(sw);
+        }
         doLayout();
     }
 

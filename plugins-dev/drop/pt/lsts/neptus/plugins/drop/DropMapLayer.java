@@ -14,8 +14,8 @@
  * written agreement between you and Universidade do Porto. For licensing
  * terms, conditions, and further information contact lsts@fe.up.pt.
  *
- * European Union Public Licence - EUPL v.1.1 Usage
- * Alternatively, this file may be used under the terms of the EUPL,
+ * Modified European Union Public Licence - EUPL v.1.1 Usage
+ * Alternatively, this file may be used under the terms of the Modified EUPL,
  * Version 1.1 only (the "Licence"), appearing in the file LICENCE.md
  * included in the packaging of this file. You may not use this work
  * except in compliance with the Licence. Unless required by applicable
@@ -23,7 +23,8 @@
  * distributed on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF
  * ANY KIND, either express or implied. See the Licence for the specific
  * language governing permissions and limitations at
- * https://www.lsts.pt/neptus/licence.
+ * https://github.com/LSTS/neptus/blob/develop/LICENSE.md
+ * and http://ec.europa.eu/idabc/eupl.html.
  *
  * For more information please see <http://lsts.fe.up.pt/neptus>.
  *
@@ -44,6 +45,8 @@ import java.awt.geom.Point2D;
 import javax.swing.JMenuItem;
 import javax.swing.JPopupMenu;
 
+import com.google.common.eventbus.Subscribe;
+
 import pt.lsts.imc.PowerChannelControl;
 import pt.lsts.imc.PowerChannelControl.OP;
 import pt.lsts.imc.PowerChannelState;
@@ -61,8 +64,6 @@ import pt.lsts.neptus.plugins.SimpleRendererInteraction;
 import pt.lsts.neptus.renderer2d.Renderer2DPainter;
 import pt.lsts.neptus.renderer2d.StateRenderer2D;
 import pt.lsts.neptus.types.coord.LocationType;
-
-import com.google.common.eventbus.Subscribe;
 
 /**
  * @author jfortuna

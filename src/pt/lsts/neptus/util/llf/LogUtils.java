@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2016 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2017 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -13,8 +13,8 @@
  * written agreement between you and Universidade do Porto. For licensing
  * terms, conditions, and further information contact lsts@fe.up.pt.
  *
- * European Union Public Licence - EUPL v.1.1 Usage
- * Alternatively, this file may be used under the terms of the EUPL,
+ * Modified European Union Public Licence - EUPL v.1.1 Usage
+ * Alternatively, this file may be used under the terms of the Modified EUPL,
  * Version 1.1 only (the "Licence"), appearing in the file LICENCE.md
  * included in the packaging of this file. You may not use this work
  * except in compliance with the Licence. Unless required by applicable
@@ -22,7 +22,8 @@
  * distributed on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF
  * ANY KIND, either express or implied. See the Licence for the specific
  * language governing permissions and limitations at
- * https://www.lsts.pt/neptus/licence.
+ * https://github.com/LSTS/neptus/blob/develop/LICENSE.md
+ * and http://ec.europa.eu/idabc/eupl.html.
  *
  * For more information please see <http://lsts.fe.up.pt/neptus>.
  *
@@ -38,13 +39,24 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.ObjectInputStream;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Vector;
+import java.util.stream.Collectors;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
 import org.jfree.chart.JFreeChart;
+
+import com.lowagie.text.Document;
+import com.lowagie.text.Rectangle;
+import com.lowagie.text.pdf.PdfContentByte;
+import com.lowagie.text.pdf.PdfTemplate;
+import com.lowagie.text.pdf.PdfWriter;
 
 import pt.lsts.imc.EstimatedState;
 import pt.lsts.imc.GpsFix;
@@ -64,20 +76,9 @@ import pt.lsts.neptus.comm.IMCUtils;
 import pt.lsts.neptus.comm.manager.imc.ImcId16;
 import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.mp.Maneuver;
-import pt.lsts.neptus.mp.ManeuverFactory;
 import pt.lsts.neptus.mp.OperationLimits;
 import pt.lsts.neptus.mp.SystemPositionAndAttitude;
-import pt.lsts.neptus.mp.maneuvers.Elevator;
-import pt.lsts.neptus.mp.maneuvers.FollowPath;
-import pt.lsts.neptus.mp.maneuvers.FollowTrajectory;
-import pt.lsts.neptus.mp.maneuvers.Goto;
-import pt.lsts.neptus.mp.maneuvers.IMCSerialization;
-import pt.lsts.neptus.mp.maneuvers.Loiter;
-import pt.lsts.neptus.mp.maneuvers.PopUp;
-import pt.lsts.neptus.mp.maneuvers.RowsManeuver;
-import pt.lsts.neptus.mp.maneuvers.StationKeeping;
 import pt.lsts.neptus.mp.maneuvers.Unconstrained;
-import pt.lsts.neptus.mp.maneuvers.YoYo;
 import pt.lsts.neptus.mra.LogMarker;
 import pt.lsts.neptus.mra.api.CorrectedPosition;
 import pt.lsts.neptus.mra.importers.IMraLog;
@@ -98,12 +99,6 @@ import pt.lsts.neptus.types.vehicle.VehiclesHolder;
 import pt.lsts.neptus.util.DateTimeUtil;
 import pt.lsts.neptus.util.FileUtil;
 import pt.lsts.neptus.util.GuiUtils;
-
-import com.lowagie.text.Document;
-import com.lowagie.text.Rectangle;
-import com.lowagie.text.pdf.PdfContentByte;
-import com.lowagie.text.pdf.PdfTemplate;
-import com.lowagie.text.pdf.PdfWriter;
 
 /** 
  * @author pdias
@@ -387,7 +382,7 @@ public class LogUtils {
         return null;
     }
     
-        public static TransponderElement[] getTransponders(IMraLogGroup source) {
+    public static TransponderElement[] getTransponders(IMraLogGroup source) {
         IMraLog parser = source.getLog("LblConfig");
         if (parser == null)
             return new TransponderElement[0];
@@ -440,6 +435,7 @@ public class LogUtils {
         return transp.toArray(new TransponderElement[0]);
     }
 
+    @Deprecated
     public static boolean isValidLogFolder(File dir) {
         if (!dir.isDirectory() || !dir.canRead())
             return false;
@@ -453,6 +449,7 @@ public class LogUtils {
         return false;
     }
 
+    @Deprecated
     public static boolean isValidZipSource(File zipFile) {
         try {
             ZipInputStream zis = new ZipInputStream(new FileInputStream(zipFile));
@@ -510,6 +507,94 @@ public class LogUtils {
         return LogValidity.NO_XML_DEFS;
     }
 
+    /**
+     * Return from a log folder a valid {@link FileUtil#FILE_TYPE_LSF} (compressed or not)
+     * 
+     * @param logFolder
+     * @return
+     */
+    public static File getValidLogFileFromLogFolder(File logFolder) {
+        if (!logFolder.exists())
+            return null;
+
+        File logLsf = null;
+        File logLsfGz = null;
+        File logLsfBz2 = null;
+        ArrayList<File> files = new ArrayList<File>(Arrays.asList(logFolder.listFiles()));
+        Collections.sort(files);
+        
+        File fxLogFound = null;
+        String fxBase = "Data";
+        List<String> acceptableFiles = Arrays.asList(fxBase + "." + FileUtil.FILE_TYPE_LSF,
+                fxBase + "." + FileUtil.FILE_TYPE_LSF_COMPRESSED,
+                fxBase + "." + FileUtil.FILE_TYPE_LSF_COMPRESSED_BZIP2);
+        List<File> rLogs = files.stream().filter(f -> acceptableFiles.contains(f.getName()))
+                .collect(Collectors.toList());
+        if (!rLogs.isEmpty()) {
+            rLogs.sort(new Comparator<File>() {
+                @Override
+                public int compare(File f1, File f2) {
+                    String e1 = FileUtil.getFileExtension(f1);
+                    String e2 = FileUtil.getFileExtension(f2);
+                    if (e1.equalsIgnoreCase(e2)) {
+                        return f1.compareTo(f2);
+                    }
+                    else {
+                        if (e1.endsWith("lsf"))
+                            return -1;
+                        else if (e2.endsWith("lsf"))
+                            return 1;
+                        else if (e1.endsWith("gz"))
+                            return -1;
+                        else if (e2.endsWith("gz"))
+                            return 1;
+                        else if (e1.endsWith("bz2"))
+                            return -1;
+                        else if (e2.endsWith("bz2"))
+                            return 1;
+                    }
+                    return 0;
+                }
+            });
+            fxLogFound = rLogs.get(0);
+        }
+        
+        if (fxLogFound == null) {
+            sel : 
+                for (File fx : files) {
+                    switch (FileUtil.getFileExtension(fx)) {
+                        case FileUtil.FILE_TYPE_LSF:
+                            logLsf = fx;
+                            break sel;
+                        case "gz":
+                            String fex = FileUtil.getFileNameWithoutExtension(fx.getName());
+                            if (FileUtil.getFileExtension(fex).equalsIgnoreCase(FileUtil.FILE_TYPE_LSF))
+                                logLsfGz = fx;
+                            break sel;
+                        case "bz2":
+                            fex = FileUtil.getFileNameWithoutExtension(fx.getName());
+                            if (FileUtil.getFileExtension(fex).equalsIgnoreCase(FileUtil.FILE_TYPE_LSF))
+                                logLsfBz2 = fx;
+                            break sel;
+                        default:
+                            break;
+                    }
+                }
+        }
+
+        File ret = null;
+        if (fxLogFound != null)
+            ret = fxLogFound;
+        else if (logLsf != null)
+            ret = logLsf;
+        else if (logLsfGz != null)
+            ret = logLsfGz;
+        else if (logLsfBz2 != null)
+            ret = logLsfBz2;
+        
+        return ret;
+    }
+    
     /**
      * @author zp
      * @param mt
@@ -590,52 +675,22 @@ public class LogUtils {
             return null;
         }
     }
-
     
     /**
      * See {@link IMCUtils#parseManeuver(IMCMessage)}
      */
     protected static Maneuver parseManeuver(String manId, IMCMessage msg) {
-        String manType = msg.getAbbrev();
-        Maneuver maneuver = null;
-        if ("Goto".equalsIgnoreCase(manType))
-            maneuver = new Goto();
-        else if ("Popup".equalsIgnoreCase(manType))
-            maneuver = new PopUp();
-        else if ("Loiter".equalsIgnoreCase(manType))
-            maneuver = new Loiter();
-        else if ("Teleoperation".equalsIgnoreCase(manType))
-            maneuver = new Unconstrained();
-        else if ("Rows".equalsIgnoreCase(manType))
-            maneuver = new RowsManeuver();
-        else if ("FollowTrajectory".equalsIgnoreCase(manType))
-            maneuver = new FollowTrajectory();
-        else if ("FollowPath".equalsIgnoreCase(manType))
-            maneuver = FollowPath.createFollowPathOrPattern(msg);
-        else if ("StationKeeping".equalsIgnoreCase(manType))
-            maneuver = new StationKeeping();
-        else if ("Elevator".equalsIgnoreCase(manType))
-            maneuver = new Elevator();
-        else if ("YoYo".equalsIgnoreCase(manType))
-            maneuver = new YoYo();
-        else {
-            try {
-                maneuver = ManeuverFactory.createManeuver(manType, "pt.lsts.neptus.mp.maneuvers." + manType);
-            }
-            catch (Exception e) {
-                e.printStackTrace();
-            }
+        Maneuver maneuver = IMCUtils.parseManeuver(msg);
+        if (maneuver != null) {
+            maneuver.setId(manId);
         }
-
-        if (maneuver == null)
-            return null;
-        maneuver.setId(manId);
-
-        if (maneuver instanceof IMCSerialization)
-            ((IMCSerialization) maneuver).parseIMCMessage(msg);
-
+        else {
+            String manType = msg.getAbbrev();
+            if (!"Teleoperation".equalsIgnoreCase(manType) && (maneuver instanceof Unconstrained))
+                maneuver = null;
+        }
+        
         return maneuver;
-
     }
 
     public static String parseInlineName(String data) {
@@ -756,6 +811,7 @@ public class LogUtils {
             }
         }
         pe.setMyColor(Color.green);
+        pe.setFilled(false);
         pe.setFinished(true);
 
         MapMission mm = new MapMission();

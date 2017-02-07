@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2016 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2017 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -13,8 +13,8 @@
  * written agreement between you and Universidade do Porto. For licensing
  * terms, conditions, and further information contact lsts@fe.up.pt.
  *
- * European Union Public Licence - EUPL v.1.1 Usage
- * Alternatively, this file may be used under the terms of the EUPL,
+ * Modified European Union Public Licence - EUPL v.1.1 Usage
+ * Alternatively, this file may be used under the terms of the Modified EUPL,
  * Version 1.1 only (the "Licence"), appearing in the file LICENCE.md
  * included in the packaging of this file. You may not use this work
  * except in compliance with the Licence. Unless required by applicable
@@ -22,7 +22,8 @@
  * distributed on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF
  * ANY KIND, either express or implied. See the Licence for the specific
  * language governing permissions and limitations at
- * https://www.lsts.pt/neptus/licence.
+ * https://github.com/LSTS/neptus/blob/develop/LICENSE.md
+ * and http://ec.europa.eu/idabc/eupl.html.
  *
  * For more information please see <http://lsts.fe.up.pt/neptus>.
  *
@@ -55,15 +56,17 @@ public class ExternalSystemsHolder {
     private static TimerTask ttask = new TimerTask() {
         @Override
         public void run() {
-            if (lookupTable.size() == 0)
-                return;
-            
-            ImcSystem[] systems = ImcSystemsHolder.lookupAllSystems();
-            for (String extSystemName : lookupTable.keySet().toArray(new String[0])) {
-                for (ImcSystem imcSystem : systems) {
-                    if (extSystemName.equalsIgnoreCase(imcSystem.getName())) {
-                        lookupTable.remove(extSystemName);
-                        break;
+            synchronized (lookupTable) {
+                if (lookupTable.size() == 0)
+                    return;
+                
+                ImcSystem[] systems = ImcSystemsHolder.lookupAllSystems();
+                for (String extSystemName : lookupTable.keySet().toArray(new String[0])) {
+                    for (ImcSystem imcSystem : systems) {
+                        if (extSystemName.equalsIgnoreCase(imcSystem.getName())) {
+                            lookupTable.remove(extSystemName);
+                            break;
+                        }
                     }
                 }
             }
@@ -91,17 +94,42 @@ public class ExternalSystemsHolder {
     private ExternalSystemsHolder() {
     }
     
-    public static boolean registerSystem(ExternalSystem system) {
-        ExternalSystem resLook = lookupTable.get(system.getId());
+    public static ExternalSystem registerSystem(ExternalSystem system) {
+        synchronized (lookupTable) {
+            ExternalSystem resLook = lookupTable.get(system.getId());
+            if (resLook != null)
+                return resLook;
+            
+            lookupTable.put(system.getId(), system);
+        }
+        return system;
+    }
+
+    public static ExternalSystem purgeSystem(String id) {
+        ExternalSystem resLook =null;
+        synchronized (lookupTable) {
+            resLook = lookupTable.remove(id);
+        }
         if (resLook != null)
-            return true;
+            return resLook;
         
-        lookupTable.put(system.getId(), system);
-        return true;
+        return null;
     }
 
     public static ExternalSystem lookupSystem(String id) {
-        return lookupTable.get(id);
+        synchronized (lookupTable) {
+            ExternalSystem ret = lookupTable.get(id);
+            if (ret == null) {
+                for (ExternalSystem is : lookupTable.values()) {
+                    //NeptusLog.pub().info("<###>... lookupSystemByName()"+is.getName());
+                    if (id.equalsIgnoreCase(is.getName())) {
+                        ret = is;;
+                        break;
+                    }
+                }
+            }
+            return ret;
+        }
     }
     
     /**
@@ -113,16 +141,15 @@ public class ExternalSystemsHolder {
         if (type == null)
             allTypes = true;
         LinkedList<ExternalSystem> list = new LinkedList<ExternalSystem>();
-        for (ExternalSystem is : lookupTable.values()) {
-            //NeptusLog.pub().info("<###>... lookupSystemByName()"+is.getName());
-            if (allTypes || type == SystemTypeEnum.ALL || type == is.getType()) {
-                if (onlyActiveSystems && !is.isActive()) {
-                    continue;
+        synchronized (lookupTable) {
+            for (ExternalSystem is : lookupTable.values()) {
+                if (allTypes || type == SystemTypeEnum.ALL || type == is.getType()) {
+                    if (onlyActiveSystems && !is.isActive())
+                        continue;
+                    list.add(is);
                 }
-                list.add(is);
             }
         }
-        //NeptusLog.pub().info("<###>... lookupSystemByName()"+list.size());
         return list.toArray(new ExternalSystem[list.size()]);
     }
 
@@ -135,16 +162,15 @@ public class ExternalSystemsHolder {
         if (type == null)
             allTypes = true;
         LinkedList<ExternalSystem> list = new LinkedList<ExternalSystem>();
-        for (ExternalSystem is : lookupTable.values()) {
-            //NeptusLog.pub().info("<###>... lookupSystemByName()"+is.getName());
-            if (allTypes || type == ExternalSystem.ExternalTypeEnum.ALL || type == is.getTypeExternal()) {
-                if (onlyActiveSystems && !is.isActive()) {
-                    continue;
+        synchronized (lookupTable) {
+            for (ExternalSystem is : lookupTable.values()) {
+                if (allTypes || type == ExternalSystem.ExternalTypeEnum.ALL || type == is.getTypeExternal()) {
+                    if (onlyActiveSystems && !is.isActive())
+                        continue;
+                    list.add(is);
                 }
-                list.add(is);
             }
         }
-        //NeptusLog.pub().info("<###>... lookupSystemByName()"+list.size());
         return list.toArray(new ExternalSystem[list.size()]);
     }
 
@@ -155,7 +181,6 @@ public class ExternalSystemsHolder {
     public static final ExternalSystem[] lookupAllActiveSystems () {
         return lookupSystemByType(null, true);
     }
-
 
     /**
      * @param type
@@ -169,7 +194,6 @@ public class ExternalSystemsHolder {
         return lookupSystemByType(type, true);
     }
 
-    
     /**
      * @return
      */
@@ -191,6 +215,4 @@ public class ExternalSystemsHolder {
     public static final ExternalSystem[] lookupActiveSystemVehicles () {
         return lookupSystemByType(VehicleType.SystemTypeEnum.VEHICLE, true);
     }
-
-
 }

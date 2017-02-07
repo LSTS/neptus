@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2016 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2017 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -13,8 +13,8 @@
  * written agreement between you and Universidade do Porto. For licensing
  * terms, conditions, and further information contact lsts@fe.up.pt.
  *
- * European Union Public Licence - EUPL v.1.1 Usage
- * Alternatively, this file may be used under the terms of the EUPL,
+ * Modified European Union Public Licence - EUPL v.1.1 Usage
+ * Alternatively, this file may be used under the terms of the Modified EUPL,
  * Version 1.1 only (the "Licence"), appearing in the file LICENCE.md
  * included in the packaging of this file. You may not use this work
  * except in compliance with the Licence. Unless required by applicable
@@ -22,7 +22,8 @@
  * distributed on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF
  * ANY KIND, either express or implied. See the Licence for the specific
  * language governing permissions and limitations at
- * https://www.lsts.pt/neptus/licence.
+ * https://github.com/LSTS/neptus/blob/develop/LICENSE.md
+ * and http://ec.europa.eu/idabc/eupl.html.
  *
  * For more information please see <http://lsts.fe.up.pt/neptus>.
  *
@@ -52,6 +53,8 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
 import javax.swing.SwingWorker;
+
+import com.google.common.eventbus.Subscribe;
 
 import pt.lsts.imc.AcousticOperation;
 import pt.lsts.imc.IMCDefinition;
@@ -106,8 +109,6 @@ import pt.lsts.neptus.util.ImageUtils;
 import pt.lsts.neptus.util.MathMiscUtils;
 import pt.lsts.neptus.util.conf.ConfigFetch;
 import pt.lsts.neptus.util.conf.GeneralPreferences;
-
-import com.google.common.eventbus.Subscribe;
 
 /**
  * @author pdias
@@ -482,6 +483,7 @@ LockableSubPanel, IPeriodicUpdates, NeptusMessageListener {
 
                 if (startTeleOperationStr.equalsIgnoreCase(e.getActionCommand())) {
                     Teleoperation teleop = new Teleoperation();
+                    teleop.setCustom("src="+ImcMsgManager.getManager().getLocalId().intValue());
 
                     int reqId = IMCSendMessageUtils.getNextRequestId();
                     PlanControl pc = new PlanControl();
@@ -497,7 +499,7 @@ LockableSubPanel, IPeriodicUpdates, NeptusMessageListener {
                             createDefaultMessageDeliveryListener(),
                             PlanControlPanel.this,
                             I18n.text("Error Initializing Tele-Operation"), DONT_USE_ACOUSTICS,
-                            "", false, true, systems);
+                            "", false, true, true, systems);
                     if (!ret) {
                         post(Notification.error(I18n.text("Tele-Operation"),
                                 I18n.text("Error sending Tele-Operation message!")));
@@ -512,7 +514,7 @@ LockableSubPanel, IPeriodicUpdates, NeptusMessageListener {
                             createDefaultMessageDeliveryListener(),
                             PlanControlPanel.this,
                             I18n.text("Error sending exiting Tele-Operation message!"), DONT_USE_ACOUSTICS,
-                            "", false, true, systems);
+                            "", false, true, true, systems);
                     if (!ret) {
                         post(Notification.error(I18n.text("Tele-Op"),
                                 I18n.text("Error sending exiting Tele-Operation message!")));
@@ -800,7 +802,7 @@ LockableSubPanel, IPeriodicUpdates, NeptusMessageListener {
         IMCSendMessageUtils.sendMessage(msgLBLConfiguration,
                 (useTcpToSendMessages ? ImcMsgManager.TRANSPORT_TCP : null), createDefaultMessageDeliveryListener(),
                 this, I18n.text("Error sending acoustic beacons"), DONT_USE_ACOUSTICS, acousticOpServiceName,
-                acousticOpUseOnlyActive, true, systems);
+                acousticOpUseOnlyActive, true, true, systems);
         // NeptusLog.pub().error("Sending beacons to vehicle: " + lblBeaconsList.toString());
 
         final String[] dest = systems;
@@ -822,7 +824,7 @@ LockableSubPanel, IPeriodicUpdates, NeptusMessageListener {
                             (useTcpToSendMessages ? ImcMsgManager.TRANSPORT_TCP : null),
                             createDefaultMessageDeliveryListener(), PlanControlPanel.this,
                             I18n.text("Error sending acoustic beacons"), DONT_USE_ACOUSTICS, acousticOpServiceName,
-                            acousticOpUseOnlyActive, true, dest);
+                            acousticOpUseOnlyActive, true, true, dest);
                 }
                 catch (Exception e) {
                     e.printStackTrace();
@@ -884,7 +886,7 @@ LockableSubPanel, IPeriodicUpdates, NeptusMessageListener {
             registerPlanControlRequest(reqId);
             boolean ret = IMCSendMessageUtils.sendMessage(pdb, (useTcpToSendMessages ? ImcMsgManager.TRANSPORT_TCP
                     : null), createDefaultMessageDeliveryListener(), this, I18n.text("Error sending plan"),
-                    DONT_USE_ACOUSTICS, acousticOpServiceName, acousticOpUseOnlyActive, true, systems);
+                    DONT_USE_ACOUSTICS, acousticOpServiceName, acousticOpUseOnlyActive, true, true, systems);
             if (ret) {
                 iSent++;
             }
@@ -921,7 +923,7 @@ LockableSubPanel, IPeriodicUpdates, NeptusMessageListener {
                 (useTcpToSendMessages ? ImcMsgManager.TRANSPORT_TCP : null), 
                 createDefaultMessageDeliveryListener(), this,
                 I18n.text("Error sending plan download request"), DONT_USE_ACOUSTICS,
-                acousticOpServiceName, acousticOpUseOnlyActive, true, systems);
+                acousticOpServiceName, acousticOpUseOnlyActive, true, true, systems);
 
         if (ret) {
             registerPlanControlRequest(reqId);
@@ -957,8 +959,6 @@ LockableSubPanel, IPeriodicUpdates, NeptusMessageListener {
         PlanControl pc = new PlanControl();
         pc.setType(PlanControl.TYPE.REQUEST);
         pc.setRequestId(reqId);
-        
-        
         
         String cmdStrMsg = "";
         try {
@@ -1007,7 +1007,7 @@ LockableSubPanel, IPeriodicUpdates, NeptusMessageListener {
 
         boolean ret = IMCSendMessageUtils.sendMessage(pc, (useTcpToSendMessages ? ImcMsgManager.TRANSPORT_TCP : null),
                 createDefaultMessageDeliveryListener(), this, cmdStrMsg, dontSendByAcoustics,
-                acousticOpServiceName, acousticOpUseOnlyActive, true, systems);
+                acousticOpServiceName, acousticOpUseOnlyActive, true, true, systems);
 
         if (!ret) {
             post(Notification.error(I18n.text("Send Plan"), I18n.text("Error sending PlanControl message!")));

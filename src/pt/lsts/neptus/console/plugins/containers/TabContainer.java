@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2016 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2017 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -13,8 +13,8 @@
  * written agreement between you and Universidade do Porto. For licensing
  * terms, conditions, and further information contact lsts@fe.up.pt.
  *
- * European Union Public Licence - EUPL v.1.1 Usage
- * Alternatively, this file may be used under the terms of the EUPL,
+ * Modified European Union Public Licence - EUPL v.1.1 Usage
+ * Alternatively, this file may be used under the terms of the Modified EUPL,
  * Version 1.1 only (the "Licence"), appearing in the file LICENCE.md
  * included in the packaging of this file. You may not use this work
  * except in compliance with the Licence. Unless required by applicable
@@ -22,7 +22,8 @@
  * distributed on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF
  * ANY KIND, either express or implied. See the Licence for the specific
  * language governing permissions and limitations at
- * https://www.lsts.pt/neptus/licence.
+ * https://github.com/LSTS/neptus/blob/develop/LICENSE.md
+ * and http://ec.europa.eu/idabc/eupl.html.
  *
  * For more information please see <http://lsts.fe.up.pt/neptus>.
  *
@@ -37,7 +38,6 @@ import java.awt.Component;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 
-import javax.swing.JComponent;
 import javax.swing.JTabbedPane;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
@@ -45,8 +45,8 @@ import javax.swing.event.ChangeListener;
 import org.dom4j.Element;
 
 import pt.lsts.neptus.console.ConsoleLayout;
-import pt.lsts.neptus.console.ContainerSubPanel;
 import pt.lsts.neptus.console.ConsolePanel;
+import pt.lsts.neptus.console.ContainerSubPanel;
 import pt.lsts.neptus.console.plugins.AlarmProviderOld;
 import pt.lsts.neptus.plugins.ConfigurationListener;
 import pt.lsts.neptus.plugins.NeptusProperty;
@@ -83,24 +83,15 @@ public class TabContainer extends ContainerSubPanel implements ConfigurationList
 	@NeptusProperty
 	public String name = "";
 	
-	
-	private JComponent pivot = null;
-	
-	public ConsolePanel getSelectedSubPanel() {
-		try {
-			return (ConsolePanel)pivot.getComponent(((JTabbedPane)pivot).getSelectedIndex());
-		}
-		catch (Exception e) {
-		    e.printStackTrace();
-			return null;
-		}
-	}
-	
+	private JTabbedPane pivot = null;
+
+    protected boolean destroyed = false;
+    
 	public TabContainer(ConsoleLayout console) {
 		super(console);
 		setLayout(new BorderLayout());
 		pivot = new JTabbedPane();
-		((JTabbedPane)pivot).addChangeListener(new ChangeListener() {
+		pivot.addChangeListener(new ChangeListener() {
 
             @Override
             public void stateChanged(ChangeEvent arg0) {
@@ -112,87 +103,129 @@ public class TabContainer extends ContainerSubPanel implements ConfigurationList
 		});
 		
 		add(pivot, BorderLayout.CENTER);
-		
-		switch (tabPlacement) {
-		case Top:
-			((JTabbedPane)pivot).setTabPlacement(JTabbedPane.TOP);	
-			break;
-		case Bottom:
-			((JTabbedPane)pivot).setTabPlacement(JTabbedPane.BOTTOM);	
-			break;
-		case Left:
-			((JTabbedPane)pivot).setTabPlacement(JTabbedPane.LEFT);	
-			break;
-		case Right:
-			((JTabbedPane)pivot).setTabPlacement(JTabbedPane.RIGHT);	
-			break;
-		default:
-			break;
-		}
+
+        switch (tabPlacement) {
+            case Top:
+                ((JTabbedPane) pivot).setTabPlacement(JTabbedPane.TOP);
+                break;
+            case Bottom:
+                ((JTabbedPane) pivot).setTabPlacement(JTabbedPane.BOTTOM);
+                break;
+            case Left:
+                ((JTabbedPane) pivot).setTabPlacement(JTabbedPane.LEFT);
+                break;
+            case Right:
+                ((JTabbedPane) pivot).setTabPlacement(JTabbedPane.RIGHT);
+                break;
+            default:
+                break;
+        }
 		PeriodicUpdatesService.register(this);
-		
-		
 	}
-	
+
+    public ConsolePanel getSelectedSubPanel() {
+        try {
+            return (ConsolePanel) pivot.getComponent(((JTabbedPane) pivot).getSelectedIndex());
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
 	public void setTabNames() {
 		String[] names = tabNames.split(",");
-		if (names.length >= ((JTabbedPane)pivot).getTabCount()) {
-			for (int i = 0; i < ((JTabbedPane)pivot).getTabCount(); i++ ) {
-				((JTabbedPane)pivot).setTitleAt(i, names[i]);					
+		if (names.length >= pivot.getTabCount()) {
+			for (int i = 0; i < pivot.getTabCount(); i++ ) {
+				pivot.setTitleAt(i, names[i]);					
 			}
 		}	
 	}
-	
+
+	/* (non-Javadoc)
+	 * @see pt.lsts.neptus.console.ContainerSubPanel#isAddSubPanelToPanelOrLetExtensionDoIt()
+	 */
 	@Override
-	public void addSubPanel(ConsolePanel panel) {
-		super.addSubPanel(panel);
+	protected boolean isAddSubPanelToPanelOrLetExtensionDoIt() {
+	    return false;
+	}
+	
+	/* (non-Javadoc)
+	 * @see pt.lsts.neptus.console.ContainerSubPanel#addSubPanelExtra(pt.lsts.neptus.console.ConsolePanel)
+	 */
+	@Override
+	public boolean addSubPanelExtra(ConsolePanel panel) {
 		ArrayList<AlarmProviderOld> l = new ArrayList<AlarmProviderOld>();
-		for(Component c : panel.getComponents())
-		{
-		    if(c instanceof AlarmProviderOld)
-		    {
+		for(Component c : panel.getComponents()) {
+		    if(c instanceof AlarmProviderOld) {
 		        //NeptusLog.pub().info("<###> "+c);
 		        l.add((AlarmProviderOld)c);
 		    }
 		}
-		subPanelList.put(panel, l);
+		synchronized (subPanelList) {
+		    subPanelList.put(panel, l);
+        }
+		pivot.addTab("", panel);
 
 		setTabNames();
+		
+		return true;
+	}
+	
+	/* (non-Javadoc)
+	 * @see pt.lsts.neptus.console.ContainerSubPanel#removeSubPanelExtra(pt.lsts.neptus.console.ConsolePanel)
+	 */
+	@Override
+	public void removeSubPanelExtra(ConsolePanel sp) {
+	    synchronized (subPanelList) {
+	        subPanelList.remove(sp);
+	    }
+	    int idx = pivot.indexOfComponent(sp);
+	    if (idx > 0)
+            pivot.removeTabAt(idx);
+//	    for (int i = 0; i < pivot.getTabCount(); i++) {
+//            Component cp = pivot.getTabComponentAt(i);
+//            if (sp == cp)
+//                pivot.removeTabAt(i);
+//        }
+	    
+	    setTabNames();
 	}
 	
 	@Override
 	public void XML_ChildsRead(Element el) {
 		super.XML_ChildsRead(el);
-		((JTabbedPane)pivot).addChangeListener(new ChangeListener() {
+		pivot.addChangeListener(new ChangeListener() {
 			@Override
 			public void stateChanged(ChangeEvent arg0) {
-				selectedIndex = ((JTabbedPane)pivot).getSelectedIndex();
+				selectedIndex = pivot.getSelectedIndex();
 				//getConsole().setConsoleSaved(false);
 			}
 		});
-		((JTabbedPane)pivot).setSelectedIndex(selectedIndex);
+		if (pivot.getTabCount() > 0)
+		    pivot.setSelectedIndex(selectedIndex);
 	}
 	
 	@Override
 	public void propertiesChanged() {
 		setTabNames();
 		
-		switch (tabPlacement) {
-		case Top:
-			((JTabbedPane)pivot).setTabPlacement(JTabbedPane.TOP);	
-			break;
-		case Bottom:
-			((JTabbedPane)pivot).setTabPlacement(JTabbedPane.BOTTOM);	
-			break;
-		case Left:
-			((JTabbedPane)pivot).setTabPlacement(JTabbedPane.LEFT);	
-			break;
-		case Right:
-			((JTabbedPane)pivot).setTabPlacement(JTabbedPane.RIGHT);	
-			break;
-		default:
-			break;
-		}		
+        switch (tabPlacement) {
+            case Top:
+                ((JTabbedPane) pivot).setTabPlacement(JTabbedPane.TOP);
+                break;
+            case Bottom:
+                ((JTabbedPane) pivot).setTabPlacement(JTabbedPane.BOTTOM);
+                break;
+            case Left:
+                ((JTabbedPane) pivot).setTabPlacement(JTabbedPane.LEFT);
+                break;
+            case Right:
+                ((JTabbedPane) pivot).setTabPlacement(JTabbedPane.RIGHT);
+                break;
+            default:
+                break;
+        }
 	}
 
     @Override
@@ -202,24 +235,23 @@ public class TabContainer extends ContainerSubPanel implements ConfigurationList
 
     @Override
     public boolean update() {
-        JTabbedPane tp = ((JTabbedPane)pivot);
-        
-        int size=tp.getTabCount();
+        int size = pivot.getTabCount();
         for(int i = 0; i < size; i++) {
-            Component jc = tp.getComponentAt(i);
+            Component jc = pivot.getComponentAt(i);
             
-            if(subPanelList.get(jc).size()!=0) {
-                for (AlarmProviderOld ap : subPanelList.get(jc)) {
-                    if (ap.getAlarmState() > AlarmProviderOld.LEVEL_0 && i != tp.getSelectedIndex()) {
-                        tp.setForegroundAt(i, Color.RED);
+            synchronized (subPanelList) {
+                ArrayList<AlarmProviderOld> splc = subPanelList.get(jc);
+                if(splc != null && splc.size() != 0) {
+                    for (AlarmProviderOld ap : subPanelList.get(jc)) {
+                        if (ap.getAlarmState() > AlarmProviderOld.LEVEL_0 && i != pivot.getSelectedIndex()) {
+                            pivot.setForegroundAt(i, Color.RED);
+                        }
                     }
                 }
             }
         }
         return !destroyed;
     }
-    
-    protected boolean destroyed = false;
     
     @Override
     public void clean() {

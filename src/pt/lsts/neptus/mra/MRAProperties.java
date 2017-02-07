@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2016 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2017 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -13,8 +13,8 @@
  * written agreement between you and Universidade do Porto. For licensing
  * terms, conditions, and further information contact lsts@fe.up.pt.
  *
- * European Union Public Licence - EUPL v.1.1 Usage
- * Alternatively, this file may be used under the terms of the EUPL,
+ * Modified European Union Public Licence - EUPL v.1.1 Usage
+ * Alternatively, this file may be used under the terms of the Modified EUPL,
  * Version 1.1 only (the "Licence"), appearing in the file LICENSE.md
  * included in the packaging of this file. You may not use this work
  * except in compliance with the Licence. Unless required by applicable
@@ -22,7 +22,8 @@
  * distributed on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF
  * ANY KIND, either express or implied. See the Licence for the specific
  * language governing permissions and limitations at
- * https://www.lsts.pt/neptus/licence.
+ * https://github.com/LSTS/neptus/blob/develop/LICENSE.md
+ * and http://ec.europa.eu/idabc/eupl.html.
  *
  * For more information please see <http://lsts.fe.up.pt/neptus>.
  *
@@ -35,6 +36,7 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.Date;
@@ -43,7 +45,8 @@ import java.util.Map.Entry;
 import java.util.Properties;
 import java.util.Vector;
 
-import java.util.Arrays;
+import com.l2fprod.common.propertysheet.DefaultProperty;
+import com.l2fprod.common.propertysheet.Property;
 
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.gui.PropertiesEditor;
@@ -52,9 +55,6 @@ import pt.lsts.neptus.mra.visualizations.MRAVisualization;
 import pt.lsts.neptus.plugins.NeptusProperty;
 import pt.lsts.neptus.plugins.PluginUtils;
 import pt.lsts.neptus.plugins.PluginsRepository;
-
-import com.l2fprod.common.propertysheet.DefaultProperty;
-import com.l2fprod.common.propertysheet.Property;
 
 /**
  * These are Neptus MRA default properties
@@ -93,7 +93,7 @@ public class MRAProperties implements PropertiesProvider {
     @NeptusProperty(name = "Apply Sound Speed Correction", description = "Apply sound speed correction.", category = "Multibeam")
     public static boolean soundSpeedCorrection = false;
 
-    @NeptusProperty(name = "Generate DeltaT Process Report", description = "Generate DeltaT process report. Does not geberate if already exist the report or the bathy.info is present.", category = "Multibeam")
+    @NeptusProperty(name = "Generate DeltaT Process Report", description = "Generate DeltaT process report. Does not generate if already exist the report or the bathy.info is present. (Re-generate the index for successful generation.)", category = "Multibeam")
     public static boolean generateDeltaTProcessReport = false;
 
     @NeptusProperty(name = "Maximum depth for bathymetry plots", description = "Maximum depth to be used in bathymetry plots.")

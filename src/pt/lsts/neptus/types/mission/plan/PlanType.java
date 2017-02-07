@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2016 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2017 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -13,8 +13,8 @@
  * written agreement between you and Universidade do Porto. For licensing
  * terms, conditions, and further information contact lsts@fe.up.pt.
  *
- * European Union Public Licence - EUPL v.1.1 Usage
- * Alternatively, this file may be used under the terms of the EUPL,
+ * Modified European Union Public Licence - EUPL v.1.1 Usage
+ * Alternatively, this file may be used under the terms of the Modified EUPL,
  * Version 1.1 only (the "Licence"), appearing in the file LICENCE.md
  * included in the packaging of this file. You may not use this work
  * except in compliance with the Licence. Unless required by applicable
@@ -22,7 +22,8 @@
  * distributed on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF
  * ANY KIND, either express or implied. See the Licence for the specific
  * language governing permissions and limitations at
- * https://www.lsts.pt/neptus/licence.
+ * https://github.com/LSTS/neptus/blob/develop/LICENSE.md
+ * and http://ec.europa.eu/idabc/eupl.html.
  *
  * For more information please see <http://lsts.fe.up.pt/neptus>.
  *
@@ -38,7 +39,6 @@ import java.io.ByteArrayOutputStream;
 import java.security.MessageDigest;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.LinkedList;
 import java.util.Vector;
 
 import org.dom4j.Attribute;
@@ -46,6 +46,9 @@ import org.dom4j.Document;
 import org.dom4j.DocumentHelper;
 import org.dom4j.Element;
 import org.dom4j.Node;
+
+import com.l2fprod.common.propertysheet.DefaultProperty;
+import com.l2fprod.common.propertysheet.Property;
 
 import pt.lsts.imc.IMCDefinition;
 import pt.lsts.imc.IMCMessage;
@@ -65,7 +68,6 @@ import pt.lsts.neptus.mp.ManeuverLocation.Z_UNITS;
 import pt.lsts.neptus.mp.actions.PlanActions;
 import pt.lsts.neptus.mp.maneuvers.IMCSerialization;
 import pt.lsts.neptus.mp.maneuvers.LocatedManeuver;
-import pt.lsts.neptus.mp.maneuvers.PathProvider;
 import pt.lsts.neptus.mp.maneuvers.RowsManeuver;
 import pt.lsts.neptus.params.ManeuverPayloadConfig;
 import pt.lsts.neptus.renderer2d.StateRenderer2D;
@@ -83,9 +85,6 @@ import pt.lsts.neptus.types.vehicle.VehicleType;
 import pt.lsts.neptus.types.vehicle.VehiclesHolder;
 import pt.lsts.neptus.util.ByteUtil;
 import pt.lsts.neptus.util.NameNormalizer;
-
-import com.l2fprod.common.propertysheet.DefaultProperty;
-import com.l2fprod.common.propertysheet.Property;
 
 /**
  * @author Paulo Dias
@@ -870,24 +869,6 @@ public class PlanType implements XmlOutputMethods, PropertiesProvider, NameId {
             NeptusLog.pub().info("<###> "+Long.toHexString(Double.doubleToLongBits(latRad)));
 
         }
-    }
-    
-    public Vector<LocationType> planPath() {
-        Vector<LocationType> locations = new Vector<>();
-        LinkedList<Maneuver> mans = getGraph().getGraphAsManeuversList();
-
-        for (Maneuver man : mans) {
-
-            if (!(man instanceof LocatedManeuver))
-                continue;
-
-            LocationType destTo = ((LocatedManeuver) man).getManeuverLocation();                         
-            if (man instanceof PathProvider)
-                locations.addAll(((PathProvider) man).getPathLocations());
-            else
-                locations.add(destTo);
-        }        
-        return locations;
     }
     
     public boolean isCompatibleWith(VehicleType vehicle) {

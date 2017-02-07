@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2016 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2017 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -13,8 +13,8 @@
  * written agreement between you and Universidade do Porto. For licensing
  * terms, conditions, and further information contact lsts@fe.up.pt.
  *
- * European Union Public Licence - EUPL v.1.1 Usage
- * Alternatively, this file may be used under the terms of the EUPL,
+ * Modified European Union Public Licence - EUPL v.1.1 Usage
+ * Alternatively, this file may be used under the terms of the Modified EUPL,
  * Version 1.1 only (the "Licence"), appearing in the file LICENCE.md
  * included in the packaging of this file. You may not use this work
  * except in compliance with the Licence. Unless required by applicable
@@ -22,7 +22,8 @@
  * distributed on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF
  * ANY KIND, either express or implied. See the Licence for the specific
  * language governing permissions and limitations at
- * https://www.lsts.pt/neptus/licence.
+ * https://github.com/LSTS/neptus/blob/develop/LICENSE.md
+ * and http://ec.europa.eu/idabc/eupl.html.
  *
  * For more information please see <http://lsts.fe.up.pt/neptus>.
  *
@@ -101,6 +102,7 @@ import pt.lsts.neptus.console.plugins.planning.edit.ManeuverRemoved;
 import pt.lsts.neptus.console.plugins.planning.edit.ManeuverTranslated;
 import pt.lsts.neptus.console.plugins.planning.edit.PlanRotated;
 import pt.lsts.neptus.console.plugins.planning.edit.PlanSettingsChanged;
+import pt.lsts.neptus.console.plugins.planning.edit.PlanTransitionsReversed;
 import pt.lsts.neptus.console.plugins.planning.edit.PlanTranslated;
 import pt.lsts.neptus.console.plugins.planning.edit.PlanZChanged;
 import pt.lsts.neptus.gui.PropertiesEditor;
@@ -149,7 +151,8 @@ import pt.lsts.neptus.util.conf.ConfigFetch;
  * @author ZP
  * @author pdias
  */
-@PluginDescription(name = "Plan Edition", icon = "images/planning/plan_editor.png", author = "José Pinto, Paulo Dias", version = "1.5", category = CATEGORY.INTERFACE)
+@PluginDescription(name = "Plan Edition", icon = "images/planning/plan_editor.png", 
+    author = "José Pinto, Paulo Dias", version = "1.6", category = CATEGORY.INTERFACE)
 @LayerPriority(priority = 100)
 public class PlanEditor extends InteractionAdapter implements Renderer2DPainter, IPeriodicUpdates,
         MissionChangeListener {
@@ -188,6 +191,8 @@ public class PlanEditor extends InteractionAdapter implements Renderer2DPainter,
 
     private String planStatistics = "";
 
+    private String maneuverUndoRedoXml = null;
+
     @NeptusProperty(name = "Toolbar Location", userLevel = LEVEL.REGULAR)
     public ToolbarLocation toolbarLocation = ToolbarLocation.Right;
 
@@ -211,15 +216,19 @@ public class PlanEditor extends InteractionAdapter implements Renderer2DPainter,
 
     @Override
     public boolean update() {
+        try {
+            Maneuver curManeuver = getPropertiesPanel().getManeuver();
 
-        Maneuver curManeuver = getPropertiesPanel().getManeuver();
-
-        if (curManeuver != null && renderer.isFocusOwner()) {
-            getPropertiesPanel().setManeuver(curManeuver);
-            getPropertiesPanel().setPlan(plan);
-            getPropertiesPanel().setManager(manager);
-            if (delegate != null)
-                getPropertiesPanel().getEditBtn().setSelected(true);
+            if (curManeuver != null && renderer.isFocusOwner()) {
+                getPropertiesPanel().setManeuver(curManeuver);
+                getPropertiesPanel().setPlan(plan);
+                getPropertiesPanel().setManager(manager);
+                if (delegate != null)
+                    getPropertiesPanel().getEditBtn().setSelected(true);
+            }
+        }
+        catch (Exception e) {
+            NeptusLog.pub().error(e.getMessage(), e);
         }
 
         try {
@@ -396,16 +405,19 @@ public class PlanEditor extends InteractionAdapter implements Renderer2DPainter,
                 @Override
                 public void actionPerformed(ActionEvent e) {
                     Maneuver man = getPropertiesPanel().getManeuver();
-
                     if (man instanceof StateRendererInteraction) {
                         if (getPropertiesPanel().getEditBtn().isSelected()) {
                             delegate = (StateRendererInteraction) man;
                             delegate.setActive(true, renderer);
+                            
+                            saveManeuverXmlState();
                         }
                         else {
                             delegate.setActive(false, renderer);
                             delegate = null;
                             planElem.recalculateManeuverPositions(renderer);
+                            
+                            saveManeuverXmlToUndoManager();
                         }
                     }
                 }
@@ -857,8 +869,6 @@ public class PlanEditor extends InteractionAdapter implements Renderer2DPainter,
         return actions;
     }
 
-    private String xml = null;
-
     @Override
     public void mouseClicked(MouseEvent event, StateRenderer2D source) {
 
@@ -872,11 +882,7 @@ public class PlanEditor extends InteractionAdapter implements Renderer2DPainter,
                 getPropertiesPanel().getEditBtn().setSelected(false);
                 planElem.recalculateManeuverPositions(source);
                 delegate = null;
-                if (xml != null) {
-                    ManeuverChanged edit = new ManeuverChanged(getPropertiesPanel().getManeuver(), plan, xml);
-                    xml = null;
-                    manager.addEdit(edit);
-                }
+                saveManeuverXmlToUndoManager();
                 return;
             }
             else {
@@ -893,7 +899,7 @@ public class PlanEditor extends InteractionAdapter implements Renderer2DPainter,
                     delegate = (StateRendererInteraction) man;
                     ((StateRendererInteraction) man).setActive(true, source);
                     getPropertiesPanel().getEditBtn().setSelected(true);
-                    xml = getPropertiesPanel().getManeuver().getManeuverXml();
+                    saveManeuverXmlState();
                 }
                 return;
             }
@@ -1058,8 +1064,8 @@ public class PlanEditor extends InteractionAdapter implements Renderer2DPainter,
 
                             DefaultProperty propVelUnits = new DefaultProperty();
                             propVelUnits.setName("Speed units");
-                            propVelUnits.setValue(velUnitNotI18n); // velUnitI18n
-                            propVelUnits.setType(String.class);
+                            propVelUnits.setValue(Maneuver.SPEED_UNITS.parse(velUnitNotI18n)); // velUnitI18n
+                            propVelUnits.setType(Maneuver.SPEED_UNITS.class);
                             propVelUnits.setDisplayName(I18n.text("Speed units"));
                             planElem.setPlanProperty(propVelUnits);
                             
@@ -1155,6 +1161,26 @@ public class PlanEditor extends InteractionAdapter implements Renderer2DPainter,
                             new ImageIcon(ImageUtils.getScaledImage("images/buttons/wizard.png", 16, 16)));
                     planSettings.add(pVehicle);
 
+                    AbstractAction pTrans = new AbstractAction(I18n.text("Reverse plan transitions...")) {
+                        private static final long serialVersionUID = 1L;
+
+                        @Override
+                        public void actionPerformed(ActionEvent e) {
+                            Maneuver[] manSeq = plan.getGraph().getManeuversSequence();
+                            if (manSeq.length > 1) {
+                                Maneuver startManeuver = manSeq[0];
+                                Maneuver endManeuver = manSeq[manSeq.length - 1];
+                                PlanTransitionsReversed ptr = new PlanTransitionsReversed(plan, startManeuver, endManeuver);
+                                ptr.redo();
+                                manager.addEdit(ptr);
+                            }
+                        }
+                    };
+                    pTrans.putValue(AbstractAction.SMALL_ICON,
+                            new ImageIcon(ImageUtils.getScaledImage("images/buttons/wizard.png", 16, 16)));
+                    planSettings.add(pTrans);
+                    
+                    
                     planSettings.setIcon(new ImageIcon(ImageUtils.getScaledImage("images/buttons/wizard.png", 16, 16)));
                     popup.add(planSettings);
 
@@ -1258,6 +1284,18 @@ public class PlanEditor extends InteractionAdapter implements Renderer2DPainter,
         }
     }
 
+    private void saveManeuverXmlState() {
+        maneuverUndoRedoXml = getPropertiesPanel().getManeuver().getManeuverXml();
+    }
+
+    private void saveManeuverXmlToUndoManager() {
+        if (maneuverUndoRedoXml != null) {
+            ManeuverChanged edit = new ManeuverChanged(getPropertiesPanel().getManeuver(), plan, maneuverUndoRedoXml);
+            maneuverUndoRedoXml = null;
+            manager.addEdit(edit);
+        }
+    }
+
     /**
      * @param plan
      * @param properties
@@ -1350,6 +1388,7 @@ public class PlanEditor extends InteractionAdapter implements Renderer2DPainter,
                         m.setId(getNewManeuverName(maneuverType));
                         if (m instanceof LocatedManeuver) {
                             ManeuverLocation originalPos = ((LocatedManeuver) m).getManeuverLocation().clone();
+                            originalPos.convertToAbsoluteLatLonDepth();
                             LocationType pos = renderer.getRealWorldLocation(mousePoint);
                             originalPos.setLatitudeRads(pos.getLatitudeRads());
                             originalPos.setLongitudeRads(pos.getLongitudeRads());
@@ -1361,13 +1400,16 @@ public class PlanEditor extends InteractionAdapter implements Renderer2DPainter,
 
                         plan.getGraph().addManeuver(m);
                         parsePlan();
-                        addedTransitions.add(plan.getGraph().addTransition(plan.getGraph().getLastManeuver().getId(),
-                                m.getId(), defaultCondition));
+                        if (plan.getGraph().getAllManeuvers().length > 1)
+                            addedTransitions.add(plan.getGraph().addTransition(plan.getGraph().getLastManeuver().getId(),
+                                    m.getId(), defaultCondition));
+                        
                         planElem.recalculateManeuverPositions(renderer);
 
                         manager.addEdit(new ManeuverAdded(m, plan, addedTransitions, removedTransitions));
 
                         getPropertiesPanel().setManeuver(m);
+                        planElem.setSelectedManeuver(m.id);
 
                         repaint();
                     }
@@ -1387,7 +1429,7 @@ public class PlanEditor extends InteractionAdapter implements Renderer2DPainter,
 
         if (delegate != null) {
             delegate.mouseDragged(e, renderer);
-            getPropertiesPanel().setManeuver((Maneuver) delegate);
+//            getPropertiesPanel().setManeuver((Maneuver) delegate);
             return;
         }
 
@@ -1690,10 +1732,14 @@ public class PlanEditor extends InteractionAdapter implements Renderer2DPainter,
         Maneuver man = mf.getManeuver(manType);
         if (man == null)
             return null;
-
         
         if (copyFrom != null) {
-            man.setProperties(copyFrom.getProperties());
+            try {
+                man.setProperties(copyFrom.getProperties());
+            }
+            catch (Exception e) {
+                NeptusLog.pub().error(e, e);
+            }
             man.cloneActions(copyFrom);
         }
 
@@ -1788,6 +1834,9 @@ public class PlanEditor extends InteractionAdapter implements Renderer2DPainter,
         if (lastMan == null) {
             selectedManeuver = null;
             getPropertiesPanel().setManeuver(null);
+        }
+        else {
+            planElem.setSelectedManeuver(man.id);
         }
         return man;
     }

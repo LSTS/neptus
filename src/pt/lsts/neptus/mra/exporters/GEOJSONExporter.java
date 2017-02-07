@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2016 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2017 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -13,8 +13,8 @@
  * written agreement between you and Universidade do Porto. For licensing
  * terms, conditions, and further information contact lsts@fe.up.pt.
  *
- * European Union Public Licence - EUPL v.1.1 Usage
- * Alternatively, this file may be used under the terms of the EUPL,
+ * Modified European Union Public Licence - EUPL v.1.1 Usage
+ * Alternatively, this file may be used under the terms of the Modified EUPL,
  * Version 1.1 only (the "Licence"), appearing in the file LICENCE.md
  * included in the packaging of this file. You may not use this work
  * except in compliance with the Licence. Unless required by applicable
@@ -22,7 +22,8 @@
  * distributed on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF
  * ANY KIND, either express or implied. See the Licence for the specific
  * language governing permissions and limitations at
- * https://www.lsts.pt/neptus/licence.
+ * https://github.com/LSTS/neptus/blob/develop/LICENSE.md
+ * and http://ec.europa.eu/idabc/eupl.html.
  *
  * For more information please see <http://lsts.fe.up.pt/neptus>.
  *
@@ -34,18 +35,20 @@ package pt.lsts.neptus.mra.exporters;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.Hashtable;
-import java.util.Vector;
 
 import javax.swing.ProgressMonitor;
 
 import pt.lsts.imc.IMCMessage;
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.comm.IMCUtils;
+import pt.lsts.neptus.mp.ManeuverLocation;
 import pt.lsts.neptus.mra.importers.IMraLogGroup;
 import pt.lsts.neptus.plugins.PluginDescription;
 import pt.lsts.neptus.types.coord.LocationType;
+import pt.lsts.neptus.types.map.PlanUtil;
 import pt.lsts.neptus.types.mission.MissionType;
 import pt.lsts.neptus.types.mission.plan.PlanType;
 import pt.lsts.neptus.util.GuiUtils;
@@ -80,7 +83,7 @@ public class GEOJSONExporter implements MRAExporter {
         return ret;
     }
 
-    public String path(Vector<LocationType> coords, String name, String style) {
+    public String path(ArrayList<ManeuverLocation> coords, String name, String style) {
         String retAll = "";
         int idx = 0;
         while (idx < coords.size()) {
@@ -125,7 +128,7 @@ public class GEOJSONExporter implements MRAExporter {
             bw.write(GeoJsonHeader());
 
             // To account for multiple systems paths
-            Hashtable<String, Vector<LocationType>> pathsForSystems = new Hashtable<>();
+            Hashtable<String, ArrayList<ManeuverLocation>> pathsForSystems = new Hashtable<>();
             Hashtable<String, IMCMessage> lastEstimatedStateForSystems = new Hashtable<>();
             
             LocationType bottomRight = null, topLeft = null;
@@ -139,7 +142,7 @@ public class GEOJSONExporter implements MRAExporter {
             for (IMCMessage s : it) {
                 double progress = ((s.getTimestamp() - start) / (end - start)) * 30 + 1;
                 pmonitor.setProgress((int)progress);
-                LocationType loc = IMCUtils.parseLocation(s);
+                ManeuverLocation loc = new ManeuverLocation(IMCUtils.parseLocation(s));
                 loc.convertToAbsoluteLatLonDepth();
 
                 int srcSys = s.getSrc();
@@ -147,9 +150,9 @@ public class GEOJSONExporter implements MRAExporter {
                 if (systemName == null || systemName.isEmpty()) {
                     continue;
                 }
-                Vector<LocationType> statesSys = pathsForSystems.get(systemName);
+                ArrayList<ManeuverLocation> statesSys = pathsForSystems.get(systemName);
                 if (statesSys == null) {
-                    statesSys = new Vector<>();
+                    statesSys = new ArrayList<>();
                     pathsForSystems.put(systemName, statesSys);
                 }
                 IMCMessage lastEsSys = lastEstimatedStateForSystems.get(systemName);
@@ -177,7 +180,7 @@ public class GEOJSONExporter implements MRAExporter {
             pmonitor.setProgress(60);
             pmonitor.setNote("Writing path to file");
             for (String sys : pathsForSystems.keySet()) {
-                Vector<LocationType> st = pathsForSystems.get(sys);
+                ArrayList<ManeuverLocation> st = pathsForSystems.get(sys);
                 bw.write(path(st,sys, "estate"));
             }
             pmonitor.setProgress(70);
@@ -193,8 +196,9 @@ public class GEOJSONExporter implements MRAExporter {
             pmonitor.setProgress(80);
             if (plan != null) {
                 pmonitor.setNote("Writing plan");
-                if(!plan.planPath().isEmpty()){bw.write(",");}
-                bw.write(path(plan.planPath(), "Planned waypoints", "plan"));
+                ArrayList<ManeuverLocation> planPath = PlanUtil.getPlanWaypoints(plan);
+                if(planPath.isEmpty()){bw.write(",");}
+                bw.write(path(planPath, "Planned waypoints", "plan"));
                 pmonitor.setProgress(90);
             }
             

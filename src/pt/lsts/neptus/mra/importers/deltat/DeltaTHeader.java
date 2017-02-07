@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2016 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2017 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -13,8 +13,8 @@
  * written agreement between you and Universidade do Porto. For licensing
  * terms, conditions, and further information contact lsts@fe.up.pt.
  *
- * European Union Public Licence - EUPL v.1.1 Usage
- * Alternatively, this file may be used under the terms of the EUPL,
+ * Modified European Union Public Licence - EUPL v.1.1 Usage
+ * Alternatively, this file may be used under the terms of the Modified EUPL,
  * Version 1.1 only (the "Licence"), appearing in the file LICENSE.md
  * included in the packaging of this file. You may not use this work
  * except in compliance with the Licence. Unless required by applicable
@@ -22,7 +22,8 @@
  * distributed on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF
  * ANY KIND, either express or implied. See the Licence for the specific
  * language governing permissions and limitations at
- * https://www.lsts.pt/neptus/licence.
+ * https://github.com/LSTS/neptus/blob/develop/LICENSE.md
+ * and http://ec.europa.eu/idabc/eupl.html.
  *
  * For more information please see <http://lsts.fe.up.pt/neptus>.
  *
@@ -47,18 +48,18 @@ public class DeltaTHeader {
     public String fileType; // bytes 0-2 - ASCII '8' '3' 'P'
     public byte fileVersion; // byte 3 - 10 = v1.10
     
-    public short numBytes; // 'N' - number of bytes that are written to the disk for this ping, N = 256 + (2*number_of_beams)
-    public short numBeams;
-    public short samplesPerBeam;
-    public short sectorSize;
+    public int numBytes; // 'N' - number of bytes that are written to the disk for this ping, N = 256 + (2*number_of_beams)
+    public int numBeams;
+    public int samplesPerBeam;
+    public int sectorSize;
     public float startAngle;
-    public short rangeResolution;
+    public int rangeResolution;
     
     public float angleIncrement;
-    public short range;
-    public short sonarFreqKHz;
+    public int range;
+    public int sonarFreqKHz;
     
-    public int pingNumber;
+    public long pingNumber;
     
     public double pulseLength; // Pulse Length (in microseconds)
     public double pulseRepetingRate;// Repeting Rate (in miliseconds) - time between pings
@@ -81,7 +82,7 @@ public class DeltaTHeader {
     public Boolean dataIsCorrectedForRayBending;
     public Boolean sonarIsOperatingInOverlappedMode;
 
-    public short numberOfPingsAveraged;
+    public int numberOfPingsAveraged;
 
     public String gnssShipPosLat = "";
     public String gnssShipPosLon = "";
@@ -112,29 +113,29 @@ public class DeltaTHeader {
         byte millisBuf[] = new byte[5];
         String timestampStr, millisStr;
         
-        numBytes = b.getShort(4);
-        numBeams = b.getShort(70);
+        numBytes = b.getShort(4) & 0xFFFF;
+        numBeams = b.getShort(70) & 0xFFFF;
         
-        pingNumber = b.getInt(93);
+        pingNumber = b.getInt(93) & 0xFFFFFFFF;
         
-        samplesPerBeam = b.getShort(72);
-        sectorSize = b.getShort(74); 
-        startAngle = b.getShort(76) / 100f - 180;
-        angleIncrement = b.get(78) / 100f;
-        range = b.getShort(79);
+        samplesPerBeam = b.getShort(72) & 0xFFFF;
+        sectorSize = b.getShort(74) & 0xFFFF; 
+        startAngle = (b.getShort(76) & 0xFFFF) / 100f - 180;
+        angleIncrement = (b.get(78) & 0xFF) / 100f;
+        range = b.getShort(79) & 0xFFFF;
         
-        sonarFreqKHz = b.getShort(81);
+        sonarFreqKHz = b.getShort(81) & 0xFFFF;
         
-        pulseLength = b.getShort(87);
-        pulseRepetingRate = b.getShort(91);
+        pulseLength = b.getShort(87) & 0xFFFF;
+        pulseRepetingRate = b.getShort(91) & 0xFFFF;
         
         soundVelocity = parseSoundVelocity(b);
         
-        rangeResolution = b.getShort(85);
+        rangeResolution = b.getShort(85) & 0xFFFF;
         
-        speed = convertKnotsToMetersPerSecond((b.get(61) / 10.0));
+        speed = convertKnotsToMetersPerSecond((b.get(61) & 0xFF) / 10.0);
         
-        gnssShipCourse = b.getShort(62) / 10.0;
+        gnssShipCourse = (b.getShort(62) & 0xFFFF) / 10.0;
         
         byte shipLatLonBuf[] = new byte[14];
         b.position(33);
@@ -275,5 +276,4 @@ public class DeltaTHeader {
         }
         return fileTypeStr;
     }
-
 }

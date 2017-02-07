@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2016 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2017 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -13,8 +13,8 @@
  * written agreement between you and Universidade do Porto. For licensing
  * terms, conditions, and further information contact lsts@fe.up.pt.
  *
- * European Union Public Licence - EUPL v.1.1 Usage
- * Alternatively, this file may be used under the terms of the EUPL,
+ * Modified European Union Public Licence - EUPL v.1.1 Usage
+ * Alternatively, this file may be used under the terms of the Modified EUPL,
  * Version 1.1 only (the "Licence"), appearing in the file LICENCE.md
  * included in the packaging of this file. You may not use this work
  * except in compliance with the Licence. Unless required by applicable
@@ -22,7 +22,8 @@
  * distributed on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF
  * ANY KIND, either express or implied. See the Licence for the specific
  * language governing permissions and limitations at
- * https://www.lsts.pt/neptus/licence.
+ * https://github.com/LSTS/neptus/blob/develop/LICENSE.md
+ * and http://ec.europa.eu/idabc/eupl.html.
  *
  * For more information please see <http://lsts.fe.up.pt/neptus>.
  *
@@ -69,7 +70,7 @@ import org.imgscalr.Scalr;
 
 import net.miginfocom.swing.MigLayout;
 import pt.lsts.neptus.NeptusLog;
-import pt.lsts.neptus.console.plugins.PropertiesProviders.SidescanConfig;
+import pt.lsts.neptus.console.plugins.propertiesproviders.SidescanConfig;
 import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.mra.LogMarker;
 import pt.lsts.neptus.mra.SidescanLogMarker;
@@ -91,7 +92,7 @@ import pt.lsts.neptus.util.sidescan.SlantRangeImageFilter;
 
 /**
  * MRA sidescan panel
- * 
+ *
  * @author jqcorreia
  * @author Manuel Ribeiro (new zoom)
  * @author pdias
@@ -100,11 +101,11 @@ public class SidescanPanel extends JPanel implements MouseListener, MouseMotionL
     private static final long serialVersionUID = 1L;
 
     private static final int BULLSEYE_HIDE_TIMEOUT_MILLIS = 5000;
-    
+
     private static final int ZOOM_BOX_SIZE = 100;
     private static final int ZOOM_LAYER_BOX_SIZE = 300;
 
-    //added 
+    //added
     private static final int MAX_RULER_SIZE = 15;
     private long topZoomTimestamp = 0;
     private long bottomZoomTimestamp = 0;
@@ -129,9 +130,9 @@ public class SidescanPanel extends JPanel implements MouseListener, MouseMotionL
     private InteractionMode imode = InteractionMode.INFO;
     private MraVehiclePosHud posHud;
 
-    /** Fix old marks related enum */ 
+    /** Fix old marks related enum */
     private enum Operation { EXIT_CHANGE, EXIT_CANCEL, TEST_CHANGE, TEST_ORIG };
-    /** Fix old marks related class */ 
+    /** Fix old marks related class */
     private class SSCorrection {
         public SidescanLogMarker marker;
 
@@ -143,11 +144,11 @@ public class SidescanPanel extends JPanel implements MouseListener, MouseMotionL
 
         public double distanceToNadirSlant = Double.NaN;
         public double distanceToNadirHorizontal = Double.NaN;
-        
+
         public double wMetersSlant = Double.NaN;
         public double wMetersHorizontal = Double.NaN;
     }
-    
+
     private JPanel view = new JPanel() {
         private static final long serialVersionUID = 1L;
 
@@ -191,12 +192,12 @@ public class SidescanPanel extends JPanel implements MouseListener, MouseMotionL
                         Graphics2D gz = (Graphics2D) g.create();
                         gz.setColor(Color.WHITE);
                         drawZoom(gz); // Update layer with zoom information
-                        
+
                         Graphics2D zoomRuler = (Graphics2D) g.create();
                         zoomRuler.setColor(Color.WHITE);
                         drawZoomRuler(zoomRuler);  // Update layer with zoom ruler information
                     }
-                    
+
                     if (config.showPositionHud) {
                         posHud.setPathColor(config.pathColor);
                         int x = getWidth() / 2 - config.hudSize / 2; // 0;
@@ -261,7 +262,7 @@ public class SidescanPanel extends JPanel implements MouseListener, MouseMotionL
     // private SidescanPoint mouseSidescanPoint; // Mouse position geographical location
     private SidescanLine mouseSidescanLine;
 
-    private BufferedImage mouseLocationImage = ImageUtils.createCompatibleImage(120, 87, Transparency.BITMASK);
+    private BufferedImage mouseLocationImage = ImageUtils.createCompatibleImage(120, 98, Transparency.BITMASK);
 
     private List<SidescanLine> lineList = Collections.synchronizedList(new ArrayList<SidescanLine>());
     //    private ArrayList<SidescanLine> drawList = new ArrayList<SidescanLine>();
@@ -272,7 +273,7 @@ public class SidescanPanel extends JPanel implements MouseListener, MouseMotionL
     private SidescanParser ssParser;
 
     private String altStr = I18n.text("Altitude");
-    // private String depthStr = I18n.text("Depth");
+    private String depthStr = I18n.text("Depth");
     private String rollStr = I18n.text("Roll");
     private String yawStr = I18n.text("Yaw");
     private String sRangeStr = I18n.text("S Range");
@@ -308,7 +309,7 @@ public class SidescanPanel extends JPanel implements MouseListener, MouseMotionL
             boolean updated = false;
             while (true) {
                 if (zoom) {
-                    if (parent.getTimeline().isRunning()) 
+                    if (parent.getTimeline().isRunning())
                         updated = false;
 
                     while (!updated) {
@@ -333,7 +334,7 @@ public class SidescanPanel extends JPanel implements MouseListener, MouseMotionL
                 catch (InterruptedException e) {
                     e.printStackTrace();
                 }
-                
+
                 if (isMouseAtRest(BULLSEYE_HIDE_TIMEOUT_MILLIS / 2))
                     view.repaint();
             }
@@ -381,7 +382,7 @@ public class SidescanPanel extends JPanel implements MouseListener, MouseMotionL
 
     /**
      * To record a *.mp4 video from sidescan panel
-     * 
+     *
      * @param r
      */
     void record(boolean r) {
@@ -422,7 +423,7 @@ public class SidescanPanel extends JPanel implements MouseListener, MouseMotionL
             if (l.getRange() != getRangeForRuler()) {
                 setRangeForRuler(l.getRange());
             }
-            
+
             // Deal with speed correction here, because this would be repeated code in the various parsers
             if (config.speedCorrection) {
                 double horizontalScale = image.getWidth() / (l.getRange() * 2f);
@@ -506,7 +507,7 @@ public class SidescanPanel extends JPanel implements MouseListener, MouseMotionL
         }
 
         Graphics g = g2.create();
-        
+
         isShowingZoomedImage = true;
         int zX = (int) MathMiscUtils.clamp(mouseX, ZOOM_BOX_SIZE / 2, image.getWidth() - ZOOM_BOX_SIZE / 2);
         int zY = (int) MathMiscUtils.clamp(mouseY, ZOOM_BOX_SIZE / 2, image.getHeight() - ZOOM_BOX_SIZE / 2);
@@ -516,7 +517,7 @@ public class SidescanPanel extends JPanel implements MouseListener, MouseMotionL
         g.setColor(Color.CYAN);
         g.drawRect(zX - ZOOM_BOX_SIZE / 2, zY - ZOOM_BOX_SIZE / 2, ZOOM_BOX_SIZE, ZOOM_BOX_SIZE);
         g.setColor(origColor);
-        
+
         if (parent.getTimeline().isRunning()) {
 
             BufferedImage zoomImage = image.getSubimage(zX - ZOOM_BOX_SIZE / 2, zY - ZOOM_BOX_SIZE / 2, ZOOM_BOX_SIZE, ZOOM_BOX_SIZE);
@@ -527,7 +528,7 @@ public class SidescanPanel extends JPanel implements MouseListener, MouseMotionL
             if (mouseX <= (image.getWidth() / 2)){
                 xPosition = image.getWidth() - (ZOOM_LAYER_BOX_SIZE + 1);
             }
-            
+
             // Draw zoomed image.
             g.drawImage(ImageUtils.getFasterScaledInstance(zoomImage, ZOOM_LAYER_BOX_SIZE, ZOOM_LAYER_BOX_SIZE),
                     xPosition, image.getHeight() - (ZOOM_LAYER_BOX_SIZE + 1), null);
@@ -542,13 +543,13 @@ public class SidescanPanel extends JPanel implements MouseListener, MouseMotionL
                 return;
             }
             synchronized (lines) {
-                for (SidescanLine e : lines ) { 
+                for (SidescanLine e : lines ) {
                     e.setYSize(1);
                     int beginIndex = 0;
                     int endIndex = 0;
                     int leftMousePos = mouseX - ZOOM_BOX_SIZE / 2;
                     int rightMousePos = mouseX + ZOOM_BOX_SIZE / 2;
-                    
+
                     if (leftMousePos < 0) {
                         beginIndex = 0;
                         rightMousePos = ZOOM_BOX_SIZE;
@@ -592,7 +593,7 @@ public class SidescanPanel extends JPanel implements MouseListener, MouseMotionL
                     if (mouseX <= (layer.getWidth() / 2)){
                         xPosition = layer.getWidth() - (ZOOM_LAYER_BOX_SIZE + 1);
                     }
-                    
+
                     Image full = ImageUtils.getScaledImage(zoomedImg, ZOOM_LAYER_BOX_SIZE, vZoomScale, true);
                     g.drawImage(full, xPosition, layer.getHeight() + (ZOOM_BOX_SIZE) - ypos, null);
                     ypos = ypos + vZoomScale;
@@ -608,7 +609,7 @@ public class SidescanPanel extends JPanel implements MouseListener, MouseMotionL
                 xBullseye = (ZOOM_LAYER_BOX_SIZE / 2 + 1) - 3;
             g.drawRect(xBullseye, image.getHeight() - (ZOOM_LAYER_BOX_SIZE / 2 + 1) - 3, 6, 6);
         }
-            
+
         g.dispose();
     }
 
@@ -616,10 +617,10 @@ public class SidescanPanel extends JPanel implements MouseListener, MouseMotionL
         if (mouseSidescanLine != null) {
             LocationType hloc = SidescanUtil.convertImagePointXToLocation(mouseX, mouseSidescanLine, true, image);
             LocationType sloc = SidescanUtil.convertImagePointXToLocation(mouseX, mouseSidescanLine, false, image);
-            
+
             double hdist = mouseSidescanLine.getState().getPosition().getNewAbsoluteLatLonDepth().getDistanceInMeters(hloc);
             double sdist = mouseSidescanLine.getState().getPosition().getNewAbsoluteLatLonDepth().getDistanceInMeters(sloc);
-            
+
             Graphics2D location2d = (Graphics2D) mouseLocationImage.getGraphics();
             location2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
             location2d.clearRect(0, 0, mouseLocationImage.getWidth(), mouseLocationImage.getHeight());
@@ -627,13 +628,14 @@ public class SidescanPanel extends JPanel implements MouseListener, MouseMotionL
                     CoordinateUtil.dmToLatString(CoordinateUtil.decimalDegreesToDM(hloc.getLatitudeDegs())), 5, 15);
             location2d.drawString(
                     CoordinateUtil.dmToLonString(CoordinateUtil.decimalDegreesToDM(hloc.getLongitudeDegs())), 5, 26);
-            location2d.drawString(altStr + ": " + altFormat.format(mouseSidescanLine.getState().getAltitude()) + " m", 5, 37);
+            location2d.drawString(depthStr + ": " + altFormat.format(mouseSidescanLine.getState().getDepth()) + " m", 5, 37);
+            location2d.drawString(altStr + ": " + altFormat.format(mouseSidescanLine.getState().getAltitude()) + " m", 5, 48);
             location2d.drawString(rollStr + ": " + altFormat.format(Math.toDegrees(mouseSidescanLine.getState().getRoll()))
-                    + "\u00B0", 5, 48);
-            location2d.drawString(yawStr + ": " + altFormat.format(Math.toDegrees(mouseSidescanLine.getState().getYaw()))
                     + "\u00B0", 5, 59);
-            location2d.drawString(hRangeStr+": " + altFormat.format(hdist) + " m", 5, 70);
-            location2d.drawString(sRangeStr+": " + altFormat.format(sdist) + " m", 5, 81);
+            location2d.drawString(yawStr + ": " + altFormat.format(Math.toDegrees(mouseSidescanLine.getState().getYaw()))
+                    + "\u00B0", 5, 70);
+            location2d.drawString(hRangeStr+": " + altFormat.format(hdist) + " m", 5, 81);
+            location2d.drawString(sRangeStr+": " + altFormat.format(sdist) + " m", 5, 92);
 
             g.drawImage(mouseLocationImage, 10, 20, null);
         }
@@ -664,8 +666,8 @@ public class SidescanPanel extends JPanel implements MouseListener, MouseMotionL
                 String lb = distNoSlant + "m";
                 Rectangle2D lbBounds = g.getFontMetrics().getStringBounds(lb, g);
                 g.setColor(ColorUtils.setTransparencyToColor(Color.BLACK, 160));
-                g.fillRect((prevPointX + pointX) / 2 + 4 + (int) lbBounds.getX(), 
-                        (prevPoint.y + point.y) / 2 - 1 + (int) lbBounds.getY(), 
+                g.fillRect((prevPointX + pointX) / 2 + 4 + (int) lbBounds.getX(),
+                        (prevPoint.y + point.y) / 2 - 1 + (int) lbBounds.getY(),
                         (int) lbBounds.getWidth(), (int) lbBounds.getHeight());
                 g.setColor(Color.BLACK);
                 g.drawString(lb, (prevPointX + pointX) / 2 + 3, (prevPoint.y + point.y) / 2 - 1);
@@ -680,16 +682,16 @@ public class SidescanPanel extends JPanel implements MouseListener, MouseMotionL
     private void drawMeasureHeight(Graphics g2) {
         Graphics g = g2.create();
         g.setColor(Color.GREEN);
-        
+
         if (measureHeightP != null) {
             int pointX = SidescanUtil.convertSidescanLinePointXToImagePointX(measureHeightP.x, measureHeightP.line, image);
             g.drawRect(pointX - 3, measureHeightP.y - 3, 6, 6);
-            
+
             if (!Double.isNaN(measureHeightMouseX)) {
                 int ssP = SidescanUtil.convertImagePointXToSidescanLinePointX((int) measureHeightMouseX,
                         measureHeightP.line, image);
                 g.drawRect((int) (measureHeightMouseX - 3), measureHeightP.y - 3, 6, 6);
-                
+
                 double h = SidescanUtil.calcHeightFrom2XIndexesOfSidescanLine(measureHeightP.x, ssP, measureHeightP.line);
                 h = (int) (h * 1000) / 1000.0;
 
@@ -698,7 +700,7 @@ public class SidescanPanel extends JPanel implements MouseListener, MouseMotionL
                 String lb = h + "m";
                 Rectangle2D lbBounds = g.getFontMetrics().getStringBounds(lb, g);
                 g.setColor(ColorUtils.setTransparencyToColor(Color.BLACK, 160));
-                g.fillRect((int) ((measureHeightMouseX + pointX) / 2 + 4 + lbBounds.getX()), 
+                g.fillRect((int) ((measureHeightMouseX + pointX) / 2 + 4 + lbBounds.getX()),
                         (int) (measureHeightP.y - 4 + lbBounds.getY()),
                         (int) lbBounds.getWidth(), (int) lbBounds.getHeight());
                 g.setColor(Color.BLACK);
@@ -748,25 +750,25 @@ public class SidescanPanel extends JPanel implements MouseListener, MouseMotionL
                             if (m instanceof SidescanLogMarker) {
                                 SidescanLogMarker slm = (SidescanLogMarker) m;
 
-                                double distanceToNadir = slm.x;
+                                double distanceToNadir = slm.getX();
                                 // This should be always slant corrected (old marks will be wrong, must be corrected)
                                 int ssX = line.getIndexFromDistance(distanceToNadir, true);
                                 int x = SidescanUtil.convertSidescanLinePointXToImagePointX(ssX, line, image);
-                                
-                                int wBox = Math.max(slm.w, 3);
-                                int hBox = Math.max(slm.h, 3);
-                                
-                                if (slm.w > 0 && slm.wMeters > 0) {
+
+                                int wBox = Math.max(slm.getW(), 3);
+                                int hBox = Math.max(slm.getH(), 3);
+
+                                if (slm.getW() > 0 && slm.getwMeters() > 0) {
                                     // We have a box mark
-                                    double wMeters = slm.wMeters;
-                                    double distanceToNadirH = slm.x;
+                                    double wMeters = slm.getwMeters();
+                                    double distanceToNadirH = slm.getX();
                                     int dSSPort = line.getIndexFromDistance(distanceToNadirH - wMeters / 2, true);
                                     int dSSStarbord = line.getIndexFromDistance(distanceToNadirH + wMeters / 2, true);
                                     int dImgPort = SidescanUtil.convertSidescanLinePointXToImagePointX(dSSPort, line, image);
                                     int dImgStarbord = SidescanUtil.convertSidescanLinePointXToImagePointX(dSSStarbord, line, image);
                                     wBox = dImgStarbord - dImgPort;
                                 }
-                                
+
                                 g.setColor(color);
                                 g.drawRect(x - (wBox / 2), line.getYPos() - (hBox / 2), wBox, hBox);
                                 g.setColor(colorConstrast);
@@ -810,7 +812,7 @@ public class SidescanPanel extends JPanel implements MouseListener, MouseMotionL
             xPosition = layer.getWidth() - (ZOOM_LAYER_BOX_SIZE + 2) ;
             xLength = layer.getWidth();
         }
-        
+
         int x = xPosition;
         int y = layer.getHeight() - (ZOOM_LAYER_BOX_SIZE);
         // Draw Horizontal Line
@@ -849,7 +851,7 @@ public class SidescanPanel extends JPanel implements MouseListener, MouseMotionL
             g2d.drawLine(c, y, c, y - MAX_RULER_SIZE);
             g2d.drawString("" + (int) r, c - 13, y-3);
         }
-        
+
         g2d.dispose();
     }
 
@@ -894,7 +896,7 @@ public class SidescanPanel extends JPanel implements MouseListener, MouseMotionL
             g2d.drawString("" + (int) r, c1 + 5, fontSize);
             g2d.drawString("" + (int) r, c2 - 20, fontSize);
         }
-        
+
         g2d.dispose();
     }
 
@@ -928,7 +930,7 @@ public class SidescanPanel extends JPanel implements MouseListener, MouseMotionL
 
     /**
      * Set this panel Interaction Mode
-     * 
+     *
      * @param imode mode to set (see InteractionMode enum)
      */
     public void setInteractionMode(InteractionMode imode) {
@@ -938,7 +940,7 @@ public class SidescanPanel extends JPanel implements MouseListener, MouseMotionL
         measureHeight = false;
         measureHeightP = null;
         measureHeightMouseX = Double.NaN;
-        
+
         this.imode = imode;
     }
 
@@ -984,13 +986,13 @@ public class SidescanPanel extends JPanel implements MouseListener, MouseMotionL
                 }
 
                 // save bottom and top timestamps for zoom box according to mouse position
-                if (mouseY < ZOOM_BOX_SIZE / 2) { 
-                    if (line.getYPos() == 1) 
-                        topZoomTimestamp = line.getTimestampMillis();                        
+                if (mouseY < ZOOM_BOX_SIZE / 2) {
+                    if (line.getYPos() == 1)
+                        topZoomTimestamp = line.getTimestampMillis();
 
-                    if (line.getYPos() == ZOOM_BOX_SIZE) 
+                    if (line.getYPos() == ZOOM_BOX_SIZE)
                         bottomZoomTimestamp = line.getTimestampMillis();
-                } 
+                }
                 else {
                     if ((line.getYPos() + (ZOOM_BOX_SIZE/2 ) <= Y) && Y <= (line.getYPos() + (ZOOM_BOX_SIZE/2 ) + line.getYSize()))
                         topZoomTimestamp = line.getTimestampMillis();
@@ -1020,7 +1022,7 @@ public class SidescanPanel extends JPanel implements MouseListener, MouseMotionL
         int y = e.getY();
         lastMouseMoveTS = System.nanoTime();
         setSSLines(mouseY, e);
-        
+
         for (SidescanLine line : lineList.toArray(new SidescanLine[0])) {
             if (y >= line.getYPos() && y <= (line.getYPos() + line.getYSize())) {
                 mouseSidescanLine = line;
@@ -1059,7 +1061,7 @@ public class SidescanPanel extends JPanel implements MouseListener, MouseMotionL
                 // int x = (int) (mouseX * (mouseSidescanLine.xsize / (float)image.getWidth()));
                 int x = SidescanUtil.convertImagePointXToSidescanLinePointX(mouseX, mouseSidescanLine, image);
 //                System.out.println("x " + x + "   from  mouseX " + mouseX);
-                
+
                 pointList.add(mouseSidescanLine.calcPointFromIndex(x, mouseSidescanLine.isImageWithSlantCorrection()));
 
                 if (pointList.size() > 2) {
@@ -1180,17 +1182,17 @@ public class SidescanPanel extends JPanel implements MouseListener, MouseMotionL
                             ssMarks.add((SidescanLogMarker) m);
                     }
                 }
-                
+
                 if (ssMarks.isEmpty()) {
                     GuiUtils.infoMessage(popup.getComponent(), I18n.text("Select mark"),
                             I18n.text("No marks to adjust"));
                     return;
                 }
-                
+
                 Object ret = JOptionPane.showInputDialog(popup.getComponent(), I18n.text("Select mark"),
-                        I18n.text("Select mark"), JOptionPane.QUESTION_MESSAGE, null, 
+                        I18n.text("Select mark"), JOptionPane.QUESTION_MESSAGE, null,
                         ssMarks.toArray(new SidescanLogMarker[ssMarks.size()]), null);
-                
+
                 if (ret == null)
                     return;
 
@@ -1200,7 +1202,7 @@ public class SidescanPanel extends JPanel implements MouseListener, MouseMotionL
                 SwingWorker<Boolean, Void> worker = new SwingWorker<Boolean, Void>() {
                     private ArrayList<SSCorrection> corrections;
                     private Operation op = Operation.TEST_CHANGE;
-                    
+
                     @Override
                     protected Boolean doInBackground() throws Exception {
                         corrections = fixSidescanMark(ssMk);
@@ -1228,16 +1230,16 @@ public class SidescanPanel extends JPanel implements MouseListener, MouseMotionL
                                         SidescanLogMarker m = c.marker;
                                         if (op == Operation.TEST_ORIG) {
                                             m.fixLocation(c.latRadsSlant, c.lonRadsSlant);
-                                            m.x = c.distanceToNadirSlant;
-                                            m.wMeters = c.wMetersSlant;
+                                            m.setX(c.distanceToNadirSlant);
+                                            m.setwMeters(c.wMetersSlant);
                                             changed = false;
                                         }
                                         else if (op == Operation.TEST_CHANGE) {
                                             m.fixLocation(c.latRadsHorizontal, c.lonRadsHorizontal);
-                                            m.x = c.distanceToNadirHorizontal;
-                                            m.wMeters = c.wMetersHorizontal;
+                                            m.setX(c.distanceToNadirHorizontal);
+                                            m.setwMeters(c.wMetersHorizontal);
                                             changed = true;
-                                        } 
+                                        }
                                     }
                                     break;
                                 default:
@@ -1252,24 +1254,24 @@ public class SidescanPanel extends JPanel implements MouseListener, MouseMotionL
                             }
                             parent.mraPanel.saveMarkers();
                         }
-                        
+
                         return changed;
                     }
-                    
+
                     @Override
                     protected void process(List<Void> chunks) {
                         SidescanPanel.this.repaint(0);
-                        
+
                         String testStr = I18n.text("Test");
                         switch (op) {
                             case TEST_CHANGE:
                                 testStr = I18n.text("Revert test");
                             case TEST_ORIG:
-                                
+
                                 int retQ = JOptionPane.showOptionDialog(SidescanPanel.this,
                                         I18n.text("Change the marks?"), I18n.text("Fix old marks"),
                                         JOptionPane.YES_OPTION,
-                                        JOptionPane.QUESTION_MESSAGE, null, 
+                                        JOptionPane.QUESTION_MESSAGE, null,
                                         new String[] { I18n.text("Change"), I18n.text("Cancel"), testStr }, testStr);
                                 switch (retQ) {
                                     case 0:
@@ -1291,7 +1293,7 @@ public class SidescanPanel extends JPanel implements MouseListener, MouseMotionL
                                 break;
                         }
                     }
-                    
+
                     @Override
                     protected void done() {
                         try {
@@ -1312,13 +1314,13 @@ public class SidescanPanel extends JPanel implements MouseListener, MouseMotionL
     }
 
     /**
-     * Worker to fix old marks. 
+     * Worker to fix old marks.
      * @param ssMk
      * @return
      */
     private ArrayList<SSCorrection> fixSidescanMark(SidescanLogMarker... ssMk) {
         ArrayList<SSCorrection> corrections = new ArrayList<>();
-        
+
         for (SidescanLogMarker m : ssMk) {
             synchronized (lineList) {
                 Iterator<SidescanLine> i = lineList.iterator();
@@ -1330,13 +1332,13 @@ public class SidescanPanel extends JPanel implements MouseListener, MouseMotionL
                     if (old != null) {
                         long timestamp = new Double(m.getTimestamp()).longValue();
                         if (timestamp >= old.getTimestampMillis() && timestamp <= line.getTimestampMillis()) {
-                            double distanceToNadirSlant = m.x;
+                            double distanceToNadirSlant = m.getX();
                             int ssX = line.getIndexFromDistance(distanceToNadirSlant, false);
                             double distanceToNadirHoriz = line.getDistanceFromIndex(ssX, true);
-                            
-                            int dPort = line.getIndexFromDistance(distanceToNadirSlant - m.wMeters / 2, false);
+
+                            int dPort = line.getIndexFromDistance(distanceToNadirSlant - m.getwMeters() / 2, false);
                             double distancePort = line.getDistanceFromIndex(dPort, true);
-                            int dStarbord = line.getIndexFromDistance(distanceToNadirSlant + m.wMeters / 2, false);
+                            int dStarbord = line.getIndexFromDistance(distanceToNadirSlant + m.getwMeters() / 2, false);
                             double distanceStarbord = line.getDistanceFromIndex(dStarbord, true);
                             double wMetersHoriz = distanceStarbord - distancePort;
 
@@ -1350,7 +1352,7 @@ public class SidescanPanel extends JPanel implements MouseListener, MouseMotionL
                             coor.lonRadsHorizontal = point.location.getLongitudeRads();
                             coor.distanceToNadirSlant = distanceToNadirSlant;
                             coor.distanceToNadirHorizontal = distanceToNadirHoriz;
-                            coor.wMetersSlant = m.wMeters;
+                            coor.wMetersSlant = m.getwMeters();
                             coor.wMetersHorizontal = wMetersHoriz;
                             corrections.add(coor);
 
@@ -1367,15 +1369,15 @@ public class SidescanPanel extends JPanel implements MouseListener, MouseMotionL
                     coor.lonRadsSlant = m.getLonRads();
                     coor.latRadsHorizontal = m.getLatRads();
                     coor.lonRadsHorizontal = m.getLonRads();
-                    coor.distanceToNadirSlant = m.x;
-                    coor.distanceToNadirHorizontal = m.x;
-                    coor.wMetersSlant = m.wMeters;
-                    coor.wMetersHorizontal = m.wMeters;
+                    coor.distanceToNadirSlant = m.getX();
+                    coor.distanceToNadirHorizontal = m.getX();
+                    coor.wMetersSlant = m.getwMeters();
+                    coor.wMetersHorizontal = m.getwMeters();
                     corrections.add(coor);
                 }
             }
         }
-        
+
         return corrections;
     }
 
@@ -1384,7 +1386,7 @@ public class SidescanPanel extends JPanel implements MouseListener, MouseMotionL
     }
 
     @Override
-    public void mouseExited(MouseEvent e) {  
+    public void mouseExited(MouseEvent e) {
         mouseX = mouseY = -1;
         repaint();
     }

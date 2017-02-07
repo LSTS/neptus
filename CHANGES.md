@@ -1,16 +1,31 @@
 Changes
 =======
 
-Neptus 4.3.x (??-0?-2015)
+Neptus 2016.10.0 (04-10-2016)
+----------------
+ * MapEditor: You need now to double-click on the object to drag/rotate on the map, otherwise you will be able to drag the map.
+
+Neptus 2016.10.0 (04-10-2016)
+----------------
+ * IMC: Updated IMC (b3d1e8f) and IMCJava (f4669d3) (v5.4.11.x).
+ * |Too many changes to list here, check git log.|
+
+
+Neptus 4.3.0 (17-05-2016)
+------------
+ * IMC: Updated IMC (e45bef5) and IMCJava (828667d) (v5.4.8.x).
+ * Vehicles: Updated systems parameters to DUNE (dune-2016.05.0-dmsmw, 5a841ca).
+ * I18n: Updated POT and translations.
+ * |Too many changes to list here, check git log.|
+
+ Prev changes
+ 
  * MRA/Sidescan Zoom: New ruller for zoomed image.
  * SPOT: Stream ID on the URL is now a configurable parameter.
  * DropMapLayer: Added new interaction for dropping of payload.
  * MRA/Sidescan Zoom: Added support for better sidescan zoom (active if not waterfalling).
  * Console/ROV: Improved ROVInfoLayer and DistancesRadar to be a console layer or a panel (popup dialog).
  * MRA/SDFParser: Added support for Klein sidescan SDF format.
-
-Neptus 4.2.x (??-0?-2015)
-------------
  * MRA/DeltaTParser: Fix reading of soundspeed.
  * MRA/Exporter/DeltaT83PToCorrectedPos83P: Fix to write lat/lon to the right bits in the header.
  * MRA/JsfSidescanParser: Fixed ArrayIndexOutOfBoundsException when Sidescan Analyzer Visualization's timeline ended.

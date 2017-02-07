@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2016 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2017 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -13,8 +13,8 @@
  * written agreement between you and Universidade do Porto. For licensing
  * terms, conditions, and further information contact lsts@fe.up.pt.
  *
- * European Union Public Licence - EUPL v.1.1 Usage
- * Alternatively, this file may be used under the terms of the EUPL,
+ * Modified European Union Public Licence - EUPL v.1.1 Usage
+ * Alternatively, this file may be used under the terms of the Modified EUPL,
  * Version 1.1 only (the "Licence"), appearing in the file LICENCE.md
  * included in the packaging of this file. You may not use this work
  * except in compliance with the Licence. Unless required by applicable
@@ -22,7 +22,8 @@
  * distributed on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF
  * ANY KIND, either express or implied. See the Licence for the specific
  * language governing permissions and limitations at
- * https://www.lsts.pt/neptus/licence.
+ * https://github.com/LSTS/neptus/blob/develop/LICENSE.md
+ * and http://ec.europa.eu/idabc/eupl.html.
  *
  * For more information please see <http://lsts.fe.up.pt/neptus>.
  *
@@ -72,6 +73,7 @@ import java.io.InputStream;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Comparator;
@@ -88,6 +90,7 @@ import javax.sound.sampled.DataLine;
 import javax.sound.sampled.LineUnavailableException;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
+import javax.swing.JComboBox;
 import javax.swing.JComponent;
 import javax.swing.JDialog;
 import javax.swing.JEditorPane;
@@ -107,18 +110,20 @@ import javax.swing.UIManager;
 import javax.swing.UIManager.LookAndFeelInfo;
 import javax.swing.filechooser.FileFilter;
 
+import com.jgoodies.looks.LookUtils;
+import com.jgoodies.looks.plastic.PlasticLookAndFeel;
+import com.jgoodies.looks.plastic.PlasticXPLookAndFeel;
+import com.l2fprod.common.swing.BaseDialog;
+
 import pt.lsts.neptus.NeptusLog;
+import pt.lsts.neptus.comm.manager.imc.ImcSystem;
+import pt.lsts.neptus.comm.manager.imc.ImcSystemsHolder;
 import pt.lsts.neptus.data.Pair;
 import pt.lsts.neptus.gui.ErrorMessageBox;
 import pt.lsts.neptus.gui.swing.NeptusFileView;
 import pt.lsts.neptus.gui.tablelayout.TableLayout;
 import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.util.conf.ConfigFetch;
-
-import com.jgoodies.looks.LookUtils;
-import com.jgoodies.looks.plastic.PlasticLookAndFeel;
-import com.jgoodies.looks.plastic.PlasticXPLookAndFeel;
-import com.l2fprod.common.swing.BaseDialog;
 
 /**
  * @author Ze Carlos
@@ -1251,7 +1256,22 @@ public class GuiUtils {
             return null;
         return new Pair<String, String>(login.getText(), new String(pass.getPassword()));
     }
-
+    
+    public static JComboBox<String> vehiclesCombo(boolean onlyActiveVehicles) {
+        ArrayList<String> vehicles = new ArrayList<>();
+        
+        if (onlyActiveVehicles)
+            for (ImcSystem s : ImcSystemsHolder.lookupActiveSystemVehicles())
+                vehicles.add(s.getName());
+        else
+            for (ImcSystem s : ImcSystemsHolder.lookupSystemVehicles())
+                vehicles.add(s.getName());
+        
+        return new JComboBox<>(vehicles.toArray(new String[0]));
+    }
+    
+    
+    
     /**
      * Unitary test.
      * 

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2016 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2017 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -13,8 +13,8 @@
  * written agreement between you and Universidade do Porto. For licensing
  * terms, conditions, and further information contact lsts@fe.up.pt.
  *
- * European Union Public Licence - EUPL v.1.1 Usage
- * Alternatively, this file may be used under the terms of the EUPL,
+ * Modified European Union Public Licence - EUPL v.1.1 Usage
+ * Alternatively, this file may be used under the terms of the Modified EUPL,
  * Version 1.1 only (the "Licence"), appearing in the file LICENCE.md
  * included in the packaging of this file. You may not use this work
  * except in compliance with the Licence. Unless required by applicable
@@ -22,7 +22,8 @@
  * distributed on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF
  * ANY KIND, either express or implied. See the Licence for the specific
  * language governing permissions and limitations at
- * https://www.lsts.pt/neptus/licence.
+ * https://github.com/LSTS/neptus/blob/develop/LICENSE.md
+ * and http://ec.europa.eu/idabc/eupl.html.
  *
  * For more information please see <http://lsts.fe.up.pt/neptus>.
  *
@@ -58,24 +59,15 @@ import pt.lsts.neptus.util.DateTimeUtil;
 /**
  * @author pdias
  */
+/**
+ * @author pdias
+ *
+ */
 public class ImcSystem implements Comparable<ImcSystem> {
 
     private static final int TIMEOUT_FOR_NOT_ANNOUNCE_STATE = 12000;
     
-    public final static String GROUND_SPEED_KEY = "Ground Speed";
-    public final static String VERTICAL_SPEED_KEY = "Vertical Speed";
-    public final static String TRUE_SPEED_KEY = "True Speed";
-    public final static String INDICATED_SPEED_KEY = "Indicate Speed";
-    public final static String RPM_MAP_ENTITY_KEY = "RPM";
-    public final static String COURSE_KEY = "Course";
-    public final static String HEADING_KEY = "Heading";
-    public final static String FUEL_LEVEL_KEY = "Fuel Level";
-    public final static String WEB_UPDATED_KEY = "Web Updated";
-    public final static String LBL_CONFIG_KEY = "LblConfig";
-    public final static String ACOUSTIC_SYSTEMS = "AcousticSystems";
-    public final static String ENTITY_PARAMETERS = "EntityParameters";
-    
-	protected String name = ImcId16.NULL_ID.toString();
+    protected String name = ImcId16.NULL_ID.toString();
 	protected ImcId16 id = ImcId16.NULL_ID;
 	protected SystemTypeEnum type = SystemTypeEnum.UNKNOWN;
 	protected VehicleTypeEnum typeVehicle = VehicleTypeEnum.UNKNOWN;
@@ -110,7 +102,7 @@ public class ImcSystem implements Comparable<ImcSystem> {
 
     // Authority WIP
     // FIXME add description to each one of the states
-    public enum IMCAuthorityState { OFF, NONE, PAYLOAD_MONITOR, PAYLOAD, SYSTEM_MONITOR, SYSTEM_FULL };
+    public enum IMCAuthorityState { OFF, NONE, /* PAYLOAD_MONITOR, PAYLOAD, SYSTEM_MONITOR,*/ SYSTEM_FULL };
     protected IMCAuthorityState authorityState = IMCAuthorityState.NONE;
     
 	/**
@@ -208,10 +200,19 @@ public class ImcSystem implements Comparable<ImcSystem> {
 		setLocationTimeMillis(System.currentTimeMillis());
 	}
 
-	public void setLocation(LocationType location, long locationTimeMillis) {
+	/**
+	 * Only is override if locationTimeMillis is newer than already there.
+	 * 
+	 * @param location
+	 * @param locationTimeMillis
+	 */
+	public boolean setLocation(LocationType location, long locationTimeMillis) {
+	    if (locationTimeMillis < getLocationTimeMillis())
+	        return false;
         this.location.setLocation(location);
         this.location.convertToAbsoluteLatLonDepth();
 	    setLocationTimeMillis(locationTimeMillis);
+	    return true;
 	}
 
     public void setAttitudeDegrees(double rollDegrees, double pitchDegrees, double yawDegrees) {
@@ -221,11 +222,23 @@ public class ImcSystem implements Comparable<ImcSystem> {
         setAttitudeTimeMillis(System.currentTimeMillis());
     }
 
-    public void setAttitudeDegrees(double rollDegrees, double pitchDegrees, double yawDegrees, long locationTimeMillis) {
+    /**
+     * Only is override if attitudeTimeMillis is newer than already there.
+     * 
+     * @param rollDegrees
+     * @param pitchDegrees
+     * @param yawDegrees
+     * @param locationTimeMillis
+     * @return 
+     */
+    public boolean setAttitudeDegrees(double rollDegrees, double pitchDegrees, double yawDegrees, long attitudeTimeMillis) {
+        if (attitudeTimeMillis < getAttitudeTimeMillis())
+            return false;
         location.setRoll(rollDegrees);
         location.setPitch(pitchDegrees);
         location.setYaw(yawDegrees);
-        setAttitudeTimeMillis(locationTimeMillis);
+        setAttitudeTimeMillis(attitudeTimeMillis);
+        return true;
     }
 
     public void setAttitudeDegrees(double yawDegrees) {
@@ -235,11 +248,21 @@ public class ImcSystem implements Comparable<ImcSystem> {
         setAttitudeTimeMillis(System.currentTimeMillis());
     }
 
-    public void setAttitudeDegrees(double yawDegrees, long locationTimeMillis) {
+    /**
+     * Only is override if attitudeTimeMillis is newer than already there.
+     * 
+     * @param yawDegrees
+     * @param locationTimeMillis
+     * @return 
+     */
+    public boolean setAttitudeDegrees(double yawDegrees, long attitudeTimeMillis) {
+        if (attitudeTimeMillis < getAttitudeTimeMillis())
+            return false;
         location.setRoll(0);
         location.setPitch(0);
         location.setYaw(yawDegrees);
-        setAttitudeTimeMillis(locationTimeMillis);
+        setAttitudeTimeMillis(attitudeTimeMillis);
+        return true;
     }
 
     public double getRollDegrees() {
@@ -293,6 +316,10 @@ public class ImcSystem implements Comparable<ImcSystem> {
 	 * @param type the type to set
 	 */
 	public void setType(SystemTypeEnum type) {
+	    if (this.type == SystemTypeEnum.UNKNOWN && type != SystemTypeEnum.UNKNOWN) {
+	        if (type != SystemTypeEnum.CCU)
+                setAuthorityState(IMCAuthorityState.SYSTEM_FULL);
+	    }
 		this.type = type;
 	}
 
@@ -847,15 +874,29 @@ public class ImcSystem implements Comparable<ImcSystem> {
 	/**
 	 * This will retrieve the data stored or {@code null} if not found.
 	 * @param key
+	 * @param ageMillis
 	 * @return
 	 */
-	public Object retrieveData(String key) {
-	    Object ret = null;
+	public Object retrieveData(String key, long ageMillis) {
 	    synchronized (dataStorage) {
-	        ret = dataStorage.get(key);
+	        if (containsData(key, ageMillis))
+	            return retrieveData(key);
         }
-	    return ret;
+	    return null;
 	}
+
+	   /**
+     * This will retrieve the data stored or {@code null} if not found.
+     * @param key
+     * @return
+     */
+    public Object retrieveData(String key) {
+        Object ret = null;
+        synchronized (dataStorage) {
+            ret = dataStorage.get(key);
+        }
+        return ret;
+    }
 
 	/**
 	 * @param key

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2016 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2017 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -13,8 +13,8 @@
  * written agreement between you and Universidade do Porto. For licensing
  * terms, conditions, and further information contact lsts@fe.up.pt.
  *
- * European Union Public Licence - EUPL v.1.1 Usage
- * Alternatively, this file may be used under the terms of the EUPL,
+ * Modified European Union Public Licence - EUPL v.1.1 Usage
+ * Alternatively, this file may be used under the terms of the Modified EUPL,
  * Version 1.1 only (the "Licence"), appearing in the file LICENCE.md
  * included in the packaging of this file. You may not use this work
  * except in compliance with the Licence. Unless required by applicable
@@ -22,7 +22,8 @@
  * distributed on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF
  * ANY KIND, either express or implied. See the Licence for the specific
  * language governing permissions and limitations at
- * https://www.lsts.pt/neptus/licence.
+ * https://github.com/LSTS/neptus/blob/develop/LICENSE.md
+ * and http://ec.europa.eu/idabc/eupl.html.
  *
  * For more information please see <http://lsts.fe.up.pt/neptus>.
  *
@@ -43,6 +44,9 @@ import org.dom4j.DocumentHelper;
 import org.dom4j.Element;
 import org.dom4j.Node;
 
+import com.l2fprod.common.propertysheet.DefaultProperty;
+import com.l2fprod.common.propertysheet.Property;
+
 import pt.lsts.imc.IMCMessage;
 import pt.lsts.imc.Loiter.DIRECTION;
 import pt.lsts.imc.Loiter.TYPE;
@@ -50,7 +54,6 @@ import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.gui.PropertiesEditor;
 import pt.lsts.neptus.gui.editor.AngleEditorRads;
 import pt.lsts.neptus.gui.editor.ComboEditor;
-import pt.lsts.neptus.gui.editor.SpeedUnitsEditor;
 import pt.lsts.neptus.gui.editor.renderer.I18nCellRenderer;
 import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.mp.Maneuver;
@@ -60,19 +63,16 @@ import pt.lsts.neptus.renderer2d.StateRenderer2D;
 import pt.lsts.neptus.types.coord.LocationType;
 import pt.lsts.neptus.types.map.PlanElement;
 
-import com.l2fprod.common.propertysheet.DefaultProperty;
-import com.l2fprod.common.propertysheet.Property;
+public class Loiter extends Maneuver implements LocatedManeuver, ManeuverWithSpeed, StatisticsProvider, IMCSerialization {
 
-public class Loiter extends Maneuver implements LocatedManeuver, StatisticsProvider, IMCSerialization {
-
-	public static final int INFINITY_DURATION = -1;
+	public static final int INFINITY_DURATION = 0;
 	
 	private int loiterDuration = 60;
 	private double radius = 15, radiusTolerance = 5, length = 1, bearing = 0,
 			speed = 30, speedTolerance = 5;
 	private String direction = "Clockwise";
 	private String loiterType = "Circular";
-	private String speedUnits = "m/s";
+	private Maneuver.SPEED_UNITS speedUnits = SPEED_UNITS.METERS_PS;
 	private ManeuverLocation location = new ManeuverLocation();	 
 	protected static final LinkedHashMap<Long, String> wpLoiterTypeConstantsMap = new LinkedHashMap<Long, String>();
 	protected static final LinkedHashMap<Long, String> loiterDirectionConstantsMap = new LinkedHashMap<Long, String>();
@@ -145,7 +145,7 @@ public class Loiter extends Maneuver implements LocatedManeuver, StatisticsProvi
 	    Element velocity = root.addElement("speed");
 	    velocity.addAttribute("tolerance", String.valueOf(getSpeedTolerance()));
 	    velocity.addAttribute("type", "float");
-	    velocity.addAttribute("unit", getSpeedUnits());
+	    velocity.addAttribute("unit", getSpeedUnits().getString());
 	    velocity.setText(String.valueOf(getSpeed()));
 	    
 	    return document;
@@ -173,7 +173,9 @@ public class Loiter extends Maneuver implements LocatedManeuver, StatisticsProvi
 	        if (speedNode == null)
 	        	speedNode = doc.selectSingleNode("Loiter/velocity");
 	        setSpeed(Double.parseDouble(speedNode.getText()));
-	        setSpeedUnits(speedNode.valueOf("@unit"));
+//	        setSpeedUnits(speedNode.valueOf("@unit"));
+	        SPEED_UNITS sUnits = ManeuversXMLUtil.parseSpeedUnits((Element) speedNode);
+            setSpeedUnits(sUnits);
 	        setSpeedTolerance(Double.parseDouble(speedNode.valueOf("@tolerance")));
 	        
 	        // Duration
@@ -201,20 +203,18 @@ public class Loiter extends Maneuver implements LocatedManeuver, StatisticsProvi
 	}
 	@Override
 	public ManeuverLocation getManeuverLocation() {
-		return location.clone();
+	    location.setRadius(getRadius());
+	    return location.clone();
 	}
 	
-    /* (non-Javadoc)
-     * @see pt.lsts.neptus.mp.maneuvers.LocationProvider#getFirstPosition()
-     */
     @Override
     public ManeuverLocation getStartLocation() {
-        return location.clone();
+        return getManeuverLocation();
     }
 
 	@Override
 	public ManeuverLocation getEndLocation() {
-	    return location.clone();
+	    return getManeuverLocation();
 	}
 	
 	public void setManeuverLocation(ManeuverLocation location) {
@@ -249,10 +249,8 @@ public class Loiter extends Maneuver implements LocatedManeuver, StatisticsProvi
 		speed.setShortDescription("The vehicle's desired speed when loitering");
 		props.add(speed);
 		
-		DefaultProperty speedUnits = PropertiesEditor.getPropertyInstance("Speed Units", String.class, this.speedUnits, true);
+		DefaultProperty speedUnits = PropertiesEditor.getPropertyInstance("Speed Units", Maneuver.SPEED_UNITS.class, this.speedUnits, true);
 		speedUnits.setShortDescription("The units to consider in the speed parameters");
-		PropertiesEditor.getPropertyEditorRegistry().registerEditor(speedUnits, new SpeedUnitsEditor());
-		PropertiesEditor.getPropertyRendererRegistry().registerRenderer(speedUnits, new I18nCellRenderer());
 		props.add(speedUnits);
 		
 		DefaultProperty radius = PropertiesEditor.getPropertyInstance("Radius", Double.class, this.radius, true);
@@ -277,22 +275,22 @@ public class Loiter extends Maneuver implements LocatedManeuver, StatisticsProvi
 	
 		for (Property p : properties) {
 			
-			if (p.getName().equals("Duration")) {
+			if (p.getName().equalsIgnoreCase("Duration")) {
 				setLoiterDuration((Integer)p.getValue());
 				continue;
 			}
 			
-			if (p.getName().equals("Direction")) {				
+			if (p.getName().equalsIgnoreCase("Direction")) {				
 				setDirection((String)p.getValue());
 				continue;
 			}
 			
-			if (p.getName().equals("Loiter Type")) {
+			if (p.getName().equalsIgnoreCase("Loiter Type")) {
 				setLoiterType((String)p.getValue());
 				continue;
 			}
 			
-			if (p.getName().equals("Speed")) {
+			if (p.getName().equalsIgnoreCase("Speed")) {
 				setSpeed((Double)p.getValue());
 				continue;
 			}
@@ -302,10 +300,10 @@ public class Loiter extends Maneuver implements LocatedManeuver, StatisticsProvi
 				continue;
 			}
 			
-			if (p.getName().equalsIgnoreCase("Speed Units")) {
-				setSpeedUnits((String)p.getValue());
-				continue;
-			}
+//			if (p.getName().equalsIgnoreCase("Speed Units")) {
+//				setSpeedUnits((String)p.getValue());
+//				continue;
+//			}
 			
 			if (p.getName().equals("Radius")) {
 				setRadius((Double)p.getValue());
@@ -326,6 +324,11 @@ public class Loiter extends Maneuver implements LocatedManeuver, StatisticsProvi
 				setBearing((Double)p.getValue());
 				continue;
 			}
+			
+			// Speed Units parse
+			SPEED_UNITS speedUnits = ManeuversUtil.getSpeedUnitsFromPropertyOrNullIfInvalidName(p);
+			if (speedUnits != null)
+			    setSpeedUnits(speedUnits);
 		}
 	}
 	
@@ -334,7 +337,7 @@ public class Loiter extends Maneuver implements LocatedManeuver, StatisticsProvi
 		return super.getTooltipText()+"<hr>"+
 		I18n.text("loiter type") + ": <b>"+I18n.text(loiterType)+"</b>"+
 		"<br>"+I18n.text(location.getZUnits().toString())+": <b>"+location.getZ()+" "+I18n.textc("m", "meters")+"</b>"+
-		"<br>" + I18n.text("speed") + ": <b>"+(int)speed+" "+I18n.text(speedUnits)+"</b>"+
+		"<br>" + I18n.text("speed") + ": <b>"+(int)speed+" "+I18n.text(speedUnits.getString())+"</b>"+
 		"<br>" + I18n.text("radius") + ": <b>"+radius+" " + I18n.textc("m", "meters") + "</b>"+
 		"<br>" + I18n.text("length") + ": <b>"+length+" " + I18n.textc("m", "meters") + "</b>"+
 		"<br>" + I18n.text("direction") + ": <b>"+I18n.text(direction)+"</b>"+
@@ -409,11 +412,11 @@ public class Loiter extends Maneuver implements LocatedManeuver, StatisticsProvi
 		this.speedTolerance = speedTolerance;
 	}
 
-	public String getSpeedUnits() {
+	public SPEED_UNITS getSpeedUnits() {
 		return speedUnits;
 	}
 
-	public void setSpeedUnits(String speedUnits) {
+	public void setSpeedUnits(SPEED_UNITS speedUnits) {
 		this.speedUnits = speedUnits;
 	}
 
@@ -425,16 +428,16 @@ public class Loiter extends Maneuver implements LocatedManeuver, StatisticsProvi
 		return loiterType;
 	}
 	
-	protected double getVelocityInMetersPerSeconds() {
-		if (speedUnits.equals("m/s"))
-			return speed;
-		if (speedUnits.equalsIgnoreCase("Km/h"))
-			return speed * (1.0/3.6);
-		if (speedUnits.equalsIgnoreCase("MPH"))
-			return speed * 0.4471;
-		
-		return 0;		
-	}
+//	protected double getVelocityInMetersPerSeconds() {
+//		if (speedUnits.equals("m/s"))
+//			return speed;
+//		if (speedUnits.equalsIgnoreCase("Km/h"))
+//			return speed * (1.0/3.6);
+//		if (speedUnits.equalsIgnoreCase("MPH"))
+//			return speed * 0.4471;
+//		
+//		return 0;		
+//	}
 	
 	private static LoiterPainter painter = new LoiterPainter();
 	
@@ -466,13 +469,14 @@ public class Loiter extends Maneuver implements LocatedManeuver, StatisticsProvi
     	    pos.setZUnits(ManeuverLocation.Z_UNITS.valueOf(zunits));
     	setManeuverLocation(pos);
     	
-    	String speed_units = message.getString("speed_units");
-		if (speed_units.equals("METERS_PS"))
-			setSpeedUnits("m/s");
-		else if (speed_units.equals("RPM"))
-			setSpeedUnits("RPM");
-		else
-			setSpeedUnits("%");
+		try {
+            String speedUnits = message.getString("speed_units");
+            setSpeedUnits(Maneuver.SPEED_UNITS.parse(speedUnits));
+        }
+        catch (Exception e) {
+            setSpeedUnits(Maneuver.SPEED_UNITS.RPM);
+            e.printStackTrace();
+        }
 		
 		setBearing(message.getDouble("bearing"));
 		setLoiterDuration((int)message.getDouble("duration"));
@@ -514,21 +518,23 @@ public class Loiter extends Maneuver implements LocatedManeuver, StatisticsProvi
         loiter.setSpeed(this.getSpeed());
         loiter.setDuration(getLoiterDuration());
        
-        switch (this.getSpeedUnits()) {
-            case "m/s":
-                loiter.setSpeedUnits(pt.lsts.imc.Loiter.SPEED_UNITS.METERS_PS);
-                break;
-            case "RPM":
-                loiter.setSpeedUnits(pt.lsts.imc.Loiter.SPEED_UNITS.RPM);
-                break;
-            case "PERCENTAGE":
-                loiter.setSpeedUnits(pt.lsts.imc.Loiter.SPEED_UNITS.PERCENTAGE);
-                break;
-            default:
-                break;
+        try {
+            switch (this.getSpeedUnits()) {
+                case METERS_PS:
+                    loiter.setSpeedUnits(pt.lsts.imc.Loiter.SPEED_UNITS.METERS_PS);
+                    break;
+                case PERCENTAGE:
+                    loiter.setSpeedUnits(pt.lsts.imc.Loiter.SPEED_UNITS.PERCENTAGE);
+                    break;
+                case RPM:
+                default:
+                    loiter.setSpeedUnits(pt.lsts.imc.Loiter.SPEED_UNITS.RPM);
+                    break;
+            }
         }
-        
-        
+        catch (Exception ex) {
+            NeptusLog.pub().error(this, ex);                     
+        }
 
         String loiterType = this.getLoiterType();
 		try {
@@ -575,10 +581,10 @@ public class Loiter extends Maneuver implements LocatedManeuver, StatisticsProvi
     @Override
     public double getCompletionTime(LocationType initialPosition) {
         double speed = this.speed;
-        if (this.speedUnits.equalsIgnoreCase("RPM")) {
+        if (this.speedUnits == SPEED_UNITS.RPM) {
             speed = speed/769.230769231; //1.3 m/s for 1000 RPMs
         }
-        else if (this.speedUnits.equalsIgnoreCase("%")) {
+        else if (this.speedUnits == SPEED_UNITS.PERCENTAGE) {
             speed = speed/76.923076923; //1.3 m/s for 100% speed
         }
 

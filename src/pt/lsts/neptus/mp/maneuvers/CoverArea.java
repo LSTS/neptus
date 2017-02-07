@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2016 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2017 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -13,8 +13,8 @@
  * written agreement between you and Universidade do Porto. For licensing
  * terms, conditions, and further information contact lsts@fe.up.pt.
  *
- * European Union Public Licence - EUPL v.1.1 Usage
- * Alternatively, this file may be used under the terms of the EUPL,
+ * Modified European Union Public Licence - EUPL v.1.1 Usage
+ * Alternatively, this file may be used under the terms of the Modified EUPL,
  * Version 1.1 only (the "Licence"), appearing in the file LICENCE.md
  * included in the packaging of this file. You may not use this work
  * except in compliance with the Licence. Unless required by applicable
@@ -22,7 +22,8 @@
  * distributed on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF
  * ANY KIND, either express or implied. See the Licence for the specific
  * language governing permissions and limitations at
- * https://www.lsts.pt/neptus/licence.
+ * https://github.com/LSTS/neptus/blob/develop/LICENSE.md
+ * and http://ec.europa.eu/idabc/eupl.html.
  *
  * For more information please see <http://lsts.fe.up.pt/neptus>.
  *
@@ -64,8 +65,6 @@ import pt.lsts.imc.PolygonVertex;
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.gui.PropertiesEditor;
 import pt.lsts.neptus.gui.ToolbarSwitch;
-import pt.lsts.neptus.gui.editor.SpeedUnitsEditor;
-import pt.lsts.neptus.gui.editor.renderer.I18nCellRenderer;
 import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.mp.Maneuver;
 import pt.lsts.neptus.mp.ManeuverLocation;
@@ -81,11 +80,11 @@ import pt.lsts.neptus.util.FileUtil;
  * @author zp
  * 
  */
-public class CoverArea extends Maneuver implements LocatedManeuver, IMCSerialization, StateRendererInteraction {
+public class CoverArea extends Maneuver implements LocatedManeuver, ManeuverWithSpeed, IMCSerialization, StateRendererInteraction {
 
     protected InteractionAdapter adapter = new InteractionAdapter(null);
     private double speed = 1000, speedTolerance = 0, radiusTolerance = 2;
-    private String units = "RPM";
+    private Maneuver.SPEED_UNITS speedUnits = SPEED_UNITS.RPM;
     private ManeuverLocation location = new ManeuverLocation();
 
 //    private final int ANGLE_CALCULATION = -1 ;
@@ -113,16 +112,13 @@ public class CoverArea extends Maneuver implements LocatedManeuver, IMCSerializa
             pt.lsts.imc.CoverArea area = pt.lsts.imc.CoverArea.clone(message);
             
             setSpeed(area.getSpeed());
-            switch (area.getSpeedUnits()) {
-                case METERS_PS:
-                    setSpeedUnits("m/s");
-                    break;
-                case PERCENTAGE:
-                    setSpeedUnits("%");
-                    break;
-                case RPM:
-                    setSpeedUnits("RPM");
-                    break;
+            try {
+                String speedUnits = area.getString("speed_units");
+                setSpeedUnits(Maneuver.SPEED_UNITS.parse(speedUnits));
+            }
+            catch (Exception e) {
+                setSpeedUnits(Maneuver.SPEED_UNITS.RPM);
+                e.printStackTrace();
             }
             ManeuverLocation pos = new ManeuverLocation();
             pos.setLatitudeRads(area.getLat());
@@ -156,19 +152,22 @@ public class CoverArea extends Maneuver implements LocatedManeuver, IMCSerializa
         coverArea.setZUnits(pt.lsts.imc.CoverArea.Z_UNITS.valueOf(getManeuverLocation().getZUnits().name()));
         coverArea.setSpeed(this.getSpeed());
        
-        switch (this.getUnits()) {
-            case "m/s":
-                coverArea.setSpeedUnits(pt.lsts.imc.CoverArea.SPEED_UNITS.METERS_PS);
-                break;
-            case "RPM":
-                coverArea.setSpeedUnits(pt.lsts.imc.CoverArea.SPEED_UNITS.RPM);
-                break;
-            case "%":
-                coverArea.setSpeedUnits(pt.lsts.imc.CoverArea.SPEED_UNITS.PERCENTAGE);
-                break;
-            default:
-                coverArea.setSpeedUnits(pt.lsts.imc.CoverArea.SPEED_UNITS.RPM);
-                break;
+        try {
+            switch (this.getSpeedUnits()) {
+                case METERS_PS:
+                    coverArea.setSpeedUnits(pt.lsts.imc.CoverArea.SPEED_UNITS.METERS_PS);
+                    break;
+                case PERCENTAGE:
+                    coverArea.setSpeedUnits(pt.lsts.imc.CoverArea.SPEED_UNITS.PERCENTAGE);
+                    break;
+                case RPM:
+                default:
+                    coverArea.setSpeedUnits(pt.lsts.imc.CoverArea.SPEED_UNITS.RPM);
+                    break;
+            }
+        }
+        catch (Exception ex) {
+            NeptusLog.pub().error(this, ex);                     
         }
         
         Vector<PolygonVertex> vertices = new Vector<PolygonVertex>();
@@ -181,71 +180,6 @@ public class CoverArea extends Maneuver implements LocatedManeuver, IMCSerializa
         return coverArea;
     }
     
-//    public SystemPositionAndAttitude ManeuverFunction(SystemPositionAndAttitude lastVehicleState) {
-//        
-//     SystemPositionAndAttitude nextVehicleState = (SystemPositionAndAttitude) lastVehicleState.clone();
-//     
-//        switch (current_state) {
-//            case(ANGLE_CALCULATION):
-//                targetAngle = lastVehicleState.getPosition().getXYAngle(location);
-//                
-//                double angleDiff = (targetAngle - lastVehicleState.getYaw());
-//                
-//                while (angleDiff < 0)
-//                    angleDiff += Math.PI*2; //360º
-//                
-//                while (angleDiff > Math.PI*2)
-//                    angleDiff -= Math.PI*2;
-//                
-//                if (angleDiff > Math.PI)
-//                    angleDiff = angleDiff - Math.PI*2;
-//                
-//                rotateIncrement = angleDiff/3;//(-25.0f / 180.0f) * (float) Math.PI;
-//                count = 0;
-//                this.current_state = FIRST_ROTATE;
-//                nextVehicleState = ManeuverFunction(lastVehicleState);
-//            break;
-//        
-//            // Initial rotation towards the target point
-//            case FIRST_ROTATE:
-//                if (count++<3)
-//                    nextVehicleState.rotateXY(rotateIncrement);
-//                else {
-//                    nextVehicleState.setYaw(targetAngle);       
-//                    current_state = HORIZONTAL_MOVE;
-//                }           
-//                break;
-//        
-//            // The movement between the initial and final point, in the plane xy (horizontal)
-//            case HORIZONTAL_MOVE:
-//                double calculatedSpeed = 1;
-//                
-//                if (units.equals("m/s"))
-//                    calculatedSpeed = speed;
-//                else if (units.equals("RPM"))
-//                    calculatedSpeed = speed/500.0;
-//                double dist = nextVehicleState.getPosition().getHorizontalDistanceInMeters(location);
-//                if (dist <= calculatedSpeed) {
-//                    nextVehicleState.setPosition(location);
-//                    endManeuver();
-//                }
-//                else {                  
-//                        nextVehicleState.moveForward(calculatedSpeed);
-//                        double depthDiff = location.getDepth()-nextVehicleState.getPosition().getDepth();
-//                        
-//                        double depthIncr = depthDiff / (dist/calculatedSpeed);
-//                        double curDepth = nextVehicleState.getPosition().getDepth();
-//                        nextVehicleState.getPosition().setDepth(curDepth+depthIncr);
-//                }
-//                break;
-//            
-//            default:
-//                endManeuver();
-//        }
-//        
-//        return nextVehicleState;
-//    }
-
     @Override
     public String getName() {
         return "CoverArea maneuver";
@@ -454,8 +388,10 @@ public class CoverArea extends Maneuver implements LocatedManeuver, IMCSerializa
             if (speedNode == null) 
                 speedNode = doc.selectSingleNode(getType()+"/velocity");
             setSpeed(Double.parseDouble(speedNode.getText()));
-            String speedUnit = speedNode.valueOf("@unit");
-            setSpeedUnits(speedUnit);
+//            String speedUnit = speedNode.valueOf("@unit");
+//            setSpeedUnits(speedUnit);
+            SPEED_UNITS sUnits = ManeuversXMLUtil.parseSpeedUnits((Element) speedNode);
+            setSpeedUnits(sUnits);
             setSpeedTolerance(Double.parseDouble(speedNode.valueOf("@tolerance")));
             
             Node vertexPoints = doc.selectSingleNode(getType()+"/vertexPoints");
@@ -496,7 +432,7 @@ public class CoverArea extends Maneuver implements LocatedManeuver, IMCSerializa
     /**
      * @param parseDouble
      */
-    private void setSpeed(double speed) {
+    public void setSpeed(double speed) {
         this.speed = speed;
     }
     
@@ -507,12 +443,12 @@ public class CoverArea extends Maneuver implements LocatedManeuver, IMCSerializa
     /**
      * @param speedUnit
      */
-    private void setSpeedUnits(String units) {
-        this.units = units;
+    public void setSpeedUnits(SPEED_UNITS speedUnits) {
+        this.speedUnits = speedUnits;
     }
     
-    public String getUnits() {
-        return units;
+    public SPEED_UNITS getSpeedUnits() {
+        return speedUnits;
     }
 
     /**
@@ -537,7 +473,7 @@ public class CoverArea extends Maneuver implements LocatedManeuver, IMCSerializa
         }
         super.clone(clone);
         clone.speed = speed;
-        clone.units = units;
+        clone.speedUnits = speedUnits;
         clone.setManeuverLocation(location.getNewAbsoluteLatLonDepth());
         for (LocationType lc : points) {
             clone.points.addElement(lc.getNewAbsoluteLatLonDepth());
@@ -565,7 +501,7 @@ public class CoverArea extends Maneuver implements LocatedManeuver, IMCSerializa
         Element velocity = root.addElement("speed");
         velocity.addAttribute("tolerance", String.valueOf(getSpeedTolerance()));
         velocity.addAttribute("type", "float");
-        velocity.addAttribute("unit", getUnits());
+        velocity.addAttribute("unit", getSpeedUnits().getString());
         velocity.setText(String.valueOf(getSpeed()));
         
         Element trajectoryTolerance = root.addElement("trajectoryTolerance");
@@ -587,11 +523,9 @@ public class CoverArea extends Maneuver implements LocatedManeuver, IMCSerializa
     protected Vector<DefaultProperty> additionalProperties() {
         Vector<DefaultProperty> properties = new Vector<DefaultProperty>();
 
-        DefaultProperty units = PropertiesEditor.getPropertyInstance("Speed units", String.class, getUnits(), true);
+        DefaultProperty units = PropertiesEditor.getPropertyInstance("Speed units", Maneuver.SPEED_UNITS.class, getSpeedUnits(), true);
         units.setDisplayName(I18n.text("Speed units"));
         units.setShortDescription(I18n.text("The speed units"));
-        PropertiesEditor.getPropertyEditorRegistry().registerEditor(units, new SpeedUnitsEditor());
-        PropertiesEditor.getPropertyRendererRegistry().registerRenderer(units, new I18nCellRenderer());
     
         DefaultProperty propertySpeed = PropertiesEditor.getPropertyInstance("Speed", Double.class, getSpeed(), true);
         propertySpeed.setDisplayName(I18n.text("Speed"));
@@ -611,10 +545,10 @@ public class CoverArea extends Maneuver implements LocatedManeuver, IMCSerializa
         super.setProperties(properties);
         
         for (Property p : properties) {
-            if (p.getName().equals("Speed units")) {
-                setSpeedUnits((String)p.getValue());
-            }
-            else if (p.getName().equals("Speed tolerance")) {
+//            if (p.getName().equals("Speed units")) {
+//                setSpeedUnits((String)p.getValue());
+//            }
+            if (p.getName().equals("Speed tolerance")) {
                 setSpeedTolerance((Double)p.getValue());
             }
             else if (p.getName().equals("Speed")) {
@@ -624,6 +558,12 @@ public class CoverArea extends Maneuver implements LocatedManeuver, IMCSerializa
                 setRadiusTolerance((Double)p.getValue());
             }
             else {
+                SPEED_UNITS speedUnits = ManeuversUtil.getSpeedUnitsFromPropertyOrNullIfInvalidName(p);
+                if (speedUnits != null) {
+                    setSpeedUnits(speedUnits);
+                    continue;
+                }
+
                 NeptusLog.pub().debug("Property "+p.getName()+" ignored.");
             }
         }

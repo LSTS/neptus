@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2016 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2017 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -13,8 +13,8 @@
  * written agreement between you and Universidade do Porto. For licensing
  * terms, conditions, and further information contact lsts@fe.up.pt.
  *
- * European Union Public Licence - EUPL v.1.1 Usage
- * Alternatively, this file may be used under the terms of the EUPL,
+ * Modified European Union Public Licence - EUPL v.1.1 Usage
+ * Alternatively, this file may be used under the terms of the Modified EUPL,
  * Version 1.1 only (the "Licence"), appearing in the file LICENCE.md
  * included in the packaging of this file. You may not use this work
  * except in compliance with the Licence. Unless required by applicable
@@ -22,7 +22,8 @@
  * distributed on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF
  * ANY KIND, either express or implied. See the Licence for the specific
  * language governing permissions and limitations at
- * https://www.lsts.pt/neptus/licence.
+ * https://github.com/LSTS/neptus/blob/develop/LICENSE.md
+ * and http://ec.europa.eu/idabc/eupl.html.
  *
  * For more information please see <http://lsts.fe.up.pt/neptus>.
  *
@@ -37,16 +38,17 @@ import java.util.Map.Entry;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadFactory;
-
-import pt.lsts.neptus.NeptusLog;
-import pt.lsts.neptus.console.ConsoleLayout;
-import pt.lsts.neptus.console.ConsolePanel;
-import pt.lsts.neptus.renderer2d.InteractionAdapter;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import com.google.common.eventbus.AsyncEventBus;
 import com.google.common.eventbus.DeadEvent;
 import com.google.common.eventbus.EventBus;
 import com.google.common.eventbus.Subscribe;
+
+import pt.lsts.neptus.NeptusLog;
+import pt.lsts.neptus.console.ConsoleLayout;
+import pt.lsts.neptus.console.ConsolePanel;
+import pt.lsts.neptus.renderer2d.InteractionAdapter;
 
 /**
  * @author Hugo
@@ -61,10 +63,14 @@ public enum NeptusEvents {
 
     private NeptusEvents() {
         ExecutorService service = Executors.newCachedThreadPool(new ThreadFactory() {
+            private final String namePrefix = NeptusEvents.class.getSimpleName() + "::global::"
+                    + Integer.toHexString(NeptusEvents.this.hashCode());
+            private final AtomicInteger counter = new AtomicInteger(0);
+            private final ThreadGroup group = new ThreadGroup(namePrefix);
             @Override
             public Thread newThread(Runnable r) {
-                Thread t = new Thread(r);
-                t.setName("global events handler");
+                Thread t = new Thread(group, r);
+                t.setName("Global Events Handler ::" + counter.getAndIncrement());
                 t.setDaemon(true);
                 return t;
             }
@@ -72,10 +78,14 @@ public enum NeptusEvents {
         eventBus = new AsyncEventBus(service);
         eventBus.register(this);
         service = Executors.newCachedThreadPool(new ThreadFactory() {
+            private final String namePrefix = NeptusEvents.class.getSimpleName() + "::main-system::"
+                    + Integer.toHexString(NeptusEvents.this.hashCode());
+            private final AtomicInteger counter = new AtomicInteger(0);
+            private final ThreadGroup group = new ThreadGroup(namePrefix);
             @Override
             public Thread newThread(Runnable r) {
-                Thread t = new Thread(r);
-                t.setName("main system events handler");
+                Thread t = new Thread(group, r);
+                t.setName("Main System Events Handler ::" + counter.getAndIncrement());
                 t.setDaemon(true);
                 return t;
             }
@@ -83,10 +93,14 @@ public enum NeptusEvents {
         mainSystemEventBus = new AsyncEventBus(service);
         mainSystemEventBus.register(this);
         service = Executors.newCachedThreadPool(new ThreadFactory() {
+            private final String namePrefix = NeptusEvents.class.getSimpleName() + "::other-system::"
+                    + Integer.toHexString(NeptusEvents.this.hashCode());
+            private final AtomicInteger counter = new AtomicInteger(0);
+            private final ThreadGroup group = new ThreadGroup(namePrefix);
             @Override
             public Thread newThread(Runnable r) {
-                Thread t = new Thread(r);
-                t.setName("other system events handler");
+                Thread t = new Thread(group, r);
+                t.setName("Other System Events Handler ::" + counter.getAndIncrement());
                 t.setDaemon(true);
                 return t;
             }
@@ -179,11 +193,15 @@ public enum NeptusEvents {
     public static void create(ConsoleLayout console) {
         // EventBus
         ExecutorService service = Executors.newCachedThreadPool(new ThreadFactory() {
-
+            private final String namePrefix = NeptusEvents.class.getSimpleName()
+                    + "::" + ConsoleLayout.class.getSimpleName()  + "::console::"
+                    + Integer.toHexString(console.hashCode());
+            private final AtomicInteger counter = new AtomicInteger(0);
+            private final ThreadGroup group = new ThreadGroup(namePrefix);
             @Override
             public Thread newThread(Runnable r) {
-                Thread t = new Thread(r);
-                t.setName("console event bus");
+                Thread t = new Thread(group, r);
+                t.setName("Console Event Bus ::" + counter.getAndIncrement());
                 t.setDaemon(true);
                 return t;
             }
@@ -210,7 +228,7 @@ public enum NeptusEvents {
      */
     @Subscribe
     public void onDeadEvent(DeadEvent e) {
-        NeptusLog.pub().info("Dead event of type "+e.getEvent().getClass().getSimpleName()+", sent by "+e.getSource().getClass().getSimpleName()+" has not been received by anyone.");
+        NeptusLog.pub().debug("Dead event of type "+e.getEvent().getClass().getSimpleName()+", sent by "+e.getSource().getClass().getSimpleName()+" has not been received by anyone.");
     }
 
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2016 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2017 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -13,8 +13,8 @@
  * written agreement between you and Universidade do Porto. For licensing
  * terms, conditions, and further information contact lsts@fe.up.pt.
  *
- * European Union Public Licence - EUPL v.1.1 Usage
- * Alternatively, this file may be used under the terms of the EUPL,
+ * Modified European Union Public Licence - EUPL v.1.1 Usage
+ * Alternatively, this file may be used under the terms of the Modified EUPL,
  * Version 1.1 only (the "Licence"), appearing in the file LICENSE.md
  * included in the packaging of this file. You may not use this work
  * except in compliance with the Licence. Unless required by applicable
@@ -22,7 +22,8 @@
  * distributed on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF
  * ANY KIND, either express or implied. See the Licence for the specific
  * language governing permissions and limitations at
- * https://www.lsts.pt/neptus/licence.
+ * https://github.com/LSTS/neptus/blob/develop/LICENSE.md
+ * and http://ec.europa.eu/idabc/eupl.html.
  *
  * For more information please see <http://lsts.fe.up.pt/neptus>.
  *
@@ -31,10 +32,11 @@
  */
 package pt.lsts.neptus.plugins.alliance;
 
-import pt.lsts.neptus.types.coord.LocationType;
 import de.baderjene.aistoolkit.aisparser.message.Message01;
 import de.baderjene.aistoolkit.aisparser.message.Message03;
 import de.baderjene.aistoolkit.aisparser.message.Message05;
+import pt.lsts.neptus.types.coord.LocationType;
+import pt.lsts.neptus.util.AISUtil;
 
 /**
  * @author zp
@@ -43,10 +45,14 @@ import de.baderjene.aistoolkit.aisparser.message.Message05;
 public class AisContact {
 
     private int mmsi;
-    private double sog = 0, cog = 0;
+    private double sog = 0;
+    private double cog = 0;
+    private double hdg = 0;
+    private double rateOfTurn = 0;
     private String label = null;
     private long lastUpdate = 0;
     private LocationType loc = new LocationType();
+    private String navStatus = "underfined";
     
     private Message05 additionalProperties = null;
     
@@ -64,8 +70,11 @@ public class AisContact {
         lastUpdate = System.currentTimeMillis();
         loc.setLatitudeDegs(m.getLatitude());
         loc.setLongitudeDegs(m.getLongitude());
-        cog = m.getTrueHeading();
+        hdg = m.getTrueHeading();
+        cog = m.getCourseOverGround();
         sog = m.getSpeedOverGround();
+        rateOfTurn = m.getRateOfTurn();
+        navStatus = AISUtil.translateNavigationalStatus(m.getNavigationStatus());
         if (label == null)
             label = ""+m.getSourceMmsi();
     }
@@ -74,15 +83,18 @@ public class AisContact {
         lastUpdate = System.currentTimeMillis();
         loc.setLatitudeDegs(m.getLatitude());
         loc.setLongitudeDegs(m.getLongitude());
-        cog = m.getTrueHeading();
+        hdg = m.getTrueHeading();
+        cog = m.getCourseOverGround();
         sog = m.getSpeedOverGround();
+        rateOfTurn = m.getRateOfTurn();
+        navStatus = AISUtil.translateNavigationalStatus(m.getNavigationStatus());
         if (label == null)
             label = ""+m.getSourceMmsi();
     }
     
     public void update(Message05 m) {
         lastUpdate = System.currentTimeMillis();
-        label = m.getVesselName();
+        label = m.getVesselName().trim();
         additionalProperties = m;
     }
     
@@ -105,6 +117,13 @@ public class AisContact {
     }
 
     /**
+     * @return the hdg
+     */
+    public double getHdg() {
+        return hdg;
+    }
+    
+    /**
      * @return the cog
      */
     public double getCog() {
@@ -118,6 +137,13 @@ public class AisContact {
         return label == null ? null : label.trim();
     }
 
+    /**
+     * @return the rateOfTurn
+     */
+    public double getRateOfTurn() {
+        return rateOfTurn;
+    }
+    
     /**
      * @param label the label to set
      */
@@ -140,12 +166,26 @@ public class AisContact {
     }
 
     /**
+     * @param rateOfTurn the rateOfTurn to set
+     */
+    public void setRateOfTurn(double rateOfTurn) {
+        this.rateOfTurn = rateOfTurn;
+    }
+    
+    /**
      * @param loc the loc to set
      */
     public void setLocation(LocationType loc) {
         this.loc = loc;
     }
 
+    /**
+     * @return the navStatus
+     */
+    public String getNavStatus() {
+        return navStatus;
+    }
+    
     /**
      * @return the additionalProperties
      */

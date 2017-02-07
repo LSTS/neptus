@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2016 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2017 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -13,8 +13,8 @@
  * written agreement between you and Universidade do Porto. For licensing
  * terms, conditions, and further information contact lsts@fe.up.pt.
  *
- * European Union Public Licence - EUPL v.1.1 Usage
- * Alternatively, this file may be used under the terms of the EUPL,
+ * Modified European Union Public Licence - EUPL v.1.1 Usage
+ * Alternatively, this file may be used under the terms of the Modified EUPL,
  * Version 1.1 only (the "Licence"), appearing in the file LICENSE.md
  * included in the packaging of this file. You may not use this work
  * except in compliance with the Licence. Unless required by applicable
@@ -22,7 +22,8 @@
  * distributed on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF
  * ANY KIND, either express or implied. See the Licence for the specific
  * language governing permissions and limitations at
- * https://www.lsts.pt/neptus/licence.
+ * https://github.com/LSTS/neptus/blob/develop/LICENSE.md
+ * and http://ec.europa.eu/idabc/eupl.html.
  *
  * For more information please see <http://lsts.fe.up.pt/neptus>.
  *
@@ -51,10 +52,9 @@ public class Launch extends Goto {
     public Object clone() {  
         Launch clone = new Launch();
         super.clone(clone);
-        clone.params = params;
         clone.setManeuverLocation(getManeuverLocation());
         clone.setRadiusTolerance(getRadiusTolerance());
-        clone.setSpeedUnits(getUnits());
+        clone.setSpeedUnits(getSpeedUnits());
         clone.setSpeed(getSpeed());
         clone.setSpeedTolerance(getSpeedTolerance());
         
@@ -70,13 +70,13 @@ public class Launch extends Goto {
             setSpeed(msg.getSpeed());
             switch (msg.getSpeedUnits()) {
                 case METERS_PS:
-                    setSpeedUnits("m/s");
+                    setSpeedUnits(SPEED_UNITS.METERS_PS);
                     break;
                 case PERCENTAGE:
-                    setSpeedUnits("%");
+                    setSpeedUnits(SPEED_UNITS.PERCENTAGE);
                     break;
                 case RPM:
-                    setSpeedUnits("RPM");
+                    setSpeedUnits(SPEED_UNITS.RPM);
                     break;
             }
             ManeuverLocation pos = new ManeuverLocation();
@@ -106,14 +106,14 @@ public class Launch extends Goto {
         gotoManeuver.setZUnits(pt.lsts.imc.Launch.Z_UNITS.valueOf(getManeuverLocation().getZUnits().name()));
         gotoManeuver.setSpeed(this.getSpeed());
        
-        switch (this.getUnits()) {
-            case "m/s":
+        switch (this.getSpeedUnits()) {
+            case METERS_PS:
                 gotoManeuver.setSpeedUnits(pt.lsts.imc.Launch.SPEED_UNITS.METERS_PS);
                 break;
-            case "RPM":
+            case RPM:
                 gotoManeuver.setSpeedUnits(pt.lsts.imc.Launch.SPEED_UNITS.RPM);
                 break;
-            case "%":
+            case PERCENTAGE:
                 gotoManeuver.setSpeedUnits(pt.lsts.imc.Launch.SPEED_UNITS.PERCENTAGE);
                 break;
             default:

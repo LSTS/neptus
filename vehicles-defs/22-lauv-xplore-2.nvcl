@@ -16,8 +16,8 @@
             <model-3D>../vehicles-files/lauv/lauv-xtreme-2.x3d</model-3D>
             <icon-color>
                 <r>255</r>
-                <g>32</g>
-                <b>32</b>
+                <g>80</g>
+                <b>80</b>
             </icon-color>
         </appearance>
         <coordinate-system-label>SNAME</coordinate-system-label>
@@ -337,7 +337,7 @@
         <comm-mean>
             <name>ethernet</name>
             <type>ethernet</type>
-            <host-address>10.0.10.180</host-address>
+            <host-address>10.0.10.130</host-address>
             <protocols>imc</protocols>
             <latency value="100M" unit="bps"/>
             <protocols-args>

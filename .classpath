@@ -35,7 +35,6 @@
 	<classpathentry kind="src" path="plugins-dev/oplimits"/>
 	<classpathentry kind="src" path="plugins-dev/position"/>
 	<classpathentry kind="src" path="plugins-dev/s57"/>
-	<classpathentry kind="src" path="plugins-dev/s57-client"/>
 	<classpathentry kind="src" path="plugins-dev/simulation"/>
 	<classpathentry kind="src" path="plugins-dev/spot"/>
 	<classpathentry kind="src" path="plugins-dev/state"/>
@@ -60,11 +59,13 @@
 	<classpathentry kind="src" path="plugins-dev/shapefiles"/>
 	<classpathentry kind="src" path="plugins-dev/nvmaps"/>
 	<classpathentry kind="src" path="plugins-dev/preflight"/>
-	<classpathentry kind="src" path="plugins-dev/vision"/>
+	<classpathentry kind="src" path="plugins-dev/videostream"/>
 	<classpathentry kind="src" path="plugins-dev/cmre-wg"/>
 	<classpathentry kind="src" path="plugins-dev/mjpeg"/>
 	<classpathentry kind="src" path="plugins-dev/necsave"/>
 	<classpathentry kind="src" path="plugins-dev/land"/>
+	<classpathentry kind="src" path="plugins-dev/historic-data"/>
+	<classpathentry kind="src" path="plugins-dev/txtmsg"/>
 	<classpathentry kind="lib" path="lib/log4j-1.2.17.jar"/>
 	<classpathentry kind="lib" path="lib/xerces-2.7.1/xml-apis.jar"/>
 	<classpathentry kind="lib" path="lib/xerces-2.7.1/xercesImpl.jar"/>
@@ -196,7 +197,7 @@
 	<classpathentry kind="lib" path="lib/commons-codec-1.9.jar"/>
 	<classpathentry kind="lib" path="lib/commons-configuration-1.10.jar"/>
 	<classpathentry kind="lib" path="lib/reflections-0.9.9-RC1.jar"/>
-	<classpathentry kind="lib" path="plugins-dev/s57/s57-package-2.3.jar"/>
+	<classpathentry kind="lib" path="plugins-dev/s57/s57-package-2.3.2.jar"/>
 	<classpathentry kind="lib" path="lib/PSEngine.jar">
 		<attributes>
 			<attribute name="javadoc_location" value="jar:platform:/resource/neptus/libJNI/europa/PSEngine-javadoc.jar!/"/>
@@ -221,6 +222,19 @@
 	<classpathentry kind="lib" path="lib/javacsv.jar"/>
 	<classpathentry kind="lib" path="lib/commons-collections-3.2.1.jar"/>
 	<classpathentry kind="lib" path="lib/commons-lang-2.6.jar"/>
+	<classpathentry kind="lib" path="lib/rsyntaxtextarea/rsyntaxtextarea-2.5.8.jar"/>
+	<classpathentry kind="lib" path="lib/rsyntaxtextarea/autocomplete-2.5.8.jar"/>
+	<classpathentry kind="lib" path="lib/rsyntaxtextarea/languagesupport-2.5.8.jar"/>
+	<classpathentry kind="lib" path="lib/libMsgSender.jar"/>
+	<classpathentry kind="lib" path="plugins-dev/alliance/lib/ais-lib-cli-2.2.jar"/>
+	<classpathentry kind="lib" path="plugins-dev/alliance/lib/ais-lib-communication-2.2.jar"/>
+	<classpathentry kind="lib" path="plugins-dev/alliance/lib/ais-lib-messages-2.2.jar"/>
+	<classpathentry kind="lib" path="plugins-dev/alliance/lib/ais-lib-utils-2.2.jar"/>
+	<classpathentry kind="lib" path="lib/gdal.jar"/>
+	<classpathentry kind="lib" path="lib/sanselan-0.97-incubator.jar"/>
+	<classpathentry kind="lib" path="lib/graphstream/gs-core-1.3.jar"/>
+	<classpathentry kind="lib" path="lib/graphstream/gs-ui-1.3.jar"/>
+	<classpathentry kind="lib" path="plugins-dev/necsave/lib/minimal-json-0.9.4.jar"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.junit.JUNIT_CONTAINER/4"/>
 	<classpathentry kind="lib" path="conf"/>

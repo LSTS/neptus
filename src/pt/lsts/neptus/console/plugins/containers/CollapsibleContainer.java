@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2016 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2017 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -13,8 +13,8 @@
  * written agreement between you and Universidade do Porto. For licensing
  * terms, conditions, and further information contact lsts@fe.up.pt.
  *
- * European Union Public Licence - EUPL v.1.1 Usage
- * Alternatively, this file may be used under the terms of the EUPL,
+ * Modified European Union Public Licence - EUPL v.1.1 Usage
+ * Alternatively, this file may be used under the terms of the Modified EUPL,
  * Version 1.1 only (the "Licence"), appearing in the file LICENCE.md
  * included in the packaging of this file. You may not use this work
  * except in compliance with the Licence. Unless required by applicable
@@ -22,7 +22,8 @@
  * distributed on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF
  * ANY KIND, either express or implied. See the Licence for the specific
  * language governing permissions and limitations at
- * https://www.lsts.pt/neptus/licence.
+ * https://github.com/LSTS/neptus/blob/develop/LICENSE.md
+ * and http://ec.europa.eu/idabc/eupl.html.
  *
  * For more information please see <http://lsts.fe.up.pt/neptus>.
  *
@@ -43,6 +44,7 @@ import java.util.LinkedHashMap;
 
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
+import javax.swing.ImageIcon;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.border.LineBorder;
@@ -54,20 +56,27 @@ import org.jdesktop.swingx.painter.GlossPainter;
 import org.jdesktop.swingx.painter.MattePainter;
 
 import pt.lsts.neptus.console.ConsoleLayout;
-import pt.lsts.neptus.console.ContainerSubPanel;
 import pt.lsts.neptus.console.ConsolePanel;
+import pt.lsts.neptus.console.ContainerSubPanel;
 import pt.lsts.neptus.plugins.NeptusProperty;
 import pt.lsts.neptus.plugins.PluginDescription;
+import pt.lsts.neptus.util.FileUtil;
 import pt.lsts.neptus.util.ImageUtils;
 
 /**
  * @author ZP
  * 
  */
-@PluginDescription(name = "Console Layout: Collapsible", description = "Collapsible subpanels", icon = "pt/lsts/neptus/plugins/containers/layout.png")
+@PluginDescription(name = "Console Layout: Collapsible", description = "Collapsible subpanels", 
+    icon = "pt/lsts/neptus/console/plugins/containers/layout.png", experimental = true)
 public class CollapsibleContainer extends ContainerSubPanel {
 
     private static final long serialVersionUID = 1L;
+
+    private static final ImageIcon MINUS_IMG = ImageUtils
+            .getScaledIcon(FileUtil.getPackageAsPath(CollapsibleContainer.class) + "/minus.png", 12, 12);
+    private static final ImageIcon PLUS_IMG = ImageUtils
+            .getScaledIcon(FileUtil.getPackageAsPath(CollapsibleContainer.class) + "/plus.png", 12, 12);
 
     @NeptusProperty(editable = false)
     public String state = "";
@@ -82,10 +91,8 @@ public class CollapsibleContainer extends ContainerSubPanel {
     }
 
     @Override
-    public void addSubPanel(ConsolePanel panel) {
-        // panel.setBorder(BorderFactory.createEmptyBorder());
+    public boolean addSubPanelExtra(ConsolePanel panel) {
         int pos = panels.size();
-        panels.add(panel);
 
         String[] states = state.split(",");
         if (states.length > pos && states[pos].equals("0"))
@@ -93,22 +100,15 @@ public class CollapsibleContainer extends ContainerSubPanel {
         else
             addCollapsiblePanel(panel, panel.getName(), false);
 
-        doLayout();
-        invalidate();
-        revalidate();
+        return true;
     }
 
     @Override
-    public void removeSubPanel(ConsolePanel sp) {
-        panels.remove(sp);
+    public void removeSubPanelExtra(ConsolePanel sp) {
         remove(colPanes.get(sp));
         remove(auxPanels.get(sp));
         colPanes.remove(sp);
         auxPanels.remove(sp);
-
-        doLayout();
-        invalidate();
-        revalidate();
     }
 
     private JXCollapsiblePane addCollapsiblePanel(ConsolePanel cmp, String label, boolean collapsed) {
@@ -119,8 +119,7 @@ public class CollapsibleContainer extends ContainerSubPanel {
         final JXCollapsiblePane colPane = new JXCollapsiblePane();
         colPane.setLayout(new BorderLayout());
         colPane.add(cmp, BorderLayout.CENTER);
-        final JLabel minimizeLbl = new JLabel(ImageUtils.getScaledIcon(
-                "pt/lsts/neptus/plugins/containers/minus.png", 12, 12));
+        final JLabel minimizeLbl = new JLabel(MINUS_IMG);
         minimizeLbl.setPreferredSize(new Dimension(12, 12));
         minimizeLbl.setMaximumSize(new Dimension(12, 12));
         minimizeLbl.setMinimumSize(new Dimension(12, 12));
@@ -141,15 +140,13 @@ public class CollapsibleContainer extends ContainerSubPanel {
                         colPane.getActionMap().get(JXCollapsiblePane.TOGGLE_ACTION)
                                 .actionPerformed(new ActionEvent(minimizeLbl, ActionEvent.RESERVED_ID_MAX, "toggle"));
                         minimizeLbl.setToolTipText("maximize");
-                        minimizeLbl.setIcon(ImageUtils.getScaledIcon(
-                                "pt/lsts/neptus/plugins/containers/plus.png", 12, 12));
+                        minimizeLbl.setIcon(PLUS_IMG);
                     }
                     else {
                         colPane.getActionMap().get(JXCollapsiblePane.TOGGLE_ACTION)
                                 .actionPerformed(new ActionEvent(minimizeLbl, ActionEvent.RESERVED_ID_MAX, "toggle"));
                         minimizeLbl.setToolTipText("minimize");
-                        minimizeLbl.setIcon(ImageUtils.getScaledIcon(
-                                "pt/lsts/neptus/plugins/containers/minus.png", 12, 12));
+                        minimizeLbl.setIcon(MINUS_IMG);
                     }
                     state = computeState();
                     // getConsole().setConsoleSaved(false);
@@ -175,7 +172,7 @@ public class CollapsibleContainer extends ContainerSubPanel {
         if (collapsed) {
             colPane.setCollapsed(true);
             minimizeLbl.setToolTipText("maximize");
-            minimizeLbl.setIcon(ImageUtils.getScaledIcon("pt/lsts/neptus/plugins/containers/plus.png", 12, 12));
+            minimizeLbl.setIcon(PLUS_IMG);
         }
         add(colPane);
 

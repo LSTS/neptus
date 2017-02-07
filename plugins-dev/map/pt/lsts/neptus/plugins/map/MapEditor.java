@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2016 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2017 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -13,8 +13,8 @@
  * written agreement between you and Universidade do Porto. For licensing
  * terms, conditions, and further information contact lsts@fe.up.pt.
  *
- * European Union Public Licence - EUPL v.1.1 Usage
- * Alternatively, this file may be used under the terms of the EUPL,
+ * Modified European Union Public Licence - EUPL v.1.1 Usage
+ * Alternatively, this file may be used under the terms of the Modified EUPL,
  * Version 1.1 only (the "Licence"), appearing in the file LICENCE.md
  * included in the packaging of this file. You may not use this work
  * except in compliance with the Licence. Unless required by applicable
@@ -22,7 +22,8 @@
  * distributed on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF
  * ANY KIND, either express or implied. See the Licence for the specific
  * language governing permissions and limitations at
- * https://www.lsts.pt/neptus/licence.
+ * https://github.com/LSTS/neptus/blob/develop/LICENSE.md
+ * and http://ec.europa.eu/idabc/eupl.html.
  *
  * For more information please see <http://lsts.fe.up.pt/neptus>.
  *
@@ -31,6 +32,7 @@
  */
 package pt.lsts.neptus.plugins.map;
 
+import java.awt.AlphaComposite;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
@@ -51,6 +53,7 @@ import java.util.Collections;
 import java.util.Timer;
 import java.util.Vector;
 
+import javax.swing.ImageIcon;
 import javax.swing.JFileChooser;
 import javax.swing.JMenu;
 import javax.swing.JMenuItem;
@@ -114,6 +117,9 @@ public class MapEditor extends ConsolePanel implements StateRendererInteraction,
         MissionChangeListener, ConfigurationListener {
 
     private static final long serialVersionUID = 1L;
+
+    protected static ImageIcon handIcon = ImageUtils.createImageIcon("images/icons/hand.png");
+    
     protected InteractionAdapter adapter;
     protected InteractionAdapter currentInteraction = null;
     protected UndoManager manager = createManager();
@@ -483,6 +489,11 @@ public class MapEditor extends ConsolePanel implements StateRendererInteraction,
     }
 
     protected void removeElement(String elemId) {
+        if (mg.getMapObjectsByID(elemId).length == 0) {
+            NeptusLog.pub().error("Trying to delete unexisting object: "+elemId);
+            return;
+        }
+        
         AbstractElement elem = mg.getMapObjectsByID(elemId)[0];
 
         RemoveObjectEdit edit = new RemoveObjectEdit(elem);
@@ -631,7 +642,9 @@ public class MapEditor extends ConsolePanel implements StateRendererInteraction,
 
             add.addSeparator();
 
-            add.add(I18n.text("Image from World File")).addActionListener(new ActionListener() {
+            JMenuItem AddWorldFile = add.add(I18n.text("Image from World File"));
+            AddWorldFile.setToolTipText(I18n.text("Will position the image in currently visible UTM zone."));
+            AddWorldFile.addActionListener(new ActionListener() {
 
                 @Override
                 public void actionPerformed(ActionEvent e) {
@@ -659,7 +672,7 @@ public class MapEditor extends ConsolePanel implements StateRendererInteraction,
 
                                 final MapType pivot = m != null ? m : mg.getMaps()[0];
 
-                                ImageElement el = new ImageElement(choice, file);
+                                ImageElement el = new ImageElement(choice, file, renderer.getCenter());
                                 el.setMapGroup(mg);
                                 el.showParametersDialog(MapEditor.this, pivot.getObjectIds(), pivot, true);
 
@@ -788,14 +801,13 @@ public class MapEditor extends ConsolePanel implements StateRendererInteraction,
             return;
         }
 
-        
         if (event.getButton() != MouseEvent.BUTTON1) {
             return;
         }
 
         testMouseIntersections();
 
-        if (!intersectedObjects.isEmpty()) {
+        if (!intersectedObjects.isEmpty() && event.getClickCount() > 1) {
             draggedObject = intersectedObjects.lastElement();
             orignalXML = draggedObject.asXML();
             originalObjLocation = new LocationType(draggedObject.getCenterLocation());
@@ -806,11 +818,11 @@ public class MapEditor extends ConsolePanel implements StateRendererInteraction,
 
             objectMoved = false;
         }
-        else 
+        else {
             adapter.mousePressed(event, source);
+        }
 
         mousePoint = event.getPoint();
-
     }
 
     @Override
@@ -987,8 +999,10 @@ public class MapEditor extends ConsolePanel implements StateRendererInteraction,
                         "Error removing toolbar of " + MapEditor.class.getSimpleName() + " from "
                                 + MapPanel.class.getSimpleName(), e);
             }
-            parent.invalidate();
-            parent.validate();
+            if (parent != null) {
+                parent.invalidate();
+                parent.validate();
+            }
             
             SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>() {
                 @Override
@@ -1035,6 +1049,17 @@ public class MapEditor extends ConsolePanel implements StateRendererInteraction,
     @Override
     public void paintInteraction(Graphics2D g, StateRenderer2D source) {
         adapter.paintInteraction(g, source);
+
+        if (draggedObject != null && mousePoint != null) {
+            Graphics2D g2 = (Graphics2D) g.create();
+            g2.translate(mousePoint.x - handIcon.getImage().getWidth(null) / 2, 
+                    mousePoint.y - handIcon.getImage().getHeight(null) / 2);
+            g2.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 0.5f));
+            g2.drawImage(handIcon.getImage(), 0, 0, handIcon.getImage().getWidth(null),
+                    handIcon.getImage().getHeight(null), 0, 0, handIcon.getImage().getWidth(null),
+                    handIcon.getImage().getHeight(null), null);
+            g2.dispose();
+        }
     }
 
     /*

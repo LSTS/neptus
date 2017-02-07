@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2016 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2017 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -13,8 +13,8 @@
  * written agreement between you and Universidade do Porto. For licensing
  * terms, conditions, and further information contact lsts@fe.up.pt.
  *
- * European Union Public Licence - EUPL v.1.1 Usage
- * Alternatively, this file may be used under the terms of the EUPL,
+ * Modified European Union Public Licence - EUPL v.1.1 Usage
+ * Alternatively, this file may be used under the terms of the Modified EUPL,
  * Version 1.1 only (the "Licence"), appearing in the file LICENCE.md
  * included in the packaging of this file. You may not use this work
  * except in compliance with the Licence. Unless required by applicable
@@ -22,7 +22,8 @@
  * distributed on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF
  * ANY KIND, either express or implied. See the Licence for the specific
  * language governing permissions and limitations at
- * https://www.lsts.pt/neptus/licence.
+ * https://github.com/LSTS/neptus/blob/develop/LICENSE.md
+ * and http://ec.europa.eu/idabc/eupl.html.
  *
  * For more information please see <http://lsts.fe.up.pt/neptus>.
  *
@@ -31,6 +32,7 @@
  */
 package pt.lsts.neptus.mp.maneuvers;
 
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
 
 import pt.lsts.imc.IMCMessage;
@@ -47,6 +49,12 @@ import pt.lsts.neptus.util.FileUtil;
  */
 public class FollowPath extends FollowTrajectory {
 
+    private static ArrayList<Class<FollowPath>> followPathPatternsList = new ArrayList<>();
+    static {
+        registerPattern(RowsPattern.class);
+        registerPattern(RIPattern.class);
+        registerPattern(CrossHatchPattern.class);
+    }
     
     public FollowPath() {
         super();
@@ -60,7 +68,7 @@ public class FollowPath extends FollowTrajectory {
         LocationType trajectoryStart = gotoF.destination;
         setId(gotoSequence.getManeuver(gotoSequence.getInitialManeuverId()).getId());
         setSpeed(gotoF.getSpeed());
-        setSpeedUnits(gotoF.getUnits());
+        setSpeedUnits(gotoF.getSpeedUnits());
         Maneuver[] mans = gotoSequence.getAllManeuvers();
         for (Maneuver m : mans) {
             Goto g = (Goto)m;
@@ -79,10 +87,10 @@ public class FollowPath extends FollowTrajectory {
     @Override
     public double getCompletionTime(LocationType initialPosition) {
         double speed = this.speed;
-        if (this.speed_units.equalsIgnoreCase("RPM")) {
+        if (this.speedUnits == Maneuver.SPEED_UNITS.RPM) {
             speed = speed/769.230769231; //1.3 m/s for 1000 RPMs
         }
-        else if (this.speed_units.equalsIgnoreCase("%")) {
+        else if (this.speedUnits == Maneuver.SPEED_UNITS.PERCENTAGE) {
             speed = speed/76.923076923; //1.3 m/s for 100% speed
         }
 
@@ -90,27 +98,48 @@ public class FollowPath extends FollowTrajectory {
     }
 
     /**
+     * This method allows to register additional follow path pattern maneuvers to be used.
+     * This allows easy addition of new maneuvers following the follow path maneuver as pattern.
+     * 
+     * @param followPathPattern
+     */
+    @SuppressWarnings("unchecked")
+    public synchronized static <P extends FollowPath> void registerPattern(Class<P> followPathPattern) {
+        if (!followPathPatternsList.contains(followPathPattern)) {
+            followPathPatternsList.add((Class<FollowPath>) followPathPattern);
+        }
+    }
+    
+    /**
      * @param msg
      * @return
      */
-    public static Maneuver createFollowPathOrPattern(IMCMessage message) {
+    public static FollowPath createFollowPathOrPattern(IMCMessage message) {
         String customValues = (String) message.getValue("custom");
         if (customValues != null) {
             LinkedHashMap<String, String> customValuesTL = IMCMessage.decodeTupleList(customValues);
             String pattern = customValuesTL.get("Pattern");
             if (pattern == null || pattern.length() == 0)
                 return new FollowPath();
-            if ("RowsPatterns".equalsIgnoreCase(pattern))
-                return new RowsPattern();
-            else if ("RIPattern".equalsIgnoreCase(pattern))
-                return new RIPattern();
-            else if ("CrossHatchPattern".equalsIgnoreCase(pattern))
-                return new CrossHatchPattern();
-            else
-                return new FollowPath();
+            
+            for (Class<FollowPath> fpp : followPathPatternsList) {
+                String patternName = fpp.getSimpleName();
+                if (patternName.equalsIgnoreCase(pattern)) {
+                    NeptusLog.pub().warn(String.format("Found follow path pattern '%s'", patternName));
+                    try {
+                        return fpp.newInstance();
+                    }
+                    catch (Exception e) {
+                        NeptusLog.pub().warn(String.format("Not possible to instanciate found follow path pattern '%s'! (%s)", 
+                                patternName, e.getMessage()));
+                    }
+                }
+            }
+            NeptusLog.pub().warn(String.format("Not possible to find follow path pattern for '%s', "
+                    + "reverting to follow path!", pattern));
         }
-        else
-            return new FollowPath();
+        
+        return new FollowPath();
     }
 
     public static void main(String[] args) {
@@ -118,11 +147,11 @@ public class FollowPath extends FollowTrajectory {
         traj.loadFromXML("<FollowPath kind=\"automatic\"><basePoint type=\"pointType\"><point><id>id_53802104</id><name>id_53802104</name><coordinate><latitude>0N0'0''</latitude><longitude>0E0'0''</longitude><depth>0.0</depth></coordinate></point><radiusTolerance>0.0</radiusTolerance></basePoint><path><nedOffsets northOffset=\"0.0\" eastOffset=\"1.0\" depthOffset=\"2.0\" timeOffset=\"3.0\"/><nedOffsets northOffset=\"4.0\" eastOffset=\"5.0\" depthOffset=\"6.0\" timeOffset=\"7.0\"/></path><speed unit=\"RPM\">1000.0</speed></FollowPath>");
         //NeptusLog.pub().info("<###> "+FileUtil.getAsPrettyPrintFormatedXMLString(traj.getManeuverAsDocument("FollowTrajectory")));
         traj.setSpeed(1);
-        traj.setSpeedUnits("m/s");        
+        traj.setSpeedUnits(Maneuver.SPEED_UNITS.METERS_PS);        
         NeptusLog.pub().info("<###> "+FileUtil.getAsPrettyPrintFormatedXMLString(traj.getManeuverAsDocument("FollowPath")));
 
         traj.setSpeed(2);
-        traj.setSpeedUnits("m/s");        
+        traj.setSpeedUnits(Maneuver.SPEED_UNITS.METERS_PS);        
         NeptusLog.pub().info("<###> "+FileUtil.getAsPrettyPrintFormatedXMLString(traj.getManeuverAsDocument("FollowPath")));
 
     }

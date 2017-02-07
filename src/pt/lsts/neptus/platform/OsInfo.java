@@ -9,7 +9,7 @@
  * contained in a written agreement between you and Universidade do Porto. For
  * licensing terms, conditions, and further information contact lsts@fe.up.pt.
  *
- * European Union Public Licence - EUPL v.1.1 Usage Alternatively, this file may
+ * Modified European Union Public Licence - EUPL v.1.1 Usage Alternatively, this file may
  * be used under the terms of the EUPL, Version 1.1 only (the "Licence"),
  * appearing in the file LICENCE.md included in the packaging of this file. You
  * may not use this work except in compliance with the Licence. Unless required
@@ -17,7 +17,8 @@
  * Licence is distributed on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS
  * OF ANY KIND, either express or implied. See the Licence for the specific
  * language governing permissions and limitations at
- * https://www.lsts.pt/neptus/licence.
+ * https://github.com/LSTS/neptus/blob/develop/LICENSE.md
+ * and http://ec.europa.eu/idabc/eupl.html.
  *
  * For more information please see <http://lsts.fe.up.pt/neptus>.
  */

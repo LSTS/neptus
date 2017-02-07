@@ -7,6 +7,7 @@ import javax.jws.WebResult;
 import javax.jws.WebService;
 import javax.jws.soap.SOAPBinding;
 import javax.xml.bind.annotation.XmlSeeAlso;
+
 import fr.cls.argos.dataxmldistribution.service.types.CsvRequestType;
 import fr.cls.argos.dataxmldistribution.service.types.KmlRequestType;
 import fr.cls.argos.dataxmldistribution.service.types.ObjectFactory;

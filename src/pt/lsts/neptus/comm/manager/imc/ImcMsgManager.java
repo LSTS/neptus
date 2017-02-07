@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2016 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2017 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -13,8 +13,8 @@
  * written agreement between you and Universidade do Porto. For licensing
  * terms, conditions, and further information contact lsts@fe.up.pt.
  *
- * European Union Public Licence - EUPL v.1.1 Usage
- * Alternatively, this file may be used under the terms of the EUPL,
+ * Modified European Union Public Licence - EUPL v.1.1 Usage
+ * Alternatively, this file may be used under the terms of the Modified EUPL,
  * Version 1.1 only (the "Licence"), appearing in the file LICENCE.md
  * included in the packaging of this file. You may not use this work
  * except in compliance with the Licence. Unless required by applicable
@@ -22,7 +22,8 @@
  * distributed on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF
  * ANY KIND, either express or implied. See the Licence for the specific
  * language governing permissions and limitations at
- * https://www.lsts.pt/neptus/licence.
+ * https://github.com/LSTS/neptus/blob/develop/LICENSE.md
+ * and http://ec.europa.eu/idabc/eupl.html.
  *
  * For more information please see <http://lsts.fe.up.pt/neptus>.
  *
@@ -36,7 +37,6 @@ import java.net.InetSocketAddress;
 import java.net.URI;
 import java.net.URL;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
@@ -51,9 +51,14 @@ import java.util.concurrent.FutureTask;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import javax.naming.InvalidNameException;
 import javax.swing.JFrame;
+
+import com.google.common.collect.HashBiMap;
+import com.google.common.eventbus.AsyncEventBus;
 
 import pt.lsts.imc.Announce;
 import pt.lsts.imc.EntityInfo;
@@ -61,6 +66,8 @@ import pt.lsts.imc.EntityList;
 import pt.lsts.imc.IMCDefinition;
 import pt.lsts.imc.IMCMessage;
 import pt.lsts.imc.MessagePart;
+import pt.lsts.imc.RemoteSensorInfo;
+import pt.lsts.imc.ReportedState;
 import pt.lsts.imc.lsf.LsfMessageLogger;
 import pt.lsts.imc.net.IMCFragmentHandler;
 import pt.lsts.imc.state.ImcSystemState;
@@ -68,9 +75,12 @@ import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.comm.CommUtil;
 import pt.lsts.neptus.comm.IMCSendMessageUtils;
 import pt.lsts.neptus.comm.IMCUtils;
+import pt.lsts.neptus.comm.NoTransportAvailableException;
+import pt.lsts.neptus.comm.SystemUtils;
 import pt.lsts.neptus.comm.manager.CommBaseManager;
 import pt.lsts.neptus.comm.manager.CommManagerStatusChangeListener;
 import pt.lsts.neptus.comm.manager.MessageFrequencyCalculator;
+import pt.lsts.neptus.comm.manager.imc.ImcSystem.IMCAuthorityState;
 import pt.lsts.neptus.comm.transports.ImcTcpTransport;
 import pt.lsts.neptus.comm.transports.ImcUdpTransport;
 import pt.lsts.neptus.console.ConsolePanel;
@@ -80,10 +90,14 @@ import pt.lsts.neptus.messages.listener.MessageInfo;
 import pt.lsts.neptus.messages.listener.MessageInfoImpl;
 import pt.lsts.neptus.messages.listener.MessageListener;
 import pt.lsts.neptus.plugins.PluginUtils;
+import pt.lsts.neptus.systems.external.ExternalSystem;
+import pt.lsts.neptus.systems.external.ExternalSystem.ExternalTypeEnum;
+import pt.lsts.neptus.systems.external.ExternalSystemsHolder;
 import pt.lsts.neptus.types.XmlOutputMethods;
 import pt.lsts.neptus.types.coord.LocationType;
 import pt.lsts.neptus.types.vehicle.VehicleType;
 import pt.lsts.neptus.types.vehicle.VehicleType.SystemTypeEnum;
+import pt.lsts.neptus.types.vehicle.VehicleType.VehicleTypeEnum;
 import pt.lsts.neptus.types.vehicle.VehiclesHolder;
 import pt.lsts.neptus.util.GuiUtils;
 import pt.lsts.neptus.util.NetworkInterfacesUtil;
@@ -92,8 +106,6 @@ import pt.lsts.neptus.util.StringUtils;
 import pt.lsts.neptus.util.conf.ConfigFetch;
 import pt.lsts.neptus.util.conf.GeneralPreferences;
 import pt.lsts.neptus.util.conf.PreferencesListener;
-
-import com.google.common.eventbus.AsyncEventBus;
 
 /**
  * @author pdias
@@ -115,12 +127,9 @@ CommBaseManager<IMCMessage, MessageInfo, SystemImcMsgCommInfo, ImcId16, CommMana
     private boolean sameIdErrorDetected = false;
     private long sameIdErrorDetectedTimeMillis = -1;
 
-    protected IMCFragmentHandler fragmentHandler = new IMCFragmentHandler(IMCDefinition.getInstance());
+    protected IMCFragmentHandler fragmentHandler;;
     
-    protected ImcSystemState imcState = new ImcSystemState(IMCDefinition.getInstance());
-    {
-        imcState.setIgnoreEntities(true);
-    }
+    protected ImcSystemState imcState;
 
     // public static String CCU_VEH_STRING = "CCU-VEH";
     // public static String VEH_CCU_STRING = "VEH-CCU";
@@ -128,7 +137,7 @@ CommBaseManager<IMCMessage, MessageInfo, SystemImcMsgCommInfo, ImcId16, CommMana
     //
     // public static String CONNECTION4CCU = "Connection4CCUALL";
 
-    private final HashMap<String, ImcId16> udpOnIpMapper = new HashMap<String, ImcId16>();
+    private final HashBiMap<String, ImcId16> udpOnIpMapper = HashBiMap.create(); // new HashBiMap<String, ImcId16>();
     private boolean isFilterByPort = false;
 
     private boolean isRedirectToFirst = false;
@@ -158,11 +167,14 @@ CommBaseManager<IMCMessage, MessageInfo, SystemImcMsgCommInfo, ImcId16, CommMana
 
     // EventBus
     private final ExecutorService service = Executors.newCachedThreadPool(new ThreadFactory() {
-        private long counter = 0;
+        private final String namePrefix = ImcMsgManager.class.getSimpleName() + "::"
+                + Integer.toHexString(ImcMsgManager.this.hashCode());
+        private final AtomicInteger counter = new AtomicInteger(0);
+        private final ThreadGroup group = new ThreadGroup(namePrefix);
         @Override
         public Thread newThread(Runnable r) {
-            Thread t = new Thread(r);
-            t.setName("Message Event Bus " + (counter++));
+            Thread t = new Thread(group, r);
+            t.setName("Message Event Bus " + (counter.getAndIncrement()));
             t.setDaemon(true);
             return t;
         }
@@ -256,8 +268,11 @@ CommBaseManager<IMCMessage, MessageInfo, SystemImcMsgCommInfo, ImcId16, CommMana
         };
         this.imcDefinition = imcDefinition;
         announceWorker = new AnnounceWorker(this, imcDefinition);
+        
+        fragmentHandler = new IMCFragmentHandler(imcDefinition);
+        imcState = new ImcSystemState(imcDefinition);
+        imcState.setIgnoreEntities(true);
 
-        //        GeneralPreferencesPropertiesProvider.addPreferencesListener(gplistener);
         GeneralPreferences.addPreferencesListener(gplistener);
         gplistener.preferencesUpdated();
     }
@@ -317,7 +332,7 @@ CommBaseManager<IMCMessage, MessageInfo, SystemImcMsgCommInfo, ImcId16, CommMana
     private void updateUdpOnIpMapper() {
         for (SystemImcMsgCommInfo vsci : commInfo.values()) {
             if (isUdpOn())
-                udpOnIpMapper.put(vsci.getIpAddress() + (isFilterByPort ? ":" + vsci.getIpRemotePort() : ""),
+                udpOnIpMapper.forcePut(vsci.getIpAddress() + (isFilterByPort ? ":" + vsci.getIpRemotePort() : ""),
                         vsci.getSystemCommId());
             else
                 udpOnIpMapper.remove(vsci.getIpAddress() + (isFilterByPort ? ":" + vsci.getIpRemotePort() : ""));
@@ -326,7 +341,7 @@ CommBaseManager<IMCMessage, MessageInfo, SystemImcMsgCommInfo, ImcId16, CommMana
 
     private void updateUdpOnIpMapper(SystemImcMsgCommInfo vsci) {
         if (isUdpOn())
-            udpOnIpMapper.put(vsci.getIpAddress() + (isFilterByPort ? ":" + vsci.getIpRemotePort() : ""),
+            udpOnIpMapper.forcePut(vsci.getIpAddress() + (isFilterByPort ? ":" + vsci.getIpRemotePort() : ""),
                     vsci.getSystemCommId());
         else
             udpOnIpMapper.remove(vsci.getIpAddress() + (isFilterByPort ? ":" + vsci.getIpRemotePort() : ""));
@@ -373,6 +388,8 @@ CommBaseManager<IMCMessage, MessageInfo, SystemImcMsgCommInfo, ImcId16, CommMana
                 resSys = new ImcSystem(vehTmp);
                 resSys.setType(ImcSystem.translateSystemTypeFromMessage(vehTmp.getType().toUpperCase()));
                 resSys.setTypeVehicle(ImcSystem.translateVehicleTypeFromMessage(vehTmp.getType().toUpperCase()));
+                if (resSys.getType() != SystemTypeEnum.CCU)
+                    resSys.setAuthorityState(IMCAuthorityState.SYSTEM_FULL);
                 ImcSystemsHolder.registerSystem(resSys);
             }
             else {
@@ -423,16 +440,16 @@ CommBaseManager<IMCMessage, MessageInfo, SystemImcMsgCommInfo, ImcId16, CommMana
     /**
      * @param vsci
      */
-    void mapUdpIpPort(SystemImcMsgCommInfo vsci) {
-        if (vsci == null)
-            return;
-
-        if (isUdpOn())
-            udpOnIpMapper.put(vsci.getIpAddress() + (isFilterByPort ? ":" + vsci.getIpRemotePort() : ""),
-                    vsci.getSystemCommId());
-        else
-            udpOnIpMapper.remove(vsci.getIpAddress() + (isFilterByPort ? ":" + vsci.getIpRemotePort() : ""));
-    }
+//    void mapUdpIpPort(SystemImcMsgCommInfo vsci) {
+//        if (vsci == null)
+//            return;
+//
+//        if (isUdpOn())
+//            udpOnIpMapper.put(vsci.getIpAddress() + (isFilterByPort ? ":" + vsci.getIpRemotePort() : ""),
+//                    vsci.getSystemCommId());
+//        else
+//            udpOnIpMapper.remove(vsci.getIpAddress() + (isFilterByPort ? ":" + vsci.getIpRemotePort() : ""));
+//    }
 
     protected String getAnnounceServicesList() {
         String ret = "";
@@ -770,7 +787,116 @@ CommBaseManager<IMCMessage, MessageInfo, SystemImcMsgCommInfo, ImcId16, CommMana
             EntitiesResolver.setEntities(sys.getName(), msg);
         }
     }
+    
+    private void processReportedState(MessageInfo info, ReportedState msg) {
+        // Process pos. state reported from other system
+        String sysId = msg.getSid();
         
+        double latRad = msg.getLat();
+        double lonRad = msg.getLon();
+        double depth = msg.getDepth();
+        
+        double rollRad = msg.getRoll();
+        double pitchRad = msg.getPitch();
+        double yawRad = msg.getYaw();
+        
+        double recTimeSecs = msg.getRcpTime();
+        long recTimeMillis = Double.isFinite(recTimeSecs) ? (long) (recTimeSecs * 1E3) : msg.getTimestampMillis();
+        
+        // msg.getSType(); // Not used
+        
+        ImcSystem imcSys = ImcSystemsHolder.lookupSystemByName(sysId);
+        ExternalSystem extSys = null;
+        if (imcSys == null) {
+            extSys = ExternalSystemsHolder.lookupSystem(sysId);
+            if (extSys == null) {
+                extSys = new ExternalSystem(sysId);
+                ExternalSystemsHolder.registerSystem(extSys);
+            }
+        }
+        
+        if (Double.isFinite(latRad) && Double.isFinite(lonRad)) {
+            LocationType loc = new LocationType(Math.toDegrees(latRad), Math.toDegrees(lonRad));
+            if (Double.isFinite(depth))
+                loc.setDepth(depth);
+            
+            if (imcSys != null)
+                imcSys.setLocation(loc, recTimeMillis);
+            else
+                extSys.setLocation(loc, recTimeMillis);
+        }
+        
+        if (Double.isFinite(rollRad) || Double.isFinite(pitchRad) || Double.isFinite(yawRad)) {
+            double rollDeg = Double.isFinite(rollRad) ? Math.toDegrees(rollRad) : 0;
+            double pitchDeg = Double.isFinite(pitchRad) ? Math.toDegrees(pitchRad) : 0;
+            double yawDeg = Double.isFinite(yawRad) ? Math.toDegrees(yawRad) : 0;
+            
+            if (imcSys != null)
+                imcSys.setAttitudeDegrees(rollDeg, pitchDeg, yawDeg, recTimeMillis);
+            else
+                extSys.setAttitudeDegrees(rollDeg, pitchDeg, yawDeg, recTimeMillis);
+        }
+    }
+
+    private void processRemoteSensorInfo(MessageInfo info, RemoteSensorInfo msg) {
+        // Process pos. state reported from other system
+        String sysId = msg.getId();
+        
+        double latRad = msg.getLat();
+        double lonRad = msg.getLon();
+        double altitude = msg.getAlt();
+
+        double headingRad = msg.getHeading();
+        
+        String sensorClass = msg.getSensorClass();
+
+        long recTimeMillis = msg.getTimestampMillis();
+
+        ImcSystem imcSys = ImcSystemsHolder.lookupSystemByName(sysId);
+        ExternalSystem extSys = null;
+        if (imcSys == null) {
+            extSys = ExternalSystemsHolder.lookupSystem(sysId);
+            if (extSys == null) {
+                extSys = new ExternalSystem(sysId);
+                ExternalSystemsHolder.registerSystem(extSys);
+            }
+        }
+
+        if (Double.isFinite(latRad) && Double.isFinite(lonRad)) {
+            LocationType loc = new LocationType(Math.toDegrees(latRad), Math.toDegrees(lonRad));
+            if (Double.isFinite(altitude))
+                loc.setDepth(-altitude);
+            
+            if (imcSys != null)
+                imcSys.setLocation(loc, recTimeMillis);
+            else
+                extSys.setLocation(loc, recTimeMillis);
+        }
+        
+        if (Double.isFinite(headingRad)) {
+            double headingDeg = Math.toDegrees(headingRad);
+            
+            if (imcSys != null)
+                imcSys.setAttitudeDegrees(headingDeg, recTimeMillis);
+            else
+                extSys.setAttitudeDegrees(headingDeg, recTimeMillis);
+        }
+
+        // Process sensor class
+        SystemTypeEnum type = SystemUtils.getSystemTypeFrom(sensorClass);
+        VehicleTypeEnum typeVehicle = SystemUtils.getVehicleTypeFrom(sensorClass);
+        ExternalTypeEnum typeExternal = SystemUtils.getExternalTypeFrom(sensorClass);
+        if (imcSys != null) {
+            imcSys.setType(type);
+            imcSys.setTypeVehicle(typeVehicle);
+        }
+        else {
+            extSys.setType(type);
+            extSys.setTypeVehicle(typeVehicle);
+            extSys.setTypeExternal(typeExternal);
+        }
+    }
+
     @Override
     protected boolean processMsgLocally(MessageInfo info, IMCMessage msg) {
         // msg.dump(System.out);
@@ -823,13 +949,19 @@ CommBaseManager<IMCMessage, MessageInfo, SystemImcMsgCommInfo, ImcId16, CommMana
                         vci = processAnnounceMessage(info, (Announce) msg, vci, id);
                         break;
                     case EntityList.ID_STATIC:
-                        processEntityList(id, info, (EntityList)msg);
+                        processEntityList(id, info, (EntityList) msg);
                         break;
                     case EntityInfo.ID_STATIC:
-                        processEntityInfo(info, (EntityInfo)msg);
+                        processEntityInfo(info, (EntityInfo) msg);
                         break;
                     case MessagePart.ID_STATIC:
-                        processMessagePart(info, (MessagePart)msg);
+                        processMessagePart(info, (MessagePart) msg);
+                        break;
+                    case ReportedState.ID_STATIC:
+                        processReportedState(info, (ReportedState) msg);
+                        break;
+                    case RemoteSensorInfo.ID_STATIC:
+                        processRemoteSensorInfo(info, (RemoteSensorInfo) msg);
                         break;
                     default:
                         break;
@@ -1307,7 +1439,8 @@ CommBaseManager<IMCMessage, MessageInfo, SystemImcMsgCommInfo, ImcId16, CommMana
         }
 
         // Lets wrap the possible listener in our internal one for frequency count for to send and sent messages
-        MessageDeliveryListener listener = wrapMessageDeliveryListenerForSentMessageCounter(systemCommId, msgListener);
+        MessageDeliveryListener listener = wrapMessageDeliveryListenerForSentMessageCounter(systemCommId, msgListener,
+                message);
 
         // If the destination to send to is null, just send back to the caller an error
         if (systemCommId == null) {
@@ -1381,9 +1514,6 @@ CommBaseManager<IMCMessage, MessageInfo, SystemImcMsgCommInfo, ImcId16, CommMana
                 }
             }
 
-            if (sentResult)
-                logMessage(message);
-
             return sentResult;
         }
 
@@ -1425,7 +1555,7 @@ CommBaseManager<IMCMessage, MessageInfo, SystemImcMsgCommInfo, ImcId16, CommMana
         // this depends on the transports available locally and on the system
         try {
             if (transportChoiceToSend.isEmpty()) {
-                throw new IOException(I18n.textf("No transport available to send message %message to %system.", 
+                throw new NoTransportAvailableException(I18n.textf("No transport available to send message %message to %system.", 
                         message.getAbbrev(), imcSystem.getName()));
             }
 
@@ -1448,14 +1578,31 @@ CommBaseManager<IMCMessage, MessageInfo, SystemImcMsgCommInfo, ImcId16, CommMana
             }
         }
         catch (Exception e) {
-            NeptusLog.pub().error(this.getClass().getSimpleName() + ": Error sending message!", e);
+            sentResult = false;
+            
+            boolean isNoTransportAvailable = false;
+            if (e instanceof NoTransportAvailableException)
+                isNoTransportAvailable = true;
+            
+            StringBuilder sb = new StringBuilder();
+            sb.append("[");
+            if (!isNoTransportAvailable && message != null)
+                sb.append("msg: ").append(message.getAbbrev());
+            if (!isNoTransportAvailable && systemCommId != null)
+                sb.append(sb.length() > 1 ? ", " : "").append("to: ").append(imcSystem.getName()).append("::").append(systemCommId);
+            if (sendProperties != null && !sendProperties.isEmpty())
+                sb.append(sb.length() > 1 ? ", " : "").append("prop: ").append(sendProperties);
+            sb.append("]");
+            String what = sb.toString();
+
+            if (isNoTransportAvailable)
+                NeptusLog.pub().error(this.getClass().getSimpleName() + ": Error sending message! " + what + " " + e.getMessage());
+            else
+                NeptusLog.pub().error(this.getClass().getSimpleName() + ": Error sending message! " + what, e);
 
             if (listener != null)
                 listener.deliveryError(message, e);
         }
-
-        if (sentResult)
-            logMessage(message);
 
         return sentResult;
     }
@@ -1574,14 +1721,16 @@ CommBaseManager<IMCMessage, MessageInfo, SystemImcMsgCommInfo, ImcId16, CommMana
 
     /**
      * To wrap the possible listener in our internal one for frequency count for to send and sent messages.
+     * Also on success will log the message (at least success on one sent request).
      * @param systemCommId
      * @param listenerToWrap
      * @return
      */
     private MessageDeliveryListener wrapMessageDeliveryListenerForSentMessageCounter(final ImcId16 systemCommId,
-            final MessageDeliveryListener listenerToWrap) {
+            final MessageDeliveryListener listenerToWrap, final IMCMessage originalToSendMessage) {
         MessageDeliveryListener msgLstnr = new MessageDeliveryListener() {
-
+            private AtomicBoolean messageAlreadyLogged = new AtomicBoolean(false);
+            
             @Override
             public void deliveryError(IMCMessage message, Object error) {
                 if (listenerToWrap != null)
@@ -1605,6 +1754,7 @@ CommBaseManager<IMCMessage, MessageInfo, SystemImcMsgCommInfo, ImcId16, CommMana
                 if (listenerToWrap != null)
                     listenerToWrap.deliveryUncertain(message, msg);
 
+                tryLogMessage();
                 markMessageSent(systemCommId);
             }
 
@@ -1613,7 +1763,13 @@ CommBaseManager<IMCMessage, MessageInfo, SystemImcMsgCommInfo, ImcId16, CommMana
                 if (listenerToWrap != null)
                     listenerToWrap.deliverySuccess(message);
 
+                tryLogMessage();
                 markMessageSent(systemCommId);
+            }
+
+            private void tryLogMessage() {
+                if (messageAlreadyLogged.compareAndSet(false, true))
+                    logMessage(originalToSendMessage);
             }
         };
 
