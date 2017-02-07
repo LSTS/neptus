@@ -84,6 +84,7 @@ import pt.lsts.neptus.mp.ManeuverLocation;
 import pt.lsts.neptus.renderer2d.InteractionAdapter;
 import pt.lsts.neptus.renderer2d.StateRenderer2D;
 import pt.lsts.neptus.renderer2d.StateRendererInteraction;
+import pt.lsts.neptus.types.coord.CoordinateUtil;
 import pt.lsts.neptus.types.coord.LocationType;
 import pt.lsts.neptus.types.map.PlanElement;
 import pt.lsts.neptus.util.AngleUtils;
@@ -253,23 +254,37 @@ StateRendererInteraction, IMCSerialization, PathProvider {
     }
 
     protected void editPointsDialog(Window parent) {
-        String times = "";
+        StringBuilder times = new StringBuilder("");
         NumberFormat nf = GuiUtils.getNeptusDecimalFormat(2);
+        StringBuilder title = new StringBuilder((hasTime ? I18n.text("Trajectory") : I18n.text("Path")))
+                .append(" ").append(I18n.text("points")).append(" (N, E, D")
+                .append((hasTime ? ", T" : "")).append(") // <").append(I18n.text("comments"))
+                .append(">");
+        
+        times.append("# ").append(title.toString()).append("\n");
+        times.append("# ").append("If using \"N|S\" in N field and \"W|E\" in E field parsing as absolute coordinates will be done.").append("\n");
         for (double[] pt : points) {
-            times += nf.format(pt[0]) + ", " + nf.format(pt[1]) + ", " + nf.format(pt[2])
-                    + (hasTime ? ", " + nf.format(pt[3]) : "") + "\n";
+            times.append(nf.format(pt[0]));
+            times.append(", ");
+            times.append(nf.format(pt[1]));
+            times.append(", ");
+            times.append(nf.format(pt[2]));
+            times.append((hasTime ? ", " + nf.format(pt[3]) : ""));
+            LocationType loc = startLoc.getNewAbsoluteLatLonDepth().translatePosition(pt[0], pt[1], pt[2]).convertToAbsoluteLatLonDepth();
+            times.append(" // ").append(CoordinateUtil.latitudeAsPrettyString(loc.getLatitudeDegs()));
+            times.append(", ").append(CoordinateUtil.longitudeAsPrettyString(loc.getLongitudeDegs()));
+            times.append("\n");
         }
 
         final JEditorPane epane = new JEditorPane();
-        epane.setText(times);
+        epane.setText(times.toString());
 
         JPanel mainPanel = new JPanel(new BorderLayout());
         mainPanel.add(new JScrollPane(epane));
         final JDialog dialog = new JDialog(parent);
         dialog.getContentPane().add(mainPanel);
         dialog.setDefaultCloseOperation(JDialog.DO_NOTHING_ON_CLOSE);
-        dialog.setTitle((hasTime ? "Trajectory" : "Path") + " points (N, E, D"
-                + (hasTime ? ", T" : "") + ")");
+        dialog.setTitle(title.toString());
         dialog.addWindowListener(new WindowAdapter() {
             @Override
             public void windowClosing(WindowEvent e) {
@@ -279,13 +294,41 @@ StateRendererInteraction, IMCSerialization, PathProvider {
                     String[] lines = epane.getText().split("\n");
                     Vector<double[]> pts = new Vector<double[]>();
                     for (int i = 0; i < lines.length; i++){
-                        String[] parts = lines[i].split(",");
+                        if (lines[i].trim().startsWith("#") || lines[i].trim().startsWith("//"))
+                            continue;
+                        
+                        String[] parts = lines[i].split(",|#|//");
+                        int parseLatLon = 0;
                         try {
                             double[] pt = new double[4];
-                            pt[0] = Double.parseDouble(parts[0].trim());
-                            pt[1] = Double.parseDouble(parts[1].trim());
+                            try {
+                                pt[0] = Double.parseDouble(parts[0].trim());
+                            }
+                            catch (Exception e1) {
+                                parseLatLon++;
+                                pt[0] = CoordinateUtil.parseLatitudeCoordToDoubleValue(parts[0]);
+                            }
+                            try {
+                                pt[1] = Double.parseDouble(parts[1].trim());
+                            }
+                            catch (Exception e1) {
+                                parseLatLon++;
+                                pt[1] = CoordinateUtil.parseLongitudeCoordToDoubleValue(parts[1]);
+                            }
+                            
                             pt[2] = Double.parseDouble(parts[2].trim());
                             pt[3] = hasTime ? Double.parseDouble(parts[3].trim()) : -1;
+
+                            if (parseLatLon > 0 && parseLatLon < 2)
+                                throw new Exception("Parsing error while parsing lat/lon");
+                            else if (parseLatLon == 2) {
+                                LocationType loc = new LocationType(pt[0], pt[1]);
+                                loc.setDepth(pt[2]);
+                                double[] off = loc.getOffsetFrom(startLoc);
+                                pt[0] = off[0];
+                                pt[1] = off[1];
+                            }
+
                             pts.add(pt);
                         }
                         catch (Exception ex) {
