@@ -116,6 +116,7 @@ public class MVProblemSpecification {
         
         while (line != null) {
             result.append(line.toLowerCase().trim() + "\n");
+            System.out.println(line);
             NeptusLog.pub().debug(line);
             line = reader.readLine();
         }

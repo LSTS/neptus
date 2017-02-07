@@ -44,7 +44,6 @@ import java.util.Date;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
-import java.util.Map.Entry;
 import java.util.Vector;
 
 import javax.swing.JFileChooser;
@@ -53,10 +52,7 @@ import javax.swing.ProgressMonitor;
 
 import com.google.common.eventbus.Subscribe;
 
-import pt.lsts.imc.PlanControl;
 import pt.lsts.neptus.NeptusLog;
-import pt.lsts.neptus.comm.IMCSendMessageUtils;
-import pt.lsts.neptus.comm.manager.imc.ImcMsgManager;
 import pt.lsts.neptus.comm.manager.imc.ImcSystem;
 import pt.lsts.neptus.comm.manager.imc.ImcSystemsHolder;
 import pt.lsts.neptus.console.ConsoleInteraction;
@@ -72,6 +68,7 @@ import pt.lsts.neptus.plugins.PluginDescription;
 import pt.lsts.neptus.plugins.PluginUtils;
 import pt.lsts.neptus.plugins.mvplanner.api.ConsoleEventPlanAllocation;
 import pt.lsts.neptus.plugins.mvplanner.api.ConsoleEventPlanAllocation.Operation;
+import pt.lsts.neptus.plugins.update.Periodic;
 import pt.lsts.neptus.renderer2d.StateRenderer2D;
 import pt.lsts.neptus.types.coord.LocationType;
 import pt.lsts.neptus.types.mission.plan.PlanType;
@@ -89,12 +86,13 @@ import pt.lsts.neptus.util.GuiUtils;
 @PluginDescription(name = "Multi-Vehicle Planner Interaction", icon = "pt/lsts/neptus/plugins/pddl/wizard.png")
 public class MVPlannerInteraction extends ConsoleInteraction {
 
+    private static final File TASKS_FILE = new File("conf/mvplanner.tasks");
     private ArrayList<MVPlannerTask> tasks = new ArrayList<MVPlannerTask>();
     private MVPlannerTask selectedTask = null;
     private Point2D lastPoint = null;
     private MVProblemSpecification problem = null;
-    private LinkedHashMap<String, PlanType> generatedPlans = new LinkedHashMap<String, PlanType>();
     private LinkedHashMap<String, ConsoleEventFutureState> futureStates = new LinkedHashMap<String, ConsoleEventFutureState>();
+    private long lastAllocation = System.currentTimeMillis();
 
     @NeptusProperty(category = "Problem Specification", name = "Domain Model to use")
     private MVDomainModel domainModel = MVDomainModel.V2;
@@ -114,11 +112,12 @@ public class MVPlannerInteraction extends ConsoleInteraction {
     @NeptusProperty(category = "Plan Generation", name = "Use scheduled waypoints.")
     private boolean useScheduledGotos = true;
 
-    @NeptusProperty(category = "Plan Generation", name = "Manual execution.")
-    private boolean manualExec = false;
-    
-    private static final File TASKS_FILE = new File("conf/mvplanner.tasks");
-    
+    @NeptusProperty(category = "Plan Execution", name = "Automatic execution.")
+    private boolean autoExec = false;
+
+    @NeptusProperty(category = "Plan Execution", name = "Seconds between automatic allocations.")
+    private int secsBetweenAllocations = 30;
+
     @Subscribe
     public void on(ConsoleEventFutureState future) {
         synchronized (futureStates) {
@@ -126,7 +125,6 @@ public class MVPlannerInteraction extends ConsoleInteraction {
                 futureStates.remove(future.getVehicle());
             else {
                 futureStates.put(future.getVehicle(), future);
-                // System.out.println(future);
             }
         }
     }
@@ -157,7 +155,7 @@ public class MVPlannerInteraction extends ConsoleInteraction {
                                 t.setAllocation(null);
                             }
                         }
-                        
+
                         for (String cancelledAlloc : allocationsToCancel) {
                             PlanType plan = new PlanType(getConsole().getMission());
                             plan.setId(cancelledAlloc);
@@ -173,7 +171,46 @@ public class MVPlannerInteraction extends ConsoleInteraction {
             e.printStackTrace();
         }
     }
-    
+
+    private Thread planner = null;
+
+    @Periodic(millisBetweenUpdates=1000) 
+    private void doAllocation() {
+        if ((System.currentTimeMillis() - lastAllocation) < secsBetweenAllocations * 1000)
+            return;
+
+        lastAllocation = System.currentTimeMillis();
+        boolean needsToPlan = false;
+
+        for (MVPlannerTask t : tasks) {
+            if (t.getAssociatedAllocation() == null) {
+                needsToPlan = true;
+                break;
+            }
+        }
+
+        if (!autoExec || !needsToPlan)
+            return;
+
+        if (planner != null) {
+            planner.interrupt();
+        }
+
+        planner = new Thread("Planning thread") {
+            public void run() {
+                NeptusLog.pub().info("Generating plan...");
+                String solution = createPlan(null);
+                if (solution != null) {
+                    NeptusLog.pub().info(solution);
+                    allocatePlan(solution);
+                }
+            };
+        };
+
+        planner.setDaemon(true);
+        planner.start();
+    }
+
     @NeptusMenuItem("File>Multi-Vehicle Planner>Load Tasks")
     public void loadTasks() {
         JFileChooser chooser = GuiUtils.getFileChooser(".", "Multi-Vehicle Planner Tasks (.tasks)", "tasks");
@@ -189,7 +226,7 @@ public class MVPlannerInteraction extends ConsoleInteraction {
             }
         }
     }
-    
+
     @NeptusMenuItem("File>Multi-Vehicle Planner>Save Tasks")
     public void saveTasks() {
         JFileChooser chooser = GuiUtils.getFileChooser(".", "Multi-Vehicle Planner Tasks (.tasks)", "tasks");
@@ -301,7 +338,7 @@ public class MVPlannerInteraction extends ConsoleInteraction {
                     if (!found)
                         break;
                 }
-                
+
                 if (!PropertiesEditor.editProperties(task, true)) {
                     tasks.add(task);
                     saveState();
@@ -309,16 +346,17 @@ public class MVPlannerInteraction extends ConsoleInteraction {
                 source.repaint();
             }
         });
-        
+
         popup.add("Clear Tasks").addActionListener(this::clear);
-        
-        popup.add("Generate").addActionListener(this::generate);
+        popup.add("Cancel Allocations").addActionListener(this::cancelAllocations);
+
         popup.addSeparator();
-        if (manualExec) {
-            popup.add("Execute now").addActionListener(this::startExecution);
+
+        if (!this.autoExec) {
+            popup.add("Create plans").addActionListener(this::generate);
             popup.addSeparator();
         }
-        
+
         popup.add("Settings").addActionListener(this::settings);
 
         popup.show(source, event.getX(), event.getY());
@@ -333,26 +371,42 @@ public class MVPlannerInteraction extends ConsoleInteraction {
                 allocationsToCancel.add(t.getAssociatedAllocation());
             it.remove();
         }
-        
+
         for (String cancelledAlloc : allocationsToCancel) {
             PlanType plan = new PlanType(getConsole().getMission());
             plan.setId(cancelledAlloc);
             ConsoleEventPlanAllocation cancel = new ConsoleEventPlanAllocation(plan, new Date(), Operation.CANCELLED);
             getConsole().post(cancel);
         }
-        
+
         saveState();
     }
     
+    private void cancelAllocations(ActionEvent action) {
+        Iterator<MVPlannerTask> it = tasks.iterator();
+        HashSet<String> allocationsToCancel = new HashSet<>();
+        while (it.hasNext()) {
+            MVPlannerTask t = it.next();
+            if (t.getAssociatedAllocation() != null)
+                allocationsToCancel.add(t.getAssociatedAllocation());
+            t.setAllocation(null);
+        }
+        for (String cancelledAlloc : allocationsToCancel) {
+            PlanType plan = new PlanType(getConsole().getMission());
+            plan.setId(cancelledAlloc);
+            ConsoleEventPlanAllocation cancel = new ConsoleEventPlanAllocation(plan, new Date(), Operation.CANCELLED);
+            getConsole().post(cancel);
+        }
+    }
+
     private void generate(ActionEvent action) {
         Thread t = new Thread("Generating Multi-Vehicle plan...") {
             public void run() {
                 ProgressMonitor pm = new ProgressMonitor(getConsole(), "Searching for solutions...",
                         "Generating initial state", 0, 5 + numTries);
                 String bestSolution = createPlan(pm);
-                
+
                 if (bestSolution != null) {
-                    generatedPlans.clear();
                     allocatePlan(bestSolution);
                 }
                 else
@@ -361,19 +415,6 @@ public class MVPlannerInteraction extends ConsoleInteraction {
         };
         t.setDaemon(true);
         t.start();
-    }
-
-    private void startExecution(ActionEvent action) {
-        for (Entry<String, PlanType> generated : generatedPlans.entrySet()) {
-            PlanControl startPlan = new PlanControl();
-            startPlan.setType(pt.lsts.imc.PlanControl.TYPE.REQUEST);
-            startPlan.setOp(pt.lsts.imc.PlanControl.OP.START);
-            startPlan.setPlanId(generated.getValue().getId());
-            startPlan.setArg(generated.getValue().asIMCPlan(true));
-            int reqId = IMCSendMessageUtils.getNextRequestId();
-            startPlan.setRequestId(reqId);
-            ImcMsgManager.getManager().sendMessageToVehicle(startPlan, generated.getKey(), null);
-        }
     }
 
     private void settings(ActionEvent action) {
@@ -412,7 +453,7 @@ public class MVPlannerInteraction extends ConsoleInteraction {
     public void mouseReleased(MouseEvent event, StateRenderer2D source) {
         if (selectedTask != null)
             saveState();
-        
+
         selectedTask = null;
         lastPoint = null;
         super.mouseReleased(event, source);
@@ -459,8 +500,10 @@ public class MVPlannerInteraction extends ConsoleInteraction {
         catch (Exception e) {
             e.printStackTrace();
         }
+        // force automatic execution to be false.
+        autoExec = false;
     }
-    
+
     private void saveState() {
         try {
             MVPlannerTask.saveFile(TASKS_FILE, tasks);
@@ -481,9 +524,9 @@ public class MVPlannerInteraction extends ConsoleInteraction {
     public ArrayList<MVPlannerTask> getTasks() {
         return tasks;
     }
-    
+
     private String createPlan(ProgressMonitor pm) {
-        
+
         Vector<VehicleType> activeVehicles = new Vector<VehicleType>();
         for (ImcSystem s : ImcSystemsHolder.lookupActiveSystemVehicles()) {
             if (s.getTypeVehicle() == VehicleTypeEnum.UUV)
@@ -501,7 +544,7 @@ public class MVPlannerInteraction extends ConsoleInteraction {
             pm.setProgress(5);
             pm.setMillisToPopup(0);
         }
-        
+
         double bestYet = 0;
         String bestSolution = null;
 
@@ -510,14 +553,14 @@ public class MVPlannerInteraction extends ConsoleInteraction {
                 String best = "N/A";
                 if (bestSolution != null)
                     best = DateTimeUtil.milliSecondsToFormatedString((long) (bestYet * 1000));
-                
+
                 if (pm != null && pm.isCanceled())
                     return null;
                 if (pm != null) {
                     pm.setNote("Current best solution time: " + best);
                     pm.setProgress(5 + i);
                 }
-               
+
 
                 try {
                     if (!problem.solve(0))
@@ -545,8 +588,9 @@ public class MVPlannerInteraction extends ConsoleInteraction {
                 pm.close();
         }
         else {
+            Thread progress = null;
             if (pm != null) {
-                Thread progress = new Thread("Progress updater") {
+                progress = new Thread("Progress updater") {
                     public void run() {
                         pm.setMaximum(searchSeconds * 10);
                         pm.setProgress(0);
@@ -566,82 +610,81 @@ public class MVPlannerInteraction extends ConsoleInteraction {
 
                     };
                 };
-                try {
-                    progress.setDaemon(true);
-                    progress.start();
-                    if (problem.solve(searchSeconds))
-                        bestSolution = problem.toString();
-                    progress.interrupt();
-                    if (pm != null)
-                    pm.setProgress(pm.getMaximum());
-                    pm.close();
-                }
-                catch (Exception ex) {
-                    bestSolution = null;
+                progress.setDaemon(true);
+                progress.start();
+            }
+            try {
+                if (problem.solve(searchSeconds))
+                    bestSolution = problem.toString();
+                if (pm != null) {
                     progress.interrupt();
                     pm.setProgress(pm.getMaximum());
-                    pm.close();
-                    ex.printStackTrace();
-                    NeptusLog.pub().error(ex);
-                    GuiUtils.errorMessage(getConsole(), new Exception("No solution has been found.", ex));
-                    return null;
+                    pm.close();                                                
                 }
             }
+            catch (Exception ex) {
+                bestSolution = null;
+                progress.interrupt();
+                pm.setProgress(pm.getMaximum());
+                pm.close();
+                ex.printStackTrace();
+                NeptusLog.pub().error(ex);
+                GuiUtils.errorMessage(getConsole(), new Exception("No solution has been found.", ex));
+                return null;
+            }
         }
-
         return bestSolution;
     }
-    
-    private void allocatePlan(String pddlPlan) {
-        generatedPlans.clear();
-        if (pddlPlan != null) {
-            try {
-                MVSolution solution = problem.getSolution();
 
-                if (solution != null) {
-                    solution.setGeneratePopups(generatePopups);
-                    solution.setScheduledGotosUsed(useScheduledGotos);
+private void allocatePlan(String pddlPlan) {
+    if (pddlPlan != null) {
+        try {
+            MVSolution solution = problem.getSolution();
 
-                    ArrayList<Pair<ArrayList<String>, ConsoleEventPlanAllocation>> allocations = solution
-                            .allocations();
+            if (solution != null) {
+                solution.setGeneratePopups(generatePopups);
+                solution.setScheduledGotosUsed(useScheduledGotos);
 
-                    for (Pair<ArrayList<String>, ConsoleEventPlanAllocation> entry : allocations) {
-                        ArrayList<String> associatedActions = entry.first();
-                        ConsoleEventPlanAllocation allocation = entry.second();
-                        allocation.getPlan().setMissionType(getConsole().getMission());
-                        getConsole().getMission().getIndividualPlansList().put(allocation.getPlan().getId(),
-                                allocation.getPlan());
-                        generatedPlans.put(allocation.getVehicle(), allocation.getPlan());
+                ArrayList<Pair<ArrayList<String>, ConsoleEventPlanAllocation>> allocations = solution
+                        .allocations();
 
-                        for (String action : associatedActions) {
-                            for (MVPlannerTask task : tasks) {
-                                if (task.getName().equals(action)) {
-                                    task.setAllocation(allocation);
-                                }
+                for (Pair<ArrayList<String>, ConsoleEventPlanAllocation> entry : allocations) {
+                    ArrayList<String> associatedActions = entry.first();
+                    ConsoleEventPlanAllocation allocation = entry.second();
+                    allocation.getPlan().setMissionType(getConsole().getMission());
+                    getConsole().getMission().getIndividualPlansList().put(allocation.getPlan().getId(),
+                            allocation.getPlan());
+
+                    for (String action : associatedActions) {
+                        for (MVPlannerTask task : tasks) {
+                            if (task.getName().equals(action)) {
+                                task.setAllocation(allocation);
+                            }
+                            else {
+                                System.out.println(task.getName()+" != "+action);
                             }
                         }
-
-                        getConsole().post(allocation);
                     }
-                    getConsole().warnMissionListeners();
-                    getConsole().getMission().save(true);
+
+                    getConsole().post(allocation);
                 }
-                GuiUtils.htmlMessage(getConsole(), "Multi-Vehicle Planner", "Valid solution found",
-                        "<html><pre>" + pddlPlan + "</pre></html>");
-                System.out.println(pddlPlan);
+                getConsole().warnMissionListeners();
+                getConsole().getMission().save(true);
             }
-            catch (Exception e) {
-                GuiUtils.errorMessage(getConsole(), new Exception("Error parsing PDDL.", e));
-                return;
-            }
+            System.out.println(pddlPlan);
+        }
+        catch (Exception e) {
+            GuiUtils.errorMessage(getConsole(), new Exception("Error parsing PDDL.", e));
+            return;
         }
     }
+}
 
-    public static void main(String[] args) {
-        StateRenderer2D renderer = new StateRenderer2D();
-        MVPlannerInteraction inter = new MVPlannerInteraction();
-        inter.init(ConsoleLayout.forge());
-        renderer.setActiveInteraction(inter);
-        GuiUtils.testFrame(renderer);
-    }
+public static void main(String[] args) {
+    StateRenderer2D renderer = new StateRenderer2D();
+    MVPlannerInteraction inter = new MVPlannerInteraction();
+    inter.init(ConsoleLayout.forge());
+    renderer.setActiveInteraction(inter);
+    GuiUtils.testFrame(renderer);
+}
 }
