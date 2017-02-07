@@ -33,7 +33,6 @@
 package pt.lsts.neptus.mra.markermanagement;
 
 import java.awt.BorderLayout;
-import java.awt.Dialog.ModalityType;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Font;
@@ -99,7 +98,7 @@ import org.xml.sax.SAXException;
 
 import net.miginfocom.swing.MigLayout;
 import pt.lsts.neptus.NeptusLog;
-import pt.lsts.neptus.console.plugins.PropertiesProviders.SidescanConfig;
+import pt.lsts.neptus.console.plugins.propertiesproviders.SidescanConfig;
 import pt.lsts.neptus.gui.InfiniteProgressPanel;
 import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.mra.LogMarker;
@@ -113,12 +112,12 @@ import pt.lsts.neptus.mra.api.SidescanParser;
 import pt.lsts.neptus.mra.api.SidescanParserFactory;
 import pt.lsts.neptus.mra.importers.IMraLogGroup;
 import pt.lsts.neptus.mra.markermanagement.LogMarkerItem.Classification;
-import pt.lsts.neptus.plugins.messages.Java2sAutoTextField;
 import pt.lsts.neptus.types.coord.LocationType;
 import pt.lsts.neptus.util.DateTimeUtil;
 import pt.lsts.neptus.util.Dom4JUtil;
 import pt.lsts.neptus.util.GuiUtils;
 import pt.lsts.neptus.util.ImageUtils;
+import pt.lsts.neptus.util.gui.Java2sAutoTextField;
 import pt.lsts.neptus.util.llf.LsfReport;
 import pt.lsts.neptus.util.llf.LsfReportProperties;
 /**
@@ -721,7 +720,7 @@ public class MarkerManagement extends JDialog {
     private void newLogMarkerItem(SidescanLogMarker ssLogMarker, SidescanParser ssParser, Element rootElem, int index) {
         LocationType loc = ssLogMarker.getLocation();
         double[] altAndHeight = getAltAndHeight(ssLogMarker, ssParser);
-        double range = ssLogMarker.wMeters;
+        double range = ssLogMarker.getwMeters();
   
         double alt = altAndHeight[0];
         double depth = altAndHeight[1];
@@ -840,7 +839,7 @@ public class MarkerManagement extends JDialog {
         SidescanParameters sidescanParams = setupSscanParam(config);
         double altitude = 0;
         double depth = 0;
-        int subsys = ssLogMarker.subSys;
+        int subsys = ssLogMarker.getSubSys();
 
         ArrayList<SidescanLine> lines = LsfReport.getLines(ssParser, subsys, sidescanParams, ssLogMarker);
 
