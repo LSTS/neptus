@@ -55,10 +55,7 @@ public class LstsDomainModelV2 extends LstsDomainModel {
         sb.append("\n  ;" + v.getId() + ":\n");
         sb.append("  (= (speed " + v.getNickname() + ") " + MVProblemSpecification.constantSpeed + ")\n");
         sb.append("  (base " + v.getNickname() + " " + v.getNickname() + "_depot)\n\n");
-        if (timeToStart == 0)
-            sb.append("  (at " + v.getNickname() + " " + v.getNickname() + "_depot" + ")\n");
-        else
-            sb.append("  (at " + timeToStart + " (at " + v.getNickname() + " " + v.getNickname() + "_depot" + "))\n");
+        sb.append("  (at " + v.getNickname() + " " + v.getNickname() + "_depot" + ")\n");
 
         for (Entry<String, Vector<String>> entry : payloadNames.entrySet()) {
             for (String n : entry.getValue()) {
@@ -68,7 +65,9 @@ public class LstsDomainModelV2 extends LstsDomainModel {
             }
         }
 
-        sb.append("  (can-move " + v.getNickname() + ") ;required always\n");
+        sb.append("  (at " + timeToStart + " (can-move " + v.getNickname()+"))\n");
+
+        //sb.append("  (can-move " + v.getNickname() + ") ;required always\n");
         sb.append("  (= (from-base " + v.getNickname() + ") 0) ;how long the vehicle is away from its depot \n"); // FIXME
         sb.append("  (= (max-to-base " + v.getNickname() + ") " + problem.secondsAwayFromDepot
                 + ") ;the maximum time before returning to the depot\n");
