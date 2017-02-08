@@ -91,6 +91,7 @@ public class MVPlannerInteraction extends ConsoleInteraction {
     private MVPlannerTask selectedTask = null;
     private Point2D lastPoint = null;
     private MVProblemSpecification problem = null;
+    
     private LinkedHashMap<String, ConsoleEventFutureState> futureStates = new LinkedHashMap<String, ConsoleEventFutureState>();
     private long lastAllocation = System.currentTimeMillis();
 
@@ -182,11 +183,39 @@ public class MVPlannerInteraction extends ConsoleInteraction {
         lastAllocation = System.currentTimeMillis();
         boolean needsToPlan = false;
 
+        // Check if there are any tasks left to allocate
         for (MVPlannerTask t : tasks) {
             if (t.getAssociatedAllocation() == null) {
                 needsToPlan = true;
                 break;
             }
+        }
+        
+        if (!needsToPlan) {
+            NeptusLog.pub().info("Not planning because no tasks are left for allocation.");
+            return;
+        }
+        
+        // Check if there are any vehicles available        
+        ArrayList<String> available = new ArrayList<>();
+        for (ImcSystem s : ImcSystemsHolder.lookupActiveSystemVehicles()) {
+            if (s.getTypeVehicle() == VehicleTypeEnum.UUV)
+                available.add(s.getName());
+        }
+
+        // For the available vehicles check which are free for being allocated
+        synchronized (futureStates) {
+            for (ConsoleEventFutureState future : futureStates.values()) {
+                // this vehicle won't be ready in time...
+                if ((future.getDate().getTime() - System.currentTimeMillis()) > secsBetweenAllocations * 1000) {
+                    available.remove(future.getVehicle());
+                }
+            }
+        }
+        
+        if (available.isEmpty()) {
+            needsToPlan = false;
+            NeptusLog.pub().info("Not planning because no vehicles would be available for this allocation.");            
         }
 
         if (!autoExec || !needsToPlan)
@@ -500,7 +529,7 @@ public class MVPlannerInteraction extends ConsoleInteraction {
         catch (Exception e) {
             e.printStackTrace();
         }
-        // force automatic execution to be false.
+        // force automatic execution to be false at start.
         autoExec = false;
     }
 
@@ -636,55 +665,76 @@ public class MVPlannerInteraction extends ConsoleInteraction {
         return bestSolution;
     }
 
-private void allocatePlan(String pddlPlan) {
-    if (pddlPlan != null) {
-        try {
-            MVSolution solution = problem.getSolution();
+    private void allocatePlan(String pddlPlan) {
+        if (pddlPlan != null) {
+            
+            Date nextAllocation = new Date((lastAllocation + (secsBetweenAllocations) * 1000));    
+            
+            try {
+                MVSolution solution = problem.getSolution();
 
-            if (solution != null) {
-                solution.setGeneratePopups(generatePopups);
-                solution.setScheduledGotosUsed(useScheduledGotos);
+                if (solution != null) {
+                    solution.setGeneratePopups(generatePopups);
+                    solution.setScheduledGotosUsed(useScheduledGotos);
 
-                ArrayList<Pair<ArrayList<String>, ConsoleEventPlanAllocation>> allocations = solution
-                        .allocations();
+                    ArrayList<Pair<ArrayList<String>, ConsoleEventPlanAllocation>> allocations = solution
+                            .allocations();
 
-                for (Pair<ArrayList<String>, ConsoleEventPlanAllocation> entry : allocations) {
-                    ArrayList<String> associatedActions = entry.first();
-                    ConsoleEventPlanAllocation allocation = entry.second();
-                    allocation.getPlan().setMissionType(getConsole().getMission());
-                    getConsole().getMission().getIndividualPlansList().put(allocation.getPlan().getId(),
-                            allocation.getPlan());
+                    // when using automatic execution, only allocate those that should start before next allocation
+                    if (autoExec) {
+                        Iterator<Pair<ArrayList<String>, ConsoleEventPlanAllocation>> it = allocations.iterator();
+                        while (it.hasNext()) {
+                            Pair<ArrayList<String>, ConsoleEventPlanAllocation> val = it.next();    
 
-                    for (String action : associatedActions) {
-                        for (MVPlannerTask task : tasks) {
-                            if (task.getName().equals(action)) {
-                                task.setAllocation(allocation);
-                            }
-                            else {
-                                System.out.println(task.getName()+" != "+action);
+                            if (val.second().getStartTime().after(nextAllocation)) {
+                                // ignore as it can be computed again before the allocation
+                                NeptusLog.pub()
+                                .info("Ignoring generated allocation for " + val.second().getVehicle()
+                                        + " because it is after upcoming allocation: "
+                                        + val.second().getStartTime() + " > " + nextAllocation);
+                                it.remove();
                             }
                         }
-                    }
+                    }              
 
-                    getConsole().post(allocation);
+                    for (Pair<ArrayList<String>, ConsoleEventPlanAllocation> entry : allocations) {
+                        ArrayList<String> associatedActions = entry.first();
+                        ConsoleEventPlanAllocation allocation = entry.second();
+                        allocation.getPlan().setMissionType(getConsole().getMission());
+                        getConsole().getMission().getIndividualPlansList().put(allocation.getPlan().getId(),
+                                allocation.getPlan());
+
+                        for (String action : associatedActions) {
+                            for (MVPlannerTask task : tasks) {
+                                if (task.getName().equals(action)) {
+                                    task.setAllocation(allocation);
+                                }
+                                else {
+                                    System.out.println(task.getName()+" != "+action);
+                                }
+                            }
+                        }
+
+                        getConsole().post(allocation);
+                    }
+                    getConsole().warnMissionListeners();
+                    getConsole().getMission().save(true);
                 }
-                getConsole().warnMissionListeners();
-                getConsole().getMission().save(true);
+                System.out.println(pddlPlan);
             }
-            System.out.println(pddlPlan);
-        }
-        catch (Exception e) {
-            GuiUtils.errorMessage(getConsole(), new Exception("Error parsing PDDL.", e));
-            return;
+            catch (Exception e) {
+                if (!autoExec)
+                    GuiUtils.errorMessage(getConsole(), new Exception("Error parsing PDDL.", e));
+                return;
+            }
         }
     }
-}
 
-public static void main(String[] args) {
-    StateRenderer2D renderer = new StateRenderer2D();
-    MVPlannerInteraction inter = new MVPlannerInteraction();
-    inter.init(ConsoleLayout.forge());
-    renderer.setActiveInteraction(inter);
-    GuiUtils.testFrame(renderer);
-}
+    public static void main(String[] args) {
+        StateRenderer2D renderer = new StateRenderer2D();
+        MVPlannerInteraction inter = new MVPlannerInteraction();
+        inter.init(ConsoleLayout.forge());
+        renderer.setActiveInteraction(inter);
+        GuiUtils.testFrame(renderer);
+    }
 }
