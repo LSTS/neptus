@@ -172,10 +172,10 @@ public class Groovy extends InteractionAdapter {
                                 
                                 thread = new Thread() {
                                     public void run() {
-                                        String[] args = null;
+                                       
                                         
                                         try {
-                                            getShell().run(groovy_script,args);
+                                            Object app = getShell().evaluate(groovy_script); //run(groovy_script,args)  String[] args = null;
                                             Action stopAction = new AbstractAction(I18n.text("Stop Script"), ImageUtils.getScaledIcon("pt/lsts/neptus/plugins/groovy/images/stop.png", 10, 30)) {
                                                 
                                                 @Override
@@ -273,7 +273,7 @@ public class Groovy extends InteractionAdapter {
                     System.out.println("Removed "+e.getVehicle()+" Size: "+vehicles.keySet().size());
                 }
                 break;
-           case MANEUVER:// or case CALIBRATION
+           case CALIBRATION:// or case MANEUVER
                if(vehicles.containsValue(e.getVehicle())){
                    vehicles.remove(e.getVehicle());
                    System.out.println("Removed "+e.getVehicle()+" Size: "+vehicles.keySet().size());
