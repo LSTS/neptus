@@ -46,6 +46,7 @@ import pt.lsts.neptus.renderer2d.StateRenderer2D;
 import pt.lsts.neptus.types.coord.LocationType;
 import pt.lsts.neptus.types.map.MarkElement;
 import pt.lsts.neptus.types.map.ParallelepipedElement;
+import pt.lsts.neptus.util.AngleUtils;
 import pt.lsts.neptus.util.GuiUtils;
 
 /**
@@ -69,6 +70,14 @@ public class SurveyAreaTask extends MVPlannerTask {
         exit.setId(getName()+"_exit");
         updateManeuver();
     }
+
+    private SurveyAreaTask(ParallelepipedElement area, String name) {
+        this.area = area;
+        this.name = name;
+        entry.setId(getName() + "_entry");
+        exit.setId(getName() + "_exit");
+        updateManeuver();
+    }
     
     public void setSize(double width, double length, double bearingRads) {
         area.setLength(length);
@@ -84,6 +93,76 @@ public class SurveyAreaTask extends MVPlannerTask {
     
     public LocationType getEndPoint() {
         return pivot.getEndLocation().convertToAbsoluteLatLonDepth();
+    }
+
+    public double getWidth() {
+        return area.getWidth();
+    }
+
+    public double getHeight() {
+        return area.getWidth();
+    }
+
+    /**
+     * Split this survey in n other areas
+     * */
+    public SurveyAreaTask[] splitSurvey(double newLength) {
+        int n = (int) Math.round(this.getLength() / newLength);
+        SurveyAreaTask surveys[] = new SurveyAreaTask[n];
+
+        // compute new area dimensions
+        double newAreaWidth = area.getWidth();
+        double newAreaLength = area.getLength();
+
+        boolean horizontalSplit = false;
+        if(area.getWidth() > area.getLength())
+            newAreaWidth = area.getWidth() / n;
+        else {
+            newAreaLength = area.getLength() / n;
+            horizontalSplit = true;
+        }
+
+        LocationType pivot = getEntryPoint();
+        LocationType origin = new LocationType(pivot);
+        origin.translatePosition(newAreaLength/2, newAreaWidth/2, 0);
+
+
+        for(int i = 0; i < n; i++) {
+            LocationType newCenter = new LocationType(origin);
+            if(horizontalSplit)
+                newCenter.translatePosition(newAreaLength * i, 0, 0);
+            else
+                newCenter.translatePosition(0, newAreaWidth * i, 0);
+
+            double offsets[] = pivot.getOffsetFrom(newCenter);
+            double deltas[] = AngleUtils.rotate(area.getYawRad(), offsets[0], offsets[1], false);
+            newCenter.translatePosition(offsets[0] - deltas[0], offsets[1] -deltas[1], 0);
+
+            ParallelepipedElement newArea = new ParallelepipedElement();
+            newArea.setCenterLocation(newCenter);
+            newArea.setWidth(newAreaWidth);
+            newArea.setLength(newAreaLength);
+            newArea.setYawDeg(area.getYawRad());
+
+            String id;
+            if(i == 0)
+                id = getName();
+            else
+                id = getName() + "_p" + i;
+
+            SurveyAreaTask newTask = new SurveyAreaTask(newArea, id);
+            newTask.setYaw(area.getYawRad());
+            newTask.updateManeuver();
+            newTask.setRequiredPayloads(newTask.getRequiredPayloads());
+            newTask.setProperties(getProperties());
+
+            surveys[i] = newTask;
+        }
+
+        this.area = surveys[0].area;
+        this.updateManeuver();
+
+        return surveys;
     }
     
     @Override

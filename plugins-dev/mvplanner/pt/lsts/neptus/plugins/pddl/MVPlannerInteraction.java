@@ -40,10 +40,12 @@ import java.awt.geom.AffineTransform;
 import java.awt.geom.Point2D;
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Vector;
 
 import javax.swing.JFileChooser;
@@ -66,6 +68,7 @@ import pt.lsts.neptus.plugins.NeptusProperty;
 import pt.lsts.neptus.plugins.NeptusProperty.LEVEL;
 import pt.lsts.neptus.plugins.PluginDescription;
 import pt.lsts.neptus.plugins.PluginUtils;
+import pt.lsts.neptus.plugins.mvplanner.MvPlanner;
 import pt.lsts.neptus.plugins.mvplanner.api.ConsoleEventPlanAllocation;
 import pt.lsts.neptus.plugins.mvplanner.api.ConsoleEventPlanAllocation.Operation;
 import pt.lsts.neptus.plugins.update.Periodic;
@@ -112,6 +115,9 @@ public class MVPlannerInteraction extends ConsoleInteraction {
 
     @NeptusProperty(category = "Plan Generation", name = "Use scheduled waypoints.")
     private boolean useScheduledGotos = true;
+
+    @NeptusProperty(category = "Plan Generation", name = "Maximum length permitted for a survey task.")
+    private double surveyMaxLength = 600;
 
     @NeptusProperty(category = "Plan Execution", name = "Automatic execution.")
     private boolean autoExec = false;
@@ -431,6 +437,8 @@ public class MVPlannerInteraction extends ConsoleInteraction {
     private void generate(ActionEvent action) {
         Thread t = new Thread("Generating Multi-Vehicle plan...") {
             public void run() {
+                searchAndSplitSurveys();
+
                 ProgressMonitor pm = new ProgressMonitor(getConsole(), "Searching for solutions...",
                         "Generating initial state", 0, 5 + numTries);
                 String bestSolution = createPlan(pm);
@@ -552,6 +560,32 @@ public class MVPlannerInteraction extends ConsoleInteraction {
      */
     public ArrayList<MVPlannerTask> getTasks() {
         return tasks;
+    }
+
+    /**
+     * Search for surveys than can be splitted
+     * and split them
+     * */
+    private void searchAndSplitSurveys() {
+        List<SurveyAreaTask> toBeSplit = new ArrayList<>();
+
+        // fetch surveys eligible to be splitted
+        for(MVPlannerTask task : tasks) {
+            if(task.getClass() == SurveyAreaTask.class) {
+                SurveyAreaTask survey = (SurveyAreaTask) task;
+
+                if(survey.getLength() > surveyMaxLength)
+                    toBeSplit.add(survey);
+            }
+        }
+
+        // add new sub-surveys
+        // note: the original survey is now a sub-survey
+        for(SurveyAreaTask task : toBeSplit)
+            Arrays.stream(task.splitSurvey(surveyMaxLength))
+                    .forEach(s -> tasks.add(s));
+
+        tasks.removeAll(toBeSplit);
     }
 
     private String createPlan(ProgressMonitor pm) {
