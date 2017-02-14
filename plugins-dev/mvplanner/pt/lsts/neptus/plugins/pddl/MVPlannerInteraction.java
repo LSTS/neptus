@@ -32,6 +32,7 @@
  */
 package pt.lsts.neptus.plugins.pddl;
 
+import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -68,7 +69,6 @@ import pt.lsts.neptus.plugins.NeptusProperty;
 import pt.lsts.neptus.plugins.NeptusProperty.LEVEL;
 import pt.lsts.neptus.plugins.PluginDescription;
 import pt.lsts.neptus.plugins.PluginUtils;
-import pt.lsts.neptus.plugins.mvplanner.MvPlanner;
 import pt.lsts.neptus.plugins.mvplanner.api.ConsoleEventPlanAllocation;
 import pt.lsts.neptus.plugins.mvplanner.api.ConsoleEventPlanAllocation.Operation;
 import pt.lsts.neptus.plugins.update.Periodic;
@@ -94,7 +94,7 @@ public class MVPlannerInteraction extends ConsoleInteraction {
     private MVPlannerTask selectedTask = null;
     private Point2D lastPoint = null;
     private MVProblemSpecification problem = null;
-    
+    private boolean allocationInProgress = false;
     private LinkedHashMap<String, ConsoleEventFutureState> futureStates = new LinkedHashMap<String, ConsoleEventFutureState>();
     private long lastAllocation = System.currentTimeMillis();
 
@@ -280,9 +280,38 @@ public class MVPlannerInteraction extends ConsoleInteraction {
     public void paintInteraction(Graphics2D g, StateRenderer2D source) {
 
         g.setTransform(new AffineTransform());
+        
+        if (allocationInProgress) {
+            
+            long t = (System.currentTimeMillis() / 1000) % 4;
+            
+            String str = "planning";
+            
+            for (int i = 0; i < t; i++)
+                str += ".";
+            g.setColor(new Color(0,0,0,200));
+            g.drawString(str, 10.5f, 40.5f);
+            g.setColor(Color.red);
+            g.drawString(str, 10, 40);
+        }
+        else if (autoExec) {
+            
+            long ellapsed = (System.currentTimeMillis() - lastAllocation);
+            long missing = (secsBetweenAllocations * 1000)  - ellapsed;
+            
+            String str = "planning in "+(missing/1000)+"...";
+            g.setColor(new Color(0,0,0,200));
+            g.drawString(str, 10.5f, 40.5f);
+            g.setColor(Color.green.darker());
+            g.drawString(str, 10, 40);
+            
+        }
+        
         for (MVPlannerTask t : tasks) {
             t.paint((Graphics2D) g.create(), source);
         }
+        
+        
 
         super.paintInteraction(g, source);
     }
@@ -528,15 +557,6 @@ public class MVPlannerInteraction extends ConsoleInteraction {
 
     @Override
     public void initInteraction() {
-        try {
-            if (TASKS_FILE.canRead()) {
-                ArrayList<MVPlannerTask> readTasks = MVPlannerTask.loadFile(TASKS_FILE);
-                tasks = readTasks;
-            }            
-        }
-        catch (Exception e) {
-            e.printStackTrace();
-        }
         // force automatic execution to be false at start.
         autoExec = false;
     }
@@ -590,6 +610,8 @@ public class MVPlannerInteraction extends ConsoleInteraction {
 
     private String createPlan(ProgressMonitor pm) {
 
+        allocationInProgress = true;
+        
         Vector<VehicleType> activeVehicles = new Vector<VehicleType>();
         for (ImcSystem s : ImcSystemsHolder.lookupActiveSystemVehicles()) {
             if (s.getTypeVehicle() == VehicleTypeEnum.UUV)
@@ -617,8 +639,10 @@ public class MVPlannerInteraction extends ConsoleInteraction {
                 if (bestSolution != null)
                     best = DateTimeUtil.milliSecondsToFormatedString((long) (bestYet * 1000));
 
-                if (pm != null && pm.isCanceled())
+                if (pm != null && pm.isCanceled()) {
+                    allocationInProgress = false;
                     return null;
+                }
                 if (pm != null) {
                     pm.setNote("Current best solution time: " + best);
                     pm.setProgress(5 + i);
@@ -693,9 +717,11 @@ public class MVPlannerInteraction extends ConsoleInteraction {
                 ex.printStackTrace();
                 NeptusLog.pub().error(ex);
                 GuiUtils.errorMessage(getConsole(), new Exception("No solution has been found.", ex));
+                allocationInProgress = false;
                 return null;
             }
         }
+        allocationInProgress = false;
         return bestSolution;
     }
 
