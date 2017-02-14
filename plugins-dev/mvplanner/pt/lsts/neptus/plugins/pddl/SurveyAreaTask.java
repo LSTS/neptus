@@ -302,8 +302,8 @@ public class SurveyAreaTask extends MVPlannerTask {
         double latDegs = input.nextDouble();
         double lonDegs = input.nextDouble();
         area.setCenterLocation(new LocationType(latDegs, lonDegs));
-        area.setWidth(input.nextDouble());
         area.setLength(input.nextDouble());
+        area.setWidth(input.nextDouble());
         area.setYawDeg(input.nextDouble());
         String[] payloads = input.nextLine().replaceAll("[\\[\\]]", "").trim().split("[, ]+");
         getRequiredPayloads().clear();
