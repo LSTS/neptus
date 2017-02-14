@@ -35,9 +35,13 @@ package pt.lsts.neptus.plugins.nvl_runtime;
 import java.util.ArrayList;
 import java.util.HashMap;
 
+import org.codehaus.groovy.control.CompilerConfiguration;
+import org.codehaus.groovy.control.customizers.ImportCustomizer;
+
 import com.google.common.eventbus.Subscribe;
 
 import groovy.lang.Binding;
+import groovy.lang.GroovyShell;
 import pt.lsts.imc.EstimatedState;
 import pt.lsts.neptus.comm.manager.imc.ImcSystem;
 import pt.lsts.neptus.comm.manager.imc.ImcSystemsHolder;
@@ -58,39 +62,43 @@ import pt.lsts.neptus.types.vehicle.VehiclesHolder;
  * @author lsts
  *
  */
-@PluginDescription(name = "Groovy Feature", author = "Keila Lima")
-@Popup(pos = POSITION.RIGHT, width=200, height=200, accelerator='y')
+
 @SuppressWarnings("serial")
 public class GroovyListeners extends InteractionAdapter {
+    
+    
+    private HashMap<String,VehicleType> vehicles; 
+    private HashMap<String,PlanType> plans; //PlanType listas planos
+    private ArrayList<LocationType> locs;  //POI method that subscribe POI/MarkElement
+    private Binding binds;
+    
+    private GroovyShell shell;
+    private CompilerConfiguration config;
+    private Thread thread;
+    private ImportCustomizer customizer;
 
     /**
      * @param console
      */
     public GroovyListeners(ConsoleLayout console) {
         super(console);
-        init_vars();
+        add_console_vars();
+        
     }
     
-    
-
-    private HashMap<String,VehicleType> vehicles; 
-    private HashMap<String,PlanType> plans; //PlanType listas planos
-    private ArrayList<LocationType> locs;
-    private Binding binds;
-    
-void init_vars() {
+void add_console_vars() {
         
         this.vehicles = new HashMap<String,VehicleType>();
         this.plans    = new HashMap<String,PlanType>();
         this.locs     = new ArrayList<LocationType>();
 
-        //locs
-      //vehicles in the system before opening the plugin
+        //vehicles in the system before opening the plugin
         for(ImcSystem vec: ImcSystemsHolder.lookupActiveSystemVehicles())
-               this.vehicles.put(vec.getName(),VehiclesHolder.getVehicleById(vec.getName())); 
-                
-        //Script output
-        System.out.println("Initial size= "+vehicles.size());
+               this.vehicles.put(vec.getName(),VehiclesHolder.getVehicleById(vec.getName()));
+        this.plans.putAll(getConsole().getMission().getIndividualPlansList());
+        System.out.println("Initial Vehicle size= "+vehicles.size());
+        System.out.println("Initial Plans size= "+plans.size());
+
         this.binds = new Binding();
         this.binds.setVariable("vehicles_id", vehicles.keySet().toArray());
         this.binds.setVariable("plans_id", plans.keySet().toArray());
@@ -98,27 +106,10 @@ void init_vars() {
         System.out.println("Initialized all vars");
     }
     
-    /* (non-Javadoc)
-     * @see pt.lsts.neptus.console.ConsolePanel#cleanSubPanel()
-     */
-    @Override
-    public void cleanSubPanel() {
-        // TODO Auto-generated method stub
-        
-    }
 
-    
-    /* (non-Javadoc)
-     * @see pt.lsts.neptus.console.ConsolePanel#initSubPanel()
-     */
-    @Override
-    public void initSubPanel() {
-    //TODO add systems/locations/plans already in console
-        for(ImcSystem vec: ImcSystemsHolder.lookupActiveSystemVehicles())
-            vehicles.put(vec.getName(),VehiclesHolder.getVehicleById(vec.getName()));
-            
-        getConsole().getMission().getIndividualPlansList();
-        getConsole().getMission().getStartLocation();
+    @Subscribe 
+    public void on(EstimatedState state){
+        
     }
     
     @Subscribe
@@ -128,7 +119,7 @@ void init_vars() {
             case SERVICE: //case CONNECTED
                 if (ImcSystemsHolder.getSystemWithName(e.getVehicle()).isActive()) {
                     //add new vehicle
-                    if(!vehicles.containsValue(e.getVehicle())) {
+                    if(!vehicles.containsKey(e.getVehicle())) {
                         vehicles.put(e.getVehicle(),VehiclesHolder.getVehicleById(e.getVehicle()));
                         this.binds.setVariable("vehicles_id",vehicles.keySet().toArray()); //binds.vehicles=vehicles;
                         System.out.println("Added "+e.getVehicle()+" Size: "+vehicles.keySet().size());
@@ -137,25 +128,30 @@ void init_vars() {
                 }
                 break;
             case ERROR:
-                if(vehicles.containsValue(e.getVehicle())){
-                    vehicles.remove(e.getVehicle());
+                System.out.println(e.getVehicle()+" IN ERROR");
+                if(vehicles.containsKey(e.getVehicle())){
+                    this.vehicles.remove(e.getVehicle());
+                    this.binds.setVariable("vehicles_id",vehicles.keySet().toArray());
                     System.out.println("Removed "+e.getVehicle()+" Size: "+vehicles.keySet().size());
                 }
                 break;
             case DISCONNECTED:
-                if(vehicles.containsValue(e.getVehicle())){
-                    vehicles.remove(e.getVehicle());
+                System.out.println(e.getVehicle()+" DISCONNECTED");
+                if(vehicles.containsKey(e.getVehicle())){
+                    this.vehicles.remove(e.getVehicle());
+                    this.binds.setVariable("vehicles_id",vehicles.keySet().toArray());
                     System.out.println("Removed "+e.getVehicle()+" Size: "+vehicles.keySet().size());
                 }
                 break;
            case CALIBRATION:// or case MANEUVER
-               if(vehicles.containsValue(e.getVehicle())){
-                   vehicles.remove(e.getVehicle());
+               if(vehicles.containsKey(e.getVehicle())){
+                   this.vehicles.remove(e.getVehicle());
+                   this.binds.setVariable("vehicles_id",vehicles.keySet().toArray());
                    System.out.println("Removed "+e.getVehicle()+" Size: "+vehicles.keySet().size());
                }
                 break;
+           
             default:
-                System.out.println("Last case");
                 break;
         }
     }
@@ -196,12 +192,7 @@ void init_vars() {
     };
     
     
-    /**
-     * Location Listener POI on map?
-     * */
-    @Subscribe
-    public void on(EstimatedState msg) {
-        LocationType loc = new LocationType();
+/*    LocationType loc = new LocationType();
         loc.setLatitudeRads(msg.getLat());
         loc.setLongitudeRads(msg.getLon());
         loc.setOffsetNorth(msg.getX());
@@ -209,9 +200,11 @@ void init_vars() {
         loc.convertToAbsoluteLatLonDepth();
         
         locs.add(loc);
-        System.out.println("New Location Added to Binds");
+        System.out.println("New POI location Added to Binds");
         binds.setVariable("locs", locs);
-    }
+
+ * /
+ 
     
     /**
      * Add new updated plan to bind variable
@@ -222,6 +215,18 @@ void init_vars() {
         
         this.plans.put(planId, getConsole().getMission().getIndividualPlansList().get(planId));
     }
+    
+    /**
+     * Add new  plan to console mission
+     * @param planId of the plan
+     */
+    public void addPlanToConsole(PlanType plan) {
+        plan.setMissionType(getConsole().getMission());
+        getConsole().getMission().getIndividualPlansList().put(plan.getId(), plan);
+        getConsole().getMission().save(false);
+        getConsole().warnMissionListeners();
+        getConsole().getMission().addPlan(plan);
+    }
 
     /**
      * @return the binds
@@ -229,11 +234,19 @@ void init_vars() {
     public Binding getBinds() {
         return binds;
     }
-    
+
+    /**
+     * @return the shell
+     */
+    public GroovyShell getShell() {
+        return this.shell;
+    }
+
     /**
      * @return the plans
      */
     public HashMap<String, PlanType> getPlans() {
         return plans;
     }
+
 }

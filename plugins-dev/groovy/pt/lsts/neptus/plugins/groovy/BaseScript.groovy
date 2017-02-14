@@ -29,7 +29,7 @@
  * Author: lsts
  * 02/02/2017
  */
-package pt.lsts.neptus.plugins.groovy
+package pt.lsts.neptus.plugins.groovy 
 
 import groovy.lang.Script
 

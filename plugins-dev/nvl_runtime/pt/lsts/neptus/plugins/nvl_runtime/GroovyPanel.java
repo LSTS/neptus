@@ -32,17 +32,166 @@
  */
 package pt.lsts.neptus.plugins.nvl_runtime;
 
+import java.awt.event.ActionEvent;
+import java.io.File;
+import java.io.IOException;
+
+import javax.swing.AbstractAction;
+import javax.swing.Action;
 import javax.swing.JButton;
-import javax.swing.JPanel;
+import javax.swing.JFileChooser;
+import javax.swing.filechooser.FileNameExtensionFilter;
+
+import org.codehaus.groovy.control.CompilationFailedException;
+
+import pt.lsts.neptus.console.ConsoleLayout;
+import pt.lsts.neptus.console.ConsolePanel;
+import pt.lsts.neptus.i18n.I18n;
+import pt.lsts.neptus.plugins.PluginDescription;
+import pt.lsts.neptus.plugins.Popup;
+import pt.lsts.neptus.plugins.Popup.POSITION;
+import pt.lsts.neptus.util.ImageUtils;
 
 /**
  * @author lsts
  *
  */
+@PluginDescription(name = "Groovy Panel", author = "Keila Lima")
+@Popup(pos = POSITION.RIGHT, width=200, height=200, accelerator='y')
 @SuppressWarnings("serial")
-public class GroovyPanel extends JPanel{
+public class GroovyPanel extends ConsolePanel{
     
     
     private JButton openButton,stopScript;
+    private GroovyListeners groovy = null; 
+    private volatile boolean flag;
+    private Thread thread;
+    
+    public GroovyPanel(ConsoleLayout console){
+        super(console);
+        
+       
+    }
 
-}
+    /* (non-Javadoc)
+     * @see pt.lsts.neptus.console.ConsolePanel#cleanSubPanel()
+     */
+    @Override
+    public void cleanSubPanel() {
+        // TODO Auto-generated method stub
+        
+    }
+
+    /* (non-Javadoc)
+     * @see pt.lsts.neptus.console.ConsolePanel#initSubPanel()
+     */
+    @Override
+    public void initSubPanel() {
+        removeAll();
+        this.flag = false;
+        if (this.groovy.equals(null))
+            this.groovy = new GroovyListeners(getConsole());
+        
+        Action selectAction = new AbstractAction(I18n.text("Select Groovy Script")) {
+            
+            @Override
+            public void actionPerformed(ActionEvent e) {    
+                
+              //Handle open button action.
+                if (e.getSource() == openButton) {
+                    
+                    
+                  //Create a file chooser
+                    final JFileChooser fc = new JFileChooser();
+                    fc.setFileSelectionMode(JFileChooser.FILES_ONLY);
+                    FileNameExtensionFilter filter = new FileNameExtensionFilter("Groovy files","groovy");
+                    fc.setFileFilter(filter);
+                    int returnVal = fc.showOpenDialog(GroovyPanel.this);
+
+                    if (returnVal == JFileChooser.APPROVE_OPTION) {
+                        File groovy_script = fc.getSelectedFile();
+                        
+                        System.out.println("Opening: " + groovy_script.getName() + "." + "\n");
+                        
+                        
+                                
+                                stopScript.setEnabled(false); 
+                                flag = true;
+                                thread = new Thread() {
+                                    
+                                   
+                                    public void run() {
+                                        while(flag){    
+                                        
+                                        try {
+                                            String[] args = null;
+                                            Object app = groovy.getShell().run(groovy_script,args); //shell.getContext().getVariable();
+                                            
+                                        }
+                                        catch (CompilationFailedException | IOException e) {
+                                            e.printStackTrace();
+                                        }
+                                    }
+                                    thread.interrupt();
+                                }
+                                };
+                               
+                                thread.start();
+                               
+                                try {
+                                    
+                                    thread.join(); //thread.join(millis);
+                                    stopScript.setEnabled(false);
+                                    System.out.println("Exiting script execution. . .\n");
+                                }
+                                catch (InterruptedException e1) {
+                                    e1.printStackTrace();
+                                } 
+
+                                
+                                
+
+                  
+                      
+                      System.out.println("Exiting filechooser block execution. . .\n");
+                      stopScript.setEnabled(false);
+                          
+                    } 
+                    
+                    else {
+                        System.out.println("Open command cancelled by user." + "\n");
+                        
+                    }
+               }
+                
+                 
+                    }
+                
+                };
+                
+                Action stopAction = new AbstractAction(I18n.text("Stop Script"), ImageUtils.getScaledIcon("pt/lsts/neptus/plugins/groovy/images/stop.png", 10, 30)) {
+                    
+                    @Override
+                    public void actionPerformed(ActionEvent e) { 
+                            if(e.getSource() == stopScript){
+                                if(flag)
+                                    flag = false;
+                            System.out.println("Stopping script execution. . .\n");
+                            stopScript.setEnabled(false);
+                        }
+                        
+                    }
+                };
+
+          
+          openButton = new JButton(selectAction); //Button height: 22 Button width: 137 Button X: 30 Button Y: 5
+          stopScript = new JButton(stopAction);
+          
+          add(openButton);
+          add(stopScript);
+    }
+    
+        
+    }
+
+

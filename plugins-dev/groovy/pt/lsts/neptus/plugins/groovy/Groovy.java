@@ -29,6 +29,7 @@
  * Author: lsts
  * 09/01/2017
  */
+
 package pt.lsts.neptus.plugins.groovy;
 
 import java.awt.event.ActionEvent;
@@ -50,14 +51,15 @@ import com.google.common.eventbus.Subscribe;
 
 import groovy.lang.Binding;
 import groovy.lang.GroovyShell;
-import pt.lsts.imc.EstimatedState;
+import pt.lsts.imc.CcuEvent.TYPE;
+import pt.lsts.imc.PlanDBState;
 import pt.lsts.neptus.comm.manager.imc.ImcSystem;
 import pt.lsts.neptus.comm.manager.imc.ImcSystemsHolder;
 import pt.lsts.neptus.console.ConsoleLayout;
 import pt.lsts.neptus.console.events.ConsoleEventVehicleStateChanged;
 import pt.lsts.neptus.console.plugins.planning.plandb.PlanDBAdapter;
-import pt.lsts.neptus.console.plugins.planning.plandb.PlanDBState;
 import pt.lsts.neptus.i18n.I18n;
+import pt.lsts.neptus.mp.MapChangeListener;
 import pt.lsts.neptus.plugins.PluginDescription;
 import pt.lsts.neptus.plugins.Popup;
 import pt.lsts.neptus.plugins.Popup.POSITION;
@@ -67,6 +69,8 @@ import pt.lsts.neptus.types.mission.plan.PlanType;
 import pt.lsts.neptus.types.vehicle.VehicleType;
 import pt.lsts.neptus.types.vehicle.VehiclesHolder;
 import pt.lsts.neptus.util.ImageUtils;
+
+
 
 /**
  * @author lsts
@@ -98,23 +102,29 @@ public class Groovy extends InteractionAdapter {
         //init_vars();
     }
 
-    void init_vars() {
+    void add_console_vars() {
     	
         this.vehicles = new HashMap<String,VehicleType>();
         this.plans    = new HashMap<String,PlanType>();
         this.locs     = new HashMap<String,LocationType>();
 
-        //locs
       //vehicles in the system before opening the plugin
         for(ImcSystem vec: ImcSystemsHolder.lookupActiveSystemVehicles())
-               this.vehicles.put(vec.getName(),VehiclesHolder.getVehicleById(vec.getName())); 
-                
-        //Script output
-        System.out.println("Initial size= "+vehicles.size());
+               this.vehicles.put(vec.getName(),VehiclesHolder.getVehicleById(vec.getName()));
+        
+        this.plans.putAll(getConsole().getMission().getIndividualPlansList());
+
+        MapChangeListener listener = null;
+        //TODO getConsole().getMission().getMapsList().values();
+        getConsole().getMission().generateMapGroup().addChangeListener(listener);
+        System.out.println("Initial Vehicle size= "+vehicles.size());
+        System.out.println("Initial Plans size= "+plans.size());
+        
+        //POI method that subscribe POI/MarkElement
 
         this.config = new CompilerConfiguration();
         this.customizer = new ImportCustomizer();
-        this.customizer.addImports("pt.lsts.imc.net.IMCProtocol","pt.lsts.imc.net.Consume"); //Classes in classpath
+        this.customizer.addImports("pt.lsts.imc.net.IMCProtocol","pt.lsts.imc.net.Consume"); // in classpath
         this.customizer.addStarImports("pt.lsts.imc");
         this.config.addCompilationCustomizers(customizer);
         this.binds = new Binding();
@@ -141,8 +151,8 @@ public class Groovy extends InteractionAdapter {
     @Override
     public void initSubPanel() {
         removeAll();
-        init_vars();
         add_console_vars();
+        
 
         
         Action selectAction = new AbstractAction(I18n.text("Select Groovy Script")) {
@@ -243,12 +253,6 @@ public class Groovy extends InteractionAdapter {
           add(stopScript);
     }
     
-    /**
-     * Add variables that are already in the console/mission
-     */
-    void add_console_vars() {
-        //TODO 
-    }
 
     @Subscribe
     public void onVehicleStateChanged(ConsoleEventVehicleStateChanged e) {
@@ -301,13 +305,13 @@ public class Groovy extends InteractionAdapter {
         public void dbCleared() {
         }
 
-        @Override
+
         public void dbInfoUpdated(PlanDBState updatedInfo) {
             
-            String planId = updatedInfo.getLastChangeName();
+            String planId = updatedInfo.getChangeSname();
             addPlan(planId);
             getBinds().setVariable("plans_id",getPlans().keySet().toArray());
-            System.out.println("Added Plan: "+planId);
+            System.out.println("1.Added Plan: "+planId);
         }
 
         @Override
@@ -316,33 +320,30 @@ public class Groovy extends InteractionAdapter {
             getConsole().getMission().addPlan(plan);
             getConsole().getMission().save(true);
             getConsole().updateMissionListeners();
+            addPlan(plan.getId());
+            getBinds().setVariable("plans_id",getPlans().keySet().toArray());
+            System.out.println("2.Added Plan: "+plan.getId());
 
         }
 
         @Override
         public void dbPlanRemoved(String planId) {
+            System.out.println("dbPlanRemoved");
         }
 
         @Override
         public void dbPlanSent(String planId) {
+            System.out.println("dbPlanSent");
         }
     };
 
-
-    @Subscribe
+   
+    
+    
+   /* @Subscribe
     public void on(EstimatedState msg) {
-        
-        LocationType loc = new LocationType();
-        loc.setLatitudeRads(msg.getLat());
-        loc.setLongitudeRads(msg.getLon());
-        loc.setOffsetNorth(msg.getX());
-        loc.setOffsetEast(msg.getY());
-        loc.convertToAbsoluteLatLonDepth();
-        
-        locs.replace(msg.getSourceName(),loc);
-        
-        binds.setVariable("locs", locs);
-    }
+
+    }*/
 
 
 
@@ -355,6 +356,18 @@ public class Groovy extends InteractionAdapter {
         
         
         this.plans.put(planId, getConsole().getMission().getIndividualPlansList().get(planId));
+    }
+    
+    /**
+     * Add new  plan to console mission
+     * @param planId of the plan
+     */
+    public void addPlanToConsole(PlanType plan) {
+        plan.setMissionType(getConsole().getMission());
+        getConsole().getMission().getIndividualPlansList().put(plan.getId(), plan);
+        getConsole().getMission().save(false);
+        getConsole().warnMissionListeners();
+        getConsole().getMission().addPlan(plan);
     }
 
     /**

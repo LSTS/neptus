@@ -251,5 +251,6 @@
 	<classpathentry kind="lib" path="plugins-dev/shapefiles/lib/shapefilereader-1.0.jar"/>
 	<classpathentry kind="lib" path="lib/opencv-2.4.11.jar"/>
 	<classpathentry kind="lib" path="/home/lsts/workspace/neptus-keila/plugins-dev/groovy/lib/groovy-all-2.1.6.jar"/>
+	<classpathentry kind="lib" path="/home/lsts/workspace/neptus-keila/plugins-dev/nvl_runtime/lib/nvl_runtime.jar"/>
 	<classpathentry kind="output" path="build/classes"/>
 </classpath>
