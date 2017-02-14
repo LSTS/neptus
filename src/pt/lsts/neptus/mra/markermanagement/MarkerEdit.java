@@ -610,11 +610,10 @@ public class MarkerEdit extends JFrame {
             g2d.setColor(Color.WHITE);
             g2d.drawLine(c, y, c, y-lineWith);
             if (enableGrid)
-                g2d.drawLine(c, RULER_SIZE, c, y);
+                g2d.drawLine(c, RULER_SIZE+1, c, y);
 
-            if (length >= 2) {
-                margin = 13;
-            }
+            margin = length == 1 ? 10 : 13 + ((length-1) * 5);
+
             g2d.drawString("" + (int) r, c - margin, y-1);
             g2d.setColor(Color.BLACK);
             g2d.drawLine(c, y, c, y+lineWith);
