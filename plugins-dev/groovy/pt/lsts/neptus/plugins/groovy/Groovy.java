@@ -88,7 +88,7 @@ public class Groovy extends InteractionAdapter {
     private CompilerConfiguration config;
     private Thread thread;
     private ImportCustomizer customizer;
-    
+    private volatile boolean flag;
     
     /**
      * @param console
@@ -169,33 +169,23 @@ public class Groovy extends InteractionAdapter {
                         
                                 
                                 //shell.evaluate(groovy_script); //shell.getContext().getVariable();
-                                
+                                flag = true;
                                 thread = new Thread() {
+                                    
+                                   
                                     public void run() {
-                                       
+                                        while(flag){    
                                         
                                         try {
                                             Object app = getShell().evaluate(groovy_script); //run(groovy_script,args)  String[] args = null;
-                                            Action stopAction = new AbstractAction(I18n.text("Stop Script"), ImageUtils.getScaledIcon("pt/lsts/neptus/plugins/groovy/images/stop.png", 10, 30)) {
-                                                
-                                                @Override
-                                                public void actionPerformed(ActionEvent e) { 
-                                                        if(e.getSource() == stopScript){
-                                                            if(thread.isAlive())
-                                                                thread.interrupt();
-                                                        System.out.println("Stopping script execution. . .\n");
-                                                        stopScript.setEnabled(false);
-                                                    }
-                                                    
-                                                }
-                                            };
-                                            stopScript = new JButton(stopAction);
-                                            add(stopScript);
+                                            flag = true;
                                         }
                                         catch (CompilationFailedException | IOException e) {
                                             e.printStackTrace();
                                         }
-                                    }  
+                                    }
+                                    thread.interrupt();
+                                }
                                 };
                                
                                 thread.start();
@@ -217,7 +207,7 @@ public class Groovy extends InteractionAdapter {
                       
                       System.out.println("Exiting filechooser block execution. . .\n");
                       stopScript.setEnabled(false);
-
+                          
                     } 
                     
                     else {
@@ -231,12 +221,26 @@ public class Groovy extends InteractionAdapter {
                 
                 };
                 
-          
+                Action stopAction = new AbstractAction(I18n.text("Stop Script"), ImageUtils.getScaledIcon("pt/lsts/neptus/plugins/groovy/images/stop.png", 10, 30)) {
+                    
+                    @Override
+                    public void actionPerformed(ActionEvent e) { 
+                            if(e.getSource() == stopScript){
+                                if(flag)
+                                    flag = false;
+                            System.out.println("Stopping script execution. . .\n");
+                            stopScript.setEnabled(false);
+                        }
+                        
+                    }
+                };
 
           
           openButton = new JButton(selectAction); //Button height: 22 Button width: 137 Button X: 30 Button Y: 5
-          add(openButton);
+          stopScript = new JButton(stopAction);
           
+          add(openButton);
+          add(stopScript);
     }
     
     /**
@@ -253,7 +257,7 @@ public class Groovy extends InteractionAdapter {
             case SERVICE: //case CONNECTED
                 if (ImcSystemsHolder.getSystemWithName(e.getVehicle()).isActive()) {
                     //add new vehicle
-                    if(!vehicles.containsValue(e.getVehicle())) {
+                    if(!vehicles.containsKey(e.getVehicle())) {
                         vehicles.put(e.getVehicle(),VehiclesHolder.getVehicleById(e.getVehicle()));
                         this.binds.setVariable("vehicles_id",vehicles.keySet().toArray()); //binds.vehicles=vehicles;
                         System.out.println("Added "+e.getVehicle()+" Size: "+vehicles.keySet().size());
@@ -262,25 +266,30 @@ public class Groovy extends InteractionAdapter {
                 }
                 break;
             case ERROR:
-                if(vehicles.containsValue(e.getVehicle())){
-                    vehicles.remove(e.getVehicle());
+                System.out.println(e.getVehicle()+" IN ERROR");
+                if(vehicles.containsKey(e.getVehicle())){
+                    this.vehicles.remove(e.getVehicle());
+                    this.binds.setVariable("vehicles_id",vehicles.keySet().toArray());
                     System.out.println("Removed "+e.getVehicle()+" Size: "+vehicles.keySet().size());
                 }
                 break;
             case DISCONNECTED:
-                if(vehicles.containsValue(e.getVehicle())){
-                    vehicles.remove(e.getVehicle());
+                System.out.println(e.getVehicle()+" DISCONNECTED");
+                if(vehicles.containsKey(e.getVehicle())){
+                    this.vehicles.remove(e.getVehicle());
+                    this.binds.setVariable("vehicles_id",vehicles.keySet().toArray());
                     System.out.println("Removed "+e.getVehicle()+" Size: "+vehicles.keySet().size());
                 }
                 break;
            case CALIBRATION:// or case MANEUVER
-               if(vehicles.containsValue(e.getVehicle())){
-                   vehicles.remove(e.getVehicle());
+               if(vehicles.containsKey(e.getVehicle())){
+                   this.vehicles.remove(e.getVehicle());
+                   this.binds.setVariable("vehicles_id",vehicles.keySet().toArray());
                    System.out.println("Removed "+e.getVehicle()+" Size: "+vehicles.keySet().size());
                }
                 break;
+           
             default:
-                System.out.println("Last case");
                 break;
         }
     }
