@@ -253,8 +253,9 @@ public class MVSolution {
                 startTimes.put(act.vehicle.getId(), new Date(act.startTime));
             }
 
+            
             // just account for valid actions and not movements to depots...
-            if (act.name.matches("t[0-9]+")) {
+            if (act.name.matches("t[0-9]+(_p[0-9]+)?")) {
                 ArrayList<String> actions = actionsPerVehicle.get(act.vehicle.getId());
                 if (!actions.contains(act.name))
                     actions.add(act.name);
@@ -381,5 +382,15 @@ public class MVSolution {
         }
 
     }
-
+    
+    
+    public static void main(String[] args) {
+        String pattern = "t[0-9]+(_p[0-9]+)?";
+        String act1 = "t23";
+        String act2 = "t34_p3";
+        
+        System.out.println(act1.matches(pattern));
+        System.out.println(act2.matches(pattern));
+        
+    }
 }

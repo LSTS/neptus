@@ -466,8 +466,7 @@ public class MVPlannerInteraction extends ConsoleInteraction {
     private void generate(ActionEvent action) {
         Thread t = new Thread("Generating Multi-Vehicle plan...") {
             public void run() {
-                searchAndSplitSurveys();
-
+                
                 ProgressMonitor pm = new ProgressMonitor(getConsole(), "Searching for solutions...",
                         "Generating initial state", 0, 5 + numTries);
                 String bestSolution = createPlan(pm);
@@ -588,28 +587,31 @@ public class MVPlannerInteraction extends ConsoleInteraction {
      * */
     private void searchAndSplitSurveys() {
         List<SurveyAreaTask> toBeSplit = new ArrayList<>();
+        synchronized (tasks) {
+            // fetch surveys eligible to be split
+            for(MVPlannerTask task : tasks) {
+                if(task.getClass() == SurveyAreaTask.class) {
+                    SurveyAreaTask survey = (SurveyAreaTask) task;
 
-        // fetch surveys eligible to be splitted
-        for(MVPlannerTask task : tasks) {
-            if(task.getClass() == SurveyAreaTask.class) {
-                SurveyAreaTask survey = (SurveyAreaTask) task;
-
-                if(survey.getLength() > surveyMaxLength)
-                    toBeSplit.add(survey);
+                    if(survey.getLength() > surveyMaxLength)
+                        toBeSplit.add(survey);
+                }
             }
+
+            // add new sub-surveys
+            // note: the original survey is now a sub-survey
+            for(SurveyAreaTask task : toBeSplit)
+                Arrays.stream(task.splitSurvey(surveyMaxLength))
+                        .forEach(s -> tasks.add(s));
+
+            tasks.removeAll(toBeSplit);            
         }
-
-        // add new sub-surveys
-        // note: the original survey is now a sub-survey
-        for(SurveyAreaTask task : toBeSplit)
-            Arrays.stream(task.splitSurvey(surveyMaxLength))
-                    .forEach(s -> tasks.add(s));
-
-        tasks.removeAll(toBeSplit);
     }
 
     private String createPlan(ProgressMonitor pm) {
 
+        searchAndSplitSurveys();
+        
         allocationInProgress = true;
         
         Vector<VehicleType> activeVehicles = new Vector<VehicleType>();
@@ -745,7 +747,7 @@ public class MVPlannerInteraction extends ConsoleInteraction {
                         Iterator<Pair<ArrayList<String>, ConsoleEventPlanAllocation>> it = allocations.iterator();
                         while (it.hasNext()) {
                             Pair<ArrayList<String>, ConsoleEventPlanAllocation> val = it.next();    
-
+                            System.out.println(val);
                             if (val.second().getStartTime().after(nextAllocation)) {
                                 // ignore as it can be computed again before the allocation
                                 NeptusLog.pub()
