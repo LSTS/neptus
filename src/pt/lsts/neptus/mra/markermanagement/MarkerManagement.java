@@ -66,11 +66,13 @@ import javax.swing.DefaultComboBoxModel;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JDialog;
+import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
@@ -78,6 +80,7 @@ import javax.swing.JTable;
 import javax.swing.JTextField;
 import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
+import javax.swing.filechooser.FileFilter;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
@@ -112,6 +115,7 @@ import pt.lsts.neptus.mra.api.SidescanParser;
 import pt.lsts.neptus.mra.api.SidescanParserFactory;
 import pt.lsts.neptus.mra.importers.IMraLogGroup;
 import pt.lsts.neptus.mra.markermanagement.LogMarkerItem.Classification;
+import pt.lsts.neptus.mra.markermanagement.exporters.HTMLExporter;
 import pt.lsts.neptus.types.coord.LocationType;
 import pt.lsts.neptus.util.DateTimeUtil;
 import pt.lsts.neptus.util.Dom4JUtil;
@@ -123,6 +127,7 @@ import pt.lsts.neptus.util.llf.LsfReportProperties;
 /**
  * @author Manuel R.
  * TODO: Add right-click "Show marker on map"
+ *       Add 'Find' with filtering 
  */
 @SuppressWarnings("serial")
 public class MarkerManagement extends JDialog {
@@ -198,6 +203,8 @@ public class MarkerManagement extends JDialog {
         getContentPane().add(panel, "cell 0 0,grow");
         panel.setLayout(new MigLayout("", "[][][grow]", "[][][grow]"));
 
+        setupExportButton();
+
         new Thread(new LoadMarkers()).start();
 
     }
@@ -216,13 +223,80 @@ public class MarkerManagement extends JDialog {
             public void actionPerformed(ActionEvent e) {
                 if (table != null) {
                     if (table.getSelectedRows().length > 0) {
-                        for (int i=0; i< table.getSelectedRows().length ; i++ ) {
-                            //TODO : export selected markers to a file (.pdf ? )
+                        ArrayList<LogMarkerItem> toExportList = new ArrayList<>();
+                        for (int index : table.getSelectedRows()) {
+                            String markName = table.getModel().getValueAt(index, 1).toString();
+                            LogMarkerItem selected = findMarker(markName);
+                            if (selected != null) 
+                                toExportList.add(selected);
+                        }
+                        exportHTML(toExportList);
+                    }
+                }
+            }
+
+        });
+    }
+
+    private void exportHTML(ArrayList<LogMarkerItem> toExportList) {
+        if (toExportList.isEmpty())
+            return;
+
+        final JFileChooser chooser = new JFileChooser(mraPanel.getSource().getDir());
+        chooser.setFileFilter(new FileFilter() {
+            @Override
+            public boolean accept(File f) {
+                if (f.isDirectory()) {
+                    return true;
+                }
+                final String name = f.getName();
+                return name.endsWith(".html");
+            }
+
+            @Override
+            public String getDescription() {
+                return "*.html";
+            }
+        });
+
+        int returnVal1 = chooser.showSaveDialog(this);
+
+        if (returnVal1 == JFileChooser.APPROVE_OPTION) {
+            File file1 = chooser.getSelectedFile();
+            if(!chooser.getSelectedFile().getAbsolutePath().endsWith(".html")) //append .html
+                file1 = new File(chooser.getSelectedFile() + ".html");
+
+            if (!file1.getAbsolutePath().equals(mraPanel.getSource().getDir())) {
+                //TODO Copy img files if different folder
+            }
+
+            if(!file1.exists()) {
+                HTMLExporter.saveHTML(HTMLExporter.createHTML(toExportList), file1.toString());
+                JOptionPane.showMessageDialog(this,I18n.text("HTML file has been generated!"));
+            }
+            else {
+                if(file1.exists()) {
+
+                    int res = JOptionPane.showConfirmDialog(this,I18n.text("File already exists. Do you wish to overwrite?"), I18n.text("Confirm"), JOptionPane.YES_NO_OPTION);
+                    if(res == JOptionPane.YES_OPTION) {
+
+                        HTMLExporter.saveHTML(HTMLExporter.createHTML(toExportList), file1.toString());;
+                        JOptionPane.showMessageDialog(this,I18n.text("HTML file has been generated!"));
+                    }
+                    else {
+                        int returnVal2 = chooser.showSaveDialog(this);
+                        if (returnVal2 == JFileChooser.APPROVE_OPTION) {
+                            File file2 = chooser.getSelectedFile();
+
+                            if(!file2.exists()) {
+                                HTMLExporter.saveHTML(HTMLExporter.createHTML(toExportList), file1.toString());
+                                JOptionPane.showMessageDialog(this,I18n.text("HTML file has been generated!"));
+                            }
                         }
                     }
                 }
             }
-        });
+        }
     }
 
     private class FinderDialog extends JDialog {
@@ -232,21 +306,21 @@ public class MarkerManagement extends JDialog {
         private JXBusyLabel busyLbl;
         private Window parent;
         private ArrayList<String> lblList = new ArrayList<>();
-        
+
         public FinderDialog(Window parent) {
             super(parent, ModalityType.MODELESS);
             this.parent = parent;
 
             initComponents();
         }
-        
+
         public void updateList() {
             //TODO:
         }
-        
+
         private void initComponents() {
 
-           // setIconImage(MarkerManagement.this.getIcon().getImage());
+            // setIconImage(MarkerManagement.this.getIcon().getImage());
             setSize(290,270);
             setTitle(I18n.text("Find"));
             setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
@@ -263,7 +337,7 @@ public class MarkerManagement extends JDialog {
             @SuppressWarnings({ "unchecked", "rawtypes" })
             @Override
             public void run() {
-                
+
                 JPanel buttonPane = new JPanel();
                 buttonPane.setLayout(new FlowLayout(FlowLayout.RIGHT));
                 JPanel panel = new JPanel();
@@ -273,7 +347,7 @@ public class MarkerManagement extends JDialog {
                 prevBtn = new JButton("Prev.");
                 nextBtn = new JButton("Next");
                 findBtn = new JButton("Find");
-                
+
                 getRootPane().setDefaultButton(findBtn);
                 panel.setLayout(new MigLayout("", "[][grow]", "[][][][][][][]"));
                 JLabel labelLbl = new JLabel("Label:");
@@ -283,38 +357,38 @@ public class MarkerManagement extends JDialog {
                 JLabel classLbl = new JLabel("Class.:");
                 JLabel annotLbl = new JLabel("Annot.:");
                 JLabel tagsLbl = new JLabel("Tags:");
-                
+
                 JTextField altValueTxt = new JTextField();
                 JTextField depthValueTxt = new JTextField();
-                
+
                 ArrayList<String> model1 = new ArrayList<>();
-                
+
                 JComboBox depthParamCBox = new JComboBox();
                 JComboBox altParamCBox = new JComboBox();
                 JComboBox classCBox = new JComboBox();
                 JTextField tagsTxt = new JTextField();
-                
+
                 model1.add(ANY_TXT);
                 Classification[] classifList = LogMarkerItem.Classification.values();
                 for (int i=0; i < classifList.length; i++) {
                     model1.add(classifList[i].toString());
                 }
-                
+
                 altParamCBox.setModel(new DefaultComboBoxModel(new String[] {ANY_TXT, "<=", ">="}));
                 depthParamCBox.setModel(new DefaultComboBoxModel(new String[] {ANY_TXT, "<=", ">="}));
                 classCBox.setModel(new DefaultComboBoxModel(model1.toArray()));
-    
+
                 altValueTxt.setColumns(5);
                 depthValueTxt.setColumns(5);
                 tagsTxt.setColumns(10);
-                
+
                 for (LogMarkerItem lbl : markerList) 
                     if (!lblList.contains(lbl.getLabel()))
                         lblList.add(lbl.getLabel());
-                
+
                 Collections.sort(lblList, String.CASE_INSENSITIVE_ORDER);
                 lblList.add(0, ANY_TXT);
-                
+
                 initTypeField(lblList);
                 panel.add(labelLbl, "cell 0 0,alignx trailing");
                 panel.add(lblTxt, "cell 1 0,growx");
@@ -330,15 +404,15 @@ public class MarkerManagement extends JDialog {
                 panel.add(annotLbl, "cell 0 5,alignx trailing");
                 panel.add(tagsLbl, "cell 0 6,alignx trailing");
                 panel.add(tagsTxt, "cell 1 6,growx");
-                
+
                 buttonPane.add(prevBtn);
                 buttonPane.add(nextBtn);
                 buttonPane.add(findBtn);
-                
+
                 pack();
             }
         }
-        
+
         private void initTypeField(ArrayList<String> items) {
             lblTxt = new Java2sAutoTextField(items);
             lblTxt.setFont(new Font("Dialog", Font.PLAIN, 11));
@@ -414,7 +488,7 @@ public class MarkerManagement extends JDialog {
                     //TODO
                 }
             };
-            
+
             AbstractAction exitAction = new AbstractAction(I18n.text("Exit")) {
 
                 @Override
@@ -422,10 +496,12 @@ public class MarkerManagement extends JDialog {
                     dispose();
                 }
             };
-            
+
             //a group of JMenuItems
             storeMenuItm = new JMenuItem(storeAction);
             exitMenuItm = new JMenuItem(exitAction);
+
+            storeMenuItm.setEnabled(false);
 
             menu.add(storeMenuItm);
             menu.add(exitMenuItm);
@@ -482,7 +558,7 @@ public class MarkerManagement extends JDialog {
             };
 
             del.putValue(Action.SHORT_DESCRIPTION, I18n.text("Delete this marker."));
-            
+
             AbstractAction copy = new AbstractAction(I18n.text("Copy location"), null) {
 
                 @Override
@@ -510,11 +586,11 @@ public class MarkerManagement extends JDialog {
     private void deleteMarkersFiles() {
         markerFilePath = mraPanel.getSource().getFile("Data.lsf").getParent() + "/mra/marks.xml";
         FileUtils.deleteQuietly(new File(markerFilePath));
-        
+
         File markerImgPath = new File(mraPanel.getSource().getFile("Data.lsf").getParent() + "/mra/markers/");
         FileUtils.deleteQuietly(markerImgPath);
     }
-    
+
     private void setupMarkers() {
         markerFilePath = mraPanel.getSource().getFile("Data.lsf").getParent() + "/mra/marks.xml";
 
@@ -721,19 +797,19 @@ public class MarkerManagement extends JDialog {
         LocationType loc = ssLogMarker.getLocation();
         double[] altAndHeight = getAltAndHeight(ssLogMarker, ssParser);
         double range = ssLogMarker.getwMeters();
-  
+
         double alt = altAndHeight[0];
         double depth = altAndHeight[1];
-        
+
         ArrayList<String> photoList = new ArrayList<>();
         HashSet<String> tagList = new HashSet<>();
-        
+
         String description;
         if (ssLogMarker.getDescription() != null && !ssLogMarker.getDescription().isEmpty())
             description = ssLogMarker.getDescription();
         else
             description = "<Your annotation here.>";
-       
+
         LogMarkerItem marker = new LogMarkerItem(index, ssLogMarker.getLabel(), ssLogMarker.getTimestamp(), loc.getLatitudeDegs(), 
                 loc.getLongitudeDegs(), getImgPath(ssLogMarker.getLabel()), null, description, alt, depth, range, Classification.UNDEFINED, photoList, tagList);
 
@@ -780,7 +856,7 @@ public class MarkerManagement extends JDialog {
         Element draw = dom.createElement("Draw");
         draw.appendChild(dom.createTextNode("N/A"));
         mark.appendChild(draw);
-        
+
         Element photo = dom.createElement("Photos");
         mark.appendChild(photo);
 
@@ -848,14 +924,14 @@ public class MarkerManagement extends JDialog {
             altitude = lines.get(lines.size()/2).getState().getAltitude(); 
             depth = depth(lines.get(lines.size()/2).getTimestampMillis());
         }
-        
+
         // result[] = {altitude, depth}
         double[] result = { ((double)Math.round(altitude * 100) / 100), depth };
 
         return result;
     }
 
-    
+
     /** Creates a File for a marker with the specified string
      * @param marker
      * @return File of marker image
@@ -956,8 +1032,6 @@ public class MarkerManagement extends JDialog {
         if (!mrkerToDel.getSidescanImgPath().toString().equals("")) {
             deleteImage(mrkerToDel.getSidescanImgPath().toString());
         }
-
-
     }
 
     /** Updates the table with a modified LogMarkerItem at a specified row 
@@ -990,13 +1064,13 @@ public class MarkerManagement extends JDialog {
             if (pLabel.equals(markLabel)) {
                 mark.getElementsByTagName("Annotation").item(0).setTextContent(mrkerToUpd.getAnnotation());
                 findLogMarker(markLabel).setDescription(mrkerToUpd.getAnnotation());
-                
+
                 mark.getElementsByTagName("Classification").item(0).setTextContent(mrkerToUpd.getClassification().name());
                 mark.getElementsByTagName("Draw").item(0).setTextContent(mrkerToUpd.getDrawImgPath());
-                
+
                 Element photosEl = (Element) mark.getElementsByTagName("Photos").item(0);
                 NodeList photosNode = mark.getElementsByTagName("Photos");
-                
+
                 Set<Element> targetElements = new HashSet<Element>();
                 for (int s = 0; s < photosNode.getLength(); s++) {
                     Element e = (Element)photosNode.item(s);
@@ -1011,7 +1085,7 @@ public class MarkerManagement extends JDialog {
                         }
                     }
                 }
-            
+
 
                 for (Element e: targetElements) {
                     e.getParentNode().removeChild(e);
@@ -1024,11 +1098,11 @@ public class MarkerManagement extends JDialog {
                         photosEl.appendChild(photo);
                     }
                 }
-                
+
                 if (mrkerToUpd.getPhotosPath().isEmpty()) {
                     System.out.println("Deleting them all!"); //TODO
                 }
-                
+
                 System.out.println("List: "+ mrkerToUpd.getPhotosPath().toString());
             }
         }
@@ -1037,9 +1111,9 @@ public class MarkerManagement extends JDialog {
             deleteImage(mrkerToUpd.getDrawImgPath());
         }
     }
-    
+
     private boolean photoAlreadyExists(NodeList node, String photoPath){
-        
+
         for (int j = 0; j < node.getLength(); j++) {
             Element el = (Element)node.item(j);
             NodeList pList = el.getElementsByTagName("Photo");
@@ -1055,7 +1129,7 @@ public class MarkerManagement extends JDialog {
         }
         return false;
     }
-    
+
     /** Add new LogMarker to MarkerManagement
      * @marker, the marker to be added
      * 
@@ -1206,10 +1280,10 @@ public class MarkerManagement extends JDialog {
         return e;
     }
 
-   
+
     private ArrayList<String> getListValue(Element ele, String tagName) {
         ArrayList<String> res = new ArrayList<>();
-        
+
         NodeList nl = ele.getElementsByTagName(tagName);
         if (nl != null ){
             for (int i=0; i < nl.getLength(); i++) {
@@ -1223,7 +1297,7 @@ public class MarkerManagement extends JDialog {
                 }
             }
         }
-        
+
         return res;
     }
 
