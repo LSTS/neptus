@@ -33,6 +33,8 @@
 package pt.lsts.neptus.plugins.pddl;
 
 import java.util.ArrayList;
+import java.util.Vector;
+import java.util.Map.Entry;
 
 import pt.lsts.neptus.types.vehicle.VehicleType;
 
@@ -46,16 +48,6 @@ public class LstsDomainModelOneRound extends LstsDomainModelV2 {
     protected String goals(MVProblemSpecification problem) {
         StringBuilder sb = new StringBuilder();
         sb.append("(:goal (and\n");
-//        for (SamplePointTask t : problem.sampleTasks) {
-//            for (PayloadRequirement r : t.getRequiredPayloads()) {
-//                sb.append("  (communicated_data " + t.getName() + "_" + r.name() + ")\n");
-//            }
-//        }
-//        for (SurveyAreaTask t : problem.surveyTasks) {
-//            for (PayloadRequirement r : t.getRequiredPayloads()) {
-//                sb.append("  (communicated_data " + t.getName() + "_" + r.name() + ")\n");
-//            }
-//        }
         
         sb.append("\n  (>= (tasks-completed) 1)\n\n");
         
@@ -76,6 +68,36 @@ public class LstsDomainModelOneRound extends LstsDomainModelV2 {
         
         sb.append("))\n");
         sb.append("(:metric maximize (tasks-completed)))\n");
+        return sb.toString();
+    }
+    
+    protected String vehicleDetails(VehicleType v, MVProblemSpecification problem) {
+
+        StringBuilder sb = new StringBuilder();
+
+        double timeToStart = (states.get(v).getTime() - System.currentTimeMillis()) / 1000.0;
+        if (timeToStart < 10)
+            timeToStart = 0;
+
+        sb.append("\n  ;" + v.getId() + ":\n");
+        sb.append("  (= (speed " + v.getNickname() + ") " + MVProblemSpecification.constantSpeed + ")\n");
+        sb.append("  (base " + v.getNickname() + " " + v.getNickname() + "_depot)\n\n");
+        sb.append("  (at " + v.getNickname() + " " + v.getNickname() + "_depot" + ")\n");
+
+        for (Entry<String, Vector<String>> entry : payloadNames.entrySet()) {
+            for (String n : entry.getValue()) {
+                if (n.startsWith(v.getNickname() + "_")) {
+                    sb.append("  (having " + n + " " + v.getNickname() + ")\n");
+                }
+            }
+        }
+
+        sb.append("  (at " + timeToStart + " (ready " + v.getNickname()+"))\n");
+        sb.append("  (= (from-base " + v.getNickname() + ") 0) ;how long the vehicle is away from its depot \n"); // FIXME
+        sb.append("  (= (max-to-base " + v.getNickname() + ") " + problem.secondsAwayFromDepot
+                + ") ;the maximum time before returning to the depot\n");
+        sb.append("\n");
+
         return sb.toString();
     }
     

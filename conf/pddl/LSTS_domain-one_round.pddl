@@ -21,6 +21,7 @@
              (free ?l - location) ;no vehicle in the location
              (available ?a - area) ;no vehicle is surveiling the area
              (can-move ?v - vehicle) ;vehicle can perform the move action
+             (ready ?v - vehicle) ;vehicle is ready to be released
 )
 
 (:functions (distance ?l1 ?l2 - location)
@@ -186,7 +187,7 @@
              (at end (completed ?t))
              (at end (not (task_desc ?t ?a ?p)))
              (at end (not (task_desc ?t ?a ?p2)))
-             (at end (increase (tasks-completed) 1))
+             (at end (increase (tasks-completed) 2))
              (at start (increase (from-base ?v)(/ (surveillance_distance ?a)(speed ?v))))
              ;(at start (decrease (battery-level ?v)(+ (* (battery-consumption-move ?v)(surveillance_distance ?a))(* (+ (battery-consumption-payload ?p)(battery-consumption-payload ?p2)) (/ (surveillance_distance ?a)(speed ?v))))))
        )
@@ -228,7 +229,7 @@
              (at end (not (task_desc ?t ?a ?p)))
              (at end (not (task_desc ?t ?a ?p2)))
              (at end (not (task_desc ?t ?a ?p3)))
-             (at end (increase (tasks-completed) 1))
+             (at end (increase (tasks-completed) 3))
              (at start (increase (from-base ?v)(/ (surveillance_distance ?a)(speed ?v))))
              ;(at start (decrease (battery-level ?v)(+ (* (battery-consumption-move ?v)(surveillance_distance ?a))(* (+ (battery-consumption-payload ?p)(+ (battery-consumption-payload ?p2)(battery-consumption-payload ?p3))) (/ (surveillance_distance ?a)(speed ?v))))))
         )
@@ -248,5 +249,12 @@
 ;             (at end (not (sampled ?t ?v)))
 ;        )
 ;)
+
+;dummy action
+(:action getready
+:parameters (?v - vehicle)
+:precondition (ready ?v)
+:effect (and (not (ready ?v))(can-move ?v))
+)
 
 )
