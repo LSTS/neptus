@@ -51,7 +51,6 @@ import com.google.common.eventbus.Subscribe;
 
 import groovy.lang.Binding;
 import groovy.lang.GroovyShell;
-import pt.lsts.imc.CcuEvent.TYPE;
 import pt.lsts.imc.PlanDBState;
 import pt.lsts.neptus.comm.manager.imc.ImcSystem;
 import pt.lsts.neptus.comm.manager.imc.ImcSystemsHolder;
@@ -59,12 +58,13 @@ import pt.lsts.neptus.console.ConsoleLayout;
 import pt.lsts.neptus.console.events.ConsoleEventVehicleStateChanged;
 import pt.lsts.neptus.console.plugins.planning.plandb.PlanDBAdapter;
 import pt.lsts.neptus.i18n.I18n;
-import pt.lsts.neptus.mp.MapChangeListener;
 import pt.lsts.neptus.plugins.PluginDescription;
 import pt.lsts.neptus.plugins.Popup;
 import pt.lsts.neptus.plugins.Popup.POSITION;
 import pt.lsts.neptus.renderer2d.InteractionAdapter;
 import pt.lsts.neptus.types.coord.LocationType;
+import pt.lsts.neptus.types.map.MapGroup;
+import pt.lsts.neptus.types.map.MarkElement;
 import pt.lsts.neptus.types.mission.plan.PlanType;
 import pt.lsts.neptus.types.vehicle.VehicleType;
 import pt.lsts.neptus.types.vehicle.VehiclesHolder;
@@ -92,7 +92,6 @@ public class Groovy extends InteractionAdapter {
     private CompilerConfiguration config;
     private Thread thread;
     private ImportCustomizer customizer;
-    private volatile boolean flag;
     
     /**
      * @param console
@@ -114,13 +113,15 @@ public class Groovy extends InteractionAdapter {
         
         this.plans.putAll(getConsole().getMission().getIndividualPlansList());
 
-        MapChangeListener listener = null;
-        //TODO getConsole().getMission().getMapsList().values();
-        getConsole().getMission().generateMapGroup().addChangeListener(listener);
+        //POI/MarkElement
+        for( MarkElement mark:MapGroup.getMapGroupInstance(getConsole().getMission()).getAllObjectsOfType(MarkElement.class)){
+            locs.put(mark.getId(),mark.getPosition());
+        //this.locs.putAll((Map<? extends String, ? extends LocationType>) );
+        }
+        
         System.out.println("Initial Vehicle size= "+vehicles.size());
         System.out.println("Initial Plans size= "+plans.size());
-        
-        //POI method that subscribe POI/MarkElement
+        System.out.println("Initial Locations size= "+locs.size());
 
         this.config = new CompilerConfiguration();
         this.customizer = new ImportCustomizer();
@@ -179,22 +180,20 @@ public class Groovy extends InteractionAdapter {
                         
                                 
                                 //shell.evaluate(groovy_script); //shell.getContext().getVariable();
-                                flag = true;
                                 thread = new Thread() {
                                     
-                                   
+                                   @Override
                                     public void run() {
-                                        while(flag){    
+                                          
                                         
                                         try {
-                                            Object app = getShell().evaluate(groovy_script); //run(groovy_script,args)  String[] args = null;
-                                            flag = true;
+                                            String[] args = null;
+                                            Object app = getShell().run(groovy_script,args);  
+                                            
                                         }
                                         catch (CompilationFailedException | IOException e) {
                                             e.printStackTrace();
                                         }
-                                    }
-                                    thread.interrupt();
                                 }
                                 };
                                
@@ -236,8 +235,8 @@ public class Groovy extends InteractionAdapter {
                     @Override
                     public void actionPerformed(ActionEvent e) { 
                             if(e.getSource() == stopScript){
-                                if(flag)
-                                    flag = false;
+                                thread.stop();
+                                shell.invokeMethod("System.exit", "1");
                             System.out.println("Stopping script execution. . .\n");
                             stopScript.setEnabled(false);
                         }
@@ -340,10 +339,7 @@ public class Groovy extends InteractionAdapter {
    
     
     
-   /* @Subscribe
-    public void on(EstimatedState msg) {
 
-    }*/
 
 
 
@@ -395,5 +391,10 @@ public class Groovy extends InteractionAdapter {
         
 }
 
-    
+/* @Subscribe
+public void on(EstimatedState msg) {
 
+}*/    
+//MapChangeListener listener = null;
+//TODO getConsole().getMission().getMapsList().values();
+//getConsole().getMission().generateMapGroup().addChangeListener(listener);
