@@ -236,8 +236,11 @@ public class MVPlannerInteraction extends ConsoleInteraction {
                 NeptusLog.pub().info("Generating plan...");
                 String solution = createPlan(null);
                 if (solution != null) {
-                    NeptusLog.pub().info(solution);
+                    NeptusLog.pub().info("Solution: "+solution);
                     allocatePlan(solution);
+                }
+                else {
+                    NeptusLog.pub().warn("Solution is null");
                 }
             };
         };
@@ -735,6 +738,7 @@ public class MVPlannerInteraction extends ConsoleInteraction {
             try {
                 MVSolution solution = problem.getSolution();
 
+                System.out.println("SOL: " +solution);
                 if (solution != null) {
                     solution.setGeneratePopups(generatePopups);
                     solution.setScheduledGotosUsed(useScheduledGotos);
@@ -787,6 +791,7 @@ public class MVPlannerInteraction extends ConsoleInteraction {
             catch (Exception e) {
                 if (!autoExec)
                     GuiUtils.errorMessage(getConsole(), new Exception("Error parsing PDDL.", e));
+                e.printStackTrace();
                 return;
             }
         }

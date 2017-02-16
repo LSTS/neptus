@@ -96,6 +96,7 @@ public class MVSolution {
         PddlAction action = new PddlAction();
         String actionStr;
 
+            
         try {
             actionStr = parts[1];
 
@@ -103,6 +104,9 @@ public class MVSolution {
             if (actionStr.contains("-"))
                 action.type = actionStr.substring(0, actionStr.indexOf('-'));
 
+            if (action.type.equals("getready"))
+                return null;
+           
             action.startTime = (long) (1000 * Double.parseDouble(parts[0]) + System.currentTimeMillis());
             action.endTime = (long) (1000 * Double.parseDouble(parts[parts.length - 1])) + action.startTime;
             action.name = parts[3].split("_")[0];

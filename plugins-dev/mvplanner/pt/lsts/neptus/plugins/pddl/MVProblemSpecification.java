@@ -42,6 +42,7 @@ import java.util.LinkedHashMap;
 import java.util.Map.Entry;
 import java.util.TimeZone;
 import java.util.Vector;
+import java.util.concurrent.TimeUnit;
 
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.comm.manager.imc.ImcSystemsHolder;
@@ -110,6 +111,23 @@ public class MVProblemSpecification {
 
         cmd = cmd.replaceAll("/", System.getProperty("file.separator"));
         Process p = Runtime.getRuntime().exec(cmd, null, new File("log/pddl"));
+        
+        Thread monitor = new Thread() {
+            public void run() {
+                try {
+                    if (!p.waitFor(secs+1, TimeUnit.SECONDS)) {
+                        NeptusLog.pub().error("LPG is taking too long to plan. Killing process...");
+                        p.destroyForcibly();
+                    }
+                }
+                catch (Exception e) {
+                    e.printStackTrace();
+                }
+            };
+        };
+        monitor.setDaemon(true);
+        monitor.start();
+        
         StringBuilder result = new StringBuilder();
         BufferedReader reader = new BufferedReader(new InputStreamReader(p.getInputStream()));
         String line = reader.readLine();
