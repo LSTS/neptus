@@ -36,27 +36,26 @@ import java.awt.event.ActionEvent;
 import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
-
 import javax.swing.AbstractAction;
 import javax.swing.Action;
 import javax.swing.JButton;
 import javax.swing.JFileChooser;
 import javax.swing.filechooser.FileNameExtensionFilter;
-
 import org.codehaus.groovy.control.CompilationFailedException;
 import org.codehaus.groovy.control.CompilerConfiguration;
 import org.codehaus.groovy.control.customizers.ImportCustomizer;
-
 import com.google.common.eventbus.Subscribe;
-
 import groovy.lang.Binding;
 import groovy.lang.GroovyShell;
-import pt.lsts.imc.PlanDBState;
+import groovy.util.GroovyScriptEngine;
+import groovy.util.ResourceException;
+import groovy.util.ScriptException;
+import pt.lsts.imc.PlanControlState;
 import pt.lsts.neptus.comm.manager.imc.ImcSystem;
 import pt.lsts.neptus.comm.manager.imc.ImcSystemsHolder;
 import pt.lsts.neptus.console.ConsoleLayout;
+import pt.lsts.neptus.console.events.ConsoleEventPlanChange;
 import pt.lsts.neptus.console.events.ConsoleEventVehicleStateChanged;
-import pt.lsts.neptus.console.plugins.planning.plandb.PlanDBAdapter;
 import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.plugins.PluginDescription;
 import pt.lsts.neptus.plugins.Popup;
@@ -89,6 +88,7 @@ public class Groovy extends InteractionAdapter {
     private HashMap<String,LocationType> locs;
     private Binding binds; //verify use of @TypeChecked
     private GroovyShell shell;
+    private GroovyScriptEngine engine;
     private CompilerConfiguration config;
     private Thread thread;
     private ImportCustomizer customizer;
@@ -131,9 +131,20 @@ public class Groovy extends InteractionAdapter {
         this.binds = new Binding();
         this.binds.setVariable("vehicles_id", vehicles.keySet().toArray());
         this.binds.setVariable("plans_id", plans.keySet().toArray());
-        this.binds.setVariable("locs", locs);//?
+        this.binds.setVariable("locs", locs.keySet().toArray());//?
         //this.config.setScriptBaseClass("Basescript");
-        this.shell = new GroovyShell(this.binds,this.config); 
+        this.shell = new GroovyShell(this.binds,this.config);
+        try {
+          //Description/notification: "Place your groovy scripts in the folder script of the plugin"
+
+            this.engine = new GroovyScriptEngine("plugins-dev/groovy/pt/lsts/neptus/plugins/groovy/scripts/");
+            this.engine.setConfig(config);
+            
+        }
+        catch (IOException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
         System.out.println("Initialized all vars");
     }
     
@@ -187,11 +198,13 @@ public class Groovy extends InteractionAdapter {
                                           
                                         
                                         try {
-                                            String[] args = null;
-                                            Object app = getShell().run(groovy_script,args);  
                                             
+                                            Object output = engine.run(groovy_script.getName(), binds);
+                                            //getShell().run(groovy_script,args);  String[] args = null;
+                                            //shell.evaluate(initScripts + groovy_script)
+                                            //engine.loadScriptByName
                                         }
-                                        catch (CompilationFailedException | IOException e) {
+                                        catch (CompilationFailedException | ResourceException | ScriptException e) {
                                             e.printStackTrace();
                                         }
                                 }
@@ -235,8 +248,8 @@ public class Groovy extends InteractionAdapter {
                     @Override
                     public void actionPerformed(ActionEvent e) { 
                             if(e.getSource() == stopScript){
-                                thread.stop();
-                                shell.invokeMethod("System.exit", "1");
+                                thread.interrupt();//thread.stop();
+                                //shell.invokeMethod("System.exit", "0"); Stops whole app -> JVM
                             System.out.println("Stopping script execution. . .\n");
                             stopScript.setEnabled(false);
                         }
@@ -252,6 +265,14 @@ public class Groovy extends InteractionAdapter {
           add(stopScript);
     }
     
+    
+    /*@Subscribe
+    public void onConsoleEventPlanChange(ConsoleEventPlanChange plan) {
+        //switch(plan) {
+            
+        //}
+        
+    }*/
 
     @Subscribe
     public void onVehicleStateChanged(ConsoleEventVehicleStateChanged e) {
@@ -297,50 +318,7 @@ public class Groovy extends InteractionAdapter {
         }
     }
 
-    //Plan Database listener methods
-    
-    protected PlanDBAdapter planDBListener = new PlanDBAdapter() {
-        @Override
-        public void dbCleared() {
-        }
-
-
-        public void dbInfoUpdated(PlanDBState updatedInfo) {
-            
-            String planId = updatedInfo.getChangeSname();
-            addPlan(planId);
-            getBinds().setVariable("plans_id",getPlans().keySet().toArray());
-            System.out.println("1.Added Plan: "+planId);
-        }
-
-        @Override
-        public void dbPlanReceived(PlanType plan) {
-            plan.setMissionType(getConsole().getMission());
-            getConsole().getMission().addPlan(plan);
-            getConsole().getMission().save(true);
-            getConsole().updateMissionListeners();
-            addPlan(plan.getId());
-            getBinds().setVariable("plans_id",getPlans().keySet().toArray());
-            System.out.println("2.Added Plan: "+plan.getId());
-
-        }
-
-        @Override
-        public void dbPlanRemoved(String planId) {
-            System.out.println("dbPlanRemoved");
-        }
-
-        @Override
-        public void dbPlanSent(String planId) {
-            System.out.println("dbPlanSent");
-        }
-    };
-
-   
-    
-    
-
-
+  
 
 
 
@@ -390,6 +368,51 @@ public class Groovy extends InteractionAdapter {
 
         
 }
+
+/*Plan Database listener methods
+
+protected PlanDBAdapter planDBListener = new PlanDBAdapter() {
+    @Override
+    public void dbCleared() {
+    }
+
+
+    public void dbInfoUpdated(PlanDBState updatedInfo) {
+        
+        String planId = updatedInfo.getChangeSname();
+        addPlan(planId);
+        getBinds().setVariable("plans_id",getPlans().keySet().toArray());
+        System.out.println("1.Added Plan: "+planId);
+    }
+
+    @Override
+    public void dbPlanReceived(PlanType plan) {
+        plan.setMissionType(getConsole().getMission());
+        getConsole().getMission().addPlan(plan);
+        getConsole().getMission().save(true);
+        getConsole().updateMissionListeners();
+        addPlan(plan.getId());
+        getBinds().setVariable("plans_id",getPlans().keySet().toArray());
+        System.out.println("2.Added Plan: "+plan.getId());
+
+    }
+
+    @Override
+    public void dbPlanRemoved(String planId) {
+        System.out.println("dbPlanRemoved");
+    }
+
+    @Override
+    public void dbPlanSent(String planId) {
+        System.out.println("dbPlanSent");
+    }
+};
+
+
+
+*/
+
+// public void consume(PlanControlState pcstate) -> Plugin do Manuel para atualizar o estado do plano no veiculo
 
 /* @Subscribe
 public void on(EstimatedState msg) {
