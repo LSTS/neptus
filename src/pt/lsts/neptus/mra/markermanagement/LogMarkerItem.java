@@ -58,13 +58,13 @@ public class LogMarkerItem extends LogMarker {
     private HashSet<String> tagList = new HashSet<>();
 
     public enum Classification {
-        UNDEFINED(-1), 
+        UNDEFINED(0), 
         NONE(1), 
         CABLE(2), 
         PIPE(3), 
         ROCK(4), 
         WRECK(5),
-        UNKOWN(6);
+        UNKNOWN(6);
 
         public int getValue() {
             return this.value;
