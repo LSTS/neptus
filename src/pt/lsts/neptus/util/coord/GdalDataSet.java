@@ -34,6 +34,7 @@ package pt.lsts.neptus.util.coord;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Scanner;
 
 import javax.imageio.ImageIO;
 
@@ -98,9 +99,11 @@ public class GdalDataSet {
     
     public double getRotationRads() {
         LocationType[] corners = getCornerCoordinates();
-        if (corners.length == 0)
-            return 0;
-        return Math.PI - corners[0].getXYAngle(corners[1]);
+        // check angle between most distant corners
+        if (corners[0].getDistanceInMeters(corners[1]) > corners[0].getDistanceInMeters(corners[2]))
+            return corners[1].getXYAngle(corners[0]);
+        else
+            return corners[0].getXYAngle(corners[1]) - Math.PI/2;
     }    
 
     private double[] getCenter() {
@@ -203,25 +206,29 @@ public class GdalDataSet {
 
     public static void main(String[] args) throws Exception {
         
-        new GdalDataSet(new File("/home/zp/Downloads/cea.tif"));
-        GdalDataSet dataSet1 = new GdalDataSet(new File("/home/zp/Desktop/jpgw_exmple/TC_NG_Madrid_ES_Geo.tif"));
-        GdalDataSet dataSet2 = new GdalDataSet(new File("/home/zp/Desktop/jpgw_exmple/O44121a1.jpg"));
-        GdalDataSet dataSet3 = new GdalDataSet(new File("/home/zp/Desktop/jpgw_exmple/m30dem.tif"));
+        File f = new File("/home/zp/Desktop");
+        
+        for (File file : f.listFiles()) {
+            if (file.getName().endsWith(".tif")) {
+                System.out.println(file.getName() + ":");
+                GdalDataSet dataSet = new GdalDataSet(file);
+                LocationType loc = new LocationType(dataSet.getCenterCoordinates());
+                loc.convertToAbsoluteLatLonDepth();
+                System.out.println("\tCenter: "+loc.getLatitudeAsPrettyString()+", "+loc.getLongitudeAsPrettyString());
+                System.out.println("\tRotation: "+Math.toDegrees(dataSet.getRotationRads()));
+                System.out.println("\tScale: "+Arrays.toString(dataSet.getMetersPerPixel()));
 
-        System.out.println(dataSet1.getCenterCoordinates());
-        System.out.println(dataSet1.getCornerCoordinates());
-        System.out.println(dataSet1.getRotationRads());
-        System.out.println(Arrays.toString(dataSet1.getMetersPerPixel()));
-
-        System.out.println(dataSet2.getCenterCoordinates());
-        System.out.println(dataSet2.getCornerCoordinates());
-        System.out.println(dataSet2.getRotationRads());
-        System.out.println(Arrays.toString(dataSet2.getMetersPerPixel()));
-
-        System.out.println(dataSet2.getCenterCoordinates());
-        System.out.println(dataSet2.getCornerCoordinates());
-        System.out.println(dataSet2.getRotationRads());
-        System.out.println(Arrays.toString(dataSet3.getMetersPerPixel()));
+                @SuppressWarnings("resource")
+                Scanner s = new Scanner(
+                        Runtime.getRuntime().exec("gdalinfo " + file.getAbsolutePath()).getInputStream())
+                                .useDelimiter("\\A");
+                System.out.println("GDALINFO:");
+                System.out.println(s.next());
+                s.close();
+            }
+        }
+        
+       
     }
 
 }
