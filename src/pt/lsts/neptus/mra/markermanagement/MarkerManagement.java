@@ -50,6 +50,9 @@ import java.awt.event.WindowEvent;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.FileSystems;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -92,6 +95,7 @@ import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.FilenameUtils;
 import org.jdesktop.swingx.JXBusyLabel;
 import org.w3c.dom.Attr;
 import org.w3c.dom.Document;
@@ -125,9 +129,7 @@ import pt.lsts.neptus.util.gui.Java2sAutoTextField;
 import pt.lsts.neptus.util.llf.LsfReport;
 import pt.lsts.neptus.util.llf.LsfReportProperties;
 /**
- * @author Manuel R.
- * TODO: Add right-click "Show marker on map"
- *       Add 'Find' with filtering 
+ * @author Manuel R. 
  */
 @SuppressWarnings("serial")
 public class MarkerManagement extends JDialog {
@@ -137,6 +139,7 @@ public class MarkerManagement extends JDialog {
     private static final int HEIGHT = 430;
     private static final String SHOW_ICON = "images/buttons/show.png";
     private static final String ANY_TXT = I18n.text("<ANY>");
+    public static final String SEPARATOR = FileSystems.getDefault().getSeparator();
     private final ArrayList<SidescanLogMarker> logMarkers = new ArrayList<>();
     protected MRAPanel mraPanel;
     private static InfiniteProgressPanel loader = InfiniteProgressPanel.createInfinitePanelBeans("");
@@ -262,25 +265,45 @@ public class MarkerManagement extends JDialog {
         int returnVal1 = chooser.showSaveDialog(this);
 
         if (returnVal1 == JFileChooser.APPROVE_OPTION) {
-            File file1 = chooser.getSelectedFile();
-            if(!chooser.getSelectedFile().getAbsolutePath().endsWith(".html")) //append .html
-                file1 = new File(chooser.getSelectedFile() + ".html");
+            File fileToWrite = chooser.getSelectedFile();
 
-            if (!file1.getAbsolutePath().equals(mraPanel.getSource().getDir())) {
-                //TODO Copy img files if different folder
+            if (!chooser.getSelectedFile().getAbsolutePath().endsWith(".html")) //append .html
+                fileToWrite = new File(chooser.getSelectedFile() + ".html");
+
+            if (!fileToWrite.getParent().equals(mraPanel.getSource().getDir().getAbsolutePath())) { //copy imgs to selected folder
+                try {
+                    String pathWOExtension = FilenameUtils.removeExtension(fileToWrite.getName());
+                    File copyLocation = new File(fileToWrite.getParent().concat(SEPARATOR + pathWOExtension));
+                    Path path = copyLocation.toPath();
+
+                    if (Files.notExists(path))
+                        Files.createDirectories(path);  //create folder with user's chosen file name
+
+                    for (LogMarkerItem log : toExportList) {
+                        String imgPath = mraPanel.getSource().getFile("Data.lsf").getParent();
+                        File imgFilePath = new File(imgPath + log.getSidescanImgPath());
+                        File destFile = new File(copyLocation.getAbsolutePath()
+                                .concat(SEPARATOR)
+                                .concat(imgFilePath.getName()));
+                        FileUtils.copyFile(imgFilePath, destFile);
+                    }
+                }
+                catch (IOException e) {
+                    e.printStackTrace();
+                } 
             }
 
-            if(!file1.exists()) {
-                HTMLExporter.saveHTML(HTMLExporter.createHTML(toExportList), file1.toString());
+            if (!fileToWrite.exists()) {
+                HTMLExporter.saveHTML(HTMLExporter.createHTML(toExportList), fileToWrite.toString());
                 JOptionPane.showMessageDialog(this,I18n.text("HTML file has been generated!"));
             }
             else {
-                if(file1.exists()) {
+                if (fileToWrite.exists()) {
 
                     int res = JOptionPane.showConfirmDialog(this,I18n.text("File already exists. Do you wish to overwrite?"), I18n.text("Confirm"), JOptionPane.YES_NO_OPTION);
-                    if(res == JOptionPane.YES_OPTION) {
+                    if (res == JOptionPane.YES_OPTION) {
 
-                        HTMLExporter.saveHTML(HTMLExporter.createHTML(toExportList), file1.toString());;
+                        HTMLExporter.saveHTML(HTMLExporter.createHTML(toExportList), fileToWrite.toString());;
                         JOptionPane.showMessageDialog(this,I18n.text("HTML file has been generated!"));
                     }
                     else {
@@ -288,8 +311,8 @@ public class MarkerManagement extends JDialog {
                         if (returnVal2 == JFileChooser.APPROVE_OPTION) {
                             File file2 = chooser.getSelectedFile();
 
-                            if(!file2.exists()) {
-                                HTMLExporter.saveHTML(HTMLExporter.createHTML(toExportList), file1.toString());
+                            if (!file2.exists()) {
+                                HTMLExporter.saveHTML(HTMLExporter.createHTML(toExportList), fileToWrite.toString());
                                 JOptionPane.showMessageDialog(this,I18n.text("HTML file has been generated!"));
                             }
                         }
@@ -447,8 +470,6 @@ public class MarkerManagement extends JDialog {
                 setupMarkers();
             loader.stop();
             panel.remove(loader);
-
-            // setupPrintButton();
 
             JButton findBtn = new JButton();
             findBtn.setHorizontalTextPosition(SwingConstants.CENTER);
