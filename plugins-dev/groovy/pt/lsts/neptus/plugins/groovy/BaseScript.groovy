@@ -47,7 +47,7 @@ abstract class BaseScript extends Script {
      */
     @Override
     public Object run() {
-        // TODO Auto-generated method stub
+        // TODO Auto-generated method stub: Insert groovy code HERE
         return null;
     }
 
