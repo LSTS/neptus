@@ -189,7 +189,8 @@ public class Groovy extends InteractionAdapter {
                         System.out.println("Opening: " + groovy_script.getName() + "." + "\n");
                         
                         
-                                
+                                stopScript.setEnabled(true);
+                                System.out.println("Stopscript Button enabled.");
                                 //shell.evaluate(groovy_script); //shell.getContext().getVariable();
                                 thread = new Thread() {
                                     
@@ -212,7 +213,7 @@ public class Groovy extends InteractionAdapter {
                                
                                 thread.start();
                                
-                                try {
+                                /*try {
                                     
                                     thread.join(); //thread.join(millis);
                                     stopScript.setEnabled(false);
@@ -220,7 +221,7 @@ public class Groovy extends InteractionAdapter {
                                 }
                                 catch (InterruptedException e1) {
                                     e1.printStackTrace();
-                                } 
+                                } */
 
                                 
                                 
