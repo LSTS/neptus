@@ -110,10 +110,34 @@ public class MultibeamUtil {
         return SidescanUtil.getData(bytes.array(), scaleFactor, bitsPerPoint);
     }
 
+    /**
+     * Converts a given value into a byte a representation of
+     * `bytesPerPoint` bytes.
+     * */
+    public static byte[] valueToBytes(double value, int bytesPerPoint, float scaleFactor) {
+        byte[] bytes = new byte[bytesPerPoint];
+        int valueScaled = (int) (value / scaleFactor);
+
+        for(int i = 0; i < bytesPerPoint; i++)
+            bytes[i] = (byte) (((valueScaled >> 8 * i)) & 0xFF);
+
+        return bytes;
+    }
+
+    /**
+     * Puts the given bytes in the buffer starting at the
+     * given position
+     * */
+    public static void putBytesAt(ByteBuffer buffer, int startPos, byte[] bytes) {
+        for(int i = 0; i < bytes.length; i++)
+            buffer.put(startPos + i, bytes[i]);
+    }
+
+
     static int i = 0;
     /**
      * This is to be used for testing purposes. It assumes that the data, swath, comes from DeltaT MB.
-     * 
+     *
      * @param swath
      * @param pose
      * @return
@@ -179,103 +203,5 @@ public class MultibeamUtil {
         sonarData.setBeamConfig(beamConfig);
 
         return sonarData;
-    }
-
-    /**
-     * Converts a given value into a byte a representation of
-     * `bytesPerPoint` bytes.
-     * */
-    public static byte[] valueToBytes(double value, int bytesPerPoint, float scaleFactor) {
-        byte[] bytes = new byte[bytesPerPoint];
-        int valueScaled = (int) (value / scaleFactor);
-
-        for(int i = 0; i < bytesPerPoint; i++)
-            bytes[i] = (byte) (((valueScaled >> 8 * i)) & 0xFF);
-
-        return bytes;
-    }
-
-    /**
-     * Puts the given bytes in the buffer starting at the
-     * given position
-     * */
-    public static void putBytesAt(ByteBuffer buffer, int startPos, byte[] bytes) {
-        for(int i = 0; i < bytes.length; i++)
-            buffer.put(startPos + i, bytes[i]);
-    }
-
-    public static void main(String []args) {
-        double data[] = {4.0543,2.037375,3.053357,4.335350,5.03535,6.02243,7.131,8.5433540,9.054354,21.054345,450.054354,60.32424354};
-        int intensities[] = {1231,1243,436,867867,8978, 31, 312, 342, 654, 123, 68, 3123};
-
-        if(data.length != intensities.length) {
-            System.out.println("ERROR");
-            return;
-        }
-
-        // Build and send Data
-        int bytesPerPoint = Short.BYTES;
-        int headerBytes = Short.BYTES;
-
-        short startAngle = 96;
-        int nBytes = headerBytes + bytesPerPoint * data.length * 2;
-        ByteBuffer buffer = ByteBuffer.allocate(nBytes);
-        buffer.order(ByteOrder.LITTLE_ENDIAN);
-        float scaleFactor = 0.0001f;
-
-        // put start angle
-        buffer.putShort(startAngle);
-
-        // put ranges and intensities
-        for(int i = 0; i < data.length; i++) {
-            byte[] rangeBytes = valueToBytes(data[i], bytesPerPoint, scaleFactor);
-            byte[] intensitiyBytes = valueToBytes(intensities[i], bytesPerPoint, 1);
-
-            int intensityIndex = headerBytes + bytesPerPoint * (data.length + i);
-
-            buffer.put(rangeBytes);
-            putBytesAt(buffer, intensityIndex, intensitiyBytes);
-        }
-
-
-        byte[] bytes = buffer.array().clone();
-        System.out.println("** Wrote " + bytes.length + " bytes");
-        System.out.println("** Validated: " + (bytes.length == nBytes));
-
-        // read data
-        System.out.println("\n\n* Reading");
-
-        ByteBuffer newBuffer = ByteBuffer.wrap(bytes);
-        newBuffer.order(ByteOrder.LITTLE_ENDIAN);
-        int readNBytes = newBuffer.array().length;
-
-        System.out.println("** Reading " + readNBytes + " bytes");
-        System.out.println("** Validated " + (readNBytes == nBytes) + "\n\n");
-
-        short readAngle = newBuffer.getShort();
-        System.out.println("** Start angle: " + readAngle);
-
-        byte[] newData = new byte[newBuffer.remaining()];
-        newBuffer.get(newData, 0, newBuffer.remaining());
-
-        double fData[] = new double[newData.length / bytesPerPoint];
-
-        for (int i = 0; i < fData.length; i++) {
-            double val = 0;
-            for (int j = 0; j < bytesPerPoint; j++) {
-                int index = i * bytesPerPoint + j; // progressing index of data
-                int v = newData[index] & 0xFF;
-                v = (v << 8 * j);
-                val += v;
-            }
-            fData[i] = val;
-        }
-
-        // Lets apply scaling
-        for (int i = 0; i < fData.length; i++) {
-            if(i < fData.length / 2)
-                fData[i] *= scaleFactor;
-            System.out.println(fData[i]);
-        }
     }
 }
