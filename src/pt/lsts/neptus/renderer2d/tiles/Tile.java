@@ -384,7 +384,7 @@ public abstract class Tile implements /*Renderer2DPainter,*/ Serializable {
             return false;
         
         if (image == null) {
-            NeptusLog.pub().warn(String.format("Tile image %tile", getTileFilePath()));
+            NeptusLog.pub().warn(String.format("Tile image %s is null!", getTileFilePath()));
             return false;
         }
 
