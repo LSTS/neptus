@@ -40,6 +40,7 @@ import java.util.List;
 
 import pt.lsts.imc.BeamConfig;
 import pt.lsts.imc.SonarData;
+import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.mp.SystemPositionAndAttitude;
 
 /**
@@ -47,53 +48,84 @@ import pt.lsts.neptus.mp.SystemPositionAndAttitude;
  *
  */
 public class MultibeamUtil {
+    private static final long hasIntensityMask = (1L << 0);
+    private static final long equiDistantMask = (1L << 1);
 
     public static BathymetrySwath getMultibeamSwath(SonarData sonarData, SystemPositionAndAttitude pose) {
         byte[] dataBytes = sonarData.getData();
-        double scaleFactor = sonarData.getScaleFactor();
+        double dataScaleFactor = sonarData.getScaleFactor();
         short bitsPerPoint = sonarData.getBitsPerPoint();
 
         ByteBuffer bytes = ByteBuffer.wrap(dataBytes);
         bytes.order(ByteOrder.LITTLE_ENDIAN);
 
-        // fetch necessary data to compute BathymetrySwath's points
-        int numberOfBeams = bytes.getShort() & 0xFFFF;
-        double startAngleDeg = ((double) bytes.getShort()) / 100.0;
+        short numberOfPoints = (short) (bytes.getShort() & 0xFFFF);
+        double startAngleRads = bytes.getDouble();
+        byte flags = bytes.get();
+        boolean flagHasIntensities = (flags & hasIntensityMask) != 0;
+        boolean flagEquiDistant = (flags & equiDistantMask) != 0;
+        double angleStepsScaleFactor = 1;
+        double intensitiesScaleFactor = 1;
+        double[] angleSteps;
+        double ranges[];
+        double[] intensities = null;
 
-        int numberOfBytesEffData = numberOfBeams * (bitsPerPoint / 8);
-        byte[] rangeByteData = new byte[numberOfBytesEffData];
-        bytes.get(rangeByteData, 0, numberOfBytesEffData);
-        byte[] intensityByteData = (numberOfBytesEffData <= bytes.remaining())
-                ? new byte[numberOfBytesEffData] : null;        
-        if (intensityByteData != null)
-            bytes.get(intensityByteData, 0, numberOfBytesEffData);
-            
-        // data
-        // Pair<double[], int[]> tmp = splitRangeAndIntensity(getData(bytes, scaleFactor, bitsPerPoint));
-        double[] ranges = SidescanUtil.getData(rangeByteData, scaleFactor, bitsPerPoint);
-        long[] intensities;
-        if (intensityByteData != null) {
-            intensities = SidescanUtil.transformData(intensityByteData, bitsPerPoint);
+        // scale factors
+        if (flagEquiDistant)
+            angleStepsScaleFactor = bytes.getDouble();
+
+        if (flagHasIntensities)
+            intensitiesScaleFactor = bytes.getDouble();
+
+        // read angle steps
+        if (flagEquiDistant) {
+            int nBytes = numberOfPoints * Short.BYTES;
+            byte[] angleStepsBytes = new byte[nBytes];
+            bytes.get(angleStepsBytes);
+
+            angleSteps = SidescanUtil.getData(angleStepsBytes, angleStepsScaleFactor, (short) Short.SIZE);
         }
         else {
-            intensities = new long[numberOfBeams];
-            Arrays.fill(intensities, 0);   
+            angleSteps = new double[1];
+            angleSteps[0] = sonarData.getBeamConfig().get(0).getBeamWidth();
         }
 
-        if(ranges.length != intensities.length)
-            return null;
+        // read ranges data
+        int numberOfBytesEffData = numberOfPoints * (bitsPerPoint / 8);
+        byte[] rangeByteData = new byte[numberOfBytesEffData];
+        bytes.get(rangeByteData);
+        ranges = SidescanUtil.getData(rangeByteData, dataScaleFactor, bitsPerPoint);
 
-        double angleIncrementRad = sonarData.getBeamConfig().get(0).getBeamWidth();
+        if (flagHasIntensities) {
+            // read intensities data
+            byte[] intensityByteData = (numberOfBytesEffData <= bytes.remaining())
+                    ? new byte[numberOfBytesEffData] : null;
+            if (intensityByteData != null) {
+                bytes.get(intensityByteData, 0, numberOfBytesEffData);
+                intensities = SidescanUtil.getData(rangeByteData, intensitiesScaleFactor, bitsPerPoint);
+            }
+            else {
+                intensities = new double[numberOfPoints];
+                Arrays.fill(intensities, 0);
+                NeptusLog.pub().warn("No intensities data available");
+            }
+        }
 
+        // build Bathymetry swath's points
         BathymetryPoint[] points = new BathymetryPoint[ranges.length];
         for(int i = 0; i < ranges.length; i++) {
             if(ranges[i] == 0)
                 continue;
 
-            double angleDeg = startAngleDeg + Math.toDegrees(angleIncrementRad) * i;
-            float depth = (float) (ranges[i] * Math.cos(Math.toRadians(angleDeg)) + pose.getPosition().getDepth());
+            double angleRads;
+            if(!flagEquiDistant)
+                angleRads = startAngleRads + Math.toDegrees(angleSteps[0]) * i;
+            else
+                angleRads = startAngleRads + angleSteps[i];
 
-            double x = ranges[i] * Math.sin(Math.toRadians(angleDeg));
+            float depth = (float) (ranges[i] * Math.cos(angleRads) + pose.getPosition().getDepth());
+
+            double x = ranges[i] * Math.sin(angleRads);
             double yawAngle = -pose.getYaw();
 
             float north = (float) (x * Math.sin(yawAngle));
