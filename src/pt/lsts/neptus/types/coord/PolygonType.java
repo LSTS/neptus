@@ -33,8 +33,13 @@ package pt.lsts.neptus.types.coord;
 
 import java.awt.Color;
 import java.awt.Graphics2D;
+import java.awt.Shape;
 import java.awt.geom.AffineTransform;
+import java.awt.geom.Area;
+import java.awt.geom.GeneralPath;
+import java.awt.geom.Line2D;
 import java.awt.geom.Point2D;
+import java.awt.geom.Rectangle2D;
 import java.io.StringReader;
 import java.io.StringWriter;
 import java.util.ArrayList;
@@ -67,6 +72,8 @@ public class PolygonType implements Renderer2DPainter {
 
     private Color color = Color.RED.darker();
 
+    protected GeneralPath coverage = null;
+
     public String getId() {
         return id;
     }
@@ -77,6 +84,7 @@ public class PolygonType implements Renderer2DPainter {
 
     /**
      * Add a polygon vertex
+     * 
      * @param latDegs the latitude of the vertex to add
      * @param lonDegs the longitude of the vertex to add
      */
@@ -89,7 +97,7 @@ public class PolygonType implements Renderer2DPainter {
 
     /**
      * Add new vertex given its LocationType
-     * */
+     */
     public void addVertex(LocationType loc) {
         synchronized (vertices) {
             vertices.add(new Vertex(loc));
@@ -109,12 +117,12 @@ public class PolygonType implements Renderer2DPainter {
 
     /**
      * Retrieve an <strong>unmodifiable</strong> list of vertices
+     * 
      * @return list of the vertices in this polygon
      */
     public List<Vertex> getVertices() {
         return Collections.unmodifiableList(vertices);
     }
-
 
     public void removeVertex(Vertex v) {
         if (v == null)
@@ -146,6 +154,16 @@ public class PolygonType implements Renderer2DPainter {
             elem.setMyColor(color);
             elem.paint(g, renderer, renderer.getRotation());
         }
+        Point2D pt = renderer.getScreenPosition(elem.getCenterLocation());
+
+        g.translate(pt.getX(), pt.getY());
+        g.rotate(-renderer.getRotation());
+        g.scale(renderer.getZoom(), renderer.getZoom());
+        g.setColor(Color.red);
+
+        g.setColor(Color.blue);
+        if (coverage != null)
+            g.draw(coverage);
     }
 
     public void recomputePath() {
@@ -168,7 +186,7 @@ public class PolygonType implements Renderer2DPainter {
 
     @Override
     public String toString() {
-        return "Polygon ("+vertices.size()+" vertices)";
+        return "Polygon (" + vertices.size() + " vertices)";
     }
 
     public PolygonType clone() {
@@ -178,9 +196,8 @@ public class PolygonType implements Renderer2DPainter {
     }
 
     /**
-     * Given a list of locations, calculates and returns its centroid's
-     * location
-     * */
+     * Given a list of locations, calculates and returns its centroid's location
+     */
     public LocationType getCentroid() {
         List<LocationType> locations = new ArrayList<>();
         vertices.forEach(v -> locations.add(v.lt.getNewAbsoluteLatLonDepth()));
@@ -202,7 +219,7 @@ public class PolygonType implements Renderer2DPainter {
 
         @Override
         public int hashCode() {
-            return (""+lt.getLatitudeDegs()+","+lt.getLongitudeDegs()).hashCode();
+            return ("" + lt.getLatitudeDegs() + "," + lt.getLongitudeDegs()).hashCode();
         }
 
         public void setLocation(LocationType newLt) {
@@ -214,7 +231,7 @@ public class PolygonType implements Renderer2DPainter {
         }
 
         public double getLatitudeDegs() {
-         return lt.getNewAbsoluteLatLonDepth().getLatitudeDegs();
+            return lt.getNewAbsoluteLatLonDepth().getLatitudeDegs();
         }
 
         public double getLongitudeDegs() {
@@ -231,7 +248,7 @@ public class PolygonType implements Renderer2DPainter {
 
     /**
      * Rotate this polygon by yaw rads
-     * */
+     */
     public void rotate(double yawRads) {
         synchronized (vertices) {
             LocationType pivot = elem.getCenterPoint().getNewAbsoluteLatLonDepth();
@@ -251,9 +268,10 @@ public class PolygonType implements Renderer2DPainter {
         }
         recomputePath();
     }
-    
+
     public Pair<Double, Double> getDiameterAndAngle() {
-        ArrayList<Point2D> points = new ArrayList<>();
+        GeneralPath path = new GeneralPath();
+        path.moveTo(0, 0);
 
         synchronized (vertices) {
             if (vertices.isEmpty())
@@ -262,67 +280,124 @@ public class PolygonType implements Renderer2DPainter {
             Vertex pivot = vertices.get(0);
             for (Vertex v : vertices) {
                 double[] offsets = v.getLocation().getOffsetFrom(pivot.getLocation());
-                points.add(new Point2D.Double(offsets[0], offsets[1]));
+                path.lineTo(offsets[0], offsets[1]);
             }
         }
+        path.closePath();
 
         double minAngle = 0, minDiameter = Double.MAX_VALUE;
 
         for (double theta = 0; theta < 180; theta += 0.1) {
             AffineTransform t = AffineTransform.getRotateInstance(Math.toRadians(theta));
-            ArrayList<Point2D> result = new ArrayList<>();
+            Shape rotated = t.createTransformedShape(path);
 
-            double minY = 0;
-            double maxY = 0;
-            for (Point2D pt : points) {
-                Point2D tmp = new Point2D.Double();
-                t.transform(pt, tmp);
-                result.add(tmp);
-                if (tmp.getY() < minY)
-                    minY = tmp.getY();
-                if (tmp.getY() > maxY)
-                    maxY = tmp.getY();
-            }
-            double diam = maxY - minY;
-            if (diam < minDiameter) {
-                minDiameter = diam;
+            if (rotated.getBounds2D().getHeight() < minDiameter) {
+                minDiameter = rotated.getBounds2D().getHeight();
                 minAngle = theta;
             }
         }
 
-        System.out.println(minAngle+", "+minDiameter);
-        
         return new Pair<Double, Double>(minDiameter, minAngle);
     }
-    
+
     public double getDiameter() {
-        return getDiameterAndAngle().first();        
+        return getDiameterAndAngle().first();
     }
-    
+
+    public ArrayList<LocationType> getCoveragePath(double swathWidth) {
+        Pair<Double, Double> diamAng = getDiameterAndAngle();
+        coverage = new GeneralPath();
+
+        ArrayList<Point2D> points = new ArrayList<>();
+        synchronized (vertices) {
+            if (vertices.isEmpty())
+                return new ArrayList<>();
+            Vertex pivot = vertices.get(0);
+            for (Vertex v : vertices) {
+                double[] offsets = v.getLocation().getOffsetFrom(pivot.getLocation());
+                points.add(new Point2D.Double(offsets[0], offsets[1]));
+            }
+        }
+
+        Point2D[] original = points.toArray(new Point2D[0]);
+        Point2D[] dest = new Point2D[points.size()];
+
+        AffineTransform t = AffineTransform.getRotateInstance(Math.toRadians(diamAng.second()));
+        AffineTransform inverse = AffineTransform.getRotateInstance(Math.toRadians(270 - diamAng.second()));
+        t.transform(original, 0, dest, 0, original.length);
+
+        GeneralPath path = new GeneralPath();
+        path.moveTo(0, 0);
+        double xcoords[] = new double[dest.length];
+        double ycoords[] = new double[dest.length];
+        for (int i = 0; i < dest.length; i++) {
+            xcoords[i] = dest[i].getX();
+            ycoords[i] = dest[i].getY();
+            path.lineTo(dest[i].getX(), dest[i].getY());
+        }
+        path.lineTo(0, 0);
+        path.closePath();
+        Rectangle2D rect = path.getBounds2D();
+        double margin = (rect.getHeight() % swathWidth) / 2;
+
+        ArrayList<LocationType> ret = new ArrayList<>();
+
+        int count = 0;
+        for (double y = margin; y < rect.getHeight(); y += swathWidth, count++) {
+
+            Point2D pt1 = new Point2D.Double(rect.getMinX(), rect.getMinY() + y);
+            Point2D pt2 = new Point2D.Double(rect.getMaxX(), rect.getMinY() + y);
+            Line2D.Double lineBefore = new Line2D.Double(pt1, pt2);
+
+            Area a = new Area(path);
+            a.intersect(new Area(lineBefore.getBounds()));
+            Rectangle2D intersection = a.getBounds2D();
+
+            pt1.setLocation(intersection.getMinX(), pt1.getY());
+            pt2.setLocation(intersection.getMaxX(), pt1.getY());
+            inverse.transform(pt1, pt1);
+            inverse.transform(pt2, pt2);
+
+            LocationType pivot = new LocationType(vertices.get(0).getLocation());
+
+            if (count % 2 == 0) {
+                ret.add(new LocationType(pivot).translatePosition(pt1.getX(), pt1.getY(), 0));
+                ret.add(new LocationType(pivot).translatePosition(pt2.getX(), pt2.getY(), 0));
+            }
+            else {
+                ret.add(new LocationType(pivot).translatePosition(pt2.getX(), pt2.getY(), 0));
+                ret.add(new LocationType(pivot).translatePosition(pt1.getX(), pt1.getY(), 0));
+            }
+        }
+
+        return ret;
+    }
+
     public static void main(String[] args) {
         PolygonType pt = new PolygonType();
-        
+        pt.setColor(Color.yellow);
         LocationType loc = new LocationType(41, -8);
-        
+
         LocationType loc1 = new LocationType(loc).translatePosition(-123, 34, 0);
-        LocationType loc2 = new LocationType(loc).translatePosition(-290, 140, 0);
-        LocationType loc3 = new LocationType(loc).translatePosition(-158, 380, 0);
+        LocationType loc2 = new LocationType(loc).translatePosition(-290, -140, 0);
+        LocationType loc3 = new LocationType(loc).translatePosition(-108, 380, 0);
         LocationType loc4 = new LocationType(loc).translatePosition(130, 70, 0);
-        
+
         pt.addVertex(loc);
         pt.addVertex(loc1);
         pt.addVertex(loc2);
         pt.addVertex(loc3);
         pt.addVertex(loc4);
         pt.recomputePath();
-        
-        pt.getDiameter();
-        
+
+        System.out.println(System.currentTimeMillis());
+        pt.getCoveragePath(20);
+        System.out.println(System.currentTimeMillis());
+
         StateRenderer2D r2d = new StateRenderer2D(loc);
-        
+
         r2d.addPostRenderPainter(pt, "Polygon");
         GuiUtils.testFrame(r2d);
-        
-        
+
     }
 }
