@@ -49,7 +49,7 @@ import pt.lsts.neptus.mp.SystemPositionAndAttitude;
  */
 public class MultibeamUtil {
     private static final long hasIntensityMask = (1L << 0);
-    private static final long equiDistantMask = (1L << 1);
+    private static final long hasAngleStepsMask = (1L << 1);
 
     public static BathymetrySwath getMultibeamSwath(SonarData sonarData, SystemPositionAndAttitude pose) {
         byte[] dataBytes = sonarData.getData();
@@ -63,7 +63,7 @@ public class MultibeamUtil {
         double startAngleRads = bytes.getDouble();
         byte flags = bytes.get();
         boolean flagHasIntensities = (flags & hasIntensityMask) != 0;
-        boolean flagEquiDistant = (flags & equiDistantMask) != 0;
+        boolean flagHasAngleSteps = (flags & hasAngleStepsMask) != 0;
         double angleStepsScaleFactor = 1;
         double intensitiesScaleFactor = 1;
         double[] angleSteps;
@@ -71,14 +71,14 @@ public class MultibeamUtil {
         double[] intensities = null;
 
         // scale factors
-        if (flagEquiDistant)
+        if (flagHasAngleSteps)
             angleStepsScaleFactor = bytes.getDouble();
 
         if (flagHasIntensities)
             intensitiesScaleFactor = bytes.getDouble();
 
         // read angle steps
-        if (flagEquiDistant) {
+        if (flagHasAngleSteps) {
             int nBytes = numberOfPoints * Short.BYTES;
             byte[] angleStepsBytes = new byte[nBytes];
             bytes.get(angleStepsBytes);
@@ -118,7 +118,7 @@ public class MultibeamUtil {
                 continue;
 
             double angleRads;
-            if(!flagEquiDistant)
+            if(!flagHasAngleSteps)
                 angleRads = startAngleRads + angleSteps[0] * i;
             else
                 angleRads = startAngleRads + angleSteps[i];
