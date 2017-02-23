@@ -119,7 +119,7 @@ public class MultibeamUtil {
 
             double angleRads;
             if(!flagEquiDistant)
-                angleRads = startAngleRads + Math.toDegrees(angleSteps[0]) * i;
+                angleRads = startAngleRads + angleSteps[0] * i;
             else
                 angleRads = startAngleRads + angleSteps[i];
 
