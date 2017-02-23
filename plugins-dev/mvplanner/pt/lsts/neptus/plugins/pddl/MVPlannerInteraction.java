@@ -50,6 +50,7 @@ import java.util.List;
 import java.util.Vector;
 
 import javax.swing.JFileChooser;
+import javax.swing.JLabel;
 import javax.swing.JPopupMenu;
 import javax.swing.ProgressMonitor;
 
@@ -527,6 +528,28 @@ public class MVPlannerInteraction extends ConsoleInteraction {
         super.mouseReleased(event, source);
     }
 
+    @Override
+    public void mouseMoved(MouseEvent event, StateRenderer2D source) {
+        
+        Point2D mouse_pt = event.getPoint();
+        MVPlannerTask task = null;
+        
+        synchronized (tasks) {
+            for (MVPlannerTask t : tasks) {
+                Point2D task_pt = source.getScreenPosition(t.getCenterLocation());
+                
+                if (task_pt.distance(mouse_pt) < 5) {
+                    task = t;
+                    System.out.println(t.name);
+                    break;
+                }            
+            }
+        }
+        
+        
+        
+    }
+    
     @Override
     public void mouseDragged(MouseEvent event, StateRenderer2D source) {
         if (selectedTask == null) {

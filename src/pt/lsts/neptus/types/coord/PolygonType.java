@@ -33,6 +33,8 @@ package pt.lsts.neptus.types.coord;
 
 import java.awt.Color;
 import java.awt.Graphics2D;
+import java.awt.geom.AffineTransform;
+import java.awt.geom.Point2D;
 import java.io.StringReader;
 import java.io.StringWriter;
 import java.util.ArrayList;
@@ -43,9 +45,11 @@ import javax.xml.bind.JAXB;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlType;
 
+import pt.lsts.neptus.data.Pair;
 import pt.lsts.neptus.renderer2d.Renderer2DPainter;
 import pt.lsts.neptus.renderer2d.StateRenderer2D;
 import pt.lsts.neptus.types.map.PathElement;
+import pt.lsts.neptus.util.GuiUtils;
 
 /**
  * @author zp
@@ -247,25 +251,78 @@ public class PolygonType implements Renderer2DPainter {
         }
         recomputePath();
     }
+    
+    public Pair<Double, Double> getDiameterAndAngle() {
+        ArrayList<Point2D> points = new ArrayList<>();
 
+        synchronized (vertices) {
+            if (vertices.isEmpty())
+                return new Pair<Double, Double>(0.0, 0.0);
+
+            Vertex pivot = vertices.get(0);
+            for (Vertex v : vertices) {
+                double[] offsets = v.getLocation().getOffsetFrom(pivot.getLocation());
+                points.add(new Point2D.Double(offsets[0], offsets[1]));
+            }
+        }
+
+        double minAngle = 0, minDiameter = Double.MAX_VALUE;
+
+        for (double theta = 0; theta < 180; theta += 0.1) {
+            AffineTransform t = AffineTransform.getRotateInstance(Math.toRadians(theta));
+            ArrayList<Point2D> result = new ArrayList<>();
+
+            double minY = 0;
+            double maxY = 0;
+            for (Point2D pt : points) {
+                Point2D tmp = new Point2D.Double();
+                t.transform(pt, tmp);
+                result.add(tmp);
+                if (tmp.getY() < minY)
+                    minY = tmp.getY();
+                if (tmp.getY() > maxY)
+                    maxY = tmp.getY();
+            }
+            double diam = maxY - minY;
+            if (diam < minDiameter) {
+                minDiameter = diam;
+                minAngle = theta;
+            }
+        }
+
+        System.out.println(minAngle+", "+minDiameter);
+        
+        return new Pair<Double, Double>(minDiameter, minAngle);
+    }
+    
+    public double getDiameter() {
+        return getDiameterAndAngle().first();        
+    }
+    
     public static void main(String[] args) {
         PolygonType pt = new PolygonType();
-        pt.addVertex(41, -8);
-        pt.addVertex(42, -8);
-        pt.addVertex(42, -7);
-        pt.addVertex(41, -8);
-
-        StringWriter writer = new StringWriter();
-        JAXB.marshal(pt, writer);
-        String xml1 = writer.toString();
-        System.out.println(xml1);
-
-        writer = new StringWriter();
-        PolygonType other = JAXB.unmarshal(new StringReader(xml1), PolygonType.class);
-        JAXB.marshal(other, writer);
-        String xml2 = writer.toString();
-        System.out.println(xml2);
-        System.out.println(xml1.equals(xml2));
-        System.out.println(other.clone());
+        
+        LocationType loc = new LocationType(41, -8);
+        
+        LocationType loc1 = new LocationType(loc).translatePosition(-123, 34, 0);
+        LocationType loc2 = new LocationType(loc).translatePosition(-290, 140, 0);
+        LocationType loc3 = new LocationType(loc).translatePosition(-158, 380, 0);
+        LocationType loc4 = new LocationType(loc).translatePosition(130, 70, 0);
+        
+        pt.addVertex(loc);
+        pt.addVertex(loc1);
+        pt.addVertex(loc2);
+        pt.addVertex(loc3);
+        pt.addVertex(loc4);
+        pt.recomputePath();
+        
+        pt.getDiameter();
+        
+        StateRenderer2D r2d = new StateRenderer2D(loc);
+        
+        r2d.addPostRenderPainter(pt, "Polygon");
+        GuiUtils.testFrame(r2d);
+        
+        
     }
 }
