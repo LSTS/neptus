@@ -41,6 +41,7 @@ import java.awt.geom.AffineTransform;
 import java.awt.geom.Ellipse2D;
 import java.awt.geom.Point2D;
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Vector;
 
@@ -56,6 +57,7 @@ import org.mozilla.javascript.edu.emory.mathcs.backport.java.util.Arrays;
 import com.l2fprod.common.propertysheet.DefaultProperty;
 import com.l2fprod.common.propertysheet.Property;
 
+import pt.lsts.imc.IMCMessage;
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.console.ConsoleInteraction;
 import pt.lsts.neptus.gui.LocationPanel;
@@ -329,7 +331,54 @@ public class AreaSurvey extends FollowPath {
         PluginUtils.setPluginProperties(this, properties);
         recalcPoints();
     }
+    
+    public IMCMessage serializeToIMC() {
+        IMCMessage msg = super.serializeToIMC();
+        
+        LinkedHashMap<String, Object> settings = new LinkedHashMap<>();
+        settings.put("Pattern", getName());
+        String pol = "";
+        for (Vertex v : polygon.getVertices()) {
+            pol += v.getLatitudeDegs() + ":"+v.getLongitudeDegs()+":";
+        }
+        settings.put("polygon", pol);
+        if (calculateAngle)
+            settings.put("angle", ""+angle);
+        settings.put("corner", corner.toString());
+        settings.put("step", ""+horizontalStep);
 
+        msg.setValue("custom", IMCMessage.encodeTupleList(settings));
+
+        return msg;
+    }
+    
+    @Override
+    public void parseIMCMessage(IMCMessage message) {
+        super.parseIMCMessage(message);
+
+        LinkedHashMap<String, String> customValues = message.getTupleList("custom");
+        customSettings.clear();
+        String pattern = customValues.remove("Pattern");
+        if (!getName().equalsIgnoreCase(pattern))
+            return;
+
+        String pol[] = customValues.get("polygon").split(":");
+        for (int i = 0; i < pol.length - 1; i +=2) {
+            LocationType loc = new LocationType(Double.valueOf(pol[i]), Double.valueOf(pol[i+1]));
+            polygon.addVertex(loc);
+        }
+        
+        if (customValues.get("angle") != null) {
+            calculateAngle = false;
+            angle = Double.valueOf(customValues.get("angle"));
+        }
+        
+        horizontalStep = Double.valueOf(customValues.get("step"));
+        corner = Corner.valueOf(customValues.get("corner"));
+        
+        recalcPoints();
+    }
+    
     public Object clone() {
         AreaSurvey clone = (AreaSurvey) super.clone();
         clone.corner = corner;

@@ -172,9 +172,11 @@ public class PolygonType implements Renderer2DPainter {
     public void paint(Graphics2D g, StateRenderer2D renderer) {
 
         if (elem == null)
-            return;
+            recomputePath();
         
-        if (elem != null) {
+        if (elem == null)
+            return;
+        else {
             elem.setMyColor(color);
             elem.paint(g, renderer, renderer.getRotation());
         }
@@ -216,7 +218,6 @@ public class PolygonType implements Renderer2DPainter {
     public PolygonType clone() {
         StringWriter writer = new StringWriter();
         JAXB.marshal(this, writer);
-        System.out.println(writer.toString());
         return JAXB.unmarshal(new StringReader(writer.toString()), getClass());
     }
 
@@ -226,7 +227,6 @@ public class PolygonType implements Renderer2DPainter {
     public LocationType getCentroid() {
         List<LocationType> locations = new ArrayList<>();
         vertices.forEach(v -> locations.add(v.lt.getNewAbsoluteLatLonDepth()));
-
         return CoordinateUtil.computeLocationsCentroid(locations);
     }
 

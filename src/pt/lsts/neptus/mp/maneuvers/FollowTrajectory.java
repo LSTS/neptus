@@ -598,7 +598,8 @@ StateRendererInteraction, IMCSerialization, PathProvider {
         double lastTime = 0;
         for (int i = 0; i < points.size(); i++) {
             try {
-                lastTime += points.get(i)[T];
+                if (points.get(i).length > 3)
+                    lastTime += points.get(i)[T];
             }
             catch (Exception e) {
                 e.printStackTrace();
