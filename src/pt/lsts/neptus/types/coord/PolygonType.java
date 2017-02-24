@@ -280,20 +280,26 @@ public class PolygonType implements Renderer2DPainter {
      */
     public void rotate(double yawRads) {
         synchronized (vertices) {
-            LocationType pivot = elem.getCenterPoint().getNewAbsoluteLatLonDepth();
+            
+            LocationType pivot = elem.getCenterLocation();
+            LocationType center = elem.getCenterPoint();
+            double centerOffsets[] = center.getOffsetFrom(pivot);
+            
+            Point2D[] pts = new Point2D.Double[vertices.size()];
+            int i = 0;
             for (PolygonType.Vertex v : vertices) {
-                v.lt.convertToAbsoluteLatLonDepth();
-
-                double pivotLat = pivot.getLatitudeRads();
-                double pivotLon = pivot.getLongitudeRads();
-                double shiftLat = v.lt.getLatitudeRads() - pivotLat;
-                double shiftLon = v.lt.getLongitudeRads() - pivotLon;
-
-                double newLon = pivotLon + Math.cos(yawRads) * shiftLon - Math.sin(yawRads) * shiftLat;
-                double newLat = pivotLat + Math.sin(yawRads) * shiftLon + Math.cos(yawRads) * shiftLat;
-
-                v.setLocation(new LocationType(Math.toDegrees(newLat), Math.toDegrees(newLon)));
+                double ofs[] = v.getLocation().getOffsetFrom(pivot);
+                pts[i++] = new Point2D.Double(ofs[0], ofs[1]);
             }
+            
+            AffineTransform t = AffineTransform.getRotateInstance(yawRads, centerOffsets[0], centerOffsets[1]);
+            t.transform(pts, 0, pts, 0, pts.length);
+            
+            for (i = 0; i < pts.length; i++) {
+                LocationType loc = new LocationType(pivot);
+                loc.translatePosition(pts[i].getX(), pts[i].getY(), 0);
+                vertices.get(i).setLocation(loc);
+            }            
         }
         recomputePath();
     }

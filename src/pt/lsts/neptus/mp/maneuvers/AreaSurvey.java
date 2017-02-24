@@ -109,7 +109,7 @@ public class AreaSurvey extends FollowPath {
     }
 
     public AreaSurvey() {
-        editingHelpText = "Shift+Click to rotate";
+        editingHelpText = "Right Click to add/remove vertices | Shift+Click to rotate";
     }
 
     @Override
