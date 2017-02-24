@@ -89,8 +89,25 @@ public class PolygonType implements Renderer2DPainter {
      * @param lonDegs the longitude of the vertex to add
      */
     public void addVertex(double latDegs, double lonDegs) {
+        double minDist = Double.MAX_VALUE;
+        int pos = 0;
         synchronized (vertices) {
-            vertices.add(new Vertex(latDegs, lonDegs));
+            if (vertices.size() < 2)
+                vertices.add(new Vertex(latDegs, lonDegs));
+            else {
+                LocationType loc = new LocationType(latDegs, lonDegs);
+
+                for (int i = 1; i < vertices.size(); i++) {
+                    double dist = loc.getDistanceInMeters(vertices.get(i - 1).getLocation())
+                            + loc.getDistanceInMeters(vertices.get(i).getLocation());
+                    if (dist < minDist) {
+                        minDist = dist;
+                        pos = i;
+                    }
+                }
+                
+                vertices.add(pos, new Vertex(latDegs, lonDegs));
+            }
         }
         recomputePath();
     }
@@ -135,6 +152,8 @@ public class PolygonType implements Renderer2DPainter {
 
     public void setColor(Color c) {
         color = c;
+        if (elem != null)
+            elem.setMyColor(c);
     }
 
     /**
@@ -142,6 +161,8 @@ public class PolygonType implements Renderer2DPainter {
      */
     public final void setFilled(boolean filled) {
         this.filled = filled;
+        if (elem != null)
+            elem.setFilled(filled);
     }
 
     /**
@@ -150,6 +171,9 @@ public class PolygonType implements Renderer2DPainter {
     @Override
     public void paint(Graphics2D g, StateRenderer2D renderer) {
 
+        if (elem == null)
+            return;
+        
         if (elem != null) {
             elem.setMyColor(color);
             elem.paint(g, renderer, renderer.getRotation());
@@ -163,7 +187,7 @@ public class PolygonType implements Renderer2DPainter {
 
         g.setColor(Color.blue);
         if (coverage != null)
-            g.draw(coverage);
+            g.draw(coverage);        
     }
 
     public void recomputePath() {
@@ -192,6 +216,7 @@ public class PolygonType implements Renderer2DPainter {
     public PolygonType clone() {
         StringWriter writer = new StringWriter();
         JAXB.marshal(this, writer);
+        System.out.println(writer.toString());
         return JAXB.unmarshal(new StringReader(writer.toString()), getClass());
     }
 
@@ -208,7 +233,11 @@ public class PolygonType implements Renderer2DPainter {
     @XmlType
     public static class Vertex {
         private LocationType lt;
-
+        
+        public Vertex() {
+            lt = new LocationType();
+        }
+        
         public Vertex(LocationType lt) {
             this.lt = new LocationType(lt);
         }
@@ -297,18 +326,16 @@ public class PolygonType implements Renderer2DPainter {
             }
         }
 
-        return new Pair<Double, Double>(minDiameter, minAngle);
+        return new Pair<Double, Double>(minDiameter, Math.toRadians(minAngle));
     }
 
     public double getDiameter() {
         return getDiameterAndAngle().first();
     }
 
-    public ArrayList<LocationType> getCoveragePath(double swathWidth) {
-        Pair<Double, Double> diamAng = getDiameterAndAngle();
-        coverage = new GeneralPath();
-
+    public ArrayList<LocationType> getCoveragePath(double angle, double swathWidth, int corner) {
         ArrayList<Point2D> points = new ArrayList<>();
+        coverage = new GeneralPath();
         synchronized (vertices) {
             if (vertices.isEmpty())
                 return new ArrayList<>();
@@ -322,8 +349,8 @@ public class PolygonType implements Renderer2DPainter {
         Point2D[] original = points.toArray(new Point2D[0]);
         Point2D[] dest = new Point2D[points.size()];
 
-        AffineTransform t = AffineTransform.getRotateInstance(Math.toRadians(diamAng.second()));
-        AffineTransform inverse = AffineTransform.getRotateInstance(Math.toRadians(270 - diamAng.second()));
+        AffineTransform t = AffineTransform.getRotateInstance(angle);
+        AffineTransform inverse = AffineTransform.getRotateInstance(Math.toRadians(270) - angle);
         t.transform(original, 0, dest, 0, original.length);
 
         GeneralPath path = new GeneralPath();
@@ -342,11 +369,17 @@ public class PolygonType implements Renderer2DPainter {
 
         ArrayList<LocationType> ret = new ArrayList<>();
 
-        int count = 0;
+                
+        int count = corner%2;
         for (double y = margin; y < rect.getHeight(); y += swathWidth, count++) {
 
-            Point2D pt1 = new Point2D.Double(rect.getMinX(), rect.getMinY() + y);
-            Point2D pt2 = new Point2D.Double(rect.getMaxX(), rect.getMinY() + y);
+            double pos = y;
+            
+            if (corner > 1)
+                pos = rect.getHeight() - y;
+            
+            Point2D pt1 = new Point2D.Double(rect.getMinX(), rect.getMinY() + pos);
+            Point2D pt2 = new Point2D.Double(rect.getMaxX(), rect.getMinY() + pos);
             Line2D.Double lineBefore = new Line2D.Double(pt1, pt2);
 
             Area a = new Area(path);
@@ -361,16 +394,21 @@ public class PolygonType implements Renderer2DPainter {
             LocationType pivot = new LocationType(vertices.get(0).getLocation());
 
             if (count % 2 == 0) {
-                ret.add(new LocationType(pivot).translatePosition(pt1.getX(), pt1.getY(), 0));
-                ret.add(new LocationType(pivot).translatePosition(pt2.getX(), pt2.getY(), 0));
+                ret.add(new LocationType(pivot).translatePosition(-pt1.getY(), pt1.getX(), 0));
+                ret.add(new LocationType(pivot).translatePosition(-pt2.getY(), pt2.getX(), 0));
             }
             else {
-                ret.add(new LocationType(pivot).translatePosition(pt2.getX(), pt2.getY(), 0));
-                ret.add(new LocationType(pivot).translatePosition(pt1.getX(), pt1.getY(), 0));
+                ret.add(new LocationType(pivot).translatePosition(-pt2.getY(), pt2.getX(), 0));
+                ret.add(new LocationType(pivot).translatePosition(-pt1.getY(), pt1.getX(), 0));
             }
         }
 
         return ret;
+    }
+    
+    public ArrayList<LocationType> getCoveragePath(double swathWidth, int corner) {
+        Pair<Double, Double> diamAng = getDiameterAndAngle();
+        return getCoveragePath(diamAng.second(), swathWidth, corner);
     }
 
     public static void main(String[] args) {
@@ -391,7 +429,7 @@ public class PolygonType implements Renderer2DPainter {
         pt.recomputePath();
 
         System.out.println(System.currentTimeMillis());
-        pt.getCoveragePath(20);
+        pt.getCoveragePath(20, 0);
         System.out.println(System.currentTimeMillis());
 
         StateRenderer2D r2d = new StateRenderer2D(loc);
