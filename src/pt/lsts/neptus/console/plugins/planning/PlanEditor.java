@@ -335,8 +335,8 @@ public class PlanEditor extends InteractionAdapter implements Renderer2DPainter,
             else {
                 setPlan(plan);
             }
+            updateSim();
         }
-
         else {
             if (delegate != null) {
                 delegate.setActive(false, source);
@@ -361,6 +361,8 @@ public class PlanEditor extends InteractionAdapter implements Renderer2DPainter,
 
             overlay = null;
         }
+        
+        
     }
 
     @SuppressWarnings("serial")
