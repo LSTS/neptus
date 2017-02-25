@@ -67,6 +67,7 @@ import java.util.Vector;
 import javax.swing.AbstractAction;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
+import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JComponent;
 import javax.swing.JDialog;
 import javax.swing.JEditorPane;
@@ -124,8 +125,7 @@ import pt.lsts.neptus.plugins.NeptusProperty.LEVEL;
 import pt.lsts.neptus.plugins.PluginDescription;
 import pt.lsts.neptus.plugins.PluginDescription.CATEGORY;
 import pt.lsts.neptus.plugins.PluginUtils;
-import pt.lsts.neptus.plugins.update.IPeriodicUpdates;
-import pt.lsts.neptus.plugins.update.PeriodicUpdatesService;
+import pt.lsts.neptus.plugins.update.Periodic;
 import pt.lsts.neptus.renderer2d.InteractionAdapter;
 import pt.lsts.neptus.renderer2d.LayerPriority;
 import pt.lsts.neptus.renderer2d.Renderer2DPainter;
@@ -154,7 +154,7 @@ import pt.lsts.neptus.util.conf.ConfigFetch;
 @PluginDescription(name = "Plan Edition", icon = "images/planning/plan_editor.png", 
     author = "José Pinto, Paulo Dias", version = "1.6", category = CATEGORY.INTERFACE)
 @LayerPriority(priority = 100)
-public class PlanEditor extends InteractionAdapter implements Renderer2DPainter, IPeriodicUpdates,
+public class PlanEditor extends InteractionAdapter implements Renderer2DPainter,
         MissionChangeListener {
 
     private static final long serialVersionUID = 1L;
@@ -175,7 +175,7 @@ public class PlanEditor extends InteractionAdapter implements Renderer2DPainter,
     protected JLabel statsLabel = null;
     protected static final String maneuverPreamble = "[Neptus:Maneuver]\n";
     protected PlanSimulationOverlay overlay = null;
-
+    
     public enum ToolbarLocation {
         Right,
         Left
@@ -196,16 +196,14 @@ public class PlanEditor extends InteractionAdapter implements Renderer2DPainter,
     @NeptusProperty(name = "Toolbar Location", userLevel = LEVEL.REGULAR)
     public ToolbarLocation toolbarLocation = ToolbarLocation.Right;
 
+    @NeptusProperty(name = "Show Plan Simulation", userLevel = LEVEL.REGULAR)
+    protected boolean showSimulation;
+    
     /**
      * @param console
      */
     public PlanEditor(ConsoleLayout console) {
         super(console);
-    }
-
-    @Override
-    public long millisBetweenUpdates() {
-        return 1000;
     }
 
     protected ManeuverPropertiesPanel getPropertiesPanel() {
@@ -214,8 +212,22 @@ public class PlanEditor extends InteractionAdapter implements Renderer2DPainter,
         return propertiesPanel;
     }
 
-    @Override
-    public boolean update() {
+    @Periodic(millisBetweenUpdates=20000)
+    public void updateSim() {
+        if (!isActive() || !showSimulation || plan == null || !plan.hasInitialManeuver())
+            overlay = null;
+        else
+            overlay = new PlanSimulationOverlay(plan, 0, 6, null);
+        
+        
+    }
+    
+    @Periodic(millisBetweenUpdates=1000)
+    public void update() {
+        
+        if (!isActive())
+            return;
+        
         try {
             Maneuver curManeuver = getPropertiesPanel().getManeuver();
 
@@ -240,10 +252,10 @@ public class PlanEditor extends InteractionAdapter implements Renderer2DPainter,
         catch (Exception e) {
             e.printStackTrace();
         }
-
-        return true;
     }
 
+    
+    
     private final UndoManager manager = new UndoManager() {
         private static final long serialVersionUID = 1L;
 
@@ -278,8 +290,6 @@ public class PlanEditor extends InteractionAdapter implements Renderer2DPainter,
         getPropertiesPanel().setManeuver(null);
         this.renderer = source;
         if (mode) {
-            PeriodicUpdatesService.register(this);
-
             Container c = source;
             while (c.getParent() != null && !(c.getLayout() instanceof BorderLayout))
                 c = c.getParent();
@@ -328,8 +338,6 @@ public class PlanEditor extends InteractionAdapter implements Renderer2DPainter,
         }
 
         else {
-            PeriodicUpdatesService.unregister(this);
-
             if (delegate != null) {
                 delegate.setActive(false, source);
                 getPropertiesPanel().getEditBtn().setSelected(false);
@@ -540,6 +548,7 @@ public class PlanEditor extends InteractionAdapter implements Renderer2DPainter,
             e.printStackTrace();
         }
 
+        updateSim();
     }
 
     protected AbstractAction getUndoAction() {
@@ -687,7 +696,6 @@ public class PlanEditor extends InteractionAdapter implements Renderer2DPainter,
             g.setColor(Color.white);
             g.drawString(txt, 54, 14);
         }
-
     }
 
     /**
@@ -924,6 +932,21 @@ public class PlanEditor extends InteractionAdapter implements Renderer2DPainter,
             };
             copy.putValue(AbstractAction.SMALL_ICON, new ImageIcon(ImageUtils.getImage("images/menus/editcopy.png")));
             popup.add(copy);
+            
+            JCheckBoxMenuItem showSim = new JCheckBoxMenuItem(I18n.text("View Simulation"));
+            showSim.setSelected(showSimulation);
+            
+            showSim.addActionListener(new ActionListener()
+            {
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    showSimulation = ((JCheckBoxMenuItem)e.getSource()).isSelected();      
+                    updateSim();
+                }
+            });
+            
+            popup.add(showSim);
+            
 
             final Maneuver[] mans = planElem.getAllInterceptedManeuvers(event.getPoint());
 
@@ -1788,8 +1811,6 @@ public class PlanEditor extends InteractionAdapter implements Renderer2DPainter,
     private Maneuver addManeuverAtEnd(Point loc, String manType) {
 
         Maneuver lastMan = plan.getGraph().getLastManeuver();
-        
-        //System.out.println(Arrays.asList(plan.getGraph().getManeuversSequence()));
         
         LocationType worldLoc = renderer.getRealWorldLocation(loc);
         Maneuver man = create(manType, worldLoc, lastMan);
