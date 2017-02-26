@@ -32,6 +32,7 @@
  */
 package pt.lsts.neptus.console.plugins.planning;
 
+import java.awt.AlphaComposite;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Container;
@@ -53,6 +54,7 @@ import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
 import java.awt.geom.Point2D;
+import java.awt.image.BufferedImage;
 import java.text.Collator;
 import java.util.Arrays;
 import java.util.Collection;
@@ -118,6 +120,7 @@ import pt.lsts.neptus.mp.ManeuverLocation.Z_UNITS;
 import pt.lsts.neptus.mp.maneuvers.Goto;
 import pt.lsts.neptus.mp.maneuvers.LocatedManeuver;
 import pt.lsts.neptus.mp.preview.PlanSimulationOverlay;
+import pt.lsts.neptus.mp.preview.SimDepthProfile;
 import pt.lsts.neptus.params.ManeuverPayloadConfig;
 import pt.lsts.neptus.planeditor.PlanTransitionsSimpleEditor;
 import pt.lsts.neptus.plugins.NeptusProperty;
@@ -175,6 +178,7 @@ public class PlanEditor extends InteractionAdapter implements Renderer2DPainter,
     protected JLabel statsLabel = null;
     protected static final String maneuverPreamble = "[Neptus:Maneuver]\n";
     protected PlanSimulationOverlay overlay = null;
+    protected SimDepthProfile sdp = null;
     
     public enum ToolbarLocation {
         Right,
@@ -199,6 +203,9 @@ public class PlanEditor extends InteractionAdapter implements Renderer2DPainter,
     @NeptusProperty(name = "Show Plan Simulation", userLevel = LEVEL.REGULAR)
     protected boolean showSimulation;
     
+    @NeptusProperty(name = "Show Depth Profile", userLevel = LEVEL.REGULAR)
+    protected boolean showDepth;
+    
     /**
      * @param console
      */
@@ -214,12 +221,14 @@ public class PlanEditor extends InteractionAdapter implements Renderer2DPainter,
 
     @Periodic(millisBetweenUpdates=20000)
     public void updateSim() {
-        if (!isActive() || !showSimulation || plan == null || !plan.hasInitialManeuver())
+        if (!isActive() || (!showSimulation && !showDepth) || plan == null || !plan.hasInitialManeuver()) {
             overlay = null;
-        else
+            sdp = null;
+        }
+        else {
             overlay = new PlanSimulationOverlay(plan, 0, 6, null);
-        
-        
+            sdp = new SimDepthProfile(overlay);
+        }
     }
     
     @Periodic(millisBetweenUpdates=1000)
@@ -683,7 +692,7 @@ public class PlanEditor extends InteractionAdapter implements Renderer2DPainter,
     public void paint(Graphics2D g, StateRenderer2D renderer) {
         this.renderer = renderer;
 
-        if (overlay != null && isActive())
+        if (showSimulation && overlay != null && isActive())
             overlay.paint(g, renderer);
         
         g.setTransform(renderer.getIdentity());
@@ -700,6 +709,17 @@ public class PlanEditor extends InteractionAdapter implements Renderer2DPainter,
             g.drawString(txt, 55, 15);
             g.setColor(Color.white);
             g.drawString(txt, 54, 14);
+        }
+        
+        BufferedImage depthProfile = null;
+        if (showDepth && sdp != null && isActive()) {
+            depthProfile = sdp.getProfile();
+            if (depthProfile != null) {
+                g.setTransform(renderer.getIdentity());
+                g.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 0.8f));
+                g.drawImage(depthProfile, 10, renderer.getHeight() - 130, renderer.getWidth()-10, renderer.getHeight()-30, 0, 0,
+                        depthProfile.getWidth(), depthProfile.getHeight(), this);
+            }
         }
     }
 
@@ -735,6 +755,9 @@ public class PlanEditor extends InteractionAdapter implements Renderer2DPainter,
             planElem = null;
             return;
         }
+        
+        overlay = null;
+        sdp = null;
 
         getPropertiesPanel().setManager(null);
         parsePlan();
@@ -952,6 +975,19 @@ public class PlanEditor extends InteractionAdapter implements Renderer2DPainter,
             
             popup.add(showSim);
             
+            JCheckBoxMenuItem showDepthItem = new JCheckBoxMenuItem(I18n.text("View Depth Profile"));
+            showDepthItem.setSelected(showDepth);
+            
+            showDepthItem.addActionListener(new ActionListener()
+            {
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    showDepth = ((JCheckBoxMenuItem)e.getSource()).isSelected();      
+                    updateSim();
+                }
+            });
+            
+            popup.add(showDepthItem);
 
             final Maneuver[] mans = planElem.getAllInterceptedManeuvers(event.getPoint());
 
