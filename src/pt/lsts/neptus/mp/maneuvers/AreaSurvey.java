@@ -71,6 +71,7 @@ import pt.lsts.neptus.types.coord.LocationType;
 import pt.lsts.neptus.types.coord.PolygonType;
 import pt.lsts.neptus.types.coord.PolygonType.Vertex;
 import pt.lsts.neptus.types.map.PlanElement;
+import pt.lsts.neptus.util.XMLUtil;
 
 /**
  * This maneuver (based on FollowPath) is used to cover a polygonal area
@@ -226,7 +227,8 @@ public class AreaSurvey extends FollowPath {
             }
             else if (event.isShiftDown()) {
                 double yammount = event.getPoint().getY() - lastDragPoint.getY();
-                polygon.rotate(Math.toRadians(yammount / 10));
+                lastDragPoint = event.getPoint();
+                polygon.rotate(Math.toRadians(yammount / 3));
             }
         }
         else {
@@ -443,5 +445,10 @@ public class AreaSurvey extends FollowPath {
         catch (Exception e) {
             NeptusLog.pub().error(this, e);
         }
+    }
+    
+    public static void main(String[] args) {
+        System.out.println(XMLUtil.getAsPrettyPrintFormatedXMLString(
+                new AreaSurvey().asDocument().selectSingleNode("//maneuver").asXML()));
     }
 }
