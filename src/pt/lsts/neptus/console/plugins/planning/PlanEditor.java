@@ -683,13 +683,16 @@ public class PlanEditor extends InteractionAdapter implements Renderer2DPainter,
     public void paint(Graphics2D g, StateRenderer2D renderer) {
         this.renderer = renderer;
 
+        if (overlay != null && isActive())
+            overlay.paint(g, renderer);
+        
+        g.setTransform(renderer.getIdentity());
+        
         if (planElem != null) {
             planElem.setRenderer(renderer);
             planElem.paint((Graphics2D) g.create(), renderer);
         }
 
-        if (overlay != null && isActive())
-            overlay.paint(g, renderer);
         g.setFont(new Font("Helvetica", Font.BOLD, 14));
         if (delegate != null) {
             String txt = I18n.textf("Editing %manName - Double click to end", ((Maneuver) delegate).getId());
