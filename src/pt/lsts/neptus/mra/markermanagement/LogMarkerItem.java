@@ -36,6 +36,8 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
 
+import com.google.common.base.Joiner;
+
 import pt.lsts.neptus.mra.LogMarker;
 import pt.lsts.neptus.types.coord.LocationType;
 
@@ -235,7 +237,7 @@ public class LogMarkerItem extends LogMarker {
     public void setDrawImgPath(String drawImgPath) {
         this.drawImgPath = drawImgPath;
     }
-    
+
     /**
      * @return the photosPath
      */
@@ -249,7 +251,7 @@ public class LogMarkerItem extends LogMarker {
     public void setPhotosPath(ArrayList<String> photosPath) {
         this.photoList = photosPath;
     }
-    
+
     /**
      * @return the taglist
      */
@@ -263,14 +265,14 @@ public class LogMarkerItem extends LogMarker {
     public void setTags(HashSet<String> tags) {
         this.tagList = tags;
     }
-    
+
     /**
      * @param Add Tag to list
      */
     public void addTag(String tag) {
         tagList.add(tag);
     }
-    
+
     /**
      * @param remove tag from the list
      */
@@ -278,9 +280,12 @@ public class LogMarkerItem extends LogMarker {
         Iterator<String> it = tagList.iterator();
         while (it.hasNext()) {
             String currElement = it.next();
-            if (tag.equals(currElement)) {
+            if (tag.equals(currElement))
                 it.remove();
-            }
         }
+    }
+
+    public String getTagListString() {
+        return Joiner.on(",").join(tagList).toString();
     }
 }
