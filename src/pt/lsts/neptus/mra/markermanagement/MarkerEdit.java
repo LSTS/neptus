@@ -124,7 +124,6 @@ import pt.lsts.neptus.util.MathMiscUtils;
 import pt.lsts.neptus.util.conf.ConfigFetch;
 import pt.lsts.neptus.util.llf.LogUtils;
 
-
 /**
  * @author Manuel R.
  * TODO: On add photo, if fileName already exists, ask user to replace?
@@ -1025,7 +1024,7 @@ public class MarkerEdit extends JFrame {
         JButton showGridBtn = createBtn("images/menus/grid.png", I18n.text("Show grid"));
         JButton showRulerBtn = createBtn("images/menus/ruler.png", I18n.text("Show ruler"));
         JButton addPhotoBtn = createBtn("images/menus/attach.png", I18n.text("Add Photo(s)"));
-        JButton addTagBtn = createBtn("images/menus/attach.png", I18n.text("Add Tag(s)"));
+        JButton addTagBtn = createBtn("images/menus/comment.png", I18n.text("Add Tag(s)"));
         JButton previousMarkBtn = createBtn("images/menus/previous.png", I18n.text("Previous Mark"));
         JButton nextMarkBtn = createBtn("images/menus/next.png", I18n.text("Next Mark"));
 
