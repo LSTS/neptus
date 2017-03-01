@@ -33,10 +33,13 @@
 package pt.lsts.neptus.mra.markermanagement;
 
 
+import java.awt.BasicStroke;
 import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.Component;
 import java.awt.Desktop;
 import java.awt.Dimension;
+import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
@@ -46,10 +49,12 @@ import java.awt.Toolkit;
 import java.awt.Transparency;
 import java.awt.Window;
 import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.InputEvent;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
 import java.awt.image.BufferedImage;
 import java.io.File;
@@ -61,9 +66,11 @@ import java.text.DateFormat;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.util.ArrayList;
+import java.util.HashSet;
 
 import javax.imageio.ImageIO;
 import javax.swing.AbstractAction;
+import javax.swing.AbstractButton;
 import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.DefaultComboBoxModel;
@@ -91,14 +98,19 @@ import javax.swing.ScrollPaneConstants;
 import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
 import javax.swing.border.EmptyBorder;
+import javax.swing.border.EtchedBorder;
+import javax.swing.border.TitledBorder;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import javax.swing.filechooser.FileFilter;
+import javax.swing.plaf.basic.BasicButtonUI;
 
 import org.apache.commons.io.FileUtils;
 import org.imgscalr.Scalr;
 import org.imgscalr.Scalr.Method;
 import org.jdesktop.swingx.JXStatusBar;
+
+import com.google.common.base.Splitter;
 
 import net.miginfocom.swing.MigLayout;
 import pt.lsts.neptus.NeptusLog;
@@ -117,7 +129,6 @@ import pt.lsts.neptus.util.llf.LogUtils;
  * @author Manuel R.
  * TODO: On add photo, if fileName already exists, ask user to replace?
  * Select photo as 'main' photo (so the marker can be shown in the pdf with a representative photo)
- * Detect changes to marker fields (i.e., add photo to marker and when closing this window ask to save/discard
  * BUG: On adding photo's, frame is going to background
  */
 @SuppressWarnings("serial")
@@ -132,12 +143,13 @@ public class MarkerEdit extends JFrame {
     private static final String PHOTOS_PATH_NAME = "photos/";
     private String path;
     private int selectMarkerRowIndex = -1;
-    private JPanel imgPanel, infoPanel = new JPanel(); 
+    private JPanel imgPanel, tagPanel, infoPanel; 
     private MarkerManagement parent;
     private AbstractAction save, del;
     private LogMarkerItem selectedMarker;
     private JLabel markerImage, nameLabelValue, timeStampValue, locationValue, altitudeValue, depthValue, statusLabel;
     private JComboBox<String> classifValue;
+    private HashSet<String> tagList = new HashSet<>();
     private JTextArea annotationValue;
     private JButton rectDrawBtn, circleDrawBtn, freeDrawBtn, exportImgBtn, saveBtn;
     private JXStatusBar statusBar = new JXStatusBar();
@@ -170,27 +182,6 @@ public class MarkerEdit extends JFrame {
 
         setLocationRelativeTo(null);
         setBounds(getLocation().x, getLocation().y, WIDTH, HEIGHT);
-
-        addWindowListener(new java.awt.event.WindowAdapter() {
-            @Override
-            public void windowClosing(java.awt.event.WindowEvent windowEvent) {
-                if (selectedMarker != null)
-                    confirmExit();
-            }
-
-            private void confirmExit() {
-                int res = JOptionPane.showConfirmDialog(null, 
-                        "'"+selectedMarker.getLabel()+I18n.text("' has been modified. Save changes?"), I18n.text("Save marker"), 
-                        JOptionPane.YES_NO_OPTION,
-                        JOptionPane.QUESTION_MESSAGE);
-                if  (res == JOptionPane.YES_OPTION)
-                    saveChanges();
-                else
-                    dispose();
-            }
-
-        });
-
         setIconImage(Toolkit.getDefaultToolkit().getImage(this.getClass().getResource("/images/menus/edit.png")));
 
         infoPanel = new JPanel();
@@ -198,8 +189,9 @@ public class MarkerEdit extends JFrame {
         JPanel paintPanel = new JPanel();
         JPanel statusPanel = new JPanel(new BorderLayout());
         JPanel scrollPanel = new JPanel(new BorderLayout());
+        tagPanel = new JPanel();
         infoPanel.setBorder(new EmptyBorder(0, 1, 0, 0));
-        infoPanel.setLayout(new MigLayout("", "[5.00][3px,grow][5.00]", "[3px][][][][][][][][][][][][][][][grow]"));
+        infoPanel.setLayout(new MigLayout("", "[5.00][3px,grow][5.00]", "[3px][][][][][][][][][][][][][][][grow][grow]"));
         statusPanel.setBorder(BorderFactory.createMatteBorder(1, 0, 1, 0, Color.GRAY));
         paintPanel.setLayout(new BorderLayout());
 
@@ -252,14 +244,14 @@ public class MarkerEdit extends JFrame {
         photoListScroll.setViewportView(photoList);
         photoListScroll.setVisible(false);
 
+        tagPanel.setBorder(new TitledBorder(new EtchedBorder(), I18n.text("Tags")+":") );
+
         infoPanel.add(nameLabel, "cell 1 1");
         infoPanel.add(nameLabelValue, "cell 1 2,growx");
         infoPanel.add(timeStampLabel, "cell 1 3");
         infoPanel.add(timeStampValue, "cell 1 4,growx");
-
         infoPanel.add(locationLabel, "cell 1 5");
         infoPanel.add(locationValue, "cell 1 6,growx");
-
         infoPanel.add(altitudeLabel, "cell 1 7");
         infoPanel.add(altitudeValue, "cell 1 8,growx");
         infoPanel.add(depthLabel, "cell 1 9");
@@ -270,10 +262,12 @@ public class MarkerEdit extends JFrame {
         infoPanel.add(annotationScrollPane, "cell 1 14,growx");
         scrollPanel.add(photoListScroll, BorderLayout.CENTER);
         infoPanel.add(scrollPanel, "cell 1 15,grow");
+        infoPanel.add(tagPanel, "cell 1 16,grow");
         statusPanel.add(statusBar);
 
         getContentPane().add(new JScrollPane(infoPanel, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, 
                 JScrollPane.HORIZONTAL_SCROLLBAR_NEVER), BorderLayout.EAST);
+
         getContentPane().add(paintPanel, BorderLayout.CENTER);
         getContentPane().add(statusPanel, BorderLayout.SOUTH);
 
@@ -397,10 +391,6 @@ public class MarkerEdit extends JFrame {
         setupPhotoMenu();
     }
 
-    private void saveChanges() {
-        // TODO
-    }
-
     private void setupPhotoMenu() {
         JPopupMenu photoPopupMenu = new JPopupMenu(); 
 
@@ -493,6 +483,43 @@ public class MarkerEdit extends JFrame {
             }
         }
         return false;
+    }
+
+    private void addTag() {
+        String tagString = JOptionPane.showInputDialog(this,
+                I18n.text("Please enter tag(s) (separated by comma)"), I18n.text("Add Tag(s)"), JOptionPane.OK_CANCEL_OPTION);
+
+        if (tagString == null)
+            return;
+
+        if (tagString.isEmpty())
+            return;
+
+        Iterable<String> tagIt = Splitter.on(',')
+                .trimResults()
+                .omitEmptyStrings()
+                .split(tagString); //split by comma's
+
+        for (String tag : tagIt) {
+            tagList.add(tag);
+            //update panel
+            ButtonCloseComponent e = new ButtonCloseComponent(tag);
+            e.getTagButton().addActionListener(new ActionListener() {
+
+                @Override
+                public void actionPerformed(ActionEvent x) {
+                    selectedMarker.removeTag(tag);
+                    tagPanel.remove(e);
+                    tagPanel.revalidate();
+                    tagPanel.repaint();
+                    infoPanel.repaint();
+                }
+            });
+            tagPanel.add(e);
+        }
+
+        tagPanel.repaint();
+        infoPanel.repaint();
     }
 
     private boolean addToList(String name, String path) {
@@ -752,6 +779,7 @@ public class MarkerEdit extends JFrame {
 
     public void loadMarker(LogMarkerItem log, int rowIndex) {
         statusBar.removeAll();
+        tagPanel.removeAll();
         toDeleteDraw = false;
         selectedMarker = log;
         selectMarkerRowIndex = rowIndex;
@@ -854,9 +882,33 @@ public class MarkerEdit extends JFrame {
         annotationValue.setText(selectedMarker.getAnnotation());
         nameLabelValue.setSize(nameLabelValue.getPreferredSize() );
 
+        for (String tag : selectedMarker.getTags()) {
+            ButtonCloseComponent bt = new ButtonCloseComponent(tag);
+            tagPanel.add(bt);
+
+            bt.getTagButton().addActionListener(new ActionListener() {
+
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    selectedMarker.removeTag(tag);
+                    tagPanel.remove(bt);
+                    tagPanel.revalidate();
+                    tagPanel.repaint();
+                    infoPanel.repaint();
+                }
+            });
+
+        }
+
+        tagPanel.setPreferredSize(tagPanel.getPreferredSize());
+        //TODO FIX tagPanel size !
+
+        infoPanel.repaint();
+
         VehicleType veh = LogUtils.getVehicle(parent.mraPanel.getSource());
         String vehicle = (veh != null ? " | "+veh.getName() : "");
         setTitle(I18n.text("Marker: ") + nameLabelValue.getText() + " | " + timeStampValue.getText() + " | " + parent.mraPanel.getSource().name() + vehicle);
+
     }
 
     private void showSuccessDlg(String path) {
@@ -864,7 +916,7 @@ public class MarkerEdit extends JFrame {
             path = path + ".png";
 
         GuiUtils.showInfoPopup(I18n.text("Success"), I18n.text("Image exported to: ")+path);
-        updateStatusBar("Image '"+path+"' exported successfully...");
+        updateStatusBar(I18n.text("Image") + " '" + path + "' "+ I18n.text("exported successfully..."));
     }
 
     private String chooseSaveFile(BufferedImage image, String path) {
@@ -973,6 +1025,7 @@ public class MarkerEdit extends JFrame {
         JButton showGridBtn = createBtn("images/menus/grid.png", I18n.text("Show grid"));
         JButton showRulerBtn = createBtn("images/menus/ruler.png", I18n.text("Show ruler"));
         JButton addPhotoBtn = createBtn("images/menus/attach.png", I18n.text("Add Photo(s)"));
+        JButton addTagBtn = createBtn("images/menus/attach.png", I18n.text("Add Tag(s)"));
         JButton previousMarkBtn = createBtn("images/menus/previous.png", I18n.text("Previous Mark"));
         JButton nextMarkBtn = createBtn("images/menus/next.png", I18n.text("Next Mark"));
 
@@ -985,7 +1038,7 @@ public class MarkerEdit extends JFrame {
                 Classification classif = (Classification) classifValue.getSelectedItem();
                 String annotation = annotationValue.getText();
 
-                //save drawing image
+                //begin saving draw image
                 BufferedImage img = new BufferedImage(image.getWidth(), image.getHeight(), BufferedImage.TYPE_INT_ARGB);
                 Graphics2D g2d = img.createGraphics();
 
@@ -1015,10 +1068,11 @@ public class MarkerEdit extends JFrame {
 
                 String relPath = MARKERS_REL_PATH + selectedMarker.getLabel() +"_draw.png";
 
-                //end save drawing image
+                //end saving draw image
                 selectedMarker.setDrawImgPath(relPath);
                 selectedMarker.setClassification(classif);
                 selectedMarker.setAnnotation(annotation);
+                selectedMarker.setTags(tagList);
 
                 if (toDeleteDraw) {
                     parent.deleteImage(drawFile.toString());
@@ -1263,6 +1317,13 @@ public class MarkerEdit extends JFrame {
             }
         };
 
+        AbstractAction addTagAction = new AbstractAction(I18n.text("Add Tag")) {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                addTag();
+            }
+        };
+
         JSeparator separator1 = new JSeparator(){
             @Override
             public Dimension getMaximumSize(){
@@ -1301,7 +1362,8 @@ public class MarkerEdit extends JFrame {
         toolBar.add(showRulerBtn);
         toolBar.add(zoomBtn);
         toolBar.add(separator3);
-        toolBar.add(addPhotoBtn); 
+        toolBar.add(addPhotoBtn);
+        toolBar.add(addTagBtn);
         toolBar.add(Box.createHorizontalGlue());
         toolBar.add(previousMarkBtn); 
         toolBar.add(nextMarkBtn);
@@ -1322,6 +1384,7 @@ public class MarkerEdit extends JFrame {
         showRulerBtn.addActionListener(showRuler);
         zoomBtn.addActionListener(zoomAction);
         addPhotoBtn.addActionListener(addPhotoAction);
+        addTagBtn.addActionListener(addTagAction);
         nextMarkBtn.addActionListener(nextMark);
         previousMarkBtn.addActionListener(previousMark);
 
@@ -1390,5 +1453,93 @@ public class MarkerEdit extends JFrame {
             photoListModel.addElement(p);
         }
         photoListScroll.setVisible(true);
+    }
+
+    /**
+     * Contains a JLabel to show the text and 
+     * a JButton with user defined action 
+     */
+    public class ButtonCloseComponent extends JPanel {
+        private static final long serialVersionUID = -6269739636016471305L;
+        private JButton button = null;
+
+        public ButtonCloseComponent(String text) {
+            //unset default FlowLayout' gaps
+            super(new FlowLayout(FlowLayout.LEFT, 0, 0));
+            setOpaque(false);
+
+            //make JLabel read titles from JTabbedPane
+            JLabel label = new JLabel(text);
+            add(label);
+            //add more space between the label and the button
+            label.setBorder(BorderFactory.createEmptyBorder(0, 0, 0, 0));
+            //tab button
+            button = new TagButton();
+            add(button);
+            //add more space to the top of the component
+            setBorder(BorderFactory.createEmptyBorder(2, 0, 0, 0));
+        }
+
+        public JButton getTagButton() {
+            return button;
+        }
+
+        private class TagButton extends JButton {
+            private static final long serialVersionUID = 1699308100643428110L;
+
+            public TagButton() {
+                int size = 17;
+                setPreferredSize(new Dimension(size, size));
+                setToolTipText("Remove tag");
+                setUI(new BasicButtonUI());
+                setContentAreaFilled(false);
+                setFocusable(false);
+                setBorder(BorderFactory.createEtchedBorder());
+                setBorderPainted(false);
+                addMouseListener(buttonMouseListener);
+                setRolloverEnabled(true);
+            }
+
+            //we don't want to update UI for this button
+            public void updateUI() {
+            }
+
+            //paint the cross
+            protected void paintComponent(Graphics g) {
+                super.paintComponent(g);
+                Graphics2D g2 = (Graphics2D) g.create();
+                //shift the image for pressed buttons
+                if (getModel().isPressed()) {
+                    g2.translate(1, 1);
+                }
+                g2.setStroke(new BasicStroke(2));
+                g2.setColor(Color.BLACK);
+                if (getModel().isRollover()) {
+                    g2.setColor(Color.RED);
+                }
+                int delta = 6;
+                g2.drawLine(delta, delta, getWidth() - delta - 1, getHeight() - delta - 1);
+                g2.drawLine(getWidth() - delta - 1, delta, delta, getHeight() - delta - 1);
+                g2.dispose();
+            }
+        }
+
+        private final MouseListener buttonMouseListener = new MouseAdapter() {
+            public void mouseEntered(MouseEvent e) {
+                Component component = e.getComponent();
+                if (component instanceof AbstractButton) {
+                    AbstractButton button = (AbstractButton) component;
+                    button.setBorderPainted(true);
+                }
+            }
+
+            public void mouseExited(MouseEvent e) {
+                Component component = e.getComponent();
+                if (component instanceof AbstractButton) {
+                    AbstractButton button = (AbstractButton) component;
+                    button.setBorderPainted(false);
+                }
+            }
+        };
     }
 }
