@@ -100,8 +100,11 @@ import org.jdesktop.swingx.JXBusyLabel;
 import org.w3c.dom.Attr;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
+import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
+
+import com.google.common.base.Splitter;
 
 import net.miginfocom.swing.MigLayout;
 import pt.lsts.neptus.NeptusLog;
@@ -881,6 +884,9 @@ public class MarkerManagement extends JDialog {
         Element photo = dom.createElement("Photos");
         mark.appendChild(photo);
 
+        Element tags = dom.createElement("Tags");
+        mark.appendChild(tags);
+
         Element altitude = dom.createElement("Altitude");
         altitude.appendChild(dom.createTextNode(marker.getAltitude() + ""));
         mark.appendChild(altitude);
@@ -1069,6 +1075,14 @@ public class MarkerManagement extends JDialog {
 
     }
 
+    private Node getElement(Element e, String tag) {
+        return e.getElementsByTagName(tag).item(0);
+    }
+    
+    private void updateElementWithTag(Element e, String tag, String value) {
+        getElement(e, tag).setTextContent(value);
+    }
+    
     /** Updates an entry in the XML file
      * @param dom2 the document (XML) that will be updated with modified LogMarkerItem
      * @param selectedMarker the marker entry to be updated
@@ -1083,13 +1097,15 @@ public class MarkerManagement extends JDialog {
             Element label = (Element)mark.getElementsByTagName("Label").item(0);
             String pLabel = label.getTextContent();
             if (pLabel.equals(markLabel)) {
-                mark.getElementsByTagName("Annotation").item(0).setTextContent(mrkerToUpd.getAnnotation());
+                updateElementWithTag(mark, "Annotation", mrkerToUpd.getAnnotation());
+                
                 findLogMarker(markLabel).setDescription(mrkerToUpd.getAnnotation());
 
-                mark.getElementsByTagName("Classification").item(0).setTextContent(mrkerToUpd.getClassification().name());
-                mark.getElementsByTagName("Draw").item(0).setTextContent(mrkerToUpd.getDrawImgPath());
+                updateElementWithTag(mark, "Classification", mrkerToUpd.getClassification().name());
+                updateElementWithTag(mark, "Draw", mrkerToUpd.getDrawImgPath());
+                updateElementWithTag(mark, "Tags", mrkerToUpd.getTagListString());
 
-                Element photosEl = (Element) mark.getElementsByTagName("Photos").item(0);
+                Element photosEl = (Element) getElement(mark, "Photos");
                 NodeList photosNode = mark.getElementsByTagName("Photos");
 
                 Set<Element> targetElements = new HashSet<Element>();
@@ -1097,7 +1113,7 @@ public class MarkerManagement extends JDialog {
                     Element e = (Element)photosNode.item(s);
                     NodeList pList = e.getElementsByTagName("Photo");
                     if (pList != null) {
-                        for (int k=0; k< pList.getLength(); k++) {
+                        for (int k=0; k<pList.getLength(); k++) {
                             Element photo = (Element)pList.item(k);
                             if (!mrkerToUpd.getPhotosPath().contains(photo.getFirstChild().getNodeValue())) {
                                 //target to remove
@@ -1106,7 +1122,6 @@ public class MarkerManagement extends JDialog {
                         }
                     }
                 }
-
 
                 for (Element e: targetElements) {
                     e.getParentNode().removeChild(e);
@@ -1187,13 +1202,14 @@ public class MarkerManagement extends JDialog {
             StreamResult result = new StreamResult(new File(markerFilePath).getAbsolutePath());
             transformer.transform(source, result);
 
-            if (!markerList.isEmpty()) {
-                NeptusLog.pub().info(I18n.text("Markers XML file saved - ") + markerFilePath);
-            }
+
         }
         catch (TransformerException e) {
             e.printStackTrace();
         }
+
+        if (!markerList.isEmpty())
+            NeptusLog.pub().info(I18n.text("Markers XML file saved - ") + markerFilePath);
     }
 
     private LogMarker findLogMarker(String label) {
@@ -1259,7 +1275,7 @@ public class MarkerManagement extends JDialog {
         String path = null;
         String drawPath = null;
         ArrayList<String> photoList = null;
-        HashSet<String> tagList = null;
+        HashSet<String> tagList = new HashSet<>();
         double ts = 0;
         double lon = 0;
         double lat = 0;
@@ -1284,7 +1300,17 @@ public class MarkerManagement extends JDialog {
             cls = Classification.valueOf(getTextValue(markerEl,"Classification"));
             annot = getTextValue(markerEl, "Annotation");
             photoList = getListValue(markerEl, "Photos");
-            //tagList = getListValue(markerEl, "Tags"); FIXME
+            String tags = getTextValue(markerEl, "Tags");
+
+            if (tags != null) {
+                Iterable<String> tagIt = Splitter.on(',')
+                        .trimResults()
+                        .omitEmptyStrings()
+                        .split(tags); //split by comma's
+
+                for (String tag : tagIt)
+                    tagList.add(tag);
+            }
         }
         catch (ParseException e1) {
             e1.printStackTrace();
@@ -1327,7 +1353,8 @@ public class MarkerManagement extends JDialog {
         NodeList nl = ele.getElementsByTagName(tagName);
         if(nl != null && nl.getLength() > 0) {
             Element el = (Element)nl.item(0);
-            textVal = el.getFirstChild().getNodeValue();
+            if (el.getFirstChild() != null)
+                textVal = el.getFirstChild().getNodeValue();
         }
 
         return textVal;
