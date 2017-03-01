@@ -57,6 +57,7 @@ import com.webfirmframework.wffweb.tag.html.formatting.Strong;
 import com.webfirmframework.wffweb.tag.html.html5.stylesandsemantics.Footer;
 import com.webfirmframework.wffweb.tag.html.images.Img;
 import com.webfirmframework.wffweb.tag.html.metainfo.Head;
+import com.webfirmframework.wffweb.tag.html.stylesandsemantics.Div;
 import com.webfirmframework.wffweb.tag.html.stylesandsemantics.Span;
 import com.webfirmframework.wffweb.tag.html.stylesandsemantics.StyleTag;
 import com.webfirmframework.wffweb.tag.html.tables.TBody;
@@ -85,29 +86,40 @@ public class HTMLExporter {
         final Align align5 = new Align("center");
         final ColSpan colSpan12 = new ColSpan("2");
         final Style style2 = new Style("margin-left: auto; margin-right: auto; height: 239px;");
-        final Style style10 = new Style("width:577px;height:550px;");
         final Style style11 = new Style("white-space:nowrap;");
         final Style style14 = new Style("text-align: left;");
         final Style whiteStyle = new Style("color: white;");
-        final Width width3 = new Width("600");
+        final Width width3 = new Width("500");
         final CustomAttribute customAttribute4 = new CustomAttribute("bgcolor", "#4A7FCF");
         final CustomAttribute customAttribute7 = new CustomAttribute("bgcolor", "#E6EEFF");
 
         Html html = new Html(null) {{
             new Head(this) {{
                 new StyleTag(this) {{
-                    new NoTag(this, "table {\r\n"
-                            + "border-collapse: collapse;\r\n"
+                    new NoTag(this, "\r\n"
+                            + "table {\r\n"
+                            + "    border-collapse: collapse;\r\n"
                             + "}\r\n"
                             + "\r\n"
-                            + "td, th {\r\n    "
-                            + "border: 1px solid black;\r\n"
-                            + "padding: 3px;\r\n"
+                            + "td, th {\r\n"
+                            + "    border: 1px solid black;\r\n"
+                            + "    padding: 3px;\r\n"
                             + "}\r\n\r\n"
+                            + "div{\r\n"
+                            + "    width: 300px;\r\n"
+                            + "    height:300px;\r\n"
+                            + "    margin:auto\r\n"
+                            + "}\r\n"
+                            + "img{\r\n"
+                            + "    width: 100%;\r\n"
+                            + "    height: 100%;\r\n"
+                            + "    object-fit: contain;\r\n"
+                            + "}\r\n"
                             + "@media print {\r\n"
-                            + "footer {"
-                            + "page-break-after: always;"
-                            + "}\r\n}");
+                            + "    footer {\r\n"
+                            + "        page-break-after: always;\r\n"
+                            + "     }\r\n"
+                            + "}\r\n");
                 }};
             }};
             new Body(this) {{
@@ -145,10 +157,11 @@ public class HTMLExporter {
                             new TBody(this) {{
                                 new Tr(this, customAttribute7) {{
                                     new Td(this) {{
-                                        new Img(this,
-                                                new Src(img),
-                                                new Alt(lbl),
-                                                style10);
+                                        new Div(this) {{
+                                            new Img(this,
+                                                    new Src(img),
+                                                    new Alt(lbl));
+                                        }};
                                     }};
                                     new Td(this, style11) {{
                                         new P(this) {{
