@@ -33,6 +33,10 @@
 package pt.lsts.neptus.mra.markermanagement;
 
 
+import static pt.lsts.neptus.mra.markermanagement.MarkerManagement.MARKERS_REL_PATH;
+import static pt.lsts.neptus.mra.markermanagement.MarkerManagement.PHOTOS_PATH_NAME;
+import static pt.lsts.neptus.mra.markermanagement.MarkerManagement.SEPARATOR;
+
 import java.awt.BasicStroke;
 import java.awt.BorderLayout;
 import java.awt.Color;
@@ -97,6 +101,7 @@ import javax.swing.KeyStroke;
 import javax.swing.ScrollPaneConstants;
 import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
+import javax.swing.SwingWorker;
 import javax.swing.Timer;
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.EtchedBorder;
@@ -124,8 +129,6 @@ import pt.lsts.neptus.util.ImageUtils;
 import pt.lsts.neptus.util.MathMiscUtils;
 import pt.lsts.neptus.util.conf.ConfigFetch;
 import pt.lsts.neptus.util.llf.LogUtils;
-
-import static pt.lsts.neptus.mra.markermanagement.MarkerManagement.*;
 
 /**
  * @author Manuel R.
@@ -395,7 +398,7 @@ public class MarkerEdit extends JFrame {
 
         setupPhotoMenu();
 
-        Timer SimpleTimer = new Timer(2000, new ActionListener(){
+        Timer SimpleTimer = new Timer(3500, new ActionListener(){
             @Override
             public void actionPerformed(ActionEvent e) {
                 statusBar.removeAll();
@@ -1056,46 +1059,61 @@ public class MarkerEdit extends JFrame {
                 BufferedImage img = new BufferedImage(image.getWidth(), image.getHeight(), BufferedImage.TYPE_INT_ARGB);
                 Graphics2D g2d = img.createGraphics();
 
-                // drawRect(layer.getGraphics(), lastMouseX, lastMouseY);
-
-                //g2d.drawImage(image, 0, 0, null);
-                if (enableRectDraw)
+                if (enableRectDraw) 
                     drawRect(g2d, lastMouseX, lastMouseY);
-                if (enableCircleDraw)
+
+                if (enableCircleDraw) 
                     drawCircle(g2d, lastMouseX, lastMouseY);
-                if (enableFreeDraw)
+
+                if (enableFreeDraw) 
                     drawFree(g2d);
 
-                if (drawImageOverlay != null)
+                if (drawImageOverlay != null) {
+                    System.out.println("overlay NOT null");
                     g2d.drawImage(drawImageOverlay, 0, 0, null);
-
-                File drawFile = new File(path, selectedMarker.getLabel() + "_draw.png");
-                // save image to file
-                try {
-                    ImageIO.write(img, "PNG", drawFile);
-                } catch (IOException ie) {
-                    NeptusLog.pub().error(I18n.text("Error writing image to file..."));
-                    updateStatusBar("Error writing image to file...");
                 }
 
-                g2d.dispose();
+                SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>() {
+                    @Override
+                    protected Void doInBackground() throws Exception {
+                        File drawFile = new File(path, selectedMarker.getLabel() + "_draw.png");
+                        boolean updateDrawPath = false;
+                        if (!isTransparent(img)) {
+                            try {
+                                ImageIO.write(img, "PNG", drawFile);
+                            } catch (IOException ie) {
+                                NeptusLog.pub().error(I18n.text("Error writing image to file..."));
+                                updateStatusBar("Error writing image to file...");
+                            }
 
-                String relPath = MARKERS_REL_PATH + selectedMarker.getLabel() +"_draw.png";
+                            System.out.println("writing image file");
+                            updateDrawPath = true;
+                        }
+                        g2d.dispose();
 
-                //end saving draw image
-                selectedMarker.setDrawImgPath(relPath);
-                selectedMarker.setClassification(classif);
-                selectedMarker.setAnnotation(annotation);
-                selectedMarker.setTags(tagList);
+                        String relPath = MARKERS_REL_PATH + selectedMarker.getLabel() +"_draw.png";
 
-                if (toDeleteDraw) {
-                    parent.deleteImage(drawFile.toString());
-                    selectedMarker.setDrawImgPath("N/A");
-                }
+                        if (updateDrawPath)
+                            selectedMarker.setDrawImgPath(relPath);
 
-                parent.updateLogMarker(selectedMarker, selectMarkerRowIndex);
-                markerImage.repaint();
-                updateStatusBar("Saving completed...");
+                        selectedMarker.setClassification(classif);
+                        selectedMarker.setAnnotation(annotation);
+                        selectedMarker.setTags(tagList);
+
+                        if (toDeleteDraw) {
+                            parent.deleteImage(drawFile.toString());
+                            selectedMarker.setDrawImgPath("N/A");
+                        }
+
+                        parent.updateLogMarker(selectedMarker, selectMarkerRowIndex);
+                        markerImage.repaint();
+                        updateStatusBar("Saving completed...");
+
+                        return null;
+                    }
+                };
+                worker.execute();
+
             }
         };
 
@@ -1441,6 +1459,27 @@ public class MarkerEdit extends JFrame {
         toolBar.getActionMap().put("prevMark", previousMark);
 
         getContentPane().add(toolBar, BorderLayout.PAGE_START);
+    }
+
+    private boolean isTransparent(BufferedImage img) {
+        final int xmin = img.getMinX();
+        final int ymin = img.getMinY();
+
+        final int ymax = ymin + img.getHeight();
+        final int xmax = xmin + img.getWidth();
+
+        for (int i = xmin;i<xmax;i++)
+        {
+            for (int j = ymin;j<ymax;j++)
+            {
+                int pixel = img.getRGB(i, j);
+
+                Color mycolor = new Color(pixel);
+                if (mycolor.equals(Color.WHITE))
+                    return false;
+            }
+        }
+        return true;
     }
 
     private void clearLayer(){

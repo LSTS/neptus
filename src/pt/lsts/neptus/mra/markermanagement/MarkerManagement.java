@@ -224,7 +224,8 @@ public class MarkerManagement extends JDialog {
         exportButton.setHorizontalTextPosition(SwingConstants.CENTER);
         exportButton.setVerticalTextPosition(SwingConstants.BOTTOM);
         exportButton.setIcon(ImageUtils.getIcon("images/menus/print.png"));
-
+        exportButton.setToolTipText("Export selected markers as HTML");
+        
         panel.add(exportButton, "cell 0 0");
 
         exportButton.addActionListener(new ActionListener() {
