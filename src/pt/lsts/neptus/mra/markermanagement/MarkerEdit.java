@@ -97,6 +97,7 @@ import javax.swing.KeyStroke;
 import javax.swing.ScrollPaneConstants;
 import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
+import javax.swing.Timer;
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.EtchedBorder;
 import javax.swing.border.TitledBorder;
@@ -124,11 +125,14 @@ import pt.lsts.neptus.util.MathMiscUtils;
 import pt.lsts.neptus.util.conf.ConfigFetch;
 import pt.lsts.neptus.util.llf.LogUtils;
 
+import static pt.lsts.neptus.mra.markermanagement.MarkerManagement.*;
+
 /**
  * @author Manuel R.
- * TODO: On add photo, if fileName already exists, ask user to replace?
- * Select photo as 'main' photo (so the marker can be shown in the pdf with a representative photo)
+ * TODO: Select photo as 'main' photo (so the marker can be shown in the pdf with a representative photo)
+ * @Zoom : Crop from image file (better resolution)
  * BUG: On adding photo's, frame is going to background
+ *      FIX tagPanel size !
  */
 @SuppressWarnings("serial")
 public class MarkerEdit extends JFrame {
@@ -138,11 +142,10 @@ public class MarkerEdit extends JFrame {
     private static final int MAX_IMG_WIDTH = 600;
     private static final int MAX_IMG_HEIGHT = 420;
     private static final int RULER_SIZE = 15;
-    private static final String MARKERS_REL_PATH = "/mra/markers/";
-    private static final String PHOTOS_PATH_NAME = "photos/";
+    private static final String UNKNOWN_IMG_PATH = "/images/unknown.png";
     private String path;
     private int selectMarkerRowIndex = -1;
-    private JPanel imgPanel, tagPanel, infoPanel; 
+    private JPanel imgPanel, tagPanel, infoPanel, scrollPanel; 
     private MarkerManagement parent;
     private AbstractAction save, del;
     private LogMarkerItem selectedMarker;
@@ -187,11 +190,12 @@ public class MarkerEdit extends JFrame {
         infoPanel.requestFocus();
         JPanel paintPanel = new JPanel();
         JPanel statusPanel = new JPanel(new BorderLayout());
-        JPanel scrollPanel = new JPanel(new BorderLayout());
+        scrollPanel = new JPanel(new BorderLayout());
         tagPanel = new JPanel();
         infoPanel.setBorder(new EmptyBorder(0, 1, 0, 0));
         infoPanel.setLayout(new MigLayout("", "[5.00][3px,grow][5.00]", "[3px][][][][][][][][][][][][][][][grow][grow]"));
         statusPanel.setBorder(BorderFactory.createMatteBorder(1, 0, 1, 0, Color.GRAY));
+        scrollPanel.setBorder(new TitledBorder(new EtchedBorder(), I18n.text("Photos")+":") );
         paintPanel.setLayout(new BorderLayout());
 
         JScrollPane annotationScrollPane = new JScrollPane();
@@ -238,12 +242,14 @@ public class MarkerEdit extends JFrame {
         classifValue.setBackground(Color.WHITE);
         classifValue.setModel(new DefaultComboBoxModel(Classification.values()));
 
+        photoList.setLayoutOrientation(JList.VERTICAL);
+        photoList.setVisibleRowCount(3);
         photoList.setModel(photoListModel);
 
         photoListScroll.setViewportView(photoList);
         photoListScroll.setVisible(false);
 
-        tagPanel.setBorder(new TitledBorder(new EtchedBorder(), I18n.text("Tags")+":") );
+        tagPanel.setBorder(new TitledBorder(new EtchedBorder(), I18n.text("Tags")+":"));
 
         infoPanel.add(nameLabel, "cell 1 1");
         infoPanel.add(nameLabelValue, "cell 1 2,growx");
@@ -325,7 +331,7 @@ public class MarkerEdit extends JFrame {
         };
 
         markerImage.setHorizontalAlignment(SwingConstants.CENTER);
-        markerImage.setIcon(new ImageIcon(MarkerEdit.class.getResource("/images/unknown.png")));
+        markerImage.setIcon(new ImageIcon(MarkerEdit.class.getResource(UNKNOWN_IMG_PATH)));
         markerImage.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseReleased(MouseEvent e) {
@@ -388,6 +394,16 @@ public class MarkerEdit extends JFrame {
         paintPanel.add(new JScrollPane(imgPanel), BorderLayout.CENTER);
 
         setupPhotoMenu();
+
+        Timer SimpleTimer = new Timer(2000, new ActionListener(){
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                statusBar.removeAll();
+                statusBar.updateUI();
+                statusBar.repaint();
+            }
+        });
+        SimpleTimer.start();
     }
 
     private void setupPhotoMenu() {
@@ -427,16 +443,19 @@ public class MarkerEdit extends JFrame {
             private void openPhoto(String toOpen) {
                 String path = MARKERS_REL_PATH.concat(PHOTOS_PATH_NAME)
                         .concat(selectedMarker.getLabel())
-                        .concat(MarkerManagement.SEPARATOR)
+                        .concat(SEPARATOR)
                         .concat(toOpen);
                 String absPath = parent.mraPanel.getSource().getFile("Data.lsf").getParent();
                 File fileToOpen = new File(absPath.concat(path));
 
-                try {
-                    Desktop.getDesktop().open(fileToOpen);
-                }
-                catch (IOException e) {
-                    e.printStackTrace();
+                if (fileToOpen != null) {
+
+                    try {
+                        Desktop.getDesktop().open(fileToOpen);
+                    }
+                    catch (IOException e) {
+                        e.printStackTrace();
+                    }
                 }
             }
         };
@@ -459,7 +478,7 @@ public class MarkerEdit extends JFrame {
 
     }
 
-    private boolean addPhoto() {
+    private void addPhoto() {
         String[] imgExtensions =  { "bmp", "jpg", "jpeg", "wbmp", "png", "gif" } ;
 
         JFileChooser fileChooser = GuiUtils.getFileChooser(path, 
@@ -474,14 +493,13 @@ public class MarkerEdit extends JFrame {
             if (selectedFile != null) {
                 String folder = createFolder(path);
                 for (File s : selectedFile) {
-                    if (FileUtil.copyFile(s.getPath(), folder + MarkerManagement.SEPARATOR + s.getName())) {
-                        addToList(s.getName(), MARKERS_REL_PATH.concat(PHOTOS_PATH_NAME).concat(selectedMarker.getLabel()).concat(MarkerManagement.SEPARATOR));
-                        showPhotoList();
+                    if (FileUtil.copyFile(s.getPath(), folder + SEPARATOR + s.getName())) {
+                        addToList(s.getName(), MARKERS_REL_PATH.concat(PHOTOS_PATH_NAME).concat(selectedMarker.getLabel()).concat(SEPARATOR));
                     }
                 }
+                showPhotoList();
             }
         }
-        return false;
     }
 
     private void addTag() {
@@ -523,7 +541,7 @@ public class MarkerEdit extends JFrame {
 
     private boolean addToList(String name, String path) {
         for (String photo : selectedMarker.getPhotosPath()) {
-            String picName = photo.substring(photo.lastIndexOf(MarkerManagement.SEPARATOR), photo.length());
+            String picName = photo.substring(photo.lastIndexOf(SEPARATOR)+1, photo.length());
             if (picName.equals(name))
                 return false;
         }
@@ -534,9 +552,9 @@ public class MarkerEdit extends JFrame {
     }
 
     private String createFolder(String path) {
-        File folder = new File(path.concat(MarkerManagement.SEPARATOR)
+        File folder = new File(path.concat(SEPARATOR)
                 .concat(PHOTOS_PATH_NAME));
-        String finalPath = folder.getPath().concat(MarkerManagement.SEPARATOR)
+        String finalPath = folder.getPath().concat(SEPARATOR)
                 .concat(selectedMarker.getLabel());
         if (!folder.exists()) {
             folder.mkdir();
@@ -558,7 +576,7 @@ public class MarkerEdit extends JFrame {
     private void removePhoto(String toRemove) {
         String remPath = MARKERS_REL_PATH.concat(PHOTOS_PATH_NAME)
                 .concat(selectedMarker.getLabel())
-                .concat(MarkerManagement.SEPARATOR)
+                .concat(SEPARATOR)
                 .concat(toRemove);
         String absPath = parent.mraPanel.getSource().getFile("Data.lsf").getParent();
         File toRemoveFile = new File(absPath.concat(remPath));
@@ -571,7 +589,7 @@ public class MarkerEdit extends JFrame {
         File markerFile = new File(absPath.concat(MARKERS_REL_PATH)
                 .concat(PHOTOS_PATH_NAME)
                 .concat(selectedMarker.getLabel())
-                .concat(MarkerManagement.SEPARATOR));
+                .concat(SEPARATOR));
         try {
             //Delete folder if it's empty
             if (isDirEmpty(markerFile.toPath()))
@@ -582,7 +600,7 @@ public class MarkerEdit extends JFrame {
                 FileUtils.deleteDirectory(photosPath);
         }
         catch (IOException e) {
-            e.printStackTrace();
+            //do nothing
         }
 
         if (selectedMarker.getPhotosPath().isEmpty())
@@ -645,8 +663,6 @@ public class MarkerEdit extends JFrame {
 
         int X = (int) MathMiscUtils.clamp(mouseX - RULER_SIZE -1, ZOOM_BOX_SIZE / 2, image.getWidth() - ZOOM_BOX_SIZE / 2);
         int Y = (int) MathMiscUtils.clamp(mouseY - RULER_SIZE -1, ZOOM_BOX_SIZE / 2, image.getHeight() - ZOOM_BOX_SIZE / 2);
-
-        //TODO : Crop from image file (better resolution)
 
         BufferedImage zoomImage = image.getSubimage(X - ZOOM_BOX_SIZE / 2, Y - ZOOM_BOX_SIZE / 2, 50, ZOOM_BOX_SIZE);
 
@@ -830,14 +846,14 @@ public class MarkerEdit extends JFrame {
             } catch (IOException e) {
                 NeptusLog.pub().error(I18n.text("Error reading image file for marker: ")+ selectedMarker.getLabel() + " ...");
                 image = null;
-                markerImage.setIcon(new ImageIcon(MarkerEdit.class.getResource("/images/unknown.png")));
+                markerImage.setIcon(new ImageIcon(MarkerEdit.class.getResource(UNKNOWN_IMG_PATH)));
                 markerImage.setPreferredSize(new Dimension(markerImage.getIcon().getIconWidth(), markerImage.getIcon().getIconHeight()));
                 setBounds(100, 100, markerImage.getIcon().getIconWidth() + prefWidth + 10, markerImage.getIcon().getIconHeight() + prefHeight);
                 setLocation(parent.getwindowLocation());
             }
         } else {
             image = null;
-            markerImage.setIcon(new ImageIcon(MarkerEdit.class.getResource("/images/unknown.png")));
+            markerImage.setIcon(new ImageIcon(MarkerEdit.class.getResource(UNKNOWN_IMG_PATH)));
             markerImage.setPreferredSize(new Dimension(markerImage.getIcon().getIconWidth(), markerImage.getIcon().getIconHeight()));
             setBounds(100, 100, markerImage.getIcon().getIconWidth() + prefWidth + RULER_SIZE + 10, markerImage.getIcon().getIconHeight() + prefHeight + RULER_SIZE + 10);
             setLocation(parent.getwindowLocation());
@@ -900,7 +916,6 @@ public class MarkerEdit extends JFrame {
         }
 
         tagPanel.setPreferredSize(tagPanel.getPreferredSize());
-        //TODO FIX tagPanel size !
 
         infoPanel.repaint();
 
@@ -1442,16 +1457,21 @@ public class MarkerEdit extends JFrame {
     }
 
     private void hidePhotoList() {
-        photoListScroll.setVisible(false);
+        infoPanel.remove(scrollPanel);
+        infoPanel.revalidate();
+        infoPanel.repaint();
     }
 
     private void showPhotoList() {
         photoListModel.clear();
+        photoListScroll.setVisible(true);
         for (String photo : selectedMarker.getPhotosPath()) {
-            String p = photo.substring(photo.lastIndexOf(MarkerManagement.SEPARATOR)+1, photo.length());
+            String p = photo.substring(photo.lastIndexOf(SEPARATOR)+1, photo.length());
             photoListModel.addElement(p);
         }
-        photoListScroll.setVisible(true);
+        infoPanel.add(scrollPanel, "cell 1 15,grow");
+        infoPanel.revalidate();
+        infoPanel.repaint();;
     }
 
     /**

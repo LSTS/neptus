@@ -131,6 +131,7 @@ import pt.lsts.neptus.util.ImageUtils;
 import pt.lsts.neptus.util.gui.Java2sAutoTextField;
 import pt.lsts.neptus.util.llf.LsfReport;
 import pt.lsts.neptus.util.llf.LsfReportProperties;
+
 /**
  * @author Manuel R. 
  */
@@ -140,6 +141,8 @@ public class MarkerManagement extends JDialog {
     private static final int DEFAULT_COLUMN_TO_SORT = 0;
     private static final int WIDTH = 690;
     private static final int HEIGHT = 430;
+    public static final String MARKERS_REL_PATH = "/mra/markers/";
+    public static final String PHOTOS_PATH_NAME = "photos/";
     private static final String SHOW_ICON = "images/buttons/show.png";
     private static final String ANY_TXT = I18n.text("<ANY>");
     public static final String SEPARATOR = FileSystems.getDefault().getSeparator();
@@ -1078,11 +1081,11 @@ public class MarkerManagement extends JDialog {
     private Node getElement(Element e, String tag) {
         return e.getElementsByTagName(tag).item(0);
     }
-    
+
     private void updateElementWithTag(Element e, String tag, String value) {
         getElement(e, tag).setTextContent(value);
     }
-    
+
     /** Updates an entry in the XML file
      * @param dom2 the document (XML) that will be updated with modified LogMarkerItem
      * @param selectedMarker the marker entry to be updated
@@ -1097,10 +1100,9 @@ public class MarkerManagement extends JDialog {
             Element label = (Element)mark.getElementsByTagName("Label").item(0);
             String pLabel = label.getTextContent();
             if (pLabel.equals(markLabel)) {
-                updateElementWithTag(mark, "Annotation", mrkerToUpd.getAnnotation());
-                
-                findLogMarker(markLabel).setDescription(mrkerToUpd.getAnnotation());
 
+                updateElementWithTag(mark, "Annotation", mrkerToUpd.getAnnotation());
+                findLogMarker(markLabel).setDescription(mrkerToUpd.getAnnotation());
                 updateElementWithTag(mark, "Classification", mrkerToUpd.getClassification().name());
                 updateElementWithTag(mark, "Draw", mrkerToUpd.getDrawImgPath());
                 updateElementWithTag(mark, "Tags", mrkerToUpd.getTagListString());
@@ -1123,7 +1125,7 @@ public class MarkerManagement extends JDialog {
                     }
                 }
 
-                for (Element e: targetElements) {
+                for (Element e : targetElements) {
                     e.getParentNode().removeChild(e);
                 }
 
@@ -1136,10 +1138,22 @@ public class MarkerManagement extends JDialog {
                 }
 
                 if (mrkerToUpd.getPhotosPath().isEmpty()) {
-                    System.out.println("Deleting them all!"); //TODO
-                }
+                    while(photosEl.hasChildNodes())
+                        photosEl.removeChild(photosEl.getFirstChild());
 
-                System.out.println("List: "+ mrkerToUpd.getPhotosPath().toString());
+                    String absPath = mraPanel.getSource().getFile("Data.lsf").getParent();
+                    File markerFile = new File(absPath.concat(MARKERS_REL_PATH)
+                            .concat(PHOTOS_PATH_NAME)
+                            .concat(mrkerToUpd.getLabel())
+                            .concat(SEPARATOR));
+
+                    try {
+                        FileUtils.deleteDirectory(markerFile);
+                    }
+                    catch (IOException e1) {
+                        // do nothing
+                    }
+                }
             }
         }
         //delete draw image, if exists
