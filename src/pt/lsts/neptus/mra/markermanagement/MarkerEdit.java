@@ -77,6 +77,7 @@ import javax.swing.AbstractAction;
 import javax.swing.AbstractButton;
 import javax.swing.BorderFactory;
 import javax.swing.Box;
+import javax.swing.BoxLayout;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.DefaultListModel;
 import javax.swing.ImageIcon;
@@ -127,15 +128,12 @@ import pt.lsts.neptus.util.FileUtil;
 import pt.lsts.neptus.util.GuiUtils;
 import pt.lsts.neptus.util.ImageUtils;
 import pt.lsts.neptus.util.MathMiscUtils;
-import pt.lsts.neptus.util.conf.ConfigFetch;
 import pt.lsts.neptus.util.llf.LogUtils;
 
 /**
  * @author Manuel R.
  * TODO: Select photo as 'main' photo (so the marker can be shown in the pdf with a representative photo)
  * @Zoom : Crop from image file (better resolution)
- * BUG: On adding photo's, frame is going to background
- *      FIX tagPanel size !
  */
 @SuppressWarnings("serial")
 public class MarkerEdit extends JFrame {
@@ -148,7 +146,7 @@ public class MarkerEdit extends JFrame {
     private static final String UNKNOWN_IMG_PATH = "/images/unknown.png";
     private String path;
     private int selectMarkerRowIndex = -1;
-    private JPanel imgPanel, tagPanel, infoPanel, scrollPanel; 
+    private JPanel imgPanel, tagPanel, infoPanel, photosPanel; 
     private MarkerManagement parent;
     private AbstractAction save, del;
     private LogMarkerItem selectedMarker;
@@ -193,15 +191,19 @@ public class MarkerEdit extends JFrame {
         infoPanel.requestFocus();
         JPanel paintPanel = new JPanel();
         JPanel statusPanel = new JPanel(new BorderLayout());
-        scrollPanel = new JPanel(new BorderLayout());
+        photosPanel = new JPanel(new BorderLayout());
         tagPanel = new JPanel();
+
+        tagPanel.setLayout(new BoxLayout(tagPanel, BoxLayout.Y_AXIS));
         infoPanel.setBorder(new EmptyBorder(0, 1, 0, 0));
         infoPanel.setLayout(new MigLayout("", "[5.00][3px,grow][5.00]", "[3px][][][][][][][][][][][][][][][grow][grow]"));
         statusPanel.setBorder(BorderFactory.createMatteBorder(1, 0, 1, 0, Color.GRAY));
-        scrollPanel.setBorder(new TitledBorder(new EtchedBorder(), I18n.text("Photos")+":") );
+        photosPanel.setBorder(new TitledBorder(new EtchedBorder(), I18n.text("Photos")+":") );
         paintPanel.setLayout(new BorderLayout());
 
         JScrollPane annotationScrollPane = new JScrollPane();
+        JScrollPane mainScrollPane = new JScrollPane(infoPanel, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, 
+                JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
         photoListScroll = new JScrollPane();
 
         JLabel nameLabel = new JLabel(I18n.text("Label:"));
@@ -268,14 +270,12 @@ public class MarkerEdit extends JFrame {
         infoPanel.add(classifValue, "cell 1 12,growx");
         infoPanel.add(annotationLabel, "cell 1 13");
         infoPanel.add(annotationScrollPane, "cell 1 14,growx");
-        scrollPanel.add(photoListScroll, BorderLayout.CENTER);
-        infoPanel.add(scrollPanel, "cell 1 15,grow");
+        photosPanel.add(photoListScroll, BorderLayout.CENTER);
+        infoPanel.add(photosPanel, "cell 1 15,grow");
         infoPanel.add(tagPanel, "cell 1 16,grow");
         statusPanel.add(statusBar);
 
-        getContentPane().add(new JScrollPane(infoPanel, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, 
-                JScrollPane.HORIZONTAL_SCROLLBAR_NEVER), BorderLayout.EAST);
-
+        getContentPane().add(mainScrollPane, BorderLayout.EAST);
         getContentPane().add(paintPanel, BorderLayout.CENTER);
         getContentPane().add(statusPanel, BorderLayout.SOUTH);
 
@@ -489,7 +489,7 @@ public class MarkerEdit extends JFrame {
 
         fileChooser.setAcceptAllFileFilterUsed(false);
         fileChooser.setMultiSelectionEnabled(true);
-        int status = fileChooser.showOpenDialog(ConfigFetch.getSuperParentFrame());
+        int status = fileChooser.showOpenDialog(this);
 
         if (status == JFileChooser.APPROVE_OPTION) {
             File[] selectedFile = fileChooser.getSelectedFiles();
@@ -507,7 +507,7 @@ public class MarkerEdit extends JFrame {
 
     private void addTag() {
         String tagString = JOptionPane.showInputDialog(this,
-                I18n.text("Please enter tag(s) (separated by comma)"), I18n.text("Add Tag(s)"), JOptionPane.OK_CANCEL_OPTION);
+                I18n.text("Please enter tag(s):") + "\n" + I18n.text("(max 20 characters each and separated by comma)"), I18n.text("Add Tag(s)"), JOptionPane.OK_CANCEL_OPTION);
 
         if (tagString == null)
             return;
@@ -521,24 +521,28 @@ public class MarkerEdit extends JFrame {
                 .split(tagString); //split by comma's
 
         for (String tag : tagIt) {
-            tagList.add(tag);
-            //update panel
-            ButtonCloseComponent e = new ButtonCloseComponent(tag);
-            e.getTagButton().addActionListener(new ActionListener() {
+            if (tag.length() <= 20) { // Limit to 20 chars each tag
+                tagList.add(tag);
+                //update panel
+                ButtonCloseComponent e = new ButtonCloseComponent(tag);
+                e.getTagButton().addActionListener(new ActionListener() {
 
-                @Override
-                public void actionPerformed(ActionEvent x) {
-                    selectedMarker.removeTag(tag);
-                    tagPanel.remove(e);
-                    tagPanel.revalidate();
-                    tagPanel.repaint();
-                    infoPanel.repaint();
-                }
-            });
-            tagPanel.add(e);
+                    @Override
+                    public void actionPerformed(ActionEvent x) {
+                        selectedMarker.removeTag(tag);
+                        tagPanel.remove(e);
+                        tagPanel.revalidate();
+                        tagPanel.repaint();
+                        infoPanel.repaint();
+                    }
+                });
+                tagPanel.add(e);
+            }
         }
 
+        tagPanel.revalidate();
         tagPanel.repaint();
+        infoPanel.revalidate();
         infoPanel.repaint();
     }
 
@@ -1068,10 +1072,8 @@ public class MarkerEdit extends JFrame {
                 if (enableFreeDraw) 
                     drawFree(g2d);
 
-                if (drawImageOverlay != null) {
-                    System.out.println("overlay NOT null");
+                if (drawImageOverlay != null)
                     g2d.drawImage(drawImageOverlay, 0, 0, null);
-                }
 
                 SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>() {
                     @Override
@@ -1086,7 +1088,6 @@ public class MarkerEdit extends JFrame {
                                 updateStatusBar("Error writing image to file...");
                             }
 
-                            System.out.println("writing image file");
                             updateDrawPath = true;
                         }
                         g2d.dispose();
@@ -1496,7 +1497,7 @@ public class MarkerEdit extends JFrame {
     }
 
     private void hidePhotoList() {
-        infoPanel.remove(scrollPanel);
+        infoPanel.remove(photosPanel);
         infoPanel.revalidate();
         infoPanel.repaint();
     }
@@ -1508,7 +1509,7 @@ public class MarkerEdit extends JFrame {
             String p = photo.substring(photo.lastIndexOf(SEPARATOR)+1, photo.length());
             photoListModel.addElement(p);
         }
-        infoPanel.add(scrollPanel, "cell 1 15,grow");
+        infoPanel.add(photosPanel, "cell 1 15,grow");
         infoPanel.revalidate();
         infoPanel.repaint();;
     }
