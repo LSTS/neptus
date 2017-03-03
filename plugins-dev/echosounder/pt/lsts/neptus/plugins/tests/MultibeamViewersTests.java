@@ -67,8 +67,8 @@ public class MultibeamViewersTests {
         return fc.getSelectedFile().getAbsolutePath();
     }
 
-    private static SonarData reformatData(BathymetrySwath swath, SystemPositionAndAttitude pose, SonarDataInfo info) {
-        SonarData oldData = MultibeamUtil.swathToSonarData(swath, pose);
+    public static SonarData reformatData(BathymetrySwath swath, SystemPositionAndAttitude pose, SonarDataInfo info) {
+        SonarData oldData = MultibeamUtil.swathToSonarDataOld(swath, pose);
         BathymetryPoint[] points = swath.getData();
         byte[] dataBytes = oldData.getData();
 
@@ -79,7 +79,7 @@ public class MultibeamViewersTests {
         info.numberOfPoints = (short) (bytes.getShort() & 0xFFFF);
         info.startAngleRads = Math.toRadians(((double) bytes.getShort()) / 100.0);
         info.dataScaleFactor = oldData.getScaleFactor();
-        info.angleIncrement = oldData.getBeamConfig().get(0).getBeamWidth();
+        info.angleIncrementRads = oldData.getBeamConfig().get(0).getBeamWidth();
         info.bitsPerPoint = oldData.getBitsPerPoint();
 
         int numberOfBytesEffData = info.numberOfPoints * (info.bitsPerPoint / 8);
@@ -93,11 +93,11 @@ public class MultibeamViewersTests {
         // new data format
 
         if(info.flagHasAngleSteps) {
-            info.angleSteps = new double[points.length];
+            info.angleStepsRads = new double[points.length];
             // generate angle steps
-            info.angleStepsScaleFactor = 0.01;
+            // info.angleStepsScaleFactor = 0.001;
             for(int i = 0; i < info.numberOfPoints; i++)
-                info.angleSteps[i] = info.angleIncrement * i;
+                info.angleStepsRads[i] = info.angleIncrementRads; //* i;
         }
 
         // write data in new format
@@ -106,7 +106,7 @@ public class MultibeamViewersTests {
         buffer.order(ByteOrder.LITTLE_ENDIAN);
 
         buffer.putShort(info.numberOfPoints);
-        buffer.putDouble(info.startAngleRads);
+        buffer.putFloat((float) info.startAngleRads);
 
         info.flags = 0;
         if(info.flagHasIntensities)
@@ -118,13 +118,13 @@ public class MultibeamViewersTests {
         buffer.put(info.flags);
 
         if(info.flagHasAngleSteps)
-            buffer.putDouble(info.angleStepsScaleFactor);
+            buffer.putFloat((float) info.angleStepsScaleFactor);
 
         if(info.flagHasIntensities)
-            buffer.putDouble(info.intensitiesScaleFactor);
+            buffer.putFloat((float) info.intensitiesScaleFactor);
 
         if(info.flagHasAngleSteps)
-            Arrays.stream(info.angleSteps)
+            Arrays.stream(info.angleStepsRads)
                     .forEach(step -> buffer.put(MultibeamUtil.valueToBytes(step, Short.BYTES,
                             (float) info.angleStepsScaleFactor)));
 
@@ -222,7 +222,7 @@ public class MultibeamViewersTests {
         }
     }
 
-    private static class SonarDataInfo {
+    public static class SonarDataInfo {
         public static final long hasIntensityMask = (1L << 0);
         public static final long equiDistantMask = (1L << 1);
 
@@ -233,9 +233,9 @@ public class MultibeamViewersTests {
         public boolean flagHasIntensities;
         public boolean flagHasAngleSteps;
         public double intensitiesScaleFactor;
-        public double angleSteps[];
+        public double angleStepsRads[];
         public double angleStepsScaleFactor;
-        public double angleIncrement;
+        public double angleIncrementRads;
         public long frequency;
         public long timestampMillis;
         public double dataScaleFactor;
@@ -245,17 +245,17 @@ public class MultibeamViewersTests {
         }
 
         public int computeSizeBytes() {
-            int nBytes = Short.BYTES + Double.BYTES + 1;
+            int nBytes = Short.BYTES + Float.BYTES + 1;
 
             // scale factor and angle steps
             if(this.flagHasAngleSteps) {
-                nBytes += Double.BYTES;
+                nBytes += Float.BYTES;
                 nBytes += Short.BYTES * this.numberOfPoints;
             }
 
             // scale factor and intensities data
             if(this.flagHasIntensities) {
-                nBytes += Double.BYTES;
+                nBytes += Float.BYTES;
                 nBytes += (this.bitsPerPoint/8) * this.numberOfPoints;
             }
 

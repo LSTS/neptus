@@ -60,7 +60,7 @@ public class MultibeamUtil {
         bytes.order(ByteOrder.LITTLE_ENDIAN);
 
         short numberOfPoints = (short) (bytes.getShort() & 0xFFFF);
-        double startAngleRads = bytes.getDouble();
+        double startAngleRads = bytes.getFloat();
         byte flags = bytes.get();
         boolean flagHasIntensities = (flags & hasIntensityMask) != 0;
         boolean flagHasAngleSteps = (flags & hasAngleStepsMask) != 0;
@@ -72,10 +72,10 @@ public class MultibeamUtil {
 
         // scale factors
         if (flagHasAngleSteps)
-            angleStepsScaleFactor = bytes.getDouble();
+            angleStepsScaleFactor = bytes.getFloat();
 
         if (flagHasIntensities)
-            intensitiesScaleFactor = bytes.getDouble();
+            intensitiesScaleFactor = bytes.getFloat();
 
         // read angle steps
         if (flagHasAngleSteps) {
@@ -110,6 +110,11 @@ public class MultibeamUtil {
                 NeptusLog.pub().warn("No intensities data available");
             }
         }
+        else {
+            intensities = new double[numberOfPoints];
+            Arrays.fill(intensities, 0);
+            NeptusLog.pub().warn("No intensities data available");
+        }
 
         // build Bathymetry swath's points
         BathymetryPoint[] points = new BathymetryPoint[ranges.length];
@@ -118,10 +123,14 @@ public class MultibeamUtil {
                 continue;
 
             double angleRads;
-            if(!flagHasAngleSteps)
+            if(!flagHasAngleSteps) {
                 angleRads = startAngleRads + angleSteps[0] * i;
-            else
-                angleRads = startAngleRads + angleSteps[i];
+            }
+            else {
+                angleRads = startAngleRads;
+                for (int j = 0; j <= i; j++)
+                    angleRads +=  angleSteps[j];
+            }
 
             float depth = (float) (ranges[i] * Math.cos(angleRads) + pose.getPosition().getDepth());
 
@@ -174,7 +183,7 @@ public class MultibeamUtil {
      * @param pose
      * @return
      */
-    public static SonarData swathToSonarData(BathymetrySwath swath, SystemPositionAndAttitude pose) {
+    public static SonarData swathToSonarDataOld(BathymetrySwath swath, SystemPositionAndAttitude pose) {
         SonarData sonarData = new SonarData();
 
         int bytesPerPoint = Short.BYTES;
@@ -216,6 +225,117 @@ public class MultibeamUtil {
 
             bytes.put(rangeBytes);
             putBytesAt(bytes, intensityIndex, intensitiyBytes);
+        }
+
+        BeamConfig c = new BeamConfig();
+        c.setBeamWidth(Math.toRadians(angleIncrementDeg));
+        c.setBeamHeight(Math.toRadians(angleIncrementDeg));
+        beamConfig.add(c);
+
+        // i = ++i % 3;
+        sonarData.setFrequency(260000+i);
+        sonarData.setMinRange(0); // 0.5m
+        sonarData.setMaxRange(40);
+        sonarData.setType(SonarData.TYPE.MULTIBEAM);
+        sonarData.setBitsPerPoint((short)Short.SIZE);
+        sonarData.setScaleFactor(scaleFactor);
+        sonarData.setTimestampMillis(swath.getTimestamp());
+        sonarData.setData(bytes.array());
+        sonarData.setBeamConfig(beamConfig);
+
+        return sonarData;
+    }
+    
+    /**
+     * This is to be used for testing purposes. It assumes that the data, swath, comes from DeltaT MB.
+     *
+     * @param swath
+     * @param pose
+     * @return
+     */
+    public static SonarData swathToSonarData(BathymetrySwath swath, SystemPositionAndAttitude pose, 
+            boolean useAngleStepsInData, boolean useIntensity) {
+        SonarData sonarData = new SonarData();
+
+        BathymetryPoint[] points = swath.getData();
+
+        int bytesPerPoint = Short.BYTES;
+        int headerBytes = Short.BYTES; // Number of data points
+        int dataBytes = bytesPerPoint * points.length; // Ranges
+        headerBytes += Float.BYTES; // StartAngle
+        headerBytes += Byte.BYTES; // Flags
+        if (useAngleStepsInData) {
+            headerBytes += Float.BYTES; // Angle scale factor
+            dataBytes += Short.BYTES * points.length; // Angle steps
+        }
+        if (useIntensity) {
+            headerBytes += Float.BYTES; // Intensities scale factor
+            dataBytes += bytesPerPoint * points.length; // Intensity
+        }
+
+        ByteBuffer bytes = ByteBuffer.allocate(headerBytes + dataBytes);
+        bytes.order(ByteOrder.LITTLE_ENDIAN);
+        List<BeamConfig> beamConfig = new ArrayList<>();
+
+        float scaleFactor = 0.008f;
+        float scaleFactorAngleDegs = 0.001f;
+        float scaleFactorIntensity = 1;
+        double angleIncrementDeg = 0.25;
+
+        // number of beams
+        short numberOfBeams = (short) points.length;
+        bytes.putShort(numberOfBeams);
+        
+        // startAngles
+        double startAngleDoubleDeg = -59.870003;
+        bytes.putFloat((float) Math.toRadians(startAngleDoubleDeg));
+
+        byte flags = 0;
+        if (useIntensity)
+            flags |= (1 << 0); // Intensities flag
+        if (useAngleStepsInData)
+            flags |= (1 << 1); // Angle steps flag
+        bytes.put(flags);
+
+        if (useAngleStepsInData)
+            bytes.putFloat((float) Math.toRadians(scaleFactorAngleDegs));
+        
+        if (useIntensity)
+            bytes.putFloat(1);
+
+        // put range and intensities
+        for(int i = 0; i < points.length; i++) {
+            double angleIncrementToStartDegs = angleIncrementDeg * i;
+            double range = 0;
+            double intensity = 0;
+            double angleDegs = startAngleDoubleDeg + angleIncrementToStartDegs;
+            double cosAngle = Math.cos(Math.toRadians(angleDegs)); 
+
+            if(points[i] != null) {
+                // remove transformation made by DeltaT parser
+                range = (points[i].depth - pose.getPosition().getDepth()) / cosAngle;
+                intensity = points[i].intensity;
+            }
+
+            byte[] angleBytes = valueToBytes(i == 0 ? 0 : Math.toRadians(angleIncrementDeg), Short.BYTES, (float) Math.toRadians(scaleFactorAngleDegs));
+            byte[] rangeBytes = valueToBytes(range, bytesPerPoint, scaleFactor);
+            byte[] intensitiyBytes = valueToBytes(intensity, bytesPerPoint, scaleFactorIntensity);
+
+//            angleBytes = valueToBytes(0x30, Short.BYTES, 1);
+//            rangeBytes = valueToBytes(0x31, bytesPerPoint, 1);
+//            intensitiyBytes = valueToBytes(0x32, bytesPerPoint, 1);
+
+            // int angleIndex = headerBytes + Short.BYTES * (i - 1);
+            int angleSize = useAngleStepsInData ? Short.BYTES * points.length : 0;
+            int rangeIndex = headerBytes + angleSize + bytesPerPoint * i;
+            int intensityIndex = headerBytes + angleSize + bytesPerPoint * (points.length + i);
+
+            if (useAngleStepsInData)
+                bytes.put(angleBytes);
+            // putBytesAt(bytes, angleIndex, angleBytes);
+            putBytesAt(bytes, rangeIndex, rangeBytes);
+            if (useIntensity)
+                putBytesAt(bytes, intensityIndex, intensitiyBytes);
         }
 
         BeamConfig c = new BeamConfig();
