@@ -254,12 +254,27 @@ public class MultibeamUtil {
      * @return
      */
     public static SonarData swathToSonarData(BathymetrySwath swath, SystemPositionAndAttitude pose, 
-            boolean useAngleStepsInData, boolean useIntensity) {
+            boolean useAngleStepsInData, boolean useIntensity, short bytesPerData) {
         SonarData sonarData = new SonarData();
 
         BathymetryPoint[] points = swath.getData();
 
-        int bytesPerPoint = Short.BYTES;
+        int originalBytesPerPoint = Short.BYTES; 
+        int bytesPerPoint = originalBytesPerPoint;
+        switch (bytesPerData) {
+            case 1:
+                bytesPerPoint = 1;
+                break;
+            case 2:
+                bytesPerPoint = 2;
+                break;
+            case 4:
+                bytesPerPoint = 4;
+                break;
+            case 8:
+                bytesPerPoint = 8;
+                break;
+        }
         int headerBytes = Short.BYTES; // Number of data points
         int dataBytes = bytesPerPoint * points.length; // Ranges
         headerBytes += Float.BYTES; // StartAngle
@@ -301,7 +316,7 @@ public class MultibeamUtil {
             bytes.putFloat((float) Math.toRadians(scaleFactorAngleDegs));
         
         if (useIntensity)
-            bytes.putFloat(1);
+            bytes.putFloat(scaleFactorIntensity);
 
         // put range and intensities
         for(int i = 0; i < points.length; i++) {
@@ -321,6 +336,12 @@ public class MultibeamUtil {
             byte[] rangeBytes = valueToBytes(range, bytesPerPoint, scaleFactor);
             byte[] intensitiyBytes = valueToBytes(intensity, bytesPerPoint, scaleFactorIntensity);
 
+            // Test for 64bits
+//            if (bytesPerPoint == 8) {
+//                Arrays.fill(rangeBytes, (byte) 0xFF);
+//                scaleFactor = 0.000000000000000001f;
+//            }
+            
 //            angleBytes = valueToBytes(0x30, Short.BYTES, 1);
 //            rangeBytes = valueToBytes(0x31, bytesPerPoint, 1);
 //            intensitiyBytes = valueToBytes(0x32, bytesPerPoint, 1);
@@ -348,8 +369,8 @@ public class MultibeamUtil {
         sonarData.setMinRange(0); // 0.5m
         sonarData.setMaxRange(40);
         sonarData.setType(SonarData.TYPE.MULTIBEAM);
-        sonarData.setBitsPerPoint((short)Short.SIZE);
-        sonarData.setScaleFactor(scaleFactor);
+        sonarData.setBitsPerPoint((short) (bytesPerPoint * 8));
+        sonarData.setScaleFactor((double) scaleFactor);
         sonarData.setTimestampMillis(swath.getTimestamp());
         sonarData.setData(bytes.array());
         sonarData.setBeamConfig(beamConfig);

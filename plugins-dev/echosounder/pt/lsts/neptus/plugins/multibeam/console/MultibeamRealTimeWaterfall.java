@@ -377,7 +377,13 @@ public class MultibeamRealTimeWaterfall extends ConsolePanel implements Configur
         // dataFile = "D:\\REP15-Data\\to_upload_20150717\\lauv-noptilus-3\\20150717\\120741_horta-m01\\Data.lsf.gz";
 
         UDPTransport udp = new UDPTransport(6002, 1);
-        
+
+        short bytesPerPoint = (short) 0;
+        int ignorePingsLessThan = 1400;
+        int exitOnPing = 1500;
+        boolean printDebug = false;
+        boolean exitOnFirst = true;
+
         try {
             LsfLogSource source = new LsfLogSource(dataFile, null);
             DeltaTParser mbParser = new DeltaTParser(source);
@@ -397,7 +403,7 @@ public class MultibeamRealTimeWaterfall extends ConsolePanel implements Configur
             int ct = 0;
             while (swath != null) {
                 ct++;
-                if (ct < 1400) {
+                if (ct < ignorePingsLessThan) {
                     swath = mbParser.nextSwath();
                     continue;
                 }
@@ -408,9 +414,9 @@ public class MultibeamRealTimeWaterfall extends ConsolePanel implements Configur
                 SystemPositionAndAttitude pose = swath.getPose();
                 EstimatedState currentEstimatedState = pose.toEstimatedState();
                 
-                SonarData sd = MultibeamUtil.swathToSonarData(swath, pose, useAngleStepsInData, useIntensity);
+                SonarData sd = MultibeamUtil.swathToSonarData(swath, pose, useAngleStepsInData, useIntensity, bytesPerPoint);
 
-                if (false) {
+                if (printDebug) {
                     System.out.println("Mine   > \n" + ByteUtil.dumpAsHexToString(sd.getData()));
                     String sdJ = sd.asJSON();
                     
@@ -429,13 +435,14 @@ public class MultibeamRealTimeWaterfall extends ConsolePanel implements Configur
 //                    String sd1J = sd1.asJSON();
                     
                     BathymetrySwath swathR = MultibeamUtil.getMultibeamSwath(sd, pose);
-                    SonarData sd2 = MultibeamUtil.swathToSonarData(swathR, pose, useAngleStepsInData, useIntensity);
+                    SonarData sd2 = MultibeamUtil.swathToSonarData(swathR, pose, useAngleStepsInData, useIntensity, bytesPerPoint);
                     System.out.println("Mine2  > \n" + ByteUtil.dumpAsHexToString(sd2.getData()));
                     String sd2J = sd2.asJSON();
                     
                     System.out.println(/*sdJ.compareTo(sd1J) +*/ "   " + sdJ.compareTo(sd2J));
                     
-                    System.exit(0);
+                    if (exitOnFirst)
+                        System.exit(0);
                 }
                 
                 currentEstimatedState.setSrc(mainVehSrc);
@@ -447,12 +454,12 @@ public class MultibeamRealTimeWaterfall extends ConsolePanel implements Configur
 
                 baos.reset();
                 currentEstimatedState.serialize(imcOs);
-                udp.sendMessage("localhost", 6001, baos.toByteArray());
+                udp.sendMessage("10.0.2.90", 6001, baos.toByteArray());
                 baos.reset();
                 sd.serialize(imcOs);
-                udp.sendMessage("localhost", 6001, baos.toByteArray());
+                udp.sendMessage("10.0.2.90", 6001, baos.toByteArray());
 
-                if (ct > 1500)
+                if (ct > exitOnPing)
                     System.exit(0);
 
                 Thread.sleep(50);
