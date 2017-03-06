@@ -33,14 +33,18 @@
 package pt.lsts.neptus.firers.test;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.Date;
+
+import org.apache.commons.io.IOUtils;
 
 import pt.lsts.neptus.comm.transports.DeliveryListener.ResultEnum;
 import pt.lsts.neptus.comm.transports.tcp.TCPMessageListener;
 import pt.lsts.neptus.comm.transports.tcp.TCPNotification;
 import pt.lsts.neptus.comm.transports.tcp.TCPTransport;
+import pt.lsts.neptus.util.ByteUtil;
 import pt.lsts.neptus.util.DateTimeUtil;
 
 /**
@@ -130,6 +134,13 @@ public class ConnectionTest {
         }
     }
 
+    public static void mainFx(String[] args) throws Exception {
+        FileInputStream fis = new FileInputStream("");
+        byte[] ba = IOUtils.toByteArray(fis);
+        ByteUtil.dumpAsHex(ba, System.out);
+    }
+
+    
     public static void main(String[] args) throws Exception {
         new Thread() {
             @Override
