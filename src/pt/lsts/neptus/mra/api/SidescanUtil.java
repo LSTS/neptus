@@ -34,6 +34,8 @@ package pt.lsts.neptus.mra.api;
 
 import java.awt.image.BufferedImage;
 
+import com.google.common.primitives.UnsignedLong;
+
 import pt.lsts.imc.IMCMessage;
 import pt.lsts.imc.SonarData;
 import pt.lsts.neptus.mp.SystemPositionAndAttitude;
@@ -210,7 +212,7 @@ public class SidescanUtil {
      * @return
      */
     public static long[] transformData(byte[] data, short bitsPerPoint) {
-        if (bitsPerPoint % 8 != 0 || bitsPerPoint > 32 || bitsPerPoint < 8)
+        if (bitsPerPoint % 8 != 0 || bitsPerPoint > 64 || bitsPerPoint < 8)
             return null;
         
         int bytesPerPoint = bitsPerPoint < 8 ? 1 : (bitsPerPoint / 8);
@@ -222,7 +224,7 @@ public class SidescanUtil {
             for (int j = 0; j < bytesPerPoint; j++) {
                 int v = data[i] & 0xFF;
                 v = (v << 8 * j);
-                val += v;
+                val |= v;
                 i++; // progressing index of data
             }
             fData[k++] = val;
@@ -247,7 +249,14 @@ public class SidescanUtil {
         
         // Lets apply scaling
         for (int i = 0; i < fData.length; i++) {
-            fData[i] = longData[i] * scaleFactor;
+            if (fData[i] > 0) {
+                 fData[i] = longData[i] * scaleFactor;
+            }
+            else {
+                // To account for 64bit unsigned long
+                UnsignedLong ul = UnsignedLong.valueOf(Long.toUnsignedString(longData[i]));
+                fData[i] = ul.doubleValue() * scaleFactor;
+            }
         }
         
         return fData;
