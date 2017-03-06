@@ -58,6 +58,7 @@ public class LogMarkerItem extends LogMarker {
     private double range;
     private Classification classification;
     private HashSet<String> tagList = new HashSet<>();
+    private String mainPhoto;
 
     public enum Classification {
         UNDEFINED(0), 
@@ -85,9 +86,10 @@ public class LogMarkerItem extends LogMarker {
      * @param timestamp
      * @param lat
      * @param lon
+     * @param mainPhoto 
      */
     public LogMarkerItem(int index, String label, double timestamp, double lat, double lon, String sidescanImgPath, String drawImgPath, 
-            String annot, double altitude, double depth, double range, Classification classif, ArrayList<String> photos, HashSet<String> tags) {
+            String annot, double altitude, double depth, double range, Classification classif, ArrayList<String> photos, HashSet<String> tags, String mainPhoto) {
         super(label, annot, timestamp, lat, lon);
         this.index = index;
         this.sidescanImgPath = sidescanImgPath;
@@ -99,6 +101,7 @@ public class LogMarkerItem extends LogMarker {
         this.classification = classif;
         this.photoList = photos;
         this.tagList = tags;
+        this.mainPhoto = mainPhoto;
     }
 
     /**
@@ -171,6 +174,15 @@ public class LogMarkerItem extends LogMarker {
         string.append(getAltitude()+ " ");
         string.append(getAnnotation()+ " ");
         string.append(getClassification()+ " ");
+        string.append("{");
+        String sep = "";
+        for (String photo : photoList) {
+            string.append(sep);
+            string.append(photo);
+            sep = ", ";
+        }
+        string.append("} ");
+        string.append(getMainPhoto()+ " ");
 
         return string.toString();
     }
@@ -178,10 +190,18 @@ public class LogMarkerItem extends LogMarker {
     public void copy(LogMarkerItem from) {
         this.annotation = from.annotation;
         this.classification = from.classification;
+        this.mainPhoto = from.mainPhoto;
         this.photoList = new ArrayList<>(from.photoList);
         this.tagList = new HashSet<>(from.tagList);
     }
+    
+    public void setMainPhoto(String newPhoto) {
+        this.mainPhoto = newPhoto;
+    }
 
+    public String getMainPhoto() {
+        return mainPhoto;
+    }
     /**
      * @return the sidescanImgPath
      */

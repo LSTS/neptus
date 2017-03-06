@@ -181,7 +181,7 @@ public class MarkerManagement extends JDialog {
 
         // frmMarkerManagement = new JDialog(SwingUtilities.windowForComponent(mraPanel), ModalityType.MODELESS);
         setIconImage(
-                Toolkit.getDefaultToolkit().getImage(MarkerManagement.class.getResource("/images/menus/marker.png")));
+                Toolkit.getDefaultToolkit().getImage(this.getClass().getResource("/images/menus/marker.png")));
         setTitle(I18n.text("Marker Management"));
         setBounds(100, 100, WIDTH, HEIGHT);
         addWindowListener(new WindowAdapter()
@@ -225,7 +225,7 @@ public class MarkerManagement extends JDialog {
         exportButton.setVerticalTextPosition(SwingConstants.BOTTOM);
         exportButton.setIcon(ImageUtils.getIcon("images/menus/print.png"));
         exportButton.setToolTipText("Export selected markers as HTML");
-        
+
         panel.add(exportButton, "cell 0 0");
 
         exportButton.addActionListener(new ActionListener() {
@@ -615,7 +615,7 @@ public class MarkerManagement extends JDialog {
         markerFilePath = mraPanel.getSource().getFile("Data.lsf").getParent() + "/mra/marks.xml";
         FileUtils.deleteQuietly(new File(markerFilePath));
 
-        File markerImgPath = new File(mraPanel.getSource().getFile("Data.lsf").getParent() + "/mra/markers/");
+        File markerImgPath = new File(mraPanel.getSource().getFile("Data.lsf").getParent() + MARKERS_REL_PATH);
         FileUtils.deleteQuietly(markerImgPath);
     }
 
@@ -624,7 +624,7 @@ public class MarkerManagement extends JDialog {
 
         //XML markers file doesnt exist and there are Markers to be added
         if (!new File(markerFilePath).exists() && !logMarkers.isEmpty()) {
-            File markerImgPath = new File(mraPanel.getSource().getFile("Data.lsf").getParent() + "/mra/markers/");
+            File markerImgPath = new File(mraPanel.getSource().getFile("Data.lsf").getParent() + MARKERS_REL_PATH);
             FileUtils.deleteQuietly(markerImgPath);
             NeptusLog.pub().info(I18n.text("Creating markers..."));
             loader.setText(I18n.text("Creating markers file"));
@@ -748,7 +748,7 @@ public class MarkerManagement extends JDialog {
             }
 
             if (image != null) {
-                String path = mraPanel.getSource().getFile("Data.lsf").getParent() + "/mra/markers/";
+                String path = mraPanel.getSource().getFile("Data.lsf").getParent() + MARKERS_REL_PATH;
                 File dir = new File(path);
 
                 //create dir if it doesnt exists
@@ -839,7 +839,7 @@ public class MarkerManagement extends JDialog {
             description = "<Your annotation here.>";
 
         LogMarkerItem marker = new LogMarkerItem(index, ssLogMarker.getLabel(), ssLogMarker.getTimestamp(), loc.getLatitudeDegs(), 
-                loc.getLongitudeDegs(), getImgPath(ssLogMarker.getLabel()), null, description, alt, depth, range, Classification.UNDEFINED, photoList, tagList);
+                loc.getLongitudeDegs(), getImgPath(ssLogMarker.getLabel()), "N/A", description, alt, depth, range, Classification.UNDEFINED, photoList, tagList, null);
 
         //format date timestamp
         String date = DateTimeUtil.dateFormatterXMLUTC.format(ssLogMarker.getTimestamp());
@@ -968,10 +968,10 @@ public class MarkerManagement extends JDialog {
      * @return File of marker image
      */
     private String getImgPath(String marker) {
-        File f = new File(mraPanel.getSource().getFile("Data.lsf").getParent() + "/mra/markers/" + marker + ".png");
+        File f = new File(mraPanel.getSource().getFile("Data.lsf").getParent() + MARKERS_REL_PATH + marker + ".png");
 
         if(f.exists() && !f.isDirectory()) {
-            String relPath = "/mra/markers/" + marker +".png";
+            String relPath = MARKERS_REL_PATH + marker +".png";
             return relPath;
         }
 
@@ -1084,7 +1084,11 @@ public class MarkerManagement extends JDialog {
     }
 
     private void updateElementWithTag(Element e, String tag, String value) {
-        getElement(e, tag).setTextContent(value);
+        if (e != null) {
+            Node node = getElement(e, tag);
+            if (node != null)
+                node.setTextContent(value);
+        }
     }
 
     /** Updates an entry in the XML file
@@ -1111,28 +1115,35 @@ public class MarkerManagement extends JDialog {
                 Element photosEl = (Element) getElement(mark, "Photos");
                 NodeList photosNode = mark.getElementsByTagName("Photos");
 
-                Set<Element> targetElements = new HashSet<Element>();
-                for (int s = 0; s < photosNode.getLength(); s++) {
-                    Element e = (Element)photosNode.item(s);
-                    NodeList pList = e.getElementsByTagName("Photo");
-                    if (pList != null) {
-                        for (int k=0; k<pList.getLength(); k++) {
-                            Element photo = (Element)pList.item(k);
-                            if (!mrkerToUpd.getPhotosPath().contains(photo.getFirstChild().getNodeValue())) {
+                if (photosNode != null) {
+                    Set<Element> targetElements = new HashSet<Element>();
+                    for (int s = 0; s < photosNode.getLength(); s++) {
+                        Element e = (Element)photosNode.item(s);
+                        NodeList pList = e.getElementsByTagName("Photo");
+                        if (pList != null) {
+                            for (int k=0; k<pList.getLength(); k++) {
+                                Element photo = (Element)pList.item(k);
                                 //target to remove
-                                targetElements.add(photo);
+                                if (!mrkerToUpd.getPhotosPath().contains(photo.getFirstChild().getNodeValue())) {
+                                    targetElements.add(photo);
+                                }
                             }
                         }
                     }
-                }
 
-                for (Element e : targetElements) {
-                    e.getParentNode().removeChild(e);
+                    for (Element e : targetElements) {
+                        e.getParentNode().removeChild(e);
+                    }
                 }
 
                 for (String imgPath : mrkerToUpd.getPhotosPath()) {
                     if (!photoAlreadyExists(photosNode, imgPath)) {
                         Element photo = dom.createElement("Photo");
+                        boolean useAsMain = (mrkerToUpd.getMainPhoto() != null);
+
+                        if (useAsMain)
+                            photo.setAttribute("setAsMain", "true");
+
                         photo.appendChild(dom.createTextNode(imgPath));
                         photosEl.appendChild(photo);
                     }
@@ -1171,7 +1182,6 @@ public class MarkerManagement extends JDialog {
             if (pList != null) {
                 for (int k=0; k< pList.getLength(); k++) {
                     Element photo = (Element)pList.item(k);
-                    System.out.println("photo :"+ photo.getFirstChild().getNodeValue());
                     if (photo.getFirstChild().getNodeValue().equals(photoPath)) {
                         return true;
                     }
@@ -1297,9 +1307,9 @@ public class MarkerManagement extends JDialog {
         double altitude = 0;
         double depth = 0;
         double range = 0;
-        Classification cls = Classification.valueOf(getTextValue(markerEl,"Classification"));
+        Classification cls = Classification.valueOf(getTextValue(markerEl, "Classification"));
         String annot = "";
-
+        String mainPhoto = null;
         try  {
             String ssImgPath = getTextValue(markerEl, "Image");
             path = ssImgPath;
@@ -1314,9 +1324,10 @@ public class MarkerManagement extends JDialog {
             range = getDoubleValue(markerEl, "Range");
             cls = Classification.valueOf(getTextValue(markerEl,"Classification"));
             annot = getTextValue(markerEl, "Annotation");
-            photoList = getListValue(markerEl, "Photos");
+            Object[] photosObj = getListValue(markerEl, "Photos");
+            photoList = (ArrayList<String>) photosObj[0];
             String tags = getTextValue(markerEl, "Tags");
-
+            mainPhoto = (String) photosObj[1];
             if (tags != null) {
                 Iterable<String> tagIt = Splitter.on(',')
                         .trimResults()
@@ -1337,13 +1348,15 @@ public class MarkerManagement extends JDialog {
         }
 
         //Create new LogMarkerItem with the value read from xml
-        LogMarkerItem e = new LogMarkerItem(index, name, ts, lat, lon, path, drawPath, annot, altitude, depth, range, cls, photoList, tagList);
+        LogMarkerItem e = new LogMarkerItem(index, name, ts, lat, lon, path, drawPath, annot, altitude, depth, range, cls, photoList, tagList, mainPhoto);
 
+        System.out.println(e.toString());
         return e;
     }
 
 
-    private ArrayList<String> getListValue(Element ele, String tagName) {
+    private Object[] getListValue(Element ele, String tagName) {
+        Object[] rObject = new Object[2];
         ArrayList<String> res = new ArrayList<>();
 
         NodeList nl = ele.getElementsByTagName(tagName);
@@ -1354,13 +1367,17 @@ public class MarkerManagement extends JDialog {
                 if (pList != null) {
                     for (int j=0; j < pList.getLength(); j++) {
                         Element photo = (Element)pList.item(j);
+                        String attr = photo.getAttribute("setAsMain");
+                        if (!attr.isEmpty())
+                            rObject[1] = photo.getFirstChild().getNodeValue();
                         res.add(photo.getFirstChild().getNodeValue());
                     }
                 }
             }
         }
+        rObject[0] = res;
 
-        return res;
+        return rObject;
     }
 
     private String getTextValue(Element ele, String tagName) {
