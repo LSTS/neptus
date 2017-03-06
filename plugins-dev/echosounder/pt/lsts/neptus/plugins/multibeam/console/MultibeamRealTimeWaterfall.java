@@ -454,10 +454,10 @@ public class MultibeamRealTimeWaterfall extends ConsolePanel implements Configur
 
                 baos.reset();
                 currentEstimatedState.serialize(imcOs);
-                udp.sendMessage("10.0.2.90", 6001, baos.toByteArray());
+                udp.sendMessage("localhost", 6001, baos.toByteArray());
                 baos.reset();
                 sd.serialize(imcOs);
-                udp.sendMessage("10.0.2.90", 6001, baos.toByteArray());
+                udp.sendMessage("localhost", 6001, baos.toByteArray());
 
                 if (ct > exitOnPing)
                     System.exit(0);
