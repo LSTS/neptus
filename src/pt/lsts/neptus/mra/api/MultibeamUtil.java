@@ -158,7 +158,7 @@ public class MultibeamUtil {
      * */
     public static byte[] valueToBytes(double value, int bytesPerPoint, float scaleFactor) {
         byte[] bytes = new byte[bytesPerPoint];
-        int valueScaled = (int) (value / scaleFactor);
+        long valueScaled = (long) (value / scaleFactor);
 
         for (int i = 0; i < bytesPerPoint; i++)
             bytes[i] = (byte) (((valueScaled >> 8 * i)) & 0xFF);
