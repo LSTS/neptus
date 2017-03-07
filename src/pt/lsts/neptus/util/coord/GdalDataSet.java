@@ -58,7 +58,7 @@ public class GdalDataSet {
 
     private Dataset hDataset = null;
     private File imageFile = null;
-
+    
     public GdalDataSet(File f) {
         GdalUtilities.loadNativeLibraries();
         hDataset = gdal.Open(f.getAbsolutePath(), gdalconstConstants.GA_ReadOnly);
@@ -109,12 +109,21 @@ public class GdalDataSet {
     private double[] getCenter() {
         return toLatLong(hDataset, hDataset.getRasterXSize() / 2.0, hDataset.getRasterYSize() / 2.0);                
     }
+    
+    private SpatialReference getSpatialReference() {
+        String pszProjection;
+        pszProjection = hDataset.GetProjectionRef();
+        if (pszProjection != null && pszProjection.length() > 0) {
+            return  new SpatialReference(pszProjection);
+        }
+        return new SpatialReference();
+    }
 
     private double[] getMetersPerPixel() {
         double[] adfGeoTransform = new double[6];
         hDataset.GetGeoTransform(adfGeoTransform);
         
-        if (adfGeoTransform[2] == 0.0 && adfGeoTransform[4] == 0.0)
+        if (getSpatialReference().IsGeographic() == 0 && adfGeoTransform[2] == 0.0 && adfGeoTransform[4] == 0.0)
             return new double[] {adfGeoTransform[1], -adfGeoTransform[5]};
             
         LocationType corners[] = getCornerCoordinates();
@@ -160,7 +169,7 @@ public class GdalDataSet {
 
         {
             pszProjection = hDataset.GetProjectionRef();
-
+            
             dfGeoX = adfGeoTransform[0] + adfGeoTransform[1] * x + adfGeoTransform[2] * y;
             dfGeoY = adfGeoTransform[3] + adfGeoTransform[4] * x + adfGeoTransform[5] * y;
         }
@@ -178,6 +187,8 @@ public class GdalDataSet {
             SpatialReference hProj, hLatLong = null;
 
             hProj = new SpatialReference(pszProjection);
+            
+            
             if (hProj != null)
                 hLatLong = hProj.CloneGeogCS();
 
@@ -206,7 +217,7 @@ public class GdalDataSet {
 
     public static void main(String[] args) throws Exception {
         
-        File f = new File("/home/zp/Desktop");
+        File f = new File("/home/zp/Downloads");
         
         for (File file : f.listFiles()) {
             if (file.getName().endsWith(".tif")) {
