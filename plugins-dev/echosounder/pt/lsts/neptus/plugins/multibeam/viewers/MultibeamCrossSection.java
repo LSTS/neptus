@@ -81,6 +81,10 @@ import pt.lsts.neptus.plugins.Popup;
 import pt.lsts.neptus.plugins.multibeam.console.MultibeamEntityAndChannelChangeListener;
 import pt.lsts.neptus.types.coord.LocationType;
 import pt.lsts.neptus.util.MathMiscUtils;
+import pt.lsts.neptus.util.GuiUtils;
+import pt.lsts.neptus.util.AngleUtils;
+import pt.lsts.neptus.util.ColorUtils;
+import pt.lsts.neptus.util.ImageUtils;
 
 /**
  * Cross section viewer for Multibeam data
@@ -621,8 +625,7 @@ public class MultibeamCrossSection extends ConsolePanel
             // update grid's scale if necessary
             double maxDepth = getDataMaxDepth(swath);
             if(maxDepth != mbRange) {
-                int factor = (int) Math.round(maxDepth / mbRange);
-                mbRange +=  factor*10;
+                mbRange = maxDepth / 0.8;
                 gridInvalidated = true;
             }
 
