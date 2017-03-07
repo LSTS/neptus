@@ -50,6 +50,7 @@ import com.l2fprod.common.propertysheet.Property;
 
 import pt.lsts.imc.IMCMessage;
 import pt.lsts.imc.ScheduledGoto.DELAYED;
+import pt.lsts.imc.def.ZUnits;
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.mp.ManeuverLocation;
@@ -137,9 +138,9 @@ public class ScheduledGoto extends Goto {
         man.setLon(l.getLongitudeRads());
 
         man.setZ(getManeuverLocation().getZ());
-        man.setZUnits(pt.lsts.imc.ScheduledGoto.Z_UNITS.valueOf(getManeuverLocation().getZUnits().name()));
+        man.setZUnits(ZUnits.valueOf(getManeuverLocation().getZUnits().name()));
 
-        man.setTravelZUnits(pt.lsts.imc.ScheduledGoto.TRAVEL_Z_UNITS.valueOf(getTravelUnits().name()));
+        man.setTravelZUnits(ZUnits.valueOf(getTravelUnits().name()));
         man.setTravelZ(travelZ);
 
         man.setArrivalTime(arrivalTime.getTime()/1000.0);

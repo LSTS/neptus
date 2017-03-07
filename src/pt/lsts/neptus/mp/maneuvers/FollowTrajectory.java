@@ -75,6 +75,8 @@ import com.l2fprod.common.propertysheet.Property;
 import pt.lsts.imc.IMCMessage;
 import pt.lsts.imc.PathPoint;
 import pt.lsts.imc.TrajectoryPoint;
+import pt.lsts.imc.def.SpeedUnits;
+import pt.lsts.imc.def.ZUnits;
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.gui.PropertiesEditor;
 import pt.lsts.neptus.gui.ToolbarSwitch;
@@ -669,20 +671,20 @@ StateRendererInteraction, IMCSerialization, PathProvider {
             trajMessage.setLat(Math.toRadians(lld[0]));
             trajMessage.setLon(Math.toRadians(lld[1]));
             trajMessage.setZ(getManeuverLocation().getZ());
-            trajMessage.setZUnits(pt.lsts.imc.FollowTrajectory.Z_UNITS.valueOf(
+            trajMessage.setZUnits(ZUnits.valueOf(
                     getManeuverLocation().getZUnits().toString()));
             trajMessage.setSpeed(speed);
             try {
                 switch (this.getSpeedUnits()) {
                     case METERS_PS:
-                        trajMessage.setSpeedUnits(pt.lsts.imc.FollowTrajectory.SPEED_UNITS.METERS_PS);
+                        trajMessage.setSpeedUnits(SpeedUnits.METERS_PS);
                         break;
                     case PERCENTAGE:
-                        trajMessage.setSpeedUnits(pt.lsts.imc.FollowTrajectory.SPEED_UNITS.PERCENTAGE);
+                        trajMessage.setSpeedUnits(SpeedUnits.PERCENTAGE);
                         break;
                     case RPM:
                     default:
-                        trajMessage.setSpeedUnits(pt.lsts.imc.FollowTrajectory.SPEED_UNITS.RPM);
+                        trajMessage.setSpeedUnits(SpeedUnits.RPM);
                         break;
                 }
             }
@@ -709,20 +711,20 @@ StateRendererInteraction, IMCSerialization, PathProvider {
             pathMessage.setLat(Math.toRadians(lld[0]));
             pathMessage.setLon(Math.toRadians(lld[1]));
             pathMessage.setZ(getManeuverLocation().getZ());
-            pathMessage.setZUnits(pt.lsts.imc.FollowPath.Z_UNITS.valueOf(
+            pathMessage.setZUnits(ZUnits.valueOf(
                     getManeuverLocation().getZUnits().toString()));            
             pathMessage.setSpeed(speed);
             try {
                 switch (this.getSpeedUnits()) {
                     case METERS_PS:
-                        pathMessage.setSpeedUnits(pt.lsts.imc.FollowPath.SPEED_UNITS.METERS_PS);
+                        pathMessage.setSpeedUnits(SpeedUnits.METERS_PS);
                         break;
                     case PERCENTAGE:
-                        pathMessage.setSpeedUnits(pt.lsts.imc.FollowPath.SPEED_UNITS.PERCENTAGE);
+                        pathMessage.setSpeedUnits(SpeedUnits.PERCENTAGE);
                         break;
                     case RPM:
                     default:
-                        pathMessage.setSpeedUnits(pt.lsts.imc.FollowPath.SPEED_UNITS.RPM);
+                        pathMessage.setSpeedUnits(SpeedUnits.RPM);
                         break;
                 }            }
             catch (Exception ex) {

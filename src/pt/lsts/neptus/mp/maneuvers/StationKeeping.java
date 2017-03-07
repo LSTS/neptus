@@ -49,6 +49,8 @@ import com.l2fprod.common.propertysheet.DefaultProperty;
 import com.l2fprod.common.propertysheet.Property;
 
 import pt.lsts.imc.IMCMessage;
+import pt.lsts.imc.def.SpeedUnits;
+import pt.lsts.imc.def.ZUnits;
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.gui.PropertiesEditor;
 import pt.lsts.neptus.i18n.I18n;
@@ -340,20 +342,20 @@ public class StationKeeping extends Maneuver implements LocatedManeuver, Maneuve
 		message.setLat(loc.getLatitudeRads());
 		message.setLon(loc.getLongitudeRads());
 		message.setZ(getManeuverLocation().getZ());
-		message.setZUnits(pt.lsts.imc.StationKeeping.Z_UNITS.valueOf(getManeuverLocation().getZUnits().toString()));
+		message.setZUnits(ZUnits.valueOf(getManeuverLocation().getZUnits().toString()));
 		message.setDuration(getDuration());
 		message.setSpeed(this.getSpeed());
 		try {
             switch (this.getSpeedUnits()) {
                 case METERS_PS:
-                    message.setSpeedUnits(pt.lsts.imc.StationKeeping.SPEED_UNITS.METERS_PS);
+                    message.setSpeedUnits(SpeedUnits.METERS_PS);
                     break;
                 case PERCENTAGE:
-                    message.setSpeedUnits(pt.lsts.imc.StationKeeping.SPEED_UNITS.PERCENTAGE);
+                    message.setSpeedUnits(SpeedUnits.PERCENTAGE);
                     break;
                 case RPM:
                 default:
-                    message.setSpeedUnits(pt.lsts.imc.StationKeeping.SPEED_UNITS.RPM);
+                    message.setSpeedUnits(SpeedUnits.RPM);
                     break;
             }
         }

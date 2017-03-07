@@ -50,6 +50,8 @@ import com.l2fprod.common.propertysheet.Property;
 
 import pt.lsts.imc.CompassCalibration.DIRECTION;
 import pt.lsts.imc.IMCMessage;
+import pt.lsts.imc.def.SpeedUnits;
+import pt.lsts.imc.def.ZUnits;
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.gui.editor.SpeedUnitsEnumEditor;
 import pt.lsts.neptus.i18n.I18n;
@@ -272,7 +274,7 @@ public class CompassCalibration extends Maneuver
         man.setLat(loc.getLatitudeRads());
         man.setLon(loc.getLongitudeRads());
         man.setZ(getManeuverLocation().getZ());
-        man.setZUnits(pt.lsts.imc.CompassCalibration.Z_UNITS.valueOf(getManeuverLocation().getZUnits().toString()));
+        man.setZUnits(ZUnits.valueOf(getManeuverLocation().getZUnits().toString()));
         man.setPitch(Math.toRadians(pitchDegs));
         man.setAmplitude(amplitude);
         man.setDuration(duration);
@@ -284,14 +286,14 @@ public class CompassCalibration extends Maneuver
         try {
             switch (speedUnits) {
                 case METERS_PS:
-                    man.setSpeedUnits(pt.lsts.imc.CompassCalibration.SPEED_UNITS.METERS_PS);
+                    man.setSpeedUnits(SpeedUnits.METERS_PS);
                     break;
                 case PERCENTAGE:
-                    man.setSpeedUnits(pt.lsts.imc.CompassCalibration.SPEED_UNITS.PERCENTAGE);
+                    man.setSpeedUnits(SpeedUnits.PERCENTAGE);
                     break;
                 case RPM:
                 default:
-                    man.setSpeedUnits(pt.lsts.imc.CompassCalibration.SPEED_UNITS.RPM);
+                    man.setSpeedUnits(SpeedUnits.RPM);
                     break;
             }
         }
