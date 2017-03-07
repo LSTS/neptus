@@ -58,6 +58,7 @@ import pt.lsts.neptus.plugins.PluginUtils;
 import pt.lsts.neptus.plugins.Popup;
 import pt.lsts.neptus.plugins.NeptusProperty.LEVEL;
 import pt.lsts.neptus.plugins.multibeam.console.MultibeamRealTimeWaterfall;
+import pt.lsts.neptus.plugins.update.Periodic;
 
 /**
  * @author tsm
@@ -174,12 +175,12 @@ public class MultibeamDualViewer extends ConsolePanel {
     
     @Override
     public DefaultProperty[] getProperties() {
-        DefaultProperty[] props = super.getProperties();
+        //DefaultProperty[] props = super.getProperties();
         
         DefaultProperty[] props1 = waterfall.getProperties();
         DefaultProperty[] props2 = crossSection.getProperties();
 
-        List<DefaultProperty> propsLst = new ArrayList<>(Arrays.asList(props));
+        List<DefaultProperty> propsLst = new ArrayList<>();
         
         DefaultProperty[] propsTmp = ObjectArrays.concat(props1, props2, DefaultProperty.class);
 
@@ -213,5 +214,11 @@ public class MultibeamDualViewer extends ConsolePanel {
         
         waterfall.setProperties(properties);
         crossSection.setProperties(properties);
+    }
+
+    // FIXME
+    @Periodic(millisBetweenUpdates = 800)
+    public void onPeriodicUpdate() {
+        super.setProperties(this.getProperties());
     }
 }
