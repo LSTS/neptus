@@ -80,10 +80,7 @@ import pt.lsts.neptus.plugins.PluginDescription;
 import pt.lsts.neptus.plugins.Popup;
 import pt.lsts.neptus.plugins.multibeam.console.MultibeamEntityAndChannelChangeListener;
 import pt.lsts.neptus.types.coord.LocationType;
-import pt.lsts.neptus.util.AngleUtils;
-import pt.lsts.neptus.util.ColorUtils;
-import pt.lsts.neptus.util.GuiUtils;
-import pt.lsts.neptus.util.ImageUtils;
+import pt.lsts.neptus.util.MathMiscUtils;
 
 /**
  * Cross section viewer for Multibeam data
@@ -526,7 +523,7 @@ public class MultibeamCrossSection extends ConsolePanel
         g.setFont(g.getFont().deriveFont(Font.BOLD, 16.0f));
         double rangeScale = mbRange / N_ROWS;
         for(int i = 1; i <= N_ROWS; i++)
-            g.drawString(Double.toString(i * rangeScale), 10, i * cellSize - 2);
+            g.drawString(Double.toString(MathMiscUtils.round(i * rangeScale, 1)), 10, i * cellSize - 2);
     }
 
     @Override
