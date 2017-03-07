@@ -129,7 +129,8 @@ public class MultibeamViewersTests {
                             (float) info.angleStepsScaleFactor)));
 
         buffer.put(rangeByteData);
-        buffer.put(intensityByteData);
+        if(info.flagHasIntensities)
+            buffer.put(intensityByteData);
 
         oldData.setData(buffer.array());
 
