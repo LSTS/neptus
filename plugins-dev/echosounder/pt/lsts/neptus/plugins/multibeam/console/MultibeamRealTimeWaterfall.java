@@ -54,6 +54,9 @@ import javax.swing.JOptionPane;
 import javax.swing.JPopupMenu;
 import javax.swing.SwingUtilities;
 
+import org.apache.log4j.Level;
+import org.apache.log4j.Logger;
+
 import com.google.common.eventbus.Subscribe;
 
 import net.miginfocom.swing.MigLayout;
@@ -379,11 +382,15 @@ public class MultibeamRealTimeWaterfall extends ConsolePanel implements Configur
         UDPTransport udp = new UDPTransport(6002, 1);
 
         short bytesPerPoint = (short) 0;
+        boolean useAngleStepsInData = true;
+        boolean useIntensity = false; 
         int ignorePingsLessThan = 1400;
         int exitOnPing = 1500;
         boolean printDebug = false;
         boolean exitOnFirst = true;
 
+        Logger.getRootLogger().setLevel(Level.INFO);
+        
         try {
             LsfLogSource source = new LsfLogSource(dataFile, null);
             DeltaTParser mbParser = new DeltaTParser(source);
@@ -407,9 +414,6 @@ public class MultibeamRealTimeWaterfall extends ConsolePanel implements Configur
                     swath = mbParser.nextSwath();
                     continue;
                 }
-                
-                boolean useAngleStepsInData = true; 
-                boolean useIntensity = false; 
                 
                 SystemPositionAndAttitude pose = swath.getPose();
                 EstimatedState currentEstimatedState = pose.toEstimatedState();

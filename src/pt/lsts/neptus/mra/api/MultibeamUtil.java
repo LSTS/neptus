@@ -42,6 +42,7 @@ import pt.lsts.imc.BeamConfig;
 import pt.lsts.imc.SonarData;
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.mp.SystemPositionAndAttitude;
+import pt.lsts.neptus.util.ByteUtil;
 
 /**
  * @author tsm
@@ -159,7 +160,7 @@ public class MultibeamUtil {
         byte[] bytes = new byte[bytesPerPoint];
         int valueScaled = (int) (value / scaleFactor);
 
-        for(int i = 0; i < bytesPerPoint; i++)
+        for (int i = 0; i < bytesPerPoint; i++)
             bytes[i] = (byte) (((valueScaled >> 8 * i)) & 0xFF);
 
         return bytes;
@@ -170,7 +171,7 @@ public class MultibeamUtil {
      * given position
      * */
     public static void putBytesAt(ByteBuffer buffer, int startPos, byte[] bytes) {
-        for(int i = 0; i < bytes.length; i++)
+        for (int i = 0; i < bytes.length; i++)
             buffer.put(startPos + i, bytes[i]);
     }
 
@@ -376,5 +377,23 @@ public class MultibeamUtil {
         sonarData.setBeamConfig(beamConfig);
 
         return sonarData;
+    }
+    
+    public static void main(String[] args) {
+        double valD = -10;
+        long val = (long) valD;
+        
+        byte[] bt = valueToBytes(val, 8, 1);
+        System.out.println(valD + "    " + val + "\n" + ByteUtil.dumpAsHexToString(bt));
+
+        valD = Long.MAX_VALUE * 1.;
+        val = (long) valD;
+        bt = valueToBytes(val, 8, 1);
+        System.out.println(valD + "    " + val + "\n" + ByteUtil.dumpAsHexToString(bt));
+
+        valD = Long.MAX_VALUE * 1. * 2;
+        val = (long) valD;
+        bt = valueToBytes(val, 8, 1);
+        System.out.println((((long)(valD - Long.MAX_VALUE))) + "   " + valD + "    " + val + "\n" + ByteUtil.dumpAsHexToString(bt));
     }
 }
