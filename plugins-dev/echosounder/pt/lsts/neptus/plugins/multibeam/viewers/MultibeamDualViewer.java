@@ -58,6 +58,7 @@ import pt.lsts.neptus.plugins.PluginUtils;
 import pt.lsts.neptus.plugins.Popup;
 import pt.lsts.neptus.plugins.NeptusProperty.LEVEL;
 import pt.lsts.neptus.plugins.multibeam.console.MultibeamRealTimeWaterfall;
+import pt.lsts.neptus.plugins.update.Periodic;
 
 /**
  * @author tsm
@@ -70,21 +71,21 @@ import pt.lsts.neptus.plugins.multibeam.console.MultibeamRealTimeWaterfall;
 public class MultibeamDualViewer extends ConsolePanel {
     
     // Parameters Tmp
-    @NeptusProperty (name="Color map to use", category="Visualization parameters", userLevel = LEVEL.REGULAR)
+    @NeptusProperty (name="Color map to use", category="Common - Visualization parameters", userLevel = LEVEL.REGULAR)
     private ColorMap colorMap = ColorMapFactory.createJetColorMap();
 
     @NeptusProperty (name="Max depth", description="Max depth used to normalize depth data", 
-            category="Visualization parameters", userLevel = LEVEL.REGULAR)
+            category="Waterfall Viewer - Visualization parameters", userLevel = LEVEL.REGULAR)
     private double maxDepth = 30;
 
     @NeptusProperty (name="Use adaptive max depth", description = "Use the highest value processed as max depth. Minimum value will be 'Max depth'",
-            category="Visualization parameters", userLevel = LEVEL.REGULAR)
+            category="Waterfall Viewer - Visualization parameters", userLevel = LEVEL.REGULAR)
     private boolean adaptativeMaxDepth = true;
     
-    @NeptusProperty (name="Clean lines on vehicle change", category="Visualization parameters", userLevel = LEVEL.REGULAR)
+    @NeptusProperty (name="Clean lines on vehicle change", category="Waterfall Viewer - Visualization parameters", userLevel = LEVEL.REGULAR)
     private boolean cleanLinesOnVehicleChange = false;
 
-    @NeptusProperty(name="Sensor's range", category="Visualization parameters", userLevel = NeptusProperty.LEVEL.REGULAR)
+    @NeptusProperty(name="Sensor's range", category="Cross Section - Visualization parameters", userLevel = NeptusProperty.LEVEL.REGULAR)
     private double mbRange = 30;
 
     // GUI
@@ -174,12 +175,12 @@ public class MultibeamDualViewer extends ConsolePanel {
     
     @Override
     public DefaultProperty[] getProperties() {
-        DefaultProperty[] props = super.getProperties();
+        //DefaultProperty[] props = super.getProperties();
         
         DefaultProperty[] props1 = waterfall.getProperties();
         DefaultProperty[] props2 = crossSection.getProperties();
 
-        List<DefaultProperty> propsLst = new ArrayList<>(Arrays.asList(props));
+        List<DefaultProperty> propsLst = new ArrayList<>();
         
         DefaultProperty[] propsTmp = ObjectArrays.concat(props1, props2, DefaultProperty.class);
 
@@ -213,5 +214,11 @@ public class MultibeamDualViewer extends ConsolePanel {
         
         waterfall.setProperties(properties);
         crossSection.setProperties(properties);
+    }
+
+    // FIXME
+    @Periodic(millisBetweenUpdates = 800)
+    public void onPeriodicUpdate() {
+        super.setProperties(this.getProperties());
     }
 }

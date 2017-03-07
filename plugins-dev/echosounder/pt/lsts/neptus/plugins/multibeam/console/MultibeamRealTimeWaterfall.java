@@ -39,6 +39,8 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.io.ByteArrayOutputStream;
+import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.concurrent.ExecutorService;
@@ -51,6 +53,9 @@ import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPopupMenu;
 import javax.swing.SwingUtilities;
+
+import org.apache.log4j.Level;
+import org.apache.log4j.Logger;
 
 import com.google.common.eventbus.Subscribe;
 
@@ -81,6 +86,7 @@ import pt.lsts.neptus.plugins.Popup;
 import pt.lsts.neptus.plugins.Popup.POSITION;
 import pt.lsts.neptus.plugins.multibeam.ui.MultibeamWaterfallViewer;
 import pt.lsts.neptus.plugins.update.Periodic;
+import pt.lsts.neptus.util.ByteUtil;
 import pt.lsts.neptus.util.GuiUtils;
 import pt.lsts.neptus.util.llf.LsfLogSource;
 
@@ -363,15 +369,32 @@ public class MultibeamRealTimeWaterfall extends ConsolePanel implements Configur
     }
 
     public static void main(String[] args) {
+        
+        ByteBuffer bbuf = ByteBuffer.wrap(new byte[] {(byte) 0xfa, 0x00});
+        bbuf.order(ByteOrder.LITTLE_ENDIAN);
+        int val = bbuf.getShort() & 0xFFFF;
+        System.out.println("Val: 0.25\u00B0 = " + Math.toDegrees(val * Math.toRadians(0.001)) + "\u00B0");
+        //System.exit(0);
+        
         String dataFile = (System.getProperty("user.dir") + "/" + "../log/maridan-multibeam/Data.lsf.gz");
         // dataFile = "D:\\REP15-Data\\to_upload_20150717\\lauv-noptilus-3\\20150717\\120741_horta-m01\\Data.lsf.gz";
 
-        UDPTransport udp = new UDPTransport(6002);
+        UDPTransport udp = new UDPTransport(6002, 1);
+
+        short bytesPerPoint = (short) 0;
+        boolean useAngleStepsInData = true;
+        boolean useIntensity = false; 
+        int ignorePingsLessThan = 1400;
+        int exitOnPing = 1500;
+        boolean printDebug = false;
+        boolean exitOnFirst = true;
+
+        Logger.getRootLogger().setLevel(Level.INFO);
         
         try {
             LsfLogSource source = new LsfLogSource(dataFile, null);
             DeltaTParser mbParser = new DeltaTParser(source);
-            mbParser.debugOn = true;
+            mbParser.debugOn = false;
             
             Collection<Integer> vehSrcs = source.getVehicleSources();
             if (vehSrcs.size() < 1)
@@ -384,10 +407,47 @@ public class MultibeamRealTimeWaterfall extends ConsolePanel implements Configur
 
             BathymetrySwath swath = mbParser.nextSwath();
             int c = 0;
+            int ct = 0;
             while (swath != null) {
+                ct++;
+                if (ct < ignorePingsLessThan) {
+                    swath = mbParser.nextSwath();
+                    continue;
+                }
+                
                 SystemPositionAndAttitude pose = swath.getPose();
                 EstimatedState currentEstimatedState = pose.toEstimatedState();
-                SonarData sd = MultibeamUtil.swathToSonarData(swath, pose);
+                
+                SonarData sd = MultibeamUtil.swathToSonarData(swath, pose, useAngleStepsInData, useIntensity, bytesPerPoint);
+
+                if (printDebug) {
+                    System.out.println("Mine   > \n" + ByteUtil.dumpAsHexToString(sd.getData()));
+                    String sdJ = sd.asJSON();
+                    
+//                SonarData sdO = MultibeamUtil.swathToSonarDataOld(swath, pose);
+//                System.out.println("Old    > \n" + ByteUtil.dumpAsHexToString(sdO.getData()));
+//                String sdOJ = sdO.asJSON();
+                    
+//                    SonarDataInfo info = new SonarDataInfo();
+//                    info.flagHasAngleSteps = useAngleStepsInData;
+//                    info.flagHasIntensities = useIntensity;
+//                    info.angleStepsScaleFactor = Math.toRadians(0.001f);
+//                    info.dataScaleFactor = 0.008f;
+//                    info.intensitiesScaleFactor = 1;
+//                    SonarData sd1 = MultibeamViewersTests.reformatData(swath, pose, info);
+//                    System.out.println("Theirs > \n" + ByteUtil.dumpAsHexToString(sd1.getData()));
+//                    String sd1J = sd1.asJSON();
+                    
+                    BathymetrySwath swathR = MultibeamUtil.getMultibeamSwath(sd, pose);
+                    SonarData sd2 = MultibeamUtil.swathToSonarData(swathR, pose, useAngleStepsInData, useIntensity, bytesPerPoint);
+                    System.out.println("Mine2  > \n" + ByteUtil.dumpAsHexToString(sd2.getData()));
+                    String sd2J = sd2.asJSON();
+                    
+                    System.out.println(/*sdJ.compareTo(sd1J) +*/ "   " + sdJ.compareTo(sd2J));
+                    
+                    if (exitOnFirst)
+                        System.exit(0);
+                }
                 
                 currentEstimatedState.setSrc(mainVehSrc);
                 sd.setSrc(mainVehSrc);
@@ -402,7 +462,10 @@ public class MultibeamRealTimeWaterfall extends ConsolePanel implements Configur
                 baos.reset();
                 sd.serialize(imcOs);
                 udp.sendMessage("localhost", 6001, baos.toByteArray());
-                
+
+                if (ct > exitOnPing)
+                    System.exit(0);
+
                 Thread.sleep(50);
                 
                 int av = System.in.available();

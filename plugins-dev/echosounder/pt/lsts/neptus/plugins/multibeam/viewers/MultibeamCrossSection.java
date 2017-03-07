@@ -48,9 +48,7 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
-import java.io.ByteArrayOutputStream;
 import java.util.ArrayList;
-import java.util.Collection;
 
 import javax.swing.JComboBox;
 import javax.swing.JLabel;
@@ -62,13 +60,11 @@ import com.google.common.eventbus.Subscribe;
 
 import net.miginfocom.swing.MigLayout;
 import pt.lsts.imc.EstimatedState;
-import pt.lsts.imc.IMCOutputStream;
 import pt.lsts.imc.SonarData;
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.colormap.ColorBar;
 import pt.lsts.neptus.colormap.ColorMap;
 import pt.lsts.neptus.colormap.ColorMapFactory;
-import pt.lsts.neptus.comm.transports.udp.UDPTransport;
 import pt.lsts.neptus.console.ConsoleLayout;
 import pt.lsts.neptus.console.ConsolePanel;
 import pt.lsts.neptus.console.plugins.MainVehicleChangeListener;
@@ -78,18 +74,17 @@ import pt.lsts.neptus.mp.SystemPositionAndAttitude;
 import pt.lsts.neptus.mra.api.BathymetryPoint;
 import pt.lsts.neptus.mra.api.BathymetrySwath;
 import pt.lsts.neptus.mra.api.MultibeamUtil;
-import pt.lsts.neptus.mra.importers.deltat.DeltaTParser;
 import pt.lsts.neptus.plugins.ConfigurationListener;
 import pt.lsts.neptus.plugins.NeptusProperty;
 import pt.lsts.neptus.plugins.PluginDescription;
 import pt.lsts.neptus.plugins.Popup;
 import pt.lsts.neptus.plugins.multibeam.console.MultibeamEntityAndChannelChangeListener;
 import pt.lsts.neptus.types.coord.LocationType;
+import pt.lsts.neptus.util.MathMiscUtils;
+import pt.lsts.neptus.util.GuiUtils;
 import pt.lsts.neptus.util.AngleUtils;
 import pt.lsts.neptus.util.ColorUtils;
-import pt.lsts.neptus.util.GuiUtils;
 import pt.lsts.neptus.util.ImageUtils;
-import pt.lsts.neptus.util.llf.LsfLogSource;
 
 /**
  * Cross section viewer for Multibeam data
@@ -105,6 +100,7 @@ public class MultibeamCrossSection extends ConsolePanel
 
     private static final String STRING_COLON_SPACE = ": ";
     private static final String N_A_TEXT = I18n.textc("n/a", "Not available. Try to use equal number of characters.");
+    private static final int DEFAULT_MB_RANGE = 10;
 
     // viewer's parameters
     @NeptusProperty(name="Sensor's range", category="Visualization parameters", userLevel = NeptusProperty.LEVEL.REGULAR)
@@ -532,7 +528,7 @@ public class MultibeamCrossSection extends ConsolePanel
         g.setFont(g.getFont().deriveFont(Font.BOLD, 16.0f));
         double rangeScale = mbRange / N_ROWS;
         for(int i = 1; i <= N_ROWS; i++)
-            g.drawString(Double.toString(i * rangeScale), 10, i * cellSize - 2);
+            g.drawString(Double.toString(MathMiscUtils.round(i * rangeScale, 1)), 10, i * cellSize - 2);
     }
 
     @Override
@@ -630,8 +626,7 @@ public class MultibeamCrossSection extends ConsolePanel
             // update grid's scale if necessary
             double maxDepth = getDataMaxDepth(swath);
             if(maxDepth != mbRange) {
-                int factor = (int) Math.round(maxDepth / mbRange);
-                mbRange +=  factor*10;
+                mbRange = maxDepth / 0.8;
                 gridInvalidated = true;
             }
 
@@ -685,6 +680,8 @@ public class MultibeamCrossSection extends ConsolePanel
                             return;
 
                         mbRange = Double.parseDouble(depthStr);
+                        if(mbRange <= DEFAULT_MB_RANGE)
+                            mbRange = DEFAULT_MB_RANGE;
                         propertiesChanged();
                     }
                     catch(NumberFormatException e) {
@@ -712,54 +709,5 @@ public class MultibeamCrossSection extends ConsolePanel
         gridInvalidated = true;
         SwingUtilities.invokeLater(() -> dataPanel.repaint());
         SwingUtilities.invokeLater(() -> colorBar.repaint());
-    }
-
-    // for testing
-    public static void main(String[] args) {
-        String dataFile = (System.getProperty("user.dir") + "/" + "../log/maridan-multibeam/Data.lsf.gz");
-        System.out.println("** Reading: " + dataFile);
-
-        UDPTransport udp = new UDPTransport(6002, 1);
-
-        try {
-            LsfLogSource source = new LsfLogSource(dataFile, null);
-            DeltaTParser mbParser = new DeltaTParser(source);
-
-            Collection<Integer> vehSrcs = source.getVehicleSources();
-            if (vehSrcs.size() < 1)
-                return;
-
-            int mainVehSrc = vehSrcs.iterator().next();
-            System.out.println("*** Setting message source as: " + mainVehSrc);
-
-            ByteArrayOutputStream baos = new ByteArrayOutputStream();
-            IMCOutputStream imcOs = new IMCOutputStream(baos);
-
-            BathymetrySwath swath = mbParser.nextSwath();
-            while (swath != null) {
-                SystemPositionAndAttitude pose = swath.getPose();
-                EstimatedState currentEstimatedState = pose.toEstimatedState();
-                SonarData sd = MultibeamUtil.swathToSonarData(swath, pose);
-
-                currentEstimatedState.setSrc(mainVehSrc);
-                sd.setSrc(mainVehSrc);
-
-                currentEstimatedState.setTimestamp(sd.getTimestamp());
-
-                baos.reset();
-                currentEstimatedState.serialize(imcOs);
-                udp.sendMessage("localhost", 6001, baos.toByteArray());
-                baos.reset();
-                sd.serialize(imcOs);
-                udp.sendMessage("localhost", 6001, baos.toByteArray());
-
-                Thread.sleep(50);
-
-                swath = mbParser.nextSwath();
-            }
-        }
-        catch (Exception e) {
-            e.printStackTrace();
-        }
     }
 }
