@@ -70,21 +70,21 @@ import pt.lsts.neptus.plugins.multibeam.console.MultibeamRealTimeWaterfall;
 public class MultibeamDualViewer extends ConsolePanel {
     
     // Parameters Tmp
-    @NeptusProperty (name="Color map to use", category="Visualization parameters", userLevel = LEVEL.REGULAR)
+    @NeptusProperty (name="Color map to use", category="Common - Visualization parameters", userLevel = LEVEL.REGULAR)
     private ColorMap colorMap = ColorMapFactory.createJetColorMap();
 
     @NeptusProperty (name="Max depth", description="Max depth used to normalize depth data", 
-            category="Visualization parameters", userLevel = LEVEL.REGULAR)
+            category="Cross Section - Visualization parameters", userLevel = LEVEL.REGULAR)
     private double maxDepth = 30;
 
     @NeptusProperty (name="Use adaptive max depth", description = "Use the highest value processed as max depth. Minimum value will be 'Max depth'",
-            category="Visualization parameters", userLevel = LEVEL.REGULAR)
+            category="Realtime Viewer - Visualization parameters", userLevel = LEVEL.REGULAR)
     private boolean adaptativeMaxDepth = true;
     
-    @NeptusProperty (name="Clean lines on vehicle change", category="Visualization parameters", userLevel = LEVEL.REGULAR)
+    @NeptusProperty (name="Clean lines on vehicle change", category="Realtime Viewer - Visualization parameters", userLevel = LEVEL.REGULAR)
     private boolean cleanLinesOnVehicleChange = false;
 
-    @NeptusProperty(name="Sensor's range", category="Visualization parameters", userLevel = NeptusProperty.LEVEL.REGULAR)
+    @NeptusProperty(name="Sensor's range", category="Cross Section - Visualization parameters", userLevel = NeptusProperty.LEVEL.REGULAR)
     private double mbRange = 30;
 
     // GUI
