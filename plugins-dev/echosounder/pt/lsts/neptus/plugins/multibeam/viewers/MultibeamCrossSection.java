@@ -100,6 +100,7 @@ public class MultibeamCrossSection extends ConsolePanel
 
     private static final String STRING_COLON_SPACE = ": ";
     private static final String N_A_TEXT = I18n.textc("n/a", "Not available. Try to use equal number of characters.");
+    private static final int DEFAULT_MB_RANGE = 10;
 
     // viewer's parameters
     @NeptusProperty(name="Sensor's range", category="Visualization parameters", userLevel = NeptusProperty.LEVEL.REGULAR)
@@ -679,6 +680,8 @@ public class MultibeamCrossSection extends ConsolePanel
                             return;
 
                         mbRange = Double.parseDouble(depthStr);
+                        if(mbRange <= DEFAULT_MB_RANGE)
+                            mbRange = DEFAULT_MB_RANGE;
                         propertiesChanged();
                     }
                     catch(NumberFormatException e) {
