@@ -630,7 +630,9 @@ public class ImcSystem implements Comparable<ImcSystem> {
 	 */
 	@Override
 	public int compareTo(ImcSystem o) {
-		return getName().compareTo(o.getName());
+	    if (getId() == ImcId16.NULL_ID)
+	        return getName().compareTo(o.getName());
+		return getId().compareTo(o.getId());
 	}
 	
 	/**
@@ -975,7 +977,9 @@ public class ImcSystem implements Comparable<ImcSystem> {
     
     @Override
     public int hashCode() {
-        return name.hashCode();
+        if (getId() == ImcId16.NULL_ID)
+            return getName().hashCode();
+        return id.hashCode();
     }
     
     /**
