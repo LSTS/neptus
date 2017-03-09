@@ -992,6 +992,17 @@ CommBaseManager<IMCMessage, MessageInfo, SystemImcMsgCommInfo, ImcId16, CommMana
 
         boolean sentToBus = false;
 
+        // Lets us create a new system 
+        try {
+            ImcId16 id = new ImcId16(msg.getHeader().getValue("src"));
+            vci = initSystemCommInfo(id, inetAddress + ":" + remotePortAddress);
+            vci.onMessage(info, msg);
+            sentToBus = true;
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+        }
+
         if (udpOnIpMapper.containsKey(inetAddress + (isFilterByPort ? ":" + remotePortAddress : ""))) {
             ImcId16 systemId = udpOnIpMapper.get(inetAddress + (isFilterByPort ? ":" + remotePortAddress : ""));
             SystemImcMsgCommInfo vciMapper = getCommInfoById(systemId);
@@ -1011,17 +1022,6 @@ CommBaseManager<IMCMessage, MessageInfo, SystemImcMsgCommInfo, ImcId16, CommMana
                             + vciRedirect.getSystemCommId() + ".");
             vciRedirect.onMessage(info, msg);
             sentToBus = true;
-        }
-        else {
-            try {
-                ImcId16 id = new ImcId16(msg.getHeader().getValue("src"));
-                vci = initSystemCommInfo(id, inetAddress + ":" + remotePortAddress);
-                vci.onMessage(info, msg);
-                sentToBus = true;
-            }
-            catch (Exception e) {
-                e.printStackTrace();
-            }
         }
 
         try {
