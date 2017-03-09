@@ -896,6 +896,9 @@ public class SystemsList extends ConsolePanel implements MainVehicleChangeListen
                 sd = createSystemElement(sys);
                 isToAdd = true;
             }
+            else {
+                sd.updateId(sys.getName());
+            }
 
             sd.setActive(sys.isActive());
             try {

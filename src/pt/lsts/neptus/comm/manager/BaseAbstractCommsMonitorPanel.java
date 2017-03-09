@@ -247,6 +247,8 @@ public abstract class BaseAbstractCommsMonitorPanel<W extends CommBaseManager<M,
                 else
                     getQueueSizeStatusLed().setLevel(StatusLed.LEVEL_1, I18n.text("Queue full"));
                 updateSystemCommData();
+                
+                updateSystemList();
             }
         };
 

@@ -393,13 +393,18 @@ public class AnnounceWorker {
                     for (ImcSystem sys : imcSysList) {
                         if (!sys.isActive()) {
                             for (int port : multicastPorts) {
-                                InetSocketAddress add = new InetSocketAddress(sys.getHostAddress(), port);
                                 try {
-                                    DatagramPacket dgram = new DatagramPacket(bArray, bArray.length, add);
-                                    sock.send(dgram);
+                                    InetSocketAddress add = new InetSocketAddress(sys.getHostAddress(), port);
+                                    try {
+                                        DatagramPacket dgram = new DatagramPacket(bArray, bArray.length, add);
+                                        sock.send(dgram);
+                                    }
+                                    catch (SocketException e) {
+                                        // e.printStackTrace();
+                                    }
                                 }
-                                catch (SocketException e) {
-                                    // e.printStackTrace();
+                                catch (Exception e1) {
+                                    e1.printStackTrace();
                                 }
                             }
                         }
