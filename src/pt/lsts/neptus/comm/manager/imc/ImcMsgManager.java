@@ -1013,7 +1013,7 @@ CommBaseManager<IMCMessage, MessageInfo, SystemImcMsgCommInfo, ImcId16, CommMana
         else {
             try {
                 ImcId16 id = new ImcId16(msg.getHeader().getValue("src"));
-                vci = initSystemCommInfo(id, "");
+                vci = initSystemCommInfo(id, inetAddress + ":" + remotePortAddress);
                 vci.onMessage(info, msg);
                 sentToBus = true;
             }
