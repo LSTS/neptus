@@ -984,7 +984,9 @@ CommBaseManager<IMCMessage, MessageInfo, SystemImcMsgCommInfo, ImcId16, CommMana
         String remotePortAddress = "" + info.getPublisherPort();
 
         NeptusLog.pub().info(
-                this.getClass().getSimpleName() + ": No IMC system found. trying to redirected " + "by IP/Port info. "
+                this.getClass().getSimpleName() + ": No IMC "
+                        + "0x" + Integer.toUnsignedString((msg.getSrc()), 16)
+                        + " system found. trying to redirected " + "by IP/Port info. "
                         + (vci != null ? vci.getSystemCommId() + ">" : "") + inetAddress + ":" + remotePortAddress
                         + ".");
 
