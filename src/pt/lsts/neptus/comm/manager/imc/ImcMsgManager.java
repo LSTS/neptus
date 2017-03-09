@@ -899,6 +899,7 @@ CommBaseManager<IMCMessage, MessageInfo, SystemImcMsgCommInfo, ImcId16, CommMana
 
     @Override
     protected boolean processMsgLocally(MessageInfo info, IMCMessage msg) {
+        
         // msg.dump(System.out);
         SystemImcMsgCommInfo vci = null;
         imcState.setMessage(msg);
@@ -972,6 +973,7 @@ CommBaseManager<IMCMessage, MessageInfo, SystemImcMsgCommInfo, ImcId16, CommMana
                         vci = initSystemCommInfo(id, "");
                     }
                     else{
+                        bus.post(msg);
                         return false;
                     }
                 }
@@ -981,10 +983,9 @@ CommBaseManager<IMCMessage, MessageInfo, SystemImcMsgCommInfo, ImcId16, CommMana
                             this.getClass().getSimpleName() + ": Message redirected for system comm. "
                                     + vci.getSystemCommId() + ".");
                     vci.onMessage(info, msg);
-                    //                    bus.post(msg);
-                    //NeptusLog.pub().info("<###> "+msg.hashCode());
                     return true;
                 }
+
             }
         }
         catch (Exception e) {
