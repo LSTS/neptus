@@ -146,8 +146,6 @@ public class MapEditor extends ConsolePanel implements StateRendererInteraction,
     @NeptusProperty(name = "Toolbar location")
     public ControlsLocation toolbarLocation = ControlsLocation.Right;
 
-    
-
     public MapEditor(ConsoleLayout console) {
         super(console);
         try {
@@ -212,7 +210,6 @@ public class MapEditor extends ConsolePanel implements StateRendererInteraction,
                 return ret;
             };
         };
-
     }
 
     protected void updateUndoRedoActions() {
@@ -392,7 +389,6 @@ public class MapEditor extends ConsolePanel implements StateRendererInteraction,
         });
         line.setToolTipText(I18n.text("Add Line Segment"));
         toolbar.add(line);
-        
 
         undo = new ToolbarButton(ImageUtils.getIcon("pt/lsts/neptus/plugins/map/undo.png"), I18n.text("Undo"),
                 "undo");
@@ -638,10 +634,9 @@ public class MapEditor extends ConsolePanel implements StateRendererInteraction,
 
             add.addSeparator();
 
-            JMenuItem AddWorldFile = add.add(I18n.text("Image from World File"));
-            AddWorldFile.setToolTipText(I18n.text("Will position the image in currently visible UTM zone."));
-            AddWorldFile.addActionListener(new ActionListener() {
-
+            JMenuItem addWorldFile = add.add(I18n.text("Image from World File"));
+            addWorldFile.setToolTipText(I18n.text("Will position the image in currently visible UTM zone."));
+            addWorldFile.addActionListener(new ActionListener() {
                 @Override
                 public void actionPerformed(ActionEvent e) {
                     JFileChooser chooser = GuiUtils.getFileChooser(ConfigFetch.getUserHomeFolder(), 
@@ -877,7 +872,6 @@ public class MapEditor extends ConsolePanel implements StateRendererInteraction,
             currentInteraction.mousePressed(event, source);
             return;
         }
-
         
         if (event.getButton() != MouseEvent.BUTTON1) {
             return;
@@ -896,23 +890,21 @@ public class MapEditor extends ConsolePanel implements StateRendererInteraction,
 
             objectMoved = false;
         }
-        else 
+        else {
             adapter.mousePressed(event, source);
+        }
 
         mousePoint = event.getPoint();
-
     }
 
     @Override
     public void mouseDragged(MouseEvent event, StateRenderer2D source) {
-
         if (currentInteraction != null) {
             currentInteraction.mouseDragged(event, source);
             return;
         }
 
         if (draggedObject != null) {
-
             if (event.isShiftDown() && draggedObject instanceof RotatableElement) {
                 if (objectMoved)
                     mouseReleased(event, source);
@@ -974,7 +966,6 @@ public class MapEditor extends ConsolePanel implements StateRendererInteraction,
         adapter.mouseReleased(event, source);
 
         if (event.getButton() != MouseEvent.BUTTON1) {
-
             return;
         }
 
@@ -1010,6 +1001,7 @@ public class MapEditor extends ConsolePanel implements StateRendererInteraction,
             currentInteraction.keyPressed(event, source);
             return;
         }
+        
         adapter.keyPressed(event, source);
     }
 
@@ -1029,6 +1021,7 @@ public class MapEditor extends ConsolePanel implements StateRendererInteraction,
             currentInteraction.keyTyped(event, source);
             return;
         }
+        
         adapter.keyTyped(event, source);
     }
 
@@ -1121,7 +1114,6 @@ public class MapEditor extends ConsolePanel implements StateRendererInteraction,
      */
     @Override
     public void initSubPanel() {
-
     }
     
     @Override
@@ -1136,7 +1128,5 @@ public class MapEditor extends ConsolePanel implements StateRendererInteraction,
      */
     @Override
     public void cleanSubPanel() {
-        // TODO Auto-generated method stub
-
     }
 }
