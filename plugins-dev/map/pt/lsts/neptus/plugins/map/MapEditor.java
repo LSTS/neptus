@@ -56,6 +56,7 @@ import javax.swing.JMenu;
 import javax.swing.JMenuItem;
 import javax.swing.JPopupMenu;
 import javax.swing.JToolBar;
+import javax.swing.ProgressMonitor;
 import javax.swing.SwingWorker;
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.LineBorder;
@@ -713,34 +714,60 @@ public class MapEditor extends ConsolePanel implements StateRendererInteraction,
                             final MapType pivot = m != null ? m : mg.getMaps()[0];
                             
                             GdalDataSet tiff = new GdalDataSet(chooser.getSelectedFile());
-                            try {
-                                ImageElement el = tiff.asImageElement(getConsole().getMission().getMissionFile());    
-                                if (el.getCenterLocation().isLocationEqual(new LocationType())) {
-                                    GuiUtils.errorMessage(MapEditor.this.getConsole(), I18n.text("Add GeoTIFF ground overlay."),
-                                            I18n.text("Unable to get geographic location for overlay."));
+
+                            ProgressMonitor pm = new ProgressMonitor(getConsole(),
+                                    I18n.text("GeoTIFF"), I18n.text("Processing GeoTIFF."), 0, 100);
+                            pm.setMillisToDecideToPopup(0);
+                            pm.setMillisToPopup(0);
+                            pm.setProgress(25);
+                            
+                            // TIFF usually have very big files, so let us load in background
+                            SwingWorker<ImageElement, Void> worker = new SwingWorker<ImageElement, Void>() {
+                                @Override
+                                protected ImageElement doInBackground() throws Exception {
+                                    ImageElement el = tiff.asImageElement(new File(ConfigFetch.getNeptusTmpDir()));
+                                    return el;
                                 }
-                                
-                                el.setMapGroup(mg);
-                                el.showParametersDialog(MapEditor.this.getConsole(), pivot.getObjectIds(), pivot, true);
+                                @Override
+                                protected void done() {
+                                    try {
+                                        boolean isCanceled = pm.isCanceled();
+                                        pm.close();
+                                        if (isCanceled) {
+                                            NeptusLog.pub().warn("Adding of GeoTIFF " + chooser.getSelectedFile()
+                                                    + " was canceled by the user.");
+                                            return;
+                                        }
+                                        
+                                        ImageElement el = get();
+                                        if (el.getCenterLocation().isLocationEqual(new LocationType())) {
+                                            GuiUtils.errorMessage(MapEditor.this.getConsole(), I18n.text("Add GeoTIFF ground overlay."),
+                                                    I18n.text("Unable to get geographic location for overlay."));
+                                        }
+                                        
+                                        el.setMapGroup(mg);
+                                        el.showParametersDialog(MapEditor.this.getConsole(), pivot.getObjectIds(), pivot, true);
 
-                                if (!el.userCancel) {
-                                    pivot.addObject(el);
+                                        if (!el.userCancel) {
+                                            pivot.addObject(el);
 
-                                    MapChangeEvent mce = new MapChangeEvent(MapChangeEvent.OBJECT_ADDED);
-                                    mce.setSourceMap(pivot);
-                                    mce.setChangedObject(draggedObject);
-                                    pivot.warnChangeListeners(mce);
+                                            MapChangeEvent mce = new MapChangeEvent(MapChangeEvent.OBJECT_ADDED);
+                                            mce.setSourceMap(pivot);
+                                            mce.setChangedObject(draggedObject);
+                                            pivot.warnChangeListeners(mce);
 
-                                    AddObjectEdit edit = new AddObjectEdit(el);
-                                    manager.addEdit(edit);
+                                            AddObjectEdit edit = new AddObjectEdit(el);
+                                            manager.addEdit(edit);
+                                        }
+                                    }
+                                    catch (Exception ex) {
+                                        GuiUtils.errorMessage(MapEditor.this.getConsole(), I18n.text("Add GeoTIFF ground overlay."),
+                                                I18n.text("Image format not understood: "+ex.getMessage()));
+                                        ex.printStackTrace();                                
+                                    }
                                 }
-                            }
-                            catch (Exception ex) {
-                                
-                                GuiUtils.errorMessage(MapEditor.this.getConsole(), I18n.text("Add GeoTIFF ground overlay."),
-                                        I18n.text("Image format not understood: "+ex.getMessage()));
-                                ex.printStackTrace();                                
-                            }
+                            };
+                            worker.execute();
                         }
                         catch (Exception ex) {
                             NeptusLog.pub().error(ex);
