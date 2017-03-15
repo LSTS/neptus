@@ -358,6 +358,7 @@ public class MarkerManagement extends JDialog {
             setTitle(I18n.text("Find"));
             setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
             setResizable(false);
+            setLocationRelativeTo(null);
 
             getContentPane().setLayout(new MigLayout("", "[][grow]", "[][][][][][]"));
 
@@ -1472,27 +1473,24 @@ public class MarkerManagement extends JDialog {
      * @param selectMarkerRowIndex
      */
     public void prevMark(int index) {
-        if (index > 0) {
-            int rowToOpen = index - 1;
-            openMarkerEditor(table.getValueAt(rowToOpen, 1).toString(), rowToOpen);
-            table.setRowSelectionInterval(rowToOpen, rowToOpen);
-        }
+        int rowToOpen = table.getRowCount()-1;
+        if (index > 0)
+            rowToOpen = index - 1;
+
+        openMarkerEditor(table.getValueAt(rowToOpen, 1).toString(), rowToOpen);
+        table.setRowSelectionInterval(rowToOpen, rowToOpen);
     }
 
     /**
      * @param selectMarkerRowIndex
      */
     public void nextMark(int index) {
-        if (index >= 0 && index < table.getRowCount()-1) {
-            int rowToOpen = index + 1;
-            openMarkerEditor(table.getValueAt(rowToOpen, 1).toString(), rowToOpen);
-            table.setRowSelectionInterval(rowToOpen, rowToOpen);
-        }
-        else 
-            if (index >= table.getRowCount()-1) {
-                int rowToOpen = 0;
-                openMarkerEditor(table.getValueAt(rowToOpen, 1).toString(), rowToOpen);
-                table.setRowSelectionInterval(rowToOpen, rowToOpen);
-            }
+        int rowToOpen = 0;
+
+        if (index >= 0 && index < table.getRowCount()-1) 
+            rowToOpen = index + 1;
+
+        openMarkerEditor(table.getValueAt(rowToOpen, 1).toString(), rowToOpen);
+        table.setRowSelectionInterval(rowToOpen, rowToOpen);
     }
 }
