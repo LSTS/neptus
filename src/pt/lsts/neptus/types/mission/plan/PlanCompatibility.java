@@ -56,7 +56,7 @@ import pt.lsts.neptus.types.vehicle.VehicleType;
  * </pre> 
  * @author zp
  */
-public class PlanCompability {
+public class PlanCompatibility {
 
     /**
      * Checks vehicle compatibility with a plan
