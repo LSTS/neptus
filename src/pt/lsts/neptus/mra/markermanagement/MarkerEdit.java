@@ -161,7 +161,7 @@ public class MarkerEdit extends JFrame {
     private HashSet<String> tagList = new HashSet<>();
     private ArrayList<Point> pointsList = new ArrayList<>();
     private JLabel markerImage, nameLabelValue, timeStampValue, locationValue;
-    private JLabel altitudeValue, depthValue, statusLabel;
+    private JLabel depthValue, statusLabel;
     private JComboBox<String> classifValue;
     private JTextArea annotationValue;
     private JButton rectDrawBtn, circleDrawBtn, freeDrawBtn, exportImgBtn; 
@@ -216,10 +216,7 @@ public class MarkerEdit extends JFrame {
         timeStampLabel.setFont(f.deriveFont(f.getStyle() ^ Font.BOLD)); 
         JLabel locationLabel = new JLabel("Location:");
         locationLabel.setFont(f.deriveFont(f.getStyle() ^ Font.BOLD)); 
-        JLabel altitudeLabel = new JLabel("Altitude:");
-        altitudeLabel.setFont(f.deriveFont(f.getStyle() ^ Font.BOLD)); 
         timeStampValue = new JLabel("LABEL_DATE");
-        altitudeValue = new JLabel("LABEL_ALT");
         JLabel depthLabel = new JLabel("Depth:");
         depthLabel.setFont(f.deriveFont(f.getStyle() ^ Font.BOLD)); 
         locationValue  = new JLabel("LABEL_LOCATION");
@@ -264,17 +261,15 @@ public class MarkerEdit extends JFrame {
         infoPanel.add(timeStampValue, "cell 1 4,growx");
         infoPanel.add(locationLabel, "cell 1 5");
         infoPanel.add(locationValue, "cell 1 6,growx");
-        infoPanel.add(altitudeLabel, "cell 1 7");
-        infoPanel.add(altitudeValue, "cell 1 8,growx");
-        infoPanel.add(depthLabel, "cell 1 9");
-        infoPanel.add(depthValue, "cell 1 10,growx");
-        infoPanel.add(classifLabel, "cell 1 11");
-        infoPanel.add(classifValue, "cell 1 12,growx");
-        infoPanel.add(annotationLabel, "cell 1 13");
-        infoPanel.add(annotationScrollPane, "cell 1 14,growx");
+        infoPanel.add(depthLabel, "cell 1 7");
+        infoPanel.add(depthValue, "cell 1 8,growx");
+        infoPanel.add(classifLabel, "cell 1 9");
+        infoPanel.add(classifValue, "cell 1 10,growx");
+        infoPanel.add(annotationLabel, "cell 1 11");
+        infoPanel.add(annotationScrollPane, "cell 1 12,growx");
         photosPanel.add(photoListScroll, BorderLayout.CENTER);
-        infoPanel.add(photosPanel, "cell 1 15,grow");
-        infoPanel.add(tagPanel, "cell 1 16,grow");
+        infoPanel.add(photosPanel, "cell 1 13,grow");
+        infoPanel.add(tagPanel, "cell 1 14,grow");
         statusPanel.add(statusBar);
 
         getContentPane().add(mainScrollPane, BorderLayout.EAST);
@@ -484,9 +479,37 @@ public class MarkerEdit extends JFrame {
         photoPopupMenu.add(openAction);
         photoPopupMenu.add(delAction);
 
-        photoList.addMouseListener(new MouseAdapter() {
-            public void mousePressed(MouseEvent e)  {check(e);}
-            public void mouseReleased(MouseEvent e) {check(e);}
+        MouseListener l = new MouseListener() {
+
+            @Override
+            public void mouseReleased(MouseEvent e) {
+                check(e);
+
+            }
+
+            @Override
+            public void mousePressed(MouseEvent e) {
+                check(e);
+
+            }
+
+            @Override
+            public void mouseExited(MouseEvent e) {
+                // TODO Auto-generated method stub
+
+            }
+
+            @Override
+            public void mouseEntered(MouseEvent e) {
+                // TODO Auto-generated method stub
+
+            }
+
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                photoList.setSelectedIndex(photoList.locationToIndex(e.getPoint())); //select the item
+
+            }
 
             public void check(MouseEvent e) {
                 if (e.isPopupTrigger()) { //if the event shows the menu
@@ -494,7 +517,8 @@ public class MarkerEdit extends JFrame {
                     photoPopupMenu.show(photoList, e.getX(), e.getY()); //and show the menu
                 }
             }
-        });
+        };
+        photoList.addMouseListener(l);
 
     }
 
@@ -518,6 +542,15 @@ public class MarkerEdit extends JFrame {
                     }
                 }
                 showPhotoList();
+                //update photoList popup menu
+                for (MouseListener e : photoList.getMouseListeners())
+                    photoList.removeMouseListener(e);
+
+                setupPhotoMenu();
+
+                //save current marker
+                saveBtn.doClick();
+
             }
         }
     }
@@ -984,8 +1017,6 @@ public class MarkerEdit extends JFrame {
         nameLabelValue.setToolTipText(selectedMarker.getLabel());
         timeStampValue.setText(DateFormat.getDateTimeInstance(DateFormat.MEDIUM, DateFormat.SHORT).format(selectedMarker.getTimestamp()));
         locationValue.setText(selectedMarker.getLocation().toString());
-        String altitudeVal = selectedMarker.getAltitude() < 0 ? "-" : Double.toString(selectedMarker.getAltitude()) + " m";
-        altitudeValue.setText(altitudeVal);
 
         NumberFormat nf = GuiUtils.getNeptusDecimalFormat();
         DecimalFormat df2 = (DecimalFormat)nf;
@@ -1016,7 +1047,6 @@ public class MarkerEdit extends JFrame {
         }
 
         tagPanel.setPreferredSize(tagPanel.getPreferredSize());
-
         infoPanel.repaint();
 
         VehicleType veh = LogUtils.getVehicle(parent.mraPanel.getSource());
@@ -1602,7 +1632,7 @@ public class MarkerEdit extends JFrame {
             String p = photo.substring(photo.lastIndexOf(SEPARATOR)+1, photo.length());
             photoListModel.addElement(p);
         }
-        infoPanel.add(photosPanel, "cell 1 15,grow");
+        infoPanel.add(photosPanel, "cell 1 13,grow");
         infoPanel.revalidate();
         infoPanel.repaint();;
     }

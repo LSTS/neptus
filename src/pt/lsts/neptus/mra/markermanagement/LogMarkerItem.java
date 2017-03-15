@@ -33,8 +33,10 @@ package pt.lsts.neptus.mra.markermanagement;
 
 import java.text.DateFormat;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.List;
 
 import com.google.common.base.Joiner;
 
@@ -194,7 +196,7 @@ public class LogMarkerItem extends LogMarker {
         this.photoList = new ArrayList<>(from.photoList);
         this.tagList = new HashSet<>(from.tagList);
     }
-    
+
     public void setMainPhoto(String newPhoto) {
         this.mainPhoto = newPhoto;
     }
@@ -306,6 +308,9 @@ public class LogMarkerItem extends LogMarker {
     }
 
     public String getTagListString() {
-        return Joiner.on(",").join(tagList).toString();
+        List<String> list = new ArrayList<String>(tagList);
+        Collections.sort(list);
+
+        return Joiner.on(",").join(list).toString();
     }
 }

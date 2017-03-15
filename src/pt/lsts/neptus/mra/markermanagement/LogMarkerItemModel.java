@@ -32,6 +32,8 @@
 package pt.lsts.neptus.mra.markermanagement;
 
 import java.text.DateFormat;
+import java.text.DecimalFormat;
+import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -44,8 +46,7 @@ import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.TableModel;
 import javax.swing.table.TableRowSorter;
 
-import pt.lsts.neptus.mra.markermanagement.LogMarkerItem.Classification;
-import pt.lsts.neptus.types.coord.LocationType;
+import pt.lsts.neptus.util.GuiUtils;
 
 /**
  * @author Manuel R.
@@ -61,15 +62,17 @@ public class LogMarkerItemModel extends AbstractTableModel {
     private static final int COLUMN_ALTITUDE       = 4;
     private static final int COLUMN_CLASSIFICATION = 5;
     private static final int COLUMN_ANNOTATION     = 6;
+    private static final int COLUMN_TAG            = 7;
 
     private String[] columnNames = {
             "#",
             "Label",
             "Timestamp",
             "Location",
-            "Altitude (m)",
+            "Depth (m)",
             "Classification",
-            "Annotation"
+            "Annotation",
+            "Tags"
     };
 
     private List<LogMarkerItem> markerList;
@@ -90,7 +93,7 @@ public class LogMarkerItemModel extends AbstractTableModel {
 
     @Override
     public Object getValueAt(int rowIndex, int columnIndex) {
-        
+
         LogMarkerItem marker = markerList.get(rowIndex);
         Object returnValue = null;
 
@@ -108,13 +111,20 @@ public class LogMarkerItemModel extends AbstractTableModel {
                 returnValue = marker.getLocation();
                 break;
             case COLUMN_ALTITUDE:
-                returnValue = marker.getAltitude() < 0 ? "-" : marker.getAltitude();
+                NumberFormat nf = GuiUtils.getNeptusDecimalFormat();
+                DecimalFormat df2 = (DecimalFormat)nf;
+                df2.applyPattern("###.##");
+
+                returnValue = marker.getDepth() < 0 ? "-" : Double.valueOf(df2.format(marker.getDepth()));
                 break;
             case COLUMN_CLASSIFICATION:
                 returnValue = marker.getClassification();
                 break;
             case COLUMN_ANNOTATION:
                 returnValue = marker.getAnnotation();
+                break;
+            case COLUMN_TAG:
+                returnValue = marker.getTagListString();
                 break;
 
             default:
@@ -154,11 +164,11 @@ public class LogMarkerItemModel extends AbstractTableModel {
 
         fireTableRowsUpdated(row, row);
     }
-    
+
     public void insertRow(int row) {
         fireTableRowsInserted(row, row);
     }
-    
+
     public void setTableSorter(int columnIndexToSort, JTable table) {
         TableRowSorter<TableModel> sorter = new TableRowSorter<>(table.getModel());
         table.setRowSorter(sorter);
@@ -173,39 +183,51 @@ public class LogMarkerItemModel extends AbstractTableModel {
         DefaultTableCellRenderer centerRenderer = new DefaultTableCellRenderer();
         centerRenderer.setHorizontalAlignment(SwingConstants.CENTER);
 
-        DefaultTableCellRenderer centerRenderer2 = new DefaultTableCellRenderer();
-        centerRenderer2.setHorizontalAlignment(SwingConstants.LEFT);
-
-        table.setDefaultRenderer(String.class, centerRenderer2);
-        table.setDefaultRenderer(Classification.class, centerRenderer);
-        table.setDefaultRenderer(Integer.class, centerRenderer);
-        table.setDefaultRenderer(Double.class, centerRenderer);
-        table.setDefaultRenderer(LocationType.class, centerRenderer);
-        
-        //set altitude column to be centered
-        table.getColumnModel().getColumn(4).setCellRenderer(centerRenderer);
+        //set all columns to be centered
+        for (int i=0 ; i< columnNames.length; i++) {
+            table.getColumnModel().getColumn(i).setCellRenderer(centerRenderer);
+        }
     }
 
     public void setColumnsWidth(JTable table) {
         // column 0 - width
         table.getColumnModel().getColumn(0).setMinWidth(30);
-        table.getColumnModel().getColumn(0).setMaxWidth(30);
-        table.getColumnModel().getColumn(0).setPreferredWidth(30);
+        table.getColumnModel().getColumn(0).setMaxWidth(100);
+        table.getColumnModel().getColumn(0).setPreferredWidth(50);
+
+        // column 1 - width
+        table.getColumnModel().getColumn(1).setMinWidth(80);
+        table.getColumnModel().getColumn(1).setMaxWidth(300);
+        table.getColumnModel().getColumn(1).setPreferredWidth(80);
 
         // column 2 - width
-        table.getColumnModel().getColumn(2).setMaxWidth(140);
-        table.getColumnModel().getColumn(2).setPreferredWidth(115);
+        table.getColumnModel().getColumn(2).setMinWidth(80);
+        table.getColumnModel().getColumn(2).setMaxWidth(220);
+        table.getColumnModel().getColumn(2).setPreferredWidth(190);
 
         // column 3 - width
-        table.getColumnModel().getColumn(3).setMaxWidth(190);
-        table.getColumnModel().getColumn(3).setPreferredWidth(175);
+        table.getColumnModel().getColumn(3).setMinWidth(80);
+        table.getColumnModel().getColumn(3).setMaxWidth(250);
+        table.getColumnModel().getColumn(3).setPreferredWidth(225);
 
         // column 4 - width
-        table.getColumnModel().getColumn(4).setMaxWidth(75);
-        table.getColumnModel().getColumn(4).setPreferredWidth(70);
+        table.getColumnModel().getColumn(4).setMinWidth(80);
+        table.getColumnModel().getColumn(4).setMaxWidth(110);
+        table.getColumnModel().getColumn(4).setPreferredWidth(80);
 
         // column 5 - width
+        table.getColumnModel().getColumn(5).setMinWidth(105);
         table.getColumnModel().getColumn(5).setMaxWidth(120);
         table.getColumnModel().getColumn(5).setPreferredWidth(105);
+
+        // column 6 - width
+        table.getColumnModel().getColumn(6).setMinWidth(80);
+        table.getColumnModel().getColumn(6).setMaxWidth(200);
+        table.getColumnModel().getColumn(6).setPreferredWidth(200);
+
+        // column 7 - width
+        table.getColumnModel().getColumn(7).setMinWidth(80);
+        table.getColumnModel().getColumn(7).setMaxWidth(200);
+        table.getColumnModel().getColumn(7).setPreferredWidth(200);
     }
 }

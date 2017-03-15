@@ -33,6 +33,7 @@
 package pt.lsts.neptus.mra.markermanagement;
 
 import java.awt.BorderLayout;
+import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Font;
@@ -84,6 +85,8 @@ import javax.swing.JTextField;
 import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
 import javax.swing.filechooser.FileFilter;
+import javax.swing.table.TableCellRenderer;
+import javax.swing.table.TableColumn;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
@@ -139,7 +142,7 @@ import pt.lsts.neptus.util.llf.LsfReportProperties;
 public class MarkerManagement extends JDialog {
 
     private static final int DEFAULT_COLUMN_TO_SORT = 0;
-    private static final int WIDTH = 690;
+    private static final int WIDTH = 800;
     private static final int HEIGHT = 430;
     public static final String MARKERS_REL_PATH = "/mra/markers/";
     public static final String PHOTOS_PATH_NAME = "photos/";
@@ -197,7 +200,7 @@ public class MarkerManagement extends JDialog {
         });
         getContentPane().setLayout(new MigLayout("", "[grow]", "[grow]"));
         setVisible(true);
-        setResizable(false);
+        setResizable(true);
 
         markerEditFrame = new MarkerEdit(this, SwingUtilities.windowForComponent(this));
 
@@ -351,7 +354,7 @@ public class MarkerManagement extends JDialog {
         private void initComponents() {
 
             // setIconImage(MarkerManagement.this.getIcon().getImage());
-            setSize(290,270);
+            setSize(320,270);
             setTitle(I18n.text("Find"));
             setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
             setResizable(false);
@@ -381,22 +384,20 @@ public class MarkerManagement extends JDialog {
                 getRootPane().setDefaultButton(findBtn);
                 panel.setLayout(new MigLayout("", "[][grow]", "[][][][][][][]"));
                 JLabel labelLbl = new JLabel("Label:");
-                JLabel altLbl = new JLabel("Altitude:");
                 JLabel depthLbl = new JLabel("Depth:");
                 JLabel locRadLbl = new JLabel("Radius:");
                 JLabel classLbl = new JLabel("Class.:");
                 JLabel annotLbl = new JLabel("Annot.:");
                 JLabel tagsLbl = new JLabel("Tags:");
 
-                JTextField altValueTxt = new JTextField();
                 JTextField depthValueTxt = new JTextField();
 
                 ArrayList<String> model1 = new ArrayList<>();
 
                 JComboBox depthParamCBox = new JComboBox();
-                JComboBox altParamCBox = new JComboBox();
                 JComboBox classCBox = new JComboBox();
                 JTextField tagsTxt = new JTextField();
+                JTextField annotTxt = new JTextField();
 
                 model1.add(ANY_TXT);
                 Classification[] classifList = LogMarkerItem.Classification.values();
@@ -404,11 +405,9 @@ public class MarkerManagement extends JDialog {
                     model1.add(classifList[i].toString());
                 }
 
-                altParamCBox.setModel(new DefaultComboBoxModel(new String[] {ANY_TXT, "<=", ">="}));
                 depthParamCBox.setModel(new DefaultComboBoxModel(new String[] {ANY_TXT, "<=", ">="}));
                 classCBox.setModel(new DefaultComboBoxModel(model1.toArray()));
 
-                altValueTxt.setColumns(5);
                 depthValueTxt.setColumns(5);
                 tagsTxt.setColumns(10);
 
@@ -422,18 +421,16 @@ public class MarkerManagement extends JDialog {
                 initTypeField(lblList);
                 panel.add(labelLbl, "cell 0 0,alignx trailing");
                 panel.add(lblTxt, "cell 1 0,growx");
-                panel.add(altLbl, "cell 0 1,alignx trailing");
-                panel.add(altParamCBox, "cell 1 1,growx");
-                panel.add(altValueTxt, "cell 1 1");
-                panel.add(depthLbl, "cell 0 2,alignx trailing");
-                panel.add(depthParamCBox, "cell 1 2,growx");
-                panel.add(depthValueTxt, "cell 1 2");
-                panel.add(locRadLbl, "cell 0 3,alignx trailing");
-                panel.add(classLbl, "cell 0 4,alignx trailing");
-                panel.add(classCBox, "cell 1 4,growx");
-                panel.add(annotLbl, "cell 0 5,alignx trailing");
-                panel.add(tagsLbl, "cell 0 6,alignx trailing");
-                panel.add(tagsTxt, "cell 1 6,growx");
+                panel.add(depthLbl, "cell 0 1,alignx trailing");
+                panel.add(depthParamCBox, "cell 1 1,growx");
+                panel.add(depthValueTxt, "cell 1 1");
+                panel.add(locRadLbl, "cell 0 2,alignx trailing");
+                panel.add(classLbl, "cell 0 3,alignx trailing");
+                panel.add(classCBox, "cell 1 3,growx");
+                panel.add(annotLbl, "cell 0 4,alignx trailing");
+                panel.add(annotTxt, "cell 1 4,growx");
+                panel.add(tagsLbl, "cell 0 5,alignx trailing");
+                panel.add(tagsTxt, "cell 1 5,growx");
 
                 buttonPane.add(prevBtn);
                 buttonPane.add(nextBtn);
@@ -486,7 +483,7 @@ public class MarkerManagement extends JDialog {
                 @Override
                 public void actionPerformed(ActionEvent e) {
                     if (find == null)
-                        find = new FinderDialog(SwingUtilities.windowForComponent(mraPanel));
+                        find = new FinderDialog(SwingUtilities.windowForComponent(panel));
 
                     if (!find.isVisible()) {
                         find.setVisible(true);
@@ -521,7 +518,7 @@ public class MarkerManagement extends JDialog {
 
                 @Override
                 public void actionPerformed(ActionEvent e) {
-                    dispose();
+                    cleanup();
                 }
             };
 
@@ -539,10 +536,20 @@ public class MarkerManagement extends JDialog {
             setJMenuBar(menuBar);
 
             tableModel = new LogMarkerItemModel(markerList);
-            table = new JTable(tableModel);
+            table = new JTable(tableModel) {
+                @Override
+                public Component prepareRenderer(TableCellRenderer renderer, int row, int column) {
+                    Component component = super.prepareRenderer(renderer, row, column);
+                    int rendererWidth = component.getPreferredSize().width + 20;
+                    TableColumn tableColumn = getColumnModel().getColumn(column);
+                    tableColumn.setPreferredWidth(Math.max(rendererWidth + getIntercellSpacing().width, tableColumn.getPreferredWidth()));
+                    return component;
+                }
+            };
+            table.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
 
             //define max columns width
-            tableModel.setColumnsWidth(table);
+            //tableModel.setColumnsWidth(table);
 
             tableModel.setCenteredColumns(table);
 
@@ -1350,7 +1357,6 @@ public class MarkerManagement extends JDialog {
         //Create new LogMarkerItem with the value read from xml
         LogMarkerItem e = new LogMarkerItem(index, name, ts, lat, lon, path, drawPath, annot, altitude, depth, range, cls, photoList, tagList, mainPhoto);
 
-        System.out.println(e.toString());
         return e;
     }
 
