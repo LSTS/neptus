@@ -475,10 +475,12 @@ public class MarkerEdit extends JFrame {
                 }
             }
         };
-        //only add this option if no SS image available
-        if (selectedMarker.getSidescanImgPath() == null)
-            photoPopupMenu.add(selectAction);
-        
+
+        if (selectedMarker != null) {
+            //only add this option if no SS image available
+            if (selectedMarker.getSidescanImgPath() == null)
+                photoPopupMenu.add(selectAction);
+        }
         photoPopupMenu.add(openAction);
         photoPopupMenu.add(delAction);
 
@@ -898,7 +900,7 @@ public class MarkerEdit extends JFrame {
             showGridBtn.setEnabled(true);
             showRulerBtn.setEnabled(true);
         }
-        
+
         enableCircleDraw = enableFreeDraw = enableRectDraw = false;
         setInfo();
 
@@ -906,11 +908,11 @@ public class MarkerEdit extends JFrame {
             hidePhotoList();
         else
             showPhotoList();
-        
+
         //update photoList popup menu
         for (MouseListener e : photoList.getMouseListeners())
             photoList.removeMouseListener(e);
-        
+
         setupPhotoMenu();
     }
 
