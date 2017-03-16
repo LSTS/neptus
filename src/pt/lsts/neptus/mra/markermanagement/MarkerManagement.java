@@ -37,13 +37,19 @@ import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Font;
+import java.awt.Insets;
 import java.awt.Point;
 import java.awt.Toolkit;
 import java.awt.Window;
 import java.awt.datatransfer.Clipboard;
+import java.awt.datatransfer.ClipboardOwner;
+import java.awt.datatransfer.DataFlavor;
 import java.awt.datatransfer.StringSelection;
+import java.awt.datatransfer.Transferable;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.InputEvent;
+import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.WindowAdapter;
@@ -67,8 +73,10 @@ import javax.imageio.ImageIO;
 import javax.swing.AbstractAction;
 import javax.swing.Action;
 import javax.swing.DefaultComboBoxModel;
+import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
+import javax.swing.JComponent;
 import javax.swing.JDialog;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
@@ -82,11 +90,15 @@ import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.JTextField;
+import javax.swing.KeyStroke;
+import javax.swing.RowFilter;
+import javax.swing.RowFilter.ComparisonType;
 import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
 import javax.swing.filechooser.FileFilter;
 import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableColumn;
+import javax.swing.table.TableRowSorter;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
@@ -152,7 +164,7 @@ public class MarkerManagement extends JDialog {
     private final ArrayList<SidescanLogMarker> logMarkers = new ArrayList<>();
     protected MRAPanel mraPanel;
     private static InfiniteProgressPanel loader = InfiniteProgressPanel.createInfinitePanelBeans("");
-    private FinderDialog find = null;
+    private FinderDialog findDlg = null;
     private JPanel panel;
     private JTable table;
     private LogMarkerItemModel tableModel;
@@ -160,6 +172,7 @@ public class MarkerManagement extends JDialog {
     private List<LogMarkerItem> markerList = new ArrayList<>();
     private String markerFilePath;
     private Document dom;
+    private TableRowSorter<LogMarkerItemModel> sorter;
 
     public MarkerManagement(NeptusMRA mra, MRAPanel mraPanel) {
         this.mraPanel = mraPanel;
@@ -216,6 +229,28 @@ public class MarkerManagement extends JDialog {
         panel.setLayout(new MigLayout("", "[][][grow]", "[][][grow]"));
 
         setupExportButton();
+
+        AbstractAction finderAction = new AbstractAction() {
+            private static final long serialVersionUID = 1L;
+
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                if (findDlg == null) {
+                    findDlg = new FinderDialog(SwingUtilities.windowForComponent(panel));
+                    findDlg.setVisible(true);
+                }
+                else {
+                    findDlg.busyLbl.setBusy(false);
+                    findDlg.busyLbl.setVisible(false);
+                    findDlg.setLocationRelativeTo(null);
+                    findDlg.setVisible(true);
+                }
+            }
+        };
+
+        panel.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW)
+        .put(KeyStroke.getKeyStroke(KeyEvent.VK_F, InputEvent.CTRL_MASK), "finder");
+        panel.getActionMap().put("finder", finderAction);
 
         new Thread(new LoadMarkers()).start();
 
@@ -334,33 +369,25 @@ public class MarkerManagement extends JDialog {
 
     private class FinderDialog extends JDialog {
         private Java2sAutoTextField lblTxt;
-        private JButton prevBtn, nextBtn, findBtn;
-        private JLabel statusLbl;
+        private JButton filterBtn, btnCopy, btnPaste;
         private JXBusyLabel busyLbl;
-        private Window parent;
         private ArrayList<String> lblList = new ArrayList<>();
+        private LocationType location = new LocationType();
+        private JTextField locTxt;
 
         public FinderDialog(Window parent) {
             super(parent, ModalityType.MODELESS);
-            this.parent = parent;
 
             initComponents();
         }
 
-        public void updateList() {
-            //TODO:
-        }
-
         private void initComponents() {
 
-            // setIconImage(MarkerManagement.this.getIcon().getImage());
             setSize(320,270);
-            setTitle(I18n.text("Find"));
+            setTitle(I18n.text("Filter"));
             setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
             setResizable(false);
             setLocationRelativeTo(null);
-
-            getContentPane().setLayout(new MigLayout("", "[][grow]", "[][][][][][]"));
 
             new Thread(new LoadComponentsThread()).start();
 
@@ -371,34 +398,40 @@ public class MarkerManagement extends JDialog {
             @SuppressWarnings({ "unchecked", "rawtypes" })
             @Override
             public void run() {
+                getContentPane().setLayout(new BorderLayout());
 
-                JPanel buttonPane = new JPanel();
-                buttonPane.setLayout(new FlowLayout(FlowLayout.RIGHT));
-                JPanel panel = new JPanel();
-                getContentPane().add(buttonPane, BorderLayout.SOUTH);
-                getContentPane().add(panel, BorderLayout.CENTER);
-
-                prevBtn = new JButton("Prev.");
-                nextBtn = new JButton("Next");
-                findBtn = new JButton("Find");
-
-                getRootPane().setDefaultButton(findBtn);
-                panel.setLayout(new MigLayout("", "[][grow]", "[][][][][][][]"));
-                JLabel labelLbl = new JLabel("Label:");
-                JLabel depthLbl = new JLabel("Depth:");
-                JLabel locRadLbl = new JLabel("Radius:");
-                JLabel classLbl = new JLabel("Class.:");
-                JLabel annotLbl = new JLabel("Annot.:");
-                JLabel tagsLbl = new JLabel("Tags:");
-
-                JTextField depthValueTxt = new JTextField();
+                getContentPane().add(loader, BorderLayout.CENTER);
+                loader.setText(I18n.text("Initializing"));
+                loader.setOpaque(false);
+                loader.start();
 
                 ArrayList<String> model1 = new ArrayList<>();
+                JPanel locPanel = new JPanel(new BorderLayout());
+                JPanel buttonPane = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+                JPanel panel = new JPanel(new MigLayout("", "[][grow]", "[][][][][][][]"));
+                filterBtn = new JButton(I18n.text("Filter"));
+                busyLbl = InfiniteProgressPanel.createBusyAnimationInfiniteBeans(18);
+                busyLbl.setBusy(false);
+                busyLbl.setVisible(false);
 
+                GuiUtils.reactEnterKeyPress(filterBtn);
+                getRootPane().setDefaultButton(filterBtn);
+
+                JLabel labelLbl = new JLabel(I18n.text("Label:"));
+                JLabel depthLbl = new JLabel(I18n.text("Depth:"));
+                JLabel lblLocation = new JLabel(I18n.text("Location:"));
+                JLabel locRadLbl = new JLabel(I18n.text("Radius:"));
+                JLabel classLbl = new JLabel(I18n.text("Class.:"));
+                JLabel annotLbl = new JLabel(I18n.text("Annot.:"));
+                JLabel tagsLbl = new JLabel(I18n.text("Tags:"));
                 JComboBox depthParamCBox = new JComboBox();
                 JComboBox classCBox = new JComboBox();
                 JTextField tagsTxt = new JTextField();
+                JTextField depthValueTxt = new JTextField();
                 JTextField annotTxt = new JTextField();
+                JTextField radiusTxt = new JTextField();
+                locTxt = new JTextField();
+                locTxt.setHorizontalAlignment(JTextField.LEFT);
 
                 model1.add(ANY_TXT);
                 Classification[] classifList = LogMarkerItem.Classification.values();
@@ -406,11 +439,14 @@ public class MarkerManagement extends JDialog {
                     model1.add(classifList[i].toString());
                 }
 
-                depthParamCBox.setModel(new DefaultComboBoxModel(new String[] {ANY_TXT, "<=", ">="}));
+                depthParamCBox.setModel(new DefaultComboBoxModel(new String[] {"<=", ">="}));
                 classCBox.setModel(new DefaultComboBoxModel(model1.toArray()));
-
                 depthValueTxt.setColumns(5);
                 tagsTxt.setColumns(10);
+                locTxt.setColumns(18);
+                radiusTxt.setColumns(5);
+                depthValueTxt.setToolTipText(I18n.text("Depth value (meters) to be considered."));
+                radiusTxt.setToolTipText(I18n.text("Radius value (meters) to be considered."));
 
                 for (LogMarkerItem lbl : markerList) 
                     if (!lblList.contains(lbl.getLabel()))
@@ -419,25 +455,48 @@ public class MarkerManagement extends JDialog {
                 Collections.sort(lblList, String.CASE_INSENSITIVE_ORDER);
                 lblList.add(0, ANY_TXT);
 
+                //
+                loader.stop();
+                getContentPane().remove(loader);
+
+                getContentPane().add(buttonPane, BorderLayout.SOUTH);
+                getContentPane().add(panel, BorderLayout.CENTER);
+
                 initTypeField(lblList);
                 panel.add(labelLbl, "cell 0 0,alignx trailing");
                 panel.add(lblTxt, "cell 1 0,growx");
                 panel.add(depthLbl, "cell 0 1,alignx trailing");
-                panel.add(depthParamCBox, "cell 1 1,growx");
+                panel.add(depthParamCBox, "cell 1 1");
                 panel.add(depthValueTxt, "cell 1 1");
-                panel.add(locRadLbl, "cell 0 2,alignx trailing");
-                panel.add(classLbl, "cell 0 3,alignx trailing");
-                panel.add(classCBox, "cell 1 3,growx");
-                panel.add(annotLbl, "cell 0 4,alignx trailing");
-                panel.add(annotTxt, "cell 1 4,growx");
-                panel.add(tagsLbl, "cell 0 5,alignx trailing");
-                panel.add(tagsTxt, "cell 1 5,growx");
+                panel.add(lblLocation, "cell 0 2,alignx trailing");
+                locPanel.add(locTxt, BorderLayout.WEST);
+                locPanel.add(getBtnCopy(), BorderLayout.CENTER);
+                locPanel.add(getBtnPaste(), BorderLayout.EAST);
+                panel.add(locPanel, "cell 1 2");
+                panel.add(locRadLbl, "cell 0 4,alignx trailing");
+                panel.add(radiusTxt, "cell 1 4");
+                panel.add(classLbl, "cell 0 5,alignx trailing");
+                panel.add(classCBox, "cell 1 5,growx");
+                panel.add(annotLbl, "cell 0 6,alignx trailing");
+                panel.add(annotTxt, "cell 1 6,growx");
+                panel.add(tagsLbl, "cell 0 7,alignx trailing");
+                panel.add(tagsTxt, "cell 1 7,growx");
 
-                buttonPane.add(prevBtn);
-                buttonPane.add(nextBtn);
-                buttonPane.add(findBtn);
+                buttonPane.add(filterBtn);
 
-                pack();
+                AbstractAction filterAction = new AbstractAction() {
+                    @Override
+                    public void actionPerformed(ActionEvent e) {
+                        applyFilter(lblTxt.getText(), depthValueTxt.getText(), (String) depthParamCBox.getSelectedItem(), 
+                                locTxt.getText(), radiusTxt.getText(), (String) classCBox.getSelectedItem(), 
+                                annotTxt.getText(), tagsTxt.getText());
+                    }
+                };
+
+                filterBtn.addActionListener(filterAction);
+
+                revalidate();
+                repaint();
             }
         }
 
@@ -455,8 +514,89 @@ public class MarkerManagement extends JDialog {
             });
             lblTxt.addActionListener(new ActionListener(){
                 public void actionPerformed(ActionEvent e){
-                    findBtn.doClick();
+                    filterBtn.doClick();
                 }});
+        }
+
+        /**
+         * This method initializes copyBtn  
+         *  
+         * @return javax.swing.JButton  
+         */
+        private JButton getBtnCopy() {
+            if (btnCopy == null) {
+                btnCopy = new JButton();
+                btnCopy.setMargin(new Insets(0,0,0,0));
+                btnCopy.setSize(new Dimension(20,20));
+                btnCopy.setLocation(new Point(16,360));
+                btnCopy.setToolTipText(I18n.text("Copy this location to the clipboard"));
+                btnCopy.setIcon(new ImageIcon(ImageUtils.getImage("images/menus/editcopy.png")));
+                btnCopy.addActionListener(new ActionListener() {
+                    public void actionPerformed(ActionEvent arg0) {
+                        ClipboardOwner owner = new ClipboardOwner() {
+                            public void lostOwnership(Clipboard clipboard, Transferable contents) {};                       
+                        };
+                        Toolkit.getDefaultToolkit().getSystemClipboard().setContents(new StringSelection(getLocationType().getClipboardText()), owner);
+                    };
+                });
+            }
+            return btnCopy;
+        }
+
+
+        /**
+         * This method initializes jButton  
+         *  
+         * @return javax.swing.JButton  
+         */
+        private JButton getBtnPaste() {
+            if (btnPaste == null) {
+                btnPaste = new JButton();
+                btnPaste.setPreferredSize(new Dimension(20,20));
+                btnPaste.setMargin(new Insets(0,0,0,0));
+                btnPaste.setBounds(new java.awt.Rectangle(42,360,20,20));
+                btnPaste.setIcon(new ImageIcon(ImageUtils.getImage("images/menus/editpaste.png")));
+                btnPaste.setToolTipText(I18n.text("Paste from clipboard"));
+                btnPaste.addActionListener(new ActionListener() {
+
+                    public void actionPerformed(ActionEvent arg0) {
+
+                        @SuppressWarnings({ "unused" })
+                        ClipboardOwner owner = new ClipboardOwner() {
+                            public void lostOwnership(Clipboard clipboard, Transferable contents) {};                       
+                        };
+
+                        Transferable contents = Toolkit.getDefaultToolkit().getSystemClipboard().getContents(null);
+
+                        boolean hasTransferableText = (contents != null)
+                                && contents.isDataFlavorSupported(DataFlavor.stringFlavor);
+
+                        if ( hasTransferableText ) {
+                            try {
+                                String text = (String)contents.getTransferData(DataFlavor.stringFlavor);
+                                LocationType lt = new LocationType();
+                                lt.fromClipboardText(text);
+                                setLocationType(lt);
+                            }
+                            catch (Exception e) {
+                                NeptusLog.pub().error(e);
+                            }
+                        }               
+                    }
+                });
+            }
+            return btnPaste;
+        }
+
+        public void setLocationType(LocationType lt) {
+            this.location = lt;
+            this.locTxt.setText(location.toString());
+            this.locTxt.revalidate();
+            this.locTxt.repaint();;
+        }
+
+        public LocationType getLocationType() {
+            return location;
         }
     }
 
@@ -483,16 +623,14 @@ public class MarkerManagement extends JDialog {
             findBtn.addActionListener(new ActionListener() {
                 @Override
                 public void actionPerformed(ActionEvent e) {
-                    if (find == null)
-                        find = new FinderDialog(SwingUtilities.windowForComponent(panel));
+                    if (findDlg == null)
+                        findDlg = new FinderDialog(SwingUtilities.windowForComponent(panel));
 
-                    if (!find.isVisible()) {
-                        find.setVisible(true);
-                        find.pack();
-                    }
+                    if (!findDlg.isVisible())
+                        findDlg.setVisible(true);
                     else {
-                        find.setVisible(false);
-                        find.dispose();
+                        findDlg.setVisible(false);
+                        findDlg.dispose();
                     }
                 }
             });
@@ -556,6 +694,10 @@ public class MarkerManagement extends JDialog {
 
             //define default column to sort when creating table
             tableModel.setTableSorter(DEFAULT_COLUMN_TO_SORT, table);
+
+
+            sorter = new TableRowSorter<>(tableModel);
+            table.setRowSorter(sorter);
 
             table.addMouseListener(new MouseAdapter() {
                 @Override
@@ -1084,6 +1226,7 @@ public class MarkerManagement extends JDialog {
         //update & save XML
         updateEntryXML(dom, selectedMarker);
         saveXML(dom);
+        table.repaint();
 
     }
 
@@ -1299,6 +1442,7 @@ public class MarkerManagement extends JDialog {
         }
     }
 
+    @SuppressWarnings("unchecked")
     private LogMarkerItem getLogMarkerItem(Element markerEl) {
         int index = getAttIntValue(markerEl, "id");
         String name = getTextValue(markerEl,"Label");
@@ -1426,14 +1570,91 @@ public class MarkerManagement extends JDialog {
     }
 
     /**
-     * 
+     * Apply filter with specified parameters to main table
+     * @param labelValue, the label to filter
+     * @param depthValue, the depth to filter
+     * @param depthSymbol, the symbol (<= or >=) to apply to depth value
+     * @param location, the location to filter
+     * @param radiusValue, the radius to be applied to location
+     * @param classification, the classification to filter
+     * @param annotationValue, the annotation to filter
+     * @param tagValue, the tag(s), to filter 
      */
+    private void applyFilter(String labelValue, String depthValue, String depthSymbol, String location,
+            String radiusValue, String classification, String annotationValue, String tagValue) {
+
+        //7 parameters
+        List<RowFilter<Object,Object>> filters = new ArrayList<RowFilter<Object,Object>>(7);
+
+        //2 expressions (< && = , > && =)
+        List<RowFilter<Object,Object>> filtersDepth = new ArrayList<RowFilter<Object,Object>>(2);
+        RowFilter<Object,Object> depthFilter;
+        RowFilter<LogMarkerItemModel, Object> rf = null;
+        //If current expression doesn't parse, don't update.
+
+        if (!labelValue.equals(ANY_TXT)) {
+            filters.add(RowFilter.regexFilter("(?i)"
+                    + labelValue.trim()));
+        }
+        if (!depthValue.isEmpty() && Double.parseDouble(depthValue) >= 0) {
+            switch (depthSymbol) {
+                case "<=":
+                    filtersDepth.add(RowFilter.numberFilter(ComparisonType.BEFORE, Double.parseDouble(depthValue), LogMarkerItemModel.COLUMN_DEPTH));
+                    filtersDepth.add(RowFilter.numberFilter(ComparisonType.EQUAL, Double.parseDouble(depthValue), LogMarkerItemModel.COLUMN_DEPTH));
+                    depthFilter = RowFilter.orFilter(filtersDepth);
+                    filters.add(depthFilter);
+                    break;
+                case ">=":
+                    filtersDepth.add(RowFilter.numberFilter(ComparisonType.AFTER, Double.parseDouble(depthValue), LogMarkerItemModel.COLUMN_DEPTH));
+                    filtersDepth.add(RowFilter.numberFilter(ComparisonType.EQUAL, Double.parseDouble(depthValue), LogMarkerItemModel.COLUMN_DEPTH));
+                    depthFilter = RowFilter.orFilter(filtersDepth);
+                    filters.add(depthFilter);
+                    break;
+            }
+        }
+
+        if (!location.isEmpty()) {
+            if (!radiusValue.isEmpty()) {
+                //TODO
+            }
+            else {
+                filters.add(RowFilter.regexFilter("(?i)"
+                        + location.trim(), LogMarkerItemModel.COLUMN_LOCATION));
+            }
+        }
+        if (!classification.equals(ANY_TXT)) {
+            filters.add(RowFilter.regexFilter("(?i)"
+                    + classification.trim(), LogMarkerItemModel.COLUMN_CLASSIFICATION));
+        }
+        if (!annotationValue.equals(ANY_TXT)) {
+            filters.add(RowFilter.regexFilter("(?i)"
+                    + annotationValue.trim(), LogMarkerItemModel.COLUMN_ANNOTATION));
+        }
+        if (!tagValue.equals(ANY_TXT)) {
+            filters.add(RowFilter.regexFilter("(?i)"
+                    + tagValue.trim(), LogMarkerItemModel.COLUMN_TAG));
+        }
+
+        rf = RowFilter.andFilter(filters);
+
+        if (filters.isEmpty()) {
+            System.out.println("empty");
+            sorter.setRowFilter(null);
+        }
+        else
+            sorter.setRowFilter(rf);
+
+        table.setRowSorter(sorter);
+    }
+
     public void cleanup() {
         markerList.clear();
         logMarkers.clear();
 
         if (markerEditFrame != null)
             markerEditFrame.dispose();
+
+        mraPanel.getActionMap().remove("finder");
 
         dispose();
     }
