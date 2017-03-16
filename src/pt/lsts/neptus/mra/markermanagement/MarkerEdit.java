@@ -479,30 +479,15 @@ public class MarkerEdit extends JFrame {
         photoPopupMenu.add(openAction);
         photoPopupMenu.add(delAction);
 
-        MouseListener l = new MouseListener() {
-
+        photoList.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseReleased(MouseEvent e) {
                 check(e);
-
             }
 
             @Override
             public void mousePressed(MouseEvent e) {
                 check(e);
-
-            }
-
-            @Override
-            public void mouseExited(MouseEvent e) {
-                // TODO Auto-generated method stub
-
-            }
-
-            @Override
-            public void mouseEntered(MouseEvent e) {
-                // TODO Auto-generated method stub
-
             }
 
             @Override
@@ -517,8 +502,7 @@ public class MarkerEdit extends JFrame {
                     photoPopupMenu.show(photoList, e.getX(), e.getY()); //and show the menu
                 }
             }
-        };
-        photoList.addMouseListener(l);
+        });
 
     }
 
@@ -857,6 +841,8 @@ public class MarkerEdit extends JFrame {
     public void loadMarker(LogMarkerItem log, int rowIndex) {
         statusBar.removeAll();
         tagPanel.removeAll();
+        tagList.clear();
+        photoListModel.clear();
         toDeleteDraw = false;
         selectedMarker = log;
         selectMarkerRowIndex = rowIndex;
