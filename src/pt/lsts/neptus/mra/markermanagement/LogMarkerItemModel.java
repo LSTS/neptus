@@ -55,14 +55,14 @@ import pt.lsts.neptus.util.GuiUtils;
 public class LogMarkerItemModel extends AbstractTableModel {
 
     private static final long serialVersionUID     = 1L;
-    private static final int COLUMN_INDEX          = 0;
-    private static final int COLUMN_LABEL          = 1;
-    private static final int COLUMN_TIMESTAMP      = 2;
-    private static final int COLUMN_LOCATION       = 3;
-    private static final int COLUMN_ALTITUDE       = 4;
-    private static final int COLUMN_CLASSIFICATION = 5;
-    private static final int COLUMN_ANNOTATION     = 6;
-    private static final int COLUMN_TAG            = 7;
+    public static final int COLUMN_INDEX          = 0;
+    public static final int COLUMN_LABEL          = 1;
+    public static final int COLUMN_TIMESTAMP      = 2;
+    public static final int COLUMN_LOCATION       = 3;
+    public static final int COLUMN_DEPTH          = 4;
+    public static final int COLUMN_CLASSIFICATION = 5;
+    public static final int COLUMN_ANNOTATION     = 6;
+    public static final int COLUMN_TAG            = 7;
 
     private String[] columnNames = {
             "#",
@@ -110,7 +110,7 @@ public class LogMarkerItemModel extends AbstractTableModel {
             case COLUMN_LOCATION:
                 returnValue = marker.getLocation();
                 break;
-            case COLUMN_ALTITUDE:
+            case COLUMN_DEPTH:
                 NumberFormat nf = GuiUtils.getNeptusDecimalFormat();
                 DecimalFormat df2 = (DecimalFormat)nf;
                 df2.applyPattern("###.##");
