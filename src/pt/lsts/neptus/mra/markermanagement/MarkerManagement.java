@@ -125,6 +125,7 @@ import net.miginfocom.swing.MigLayout;
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.console.plugins.propertiesproviders.SidescanConfig;
 import pt.lsts.neptus.gui.InfiniteProgressPanel;
+import pt.lsts.neptus.gui.SimpleLocationPanel;
 import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.mra.LogMarker;
 import pt.lsts.neptus.mra.MRAPanel;
@@ -383,7 +384,7 @@ public class MarkerManagement extends JDialog {
 
         private void initComponents() {
 
-            setSize(320,270);
+            setSize(323,270);
             setTitle(I18n.text("Filter"));
             setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
             setResizable(false);
@@ -429,7 +430,7 @@ public class MarkerManagement extends JDialog {
                 JTextField tagsTxt = new JTextField();
                 JTextField depthValueTxt = new JTextField();
                 JTextField annotTxt = new JTextField();
-                JTextField radiusTxt = new JTextField();
+                JTextField radiusTxt = new JTextField("0.0");
                 locTxt = new JTextField();
                 locTxt.setHorizontalAlignment(JTextField.LEFT);
 
@@ -455,6 +456,19 @@ public class MarkerManagement extends JDialog {
                 Collections.sort(lblList, String.CASE_INSENSITIVE_ORDER);
                 lblList.add(0, ANY_TXT);
 
+                locTxt.addMouseListener(new MouseAdapter() {
+                    @Override
+                    public void mousePressed(MouseEvent e) {
+                        if (e.getClickCount() == 1) {
+                            LocationType t = SimpleLocationPanel.showHorizontalLocationDialog(location, "Set Location", true, null);
+                            if (t != null) {
+                                location = t;
+                                locTxt.setText(location.toString());
+                            }
+
+                        }
+                    }
+                });
                 //
                 loader.stop();
                 getContentPane().remove(loader);
@@ -487,8 +501,13 @@ public class MarkerManagement extends JDialog {
                 AbstractAction filterAction = new AbstractAction() {
                     @Override
                     public void actionPerformed(ActionEvent e) {
+                        LocationType loc = null;
+                        if (!locTxt.getText().isEmpty()) {
+                            loc = getLocationType();
+                        }
+
                         applyFilter(lblTxt.getText(), depthValueTxt.getText(), (String) depthParamCBox.getSelectedItem(), 
-                                locTxt.getText(), radiusTxt.getText(), (String) classCBox.getSelectedItem(), 
+                                loc, radiusTxt.getText(), (String) classCBox.getSelectedItem(), 
                                 annotTxt.getText(), tagsTxt.getText());
                     }
                 };
@@ -781,25 +800,25 @@ public class MarkerManagement extends JDialog {
             createMarkers();
         }
         else {
-            if (changedMarkers()) {
-                deleteMarkersFiles();
-                markerList = new ArrayList<>();
+            //            if (changedMarkers()) { FIXME uncomment this
+            //                deleteMarkersFiles();
+            //                markerList = new ArrayList<>();
+            //
+            //                NeptusLog.pub().info(I18n.text("Updating markers..."));
+            //                loader.setText(I18n.text("Updating markers file"));
+            //                createMarkers();
+            //            }
+            //            else {
 
-                NeptusLog.pub().info(I18n.text("Updating markers..."));
-                loader.setText(I18n.text("Updating markers file"));
+            //XML markers file exists, load markers from it
+            NeptusLog.pub().info(I18n.text("Loading markers..."));
+            loader.setText(I18n.text("Loading markers"));
+
+            if(!loadMarkers()) {
+                loader.setText(I18n.text("Creating markers"));
+                NeptusLog.pub().error(I18n.text("Corrupted markers file. Trying to create new markers file."));
                 createMarkers();
-            }
-            else {
-
-                //XML markers file exists, load markers from it
-                NeptusLog.pub().info(I18n.text("Loading markers..."));
-                loader.setText(I18n.text("Loading markers"));
-
-                if(!loadMarkers()) {
-                    loader.setText(I18n.text("Creating markers"));
-                    NeptusLog.pub().error(I18n.text("Corrupted markers file. Trying to create new markers file."));
-                    createMarkers();
-                }
+                //                }
             }
         }
     }
@@ -1571,6 +1590,7 @@ public class MarkerManagement extends JDialog {
 
     /**
      * Apply filter with specified parameters to main table
+     * @param locationType 
      * @param labelValue, the label to filter
      * @param depthValue, the depth to filter
      * @param depthSymbol, the symbol (<= or >=) to apply to depth value
@@ -1580,8 +1600,9 @@ public class MarkerManagement extends JDialog {
      * @param annotationValue, the annotation to filter
      * @param tagValue, the tag(s), to filter 
      */
-    private void applyFilter(String labelValue, String depthValue, String depthSymbol, String location,
-            String radiusValue, String classification, String annotationValue, String tagValue) {
+    private void applyFilter(String labelValue, String depthValue, String depthSymbol, 
+            LocationType location, String radiusValue, String classification, 
+            String annotationValue, String tagValue) {
 
         //7 parameters
         List<RowFilter<Object,Object>> filters = new ArrayList<RowFilter<Object,Object>>(7);
@@ -1613,13 +1634,21 @@ public class MarkerManagement extends JDialog {
             }
         }
 
-        if (!location.isEmpty()) {
+
+        if (location != null) {
             if (!radiusValue.isEmpty()) {
-                //TODO
-            }
-            else {
-                filters.add(RowFilter.regexFilter("(?i)"
-                        + location.trim(), LogMarkerItemModel.COLUMN_LOCATION));
+                RowFilter<Object, Object> locFilter = new RowFilter<Object,Object>() {
+                    public boolean include(Entry<? extends Object, ? extends Object> entry) {
+                        LogMarkerItemModel model = (LogMarkerItemModel) entry.getModel();
+                        LocationType l = (LocationType) model.getValueAt((int) entry.getIdentifier(), LogMarkerItemModel.COLUMN_LOCATION);
+                        if (l.getDistanceInMeters(location) <= Double.parseDouble(radiusValue)) {
+                            return true;
+                        }
+                        else
+                            return false;
+                    }
+                };
+                filters.add(locFilter);
             }
         }
         if (!classification.equals(ANY_TXT)) {
@@ -1637,10 +1666,8 @@ public class MarkerManagement extends JDialog {
 
         rf = RowFilter.andFilter(filters);
 
-        if (filters.isEmpty()) {
-            System.out.println("empty");
+        if (filters.isEmpty())
             sorter.setRowFilter(null);
-        }
         else
             sorter.setRowFilter(rf);
 
