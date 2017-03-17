@@ -370,7 +370,7 @@ public class MarkerManagement extends JDialog {
 
     private class FinderDialog extends JDialog {
         private Java2sAutoTextField lblTxt;
-        private JButton filterBtn, btnCopy, btnPaste;
+        private JButton filterBtn, resetBtn, btnCopy, btnPaste;
         private JXBusyLabel busyLbl;
         private ArrayList<String> lblList = new ArrayList<>();
         private LocationType location = new LocationType();
@@ -411,6 +411,7 @@ public class MarkerManagement extends JDialog {
                 JPanel buttonPane = new JPanel(new FlowLayout(FlowLayout.RIGHT));
                 JPanel panel = new JPanel(new MigLayout("", "[][grow]", "[][][][][][][]"));
                 filterBtn = new JButton(I18n.text("Filter"));
+                resetBtn = new JButton(I18n.text("Reset"));
                 busyLbl = InfiniteProgressPanel.createBusyAnimationInfiniteBeans(18);
                 busyLbl.setBusy(false);
                 busyLbl.setVisible(false);
@@ -460,7 +461,7 @@ public class MarkerManagement extends JDialog {
                     @Override
                     public void mousePressed(MouseEvent e) {
                         if (e.getClickCount() == 1) {
-                            LocationType t = SimpleLocationPanel.showHorizontalLocationDialog(location, "Set Location", true, null);
+                            LocationType t = SimpleLocationPanel.showHorizontalLocationDialog(location, I18n.text("Set Location"), true, null);
                             if (t != null) {
                                 location = t;
                                 locTxt.setText(location.toString());
@@ -496,6 +497,7 @@ public class MarkerManagement extends JDialog {
                 panel.add(tagsLbl, "cell 0 7,alignx trailing");
                 panel.add(tagsTxt, "cell 1 7,growx");
 
+                buttonPane.add(resetBtn);
                 buttonPane.add(filterBtn);
 
                 AbstractAction filterAction = new AbstractAction() {
@@ -512,7 +514,22 @@ public class MarkerManagement extends JDialog {
                     }
                 };
 
+                AbstractAction resetAction = new AbstractAction() {
+                    @Override
+                    public void actionPerformed(ActionEvent e) {
+                        //reset input fields
+                        lblTxt.setText(ANY_TXT);
+                        depthValueTxt.setText("");
+                        locTxt.setText("");
+                        radiusTxt.setText("0.0");
+                        classCBox.setSelectedItem(ANY_TXT);
+                        annotTxt.setText("");
+                        tagsTxt.setText("");
+                    }
+                };
+
                 filterBtn.addActionListener(filterAction);
+                resetBtn.addActionListener(resetAction);
 
                 revalidate();
                 repaint();
@@ -739,7 +756,7 @@ public class MarkerManagement extends JDialog {
 
                 @Override
                 public void actionPerformed(ActionEvent arg0) {
-                    int rowIndex = table.getSelectedRow();
+                    int rowIndex = table.convertRowIndexToModel(table.getSelectedRow());
                     if (rowIndex != -1) {
                         LogMarkerItem selectedMarker = findMarker(table.getValueAt(rowIndex, 1).toString());
 
@@ -760,12 +777,14 @@ public class MarkerManagement extends JDialog {
 
                 @Override
                 public void actionPerformed(ActionEvent arg0) {
-                    int rowIndex = table.getSelectedRow();
+                    int rowIndex = table.convertRowIndexToModel(table.getSelectedRow());
                     if (rowIndex != -1) {
-                        LogMarkerItem selectedMarker = findMarker(table.getValueAt(rowIndex, 1).toString());
-                        StringSelection selec = new StringSelection(selectedMarker.getLocation().toString());
-                        Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
-                        clipboard.setContents(selec, selec);
+                        LogMarkerItem selectedMarker = findMarker(tableModel.getValueAt(rowIndex, 1).toString());
+                        System.out.println(selectedMarker.getLocation().toString());
+                        ClipboardOwner owner = new ClipboardOwner() {
+                            public void lostOwnership(Clipboard clipboard, Transferable contents) {};                       
+                        };
+                        Toolkit.getDefaultToolkit().getSystemClipboard().setContents(new StringSelection(selectedMarker.getLocation().getClipboardText()), owner);
                     }
                 }
             };
@@ -800,25 +819,26 @@ public class MarkerManagement extends JDialog {
             createMarkers();
         }
         else {
-            //            if (changedMarkers()) { FIXME uncomment this
-            //                deleteMarkersFiles();
-            //                markerList = new ArrayList<>();
-            //
-            //                NeptusLog.pub().info(I18n.text("Updating markers..."));
-            //                loader.setText(I18n.text("Updating markers file"));
-            //                createMarkers();
-            //            }
-            //            else {
+            if (changedMarkers()) {
 
-            //XML markers file exists, load markers from it
-            NeptusLog.pub().info(I18n.text("Loading markers..."));
-            loader.setText(I18n.text("Loading markers"));
+                deleteMarkersFiles();
+                markerList = new ArrayList<>();
 
-            if(!loadMarkers()) {
-                loader.setText(I18n.text("Creating markers"));
-                NeptusLog.pub().error(I18n.text("Corrupted markers file. Trying to create new markers file."));
+                NeptusLog.pub().info(I18n.text("Updating markers..."));
+                loader.setText(I18n.text("Updating markers file"));
                 createMarkers();
-                //                }
+            }
+            else {
+
+                //XML markers file exists, load markers from it
+                NeptusLog.pub().info(I18n.text("Loading markers..."));
+                loader.setText(I18n.text("Loading markers"));
+
+                if(!loadMarkers()) {
+                    loader.setText(I18n.text("Creating markers"));
+                    NeptusLog.pub().error(I18n.text("Corrupted markers file. Trying to create new markers file."));
+                    createMarkers();
+                }
             }
         }
     }
