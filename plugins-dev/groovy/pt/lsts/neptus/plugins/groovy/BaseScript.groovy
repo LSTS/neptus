@@ -13,8 +13,8 @@
  * written agreement between you and Universidade do Porto. For licensing
  * terms, conditions, and further information contact lsts@fe.up.pt.
  *
- * Modified European Union Public Licence - EUPL v.1.1 Usage
- * Alternatively, this file may be used under the terms of the Modified EUPL,
+ * European Union Public Licence - EUPL v.1.1 Usage
+ * Alternatively, this file may be used under the terms of the EUPL,
  * Version 1.1 only (the "Licence"), appearing in the file LICENSE.md
  * included in the packaging of this file. You may not use this work
  * except in compliance with the Licence. Unless required by applicable
@@ -22,36 +22,33 @@
  * distributed on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF
  * ANY KIND, either express or implied. See the Licence for the specific
  * language governing permissions and limitations at
- * https://github.com/LSTS/neptus/blob/develop/LICENSE.md
- * and http://ec.europa.eu/idabc/eupl.html.
+ * http://ec.europa.eu/idabc/eupl.html.
  *
  * For more information please see <http://lsts.fe.up.pt/neptus>.
  *
  * Author: lsts
- * 14/03/2017
+ * 02/02/2017
  */
-package pt.lsts.neptus.nvl.imc.dsl
+package pt.lsts.neptus.plugins.groovy 
 
-import pt.lsts.neptus.nvl.imc.dsl.Speed.Units;
+import groovy.lang.Script
 
 /**
  * @author lsts
+ * all
+ * of your scripts to share a common set of methods, you can specify a base class extend-
+ * ing groovy.lang.Script
  *
  */
-class Speed {
-    
-    public enum Units{
-        METERS_PS,
-        PERCENTAGE,
-        RPM
+abstract class BaseScript extends Script {
+
+    /* (non-Javadoc)
+     * @see groovy.lang.Script#run()
+     */
+    @Override
+    public Object run() {
+        // TODO Auto-generated method stub: Insert groovy code HERE
+        return null;
     }
-    
-    double value
-    Units units
-    public Speed(double value,Units units) {
-        this.value=value
-        this.getUnits=units
-    }
-    
-    String  getUnits(){getUnits.toString()}
+
 }

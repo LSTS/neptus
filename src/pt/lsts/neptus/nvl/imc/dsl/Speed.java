@@ -27,32 +27,33 @@
  *
  * For more information please see <http://lsts.fe.up.pt/neptus>.
  *
- * Author: lsts
- * 14/03/2017
+ * Author: keila
+ * 16/03/2017
  */
-package pt.lsts.neptus.nvl.imc.dsl
+package pt.lsts.neptus.nvl.imc.dsl;
 
-import pt.lsts.neptus.nvl.imc.dsl.Z.Units;
 
 /**
- * @author lsts
+ * @author keila
  *
  */
-class Z {
+class Speed {
     
-    public enum Units {
-        DEPTH,
-        ALTITUDE,
-        HEIGHT,
-        NONE
+    public enum Units{
+        METERS_PS,
+        PERCENTAGE,
+        RPM
     }
     
-    double value
-    Units units
-    public Z(double value,Units units) {
-        this.value=value
-        this.units=units
+    double value;
+    Units units;
+    public Speed(double value,Units units) {
+        this.value=value;
+        this.units=units;
     }
-
-    String  getUnits(){getUnits.toString()}
+    
+    String  getUnits(){
+        return units.toString();
+        }
 }
+

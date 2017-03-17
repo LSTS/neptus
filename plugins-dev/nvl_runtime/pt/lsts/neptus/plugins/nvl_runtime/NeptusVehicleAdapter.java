@@ -30,7 +30,7 @@
  * Author: keila
  * 08/03/2017
  */
-
+package pt.lsts.neptus.plugins.nvl_runtime;
 
 import java.util.Collections;
 import java.util.List;
@@ -42,17 +42,18 @@ import pt.lsts.neptus.nvl.runtime.NVLVehicle;
 import pt.lsts.neptus.nvl.runtime.NVLVehicleType;
 import pt.lsts.neptus.comm.manager.imc.ImcSystem;
 import pt.lsts.neptus.console.events.ConsoleEventVehicleStateChanged.STATE;
+import pt.lsts.neptus.nvl.runtime.NVLVehicle;
 
 /**
  * @author keila
  *
  */
-public class NVLVehicleData implements NVLVehicle {
+public class NeptusVehicleAdapter implements NVLVehicle {
 
     private final ImcSystem imcsystem;
     private final STATE state;
   
-    public NVLVehicleData(ImcSystem imcData,STATE s) {
+    public NeptusVehicleAdapter(ImcSystem imcData,STATE s) {
         imcsystem = imcData;
         state = s;
     }
@@ -68,18 +69,18 @@ public class NVLVehicleData implements NVLVehicle {
      * @see nvl.Vehicle#getType()
      */
     @Override
-    public VehicleType getType() {
+    public NVLVehicleType getType() {
         switch(imcsystem.getTypeVehicle()) {
             case UAV:
-                return VehicleType.UAV;
+                return NVLVehicleType.UAV;
             case UUV:
-                return VehicleType.AUV;
+                return NVLVehicleType.AUV;
             case UGV:
             case USV:
             case ALL:
             case UNKNOWN:
             default:
-                return VehicleType.UAV ; //TODO
+                return NVLVehicleType.UAV ; //TODO
             
         }
         
@@ -113,7 +114,7 @@ public class NVLVehicleData implements NVLVehicle {
      */
     @Override
     public Position getPosition() {
-        return new NVLPositionData(imcsystem.getLocation());
+        return new NeptusPositionAdapter(imcsystem.getLocation());
     }
 
     /* (non-Javadoc)
