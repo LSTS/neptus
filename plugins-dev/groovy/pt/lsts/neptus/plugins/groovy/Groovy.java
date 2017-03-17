@@ -35,27 +35,26 @@ package pt.lsts.neptus.plugins.groovy;
 import java.awt.event.ActionEvent;
 import java.io.File;
 import java.io.IOException;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.Map;
+
 import javax.swing.AbstractAction;
 import javax.swing.Action;
 import javax.swing.JButton;
 import javax.swing.JFileChooser;
 import javax.swing.filechooser.FileNameExtensionFilter;
-import org.codehaus.groovy.control.CompilationFailedException;
+
 import org.codehaus.groovy.control.CompilerConfiguration;
 import org.codehaus.groovy.control.customizers.ImportCustomizer;
+
 import com.google.common.eventbus.Subscribe;
+
 import groovy.lang.Binding;
-import groovy.lang.GroovyShell;
 import groovy.util.GroovyScriptEngine;
-import groovy.util.ResourceException;
-import groovy.util.ScriptException;
-import pt.lsts.imc.NeptusBlob;
-import pt.lsts.imc.PlanControlState;
 import pt.lsts.neptus.comm.manager.imc.ImcSystem;
 import pt.lsts.neptus.comm.manager.imc.ImcSystemsHolder;
 import pt.lsts.neptus.console.ConsoleLayout;
-import pt.lsts.neptus.console.events.ConsoleEventPlanChange;
 import pt.lsts.neptus.console.events.ConsoleEventVehicleStateChanged;
 import pt.lsts.neptus.console.notifications.Notification;
 import pt.lsts.neptus.console.plugins.planning.plandb.PlanDBAdapter;
@@ -71,7 +70,6 @@ import pt.lsts.neptus.types.map.MarkElement;
 import pt.lsts.neptus.types.mission.plan.PlanType;
 import pt.lsts.neptus.types.vehicle.VehicleType;
 import pt.lsts.neptus.types.vehicle.VehiclesHolder;
-import pt.lsts.neptus.util.GuiUtils;
 import pt.lsts.neptus.util.ImageUtils;
 
 
@@ -80,47 +78,38 @@ import pt.lsts.neptus.util.ImageUtils;
  * @author lsts
  *
  */
-
 @PluginDescription(name = "Groovy Feature", author = "Keila Lima")
 @Popup(pos = POSITION.RIGHT, width=200, height=200, accelerator='y')
 @SuppressWarnings("serial")
 public class Groovy extends InteractionAdapter {
-       
-    
+
     private JButton openButton,stopScript;
-    private HashMap<String,VehicleType> vehicles; 
-    private HashMap<String,PlanType> plans; //PlanType listas planos
-    private HashMap<String,LocationType> locs;
+    //Collections used to make Map thread safe
+    private Map<String,VehicleType> vehicles = Collections.synchronizedMap(new HashMap<>()); 
+    private Map<String,PlanType> plans = Collections.synchronizedMap(new HashMap<>()); //PlanType listas planos
+    private Map<String,LocationType> locs = Collections.synchronizedMap(new HashMap<>());
     private Binding binds; //verify use of @TypeChecked
     private GroovyScriptEngine engine;
     private CompilerConfiguration config;
     private Thread thread;
     private ImportCustomizer customizer;
-  //private GroovyShell shell; deprec
     /**
      * @param console
      */
     public Groovy(ConsoleLayout console) {
         super(console);
-        //init_vars();
     }
 
     void add_console_vars() {
-    	
-        this.vehicles = new HashMap<String,VehicleType>();
-        this.plans    = new HashMap<String,PlanType>();
-        this.locs     = new HashMap<String,LocationType>();
-
-      //vehicles in the system before opening the plugin
+               
         for(ImcSystem vec: ImcSystemsHolder.lookupActiveSystemVehicles())
-               this.vehicles.put(vec.getName(),VehiclesHolder.getVehicleById(vec.getName()));
+            this.vehicles.put(vec.getName(),VehiclesHolder.getVehicleById(vec.getName()));
         
         this.plans.putAll(getConsole().getMission().getIndividualPlansList());
 
         //POI/MarkElement
         for( MarkElement mark:MapGroup.getMapGroupInstance(getConsole().getMission()).getAllObjectsOfType(MarkElement.class)){
             locs.put(mark.getId(),mark.getPosition());
-        //this.locs.putAll((Map<? extends String, ? extends LocationType>) );
         }
         
         /*System.out.println("Initial Vehicle size= "+vehicles.size());
@@ -132,44 +121,41 @@ public class Groovy extends InteractionAdapter {
         this.config = new CompilerConfiguration();
         this.customizer = new ImportCustomizer();
         this.customizer.addImports("pt.lsts.imc.net.IMCProtocol","pt.lsts.imc.net.Consume"); // in classpath
-        this.customizer.addStarImports("pt.lsts.imc");
+        this.customizer.addStarImports("pt.lsts.imc","pt.lsts.neptus.nvl.imc.dsl"); //this.getClass().classLoader.rootLoader.addURL(new File("file.jar").toURL())
         this.config.addCompilationCustomizers(customizer);
         this.binds = new Binding();
         this.binds.setVariable("vehicles_id", vehicles.keySet().toArray());
         this.binds.setVariable("plans_id", plans.keySet().toArray());
-        this.binds.setVariable("locs", locs.keySet().toArray());//?
-        //this.config.setScriptBaseClass("Basescript");
-        //this.shell = new GroovyShell(this.binds,this.config);
+        this.binds.setVariable("locs", locs.keySet().toArray());
         try {
-          //Description/notification: "Place your groovy scripts in the folder script of the plugin"
-
+            //Description/notification: "Place your groovy scripts in the folder script of the plugin"
             this.engine = new GroovyScriptEngine("plugins-dev/groovy/pt/lsts/neptus/plugins/groovy/scripts/");
             this.engine.setConfig(this.config);
-            
+
         }
         catch (IOException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
+            //e.printStackTrace();
         }
     }
-    
+
     /* (non-Javadoc)
      * @see pt.lsts.neptus.console.ConsolePanel#cleanSubPanel()
      * if script is still running, stops it
      */
     @Override
     public void cleanSubPanel() {
-        
+
         try {
-            engine.getGroovyClassLoader().close();
-            if(thread.isAlive())
+            if(thread.isAlive() && thread != null)
                 thread.interrupt();
         }
         catch (Exception e1) {
-            // TODO Auto-generated catch block
-            e1.printStackTrace();
+            //e1.printStackTrace();
         }
-        
+        //TODO from planqueue plugin 
+//        if (pdbControl != null)
+//            pdbControl.removeListener(planDBListener);
+
     }
 
     /* (non-Javadoc)
@@ -179,24 +165,24 @@ public class Groovy extends InteractionAdapter {
     public void initSubPanel() {
         removeAll();
         add_console_vars();
-        
 
-        
+
+
         Action selectAction = new AbstractAction(I18n.text("Select Groovy Script")) {
- 
+
             @Override
             public void actionPerformed(ActionEvent e) {    
-                
-              //Handle open button action.
+
+                //Handle open button action.
                 if (e.getSource() == openButton) {
-                    
-                  //Create a file chooser
+
+                    //Create a file chooser
                     File directory = new File("plugins-dev/groovy/pt/lsts/neptus/plugins/groovy/scripts/");
                     final JFileChooser fc = new JFileChooser(directory);
                     fc.setFileSelectionMode(JFileChooser.FILES_ONLY);
                     FileNameExtensionFilter filter = new FileNameExtensionFilter("Groovy files","groovy");
                     fc.setFileFilter(filter);
-                    
+
                     //GuiUtils.showInfoPopup("Select Groovy Script", "Only executes groovy scripts in the folder script of the plugin.");
                     //GuiUtils.confirmDialog(owner, title, message);
                     int returnVal = fc.showOpenDialog(Groovy.this);
@@ -204,96 +190,75 @@ public class Groovy extends InteractionAdapter {
                     if (returnVal == JFileChooser.APPROVE_OPTION) {
                         File groovy_script = fc.getSelectedFile();
                         post(Notification.info("Groovy Feature", "Opening: " + groovy_script.getName() + "." + "\n"));
-                        //System.out.println("Opening: " + groovy_script.getName() + "." + "\n");
-                        
-                                
-                                thread = new Thread() {
-                                    
-                                   @Override
-                                    public void run() {
-                                          
-                                        
-                                        try {
-                                            if(!stopScript.isEnabled()){
-                                                stopScript.setEnabled(true);
-                                                //System.out.println("Stopscript Button enabled.");
-                                            }
 
-                                            Object output = engine.run(groovy_script.getName(), binds);
-                                           //shell.getContext().getVariable();
-                                            //getShell().run(groovy_script,args);  String[] args = null;
-                                            //shell.evaluate(initScripts + groovy_script)
-                                            //engine.loadScriptByName
-                                        }
-                                        catch (Exception   e) { //CompilationFailedException | ResourceException | ScriptException
-                                            e.printStackTrace();
-                                        }
+
+                        thread = new Thread() {
+
+                            @Override
+                            public void run() {
+
+
+                                try {
+                                    if(!stopScript.isEnabled()){
+                                        stopScript.setEnabled(true);
+                                        //System.out.println("Stopscript Button enabled.");
+                                    }
+
+                                    Object output = engine.run(groovy_script.getName(), binds);
+                                    //shell.getContext().getVariable();
+                                    //shell.evaluate(initScripts + groovy_script)
+                                    //PlanCompability.isVehicleCompatible()
+                                    //sendstart in PlanQueue.java
                                 }
-                                };
-                               
-                                thread.start();
-                               
-                                /*try {
-                                    
-                                    thread.join(); //thread.join(millis);
-                                    stopScript.setEnabled(false);
-                                    System.out.println("Exiting script execution. . .\n");
+                                catch (Exception   e) { //CompilationFailedException | ResourceException | ScriptException
+                                    e.printStackTrace();
+                               }
+                                catch(ThreadDeath e){
+                                    //TODO notify script exit
                                 }
-                                catch (InterruptedException e1) {
-                                    e1.printStackTrace();
-                                } */
+                            }
+                        };
 
-                                
-                                
+                        thread.start();
 
-                  
-                      
-                      //System.out.println("Exiting filechooser block execution. . .\n");
-                      
-                          
                     } 
-                    
-               }
-                
-                 
-                    }
-                
-                };
-                
-                Action stopAction = new AbstractAction(I18n.text("Stop Script"), ImageUtils.getScaledIcon("pt/lsts/neptus/plugins/groovy/images/stop.png", 10, 30)) {
-                    
-                    @Override
-                    public void actionPerformed(ActionEvent e) {
-                            
-                            if(e.getSource() == stopScript){
-                              try {
-                                engine.getGroovyClassLoader().close();
-                                if(thread.isAlive())
-                                    thread.interrupt();
-                            }
-                            catch (IOException e1) {
-                                e1.printStackTrace();
-                            }
-                            //shell.invokeMethod("System.exit", "0"); Stops the whole app -> JVM
-                            //post(Notification.info("Groovy Feature", "Stopping script execution." + "\n"));
-                            //System.out.println("Stopping script execution. . .\n");
-                            stopScript.setEnabled(false);
-                            
-                        }
+
+                }
+
+
+            }
+
+        };
+
+        Action stopAction = new AbstractAction(I18n.text("Stop Script"), ImageUtils.getScaledIcon("pt/lsts/neptus/plugins/groovy/images/stop.png", 10, 30)) {
+
+            @SuppressWarnings("deprecation")
+            @Override
+            public void actionPerformed(ActionEvent e) {
+
+                if(e.getSource() == stopScript){
+                    if(thread.isAlive()){
+                      
+                        thread.stop();
                         
                     }
-                };
+                    stopScript.setEnabled(false);
 
-          
-          openButton = new JButton(selectAction); //Button height: 22 Button width: 137 Button X: 30 Button Y: 5
-          stopScript = new JButton(stopAction);
-          
-          add(openButton);
-          add(stopScript);
-          stopScript.setEnabled(false);
+                }
+
+            }
+        };
+
+
+        openButton = new JButton(selectAction); //Button height: 22 Button width: 137 Button X: 30 Button Y: 5
+        stopScript = new JButton(stopAction);
+
+        add(openButton);
+        add(stopScript);
+        stopScript.setEnabled(false);
     }
-    
-    
+
+
 
 
     @Subscribe
@@ -307,12 +272,11 @@ public class Groovy extends InteractionAdapter {
                         vehicles.put(e.getVehicle(),VehiclesHolder.getVehicleById(e.getVehicle()));
                         this.binds.setVariable("vehicles_id",vehicles.keySet().toArray()); //binds.vehicles=vehicles;
                         System.out.println("Added "+e.getVehicle()+" Size: "+vehicles.keySet().size());
-                        
+
                     }
                 }
                 break;
             case ERROR:
-                System.out.println(e.getVehicle()+" IN ERROR");
                 if(vehicles.containsKey(e.getVehicle())){
                     this.vehicles.remove(e.getVehicle());
                     this.binds.setVariable("vehicles_id",vehicles.keySet().toArray());
@@ -320,27 +284,26 @@ public class Groovy extends InteractionAdapter {
                 }
                 break;
             case DISCONNECTED:
-                System.out.println(e.getVehicle()+" DISCONNECTED");
                 if(vehicles.containsKey(e.getVehicle())){
                     this.vehicles.remove(e.getVehicle());
                     this.binds.setVariable("vehicles_id",vehicles.keySet().toArray());
                     System.out.println("Removed "+e.getVehicle()+" Size: "+vehicles.keySet().size());
                 }
                 break;
-           case CALIBRATION:// or case MANEUVER
-               if(vehicles.containsKey(e.getVehicle())){
-                   this.vehicles.remove(e.getVehicle());
-                   this.binds.setVariable("vehicles_id",vehicles.keySet().toArray());
-                   System.out.println("Removed "+e.getVehicle()+" Size: "+vehicles.keySet().size());
-               }
+            case CALIBRATION:// or case MANEUVER
+                if(vehicles.containsKey(e.getVehicle())){
+                    this.vehicles.remove(e.getVehicle());
+                    this.binds.setVariable("vehicles_id",vehicles.keySet().toArray());
+                    System.out.println("Removed "+e.getVehicle()+" Size: "+vehicles.keySet().size());
+                }
                 break;
-           
+
             default:
                 break;
         }
     }
 
-  
+
 
 
 
@@ -349,13 +312,13 @@ public class Groovy extends InteractionAdapter {
      * @param planId of the plan
      */
     public void addPlan(String planId) {
-        
-        
+
+
         this.plans.put(planId, getConsole().getMission().getIndividualPlansList().get(planId));
     }
-    
 
-    
+
+
     protected PlanDBAdapter planDBListener = new PlanDBAdapter() {
         @Override
         public void dbCleared() {
@@ -400,14 +363,12 @@ public class Groovy extends InteractionAdapter {
      * @return the plans
      */
     public HashMap<String, PlanType> getPlans() {
-        return plans;
+        return (HashMap<String, PlanType>) plans;
     }
 
+    
 
-        
 }
-
-/*Plan Database listener methods*/
 
 
 
@@ -415,9 +376,9 @@ public class Groovy extends InteractionAdapter {
 /*@Subscribe
 public void onConsoleEventPlanChange(ConsoleEventPlanChange plan) {
     //switch(plan) {
-        
+
     //}
-    
+
 }*/
 
 // public void consume(PlanControlState pcstate) -> Plugin do Manuel para atualizar o estado do plano no veiculo

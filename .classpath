@@ -68,6 +68,7 @@
 	<classpathentry kind="src" path="plugins-dev/historic-data"/>
 	<classpathentry kind="src" path="plugins-dev/txtmsg"/>
 	<classpathentry kind="src" path="plugins-dev/nvl_runtime"/>
+	<classpathentry kind="src" path="plugins-dev/planqueue"/>
 	<classpathentry kind="lib" path="lib/log4j-1.2.17.jar"/>
 	<classpathentry kind="lib" path="lib/xerces-2.7.1/xml-apis.jar"/>
 	<classpathentry kind="lib" path="lib/xerces-2.7.1/xercesImpl.jar"/>
@@ -251,6 +252,7 @@
 	<classpathentry kind="lib" path="plugins-dev/shapefiles/lib/shapefilereader-1.0.jar"/>
 	<classpathentry kind="lib" path="lib/opencv-2.4.11.jar"/>
 	<classpathentry kind="lib" path="/home/lsts/workspace/neptus-keila/plugins-dev/groovy/lib/groovy-all-2.1.6.jar"/>
-	<classpathentry kind="lib" path="/home/lsts/workspace/neptus-keila/plugins-dev/nvl_runtime/lib/nvl_runtime.jar"/>
+	<classpathentry kind="lib" path="plugins-dev/nvl_runtime/lib/nvl_runtime.jar"/>
+	<classpathentry exported="true" kind="con" path="GROOVY_DSL_SUPPORT"/>
 	<classpathentry kind="output" path="build/classes"/>
 </classpath>

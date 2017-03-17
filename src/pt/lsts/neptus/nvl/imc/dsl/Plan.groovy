@@ -1,0 +1,368 @@
+package pt.lsts.neptus.nvl.imc.dsl;
+
+import java.util.List;
+import pt.lsts.imc.*
+import pt.lsts.imc.CompassCalibration.DIRECTION
+import pt.lsts.imc.net.*;
+import pt.lsts.neptus.comm.IMCSendMessageUtils;
+import pt.lsts.neptus.comm.manager.imc.ImcSystemsHolder;
+import pt.lsts.neptus.types.mission.plan.PlanType;
+
+
+/**
+ * DSL to generate IMC plans (maneuvers)
+ * ported to groovy from  https://github.com/zepinto/imc-kotlin 
+ * @author keila
+ *
+ */
+
+class Plan {
+	String plan_id
+	String description
+	Speed speed
+	Z z
+	Location location
+	List<PlanManeuver> mans = new ArrayList <PlanManeuver>()
+	int count
+	Plan(String id){
+		plan_id = id
+		count = 1
+		location = Location.APDL
+		speed = new Speed(value: 1.0, units: Speed.Units.METERS_PS)
+		z = new Z(value: 0.0,units: Z.Units.DEPTH)
+		
+	}
+
+	 def maneuver(String id, Class maneuver) {
+
+		def man = maneuver.newInstance(
+				lat: location.latitude,
+				lon: location.longitude,
+				speed: speed.value,
+				z:   z.value,
+				ZUnitsStr: z.getUnits(),
+				speedUnitsStr: speed.getUnits()
+				)
+		def planFromMan = new PlanManeuver (
+		  maneuverId: id ,
+		  data: man
+		)
+
+		mans.add(planFromMan)
+		planFromMan.data
+	}
+
+
+
+	 //default values on args to current fields -> Named Parameters are Converted to Map
+	 // see -> http://stackoverflow.com/questions/15393962/groovy-named-parameters-cause-parameter-assignments-to-switch-any-way-around-th
+
+	 def goTo (LinkedHashMap params){
+		 String id = "${this.count++}"+".Goto"
+		 if(params!=null){
+		 params.with{
+			 if(speed!= null)
+			 	this.speed = speed
+			 if(z!= null)
+			 	this.z = z
+			 if(location!= null)
+			 	this.location = location
+			 if(params['id'] != null)
+			 	id = params.id
+		 }
+	}
+	 	maneuver(id,Goto)
+	} 
+
+
+	def loiter(LinkedHashMap params){
+		double duration =  60.0,radius=20.0
+		def id = "${this.count++}"+".Loiter"
+		if (params != null){
+		 if(params['duration']!=null)
+		 	 duration= params.duration
+	     if(params['radius']!=null)
+			  radius= params.radius
+		 if(params['speed']!= null)
+		 	this.speed = params.speed
+		 if(params['z']!= null)
+			 this.z = params.z
+		 if(params['location']!= null)
+			 this.location = params.location
+		 if(params['id'] != null)
+			 id = params.id
+		}
+		Loiter man = maneuver(id,Loiter)
+		
+		man.duration = duration.intValue() 
+		man.type     = Loiter.TYPE.CIRCULAR
+		man.radius   = radius
+		man
+		
+	}
+
+	//def yoyo(double max_depth=20.0,double min_depth=2.0,Speed speed = this.speed, Z z = this.z,Location loc= this.location,String id="${count++}"+".YoYo"){
+	def yoyo(LinkedHashMap params){
+		
+		double max_depth=20.0,min_depth=2.0
+		def id = "${count++}"+".YoYo"
+		if (params != null){
+		 if(params['max_depth']!=null)
+			  max_depth= params.max_depth
+		 if(params['min_depth']!=null)
+			  min_depth= params.min_depth
+		 if(params['speed']!= null)
+			 this.speed = params.speed
+		 if(params['z']!= null)
+			 this.z = params.z
+		 if(params['location']!= null)
+			 this.location = params.location
+		 if(params['id'] != null)
+			 id = params.id
+		}
+		
+		YoYo man = maneuver(id, YoYo)
+		
+		man.amplitude = (max_depth - min_depth)
+		man.z         = (max_depth + min_depth) / 2.0
+		man
+		
+	}
+
+
+	//def popup(double duration=180.0,boolean currPos=true,Speed speed = this.speed, Z z = this.z,Location loc= this.location,String id="{count++}"+".Popup"){
+	def popup(LinkedHashMap params) {
+		
+		double duration = 0.0
+		def currPos = true
+		def id = "${this.count++}"+".PopUp"
+		if (params != null){
+		 if(params['duration']!=null)
+			  duration= params.duration
+		 if(params['currPos']!=null)
+			  currPos= params.currPos
+		 if(params['speed']!= null)
+			 this.speed = params.speed
+		 if(params['z']!= null)
+			 this.z = params.z
+		 if(params['location']!= null)
+			 this.location = params.location
+		 if(params['id'] != null)
+			 id = params.id
+		}
+		 
+		
+		def man = maneuver(id, PopUp)
+		
+		man.duration = duration.intValue()
+		man.flags    = currPos ? PopUp.FLG_CURR_POS : 0
+		man
+		
+	}
+	
+	//def skeeping(double radius=20.0,double duration=0 ,Speed speed = this.speed, Z z = this.z,Location loc= this.location,String id="{count++}"+".StationKeeping") {
+	def skeeping(LinkedHashMap params){
+		
+		double duration = 60.0,radius=20.0
+		def id = "${this.count++}"+".StationKeeping"
+		if (params != null){
+		 if(params['duration']!=null)
+			  duration= params.duration
+		 if(params['radius']!=null)
+			  radius= params.radius
+		 if(params['speed']!= null)
+			 this.speed = params.speed
+		 if(params['z']!= null)
+			 this.z = params.z
+		 if(params['location']!= null)
+			 this.location = params.location
+		 if(params['id'] != null)
+			 id = params.id
+		}
+		 
+		StationKeeping man = maneuver(id, StationKeeping)
+		man.duration = duration.intValue()
+		man.radius   = radius
+		man
+		}
+	
+	def compassCalibration(LinkedHashMap params){
+		
+		double amplitude=1,duration=300,radius=5,pitch=15
+		DIRECTION direction = DIRECTION.CLOCKW
+		def id = "${count++}"+".CompassCalibration"
+		if (params != null){
+		 if(params['duration']!=null)
+			  duration= params.duration
+		 if(params['radius']!=null)
+			  radius= params.radius
+		if(params['amplitude']!=null)
+			amplitude= params.amplitude
+		if(params['speed']!= null)
+			 this.speed = params.speed
+		 if(params['z']!= null)
+			 this.z = params.z
+		 if(params['location']!= null)
+			 this.location = params.location
+		 if(params['id'] != null)
+			 id = params.id
+		}
+		 
+		CompassCalibration man = maneuver(id, CompassCalibration)
+		
+		man.duration  = duration.intValue()
+		man.direction = direction
+		man.radius    = radius
+		man.amplitude = amplitude
+		man
+		}
+	
+	
+
+	def launch(LinkedHashMap params)  {
+		String id="${count++}"+".Launch"
+		if (params != null){
+			if(params['speed']!= null)
+				this.speed = params.speed
+			if(params['z']!= null)
+				this.z = params.z
+			if(params['location']!= null)
+				this.location = params.location
+			if(params['id'] != null)
+				id = params.id
+		   }
+		maneuver(id,Launch)
+	}
+	
+	def rows(LinkedHashMap params){
+		double bearing=0.0,cross_angle=0.0,width=100,length=200,hstep=27.0
+		short coff=15,flags
+		String id="${count++}"+".Rows"
+		if (params != null){
+			if(params['bearing']!= null)
+				bearing = params.bearing
+			if(params['width']!= null)
+				width = params.width
+			if(params['cross_angle']!= null)
+				cross_angle = params.cross_angle				
+			if(params['length']!= null)
+				length = params.length
+			if(params['hstep']!= null)
+				hstep = params.hstep
+			if(params['cross_angle']!= null)
+				cross_angle = params.cross_angle
+			if(params['curvOff']!= null)
+				coff = params.curvOff
+			if(params['coff']!= null)
+				coff = params.coff
+			if(params['flags']!= null)
+				flags = params.flags
+			if(params['id'] != null)
+				id = params.id
+			if(params['speed']!= null)
+				this.speed = params.speed
+			if(params['z']!= null)
+				this.z = params.z
+			if(params['location']!= null)
+				this.location = params.location
+			if(params['id'] != null)
+				id = params.id
+		   }
+		Rows man = maneuver(id,Rows)
+		man.setBearing     = bearing
+		man.setCrossAngle  = cross_angle
+		man.setWidth       = width
+		man.setLength      = length
+		man.setHstep       = hstep
+		man.setCoff        = coff
+		if(flags!=null)
+        	man.setFlags   = flags
+		man
+
+	}
+	
+	def locate(double latitude, double longitude) {
+		def loc = new Location(latitude, longitude)
+		this.location = loc
+	}
+	def locate(Angle latitude, Angle longitude) {
+		def loc = new Location(latitude, longitude)
+		this.location = loc
+	}
+	def locate(Location loc=this.location) {
+		this.location = loc
+		
+	}
+	
+	def move(double northing, double easting){
+		this.location= location.translateBy(northing,easting)
+	}
+
+	private def List<PlanTransition> maneuver_transitions(){
+		
+		def trans = new ArrayList<PlanTransition>()
+		PlanManeuver previous = null
+		mans.each {
+			if (previous != null) {
+			
+			def transition = new PlanTransition(
+				sourceMan: previous.maneuverId,
+				destMan: it.maneuverId,
+				conditions: "maneuverIsDone"
+			)
+		trans += transition
+	   }
+		previous = it
+	}
+		trans
+} 
+		
+		
+		
+	 
+
+	def PlanSpecification asPlanSpecification() {
+		PlanSpecification ps = new PlanSpecification()
+		ps.description = description
+		ps.planId = plan_id
+		ps.startManId = mans[0].getManeuverId()
+		ps.setManeuvers mans
+		ps.setTransitions maneuver_transitions()
+		ps
+	}
+
+	void sendTo (String vehicle,long milis=60000) {
+		def plan_spec = this.asPlanSpecification()
+		def select = false
+		PlanControl plan = 	new PlanControl(
+			opStr: 'LOAD',
+			planId: this.plan_id,
+			arg: plan_spec
+			)
+		vehicles_id.each { //Through Groovy Plugin ImcSystemsHolder.lookupActiveSystemVehicles() it.getId()
+			
+			if(it.equals(vehicle))
+			select = true
+		}
+		//while(!select.equals(null)) vehicles_id.each {protocol.connect(it); def select = protocol.waitfor(it,milis)}
+		if (select != null && IMCSendMessageUtils.sendMessage(plan,null,false, vehicle)) //IMCSendMessageUtils.sendMessage(plan,false,vehicle)
+			println ("$plan.abbrev commanded to $vehicle")
+		else
+			println ("Error communicating with $vehicle")
+			
+	}
+	
+	
+	void addToConsole() {
+		def plan   = this.asPlanSpecification()
+		def neptus_plan = new PlanType(plan.asXml(true),getConsole().getMission())
+		getConsole().getMission().addPlan(neptus_plan) //use DB
+	}
+
+}
+
+
+
+
+
+

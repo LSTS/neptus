@@ -48,4 +48,10 @@ while (true) {
 	}
     else println "No Plans."
 	  
+  /*  if(locs.length > 0)
+        locs.each {
+           println it.getId()
+        }
+    else
+        println "No POI in the console."    */
 }
