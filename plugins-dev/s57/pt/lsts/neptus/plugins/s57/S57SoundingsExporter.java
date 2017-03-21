@@ -90,7 +90,7 @@ public class S57SoundingsExporter extends ConsolePanel {
 
         Vector<MapPanel> maps = console.getSubPanelsOfClass(MapPanel.class);
         if (maps.isEmpty())
-            throw new Exception("Cannot export soundings because there is no map in the console");
+            throw new Exception(I18n.text("Cannot export soundings because there is no map in the console"));
 
         StateRenderer2D renderer = maps.firstElement().getRenderer();
         Map<String, MapPainterProvider> painters = renderer.getWorldMapPainter().getMapPainters();
@@ -99,13 +99,13 @@ public class S57SoundingsExporter extends ConsolePanel {
             if (p instanceof S57Chart)
                 return (S57Chart) p;
 
-        throw new Exception("Cannot export soundings because there is S57 chart in the console");                
+        throw new Exception(I18n.text("Cannot export soundings because there is no S57 chart loaded"));                
     }
 
     public static StateRenderer2D getRenderer(ConsoleLayout console) throws Exception {
         Vector<MapPanel> maps = console.getSubPanelsOfClass(MapPanel.class);
         if (maps.isEmpty())
-            throw new Exception("There is no map in the console");
+            throw new Exception(I18n.text("There is no map in the console"));
         return maps.firstElement().getRenderer();
     }
 
@@ -216,12 +216,9 @@ public class S57SoundingsExporter extends ConsolePanel {
                     BathymetryMeshOptions options = new BathymetryMeshOptions();
                     options.zero.setLocation(getConsole().getMission().getHomeRef());
                     
-                    
-                    
                     LocationType topLeft = renderer.getTopLeftLocationType().convertToAbsoluteLatLonDepth();
                     LocationType bottomRight = renderer.getBottomRightLocationType()
                             .convertToAbsoluteLatLonDepth();
-                    
                     
                     double dim[] = topLeft.getOffsetFrom(bottomRight);
                     
@@ -233,6 +230,12 @@ public class S57SoundingsExporter extends ConsolePanel {
                     soundings.addAll(chart.getDepthSoundings(bottomRight.getLatitudeDegs(),
                             topLeft.getLatitudeDegs(), topLeft.getLongitudeDegs(),
                             bottomRight.getLongitudeDegs()));
+                    
+                    if (soundings.isEmpty()) {
+                        GuiUtils.infoMessage(getConsole(), I18n.text("Export Bathymetry"), 
+                                I18n.text("No soundings to export!"));
+                        return;
+                    }
                     
                     WorldImage img = new WorldImage(options.cellWidth, ColorMapFactory.createGrayScaleColorMap());
                     

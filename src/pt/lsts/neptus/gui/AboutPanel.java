@@ -62,7 +62,7 @@ public class AboutPanel extends JFrame {
     private static final String IMG_FILE_NAME = "images/nep-about.jpg";
     private static final String VERSION_FILE_NAME = "/version.txt";
 
-    private static final String COPY_YEARS = "2004-2016";
+    private static final String COPY_YEARS = "2004-2017";
 
     private String mainDevelopers = "Paulo Dias, José Pinto";
     private String contributorsDevelopers = "Ricardo Martins, Sérgio Ferreira, "

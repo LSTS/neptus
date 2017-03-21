@@ -193,6 +193,8 @@ public class PlanEditor extends InteractionAdapter implements Renderer2DPainter,
 
     private String maneuverUndoRedoXml = null;
 
+    private SwingWorker<Void, Void> editExitDoubleClickSwingWorker = null;
+
     @NeptusProperty(name = "Toolbar Location", userLevel = LEVEL.REGULAR)
     public ToolbarLocation toolbarLocation = ToolbarLocation.Right;
 
@@ -681,13 +683,13 @@ public class PlanEditor extends InteractionAdapter implements Renderer2DPainter,
             overlay.paint(g, renderer);
         g.setFont(new Font("Helvetica", Font.BOLD, 14));
         if (delegate != null) {
-            String txt = I18n.textf("Editing %manName - Double click to end", ((Maneuver) delegate).getId());
+            String txt = I18n.textf("Editing %manName - Double click or press ESC to end",
+                    ((Maneuver) delegate).getId());
             g.setColor(Color.black);
             g.drawString(txt, 55, 15);
             g.setColor(Color.white);
             g.drawString(txt, 54, 14);
         }
-
     }
 
     /**
@@ -871,22 +873,39 @@ public class PlanEditor extends InteractionAdapter implements Renderer2DPainter,
 
     @Override
     public void mouseClicked(MouseEvent event, StateRenderer2D source) {
-
         final StateRenderer2D renderer = source;
         final Point2D mousePoint = event.getPoint();
 
         if (delegate != null) {
             if (event.getClickCount() == 2) {
-                delegate.setActive(false, source);
-                getPropertiesPanel().setManeuver(getPropertiesPanel().getManeuver());
-                getPropertiesPanel().getEditBtn().setSelected(false);
-                planElem.recalculateManeuverPositions(source);
-                delegate = null;
-                saveManeuverXmlToUndoManager();
+                if (editExitDoubleClickSwingWorker != null)
+                    editExitDoubleClickSwingWorker.cancel(true);
+                
+                endManeuverEdition(source);
                 return;
             }
             else {
-                delegate.mouseClicked(event, source);
+                Integer timerinterval = (Integer) Toolkit.getDefaultToolkit().getDesktopProperty("awt.multiClickInterval");
+                if (editExitDoubleClickSwingWorker != null) {
+                    editExitDoubleClickSwingWorker.cancel(true);
+                    editExitDoubleClickSwingWorker = null;
+                }
+                editExitDoubleClickSwingWorker = new SwingWorker<Void, Void>() {
+                    protected Void doInBackground() {
+                        try { Thread.sleep(timerinterval); } catch (Exception e) { }
+                        return null;
+                    };
+                    @Override
+                    protected void done() {
+                        try {
+                            get();
+                            delegate.mouseClicked(event, source);
+                        }
+                        catch (Exception e) {
+                        }
+                    }
+                };
+                editExitDoubleClickSwingWorker.execute();
                 return;
             }
         }
@@ -1284,6 +1303,18 @@ public class PlanEditor extends InteractionAdapter implements Renderer2DPainter,
         }
     }
 
+    /**
+     * @param source
+     */
+    private void endManeuverEdition(StateRenderer2D source) {
+        delegate.setActive(false, source);
+        getPropertiesPanel().setManeuver(getPropertiesPanel().getManeuver());
+        getPropertiesPanel().getEditBtn().setSelected(false);
+        planElem.recalculateManeuverPositions(source);
+        delegate = null;
+        saveManeuverXmlToUndoManager();
+    }
+
     private void saveManeuverXmlState() {
         maneuverUndoRedoXml = getPropertiesPanel().getManeuver().getManeuverXml();
     }
@@ -1608,10 +1639,15 @@ public class PlanEditor extends InteractionAdapter implements Renderer2DPainter,
 
     @Override
     public void keyPressed(KeyEvent event, StateRenderer2D source) {
-        if (delegate != null)
-            delegate.keyPressed(event, source);
-        else
+        if (delegate != null) {
+            if (event.getKeyCode() == KeyEvent.VK_ESCAPE)
+                endManeuverEdition(source);
+            else
+                delegate.keyPressed(event, source);
+        }
+        else {
             super.keyPressed(event, source);
+        }
     }
 
     @Override

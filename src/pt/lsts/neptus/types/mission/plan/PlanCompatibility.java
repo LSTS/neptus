@@ -43,6 +43,7 @@ import pt.lsts.neptus.params.ManeuverPayloadConfig;
 import pt.lsts.neptus.params.SystemProperty;
 import pt.lsts.neptus.params.SystemProperty.Scope;
 import pt.lsts.neptus.params.SystemProperty.Visibility;
+import pt.lsts.neptus.types.mission.MissionType;
 import pt.lsts.neptus.types.vehicle.VehicleType;
 
 /**
@@ -56,7 +57,7 @@ import pt.lsts.neptus.types.vehicle.VehicleType;
  * </pre> 
  * @author zp
  */
-public class PlanCompability {
+public class PlanCompatibility {
 
     /**
      * Checks vehicle compatibility with a plan
@@ -108,20 +109,15 @@ public class PlanCompability {
         return result;
      }
     
-    @SuppressWarnings("unused")
-    private static Collection<String> payloadsMissing(VehicleType vehicle, PlanType plan) {
-        
-        HashSet<String> needed = new HashSet<>();
+    /**
+     * Retrieve a list of payloads required by a vehicle that do not exist on the plan
+     * @param vehicle The vehicle to check for payloads
+     * @param plan The plan that lists required (active) payloads
+     * @return Names of the payloads like "Sidescan", "Multibeam", ...
+     */
+    public static Collection<String> payloadsMissing(VehicleType vehicle, PlanType plan) {
         HashSet<String> missing = new HashSet<>();
-        
-        Maneuver[] mans = plan.getGraph().getAllManeuvers();
-        
-        for (Maneuver m : mans) {
-            ManeuverPayloadConfig cfg = new ManeuverPayloadConfig(vehicle.getId(), m, null);
-            for (Property p : cfg.getProperties())
-                needed.add(p.getCategory());
-        }
-        
+        Collection<String> needed = payloadsRequired(plan);
         Collection<String> existing = availablePayloads(vehicle);
         
         for (String p : needed) {
@@ -132,12 +128,45 @@ public class PlanCompability {
         return missing;
     }
     
-    private static Collection<String> availablePayloads(VehicleType vehicle) {
+    /**
+     * Calculates the payloads required by a plan
+     * @param plan Plan where to parse required payloads
+     * @return Names of the payloads like "Sidescan", "Multibeam", ...
+     */
+    public static Collection<String> payloadsRequired(PlanType plan) {
+        Maneuver[] mans = plan.getGraph().getAllManeuvers();
+        String vehicle = plan.getVehicle();
+        HashSet<String> needed = new HashSet<>();
+        
+        for (Maneuver m : mans) {
+            ManeuverPayloadConfig cfg = new ManeuverPayloadConfig(vehicle, m, null);
+            for (Property p : cfg.getProperties()) {
+                if ("Active".equals(p.getName()) && Boolean.TRUE.equals(p.getValue())) {
+                    needed.add(p.getCategory());
+                }
+            }
+        }
+        
+        return needed;
+    }
+    
+    /**
+     * Calculate the payloads provided by a certain vehicle
+     * @param vehicle The vehicle where to look for payloads
+     * @return Names of the payloads like "Sidescan", "Multibeam", ...
+     */
+    public static Collection<String> availablePayloads(VehicleType vehicle) {
         HashSet<String> existing = new HashSet<>();
         for (SystemProperty p : ConfigurationManager.getInstance().getClonedProperties(vehicle.getId(), Visibility.USER,
                 Scope.MANEUVER)) {
             existing.add(p.getCategory());
         }
         return existing;
+    }
+    
+    public static void main(String[] args) {
+        MissionType mt = new MissionType("/home/zp/workspace/neptus/missions/APDL/apdl-necsave.nmisz");
+        PlanType pt = mt.getIndividualPlansList().get("go_in");
+        System.out.println(payloadsRequired(pt));
     }
 }

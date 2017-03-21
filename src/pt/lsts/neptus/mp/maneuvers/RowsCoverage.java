@@ -58,6 +58,8 @@ import com.l2fprod.common.propertysheet.Property;
 
 import pt.lsts.imc.IMCMessage;
 import pt.lsts.imc.Rows;
+import pt.lsts.imc.def.SpeedUnits;
+import pt.lsts.imc.def.ZUnits;
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.gui.ToolbarSwitch;
 import pt.lsts.neptus.gui.editor.SpeedUnitsEnumEditor;
@@ -592,7 +594,7 @@ IMCSerialization, StatisticsProvider, PathProvider {
         man.setLat(Math.toRadians(latDegs));
         man.setLon(Math.toRadians(lonDegs));
         man.setZ(z);
-        man.setZUnits(pt.lsts.imc.RowsCoverage.Z_UNITS.valueOf(getManeuverLocation().getZUnits().toString()));        
+        man.setZUnits(ZUnits.valueOf(getManeuverLocation().getZUnits().toString()));        
         man.setSpeed(speed);
         man.setWidth(width);
         man.setLength(length);
@@ -609,14 +611,14 @@ IMCSerialization, StatisticsProvider, PathProvider {
         try {
             switch (this.getSpeedUnits()) {
                 case PERCENTAGE:
-                    man.setSpeedUnits(pt.lsts.imc.RowsCoverage.SPEED_UNITS.PERCENTAGE);
+                    man.setSpeedUnits(SpeedUnits.PERCENTAGE);
                     break;
                 case RPM:
-                    man.setSpeedUnits(pt.lsts.imc.RowsCoverage.SPEED_UNITS.RPM);
+                    man.setSpeedUnits(SpeedUnits.RPM);
                     break;
                 case METERS_PS:
                 default:
-                    man.setSpeedUnits(pt.lsts.imc.RowsCoverage.SPEED_UNITS.METERS_PS);
+                    man.setSpeedUnits(SpeedUnits.METERS_PS);
                     break;
             }
         }

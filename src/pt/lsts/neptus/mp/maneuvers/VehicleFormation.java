@@ -60,6 +60,8 @@ import org.dom4j.Node;
 import pt.lsts.imc.IMCMessage;
 import pt.lsts.imc.TrajectoryPoint;
 import pt.lsts.imc.VehicleFormationParticipant;
+import pt.lsts.imc.def.SpeedUnits;
+import pt.lsts.imc.def.ZUnits;
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.comm.manager.imc.ImcId16;
 import pt.lsts.neptus.gui.SelectAllFocusListener;
@@ -196,7 +198,7 @@ public class VehicleFormation extends FollowTrajectory {
         vfMessage.setLat(Math.toRadians(lld[0]));
         vfMessage.setLon(Math.toRadians(lld[1]));
         vfMessage.setZ(getManeuverLocation().getZ());
-        vfMessage.setZUnits(pt.lsts.imc.VehicleFormation.Z_UNITS.valueOf(
+        vfMessage.setZUnits(ZUnits.valueOf(
                 getManeuverLocation().getZUnits().toString()));
         vfMessage.setStartTime(startTime/1000.0);
         vfMessage.setParticipants(getParticipantsIMC());
@@ -204,14 +206,14 @@ public class VehicleFormation extends FollowTrajectory {
         try {
             switch (speedUnits) {
                 case METERS_PS:
-                    vfMessage.setSpeedUnits(pt.lsts.imc.VehicleFormation.SPEED_UNITS.METERS_PS);
+                    vfMessage.setSpeedUnits(SpeedUnits.METERS_PS);
                     break;
                 case PERCENTAGE:
-                    vfMessage.setSpeedUnits(pt.lsts.imc.VehicleFormation.SPEED_UNITS.PERCENTAGE);
+                    vfMessage.setSpeedUnits(SpeedUnits.PERCENTAGE);
                     break;
                 case RPM:
                 default:
-                    vfMessage.setSpeedUnits(pt.lsts.imc.VehicleFormation.SPEED_UNITS.RPM);
+                    vfMessage.setSpeedUnits(SpeedUnits.RPM);
                     break;
             }
         }

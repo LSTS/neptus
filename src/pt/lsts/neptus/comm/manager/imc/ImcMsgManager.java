@@ -371,6 +371,8 @@ CommBaseManager<IMCMessage, MessageInfo, SystemImcMsgCommInfo, ImcId16, CommMana
         SystemImcMsgCommInfo vsci = new SystemImcMsgCommInfo();
         vsci.setMessageBus(bus);
         vsci.setSystemCommId(vIdS);
+        
+        boolean sysNameSet = false;
 
         VehicleType vehTmp = VehiclesHolder.getVehicleWithImc(vIdS);
         if (vehTmp == null) {
@@ -380,6 +382,7 @@ CommBaseManager<IMCMessage, MessageInfo, SystemImcMsgCommInfo, ImcId16, CommMana
             // VehicleType vehicle = vehTmp;
             NeptusLog.pub().debug("Found the Vehicle: " + vehTmp.getId());
             vsci.setSystemIdName(vehTmp.getId());
+            sysNameSet = true;
         }
 
         ImcSystem resSys = ImcSystemsHolder.lookupSystem(vIdS);
@@ -406,6 +409,16 @@ CommBaseManager<IMCMessage, MessageInfo, SystemImcMsgCommInfo, ImcId16, CommMana
             }
         }
 
+        if (!sysNameSet) {
+            if (resSys.getName().equalsIgnoreCase(resSys.getId().toHexString())) {
+                String name = imcDefinition.getResolver().resolve(resSys.getId().intValue());
+                if (!name.contains("unknown")) {
+                    vsci.setSystemIdName(name);
+                    resSys.setName(name);
+                }
+            }
+        }
+        
         if (vsci.initSystemComms()) {
             if (!vsci.startSystemComms()) {
                 NeptusLog.pub().error("Error starting " + vsci.getSystemIdName());
@@ -419,13 +432,6 @@ CommBaseManager<IMCMessage, MessageInfo, SystemImcMsgCommInfo, ImcId16, CommMana
 
         commInfo.put(vIdS, vsci);
 
-        // pdias 14/3/2009 new to VehicleImcMsgCommInfo.createNewPrivateNode
-        // if (vsci.isUdpOn())
-        // udpOnIpMapper.put(vsci.getIpAddress()+(isFilterByPort?":"+vsci.getIpRemotePort():""),
-        // vsci.getVehicleCommId());
-        // else
-        // udpOnIpMapper.remove(vsci.getIpAddress()+(isFilterByPort?":"+vsci.getIpRemotePort():""));
-
         if (vehTmp != null) {
             sendManagerVehicleAdded(vehTmp);
             sendManagerVehicleStatusChanged(vehTmp, SYS_COMM_ON);
@@ -436,20 +442,6 @@ CommBaseManager<IMCMessage, MessageInfo, SystemImcMsgCommInfo, ImcId16, CommMana
         }
         return vsci;
     }
-
-    /**
-     * @param vsci
-     */
-//    void mapUdpIpPort(SystemImcMsgCommInfo vsci) {
-//        if (vsci == null)
-//            return;
-//
-//        if (isUdpOn())
-//            udpOnIpMapper.put(vsci.getIpAddress() + (isFilterByPort ? ":" + vsci.getIpRemotePort() : ""),
-//                    vsci.getSystemCommId());
-//        else
-//            udpOnIpMapper.remove(vsci.getIpAddress() + (isFilterByPort ? ":" + vsci.getIpRemotePort() : ""));
-//    }
 
     protected String getAnnounceServicesList() {
         String ret = "";
@@ -971,9 +963,6 @@ CommBaseManager<IMCMessage, MessageInfo, SystemImcMsgCommInfo, ImcId16, CommMana
                     if (VehiclesHolder.getVehicleWithImc(id) != null) {
                         vci = initSystemCommInfo(id, "");
                     }
-                    else{
-                        return false;
-                    }
                 }
                 
                 if (vci != null) {
@@ -981,8 +970,6 @@ CommBaseManager<IMCMessage, MessageInfo, SystemImcMsgCommInfo, ImcId16, CommMana
                             this.getClass().getSimpleName() + ": Message redirected for system comm. "
                                     + vci.getSystemCommId() + ".");
                     vci.onMessage(info, msg);
-                    //                    bus.post(msg);
-                    //NeptusLog.pub().info("<###> "+msg.hashCode());
                     return true;
                 }
             }
@@ -991,15 +978,30 @@ CommBaseManager<IMCMessage, MessageInfo, SystemImcMsgCommInfo, ImcId16, CommMana
             e.printStackTrace();
         }
 
+        // If we got here the system is not known
+        
         String inetAddress = info.getPublisherInetAddress();
         String remotePortAddress = "" + info.getPublisherPort();
 
         NeptusLog.pub().info(
-                this.getClass().getSimpleName() + ": No IMC system found. trying to redirected " + "by IP/Port info. "
+                this.getClass().getSimpleName() + ": No IMC "
+                        + "0x" + Integer.toUnsignedString((msg.getSrc()), 16)
+                        + " system found. trying to redirected " + "by IP/Port info. "
                         + (vci != null ? vci.getSystemCommId() + ">" : "") + inetAddress + ":" + remotePortAddress
                         + ".");
 
         boolean sentToBus = false;
+
+        // Lets us create a new system 
+        try {
+            ImcId16 id = new ImcId16(msg.getHeader().getValue("src"));
+            vci = initSystemCommInfo(id, inetAddress + ":" + remotePortAddress);
+            vci.onMessage(info, msg);
+            sentToBus = true;
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+        }
 
         if (udpOnIpMapper.containsKey(inetAddress + (isFilterByPort ? ":" + remotePortAddress : ""))) {
             ImcId16 systemId = udpOnIpMapper.get(inetAddress + (isFilterByPort ? ":" + remotePortAddress : ""));
@@ -1012,18 +1014,14 @@ CommBaseManager<IMCMessage, MessageInfo, SystemImcMsgCommInfo, ImcId16, CommMana
                 sentToBus = true;
             }
         }
-        else {
-            if (isRedirectToFirst) {
-                if (!getCommInfo().keySet().isEmpty()) {
-                    ImcId16 vehicleId = getCommInfo().keySet().iterator().next();
-                    SystemImcMsgCommInfo vciRedirect = getCommInfoById(vehicleId);
-                    NeptusLog.pub().debug(
-                            this.getClass().getSimpleName() + ": Message redirected for system comm. "
-                                    + vciRedirect.getSystemCommId() + ".");
-                    vciRedirect.onMessage(info, msg);
-                    sentToBus = true;
-                }
-            }
+        else if (isRedirectToFirst && !getCommInfo().keySet().isEmpty()) {
+            ImcId16 vehicleId = getCommInfo().keySet().iterator().next();
+            SystemImcMsgCommInfo vciRedirect = getCommInfoById(vehicleId);
+            NeptusLog.pub().debug(
+                    this.getClass().getSimpleName() + ": Message redirected for system comm. "
+                            + vciRedirect.getSystemCommId() + ".");
+            vciRedirect.onMessage(info, msg);
+            sentToBus = true;
         }
 
         try {

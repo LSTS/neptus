@@ -46,6 +46,8 @@ import com.l2fprod.common.propertysheet.DefaultProperty;
 import com.l2fprod.common.propertysheet.Property;
 
 import pt.lsts.imc.IMCMessage;
+import pt.lsts.imc.def.SpeedUnits;
+import pt.lsts.imc.def.ZUnits;
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.gui.PropertiesEditor;
 import pt.lsts.neptus.gui.editor.AngleEditorRads;
@@ -312,7 +314,7 @@ public class YoYo extends Maneuver implements IMCSerialization, LocatedManeuver,
 		yoyo.setLat(loc.getLatitudeRads());
 		yoyo.setLon(loc.getLongitudeRads());
 		yoyo.setZ(getManeuverLocation().getZ());
-		yoyo.setZUnits(pt.lsts.imc.YoYo.Z_UNITS.valueOf(getManeuverLocation().getZUnits().toString()));
+		yoyo.setZUnits(ZUnits.valueOf(getManeuverLocation().getZUnits().toString()));
 		yoyo.setSpeed(getSpeed());
 		yoyo.setAmplitude(getAmplitude());
 		yoyo.setPitch(getPitchAngle());
@@ -320,14 +322,14 @@ public class YoYo extends Maneuver implements IMCSerialization, LocatedManeuver,
 		try {
             switch (this.getSpeedUnits()) {
                 case METERS_PS:
-                    yoyo.setSpeedUnits(pt.lsts.imc.YoYo.SPEED_UNITS.METERS_PS);
+                    yoyo.setSpeedUnits(SpeedUnits.METERS_PS);
                     break;
                 case PERCENTAGE:
-                    yoyo.setSpeedUnits(pt.lsts.imc.YoYo.SPEED_UNITS.PERCENTAGE);
+                    yoyo.setSpeedUnits(SpeedUnits.PERCENTAGE);
                     break;
                 case RPM:
                 default:
-                    yoyo.setSpeedUnits(pt.lsts.imc.YoYo.SPEED_UNITS.RPM);
+                    yoyo.setSpeedUnits(SpeedUnits.RPM);
                     break;
             }
         }

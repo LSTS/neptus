@@ -50,6 +50,8 @@ import com.l2fprod.common.propertysheet.Property;
 import pt.lsts.imc.IMCMessage;
 import pt.lsts.imc.Loiter.DIRECTION;
 import pt.lsts.imc.Loiter.TYPE;
+import pt.lsts.imc.def.SpeedUnits;
+import pt.lsts.imc.def.ZUnits;
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.gui.PropertiesEditor;
 import pt.lsts.neptus.gui.editor.AngleEditorRads;
@@ -514,21 +516,21 @@ public class Loiter extends Maneuver implements LocatedManeuver, ManeuverWithSpe
         loiter.setLat(loc.getLatitudeRads());
         loiter.setLon(loc.getLongitudeRads());
         loiter.setZ(getManeuverLocation().getZ());
-        loiter.setZUnits(pt.lsts.imc.Loiter.Z_UNITS.valueOf(getManeuverLocation().getZUnits().name()));
+        loiter.setZUnits(ZUnits.valueOf(getManeuverLocation().getZUnits().name()));
         loiter.setSpeed(this.getSpeed());
         loiter.setDuration(getLoiterDuration());
        
         try {
             switch (this.getSpeedUnits()) {
                 case METERS_PS:
-                    loiter.setSpeedUnits(pt.lsts.imc.Loiter.SPEED_UNITS.METERS_PS);
+                    loiter.setSpeedUnits(SpeedUnits.METERS_PS);
                     break;
                 case PERCENTAGE:
-                    loiter.setSpeedUnits(pt.lsts.imc.Loiter.SPEED_UNITS.PERCENTAGE);
+                    loiter.setSpeedUnits(SpeedUnits.PERCENTAGE);
                     break;
                 case RPM:
                 default:
-                    loiter.setSpeedUnits(pt.lsts.imc.Loiter.SPEED_UNITS.RPM);
+                    loiter.setSpeedUnits(SpeedUnits.RPM);
                     break;
             }
         }

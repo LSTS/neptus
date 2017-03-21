@@ -45,9 +45,8 @@ import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JScrollPane;
 
-import pt.lsts.imc.Goto;
-import pt.lsts.imc.Goto.SPEED_UNITS;
 import pt.lsts.imc.PlanSpecification;
+import pt.lsts.imc.def.SpeedUnits;
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.comm.IMCUtils;
 import pt.lsts.neptus.console.ConsoleLayout;
@@ -85,7 +84,7 @@ public class NoptilusPlanGenerator extends ConsolePanel implements Renderer2DPai
     public double speed = 1000.0;
 
     @NeptusProperty(name = "Speed Units")
-    public Goto.SPEED_UNITS units = SPEED_UNITS.RPM;
+    public SpeedUnits units = SpeedUnits.RPM;
 
     @NeptusProperty(name = "Waypoints folder", editable = true)
     public String defaultFolder = ".";
@@ -139,7 +138,7 @@ public class NoptilusPlanGenerator extends ConsolePanel implements Renderer2DPai
 
                         if (useFollowPath)
                             spec = PlanUtils.trajectoryPlan(plan_id, waypoints, speed,
-                                    pt.lsts.imc.FollowPath.SPEED_UNITS.valueOf(units.toString()));
+                                    SpeedUnits.valueOf(units.toString()));
                         else
                             spec = PlanUtils.planFromWaypoints(plan_id, waypoints, speed, units);
                         if (showMessage) {

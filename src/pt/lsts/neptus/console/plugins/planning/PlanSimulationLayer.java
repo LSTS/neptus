@@ -56,7 +56,7 @@ import pt.lsts.neptus.renderer2d.StateRenderer2D;
 import pt.lsts.neptus.types.coord.LocationType;
 import pt.lsts.neptus.types.map.AbstractElement;
 import pt.lsts.neptus.types.map.MapGroup;
-import pt.lsts.neptus.types.mission.plan.PlanCompability;
+import pt.lsts.neptus.types.mission.plan.PlanCompatibility;
 import pt.lsts.neptus.types.mission.plan.PlanType;
 import pt.lsts.neptus.types.vehicle.VehicleType;
 import pt.lsts.neptus.types.vehicle.VehiclesHolder;
@@ -261,7 +261,7 @@ public class PlanSimulationLayer extends ConsoleLayer implements PlanSimulationL
     private List<Pair<PlanCheck, String>> validatePlanCompatibility() {
         ArrayList<Pair<PlanCheck, String>> checks = new ArrayList<>();
         try {
-            PlanCompability.testCompatibility(VehiclesHolder.getVehicleById(getConsole().getMainSystem()), mainPlan);
+            PlanCompatibility.testCompatibility(VehiclesHolder.getVehicleById(getConsole().getMainSystem()), mainPlan);
         }
         catch (Exception e) {
             checks.add(new Pair<PlanSimulationLayer.PlanCheck, String>(PlanCheck.Warning, e.getMessage()));
