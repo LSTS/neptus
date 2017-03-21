@@ -7,6 +7,8 @@ import pt.lsts.imc.net.*;
 import pt.lsts.neptus.comm.IMCSendMessageUtils;
 import pt.lsts.neptus.comm.manager.imc.ImcSystemsHolder;
 import pt.lsts.neptus.types.mission.plan.PlanType;
+import pt.lsts.neptus.types.mission.MissionType;
+import pt.lsts.neptus.console.ConsoleLayout;
 
 
 /**
@@ -28,12 +30,12 @@ class Plan {
 		plan_id = id
 		count = 1
 		location = Location.APDL
-		speed = new Speed(value: 1.0, units: Speed.Units.METERS_PS)
-		z = new Z(value: 0.0,units: Z.Units.DEPTH)
+		speed = new Speed(1.0, Speed.Units.METERS_PS)
+		z = new Z(0.0,Z.Units.DEPTH)
 		
 	}
 
-	 def maneuver(String id, Class maneuver) {
+	 def Maneuver maneuver(String id, Class maneuver) {
 
 		def man = maneuver.newInstance(
 				lat: location.latitude,
@@ -58,7 +60,8 @@ class Plan {
 	 // see -> http://stackoverflow.com/questions/15393962/groovy-named-parameters-cause-parameter-assignments-to-switch-any-way-around-th
 
 	 def goTo (LinkedHashMap params){
-		 String id = "${this.count++}"+".Goto"
+		 def id = "$count"+".Goto"
+         count++
 		 if(params!=null){
 		 params.with{
 			 if(speed!= null)
@@ -67,8 +70,9 @@ class Plan {
 			 	this.z = z
 			 if(location!= null)
 			 	this.location = location
-			 if(params['id'] != null)
+			 if(params['id'] != null){
 			 	id = params.id
+			 }
 		 }
 	}
 	 	maneuver(id,Goto)
@@ -95,8 +99,8 @@ class Plan {
 		Loiter man = maneuver(id,Loiter)
 		
 		man.duration = duration.intValue() 
-		man.type     = Loiter.TYPE.CIRCULAR
 		man.radius   = radius
+        man.setType(Loiter.TYPE.CIRCULAR)
 		man
 		
 	}
@@ -330,6 +334,25 @@ class Plan {
 		ps.setTransitions maneuver_transitions()
 		ps
 	}
+    
+    def PlanType asPlanType(ConsoleLayout console) {
+        def plantype = new PlanType(console.getMission())
+        //Add Maneuvers
+        mans.each{
+            plantype.getGraph().addManeuver(it)
+        }
+        //Add Transitions
+        plantype.getGraph().setInitialManeuver(mans[0].getManeuverId())
+        
+        //TODO possibly add payloads or other requirements
+        
+        maneuver_transitions().each{
+            plantype.getGraph().addTransition(it)
+        }
+        plantype.setId(plan_id)
+        plantype.setMissionType(console.getMission())
+        plantype
+     }
 
 	void sendTo (String vehicle,long milis=60000) {
 		def plan_spec = this.asPlanSpecification()
@@ -340,7 +363,7 @@ class Plan {
 			arg: plan_spec
 			)
 		vehicles_id.each { //Through Groovy Plugin ImcSystemsHolder.lookupActiveSystemVehicles() it.getId()
-			
+			println it
 			if(it.equals(vehicle))
 			select = true
 		}
@@ -350,13 +373,23 @@ class Plan {
 		else
 			println ("Error communicating with $vehicle")
 			
+            
+            //use DB?
 	}
 	
 	
-	void addToConsole() {
+	void addToConsole(ConsoleLayout console) {
+        //console <- binding variable
+
 		def plan   = this.asPlanSpecification()
-		def neptus_plan = new PlanType(plan.asXml(true),getConsole().getMission())
-		getConsole().getMission().addPlan(neptus_plan) //use DB
+        plan.planId = this.plan_id
+        plan.description = this.description
+        println plan.asXml(false)
+
+        
+		def neptus_plan = this.asPlanType(console)
+        println neptus_plan
+		console.getMission().addPlan(neptus_plan) 
 	}
 
 }

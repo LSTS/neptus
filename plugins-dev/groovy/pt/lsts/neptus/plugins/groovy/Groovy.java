@@ -52,6 +52,7 @@ import com.google.common.eventbus.Subscribe;
 
 import groovy.lang.Binding;
 import groovy.util.GroovyScriptEngine;
+import pt.lsts.imc.PlanSpecification;
 import pt.lsts.neptus.comm.manager.imc.ImcSystem;
 import pt.lsts.neptus.comm.manager.imc.ImcSystemsHolder;
 import pt.lsts.neptus.console.ConsoleLayout;
@@ -65,6 +66,7 @@ import pt.lsts.neptus.plugins.Popup;
 import pt.lsts.neptus.plugins.Popup.POSITION;
 import pt.lsts.neptus.renderer2d.InteractionAdapter;
 import pt.lsts.neptus.types.coord.LocationType;
+import pt.lsts.neptus.types.map.AbstractElement;
 import pt.lsts.neptus.types.map.MapGroup;
 import pt.lsts.neptus.types.map.MarkElement;
 import pt.lsts.neptus.types.mission.plan.PlanType;
@@ -87,7 +89,7 @@ public class Groovy extends InteractionAdapter {
     //Collections used to make Map thread safe
     private Map<String,VehicleType> vehicles = Collections.synchronizedMap(new HashMap<>()); 
     private Map<String,PlanType> plans = Collections.synchronizedMap(new HashMap<>()); //PlanType listas planos
-    private Map<String,LocationType> locs = Collections.synchronizedMap(new HashMap<>());
+    private Map<String,LocationType> locations = Collections.synchronizedMap(new HashMap<>());
     private Binding binds; //verify use of @TypeChecked
     private GroovyScriptEngine engine;
     private CompilerConfiguration config;
@@ -109,24 +111,22 @@ public class Groovy extends InteractionAdapter {
 
         //POI/MarkElement
         for( MarkElement mark:MapGroup.getMapGroupInstance(getConsole().getMission()).getAllObjectsOfType(MarkElement.class)){
-            locs.put(mark.getId(),mark.getPosition());
+            locations.put(mark.getId(),mark.getPosition());
+            
+            
         }
         
-        /*System.out.println("Initial Vehicle size= "+vehicles.size());
-        System.out.println("Initial Plans size= "+plans.size());
-        System.out.println("Initial Locations size= "+locs.size());
-        System.out.println("Initialized all vars");*/
-
-
         this.config = new CompilerConfiguration();
         this.customizer = new ImportCustomizer();
-        this.customizer.addImports("pt.lsts.imc.net.IMCProtocol","pt.lsts.imc.net.Consume"); // in classpath
+        this.customizer.addImports("pt.lsts.imc.net.IMCProtocol","pt.lsts.imc.net.Consume");
         this.customizer.addStarImports("pt.lsts.imc","pt.lsts.neptus.nvl.imc.dsl"); //this.getClass().classLoader.rootLoader.addURL(new File("file.jar").toURL())
         this.config.addCompilationCustomizers(customizer);
         this.binds = new Binding();
         this.binds.setVariable("vehicles_id", vehicles.keySet().toArray());
         this.binds.setVariable("plans_id", plans.keySet().toArray());
-        this.binds.setVariable("locs", locs.keySet().toArray());
+        this.binds.setVariable("locations", locations.keySet().toArray());
+        this.binds.setVariable("console", getConsole()); //TODO NOTIFY the existing binding to be used in the script 
+        
         try {
             //Description/notification: "Place your groovy scripts in the folder script of the plugin"
             this.engine = new GroovyScriptEngine("plugins-dev/groovy/pt/lsts/neptus/plugins/groovy/scripts/");
@@ -191,7 +191,6 @@ public class Groovy extends InteractionAdapter {
                         File groovy_script = fc.getSelectedFile();
                         post(Notification.info("Groovy Feature", "Opening: " + groovy_script.getName() + "." + "\n"));
 
-
                         thread = new Thread() {
 
                             @Override
@@ -201,7 +200,6 @@ public class Groovy extends InteractionAdapter {
                                 try {
                                     if(!stopScript.isEnabled()){
                                         stopScript.setEnabled(true);
-                                        //System.out.println("Stopscript Button enabled.");
                                     }
 
                                     Object output = engine.run(groovy_script.getName(), binds);
@@ -209,6 +207,10 @@ public class Groovy extends InteractionAdapter {
                                     //shell.evaluate(initScripts + groovy_script)
                                     //PlanCompability.isVehicleCompatible()
                                     //sendstart in PlanQueue.java
+                                    
+                                    if(!stopScript.isEnabled())
+                                        stopScript.setEnabled(false);
+                                    
                                 }
                                 catch (Exception   e) { //CompilationFailedException | ResourceException | ScriptException
                                     e.printStackTrace();
@@ -222,12 +224,8 @@ public class Groovy extends InteractionAdapter {
                         thread.start();
 
                     } 
-
                 }
-
-
             }
-
         };
 
         Action stopAction = new AbstractAction(I18n.text("Stop Script"), ImageUtils.getScaledIcon("pt/lsts/neptus/plugins/groovy/images/stop.png", 10, 30)) {

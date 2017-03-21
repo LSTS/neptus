@@ -13,8 +13,8 @@
  * written agreement between you and Universidade do Porto. For licensing
  * terms, conditions, and further information contact lsts@fe.up.pt.
  *
- * European Union Public Licence - EUPL v.1.1 Usage
- * Alternatively, this file may be used under the terms of the EUPL,
+ * Modified European Union Public Licence - EUPL v.1.1 Usage
+ * Alternatively, this file may be used under the terms of the Modified EUPL,
  * Version 1.1 only (the "Licence"), appearing in the file LICENSE.md
  * included in the packaging of this file. You may not use this work
  * except in compliance with the Licence. Unless required by applicable
@@ -22,33 +22,48 @@
  * distributed on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF
  * ANY KIND, either express or implied. See the Licence for the specific
  * language governing permissions and limitations at
- * http://ec.europa.eu/idabc/eupl.html.
+ * https://github.com/LSTS/neptus/blob/develop/LICENSE.md
+ * and http://ec.europa.eu/idabc/eupl.html.
  *
  * For more information please see <http://lsts.fe.up.pt/neptus>.
  *
  * Author: lsts
- * 02/02/2017
+ * 17/03/2017
  */
-package pt.lsts.neptus.plugins.groovy 
+package pt.lsts.neptus.plugins.groovy.scripts
 
-import groovy.lang.Script
+import pt.lsts.neptus.types.map.AbstractElement;
+import pt.lsts.neptus.types.map.MapGroup
 
-/**
- * @author lsts
- * all
- * of your scripts to share a common set of methods, you can specify a base class extend-
- * ing groovy.lang.Script
- *
- */
-abstract class BaseScript extends Script {
+import org.graphstream.stream.SourceBase.AddToListEvent;
 
-    /* (non-Javadoc)
-     * @see groovy.lang.Script#run()
-     */
-    @Override
-    public Object run() {
-        // TODO Auto-generated method stub: Insert groovy code HERE
-        return null;
-    }
+import pt.lsts.neptus.nvl.imc.dsl.*;
+
+
+
+if(plans_id.length > 0)
+plans_id.each {
+    println "PLANS as XML:"
+  println console.getMission().getIndividualPlansList().get(it).asXML()
+  println "\n\n\n\n\n\n"
 
 }
+
+locations.sort() //from bindings
+
+ArrayList<Location> pois  = new ArrayList<>()
+
+locations.each {
+    
+   
+    AbstractElement[] elems = MapGroup.getMapGroupInstance(console.getMission()).getObjectsFromMap(it)
+    elems[0].getCenterLocation()
+    AbstractElement[] elem = MapGroup.getMapGroupInstance(console.getMission()).getObjectsFromMap(it)
+    pois.add new Location(elem[0].getCenterLocation().getLatitudeRads(),elem[0].getCenterLocation().getLongitudeRads())
+    
+    }
+def plan = new Plan ("Travel-Locations")
+
+    pois.each {plan.goTo location:it}
+    plan.addToConsole(console)
+    
