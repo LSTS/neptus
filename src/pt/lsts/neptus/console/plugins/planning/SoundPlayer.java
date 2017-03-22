@@ -60,10 +60,12 @@ public class SoundPlayer extends Thread {
 		AudioInputStream audioInputStream = null;
 		try {
 			audioInputStream = AudioSystem.getAudioInputStream(is);
-		} catch (UnsupportedAudioFileException e1) {
+		}
+		catch (UnsupportedAudioFileException e1) {
 			e1.printStackTrace();
 			return;
-		} catch (IOException e1) {
+		}
+		catch (IOException e1) {
 			e1.printStackTrace();
 			return;
 		}
@@ -75,10 +77,12 @@ public class SoundPlayer extends Thread {
 		try {
 			auline = (SourceDataLine) AudioSystem.getLine(info);
 			auline.open(format);
-		} catch (LineUnavailableException e) {
+		}
+		catch (LineUnavailableException e) {
 			e.printStackTrace();
 			return;
-		} catch (Exception e) {
+		}
+		catch (Exception e) {
 			e.printStackTrace();
 			return;
 		}
@@ -93,10 +97,12 @@ public class SoundPlayer extends Thread {
 				if (nBytesRead >= 0)
 					auline.write(abData, 0, nBytesRead);
 			}
-		} catch (IOException e) {
+		}
+		catch (IOException e) {
 			e.printStackTrace();
 			return;
-		} finally {
+		}
+		finally {
 			auline.drain();
 			auline.close();
 		}
