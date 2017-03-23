@@ -183,7 +183,7 @@ public class SendTxtMessage extends ConsolePanel {
         });
         
         InputMap input = sendBox.getInputMap();
-        KeyStroke shiftEnter = KeyStroke.getKeyStroke("shift ENTER");
+        KeyStroke shiftEnter = KeyStroke.getKeyStroke("control ENTER");
         input.put(shiftEnter, TEXT_SUBMIT);
         ActionMap actions = sendBox.getActionMap();
         actions.put(TEXT_SUBMIT, new AbstractAction() {
@@ -211,11 +211,11 @@ public class SendTxtMessage extends ConsolePanel {
         setPreferredSize(new Dimension(400, 200));
         setPreferredSize(new Dimension(200, 100));
         
-        add(sendBoxScroll, "w 100%, h 30%, span, wrap");
+        add(sendBoxScroll, "w 100%, h 40px:40px:40px, span, wrap");
         add(sendButton, "h 20px");
         add(clearButton, "h 20px");
         add(clearCtlButton, "h 20px, wrap");
-        add(recvBoxScroll, "w 100%, h 65%, span");
+        add(recvBoxScroll, "w 100%, h 100%, span");
     }
 
     
