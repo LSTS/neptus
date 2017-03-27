@@ -27,40 +27,19 @@
  *
  * For more information please see <http://lsts.fe.up.pt/neptus>.
  *
- * Author: keila
- * 09/03/2017
+ * Author: lsts
+ * 27/03/2017
  */
-package pt.lsts.neptus.plugins.nvl_runtime;
-
-import java.util.ArrayList;
-import java.util.List;
-
-import pt.lsts.neptus.nvl.runtime.Payload;
-import pt.lsts.neptus.nvl.runtime.PayloadComponent;
+package pt.lsts.neptus.nvl.runtime;
 
 /**
- * @author keila
+ * @author lsts
  *
  */
-public class NeptusPayloadAdapter implements Payload {
-    
-    List<PayloadComponent> payloads;
-    
-    /**
-     * 
-     */
-    public NeptusPayloadAdapter(NeptusTaskSpecificationAdapter task) {
-        payloads = new ArrayList<>();
-        
-    }
+public interface PayloadComponent {
 
-    /* (non-Javadoc)
-     * @see nvl.Payload#getComponents()
-     */
-    @Override
-    public List<PayloadComponent> getComponents() {
-        // TODO Auto-generated method stub
-        return null;
-    }
-
+     String getComponentName();
+     double getComponentRange();
+    
+    
 }

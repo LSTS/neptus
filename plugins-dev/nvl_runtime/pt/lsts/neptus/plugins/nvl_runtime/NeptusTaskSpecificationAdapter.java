@@ -39,6 +39,7 @@ import pt.lsts.neptus.nvl.runtime.TaskSpecification;
 import pt.lsts.neptus.nvl.runtime.VehicleRequirements;
 import pt.lsts.imc.IMCMessage;
 import pt.lsts.neptus.comm.manager.imc.ImcSystemsHolder;
+import pt.lsts.neptus.mp.Maneuver;
 import pt.lsts.neptus.types.mission.plan.PlanType;
 
 /**
@@ -47,16 +48,12 @@ import pt.lsts.neptus.types.mission.plan.PlanType;
  */
 public class NeptusTaskSpecificationAdapter implements TaskSpecification {
     private  IMCMessage imcmessage; //PlanControl?-> A List of them? //TODO
+    private  String id;
     private  final String [] vehicles_id; //final? can the number of vehicles for a task change?
+    private List<Maneuver> maneuvers;
     
   
-//    public NVLTaskSpecification(NVLPayload payload) { 
-//        imcmessage = new IMCMessage();
-//        vehicles_id = define_vehicles(payload);
-//        
-//    }
-    
-    /**
+  /**
      * Create a NVLTaskSpecification from Neptus PlanType
      * @param plan 
      * 
@@ -66,6 +63,9 @@ public class NeptusTaskSpecificationAdapter implements TaskSpecification {
         ArrayList<String> vs = new ArrayList<>(plan.getVehicles().size());        
         plan.getVehicles().stream().forEach(v -> vs.add(v.getId()));
         vehicles_id = (String[]) vs.toArray();
+        id = plan.getId();
+        //maneuvers = plan.getGraph().getAllManeuvers().toArray();
+     
     }
     
     /**
@@ -85,15 +85,6 @@ public class NeptusTaskSpecificationAdapter implements TaskSpecification {
         return null;
     }
 
-//    /* (non-Javadoc)
-//     * @see nvl.TaskSpecification#getRequirements()
-//     */
-//    @Override
-//    public List<VehicleRequirements> getRequirements() {
-//        // TODO Auto-generated method stub
-//        return null;
-//    }
-
 /* (non-Javadoc)
  * @see pt.lsts.neptus.nvl.runtime.TaskSpecification#getRequirements()
  */
@@ -108,8 +99,14 @@ public List<VehicleRequirements> getRequirements() {
  */
 @Override
 public String getId() {
-    // TODO Auto-generated method stub
-    return null;
+    return this.id;
+}
+
+/**
+ * @return the imcmessage
+ */
+public IMCMessage getMessage() {
+    return imcmessage;
 }
 
 }

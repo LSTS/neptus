@@ -27,13 +27,22 @@ import pt.lsts.neptus.types.vehicle.VehicleType.SystemTypeEnum;
 
 @SuppressWarnings("serial")
 public class NeptusRuntime extends InteractionAdapter implements NVLRuntime {
-   private final Map<String,NeptusVehicleAdapter> vehicles = Collections.synchronizedMap(new HashMap<>());
-   private final Map<String,NeptusTaskSpecificationAdapter> tasks = Collections.synchronizedMap(new HashMap<>()); //Or List?
+   private  Map<String,NeptusVehicleAdapter> vehicles;
+   private  Map<String,NeptusTaskSpecificationAdapter> tasks; //Or List?
 	/**
      * @param console
      */
     public NeptusRuntime(ConsoleLayout console) {
         super(console);
+        
+    }
+
+    
+    @Override
+    public void initSubPanel() {
+        vehicles = Collections.synchronizedMap(new HashMap<>());
+        tasks = Collections.synchronizedMap(new HashMap<>());
+        
         for(ImcSystem vec: ImcSystemsHolder.lookupAllActiveSystems()){
             if(vec.getType() == SystemTypeEnum.VEHICLE)
                 vehicles.put(vec.getName(),new NeptusVehicleAdapter(vec,STATE.CONNECTED));//TODO
@@ -41,8 +50,16 @@ public class NeptusRuntime extends InteractionAdapter implements NVLRuntime {
         for(PlanType plan: getConsole().getMission().getIndividualPlansList().values()){
             tasks.put(plan.getId(),new NeptusTaskSpecificationAdapter(plan));
         }
+
     }
 
+    @Override
+    public void cleanSubPanel() {
+        // TODO Auto-generated method stub
+
+    }
+    
+    
     @Override
 	public List<NVLVehicle> getVehicles(Filter<NVLVehicle> f) {
 	        List <NVLVehicle> result = new ArrayList<>();
@@ -64,26 +81,30 @@ public class NeptusRuntime extends InteractionAdapter implements NVLRuntime {
 
 
 	@Override
-	public TaskExecution launchTask(TaskSpecification task, List<NVLVehicle> vehicles) {
-//	    //TODO define if critical msg -> need to use acoustics communications
-//		PlanType plan = ()task.toPlanType();
-//		boolean acoustics=false;
-//		String[] vs = new String[vehicles.size()];
-//		vs = vehicles.toArray(vs);
-//		//this.getConsole().getMission().addPlan(new PlanType());
-//		IMCSendMessageUtils.sendMessage(plan,null,acoustics, vs);         //sendMessage(IMCMessage msg, String errorTextForDialog, boolean sendOnlyThroughOneAcoustically,String... ids)
-//
-//		return new NeptusTaskExecutionAdapter(plan);
-	    return null;
-	}
+	public TaskExecution launchTask(TaskSpecification task, List<NVLVehicle> vehicles) { //Area to cover?
+	    
+		PlanType plan = ((NeptusTaskSpecificationAdapter) task).toPlanType();
+		boolean acoustics=false; //TODO define if critical msg -> need to use acoustics communications
+		String[] vs = new String[vehicles.size()];
+		vs = vehicles.toArray(vs);
+		       //sendMessage(IMCMessage msg, String errorTextForDialog, boolean sendOnlyThroughOneAcoustically,String... ids)
+        plan.setId(task.getId());
+        plan.setMissionType(getConsole().getMission());
+        getConsole().getMission().getIndividualPlansList().put(task.getId(),plan);
+        getConsole().getMission().save(true);
+        getConsole().updateMissionListeners();
+        getConsole().getMission().addPlan(plan);
+        IMCSendMessageUtils.sendMessage(((NeptusTaskSpecificationAdapter) task).getMessage(),null,acoustics, vs);  
+		return new NeptusTaskExecutionAdapter(plan);
+	   	}
 
     /* (non-Javadoc)
      * @see pt.lsts.neptus.nvl.runtime.NVLRuntime#getVehicle(java.lang.String)
      */
     @Override
     public NVLVehicle getVehicle(String id) {
-        // TODO Auto-generated method stub
-        return null;
+        
+        return vehicles.get(id);
     }
 
     /* (non-Javadoc)
@@ -91,8 +112,12 @@ public class NeptusRuntime extends InteractionAdapter implements NVLRuntime {
      */
     @Override
     public List<TaskSpecification> getTasks(Filter<TaskSpecification> filter) {
-        // TODO Auto-generated method stub
-        return null;
+        List <TaskSpecification> result = new ArrayList<>();
+        for(TaskSpecification task: tasks.values()){
+            if(filter.apply(task))
+                result.add(task);
+        }
+        return result;
     }
 
     /* (non-Javadoc)
@@ -100,7 +125,7 @@ public class NeptusRuntime extends InteractionAdapter implements NVLRuntime {
      */
     @Override
     public TaskSpecification getTask(String id) {
-        // TODO Auto-generated method stub
-        return null;
+        
+        return tasks.get(id);
     }
 }
