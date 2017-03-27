@@ -8,7 +8,7 @@ import pt.lsts.neptus.types.mission.plan.PlanType;
 public interface TaskSpecification {
 
 	List<VehicleRequirements> getRequirements();
-
+	List<PayloadComponent> getComponents();
 	
 	
 	String getId();

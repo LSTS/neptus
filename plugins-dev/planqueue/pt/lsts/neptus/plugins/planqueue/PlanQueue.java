@@ -83,7 +83,7 @@ import pt.lsts.neptus.renderer2d.LayerPriority;
 import pt.lsts.neptus.renderer2d.StateRenderer2D;
 import pt.lsts.neptus.renderer2d.StateRendererInteraction;
 import pt.lsts.neptus.types.mission.MissionType;
-import pt.lsts.neptus.types.mission.plan.PlanCompability;
+import pt.lsts.neptus.types.mission.plan.PlanCompatibility;
 import pt.lsts.neptus.types.mission.plan.PlanType;
 import pt.lsts.neptus.types.vehicle.VehicleType;
 import pt.lsts.neptus.types.vehicle.VehiclesHolder;
@@ -318,7 +318,7 @@ public class PlanQueue extends InteractionAdapter {
                 }
                 boolean sent = false;
                 if (planToSend!=null) {
-                    if (PlanCompability.isVehicleCompatible(avVehicles.get(getIndexOfvehicle(avVehicles, vehicle)), planToSend)) {   
+                    if (PlanCompatibility.isVehicleCompatible(avVehicles.get(getIndexOfvehicle(avVehicles, vehicle)), planToSend)) {   
                         sendPlan(vehicle,planToSend);
                         sent=true;
                     } else {

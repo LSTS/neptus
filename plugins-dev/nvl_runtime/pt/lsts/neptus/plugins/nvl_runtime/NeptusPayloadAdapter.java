@@ -34,33 +34,32 @@ package pt.lsts.neptus.plugins.nvl_runtime;
 
 import java.util.ArrayList;
 import java.util.List;
-
-import pt.lsts.neptus.nvl.runtime.Payload;
 import pt.lsts.neptus.nvl.runtime.PayloadComponent;
 
 /**
  * @author keila
  *
  */
-public class NeptusPayloadAdapter implements Payload {
-    
-    List<PayloadComponent> payloads;
-    
-    /**
-     * 
-     */
-    public NeptusPayloadAdapter(NeptusTaskSpecificationAdapter task) {
-        payloads = new ArrayList<>();
-        
+public class NeptusPayloadAdapter implements PayloadComponent {
+ 
+    String payload;
+    double range;
+    public NeptusPayloadAdapter(String name, double r){ //sensor range
+        payload = name;
+        range = r;
     }
-
-    /* (non-Javadoc)
-     * @see nvl.Payload#getComponents()
-     */
+    
+    public NeptusPayloadAdapter(NeptusTaskSpecificationAdapter task){ //sensor range
+        //TODO
+    }
+    
     @Override
-    public List<PayloadComponent> getComponents() {
-        // TODO Auto-generated method stub
-        return null;
+    public String getComponentName() {
+        return this.payload;
+    }
+    @Override
+    public double getComponentRange() {
+        return this.range;
     }
 
 }

@@ -65,6 +65,7 @@ public class NeptusTaskExecutionAdapter implements TaskExecution {
      * @param plan2
      */
     public NeptusTaskExecutionAdapter(PlanType plan2) {
+        plan = null;
     }
 
 
