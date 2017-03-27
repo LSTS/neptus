@@ -52,6 +52,7 @@ import com.google.common.eventbus.Subscribe;
 
 import groovy.lang.Binding;
 import groovy.util.GroovyScriptEngine;
+import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.comm.manager.imc.ImcSystem;
 import pt.lsts.neptus.comm.manager.imc.ImcSystemsHolder;
 import pt.lsts.neptus.console.ConsoleLayout;
@@ -111,17 +112,18 @@ public class Groovy extends InteractionAdapter {
         //POI/MarkElement
         for( MarkElement mark:MapGroup.getMapGroupInstance(getConsole().getMission()).getAllObjectsOfType(MarkElement.class)){
             locations.put(mark.getId(),mark.getPosition());
+           
         }
         
         this.config = new CompilerConfiguration();
         this.customizer = new ImportCustomizer();
-        this.customizer.addImports("pt.lsts.imc.net.IMCProtocol","pt.lsts.imc.net.Consume");
+        this.customizer.addImports("pt.lsts.imc.net.IMCProtocol","pt.lsts.imc.net.Consume","pt.lsts.neptus.types.coord.LocationType");
         this.customizer.addStarImports("pt.lsts.imc","pt.lsts.neptus.nvl.imc.dsl","pt.lsts.neptus.types.map"); //this.getClass().classLoader.rootLoader.addURL(new File("file.jar").toURL())
         this.config.addCompilationCustomizers(customizer);
         this.binds = new Binding();
         this.binds.setVariable("vehicles_id", vehicles.keySet().toArray());
         this.binds.setVariable("plans_id", plans.keySet().toArray());
-        this.binds.setVariable("locations", locations.keySet().toArray());
+        this.binds.setVariable("locations", locations.values().toArray());
         this.binds.setVariable("console", getConsole()); //TODO NOTIFY the existing binding to be used in the script 
         
         try {
@@ -198,15 +200,15 @@ public class Groovy extends InteractionAdapter {
                                 try {
                                     Object output = engine.run(groovy_script.getName(), binds);
                                     //shell.getContext().getVariable();
-                                    //shell.evaluate(initScripts + groovy_script)
-                                    if(stopScript.isEnabled())
+                                     if(stopScript.isEnabled())
                                         stopScript.setEnabled(false);
                                    
                                     
                                 }
                                 catch (Exception   e) { //CompilationFailedException | ResourceException | ScriptException
                                   //TODO notify script exit
-                                    e.printStackTrace();
+                                    NeptusLog.pub().error("Exception Caught during execution of script: "+groovy_script.getName(),e);
+                                    //e.printStackTrace();
                                     }
                                 catch(ThreadDeath e){
                                     //TODO notify script exit

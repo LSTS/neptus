@@ -1,6 +1,3 @@
-import pt.lsts.neptus.types.map.AbstractElement;
-import pt.lsts.neptus.types.map.MapGroup;
-
 locations.sort() //from bindings
 
 ArrayList<Location> pois  = new ArrayList<>()
@@ -8,10 +5,8 @@ ArrayList<Location> pois  = new ArrayList<>()
 locations.each {
     
    
-    AbstractElement[] elems = MapGroup.getMapGroupInstance(console.getMission()).getObjectsFromMap(it)
-    elems[0].getCenterLocation()
-    AbstractElement[] elem = MapGroup.getMapGroupInstance(console.getMission()).getObjectsFromMap(it)
-    pois.add new Location(elem[0].getCenterLocation().getLatitudeRads(),elem[0].getCenterLocation().getLongitudeRads())
+    //AbstractElement[] elems = MapGroup.getMapGroupInstance(console.getMission()).getObjectsFromMap(it)
+    pois.add new Location(it.getLatitudeRads(),it.getLongitudeRads())
     
     }
 def plan = new Plan ("Travel")
