@@ -1006,7 +1006,7 @@ LockableSubPanel, IPeriodicUpdates, NeptusMessageListener {
         }
 
         boolean ret = IMCSendMessageUtils.sendMessage(pc, (useTcpToSendMessages ? ImcMsgManager.TRANSPORT_TCP : null),
-                createDefaultMessageDeliveryListener(), this, cmdStrMsg, dontSendByAcoustics,
+                createDefaultMessageDeliveryListener(), getConsole(), cmdStrMsg, dontSendByAcoustics,
                 acousticOpServiceName, acousticOpUseOnlyActive, true, true, systems);
 
         if (!ret) {
