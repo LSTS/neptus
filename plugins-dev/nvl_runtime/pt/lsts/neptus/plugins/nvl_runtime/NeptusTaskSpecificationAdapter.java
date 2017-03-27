@@ -35,6 +35,7 @@ package pt.lsts.neptus.plugins.nvl_runtime;
 import java.util.ArrayList;
 import java.util.List;
 
+import pt.lsts.neptus.nvl.runtime.PayloadComponent;
 import pt.lsts.neptus.nvl.runtime.TaskSpecification;
 import pt.lsts.neptus.nvl.runtime.VehicleRequirements;
 import pt.lsts.imc.IMCMessage;
@@ -107,6 +108,15 @@ public String getId() {
  */
 public IMCMessage getMessage() {
     return imcmessage;
+}
+
+/* (non-Javadoc)
+ * @see pt.lsts.neptus.nvl.runtime.TaskSpecification#getComponents()
+ */
+@Override
+public List<PayloadComponent> getComponents() {
+    // TODO Auto-generated method stub
+    return null;
 }
 
 }

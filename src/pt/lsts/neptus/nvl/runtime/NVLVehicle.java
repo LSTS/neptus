@@ -5,5 +5,5 @@ public interface NVLVehicle {
    NVLVehicleType getType();
    Availability getAvailability();
    Position getPosition();
-   Payload getPayload();
+   PayloadComponent getPayload();
 }
