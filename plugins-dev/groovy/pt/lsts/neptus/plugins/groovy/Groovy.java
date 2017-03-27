@@ -52,7 +52,6 @@ import com.google.common.eventbus.Subscribe;
 
 import groovy.lang.Binding;
 import groovy.util.GroovyScriptEngine;
-import pt.lsts.imc.PlanSpecification;
 import pt.lsts.neptus.comm.manager.imc.ImcSystem;
 import pt.lsts.neptus.comm.manager.imc.ImcSystemsHolder;
 import pt.lsts.neptus.console.ConsoleLayout;
@@ -88,7 +87,7 @@ public class Groovy extends InteractionAdapter {
     private JButton openButton,stopScript;
     //Collections used to make Map thread safe
     private Map<String,VehicleType> vehicles = Collections.synchronizedMap(new HashMap<>()); 
-    private Map<String,PlanType> plans = Collections.synchronizedMap(new HashMap<>()); //PlanType listas planos
+    private Map<String,PlanType> plans = Collections.synchronizedMap(new HashMap<>()); 
     private Map<String,LocationType> locations = Collections.synchronizedMap(new HashMap<>());
     private Binding binds; //verify use of @TypeChecked
     private GroovyScriptEngine engine;
@@ -108,18 +107,16 @@ public class Groovy extends InteractionAdapter {
             this.vehicles.put(vec.getName(),VehiclesHolder.getVehicleById(vec.getName()));
         
         this.plans.putAll(getConsole().getMission().getIndividualPlansList());
-
+       
         //POI/MarkElement
         for( MarkElement mark:MapGroup.getMapGroupInstance(getConsole().getMission()).getAllObjectsOfType(MarkElement.class)){
             locations.put(mark.getId(),mark.getPosition());
-            
-            
         }
         
         this.config = new CompilerConfiguration();
         this.customizer = new ImportCustomizer();
         this.customizer.addImports("pt.lsts.imc.net.IMCProtocol","pt.lsts.imc.net.Consume");
-        this.customizer.addStarImports("pt.lsts.imc","pt.lsts.neptus.nvl.imc.dsl"); //this.getClass().classLoader.rootLoader.addURL(new File("file.jar").toURL())
+        this.customizer.addStarImports("pt.lsts.imc","pt.lsts.neptus.nvl.imc.dsl","pt.lsts.neptus.types.map"); //this.getClass().classLoader.rootLoader.addURL(new File("file.jar").toURL())
         this.config.addCompilationCustomizers(customizer);
         this.binds = new Binding();
         this.binds.setVariable("vehicles_id", vehicles.keySet().toArray());
@@ -180,14 +177,17 @@ public class Groovy extends InteractionAdapter {
                     File directory = new File("plugins-dev/groovy/pt/lsts/neptus/plugins/groovy/scripts/");
                     final JFileChooser fc = new JFileChooser(directory);
                     fc.setFileSelectionMode(JFileChooser.FILES_ONLY);
-                    FileNameExtensionFilter filter = new FileNameExtensionFilter("Groovy files","groovy");
-                    fc.setFileFilter(filter);
+//                    FileNameExtensionFilter filter = new FileNameExtensionFilter("Groovy files","groovy");
+//                    fc.setFileFilter(filter);
 
                     //GuiUtils.showInfoPopup("Select Groovy Script", "Only executes groovy scripts in the folder script of the plugin.");
                     //GuiUtils.confirmDialog(owner, title, message);
                     int returnVal = fc.showOpenDialog(Groovy.this);
 
                     if (returnVal == JFileChooser.APPROVE_OPTION) {
+                        if(!stopScript.isEnabled()){
+                            stopScript.setEnabled(true);
+                        }
                         File groovy_script = fc.getSelectedFile();
                         post(Notification.info("Groovy Feature", "Opening: " + groovy_script.getName() + "." + "\n"));
 
@@ -195,26 +195,19 @@ public class Groovy extends InteractionAdapter {
 
                             @Override
                             public void run() {
-
-
                                 try {
-                                    if(!stopScript.isEnabled()){
-                                        stopScript.setEnabled(true);
-                                    }
-
                                     Object output = engine.run(groovy_script.getName(), binds);
                                     //shell.getContext().getVariable();
                                     //shell.evaluate(initScripts + groovy_script)
-                                    //PlanCompability.isVehicleCompatible()
-                                    //sendstart in PlanQueue.java
-                                    
-                                    if(!stopScript.isEnabled())
+                                    if(stopScript.isEnabled())
                                         stopScript.setEnabled(false);
+                                   
                                     
                                 }
                                 catch (Exception   e) { //CompilationFailedException | ResourceException | ScriptException
+                                  //TODO notify script exit
                                     e.printStackTrace();
-                               }
+                                    }
                                 catch(ThreadDeath e){
                                     //TODO notify script exit
                                 }
@@ -222,7 +215,7 @@ public class Groovy extends InteractionAdapter {
                         };
 
                         thread.start();
-
+                        
                     } 
                 }
             }
@@ -230,14 +223,13 @@ public class Groovy extends InteractionAdapter {
 
         Action stopAction = new AbstractAction(I18n.text("Stop Script"), ImageUtils.getScaledIcon("pt/lsts/neptus/plugins/groovy/images/stop.png", 10, 30)) {
 
-            @SuppressWarnings("deprecation")
             @Override
             public void actionPerformed(ActionEvent e) {
 
                 if(e.getSource() == stopScript){
                     if(thread.isAlive()){
                       
-                        thread.stop();
+                        thread.interrupt();
                         
                     }
                     stopScript.setEnabled(false);
@@ -269,7 +261,7 @@ public class Groovy extends InteractionAdapter {
                     if(!vehicles.containsKey(e.getVehicle())) {
                         vehicles.put(e.getVehicle(),VehiclesHolder.getVehicleById(e.getVehicle()));
                         this.binds.setVariable("vehicles_id",vehicles.keySet().toArray()); //binds.vehicles=vehicles;
-                        System.out.println("Added "+e.getVehicle()+" Size: "+vehicles.keySet().size());
+                        //System.out.println("Added "+e.getVehicle()+" Size: "+vehicles.keySet().size());
 
                     }
                 }
@@ -278,21 +270,21 @@ public class Groovy extends InteractionAdapter {
                 if(vehicles.containsKey(e.getVehicle())){
                     this.vehicles.remove(e.getVehicle());
                     this.binds.setVariable("vehicles_id",vehicles.keySet().toArray());
-                    System.out.println("Removed "+e.getVehicle()+" Size: "+vehicles.keySet().size());
+                    //System.out.println("Removed "+e.getVehicle()+" Size: "+vehicles.keySet().size());
                 }
                 break;
             case DISCONNECTED:
                 if(vehicles.containsKey(e.getVehicle())){
                     this.vehicles.remove(e.getVehicle());
                     this.binds.setVariable("vehicles_id",vehicles.keySet().toArray());
-                    System.out.println("Removed "+e.getVehicle()+" Size: "+vehicles.keySet().size());
+                    //System.out.println("Removed "+e.getVehicle()+" Size: "+vehicles.keySet().size());
                 }
                 break;
             case CALIBRATION:// or case MANEUVER
                 if(vehicles.containsKey(e.getVehicle())){
                     this.vehicles.remove(e.getVehicle());
                     this.binds.setVariable("vehicles_id",vehicles.keySet().toArray());
-                    System.out.println("Removed "+e.getVehicle()+" Size: "+vehicles.keySet().size());
+                    //System.out.println("Removed "+e.getVehicle()+" Size: "+vehicles.keySet().size());
                 }
                 break;
 
@@ -334,18 +326,18 @@ public class Groovy extends InteractionAdapter {
             getConsole().updateMissionListeners();
             addPlan(plan.getId());
             getBinds().setVariable("plans_id",getPlans().keySet().toArray());
-            System.out.println("2.Added Plan: "+plan.getId());
+            //System.out.println("Added Plan: "+plan.getId());
 
         }
 
         @Override
         public void dbPlanRemoved(String planId) {
-            System.out.println("dbPlanRemoved");
+            //System.out.println("dbPlanRemoved");
         }
 
         @Override
         public void dbPlanSent(String planId) {
-            System.out.println("dbPlanSent");
+            //System.out.println("dbPlanSent");
         }
     };
 
@@ -379,7 +371,7 @@ public void onConsoleEventPlanChange(ConsoleEventPlanChange plan) {
 
 }*/
 
-// public void consume(PlanControlState pcstate) -> Plugin do Manuel para atualizar o estado do plano no veiculo
+// public void consume(PlanControlState pcstate)
 
 /* @Subscribe
 public void on(EstimatedState msg) {

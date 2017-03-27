@@ -1,0 +1,21 @@
+import pt.lsts.neptus.types.map.AbstractElement;
+import pt.lsts.neptus.types.map.MapGroup;
+
+locations.sort() //from bindings
+
+ArrayList<Location> pois  = new ArrayList<>()
+
+locations.each {
+    	println it 
+        AbstractElement[] mark = MapGroup.getMapGroupInstance(console.getMission()).getObjectsFromMap(it)
+        println mark[0].getType()
+		println mark[0].getNEDPosition()   
+//        def loc = new Location(mark[0].getCenterLocation().getPosition().getLatitudeRads(),mark[0].getPosition().getLongitudeRads())
+//        println "lat: " + loc.latitude + " long:" + loc.longitude
+//        pois.add loc
+    }
+def plan = new Plan ("Travel-t-Locations")
+
+    pois.each {plan.goTo location:it}
+    plan.addToConsole(console)
+    
