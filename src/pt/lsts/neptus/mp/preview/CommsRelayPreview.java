@@ -75,7 +75,7 @@ public class CommsRelayPreview implements IManeuverPreview<CommsRelay> {
     
 
     @Override
-    public SystemPositionAndAttitude step(SystemPositionAndAttitude state, double timestep) {
+    public SystemPositionAndAttitude step(SystemPositionAndAttitude state, double timestep, double ellapsedTime) {
         model.setState(state);
         execTime += timestep;
         

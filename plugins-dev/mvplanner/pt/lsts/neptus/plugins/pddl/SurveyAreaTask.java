@@ -34,9 +34,10 @@ package pt.lsts.neptus.plugins.pddl;
 
 import java.awt.Color;
 import java.awt.Graphics2D;
-import java.awt.Image;
 import java.awt.geom.Point2D;
+import java.io.IOException;
 import java.util.HashSet;
+import java.util.Scanner;
 
 import pt.lsts.neptus.mp.ManeuverLocation;
 import pt.lsts.neptus.mp.maneuvers.ManeuversUtil;
@@ -45,8 +46,8 @@ import pt.lsts.neptus.renderer2d.StateRenderer2D;
 import pt.lsts.neptus.types.coord.LocationType;
 import pt.lsts.neptus.types.map.MarkElement;
 import pt.lsts.neptus.types.map.ParallelepipedElement;
+import pt.lsts.neptus.util.AngleUtils;
 import pt.lsts.neptus.util.GuiUtils;
-import pt.lsts.neptus.util.ImageUtils;
 
 /**
  * @author zp
@@ -57,7 +58,6 @@ public class SurveyAreaTask extends MVPlannerTask {
     private RowsManeuver pivot = new RowsManeuver();
     private ParallelepipedElement area = null;
     MarkElement entry = new MarkElement(), exit = new MarkElement();
-    private Image poiImg = null;
     
     public SurveyAreaTask(LocationType clickedLocation) {
         area = new ParallelepipedElement();
@@ -68,6 +68,14 @@ public class SurveyAreaTask extends MVPlannerTask {
         area.setYawDeg(0);
         entry.setId(getName()+"_entry");
         exit.setId(getName()+"_exit");
+        updateManeuver();
+    }
+
+    private SurveyAreaTask(ParallelepipedElement area, String name) {
+        this.area = area;
+        this.name = name;
+        entry.setId(getName() + "_entry");
+        exit.setId(getName() + "_exit");
         updateManeuver();
     }
     
@@ -85,6 +93,76 @@ public class SurveyAreaTask extends MVPlannerTask {
     
     public LocationType getEndPoint() {
         return pivot.getEndLocation().convertToAbsoluteLatLonDepth();
+    }
+
+    public double getWidth() {
+        return area.getWidth();
+    }
+
+    public double getHeight() {
+        return area.getWidth();
+    }
+
+    /**
+     * Split this survey in n other areas
+     * */
+    public SurveyAreaTask[] splitSurvey(double newLength) {
+        int n = (int) Math.round(this.getLength() / newLength);
+        SurveyAreaTask surveys[] = new SurveyAreaTask[n];
+
+        // compute new area dimensions
+        double newAreaWidth = area.getWidth();
+        double newAreaLength = area.getLength();
+
+        boolean horizontalSplit = false;
+        if(area.getWidth() > area.getLength())
+            newAreaWidth = area.getWidth() / n;
+        else {
+            newAreaLength = area.getLength() / n;
+            horizontalSplit = true;
+        }
+
+        LocationType pivot = getEntryPoint();
+        LocationType origin = new LocationType(pivot);
+        origin.translatePosition(newAreaLength/2, newAreaWidth/2, 0);
+
+
+        for(int i = 0; i < n; i++) {
+            LocationType newCenter = new LocationType(origin);
+            if(horizontalSplit)
+                newCenter.translatePosition(newAreaLength * i, 0, 0);
+            else
+                newCenter.translatePosition(0, newAreaWidth * i, 0);
+
+            double offsets[] = pivot.getOffsetFrom(newCenter);
+            double deltas[] = AngleUtils.rotate(area.getYawRad(), offsets[0], offsets[1], false);
+            newCenter.translatePosition(offsets[0] - deltas[0], offsets[1] -deltas[1], 0);
+
+            ParallelepipedElement newArea = new ParallelepipedElement();
+            newArea.setCenterLocation(newCenter);
+            newArea.setWidth(newAreaWidth);
+            newArea.setLength(newAreaLength);
+            newArea.setYawDeg(area.getYawRad());
+
+            String id;
+            if(i == 0)
+                id = getName();
+            else
+                id = getName() + "_p" + i;
+
+            SurveyAreaTask newTask = new SurveyAreaTask(newArea, id);
+            newTask.setYaw(area.getYawRad());
+            newTask.updateManeuver();
+            newTask.setRequiredPayloads(newTask.getRequiredPayloads());
+            newTask.setProperties(getProperties());
+
+            surveys[i] = newTask;
+        }
+
+        this.area = surveys[0].area;
+        this.updateManeuver();
+
+        return surveys;
     }
     
     @Override
@@ -136,7 +214,7 @@ public class SurveyAreaTask extends MVPlannerTask {
         double minHorStep = area.getWidth()/3;
         double minDepth = Double.MAX_VALUE;
         double maxDepth = -Double.MAX_VALUE;
-        for (PayloadRequirement p : requiredPayloads) {
+        for (PayloadRequirement p : getRequiredPayloads()) {
             minHorStep = Math.min(minHorStep, p.getSwathWidth());
             if (p.getMinDepth() < 0)
                 minDepth = p.getMinDepth();
@@ -175,14 +253,17 @@ public class SurveyAreaTask extends MVPlannerTask {
         copy.rotate(-renderer.getRotation()-Math.PI/2);
         ManeuversUtil.paintPointLineList(copy, renderer.getZoom(), pivot.getPathPoints(), false, 0);
         String payloads = getPayloadsAbbreviated();
-        if (poiImg == null)
-            poiImg = ImageUtils.getImage("pt/lsts/neptus/plugins/pddl/led.png");
-        if (poiImg == null)
-            poiImg = ImageUtils.getImage("pt/lsts/neptus/plugins/pddl/led.png");
-        g.drawImage(poiImg, (int)pt.getX()-8, (int)pt.getY()-8, null);
+        loadImages();
+        if (getAssociatedAllocation() == null)
+            g.drawImage(orangeLed, (int)pt.getX()-8, (int)pt.getY()-8, null);
+        else
+            g.drawImage(greenLed, (int)pt.getX()-8, (int)pt.getY()-8, null);        
         g.setColor(Color.black);
         g.drawString(getName()+" ("+payloads+")", (int)pt.getX()+8, (int)pt.getY()+8);
-        g.setColor(Color.green.brighter().brighter());
+        if(getAssociatedAllocation() != null)
+            g.setColor(Color.green.brighter().brighter());
+        else
+            g.setColor(Color.orange);
         g.drawString(getName()+" ("+payloads+")", (int)pt.getX()+7, (int)pt.getY()+7);
         
     }
@@ -203,10 +284,52 @@ public class SurveyAreaTask extends MVPlannerTask {
         return pivot;
     }
 
-    public static void main(String[] args) {
+    @Override
+    public String marshall() throws IOException {
+        LocationType loc = new LocationType(getCenterLocation());
+        loc.convertToAbsoluteLatLonDepth();
+        double length = area.getLength(), width = area.getWidth(), bearing = area.getYawDeg();
+        return String.format("survey %s %s %f %f %f %f %f %s", getName(), isFirstPriority(), loc.getLatitudeDegs(),
+                loc.getLongitudeDegs(), length, width, bearing, getRequiredPayloads());
+    }
+
+    @Override
+    public void unmarshall(String data) throws IOException {
+        Scanner input = new Scanner(data);
+        input.next("[\\w]+");
+        this.name = input.next("[\\w]+");
+        this.firstPriority = input.nextBoolean();
+        double latDegs = input.nextDouble();
+        double lonDegs = input.nextDouble();
+        area.setCenterLocation(new LocationType(latDegs, lonDegs));
+        area.setLength(input.nextDouble());
+        area.setWidth(input.nextDouble());
+        area.setYawDeg(input.nextDouble());
+        String[] payloads = input.nextLine().replaceAll("[\\[\\]]", "").trim().split("[, ]+");
+        getRequiredPayloads().clear();
+        for (String p : payloads)
+            getRequiredPayloads().add(PayloadRequirement.valueOf(p));
+        updateManeuver();
+        input.close();
+    }
+    
+    public static void main(String[] args) throws Exception {
         SurveyAreaTask task = new SurveyAreaTask(new LocationType(41, -8));
+        task.area.setWidth(200);
+        task.area.setLength(120);
+        task.setYaw(Math.PI/4);
+        task.requiredPayloads.add(PayloadRequirement.sidescan);
+        task.updateManeuver();
+        System.out.println(task.marshall());
+        SurveyAreaTask task2 = new SurveyAreaTask(new LocationType());
+        task2.unmarshall(task.marshall());
+        System.out.println(task2.marshall());
         StateRenderer2D renderer = new StateRenderer2D(new LocationType(41, -8));
         renderer.addPostRenderPainter(task, "task");
         GuiUtils.testFrame(renderer);
+        
+        
     }
+    
+    
 }

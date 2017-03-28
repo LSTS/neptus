@@ -34,13 +34,13 @@ package pt.lsts.neptus.plugins.pddl;
 
 import java.awt.Color;
 import java.awt.Graphics2D;
-import java.awt.Image;
 import java.awt.geom.Point2D;
+import java.io.IOException;
+import java.util.Scanner;
 
 import pt.lsts.neptus.renderer2d.StateRenderer2D;
 import pt.lsts.neptus.types.coord.LocationType;
 import pt.lsts.neptus.types.map.MarkElement;
-import pt.lsts.neptus.util.ImageUtils;
 
 /**
  * @author zp
@@ -49,7 +49,6 @@ import pt.lsts.neptus.util.ImageUtils;
 public class SamplePointTask extends MVPlannerTask {
 
     private MarkElement elem;
-    private Image poiImg = null;
     
     public SamplePointTask(LocationType loc) {
         elem = new MarkElement();
@@ -60,14 +59,25 @@ public class SamplePointTask extends MVPlannerTask {
     @Override
     public void paint(Graphics2D g, StateRenderer2D renderer) {
         String payloads = getPayloadsAbbreviated();
-        if (poiImg == null)
-            poiImg = ImageUtils.getImage("pt/lsts/neptus/plugins/pddl/led.png");
+        
         Point2D pt = renderer.getScreenPosition(elem.getCenterLocation());
-        g.drawImage(poiImg, (int)pt.getX()-8, (int)pt.getY()-8, null);
+        
+        loadImages();
+        if (getAssociatedAllocation() == null)
+            g.drawImage(orangeLed, (int)pt.getX()-8, (int)pt.getY()-8, null);
+        else
+            g.drawImage(greenLed, (int)pt.getX()-8, (int)pt.getY()-8, null);
+            
         g.setColor(Color.black);
         g.drawString(getName()+" ("+payloads+")", (int)pt.getX()+8, (int)pt.getY()+8);
-        g.setColor(Color.green.brighter().brighter());
-        g.drawString(getName()+" ("+payloads+")", (int)pt.getX()+7, (int)pt.getY()+7);
+        if (getAssociatedAllocation() != null) {
+            g.setColor(Color.green.brighter().brighter());
+            g.drawString(getName()+" ("+payloads+")", (int)pt.getX()+7, (int)pt.getY()+7);
+        }
+        else {
+            g.setColor(Color.orange);
+            g.drawString(getName()+" ("+payloads+")", (int)pt.getX()+7, (int)pt.getY()+7);
+        }        
     }
 
     @Override
@@ -108,5 +118,43 @@ public class SamplePointTask extends MVPlannerTask {
     @Override
     public LocationType getCenterLocation() {
         return getLocation();
+    }
+
+    @Override
+    public String marshall() throws IOException {
+        LocationType loc = new LocationType(getCenterLocation());
+        loc.convertToAbsoluteLatLonDepth();
+        return String.format("sample %s %s %f %f %s", getName(), isFirstPriority(), loc.getLatitudeDegs(), loc.getLongitudeDegs(), getRequiredPayloads());
+    }
+
+    @Override
+    public void unmarshall(String data) throws IOException {
+        Scanner input = new Scanner(data);
+        input.next("[\\w]+");
+        this.name = input.next("[\\w]+");
+        this.firstPriority = input.nextBoolean();
+        double latDegs = input.nextDouble();
+        double lonDegs = input.nextDouble();
+        elem.setCenterLocation(new LocationType(latDegs, lonDegs));
+        String[] payloads = input.nextLine().replaceAll("[\\[\\]]", "").trim().split("[, ]+");
+        getRequiredPayloads().clear();
+        for (String p : payloads)
+            getRequiredPayloads().add(PayloadRequirement.valueOf(p));
+        input.close();        
+    }
+    
+    public static void main(String[] args) throws Exception {
+        SamplePointTask pt = new SamplePointTask(new LocationType(41.4534, -8.23434));
+        pt.name = "t01";
+        pt.firstPriority = true;
+        pt.requiredPayloads.add(PayloadRequirement.ctd);
+        pt.requiredPayloads.add(PayloadRequirement.camera);
+
+        
+        System.out.println(pt.marshall());
+        
+        SamplePointTask pt2 = new SamplePointTask(new LocationType());
+        pt2.unmarshall(pt.marshall());
+        System.out.println(pt2.marshall());
     }
 }

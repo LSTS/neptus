@@ -1,0 +1,3 @@
+pt.lsts.neptus.plugins.mvplanner.MvPlanner
+pt.lsts.neptus.plugins.pddl.MVPlannerInteraction
+pt.lsts.neptus.plugins.mvplanner.MvPlannerTaskAllocator

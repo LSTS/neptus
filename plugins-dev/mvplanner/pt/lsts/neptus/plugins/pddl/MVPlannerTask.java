@@ -32,6 +32,14 @@
  */
 package pt.lsts.neptus.plugins.pddl;
 
+import java.awt.Image;
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Locale;
 import java.util.Vector;
@@ -43,9 +51,11 @@ import com.l2fprod.common.propertysheet.Property;
 
 import pt.lsts.neptus.gui.PropertiesEditor;
 import pt.lsts.neptus.gui.PropertiesProvider;
+import pt.lsts.neptus.plugins.mvplanner.api.ConsoleEventPlanAllocation;
 import pt.lsts.neptus.renderer2d.Renderer2DPainter;
 import pt.lsts.neptus.renderer2d.StateRenderer2D;
 import pt.lsts.neptus.types.coord.LocationType;
+import pt.lsts.neptus.util.ImageUtils;
 
 /**
  * @author zp
@@ -53,9 +63,13 @@ import pt.lsts.neptus.types.coord.LocationType;
  */
 public abstract class MVPlannerTask implements Renderer2DPainter, PropertiesProvider {
 
-    protected static int count = 1;
+    private static int count = 1;
     protected String name = String.format(Locale.US, "t%02d", count++);
     protected HashSet<PayloadRequirement> requiredPayloads = new HashSet<PayloadRequirement>();
+    protected boolean firstPriority = false;
+    private String associatedAllocation = null;
+    private String associatedVehicle = null;
+    
     
     public abstract boolean containsPoint(LocationType lt, StateRenderer2D renderer);
     public abstract LocationType getCenterLocation();
@@ -64,6 +78,18 @@ public abstract class MVPlannerTask implements Renderer2DPainter, PropertiesProv
     public abstract void rotate(double amountRads);
     public abstract void growWidth(double amount);
     public abstract void growLength(double amount);
+    public abstract String marshall() throws IOException;
+    public abstract void unmarshall(String data) throws IOException;
+    
+    transient protected Image greenLed = null;
+    transient protected Image orangeLed = null;
+    
+    protected synchronized void loadImages() {
+        if (greenLed == null)
+            greenLed = ImageUtils.getImage("pt/lsts/neptus/plugins/pddl/led.png");
+        if (orangeLed == null)
+            orangeLed = ImageUtils.getImage("pt/lsts/neptus/plugins/pddl/orangeled.png");       
+    }
     
     /**
      * @return the name
@@ -79,6 +105,8 @@ public abstract class MVPlannerTask implements Renderer2DPainter, PropertiesProv
     @Override
     public DefaultProperty[] getProperties() {
         Vector<DefaultProperty> props = new Vector<DefaultProperty>();
+        props.add(PropertiesEditor.getPropertyInstance("First Priority", "Urgency", Boolean.class, firstPriority, true));
+        
         for (PayloadRequirement pr : PayloadRequirement.values()) {
             props.add(PropertiesEditor.getPropertyInstance(pr.name(), "Payload Requirements", Boolean.class, requiredPayloads.contains(pr), true));
         }
@@ -92,7 +120,7 @@ public abstract class MVPlannerTask implements Renderer2DPainter, PropertiesProv
         payloads = payloads.replaceAll("multibeam", "mb");
         payloads = payloads.replaceAll("edgetech", "et");
         payloads = payloads.replaceAll("sidescan", "sss");
-        payloads = payloads.replaceAll("rhodmanine", "rd");
+        payloads = payloads.replaceAll("rhodamine", "rd");
         return payloads;
     }
     
@@ -102,6 +130,10 @@ public abstract class MVPlannerTask implements Renderer2DPainter, PropertiesProv
         HashSet<PayloadRequirement> newReqs = new HashSet<PayloadRequirement>();
         
         for (Property p : properties) {
+            if (p.getName().equals("First Priority")) {
+                this.firstPriority = "true".equals(""+p.getValue());
+                continue;
+            }
             PayloadRequirement pr = PayloadRequirement.valueOf(p.getName());
             if (pr != null && "true".equals(""+p.getValue())) {
                 newReqs.add(pr);
@@ -123,9 +155,90 @@ public abstract class MVPlannerTask implements Renderer2DPainter, PropertiesProv
         return null;
     }
     /**
+     * @return the firstPriority
+     */
+    public boolean isFirstPriority() {
+        return firstPriority;
+    }
+    /**
+     * @param firstPriority the firstPriority to set
+     */
+    public void setFirstPriority(boolean firstPriority) {
+        this.firstPriority = firstPriority;
+    }
+    /**
      * @return the requiredPayloads
      */
     public final HashSet<PayloadRequirement> getRequiredPayloads() {
         return requiredPayloads;
+    }
+    /**
+     * @return the associatedAllocation
+     */
+    public String getAssociatedAllocation() {
+        return associatedAllocation;
+    }
+    /**
+     * @param associatedAllocation the associatedAllocation to set
+     */
+    public void setAssociatedAllocation(String associatedAllocation) {
+        this.associatedAllocation = associatedAllocation;
+    }
+    /**
+     * @return the associatedVehicle
+     */
+    public String getAssociatedVehicle() {
+        return associatedVehicle;
+    }
+    /**
+     * @param associatedVehicle the associatedVehicle to set
+     */
+    public void setAssociatedVehicle(String associatedVehicle) {
+        this.associatedVehicle = associatedVehicle;
+    }
+    
+    public void setAllocation(ConsoleEventPlanAllocation alloc) {
+        if (alloc == null) {
+            setAssociatedAllocation(null);
+            setAssociatedVehicle(null);
+        }
+        else {
+            setAssociatedVehicle(alloc.getVehicle());
+            setAssociatedAllocation(alloc.getId());            
+        }
+    }
+    
+    public static ArrayList<MVPlannerTask> loadFile(File f) throws IOException {
+        BufferedReader reader = new BufferedReader(new FileReader(f));
+        String line = reader.readLine();
+        ArrayList<MVPlannerTask> tasks = new ArrayList<>();
+        while (line != null) {
+            if (line.startsWith("#")) {
+                // ignore
+            }                
+            else if (line.startsWith("sample")) {
+                SamplePointTask task = new SamplePointTask(new LocationType());
+                task.unmarshall(line);
+                tasks.add(task);
+            }
+            else if (line.startsWith("survey")) {
+                SurveyAreaTask task = new SurveyAreaTask(new LocationType());
+                task.unmarshall(line);
+                tasks.add(task);
+            }
+            else {
+                System.err.println("Unrecognized line: '" + line + "'");
+            }
+            line = reader.readLine();
+        }
+        reader.close();
+        return tasks;
+    }
+
+    public static void saveFile(File f, ArrayList<MVPlannerTask> tasks) throws IOException {
+        BufferedWriter writer = new BufferedWriter(new FileWriter(f));
+        for (MVPlannerTask task : tasks)
+            writer.write(task.marshall() + "\n");
+        writer.close();
     }
 }

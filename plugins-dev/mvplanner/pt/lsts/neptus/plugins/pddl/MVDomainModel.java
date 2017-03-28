@@ -28,70 +28,35 @@
  * For more information please see <http://lsts.fe.up.pt/neptus>.
  *
  * Author: zp
- * Nov 25, 2014
+ * 28/01/2017
  */
 package pt.lsts.neptus.plugins.pddl;
+
+import java.io.File;
 
 /**
  * @author zp
  *
  */
-public enum PayloadRequirement {
-    edgetech(50, -5, -5, 27),    
-    sidescan(30, -3, -3, 4),    
-    multibeam(15, 3, 3, 5),
-    camera(5, -2, -2, 50),
-    ctd(100, 2, 20, 0),
-    rhodamine(100, 2, 20, 0);
+public enum MVDomainModel {
+
+    V1(new File("conf/pddl/LSTS_domain.pddl"), new LstsDomainModel()),
+    V2(new File("conf/pddl/LSTS_domain-v2.pddl"), new LstsDomainModelV2()),
+    OneRound(new File("conf/pddl/LSTS_domain-one_round.pddl"), new LstsDomainModelOneRound());
     
-    private int swathWidth;
-    private int minDepth, maxDepth, consumptionPerHour;
-    private PayloadRequirement(int swathWidth, int minDepth, int maxDepth, int consumptionPerHour) {
-        this.swathWidth = swathWidth;
-        this.minDepth = minDepth;
-        this.maxDepth = maxDepth;
-        this.consumptionPerHour = consumptionPerHour;
+    private final File domainFile;
+    private final LstsDomainModel translator;
+    
+    public File file() {
+        return domainFile;
     }
-    /**
-     * @return the swathWidth
-     */
-    public int getSwathWidth() {
-        return swathWidth;
+    
+    public LstsDomainModel translator() {
+        return translator;
     }
-    /**
-     * @param swathWidth the swathWidth to set
-     */
-    public void setSwathWidth(int swathWidth) {
-        this.swathWidth = swathWidth;
+    
+    private MVDomainModel(File domainFile, LstsDomainModel translator) {
+        this.domainFile = domainFile;
+        this.translator = translator;
     }
-    /**
-     * @return the minDepth
-     */
-    public int getMinDepth() {
-        return minDepth;
-    }
-    /**
-     * @param minDepth the minDepth to set
-     */
-    public void setMinDepth(int minDepth) {
-        this.minDepth = minDepth;
-    }
-    /**
-     * @return the maxDepth
-     */
-    public int getMaxDepth() {
-        return maxDepth;
-    }
-    /**
-     * @param maxDepth the maxDepth to set
-     */
-    public void setMaxDepth(int maxDepth) {
-        this.maxDepth = maxDepth;
-    }
-    /**
-     * @return the consumptionPerHour
-     */
-    public final int getConsumptionPerHour() {
-        return consumptionPerHour;
-    }    
 }
