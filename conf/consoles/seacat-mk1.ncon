@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<console name="Neptus Console" width="1368" height="727" resizable="true" mission-file="../../missions/APDL/missao-apdl.nmisz" main-vehicle="seacat-mk1">
+  <!-- Data saved on 2017-03-28T16:38:39.0Z with Neptus version @VERSION@ (compiled on @DATE@, g@SCM_REV@). -->
+  <mainpanel name="console main panel">
+    <subpanel class="pt.lsts.neptus.console.plugins.containers.MigLayoutContainer" x="0" y="0" width="1352" height="632">
+      <properties>
+        <entry key="XML Definitions">&lt;profiles&gt;
+  &lt;profile name="Normal"&gt;
+    &lt;container layoutparam="ins 0" param="w 100%, h 100%"&gt;
+      &lt;child name="Map Panel" param="w 100%, h 100%"/&gt;
+    &lt;/container&gt;
+    &lt;container layoutparam="ins 3" param="w 300px!, h 100%"&gt;
+      &lt;container layoutparam="ins 0, filly" param="w 100%, h 100%"&gt;
+        &lt;child name="Plan Control" param="w 80%, h 50px!"/&gt;
+        &lt;child name="Abort Button" param="w 20%, h 50px!, wrap"/&gt;
+        &lt;child name="Plan Control State" param="w 100%!, h 100px!, span, wrap"/&gt;
+        &lt;child name="Mission Tree" param="w 100%, h 100%, span"/&gt;
+      &lt;/container&gt;
+    &lt;/container&gt;
+  &lt;/profile&gt;
+  &lt;profile name="Map"&gt;
+    &lt;container layoutparam="ins 0" param="w 100%, h 100%"&gt;
+      &lt;child name="Map Panel" param="w 100%, h 100%"/&gt;
+    &lt;/container&gt;
+  &lt;/profile&gt;
+&lt;/profiles&gt;</entry>
+      </properties>
+      <child class="pt.lsts.neptus.plugins.position.ContactMarker" x="0" y="0" width="0" height="0">
+        <properties/>
+      </child>
+      <child class="pt.lsts.neptus.console.plugins.kml.KmlImport" x="0" y="0" width="0" height="0">
+        <properties/>
+      </child>
+      <child class="pt.lsts.neptus.plugins.map.MapEditor" x="0" y="0" width="0" height="0">
+        <properties/>
+      </child>
+      <child class="pt.lsts.neptus.console.plugins.planning.MapPanel" x="0" y="0" width="1048" height="632">
+        <properties/>
+      </child>
+      <child class="pt.lsts.neptus.console.plugins.planning.MissionTreePanel" x="0" y="0" width="294" height="626">
+        <properties/>
+      </child>
+      <child class="pt.lsts.neptus.console.plugins.MyLocationDisplay" x="0" y="0" width="0" height="0">
+        <properties/>
+      </child>
+      <child class="pt.lsts.neptus.plugins.oplimits.OperationLimitsSubPanel" x="0" y="0" width="95" height="40">
+        <properties/>
+      </child>
+      <child class="pt.lsts.neptus.console.plugins.planning.PlanEditor" x="0" y="0" width="0" height="0">
+        <properties/>
+      </child>
+      <child class="pt.lsts.neptus.console.plugins.PlanExporter" x="0" y="0" width="0" height="0">
+        <properties/>
+      </child>
+      <child class="pt.lsts.neptus.console.plugins.planning.PlanExecutionPreview" x="0" y="0" width="0" height="0">
+        <properties/>
+      </child>
+      <child class="pt.lsts.neptus.console.plugins.planning.PlanStatistics" x="0" y="0" width="0" height="0">
+        <properties/>
+      </child>
+      <child class="pt.lsts.neptus.plugins.s57.S57SoundingsExporter" x="0" y="0" width="0" height="0">
+        <properties/>
+      </child>
+      <child class="pt.lsts.neptus.plugins.sim.SimulationActionsPlugin" x="0" y="0" width="0" height="0">
+        <properties/>
+      </child>
+      <child class="pt.lsts.neptus.params.SystemConfiguration" x="0" y="0" width="0" height="0">
+        <properties/>
+      </child>
+      <child class="pt.lsts.neptus.console.bathymLayer.TidePanel" x="0" y="0" width="0" height="0">
+        <properties/>
+      </child>
+    </subpanel>
+  </mainpanel>
+  <mainpanel name="console alarm panel"/>
+  <layers>
+    <layer class="pt.lsts.neptus.console.plugins.planning.MapShortcutsLayer" opacity="1.0">
+      <properties/>
+    </layer>
+    <layer class="pt.lsts.neptus.console.plugins.planning.PlanSimulationLayer" opacity="1.0">
+      <properties/>
+    </layer>
+  </layers>
+  <interactions>
+    <interaction class="pt.lsts.neptus.console.bathymLayer.DepthSoundingsInteraction">
+      <properties/>
+    </interaction>
+  </interactions>
+</console>
