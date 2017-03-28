@@ -138,7 +138,7 @@ public class PluginsLoader {
      * Loads core plugins inside the src folder in the "pt.lsts.neptus.console.plugins" package
      */
     private static void loadCorePlugins() {
-        for (String pkg : new String[] {"pt.lsts.neptus.console.plugins", "pt.lsts.neptus.mra"}) {
+        for (String pkg : new String[] {"pt.lsts.neptus.console.plugins", "pt.lsts.neptus.mra", "pt.lsts.neptus.controllers"}) {
             Reflections reflections = new Reflections(pkg);
             for (Class<?> c : reflections.getTypesAnnotatedWith(PluginDescription.class)) {
                 PluginsRepository.addPlugin(c.getCanonicalName());
