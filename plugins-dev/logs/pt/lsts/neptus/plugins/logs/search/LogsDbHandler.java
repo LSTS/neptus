@@ -33,8 +33,7 @@
 package pt.lsts.neptus.plugins.logs.search;
 
 import java.sql.*;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashSet;
 
 public class LogsDbHandler {
     public enum DbTableName {
@@ -56,9 +55,12 @@ public class LogsDbHandler {
     public enum LogTableColumnName {
         ID("id"),
         PATH("path"),
-        YEAR("year"),
+        DATE("date"),
         VEHICLE_ID("vehicle"),
-        DATA_TYPE("data_type");
+        DATA_TYPE("data_type"),
+        LAT("lat"),
+        LON("lon"),
+        DURATION_SEC("duration_sec");
 
 
         private String v;
@@ -147,5 +149,59 @@ public class LogsDbHandler {
         } catch (SQLException e) {
             e.printStackTrace();
         }
+    }
+
+    public void addEntry(DbEntry entry) {
+        StringBuilder sb = new StringBuilder();
+        sb.append("INSERT INTO " + DbTableName.LOGS +
+                " (" + LogTableColumnName.PATH.toString() + ", " +
+                LogTableColumnName.DATE.toString() + ", " +
+                LogTableColumnName.VEHICLE_ID.toString() + ", " +
+                LogTableColumnName.DATA_TYPE.toString() + ") VALUES ( " +
+                "\"" + entry.logPath + "/Data.lsf.gz" + "\"" + ", " +
+                "\"" + entry.dateSeconds + "\"" + ", " +
+                "\"" + entry.vehicleId + "\"" + ", ");
+        try {
+            // add entries
+            for(String data : entry.dataType) {
+                if(checkEntryExists(entry, data)) {
+                    System.out.println("Entry at " + entry.logPath + " with " + entry.dataType +  " already exists");
+                    continue;
+                }
+
+                Statement stmnt = conn.createStatement();
+                stmnt.executeUpdate(sb.toString() + "\"" + data + "\"" + ");");
+                System.out.println(sb.toString() + "\"" + data + "\"" + ");");
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private boolean checkEntryExists(DbEntry entry, String dataType) {
+        StringBuilder sb = new StringBuilder();
+        sb.append("SELECT 1 FROM " + DbTableName.LOGS + " WHERE ");
+        sb.append(LogTableColumnName.PATH.name() + "=" + "\"" + entry.logPath + "\"" + " AND ");
+        sb.append(LogTableColumnName.DATA_TYPE.toString() + "=" + "\"" + dataType + "\"" + ";");
+        System.out.println(sb.toString());
+
+        try {
+            Statement stmnt = conn.createStatement();
+            ResultSet res = stmnt.executeQuery(sb.toString());
+
+            return res.next();
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
+
+    public static class DbEntry {
+        public String logPath;
+        public String dateSeconds;
+        public String vehicleId;
+        public HashSet<String> dataType;
     }
 }

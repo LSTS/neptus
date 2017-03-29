@@ -325,7 +325,7 @@ public class LogsSearcher extends ConsolePanel {
         if(!year.equals(LogsSearcher.DataOptionEnum.ANY.toString())) {
             if(searchByPayload)
                 sb.append(" AND ");
-            sb.append(LogsDbHandler.LogTableColumnName.YEAR.toString() + "=" + "\"" + year + "\"");
+            sb.append(LogsDbHandler.LogTableColumnName.DATE.toString() + "=" + "\"" + year + "\"");
             searchByYear = true;
         }
 
@@ -345,7 +345,7 @@ public class LogsSearcher extends ConsolePanel {
             while(res.next()) {
                 isEmpty = false;
                 String path = res.getString(LogsDbHandler.LogTableColumnName.PATH.toString());
-                String year = res.getString(LogsDbHandler.LogTableColumnName.YEAR.toString());
+                String year = res.getString(LogsDbHandler.LogTableColumnName.DATE.toString());
                 String vehicle = res.getString(LogsDbHandler.LogTableColumnName.VEHICLE_ID.toString());
                 String dataType = res.getString(LogsDbHandler.LogTableColumnName.DATA_TYPE.toString());
 
