@@ -34,7 +34,6 @@ package pt.lsts.neptus.plugins.nvl_runtime;
 
 import com.google.common.eventbus.Subscribe;
 
-import pt.lsts.imc.PlanControl;
 import pt.lsts.imc.PlanControlState;
 import pt.lsts.neptus.nvl.runtime.TaskExecution;
 import pt.lsts.neptus.nvl.runtime.TaskState;
@@ -46,18 +45,30 @@ import pt.lsts.neptus.types.mission.plan.PlanType;
  */
 public class NeptusTaskExecutionAdapter implements TaskExecution {
     private volatile boolean done;
-    private final PlanControl plan;
+    private final String  planId;
     private TaskState state;
-   
+    private boolean sync;
+    
+    public void synchronizedWithVehicles(boolean s){
+        this.sync = s;
+    }
+    
+    public boolean isSynchronized() {
+        return this.sync;
+    }
     /**
      * 
      * @param plan 
      *
      */
-    public NeptusTaskExecutionAdapter(PlanControl p) { //TODO
-        done = false;
-        plan = p;
+    public NeptusTaskExecutionAdapter(String id) { //TODO
+        done = sync = false;
+        planId = id;
         
+    }
+    
+    public String getPlanId() {
+        return this.planId;
     }
 
     
@@ -65,14 +76,14 @@ public class NeptusTaskExecutionAdapter implements TaskExecution {
      * @param plan2
      */
     public NeptusTaskExecutionAdapter(PlanType plan2) {
-        plan = null;
+        this.planId = plan2.getId();
     }
 
 
     @Subscribe
     public void consume(PlanControlState pcstate) {
         
-        if (pcstate.getPlanId().equals(plan.getPlanId())){
+        if (pcstate.getPlanId().equals(this.planId)){
         
         switch (pcstate.getState()) {
             case INITIALIZING:
@@ -88,11 +99,10 @@ public class NeptusTaskExecutionAdapter implements TaskExecution {
             
             }
         switch (pcstate.getLastOutcome()) {
+            case NONE:
             case FAILURE:
                 if(done)
                     done = false;
-                break;
-            case NONE:
                 break;
             case SUCCESS:
                 if(!done)

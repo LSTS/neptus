@@ -36,13 +36,14 @@ import java.util.Collections;
 import java.util.List;
 
 import pt.lsts.neptus.nvl.runtime.Availability;
-import pt.lsts.neptus.nvl.runtime.Payload;
 import pt.lsts.neptus.nvl.runtime.Position;
+import pt.lsts.neptus.types.mission.plan.PlanCompatibility;
+import pt.lsts.neptus.types.vehicle.VehiclesHolder;
 import pt.lsts.neptus.nvl.runtime.NVLVehicle;
 import pt.lsts.neptus.nvl.runtime.NVLVehicleType;
+import pt.lsts.neptus.nvl.runtime.PayloadComponent;
 import pt.lsts.neptus.comm.manager.imc.ImcSystem;
 import pt.lsts.neptus.console.events.ConsoleEventVehicleStateChanged.STATE;
-import pt.lsts.neptus.nvl.runtime.NVLVehicle;
 
 /**
  * @author keila
@@ -75,12 +76,13 @@ public class NeptusVehicleAdapter implements NVLVehicle {
                 return NVLVehicleType.UAV;
             case UUV:
                 return NVLVehicleType.AUV;
-            case UGV:
             case USV:
+                return NVLVehicleType.ASV; //TODO ??
+            case UGV:
             case ALL:
             case UNKNOWN:
             default:
-                return NVLVehicleType.UAV ; //TODO
+                return NVLVehicleType.ANY ; //TODO
             
         }
         
@@ -121,8 +123,10 @@ public class NeptusVehicleAdapter implements NVLVehicle {
      * @see nvl.Vehicle#getPayload()
      */
     @Override
-    public Payload getPayload() {
-        return () -> Collections.emptyList(); //TODO
+    public List<PayloadComponent> getPayload() {
+        //TODO
+        PlanCompatibility.availablePayloads(VehiclesHolder.getVehicleById(this.getId()));
+        return Collections.emptyList(); 
 
 
 

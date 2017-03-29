@@ -8,19 +8,17 @@ import java.util.Map;
 
 import com.google.common.eventbus.Subscribe;
 
-import pt.lsts.neptus.nvl.runtime.TaskExecution;
-import pt.lsts.neptus.nvl.runtime.NVLVehicle;
-import pt.lsts.neptus.nvl.runtime.TaskSpecification;
-import pt.lsts.neptus.nvl.runtime.Filter;
-import pt.lsts.neptus.nvl.runtime.NVLRuntime;
-import pt.lsts.neptus.nvl.runtime.NVLVehicle;
-import pt.lsts.imc.PlanControl;
 import pt.lsts.neptus.comm.IMCSendMessageUtils;
 import pt.lsts.neptus.comm.manager.imc.ImcSystem;
 import pt.lsts.neptus.comm.manager.imc.ImcSystemsHolder;
 import pt.lsts.neptus.console.ConsoleLayout;
 import pt.lsts.neptus.console.events.ConsoleEventVehicleStateChanged;
 import pt.lsts.neptus.console.events.ConsoleEventVehicleStateChanged.STATE;
+import pt.lsts.neptus.nvl.runtime.Filter;
+import pt.lsts.neptus.nvl.runtime.NVLRuntime;
+import pt.lsts.neptus.nvl.runtime.NVLVehicle;
+import pt.lsts.neptus.nvl.runtime.TaskExecution;
+import pt.lsts.neptus.nvl.runtime.TaskSpecification;
 import pt.lsts.neptus.renderer2d.InteractionAdapter;
 import pt.lsts.neptus.types.mission.plan.PlanType;
 import pt.lsts.neptus.types.vehicle.VehicleType.SystemTypeEnum;
@@ -29,6 +27,7 @@ import pt.lsts.neptus.types.vehicle.VehicleType.SystemTypeEnum;
 public class NeptusRuntime extends InteractionAdapter implements NVLRuntime {
    private  Map<String,NeptusVehicleAdapter> vehicles;
    private  Map<String,NeptusTaskSpecificationAdapter> tasks; //Or List?
+   private  List<NeptusTaskExecutionAdapter> runningTasks;
 	/**
      * @param console
      */
@@ -40,13 +39,15 @@ public class NeptusRuntime extends InteractionAdapter implements NVLRuntime {
     
     @Override
     public void initSubPanel() {
+        runningTasks = Collections.synchronizedList(new ArrayList<>());
         vehicles = Collections.synchronizedMap(new HashMap<>());
         tasks = Collections.synchronizedMap(new HashMap<>());
-        
+        //initialize active vehicles
         for(ImcSystem vec: ImcSystemsHolder.lookupAllActiveSystems()){
             if(vec.getType() == SystemTypeEnum.VEHICLE)
                 vehicles.put(vec.getName(),new NeptusVehicleAdapter(vec,STATE.CONNECTED));//TODO
         }
+        //initialize existing plans in the console
         for(PlanType plan: getConsole().getMission().getIndividualPlansList().values()){
             tasks.put(plan.getId(),new NeptusTaskSpecificationAdapter(plan));
         }
@@ -61,7 +62,7 @@ public class NeptusRuntime extends InteractionAdapter implements NVLRuntime {
     
     
     @Override
-	public List<NVLVehicle> getVehicles(Filter<NVLVehicle> f) {
+	public List<NVLVehicle> getVehicles(Filter<NVLVehicle> f) { //VehicleRequirement <- Filter<NVLVehicle>
 	        List <NVLVehicle> result = new ArrayList<>();
 	        
 	        for(NVLVehicle v: vehicles.values()){
@@ -81,22 +82,33 @@ public class NeptusRuntime extends InteractionAdapter implements NVLRuntime {
 
 
 	@Override
-	public TaskExecution launchTask(TaskSpecification task, List<NVLVehicle> vehicles) { //Area to cover?
-	    
+	public TaskExecution launchTask(TaskSpecification task, List<NVLVehicle> vehicles) { //Area to map?//TODO
+	    tasks.put(task.getId(),(NeptusTaskSpecificationAdapter) task);
 		PlanType plan = ((NeptusTaskSpecificationAdapter) task).toPlanType();
-		boolean acoustics=false; //TODO define if critical msg -> need to use acoustics communications
+		boolean acoustics=false; 
 		String[] vs = new String[vehicles.size()];
 		vs = vehicles.toArray(vs);
-		       //sendMessage(IMCMessage msg, String errorTextForDialog, boolean sendOnlyThroughOneAcoustically,String... ids)
+		//sendMessage(IMCMessage msg, String errorTextForDialog, boolean sendOnlyThroughOneAcoustically,String... ids)
         plan.setId(task.getId());
         plan.setMissionType(getConsole().getMission());
         getConsole().getMission().getIndividualPlansList().put(task.getId(),plan);
         getConsole().getMission().save(true);
         getConsole().updateMissionListeners();
         getConsole().getMission().addPlan(plan);
-        IMCSendMessageUtils.sendMessage(((NeptusTaskSpecificationAdapter) task).getMessage(),null,acoustics, vs);  
-		return new NeptusTaskExecutionAdapter(plan);
+        boolean sent = IMCSendMessageUtils.sendMessage(((NeptusTaskSpecificationAdapter) task).getMessage(),null,acoustics, vs);
+        NeptusTaskExecutionAdapter exec = new NeptusTaskExecutionAdapter(plan);
+        exec.synchronizedWithVehicles(sent); 
+        runningTasks.add(exec);            
+		return exec;
 	   	}
+
+    /**
+     * @return the runningTasks
+     */
+    public List<NeptusTaskExecutionAdapter> getRunningTasks() {
+        return runningTasks;
+    }
+
 
     /* (non-Javadoc)
      * @see pt.lsts.neptus.nvl.runtime.NVLRuntime#getVehicle(java.lang.String)

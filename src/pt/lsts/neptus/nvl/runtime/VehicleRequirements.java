@@ -1,5 +1,6 @@
 package pt.lsts.neptus.nvl.runtime;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -9,17 +10,17 @@ public class VehicleRequirements implements Filter<NVLVehicle> {
   
 
 private Availability requiredAvailability = null;
-  private List<String> requiredPayload = null;
+  private List<PayloadComponent> requiredPayload = null;
   private Position areaCenter = null;
   private double areaRadius = 0; 
 
 
   VehicleRequirements type(NVLVehicleType type) {
     requiredType = type;
-    return this; // for chained
+    return this; // for chained: http://blog.crisp.se/2013/10/09/perlundholm/another-builder-pattern-for-java
   }
 
-  VehicleRequirements payload(List<String> components) {
+  VehicleRequirements payload(List<PayloadComponent> components) {
     requiredPayload = components;
     return this;
   }
@@ -34,6 +35,12 @@ private Availability requiredAvailability = null;
   }
 
 
+  /**
+   * Area to cover by the vehicle
+   * @param center
+   * @param radius
+   * @return
+   */
   VehicleRequirements area(Position center, double radius) {
     areaCenter = center;
     areaRadius = radius;
@@ -47,14 +54,17 @@ private Availability requiredAvailability = null;
         &&
         (requiredAvailability != null && requiredAvailability == v.getAvailability())
         &&
-        (requiredPayload != null && v.getPayload().getComponents().containsAll(requiredPayload))
+        (requiredPayload != null && v.getPayload().containsAll(requiredPayload))
         &&
         (areaCenter != null && v.getPosition().near(areaCenter, areaRadius) );
   }
 
-  static Map<NVLVehicle,VehicleRequirements> filter(List<VehicleRequirements> reqs, List<NVLVehicle> allVehicles) {
-
-    return null;
+ // static Map<NVLVehicle,VehicleRequirements> filter(List<VehicleRequirements> reqs, List<NVLVehicle> allVehicles) {
+  public static List<NVLVehicle> filter(List<VehicleRequirements> reqs, List<NVLVehicle> allVehicles) {
+    List<NVLVehicle> result = new ArrayList<>();
+    for (VehicleRequirements req: reqs)  
+        allVehicles.stream().filter(v -> req.apply(v)).forEach(ok -> result.add(ok));
+    return result;  //TODO return just the vehicles that fills the requirements?
   }
   
   /**
@@ -88,14 +98,14 @@ private Availability requiredAvailability = null;
   /**
    * @return the requiredPayload
    */
-  public List<String> getRequiredPayload() {
+  public List<PayloadComponent> getRequiredPayload() {
   	return requiredPayload;
   }
 
   /**
    * @param requiredPayload the requiredPayload to set
    */
-  public void setRequiredPayload(List<String> requiredPayload) {
+  public void setRequiredPayload(List<PayloadComponent> requiredPayload) {
   	this.requiredPayload = requiredPayload;
   }
 

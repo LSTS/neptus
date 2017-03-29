@@ -43,14 +43,14 @@ import pt.lsts.neptus.nvl.runtime.PayloadComponent;
 public class NeptusPayloadAdapter implements PayloadComponent {
  
     String payload;
-    double range;
-    public NeptusPayloadAdapter(String name, double r){ //sensor range
+    double range;//in Meters
+    public NeptusPayloadAdapter(String name, double r){ //range in meters
         payload = name;
         range = r;
     }
-    
-    public NeptusPayloadAdapter(NeptusTaskSpecificationAdapter task){ //sensor range
-        //TODO
+    public NeptusPayloadAdapter(String name){ //sensor range 0 if null
+        payload = name;
+        range = 0;
     }
     
     @Override
@@ -58,7 +58,7 @@ public class NeptusPayloadAdapter implements PayloadComponent {
         return this.payload;
     }
     @Override
-    public double getComponentRange() {
+    public double getComponentRangeMeters() {
         return this.range;
     }
 

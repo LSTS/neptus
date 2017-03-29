@@ -35,7 +35,7 @@ public class TemporaryExamples {
         return runtime.getVehicles( require().type(NVLVehicleType.AUV).available() );
 	}
     
-    List<NVLVehicle> getAllAvailableAUVs_version2(NVLRuntime runtime, List<String> payloadComp) {
+    List<NVLVehicle> getAllAvailableAUVs_version2(NVLRuntime runtime, List<PayloadComponent> payloadComp) {
         return runtime.getVehicles( require().type(NVLVehicleType.AUV)
         		                             .available()
         		                             .payload(payloadComp) );

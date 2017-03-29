@@ -36,10 +36,22 @@ package pt.lsts.neptus.nvl.runtime;
  * @author lsts
  *
  */
-public interface PayloadComponent {
+public interface PayloadComponent extends Comparable <PayloadComponent> {
 
      String getComponentName();
-     double getComponentRange();
+     double getComponentRangeMeters();
+     
+    /**
+     * The object you comparing to must have at least the same range as your object
+     */
+     @Override
+     public default int compareTo(PayloadComponent other){
+         
+        if( this.getComponentName().equals(other.getComponentName()) && other.getComponentRangeMeters()>=this.getComponentRangeMeters())
+            return 1;
+        return 0;
+         
+     }
     
     
 }
