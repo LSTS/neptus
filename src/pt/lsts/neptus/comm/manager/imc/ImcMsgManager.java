@@ -978,6 +978,15 @@ CommBaseManager<IMCMessage, MessageInfo, SystemImcMsgCommInfo, ImcId16, CommMana
             e.printStackTrace();
         }
 
+        ImcId16 id = new ImcId16(msg.getSrc());
+        if (!ImcId16.isValidIdForSource(id)) {
+            // Let us just log the message and return
+            NeptusLog.pub().debug("Message \"" + msg.getAbbrev() + "\" received from \"" + info.getPublisher()
+                    + "\" with improper src id \"" + id.toPrettyString() + "\" logged but droped!");
+            logMessage(msg);
+            return true;
+        }
+        
         // If we got here the system is not known
         
         String inetAddress = info.getPublisherInetAddress();
@@ -994,7 +1003,6 @@ CommBaseManager<IMCMessage, MessageInfo, SystemImcMsgCommInfo, ImcId16, CommMana
 
         // Lets us create a new system 
         try {
-            ImcId16 id = new ImcId16(msg.getHeader().getValue("src"));
             vci = initSystemCommInfo(id, inetAddress + ":" + remotePortAddress);
             vci.onMessage(info, msg);
             sentToBus = true;
