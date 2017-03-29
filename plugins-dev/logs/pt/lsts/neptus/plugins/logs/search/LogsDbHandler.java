@@ -33,12 +33,14 @@
 package pt.lsts.neptus.plugins.logs.search;
 
 import java.sql.*;
+import java.util.ArrayList;
 import java.util.HashSet;
 
 public class LogsDbHandler {
     public enum DbTableName {
         LOGS("log"),
-        DATA("data");
+        DATA("data"),
+        VEHICLES("vehicles");
 
 
         private String v;
@@ -60,7 +62,9 @@ public class LogsDbHandler {
         DATA_TYPE("data_type"),
         LAT("lat"),
         LON("lon"),
-        DURATION_SEC("duration_sec");
+        DURATION_MILLIS("duration_ms"),
+        YEAR("year"),
+        LOG_NAME("log_name");
 
 
         private String v;
@@ -141,6 +145,20 @@ public class LogsDbHandler {
         }
     }
 
+    /**
+     * Returns an array of the all the vehicles that have logs
+     * */
+    public String[] fetchAvailableVehicles() throws SQLException {
+        String query = "SELECT * FROM " + DbTableName.VEHICLES.toString();
+
+        ResultSet res = doQuery(query);
+        ArrayList<String> vehicles = new ArrayList<>();
+        while(res.next())
+            vehicles.add(res.getString("id"));
+
+        return (String[]) vehicles.toArray();
+    }
+
     public void close() {
         if(conn == null)
             return;
@@ -151,16 +169,40 @@ public class LogsDbHandler {
         }
     }
 
+    /**
+     * Returns an array of all the data types in the logs
+     * */
+    public String[] fetchAvailableDataType() throws SQLException {
+        String query = "SELECT * FROM " + DbTableName.DATA.toString();
+
+        ResultSet res = doQuery(query);
+        ArrayList<String> dataTypes = new ArrayList<>();
+        while(res.next())
+            dataTypes.add(res.getString("type"));
+
+        return (String[]) dataTypes.toArray();
+    }
+
     public void addEntry(DbEntry entry) {
         StringBuilder sb = new StringBuilder();
         sb.append("INSERT INTO " + DbTableName.LOGS +
                 " (" + LogTableColumnName.PATH.toString() + ", " +
                 LogTableColumnName.DATE.toString() + ", " +
                 LogTableColumnName.VEHICLE_ID.toString() + ", " +
+                LogTableColumnName.LAT.toString() + ", " +
+                LogTableColumnName.LON.toString() + ", " +
+                LogTableColumnName.DURATION_MILLIS.toString() + ", " +
+                LogTableColumnName.YEAR.toString() + ", " +
+                LogTableColumnName.LOG_NAME.toString() + ", " +
                 LogTableColumnName.DATA_TYPE.toString() + ") VALUES ( " +
-                "\"" + entry.logPath + "/Data.lsf.gz" + "\"" + ", " +
-                "\"" + entry.dateSeconds + "\"" + ", " +
-                "\"" + entry.vehicleId + "\"" + ", ");
+                "\"" + entry.logPath + "\"" + ", " +
+                "\"" + entry.getDateAsStr() + "\"" + ", " +
+                "\"" + entry.vehicleId + "\"" + ", " +
+                "\"" + entry.getLatAsStr() + "\"" + ", " +
+                "\"" + entry.getLonAsStr() + "\"" + ", " +
+                "\"" + entry.getDurationAsStr() + "\"" + ", " +
+                "\"" + entry.year + "\"" + ", " +
+                "\"" + entry.logName + "\"" + ", ");
         try {
             // add entries
             for(String data : entry.dataType) {
@@ -200,8 +242,50 @@ public class LogsDbHandler {
 
     public static class DbEntry {
         public String logPath;
-        public String dateSeconds;
+        public long dateMillis;
+        public long durationMillis;
+        public double latRad;
+        public double lonRad;
         public String vehicleId;
         public HashSet<String> dataType;
+        public int year;
+        public String logName;
+
+
+        public DbEntry() {
+            logPath = null;
+            dateMillis = -1;
+            durationMillis = -1;
+            latRad = Double.MAX_VALUE;
+            lonRad = Double.MAX_VALUE;
+        }
+
+        public String getDateAsStr() {
+            if(dateMillis < 0)
+                return "-1";
+
+            return String.valueOf(dateMillis);
+        }
+
+        public String getDurationAsStr() {
+            if(durationMillis < 0)
+                return "-1";
+
+            return String.valueOf(durationMillis);
+        }
+
+        public String getLatAsStr() {
+            if(latRad == Double.MAX_VALUE)
+                return "-1";
+
+            return String.valueOf(latRad);
+        }
+
+        public String getLonAsStr() {
+            if(lonRad == Double.MAX_VALUE)
+                return "-1";
+
+            return String.valueOf(lonRad);
+        }
     }
 }

@@ -22,7 +22,9 @@ import java.awt.event.MouseEvent;
 import java.io.*;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
+import java.util.Calendar;
 import java.util.HashSet;
 
 import pt.lsts.neptus.plugins.Popup;
@@ -38,12 +40,12 @@ public class LogsSearcher extends ConsolePanel {
     private static final int HEIGHT = 550;
 
     enum DataOptionEnum {
-        ANY("any"),
+        ANY("--any--"),
         MULTIBEAM("multitbeam"),
         SIDESCAN("sidescan"),
         CAMERA("camera"),
         PH("ph"),
-        SALINITY("salinity"),
+        CTD("ctd"),
         REDOX("redox");
 
         private String dataStr;
@@ -145,7 +147,7 @@ public class LogsSearcher extends ConsolePanel {
     }
 
     private void initResultsPanel() {
-        tableModel = new DefaultTableModel(new Object[]{"Data Type", "Year", "Vehicle Id", "Log Path"}, 0) {
+        tableModel = new DefaultTableModel(new Object[]{"Data", "Date", "Vehicle", "Duration (m)", "Name"}, 0) {
             @Override
             public boolean isCellEditable(int row, int column) {
                 return false;
@@ -325,7 +327,7 @@ public class LogsSearcher extends ConsolePanel {
         if(!year.equals(LogsSearcher.DataOptionEnum.ANY.toString())) {
             if(searchByPayload)
                 sb.append(" AND ");
-            sb.append(LogsDbHandler.LogTableColumnName.DATE.toString() + "=" + "\"" + year + "\"");
+            sb.append(LogsDbHandler.LogTableColumnName.YEAR.toString() + "=" + "\"" + year + "\"");
             searchByYear = true;
         }
 
@@ -335,21 +337,35 @@ public class LogsSearcher extends ConsolePanel {
             sb.append(LogsDbHandler.LogTableColumnName.VEHICLE_ID.toString() + "=" + "\"" + vehicleId + "\"");
         }
 
+        NeptusLog.pub().info(sb.toString());
+
         return sb.toString();
     }
 
+    /**
+     * Parse query results and update results table
+     * */
     private void updateEntries(ResultSet res) {
         try {
             boolean isEmpty = true;
             tableModel.setRowCount(0);
             while(res.next()) {
                 isEmpty = false;
+                /* TODO: store log's path in a map*/
                 String path = res.getString(LogsDbHandler.LogTableColumnName.PATH.toString());
-                String year = res.getString(LogsDbHandler.LogTableColumnName.DATE.toString());
+
+                String logName = res.getString(LogsDbHandler.LogTableColumnName.LOG_NAME.toString());
+
+                Calendar c = Calendar.getInstance();
+                c.setTimeInMillis(Long.parseLong(res.getString(LogsDbHandler.LogTableColumnName.DATE.toString())));
+                String logDate = c.get(Calendar.YEAR) + "-" + c.get(Calendar.MONTH) + "-" + c.get(Calendar.DAY_OF_MONTH);
+
                 String vehicle = res.getString(LogsDbHandler.LogTableColumnName.VEHICLE_ID.toString());
                 String dataType = res.getString(LogsDbHandler.LogTableColumnName.DATA_TYPE.toString());
+                long durationMillis = Long.parseLong(res.getString(LogsDbHandler.LogTableColumnName.DURATION_MILLIS.toString()));
+                double durationMin = Math.round((durationMillis / 1000.0 / 60.0) * 10.0) / 10.0;
 
-                tableModel.addRow(new Object[]{dataType, year, vehicle, path});
+                tableModel.addRow(new Object[]{dataType, logDate, vehicle, durationMin, logName});
             }
 
             if(isEmpty)
