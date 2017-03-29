@@ -197,23 +197,23 @@ public class DataDiscretizer {
         }
     }
 
-    public ArrayList<Point> computeConvexHull() {
-        ArrayList<Point> array = new ArrayList<Point>();
+    public ArrayList<Point2D> computeConvexHull() {
+        ArrayList<Point2D> array = new ArrayList<Point2D>();
         for (DataPoint dp : points.values()) {
             array.add(new Point(dp.x, dp.y));
         }
-        Collections.sort(array, new Comparator<Point>() {
+        Collections.sort(array, new Comparator<Point2D>() {
             @Override
-            public int compare(Point pt1, Point pt2) {
-                int r = pt1.x - pt2.x;
+            public int compare(Point2D pt1, Point2D pt2) {
+                double r = pt1.getX() - pt2.getX();
                 if (r != 0)
-                    return r;
+                    return new Double(pt1.getX()).compareTo(pt2.getX());
                 else
-                    return pt1.y - pt2.y;
+                    return new Double(pt1.getY()).compareTo(pt2.getY());
             }
         });
 
-        return CHull.cHull(array);
+        return ConvexHull.compute(array);
     }
 
     /**
@@ -222,16 +222,16 @@ public class DataDiscretizer {
     public GeneralPath getCHullShape() {
 
         GeneralPath cHullShape = new GeneralPath();
-        ArrayList<Point> chull = computeConvexHull();
+        ArrayList<Point2D> chull = computeConvexHull();
 
         cHullShape.reset();
         if (chull.size() > 3) {
             cHullShape.reset();
             for (int i = 0; i < chull.size(); i++) {
                 if (i == 0)
-                    cHullShape.moveTo(chull.get(i).x, chull.get(i).y);
+                    cHullShape.moveTo(chull.get(i).getX(), chull.get(i).getY());
                 else
-                    cHullShape.lineTo(chull.get(i).x, chull.get(i).y);
+                    cHullShape.lineTo(chull.get(i).getX(), chull.get(i).getY());
             }
             cHullShape.closePath();
         }  
@@ -239,69 +239,5 @@ public class DataDiscretizer {
         return cHullShape;
     }
     // THIS CLASS AS A VERSIONED main() METHOD
-}
 
-class CHull {
-
-    // Returns the determinant of the point matrix
-    // This determinant tells how far p3 is from vector p1p2 and on which side
-    // it is
-    private static int distance(Point p1, Point p2, Point p3) {
-        int x1 = p1.x;
-        int x2 = p2.x;
-        int x3 = p3.x;
-        int y1 = p1.y;
-        int y2 = p2.y;
-        int y3 = p3.y;
-        return x1 * y2 + x3 * y1 + x2 * y3 - x3 * y2 - x2 * y1 - x1 * y3;
-    }
-
-    // Returns the points of convex hull in the correct order
-    static ArrayList<Point> cHull(ArrayList<Point> array) {
-        int size = array.size();
-        if (size < 2)
-            return null;
-        Point l = array.get(0);
-        Point r = array.get(size - 1);
-        ArrayList<Point> path = new ArrayList<Point>();
-        path.add(l);
-        cHull(array, l, r, path);
-        path.add(r);
-        cHull(array, r, l, path);
-        return path;
-    }
-
-    static void cHull(ArrayList<Point> points, Point l, Point r, ArrayList<Point> path) {
-        if (points.size() < 3)
-            return;
-        int maxDist = 0;
-        int tmp;
-        Point p = null;
-        for (Point pt : points) {
-            if (pt != l && pt != r) {
-                tmp = distance(l, r, pt);
-                if (tmp > maxDist) {
-                    maxDist = tmp;
-                    p = pt;
-                }
-            }
-        }
-        if (p == null)
-            return;
-        ArrayList<Point> left = new ArrayList<Point>();
-        ArrayList<Point> right = new ArrayList<Point>();
-        left.add(l);
-        right.add(p);
-        for (Point pt : points) {
-            if (distance(l, p, pt) > 0)
-                left.add(pt);
-            else if (distance(p, r, pt) > 0)
-                right.add(pt);
-        }
-        left.add(p);
-        right.add(r);
-        cHull(left, l, p, path);
-        path.add(p);
-        cHull(right, p, r, path);
-    }
 }

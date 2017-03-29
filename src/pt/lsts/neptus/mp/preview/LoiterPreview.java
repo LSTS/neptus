@@ -86,7 +86,7 @@ public class LoiterPreview implements IManeuverPreview<Loiter> {
     
     
     @Override
-    public SystemPositionAndAttitude step(SystemPositionAndAttitude state, double timestep) {
+    public SystemPositionAndAttitude step(SystemPositionAndAttitude state, double timestep, double ellapsedTime) {
         model.setState(state);
         double distToDestination = state.getPosition().getDistanceInMeters(destination);
        if (loiterType.equalsIgnoreCase("circular")) {

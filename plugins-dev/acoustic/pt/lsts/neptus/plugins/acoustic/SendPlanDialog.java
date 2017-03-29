@@ -43,7 +43,9 @@ import javax.swing.JPanel;
 
 import pt.lsts.neptus.console.ConsoleLayout;
 import pt.lsts.neptus.i18n.I18n;
+import pt.lsts.neptus.types.mission.MissionType;
 import pt.lsts.neptus.types.vehicle.VehiclesHolder;
+import pt.lsts.neptus.util.GuiUtils;
 
 /**
  * @author zp
@@ -54,11 +56,11 @@ public class SendPlanDialog extends JPanel {
     private static final long serialVersionUID = 1L;
     public String selectedVehicle;
     public String planId;
-    public boolean sendDefinition = false;
+    public boolean sendDefinition = false, ignoreErrors = false, skipCalibration = true;
 
     private JComboBox<String> vehiclesCombo;
     private JComboBox<String> plansCombo;
-    private JCheckBox sendDefsCheck;
+    private JCheckBox sendDefsCheck, ignoreErrorsCheck, skipCalibrationCheck;
 
     public SendPlanDialog(ConsoleLayout console) {
         vehiclesCombo = new JComboBox<>(VehiclesHolder.getVehiclesArray());
@@ -66,6 +68,16 @@ public class SendPlanDialog extends JPanel {
         sendDefsCheck = new JCheckBox(I18n.text("Send plan definition"));
         sendDefsCheck
                 .setToolTipText(I18n.text("Include the current plan definition from this console (larger message)"));
+
+        ignoreErrorsCheck = new JCheckBox(I18n.text("Ignore errors during execution"));
+        ignoreErrorsCheck
+                .setToolTipText(I18n.text("Continue plan execution even if errors are detected"));
+
+        skipCalibrationCheck = new JCheckBox(I18n.text("Skip calibration"));
+        skipCalibrationCheck
+                .setToolTipText(I18n.text("Do not perform calibration before starting the plan"));
+        
+        
 
         try {
             selectedVehicle = console.getMainSystem();
@@ -94,8 +106,9 @@ public class SendPlanDialog extends JPanel {
 
         add(new JLabel(I18n.text("Plan to execute")));
         add(plansCombo);
-
         add(sendDefsCheck);
+        add(ignoreErrorsCheck);
+        add(skipCalibrationCheck);
     }
 
     private void vehicleSelected(ActionEvent evt) {
@@ -117,5 +130,13 @@ public class SendPlanDialog extends JPanel {
         if (op == JOptionPane.OK_OPTION)
             return dialog;
         return null;
+    }
+    
+    public static void main(String[] args) {
+        GuiUtils.setLookAndFeel();
+        ConsoleLayout cl = ConsoleLayout.forge();
+        cl.setMainSystem("lauv-xplore-1");
+        cl.setMission(new MissionType());
+        SendPlanDialog.sendPlan(cl);
     }
 }

@@ -37,7 +37,7 @@ public class PayloadNotSupportedException extends Exception {
     private static final long serialVersionUID = 1L;
 
     public PayloadNotSupportedException(String payload) {
-        super("Payload '" + payload + " is not supported");
+        super("Payload '" + payload + " is not supported by this vehicle.");
     }
 
 }

@@ -32,8 +32,11 @@
  */
 package pt.lsts.neptus.mp.preview;
 
+import java.util.Date;
+
 import pt.lsts.imc.EstimatedState;
 import pt.lsts.neptus.NeptusLog;
+import pt.lsts.neptus.data.Pair;
 import pt.lsts.neptus.mp.Maneuver;
 import pt.lsts.neptus.mp.ManeuverLocation;
 import pt.lsts.neptus.mp.SystemPositionAndAttitude;
@@ -55,7 +58,8 @@ public class PlanSimulator {
     protected double timestep = 0.25;
     protected PlanType plan;
     protected String vehicleId;
-    
+    protected double simTime = 0;
+
     /**
      * Class constructor
      * 
@@ -66,42 +70,41 @@ public class PlanSimulator {
         this.vehicleId = plan.getVehicle();
         engine = new SimulationEngine(plan);
         Maneuver[] mans = plan.getGraph().getManeuversSequence();
-        
+
         if (start == null) {
             LocationType loc = new LocationType(plan.getMissionType().getStartLocation());
-            start = new SystemPositionAndAttitude(loc, 0,0,0);
+            start = new SystemPositionAndAttitude(loc, 0, 0, 0);
             for (int i = 0; i < mans.length; i++) {
                 if (mans[i] instanceof LocatedManeuver) {
-                    ManeuverLocation l = ((LocatedManeuver)mans[i]).getManeuverLocation();
+                    ManeuverLocation l = ((LocatedManeuver) mans[i]).getManeuverLocation();
                     start.setPosition(l);
                 }
             }
         }
-        
+
         simulatedPath = new PlanSimulationOverlay(plan, 0, 4, start);
     }
-    
+
     public SystemPositionAndAttitude getState() {
         return engine.getState();
     }
-    
+
     public void setState(SystemPositionAndAttitude state) {
         engine.setState(state);
     }
-    
+
     public PlanType getPlan() {
         return plan;
     }
-    
+
     public String getManId() {
         return engine.manId;
     }
-    
+
     public void setManId(String manId) throws Exception {
         engine.setManeuverId(manId);
     }
-    
-    
+
     /**
      * Start simulation thread
      */
@@ -114,6 +117,8 @@ public class PlanSimulator {
             public void run() {
                 while (!finished) {
                     engine.simulationStep();
+                    simTime += timestep;
+
                     try {
                         Thread.sleep((long) (1000 * timestep));
                     }
@@ -132,7 +137,7 @@ public class PlanSimulator {
     }
 
     public void setPositionEstimation(EstimatedState state, double distanceThreshold) {
-        
+
         LocationType loc = new LocationType();
         loc.setLatitudeRads(state.getLat());
         loc.setLongitudeRads(state.getLon());
@@ -141,14 +146,16 @@ public class PlanSimulator {
 
         SystemPositionAndAttitude s = new SystemPositionAndAttitude(getState());
         s.setPosition(loc);
-        
-        SimulationState newState = simulatedPath.nearestState(s, distanceThreshold);
-        
-        
-        if (newState != null)
-            engine.setSimulationState(state, newState);
+
+        Pair<Integer, SimulationState> nearest = simulatedPath.nearestState(s, distanceThreshold);
+
+        if (nearest != null) {
+            engine.setSimulationState(state, nearest.second());
+            simTime = nearest.first();
+        }
+
     }
-    
+
     public void setEstimatedState(EstimatedState state) {
         LocationType loc = new LocationType();
         loc.setLatitudeRads(state.getLat());
@@ -158,11 +165,13 @@ public class PlanSimulator {
 
         SystemPositionAndAttitude s = new SystemPositionAndAttitude(getState());
         s.setPosition(loc);
-        
-        SimulationState newState = simulatedPath.nearestState(s, Integer.MAX_VALUE);
-        
-        if (newState != null)
-            engine.setSimulationState(state, newState);
+
+        Pair<Integer, SimulationState> nearest = simulatedPath.nearestState(s, Integer.MAX_VALUE);
+
+        if (nearest != null) {
+            engine.setSimulationState(state, nearest.second());
+            simTime = nearest.first();
+        }
     }
 
     public void stopSimulation() {
@@ -220,5 +229,14 @@ public class PlanSimulator {
      */
     public final PlanSimulationOverlay getSimulationOverlay() {
         return simulatedPath;
+    }
+
+    public SimulatedFutureState getFutureState() {
+        if (simulatedPath == null || simulatedPath.states.isEmpty())
+            return null;
+        long curtime = System.currentTimeMillis();
+        double remainingTime = simulatedPath.getTotalTime() - simTime;
+        return new SimulatedFutureState(vehicleId, new Date(curtime + (long) (remainingTime * 1000.0)),
+                simulatedPath.getStates().lastElement());
     }
 }

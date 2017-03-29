@@ -37,7 +37,7 @@ public class ManeuverNotSupportedException extends Exception {
     private static final long serialVersionUID = 1L;
 
     public ManeuverNotSupportedException(String maneuver) {
-        super("Maneuver type '" + maneuver + " is not supported");
+        super("Maneuver type '" + maneuver + "' is not supported by this vehicle.");
     }
 
 }

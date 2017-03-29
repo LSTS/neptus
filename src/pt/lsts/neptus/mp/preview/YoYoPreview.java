@@ -86,7 +86,7 @@ public class YoYoPreview implements IManeuverPreview<YoYo> {
     }
 
     @Override
-    public SystemPositionAndAttitude step(SystemPositionAndAttitude state, double timestep) {
+    public SystemPositionAndAttitude step(SystemPositionAndAttitude state, double timestep, double ellapsedTime) {
         model.setState(state);
         boolean arrivedZ = false, arrivedXY = false;
 

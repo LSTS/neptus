@@ -54,6 +54,7 @@ public class FollowPath extends FollowTrajectory {
         registerPattern(RowsPattern.class);
         registerPattern(RIPattern.class);
         registerPattern(CrossHatchPattern.class);
+        registerPattern(AreaSurvey.class);
     }
     
     public FollowPath() {

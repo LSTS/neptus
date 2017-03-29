@@ -44,11 +44,13 @@ public class SimulationState {
     protected String currentManeuver;
     protected Object maneuverState;    
     protected SystemPositionAndAttitude sysState;
+    protected double timeSinceStart;
     
-    public SimulationState(String maneuver, Object maneuverState, SystemPositionAndAttitude sysState) {
+    public SimulationState(String maneuver, Object maneuverState, SystemPositionAndAttitude sysState, double timeSinceStart) {
         this.currentManeuver = maneuver;
         this.maneuverState = maneuverState;
         this.sysState = sysState;
+        this.timeSinceStart = timeSinceStart;
     }
 
     /**
@@ -91,6 +93,20 @@ public class SimulationState {
      */
     public void setSysState(SystemPositionAndAttitude sysState) {
         this.sysState = sysState;
+    }
+
+    /**
+     * @return the timeSinceStart
+     */
+    public final double getTimeSinceStart() {
+        return timeSinceStart;
+    }
+
+    /**
+     * @param timeSinceStart the timeSinceStart to set
+     */
+    public final void setTimeSinceStart(double timeSinceStart) {
+        this.timeSinceStart = timeSinceStart;
     }
     
 }

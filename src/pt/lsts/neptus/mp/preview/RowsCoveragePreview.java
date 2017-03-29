@@ -131,7 +131,7 @@ public class RowsCoveragePreview implements IManeuverPreview<RowsCoverage> {
     };
 
     @Override
-    public SystemPositionAndAttitude step(SystemPositionAndAttitude state, double timestep) {
+    public SystemPositionAndAttitude step(SystemPositionAndAttitude state, double timestep, double ellapsedTime) {
         if (rowsState.locIndex >= locs.size()) {
             finished = true;
             return state;
