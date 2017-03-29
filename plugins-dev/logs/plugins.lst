@@ -8,3 +8,4 @@ pt.lsts.neptus.plugins.logs.QuickLogger
 pt.lsts.neptus.plugins.logs.RemoteHistory
 pt.lsts.neptus.plugins.logs.LogBookVisualization
 pt.lsts.neptus.plugins.logs.LogBookSubPanel
+pt.lsts.neptus.plugins.logs.search.LogsSearcher
