@@ -52,7 +52,9 @@ import com.l2fprod.common.beans.editor.AbstractPropertyEditor;
 import com.l2fprod.common.beans.editor.BooleanAsCheckBoxPropertyEditor;
 import com.l2fprod.common.swing.renderer.DefaultCellRenderer;
 
+import pt.lsts.imc.IMCDefinition;
 import pt.lsts.neptus.NeptusLog;
+import pt.lsts.neptus.comm.manager.imc.ImcMsgManager;
 import pt.lsts.neptus.gui.editor.ArrayListEditor;
 import pt.lsts.neptus.gui.editor.ComboEditor;
 import pt.lsts.neptus.gui.editor.NumberEditor;
@@ -73,6 +75,7 @@ import pt.lsts.neptus.params.renderer.BooleanSystemPropertyRenderer;
 import pt.lsts.neptus.params.renderer.I18nSystemPropertyRenderer;
 import pt.lsts.neptus.params.renderer.SystemPropertyRenderer;
 import pt.lsts.neptus.util.FileUtil;
+import pt.lsts.neptus.util.GuiUtils;
 import pt.lsts.neptus.util.conf.ConfigFetch;
 import pt.lsts.neptus.util.conf.GeneralPreferences;
 
@@ -1164,5 +1167,8 @@ public class ConfigurationManager {
         NeptusLog.pub().info("<###> "+confMan.getProperties("lauv-dolphin-1", Visibility.USER, Scope.MANEUVER));
         NeptusLog.pub().info("<###> "+confMan.getProperties("lauv-dolphin-1", Visibility.USER, Scope.PLAN));
         NeptusLog.pub().info("<###> "+confMan.getProperties("lauv-dolphin-1", Visibility.DEVELOPER, Scope.GLOBAL));
+        SystemConfigurationEditorPanel systemConfEditor = new SystemConfigurationEditorPanel("seacat-mk1", Scope.GLOBAL, Visibility.USER, true,
+                false, true, new ImcMsgManager(IMCDefinition.getInstance()));
+        GuiUtils.testFrame(systemConfEditor);
     }
 }
