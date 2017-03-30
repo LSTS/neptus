@@ -41,7 +41,7 @@ public class LogsSearcher extends ConsolePanel {
 
     enum DataOptionEnum {
         ANY("--any--"),
-        MULTIBEAM("multitbeam"),
+        MULTIBEAM("multibeam"),
         SIDESCAN("sidescan"),
         CAMERA("camera"),
         PH("ph"),
