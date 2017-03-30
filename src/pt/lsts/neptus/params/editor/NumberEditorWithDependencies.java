@@ -133,9 +133,12 @@ implements PropertyChangeListener {
             return;
         }
 
+        boolean testVariablePresent = false;
+
         ValuesIf<?, ?> toChangeTest = null;
         if(evt.getSource() instanceof SystemProperty) {
             SystemProperty sp = (SystemProperty) evt.getSource();
+            
             
             for (int i = 0; i < pec.getValuesIfTests().size(); i++) {
                 ValuesIf<?, ?> vl = (ValuesIf<?, ?>) pec
@@ -144,6 +147,8 @@ implements PropertyChangeListener {
                 if (!vl.dependantParamId.equals(sp.getName()))
                     continue;
 
+                testVariablePresent = true;
+                
                 boolean isPassedTest = false;
                 switch (vl.op) {
                     case EQUALS:
@@ -168,7 +173,7 @@ implements PropertyChangeListener {
                 }
             }
         }
-        if (toChangeTest != null)
+        if (testVariablePresent)
             activeTest = toChangeTest;
     }
 }
