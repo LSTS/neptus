@@ -477,20 +477,20 @@ public class ConfigurationManager {
                                 }
 
                                 if (pt == null)
-                                    pt = createPropertyWithDependencies(testValueType, SystemProperty.ValueTypeEnum.fromString(type));
+                                    pt = createPropertyWithDependencies(SystemProperty.ValueTypeEnum.fromString(type));
                                 
                                 if (type.equals(SystemProperty.ValueTypeEnum.INTEGER.getText())) {
                                     switch (testValueType) {
                                         case REAL:
                                         case INTEGER:
                                             if (isPair) {
-                                                ((PropertyEditorChangeValuesIfDependencyAdapter<Number, Pair<Long, Long>>) pt).addValuesIf(
+                                                ((PropertyEditorChangeValuesIfDependencyAdapter<Object, Pair<Long, Long>>) pt).addValuesIf(
                                                         paramComp.getText(), tv,
                                                         PropertyEditorChangeValuesIfDependencyAdapter.TestOperation.EQUALS,
                                                         (ArrayList<Pair<Long, Long>>) values);
                                             }
                                             else {
-                                                ((PropertyEditorChangeValuesIfDependencyAdapter<Number, Long>) pt).addValuesIf(
+                                                ((PropertyEditorChangeValuesIfDependencyAdapter<Object, Long>) pt).addValuesIf(
                                                         paramComp.getText(), tv,
                                                         PropertyEditorChangeValuesIfDependencyAdapter.TestOperation.EQUALS,
                                                         (ArrayList<Long>) values);
@@ -498,13 +498,13 @@ public class ConfigurationManager {
                                             break;
                                         case BOOLEAN:
                                             if (isPair) {
-                                                ((PropertyEditorChangeValuesIfDependencyAdapter<Boolean, Pair<Long, Long>>) pt).addValuesIf(
+                                                ((PropertyEditorChangeValuesIfDependencyAdapter<Object, Pair<Long, Long>>) pt).addValuesIf(
                                                         paramComp.getText(), bv,
                                                         PropertyEditorChangeValuesIfDependencyAdapter.TestOperation.EQUALS,
                                                         (ArrayList<Pair<Long, Long>>) values);
                                             }
                                             else {
-                                                ((PropertyEditorChangeValuesIfDependencyAdapter<Boolean, Long>) pt).addValuesIf(
+                                                ((PropertyEditorChangeValuesIfDependencyAdapter<Object, Long>) pt).addValuesIf(
                                                         paramComp.getText(), bv,
                                                         PropertyEditorChangeValuesIfDependencyAdapter.TestOperation.EQUALS,
                                                         (ArrayList<Long>) values);
@@ -512,13 +512,13 @@ public class ConfigurationManager {
                                             break;
                                         case STRING:
                                             if (isPair) {
-                                                ((PropertyEditorChangeValuesIfDependencyAdapter<String, Pair<Long, Long>>) pt).addValuesIf(
+                                                ((PropertyEditorChangeValuesIfDependencyAdapter<Object, Pair<Long, Long>>) pt).addValuesIf(
                                                         paramComp.getText(), sv,
                                                         PropertyEditorChangeValuesIfDependencyAdapter.TestOperation.EQUALS,
                                                         (ArrayList<Pair<Long, Long>>) values);
                                             }
                                             else {
-                                                ((PropertyEditorChangeValuesIfDependencyAdapter<String, Long>) pt).addValuesIf(
+                                                ((PropertyEditorChangeValuesIfDependencyAdapter<Object, Long>) pt).addValuesIf(
                                                         paramComp.getText(), sv,
                                                         PropertyEditorChangeValuesIfDependencyAdapter.TestOperation.EQUALS,
                                                         (ArrayList<Long>) values);
@@ -531,13 +531,13 @@ public class ConfigurationManager {
                                         case REAL:
                                         case INTEGER:
                                             if (isPair) {
-                                                ((PropertyEditorChangeValuesIfDependencyAdapter<Number, Pair<Double, Double>>) pt).addValuesIf(
+                                                ((PropertyEditorChangeValuesIfDependencyAdapter<Object, Pair<Double, Double>>) pt).addValuesIf(
                                                         paramComp.getText(), tv,
                                                         PropertyEditorChangeValuesIfDependencyAdapter.TestOperation.EQUALS,
                                                         (ArrayList<Pair<Double, Double>>) values);
                                             }
                                             else {
-                                                ((PropertyEditorChangeValuesIfDependencyAdapter<Number, Double>) pt).addValuesIf(
+                                                ((PropertyEditorChangeValuesIfDependencyAdapter<Object, Double>) pt).addValuesIf(
                                                         paramComp.getText(), tv,
                                                         PropertyEditorChangeValuesIfDependencyAdapter.TestOperation.EQUALS,
                                                         (ArrayList<Double>) values);
@@ -545,13 +545,13 @@ public class ConfigurationManager {
                                             break;
                                         case BOOLEAN:
                                             if (isPair) {
-                                                ((PropertyEditorChangeValuesIfDependencyAdapter<Boolean, Pair<Double, Double>>) pt).addValuesIf(
+                                                ((PropertyEditorChangeValuesIfDependencyAdapter<Object, Pair<Double, Double>>) pt).addValuesIf(
                                                         paramComp.getText(), bv,
                                                         PropertyEditorChangeValuesIfDependencyAdapter.TestOperation.EQUALS,
                                                         (ArrayList<Pair<Double, Double>>) values);
                                             }
                                             else {
-                                                ((PropertyEditorChangeValuesIfDependencyAdapter<Boolean, Double>) pt).addValuesIf(
+                                                ((PropertyEditorChangeValuesIfDependencyAdapter<Object, Double>) pt).addValuesIf(
                                                         paramComp.getText(), bv,
                                                         PropertyEditorChangeValuesIfDependencyAdapter.TestOperation.EQUALS,
                                                         (ArrayList<Double>) values);
@@ -559,13 +559,13 @@ public class ConfigurationManager {
                                             break;
                                         case STRING:
                                             if (isPair) {
-                                                ((PropertyEditorChangeValuesIfDependencyAdapter<String, Pair<Double, Double>>) pt).addValuesIf(
+                                                ((PropertyEditorChangeValuesIfDependencyAdapter<Object, Pair<Double, Double>>) pt).addValuesIf(
                                                         paramComp.getText(), sv,
                                                         PropertyEditorChangeValuesIfDependencyAdapter.TestOperation.EQUALS,
                                                         (ArrayList<Pair<Double, Double>>) values);
                                             }
                                             else {
-                                                ((PropertyEditorChangeValuesIfDependencyAdapter<String, Double>) pt).addValuesIf(
+                                                ((PropertyEditorChangeValuesIfDependencyAdapter<Object, Double>) pt).addValuesIf(
                                                         paramComp.getText(), sv,
                                                         PropertyEditorChangeValuesIfDependencyAdapter.TestOperation.EQUALS,
                                                         (ArrayList<Double>) values);
@@ -579,19 +579,19 @@ public class ConfigurationManager {
                                     switch (testValueType) {
                                         case REAL:
                                         case INTEGER:
-                                            ((PropertyEditorChangeValuesIfDependencyAdapter<Number, String>) pt).addValuesIf(
+                                            ((PropertyEditorChangeValuesIfDependencyAdapter<Object, String>) pt).addValuesIf(
                                                     paramComp.getText(), tv,
                                                     PropertyEditorChangeValuesIfDependencyAdapter.TestOperation.EQUALS,
                                                     (ArrayList<String>) values, valuesI18n != null ? (ArrayList<String>) valuesI18n : null);
                                             break;
                                         case BOOLEAN:
-                                            ((PropertyEditorChangeValuesIfDependencyAdapter<Boolean, String>) pt).addValuesIf(
+                                            ((PropertyEditorChangeValuesIfDependencyAdapter<Object, String>) pt).addValuesIf(
                                                     paramComp.getText(), bv,
                                                     PropertyEditorChangeValuesIfDependencyAdapter.TestOperation.EQUALS,
                                                     (ArrayList<String>) values, valuesI18n != null ? (ArrayList<String>) valuesI18n : null);
                                             break;
                                         case STRING:
-                                            ((PropertyEditorChangeValuesIfDependencyAdapter<String, String>) pt).addValuesIf(
+                                            ((PropertyEditorChangeValuesIfDependencyAdapter<Object, String>) pt).addValuesIf(
                                                     paramComp.getText(), sv,
                                                     PropertyEditorChangeValuesIfDependencyAdapter.TestOperation.EQUALS,
                                                     (ArrayList<String>) values, valuesI18n != null ? (ArrayList<String>) valuesI18n : null);
@@ -803,37 +803,16 @@ public class ConfigurationManager {
     }
 
     /**
-     * @param testValueType
      * @param valueOf
      * @return
      */
-    private PropertyEditorChangeValuesIfDependencyAdapter<?, ?> createPropertyWithDependencies(
-            ValueTypeEnum testValueType, ValueTypeEnum type) {
-        switch (testValueType) {
-            case BOOLEAN:
-                if (type.equals(SystemProperty.ValueTypeEnum.INTEGER))
-                        return new PropertyEditorChangeValuesIfDependencyAdapter<Boolean, Long>();
-                else if (type.equals(SystemProperty.ValueTypeEnum.REAL))
-                    return new PropertyEditorChangeValuesIfDependencyAdapter<Boolean, Double>();
-                else
-                    return new PropertyEditorChangeValuesIfDependencyAdapter<Boolean, String>();
-            case STRING:
-                if (type.equals(SystemProperty.ValueTypeEnum.INTEGER))
-                    return new PropertyEditorChangeValuesIfDependencyAdapter<String, Long>();
-                else if (type.equals(SystemProperty.ValueTypeEnum.REAL))
-                    return new PropertyEditorChangeValuesIfDependencyAdapter<String, Double>();
-                else
-                    return new PropertyEditorChangeValuesIfDependencyAdapter<String, String>();
-            case REAL:
-            case INTEGER:
-            default:
-                if (type.equals(SystemProperty.ValueTypeEnum.INTEGER))
-                        return new PropertyEditorChangeValuesIfDependencyAdapter<Number, Long>();
-                else if (type.equals(SystemProperty.ValueTypeEnum.REAL))
-                    return new PropertyEditorChangeValuesIfDependencyAdapter<Number, Double>();
-                else
-                    return new PropertyEditorChangeValuesIfDependencyAdapter<Number, String>();
-        }
+    private PropertyEditorChangeValuesIfDependencyAdapter<?, ?> createPropertyWithDependencies(ValueTypeEnum type) {
+        if (type.equals(SystemProperty.ValueTypeEnum.INTEGER))
+            return new PropertyEditorChangeValuesIfDependencyAdapter<Object, Long>();
+        else if (type.equals(SystemProperty.ValueTypeEnum.REAL))
+            return new PropertyEditorChangeValuesIfDependencyAdapter<Object, Double>();
+        else
+            return new PropertyEditorChangeValuesIfDependencyAdapter<Object, String>();
     }
 
     /**
@@ -1164,8 +1143,13 @@ public class ConfigurationManager {
         NeptusLog.pub().info("<###> "+confMan.getProperties("lauv-dolphin-1", Visibility.USER, Scope.MANEUVER));
         NeptusLog.pub().info("<###> "+confMan.getProperties("lauv-dolphin-1", Visibility.USER, Scope.PLAN));
         NeptusLog.pub().info("<###> "+confMan.getProperties("lauv-dolphin-1", Visibility.DEVELOPER, Scope.GLOBAL));
+        
+        ImcMsgManager mng = new ImcMsgManager(IMCDefinition.getInstance());
         SystemConfigurationEditorPanel systemConfEditor = new SystemConfigurationEditorPanel("seacat-mk1", Scope.GLOBAL, Visibility.USER, true,
-                false, true, new ImcMsgManager(IMCDefinition.getInstance()));
+                false, true, mng);
+        GuiUtils.testFrame(systemConfEditor);
+        systemConfEditor = new SystemConfigurationEditorPanel("lauv-noptilus-2", Scope.GLOBAL, Visibility.USER, true,
+                false, true, mng);
         GuiUtils.testFrame(systemConfEditor);
     }
 }
