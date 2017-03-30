@@ -117,7 +117,18 @@ public class LogsSearcher extends ConsolePanel {
             while(!db.connect() && !connectFtp());
 
             dbConnectionStatus = true;
-            initQueryOptions();
+            try {
+                initQueryOptions();
+            } catch (SQLException e) {
+                e.printStackTrace();
+                dbConnectionStatus = false;
+            }
+
+            try {
+                Thread.sleep(5000);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
         }).start();
     }
 
@@ -304,13 +315,6 @@ public class LogsSearcher extends ConsolePanel {
     }
 
     private void query(String payload, String year, String vehicleId) {
-        // query db for data with the given characteristics
-        if(ftp == null)
-            connectFtp();
-
-        if(dbConnectionStatus == false)
-            db.connect();
-
         String query = buildQuery(payload, year, vehicleId);
         updateEntries(db.doQuery(query));
     }
