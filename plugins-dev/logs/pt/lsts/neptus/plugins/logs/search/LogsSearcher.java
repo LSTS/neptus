@@ -11,6 +11,7 @@ import pt.lsts.neptus.ftp.FtpDownloader;
 import pt.lsts.neptus.mp.MapChangeEvent;
 import pt.lsts.neptus.mra.NeptusMRA;
 import pt.lsts.neptus.plugins.*;
+import pt.lsts.neptus.plugins.update.Periodic;
 import pt.lsts.neptus.types.map.ParallelepipedElement;
 import pt.lsts.neptus.util.GuiUtils;
 
@@ -22,8 +23,6 @@ import java.awt.event.MouseEvent;
 import java.io.*;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.time.format.DateTimeFormatter;
-import java.util.Arrays;
 import java.util.Calendar;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -88,7 +87,7 @@ public class LogsSearcher extends ConsolePanel {
 
     private FtpDownloader ftp = null;
     private FTPClient ftpClient;
-    private boolean dbConnectionStatus = false;
+    private boolean firstConnection = true;
 
     /**
      * Open LogsDataSearcher from MRA
@@ -110,30 +109,46 @@ public class LogsSearcher extends ConsolePanel {
 
     @Override
     public void initSubPanel() {
-        handleConnections();
+        startConnections();
     }
 
-    private void handleConnections() {
+    @Periodic(millisBetweenUpdates = 300)
+    public void onPeriodicCall() {
+        if(ftp == null || db == null)
+            return;
+
+        if(db.isConnected() && ftpClient.isConnected() && firstConnection) {
+            firstConnection = false;
+            initQueryOptions();
+        }
+
+
+        if(db.isConnected())
+            return;
+
+        db.connect();
+
+        if(ftpClient.isConnected())
+            return;
+
+        try {
+            ftp.renewClient();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        ftpClient = ftp.getClient();
+    }
+
+    private void startConnections() {
         new Thread(() -> {
-            while(!db.connect() && !connectFtp());
-
-            dbConnectionStatus = true;
-            try {
-                initQueryOptions();
-            } catch (SQLException e) {
-                e.printStackTrace();
-                dbConnectionStatus = false;
-            }
-
-            try {
-                Thread.sleep(5000);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
+            db.connect();
+            connectFtp();
+            initQueryOptions();
         }).start();
     }
 
-    public boolean connectFtp() {
+    public void connectFtp() {
         try {
             if(ftp == null || !ftp.isConnected()) {
                 ftp = new FtpDownloader(FTP_HOST, FTP_PORT);
@@ -143,10 +158,7 @@ public class LogsSearcher extends ConsolePanel {
         } catch (Exception e) {
             e.printStackTrace();
             ftp = null;
-            return false;
         }
-
-        return ftp.isConnected();
     }
 
     public void buildGui() {
@@ -263,7 +275,7 @@ public class LogsSearcher extends ConsolePanel {
         });*/
     }
 
-    private void initQueryOptions() throws SQLException {
+    private void initQueryOptions() {
         DefaultListCellRenderer dlcr = new DefaultListCellRenderer();
         dlcr.setHorizontalAlignment(DefaultListCellRenderer.CENTER);
 
@@ -390,6 +402,9 @@ public class LogsSearcher extends ConsolePanel {
      * Open a selected log in MRA
      * */
     private void openLog(String logAbsolutePathStr) {
+        if(!ftp.isConnected())
+            return;
+
         // Fetch file from remote (FTP?)
         File logFile = null;
         try {

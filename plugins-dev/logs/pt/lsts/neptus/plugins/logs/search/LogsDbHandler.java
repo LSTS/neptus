@@ -95,6 +95,7 @@ public class LogsDbHandler {
     private Connection conn = null;
     private String query = null;
     private String action = null;
+    private boolean isConnected = false;
 
     public LogsDbHandler() {
         this.url = "jdbc:mysql://" + DB_HOST + ":" + DB_PORT + "/imclogs";
@@ -103,17 +104,22 @@ public class LogsDbHandler {
             Class.forName("com.mysql.jdbc.Driver");
         } catch (ClassNotFoundException e) {
             e.printStackTrace();
+            isConnected = false;
         }
     }
 
-    public boolean connect() {
+    public void connect() {
         try {
             conn = DriverManager.getConnection(url, DB_USER,"123456789");
+            isConnected = true;
         } catch (SQLException e) {
             e.printStackTrace();
-            return false;
+            isConnected = false;
         }
-        return true;
+    }
+
+    public boolean isConnected() {
+        return isConnected;
     }
 
     public ResultSet doQuery(String q) {
@@ -128,6 +134,7 @@ public class LogsDbHandler {
             return stmnt.executeQuery(q);
         } catch (SQLException e) {
             e.printStackTrace();
+            isConnected = false;
             return null;
         }
     }
@@ -142,6 +149,7 @@ public class LogsDbHandler {
             return stmnt.executeUpdate(action);
         } catch (SQLException e) {
             e.printStackTrace();
+            isConnected = false;
             return -1;
         }
     }
@@ -149,13 +157,19 @@ public class LogsDbHandler {
     /**
      * Returns an array of the all the vehicles that have logs
      * */
-    public List<String> fetchAvailableVehicles() throws SQLException {
+    public List<String> fetchAvailableVehicles() {
         String query = "SELECT * FROM " + DbTableName.VEHICLES.toString();
 
         ResultSet res = doQuery(query);
         ArrayList<String> vehicles = new ArrayList<>();
-        while(res.next())
-            vehicles.add(res.getString("id"));
+        try {
+            while(res.next())
+                vehicles.add(res.getString("id"));
+        } catch (SQLException e) {
+            e.printStackTrace();
+
+            isConnected = false;
+        }
 
         return vehicles;
     }
@@ -165,18 +179,25 @@ public class LogsDbHandler {
             return;
         try {
             conn.close();
+            isConnected = true;
         } catch (SQLException e) {
             e.printStackTrace();
         }
     }
 
-    public List<String> fetchAvailableYears() throws SQLException {
+    public List<String> fetchAvailableYears() {
         String query = "SELECT DISTINCT year FROM " + DbTableName.LOGS.toString();
 
         ResultSet res = doQuery(query);
         ArrayList<String> years = new ArrayList<>();
-        while(res.next())
-            years.add(res.getString("year"));
+        try {
+            while(res.next())
+                years.add(res.getString("year"));
+        } catch (SQLException e) {
+            e.printStackTrace();
+
+            isConnected = false;
+        }
 
         return years;
     }
@@ -184,13 +205,19 @@ public class LogsDbHandler {
     /**
      * Returns an array of all the data types in the logs
      * */
-    public List<String> fetchAvailableDataType() throws SQLException {
+    public List<String> fetchAvailableDataType() {
         String query = "SELECT * FROM " + DbTableName.DATA.toString();
 
         ResultSet res = doQuery(query);
         ArrayList<String> dataTypes = new ArrayList<>();
-        while(res.next())
-            dataTypes.add(res.getString("type"));
+        try {
+            while(res.next())
+                dataTypes.add(res.getString("type"));
+        } catch (SQLException e) {
+            e.printStackTrace();
+
+            isConnected = false;
+        }
 
         return dataTypes;
     }
@@ -230,6 +257,7 @@ public class LogsDbHandler {
 
         } catch (SQLException e) {
             e.printStackTrace();
+            isConnected = false;
         }
     }
 
@@ -248,6 +276,7 @@ public class LogsDbHandler {
 
         } catch (SQLException e) {
             e.printStackTrace();
+            isConnected = false;
         }
         return false;
     }
