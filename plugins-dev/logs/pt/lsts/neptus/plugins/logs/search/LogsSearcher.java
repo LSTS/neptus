@@ -85,7 +85,7 @@ public class LogsSearcher extends ConsolePanel {
     private final JButton clearResultsButton = new JButton("Clear results");
     private final JButton selectAreaButton = new JButton("Select Area");
 
-    private FtpDownloader ftp;
+    private FtpDownloader ftp = null;
     private FTPClient ftpClient;
     private boolean dbConnectionStatus = false;
 
@@ -114,19 +114,27 @@ public class LogsSearcher extends ConsolePanel {
 
     private void handleConnections() {
         new Thread(() -> {
-            connectFtp();
-            dbConnectionStatus = db.connect();
+            while(!db.connect() && !connectFtp());
+
+            dbConnectionStatus = true;
+            initQueryOptions();
         }).start();
     }
 
-    public void connectFtp() {
+    public boolean connectFtp() {
         try {
-            ftp = new FtpDownloader(FTP_HOST, FTP_PORT);
-            ftp.renewClient();
-            ftpClient = ftp.getClient();
+            if(ftp == null || !ftp.isConnected()) {
+                ftp = new FtpDownloader(FTP_HOST, FTP_PORT);
+                ftp.renewClient();
+                ftpClient = ftp.getClient();
+            }
         } catch (Exception e) {
             e.printStackTrace();
+            ftp = null;
+            return false;
         }
+
+        return ftp.isConnected();
     }
 
     public void buildGui() {
@@ -214,8 +222,6 @@ public class LogsSearcher extends ConsolePanel {
 
         queryPanel.add(searchButton);
         queryPanel.add(clearResultsButton);
-
-        initQueryOptions();
 
         searchButton.addActionListener(e -> {
             String selectedDataTypeStr = String.valueOf(dataOptions.getSelectedItem());
