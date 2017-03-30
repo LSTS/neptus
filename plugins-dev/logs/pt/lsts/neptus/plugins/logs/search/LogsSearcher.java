@@ -250,9 +250,7 @@ public class LogsSearcher extends ConsolePanel {
         });
 
         clearResultsButton.addActionListener(e -> {
-            // clear results table
-            for(int i = 0; i < tableModel.getRowCount(); i++)
-                tableModel.removeRow(i);
+            tableModel.setRowCount(0);
         });
 
 /*        selectAreaButton.addActionListener(e -> {
