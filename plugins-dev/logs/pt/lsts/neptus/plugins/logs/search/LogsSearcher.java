@@ -352,6 +352,9 @@ public class LogsSearcher extends ConsolePanel {
      * Parse query results and update results table
      * */
     private void updateEntries(ResultSet res) {
+        if(res == null)
+            return;
+
         try {
             boolean isEmpty = true;
             tableModel.setRowCount(0);
