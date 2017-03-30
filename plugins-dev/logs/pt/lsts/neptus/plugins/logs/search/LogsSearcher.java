@@ -25,6 +25,7 @@ import java.sql.SQLException;
 import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
 import java.util.Calendar;
+import java.util.HashMap;
 import java.util.HashSet;
 
 import pt.lsts.neptus.plugins.Popup;
@@ -73,9 +74,9 @@ public class LogsSearcher extends ConsolePanel {
     private final JComboBox<String> dataOptions = new JComboBox<>();
     private final JComboBox<String> yearOptions = new JComboBox<>();
     private final JComboBox<String> vehicleOptions = new JComboBox<>();
-    private final JComboBox<String>  areaOptions = new JComboBox<>();
 
     private final HashSet<String> knownMapAreas = new HashSet<>();
+    private final HashMap<String, String> logsPath = new HashMap<>();
 
     private JTable resultsTable;
     private DefaultTableModel tableModel;
@@ -203,13 +204,15 @@ public class LogsSearcher extends ConsolePanel {
                     }
 
                     // get log path
-                    String logStr = (String) tableModel.getValueAt(rowIndex, 3);
-                    if (logStr == null) {
+                    String logDate = (String) tableModel.getValueAt(rowIndex, 1);
+                    String logName = (String) tableModel.getValueAt(rowIndex, 4);
+                    String logPath = logsPath.get(logDate + logName);
+                    if (logDate == null || logName == null || logDate == null) {
                         GuiUtils.errorMessage(mainPanel, "Log Selection Error", "Error while accessing column" + rowIndex);
                         return;
                     }
 
-                    openLog(logStr);
+                    openLog(logPath);
                 }
             }
         });
@@ -229,10 +232,11 @@ public class LogsSearcher extends ConsolePanel {
         queryPanel.add(dataOptions);
         queryPanel.add(vehicleOptions);
         queryPanel.add(yearOptions);
-        queryPanel.add(areaOptions);
 
+        queryPanel.add(selectAreaButton);
         queryPanel.add(searchButton);
         queryPanel.add(clearResultsButton);
+
 
         searchButton.addActionListener(e -> {
             String selectedDataTypeStr = String.valueOf(dataOptions.getSelectedItem());
@@ -251,6 +255,7 @@ public class LogsSearcher extends ConsolePanel {
 
         clearResultsButton.addActionListener(e -> {
             tableModel.setRowCount(0);
+            logsPath.clear();
         });
 
 /*        selectAreaButton.addActionListener(e -> {
@@ -301,7 +306,6 @@ public class LogsSearcher extends ConsolePanel {
                 return;
 
             knownMapAreas.add(objectId);
-            ((DefaultComboBoxModel) areaOptions.getModel()).addElement(objectId);
         }
     }
 
@@ -353,9 +357,10 @@ public class LogsSearcher extends ConsolePanel {
         try {
             boolean isEmpty = true;
             tableModel.setRowCount(0);
+            logsPath.clear();
+
             while(res.next()) {
                 isEmpty = false;
-                /* TODO: store log's path in a map*/
                 String path = res.getString(LogsDbHandler.LogTableColumnName.PATH.toString());
 
                 String logName = res.getString(LogsDbHandler.LogTableColumnName.LOG_NAME.toString());
@@ -370,6 +375,7 @@ public class LogsSearcher extends ConsolePanel {
                 double durationMin = Math.round((durationMillis / 1000.0 / 60.0) * 10.0) / 10.0;
 
                 tableModel.addRow(new Object[]{dataType, logDate, vehicle, durationMin, logName});
+                logsPath.put(logDate + logName, path);
             }
 
             if(isEmpty)
