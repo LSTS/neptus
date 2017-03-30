@@ -35,6 +35,7 @@ package pt.lsts.neptus.plugins.logs.search;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 
 public class LogsDbHandler {
     public enum DbTableName {
@@ -148,7 +149,7 @@ public class LogsDbHandler {
     /**
      * Returns an array of the all the vehicles that have logs
      * */
-    public String[] fetchAvailableVehicles() throws SQLException {
+    public List<String> fetchAvailableVehicles() throws SQLException {
         String query = "SELECT * FROM " + DbTableName.VEHICLES.toString();
 
         ResultSet res = doQuery(query);
@@ -156,7 +157,7 @@ public class LogsDbHandler {
         while(res.next())
             vehicles.add(res.getString("id"));
 
-        return (String[]) vehicles.toArray();
+        return vehicles;
     }
 
     public void close() {
@@ -169,10 +170,21 @@ public class LogsDbHandler {
         }
     }
 
+    public List<String> fetchAvailableYears() throws SQLException {
+        String query = "SELECT DISTINCT year FROM " + DbTableName.LOGS.toString();
+
+        ResultSet res = doQuery(query);
+        ArrayList<String> years = new ArrayList<>();
+        while(res.next())
+            years.add(res.getString("year"));
+
+        return years;
+    }
+
     /**
      * Returns an array of all the data types in the logs
      * */
-    public String[] fetchAvailableDataType() throws SQLException {
+    public List<String> fetchAvailableDataType() throws SQLException {
         String query = "SELECT * FROM " + DbTableName.DATA.toString();
 
         ResultSet res = doQuery(query);
@@ -180,7 +192,7 @@ public class LogsDbHandler {
         while(res.next())
             dataTypes.add(res.getString("type"));
 
-        return (String[]) dataTypes.toArray();
+        return dataTypes;
     }
 
     public void addEntry(DbEntry entry) {

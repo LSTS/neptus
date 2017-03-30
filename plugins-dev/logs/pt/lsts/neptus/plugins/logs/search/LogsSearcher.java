@@ -260,13 +260,13 @@ public class LogsSearcher extends ConsolePanel {
         });*/
     }
 
-    private void initQueryOptions() {
+    private void initQueryOptions() throws SQLException {
         DefaultListCellRenderer dlcr = new DefaultListCellRenderer();
         dlcr.setHorizontalAlignment(DefaultListCellRenderer.CENTER);
 
         // data type options
         dataOptions.setRenderer(dlcr);
-        Arrays.stream(DataOptionEnum.values())
+        db.fetchAvailableDataType().stream()
                 .forEach(opt -> ((DefaultComboBoxModel) dataOptions.getModel()).addElement(opt));
 
         // available years
@@ -274,25 +274,18 @@ public class LogsSearcher extends ConsolePanel {
         dlcr.setHorizontalAlignment(DefaultListCellRenderer.CENTER);
         yearOptions.setRenderer(dlcr);
         ((DefaultComboBoxModel) yearOptions.getModel()).addElement("--any--");
-        ((DefaultComboBoxModel) yearOptions.getModel()).addElement("2016");
-        ((DefaultComboBoxModel) yearOptions.getModel()).addElement("2017");
+
+        db.fetchAvailableYears().stream()
+                .forEach(y -> ((DefaultComboBoxModel) yearOptions.getModel()).addElement(y));
 
         // vehicles' ids
         dlcr = new DefaultListCellRenderer();
         dlcr.setHorizontalAlignment(DefaultListCellRenderer.CENTER);
         vehicleOptions.setRenderer(dlcr);
-        ((DefaultComboBoxModel) vehicleOptions.getModel()).addElement("--any--");
-        ((DefaultComboBoxModel) vehicleOptions.getModel()).addElement("lauv-xplore-1");
-        ((DefaultComboBoxModel) vehicleOptions.getModel()).addElement("lauv-noptilus-1");
-        ((DefaultComboBoxModel) vehicleOptions.getModel()).addElement("lauv-noptilus-2");
-        ((DefaultComboBoxModel) vehicleOptions.getModel()).addElement("lauv-noptilus-3");
-        ((DefaultComboBoxModel) vehicleOptions.getModel()).addElement("lauv-xtreme-2");
-        ((DefaultComboBoxModel) vehicleOptions.getModel()).addElement("lauv-arpao");
 
-        dlcr = new DefaultListCellRenderer();
-        dlcr.setHorizontalAlignment(DefaultListCellRenderer.CENTER);
-        areaOptions.setRenderer(dlcr);
-        ((DefaultComboBoxModel) areaOptions.getModel()).addElement("--none--");
+        ((DefaultComboBoxModel) vehicleOptions.getModel()).addElement("--any--");
+        db.fetchAvailableVehicles().stream()
+                .forEach(v -> ((DefaultComboBoxModel) vehicleOptions.getModel()).addElement(v));
     }
 
     @Subscribe
