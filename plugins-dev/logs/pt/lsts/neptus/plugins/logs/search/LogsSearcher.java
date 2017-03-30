@@ -83,11 +83,13 @@ public class LogsSearcher extends ConsolePanel {
 
     private final JButton searchButton = new JButton("Search");
     private final JButton clearResultsButton = new JButton("Clear results");
-    private final JButton selectAreaButton = new JButton("Select Area");
+    private final JButton selectAreaButton = new JButton("Search by Area");
 
     private FtpDownloader ftp = null;
     private FTPClient ftpClient;
     private boolean firstConnection = true;
+
+    private AreaSelectionDialog areaSelectionDialog;
 
     /**
      * Open LogsDataSearcher from MRA
@@ -100,6 +102,8 @@ public class LogsSearcher extends ConsolePanel {
             NeptusLog.pub().info("Creating logs cache directory at " + LOGS_DOWNLOAD_DIR.getAbsolutePath());
             LOGS_DOWNLOAD_DIR.mkdirs();
         }
+
+       areaSelectionDialog = new AreaSelectionDialog(mainPanel);
     }
 
     @Override
@@ -112,7 +116,7 @@ public class LogsSearcher extends ConsolePanel {
         startConnections();
     }
 
-    @Periodic(millisBetweenUpdates = 300)
+    @Periodic(millisBetweenUpdates = 3000)
     public void onPeriodicCall() {
         if(ftp == null || db == null)
             return;
@@ -270,9 +274,21 @@ public class LogsSearcher extends ConsolePanel {
             logsPath.clear();
         });
 
-/*        selectAreaButton.addActionListener(e -> {
+        selectAreaButton.addActionListener(e -> {
+            int status = areaSelectionDialog.getInput();
 
-        });*/
+            if(status == AreaSelectionDialog.INVALID_INPUT) {
+                GuiUtils.errorMessage(this, "Error", "Invalid Coordinates");
+                return;
+            }
+
+            if(status == AreaSelectionDialog.CLOSED)
+                return;
+
+            double[] minCoordsRad = areaSelectionDialog.getTopLeftCoordinatesRad();
+            double[] maxCoordsRad = areaSelectionDialog.getBottomRightCoordinatesRad();
+            searchLogsByCoordinates(minCoordsRad, maxCoordsRad);
+        });
     }
 
     private void initQueryOptions() {
@@ -357,6 +373,13 @@ public class LogsSearcher extends ConsolePanel {
         NeptusLog.pub().info(sb.toString());
 
         return sb.toString();
+    }
+
+    private void searchLogsByCoordinates(double[] minCoordinatesRad, double[] maxCoordinatesRad) {
+        String query = "SELECT * FROM log WHERE (lat < " + minCoordinatesRad[0] +
+                " and lat > " + maxCoordinatesRad[0] + " and " + " lon > " + minCoordinatesRad[1] + " and " +
+                " lon < " + maxCoordinatesRad[1] + ");";
+        updateEntries(db.doQuery(query));
     }
 
     /**
