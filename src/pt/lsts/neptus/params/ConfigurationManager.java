@@ -65,11 +65,8 @@ import pt.lsts.neptus.params.SystemProperty.ValueTypeEnum;
 import pt.lsts.neptus.params.SystemProperty.Visibility;
 import pt.lsts.neptus.params.editor.ComboEditorWithDependency;
 import pt.lsts.neptus.params.editor.NumberEditorWithDependencies;
-import pt.lsts.neptus.params.editor.PropertyBooleanEditorChangeValuesIfDependencyAdapter;
 import pt.lsts.neptus.params.editor.PropertyEditorChangeValuesIfDependencyAdapter;
 import pt.lsts.neptus.params.editor.PropertyEditorChangeValuesIfDependencyAdapter.ValuesIf;
-import pt.lsts.neptus.params.editor.PropertyNumberEditorChangeValuesIfDependencyAdapter;
-import pt.lsts.neptus.params.editor.PropertyStringEditorChangeValuesIfDependencyAdapter;
 import pt.lsts.neptus.params.editor.custom.CustomSystemPropertyEditor;
 import pt.lsts.neptus.params.renderer.BooleanSystemPropertyRenderer;
 import pt.lsts.neptus.params.renderer.I18nSystemPropertyRenderer;
@@ -487,13 +484,13 @@ public class ConfigurationManager {
                                         case REAL:
                                         case INTEGER:
                                             if (isPair) {
-                                                ((PropertyNumberEditorChangeValuesIfDependencyAdapter<Number, Pair<Long, Long>>) pt).addValuesIf(
+                                                ((PropertyEditorChangeValuesIfDependencyAdapter<Number, Pair<Long, Long>>) pt).addValuesIf(
                                                         paramComp.getText(), tv,
                                                         PropertyEditorChangeValuesIfDependencyAdapter.TestOperation.EQUALS,
                                                         (ArrayList<Pair<Long, Long>>) values);
                                             }
                                             else {
-                                                ((PropertyNumberEditorChangeValuesIfDependencyAdapter<Number, Long>) pt).addValuesIf(
+                                                ((PropertyEditorChangeValuesIfDependencyAdapter<Number, Long>) pt).addValuesIf(
                                                         paramComp.getText(), tv,
                                                         PropertyEditorChangeValuesIfDependencyAdapter.TestOperation.EQUALS,
                                                         (ArrayList<Long>) values);
@@ -501,13 +498,13 @@ public class ConfigurationManager {
                                             break;
                                         case BOOLEAN:
                                             if (isPair) {
-                                                ((PropertyBooleanEditorChangeValuesIfDependencyAdapter<Boolean, Pair<Long, Long>>) pt).addValuesIf(
+                                                ((PropertyEditorChangeValuesIfDependencyAdapter<Boolean, Pair<Long, Long>>) pt).addValuesIf(
                                                         paramComp.getText(), bv,
                                                         PropertyEditorChangeValuesIfDependencyAdapter.TestOperation.EQUALS,
                                                         (ArrayList<Pair<Long, Long>>) values);
                                             }
                                             else {
-                                                ((PropertyBooleanEditorChangeValuesIfDependencyAdapter<Boolean, Long>) pt).addValuesIf(
+                                                ((PropertyEditorChangeValuesIfDependencyAdapter<Boolean, Long>) pt).addValuesIf(
                                                         paramComp.getText(), bv,
                                                         PropertyEditorChangeValuesIfDependencyAdapter.TestOperation.EQUALS,
                                                         (ArrayList<Long>) values);
@@ -515,13 +512,13 @@ public class ConfigurationManager {
                                             break;
                                         case STRING:
                                             if (isPair) {
-                                                ((PropertyStringEditorChangeValuesIfDependencyAdapter<String, Pair<Long, Long>>) pt).addValuesIf(
+                                                ((PropertyEditorChangeValuesIfDependencyAdapter<String, Pair<Long, Long>>) pt).addValuesIf(
                                                         paramComp.getText(), sv,
                                                         PropertyEditorChangeValuesIfDependencyAdapter.TestOperation.EQUALS,
                                                         (ArrayList<Pair<Long, Long>>) values);
                                             }
                                             else {
-                                                ((PropertyStringEditorChangeValuesIfDependencyAdapter<String, Long>) pt).addValuesIf(
+                                                ((PropertyEditorChangeValuesIfDependencyAdapter<String, Long>) pt).addValuesIf(
                                                         paramComp.getText(), sv,
                                                         PropertyEditorChangeValuesIfDependencyAdapter.TestOperation.EQUALS,
                                                         (ArrayList<Long>) values);
@@ -534,13 +531,13 @@ public class ConfigurationManager {
                                         case REAL:
                                         case INTEGER:
                                             if (isPair) {
-                                                ((PropertyNumberEditorChangeValuesIfDependencyAdapter<Number, Pair<Double, Double>>) pt).addValuesIf(
+                                                ((PropertyEditorChangeValuesIfDependencyAdapter<Number, Pair<Double, Double>>) pt).addValuesIf(
                                                         paramComp.getText(), tv,
                                                         PropertyEditorChangeValuesIfDependencyAdapter.TestOperation.EQUALS,
                                                         (ArrayList<Pair<Double, Double>>) values);
                                             }
                                             else {
-                                                ((PropertyNumberEditorChangeValuesIfDependencyAdapter<Number, Double>) pt).addValuesIf(
+                                                ((PropertyEditorChangeValuesIfDependencyAdapter<Number, Double>) pt).addValuesIf(
                                                         paramComp.getText(), tv,
                                                         PropertyEditorChangeValuesIfDependencyAdapter.TestOperation.EQUALS,
                                                         (ArrayList<Double>) values);
@@ -548,13 +545,13 @@ public class ConfigurationManager {
                                             break;
                                         case BOOLEAN:
                                             if (isPair) {
-                                                ((PropertyBooleanEditorChangeValuesIfDependencyAdapter<Boolean, Pair<Double, Double>>) pt).addValuesIf(
+                                                ((PropertyEditorChangeValuesIfDependencyAdapter<Boolean, Pair<Double, Double>>) pt).addValuesIf(
                                                         paramComp.getText(), bv,
                                                         PropertyEditorChangeValuesIfDependencyAdapter.TestOperation.EQUALS,
                                                         (ArrayList<Pair<Double, Double>>) values);
                                             }
                                             else {
-                                                ((PropertyBooleanEditorChangeValuesIfDependencyAdapter<Boolean, Double>) pt).addValuesIf(
+                                                ((PropertyEditorChangeValuesIfDependencyAdapter<Boolean, Double>) pt).addValuesIf(
                                                         paramComp.getText(), bv,
                                                         PropertyEditorChangeValuesIfDependencyAdapter.TestOperation.EQUALS,
                                                         (ArrayList<Double>) values);
@@ -562,13 +559,13 @@ public class ConfigurationManager {
                                             break;
                                         case STRING:
                                             if (isPair) {
-                                                ((PropertyStringEditorChangeValuesIfDependencyAdapter<String, Pair<Double, Double>>) pt).addValuesIf(
+                                                ((PropertyEditorChangeValuesIfDependencyAdapter<String, Pair<Double, Double>>) pt).addValuesIf(
                                                         paramComp.getText(), sv,
                                                         PropertyEditorChangeValuesIfDependencyAdapter.TestOperation.EQUALS,
                                                         (ArrayList<Pair<Double, Double>>) values);
                                             }
                                             else {
-                                                ((PropertyStringEditorChangeValuesIfDependencyAdapter<String, Double>) pt).addValuesIf(
+                                                ((PropertyEditorChangeValuesIfDependencyAdapter<String, Double>) pt).addValuesIf(
                                                         paramComp.getText(), sv,
                                                         PropertyEditorChangeValuesIfDependencyAdapter.TestOperation.EQUALS,
                                                         (ArrayList<Double>) values);
@@ -582,19 +579,19 @@ public class ConfigurationManager {
                                     switch (testValueType) {
                                         case REAL:
                                         case INTEGER:
-                                            ((PropertyNumberEditorChangeValuesIfDependencyAdapter<Number, String>) pt).addValuesIf(
+                                            ((PropertyEditorChangeValuesIfDependencyAdapter<Number, String>) pt).addValuesIf(
                                                     paramComp.getText(), tv,
                                                     PropertyEditorChangeValuesIfDependencyAdapter.TestOperation.EQUALS,
                                                     (ArrayList<String>) values, valuesI18n != null ? (ArrayList<String>) valuesI18n : null);
                                             break;
                                         case BOOLEAN:
-                                            ((PropertyBooleanEditorChangeValuesIfDependencyAdapter<Boolean, String>) pt).addValuesIf(
+                                            ((PropertyEditorChangeValuesIfDependencyAdapter<Boolean, String>) pt).addValuesIf(
                                                     paramComp.getText(), bv,
                                                     PropertyEditorChangeValuesIfDependencyAdapter.TestOperation.EQUALS,
                                                     (ArrayList<String>) values, valuesI18n != null ? (ArrayList<String>) valuesI18n : null);
                                             break;
                                         case STRING:
-                                            ((PropertyStringEditorChangeValuesIfDependencyAdapter<String, String>) pt).addValuesIf(
+                                            ((PropertyEditorChangeValuesIfDependencyAdapter<String, String>) pt).addValuesIf(
                                                     paramComp.getText(), sv,
                                                     PropertyEditorChangeValuesIfDependencyAdapter.TestOperation.EQUALS,
                                                     (ArrayList<String>) values, valuesI18n != null ? (ArrayList<String>) valuesI18n : null);
@@ -815,27 +812,27 @@ public class ConfigurationManager {
         switch (testValueType) {
             case BOOLEAN:
                 if (type.equals(SystemProperty.ValueTypeEnum.INTEGER))
-                        return new PropertyBooleanEditorChangeValuesIfDependencyAdapter<Boolean, Long>();
+                        return new PropertyEditorChangeValuesIfDependencyAdapter<Boolean, Long>();
                 else if (type.equals(SystemProperty.ValueTypeEnum.REAL))
-                    return new PropertyBooleanEditorChangeValuesIfDependencyAdapter<Boolean, Double>();
+                    return new PropertyEditorChangeValuesIfDependencyAdapter<Boolean, Double>();
                 else
-                    return new PropertyBooleanEditorChangeValuesIfDependencyAdapter<Boolean, String>();
+                    return new PropertyEditorChangeValuesIfDependencyAdapter<Boolean, String>();
             case STRING:
                 if (type.equals(SystemProperty.ValueTypeEnum.INTEGER))
-                    return new PropertyStringEditorChangeValuesIfDependencyAdapter<String, Long>();
+                    return new PropertyEditorChangeValuesIfDependencyAdapter<String, Long>();
                 else if (type.equals(SystemProperty.ValueTypeEnum.REAL))
-                    return new PropertyStringEditorChangeValuesIfDependencyAdapter<String, Double>();
+                    return new PropertyEditorChangeValuesIfDependencyAdapter<String, Double>();
                 else
-                    return new PropertyStringEditorChangeValuesIfDependencyAdapter<String, String>();
+                    return new PropertyEditorChangeValuesIfDependencyAdapter<String, String>();
             case REAL:
             case INTEGER:
             default:
                 if (type.equals(SystemProperty.ValueTypeEnum.INTEGER))
-                        return new PropertyNumberEditorChangeValuesIfDependencyAdapter<Number, Long>();
+                        return new PropertyEditorChangeValuesIfDependencyAdapter<Number, Long>();
                 else if (type.equals(SystemProperty.ValueTypeEnum.REAL))
-                    return new PropertyNumberEditorChangeValuesIfDependencyAdapter<Number, Double>();
+                    return new PropertyEditorChangeValuesIfDependencyAdapter<Number, Double>();
                 else
-                    return new PropertyNumberEditorChangeValuesIfDependencyAdapter<Number, String>();
+                    return new PropertyEditorChangeValuesIfDependencyAdapter<Number, String>();
         }
     }
 
