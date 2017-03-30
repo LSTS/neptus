@@ -59,8 +59,8 @@ import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.params.SystemProperty.Scope;
 import pt.lsts.neptus.params.SystemProperty.ValueTypeEnum;
 import pt.lsts.neptus.params.SystemProperty.Visibility;
-import pt.lsts.neptus.params.editor.ComboEditorWithDependancy;
-import pt.lsts.neptus.params.editor.PropertyEditorChangeValuesIfDependancyAdapter;
+import pt.lsts.neptus.params.editor.ComboEditorWithDependency;
+import pt.lsts.neptus.params.editor.PropertyEditorChangeValuesIfDependencyAdapter;
 import pt.lsts.neptus.params.editor.custom.CustomSystemPropertyEditor;
 import pt.lsts.neptus.params.renderer.BooleanSystemPropertyRenderer;
 import pt.lsts.neptus.params.renderer.I18nSystemPropertyRenderer;
@@ -427,15 +427,15 @@ public class ConfigurationManager {
                 else if (pValuesIfList != null) {
                     property = new SystemProperty();
                     ComboEditor<?> comboEditor = null;
-                    PropertyEditorChangeValuesIfDependancyAdapter<?, ?> pt;
+                    PropertyEditorChangeValuesIfDependencyAdapter<?, ?> pt;
                     if (type.equals(SystemProperty.ValueTypeEnum.INTEGER.getText())) {
-                        pt = new PropertyEditorChangeValuesIfDependancyAdapter<Number, Long>();
+                        pt = new PropertyEditorChangeValuesIfDependencyAdapter<Number, Long>();
                     }
                     else if (type.equals(SystemProperty.ValueTypeEnum.REAL.getText())) {
-                        pt = new PropertyEditorChangeValuesIfDependancyAdapter<Number, Double>();
+                        pt = new PropertyEditorChangeValuesIfDependencyAdapter<Number, Double>();
                     }
                     else {
-                        pt = new PropertyEditorChangeValuesIfDependancyAdapter<Number, String>();
+                        pt = new PropertyEditorChangeValuesIfDependencyAdapter<Number, String>();
                     }
 
                     if (pt != null) {
@@ -462,22 +462,22 @@ public class ConfigurationManager {
                                     break;
                                 }
                                 if (type.equals(SystemProperty.ValueTypeEnum.INTEGER.getText())) {
-                                    ((PropertyEditorChangeValuesIfDependancyAdapter<Number, Long>) pt).addValuesIf(
+                                    ((PropertyEditorChangeValuesIfDependencyAdapter<Number, Long>) pt).addValuesIf(
                                             paramComp.getText(), tv,
-                                            PropertyEditorChangeValuesIfDependancyAdapter.TestOperation.EQUALS,
+                                            PropertyEditorChangeValuesIfDependencyAdapter.TestOperation.EQUALS,
                                             (ArrayList<Long>) values);
                                 }
                                 else if (type.equals(SystemProperty.ValueTypeEnum.REAL.getText())) {
-                                    ((PropertyEditorChangeValuesIfDependancyAdapter<Number, Double>) pt).addValuesIf(
+                                    ((PropertyEditorChangeValuesIfDependencyAdapter<Number, Double>) pt).addValuesIf(
                                             paramComp.getText(), tv,
-                                            PropertyEditorChangeValuesIfDependancyAdapter.TestOperation.EQUALS,
+                                            PropertyEditorChangeValuesIfDependencyAdapter.TestOperation.EQUALS,
                                             (ArrayList<Double>) values);
                                 }
                                 else if (type.equals(SystemProperty.ValueTypeEnum.STRING.getText())) {
                                     ArrayList<?> valuesI18n = extractI18nValues(type, valuesParam, values);
-                                    ((PropertyEditorChangeValuesIfDependancyAdapter<Number, String>) pt).addValuesIf(
+                                    ((PropertyEditorChangeValuesIfDependencyAdapter<Number, String>) pt).addValuesIf(
                                             paramComp.getText(), tv,
-                                            PropertyEditorChangeValuesIfDependancyAdapter.TestOperation.EQUALS,
+                                            PropertyEditorChangeValuesIfDependencyAdapter.TestOperation.EQUALS,
                                             (ArrayList<String>) values, valuesI18n != null ? (ArrayList<String>) valuesI18n : null);
 
                                     // Prep. I18n renderer
@@ -501,13 +501,13 @@ public class ConfigurationManager {
                     ArrayList<?> valuesI18n = pt.getValuesI18nIfTests().size() > 0 ? pt.getValuesI18nIfTests().get(0).values : null;
                     if (values != null) {
                         if (type.equals(SystemProperty.ValueTypeEnum.INTEGER.getText())) {
-                            comboEditor = new ComboEditorWithDependancy<>(((ArrayList<Long>) values).toArray(new Long[0]), pt);
+                            comboEditor = new ComboEditorWithDependency<>(((ArrayList<Long>) values).toArray(new Long[0]), pt);
                         }
                         else if (type.equals(SystemProperty.ValueTypeEnum.REAL.getText())) {
-                            comboEditor = new ComboEditorWithDependancy<>(((ArrayList<Double>) values).toArray(new Double[0]), pt);
+                            comboEditor = new ComboEditorWithDependency<>(((ArrayList<Double>) values).toArray(new Double[0]), pt);
                         }
                         else {
-                            comboEditor = new ComboEditorWithDependancy<>(((ArrayList<String>) values).toArray(new String[0]),
+                            comboEditor = new ComboEditorWithDependency<>(((ArrayList<String>) values).toArray(new String[0]),
                                     valuesI18n == null ? null : ((ArrayList<String>) valuesI18n).toArray(new String[0]), pt);
                         }
                         propEditor = comboEditor;

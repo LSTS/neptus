@@ -37,17 +37,17 @@ import java.beans.PropertyChangeListener;
 
 import pt.lsts.neptus.gui.editor.ComboEditor;
 import pt.lsts.neptus.params.SystemProperty;
-import pt.lsts.neptus.params.editor.PropertyEditorChangeValuesIfDependancyAdapter.ValuesIf;
+import pt.lsts.neptus.params.editor.PropertyEditorChangeValuesIfDependencyAdapter.ValuesIf;
 
-public class ComboEditorWithDependancy<T extends Object> extends ComboEditor<T> implements PropertyChangeListener {
+public class ComboEditorWithDependency<T extends Object> extends ComboEditor<T> implements PropertyChangeListener {
 
-        private PropertyEditorChangeValuesIfDependancyAdapter<?, ?> pec;
+        private PropertyEditorChangeValuesIfDependencyAdapter<?, ?> pec;
         
         /**
          * @param options
          * @param pec
          */
-        public ComboEditorWithDependancy(T[] options, PropertyEditorChangeValuesIfDependancyAdapter<?, ?> pec) {
+        public ComboEditorWithDependency(T[] options, PropertyEditorChangeValuesIfDependencyAdapter<?, ?> pec) {
             this(options, null, pec);
         }
 
@@ -56,7 +56,7 @@ public class ComboEditorWithDependancy<T extends Object> extends ComboEditor<T> 
          * @param stringValues The String to show in the combo.
          * @param pec
          */
-        public ComboEditorWithDependancy(T[] options, String[] stringValues, PropertyEditorChangeValuesIfDependancyAdapter<?, ?> pec) {
+        public ComboEditorWithDependency(T[] options, String[] stringValues, PropertyEditorChangeValuesIfDependencyAdapter<?, ?> pec) {
             super(options, stringValues);
             this.pec = pec;
         }
@@ -74,14 +74,24 @@ public class ComboEditorWithDependancy<T extends Object> extends ComboEditor<T> 
 //                NeptusLog.pub().info("<###> "+sp);
                 if (sp.getValue() instanceof Number) {
                     for (int i = 0; i < pec.getValuesIfTests().size(); i++) {
-                        PropertyEditorChangeValuesIfDependancyAdapter.ValuesIf<?, ?> vl = (ValuesIf<?, ?>) pec.getValuesIfTests().get(i);
-                        PropertyEditorChangeValuesIfDependancyAdapter.ValuesIf<?, ?> vlI18n = (ValuesIf<?, ?>) pec.getValuesI18nIfTests().get(i);
+                        PropertyEditorChangeValuesIfDependencyAdapter.ValuesIf<?, ?> vl = (ValuesIf<?, ?>) pec.getValuesIfTests().get(i);
+                        PropertyEditorChangeValuesIfDependencyAdapter.ValuesIf<?, ?> vlI18n = (ValuesIf<?, ?>) pec.getValuesI18nIfTests().get(i);
 //                        NeptusLog.pub().info("<###>-------------- 4 " + i + "  " + vl.dependantParamId + " " + sp.getName());
                         if (!vl.dependantParamId.equals(sp.getName()))
                             continue;
 //                        NeptusLog.pub().info("<###>-------------- 5 " + i);
                         
-                        if (vl.testValue.doubleValue() == ((Number)sp.getValue()).doubleValue()) {
+                        boolean isEquals = false;
+                        if (vl.testValue instanceof Number)
+                            isEquals = ((Number) vl.testValue).doubleValue() == ((Number) sp.getValue()).doubleValue();
+                        else if (vl.testValue instanceof Boolean)
+                            isEquals = (Boolean) vl.testValue == (Boolean) sp.getValue();
+                        else if (vl.testValue instanceof String)
+                            isEquals = ((String) vl.testValue).equals((String) sp.getValue());
+                        else
+                            isEquals = vl.testValue.equals(sp.getValue());
+                        
+                        if (isEquals) {
 //                            NeptusLog.pub().info("<###>-------------- 6 " + i);
                             combo.removeAllItems();
                             for (Object item : vl.values)
