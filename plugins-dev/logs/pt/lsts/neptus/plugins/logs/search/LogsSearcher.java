@@ -294,8 +294,8 @@ public class LogsSearcher extends ConsolePanel {
                 return;
             }
 
-            double[] minCoordsRad = areaSelectionDialog.getTopLeftCoordinatesRad();
-            double[] maxCoordsRad = areaSelectionDialog.getBottomRightCoordinatesRad();
+            double[] minCoordsRad = areaSelectionDialog.getMinCoordinatesRad();
+            double[] maxCoordsRad = areaSelectionDialog.getMaxCoordinatesRad();
             searchLogsByCoordinates(selectedDataTypeStr, selectedVehicleStr, selectedYearStr, minCoordsRad, maxCoordsRad);
         });
     }
@@ -392,8 +392,8 @@ public class LogsSearcher extends ConsolePanel {
 
     private void searchLogsByCoordinates(String selectedDataTypeStr, String selectedVehicleStr, String selectedYearStr,
                                          double[] minCoordinatesRad, double[] maxCoordinatesRad) {
-        String query = "SELECT * FROM log WHERE (lat < " + minCoordinatesRad[0] +
-                " and lat > " + maxCoordinatesRad[0] + " and " + " lon > " + minCoordinatesRad[1] + " and " +
+        String query = "SELECT * FROM log WHERE (lat < " + maxCoordinatesRad[0] +
+                " and lat > " + minCoordinatesRad[0] + " and " + " lon > " + minCoordinatesRad[1] + " and " +
                 " lon < " + maxCoordinatesRad[1] + ")";
 
         String optionsQuery = buildWhereStatement(selectedDataTypeStr, selectedYearStr, selectedVehicleStr);

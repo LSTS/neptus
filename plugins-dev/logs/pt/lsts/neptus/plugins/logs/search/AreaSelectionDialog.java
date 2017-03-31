@@ -42,19 +42,21 @@ public class AreaSelectionDialog {
 
     private String areaSelectedId;
 
-    private final JLabel minLabel = new JLabel("Top Left");
-    private final JLabel maxLabel = new JLabel("Bottom Right");
+    private final JLabel minLatLabel = new JLabel("Min Lat", SwingConstants.CENTER);
+    private final JLabel maxLatLabel = new JLabel("Max Lat", SwingConstants.CENTER);
+    private final JLabel minLonLabel = new JLabel("Min Lon", SwingConstants.CENTER);
+    private final JLabel maxLonLabel = new JLabel("Max Lon", SwingConstants.CENTER);
 
-    private final JTextField topLeftLatDegr = new JTextField(2);
-    private final JTextField topLeftLonDegr = new JTextField(2);
+    private final JTextField minLatDegr = new JTextField("a");
+    private final JTextField maxLatDegr = new JTextField("b");
 
-    private final JTextField bottomRightLatDegr = new JTextField(2);
-    private final JTextField bottomRightDegr = new JTextField(2);
+    private final JTextField minLogDegr = new JTextField("c");
+    private final JTextField maxLonDegr = new JTextField("d");
 
-    private double topLeftLat;
-    private double topLefLon;
-    private double bottomRightLat;
-    private double bottomRightLon;
+    private double minLat;
+    private double maxLat;
+    private double minLon;
+    private double maxLon;
 
     private final JPanel contentPanel = new JPanel();
     private JPanel parent;
@@ -62,22 +64,26 @@ public class AreaSelectionDialog {
     public AreaSelectionDialog(JPanel parent) {
         this.parent = parent;
         contentPanel.setSize(new Dimension(200, 300));
-        contentPanel.setLayout(new GridLayout(2, 3));
+        contentPanel.setLayout(new GridLayout(2, 4));
         
-        contentPanel.add(minLabel);
-        contentPanel.add(topLeftLatDegr);
-        contentPanel.add(topLeftLonDegr);
+        contentPanel.add(minLatLabel);
+        contentPanel.add(minLatDegr);
 
-        contentPanel.add(maxLabel);
-        contentPanel.add(bottomRightLatDegr);
-        contentPanel.add(bottomRightDegr);
+        contentPanel.add(maxLatLabel);
+        contentPanel.add(maxLatDegr);
+
+        contentPanel.add(minLonLabel);
+        contentPanel.add(minLogDegr);
+
+        contentPanel.add(maxLonLabel);
+        contentPanel.add(maxLonDegr);
 
         contentPanel.setVisible(false);
     }
 
     public int getInput() {
         contentPanel.setVisible(true);
-        int result = JOptionPane.showOptionDialog(parent, contentPanel  , "Enter a Number",
+        int result = JOptionPane.showOptionDialog(parent, contentPanel  , "Filter by coordinates",
                 JOptionPane.YES_NO_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE,
                 null, new Object[]{"OK", "cancel"}, null);
 
@@ -85,54 +91,56 @@ public class AreaSelectionDialog {
             return CLOSED;
 
         try {
-            topLeftLat = Double.valueOf(topLeftLatDegr.getText());
-            topLefLon = Double.valueOf(topLeftLonDegr.getText());
-            bottomRightLat = Double.valueOf(bottomRightLatDegr.getText());
-            bottomRightLon = Double.valueOf(bottomRightDegr.getText());
+            minLat = Double.valueOf(minLatDegr.getText());
+            maxLat = Double.valueOf(maxLatDegr.getText());
+            minLon = Double.valueOf(minLogDegr.getText());
+            maxLon = Double.valueOf(maxLonDegr.getText());
         }
         catch (NumberFormatException e) {
             return INVALID_INPUT;
         }
 
-        if(!validCoordinates(topLeftLat, topLefLon, bottomRightLat, bottomRightLon))
+        if(!validCoordinates(minLat, maxLat, minLon, maxLon))
             return INVALID_INPUT;
 
         return VALID_INPUT;
     }
 
-    public boolean validCoordinates(double topLeftLat, double topLeftLon, double bottomRightLat, double bottomRightLon) {
-        if(topLeftLat < -90 || topLeftLat > 90)
+    public boolean validCoordinates(double minLat, double maxLat, double minLon, double maxLon) {
+        if(!validLatitude(minLat) || !validLatitude(maxLat))
             return false;
 
-        if(bottomRightLat < -90 || bottomRightLat > 90)
+        if(minLat >= maxLat)
             return false;
 
-        if(topLeftLat <= bottomRightLat)
+        if(!validLongitude(minLon) || !validLongitude(maxLon))
             return false;
 
-        if(topLeftLon < -180 || topLeftLon > 180)
-            return false;
-
-        if(bottomRightLon < -180 || bottomRightLon > 180)
-            return false;
-
-        if(topLeftLon > bottomRightLon)
+        if(minLon >= maxLon)
             return false;
 
         return true;
     }
 
-    /**
-     * Get area's top left latitude and longitude, in radians
-     * */
-    public double[] getTopLeftCoordinatesRad() {
-        return new double[]{Math.toRadians(topLeftLat), Math.toRadians(topLefLon)};
+    private boolean validLatitude(double latDegrees) {
+        return latDegrees >= -90 && latDegrees <= 90;
+    }
+
+    private boolean validLongitude(double lonDegrees) {
+        return lonDegrees >= -180 && lonDegrees <= 180;
     }
 
     /**
-     * Get area's bottom right latitude and longitude, in radians
+     * Get area's min latitude and longitude, in radians
      * */
-    public double[] getBottomRightCoordinatesRad() {
-        return new double[]{Math.toRadians(bottomRightLat), Math.toRadians(bottomRightLon)};
+    public double[] getMinCoordinatesRad() {
+        return new double[]{Math.toRadians(minLat), Math.toRadians(minLon)};
+    }
+
+    /**
+     * Get area's max right latitude and longitude, in radians
+     * */
+    public double[] getMaxCoordinatesRad() {
+        return new double[]{Math.toRadians(maxLat), Math.toRadians(maxLon)};
     }
 }
