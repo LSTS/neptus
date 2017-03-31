@@ -17,6 +17,8 @@ import pt.lsts.neptus.util.GuiUtils;
 
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
+import javax.swing.table.TableModel;
+import javax.swing.table.TableRowSorter;
 import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
@@ -188,6 +190,24 @@ public class LogsSearcher extends ConsolePanel {
             public boolean isCellEditable(int row, int column) {
                 return false;
             }
+
+            @Override
+            public Class getColumnClass(int column) {
+                switch (column) {
+                    case 0:
+                        return String.class;
+                    case 1:
+                        return String.class;
+                    case 2:
+                        return String.class;
+                    case 3:
+                        return Double.class;
+                    case 4:
+                        return String.class;
+                    default:
+                        return String.class;
+                }
+            }
         };
 
         resultsTable = new JTable() {
@@ -207,6 +227,10 @@ public class LogsSearcher extends ConsolePanel {
                 return tip;
             }
         };
+
+        TableRowSorter<TableModel> sorter
+                = new TableRowSorter<>(tableModel);
+        resultsTable.setRowSorter(sorter);
 
         resultsTable.addMouseListener(new MouseAdapter() {
             public void mousePressed(MouseEvent me) {
