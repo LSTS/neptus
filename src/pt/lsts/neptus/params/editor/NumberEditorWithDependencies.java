@@ -106,8 +106,6 @@ implements PropertyChangeListener {
         if (pec == null || activeTest == null)
             return ret;
 
-        // System.out.println("Active test :: " + activeTest.dependantParamId + "=" + activeTest.testValue);
-        
         T validValueIfFail = null;
         try {
             for (Object elm : activeTest.values) {
@@ -169,12 +167,9 @@ implements PropertyChangeListener {
                 if (testVarValue == null)
                     continue;
                 
-                // System.out.println("Trigger :: " + sp.getName() + " :: " + sp.getValue());
                 
                 for (int i = 0; i < pec.getValuesIfTests().size(); i++) {
                     ValuesIf<?, ?> vl = (ValuesIf<?, ?>) pec.getValuesIfTests().get(i);
-                    
-                    // System.out.println("\t\t" + "T :: " + vl.dependantParamId + "=" + vl.testValue + " == " + testVarKey + "=" + testVarValue);
                     
                     if (!vl.dependantParamId.equals(testVarKey))
                         continue;
@@ -217,14 +212,11 @@ implements PropertyChangeListener {
             }
         }
         
-        // System.out.println(testVariablePresent + "   " + passedAtLeastOneTest);
         if (testVariablePresent && passedAtLeastOneTest) {
             activeTest = toChangeTest;
-            // System.out.println("\tChange Active test :: " + activeTest.dependantParamId + "=" + activeTest.testValue);
         }
         if (testVariablePresent && !passedAtLeastOneTest) {
             activeTest = null;
-            // System.out.println("\tChange Active test :: " + activeTest);
         }
     }
 }
