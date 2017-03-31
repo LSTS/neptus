@@ -285,9 +285,18 @@ public class LogsSearcher extends ConsolePanel {
             if(status == AreaSelectionDialog.CLOSED)
                 return;
 
+            String selectedDataTypeStr = String.valueOf(dataOptions.getSelectedItem());
+            String selectedYearStr = String.valueOf(yearOptions.getSelectedItem());
+            String selectedVehicleStr = String.valueOf(vehicleOptions.getSelectedItem());
+
+            if(selectedDataTypeStr == null || selectedYearStr == null || selectedVehicleStr == null) {
+                GuiUtils.errorMessage(mainPanel, "Log Selection Error", "Null option");
+                return;
+            }
+
             double[] minCoordsRad = areaSelectionDialog.getTopLeftCoordinatesRad();
             double[] maxCoordsRad = areaSelectionDialog.getBottomRightCoordinatesRad();
-            searchLogsByCoordinates(minCoordsRad, maxCoordsRad);
+            searchLogsByCoordinates(selectedDataTypeStr, selectedVehicleStr, selectedYearStr, minCoordsRad, maxCoordsRad);
         });
     }
 
@@ -348,6 +357,14 @@ public class LogsSearcher extends ConsolePanel {
     public String buildQuery(String payload, String year, String vehicleId) {
         StringBuilder sb = new StringBuilder();
         sb.append("SELECT * FROM " + LogsDbHandler.DbTableName.LOGS.toString() + " WHERE ");
+        sb.append(buildWhereStatement(payload, year, vehicleId));
+        NeptusLog.pub().info(sb.toString());
+
+        return sb.toString();
+    }
+
+    private String buildWhereStatement(String payload, String year, String vehicleId) {
+        StringBuilder sb = new StringBuilder();
 
         boolean searchByPayload = false;
         boolean searchByYear = false;
@@ -370,16 +387,24 @@ public class LogsSearcher extends ConsolePanel {
             sb.append(LogsDbHandler.LogTableColumnName.VEHICLE_ID.toString() + "=" + "\"" + vehicleId + "\"");
         }
 
-        NeptusLog.pub().info(sb.toString());
-
         return sb.toString();
     }
 
-    private void searchLogsByCoordinates(double[] minCoordinatesRad, double[] maxCoordinatesRad) {
+    private void searchLogsByCoordinates(String selectedDataTypeStr, String selectedVehicleStr, String selectedYearStr,
+                                         double[] minCoordinatesRad, double[] maxCoordinatesRad) {
         String query = "SELECT * FROM log WHERE (lat < " + minCoordinatesRad[0] +
                 " and lat > " + maxCoordinatesRad[0] + " and " + " lon > " + minCoordinatesRad[1] + " and " +
-                " lon < " + maxCoordinatesRad[1] + ");";
-        updateEntries(db.doQuery(query));
+                " lon < " + maxCoordinatesRad[1] + ")";
+
+        String optionsQuery = buildWhereStatement(selectedDataTypeStr, selectedYearStr, selectedVehicleStr);
+
+        String finalQuery;
+        if(optionsQuery.isEmpty())
+            finalQuery = query + ";";
+        else
+            finalQuery = query + " AND " + optionsQuery + ";";
+
+        updateEntries(db.doQuery(finalQuery));
     }
 
     /**
