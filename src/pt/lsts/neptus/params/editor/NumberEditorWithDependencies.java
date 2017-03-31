@@ -34,9 +34,11 @@ package pt.lsts.neptus.params.editor;
 
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+import java.util.LinkedHashMap;
 
 import org.apache.commons.lang3.tuple.Pair;
 
+import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.gui.editor.NumberEditor;
 import pt.lsts.neptus.params.SystemProperty;
 import pt.lsts.neptus.params.editor.PropertyEditorChangeValuesIfDependencyAdapter.ValuesIf;
@@ -49,6 +51,7 @@ import pt.lsts.neptus.params.editor.PropertyEditorChangeValuesIfDependencyAdapte
 public class NumberEditorWithDependencies<T extends Number> extends NumberEditor<T> 
 implements PropertyChangeListener {
 
+    private LinkedHashMap<String, Object> dependencyVariables = new LinkedHashMap<>();
     private PropertyEditorChangeValuesIfDependencyAdapter<?, T> pec = null;
     private ValuesIf<?, ?> activeTest = null;
     
@@ -80,6 +83,18 @@ implements PropertyChangeListener {
         this.pec = pec;
     }
 
+    private void updateDependenciesVariables() {
+        if (pec == null || pec.valuesIfTests.isEmpty()) {
+            dependencyVariables.clear();
+        }
+        else {
+            for (ValuesIf<?, T> vif : pec.valuesIfTests) {
+                if (!dependencyVariables.containsKey(vif.dependantParamId))
+                    dependencyVariables.put(vif.dependantParamId, null);
+            }
+        }
+    }
+
     /* (non-Javadoc)
      * @see pt.lsts.neptus.gui.editor.NumberEditor#convertFromString(java.lang.String)
      */
@@ -91,6 +106,8 @@ implements PropertyChangeListener {
         if (pec == null || activeTest == null)
             return ret;
 
+        // System.out.println("Active test :: " + activeTest.dependantParamId + "=" + activeTest.testValue);
+        
         T validValueIfFail = null;
         try {
             for (Object elm : activeTest.values) {
@@ -133,47 +150,81 @@ implements PropertyChangeListener {
             return;
         }
 
+        updateDependenciesVariables();
+        
         boolean testVariablePresent = false;
+        boolean passedAtLeastOneTest = false;
 
         ValuesIf<?, ?> toChangeTest = null;
         if(evt.getSource() instanceof SystemProperty) {
             SystemProperty sp = (SystemProperty) evt.getSource();
             
-            
-            for (int i = 0; i < pec.getValuesIfTests().size(); i++) {
-                ValuesIf<?, ?> vl = (ValuesIf<?, ?>) pec
-                        .getValuesIfTests().get(i);
-                
-                if (!vl.dependantParamId.equals(sp.getName()))
+            if (dependencyVariables.containsKey(sp.getName()))
+                dependencyVariables.put(sp.getName(), sp.getValue());
+            else
+                return;
+
+            for (String testVarKey : dependencyVariables.keySet()) {
+                Object testVarValue = dependencyVariables.get(testVarKey);
+                if (testVarValue == null)
                     continue;
-
-                testVariablePresent = true;
                 
-                boolean isPassedTest = false;
-                switch (vl.op) {
-                    case EQUALS:
-                        if (vl.testValue instanceof Number)
-                            isPassedTest = ((Number) vl.testValue).doubleValue() == ((Number) sp.getValue()).doubleValue();
-                        else if (vl.testValue instanceof Boolean)
-                            isPassedTest = (Boolean) vl.testValue == (Boolean) sp.getValue();
-                        else if (vl.testValue instanceof String)
-                            isPassedTest = ((String) vl.testValue).equals((String) sp.getValue());
-                        else
-                            isPassedTest = vl.testValue.equals(sp.getValue());
-                        break;
-                }
+                // System.out.println("Trigger :: " + sp.getName() + " :: " + sp.getValue());
                 
-                if (isPassedTest) {
-                    if (vl.values.isEmpty())
-                        continue;
-
-                    toChangeTest = vl;
+                for (int i = 0; i < pec.getValuesIfTests().size(); i++) {
+                    ValuesIf<?, ?> vl = (ValuesIf<?, ?>) pec.getValuesIfTests().get(i);
                     
-                    break;
+                    // System.out.println("\t\t" + "T :: " + vl.dependantParamId + "=" + vl.testValue + " == " + testVarKey + "=" + testVarValue);
+                    
+                    if (!vl.dependantParamId.equals(testVarKey))
+                        continue;
+                    
+                    testVariablePresent = true;
+                    boolean isPassedTest = false;
+                    
+                    try {
+                        switch (vl.op) {
+                            case EQUALS:
+                                if (vl.testValue instanceof Number)
+                                    isPassedTest = ((Number) vl.testValue).doubleValue() == ((Number) testVarValue).doubleValue();
+                                else if (vl.testValue instanceof Boolean)
+                                    isPassedTest = (Boolean) vl.testValue == (Boolean) testVarValue;
+                                else if (vl.testValue instanceof String)
+                                    isPassedTest = ((String) vl.testValue).equals((String) testVarValue);
+                                else
+                                    isPassedTest = vl.testValue.equals(testVarValue);
+                                break;
+                        }
+                    }
+                    catch (Exception e) {
+                        NeptusLog.pub()
+                                .warn("Problem while evaluating test variable " + testVarKey + ": " + e.getMessage());
+                    }
+                    
+                    if (isPassedTest) {
+                        if (vl.values.isEmpty())
+                            continue;
+                        
+                        passedAtLeastOneTest = true;
+                        toChangeTest = vl;
+                        
+                        break;
+                    }
                 }
+                
+                if(passedAtLeastOneTest)
+                    break;
             }
         }
-        if (testVariablePresent)
+        
+        // System.out.println(testVariablePresent + "   " + passedAtLeastOneTest);
+        if (testVariablePresent && passedAtLeastOneTest) {
             activeTest = toChangeTest;
+            // System.out.println("\tChange Active test :: " + activeTest.dependantParamId + "=" + activeTest.testValue);
+        }
+        if (testVariablePresent && !passedAtLeastOneTest) {
+            activeTest = null;
+            // System.out.println("\tChange Active test :: " + activeTest);
+        }
     }
 }
