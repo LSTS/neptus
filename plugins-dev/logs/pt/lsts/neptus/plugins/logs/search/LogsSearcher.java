@@ -25,6 +25,7 @@ import java.awt.event.MouseEvent;
 import java.io.*;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -48,7 +49,10 @@ public class LogsSearcher extends ConsolePanel {
         CAMERA("camera"),
         PH("ph"),
         CTD("ctd"),
-        REDOX("redox");
+        REDOX("redox"),
+        DVL("dvl"),
+        FLUORESCEIN("fluorescein"),
+        RHODAMINE("rhodamine");
 
         private String dataStr;
         DataOptionEnum(String dataStr) {
