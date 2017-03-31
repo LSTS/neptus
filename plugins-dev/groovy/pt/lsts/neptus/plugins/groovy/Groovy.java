@@ -34,7 +34,9 @@ package pt.lsts.neptus.plugins.groovy;
 
 import java.awt.event.ActionEvent;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.PrintStream;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
@@ -93,6 +95,7 @@ public class Groovy extends InteractionAdapter {
     private CompilerConfiguration config;
     private Thread thread;
     private ImportCustomizer customizer;
+    private int script_count;
     /**
      * @param console
      */
@@ -122,8 +125,7 @@ public class Groovy extends InteractionAdapter {
         this.binds.setVariable("vehicles_id", vehicles.keySet().toArray());
         this.binds.setVariable("plans_id", plans.keySet().toArray());
         this.binds.setVariable("locations", locations.values().toArray());
-        this.binds.setVariable("console", getConsole()); //TODO NOTIFY the existing binding to be used in the script 
-        
+        this.binds.setVariable("console", getConsole()); //TODO NOTIFY the existing binding to be used in the script
         try {
             //Description/notification: "Place your groovy scripts in the folder script of the plugin"
             this.engine = new GroovyScriptEngine("plugins-dev/groovy/pt/lsts/neptus/plugins/groovy/scripts/");
@@ -161,6 +163,7 @@ public class Groovy extends InteractionAdapter {
     @Override
     public void initSubPanel() {
         removeAll();
+        script_count=0;
         add_console_vars();
 
 
@@ -195,18 +198,25 @@ public class Groovy extends InteractionAdapter {
 
                             @Override
                             public void run() {
+                                
                                 try {
-                                    Object output = engine.run(groovy_script.getName(), binds);
-                                    //System.setOut(new PrintStream(new FileOutputStream(FileDescriptor.out))); -> see http://stackoverflow.com/questions/5339499/resetting-standard-output-stream
-                                    //shell.getContext().getVariable();
-                                     if(stopScript.isEnabled())
-                                        stopScript.setEnabled(false);
-                                   
+                                    File output = new File("plugins-dev/groovy/pt/lsts/neptus/plugins/groovy/scripts/outputs/"+groovy_script.getName());
+                                    getBinds().setProperty("out", new PrintStream(output));
+                                    getBinds().invokeMethod("System.setOut", output);
+                                }
+                                catch (FileNotFoundException e1) {
+                                //System.setOut(new PrintStream(new FileOutputStream(FileDescriptor.out))); -> see http://stackoverflow.com/questions/5339499/resetting-standard-output-stream
+                                //shell.getContext().getVariable()
+                                
+                            }
+                                
+                                try {
+                                  engine.run(groovy_script.getName(), binds);
                                     
                                 }
                                 catch (Exception   e) { //CompilationFailedException | ResourceException | ScriptException
                                   //TODO notify script exit
-                                    NeptusLog.pub().error("Exception Caught during execution of script: "+groovy_script.getName(),e);
+                                    NeptusLog.pub().error("Exception Caught during execution of script: "+groovy_script.getName());
                                     //e.printStackTrace();
                                     }
                                 catch(ThreadDeath e){
