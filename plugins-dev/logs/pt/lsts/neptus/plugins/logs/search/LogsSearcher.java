@@ -498,21 +498,25 @@ public class LogsSearcher extends ConsolePanel {
      * Fetch remote logs
      * */
     private File fetchLog(String logRemoteAbsolutePath) throws IOException {
-        File logParentRemoteDir = new File(new File(logRemoteAbsolutePath).getParent());
-        File logParentLocalDir = new File(LOGS_DOWNLOAD_DIR + "/" + logParentRemoteDir.getAbsolutePath().split(FTP_BASE_DIR)[1]);
-        File localLogAbsolutePath = new File(logParentLocalDir.getAbsolutePath() + "/Data.lsf.gz");
+        String logParentRemoteDir = logRemoteAbsolutePath.split("/Data.lsf.gz")[0];
+        String logParentLocalDirStr = LOGS_DOWNLOAD_DIR + "/" + logParentRemoteDir.split(FTP_BASE_DIR)[1];
+        File localLogAbsolutePath = new File(logParentLocalDirStr + "/Data.lsf.gz");
+
+        NeptusLog.pub().info(logParentRemoteDir);
+        NeptusLog.pub().info(logParentLocalDirStr);
 
         // log already exists, no need to re-download
         // not using checksum
         if(localLogAbsolutePath.exists()) {
-            NeptusLog.pub().info("Log " + logParentLocalDir.getAbsolutePath() + " already exists");
+            NeptusLog.pub().info("Log " + logParentLocalDirStr + " already exists");
             return localLogAbsolutePath;
         }
 
+        File logParentLocalDir = new File(logParentLocalDirStr);
         logParentLocalDir.mkdirs();
 
         String ftpRootDir = ftpClient.printWorkingDirectory();
-        String baseDir = logParentRemoteDir.getAbsolutePath().split(FTP_BASE_DIR)[1];
+        String baseDir = logParentRemoteDir.split(FTP_BASE_DIR)[1];
         ftpClient.changeWorkingDirectory(baseDir);
         StringBuilder sb = null;
 
