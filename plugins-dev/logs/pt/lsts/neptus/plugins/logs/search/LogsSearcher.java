@@ -150,7 +150,6 @@ public class LogsSearcher extends ConsolePanel {
         new Thread(() -> {
             db.connect();
             connectFtp();
-            initQueryOptions();
         }).start();
     }
 
@@ -330,6 +329,8 @@ public class LogsSearcher extends ConsolePanel {
 
         // data type options
         dataOptions.setRenderer(dlcr);
+        ((DefaultComboBoxModel) dataOptions.getModel()).addElement("--any--");
+
         db.fetchAvailableDataType().stream()
                 .forEach(opt -> ((DefaultComboBoxModel) dataOptions.getModel()).addElement(opt));
 
