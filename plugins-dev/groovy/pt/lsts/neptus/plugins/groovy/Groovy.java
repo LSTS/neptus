@@ -35,6 +35,7 @@ package pt.lsts.neptus.plugins.groovy;
 import java.awt.event.ActionEvent;
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.util.Collections;
@@ -62,6 +63,7 @@ import pt.lsts.neptus.console.notifications.Notification;
 import pt.lsts.neptus.console.plugins.planning.plandb.PlanDBAdapter;
 import pt.lsts.neptus.console.plugins.planning.plandb.PlanDBState;
 import pt.lsts.neptus.i18n.I18n;
+import pt.lsts.neptus.mp.maneuvers.AreaSurvey;
 import pt.lsts.neptus.plugins.PluginDescription;
 import pt.lsts.neptus.plugins.Popup;
 import pt.lsts.neptus.plugins.Popup.POSITION;
@@ -95,7 +97,6 @@ public class Groovy extends InteractionAdapter {
     private CompilerConfiguration config;
     private Thread thread;
     private ImportCustomizer customizer;
-    private int script_count;
     /**
      * @param console
      */
@@ -113,7 +114,8 @@ public class Groovy extends InteractionAdapter {
         //POI/MarkElement
         for( MarkElement mark:MapGroup.getMapGroupInstance(getConsole().getMission()).getAllObjectsOfType(MarkElement.class)){
             locations.put(mark.getId(),mark.getPosition());
-           
+            mark.getType();
+                 
         }
         
         this.config = new CompilerConfiguration();
@@ -163,10 +165,8 @@ public class Groovy extends InteractionAdapter {
     @Override
     public void initSubPanel() {
         removeAll();
-        script_count=0;
+      //TODO Remove output files??
         add_console_vars();
-
-
 
         Action selectAction = new AbstractAction(I18n.text("Select Groovy Script")) {
 
@@ -200,28 +200,26 @@ public class Groovy extends InteractionAdapter {
                             public void run() {
                                 
                                 try {
-                                    File output = new File("plugins-dev/groovy/pt/lsts/neptus/plugins/groovy/scripts/outputs/"+groovy_script.getName());
-                                    getBinds().setProperty("out", new PrintStream(output));
-                                    getBinds().invokeMethod("System.setOut", output);
+                                    PrintStream output = new PrintStream(new FileOutputStream(new File("plugins-dev/groovy/pt/lsts/neptus/plugins/groovy/scripts/outputs/"+groovy_script.getName())));
+                                    getBinds().setProperty("out",output);
+                                    engine.run(groovy_script.getName(), binds);
+                                    
+                                    if(stopScript.isEnabled())
+                                        stopScript.setEnabled(false);
                                 }
                                 catch (FileNotFoundException e1) {
                                 //System.setOut(new PrintStream(new FileOutputStream(FileDescriptor.out))); -> see http://stackoverflow.com/questions/5339499/resetting-standard-output-stream
                                 //shell.getContext().getVariable()
                                 
-                            }
-                                
-                                try {
-                                  engine.run(groovy_script.getName(), binds);
-                                    
                                 }
                                 catch (Exception   e) { //CompilationFailedException | ResourceException | ScriptException
-                                  //TODO notify script exit
-                                    NeptusLog.pub().error("Exception Caught during execution of script: "+groovy_script.getName());
-                                    //e.printStackTrace();
-                                    }
-                                catch(ThreadDeath e){
                                     //TODO notify script exit
-                                }
+                                      NeptusLog.pub().error("Exception Caught during execution of script: "+groovy_script.getName(),e);
+                                      //e.printStackTrace();
+                                      }
+                                  catch(ThreadDeath e){
+                                      //TODO notify script exit
+                                  }
                             }
                         };
 
