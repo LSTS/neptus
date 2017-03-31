@@ -86,11 +86,8 @@ public class ComboEditorWithDependency<T extends Object> extends ComboEditor<T> 
 
             updateDependenciesVariables();
             
-//            NeptusLog.pub().info("<###>-------------- 2");
             if(evt.getSource() instanceof SystemProperty) {
                 SystemProperty sp = (SystemProperty) evt.getSource();
-//                NeptusLog.pub().info("<###>-------------- 3");
-//                NeptusLog.pub().info("<###> "+sp);
                 
                 if (dependencyVariables.containsKey(sp.getName()))
                     dependencyVariables.put(sp.getName(), sp.getValue());
@@ -107,10 +104,8 @@ public class ComboEditorWithDependency<T extends Object> extends ComboEditor<T> 
                     for (int i = 0; i < pec.getValuesIfTests().size(); i++) {
                         PropertyEditorChangeValuesIfDependencyAdapter.ValuesIf<?, ?> vl = (ValuesIf<?, ?>) pec.getValuesIfTests().get(i);
                         PropertyEditorChangeValuesIfDependencyAdapter.ValuesIf<?, ?> vlI18n = (ValuesIf<?, ?>) pec.getValuesI18nIfTests().get(i);
-//                        NeptusLog.pub().info("<###>-------------- 4 " + i + "  " + vl.dependantParamId + " " + sp.getName());
                         if (!vl.dependantParamId.equals(testVarKey))
                             continue;
-//                        NeptusLog.pub().info("<###>-------------- 5 " + i);
                         
                         boolean isEquals = false;
                         if (vl.testValue instanceof Number)
@@ -123,7 +118,6 @@ public class ComboEditorWithDependency<T extends Object> extends ComboEditor<T> 
                             isEquals = vl.testValue.equals(testVarValue);
                         
                         if (isEquals) {
-//                            NeptusLog.pub().info("<###>-------------- 6 " + i);
                             combo.removeAllItems();
                             for (Object item : vl.values)
                                 combo.addItem((T) item);
