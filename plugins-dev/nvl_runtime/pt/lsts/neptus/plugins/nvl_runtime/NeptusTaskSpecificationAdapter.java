@@ -84,7 +84,7 @@ public class NeptusTaskSpecificationAdapter implements TaskSpecification {
         for(ImcSystem vehicle: ImcSystemsHolder.lookupActiveSystemVehicles())
             vehicles_id = VehicleRequirements.filter(reqs,(List<NVLVehicle>) new NeptusVehicleAdapter(vehicle,STATE.CONNECTED));
         //TODO define maneuvers -> goto sequence of subList Position (each vehicle area assignment)
-       //ManeuverPayloadConfig specify payload in maneuver?
+       //ManeuverPayloadConfig specify payload in maneuver? 
     }
     
 
