@@ -37,6 +37,7 @@ import java.util.List;
 
 import pt.lsts.neptus.nvl.runtime.Availability;
 import pt.lsts.neptus.nvl.runtime.Position;
+import pt.lsts.neptus.types.comm.CommMean;
 import pt.lsts.neptus.types.mission.plan.PlanCompatibility;
 import pt.lsts.neptus.types.vehicle.VehiclesHolder;
 import pt.lsts.neptus.nvl.runtime.NVLVehicle;
@@ -53,10 +54,18 @@ public class NeptusVehicleAdapter implements NVLVehicle {
 
     private final ImcSystem imcsystem;
     private final STATE state;
-  
+    private final List<PayloadComponent> availablePayload=null;
+    
     public NeptusVehicleAdapter(ImcSystem imcData,STATE s) {
         imcsystem = imcData;
         state = s;
+         for(String payload : PlanCompatibility.availablePayloads(VehiclesHolder.getVehicleById(getId()))) {
+             availablePayload.add(new NeptusPayloadAdapter(payload));
+         } 
+         
+         for(CommMean com : VehiclesHolder.getVehicleById(getId()).getCommunicationMeans().values()) { //IMC | HTTP | IRIDIUM | GSM
+             availablePayload.add(new NeptusPayloadAdapter(com.getName()));
+         }
     }
     /* (non-Javadoc)
      * @see nvl.Vehicle#getId()
@@ -130,6 +139,12 @@ public class NeptusVehicleAdapter implements NVLVehicle {
 
 
 
+    }
+    /**
+     * @return the availablePayload
+     */
+    public List<PayloadComponent> getAvailablePayload() {
+        return availablePayload;
     }
 
 }
