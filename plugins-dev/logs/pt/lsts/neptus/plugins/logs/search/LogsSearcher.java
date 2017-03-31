@@ -427,7 +427,7 @@ public class LogsSearcher extends ConsolePanel {
 
                 Calendar c = Calendar.getInstance();
                 c.setTimeInMillis(Long.parseLong(res.getString(LogsDbHandler.LogTableColumnName.DATE.toString())));
-                String logDate = c.get(Calendar.YEAR) + "-" + c.get(Calendar.MONTH) + "-" + c.get(Calendar.DAY_OF_MONTH);
+                String logDate = c.get(Calendar.YEAR) + "-" + (c.get(Calendar.MONTH) + 1) + "-" + c.get(Calendar.DAY_OF_MONTH);
 
                 String vehicle = res.getString(LogsDbHandler.LogTableColumnName.VEHICLE_ID.toString());
                 String dataType = res.getString(LogsDbHandler.LogTableColumnName.DATA_TYPE.toString());
