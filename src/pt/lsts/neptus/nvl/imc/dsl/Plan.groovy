@@ -451,7 +451,7 @@ class Plan {
 			)
 		ImcSystemsHolder.lookupActiveSystemVehicles().each { //Through Groovy Plugin  
             
-			if(it.getId().equals(vehicle)) //it.getName()
+			if(it.getId().equals(vehicle))
 			select = true
 		}
         def error_msg = "Error sending plan: "+plan_id+" to "+vehicle

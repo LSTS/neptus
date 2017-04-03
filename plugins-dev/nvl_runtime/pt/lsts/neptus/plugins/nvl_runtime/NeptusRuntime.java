@@ -45,7 +45,7 @@ public class NeptusRuntime extends InteractionAdapter implements NVLRuntime {
         //initialize active vehicles
         for(ImcSystem vec: ImcSystemsHolder.lookupAllActiveSystems()){
             if(vec.getType() == SystemTypeEnum.VEHICLE)
-                vehicles.put(vec.getName(),new NeptusVehicleAdapter(vec,STATE.CONNECTED));//TODO
+                vehicles.put(vec.getName(),new NeptusVehicleAdapter(vec,STATE.values()[(int) (vec.getLastAnnounceStateReceived())]));
         }
         //initialize existing plans in the console
         for(PlanType plan: getConsole().getMission().getIndividualPlansList().values()){
@@ -83,22 +83,28 @@ public class NeptusRuntime extends InteractionAdapter implements NVLRuntime {
 
 	@Override
 	public TaskExecution launchTask(TaskSpecification task, List<NVLVehicle> vehicles) { //Area to map?//TODO
+	    
 	    tasks.put(task.getId(),(NeptusTaskSpecificationAdapter) task);
-		PlanType plan = ((NeptusTaskSpecificationAdapter) task).toPlanType();
 		boolean acoustics=false; 
 		String[] vs = new String[vehicles.size()];
 		vs = vehicles.toArray(vs);
-		//sendMessage(IMCMessage msg, String errorTextForDialog, boolean sendOnlyThroughOneAcoustically,String... ids)
-        plan.setId(task.getId());
+		
+        //ADD plan to console
+	    PlanType plan = ((NeptusTaskSpecificationAdapter) task).toPlanType(this.getConsole().getMission());
+		plan.setId(task.getId());
         plan.setMissionType(getConsole().getMission());
         getConsole().getMission().getIndividualPlansList().put(task.getId(),plan);
         getConsole().getMission().save(true);
         getConsole().updateMissionListeners();
         getConsole().getMission().addPlan(plan);
+        
+        //sendMessage(IMCMessage msg, String errorTextForDialog, boolean sendOnlyThroughOneAcoustically,String... ids)
         boolean sent = IMCSendMessageUtils.sendMessage(((NeptusTaskSpecificationAdapter) task).getMessage(),null,acoustics, vs);
-        NeptusTaskExecutionAdapter exec = new NeptusTaskExecutionAdapter(plan);
+        
+        NeptusTaskExecutionAdapter exec = new NeptusTaskExecutionAdapter(task.getId());
         exec.synchronizedWithVehicles(sent); 
-        runningTasks.add(exec);            
+        runningTasks.add(exec);  
+        
 		return exec;
 	   	}
 

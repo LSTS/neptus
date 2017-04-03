@@ -46,6 +46,8 @@ import pt.lsts.neptus.comm.manager.imc.ImcSystemsHolder;
 import pt.lsts.neptus.console.events.ConsoleEventVehicleStateChanged;
 import pt.lsts.neptus.console.events.ConsoleEventVehicleStateChanged.STATE;
 import pt.lsts.neptus.mp.Maneuver;
+import pt.lsts.neptus.types.mission.MissionType;
+import pt.lsts.neptus.types.mission.TransitionType;
 import pt.lsts.neptus.types.mission.plan.PlanCompatibility;
 import pt.lsts.neptus.types.mission.plan.PlanType;
 import pt.lsts.neptus.types.vehicle.VehicleType;
@@ -61,6 +63,7 @@ public class NeptusTaskSpecificationAdapter implements TaskSpecification {
     private  String id;
     private List<NVLVehicle> vehicles_id; 
     private Maneuver[] maneuvers;
+    private TransitionType[] transitions;
     private List<Position> areaToMap;
     private VehicleRequirements requirements;
     
@@ -79,6 +82,7 @@ public class NeptusTaskSpecificationAdapter implements TaskSpecification {
         this.vehicles_id =  vs;
         this.id = plan.getId();
         this.maneuvers = plan.getGraph().getAllManeuvers();
+        this.transitions = plan.getGraph().getTransitions().values().toArray(transitions);
         for( String p: PlanCompatibility.payloadsRequired(plan)) {
             payload.add(new NeptusPayloadAdapter(p));
         }
@@ -93,7 +97,7 @@ public class NeptusTaskSpecificationAdapter implements TaskSpecification {
     // 1 requirement <-> 1 maneuver ?
     public NeptusTaskSpecificationAdapter(List<VehicleRequirements> reqs,List<Position> areaToMap) {//polygon-> see #AreaSurvey Maneuver
         for(ImcSystem vehicle: ImcSystemsHolder.lookupActiveSystemVehicles())
-            vehicles_id = VehicleRequirements.filter(reqs,(List<NVLVehicle>) new NeptusVehicleAdapter(vehicle,STATE.CONNECTED));
+            vehicles_id = VehicleRequirements.filter(reqs,((List<NVLVehicle>)  new NeptusVehicleAdapter(vehicle,STATE.values()[(int) (vehicle.getLastAnnounceStateReceived())])));
         //TODO define maneuvers -> goto sequence of subList Position (each vehicle area assignment)
        //ManeuverPayloadConfig specify payload in maneuver? 
     }
@@ -102,9 +106,21 @@ public class NeptusTaskSpecificationAdapter implements TaskSpecification {
     /**
      * @return
      */
-    PlanType toPlanType() {
-        //PlanType result = new PlanType(mt);
-        return null;
+    PlanType toPlanType(MissionType mission) {
+        PlanType result = new PlanType(mission);
+        result.setId(getId());
+        vehicles_id.stream().forEach(v -> result.addVehicle(v.getId()));
+        for(Maneuver m: maneuvers){
+            if(m.isInitialManeuver())
+                result.getGraph().setInitialManeuver(m.getId());
+            result.getGraph().addManeuver(m);
+        }
+        for(TransitionType tt: transitions){
+            result.getGraph().addTransition(tt);
+        }
+        
+        
+        return result;
     }
 
 /* (non-Javadoc)

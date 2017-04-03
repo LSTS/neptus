@@ -36,6 +36,7 @@ import com.google.common.eventbus.Subscribe;
 
 import pt.lsts.imc.PlanControlState;
 import pt.lsts.neptus.nvl.runtime.TaskExecution;
+import pt.lsts.neptus.nvl.runtime.TaskSpecification;
 import pt.lsts.neptus.nvl.runtime.TaskState;
 import pt.lsts.neptus.types.mission.plan.PlanType;
 
@@ -69,14 +70,6 @@ public class NeptusTaskExecutionAdapter implements TaskExecution {
     
     public String getPlanId() {
         return this.planId;
-    }
-
-    
-    /**
-     * @param plan2
-     */
-    public NeptusTaskExecutionAdapter(PlanType plan2) {
-        this.planId = plan2.getId();
     }
 
 
