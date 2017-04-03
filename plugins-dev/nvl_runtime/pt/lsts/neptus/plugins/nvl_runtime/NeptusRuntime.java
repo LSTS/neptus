@@ -90,8 +90,8 @@ public class NeptusRuntime extends InteractionAdapter implements NVLRuntime {
 		vs = vehicles.toArray(vs);
 		
         //ADD plan to console
-	    PlanType plan = ((NeptusTaskSpecificationAdapter) task).toPlanType(this.getConsole().getMission());
-		plan.setId(task.getId());
+	    PlanType plan = ((NeptusTaskSpecificationAdapter) task).getPlan();
+		
         plan.setMissionType(getConsole().getMission());
         getConsole().getMission().getIndividualPlansList().put(task.getId(),plan);
         getConsole().getMission().save(true);
@@ -99,7 +99,7 @@ public class NeptusRuntime extends InteractionAdapter implements NVLRuntime {
         getConsole().getMission().addPlan(plan);
         
         //sendMessage(IMCMessage msg, String errorTextForDialog, boolean sendOnlyThroughOneAcoustically,String... ids)
-        boolean sent = IMCSendMessageUtils.sendMessage(((NeptusTaskSpecificationAdapter) task).getMessage(),null,acoustics, vs);
+        boolean sent = IMCSendMessageUtils.sendMessage(plan.asIMCPlan(),null,acoustics, vs);
         
         NeptusTaskExecutionAdapter exec = new NeptusTaskExecutionAdapter(task.getId());
         exec.synchronizedWithVehicles(sent); 

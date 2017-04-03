@@ -32,19 +32,18 @@
  */
 package pt.lsts.neptus.plugins.nvl_runtime;
 
-import java.util.Collections;
 import java.util.List;
 
+import pt.lsts.neptus.comm.manager.imc.ImcSystem;
+import pt.lsts.neptus.console.events.ConsoleEventVehicleStateChanged.STATE;
 import pt.lsts.neptus.nvl.runtime.Availability;
+import pt.lsts.neptus.nvl.runtime.NVLVehicle;
+import pt.lsts.neptus.nvl.runtime.NVLVehicleType;
+import pt.lsts.neptus.nvl.runtime.PayloadComponent;
 import pt.lsts.neptus.nvl.runtime.Position;
 import pt.lsts.neptus.types.comm.CommMean;
 import pt.lsts.neptus.types.mission.plan.PlanCompatibility;
 import pt.lsts.neptus.types.vehicle.VehiclesHolder;
-import pt.lsts.neptus.nvl.runtime.NVLVehicle;
-import pt.lsts.neptus.nvl.runtime.NVLVehicleType;
-import pt.lsts.neptus.nvl.runtime.PayloadComponent;
-import pt.lsts.neptus.comm.manager.imc.ImcSystem;
-import pt.lsts.neptus.console.events.ConsoleEventVehicleStateChanged.STATE;
 
 /**
  * @author keila
@@ -66,6 +65,7 @@ public class NeptusVehicleAdapter implements NVLVehicle {
          for(CommMean com : VehiclesHolder.getVehicleById(getId()).getCommunicationMeans().values()) { //IMC | HTTP | IRIDIUM | GSM
              availablePayload.add(new NeptusPayloadAdapter(com.getName()));
          }
+
     }
     /* (non-Javadoc)
      * @see nvl.Vehicle#getId()
@@ -133,18 +133,9 @@ public class NeptusVehicleAdapter implements NVLVehicle {
      */
     @Override
     public List<PayloadComponent> getPayload() {
-        //TODO
-        PlanCompatibility.availablePayloads(VehiclesHolder.getVehicleById(this.getId()));
-        return Collections.emptyList(); 
-
-
-
-    }
-    /**
-     * @return the availablePayload
-     */
-    public List<PayloadComponent> getAvailablePayload() {
         return availablePayload;
+
     }
+
 
 }

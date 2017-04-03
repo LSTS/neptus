@@ -33,131 +33,62 @@
 package pt.lsts.neptus.plugins.nvl_runtime;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
-import pt.lsts.neptus.nvl.runtime.NVLVehicle;
+import pt.lsts.neptus.nvl.runtime.Availability;
 import pt.lsts.neptus.nvl.runtime.PayloadComponent;
-import pt.lsts.neptus.nvl.runtime.Position;
 import pt.lsts.neptus.nvl.runtime.TaskSpecification;
 import pt.lsts.neptus.nvl.runtime.VehicleRequirements;
-import pt.lsts.imc.IMCMessage;
-import pt.lsts.neptus.comm.manager.imc.ImcSystem;
-import pt.lsts.neptus.comm.manager.imc.ImcSystemsHolder;
-import pt.lsts.neptus.console.events.ConsoleEventVehicleStateChanged;
-import pt.lsts.neptus.console.events.ConsoleEventVehicleStateChanged.STATE;
-import pt.lsts.neptus.mp.Maneuver;
-import pt.lsts.neptus.types.mission.MissionType;
-import pt.lsts.neptus.types.mission.TransitionType;
 import pt.lsts.neptus.types.mission.plan.PlanCompatibility;
 import pt.lsts.neptus.types.mission.plan.PlanType;
-import pt.lsts.neptus.types.vehicle.VehicleType;
-import pt.lsts.neptus.types.vehicle.VehicleType.SystemTypeEnum;
-import pt.lsts.neptus.types.vehicle.VehiclesHolder;
 
 /**
  * @author keila
  *
  */
 public class NeptusTaskSpecificationAdapter implements TaskSpecification {
-    private  IMCMessage imcmessage;  //TODO
-    private  String id;
-    private List<NVLVehicle> vehicles_id; 
-    private Maneuver[] maneuvers;
-    private TransitionType[] transitions;
-    private List<Position> areaToMap;
-    private VehicleRequirements requirements;
+
+    private final PlanType plan;
     
-  
-  /**
+   
+    /**
      * Create a NVLTaskSpecification from Neptus PlanType
      * @param plan 
      * 
      */
     public NeptusTaskSpecificationAdapter(PlanType plan) {
+        this.plan = plan;
+    }
+
+    /* (non-Javadoc)
+     * @see pt.lsts.neptus.nvl.runtime.TaskSpecification#getRequirements()
+     */
+    @Override
+    public List<VehicleRequirements> getRequirements() {
         
-        this.imcmessage = plan.asIMCPlan();
         List<PayloadComponent> payload = new ArrayList<>();
-        List<NVLVehicle> vs = new ArrayList<>();        
-        plan.getVehicles().stream().forEach(v -> vs.add(new NeptusVehicleAdapter(ImcSystemsHolder.getSystemWithName(v.getId()),STATE.values()[(int) (ImcSystemsHolder.getSystemWithName(v.getId()).getLastAnnounceStateReceived())])));
-        this.vehicles_id =  vs;
-        this.id = plan.getId();
-        this.maneuvers = plan.getGraph().getAllManeuvers();
-        this.transitions = plan.getGraph().getTransitions().values().toArray(transitions);
         for( String p: PlanCompatibility.payloadsRequired(plan)) {
             payload.add(new NeptusPayloadAdapter(p));
         }
-        this.requirements.setRequiredPayload(payload);
-        //this.requirements.setAreaCenter(areaCenter);
-        //this.requirements.setRequiredType(requiredType);
-        //this.requirements.setRequiredAvailability(requiredAvailability);
-        
-     
-    }
-    
-    // 1 requirement <-> 1 maneuver ?
-    public NeptusTaskSpecificationAdapter(List<VehicleRequirements> reqs,List<Position> areaToMap) {//polygon-> see #AreaSurvey Maneuver
-        for(ImcSystem vehicle: ImcSystemsHolder.lookupActiveSystemVehicles())
-            vehicles_id = VehicleRequirements.filter(reqs,((List<NVLVehicle>)  new NeptusVehicleAdapter(vehicle,STATE.values()[(int) (vehicle.getLastAnnounceStateReceived())])));
-        //TODO define maneuvers -> goto sequence of subList Position (each vehicle area assignment)
-       //ManeuverPayloadConfig specify payload in maneuver? 
-    }
-    
+        VehicleRequirements requirements = new VehicleRequirements();
+        //requirements.setRequiredType(plan.getVehicleType());
+        //requirements.setRequiredType(requiredType);
 
-    /**
-     * @return
+        requirements.setRequiredPayload(payload);
+        requirements.setRequiredAvailability(Availability.AVAILABLE);
+        return Arrays.asList(requirements);
+    }
+
+    /* (non-Javadoc)
+     * @see pt.lsts.neptus.nvl.runtime.TaskSpecification#getId()
      */
-    PlanType toPlanType(MissionType mission) {
-        PlanType result = new PlanType(mission);
-        result.setId(getId());
-        vehicles_id.stream().forEach(v -> result.addVehicle(v.getId()));
-        for(Maneuver m: maneuvers){
-            if(m.isInitialManeuver())
-                result.getGraph().setInitialManeuver(m.getId());
-            result.getGraph().addManeuver(m);
-        }
-        for(TransitionType tt: transitions){
-            result.getGraph().addTransition(tt);
-        }
-        
-        
-        return result;
+    @Override
+    public String getId() {
+        return plan.getId();
     }
 
-/* (non-Javadoc)
- * @see pt.lsts.neptus.nvl.runtime.TaskSpecification#getRequirements()
- */
-@Override
-public List<VehicleRequirements> getRequirements() {
-    // TODO Auto-generated method stub
-    return null;
-}
-
-public void vehiclesAreaToMap(){
-    //TODO according to vehicle capabilities assign proportional area to cover <- ZP task
-}
-
-/* (non-Javadoc)
- * @see pt.lsts.neptus.nvl.runtime.TaskSpecification#getId()
- */
-@Override
-public String getId() {
-    return this.id;
-}
-
-/**
- * @return the imcmessage
- */
-public IMCMessage getMessage() {
-    return imcmessage;
-}
-
-/* (non-Javadoc)
- * @see pt.lsts.neptus.nvl.runtime.TaskSpecification#getAreaToMap()
- */
-@Override
-public List<Position> getAreaToMap() {
-    // TODO Auto-generated method stub
-    return null;
-}
-
+    public PlanType getPlan() {
+        return plan;
+    }
 }

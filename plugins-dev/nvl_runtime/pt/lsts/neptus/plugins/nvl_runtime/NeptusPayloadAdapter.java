@@ -32,8 +32,6 @@
  */
 package pt.lsts.neptus.plugins.nvl_runtime;
 
-import java.util.ArrayList;
-import java.util.List;
 import pt.lsts.neptus.nvl.runtime.PayloadComponent;
 
 /**
@@ -42,24 +40,37 @@ import pt.lsts.neptus.nvl.runtime.PayloadComponent;
  */
 public class NeptusPayloadAdapter implements PayloadComponent {
  
-    String payload;
-    double range;//in Meters
-    public NeptusPayloadAdapter(String name, double r){ //range in meters
-        payload = name;
+    private final String name;
+    private final int range;//in Meters
+    public NeptusPayloadAdapter(String n, int r){ //range in meters
+        name = n;
         range = r;
     }
-    public NeptusPayloadAdapter(String name){ //sensor range 0 if null
-        payload = name;
+    public NeptusPayloadAdapter(String n){ //sensor range 0 if null
+        name = n;
         range = 0;
     }
     
     @Override
-    public String getComponentName() {
-        return this.payload;
+    public String getName() {
+        return name;
     }
     @Override
-    public double getComponentRangeMeters() {
-        return this.range;
+    public int getRange() {
+        return range;
+    }
+    @Override
+    public boolean equals(Object o) {
+        if (o == this) {
+            return true;
+        }
+        if (! (o instanceof PayloadComponent)) {
+            return false;
+        }
+        PayloadComponent pc = (PayloadComponent) o;
+        
+        return pc.getName().equals(name) && pc.getRange() == range;
+        
     }
 
 }

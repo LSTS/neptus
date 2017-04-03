@@ -36,9 +36,7 @@ import com.google.common.eventbus.Subscribe;
 
 import pt.lsts.imc.PlanControlState;
 import pt.lsts.neptus.nvl.runtime.TaskExecution;
-import pt.lsts.neptus.nvl.runtime.TaskSpecification;
 import pt.lsts.neptus.nvl.runtime.TaskState;
-import pt.lsts.neptus.types.mission.plan.PlanType;
 
 /**
  * @author lsts
