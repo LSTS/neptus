@@ -1197,16 +1197,16 @@ public class ConfigurationManager {
         GeneralPreferences.language = "en_US";
         ConfigurationManager confMan = new ConfigurationManager();
         confMan.loadConfigurations();
-        NeptusLog.pub().info("<###> "+confMan.getPropertiesByEntity("lauv-dolphin-1", "Sidescan", Visibility.USER, Scope.MANEUVER));
-        NeptusLog.pub().info("<###> "+confMan.getProperties("lauv-dolphin-1", Visibility.USER, Scope.MANEUVER));
-        NeptusLog.pub().info("<###> "+confMan.getProperties("lauv-dolphin-1", Visibility.USER, Scope.PLAN));
-        NeptusLog.pub().info("<###> "+confMan.getProperties("lauv-dolphin-1", Visibility.DEVELOPER, Scope.GLOBAL));
+        NeptusLog.pub().info("<###> "+confMan.getPropertiesByEntity("lauv-noptilus-1", "Sidescan", Visibility.USER, Scope.MANEUVER));
+        NeptusLog.pub().info("<###> "+confMan.getProperties("lauv-noptilus-1", Visibility.USER, Scope.MANEUVER));
+        NeptusLog.pub().info("<###> "+confMan.getProperties("lauv-noptilus-1", Visibility.USER, Scope.PLAN));
+        NeptusLog.pub().info("<###> "+confMan.getProperties("lauv-noptilus-1", Visibility.DEVELOPER, Scope.GLOBAL));
         
         ImcMsgManager mng = new ImcMsgManager(IMCDefinition.getInstance());
-        SystemConfigurationEditorPanel systemConfEditor = new SystemConfigurationEditorPanel("seacat-mk1", Scope.GLOBAL, Visibility.USER, true,
+        SystemConfigurationEditorPanel systemConfEditor = new SystemConfigurationEditorPanel("seacat-mk1-01", Scope.GLOBAL, Visibility.USER, true,
                 false, true, mng);
         GuiUtils.testFrame(systemConfEditor);
-        systemConfEditor = new SystemConfigurationEditorPanel("lauv-noptilus-2", Scope.GLOBAL, Visibility.USER, true,
+        systemConfEditor = new SystemConfigurationEditorPanel("lauv-noptilus-1", Scope.GLOBAL, Visibility.USER, true,
                 false, true, mng);
         GuiUtils.testFrame(systemConfEditor);
     }
