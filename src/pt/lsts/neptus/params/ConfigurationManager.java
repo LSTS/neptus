@@ -333,6 +333,8 @@ public class ConfigurationManager {
                     }
                 }
 
+                String valuesIfDescStr = "";
+                
                 if (isList) {
                     int size = ArrayListEditor.UNLIMITED_SIZE;
                     int minSize = 0;
@@ -436,6 +438,8 @@ public class ConfigurationManager {
                     ComboEditor<?> comboEditor = null;
                     PropertyEditorChangeValuesIfDependencyAdapter<?, ?> pt = null;
 
+                    StringBuilder valuesIfDescStrBuilder = new StringBuilder();
+                    
                     {
                         // Prep. I18n renderer
                         HashMap<String, String> i18nMapper = new HashMap<>();
@@ -608,8 +612,14 @@ public class ConfigurationManager {
                                 else {
                                     break;
                                 }
+
+                                valuesIfDescStrBuilder = buildValuesIfDescriptionAndAppend(valuesIfDescStrBuilder, paramComp,
+                                        eqParam, values);
                             }
                         }
+                        if (valuesIfDescStrBuilder.length() != 0)
+                            valuesIfDescStr = valuesIfDescStrBuilder.toString();
+                            
                         // Prep. I18n renderer
                         if (i18nMapper.size() > 0)
                             propRenderer = new I18nSystemPropertyRenderer(i18nMapper);
@@ -661,6 +671,7 @@ public class ConfigurationManager {
                     property = new SystemProperty();
                 }
 
+                // If the #propEditor is not set until here, the defaults will be created
                 if (propEditor == null) {
                     switch (valueType) {
                         case BOOLEAN:
@@ -681,6 +692,7 @@ public class ConfigurationManager {
                             minMaxStr += maxV == null ? "" : commaSepStr + I18n.text("max") + "=" + maxV.doubleValue() + units;
                             break;
                         default:
+                            // So it is a string, let see if it is a special pattern
                             String stringTypeStringNotString = type;
                             if (stringTypeStringNotString.equals("ipv4-address")) {
                                 propEditor = new StringPatternEditor(ArrayListEditor.IP_ADDRESS_PATTERN);
@@ -746,13 +758,19 @@ public class ConfigurationManager {
                     lstSizeTxt += "]";
                 }
 
-                String unitsTxt = units.length() > 0 ? "\n(" + units + ")" : "";
-                String typeTxt = type != null ? "\n["
+                String unitsTxt = units.length() > 0 ? "(" + units + ") " : "";
+                String typeTxt = type != null ? "["
                         + (type.startsWith("list:") ? I18n.text(type.substring(0, 4)) + ":"
-                                + I18n.text(type.substring(5)) : I18n.text(type)) + lstSizeTxt + "]" : "";
-                String defaultTxt = defaultValue != null ? "\n[" + I18n.text("default") + "=" + defaultValue + units + "]" : "";
+                                + I18n.text(type.substring(5)) : I18n.text(type)) + lstSizeTxt + "] " : "";
+                String defaultTxt = defaultValue != null ? "[" + I18n.text("default") + "=" + defaultValue + units + "] " : "";
                 String minMaxValuesTxt = minMaxStr.length() > 0 ? "[" + minMaxStr + "]" : "";
-                property.setShortDescription(desc + unitsTxt + typeTxt + defaultTxt + minMaxValuesTxt);
+                String descStr = (desc == null || desc.isEmpty() ? "" : desc + "\n");
+                descStr += unitsTxt + typeTxt + defaultTxt + minMaxValuesTxt + "\n";
+                descStr += valuesIfDescStr;
+                descStr.replaceAll("\\n$", "");
+                descStr.replaceAll("(\\n){2}", "");
+                descStr = descStr.replaceAll("\\n", "<br/>");
+                property.setShortDescription(descStr);
                 property.setCategory(sectionI18nName);
                 property.setCategoryId(sectionName);
                 property.setScope(SystemProperty.Scope.fromString(scope));
@@ -786,6 +804,46 @@ public class ConfigurationManager {
             }
         }
         return params;
+    }
+
+    /**
+     * Builds the values-if description. Returns the valuesIfDescStrBuilder filled.
+     * 
+     * @param valuesIfDescStrBuilder
+     * @param paramComp
+     * @param eqParam
+     * @param values
+     * @return valuesIfDescStrBuilder
+     */
+    public StringBuilder buildValuesIfDescriptionAndAppend(StringBuilder valuesIfDescStrBuilder, Element paramName,
+            Element eqParam, ArrayList<?> values) {
+        StringBuilder validValuesStrBldr = new StringBuilder();
+        for (Object objV : values) {
+            if (validValuesStrBldr.length() != 0)
+                validValuesStrBldr.append(", ");
+            if (objV instanceof Pair<?, ?>) {
+                Pair<?, ?> pairV = (Pair<?, ?>) objV;
+                if (pairV.getLeft().equals(pairV.getRight())) {
+                    validValuesStrBldr.append(pairV.getLeft());
+                }
+                else {
+                    validValuesStrBldr.append("[");
+                    validValuesStrBldr.append(pairV.getLeft());
+                    validValuesStrBldr.append(";");
+                    validValuesStrBldr.append(pairV.getRight());
+                    validValuesStrBldr.append("]");
+                }
+            }
+            else {
+                validValuesStrBldr.append(objV);
+            }
+        }
+        if (valuesIfDescStrBuilder.length() != 0)
+            valuesIfDescStrBuilder.append(" | ");
+        valuesIfDescStrBuilder
+                .append(I18n.textf("if '%paramName=%paramValue' then valid values are: %validValues",
+                        paramName.getTextTrim(), eqParam.getTextTrim(), validValuesStrBldr.toString()));
+        return valuesIfDescStrBuilder;
     }
 
     /**
