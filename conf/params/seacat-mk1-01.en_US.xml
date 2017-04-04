@@ -1,0 +1,419 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<config format="1" version="2017.03.0" system="seacat-mk1-01" i18n="en_US">
+  <section name="ObstacleAvoidance" name-i18n="Obstacle Avoidance">
+    <param name="Active">
+      <name-i18n>Active</name-i18n>
+      <type>boolean</type>
+      <visibility>user</visibility>
+      <scope>maneuver</scope>
+      <default>false</default>
+      <units/>
+      <desc>True to activate task, false otherwise</desc>
+    </param>
+  </section>
+  <section name="ExternalControl" name-i18n="External Control">
+    <param name="Active">
+      <name-i18n>Active</name-i18n>
+      <type>boolean</type>
+      <visibility>user</visibility>
+      <scope>maneuver</scope>
+      <default>false</default>
+      <units/>
+      <desc>True to activate task, false otherwise</desc>
+    </param>
+  </section>
+  <section name="Acoms" name-i18n="Acoms">
+    <param name="Active">
+      <name-i18n>Active</name-i18n>
+      <type>boolean</type>
+      <visibility>user</visibility>
+      <scope>maneuver</scope>
+      <default>false</default>
+      <units/>
+      <desc>True to activate task, false otherwise</desc>
+    </param>
+    <param name="Auto Send">
+      <name-i18n>Auto Send</name-i18n>
+      <type>boolean</type>
+      <visibility>user</visibility>
+      <scope>maneuver</scope>
+      <default>false</default>
+      <units/>
+      <desc>Unchecked sets to passive mode, checked sets into active mode</desc>
+    </param>
+    <param name="Repetitions">
+      <name-i18n>Repetitions</name-i18n>
+      <type>integer</type>
+      <visibility>user</visibility>
+      <scope>maneuver</scope>
+      <default>0</default>
+      <units>m</units>
+      <desc></desc>
+      <min>0</min>
+      <max>5</max>
+      <values-if>
+        <param>Auto Send</param>
+        <equals>false</equals>
+        <values>0</values>
+      </values-if>
+      <values-if>
+        <param>Auto Send</param>
+        <equals>true</equals>
+        <values>0..5</values>
+      </values-if>
+    </param>
+    <param name="In Curves Only">
+      <name-i18n>In Curves Only</name-i18n>
+      <type>boolean</type>
+      <visibility>user</visibility>
+      <scope>maneuver</scope>
+      <default>false</default>
+      <units/>
+      <desc>Transmits only on curves</desc>
+    </param>
+    <param name="Interval">
+      <name-i18n>Interval</name-i18n>
+      <type>integer</type>
+      <visibility>user</visibility>
+      <scope>maneuver</scope>
+      <default>1</default>
+      <units>m</units>
+      <desc></desc>
+      <min>-1</min>
+      <max>60</max>
+      <values-if>
+        <param>In Curves Only</param>
+        <equals>true</equals>
+        <values>-1</values>
+      </values-if>
+      <values-if>
+        <param>In Curves Only</param>
+        <equals>false</equals>
+        <values>1.7..46.6,56..60</values>
+      </values-if>
+    </param>
+    <param name="Interval-test">
+      <name-i18n>Interval-test</name-i18n>
+      <type>integer</type>
+      <visibility>user</visibility>
+      <scope>maneuver</scope>
+      <default>1</default>
+      <units>m</units>
+      <desc></desc>
+      <min>-1</min>
+      <max>60</max>
+      <values-if>
+        <param>In Curves Only</param>
+        <equals>true</equals>
+        <values>-1..-1</values>
+      </values-if>
+    </param>
+  </section>
+  <section name="Edgetech2205" name-i18n="Edgetech 2205">
+    <param name="Active">
+      <name-i18n>Active</name-i18n>
+      <type>boolean</type>
+      <visibility>user</visibility>
+      <scope>maneuver</scope>
+      <default>false</default>
+      <units/>
+      <desc>True to activate task, false otherwise</desc>
+    </param>
+    <param name="Mission Critical">
+      <name-i18n>Mission Critical</name-i18n>
+      <type>boolean</type>
+      <visibility>user</visibility>
+      <scope>maneuver</scope>
+      <default>false</default>
+      <units/>
+    </param>
+    <param name="Opmode">
+      <name-i18n>Opmode</name-i18n>
+      <type>string</type>
+      <visibility>user</visibility>
+      <scope>maneuver</scope>
+      <default>both</default>
+      <units/>
+      <desc></desc>
+      <values>HF, LF, both</values>
+      <values-i18n>HF, LF, both</values-i18n>
+    </param>
+    <param name="Range">
+      <name-i18n>Range</name-i18n>
+      <type>integer</type>
+      <visibility>user</visibility>
+      <scope>maneuver</scope>
+      <default>30</default>
+      <units>m</units>
+      <desc>Operating range</desc>
+      <min>0</min>
+      <max>200</max>
+    </param>
+    <param name="Range-if">
+      <name-i18n>Range-if</name-i18n>
+      <type>integer</type>
+      <visibility>user</visibility>
+      <scope>maneuver</scope>
+      <default>30</default>
+      <units>m</units>
+      <desc>Operating range</desc>
+      <min>0</min>
+      <max>200</max>
+      <values-if>
+        <param>Active</param>
+        <equals>false</equals>
+        <values>100</values>
+      </values-if>
+      <values-if>
+        <param>Opmode</param>
+        <equals>LF</equals>
+        <values>101..200</values>
+      </values-if>
+      <values-if>
+        <param>Opmode</param>
+        <equals>HF</equals>
+        <values>0..99</values>
+      </values-if>
+    </param>
+    <param name="Range-if combo">
+      <name-i18n>Range-if combo</name-i18n>
+      <type>integer</type>
+      <visibility>user</visibility>
+      <scope>maneuver</scope>
+      <default>30</default>
+      <units>m</units>
+      <desc>Operating range</desc>
+      <values-if>
+        <param>Mission Critical</param>
+        <equals>true</equals>
+        <values>10, 20, 30, 40, 50, 60, 80, 100, 150, 200</values>
+      </values-if>
+    </param>
+    <param name="Power">
+      <name-i18n>Power</name-i18n>
+      <type>integer</type>
+      <visibility>user</visibility>
+      <scope>maneuver</scope>
+      <default>50</default>
+      <units>%</units>
+      <desc>Power</desc>
+      <min>0</min>
+      <max>100</max>
+    </param>
+  </section>
+  <section name="NorbitWBMS" name-i18n="Norbit WBMS">
+    <param name="Active">
+      <name-i18n>Active</name-i18n>
+      <type>boolean</type>
+      <visibility>user</visibility>
+      <scope>maneuver</scope>
+      <default>false</default>
+      <units/>
+      <desc>True to activate task, false otherwise</desc>
+    </param>
+    <param name="Mission Critical">
+      <name-i18n>Mission Critical</name-i18n>
+      <type>boolean</type>
+      <visibility>user</visibility>
+      <scope>maneuver</scope>
+      <default>false</default>
+      <units/>
+    </param>
+    <param name="Power Level">
+      <name-i18n>Power Level</name-i18n>
+      <type>integer</type>
+      <visibility>user</visibility>
+      <scope>maneuver</scope>
+      <default>70</default>
+      <units>%</units>
+      <desc>Power</desc>
+      <min>0</min>
+      <max>100</max>
+    </param>
+    <param name="Gain">
+      <name-i18n>Gain</name-i18n>
+      <type>integer</type>
+      <visibility>user</visibility>
+      <scope>maneuver</scope>
+      <units>%</units>
+      <desc></desc>
+      <min>0</min>
+      <max>100</max>
+    </param>
+    <param name="Opmode">
+      <name-i18n>Opmode</name-i18n>
+      <type>string</type>
+      <visibility>user</visibility>
+      <scope>maneuver</scope>
+      <default>bathymetric</default>
+      <units/>
+      <desc></desc>
+      <values>bathymetric, inspection</values>
+      <values-i18n>bathymetric, inspection</values-i18n>
+    </param>
+    <param name="Gate Mode">
+      <name-i18n>Opmode</name-i18n>
+      <type>string</type>
+      <visibility>user</visibility>
+      <scope>maneuver</scope>
+      <default>depth</default>
+      <units/>
+      <desc></desc>
+      <values>depth, range</values>
+      <values-i18n>depth, range</values-i18n>
+    </param>
+    <param name="Upper Gate">
+      <name-i18n>Upper Gate</name-i18n>
+      <type>integer</type>
+      <visibility>user</visibility>
+      <scope>maneuver</scope>
+      <default>1</default>
+      <units>m</units>
+      <desc></desc>
+      <min>0</min>
+      <max>200</max>
+    </param>
+    <param name="Lower Gate">
+      <name-i18n>Lower Gate</name-i18n>
+      <type>integer</type>
+      <visibility>user</visibility>
+      <scope>maneuver</scope>
+      <default>20</default>
+      <units>m</units>
+      <desc></desc>
+      <min>0</min>
+      <max>200</max>
+    </param>
+    <param name="Swath">
+      <name-i18n>Swath</name-i18n>
+      <type>integer</type>
+      <visibility>user</visibility>
+      <scope>maneuver</scope>
+      <default>140</default>
+      <units>°</units>
+      <desc></desc>
+      <min>90</min>
+      <max>170</max>
+    </param>
+    <param name="Beam Distribution">
+      <name-i18n>Beam Distribution</name-i18n>
+      <type>string</type>
+      <visibility>user</visibility>
+      <scope>maneuver</scope>
+      <default>Equiangular 512</default>
+      <units/>
+      <desc></desc>
+      <values>Equidistant, Equiangular 256, Equiangular 512</values>
+      <values-i18n>Equidistant, Equiangular 256, Equiangular 512</values-i18n>
+    </param>
+  </section>
+  <section name="TritechSubbottomProfiler" name-i18n="Tritech Subbottom Profiler">
+    <param name="Active">
+      <name-i18n>Active</name-i18n>
+      <type>boolean</type>
+      <visibility>user</visibility>
+      <scope>maneuver</scope>
+      <default>false</default>
+      <units/>
+      <desc>True to activate task, false otherwise</desc>
+    </param>
+    <param name="Mission Critical">
+      <name-i18n>Mission Critical</name-i18n>
+      <type>boolean</type>
+      <visibility>user</visibility>
+      <scope>maneuver</scope>
+      <default>false</default>
+      <units/>
+    </param>
+    <param name="Range">
+      <name-i18n>Range</name-i18n>
+      <type>integer</type>
+      <visibility>user</visibility>
+      <scope>maneuver</scope>
+      <default>20</default>
+      <units>m</units>
+      <desc>Operating range</desc>
+      <min>0</min>
+      <max>300</max>
+    </param>
+    <param name="HF Gain">
+      <name-i18n>HF Gain</name-i18n>
+      <type>integer</type>
+      <visibility>user</visibility>
+      <scope>maneuver</scope>
+      <default>20</default>
+      <units>%</units>
+      <desc></desc>
+      <min>0</min>
+      <max>100</max>
+    </param>
+    <param name="LF Gain">
+      <name-i18n>LF Gain</name-i18n>
+      <type>integer</type>
+      <visibility>user</visibility>
+      <scope>maneuver</scope>
+      <default>20</default>
+      <units>%</units>
+      <desc></desc>
+      <min>0</min>
+      <max>100</max>
+    </param>
+  </section>
+  <section name="Camera" name-i18n="Camera">
+    <param name="Active">
+      <name-i18n>Active</name-i18n>
+      <type>boolean</type>
+      <visibility>user</visibility>
+      <scope>maneuver</scope>
+      <default>false</default>
+      <units/>
+      <desc>True to activate task, false otherwise</desc>
+    </param>
+    <param name="Mission Critical">
+      <name-i18n>Mission Critical</name-i18n>
+      <type>boolean</type>
+      <visibility>user</visibility>
+      <scope>maneuver</scope>
+      <default>false</default>
+      <units/>
+    </param>
+    <param name="Videostream">
+      <name-i18n>Videostream</name-i18n>
+      <type>boolean</type>
+      <visibility>user</visibility>
+      <scope>maneuver</scope>
+      <default>false</default>
+      <units/>
+    </param>
+    <param name="Framerate">
+      <name-i18n>Framerate</name-i18n>
+      <type>integer</type>
+      <visibility>user</visibility>
+      <scope>maneuver</scope>
+      <default>3</default>
+      <units>fps</units>
+      <desc></desc>
+      <min>1</min>
+      <max>3</max>
+    </param>
+    <param name="Strobe">
+      <name-i18n>Strobe</name-i18n>
+      <type>boolean</type>
+      <visibility>user</visibility>
+      <scope>maneuver</scope>
+      <default>false</default>
+      <units/>
+    </param>
+  </section>
+  <section name="Magnetometer" name-i18n="Magnetometer">
+    <param name="Active">
+      <name-i18n>Active</name-i18n>
+      <type>boolean</type>
+      <visibility>user</visibility>
+      <scope>maneuver</scope>
+      <default>false</default>
+      <units/>
+      <desc>True to activate task, false otherwise</desc>
+    </param>
+  </section>
+</config>
