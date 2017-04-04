@@ -25,10 +25,7 @@ import java.awt.event.MouseEvent;
 import java.io.*;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.Arrays;
-import java.util.Calendar;
-import java.util.HashMap;
-import java.util.HashSet;
+import java.util.*;
 
 import pt.lsts.neptus.plugins.Popup;
 
@@ -200,7 +197,7 @@ public class LogsSearcher extends ConsolePanel {
                     case 0:
                         return String.class;
                     case 1:
-                        return String.class;
+                        return Date.class;
                     case 2:
                         return String.class;
                     case 3:
@@ -238,8 +235,7 @@ public class LogsSearcher extends ConsolePanel {
         resultsTable.addMouseListener(new MouseAdapter() {
             public void mousePressed(MouseEvent me) {
                 JTable table =(JTable) me.getSource();
-                Point p = me.getPoint();
-                int rowIndex = table.rowAtPoint(p);
+                int rowIndex = table.convertRowIndexToModel(table.getSelectedRow());
                 if (me.getClickCount() == 2) {
                     if (rowIndex == -1) {
                         GuiUtils.errorMessage(mainPanel, "Log Selection Error", "No log selected");
@@ -247,14 +243,18 @@ public class LogsSearcher extends ConsolePanel {
                     }
 
                     // get log path
-                    String logDate = (String) tableModel.getValueAt(rowIndex, 1);
+                    Date logDate = (Date) tableModel.getValueAt(rowIndex, 1);
                     String logName = (String) tableModel.getValueAt(rowIndex, 4);
-                    String logPath = logsPath.get(logDate + logName);
-                    if (logDate == null || logName == null || logDate == null) {
+                    String dataType = (String) tableModel.getValueAt(rowIndex, 0);
+                    double logDurationMin = (double) tableModel.getValueAt(rowIndex, 3);
+
+                    if (logDate == null || logName == null) {
                         GuiUtils.errorMessage(mainPanel, "Log Selection Error", "Error while accessing column" + rowIndex);
                         return;
                     }
 
+                    // fetch logPath
+                    String logPath = logsPath.get(logName + dataType + logDurationMin);
                     openLog(logPath);
                 }
             }
@@ -456,15 +456,15 @@ public class LogsSearcher extends ConsolePanel {
 
                 Calendar c = Calendar.getInstance();
                 c.setTimeInMillis(Long.parseLong(res.getString(LogsDbHandler.LogTableColumnName.DATE.toString())));
-                String logDate = c.get(Calendar.YEAR) + "-" + (c.get(Calendar.MONTH) + 1) + "-" + c.get(Calendar.DAY_OF_MONTH);
+                Date d = new Date(Long.parseLong(res.getString(LogsDbHandler.LogTableColumnName.DATE.toString())));
 
                 String vehicle = res.getString(LogsDbHandler.LogTableColumnName.VEHICLE_ID.toString());
                 String dataType = res.getString(LogsDbHandler.LogTableColumnName.DATA_TYPE.toString());
                 long durationMillis = Long.parseLong(res.getString(LogsDbHandler.LogTableColumnName.DURATION_MILLIS.toString()));
                 double durationMin = Math.round((durationMillis / 1000.0 / 60.0) * 10.0) / 10.0;
 
-                tableModel.addRow(new Object[]{dataType, logDate, vehicle, durationMin, logName});
-                logsPath.put(logDate + logName, path);
+                tableModel.addRow(new Object[]{dataType, d, vehicle, durationMin, logName});
+                logsPath.put(logName + dataType + durationMin, path);
             }
 
             if(isEmpty)
