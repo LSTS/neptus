@@ -298,7 +298,7 @@ public class NumberEditor<T extends Number> extends NumberPropertyEditor impleme
     }
     
     @SuppressWarnings("unchecked")
-    private T convertFromString(String txt) throws NumberFormatException {
+    protected T convertFromString(String txt) throws NumberFormatException {
         if (pattern == null) {
             pattern = Pattern.compile(elementPattern, Pattern.CASE_INSENSITIVE);
         }

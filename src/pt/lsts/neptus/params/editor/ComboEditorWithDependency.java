@@ -34,20 +34,22 @@ package pt.lsts.neptus.params.editor;
 
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+import java.util.LinkedHashMap;
 
 import pt.lsts.neptus.gui.editor.ComboEditor;
 import pt.lsts.neptus.params.SystemProperty;
-import pt.lsts.neptus.params.editor.PropertyEditorChangeValuesIfDependancyAdapter.ValuesIf;
+import pt.lsts.neptus.params.editor.PropertyEditorChangeValuesIfDependencyAdapter.ValuesIf;
 
-public class ComboEditorWithDependancy<T extends Object> extends ComboEditor<T> implements PropertyChangeListener {
+public class ComboEditorWithDependency<T extends Object> extends ComboEditor<T> implements PropertyChangeListener {
 
-        private PropertyEditorChangeValuesIfDependancyAdapter<?, ?> pec;
+    private LinkedHashMap<Object, Object> dependencyVariables = new LinkedHashMap<>();
+    private PropertyEditorChangeValuesIfDependencyAdapter<?, ?> pec;
         
         /**
          * @param options
          * @param pec
          */
-        public ComboEditorWithDependancy(T[] options, PropertyEditorChangeValuesIfDependancyAdapter<?, ?> pec) {
+        public ComboEditorWithDependency(T[] options, PropertyEditorChangeValuesIfDependencyAdapter<?, ?> pec) {
             this(options, null, pec);
         }
 
@@ -56,9 +58,21 @@ public class ComboEditorWithDependancy<T extends Object> extends ComboEditor<T> 
          * @param stringValues The String to show in the combo.
          * @param pec
          */
-        public ComboEditorWithDependancy(T[] options, String[] stringValues, PropertyEditorChangeValuesIfDependancyAdapter<?, ?> pec) {
+        public ComboEditorWithDependency(T[] options, String[] stringValues, PropertyEditorChangeValuesIfDependencyAdapter<?, ?> pec) {
             super(options, stringValues);
             this.pec = pec;
+        }
+        
+        private void updateDependenciesVariables() {
+            if (pec == null || pec.valuesIfTests.isEmpty()) {
+                dependencyVariables.clear();
+            }
+            else {
+                for (ValuesIf<?, ?> vif : pec.valuesIfTests) {
+                    if (!dependencyVariables.containsKey(vif.dependantParamId))
+                        dependencyVariables.put(vif.dependantParamId, null);
+                }
+            }
         }
 
         /* (non-Javadoc)
@@ -67,22 +81,43 @@ public class ComboEditorWithDependancy<T extends Object> extends ComboEditor<T> 
         @SuppressWarnings("unchecked")
         @Override
         public void propertyChange(PropertyChangeEvent evt) {
-//            NeptusLog.pub().info("<###>-------------- 2");
+            if (pec == null || pec.valuesIfTests.isEmpty())
+                return;
+
+            updateDependenciesVariables();
+            
             if(evt.getSource() instanceof SystemProperty) {
                 SystemProperty sp = (SystemProperty) evt.getSource();
-//                NeptusLog.pub().info("<###>-------------- 3");
-//                NeptusLog.pub().info("<###> "+sp);
-                if (sp.getValue() instanceof Number) {
+                
+                if (dependencyVariables.containsKey(sp.getName()))
+                    dependencyVariables.put(sp.getName(), sp.getValue());
+                else
+                    return;
+
+                boolean found = false;
+                
+                for (Object testVarKey : dependencyVariables.keySet()) {
+                    Object testVarValue = dependencyVariables.get(testVarKey);
+                    if (testVarValue == null)
+                        continue;
+                    
                     for (int i = 0; i < pec.getValuesIfTests().size(); i++) {
-                        PropertyEditorChangeValuesIfDependancyAdapter.ValuesIf<?, ?> vl = (ValuesIf<?, ?>) pec.getValuesIfTests().get(i);
-                        PropertyEditorChangeValuesIfDependancyAdapter.ValuesIf<?, ?> vlI18n = (ValuesIf<?, ?>) pec.getValuesI18nIfTests().get(i);
-//                        NeptusLog.pub().info("<###>-------------- 4 " + i + "  " + vl.dependantParamId + " " + sp.getName());
-                        if (!vl.dependantParamId.equals(sp.getName()))
+                        PropertyEditorChangeValuesIfDependencyAdapter.ValuesIf<?, ?> vl = (ValuesIf<?, ?>) pec.getValuesIfTests().get(i);
+                        PropertyEditorChangeValuesIfDependencyAdapter.ValuesIf<?, ?> vlI18n = (ValuesIf<?, ?>) pec.getValuesI18nIfTests().get(i);
+                        if (!vl.dependantParamId.equals(testVarKey))
                             continue;
-//                        NeptusLog.pub().info("<###>-------------- 5 " + i);
                         
-                        if (vl.testValue.doubleValue() == ((Number)sp.getValue()).doubleValue()) {
-//                            NeptusLog.pub().info("<###>-------------- 6 " + i);
+                        boolean isEquals = false;
+                        if (vl.testValue instanceof Number)
+                            isEquals = ((Number) vl.testValue).doubleValue() == ((Number) testVarValue).doubleValue();
+                        else if (vl.testValue instanceof Boolean)
+                            isEquals = (Boolean) vl.testValue == (Boolean) testVarValue;
+                        else if (vl.testValue instanceof String)
+                            isEquals = ((String) vl.testValue).equals((String) testVarValue);
+                        else
+                            isEquals = vl.testValue.equals(testVarValue);
+                        
+                        if (isEquals) {
                             combo.removeAllItems();
                             for (Object item : vl.values)
                                 combo.addItem((T) item);
@@ -91,8 +126,12 @@ public class ComboEditorWithDependancy<T extends Object> extends ComboEditor<T> 
                                 for (Object item : vlI18n.values)
                                     stringValues.add(item.toString());
                             }
+                            found = true;
                             break;
                         }
+                        
+                        if (found)
+                            break;
                     }
                 }
             }

@@ -34,30 +34,30 @@ package pt.lsts.neptus.params.editor;
 
 import java.util.ArrayList;
 
-public class PropertyEditorChangeValuesIfDependancyAdapter<T extends Number, E extends Object> {
+public class PropertyEditorChangeValuesIfDependencyAdapter<T extends Object, E extends Object> {
     public enum TestOperation { EQUALS };
 
-    protected final ArrayList<PropertyEditorChangeValuesIfDependancyAdapter.ValuesIf<T, E>> valuesIfTests = new ArrayList<>();
-    protected final ArrayList<PropertyEditorChangeValuesIfDependancyAdapter.ValuesIf<T, E>> valuesI18nIfTests = new ArrayList<>();
+    protected final ArrayList<PropertyEditorChangeValuesIfDependencyAdapter.ValuesIf<T, E>> valuesIfTests = new ArrayList<>();
+    protected final ArrayList<PropertyEditorChangeValuesIfDependencyAdapter.ValuesIf<T, E>> valuesI18nIfTests = new ArrayList<>();
 
-    public PropertyEditorChangeValuesIfDependancyAdapter() {
+    public PropertyEditorChangeValuesIfDependencyAdapter() {
     }
 
     public void addValuesIf(String dependantParamId, T testValue,
-            PropertyEditorChangeValuesIfDependancyAdapter.TestOperation op, ArrayList<E> values) {
+            PropertyEditorChangeValuesIfDependencyAdapter.TestOperation op, ArrayList<E> values) {
         addValuesIf(dependantParamId, testValue, op, values, null);
     }
 
     public void addValuesIf(String dependantParamId, T testValue,
-            PropertyEditorChangeValuesIfDependancyAdapter.TestOperation op, ArrayList<E> values, ArrayList<E> valuesI18n) {
-        PropertyEditorChangeValuesIfDependancyAdapter.ValuesIf<T, E> tt = new PropertyEditorChangeValuesIfDependancyAdapter.ValuesIf<>(
+            PropertyEditorChangeValuesIfDependencyAdapter.TestOperation op, ArrayList<E> values, ArrayList<E> valuesI18n) {
+        PropertyEditorChangeValuesIfDependencyAdapter.ValuesIf<T, E> tt = new PropertyEditorChangeValuesIfDependencyAdapter.ValuesIf<>(
                 dependantParamId, testValue, op, values);
         valuesIfTests.add(tt);
 
         if (valuesI18n != null && values.size() == valuesI18n.size()) {
             valuesI18n = null;
         }
-        PropertyEditorChangeValuesIfDependancyAdapter.ValuesIf<T, E> ttI18n = new PropertyEditorChangeValuesIfDependancyAdapter.ValuesIf<>(
+        PropertyEditorChangeValuesIfDependencyAdapter.ValuesIf<T, E> ttI18n = new PropertyEditorChangeValuesIfDependencyAdapter.ValuesIf<>(
                 dependantParamId, testValue, op, valuesI18n);
         valuesI18nIfTests.add(ttI18n);
     }
@@ -65,24 +65,24 @@ public class PropertyEditorChangeValuesIfDependancyAdapter<T extends Number, E e
     /**
      * @return the valuesIfTests
      */
-    public ArrayList<PropertyEditorChangeValuesIfDependancyAdapter.ValuesIf<T, E>> getValuesIfTests() {
+    public ArrayList<PropertyEditorChangeValuesIfDependencyAdapter.ValuesIf<T, E>> getValuesIfTests() {
         return valuesIfTests;
     }
     
     /**
      * @return the valuesI18nIfTests
      */
-    public ArrayList<PropertyEditorChangeValuesIfDependancyAdapter.ValuesIf<T, E>> getValuesI18nIfTests() {
+    public ArrayList<PropertyEditorChangeValuesIfDependencyAdapter.ValuesIf<T, E>> getValuesI18nIfTests() {
         return valuesI18nIfTests;
     }
     
-    public static class ValuesIf<T extends Number, E extends Object> {
+    public static class ValuesIf<T, E> {
         public String dependantParamId;
         public T testValue;
-        public PropertyEditorChangeValuesIfDependancyAdapter.TestOperation op;
+        public PropertyEditorChangeValuesIfDependencyAdapter.TestOperation op;
         public ArrayList<E> values;
         
-        public ValuesIf(String dependantParamId, T testValue, PropertyEditorChangeValuesIfDependancyAdapter.TestOperation op, ArrayList<E> values) {
+        public ValuesIf(String dependantParamId, T testValue, PropertyEditorChangeValuesIfDependencyAdapter.TestOperation op, ArrayList<E> values) {
             this.dependantParamId = dependantParamId;
             this.testValue = testValue;
             this.op = op;
