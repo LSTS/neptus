@@ -65,7 +65,7 @@ public class LogsSearcher extends ConsolePanel {
     private final String FTP_HOST = "10.0.2.70";
     private final int FTP_PORT = 2121;
     private final String FTP_BASE_DIR = "/home/tsm/ws/lsts/";
-    private static final File LOGS_DOWNLOAD_DIR = new File(System.getProperty("user.dir") + "/.cache/logs-searcher/");
+    private static final File LOGS_DOWNLOAD_DIR = new File(System.getProperty("user.dir") + "/log/logs-searcher/");
     private final LogsDbHandler db = new LogsDbHandler();
 
     private final JPanel mainPanel = new JPanel();
