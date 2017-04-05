@@ -74,11 +74,13 @@ public class NeptusTaskSpecificationAdapter implements TaskSpecification {
         VehicleRequirements requirements = new VehicleRequirements();
         //requirements.setRequiredType(plan.getVehicleType());
         //requirements.setRequiredType(requiredType);
-
+        
         requirements.setRequiredPayload(payload);
         requirements.setRequiredAvailability(Availability.AVAILABLE);
         return Arrays.asList(requirements);
     }
+    
+    //launch task/Area to Map
 
     /* (non-Javadoc)
      * @see pt.lsts.neptus.nvl.runtime.TaskSpecification#getId()

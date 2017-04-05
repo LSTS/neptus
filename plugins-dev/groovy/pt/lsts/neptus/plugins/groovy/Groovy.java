@@ -32,10 +32,9 @@
 
 package pt.lsts.neptus.plugins.groovy;
 
+import java.awt.BorderLayout;
 import java.awt.event.ActionEvent;
 import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.util.Collections;
@@ -46,6 +45,10 @@ import javax.swing.AbstractAction;
 import javax.swing.Action;
 import javax.swing.JButton;
 import javax.swing.JFileChooser;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JTextArea;
+import javax.swing.border.TitledBorder;
 
 import org.codehaus.groovy.control.CompilerConfiguration;
 import org.codehaus.groovy.control.customizers.ImportCustomizer;
@@ -63,12 +66,15 @@ import pt.lsts.neptus.console.notifications.Notification;
 import pt.lsts.neptus.console.plugins.planning.plandb.PlanDBAdapter;
 import pt.lsts.neptus.console.plugins.planning.plandb.PlanDBState;
 import pt.lsts.neptus.i18n.I18n;
-import pt.lsts.neptus.mp.maneuvers.AreaSurvey;
+import pt.lsts.neptus.mp.MapChangeEvent;
+import pt.lsts.neptus.mp.MapChangeListener;
 import pt.lsts.neptus.plugins.PluginDescription;
 import pt.lsts.neptus.plugins.Popup;
 import pt.lsts.neptus.plugins.Popup.POSITION;
 import pt.lsts.neptus.renderer2d.InteractionAdapter;
 import pt.lsts.neptus.types.coord.LocationType;
+import pt.lsts.neptus.types.map.AbstractElement;
+import pt.lsts.neptus.types.map.AbstractElement.ELEMENT_TYPE;
 import pt.lsts.neptus.types.map.MapGroup;
 import pt.lsts.neptus.types.map.MarkElement;
 import pt.lsts.neptus.types.mission.plan.PlanType;
@@ -83,10 +89,10 @@ import pt.lsts.neptus.util.ImageUtils;
  *
  */
 @PluginDescription(name = "Groovy Feature", author = "Keila Lima")
-@Popup(pos = POSITION.RIGHT, width=200, height=200, accelerator='y')
+@Popup(pos = POSITION.RIGHT, width=700, height=500, accelerator='y')
 @SuppressWarnings("serial")
 public class Groovy extends InteractionAdapter {
-
+    
     private JButton openButton,stopScript;
     //Collections used to make Map thread safe
     private Map<String,VehicleType> vehicles = Collections.synchronizedMap(new HashMap<>()); 
@@ -114,8 +120,6 @@ public class Groovy extends InteractionAdapter {
         //POI/MarkElement
         for( MarkElement mark:MapGroup.getMapGroupInstance(getConsole().getMission()).getAllObjectsOfType(MarkElement.class)){
             locations.put(mark.getId(),mark.getPosition());
-            mark.getType();
-                 
         }
         
         this.config = new CompilerConfiguration();
@@ -138,6 +142,92 @@ public class Groovy extends InteractionAdapter {
             //e.printStackTrace();
         }
     }
+    
+
+    MapChangeListener mapListener = new MapChangeListener() {
+        
+        @Override
+        public void mapChanged(MapChangeEvent mapChange) {
+            MapGroup.getMapGroupInstance(getConsole().getMission()).addChangeListener(mapListener);
+            MapGroup.getMapGroupInstance(getConsole().getMission()).mapChanged(mapChange);
+            System.out.println("Maplistener!");
+            String id = mapChange.getChangedObject().getId();
+            switch(mapChange.getEventType()){
+                
+                case MapChangeEvent.OBJECT_ADDED:
+                    AbstractElement loc =  MapGroup.getMapGroupInstance(getConsole().getMission()).getMapObject(id);
+                    if(loc.getElementType().equals(ELEMENT_TYPE.TYPE_MARK)){
+                        MarkElement location = (MarkElement) loc;
+                        locations.put(id,location.getPosition());
+                        getBinds().setVariable("locations", locations.values().toArray());
+                    }
+                    break;
+                    
+                case MapChangeEvent.OBJECT_REMOVED:
+                    if(locations.containsKey(id)){
+                        locations.remove(id);
+                        getBinds().setVariable("locations", locations.values().toArray());
+                    }
+                    break;
+                    
+                case MapChangeEvent.OBJECT_CHANGED:
+                    if(locations.containsKey(id)){
+                        AbstractElement loc1 =  MapGroup.getMapGroupInstance(getConsole().getMission()).getMapObject(id);
+                        if(loc1.getElementType().equals(ELEMENT_TYPE.TYPE_MARK)){
+                            MarkElement location = (MarkElement) loc1;
+                            locations.put(id,location.getPosition());
+                            getBinds().setVariable("locations", locations.values().toArray());
+                        }
+                    }
+                    break;
+                
+                default:
+                        break;
+                    
+            }
+            
+        }
+    };
+    
+   
+  protected PlanDBAdapter planDBListener = new PlanDBAdapter() {
+        @Override
+        public void dbCleared() {
+        }
+
+        @Override
+        public void dbInfoUpdated(PlanDBState updatedInfo) {
+        }
+
+        @Override
+        public void dbPlanReceived(PlanType plan) {
+            plan.setMissionType(getConsole().getMission());
+            getConsole().getMission().addPlan(plan);
+            getConsole().getMission().save(true);
+            getConsole().updateMissionListeners();
+            addPlan(plan.getId());
+            getBinds().setVariable("plans_id",getPlans().keySet().toArray());
+            System.out.println("Added Plan: "+plan.getId());
+
+        }
+
+        @Override
+        public void dbPlanRemoved(String planId) {
+//            getConsole().getMission().getIndividualPlansList().remove(planId);
+//            getConsole().getMission().save(true);
+//            getConsole().updateMissionListeners();
+//            removePlan(planId);
+//            getBinds().setVariable("plans_id",getPlans().keySet().toArray());
+//            System.out.println("dbPlanRemoved");
+        }
+
+        @Override
+        public void dbPlanSent(String planId) {
+            System.out.println("dbPlanSent");
+        }
+    };
+
+    
 
     /* (non-Javadoc)
      * @see pt.lsts.neptus.console.ConsolePanel#cleanSubPanel()
@@ -145,7 +235,7 @@ public class Groovy extends InteractionAdapter {
      */
     @Override
     public void cleanSubPanel() {
-
+        
         try {
             if(thread.isAlive() && thread != null)
                 thread.interrupt();
@@ -180,11 +270,7 @@ public class Groovy extends InteractionAdapter {
                     File directory = new File("plugins-dev/groovy/pt/lsts/neptus/plugins/groovy/scripts/");
                     final JFileChooser fc = new JFileChooser(directory);
                     fc.setFileSelectionMode(JFileChooser.FILES_ONLY);
-//                    FileNameExtensionFilter filter = new FileNameExtensionFilter("Groovy files","groovy");
-//                    fc.setFileFilter(filter);
 
-                    //GuiUtils.showInfoPopup("Select Groovy Script", "Only executes groovy scripts in the folder script of the plugin.");
-                    //GuiUtils.confirmDialog(owner, title, message);
                     int returnVal = fc.showOpenDialog(Groovy.this);
 
                     if (returnVal == JFileChooser.APPROVE_OPTION) {
@@ -200,18 +286,20 @@ public class Groovy extends InteractionAdapter {
                             public void run() {
                                 
                                 try {
-                                    PrintStream output = new PrintStream(new FileOutputStream(new File("plugins-dev/groovy/pt/lsts/neptus/plugins/groovy/scripts/outputs/"+groovy_script.getName())));
+                                    //PrintStream output = new PrintStream(new FileOutputStream(new File("plugins-dev/groovy/pt/lsts/neptus/plugins/groovy/scripts/outputs/"+groovy_script.getName())));
+                                 
+                                    PrintStream output = showOutput(groovy_script.getName());           
                                     getBinds().setProperty("out",output);
                                     engine.run(groovy_script.getName(), binds);
                                     
                                     if(stopScript.isEnabled())
                                         stopScript.setEnabled(false);
                                 }
-                                catch (FileNotFoundException e1) {
+                                
                                 //System.setOut(new PrintStream(new FileOutputStream(FileDescriptor.out))); -> see http://stackoverflow.com/questions/5339499/resetting-standard-output-stream
                                 //shell.getContext().getVariable()
                                 
-                                }
+                              
                                 catch (Exception   e) { //CompilationFailedException | ResourceException | ScriptException
                                     //TODO notify script exit
                                       NeptusLog.pub().error("Exception Caught during execution of script: "+groovy_script.getName(),e);
@@ -247,18 +335,31 @@ public class Groovy extends InteractionAdapter {
 
             }
         };
-
-
+        
         openButton = new JButton(selectAction); //Button height: 22 Button width: 137 Button X: 30 Button Y: 5
         stopScript = new JButton(stopAction);
 
         add(openButton);
         add(stopScript);
         stopScript.setEnabled(false);
+        
     }
-
-
-
+    
+    public PrintStream showOutput(String scriptName){
+        
+        JPanel outputPanel = new JPanel();
+        JTextArea textArea=new JTextArea();
+       
+        textArea.setEditable(false);
+        outputPanel.setLayout(new BorderLayout());     
+        outputPanel.setBorder(new TitledBorder(I18n.text("Script: "+scriptName+" Output")));
+        outputPanel.setVisible(true);
+        outputPanel.add(new JScrollPane(textArea));
+        PrintStream output= new PrintStream(new ScriptOutputStream(textArea));
+        this.add(outputPanel);
+        
+        return output;
+    }
 
     @Subscribe
     public void onVehicleStateChanged(ConsoleEventVehicleStateChanged e) {
@@ -271,7 +372,6 @@ public class Groovy extends InteractionAdapter {
                         vehicles.put(e.getVehicle(),VehiclesHolder.getVehicleById(e.getVehicle()));
                         this.binds.setVariable("vehicles_id",vehicles.keySet().toArray()); //binds.vehicles=vehicles;
                         //System.out.println("Added "+e.getVehicle()+" Size: "+vehicles.keySet().size());
-
                     }
                 }
                 break;
@@ -302,54 +402,26 @@ public class Groovy extends InteractionAdapter {
         }
     }
 
-
-
-
-
     /**
      * Add new updated plan to bind variable
      * @param planId of the plan
      */
     public void addPlan(String planId) {
 
-
         this.plans.put(planId, getConsole().getMission().getIndividualPlansList().get(planId));
     }
 
-
-
-    protected PlanDBAdapter planDBListener = new PlanDBAdapter() {
-        @Override
-        public void dbCleared() {
-        }
-
-        @Override
-        public void dbInfoUpdated(PlanDBState updatedInfo) {
-        }
-
-        @Override
-        public void dbPlanReceived(PlanType plan) {
-            plan.setMissionType(getConsole().getMission());
-            getConsole().getMission().addPlan(plan);
-            getConsole().getMission().save(true);
-            getConsole().updateMissionListeners();
-            addPlan(plan.getId());
-            getBinds().setVariable("plans_id",getPlans().keySet().toArray());
-            //System.out.println("Added Plan: "+plan.getId());
-
-        }
-
-        @Override
-        public void dbPlanRemoved(String planId) {
-            //System.out.println("dbPlanRemoved");
-        }
-
-        @Override
-        public void dbPlanSent(String planId) {
-            //System.out.println("dbPlanSent");
-        }
-    };
-
+//    @Subscribe
+//    public void onConsoleEventPlanChange(ConsoleEventPlanChange plan) {
+//        
+//        String old_id = plan.getOld().getId();
+//        if(plans.containsKey(old_id)) {
+//            if(!old_id.equals(plan.getCurrent().getId()))
+//                plans.remove(old_id);
+//        }
+//        plans.put(plan.getCurrent().getId(), plan.getCurrent());
+//    }
+    
 
     /**
      * @return the binds
@@ -357,6 +429,9 @@ public class Groovy extends InteractionAdapter {
     public Binding getBinds() {
         return binds;
     }
+    
+//    this.getMission().getMapsList().values(),
+//    this.getMission().generateMapGroup().addChangeListener(listener);
 
     /**
      * @return the plans
@@ -364,28 +439,7 @@ public class Groovy extends InteractionAdapter {
     public HashMap<String, PlanType> getPlans() {
         return (HashMap<String, PlanType>) plans;
     }
-
-    
-
 }
 
-
-
-
-/*@Subscribe
-public void onConsoleEventPlanChange(ConsoleEventPlanChange plan) {
-    //switch(plan) {
-
-    //}
-
-}*/
-
-// public void consume(PlanControlState pcstate)
-
-/* @Subscribe
-public void on(EstimatedState msg) {
-
-}*/    
-//MapChangeListener listener = null;
 // getConsole().getMission().getMapsList().values();
 //getConsole().getMission().generateMapGroup().addChangeListener(listener);

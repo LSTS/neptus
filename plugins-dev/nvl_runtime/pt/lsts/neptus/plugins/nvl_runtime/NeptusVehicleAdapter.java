@@ -35,6 +35,7 @@ package pt.lsts.neptus.plugins.nvl_runtime;
 import java.util.List;
 
 import pt.lsts.neptus.comm.manager.imc.ImcSystem;
+import pt.lsts.neptus.comm.manager.imc.ImcSystemsHolder;
 import pt.lsts.neptus.console.events.ConsoleEventVehicleStateChanged.STATE;
 import pt.lsts.neptus.nvl.runtime.Availability;
 import pt.lsts.neptus.nvl.runtime.NVLVehicle;
@@ -43,6 +44,7 @@ import pt.lsts.neptus.nvl.runtime.PayloadComponent;
 import pt.lsts.neptus.nvl.runtime.Position;
 import pt.lsts.neptus.types.comm.CommMean;
 import pt.lsts.neptus.types.mission.plan.PlanCompatibility;
+import pt.lsts.neptus.types.vehicle.VehicleType.SystemTypeEnum;
 import pt.lsts.neptus.types.vehicle.VehiclesHolder;
 
 /**
@@ -54,6 +56,7 @@ public class NeptusVehicleAdapter implements NVLVehicle {
     private final ImcSystem imcsystem;
     private final STATE state;
     private final List<PayloadComponent> availablePayload=null;
+    private final String  acousticOPservice="acoustic/operation";
     
     public NeptusVehicleAdapter(ImcSystem imcData,STATE s) {
         imcsystem = imcData;
@@ -65,7 +68,19 @@ public class NeptusVehicleAdapter implements NVLVehicle {
          for(CommMean com : VehiclesHolder.getVehicleById(getId()).getCommunicationMeans().values()) { //IMC | HTTP | IRIDIUM | GSM
              availablePayload.add(new NeptusPayloadAdapter(com.getName()));
          }
-
+         if(hasAcoustics())
+             availablePayload.add(new NeptusPayloadAdapter(acousticOPservice));
+        
+    }
+    
+    public boolean hasAcoustics(){
+        
+        boolean activeSystems = false; //defines the vehicle payload even if it's not active
+        ImcSystem[] vehicles = ImcSystemsHolder.lookupSystemByService(acousticOPservice,SystemTypeEnum.VEHICLE,activeSystems);
+        for(ImcSystem vehicle: vehicles)
+            if(vehicle.getName().equals(imcsystem.getName()))
+                return true;
+        return false;
     }
     /* (non-Javadoc)
      * @see nvl.Vehicle#getId()
