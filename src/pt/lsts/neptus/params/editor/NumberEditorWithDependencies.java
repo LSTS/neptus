@@ -36,14 +36,14 @@ import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.LinkedHashMap;
 
-import org.apache.commons.lang3.tuple.Pair;
-
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.gui.editor.NumberEditor;
 import pt.lsts.neptus.params.SystemProperty;
 import pt.lsts.neptus.params.editor.PropertyEditorChangeValuesIfDependencyAdapter.ValuesIf;
 
 /**
+ * Numerical editor to be used if property has dependencies.
+ * 
  * @author pdias
  *
  * @param <T>
@@ -53,7 +53,6 @@ implements PropertyChangeListener {
 
     private LinkedHashMap<String, Object> dependencyVariables = new LinkedHashMap<>();
     private PropertyEditorChangeValuesIfDependencyAdapter<?, T> pec = null;
-    private ValuesIf<?, ?> activeTest = null;
     
     /**
      * @param type
@@ -98,44 +97,10 @@ implements PropertyChangeListener {
     /* (non-Javadoc)
      * @see pt.lsts.neptus.gui.editor.NumberEditor#convertFromString(java.lang.String)
      */
-    @SuppressWarnings("unchecked")
     @Override
     protected T convertFromString(String txt) throws NumberFormatException {
         T ret = super.convertFromString(txt);
-
-        if (pec == null || activeTest == null)
-            return ret;
-
-        T validValueIfFail = null;
-        try {
-            for (Object elm : activeTest.values) {
-                if (elm instanceof Pair<?, ?>) {
-                    Pair<T, T> validRange = (Pair<T, T>) elm;
-                    if (ret.doubleValue() >= validRange.getLeft().doubleValue() &&
-                            ret.doubleValue() <= validRange.getRight().doubleValue()) {
-                        return ret;
-                    }
-                    else {
-                        if (validValueIfFail == null)
-                            validValueIfFail = validRange.getLeft();
-                    }
-                }
-                else {
-                    if (ret == (T) elm) {
-                        return ret;
-                    }
-                    else {
-                        if (validValueIfFail == null)
-                            validValueIfFail = (T) elm;
-                    }
-                }
-            }
-        }
-        catch (Exception e) {
-            throw new NumberFormatException(e.getMessage());
-        }
-        
-        return validValueIfFail != null ? validValueIfFail : ret;
+        return ret;
     }
     
     /* (non-Javadoc)
@@ -144,7 +109,7 @@ implements PropertyChangeListener {
     @Override
     public void propertyChange(PropertyChangeEvent evt) {
         if (pec == null || pec.valuesIfTests.isEmpty()) {
-            activeTest = null;
+            clearAdmisibleRangeValues();
             return;
         }
 
@@ -213,10 +178,11 @@ implements PropertyChangeListener {
         }
         
         if (testVariablePresent && passedAtLeastOneTest) {
-            activeTest = toChangeTest;
+            clearAdmisibleRangeValues();
+            addToAdmisibleRangeValues(toChangeTest.values);
         }
         if (testVariablePresent && !passedAtLeastOneTest) {
-            activeTest = null;
+            clearAdmisibleRangeValues();
         }
     }
 }
