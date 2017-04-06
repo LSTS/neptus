@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <console name="Neptus Console" width="1282" height="1029" resizable="true" mission-file="../../missions/APDL/missao-apdl.nmisz" main-vehicle="lauv-xplore-1">
-  <!-- Data saved on 2017-03-07T15:59:23.0Z with Neptus version @VERSION@ (compiled on @DATE@, g@SCM_REV@). -->
+  <!-- Data saved on 2017-04-06T15:39:39.0Z with Neptus version @VERSION@ (compiled on @DATE@, g@SCM_REV@). -->
   <mainpanel name="console main panel">
     <subpanel class="pt.lsts.neptus.console.plugins.containers.MigLayoutContainer" x="0" y="0" width="1280" height="945">
       <properties>
@@ -143,43 +143,15 @@ altitude: ${EstimatedState.alt};
         <properties/>
       </child>
       <child class="pt.lsts.neptus.plugins.planqueue.PlanQueue" x="0" y="0" width="0" height="0">
-        <properties>
-          <entry key="Toolbar Location">Right</entry>
-          <entry key="Use only active systems for acoustic message sending">false</entry>
-          <entry key="Service name for acoustic message sending">acoustic/operation</entry>
-          <entry key="Use TCP To Send Messages">true</entry>
-          <entry key="Use Calibration on Start Plan">true</entry>
-        </properties>
+        <properties/>
+      </child>
+      <child class="pt.lsts.neptus.plugins.nvl_runtime.NeptusRuntime" x="0" y="0" width="298" height="272">
+        <properties/>
+      </child>
+      <child class="pt.lsts.neptus.plugins.groovy.Groovy" x="0" y="0" width="0" height="0">
+        <properties/>
       </child>
     </subpanel>
   </mainpanel>
   <mainpanel name="console alarm panel"/>
-  <layers>
-    <layer class="pt.lsts.neptus.console.plugins.planning.DesiredPathLayer" opacity="1.0">
-      <properties/>
-    </layer>
-    <layer class="pt.lsts.neptus.plugins.position.FindMainSystemLayer" opacity="1.0">
-      <properties/>
-    </layer>
-    <layer class="pt.lsts.neptus.console.plugins.planning.MapShortcutsLayer" opacity="1.0">
-      <properties/>
-    </layer>
-    <layer class="pt.lsts.neptus.plugins.alliance.NmeaPlotter" opacity="1.0">
-      <properties/>
-    </layer>
-    <layer class="pt.lsts.neptus.console.plugins.planning.PlanSimulationLayer" opacity="1.0">
-      <properties/>
-    </layer>
-    <layer class="pt.lsts.neptus.plugins.position.painter.SystemInfoPainter" opacity="1.0">
-      <properties/>
-    </layer>
-  </layers>
-  <interactions>
-    <interaction class="pt.lsts.neptus.console.bathymLayer.DepthSoundingsInteraction">
-      <properties/>
-    </interaction>
-    <interaction class="pt.lsts.neptus.console.plugins.SystemsInteraction">
-      <properties/>
-    </interaction>
-  </interactions>
 </console>

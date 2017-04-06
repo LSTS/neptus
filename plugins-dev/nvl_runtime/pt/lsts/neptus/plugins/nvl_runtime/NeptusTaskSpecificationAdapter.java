@@ -50,6 +50,7 @@ import pt.lsts.neptus.types.mission.plan.PlanType;
 public class NeptusTaskSpecificationAdapter implements TaskSpecification {
 
     private final PlanType plan;
+    private VehicleRequirements requirements;
     
    
     /**
@@ -59,6 +60,7 @@ public class NeptusTaskSpecificationAdapter implements TaskSpecification {
      */
     public NeptusTaskSpecificationAdapter(PlanType plan) {
         this.plan = plan;
+        requirements = getRequirements().get(0);
     }
 
     /* (non-Javadoc)
@@ -98,5 +100,12 @@ public class NeptusTaskSpecificationAdapter implements TaskSpecification {
                                 //-> allocate to the selected vehicles distributing the load according to vehicles capabilities
         //TODO
         return null;
+    }
+
+    /**
+     * @param reqs
+     */
+    public void setRequirements(VehicleRequirements reqs) {
+        requirements = reqs;
     }
 }

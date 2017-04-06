@@ -10,9 +10,10 @@ import java.util.Map;
 import javax.swing.AbstractAction;
 import javax.swing.JButton;
 
+import org.mozilla.javascript.edu.emory.mathcs.backport.java.util.Arrays;
+
 import com.google.common.eventbus.Subscribe;
 
-import pt.lsts.imc.PlanControl;
 import pt.lsts.neptus.comm.IMCSendMessageUtils;
 import pt.lsts.neptus.comm.manager.imc.ImcSystem;
 import pt.lsts.neptus.comm.manager.imc.ImcSystemsHolder;
@@ -24,6 +25,7 @@ import pt.lsts.neptus.nvl.runtime.Availability;
 import pt.lsts.neptus.nvl.runtime.Filter;
 import pt.lsts.neptus.nvl.runtime.NVLRuntime;
 import pt.lsts.neptus.nvl.runtime.NVLVehicle;
+import pt.lsts.neptus.nvl.runtime.NVLVehicleType;
 import pt.lsts.neptus.nvl.runtime.TaskExecution;
 import pt.lsts.neptus.nvl.runtime.TaskSpecification;
 import pt.lsts.neptus.nvl.runtime.VehicleRequirements;
@@ -32,8 +34,6 @@ import pt.lsts.neptus.plugins.Popup;
 import pt.lsts.neptus.plugins.Popup.POSITION;
 import pt.lsts.neptus.renderer2d.InteractionAdapter;
 import pt.lsts.neptus.types.mission.plan.PlanType;
-import pt.lsts.neptus.types.vehicle.VehicleType.SystemTypeEnum;
-import ucar.ma2.Array;
 
 @PluginDescription(name = "NVL Runtime Feature", author = "Keila Lima")
 @Popup(pos = POSITION.BOTTOM_RIGHT, width=300, height=300, accelerator='y')
@@ -80,11 +80,18 @@ public class NeptusRuntime extends InteractionAdapter implements NVLRuntime {
                     public void actionPerformed(ActionEvent e) {   
                         // Plano IMC
                         TaskSpecification ts = getTasks( x -> x.getId().equals("nvlPlan")).get(0);
-                        
+                        System.out.println("Task "+ts.getId());
+                        VehicleRequirements reqs = new VehicleRequirements();
+                        reqs.setRequiredType(NVLVehicleType.AUV);
+                        reqs.setRequiredAvailability(Availability.AVAILABLE);
+                        ((NeptusTaskSpecificationAdapter)ts).setRequirements(reqs);
                         // Veículos disponíveis
-                        List<NVLVehicle> v = getVehicles(ts.getRequirements().get(0));
+                        List<NVLVehicle> vs = getVehicles(ts.getRequirements().get(0));
+                        
+                        for(NVLVehicle v: vs)
+                            System.out.println("SELECTED VEHICLE "+v.getId());
                   
-                        launchTask(ts, v);
+                        launchTask(ts, vs);
                         
                        
                     }
@@ -133,17 +140,19 @@ public class NeptusRuntime extends InteractionAdapter implements NVLRuntime {
         //ADD plan to console
 	    PlanType plan = ((NeptusTaskSpecificationAdapter) task).getPlan();
 		
-        plan.setMissionType(getConsole().getMission());
-        getConsole().getMission().getIndividualPlansList().put(task.getId(),plan);
-        getConsole().getMission().save(true);
-        getConsole().updateMissionListeners();
-        getConsole().getMission().addPlan(plan);
+//        plan.setMissionType(getConsole().getMission());
+//        getConsole().getMission().getIndividualPlansList().put(task.getId(),plan);
+//        getConsole().getMission().save(true);
+//        getConsole().updateMissionListeners();
+//        getConsole().getMission().addPlan(plan);
         
         //sendMessage(IMCMessage msg, String errorTextForDialog, boolean sendOnlyThroughOneAcoustically,String... ids)
         boolean sent = IMCSendMessageUtils.sendMessage(plan.asIMCPlan(),null,acoustics, vs.toArray(new String[vs.size()]));
         
         NeptusTaskExecutionAdapter exec = new NeptusTaskExecutionAdapter(task.getId());
-        
+//        PlanDBControl pdbControl;
+//        pdbControl.setRemoteSystemId(vs.get(index));
+//        pdbControl.sendPlan(plan1);
 //        int reqId = IMCSendMessageUtils.getNextRequestId();
 //        PlanControl pc = new PlanControl();
 //        pc.setType(PlanControl.TYPE.REQUEST);

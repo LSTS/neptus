@@ -33,6 +33,9 @@
 package pt.lsts.neptus.plugins.groovy;
 
 import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Container;
+import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.io.File;
 import java.io.IOException;
@@ -44,10 +47,13 @@ import java.util.Map;
 import javax.swing.AbstractAction;
 import javax.swing.Action;
 import javax.swing.JButton;
+import javax.swing.JComponent;
 import javax.swing.JFileChooser;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
+import javax.swing.border.EmptyBorder;
+import javax.swing.border.LineBorder;
 import javax.swing.border.TitledBorder;
 
 import org.codehaus.groovy.control.CompilerConfiguration;
@@ -66,15 +72,13 @@ import pt.lsts.neptus.console.notifications.Notification;
 import pt.lsts.neptus.console.plugins.planning.plandb.PlanDBAdapter;
 import pt.lsts.neptus.console.plugins.planning.plandb.PlanDBState;
 import pt.lsts.neptus.i18n.I18n;
-import pt.lsts.neptus.mp.MapChangeEvent;
-import pt.lsts.neptus.mp.MapChangeListener;
 import pt.lsts.neptus.plugins.PluginDescription;
 import pt.lsts.neptus.plugins.Popup;
 import pt.lsts.neptus.plugins.Popup.POSITION;
 import pt.lsts.neptus.renderer2d.InteractionAdapter;
+import pt.lsts.neptus.renderer2d.LayerPriority;
+import pt.lsts.neptus.renderer2d.StateRenderer2D;
 import pt.lsts.neptus.types.coord.LocationType;
-import pt.lsts.neptus.types.map.AbstractElement;
-import pt.lsts.neptus.types.map.AbstractElement.ELEMENT_TYPE;
 import pt.lsts.neptus.types.map.MapGroup;
 import pt.lsts.neptus.types.map.MarkElement;
 import pt.lsts.neptus.types.mission.plan.PlanType;
@@ -89,8 +93,8 @@ import pt.lsts.neptus.util.ImageUtils;
  *
  */
 @PluginDescription(name = "Groovy Feature", author = "Keila Lima")
-@Popup(pos = POSITION.RIGHT, width=700, height=500, accelerator='y')
 @SuppressWarnings("serial")
+@Popup(pos = POSITION.RIGHT, width=400, height=500, accelerator='y')
 public class Groovy extends InteractionAdapter {
     
     private JButton openButton,stopScript;
@@ -103,11 +107,18 @@ public class Groovy extends InteractionAdapter {
     private CompilerConfiguration config;
     private Thread thread;
     private ImportCustomizer customizer;
+    private JPanel buttons;
+    private JPanel panel=null;
+    private JPanel main;
+//    private StateRenderer2D renderer;
+
+
     /**
      * @param console
      */
     public Groovy(ConsoleLayout console) {
         super(console);
+      
     }
 
     void add_console_vars() {
@@ -144,59 +155,62 @@ public class Groovy extends InteractionAdapter {
     }
     
 
-    MapChangeListener mapListener = new MapChangeListener() {
-        
-        @Override
-        public void mapChanged(MapChangeEvent mapChange) {
-            MapGroup.getMapGroupInstance(getConsole().getMission()).addChangeListener(mapListener);
-            MapGroup.getMapGroupInstance(getConsole().getMission()).mapChanged(mapChange);
-            System.out.println("Maplistener!");
-            String id = mapChange.getChangedObject().getId();
-            switch(mapChange.getEventType()){
-                
-                case MapChangeEvent.OBJECT_ADDED:
-                    AbstractElement loc =  MapGroup.getMapGroupInstance(getConsole().getMission()).getMapObject(id);
-                    if(loc.getElementType().equals(ELEMENT_TYPE.TYPE_MARK)){
-                        MarkElement location = (MarkElement) loc;
-                        locations.put(id,location.getPosition());
-                        getBinds().setVariable("locations", locations.values().toArray());
-                    }
-                    break;
-                    
-                case MapChangeEvent.OBJECT_REMOVED:
-                    if(locations.containsKey(id)){
-                        locations.remove(id);
-                        getBinds().setVariable("locations", locations.values().toArray());
-                    }
-                    break;
-                    
-                case MapChangeEvent.OBJECT_CHANGED:
-                    if(locations.containsKey(id)){
-                        AbstractElement loc1 =  MapGroup.getMapGroupInstance(getConsole().getMission()).getMapObject(id);
-                        if(loc1.getElementType().equals(ELEMENT_TYPE.TYPE_MARK)){
-                            MarkElement location = (MarkElement) loc1;
-                            locations.put(id,location.getPosition());
-                            getBinds().setVariable("locations", locations.values().toArray());
-                        }
-                    }
-                    break;
-                
-                default:
-                        break;
-                    
-            }
-            
-        }
-    };
-    
+//    MapChangeListener mapListener = new MapChangeListener() {
+//        @Override
+//        public void mapChanged(MapChangeEvent mapChange) {
+//            MapGroup.getMapGroupInstance(getConsole().getMission()).addChangeListener(mapListener);
+//            MapGroup.getMapGroupInstance(getConsole().getMission()).mapChanged(mapChange);
+//            System.out.println("Maplistener!");
+//            String id = mapChange.getChangedObject().getId();
+//            switch(mapChange.getEventType()){
+//                
+//                case MapChangeEvent.OBJECT_ADDED:
+//                    AbstractElement loc =  MapGroup.getMapGroupInstance(getConsole().getMission()).getMapObject(id);
+//                    if(loc.getElementType().equals(ELEMENT_TYPE.TYPE_MARK)){
+//                        MarkElement location = (MarkElement) loc;
+//                        locations.put(id,location.getPosition());
+//                        getBinds().setVariable("locations", locations.values().toArray());
+//                    }
+//                    break;
+//                    
+//                case MapChangeEvent.OBJECT_REMOVED:
+//                    if(locations.containsKey(id)){
+//                        locations.remove(id);
+//                        getBinds().setVariable("locations", locations.values().toArray());
+//                    }
+//                    break;
+//                    
+//                case MapChangeEvent.OBJECT_CHANGED:
+//                    if(locations.containsKey(id)){
+//                        AbstractElement loc1 =  MapGroup.getMapGroupInstance(getConsole().getMission()).getMapObject(id);
+//                        if(loc1.getElementType().equals(ELEMENT_TYPE.TYPE_MARK)){
+//                            MarkElement location = (MarkElement) loc1;
+//                            locations.put(id,location.getPosition());
+//                            getBinds().setVariable("locations", locations.values().toArray());
+//                        }
+//                    }
+//                    break;
+//                
+//                default:
+//                        break;
+//                    
+//            }
+//            
+//        }
+//    };
+//    
    
   protected PlanDBAdapter planDBListener = new PlanDBAdapter() {
         @Override
         public void dbCleared() {
+            System.out.println("DBListener1");
+
         }
 
         @Override
         public void dbInfoUpdated(PlanDBState updatedInfo) {
+            System.out.println("DBListener2");
+
         }
 
         @Override
@@ -218,7 +232,7 @@ public class Groovy extends InteractionAdapter {
 //            getConsole().updateMissionListeners();
 //            removePlan(planId);
 //            getBinds().setVariable("plans_id",getPlans().keySet().toArray());
-//            System.out.println("dbPlanRemoved");
+            System.out.println("dbPlanRemoved");
         }
 
         @Override
@@ -226,6 +240,9 @@ public class Groovy extends InteractionAdapter {
             System.out.println("dbPlanSent");
         }
     };
+private JComponent renderer;
+private Object delegate;
+
 
     
 
@@ -255,7 +272,6 @@ public class Groovy extends InteractionAdapter {
     @Override
     public void initSubPanel() {
         removeAll();
-      //TODO Remove output files??
         add_console_vars();
 
         Action selectAction = new AbstractAction(I18n.text("Select Groovy Script")) {
@@ -335,28 +351,77 @@ public class Groovy extends InteractionAdapter {
 
             }
         };
-        
+        main = new JPanel(new BorderLayout(2,2));
+        initialize_panel();
+        buttons = new JPanel(new GridLayout(0, 2));
+        main.add(buttons,-1); //BorderLayout.SOUTH
         openButton = new JButton(selectAction); //Button height: 22 Button width: 137 Button X: 30 Button Y: 5
         stopScript = new JButton(stopAction);
-
-        add(openButton);
-        add(stopScript);
         stopScript.setEnabled(false);
+        buttons.add(openButton);
+        buttons.add(stopScript);
         
+        
+        
+        JPanel holder = new JPanel(new BorderLayout());
+        holder.add(panel);
+        main.add(holder,BorderLayout.CENTER);
+        this.add(main);
     }
     
+    /**
+     * 
+     */
+    private void initialize_panel() {
+        if(panel == null){
+            panel = new JPanel(new BorderLayout());
+            panel.setBorder(new TitledBorder(I18n.text("Groovy Feature")));   
+        }
+    }
+//    @Override
+//    public void setActive(boolean mode, StateRenderer2D source) {
+//        super.setActive(mode, source);
+//        this.renderer = source;
+//        if (mode) {
+//            Container c = source;
+//            while (c.getParent() != null && !(c.getLayout() instanceof BorderLayout))
+//                c = c.getParent();
+//            if (c.getLayout() instanceof BorderLayout) {
+//                c.add(main, BorderLayout.EAST);
+//
+//                c.invalidate();
+//                c.validate();
+//                if (c instanceof JComponent)
+//                    ((JComponent) c).setBorder(new LineBorder(Color.black.darker(), 2));
+//
+//            }
+//        } else {
+//            Container c = source;
+//            while (c.getParent() != null && !(c.getLayout() instanceof BorderLayout))
+//                c = c.getParent();
+//            if (c.getLayout() instanceof BorderLayout) {
+//                c.remove(main);
+//                c.invalidate();
+//                c.validate();
+//                if (c instanceof JComponent)
+//                    ((JComponent) c).setBorder(new EmptyBorder(0, 0, 0, 0));
+//            }
+//
+//            renderer.setToolTipText("");
+//        }
+//
+//    }
     public PrintStream showOutput(String scriptName){
         
         JPanel outputPanel = new JPanel();
         JTextArea textArea=new JTextArea();
-       
         textArea.setEditable(false);
-        outputPanel.setLayout(new BorderLayout());     
+        outputPanel.setLayout(new BorderLayout(2,2));     
         outputPanel.setBorder(new TitledBorder(I18n.text("Script: "+scriptName+" Output")));
         outputPanel.setVisible(true);
         outputPanel.add(new JScrollPane(textArea));
         PrintStream output= new PrintStream(new ScriptOutputStream(textArea));
-        this.add(outputPanel);
+        panel.add(outputPanel);
         
         return output;
     }

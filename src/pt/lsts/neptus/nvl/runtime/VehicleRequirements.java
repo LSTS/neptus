@@ -53,10 +53,10 @@ private Availability requiredAvailability = null;
     return   (requiredType != null && v.getType() == requiredType) 
         &&
         (requiredAvailability != null && requiredAvailability == v.getAvailability())
-        &&
-        (requiredPayload != null && v.getPayload().containsAll(requiredPayload))
-        &&
-        (areaCenter != null && v.getPosition().near(areaCenter, areaRadius) );
+        ;//&&
+        //(requiredPayload != null && v.getPayload().containsAll(requiredPayload))
+        //&&
+        //(areaCenter != null && v.getPosition().near(areaCenter, areaRadius) );
   }
 
  // static Map<NVLVehicle,VehicleRequirements> filter(List<VehicleRequirements> reqs, List<NVLVehicle> allVehicles) {

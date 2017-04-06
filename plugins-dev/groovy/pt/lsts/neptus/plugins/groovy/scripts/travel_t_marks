@@ -8,7 +8,7 @@ sortedlocations.each {
         def loc = new Location(it.getLatitudeRads(),it.getLongitudeRads())
         pois.add loc 
     }
-def plan = new Plan ("Travel-t-Locations")
+def plan = new Plan ("Travel-POIs")
 
     pois.each {plan.goTo location:it}
     plan.addToConsole(console)
