@@ -107,7 +107,7 @@
       <name-i18n>Mission Critical</name-i18n>
       <type>boolean</type>
       <visibility>user</visibility>
-      <scope>maneuver</scope>
+      <scope>plan</scope>
       <default>false</default>
       <units/>
     </param>
@@ -116,7 +116,7 @@
       <type>string</type>
       <visibility>user</visibility>
       <scope>maneuver</scope>
-      <default>both</default>
+      <default>HF</default>
       <units/>
       <desc></desc>
       <values>HF, LF, both</values>
@@ -127,7 +127,7 @@
       <type>integer</type>
       <visibility>user</visibility>
       <scope>maneuver</scope>
-      <default>30</default>
+      <default>50</default>
       <units>m</units>
       <desc>Operating range</desc>
       <min>0</min>
@@ -138,7 +138,7 @@
       <type>integer</type>
       <visibility>user</visibility>
       <scope>maneuver</scope>
-      <default>50</default>
+      <default>100</default>
       <units>%</units>
       <desc>Power</desc>
       <min>0</min>
@@ -159,59 +159,49 @@
       <name-i18n>Mission Critical</name-i18n>
       <type>boolean</type>
       <visibility>user</visibility>
-      <scope>maneuver</scope>
+      <scope>plan</scope>
       <default>false</default>
       <units/>
     </param>
-    <param name="Power Level">
-      <name-i18n>Power Level</name-i18n>
+    <param name="Angle">
+      <name-i18n>Angle</name-i18n>
       <type>integer</type>
       <visibility>user</visibility>
       <scope>maneuver</scope>
-      <default>70</default>
-      <units>%</units>
-      <desc>Power</desc>
-      <min>0</min>
-      <max>100</max>
-    </param>
-    <param name="Gain">
-      <name-i18n>Gain</name-i18n>
-      <type>integer</type>
-      <visibility>user</visibility>
-      <scope>maneuver</scope>
-      <units>%</units>
+      <default>140</default>
+      <units>°</units>
       <desc></desc>
-      <min>0</min>
-      <max>100</max>
+      <min>5</min>
+      <max>179</max>
     </param>
     <param name="Opmode">
       <name-i18n>Opmode</name-i18n>
       <type>string</type>
       <visibility>user</visibility>
       <scope>maneuver</scope>
-      <default>bathymetric</default>
+      <default>BATHY</default>
       <units/>
       <desc></desc>
-      <values>bathymetric, inspection</values>
+      <values>BATHY, BATHYAMP</values>
       <values-i18n>bathymetric, inspection</values-i18n>
     </param>
     <param name="Gate Mode">
-      <name-i18n>Opmode</name-i18n>
+      <name-i18n>Gate Mode</name-i18n>
       <type>string</type>
       <visibility>user</visibility>
       <scope>maneuver</scope>
-      <default>depth</default>
+      <default>Depth</default>
       <units/>
       <desc></desc>
-      <values>depth, range</values>
-      <values-i18n>depth, range</values-i18n>
+      <values>Depth, Range</values>
+      <values-i18n>Depth, Range</values-i18n>
     </param>
     <param name="Upper Gate">
       <name-i18n>Upper Gate</name-i18n>
       <type>integer</type>
       <visibility>user</visibility>
       <scope>maneuver</scope>
-      <default>1</default>
+      <default>0</default>
       <units>m</units>
       <desc></desc>
       <min>0</min>
@@ -224,34 +214,23 @@
       <scope>maneuver</scope>
       <default>20</default>
       <units>m</units>
-      <desc></desc>
+      <desc>!!!!!!!!! [Value of upper Gate] .. 200 m</desc>
       <min>0</min>
       <max>200</max>
-    </param>
-    <param name="Swath">
-      <name-i18n>Swath</name-i18n>
-      <type>integer</type>
-      <visibility>user</visibility>
-      <scope>maneuver</scope>
-      <default>140</default>
-      <units>°</units>
-      <desc></desc>
-      <min>90</min>
-      <max>170</max>
     </param>
     <param name="Beam Distribution">
       <name-i18n>Beam Distribution</name-i18n>
       <type>string</type>
       <visibility>user</visibility>
       <scope>maneuver</scope>
-      <default>Equiangular 512</default>
+      <default>Equidistant</default>
       <units/>
       <desc></desc>
-      <values>Equidistant, Equiangular 256, Equiangular 512</values>
-      <values-i18n>Equidistant, Equiangular 256, Equiangular 512</values-i18n>
+      <values>Equiangular, Equidistant</values>
+      <values-i18n>Equiangular, Equidistant</values-i18n>
     </param>
   </section>
-  <section name="TritechSubbottomProfiler" name-i18n="Tritech Subbottom Profiler">
+  <section name="TritechPSBP" name-i18n="Tritech Subbottom Profiler">
     <param name="Active">
       <name-i18n>Active</name-i18n>
       <type>boolean</type>
@@ -265,7 +244,7 @@
       <name-i18n>Mission Critical</name-i18n>
       <type>boolean</type>
       <visibility>user</visibility>
-      <scope>maneuver</scope>
+      <scope>plan</scope>
       <default>false</default>
       <units/>
     </param>
@@ -274,36 +253,80 @@
       <type>integer</type>
       <visibility>user</visibility>
       <scope>maneuver</scope>
-      <default>20</default>
+      <default>10</default>
       <units>m</units>
       <desc>Operating range</desc>
       <min>0</min>
       <max>300</max>
     </param>
-    <param name="HF Gain">
-      <name-i18n>HF Gain</name-i18n>
+    <param name="LF-Gain">
+      <name-i18n>LF Gain</name-i18n>
       <type>integer</type>
       <visibility>user</visibility>
       <scope>maneuver</scope>
-      <default>20</default>
+      <default>50</default>
       <units>%</units>
       <desc></desc>
       <min>0</min>
       <max>100</max>
     </param>
-    <param name="LF Gain">
-      <name-i18n>LF Gain</name-i18n>
+    <param name="LF-Threshold">
+      <name-i18n>LF Threshold</name-i18n>
       <type>integer</type>
       <visibility>user</visibility>
       <scope>maneuver</scope>
-      <default>20</default>
+      <default>50</default>
+      <units>%</units>
+      <desc></desc>
+      <min>0</min>
+      <max>100</max>
+    </param>
+    <param name="LF-Contrast">
+      <name-i18n>LF Contrast</name-i18n>
+      <type>integer</type>
+      <visibility>user</visibility>
+      <scope>maneuver</scope>
+      <default>50</default>
+      <units>%</units>
+      <desc></desc>
+      <min>0</min>
+      <max>100</max>
+    </param>
+    <param name="HF-Gain">
+      <name-i18n>HF Gain</name-i18n>
+      <type>integer</type>
+      <visibility>user</visibility>
+      <scope>maneuver</scope>
+      <default>50</default>
+      <units>%</units>
+      <desc></desc>
+      <min>0</min>
+      <max>100</max>
+    </param>
+    <param name="HF-Threshold">
+      <name-i18n>HF Threshold</name-i18n>
+      <type>integer</type>
+      <visibility>user</visibility>
+      <scope>maneuver</scope>
+      <default>50</default>
+      <units>%</units>
+      <desc></desc>
+      <min>0</min>
+      <max>100</max>
+    </param>
+    <param name="HF-Contrast">
+      <name-i18n>HF Contrast</name-i18n>
+      <type>integer</type>
+      <visibility>user</visibility>
+      <scope>maneuver</scope>
+      <default>50</default>
       <units>%</units>
       <desc></desc>
       <min>0</min>
       <max>100</max>
     </param>
   </section>
-  <section name="Camera" name-i18n="Camera">
+  <section name="UUVCam1" name-i18n="Camera">
     <param name="Active">
       <name-i18n>Active</name-i18n>
       <type>boolean</type>
@@ -317,28 +340,61 @@
       <name-i18n>Mission Critical</name-i18n>
       <type>boolean</type>
       <visibility>user</visibility>
-      <scope>maneuver</scope>
+      <scope>plan</scope>
       <default>false</default>
       <units/>
     </param>
-    <param name="Videostream">
-      <name-i18n>Videostream</name-i18n>
-      <type>boolean</type>
+    <param name="Cam-Mode">
+      <name-i18n>Cam-Mode</name-i18n>
+      <type>string</type>
       <visibility>user</visibility>
       <scope>maneuver</scope>
-      <default>false</default>
+      <default>Still Images</default>
       <units/>
+      <desc></desc>
+      <values>Still Images, Video</values>
+      <values-i18n>Still Images, Video</values-i18n>
     </param>
     <param name="Framerate">
       <name-i18n>Framerate</name-i18n>
       <type>integer</type>
       <visibility>user</visibility>
       <scope>maneuver</scope>
-      <default>3</default>
+      <default>4</default>
       <units>fps</units>
       <desc></desc>
-      <min>1</min>
-      <max>3</max>
+      <min>-1</min>
+      <max>4</max>
+      <values-if>
+        <param>Cam-Mode</param>
+        <equals>Still Images</equals>
+        <values>1..4</values>
+      </values-if>
+      <values-if>
+        <param>Cam-Mode</param>
+        <equals>Video</equals>
+        <values>-1</values>
+      </values-if>
+    </param>
+    <param name="Show-Video">
+      <name-i18n>Show Video</name-i18n>
+      <type>boolean</type>
+      <visibility>user</visibility>
+      <scope>maneuver</scope>
+      <default>false</default>
+      <units/>
+    </param>
+    <param name="Gain">
+      <name-i18n>Gain</name-i18n>
+      <type>integer</type>
+      <visibility>user</visibility>
+      <scope>maneuver</scope>
+      <default>25</default>
+      <units>%</units>
+      <desc>0 for auto gain</desc>
+      <min>0</min>
+      <max>100</max>
+      <values>0, 10..100</values>
     </param>
     <param name="Strobe">
       <name-i18n>Strobe</name-i18n>
@@ -349,7 +405,7 @@
       <units/>
     </param>
   </section>
-  <section name="Magnetometer" name-i18n="Magnetometer">
+  <section name="GeometricsG882" name-i18n="Magnetometer">
     <param name="Active">
       <name-i18n>Active</name-i18n>
       <type>boolean</type>
