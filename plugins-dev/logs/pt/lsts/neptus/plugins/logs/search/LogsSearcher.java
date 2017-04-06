@@ -4,6 +4,7 @@ import com.google.common.eventbus.Subscribe;
 import net.miginfocom.swing.MigLayout;
 import org.apache.commons.net.ftp.FTPClient;
 import org.apache.commons.net.ftp.FTPFile;
+import pt.lsts.imc.lsf.LsfMerge;
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.console.ConsoleLayout;
 import pt.lsts.neptus.console.ConsolePanel;
@@ -67,6 +68,8 @@ public class LogsSearcher extends ConsolePanel {
     private final String FTP_BASE_DIR = "/home/tsm/ws/lsts/";
     private static final File LOGS_DOWNLOAD_DIR = new File(System.getProperty("user.dir") + "/log/logs-searcher/");
     private final LogsDbHandler db = new LogsDbHandler();
+
+    private final LsfMerge logsMerger = new LsfMerge();
 
     private final JPanel mainPanel = new JPanel();
     private final MigLayout mainLayout = new MigLayout("ins 0, gap 0", "[][grow]", "[top][grow]");
@@ -228,6 +231,9 @@ public class LogsSearcher extends ConsolePanel {
             }
         };
 
+        resultsTable.setRowSelectionAllowed(true);
+        resultsTable.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
+
         TableRowSorter<TableModel> sorter
                 = new TableRowSorter<>(tableModel);
         resultsTable.setRowSorter(sorter);
@@ -257,6 +263,26 @@ public class LogsSearcher extends ConsolePanel {
                     String logPath = logsPath.get(logName + dataType + logDurationMin);
                     openLog(logPath);
                 }
+                else if (SwingUtilities.isRightMouseButton(me)) {
+                    int[] selectedRows = table.getSelectedRows();
+
+                    if(selectedRows.length < 2)
+                        return;
+
+                    int res = JOptionPane.showConfirmDialog(mainPanel, "Concatenate and open selected logs? This might take time",
+                            "Multiple logs", JOptionPane.YES_NO_OPTION);
+
+                    if(res != JOptionPane.OK_OPTION)
+                        return;
+
+
+                    try {
+                        handleLogsConcatenation(selectedRows);
+                    } catch (Exception e) {
+                        GuiUtils.errorMessage(mainPanel, "Multiple Logs", "There's been an error, check logs!");
+                        e.printStackTrace();
+                    }
+                }
             }
         });
 
@@ -268,6 +294,40 @@ public class LogsSearcher extends ConsolePanel {
 
 
         resultsPanel.add(scrollPane);
+    }
+
+    private void handleLogsConcatenation(int[] selectedRows) throws Exception {
+        File[] files = new File[selectedRows.length];
+        StringBuilder sb = new StringBuilder();
+        sb.append(LOGS_DOWNLOAD_DIR + "/merged");
+
+        int i = 0;
+        for(int row : selectedRows) {
+            int rowIndex = resultsTable.convertRowIndexToModel(row);
+            files[i] = fetchLog(getLogPathAt(rowIndex));
+
+            String logName = (String) tableModel.getValueAt(rowIndex, 4);
+            sb.append("-" + logName);
+            i++;
+        }
+
+        File destLogParent = new File(sb.toString());
+        File destLogPath = new File(sb.toString() + "/Data.lsf");
+        if(!destLogPath.exists()) {
+            destLogParent.mkdirs();
+            logsMerger.merge(files, destLogPath);
+        }
+
+        NeptusMRA.showApplication().getMraFilesHandler().openLog(destLogPath);
+    }
+
+    private String getLogPathAt(int rowIndex) {
+        String logName = (String) tableModel.getValueAt(rowIndex, 4);
+        String dataType = (String) tableModel.getValueAt(rowIndex, 0);
+        double logDurationMin = (double) tableModel.getValueAt(rowIndex, 3);
+
+        // fetch logPath
+        return logsPath.get(logName + dataType + logDurationMin);
     }
 
     private void initQueryPanel() {
