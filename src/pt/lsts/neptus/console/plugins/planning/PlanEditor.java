@@ -75,6 +75,7 @@ import javax.swing.JDialog;
 import javax.swing.JEditorPane;
 import javax.swing.JLabel;
 import javax.swing.JMenu;
+import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
@@ -122,6 +123,7 @@ import pt.lsts.neptus.mp.maneuvers.LocatedManeuver;
 import pt.lsts.neptus.mp.preview.PlanSimulationOverlay;
 import pt.lsts.neptus.mp.preview.SimDepthProfile;
 import pt.lsts.neptus.params.ManeuverPayloadConfig;
+import pt.lsts.neptus.params.PlanPayloadConfig;
 import pt.lsts.neptus.planeditor.PlanTransitionsSimpleEditor;
 import pt.lsts.neptus.plugins.NeptusProperty;
 import pt.lsts.neptus.plugins.NeptusProperty.LEVEL;
@@ -1161,7 +1163,7 @@ public class PlanEditor extends InteractionAdapter implements Renderer2DPainter,
                             new ImageIcon(ImageUtils.getScaledImage("images/buttons/wizard.png", 16, 16)));
                     planSettings.add(pVel);
 
-                    AbstractAction pPayload = new AbstractAction(I18n.text("Payload settings...")) {
+                    AbstractAction pPayload = new AbstractAction(I18n.text("Maneuvers payload settings...")) {
                         private static final long serialVersionUID = 1L;
 
                         @Override
@@ -1270,6 +1272,46 @@ public class PlanEditor extends InteractionAdapter implements Renderer2DPainter,
 
                     // popup.addSeparator();
                 }
+                
+                AbstractAction planPayload = new AbstractAction(I18n.text("Plan Payload Settings")) {
+                    private static final long serialVersionUID = 1L;
+                    private PropertySheetPanel psp = new PropertySheetPanel();
+                    private PlanPayloadConfig payloadConfig = new PlanPayloadConfig(plan.getVehicle(), plan,
+                            psp);
+                    private DefaultProperty[] properties = payloadConfig.getProperties();
+                    
+                    {
+                        if (properties.length == 0)
+                            this.setEnabled(false);
+                    }
+
+                    @Override
+                    public void actionPerformed(ActionEvent e) {
+                        psp.setEditorFactory(PropertiesEditor.getPropertyEditorRegistry());
+                        psp.setRendererFactory(PropertiesEditor.getPropertyRendererRegistry());
+                        psp.setMode(PropertySheet.VIEW_AS_CATEGORIES);
+                        psp.setToolBarVisible(false);
+                        psp.setSortingCategories(true);
+
+                        psp.setDescriptionVisible(true);
+
+                        if (properties.length > 0)
+                            ((JMenuItem) e.getSource()).setEnabled(false);
+                        
+                        psp.setProperties(properties);
+
+                        final PropertySheetDialog propertySheetDialog = PropertiesEditor.createWindow(getConsole(),
+                                true, psp, I18n.text("Plan Payload Settings"),
+                                "<html>" + I18n.text("Plan Payload Settings"));
+                        if (propertySheetDialog.ask()) {
+                            payloadConfig.setProperties(properties);
+                        }
+                    }
+                };
+                planPayload.putValue(AbstractAction.SMALL_ICON,
+                        new ImageIcon(ImageUtils.getScaledImage("images/buttons/wizard.png", 16, 16)));
+                popup.add(planPayload).setEnabled(planPayload.isEnabled());
+
                 AbstractAction pTransitions = new AbstractAction(I18n.text("Plan Transitions")) {
                     private static final long serialVersionUID = 1L;
 
