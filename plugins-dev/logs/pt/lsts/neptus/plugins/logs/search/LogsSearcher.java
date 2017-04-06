@@ -75,6 +75,7 @@ public class LogsSearcher extends ConsolePanel {
     private final MigLayout mainLayout = new MigLayout("ins 0, gap 0", "[][grow]", "[top][grow]");
     private final JPanel queryPanel = new JPanel();
     private final JPanel resultsPanel = new JPanel();
+    private final LogsProgressMonitor logsProgressMonitor = new LogsProgressMonitor();
 
     private final JComboBox<String> dataOptions = new JComboBox<>();
     private final JComboBox<String> yearOptions = new JComboBox<>();
@@ -278,10 +279,13 @@ public class LogsSearcher extends ConsolePanel {
 
                     try {
                         handleLogsConcatenation(selectedRows);
+
                     } catch (Exception e) {
                         GuiUtils.errorMessage(mainPanel, "Multiple Logs", "There's been an error, check logs!");
                         e.printStackTrace();
                     }
+
+                    logsProgressMonitor.close();
                 }
             }
         });
@@ -301,6 +305,7 @@ public class LogsSearcher extends ConsolePanel {
         StringBuilder sb = new StringBuilder();
         sb.append(LOGS_DOWNLOAD_DIR + "/merged");
 
+        setStatus(true, "Downloading logs");
         int i = 0;
         for(int row : selectedRows) {
             int rowIndex = resultsTable.convertRowIndexToModel(row);
@@ -311,6 +316,7 @@ public class LogsSearcher extends ConsolePanel {
             i++;
         }
 
+        setStatus(true, "Merging logs");
         File destLogParent = new File(sb.toString());
         File destLogPath = new File(sb.toString() + "/Data.lsf");
         if(!destLogPath.exists()) {
@@ -318,6 +324,7 @@ public class LogsSearcher extends ConsolePanel {
             logsMerger.merge(files, destLogPath);
         }
 
+        setStatus(false, "");
         NeptusMRA.showApplication().getMraFilesHandler().openLog(destLogPath);
     }
 
@@ -542,6 +549,8 @@ public class LogsSearcher extends ConsolePanel {
         if(!ftp.isConnected())
             return;
 
+        setStatus(true, "Downloading logs");
+
         // Fetch file from remote (FTP?)
         File logFile = null;
         try {
@@ -552,9 +561,11 @@ public class LogsSearcher extends ConsolePanel {
 
         if(logFile == null) {
             GuiUtils.errorMessage(mainPanel, "Log Selection Error", "Couldn't download file");
+            logsProgressMonitor.close();
             return;
         }
 
+        setStatus(false, "");
         NeptusMRA.showApplication().getMraFilesHandler().openLog(logFile);
     }
 
@@ -606,5 +617,12 @@ public class LogsSearcher extends ConsolePanel {
                     + sb.toString());
 
         return localLogAbsolutePath;
+    }
+
+    private void setStatus(boolean isActivated, String message) {
+        if(!isActivated)
+            logsProgressMonitor.close();
+        else
+            logsProgressMonitor.open("", message);
     }
 }
