@@ -12,6 +12,7 @@ import javax.swing.JButton;
 
 import com.google.common.eventbus.Subscribe;
 
+import pt.lsts.imc.PlanControl;
 import pt.lsts.neptus.comm.IMCSendMessageUtils;
 import pt.lsts.neptus.comm.manager.imc.ImcSystem;
 import pt.lsts.neptus.comm.manager.imc.ImcSystemsHolder;
@@ -32,9 +33,10 @@ import pt.lsts.neptus.plugins.Popup.POSITION;
 import pt.lsts.neptus.renderer2d.InteractionAdapter;
 import pt.lsts.neptus.types.mission.plan.PlanType;
 import pt.lsts.neptus.types.vehicle.VehicleType.SystemTypeEnum;
+import ucar.ma2.Array;
 
 @PluginDescription(name = "NVL Runtime Feature", author = "Keila Lima")
-@Popup(pos = POSITION.RIGHT, width=200, height=200, accelerator='y')
+@Popup(pos = POSITION.BOTTOM_RIGHT, width=300, height=300, accelerator='y')
 @SuppressWarnings("serial")
 public class NeptusRuntime extends InteractionAdapter implements NVLRuntime {
    private  Map<String,NeptusVehicleAdapter> vehicles;
@@ -56,9 +58,10 @@ public class NeptusRuntime extends InteractionAdapter implements NVLRuntime {
         vehicles = Collections.synchronizedMap(new HashMap<>());
         tasks = Collections.synchronizedMap(new HashMap<>());
         //initialize active vehicles
-        for(ImcSystem vec: ImcSystemsHolder.lookupAllActiveSystems()){
-            if(vec.getType() == SystemTypeEnum.VEHICLE)
-                vehicles.put(vec.getName(),new NeptusVehicleAdapter(vec,STATE.values()[(int) (vec.getLastAnnounceStateReceived())]));
+        
+        for(ImcSystem vec: ImcSystemsHolder.lookupActiveSystemVehicles()){
+            STATE state = STATE.CONNECTED;//vec.getLastAnnounceStateReceived()
+            vehicles.put(vec.getName(),new NeptusVehicleAdapter(vec,state));
             System.out.println("V " + vec.getName());
         }
         //initialize existing plans in the console
@@ -75,7 +78,6 @@ public class NeptusRuntime extends InteractionAdapter implements NVLRuntime {
 
                     @Override
                     public void actionPerformed(ActionEvent e) {   
-                        
                         // Plano IMC
                         TaskSpecification ts = getTasks( x -> x.getId().equals("nvlPlan")).get(0);
                         
@@ -124,8 +126,9 @@ public class NeptusRuntime extends InteractionAdapter implements NVLRuntime {
 	    
 	    tasks.put(task.getId(),(NeptusTaskSpecificationAdapter) task);
 		boolean acoustics=false; 
-		String[] vs = new String[vehicles.size()];
-		vs = vehicles.toArray(vs);
+		List<String> vs = new ArrayList<>();
+		vehicles.stream().map(v -> v.getId()).forEach(id -> vs.add(id));
+		vehicles.stream().map(v -> v.getId()).forEach(id -> ((NeptusTaskSpecificationAdapter)task).getPlan().setVehicle(id));
 		
         //ADD plan to console
 	    PlanType plan = ((NeptusTaskSpecificationAdapter) task).getPlan();
@@ -137,9 +140,16 @@ public class NeptusRuntime extends InteractionAdapter implements NVLRuntime {
         getConsole().getMission().addPlan(plan);
         
         //sendMessage(IMCMessage msg, String errorTextForDialog, boolean sendOnlyThroughOneAcoustically,String... ids)
-        boolean sent = IMCSendMessageUtils.sendMessage(plan.asIMCPlan(),null,acoustics, vs);
+        boolean sent = IMCSendMessageUtils.sendMessage(plan.asIMCPlan(),null,acoustics, vs.toArray(new String[vs.size()]));
         
         NeptusTaskExecutionAdapter exec = new NeptusTaskExecutionAdapter(task.getId());
+        
+//        int reqId = IMCSendMessageUtils.getNextRequestId();
+//        PlanControl pc = new PlanControl();
+//        pc.setType(PlanControl.TYPE.REQUEST);
+//        pc.setRequestId(reqId);
+//        String cmdStrMsg = "";
+        
         exec.synchronizedWithVehicles(sent); 
         runningTasks.add(exec);  
         

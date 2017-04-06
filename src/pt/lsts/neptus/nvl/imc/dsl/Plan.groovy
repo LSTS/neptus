@@ -17,12 +17,14 @@ import pt.lsts.imc.PopUp
 import pt.lsts.imc.CompassCalibration.DIRECTION
 import pt.lsts.imc.net.*
 import pt.lsts.neptus.comm.IMCSendMessageUtils
+import pt.lsts.neptus.comm.manager.imc.ImcSystem
 import pt.lsts.neptus.comm.manager.imc.ImcSystemsHolder
 import pt.lsts.neptus.types.mission.plan.PlanType
 import pt.lsts.neptus.types.mission.ConditionType
 import pt.lsts.neptus.types.mission.MissionType
 import pt.lsts.neptus.types.mission.TransitionType
 import pt.lsts.neptus.console.ConsoleLayout
+import pt.lsts.neptus.console.plugins.planning.plandb.PlanDBState;
 import pt.lsts.neptus.mp.Maneuver as NeptusManeuver
 import pt.lsts.neptus.mp.maneuvers.Launch as NeptusLaunch
 import pt.lsts.neptus.mp.maneuvers.PopUp  as NeptusPopUp
@@ -46,6 +48,7 @@ class Plan {
 	List<PlanManeuver> mans = new ArrayList <>()
     List<NeptusManeuver> neptus_mans = new ArrayList <>()
 	int count
+    String [] vehicles_id
 	Plan(String id){
 		plan_id = id
 		count = 1
@@ -378,6 +381,41 @@ class Plan {
 	def move(double northing, double easting){
 		this.location= location.translateBy(northing,easting)
 	}
+    
+    /**
+     * Vehicles to send this plan
+     */
+    def void setVehicles(String...vehicles) {
+        vehicles_id = vehicles
+    }
+    
+    /**
+     * 
+     * @param plan
+     * @return null if is in sync w/ all vehicles otherwise returns a list of the vehicles not in  sync 
+     */
+    def String[] syncPlanVehicles(PlanType plan){
+        String notInSync =""
+        ImcSystem sys
+        //TODO
+        if(vehicles_id == null){
+            println "Please define the vehicles to send this plan"
+            return
+        }
+        vehicles_id.each {
+            if((sys = ImcSystemsHolder.lookupSystemByName(it)) != null) {
+                PlanDBState prs = sys.getPlanDBControl().getRemoteState();
+                if (prs == null || !prs.matchesRemotePlan(plan)) {
+                    notInSync += (notInSync.length() > 0 ? ", " : "") + it
+                    
+                }
+            }
+            
+        }
+        
+        {notInSync}
+    }
+    
 
 	private def List<PlanTransition> maneuver_transitions(){
 		
@@ -434,6 +472,9 @@ class Plan {
             }
             
         plantype.setId(plan_id)
+        if(vehicles_id==null)
+            vehicles_id = {"lauv-xplore-1"}
+        vehicles_id.each { plantype.setVehicle(it) }
         plantype.setMissionType(console.getMission())
         console.getMission().getIndividualPlansList().put(plan_id,plantype)
         console.getMission().save(true)
@@ -449,6 +490,7 @@ class Plan {
 			planId: this.plan_id,
 			arg: plan_spec
 			)
+        
 		ImcSystemsHolder.lookupActiveSystemVehicles().each { //Through Groovy Plugin  
             
 			if(it.getId().equals(vehicle))

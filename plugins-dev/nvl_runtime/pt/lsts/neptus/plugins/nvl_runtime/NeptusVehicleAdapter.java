@@ -32,6 +32,7 @@
  */
 package pt.lsts.neptus.plugins.nvl_runtime;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import pt.lsts.neptus.comm.manager.imc.ImcSystem;
@@ -55,22 +56,23 @@ public class NeptusVehicleAdapter implements NVLVehicle {
 
     private final ImcSystem imcsystem;
     private final STATE state;
-    private final List<PayloadComponent> availablePayload=null;
+    private final List<PayloadComponent> availablePayload;
     private final String  acousticOPservice="acoustic/operation";
     
     public NeptusVehicleAdapter(ImcSystem imcData,STATE s) {
+       List<PayloadComponent> ps = new ArrayList<>();
         imcsystem = imcData;
         state = s;
          for(String payload : PlanCompatibility.availablePayloads(VehiclesHolder.getVehicleById(getId()))) {
-             availablePayload.add(new NeptusPayloadAdapter(payload));
+             ps.add(new NeptusPayloadAdapter(payload));
          } 
          
          for(CommMean com : VehiclesHolder.getVehicleById(getId()).getCommunicationMeans().values()) { //IMC | HTTP | IRIDIUM | GSM
-             availablePayload.add(new NeptusPayloadAdapter(com.getName()));
+             ps.add(new NeptusPayloadAdapter(com.getName()));
          }
          if(hasAcoustics())
-             availablePayload.add(new NeptusPayloadAdapter(acousticOPservice));
-        
+             ps.add(new NeptusPayloadAdapter(acousticOPservice));
+        availablePayload = ps;
     }
     
     public boolean hasAcoustics(){

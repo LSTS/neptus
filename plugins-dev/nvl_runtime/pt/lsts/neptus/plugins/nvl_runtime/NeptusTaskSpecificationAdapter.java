@@ -93,4 +93,10 @@ public class NeptusTaskSpecificationAdapter implements TaskSpecification {
     public PlanType getPlan() {
         return plan;
     }
+    
+    public PlanType mapArea() { //given some restrictions and a area to map 
+                                //-> allocate to the selected vehicles distributing the load according to vehicles capabilities
+        //TODO
+        return null;
+    }
 }

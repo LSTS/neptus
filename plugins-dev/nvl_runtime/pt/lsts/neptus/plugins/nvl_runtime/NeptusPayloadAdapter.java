@@ -72,5 +72,13 @@ public class NeptusPayloadAdapter implements PayloadComponent {
         return pc.getName().equals(name) && pc.getRange() == range;
         
     }
+    /**
+     * If the payload your comparing to has at least the same capacity
+     * @param other
+     * @return 
+     */
+    public boolean compatibleRange(PayloadComponent other){
+        return other.getRange()>= this.getRange();
+    }
 
 }
