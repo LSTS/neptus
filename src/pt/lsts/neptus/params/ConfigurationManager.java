@@ -333,6 +333,7 @@ public class ConfigurationManager {
                     }
                 }
 
+                String admisibleValuesTxt = "";
                 String valuesIfDescStr = "";
                 
                 if (isList) {
@@ -677,6 +678,7 @@ public class ConfigurationManager {
                     if (pValues != null) {
                         String vlStr = pValues.getStringValue();
                         admisibleValues = extractStringListToArrayList(type, vlStr);
+                        admisibleValuesTxt = buildValuesDescription(admisibleValues);                                
                     }
                         
                     switch (valueType) {
@@ -769,9 +771,9 @@ public class ConfigurationManager {
                         + (type.startsWith("list:") ? I18n.text(type.substring(0, 4)) + ":"
                                 + I18n.text(type.substring(5)) : I18n.text(type)) + lstSizeTxt + "] " : "";
                 String defaultTxt = defaultValue != null ? "[" + I18n.text("default") + "=" + defaultValue + units + "] " : "";
-                String minMaxValuesTxt = minMaxStr.length() > 0 ? "[" + minMaxStr + "]" : "";
+                String minMaxValuesTxt = minMaxStr.length() > 0 ? "[" + minMaxStr + "] " : "";
                 String descStr = (desc == null || desc.isEmpty() ? "" : desc + "\n");
-                descStr += unitsTxt + typeTxt + defaultTxt + minMaxValuesTxt + "\n";
+                descStr += unitsTxt + typeTxt + defaultTxt + minMaxValuesTxt + admisibleValuesTxt + "\n";
                 descStr += valuesIfDescStr;
                 descStr.replaceAll("\\n$", "");
                 descStr.replaceAll("(\\n){2}", "");
@@ -812,6 +814,18 @@ public class ConfigurationManager {
         return params;
     }
 
+    private String buildValuesDescription(ArrayList<?> values) {
+        if (values == null || values.isEmpty())
+            return "";
+        
+        StringBuilder validValuesStrBldr = new StringBuilder();
+        validValuesStrBldr = buildValuesToStringDescWorker(values, validValuesStrBldr);
+        if (validValuesStrBldr.length() > 0)
+            return I18n.textf("(valid values are: %validValues) ", validValuesStrBldr.toString());
+        
+        return "";
+    }
+
     /**
      * Builds the values-if description. Returns the valuesIfDescStrBuilder filled.
      * 
@@ -821,9 +835,24 @@ public class ConfigurationManager {
      * @param values
      * @return valuesIfDescStrBuilder
      */
-    public StringBuilder buildValuesIfDescriptionAndAppend(StringBuilder valuesIfDescStrBuilder, Element paramName,
+    private StringBuilder buildValuesIfDescriptionAndAppend(StringBuilder valuesIfDescStrBuilder, Element paramName,
             Element eqParam, ArrayList<?> values) {
         StringBuilder validValuesStrBldr = new StringBuilder();
+        validValuesStrBldr = buildValuesToStringDescWorker(values, validValuesStrBldr);
+        if (valuesIfDescStrBuilder.length() != 0)
+            valuesIfDescStrBuilder.append(" | ");
+        valuesIfDescStrBuilder
+                .append(I18n.textf("if '%paramName=%paramValue' then valid values are: %validValues",
+                        paramName.getTextTrim(), eqParam.getTextTrim(), validValuesStrBldr.toString()));
+        return valuesIfDescStrBuilder;
+    }
+
+    /**
+     * @param values
+     * @param validValuesStrBldr
+     * @return 
+     */
+    private StringBuilder buildValuesToStringDescWorker(ArrayList<?> values, StringBuilder validValuesStrBldr) {
         for (Object objV : values) {
             if (validValuesStrBldr.length() != 0)
                 validValuesStrBldr.append(", ");
@@ -844,12 +873,8 @@ public class ConfigurationManager {
                 validValuesStrBldr.append(objV);
             }
         }
-        if (valuesIfDescStrBuilder.length() != 0)
-            valuesIfDescStrBuilder.append(" | ");
-        valuesIfDescStrBuilder
-                .append(I18n.textf("if '%paramName=%paramValue' then valid values are: %validValues",
-                        paramName.getTextTrim(), eqParam.getTextTrim(), validValuesStrBldr.toString()));
-        return valuesIfDescStrBuilder;
+        
+        return validValuesStrBldr;
     }
 
     /**
@@ -1222,10 +1247,10 @@ public class ConfigurationManager {
         
         ImcMsgManager mng = new ImcMsgManager(IMCDefinition.getInstance());
         SystemConfigurationEditorPanel systemConfEditor = new SystemConfigurationEditorPanel("seacat-mk1-01", Scope.GLOBAL, Visibility.USER, true,
-                false, true, mng);
+                true, true, mng);
         GuiUtils.testFrame(systemConfEditor);
         systemConfEditor = new SystemConfigurationEditorPanel("lauv-noptilus-1", Scope.GLOBAL, Visibility.USER, true,
-                false, true, mng);
+                true, true, mng);
         GuiUtils.testFrame(systemConfEditor);
     }
 }
