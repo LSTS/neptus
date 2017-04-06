@@ -931,14 +931,15 @@ public class LocationType implements XmlOutputMethods, Serializable, Comparable<
      * @param offsetDown
      * @return This location.
      */
-    public LocationType translatePosition(double offsetNorth, double offsetEast,
+    @SuppressWarnings("unchecked")
+    public <L extends LocationType> L translatePosition(double offsetNorth, double offsetEast,
             double offsetDown) {
 
         setOffsetNorth(getOffsetNorth() + offsetNorth);
         setOffsetEast(getOffsetEast() + offsetEast);
         setOffsetDown(getOffsetDown() + offsetDown);
 
-        return this;
+        return (L) this;
     }
 
     /**
@@ -946,11 +947,12 @@ public class LocationType implements XmlOutputMethods, Serializable, Comparable<
      * @param nedOffsets
      * @return This location.
      */
-    public LocationType translatePosition(double[] nedOffsets) {
+    @SuppressWarnings("unchecked")
+    public <L extends LocationType> L translatePosition(double[] nedOffsets) {
         if (nedOffsets.length < 3) {
             NeptusLog.pub().error("Invalid offsets length: found " + nedOffsets.length
                     + " values, expecting 3");
-            return this;
+            return (L) this;
         }
         return translatePosition(nedOffsets[0], nedOffsets[1], nedOffsets[2]);
     }
@@ -990,19 +992,20 @@ public class LocationType implements XmlOutputMethods, Serializable, Comparable<
      * Converts this Location to absolute (Lat/Lon/Depth without offsets). 
      * @return The Location itself. 
      */
-    public LocationType convertToAbsoluteLatLonDepth() {
+    @SuppressWarnings("unchecked")
+    public <L extends LocationType> L convertToAbsoluteLatLonDepth() {
         if (offsetNorth == 0 && offsetEast == 0 && offsetDown == 0 && offsetDistance == 0) {
-            return this;
+            return (L) this;
         }
         
         double latlondepth[] = getAbsoluteLatLonDepth();
 
-        setLocation(new LocationType());
+        setLocation(ABSOLUTE_ZERO);
         setLatitudeDegs(latlondepth[0]);
         setLongitudeDegs(latlondepth[1]);
         setDepth(latlondepth[2]);
 
-        return this;
+        return (L) this;
     }
 
     /**
