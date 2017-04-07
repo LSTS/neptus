@@ -333,6 +333,7 @@ public class ConfigurationManager {
                     }
                 }
 
+                String admisibleValuesTxt = "";
                 String valuesIfDescStr = "";
                 
                 if (isList) {
@@ -410,10 +411,12 @@ public class ConfigurationManager {
 
                     if (values != null) {
                         if (type.equals(SystemProperty.ValueTypeEnum.INTEGER.getText())) {
-                            comboEditor = new ComboEditor<>(((ArrayList<Long>) values).toArray(new Long[0]));
+                            if (!hasPairs(values))
+                                comboEditor = new ComboEditor<>(((ArrayList<Long>) values).toArray(new Long[0]));
                         }
                         else if (type.equals(SystemProperty.ValueTypeEnum.REAL.getText())) {
-                            comboEditor = new ComboEditor<>(((ArrayList<Double>) values).toArray(new Double[0]));
+                            if (!hasPairs(values))
+                                comboEditor = new ComboEditor<>(((ArrayList<Double>) values).toArray(new Double[0]));
                         }
                         else { // if (type.equals(SystemProperty.ValueTypeEnum.STRING.getText())) {
                             ArrayList<?> valuesI18n = extractI18nValues(type, pValues, values);
@@ -455,9 +458,7 @@ public class ConfigurationManager {
                             ArrayList<?> values = extractStringListToArrayList(type, valuesParam.getTextTrim());
 
                             if (values != null && !values.isEmpty()) {
-                                boolean isPair = false;
-                                if (values.get(0) instanceof Pair<?,?>)
-                                    isPair = true;
+                                boolean isPair = hasPairs(values);
                                 
                                 // Let us test what the test value type is
                                 ValueTypeEnum testValueType = null;
@@ -673,20 +674,27 @@ public class ConfigurationManager {
 
                 // If the #propEditor is not set until here, the defaults will be created
                 if (propEditor == null) {
+                    ArrayList<?> admisibleValues = null;
+                    if (pValues != null) {
+                        String vlStr = pValues.getStringValue();
+                        admisibleValues = extractStringListToArrayList(type, vlStr);
+                        admisibleValuesTxt = buildValuesDescription(admisibleValues);                                
+                    }
+                        
                     switch (valueType) {
                         case BOOLEAN:
                             propEditor = new BooleanAsCheckBoxPropertyEditor();
                             break;
                         case INTEGER:
-                            propEditor = minV == null && maxV == null ? new NumberEditor<>(Long.class) : new NumberEditor<>(
-                                    Long.class, minV == null ? null : minV.longValue(), maxV == null ? null : maxV.longValue());
+                            propEditor = minV == null && maxV == null ? new NumberEditor<>(Long.class, admisibleValues) : new NumberEditor<>(
+                                    Long.class, minV == null ? null : minV.longValue(), maxV == null ? null : maxV.longValue(), admisibleValues);
                             minMaxStr = minV == null ? "" : I18n.text("min") + "=" + minV.longValue() + units;
                             String commaSepStr = minMaxStr.length() != 0 ? ", " : "";
                             minMaxStr += maxV == null ? "" : commaSepStr + I18n.text("max") + "=" + maxV.longValue() + units;
                             break;
                         case REAL:
-                            propEditor = minV == null && maxV == null ? new NumberEditor<>(Double.class) : new NumberEditor<>(
-                                    Double.class, minV == null ? null : minV.doubleValue(), maxV == null ? null : maxV.doubleValue());
+                            propEditor = minV == null && maxV == null ? new NumberEditor<>(Double.class, admisibleValues) : new NumberEditor<>(
+                                    Double.class, minV == null ? null : minV.doubleValue(), maxV == null ? null : maxV.doubleValue(), admisibleValues);
                             minMaxStr = minV == null ? "" : I18n.text("min") + "=" + minV.doubleValue() + units;
                             commaSepStr = minMaxStr.length() != 0 ? ", " : "";
                             minMaxStr += maxV == null ? "" : commaSepStr + I18n.text("max") + "=" + maxV.doubleValue() + units;
@@ -763,9 +771,9 @@ public class ConfigurationManager {
                         + (type.startsWith("list:") ? I18n.text(type.substring(0, 4)) + ":"
                                 + I18n.text(type.substring(5)) : I18n.text(type)) + lstSizeTxt + "] " : "";
                 String defaultTxt = defaultValue != null ? "[" + I18n.text("default") + "=" + defaultValue + units + "] " : "";
-                String minMaxValuesTxt = minMaxStr.length() > 0 ? "[" + minMaxStr + "]" : "";
+                String minMaxValuesTxt = minMaxStr.length() > 0 ? "[" + minMaxStr + "] " : "";
                 String descStr = (desc == null || desc.isEmpty() ? "" : desc + "\n");
-                descStr += unitsTxt + typeTxt + defaultTxt + minMaxValuesTxt + "\n";
+                descStr += unitsTxt + typeTxt + defaultTxt + minMaxValuesTxt + admisibleValuesTxt + "\n";
                 descStr += valuesIfDescStr;
                 descStr.replaceAll("\\n$", "");
                 descStr.replaceAll("(\\n){2}", "");
@@ -806,6 +814,18 @@ public class ConfigurationManager {
         return params;
     }
 
+    private String buildValuesDescription(ArrayList<?> values) {
+        if (values == null || values.isEmpty())
+            return "";
+        
+        StringBuilder validValuesStrBldr = new StringBuilder();
+        validValuesStrBldr = buildValuesToStringDescWorker(values, validValuesStrBldr);
+        if (validValuesStrBldr.length() > 0)
+            return I18n.textf("(valid values are: %validValues) ", validValuesStrBldr.toString());
+        
+        return "";
+    }
+
     /**
      * Builds the values-if description. Returns the valuesIfDescStrBuilder filled.
      * 
@@ -815,9 +835,24 @@ public class ConfigurationManager {
      * @param values
      * @return valuesIfDescStrBuilder
      */
-    public StringBuilder buildValuesIfDescriptionAndAppend(StringBuilder valuesIfDescStrBuilder, Element paramName,
+    private StringBuilder buildValuesIfDescriptionAndAppend(StringBuilder valuesIfDescStrBuilder, Element paramName,
             Element eqParam, ArrayList<?> values) {
         StringBuilder validValuesStrBldr = new StringBuilder();
+        validValuesStrBldr = buildValuesToStringDescWorker(values, validValuesStrBldr);
+        if (valuesIfDescStrBuilder.length() != 0)
+            valuesIfDescStrBuilder.append(" | ");
+        valuesIfDescStrBuilder
+                .append(I18n.textf("if '%paramName=%paramValue' then valid values are: %validValues",
+                        paramName.getTextTrim(), eqParam.getTextTrim(), validValuesStrBldr.toString()));
+        return valuesIfDescStrBuilder;
+    }
+
+    /**
+     * @param values
+     * @param validValuesStrBldr
+     * @return 
+     */
+    private StringBuilder buildValuesToStringDescWorker(ArrayList<?> values, StringBuilder validValuesStrBldr) {
         for (Object objV : values) {
             if (validValuesStrBldr.length() != 0)
                 validValuesStrBldr.append(", ");
@@ -838,12 +873,20 @@ public class ConfigurationManager {
                 validValuesStrBldr.append(objV);
             }
         }
-        if (valuesIfDescStrBuilder.length() != 0)
-            valuesIfDescStrBuilder.append(" | ");
-        valuesIfDescStrBuilder
-                .append(I18n.textf("if '%paramName=%paramValue' then valid values are: %validValues",
-                        paramName.getTextTrim(), eqParam.getTextTrim(), validValuesStrBldr.toString()));
-        return valuesIfDescStrBuilder;
+        
+        return validValuesStrBldr;
+    }
+
+    /**
+     * @param values
+     * @return
+     */
+    private boolean hasPairs(ArrayList<?> values) {
+        for (Object object : values) {
+            if (object instanceof Pair<?,?>)
+                return true;
+        }
+        return false;
     }
 
     /**
@@ -851,13 +894,13 @@ public class ConfigurationManager {
      * @return
      */
     private boolean hasPairs(PropertyEditorChangeValuesIfDependencyAdapter<?, ?> pt) {
+       boolean ret = false;
         for (ValuesIf<?, ?> vif : pt.getValuesIfTests()) {
-            for (Object object : vif.values) {
-                if (object instanceof Pair<?,?>)
-                    return true;
-            }
+            ret = hasPairs(vif.values);
+            if (ret)
+                break;
         }
-        return false;
+        return ret;
     }
 
     /**
@@ -1204,10 +1247,10 @@ public class ConfigurationManager {
         
         ImcMsgManager mng = new ImcMsgManager(IMCDefinition.getInstance());
         SystemConfigurationEditorPanel systemConfEditor = new SystemConfigurationEditorPanel("seacat-mk1-01", Scope.GLOBAL, Visibility.USER, true,
-                false, true, mng);
+                true, true, mng);
         GuiUtils.testFrame(systemConfEditor);
         systemConfEditor = new SystemConfigurationEditorPanel("lauv-noptilus-1", Scope.GLOBAL, Visibility.USER, true,
-                false, true, mng);
+                true, true, mng);
         GuiUtils.testFrame(systemConfEditor);
     }
 }
