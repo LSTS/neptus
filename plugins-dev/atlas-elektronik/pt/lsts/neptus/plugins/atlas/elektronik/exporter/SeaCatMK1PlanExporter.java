@@ -463,8 +463,8 @@ public class SeaCatMK1PlanExporter implements IPlanFileExporter {
      */
     private String getCommandGoto(double latDegs, double lonDegs, double depth, ManeuverLocation.Z_UNITS depthUnit,
             double speedKnots) throws Exception {
-        return getCommand('A', "Goto", formatReal(latDegs), formatReal(lonDegs), formatReal(depth),
-                formatDepthUnit(depthUnit), formatReal(speedKnots));
+        return getCommand('A', "Goto", formatReal(latDegs), formatReal(lonDegs), formatReal(depth, (short) 1),
+                formatDepthUnit(depthUnit), formatReal(speedKnots, (short) 1));
     }
 
     /**
@@ -481,8 +481,8 @@ public class SeaCatMK1PlanExporter implements IPlanFileExporter {
     private String getCommandGotoDirection(double directionDegs, double distanceMeters, double depth, ManeuverLocation.Z_UNITS  depthUnit,
             double speedKnots) throws Exception {
         double dir = AngleUtils.nomalizeAngleDegrees360(directionDegs);
-        return getCommand('B', "Goto", formatReal(dir, (short) 1), formatReal(distanceMeters), formatReal(depth),
-                formatDepthUnit(depthUnit), formatReal(speedKnots));
+        return getCommand('B', "Goto", formatReal(dir, (short) 1), formatReal(distanceMeters, (short) 1), formatReal(depth, (short) 1),
+                formatDepthUnit(depthUnit), formatReal(speedKnots, (short) 1));
     }
 
 
@@ -507,7 +507,7 @@ public class SeaCatMK1PlanExporter implements IPlanFileExporter {
             double centerLonDegs, Character direction, double depth, ManeuverLocation.Z_UNITS  depthUnit, double speedKnots) throws Exception {
         return getCommand('C', "Curve", formatReal(targetLatDegs), formatReal(targetLonDegs),
                 formatReal(centerLatDegs), formatReal(centerLonDegs), direction == 'L' ? "L" : "R",
-                formatReal(depth), formatDepthUnit(depthUnit), formatReal(speedKnots));
+                formatReal(depth, (short) 1), formatDepthUnit(depthUnit), formatReal(speedKnots, (short) 1));
     }
 
     /**
@@ -520,7 +520,7 @@ public class SeaCatMK1PlanExporter implements IPlanFileExporter {
     private String getCommandKeepPosition(double latDegs, double lonDegs, double depth, ManeuverLocation.Z_UNITS  depthUnit,
             long timeSeconds) throws Exception {
         return getCommand('K', "KeepPosition", formatReal(latDegs), formatReal(lonDegs),
-                formatReal(depth), formatDepthUnit(depthUnit), formatInteger(timeSeconds));
+                formatReal(depth, (short) 1), formatDepthUnit(depthUnit), formatInteger(timeSeconds));
     }
     
     /**
