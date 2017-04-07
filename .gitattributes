@@ -9,6 +9,7 @@
 #  Declare  files  that  will  always  have  CRLF  line  endings  on  checkout.
 *.bat  text  eol=crlf
 plugins-dev/urready4os/pt/lsts/neptus/plugins/urready4os/template.mis  text  eol=crlf
+plugins-dev/atlas-elektronik/pt/lsts/neptus/plugins/atlas/elektronik/exporter/template.mis  text  eol=crlf
 *.tid  text  eol=crlf
 
 #  Declare  files  that  will  always  have  LF  line  endings  on  checkout.
