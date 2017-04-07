@@ -77,7 +77,7 @@
       <visibility>user</visibility>
       <scope>maneuver</scope>
       <default>1</default>
-      <units>m</units>
+      <units>s</units>
       <desc></desc>
       <min>-1</min>
       <max>60</max>
@@ -133,8 +133,8 @@
       <min>0</min>
       <max>200</max>
     </param>
-    <param name="Power">
-      <name-i18n>Power</name-i18n>
+    <param name="Gain">
+      <name-i18n>Gain</name-i18n>
       <type>integer</type>
       <visibility>user</visibility>
       <scope>maneuver</scope>
