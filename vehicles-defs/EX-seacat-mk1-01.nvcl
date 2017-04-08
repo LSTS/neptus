@@ -48,34 +48,29 @@
             </Goto>
         </maneuver>
         <maneuver>
-            <Loiter kind="automatic">
+            <StationKeeping kind="automatic">
                 <basePoint type="pointType">
                     <point>
-                        <id>LoiterLoc</id>
-                        <name>LoiterLoc</name>
+                        <id>SKLoc</id>
+                        <name>SKLoc</name>
                         <coordinate>
                             <latitude>0N</latitude>
                             <longitude>0E</longitude>
-                            <depth>2</depth>
+                            <depth>0</depth>
                         </coordinate>
                     </point>
                     <radiusTolerance>5</radiusTolerance>
                 </basePoint>
-                <duration>30</duration>
+                <duration>0</duration>
                 <trajectory>
                     <radius type="float">10</radius>
-                    <radiusTolerance type="float">5</radiusTolerance>
-                    <type>Circular</type>
-                    <length type="float">50</length>
-                    <bearing type="float">0</bearing>
-                    <direction>Clockwise</direction>
                 </trajectory>
-                <speed type="float" unit="m/s" tolerance="5">1.8</speed>
+                <speed type="float" unit="m/s" tolerance="5">1.0</speed>
                 <annotation>
-                    <documentation>Loiter over a point</documentation>
-                    <implementation-class>pt.lsts.neptus.mp.maneuvers.Loiter</implementation-class>
+                    <documentation>Station Keeping</documentation>
+                    <implementation-class>pt.lsts.neptus.mp.maneuvers.StationKeeping</implementation-class>
                 </annotation>
-            </Loiter>
+            </StationKeeping>
         </maneuver>
         <maneuver>
             <RowsManeuver kind="automatic">
