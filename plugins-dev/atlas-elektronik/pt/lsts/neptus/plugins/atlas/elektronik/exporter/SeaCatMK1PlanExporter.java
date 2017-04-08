@@ -281,10 +281,13 @@ public class SeaCatMK1PlanExporter implements IPlanFileExporter {
                             break;
                         case "Acoms":
                             Vector<EntityParameter> params = sep.getParams();
-                            if (Boolean.parseBoolean(params.get(0).getValue())) {
+                            if (Boolean.parseBoolean(params.get(0).getValue())) { // "Auto Send" parameter
                                 EntityParameter pRep = getParamWithName(params, "Repetitions");
                                 EntityParameter pInt = getParamWithName(params, "Interval");
                                 sb.append(getSetting('Q', "Acoms", pRep.getValue(), pInt.getValue()));
+                            }
+                            else {
+                                sb.append(getSetting('Q', "Acoms", "0"));
                             }
                             break;
                         default:
