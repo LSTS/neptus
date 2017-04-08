@@ -315,18 +315,29 @@ public class SeaCatMK1PlanExporter implements IPlanFileExporter {
         StringBuilder sb = new StringBuilder();
         for (EntityParameter ep : params) {
             String name = ep.getName();
-            if (name.equalsIgnoreCase("Active"))
+            boolean activeKey = false;
+            boolean activeValue = false;
+            if (name.equalsIgnoreCase("Active")) {
                 name = translatePayloadActiveFor(payloadName);
-            else
+                activeKey = true;
+            }
+            else {
                 name = name.replaceAll(" {1,}", "-").toUpperCase();
+            }
             String value = ep.getValue();
-            if (value.equalsIgnoreCase("true"))
+            if (value.equalsIgnoreCase("true")) {
                 value = "ON";
-            else if (value.equalsIgnoreCase("false"))
+                activeValue = true;
+            }
+            else if (value.equalsIgnoreCase("false")) {
                 value = "OFF";
+                activeValue = false;
+            }
             sb.append(name.toUpperCase());
             sb.append(":");
             sb.append(value.toUpperCase());
+            if (activeKey && !activeValue)
+                break;
             sb.append(";");
         }
         
