@@ -50,6 +50,7 @@ import org.apache.commons.io.IOUtils;
 import pt.lsts.imc.EntityParameter;
 import pt.lsts.imc.IMCMessage;
 import pt.lsts.imc.SetEntityParameters;
+import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.mp.Maneuver;
 import pt.lsts.neptus.mp.ManeuverLocation;
 import pt.lsts.neptus.mp.ManeuverLocation.Z_UNITS;
@@ -58,6 +59,7 @@ import pt.lsts.neptus.mp.maneuvers.Goto;
 import pt.lsts.neptus.mp.maneuvers.LocatedManeuver;
 import pt.lsts.neptus.mp.maneuvers.ManeuversUtil;
 import pt.lsts.neptus.mp.maneuvers.PathProvider;
+import pt.lsts.neptus.mp.maneuvers.RowsPattern;
 import pt.lsts.neptus.mp.maneuvers.StationKeeping;
 import pt.lsts.neptus.types.mission.plan.IPlanFileExporter;
 import pt.lsts.neptus.types.mission.plan.PlanType;
@@ -72,6 +74,9 @@ import pt.lsts.neptus.util.UnitsUtil;
 public class SeaCatMK1PlanExporter implements IPlanFileExporter {
 
     private static final String NEW_LINE = "\r\n";
+    private static final String COMMENT_CHAR = "%";
+    private static final String COMMENT_CHAR_WITH_SPACE = COMMENT_CHAR + " ";
+
     /** Tue Dec 15 13:34:50 2009 */
     public static final SimpleDateFormat dateFormatter = new SimpleDateFormat("EEE MMM d HH:mm:ss yyyy Z");
     public static HashMap<String, String> activeReplacementStringForPayload = new HashMap<>();
@@ -227,12 +232,17 @@ public class SeaCatMK1PlanExporter implements IPlanFileExporter {
      */
     private String getSectionBody(PlanType plan) throws Exception {
         StringBuilder sb = new StringBuilder();
+        
+        sb.append(getCommentLine("Plan: ", plan.getId()));
+        sb.append(NEW_LINE);
+        
         for (Maneuver m : plan.getGraph().getManeuversSequence()) {
             double speedKnots = ManeuversUtil.getSpeedMps(m);
             if (!Double.isNaN(speedKnots))
                 speedKnots *= UnitsUtil.MS_TO_KNOT;
             
             if (m instanceof PathProvider) {
+                sb.append(getCommentLine(m.getId()));
                 sb.append(getPayloadSettingsFromManeuver(m));
 
                 Collection<ManeuverLocation> waypoints = ((LocatedManeuver) m).getWaypoints();
@@ -251,6 +261,7 @@ public class SeaCatMK1PlanExporter implements IPlanFileExporter {
                 }
             }
             else if (m instanceof StationKeeping) {
+                sb.append(getCommentLine(m.getId()));
                 sb.append(getPayloadSettingsFromManeuver(m));
                 
                 ManeuverLocation wp = ((StationKeeping) m).getManeuverLocation();
@@ -262,12 +273,17 @@ public class SeaCatMK1PlanExporter implements IPlanFileExporter {
                 if (Double.isNaN(speedKnots))
                     continue;
                 
+                sb.append(getCommentLine(m.getId()));
                 sb.append(getPayloadSettingsFromManeuver(m));
                 
                 ManeuverLocation wp = ((Goto) m).getManeuverLocation();
                 wp.convertToAbsoluteLatLonDepth();
                 sb.append(getCommandGoto(wp.getLatitudeDegs(), wp.getLongitudeDegs(), wp.getZ(), wp.getZUnits(),
                         speedKnots));
+            }
+            else {
+                NeptusLog.pub().warn(
+                        String.format("Unsupported maneuver found \"%s\" in plan \"%s\".", m.getId(), plan.getId()));
             }
             sb.append(NEW_LINE);
         }
@@ -367,6 +383,22 @@ public class SeaCatMK1PlanExporter implements IPlanFileExporter {
         }
         
         return getSetting('P', payloadName, sb.toString());
+    }
+
+    /**
+     * @param txt
+     * @return
+     */
+    private String getCommentLine(String... txt) {
+        int cap = COMMENT_CHAR_WITH_SPACE.length() + NEW_LINE.length();
+        for (String st : txt)
+            cap += st.length();
+        StringBuilder sb = new StringBuilder(cap);
+        sb.append(COMMENT_CHAR_WITH_SPACE);
+        for (String st : txt)
+            sb.append(st);
+        sb.append(NEW_LINE);
+        return sb.toString();
     }
 
     /**
@@ -584,6 +616,8 @@ public class SeaCatMK1PlanExporter implements IPlanFileExporter {
      */
     private Object getCommandsBeforeEnd() {
         StringBuilder sb = new StringBuilder();
+
+        sb.append(getCommentLine("Ending"));
 
         // Disabled settings
         sb.append(getSettingObstacleAvoidance(false));
