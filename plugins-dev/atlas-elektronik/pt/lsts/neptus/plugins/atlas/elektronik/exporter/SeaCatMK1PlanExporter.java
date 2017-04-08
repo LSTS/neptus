@@ -407,7 +407,8 @@ public class SeaCatMK1PlanExporter implements IPlanFileExporter {
             case HEIGHT:
             case NONE:
             default:
-                throw new Exception("Bad Z unit " + depthUnit + ", valid are " + Z_UNITS.DEPTH + " or " + Z_UNITS.ALTITUDE);
+                throw new Exception("Unsupported Z unit " + depthUnit + ", valid are " + 
+                        Z_UNITS.DEPTH + " or " + Z_UNITS.ALTITUDE);
         }
     }
 
