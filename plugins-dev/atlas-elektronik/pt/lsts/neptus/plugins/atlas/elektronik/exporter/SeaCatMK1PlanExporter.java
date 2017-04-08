@@ -59,6 +59,7 @@ import pt.lsts.neptus.mp.maneuvers.Goto;
 import pt.lsts.neptus.mp.maneuvers.LocatedManeuver;
 import pt.lsts.neptus.mp.maneuvers.ManeuversUtil;
 import pt.lsts.neptus.mp.maneuvers.PathProvider;
+import pt.lsts.neptus.mp.maneuvers.RowsManeuver;
 import pt.lsts.neptus.mp.maneuvers.RowsPattern;
 import pt.lsts.neptus.mp.maneuvers.StationKeeping;
 import pt.lsts.neptus.types.mission.plan.IPlanFileExporter;
@@ -250,14 +251,45 @@ public class SeaCatMK1PlanExporter implements IPlanFileExporter {
 
                 ManeuverLocation prevWp = null;
                 double curHeadingRad = Double.NaN;
+                boolean prevWasCurve = false;
                 for (ManeuverLocation wp : ((LocatedManeuver) m).getWaypoints()) {
                     if (prevWp != null) {
+                        boolean curveAdded = false;
+                        if (!Double.isNaN(curHeadingRad) && !prevWasCurve) {
+                            if (m instanceof RowsManeuver || m instanceof RowsPattern) {
+                                // We take advantage of the way the pattern is done, with 90deg curves
+                                double nextHeadingRad = AngleUtils.nomalizeAngleRadsPi(wp.getXYAngle(prevWp));
+                                double deltaAngleCurveRad = AngleUtils.nomalizeAngleRadsPi(nextHeadingRad - curHeadingRad);
+                                if (Math.abs(Math.abs(Math.toDegrees(deltaAngleCurveRad)) - 90) < 2) {
+                                    double[] dist = wp.getOffsetFrom(prevWp);
+                                    ManeuverLocation centerLocation = prevWp.getNewAbsoluteLatLonDepth();
+                                    centerLocation.translatePosition(dist[0] / 2, dist[1] / 2, dist[2] / 2);
+                                    centerLocation.convertToAbsoluteLatLonDepth();
+                                    double targetLatDegs = wp.getLatitudeDegs();
+                                    double targetLonDegs = wp.getLongitudeDegs();
+                                    double centerLatDegs = centerLocation.getLatitudeDegs();
+                                    double centerLonDegs = centerLocation.getLongitudeDegs();
+                                    Character direction = Math.signum(deltaAngleCurveRad) > 0 ? 'R' : 'L';
+                                    double depth = wp.getZ();
+                                    Z_UNITS depthUnit = wp.getZUnits();
+                                    sb.append(getCommandCurve(targetLatDegs, targetLonDegs, centerLatDegs, centerLonDegs,
+                                            direction, depth, depthUnit, speedKnots));
+                                    curveAdded = true;
+                                }
+                            }
+                        }
                         curHeadingRad = AngleUtils.nomalizeAngleRadsPi(wp.getXYAngle(prevWp));
+                        if (curveAdded) {
+                            prevWp = wp;
+                            prevWasCurve = true;
+                            continue;
+                        }
                     }
                     
                     sb.append(getCommandGoto(wp.getLatitudeDegs(), wp.getLongitudeDegs(), wp.getZ(), wp.getZUnits(),
                             speedKnots));
                     prevWp = wp;
+                    prevWasCurve = false;
                 }
             }
             else if (m instanceof StationKeeping) {
