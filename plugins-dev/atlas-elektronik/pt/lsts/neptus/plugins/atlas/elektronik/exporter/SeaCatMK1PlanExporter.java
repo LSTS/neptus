@@ -36,6 +36,7 @@ import java.io.File;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Locale;
@@ -53,10 +54,10 @@ import pt.lsts.neptus.mp.Maneuver;
 import pt.lsts.neptus.mp.ManeuverLocation;
 import pt.lsts.neptus.mp.ManeuverLocation.Z_UNITS;
 import pt.lsts.neptus.mp.actions.PlanActions;
-import pt.lsts.neptus.mp.maneuvers.FollowPath;
 import pt.lsts.neptus.mp.maneuvers.Goto;
+import pt.lsts.neptus.mp.maneuvers.LocatedManeuver;
 import pt.lsts.neptus.mp.maneuvers.ManeuversUtil;
-import pt.lsts.neptus.mp.maneuvers.RowsManeuver;
+import pt.lsts.neptus.mp.maneuvers.PathProvider;
 import pt.lsts.neptus.mp.maneuvers.StationKeeping;
 import pt.lsts.neptus.types.mission.plan.IPlanFileExporter;
 import pt.lsts.neptus.types.mission.plan.PlanType;
@@ -231,12 +232,23 @@ public class SeaCatMK1PlanExporter implements IPlanFileExporter {
             if (!Double.isNaN(speedKnots))
                 speedKnots *= UnitsUtil.MS_TO_KNOT;
             
-            // if (m instanceof PathProvider)
-            if (m instanceof FollowPath) {
-                
-            }
-            else if (m instanceof RowsManeuver) {
-                
+            if (m instanceof PathProvider) {
+                sb.append(getPayloadSettingsFromManeuver(m));
+
+                Collection<ManeuverLocation> waypoints = ((LocatedManeuver) m).getWaypoints();
+                waypoints.stream().forEach(wp -> wp.convertToAbsoluteLatLonDepth());
+
+                ManeuverLocation prevWp = null;
+                double curHeadingRad = Double.NaN;
+                for (ManeuverLocation wp : ((LocatedManeuver) m).getWaypoints()) {
+                    if (prevWp != null) {
+                        curHeadingRad = AngleUtils.nomalizeAngleRadsPi(wp.getXYAngle(prevWp));
+                    }
+                    
+                    sb.append(getCommandGoto(wp.getLatitudeDegs(), wp.getLongitudeDegs(), wp.getZ(), wp.getZUnits(),
+                            speedKnots));
+                    prevWp = wp;
+                }
             }
             else if (m instanceof StationKeeping) {
                 sb.append(getPayloadSettingsFromManeuver(m));
@@ -256,12 +268,6 @@ public class SeaCatMK1PlanExporter implements IPlanFileExporter {
                 wp.convertToAbsoluteLatLonDepth();
                 sb.append(getCommandGoto(wp.getLatitudeDegs(), wp.getLongitudeDegs(), wp.getZ(), wp.getZUnits(),
                         speedKnots));
-                
-//                for (ManeuverLocation wpt : ((LocatedManeuver) m).getWaypoints()) {
-//                    wpt.convertToAbsoluteLatLonDepth();
-//                    double depth = wpt.getDepth();
-//                    double distance = 0;
-//                }
             }
             sb.append(NEW_LINE);
         }
