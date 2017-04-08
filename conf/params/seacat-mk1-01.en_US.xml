@@ -23,15 +23,6 @@
     </param>
   </section>
   <section name="Acoms" name-i18n="Acoms">
-    <param name="Active">
-      <name-i18n>Active</name-i18n>
-      <type>boolean</type>
-      <visibility>user</visibility>
-      <scope>maneuver</scope>
-      <default>false</default>
-      <units/>
-      <desc>True to activate task, false otherwise</desc>
-    </param>
     <param name="Auto Send">
       <name-i18n>Auto Send</name-i18n>
       <type>boolean</type>
@@ -59,7 +50,7 @@
       <values-if>
         <param>Auto Send</param>
         <equals>true</equals>
-        <values>0..5</values>
+        <values>1..5</values>
       </values-if>
     </param>
     <param name="In Curves Only">
