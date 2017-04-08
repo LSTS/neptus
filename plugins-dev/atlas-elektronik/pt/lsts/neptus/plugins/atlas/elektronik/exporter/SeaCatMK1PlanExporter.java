@@ -35,6 +35,7 @@ package pt.lsts.neptus.plugins.atlas.elektronik.exporter;
 import java.io.File;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Locale;
@@ -98,8 +99,10 @@ public class SeaCatMK1PlanExporter implements IPlanFileExporter {
         }
     }
     
+    // This shall be reseted at the beginning of exporting
     private long commandLineCounter = 1;
-    
+    private ArrayList<String> payloadsInPlan = new ArrayList<>();
+
     public SeaCatMK1PlanExporter() {
     }
 
@@ -125,6 +128,7 @@ public class SeaCatMK1PlanExporter implements IPlanFileExporter {
     @Override
     public void exportToFile(PlanType plan, File out, ProgressMonitor monitor) throws Exception {
         commandLineCounter = 1;
+        payloadsInPlan.clear();
         
         String template = IOUtils.toString(FileUtil.getResourceAsStream("template.mis"));
 
@@ -262,8 +266,9 @@ public class SeaCatMK1PlanExporter implements IPlanFileExporter {
             sb.append(NEW_LINE);
         }
         
-        sb.append(NEW_LINE);
-        sb.append(getCommandEnd());
+
+        sb.append(getCommandsBeforeEnd());
+        sb.append(getCommandEnd(true));
         
         return sb.toString();
     }
@@ -281,12 +286,12 @@ public class SeaCatMK1PlanExporter implements IPlanFileExporter {
                     SetEntityParameters sep = (SetEntityParameters) msg;
                     switch (sep.getName()) {
                         case "ObstacleAvoidance":
-                            sb.append(getSetting('O', "ObstacleAvoidance",
-                                    Boolean.parseBoolean(sep.getParams().get(0).getValue()) ? "1" : "0"));
+                            sb.append(getSettingObstacleAvoidance(
+                                    Boolean.parseBoolean(sep.getParams().get(0).getValue())));
                             break;
                         case "ExternalControl":
-                            sb.append(getSetting('R', "ExternalControl",
-                                    Boolean.parseBoolean(sep.getParams().get(0).getValue()) ? "1" : "0"));
+                            sb.append(
+                                    getSettingExternalControl(Boolean.parseBoolean(sep.getParams().get(0).getValue())));
                             break;
                         case "Acoms":
                             Vector<EntityParameter> params = sep.getParams();
@@ -345,8 +350,13 @@ public class SeaCatMK1PlanExporter implements IPlanFileExporter {
             sb.append(name.toUpperCase());
             sb.append(":");
             sb.append(value.toUpperCase());
-            if (activeKey && !activeValue)
+            if (activeKey && !activeValue) {
+                // Mark payload for mission end switch off
+                if (!payloadsInPlan.contains(payloadName))
+                    payloadsInPlan.add(payloadName);
+
                 break;
+            }
             sb.append(";");
         }
         
@@ -475,6 +485,22 @@ public class SeaCatMK1PlanExporter implements IPlanFileExporter {
     }
 
     /**
+     * @param active
+     * @return
+     */
+    private String getSettingExternalControl(boolean active) {
+        return getSetting('R', "ExternalControl", active ? "1" : "0");
+    }
+
+    /**
+     * @param active
+     * @return
+     */
+    private String getSettingObstacleAvoidance(boolean active) {
+        return getSetting('O', "ObstacleAvoidance", active ? "1" : "0");
+    }
+
+    /**
      * C n A Goto Latitude Longitude depth depth-mode speed
      * 
      * @param latDegs
@@ -546,13 +572,33 @@ public class SeaCatMK1PlanExporter implements IPlanFileExporter {
         return getCommand('K', "KeepPosition", formatReal(latDegs), formatReal(lonDegs),
                 formatReal(depth, (short) 1), formatDepthUnit(depthUnit), formatInteger(timeSeconds));
     }
-    
+
+    /**
+     * @return
+     */
+    private Object getCommandsBeforeEnd() {
+        StringBuilder sb = new StringBuilder();
+
+        // Disabled settings
+        sb.append(getSettingObstacleAvoidance(false));
+        sb.append(getSettingExternalControl(false));
+        
+        // Switch off payloads
+        for (String payloadName : payloadsInPlan) {
+            String name = translatePayloadActiveFor(payloadName);
+            sb.append(getSetting('P', payloadName, name.toUpperCase() + ":OFF"));
+        }
+        
+        return sb.toString();
+    }
+
     /**
      * C 100 Z MissionEnd P
      * 
+     * @param keepPosOrDrift true to keep the position at the end or false for drift.
      * @return
      */
-    private String getCommandEnd() {
-       return getCommand('Z', "MissionEnd", "P"); 
+    private String getCommandEnd(boolean keepPosOrDrift) {
+       return getCommand('Z', "MissionEnd", keepPosOrDrift ? "P" : "D"); 
     }
 }
