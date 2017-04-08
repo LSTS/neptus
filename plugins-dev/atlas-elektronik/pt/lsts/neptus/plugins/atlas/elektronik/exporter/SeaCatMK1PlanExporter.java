@@ -56,6 +56,7 @@ import pt.lsts.neptus.mp.maneuvers.FollowPath;
 import pt.lsts.neptus.mp.maneuvers.Goto;
 import pt.lsts.neptus.mp.maneuvers.ManeuversUtil;
 import pt.lsts.neptus.mp.maneuvers.RowsManeuver;
+import pt.lsts.neptus.mp.maneuvers.StationKeeping;
 import pt.lsts.neptus.types.mission.plan.IPlanFileExporter;
 import pt.lsts.neptus.types.mission.plan.PlanType;
 import pt.lsts.neptus.util.AngleUtils;
@@ -232,6 +233,14 @@ public class SeaCatMK1PlanExporter implements IPlanFileExporter {
             }
             else if (m instanceof RowsManeuver) {
                 
+            }
+            else if (m instanceof StationKeeping) {
+                sb.append(getPayloadSettingsFromManeuver(m));
+                
+                ManeuverLocation wp = ((StationKeeping) m).getManeuverLocation();
+                wp.convertToAbsoluteLatLonDepth();
+                sb.append(getCommandKeepPosition(wp.getLatitudeDegs(), wp.getLongitudeDegs(), wp.getZ(), wp.getZUnits(),
+                        ((StationKeeping) m).getDuration()));
             }
             else if (m instanceof Goto) { // Careful with ordering because of extensions
                 if (Double.isNaN(speedKnots))
