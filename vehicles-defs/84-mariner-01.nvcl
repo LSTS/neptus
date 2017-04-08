@@ -243,7 +243,7 @@
                 <implementation-class>pt.lsts.neptus.mp.maneuvers.Land</implementation-class>
               </annotation>
             </Land>
-        </maneuver>        
+        </maneuver>
     </feasibleManeuvers>
     <communication-means>
         <comm-mean>
@@ -258,7 +258,7 @@
                     <port-tcp>6002</port-tcp>
                     <udp-on>true</udp-on>
                     <tcp-on>false</tcp-on>
-                    <imc-id>0c:09</imc-id>
+                    <imc-id>0c:20</imc-id>
                 </imc>
             </protocols-args>
         </comm-mean>
@@ -271,4 +271,4 @@
             <xml-file>../conf/consoles/ntnu/copter.ncon</xml-file>
         </console>
     </consoles>
-</system>     
+</system>

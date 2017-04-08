@@ -32,7 +32,7 @@
                         <coordinate>
                             <latitude>0N</latitude>
                             <longitude>0E</longitude>
-                            <height>150</height>
+                            <height>100</height>
                         </coordinate>
                     </point>
                     <radiusTolerance>5</radiusTolerance>
@@ -171,6 +171,8 @@
                     <implementation-class>pt.lsts.neptus.mp.maneuvers.CrossHatchPattern</implementation-class>
                 </annotation>
             </CrossHatchPattern>
+        </maneuver>
+        <maneuver>
             <Drop kind="automatic">
                 <finalPoint type="pointType">
                     <point>
@@ -247,7 +249,7 @@
         <comm-mean>
             <name>ethernet</name>
             <type>ethernet</type>
-            <host-address>10.0.20.150</host-address>
+            <host-address>10.0.20.145</host-address>
             <protocols>imc</protocols>
             <latency value="10M" unit="bps"/>
             <protocols-args>
@@ -256,7 +258,7 @@
                     <port-tcp>6002</port-tcp>
                     <udp-on>true</udp-on>
                     <tcp-on>false</tcp-on>
-                    <imc-id>0c:12</imc-id>
+                    <imc-id>0c:23</imc-id>
                 </imc>
             </protocols-args>
         </comm-mean>
