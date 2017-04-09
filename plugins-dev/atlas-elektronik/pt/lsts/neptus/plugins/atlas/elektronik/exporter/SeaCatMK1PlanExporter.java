@@ -655,11 +655,12 @@ public class SeaCatMK1PlanExporter implements IPlanFileExporter {
     }
 
     /**
-     * The command ‘K’makes the AUV to keep its position at the desired latitude an longitude in a desired depth and
-     * depth-mode for a desired time in seconds. 
+     * The command ‘K’ makes the AUV to keep its position at the desired latitude an longitude in a desired depth and
+     * depth-mode for a desired time in seconds.
      * 
      * C n K KeepPosition latitude longitude depth deph-mode time
-     * @throws Exception 
+     * 
+     * @throws Exception
      */
     private String getCommandKeepPosition(double latDegs, double lonDegs, double depth, ManeuverLocation.Z_UNITS  depthUnit,
             long timeSeconds) throws Exception {
