@@ -56,172 +56,172 @@ import pt.lsts.neptus.util.ColorUtils;
  * @author zp
  *
  */
-@XmlRootElement(name="OperationLimits")
-@LayerPriority(priority=35)
+@XmlRootElement(name = "OperationLimits")
+@LayerPriority(priority = 35)
 public class OperationLimits implements Renderer2DPainter {
 
     private Paint paintStripes = ColorUtils.createStripesPaint(
             ColorUtils.setTransparencyToColor(ColorUtils.STRIPES_YELLOW, 128),
             ColorUtils.setTransparencyToColor(Color.BLACK, 128));
 
-	protected Double maxDepth 		= null;
-	protected Double minAltitude	= null;
-	protected Double maxAltitude 	= null;
-	protected Double maxSpeed 		= null;
-	protected Double minSpeed 		= null;
-	protected Double maxVertRate 	= null;
-	
-	protected Double opAreaWidth 	= null;
-	protected Double opAreaLength 	= null;
-	protected Double opAreaLat 		= null;
-	protected Double opAreaLon	 	= null;
-	protected Double opRotationRads	= null;
-	
-//	private OffScreenLayerImageControl offscreen = new OffScreenLayerImageControl(imageTransparencyType);
-	
-	public Double getMaxDepth() {
-		return maxDepth;
-	}
+    protected Double maxDepth = null;
+    protected Double minAltitude = null;
+    protected Double maxAltitude = null;
+    protected Double maxSpeed = null;
+    protected Double minSpeed = null;
+    protected Double maxVertRate = null;
 
-	public void setMaxDepth(Double maxDepth) {
-		this.maxDepth = maxDepth;
-	}
+    protected Double opAreaWidth = null;
+    protected Double opAreaLength = null;
+    protected Double opAreaLat = null;
+    protected Double opAreaLon = null;
+    protected Double opRotationRads = null;
 
-	public Double getMinAltitude() {
-		return minAltitude;
-	}
+    // private OffScreenLayerImageControl offscreen = new OffScreenLayerImageControl(imageTransparencyType);
 
-	public void setMinAltitude(Double minAltitude) {
-		this.minAltitude = minAltitude;
-	}
+    public Double getMaxDepth() {
+        return maxDepth;
+    }
 
-	public Double getMaxAltitude() {
-		return maxAltitude;
-	}
+    public void setMaxDepth(Double maxDepth) {
+        this.maxDepth = maxDepth;
+    }
 
-	public void setMaxAltitude(Double maxAltitude) {
-		this.maxAltitude = maxAltitude;
-	}
+    public Double getMinAltitude() {
+        return minAltitude;
+    }
 
-	public Double getMaxSpeed() {
-		return maxSpeed;
-	}
+    public void setMinAltitude(Double minAltitude) {
+        this.minAltitude = minAltitude;
+    }
 
-	public void setMaxSpeed(Double maxSpeed) {
-		this.maxSpeed = maxSpeed;
-	}
+    public Double getMaxAltitude() {
+        return maxAltitude;
+    }
 
-	public Double getMinSpeed() {
-		return minSpeed;
-	}
+    public void setMaxAltitude(Double maxAltitude) {
+        this.maxAltitude = maxAltitude;
+    }
 
-	public void setMinSpeed(Double minSpeed) {
-		this.minSpeed = minSpeed;
-	}
+    public Double getMaxSpeed() {
+        return maxSpeed;
+    }
 
-	public Double getMaxVertRate() {
-		return maxVertRate;
-	}
+    public void setMaxSpeed(Double maxSpeed) {
+        this.maxSpeed = maxSpeed;
+    }
 
-	public void setMaxVertRate(Double maxVertRate) {
-		this.maxVertRate = maxVertRate;
-	}
+    public Double getMinSpeed() {
+        return minSpeed;
+    }
 
-	public Double getOpAreaWidth() {
-		return opAreaWidth;
-	}
+    public void setMinSpeed(Double minSpeed) {
+        this.minSpeed = minSpeed;
+    }
 
-	public void setOpAreaWidth(Double opAreaWidth) {
-		this.opAreaWidth = opAreaWidth;
-	}
+    public Double getMaxVertRate() {
+        return maxVertRate;
+    }
 
-	public Double getOpAreaLength() {
-		return opAreaLength;
-	}
+    public void setMaxVertRate(Double maxVertRate) {
+        this.maxVertRate = maxVertRate;
+    }
 
-	public void setOpAreaLength(Double opAreaLength) {
-		this.opAreaLength = opAreaLength;
-	}
+    public Double getOpAreaWidth() {
+        return opAreaWidth;
+    }
 
-	public Double getOpAreaLat() {
-		return opAreaLat;
-	}
+    public void setOpAreaWidth(Double opAreaWidth) {
+        this.opAreaWidth = opAreaWidth;
+    }
 
-	public void setOpAreaLat(Double opAreaLat) {
-		this.opAreaLat = opAreaLat;
-	}
+    public Double getOpAreaLength() {
+        return opAreaLength;
+    }
 
-	public Double getOpAreaLon() {
-		return opAreaLon;
-	}
+    public void setOpAreaLength(Double opAreaLength) {
+        this.opAreaLength = opAreaLength;
+    }
 
-	public void setOpAreaLon(Double opAreaLon) {
-		this.opAreaLon = opAreaLon;
-	}
+    public Double getOpAreaLat() {
+        return opAreaLat;
+    }
 
-	public Double getOpRotationRads() {
-		return opRotationRads;
-	}
+    public void setOpAreaLat(Double opAreaLat) {
+        this.opAreaLat = opAreaLat;
+    }
 
-	public void setOpRotationRads(Double opRotationRads) {
-		this.opRotationRads = opRotationRads;
-	}
-	
-	public void setArea(ParallelepipedElement selection) {
-		if (selection == null) {
-			opAreaLat = opAreaLon = opAreaLength = opAreaWidth = opRotationRads = null;
-		}
-		else {
-			double[] lld = selection.getCenterLocation().getAbsoluteLatLonDepth();
-			opAreaLat = lld[0];
-			opAreaLon = lld[1];
-			opAreaLength = selection.getLength();
-			opAreaWidth = selection.getWidth();
-			opRotationRads = selection.getYawRad();
-		}
-	}
+    public Double getOpAreaLon() {
+        return opAreaLon;
+    }
 
-	@Override
-	public void paint(Graphics2D g, StateRenderer2D renderer) {
-	    Graphics2D g1 = (Graphics2D) g.create();
-	    if (opAreaLat != null && opAreaLength != null && opAreaLon != null && opAreaWidth != null
-	            && opRotationRads != null) {
-	        LocationType lt = new LocationType();
-	        lt.setLatitudeDegs(opAreaLat);
-	        lt.setLongitudeDegs(opAreaLon);
-	        Point2D pt = renderer.getScreenPosition(lt);
-	        g1.translate(pt.getX(), pt.getY());
-	        g1.scale(1, -1);
-	        g1.rotate(renderer.getRotation());	
-	        g1.rotate(-opRotationRads+Math.PI/2);
-	        g1.setColor(Color.red.brighter());
-	        double length = opAreaLength * renderer.getZoom();
-	        double width = opAreaWidth * renderer.getZoom();
+    public void setOpAreaLon(Double opAreaLon) {
+        this.opAreaLon = opAreaLon;
+    }
 
-	        g1.setStroke(new BasicStroke(4));
-	        g1.setPaint(paintStripes);
-	        g1.draw(new Rectangle2D.Double(-length / 2, -width / 2, length, width));
-	    }
-	    g1.dispose();
-	}
+    public Double getOpRotationRads() {
+        return opRotationRads;
+    }
 
-	public String asXml() {
-		StringWriter writer = new StringWriter();
-		JAXB.marshal(this, writer);
-		return writer.toString();
-	}
-	
-	public static OperationLimits loadXml(String xml) {
-		return JAXB.unmarshal(new StringReader(xml), OperationLimits.class);		
-	}
+    public void setOpRotationRads(Double opRotationRads) {
+        this.opRotationRads = opRotationRads;
+    }
+
+    public void setArea(ParallelepipedElement selection) {
+        if (selection == null) {
+            opAreaLat = opAreaLon = opAreaLength = opAreaWidth = opRotationRads = null;
+        }
+        else {
+            double[] lld = selection.getCenterLocation().getAbsoluteLatLonDepth();
+            opAreaLat = lld[0];
+            opAreaLon = lld[1];
+            opAreaLength = selection.getLength();
+            opAreaWidth = selection.getWidth();
+            opRotationRads = selection.getYawRad();
+        }
+    }
+
+    @Override
+    public void paint(Graphics2D g, StateRenderer2D renderer) {
+        Graphics2D g1 = (Graphics2D) g.create();
+        if (opAreaLat != null && opAreaLength != null && opAreaLon != null && opAreaWidth != null
+                && opRotationRads != null) {
+            LocationType lt = new LocationType();
+            lt.setLatitudeDegs(opAreaLat);
+            lt.setLongitudeDegs(opAreaLon);
+            Point2D pt = renderer.getScreenPosition(lt);
+            g1.translate(pt.getX(), pt.getY());
+            g1.scale(1, -1);
+            g1.rotate(renderer.getRotation());
+            g1.rotate(-opRotationRads + Math.PI / 2);
+            g1.setColor(Color.red.brighter());
+            double length = opAreaLength * renderer.getZoom();
+            double width = opAreaWidth * renderer.getZoom();
+
+            g1.setStroke(new BasicStroke(4));
+            g1.setPaint(paintStripes);
+            g1.draw(new Rectangle2D.Double(-length / 2, -width / 2, length, width));
+        }
+        g1.dispose();
+    }
+
+    public String asXml() {
+        StringWriter writer = new StringWriter();
+        JAXB.marshal(this, writer);
+        return writer.toString();
+    }
+
+    public static OperationLimits loadXml(String xml) {
+        return JAXB.unmarshal(new StringReader(xml), OperationLimits.class);
+    }
 
     public static void main(String[] args) {
-		OperationLimits lims = new OperationLimits();
-		lims.setMaxAltitude(200d);
-		lims.setMinAltitude(100d);
-		String xml = lims.asXml();
-		NeptusLog.pub().info("<###> "+xml);
-		OperationLimits lims2 = OperationLimits.loadXml(xml);
-		NeptusLog.pub().info("<###> "+lims2.asXml());
-	}
+        OperationLimits lims = new OperationLimits();
+        lims.setMaxAltitude(200d);
+        lims.setMinAltitude(100d);
+        String xml = lims.asXml();
+        NeptusLog.pub().info("<###> " + xml);
+        OperationLimits lims2 = OperationLimits.loadXml(xml);
+        NeptusLog.pub().info("<###> " + lims2.asXml());
+    }
 }
