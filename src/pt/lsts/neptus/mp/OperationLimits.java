@@ -46,6 +46,7 @@ import javax.xml.bind.annotation.XmlRootElement;
 
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.renderer2d.LayerPriority;
+import pt.lsts.neptus.renderer2d.OffScreenLayerImageControl;
 import pt.lsts.neptus.renderer2d.Renderer2DPainter;
 import pt.lsts.neptus.renderer2d.StateRenderer2D;
 import pt.lsts.neptus.types.coord.LocationType;
@@ -54,6 +55,7 @@ import pt.lsts.neptus.util.ColorUtils;
 
 /**
  * @author zp
+ * @author pdias
  *
  */
 @XmlRootElement(name = "OperationLimits")
@@ -77,7 +79,7 @@ public class OperationLimits implements Renderer2DPainter {
     protected Double opAreaLon = null;
     protected Double opRotationRads = null;
 
-    // private OffScreenLayerImageControl offscreen = new OffScreenLayerImageControl(imageTransparencyType);
+    private OffScreenLayerImageControl offScreen = new OffScreenLayerImageControl();
 
     public Double getMaxDepth() {
         return maxDepth;
@@ -133,6 +135,7 @@ public class OperationLimits implements Renderer2DPainter {
 
     public void setOpAreaWidth(Double opAreaWidth) {
         this.opAreaWidth = opAreaWidth;
+        offScreen.triggerImageRebuild();
     }
 
     public Double getOpAreaLength() {
@@ -141,6 +144,7 @@ public class OperationLimits implements Renderer2DPainter {
 
     public void setOpAreaLength(Double opAreaLength) {
         this.opAreaLength = opAreaLength;
+        offScreen.triggerImageRebuild();
     }
 
     public Double getOpAreaLat() {
@@ -149,6 +153,7 @@ public class OperationLimits implements Renderer2DPainter {
 
     public void setOpAreaLat(Double opAreaLat) {
         this.opAreaLat = opAreaLat;
+        offScreen.triggerImageRebuild();
     }
 
     public Double getOpAreaLon() {
@@ -157,6 +162,7 @@ public class OperationLimits implements Renderer2DPainter {
 
     public void setOpAreaLon(Double opAreaLon) {
         this.opAreaLon = opAreaLon;
+        offScreen.triggerImageRebuild();
     }
 
     public Double getOpRotationRads() {
@@ -165,6 +171,7 @@ public class OperationLimits implements Renderer2DPainter {
 
     public void setOpRotationRads(Double opRotationRads) {
         this.opRotationRads = opRotationRads;
+        offScreen.triggerImageRebuild();
     }
 
     public void setArea(ParallelepipedElement selection) {
@@ -179,13 +186,20 @@ public class OperationLimits implements Renderer2DPainter {
             opAreaWidth = selection.getWidth();
             opRotationRads = selection.getYawRad();
         }
+        
+        offScreen.triggerImageRebuild();
     }
 
     @Override
     public void paint(Graphics2D g, StateRenderer2D renderer) {
-        Graphics2D g1 = (Graphics2D) g.create();
-        if (opAreaLat != null && opAreaLength != null && opAreaLon != null && opAreaWidth != null
-                && opRotationRads != null) {
+        if (!(opAreaLat != null && opAreaLength != null && opAreaLon != null && opAreaWidth != null
+                && opRotationRads != null))
+            return;
+        
+        boolean recreateImage = offScreen.paintPhaseStartTestRecreateImageAndRecreate(g, renderer);
+        if (recreateImage) {
+            Graphics2D g1 = offScreen.getImageGraphics();
+
             LocationType lt = new LocationType();
             lt.setLatitudeDegs(opAreaLat);
             lt.setLongitudeDegs(opAreaLon);
@@ -201,8 +215,8 @@ public class OperationLimits implements Renderer2DPainter {
             g1.setStroke(new BasicStroke(4));
             g1.setPaint(paintStripes);
             g1.draw(new Rectangle2D.Double(-length / 2, -width / 2, length, width));
-        }
-        g1.dispose();
+        }            
+        offScreen.paintPhaseEndFinishImageRecreateAndPaintImageCacheToRenderer(g, renderer);
     }
 
     public String asXml() {
