@@ -32,8 +32,10 @@
  */
 package pt.lsts.neptus.mp;
 
+import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Graphics2D;
+import java.awt.Paint;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 import java.io.StringReader;
@@ -48,7 +50,7 @@ import pt.lsts.neptus.renderer2d.Renderer2DPainter;
 import pt.lsts.neptus.renderer2d.StateRenderer2D;
 import pt.lsts.neptus.types.coord.LocationType;
 import pt.lsts.neptus.types.map.ParallelepipedElement;
-
+import pt.lsts.neptus.util.ColorUtils;
 
 /**
  * @author zp
@@ -57,7 +59,11 @@ import pt.lsts.neptus.types.map.ParallelepipedElement;
 @XmlRootElement(name="OperationLimits")
 @LayerPriority(priority=35)
 public class OperationLimits implements Renderer2DPainter {
-	
+
+    private Paint paintStripes = ColorUtils.createStripesPaint(
+            ColorUtils.setTransparencyToColor(ColorUtils.STRIPES_YELLOW, 128),
+            ColorUtils.setTransparencyToColor(Color.BLACK, 128));
+
 	protected Double maxDepth 		= null;
 	protected Double minAltitude	= null;
 	protected Double maxAltitude 	= null;
@@ -71,7 +77,7 @@ public class OperationLimits implements Renderer2DPainter {
 	protected Double opAreaLon	 	= null;
 	protected Double opRotationRads	= null;
 	
-	protected boolean editing = false;
+//	private OffScreenLayerImageControl offscreen = new OffScreenLayerImageControl(imageTransparencyType);
 	
 	public Double getMaxDepth() {
 		return maxDepth;
@@ -174,37 +180,31 @@ public class OperationLimits implements Renderer2DPainter {
 			opRotationRads = selection.getYawRad();
 		}
 	}
-	
-	
-	
-	
+
 	@Override
 	public void paint(Graphics2D g, StateRenderer2D renderer) {
-		
-	    if (opAreaLat != null && opAreaLength != null && opAreaLon != null && opAreaWidth != null && opRotationRads != null) {
-			LocationType lt = new LocationType();
-			lt.setLatitudeDegs(opAreaLat);
-			lt.setLongitudeDegs(opAreaLon);
-			Point2D pt = renderer.getScreenPosition(lt);
-			g.translate(pt.getX(), pt.getY());
-			g.scale(1, -1);
-			g.rotate(renderer.getRotation());	
-			g.rotate(-opRotationRads+Math.PI/2);
-			g.setColor(Color.red.brighter());
-			double length = opAreaLength * renderer.getZoom();
-			double width = opAreaWidth * renderer.getZoom();
-			
-			g.draw(new Rectangle2D.Double(-length/2, -width/2, length, width));
-		}
-		
-		
+	    Graphics2D g1 = (Graphics2D) g.create();
+	    if (opAreaLat != null && opAreaLength != null && opAreaLon != null && opAreaWidth != null
+	            && opRotationRads != null) {
+	        LocationType lt = new LocationType();
+	        lt.setLatitudeDegs(opAreaLat);
+	        lt.setLongitudeDegs(opAreaLon);
+	        Point2D pt = renderer.getScreenPosition(lt);
+	        g1.translate(pt.getX(), pt.getY());
+	        g1.scale(1, -1);
+	        g1.rotate(renderer.getRotation());	
+	        g1.rotate(-opRotationRads+Math.PI/2);
+	        g1.setColor(Color.red.brighter());
+	        double length = opAreaLength * renderer.getZoom();
+	        double width = opAreaWidth * renderer.getZoom();
+
+	        g1.setStroke(new BasicStroke(4));
+	        g1.setPaint(paintStripes);
+	        g1.draw(new Rectangle2D.Double(-length / 2, -width / 2, length, width));
+	    }
+	    g1.dispose();
 	}
-	
-	public boolean showDialog() {
-		
-		return false;
-	}
-	
+
 	public String asXml() {
 		StringWriter writer = new StringWriter();
 		JAXB.marshal(this, writer);
