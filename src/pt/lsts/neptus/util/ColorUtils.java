@@ -234,12 +234,40 @@ public class ColorUtils {
     /**
      * To create a stripe paint with the color primeColor and black.
      * 
+     * @param primeColor The color of the one stripe, the other is black.
+     * @return
+     */
+    public static Paint createStripesPaint(Color primeColor) {
+        return createStripesPaintWorker(new Dimension(60, 60), primeColor, Color.BLACK, false);
+    }
+
+    public static Paint createStripesPaint(Color primeColor, Color secondColor) {
+        return createStripesPaintWorker(new Dimension(60, 60), primeColor, secondColor, false);
+    }
+
+    /**
+     * To create a stripe paint with the color primeColor and black.
+     * 
      * @param dim The size of the image to create the pattern. 
      * @param primeColor The color of the one stripe, the other is black.
      * @return
      */
     public static Paint createStripesPaint(Dimension dim, Color primeColor) {
-        return createStripesPaintWorker(dim, primeColor, false);
+        return createStripesPaintWorker(dim, primeColor, Color.BLACK, false);
+    }
+
+    /**
+     * To create a stripe paint with the color primeColor and black, as disabled (grey colors).
+     * 
+     * @param primeColor The color of the one stripe, the other is black.
+     * @return
+     */
+    public static Paint createStripesPaintDisabled(Color primeColor) {
+        return createStripesPaintWorker(new Dimension(60, 60), primeColor, Color.BLACK, true);
+    }
+
+    public static Paint createStripesPaintDisabled(Color primeColor, Color secondColor) {
+        return createStripesPaintWorker(new Dimension(60, 60), primeColor, secondColor, true);
     }
 
     /**
@@ -250,18 +278,20 @@ public class ColorUtils {
      * @return
      */
     public static Paint createStripesPaintDisabled(Dimension dim, Color primeColor) {
-        return createStripesPaintWorker(dim, primeColor, true);
+        return createStripesPaintWorker(dim, primeColor, Color.BLACK, true);
     }
 
     /**
      * To create a stripe paint with the color primeColor and black.
      * 
      * @param dim The size of the image to create the pattern. 
-     * @param primeColor The color of the one stripe, the other is black.
+     * @param primeColor The color of the one stripe.
+     * @param secondColor The color of the other stripe.
      * @param isDisabled For the paint to be grey scaled.
      * @return
      */
-    private static Paint createStripesPaintWorker(Dimension dim, Color primeColor, boolean isDisabled) {
+    private static Paint createStripesPaintWorker(Dimension dim, Color primeColor, Color secondColor,
+            boolean isDisabled) {
         double mS = Math.min(dim.width, dim.height);
         mS = (mS == 0) ? 80 : mS;
         int refSize = 80, refTexSize = 25, refStrokeSize = 10;
@@ -286,7 +316,7 @@ public class ColorUtils {
                 RenderingHints.VALUE_RENDER_QUALITY);
         gbi.setColor(primeColor);
         gbi.fillRect(0, 0, size, size);
-        gbi.setColor(Color.BLACK);
+        gbi.setColor(secondColor);
         BasicStroke s = new BasicStroke(stroke);
         gbi.setStroke(s);
         gbi.drawLine(0, 0, size, size);
