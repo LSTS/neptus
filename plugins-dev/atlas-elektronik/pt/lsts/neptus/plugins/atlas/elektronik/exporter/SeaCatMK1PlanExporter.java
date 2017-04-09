@@ -670,7 +670,7 @@ public class SeaCatMK1PlanExporter implements IPlanFileExporter {
     /**
      * @return
      */
-    private Object getCommandsBeforeEnd() {
+    private String getCommandsBeforeEnd() {
         StringBuilder sb = new StringBuilder();
 
         sb.append(getCommentLine("Ending"));
