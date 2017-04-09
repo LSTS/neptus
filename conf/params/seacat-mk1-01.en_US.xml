@@ -387,6 +387,36 @@
       <max>100</max>
       <values>0, 10..100</values>
     </param>
+    <param name="Image-Format">
+      <name-i18n>Image Format</name-i18n>
+      <type>string</type>
+      <visibility>user</visibility>
+      <scope>maneuver</scope>
+      <default>jpeg</default>
+      <units/>
+      <desc></desc>
+      <values>jpeg, png, pgm, ppm</values>
+      <values-i18n>jpeg, png, pgm, ppm</values-i18n>
+    </param>
+    <param name="Image-Compr">
+      <name-i18n>Image Compression</name-i18n>
+      <type>boolean</type>
+      <visibility>user</visibility>
+      <scope>maneuver</scope>
+      <default>true</default>
+      <units/>
+    </param>
+    <param name="Shutter-Time">
+      <name-i18n>Shutter Time</name-i18n>
+      <type>integer</type>
+      <visibility>user</visibility>
+      <scope>maneuver</scope>
+      <default>0</default>
+      <units>ms</units>
+      <desc>0 for auto</desc>
+      <min>0</min>
+      <max>1000</max>
+    </param>
     <param name="Strobe">
       <name-i18n>Strobe</name-i18n>
       <type>boolean</type>
@@ -394,6 +424,17 @@
       <scope>maneuver</scope>
       <default>false</default>
       <units/>
+    </param>
+    <param name="Intensity">
+      <name-i18n>Strobe Intensity</name-i18n>
+      <type>integer</type>
+      <visibility>user</visibility>
+      <scope>maneuver</scope>
+      <default>0</default>
+      <units>%</units>
+      <desc></desc>
+      <min>0</min>
+      <max>100</max>
     </param>
   </section>
   <section name="GeometricsG882" name-i18n="Magnetometer">
