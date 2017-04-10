@@ -129,7 +129,7 @@ public class NeptusRuntime extends InteractionAdapter implements NVLRuntime {
 
 
 	@Override
-	public TaskExecution launchTask(TaskSpecification task, List<NVLVehicle> vehicles) { //Area to map?//TODO
+	public TaskExecution launchTask(TaskSpecification task, List<NVLVehicle> vehicles) { 
 	    
 	    tasks.put(task.getId(),(NeptusTaskSpecificationAdapter) task);
 		boolean acoustics=false; 

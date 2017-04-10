@@ -19,7 +19,7 @@ z.units = Z.Units.ALTITUDE
 
 def new_z = new Z(3,Z.Units.DEPTH)
 
-goTo id:"xpto",z:new_z
+goTo id:"xpto",z:new_z, payload: {name:Multibeam, range: 30}
 
 
 move 100, 0

@@ -193,7 +193,6 @@
 	<classpathentry kind="lib" path="lib/commons-io-2.4.jar"/>
 	<classpathentry kind="lib" path="lib/commons-lang3-3.2.1.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/jmatio.jar"/>
-	<classpathentry kind="lib" path="lib/libimc.jar"/>
 	<classpathentry kind="lib" path="lib/jakarta-oro-core-2.1-dev-1.jar"/>
 	<classpathentry kind="lib" path="lib/jakarta-oro-perl5-2.1-dev-1.jar"/>
 	<classpathentry kind="lib" path="lib/javassist.jar"/>
@@ -254,5 +253,6 @@
 	<classpathentry kind="lib" path="lib/opencv-2.4.11.jar"/>
 	<classpathentry kind="lib" path="plugins-dev/groovy/lib/groovy-all-2.1.6.jar"/>
 	<classpathentry exported="true" kind="con" path="GROOVY_DSL_SUPPORT"/>
+	<classpathentry kind="lib" path="lib/libimc.jar"/>
 	<classpathentry kind="output" path="build/classes"/>
 </classpath>
