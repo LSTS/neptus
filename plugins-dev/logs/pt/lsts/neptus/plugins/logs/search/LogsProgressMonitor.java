@@ -41,7 +41,10 @@ import java.awt.Dimension;
 public class LogsProgressMonitor extends JFrame {
     private final JLabel messageLabel = new JLabel();
     private final JPanel contentPanel = new JPanel();
+    private String title;
+    private String message;
     private final JProgressBar progressBar = new JProgressBar();
+    private boolean isVisible = false;
 
     public LogsProgressMonitor() {
         super();
@@ -60,12 +63,23 @@ public class LogsProgressMonitor extends JFrame {
     }
 
     public void open(String title, String message) {
+        this.title = title;
+        this.message = message;
+
         this.setTitle(title);
         messageLabel.setText(message);
-        setVisible(true);
+
+        if(!isVisible) {
+            setVisible(true);
+            isVisible = true;
+        }
+
     }
 
     public void close() {
-        setVisible(false);
+        if(isVisible) {
+            setVisible(false);
+            isVisible = false;
+        }
     }
 }
