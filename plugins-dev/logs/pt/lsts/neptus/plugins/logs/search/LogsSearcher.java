@@ -128,27 +128,22 @@ public class LogsSearcher extends ConsolePanel {
         if(ftp == null || db == null)
             return;
 
-        if(db.isConnected() && ftpClient.isConnected() && firstConnection) {
+        boolean isDbConnected = db.isConnected();
+        boolean isFtpConnected = isFtpConnected();
+
+        if(isDbConnected && isFtpConnected && firstConnection) {
             firstConnection = false;
             initQueryOptions();
         }
 
+        if(!isDbConnected || !isFtpConnected)
+            setStatus(true, "Waiting for connection");
+        else
+            setStatus(false, "");
 
-        if(db.isConnected())
-            return;
 
-        db.connect();
-
-        if(ftpClient.isConnected())
-            return;
-
-        try {
-            ftp.renewClient();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
-        ftpClient = ftp.getClient();
+        if(!isDbConnected)
+            db.connect();
     }
 
     private void startConnections() {
@@ -166,9 +161,22 @@ public class LogsSearcher extends ConsolePanel {
                 ftpClient = ftp.getClient();
             }
         } catch (Exception e) {
-            e.printStackTrace();
-            ftp = null;
+            /*e.printStackTrace();*/
         }
+    }
+
+    private boolean isFtpConnected() {
+        if(ftp == null)
+            return false;
+
+        try {
+            ftp.renewClient();
+        } catch (IOException e) {}
+
+        if(ftpClient != null && ftpClient.isConnected())
+            return true;
+
+        return ftpClient.isConnected();
     }
 
     public void buildGui() {
@@ -620,9 +628,9 @@ public class LogsSearcher extends ConsolePanel {
     }
 
     private void setStatus(boolean isActivated, String message) {
-        if(!isActivated)
-            logsProgressMonitor.close();
+        if (isActivated)
+            logsProgressMonitor.open("Neptus: Logs Searcher status", message);
         else
-            logsProgressMonitor.open("", message);
+            logsProgressMonitor.close();
     }
 }
