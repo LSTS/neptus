@@ -366,9 +366,7 @@ public class LogsSearcher extends ConsolePanel {
                 return;
             }
 
-            // perform query adn update resultsTable
-            query(selectedDataTypeStr, selectedYearStr, selectedVehicleStr);
-            //query(null, null, null);
+            updateEntries(db.doQuery(selectedDataTypeStr, selectedYearStr, selectedVehicleStr));
         });
 
         clearResultsButton.addActionListener(e -> {
@@ -398,7 +396,10 @@ public class LogsSearcher extends ConsolePanel {
 
             double[] minCoordsRad = areaSelectionDialog.getMinCoordinatesRad();
             double[] maxCoordsRad = areaSelectionDialog.getMaxCoordinatesRad();
-            searchLogsByCoordinates(selectedDataTypeStr, selectedVehicleStr, selectedYearStr, minCoordsRad, maxCoordsRad);
+            ResultSet res = db.searchLogsByCoordinates(selectedDataTypeStr, selectedVehicleStr, selectedYearStr,
+                    minCoordsRad, maxCoordsRad);
+
+            updateEntries(res);
         });
     }
 
@@ -448,67 +449,6 @@ public class LogsSearcher extends ConsolePanel {
 
             knownMapAreas.add(objectId);
         }
-    }
-
-    private void query(String payload, String year, String vehicleId) {
-        String query = buildQuery(payload, year, vehicleId);
-        updateEntries(db.doQuery(query));
-    }
-
-    /**
-     * Build query string based on user's selected options
-     * */
-    public String buildQuery(String payload, String year, String vehicleId) {
-        StringBuilder sb = new StringBuilder();
-        sb.append("SELECT * FROM " + LogsDbHandler.DbTableName.LOGS.toString() + " WHERE ");
-        sb.append(buildWhereStatement(payload, year, vehicleId));
-        NeptusLog.pub().info(sb.toString());
-
-        return sb.toString();
-    }
-
-    private String buildWhereStatement(String payload, String year, String vehicleId) {
-        StringBuilder sb = new StringBuilder();
-
-        boolean searchByPayload = false;
-        boolean searchByYear = false;
-
-        if(!payload.equals(LogsSearcher.DataOptionEnum.ANY.toString())) {
-            sb.append(LogsDbHandler.LogTableColumnName.DATA_TYPE.toString() + "=" + "\"" + payload + "\"");
-            searchByPayload = true;
-        }
-
-        if(!year.equals(LogsSearcher.DataOptionEnum.ANY.toString())) {
-            if(searchByPayload)
-                sb.append(" AND ");
-            sb.append(LogsDbHandler.LogTableColumnName.YEAR.toString() + "=" + "\"" + year + "\"");
-            searchByYear = true;
-        }
-
-        if(!vehicleId.equals(LogsSearcher.DataOptionEnum.ANY.toString())) {
-            if(searchByPayload || searchByYear)
-                sb.append(" AND ");
-            sb.append(LogsDbHandler.LogTableColumnName.VEHICLE_ID.toString() + "=" + "\"" + vehicleId + "\"");
-        }
-
-        return sb.toString();
-    }
-
-    private void searchLogsByCoordinates(String selectedDataTypeStr, String selectedVehicleStr, String selectedYearStr,
-                                         double[] minCoordinatesRad, double[] maxCoordinatesRad) {
-        String query = "SELECT * FROM log WHERE (lat < " + maxCoordinatesRad[0] +
-                " and lat > " + minCoordinatesRad[0] + " and " + " lon > " + minCoordinatesRad[1] + " and " +
-                " lon < " + maxCoordinatesRad[1] + ")";
-
-        String optionsQuery = buildWhereStatement(selectedDataTypeStr, selectedYearStr, selectedVehicleStr);
-
-        String finalQuery;
-        if(optionsQuery.isEmpty())
-            finalQuery = query + ";";
-        else
-            finalQuery = query + " AND " + optionsQuery + ";";
-
-        updateEntries(db.doQuery(finalQuery));
     }
 
     /**

@@ -32,6 +32,8 @@
  */
 package pt.lsts.neptus.plugins.logs.search;
 
+import pt.lsts.neptus.NeptusLog;
+
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -122,7 +124,79 @@ public class LogsDbHandler {
         return isConnected;
     }
 
-    public ResultSet doQuery(String q) {
+    /**
+     * Query database for the given column values
+     * */
+    public ResultSet doQuery(String payload, String year, String vehicleId) {
+        return doQuery(buildQuery(payload, year, vehicleId));
+    }
+
+    /**
+     * Build query string based on user's selected options
+     * */
+    private String buildQuery(String payload, String year, String vehicleId) {
+        StringBuilder sb = new StringBuilder();
+        sb.append("SELECT * FROM " + LogsDbHandler.DbTableName.LOGS.toString() + " WHERE ");
+        sb.append(buildWhereStatement(payload, year, vehicleId));
+        NeptusLog.pub().info(sb.toString());
+
+        return sb.toString();
+    }
+
+    /**
+     * Query database for logs bounded by the given coordinates
+     * */
+    public ResultSet searchLogsByCoordinates(String selectedDataTypeStr, String selectedVehicleStr, String selectedYearStr,
+                                         double[] minCoordinatesRad, double[] maxCoordinatesRad) {
+        String query = "SELECT * FROM log WHERE (lat < " + maxCoordinatesRad[0] +
+                " and lat > " + minCoordinatesRad[0] + " and " + " lon > " + minCoordinatesRad[1] + " and " +
+                " lon < " + maxCoordinatesRad[1] + ")";
+
+        String optionsQuery = buildWhereStatement(selectedDataTypeStr, selectedYearStr, selectedVehicleStr);
+
+        String finalQuery;
+        if(optionsQuery.isEmpty())
+            finalQuery = query + ";";
+        else
+            finalQuery = query + " AND " + optionsQuery + ";";
+
+        return doQuery(finalQuery);
+    }
+
+    /**
+     * Build the "where" part of a query statement
+     * */
+    private String buildWhereStatement(String payload, String year, String vehicleId) {
+        StringBuilder sb = new StringBuilder();
+
+        boolean searchByPayload = false;
+        boolean searchByYear = false;
+
+        if(!payload.equals(LogsSearcher.DataOptionEnum.ANY.toString())) {
+            sb.append(LogsDbHandler.LogTableColumnName.DATA_TYPE.toString() + "=" + "\"" + payload + "\"");
+            searchByPayload = true;
+        }
+
+        if(!year.equals(LogsSearcher.DataOptionEnum.ANY.toString())) {
+            if(searchByPayload)
+                sb.append(" AND ");
+            sb.append(LogsDbHandler.LogTableColumnName.YEAR.toString() + "=" + "\"" + year + "\"");
+            searchByYear = true;
+        }
+
+        if(!vehicleId.equals(LogsSearcher.DataOptionEnum.ANY.toString())) {
+            if(searchByPayload || searchByYear)
+                sb.append(" AND ");
+            sb.append(LogsDbHandler.LogTableColumnName.VEHICLE_ID.toString() + "=" + "\"" + vehicleId + "\"");
+        }
+
+        return sb.toString();
+    }
+
+    /**
+     * Execute given query
+     * */
+    private ResultSet doQuery(String q) {
         if(q == null)
             return null;
 
@@ -139,6 +213,9 @@ public class LogsDbHandler {
         }
     }
 
+    /**
+     * Do action upon the database (e.g. insert entry)
+     * */
     public int doAction(String a) {
         if(a == null)
             return -1;
