@@ -86,11 +86,16 @@ public class NeptusRuntime extends InteractionAdapter implements NVLRuntime {
                         reqs.setRequiredAvailability(Availability.AVAILABLE);
                         ((NeptusTaskSpecificationAdapter)ts).setRequirements(reqs);
                         // Veículos disponíveis
+                        for(String v: vehicles.keySet()){
+                            
+                            System.out.println("VEHICLE in List "+v+"\n"+vehicles.get(v).getType()+"\n"+vehicles.get(v).getAvailability());
+                        }
                         List<NVLVehicle> vs = getVehicles(ts.getRequirements().get(0));
-                        
-                        for(NVLVehicle v: vs)
+                        System.out.println(ts.getRequirements().get(0));
+                        for(NVLVehicle v: vs){
+                            
                             System.out.println("SELECTED VEHICLE "+v.getId());
-                  
+                        }
                         launchTask(ts, vs);
                         
                        

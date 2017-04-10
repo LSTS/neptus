@@ -50,6 +50,7 @@ class Plan {
     List<NeptusManeuver> neptus_mans = new ArrayList <>()
 	int count
     String [] vehicles_id
+    String otherPayloads //Communications means and Acoustics requirements //TODO
 	Plan(String id){
 		plan_id = id
 		count = 1
@@ -120,8 +121,7 @@ class Plan {
                      }
                  }
                  else 
-                     println "The name of the payload required must be provided." //TODO
-             }
+                     println "The name of the payload required must be provided."              }
 		 }
 	}
 	 	def man = maneuver(id,Goto)

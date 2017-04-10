@@ -136,5 +136,61 @@ private Availability requiredAvailability = null;
   public void setAreaRadius(double areaRadius) {
   	this.areaRadius = areaRadius;
   }
+  
+  @Override
+  public String toString() {
+      String result="";
+      if(requiredAvailability != null ){
+          result+="AVAILABILITY: ";
+          switch(requiredAvailability){
+            case AVAILABLE:
+                result+="AVAILABLE";
+                break;
+            case BUSY:
+                result+="BUSY";
+                break;
+            case NOT_OPERATIONAL:
+                result+="NOT_OPERATIONAL";
+                break;
+            default:
+                break;
+              
+          }
+          result+="\n";
+      }
+      if(requiredType != null ){
+          result+="AVAILABILITY: ";
+          switch(requiredType){
+            case UAV:
+                result+="Unmanned Aerial Vehicle";
+                break;
+            case ASV:
+                result+="Autonomous Surface Vehicle";
+                break;
+            case ROV:
+                result+="Remotely Operated Underwater Vehicle";
+                break;
+            case AUV:
+                result+="Autonomous Underwater Vehicle";
+                break;
+            case ANY:
+                result+="Any Vehicle";
+                break;
+            default:
+                break;
+              
+          }
+          result+="\n";
+      }
+      if(requiredPayload != null){
+          result+="PAYLOADS: \n";
+          for(PayloadComponent p: requiredPayload){
+            result+=p.getName()+"\n";
+            
+          }
+      }
+      return result;
+  }
+  
 
 }

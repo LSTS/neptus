@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <console name="Neptus Console" width="1282" height="1029" resizable="true" mission-file="../../missions/APDL/missao-apdl.nmisz" main-vehicle="lauv-xplore-1">
-  <!-- Data saved on 2017-04-10T16:13:53.0Z with Neptus version 2017.03.1-dev (compiled on 2017-04-10, gneptus-2016.10.0-325-g925bd3a-dirty). -->
+  <!-- Data saved on 2017-04-10T17:47:15.0Z with Neptus version @VERSION@ (compiled on @DATE@, g@SCM_REV@). -->
   <mainpanel name="console main panel">
     <subpanel class="pt.lsts.neptus.console.plugins.containers.MigLayoutContainer" x="0" y="0" width="1280" height="945">
       <properties>
@@ -48,7 +48,9 @@
         <properties/>
       </child>
       <child class="pt.lsts.neptus.plugins.position.ContactMarker" x="0" y="0" width="0" height="0">
-        <properties/>
+        <properties>
+          <entry key="Use Single Mark Addition Mode">true</entry>
+        </properties>
       </child>
       <child class="pt.lsts.neptus.controllers.ControllerPanel" x="0" y="0" width="0" height="0">
         <properties/>
@@ -142,10 +144,7 @@ altitude: ${EstimatedState.alt};
       <child class="pt.lsts.neptus.plugins.planqueue.PlanQueue" x="0" y="0" width="0" height="0">
         <properties/>
       </child>
-      <child class="pt.lsts.neptus.plugins.nvl_runtime.NeptusRuntime" x="0" y="0" width="0" height="0">
-        <properties/>
-      </child>
-      <child class="pt.lsts.neptus.plugins.groovy.Groovy_old" x="0" y="0" width="198" height="172">
+      <child class="pt.lsts.neptus.plugins.nvl_runtime.NeptusRuntime" x="0" y="0" width="298" height="272">
         <properties/>
       </child>
     </subpanel>
