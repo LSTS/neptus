@@ -62,8 +62,9 @@ import pt.lsts.neptus.util.ColorUtils;
 @LayerPriority(priority = 35)
 public class OperationLimits implements Renderer2DPainter {
 
-    private Paint paintStripes = ColorUtils.createStripesPaint(
-            ColorUtils.setTransparencyToColor(ColorUtils.STRIPES_YELLOW, 128),
+    private static final Color STRIPES_YELLOW_TRAMP = ColorUtils.setTransparencyToColor(ColorUtils.STRIPES_YELLOW, 130);
+    private static final Paint PAINT_STRIPES = ColorUtils.createStripesPaint(ColorUtils.STRIPES_YELLOW, Color.BLACK);
+    private static final Paint PAINT_STRIPES_TRAMSP = ColorUtils.createStripesPaint(STRIPES_YELLOW_TRAMP,
             ColorUtils.setTransparencyToColor(Color.BLACK, 128));
 
     protected Double maxDepth = null;
@@ -80,7 +81,22 @@ public class OperationLimits implements Renderer2DPainter {
     protected Double opRotationRads = null;
 
     private OffScreenLayerImageControl offScreen = new OffScreenLayerImageControl();
-
+    private boolean isEditingPainting = false;
+    
+    /**
+     * @return the isEditingPainting
+     */
+    public boolean isEditingPainting() {
+        return isEditingPainting;
+    }
+    
+    /**
+     * @param isEditingPainting the isEditingPainting to set
+     */
+    public void setEditingPainting(boolean isEditingPainting) {
+        this.isEditingPainting = isEditingPainting;
+    }
+    
     public Double getMaxDepth() {
         return maxDepth;
     }
@@ -213,7 +229,13 @@ public class OperationLimits implements Renderer2DPainter {
             double width = opAreaWidth * renderer.getZoom();
 
             g1.setStroke(new BasicStroke(4));
-            g1.setPaint(paintStripes);
+            
+            g1.setPaint(PAINT_STRIPES_TRAMSP);
+            if (isEditingPainting) {
+                g1.setPaint(STRIPES_YELLOW_TRAMP);
+                g1.fill(new Rectangle2D.Double(-length / 2, -width / 2, length, width));
+                g1.setPaint(PAINT_STRIPES);
+            }
             g1.draw(new Rectangle2D.Double(-length / 2, -width / 2, length, width));
         }            
         offScreen.paintPhaseEndFinishImageRecreateAndPaintImageCacheToRenderer(g, renderer);
