@@ -108,7 +108,7 @@ import pt.lsts.neptus.util.MathMiscUtils;
 
 /**
  * @author zp
- * 
+ * @author pdias
  */
 @PluginDescription(name = "Operation Limits", category = CATEGORY.PLANNING, icon = "pt/lsts/neptus/plugins/oplimits/lock.png", documentation = "oplimits/oplimits.html")
 public class OperationLimitsSubPanel extends ConsolePanel implements ConfigurationListener,
@@ -142,6 +142,34 @@ public class OperationLimitsSubPanel extends ConsolePanel implements Configurati
     protected int clickCount = 0;
     protected Point2D lastDragPoint = null;
     protected boolean dragging = false;
+    
+    protected JLabel label = new JLabel("<html></html>");
+    {
+        label.setOpaque(true);
+        label.setBorder(new EmptyBorder(3, 3, 3, 3));
+        label.setBackground(new Color(255, 255, 255, 128));
+    }
+
+    public OperationLimitsSubPanel(ConsoleLayout console) {
+        super(console);
+        removeAll();
+        createActions();
+        setSize(new Dimension(95, 40));
+        setLayout(new BorderLayout());
+        JLabel lbl = new JLabel(I18n.text("Operational Limits"));
+        lbl.setFont(new Font("Arial", Font.BOLD, 6));
+        add(lbl, BorderLayout.NORTH);
+
+        JPanel tmp = new JPanel();
+        tmp.setLayout(new BoxLayout(tmp, BoxLayout.LINE_AXIS));
+        tmp.add(new ToolbarButton(editLimits));
+        tmp.add(new ToolbarButton(sendAction));
+        sw = (ToolbarSwitch) tmp.add(new ToolbarSwitch(showOpArea));
+        sw.setSelected(showOnMap);
+        tmp.add(new ToolbarButton(updateAction));
+
+        add(tmp, BorderLayout.CENTER);
+    }
 
     protected void createActions() {
         editLimits = new AbstractAction(I18n.text("Operation Limits"),
@@ -292,27 +320,6 @@ public class OperationLimitsSubPanel extends ConsolePanel implements Configurati
         return oplimits;
     }
 
-    public OperationLimitsSubPanel(ConsoleLayout console) {
-        super(console);
-        removeAll();
-        createActions();
-        setSize(new Dimension(95, 40));
-        setLayout(new BorderLayout());
-        JLabel lbl = new JLabel(I18n.text("Operational Limits"));
-        lbl.setFont(new Font("Arial", Font.BOLD, 6));
-        add(lbl, BorderLayout.NORTH);
-
-        JPanel tmp = new JPanel();
-        tmp.setLayout(new BoxLayout(tmp, BoxLayout.LINE_AXIS));
-        tmp.add(new ToolbarButton(editLimits));
-        tmp.add(new ToolbarButton(sendAction));
-        sw = (ToolbarSwitch) tmp.add(new ToolbarSwitch(showOpArea));
-        sw.setSelected(showOnMap);
-        tmp.add(new ToolbarButton(updateAction));
-
-        add(tmp, BorderLayout.CENTER);
-    }
-
     @Override
     public String[] getObservedMessages() {
         return new String[] { "OperationalLimits" };
@@ -398,7 +405,6 @@ public class OperationLimitsSubPanel extends ConsolePanel implements Configurati
                     catch (Exception e) {
                         e.printStackTrace();
                     }
-
                 }
             }.start();
         }
@@ -670,13 +676,6 @@ public class OperationLimitsSubPanel extends ConsolePanel implements Configurati
         adapter.wheelMoved(event, source);
     }
 
-    protected JLabel label = new JLabel("<html></html>");
-    {
-        label.setOpaque(true);
-        label.setBorder(new EmptyBorder(3, 3, 3, 3));
-        label.setBackground(new Color(255, 255, 255, 128));
-    }
-
     @Override
     public void paint(Graphics2D g2, StateRenderer2D renderer) {
         Graphics2D g = (Graphics2D) g2.create();
@@ -709,7 +708,6 @@ public class OperationLimitsSubPanel extends ConsolePanel implements Configurati
                 label.paint(g2d);
             }
             if (clickCount == 1) {
-                // g.setColor(Color.red.darker());
                 g.setPaint(PAINT_STRIPES);
                 g.setStroke(new BasicStroke(4));
                 Point2D pt = renderer.getScreenPosition(points[0]);
@@ -721,17 +719,6 @@ public class OperationLimitsSubPanel extends ConsolePanel implements Configurati
 
             if (pp != null) {
                 // pp.paint((Graphics2D) g.create(), renderer, -renderer.getRotation());
-                Vector<LocationType> sps = pp.getShapePoints();
-                GeneralPath gp = new GeneralPath();
-                for (int i = 0; i < sps.size(); i++) {
-                    Point2D pt = renderer.getScreenPosition(sps.get(i));
-                    if (i ==0)
-                        gp.moveTo(pt.getX(), pt.getY());
-                    else
-                        gp.lineTo(pt.getX(), pt.getY());
-                }
-                gp.closePath();
-                
                 Point2D pt = renderer.getScreenPosition(pp.getCenterLocation());
                 g.translate(pt.getX(), pt.getY());
                 g.scale(1, -1);
@@ -744,13 +731,6 @@ public class OperationLimitsSubPanel extends ConsolePanel implements Configurati
                 g.fill(new Rectangle2D.Double(-length / 2, -width / 2, length, width));
                 g.setPaint(PAINT_STRIPES);
                 g.draw(new Rectangle2D.Double(-length / 2, -width / 2, length, width));
-                
-//                g.setColor(ColorUtils.setTransparencyToColor(ColorUtils.STRIPES_YELLOW, 130));
-//                g.fill(gp);
-////                g.setPaint(paintStripes);
-//                g.setStroke(new BasicStroke(4));
-//                g.setColor(ColorUtils.STRIPES_YELLOW);
-//                g.draw(gp);
             }
             else if (rectangle != null) {
 //                rectangle.setMyColor(Color.red);
@@ -777,7 +757,6 @@ public class OperationLimitsSubPanel extends ConsolePanel implements Configurati
     }
 
     public OperationLimits setLimitsFromSelection(ParallelepipedElement selection) {
-
         if (selection == null) {
             limits.setOpAreaLat(null);
             limits.setOpAreaLon(null);
@@ -843,7 +822,6 @@ public class OperationLimitsSubPanel extends ConsolePanel implements Configurati
 
     @Override
     public void setAssociatedSwitch(ToolbarSwitch tswitch) {
-        
     }
     
     @Override
@@ -858,8 +836,5 @@ public class OperationLimitsSubPanel extends ConsolePanel implements Configurati
      */
     @Override
     public void cleanSubPanel() {
-        // TODO Auto-generated method stub
-
     }
-
 }
