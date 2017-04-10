@@ -41,13 +41,16 @@ import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.Graphics2D;
 import java.awt.Image;
+import java.awt.Paint;
 import java.awt.event.ActionEvent;
 import java.awt.event.FocusEvent;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseWheelEvent;
+import java.awt.geom.GeneralPath;
 import java.awt.geom.Line2D;
 import java.awt.geom.Point2D;
+import java.awt.geom.Rectangle2D;
 import java.io.File;
 import java.text.NumberFormat;
 import java.util.Arrays;
@@ -97,6 +100,7 @@ import pt.lsts.neptus.types.coord.LocationType;
 import pt.lsts.neptus.types.map.ParallelepipedElement;
 import pt.lsts.neptus.types.map.PathElement;
 import pt.lsts.neptus.util.ByteUtil;
+import pt.lsts.neptus.util.ColorUtils;
 import pt.lsts.neptus.util.FileUtil;
 import pt.lsts.neptus.util.GuiUtils;
 import pt.lsts.neptus.util.ImageUtils;
@@ -111,6 +115,9 @@ public class OperationLimitsSubPanel extends ConsolePanel implements Configurati
         MainVehicleChangeListener, NeptusMessageListener, Renderer2DPainter, StateRendererInteraction {
 
     private static final long serialVersionUID = 1L;
+    
+    private static final Color STRIPES_YELLOW_TRAMP = ColorUtils.setTransparencyToColor(ColorUtils.STRIPES_YELLOW, 130);
+    private static final Paint PAINT_STRIPES = ColorUtils.createStripesPaint(ColorUtils.STRIPES_YELLOW, Color.BLACK);
 
     @NeptusProperty(name = "Operation Limits File", description = "Where to store and load operational limits")
     public File operationLimitsFile = new File(".", "conf/oplimits.xml");
@@ -702,7 +709,9 @@ public class OperationLimitsSubPanel extends ConsolePanel implements Configurati
                 label.paint(g2d);
             }
             if (clickCount == 1) {
-                g.setColor(Color.red.darker());
+                // g.setColor(Color.red.darker());
+                g.setPaint(PAINT_STRIPES);
+                g.setStroke(new BasicStroke(4));
                 Point2D pt = renderer.getScreenPosition(points[0]);
                 g.draw(new Line2D.Double(pt.getX() - 5, pt.getY() - 5, pt.getX() + 5, pt.getY() + 5));
                 g.draw(new Line2D.Double(pt.getX() - 5, pt.getY() + 5, pt.getX() + 5, pt.getY() - 5));
@@ -711,12 +720,57 @@ public class OperationLimitsSubPanel extends ConsolePanel implements Configurati
             }
 
             if (pp != null) {
-                pp.paint((Graphics2D) g.create(), renderer, -renderer.getRotation());
+                // pp.paint((Graphics2D) g.create(), renderer, -renderer.getRotation());
+                Vector<LocationType> sps = pp.getShapePoints();
+                GeneralPath gp = new GeneralPath();
+                for (int i = 0; i < sps.size(); i++) {
+                    Point2D pt = renderer.getScreenPosition(sps.get(i));
+                    if (i ==0)
+                        gp.moveTo(pt.getX(), pt.getY());
+                    else
+                        gp.lineTo(pt.getX(), pt.getY());
+                }
+                gp.closePath();
+                
+                Point2D pt = renderer.getScreenPosition(pp.getCenterLocation());
+                g.translate(pt.getX(), pt.getY());
+                g.scale(1, -1);
+                g.rotate(renderer.getRotation());
+                g.rotate(-pp.getYawRad() + Math.PI / 2);
+                double length = pp.getLength() * renderer.getZoom();
+                double width = pp.getWidth() * renderer.getZoom();
+                g.setStroke(new BasicStroke(4));
+                g.setColor(STRIPES_YELLOW_TRAMP);
+                g.fill(new Rectangle2D.Double(-length / 2, -width / 2, length, width));
+                g.setPaint(PAINT_STRIPES);
+                g.draw(new Rectangle2D.Double(-length / 2, -width / 2, length, width));
+                
+//                g.setColor(ColorUtils.setTransparencyToColor(ColorUtils.STRIPES_YELLOW, 130));
+//                g.fill(gp);
+////                g.setPaint(paintStripes);
+//                g.setStroke(new BasicStroke(4));
+//                g.setColor(ColorUtils.STRIPES_YELLOW);
+//                g.draw(gp);
             }
             else if (rectangle != null) {
-                rectangle.setMyColor(Color.red);
-                rectangle.setFilled(true);
-                rectangle.paint((Graphics2D) g.create(), renderer, -renderer.getRotation());
+//                rectangle.setMyColor(Color.red);
+//                rectangle.setFilled(true);
+//                rectangle.paint((Graphics2D) g.create(), renderer, -renderer.getRotation());
+                Vector<LocationType> sps = rectangle.getShapePoints();
+                GeneralPath gp = new GeneralPath();
+                for (int i = 0; i < sps.size(); i++) {
+                    Point2D pt = renderer.getScreenPosition(sps.get(i));
+                    if (i ==0)
+                        gp.moveTo(pt.getX(), pt.getY());
+                    else
+                        gp.lineTo(pt.getX(), pt.getY());
+                }
+                gp.closePath();
+                g.setStroke(new BasicStroke(4));
+                g.setColor(STRIPES_YELLOW_TRAMP);
+                g.fill(gp);
+                g.setPaint(PAINT_STRIPES);
+                g.draw(gp);
             }
             g.dispose();
         }
