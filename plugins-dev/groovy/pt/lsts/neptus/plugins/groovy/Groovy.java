@@ -94,7 +94,7 @@ import pt.lsts.neptus.util.ImageUtils;
  */
 @PluginDescription(name = "Groovy Feature", author = "Keila Lima")
 @SuppressWarnings("serial")
-@Popup(pos = POSITION.RIGHT, width=400, height=500, accelerator='y')
+@Popup(pos = POSITION.RIGHT, width=400, height=500)
 public class Groovy extends InteractionAdapter {
     
     private JButton openButton,stopScript;
@@ -320,6 +320,10 @@ private Object delegate;
                                     //TODO notify script exit
                                       NeptusLog.pub().error("Exception Caught during execution of script: "+groovy_script.getName(),e);
                                       //e.printStackTrace();
+                                      if(thread.isAlive())
+                                          thread.interrupt();
+                                      if(stopScript.isEnabled())
+                                          stopScript.setEnabled(false);
                                       }
                                   catch(ThreadDeath e){
                                       //TODO notify script exit
