@@ -89,6 +89,7 @@ import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.mp.OperationLimits;
 import pt.lsts.neptus.plugins.ConfigurationListener;
 import pt.lsts.neptus.plugins.NeptusProperty;
+import pt.lsts.neptus.plugins.NeptusProperty.LEVEL;
 import pt.lsts.neptus.plugins.PluginDescription;
 import pt.lsts.neptus.plugins.PluginDescription.CATEGORY;
 import pt.lsts.neptus.plugins.PluginUtils;
@@ -131,14 +132,20 @@ public class OperationLimitsSubPanel extends ConsolePanel implements Configurati
     private static final Paint PAINT_STRIPES = ColorUtils.createStripesPaint(ColorUtils.STRIPES_YELLOW, Color.BLACK);
     private static final Paint PAINT_STRIPES_NOT_SYNC = ColorUtils.createStripesPaint(ColorUtils.STRIPES_YELLOW, Color.RED);
 
-    @NeptusProperty(name = "Operation Limits File", description = "Where to store and load operational limits")
+    @NeptusProperty(name = "Operation Limits File", userLevel = LEVEL.ADVANCED,
+            description = "Where to store and load operational limits")
     public File operationLimitsFile = new File(FOLDER_CONF_OPLIMITS + "oplimits.xml");
 
-    @NeptusProperty(name = "Separate Operational Areas Per Vehicle", description = "If selected, each vehicle will have its own operational limits file")
+    @NeptusProperty(name = "Separate Operational Areas Per Vehicle", userLevel = LEVEL.ADVANCED,
+            description = "If selected, each vehicle will have its own operational limits file")
     public boolean separateOpAreas = true;
 
-    @NeptusProperty
+    @NeptusProperty(name = "Show on Map", userLevel = LEVEL.ADVANCED)
     public boolean showOnMap = true;
+
+    @NeptusProperty(name = "Paint Always Synchronized", userLevel = LEVEL.ADVANCED, 
+            description = "If selected, the painting will not take into account the sync status.")
+    public boolean paintAlwaysSynchronized = false;
 
     protected byte[] lastMD5 = null;
     protected OperationLimits limits = null;
@@ -418,6 +425,7 @@ public class OperationLimitsSubPanel extends ConsolePanel implements Configurati
                 limits.setOpRotationRads(null);
             }
 
+            storeXml(limits.asXml());
             pp = getSelectionFromLimits(limits);
             updateAction.putValue(AbstractAction.SMALL_ICON, ICON_UPDATE_OK);
             updateAction.putValue(AbstractAction.SHORT_DESCRIPTION,
@@ -493,6 +501,8 @@ public class OperationLimitsSubPanel extends ConsolePanel implements Configurati
     @Subscribe
     public void mainVehicleChangeNotification(ConsoleEventMainSystemChange e) {
 //        showOnMap(false);
+        
+        limits = OperationLimits.loadXml(getOpLimitsXml());
         checkIfOplimitsExistInOldData(e.getCurrent());
         
         pp = getSelectionFromLimits(limits);
@@ -645,13 +655,13 @@ public class OperationLimitsSubPanel extends ConsolePanel implements Configurati
                 LocationType now = source.getRealWorldLocation(event.getPoint());
                 double[] offsets = now.getOffsetFrom(prev);
                 pp.getCenterLocation().translatePosition(offsets[0], offsets[1], 0);
-
             }
+            setLimitsFromSelection(pp);
+            storeXml(limits.asXml());
+            
             source.repaint();
         }
         else {
-            //if (!event.isShiftDown())
-            //    adapter.mouseDragged(event, source);
             adapter.mouseDragged(event, source);
         }
         lastDragPoint = event.getPoint();
@@ -711,7 +721,7 @@ public class OperationLimitsSubPanel extends ConsolePanel implements Configurati
     public void paint(Graphics2D g2, StateRenderer2D renderer) {
         Graphics2D g = (Graphics2D) g2.create();
         if (limits != null && !editing) {
-            limits.setShynched(isLimitsInSynch());
+            limits.setShynched(paintAlwaysSynchronized || isLimitsInSynch());
             limits.paint(g, renderer);
         }
         else {
@@ -761,7 +771,7 @@ public class OperationLimitsSubPanel extends ConsolePanel implements Configurati
                 g.setStroke(new BasicStroke(4));
                 g.setColor(STRIPES_YELLOW_TRAMP);
                 g.fill(new Rectangle2D.Double(-length / 2, -width / 2, length, width));
-                g.setPaint(isLimitsInSynch() ? PAINT_STRIPES : PAINT_STRIPES_NOT_SYNC);
+                g.setPaint(paintAlwaysSynchronized || isLimitsInSynch() ? PAINT_STRIPES : PAINT_STRIPES_NOT_SYNC);
                 g.draw(new Rectangle2D.Double(-length / 2, -width / 2, length, width));
             }
             else if (rectangle != null) {
