@@ -188,7 +188,6 @@ public class OperationLimitsSubPanel extends ConsolePanel implements Configurati
                 dialog.setModalityType(ModalityType.DOCUMENT_MODAL);
                 dialog.add(panel);
                 JButton okButton = new JButton(new AbstractAction(I18n.text("Ok")) {
-
                     private static final long serialVersionUID = 1L;
 
                     @Override
@@ -206,6 +205,7 @@ public class OperationLimitsSubPanel extends ConsolePanel implements Configurati
                 if (resp == JOptionPane.YES_OPTION) {
                     limits = panel.getLimits();
                     storeXml(limits.asXml());
+                    pp = getSelectionFromLimits(limits);
                     updateAction.putValue(AbstractAction.SMALL_ICON,
                             ImageUtils.getIcon("pt/lsts/neptus/plugins/oplimits/update_request.png"));
                     updateAction.putValue(AbstractAction.SHORT_DESCRIPTION,
@@ -270,6 +270,13 @@ public class OperationLimitsSubPanel extends ConsolePanel implements Configurati
 
             @Override
             public void actionPerformed(ActionEvent e) {
+                clearLimits();
+            }
+
+            /**
+             * 
+             */
+            private void clearLimits() {
                 pp = null;
                 rectangle = null;
                 setLimitsFromSelection(pp);
@@ -733,24 +740,26 @@ public class OperationLimitsSubPanel extends ConsolePanel implements Configurati
                 g.draw(new Rectangle2D.Double(-length / 2, -width / 2, length, width));
             }
             else if (rectangle != null) {
-//                rectangle.setMyColor(Color.red);
-//                rectangle.setFilled(true);
-//                rectangle.paint((Graphics2D) g.create(), renderer, -renderer.getRotation());
+                rectangle.setMyColor(Color.red);
+                rectangle.setFilled(true);
+                rectangle.paint((Graphics2D) g.create(), renderer, -renderer.getRotation());
                 Vector<LocationType> sps = rectangle.getShapePoints();
-                GeneralPath gp = new GeneralPath();
-                for (int i = 0; i < sps.size(); i++) {
-                    Point2D pt = renderer.getScreenPosition(sps.get(i));
-                    if (i ==0)
-                        gp.moveTo(pt.getX(), pt.getY());
-                    else
-                        gp.lineTo(pt.getX(), pt.getY());
+                if (sps.size() > 0) {
+                    GeneralPath gp = new GeneralPath();
+                    for (int i = 0; i < sps.size(); i++) {
+                        Point2D pt = renderer.getScreenPosition(sps.get(i));
+                        if (i ==0)
+                            gp.moveTo(pt.getX(), pt.getY());
+                        else
+                            gp.lineTo(pt.getX(), pt.getY());
+                    }
+                    gp.closePath();
+                    g.setStroke(new BasicStroke(4));
+                    g.setColor(STRIPES_YELLOW_TRAMP);
+                    g.fill(gp);
+                    g.setPaint(PAINT_STRIPES);
+                    g.draw(gp);
                 }
-                gp.closePath();
-                g.setStroke(new BasicStroke(4));
-                g.setColor(STRIPES_YELLOW_TRAMP);
-                g.fill(gp);
-                g.setPaint(PAINT_STRIPES);
-                g.draw(gp);
             }
             g.dispose();
         }
@@ -785,8 +794,9 @@ public class OperationLimitsSubPanel extends ConsolePanel implements Configurati
     }
 
     public ParallelepipedElement getSelectionFromLimits(OperationLimits limits) {
-        if (limits.getOpAreaLat() == null)
+        if (limits.getOpAreaLat() == null) {
             pp = null;
+        }
         else {
             pp = new ParallelepipedElement(null, null);
             pp.setWidth(limits.getOpAreaWidth());
@@ -799,8 +809,10 @@ public class OperationLimitsSubPanel extends ConsolePanel implements Configurati
             pp.setMyColor(Color.red);
         }
 
-        if (pp == null)
+        if (pp == null) {
             clickCount = 0;
+            rectangle = null;
+        }
         return pp;
     }
 
