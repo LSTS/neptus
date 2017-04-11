@@ -46,6 +46,7 @@ import pt.lsts.neptus.nvl.runtime.Position;
 import pt.lsts.neptus.types.comm.CommMean;
 import pt.lsts.neptus.types.mission.plan.PlanCompatibility;
 import pt.lsts.neptus.types.vehicle.VehicleType.SystemTypeEnum;
+import pt.lsts.neptus.types.vehicle.VehicleType.VehicleTypeEnum;
 import pt.lsts.neptus.types.vehicle.VehiclesHolder;
 
 /**
@@ -55,7 +56,7 @@ import pt.lsts.neptus.types.vehicle.VehiclesHolder;
 public class NeptusVehicleAdapter implements NVLVehicle {
 
     private final ImcSystem imcsystem;
-    private final STATE state;
+    private STATE state;
     private final List<PayloadComponent> availablePayload;
     private final String  acousticOPservice="acoustic/operation";
     
@@ -65,13 +66,17 @@ public class NeptusVehicleAdapter implements NVLVehicle {
         state = s;
          for(String payload : PlanCompatibility.availablePayloads(VehiclesHolder.getVehicleById(getId()))) {
              ps.add(new NeptusPayloadAdapter(payload));
+             System.out.println("PlanCompatibility cicle: "+payload);
          } 
          
          for(CommMean com : VehiclesHolder.getVehicleById(getId()).getCommunicationMeans().values()) { //IMC | HTTP | IRIDIUM | GSM
              ps.add(new NeptusPayloadAdapter(com.getName()));
+             System.out.println("Communications means: "+com.getName());
          }
-         if(hasAcoustics())
+         if(hasAcoustics()){
              ps.add(new NeptusPayloadAdapter(acousticOPservice));
+             System.out.println("Acoustic op service.");
+         }
         availablePayload = ps;
     }
     
@@ -103,7 +108,25 @@ public class NeptusVehicleAdapter implements NVLVehicle {
             case UUV:
                 return NVLVehicleType.AUV;
             case USV:
-                return NVLVehicleType.ASV; //TODO ??
+                return NVLVehicleType.ASV;
+            case UGV:
+            case ALL:
+            case UNKNOWN:
+            default:
+                return NVLVehicleType.ANY ; //TODO
+            
+        }
+        
+    }
+    
+    public static NVLVehicleType getType(VehicleTypeEnum type) {
+        switch(type) {
+            case UAV:
+                return NVLVehicleType.UAV;
+            case UUV:
+                return NVLVehicleType.AUV;
+            case USV:
+                return NVLVehicleType.ASV;
             case UGV:
             case ALL:
             case UNKNOWN:

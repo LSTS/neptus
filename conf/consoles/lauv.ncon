@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<console name="Neptus Console" width="1282" height="1029" resizable="true" mission-file="../../missions/APDL/missao-apdl.nmisz" main-vehicle="lauv-xplore-1">
-  <!-- Data saved on 2017-04-10T17:47:15.0Z with Neptus version @VERSION@ (compiled on @DATE@, g@SCM_REV@). -->
+<console name="Neptus Console" width="1282" height="1029" resizable="true" mission-file="../../missions/APDL/missao-apdl.nmisz" main-vehicle="lauv-noptilus-2">
+  <!-- Data saved on 2017-04-11T13:29:27.0Z with Neptus version @VERSION@ (compiled on @DATE@, g@SCM_REV@). -->
   <mainpanel name="console main panel">
     <subpanel class="pt.lsts.neptus.console.plugins.containers.MigLayoutContainer" x="0" y="0" width="1280" height="945">
       <properties>
@@ -48,11 +48,9 @@
         <properties/>
       </child>
       <child class="pt.lsts.neptus.plugins.position.ContactMarker" x="0" y="0" width="0" height="0">
-        <properties>
-          <entry key="Use Single Mark Addition Mode">true</entry>
-        </properties>
+        <properties/>
       </child>
-      <child class="pt.lsts.neptus.controllers.ControllerPanel" x="0" y="0" width="0" height="0">
+      <child class="pt.lsts.neptus.controllers.ControllerPanel" x="0" y="0" width="300" height="200">
         <properties/>
       </child>
       <child class="pt.lsts.neptus.console.plugins.EntityStatePanel" x="0" y="0" width="0" height="0">
@@ -78,7 +76,7 @@
       <child class="pt.lsts.neptus.plugins.logs.LogBookSubPanel" x="0" y="0" width="0" height="0">
         <properties/>
       </child>
-      <child class="pt.lsts.neptus.plugins.logs.LoggingDownloader" x="0" y="0" width="0" height="0">
+      <child class="pt.lsts.neptus.plugins.logs.LoggingDownloader" x="0" y="0" width="298" height="72">
         <properties/>
       </child>
       <child class="pt.lsts.neptus.plugins.mraplots.RevisionOverlays" x="0" y="0" width="0" height="0">
@@ -145,6 +143,9 @@ altitude: ${EstimatedState.alt};
         <properties/>
       </child>
       <child class="pt.lsts.neptus.plugins.nvl_runtime.NeptusRuntime" x="0" y="0" width="298" height="272">
+        <properties/>
+      </child>
+      <child class="pt.lsts.neptus.plugins.groovy.Groovy_old" x="0" y="0" width="198" height="172">
         <properties/>
       </child>
     </subpanel>

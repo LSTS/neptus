@@ -39,4 +39,5 @@ package pt.lsts.neptus.nvl.runtime;
 public interface PayloadComponent {
      String getName();
      int getRange();
+     int getFrequency();
 }

@@ -2,17 +2,24 @@ package pt.lsts.neptus.nvl.runtime;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 public class VehicleRequirements implements Filter<NVLVehicle> {
 
   private NVLVehicleType requiredType = null;
   
 
-private Availability requiredAvailability = null;
+  private Availability requiredAvailability = null;
   private List<PayloadComponent> requiredPayload = null;
   private Position areaCenter = null;
-  private double areaRadius = 0; 
+  private double areaRadius = 0;
+  
+  public VehicleRequirements() {
+      requiredAvailability = null;
+      requiredPayload = null;
+      areaCenter = null;
+      areaRadius = 0;
+      
+  }
 
 
   VehicleRequirements type(NVLVehicleType type) {
@@ -21,6 +28,7 @@ private Availability requiredAvailability = null;
   }
 
   VehicleRequirements payload(List<PayloadComponent> components) {
+     System.out.println("GOT here some how?");
     requiredPayload = components;
     return this;
   }
@@ -49,14 +57,22 @@ private Availability requiredAvailability = null;
 
   @Override
   public boolean apply(NVLVehicle v) {
-
-    return   (requiredType != null && v.getType() == requiredType) 
-        &&
-        (requiredAvailability != null && requiredAvailability == v.getAvailability())
-        ;//&&
-        //(requiredPayload != null && v.getPayload().containsAll(requiredPayload))
-        //&&
-        //(areaCenter != null && v.getPosition().near(areaCenter, areaRadius) );
+   boolean result1,result2,result3, result4;
+    result1 = (requiredType != null && (v.getType() == requiredType || requiredType.equals(NVLVehicleType.ANY))); 
+    result2 = (requiredAvailability != null && requiredAvailability == v.getAvailability());
+    result3 = (requiredPayload != null && v.getPayload().containsAll(requiredPayload));
+    result4 = (areaCenter != null && v.getPosition().near(areaCenter, areaRadius) );
+    if(!result1)
+        System.out.println(v.getId()+" Failed in requiredType: "+requiredType);
+    if(!result2)
+        System.out.println(v.getId()+" Failed in requiredAvailability: "+requiredAvailability);
+    if(!result3){
+        for(PayloadComponent p: requiredPayload)
+            System.out.println(v.getId()+" Failed in requiredPayload: "+p.getName());
+    }
+    if(!result4)
+        System.out.println(v.getId()+" Failed in areaCenter and radius: "+areaCenter+" "+areaRadius+"\nPosition: "+v.getPosition().toString() );
+   return result1 && result2 && result3 && result4;
   }
 
  // static Map<NVLVehicle,VehicleRequirements> filter(List<VehicleRequirements> reqs, List<NVLVehicle> allVehicles) {
@@ -159,7 +175,7 @@ private Availability requiredAvailability = null;
           result+="\n";
       }
       if(requiredType != null ){
-          result+="AVAILABILITY: ";
+          result+="TYPE: ";
           switch(requiredType){
             case UAV:
                 result+="Unmanned Aerial Vehicle";

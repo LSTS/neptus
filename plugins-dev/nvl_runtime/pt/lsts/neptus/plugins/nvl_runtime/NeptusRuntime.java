@@ -9,11 +9,7 @@ import java.util.Map;
 
 import javax.swing.AbstractAction;
 import javax.swing.JButton;
-
-import org.mozilla.javascript.edu.emory.mathcs.backport.java.util.Arrays;
-
 import com.google.common.eventbus.Subscribe;
-
 import pt.lsts.neptus.comm.IMCSendMessageUtils;
 import pt.lsts.neptus.comm.manager.imc.ImcSystem;
 import pt.lsts.neptus.comm.manager.imc.ImcSystemsHolder;
@@ -91,12 +87,14 @@ public class NeptusRuntime extends InteractionAdapter implements NVLRuntime {
                             System.out.println("VEHICLE in List "+v+"\n"+vehicles.get(v).getType()+"\n"+vehicles.get(v).getAvailability());
                         }
                         List<NVLVehicle> vs = getVehicles(ts.getRequirements().get(0));
-                        System.out.println(ts.getRequirements().get(0));
+                        
+                        for(VehicleRequirements rq: ts.getRequirements())
+                            System.out.println("REQ:\n"+rq);
                         for(NVLVehicle v: vs){
                             
                             System.out.println("SELECTED VEHICLE "+v.getId());
                         }
-                        launchTask(ts, vs);
+                        //launchTask(ts, vs);
                         
                        
                     }
