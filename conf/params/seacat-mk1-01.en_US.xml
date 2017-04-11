@@ -340,10 +340,10 @@
       <type>string</type>
       <visibility>user</visibility>
       <scope>maneuver</scope>
-      <default>Still Images</default>
+      <default>Still-Images</default>
       <units/>
       <desc></desc>
-      <values>Still Images, Video</values>
+      <values>Still-Images, Video</values>
       <values-i18n>Still Images, Video</values-i18n>
     </param>
     <param name="Framerate">
