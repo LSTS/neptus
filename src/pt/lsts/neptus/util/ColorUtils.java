@@ -33,7 +33,19 @@
 
 package pt.lsts.neptus.util;
 
+import java.awt.BasicStroke;
 import java.awt.Color;
+import java.awt.Dimension;
+import java.awt.Graphics2D;
+import java.awt.GraphicsConfiguration;
+import java.awt.GraphicsDevice;
+import java.awt.GraphicsEnvironment;
+import java.awt.Paint;
+import java.awt.Rectangle;
+import java.awt.RenderingHints;
+import java.awt.TexturePaint;
+import java.awt.Transparency;
+import java.awt.image.BufferedImage;
 import java.util.Random;
 
 import javax.swing.JLabel;
@@ -45,6 +57,8 @@ import javax.swing.JPanel;
  */
 public class ColorUtils {
 
+    public final static Color STRIPES_YELLOW = new Color(255, 230, 63);
+            
     private static final float U_OFF = .436f;
     private static final float V_OFF = .615f;
     private static final long RAND_SEED = 0;
@@ -215,6 +229,104 @@ public class ColorUtils {
                 return candidate;
         }
         return null; // after a bunch of passes, couldn't find a candidate that beat the best.
+    }
+
+    /**
+     * To create a stripe paint with the color primeColor and black.
+     * 
+     * @param primeColor The color of the one stripe, the other is black.
+     * @return
+     */
+    public static Paint createStripesPaint(Color primeColor) {
+        return createStripesPaintWorker(new Dimension(60, 60), primeColor, Color.BLACK, false);
+    }
+
+    public static Paint createStripesPaint(Color primeColor, Color secondColor) {
+        return createStripesPaintWorker(new Dimension(60, 60), primeColor, secondColor, false);
+    }
+
+    /**
+     * To create a stripe paint with the color primeColor and black.
+     * 
+     * @param dim The size of the image to create the pattern. 
+     * @param primeColor The color of the one stripe, the other is black.
+     * @return
+     */
+    public static Paint createStripesPaint(Dimension dim, Color primeColor) {
+        return createStripesPaintWorker(dim, primeColor, Color.BLACK, false);
+    }
+
+    /**
+     * To create a stripe paint with the color primeColor and black, as disabled (grey colors).
+     * 
+     * @param primeColor The color of the one stripe, the other is black.
+     * @return
+     */
+    public static Paint createStripesPaintDisabled(Color primeColor) {
+        return createStripesPaintWorker(new Dimension(60, 60), primeColor, Color.BLACK, true);
+    }
+
+    public static Paint createStripesPaintDisabled(Color primeColor, Color secondColor) {
+        return createStripesPaintWorker(new Dimension(60, 60), primeColor, secondColor, true);
+    }
+
+    /**
+     * To create a stripe paint with the color primeColor and black, as disabled (grey colors).
+     * 
+     * @param dim The size of the image to create the pattern. 
+     * @param primeColor The color of the one stripe, the other is black.
+     * @return
+     */
+    public static Paint createStripesPaintDisabled(Dimension dim, Color primeColor) {
+        return createStripesPaintWorker(dim, primeColor, Color.BLACK, true);
+    }
+
+    /**
+     * To create a stripe paint with the color primeColor and black.
+     * 
+     * @param dim The size of the image to create the pattern. 
+     * @param primeColor The color of the one stripe.
+     * @param secondColor The color of the other stripe.
+     * @param isDisabled For the paint to be grey scaled.
+     * @return
+     */
+    private static Paint createStripesPaintWorker(Dimension dim, Color primeColor, Color secondColor,
+            boolean isDisabled) {
+        double mS = Math.min(dim.width, dim.height);
+        mS = (mS == 0) ? 80 : mS;
+        int refSize = 80, refTexSize = 25, refStrokeSize = 10;
+        int size = (int) (mS * refTexSize / refSize);
+        int stroke = (int) (mS * refStrokeSize / refSize);
+
+        BufferedImage buffImg;
+        if (!isDisabled) {
+            GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
+            GraphicsDevice gs = ge.getDefaultScreenDevice();
+            GraphicsConfiguration gc = gs.getDefaultConfiguration();
+            buffImg = gc.createCompatibleImage(size, size, Transparency.BITMASK); 
+        }
+        else {
+            buffImg = new BufferedImage(size, size, BufferedImage.TYPE_USHORT_GRAY);
+        }
+
+        Graphics2D gbi = buffImg.createGraphics();
+        gbi.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
+                RenderingHints.VALUE_ANTIALIAS_ON);
+        gbi.setRenderingHint(RenderingHints.KEY_RENDERING,
+                RenderingHints.VALUE_RENDER_QUALITY);
+        gbi.setColor(primeColor);
+        gbi.fillRect(0, 0, size, size);
+        gbi.setColor(secondColor);
+        BasicStroke s = new BasicStroke(stroke);
+        gbi.setStroke(s);
+        gbi.drawLine(0, 0, size, size);
+        gbi.drawLine(-size, 0, size, size*2);
+        gbi.drawLine(0, -size, size*2, size);
+        
+        Rectangle r = new Rectangle(0, 0, size, size);
+        TexturePaint paint = new TexturePaint(buffImg, r);
+        
+        return paint;
     }
 
     public static void main(String[] args) {
