@@ -32,8 +32,10 @@
  */
 package pt.lsts.neptus.mp;
 
+import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Graphics2D;
+import java.awt.Paint;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 import java.io.StringReader;
@@ -44,184 +46,240 @@ import javax.xml.bind.annotation.XmlRootElement;
 
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.renderer2d.LayerPriority;
+import pt.lsts.neptus.renderer2d.OffScreenLayerImageControl;
 import pt.lsts.neptus.renderer2d.Renderer2DPainter;
 import pt.lsts.neptus.renderer2d.StateRenderer2D;
 import pt.lsts.neptus.types.coord.LocationType;
 import pt.lsts.neptus.types.map.ParallelepipedElement;
-
+import pt.lsts.neptus.util.ColorUtils;
 
 /**
  * @author zp
+ * @author pdias
  *
  */
-@XmlRootElement(name="OperationLimits")
-@LayerPriority(priority=35)
+@XmlRootElement(name = "OperationLimits")
+@LayerPriority(priority = 35)
 public class OperationLimits implements Renderer2DPainter {
-	
-	protected Double maxDepth 		= null;
-	protected Double minAltitude	= null;
-	protected Double maxAltitude 	= null;
-	protected Double maxSpeed 		= null;
-	protected Double minSpeed 		= null;
-	protected Double maxVertRate 	= null;
-	
-	protected Double opAreaWidth 	= null;
-	protected Double opAreaLength 	= null;
-	protected Double opAreaLat 		= null;
-	protected Double opAreaLon	 	= null;
-	protected Double opRotationRads	= null;
-	
-	protected boolean editing = false;
-	
-	public Double getMaxDepth() {
-		return maxDepth;
-	}
 
-	public void setMaxDepth(Double maxDepth) {
-		this.maxDepth = maxDepth;
-	}
+    private static final Color STRIPES_YELLOW_TRAMP = ColorUtils.setTransparencyToColor(ColorUtils.STRIPES_YELLOW, 130);
+    private static final Paint PAINT_STRIPES = ColorUtils.createStripesPaint(ColorUtils.STRIPES_YELLOW, Color.BLACK);
+    private static final Paint PAINT_STRIPES_TRAMSP = ColorUtils.createStripesPaint(STRIPES_YELLOW_TRAMP,
+            ColorUtils.setTransparencyToColor(Color.BLACK, 130));
+    private static final Paint PAINT_STRIPES_NOT_SYNC = ColorUtils.createStripesPaint(ColorUtils.STRIPES_YELLOW, Color.RED);
+    private static final Paint PAINT_STRIPES_NOT_SYNC_TRAMSP = ColorUtils.createStripesPaint(STRIPES_YELLOW_TRAMP,
+            ColorUtils.setTransparencyToColor(Color.RED, 130));
 
-	public Double getMinAltitude() {
-		return minAltitude;
-	}
+    protected Double maxDepth = null;
+    protected Double minAltitude = null;
+    protected Double maxAltitude = null;
+    protected Double maxSpeed = null;
+    protected Double minSpeed = null;
+    protected Double maxVertRate = null;
 
-	public void setMinAltitude(Double minAltitude) {
-		this.minAltitude = minAltitude;
-	}
+    protected Double opAreaWidth = null;
+    protected Double opAreaLength = null;
+    protected Double opAreaLat = null;
+    protected Double opAreaLon = null;
+    protected Double opRotationRads = null;
 
-	public Double getMaxAltitude() {
-		return maxAltitude;
-	}
+    private OffScreenLayerImageControl offScreen = new OffScreenLayerImageControl();
+    private boolean isShynched = true;
+    private boolean isEditingPainting = false;
 
-	public void setMaxAltitude(Double maxAltitude) {
-		this.maxAltitude = maxAltitude;
-	}
+    /**
+     * @return the isShynched
+     */
+    public boolean isShynched() {
+        return isShynched;
+    }
+    
+    /**
+     * @param isShynched the isShynched to set
+     */
+    public void setShynched(boolean isShynched) {
+        if (this.isShynched != isShynched)
+            offScreen.triggerImageRebuild();
+        this.isShynched = isShynched;
+    }
+    
+    /**
+     * @return the isEditingPainting
+     */
+    public boolean isEditingPainting() {
+        return isEditingPainting;
+    }
+    
+    /**
+     * @param isEditingPainting the isEditingPainting to set
+     */
+    public void setEditingPainting(boolean isEditingPainting) {
+        if (this.isEditingPainting != isEditingPainting)
+            offScreen.triggerImageRebuild();
+        this.isEditingPainting = isEditingPainting;
+    }
+    
+    public Double getMaxDepth() {
+        return maxDepth;
+    }
 
-	public Double getMaxSpeed() {
-		return maxSpeed;
-	}
+    public void setMaxDepth(Double maxDepth) {
+        this.maxDepth = maxDepth;
+    }
 
-	public void setMaxSpeed(Double maxSpeed) {
-		this.maxSpeed = maxSpeed;
-	}
+    public Double getMinAltitude() {
+        return minAltitude;
+    }
 
-	public Double getMinSpeed() {
-		return minSpeed;
-	}
+    public void setMinAltitude(Double minAltitude) {
+        this.minAltitude = minAltitude;
+    }
 
-	public void setMinSpeed(Double minSpeed) {
-		this.minSpeed = minSpeed;
-	}
+    public Double getMaxAltitude() {
+        return maxAltitude;
+    }
 
-	public Double getMaxVertRate() {
-		return maxVertRate;
-	}
+    public void setMaxAltitude(Double maxAltitude) {
+        this.maxAltitude = maxAltitude;
+    }
 
-	public void setMaxVertRate(Double maxVertRate) {
-		this.maxVertRate = maxVertRate;
-	}
+    public Double getMaxSpeed() {
+        return maxSpeed;
+    }
 
-	public Double getOpAreaWidth() {
-		return opAreaWidth;
-	}
+    public void setMaxSpeed(Double maxSpeed) {
+        this.maxSpeed = maxSpeed;
+    }
 
-	public void setOpAreaWidth(Double opAreaWidth) {
-		this.opAreaWidth = opAreaWidth;
-	}
+    public Double getMinSpeed() {
+        return minSpeed;
+    }
 
-	public Double getOpAreaLength() {
-		return opAreaLength;
-	}
+    public void setMinSpeed(Double minSpeed) {
+        this.minSpeed = minSpeed;
+    }
 
-	public void setOpAreaLength(Double opAreaLength) {
-		this.opAreaLength = opAreaLength;
-	}
+    public Double getMaxVertRate() {
+        return maxVertRate;
+    }
 
-	public Double getOpAreaLat() {
-		return opAreaLat;
-	}
+    public void setMaxVertRate(Double maxVertRate) {
+        this.maxVertRate = maxVertRate;
+    }
 
-	public void setOpAreaLat(Double opAreaLat) {
-		this.opAreaLat = opAreaLat;
-	}
+    public Double getOpAreaWidth() {
+        return opAreaWidth;
+    }
 
-	public Double getOpAreaLon() {
-		return opAreaLon;
-	}
+    public void setOpAreaWidth(Double opAreaWidth) {
+        this.opAreaWidth = opAreaWidth;
+        offScreen.triggerImageRebuild();
+    }
 
-	public void setOpAreaLon(Double opAreaLon) {
-		this.opAreaLon = opAreaLon;
-	}
+    public Double getOpAreaLength() {
+        return opAreaLength;
+    }
 
-	public Double getOpRotationRads() {
-		return opRotationRads;
-	}
+    public void setOpAreaLength(Double opAreaLength) {
+        this.opAreaLength = opAreaLength;
+        offScreen.triggerImageRebuild();
+    }
 
-	public void setOpRotationRads(Double opRotationRads) {
-		this.opRotationRads = opRotationRads;
-	}
-	
-	public void setArea(ParallelepipedElement selection) {
-		if (selection == null) {
-			opAreaLat = opAreaLon = opAreaLength = opAreaWidth = opRotationRads = null;
-		}
-		else {
-			double[] lld = selection.getCenterLocation().getAbsoluteLatLonDepth();
-			opAreaLat = lld[0];
-			opAreaLon = lld[1];
-			opAreaLength = selection.getLength();
-			opAreaWidth = selection.getWidth();
-			opRotationRads = selection.getYawRad();
-		}
-	}
-	
-	
-	
-	
-	@Override
-	public void paint(Graphics2D g, StateRenderer2D renderer) {
-		
-	    if (opAreaLat != null && opAreaLength != null && opAreaLon != null && opAreaWidth != null && opRotationRads != null) {
-			LocationType lt = new LocationType();
-			lt.setLatitudeDegs(opAreaLat);
-			lt.setLongitudeDegs(opAreaLon);
-			Point2D pt = renderer.getScreenPosition(lt);
-			g.translate(pt.getX(), pt.getY());
-			g.scale(1, -1);
-			g.rotate(renderer.getRotation());	
-			g.rotate(-opRotationRads+Math.PI/2);
-			g.setColor(Color.red.brighter());
-			double length = opAreaLength * renderer.getZoom();
-			double width = opAreaWidth * renderer.getZoom();
-			
-			g.draw(new Rectangle2D.Double(-length/2, -width/2, length, width));
-		}
-		
-		
-	}
-	
-	public boolean showDialog() {
-		
-		return false;
-	}
-	
-	public String asXml() {
-		StringWriter writer = new StringWriter();
-		JAXB.marshal(this, writer);
-		return writer.toString();
-	}
-	
-	public static OperationLimits loadXml(String xml) {
-		return JAXB.unmarshal(new StringReader(xml), OperationLimits.class);		
-	}
+    public Double getOpAreaLat() {
+        return opAreaLat;
+    }
+
+    public void setOpAreaLat(Double opAreaLat) {
+        this.opAreaLat = opAreaLat;
+        offScreen.triggerImageRebuild();
+    }
+
+    public Double getOpAreaLon() {
+        return opAreaLon;
+    }
+
+    public void setOpAreaLon(Double opAreaLon) {
+        this.opAreaLon = opAreaLon;
+        offScreen.triggerImageRebuild();
+    }
+
+    public Double getOpRotationRads() {
+        return opRotationRads;
+    }
+
+    public void setOpRotationRads(Double opRotationRads) {
+        this.opRotationRads = opRotationRads;
+        offScreen.triggerImageRebuild();
+    }
+
+    public void setArea(ParallelepipedElement selection) {
+        if (selection == null) {
+            opAreaLat = opAreaLon = opAreaLength = opAreaWidth = opRotationRads = null;
+        }
+        else {
+            double[] lld = selection.getCenterLocation().getAbsoluteLatLonDepth();
+            opAreaLat = lld[0];
+            opAreaLon = lld[1];
+            opAreaLength = selection.getLength();
+            opAreaWidth = selection.getWidth();
+            opRotationRads = selection.getYawRad();
+        }
+        
+        offScreen.triggerImageRebuild();
+    }
+
+    @Override
+    public void paint(Graphics2D g, StateRenderer2D renderer) {
+        if (!(opAreaLat != null && opAreaLength != null && opAreaLon != null && opAreaWidth != null
+                && opRotationRads != null))
+            return;
+        
+        boolean recreateImage = offScreen.paintPhaseStartTestRecreateImageAndRecreate(g, renderer);
+        if (recreateImage) {
+            Graphics2D g1 = offScreen.getImageGraphics();
+
+            LocationType lt = new LocationType();
+            lt.setLatitudeDegs(opAreaLat);
+            lt.setLongitudeDegs(opAreaLon);
+            Point2D pt = renderer.getScreenPosition(lt);
+            g1.translate(pt.getX(), pt.getY());
+            g1.scale(1, -1);
+            g1.rotate(renderer.getRotation());
+            g1.rotate(-opRotationRads + Math.PI / 2);
+            g1.setColor(Color.red.brighter());
+            double length = opAreaLength * renderer.getZoom();
+            double width = opAreaWidth * renderer.getZoom();
+
+            g1.setStroke(new BasicStroke(4));
+            
+            g1.setPaint(isShynched ? PAINT_STRIPES_TRAMSP : PAINT_STRIPES_NOT_SYNC_TRAMSP);
+            if (isEditingPainting) {
+                g1.setPaint(STRIPES_YELLOW_TRAMP);
+                g1.fill(new Rectangle2D.Double(-length / 2, -width / 2, length, width));
+                g1.setPaint(isShynched ? PAINT_STRIPES : PAINT_STRIPES_NOT_SYNC);
+            }
+            g1.draw(new Rectangle2D.Double(-length / 2, -width / 2, length, width));
+        }            
+        offScreen.paintPhaseEndFinishImageRecreateAndPaintImageCacheToRenderer(g, renderer);
+    }
+
+    public String asXml() {
+        StringWriter writer = new StringWriter();
+        JAXB.marshal(this, writer);
+        return writer.toString();
+    }
+
+    public static OperationLimits loadXml(String xml) {
+        return JAXB.unmarshal(new StringReader(xml), OperationLimits.class);
+    }
 
     public static void main(String[] args) {
-		OperationLimits lims = new OperationLimits();
-		lims.setMaxAltitude(200d);
-		lims.setMinAltitude(100d);
-		String xml = lims.asXml();
-		NeptusLog.pub().info("<###> "+xml);
-		OperationLimits lims2 = OperationLimits.loadXml(xml);
-		NeptusLog.pub().info("<###> "+lims2.asXml());
-	}
+        OperationLimits lims = new OperationLimits();
+        lims.setMaxAltitude(200d);
+        lims.setMinAltitude(100d);
+        String xml = lims.asXml();
+        NeptusLog.pub().info("<###> " + xml);
+        OperationLimits lims2 = OperationLimits.loadXml(xml);
+        NeptusLog.pub().info("<###> " + lims2.asXml());
+    }
 }
