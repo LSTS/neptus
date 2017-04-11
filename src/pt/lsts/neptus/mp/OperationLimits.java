@@ -65,7 +65,10 @@ public class OperationLimits implements Renderer2DPainter {
     private static final Color STRIPES_YELLOW_TRAMP = ColorUtils.setTransparencyToColor(ColorUtils.STRIPES_YELLOW, 130);
     private static final Paint PAINT_STRIPES = ColorUtils.createStripesPaint(ColorUtils.STRIPES_YELLOW, Color.BLACK);
     private static final Paint PAINT_STRIPES_TRAMSP = ColorUtils.createStripesPaint(STRIPES_YELLOW_TRAMP,
-            ColorUtils.setTransparencyToColor(Color.BLACK, 128));
+            ColorUtils.setTransparencyToColor(Color.BLACK, 130));
+    private static final Paint PAINT_STRIPES_NOT_SYNC = ColorUtils.createStripesPaint(ColorUtils.STRIPES_YELLOW, Color.RED);
+    private static final Paint PAINT_STRIPES_NOT_SYNC_TRAMSP = ColorUtils.createStripesPaint(STRIPES_YELLOW_TRAMP,
+            ColorUtils.setTransparencyToColor(Color.RED, 130));
 
     protected Double maxDepth = null;
     protected Double minAltitude = null;
@@ -81,7 +84,24 @@ public class OperationLimits implements Renderer2DPainter {
     protected Double opRotationRads = null;
 
     private OffScreenLayerImageControl offScreen = new OffScreenLayerImageControl();
+    private boolean isShynched = true;
     private boolean isEditingPainting = false;
+
+    /**
+     * @return the isShynched
+     */
+    public boolean isShynched() {
+        return isShynched;
+    }
+    
+    /**
+     * @param isShynched the isShynched to set
+     */
+    public void setShynched(boolean isShynched) {
+        if (this.isShynched != isShynched)
+            offScreen.triggerImageRebuild();
+        this.isShynched = isShynched;
+    }
     
     /**
      * @return the isEditingPainting
@@ -94,6 +114,8 @@ public class OperationLimits implements Renderer2DPainter {
      * @param isEditingPainting the isEditingPainting to set
      */
     public void setEditingPainting(boolean isEditingPainting) {
+        if (this.isEditingPainting != isEditingPainting)
+            offScreen.triggerImageRebuild();
         this.isEditingPainting = isEditingPainting;
     }
     
@@ -230,11 +252,11 @@ public class OperationLimits implements Renderer2DPainter {
 
             g1.setStroke(new BasicStroke(4));
             
-            g1.setPaint(PAINT_STRIPES_TRAMSP);
+            g1.setPaint(isShynched ? PAINT_STRIPES_TRAMSP : PAINT_STRIPES_NOT_SYNC_TRAMSP);
             if (isEditingPainting) {
                 g1.setPaint(STRIPES_YELLOW_TRAMP);
                 g1.fill(new Rectangle2D.Double(-length / 2, -width / 2, length, width));
-                g1.setPaint(PAINT_STRIPES);
+                g1.setPaint(isShynched ? PAINT_STRIPES : PAINT_STRIPES_NOT_SYNC);
             }
             g1.draw(new Rectangle2D.Double(-length / 2, -width / 2, length, width));
         }            
