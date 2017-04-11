@@ -59,6 +59,7 @@ import java.util.Vector;
 import javax.swing.AbstractAction;
 import javax.swing.AbstractButton;
 import javax.swing.BoxLayout;
+import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JDialog;
@@ -75,6 +76,8 @@ import pt.lsts.imc.IMCDefinition;
 import pt.lsts.imc.IMCMessage;
 import pt.lsts.imc.OperationalLimits;
 import pt.lsts.neptus.NeptusLog;
+import pt.lsts.neptus.comm.manager.imc.ImcSystem;
+import pt.lsts.neptus.comm.manager.imc.ImcSystemsHolder;
 import pt.lsts.neptus.console.ConsoleLayout;
 import pt.lsts.neptus.console.ConsolePanel;
 import pt.lsts.neptus.console.events.ConsoleEventMainSystemChange;
@@ -85,7 +88,6 @@ import pt.lsts.neptus.gui.ToolbarSwitch;
 import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.mp.OperationLimits;
 import pt.lsts.neptus.plugins.ConfigurationListener;
-import pt.lsts.neptus.plugins.NeptusMessageListener;
 import pt.lsts.neptus.plugins.NeptusProperty;
 import pt.lsts.neptus.plugins.PluginDescription;
 import pt.lsts.neptus.plugins.PluginDescription.CATEGORY;
@@ -105,6 +107,7 @@ import pt.lsts.neptus.util.FileUtil;
 import pt.lsts.neptus.util.GuiUtils;
 import pt.lsts.neptus.util.ImageUtils;
 import pt.lsts.neptus.util.MathMiscUtils;
+import pt.lsts.neptus.util.conf.ConfigFetch;
 
 /**
  * @author zp
@@ -112,7 +115,9 @@ import pt.lsts.neptus.util.MathMiscUtils;
  */
 @PluginDescription(name = "Operation Limits", category = CATEGORY.PLANNING, icon = "pt/lsts/neptus/plugins/oplimits/lock.png", documentation = "oplimits/oplimits.html")
 public class OperationLimitsSubPanel extends ConsolePanel implements ConfigurationListener,
-        MainVehicleChangeListener, NeptusMessageListener, Renderer2DPainter, StateRendererInteraction {
+        MainVehicleChangeListener, Renderer2DPainter, StateRendererInteraction {
+
+    private static final String FOLDER_CONF_OPLIMITS = ConfigFetch.getConfFolder() + "/oplimits/";
 
     private static final long serialVersionUID = 1L;
 
@@ -124,9 +129,10 @@ public class OperationLimitsSubPanel extends ConsolePanel implements Configurati
     
     private static final Color STRIPES_YELLOW_TRAMP = ColorUtils.setTransparencyToColor(ColorUtils.STRIPES_YELLOW, 130);
     private static final Paint PAINT_STRIPES = ColorUtils.createStripesPaint(ColorUtils.STRIPES_YELLOW, Color.BLACK);
+    private static final Paint PAINT_STRIPES_NOT_SYNC = ColorUtils.createStripesPaint(ColorUtils.STRIPES_YELLOW, Color.RED);
 
     @NeptusProperty(name = "Operation Limits File", description = "Where to store and load operational limits")
-    public File operationLimitsFile = new File(".", "conf/oplimits.xml");
+    public File operationLimitsFile = new File(FOLDER_CONF_OPLIMITS + "oplimits.xml");
 
     @NeptusProperty(name = "Separate Operational Areas Per Vehicle", description = "If selected, each vehicle will have its own operational limits file")
     public boolean separateOpAreas = true;
@@ -249,7 +255,13 @@ public class OperationLimitsSubPanel extends ConsolePanel implements Configurati
 
             @Override
             public void actionPerformed(ActionEvent e) {
-                updateAction.putValue(AbstractAction.SMALL_ICON, ICON_UPDATE_REQUEST);
+                byte[] newMD5 = getLimitsMessage().payloadMD5();
+                if (lastMD5 != null && ByteUtil.equal(newMD5, lastMD5)) {
+                    updateAction.putValue(AbstractAction.SMALL_ICON, ICON_UPDATE_OK);
+                }
+                else {
+                    updateAction.putValue(AbstractAction.SMALL_ICON, ICON_UPDATE_REQUEST);
+                }
                 updateAction.putValue(AbstractAction.SHORT_DESCRIPTION, TEXT_REQUEST_RESPONSE_WAITING);
                 send(IMCDefinition.getInstance().create("GetOperationalLimits"));
             }
@@ -325,24 +337,20 @@ public class OperationLimitsSubPanel extends ConsolePanel implements Configurati
         return oplimits;
     }
 
-    @Override
-    public String[] getObservedMessages() {
-        return new String[] { "OperationalLimits" };
-    }
-
-    @Override
-    public void messageArrived(IMCMessage message) {
-
+    @Subscribe
+    public void onOperationalLimits(OperationalLimits message) {
+        if (!message.getSourceName().equalsIgnoreCase(getConsole().getMainSystem()))
+            return;
+        
         final IMCMessage msg = message;
         if (message.getMgid() == OperationalLimits.ID_STATIC) {
-
             new Thread() {
                 @Override
                 public void run() {
                     synchronized (OperationLimitsSubPanel.this) {
                         if (lastMD5 != null) {
                             if (!Arrays.equals(msg.payloadMD5(), lastMD5)) {
-                                post(Notification.warning(I18n.text("Operation Limits"), I18n.text("Not Syncronized")).src(
+                                post(Notification.warning(I18n.text("Operation Limits"), I18n.text("Not Syncronized, Updating It")).src(
                                         getConsole().getMainSystem()));
                             }
                             else {
@@ -351,65 +359,72 @@ public class OperationLimitsSubPanel extends ConsolePanel implements Configurati
                             }
                         }
                     }
-                    try {
-                        OperationalLimits received = OperationalLimits.clone(msg);
-                        lastMD5 = msg.payloadMD5();
-                        if ((received.getMask() & OperationalLimits.OPL_MAX_DEPTH) != 0)
-                            limits.setMaxDepth(received.getMaxDepth());
-                        else
-                            limits.setMaxDepth(null);
-
-                        if ((received.getMask() & OperationalLimits.OPL_MAX_ALT) != 0)
-                            limits.setMaxAltitude(received.getMaxAltitude());
-                        else
-                            limits.setMaxAltitude(null);
-
-                        if ((received.getMask() & OperationalLimits.OPL_MIN_ALT) != 0)
-                            limits.setMinAltitude(received.getMinAltitude());
-                        else
-                            limits.setMinAltitude(null);
-
-                        if ((received.getMask() & OperationalLimits.OPL_MAX_SPEED) != 0)
-                            limits.setMaxSpeed(received.getMaxSpeed());
-                        else
-                            limits.setMaxSpeed(null);
-
-                        if ((received.getMask() & OperationalLimits.OPL_MIN_SPEED) != 0)
-                            limits.setMinSpeed(received.getMinSpeed());
-                        else
-                            limits.setMinSpeed(null);
-
-                        if ((received.getMask() & OperationalLimits.OPL_MAX_VRATE) != 0)
-                            limits.setMaxVertRate(received.getMaxVrate());
-                        else
-                            limits.setMaxVertRate(null);
-
-                        if ((received.getMask() & OperationalLimits.OPL_AREA) != 0) {
-
-                            limits.setOpAreaLat(Math.toDegrees(received.getLat()));
-                            limits.setOpAreaLon(Math.toDegrees(received.getLon()));
-                            limits.setOpAreaLength(received.getLength());
-                            limits.setOpAreaWidth(received.getWidth());
-                            limits.setOpRotationRads(received.getOrientation());
-                        }
-                        else {
-                            limits.setOpAreaLat(null);
-                            limits.setOpAreaLon(null);
-                            limits.setOpAreaLength(null);
-                            limits.setOpAreaWidth(null);
-                            limits.setOpRotationRads(null);
-                        }
-
-                        pp = getSelectionFromLimits(limits);
-                        updateAction.putValue(AbstractAction.SMALL_ICON, ICON_UPDATE_OK);
-                        updateAction.putValue(AbstractAction.SHORT_DESCRIPTION,
-                                I18n.text("Download limits from vehicle"));
-                    }
-                    catch (Exception e) {
-                        e.printStackTrace();
-                    }
+                    processOperationLimitsMessage(msg);
                 }
             }.start();
+        }
+    }
+
+    /**
+     * @param msg
+     */
+    private void processOperationLimitsMessage(final IMCMessage msg) {
+        try {
+            OperationalLimits received = OperationalLimits.clone(msg);
+            lastMD5 = msg.payloadMD5();
+            if ((received.getMask() & OperationalLimits.OPL_MAX_DEPTH) != 0)
+                limits.setMaxDepth(received.getMaxDepth());
+            else
+                limits.setMaxDepth(null);
+
+            if ((received.getMask() & OperationalLimits.OPL_MAX_ALT) != 0)
+                limits.setMaxAltitude(received.getMaxAltitude());
+            else
+                limits.setMaxAltitude(null);
+
+            if ((received.getMask() & OperationalLimits.OPL_MIN_ALT) != 0)
+                limits.setMinAltitude(received.getMinAltitude());
+            else
+                limits.setMinAltitude(null);
+
+            if ((received.getMask() & OperationalLimits.OPL_MAX_SPEED) != 0)
+                limits.setMaxSpeed(received.getMaxSpeed());
+            else
+                limits.setMaxSpeed(null);
+
+            if ((received.getMask() & OperationalLimits.OPL_MIN_SPEED) != 0)
+                limits.setMinSpeed(received.getMinSpeed());
+            else
+                limits.setMinSpeed(null);
+
+            if ((received.getMask() & OperationalLimits.OPL_MAX_VRATE) != 0)
+                limits.setMaxVertRate(received.getMaxVrate());
+            else
+                limits.setMaxVertRate(null);
+
+            if ((received.getMask() & OperationalLimits.OPL_AREA) != 0) {
+
+                limits.setOpAreaLat(Math.toDegrees(received.getLat()));
+                limits.setOpAreaLon(Math.toDegrees(received.getLon()));
+                limits.setOpAreaLength(received.getLength());
+                limits.setOpAreaWidth(received.getWidth());
+                limits.setOpRotationRads(received.getOrientation());
+            }
+            else {
+                limits.setOpAreaLat(null);
+                limits.setOpAreaLon(null);
+                limits.setOpAreaLength(null);
+                limits.setOpAreaWidth(null);
+                limits.setOpRotationRads(null);
+            }
+
+            pp = getSelectionFromLimits(limits);
+            updateAction.putValue(AbstractAction.SMALL_ICON, ICON_UPDATE_OK);
+            updateAction.putValue(AbstractAction.SHORT_DESCRIPTION,
+                    I18n.text("Download limits from vehicle"));
+        }
+        catch (Exception e) {
+            e.printStackTrace();
         }
     }
 
@@ -432,13 +447,13 @@ public class OperationLimitsSubPanel extends ConsolePanel implements Configurati
             return FileUtil.saveToFile(operationLimitsFile.getAbsolutePath(), xml);
         }
         else if (getConsole().getMainSystem() != null) {
-            File f = new File("conf/oplimits/" + getConsole().getMainSystem() + ".xml");
+            File f = new File(FOLDER_CONF_OPLIMITS + getConsole().getMainSystem() + ".xml");
             f.getParentFile().mkdirs();
             NeptusLog.pub().info("<###>saving to " + f.getAbsolutePath());
             return FileUtil.saveToFile(f.getAbsolutePath(), xml);
         }
         else {
-            operationLimitsFile = new File("conf/oplimits/limits.xml");
+            operationLimitsFile = new File(FOLDER_CONF_OPLIMITS + "limits.xml");
             operationLimitsFile.getParentFile().mkdirs();
             NeptusLog.pub().info("<###>saving to " + operationLimitsFile.getAbsolutePath());
             return FileUtil.saveToFile(operationLimitsFile.getAbsolutePath(), xml);
@@ -446,10 +461,11 @@ public class OperationLimitsSubPanel extends ConsolePanel implements Configurati
     }
 
     protected String getOpLimitsXml() {
-        if (!separateOpAreas && operationLimitsFile.canRead())
+        if (!separateOpAreas && operationLimitsFile.canRead()) {
             return FileUtil.getFileAsString(operationLimitsFile.getAbsolutePath());
+        }
         else if (getConsole().getMainSystem() != null) {
-            File f = new File("conf/oplimits/" + getConsole().getMainSystem() + ".xml");
+            File f = new File(FOLDER_CONF_OPLIMITS + getConsole().getMainSystem() + ".xml");
             if (f.canRead())
                 return FileUtil.getFileAsString(f);
         }
@@ -464,7 +480,6 @@ public class OperationLimitsSubPanel extends ConsolePanel implements Configurati
         Vector<CustomInteractionSupport> panels = getConsole().getSubPanelsOfInterface(CustomInteractionSupport.class);
         for (CustomInteractionSupport cis : panels)
             cis.addInteraction(this);
-
     }
 
     @Override
@@ -477,13 +492,26 @@ public class OperationLimitsSubPanel extends ConsolePanel implements Configurati
 
     @Subscribe
     public void mainVehicleChangeNotification(ConsoleEventMainSystemChange e) {
-        showOnMap(false);
-
+//        showOnMap(false);
+        checkIfOplimitsExistInOldData(e.getCurrent());
+        
         pp = getSelectionFromLimits(limits);
         clickCount = 0;
         // add oplimits rendererd (with new limits) if necessary
         showOnMap(showOnMap);
         updateAction.actionPerformed(null);
+    }
+
+    /**
+     * @param e
+     */
+    private void checkIfOplimitsExistInOldData(String system) {
+        ImcSystem imcSys = ImcSystemsHolder.getSystemWithName(system);
+        if (imcSys != null) {
+            OperationalLimits opl = (OperationalLimits) imcSys.retrieveData(OperationalLimits.class.getSimpleName());
+            if (opl != null)
+                processOperationLimitsMessage(opl);
+        }
     }
 
     @Override
@@ -683,6 +711,7 @@ public class OperationLimitsSubPanel extends ConsolePanel implements Configurati
     public void paint(Graphics2D g2, StateRenderer2D renderer) {
         Graphics2D g = (Graphics2D) g2.create();
         if (limits != null && !editing) {
+            limits.setShynched(isLimitsInSynch());
             limits.paint(g, renderer);
         }
         else {
@@ -732,7 +761,7 @@ public class OperationLimitsSubPanel extends ConsolePanel implements Configurati
                 g.setStroke(new BasicStroke(4));
                 g.setColor(STRIPES_YELLOW_TRAMP);
                 g.fill(new Rectangle2D.Double(-length / 2, -width / 2, length, width));
-                g.setPaint(PAINT_STRIPES);
+                g.setPaint(isLimitsInSynch() ? PAINT_STRIPES : PAINT_STRIPES_NOT_SYNC);
                 g.draw(new Rectangle2D.Double(-length / 2, -width / 2, length, width));
             }
             else if (rectangle != null) {
@@ -759,6 +788,15 @@ public class OperationLimitsSubPanel extends ConsolePanel implements Configurati
             }
             g.dispose();
         }
+    }
+
+    /**
+     * @return
+     */
+    private boolean isLimitsInSynch() {
+        if (updateAction.getValue(AbstractAction.SMALL_ICON) == ICON_UPDATE_OK)
+            return true;
+        return false;
     }
 
     public OperationLimits setLimitsFromSelection(ParallelepipedElement selection) {
