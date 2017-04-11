@@ -25,6 +25,7 @@ import pt.lsts.neptus.types.mission.MissionType
 import pt.lsts.neptus.types.mission.TransitionType
 import pt.lsts.neptus.console.ConsoleLayout
 import pt.lsts.neptus.console.plugins.planning.plandb.PlanDBState;
+import pt.lsts.neptus.messages.InvalidMessageException
 import pt.lsts.neptus.mp.Maneuver as NeptusManeuver
 import pt.lsts.neptus.mp.maneuvers.Launch as NeptusLaunch
 import pt.lsts.neptus.mp.maneuvers.PopUp  as NeptusPopUp
@@ -89,7 +90,7 @@ class Plan {
 
 	 def IMCManeuver goTo (LinkedHashMap params){
 		 def id = "$count"+".Goto"
-         def payload
+         List<Payload> payload = new ArrayList<>()
          count++
 		 if(params!=null){
 		 params.with{
@@ -102,32 +103,38 @@ class Plan {
 			 if(params['id'] != null){
 			 	id = params.id
 			 }
-             if(params['payload'] != null){
-                 if(params.payload['name'] != null){
-                     def payload_name = params.payload['name']
-                     payload = new Payload(payload_name)
-                     //TODO Another Map to payload parameters???
-                     if(params.payload['range'] != null){
-                         def payload_range = params.payload['range']
-                         payload.range payload_range
-                     }
-                     if(params.payload['frequency'] != null){
-                         def payload_frequency = params.payload['frequency']
-                         payload.frequency = payload_frequency
-                     }
-                     if(params.payload['active'] != null){
-                         def payload_active = params.payload['active']
-                         payload.active payload_active
-                     }
+             if(params['payload'] != null){ 
+                 def payloadComponent
+                 params['payload'].each{
+                     if(it['name'] != null){
+                         def payload_name = it['name']
+                         payloadComponent = new Payload(payload_name)
+                         
+                         //TODO Another Map to payload parameters???
+                         if(it['Range'] != null){
+                             def payload_range = it['Range']
+                             payloadComponent.range payload_range
+                         }
+                         if(it['Frequency'] != null){
+                             def payload_frequency = it['Frequency']
+                             payloadComponent.frequency = payload_frequency
+                         }
+                         if(it['Active'] != null){
+                             def payload_active = it['Active']
+                             payloadComponent.active payload_active
+                         }
+                         payload.add payloadComponent
                  }
                  else 
                      println "The name of the payload required must be provided."              }
-		 }
+		 }}
 	}
 	 	def man = maneuver(id,Goto)
          NeptusGoto go  = new pt.lsts.neptus.mp.maneuvers.Goto()
          if (payload != null){
-             go.setProperties(payload.properties("Goto"))
+             payload.each {  
+                 go.setProperties(it.properties("Goto"))
+             }
              //man.setProperties(payload.properties())//TODO for standalone version!
          }
          go.parseIMCMessage(man)
@@ -160,16 +167,16 @@ class Plan {
                  def payload_name = params.payload['name']
                  payload = new Payload(payload_name)
                  //TODO Another Map to payload parameters???
-                 if(params.payload['range'] != null){
-                     def payload_range = params.payload['range']
+                 if(params.payload['Range'] != null){
+                     def payload_range = params.payload['Range']
                      payload.range payload_range
                  }
-                 if(params.payload['frequency'] != null){
-                     def payload_frequency = params.payload['frequency']
+                 if(params.payload['Frequency'] != null){
+                     def payload_frequency = params.payload['Frequency']
                      payload.frequency = payload_frequency
                  }
-                 if(params.payload['active'] != null){
-                     def payload_active = params.payload['active']
+                 if(params.payload['Active'] != null){
+                     def payload_active = params.payload['Active']
                      payload.active payload_active
                  }
              }
@@ -219,16 +226,16 @@ class Plan {
                  def payload_name = params.payload['name']
                  payload = new Payload(payload_name)
                  //TODO Another Map to payload parameters???
-                 if(params.payload['range'] != null){
-                     def payload_range = params.payload['range']
+                 if(params.payload['Range'] != null){
+                     def payload_range = params.payload['Range']
                      payload.range payload_range
                  }
-                 if(params.payload['frequency'] != null){
-                     def payload_frequency = params.payload['frequency']
+                 if(params.payload['Frequency'] != null){
+                     def payload_frequency = params.payload['Frequency']
                      payload.frequency = payload_frequency
                  }
-                 if(params.payload['active'] != null){
-                     def payload_active = params.payload['active']
+                 if(params.payload['Active'] != null){
+                     def payload_active = params.payload['Active']
                      payload.active payload_active
                  }
              }
@@ -279,16 +286,16 @@ class Plan {
                  def payload_name = params.payload['name']
                  payload = new Payload(payload_name)
                  //TODO Another Map to payload parameters???
-                 if(params.payload['range'] != null){
-                     def payload_range = params.payload['range']
+                 if(params.payload['Range'] != null){
+                     def payload_range = params.payload['Range']
                      payload.range payload_range
                  }
-                 if(params.payload['frequency'] != null){
-                     def payload_frequency = params.payload['frequency']
+                 if(params.payload['Frequency'] != null){
+                     def payload_frequency = params.payload['Frequency']
                      payload.frequency = payload_frequency
                  }
-                 if(params.payload['active'] != null){
-                     def payload_active = params.payload['active']
+                 if(params.payload['Active'] != null){
+                     def payload_active = params.payload['Active']
                      payload.active payload_active
                  }
              }
@@ -338,16 +345,16 @@ class Plan {
                  def payload_name = params.payload['name']
                  payload = new Payload(payload_name)
                  //TODO Another Map to payload parameters???
-                 if(params.payload['range'] != null){
-                     def payload_range = params.payload['range']
+                 if(params.payload['Range'] != null){
+                     def payload_range = params.payload['Range']
                      payload.range payload_range
                  }
-                 if(params.payload['frequency'] != null){
-                     def payload_frequency = params.payload['frequency']
+                 if(params.payload['Frequency'] != null){
+                     def payload_frequency = params.payload['Frequency']
                      payload.frequency = payload_frequency
                  }
-                 if(params.payload['active'] != null){
-                     def payload_active = params.payload['active']
+                 if(params.payload['Active'] != null){
+                     def payload_active = params.payload['Active']
                      payload.active payload_active
                  }
              }
@@ -398,16 +405,16 @@ class Plan {
                  def payload_name = params.payload['name']
                  payload = new Payload(payload_name)
                  //TODO Another Map to payload parameters???
-                 if(params.payload['range'] != null){
-                     def payload_range = params.payload['range']
+                 if(params.payload['Range'] != null){
+                     def payload_range = params.payload['Range']
                      payload.range payload_range
                  }
-                 if(params.payload['frequency'] != null){
-                     def payload_frequency = params.payload['frequency']
+                 if(params.payload['Frequency'] != null){
+                     def payload_frequency = params.payload['Frequency']
                      payload.frequency = payload_frequency
                  }
-                 if(params.payload['active'] != null){
-                     def payload_active = params.payload['active']
+                 if(params.payload['Active'] != null){
+                     def payload_active = params.payload['Active']
                      payload.active payload_active
                  }
              }
@@ -454,16 +461,16 @@ class Plan {
                     def payload_name = params.payload['name']
                     payload = new Payload(payload_name)
                     //TODO Another Map to payload parameters???
-                    if(params.payload['range'] != null){
-                        def payload_range = params.payload['range']
+                    if(params.payload['Range'] != null){
+                        def payload_range = params.payload['Range']
                         payload.range payload_range
                     }
-                    if(params.payload['frequency'] != null){
-                        def payload_frequency = params.payload['frequency']
+                    if(params.payload['Frequency'] != null){
+                        def payload_frequency = params.payload['Frequency']
                         payload.frequency = payload_frequency
                     }
-                    if(params.payload['active'] != null){
-                        def payload_active = params.payload['active']
+                    if(params.payload['Active'] != null){
+                        def payload_active = params.payload['Active']
                         payload.active payload_active
                     }
                 }
@@ -525,16 +532,16 @@ class Plan {
                     def payload_name = params.payload['name']
                     payload = new Payload(payload_name)
                     //TODO Another Map to payload parameters???
-                    if(params.payload['range'] != null){
-                        def payload_range = params.payload['range']
+                    if(params.payload['Range'] != null){
+                        def payload_range = params.payload['Range']
                         payload.range payload_range
                     }
-                    if(params.payload['frequency'] != null){
-                        def payload_frequency = params.payload['frequency']
+                    if(params.payload['Frequency'] != null){
+                        def payload_frequency = params.payload['Frequency']
                         payload.frequency = payload_frequency
                     }
-                    if(params.payload['active'] != null){
-                        def payload_active = params.payload['active']
+                    if(params.payload['Active'] != null  ){
+                        def payload_active = params.payload['Active']
                         payload.active payload_active
                     }
                 }
@@ -653,7 +660,17 @@ class Plan {
 		ps.startManId = mans[0].getManeuverId()
 		ps.setManeuvers mans
 		ps.setTransitions maneuver_transitions()
-		ps
+        
+        try{
+            ps.validate()
+        }
+        catch(InvalidMessageException e){
+            //NeptusLog.pub().error(I18n.text("The Neptus plan generated has an error: "+e.getMessage()))
+            println "Invalid IMC message generated by IMC DSL in Groovy: "+e.getMessage()
+        }
+        
+        ps
+		
 	}
     
     def PlanType asPlanType(ConsoleLayout console) {
@@ -719,7 +736,14 @@ class Plan {
         plan.description = this.description
         
 		def neptus_plan = this.asPlanType(console)
-		console.getMission().addPlan(neptus_plan) 
+        try{
+            if(neptus_plan.validatePlan())
+            console.getMission().addPlan(neptus_plan)
+        }
+        catch (Exception e) {
+            //NeptusLog.pub().error(I18n.text("The Neptus plan generated has an error: "+e.getMessage()))
+            println "The Neptus plan generated has an error: "+e.getMessage()
+        }
 	}
 
 }

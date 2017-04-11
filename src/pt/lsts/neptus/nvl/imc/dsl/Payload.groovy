@@ -48,27 +48,27 @@ import pt.lsts.neptus.mp.actions.PlanActions
 class Payload {
     
     SetEntityParameters setEntity
-    HashMap <String,String[]> available_params
+    HashMap <String,String[]> available_params //TODO verify entityParameters settings
     String name
     List<EntityParameter> params
     
     public Payload(String nombre) {
         available_params = new HashMap<>()
         params = new ArrayList<>()
-        available_params.put("Multibeam",["range"])
-        available_params.put("Camera",["frequency"])
+        available_params.put("Multibeam",["Range"])
+        available_params.put("Camera",["Frequency"])
         name=nombre
       }
     
     public void active(boolean isActive){
         //TODO verify if it is a IMC payload ou Comm mean requirement (acoustic modem)
-        isActive ?  params.add(new EntityParameter("active","true")) : params.add(new EntityParameter("active","false"))
+        isActive ?  params.add(new EntityParameter("Active","true")) : params.add(new EntityParameter("Active","false"))
     }
     public void range (int r){
-        params.add(new EntityParameter("range",r))
+        params.add(new EntityParameter("Range",r.toString()))
     }
     public void frequency (int f){
-        params.add(new EntityParameter("frequency",f))
+        params.add(new EntityParameter("Frequency",f.toString()))
     }
 
     public Property properties(String maneuver) { //Maneuver -> startActions -> set entityParameters -> name-> param: Active, value: true
