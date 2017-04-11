@@ -115,6 +115,12 @@ public class OperationLimitsSubPanel extends ConsolePanel implements Configurati
         MainVehicleChangeListener, NeptusMessageListener, Renderer2DPainter, StateRendererInteraction {
 
     private static final long serialVersionUID = 1L;
+
+    private static final ImageIcon ICON_UPDATE_OK = ImageUtils.getIcon("pt/lsts/neptus/plugins/oplimits/update_ok.png");
+    private static final ImageIcon ICON_UPDATE_REQUEST = ImageUtils.getIcon("pt/lsts/neptus/plugins/oplimits/update_request.png");
+
+    private static final String TEXT_LOCAL_CHANGES = I18n.text("Local operational limits have changes");
+    private static final String TEXT_REQUEST_RESPONSE_WAITING = I18n.text("Request sent but limits not yet received");
     
     private static final Color STRIPES_YELLOW_TRAMP = ColorUtils.setTransparencyToColor(ColorUtils.STRIPES_YELLOW, 130);
     private static final Paint PAINT_STRIPES = ColorUtils.createStripesPaint(ColorUtils.STRIPES_YELLOW, Color.BLACK);
@@ -206,14 +212,11 @@ public class OperationLimitsSubPanel extends ConsolePanel implements Configurati
                     limits = panel.getLimits();
                     storeXml(limits.asXml());
                     pp = getSelectionFromLimits(limits);
-                    updateAction.putValue(AbstractAction.SMALL_ICON,
-                            ImageUtils.getIcon("pt/lsts/neptus/plugins/oplimits/update_request.png"));
-                    updateAction.putValue(AbstractAction.SHORT_DESCRIPTION,
-                            I18n.text("Local operational limits have changes"));
+                    updateAction.putValue(AbstractAction.SMALL_ICON, ICON_UPDATE_REQUEST);
+                    updateAction.putValue(AbstractAction.SHORT_DESCRIPTION, TEXT_LOCAL_CHANGES);
 
                     if (editing)
                         setActive(true, null);
-
                 }
                 else {
                     limits.setOpAreaLat(before.getOpAreaLat());
@@ -241,15 +244,13 @@ public class OperationLimitsSubPanel extends ConsolePanel implements Configurati
         };
 
         updateAction = new AbstractAction(I18n.text("Download limits from vehicle"),
-                ImageUtils.getIcon("pt/lsts/neptus/plugins/oplimits/update_ok.png")) {
+                ICON_UPDATE_OK) {
             private static final long serialVersionUID = 1L;
 
             @Override
             public void actionPerformed(ActionEvent e) {
-                updateAction.putValue(AbstractAction.SMALL_ICON,
-                        ImageUtils.getIcon("pt/lsts/neptus/plugins/oplimits/update_request.png"));
-                updateAction.putValue(AbstractAction.SHORT_DESCRIPTION,
-                        I18n.text("Request sent but limits not yet received"));
+                updateAction.putValue(AbstractAction.SMALL_ICON, ICON_UPDATE_REQUEST);
+                updateAction.putValue(AbstractAction.SHORT_DESCRIPTION, TEXT_REQUEST_RESPONSE_WAITING);
                 send(IMCDefinition.getInstance().create("GetOperationalLimits"));
             }
         };
@@ -273,9 +274,6 @@ public class OperationLimitsSubPanel extends ConsolePanel implements Configurati
                 clearLimits();
             }
 
-            /**
-             * 
-             */
             private void clearLimits() {
                 pp = null;
                 rectangle = null;
@@ -403,11 +401,9 @@ public class OperationLimitsSubPanel extends ConsolePanel implements Configurati
                         }
 
                         pp = getSelectionFromLimits(limits);
-                        updateAction.putValue(AbstractAction.SMALL_ICON,
-                                ImageUtils.getIcon("pt/lsts/neptus/plugins/oplimits/update_ok.png"));
+                        updateAction.putValue(AbstractAction.SMALL_ICON, ICON_UPDATE_OK);
                         updateAction.putValue(AbstractAction.SHORT_DESCRIPTION,
                                 I18n.text("Download limits from vehicle"));
-
                     }
                     catch (Exception e) {
                         e.printStackTrace();
@@ -785,9 +781,8 @@ public class OperationLimitsSubPanel extends ConsolePanel implements Configurati
         byte[] newMD5 = getLimitsMessage().payloadMD5();
         if (lastMD5 == null || !ByteUtil.equal(newMD5, lastMD5)) {
             lastMD5 = getLimitsMessage().payloadMD5();
-            updateAction.putValue(AbstractAction.SMALL_ICON,
-                    ImageUtils.getIcon("pt/lsts/neptus/plugins/oplimits/update_request.png"));
-            updateAction.putValue(AbstractAction.SHORT_DESCRIPTION, I18n.text("Local operational limits have changes"));
+            updateAction.putValue(AbstractAction.SMALL_ICON, ICON_UPDATE_REQUEST);
+            updateAction.putValue(AbstractAction.SHORT_DESCRIPTION, TEXT_LOCAL_CHANGES);
         }
 
         return limits;
