@@ -1,5 +1,6 @@
 package pt.lsts.neptus.nvl.imc.dsl;
 
+import com.l2fprod.common.propertysheet.Property
 import java.util.List;
 import pt.lsts.imc.CompassCalibration
 import pt.lsts.imc.Loiter
@@ -109,7 +110,6 @@ class Plan {
                      if(it['name'] != null){
                          def payload_name = it['name']
                          payloadComponent = new Payload(payload_name)
-                         
                          //TODO Another Map to payload parameters???
                          if(it['Range'] != null){
                              def payload_range = it['Range']
@@ -127,14 +127,13 @@ class Plan {
                  }
                  else 
                      println "The name of the payload required must be provided."              }
-		 }}
+		 }
+             }
 	}
 	 	def man = maneuver(id,Goto)
          NeptusGoto go  = new pt.lsts.neptus.mp.maneuvers.Goto()
          if (payload != null){
-             payload.each {  
-                 go.setProperties(it.properties("Goto"))
-             }
+               go.setProperties(Payload.properties("Goto",payload))
              //man.setProperties(payload.properties())//TODO for standalone version!
          }
          go.parseIMCMessage(man)
@@ -146,7 +145,7 @@ class Plan {
 
 
 	def IMCManeuver loiter(LinkedHashMap params){
-        def payload
+         List<Payload> payload = new ArrayList<>()
 		double duration =  60.0,radius=20.0
 		def id = "${this.count++}"+".Loiter"
 		if (params != null){
@@ -162,26 +161,29 @@ class Plan {
 			 this.location = params.location
 		 if(params['id'] != null)
 			 id = params.id
-         if(params['payload'] != null){
-             if(params.payload['name'] != null){
-                 def payload_name = params.payload['name']
-                 payload = new Payload(payload_name)
-                 //TODO Another Map to payload parameters???
-                 if(params.payload['Range'] != null){
-                     def payload_range = params.payload['Range']
-                     payload.range payload_range
+             if(params['payload'] != null){ 
+                 def payloadComponent
+                 params['payload'].each{
+                     if(it['name'] != null){
+                         def payload_name = it['name']
+                         payloadComponent = new Payload(payload_name)
+                         //TODO Another Map to payload parameters???
+                         if(it['Range'] != null){
+                             def payload_range = it['Range']
+                             payloadComponent.range payload_range
+                         }
+                         if(it['Frequency'] != null){
+                             def payload_frequency = it['Frequency']
+                             payloadComponent.frequency = payload_frequency
+                         }
+                         if(it['Active'] != null){
+                             def payload_active = it['Active']
+                             payloadComponent.active payload_active
+                         }
+                         payload.add payloadComponent
                  }
-                 if(params.payload['Frequency'] != null){
-                     def payload_frequency = params.payload['Frequency']
-                     payload.frequency = payload_frequency
-                 }
-                 if(params.payload['Active'] != null){
-                     def payload_active = params.payload['Active']
-                     payload.active payload_active
-                 }
-             }
-             else
-                 println "The name of the payload required must be provided." //TODO
+                 else 
+                     println "The name of the payload required must be provided."              }
          }
 		}
 		Loiter man = maneuver(id,Loiter)
@@ -195,9 +197,9 @@ class Plan {
         loiter.parseIMCMessage(man)
         loiter.setId(id)
         if (payload != null){
-            loiter.setProperties(payload.properties("Goto"))
-            //man.setProperties(payload.properties())//TODO for standalone version!
-        }
+               loiter.setProperties(Payload.properties("Loiter",payload))
+             //man.setProperties(payload.properties())
+         }
         neptus_mans.add(loiter)
 		man
 		
@@ -205,7 +207,7 @@ class Plan {
 
 	//def yoyo(double max_depth=20.0,double min_depth=2.0,Speed speed = this.speed, Z z = this.z,Location loc= this.location,String id="${count++}"+".YoYo"){
 	def IMCManeuver yoyo(LinkedHashMap params){
-        def payload
+         List<Payload> payload = new ArrayList<>()
 		double max_depth=20.0,min_depth=2.0
 		def id = "${count++}"+".YoYo"
 		if (params != null){
@@ -221,26 +223,29 @@ class Plan {
 			 this.location = params.location
 		 if(params['id'] != null)
 			 id = params.id
-         if(params['payload'] != null){
-             if(params.payload['name'] != null){
-                 def payload_name = params.payload['name']
-                 payload = new Payload(payload_name)
-                 //TODO Another Map to payload parameters???
-                 if(params.payload['Range'] != null){
-                     def payload_range = params.payload['Range']
-                     payload.range payload_range
+             if(params['payload'] != null){ 
+                 def payloadComponent
+                 params['payload'].each{
+                     if(it['name'] != null){
+                         def payload_name = it['name']
+                         payloadComponent = new Payload(payload_name)
+                         
+                         if(it['Range'] != null){
+                             def payload_range = it['Range']
+                             payloadComponent.range payload_range
+                         }
+                         if(it['Frequency'] != null){
+                             def payload_frequency = it['Frequency']
+                             payloadComponent.frequency = payload_frequency
+                         }
+                         if(it['Active'] != null){
+                             def payload_active = it['Active']
+                             payloadComponent.active payload_active
+                         }
+                         payload.add payloadComponent
                  }
-                 if(params.payload['Frequency'] != null){
-                     def payload_frequency = params.payload['Frequency']
-                     payload.frequency = payload_frequency
-                 }
-                 if(params.payload['Active'] != null){
-                     def payload_active = params.payload['Active']
-                     payload.active payload_active
-                 }
-             }
-             else
-                 println "The name of the payload required must be provided." //TODO
+                 else 
+                     println "The name of the payload required must be provided."              }
          }
 		}
 		
@@ -253,8 +258,8 @@ class Plan {
         yoyo.parseIMCMessage(man)
         yoyo.setId(id)
         if (payload != null){
-            yoyo.setProperties(payload.properties("Goto"))
-            //man.setProperties(payload.properties())//TODO for standalone version!
+            yoyo.setProperties(payload.properties("YoYo",payload))
+            //man.setProperties(payload.properties())
         }
         neptus_mans.add yoyo
 		man
@@ -264,7 +269,7 @@ class Plan {
 
 	//def popup(double duration=180.0,boolean currPos=true,Speed speed = this.speed, Z z = this.z,Location loc= this.location,String id="{count++}"+".Popup"){
 	def IMCManeuver popup(LinkedHashMap params) {
-        def payload
+         List<Payload> payload = new ArrayList<>()
 		double duration = 0.0
 		def currPos = true
 		def id = "${this.count++}"+".PopUp"
@@ -281,26 +286,28 @@ class Plan {
 			 this.location = params.location
 		 if(params['id'] != null)
 			 id = params.id
-         if(params['payload'] != null){
-             if(params.payload['name'] != null){
-                 def payload_name = params.payload['name']
-                 payload = new Payload(payload_name)
-                 //TODO Another Map to payload parameters???
-                 if(params.payload['Range'] != null){
-                     def payload_range = params.payload['Range']
-                     payload.range payload_range
+             if(params['payload'] != null){ 
+                 def payloadComponent
+                 params['payload'].each{
+                     if(it['name'] != null){
+                         def payload_name = it['name']
+                         payloadComponent = new Payload(payload_name)
+                         if(it['Range'] != null){
+                             def payload_range = it['Range']
+                             payloadComponent.range payload_range
+                         }
+                         if(it['Frequency'] != null){
+                             def payload_frequency = it['Frequency']
+                             payloadComponent.frequency = payload_frequency
+                         }
+                         if(it['Active'] != null){
+                             def payload_active = it['Active']
+                             payloadComponent.active payload_active
+                         }
+                         payload.add payloadComponent
                  }
-                 if(params.payload['Frequency'] != null){
-                     def payload_frequency = params.payload['Frequency']
-                     payload.frequency = payload_frequency
-                 }
-                 if(params.payload['Active'] != null){
-                     def payload_active = params.payload['Active']
-                     payload.active payload_active
-                 }
-             }
-             else
-                 println "The name of the payload required must be provided." //TODO
+                 else 
+                     println "The name of the payload required must be provided."              }
          }
 		}
 		 
@@ -314,8 +321,8 @@ class Plan {
         popup.parseIMCMessage(man)
         popup.setId(id)
         if (payload != null){
-            popup.setProperties(payload.properties("Goto"))
-            //man.setProperties(payload.properties())//TODO for standalone version!
+            popup.setProperties(payload.properties("PopUp",payload))
+            //man.setProperties(payload.properties())
         }
         neptus_mans.add popup
 		man
@@ -324,7 +331,7 @@ class Plan {
 	
 	//def skeeping(double radius=20.0,double duration=0 ,Speed speed = this.speed, Z z = this.z,Location loc= this.location,String id="{count++}"+".StationKeeping") {
 	def IMCManeuver skeeping(LinkedHashMap params){
-        def payload
+         List<Payload> payload = new ArrayList<>()
 		double duration = 60.0,radius=20.0
 		def id = "${this.count++}"+".StationKeeping"
 		if (params != null){
@@ -340,26 +347,28 @@ class Plan {
 			 this.location = params.location
 		 if(params['id'] != null)
 			 id = params.id
-         if(params['payload'] != null){
-             if(params.payload['name'] != null){
-                 def payload_name = params.payload['name']
-                 payload = new Payload(payload_name)
-                 //TODO Another Map to payload parameters???
-                 if(params.payload['Range'] != null){
-                     def payload_range = params.payload['Range']
-                     payload.range payload_range
+                     if(params['payload'] != null){ 
+                 def payloadComponent
+                 params['payload'].each{
+                     if(it['name'] != null){
+                         def payload_name = it['name']
+                         payloadComponent = new Payload(payload_name)
+                         if(it['Range'] != null){
+                             def payload_range = it['Range']
+                             payloadComponent.range payload_range
+                         }
+                         if(it['Frequency'] != null){
+                             def payload_frequency = it['Frequency']
+                             payloadComponent.frequency = payload_frequency
+                         }
+                         if(it['Active'] != null){
+                             def payload_active = it['Active']
+                             payloadComponent.active payload_active
+                         }
+                         payload.add payloadComponent
                  }
-                 if(params.payload['Frequency'] != null){
-                     def payload_frequency = params.payload['Frequency']
-                     payload.frequency = payload_frequency
-                 }
-                 if(params.payload['Active'] != null){
-                     def payload_active = params.payload['Active']
-                     payload.active payload_active
-                 }
-             }
-             else
-                 println "The name of the payload required must be provided." //TODO
+                 else 
+                     println "The name of the payload required must be provided."              }
          }
 		}
 		 
@@ -371,8 +380,8 @@ class Plan {
         skeeping.parseIMCMessage(man)
         skeeping.setId(id)
         if (payload != null){
-            skeeping.setProperties(payload.properties("Goto"))
-            //man.setProperties(payload.properties())//TODO for standalone version!
+            skeeping.setProperties(payload.properties("StaionKeeping",payload))
+            //man.setProperties(payload.properties())
         }
         neptus_mans.add skeeping
         
@@ -383,7 +392,7 @@ class Plan {
 		
 		double amplitude=1,duration=300,radius=5,pitch=15
 		DIRECTION direction = DIRECTION.CLOCKW
-        def payload
+         List<Payload> payload = new ArrayList<>()
 		def id = "${count++}"+".CompassCalibration"
 		if (params != null){
 		 if(params['duration']!=null)
@@ -400,26 +409,28 @@ class Plan {
 			 this.location = params.location
 		 if(params['id'] != null)
 			 id = params.id
-         if(params['payload'] != null){
-             if(params.payload['name'] != null){
-                 def payload_name = params.payload['name']
-                 payload = new Payload(payload_name)
-                 //TODO Another Map to payload parameters???
-                 if(params.payload['Range'] != null){
-                     def payload_range = params.payload['Range']
-                     payload.range payload_range
+              if(params['payload'] != null){ 
+                 def payloadComponent
+                 params['payload'].each{
+                     if(it['name'] != null){
+                         def payload_name = it['name']
+                         payloadComponent = new Payload(payload_name)
+                         if(it['Range'] != null){
+                             def payload_range = it['Range']
+                             payloadComponent.range payload_range
+                         }
+                         if(it['Frequency'] != null){
+                             def payload_frequency = it['Frequency']
+                             payloadComponent.frequency = payload_frequency
+                         }
+                         if(it['Active'] != null){
+                             def payload_active = it['Active']
+                             payloadComponent.active payload_active
+                         }
+                         payload.add payloadComponent
                  }
-                 if(params.payload['Frequency'] != null){
-                     def payload_frequency = params.payload['Frequency']
-                     payload.frequency = payload_frequency
-                 }
-                 if(params.payload['Active'] != null){
-                     def payload_active = params.payload['Active']
-                     payload.active payload_active
-                 }
-             }
-             else
-                 println "The name of the payload required must be provided." //TODO
+                 else 
+                     println "The name of the payload required must be provided."              }
          }
 		}
 		 
@@ -434,8 +445,8 @@ class Plan {
         cc.parseIMCMessage(man)
         cc.setId(id)
         if (payload != null){
-            cc.setProperties(payload.properties("Goto"))
-            //man.setProperties(payload.properties())//TODO for standalone version!
+            cc.setProperties(payload.properties("CompassCalibration",payload))
+            //man.setProperties(payload.properties())
         }
         neptus_mans.add cc
         
@@ -446,7 +457,7 @@ class Plan {
 
 	def IMCManeuver launch(LinkedHashMap params)  {
 		String id="${count++}"+".Launch"
-        def payload
+         List<Payload> payload = new ArrayList<>()
 		if (params != null){
 			if(params['speed']!= null)
 				this.speed = params.speed
@@ -456,27 +467,30 @@ class Plan {
 				this.location = params.location
 			if(params['id'] != null)
 				id = params.id
-            if(params['payload'] != null){
-                if(params.payload['name'] != null){
-                    def payload_name = params.payload['name']
-                    payload = new Payload(payload_name)
-                    //TODO Another Map to payload parameters???
-                    if(params.payload['Range'] != null){
-                        def payload_range = params.payload['Range']
-                        payload.range payload_range
-                    }
-                    if(params.payload['Frequency'] != null){
-                        def payload_frequency = params.payload['Frequency']
-                        payload.frequency = payload_frequency
-                    }
-                    if(params.payload['Active'] != null){
-                        def payload_active = params.payload['Active']
-                        payload.active payload_active
-                    }
-                }
-                else
-                    println "The name of the payload required must be provided." //TODO
-            }
+             if(params['payload'] != null){ 
+                 def payloadComponent
+                 params['payload'].each{
+                     if(it['name'] != null){
+                         def payload_name = it['name']
+                         payloadComponent = new Payload(payload_name)
+                         
+                         if(it['Range'] != null){
+                             def payload_range = it['Range']
+                             payloadComponent.range payload_range
+                         }
+                         if(it['Frequency'] != null){
+                             def payload_frequency = it['Frequency']
+                             payloadComponent.frequency = payload_frequency
+                         }
+                         if(it['Active'] != null){
+                             def payload_active = it['Active']
+                             payloadComponent.active payload_active
+                         }
+                         payload.add payloadComponent
+                 }
+                 else 
+                     println "The name of the payload required must be provided."              }
+         }
 		   }
         
         def man = maneuver(id,Launch)
@@ -485,8 +499,8 @@ class Plan {
         launch.parseIMCMessage(man)
         launch.setId(id)
         if (payload != null){
-            launch.setProperties(payload.properties("Goto"))
-            //man.setProperties(payload.properties())//TODO for standalone version!
+            launch.setProperties(payload.properties("Launch",payload))
+            //man.setProperties(payload.properties())
         }
         neptus_mans.add launch
         man
@@ -496,7 +510,7 @@ class Plan {
 	def IMCManeuver rows(LinkedHashMap params){
 		double bearing=0.0,cross_angle=0.0,width=100,length=200,hstep=27.0
 		short coff=15,flags
-        def payload
+        List<Payload> payload = new ArrayList<>()
 		String id="${count++}"+".Rows"
 		if (params != null){
 			if(params['bearing']!= null)
@@ -527,27 +541,29 @@ class Plan {
 				this.location = params.location
 			if(params['id'] != null)
 				id = params.id
-            if(params['payload'] != null){
-                if(params.payload['name'] != null){
-                    def payload_name = params.payload['name']
-                    payload = new Payload(payload_name)
-                    //TODO Another Map to payload parameters???
-                    if(params.payload['Range'] != null){
-                        def payload_range = params.payload['Range']
-                        payload.range payload_range
-                    }
-                    if(params.payload['Frequency'] != null){
-                        def payload_frequency = params.payload['Frequency']
-                        payload.frequency = payload_frequency
-                    }
-                    if(params.payload['Active'] != null  ){
-                        def payload_active = params.payload['Active']
-                        payload.active payload_active
-                    }
-                }
-                else
-                    println "The name of the payload required must be provided." //TODO
-            }
+             if(params['payload'] != null){ 
+                 def payloadComponent
+                 params['payload'].each{
+                     if(it['name'] != null){
+                         def payload_name = it['name']
+                         payloadComponent = new Payload(payload_name)
+                         if(it['Range'] != null){
+                             def payload_range = it['Range']
+                             payloadComponent.range payload_range
+                         }
+                         if(it['Frequency'] != null){
+                             def payload_frequency = it['Frequency']
+                             payloadComponent.frequency = payload_frequency
+                         }
+                         if(it['Active'] != null){
+                             def payload_active = it['Active']
+                             payloadComponent.active payload_active
+                         }
+                         payload.add payloadComponent
+                 }
+                 else 
+                     println "The name of the payload required must be provided."              }
+         }
 		   }
 		Rows man = maneuver(id,Rows)
 		man.bearing        = bearing
@@ -570,14 +586,15 @@ class Plan {
         rows.parseIMCMessage(man)
         rows.setId(id)
         if (payload != null){
-            rows.setProperties(payload.properties("Goto"))
-            //man.setProperties(payload.properties())//TODO for standalone version!
+            rows.setProperties(payload.properties("Rows",payload))
+            //man.setProperties(payload.properties())
         }
         neptus_mans.add(rows)
 		man
 
 	}
 	
+    //TODO surveyArea maneuver implementation
 	def locate(double latitude, double longitude) {
 		def loc = new Location(latitude, longitude)
 		this.location = loc
@@ -682,8 +699,6 @@ class Plan {
         neptus_mans.each{
             plantype.getGraph().addManeuver(it)
         }
-    
-        //TODO possibly add payloads or other requirements
         
         //Add Transitions
         plantype.getGraph().setInitialManeuver(neptus_mans[0].getId())

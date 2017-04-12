@@ -47,7 +47,7 @@ import pt.lsts.neptus.mp.actions.PlanActions
  */
 class Payload {
     
-    SetEntityParameters setEntity
+    
     HashMap <String,String[]> available_params //TODO verify entityParameters settings
     String name
     List<EntityParameter> params
@@ -55,8 +55,8 @@ class Payload {
     public Payload(String nombre) {
         available_params = new HashMap<>()
         params = new ArrayList<>()
-        available_params.put("Multibeam",["Range"])
-        available_params.put("Camera",["Frequency"])
+//        available_params.put("Multibeam",["Range"])
+//        available_params.put("Camera",["Frequency"])
         name=nombre
       }
     
@@ -71,12 +71,14 @@ class Payload {
         params.add(new EntityParameter("Frequency",f.toString()))
     }
 
-    public Property properties(String maneuver) { //Maneuver -> startActions -> set entityParameters -> name-> param: Active, value: true
-        setEntity = new SetEntityParameters(name,params) //setEntity.setParams(params)
+    public static Property  properties(String maneuver,List<Payload> payloads) {
+        //Maneuver -> startActions -> set entityParameters -> name-> param: Active, value: true
         
+        List<SetEntityParameters> setEntities = new ArrayList<>()
+        payloads.each{ setEntities.add new SetEntityParameters(it.name,it.params)} //setEntity.setParams(params)
         PlanActions startActions = new PlanActions()
         Vector<IMCMessage> msg = new Vector<>()
-        msg.add(setEntity)
+        setEntities.each{ msg.add(it) }
         startActions.parseMessages(msg)
         Property startActionsProperty = PropertiesEditor.getPropertyInstance("start-actions", maneuver + " start actions",
                 PlanActions.class, startActions, false)
