@@ -5,38 +5,29 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 %% Header %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% H [Descriptor] [Parameter]
 
-% H LowBatteryState 20
+% LowBatteryState
 ${LowBatteryState}
 
-% H EmergencyRendezvousPoint 2
+% EmergencyRendezvousPoint
 ${EmergencyRendezvousPoint}
 
-% H KeepPosition 1
+% KeepPosition
 ${KeepPosition}
 
-% H AutonomyArea 3
+% AutonomyArea
 ${AutonomyArea}
 
-% H ExplorationArea 3
+% ExplorationArea
 ${ExplorationArea}
 
-% H SafeAltitude 3.0
+% SafeAltitude
 ${SafeAltitude}
 
 % System Payload
-% H SystemPayload 2
-% 1 C Edgetech2205
-% 2 N MicronDST
 ${SystemPayload}
 
 % Swap Payload
-% H SwapPayload 4
-% 1 C NorbitWBMS
-% 2 N UUVCam
-% 3 C TritechPSBP
-% 4 N GeometricsG882
 ${SwapPayload}
 
 H EndOfHeader
