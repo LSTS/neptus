@@ -110,19 +110,8 @@
       <default>HF</default>
       <units/>
       <desc></desc>
-      <values>HF, LF, both</values>
+      <values>HF, LF, LF_HF</values>
       <values-i18n>HF, LF, both</values-i18n>
-    </param>
-    <param name="Range">
-      <name-i18n>Range</name-i18n>
-      <type>integer</type>
-      <visibility>user</visibility>
-      <scope>maneuver</scope>
-      <default>50</default>
-      <units>m</units>
-      <desc>Operating range</desc>
-      <min>0</min>
-      <max>200</max>
     </param>
     <param name="Gain">
       <name-i18n>Gain</name-i18n>
@@ -134,6 +123,17 @@
       <desc>Power</desc>
       <min>0</min>
       <max>100</max>
+    </param>
+    <param name="Range">
+      <name-i18n>Range</name-i18n>
+      <type>integer</type>
+      <visibility>user</visibility>
+      <scope>maneuver</scope>
+      <default>50</default>
+      <units>m</units>
+      <desc>Operating range</desc>
+      <min>0</min>
+      <max>200</max>
     </param>
   </section>
   <section name="NorbitWBMS" name-i18n="Norbit WBMS">
@@ -174,7 +174,7 @@
       <units/>
       <desc></desc>
       <values>BATHY, BATHYAMP</values>
-      <values-i18n>bathymetric, inspection</values-i18n>
+      <values-i18n>Bathy, BathyAmp</values-i18n>
     </param>
     <param name="Gate Mode">
       <name-i18n>Gate Mode</name-i18n>
@@ -209,7 +209,7 @@
       <min>0</min>
       <max>200</max>
     </param>
-    <param name="Beam Distribution">
+    <param name="Beam Distrib">
       <name-i18n>Beam Distribution</name-i18n>
       <type>string</type>
       <visibility>user</visibility>
@@ -340,10 +340,10 @@
       <type>string</type>
       <visibility>user</visibility>
       <scope>maneuver</scope>
-      <default>Still-Images</default>
+      <default>Images</default>
       <units/>
       <desc></desc>
-      <values>Still-Images, Video</values>
+      <values>Images, Video</values>
       <values-i18n>Still Images, Video</values-i18n>
     </param>
     <param name="Framerate">
@@ -446,6 +446,14 @@
       <default>false</default>
       <units/>
       <desc>True to activate task, false otherwise</desc>
+    </param>
+    <param name="Mission Critical">
+      <name-i18n>Mission Critical</name-i18n>
+      <type>boolean</type>
+      <visibility>user</visibility>
+      <scope>plan</scope>
+      <default>false</default>
+      <units/>
     </param>
   </section>
 </config>
