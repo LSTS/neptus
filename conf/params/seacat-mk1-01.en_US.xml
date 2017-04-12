@@ -368,7 +368,7 @@
       <max>4</max>
       <values-if>
         <param>Cam-Mode</param>
-        <equals>Still Images</equals>
+        <equals>Images</equals>
         <values>1..4</values>
       </values-if>
       <values-if>
