@@ -116,7 +116,9 @@ public class SeaCatMK1PlanExporter implements IPlanFileExporter {
     public SeaCatMK1PlanExporter() {
     }
 
-    /* (non-Javadoc)
+    /*
+     * (non-Javadoc)
+     * 
      * @see pt.lsts.neptus.types.mission.plan.IPlanFileExporter#getExporterName()
      */
     @Override
@@ -124,7 +126,9 @@ public class SeaCatMK1PlanExporter implements IPlanFileExporter {
         return "SeaCat-MK1 Mission File";
     }
 
-    /* (non-Javadoc)
+    /*
+     * (non-Javadoc)
+     * 
      * @see pt.lsts.neptus.types.mission.plan.IPlanFileExporter#validExtensions()
      */
     @Override
@@ -132,14 +136,17 @@ public class SeaCatMK1PlanExporter implements IPlanFileExporter {
         return new String[] { "seacat" };
     }
 
-    /* (non-Javadoc)
-     * @see pt.lsts.neptus.types.mission.plan.IPlanFileExporter#exportToFile(pt.lsts.neptus.types.mission.plan.PlanType, java.io.File, javax.swing.ProgressMonitor)
+    /*
+     * (non-Javadoc)
+     * 
+     * @see pt.lsts.neptus.types.mission.plan.IPlanFileExporter#exportToFile(pt.lsts.neptus.types.mission.plan.PlanType,
+     * java.io.File, javax.swing.ProgressMonitor)
      */
     @Override
     public void exportToFile(PlanType plan, File out, ProgressMonitor monitor) throws Exception {
         resetCommandLineCounter();
         payloadsInPlan.clear();
-        
+
         String template = IOUtils.toString(FileUtil.getResourceAsStream("template.mis"));
 
         template = replaceTokenWithKey(template, "GenDate", getTimeStamp());
@@ -176,7 +183,7 @@ public class SeaCatMK1PlanExporter implements IPlanFileExporter {
     private String getTimeStamp() {
         return dateFormatter.format(new Date());
     }
-    
+
     /**
      * @return
      */
@@ -242,21 +249,21 @@ public class SeaCatMK1PlanExporter implements IPlanFileExporter {
     }
 
     /**
-     * @param plan 
+     * @param plan
      * @return
-     * @throws Exception 
+     * @throws Exception
      */
     private String getSectionBody(PlanType plan) throws Exception {
         StringBuilder sb = new StringBuilder();
-        
+
         sb.append(getCommentLine("Plan: ", plan.getId()));
         sb.append(NEW_LINE);
-        
+
         for (Maneuver m : plan.getGraph().getManeuversSequence()) {
             double speedKnots = ManeuversUtil.getSpeedMps(m);
             if (!Double.isNaN(speedKnots))
                 speedKnots *= UnitsUtil.MS_TO_KNOT;
-            
+
             if (m instanceof PathProvider) {
                 processHeaderCommentAndPayloadForManeuver(sb, m);
 
@@ -273,7 +280,8 @@ public class SeaCatMK1PlanExporter implements IPlanFileExporter {
                             if (m instanceof RowsManeuver || m instanceof RowsPattern) {
                                 // We take advantage of the way the pattern is done, with 90deg curves
                                 double nextHeadingRad = AngleUtils.nomalizeAngleRadsPi(wp.getXYAngle(prevWp));
-                                double deltaAngleCurveRad = AngleUtils.nomalizeAngleRadsPi(nextHeadingRad - curHeadingRad);
+                                double deltaAngleCurveRad = AngleUtils
+                                        .nomalizeAngleRadsPi(nextHeadingRad - curHeadingRad);
                                 if (Math.abs(Math.abs(Math.toDegrees(deltaAngleCurveRad)) - 90) < 2) {
                                     double[] dist = wp.getOffsetFrom(prevWp);
                                     ManeuverLocation centerLocation = prevWp.getNewAbsoluteLatLonDepth();
@@ -284,8 +292,8 @@ public class SeaCatMK1PlanExporter implements IPlanFileExporter {
                                     double centerLatDegs = centerLocation.getLatitudeDegs();
                                     double centerLonDegs = centerLocation.getLongitudeDegs();
                                     Character direction = Math.signum(deltaAngleCurveRad) > 0 ? 'R' : 'L';
-                                    sb.append(getCommandCurve(targetLatDegs, targetLonDegs, centerLatDegs, centerLonDegs,
-                                            direction, wp.getZ(), wp.getZUnits(), speedKnots));
+                                    sb.append(getCommandCurve(targetLatDegs, targetLonDegs, centerLatDegs,
+                                            centerLonDegs, direction, wp.getZ(), wp.getZUnits(), speedKnots));
                                     curveAdded = true;
                                 }
                             }
@@ -297,7 +305,7 @@ public class SeaCatMK1PlanExporter implements IPlanFileExporter {
                             continue;
                         }
                     }
-                    
+
                     sb.append(getCommandGoto(wp.getLatitudeDegs(), wp.getLongitudeDegs(), wp.getZ(), wp.getZUnits(),
                             speedKnots));
                     prevWp = wp;
@@ -306,7 +314,7 @@ public class SeaCatMK1PlanExporter implements IPlanFileExporter {
             }
             else if (m instanceof StationKeeping) {
                 processHeaderCommentAndPayloadForManeuver(sb, m);
-                
+
                 ManeuverLocation wp = ((StationKeeping) m).getManeuverLocation();
                 wp.convertToAbsoluteLatLonDepth();
                 sb.append(getCommandKeepPosition(wp.getLatitudeDegs(), wp.getLongitudeDegs(), wp.getZ(), wp.getZUnits(),
@@ -315,9 +323,9 @@ public class SeaCatMK1PlanExporter implements IPlanFileExporter {
             else if (m instanceof Goto) { // Careful with ordering because of extensions
                 if (Double.isNaN(speedKnots))
                     continue;
-                
+
                 processHeaderCommentAndPayloadForManeuver(sb, m);
-                
+
                 ManeuverLocation wp = ((Goto) m).getManeuverLocation();
                 wp.convertToAbsoluteLatLonDepth();
                 sb.append(getCommandGoto(wp.getLatitudeDegs(), wp.getLongitudeDegs(), wp.getZ(), wp.getZUnits(),
@@ -335,7 +343,7 @@ public class SeaCatMK1PlanExporter implements IPlanFileExporter {
         sb.append(getCommandsBeforeEnd());
         sb.append(NEW_LINE);
         sb.append(getCommandEnd(true));
-        
+
         return sb.toString();
     }
 
@@ -392,7 +400,7 @@ public class SeaCatMK1PlanExporter implements IPlanFileExporter {
                 e.printStackTrace();
             }
         }
-        
+
         return sb.toString();
     }
 
@@ -437,7 +445,7 @@ public class SeaCatMK1PlanExporter implements IPlanFileExporter {
             }
             sb.append(";");
         }
-        
+
         return getSetting('P', payloadName, sb.toString());
     }
 
@@ -489,7 +497,7 @@ public class SeaCatMK1PlanExporter implements IPlanFileExporter {
     private String replaceTokenWithKey(String original, String key, String replacement) {
         return original.replaceAll("\\$\\{" + key + "\\}", replacement);
     }
-    
+
     /**
      * @param value
      * @return
@@ -520,7 +528,7 @@ public class SeaCatMK1PlanExporter implements IPlanFileExporter {
      * 
      * @param depthUnit
      * @return
-     * @throws Exception 
+     * @throws Exception
      */
     private String formatDepthUnit(Z_UNITS depthUnit) throws Exception {
         switch (depthUnit) {
@@ -531,8 +539,8 @@ public class SeaCatMK1PlanExporter implements IPlanFileExporter {
             case HEIGHT:
             case NONE:
             default:
-                throw new Exception("Unsupported Z unit " + depthUnit + ", valid are " + 
-                        Z_UNITS.DEPTH + " or " + Z_UNITS.ALTITUDE);
+                throw new Exception(
+                        "Unsupported Z unit " + depthUnit + ", valid are " + Z_UNITS.DEPTH + " or " + Z_UNITS.ALTITUDE);
         }
     }
 
@@ -603,7 +611,7 @@ public class SeaCatMK1PlanExporter implements IPlanFileExporter {
      * @param depthUnit
      * @param speedKnots
      * @return
-     * @throws Exception 
+     * @throws Exception
      */
     private String getCommandGoto(double latDegs, double lonDegs, double depth, ManeuverLocation.Z_UNITS depthUnit,
             double speedKnots) throws Exception {
@@ -620,21 +628,20 @@ public class SeaCatMK1PlanExporter implements IPlanFileExporter {
      * @param depthUnit
      * @param speedKnots
      * @return
-     * @throws Exception 
+     * @throws Exception
      */
-    private String getCommandGotoDirection(double directionDegs, double distanceMeters, double depth, ManeuverLocation.Z_UNITS  depthUnit,
-            double speedKnots) throws Exception {
+    private String getCommandGotoDirection(double directionDegs, double distanceMeters, double depth,
+            ManeuverLocation.Z_UNITS depthUnit, double speedKnots) throws Exception {
         double dir = AngleUtils.nomalizeAngleDegrees360(directionDegs);
-        return getCommand('B', "Goto", formatReal(dir, (short) 1), formatReal(distanceMeters, (short) 1), formatReal(depth, (short) 1),
-                formatDepthUnit(depthUnit), formatReal(speedKnots, (short) 1));
+        return getCommand('B', "Goto", formatReal(dir, (short) 1), formatReal(distanceMeters, (short) 1),
+                formatReal(depth, (short) 1), formatDepthUnit(depthUnit), formatReal(speedKnots, (short) 1));
     }
-
 
     /**
      * C n C Curve target-latitude target-longitude center-latitude center-longitude direction depth depth-mode speed
      * 
-     * The direction may be either ‘R’ for clockwise turning or ‘L’ for counter-clockwise turnings. All other
-     * parameters are the same as in the straight Goto command.
+     * The direction may be either ‘R’ for clockwise turning or ‘L’ for counter-clockwise turnings. All other parameters
+     * are the same as in the straight Goto command.
      *
      * @param targetLatDegs
      * @param targetLonDegs
@@ -645,13 +652,14 @@ public class SeaCatMK1PlanExporter implements IPlanFileExporter {
      * @param depthUnit
      * @param speedKnots
      * @return
-     * @throws Exception 
+     * @throws Exception
      */
     private String getCommandCurve(double targetLatDegs, double targetLonDegs, double centerLatDegs,
-            double centerLonDegs, Character direction, double depth, ManeuverLocation.Z_UNITS  depthUnit, double speedKnots) throws Exception {
-        return getCommand('C', "Curve", formatReal(targetLatDegs), formatReal(targetLonDegs),
-                formatReal(centerLatDegs), formatReal(centerLonDegs), direction == 'L' ? "L" : "R",
-                formatReal(depth, (short) 1), formatDepthUnit(depthUnit), formatReal(speedKnots, (short) 1));
+            double centerLonDegs, Character direction, double depth, ManeuverLocation.Z_UNITS depthUnit,
+            double speedKnots) throws Exception {
+        return getCommand('C', "Curve", formatReal(targetLatDegs), formatReal(targetLonDegs), formatReal(centerLatDegs),
+                formatReal(centerLonDegs), direction == 'L' ? "L" : "R", formatReal(depth, (short) 1),
+                formatDepthUnit(depthUnit), formatReal(speedKnots, (short) 1));
     }
 
     /**
@@ -662,10 +670,10 @@ public class SeaCatMK1PlanExporter implements IPlanFileExporter {
      * 
      * @throws Exception
      */
-    private String getCommandKeepPosition(double latDegs, double lonDegs, double depth, ManeuverLocation.Z_UNITS  depthUnit,
-            long timeSeconds) throws Exception {
-        return getCommand('K', "KeepPosition", formatReal(latDegs), formatReal(lonDegs),
-                formatReal(depth, (short) 1), formatDepthUnit(depthUnit), formatInteger(timeSeconds));
+    private String getCommandKeepPosition(double latDegs, double lonDegs, double depth,
+            ManeuverLocation.Z_UNITS depthUnit, long timeSeconds) throws Exception {
+        return getCommand('K', "KeepPosition", formatReal(latDegs), formatReal(lonDegs), formatReal(depth, (short) 1),
+                formatDepthUnit(depthUnit), formatInteger(timeSeconds));
     }
 
     /**
@@ -679,13 +687,13 @@ public class SeaCatMK1PlanExporter implements IPlanFileExporter {
         // Disabled settings
         sb.append(getSettingObstacleAvoidance(false));
         sb.append(getSettingExternalControl(false));
-        
+
         // Switch off payloads
         for (String payloadName : payloadsInPlan) {
             String name = translatePayloadActiveFor(payloadName);
             sb.append(getSetting('P', payloadName, name.toUpperCase() + ":OFF"));
         }
-        
+
         return sb.toString();
     }
 
@@ -696,6 +704,6 @@ public class SeaCatMK1PlanExporter implements IPlanFileExporter {
      * @return
      */
     private String getCommandEnd(boolean keepPosOrDrift) {
-       return getCommand('Z', "MissionEnd", keepPosOrDrift ? "P" : "D"); 
+        return getCommand('Z', "MissionEnd", keepPosOrDrift ? "P" : "D");
     }
 }
