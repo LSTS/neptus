@@ -175,16 +175,29 @@ public class SeaCatMK1PlanExporter implements IPlanFileExporter {
 
         String template = IOUtils.toString(FileUtil.getResourceAsStream("template.mis"));
 
-        template = replaceTokenWithKey(template, "GenDate", getTimeStamp());
-        template = replaceTokenWithKey(template, "LowBatteryState", getSectionLowBatteryState());
-        template = replaceTokenWithKey(template, "EmergencyRendezvousPoint", getSectionEmergencyRendezvousPoint());
-        template = replaceTokenWithKey(template, "KeepPosition", getSectionKeepPositionAtMissionEnd());
-        template = replaceTokenWithKey(template, "AutonomyArea", getSectionAutonomyArea());
-        template = replaceTokenWithKey(template, "ExplorationArea", getSectionExplorationArea());
-        template = replaceTokenWithKey(template, "SafeAltitude", getSectionSafeAltitude());
-        template = replaceTokenWithKey(template, "SystemPayload", getSectionSystemPayload());
-        template = replaceTokenWithKey(template, "SwapPayload", getSectionSwapPayload());
-        template = replaceTokenWithKey(template, "Body", getSectionBody(plan));
+        String genDateStr = getTimeStamp();
+        String lowBatteryStateStr = getSectionLowBatteryState();
+        String emergencyRendezvousPointStr = getSectionEmergencyRendezvousPoint();
+        String keepPositionStr = getSectionKeepPositionAtMissionEnd();
+
+        String bodyStr = getSectionBody(plan);
+        
+        String autonomyAreaStr = getSectionAutonomyArea();
+        String explorationAreaStr = getSectionExplorationArea();
+        String safeAltitudeStr = getSectionSafeAltitude();       
+        
+        Pair<String, String> systemAndSwapPayloadStr = getSectionPayloadCriticality();
+        
+        template = replaceTokenWithKey(template, "GenDate", genDateStr);
+        template = replaceTokenWithKey(template, "LowBatteryState", lowBatteryStateStr);
+        template = replaceTokenWithKey(template, "EmergencyRendezvousPoint", emergencyRendezvousPointStr);
+        template = replaceTokenWithKey(template, "KeepPosition", keepPositionStr);
+        template = replaceTokenWithKey(template, "AutonomyArea", autonomyAreaStr);
+        template = replaceTokenWithKey(template, "ExplorationArea", explorationAreaStr);
+        template = replaceTokenWithKey(template, "SafeAltitude", safeAltitudeStr);
+        template = replaceTokenWithKey(template, "SystemPayload", systemAndSwapPayloadStr.getLeft());
+        template = replaceTokenWithKey(template, "SwapPayload", systemAndSwapPayloadStr.getRight());
+        template = replaceTokenWithKey(template, "Body", bodyStr);
 
         FileUtils.write(out, template);
     }
@@ -261,17 +274,11 @@ public class SeaCatMK1PlanExporter implements IPlanFileExporter {
     /**
      * @return
      */
-    private String getSectionSystemPayload() {
-        StringBuilder sb = new StringBuilder();
-        return sb.toString();
-    }
-
-    /**
-     * @return
-     */
-    private String getSectionSwapPayload() {
-        StringBuilder sb = new StringBuilder();
-        return sb.toString();
+    private Pair<String, String> getSectionPayloadCriticality() {
+        StringBuilder sbSystem = new StringBuilder();
+        StringBuilder sbSwap = new StringBuilder();
+        
+        return Pair.of(sbSystem.toString(), sbSwap.toString());
     }
 
     /**
