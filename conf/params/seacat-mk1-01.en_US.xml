@@ -48,7 +48,7 @@
       <visibility>user</visibility>
       <scope>maneuver</scope>
       <default>0</default>
-      <units>m</units>
+      <units></units>
       <desc></desc>
       <min>0</min>
       <max>5</max>
@@ -327,7 +327,7 @@
       <max>100</max>
     </param>
   </section>
-  <section name="UUVCam1" name-i18n="Camera">
+  <section name="UUVCam" name-i18n="Camera">
     <param name="Active">
       <name-i18n>Active</name-i18n>
       <type>boolean</type>
