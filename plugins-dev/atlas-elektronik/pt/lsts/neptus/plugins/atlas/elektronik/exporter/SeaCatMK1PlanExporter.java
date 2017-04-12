@@ -87,6 +87,7 @@ public class SeaCatMK1PlanExporter implements IPlanFileExporter {
     public static final SimpleDateFormat dateFormatter = new SimpleDateFormat("EEE MMM d HH:mm:ss yyyy Z");
     public static HashMap<String, String> activeReplacementStringForPayload = new HashMap<>();
     public static HashMap<String, Pair<String, String>> booleanReplacementString = new HashMap<>();
+    public static HashMap<String, ArrayList<String>> modelSystemPayloads = new HashMap<>();
     static {
         try {
             String mapperTxt = IOUtils.toString(FileUtil.getResourceAsStream("payload-active-replacement.txt"));
@@ -124,6 +125,34 @@ public class SeaCatMK1PlanExporter implements IPlanFileExporter {
                     if (pair.length < 3)
                         continue;
                     booleanReplacementString.put(pair[0].trim(), Pair.of(pair[1].trim(), pair[2].trim()));
+                }
+                catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+        catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        try {
+            String mapperTxt = IOUtils.toString(FileUtil.getResourceAsStream("models-payloads.txt"));
+            String[] lines = mapperTxt.split("[\r\n]");
+            for (String ln : lines) {
+                if (ln.startsWith("#") || ln.startsWith("%") || ln.startsWith(";"))
+                    continue;
+                try {
+                    if (ln.isEmpty())
+                        continue;
+                    String[] pair = ln.trim().split(" {1,}");
+                    if (pair.length < 2)
+                        continue;
+                    ArrayList<String> pls = new ArrayList<>();
+                    for (int i = 1; i < pair.length; i++) {
+                        pls.add(pair[i].trim());
+                    }
+                    if (!pls.isEmpty())
+                        modelSystemPayloads.put(pair[0].trim(), pls);
                 }
                 catch (Exception e) {
                     e.printStackTrace();
@@ -186,7 +215,7 @@ public class SeaCatMK1PlanExporter implements IPlanFileExporter {
         String explorationAreaStr = getSectionExplorationArea();
         String safeAltitudeStr = getSectionSafeAltitude();       
         
-        Pair<String, String> systemAndSwapPayloadStr = getSectionPayloadCriticality();
+        Pair<String, String> systemAndSwapPayloadStr = getSectionPayloadCriticality(plan);
         
         template = replaceTokenWithKey(template, "GenDate", genDateStr);
         template = replaceTokenWithKey(template, "LowBatteryState", lowBatteryStateStr);
@@ -272,13 +301,97 @@ public class SeaCatMK1PlanExporter implements IPlanFileExporter {
     }
 
     /**
+     * %System Payload
+     * H SystemPayload 2
+     * 1 C Edgetech2205
+     * 2 N MicronDST
+     *
+     * % Swap Payload
+     * H SwapPayload 4
+     * 1 C NorbitWBMS
+     * 2 N UUVCam
+     * 3 C TritechPSBP
+     * 4 N GeometricsG882
+     *
+     * @param plan
      * @return
      */
-    private Pair<String, String> getSectionPayloadCriticality() {
+    private Pair<String, String> getSectionPayloadCriticality(PlanType plan) {
+        int counterSystem = 0;
+        int counterSwappable = 0;
         StringBuilder sbSystem = new StringBuilder();
-        StringBuilder sbSwap = new StringBuilder();
+        StringBuilder sbSwappable = new StringBuilder();
         
-        return Pair.of(sbSystem.toString(), sbSwap.toString());
+        PlanActions pActions = plan.getStartActions();
+        for (IMCMessage msg : pActions.getAllMessages()) {
+            try {
+                if (msg instanceof SetEntityParameters) {
+                    SetEntityParameters sep = (SetEntityParameters) msg;
+
+                    Vector<EntityParameter> params = sep.getParams();
+                    EntityParameter pMC = getParamWithName(params, "Mission Critical");
+                    if (pMC != null) {
+                        Boolean boolValue = BooleanUtils.toBooleanObject(pMC.getValue().trim());
+                        if (boolValue == null)
+                            continue;
+                        String value = replaceTextIfBoolean(pMC.getName().replaceAll(" ", "").toUpperCase(), pMC.getValue());
+                        boolean systemOrSwappable = isPayloadASystemOrSwappable(plan.getVehicle(), sep.getName());
+                        int counter;
+                        StringBuilder sb;
+                        if (systemOrSwappable) {
+                            counter = ++counterSystem;
+                            sb = sbSystem;
+                        }
+                        else {
+                            counter = ++counterSwappable;
+                            sb = sbSwappable;
+                        }
+
+                        sb.append(NEW_LINE);
+                        sb.append(counter);
+                        sb.append(" ");
+                        sb.append(value);
+                        sb.append(" ");
+                        sb.append(sep.getName());
+                    }
+                }
+            }
+            catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+        
+        if (counterSystem > 0) {
+            String counterStr = Integer.toString(counterSystem);
+            StringBuilder sb = new StringBuilder(16 + counterStr.length());
+            sb.append("H SystemPayload ");
+            sb.append(counterStr);
+            sbSystem.insert(0, sb.toString());
+        }
+        if (counterSwappable > 0) {
+            String counterStr = Integer.toString(counterSwappable);
+            StringBuilder sb = new StringBuilder(14 + counterStr.length());
+            sb.append("H SwapPayload ");
+            sb.append(counterStr);
+            sbSwappable.insert(0, sb.toString());
+        }
+        
+        return Pair.of(sbSystem.toString(), sbSwappable.toString());
+    }
+
+    /**
+     * @param vehicle
+     * @param name
+     * @return
+     */
+    private boolean isPayloadASystemOrSwappable(String vehicle, String name) {
+        for (String model : modelSystemPayloads.keySet()) {
+            if (vehicle.startsWith(model)) {
+                ArrayList<String> pl = modelSystemPayloads.get(model);
+                return pl.contains(name.trim());
+            }
+        }
+        return false;
     }
 
     /**
