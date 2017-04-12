@@ -83,7 +83,7 @@ public class SeaCatMK1PlanExporter implements IPlanFileExporter {
     private static final int COUNTER_MANEUVERS_GAP = 10;
 
     /** Tue Dec 15 13:34:50 2009 */
-    public static final SimpleDateFormat dateFormatter = new SimpleDateFormat("EEE MMM d HH:mm:ss yyyy Z");
+    public static final SimpleDateFormat dateFormatter = new SimpleDateFormat("EEE MMM d HH:mm:ss yyyy Z", Locale.US);
     public static HashMap<String, String> activeReplacementStringForPayload = new HashMap<>();
     public static HashMap<String, Pair<String, String>> booleanReplacementString = new HashMap<>();
     public static HashMap<String, ArrayList<String>> modelSystemPayloads = new HashMap<>();
