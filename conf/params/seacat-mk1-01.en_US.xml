@@ -11,6 +11,16 @@
       <desc>True to activate task, false otherwise</desc>
     </param>
   </section>
+  <section name="MicronDST" name-i18n="Obstacle Avoidance Sensor">
+    <param name="Mission Critical">
+      <name-i18n>Mission Critical</name-i18n>
+      <type>boolean</type>
+      <visibility>user</visibility>
+      <scope>plan</scope>
+      <default>false</default>
+      <units/>
+    </param>
+  </section>
   <section name="ExternalControl" name-i18n="External Control">
     <param name="Active">
       <name-i18n>Active</name-i18n>
