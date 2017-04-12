@@ -41,13 +41,16 @@ import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.Graphics2D;
 import java.awt.Image;
+import java.awt.Paint;
 import java.awt.event.ActionEvent;
 import java.awt.event.FocusEvent;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseWheelEvent;
+import java.awt.geom.GeneralPath;
 import java.awt.geom.Line2D;
 import java.awt.geom.Point2D;
+import java.awt.geom.Rectangle2D;
 import java.io.File;
 import java.text.NumberFormat;
 import java.util.Arrays;
@@ -56,6 +59,7 @@ import java.util.Vector;
 import javax.swing.AbstractAction;
 import javax.swing.AbstractButton;
 import javax.swing.BoxLayout;
+import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JDialog;
@@ -72,6 +76,8 @@ import pt.lsts.imc.IMCDefinition;
 import pt.lsts.imc.IMCMessage;
 import pt.lsts.imc.OperationalLimits;
 import pt.lsts.neptus.NeptusLog;
+import pt.lsts.neptus.comm.manager.imc.ImcSystem;
+import pt.lsts.neptus.comm.manager.imc.ImcSystemsHolder;
 import pt.lsts.neptus.console.ConsoleLayout;
 import pt.lsts.neptus.console.ConsolePanel;
 import pt.lsts.neptus.console.events.ConsoleEventMainSystemChange;
@@ -82,8 +88,8 @@ import pt.lsts.neptus.gui.ToolbarSwitch;
 import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.mp.OperationLimits;
 import pt.lsts.neptus.plugins.ConfigurationListener;
-import pt.lsts.neptus.plugins.NeptusMessageListener;
 import pt.lsts.neptus.plugins.NeptusProperty;
+import pt.lsts.neptus.plugins.NeptusProperty.LEVEL;
 import pt.lsts.neptus.plugins.PluginDescription;
 import pt.lsts.neptus.plugins.PluginDescription.CATEGORY;
 import pt.lsts.neptus.plugins.PluginUtils;
@@ -97,29 +103,49 @@ import pt.lsts.neptus.types.coord.LocationType;
 import pt.lsts.neptus.types.map.ParallelepipedElement;
 import pt.lsts.neptus.types.map.PathElement;
 import pt.lsts.neptus.util.ByteUtil;
+import pt.lsts.neptus.util.ColorUtils;
 import pt.lsts.neptus.util.FileUtil;
 import pt.lsts.neptus.util.GuiUtils;
 import pt.lsts.neptus.util.ImageUtils;
 import pt.lsts.neptus.util.MathMiscUtils;
+import pt.lsts.neptus.util.conf.ConfigFetch;
 
 /**
  * @author zp
- * 
+ * @author pdias
  */
 @PluginDescription(name = "Operation Limits", category = CATEGORY.PLANNING, icon = "pt/lsts/neptus/plugins/oplimits/lock.png", documentation = "oplimits/oplimits.html")
 public class OperationLimitsSubPanel extends ConsolePanel implements ConfigurationListener,
-        MainVehicleChangeListener, NeptusMessageListener, Renderer2DPainter, StateRendererInteraction {
+        MainVehicleChangeListener, Renderer2DPainter, StateRendererInteraction {
+
+    private static final String FOLDER_CONF_OPLIMITS = ConfigFetch.getConfFolder() + "/oplimits/";
 
     private static final long serialVersionUID = 1L;
 
-    @NeptusProperty(name = "Operation Limits File", description = "Where to store and load operational limits")
-    public File operationLimitsFile = new File(".", "conf/oplimits.xml");
+    private static final ImageIcon ICON_UPDATE_OK = ImageUtils.getIcon("pt/lsts/neptus/plugins/oplimits/update_ok.png");
+    private static final ImageIcon ICON_UPDATE_REQUEST = ImageUtils.getIcon("pt/lsts/neptus/plugins/oplimits/update_request.png");
 
-    @NeptusProperty(name = "Separate Operational Areas Per Vehicle", description = "If selected, each vehicle will have its own operational limits file")
+    private static final String TEXT_LOCAL_CHANGES = I18n.text("Local operational limits have changes");
+    private static final String TEXT_REQUEST_RESPONSE_WAITING = I18n.text("Request sent but limits not yet received");
+    
+    private static final Color STRIPES_YELLOW_TRAMP = ColorUtils.setTransparencyToColor(ColorUtils.STRIPES_YELLOW, 130);
+    private static final Paint PAINT_STRIPES = ColorUtils.createStripesPaint(ColorUtils.STRIPES_YELLOW, Color.BLACK);
+    private static final Paint PAINT_STRIPES_NOT_SYNC = ColorUtils.createStripesPaint(ColorUtils.STRIPES_YELLOW, Color.RED);
+
+    @NeptusProperty(name = "Operation Limits File", userLevel = LEVEL.ADVANCED,
+            description = "Where to store and load operational limits")
+    public File operationLimitsFile = new File(FOLDER_CONF_OPLIMITS + "oplimits.xml");
+
+    @NeptusProperty(name = "Separate Operational Areas Per Vehicle", userLevel = LEVEL.ADVANCED,
+            description = "If selected, each vehicle will have its own operational limits file")
     public boolean separateOpAreas = true;
 
-    @NeptusProperty
+    @NeptusProperty(name = "Show on Map", userLevel = LEVEL.ADVANCED)
     public boolean showOnMap = true;
+
+    @NeptusProperty(name = "Paint Always Synchronized", userLevel = LEVEL.ADVANCED, 
+            description = "If selected, the painting will not take into account the sync status.")
+    public boolean paintAlwaysSynchronized = false;
 
     protected byte[] lastMD5 = null;
     protected OperationLimits limits = null;
@@ -135,6 +161,34 @@ public class OperationLimitsSubPanel extends ConsolePanel implements Configurati
     protected int clickCount = 0;
     protected Point2D lastDragPoint = null;
     protected boolean dragging = false;
+    
+    protected JLabel label = new JLabel("<html></html>");
+    {
+        label.setOpaque(true);
+        label.setBorder(new EmptyBorder(3, 3, 3, 3));
+        label.setBackground(new Color(255, 255, 255, 128));
+    }
+
+    public OperationLimitsSubPanel(ConsoleLayout console) {
+        super(console);
+        removeAll();
+        createActions();
+        setSize(new Dimension(95, 40));
+        setLayout(new BorderLayout());
+        JLabel lbl = new JLabel(I18n.text("Operational Limits"));
+        lbl.setFont(new Font("Arial", Font.BOLD, 6));
+        add(lbl, BorderLayout.NORTH);
+
+        JPanel tmp = new JPanel();
+        tmp.setLayout(new BoxLayout(tmp, BoxLayout.LINE_AXIS));
+        tmp.add(new ToolbarButton(editLimits));
+        tmp.add(new ToolbarButton(sendAction));
+        sw = (ToolbarSwitch) tmp.add(new ToolbarSwitch(showOpArea));
+        sw.setSelected(showOnMap);
+        tmp.add(new ToolbarButton(updateAction));
+
+        add(tmp, BorderLayout.CENTER);
+    }
 
     protected void createActions() {
         editLimits = new AbstractAction(I18n.text("Operation Limits"),
@@ -153,7 +207,6 @@ public class OperationLimitsSubPanel extends ConsolePanel implements Configurati
                 dialog.setModalityType(ModalityType.DOCUMENT_MODAL);
                 dialog.add(panel);
                 JButton okButton = new JButton(new AbstractAction(I18n.text("Ok")) {
-
                     private static final long serialVersionUID = 1L;
 
                     @Override
@@ -171,14 +224,12 @@ public class OperationLimitsSubPanel extends ConsolePanel implements Configurati
                 if (resp == JOptionPane.YES_OPTION) {
                     limits = panel.getLimits();
                     storeXml(limits.asXml());
-                    updateAction.putValue(AbstractAction.SMALL_ICON,
-                            ImageUtils.getIcon("pt/lsts/neptus/plugins/oplimits/update_request.png"));
-                    updateAction.putValue(AbstractAction.SHORT_DESCRIPTION,
-                            I18n.text("Local operational limits have changes"));
+                    pp = getSelectionFromLimits(limits);
+                    updateAction.putValue(AbstractAction.SMALL_ICON, ICON_UPDATE_REQUEST);
+                    updateAction.putValue(AbstractAction.SHORT_DESCRIPTION, TEXT_LOCAL_CHANGES);
 
                     if (editing)
                         setActive(true, null);
-
                 }
                 else {
                     limits.setOpAreaLat(before.getOpAreaLat());
@@ -206,15 +257,19 @@ public class OperationLimitsSubPanel extends ConsolePanel implements Configurati
         };
 
         updateAction = new AbstractAction(I18n.text("Download limits from vehicle"),
-                ImageUtils.getIcon("pt/lsts/neptus/plugins/oplimits/update_ok.png")) {
+                ICON_UPDATE_OK) {
             private static final long serialVersionUID = 1L;
 
             @Override
             public void actionPerformed(ActionEvent e) {
-                updateAction.putValue(AbstractAction.SMALL_ICON,
-                        ImageUtils.getIcon("pt/lsts/neptus/plugins/oplimits/update_request.png"));
-                updateAction.putValue(AbstractAction.SHORT_DESCRIPTION,
-                        I18n.text("Request sent but limits not yet received"));
+                byte[] newMD5 = getLimitsMessage().payloadMD5();
+                if (lastMD5 != null && ByteUtil.equal(newMD5, lastMD5)) {
+                    updateAction.putValue(AbstractAction.SMALL_ICON, ICON_UPDATE_OK);
+                }
+                else {
+                    updateAction.putValue(AbstractAction.SMALL_ICON, ICON_UPDATE_REQUEST);
+                }
+                updateAction.putValue(AbstractAction.SHORT_DESCRIPTION, TEXT_REQUEST_RESPONSE_WAITING);
                 send(IMCDefinition.getInstance().create("GetOperationalLimits"));
             }
         };
@@ -235,6 +290,10 @@ public class OperationLimitsSubPanel extends ConsolePanel implements Configurati
 
             @Override
             public void actionPerformed(ActionEvent e) {
+                clearLimits();
+            }
+
+            private void clearLimits() {
                 pp = null;
                 rectangle = null;
                 setLimitsFromSelection(pp);
@@ -285,45 +344,20 @@ public class OperationLimitsSubPanel extends ConsolePanel implements Configurati
         return oplimits;
     }
 
-    public OperationLimitsSubPanel(ConsoleLayout console) {
-        super(console);
-        removeAll();
-        createActions();
-        setSize(new Dimension(95, 40));
-        setLayout(new BorderLayout());
-        JLabel lbl = new JLabel(I18n.text("Operational Limits"));
-        lbl.setFont(new Font("Arial", Font.BOLD, 6));
-        add(lbl, BorderLayout.NORTH);
-
-        JPanel tmp = new JPanel();
-        tmp.setLayout(new BoxLayout(tmp, BoxLayout.LINE_AXIS));
-        tmp.add(new ToolbarButton(editLimits));
-        tmp.add(new ToolbarButton(sendAction));
-        sw = (ToolbarSwitch) tmp.add(new ToolbarSwitch(showOpArea));
-        sw.setSelected(showOnMap);
-        tmp.add(new ToolbarButton(updateAction));
-
-        add(tmp, BorderLayout.CENTER);
-    }
-
-    @Override
-    public String[] getObservedMessages() {
-        return new String[] { "OperationalLimits" };
-    }
-
-    @Override
-    public void messageArrived(IMCMessage message) {
-
+    @Subscribe
+    public void onOperationalLimits(OperationalLimits message) {
+        if (!message.getSourceName().equalsIgnoreCase(getConsole().getMainSystem()))
+            return;
+        
         final IMCMessage msg = message;
         if (message.getMgid() == OperationalLimits.ID_STATIC) {
-
             new Thread() {
                 @Override
                 public void run() {
                     synchronized (OperationLimitsSubPanel.this) {
                         if (lastMD5 != null) {
                             if (!Arrays.equals(msg.payloadMD5(), lastMD5)) {
-                                post(Notification.warning(I18n.text("Operation Limits"), I18n.text("Not Syncronized")).src(
+                                post(Notification.warning(I18n.text("Operation Limits"), I18n.text("Not Syncronized, Updating It")).src(
                                         getConsole().getMainSystem()));
                             }
                             else {
@@ -332,68 +366,73 @@ public class OperationLimitsSubPanel extends ConsolePanel implements Configurati
                             }
                         }
                     }
-                    try {
-                        OperationalLimits received = OperationalLimits.clone(msg);
-                        lastMD5 = msg.payloadMD5();
-                        if ((received.getMask() & OperationalLimits.OPL_MAX_DEPTH) != 0)
-                            limits.setMaxDepth(received.getMaxDepth());
-                        else
-                            limits.setMaxDepth(null);
-
-                        if ((received.getMask() & OperationalLimits.OPL_MAX_ALT) != 0)
-                            limits.setMaxAltitude(received.getMaxAltitude());
-                        else
-                            limits.setMaxAltitude(null);
-
-                        if ((received.getMask() & OperationalLimits.OPL_MIN_ALT) != 0)
-                            limits.setMinAltitude(received.getMinAltitude());
-                        else
-                            limits.setMinAltitude(null);
-
-                        if ((received.getMask() & OperationalLimits.OPL_MAX_SPEED) != 0)
-                            limits.setMaxSpeed(received.getMaxSpeed());
-                        else
-                            limits.setMaxSpeed(null);
-
-                        if ((received.getMask() & OperationalLimits.OPL_MIN_SPEED) != 0)
-                            limits.setMinSpeed(received.getMinSpeed());
-                        else
-                            limits.setMinSpeed(null);
-
-                        if ((received.getMask() & OperationalLimits.OPL_MAX_VRATE) != 0)
-                            limits.setMaxVertRate(received.getMaxVrate());
-                        else
-                            limits.setMaxVertRate(null);
-
-                        if ((received.getMask() & OperationalLimits.OPL_AREA) != 0) {
-
-                            limits.setOpAreaLat(Math.toDegrees(received.getLat()));
-                            limits.setOpAreaLon(Math.toDegrees(received.getLon()));
-                            limits.setOpAreaLength(received.getLength());
-                            limits.setOpAreaWidth(received.getWidth());
-                            limits.setOpRotationRads(received.getOrientation());
-                        }
-                        else {
-                            limits.setOpAreaLat(null);
-                            limits.setOpAreaLon(null);
-                            limits.setOpAreaLength(null);
-                            limits.setOpAreaWidth(null);
-                            limits.setOpRotationRads(null);
-                        }
-
-                        pp = getSelectionFromLimits(limits);
-                        updateAction.putValue(AbstractAction.SMALL_ICON,
-                                ImageUtils.getIcon("pt/lsts/neptus/plugins/oplimits/update_ok.png"));
-                        updateAction.putValue(AbstractAction.SHORT_DESCRIPTION,
-                                I18n.text("Download limits from vehicle"));
-
-                    }
-                    catch (Exception e) {
-                        e.printStackTrace();
-                    }
-
+                    processOperationLimitsMessage(msg);
                 }
             }.start();
+        }
+    }
+
+    /**
+     * @param msg
+     */
+    private void processOperationLimitsMessage(final IMCMessage msg) {
+        try {
+            OperationalLimits received = OperationalLimits.clone(msg);
+            lastMD5 = msg.payloadMD5();
+            if ((received.getMask() & OperationalLimits.OPL_MAX_DEPTH) != 0)
+                limits.setMaxDepth(received.getMaxDepth());
+            else
+                limits.setMaxDepth(null);
+
+            if ((received.getMask() & OperationalLimits.OPL_MAX_ALT) != 0)
+                limits.setMaxAltitude(received.getMaxAltitude());
+            else
+                limits.setMaxAltitude(null);
+
+            if ((received.getMask() & OperationalLimits.OPL_MIN_ALT) != 0)
+                limits.setMinAltitude(received.getMinAltitude());
+            else
+                limits.setMinAltitude(null);
+
+            if ((received.getMask() & OperationalLimits.OPL_MAX_SPEED) != 0)
+                limits.setMaxSpeed(received.getMaxSpeed());
+            else
+                limits.setMaxSpeed(null);
+
+            if ((received.getMask() & OperationalLimits.OPL_MIN_SPEED) != 0)
+                limits.setMinSpeed(received.getMinSpeed());
+            else
+                limits.setMinSpeed(null);
+
+            if ((received.getMask() & OperationalLimits.OPL_MAX_VRATE) != 0)
+                limits.setMaxVertRate(received.getMaxVrate());
+            else
+                limits.setMaxVertRate(null);
+
+            if ((received.getMask() & OperationalLimits.OPL_AREA) != 0) {
+
+                limits.setOpAreaLat(Math.toDegrees(received.getLat()));
+                limits.setOpAreaLon(Math.toDegrees(received.getLon()));
+                limits.setOpAreaLength(received.getLength());
+                limits.setOpAreaWidth(received.getWidth());
+                limits.setOpRotationRads(received.getOrientation());
+            }
+            else {
+                limits.setOpAreaLat(null);
+                limits.setOpAreaLon(null);
+                limits.setOpAreaLength(null);
+                limits.setOpAreaWidth(null);
+                limits.setOpRotationRads(null);
+            }
+
+            storeXml(limits.asXml());
+            pp = getSelectionFromLimits(limits);
+            updateAction.putValue(AbstractAction.SMALL_ICON, ICON_UPDATE_OK);
+            updateAction.putValue(AbstractAction.SHORT_DESCRIPTION,
+                    I18n.text("Download limits from vehicle"));
+        }
+        catch (Exception e) {
+            e.printStackTrace();
         }
     }
 
@@ -416,13 +455,13 @@ public class OperationLimitsSubPanel extends ConsolePanel implements Configurati
             return FileUtil.saveToFile(operationLimitsFile.getAbsolutePath(), xml);
         }
         else if (getConsole().getMainSystem() != null) {
-            File f = new File("conf/oplimits/" + getConsole().getMainSystem() + ".xml");
+            File f = new File(FOLDER_CONF_OPLIMITS + getConsole().getMainSystem() + ".xml");
             f.getParentFile().mkdirs();
             NeptusLog.pub().info("<###>saving to " + f.getAbsolutePath());
             return FileUtil.saveToFile(f.getAbsolutePath(), xml);
         }
         else {
-            operationLimitsFile = new File("conf/oplimits/limits.xml");
+            operationLimitsFile = new File(FOLDER_CONF_OPLIMITS + "limits.xml");
             operationLimitsFile.getParentFile().mkdirs();
             NeptusLog.pub().info("<###>saving to " + operationLimitsFile.getAbsolutePath());
             return FileUtil.saveToFile(operationLimitsFile.getAbsolutePath(), xml);
@@ -430,10 +469,11 @@ public class OperationLimitsSubPanel extends ConsolePanel implements Configurati
     }
 
     protected String getOpLimitsXml() {
-        if (!separateOpAreas && operationLimitsFile.canRead())
+        if (!separateOpAreas && operationLimitsFile.canRead()) {
             return FileUtil.getFileAsString(operationLimitsFile.getAbsolutePath());
+        }
         else if (getConsole().getMainSystem() != null) {
-            File f = new File("conf/oplimits/" + getConsole().getMainSystem() + ".xml");
+            File f = new File(FOLDER_CONF_OPLIMITS + getConsole().getMainSystem() + ".xml");
             if (f.canRead())
                 return FileUtil.getFileAsString(f);
         }
@@ -448,7 +488,6 @@ public class OperationLimitsSubPanel extends ConsolePanel implements Configurati
         Vector<CustomInteractionSupport> panels = getConsole().getSubPanelsOfInterface(CustomInteractionSupport.class);
         for (CustomInteractionSupport cis : panels)
             cis.addInteraction(this);
-
     }
 
     @Override
@@ -461,13 +500,28 @@ public class OperationLimitsSubPanel extends ConsolePanel implements Configurati
 
     @Subscribe
     public void mainVehicleChangeNotification(ConsoleEventMainSystemChange e) {
-        showOnMap(false);
-
+//        showOnMap(false);
+        
+        limits = OperationLimits.loadXml(getOpLimitsXml());
+        checkIfOplimitsExistInOldData(e.getCurrent());
+        
         pp = getSelectionFromLimits(limits);
         clickCount = 0;
         // add oplimits rendererd (with new limits) if necessary
         showOnMap(showOnMap);
         updateAction.actionPerformed(null);
+    }
+
+    /**
+     * @param e
+     */
+    private void checkIfOplimitsExistInOldData(String system) {
+        ImcSystem imcSys = ImcSystemsHolder.getSystemWithName(system);
+        if (imcSys != null) {
+            OperationalLimits opl = (OperationalLimits) imcSys.retrieveData(OperationalLimits.class.getSimpleName());
+            if (opl != null)
+                processOperationLimitsMessage(opl);
+        }
     }
 
     @Override
@@ -601,13 +655,13 @@ public class OperationLimitsSubPanel extends ConsolePanel implements Configurati
                 LocationType now = source.getRealWorldLocation(event.getPoint());
                 double[] offsets = now.getOffsetFrom(prev);
                 pp.getCenterLocation().translatePosition(offsets[0], offsets[1], 0);
-
             }
+            setLimitsFromSelection(pp);
+            storeXml(limits.asXml());
+            
             source.repaint();
         }
         else {
-            //if (!event.isShiftDown())
-            //    adapter.mouseDragged(event, source);
             adapter.mouseDragged(event, source);
         }
         lastDragPoint = event.getPoint();
@@ -663,17 +717,11 @@ public class OperationLimitsSubPanel extends ConsolePanel implements Configurati
         adapter.wheelMoved(event, source);
     }
 
-    protected JLabel label = new JLabel("<html></html>");
-    {
-        label.setOpaque(true);
-        label.setBorder(new EmptyBorder(3, 3, 3, 3));
-        label.setBackground(new Color(255, 255, 255, 128));
-    }
-
     @Override
     public void paint(Graphics2D g2, StateRenderer2D renderer) {
         Graphics2D g = (Graphics2D) g2.create();
         if (limits != null && !editing) {
+            limits.setShynched(paintAlwaysSynchronized || isLimitsInSynch());
             limits.paint(g, renderer);
         }
         else {
@@ -702,7 +750,8 @@ public class OperationLimitsSubPanel extends ConsolePanel implements Configurati
                 label.paint(g2d);
             }
             if (clickCount == 1) {
-                g.setColor(Color.red.darker());
+                g.setPaint(PAINT_STRIPES);
+                g.setStroke(new BasicStroke(4));
                 Point2D pt = renderer.getScreenPosition(points[0]);
                 g.draw(new Line2D.Double(pt.getX() - 5, pt.getY() - 5, pt.getX() + 5, pt.getY() + 5));
                 g.draw(new Line2D.Double(pt.getX() - 5, pt.getY() + 5, pt.getX() + 5, pt.getY() - 5));
@@ -711,19 +760,56 @@ public class OperationLimitsSubPanel extends ConsolePanel implements Configurati
             }
 
             if (pp != null) {
-                pp.paint((Graphics2D) g.create(), renderer, -renderer.getRotation());
+                // pp.paint((Graphics2D) g.create(), renderer, -renderer.getRotation());
+                Point2D pt = renderer.getScreenPosition(pp.getCenterLocation());
+                g.translate(pt.getX(), pt.getY());
+                g.scale(1, -1);
+                g.rotate(renderer.getRotation());
+                g.rotate(-pp.getYawRad() + Math.PI / 2);
+                double length = pp.getLength() * renderer.getZoom();
+                double width = pp.getWidth() * renderer.getZoom();
+                g.setStroke(new BasicStroke(4));
+                g.setColor(STRIPES_YELLOW_TRAMP);
+                g.fill(new Rectangle2D.Double(-length / 2, -width / 2, length, width));
+                g.setPaint(paintAlwaysSynchronized || isLimitsInSynch() ? PAINT_STRIPES : PAINT_STRIPES_NOT_SYNC);
+                g.draw(new Rectangle2D.Double(-length / 2, -width / 2, length, width));
             }
             else if (rectangle != null) {
                 rectangle.setMyColor(Color.red);
                 rectangle.setFilled(true);
                 rectangle.paint((Graphics2D) g.create(), renderer, -renderer.getRotation());
+                Vector<LocationType> sps = rectangle.getShapePoints();
+                if (sps.size() > 0) {
+                    GeneralPath gp = new GeneralPath();
+                    for (int i = 0; i < sps.size(); i++) {
+                        Point2D pt = renderer.getScreenPosition(sps.get(i));
+                        if (i ==0)
+                            gp.moveTo(pt.getX(), pt.getY());
+                        else
+                            gp.lineTo(pt.getX(), pt.getY());
+                    }
+                    gp.closePath();
+                    g.setStroke(new BasicStroke(4));
+                    g.setColor(STRIPES_YELLOW_TRAMP);
+                    g.fill(gp);
+                    g.setPaint(PAINT_STRIPES);
+                    g.draw(gp);
+                }
             }
             g.dispose();
         }
     }
 
-    public OperationLimits setLimitsFromSelection(ParallelepipedElement selection) {
+    /**
+     * @return
+     */
+    private boolean isLimitsInSynch() {
+        if (updateAction.getValue(AbstractAction.SMALL_ICON) == ICON_UPDATE_OK)
+            return true;
+        return false;
+    }
 
+    public OperationLimits setLimitsFromSelection(ParallelepipedElement selection) {
         if (selection == null) {
             limits.setOpAreaLat(null);
             limits.setOpAreaLon(null);
@@ -743,17 +829,17 @@ public class OperationLimitsSubPanel extends ConsolePanel implements Configurati
         byte[] newMD5 = getLimitsMessage().payloadMD5();
         if (lastMD5 == null || !ByteUtil.equal(newMD5, lastMD5)) {
             lastMD5 = getLimitsMessage().payloadMD5();
-            updateAction.putValue(AbstractAction.SMALL_ICON,
-                    ImageUtils.getIcon("pt/lsts/neptus/plugins/oplimits/update_request.png"));
-            updateAction.putValue(AbstractAction.SHORT_DESCRIPTION, I18n.text("Local operational limits have changes"));
+            updateAction.putValue(AbstractAction.SMALL_ICON, ICON_UPDATE_REQUEST);
+            updateAction.putValue(AbstractAction.SHORT_DESCRIPTION, TEXT_LOCAL_CHANGES);
         }
 
         return limits;
     }
 
     public ParallelepipedElement getSelectionFromLimits(OperationLimits limits) {
-        if (limits.getOpAreaLat() == null)
+        if (limits.getOpAreaLat() == null) {
             pp = null;
+        }
         else {
             pp = new ParallelepipedElement(null, null);
             pp.setWidth(limits.getOpAreaWidth());
@@ -766,8 +852,10 @@ public class OperationLimitsSubPanel extends ConsolePanel implements Configurati
             pp.setMyColor(Color.red);
         }
 
-        if (pp == null)
+        if (pp == null) {
             clickCount = 0;
+            rectangle = null;
+        }
         return pp;
     }
 
@@ -789,7 +877,6 @@ public class OperationLimitsSubPanel extends ConsolePanel implements Configurati
 
     @Override
     public void setAssociatedSwitch(ToolbarSwitch tswitch) {
-        
     }
     
     @Override
@@ -804,8 +891,5 @@ public class OperationLimitsSubPanel extends ConsolePanel implements Configurati
      */
     @Override
     public void cleanSubPanel() {
-        // TODO Auto-generated method stub
-
     }
-
 }
