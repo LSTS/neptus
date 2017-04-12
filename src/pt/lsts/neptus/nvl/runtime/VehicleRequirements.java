@@ -7,7 +7,7 @@ public class VehicleRequirements implements Filter<NVLVehicle> {
 
   private NVLVehicleType requiredType = null;
   
-
+  private String requiredName = null;
   private Availability requiredAvailability = null;
   private List<PayloadComponent> requiredPayload = null;
   private Position areaCenter = null;
@@ -22,18 +22,23 @@ public class VehicleRequirements implements Filter<NVLVehicle> {
   }
 
 
-  VehicleRequirements type(NVLVehicleType type) {
+  public VehicleRequirements type(NVLVehicleType type) {
     requiredType = type;
     return this; // for chained: http://blog.crisp.se/2013/10/09/perlundholm/another-builder-pattern-for-java
   }
+  
+  public VehicleRequirements name(String name) {
+      requiredName = name;
+      return this; // for chained: http://blog.crisp.se/2013/10/09/perlundholm/another-builder-pattern-for-java
+    }
 
-  VehicleRequirements payload(List<PayloadComponent> components) {
+  public VehicleRequirements payload(List<PayloadComponent> components) {
      System.out.println("GOT here some how?");
     requiredPayload = components;
     return this;
   }
 
-  VehicleRequirements availability(Availability av) {
+  public VehicleRequirements availability(Availability av) {
     requiredAvailability = av;
     return this;
   }
@@ -57,22 +62,11 @@ public class VehicleRequirements implements Filter<NVLVehicle> {
 
   @Override
   public boolean apply(NVLVehicle v) {
-   boolean result1,result2,result3, result4;
-    result1 = (requiredType != null && (v.getType() == requiredType || requiredType.equals(NVLVehicleType.ANY))); 
-    result2 = (requiredAvailability != null && requiredAvailability == v.getAvailability());
-    result3 = (requiredPayload != null && v.getPayload().containsAll(requiredPayload));
-    result4 = (areaCenter != null && v.getPosition().near(areaCenter, areaRadius) );
-    if(!result1)
-        System.out.println(v.getId()+" Failed in requiredType: "+requiredType);
-    if(!result2)
-        System.out.println(v.getId()+" Failed in requiredAvailability: "+requiredAvailability);
-    if(!result3){
-        for(PayloadComponent p: requiredPayload)
-            System.out.println(v.getId()+" Failed in requiredPayload: "+p.getName());
-    }
-    if(!result4)
-        System.out.println(v.getId()+" Failed in areaCenter and radius: "+areaCenter+" "+areaRadius+"\nPosition: "+v.getPosition().toString() );
-   return result1 && result2 && result3 && result4;
+   return     (requiredName!= null && requiredName.equals(v.getId()))
+           && (requiredType == NVLVehicleType.ANY || (requiredType != null && (v.getType() == requiredType)))
+           && ((requiredAvailability != null && requiredAvailability == v.getAvailability())) 
+           && ((requiredPayload != null && v.getPayload().containsAll(requiredPayload)))
+           && ((areaCenter != null && v.getPosition().near(areaCenter, areaRadius) ));
   }
 
  // static Map<NVLVehicle,VehicleRequirements> filter(List<VehicleRequirements> reqs, List<NVLVehicle> allVehicles) {

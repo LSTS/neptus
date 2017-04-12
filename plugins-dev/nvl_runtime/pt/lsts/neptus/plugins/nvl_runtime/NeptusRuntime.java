@@ -77,9 +77,12 @@ public class NeptusRuntime extends InteractionAdapter implements NVLRuntime {
                         // Plano IMC
                         TaskSpecification ts = getTasks( x -> x.getId().equals("nvlPlan")).get(0);
                         System.out.println("Task "+ts.getId());
-                        VehicleRequirements reqs = new VehicleRequirements();
-                        reqs.setRequiredType(NVLVehicleType.AUV);
-                        reqs.setRequiredAvailability(Availability.AVAILABLE);
+                        VehicleRequirements reqs 
+                          = new VehicleRequirements().
+                        type(NVLVehicleType.AUV).
+                        availability(Availability.AVAILABLE).
+                        name("lauv-xplore-1");
+                        
                         ((NeptusTaskSpecificationAdapter)ts).setRequirements(reqs);
                         // Veículos disponíveis
                         for(String v: vehicles.keySet()){
@@ -94,7 +97,7 @@ public class NeptusRuntime extends InteractionAdapter implements NVLRuntime {
                             
                             System.out.println("SELECTED VEHICLE "+v.getId());
                         }
-                        //launchTask(ts, vs);
+                        launchTask(ts, vs);
                         
                        
                     }

@@ -72,40 +72,29 @@ public class NeptusTaskSpecificationAdapter implements TaskSpecification {
      */
     @Override
     public List<VehicleRequirements> getRequirements() {
-        final VehicleTypeEnum type;
+        VehicleRequirements requirements = new VehicleRequirements();
+
         List<PayloadComponent> payload = new ArrayList<>();
         for( String p: PlanCompatibility.payloadsRequired(plan)) {
-            System.out.println("NEPTUSTASKSPEC PAYLOAD ADDED:"+p);
             payload.add(new NeptusPayloadAdapter(p));
         }
-        VehicleRequirements requirements = new VehicleRequirements();
-        
-        if(plan.getVehicle().equals(null)) {
-            type = ImcSystemsHolder.lookupSystemByName(plan.getVehicle()).getTypeVehicle();
-        }
-        else 
-            type = VehicleTypeEnum.UNKNOWN;
-        if(plan.hasMultipleVehiclesAssociated()){
-         Object[] allTypes = plan.getVehicles().stream().map(v -> ImcSystemsHolder.lookupSystemByName(v.getName()))
-                          .filter(imcsys -> imcsys.getTypeVehicle().equals(type)).toArray();
-          if(allTypes.length == plan.getVehicles().size())
-              requirements.setRequiredType(NeptusVehicleAdapter.getType(type));
-          else 
-              requirements.setRequiredType(NeptusVehicleAdapter.getType(VehicleTypeEnum.UNKNOWN)); // More than one type of vehicle associated with the plan
-        }
-        else
-           requirements.setRequiredType(NeptusVehicleAdapter.getType(type));
-        
         requirements.setRequiredPayload(payload);
         requirements.setRequiredAvailability(Availability.AVAILABLE);
+        
+//        if(plan.getVehicle() != null) {
+//            System.out.println("PLan vehicle "+plan.getVehicle());
+//            System.out.println(Arrays.toString(ImcSystemsHolder.lookupAllSystems()));
+//            System.out.println(Arrays.toString(ImcSystemsHolder.lookupAllActiveSystems()));
+//            type = ImcSystemsHolder.lookupSystemByName(plan.getVehicle())
+//                    .getTypeVehicle();
+//            
+//            requirements.setRequiredType(NeptusVehicleAdapter.getType(type));
+//        }
+//        else
+            requirements.setRequiredType(NVLVehicleType.ANY);
+        
         return Arrays.asList(requirements);
     }
-    
-    public void setRequiredType(NVLVehicleType type){
-        requirements.setRequiredType(type);
-    }
-    
-    //launch task/Area to Map
 
     /* (non-Javadoc)
      * @see pt.lsts.neptus.nvl.runtime.TaskSpecification#getId()
@@ -117,12 +106,6 @@ public class NeptusTaskSpecificationAdapter implements TaskSpecification {
 
     public PlanType getPlan() {
         return plan;
-    }
-    
-    public PlanType mapArea() { //given some restrictions and a area to map 
-                                //-> allocate to the selected vehicles distributing the load according to vehicles capabilities
-        //TODO
-        return null;
     }
 
     /**

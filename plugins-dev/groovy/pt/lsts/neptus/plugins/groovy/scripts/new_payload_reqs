@@ -1,4 +1,4 @@
-def plan = new Plan("Plan-Payload-req")
+def plan = new Plan("nvlPlan")
 def loc = new Location(locations[2].getLatitudeRads(),locations[2].getLongitudeRads())
 
 plan.goTo id:"payload-goto", location:loc, payload:[[name: "Sidescan", Active: true, Range: 30],[name: "LBL", Active: true]]
