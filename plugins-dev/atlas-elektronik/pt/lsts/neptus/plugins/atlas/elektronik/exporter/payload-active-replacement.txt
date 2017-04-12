@@ -2,4 +2,5 @@
 Edgetech2205 PING
 NorbitWBMS PING
 TritechPSBP PING
-UUVCam1 LOG_IMAGES
+UUVCam1 LOG
+GeometricsG882 PING

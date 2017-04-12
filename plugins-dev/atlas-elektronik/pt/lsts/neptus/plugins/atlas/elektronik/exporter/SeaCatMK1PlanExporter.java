@@ -46,6 +46,8 @@ import javax.swing.ProgressMonitor;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang3.BooleanUtils;
+import org.apache.commons.lang3.tuple.Pair;
 
 import pt.lsts.imc.EntityParameter;
 import pt.lsts.imc.IMCMessage;
@@ -84,6 +86,7 @@ public class SeaCatMK1PlanExporter implements IPlanFileExporter {
     /** Tue Dec 15 13:34:50 2009 */
     public static final SimpleDateFormat dateFormatter = new SimpleDateFormat("EEE MMM d HH:mm:ss yyyy Z");
     public static HashMap<String, String> activeReplacementStringForPayload = new HashMap<>();
+    public static HashMap<String, Pair<String, String>> booleanReplacementString = new HashMap<>();
     static {
         try {
             String mapperTxt = IOUtils.toString(FileUtil.getResourceAsStream("payload-active-replacement.txt"));
@@ -107,8 +110,31 @@ public class SeaCatMK1PlanExporter implements IPlanFileExporter {
         catch (IOException e) {
             e.printStackTrace();
         }
+
+        try {
+            String mapperTxt = IOUtils.toString(FileUtil.getResourceAsStream("payload-boolean-replacement.txt"));
+            String[] lines = mapperTxt.split("[\r\n]");
+            for (String ln : lines) {
+                if (ln.startsWith("#") || ln.startsWith("%") || ln.startsWith(";"))
+                    continue;
+                try {
+                    if (ln.isEmpty())
+                        continue;
+                    String[] pair = ln.trim().split(" {1,}");
+                    if (pair.length < 3)
+                        continue;
+                    booleanReplacementString.put(pair[0].trim(), Pair.of(pair[1].trim(), pair[2].trim()));
+                }
+                catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+        catch (IOException e) {
+            e.printStackTrace();
+        }
     }
-    
+
     // This shall be reseted at the beginning of exporting
     private long commandLineCounter = 1;
     private ArrayList<String> payloadsInPlan = new ArrayList<>();
@@ -422,17 +448,13 @@ public class SeaCatMK1PlanExporter implements IPlanFileExporter {
                 activeKey = true;
             }
             else {
-                name = name.replaceAll(" {1,}", "-").toUpperCase();
+                name = name.replaceAll("-", "_").toUpperCase();
+                name = name.replaceAll(" {1,}", "").toUpperCase();
             }
-            String value = ep.getValue();
-            if (value.equalsIgnoreCase("true")) {
-                value = "ON";
-                activeValue = true;
-            }
-            else if (value.equalsIgnoreCase("false")) {
-                value = "OFF";
-                activeValue = false;
-            }
+            
+            activeValue = Boolean.parseBoolean(ep.getValue().trim());
+            String value = replaceTextIfBoolean(name, ep.getValue());
+            
             sb.append(name.toUpperCase());
             sb.append(":");
             sb.append(value.toUpperCase());
@@ -447,6 +469,35 @@ public class SeaCatMK1PlanExporter implements IPlanFileExporter {
         }
 
         return getSetting('P', payloadName, sb.toString());
+    }
+
+    /**
+     * @param value
+     * @param string 
+     * @return
+     */
+    private String replaceTextIfBoolean(String name, String value) {
+        value = value.trim().toLowerCase();
+        Boolean bvt = BooleanUtils.toBooleanObject(value);
+        if (bvt == null)
+            return value;
+        
+        Pair<String, String> boolRep = booleanReplacementString.get(name);
+        if (boolRep != null) {
+            if (bvt == true)
+                return boolRep.getRight();
+            else
+                return boolRep.getLeft();
+        }
+        
+        // Default processing
+        if (value.equalsIgnoreCase("true")) {
+            return "ON";
+        }
+        else if (value.equalsIgnoreCase("false")) {
+            return  "OFF";
+        }
+        return value;
     }
 
     /**
