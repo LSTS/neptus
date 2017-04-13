@@ -412,6 +412,21 @@ public class SeaCatMK1PlanExporter implements IPlanFileExporter {
         sb.append(getCommentLine("Plan: ", plan.getId()));
         sb.append(NEW_LINE);
 
+        processManeuvers(plan, sb);
+
+        sb.append(getCommandsBeforeEnd());
+        sb.append(NEW_LINE);
+        sb.append(getCommandEnd(isKeepPositionOrDriftAtEnd));
+
+        return sb.toString();
+    }
+
+    /**
+     * @param plan
+     * @param sb
+     * @throws Exception
+     */
+    private void processManeuvers(PlanType plan, StringBuilder sb) throws Exception {
         for (Maneuver m : plan.getGraph().getManeuversSequence()) {
             double speedMS = ManeuversUtil.getSpeedMps(m);
 
@@ -490,12 +505,6 @@ public class SeaCatMK1PlanExporter implements IPlanFileExporter {
             nextCommandLineCounter(COUNTER_MANEUVERS_GAP);
             sb.append(NEW_LINE);
         }
-
-        sb.append(getCommandsBeforeEnd());
-        sb.append(NEW_LINE);
-        sb.append(getCommandEnd(isKeepPositionOrDriftAtEnd));
-
-        return sb.toString();
     }
 
     /**
