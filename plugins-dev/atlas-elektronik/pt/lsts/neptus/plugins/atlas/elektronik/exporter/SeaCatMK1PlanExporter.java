@@ -166,8 +166,10 @@ public class SeaCatMK1PlanExporter implements IPlanFileExporter {
     // This shall be reseted at the beginning of exporting
     private long commandLineCounter = 1;
     private ArrayList<String> payloadsInPlan = new ArrayList<>();
+    private boolean isKeepPositionOrDriftAtEnd = true;
 
     public SeaCatMK1PlanExporter() {
+        resetLocalData();
     }
 
     /*
@@ -198,16 +200,16 @@ public class SeaCatMK1PlanExporter implements IPlanFileExporter {
      */
     @Override
     public void exportToFile(PlanType plan, File out, ProgressMonitor monitor) throws Exception {
-        resetCommandLineCounter();
-        payloadsInPlan.clear();
+        resetLocalData();
 
         String template = IOUtils.toString(FileUtil.getResourceAsStream("template.mis"));
 
         String genDateStr = getTimeStamp();
         String lowBatteryStateStr = getSectionLowBatteryState();
         String emergencyRendezvousPointStr = getSectionEmergencyRendezvousPoint();
-        String keepPositionStr = getSectionKeepPositionAtMissionEnd();
+        String emergencyEndStr = getSectionEmergencyEnd();
 
+        // Depends on getSectionEmergencyEnd()
         String bodyStr = getSectionBody(plan);
         
         String autonomyAreaStr = getSectionAutonomyArea();
@@ -219,7 +221,7 @@ public class SeaCatMK1PlanExporter implements IPlanFileExporter {
         template = replaceTokenWithKey(template, "GenDate", genDateStr);
         template = replaceTokenWithKey(template, "LowBatteryState", lowBatteryStateStr);
         template = replaceTokenWithKey(template, "EmergencyRendezvousPoint", emergencyRendezvousPointStr);
-        template = replaceTokenWithKey(template, "KeepPosition", keepPositionStr);
+        template = replaceTokenWithKey(template, "EmergencyEnd", emergencyEndStr);
         template = replaceTokenWithKey(template, "AutonomyArea", autonomyAreaStr);
         template = replaceTokenWithKey(template, "ExplorationArea", explorationAreaStr);
         template = replaceTokenWithKey(template, "SafeAltitude", safeAltitudeStr);
@@ -228,6 +230,12 @@ public class SeaCatMK1PlanExporter implements IPlanFileExporter {
         template = replaceTokenWithKey(template, "Body", bodyStr);
 
         FileUtils.write(out, template);
+    }
+
+    private void resetLocalData() {
+        resetCommandLineCounter();
+        payloadsInPlan.clear();
+        isKeepPositionOrDriftAtEnd = true;
     }
 
     private long resetCommandLineCounter() {
@@ -270,7 +278,7 @@ public class SeaCatMK1PlanExporter implements IPlanFileExporter {
     /**
      * @return
      */
-    private String getSectionKeepPositionAtMissionEnd() {
+    private String getSectionEmergencyEnd() {
         StringBuilder sb = new StringBuilder();
         return sb.toString();
     }
@@ -485,7 +493,7 @@ public class SeaCatMK1PlanExporter implements IPlanFileExporter {
 
         sb.append(getCommandsBeforeEnd());
         sb.append(NEW_LINE);
-        sb.append(getCommandEnd(true));
+        sb.append(getCommandEnd(isKeepPositionOrDriftAtEnd));
 
         return sb.toString();
     }
