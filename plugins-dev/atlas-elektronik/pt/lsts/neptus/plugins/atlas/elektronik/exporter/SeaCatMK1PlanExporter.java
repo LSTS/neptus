@@ -33,6 +33,7 @@
 package pt.lsts.neptus.plugins.atlas.elektronik.exporter;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -56,6 +57,7 @@ import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.mp.Maneuver;
 import pt.lsts.neptus.mp.ManeuverLocation;
 import pt.lsts.neptus.mp.ManeuverLocation.Z_UNITS;
+import pt.lsts.neptus.mp.OperationLimits;
 import pt.lsts.neptus.mp.actions.PlanActions;
 import pt.lsts.neptus.mp.maneuvers.Goto;
 import pt.lsts.neptus.mp.maneuvers.LocatedManeuver;
@@ -64,6 +66,7 @@ import pt.lsts.neptus.mp.maneuvers.PathProvider;
 import pt.lsts.neptus.mp.maneuvers.RowsManeuver;
 import pt.lsts.neptus.mp.maneuvers.RowsPattern;
 import pt.lsts.neptus.mp.maneuvers.StationKeeping;
+import pt.lsts.neptus.types.coord.LocationType;
 import pt.lsts.neptus.types.mission.plan.IPlanFileExporter;
 import pt.lsts.neptus.types.mission.plan.PlanType;
 import pt.lsts.neptus.util.AngleUtils;
@@ -213,7 +216,7 @@ public class SeaCatMK1PlanExporter implements IPlanFileExporter {
         // Depends on getSectionEmergencyEnd()
         String bodyStr = getSectionBody(plan);
         
-        String autonomyAreaStr = getSectionAutonomyArea();
+        String autonomyAreaStr = getSectionAutonomyArea(plan);
         String explorationAreaStr = getSectionExplorationArea();
         String safeAltitudeStr = getSectionSafeAltitude();       
         
@@ -285,10 +288,82 @@ public class SeaCatMK1PlanExporter implements IPlanFileExporter {
     }
 
     /**
+     * @param plan 
      * @return
      */
-    private String getSectionAutonomyArea() {
+    private String getSectionAutonomyArea(PlanType plan) {
         StringBuilder sb = new StringBuilder();
+        
+        String opLimitsFilePath = OperationLimits.getFilePathForSystem(plan.getVehicle());
+        File fx = new File(opLimitsFilePath);
+        if (fx.exists() && fx.canRead()) {
+            FileInputStream fis = null;
+            OperationLimits opl;
+            try {
+                fis = new FileInputStream(fx);
+                opl = OperationLimits.loadXml(IOUtils.toString(fis));
+            }
+            catch (IOException e) {
+                e.printStackTrace();
+                return "";
+            }
+            finally {
+                if (fis != null) {
+                    try {
+                        fis.close();
+                    }
+                    catch (IOException e) {
+                    }
+                }
+            }
+            Double latDeg = opl.getOpAreaLat();
+            if (latDeg != null) {
+                Double lonDeg = opl.getOpAreaLon();
+                Double width = opl.getOpAreaWidth();
+                Double length = opl.getOpAreaLength();
+                Double rotRad = opl.getOpRotationRads();
+                LocationType locC = new LocationType(latDeg, lonDeg);
+
+                ArrayList<LocationType> locs = new ArrayList<>();
+                LocationType loc1 = locC.getNewAbsoluteLatLonDepth();
+                double[] offset = AngleUtils.rotate(rotRad, length / 2, -width / 2, false);
+                loc1.translatePosition(offset[0], offset[1], 0);
+                loc1.convertToAbsoluteLatLonDepth();
+                locs.add(loc1);
+                
+                loc1 = locC.getNewAbsoluteLatLonDepth();
+                offset = AngleUtils.rotate(rotRad, length / 2, width / 2, false);
+                loc1.translatePosition(offset[0], offset[1], 0);
+                loc1.convertToAbsoluteLatLonDepth();
+                locs.add(loc1);
+                
+                loc1 = locC.getNewAbsoluteLatLonDepth();
+                offset = AngleUtils.rotate(rotRad, -length / 2, width / 2, false);
+                loc1.translatePosition(offset[0], offset[1], 0);
+                loc1.convertToAbsoluteLatLonDepth();
+                locs.add(loc1);
+
+                loc1 = locC.getNewAbsoluteLatLonDepth();
+                offset = AngleUtils.rotate(rotRad, -length / 2, -width / 2, false);
+                loc1.translatePosition(offset[0], offset[1], 0);
+                loc1.convertToAbsoluteLatLonDepth();
+                locs.add(loc1);
+
+                sb.append("H AutonomyArea 4");
+                sb.append(NEW_LINE);
+                
+                int counter = 0;
+                for (LocationType l : locs) {
+                    sb.append(++counter);
+                    sb.append(" ");
+                    sb.append(formatReal(l.getLatitudeDegs()));
+                    sb.append(" ");
+                    sb.append(formatReal(l.getLongitudeDegs()));
+                    sb.append(NEW_LINE);
+                }
+            }
+        }
+        
         return sb.toString();
     }
 
