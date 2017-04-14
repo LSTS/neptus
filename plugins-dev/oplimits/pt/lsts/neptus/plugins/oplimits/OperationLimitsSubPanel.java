@@ -108,7 +108,6 @@ import pt.lsts.neptus.util.FileUtil;
 import pt.lsts.neptus.util.GuiUtils;
 import pt.lsts.neptus.util.ImageUtils;
 import pt.lsts.neptus.util.MathMiscUtils;
-import pt.lsts.neptus.util.conf.ConfigFetch;
 
 /**
  * @author zp
@@ -117,8 +116,6 @@ import pt.lsts.neptus.util.conf.ConfigFetch;
 @PluginDescription(name = "Operation Limits", category = CATEGORY.PLANNING, icon = "pt/lsts/neptus/plugins/oplimits/lock.png", documentation = "oplimits/oplimits.html")
 public class OperationLimitsSubPanel extends ConsolePanel implements ConfigurationListener,
         MainVehicleChangeListener, Renderer2DPainter, StateRendererInteraction {
-
-    private static final String FOLDER_CONF_OPLIMITS = ConfigFetch.getConfFolder() + "/oplimits/";
 
     private static final long serialVersionUID = 1L;
 
@@ -134,7 +131,7 @@ public class OperationLimitsSubPanel extends ConsolePanel implements Configurati
 
     @NeptusProperty(name = "Operation Limits File", userLevel = LEVEL.ADVANCED,
             description = "Where to store and load operational limits")
-    public File operationLimitsFile = new File(FOLDER_CONF_OPLIMITS + "oplimits.xml");
+    public File operationLimitsFile = new File(OperationLimits.FOLDER_CONF_OPLIMITS + "oplimits.xml");
 
     @NeptusProperty(name = "Separate Operational Areas Per Vehicle", userLevel = LEVEL.ADVANCED,
             description = "If selected, each vehicle will have its own operational limits file")
@@ -455,13 +452,13 @@ public class OperationLimitsSubPanel extends ConsolePanel implements Configurati
             return FileUtil.saveToFile(operationLimitsFile.getAbsolutePath(), xml);
         }
         else if (getConsole().getMainSystem() != null) {
-            File f = new File(FOLDER_CONF_OPLIMITS + getConsole().getMainSystem() + ".xml");
+            File f = new File(OperationLimits.getFilePathForSystem(getConsole().getMainSystem()));
             f.getParentFile().mkdirs();
             NeptusLog.pub().info("<###>saving to " + f.getAbsolutePath());
             return FileUtil.saveToFile(f.getAbsolutePath(), xml);
         }
         else {
-            operationLimitsFile = new File(FOLDER_CONF_OPLIMITS + "limits.xml");
+            operationLimitsFile = new File(OperationLimits.getFilePathForSystem("limits"));
             operationLimitsFile.getParentFile().mkdirs();
             NeptusLog.pub().info("<###>saving to " + operationLimitsFile.getAbsolutePath());
             return FileUtil.saveToFile(operationLimitsFile.getAbsolutePath(), xml);
@@ -473,7 +470,7 @@ public class OperationLimitsSubPanel extends ConsolePanel implements Configurati
             return FileUtil.getFileAsString(operationLimitsFile.getAbsolutePath());
         }
         else if (getConsole().getMainSystem() != null) {
-            File f = new File(FOLDER_CONF_OPLIMITS + getConsole().getMainSystem() + ".xml");
+            File f = new File(OperationLimits.getFilePathForSystem(getConsole().getMainSystem()));
             if (f.canRead())
                 return FileUtil.getFileAsString(f);
         }
