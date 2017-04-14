@@ -67,6 +67,7 @@ import pt.lsts.neptus.mp.maneuvers.StationKeeping;
 import pt.lsts.neptus.types.mission.plan.IPlanFileExporter;
 import pt.lsts.neptus.types.mission.plan.PlanType;
 import pt.lsts.neptus.util.AngleUtils;
+import pt.lsts.neptus.util.ByteUtil;
 import pt.lsts.neptus.util.FileUtil;
 
 /**
@@ -409,7 +410,8 @@ public class SeaCatMK1PlanExporter implements IPlanFileExporter {
     private String getSectionBody(PlanType plan) throws Exception {
         StringBuilder sb = new StringBuilder();
 
-        sb.append(getCommentLine("Plan: ", plan.getId()));
+        sb.append(getCommentLine("Plan: ", plan.getId(), " (MD5:",
+                ByteUtil.encodeAsString(plan.asIMCPlan().payloadMD5()), ")"));
         sb.append(NEW_LINE);
 
         processManeuvers(plan, sb);
