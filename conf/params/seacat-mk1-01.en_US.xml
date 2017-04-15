@@ -1,5 +1,39 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <config format="1" version="2017.03.0" system="seacat-mk1-01" i18n="en_US">
+  <section name="General" name-i18n="General">
+    <param name="SafeAltitude">
+      <name-i18n>Safe Altitude</name-i18n>
+      <type>real</type>
+      <visibility>user</visibility>
+      <scope>plan</scope>
+      <default>3</default>
+      <units></units>
+      <desc></desc>
+      <min>1</min>
+    </param>
+    <param name="EmergencyEnd">
+      <name-i18n>Emergency End Behavior</name-i18n>
+      <type>string</type>
+      <visibility>user</visibility>
+      <scope>plan</scope>
+      <default>P</default>
+      <units/>
+      <desc></desc>
+      <values>D, P</values>
+      <values-i18n>Drift, Park</values-i18n>
+    </param>
+    <param name="LowBatteryState">
+      <name-i18n>Low-Battery Threshold</name-i18n>
+      <type>integer</type>
+      <visibility>user</visibility>
+      <scope>plan</scope>
+      <default>10</default>
+      <units>%</units>
+      <desc></desc>
+      <min>0</min>
+      <max>50</max>
+    </param>
+  </section>
   <section name="ObstacleAvoidance" name-i18n="Obstacle Avoidance">
     <param name="Active">
       <name-i18n>Active</name-i18n>
