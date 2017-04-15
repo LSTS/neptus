@@ -1275,7 +1275,11 @@ public class PlanEditor extends InteractionAdapter implements Renderer2DPainter,
                 
                 AbstractAction planPayload = new AbstractAction(I18n.text("Plan Payload Settings")) {
                     private static final long serialVersionUID = 1L;
-                    private PropertySheetPanel psp = new PropertySheetPanel();
+                    @SuppressWarnings("serial")
+                    private PropertySheetPanel psp = new PropertySheetPanel() {{
+                        setEditorFactory(PropertiesEditor.getPropertyEditorRegistry());
+                        setRendererFactory(PropertiesEditor.getPropertyRendererRegistry());
+                    }};
                     private PlanPayloadConfig payloadConfig = new PlanPayloadConfig(plan.getVehicle(), plan,
                             psp);
                     private DefaultProperty[] properties = payloadConfig.getProperties();
@@ -1287,8 +1291,6 @@ public class PlanEditor extends InteractionAdapter implements Renderer2DPainter,
 
                     @Override
                     public void actionPerformed(ActionEvent e) {
-                        psp.setEditorFactory(PropertiesEditor.getPropertyEditorRegistry());
-                        psp.setRendererFactory(PropertiesEditor.getPropertyRendererRegistry());
                         psp.setMode(PropertySheet.VIEW_AS_CATEGORIES);
                         psp.setToolBarVisible(false);
                         psp.setSortingCategories(true);
