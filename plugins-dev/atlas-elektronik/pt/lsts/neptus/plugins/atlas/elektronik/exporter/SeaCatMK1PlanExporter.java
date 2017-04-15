@@ -209,16 +209,19 @@ public class SeaCatMK1PlanExporter implements IPlanFileExporter {
         String template = IOUtils.toString(FileUtil.getResourceAsStream("template.mis"));
 
         String genDateStr = getTimeStamp();
-        String lowBatteryStateStr = getSectionLowBatteryState();
+        
+        HashMap<String, String> settingHeader = processPlanActionsExceptPayload(plan);
+        String lowBatteryStateStr = getSectionLowBatteryState(settingHeader.get("LowBatteryState"));
+        String emergencyEndStr = getSectionEmergencyEnd(settingHeader.get("EmergencyEnd"));
+        String safeAltitudeStr = getSectionSafeAltitude(settingHeader.get("SafeAltitude"));       
+
         String emergencyRendezvousPointStr = getSectionEmergencyRendezvousPoint();
-        String emergencyEndStr = getSectionEmergencyEnd();
 
         // Depends on getSectionEmergencyEnd()
         String bodyStr = getSectionBody(plan);
         
         String autonomyAreaStr = getSectionAutonomyArea(plan);
         String explorationAreaStr = getSectionExplorationArea();
-        String safeAltitudeStr = getSectionSafeAltitude();       
         
         Pair<String, String> systemAndSwapPayloadStr = getSectionPayloadCriticality(plan);
         
@@ -264,10 +267,80 @@ public class SeaCatMK1PlanExporter implements IPlanFileExporter {
     }
 
     /**
+     * @param plan
      * @return
      */
-    private String getSectionLowBatteryState() {
+    private HashMap<String, String> processPlanActionsExceptPayload(PlanType plan) {
+        HashMap<String, String> ret = new HashMap<>();
+        
+        PlanActions pActions = plan.getStartActions();
+        for (IMCMessage msg : pActions.getAllMessages()) {
+            try {
+                if (msg instanceof SetEntityParameters) {
+                    SetEntityParameters sep = (SetEntityParameters) msg;
+                    if (!"General".equalsIgnoreCase(sep.getName()))
+                        continue;
+                    
+                    Vector<EntityParameter> params = sep.getParams();
+                    for (EntityParameter ep : params) {
+                        String name = ep.getName().trim();
+                        String value = ep.getValue().trim();
+                        ret.put(name, value);
+                    }
+                }
+            }
+            catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+        return ret;
+    }
+
+    private String translateValueToString(String name, String value) {
+        return translateValueToString(name, value, (short) -1);
+    }
+
+    private String translateValueToString(String value) {
+        return translateValueToString("", value, (short) -1);
+    }
+
+    private String translateValueToString(String value, short decimalPlaces) {
+        return translateValueToString("", value, decimalPlaces);
+    }
+
+    private String translateValueToString(String name, String value, short decimalPlaces) {
+        Boolean boolValue = BooleanUtils.toBooleanObject(value);
+        if (boolValue != null) {
+            return replaceTextIfBoolean(name.replace(" ", "").toUpperCase(), value);
+        }
+        else {
+            try {
+                long lg = Long.parseLong(value);
+                return formatInteger(lg);
+            }
+            catch (NumberFormatException e) {
+                try {
+                    double db = Double.parseDouble(value);
+                    return decimalPlaces < 0 ? formatReal(db) : formatReal(db, decimalPlaces);
+                }
+                catch (NumberFormatException e1) {
+                    return value;
+                }
+            }
+        }
+    }
+
+    /**
+     * H LowBatteryState 20
+     * 
+     * @param value 
+     * @return
+     */
+    private String getSectionLowBatteryState(String value) {
         StringBuilder sb = new StringBuilder();
+        sb.append("H LowBatteryState ");
+        sb.append(translateValueToString("LowBatteryState".replace(" ", "").toUpperCase(), value));
+        sb.append(NEW_LINE);
         return sb.toString();
     }
 
@@ -280,10 +353,26 @@ public class SeaCatMK1PlanExporter implements IPlanFileExporter {
     }
 
     /**
+     * H EmergencyEnd D
+     * 
+     * @param value
      * @return
      */
-    private String getSectionEmergencyEnd() {
+    private String getSectionEmergencyEnd(String value) {
         StringBuilder sb = new StringBuilder();
+        switch (value.trim().toUpperCase()) {
+            case "D":
+                isKeepPositionOrDriftAtEnd = false;
+                break;
+            case "P":
+            default:
+                isKeepPositionOrDriftAtEnd = true;
+                break;
+        }
+        
+        sb.append("H EmergencyEnd ");
+        sb.append(isKeepPositionOrDriftAtEnd ? "P" : "D");
+        sb.append(NEW_LINE);        
         return sb.toString();
     }
 
@@ -365,10 +454,16 @@ public class SeaCatMK1PlanExporter implements IPlanFileExporter {
     }
 
     /**
+     * H SafeAltitude 3.0
+     * 
+     * @param value 
      * @return
      */
-    private String getSectionSafeAltitude() {
+    private String getSectionSafeAltitude(String value) {
         StringBuilder sb = new StringBuilder();
+        sb.append("H SafeAltitude ");
+        sb.append(translateValueToString(value, (short) 1));
+        sb.append(NEW_LINE);
         return sb.toString();
     }
 
