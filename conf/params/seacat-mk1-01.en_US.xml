@@ -294,7 +294,7 @@
       <min>0</min>
       <max>300</max>
     </param>
-    <param name="LF-Gain">
+    <param name="LF_Gain">
       <name-i18n>LF Gain</name-i18n>
       <type>integer</type>
       <visibility>user</visibility>
@@ -305,7 +305,7 @@
       <min>0</min>
       <max>100</max>
     </param>
-    <param name="LF-Threshold">
+    <param name="LF_Threshold">
       <name-i18n>LF Threshold</name-i18n>
       <type>integer</type>
       <visibility>user</visibility>
@@ -316,7 +316,7 @@
       <min>0</min>
       <max>100</max>
     </param>
-    <param name="LF-Contrast">
+    <param name="LF_Contrast">
       <name-i18n>LF Contrast</name-i18n>
       <type>integer</type>
       <visibility>user</visibility>
@@ -327,7 +327,7 @@
       <min>0</min>
       <max>100</max>
     </param>
-    <param name="HF-Gain">
+    <param name="HF_Gain">
       <name-i18n>HF Gain</name-i18n>
       <type>integer</type>
       <visibility>user</visibility>
@@ -338,7 +338,7 @@
       <min>0</min>
       <max>100</max>
     </param>
-    <param name="HF-Threshold">
+    <param name="HF_Threshold">
       <name-i18n>HF Threshold</name-i18n>
       <type>integer</type>
       <visibility>user</visibility>
@@ -349,7 +349,7 @@
       <min>0</min>
       <max>100</max>
     </param>
-    <param name="HF-Contrast">
+    <param name="HF_Contrast">
       <name-i18n>HF Contrast</name-i18n>
       <type>integer</type>
       <visibility>user</visibility>

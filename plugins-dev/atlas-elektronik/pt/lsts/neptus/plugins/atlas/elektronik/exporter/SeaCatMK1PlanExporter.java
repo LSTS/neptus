@@ -311,7 +311,7 @@ public class SeaCatMK1PlanExporter implements IPlanFileExporter {
     private String translateValueToString(String name, String value, short decimalPlaces) {
         Boolean boolValue = BooleanUtils.toBooleanObject(value);
         if (boolValue != null) {
-            return replaceTextIfBoolean(name.replace(" ", "").toUpperCase(), value);
+            return replaceTextIfBoolean(name, value);
         }
         else {
             try {
@@ -339,7 +339,7 @@ public class SeaCatMK1PlanExporter implements IPlanFileExporter {
     private String getSectionLowBatteryState(String value) {
         StringBuilder sb = new StringBuilder();
         sb.append("H LowBatteryState ");
-        sb.append(translateValueToString("LowBatteryState".replace(" ", "").toUpperCase(), value));
+        sb.append(translateValueToString(value, (short) 0));
         sb.append(NEW_LINE);
         return sb.toString();
     }
@@ -501,7 +501,7 @@ public class SeaCatMK1PlanExporter implements IPlanFileExporter {
                         Boolean boolValue = BooleanUtils.toBooleanObject(pMC.getValue().trim());
                         if (boolValue == null)
                             continue;
-                        String value = replaceTextIfBoolean(pMC.getName().replaceAll(" ", "").toUpperCase(), pMC.getValue());
+                        String value = replaceTextIfBoolean(pMC.getName(), pMC.getValue());
                         boolean systemOrSwappable = isPayloadASystemOrSwappable(plan.getVehicle(), sep.getName());
                         int counter;
                         StringBuilder sb;
@@ -743,8 +743,7 @@ public class SeaCatMK1PlanExporter implements IPlanFileExporter {
                 activeKey = true;
             }
             else {
-                name = name.replaceAll("-", "_").toUpperCase();
-                name = name.replaceAll(" {1,}", "").toUpperCase();
+                name = formatParameterName(name);
             }
             
             activeValue = Boolean.parseBoolean(ep.getValue().trim());
@@ -752,7 +751,7 @@ public class SeaCatMK1PlanExporter implements IPlanFileExporter {
             
             sb.append(name.toUpperCase());
             sb.append(":");
-            sb.append(value.toUpperCase());
+            sb.append(formatParameterValue(value));
             if (activeKey && !activeValue) {
                 // Mark payload for mission end switch off
                 if (!payloadsInPlan.contains(payloadName))
@@ -777,7 +776,7 @@ public class SeaCatMK1PlanExporter implements IPlanFileExporter {
         if (bvt == null)
             return value;
         
-        Pair<String, String> boolRep = booleanReplacementString.get(name);
+        Pair<String, String> boolRep = booleanReplacementString.get(formatParameterName(name));
         if (boolRep != null) {
             if (bvt == true)
                 return boolRep.getRight();
@@ -842,6 +841,31 @@ public class SeaCatMK1PlanExporter implements IPlanFileExporter {
      */
     private String replaceTokenWithKey(String original, String key, String replacement) {
         return original.replaceAll("\\$\\{" + key + "\\}", replacement);
+    }
+
+    /**
+     * @param name
+     * @return
+     */
+    private String formatParameterName(String name) {
+        if (name == null || name.isEmpty())
+            return name;
+        
+        String ret = name.replaceAll(" {1,}", "");
+        // ret = ret.replaceAll("-", "_");
+        return ret.toUpperCase();
+    }
+
+    /**
+     * @param value
+     * @return
+     */
+    private String formatParameterValue(String value) {
+        if (value == null || value.isEmpty())
+            return value;
+
+        String ret = value.replaceAll(" {1,}", "_");
+        return ret.toUpperCase();
     }
 
     /**
