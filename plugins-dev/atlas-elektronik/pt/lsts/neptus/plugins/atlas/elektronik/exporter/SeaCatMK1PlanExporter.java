@@ -296,10 +296,12 @@ public class SeaCatMK1PlanExporter implements IPlanFileExporter {
         return ret;
     }
 
+    @SuppressWarnings("unused")
     private String translateValueToString(String name, String value) {
         return translateValueToString(name, value, (short) -1);
     }
 
+    @SuppressWarnings("unused")
     private String translateValueToString(String value) {
         return translateValueToString("", value, (short) -1);
     }
@@ -840,7 +842,7 @@ public class SeaCatMK1PlanExporter implements IPlanFileExporter {
      * @return
      */
     private String replaceTokenWithKey(String original, String key, String replacement) {
-        return original.replaceAll("\\$\\{" + key + "\\}", replacement);
+        return original.replaceAll("\\$\\{" + key + "\\}", replacement == null ? "" : replacement);
     }
 
     /**
@@ -882,6 +884,9 @@ public class SeaCatMK1PlanExporter implements IPlanFileExporter {
      * @return
      */
     private String formatReal(double value, short decimalPlaces) {
+        if (decimalPlaces < 0)
+            return formatReal(value);
+        
         return String.format(Locale.US, "%." + decimalPlaces + "f", value);
     }
 
@@ -1000,6 +1005,7 @@ public class SeaCatMK1PlanExporter implements IPlanFileExporter {
      * @return
      * @throws Exception
      */
+    @SuppressWarnings("unused")
     private String getCommandGotoDirection(double directionDegs, double distanceMeters, double depth,
             ManeuverLocation.Z_UNITS depthUnit, double speedMS) throws Exception {
         double dir = AngleUtils.nomalizeAngleDegrees360(directionDegs);
