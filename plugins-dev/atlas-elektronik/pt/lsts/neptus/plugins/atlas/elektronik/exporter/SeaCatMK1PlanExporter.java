@@ -297,24 +297,13 @@ public class SeaCatMK1PlanExporter implements IPlanFileExporter {
         String opLimitsFilePath = OperationLimits.getFilePathForSystem(plan.getVehicle());
         File fx = new File(opLimitsFilePath);
         if (fx.exists() && fx.canRead()) {
-            FileInputStream fis = null;
             OperationLimits opl;
-            try {
-                fis = new FileInputStream(fx);
+            try (FileInputStream fis = new FileInputStream(fx)) {
                 opl = OperationLimits.loadXml(IOUtils.toString(fis));
             }
             catch (IOException e) {
                 e.printStackTrace();
                 return "";
-            }
-            finally {
-                if (fis != null) {
-                    try {
-                        fis.close();
-                    }
-                    catch (IOException e) {
-                    }
-                }
             }
             Double latDeg = opl.getOpAreaLat();
             if (latDeg != null) {
