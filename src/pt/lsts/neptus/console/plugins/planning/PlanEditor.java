@@ -708,8 +708,14 @@ public class PlanEditor extends InteractionAdapter implements Renderer2DPainter,
 
         g.setFont(new Font("Helvetica", Font.BOLD, 14));
         if (delegate != null) {
-            String txt = I18n.textf("Editing %manName - Double click or press ESC to end",
-                    ((Maneuver) delegate).getId());
+            delegate.paintInteraction(g, renderer);
+            
+            String txtDelegate;
+            if (delegate instanceof Maneuver)
+                txtDelegate = ((Maneuver) delegate).getId();
+            else
+                txtDelegate = delegate.getName();
+            String txt = I18n.textf("Editing %manName - Double click or press ESC to end", txtDelegate);
             g.setColor(Color.black);
             g.drawString(txt, 55, 15);
             g.setColor(Color.white);
@@ -1664,7 +1670,8 @@ public class PlanEditor extends InteractionAdapter implements Renderer2DPainter,
 
         if (delegate != null) {
             delegate.mousePressed(event, renderer);
-            getPropertiesPanel().setManeuver((Maneuver) delegate);
+            if (delegate instanceof Maneuver)
+                getPropertiesPanel().setManeuver((Maneuver) delegate);
             return;
         }
 
@@ -1703,7 +1710,8 @@ public class PlanEditor extends InteractionAdapter implements Renderer2DPainter,
 
         if (delegate != null) {
             delegate.mouseReleased(e, renderer);
-            getPropertiesPanel().setManeuver((Maneuver) delegate);
+            if (delegate instanceof Maneuver)
+                getPropertiesPanel().setManeuver((Maneuver) delegate);
             return;
         }
 
