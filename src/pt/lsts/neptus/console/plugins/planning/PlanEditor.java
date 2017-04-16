@@ -65,6 +65,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Vector;
+import java.util.function.Predicate;
 
 import javax.swing.AbstractAction;
 import javax.swing.ImageIcon;
@@ -118,6 +119,9 @@ import pt.lsts.neptus.mp.Maneuver;
 import pt.lsts.neptus.mp.ManeuverFactory;
 import pt.lsts.neptus.mp.ManeuverLocation;
 import pt.lsts.neptus.mp.ManeuverLocation.Z_UNITS;
+import pt.lsts.neptus.mp.element.IPlanElement;
+import pt.lsts.neptus.mp.element.IPlanElementEditorInteraction;
+import pt.lsts.neptus.mp.element.PlanElements;
 import pt.lsts.neptus.mp.maneuvers.Goto;
 import pt.lsts.neptus.mp.maneuvers.LocatedManeuver;
 import pt.lsts.neptus.mp.preview.PlanSimulationOverlay;
@@ -157,7 +161,7 @@ import pt.lsts.neptus.util.conf.ConfigFetch;
  * @author pdias
  */
 @PluginDescription(name = "Plan Edition", icon = "images/planning/plan_editor.png", 
-    author = "José Pinto, Paulo Dias", version = "1.6", category = CATEGORY.INTERFACE)
+    author = "José Pinto, Paulo Dias", version = "1.7", category = CATEGORY.INTERFACE)
 @LayerPriority(priority = 100)
 public class PlanEditor extends InteractionAdapter implements Renderer2DPainter,
         MissionChangeListener {
@@ -181,6 +185,8 @@ public class PlanEditor extends InteractionAdapter implements Renderer2DPainter,
     protected static final String maneuverPreamble = "[Neptus:Maneuver]\n";
     protected PlanSimulationOverlay overlay = null;
     protected SimDepthProfile sdp = null;
+
+    protected IPlanElement<?> activePlanElement = null;
     
     public enum ToolbarLocation {
         Right,
@@ -267,8 +273,6 @@ public class PlanEditor extends InteractionAdapter implements Renderer2DPainter,
         }
     }
 
-    
-    
     private final UndoManager manager = new UndoManager() {
         private static final long serialVersionUID = 1L;
 
@@ -354,7 +358,7 @@ public class PlanEditor extends InteractionAdapter implements Renderer2DPainter,
             if (delegate != null) {
                 delegate.setActive(false, source);
                 getPropertiesPanel().getEditBtn().setSelected(false);
-                delegate = null;
+                resetDelegate();
             }
             Container c = source;
             while (c.getParent() != null && !(c.getLayout() instanceof BorderLayout))
@@ -430,14 +434,13 @@ public class PlanEditor extends InteractionAdapter implements Renderer2DPainter,
                     Maneuver man = getPropertiesPanel().getManeuver();
                     if (man instanceof StateRendererInteraction) {
                         if (getPropertiesPanel().getEditBtn().isSelected()) {
-                            delegate = (StateRendererInteraction) man;
-                            delegate.setActive(true, renderer);
+                            updateDelegate((StateRendererInteraction) man, renderer);
                             
                             saveManeuverXmlState();
                         }
                         else {
                             delegate.setActive(false, renderer);
-                            delegate = null;
+                            resetDelegate();
                             planElem.recalculateManeuverPositions(renderer);
                             
                             saveManeuverXmlToUndoManager();
@@ -701,6 +704,17 @@ public class PlanEditor extends InteractionAdapter implements Renderer2DPainter,
         
         g.setTransform(renderer.getIdentity());
         
+        if (plan != null) {
+            for (IPlanElement<?> pe : plan.getPlanElements().getPlanElements()) {
+                Renderer2DPainter painter = pe.getPainter();
+                if (painter != null) {
+                    Graphics2D gt = (Graphics2D) g.create();
+                    pe.getPainter().paint(gt, renderer);
+                    gt.dispose();
+                }
+            }
+        }
+        
         if (planElem != null) {
             planElem.setRenderer(renderer);
             planElem.paint((Graphics2D) g.create(), renderer);
@@ -843,8 +857,7 @@ public class PlanEditor extends InteractionAdapter implements Renderer2DPainter,
 
                 @Override
                 public void actionPerformed(ActionEvent e) {
-                    delegate = (StateRendererInteraction) man;
-                    delegate.setActive(true, renderer);
+                    updateDelegate((StateRendererInteraction) man, renderer);
                 }
             };
             actions.add(editMan);
@@ -960,8 +973,7 @@ public class PlanEditor extends InteractionAdapter implements Renderer2DPainter,
             final Maneuver man = planElem.iterateManeuverBack(event.getPoint());
             if (man != null) {
                 if (man instanceof StateRendererInteraction) {
-                    delegate = (StateRendererInteraction) man;
-                    ((StateRendererInteraction) man).setActive(true, source);
+                    updateDelegate((StateRendererInteraction) man, source);
                     getPropertiesPanel().getEditBtn().setSelected(true);
                     saveManeuverXmlState();
                 }
@@ -1418,6 +1430,29 @@ public class PlanEditor extends InteractionAdapter implements Renderer2DPainter,
         }
     }
 
+    protected void updateDelegate(IPlanElement<?> pel, StateRenderer2D renderer) {
+        activePlanElement = pel;
+        delegate = pel.getEditor();
+        delegate.setActive(true, renderer);
+    }
+
+    protected void updateDelegate(StateRendererInteraction sri, StateRenderer2D renderer) {
+        activePlanElement = null;
+        delegate = sri;
+        delegate.setActive(true, renderer);
+    }
+
+    protected void resetDelegate() {
+        if (delegate == null)
+            return;
+        if (delegate instanceof IPlanElementEditorInteraction<?>
+            && activePlanElement != null) {
+            activePlanElement.setElement(((IPlanElementEditorInteraction<?>) delegate).getUpdatedElement());
+        }
+        activePlanElement = null;
+        delegate = null;
+    }
+
     /**
      * @param source
      */
@@ -1426,7 +1461,7 @@ public class PlanEditor extends InteractionAdapter implements Renderer2DPainter,
         getPropertiesPanel().setManeuver(getPropertiesPanel().getManeuver());
         getPropertiesPanel().getEditBtn().setSelected(false);
         planElem.recalculateManeuverPositions(source);
-        delegate = null;
+        resetDelegate();
         saveManeuverXmlToUndoManager();
     }
 
