@@ -97,6 +97,9 @@ public class RendezvousPoints implements Renderer2DPainter {
      * @param isEditing the isEditing to set
      */
     public void setEditing(boolean isEditing) {
+        if (this.isEditing != isEditing)
+            offScreen.triggerImageRebuild();
+
         this.isEditing = isEditing;
     }
     
