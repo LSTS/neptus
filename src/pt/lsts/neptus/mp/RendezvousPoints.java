@@ -43,6 +43,8 @@ import java.util.Collections;
 import java.util.List;
 
 import javax.xml.bind.JAXB;
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
@@ -60,6 +62,7 @@ import pt.lsts.neptus.util.ColorUtils;
  *
  */
 @XmlRootElement(name = "RendezvousPoints")
+@XmlAccessorType(XmlAccessType.NONE)
 @LayerPriority(priority = 35)
 public class RendezvousPoints implements Renderer2DPainter {
 
@@ -73,6 +76,7 @@ public class RendezvousPoints implements Renderer2DPainter {
     private Ellipse2D.Double ellipseSmall = new Ellipse2D.Double(-12 / 2., -12 / 2., 12, 12);
     private Ellipse2D.Double ellipseLittle = new Ellipse2D.Double(-6 / 2., -6 / 2., 6, 6);
 
+    // @XmlElementWrapper(name = "points")
     @XmlElement(name = "point")
     private List<Point> points = Collections.synchronizedList(new ArrayList<>());
     
