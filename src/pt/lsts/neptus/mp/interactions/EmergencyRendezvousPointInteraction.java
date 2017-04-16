@@ -52,9 +52,9 @@ import pt.lsts.neptus.gui.ToolbarSwitch;
 import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.mp.RendezvousPoints;
 import pt.lsts.neptus.mp.RendezvousPoints.Point;
+import pt.lsts.neptus.mp.element.IPlanElementEditorInteraction;
 import pt.lsts.neptus.renderer2d.InteractionAdapter;
 import pt.lsts.neptus.renderer2d.StateRenderer2D;
-import pt.lsts.neptus.renderer2d.StateRendererInteraction;
 import pt.lsts.neptus.types.coord.CoordinateUtil;
 import pt.lsts.neptus.types.coord.LocationType;
 import pt.lsts.neptus.util.ImageUtils;
@@ -63,7 +63,7 @@ import pt.lsts.neptus.util.ImageUtils;
  * @author pdias
  *
  */
-public class EmergencyRendezvousPointInteraction implements StateRendererInteraction {
+public class EmergencyRendezvousPointInteraction implements IPlanElementEditorInteraction<RendezvousPoints> {
 
     private RendezvousPoints originalPoints = null;
     private RendezvousPoints copyPoints = null;
@@ -74,7 +74,7 @@ public class EmergencyRendezvousPointInteraction implements StateRendererInterac
     public EmergencyRendezvousPointInteraction(RendezvousPoints points) {
         this.originalPoints = points;
         this.copyPoints = RendezvousPoints.loadXml(this.originalPoints.asXml());
-        this.copyPoints.setEditing(true);
+//        this.copyPoints.setEditing(true);
     }
 
     /* (non-Javadoc)
@@ -297,6 +297,17 @@ public class EmergencyRendezvousPointInteraction implements StateRendererInterac
      */
     @Override
     public void paintInteraction(Graphics2D g, StateRenderer2D source) {
+        boolean ed = copyPoints.isEditing();
+        copyPoints.setEditing(true);
         copyPoints.paint(g, source);
+        copyPoints.setEditing(ed);
+    }
+
+    /* (non-Javadoc)
+     * @see pt.lsts.neptus.mp.element.IPlanElementEditorInteraction#getUpdatedElement()
+     */
+    @Override
+    public RendezvousPoints getUpdatedElement() {
+        return copyPoints;
     }
 }
