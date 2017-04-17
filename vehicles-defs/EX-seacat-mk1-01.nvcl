@@ -147,6 +147,9 @@
             </CrossHatchPattern>
         </maneuver>
     </feasibleManeuvers>
+    <planElements>
+        <item class="pt.lsts.neptus.mp.element.RendezvousPointsPlanElement" />
+    </planElements>
     <!--protocols-supported>
         <protocols></protocols>
     </protocols-supported-->
