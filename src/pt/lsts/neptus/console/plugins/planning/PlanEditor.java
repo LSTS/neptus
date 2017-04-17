@@ -120,6 +120,7 @@ import pt.lsts.neptus.mp.ManeuverLocation;
 import pt.lsts.neptus.mp.ManeuverLocation.Z_UNITS;
 import pt.lsts.neptus.mp.element.IPlanElement;
 import pt.lsts.neptus.mp.element.IPlanElementEditorInteraction;
+import pt.lsts.neptus.mp.element.PlanElementsFactory;
 import pt.lsts.neptus.mp.maneuvers.Goto;
 import pt.lsts.neptus.mp.maneuvers.LocatedManeuver;
 import pt.lsts.neptus.mp.preview.PlanSimulationOverlay;
@@ -185,6 +186,7 @@ public class PlanEditor extends InteractionAdapter implements Renderer2DPainter,
     protected SimDepthProfile sdp = null;
 
     protected IPlanElement<?> activePlanElement = null;
+    protected PlanElementsFactory pef = null;
     
     public enum ToolbarLocation {
         Right,
@@ -807,10 +809,12 @@ public class PlanEditor extends InteractionAdapter implements Renderer2DPainter,
 
         if (vt != null) {
             this.mf = vt.getManeuverFactory();
+            this.pef = vt.getPlanElementsFactory();
         }
         else {
             NeptusLog.pub().warn("No vehicle type creating empty maneuver factory for plan " + plan.getId());
             this.mf = new ManeuverFactory(null);
+            this.pef = new PlanElementsFactory(getMainVehicleId());
         }
 
         for (Maneuver man : plan.getGraph().getAllManeuvers()) {
@@ -1361,6 +1365,7 @@ public class PlanEditor extends InteractionAdapter implements Renderer2DPainter,
                 pStatistics.setIcon(new ImageIcon(ImageUtils.getScaledImage("images/buttons/wizard.png", 16, 16)));
                 popup.add(pStatistics);
 
+                PlanEditorMenus.addPlanElementsMenuItems(this, plan, event, source, popup);
 
                 popup.addSeparator();
 
