@@ -65,7 +65,6 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Vector;
-import java.util.function.Predicate;
 
 import javax.swing.AbstractAction;
 import javax.swing.ImageIcon;
@@ -119,11 +118,8 @@ import pt.lsts.neptus.mp.Maneuver;
 import pt.lsts.neptus.mp.ManeuverFactory;
 import pt.lsts.neptus.mp.ManeuverLocation;
 import pt.lsts.neptus.mp.ManeuverLocation.Z_UNITS;
-import pt.lsts.neptus.mp.RendezvousPoints;
 import pt.lsts.neptus.mp.element.IPlanElement;
 import pt.lsts.neptus.mp.element.IPlanElementEditorInteraction;
-import pt.lsts.neptus.mp.element.PlanElements;
-import pt.lsts.neptus.mp.element.RendezvousPointsPlanElement;
 import pt.lsts.neptus.mp.maneuvers.Goto;
 import pt.lsts.neptus.mp.maneuvers.LocatedManeuver;
 import pt.lsts.neptus.mp.preview.PlanSimulationOverlay;
@@ -1365,29 +1361,6 @@ public class PlanEditor extends InteractionAdapter implements Renderer2DPainter,
                 pStatistics.setIcon(new ImageIcon(ImageUtils.getScaledImage("images/buttons/wizard.png", 16, 16)));
                 popup.add(pStatistics);
 
-                popup.addSeparator();
-
-                @SuppressWarnings("serial")
-                AbstractAction rendezvousPointMenu = new AbstractAction(I18n.text("Edit Rendezvous Points")) {
-                    @Override
-                    public void actionPerformed(ActionEvent e) {
-                        PlanElements pElems = plan.getPlanElements();
-                        RendezvousPointsPlanElement rpel = (RendezvousPointsPlanElement) pElems.getPlanElements().stream().filter(new Predicate<IPlanElement<?>>() {
-                            @Override
-                            public boolean test(IPlanElement<?> t) {
-                                return t instanceof RendezvousPointsPlanElement;
-                            }
-                        }).findFirst().orElse(null);
-                        if (rpel == null) {
-                            rpel = new RendezvousPointsPlanElement();
-                            rpel.setElement(new RendezvousPoints());
-                            pElems.getPlanElements().add(rpel);
-                        }
-                        
-                        updateDelegate(rpel, source);
-                    }
-                };
-                popup.add(rendezvousPointMenu);
 
                 popup.addSeparator();
 
