@@ -83,7 +83,7 @@ import pt.lsts.neptus.util.ImageUtils;
 @PluginDescription(name = "Groovy Feature", author = "Keila Lima")
 @Popup(pos = POSITION.RIGHT, width=200, height=200)
 @SuppressWarnings("serial")
-public class Groovy_old extends InteractionAdapter {
+public class Groovy_stable extends InteractionAdapter {
 
     private JButton openButton,stopScript;
     //Collections used to make Map thread safe
@@ -98,7 +98,7 @@ public class Groovy_old extends InteractionAdapter {
     /**
      * @param console
      */
-    public Groovy_old(ConsoleLayout console) {
+    public Groovy_stable(ConsoleLayout console) {
         super(console);
     }
 
@@ -175,7 +175,7 @@ public class Groovy_old extends InteractionAdapter {
                     final JFileChooser fc = new JFileChooser(directory);
                     fc.setFileSelectionMode(JFileChooser.FILES_ONLY);
 
-                    int returnVal = fc.showOpenDialog(Groovy_old.this);
+                    int returnVal = fc.showOpenDialog(Groovy_stable.this);
 
                     if (returnVal == JFileChooser.APPROVE_OPTION) {
                         if(!stopScript.isEnabled()){
@@ -312,6 +312,7 @@ public class Groovy_old extends InteractionAdapter {
 
         @Override
         public void dbInfoUpdated(PlanDBState updatedInfo) {
+            System.out.println("DB info update");
         }
 
         @Override
@@ -338,7 +339,7 @@ public class Groovy_old extends InteractionAdapter {
     };
 
 
-    /**
+   /**
      * @return the binds
      */
     public Binding getBinds() {
