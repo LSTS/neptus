@@ -108,7 +108,8 @@ public class RendezvousPointsPlanElement implements IPlanElement<RendezvousPoint
     @Override
     public RendezvousPoints loadElementXml(String xml) {
         RendezvousPoints elm = RendezvousPoints.loadXml(xml);
-        setElement(elm);
+        if (elm != null)
+            setElement(elm);
         return elm;
     }
 
