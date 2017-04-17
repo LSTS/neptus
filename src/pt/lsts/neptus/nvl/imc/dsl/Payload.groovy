@@ -33,7 +33,6 @@
 package pt.lsts.neptus.nvl.imc.dsl
 
 import org.dom4j.Element;
-
 import com.l2fprod.common.propertysheet.Property
 import pt.lsts.imc.EntityParameter
 import pt.lsts.imc.IMCMessage
@@ -75,7 +74,12 @@ class Payload {
         //Maneuver -> startActions -> set entityParameters -> name-> param: Active, value: true
         
         List<SetEntityParameters> setEntities = new ArrayList<>()
-        payloads.each{ setEntities.add new SetEntityParameters(it.name,it.params)} //setEntity.setParams(params)
+        payloads.each{
+            def sEntityP = new SetEntityParameters() //new SetEntityParameters(it.name,it.params)
+            sEntityP.setName it.name
+            sEntityP.setParams it.params
+            setEntities.add sEntityP
+            } 
         PlanActions startActions = new PlanActions()
         Vector<IMCMessage> msg = new Vector<>()
         setEntities.each{ msg.add(it) }

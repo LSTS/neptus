@@ -1,7 +1,7 @@
 def plan = new Plan("nvlPlan")
 def loc = new Location(locations[2].getLatitudeRads(),locations[2].getLongitudeRads())
 
-plan.goTo id:"payload-goto", location:loc, payload:[[name: "Sidescan", Active: true, Range: 30],[name: "LBL", Active: true]]
+plan.goTo id:"payload-goto", location:loc, payload:[[name: "Sidescan", Active: true, Range: 50],[name: "Ranger", Active: true]]
 
 // set speed units to use
 plan.speed.units = Speed.Units.METERS_PS

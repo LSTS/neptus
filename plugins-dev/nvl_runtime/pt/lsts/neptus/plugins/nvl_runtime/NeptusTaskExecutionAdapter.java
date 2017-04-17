@@ -98,6 +98,7 @@ public class NeptusTaskExecutionAdapter implements TaskExecution {
             case SUCCESS:
                 if(!done)
                     done = true;
+                //TODO remove task from list in #NeptusRuntime ?
                 break;
             default:
                 break;

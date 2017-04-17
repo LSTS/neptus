@@ -66,16 +66,16 @@ public class NeptusVehicleAdapter implements NVLVehicle {
         state = s;
          for(String payload : PlanCompatibility.availablePayloads(VehiclesHolder.getVehicleById(getId()))) {
              ps.add(new NeptusPayloadAdapter(payload));
-             System.out.println("PlanCompatibility cicle: "+payload);
+             //System.out.println("PlanCompatibility cicle: "+payload);
          } 
          
          for(CommMean com : VehiclesHolder.getVehicleById(getId()).getCommunicationMeans().values()) { //IMC | HTTP | IRIDIUM | GSM
              ps.add(new NeptusPayloadAdapter(com.getName()));
-             System.out.println("Communications means: "+com.getName());
+             //System.out.println("Communications means: "+com.getName());
          }
          if(hasAcoustics()){
              ps.add(new NeptusPayloadAdapter(acousticOPservice));
-             System.out.println("Acoustic op service.");
+             //System.out.println("Acoustic op service.");
          }
         availablePayload = ps;
     }

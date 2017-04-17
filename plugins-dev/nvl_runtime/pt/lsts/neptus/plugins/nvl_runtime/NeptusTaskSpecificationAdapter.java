@@ -35,16 +35,14 @@ package pt.lsts.neptus.plugins.nvl_runtime;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-
-import pt.lsts.neptus.comm.manager.imc.ImcSystemsHolder;
 import pt.lsts.neptus.nvl.runtime.Availability;
 import pt.lsts.neptus.nvl.runtime.NVLVehicleType;
 import pt.lsts.neptus.nvl.runtime.PayloadComponent;
+import pt.lsts.neptus.nvl.runtime.Position;
 import pt.lsts.neptus.nvl.runtime.TaskSpecification;
 import pt.lsts.neptus.nvl.runtime.VehicleRequirements;
 import pt.lsts.neptus.types.mission.plan.PlanCompatibility;
 import pt.lsts.neptus.types.mission.plan.PlanType;
-import pt.lsts.neptus.types.vehicle.VehicleType.VehicleTypeEnum;
 
 /**
  * @author keila
@@ -64,7 +62,17 @@ public class NeptusTaskSpecificationAdapter implements TaskSpecification {
      */
     public NeptusTaskSpecificationAdapter(PlanType plan) {
         this.plan = plan;
-        requirements = getRequirements().get(0);
+        requirements = new VehicleRequirements();
+        List<PayloadComponent> payload = new ArrayList<>();
+        for( String p: PlanCompatibility.payloadsRequired(plan)) {
+            payload.add(new NeptusPayloadAdapter(p));
+        }
+        requirements.setRequiredPayload(payload);
+        requirements.setRequiredAvailability(Availability.AVAILABLE);
+        requirements.setAreaRadius(Double.MAX_VALUE);
+        Position areaCenter = new NeptusPositionAdapter(plan.getPlanMap().getCenterLocation());
+        requirements.setAreaCenter(areaCenter);
+        requirements.setRequiredType(NVLVehicleType.ANY);
     }
 
     /* (non-Javadoc)
@@ -72,27 +80,29 @@ public class NeptusTaskSpecificationAdapter implements TaskSpecification {
      */
     @Override
     public List<VehicleRequirements> getRequirements() {
-        VehicleRequirements requirements = new VehicleRequirements();
-
-        List<PayloadComponent> payload = new ArrayList<>();
-        for( String p: PlanCompatibility.payloadsRequired(plan)) {
-            payload.add(new NeptusPayloadAdapter(p));
-        }
-        requirements.setRequiredPayload(payload);
-        requirements.setRequiredAvailability(Availability.AVAILABLE);
-        
-//        if(plan.getVehicle() != null) {
-//            System.out.println("PLan vehicle "+plan.getVehicle());
-//            System.out.println(Arrays.toString(ImcSystemsHolder.lookupAllSystems()));
-//            System.out.println(Arrays.toString(ImcSystemsHolder.lookupAllActiveSystems()));
-//            type = ImcSystemsHolder.lookupSystemByName(plan.getVehicle())
-//                    .getTypeVehicle();
-//            
-//            requirements.setRequiredType(NeptusVehicleAdapter.getType(type));
+//        VehicleRequirements requirements = new VehicleRequirements();
+//
+//        List<PayloadComponent> payload = new ArrayList<>();
+//        for( String p: PlanCompatibility.payloadsRequired(plan)) {
+//            payload.add(new NeptusPayloadAdapter(p));
 //        }
-//        else
-            requirements.setRequiredType(NVLVehicleType.ANY);
-        
+//        requirements.setRequiredPayload(payload);
+//        requirements.setRequiredAvailability(Availability.AVAILABLE);
+//        requirements.setAreaRadius(Double.MAX_VALUE);
+//        Position areaCenter = new NeptusPositionAdapter(plan.getPlanMap().getCenterLocation());
+//        requirements.setAreaCenter(areaCenter);
+////        if(plan.getVehicle() != null) {
+////            System.out.println("PLan vehicle "+plan.getVehicle());
+////            System.out.println(Arrays.toString(ImcSystemsHolder.lookupAllSystems()));
+////            System.out.println(Arrays.toString(ImcSystemsHolder.lookupAllActiveSystems()));
+////            type = ImcSystemsHolder.lookupSystemByName(plan.getVehicle())
+////                    .getTypeVehicle();
+////            
+////            requirements.setRequiredType(NeptusVehicleAdapter.getType(type));
+////        }
+////        else
+//            requirements.setRequiredType(NVLVehicleType.ANY);
+
         return Arrays.asList(requirements);
     }
 
@@ -111,6 +121,7 @@ public class NeptusTaskSpecificationAdapter implements TaskSpecification {
     /**
      * @param reqs
      */
+    @Override
     public void setRequirements(VehicleRequirements reqs) {
         requirements = reqs;
     }

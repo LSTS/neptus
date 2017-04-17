@@ -10,6 +10,8 @@ import java.util.Map;
 import javax.swing.AbstractAction;
 import javax.swing.JButton;
 import com.google.common.eventbus.Subscribe;
+
+import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.comm.IMCSendMessageUtils;
 import pt.lsts.neptus.comm.manager.imc.ImcSystem;
 import pt.lsts.neptus.comm.manager.imc.ImcSystemsHolder;
@@ -54,16 +56,15 @@ public class NeptusRuntime extends InteractionAdapter implements NVLRuntime {
         vehicles = Collections.synchronizedMap(new HashMap<>());
         tasks = Collections.synchronizedMap(new HashMap<>());
         //initialize active vehicles
-        
         for(ImcSystem vec: ImcSystemsHolder.lookupActiveSystemVehicles()){
-            STATE state = STATE.CONNECTED;//vec.getLastAnnounceStateReceived()
+            STATE state = STATE.CONNECTED;//vec.getLastAnnounceStateReceived() vec.isOnAnnounceState();
             vehicles.put(vec.getName(),new NeptusVehicleAdapter(vec,state));
-            System.out.println("V " + vec.getName());
+            //System.out.println("V " + vec.getName());
         }
         //initialize existing plans in the console
         for(PlanType plan: getConsole().getMission().getIndividualPlansList().values()){
             tasks.put(plan.getId(),new NeptusTaskSpecificationAdapter(plan));
-            System.out.println("P " + plan.getId());
+            //System.out.println("P " + plan.getId());
 
         }
         test();
@@ -75,27 +76,21 @@ public class NeptusRuntime extends InteractionAdapter implements NVLRuntime {
                     @Override
                     public void actionPerformed(ActionEvent e) {   
                         // Plano IMC
-                        TaskSpecification ts = getTasks( x -> x.getId().equals("nvlPlan")).get(0);
+                        NeptusTaskSpecificationAdapter ts = (NeptusTaskSpecificationAdapter) getTasks( x -> x.getId().equals("nvlPlan")).get(0); //Filter<TaskSpecification>
                         System.out.println("Task "+ts.getId());
-                        VehicleRequirements reqs 
-                          = new VehicleRequirements().
-                        type(NVLVehicleType.AUV).
-                        availability(Availability.AVAILABLE).
-                        name("lauv-xplore-1");
+                        VehicleRequirements reqs = ts.getRequirements() .get(0)
+                        .type(NVLVehicleType.AUV)
+                        .availability(Availability.AVAILABLE)
+                        .name("lauv-noptilus-2");
                         
-                        ((NeptusTaskSpecificationAdapter)ts).setRequirements(reqs);
+                        System.out.println("Requirements after change params: "+reqs);
+                        
+                        ts.setRequirements(reqs);
+                        tasks.put(ts.getId(),ts);
                         // Veículos disponíveis
-                        for(String v: vehicles.keySet()){
-                            
-                            System.out.println("VEHICLE in List "+v+"\n"+vehicles.get(v).getType()+"\n"+vehicles.get(v).getAvailability());
-                        }
                         List<NVLVehicle> vs = getVehicles(ts.getRequirements().get(0));
-                        
-                        for(VehicleRequirements rq: ts.getRequirements())
-                            System.out.println("REQ:\n"+rq);
                         for(NVLVehicle v: vs){
-                            
-                            System.out.println("SELECTED VEHICLE "+v.getId());
+                            NeptusLog.pub().info(I18n.text("SELECTED VEHICLE "+v.getId()));
                         }
                         launchTask(ts, vs);
                         
@@ -145,12 +140,6 @@ public class NeptusRuntime extends InteractionAdapter implements NVLRuntime {
 		
         //ADD plan to console
 	    PlanType plan = ((NeptusTaskSpecificationAdapter) task).getPlan();
-		
-//        plan.setMissionType(getConsole().getMission());
-//        getConsole().getMission().getIndividualPlansList().put(task.getId(),plan);
-//        getConsole().getMission().save(true);
-//        getConsole().updateMissionListeners();
-//        getConsole().getMission().addPlan(plan);
         
         //sendMessage(IMCMessage msg, String errorTextForDialog, boolean sendOnlyThroughOneAcoustically,String... ids)
         boolean sent = IMCSendMessageUtils.sendMessage(plan.asIMCPlan(),null,acoustics, vs.toArray(new String[vs.size()]));
