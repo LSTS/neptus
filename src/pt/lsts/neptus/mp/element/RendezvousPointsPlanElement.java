@@ -48,7 +48,7 @@ import pt.lsts.neptus.types.coord.LocationType;
 @PluginDescription
 public class RendezvousPointsPlanElement implements IPlanElement<RendezvousPoints> {
 
-    private RendezvousPoints points = null;
+    private RendezvousPoints points = new RendezvousPoints();
     
     public RendezvousPointsPlanElement() {
     }
