@@ -55,10 +55,7 @@ import com.l2fprod.common.propertysheet.Property;
 import pt.lsts.imc.IMCMessage;
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.gui.ToolbarSwitch;
-import pt.lsts.neptus.mp.Maneuver;
-import pt.lsts.neptus.mp.ManeuverLocation;
 import pt.lsts.neptus.plugins.NeptusProperty;
-import pt.lsts.neptus.plugins.PluginUtils;
 import pt.lsts.neptus.renderer2d.InteractionAdapter;
 import pt.lsts.neptus.renderer2d.StateRenderer2D;
 import pt.lsts.neptus.renderer2d.StateRendererInteraction;
@@ -69,41 +66,14 @@ import pt.lsts.neptus.util.XMLUtil;
 /**
  * @author mrosa
  */
-public class Docking extends Maneuver implements StateRendererInteraction,
+public class Docking extends Goto implements StateRendererInteraction,
 IMCSerialization,  PathProvider {
-
-    protected double latDegs = 0;
-    protected double lonDegs = 0;
-    protected double z = 0;
-   // protected ManeuverLocation.Z_UNITS zunits = ManeuverLocation.Z_UNITS.NONE;
-
-/*    @NeptusProperty(name = "Speed")
-    protected double speed = 1;
-    @NeptusProperty(name = "Speed Units", editorClass = SpeedUnitsEnumEditor.class)
-    protected SPEED_UNITS speedUnits = SPEED_UNITS.METERS_PS;
-    @NeptusProperty(name = "Bearing")
-    protected double bearingDegs = 0;
-    @NeptusProperty(name = "Width")
-    protected double width = 100;
-    @NeptusProperty(name = "Length")
-    protected double length = 200;
-    @NeptusProperty(name = "Cross Angle")
-    protected double crossAngleDegs = 0;
-    @NeptusProperty(name = "Curve Offset")
-    protected double curvOff = 15;
-    @NeptusProperty(name = "Angle Aperture")
-    protected double angleApertureDegs = 120;
-    @NeptusProperty(name = "Max. Range")
-    protected int range = 30;
-    @NeptusProperty(name = "Overlap Percentage")
-    protected short overlapPercentage = 0;
-    @NeptusProperty(name = "Square Curve")
-    protected boolean squareCurve = true;
-    @NeptusProperty(name = "First Curve Right")
-    protected boolean firstCurveRight = true;*/
+ 
     
-    @NeptusProperty(name = "Position Source", description = "IMC ID of the lauv to dock")
-    protected String idToFollow = "lauv-noptilus-1";
+    @NeptusProperty(name = "Docking Target", description = "IMC name of the lauv to dock")
+    protected String target = "";
+    @NeptusProperty(name = "Docking Station", description = "IMC name of the docking station")
+    protected String station = "";
 
 
     protected InteractionAdapter adapter = new InteractionAdapter(null);
@@ -126,162 +96,51 @@ IMCSerialization,  PathProvider {
         return "Docking";
     }
     
-    protected ManeuverLocation calculatePosition() {
-        ManeuverLocation loc = new ManeuverLocation();
-        loc.setLatitudeDegs(latDegs);
-        loc.setLongitudeDegs(lonDegs);
-        loc.setZ(z);
-       // loc.setZUnits(zunits);
-        return loc;
-    }
-
+    
     @Override
     public void loadFromXML(String xml) {
+        super.loadFromXML(xml);
         try {
             Document doc = DocumentHelper.parseText(xml);
             
-
-            Node node = doc.selectSingleNode("//idToFollow");
+            //Get target name
+            Node node = doc.selectSingleNode("//target");
             if (node != null)
-                idToFollow = node.getText();
-            else
-                idToFollow = "lauv-xplore-1";
+                target = node.getText();
             
-//            ManeuversXMLUtil.parseLocation(doc.getRootElement(), this);
-//            try {
-//                ManeuversXMLUtil.parseSpeed(doc.getRootElement(), this);
-//            }
-//            catch (Exception e) {
-//                e.printStackTrace();
-//            }
+            //Get station name
+            Node node2 = doc.selectSingleNode("//station");
+            if (node2 != null)
+                station = node2.getText();
 
-      /*      bearingDegs = Double.parseDouble(doc.selectSingleNode("//bearing").getText());
-
-            // area
-            width = Double.parseDouble(doc.selectSingleNode("//width").getText());
-            Node node = doc.selectSingleNode("//length");
-            if (node != null)
-                length = Double.parseDouble(node.getText());
-            else
-                length = width;
-
-            node = doc.selectSingleNode("//crossAngle");
-            if (node != null)
-                crossAngleDegs = Double.parseDouble(node.getText());
-            else
-                crossAngleDegs = 0;
-
-            node = doc.selectSingleNode("//curveOffset");
-            if (node != null)
-                curvOff = Double.parseDouble(node.getText());
-            else
-                curvOff = 15;
-
-            node = doc.selectSingleNode("//squareCurve");
-            if (node != null)
-                squareCurve = Boolean.parseBoolean(node.getText());
-            else
-                squareCurve = true;
-
-            node = doc.selectSingleNode("//firstCurveRight");
-            if (node != null)
-                firstCurveRight = Boolean.parseBoolean(node.getText());
-            else
-                firstCurveRight = true;
-
-            node = doc.selectSingleNode("//angleAperture");
-            if (node != null)
-                angleApertureDegs = Double.parseDouble(node.getText());
-            else
-                angleApertureDegs = 120;
-
-            node = doc.selectSingleNode("//range");
-            if (node != null)
-                range = Short.parseShort(node.getText());
-            else
-                range = 30;
-
-            node = doc.selectSingleNode("//overlapPercentage");
-            if (node != null)
-                overlapPercentage = Short.parseShort(node.getText());
-            else
-                overlapPercentage = 0;*/
         }
         catch (Exception e) {
             NeptusLog.pub().error(this, e);
             return;
         }
-//        finally {
-//            recalcPoints();
-//        }
+
     }
 
     @Override
     public Object clone() {
         Docking clone = new Docking();
-        super.clone(clone);
-        clone.latDegs = latDegs;
-        clone.lonDegs = lonDegs;
-     /*   clone.z = z;
-        clone.zunits = zunits;
-        clone.bearingDegs = bearingDegs;
-        clone.length = length;
-        clone.width = width;
-        clone.speed = speed;
-        clone.speedUnits = speedUnits;
-
-        clone.angleApertureDegs = angleApertureDegs;
-        clone.range = range;
+        clone.clone(this);
         
-        clone.overlapPercentage = overlapPercentage;
-        clone.crossAngleDegs = crossAngleDegs;
-        clone.curvOff = curvOff;
-        clone.squareCurve = squareCurve;
-        clone.firstCurveRight = firstCurveRight;*/
+        clone.target = target;
+        clone.station = station;
 
-       // clone.recalcPoints();
         return clone;
     }
 
     @Override
     public Document getManeuverAsDocument(String rootElementName) {
-        Document doc = ManeuversXMLUtil.createBaseDoc(getType());
-//        ManeuversXMLUtil.addLocation(doc.getRootElement(), this);
-//        try {
-//            ManeuversXMLUtil.addSpeed(doc.getRootElement(), this);
-//        }
-//        catch (Exception e) {
-//            e.printStackTrace();
-//        }
-
+        Document doc = super.getManeuverAsDocument(rootElementName);
+        
         Element root = doc.getRootElement();
         
-        root.addElement("idToFollow").setText(idToFollow);
-
-       /* root.addElement("width").setText(""+width);
-        root.addElement("length").setText(""+length);
-        root.addElement("bearing").setText("" + bearingDegs);
-
-        if (crossAngleDegs != 0)
-            root.addElement("crossAngle").setText("" + crossAngleDegs);
-
-        if (angleApertureDegs != 0)
-            root.addElement("angleAperture").setText("" + angleApertureDegs);
-
-        if (range != 0)
-            root.addElement("range").setText("" + range);
-
-        if (overlapPercentage != 0)
-            root.addElement("overlapPercentage").setText("" + overlapPercentage);
-
-        if (curvOff != 15)
-            root.addElement("curveOffset").setText("" + curvOff);
-
-        if (!squareCurve)
-            root.addElement("squareCurve").setText("" + squareCurve);
-
-        if (!firstCurveRight)
-            root.addElement("firstCurveRight").setText("" + firstCurveRight);*/
+        root.addElement("target").setText(target);
+        
+        root.addElement("station").setText(station);
 
         return doc;
     }
@@ -324,39 +183,7 @@ IMCSerialization,  PathProvider {
             lastDragPoint = event.getPoint();
             return;
         }
-    /*    double xammount = event.getPoint().getX() - lastDragPoint.getX();
-        double yammount = event.getPoint().getY() - lastDragPoint.getY();
-        yammount = -yammount;
-        if (event.isControlDown()) {
-            double norm = Math.sqrt(xammount * xammount + yammount * yammount);
-            double angle = AngleUtils.calcAngle(lastDragPoint.getY(), lastDragPoint.getX(), event.getPoint().getY(),
-                    event.getPoint().getX());
-            double nx = norm * Math.cos(Math.toRadians(bearingDegs) - angle);
-            double ny = norm * Math.sin(Math.toRadians(bearingDegs) - angle);
-            
-            width += nx / (Math.abs(nx) < 30 ? 10 : 2);
-            length += ny / (Math.abs(ny) < 30 ? 10 : 2);
-
-            width = MathMiscUtils.round(width, 1);
-            width = Math.max(1, width);
-            length = MathMiscUtils.round(length, 1);
-            length = Math.max(1, length);
-            recalcPoints();
-        }
-        else if (event.isShiftDown()) {
-            bearingDegs += yammount / (Math.abs(yammount) < 30 ? 10 : 2);
-            bearingDegs = AngleUtils.nomalizeAngleDegrees360(bearingDegs);
-            recalcPoints();
-        }
-        else if (event.isAltDown() || event.isAltGraphDown()) {
-            crossAngleDegs += yammount / (Math.abs(yammount) < 30 ? 10 : 2);
-            crossAngleDegs = AngleUtils.nomalizeAngleDegrees180(crossAngleDegs);
-            recalcPoints();
-        }
-        else {
-            adapter.mouseDragged(event, source);
-        }
-        lastDragPoint = event.getPoint();*/
+  
     }
 
     @Override
@@ -411,53 +238,7 @@ IMCSerialization,  PathProvider {
         adapter.setActive(mode, source);
     }
 
-//    @Override
-//    public ManeuverLocation getManeuverLocation() {
-//        return calculatePosition();
-//    }
-//
-//    @Override
-//    public ManeuverLocation getStartLocation() {
-//        try {
-//            double[] first = points.firstElement();
-//            ManeuverLocation loc = getManeuverLocation().clone();
-//            loc.translatePosition(first[X], first[Y], first[Z]);
-//            return loc;
-//        }
-//        catch (Exception e) {
-//            return getManeuverLocation();
-//        }
-//    }
 
-//    @Override
-//    public ManeuverLocation getEndLocation() {
-//        try {
-//            double[] last = points.lastElement();
-//            ManeuverLocation loc = getManeuverLocation().clone();
-//            loc.translatePosition(last[X], last[Y], last[Z]);
-//            return loc;
-//        }
-//        catch (Exception e) {
-//            return getManeuverLocation();
-//        }
-//    }
-
-//    @Override
-//    public void setManeuverLocation(ManeuverLocation location) {
-//        double absoluteLatLonDepth[] = location.getAbsoluteLatLonDepth(); 
-//        latDegs = absoluteLatLonDepth[0];
-//        lonDegs = absoluteLatLonDepth[1];
-//        z = location.getZ();
-//        zunits = location.getZUnits();
-////        recalcPoints();
-//    }
-
-//    @Override
-//    public void translate(double offsetNorth, double offsetEast, double offsetDown) {
-//        ManeuverLocation loc = calculatePosition();
-//        loc.translatePosition(offsetNorth, offsetEast, offsetDown);
-//        setManeuverLocation(loc);
-//    }
 
     @Override
     public List<double[]> getPathPoints() {
@@ -467,166 +248,28 @@ IMCSerialization,  PathProvider {
     @Override
     public List<LocationType> getPathLocations() {
         Vector<LocationType> locs = new Vector<>();
-//        List<double[]> lst = Collections.unmodifiableList(points);
-//        LocationType start = new LocationType(getManeuverLocation());
-//        if (getManeuverLocation().getZUnits() == ManeuverLocation.Z_UNITS.DEPTH)
-//            start.setDepth(getManeuverLocation().getZ());
-//        else if (getManeuverLocation().getZUnits() == ManeuverLocation.Z_UNITS.DEPTH)
-//            start.setDepth(-getManeuverLocation().getZ());
-//        for (double[] ds : lst) {
-//            LocationType loc = new LocationType(start);
-//            loc.translatePosition(ds);
-//            loc.convertToAbsoluteLatLonDepth();
-//            locs.add(loc);
-//       }
+//   
         return locs;
     }
     
-//    /**
-//     * @return the bearingDegs
-//     */
-//    public double getBearingDegs() {
-//        return bearingDegs;
-//    }
-//
-//    /**
-//     * @param bearingDegs the bearingDegs to set
-//     */
-//    public void setBearingDegs(double bearingDegs) {
-//        this.bearingDegs = bearingDegs;
-//        recalcPoints();
-//    }
-//
-//    /**
-//     * @return the width
-//     */
-//    public double getWidth() {
-//        return width;
-//    }
-//
-//    /**
-//     * @return the overlapPercent
-//     */
-//    public short getOverlapPercent() {
-//        return overlapPercentage;
-//    }
-//
-//    /**
-//     * @return the curvOff
-//     */
-//    public double getCurvOff() {
-//        return curvOff;
-//    }
-//
-//    /**
-//     * @return the squareCurve
-//     */
-//    public boolean isSquareCurve() {
-//        return squareCurve;
-//    }
-//
-//    /**
-//     * @return the crossAngleDegs
-//     */
-//    public double getCrossAngleDegs() {
-//        return crossAngleDegs;
-//    }
-//
-//    /**
-//     * @return the angleAppertureDegs
-//     */
-//    public double getAngleApertureDegs() {
-//        return angleApertureDegs;
-//    }
-//    
-//    /**
-//     * @return the range
-//     */
-//    public int getRange() {
-//        return range;
-//    }
 
     @Override
     public void paintOnMap(Graphics2D g2d, PlanElement planElement, StateRenderer2D renderer) {
         super.paintOnMap(g2d, planElement, renderer);
 
-     /*   if (editing) {
-            Graphics2D g3 = (Graphics2D) g2d.create();
-            Point2D manL = renderer.getScreenPosition(getManeuverLocation());
-            Point2D gL = renderer.getScreenPosition(renderer.getTopLeftLocationType());
-            g3.translate(gL.getX() - manL.getX(), gL.getY() - manL.getY());
-            g3.setFont(new Font("Helvetica", Font.BOLD, 13));
-            String txt = I18n.text("Ctrl+Click to grow | Shift+Click to rotate | Alt+Click to skew");
-            g3.setColor(Color.BLACK);
-            g3.drawString(txt, 55, 15 + 20);
-            g3.setColor(COLOR_HELP);
-            g3.drawString(txt, 54, 14 + 20);
-            g3.dispose();
-        }
-        
-        g2d.setColor(Color.white);
-        
-        double zoom = renderer.getZoom();
-        g2d.rotate(-renderer.getRotation());
-
-        g2d.rotate(-Math.PI/2);
-        ManeuversUtil.paintBox(g2d, zoom, width, length, 0, 0, Math.toRadians(bearingDegs),
-                Math.toRadians(crossAngleDegs), true, !firstCurveRight, editing);
-        ManeuversUtil.paintPointLineList(g2d, zoom, points, editing, calcCov() / 2, editing);
-        g2d.rotate(+Math.PI/2);*/
     }
 
 
-    /**
-     * Call this to update the maneuver points.
-     */
-//    private void recalcPoints() {
-//        double hstep = calcHStep();
-//        Vector<double[]> newPoints = ManeuversUtil.calcRowsPoints(width, length, hstep,
-//                1, curvOff, squareCurve, Math.toRadians(bearingDegs), Math.toRadians(crossAngleDegs),
-//                !firstCurveRight);
-//
-//        points = newPoints;
-//    }
-
+   
     @Override
     public IMCMessage serializeToIMC() {
         pt.lsts.imc.Docking man = new pt.lsts.imc.Docking();
-        man.setLat(Math.toRadians(latDegs));
-        man.setLon(Math.toRadians(lonDegs));
-        man.setTarget(idToFollow);
-  /*      man.setZ(z);
-        man.setZUnits(ZUnits.valueOf(getManeuverLocation().getZUnits().toString()));        
-        man.setSpeed(speed);
-        man.setWidth(width);
-        man.setLength(length);
-        man.setBearing(Math.toRadians(bearingDegs));
-        man.setCrossAngle(Math.toRadians(crossAngleDegs));
-        man.setCoff((short)curvOff);
-        man.setAngAperture(Math.toRadians(angleApertureDegs));
-        man.setRange((short) range);
-        man.setOverlap(overlapPercentage);
-        man.setCustom(getCustomSettings());
-        man.setFlags((short) ((squareCurve ? pt.lsts.imc.Docking.FLG_SQUARE_CURVE : 0) 
-                + (firstCurveRight ? pt.lsts.imc.Docking.FLG_CURVE_RIGHT : 0)));*/
-
-//        try {
-//            switch (this.getSpeedUnits()) {
-//                case PERCENTAGE:
-//                    man.setSpeedUnits(SpeedUnits.PERCENTAGE);
-//                    break;
-//                case RPM:
-//                    man.setSpeedUnits(SpeedUnits.RPM);
-//                    break;
-//                case METERS_PS:
-//                default:
-//                    man.setSpeedUnits(SpeedUnits.METERS_PS);
-//                    break;
-//            }
-//        }
-//        catch (Exception ex) {
-//            NeptusLog.pub().error(this, ex);                     
-//        }
+        man.setLat(destination.getLatitudeRads());
+        man.setLon(destination.getLongitudeRads());
+        man.setTarget(target);
+        man.setStation(station);
+        
+  
         return man;
     }
 
@@ -640,42 +283,13 @@ IMCSerialization,  PathProvider {
             e.printStackTrace();
             return;
         }
-
-        latDegs = Math.toDegrees(man.getLat());
-        lonDegs = Math.toDegrees(man.getLon());
         
-        idToFollow = man.getTarget();
- /*       z = man.getZ();
-        zunits = ManeuverLocation.Z_UNITS.valueOf(man.getZUnits().toString());
-        speed = man.getSpeed();
-        width = man.getWidth();
-        length = man.getLength();
-        bearingDegs = Math.toDegrees(man.getBearing());
-
-        switch (man.getSpeedUnits()) {
-            case METERS_PS:
-                speedUnits = SPEED_UNITS.METERS_PS;
-                break;
-            case RPM:
-                speedUnits = SPEED_UNITS.RPM;
-                break;
-            default:
-                speedUnits = SPEED_UNITS.PERCENTAGE;
-                break;
-        }
+        destination.setLatitudeRads(man.getLat());
+        destination.setLongitudeRads(man.getLon());
+        target = man.getTarget();
+        station = man.getStation();
         
-        crossAngleDegs = Math.toDegrees(man.getCrossAngle());
-        curvOff = man.getCoff();
-        overlapPercentage = man.getOverlap();
-        
-        angleApertureDegs = Math.toDegrees(man.getAngAperture());
-        range = man.getRange();
-        
-        firstCurveRight = (man.getFlags() & Rows.FLG_CURVE_RIGHT) != 0;
-        squareCurve = (man.getFlags() & Rows.FLG_SQUARE_CURVE) != 0;
-
-        setCustomSettings(man.getCustom());
-        recalcPoints();*/
+ 
     }
 
     @Override
@@ -687,115 +301,10 @@ IMCSerialization,  PathProvider {
     public void setProperties(Property[] properties) {
         super.setProperties(properties);
         ManeuversUtil.setPropertiesToManeuver(this, properties);
-       // ManeuversUtil.setPropertiesToManeuver(this, properties);
-       // recalcPoints();
+
     }
 
-//    public double getSpeed() {
-//        return speed;
-//    }
-//
-//    public void setSpeed(double speed) {
-//        this.speed = speed;
-//    }
-//
-//    public SPEED_UNITS getSpeedUnits() {
-//        return speedUnits;
-//    }
-//
-//    public void setSpeedUnits(SPEED_UNITS speedUnits) {
-//        this.speedUnits = speedUnits;
-//    }
 
-    /* (non-Javadoc)
-     * @see pt.lsts.neptus.mp.maneuvers.StatisticsProvider#getCompletionTime(pt.lsts.neptus.types.coord.LocationType, double)
-     */
-//    @Override
-//    public double getCompletionTime(LocationType initialPosition) {
-//        double speed = this.speed;
-//        if (this.speedUnits == SPEED_UNITS.RPM) {
-//            speed = speed/769.230769231; //1.3 m/s for 1000 RPMs
-//        }
-//        else if (this.speedUnits == SPEED_UNITS.PERCENTAGE) {
-//            speed = speed/76.923076923; //1.3 m/s for 100% speed
-//        }
-//
-//        return getDistanceTravelled(initialPosition) / speed;
-//    }
-
-    /* (non-Javadoc)
-     * @see pt.lsts.neptus.mp.maneuvers.StatisticsProvider#getDistanceTravelled(pt.lsts.neptus.types.coord.LocationType)
-     */
-//    @Override
-//    public double getDistanceTravelled(LocationType initialPosition) {
-//        double meters = getStartLocation().getDistanceInMeters(initialPosition);
-//
-//        if (points.size() == 0) {
-//            double hstep = calcHStep();
-//            int numrows = (int) Math.floor(width / hstep);
-//            double planeDistance = numrows * length + numrows * hstep;
-//
-//            meters += planeDistance;
-//            return meters;
-//        }
-//        else {
-//            for (int i = 0; i < points.size(); i++) {
-//                double[] pointI = points.get(i);
-//                double[] pointF;
-//                try {
-//                    pointF = points.get(i+1);
-//                }
-//                catch (Exception e) {
-//                    break;
-//                }
-//                double[] offsets = {pointF[0]-pointI[0], pointF[1]-pointI[1]}; 
-//                double sum = offsets[0] * offsets[0] + offsets[1] * offsets[1];
-//                double planeDistance = Math.sqrt(sum);
-//                meters += planeDistance;
-//            }
-//            return meters;
-//        }
-//    }
-
-//    @Override
-//    public double getMaxDepth() {
-//        return z;
-//    }
-//
-//    @Override
-//    public double getMinDepth() {
-//        return z;
-//    }
-
-//  private double calcCov() {
-//        double cov;
-//        if (angleApertureDegs <= 0)
-//          cov = 2 * range;
-//        else
-//          cov = 2 * range * Math.sin(Math.toRadians(angleApertureDegs / 2));
-//        
-//        return cov;
-//    }
-//
-//    private double calcHStep() {
-//        double hstep = calcCov();
-//        hstep = hstep * (1 - overlapPercentage / 200.);
-//        return hstep;
-//    }
-    
-   /* @Override
-    public String getTooltipText() {
-        NumberFormat nf = GuiUtils.getNeptusDecimalFormat(2);
-        return super.getTooltipText()+"<hr/>"+
-        I18n.text("length") + ": <b>"+nf.format(length)+" " + I18n.textc("m", "meters") + "</b><br/>"+
-        I18n.text("width") + ": <b>"+nf.format(width)+" " + I18n.textc("m", "meters") + "</b><br/>"+
-        I18n.text("overlap") + ": <b>"+overlapPercentage+" %</b><br/>"+
-        I18n.text("hstep") + ": <b>"+nf.format(calcHStep())+" " + I18n.textc("m", "meters") + "</b><br/>"+
-        I18n.text("bearing") + ": <b>"+nf.format(MathMiscUtils.round(bearingDegs, 1))+" \u00B0</b><br/>"+
-        I18n.text("cross angle") + ": <b>"+nf.format(MathMiscUtils.round(crossAngleDegs, 1))+" \u00B0</b><br/>"+
-        I18n.text("speed") + ": <b>"+nf.format(getSpeed())+" "+getSpeedUnits().getString()+"</b><br/>"+
-        I18n.text("distance") + ": <b>"+MathMiscUtils.parseToEngineeringNotation(getDistanceTravelled((LocationType)getStartLocation()), 2)+I18n.textc("m", "meters") + "</b><br/>"+
-        "<br>" + I18n.text("depth") + ": <b>"+nf.format(z)+" " + I18n.textc("m", "meters") + "</b>";    }*/
 
     @Override
     public void setAssociatedSwitch(ToolbarSwitch tswitch) {
@@ -805,29 +314,15 @@ IMCSerialization,  PathProvider {
     public void paintInteraction(Graphics2D g, StateRenderer2D source) {
     }
     
-//    @Override
-//    public Collection<ManeuverLocation> getWaypoints() {
-//        Vector<ManeuverLocation> locs = new Vector<>();
-//        List<double[]> lst = Collections.unmodifiableList(points);
-//        ManeuverLocation start = new ManeuverLocation(getManeuverLocation());
-//        for (double[] ds : lst) {
-//            ManeuverLocation loc = new ManeuverLocation(start);
-//            loc.translatePosition(ds);
-//            loc.convertToAbsoluteLatLonDepth();
-//            locs.add(loc);
-//        }
-//        return locs;
-//    }
+
 
     public static void main(String[] args) {
         
         Docking rc = new Docking();
-       // PluginUtils.editPluginProperties(rc, true);
+ 
         
         System.out.println(XMLUtil.getAsPrettyPrintFormatedXMLString(rc.asXML().substring(39)));
 
-       /* Docking rc1 = new Docking();
-        rc1.loadFromXML(XMLUtil.getAsPrettyPrintFormatedXMLString(rc.asXML().substring(39)));
-        PluginUtils.editPluginProperties(rc1, true);*/
+ 
     }
 }
