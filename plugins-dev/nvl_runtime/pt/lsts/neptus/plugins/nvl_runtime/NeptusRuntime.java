@@ -11,8 +11,11 @@ import javax.swing.AbstractAction;
 import javax.swing.JButton;
 import com.google.common.eventbus.Subscribe;
 
+import pt.lsts.imc.EstimatedState;
+import pt.lsts.imc.VehicleState;
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.comm.IMCSendMessageUtils;
+import pt.lsts.neptus.comm.manager.imc.ImcMsgManager;
 import pt.lsts.neptus.comm.manager.imc.ImcSystem;
 import pt.lsts.neptus.comm.manager.imc.ImcSystemsHolder;
 import pt.lsts.neptus.console.ConsoleLayout;
@@ -57,9 +60,10 @@ public class NeptusRuntime extends InteractionAdapter implements NVLRuntime {
         tasks = Collections.synchronizedMap(new HashMap<>());
         //initialize active vehicles
         for(ImcSystem vec: ImcSystemsHolder.lookupActiveSystemVehicles()){
-            STATE state = STATE.CONNECTED;//vec.getLastAnnounceStateReceived() vec.isOnAnnounceState();
+            VehicleState systemState = ImcMsgManager.getManager().getState(vec.getName()).last(VehicleState.class);
+            STATE state = STATE.valueOf(systemState.getOpModeStr());
             vehicles.put(vec.getName(),new NeptusVehicleAdapter(vec,state));
-            //System.out.println("V " + vec.getName());
+            System.out.println("V " + vec.getName()+" "+state.toString());
         }
         //initialize existing plans in the console
         for(PlanType plan: getConsole().getMission().getIndividualPlansList().values()){
