@@ -40,6 +40,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Locale;
 import java.util.Vector;
 
@@ -58,7 +59,12 @@ import pt.lsts.neptus.mp.Maneuver;
 import pt.lsts.neptus.mp.ManeuverLocation;
 import pt.lsts.neptus.mp.ManeuverLocation.Z_UNITS;
 import pt.lsts.neptus.mp.OperationLimits;
+import pt.lsts.neptus.mp.RendezvousPoints;
+import pt.lsts.neptus.mp.RendezvousPoints.Point;
 import pt.lsts.neptus.mp.actions.PlanActions;
+import pt.lsts.neptus.mp.element.IPlanElement;
+import pt.lsts.neptus.mp.element.PlanElements;
+import pt.lsts.neptus.mp.element.RendezvousPointsPlanElement;
 import pt.lsts.neptus.mp.maneuvers.Goto;
 import pt.lsts.neptus.mp.maneuvers.LocatedManeuver;
 import pt.lsts.neptus.mp.maneuvers.ManeuversUtil;
@@ -215,7 +221,7 @@ public class SeaCatMK1PlanExporter implements IPlanFileExporter {
         String emergencyEndStr = getSectionEmergencyEnd(settingHeader.get("EmergencyEnd"));
         String safeAltitudeStr = getSectionSafeAltitude(settingHeader.get("SafeAltitude"));       
 
-        String emergencyRendezvousPointStr = getSectionEmergencyRendezvousPoint();
+        String emergencyRendezvousPointStr = getSectionEmergencyRendezvousPoint(plan);
 
         // Depends on getSectionEmergencyEnd()
         String bodyStr = getSectionBody(plan);
@@ -347,10 +353,38 @@ public class SeaCatMK1PlanExporter implements IPlanFileExporter {
     }
 
     /**
+     * H EmergencyRendezvousPoint 2
+     * 1 38.438316661 -9.1103307842
+     * 2 38.438317761 -9.1103309942
+     * 
+     * @param plan 
      * @return
      */
-    private String getSectionEmergencyRendezvousPoint() {
+    private String getSectionEmergencyRendezvousPoint(PlanType plan) {
         StringBuilder sb = new StringBuilder();
+        PlanElements pes = plan.getPlanElements();
+        for (IPlanElement<?> pe : pes.getPlanElements()) {
+            if (pe.getClass() == RendezvousPointsPlanElement.class) {
+                RendezvousPointsPlanElement rpe = (RendezvousPointsPlanElement) pe;
+                RendezvousPoints rPoints = rpe.getElement();
+                List<Point> pts = rPoints.getPoints();
+                if (pts.isEmpty())
+                    continue;
+
+                int counter = 0;
+                sb.append("H EmergencyRendezvousPoint ");
+                sb.append(pts.size());
+                sb.append(NEW_LINE);
+                for (Point point : pts) {
+                    sb.append(++counter);
+                    sb.append(" ");
+                    sb.append(point.getLatDeg());
+                    sb.append(" ");
+                    sb.append(point.getLonDeg());
+                    sb.append(NEW_LINE);
+                }
+            }
+        }
         return sb.toString();
     }
 
