@@ -35,7 +35,6 @@ package pt.lsts.neptus.console.plugins.planning;
 import java.awt.event.ActionEvent;
 import java.awt.event.MouseEvent;
 import java.util.ArrayList;
-import java.util.function.Predicate;
 
 import javax.swing.AbstractAction;
 import javax.swing.JPopupMenu;
@@ -83,12 +82,8 @@ class PlanEditorMenus {
                 @Override
                 public void actionPerformed(ActionEvent e) {
                     PlanElements pElems = plan.getPlanElements();
-                    IPlanElement<?> rpel = pElems.getPlanElements().stream().filter(new Predicate<IPlanElement<?>>() {
-                        @Override
-                        public boolean test(IPlanElement<?> t) {
-                            return t.getClass() == pe.getClass();
-                        }
-                    }).findFirst().orElse(null);
+                    IPlanElement<?> rpel = pElems.getPlanElements().stream().filter(t -> t.getClass() == pe.getClass())
+                            .findFirst().orElse(null);
                     if (rpel == null) {
                         rpel = pe;
                         pElems.getPlanElements().add(rpel);
