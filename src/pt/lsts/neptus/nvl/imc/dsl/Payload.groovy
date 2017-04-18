@@ -63,11 +63,11 @@ class Payload {
         //TODO verify if it is a IMC payload ou Comm mean requirement (acoustic modem)
         isActive ?  params.add(new EntityParameter("Active","true")) : params.add(new EntityParameter("Active","false"))
     }
-    public void range (int r){
-        params.add(new EntityParameter("Range",r.toString()))
+    public void property (String prop,int value){
+        params.add(new EntityParameter(prop,r.toString()))
     }
-    public void frequency (int f){
-        params.add(new EntityParameter("Frequency",f.toString()))
+    public void property (int value){
+        params.add(new EntityParameter("Frequency",value.toString()))
     }
 
     public static Property  properties(String maneuver,List<Payload> payloads) {

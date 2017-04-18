@@ -84,8 +84,28 @@ class Plan {
            )
          planFromMan
      }
+     
+     String normalizeParameterName (String parameter){
+         String result = parameter
+         return result
+     
+     }
+     
+     void pseudo (){
+     [[name: "Sidescan", Active: true, Range: 50],[name: "Ranger", Active: true]].each{
+         if(it['name'] != null){
+                              def payload_name = it['name']
+                              println "Payload name "+payload_name
+         it.each {key,value -> if(key!="name") //verify(payload,key) <-- verify it parameter exists in payload to avoid runtime exceptions!"!!
+                                      normalizeParameterName(key)+" "+value.toString }
+     
+                              
+                      }
+                      else
+                          println "The name of the payload required must be provided."              }
+              
 
-
+     }
 	 //default values on args to current fields -> Named Parameters are Converted to Map
 	 // see -> http://stackoverflow.com/questions/15393962/groovy-named-parameters-cause-parameter-assignments-to-switch-any-way-around-th
 
@@ -113,11 +133,11 @@ class Plan {
                          //TODO Another Map to payload parameters???
                          if(it['Range'] != null){
                              def payload_range = it['Range']
-                             payloadComponent.range payload_range
+                             payloadComponent.property payload_range
                          }
                          if(it['Frequency'] != null){
                              def payload_frequency = it['Frequency']
-                             payloadComponent.frequency = payload_frequency
+                             payloadComponent.property = payload_frequency
                          }
                          if(it['Active'] != null){
                              def payload_active = it['Active']
@@ -174,7 +194,7 @@ class Plan {
                          }
                          if(it['Frequency'] != null){
                              def payload_frequency = it['Frequency']
-                             payloadComponent.frequency = payload_frequency
+                             payloadComponent.property = payload_frequency
                          }
                          if(it['Active'] != null){
                              def payload_active = it['Active']
@@ -236,7 +256,7 @@ class Plan {
                          }
                          if(it['Frequency'] != null){
                              def payload_frequency = it['Frequency']
-                             payloadComponent.frequency = payload_frequency
+                             payloadComponent.property = payload_frequency
                          }
                          if(it['Active'] != null){
                              def payload_active = it['Active']
@@ -298,7 +318,7 @@ class Plan {
                          }
                          if(it['Frequency'] != null){
                              def payload_frequency = it['Frequency']
-                             payloadComponent.frequency = payload_frequency
+                             payloadComponent.property = payload_frequency
                          }
                          if(it['Active'] != null){
                              def payload_active = it['Active']
@@ -359,7 +379,7 @@ class Plan {
                          }
                          if(it['Frequency'] != null){
                              def payload_frequency = it['Frequency']
-                             payloadComponent.frequency = payload_frequency
+                             payloadComponent.property = payload_frequency
                          }
                          if(it['Active'] != null){
                              def payload_active = it['Active']
@@ -421,7 +441,7 @@ class Plan {
                          }
                          if(it['Frequency'] != null){
                              def payload_frequency = it['Frequency']
-                             payloadComponent.frequency = payload_frequency
+                             payloadComponent.property = payload_frequency
                          }
                          if(it['Active'] != null){
                              def payload_active = it['Active']
@@ -480,7 +500,7 @@ class Plan {
                          }
                          if(it['Frequency'] != null){
                              def payload_frequency = it['Frequency']
-                             payloadComponent.frequency = payload_frequency
+                             payloadComponent.property = payload_frequency
                          }
                          if(it['Active'] != null){
                              def payload_active = it['Active']
@@ -553,7 +573,7 @@ class Plan {
                          }
                          if(it['Frequency'] != null){
                              def payload_frequency = it['Frequency']
-                             payloadComponent.frequency = payload_frequency
+                             payloadComponent.property = payload_frequency
                          }
                          if(it['Active'] != null){
                              def payload_active = it['Active']
