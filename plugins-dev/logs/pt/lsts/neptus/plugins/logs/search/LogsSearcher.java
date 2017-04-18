@@ -299,7 +299,7 @@ public class LogsSearcher extends ConsolePanel {
     }
 
     private void handleLogsConcatenation(int[] selectedRows) throws Exception {
-        File[] files = new File[selectedRows.length];
+        ArrayList<File> files = new ArrayList<>(selectedRows.length);
         StringBuilder sb = new StringBuilder();
         sb.append(LOGS_DOWNLOAD_DIR + "/merged");
 
@@ -307,7 +307,7 @@ public class LogsSearcher extends ConsolePanel {
         int i = 0;
         for(int row : selectedRows) {
             int rowIndex = resultsTable.convertRowIndexToModel(row);
-            files[i] = fetchLog(getLogPathAt(rowIndex));
+            files.add(fetchLog(getLogPathAt(rowIndex)));
 
             String logName = (String) tableModel.getValueAt(rowIndex, 4);
             sb.append("-" + logName);
@@ -319,7 +319,7 @@ public class LogsSearcher extends ConsolePanel {
         File destLogPath = new File(sb.toString() + "/Data.lsf");
         if(!destLogPath.exists()) {
             destLogParent.mkdirs();
-            logsMerger.merge(files, destLogPath);
+            logsMerger.merge(files, destLogPath, new ArrayList<>(), null);
         }
 
         setStatus(false, "");
