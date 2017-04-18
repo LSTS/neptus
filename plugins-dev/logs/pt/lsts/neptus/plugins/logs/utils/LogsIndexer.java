@@ -36,6 +36,7 @@ import pt.lsts.imc.*;
 import pt.lsts.imc.lsf.batch.LsfBatch;
 import pt.lsts.neptus.data.GeoCollection;
 import pt.lsts.neptus.plugins.logs.search.LogsDbHandler;
+import pt.lsts.neptus.plugins.logs.search.LogsSearcher;
 
 import java.io.File;
 import java.io.IOException;
@@ -246,7 +247,7 @@ public class LogsIndexer {
         System.out.println("Parsing logs...");
         while ((msg = batch.nextLog()) != null) {
             LogsDbHandler.DbEntry currentEntry = null;
-            String logPath = msg.root + "/Data.lsf.gz";
+            String logPath = (msg.root + "/Data.lsf.gz").split(LogsSearcher.FTP_BASE_DIR)[1];
 
             if(!isVehicleLog(msg.root))
                 continue;

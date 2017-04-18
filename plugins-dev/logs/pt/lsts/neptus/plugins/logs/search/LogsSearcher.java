@@ -65,7 +65,7 @@ public class LogsSearcher extends ConsolePanel {
 
     private final String FTP_HOST = "10.0.2.70";
     private final int FTP_PORT = 2121;
-    private final String FTP_BASE_DIR = "/home/tsm/ws/lsts/";
+    public static final String FTP_BASE_DIR = "/home/tsm/ws/lsts/sardinha-mnt/";
     private static final File LOGS_DOWNLOAD_DIR = new File(System.getProperty("user.dir") + "/log/logs-searcher/");
     private final LogsDbHandler db = new LogsDbHandler();
 
@@ -319,7 +319,15 @@ public class LogsSearcher extends ConsolePanel {
         File destLogPath = new File(sb.toString() + "/Data.lsf");
         if(!destLogPath.exists()) {
             destLogParent.mkdirs();
-            logsMerger.merge(files, destLogPath, new ArrayList<>(), null);
+            try {
+                logsMerger.merge(files, destLogPath, new ArrayList<>(), null);
+            } catch(Exception e) {
+                e.printStackTrace();
+                setStatus(false, "");
+                GuiUtils.errorMessage(mainPanel, "Error", "Error while merging logs");
+
+                return;
+            }
         }
 
         setStatus(false, "");
@@ -455,7 +463,7 @@ public class LogsSearcher extends ConsolePanel {
 
             while(res.next()) {
                 isEmpty = false;
-                String path = res.getString(LogsDbHandler.LogTableColumnName.PATH.toString());
+                String path = FTP_BASE_DIR + res.getString(LogsDbHandler.LogTableColumnName.PATH.toString());
 
                 String logName = res.getString(LogsDbHandler.LogTableColumnName.LOG_NAME.toString());
 
