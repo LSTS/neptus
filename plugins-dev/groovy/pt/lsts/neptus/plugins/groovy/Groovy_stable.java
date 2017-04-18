@@ -40,6 +40,7 @@ import java.io.PrintStream;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 
 import javax.swing.AbstractAction;
 import javax.swing.Action;
@@ -57,10 +58,10 @@ import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.comm.manager.imc.ImcSystem;
 import pt.lsts.neptus.comm.manager.imc.ImcSystemsHolder;
 import pt.lsts.neptus.console.ConsoleLayout;
+import pt.lsts.neptus.console.events.ConsoleEventMissionChanged;
+import pt.lsts.neptus.console.events.ConsoleEventPlanChange;
 import pt.lsts.neptus.console.events.ConsoleEventVehicleStateChanged;
 import pt.lsts.neptus.console.notifications.Notification;
-import pt.lsts.neptus.console.plugins.planning.plandb.PlanDBAdapter;
-import pt.lsts.neptus.console.plugins.planning.plandb.PlanDBState;
 import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.plugins.PluginDescription;
 import pt.lsts.neptus.plugins.Popup;
@@ -90,6 +91,7 @@ public class Groovy_stable extends InteractionAdapter {
     private Map<String,VehicleType> vehicles = Collections.synchronizedMap(new HashMap<>()); 
     private Map<String,PlanType> plans = Collections.synchronizedMap(new HashMap<>()); 
     private Map<String,LocationType> locations = Collections.synchronizedMap(new HashMap<>());
+    private Optional<String>  result; //bindig variable to process output in the script
     private Binding binds; //verify use of @TypeChecked
     private GroovyScriptEngine engine;
     private CompilerConfiguration config;
@@ -124,6 +126,7 @@ public class Groovy_stable extends InteractionAdapter {
         this.binds.setVariable("plans_id", plans.keySet().toArray());
         this.binds.setVariable("locations", locations.values().toArray());
         this.binds.setVariable("console", getConsole()); //TODO NOTIFY the existing binding to be used in the script
+        this.binds.setVariable("result", null);
         try {
             //Description/notification: "Place your groovy scripts in the folder script of the plugin"
             this.engine = new GroovyScriptEngine("plugins-dev/groovy/pt/lsts/neptus/plugins/groovy/scripts/");
@@ -193,6 +196,8 @@ public class Groovy_stable extends InteractionAdapter {
                                     PrintStream output = new PrintStream(new FileOutputStream(new File("plugins-dev/groovy/pt/lsts/neptus/plugins/groovy/scripts/outputs/"+groovy_script.getName()+System.currentTimeMillis())));
                                     //PrintStream output = showOutput(groovy_script.getName());           
                                     getBinds().setProperty("out",output);
+                                    //TODO result = output.toString();
+                                    //getBinds().setVariable("result",output.toString());
                                     engine.run(groovy_script.getName(), binds);
                                     
                                     if(stopScript.isEnabled())
@@ -250,8 +255,11 @@ public class Groovy_stable extends InteractionAdapter {
         add(stopScript);
         stopScript.setEnabled(false);
     }
-
-
+    @Subscribe
+    public void on(ConsoleEventPlanChange newPlan) {
+            plans.put(newPlan.getCurrent().getId(), newPlan.getCurrent());
+            System.out.println("New Plan!! "+newPlan.getCurrent().getId());
+    }
 
 
     @Subscribe
@@ -303,43 +311,7 @@ public class Groovy_stable extends InteractionAdapter {
         this.plans.put(planId, getConsole().getMission().getIndividualPlansList().get(planId));
     }
 
-
-
-    protected PlanDBAdapter planDBListener = new PlanDBAdapter() {
-        @Override
-        public void dbCleared() {
-        }
-
-        @Override
-        public void dbInfoUpdated(PlanDBState updatedInfo) {
-            System.out.println("DB info update");
-        }
-
-        @Override
-        public void dbPlanReceived(PlanType plan) {
-            plan.setMissionType(getConsole().getMission());
-            getConsole().getMission().addPlan(plan);
-            getConsole().getMission().save(true);
-            getConsole().updateMissionListeners();
-            addPlan(plan.getId());
-            getBinds().setVariable("plans_id",getPlans().keySet().toArray());
-            System.out.println("Added Plan: "+plan.getId());
-
-        }
-
-        @Override
-        public void dbPlanRemoved(String planId) {
-            System.out.println("dbPlanRemoved");
-        }
-
-        @Override
-        public void dbPlanSent(String planId) {
-            System.out.println("dbPlanSent");
-        }
-    };
-
-
-   /**
+    /**
      * @return the binds
      */
     public Binding getBinds() {
@@ -352,13 +324,7 @@ public class Groovy_stable extends InteractionAdapter {
     public HashMap<String, PlanType> getPlans() {
         return (HashMap<String, PlanType>) plans;
     }
-
-    
-
 }
-
-
-
 
 /*@Subscribe
 public void onConsoleEventPlanChange(ConsoleEventPlanChange plan) {
