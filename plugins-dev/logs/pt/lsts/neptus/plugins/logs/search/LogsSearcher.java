@@ -125,19 +125,18 @@ public class LogsSearcher extends ConsolePanel {
 
     @Periodic(millisBetweenUpdates = 3000)
     public void onPeriodicCall() {
-        if(ftp == null || db == null)
+        if(db == null)
             return;
 
         boolean isDbConnected = db.isConnected();
-        boolean isFtpConnected = isFtpConnected();
 
-        if(isDbConnected && isFtpConnected && firstConnection) {
+        if(isDbConnected && firstConnection) {
             firstConnection = false;
             initQueryOptions();
         }
 
-        if(!isDbConnected || !isFtpConnected)
-            setStatus(true, "Waiting for connection");
+        if(!isDbConnected)
+            setStatus(true, "Waiting for connection to database");
         else
             setStatus(false, "");
 
@@ -149,34 +148,25 @@ public class LogsSearcher extends ConsolePanel {
     private void startConnections() {
         new Thread(() -> {
             db.connect();
-            connectFtp();
         }).start();
     }
 
-    public void connectFtp() {
+    public boolean connectFtp() {
         try {
-            if(ftp == null || !ftp.isConnected()) {
+            if(ftp == null)
                 ftp = new FtpDownloader(FTP_HOST, FTP_PORT);
-                ftp.renewClient();
-                ftpClient = ftp.getClient();
-            }
-        } catch (Exception e) {
-            /*e.printStackTrace();*/
-        }
-    }
 
-    private boolean isFtpConnected() {
-        if(ftp == null)
-            return false;
-
-        try {
             ftp.renewClient();
-        } catch (IOException e) {}
+            ftpClient = ftp.getClient();
 
-        if(ftpClient != null && ftpClient.isConnected())
-            return true;
+            if(ftpClient != null)
+                return ftpClient.isConnected();
 
-        return ftpClient.isConnected();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return false;
     }
 
     public void buildGui() {
@@ -494,15 +484,13 @@ public class LogsSearcher extends ConsolePanel {
      * Open a selected log in MRA
      * */
     private void openLog(String logAbsolutePathStr) {
-        if(!ftp.isConnected())
-            return;
-
         setStatus(true, "Downloading logs");
 
         // Fetch file from remote (FTP?)
         File logFile = null;
         try {
             logFile = fetchLog(logAbsolutePathStr);
+            ftpClient.disconnect();
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -521,6 +509,11 @@ public class LogsSearcher extends ConsolePanel {
      * Fetch remote logs
      * */
     private File fetchLog(String logRemoteAbsolutePath) throws IOException {
+        if(!connectFtp()) {
+            GuiUtils.errorMessage(mainPanel, "Connection error", "No FTP connection");
+            return null;
+        }
+
         String logParentRemoteDir = logRemoteAbsolutePath.split("/Data.lsf.gz")[0];
         String logParentLocalDirStr = LOGS_DOWNLOAD_DIR + "/" + logParentRemoteDir.split(FTP_BASE_DIR)[1];
         File localLogAbsolutePath = new File(logParentLocalDirStr + "/Data.lsf.gz");
@@ -540,7 +533,13 @@ public class LogsSearcher extends ConsolePanel {
 
         String ftpRootDir = ftpClient.printWorkingDirectory();
         String baseDir = logParentRemoteDir.split(FTP_BASE_DIR)[1];
-        ftpClient.changeWorkingDirectory(baseDir);
+
+
+        if(!ftpClient.changeWorkingDirectory(baseDir)) {
+            NeptusLog.pub().error("Couldn't move to remote: " + baseDir);
+            return null;
+        }
+
         StringBuilder sb = null;
 
         for(FTPFile ftpFile : ftpClient.listFiles()) {
