@@ -52,6 +52,7 @@ import pt.lsts.neptus.renderer2d.StateRenderer2D;
 import pt.lsts.neptus.types.coord.LocationType;
 import pt.lsts.neptus.types.map.ParallelepipedElement;
 import pt.lsts.neptus.util.ColorUtils;
+import pt.lsts.neptus.util.conf.ConfigFetch;
 
 /**
  * @author zp
@@ -61,6 +62,8 @@ import pt.lsts.neptus.util.ColorUtils;
 @XmlRootElement(name = "OperationLimits")
 @LayerPriority(priority = 35)
 public class OperationLimits implements Renderer2DPainter {
+
+    public static final String FOLDER_CONF_OPLIMITS = ConfigFetch.getConfFolder() + "/oplimits/";
 
     private static final Color STRIPES_YELLOW_TRAMP = ColorUtils.setTransparencyToColor(ColorUtils.STRIPES_YELLOW, 130);
     private static final Paint PAINT_STRIPES = ColorUtils.createStripesPaint(ColorUtils.STRIPES_YELLOW, Color.BLACK);
@@ -271,6 +274,16 @@ public class OperationLimits implements Renderer2DPainter {
 
     public static OperationLimits loadXml(String xml) {
         return JAXB.unmarshal(new StringReader(xml), OperationLimits.class);
+    }
+
+    /**
+     * Return the file path for the operation limits for a system with name systemName.
+     * 
+     * @param systemName
+     * @return
+     */
+    public static String getFilePathForSystem(String systemName) {
+        return FOLDER_CONF_OPLIMITS + systemName + ".xml";
     }
 
     public static void main(String[] args) {

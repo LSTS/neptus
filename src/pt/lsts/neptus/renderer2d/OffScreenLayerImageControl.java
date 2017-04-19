@@ -32,6 +32,7 @@
  */
 package pt.lsts.neptus.renderer2d;
 
+import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics2D;
 import java.awt.GraphicsConfiguration;
@@ -128,6 +129,10 @@ public class OffScreenLayerImageControl {
      * 
      */
     public boolean paintPhaseStartTestRecreateImageAndRecreate(Graphics2D g, StateRenderer2D renderer) {
+        BufferedImage prevCache = cacheImg;
+        int prevWidth = cacheImg != null ? cacheImg.getWidth() : -1;
+        int prevHeight = cacheImg != null ? cacheImg.getHeight() : -1;
+        
         if (!clearImgCacheRqst) {
             if (isToRegenerateCache(renderer)) {
                 cacheImg = null;
@@ -144,23 +149,30 @@ public class OffScreenLayerImageControl {
             lastCenter = renderer.getCenter();
             lastRotation = renderer.getRotation();
 
-            GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
-            GraphicsDevice gs = ge.getDefaultScreenDevice();
-            GraphicsConfiguration gc = gs.getDefaultConfiguration();
-            cacheImg = gc.createCompatibleImage((int) dim.getWidth() + offScreenBufferPixel * 2, (int) dim.getHeight()
-                    + offScreenBufferPixel * 2, imageTransparencyType);
-            Graphics2D g2 = cacheImg.createGraphics();
+            int newWidth = (int) dim.getWidth() + offScreenBufferPixel * 2;
+            int newHeight = (int) dim.getHeight() + offScreenBufferPixel * 2;
+            Graphics2D g2;
+            if (prevCache == null || prevWidth != newWidth && prevHeight != newHeight) {
+                GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
+                GraphicsDevice gs = ge.getDefaultScreenDevice();
+                GraphicsConfiguration gc = gs.getDefaultConfiguration();
+                cacheImg = gc.createCompatibleImage(newWidth , newHeight , imageTransparencyType);
+            }
+            else { // Let us reuse the image
+                cacheImg = prevCache;
+                Graphics2D gc = (Graphics2D) cacheImg.createGraphics().create();
+                gc.setBackground(new Color(0, 0, 0, 0));
+                gc.clearRect(0, 0, cacheImg.getWidth(), cacheImg.getHeight());
+                gc.dispose();
+            }
+            g2 = cacheImg.createGraphics();
             
             g2.translate(offScreenBufferPixel, offScreenBufferPixel);
             
-//            g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-//            g2.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
-            g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_OFF);
-            g2.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_SPEED);
-            
-//            paintData(renderer, g2);
-//            
-//            g2.dispose();
+            g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+            g2.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
+            // g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_OFF);
+            // g2.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_SPEED);
             
             imageGraphics = g2;
             return true;
