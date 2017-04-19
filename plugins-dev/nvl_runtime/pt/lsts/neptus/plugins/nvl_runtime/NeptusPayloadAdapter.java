@@ -32,7 +32,7 @@
  */
 package pt.lsts.neptus.plugins.nvl_runtime;
 
-import pt.lsts.neptus.nvl.runtime.PayloadComponent;
+import pt.lsts.nvl.runtime.PayloadComponent;
 
 /**
  * @author keila

@@ -30,7 +30,7 @@
  * Author: keila
  * 16/03/2017
  */
-package pt.lsts.neptus.nvl.imc.dsl;
+package pt.lsts.nvl.imc.dsl;
 
 
 /**

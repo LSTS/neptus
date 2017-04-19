@@ -136,7 +136,7 @@ public class Groovy extends InteractionAdapter {
         this.config = new CompilerConfiguration();
         this.customizer = new ImportCustomizer();
         this.customizer.addImports("pt.lsts.imc.net.IMCProtocol","pt.lsts.imc.net.Consume","pt.lsts.neptus.types.coord.LocationType");
-        this.customizer.addStarImports("pt.lsts.imc","pt.lsts.neptus.nvl.imc.dsl","pt.lsts.neptus.types.map"); //this.getClass().classLoader.rootLoader.addURL(new File("file.jar").toURL())
+        this.customizer.addStarImports("pt.lsts.imc","pt.lsts.nvl.imc.dsl","pt.lsts.neptus.types.map"); //this.getClass().classLoader.rootLoader.addURL(new File("file.jar").toURL())
         this.config.addCompilationCustomizers(customizer);
         this.binds = new Binding();
         this.binds.setVariable("vehicles_id", vehicles.keySet().toArray());
@@ -200,46 +200,6 @@ public class Groovy extends InteractionAdapter {
 //    };
 //    
    
-  protected PlanDBAdapter planDBListener = new PlanDBAdapter() {
-        @Override
-        public void dbCleared() {
-            System.out.println("DBListener1");
-
-        }
-
-        @Override
-        public void dbInfoUpdated(PlanDBState updatedInfo) {
-            System.out.println("DBListener2");
-
-        }
-
-        @Override
-        public void dbPlanReceived(PlanType plan) {
-            plan.setMissionType(getConsole().getMission());
-            getConsole().getMission().addPlan(plan);
-            getConsole().getMission().save(true);
-            getConsole().updateMissionListeners();
-            addPlan(plan.getId());
-            getBinds().setVariable("plans_id",getPlans().keySet().toArray());
-            System.out.println("Added Plan: "+plan.getId());
-
-        }
-
-        @Override
-        public void dbPlanRemoved(String planId) {
-//            getConsole().getMission().getIndividualPlansList().remove(planId);
-//            getConsole().getMission().save(true);
-//            getConsole().updateMissionListeners();
-//            removePlan(planId);
-//            getBinds().setVariable("plans_id",getPlans().keySet().toArray());
-            System.out.println("dbPlanRemoved");
-        }
-
-        @Override
-        public void dbPlanSent(String planId) {
-            System.out.println("dbPlanSent");
-        }
-    };
 private JComponent renderer;
 private Object delegate;
 

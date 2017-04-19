@@ -1,4 +1,4 @@
-package pt.lsts.neptus.nvl.runtime;
+package pt.lsts.nvl.runtime;
 
 public enum NVLVehicleType {
   AUV,

@@ -38,15 +38,15 @@ import java.util.List;
 import pt.lsts.neptus.comm.manager.imc.ImcSystem;
 import pt.lsts.neptus.comm.manager.imc.ImcSystemsHolder;
 import pt.lsts.neptus.console.events.ConsoleEventVehicleStateChanged.STATE;
-import pt.lsts.neptus.nvl.runtime.Availability;
-import pt.lsts.neptus.nvl.runtime.NVLVehicle;
-import pt.lsts.neptus.nvl.runtime.NVLVehicleType;
-import pt.lsts.neptus.nvl.runtime.PayloadComponent;
-import pt.lsts.neptus.nvl.runtime.Position;
 import pt.lsts.neptus.types.comm.CommMean;
 import pt.lsts.neptus.types.mission.plan.PlanCompatibility;
 import pt.lsts.neptus.types.vehicle.VehicleType.SystemTypeEnum;
 import pt.lsts.neptus.types.vehicle.VehicleType.VehicleTypeEnum;
+import pt.lsts.nvl.runtime.Availability;
+import pt.lsts.nvl.runtime.NVLVehicle;
+import pt.lsts.nvl.runtime.NVLVehicleType;
+import pt.lsts.nvl.runtime.PayloadComponent;
+import pt.lsts.nvl.runtime.Position;
 import pt.lsts.neptus.types.vehicle.VehiclesHolder;
 
 /**

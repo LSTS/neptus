@@ -35,14 +35,15 @@ package pt.lsts.neptus.plugins.nvl_runtime;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import pt.lsts.neptus.nvl.runtime.Availability;
-import pt.lsts.neptus.nvl.runtime.NVLVehicleType;
-import pt.lsts.neptus.nvl.runtime.PayloadComponent;
-import pt.lsts.neptus.nvl.runtime.Position;
-import pt.lsts.neptus.nvl.runtime.TaskSpecification;
-import pt.lsts.neptus.nvl.runtime.VehicleRequirements;
+
 import pt.lsts.neptus.types.mission.plan.PlanCompatibility;
 import pt.lsts.neptus.types.mission.plan.PlanType;
+import pt.lsts.nvl.runtime.Availability;
+import pt.lsts.nvl.runtime.NVLVehicleType;
+import pt.lsts.nvl.runtime.PayloadComponent;
+import pt.lsts.nvl.runtime.Position;
+import pt.lsts.nvl.runtime.TaskSpecification;
+import pt.lsts.nvl.runtime.VehicleRequirements;
 
 /**
  * @author keila

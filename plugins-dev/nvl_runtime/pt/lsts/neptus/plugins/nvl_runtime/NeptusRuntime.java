@@ -22,19 +22,19 @@ import pt.lsts.neptus.console.ConsoleLayout;
 import pt.lsts.neptus.console.events.ConsoleEventVehicleStateChanged;
 import pt.lsts.neptus.console.events.ConsoleEventVehicleStateChanged.STATE;
 import pt.lsts.neptus.i18n.I18n;
-import pt.lsts.neptus.nvl.runtime.Availability;
-import pt.lsts.neptus.nvl.runtime.Filter;
-import pt.lsts.neptus.nvl.runtime.NVLRuntime;
-import pt.lsts.neptus.nvl.runtime.NVLVehicle;
-import pt.lsts.neptus.nvl.runtime.NVLVehicleType;
-import pt.lsts.neptus.nvl.runtime.TaskExecution;
-import pt.lsts.neptus.nvl.runtime.TaskSpecification;
-import pt.lsts.neptus.nvl.runtime.VehicleRequirements;
 import pt.lsts.neptus.plugins.PluginDescription;
 import pt.lsts.neptus.plugins.Popup;
 import pt.lsts.neptus.plugins.Popup.POSITION;
 import pt.lsts.neptus.renderer2d.InteractionAdapter;
 import pt.lsts.neptus.types.mission.plan.PlanType;
+import pt.lsts.nvl.runtime.Availability;
+import pt.lsts.nvl.runtime.Filter;
+import pt.lsts.nvl.runtime.NVLRuntime;
+import pt.lsts.nvl.runtime.NVLVehicle;
+import pt.lsts.nvl.runtime.NVLVehicleType;
+import pt.lsts.nvl.runtime.TaskExecution;
+import pt.lsts.nvl.runtime.TaskSpecification;
+import pt.lsts.nvl.runtime.VehicleRequirements;
 
 @PluginDescription(name = "NVL Runtime Feature", author = "Keila Lima")
 @Popup(pos = POSITION.BOTTOM_RIGHT, width=300, height=300, accelerator='y')

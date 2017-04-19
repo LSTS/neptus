@@ -1,4 +1,4 @@
-package pt.lsts.neptus.nvl.runtime;
+package pt.lsts.nvl.runtime;
 
 // Utility class to group methods directly called by Groovy DSL / other code
 public final class API {

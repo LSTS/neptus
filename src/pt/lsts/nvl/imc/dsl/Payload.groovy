@@ -30,7 +30,7 @@
  * Author: lsts
  * 10/04/2017
  */
-package pt.lsts.neptus.nvl.imc.dsl
+package pt.lsts.nvl.imc.dsl
 
 import org.dom4j.Element;
 import com.l2fprod.common.propertysheet.Property

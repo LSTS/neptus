@@ -35,8 +35,8 @@ package pt.lsts.neptus.plugins.nvl_runtime;
 import com.google.common.eventbus.Subscribe;
 
 import pt.lsts.imc.PlanControlState;
-import pt.lsts.neptus.nvl.runtime.TaskExecution;
-import pt.lsts.neptus.nvl.runtime.TaskState;
+import pt.lsts.nvl.runtime.TaskExecution;
+import pt.lsts.nvl.runtime.TaskState;
 
 /**
  * @author lsts

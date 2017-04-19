@@ -1,8 +1,8 @@
-package pt.lsts.neptus.nvl.runtime;
+package pt.lsts.nvl.runtime;
+
+import static pt.lsts.nvl.runtime.API.*;
 
 import java.util.List;
-
-import static pt.lsts.neptus.nvl.runtime.API.*;
 
 public class TemporaryExamples {
 

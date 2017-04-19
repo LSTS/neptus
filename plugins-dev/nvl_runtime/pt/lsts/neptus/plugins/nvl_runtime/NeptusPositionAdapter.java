@@ -32,8 +32,8 @@
  */
 package pt.lsts.neptus.plugins.nvl_runtime;
 
-import pt.lsts.neptus.nvl.runtime.Position;
 import pt.lsts.neptus.types.coord.LocationType;
+import pt.lsts.nvl.runtime.Position;
 
 /**
  * @author keila

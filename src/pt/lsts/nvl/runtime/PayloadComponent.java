@@ -27,33 +27,17 @@
  *
  * For more information please see <http://lsts.fe.up.pt/neptus>.
  *
- * Author: keila
- * 16/03/2017
+ * Author: lsts
+ * 27/03/2017
  */
-package pt.lsts.neptus.nvl.imc.dsl;
-
+package pt.lsts.nvl.runtime;
 
 /**
  * @author lsts
  *
  */
-class Z {
-    
-    public enum Units {
-        DEPTH,
-        ALTITUDE,
-        HEIGHT,
-        NONE
-    }
-    
-    double value;
-    Units units;
-    public Z(double value,Units units) {
-        this.value=value;
-        this.units=units;
-    }
-
-    String  getUnits(){
-        return this.units.toString();
-        }
+public interface PayloadComponent {
+     String getName();
+     int getRange();
+     int getFrequency();
 }
