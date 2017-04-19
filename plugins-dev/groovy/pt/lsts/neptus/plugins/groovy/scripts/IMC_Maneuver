@@ -17,9 +17,9 @@ speed.value = 1.2
 z.value = 5
 z.units = Z.Units.ALTITUDE
 
-def new_z = new Z(3,Z.Units.DEPTH)
+def another_z = new Z(3,Z.Units.DEPTH)
 
-goTo id:"xpto",z:new_z, payload: {name:Multibeam, range: 30}
+goTo id:"xpto",z:another_z, payload: [[name:Multibeam, Range: 30]]
 
 
 move 100, 0

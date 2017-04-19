@@ -32,6 +32,9 @@
  */
 package pt.lsts.neptus.plugins.nvl_runtime;
 
+import java.util.HashMap;
+
+
 import pt.lsts.nvl.runtime.PayloadComponent;
 
 /**
@@ -41,27 +44,13 @@ import pt.lsts.nvl.runtime.PayloadComponent;
 public class NeptusPayloadAdapter implements PayloadComponent {
  
     private final String name;
-    private final int range;//in Meters
-    private final int frequency;
-    public NeptusPayloadAdapter(String n, int r,int f){ //range in meters
-        name = n;
-        range = r;
-        frequency = f;
-    }
+    private final HashMap<String,String> parameters;
+
     public NeptusPayloadAdapter(String n){ //sensor range 0 if null
         name = n;
-        range = 0;
-        frequency = 0;
+        parameters = new HashMap<>();
     }
     
-    @Override
-    public String getName() {
-        return name;
-    }
-    @Override
-    public int getRange() {
-        return range;
-    }
     @Override
     public boolean equals(Object o) {
         if (o == this) {
@@ -72,42 +61,44 @@ public class NeptusPayloadAdapter implements PayloadComponent {
         }
         PayloadComponent pc = (PayloadComponent) o;
         
-        return pc.getName().equals(name) && pc.getRange() == range && pc.getFrequency() == frequency;
+        return pc.getName().equals(name) && pc.getParameters()!= null && this.getParameters()!=null && 
+                pc.getParameters().entrySet().containsAll(this.getParameters().entrySet());
         
     }
     
-    /**
-     * Compares if the other payload can perform in the same capacities as this one
-     * @param other
-     * @return
-     */
-    public boolean hasMinCapacity(PayloadComponent other) {
-        return other.getName().equals(name) && compatibleRange(other) && compatibleFrequency(other);
-    }
+//    /**
+//     * Compares if the other payload can perform in the same capacities as this one
+//     * @param other
+//     * @return
+//     */
+//    public boolean hasMinCapacity(PayloadComponent other) {
+//        return other.getName().equals(name) && compatibleRange(other) && compatibleFrequency(other);
+//    }
     
-    /**
-     * If the payload your comparing to has at least the same capacity
-     * @param other
-     * @return 
-     */
-    public boolean compatibleRange(PayloadComponent other){
-        return other.getRange()>= this.getRange();
-    }
-    /**
-     * If the payload your comparing to has at least the same frequency? //TODO does this makes sense?
-     * @param other
-     * @return 
-     */
-    public boolean compatibleFrequency(PayloadComponent other){
-        return other.getFrequency()>= this.getFrequency();
-    }
     
     /* (non-Javadoc)
-     * @see pt.lsts.neptus.nvl.runtime.PayloadComponent#getFrequency()
+     * @see pt.lsts.nvl.runtime.PayloadComponent#getParameters()
      */
     @Override
-    public int getFrequency() {
-        return frequency;
+    public HashMap<String, String> getParameters() {
+        return parameters;
+    }
+
+    /* (non-Javadoc)
+     * @see pt.lsts.nvl.runtime.PayloadComponent#getName()
+     */
+    @Override
+    public String getName() {
+        return name;
+    }
+
+    /* (non-Javadoc)
+     * @see pt.lsts.nvl.runtime.PayloadComponent#setParameter(java.lang.String, java.lang.String)
+     */
+    @Override
+    public void setParameter(String key, String value) {
+        parameters.put(key,value);
+        
     }
 
 }

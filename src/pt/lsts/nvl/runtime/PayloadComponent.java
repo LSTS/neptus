@@ -32,12 +32,14 @@
  */
 package pt.lsts.nvl.runtime;
 
+import java.util.Map;
+
 /**
  * @author lsts
  *
  */
 public interface PayloadComponent {
      String getName();
-     int getRange();
-     int getFrequency();
+     Map<String,String> getParameters();
+     void setParameter(String key,String value);
 }

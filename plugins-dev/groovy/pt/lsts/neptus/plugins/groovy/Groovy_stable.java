@@ -198,7 +198,6 @@ public class Groovy_stable extends InteractionAdapter {
                                     //TODO result = output.toString();
                                     //getBinds().setVariable("result",output.toString());
                                     engine.run(groovy_script.getName(), binds);
-                                    
                                     if(stopScript.isEnabled())
                                         stopScript.setEnabled(false);
                                 }
@@ -257,7 +256,8 @@ public class Groovy_stable extends InteractionAdapter {
     @Subscribe
     public void on(ConsoleEventPlanChange newPlan) {
             plans.put(newPlan.getCurrent().getId(), newPlan.getCurrent());
-            System.out.println("New Plan!! "+newPlan.getCurrent().getId());
+            //System.out.println("New Plan!! "+newPlan.getCurrent().getId());
+            //TODO mission type change to check removed 
     }
 
 

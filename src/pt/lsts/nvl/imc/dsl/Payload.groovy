@@ -52,27 +52,34 @@ class Payload {
     List<EntityParameter> params
     
     public Payload(String nombre) {
-        available_params = new HashMap<>()
+        name=nombre
         params = new ArrayList<>()
+        params.add(new EntityParameter("Active","true"))
+        available_params = new HashMap<>()
 //        available_params.put("Multibeam",["Range"])
 //        available_params.put("Camera",["Frequency"])
-        name=nombre
+        
       }
-    
-    public void active(boolean isActive){
-        //TODO verify if it is a IMC payload ou Comm mean requirement (acoustic modem)
-        isActive ?  params.add(new EntityParameter("Active","true")) : params.add(new EntityParameter("Active","false"))
-    }
+    String normalizeParameterName (String parameter){
+        String[] aux = parameter.split()
+        String result = aux[0].toLowerCase().capitalize()
+        for(int i=1;i<aux.length;i++) {
+            result+=" "+ aux[i].toLowerCase().capitalize()
+        }
+        println result
+        result
+     }
+   
     public void property (String prop,int value){
-        params.add(new EntityParameter(prop,r.toString()))
+        params.add(new EntityParameter(prop,value.toString()))
     }
-    public void property (int value){
-        params.add(new EntityParameter("Frequency",value.toString()))
+    public void property (String prop,String value){
+        params.add(new EntityParameter(prop,value))
     }
+    
 
     public static Property  properties(String maneuver,List<Payload> payloads) {
         //Maneuver -> startActions -> set entityParameters -> name-> param: Active, value: true
-        
         List<SetEntityParameters> setEntities = new ArrayList<>()
         payloads.each{
             def sEntityP = new SetEntityParameters() //new SetEntityParameters(it.name,it.params)
