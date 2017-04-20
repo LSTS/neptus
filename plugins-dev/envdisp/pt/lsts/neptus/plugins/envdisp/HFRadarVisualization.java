@@ -718,15 +718,20 @@ public class HFRadarVisualization extends ConsolePanel implements Renderer2DPain
             return;
 
         for (File fx : fileList) {
-            HashMap<?, ?>[] meteodp = processMeteoFile(fx.getAbsolutePath());
-            @SuppressWarnings("unchecked")
-            HashMap<String, SSTDataPoint> sstdp = (HashMap<String, SSTDataPoint>) meteodp[0];
-            if (sstdp != null && sstdp.size() > 0)
-                mergeSSTDataToInternalDataList(sstdp);
-            @SuppressWarnings("unchecked")
-            HashMap<String, WindDataPoint> winddp = (HashMap<String, WindDataPoint>) meteodp[1];
-            if (winddp != null && winddp.size() > 0)
-                mergeWindDataToInternalDataList(winddp);
+            try {
+                HashMap<?, ?>[] meteodp = processMeteoFile(fx.getAbsolutePath());
+                @SuppressWarnings("unchecked")
+                HashMap<String, SSTDataPoint> sstdp = (HashMap<String, SSTDataPoint>) meteodp[0];
+                if (sstdp != null && sstdp.size() > 0)
+                    mergeSSTDataToInternalDataList(sstdp);
+                @SuppressWarnings("unchecked")
+                HashMap<String, WindDataPoint> winddp = (HashMap<String, WindDataPoint>) meteodp[1];
+                if (winddp != null && winddp.size() > 0)
+                    mergeWindDataToInternalDataList(winddp);
+            }
+            catch (Exception e) {
+                e.printStackTrace();
+            }
         }
     }
 
