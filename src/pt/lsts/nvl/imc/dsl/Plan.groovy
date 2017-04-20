@@ -20,7 +20,9 @@ import pt.lsts.imc.net.*
 import pt.lsts.neptus.comm.IMCSendMessageUtils
 import pt.lsts.neptus.comm.manager.imc.ImcSystem
 import pt.lsts.neptus.comm.manager.imc.ImcSystemsHolder
+import pt.lsts.neptus.types.mission.plan.PlanCompatibility;
 import pt.lsts.neptus.types.mission.plan.PlanType
+import pt.lsts.neptus.types.vehicle.VehiclesHolder;
 import pt.lsts.neptus.types.mission.ConditionType
 import pt.lsts.neptus.types.mission.MissionType
 import pt.lsts.neptus.types.mission.TransitionType
@@ -53,13 +55,14 @@ class Plan {
 	int count
     String [] vehicles_id
     String otherPayloads //Communications means and Acoustics requirements //TODO
+    ConsoleLayout neptusConsole
 	Plan(String id){
 		plan_id = id
 		count = 1
 		location = Location.APDL
 		speed = new Speed(1.0, Speed.Units.METERS_PS)
 		z = new Z(0.0,Z.Units.DEPTH)
-		
+		neptusConsole = null
 	}
 
 	 def IMCManeuver maneuver(String id, Class maneuver) {
@@ -112,11 +115,11 @@ class Plan {
                          
                              it.each {
                              key,value -> 
-                             if(key!="name"){ //verify(payload,key) <-- verify it parameter exists in payload to avoid runtime exceptions!"!!
+                             if(!key.equals("name")){ //verify(payload,key) <-- verify it parameter exists in payload to avoid runtime exceptions!"!!
                                  payloadComponent.property key, value}
                               }
 
-                         
+                         payload.add payloadComponent
                  }
                  else
                      println "The name of the payload required must be provided."              }
@@ -140,7 +143,8 @@ class Plan {
 	def IMCManeuver loiter(LinkedHashMap params){
          List<Payload> payload = new ArrayList<>()
 		double duration =  60.0,radius=20.0
-		def id = "${this.count++}"+".Loiter"
+		def id = "$count"+".Loiter"
+        count++
 		if (params != null){
 		 if(params['duration']!=null)
 		 	 duration= params.duration
@@ -154,28 +158,22 @@ class Plan {
 			 this.location = params.location
 		 if(params['id'] != null)
 			 id = params.id
-             if(params['payload'] != null){ 
+                         if(params['payload'] != null){ 
                  def payloadComponent
                  params['payload'].each{
                      if(it['name'] != null){
                          def payload_name = it['name']
                          payloadComponent = new Payload(payload_name)
-                         //TODO Another Map to payload parameters???
-                         if(it['Range'] != null){
-                             def payload_range = it['Range']
-                             payloadComponent.range payload_range
-                         }
-                         if(it['Frequency'] != null){
-                             def payload_frequency = it['Frequency']
-                             payloadComponent.property = payload_frequency
-                         }
-                         if(it['Active'] != null){
-                             def payload_active = it['Active']
-                             payloadComponent.active payload_active
-                         }
+                         
+                             it.each {
+                             key,value -> 
+                             if(!key.equals("name")){ //verify(payload,key) <-- verify it parameter exists in payload to avoid runtime exceptions!"!!
+                                 payloadComponent.property key, value}
+                              }
+
                          payload.add payloadComponent
                  }
-                 else 
+                 else
                      println "The name of the payload required must be provided."              }
          }
 		}
@@ -202,7 +200,8 @@ class Plan {
 	def IMCManeuver yoyo(LinkedHashMap params){
          List<Payload> payload = new ArrayList<>()
 		double max_depth=20.0,min_depth=2.0
-		def id = "${count++}"+".YoYo"
+		def id = "$count"+".YoYo"
+        count++
 		if (params != null){
 		 if(params['max_depth']!=null)
 			  max_depth= params.max_depth
@@ -223,21 +222,15 @@ class Plan {
                          def payload_name = it['name']
                          payloadComponent = new Payload(payload_name)
                          
-                         if(it['Range'] != null){
-                             def payload_range = it['Range']
-                             payloadComponent.range payload_range
-                         }
-                         if(it['Frequency'] != null){
-                             def payload_frequency = it['Frequency']
-                             payloadComponent.property = payload_frequency
-                         }
-                         if(it['Active'] != null){
-                             def payload_active = it['Active']
-                             payloadComponent.active payload_active
-                         }
+                             it.each {
+                             key,value -> 
+                             if(!key.equals("name")){ //verify(payload,key) <-- verify it parameter exists in payload to avoid runtime exceptions!"!!
+                                 payloadComponent.property key, value}
+                              }
+
                          payload.add payloadComponent
                  }
-                 else 
+                 else
                      println "The name of the payload required must be provided."              }
          }
 		}
@@ -251,7 +244,7 @@ class Plan {
         yoyo.parseIMCMessage(man)
         yoyo.setId(id)
         if (payload != null){
-            yoyo.setProperties(payload.properties("YoYo",payload))
+            yoyo.setProperties(Payload.properties("YoYo",payload))
             //man.setProperties(payload.properties())
         }
         neptus_mans.add yoyo
@@ -265,7 +258,8 @@ class Plan {
          List<Payload> payload = new ArrayList<>()
 		double duration = 0.0
 		def currPos = true
-		def id = "${this.count++}"+".PopUp"
+		def id = "$count"+".PopUp"
+        count++
 		if (params != null){
 		 if(params['duration']!=null)
 			  duration= params.duration
@@ -285,21 +279,16 @@ class Plan {
                      if(it['name'] != null){
                          def payload_name = it['name']
                          payloadComponent = new Payload(payload_name)
-                         if(it['Range'] != null){
-                             def payload_range = it['Range']
-                             payloadComponent.range payload_range
-                         }
-                         if(it['Frequency'] != null){
-                             def payload_frequency = it['Frequency']
-                             payloadComponent.property = payload_frequency
-                         }
-                         if(it['Active'] != null){
-                             def payload_active = it['Active']
-                             payloadComponent.active payload_active
-                         }
+                         
+                             it.each {
+                             key,value -> 
+                             if(!key.equals("name")){ //verify(payload,key) <-- verify it parameter exists in payload to avoid runtime exceptions!"!!
+                                 payloadComponent.property key, value}
+                              }
+
                          payload.add payloadComponent
                  }
-                 else 
+                 else
                      println "The name of the payload required must be provided."              }
          }
 		}
@@ -314,7 +303,7 @@ class Plan {
         popup.parseIMCMessage(man)
         popup.setId(id)
         if (payload != null){
-            popup.setProperties(payload.properties("PopUp",payload))
+            popup.setProperties(Payload.properties("PopUp",payload))
             //man.setProperties(payload.properties())
         }
         neptus_mans.add popup
@@ -326,7 +315,8 @@ class Plan {
 	def IMCManeuver skeeping(LinkedHashMap params){
          List<Payload> payload = new ArrayList<>()
 		double duration = 60.0,radius=20.0
-		def id = "${this.count++}"+".StationKeeping"
+		def id = "$count"+".StationKeeping"
+        count++
 		if (params != null){
 		 if(params['duration']!=null)
 			  duration= params.duration
@@ -340,27 +330,22 @@ class Plan {
 			 this.location = params.location
 		 if(params['id'] != null)
 			 id = params.id
-                     if(params['payload'] != null){ 
+                                 if(params['payload'] != null){ 
                  def payloadComponent
                  params['payload'].each{
                      if(it['name'] != null){
                          def payload_name = it['name']
                          payloadComponent = new Payload(payload_name)
-                         if(it['Range'] != null){
-                             def payload_range = it['Range']
-                             payloadComponent.range payload_range
-                         }
-                         if(it['Frequency'] != null){
-                             def payload_frequency = it['Frequency']
-                             payloadComponent.property = payload_frequency
-                         }
-                         if(it['Active'] != null){
-                             def payload_active = it['Active']
-                             payloadComponent.active payload_active
-                         }
+                         
+                             it.each {
+                             key,value -> 
+                             if(!key.equals("name")){ //verify(payload,key) <-- verify it parameter exists in payload to avoid runtime exceptions!"!!
+                                 payloadComponent.property key, value}
+                              }
+
                          payload.add payloadComponent
                  }
-                 else 
+                 else
                      println "The name of the payload required must be provided."              }
          }
 		}
@@ -373,7 +358,7 @@ class Plan {
         skeeping.parseIMCMessage(man)
         skeeping.setId(id)
         if (payload != null){
-            skeeping.setProperties(payload.properties("StaionKeeping",payload))
+            skeeping.setProperties(Payload.properties("StaionKeeping",payload))
             //man.setProperties(payload.properties())
         }
         neptus_mans.add skeeping
@@ -386,7 +371,8 @@ class Plan {
 		double amplitude=1,duration=300,radius=5,pitch=15
 		DIRECTION direction = DIRECTION.CLOCKW
          List<Payload> payload = new ArrayList<>()
-		def id = "${count++}"+".CompassCalibration"
+		def id = "$count"+".CompassCalibration"
+        count++
 		if (params != null){
 		 if(params['duration']!=null)
 			  duration= params.duration
@@ -402,27 +388,22 @@ class Plan {
 			 this.location = params.location
 		 if(params['id'] != null)
 			 id = params.id
-              if(params['payload'] != null){ 
+             if(params['payload'] != null){ 
                  def payloadComponent
                  params['payload'].each{
                      if(it['name'] != null){
                          def payload_name = it['name']
                          payloadComponent = new Payload(payload_name)
-                         if(it['Range'] != null){
-                             def payload_range = it['Range']
-                             payloadComponent.range payload_range
-                         }
-                         if(it['Frequency'] != null){
-                             def payload_frequency = it['Frequency']
-                             payloadComponent.property = payload_frequency
-                         }
-                         if(it['Active'] != null){
-                             def payload_active = it['Active']
-                             payloadComponent.active payload_active
-                         }
+                         
+                             it.each {
+                             key,value -> 
+                             if(!key.equals("name")){ //verify(payload,key) <-- verify it parameter exists in payload to avoid runtime exceptions!"!!
+                                 payloadComponent.property key, value}
+                              }
+
                          payload.add payloadComponent
                  }
-                 else 
+                 else
                      println "The name of the payload required must be provided."              }
          }
 		}
@@ -438,7 +419,7 @@ class Plan {
         cc.parseIMCMessage(man)
         cc.setId(id)
         if (payload != null){
-            cc.setProperties(payload.properties("CompassCalibration",payload))
+            cc.setProperties(Payload.properties("CompassCalibration",payload))
             //man.setProperties(payload.properties())
         }
         neptus_mans.add cc
@@ -449,7 +430,8 @@ class Plan {
 	
 
 	def IMCManeuver launch(LinkedHashMap params)  {
-		String id="${count++}"+".Launch"
+		def id="$count"+".Launch"
+        count++
          List<Payload> payload = new ArrayList<>()
 		if (params != null){
 			if(params['speed']!= null)
@@ -467,21 +449,15 @@ class Plan {
                          def payload_name = it['name']
                          payloadComponent = new Payload(payload_name)
                          
-                         if(it['Range'] != null){
-                             def payload_range = it['Range']
-                             payloadComponent.range payload_range
-                         }
-                         if(it['Frequency'] != null){
-                             def payload_frequency = it['Frequency']
-                             payloadComponent.property = payload_frequency
-                         }
-                         if(it['Active'] != null){
-                             def payload_active = it['Active']
-                             payloadComponent.active payload_active
-                         }
+                             it.each {
+                             key,value -> 
+                             if(!key.equals("name")){ //verify(payload,key) <-- verify it parameter exists in payload to avoid runtime exceptions!"!!
+                                 payloadComponent.property key, value}
+                              }
+
                          payload.add payloadComponent
                  }
-                 else 
+                 else
                      println "The name of the payload required must be provided."              }
          }
 		   }
@@ -492,8 +468,7 @@ class Plan {
         launch.parseIMCMessage(man)
         launch.setId(id)
         if (payload != null){
-            launch.setProperties(payload.properties("Launch",payload))
-            //man.setProperties(payload.properties())
+            launch.setProperties(Payload.properties("Launch",payload))
         }
         neptus_mans.add launch
         man
@@ -504,7 +479,8 @@ class Plan {
 		double bearing=0.0,cross_angle=0.0,width=100,length=200,hstep=27.0
 		short coff=15,flags
         List<Payload> payload = new ArrayList<>()
-		String id="${count++}"+".Rows"
+        def id = "$count"+".Rows"
+        count++
 		if (params != null){
 			if(params['bearing']!= null)
 				bearing = params.bearing
@@ -540,21 +516,16 @@ class Plan {
                      if(it['name'] != null){
                          def payload_name = it['name']
                          payloadComponent = new Payload(payload_name)
-                         if(it['Range'] != null){
-                             def payload_range = it['Range']
-                             payloadComponent.range payload_range
-                         }
-                         if(it['Frequency'] != null){
-                             def payload_frequency = it['Frequency']
-                             payloadComponent.property = payload_frequency
-                         }
-                         if(it['Active'] != null){
-                             def payload_active = it['Active']
-                             payloadComponent.active payload_active
-                         }
+                         
+                             it.each {
+                             key,value -> 
+                             if(!key.equals("name")){ //verify(payload,key) <-- verify it parameter exists in payload to avoid runtime exceptions!"!!
+                                 payloadComponent.property key, value}
+                              }
+
                          payload.add payloadComponent
                  }
-                 else 
+                 else
                      println "The name of the payload required must be provided."              }
          }
 		   }
@@ -579,7 +550,7 @@ class Plan {
         rows.parseIMCMessage(man)
         rows.setId(id)
         if (payload != null){
-            rows.setProperties(payload.properties("Rows",payload))
+            rows.setProperties(Payload.properties("Rows",payload))
             //man.setProperties(payload.properties())
         }
         neptus_mans.add(rows)
@@ -610,6 +581,9 @@ class Plan {
      */
     def void setVehicles(String...vehicles) {
         vehicles_id = vehicles
+        //TODO
+//        for(String v: vehicles)
+//            PlanCompatibility.isVehicleCompatible(VehiclesHolder.getVehicleById(v),this.asPlanType(neptusConsole))
     }
     
     /**
@@ -732,30 +706,35 @@ class Plan {
 		}
         def error_msg = "Error sending plan: "+plan_id+" to "+vehicle
 		//while(!select.equals(null)) vehicles_id.each {protocol.connect(it); def select = protocol.waitfor(it,milis)}
-		if (select != null && IMCSendMessageUtils.sendMessage(plan,error_msg,true, vehicle)) //IMCSendMessageUtils.sendMessage(plan,false,vehicle)
+		if (select != null && IMCSendMessageUtils.sendMessage(plan,error_msg,false, vehicle)) //IMCSendMessageUtils.sendMessage(plan,false,vehicle)
 			println ("$plan_id commanded to $vehicle")
 		else
 			println ("Error communicating with $vehicle")
 	}
 	
-	
-	void addToConsole(ConsoleLayout console) {
+	void setConsole(ConsoleLayout c){
+        neptusConsole=c
+    }
+	void addToConsole() {
         //console <- binding variable
 
 		def plan   = this.asPlanSpecification()
         plan.planId = this.plan_id
         plan.description = this.description
-        
-		def neptus_plan = this.asPlanType(console)
-        try{
-            if(neptus_plan.validatePlan())
-            console.getMission().addPlan(neptus_plan)
+        if(neptusConsole!=null){
+    		def neptus_plan = this.asPlanType(neptusConsole)
+            try{
+                if(neptus_plan.validatePlan())
+                neptusConsole.getMission().addPlan(neptus_plan)
+            }
+            catch (Exception e) {
+                //NeptusLog.pub().error(I18n.text("The Neptus plan generated has an error: "+e.getMessage()))
+                println "The Neptus plan generated has an error: "+e.getMessage()
+                
+            }
         }
-        catch (Exception e) {
-            //NeptusLog.pub().error(I18n.text("The Neptus plan generated has an error: "+e.getMessage()))
-            println "The Neptus plan generated has an error: "+e.getMessage()
-            
-        }
+        else 
+            println "Error Generating Neptus Plan (Plantype instance). Console must be defined, use setConsole method."
 	}
 
 }

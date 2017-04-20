@@ -1,6 +1,3 @@
-import pt.lsts.imc.net.*
-import pt.lsts.imc.*
-
 
 class Globals {
 	static proto = new IMCProtocol();
@@ -31,10 +28,6 @@ while (true) {
 	if(vehicles_id.length > 0){
 		vehicles_id.each {
 			println it
-			//Globals.proto.setAutoConnect(it)
-			//Globals.getProto().waitFor(it,1000)
-			//Globals.proto.sendMessage(it,pc)
-			//Globals.proto.sendMessage(it, new Abort())
 
 		}
 		

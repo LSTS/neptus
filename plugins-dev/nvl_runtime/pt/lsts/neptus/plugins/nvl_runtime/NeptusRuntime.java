@@ -9,18 +9,27 @@ import java.util.Map;
 
 import javax.swing.AbstractAction;
 import javax.swing.JButton;
+
+import org.mozilla.javascript.edu.emory.mathcs.backport.java.util.Arrays;
+
 import com.google.common.eventbus.Subscribe;
 
 import pt.lsts.imc.EstimatedState;
+import pt.lsts.imc.IMCDefinition;
+import pt.lsts.imc.IMCMessage;
+import pt.lsts.imc.PlanControl;
 import pt.lsts.imc.VehicleState;
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.comm.IMCSendMessageUtils;
 import pt.lsts.neptus.comm.manager.imc.ImcMsgManager;
 import pt.lsts.neptus.comm.manager.imc.ImcSystem;
 import pt.lsts.neptus.comm.manager.imc.ImcSystemsHolder;
+import pt.lsts.neptus.comm.manager.imc.MessageDeliveryListener;
 import pt.lsts.neptus.console.ConsoleLayout;
 import pt.lsts.neptus.console.events.ConsoleEventVehicleStateChanged;
 import pt.lsts.neptus.console.events.ConsoleEventVehicleStateChanged.STATE;
+import pt.lsts.neptus.console.notifications.Notification;
+import pt.lsts.neptus.console.plugins.planning.MissionTreePanel;
 import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.plugins.PluginDescription;
 import pt.lsts.neptus.plugins.Popup;
@@ -78,11 +87,12 @@ public class NeptusRuntime extends InteractionAdapter implements NVLRuntime {
     private void test() {
         testButton = new JButton(
                 new AbstractAction(I18n.text("Test!")) {
-
+                    
                     @Override
                     public void actionPerformed(ActionEvent e) {   
+                        System.out.println("Ok");
                         // Plano IMC
-                        NeptusTaskSpecificationAdapter ts = (NeptusTaskSpecificationAdapter) getTasks( x -> x.getId().equals("nvlPlan")).get(0); //Filter<TaskSpecification>
+                        NeptusTaskSpecificationAdapter ts = (NeptusTaskSpecificationAdapter) getTasks( x -> x.getId().equals("DSL")).get(0); //Filter<TaskSpecification>
                         System.out.println("Task "+ts.getId());
                         VehicleRequirements reqs = ts.getRequirements() .get(0)
                         .type(NVLVehicleType.AUV)
@@ -98,7 +108,7 @@ public class NeptusRuntime extends InteractionAdapter implements NVLRuntime {
                         for(NVLVehicle v: vs){
                             NeptusLog.pub().info(I18n.text("SELECTED VEHICLE "+v.getId()));
                         }
-                        //launchTask(ts, vs);
+                        launchTask(ts, vs);
                     }
                 });
         
@@ -134,7 +144,7 @@ public class NeptusRuntime extends InteractionAdapter implements NVLRuntime {
 
 
 	@Override
-	public TaskExecution launchTask(TaskSpecification task, List<NVLVehicle> vehicles) { 
+	public List<NeptusTaskExecutionAdapter> launchTask(TaskSpecification task, List<NVLVehicle> vehicles) { 
 	    NeptusTaskSpecificationAdapter neptus_plan = (NeptusTaskSpecificationAdapter) task;
 	    tasks.put(task.getId(),neptus_plan);
 		boolean acoustics=false;
@@ -142,14 +152,69 @@ public class NeptusRuntime extends InteractionAdapter implements NVLRuntime {
 	    VehicleRequirements req = task.getRequirements().get(0);
 		vehicles.stream().filter(x -> req.apply(x)).forEach(v -> vs.add(v.getId()));
 		vehicles.stream().map(v -> v.getId()).forEach(id -> neptus_plan.getPlan().setVehicle(id));
-		
+
+
         //ADD plan to console
-	    PlanType plan = ((NeptusTaskSpecificationAdapter) task).getPlan();
+	    PlanType plan = neptus_plan.getPlan();
  
 	    //sendMessage(IMCMessage msg, String errorTextForDialog, boolean sendOnlyThroughOneAcoustically,String... ids)
-        boolean sent = IMCSendMessageUtils.sendMessage(plan.asIMCPlan(),null,acoustics, vs.toArray(new String[vs.size()]));
-        
-        NeptusTaskExecutionAdapter exec = new NeptusTaskExecutionAdapter(task.getId());
+	    boolean sent= true;
+	    for(String vehicle_id: vs){
+	         
+	         // ImcMsgManager.getManager().sendMessageToSystem(plan.asIMCPlan(), vehicle_id);
+	         MessageDeliveryListener listener = new MessageDeliveryListener() {
+
+	             private String getDest(IMCMessage message) {
+	                 ImcSystem sys = message != null ? ImcSystemsHolder.lookupSystem(message.getDst()) : null;
+	                 String dest = sys != null ? sys.getName() : I18n.text("unknown destination");
+	                 return dest;
+	             }
+
+	             private void processDeliveryFailure(IMCMessage message, String errorText) {
+	                     post(Notification.error(I18n.text("Delivering Message"), errorText));
+	             }
+
+	             @Override
+	             public void deliveryUnreacheable(IMCMessage message) {
+	                 processDeliveryFailure(
+	                         message,
+	                         I18n.textf("Message %messageType to %destination delivery destination unreacheable",
+	                                 message.getAbbrev(), getDest(message)));
+	             }
+
+	             @Override
+	             public void deliveryTimeOut(IMCMessage message) {
+	                 processDeliveryFailure(message, I18n.textf("Message %messageType to %destination delivery timeout",
+	                         message.getAbbrev(), getDest(message)));
+	             }
+
+	             @Override
+	             public void deliveryError(IMCMessage message, Object error) {
+	                 processDeliveryFailure(
+	                         message,
+	                         I18n.text(I18n.textf("Message %messageType to %destination delivery error. (%error)",
+	                                 message.getAbbrev(), getDest(message), error)));
+	             }
+
+	             @Override
+	             public void deliveryUncertain(IMCMessage message, Object msg) {
+	             }
+
+	             @Override
+	             public void deliverySuccess(IMCMessage message) {
+	             }
+            };
+            sent = sent && IMCSendMessageUtils.sendMessage(plan.asIMCPlan(), ImcMsgManager.TRANSPORT_TCP, listener,
+	                    NeptusRuntime.this, null, acoustics, "acoustic/operation",
+	                    acoustics, acoustics, true, vehicle_id);
+	         NeptusTaskExecutionAdapter exec = new NeptusTaskExecutionAdapter(task.getId());
+            if(sent)
+                System.out.println(task.getId()+" sent to "+ vehicle_id);
+            else
+                System.out.println(task.getId()+" not sent to "+ vehicle_id);
+            exec.synchronizedWithVehicles(sent); 
+            runningTasks.add(exec);  
+	    }
 //        PlanDBControl pdbControl;
 //        pdbControl.setRemoteSystemId(vs.get(index));
 //        pdbControl.sendPlan(plan1);
@@ -159,10 +224,9 @@ public class NeptusRuntime extends InteractionAdapter implements NVLRuntime {
 //        pc.setRequestId(reqId);
 //        String cmdStrMsg = "";
         
-        exec.synchronizedWithVehicles(sent); 
-        runningTasks.add(exec);  
         
-		return exec;
+        
+		return runningTasks;
 	   	}
 
     /**

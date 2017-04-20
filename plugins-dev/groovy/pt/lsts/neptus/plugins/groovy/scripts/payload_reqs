@@ -1,7 +1,7 @@
 def plan = new Plan("Plan-w-Payload")
 def home = new Location(41.185242, -8.704803)
 
-plan.goTo id:"payload-goto", location:home, payload:[name: "Sidescan", Active: true]
+plan.goTo id:"payload-goto", location:home, payload:[[name: "Sidescan"]]
 
 // set speed units to use
 plan.speed.units = Speed.Units.METERS_PS

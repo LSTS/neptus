@@ -37,10 +37,13 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.PrintStream;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.TreeMap;
 
 import javax.swing.AbstractAction;
 import javax.swing.Action;
@@ -58,6 +61,7 @@ import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.comm.manager.imc.ImcSystem;
 import pt.lsts.neptus.comm.manager.imc.ImcSystemsHolder;
 import pt.lsts.neptus.console.ConsoleLayout;
+import pt.lsts.neptus.console.events.ConsoleEventMissionChanged;
 import pt.lsts.neptus.console.events.ConsoleEventPlanChange;
 import pt.lsts.neptus.console.events.ConsoleEventVehicleStateChanged;
 import pt.lsts.neptus.console.notifications.Notification;
@@ -253,12 +257,34 @@ public class Groovy_stable extends InteractionAdapter {
         add(stopScript);
         stopScript.setEnabled(false);
     }
+    
     @Subscribe
+    public void on(ConsoleEventMissionChanged new_mission) {
+        if(!new_mission.getOld().equals(new_mission.getCurrent())){
+            System.out.println("Got here some how");
+         TreeMap<String, PlanType>  ps = new_mission.getCurrent().getIndividualPlansList();
+         for( PlanType p: ps.values()){
+             if(!plans.containsValue(p)){
+                 plans.put(p.getId(),p);
+                 System.out.println(p.getId()+" added.");
+                 }
+         }
+         //Plan removed
+         if(!plans.keySet().containsAll(new_mission.getCurrent().getIndividualPlansList().keySet()))
+             for(String id: plans.keySet())
+                 if(!ps.keySet().contains(id)){
+                     plans.remove(id);
+                     System.out.println(id+" removed.");
+                 }
+        }
+    }
+    
+ /*   @Subscribe
     public void on(ConsoleEventPlanChange newPlan) {
             plans.put(newPlan.getCurrent().getId(), newPlan.getCurrent());
             //System.out.println("New Plan!! "+newPlan.getCurrent().getId());
             //TODO mission type change to check removed 
-    }
+    }*/
 
 
     @Subscribe

@@ -74,6 +74,7 @@ class Payload {
         params.add(new EntityParameter(prop,value.toString()))
     }
     public void property (String prop,String value){
+        println "property String"+prop+" "+value
         params.add(new EntityParameter(prop,value))
     }
     
