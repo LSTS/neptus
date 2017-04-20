@@ -51,7 +51,6 @@ import pt.lsts.neptus.util.AngleUtils;
 import pt.lsts.neptus.util.DateTimeUtil;
 import ucar.ma2.Array;
 import ucar.ma2.Index;
-import ucar.ma2.Index3D;
 import ucar.nc2.Attribute;
 import ucar.nc2.NetcdfFile;
 import ucar.nc2.Variable;
@@ -182,106 +181,55 @@ public class LoaderHelper {
           dataFile = NetcdfFile.open(fileName, null);
 
           // Get the latitude and longitude Variables.
-          Variable latVar = dataFile.findVariable("lat");
-          latVar = latVar != null ? latVar : dataFile.findVariable("latitude");
-          if (latVar == null) {
-              NeptusLog.pub().error("Aborting. Can't find variable 'lat' for netCDF file '" + fileName + "'.");
-              return hfdp;
-          }
+          Pair<String, Variable> searchPair = findVariableFor(dataFile, fileName, true, "lat", "latitude");
+          String latName = searchPair.first();
+          Variable latVar = searchPair.second(); 
 
-          Variable lonVar = dataFile.findVariable("lon");
-          lonVar = lonVar != null ? lonVar : dataFile.findVariable("longitude");
-          if (lonVar == null) {
-              NeptusLog.pub().error("Aborting. Can't find variable 'lon' for netCDF file '" + fileName + "'.");
-              return hfdp;
-          }
+          searchPair = findVariableFor(dataFile, fileName, true, "lon", "longitude");
+          String lonName = searchPair.first();
+          Variable lonVar = searchPair.second();
 
-          Variable timeVar = dataFile.findVariable("time");
-          if (timeVar == null) {
-              NeptusLog.pub().error("Aborting. Can't find variable 'time' for netCDF file '" + fileName + "'.");
-              return hfdp;
-          }
+          searchPair = findVariableFor(dataFile, fileName, true, "time");
+          String timeName = searchPair == null ? null : searchPair.first();
+          Variable timeVar = searchPair == null ? null : searchPair.second();
 
-          // Get the latitude and longitude Variables.
-          Variable uVar = dataFile.findVariable("u");
-          if (uVar == null) {
-              NeptusLog.pub().error("Aborting. Can't find variable 'u' for netCDF file '" + fileName + "'.");
-              return hfdp;
-          }
+          searchPair = findVariableFor(dataFile, fileName, false, "depth", "altitude");
+          String depthOrAltitudeName = searchPair == null ? null : searchPair.first();
+          Variable depthOrAltitudeVar = searchPair == null ? null : searchPair.second();
 
-          // Get the latitude and longitude Variables.
-          Variable vVar = dataFile.findVariable("v");
-          if (vVar == null) {
-              NeptusLog.pub().error("Aborting. Can't find variable 'v' for netCDF file '" + fileName + "'.");
-              return hfdp;
-          }
+          // Get the u (north) wind velocity Variables.
+          searchPair = findVariableFor(dataFile, fileName, false, "u", "x-wind", "grid_eastward_wind");
+          String xWindName = searchPair == null ? null : searchPair.first();
+          Variable uVar = searchPair == null ? null : searchPair.second();
 
-//          // see if float or double
-//          String timeType = "float";
-//          Attribute timeTypeAtt = timeVar.findAttribute("dataType");
-//          if (timeTypeAtt != null)
-//              timeType = (String) timeTypeAtt.getValue(0);
+          // Get the v (east) wind velocity Variables.
+          searchPair = findVariableFor(dataFile, fileName, false, "v", "y-wind", "grid_northward_wind");
+          String yWindName = searchPair == null ? null : searchPair.first();
+          Variable vVar = searchPair == null ? null : searchPair.second();
 
-          
           // Get the lat/lon data from the file.
           Array latArray;  // ArrayFloat.D1
           Array lonArray;  // ArrayFloat.D1
-          Array timeArray; // ArrayFloat.D1
-          Array uArray;    // ArrayFloat.D3
-          Array vArray;    // ArrayFloat.D3
+          Array timeArray; //ArrayFloat.D1
+          Array depthOrAltitudeArray; //ArrayFloat.D1
+          Array uArray;    // ArrayFloat.D?
+          Array vArray;    // ArrayFloat.D?
 
-//          latArray = (ArrayFloat.D1) latVar.read();
-//          lonArray = (ArrayFloat.D1) lonVar.read();
-//          timeArray = (ArrayFloat.D1) timeVar.read();
-//          uArray = (ArrayFloat.D3) uVar.read();
-//          vArray = (ArrayFloat.D3) vVar.read();
           latArray = latVar.read();
           lonArray = lonVar.read();
           timeArray = timeVar.read();
-          uArray = uVar.read();
-          vArray = vVar.read();
-          
-          int [] shape = uVar.getShape();
+          depthOrAltitudeArray = depthOrAltitudeVar == null ? null : depthOrAltitudeVar.read(); 
 
-          String timeUnits = "days since 00-01-00 00:00:00"; // "seconds since 2013-07-04 00:00:00"
-          Attribute timeUnitsAtt = timeVar.findAttribute("units");
-          if (timeUnitsAtt != null)
-              timeUnits = (String) timeUnitsAtt.getValue(0);
-          double[] multAndOffset = getMultiplierAndMillisOffsetFromTimeUnits(timeUnits);
-          if (multAndOffset == null) {
-              NeptusLog.pub().error("Aborting. Can't parse units for variable 'time' (was '" + timeUnits + "') for netCDF file '" + fileName + "'.");
+          if (uVar == null || vVar == null)
               return hfdp;
-          }
           
+          uArray = uVar == null ? null : uVar.read();
+          vArray = vVar == null ? null : vVar.read();
+          
+          double[] multAndOffset = getTimeMultiplierAndOffset(timeVar, fileName);
           double timeMultiplier = multAndOffset[0];
           double timeOffset = multAndOffset[1];
           
-          double uFillValue = Double.NaN;
-          double vFillValue = Double.NaN;
-          Attribute uFillValueAtt = uVar.findAttribute("_FillValue");
-          if (uFillValueAtt != null) {
-              try {
-                  uFillValue = (double) uFillValueAtt.getValue(0);
-              } 
-              catch (ClassCastException e) {
-                  // e.printStackTrace();
-                  uFillValue = Double.parseDouble((String) uFillValueAtt.getValue(0));
-              }
-          }
-          Attribute vFillValueAtt = vVar.findAttribute("_FillValue");
-          if (vFillValueAtt != null) {
-              try {
-                  vFillValue = (double) vFillValueAtt.getValue(0);
-              } 
-              catch (ClassCastException e) {
-                  // e.printStackTrace();
-                  vFillValue = Double.parseDouble((String) vFillValueAtt.getValue(0));
-              }
-          }
-          
-          // ucar.ma2.MAMath.
-          // ucar.ma2.DataType.
-
           String uUnits = "cm/s";
           Attribute uUnitsAtt = uVar.findAttribute("units");
           if (uUnitsAtt != null)
@@ -291,82 +239,79 @@ public class LoaderHelper {
           if (vUnitsAtt != null)
               vUnits = (String) vUnitsAtt.getValue(0);
 
-//          String uDimentions = "time,lat,lon";
-//          Attribute uDimentionsAtt = uVar.findAttribute("dimentions");
-//          if (uDimentionsAtt != null)
-//              uDimentions = (String) uDimentionsAtt.getValue(0);
-
-          Pair<Integer, Integer> latLonIndexOrder = getLatLonIndexOrder(uVar.getDimensionsString());
+          double uFillValue = findFillValue(uVar);
+          double vFillValue = findFillValue(vVar);
           
-            // int count = 0;
-          for (int timeIdx = 0; timeIdx < shape[0]; timeIdx++) {
-              double timeVal = timeArray.getDouble(timeIdx); // get(timeIdx);
-              Date dateValue = new Date((long) (timeVal * timeMultiplier + timeOffset));
-              
-              if (!ignoreDateLimitToLoad && dateValue.before(dateLimit)) {
+          int[] shape = uVar.getShape();
+          int[] counter = new int[shape.length];
+          Arrays.fill(counter, 0);
+          String dimStr = uVar.getDimensionsString();
+          Map<String, Integer> collumsIndexMap = getIndexesForVar(dimStr, timeName, latName, lonName,
+                  depthOrAltitudeName);
+
+          do {
+              Date dateValue = null;
+              Date[] timeVals = getTimeValues(timeArray, counter[0], timeMultiplier, timeOffset, fromDate,
+                      toDate, ignoreDateLimitToLoad, dateLimit);
+              if (timeVals == null) {
                   continue;
               }
-              
-              if (fromDate == null) {
-                  fromDate = dateValue;
-              }
               else {
-                  if (dateValue.before(fromDate))
-                      fromDate = dateValue;
+                  dateValue = timeVals[0];
+                  fromDate = timeVals[1];
+                  toDate = timeVals[2];
               }
-              if (toDate == null) {
-                  toDate = dateValue;
-              }
-              else {
-                  if (dateValue.after(toDate))
-                      toDate = dateValue;
-              }
+
+              double lat = AngleUtils.nomalizeAngleDegrees180(latArray.getDouble(counter[collumsIndexMap.get(latName)]));
+              double lon = AngleUtils.nomalizeAngleDegrees180(lonArray.getDouble(counter[collumsIndexMap.get(lonName)]));
+
+              // We don't do anything yet with depth or alt
+              boolean depthOrAltIndicator = depthOrAltitudeName != null
+                      && depthOrAltitudeName.equalsIgnoreCase("altitude") ? false : true;
+              double depthOrAlt = Double.NaN;
+              if (collumsIndexMap.get(depthOrAltitudeName) > 0)
+                  depthOrAlt = depthOrAltitudeArray.getDouble(counter[collumsIndexMap.get(depthOrAltitudeName)]);
+
+              Index uIndex = uArray.getIndex();
+              uIndex.set(counter);
+              Index vIndex = vArray.getIndex();
+              vIndex.set(counter);
               
-              for (int latOrLonFirstIdx = 0; latOrLonFirstIdx < shape[1]; latOrLonFirstIdx++) {
-                  for (int latOrLonSecondIdx = 0; latOrLonSecondIdx < shape[2]; latOrLonSecondIdx++) {
-                      double lat = latArray.getDouble(latLonIndexOrder.first() == 1 ? latOrLonFirstIdx : latOrLonSecondIdx);
-                      double lon = lonArray.getDouble(latLonIndexOrder.second() == 1 ? latOrLonFirstIdx : latOrLonSecondIdx);
+              double u = uArray == null ? Double.NaN : uArray.getDouble(uIndex);
+              double v = vArray == null ? Double.NaN : vArray.getDouble(vIndex);
 
-                      Index3D idx3d = (Index3D) uArray.getIndex();
-                      idx3d.set(timeIdx, latOrLonFirstIdx, latOrLonSecondIdx);
-                      double u = uArray.getDouble(idx3d); // (timeIdx, latOrLonFirstIdx, latOrLonSecondIdx);
-                      idx3d = (Index3D) vArray.getIndex();
-                      idx3d.set(timeIdx, latOrLonFirstIdx, latOrLonSecondIdx);
-                      double v = vArray.getDouble(idx3d); // (timeIdx, latOrLonFirstIdx, latOrLonSecondIdx);
-                      if (!Double.isNaN(u) && !Double.isNaN(v)
-                              && u != uFillValue && v != vFillValue) {
-                          u = u * getMultiplierForCmPerSecondsFromSpeedUnits(uUnits);
-                          v = v * getMultiplierForCmPerSecondsFromSpeedUnits(vUnits);
-                          double speedCmS = Math.sqrt(u * u + v * v) * 100;
-                          double heading = Math.atan2(v, u);
+              if (!Double.isNaN(u) && !Double.isNaN(v)
+                      && u != uFillValue && v != vFillValue) {
+                  
+                  u = u * getMultiplierForCmPerSecondsFromSpeedUnits(uUnits);
+                  v = v * getMultiplierForCmPerSecondsFromSpeedUnits(vUnits);
+                  double speedCmS = Math.sqrt(u * u + v * v) * 100;
+                  double heading = Math.atan2(v, u);
 
-                          HFRadarDataPoint dp = new HFRadarDataPoint(lat, lon);
-                          dp.setSpeedCmS(speedCmS);
-                          dp.setHeadingDegrees(Math.toDegrees(heading));
-                          dp.setDateUTC(dateValue);
+                  HFRadarDataPoint dp = new HFRadarDataPoint(lat, lon);
+                  dp.setSpeedCmS(speedCmS);
+                  dp.setHeadingDegrees(Math.toDegrees(heading));
+                  dp.setDateUTC(dateValue);
 
-                          HFRadarDataPoint dpo = hfdp.get(HFRadarDataPoint.getId(dp));
-                          if (dpo == null) {
-                              dpo = dp.getACopyWithoutHistory();
-                              hfdp.put(HFRadarDataPoint.getId(dp), dp);
-                          }
-
-                          ArrayList<HFRadarDataPoint> lst = dpo.getHistoricalData();
-                          boolean alreadyIn = false;
-                          for (HFRadarDataPoint tmpDp : lst) {
-                              if (tmpDp.getDateUTC().equals(dp.getDateUTC())) {
-                                  alreadyIn = true;
-                                  break;
-                              }
-                          }
-                          if (!alreadyIn) {
-                              dpo.getHistoricalData().add(dp);
-                          }
-                      }
-                        // count++;
+                  HFRadarDataPoint dpo = hfdp.get(HFRadarDataPoint.getId(dp));
+                  if (dpo == null) {
+                      dpo = dp.getACopyWithoutHistory();
+                      hfdp.put(HFRadarDataPoint.getId(dp), dp);
                   }
-             }
-          }
+
+                  ArrayList<HFRadarDataPoint> lst = dpo.getHistoricalData();
+                  boolean alreadyIn = false;
+                  for (HFRadarDataPoint tmpDp : lst) {
+                      if (tmpDp.getDateUTC().equals(dp.getDateUTC())) {
+                          alreadyIn = true;
+                          break;
+                      }
+                  }
+                  if (!alreadyIn) {
+                      dpo.getHistoricalData().add(dp);
+                  }
+              }
+          } while (nextShapeStage(shape, counter) != null);
         }
         catch (Exception e) {
             e.printStackTrace();
@@ -763,201 +708,131 @@ public class LoaderHelper {
         Date toDate = null;
 
         try {
-
           dataFile = NetcdfFile.open(fileName, null);
 
           // Get the latitude and longitude Variables.
-          Variable latVar = dataFile.findVariable("lat");
-          if (latVar == null) {
-              NeptusLog.pub().error("Aborting. Can't find variable 'lat' for netCDF file '" + fileName + "'.");
-              return wavesdp;
-          }
+          Pair<String, Variable> searchPair = findVariableFor(dataFile, fileName, true, "lat", "latitude");
+          String latName = searchPair.first();
+          Variable latVar = searchPair.second(); 
 
-          Variable lonVar = dataFile.findVariable("lon");
-          if (lonVar == null) {
-              NeptusLog.pub().error("Aborting. Can't find variable 'lon' for netCDF file '" + fileName + "'.");
-              return wavesdp;
-          }
+          searchPair = findVariableFor(dataFile, fileName, true, "lon", "longitude");
+          String lonName = searchPair.first();
+          Variable lonVar = searchPair.second();
 
-          Variable timeVar = dataFile.findVariable("time");
-          if (timeVar == null) {
-              NeptusLog.pub().error("Aborting. Can't find variable 'time' for netCDF file '" + fileName + "'.");
-              return wavesdp;
-          }
+          searchPair = findVariableFor(dataFile, fileName, true, "time");
+          String timeName = searchPair == null ? null : searchPair.first();
+          Variable timeVar = searchPair == null ? null : searchPair.second();
+
+          searchPair = findVariableFor(dataFile, fileName, false, "depth", "altitude");
+          String depthOrAltitudeName = searchPair == null ? null : searchPair.first();
+          Variable depthOrAltitudeVar = searchPair == null ? null : searchPair.second();
 
           // Get the significant height Variable.
-          Variable hsVar = dataFile.findVariable("hs");
-          if (hsVar == null) {
-              NeptusLog.pub().error("Aborting. Can't find variable 'hs' for netCDF file '" + fileName + "'.");
-              return wavesdp;
-          }
+          searchPair = findVariableFor(dataFile, fileName, true, "hs");
+          Variable hsVar = searchPair == null ? null : searchPair.second();
 
           // Get the peak period Variable.
-          Variable tpVar = dataFile.findVariable("tp");
-          if (tpVar == null) {
-              NeptusLog.pub().error("Aborting. Can't find variable 'tp' for netCDF file '" + fileName + "'.");
-              return wavesdp;
-          }
+          searchPair = findVariableFor(dataFile, fileName, true, "tp");
+          Variable tpVar = searchPair == null ? null : searchPair.second();
 
           // Get the peak direction Variable.
-          Variable pdirVar = dataFile.findVariable("pdir");
-          if (pdirVar == null) {
-              NeptusLog.pub().error("Aborting. Can't find variable 'pdir' for netCDF file '" + fileName + "'.");
-              return wavesdp;
-          }
-
+          searchPair = findVariableFor(dataFile, fileName, true, "pdir");
+          Variable pdirVar = searchPair == null ? null : searchPair.second();
 
           // Get the lat/lon data from the file.
           Array latArray;  // ArrayFloat.D1
           Array lonArray;  // ArrayFloat.D1
           Array timeArray; // ArrayFloat.D1
-          Array hsArray;   // ArrayFloat.D3
-          Array tpArray;   // ArrayFloat.D3
-          Array pdirArray; // ArrayFloat.D3
+          Array depthOrAltitudeArray; //ArrayFloat.D1
+          Array hsArray;   // ArrayFloat.D?
+          Array tpArray;   // ArrayFloat.D?
+          Array pdirArray; // ArrayFloat.D?
 
           latArray = latVar.read();
           lonArray = lonVar.read();
           timeArray = timeVar.read();
+          depthOrAltitudeArray = depthOrAltitudeVar == null ? null : depthOrAltitudeVar.read(); 
           hsArray = hsVar.read();
           tpArray = tpVar.read();
           pdirArray = pdirVar.read();
           
-          int [] shape = hsVar.getShape();
-
-          String timeUnits = "days since 00-01-00 00:00:00"; // "seconds since 2013-07-04 00:00:00"
-          Attribute timeUnitsAtt = timeVar.findAttribute("units");
-          if (timeUnitsAtt != null)
-              timeUnits = (String) timeUnitsAtt.getValue(0);
-          double[] multAndOffset = getMultiplierAndMillisOffsetFromTimeUnits(timeUnits);
-          if (multAndOffset == null) {
-              NeptusLog.pub().error("Aborting. Can't parse units for variable 'time' (was '" + timeUnits + "') for netCDF file '" + fileName + "'.");
-              return wavesdp;
-          }
-              
+          double[] multAndOffset = getTimeMultiplierAndOffset(timeVar, fileName);
           double timeMultiplier = multAndOffset[0];
           double timeOffset = multAndOffset[1];
           
-//          SimpleDateFormat dateFormaterXMLNoMillisUTC = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'");
-//          dateFormaterXMLNoMillisUTC.setTimeZone(TimeZone.getTimeZone("UTC"));
-          
-          double hsFillValue = Double.NaN;
-          double tpFillValue = Double.NaN;
-          double pdirFillValue = Double.NaN;
-          Attribute uFillValueAtt = hsVar.findAttribute("_FillValue");
-          if (uFillValueAtt != null) {
-              try {
-                  hsFillValue = (double) uFillValueAtt.getValue(0);
-              } 
-              catch (ClassCastException e) {
-                  // e.printStackTrace();
-                  hsFillValue = Double.parseDouble((String) uFillValueAtt.getValue(0));
-              }
-          }
-          Attribute vFillValueAtt = tpVar.findAttribute("_FillValue");
-          if (vFillValueAtt != null) {
-              try {
-                  tpFillValue = (double) vFillValueAtt.getValue(0);
-              } 
-              catch (ClassCastException e) {
-                  // e.printStackTrace();
-                  tpFillValue = Double.parseDouble((String) vFillValueAtt.getValue(0));
-              }
-          }
-          Attribute sstFillValueAtt = pdirVar.findAttribute("_FillValue");
-          if (sstFillValueAtt != null) {
-              try {
-                  pdirFillValue = (double) sstFillValueAtt.getValue(0);
-              } 
-              catch (ClassCastException e) {
-                  // e.printStackTrace();
-                  pdirFillValue = Double.parseDouble((String) sstFillValueAtt.getValue(0));
-              }
-          }
-          
-//          String uUnits = "cm/s";
-//          Attribute uUnitsAtt = hsVar.findAttribute("units");
-//          if (uUnitsAtt != null)
-//              uUnits = (String) uUnitsAtt.getValue(0);
-//          String vUnits = "cm/s";
-//          Attribute vUnitsAtt = hsVar.findAttribute("units");
-//          if (vUnitsAtt != null)
-//              vUnits = (String) vUnitsAtt.getValue(0);
-          
-//          String uDimentions = "time,lat,lon";
-//          Attribute uDimentionsAtt = hsVar.findAttribute("dimensions");
-//          if (uDimentionsAtt != null)
-//              uDimentions = (String) uDimentionsAtt.getValue(0);
+          double hsFillValue = findFillValue(hsVar);
+          double tpFillValue = findFillValue(tpVar);
+          double pdirFillValue = findFillValue(pdirVar);
 
-          Pair<Integer, Integer> latLonIndexOrder = getLatLonIndexOrder(hsVar.getDimensionsString());
+          int[] shape = hsVar.getShape();
+          int dimentionLenght = shape.length;
+          int[] counter = new int[shape.length];
+          Arrays.fill(counter, 0);
+          String dimStr = hsVar.getDimensionsString();
+          Map<String, Integer> collumsIndexMap = getIndexesForVar(dimStr, timeName, latName, lonName,
+                  depthOrAltitudeName);
 
-            // int count = 0;
-          for (int timeIdx = 0; timeIdx < shape[0]; timeIdx++) {
-              double timeVal = timeArray.getDouble(timeIdx); // get(timeIdx);
-              Date dateValue = new Date((long) (timeVal * timeMultiplier + timeOffset));
-              
-              if (!ignoreDateLimitToLoad && dateValue.before(dateLimit)) {
+          do {
+              Date dateValue = null;
+              Date[] timeVals = getTimeValues(timeArray, counter[0], timeMultiplier, timeOffset, fromDate,
+                      toDate, ignoreDateLimitToLoad, dateLimit);
+              if (timeVals == null) {
                   continue;
               }
-              
-              if (fromDate == null) {
-                  fromDate = dateValue;
-              }
               else {
-                  if (dateValue.before(fromDate))
-                      fromDate = dateValue;
+                  dateValue = timeVals[0];
+                  fromDate = timeVals[1];
+                  toDate = timeVals[2];
               }
-              if (toDate == null) {
-                  toDate = dateValue;
-              }
-              else {
-                  if (dateValue.after(toDate))
-                      toDate = dateValue;
-              }
-              
-              for (int latOrLonFirstIdx = 0; latOrLonFirstIdx < shape[1]; latOrLonFirstIdx++) {
-                  for (int latOrLonSecondIdx = 0; latOrLonSecondIdx < shape[2]; latOrLonSecondIdx++) {
-                      double lat = latArray.getDouble(latLonIndexOrder.first() == 1 ? latOrLonFirstIdx : latOrLonSecondIdx);
-                      double lon = lonArray.getDouble(latLonIndexOrder.second() == 1 ? latOrLonFirstIdx : latOrLonSecondIdx);
 
-                      Index3D idx3d = (Index3D) hsArray.getIndex();
-                      idx3d.set(timeIdx, latOrLonFirstIdx, latOrLonSecondIdx);
-                      double hs = hsArray.getDouble(idx3d);
-                      idx3d = (Index3D) tpArray.getIndex();
-                      idx3d.set(timeIdx, latOrLonFirstIdx, latOrLonSecondIdx);
-                      double tp = tpArray.getDouble(idx3d);
-                      idx3d = (Index3D) pdirArray.getIndex();
-                      idx3d.set(timeIdx, latOrLonFirstIdx, latOrLonSecondIdx);
-                      double pdir = pdirArray.getDouble(idx3d);
-                      if (!Double.isNaN(hs) && !Double.isNaN(tp) && !Double.isNaN(pdir)
-                              && hs != hsFillValue && tp != tpFillValue && pdir != pdirFillValue) {
-                          WavesDataPoint dp = new WavesDataPoint(lat, lon);
-                          dp.setSignificantHeight(hs);
-                          dp.setPeakPeriod(tp);
-                          dp.setPeakDirection(pdir);
-                          dp.setDateUTC(dateValue);
+              double lat = AngleUtils.nomalizeAngleDegrees180(latArray.getDouble(counter[collumsIndexMap.get(latName)]));
+              double lon = AngleUtils.nomalizeAngleDegrees180(lonArray.getDouble(counter[collumsIndexMap.get(lonName)]));
 
-                          WavesDataPoint dpo = wavesdp.get(WavesDataPoint.getId(dp));
-                          if (dpo == null) {
-                              dpo = dp.getACopyWithoutHistory();
-                              wavesdp.put(HFRadarDataPoint.getId(dp), dp);
-                          }
+              // We don't do anything yet with depth or alt
+              boolean depthOrAltIndicator = depthOrAltitudeName != null
+                      && depthOrAltitudeName.equalsIgnoreCase("altitude") ? false : true;
+              double depthOrAlt = Double.NaN;
+              if (collumsIndexMap.get(depthOrAltitudeName) > 0)
+                  depthOrAlt = depthOrAltitudeArray.getDouble(counter[collumsIndexMap.get(depthOrAltitudeName)]);
 
-                          ArrayList<WavesDataPoint> lst = dpo.getHistoricalData();
-                          boolean alreadyIn = false;
-                          for (WavesDataPoint tmpDp : lst) {
-                              if (tmpDp.getDateUTC().equals(dp.getDateUTC())) {
-                                  alreadyIn = true;
-                                  break;
-                              }
-                          }
-                          if (!alreadyIn) {
-                              dpo.getHistoricalData().add(dp);
-                          }
-                      }
-                        // count++;
+              Index index = hsArray.getIndex();
+              index.set(counter);
+              double hs = hsArray.getDouble(index);
+              index = hsArray.getIndex();
+              index.set(counter);
+              double tp = tpArray.getDouble(index);
+              index = hsArray.getIndex();
+              index.set(counter);
+              double pdir = pdirArray.getDouble(index);
+
+
+              if (!Double.isNaN(hs) && !Double.isNaN(tp) && !Double.isNaN(pdir)
+                      && hs != hsFillValue && tp != tpFillValue && pdir != pdirFillValue) {
+                  WavesDataPoint dp = new WavesDataPoint(lat, lon);
+                  dp.setSignificantHeight(hs);
+                  dp.setPeakPeriod(tp);
+                  dp.setPeakDirection(pdir);
+                  dp.setDateUTC(dateValue);
+
+                  WavesDataPoint dpo = wavesdp.get(WavesDataPoint.getId(dp));
+                  if (dpo == null) {
+                      dpo = dp.getACopyWithoutHistory();
+                      wavesdp.put(HFRadarDataPoint.getId(dp), dp);
                   }
-             }
-          }
+
+                  ArrayList<WavesDataPoint> lst = dpo.getHistoricalData();
+                  boolean alreadyIn = false;
+                  for (WavesDataPoint tmpDp : lst) {
+                      if (tmpDp.getDateUTC().equals(dp.getDateUTC())) {
+                          alreadyIn = true;
+                          break;
+                      }
+                  }
+                  if (!alreadyIn) {
+                      dpo.getHistoricalData().add(dp);
+                  }
+              }
+          } while (nextShapeStage(shape, counter) != null);
         }
         catch (Exception e) {
             e.printStackTrace();
@@ -977,6 +852,7 @@ public class LoaderHelper {
 
         return wavesdp;
     }
+    
     /**
      * @param dimStr
      * @param name
@@ -999,35 +875,6 @@ public class LoaderHelper {
             }
         }
 
-        return ret;
-    }
-
-    /**
-     * @param uDimentions
-     * @returns
-     */
-    private static Pair<Integer, Integer> getLatLonIndexOrder(String uDimentions) {
-        Pair<Integer, Integer> ret = null;
-        if (uDimentions == null || uDimentions.length() == 0)
-            return ret;
-        
-        String[] tk = uDimentions.split("[, \t]");
-        if (tk.length < 3)
-            return ret;
-        
-        int latIdx= -1;
-        int lonIdx= -1;
-
-        for (int i = 1; i < tk.length; i++) {
-            if ("lon".equalsIgnoreCase(tk[i].trim()) || "longitude".equalsIgnoreCase(tk[i].trim()))
-                lonIdx= i;
-            if ("lat".equalsIgnoreCase(tk[i].trim()) || "latitude".equalsIgnoreCase(tk[i].trim()))
-                latIdx= i;
-        }
-
-        if (latIdx > 0 && lonIdx > 0)
-            ret = new Pair<Integer, Integer>(latIdx, lonIdx);
-        
         return ret;
     }
 
@@ -1459,5 +1306,17 @@ public class LoaderHelper {
         }
         
         test();
+        
+        for (String sstFileName : new String[] {"plugins" + "-dev/envdisp/pt/lsts/neptus/plugins/envdisp/waves_S_20130704.nc",
+                "plugins" + "-dev/envdisp/pt/lsts/neptus/plugins/envdisp/waves_SW_20130704.nc"}) {
+            try {
+                System.out.println("\n-----------------------------------");
+                HashMap<String, WavesDataPoint> hashMap = processWavesFile(sstFileName, new java.sql.Date(0));
+                System.out.println("Size=" + hashMap.size());
+            }
+            catch (Exception e) {
+                e.printStackTrace();
+            }
+        }        
     }
 }
