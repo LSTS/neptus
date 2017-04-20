@@ -14,6 +14,7 @@ import pt.lsts.neptus.mp.MapChangeEvent;
 import pt.lsts.neptus.mra.NeptusMRA;
 import pt.lsts.neptus.plugins.*;
 import pt.lsts.neptus.types.map.ParallelepipedElement;
+import pt.lsts.neptus.util.FileUtil;
 import pt.lsts.neptus.util.GuiUtils;
 
 import javax.swing.*;
@@ -333,6 +334,8 @@ public class LogsSearcher extends ConsolePanel {
             destLogParent.mkdirs();
             try {
                 logsMerger.merge(files, destLogPath, new ArrayList<>(), (s, i1) -> {});
+                // copy IMC version
+                FileUtil.copyFile(files.get(0).getParent() + "/IMC.xml.gz", destLogParent.getAbsolutePath() + "/IMC.xml.gz");
             } catch(Exception e) {
                 e.printStackTrace();
                 setStatus(false, "");
