@@ -89,9 +89,10 @@ public class LogsDbHandler {
         }
     }
 
-    private final String DB_HOST = "10.0.2.70";
-    private final int DB_PORT = 3306;
-    private final String DB_USER = "root";
+
+    private String dbHost;
+    private int dbPort;
+    private String dbUser;
 
     private String url;
     private Connection conn = null;
@@ -100,8 +101,6 @@ public class LogsDbHandler {
     private boolean isConnected = false;
 
     public LogsDbHandler() {
-        this.url = "jdbc:mysql://" + DB_HOST + ":" + DB_PORT + "/imclogs";
-
         try {
             Class.forName("com.mysql.jdbc.Driver");
         } catch (ClassNotFoundException e) {
@@ -110,12 +109,14 @@ public class LogsDbHandler {
         }
     }
 
-    public void connect() {
+    public void connect(String dbHost, int dbPort, String dbUser, String pw) {
         try {
-            conn = DriverManager.getConnection(url, DB_USER,"123456789");
+            this.url = "jdbc:mysql://" + dbHost + ":" + dbPort + "/imclogs";
+            conn = DriverManager.getConnection(url, dbUser, pw);
             isConnected = true;
         } catch (SQLException e) {
-            e.printStackTrace();
+            NeptusLog.pub().error("Failed to connect");
+            NeptusLog.pub().debug(e.getMessage());
             isConnected = false;
         }
     }

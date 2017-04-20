@@ -1,6 +1,7 @@
 package pt.lsts.neptus.plugins.logs.search;
 
 import com.google.common.eventbus.Subscribe;
+import jdk.nashorn.internal.scripts.JO;
 import net.miginfocom.swing.MigLayout;
 import org.apache.commons.net.ftp.FTPClient;
 import org.apache.commons.net.ftp.FTPFile;
@@ -12,7 +13,6 @@ import pt.lsts.neptus.ftp.FtpDownloader;
 import pt.lsts.neptus.mp.MapChangeEvent;
 import pt.lsts.neptus.mra.NeptusMRA;
 import pt.lsts.neptus.plugins.*;
-import pt.lsts.neptus.plugins.update.Periodic;
 import pt.lsts.neptus.types.map.ParallelepipedElement;
 import pt.lsts.neptus.util.GuiUtils;
 
@@ -21,6 +21,8 @@ import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableModel;
 import javax.swing.table.TableRowSorter;
 import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.io.*;
@@ -35,10 +37,10 @@ import pt.lsts.neptus.plugins.Popup;
  * @date 3/14/17
  */
 @PluginDescription(name = "Logs Searcher")
-@Popup(width = 500, height = 600)
+@Popup(width = 500, height = 650)
 public class LogsSearcher extends ConsolePanel {
     private static final int WIDTH = 500;
-    private static final int HEIGHT = 550;
+    private static final int HEIGHT = 600;
 
     enum DataOptionEnum {
         ANY("--any--"),
@@ -63,10 +65,9 @@ public class LogsSearcher extends ConsolePanel {
         }
     }
 
-    private final String FTP_HOST = "10.0.2.70";
-    private final int FTP_PORT = 2121;
-    public static final String FTP_BASE_DIR = "/home/tsm/ws/lsts/sardinha-mnt/";
     private static final File LOGS_DOWNLOAD_DIR = new File(System.getProperty("user.dir") + "/log/logs-searcher/");
+
+    private final ConnConfig connConfig = new ConnConfig();
     private final LogsDbHandler db = new LogsDbHandler();
 
     private final LsfMerge logsMerger = new LsfMerge();
@@ -76,6 +77,8 @@ public class LogsSearcher extends ConsolePanel {
     private final JPanel queryPanel = new JPanel();
     private final JPanel resultsPanel = new JPanel();
     private final LogsProgressMonitor logsProgressMonitor = new LogsProgressMonitor();
+    private final JMenuBar menuBar = new JMenuBar();
+    private final JMenuItem loginMenu = new JMenuItem("Login");
 
     private final JComboBox<String> dataOptions = new JComboBox<>();
     private final JComboBox<String> yearOptions = new JComboBox<>();
@@ -94,7 +97,6 @@ public class LogsSearcher extends ConsolePanel {
 
     private FtpDownloader ftp = null;
     private FTPClient ftpClient;
-    private boolean firstConnection = true;
 
     private AreaSelectionDialog areaSelectionDialog;
 
@@ -103,58 +105,65 @@ public class LogsSearcher extends ConsolePanel {
      * */
     public LogsSearcher(ConsoleLayout console) {
         super(console);
-        buildGui();
 
-        if(!LOGS_DOWNLOAD_DIR.exists()) {
-            NeptusLog.pub().info("Creating logs cache directory at " + LOGS_DOWNLOAD_DIR.getAbsolutePath());
-            LOGS_DOWNLOAD_DIR.mkdirs();
-        }
-
-       areaSelectionDialog = new AreaSelectionDialog(mainPanel);
+        if(!connConfig.isValid)
+            GuiUtils.errorMessage("Error", "Configuration error. Fix it and restart the plugin");
+        else
+            buildGui();
     }
 
     @Override
     public void cleanSubPanel() {
-
+        if(db != null)
+            db.close();
     }
 
     @Override
     public void initSubPanel() {
-        startConnections();
     }
 
-    @Periodic(millisBetweenUpdates = 3000)
-    public void onPeriodicCall() {
-        if(db == null)
-            return;
+    private void showAuthenticationPanel() {
+        JPanel authPanel = new JPanel();
+        authPanel.setLayout(new GridLayout(2, 2));
 
-        boolean isDbConnected = db.isConnected();
+        JTextField userName = new JTextField();
+        JPasswordField pwField = new JPasswordField();
 
-        if(isDbConnected && firstConnection) {
-            firstConnection = false;
+        JLabel userNameLabel = new JLabel("User: ");
+        JLabel pwLabel = new JLabel("Password: ");
+
+        authPanel.add(userNameLabel);
+        authPanel.add(userName);
+        authPanel.add(pwLabel);
+        authPanel.add(pwField);
+
+        JOptionPane.showMessageDialog(mainPanel, authPanel);
+
+        char[] pw = pwField.getPassword();
+        db.connect(connConfig.dbHost, connConfig.dbPort, userName.getText(), String.valueOf(pw));
+
+        if(db.isConnected()) {
+            pwField.setText("");
+            userName.setText("");
+            Arrays.fill(pw, '0');
+
+            buildGui();
+            if (!LOGS_DOWNLOAD_DIR.exists()) {
+                NeptusLog.pub().info("Creating logs cache directory at " + LOGS_DOWNLOAD_DIR.getAbsolutePath());
+                LOGS_DOWNLOAD_DIR.mkdirs();
+            }
+
+            areaSelectionDialog = new AreaSelectionDialog(mainPanel);
             initQueryOptions();
         }
-
-        if(!isDbConnected)
-            setStatus(true, "Waiting for connection to database");
         else
-            setStatus(false, "");
-
-
-        if(!isDbConnected)
-            db.connect();
-    }
-
-    private void startConnections() {
-        new Thread(() -> {
-            db.connect();
-        }).start();
+            GuiUtils.errorMessage("Error", "Computer says no...");
     }
 
     public boolean connectFtp() {
         try {
             if(ftp == null)
-                ftp = new FtpDownloader(FTP_HOST, FTP_PORT);
+                ftp = new FtpDownloader(connConfig.ftpHost, connConfig.ftpPort);
 
             ftp.renewClient();
             ftpClient = ftp.getClient();
@@ -174,8 +183,11 @@ public class LogsSearcher extends ConsolePanel {
         initQueryPanel();
         initResultsPanel();
 
-        mainPanel.add(queryPanel, "alignx center, w 47px,h 55px, spanx, wrap");
-        mainPanel.add(resultsPanel, "w 100%, h 100%");
+        loginMenu.addActionListener(e -> showAuthenticationPanel());
+        menuBar.add(loginMenu);
+        mainPanel.add(menuBar, "w 90px, h 20px, spanx, wrap");
+        mainPanel.add(queryPanel, "alignx center, w 47px, h 55px, spanx, wrap");
+        mainPanel.add(resultsPanel, "w 100%, h 90%");
 
         this.add(mainPanel);
     }
@@ -463,7 +475,7 @@ public class LogsSearcher extends ConsolePanel {
 
             while(res.next()) {
                 isEmpty = false;
-                String path = FTP_BASE_DIR + res.getString(LogsDbHandler.LogTableColumnName.PATH.toString());
+                String path = connConfig.ftpBaseDir + res.getString(LogsDbHandler.LogTableColumnName.PATH.toString());
 
                 String logName = res.getString(LogsDbHandler.LogTableColumnName.LOG_NAME.toString());
 
@@ -523,7 +535,7 @@ public class LogsSearcher extends ConsolePanel {
         }
 
         String logParentRemoteDir = logRemoteAbsolutePath.split("/Data.lsf.gz")[0];
-        String logParentLocalDirStr = LOGS_DOWNLOAD_DIR + "/" + logParentRemoteDir.split(FTP_BASE_DIR)[1];
+        String logParentLocalDirStr = LOGS_DOWNLOAD_DIR + "/" + logParentRemoteDir.split(connConfig.ftpBaseDir)[1];
         File localLogAbsolutePath = new File(logParentLocalDirStr + "/Data.lsf.gz");
 
         NeptusLog.pub().info(logParentRemoteDir);
@@ -540,7 +552,7 @@ public class LogsSearcher extends ConsolePanel {
         logParentLocalDir.mkdirs();
 
         String ftpRootDir = ftpClient.printWorkingDirectory();
-        String baseDir = logParentRemoteDir.split(FTP_BASE_DIR)[1];
+        String baseDir = logParentRemoteDir.split(connConfig.ftpBaseDir)[1];
 
 
         if(!ftpClient.changeWorkingDirectory(baseDir)) {

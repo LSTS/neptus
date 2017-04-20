@@ -35,6 +35,7 @@ package pt.lsts.neptus.plugins.logs.utils;
 import pt.lsts.imc.*;
 import pt.lsts.imc.lsf.batch.LsfBatch;
 import pt.lsts.neptus.data.GeoCollection;
+import pt.lsts.neptus.plugins.logs.search.ConnConfig;
 import pt.lsts.neptus.plugins.logs.search.LogsDbHandler;
 import pt.lsts.neptus.plugins.logs.search.LogsSearcher;
 
@@ -76,6 +77,9 @@ public class LogsIndexer {
             "nauv",
             "adamastor"
     };
+
+    private static final ConnConfig connConfig = new ConnConfig();
+    private static final LogsDbHandler db = new LogsDbHandler();
 
     private static int fetchLogYear(String pathStr) {
         Pattern p = Pattern.compile("[\\d]{4}");
@@ -195,8 +199,6 @@ public class LogsIndexer {
      * */
     private static boolean updateDatabase(HashMap<String, LogsDbHandler.DbEntry> logsData) throws InterruptedException {
         // Update database
-        LogsDbHandler db = new LogsDbHandler();
-        db.connect();
         int nTries = 5;
         boolean success = false;
 
@@ -233,7 +235,21 @@ public class LogsIndexer {
                 .anyMatch(v -> logPathStr.contains(v));
     }
 
+    private static boolean doLogin(String username, String password) {
+        if(!connConfig.isValid) {
+            System.out.println("ERROR: Couldn't read configuration file");
+            return false;
+        }
+
+        db.connect(connConfig.dbHost, connConfig.dbPort, username, String.valueOf(password));
+
+        return db.isConnected();
+    }
+
     public static void main(String[] args) throws Exception {
+        if(args.length < 2 || !doLogin(args[0], args[1]))
+            return;
+
         LsfBatch batch = LsfBatch.selectFolders();
         HashMap<String, LogsDbHandler.DbEntry> logsData = new HashMap<>();
 
@@ -247,7 +263,7 @@ public class LogsIndexer {
         System.out.println("Parsing logs...");
         while ((msg = batch.nextLog()) != null) {
             LogsDbHandler.DbEntry currentEntry = null;
-            String logPath = (msg.root + "/Data.lsf.gz").split(LogsSearcher.FTP_BASE_DIR)[1];
+            String logPath = (msg.root + "/Data.lsf.gz").split(connConfig.ftpBaseDir)[1];
 
             if(!isVehicleLog(msg.root))
                 continue;
