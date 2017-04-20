@@ -332,7 +332,7 @@ public class LogsSearcher extends ConsolePanel {
         if(!destLogPath.exists()) {
             destLogParent.mkdirs();
             try {
-                logsMerger.merge(files, destLogPath, new ArrayList<>(), null);
+                logsMerger.merge(files, destLogPath, new ArrayList<>(), (s, i1) -> {});
             } catch(Exception e) {
                 e.printStackTrace();
                 setStatus(false, "");
