@@ -443,24 +443,6 @@ public class LogsSearcher extends ConsolePanel {
                 .forEach(v -> ((DefaultComboBoxModel) vehicleOptions.getModel()).addElement(v));
     }
 
-    @Subscribe
-    public void mapChanged(MapChangeEvent event) {
-        if(event == null || event.getChangedObject() == null)
-            return;
-
-        // only care about areas
-        if(!(event.getChangedObject() instanceof ParallelepipedElement))
-            return;
-
-        if(event.getEventType() == MapChangeEvent.OBJECT_ADDED) {
-            String objectId = event.getChangedObject().getId();
-            if(knownMapAreas.contains(objectId))
-                return;
-
-            knownMapAreas.add(objectId);
-        }
-    }
-
     /**
      * Parse query results and update results table
      * */
