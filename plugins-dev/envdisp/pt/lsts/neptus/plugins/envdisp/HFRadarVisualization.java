@@ -1127,11 +1127,13 @@ public class HFRadarVisualization extends ConsolePanel implements Renderer2DPain
      */
     private boolean isVisibleInRender(Point2D sPos, StateRenderer2D renderer) {
         Dimension rendDim = renderer.getSize();
-        if (sPos.getX() < 0 - offScreen.getOffScreenBufferPixel() && sPos.getY() < 0 - offScreen.getOffScreenBufferPixel())
+        if (sPos.getX() < 0 - offScreen.getOffScreenBufferPixel()
+                && sPos.getY() < 0 - offScreen.getOffScreenBufferPixel())
             return false;
-        else if (sPos.getX() > rendDim.getWidth() + offScreen.getOffScreenBufferPixel() && sPos.getY() > rendDim.getHeight() + offScreen.getOffScreenBufferPixel())
+        else if (sPos.getX() > rendDim.getWidth() + offScreen.getOffScreenBufferPixel()
+                && sPos.getY() > rendDim.getHeight() + offScreen.getOffScreenBufferPixel())
             return false;
-        
+
         return true;
     }
 
@@ -1178,12 +1180,6 @@ public class HFRadarVisualization extends ConsolePanel implements Renderer2DPain
     }
 
     private HashMap<String, HFRadarDataPoint> processNetCDFHFRadarTest(String fileName) {
-//        HashMap<String, HFRadarDataPoint> hfdp = new HashMap<>();
-//        
-//        FileReader freader = getFileReaderForFile(fileName);
-//        if (freader == null)
-//            return hfdp;
-        
         String fxName = FileUtil.getResourceAsFileKeepName(fileName);
         if (fxName == null)
             fxName = fileName;
@@ -1195,14 +1191,6 @@ public class HFRadarVisualization extends ConsolePanel implements Renderer2DPain
     }
 
     private HashMap<?,?>[] processMeteoFile(String fileName) {
-//        // InputStreamReader
-//        HashMap<String, SSTDataPoint> sstdp = new HashMap<>();
-//        HashMap<String, WindDataPoint> winddp = new HashMap<>();
-//
-//        FileReader freader = getFileReaderForFile(fileName);
-//        if (freader == null)
-//            return new HashMap[] { sstdp, winddp };
-        
         String fxName = FileUtil.getResourceAsFileKeepName(fileName);
         if (fxName == null)
             fxName = fileName;
@@ -1212,13 +1200,6 @@ public class HFRadarVisualization extends ConsolePanel implements Renderer2DPain
     }
 
     private HashMap<String, WavesDataPoint> processWavesFile(String fileName) {
-//        // InputStreamReader
-//        HashMap<String, WavesDataPoint> wavesddp = new HashMap<>();
-//
-//        FileReader freader = getFileReaderForFile(fileName);
-//        if (freader == null)
-//            return wavesddp;
-        
         String fxName = FileUtil.getResourceAsFileKeepName(fileName);
         if (fxName == null)
             fxName = fileName;
