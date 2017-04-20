@@ -126,6 +126,26 @@ public class OffScreenLayerImageControl {
     }
     
     /**
+     * @return the lastCenter
+     */
+    public LocationType getLastCenter() {
+        return lastCenter.getNewAbsoluteLatLonDepth();
+    }
+    
+    public Dimension getCurDimentions(Dimension rv) {
+        int newWidth = (int) dim.getWidth() + offScreenBufferPixel * 2;
+        int newHeight = (int) dim.getHeight() + offScreenBufferPixel * 2;
+
+        if (rv == null) {
+            return new Dimension(newWidth, newHeight);
+        }
+        else {
+            rv.setSize(newWidth, newHeight);
+            return rv;
+        }
+    }
+    
+    /**
      * 
      */
     public boolean paintPhaseStartTestRecreateImageAndRecreate(Graphics2D g, StateRenderer2D renderer) {
