@@ -49,7 +49,6 @@ import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.data.Pair;
 import pt.lsts.neptus.util.AngleUtils;
 import pt.lsts.neptus.util.DateTimeUtil;
-import pt.lsts.neptus.util.MathMiscUtils;
 import ucar.ma2.Array;
 import ucar.ma2.Index;
 import ucar.ma2.Index3D;
@@ -169,16 +168,17 @@ public class LoaderHelper {
         if (dateLimit == null)
             ignoreDateLimitToLoad = true;
         
-        NeptusLog.pub().info("Starting processing Currents netCDF file '" + fileName + "'." + (ignoreDateLimitToLoad ? " ignoring dateTime limit" : " Accepting data after " + dateLimit + "."));
+        NeptusLog.pub().info("Starting processing Currents netCDF file '" + fileName + "'."
+                + (ignoreDateLimitToLoad ? " ignoring dateTime limit" : " Accepting data after " + dateLimit + "."));
         
         HashMap<String, HFRadarDataPoint> hfdp = new HashMap<>();
+        
         NetcdfFile dataFile = null;
 
         Date fromDate = null;
         Date toDate = null;
         
         try {
-
           dataFile = NetcdfFile.open(fileName, null);
 
           // Get the latitude and longitude Variables.
@@ -392,7 +392,8 @@ public class LoaderHelper {
         if (dateLimit == null)
             ignoreDateLimitToLoad = true;
         
-        NeptusLog.pub().info("Starting processing Meteo (wind and SST) netCDF file '" + fileName + "'." + (ignoreDateLimitToLoad ? " ignoring dateTime limit" : " Accepting data after " + dateLimit + "."));
+        NeptusLog.pub().info("Starting processing Meteo (wind and SST) netCDF file '" + fileName + "'."
+                + (ignoreDateLimitToLoad ? " ignoring dateTime limit" : " Accepting data after " + dateLimit + "."));
 
         HashMap<String, SSTDataPoint> sstdp = new HashMap<>();
         HashMap<String, WindDataPoint> winddp = new HashMap<>();
