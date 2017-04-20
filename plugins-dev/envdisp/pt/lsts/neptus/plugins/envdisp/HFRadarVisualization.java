@@ -293,14 +293,7 @@ public class HFRadarVisualization extends ConsolePanel implements Renderer2DPain
     // private final double minWaves = 0;
     private final double maxWaves = 7;
 
-//    private BufferedImage cacheImg = null;
-//    private static int offScreenBufferPixel = 400;
-//    private Dimension dim = null;
-//    private int lastLod = -1;
-//    private LocationType lastCenter = null;
-//    private double lastRotation = Double.NaN;
     private OffScreenLayerImageControl offScreen = new OffScreenLayerImageControl();
-
     
     private final HttpClientConnectionHelper httpComm = new HttpClientConnectionHelper();
     private HttpGet getHttpRequest;
