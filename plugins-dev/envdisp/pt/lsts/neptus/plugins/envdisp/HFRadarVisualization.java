@@ -36,15 +36,10 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.Graphics2D;
-import java.awt.GraphicsConfiguration;
-import java.awt.GraphicsDevice;
-import java.awt.GraphicsEnvironment;
 import java.awt.RenderingHints;
-import java.awt.Transparency;
 import java.awt.geom.Ellipse2D;
 import java.awt.geom.Path2D;
 import java.awt.geom.Point2D;
-import java.awt.image.BufferedImage;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -79,10 +74,10 @@ import pt.lsts.neptus.plugins.NeptusProperty.LEVEL;
 import pt.lsts.neptus.plugins.PluginDescription;
 import pt.lsts.neptus.plugins.update.IPeriodicUpdates;
 import pt.lsts.neptus.renderer2d.LayerPriority;
+import pt.lsts.neptus.renderer2d.OffScreenLayerImageControl;
 import pt.lsts.neptus.renderer2d.Renderer2DPainter;
 import pt.lsts.neptus.renderer2d.StateRenderer2D;
 import pt.lsts.neptus.types.coord.LocationType;
-import pt.lsts.neptus.util.AngleUtils;
 import pt.lsts.neptus.util.ColorUtils;
 import pt.lsts.neptus.util.DateTimeUtil;
 import pt.lsts.neptus.util.FileUtil;
@@ -101,9 +96,6 @@ public class HFRadarVisualization extends ConsolePanel implements Renderer2DPain
     /*
      * Currents, wind, waves, SST 
      */
-
-//    @NeptusProperty(name = "Visible", userLevel = LEVEL.REGULAR, category="Visibility")
-//    public boolean visible = true;
 
     @NeptusProperty(name = "Show currents", userLevel = LEVEL.REGULAR, category="Visibility")
     public boolean showCurrents = true;
@@ -184,8 +176,6 @@ public class HFRadarVisualization extends ConsolePanel implements Renderer2DPain
     private static final String currentsFilePatternNetCDF = netCDFFilePattern; // "^CODAR_TRAD_\\d{4}_\\d{2}_\\d{2}_\\d{4}\\.nc$";
     private static final String meteoFilePattern = netCDFFilePattern; // "^meteo_\\d{8}\\.nc$";
     private static final String wavesFilePattern = netCDFFilePattern; // "^waves_[a-zA-Z]{1,2}_\\d{8}\\.nc$";
-
-    private boolean clearImgCachRqst = false;
 
     private final Font font8Pt = new Font("Helvetica", Font.PLAIN, 8);
 
@@ -303,12 +293,14 @@ public class HFRadarVisualization extends ConsolePanel implements Renderer2DPain
     // private final double minWaves = 0;
     private final double maxWaves = 7;
 
-    private BufferedImage cacheImg = null;
-    private static int offScreenBufferPixel = 400;
-    private Dimension dim = null;
-    private int lastLod = -1;
-    private LocationType lastCenter = null;
-    private double lastRotation = Double.NaN;
+//    private BufferedImage cacheImg = null;
+//    private static int offScreenBufferPixel = 400;
+//    private Dimension dim = null;
+//    private int lastLod = -1;
+//    private LocationType lastCenter = null;
+//    private double lastRotation = Double.NaN;
+    private OffScreenLayerImageControl offScreen = new OffScreenLayerImageControl();
+
     
     private final HttpClientConnectionHelper httpComm = new HttpClientConnectionHelper();
     private HttpGet getHttpRequest;
@@ -443,7 +435,7 @@ public class HFRadarVisualization extends ConsolePanel implements Renderer2DPain
         
         cleanDataPointsBeforeDate();
         updateValues();
-        clearImgCachRqst = true;
+        offScreen.triggerImageRebuild();
     }
 
     private Date createDateToMostRecent() {
@@ -590,25 +582,7 @@ public class HFRadarVisualization extends ConsolePanel implements Renderer2DPain
             }
             else {
                 mergeDataPointsWorker(dp, dpo);
-//                ArrayList<HFRadarDataPoint> histToMergeData = dp.getHistoricalData();
-//                ArrayList<HFRadarDataPoint> histOrigData = dpo.getHistoricalData();
-//                ArrayList<HFRadarDataPoint> toAddDP = new ArrayList<>();
-//                for (HFRadarDataPoint hdp : histToMergeData) {
-//                    boolean foundMatch = false;
-//                    for (HFRadarDataPoint hodp : histOrigData) {
-//                        if (hdp.getDateUTC().equals(hodp.getDateUTC())) {
-//                            foundMatch = true;
-//                            break;
-//                        }
-//                    }
-//                    if (foundMatch)
-//                        continue;
-//                    toAddDP.add(hdp);
-//                }
-//                if (toAddDP.size() > 0)
-//                    histOrigData.addAll(toAddDP);
             }
-//            dpo.calculateMean();
         }
     }
 
@@ -624,6 +598,7 @@ public class HFRadarVisualization extends ConsolePanel implements Renderer2DPain
                 mergeDataPointsWorker(dp, dpo);
             }
         }
+        System.out.println(toMergeData.size() + " vs " + dataPointsSST.size());
     }
 
     public void mergeWindDataToInternalDataList(HashMap<String, WindDataPoint> toMergeData) {
@@ -750,10 +725,11 @@ public class HFRadarVisualization extends ConsolePanel implements Renderer2DPain
     public HashMap<String, HFRadarDataPoint> getNoaaHFRadarData() {
         Date nowDate = new Date(System.currentTimeMillis());
         Date tillDate = new Date(nowDate.getTime() - dateLimitHours * DateTimeUtil.HOUR);
+        LocationType lastCenter = offScreen.getLastCenter();
         if (lastCenter == null)
             return null;
-        LocationType lc = lastCenter.getNewAbsoluteLatLonDepth();
-        Dimension boxDim = dim.getSize();
+        LocationType lc = lastCenter;//.getNewAbsoluteLatLonDepth();
+        Dimension boxDim = offScreen.getCurDimentions(null); // dim.getSize();
         LocationType lTop = lc.getNewAbsoluteLatLonDepth();
         lTop.translateInPixel(-boxDim.getWidth() / 2, -boxDim.getHeight() / 2, 22);
         LocationType lBot = lc.getNewAbsoluteLatLonDepth();
@@ -842,35 +818,10 @@ public class HFRadarVisualization extends ConsolePanel implements Renderer2DPain
     }
     
     public void paintWorker(Graphics2D go, StateRenderer2D renderer) {
-        if (!clearImgCachRqst) {
-            if (isToRegenerateCache(renderer))
-                cacheImg = null;
-        }
-        else {
-            cacheImg = null;
-            clearImgCachRqst = false;
-        }
-        
-        if (cacheImg == null) {
-            dim = renderer.getSize(new Dimension());
-            lastLod = renderer.getLevelOfDetail();
-            lastCenter = renderer.getCenter();
-            lastRotation = renderer.getRotation();
+        boolean recreateImage = offScreen.paintPhaseStartTestRecreateImageAndRecreate(go, renderer);
+        if (recreateImage) {
+            Graphics2D g2 = offScreen.getImageGraphics();
 
-//            System.out.println("#########################");
-            GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
-            GraphicsDevice gs = ge.getDefaultScreenDevice();
-            GraphicsConfiguration gc = gs.getDefaultConfiguration();
-            cacheImg = gc.createCompatibleImage((int) dim.getWidth() + offScreenBufferPixel * 2, (int) dim.getHeight() + offScreenBufferPixel * 2, Transparency.BITMASK); 
-            Graphics2D g2 = cacheImg.createGraphics();
-            
-            g2.translate(offScreenBufferPixel, offScreenBufferPixel);
-            
-//            g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-//            g2.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
-            g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_OFF);
-            g2.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_SPEED);
-            
             Date dateColorLimit = new Date(System.currentTimeMillis() - 3 * DateTimeUtil.HOUR);
             Date dateLimit = new Date(System.currentTimeMillis() - dateLimitHours * DateTimeUtil.HOUR);
             
@@ -884,52 +835,10 @@ public class HFRadarVisualization extends ConsolePanel implements Renderer2DPain
                 paintWavesInGraphics(renderer, g2, dateColorLimit, dateLimit);
 
             g2.dispose();
-        }
-
-        if (cacheImg != null) {
-            //          System.out.println(".........................");
-            Graphics2D g3 = (Graphics2D) go.create();
-//            if (renderer.getRotation() != 0) {
-//                g3.rotate(-renderer.getRotation(), renderer.getWidth() / 2, renderer.getHeight() / 2);
-//            }
-            // g3.drawImage(cacheImg, 0, 0, null);
-
-            double[] offset = renderer.getCenter().getDistanceInPixelTo(lastCenter, renderer.getLevelOfDetail());
-            offset = AngleUtils.rotate(renderer.getRotation(), offset[0], offset[1], true);
-
-            // g3.drawImage(cacheImg, 0, 0, cacheImg.getWidth(), cacheImg.getHeight(), 0, 0, cacheImg.getWidth(), cacheImg.getHeight(), null);
-            g3.drawImage(cacheImg, null, (int) offset[0] - offScreenBufferPixel, (int) offset[1] - offScreenBufferPixel);
-
-            g3.dispose();
-        }
+        }            
+        offScreen.paintPhaseEndFinishImageRecreateAndPaintImageCacheToRenderer(go, renderer);
     }
 
-    /**
-     * @return 
-     * 
-     */
-    private boolean isToRegenerateCache(StateRenderer2D renderer) {
-        if (dim == null || lastLod < 0 || lastCenter == null || Double.isNaN(lastRotation)) {
-            Dimension dimN = renderer.getSize(new Dimension());
-            if (dimN.height != 0 && dimN.width != 0)
-                dim = dimN;
-            return true;
-        }
-        LocationType current = renderer.getCenter().getNewAbsoluteLatLonDepth();
-        LocationType last = lastCenter == null ? new LocationType(0, 0) : lastCenter;
-        double[] offset = current.getDistanceInPixelTo(last, renderer.getLevelOfDetail());
-        if (Math.abs(offset[0]) > offScreenBufferPixel || Math.abs(offset[1]) > offScreenBufferPixel) {
-            return true;
-        }
-
-        if (!dim.equals(renderer.getSize()) || lastLod != renderer.getLevelOfDetail()
-                /*|| !lastCenter.equals(renderer.getCenter())*/ || Double.compare(lastRotation, renderer.getRotation()) != 0) {
-            return true;
-        }
-        
-        return false;
-    }
-    
     /**
      * @param renderer
      * @param g2
@@ -1218,9 +1127,9 @@ public class HFRadarVisualization extends ConsolePanel implements Renderer2DPain
      */
     private boolean isVisibleInRender(Point2D sPos, StateRenderer2D renderer) {
         Dimension rendDim = renderer.getSize();
-        if (sPos.getX() < 0 - offScreenBufferPixel && sPos.getY() < 0 - offScreenBufferPixel)
+        if (sPos.getX() < 0 - offScreen.getOffScreenBufferPixel() && sPos.getY() < 0 - offScreen.getOffScreenBufferPixel())
             return false;
-        else if (sPos.getX() > rendDim.getWidth() + offScreenBufferPixel && sPos.getY() > rendDim.getHeight() + offScreenBufferPixel)
+        else if (sPos.getX() > rendDim.getWidth() + offScreen.getOffScreenBufferPixel() && sPos.getY() > rendDim.getHeight() + offScreen.getOffScreenBufferPixel())
             return false;
         
         return true;
