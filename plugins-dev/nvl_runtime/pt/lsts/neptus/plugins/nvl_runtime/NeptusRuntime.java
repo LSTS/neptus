@@ -23,6 +23,7 @@ import pt.lsts.neptus.comm.manager.imc.ImcMsgManager;
 import pt.lsts.neptus.comm.manager.imc.ImcSystem;
 import pt.lsts.neptus.comm.manager.imc.ImcSystemsHolder;
 import pt.lsts.neptus.console.ConsoleLayout;
+import pt.lsts.neptus.console.events.ConsoleEventPlanChange;
 import pt.lsts.neptus.console.events.ConsoleEventVehicleStateChanged;
 import pt.lsts.neptus.console.events.ConsoleEventVehicleStateChanged.STATE;
 import pt.lsts.neptus.i18n.I18n;
@@ -133,6 +134,18 @@ public class NeptusRuntime extends InteractionAdapter implements NVLRuntime {
           
         ImcSystem imcsystem = ImcSystemsHolder.getSystemWithName(e.getVehicle());
         vehicles.put(e.getVehicle(), new NeptusVehicleAdapter(imcsystem,e.getState())); //Pode ser disconnected
+    }
+
+    @Subscribe
+    public void on(ConsoleEventPlanChange changedPlan) {
+        if(changedPlan.getCurrent() == null){
+            if(!this.getConsole().getMission().getIndividualPlansList().containsKey(changedPlan.getOld().getId())){
+                tasks.remove(changedPlan.getOld().getId());
+            }
+            else{
+                tasks.put(changedPlan.getCurrent().getId(), new NeptusTaskSpecificationAdapter(changedPlan.getCurrent()));
+            }
+        }
     }
 
 

@@ -257,34 +257,20 @@ public class Groovy_stable extends InteractionAdapter {
         add(stopScript);
         stopScript.setEnabled(false);
     }
-    
+
     @Subscribe
-    public void on(ConsoleEventMissionChanged new_mission) {
-        if(!new_mission.getOld().equals(new_mission.getCurrent())){
-            System.out.println("Got here some how");
-         TreeMap<String, PlanType>  ps = new_mission.getCurrent().getIndividualPlansList();
-         for( PlanType p: ps.values()){
-             if(!plans.containsValue(p)){
-                 plans.put(p.getId(),p);
-                 System.out.println(p.getId()+" added.");
-                 }
-         }
-         //Plan removed
-         if(!plans.keySet().containsAll(new_mission.getCurrent().getIndividualPlansList().keySet()))
-             for(String id: plans.keySet())
-                 if(!ps.keySet().contains(id)){
-                     plans.remove(id);
-                     System.out.println(id+" removed.");
-                 }
+    public void on(ConsoleEventPlanChange changedPlan) {
+        if(changedPlan.getCurrent() == null){
+            if(!this.getConsole().getMission().getIndividualPlansList().containsKey(changedPlan.getOld().getId())){
+                System.out.println("Plan "+changedPlan.getOld().getId()+" removed.");
+                plans.remove(changedPlan.getOld().getId());
+            }
+            else{
+                plans.put(changedPlan.getCurrent().getId(), changedPlan.getCurrent());
+                System.out.println("New Plan!! "+changedPlan.getCurrent().getId());
+            }
         }
     }
-    
- /*   @Subscribe
-    public void on(ConsoleEventPlanChange newPlan) {
-            plans.put(newPlan.getCurrent().getId(), newPlan.getCurrent());
-            //System.out.println("New Plan!! "+newPlan.getCurrent().getId());
-            //TODO mission type change to check removed 
-    }*/
 
 
     @Subscribe

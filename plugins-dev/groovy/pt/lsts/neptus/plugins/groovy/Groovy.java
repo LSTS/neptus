@@ -67,6 +67,7 @@ import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.comm.manager.imc.ImcSystem;
 import pt.lsts.neptus.comm.manager.imc.ImcSystemsHolder;
 import pt.lsts.neptus.console.ConsoleLayout;
+import pt.lsts.neptus.console.events.ConsoleEventPlanChange;
 import pt.lsts.neptus.console.events.ConsoleEventVehicleStateChanged;
 import pt.lsts.neptus.console.notifications.Notification;
 import pt.lsts.neptus.console.plugins.planning.plandb.PlanDBAdapter;
@@ -220,9 +221,7 @@ private Object delegate;
         catch (Exception e1) {
             //e1.printStackTrace();
         }
-        //TODO from planqueue plugin 
-//        if (pdbControl != null)
-//            pdbControl.removeListener(planDBListener);
+
 
     }
 
@@ -439,19 +438,19 @@ private Object delegate;
 
         this.plans.put(planId, getConsole().getMission().getIndividualPlansList().get(planId));
     }
-
-//    @Subscribe
-//    public void onConsoleEventPlanChange(ConsoleEventPlanChange plan) {
-//        
-//        String old_id = plan.getOld().getId();
-//        if(plans.containsKey(old_id)) {
-//            if(!old_id.equals(plan.getCurrent().getId()))
-//                plans.remove(old_id);
-//        }
-//        plans.put(plan.getCurrent().getId(), plan.getCurrent());
-//    }
     
-
+    @Subscribe
+    public void on(ConsoleEventPlanChange changedPlan) {
+        if(changedPlan.getCurrent() == null){
+            if(!this.getConsole().getMission().getIndividualPlansList().containsKey(changedPlan.getOld().getId())){
+                plans.remove(changedPlan.getOld().getId());
+            }
+            else{
+                plans.put(changedPlan.getCurrent().getId(), changedPlan.getCurrent());
+            }
+        }
+    }
+    
     /**
      * @return the binds
      */

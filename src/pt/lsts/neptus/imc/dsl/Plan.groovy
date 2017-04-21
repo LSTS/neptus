@@ -550,7 +550,7 @@ class Plan {
         rows.parseIMCMessage(man)
         rows.setId(id)
         if (payload != null){
-            rows.setProperties(Payload.properties("Rows",payload))
+            rows.setProperties(Payload.properties("RowsManeuver",payload))
             //man.setProperties(payload.properties())
         }
         neptus_mans.add(rows)
