@@ -61,6 +61,10 @@ import ucar.nc2.Variable;
  */
 public class LoaderHelper {
 
+    private static final String NETCDF_ATT_STANDARD_NAME = "standard_name";
+    private static final String NETCDF_ATT_FILL_VALUE = "_FillValue";
+    private static final String NETCDF_ATT_UNITS = "units";
+
     public static final HashMap<String, HFRadarDataPoint> processTUGHFRadar(Reader readerInput, Date dateLimit) {
         boolean ignoreDateLimitToLoad = false;
         if (dateLimit == null)
@@ -182,30 +186,30 @@ public class LoaderHelper {
           dataFile = NetcdfFile.open(fileName, null);
 
           // Get the latitude and longitude Variables.
-          Pair<String, Variable> searchPair = findVariableFor(dataFile, fileName, true, "lat", "latitude");
+          Pair<String, Variable> searchPair = findVariableForStandardNameOrName(dataFile, fileName, true, "latitude", "lat");
           String latName = searchPair.first();
           Variable latVar = searchPair.second(); 
 
-          searchPair = findVariableFor(dataFile, fileName, true, "lon", "longitude");
+          searchPair = findVariableForStandardNameOrName(dataFile, fileName, true, "longitude", "lon");
           String lonName = searchPair.first();
           Variable lonVar = searchPair.second();
 
-          searchPair = findVariableFor(dataFile, fileName, true, "time");
+          searchPair = findVariableForStandardNameOrName(dataFile, fileName, true, "time");
           String timeName = searchPair == null ? null : searchPair.first();
           Variable timeVar = searchPair == null ? null : searchPair.second();
 
-          searchPair = findVariableFor(dataFile, fileName, false, "depth", "altitude");
+          searchPair = findVariableForStandardNameOrName(dataFile, fileName, false, "depth", "altitude");
           String depthOrAltitudeName = searchPair == null ? null : searchPair.first();
           Variable depthOrAltitudeVar = searchPair == null ? null : searchPair.second();
 
           // Get the u (north) wind velocity Variables.
-          searchPair = findVariableFor(dataFile, fileName, false, "u", "x-wind", "grid_eastward_wind");
+          searchPair = findVariableForStandardNameOrName(dataFile, fileName, false, "x-wind", "grid_eastward_wind", "u");
           @SuppressWarnings("unused")
           String xWindName = searchPair == null ? null : searchPair.first();
           Variable uVar = searchPair == null ? null : searchPair.second();
 
           // Get the v (east) wind velocity Variables.
-          searchPair = findVariableFor(dataFile, fileName, false, "v", "y-wind", "grid_northward_wind");
+          searchPair = findVariableForStandardNameOrName(dataFile, fileName, false, "y-wind", "grid_northward_wind", "v");
           @SuppressWarnings("unused")
           String yWindName = searchPair == null ? null : searchPair.first();
           Variable vVar = searchPair == null ? null : searchPair.second();
@@ -234,11 +238,11 @@ public class LoaderHelper {
           double timeOffset = multAndOffset[1];
           
           String uUnits = "cm/s";
-          Attribute uUnitsAtt = uVar.findAttribute("units");
+          Attribute uUnitsAtt = uVar.findAttribute(NETCDF_ATT_UNITS);
           if (uUnitsAtt != null)
               uUnits = (String) uUnitsAtt.getValue(0);
           String vUnits = "cm/s";
-          Attribute vUnitsAtt = uVar.findAttribute("units");
+          Attribute vUnitsAtt = uVar.findAttribute(NETCDF_ATT_UNITS);
           if (vUnitsAtt != null)
               vUnits = (String) vUnitsAtt.getValue(0);
 
@@ -274,7 +278,7 @@ public class LoaderHelper {
                       && depthOrAltitudeName.equalsIgnoreCase("altitude") ? false : true;
               @SuppressWarnings("unused")
               double depthOrAlt = Double.NaN;
-              if (collumsIndexMap.get(depthOrAltitudeName) > 0)
+              if (depthOrAltitudeName != null && collumsIndexMap.get(depthOrAltitudeName) > 0)
                   depthOrAlt = depthOrAltitudeArray.getDouble(counter[collumsIndexMap.get(depthOrAltitudeName)]);
 
               Index uIndex = uArray.getIndex();
@@ -358,35 +362,35 @@ public class LoaderHelper {
           dataFile = NetcdfFile.open(fileName, null);
 
           // Get the latitude and longitude Variables.
-          Pair<String, Variable> searchPair = findVariableFor(dataFile, fileName, true, "lat", "latitude");
+          Pair<String, Variable> searchPair = findVariableForStandardNameOrName(dataFile, fileName, true, "latitude", "lat");
           String latName = searchPair.first();
           Variable latVar = searchPair.second(); 
 
-          searchPair = findVariableFor(dataFile, fileName, true, "lon", "longitude");
+          searchPair = findVariableForStandardNameOrName(dataFile, fileName, true, "longitude", "lon");
           String lonName = searchPair.first();
           Variable lonVar = searchPair.second();
 
-          searchPair = findVariableFor(dataFile, fileName, true, "time");
+          searchPair = findVariableForStandardNameOrName(dataFile, fileName, true, "time");
           String timeName = searchPair == null ? null : searchPair.first();
           Variable timeVar = searchPair == null ? null : searchPair.second();
 
-          searchPair = findVariableFor(dataFile, fileName, false, "depth", "altitude");
+          searchPair = findVariableForStandardNameOrName(dataFile, fileName, false, "depth", "altitude");
           String depthOrAltitudeName = searchPair == null ? null : searchPair.first();
           Variable depthOrAltitudeVar = searchPair == null ? null : searchPair.second();
 
           // Get the u (north) wind velocity Variables.
-          searchPair = findVariableFor(dataFile, fileName, false, "u", "x-wind", "grid_eastward_wind");
+          searchPair = findVariableForStandardNameOrName(dataFile, fileName, false, "x-wind", "grid_eastward_wind", "u");
           @SuppressWarnings("unused")
           String xWindName = searchPair == null ? null : searchPair.first();
           Variable uVar = searchPair == null ? null : searchPair.second();
 
           // Get the v (east) wind velocity Variables.
-          searchPair = findVariableFor(dataFile, fileName, false, "v", "y-wind", "grid_northward_wind");
+          searchPair = findVariableForStandardNameOrName(dataFile, fileName, false, "y-wind", "grid_northward_wind", "v");
           @SuppressWarnings("unused")
           String yWindName = searchPair == null ? null : searchPair.first();
           Variable vVar = searchPair == null ? null : searchPair.second();
 
-          searchPair = findVariableFor(dataFile, fileName, false, "sst", "sea_surface_temperature");
+          searchPair = findVariableForStandardNameOrName(dataFile, fileName, false, "sea_surface_temperature", "sst");
           @SuppressWarnings("unused")
           String sstName = searchPair == null ? null : searchPair.first();
           Variable sstVar = searchPair == null ? null : searchPair.second();
@@ -416,7 +420,7 @@ public class LoaderHelper {
           if (sstVar != null) {
               try {
                   String sstUnits = "K";
-                  Attribute sstUnitsAtt = sstVar == null ? null : sstVar.findAttribute("units");
+                  Attribute sstUnitsAtt = sstVar == null ? null : sstVar.findAttribute(NETCDF_ATT_UNITS);
                   if (sstUnitsAtt != null)
                       sstUnits = (String) sstUnitsAtt.getValue(0);
 
@@ -451,7 +455,7 @@ public class LoaderHelper {
                               && depthOrAltitudeName.equalsIgnoreCase("altitude") ? false : true;
                       @SuppressWarnings("unused")
                       double depthOrAlt = Double.NaN;
-                      if (collumsIndexMap.get(depthOrAltitudeName) > 0)
+                      if (depthOrAltitudeName != null && collumsIndexMap.get(depthOrAltitudeName) > 0)
                           depthOrAlt = depthOrAltitudeArray.getDouble(counter[collumsIndexMap.get(depthOrAltitudeName)]);
 
                       Index index = sstArray.getIndex();
@@ -494,11 +498,11 @@ public class LoaderHelper {
           if (uVar != null && vVar != null) {
               try {
                   String uUnits = "cm/s";
-                  Attribute uUnitsAtt = uVar == null ? null : uVar.findAttribute("units");
+                  Attribute uUnitsAtt = uVar == null ? null : uVar.findAttribute(NETCDF_ATT_UNITS);
                   if (uUnitsAtt != null)
                       uUnits = (String) uUnitsAtt.getValue(0);
                   String vUnits = "cm/s";
-                  Attribute vUnitsAtt = vVar == null ? null : vVar.findAttribute("units");
+                  Attribute vUnitsAtt = vVar == null ? null : vVar.findAttribute(NETCDF_ATT_UNITS);
                   if (vUnitsAtt != null)
                       vUnits = (String) vUnitsAtt.getValue(0);
 
@@ -534,7 +538,7 @@ public class LoaderHelper {
                               && depthOrAltitudeName.equalsIgnoreCase("altitude") ? false : true;
                       @SuppressWarnings("unused")
                       double depthOrAlt = Double.NaN;
-                      if (collumsIndexMap.get(depthOrAltitudeName) > 0)
+                      if (depthOrAltitudeName != null && collumsIndexMap.get(depthOrAltitudeName) > 0)
                           depthOrAlt = depthOrAltitudeArray.getDouble(counter[collumsIndexMap.get(depthOrAltitudeName)]);
 
                       Index uIndex = uArray.getIndex();
@@ -617,32 +621,35 @@ public class LoaderHelper {
           dataFile = NetcdfFile.open(fileName, null);
 
           // Get the latitude and longitude Variables.
-          Pair<String, Variable> searchPair = findVariableFor(dataFile, fileName, true, "lat", "latitude");
+          Pair<String, Variable> searchPair = findVariableForStandardNameOrName(dataFile, fileName, true, "latitude", "lat");
           String latName = searchPair.first();
           Variable latVar = searchPair.second(); 
 
-          searchPair = findVariableFor(dataFile, fileName, true, "lon", "longitude");
+          searchPair = findVariableForStandardNameOrName(dataFile, fileName, true, "longitude", "lon");
           String lonName = searchPair.first();
           Variable lonVar = searchPair.second();
 
-          searchPair = findVariableFor(dataFile, fileName, true, "time");
+          searchPair = findVariableForStandardNameOrName(dataFile, fileName, true, "time");
           String timeName = searchPair == null ? null : searchPair.first();
           Variable timeVar = searchPair == null ? null : searchPair.second();
 
-          searchPair = findVariableFor(dataFile, fileName, false, "depth", "altitude");
+          searchPair = findVariableForStandardNameOrName(dataFile, fileName, false, "depth", "altitude");
           String depthOrAltitudeName = searchPair == null ? null : searchPair.first();
           Variable depthOrAltitudeVar = searchPair == null ? null : searchPair.second();
 
           // Get the significant height Variable.
-          searchPair = findVariableFor(dataFile, fileName, true, "hs");
+          searchPair = findVariableForStandardNameOrName(dataFile, fileName, true,
+                  "sea_surface_wave_significant_height", "significant_height_of_wind_and_swell_waves", "hs");
           Variable hsVar = searchPair == null ? null : searchPair.second();
 
           // Get the peak period Variable.
-          searchPair = findVariableFor(dataFile, fileName, true, "tp");
+          searchPair = findVariableForStandardNameOrName(dataFile, fileName, true,
+                  "sea_surface_wave_period_at_variance_spectral_density_maximum", "tp");
           Variable tpVar = searchPair == null ? null : searchPair.second();
 
           // Get the peak direction Variable.
-          searchPair = findVariableFor(dataFile, fileName, true, "pdir");
+          searchPair = findVariableForStandardNameOrName(dataFile, fileName, true, "sea_surface_wave_to_direction",
+                  "pdir");
           Variable pdirVar = searchPair == null ? null : searchPair.second();
 
           // Get the lat/lon data from the file.
@@ -699,7 +706,7 @@ public class LoaderHelper {
                       && depthOrAltitudeName.equalsIgnoreCase("altitude") ? false : true;
               @SuppressWarnings("unused")
               double depthOrAlt = Double.NaN;
-              if (collumsIndexMap.get(depthOrAltitudeName) > 0)
+              if (depthOrAltitudeName != null && collumsIndexMap.get(depthOrAltitudeName) > 0)
                   depthOrAlt = depthOrAltitudeArray.getDouble(counter[collumsIndexMap.get(depthOrAltitudeName)]);
 
               Index index = hsArray.getIndex();
@@ -804,7 +811,7 @@ public class LoaderHelper {
      * @throws NumberFormatException
      */
     private static double findFillValue(Variable var) throws NumberFormatException {
-        Attribute fillValueAtt = var == null ? null : var.findAttribute("_FillValue");
+        Attribute fillValueAtt = var == null ? null : var.findAttribute(NETCDF_ATT_FILL_VALUE);
         if (fillValueAtt != null) {
             try {
                 return ((Number) fillValueAtt.getValue(0)).doubleValue();
@@ -825,7 +832,7 @@ public class LoaderHelper {
     private static double[] getTimeMultiplierAndOffset(Variable timeVar, String fileNameForErrorString)
             throws Exception {
         String timeUnits = "days since 00-01-00 00:00:00"; // "seconds since 2013-07-04 00:00:00"
-        Attribute timeUnitsAtt = timeVar.findAttribute("units");
+        Attribute timeUnitsAtt = timeVar.findAttribute(NETCDF_ATT_UNITS);
         if (timeUnitsAtt != null)
             timeUnits = (String) timeUnitsAtt.getValue(0);
         double[] multAndOffset = getMultiplierAndMillisOffsetFromTimeUnits(timeUnits);
@@ -834,6 +841,22 @@ public class LoaderHelper {
                     + "') for netCDF file '" + fileNameForErrorString + "'.");
         }
         return multAndOffset;
+    }
+
+    /**
+     * @param dataFile
+     * @param fileNameForErrorString
+     * @param failIfNotFound
+     * @param varStName
+     * @return
+     */
+    private static Pair<String, Variable> findVariableForStandardNameOrName(NetcdfFile dataFile, String fileNameForErrorString,
+            boolean failIfNotFound, String... varStName) {
+        Pair<String, Variable> ret = findVariableForStandardName(dataFile, fileNameForErrorString, false, varStName);
+        if (ret == null)
+            ret = findVariableFor(dataFile, fileNameForErrorString, failIfNotFound, varStName);
+        
+        return ret;
     }
 
     /**
@@ -868,6 +891,31 @@ public class LoaderHelper {
         return new Pair<String, Variable>(name, latVar);
     }
 
+    private static Pair<String, Variable> findVariableForStandardName(NetcdfFile dataFile, String fileNameForErrorString,
+            boolean failIfNotFound, String... varName) {
+        String name = "";
+        Variable latVar = null;
+        for (String st : varName) {
+            latVar = dataFile.findVariableByAttribute(null, NETCDF_ATT_STANDARD_NAME, st);
+            if (latVar != null) {
+                name = latVar.getShortName();
+                break;
+            }
+        }
+        if (latVar == null) {
+            String message = "Can't find variable standard name '" + Arrays.toString(varName) + "' for netCDF file '"
+                    + fileNameForErrorString + "'.";
+            if (failIfNotFound) {
+                new Exception("Aborting. " + message);
+            }
+            else {
+                NeptusLog.pub().error(message);
+                return null;
+            }
+        }
+        return new Pair<String, Variable>(name, latVar);
+    }
+
     /**
      * @param dimStr
      * @param name
@@ -878,11 +926,11 @@ public class LoaderHelper {
         if (dimStr == null || dimStr.length() == 0)
             return ret;
         
-        Arrays.stream(name).forEach(n -> ret.put(n, -1));
+        Arrays.stream(name).filter(n -> n != null && !n.isEmpty()).forEach(n -> ret.put(n.trim(), -1));
         
         String[] tk = dimStr.split("[, \t]");
         for (int i = 0; i < tk.length; i++) {
-            for (String n : name) {
+            for (String n : ret.keySet()) {
                 if (n.equalsIgnoreCase(tk[i].trim())) {
                     ret.put(n, i);
                     break;
