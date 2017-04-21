@@ -181,17 +181,6 @@ public class NeptusRuntime extends InteractionAdapter implements NVLRuntime {
             exec.synchronizedWithVehicles(sent); 
             runningTasks.add(exec);  
 	    }
-//        PlanDBControl pdbControl;
-//        pdbControl.setRemoteSystemId(vs.get(index));
-//        pdbControl.sendPlan(plan1);
-//        int reqId = IMCSendMessageUtils.getNextRequestId();
-//        PlanControl pc = new PlanControl();
-//        pc.setType(PlanControl.TYPE.REQUEST);
-//        pc.setRequestId(reqId);
-//        String cmdStrMsg = "";
-        
-        
-        
 		return runningTasks;
 	   	}
 
