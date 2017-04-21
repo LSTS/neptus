@@ -32,14 +32,15 @@
  */
 package pt.lsts.neptus.plugins.logs.search;
 
-import javax.swing.*;
 import java.awt.Dimension;
+import javax.swing.JDialog;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JProgressBar;
 
 public class LogsProgressMonitor extends JDialog {
     private final JLabel messageLabel = new JLabel();
     private final JPanel contentPanel = new JPanel();
-    private String title;
-    private String message;
     private final JProgressBar progressBar = new JProgressBar();
     private boolean isVisible = false;
 
@@ -59,9 +60,6 @@ public class LogsProgressMonitor extends JDialog {
     }
 
     public void open(String title, String message) {
-        this.title = title;
-        this.message = message;
-
         this.setTitle(title);
         messageLabel.setText(message);
 

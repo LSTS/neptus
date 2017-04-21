@@ -32,12 +32,27 @@
  */
 package pt.lsts.neptus.plugins.logs.utils;
 
-import pt.lsts.imc.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Calendar;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.NoSuchElementException;
+import java.util.Vector;
+import pt.lsts.imc.Distance;
+import pt.lsts.imc.Fluorescein;
+import pt.lsts.imc.IMCMessage;
+import pt.lsts.imc.PH;
+import pt.lsts.imc.PlanManeuver;
+import pt.lsts.imc.PlanSpecification;
+import pt.lsts.imc.Redox;
+import pt.lsts.imc.Salinity;
+import pt.lsts.imc.SetEntityParameters;
+import pt.lsts.imc.VehicleState;
 import pt.lsts.imc.lsf.batch.LsfBatch;
-import pt.lsts.neptus.data.GeoCollection;
 import pt.lsts.neptus.plugins.logs.search.ConnConfig;
 import pt.lsts.neptus.plugins.logs.search.LogsDbHandler;
-import pt.lsts.neptus.plugins.logs.search.LogsSearcher;
 
 import java.io.File;
 import java.io.IOException;
@@ -45,7 +60,6 @@ import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.*;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;

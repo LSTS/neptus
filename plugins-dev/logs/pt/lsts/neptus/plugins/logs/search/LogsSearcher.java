@@ -1,7 +1,66 @@
+/*
+ * Copyright (c) 2004-2017 Universidade do Porto - Faculdade de Engenharia
+ * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
+ * All rights reserved.
+ * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
+ *
+ * This file is part of Neptus, Command and Control Framework.
+ *
+ * Commercial Licence Usage
+ * Licencees holding valid commercial Neptus licences may use this file
+ * in accordance with the commercial licence agreement provided with the
+ * Software or, alternatively, in accordance with the terms contained in a
+ * written agreement between you and Universidade do Porto. For licensing
+ * terms, conditions, and further information contact lsts@fe.up.pt.
+ *
+ * Modified European Union Public Licence - EUPL v.1.1 Usage
+ * Alternatively, this file may be used under the terms of the Modified EUPL,
+ * Version 1.1 only (the "Licence"), appearing in the file LICENCE.md
+ * included in the packaging of this file. You may not use this work
+ * except in compliance with the Licence. Unless required by applicable
+ * law or agreed to in writing, software distributed under the Licence is
+ * distributed on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF
+ * ANY KIND, either express or implied. See the Licence for the specific
+ * language governing permissions and limitations at
+ * https://github.com/LSTS/neptus/blob/develop/LICENSE.md
+ * and http://ec.europa.eu/idabc/eupl.html.
+ *
+ * For more information please see <http://lsts.fe.up.pt/neptus>.
+ *
+ * Author: tsm
+ * 23 Mar 2017
+ */
 package pt.lsts.neptus.plugins.logs.search;
 
-import com.google.common.eventbus.Subscribe;
-import jdk.nashorn.internal.scripts.JO;
+import java.awt.Dimension;
+import java.awt.GridLayout;
+import java.io.BufferedOutputStream;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.HashSet;
+import javax.swing.DefaultComboBoxModel;
+import javax.swing.DefaultListCellRenderer;
+import javax.swing.JButton;
+import javax.swing.JLabel;
+import javax.swing.JMenu;
+import javax.swing.JMenuBar;
+import javax.swing.JMenuItem;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JComboBox;
+import javax.swing.JPasswordField;
+import javax.swing.JScrollPane;
+import javax.swing.JTable;
+import javax.swing.JTextField;
+import javax.swing.ListSelectionModel;
+import javax.swing.SwingUtilities;
 import net.miginfocom.swing.MigLayout;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.net.ftp.FTPClient;
@@ -11,26 +70,18 @@ import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.console.ConsoleLayout;
 import pt.lsts.neptus.console.ConsolePanel;
 import pt.lsts.neptus.ftp.FtpDownloader;
-import pt.lsts.neptus.mp.MapChangeEvent;
 import pt.lsts.neptus.mra.NeptusMRA;
-import pt.lsts.neptus.plugins.*;
-import pt.lsts.neptus.types.map.ParallelepipedElement;
+import pt.lsts.neptus.plugins.PluginDescription;
 import pt.lsts.neptus.util.FileUtil;
 import pt.lsts.neptus.util.GuiUtils;
 
-import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableModel;
 import javax.swing.table.TableRowSorter;
-import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.io.*;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.*;
 
 import pt.lsts.neptus.plugins.Popup;
 
@@ -88,7 +139,6 @@ public class LogsSearcher extends ConsolePanel {
     private final JComboBox<String> yearOptions = new JComboBox<>();
     private final JComboBox<String> vehicleOptions = new JComboBox<>();
 
-    private final HashSet<String> knownMapAreas = new HashSet<>();
     private final HashMap<String, String> logsPath = new HashMap<>();
 
     private JTable resultsTable;
