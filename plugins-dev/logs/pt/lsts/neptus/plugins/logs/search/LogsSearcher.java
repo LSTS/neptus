@@ -3,6 +3,7 @@ package pt.lsts.neptus.plugins.logs.search;
 import com.google.common.eventbus.Subscribe;
 import jdk.nashorn.internal.scripts.JO;
 import net.miginfocom.swing.MigLayout;
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.net.ftp.FTPClient;
 import org.apache.commons.net.ftp.FTPFile;
 import pt.lsts.imc.lsf.LsfMerge;
@@ -79,7 +80,9 @@ public class LogsSearcher extends ConsolePanel {
     private final JPanel resultsPanel = new JPanel();
     private final LogsProgressMonitor logsProgressMonitor = new LogsProgressMonitor();
     private final JMenuBar menuBar = new JMenuBar();
+    private final JMenu menu = new JMenu("Options");
     private final JMenuItem loginMenu = new JMenuItem("Login");
+    private final JMenuItem clearCacheMenu = new JMenuItem("Clear cache");
 
     private final JComboBox<String> dataOptions = new JComboBox<>();
     private final JComboBox<String> yearOptions = new JComboBox<>();
@@ -185,7 +188,11 @@ public class LogsSearcher extends ConsolePanel {
         initResultsPanel();
 
         loginMenu.addActionListener(e -> showAuthenticationPanel());
-        menuBar.add(loginMenu);
+        clearCacheMenu.addActionListener(e -> clearCachedLogs());
+
+        menu.add(loginMenu);
+        menu.add(clearCacheMenu);
+        menuBar.add(menu);
         mainPanel.add(menuBar, "w 90px, h 20px, spanx, wrap");
         mainPanel.add(queryPanel, "alignx center, w 47px, h 55px, spanx, wrap");
         mainPanel.add(resultsPanel, "w 100%, h 90%");
@@ -569,6 +576,17 @@ public class LogsSearcher extends ConsolePanel {
                     + sb.toString());
 
         return localLogAbsolutePath;
+    }
+
+    /**
+     * Remove all downloaded and merged logs
+     * */
+    private void clearCachedLogs() {
+        try {
+            FileUtils.cleanDirectory(LOGS_DOWNLOAD_DIR);
+        } catch (IOException e) {
+            GuiUtils.errorMessage("Error", e.getMessage());
+        }
     }
 
     private void setStatus(boolean isActivated, String message) {
