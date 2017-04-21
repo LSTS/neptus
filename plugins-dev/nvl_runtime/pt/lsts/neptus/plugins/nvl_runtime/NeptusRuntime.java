@@ -36,6 +36,7 @@ import pt.lsts.nvl.runtime.Filter;
 import pt.lsts.nvl.runtime.NVLRuntime;
 import pt.lsts.nvl.runtime.NVLVehicle;
 import pt.lsts.nvl.runtime.NVLVehicleType;
+import pt.lsts.nvl.runtime.TaskExecution;
 import pt.lsts.nvl.runtime.TaskSpecification;
 import pt.lsts.nvl.runtime.VehicleRequirements;
 
@@ -45,7 +46,7 @@ import pt.lsts.nvl.runtime.VehicleRequirements;
 public class NeptusRuntime extends InteractionAdapter implements NVLRuntime {
    private  Map<String,NeptusVehicleAdapter> vehicles;
    private  Map<String,NeptusTaskSpecificationAdapter> tasks; //Or List?
-   private  List<NeptusTaskExecutionAdapter> runningTasks;
+   private  List<TaskExecution> runningTasks;
    private JButton testButton;
 	/**
      * @param console
@@ -136,15 +137,13 @@ public class NeptusRuntime extends InteractionAdapter implements NVLRuntime {
 
 
 	@Override
-	public List<NeptusTaskExecutionAdapter> launchTask(TaskSpecification task, List<NVLVehicle> vehicles) { 
+	public List<TaskExecution> launchTask(TaskSpecification task, List<NVLVehicle> vehicles) { 
 	    NeptusTaskSpecificationAdapter neptus_plan = (NeptusTaskSpecificationAdapter) task;
 	    tasks.put(task.getId(),neptus_plan);
 	    List<String> vs = new ArrayList<>();
 	    VehicleRequirements req = task.getRequirements().get(0);
 		vehicles.stream().filter(x -> req.apply(x)).forEach(v -> vs.add(v.getId()));
 		vehicles.stream().map(v -> v.getId()).forEach(id -> neptus_plan.getPlan().setVehicle(id));
-
-	    //sendMessage(IMCMessage msg, String errorTextForDialog, boolean sendOnlyThroughOneAcoustically,String... ids)
 	    boolean sent= true;
 	    PlanControl plan = new PlanControl();
         plan.setType(TYPE.REQUEST);
@@ -163,9 +162,9 @@ public class NeptusRuntime extends InteractionAdapter implements NVLRuntime {
             + " plan", true, false, false, vehicle_id);
 	         NeptusTaskExecutionAdapter exec = new NeptusTaskExecutionAdapter(task.getId());
             if(sent)
-                System.out.println(task.getId()+" sent to "+ vehicle_id);
+                NeptusLog.pub().info(I18n.text(task.getId()+"sent to"+vehicle_id));
             else
-                System.out.println(task.getId()+" not sent to "+ vehicle_id);
+                NeptusLog.pub().info(I18n.text("Unnable to send "+task.getId()+" to"+vehicle_id));
             exec.synchronizedWithVehicles(sent); 
             runningTasks.add(exec);  
 	    }
@@ -186,7 +185,7 @@ public class NeptusRuntime extends InteractionAdapter implements NVLRuntime {
     /**
      * @return the runningTasks
      */
-    public List<NeptusTaskExecutionAdapter> getRunningTasks() {
+    public List<TaskExecution> getRunningTasks() {
         return runningTasks;
     }
 
