@@ -10,29 +10,21 @@ import java.util.Map;
 import javax.swing.AbstractAction;
 import javax.swing.JButton;
 
-import org.mozilla.javascript.edu.emory.mathcs.backport.java.util.Arrays;
-
 import com.google.common.eventbus.Subscribe;
 
 import pt.lsts.imc.EstimatedState;
-import pt.lsts.imc.IMCDefinition;
-import pt.lsts.imc.IMCMessage;
 import pt.lsts.imc.PlanControl;
-import pt.lsts.imc.VehicleState;
 import pt.lsts.imc.PlanControl.OP;
 import pt.lsts.imc.PlanControl.TYPE;
+import pt.lsts.imc.VehicleState;
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.comm.IMCSendMessageUtils;
 import pt.lsts.neptus.comm.manager.imc.ImcMsgManager;
 import pt.lsts.neptus.comm.manager.imc.ImcSystem;
 import pt.lsts.neptus.comm.manager.imc.ImcSystemsHolder;
-import pt.lsts.neptus.comm.manager.imc.MessageDeliveryListener;
 import pt.lsts.neptus.console.ConsoleLayout;
 import pt.lsts.neptus.console.events.ConsoleEventVehicleStateChanged;
 import pt.lsts.neptus.console.events.ConsoleEventVehicleStateChanged.STATE;
-import pt.lsts.neptus.console.notifications.Notification;
-import pt.lsts.neptus.console.plugins.planning.CommandPlanner;
-import pt.lsts.neptus.console.plugins.planning.MissionTreePanel;
 import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.plugins.PluginDescription;
 import pt.lsts.neptus.plugins.Popup;
@@ -44,7 +36,6 @@ import pt.lsts.nvl.runtime.Filter;
 import pt.lsts.nvl.runtime.NVLRuntime;
 import pt.lsts.nvl.runtime.NVLVehicle;
 import pt.lsts.nvl.runtime.NVLVehicleType;
-import pt.lsts.nvl.runtime.TaskExecution;
 import pt.lsts.nvl.runtime.TaskSpecification;
 import pt.lsts.nvl.runtime.VehicleRequirements;
 
