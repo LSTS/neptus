@@ -78,7 +78,7 @@ public class LogsSearcher extends ConsolePanel {
     private final MigLayout mainLayout = new MigLayout("ins 0, gap 0", "[][grow]", "[top][grow]");
     private final JPanel queryPanel = new JPanel();
     private final JPanel resultsPanel = new JPanel();
-    private final LogsProgressMonitor logsProgressMonitor = new LogsProgressMonitor();
+    private final LogsProgressMonitor logsProgressMonitor = new LogsProgressMonitor(mainPanel);
     private final JMenuBar menuBar = new JMenuBar();
     private final JMenu menu = new JMenu("Options");
     private final JMenuItem loginMenu = new JMenuItem("Login");
@@ -280,7 +280,7 @@ public class LogsSearcher extends ConsolePanel {
 
                     // fetch logPath
                     String logPath = logsPath.get(logName + dataType + logDurationMin);
-                    openLog(logPath);
+                    new Thread(() -> openLog(logPath)).start();
                 }
                 else if (SwingUtilities.isRightMouseButton(me)) {
                     int[] selectedRows = table.getSelectedRows();
@@ -294,16 +294,17 @@ public class LogsSearcher extends ConsolePanel {
                     if(res != JOptionPane.OK_OPTION)
                         return;
 
+                    new Thread(() -> {
+                        try {
+                            handleLogsConcatenation(selectedRows);
 
-                    try {
-                        handleLogsConcatenation(selectedRows);
+                        } catch (Exception e) {
+                            GuiUtils.errorMessage(mainPanel, "Multiple Logs", "There's been an error, check logs!");
+                            e.printStackTrace();
+                        }
 
-                    } catch (Exception e) {
-                        GuiUtils.errorMessage(mainPanel, "Multiple Logs", "There's been an error, check logs!");
-                        e.printStackTrace();
-                    }
-
-                    logsProgressMonitor.close();
+                        logsProgressMonitor.close();
+                    }).start();
                 }
             }
         });
@@ -590,8 +591,9 @@ public class LogsSearcher extends ConsolePanel {
     }
 
     private void setStatus(boolean isActivated, String message) {
-        if (isActivated)
+        if (isActivated) {
             logsProgressMonitor.open("Neptus: Logs Searcher status", message);
+        }
         else
             logsProgressMonitor.close();
     }
