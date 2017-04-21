@@ -768,6 +768,166 @@ public class LoaderHelper {
         return wavesdp;
     }
     
+    public static final HashMap<String, ChlorophyllDataPoint> processChlorophyll(String fileName, Date dateLimit) {
+        boolean ignoreDateLimitToLoad = false;
+        if (dateLimit == null)
+            ignoreDateLimitToLoad = true;
+        
+        NeptusLog.pub().info("Starting processing ChlorophyllnetCDF file '" + fileName + "'."
+                + (ignoreDateLimitToLoad ? " ignoring dateTime limit" : " Accepting data after " + dateLimit + "."));
+
+        HashMap<String, ChlorophyllDataPoint> chlorophylldp = new HashMap<>();
+
+        NetcdfFile dataFile = null;
+        
+        Date fromDate = null;
+        Date toDate = null;
+        
+        try {
+          dataFile = NetcdfFile.open(fileName, null);
+
+          // Get the latitude and longitude Variables.
+          Pair<String, Variable> searchPair = findVariableForStandardNameOrName(dataFile, fileName, true, "latitude", "lat");
+          String latName = searchPair.first();
+          Variable latVar = searchPair.second(); 
+
+          searchPair = findVariableForStandardNameOrName(dataFile, fileName, true, "longitude", "lon");
+          String lonName = searchPair.first();
+          Variable lonVar = searchPair.second();
+
+          searchPair = findVariableForStandardNameOrName(dataFile, fileName, true, "time");
+          String timeName = searchPair == null ? null : searchPair.first();
+          Variable timeVar = searchPair == null ? null : searchPair.second();
+
+          searchPair = findVariableForStandardNameOrName(dataFile, fileName, false, "depth", "altitude");
+          String depthOrAltitudeName = searchPair == null ? null : searchPair.first();
+          Variable depthOrAltitudeVar = searchPair == null ? null : searchPair.second();
+
+          // Get the chlorophyll Variable.
+          searchPair = findVariableForStandardNameOrName(dataFile, fileName, true,
+                  "mass_concentration_of_chlorophyll_in_sea_water", "chlorophyll_concentration_in_sea_water",
+                  "concentration_of_chlorophyll_in_sea_water", "chlorophyll");
+          @SuppressWarnings("unused")
+          String chlorophyllName = searchPair == null ? null : searchPair.first();
+          Variable chlorophyllVar = searchPair == null ? null : searchPair.second();
+
+          // Get the lat/lon data from the file.
+          Array latArray;  // ArrayFloat.D1
+          Array lonArray;  // ArrayFloat.D1
+          Array timeArray; //ArrayFloat.D1
+          Array depthOrAltitudeArray; //ArrayFloat.D1
+          Array chlorophyllArray;    // ArrayFloat.D?
+
+          latArray = latVar.read();
+          lonArray = lonVar.read();
+          timeArray = timeVar.read();
+          depthOrAltitudeArray = depthOrAltitudeVar == null ? null : depthOrAltitudeVar.read(); 
+          chlorophyllArray = chlorophyllVar == null ? null : chlorophyllVar.read();
+          
+          double[] multAndOffset = getTimeMultiplierAndOffset(timeVar, fileName);
+          double timeMultiplier = multAndOffset[0];
+          double timeOffset = multAndOffset[1];
+          
+          // Let us process SST
+          if (chlorophyllVar != null) {
+              try {
+                  String chlorophyllUnits = "kg m-3";
+                  Attribute chlorophyllUnitsAtt = chlorophyllVar == null ? null : chlorophyllVar.findAttribute(NETCDF_ATT_UNITS);
+                  if (chlorophyllUnitsAtt != null)
+                      chlorophyllUnits = (String) chlorophyllUnitsAtt.getValue(0);
+
+                  double chlorophyllFillValue = findFillValue(chlorophyllVar);
+                  
+                  int[] shape = chlorophyllVar.getShape();
+                  int[] counter = new int[shape.length];
+                  Arrays.fill(counter, 0);
+                  String dimStr = chlorophyllVar.getDimensionsString();
+                  Map<String, Integer> collumsIndexMap = getIndexesForVar(dimStr, timeName, latName, lonName,
+                          depthOrAltitudeName);
+
+                  do {
+                      Date dateValue = null;
+                      Date[] timeVals = getTimeValues(timeArray, counter[0], timeMultiplier, timeOffset, fromDate,
+                              toDate, ignoreDateLimitToLoad, dateLimit);
+                      if (timeVals == null) {
+                          continue;
+                      }
+                      else {
+                          dateValue = timeVals[0];
+                          fromDate = timeVals[1];
+                          toDate = timeVals[2];
+                      }
+
+                      double lat = AngleUtils.nomalizeAngleDegrees180(latArray.getDouble(counter[collumsIndexMap.get(latName)]));
+                      double lon = AngleUtils.nomalizeAngleDegrees180(lonArray.getDouble(counter[collumsIndexMap.get(lonName)]));
+
+                      // We don't do anything yet with depth or alt
+                      @SuppressWarnings("unused")
+                      boolean depthOrAltIndicator = depthOrAltitudeName != null
+                              && depthOrAltitudeName.equalsIgnoreCase("altitude") ? false : true;
+                      @SuppressWarnings("unused")
+                      double depthOrAlt = Double.NaN;
+                      if (depthOrAltitudeName != null && collumsIndexMap.get(depthOrAltitudeName) > 0)
+                          depthOrAlt = depthOrAltitudeArray.getDouble(counter[collumsIndexMap.get(depthOrAltitudeName)]);
+
+                      Index index = chlorophyllArray.getIndex();
+                      index.set(counter);
+
+                      double chlorophyll = chlorophyllArray == null ? Double.NaN : chlorophyllArray.getDouble(index);
+
+                      if (!Double.isNaN(chlorophyll) && chlorophyll != chlorophyllFillValue) {
+                          ChlorophyllDataPoint dp = new ChlorophyllDataPoint(lat, lon);
+                          
+                          chlorophyll = getValueForMilliGPerM3FromTempUnits(chlorophyll, chlorophyllUnits);
+                          
+                          dp.setChlorophyll(chlorophyll);
+                          dp.setDateUTC(dateValue);
+
+                          ChlorophyllDataPoint dpo = chlorophylldp.get(ChlorophyllDataPoint.getId(dp));
+                          if (dpo == null) {
+                              dpo = dp.getACopyWithoutHistory();
+                              chlorophylldp.put(ChlorophyllDataPoint.getId(dp), dp);
+                          }
+
+                          ArrayList<ChlorophyllDataPoint> lst = dpo.getHistoricalData();
+                          boolean alreadyIn = false;
+                          for (ChlorophyllDataPoint tmpDp : lst) {
+                              if (tmpDp.getDateUTC().equals(dp.getDateUTC())) {
+                                  alreadyIn = true;
+                                  break;
+                              }
+                          }
+                          if (!alreadyIn) {
+                              dpo.getHistoricalData().add(dp);
+                          }
+                      }
+                  } while (nextShapeStage(shape, counter) != null);
+              }
+              catch (Exception e) {
+                  e.printStackTrace();
+              }
+          }
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        } 
+        finally {
+            if (dataFile != null) {
+                try {
+                    dataFile.close();
+                }
+                catch (IOException ioe) {
+                    ioe.printStackTrace();
+                }
+            }
+            NeptusLog.pub().info("Ending processing Chlorophyll netCDF file '" + fileName
+                    + "'. Reading from date '" + fromDate + "' till '" + toDate + "'.");
+        }
+
+        return chlorophylldp;
+    }
+
     /**
      * @param timeArray
      * @param timeIdx
@@ -1158,6 +1318,24 @@ public class LoaderHelper {
         return ret;
     }
 
+    private static double getValueForMilliGPerM3FromTempUnits(double value, String units) {
+        double ret = value;
+        switch (units.trim()) {
+            case "kg m-3":
+            case "Kg m-3":
+                ret = value * 1E3 * 1E3;
+                break;
+            case "g m-3":
+                ret = value * 1E3;
+                break;
+            case "ug m-3":
+            case "\u03BCg m-3":
+                ret = value / 1E3;
+                break;
+        }
+
+        return ret;
+    }
 
     /**
      * @param shape
@@ -1381,5 +1559,17 @@ public class LoaderHelper {
                 e.printStackTrace();
             }
         }        
+
+        for (String sstFileName : new String[] {"../../Lab/MBARI/SST/chlorophyll-erdMWchla8day_455c_156d_5bed.nc"}) {
+            try {
+                // String sstFileName = "../../Lab/MBARI/SST/erdATssta3day_9c53_2021_f180.nc";
+                System.out.println("\n-----------------------------------");
+                HashMap<String, ChlorophyllDataPoint> hashMap = processChlorophyll(sstFileName, new java.sql.Date(0));
+                System.out.println("Size=" + hashMap.size());
+            }
+            catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
     }
 }
