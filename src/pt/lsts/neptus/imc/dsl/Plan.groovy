@@ -1,4 +1,4 @@
-package pt.lsts.nvl.imc.dsl;
+package pt.lsts.neptus.imc.dsl;
 
 import com.l2fprod.common.propertysheet.Property
 import java.util.List;

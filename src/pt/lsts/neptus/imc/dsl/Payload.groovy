@@ -30,7 +30,9 @@
  * Author: lsts
  * 10/04/2017
  */
-package pt.lsts.nvl.imc.dsl
+package pt.lsts.neptus.imc.dsl
+
+import java.util.Arrays;
 
 import org.dom4j.Element;
 import com.l2fprod.common.propertysheet.Property
@@ -79,7 +81,7 @@ class Payload {
     }
     
 
-    public static Property  properties(String maneuver,List<Payload> payloads) {
+    public static Property[]  properties(String maneuver,List<Payload> payloads) {
         //Maneuver -> startActions -> set entityParameters -> name-> param: Active, value: true
         List<SetEntityParameters> setEntities = new ArrayList<>()
         payloads.each{
@@ -98,6 +100,6 @@ class Payload {
 //        if (nd != null) {
 //            man.startActions.load((Element) nd);
 //    }
-        startActionsProperty
+        Arrays.asList(startActionsProperty)
   }
 }

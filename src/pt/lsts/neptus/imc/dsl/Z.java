@@ -30,30 +30,30 @@
  * Author: keila
  * 16/03/2017
  */
-package pt.lsts.nvl.imc.dsl;
+package pt.lsts.neptus.imc.dsl;
 
 
 /**
- * @author keila
+ * @author lsts
  *
  */
-class Speed {
+class Z {
     
-    public enum Units{
-        METERS_PS,
-        PERCENTAGE,
-        RPM
+    public enum Units {
+        DEPTH,
+        ALTITUDE,
+        HEIGHT,
+        NONE
     }
     
     double value;
     Units units;
-    public Speed(double value,Units units) {
+    public Z(double value,Units units) {
         this.value=value;
         this.units=units;
     }
-    
+
     String  getUnits(){
-        return units.toString();
+        return this.units.toString();
         }
 }
-

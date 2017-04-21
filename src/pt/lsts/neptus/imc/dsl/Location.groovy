@@ -1,4 +1,4 @@
-package pt.lsts.nvl.imc.dsl
+package pt.lsts.neptus.imc.dsl
 
 import pt.lsts.util.WGS84Utilities
 
