@@ -74,6 +74,18 @@ public class NeptusTaskSpecificationAdapter implements TaskSpecification {
         Position areaCenter = new NeptusPositionAdapter(plan.getPlanMap().getCenterLocation());
         requirements.setAreaCenter(areaCenter);
         requirements.setRequiredType(NVLVehicleType.ANY);
+        
+        
+        //API to ADD Required Payload to a Neptus Plan
+ //       Payload p= new Payload(requirements.getRequiredPayload().get(0).getName());
+//        for(Entry<String,String> parameter: requirements.getRequiredPayload().get(0).getParameters().entrySet())
+//            p.property(parameter.getKey(), parameter.getValue());
+        //USAGE
+//        Maneuver go = new Goto();
+//        go.setProperties(Payload.properties("Goto", Arrays.asList(p)));
+        //Compatibility verification
+//        if(plan.getVehicle()!=null)
+//            PlanCompatibility.isVehicleCompatible(plan.getVehicleType(), plan);
     }
 
     /* (non-Javadoc)
