@@ -203,13 +203,13 @@ public class LoaderHelper {
           Variable depthOrAltitudeVar = searchPair == null ? null : searchPair.second();
 
           // Get the u (north) wind velocity Variables.
-          searchPair = findVariableForStandardNameOrName(dataFile, fileName, false, "x-wind", "grid_eastward_wind", "u");
+          searchPair = findVariableForStandardNameOrName(dataFile, fileName, false, "x_wind", "grid_eastward_wind", "u");
           @SuppressWarnings("unused")
           String xWindName = searchPair == null ? null : searchPair.first();
           Variable uVar = searchPair == null ? null : searchPair.second();
 
           // Get the v (east) wind velocity Variables.
-          searchPair = findVariableForStandardNameOrName(dataFile, fileName, false, "y-wind", "grid_northward_wind", "v");
+          searchPair = findVariableForStandardNameOrName(dataFile, fileName, false, "y_wind", "grid_northward_wind", "v");
           @SuppressWarnings("unused")
           String yWindName = searchPair == null ? null : searchPair.first();
           Variable vVar = searchPair == null ? null : searchPair.second();
@@ -379,13 +379,13 @@ public class LoaderHelper {
           Variable depthOrAltitudeVar = searchPair == null ? null : searchPair.second();
 
           // Get the u (north) wind velocity Variables.
-          searchPair = findVariableForStandardNameOrName(dataFile, fileName, false, "x-wind", "grid_eastward_wind", "u");
+          searchPair = findVariableForStandardNameOrName(dataFile, fileName, false, "x_wind", "grid_eastward_wind", "u");
           @SuppressWarnings("unused")
           String xWindName = searchPair == null ? null : searchPair.first();
           Variable uVar = searchPair == null ? null : searchPair.second();
 
           // Get the v (east) wind velocity Variables.
-          searchPair = findVariableForStandardNameOrName(dataFile, fileName, false, "y-wind", "grid_northward_wind", "v");
+          searchPair = findVariableForStandardNameOrName(dataFile, fileName, false, "y_wind", "grid_northward_wind", "v");
           @SuppressWarnings("unused")
           String yWindName = searchPair == null ? null : searchPair.first();
           Variable vVar = searchPair == null ? null : searchPair.second();
