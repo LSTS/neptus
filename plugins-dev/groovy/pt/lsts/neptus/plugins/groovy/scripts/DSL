@@ -14,7 +14,7 @@ new Plan ("DSL").with {
 	
 	def another_z = new Z(3,Z.Units.DEPTH)
 
-	goTo z:another_z, payload:[[name: "Sidescan",  Range: 50]]
+	goTo z:another_z, payload:[[name: "Sidescan",  Range: 50],[name: "Camera"]]
 	
 	move 100, 0
 	
@@ -22,7 +22,7 @@ new Plan ("DSL").with {
 	
 	skeeping location:home
 	
-	setVehicles "lauv-noptilus-2","lauv-noptilus-3"
+	setVehicles "lauv-noptilus-3"
 	
 	addToConsole() 
 
