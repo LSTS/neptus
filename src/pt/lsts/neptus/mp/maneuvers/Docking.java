@@ -27,7 +27,7 @@
  *
  * For more information please see <http://lsts.fe.up.pt/neptus>.
  *
- * Author: Paulo Dias
+ * Author: Miguel Rosa
  * 19/05/2016
  */
 package pt.lsts.neptus.mp.maneuvers;
@@ -41,6 +41,7 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseWheelEvent;
 import java.awt.geom.Point2D;
 import java.util.Collections;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Vector;
 
@@ -53,8 +54,13 @@ import com.l2fprod.common.propertysheet.DefaultProperty;
 import com.l2fprod.common.propertysheet.Property;
 
 import pt.lsts.imc.IMCMessage;
+import pt.lsts.imc.Loiter.TYPE;
 import pt.lsts.neptus.NeptusLog;
+import pt.lsts.neptus.gui.PropertiesEditor;
 import pt.lsts.neptus.gui.ToolbarSwitch;
+import pt.lsts.neptus.gui.editor.ComboEditor;
+import pt.lsts.neptus.gui.editor.renderer.I18nCellRenderer;
+import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.plugins.NeptusProperty;
 import pt.lsts.neptus.renderer2d.InteractionAdapter;
 import pt.lsts.neptus.renderer2d.StateRenderer2D;
@@ -75,6 +81,7 @@ IMCSerialization,  PathProvider {
     @NeptusProperty(name = "Docking Station", description = "IMC name of the docking station")
     protected String station = "";
 
+    private String vehicleFunction = "Station";
 
     protected InteractionAdapter adapter = new InteractionAdapter(null);
     protected Point2D lastDragPoint = null;
@@ -82,9 +89,24 @@ IMCSerialization,  PathProvider {
     protected boolean editing = false;
 
     protected Vector<double[]> points = new Vector<double[]>();
+    
+    protected static final LinkedHashMap<Long, String> wpDockingFunctionMap = new LinkedHashMap<Long, String>();
 
+    
+    
+
+    static {
+        
+        wpDockingFunctionMap.put(1l, I18n.textmark("Station"));
+      
+        wpDockingFunctionMap.put(2l, I18n.textmark("Target"));
+  
+    }
+        
     public Docking() {
         super();
+        destination.setZUnits(pt.lsts.neptus.mp.ManeuverLocation.Z_UNITS.DEPTH);
+        
         //recalcPoints();
     }
 
@@ -97,6 +119,7 @@ IMCSerialization,  PathProvider {
     }
     
     
+    // rparse XML
     @Override
     public void loadFromXML(String xml) {
         super.loadFromXML(xml);
@@ -118,20 +141,21 @@ IMCSerialization,  PathProvider {
             NeptusLog.pub().error(this, e);
             return;
         }
+        destination.setZUnits(pt.lsts.neptus.mp.ManeuverLocation.Z_UNITS.DEPTH);
+        
+        System.out.println("After loading XML, my ID is "+getId());
 
     }
 
     @Override
     public Object clone() {
         Docking clone = new Docking();
-        clone.clone(this);
-        
-        clone.target = target;
-        clone.station = station;
-
+        this.clone(clone);
+        clone.loadFromXML(getManeuverXml());
         return clone;
     }
 
+    // retrieve as XML
     @Override
     public Document getManeuverAsDocument(String rootElementName) {
         Document doc = super.getManeuverAsDocument(rootElementName);
@@ -269,7 +293,20 @@ IMCSerialization,  PathProvider {
         man.setTarget(target);
         man.setStation(station);
         
-  
+        
+        String vehicleFunction = this.getVehicleFunction();
+        try {
+            if ("Default".equalsIgnoreCase(vehicleFunction))
+                man.setType(VEHICLE_FUNCTION.DEFAULT);
+            else if ("Circular".equalsIgnoreCase(vehicleFunction))
+                man.setType(VEHICLE_FUNCTION.STATION);
+            else if ("Racetrack".equalsIgnoreCase(vehicleFunction))
+                man.setType(VEHICLE_FUNCTION.TARGET);
+          
+        } catch (Exception ex) {
+            NeptusLog.pub().error(this, ex);
+        }
+        
         return man;
     }
 
@@ -288,13 +325,31 @@ IMCSerialization,  PathProvider {
         destination.setLongitudeRads(man.getLon());
         target = man.getTarget();
         station = man.getStation();
+        destination.setZUnits(pt.lsts.neptus.mp.ManeuverLocation.Z_UNITS.DEPTH);
+        
+        String vehiclefunction = message.getString("vehicle_function");
+        if (vehiclefunction.equals("STATION"))
+            setVehicleFunction("Station");
+        else
+            setVehicleFunction(vehiclefunction.substring(0, 1).toUpperCase() + vehiclefunction.substring(1).toLowerCase());
+        
         
  
     }
 
     @Override
     protected Vector<DefaultProperty> additionalProperties() {
-        return ManeuversUtil.getPropertiesFromManeuver(this);
+        
+        Vector<DefaultProperty> props = new Vector<DefaultProperty>();
+        
+        DefaultProperty type = PropertiesEditor.getPropertyInstance("Vehicle Function", String.class, this.vehicleFunction, true);
+        type.setShortDescription("How to perform this maneuver. Note that some parameters only make sense in some Loiter types.");
+        PropertiesEditor.getPropertyEditorRegistry().registerEditor(type, new ComboEditor<String>(wpDockingFunctionMap.values().toArray(new String[]{})));
+        PropertiesEditor.getPropertyRendererRegistry().registerRenderer(type, new I18nCellRenderer());
+        props.add(type);
+        
+        return props;
+       // return ManeuversUtil.getPropertiesFromManeuver(this);
     }
 
     @Override
@@ -304,7 +359,18 @@ IMCSerialization,  PathProvider {
 
     }
 
-
+    public String getTooltipText() {
+        return super.getTooltipText()+"<hr>"+
+        I18n.text("vehicle function") + ": <b>"+I18n.text(vehicleFunction);
+    }
+    
+    public void setVehicleFunction(String vehicleFunction) {
+        this.vehicleFunction = vehicleFunction;
+    }
+    
+    public String getVehicleFunction() {
+        return vehicleFunction;
+    }
 
     @Override
     public void setAssociatedSwitch(ToolbarSwitch tswitch) {
