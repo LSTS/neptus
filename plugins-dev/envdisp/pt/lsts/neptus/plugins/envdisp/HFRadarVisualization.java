@@ -51,8 +51,11 @@ import java.io.Reader;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.TimeZone;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -67,6 +70,7 @@ import pt.lsts.neptus.colormap.ColorMapFactory;
 import pt.lsts.neptus.console.ConsoleLayer;
 import pt.lsts.neptus.console.ConsoleLayout;
 import pt.lsts.neptus.console.ConsolePanel;
+import pt.lsts.neptus.data.Pair;
 import pt.lsts.neptus.gui.editor.FolderPropertyEditor;
 import pt.lsts.neptus.plugins.ConfigurationListener;
 import pt.lsts.neptus.plugins.NeptusProperty;
@@ -918,51 +922,163 @@ public class HFRadarVisualization extends ConsolePanel implements Renderer2DPain
      * @param dateLimit
      */
     private void paintSSTInGraphics(StateRenderer2D renderer, Graphics2D g2, Date dateColorLimit, Date dateLimit) {
-        LocationType loc = new LocationType();
-        // ColormapOverlay overlay = new ColormapOverlay("SST", 20, false, 0);
-        for (SSTDataPoint dp : dataPointsSST.values().toArray(new SSTDataPoint[0])) {
-            if (dp.getDateUTC().before(dateLimit) && !ignoreDateLimitToLoad)
-                continue;
-            
-            double latV = dp.getLat();
-            double lonV = dp.getLon();
-            double sstV = dp.getSst();
-            
-            if (Double.isNaN(latV) || Double.isNaN(lonV) || Double.isNaN(sstV))
-                continue;
-            
-            loc.setLatitudeDegs(latV);
-            loc.setLongitudeDegs(lonV);
-            
-            Point2D pt = renderer.getScreenPosition(loc);
-
-            if (!isVisibleInRender(pt, renderer))
-                continue;
-            
-            Graphics2D gt = (Graphics2D) g2.create();
-            gt.translate(pt.getX(), pt.getY());
-            Color color = Color.WHITE;
-            color = colorMapSST.getColor((dp.getSst() - minSST) / (maxSST - minSST));
-            if (dp.getDateUTC().before(dateColorLimit))
-                color = ColorUtils.setTransparencyToColor(color, 128);
-            gt.setColor(color);
-            gt.draw(circle);
-            gt.fill(circle);
-            
-            if (showSSTLegend && renderer.getLevelOfDetail() >= showSSTLegendFromZoomLevel) {
-                gt.setFont(font8Pt);
-                gt.setColor(Color.WHITE);
-                gt.drawString(MathMiscUtils.round(dp.getSst(), 1) + "\u00B0C", -15, 15);
-            }
-            
-//            overlay.addSample(loc.getNewAbsoluteLatLonDepth(), dp.getSst());
-            
-            gt.dispose();
-        }
+//        LocationType loc = new LocationType();
+//        // ColormapOverlay overlay = new ColormapOverlay("SST", 20, false, 0);
+//        for (SSTDataPoint dp : dataPointsSST.values().toArray(new SSTDataPoint[0])) {
+//            if (dp.getDateUTC().before(dateLimit) && !ignoreDateLimitToLoad)
+//                continue;
+//            
+//            double latV = dp.getLat();
+//            double lonV = dp.getLon();
+//            double sstV = dp.getSst();
+//            
+//            if (Double.isNaN(latV) || Double.isNaN(lonV) || Double.isNaN(sstV))
+//                continue;
+//            
+//            loc.setLatitudeDegs(latV);
+//            loc.setLongitudeDegs(lonV);
+//            
+//            Point2D pt = renderer.getScreenPosition(loc);
+//
+//            if (!isVisibleInRender(pt, renderer))
+//                continue;
+//            
+//            if (true)
+//                continue;
+//            
+//            Graphics2D gt = (Graphics2D) g2.create();
+//            gt.translate(pt.getX(), pt.getY());
+//            Color color = Color.WHITE;
+//            color = colorMapSST.getColor((dp.getSst() - minSST) / (maxSST - minSST));
+//            if (dp.getDateUTC().before(dateColorLimit))
+//                color = ColorUtils.setTransparencyToColor(color, 128);
+//            gt.setColor(color);
+//            gt.draw(circle);
+//            gt.fill(circle);
+//            
+//            if (showSSTLegend && renderer.getLevelOfDetail() >= showSSTLegendFromZoomLevel) {
+//                gt.setFont(font8Pt);
+//                gt.setColor(Color.WHITE);
+//                gt.drawString(MathMiscUtils.round(dp.getSst(), 1) + "\u00B0C", -15, 15);
+//            }
+//            
+////            overlay.addSample(loc.getNewAbsoluteLatLonDepth(), dp.getSst());
+//            
+//            gt.dispose();
+//        }
 
 //        Graphics2D gt = (Graphics2D) g2.create();
 //        overlay.paint(gt, renderer);
 //        gt.dispose();
+
+        try {
+            List<SSTDataPoint> dest = new ArrayList<>(dataPointsSST.values());
+            Map<Point2D, SSTDataPoint> ptMap = Collections.synchronizedMap(new HashMap<Point2D, SSTDataPoint>(dest.size()));
+            long stNanos = System.currentTimeMillis();
+            dest.parallelStream().forEach(dp -> {
+                try {
+                    if (dp.getDateUTC().before(dateLimit) && !ignoreDateLimitToLoad)
+                        return;
+                    
+                    double latV = dp.getLat();
+                    double lonV = dp.getLon();
+                    double sstV = dp.getSst();
+                    
+                    if (Double.isNaN(latV) || Double.isNaN(lonV) || Double.isNaN(sstV))
+                        return;
+                    
+                    LocationType loc = new LocationType();
+                    loc.setLatitudeDegs(latV);
+                    loc.setLongitudeDegs(lonV);
+                    
+                    Point2D pt = renderer.getScreenPosition(loc);
+
+                    if (!isVisibleInRender(pt, renderer))
+                        return;
+                    
+                    ptMap.put(pt, dp);
+                }
+                catch (Exception e) {
+                    NeptusLog.pub().trace(e);
+                    e.printStackTrace();
+                }
+            });
+            System.out.println(String.format("stg 0 took %ss :: %d of %d (%f%%)",
+                    DateTimeUtil.formatTime(System.currentTimeMillis() - stNanos), ptMap.size(), dest.size(),
+                    (ptMap.size() * 1. / dest.size()) * 100));
+            stNanos = System.currentTimeMillis();
+            
+            Map<Point2D, Pair<Double, Date>> ptFilt = new HashMap<>(ptMap.size());
+            ptMap.keySet().stream().forEach(pt -> {
+                try {
+                    SSTDataPoint dp = ptMap.get(pt);
+                    double dpVal = dp.getSst();
+                    Date dpDate = new Date(dp.getDateUTC().getTime());
+                    double x = Math.round(pt.getX());
+                    double y = Math.round(pt.getY());
+                    pt.setLocation(x, y);
+                    if (!ptFilt.containsKey(pt)) {
+                        ptFilt.put(pt, new Pair<>(dpVal, dpDate));
+                    }
+                    else {
+                        Pair<Double, Date> pval = ptFilt.get(pt);
+                        double val = pval.first();
+                        val = (val + dpVal) / 2d;
+                        if (dpDate.after(pval.second()))
+                            ptFilt.put(pt, new Pair<>(val, dpDate));
+                        else
+                            ptFilt.put(pt, new Pair<>(val, pval.second()));
+                    }
+                }
+                catch (Exception e) {
+                    e.printStackTrace();
+                }
+            });
+            
+            System.out.println(String.format("stg 1 took %ss :: %d of %d (%f%%)",
+                    DateTimeUtil.formatTime(System.currentTimeMillis() - stNanos), ptFilt.size(), ptMap.size(),
+                    (ptFilt.size() * 1. / ptMap.size()) * 100));
+            stNanos = System.currentTimeMillis();
+            
+            ptFilt.keySet().parallelStream().forEach(pt -> {
+                Graphics2D gt = null;
+                try {
+//                    SSTDataPoint dp = ptMap.get(pt);
+//                    if (dp == null)
+//                        System.out.println(dp);
+                    Pair<Double,Date> pVal = ptFilt.get(pt);
+                    
+                    gt = (Graphics2D) g2.create();
+                    gt.translate(pt.getX(), pt.getY());
+                    Color color = Color.WHITE;
+                    color = colorMapSST.getColor((pVal.first() - minSST) / (maxSST - minSST));
+                    if (pVal.second().before(dateColorLimit)) //if (dp.getDateUTC().before(dateColorLimit))
+                        color = ColorUtils.setTransparencyToColor(color, 128);
+                    gt.setColor(color);
+                    gt.draw(circle);
+                    gt.fill(circle);
+                    
+                    if (showSSTLegend && renderer.getLevelOfDetail() >= showSSTLegendFromZoomLevel) {
+                        gt.setFont(font8Pt);
+                        gt.setColor(Color.WHITE);
+                        gt.drawString(MathMiscUtils.round(pVal.first(), 1) + "\u00B0C", -15, 15);
+                    }
+                }
+                catch (Exception e) {
+                    NeptusLog.pub().trace(e);
+                }
+                
+                if (gt != null)
+                    gt.dispose();
+            });
+            System.out.println(String.format("stg 2 took %ss :: %d of %d (%f%%)",
+                    DateTimeUtil.formatTime(System.currentTimeMillis() - stNanos), ptFilt.size(), dest.size(),
+                    (ptFilt.size() * 1. / dest.size()) * 100));
+            System.out.println(ptMap.size() + " of " + dest.size());
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     /**
