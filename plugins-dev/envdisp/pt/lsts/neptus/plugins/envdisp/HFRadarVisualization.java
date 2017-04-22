@@ -1121,10 +1121,10 @@ public class HFRadarVisualization extends ConsolePanel implements Renderer2DPain
     private boolean isVisibleInRender(Point2D sPos, StateRenderer2D renderer) {
         Dimension rendDim = renderer.getSize();
         if (sPos.getX() < 0 - offScreen.getOffScreenBufferPixel()
-                && sPos.getY() < 0 - offScreen.getOffScreenBufferPixel())
+                || sPos.getY() < 0 - offScreen.getOffScreenBufferPixel())
             return false;
         else if (sPos.getX() > rendDim.getWidth() + offScreen.getOffScreenBufferPixel()
-                && sPos.getY() > rendDim.getHeight() + offScreen.getOffScreenBufferPixel())
+                || sPos.getY() > rendDim.getHeight() + offScreen.getOffScreenBufferPixel())
             return false;
 
         return true;
