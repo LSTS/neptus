@@ -87,6 +87,7 @@ import pt.lsts.neptus.util.ColorUtils;
 import pt.lsts.neptus.util.DateTimeUtil;
 import pt.lsts.neptus.util.FileUtil;
 import pt.lsts.neptus.util.MathMiscUtils;
+import pt.lsts.neptus.util.UnitsUtil;
 import pt.lsts.neptus.util.http.client.HttpClientConnectionHelper;
 
 /**
@@ -196,8 +197,6 @@ public class EnvironmentalDataVisualization extends ConsolePanel implements Rend
     // private static final String sampleMeteoFile = "meteo_20130705.nc";
     // private static final String sampleWavesFile = "waves_S_20130704.nc";
     
-    protected final double m_sToKnotConv = 1.94384449244;
-    
     private final ColorMap colorMapCurrents = ColorMapFactory.createJetColorMap(); //new InterpolationColorMap("RGB", new double[] { 0.0, 0.1, 0.3, 0.5, 1.0 }, new Color[] {
             //new Color(0, 0, 255), new Color(0, 0, 255), new Color(0, 255, 0), new Color(255, 0, 0), new Color(255, 0, 0) });
     // private final double minCurrentCmS = 0;
@@ -209,7 +208,7 @@ public class EnvironmentalDataVisualization extends ConsolePanel implements Rend
 
     private final ColorMap colorMapWind = colorMapCurrents;
     // private final double minWind = 0;
-    private final double maxWind = 65 / m_sToKnotConv;
+    private final double maxWind = 65 / UnitsUtil.MS_TO_KNOT;
 
     private final ColorMap colorMapWaves = ColorMapFactory.createJetColorMap();
     // private final double minWaves = 0;
@@ -1134,7 +1133,7 @@ public class EnvironmentalDataVisualization extends ConsolePanel implements Rend
                     
                     gt.rotate(Math.toRadians(headingV) - renderer.getRotation());
                     
-                    double speedKnots = speedV * m_sToKnotConv;
+                    double speedKnots = speedV * UnitsUtil.MS_TO_KNOT;
                     EnvDataShapesHelper.paintWindBarb(gt, speedKnots);
                 }
                 catch (Exception e) {
