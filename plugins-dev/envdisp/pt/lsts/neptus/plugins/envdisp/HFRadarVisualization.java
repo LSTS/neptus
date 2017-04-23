@@ -201,8 +201,8 @@ public class HFRadarVisualization extends ConsolePanel implements Renderer2DPain
         arrow.closePath();
     }
 
-    private final static int CIRCLE_RADIUS = 8;
-    private final static Ellipse2D circle = new Ellipse2D.Double(-CIRCLE_RADIUS / 2., -CIRCLE_RADIUS / 2., CIRCLE_RADIUS, CIRCLE_RADIUS);
+    private final static int SST_RADIUS = 8;
+    private final static Ellipse2D circle = new Ellipse2D.Double(-SST_RADIUS / 2., -SST_RADIUS / 2., SST_RADIUS, SST_RADIUS);
     
     private final static Path2D.Double windPoleKnots = new Path2D.Double();
     static {
@@ -940,6 +940,8 @@ public class HFRadarVisualization extends ConsolePanel implements Renderer2DPain
                             if (Double.isNaN(latV) || Double.isNaN(lonV) || Double.isNaN(sstV))
                                 return;
                             
+                            Date dateV = new Date(dp.getDateUTC().getTime());
+
                             LocationType loc = new LocationType();
                             loc.setLatitudeDegs(latV);
                             loc.setLongitudeDegs(lonV);
@@ -950,24 +952,22 @@ public class HFRadarVisualization extends ConsolePanel implements Renderer2DPain
                                 return;
                             
                             visiblePts.accumulate(1);
-                            double dpVal = dp.getSst();
-                            Date dpDate = new Date(dp.getDateUTC().getTime());
                             
                             double x = pt.getX();
                             double y = pt.getY();
-                            x = x - x % CIRCLE_RADIUS;
-                            y = y - y % CIRCLE_RADIUS;
+                            x = x - x % SST_RADIUS;
+                            y = y - y % SST_RADIUS;
                             pt.setLocation(x, y);
                             
                             if (!res.containsKey(pt)) {
-                                res.put(pt, new Pair<>(dpVal, dpDate));
+                                res.put(pt, new Pair<>(sstV, dateV));
                             }
                             else {
                                 Pair<Double, Date> pval = res.get(pt);
                                 double val = pval.first();
-                                val = (val + dpVal) / 2d;
-                                if (dpDate.after(pval.second()))
-                                    res.put(pt, new Pair<>(val, dpDate));
+                                val = (val + sstV) / 2d;
+                                if (dateV.after(pval.second()))
+                                    res.put(pt, new Pair<>(val, dateV));
                                 else
                                     res.put(pt, new Pair<>(val, pval.second()));
                             }
@@ -981,8 +981,10 @@ public class HFRadarVisualization extends ConsolePanel implements Renderer2DPain
                                 Pair<Double, Date> sI = resInt.get(k1);
                                 if (res.containsKey(k1)) {
                                     Pair<Double, Date> s = res.get(k1);
-                                    res.put(k1, new Pair<Double, Date>((s.first() + sI.first()) / 2.,
-                                            sI.second().after(s.second()) ? new Date(sI.second().getTime()) : s.second()));
+                                    double val = (s.first() + sI.first()) / 2d;
+                                    Date valDate = sI.second().after(s.second()) ? new Date(sI.second().getTime())
+                                            : s.second();
+                                    res.put(k1, new Pair<Double, Date>(val, valDate));
                                 }
                                 else {
                                     res.put(k1, sI);
