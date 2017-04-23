@@ -98,6 +98,9 @@ import pt.lsts.neptus.util.http.client.HttpClientConnectionHelper;
 @LayerPriority(priority = -50)
 public class HFRadarVisualization extends ConsolePanel implements Renderer2DPainter, IPeriodicUpdates, ConfigurationListener {
 
+    private static final int OFFSET_REND_TXT_DATE_RANGES = 52;
+    private static final int OFFSET_REND_TXT_DATE_RANGES_DELTA = 15;
+
     /*
      * Currents, wind, waves, SST 
      */
@@ -171,7 +174,7 @@ public class HFRadarVisualization extends ConsolePanel implements Renderer2DPain
             editorClass = FolderPropertyEditor.class)
     public File baseFolderForWavesNetCDFFiles = new File("IHData/WAVES");
     
-    @NeptusProperty(name = "Show currents visible data date-time interval", userLevel = LEVEL.ADVANCED, category = "Test", 
+    @NeptusProperty(name = "Show visible data date-time interval", userLevel = LEVEL.ADVANCED, category = "Test", 
             description = "Draws the string with visible curents data date-time interval.")
     public boolean showDataDebugLegend = false;
     
@@ -973,20 +976,13 @@ public class HFRadarVisualization extends ConsolePanel implements Renderer2DPain
             System.out.println(String.format("Currents stg 2 took %ss",
                     MathMiscUtils.parseToEngineeringNotation((System.currentTimeMillis() - stMillis) / 1E3, 1)));
             
-            if (showDataDebugLegend) {
-                String txtMsg = "Currents data from '" + new Date(fromDatePts.get()) + "' till '"
-                        + new Date(toDatePts.get()) + "'";
-                Graphics2D gt = (Graphics2D) g2.create();
-                gt.setFont(font8Pt);
-                gt.setColor(Color.WHITE);
-                gt.drawString(txtMsg, 10, 52);
-                gt.dispose();
-            }
+            int offset = OFFSET_REND_TXT_DATE_RANGES + OFFSET_REND_TXT_DATE_RANGES_DELTA * 0;
+            String typeName = "Currents";
+            paintDatesRange(g2, toDatePts.longValue(), fromDatePts.longValue(), offset, typeName);
         }
         catch (Exception e) {
             e.printStackTrace();
         }
-
     }
 
     /**
@@ -1109,6 +1105,10 @@ public class HFRadarVisualization extends ConsolePanel implements Renderer2DPain
             });
             System.out.println(String.format("SST stg 2 took %ss",
                     MathMiscUtils.parseToEngineeringNotation((System.currentTimeMillis() - stMillis) / 1E3, 1)));
+            
+            int offset = OFFSET_REND_TXT_DATE_RANGES + OFFSET_REND_TXT_DATE_RANGES_DELTA * 1;
+            String typeName = "SST";
+            paintDatesRange(g2, toDatePts.longValue(), fromDatePts.longValue(), offset, typeName);
         }
         catch (Exception e) {
             e.printStackTrace();
@@ -1285,6 +1285,10 @@ public class HFRadarVisualization extends ConsolePanel implements Renderer2DPain
             });
             System.out.println(String.format("Wind stg 2 took %ss",
                     MathMiscUtils.parseToEngineeringNotation((System.currentTimeMillis() - stMillis) / 1E3, 1)));
+            
+            int offset = OFFSET_REND_TXT_DATE_RANGES + OFFSET_REND_TXT_DATE_RANGES_DELTA * 2;
+            String typeName = "Wind";
+            paintDatesRange(g2, toDatePts.longValue(), fromDatePts.longValue(), offset, typeName);
         }
         catch (Exception e) {
             e.printStackTrace();
@@ -1428,9 +1432,35 @@ public class HFRadarVisualization extends ConsolePanel implements Renderer2DPain
             });
             System.out.println(String.format("Waves stg 2 took %ss",
                     MathMiscUtils.parseToEngineeringNotation((System.currentTimeMillis() - stMillis) / 1E3, 1)));
+            
+            int offset = OFFSET_REND_TXT_DATE_RANGES + OFFSET_REND_TXT_DATE_RANGES_DELTA * 3;
+            String typeName = "Waves";
+            paintDatesRange(g2, toDatePts.longValue(), fromDatePts.longValue(), offset, typeName);
         }
         catch (Exception e) {
             e.printStackTrace();
+        }
+    }
+
+    /**
+     * @param g
+     * @param toDate
+     * @param fromDate
+     * @param rendererOffset
+     * @param typeName
+     */
+    private void paintDatesRange(Graphics2D g, long toDate, long fromDate, int rendererOffset, String typeName) {
+        if (showDataDebugLegend) {
+            String fromDateStr = fromDate < Long.MAX_VALUE ? new Date(fromDate).toString() : "-";
+            String toDateStr = toDate > 0 ? new Date(toDate).toString() : "-";
+            String txtMsg = String.format("%s data from '%s' till '%s'", typeName, fromDateStr, toDateStr);
+            Graphics2D gt = (Graphics2D) g.create();
+            gt.setFont(font8Pt);
+            gt.setColor(Color.BLACK);
+            gt.drawString(txtMsg, 10 + 1, rendererOffset + 1);
+            gt.setColor(Color.WHITE);
+            gt.drawString(txtMsg, 10, rendererOffset);
+            gt.dispose();
         }
     }
 
