@@ -113,68 +113,47 @@ public class EnvironmentalDataVisualization extends ConsolePanel implements Rend
 
     @NeptusProperty(name = "Show currents", userLevel = LEVEL.REGULAR, category=CATEGORY_VISIBILITY)
     public boolean showCurrents = true;
-
     @NeptusProperty(name = "Show SST", userLevel = LEVEL.REGULAR, category=CATEGORY_VISIBILITY)
     public boolean showSST = true;
-
     @NeptusProperty(name = "Show wind", userLevel = LEVEL.REGULAR, category=CATEGORY_VISIBILITY)
     public boolean showWind = true;
-
     @NeptusProperty(name = "Show waves", userLevel = LEVEL.REGULAR, category=CATEGORY_VISIBILITY)
     public boolean showWaves = false;
 
     @NeptusProperty(name = "Show currents legend", userLevel = LEVEL.REGULAR, category=CATEGORY_VISIBILITY)
     public boolean showCurrentsLegend = true;
-
     @NeptusProperty(name = "Show currents legend from zoom level bigger than", userLevel = LEVEL.REGULAR, category=CATEGORY_VISIBILITY)
     public int showCurrentsLegendFromZoomLevel = 13;
-
     @NeptusProperty(name = "Show SST legend", userLevel = LEVEL.REGULAR, category=CATEGORY_VISIBILITY)
     public boolean showSSTLegend = true;
-
     @NeptusProperty(name = "Show SST legend from zoom level bigger than", userLevel = LEVEL.REGULAR, category=CATEGORY_VISIBILITY)
     public int showSSTLegendFromZoomLevel = 11;
-
     @NeptusProperty(name = "Show waves legend", userLevel = LEVEL.REGULAR, category=CATEGORY_VISIBILITY)
     public boolean showWavesLegend = true;
-
     @NeptusProperty(name = "Show waves legend from zoom level bigger than", userLevel = LEVEL.REGULAR, category=CATEGORY_VISIBILITY)
     public int showWavesLegendFromZoomLevel = 13;
+    @NeptusProperty(name = "Show currents as most recent (true) or mean (false) value", userLevel = LEVEL.REGULAR, category=CATEGORY_DATA_UPDATE)
+    public boolean hfradarUseMostRecentOrMean = true;
+    @NeptusProperty(name = "Use color map for wind", userLevel = LEVEL.REGULAR, category=CATEGORY_VISIBILITY)
+    public boolean useColorMapForWind = true;
 
     @NeptusProperty(name = "Minutes between file updates", category=CATEGORY_DATA_UPDATE)
     public long updateFileDataMinutes = 5;
-
     @NeptusProperty(name = "Data limit validity (hours)", userLevel = LEVEL.REGULAR, category=CATEGORY_DATA_UPDATE)
     public int dateLimitHours = 12;
-    
     @NeptusProperty(name = "Use data x hour in the future (hours)", userLevel = LEVEL.REGULAR, category=CATEGORY_DATA_UPDATE)
     public int dateHoursToUseForData = 1;
-    
     @NeptusProperty(name = "Ignore data limit validity to load data", userLevel=LEVEL.ADVANCED, category=CATEGORY_DATA_UPDATE)
     public boolean ignoreDateLimitToLoad = false;
-    
-    @NeptusProperty(name = "Request data from Web", editable = false, userLevel = LEVEL.ADVANCED, category=CATEGORY_TEST, description = "Don't use this (testing purposes).")
-    public boolean requestFromWeb = false;
-
-    @NeptusProperty(name = "Load data from file (hfradar.txt)", editable = false, userLevel = LEVEL.ADVANCED, category=CATEGORY_TEST, description = "Don't use this (testing purposes).")
-    public boolean loadFromFile = false;
-    
-    @NeptusProperty(name = "Show currents as most recent (true) or mean (false) value", userLevel = LEVEL.REGULAR, category=CATEGORY_DATA_UPDATE)
-    public boolean hfradarUseMostRecentOrMean = true;
-
-    @NeptusProperty(name = "Use color map for wind", userLevel = LEVEL.REGULAR, category=CATEGORY_VISIBILITY)
-    public boolean useColorMapForWind = true;
 
     @NeptusProperty(name = "Base Folder For Currents TUV or netCDF Files", userLevel = LEVEL.REGULAR, category = CATEGORY_DATA_UPDATE, 
             description = "The folder to look for currents data. Admissible files '*.tuv' and '*.nc'. NetCDF variables used: lat, lon, time, u, v.",
             editorClass = FolderPropertyEditor.class)
     public File baseFolderForCurrentsTUVFiles = new File("IHData/CODAR");
-
     @NeptusProperty(name = "Base Folder For Meteo netCDF Files", userLevel = LEVEL.REGULAR, category = CATEGORY_DATA_UPDATE, 
             description = "The folder to look for meteo data (wind and SST). Admissible files '*.nc'. NetCDF variables used: lat, lon, time, u, v, sst.",
             editorClass = FolderPropertyEditor.class)
     public File baseFolderForMeteoNetCDFFiles = new File("IHData/METEO");
-
     @NeptusProperty(name = "Base Folder For Waves netCDF Files", userLevel = LEVEL.REGULAR, category = CATEGORY_DATA_UPDATE, 
             description = "The folder to look for waves (significant height, peak period and direction) data. Admissible files '*.nc'. NetCDF variables used: lat, lon, time, hs, tp, pdir.",
             editorClass = FolderPropertyEditor.class)
@@ -183,7 +162,12 @@ public class EnvironmentalDataVisualization extends ConsolePanel implements Rend
     @NeptusProperty(name = "Show visible data date-time interval", userLevel = LEVEL.ADVANCED, category = CATEGORY_TEST, 
             description = "Draws the string with visible curents data date-time interval.")
     public boolean showDataDebugLegend = false;
+    @NeptusProperty(name = "Request data from Web", editable = false, userLevel = LEVEL.ADVANCED, category=CATEGORY_TEST, description = "Don't use this (testing purposes).")
+    public boolean requestFromWeb = false;
+    @NeptusProperty(name = "Load data from file (hfradar.txt)", editable = false, userLevel = LEVEL.ADVANCED, category=CATEGORY_TEST, description = "Don't use this (testing purposes).")
+    public boolean loadFromFile = false;
     
+
     private static final String tuvFilePattern = ".\\.tuv$";
     private static final String netCDFFilePattern = ".\\.nc$";
     private static final String currentsFilePatternTUV = tuvFilePattern; // "^TOTL_TRAD_\\d{4}_\\d{2}_\\d{2}_\\d{4}\\.tuv$";
