@@ -928,62 +928,72 @@ public class HFRadarVisualization extends ConsolePanel implements Renderer2DPain
             LongAccumulator visiblePts = new LongAccumulator((r, i) -> r += i, 0);
             Map<Point2D, Pair<Double, Date>> ptFilt = dest.parallelStream()
                     .collect(HashMap<Point2D, Pair<Double, Date>>::new, (res, dp) -> {
-                        if (!ignoreDateLimitToLoad && dp.getDateUTC().before(dateLimit))
-                            return;
-                        
-                        double latV = dp.getLat();
-                        double lonV = dp.getLon();
-                        double sstV = dp.getSst();
-                        
-                        if (Double.isNaN(latV) || Double.isNaN(lonV) || Double.isNaN(sstV))
-                            return;
-                        
-                        LocationType loc = new LocationType();
-                        loc.setLatitudeDegs(latV);
-                        loc.setLongitudeDegs(lonV);
-                        
-                        Point2D pt = renderer.getScreenPosition(loc);
-
-                        if (!isVisibleInRender(pt, renderer))
-                            return;
-
-                        visiblePts.accumulate(1);
-                        double dpVal = dp.getSst();
-                        Date dpDate = new Date(dp.getDateUTC().getTime());
-
+                        try {
+                            if (!ignoreDateLimitToLoad && dp.getDateUTC().before(dateLimit))
+                                return;
+                            
+                            double latV = dp.getLat();
+                            double lonV = dp.getLon();
+                            double sstV = dp.getSst();
+                            
+                            if (Double.isNaN(latV) || Double.isNaN(lonV) || Double.isNaN(sstV))
+                                return;
+                            
+                            LocationType loc = new LocationType();
+                            loc.setLatitudeDegs(latV);
+                            loc.setLongitudeDegs(lonV);
+                            
+                            Point2D pt = renderer.getScreenPosition(loc);
+                            
+                            if (!isVisibleInRender(pt, renderer))
+                                return;
+                            
+                            visiblePts.accumulate(1);
+                            double dpVal = dp.getSst();
+                            Date dpDate = new Date(dp.getDateUTC().getTime());
+                            
 //                        int base = 100;
-                        double x = pt.getX();
-                        double y = pt.getY();
+                            double x = pt.getX();
+                            double y = pt.getY();
 //                        double x = MathMiscUtils.round(pt.getX(), 2);
 //                        double y = MathMiscUtils.round(pt.getY(), 2);
 //                        double x = Math.round(pt.getX() * base ) / base;//MathMiscUtils.round(pt.getX(), 2);
 //                        double y = Math.round(pt.getY() * base ) / base;//MathMiscUtils.round(pt.getY(), 2);
-                        x = x - x % 8;
-                        y = y - y % 8;
-                        pt.setLocation(x, y);
-                        
-                        if (!res.containsKey(pt)) {
-                            res.put(pt, new Pair<>(dpVal, dpDate));
+                            x = x - x % 8;
+                            y = y - y % 8;
+                            pt.setLocation(x, y);
+                            
+                            if (!res.containsKey(pt)) {
+                                res.put(pt, new Pair<>(dpVal, dpDate));
+                            }
+                            else {
+                                Pair<Double, Date> pval = res.get(pt);
+                                double val = pval.first();
+                                val = (val + dpVal) / 2d;
+                                if (dpDate.after(pval.second()))
+                                    res.put(pt, new Pair<>(val, dpDate));
+                                else
+                                    res.put(pt, new Pair<>(val, pval.second()));
+                            }
                         }
-                        else {
-                            Pair<Double, Date> pval = res.get(pt);
-                            double val = pval.first();
-                            val = (val + dpVal) / 2d;
-                            if (dpDate.after(pval.second()))
-                                res.put(pt, new Pair<>(val, dpDate));
-                            else
-                                res.put(pt, new Pair<>(val, pval.second()));
+                        catch (Exception e) {
+                            NeptusLog.pub().debug(e);
                         }
                     }, (res, resInt) -> {
                         resInt.keySet().stream().forEach(k1 -> {
-                            Pair<Double, Date> sI = resInt.get(k1);
-                            if (res.containsKey(k1)) {
-                                Pair<Double, Date> s = res.get(k1);
-                                res.put(k1, new Pair<Double, Date>((s.first() + sI.first()) / 2.,
-                                        sI.second().after(s.second()) ? new Date(sI.second().getTime()) : s.second()));
+                            try {
+                                Pair<Double, Date> sI = resInt.get(k1);
+                                if (res.containsKey(k1)) {
+                                    Pair<Double, Date> s = res.get(k1);
+                                    res.put(k1, new Pair<Double, Date>((s.first() + sI.first()) / 2.,
+                                            sI.second().after(s.second()) ? new Date(sI.second().getTime()) : s.second()));
+                                }
+                                else {
+                                    res.put(k1, sI);
+                                }
                             }
-                            else {
-                                res.put(k1, sI);
+                            catch (Exception e) {
+                                NeptusLog.pub().debug(e);
                             }
                         });
                     });
