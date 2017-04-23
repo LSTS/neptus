@@ -848,76 +848,146 @@ public class HFRadarVisualization extends ConsolePanel implements Renderer2DPain
      * @param dateLimit
      */
     private void paintHFRadarInGraphics(StateRenderer2D renderer, Graphics2D g2, Date dateColorLimit, Date dateLimit) {
-        LocationType loc = new LocationType();
-        
-        Date fromDate = null;
-        Date toDate = null;
-        
-        for (HFRadarDataPoint dp : dataPointsCurrents.values().toArray(new HFRadarDataPoint[0])) {
-            if (dp.getDateUTC().before(dateLimit) && !ignoreDateLimitToLoad)
-                continue;
-            
-            double latV = dp.getLat();
-            double lonV = dp.getLon();
-            double headingV = dp.getHeadingDegrees();
-            
-            if (Double.isNaN(latV) || Double.isNaN(lonV) || Double.isNaN(headingV))
-                continue;
-            
-            loc.setLatitudeDegs(latV);
-            loc.setLongitudeDegs(lonV);
-            
-            Point2D pt = renderer.getScreenPosition(loc);
+        try {
+            List<HFRadarDataPoint> dest = new ArrayList<>(dataPointsCurrents.values());
+            long stMillis = System.currentTimeMillis();
+            LongAccumulator visiblePts = new LongAccumulator((r, i) -> r += i, 0);
+            LongAccumulator toDatePts = new LongAccumulator((r, i) -> r = i > r ? i : r, 0);
+            LongAccumulator fromDatePts = new LongAccumulator((r, i) -> r = i < r ? i : r, Long.MAX_VALUE);
+            Map<Point2D, Pair<Pair<Double, Double>, Date>> ptFilt = dest.parallelStream()
+                    .collect(HashMap<Point2D, Pair<Pair<Double, Double>, Date>>::new, (res, dp) -> {
+                        try {
+                            if (!ignoreDateLimitToLoad && dp.getDateUTC().before(dateLimit))
+                                return;
+                            
+                            double latV = dp.getLat();
+                            double lonV = dp.getLon();
+                            double speedCmSV = dp.getSpeedCmS();
+                            double headingV = AngleUtils.nomalizeAngleDegrees360(dp.getHeadingDegrees());
+                            
+                            if (Double.isNaN(latV) || Double.isNaN(lonV) || Double.isNaN(speedCmSV)
+                                    || Double.isNaN(headingV))
+                                return;
+                            
+                            Date dateV = new Date(dp.getDateUTC().getTime());
 
-            if (!isVisibleInRender(pt, renderer))
-                continue;
+                            LocationType loc = new LocationType();
+                            loc.setLatitudeDegs(latV);
+                            loc.setLongitudeDegs(lonV);
+                            
+                            Point2D pt = renderer.getScreenPosition(loc);
+                            
+                            if (!isVisibleInRender(pt, renderer))
+                                return;
+                            
+                            visiblePts.accumulate(1);
+                            
+                            toDatePts.accumulate(dateV.getTime());
+                            fromDatePts.accumulate(dateV.getTime());
+                            
+                            double x = pt.getX();
+                            double y = pt.getY();
+                            x = x - x % ARROW_RADIUS;
+                            y = y - y % ARROW_RADIUS;
+                            pt.setLocation(x, y);
+                            
+                            if (!res.containsKey(pt)) {
+                                res.put(pt, new Pair<Pair<Double, Double>, Date>(new Pair<Double, Double>(speedCmSV, headingV), dateV));
+                            }
+                            else {
+                                Pair<Pair<Double, Double>, Date> pval = res.get(pt);
+                                double val = pval.first().first();
+                                val = (val + speedCmSV) / 2d;
+                                double val1 = pval.first().second();
+                                val1 = (val1 + headingV) / 2d;
+                                if (dateV.after(pval.second()))
+                                    res.put(pt, new Pair<Pair<Double, Double>, Date>(new Pair<Double, Double>(val, val1), dateV));
+                                else
+                                    res.put(pt, new Pair<Pair<Double, Double>, Date>(new Pair<Double, Double>(val, val1), pval.second()));
+                            }
+                        }
+                        catch (Exception e) {
+                            NeptusLog.pub().debug(e);
+                        }
+                    }, (res, resInt) -> {
+                        resInt.keySet().stream().forEach(k1 -> {
+                            try {
+                                Pair<Pair<Double, Double>, Date> sI = resInt.get(k1);
+                                if (res.containsKey(k1)) {
+                                    Pair<Pair<Double, Double>, Date> s = res.get(k1);
+                                    double val = (s.first().first() + sI.first().first()) / 2d;
+                                    double val1 = (s.first().second() + sI.first().second()) / 2d;
+                                    Date valDate = sI.second().after(s.second()) ? new Date(sI.second().getTime())
+                                            : s.second();
+                                    res.put(k1, new Pair<Pair<Double, Double>, Date>(new Pair<Double, Double>(val, val1), valDate));
+                                }
+                                else {
+                                    res.put(k1, sI);
+                                }
+                            }
+                            catch (Exception e) {
+                                NeptusLog.pub().debug(e);
+                            }
+                        });
+                    });
             
-            if (fromDate == null) {
-                fromDate = dp.getDateUTC();
-            }
-            else {
-                if (dp.getDateUTC().before(fromDate))
-                    fromDate = dp.getDateUTC();
-            }
-            if (toDate == null) {
-                toDate = dp.getDateUTC();
-            }
-            else {
-                if (dp.getDateUTC().after(toDate))
-                    toDate = dp.getDateUTC();
-            }
-            g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-            g2.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
-            Graphics2D gt = (Graphics2D) g2.create();
-            gt.translate(pt.getX(), pt.getY());
-            Color color = Color.WHITE;
-            color = colorMapCurrents.getColor(dp.getSpeedCmS() / maxCurrentCmS);
-            if (dp.getDateUTC().before(dateColorLimit))
-                color = ColorUtils.setTransparencyToColor(color, 128);
-            gt.setColor(color);
-            double rot = Math.toRadians(-headingV + 90) - renderer.getRotation();
-            gt.rotate(rot);
-            gt.fill(arrow);
-            gt.rotate(-rot);
+            System.out.println(String.format("Currents stg 1 took %ss :: %d of %d from %d (%f%%)",
+                    MathMiscUtils.parseToEngineeringNotation((System.currentTimeMillis() - stMillis) / 1E3, 1), ptFilt.size(), visiblePts.longValue(), dest.size(),
+                    (ptFilt.size() * 1. / visiblePts.longValue()) * 100));
+            stMillis = System.currentTimeMillis();
             
-            if (showCurrentsLegend && renderer.getLevelOfDetail() >= showCurrentsLegendFromZoomLevel) {
+            ptFilt.keySet().parallelStream().forEach(pt -> {
+                Graphics2D gt = null;
+                try {
+                    Pair<Pair<Double, Double>, Date> pVal = ptFilt.get(pt);
+                    
+                    double speedCmSV = pVal.first().first();
+                    double headingV = pVal.first().second();
+                    Date dateV = pVal.second();
+                    
+                    gt = (Graphics2D) g2.create();
+                    gt.translate(pt.getX(), pt.getY());
+
+                    Color color = Color.WHITE;
+                    color = colorMapCurrents.getColor(speedCmSV / maxCurrentCmS);
+                    if (dateV.before(dateColorLimit))
+                        color = ColorUtils.setTransparencyToColor(color, 128);
+                    gt.setColor(color);
+                    double rot = Math.toRadians(-headingV + 90) - renderer.getRotation();
+                    gt.rotate(rot);
+                    gt.fill(arrow);
+                    gt.rotate(-rot);
+                    
+                    if (showCurrentsLegend && renderer.getLevelOfDetail() >= showCurrentsLegendFromZoomLevel) {
+                        gt.setFont(font8Pt);
+                        gt.setColor(Color.WHITE);
+                        gt.drawString(MathMiscUtils.round(speedCmSV, 1) + "cm/s", 10, 2);
+                    }
+                }
+                catch (Exception e) {
+                    NeptusLog.pub().trace(e);
+                }
+                
+                if (gt != null)
+                    gt.dispose();
+            });
+            System.out.println(String.format("Currents stg 2 took %ss",
+                    MathMiscUtils.parseToEngineeringNotation((System.currentTimeMillis() - stMillis) / 1E3, 1)));
+            
+            if (showDataDebugLegend) {
+                String txtMsg = "Currents data from '" + new Date(fromDatePts.get()) + "' till '"
+                        + new Date(toDatePts.get()) + "'";
+                Graphics2D gt = (Graphics2D) g2.create();
                 gt.setFont(font8Pt);
                 gt.setColor(Color.WHITE);
-                gt.drawString(MathMiscUtils.round(dp.getSpeedCmS(), 1) + "cm/s", 10, 2);
+                gt.drawString(txtMsg, 10, 52);
+                gt.dispose();
             }
-            
-            gt.dispose();
         }
-        
-        
-        if (showDataDebugLegend) {
-            String txtMsg = "Currents data from '" + fromDate + "' till '" + toDate + "'";
-            Graphics2D gt = (Graphics2D) g2.create();
-            gt.setFont(font8Pt);
-            gt.setColor(Color.WHITE);
-            gt.drawString(txtMsg, 10, 52);
-            gt.dispose();
+        catch (Exception e) {
+            e.printStackTrace();
         }
+
     }
 
     /**
