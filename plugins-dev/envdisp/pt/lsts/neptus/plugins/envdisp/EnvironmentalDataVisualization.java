@@ -36,8 +36,6 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.Graphics2D;
-import java.awt.geom.Ellipse2D;
-import java.awt.geom.Path2D;
 import java.awt.geom.Point2D;
 import java.io.BufferedReader;
 import java.io.File;
@@ -184,83 +182,6 @@ public class EnvironmentalDataVisualization extends ConsolePanel implements Rend
 
     private long updateSeconds = 60;
     private long lastMillisFileDataUpdated = -1;
-
-    private final static int ARROW_RADIUS = 12;
-    private final static Path2D.Double arrow = new Path2D.Double();
-    static {
-        arrow.moveTo(-5, 6);
-        arrow.lineTo(0, -6);
-        arrow.lineTo(5, 6);
-        arrow.lineTo(0, 3);
-        arrow.lineTo(-5, 6);
-        arrow.closePath();
-    }
-
-    private final static int SST_RADIUS = 8;
-    private final static Ellipse2D circle = new Ellipse2D.Double(-SST_RADIUS / 2., -SST_RADIUS / 2., SST_RADIUS, SST_RADIUS);
-    
-    private final static int WIND_RADIUS = 28;
-    private final static Path2D.Double windPoleKnots = new Path2D.Double();
-    static {
-        windPoleKnots.moveTo(0, 0);
-        windPoleKnots.lineTo(0, 14*2);
-        windPoleKnots.closePath();
-    }
-    private final static Path2D.Double wind50Knots1 = new Path2D.Double();
-    static {
-        wind50Knots1.moveTo(0, 14*2);
-        wind50Knots1.lineTo(-8*2, 14*2);
-        wind50Knots1.lineTo(0, 12*2);
-        wind50Knots1.closePath();
-    }
-    private final static Path2D.Double wind10Knots1 = new Path2D.Double();
-    static {
-        wind10Knots1.moveTo(0, 14*2);
-        wind10Knots1.lineTo(-8*2, 14*2);
-        wind10Knots1.closePath();
-    }
-    private final static Path2D.Double wind5Knots2 = new Path2D.Double();
-    static {
-        wind5Knots2.moveTo(0, 12*2);
-        wind5Knots2.lineTo(-4*2, 12*2);
-        wind5Knots2.closePath();
-    }
-    private final static Path2D.Double wind10Knots2 = new Path2D.Double();
-    static {
-        wind10Knots2.moveTo(0, 12*2);
-        wind10Knots2.lineTo(-8*2, 12*2);
-        wind10Knots2.closePath();
-    }
-    private final static Path2D.Double wind5Knots3 = new Path2D.Double();
-    static {
-        wind5Knots3.moveTo(0, 10*2);
-        wind5Knots3.lineTo(-4*2, 10*2);
-        wind5Knots3.closePath();
-    }
-    private final static Path2D.Double wind10Knots3 = new Path2D.Double();
-    static {
-        wind10Knots3.moveTo(0, 10*2);
-        wind10Knots3.lineTo(-8*2, 10*2);
-        wind10Knots3.closePath();
-    }
-    private final static Path2D.Double wind5Knots4 = new Path2D.Double();
-    static {
-        wind5Knots4.moveTo(0, 8*2);
-        wind5Knots4.lineTo(-4*2, 8*2);
-        wind5Knots4.closePath();
-    }
-    private final static Path2D.Double wind10Knots4 = new Path2D.Double();
-    static {
-        wind10Knots4.moveTo(0, 8*2);
-        wind10Knots4.lineTo(-8*2, 8*2);
-        wind10Knots4.closePath();
-    }
-    private final static Path2D.Double wind5Knots5 = new Path2D.Double();
-    static {
-        wind5Knots5.moveTo(0, 6*2);
-        wind5Knots5.lineTo(-4*2, 6*2);
-        wind5Knots5.closePath();
-    }
 
     //  http://hfradar.ndbc.noaa.gov/tab.php?from=2013-06-22%2015:00:00&to=2013-06-22%2015:00:00&p=1&lat=38.324420427006515&lng=-119.94323730468749&lat2=35.69299463209881&lng2=-124.33776855468749
     //  http://hfradar.ndbc.noaa.gov/tabdownload.php?from=2013-06-23%2009:34:00&to=2013-06-23%2021:34:00&lat=37.78799270017669&lng=-122.39269445535145&lat2=37.78781729434937&lng2=-122.39236722585163
@@ -879,8 +800,8 @@ public class EnvironmentalDataVisualization extends ConsolePanel implements Rend
                             
                             double x = pt.getX();
                             double y = pt.getY();
-                            x = x - x % ARROW_RADIUS;
-                            y = y - y % ARROW_RADIUS;
+                            x = x - x % EnvDataShapesHelper.ARROW_RADIUS;
+                            y = y - y % EnvDataShapesHelper.ARROW_RADIUS;
                             pt.setLocation(x, y);
                             
                             if (!res.containsKey(pt)) {
@@ -947,7 +868,7 @@ public class EnvironmentalDataVisualization extends ConsolePanel implements Rend
                     gt.setColor(color);
                     double rot = Math.toRadians(-headingV + 90) - renderer.getRotation();
                     gt.rotate(rot);
-                    gt.fill(arrow);
+                    gt.fill(EnvDataShapesHelper.arrow);
                     gt.rotate(-rot);
                     
                     if (showCurrentsLegend && renderer.getLevelOfDetail() >= showCurrentsLegendFromZoomLevel) {
@@ -1019,8 +940,8 @@ public class EnvironmentalDataVisualization extends ConsolePanel implements Rend
                             
                             double x = pt.getX();
                             double y = pt.getY();
-                            x = x - x % SST_RADIUS;
-                            y = y - y % SST_RADIUS;
+                            x = x - x % EnvDataShapesHelper.CIRCLE_RADIUS;
+                            y = y - y % EnvDataShapesHelper.CIRCLE_RADIUS;
                             pt.setLocation(x, y);
                             
                             if (!res.containsKey(pt)) {
@@ -1077,8 +998,8 @@ public class EnvironmentalDataVisualization extends ConsolePanel implements Rend
                     if (pVal.second().before(dateColorLimit)) //if (dp.getDateUTC().before(dateColorLimit))
                         color = ColorUtils.setTransparencyToColor(color, 128);
                     gt.setColor(color);
-                    gt.draw(circle);
-                    gt.fill(circle);
+                    gt.draw(EnvDataShapesHelper.circle);
+                    gt.fill(EnvDataShapesHelper.circle);
                     
                     if (showSSTLegend && renderer.getLevelOfDetail() >= showSSTLegendFromZoomLevel) {
                         gt.setFont(font8Pt);
@@ -1144,8 +1065,8 @@ public class EnvironmentalDataVisualization extends ConsolePanel implements Rend
                             
                             double x = pt.getX();
                             double y = pt.getY();
-                            x = x - x % WIND_RADIUS;
-                            y = y - y % WIND_RADIUS;
+                            x = x - x % EnvDataShapesHelper.WIND_BARB_RADIUS;
+                            y = y - y % EnvDataShapesHelper.WIND_BARB_RADIUS;
                             pt.setLocation(x, y);
                             
                             if (!res.containsKey(pt)) {
@@ -1214,57 +1135,7 @@ public class EnvironmentalDataVisualization extends ConsolePanel implements Rend
                     gt.rotate(Math.toRadians(headingV) - renderer.getRotation());
                     
                     double speedKnots = speedV * m_sToKnotConv;
-                    if (speedKnots >= 2) {
-                        gt.draw(windPoleKnots);
-                    }
-                    
-                    if (speedKnots >= 5 && speedKnots < 10) {
-                        gt.draw(wind5Knots2);
-                    }
-                    else if (speedKnots >= 10 && speedKnots < 15) {
-                        gt.draw(wind10Knots1);
-                    }
-                    else if (speedKnots >= 15 && speedKnots < 20) {
-                        gt.draw(wind10Knots1);
-                        gt.draw(wind5Knots2);
-                    }
-                    else if (speedKnots >= 20 && speedKnots < 25) {
-                        gt.draw(wind10Knots1);
-                        gt.draw(wind10Knots2);
-                    }
-                    else if (speedKnots >= 25 && speedKnots < 30) {
-                        gt.draw(wind10Knots1);
-                        gt.draw(wind10Knots2);
-                        gt.draw(wind5Knots3);
-                    }
-                    else if (speedKnots >= 30 && speedKnots < 35) {
-                        gt.draw(wind10Knots1);
-                        gt.draw(wind10Knots2);
-                        gt.draw(wind10Knots3);
-                    }
-                    else if (speedKnots >= 35 && speedKnots < 40) {
-                        gt.draw(wind10Knots1);
-                        gt.draw(wind10Knots2);
-                        gt.draw(wind10Knots3);
-                        gt.draw(wind5Knots4);
-                    }
-                    else if (speedKnots >= 40 && speedKnots < 45) {
-                        gt.draw(wind10Knots1);
-                        gt.draw(wind10Knots2);
-                        gt.draw(wind10Knots3);
-                        gt.draw(wind10Knots4);
-                    }
-                    else if (speedKnots >= 45 && speedKnots < 50) {
-                        gt.draw(wind10Knots1);
-                        gt.draw(wind10Knots2);
-                        gt.draw(wind10Knots3);
-                        gt.draw(wind10Knots4);
-                        gt.draw(wind5Knots5);
-                    }
-                    else if (speedKnots >= 50) {
-                        gt.draw(wind50Knots1);
-                        gt.fill(wind50Knots1);
-                    }
+                    EnvDataShapesHelper.paintWindBarb(gt, speedKnots);
                 }
                 catch (Exception e) {
                     NeptusLog.pub().trace(e);
@@ -1332,8 +1203,8 @@ public class EnvironmentalDataVisualization extends ConsolePanel implements Rend
                             
                             double x = pt.getX();
                             double y = pt.getY();
-                            x = x - x % ARROW_RADIUS;
-                            y = y - y % ARROW_RADIUS;
+                            x = x - x % EnvDataShapesHelper.ARROW_RADIUS;
+                            y = y - y % EnvDataShapesHelper.ARROW_RADIUS;
                             pt.setLocation(x, y);
                             
                             if (!res.containsKey(pt)) {
@@ -1404,7 +1275,7 @@ public class EnvironmentalDataVisualization extends ConsolePanel implements Rend
                     gt.setColor(color);
                     double rot = Math.toRadians(headingV) - renderer.getRotation();
                     gt.rotate(rot);
-                    gt.fill(arrow);
+                    gt.fill(EnvDataShapesHelper.arrow);
                     gt.rotate(-rot);
                     
                     if (showWavesLegend && renderer.getLevelOfDetail() >= showWavesLegendFromZoomLevel) {
