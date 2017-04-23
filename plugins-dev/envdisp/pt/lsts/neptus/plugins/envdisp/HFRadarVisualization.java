@@ -1000,7 +1000,7 @@ public class HFRadarVisualization extends ConsolePanel implements Renderer2DPain
                         });
                     });
             
-            System.out.println(String.format("stg 1 took %ss :: %d of %d from %d (%f%%)",
+            System.out.println(String.format("SST stg 1 took %ss :: %d of %d from %d (%f%%)",
                     DateTimeUtil.formatTime(System.currentTimeMillis() - stNanos), ptFilt.size(), visiblePts.longValue(), dest.size(),
                     (ptFilt.size() * 1. / visiblePts.longValue()) * 100));
             stNanos = System.currentTimeMillis();
@@ -1033,9 +1033,8 @@ public class HFRadarVisualization extends ConsolePanel implements Renderer2DPain
                 if (gt != null)
                     gt.dispose();
             });
-            System.out.println(String.format("stg 2 took %ss",
+            System.out.println(String.format("SST stg 2 took %ss",
                     DateTimeUtil.formatTime(System.currentTimeMillis() - stNanos)));
-            System.out.println(ptFilt.size() + " of " + dest.size());
         }
         catch (Exception e) {
             e.printStackTrace();
@@ -1120,7 +1119,7 @@ public class HFRadarVisualization extends ConsolePanel implements Renderer2DPain
                         });
                     });
             
-            System.out.println(String.format("stg 1 took %ss :: %d of %d from %d (%f%%)",
+            System.out.println(String.format("Wind stg 1 took %ss :: %d of %d from %d (%f%%)",
                     DateTimeUtil.formatTime(System.currentTimeMillis() - stNanos), ptFilt.size(), visiblePts.longValue(), dest.size(),
                     (ptFilt.size() * 1. / visiblePts.longValue()) * 100));
             stNanos = System.currentTimeMillis();
@@ -1205,9 +1204,8 @@ public class HFRadarVisualization extends ConsolePanel implements Renderer2DPain
                 if (gt != null)
                     gt.dispose();
             });
-            System.out.println(String.format("stg 2 took %ss",
+            System.out.println(String.format("Wind stg 2 took %ss",
                     DateTimeUtil.formatTime(System.currentTimeMillis() - stNanos)));
-            System.out.println(ptFilt.size() + " of " + dest.size());
         }
         catch (Exception e) {
             e.printStackTrace();
@@ -1303,7 +1301,7 @@ public class HFRadarVisualization extends ConsolePanel implements Renderer2DPain
                         });
                     });
             
-            System.out.println(String.format("stg 1 took %ss :: %d of %d from %d (%f%%)",
+            System.out.println(String.format("Waves stg 1 took %ss :: %d of %d from %d (%f%%)",
                     DateTimeUtil.formatTime(System.currentTimeMillis() - stNanos), ptFilt.size(), visiblePts.longValue(), dest.size(),
                     (ptFilt.size() * 1. / visiblePts.longValue()) * 100));
             stNanos = System.currentTimeMillis();
@@ -1344,7 +1342,7 @@ public class HFRadarVisualization extends ConsolePanel implements Renderer2DPain
                 if (gt != null)
                     gt.dispose();
             });
-            System.out.println(String.format("stg 2 took %ss",
+            System.out.println(String.format("Waves stg 2 took %ss",
                     DateTimeUtil.formatTime(System.currentTimeMillis() - stNanos)));
             System.out.println(ptFilt.size() + " of " + dest.size());
         }
