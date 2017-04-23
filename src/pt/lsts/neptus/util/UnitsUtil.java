@@ -68,7 +68,7 @@ public class UnitsUtil {
     
     // Speed
     /** Conversion factor: m/s to knot. */
-    public static final double MS_TO_KNOT = 1.94384449244; // or 1.9438446604 ?
+    public static final double MS_TO_KNOT = 1.9438444924574;
     /** Conversion factor: m/s to km/h. */
     public static final double MS_TO_KMH = 3.5999712002;
     /** Conversion factor: m/s to miles/h. */
