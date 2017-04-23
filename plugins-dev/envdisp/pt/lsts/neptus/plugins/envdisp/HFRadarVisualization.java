@@ -51,12 +51,12 @@ import java.io.Reader;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.TimeZone;
+import java.util.concurrent.atomic.LongAccumulator;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -924,44 +924,30 @@ public class HFRadarVisualization extends ConsolePanel implements Renderer2DPain
     private void paintSSTInGraphics(StateRenderer2D renderer, Graphics2D g2, Date dateColorLimit, Date dateLimit) {
         try {
             List<SSTDataPoint> dest = new ArrayList<>(dataPointsSST.values());
-            Map<Point2D, SSTDataPoint> ptMap = Collections.synchronizedMap(new HashMap<Point2D, SSTDataPoint>(dest.size()));
             long stNanos = System.currentTimeMillis();
-            dest.parallelStream().forEach(dp -> {
-                try {
-                    if (dp.getDateUTC().before(dateLimit) && !ignoreDateLimitToLoad)
-                        return;
-                    
-                    double latV = dp.getLat();
-                    double lonV = dp.getLon();
-                    double sstV = dp.getSst();
-                    
-                    if (Double.isNaN(latV) || Double.isNaN(lonV) || Double.isNaN(sstV))
-                        return;
-                    
-                    LocationType loc = new LocationType();
-                    loc.setLatitudeDegs(latV);
-                    loc.setLongitudeDegs(lonV);
-                    
-                    Point2D pt = renderer.getScreenPosition(loc);
+            LongAccumulator visiblePts = new LongAccumulator((r, i) -> r += i, 0);
+            Map<Point2D, Pair<Double, Date>> ptFilt = dest.parallelStream()
+                    .collect(HashMap<Point2D, Pair<Double, Date>>::new, (res, dp) -> {
+                        if (!ignoreDateLimitToLoad && dp.getDateUTC().before(dateLimit))
+                            return;
+                        
+                        double latV = dp.getLat();
+                        double lonV = dp.getLon();
+                        double sstV = dp.getSst();
+                        
+                        if (Double.isNaN(latV) || Double.isNaN(lonV) || Double.isNaN(sstV))
+                            return;
+                        
+                        LocationType loc = new LocationType();
+                        loc.setLatitudeDegs(latV);
+                        loc.setLongitudeDegs(lonV);
+                        
+                        Point2D pt = renderer.getScreenPosition(loc);
 
-                    if (!isVisibleInRender(pt, renderer))
-                        return;
-                    
-                    ptMap.put(pt, dp);
-                }
-                catch (Exception e) {
-                    NeptusLog.pub().trace(e);
-                    e.printStackTrace();
-                }
-            });
-            System.out.println(String.format("stg 0 took %ss :: %d of %d (%f%%)",
-                    DateTimeUtil.formatTime(System.currentTimeMillis() - stNanos), ptMap.size(), dest.size(),
-                    (ptMap.size() * 1. / dest.size()) * 100));
-            stNanos = System.currentTimeMillis();
-            
-            Map<Point2D, Pair<Double, Date>> ptFilt = ptMap.keySet().parallelStream()
-                    .collect(HashMap<Point2D, Pair<Double, Date>>::new, (res, pt) -> {
-                        SSTDataPoint dp = ptMap.get(pt);
+                        if (!isVisibleInRender(pt, renderer))
+                            return;
+
+                        visiblePts.accumulate(1);
                         double dpVal = dp.getSst();
                         Date dpDate = new Date(dp.getDateUTC().getTime());
 
@@ -1002,9 +988,9 @@ public class HFRadarVisualization extends ConsolePanel implements Renderer2DPain
                         });
                     });
             
-            System.out.println(String.format("stg 1 took %ss :: %d of %d (%f%%)",
-                    DateTimeUtil.formatTime(System.currentTimeMillis() - stNanos), ptFilt.size(), ptMap.size(),
-                    (ptFilt.size() * 1. / ptMap.size()) * 100));
+            System.out.println(String.format("stg 1 took %ss :: %d of %d from %d (%f%%)",
+                    DateTimeUtil.formatTime(System.currentTimeMillis() - stNanos), ptFilt.size(), visiblePts.longValue(), dest.size(),
+                    (ptFilt.size() * 1. / visiblePts.longValue()) * 100));
             stNanos = System.currentTimeMillis();
             
             ptFilt.keySet().parallelStream().forEach(pt -> {
@@ -1035,10 +1021,9 @@ public class HFRadarVisualization extends ConsolePanel implements Renderer2DPain
                 if (gt != null)
                     gt.dispose();
             });
-            System.out.println(String.format("stg 2 took %ss :: %d of %d (%f%%)",
-                    DateTimeUtil.formatTime(System.currentTimeMillis() - stNanos), ptFilt.size(), dest.size(),
-                    (ptFilt.size() * 1. / dest.size()) * 100));
-            System.out.println(ptMap.size() + " of " + dest.size());
+            System.out.println(String.format("stg 2 took %ss",
+                    DateTimeUtil.formatTime(System.currentTimeMillis() - stNanos)));
+            System.out.println(ptFilt.size() + " of " + dest.size());
         }
         catch (Exception e) {
             e.printStackTrace();
