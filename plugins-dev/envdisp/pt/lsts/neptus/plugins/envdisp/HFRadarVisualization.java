@@ -60,6 +60,7 @@ import java.util.concurrent.atomic.LongAccumulator;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.apache.commons.lang3.tuple.Triple;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
 import org.apache.http.client.methods.HttpGet;
@@ -82,6 +83,7 @@ import pt.lsts.neptus.renderer2d.OffScreenLayerImageControl;
 import pt.lsts.neptus.renderer2d.Renderer2DPainter;
 import pt.lsts.neptus.renderer2d.StateRenderer2D;
 import pt.lsts.neptus.types.coord.LocationType;
+import pt.lsts.neptus.util.AngleUtils;
 import pt.lsts.neptus.util.ColorUtils;
 import pt.lsts.neptus.util.DateTimeUtil;
 import pt.lsts.neptus.util.FileUtil;
@@ -204,6 +206,7 @@ public class HFRadarVisualization extends ConsolePanel implements Renderer2DPain
     private final static int SST_RADIUS = 8;
     private final static Ellipse2D circle = new Ellipse2D.Double(-SST_RADIUS / 2., -SST_RADIUS / 2., SST_RADIUS, SST_RADIUS);
     
+    private final static int WIND_RADIUS = 28;
     private final static Path2D.Double windPoleKnots = new Path2D.Double();
     static {
         windPoleKnots.moveTo(0, 0);
@@ -1038,13 +1041,185 @@ public class HFRadarVisualization extends ConsolePanel implements Renderer2DPain
         }
     }
 
+    private void paintWindInGraphics(StateRenderer2D renderer, Graphics2D g2, Date dateColorLimit, Date dateLimit) {
+        try {
+            List<WindDataPoint> dest = new ArrayList<>(dataPointsWind.values());
+            long stNanos = System.currentTimeMillis();
+            LongAccumulator visiblePts = new LongAccumulator((r, i) -> r += i, 0);
+            Map<Point2D, Triple<Double, Double, Date>> ptFilt = dest.parallelStream()
+                    .collect(HashMap<Point2D, Triple<Double, Double, Date>>::new, (res, dp) -> {
+                        try {
+                            if (!ignoreDateLimitToLoad && dp.getDateUTC().before(dateLimit))
+                                return;
+                            
+                            double latV = dp.getLat();
+                            double lonV = dp.getLon();
+                            double speedV = dp.getSpeed();
+                            double headingV = AngleUtils.nomalizeAngleDegrees360(dp.getHeading());
+                            
+                            if (Double.isNaN(latV) || Double.isNaN(lonV) || Double.isNaN(speedV)|| Double.isNaN(headingV))
+                                return;
+                            
+                            Date dateV = new Date(dp.getDateUTC().getTime());
+
+                            LocationType loc = new LocationType();
+                            loc.setLatitudeDegs(latV);
+                            loc.setLongitudeDegs(lonV);
+                            
+                            Point2D pt = renderer.getScreenPosition(loc);
+                            
+                            if (!isVisibleInRender(pt, renderer))
+                                return;
+                            
+                            visiblePts.accumulate(1);
+                            
+                            double x = pt.getX();
+                            double y = pt.getY();
+                            x = x - x % WIND_RADIUS;
+                            y = y - y % WIND_RADIUS;
+                            pt.setLocation(x, y);
+                            
+                            if (!res.containsKey(pt)) {
+                                res.put(pt, Triple.of(speedV, headingV, dateV));
+                            }
+                            else {
+                                Triple<Double, Double, Date> pval = res.get(pt);
+                                double val = pval.getLeft();
+                                val = (val + speedV) / 2d;
+                                double val1 = pval.getMiddle();
+                                val1 = (val1 + headingV) / 2d;
+                                if (dateV.after(pval.getRight()))
+                                    res.put(pt, Triple.of(val, val1, dateV));
+                                else
+                                    res.put(pt, Triple.of(val, val1, pval.getRight()));
+                            }
+                        }
+                        catch (Exception e) {
+                            NeptusLog.pub().debug(e);
+                        }
+                    }, (res, resInt) -> {
+                        resInt.keySet().stream().forEach(k1 -> {
+                            try {
+                                Triple<Double, Double, Date> sI = resInt.get(k1);
+                                if (res.containsKey(k1)) {
+                                    Triple<Double, Double, Date> s = res.get(k1);
+                                    double val = (s.getLeft() + sI.getLeft()) / 2d;
+                                    double val1 = (s.getMiddle() + sI.getMiddle()) / 2d;
+                                    Date valDate = sI.getRight().after(s.getRight()) ? new Date(sI.getRight().getTime())
+                                            : s.getRight();
+                                    res.put(k1, Triple.of(val, val1, valDate));
+                                }
+                                else {
+                                    res.put(k1, sI);
+                                }
+                            }
+                            catch (Exception e) {
+                                NeptusLog.pub().debug(e);
+                            }
+                        });
+                    });
+            
+            System.out.println(String.format("stg 1 took %ss :: %d of %d from %d (%f%%)",
+                    DateTimeUtil.formatTime(System.currentTimeMillis() - stNanos), ptFilt.size(), visiblePts.longValue(), dest.size(),
+                    (ptFilt.size() * 1. / visiblePts.longValue()) * 100));
+            stNanos = System.currentTimeMillis();
+            
+            ptFilt.keySet().parallelStream().forEach(pt -> {
+                Graphics2D gt = null;
+                try {
+                    Triple<Double, Double, Date> pVal = ptFilt.get(pt);
+                    double speedV = pVal.getLeft();
+                    double headingV = AngleUtils.nomalizeAngleDegrees360(pVal.getMiddle());
+                    Date dateV = pVal.getRight();
+                    
+                    gt = (Graphics2D) g2.create();
+                    gt.translate(pt.getX(), pt.getY());
+
+                    Color color = Color.BLACK;
+                    if (useColorMapForWind)
+                        color = colorMapWind.getColor(speedV / maxWind);
+                    if (dateV.before(dateColorLimit))
+                        color = ColorUtils.setTransparencyToColor(color, 128);
+                    gt.setColor(color);
+                    
+                    gt.rotate(Math.toRadians(headingV) - renderer.getRotation());
+                    
+                    double speedKnots = speedV * m_sToKnotConv;
+                    if (speedKnots >= 2) {
+                        gt.draw(windPoleKnots);
+                    }
+                    
+                    if (speedKnots >= 5 && speedKnots < 10) {
+                        gt.draw(wind5Knots2);
+                    }
+                    else if (speedKnots >= 10 && speedKnots < 15) {
+                        gt.draw(wind10Knots1);
+                    }
+                    else if (speedKnots >= 15 && speedKnots < 20) {
+                        gt.draw(wind10Knots1);
+                        gt.draw(wind5Knots2);
+                    }
+                    else if (speedKnots >= 20 && speedKnots < 25) {
+                        gt.draw(wind10Knots1);
+                        gt.draw(wind10Knots2);
+                    }
+                    else if (speedKnots >= 25 && speedKnots < 30) {
+                        gt.draw(wind10Knots1);
+                        gt.draw(wind10Knots2);
+                        gt.draw(wind5Knots3);
+                    }
+                    else if (speedKnots >= 30 && speedKnots < 35) {
+                        gt.draw(wind10Knots1);
+                        gt.draw(wind10Knots2);
+                        gt.draw(wind10Knots3);
+                    }
+                    else if (speedKnots >= 35 && speedKnots < 40) {
+                        gt.draw(wind10Knots1);
+                        gt.draw(wind10Knots2);
+                        gt.draw(wind10Knots3);
+                        gt.draw(wind5Knots4);
+                    }
+                    else if (speedKnots >= 40 && speedKnots < 45) {
+                        gt.draw(wind10Knots1);
+                        gt.draw(wind10Knots2);
+                        gt.draw(wind10Knots3);
+                        gt.draw(wind10Knots4);
+                    }
+                    else if (speedKnots >= 45 && speedKnots < 50) {
+                        gt.draw(wind10Knots1);
+                        gt.draw(wind10Knots2);
+                        gt.draw(wind10Knots3);
+                        gt.draw(wind10Knots4);
+                        gt.draw(wind5Knots5);
+                    }
+                    else if (speedKnots >= 50) {
+                        gt.draw(wind50Knots1);
+                        gt.fill(wind50Knots1);
+                    }
+                }
+                catch (Exception e) {
+                    NeptusLog.pub().trace(e);
+                }
+                
+                if (gt != null)
+                    gt.dispose();
+            });
+            System.out.println(String.format("stg 2 took %ss",
+                    DateTimeUtil.formatTime(System.currentTimeMillis() - stNanos)));
+            System.out.println(ptFilt.size() + " of " + dest.size());
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
     /**
      * @param renderer
      * @param g2
      * @param dateColorLimit
      * @param dateLimit
      */
-    private void paintWindInGraphics(StateRenderer2D renderer, Graphics2D g2, Date dateColorLimit, Date dateLimit) {
+    private void paintWindInGraphicsOld(StateRenderer2D renderer, Graphics2D g2, Date dateColorLimit, Date dateLimit) {
         LocationType loc = new LocationType();
         for (WindDataPoint dp : dataPointsWind.values().toArray(new WindDataPoint[0])) {
             if (dp.getDateUTC().before(dateLimit) && !ignoreDateLimitToLoad)
