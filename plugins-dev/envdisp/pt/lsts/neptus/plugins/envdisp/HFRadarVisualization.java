@@ -929,7 +929,7 @@ public class HFRadarVisualization extends ConsolePanel implements Renderer2DPain
     private void paintSSTInGraphics(StateRenderer2D renderer, Graphics2D g2, Date dateColorLimit, Date dateLimit) {
         try {
             List<SSTDataPoint> dest = new ArrayList<>(dataPointsSST.values());
-            long stNanos = System.currentTimeMillis();
+            long stMillis = System.currentTimeMillis();
             LongAccumulator visiblePts = new LongAccumulator((r, i) -> r += i, 0);
             Map<Point2D, Pair<Double, Date>> ptFilt = dest.parallelStream()
                     .collect(HashMap<Point2D, Pair<Double, Date>>::new, (res, dp) -> {
@@ -1001,9 +1001,9 @@ public class HFRadarVisualization extends ConsolePanel implements Renderer2DPain
                     });
             
             System.out.println(String.format("SST stg 1 took %ss :: %d of %d from %d (%f%%)",
-                    DateTimeUtil.formatTime(System.currentTimeMillis() - stNanos), ptFilt.size(), visiblePts.longValue(), dest.size(),
+                    MathMiscUtils.parseToEngineeringNotation((System.currentTimeMillis() - stMillis) / 1E3, 1), ptFilt.size(), visiblePts.longValue(), dest.size(),
                     (ptFilt.size() * 1. / visiblePts.longValue()) * 100));
-            stNanos = System.currentTimeMillis();
+            stMillis = System.currentTimeMillis();
             
             ptFilt.keySet().parallelStream().forEach(pt -> {
                 Graphics2D gt = null;
@@ -1034,7 +1034,7 @@ public class HFRadarVisualization extends ConsolePanel implements Renderer2DPain
                     gt.dispose();
             });
             System.out.println(String.format("SST stg 2 took %ss",
-                    DateTimeUtil.formatTime(System.currentTimeMillis() - stNanos)));
+                    MathMiscUtils.parseToEngineeringNotation((System.currentTimeMillis() - stMillis) / 1E3, 1)));
         }
         catch (Exception e) {
             e.printStackTrace();
@@ -1044,7 +1044,7 @@ public class HFRadarVisualization extends ConsolePanel implements Renderer2DPain
     private void paintWindInGraphics(StateRenderer2D renderer, Graphics2D g2, Date dateColorLimit, Date dateLimit) {
         try {
             List<WindDataPoint> dest = new ArrayList<>(dataPointsWind.values());
-            long stNanos = System.currentTimeMillis();
+            long stMillis = System.currentTimeMillis();
             LongAccumulator visiblePts = new LongAccumulator((r, i) -> r += i, 0);
             Map<Point2D, Triple<Double, Double, Date>> ptFilt = dest.parallelStream()
                     .collect(HashMap<Point2D, Triple<Double, Double, Date>>::new, (res, dp) -> {
@@ -1120,9 +1120,9 @@ public class HFRadarVisualization extends ConsolePanel implements Renderer2DPain
                     });
             
             System.out.println(String.format("Wind stg 1 took %ss :: %d of %d from %d (%f%%)",
-                    DateTimeUtil.formatTime(System.currentTimeMillis() - stNanos), ptFilt.size(), visiblePts.longValue(), dest.size(),
+                    MathMiscUtils.parseToEngineeringNotation((System.currentTimeMillis() - stMillis) / 1E3, 1), ptFilt.size(), visiblePts.longValue(), dest.size(),
                     (ptFilt.size() * 1. / visiblePts.longValue()) * 100));
-            stNanos = System.currentTimeMillis();
+            stMillis = System.currentTimeMillis();
             
             ptFilt.keySet().parallelStream().forEach(pt -> {
                 Graphics2D gt = null;
@@ -1205,7 +1205,7 @@ public class HFRadarVisualization extends ConsolePanel implements Renderer2DPain
                     gt.dispose();
             });
             System.out.println(String.format("Wind stg 2 took %ss",
-                    DateTimeUtil.formatTime(System.currentTimeMillis() - stNanos)));
+                    MathMiscUtils.parseToEngineeringNotation((System.currentTimeMillis() - stMillis) / 1E3, 1)));
         }
         catch (Exception e) {
             e.printStackTrace();
@@ -1221,7 +1221,7 @@ public class HFRadarVisualization extends ConsolePanel implements Renderer2DPain
     private void paintWavesInGraphics(StateRenderer2D renderer, Graphics2D g2, Date dateColorLimit, Date dateLimit) {
         try {
             List<WavesDataPoint> dest = new ArrayList<>(dataPointsWaves.values());
-            long stNanos = System.currentTimeMillis();
+            long stMillis = System.currentTimeMillis();
             LongAccumulator visiblePts = new LongAccumulator((r, i) -> r += i, 0);
             Map<Point2D, Pair<Triple<Double, Double, Double>, Date>> ptFilt = dest.parallelStream()
                     .collect(HashMap<Point2D, Pair<Triple<Double, Double, Double>, Date>>::new, (res, dp) -> {
@@ -1302,9 +1302,9 @@ public class HFRadarVisualization extends ConsolePanel implements Renderer2DPain
                     });
             
             System.out.println(String.format("Waves stg 1 took %ss :: %d of %d from %d (%f%%)",
-                    DateTimeUtil.formatTime(System.currentTimeMillis() - stNanos), ptFilt.size(), visiblePts.longValue(), dest.size(),
+                    MathMiscUtils.parseToEngineeringNotation((System.currentTimeMillis() - stMillis) / 1E3, 1), ptFilt.size(), visiblePts.longValue(), dest.size(),
                     (ptFilt.size() * 1. / visiblePts.longValue()) * 100));
-            stNanos = System.currentTimeMillis();
+            stMillis = System.currentTimeMillis();
             
             ptFilt.keySet().parallelStream().forEach(pt -> {
                 Graphics2D gt = null;
@@ -1343,13 +1343,12 @@ public class HFRadarVisualization extends ConsolePanel implements Renderer2DPain
                     gt.dispose();
             });
             System.out.println(String.format("Waves stg 2 took %ss",
-                    DateTimeUtil.formatTime(System.currentTimeMillis() - stNanos)));
+                    MathMiscUtils.parseToEngineeringNotation((System.currentTimeMillis() - stMillis) / 1E3, 1)));
             System.out.println(ptFilt.size() + " of " + dest.size());
         }
         catch (Exception e) {
             e.printStackTrace();
         }
-
     }
 
     /**
