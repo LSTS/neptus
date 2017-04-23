@@ -33,9 +33,13 @@
 package pt.lsts.neptus.plugins.envdisp;
 
 import java.awt.Color;
+import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.Graphics2D;
+import java.awt.geom.Point2D;
 import java.util.Date;
+
+import pt.lsts.neptus.renderer2d.StateRenderer2D;
 
 /**
  * @author pdias
@@ -44,6 +48,24 @@ import java.util.Date;
 class EnvDataPaintHelper {
 
     private EnvDataPaintHelper() {
+    }
+
+    /**
+     * @param sPos
+     * @param renderer
+     * @param offScreenBufferPixel The off screen buffer that might exist
+     * @return
+     */
+    static boolean isVisibleInRender(Point2D sPos, StateRenderer2D renderer, int offScreenBufferPixel) {
+        Dimension rendDim = renderer.getSize();
+        if (sPos.getX() < 0 - offScreenBufferPixel
+                || sPos.getY() < 0 - offScreenBufferPixel)
+            return false;
+        else if (sPos.getX() > rendDim.getWidth() + offScreenBufferPixel
+                || sPos.getY() > rendDim.getHeight() + offScreenBufferPixel)
+            return false;
+    
+        return true;
     }
 
     /**

@@ -789,7 +789,7 @@ public class EnvironmentalDataVisualization extends ConsolePanel implements Rend
                             
                             Point2D pt = renderer.getScreenPosition(loc);
                             
-                            if (!isVisibleInRender(pt, renderer))
+                            if (!EnvDataPaintHelper.isVisibleInRender(pt, renderer, offScreen.getOffScreenBufferPixel()))
                                 return;
                             
                             visiblePts.accumulate(1);
@@ -930,7 +930,7 @@ public class EnvironmentalDataVisualization extends ConsolePanel implements Rend
                             
                             Point2D pt = renderer.getScreenPosition(loc);
                             
-                            if (!isVisibleInRender(pt, renderer))
+                            if (!EnvDataPaintHelper.isVisibleInRender(pt, renderer, offScreen.getOffScreenBufferPixel()))
                                 return;
                             
                             visiblePts.accumulate(1);
@@ -1056,7 +1056,7 @@ public class EnvironmentalDataVisualization extends ConsolePanel implements Rend
                             
                             Point2D pt = renderer.getScreenPosition(loc);
                             
-                            if (!isVisibleInRender(pt, renderer))
+                            if (!EnvDataPaintHelper.isVisibleInRender(pt, renderer, offScreen.getOffScreenBufferPixel()))
                                 return;
                             
                             visiblePts.accumulate(1);
@@ -1195,7 +1195,7 @@ public class EnvironmentalDataVisualization extends ConsolePanel implements Rend
                             
                             Point2D pt = renderer.getScreenPosition(loc);
                             
-                            if (!isVisibleInRender(pt, renderer))
+                            if (!EnvDataPaintHelper.isVisibleInRender(pt, renderer, offScreen.getOffScreenBufferPixel()))
                                 return;
                             
                             visiblePts.accumulate(1);
@@ -1306,22 +1306,6 @@ public class EnvironmentalDataVisualization extends ConsolePanel implements Rend
         }
     }
 
-    /**
-     * @param sPos
-     * @param renderer
-     * @return
-     */
-    private boolean isVisibleInRender(Point2D sPos, StateRenderer2D renderer) {
-        Dimension rendDim = renderer.getSize();
-        if (sPos.getX() < 0 - offScreen.getOffScreenBufferPixel()
-                || sPos.getY() < 0 - offScreen.getOffScreenBufferPixel())
-            return false;
-        else if (sPos.getX() > rendDim.getWidth() + offScreen.getOffScreenBufferPixel()
-                || sPos.getY() > rendDim.getHeight() + offScreen.getOffScreenBufferPixel())
-            return false;
-
-        return true;
-    }
 
     // private HashMap<String, HFRadarDataPoint> processNoaaHFRadarTest() {
     // // InputStreamReader
