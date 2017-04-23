@@ -922,55 +922,6 @@ public class HFRadarVisualization extends ConsolePanel implements Renderer2DPain
      * @param dateLimit
      */
     private void paintSSTInGraphics(StateRenderer2D renderer, Graphics2D g2, Date dateColorLimit, Date dateLimit) {
-//        LocationType loc = new LocationType();
-//        // ColormapOverlay overlay = new ColormapOverlay("SST", 20, false, 0);
-//        for (SSTDataPoint dp : dataPointsSST.values().toArray(new SSTDataPoint[0])) {
-//            if (dp.getDateUTC().before(dateLimit) && !ignoreDateLimitToLoad)
-//                continue;
-//            
-//            double latV = dp.getLat();
-//            double lonV = dp.getLon();
-//            double sstV = dp.getSst();
-//            
-//            if (Double.isNaN(latV) || Double.isNaN(lonV) || Double.isNaN(sstV))
-//                continue;
-//            
-//            loc.setLatitudeDegs(latV);
-//            loc.setLongitudeDegs(lonV);
-//            
-//            Point2D pt = renderer.getScreenPosition(loc);
-//
-//            if (!isVisibleInRender(pt, renderer))
-//                continue;
-//            
-//            if (true)
-//                continue;
-//            
-//            Graphics2D gt = (Graphics2D) g2.create();
-//            gt.translate(pt.getX(), pt.getY());
-//            Color color = Color.WHITE;
-//            color = colorMapSST.getColor((dp.getSst() - minSST) / (maxSST - minSST));
-//            if (dp.getDateUTC().before(dateColorLimit))
-//                color = ColorUtils.setTransparencyToColor(color, 128);
-//            gt.setColor(color);
-//            gt.draw(circle);
-//            gt.fill(circle);
-//            
-//            if (showSSTLegend && renderer.getLevelOfDetail() >= showSSTLegendFromZoomLevel) {
-//                gt.setFont(font8Pt);
-//                gt.setColor(Color.WHITE);
-//                gt.drawString(MathMiscUtils.round(dp.getSst(), 1) + "\u00B0C", -15, 15);
-//            }
-//            
-////            overlay.addSample(loc.getNewAbsoluteLatLonDepth(), dp.getSst());
-//            
-//            gt.dispose();
-//        }
-
-//        Graphics2D gt = (Graphics2D) g2.create();
-//        overlay.paint(gt, renderer);
-//        gt.dispose();
-
         try {
             List<SSTDataPoint> dest = new ArrayList<>(dataPointsSST.values());
             Map<Point2D, SSTDataPoint> ptMap = Collections.synchronizedMap(new HashMap<Point2D, SSTDataPoint>(dest.size()));
@@ -1008,32 +959,48 @@ public class HFRadarVisualization extends ConsolePanel implements Renderer2DPain
                     (ptMap.size() * 1. / dest.size()) * 100));
             stNanos = System.currentTimeMillis();
             
-            Map<Point2D, Pair<Double, Date>> ptFilt = new HashMap<>(ptMap.size());
-            ptMap.keySet().stream().forEach(pt -> {
-                try {
-                    SSTDataPoint dp = ptMap.get(pt);
-                    double dpVal = dp.getSst();
-                    Date dpDate = new Date(dp.getDateUTC().getTime());
-                    double x = Math.round(pt.getX());
-                    double y = Math.round(pt.getY());
-                    pt.setLocation(x, y);
-                    if (!ptFilt.containsKey(pt)) {
-                        ptFilt.put(pt, new Pair<>(dpVal, dpDate));
-                    }
-                    else {
-                        Pair<Double, Date> pval = ptFilt.get(pt);
-                        double val = pval.first();
-                        val = (val + dpVal) / 2d;
-                        if (dpDate.after(pval.second()))
-                            ptFilt.put(pt, new Pair<>(val, dpDate));
-                        else
-                            ptFilt.put(pt, new Pair<>(val, pval.second()));
-                    }
-                }
-                catch (Exception e) {
-                    e.printStackTrace();
-                }
-            });
+            Map<Point2D, Pair<Double, Date>> ptFilt = ptMap.keySet().parallelStream()
+                    .collect(HashMap<Point2D, Pair<Double, Date>>::new, (res, pt) -> {
+                        SSTDataPoint dp = ptMap.get(pt);
+                        double dpVal = dp.getSst();
+                        Date dpDate = new Date(dp.getDateUTC().getTime());
+
+//                        int base = 100;
+                        double x = pt.getX();
+                        double y = pt.getY();
+//                        double x = MathMiscUtils.round(pt.getX(), 2);
+//                        double y = MathMiscUtils.round(pt.getY(), 2);
+//                        double x = Math.round(pt.getX() * base ) / base;//MathMiscUtils.round(pt.getX(), 2);
+//                        double y = Math.round(pt.getY() * base ) / base;//MathMiscUtils.round(pt.getY(), 2);
+                        x = x - x % 8;
+                        y = y - y % 8;
+                        pt.setLocation(x, y);
+                        
+                        if (!res.containsKey(pt)) {
+                            res.put(pt, new Pair<>(dpVal, dpDate));
+                        }
+                        else {
+                            Pair<Double, Date> pval = res.get(pt);
+                            double val = pval.first();
+                            val = (val + dpVal) / 2d;
+                            if (dpDate.after(pval.second()))
+                                res.put(pt, new Pair<>(val, dpDate));
+                            else
+                                res.put(pt, new Pair<>(val, pval.second()));
+                        }
+                    }, (res, resInt) -> {
+                        resInt.keySet().stream().forEach(k1 -> {
+                            Pair<Double, Date> sI = resInt.get(k1);
+                            if (res.containsKey(k1)) {
+                                Pair<Double, Date> s = res.get(k1);
+                                res.put(k1, new Pair<Double, Date>((s.first() + sI.first()) / 2.,
+                                        sI.second().after(s.second()) ? new Date(sI.second().getTime()) : s.second()));
+                            }
+                            else {
+                                res.put(k1, sI);
+                            }
+                        });
+                    });
             
             System.out.println(String.format("stg 1 took %ss :: %d of %d (%f%%)",
                     DateTimeUtil.formatTime(System.currentTimeMillis() - stNanos), ptFilt.size(), ptMap.size(),
@@ -1043,9 +1010,6 @@ public class HFRadarVisualization extends ConsolePanel implements Renderer2DPain
             ptFilt.keySet().parallelStream().forEach(pt -> {
                 Graphics2D gt = null;
                 try {
-//                    SSTDataPoint dp = ptMap.get(pt);
-//                    if (dp == null)
-//                        System.out.println(dp);
                     Pair<Double,Date> pVal = ptFilt.get(pt);
                     
                     gt = (Graphics2D) g2.create();
@@ -1459,7 +1423,51 @@ public class HFRadarVisualization extends ConsolePanel implements Renderer2DPain
         }
     }
     
+    @SuppressWarnings("unused")
     public static void main(String[] args) {
+        Map<Double, String> st = new HashMap<>();
+        st.put(1.0, "a");
+        st.put(2.1, "b");
+        st.put(1.3, "c");
+        st.put(1.6, "d");
+        st.put(1.9, "e");
+        st.put(0.9, "f");
+        st.put(0.4, "g");
+        st.put(3.9, "h");
+        st.put(3.5, "i");
+        Map<Double, String> result = st.keySet().parallelStream().collect(HashMap<Double, String>::new, (r, v) -> {
+            double v1 = Math.round(v);
+            String s = st.get(v);
+            for (Double d : r.keySet()) {
+                if (d == v1) {
+                    String str = r.get(v1);
+                    System.out.println("1 size=" + r.size() + "  v=" +  v + "  s=" + st.get(v) + "  resI=" + r);
+                    r.put(v1, str + s);
+                    return;
+                }
+            }
+            System.out.println("2 size=" + r.size() + "  v=" +  v + "  s=" + st.get(v) + "  resI=" + r);
+            r.put(v1, s);
+        }, (res, resInt) -> {
+            System.out.println("3 size=" + res.size() + "  res=" +  res + "  resI=" + resInt);
+            resInt.keySet().stream().forEach(k1 -> {
+                String sI = resInt.get(k1);
+                if (res.containsKey(k1)) {
+                    String s = res.get(k1);
+                    res.put(k1, s + sI);
+                }
+                else {
+                    res.put(k1, sI);
+                }
+            });
+        });
+        System.out.println(result);
+        
+        System.out.println(59 - 59 %4);
+        
+        if (true)
+            return;
+        
         String currentsFilePattern = "TOTL_TRAD_\\d{4}_\\d{2}_\\d{2}_\\d{4}\\.tuv";
         // String meteoFilePattern = "meteo_\\d{8}\\.nc";
         // String wavesFilePattern = "waves_[a-zA-Z]{1,2}_\\d{8}\\.nc";
