@@ -1344,7 +1344,6 @@ public class HFRadarVisualization extends ConsolePanel implements Renderer2DPain
             });
             System.out.println(String.format("Waves stg 2 took %ss",
                     MathMiscUtils.parseToEngineeringNotation((System.currentTimeMillis() - stMillis) / 1E3, 1)));
-            System.out.println(ptFilt.size() + " of " + dest.size());
         }
         catch (Exception e) {
             e.printStackTrace();
