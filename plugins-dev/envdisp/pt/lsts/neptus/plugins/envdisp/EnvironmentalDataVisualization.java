@@ -32,11 +32,9 @@
  */
 package pt.lsts.neptus.plugins.envdisp;
 
-import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.Graphics2D;
-import java.awt.geom.Point2D;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -52,14 +50,11 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.TimeZone;
-import java.util.concurrent.atomic.LongAccumulator;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.apache.commons.lang3.tuple.Triple;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
 import org.apache.http.client.methods.HttpGet;
@@ -70,7 +65,6 @@ import pt.lsts.neptus.colormap.ColorMapFactory;
 import pt.lsts.neptus.console.ConsoleLayer;
 import pt.lsts.neptus.console.ConsoleLayout;
 import pt.lsts.neptus.console.ConsolePanel;
-import pt.lsts.neptus.data.Pair;
 import pt.lsts.neptus.gui.editor.FolderPropertyEditor;
 import pt.lsts.neptus.plugins.ConfigurationListener;
 import pt.lsts.neptus.plugins.NeptusProperty;
@@ -82,11 +76,8 @@ import pt.lsts.neptus.renderer2d.OffScreenLayerImageControl;
 import pt.lsts.neptus.renderer2d.Renderer2DPainter;
 import pt.lsts.neptus.renderer2d.StateRenderer2D;
 import pt.lsts.neptus.types.coord.LocationType;
-import pt.lsts.neptus.util.AngleUtils;
-import pt.lsts.neptus.util.ColorUtils;
 import pt.lsts.neptus.util.DateTimeUtil;
 import pt.lsts.neptus.util.FileUtil;
-import pt.lsts.neptus.util.MathMiscUtils;
 import pt.lsts.neptus.util.UnitsUtil;
 import pt.lsts.neptus.util.http.client.HttpClientConnectionHelper;
 
@@ -103,8 +94,8 @@ public class EnvironmentalDataVisualization extends ConsolePanel implements Rend
     private static final String CATEGORY_DATA_UPDATE = "Data Update";
     private static final String CATEGORY_VISIBILITY = "Visibility";
 
-    private static final int OFFSET_REND_TXT_DATE_RANGES = 52;
-    private static final int OFFSET_REND_TXT_DATE_RANGES_DELTA = 15;
+    static final int OFFSET_REND_TXT_DATE_RANGES = 52;
+    static final int OFFSET_REND_TXT_DATE_RANGES_DELTA = 15;
 
     /*
      * Currents, wind, waves, SST 
@@ -740,570 +731,25 @@ public class EnvironmentalDataVisualization extends ConsolePanel implements Rend
             Date dateLimit = new Date(System.currentTimeMillis() - dateLimitHours * DateTimeUtil.HOUR);
             
             if (showCurrents)
-                paintHFRadarInGraphics(renderer, g2, dateColorLimit, dateLimit);
+                EnvDataPaintHelper.paintHFRadarInGraphics(renderer, g2, dateColorLimit, dateLimit, dataPointsCurrents,
+                        ignoreDateLimitToLoad, offScreen.getOffScreenBufferPixel(), colorMapCurrents, 0, maxCurrentCmS,
+                        showCurrentsLegend, showCurrentsLegendFromZoomLevel, font8Pt, showDataDebugLegend);
             if (showSST)
-                paintSSTInGraphics(renderer, g2, dateColorLimit, dateLimit);
+                EnvDataPaintHelper.paintSSTInGraphics(renderer, g2, dateColorLimit, dateLimit, dataPointsSST, ignoreDateLimitToLoad,
+                        offScreen.getOffScreenBufferPixel(), colorMapSST, minSST, maxSST, showSSTLegend,
+                        showSSTLegendFromZoomLevel, font8Pt, showDataDebugLegend);
             if (showWind)
-                paintWindInGraphics(renderer, g2, dateColorLimit, dateLimit);
+                EnvDataPaintHelper.paintWindInGraphics(renderer, g2, dateColorLimit, dateLimit, dataPointsWind, ignoreDateLimitToLoad,
+                        offScreen.getOffScreenBufferPixel(), useColorMapForWind, colorMapWind, 0, maxWind, font8Pt,
+                        showDataDebugLegend);
             if (showWaves)
-                paintWavesInGraphics(renderer, g2, dateColorLimit, dateLimit);
+                EnvDataPaintHelper.paintWavesInGraphics(renderer, g2, dateColorLimit, dateLimit, dataPointsWaves, ignoreDateLimitToLoad,
+                        offScreen.getOffScreenBufferPixel(), colorMapWaves, 0, maxWaves, showWavesLegend,
+                        showWavesLegendFromZoomLevel, font8Pt, showDataDebugLegend);
 
             g2.dispose();
         }            
         offScreen.paintPhaseEndFinishImageRecreateAndPaintImageCacheToRenderer(go, renderer);
-    }
-
-    /**
-     * @param renderer
-     * @param g2
-     * @param dateColorLimit
-     * @param dateLimit
-     */
-    private void paintHFRadarInGraphics(StateRenderer2D renderer, Graphics2D g2, Date dateColorLimit, Date dateLimit) {
-        try {
-            List<HFRadarDataPoint> dest = new ArrayList<>(dataPointsCurrents.values());
-            long stMillis = System.currentTimeMillis();
-            LongAccumulator visiblePts = new LongAccumulator((r, i) -> r += i, 0);
-            LongAccumulator toDatePts = new LongAccumulator((r, i) -> r = i > r ? i : r, 0);
-            LongAccumulator fromDatePts = new LongAccumulator((r, i) -> r = i < r ? i : r, Long.MAX_VALUE);
-            Map<Point2D, Pair<Pair<Double, Double>, Date>> ptFilt = dest.parallelStream()
-                    .collect(HashMap<Point2D, Pair<Pair<Double, Double>, Date>>::new, (res, dp) -> {
-                        try {
-                            if (!ignoreDateLimitToLoad && dp.getDateUTC().before(dateLimit))
-                                return;
-                            
-                            double latV = dp.getLat();
-                            double lonV = dp.getLon();
-                            double speedCmSV = dp.getSpeedCmS();
-                            double headingV = AngleUtils.nomalizeAngleDegrees360(dp.getHeadingDegrees());
-                            
-                            if (Double.isNaN(latV) || Double.isNaN(lonV) || Double.isNaN(speedCmSV)
-                                    || Double.isNaN(headingV))
-                                return;
-                            
-                            Date dateV = new Date(dp.getDateUTC().getTime());
-
-                            LocationType loc = new LocationType();
-                            loc.setLatitudeDegs(latV);
-                            loc.setLongitudeDegs(lonV);
-                            
-                            Point2D pt = renderer.getScreenPosition(loc);
-                            
-                            if (!EnvDataPaintHelper.isVisibleInRender(pt, renderer, offScreen.getOffScreenBufferPixel()))
-                                return;
-                            
-                            visiblePts.accumulate(1);
-                            
-                            toDatePts.accumulate(dateV.getTime());
-                            fromDatePts.accumulate(dateV.getTime());
-                            
-                            double x = pt.getX();
-                            double y = pt.getY();
-                            x = x - x % EnvDataShapesHelper.ARROW_RADIUS;
-                            y = y - y % EnvDataShapesHelper.ARROW_RADIUS;
-                            pt.setLocation(x, y);
-                            
-                            if (!res.containsKey(pt)) {
-                                res.put(pt, new Pair<Pair<Double, Double>, Date>(new Pair<Double, Double>(speedCmSV, headingV), dateV));
-                            }
-                            else {
-                                Pair<Pair<Double, Double>, Date> pval = res.get(pt);
-                                double val = pval.first().first();
-                                val = (val + speedCmSV) / 2d;
-                                double val1 = pval.first().second();
-                                val1 = (val1 + headingV) / 2d;
-                                if (dateV.after(pval.second()))
-                                    res.put(pt, new Pair<Pair<Double, Double>, Date>(new Pair<Double, Double>(val, val1), dateV));
-                                else
-                                    res.put(pt, new Pair<Pair<Double, Double>, Date>(new Pair<Double, Double>(val, val1), pval.second()));
-                            }
-                        }
-                        catch (Exception e) {
-                            NeptusLog.pub().debug(e);
-                        }
-                    }, (res, resInt) -> {
-                        resInt.keySet().stream().forEach(k1 -> {
-                            try {
-                                Pair<Pair<Double, Double>, Date> sI = resInt.get(k1);
-                                if (res.containsKey(k1)) {
-                                    Pair<Pair<Double, Double>, Date> s = res.get(k1);
-                                    double val = (s.first().first() + sI.first().first()) / 2d;
-                                    double val1 = (s.first().second() + sI.first().second()) / 2d;
-                                    Date valDate = sI.second().after(s.second()) ? new Date(sI.second().getTime())
-                                            : s.second();
-                                    res.put(k1, new Pair<Pair<Double, Double>, Date>(new Pair<Double, Double>(val, val1), valDate));
-                                }
-                                else {
-                                    res.put(k1, sI);
-                                }
-                            }
-                            catch (Exception e) {
-                                NeptusLog.pub().debug(e);
-                            }
-                        });
-                    });
-            
-            debugOut(String.format("Currents stg 1 took %ss :: %d of %d from %d (%f%%)",
-                    MathMiscUtils.parseToEngineeringNotation((System.currentTimeMillis() - stMillis) / 1E3, 1), ptFilt.size(), visiblePts.longValue(), dest.size(),
-                    (ptFilt.size() * 1. / visiblePts.longValue()) * 100));
-            stMillis = System.currentTimeMillis();
-            
-            ptFilt.keySet().parallelStream().forEach(pt -> {
-                Graphics2D gt = null;
-                try {
-                    Pair<Pair<Double, Double>, Date> pVal = ptFilt.get(pt);
-                    
-                    double speedCmSV = pVal.first().first();
-                    double headingV = pVal.first().second();
-                    Date dateV = pVal.second();
-                    
-                    gt = (Graphics2D) g2.create();
-                    gt.translate(pt.getX(), pt.getY());
-
-                    Color color = Color.WHITE;
-                    color = colorMapCurrents.getColor(speedCmSV / maxCurrentCmS);
-                    if (dateV.before(dateColorLimit))
-                        color = ColorUtils.setTransparencyToColor(color, 128);
-                    gt.setColor(color);
-                    double rot = Math.toRadians(-headingV + 90) - renderer.getRotation();
-                    gt.rotate(rot);
-                    gt.fill(EnvDataShapesHelper.arrow);
-                    gt.rotate(-rot);
-                    
-                    if (showCurrentsLegend && renderer.getLevelOfDetail() >= showCurrentsLegendFromZoomLevel) {
-                        gt.setFont(font8Pt);
-                        gt.setColor(Color.WHITE);
-                        gt.drawString(MathMiscUtils.round(speedCmSV, 1) + "cm/s", 10, 2);
-                    }
-                }
-                catch (Exception e) {
-                    NeptusLog.pub().trace(e);
-                }
-                
-                if (gt != null)
-                    gt.dispose();
-            });
-            debugOut(String.format("Currents stg 2 took %ss",
-                    MathMiscUtils.parseToEngineeringNotation((System.currentTimeMillis() - stMillis) / 1E3, 1)));
-            
-            int offset = OFFSET_REND_TXT_DATE_RANGES + OFFSET_REND_TXT_DATE_RANGES_DELTA * 0;
-            String typeName = "Currents";
-            EnvDataPaintHelper.paintDatesRange(g2, toDatePts.longValue(), fromDatePts.longValue(), offset, typeName, showDataDebugLegend,
-                    font8Pt);
-        }
-        catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-
-    /**
-     * @param renderer
-     * @param g2
-     * @param dateColorLimit
-     * @param dateLimit
-     */
-    private void paintSSTInGraphics(StateRenderer2D renderer, Graphics2D g2, Date dateColorLimit, Date dateLimit) {
-        try {
-            List<SSTDataPoint> dest = new ArrayList<>(dataPointsSST.values());
-            long stMillis = System.currentTimeMillis();
-            LongAccumulator visiblePts = new LongAccumulator((r, i) -> r += i, 0);
-            LongAccumulator toDatePts = new LongAccumulator((r, i) -> r = i > r ? i : r, 0);
-            LongAccumulator fromDatePts = new LongAccumulator((r, i) -> r = i < r ? i : r, Long.MAX_VALUE);
-            Map<Point2D, Pair<Double, Date>> ptFilt = dest.parallelStream()
-                    .collect(HashMap<Point2D, Pair<Double, Date>>::new, (res, dp) -> {
-                        try {
-                            if (!ignoreDateLimitToLoad && dp.getDateUTC().before(dateLimit))
-                                return;
-                            
-                            double latV = dp.getLat();
-                            double lonV = dp.getLon();
-                            double sstV = dp.getSst();
-                            
-                            if (Double.isNaN(latV) || Double.isNaN(lonV) || Double.isNaN(sstV))
-                                return;
-                            
-                            Date dateV = new Date(dp.getDateUTC().getTime());
-
-                            LocationType loc = new LocationType();
-                            loc.setLatitudeDegs(latV);
-                            loc.setLongitudeDegs(lonV);
-                            
-                            Point2D pt = renderer.getScreenPosition(loc);
-                            
-                            if (!EnvDataPaintHelper.isVisibleInRender(pt, renderer, offScreen.getOffScreenBufferPixel()))
-                                return;
-                            
-                            visiblePts.accumulate(1);
-                            
-                            toDatePts.accumulate(dateV.getTime());
-                            fromDatePts.accumulate(dateV.getTime());
-                            
-                            double x = pt.getX();
-                            double y = pt.getY();
-                            x = x - x % EnvDataShapesHelper.CIRCLE_RADIUS;
-                            y = y - y % EnvDataShapesHelper.CIRCLE_RADIUS;
-                            pt.setLocation(x, y);
-                            
-                            if (!res.containsKey(pt)) {
-                                res.put(pt, new Pair<>(sstV, dateV));
-                            }
-                            else {
-                                Pair<Double, Date> pval = res.get(pt);
-                                double val = pval.first();
-                                val = (val + sstV) / 2d;
-                                if (dateV.after(pval.second()))
-                                    res.put(pt, new Pair<>(val, dateV));
-                                else
-                                    res.put(pt, new Pair<>(val, pval.second()));
-                            }
-                        }
-                        catch (Exception e) {
-                            NeptusLog.pub().debug(e);
-                        }
-                    }, (res, resInt) -> {
-                        resInt.keySet().stream().forEach(k1 -> {
-                            try {
-                                Pair<Double, Date> sI = resInt.get(k1);
-                                if (res.containsKey(k1)) {
-                                    Pair<Double, Date> s = res.get(k1);
-                                    double val = (s.first() + sI.first()) / 2d;
-                                    Date valDate = sI.second().after(s.second()) ? new Date(sI.second().getTime())
-                                            : s.second();
-                                    res.put(k1, new Pair<Double, Date>(val, valDate));
-                                }
-                                else {
-                                    res.put(k1, sI);
-                                }
-                            }
-                            catch (Exception e) {
-                                NeptusLog.pub().debug(e);
-                            }
-                        });
-                    });
-            
-            debugOut(String.format("SST stg 1 took %ss :: %d of %d from %d (%f%%)",
-                    MathMiscUtils.parseToEngineeringNotation((System.currentTimeMillis() - stMillis) / 1E3, 1), ptFilt.size(), visiblePts.longValue(), dest.size(),
-                    (ptFilt.size() * 1. / visiblePts.longValue()) * 100));
-            stMillis = System.currentTimeMillis();
-            
-            ptFilt.keySet().parallelStream().forEach(pt -> {
-                Graphics2D gt = null;
-                try {
-                    Pair<Double,Date> pVal = ptFilt.get(pt);
-                    
-                    gt = (Graphics2D) g2.create();
-                    gt.translate(pt.getX(), pt.getY());
-                    Color color = Color.WHITE;
-                    color = colorMapSST.getColor((pVal.first() - minSST) / (maxSST - minSST));
-                    if (pVal.second().before(dateColorLimit)) //if (dp.getDateUTC().before(dateColorLimit))
-                        color = ColorUtils.setTransparencyToColor(color, 128);
-                    gt.setColor(color);
-                    gt.draw(EnvDataShapesHelper.circle);
-                    gt.fill(EnvDataShapesHelper.circle);
-                    
-                    if (showSSTLegend && renderer.getLevelOfDetail() >= showSSTLegendFromZoomLevel) {
-                        gt.setFont(font8Pt);
-                        gt.setColor(Color.WHITE);
-                        gt.drawString(MathMiscUtils.round(pVal.first(), 1) + "\u00B0C", -15, 15);
-                    }
-                }
-                catch (Exception e) {
-                    NeptusLog.pub().trace(e);
-                }
-                
-                if (gt != null)
-                    gt.dispose();
-            });
-            debugOut(String.format("SST stg 2 took %ss",
-                    MathMiscUtils.parseToEngineeringNotation((System.currentTimeMillis() - stMillis) / 1E3, 1)));
-            
-            int offset = OFFSET_REND_TXT_DATE_RANGES + OFFSET_REND_TXT_DATE_RANGES_DELTA * 1;
-            String typeName = "SST";
-            EnvDataPaintHelper.paintDatesRange(g2, toDatePts.longValue(), fromDatePts.longValue(), offset, typeName, showDataDebugLegend,
-                    font8Pt);
-        }
-        catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-
-    private void paintWindInGraphics(StateRenderer2D renderer, Graphics2D g2, Date dateColorLimit, Date dateLimit) {
-        try {
-            List<WindDataPoint> dest = new ArrayList<>(dataPointsWind.values());
-            long stMillis = System.currentTimeMillis();
-            LongAccumulator visiblePts = new LongAccumulator((r, i) -> r += i, 0);
-            LongAccumulator toDatePts = new LongAccumulator((r, i) -> r = i > r ? i : r, 0);
-            LongAccumulator fromDatePts = new LongAccumulator((r, i) -> r = i < r ? i : r, Long.MAX_VALUE);
-            Map<Point2D, Triple<Double, Double, Date>> ptFilt = dest.parallelStream()
-                    .collect(HashMap<Point2D, Triple<Double, Double, Date>>::new, (res, dp) -> {
-                        try {
-                            if (!ignoreDateLimitToLoad && dp.getDateUTC().before(dateLimit))
-                                return;
-                            
-                            double latV = dp.getLat();
-                            double lonV = dp.getLon();
-                            double speedV = dp.getSpeed();
-                            double headingV = AngleUtils.nomalizeAngleDegrees360(dp.getHeading());
-                            
-                            if (Double.isNaN(latV) || Double.isNaN(lonV) || Double.isNaN(speedV)|| Double.isNaN(headingV))
-                                return;
-                            
-                            Date dateV = new Date(dp.getDateUTC().getTime());
-
-                            LocationType loc = new LocationType();
-                            loc.setLatitudeDegs(latV);
-                            loc.setLongitudeDegs(lonV);
-                            
-                            Point2D pt = renderer.getScreenPosition(loc);
-                            
-                            if (!EnvDataPaintHelper.isVisibleInRender(pt, renderer, offScreen.getOffScreenBufferPixel()))
-                                return;
-                            
-                            visiblePts.accumulate(1);
-                            
-                            toDatePts.accumulate(dateV.getTime());
-                            fromDatePts.accumulate(dateV.getTime());
-                            
-                            double x = pt.getX();
-                            double y = pt.getY();
-                            x = x - x % EnvDataShapesHelper.WIND_BARB_RADIUS;
-                            y = y - y % EnvDataShapesHelper.WIND_BARB_RADIUS;
-                            pt.setLocation(x, y);
-                            
-                            if (!res.containsKey(pt)) {
-                                res.put(pt, Triple.of(speedV, headingV, dateV));
-                            }
-                            else {
-                                Triple<Double, Double, Date> pval = res.get(pt);
-                                double val = pval.getLeft();
-                                val = (val + speedV) / 2d;
-                                double val1 = pval.getMiddle();
-                                val1 = (val1 + headingV) / 2d;
-                                if (dateV.after(pval.getRight()))
-                                    res.put(pt, Triple.of(val, val1, dateV));
-                                else
-                                    res.put(pt, Triple.of(val, val1, pval.getRight()));
-                            }
-                        }
-                        catch (Exception e) {
-                            NeptusLog.pub().debug(e);
-                        }
-                    }, (res, resInt) -> {
-                        resInt.keySet().stream().forEach(k1 -> {
-                            try {
-                                Triple<Double, Double, Date> sI = resInt.get(k1);
-                                if (res.containsKey(k1)) {
-                                    Triple<Double, Double, Date> s = res.get(k1);
-                                    double val = (s.getLeft() + sI.getLeft()) / 2d;
-                                    double val1 = (s.getMiddle() + sI.getMiddle()) / 2d;
-                                    Date valDate = sI.getRight().after(s.getRight()) ? new Date(sI.getRight().getTime())
-                                            : s.getRight();
-                                    res.put(k1, Triple.of(val, val1, valDate));
-                                }
-                                else {
-                                    res.put(k1, sI);
-                                }
-                            }
-                            catch (Exception e) {
-                                NeptusLog.pub().debug(e);
-                            }
-                        });
-                    });
-            
-            debugOut(String.format("Wind stg 1 took %ss :: %d of %d from %d (%f%%)",
-                    MathMiscUtils.parseToEngineeringNotation((System.currentTimeMillis() - stMillis) / 1E3, 1), ptFilt.size(), visiblePts.longValue(), dest.size(),
-                    (ptFilt.size() * 1. / visiblePts.longValue()) * 100));
-            stMillis = System.currentTimeMillis();
-            
-            ptFilt.keySet().parallelStream().forEach(pt -> {
-                Graphics2D gt = null;
-                try {
-                    Triple<Double, Double, Date> pVal = ptFilt.get(pt);
-                    double speedV = pVal.getLeft();
-                    double headingV = AngleUtils.nomalizeAngleDegrees360(pVal.getMiddle());
-                    Date dateV = pVal.getRight();
-                    
-                    gt = (Graphics2D) g2.create();
-                    gt.translate(pt.getX(), pt.getY());
-
-                    Color color = Color.BLACK;
-                    if (useColorMapForWind)
-                        color = colorMapWind.getColor(speedV / maxWind);
-                    if (dateV.before(dateColorLimit))
-                        color = ColorUtils.setTransparencyToColor(color, 128);
-                    gt.setColor(color);
-                    
-                    gt.rotate(Math.toRadians(headingV) - renderer.getRotation());
-                    
-                    double speedKnots = speedV * UnitsUtil.MS_TO_KNOT;
-                    EnvDataShapesHelper.paintWindBarb(gt, speedKnots);
-                }
-                catch (Exception e) {
-                    NeptusLog.pub().trace(e);
-                }
-                
-                if (gt != null)
-                    gt.dispose();
-            });
-            debugOut(String.format("Wind stg 2 took %ss",
-                    MathMiscUtils.parseToEngineeringNotation((System.currentTimeMillis() - stMillis) / 1E3, 1)));
-            
-            int offset = OFFSET_REND_TXT_DATE_RANGES + OFFSET_REND_TXT_DATE_RANGES_DELTA * 2;
-            String typeName = "Wind";
-            EnvDataPaintHelper.paintDatesRange(g2, toDatePts.longValue(), fromDatePts.longValue(), offset, typeName, showDataDebugLegend,
-                    font8Pt);
-        }
-        catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-
-    /**
-     * @param renderer
-     * @param g2
-     * @param dateColorLimit
-     * @param dateLimit
-     */
-    private void paintWavesInGraphics(StateRenderer2D renderer, Graphics2D g2, Date dateColorLimit, Date dateLimit) {
-        try {
-            List<WavesDataPoint> dest = new ArrayList<>(dataPointsWaves.values());
-            long stMillis = System.currentTimeMillis();
-            LongAccumulator visiblePts = new LongAccumulator((r, i) -> r += i, 0);
-            LongAccumulator toDatePts = new LongAccumulator((r, i) -> r = i > r ? i : r, 0);
-            LongAccumulator fromDatePts = new LongAccumulator((r, i) -> r = i < r ? i : r, Long.MAX_VALUE);
-            Map<Point2D, Pair<Triple<Double, Double, Double>, Date>> ptFilt = dest.parallelStream()
-                    .collect(HashMap<Point2D, Pair<Triple<Double, Double, Double>, Date>>::new, (res, dp) -> {
-                        try {
-                            if (!ignoreDateLimitToLoad && dp.getDateUTC().before(dateLimit))
-                                return;
-                            
-                            double latV = dp.getLat();
-                            double lonV = dp.getLon();
-                            double sigHeightV = dp.getSignificantHeight();
-                            double headingV = AngleUtils.nomalizeAngleDegrees360(dp.getPeakDirection());
-                            double periodV = dp.getPeakPeriod();
-                            
-                            if (Double.isNaN(latV) || Double.isNaN(lonV) || Double.isNaN(sigHeightV) || Double.isNaN(headingV)
-                                    || Double.isNaN(periodV))
-                                return;
-                            
-                            Date dateV = new Date(dp.getDateUTC().getTime());
-
-                            LocationType loc = new LocationType();
-                            loc.setLatitudeDegs(latV);
-                            loc.setLongitudeDegs(lonV);
-                            
-                            Point2D pt = renderer.getScreenPosition(loc);
-                            
-                            if (!EnvDataPaintHelper.isVisibleInRender(pt, renderer, offScreen.getOffScreenBufferPixel()))
-                                return;
-                            
-                            visiblePts.accumulate(1);
-                            
-                            toDatePts.accumulate(dateV.getTime());
-                            fromDatePts.accumulate(dateV.getTime());
-                            
-                            double x = pt.getX();
-                            double y = pt.getY();
-                            x = x - x % EnvDataShapesHelper.ARROW_RADIUS;
-                            y = y - y % EnvDataShapesHelper.ARROW_RADIUS;
-                            pt.setLocation(x, y);
-                            
-                            if (!res.containsKey(pt)) {
-                                res.put(pt, new Pair<Triple<Double, Double, Double>, Date>(Triple.of(sigHeightV, headingV, periodV), dateV));
-                            }
-                            else {
-                                Pair<Triple<Double, Double, Double>, Date> pval = res.get(pt);
-                                double val = pval.first().getLeft();
-                                val = (val + sigHeightV) / 2d;
-                                double val1 = pval.first().getMiddle();
-                                val1 = (val1 + headingV) / 2d;
-                                double val2 = pval.first().getRight();
-                                val2 = (val2 + periodV) / 2d;
-                                if (dateV.after(pval.second()))
-                                    res.put(pt, new Pair<Triple<Double, Double, Double>, Date>(Triple.of(val, val1, val2), dateV));
-                                else
-                                    res.put(pt, new Pair<Triple<Double, Double, Double>, Date>(Triple.of(val, val1, val2), pval.second()));
-                            }
-                        }
-                        catch (Exception e) {
-                            NeptusLog.pub().debug(e);
-                        }
-                    }, (res, resInt) -> {
-                        resInt.keySet().stream().forEach(k1 -> {
-                            try {
-                                Pair<Triple<Double,Double,Double>,Date> sI = resInt.get(k1);
-                                if (res.containsKey(k1)) {
-                                    Pair<Triple<Double, Double, Double>, Date> s = res.get(k1);
-                                    double val = (s.first().getLeft() + sI.first().getLeft()) / 2d;
-                                    double val1 = (s.first().getMiddle() + sI.first().getMiddle()) / 2d;
-                                    double val2 = (s.first().getRight() + sI.first().getRight()) / 2d;
-                                    Date valDate = sI.second().after(s.second()) ? new Date(sI.second().getTime())
-                                            : s.second();
-                                    res.put(k1, new Pair<Triple<Double, Double, Double>, Date>(Triple.of(val, val1, val2), valDate));
-                                }
-                                else {
-                                    res.put(k1, sI);
-                                }
-                            }
-                            catch (Exception e) {
-                                NeptusLog.pub().debug(e);
-                            }
-                        });
-                    });
-            
-            debugOut(String.format("Waves stg 1 took %ss :: %d of %d from %d (%f%%)",
-                    MathMiscUtils.parseToEngineeringNotation((System.currentTimeMillis() - stMillis) / 1E3, 1), ptFilt.size(), visiblePts.longValue(), dest.size(),
-                    (ptFilt.size() * 1. / visiblePts.longValue()) * 100));
-            stMillis = System.currentTimeMillis();
-            
-            ptFilt.keySet().parallelStream().forEach(pt -> {
-                Graphics2D gt = null;
-                try {
-                    Pair<Triple<Double, Double, Double>, Date> pVal = ptFilt.get(pt);
-                    double sigHeightV = pVal.first().getLeft();
-                    double headingV = AngleUtils.nomalizeAngleDegrees360(pVal.first().getMiddle());
-                    @SuppressWarnings("unused")
-                    double periodV = pVal.first().getRight();
-                    Date dateV = pVal.second();
-                    
-                    gt = (Graphics2D) g2.create();
-                    gt.translate(pt.getX(), pt.getY());
-
-                    Color color = Color.WHITE;
-                    color = colorMapWaves.getColor(sigHeightV / maxWaves);
-                    if (dateV.before(dateColorLimit))
-                        color = ColorUtils.setTransparencyToColor(color, 128);
-                    gt.setColor(color);
-                    double rot = Math.toRadians(headingV) - renderer.getRotation();
-                    gt.rotate(rot);
-                    gt.fill(EnvDataShapesHelper.arrow);
-                    gt.rotate(-rot);
-                    
-                    if (showWavesLegend && renderer.getLevelOfDetail() >= showWavesLegendFromZoomLevel) {
-                        gt.setFont(font8Pt);
-                        gt.setColor(Color.WHITE);
-                        gt.drawString(MathMiscUtils.round(sigHeightV, 1) + "m", 10, -8);
-                    }
-                }
-                catch (Exception e) {
-                    NeptusLog.pub().trace(e);
-                }
-                
-                if (gt != null)
-                    gt.dispose();
-            });
-            debugOut(String.format("Waves stg 2 took %ss",
-                    MathMiscUtils.parseToEngineeringNotation((System.currentTimeMillis() - stMillis) / 1E3, 1)));
-            
-            int offset = OFFSET_REND_TXT_DATE_RANGES + OFFSET_REND_TXT_DATE_RANGES_DELTA * 3;
-            String typeName = "Waves";
-            EnvDataPaintHelper.paintDatesRange(g2, toDatePts.longValue(), fromDatePts.longValue(), offset, typeName, showDataDebugLegend,
-                    font8Pt);
-        }
-        catch (Exception e) {
-            e.printStackTrace();
-        }
     }
 
 
