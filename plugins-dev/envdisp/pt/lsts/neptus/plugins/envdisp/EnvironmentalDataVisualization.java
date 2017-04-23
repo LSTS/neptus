@@ -750,6 +750,10 @@ public class EnvironmentalDataVisualization extends ConsolePanel implements Rend
             g2.dispose();
         }            
         offScreen.paintPhaseEndFinishImageRecreateAndPaintImageCacheToRenderer(go, renderer);
+        
+//        Graphics2D gl = (Graphics2D) go.create();
+//        EnvDataPaintHelper.paintColorBar(gl, renderer, colorMapSST, "SST", "\u00B0C", minSST, maxSST);
+//        gl.dispose();
     }
 
 
