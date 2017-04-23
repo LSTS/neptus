@@ -888,7 +888,8 @@ public class EnvironmentalDataVisualization extends ConsolePanel implements Rend
             
             int offset = OFFSET_REND_TXT_DATE_RANGES + OFFSET_REND_TXT_DATE_RANGES_DELTA * 0;
             String typeName = "Currents";
-            paintDatesRange(g2, toDatePts.longValue(), fromDatePts.longValue(), offset, typeName);
+            EnvDataPaintHelper.paintDatesRange(g2, toDatePts.longValue(), fromDatePts.longValue(), offset, typeName, showDataDebugLegend,
+                    font8Pt);
         }
         catch (Exception e) {
             e.printStackTrace();
@@ -1018,7 +1019,8 @@ public class EnvironmentalDataVisualization extends ConsolePanel implements Rend
             
             int offset = OFFSET_REND_TXT_DATE_RANGES + OFFSET_REND_TXT_DATE_RANGES_DELTA * 1;
             String typeName = "SST";
-            paintDatesRange(g2, toDatePts.longValue(), fromDatePts.longValue(), offset, typeName);
+            EnvDataPaintHelper.paintDatesRange(g2, toDatePts.longValue(), fromDatePts.longValue(), offset, typeName, showDataDebugLegend,
+                    font8Pt);
         }
         catch (Exception e) {
             e.printStackTrace();
@@ -1148,7 +1150,8 @@ public class EnvironmentalDataVisualization extends ConsolePanel implements Rend
             
             int offset = OFFSET_REND_TXT_DATE_RANGES + OFFSET_REND_TXT_DATE_RANGES_DELTA * 2;
             String typeName = "Wind";
-            paintDatesRange(g2, toDatePts.longValue(), fromDatePts.longValue(), offset, typeName);
+            EnvDataPaintHelper.paintDatesRange(g2, toDatePts.longValue(), fromDatePts.longValue(), offset, typeName, showDataDebugLegend,
+                    font8Pt);
         }
         catch (Exception e) {
             e.printStackTrace();
@@ -1295,32 +1298,11 @@ public class EnvironmentalDataVisualization extends ConsolePanel implements Rend
             
             int offset = OFFSET_REND_TXT_DATE_RANGES + OFFSET_REND_TXT_DATE_RANGES_DELTA * 3;
             String typeName = "Waves";
-            paintDatesRange(g2, toDatePts.longValue(), fromDatePts.longValue(), offset, typeName);
+            EnvDataPaintHelper.paintDatesRange(g2, toDatePts.longValue(), fromDatePts.longValue(), offset, typeName, showDataDebugLegend,
+                    font8Pt);
         }
         catch (Exception e) {
             e.printStackTrace();
-        }
-    }
-
-    /**
-     * @param g
-     * @param toDate
-     * @param fromDate
-     * @param rendererOffset
-     * @param typeName
-     */
-    private void paintDatesRange(Graphics2D g, long toDate, long fromDate, int rendererOffset, String typeName) {
-        if (showDataDebugLegend) {
-            String fromDateStr = fromDate < Long.MAX_VALUE ? new Date(fromDate).toString() : "-";
-            String toDateStr = toDate > 0 ? new Date(toDate).toString() : "-";
-            String txtMsg = String.format("%s data from '%s' till '%s'", typeName, fromDateStr, toDateStr);
-            Graphics2D gt = (Graphics2D) g.create();
-            gt.setFont(font8Pt);
-            gt.setColor(Color.BLACK);
-            gt.drawString(txtMsg, 10 + 1, rendererOffset + 1);
-            gt.setColor(Color.WHITE);
-            gt.drawString(txtMsg, 10, rendererOffset);
-            gt.dispose();
         }
     }
 
