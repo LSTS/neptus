@@ -46,7 +46,9 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.PrintWriter;
 import java.io.Reader;
+import java.io.StringWriter;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -602,7 +604,7 @@ public class HFRadarVisualization extends ConsolePanel implements Renderer2DPain
                 mergeDataPointsWorker(dp, dpo);
             }
         }
-        System.out.println(toMergeData.size() + " vs " + dataPointsSST.size());
+        debugOut(toMergeData.size() + " vs " + dataPointsSST.size());
     }
 
     public void mergeWindDataToInternalDataList(HashMap<String, WindDataPoint> toMergeData) {
@@ -753,7 +755,7 @@ public class HFRadarVisualization extends ConsolePanel implements Renderer2DPain
             uri = getNoaaURI(tillDate, nowDate, lTop, lBot);
             //uri = uri.replace("hfradar.ndbc.noaa.gov", "whale.fe.up.pt");
             
-            System.out.println(uri);
+            debugOut(uri);
             // http://hfradar.ndbc.noaa.gov/tabdownload.php?from=2013-06-23%2007:56:00&to=2013-06-23%2019:56:00&lat=37.84130100297351&lng=-122.53766785260639&lat2=37.84112572375683&lng2=-122.53734062310657
 
             
@@ -933,7 +935,7 @@ public class HFRadarVisualization extends ConsolePanel implements Renderer2DPain
                         });
                     });
             
-            System.out.println(String.format("Currents stg 1 took %ss :: %d of %d from %d (%f%%)",
+            debugOut(String.format("Currents stg 1 took %ss :: %d of %d from %d (%f%%)",
                     MathMiscUtils.parseToEngineeringNotation((System.currentTimeMillis() - stMillis) / 1E3, 1), ptFilt.size(), visiblePts.longValue(), dest.size(),
                     (ptFilt.size() * 1. / visiblePts.longValue()) * 100));
             stMillis = System.currentTimeMillis();
@@ -973,7 +975,7 @@ public class HFRadarVisualization extends ConsolePanel implements Renderer2DPain
                 if (gt != null)
                     gt.dispose();
             });
-            System.out.println(String.format("Currents stg 2 took %ss",
+            debugOut(String.format("Currents stg 2 took %ss",
                     MathMiscUtils.parseToEngineeringNotation((System.currentTimeMillis() - stMillis) / 1E3, 1)));
             
             int offset = OFFSET_REND_TXT_DATE_RANGES + OFFSET_REND_TXT_DATE_RANGES_DELTA * 0;
@@ -1070,7 +1072,7 @@ public class HFRadarVisualization extends ConsolePanel implements Renderer2DPain
                         });
                     });
             
-            System.out.println(String.format("SST stg 1 took %ss :: %d of %d from %d (%f%%)",
+            debugOut(String.format("SST stg 1 took %ss :: %d of %d from %d (%f%%)",
                     MathMiscUtils.parseToEngineeringNotation((System.currentTimeMillis() - stMillis) / 1E3, 1), ptFilt.size(), visiblePts.longValue(), dest.size(),
                     (ptFilt.size() * 1. / visiblePts.longValue()) * 100));
             stMillis = System.currentTimeMillis();
@@ -1103,7 +1105,7 @@ public class HFRadarVisualization extends ConsolePanel implements Renderer2DPain
                 if (gt != null)
                     gt.dispose();
             });
-            System.out.println(String.format("SST stg 2 took %ss",
+            debugOut(String.format("SST stg 2 took %ss",
                     MathMiscUtils.parseToEngineeringNotation((System.currentTimeMillis() - stMillis) / 1E3, 1)));
             
             int offset = OFFSET_REND_TXT_DATE_RANGES + OFFSET_REND_TXT_DATE_RANGES_DELTA * 1;
@@ -1198,7 +1200,7 @@ public class HFRadarVisualization extends ConsolePanel implements Renderer2DPain
                         });
                     });
             
-            System.out.println(String.format("Wind stg 1 took %ss :: %d of %d from %d (%f%%)",
+            debugOut(String.format("Wind stg 1 took %ss :: %d of %d from %d (%f%%)",
                     MathMiscUtils.parseToEngineeringNotation((System.currentTimeMillis() - stMillis) / 1E3, 1), ptFilt.size(), visiblePts.longValue(), dest.size(),
                     (ptFilt.size() * 1. / visiblePts.longValue()) * 100));
             stMillis = System.currentTimeMillis();
@@ -1283,7 +1285,7 @@ public class HFRadarVisualization extends ConsolePanel implements Renderer2DPain
                 if (gt != null)
                     gt.dispose();
             });
-            System.out.println(String.format("Wind stg 2 took %ss",
+            debugOut(String.format("Wind stg 2 took %ss",
                     MathMiscUtils.parseToEngineeringNotation((System.currentTimeMillis() - stMillis) / 1E3, 1)));
             
             int offset = OFFSET_REND_TXT_DATE_RANGES + OFFSET_REND_TXT_DATE_RANGES_DELTA * 2;
@@ -1389,7 +1391,7 @@ public class HFRadarVisualization extends ConsolePanel implements Renderer2DPain
                         });
                     });
             
-            System.out.println(String.format("Waves stg 1 took %ss :: %d of %d from %d (%f%%)",
+            debugOut(String.format("Waves stg 1 took %ss :: %d of %d from %d (%f%%)",
                     MathMiscUtils.parseToEngineeringNotation((System.currentTimeMillis() - stMillis) / 1E3, 1), ptFilt.size(), visiblePts.longValue(), dest.size(),
                     (ptFilt.size() * 1. / visiblePts.longValue()) * 100));
             stMillis = System.currentTimeMillis();
@@ -1430,7 +1432,7 @@ public class HFRadarVisualization extends ConsolePanel implements Renderer2DPain
                 if (gt != null)
                     gt.dispose();
             });
-            System.out.println(String.format("Waves stg 2 took %ss",
+            debugOut(String.format("Waves stg 2 took %ss",
                     MathMiscUtils.parseToEngineeringNotation((System.currentTimeMillis() - stMillis) / 1E3, 1)));
             
             int offset = OFFSET_REND_TXT_DATE_RANGES + OFFSET_REND_TXT_DATE_RANGES_DELTA * 3;
@@ -1608,7 +1610,7 @@ public class HFRadarVisualization extends ConsolePanel implements Renderer2DPain
                         dpo.getHistoricalData().add(dp);
                     }
                     
-//                    System.out.println(dp);
+//                    debugOut(dp);
                 }
                 catch (Exception e) {
                     e.printStackTrace();
@@ -1638,6 +1640,25 @@ public class HFRadarVisualization extends ConsolePanel implements Renderer2DPain
         
         return hfdp;
     }
+
+    private void debugOut(Object message) {
+        if (showDataDebugLegend)
+            System.out.println(message);
+        else
+            NeptusLog.pub().debug(message);
+    }
+
+    @SuppressWarnings("unused")
+    private void debugOut(Object message, Throwable t) {
+        if (showDataDebugLegend) {
+            StringWriter sw = new StringWriter();
+            t.printStackTrace(new PrintWriter(sw));
+            System.out.println(message + "\n" + sw.toString());
+        }
+        else {
+            NeptusLog.pub().debug(message, t);
+        }
+    }
     
     @SuppressWarnings("unused")
     public static void main1(String[] args) {
@@ -1650,7 +1671,7 @@ public class HFRadarVisualization extends ConsolePanel implements Renderer2DPain
             reader = new BufferedReader(freader);
             String line = reader.readLine();
             for (int i = 0; line != null; i++) {
-//                System.out.println(line);
+//                debugOut(line);
                 String[] tokens = line.split("[\t ,]");
                 
                 try {
