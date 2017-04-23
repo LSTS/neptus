@@ -66,6 +66,7 @@ import pt.lsts.neptus.console.ConsoleLayer;
 import pt.lsts.neptus.console.ConsoleLayout;
 import pt.lsts.neptus.console.ConsolePanel;
 import pt.lsts.neptus.gui.editor.FolderPropertyEditor;
+import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.plugins.ConfigurationListener;
 import pt.lsts.neptus.plugins.NeptusProperty;
 import pt.lsts.neptus.plugins.NeptusProperty.LEVEL;
@@ -126,6 +127,19 @@ public class EnvironmentalDataVisualization extends ConsolePanel implements Rend
     public boolean hfradarUseMostRecentOrMean = true;
     @NeptusProperty(name = "Use color map for wind", userLevel = LEVEL.REGULAR, category=CATEGORY_VISIBILITY)
     public boolean useColorMapForWind = true;
+
+    @NeptusProperty(name = "Show currents colorbar", userLevel = LEVEL.REGULAR, category = CATEGORY_VISIBILITY,
+            description = "Show thr color scale bar. Only one will show.")
+    public boolean showCurrentsColorbar = false;
+    @NeptusProperty(name = "Show SST colorbar", userLevel = LEVEL.REGULAR, category = CATEGORY_VISIBILITY,
+            description = "Show thr color scale bar. Only one will show.")
+    public boolean showSSTColorbar = false;
+    @NeptusProperty(name = "Show wind colorbar", userLevel = LEVEL.REGULAR, category = CATEGORY_VISIBILITY,
+            description = "Show thr color scale bar. Only one will show.")
+    public boolean showWindColorbar = false;
+    @NeptusProperty(name = "Show waves colorbar", userLevel = LEVEL.REGULAR, category = CATEGORY_VISIBILITY,
+            description = "Show thr color scale bar. Only one will show.")
+    public boolean showWavesColorbar = false;
 
     @NeptusProperty(name = "Minutes between file updates", category=CATEGORY_DATA_UPDATE)
     public long updateFileDataMinutes = 5;
@@ -751,11 +765,50 @@ public class EnvironmentalDataVisualization extends ConsolePanel implements Rend
         }            
         offScreen.paintPhaseEndFinishImageRecreateAndPaintImageCacheToRenderer(go, renderer);
         
-//        Graphics2D gl = (Graphics2D) go.create();
-//        EnvDataPaintHelper.paintColorBar(gl, renderer, colorMapSST, "SST", "\u00B0C", minSST, maxSST);
-//        gl.dispose();
+        paintColorbars(go, renderer);
     }
 
+    /**
+     * @param go
+     * @param renderer
+     */
+    private void paintColorbars(Graphics2D go, StateRenderer2D renderer) {
+        int offset = 50;
+        int offsetDelta = 130;
+        int counter = 2;
+        if (showCurrentsColorbar && counter > 0) {
+            counter--;
+            Graphics2D gl = (Graphics2D) go.create();
+            gl.translate(0, offset);
+            EnvDataPaintHelper.paintColorBar(gl, renderer, colorMapCurrents, I18n.text("Currents"), "cm/s", 0, maxCurrentCmS);
+            gl.dispose();
+            offset += offsetDelta;
+        }
+        if (showSSTColorbar && counter > 0) {
+            counter--;
+            Graphics2D gl = (Graphics2D) go.create();
+            gl.translate(0, offset);
+            EnvDataPaintHelper.paintColorBar(gl, renderer, colorMapSST, I18n.text("SST"), "\u00B0C", minSST, maxSST);
+            gl.dispose();
+            offset += offsetDelta;
+        }
+        if (showWindColorbar && counter > 0) {
+            counter--;
+            Graphics2D gl = (Graphics2D) go.create();
+            gl.translate(0, offset);
+            EnvDataPaintHelper.paintColorBar(gl, renderer, colorMapWind, I18n.text("Wind"), "kn", 0, maxWind);
+            gl.dispose();
+            offset += offsetDelta;
+        }
+        if (showWavesColorbar && counter > 0) {
+            counter--;
+            Graphics2D gl = (Graphics2D) go.create();
+            gl.translate(0, offset);
+            EnvDataPaintHelper.paintColorBar(gl, renderer, colorMapWaves, I18n.text("Waves"), "m", 0, maxWaves);
+            gl.dispose();
+            offset += offsetDelta;
+        }
+    }
 
     // private HashMap<String, HFRadarDataPoint> processNoaaHFRadarTest() {
     // // InputStreamReader
