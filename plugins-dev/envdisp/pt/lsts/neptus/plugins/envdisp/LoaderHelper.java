@@ -84,7 +84,7 @@ public class LoaderHelper {
                 else if (line.startsWith("%")) {
                     String tsStr = "%TimeStamp: ";
                     if (line.startsWith(tsStr)) {
-                        dateStart = HFRadarVisualization.dateTimeFormaterSpacesUTC.parse(line,
+                        dateStart = EnvironmentalDataVisualization.dateTimeFormaterSpacesUTC.parse(line,
                                 new ParsePosition(tsStr.length() - 1));
                     }
                     
@@ -1207,7 +1207,7 @@ public class LoaderHelper {
                 }
                 
                 try {
-                    Date date = HFRadarVisualization.dateTimeFormaterUTC.parse(dateTkStr + " " + timeTkStr);
+                    Date date = EnvironmentalDataVisualization.dateTimeFormaterUTC.parse(dateTkStr + " " + timeTkStr);
                     off = date.getTime();
                     
                     // Let us see if milliseconds are present
@@ -1411,7 +1411,7 @@ public class LoaderHelper {
         
         
         try {
-            Date date = HFRadarVisualization.dateTimeFormaterUTC.parse("0001-01-01 00:00:00");
+            Date date = EnvironmentalDataVisualization.dateTimeFormaterUTC.parse("0001-01-01 00:00:00");
             System.out.println(date.getTime());
             
             Date ndate = new Date(date.getTime() + DateTimeUtil.DAYS_SINCE_YEAR_0_TILL_1970 * DateTimeUtil.DAY);
@@ -1424,19 +1424,19 @@ public class LoaderHelper {
         
         System.out.println("------ Test time load -----");
         String dateT1Str = "2013-07-04 00:00:00";
-        Date dateT1 = HFRadarVisualization.dateTimeFormaterUTC.parse(dateT1Str);
+        Date dateT1 = EnvironmentalDataVisualization.dateTimeFormaterUTC.parse(dateT1Str);
         System.out.printf("%22s  ==  %s \t%s\n", dateT1Str, dateT1, dateT1.getTime());
 
         dateT1Str = "2013-7-4 0:0:0";
-        dateT1 = HFRadarVisualization.dateTimeFormaterUTC.parse(dateT1Str);
+        dateT1 = EnvironmentalDataVisualization.dateTimeFormaterUTC.parse(dateT1Str);
         System.out.printf("%22s  ==  %s \t%s\n", dateT1Str, dateT1, dateT1.getTime());
 
         dateT1Str = "2013-7-4 13:3:4.32";
-        dateT1 = HFRadarVisualization.dateTimeFormaterUTC.parse(dateT1Str);
+        dateT1 = EnvironmentalDataVisualization.dateTimeFormaterUTC.parse(dateT1Str);
         System.out.printf("%22s  ==  %s \t%s\n", dateT1Str, dateT1, dateT1.getTime());
         
         dateT1Str = "2013-7-4 13:3:4";
-        dateT1 = HFRadarVisualization.dateTimeFormaterUTC.parse(dateT1Str);
+        dateT1 = EnvironmentalDataVisualization.dateTimeFormaterUTC.parse(dateT1Str);
         System.out.printf("%22s  ==  %s \t%s\n", dateT1Str, dateT1, dateT1.getTime());
         
         String dateT2Str = "2013-7-4 13:3:4.32";

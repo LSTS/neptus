@@ -96,9 +96,9 @@ import pt.lsts.neptus.util.http.client.HttpClientConnectionHelper;
  *
  */
 @SuppressWarnings("serial")
-@PluginDescription(name="HF Radar Visualization", author="Paulo Dias", version="1.0", icon="pt/lsts/neptus/plugins/envdisp/hf-radar.png")
+@PluginDescription(name="Environmental Data Visualization", author="Paulo Dias", version="2.0", icon="pt/lsts/neptus/plugins/envdisp/hf-radar.png")
 @LayerPriority(priority = -50)
-public class HFRadarVisualization extends ConsolePanel implements Renderer2DPainter, IPeriodicUpdates, ConfigurationListener {
+public class EnvironmentalDataVisualization extends ConsolePanel implements Renderer2DPainter, IPeriodicUpdates, ConfigurationListener {
 
     private static final int OFFSET_REND_TXT_DATE_RANGES = 52;
     private static final int OFFSET_REND_TXT_DATE_RANGES_DELTA = 15;
@@ -317,8 +317,8 @@ public class HFRadarVisualization extends ConsolePanel implements Renderer2DPain
     private final HashMap<String, WindDataPoint> dataPointsWind = new HashMap<>();
     private final HashMap<String, WavesDataPoint> dataPointsWaves = new HashMap<>();
 
-    @PluginDescription(name="HF Radar Visualization Layer", icon="pt/lsts/neptus/plugins/envdisp/hf-radar.png")
-    private class HFRadarConsoleLayer extends ConsoleLayer {
+    @PluginDescription(name="Environmental Data Visualization Layer", icon="pt/lsts/neptus/plugins/envdisp/hf-radar.png")
+    private class EnvironmentalDataConsoleLayer extends ConsoleLayer {
         @Override
         public void setVisible(boolean visible) {
             super.setVisible(visible);
@@ -348,9 +348,9 @@ public class HFRadarVisualization extends ConsolePanel implements Renderer2DPain
         }
     }
     
-    private final HFRadarConsoleLayer consoleLayer = new HFRadarConsoleLayer();
+    private final EnvironmentalDataConsoleLayer consoleLayer = new EnvironmentalDataConsoleLayer();
 
-    public HFRadarVisualization(ConsoleLayout console) {
+    public EnvironmentalDataVisualization(ConsoleLayout console) {
         super(console);
         httpComm.initializeComm();
     }
