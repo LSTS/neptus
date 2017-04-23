@@ -36,7 +36,6 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.Graphics2D;
-import java.awt.RenderingHints;
 import java.awt.geom.Ellipse2D;
 import java.awt.geom.Path2D;
 import java.awt.geom.Point2D;
@@ -1001,6 +1000,8 @@ public class HFRadarVisualization extends ConsolePanel implements Renderer2DPain
             List<SSTDataPoint> dest = new ArrayList<>(dataPointsSST.values());
             long stMillis = System.currentTimeMillis();
             LongAccumulator visiblePts = new LongAccumulator((r, i) -> r += i, 0);
+            LongAccumulator toDatePts = new LongAccumulator((r, i) -> r = i > r ? i : r, 0);
+            LongAccumulator fromDatePts = new LongAccumulator((r, i) -> r = i < r ? i : r, Long.MAX_VALUE);
             Map<Point2D, Pair<Double, Date>> ptFilt = dest.parallelStream()
                     .collect(HashMap<Point2D, Pair<Double, Date>>::new, (res, dp) -> {
                         try {
@@ -1026,6 +1027,9 @@ public class HFRadarVisualization extends ConsolePanel implements Renderer2DPain
                                 return;
                             
                             visiblePts.accumulate(1);
+                            
+                            toDatePts.accumulate(dateV.getTime());
+                            fromDatePts.accumulate(dateV.getTime());
                             
                             double x = pt.getX();
                             double y = pt.getY();
@@ -1116,6 +1120,8 @@ public class HFRadarVisualization extends ConsolePanel implements Renderer2DPain
             List<WindDataPoint> dest = new ArrayList<>(dataPointsWind.values());
             long stMillis = System.currentTimeMillis();
             LongAccumulator visiblePts = new LongAccumulator((r, i) -> r += i, 0);
+            LongAccumulator toDatePts = new LongAccumulator((r, i) -> r = i > r ? i : r, 0);
+            LongAccumulator fromDatePts = new LongAccumulator((r, i) -> r = i < r ? i : r, Long.MAX_VALUE);
             Map<Point2D, Triple<Double, Double, Date>> ptFilt = dest.parallelStream()
                     .collect(HashMap<Point2D, Triple<Double, Double, Date>>::new, (res, dp) -> {
                         try {
@@ -1142,6 +1148,9 @@ public class HFRadarVisualization extends ConsolePanel implements Renderer2DPain
                                 return;
                             
                             visiblePts.accumulate(1);
+                            
+                            toDatePts.accumulate(dateV.getTime());
+                            fromDatePts.accumulate(dateV.getTime());
                             
                             double x = pt.getX();
                             double y = pt.getY();
@@ -1293,6 +1302,8 @@ public class HFRadarVisualization extends ConsolePanel implements Renderer2DPain
             List<WavesDataPoint> dest = new ArrayList<>(dataPointsWaves.values());
             long stMillis = System.currentTimeMillis();
             LongAccumulator visiblePts = new LongAccumulator((r, i) -> r += i, 0);
+            LongAccumulator toDatePts = new LongAccumulator((r, i) -> r = i > r ? i : r, 0);
+            LongAccumulator fromDatePts = new LongAccumulator((r, i) -> r = i < r ? i : r, Long.MAX_VALUE);
             Map<Point2D, Pair<Triple<Double, Double, Double>, Date>> ptFilt = dest.parallelStream()
                     .collect(HashMap<Point2D, Pair<Triple<Double, Double, Double>, Date>>::new, (res, dp) -> {
                         try {
@@ -1321,6 +1332,9 @@ public class HFRadarVisualization extends ConsolePanel implements Renderer2DPain
                                 return;
                             
                             visiblePts.accumulate(1);
+                            
+                            toDatePts.accumulate(dateV.getTime());
+                            fromDatePts.accumulate(dateV.getTime());
                             
                             double x = pt.getX();
                             double y = pt.getY();
