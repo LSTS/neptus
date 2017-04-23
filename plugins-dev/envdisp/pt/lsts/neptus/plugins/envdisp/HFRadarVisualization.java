@@ -201,7 +201,8 @@ public class HFRadarVisualization extends ConsolePanel implements Renderer2DPain
         arrow.closePath();
     }
 
-    private final static Ellipse2D circle = new Ellipse2D.Double(-4, -4, 8, 8);
+    private final static int CIRCLE_RADIUS = 8;
+    private final static Ellipse2D circle = new Ellipse2D.Double(-CIRCLE_RADIUS / 2., -CIRCLE_RADIUS / 2., CIRCLE_RADIUS, CIRCLE_RADIUS);
     
     private final static Path2D.Double windPoleKnots = new Path2D.Double();
     static {
@@ -952,15 +953,10 @@ public class HFRadarVisualization extends ConsolePanel implements Renderer2DPain
                             double dpVal = dp.getSst();
                             Date dpDate = new Date(dp.getDateUTC().getTime());
                             
-//                        int base = 100;
                             double x = pt.getX();
                             double y = pt.getY();
-//                        double x = MathMiscUtils.round(pt.getX(), 2);
-//                        double y = MathMiscUtils.round(pt.getY(), 2);
-//                        double x = Math.round(pt.getX() * base ) / base;//MathMiscUtils.round(pt.getX(), 2);
-//                        double y = Math.round(pt.getY() * base ) / base;//MathMiscUtils.round(pt.getY(), 2);
-                            x = x - x % 8;
-                            y = y - y % 8;
+                            x = x - x % CIRCLE_RADIUS;
+                            y = y - y % CIRCLE_RADIUS;
                             pt.setLocation(x, y);
                             
                             if (!res.containsKey(pt)) {
