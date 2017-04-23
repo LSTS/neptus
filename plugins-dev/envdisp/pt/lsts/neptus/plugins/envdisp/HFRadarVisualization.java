@@ -193,6 +193,7 @@ public class HFRadarVisualization extends ConsolePanel implements Renderer2DPain
     private long updateSeconds = 60;
     private long lastMillisFileDataUpdated = -1;
 
+    private final static int ARROW_RADIUS = 12;
     private final static Path2D.Double arrow = new Path2D.Double();
     static {
         arrow.moveTo(-5, 6);
@@ -1220,49 +1221,137 @@ public class HFRadarVisualization extends ConsolePanel implements Renderer2DPain
      * @param dateLimit
      */
     private void paintWavesInGraphics(StateRenderer2D renderer, Graphics2D g2, Date dateColorLimit, Date dateLimit) {
-        LocationType loc = new LocationType();
-        for (WavesDataPoint dp : dataPointsWaves.values().toArray(new WavesDataPoint[0])) {
-            if (dp.getDateUTC().before(dateLimit) && !ignoreDateLimitToLoad)
-                continue;
-            
-            double latV = dp.getLat();
-            double lonV = dp.getLon();
-            double sigHeightV = dp.getSignificantHeight();
-            double headingV = dp.getPeakDirection();
-            double periodV = dp.getPeakPeriod();
-            
-            if (Double.isNaN(latV) || Double.isNaN(lonV) || Double.isNaN(sigHeightV) || Double.isNaN(headingV)
-                    || Double.isNaN(periodV))
-                continue;
-            
-            loc.setLatitudeDegs(latV);
-            loc.setLongitudeDegs(lonV);
-            
-            Point2D pt = renderer.getScreenPosition(loc);
+        try {
+            List<WavesDataPoint> dest = new ArrayList<>(dataPointsWaves.values());
+            long stNanos = System.currentTimeMillis();
+            LongAccumulator visiblePts = new LongAccumulator((r, i) -> r += i, 0);
+            Map<Point2D, Pair<Triple<Double, Double, Double>, Date>> ptFilt = dest.parallelStream()
+                    .collect(HashMap<Point2D, Pair<Triple<Double, Double, Double>, Date>>::new, (res, dp) -> {
+                        try {
+                            if (!ignoreDateLimitToLoad && dp.getDateUTC().before(dateLimit))
+                                return;
+                            
+                            double latV = dp.getLat();
+                            double lonV = dp.getLon();
+                            double sigHeightV = dp.getSignificantHeight();
+                            double headingV = AngleUtils.nomalizeAngleDegrees360(dp.getPeakDirection());
+                            double periodV = dp.getPeakPeriod();
+                            
+                            if (Double.isNaN(latV) || Double.isNaN(lonV) || Double.isNaN(sigHeightV) || Double.isNaN(headingV)
+                                    || Double.isNaN(periodV))
+                                return;
+                            
+                            Date dateV = new Date(dp.getDateUTC().getTime());
 
-            if (!isVisibleInRender(pt, renderer))
-                continue;
+                            LocationType loc = new LocationType();
+                            loc.setLatitudeDegs(latV);
+                            loc.setLongitudeDegs(lonV);
+                            
+                            Point2D pt = renderer.getScreenPosition(loc);
+                            
+                            if (!isVisibleInRender(pt, renderer))
+                                return;
+                            
+                            visiblePts.accumulate(1);
+                            
+                            double x = pt.getX();
+                            double y = pt.getY();
+                            x = x - x % ARROW_RADIUS;
+                            y = y - y % ARROW_RADIUS;
+                            pt.setLocation(x, y);
+                            
+                            if (!res.containsKey(pt)) {
+                                res.put(pt, new Pair<Triple<Double, Double, Double>, Date>(Triple.of(sigHeightV, headingV, periodV), dateV));
+                            }
+                            else {
+                                Pair<Triple<Double, Double, Double>, Date> pval = res.get(pt);
+                                double val = pval.first().getLeft();
+                                val = (val + sigHeightV) / 2d;
+                                double val1 = pval.first().getMiddle();
+                                val1 = (val1 + headingV) / 2d;
+                                double val2 = pval.first().getRight();
+                                val2 = (val2 + periodV) / 2d;
+                                if (dateV.after(pval.second()))
+                                    res.put(pt, new Pair<Triple<Double, Double, Double>, Date>(Triple.of(val, val1, val2), dateV));
+                                else
+                                    res.put(pt, new Pair<Triple<Double, Double, Double>, Date>(Triple.of(val, val1, val2), pval.second()));
+                            }
+                        }
+                        catch (Exception e) {
+                            NeptusLog.pub().debug(e);
+                        }
+                    }, (res, resInt) -> {
+                        resInt.keySet().stream().forEach(k1 -> {
+                            try {
+                                Pair<Triple<Double,Double,Double>,Date> sI = resInt.get(k1);
+                                if (res.containsKey(k1)) {
+                                    Pair<Triple<Double, Double, Double>, Date> s = res.get(k1);
+                                    double val = (s.first().getLeft() + sI.first().getLeft()) / 2d;
+                                    double val1 = (s.first().getMiddle() + sI.first().getMiddle()) / 2d;
+                                    double val2 = (s.first().getRight() + sI.first().getRight()) / 2d;
+                                    Date valDate = sI.second().after(s.second()) ? new Date(sI.second().getTime())
+                                            : s.second();
+                                    res.put(k1, new Pair<Triple<Double, Double, Double>, Date>(Triple.of(val, val1, val2), valDate));
+                                }
+                                else {
+                                    res.put(k1, sI);
+                                }
+                            }
+                            catch (Exception e) {
+                                NeptusLog.pub().debug(e);
+                            }
+                        });
+                    });
             
-            Graphics2D gt = (Graphics2D) g2.create();
-            gt.translate(pt.getX(), pt.getY());
-            Color color = Color.WHITE;
-            color = colorMapWaves.getColor(dp.getSignificantHeight() / maxWaves);
-            if (dp.getDateUTC().before(dateColorLimit))
-                color = ColorUtils.setTransparencyToColor(color, 128);
-            gt.setColor(color);
-            double rot = Math.toRadians(headingV) - renderer.getRotation();
-            gt.rotate(rot);
-            gt.fill(arrow);
-            gt.rotate(-rot);
+            System.out.println(String.format("stg 1 took %ss :: %d of %d from %d (%f%%)",
+                    DateTimeUtil.formatTime(System.currentTimeMillis() - stNanos), ptFilt.size(), visiblePts.longValue(), dest.size(),
+                    (ptFilt.size() * 1. / visiblePts.longValue()) * 100));
+            stNanos = System.currentTimeMillis();
             
-            if (showWavesLegend && renderer.getLevelOfDetail() >= showWavesLegendFromZoomLevel) {
-                gt.setFont(font8Pt);
-                gt.setColor(Color.WHITE);
-                gt.drawString(MathMiscUtils.round(dp.getSignificantHeight(), 1) + "m", 10, -8);
-            }
-            
-            gt.dispose();
+            ptFilt.keySet().parallelStream().forEach(pt -> {
+                Graphics2D gt = null;
+                try {
+                    Pair<Triple<Double, Double, Double>, Date> pVal = ptFilt.get(pt);
+                    double sigHeightV = pVal.first().getLeft();
+                    double headingV = AngleUtils.nomalizeAngleDegrees360(pVal.first().getMiddle());
+                    @SuppressWarnings("unused")
+                    double periodV = pVal.first().getRight();
+                    Date dateV = pVal.second();
+                    
+                    gt = (Graphics2D) g2.create();
+                    gt.translate(pt.getX(), pt.getY());
+
+                    Color color = Color.WHITE;
+                    color = colorMapWaves.getColor(sigHeightV / maxWaves);
+                    if (dateV.before(dateColorLimit))
+                        color = ColorUtils.setTransparencyToColor(color, 128);
+                    gt.setColor(color);
+                    double rot = Math.toRadians(headingV) - renderer.getRotation();
+                    gt.rotate(rot);
+                    gt.fill(arrow);
+                    gt.rotate(-rot);
+                    
+                    if (showWavesLegend && renderer.getLevelOfDetail() >= showWavesLegendFromZoomLevel) {
+                        gt.setFont(font8Pt);
+                        gt.setColor(Color.WHITE);
+                        gt.drawString(MathMiscUtils.round(sigHeightV, 1) + "m", 10, -8);
+                    }
+                }
+                catch (Exception e) {
+                    NeptusLog.pub().trace(e);
+                }
+                
+                if (gt != null)
+                    gt.dispose();
+            });
+            System.out.println(String.format("stg 2 took %ss",
+                    DateTimeUtil.formatTime(System.currentTimeMillis() - stNanos)));
+            System.out.println(ptFilt.size() + " of " + dest.size());
         }
+        catch (Exception e) {
+            e.printStackTrace();
+        }
+
     }
 
     /**
