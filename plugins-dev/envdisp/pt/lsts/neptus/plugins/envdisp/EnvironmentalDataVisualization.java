@@ -776,40 +776,41 @@ public class EnvironmentalDataVisualization extends ConsolePanel implements Rend
      * @param renderer
      */
     private void paintColorbars(Graphics2D go, StateRenderer2D renderer) {
-        int offset = 50;
+        int offsetHeight = 130;
+        int offsetWidth = 5;
         int offsetDelta = 130;
         int counter = 2;
-        if (showCurrentsColorbar && counter > 0) {
+        if (showCurrents && showCurrentsColorbar && counter > 0) {
             counter--;
             Graphics2D gl = (Graphics2D) go.create();
-            gl.translate(0, offset);
+            gl.translate(offsetWidth, offsetHeight);
             EnvDataPaintHelper.paintColorBar(gl, renderer, colorMapCurrents, I18n.text("Currents"), "cm/s", 0, maxCurrentCmS);
             gl.dispose();
-            offset += offsetDelta;
+            offsetHeight += offsetDelta;
         }
-        if (showSSTColorbar && counter > 0) {
+        if (showSST && showSSTColorbar && counter > 0) {
             counter--;
             Graphics2D gl = (Graphics2D) go.create();
-            gl.translate(0, offset);
+            gl.translate(offsetWidth, offsetHeight);
             EnvDataPaintHelper.paintColorBar(gl, renderer, colorMapSST, I18n.text("SST"), "\u00B0C", minSST, maxSST);
             gl.dispose();
-            offset += offsetDelta;
+            offsetHeight += offsetDelta;
         }
-        if (showWindColorbar && counter > 0) {
+        if (showWind && showWindColorbar && counter > 0) {
             counter--;
             Graphics2D gl = (Graphics2D) go.create();
-            gl.translate(0, offset);
+            gl.translate(offsetWidth, offsetHeight);
             EnvDataPaintHelper.paintColorBar(gl, renderer, colorMapWind, I18n.text("Wind"), "kn", 0, maxWind);
             gl.dispose();
-            offset += offsetDelta;
+            offsetHeight += offsetDelta;
         }
-        if (showWavesColorbar && counter > 0) {
+        if (showWaves && showWavesColorbar && counter > 0) {
             counter--;
             Graphics2D gl = (Graphics2D) go.create();
-            gl.translate(0, offset);
+            gl.translate(offsetWidth, offsetHeight);
             EnvDataPaintHelper.paintColorBar(gl, renderer, colorMapWaves, I18n.text("Waves"), "m", 0, maxWaves);
             gl.dispose();
-            offset += offsetDelta;
+            offsetHeight += offsetDelta;
         }
     }
 

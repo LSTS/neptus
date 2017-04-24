@@ -128,11 +128,23 @@ class EnvDataPaintHelper {
         }
     }
     
+    /**
+     * Paint a color bar with captions sized w x h=70 x 110.
+     * 
+     * @param g
+     * @param renderer
+     * @param cmap
+     * @param varName
+     * @param units
+     * @param minValue
+     * @param maxValue
+     */
     static void paintColorBar(Graphics2D g, StateRenderer2D renderer, ColorMap cmap, String varName, 
             String units, double minValue, double maxValue) {
 //        boolean recreateImageColorBar = offScreenImageControlColorBar.paintPhaseStartTestRecreateImageAndRecreate(g, renderer);
 //        if (recreateImageColorBar) {
             Graphics2D g2 = g; //offScreenImageControlColorBar.getImageGraphics();
+            g2.translate(-5, -30);
             g2.setColor(new Color(250, 250, 250, 100));
             g2.fillRect(5, 30, 70, 110);
 
