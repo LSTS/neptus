@@ -132,9 +132,9 @@ public class EnvironmentalDataVisualization extends ConsolePanel implements Rend
     public boolean hfradarUseMostRecentOrMean = true;
     @NeptusProperty(name = "Use color map for wind", userLevel = LEVEL.REGULAR, category=CATEGORY_VISIBILITY)
     public boolean useColorMapForWind = true;
-    @NeptusProperty(name = "Show Chlorophyll legend", userLevel = LEVEL.REGULAR, category=CATEGORY_VISIBILITY)
+    @NeptusProperty(name = "Show chlorophyll legend", userLevel = LEVEL.REGULAR, category=CATEGORY_VISIBILITY)
     public boolean showChlorophyllLegend = true;
-    @NeptusProperty(name = "Show Chlorophyll legend from zoom level bigger than", userLevel = LEVEL.REGULAR, category=CATEGORY_VISIBILITY)
+    @NeptusProperty(name = "Show chlorophyll legend from zoom level bigger than", userLevel = LEVEL.REGULAR, category=CATEGORY_VISIBILITY)
     public int showChlorophyllLegendFromZoomLevel = 13;
 
     @NeptusProperty(name = "Show currents colorbar", userLevel = LEVEL.REGULAR, category = CATEGORY_VISIBILITY,
