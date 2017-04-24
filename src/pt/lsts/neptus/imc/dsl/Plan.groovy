@@ -726,6 +726,7 @@ class Plan {
             try{
                 if(neptus_plan.validatePlan())
                 neptusConsole.getMission().addPlan(neptus_plan)
+                println neptus_plan.asIMCPlan().asJSON()
             }
             catch (Exception e) {
                 //NeptusLog.pub().error(I18n.text("The Neptus plan generated has an error: "+e.getMessage()))

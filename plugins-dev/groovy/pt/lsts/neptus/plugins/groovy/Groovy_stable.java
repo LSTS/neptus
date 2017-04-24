@@ -37,13 +37,10 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.PrintStream;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.TreeMap;
 
 import javax.swing.AbstractAction;
 import javax.swing.Action;
@@ -61,7 +58,6 @@ import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.comm.manager.imc.ImcSystem;
 import pt.lsts.neptus.comm.manager.imc.ImcSystemsHolder;
 import pt.lsts.neptus.console.ConsoleLayout;
-import pt.lsts.neptus.console.events.ConsoleEventMissionChanged;
 import pt.lsts.neptus.console.events.ConsoleEventPlanChange;
 import pt.lsts.neptus.console.events.ConsoleEventVehicleStateChanged;
 import pt.lsts.neptus.console.notifications.Notification;
@@ -262,7 +258,7 @@ public class Groovy_stable extends InteractionAdapter {
     public void on(ConsoleEventPlanChange changedPlan) {
         if(changedPlan.getCurrent() == null){
             if(!this.getConsole().getMission().getIndividualPlansList().containsKey(changedPlan.getOld().getId())){
-                System.out.println("Plan "+changedPlan.getOld().getId()+" removed.");
+                //System.out.println("Plan "+changedPlan.getOld().getId()+" removed.");
                 plans.remove(changedPlan.getOld().getId());
             }
             else{
