@@ -54,13 +54,15 @@ import com.l2fprod.common.propertysheet.DefaultProperty;
 import com.l2fprod.common.propertysheet.Property;
 
 import pt.lsts.imc.IMCMessage;
-import pt.lsts.imc.Loiter.TYPE;
+import pt.lsts.imc.Docking.VEHICLEFUNCTION;
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.gui.PropertiesEditor;
 import pt.lsts.neptus.gui.ToolbarSwitch;
 import pt.lsts.neptus.gui.editor.ComboEditor;
 import pt.lsts.neptus.gui.editor.renderer.I18nCellRenderer;
 import pt.lsts.neptus.i18n.I18n;
+import pt.lsts.neptus.mp.Maneuver;
+import pt.lsts.neptus.mp.Maneuver.SPEED_UNITS;
 import pt.lsts.neptus.plugins.NeptusProperty;
 import pt.lsts.neptus.renderer2d.InteractionAdapter;
 import pt.lsts.neptus.renderer2d.StateRenderer2D;
@@ -73,15 +75,16 @@ import pt.lsts.neptus.util.XMLUtil;
  * @author mrosa
  */
 public class Docking extends Goto implements StateRendererInteraction,
-IMCSerialization,  PathProvider {
+IMCSerialization,  PathProvider , ManeuverWithSpeed{
  
     
-    @NeptusProperty(name = "Docking Target", description = "IMC name of the lauv to dock")
-    protected String target = "";
-    @NeptusProperty(name = "Docking Station", description = "IMC name of the docking station")
-    protected String station = "";
-
-    private String vehicleFunction = "Station";
+    private enum vehicleFunction { Station , Target}
+    @NeptusProperty(name = "Docking Target", description = "System name to perform docking maneuver.")
+    private String target = "";
+    @NeptusProperty(name = "Vehicle Function", description = "Vehicle Fuction. Station to perform docking, Target to receive docking.")
+    private vehicleFunction vfunction = vehicleFunction.Station;
+    
+    private double max_speed = 30;
 
     protected InteractionAdapter adapter = new InteractionAdapter(null);
     protected Point2D lastDragPoint = null;
@@ -104,10 +107,7 @@ IMCSerialization,  PathProvider {
     }
         
     public Docking() {
-        super();
-        destination.setZUnits(pt.lsts.neptus.mp.ManeuverLocation.Z_UNITS.DEPTH);
-        
-        //recalcPoints();
+      //  super();
     }
 
     /* (non-Javadoc)
@@ -119,7 +119,7 @@ IMCSerialization,  PathProvider {
     }
     
     
-    // rparse XML
+    // parse XML
     @Override
     public void loadFromXML(String xml) {
         super.loadFromXML(xml);
@@ -131,17 +131,11 @@ IMCSerialization,  PathProvider {
             if (node != null)
                 target = node.getText();
             
-            //Get station name
-            Node node2 = doc.selectSingleNode("//station");
-            if (node2 != null)
-                station = node2.getText();
-
         }
         catch (Exception e) {
             NeptusLog.pub().error(this, e);
             return;
         }
-        destination.setZUnits(pt.lsts.neptus.mp.ManeuverLocation.Z_UNITS.DEPTH);
         
         System.out.println("After loading XML, my ID is "+getId());
 
@@ -152,6 +146,9 @@ IMCSerialization,  PathProvider {
         Docking clone = new Docking();
         this.clone(clone);
         clone.loadFromXML(getManeuverXml());
+        clone.target = this.target;
+        clone.vfunction = this.vfunction;
+      
         return clone;
     }
 
@@ -163,8 +160,6 @@ IMCSerialization,  PathProvider {
         Element root = doc.getRootElement();
         
         root.addElement("target").setText(target);
-        
-        root.addElement("station").setText(station);
 
         return doc;
     }
@@ -287,27 +282,26 @@ IMCSerialization,  PathProvider {
    
     @Override
     public IMCMessage serializeToIMC() {
+        
         pt.lsts.imc.Docking man = new pt.lsts.imc.Docking();
         man.setLat(destination.getLatitudeRads());
         man.setLon(destination.getLongitudeRads());
         man.setTarget(target);
-        man.setStation(station);
-        
+        man.setMaxSpeed(max_speed);
         
         String vehicleFunction = this.getVehicleFunction();
         try {
-            if ("Default".equalsIgnoreCase(vehicleFunction))
-                man.setType(VEHICLE_FUNCTION.DEFAULT);
-            else if ("Circular".equalsIgnoreCase(vehicleFunction))
-                man.setType(VEHICLE_FUNCTION.STATION);
-            else if ("Racetrack".equalsIgnoreCase(vehicleFunction))
-                man.setType(VEHICLE_FUNCTION.TARGET);
+            if ("Station".equalsIgnoreCase(vehicleFunction))
+                man.setVehiclefunction(VEHICLEFUNCTION.STATION);
+            else if ("Target".equalsIgnoreCase(vehicleFunction))
+                man.setVehiclefunction(VEHICLEFUNCTION.TARGET);
+     
           
         } catch (Exception ex) {
             NeptusLog.pub().error(this, ex);
         }
         
-        return man;
+       return man;
     }
 
     @Override
@@ -321,20 +315,19 @@ IMCSerialization,  PathProvider {
             return;
         }
         
+        target = man.getTarget();
+        max_speed = man.getMaxSpeed();
         destination.setLatitudeRads(man.getLat());
         destination.setLongitudeRads(man.getLon());
-        target = man.getTarget();
-        station = man.getStation();
-        destination.setZUnits(pt.lsts.neptus.mp.ManeuverLocation.Z_UNITS.DEPTH);
+      
+
         
-        String vehiclefunction = message.getString("vehicle_function");
-        if (vehiclefunction.equals("STATION"))
-            setVehicleFunction("Station");
+        String vfunction = message.getString("vehicle_function");
+        if (vfunction.equals("STATION"))
+            setVehicleFunction(vehicleFunction.Station);
         else
-            setVehicleFunction(vehiclefunction.substring(0, 1).toUpperCase() + vehiclefunction.substring(1).toLowerCase());
-        
-        
- 
+            setVehicleFunction(vehicleFunction.Target);
+
     }
 
     @Override
@@ -342,14 +335,20 @@ IMCSerialization,  PathProvider {
         
         Vector<DefaultProperty> props = new Vector<DefaultProperty>();
         
-        DefaultProperty type = PropertiesEditor.getPropertyInstance("Vehicle Function", String.class, this.vehicleFunction, true);
-        type.setShortDescription("How to perform this maneuver. Note that some parameters only make sense in some Loiter types.");
+        DefaultProperty type = PropertiesEditor.getPropertyInstance("Vehicle Function", String.class, this.vfunction, true);
+        type.setShortDescription("Vehicle Fuction. Station to perform docking, Target to receive docking.");
         PropertiesEditor.getPropertyEditorRegistry().registerEditor(type, new ComboEditor<String>(wpDockingFunctionMap.values().toArray(new String[]{})));
         PropertiesEditor.getPropertyRendererRegistry().registerRenderer(type, new I18nCellRenderer());
         props.add(type);
         
-        return props;
-       // return ManeuversUtil.getPropertiesFromManeuver(this);
+        
+        DefaultProperty dt = PropertiesEditor.getPropertyInstance("Docking System Target", String.class, this.target, true);
+        dt.setShortDescription("System name to perform or receive docking maneuver.");
+        props.add(dt);
+        
+     // return props;
+        return ManeuversUtil.getPropertiesFromManeuver(this);
+      
     }
 
     @Override
@@ -361,17 +360,25 @@ IMCSerialization,  PathProvider {
 
     public String getTooltipText() {
         return super.getTooltipText()+"<hr>"+
-        I18n.text("vehicle function") + ": <b>"+I18n.text(vehicleFunction);
+        I18n.text("vehicle function") + ": <b>"+vfunction+"<br>" + I18n.text("target") + ": <b>"+I18n.text(target)+"</b>" ;
     }
     
-    public void setVehicleFunction(String vehicleFunction) {
-        this.vehicleFunction = vehicleFunction;
+    public void setVehicleFunction( vehicleFunction vfunction) {
+        this.vfunction = vfunction;
     }
     
     public String getVehicleFunction() {
-        return vehicleFunction;
+        return vfunction.toString();
+    }
+    
+    public String getTarget() {
+        return target;
     }
 
+    public void setTarget(String target) {
+        this.target = target;
+    }
+    
     @Override
     public void setAssociatedSwitch(ToolbarSwitch tswitch) {
     }
@@ -386,7 +393,6 @@ IMCSerialization,  PathProvider {
         
         Docking rc = new Docking();
  
-        
         System.out.println(XMLUtil.getAsPrettyPrintFormatedXMLString(rc.asXML().substring(39)));
 
  
