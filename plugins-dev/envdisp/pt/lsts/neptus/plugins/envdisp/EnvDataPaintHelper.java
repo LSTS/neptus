@@ -805,4 +805,131 @@ class EnvDataPaintHelper {
         }
     }
 
+    static void paintChlorophyllInGraphics(StateRenderer2D renderer, Graphics2D g2, Date dateColorLimit, Date dateLimit,
+            HashMap<String, ChlorophyllDataPoint> dataPointsChlorophyll, boolean ignoreDateLimitToLoad, int offScreenBufferPixel,
+            ColorMap colorMapChlorophyll, double minChlorophyll, double maxChlorophyll,
+            boolean showChlorophyllLegend, int showChlorophyllLegendFromZoomLevel, Font font8Pt, boolean showDataDebugLegend) {
+        try {
+            List<ChlorophyllDataPoint> dest = new ArrayList<>(dataPointsChlorophyll.values());
+            long stMillis = System.currentTimeMillis();
+            LongAccumulator visiblePts = new LongAccumulator((r, i) -> r += i, 0);
+            LongAccumulator toDatePts = new LongAccumulator((r, i) -> r = i > r ? i : r, 0);
+            LongAccumulator fromDatePts = new LongAccumulator((r, i) -> r = i < r ? i : r, Long.MAX_VALUE);
+            Map<Point2D, Pair<Double, Date>> ptFilt = dest.parallelStream()
+                    .collect(HashMap<Point2D, Pair<Double, Date>>::new, (res, dp) -> {
+                        try {
+                            if (!ignoreDateLimitToLoad && dp.getDateUTC().before(dateLimit))
+                                return;
+                            
+                            double latV = dp.getLat();
+                            double lonV = dp.getLon();
+                            double chlorophyllV = dp.getChlorophyll();
+                            
+                            if (Double.isNaN(latV) || Double.isNaN(lonV) || Double.isNaN(chlorophyllV))
+                                return;
+                            
+                            Date dateV = new Date(dp.getDateUTC().getTime());
+    
+                            LocationType loc = new LocationType();
+                            loc.setLatitudeDegs(latV);
+                            loc.setLongitudeDegs(lonV);
+                            
+                            Point2D pt = renderer.getScreenPosition(loc);
+                            
+                            if (!isVisibleInRender(pt, renderer, offScreenBufferPixel))
+                                return;
+                            
+                            visiblePts.accumulate(1);
+                            
+                            toDatePts.accumulate(dateV.getTime());
+                            fromDatePts.accumulate(dateV.getTime());
+                            
+                            double x = pt.getX();
+                            double y = pt.getY();
+                            x = x - x % EnvDataShapesHelper.CIRCLE_RADIUS;
+                            y = y - y % EnvDataShapesHelper.CIRCLE_RADIUS;
+                            pt.setLocation(x, y);
+                            
+                            if (!res.containsKey(pt)) {
+                                res.put(pt, new Pair<>(chlorophyllV, dateV));
+                            }
+                            else {
+                                Pair<Double, Date> pval = res.get(pt);
+                                double val = pval.first();
+                                val = (val + chlorophyllV) / 2d;
+                                if (dateV.after(pval.second()))
+                                    res.put(pt, new Pair<>(val, dateV));
+                                else
+                                    res.put(pt, new Pair<>(val, pval.second()));
+                            }
+                        }
+                        catch (Exception e) {
+                            NeptusLog.pub().debug(e);
+                        }
+                    }, (res, resInt) -> {
+                        resInt.keySet().stream().forEach(k1 -> {
+                            try {
+                                Pair<Double, Date> sI = resInt.get(k1);
+                                if (res.containsKey(k1)) {
+                                    Pair<Double, Date> s = res.get(k1);
+                                    double val = (s.first() + sI.first()) / 2d;
+                                    Date valDate = sI.second().after(s.second()) ? new Date(sI.second().getTime())
+                                            : s.second();
+                                    res.put(k1, new Pair<Double, Date>(val, valDate));
+                                }
+                                else {
+                                    res.put(k1, sI);
+                                }
+                            }
+                            catch (Exception e) {
+                                NeptusLog.pub().debug(e);
+                            }
+                        });
+                    });
+            
+            debugOut(showDataDebugLegend, String.format("Chlorophyll stg 1 took %ss :: %d of %d from %d (%f%%)",
+                    MathMiscUtils.parseToEngineeringNotation((System.currentTimeMillis() - stMillis) / 1E3, 1), ptFilt.size(), visiblePts.longValue(), dest.size(),
+                    (ptFilt.size() * 1. / visiblePts.longValue()) * 100));
+            stMillis = System.currentTimeMillis();
+            
+            ptFilt.keySet().parallelStream().forEach(pt -> {
+                Graphics2D gt = null;
+                try {
+                    Pair<Double,Date> pVal = ptFilt.get(pt);
+                    
+                    gt = (Graphics2D) g2.create();
+                    gt.translate(pt.getX(), pt.getY());
+                    Color color = Color.WHITE;
+                    color = colorMapChlorophyll.getColor((pVal.first() - minChlorophyll) / (maxChlorophyll - minChlorophyll));
+                    if (pVal.second().before(dateColorLimit)) //if (dp.getDateUTC().before(dateColorLimit))
+                        color = ColorUtils.setTransparencyToColor(color, 128);
+                    gt.setColor(color);
+                    gt.draw(EnvDataShapesHelper.circle);
+                    gt.fill(EnvDataShapesHelper.circle);
+                    
+                    if (showChlorophyllLegend && renderer.getLevelOfDetail() >= showChlorophyllLegendFromZoomLevel) {
+                        gt.setFont(font8Pt);
+                        gt.setColor(Color.WHITE);
+                        gt.drawString(MathMiscUtils.round(pVal.first(), 1) + "mg/m\u00B3", -15, 15);
+                    }
+                }
+                catch (Exception e) {
+                    NeptusLog.pub().trace(e);
+                }
+                
+                if (gt != null)
+                    gt.dispose();
+            });
+            debugOut(showDataDebugLegend, String.format("Chlorophyll stg 2 took %ss",
+                    MathMiscUtils.parseToEngineeringNotation((System.currentTimeMillis() - stMillis) / 1E3, 1)));
+            
+            int offset = EnvironmentalDataVisualization.OFFSET_REND_TXT_DATE_RANGES + EnvironmentalDataVisualization.OFFSET_REND_TXT_DATE_RANGES_DELTA * 1;
+            String typeName = "Chlorophyll";
+            paintDatesRange(g2, toDatePts.longValue(), fromDatePts.longValue(), offset, typeName, showDataDebugLegend,
+                    font8Pt);
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
 }

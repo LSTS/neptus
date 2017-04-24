@@ -768,7 +768,7 @@ public class LoaderHelper {
         return wavesdp;
     }
     
-    public static final HashMap<String, ChlorophyllDataPoint> processChlorophyll(String fileName, Date dateLimit) {
+    public static final HashMap<String, ChlorophyllDataPoint> processChlorophyllFile(String fileName, Date dateLimit) {
         boolean ignoreDateLimitToLoad = false;
         if (dateLimit == null)
             ignoreDateLimitToLoad = true;
@@ -1564,7 +1564,7 @@ public class LoaderHelper {
             try {
                 // String sstFileName = "../../Lab/MBARI/SST/erdATssta3day_9c53_2021_f180.nc";
                 System.out.println("\n-----------------------------------");
-                HashMap<String, ChlorophyllDataPoint> hashMap = processChlorophyll(sstFileName, new java.sql.Date(0));
+                HashMap<String, ChlorophyllDataPoint> hashMap = processChlorophyllFile(sstFileName, new java.sql.Date(0));
                 System.out.println("Size=" + hashMap.size());
             }
             catch (Exception e) {

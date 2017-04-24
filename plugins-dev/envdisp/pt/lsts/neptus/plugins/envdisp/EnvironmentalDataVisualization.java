@@ -113,6 +113,8 @@ public class EnvironmentalDataVisualization extends ConsolePanel implements Rend
     public boolean showWind = true;
     @NeptusProperty(name = "Show waves", userLevel = LEVEL.REGULAR, category=CATEGORY_VISIBILITY)
     public boolean showWaves = false;
+    @NeptusProperty(name = "Show chlorophyll", userLevel = LEVEL.REGULAR, category=CATEGORY_VISIBILITY)
+    public boolean showChlorophyll = false;
 
     @NeptusProperty(name = "Show currents legend", userLevel = LEVEL.REGULAR, category=CATEGORY_VISIBILITY)
     public boolean showCurrentsLegend = true;
@@ -130,6 +132,10 @@ public class EnvironmentalDataVisualization extends ConsolePanel implements Rend
     public boolean hfradarUseMostRecentOrMean = true;
     @NeptusProperty(name = "Use color map for wind", userLevel = LEVEL.REGULAR, category=CATEGORY_VISIBILITY)
     public boolean useColorMapForWind = true;
+    @NeptusProperty(name = "Show Chlorophyll legend", userLevel = LEVEL.REGULAR, category=CATEGORY_VISIBILITY)
+    public boolean showChlorophyllLegend = true;
+    @NeptusProperty(name = "Show Chlorophyll legend from zoom level bigger than", userLevel = LEVEL.REGULAR, category=CATEGORY_VISIBILITY)
+    public int showChlorophyllLegendFromZoomLevel = 11;
 
     @NeptusProperty(name = "Show currents colorbar", userLevel = LEVEL.REGULAR, category = CATEGORY_VISIBILITY,
             description = "Show the color scale bar. Only one will show.")
@@ -143,6 +149,9 @@ public class EnvironmentalDataVisualization extends ConsolePanel implements Rend
     @NeptusProperty(name = "Show waves colorbar", userLevel = LEVEL.REGULAR, category = CATEGORY_VISIBILITY,
             description = "Show the color scale bar. Only one will show.")
     public boolean showWavesColorbar = false;
+    @NeptusProperty(name = "Show chlorophyll colorbar", userLevel = LEVEL.REGULAR, category = CATEGORY_VISIBILITY,
+            description = "Show the color scale bar. Only one will show.")
+    public boolean showChlorophyllColorbar = false;
 
     @NeptusProperty(name = "Minutes between file updates", category=CATEGORY_DATA_UPDATE)
     public long updateFileDataMinutes = 5;
@@ -165,6 +174,10 @@ public class EnvironmentalDataVisualization extends ConsolePanel implements Rend
             description = "The folder to look for waves (significant height, peak period and direction) data. Admissible files '*.nc'. NetCDF variables used: lat, lon, time, hs, tp, pdir.",
             editorClass = FolderPropertyEditor.class)
     public File baseFolderForWavesNetCDFFiles = new File("IHData/WAVES");
+    @NeptusProperty(name = "Base Folder For Chlorophyll netCDF Files", userLevel = LEVEL.REGULAR, category = CATEGORY_DATA_UPDATE, 
+            description = "The folder to look for chlorophyll data. Admissible files '*.nc'. NetCDF variables used: lat, lon, time, chlorophyll.",
+            editorClass = FolderPropertyEditor.class)
+    public File baseFolderForChlorophyllNetCDFFiles = new File("IHData/CHLOROPHYL");
     @NeptusProperty(name = "Request HF_Radar data from NOOA", userLevel = LEVEL.REGULAR, category = CATEGORY_DATA_UPDATE)
     public boolean requestFromNooaWeb = false;
     
@@ -174,13 +187,13 @@ public class EnvironmentalDataVisualization extends ConsolePanel implements Rend
     @NeptusProperty(name = "Load data from file (hfradar.txt)", editable = false, userLevel = LEVEL.ADVANCED, category=CATEGORY_TEST, description = "Don't use this (testing purposes).")
     public boolean loadFromFile = false;
     
-
     private static final String tuvFilePattern = ".\\.tuv$";
     private static final String netCDFFilePattern = ".\\.nc$";
     private static final String currentsFilePatternTUV = tuvFilePattern; // "^TOTL_TRAD_\\d{4}_\\d{2}_\\d{2}_\\d{4}\\.tuv$";
     private static final String currentsFilePatternNetCDF = netCDFFilePattern; // "^CODAR_TRAD_\\d{4}_\\d{2}_\\d{2}_\\d{4}\\.nc$";
     private static final String meteoFilePattern = netCDFFilePattern; // "^meteo_\\d{8}\\.nc$";
     private static final String wavesFilePattern = netCDFFilePattern; // "^waves_[a-zA-Z]{1,2}_\\d{8}\\.nc$";
+    private static final String chlorophyllFilePattern = netCDFFilePattern;
 
     private final Font font8Pt = new Font("Helvetica", Font.PLAIN, 9);
 
@@ -221,6 +234,10 @@ public class EnvironmentalDataVisualization extends ConsolePanel implements Rend
     // private final double minWaves = 0;
     private final double maxWaves = 7;
 
+    private final ColorMap colorMapChlorophyll = ColorMapFactory.createJetColorMap();
+    private final double minChlorophyll = 0.01; //mg/m3 log
+    private final double maxChlorophyll = 60; //mg/m3
+
     private OffScreenLayerImageControl offScreen = new OffScreenLayerImageControl();
     
     private final HttpClientConnectionHelper httpComm = new HttpClientConnectionHelper();
@@ -231,6 +248,7 @@ public class EnvironmentalDataVisualization extends ConsolePanel implements Rend
     private final HashMap<String, SSTDataPoint> dataPointsSST = new HashMap<>();
     private final HashMap<String, WindDataPoint> dataPointsWind = new HashMap<>();
     private final HashMap<String, WavesDataPoint> dataPointsWaves = new HashMap<>();
+    private final HashMap<String, ChlorophyllDataPoint> dataPointsChlorophyll = new HashMap<>();
 
     @PluginDescription(name="Environmental Data Visualization Layer", icon="pt/lsts/neptus/plugins/envdisp/hf-radar.png")
     @LayerPriority(priority = -300)
@@ -342,6 +360,7 @@ public class EnvironmentalDataVisualization extends ConsolePanel implements Rend
             loadCurrentsFromFiles();
             loadMeteoFromFiles();
             loadWavesFromFiles();
+            loadChlorophyllFromFiles();
         }
 
         propertiesChanged();
@@ -401,6 +420,13 @@ public class EnvironmentalDataVisualization extends ConsolePanel implements Rend
                 continue;
             dp.useMostRecent(nowDate);
         }
+        
+        for (String dpID : dataPointsChlorophyll.keySet().toArray(new String[0])) {
+            ChlorophyllDataPoint dp = dataPointsChlorophyll.get(dpID);
+            if (dp == null)
+                continue;
+            dp.useMostRecent(nowDate);
+        }
     }
 
     /**
@@ -421,7 +447,9 @@ public class EnvironmentalDataVisualization extends ConsolePanel implements Rend
         cleanSSTDataPointsBeforeDate(dateLimit);
         cleanWindDataPointsBeforeDate(dateLimit);
         cleanWavesDataPointsBeforeDate(dateLimit);
+        cleanChlorophyllDataPointsBeforeDate(dateLimit);
     }
+    
 
     private void cleanCurrentsDataPointsBeforeDate(Date dateLimit) {
         if (dateLimit == null)
@@ -495,6 +523,24 @@ public class EnvironmentalDataVisualization extends ConsolePanel implements Rend
         }
     }
 
+    private void cleanChlorophyllDataPointsBeforeDate(Date dateLimit) {
+        if (dateLimit == null)
+            return;
+        
+        for (String dpID : dataPointsChlorophyll.keySet().toArray(new String[0])) {
+            BaseDataPoint<?> dp = dataPointsChlorophyll.get(dpID);
+            if (dp == null)
+                continue;
+            
+            if (dp.getDateUTC().before(dateLimit))
+                dataPointsChlorophyll.remove(dpID);
+            else {
+                // Cleanup historicalData
+                dp.purgeAllBefore(dateLimit);
+            }
+        }
+    }
+
     public void mergeCurrentsDataToInternalDataList(HashMap<String, HFRadarDataPoint> toMergeData) {
         for (String dpId : toMergeData.keySet()) {
             HFRadarDataPoint dp = toMergeData.get(dpId);
@@ -508,6 +554,7 @@ public class EnvironmentalDataVisualization extends ConsolePanel implements Rend
             }
         }
     }
+    
 
     public void mergeSSTDataToInternalDataList(HashMap<String, SSTDataPoint> toMergeData) {
         for (String dpId : toMergeData.keySet()) {
@@ -537,6 +584,7 @@ public class EnvironmentalDataVisualization extends ConsolePanel implements Rend
             }
         }
     }
+    
 
     public void mergeWavesDataToInternalDataList(HashMap<String, WavesDataPoint> toMergeData) {
         for (String dpId : toMergeData.keySet()) {
@@ -552,6 +600,7 @@ public class EnvironmentalDataVisualization extends ConsolePanel implements Rend
         }
     }
 
+    
     /**
      * @param dpToMerge
      * @param dpOriginal
@@ -584,6 +633,22 @@ public class EnvironmentalDataVisualization extends ConsolePanel implements Rend
         if (toAddDP.size() > 0)
             histOrigData.addAll(toAddDP);
     }
+    
+    public void mergeChlorophyllDataToInternalDataList(HashMap<String, ChlorophyllDataPoint> toMergeData) {
+        for (String dpId : toMergeData.keySet()) {
+            ChlorophyllDataPoint dp = toMergeData.get(dpId);
+            ChlorophyllDataPoint dpo = dataPointsChlorophyll.get(dpId);
+            if (dpo == null) {
+                dataPointsChlorophyll.put(dpId, dp);
+                dpo = dp;
+            }
+            else {
+                mergeDataPointsWorker(dp, dpo);
+            }
+        }
+        debugOut(toMergeData.size() + " vs " + dataPointsChlorophyll.size());
+    }
+
 
     private void loadCurrentsFromFiles() {
         // TUV files
@@ -642,6 +707,18 @@ public class EnvironmentalDataVisualization extends ConsolePanel implements Rend
             HashMap<String, WavesDataPoint> wavesdp = processWavesFile(fx.getAbsolutePath());
             if (wavesdp != null && wavesdp.size() > 0)
                 mergeWavesDataToInternalDataList(wavesdp);
+        }
+    }
+
+    private void loadChlorophyllFromFiles() {
+        File[] fileList = FileUtil.getFilesFromDisk(baseFolderForChlorophyllNetCDFFiles, chlorophyllFilePattern);
+        if (fileList == null)
+            return;
+
+        for (File fx : fileList) {
+            HashMap<String, ChlorophyllDataPoint> chlorophylldp = processChlorophyllFile(fx.getAbsolutePath());
+            if (chlorophylldp != null && chlorophylldp.size() > 0)
+                mergeChlorophyllDataToInternalDataList(chlorophylldp);
         }
     }
 
@@ -755,6 +832,10 @@ public class EnvironmentalDataVisualization extends ConsolePanel implements Rend
                 EnvDataPaintHelper.paintSSTInGraphics(renderer, g2, dateColorLimit, dateLimit, dataPointsSST, ignoreDateLimitToLoad,
                         offScreen.getOffScreenBufferPixel(), colorMapSST, minSST, maxSST, showSSTLegend,
                         showSSTLegendFromZoomLevel, font8Pt, showDataDebugLegend);
+            if (showChlorophyll)
+                EnvDataPaintHelper.paintChlorophyllInGraphics(renderer, g2, dateColorLimit, dateLimit, dataPointsChlorophyll, ignoreDateLimitToLoad,
+                        offScreen.getOffScreenBufferPixel(), colorMapChlorophyll, minChlorophyll, maxChlorophyll, showChlorophyllLegend,
+                        showChlorophyllLegendFromZoomLevel, font8Pt, showDataDebugLegend);
             if (showWind)
                 EnvDataPaintHelper.paintWindInGraphics(renderer, g2, dateColorLimit, dateLimit, dataPointsWind, ignoreDateLimitToLoad,
                         offScreen.getOffScreenBufferPixel(), useColorMapForWind, colorMapWind, 0, maxWind, font8Pt,
@@ -809,6 +890,14 @@ public class EnvironmentalDataVisualization extends ConsolePanel implements Rend
             Graphics2D gl = (Graphics2D) go.create();
             gl.translate(offsetWidth, offsetHeight);
             EnvDataPaintHelper.paintColorBar(gl, renderer, colorMapWaves, I18n.text("Waves"), "m", 0, maxWaves);
+            gl.dispose();
+            offsetHeight += offsetDelta;
+        }
+        if (showChlorophyll && showChlorophyllColorbar && counter > 0) {
+            counter--;
+            Graphics2D gl = (Graphics2D) go.create();
+            gl.translate(offsetWidth, offsetHeight);
+            EnvDataPaintHelper.paintColorBar(gl, renderer, colorMapChlorophyll, I18n.text("Chlorophyll"), "mg/m\u00B3", minChlorophyll, maxChlorophyll);
             gl.dispose();
             offsetHeight += offsetDelta;
         }
@@ -883,6 +972,15 @@ public class EnvironmentalDataVisualization extends ConsolePanel implements Rend
         if (!new File(fxName).exists())
             return new HashMap<>();
         return LoaderHelper.processWavesFile(fxName, ignoreDateLimitToLoad ? null : createDateLimitToRemove());
+    }
+
+    private HashMap<String, ChlorophyllDataPoint> processChlorophyllFile(String fileName) {
+        String fxName = FileUtil.getResourceAsFileKeepName(fileName);
+        if (fxName == null)
+            fxName = fileName;
+        if (!new File(fxName).exists())
+            return new HashMap<>();
+        return LoaderHelper.processChlorophyllFile(fxName, ignoreDateLimitToLoad ? null : createDateLimitToRemove());
     }
 
     private HashMap<String, HFRadarDataPoint> processNoaaHFRadar(Reader readerInput) {
