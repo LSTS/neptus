@@ -178,8 +178,8 @@ public class NeptusRuntime extends InteractionAdapter implements NVLRuntime {
             if(sent)
                 NeptusLog.pub().info(I18n.text(task.getId()+" sent to"+vehicle_id));
             else
-                NeptusLog.pub().info(I18n.text("Unnable to send "+task.getId()+" to"+vehicle_id));
-            exec.synchronizedWithVehicles(sent); 
+                NeptusLog.pub().info(I18n.text("Unable to send "+task.getId()+" to"+vehicle_id));
+            exec.synchronizedWithVehicles(sent); //unable
             runningTasks.add(exec);  
 	    }
 		return runningTasks;

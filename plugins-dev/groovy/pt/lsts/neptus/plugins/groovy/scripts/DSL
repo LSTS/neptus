@@ -25,6 +25,6 @@ new Plan ("DSL").with {
 	setVehicles "lauv-noptilus-2"
 	
 	addToConsole()
-	sendTo  "lauv-noptilus-2"
+
 
 }
