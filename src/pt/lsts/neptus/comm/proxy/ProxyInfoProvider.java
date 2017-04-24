@@ -34,6 +34,7 @@ package pt.lsts.neptus.comm.proxy;
 
 import java.awt.Window;
 import java.io.File;
+import java.net.InetAddress;
 
 import org.apache.http.HttpException;
 import org.apache.http.HttpHost;
@@ -47,11 +48,13 @@ import org.apache.http.auth.Credentials;
 import org.apache.http.auth.UsernamePasswordCredentials;
 import org.apache.http.client.CredentialsProvider;
 import org.apache.http.client.HttpClient;
+import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.protocol.HttpClientContext;
 import org.apache.http.conn.routing.HttpRoute;
 import org.apache.http.conn.routing.HttpRoutePlanner;
 import org.apache.http.impl.client.BasicCredentialsProvider;
 import org.apache.http.impl.client.HttpClientBuilder;
+import org.apache.http.impl.conn.DefaultRoutePlanner;
 import org.apache.http.protocol.HttpContext;
 import org.apache.http.protocol.HttpCoreContext;
 
@@ -198,13 +201,19 @@ public class ProxyInfoProvider {
      * @param client to add a route planner
      */
     public static void setRoutePlanner(final HttpClientBuilder client) {
+        DefaultRoutePlanner drp = new DefaultRoutePlanner(null);
         client.setRoutePlanner(new HttpRoutePlanner() {
             @Override
             public HttpRoute determineRoute(HttpHost target, HttpRequest request, HttpContext context)
                     throws HttpException {
+                final HttpClientContext clientContext = HttpClientContext.adapt(context);
+                final RequestConfig config = clientContext.getRequestConfig();
+                final InetAddress local = config.getLocalAddress();
                 String[] ret = getConfiguratons();
-                if (ret.length == 0)
-                    return new HttpRoute(target, null, target, "https".equalsIgnoreCase(target.getSchemeName()));
+                if (ret.length == 0) {
+                    HttpRoute ht = drp.determineRoute(target, request, clientContext);
+                    return ht; //new HttpRoute(target, local, target, "https".equalsIgnoreCase(target.getSchemeName()));
+                }
 
                 String proxyHost = ret[0];
                 short proxyPort = Short.parseShort(ret[3]);
@@ -217,7 +226,7 @@ public class ProxyInfoProvider {
                         new UsernamePasswordCredentials(username, password)); // client.getCredentialsProvider()
                 client.setDefaultCredentialsProvider(credProv);
                 
-                return new HttpRoute(target, null, new HttpHost(proxyHost, proxyPort), "https".equalsIgnoreCase(target
+                return new HttpRoute(target, local, new HttpHost(proxyHost, proxyPort), "https".equalsIgnoreCase(target
                         .getSchemeName()));
             }
         });
