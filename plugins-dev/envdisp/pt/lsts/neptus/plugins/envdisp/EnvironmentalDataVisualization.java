@@ -135,7 +135,7 @@ public class EnvironmentalDataVisualization extends ConsolePanel implements Rend
     @NeptusProperty(name = "Show Chlorophyll legend", userLevel = LEVEL.REGULAR, category=CATEGORY_VISIBILITY)
     public boolean showChlorophyllLegend = true;
     @NeptusProperty(name = "Show Chlorophyll legend from zoom level bigger than", userLevel = LEVEL.REGULAR, category=CATEGORY_VISIBILITY)
-    public int showChlorophyllLegendFromZoomLevel = 11;
+    public int showChlorophyllLegendFromZoomLevel = 13;
 
     @NeptusProperty(name = "Show currents colorbar", userLevel = LEVEL.REGULAR, category = CATEGORY_VISIBILITY,
             description = "Show the color scale bar. Only one will show.")
@@ -152,6 +152,17 @@ public class EnvironmentalDataVisualization extends ConsolePanel implements Rend
     @NeptusProperty(name = "Show chlorophyll colorbar", userLevel = LEVEL.REGULAR, category = CATEGORY_VISIBILITY,
             description = "Show the color scale bar. Only one will show.")
     public boolean showChlorophyllColorbar = false;
+
+    @NeptusProperty(name = "Colorbar for currents", userLevel = LEVEL.REGULAR, category = CATEGORY_VISIBILITY)
+    private ColorMap colorMapCurrents = ColorMapFactory.createJetColorMap();
+    @NeptusProperty(name = "Colorbar for SST", userLevel = LEVEL.REGULAR, category = CATEGORY_VISIBILITY)
+    private ColorMap colorMapSST = ColorMapFactory.createJetColorMap();
+    @NeptusProperty(name = "Colorbar for wind", userLevel = LEVEL.REGULAR, category = CATEGORY_VISIBILITY)
+    private ColorMap colorMapWind = colorMapCurrents;
+    @NeptusProperty(name = "Colorbar for waves", userLevel = LEVEL.REGULAR, category = CATEGORY_VISIBILITY)
+    private ColorMap colorMapWaves = ColorMapFactory.createJetColorMap();
+    @NeptusProperty(name = "Colorbar for chlorophyll", userLevel = LEVEL.REGULAR, category = CATEGORY_VISIBILITY)
+    private ColorMap colorMapChlorophyll = ColorMapFactory.createWinterColorMap();
 
     @NeptusProperty(name = "Minutes between file updates", category=CATEGORY_DATA_UPDATE)
     public long updateFileDataMinutes = 5;
@@ -218,23 +229,18 @@ public class EnvironmentalDataVisualization extends ConsolePanel implements Rend
     // private static final String sampleMeteoFile = "meteo_20130705.nc";
     // private static final String sampleWavesFile = "waves_S_20130704.nc";
     
-    private final ColorMap colorMapCurrents = ColorMapFactory.createJetColorMap();
     // private final double minCurrentCmS = 0;
     private final double maxCurrentCmS = 200;
 
-    private final ColorMap colorMapSST = ColorMapFactory.createJetColorMap();
     private final double minSST = -10;
     private final double maxSST = 40;
 
-    private final ColorMap colorMapWind = colorMapCurrents;
     // private final double minWind = 0;
     private final double maxWind = 65 / UnitsUtil.MS_TO_KNOT;
 
-    private final ColorMap colorMapWaves = ColorMapFactory.createJetColorMap();
     // private final double minWaves = 0;
     private final double maxWaves = 7;
 
-    private final ColorMap colorMapChlorophyll = ColorMapFactory.createJetColorMap();
     private final double minChlorophyll = 0.01; //mg/m3 log
     private final double maxChlorophyll = 60; //mg/m3
 
