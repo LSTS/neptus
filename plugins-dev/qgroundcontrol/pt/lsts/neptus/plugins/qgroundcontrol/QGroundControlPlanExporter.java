@@ -200,8 +200,8 @@ public class QGroundControlPlanExporter implements IPlanFileExporter {
     /**
      * @return
      */
-    private int getMAVFrame() {
-        return mavFrame.ordinal();
+    private long getMAVFrame() {
+        return mavFrame.value();
     }
 
     /**
