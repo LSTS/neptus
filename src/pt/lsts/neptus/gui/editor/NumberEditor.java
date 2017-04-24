@@ -456,4 +456,10 @@ public class NumberEditor<T extends Number> extends NumberPropertyEditor impleme
     public void setEnableValidation(boolean enableValidation) {
         this.enableValidation = enableValidation;
     }
+    
+    public static class UInteger extends NumberEditor<Integer> {
+        public UInteger() {
+            super(Integer.class, 0, Integer.MAX_VALUE);
+        }
+    }
 }
