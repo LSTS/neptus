@@ -690,7 +690,7 @@ class Plan {
         plantype
      }
 
-	void sendTo (String vehicle,long milis=60000) {
+	void sendTo (String vehicle) {
 		def plan_spec = this.asPlanSpecification() //TODO verify if is not null
 		def select = false
 		PlanControl plan = 	new PlanControl(
@@ -707,7 +707,7 @@ class Plan {
         def error_msg = "Error sending plan: "+plan_id+" to "+vehicle
 		//while(!select.equals(null)) vehicles_id.each {protocol.connect(it); def select = protocol.waitfor(it,milis)}
 		if (select != null && IMCSendMessageUtils.sendMessage(plan,error_msg,false, vehicle)) //IMCSendMessageUtils.sendMessage(plan,false,vehicle)
-			println ("$plan_id commanded to $vehicle")
+			println ("$plan_id sent to $vehicle")
 		else
 			println ("Error communicating with $vehicle")
 	}
@@ -726,7 +726,7 @@ class Plan {
             try{
                 if(neptus_plan.validatePlan())
                 neptusConsole.getMission().addPlan(neptus_plan)
-                println neptus_plan.asIMCPlan().asJSON()
+                //println neptus_plan.asIMCPlan().asJSON()
             }
             catch (Exception e) {
                 //NeptusLog.pub().error(I18n.text("The Neptus plan generated has an error: "+e.getMessage()))

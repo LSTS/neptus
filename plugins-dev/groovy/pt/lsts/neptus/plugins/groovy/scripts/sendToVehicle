@@ -12,5 +12,5 @@ locations.each {
 def plan = new Plan ("Travel")
 
     pois.each {plan.goTo location:it}
-    plan.sendTo "lauv-xplore-2"
+    plan.sendTo "lauv-noptilus-2"
     

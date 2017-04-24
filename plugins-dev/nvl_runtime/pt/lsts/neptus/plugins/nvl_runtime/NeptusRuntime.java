@@ -142,15 +142,16 @@ public class NeptusRuntime extends InteractionAdapter implements NVLRuntime {
             if(!this.getConsole().getMission().getIndividualPlansList().containsKey(changedPlan.getOld().getId())){
                 tasks.remove(changedPlan.getOld().getId());
             }
-            else{
-                tasks.put(changedPlan.getCurrent().getId(), new NeptusTaskSpecificationAdapter(changedPlan.getCurrent()));
-            }
+        }
+        else{
+            tasks.put(changedPlan.getCurrent().getId(), new NeptusTaskSpecificationAdapter(changedPlan.getCurrent()));
         }
     }
 
 
 	@Override
-	public List<TaskExecution> launchTask(TaskSpecification task, List<NVLVehicle> vehicles) { 
+	public List<TaskExecution> launchTask(TaskSpecification task, List<NVLVehicle> vehicles) {
+	    
 	    NeptusTaskSpecificationAdapter neptus_plan = (NeptusTaskSpecificationAdapter) task;
 	    tasks.put(task.getId(),neptus_plan);
 	    List<String> vs = new ArrayList<>();

@@ -22,8 +22,9 @@ new Plan ("DSL").with {
 	
 	skeeping location:home
 	
-	setVehicles "lauv-noptilus-3"
+	setVehicles "lauv-noptilus-2"
 	
-	addToConsole() 
+	addToConsole()
+	sendTo  "lauv-noptilus-2"
 
 }
