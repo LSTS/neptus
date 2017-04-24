@@ -129,7 +129,45 @@ public class OffScreenLayerImageControl {
      * @return the lastCenter
      */
     public LocationType getLastCenter() {
-        return lastCenter.getNewAbsoluteLatLonDepth();
+        return lastCenter == null ? null : lastCenter.getNewAbsoluteLatLonDepth();
+    }
+    
+    /**
+     * Calculates the corner locations, clockwise from top left (4 points), or null if some error occurs.
+     * 
+     * @return
+     */
+    public LocationType[] getLastCorners() {
+        try {
+            Dimension dim = new Dimension(this.dim);
+            int lastLod = this.lastLod;
+            LocationType lastCenter = this.lastCenter.getNewAbsoluteLatLonDepth();
+            double lastRotation = this.lastRotation;
+
+            double topY = -dim.getHeight() / 2d;
+            double bottomY = dim.getHeight() / 2d;
+            double leftX = -dim.getWidth() / 2d;
+            double rightX = dim.getWidth() / 2d;
+            double[] topLeftPts = AngleUtils.rotate(lastRotation, leftX, topY, true);
+            double[] topRightPts = AngleUtils.rotate(lastRotation, rightX, topY, true);
+            double[] bottomRightPts = AngleUtils.rotate(lastRotation, rightX, bottomY, true);
+            double[] bottomLeftPts = AngleUtils.rotate(lastRotation, leftX, bottomY, true);
+            
+            LocationType lTopLeft = lastCenter.getNewAbsoluteLatLonDepth();
+            lTopLeft.translateInPixel(topLeftPts[0], topLeftPts[1], lastLod);
+            LocationType lTopRight = lastCenter.getNewAbsoluteLatLonDepth();
+            lTopRight.translateInPixel(topRightPts[0], topRightPts[1], lastLod);
+            LocationType lBottomRight = lastCenter.getNewAbsoluteLatLonDepth();
+            lBottomRight.translateInPixel(bottomRightPts[0], bottomRightPts[1], lastLod);
+            LocationType lBottomLeft = lastCenter.getNewAbsoluteLatLonDepth();
+            lBottomLeft.translateInPixel(bottomLeftPts[0], bottomLeftPts[1], lastLod);
+            
+            return new LocationType[] {lTopLeft, lTopRight, lBottomRight, lBottomLeft};
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
     }
     
     public Dimension getCurDimentions(Dimension rv) {
