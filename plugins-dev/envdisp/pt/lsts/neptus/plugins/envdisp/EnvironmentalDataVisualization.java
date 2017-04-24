@@ -32,7 +32,6 @@
  */
 package pt.lsts.neptus.plugins.envdisp;
 
-import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.Graphics2D;
 import java.io.BufferedReader;
@@ -57,6 +56,8 @@ import java.util.regex.Pattern;
 
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
+import org.apache.http.client.ClientProtocolException;
+import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
 
 import pt.lsts.neptus.NeptusLog;
@@ -77,8 +78,10 @@ import pt.lsts.neptus.renderer2d.OffScreenLayerImageControl;
 import pt.lsts.neptus.renderer2d.Renderer2DPainter;
 import pt.lsts.neptus.renderer2d.StateRenderer2D;
 import pt.lsts.neptus.types.coord.LocationType;
+import pt.lsts.neptus.util.AngleUtils;
 import pt.lsts.neptus.util.DateTimeUtil;
 import pt.lsts.neptus.util.FileUtil;
+import pt.lsts.neptus.util.StreamUtil;
 import pt.lsts.neptus.util.UnitsUtil;
 import pt.lsts.neptus.util.http.client.HttpClientConnectionHelper;
 
@@ -129,16 +132,16 @@ public class EnvironmentalDataVisualization extends ConsolePanel implements Rend
     public boolean useColorMapForWind = true;
 
     @NeptusProperty(name = "Show currents colorbar", userLevel = LEVEL.REGULAR, category = CATEGORY_VISIBILITY,
-            description = "Show thr color scale bar. Only one will show.")
+            description = "Show the color scale bar. Only one will show.")
     public boolean showCurrentsColorbar = false;
     @NeptusProperty(name = "Show SST colorbar", userLevel = LEVEL.REGULAR, category = CATEGORY_VISIBILITY,
-            description = "Show thr color scale bar. Only one will show.")
+            description = "Show the color scale bar. Only one will show.")
     public boolean showSSTColorbar = false;
     @NeptusProperty(name = "Show wind colorbar", userLevel = LEVEL.REGULAR, category = CATEGORY_VISIBILITY,
-            description = "Show thr color scale bar. Only one will show.")
+            description = "Show the color scale bar. Only one will show.")
     public boolean showWindColorbar = false;
     @NeptusProperty(name = "Show waves colorbar", userLevel = LEVEL.REGULAR, category = CATEGORY_VISIBILITY,
-            description = "Show thr color scale bar. Only one will show.")
+            description = "Show the color scale bar. Only one will show.")
     public boolean showWavesColorbar = false;
 
     @NeptusProperty(name = "Minutes between file updates", category=CATEGORY_DATA_UPDATE)
@@ -162,12 +165,12 @@ public class EnvironmentalDataVisualization extends ConsolePanel implements Rend
             description = "The folder to look for waves (significant height, peak period and direction) data. Admissible files '*.nc'. NetCDF variables used: lat, lon, time, hs, tp, pdir.",
             editorClass = FolderPropertyEditor.class)
     public File baseFolderForWavesNetCDFFiles = new File("IHData/WAVES");
+    @NeptusProperty(name = "Request HF_Radar data from NOOA", userLevel = LEVEL.REGULAR, category = CATEGORY_DATA_UPDATE)
+    public boolean requestFromNooaWeb = false;
     
     @NeptusProperty(name = "Show visible data date-time interval", userLevel = LEVEL.ADVANCED, category = CATEGORY_TEST, 
             description = "Draws the string with visible curents data date-time interval.")
     public boolean showDataDebugLegend = false;
-    @NeptusProperty(name = "Request data from Web", editable = false, userLevel = LEVEL.ADVANCED, category=CATEGORY_TEST, description = "Don't use this (testing purposes).")
-    public boolean requestFromWeb = false;
     @NeptusProperty(name = "Load data from file (hfradar.txt)", editable = false, userLevel = LEVEL.ADVANCED, category=CATEGORY_TEST, description = "Don't use this (testing purposes).")
     public boolean loadFromFile = false;
     
@@ -179,7 +182,7 @@ public class EnvironmentalDataVisualization extends ConsolePanel implements Rend
     private static final String meteoFilePattern = netCDFFilePattern; // "^meteo_\\d{8}\\.nc$";
     private static final String wavesFilePattern = netCDFFilePattern; // "^waves_[a-zA-Z]{1,2}_\\d{8}\\.nc$";
 
-    private final Font font8Pt = new Font("Helvetica", Font.PLAIN, 8);
+    private final Font font8Pt = new Font("Helvetica", Font.PLAIN, 9);
 
     static final SimpleDateFormat dateTimeFormaterUTC = new SimpleDateFormat("yyyy-MM-dd HH':'mm':'ss") {{setTimeZone(TimeZone.getTimeZone("UTC"));}};
     static final SimpleDateFormat dateTimeFormaterSpacesUTC = new SimpleDateFormat("yyyy MM dd  HH mm ss") {{setTimeZone(TimeZone.getTimeZone("UTC"));}};
@@ -192,18 +195,17 @@ public class EnvironmentalDataVisualization extends ConsolePanel implements Rend
     //  http://hfradar.ndbc.noaa.gov/tab.php?from=2013-06-22%2015:00:00&to=2013-06-22%2015:00:00&p=1&lat=38.324420427006515&lng=-119.94323730468749&lat2=35.69299463209881&lng2=-124.33776855468749
     //  http://hfradar.ndbc.noaa.gov/tabdownload.php?from=2013-06-23%2009:34:00&to=2013-06-23%2021:34:00&lat=37.78799270017669&lng=-122.39269445535145&lat2=37.78781729434937&lng2=-122.39236722585163
     private final String noaaURL = "http://hfradar.ndbc.noaa.gov/tabdownload.php?" +
-    		"from=#FROM_DATE#%20#FROM_TIME#:00&to=#TO_DATE#%20#TO_TIME#:00&lat=#LAT1#&lng=#LNG1#&lat2=#LAT2#&lng2=#LNG2#";
+    		"from=#FROM_DATE#%20#FROM_TIME#:00&to=#TO_DATE#%20#TO_TIME#:00&lat=#LAT1#&lng=#LNG1#&lat2=#LAT2#&lng2=#LNG2#&uom=cms&fmt=tsv";
     // lat lon speed (cm/s)    degree  acquired    resolution (km) origin
-    //private double noaaMaxLat=75.40885422846455, noaaMinLng=-42.1875, noaaMinLat=12.21118019150401, noaaMaxLng=177.1875;
-    private final double noaaMaxLat=55.47885346331034, noaaMaxLng=-61.87500000000001, noaaMinLat=14.093957177836236, noaaMinLng=-132.1875;
-    
+    @SuppressWarnings("unused")
+    private final double noaaMaxLat = 55.47885346331034, noaaMaxLng = -61.87500000000001, noaaMinLat = 14.093957177836236, noaaMinLng = -132.1875;
+
     private static final String sampleNoaaFile = "hfradar-noaa-sample1.txt";
     // private static final String sampleTuvFile = "TOTL_TRAD_2013_07_04_1100.tuv";
     // private static final String sampleMeteoFile = "meteo_20130705.nc";
     // private static final String sampleWavesFile = "waves_S_20130704.nc";
     
-    private final ColorMap colorMapCurrents = ColorMapFactory.createJetColorMap(); //new InterpolationColorMap("RGB", new double[] { 0.0, 0.1, 0.3, 0.5, 1.0 }, new Color[] {
-            //new Color(0, 0, 255), new Color(0, 0, 255), new Color(0, 255, 0), new Color(255, 0, 0), new Color(255, 0, 0) });
+    private final ColorMap colorMapCurrents = ColorMapFactory.createJetColorMap();
     // private final double minCurrentCmS = 0;
     private final double maxCurrentCmS = 200;
 
@@ -231,6 +233,7 @@ public class EnvironmentalDataVisualization extends ConsolePanel implements Rend
     private final HashMap<String, WavesDataPoint> dataPointsWaves = new HashMap<>();
 
     @PluginDescription(name="Environmental Data Visualization Layer", icon="pt/lsts/neptus/plugins/envdisp/hf-radar.png")
+    @LayerPriority(priority = -300)
     private class EnvironmentalDataConsoleLayer extends ConsoleLayer {
         @Override
         public void setVisible(boolean visible) {
@@ -325,13 +328,14 @@ public class EnvironmentalDataVisualization extends ConsolePanel implements Rend
     public synchronized boolean update() {
         NeptusLog.pub().info("Update");
         
-//        if (false && requestFromWeb) {
-//            HashMap<String, HFRadarDataPoint> dpLts = getNoaaHFRadarData();
-//            if (dpLts != null) {
-//                System.out.println(dpLts.size() + " ------------------------------");
-//                
-//            }
-//        }
+        if (requestFromNooaWeb) {
+            HashMap<String, HFRadarDataPoint> dpLts = getNoaaHFRadarData();
+            if (dpLts != null && dpLts.size() > 0) {
+                mergeCurrentsDataToInternalDataList(dpLts);
+                System.out.println(dpLts.size() + " ------------------------------");
+            }
+        }
+
         if (lastMillisFileDataUpdated <= 0
                 || System.currentTimeMillis() - lastMillisFileDataUpdated >= updateFileDataMinutes * 60 * 1000) {
             lastMillisFileDataUpdated = System.currentTimeMillis();
@@ -647,16 +651,15 @@ public class EnvironmentalDataVisualization extends ConsolePanel implements Rend
         LocationType lastCenter = offScreen.getLastCenter();
         if (lastCenter == null)
             return null;
-        LocationType lc = lastCenter;//.getNewAbsoluteLatLonDepth();
-        Dimension boxDim = offScreen.getCurDimentions(null); // dim.getSize();
-        LocationType lTop = lc.getNewAbsoluteLatLonDepth();
-        lTop.translateInPixel(-boxDim.getWidth() / 2, -boxDim.getHeight() / 2, 22);
-        LocationType lBot = lc.getNewAbsoluteLatLonDepth();
-        lBot.translateInPixel(boxDim.getWidth() / 2, boxDim.getHeight() / 2, 22);
+        LocationType[] cornersLocs = offScreen.getLastCorners();
+        if (cornersLocs == null)
+            return null;
         
-        lTop = new LocationType(noaaMaxLat, noaaMaxLng);
-        lBot = new LocationType(noaaMinLat, noaaMinLng);
-        return getNoaaHFRadarData(tillDate, nowDate, lTop, lBot);
+//        if (cornersLocs[0].getLatitudeDegs() > noaaMaxLat
+//                )
+//            return null;
+        
+        return getNoaaHFRadarData(tillDate, nowDate, cornersLocs[3], cornersLocs[1]);
     }
     
     public HashMap<String, HFRadarDataPoint> getNoaaHFRadarData(Date tillDate, Date nowDate, LocationType lTop, LocationType lBot) {
@@ -673,7 +676,7 @@ public class EnvironmentalDataVisualization extends ConsolePanel implements Rend
 
             
             getHttpRequest = new HttpGet(uri);
-            getHttpRequest.setHeader("Referer", "http://hfradar.ndbc.noaa.gov/tab.php");
+            getHttpRequest.setHeader("Referer", uri /*"http://hfradar.ndbc.noaa.gov/tab.php"*/);
             @SuppressWarnings("unused")
             long reqTime = System.currentTimeMillis();
             HttpResponse iGetResultCode = httpComm.getClient().execute(getHttpRequest);
@@ -694,7 +697,7 @@ public class EnvironmentalDataVisualization extends ConsolePanel implements Rend
             return lst;
         }
         catch (Exception e) {
-            e.printStackTrace();
+            NeptusLog.pub().debug(e);
         }
         finally {
             if (getHttpRequest != null) {
@@ -890,6 +893,7 @@ public class EnvironmentalDataVisualization extends ConsolePanel implements Rend
         try {
             reader = new BufferedReader(readerInput);
             String line = reader.readLine();
+            line = reader.readLine(); // ignoring header line
             for (/* int i = 0 */; line != null; /* i++ */) {
                 if (line.startsWith("#")) {
                     line = reader.readLine();
@@ -898,16 +902,16 @@ public class EnvironmentalDataVisualization extends ConsolePanel implements Rend
 
                 String[] tokens = line.split("[\t ,]");
                 try {
-                    String dateStr = tokens[4];
-                    String timeStr = tokens[5];
+                    String dateStr = tokens[4].replaceAll("\"", "");
+                    String timeStr = tokens[5].replaceAll("\"", "");
                     Date date = dateTimeFormaterUTC.parse(dateStr + " " + timeStr);
                     if (date.before(dateLimite) && !ignoreDateLimitToLoad) {
                         line = reader.readLine();
                         continue;
                     }
                     
-                    double lat = Double.parseDouble(tokens[0]);
-                    double lon = Double.parseDouble(tokens[1]);
+                    double lat = AngleUtils.nomalizeAngleDegrees180(Double.parseDouble(tokens[0]));
+                    double lon =  AngleUtils.nomalizeAngleDegrees180(Double.parseDouble(tokens[1]));
                     HFRadarDataPoint dp = new HFRadarDataPoint(lat, lon);
                     dp.setSpeedCmS(Double.parseDouble(tokens[2]));
                     dp.setHeadingDegrees(Double.parseDouble(tokens[3]));
@@ -1084,9 +1088,28 @@ public class EnvironmentalDataVisualization extends ConsolePanel implements Rend
         
         System.out.println(59 - 59 %4);
         
+        String url = "http://hfradar.ndbc.noaa.gov/tabdownload.php?from=2017-04-23%2023:40:00&to=2017-04-24%2011:40:00&lat=24.72893474935707&lng=-130.71583135132266&lat2=46.951810314247766&lng2=-85.89161260132266";
+        HttpClientConnectionHelper httpComm = new HttpClientConnectionHelper("Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/57.0.2987.133 Safari/537.36");
+        httpComm.initializeComm();
+        HttpGet hget = new HttpGet(url);
+        hget.setHeader("Referer", url);
+        try {
+            CloseableHttpResponse iGetResultCode = httpComm.getClient().execute(hget);
+            InputStream ris = iGetResultCode.getEntity().getContent();
+            System.out.println(StreamUtil.copyStreamToString(ris));
+        }
+        catch (ClientProtocolException e1) {
+            // TODO Auto-generated catch block
+            e1.printStackTrace();
+        }
+        catch (IOException e1) {
+            // TODO Auto-generated catch block
+            e1.printStackTrace();
+        }
+
         if (true)
             return;
-        
+
         String currentsFilePattern = "TOTL_TRAD_\\d{4}_\\d{2}_\\d{2}_\\d{4}\\.tuv";
         // String meteoFilePattern = "meteo_\\d{8}\\.nc";
         // String wavesFilePattern = "waves_[a-zA-Z]{1,2}_\\d{8}\\.nc";
