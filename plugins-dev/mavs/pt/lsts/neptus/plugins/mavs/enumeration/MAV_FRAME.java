@@ -30,7 +30,7 @@
  * Author: pdias
  * 24/04/2017
  */
-package pt.lsts.neptus.plugins.qgroundcontrol.enumeration;
+package pt.lsts.neptus.plugins.mavs.enumeration;
 
 /**
  * @author pdias

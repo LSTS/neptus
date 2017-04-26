@@ -30,7 +30,7 @@
  * Author: pdias
  * 24/04/2017
  */
-package pt.lsts.neptus.plugins.qgroundcontrol;
+package pt.lsts.neptus.plugins.mavs;
 
 import java.io.File;
 import java.text.SimpleDateFormat;
@@ -54,8 +54,8 @@ import pt.lsts.neptus.mp.maneuvers.ManeuversUtil;
 import pt.lsts.neptus.mp.maneuvers.PathProvider;
 import pt.lsts.neptus.plugins.NeptusProperty;
 import pt.lsts.neptus.plugins.NeptusProperty.LEVEL;
+import pt.lsts.neptus.plugins.mavs.enumeration.MAV_FRAME;
 import pt.lsts.neptus.plugins.PluginUtils;
-import pt.lsts.neptus.plugins.qgroundcontrol.enumeration.MAV_FRAME;
 import pt.lsts.neptus.types.mission.plan.IPlanFileExporter;
 import pt.lsts.neptus.types.mission.plan.PlanType;
 
