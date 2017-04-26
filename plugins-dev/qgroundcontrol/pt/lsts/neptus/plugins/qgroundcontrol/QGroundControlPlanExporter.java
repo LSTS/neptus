@@ -49,6 +49,7 @@ import pt.lsts.neptus.mp.ManeuverLocation;
 import pt.lsts.neptus.mp.ManeuverLocation.Z_UNITS;
 import pt.lsts.neptus.mp.maneuvers.Goto;
 import pt.lsts.neptus.mp.maneuvers.LocatedManeuver;
+import pt.lsts.neptus.mp.maneuvers.Loiter;
 import pt.lsts.neptus.mp.maneuvers.ManeuversUtil;
 import pt.lsts.neptus.mp.maneuvers.PathProvider;
 import pt.lsts.neptus.plugins.NeptusProperty;
@@ -64,9 +65,12 @@ import pt.lsts.neptus.types.mission.plan.PlanType;
  */
 public class QGroundControlPlanExporter implements IPlanFileExporter {
 
+    private static final int MPL_FORMAT_VERSION = 120;
+    
     private static final String NEW_LINE = "\r\n";
     private static final String SPACER_CHAR = "\t";
     private static final String COMMENT_CHAR = "#";
+    @SuppressWarnings("unused")
     private static final String COMMENT_CHAR_WITH_SPACE = COMMENT_CHAR + " ";
     
     private static final SimpleDateFormat dateFormatter = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'.0Z'", Locale.US);
@@ -125,31 +129,31 @@ public class QGroundControlPlanExporter implements IPlanFileExporter {
         
         StringBuilder sb = new StringBuilder();
         
-        // Writing plan name comment line
-        sb.append(COMMENT_CHAR_WITH_SPACE);
-        sb.append("Plan: ").append(plan.getId());
-        sb.append(NEW_LINE);
-
-        sb.append(COMMENT_CHAR_WITH_SPACE);
-        sb.append(getTimeStamp());
-        sb.append(NEW_LINE);
-
-        // Writing comment lines
-        sb.append(COMMENT_CHAR_WITH_SPACE);
-        sb.append("QGC WPL <VERSION>");
-        sb.append(NEW_LINE).append(COMMENT_CHAR_WITH_SPACE);
-        sb.append("<INDEX>\t<CURRENT WP>\t<COORD FRAME>\t<COMMAND>\t<PARAM1>\t<PARAM2>\t<PARAM3>\t<PARAM4>\t");
-        sb.append("<PARAM5/X/LONGITUDE>\t<PARAM6/Y/LATITUDE>\t<PARAM7/Z/ALTITUDE>\t<AUTOCONTINUE>");
-        sb.append(NEW_LINE).append(NEW_LINE);
+        // Writing plan name comment line (At the moment not supported)
+//        sb.append(COMMENT_CHAR_WITH_SPACE);
+//        sb.append("Plan: ").append(plan.getId());
+//        sb.append(NEW_LINE);
+//
+//        sb.append(COMMENT_CHAR_WITH_SPACE);
+//        sb.append(getTimeStamp());
+//        sb.append(NEW_LINE);
+//
+//        // Writing comment lines
+//        sb.append(COMMENT_CHAR_WITH_SPACE);
+//        sb.append("QGC WPL <VERSION>");
+//        sb.append(NEW_LINE).append(COMMENT_CHAR_WITH_SPACE);
+//        sb.append("<INDEX>\t<CURRENT WP>\t<COORD FRAME>\t<COMMAND>\t<PARAM1>\t<PARAM2>\t<PARAM3>\t<PARAM4>\t");
+//        sb.append("<PARAM5/X/LONGITUDE>\t<PARAM6/Y/LATITUDE>\t<PARAM7/Z/ALTITUDE>\t<AUTOCONTINUE>");
+//        sb.append(NEW_LINE).append(NEW_LINE);
         
-        
-        sb.append("QGC WPL 110").append(NEW_LINE);
+        sb.append("QGC WPL ").append(MPL_FORMAT_VERSION).append(NEW_LINE);
         
         processManeuvers(plan, sb);
         
         FileUtils.write(out, sb.toString());
     }
     
+    @SuppressWarnings("unused")
     private String getTimeStamp() {
         return dateFormatter.format(new Date());
     }
@@ -169,12 +173,14 @@ public class QGroundControlPlanExporter implements IPlanFileExporter {
                             speedMS));
                 }
             }
-//            else if (m instanceof StationKeeping) {
-//                ManeuverLocation wp = ((StationKeeping) m).getManeuverLocation();
-//                wp.convertToAbsoluteLatLonDepth();
-//                sb.append(getCommandKeepPosition(wp.getLatitudeDegs(), wp.getLongitudeDegs(), wp.getZ(), wp.getZUnits(),
-//                        ((StationKeeping) m).getDuration()));
-//            }
+            else if (m instanceof Loiter) {
+//              if (Double.isNaN(speedMS))
+//                  continue;
+                ManeuverLocation wp = ((Loiter) m).getManeuverLocation();
+                wp.convertToAbsoluteLatLonDepth();
+                sb.append(getCommandLoiter(wp.getLatitudeDegs(), wp.getLongitudeDegs(), wp.getZ(), wp.getZUnits(),
+                        ((Loiter) m).getRadius(), ((Loiter) m).getDirection(), ((Loiter) m).getBearing(), speedMS));
+            }
             else if (m instanceof Goto) { // Careful with ordering because of extensions
 //                if (Double.isNaN(speedMS))
 //                    continue;
@@ -216,7 +222,8 @@ public class QGroundControlPlanExporter implements IPlanFileExporter {
      * @throws Exception 
      *     
      */
-    private String getCommandGoto(double latDeg, double lonDeg, double z, Z_UNITS zUnits, double speedMS) throws Exception {
+    private String getCommandGoto(double latDeg, double lonDeg, double z, Z_UNITS zUnits, double speedMS)
+            throws Exception {
         StringBuilder sb = new StringBuilder();
         sb.append(getIndexAndCurWP()).append(SPACER_CHAR);
         sb.append(getMAVFrame()).append(SPACER_CHAR);
@@ -225,6 +232,47 @@ public class QGroundControlPlanExporter implements IPlanFileExporter {
         sb.append(acceptanceRadius).append(SPACER_CHAR); // param 2
         sb.append(0).append(SPACER_CHAR); // param 3
         sb.append(0).append(SPACER_CHAR); // param 4
+        sb.append(formatReal(latDeg, (short) 8)).append(SPACER_CHAR); // param 5
+        sb.append(formatReal(lonDeg, (short) 8)).append(SPACER_CHAR); // param 6
+        sb.append(formatZAndZUnits(z, zUnits)).append(SPACER_CHAR); // param 7
+        sb.append(1); // AUTOCONTINUE=1
+        return sb.toString();
+    }
+
+    /**
+     * @param latDegs
+     * @param lonDegs
+     * @param z
+     * @param zUnits
+     * @param radius
+     * @param direction
+     * @param bearingDegs
+     * @param speedMS
+     * @return
+     */
+    private Object getCommandLoiter(double latDeg, double lonDeg, double z, Z_UNITS zUnits, double radius,
+            String direction, double bearingDegs, double speedMS) throws Exception {
+
+        long radiusAround = Math.abs(Math.round(radius));
+        switch (direction) {
+            case "Counter-Clockwise":
+                radiusAround = -radiusAround;
+                break;
+            case "Vehicle Dependent":
+            case "Clockwise":
+            case "Into the Wind":
+            default:
+                break;
+        }
+
+        StringBuilder sb = new StringBuilder();
+        sb.append(getIndexAndCurWP()).append(SPACER_CHAR);
+        sb.append(getMAVFrame()).append(SPACER_CHAR);
+        sb.append(17).append(SPACER_CHAR);
+        sb.append(0).append(SPACER_CHAR); // param 1
+        sb.append(0).append(SPACER_CHAR); // param 2
+        sb.append(radiusAround).append(SPACER_CHAR); // param 3
+        sb.append(Math.round(bearingDegs)).append(SPACER_CHAR); // param 4
         sb.append(formatReal(latDeg, (short) 8)).append(SPACER_CHAR); // param 5
         sb.append(formatReal(lonDeg, (short) 8)).append(SPACER_CHAR); // param 6
         sb.append(formatZAndZUnits(z, zUnits)).append(SPACER_CHAR); // param 7
@@ -272,13 +320,13 @@ public class QGroundControlPlanExporter implements IPlanFileExporter {
             case HEIGHT:
                 if (z > 0 && mavFrame == MAV_FRAME.MAV_FRAME_GLOBAL) {
                     valid = Z_UNITS.HEIGHT;
-                    return formatReal(z, (short) 1);
+                    return formatInteger(Math.round(z));
                 }
             case ALTITUDE:
                 if (z > 0 && (mavFrame == MAV_FRAME.MAV_FRAME_GLOBAL_RELATIVE_ALT
                         || mavFrame == MAV_FRAME.MAV_FRAME_GLOBAL_TERRAIN_ALT)) {
                     valid = Z_UNITS.HEIGHT;
-                    return formatReal(z, (short) 1);
+                    return formatInteger(Math.round(z));
                 }
             case DEPTH:
             case NONE:
