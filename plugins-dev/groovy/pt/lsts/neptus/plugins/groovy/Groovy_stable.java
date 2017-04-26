@@ -33,10 +33,16 @@
 package pt.lsts.neptus.plugins.groovy;
 
 import java.awt.event.ActionEvent;
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintStream;
+import java.nio.CharBuffer;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
@@ -53,6 +59,7 @@ import org.codehaus.groovy.control.customizers.ImportCustomizer;
 import com.google.common.eventbus.Subscribe;
 
 import groovy.lang.Binding;
+import groovy.lang.Script;
 import groovy.util.GroovyScriptEngine;
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.comm.manager.imc.ImcSystem;
@@ -96,6 +103,7 @@ public class Groovy_stable extends InteractionAdapter {
     private CompilerConfiguration config;
     private Thread thread;
     private ImportCustomizer customizer;
+    private final String basescript = "new Plan(console).with{ ";
     /**
      * @param console
      */
@@ -116,6 +124,7 @@ public class Groovy_stable extends InteractionAdapter {
         }
         
         this.config = new CompilerConfiguration();
+        //this.config.setScriptBaseClass("plugins-dev/groovy/pt/lsts/neptus/plugins/groovy/scripts/basescript");
         this.customizer = new ImportCustomizer();
         this.customizer.addImports("pt.lsts.imc.net.IMCProtocol","pt.lsts.imc.net.Consume","pt.lsts.neptus.types.coord.LocationType");
         this.customizer.addStarImports("pt.lsts.imc","pt.lsts.neptus.imc.dsl","pt.lsts.neptus.types.map"); //this.getClass().classLoader.rootLoader.addURL(new File("file.jar").toURL())
@@ -184,20 +193,26 @@ public class Groovy_stable extends InteractionAdapter {
                             stopScript.setEnabled(true);
                         }
                         File groovy_script = fc.getSelectedFile();
-                        post(Notification.info("Groovy Feature", "Opening: " + groovy_script.getName() + "." + "\n"));
-
+                        NeptusLog.pub().info(I18n.text("Cannot open script: " + groovy_script.getName() + "." + "\n"));
                         thread = new Thread() {
 
                             @Override
                             public void run() {
                                 
                                 try {
-                                    PrintStream output = new PrintStream(new FileOutputStream(new File("plugins-dev/groovy/pt/lsts/neptus/plugins/groovy/scripts/outputs/"+groovy_script.getName()+System.currentTimeMillis())));
-                                    //PrintStream output = showOutput(groovy_script.getName());           
+                                    String name = groovy_script.getName()+System.currentTimeMillis();
+                                    PrintStream output = new PrintStream(new FileOutputStream(new File("plugins-dev/groovy/pt/lsts/neptus/plugins/groovy/scripts/outputs/"+name)));
                                     getBinds().setProperty("out",output);
                                     //TODO result = output.toString();
                                     //getBinds().setVariable("result",output.toString());
-                                    engine.run(groovy_script.getName(), binds);
+                                    File generated_script = new File("plugins-dev/groovy/pt/lsts/neptus/plugins/groovy/scripts/"+name);
+                                    BufferedWriter fileW = new BufferedWriter(new FileWriter(generated_script));
+                                    fileW.write(basescript);
+                                    writeScriptContent(fileW,groovy_script);
+                                    fileW.write("}");
+                                    fileW.close();
+                                    
+                                    engine.run(generated_script.getName(), binds);
                                     if(stopScript.isEnabled())
                                         stopScript.setEnabled(false);
                                 }
@@ -218,6 +233,23 @@ public class Groovy_stable extends InteractionAdapter {
                                   catch(ThreadDeath e){
                                       //TODO notify script exit
                                   }
+                            }
+
+                            private void writeScriptContent(BufferedWriter fileW, File groovy_script) {
+                                BufferedReader fileR;
+                                try {
+                                    fileR = new BufferedReader(new FileReader(groovy_script));
+                                    int c;
+                                    while((c = fileR.read())!=-1) {
+                                        fileW.write(c);
+                                    }
+                                    fileR.close();
+                                }
+                                catch (IOException e) {
+                                    // TODO Auto-generated catch block
+                                    NeptusLog.pub().error(I18n.text("Error generating script from: "+groovy_script.getName()), e);
+                                    e.printStackTrace();
+                                }
                             }
                         };
 

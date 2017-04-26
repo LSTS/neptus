@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <console name="Neptus Console" width="1282" height="1029" resizable="true" mission-file="../../missions/APDL/missao-apdl.nmisz" main-vehicle="lauv-noptilus-2">
-  <!-- Data saved on 2017-04-24T16:31:09.0Z with Neptus version @VERSION@ (compiled on @DATE@, g@SCM_REV@). -->
+  <!-- Data saved on 2017-04-26T11:06:05.0Z with Neptus version @VERSION@ (compiled on @DATE@, g@SCM_REV@). -->
   <mainpanel name="console main panel">
     <subpanel class="pt.lsts.neptus.console.plugins.containers.MigLayoutContainer" x="0" y="0" width="1280" height="945">
       <properties>
@@ -50,7 +50,7 @@
       <child class="pt.lsts.neptus.plugins.position.ContactMarker" x="0" y="0" width="0" height="0">
         <properties/>
       </child>
-      <child class="pt.lsts.neptus.controllers.ControllerPanel" x="0" y="0" width="300" height="200">
+      <child class="pt.lsts.neptus.controllers.ControllerPanel" x="0" y="0" width="0" height="0">
         <properties/>
       </child>
       <child class="pt.lsts.neptus.console.plugins.EntityStatePanel" x="0" y="0" width="0" height="0">
@@ -76,7 +76,7 @@
       <child class="pt.lsts.neptus.plugins.logs.LogBookSubPanel" x="0" y="0" width="0" height="0">
         <properties/>
       </child>
-      <child class="pt.lsts.neptus.plugins.logs.LoggingDownloader" x="0" y="0" width="0" height="0">
+      <child class="pt.lsts.neptus.plugins.logs.LoggingDownloader" x="0" y="0" width="298" height="72">
         <properties/>
       </child>
       <child class="pt.lsts.neptus.plugins.mraplots.RevisionOverlays" x="0" y="0" width="0" height="0">
@@ -143,6 +143,9 @@ altitude: ${EstimatedState.alt};
         <properties/>
       </child>
       <child class="pt.lsts.neptus.plugins.groovy.Groovy_stable" x="0" y="0" width="198" height="172">
+        <properties/>
+      </child>
+      <child class="pt.lsts.neptus.console.plugins.planning.MultiVehiclePlanner" x="0" y="0" width="0" height="0">
         <properties/>
       </child>
     </subpanel>

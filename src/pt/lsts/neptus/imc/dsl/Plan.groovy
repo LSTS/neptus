@@ -56,6 +56,9 @@ class Plan {
     String [] vehicles_id
     String otherPayloads //Communications means and Acoustics requirements //TODO
     ConsoleLayout neptusConsole
+    Plan(ConsoleLayout c){ //constructor to facilitate script 
+        neptusConsole = c
+    }
 	Plan(String id){
 		plan_id = id
 		count = 1
@@ -64,7 +67,9 @@ class Plan {
 		z = new Z(0.0,Z.Units.DEPTH)
 		neptusConsole = null
 	}
-
+    void planName(String name){
+        plan_id = name
+        }
 	 def IMCManeuver maneuver(String id, Class maneuver) {
         
 		def man = maneuver.newInstance(
