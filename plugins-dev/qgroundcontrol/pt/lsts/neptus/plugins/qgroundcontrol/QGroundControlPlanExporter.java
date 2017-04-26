@@ -97,7 +97,7 @@ public class QGroundControlPlanExporter implements IPlanFileExporter {
      */
     @Override
     public String[] validExtensions() {
-        return new String[] { "qgc" };
+        return new String[] { "mission" };
     }
 
     private void resetLocalData() {
