@@ -32,10 +32,10 @@
  */
 package pt.lsts.neptus.mra.plots;
 
-import java.util.Arrays;
-import java.util.List;
-
-import pt.lsts.imc.IMCMessage;
+import pt.lsts.imc.Conductivity;
+import pt.lsts.imc.Depth;
+import pt.lsts.imc.Salinity;
+import pt.lsts.imc.Temperature;
 import pt.lsts.imc.lsf.LsfIndex;
 import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.mra.MRAPanel;
@@ -49,7 +49,7 @@ import pt.lsts.neptus.plugins.PluginDescription;
 public class CtdPlot extends MRACombinedPlot {
 
     
-    List<String> validEntities = Arrays.asList("CTD", "Water Quality Sensor");
+    //List<String> validEntities = Arrays.asList("CTD", "Water Quality Sensor");
     
     public CtdPlot(MRAPanel panel) {
         super(panel);
@@ -66,24 +66,21 @@ public class CtdPlot extends MRACombinedPlot {
 
     @Override
     public void process(LsfIndex source) {
+        int entity = index.getFirst(Conductivity.class).getSrcEnt();
         
-        for (IMCMessage c : source.getIterator("Conductivity")) {
-            String entity = source.getEntityName(c.getSrc(), c.getSrcEnt());
-            if (validEntities.contains(entity))
-                addValue(c.getTimestampMillis(), "Conductivity."+c.getSourceName(), c.getDouble("value"));
+        for (Salinity s : source.getIterator(Salinity.class)) {
+            if (s.getSrcEnt() == entity)
+                addValue(s.getTimestampMillis(), "Salinity."+s.getSourceName(), s.getValue());
         }
 
+        for (Temperature t : source.getIterator(Temperature.class)) {
+            if (t.getSrcEnt() == entity)
+                addValue(t.getTimestampMillis(), "Temperature."+t.getSourceName(), t.getValue());
+        }
         
-        for (IMCMessage c : source.getIterator("Temperature")) {
-            String entity = source.getEntityName(c.getSrc(), c.getSrcEnt());
-            if (validEntities.contains(entity))
-                addValue(c.getTimestampMillis(), "Temperature."+c.getSourceName(), c.getDouble("value"));
-        }
-
-        for (IMCMessage c : source.getIterator("Pressure")) {
-            String entity = source.getEntityName(c.getSrc(), c.getSrcEnt());
-            if (validEntities.contains(entity))
-                addValue(c.getTimestampMillis(), "Pressure."+c.getSourceName(), c.getDouble("value"));
-        }
+        for (Depth d : source.getIterator(Depth.class)) {
+            if (d.getSrcEnt() == entity)
+                addValue(d.getTimestampMillis(), "Depth."+d.getSourceName(), d.getValue());
+        }       
     }
 }
