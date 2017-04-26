@@ -110,9 +110,15 @@ public class Tracking extends ConsolePanel implements ItemListener {
     private String cam2RtpsUrl = "rtsp://10.0.20.209:554/live/ch01_0";*/
 
     @NeptusProperty(name = "TPL Size", editable = true, userLevel = LEVEL.REGULAR)
-    private int tplsize = 60;
+    private int tplsize = 50;
     @NeptusProperty(name = "Window Search Size", editable = true, userLevel = LEVEL.REGULAR)
-    private int windowSearchSize = 160;
+    private int windowSearchSize = 90;
+
+    @NeptusProperty(name = "Frame Size - Widht", editable = false, userLevel = LEVEL.REGULAR)
+    private int frameWidht = 320;
+
+    @NeptusProperty(name = "Frame Size - Heigth", editable = false, userLevel = LEVEL.REGULAR)
+    private int frameHeigth = 180;
 
     // Width size of Console
     private int widhtConsole;
@@ -127,9 +133,6 @@ public class Tracking extends ConsolePanel implements ItemListener {
     // flag for state of neptus logo
     private boolean noVideoLogoState;
     // Buffer image for showImage
-    // Logo Neptus
-    private Mat logoNeptus;
-    private Size logoSizeNeptus;
     private BufferedImage offlineImageCam1;
     private BufferedImage offlineImageCam2;
     private BufferedImage realImageCam1;
@@ -255,9 +258,6 @@ public class Tracking extends ConsolePanel implements ItemListener {
      * Initialize Variables
      */
     public void initVariables() {
-        logoSizeNeptus = new Size(108, 20);
-        logoNeptus = new Mat();
-        logoNeptus = UtilCv.bufferedImageToMat(UtilCv.resize(ImageUtils.toBufferedImage(ImageUtils.getImage("images/neptus_loader_light.png")), (int)logoSizeNeptus.width, (int)logoSizeNeptus.height));
         fpsMax = 30;
         isTracking = false;
         showDebug = false;
@@ -354,9 +354,9 @@ public class Tracking extends ConsolePanel implements ItemListener {
     @Override
     protected void paintComponent(Graphics g) {
         if (refreshTemp && realImageCam1 != null && realImageCam2 != null) {
-            frameScaleCam1.width = (panelSize.width / frameSizeCam1.width);
+            frameScaleCam1.width = ((panelSize.width/2) / frameSizeCam1.width);
             frameScaleCam1.height = (panelSize.height / frameSizeCam1.height);
-            frameScaleCam2.width = (panelSize.width / frameSizeCam2.width);
+            frameScaleCam2.width = ((panelSize.width/2) / frameSizeCam2.width);
             frameScaleCam2.height = (panelSize.height / frameSizeCam2.height);
             textCam1 =String.format("FPS: %d | Scale(%.2f x %.2f)", fpsCam1Value, frameScaleCam1.width, frameScaleCam1.height);
             textCam2 =String.format("FPS: %d | Scale(%.2f x %.2f)", fpsCam2Value, frameScaleCam2.width, frameScaleCam2.height);
@@ -436,7 +436,7 @@ public class Tracking extends ConsolePanel implements ItemListener {
                 }
                 catch (InterruptedException e) {
                 }
-                matCam1 = new Mat(640, 360, CvType.CV_8UC3);
+                matCam1 = new Mat(frameWidht, frameHeigth, CvType.CV_8UC3);
                 boolean isAliveIPCams;
                 boolean stateIPCams = false;
                 while (true) {
@@ -482,12 +482,6 @@ public class Tracking extends ConsolePanel implements ItemListener {
                             else {
                                 frameSizeCam1.width = matCam1.width();
                                 frameSizeCam1.height = matCam1.height();
-                                try {
-                                    logoNeptus.copyTo(matCam1.submat(340, 360, 530, 638));
-                                }
-                                catch (Exception e) {
-                                    NeptusLog.pub().error("Exception " + e + " adding logo neptus");
-                                }
                             }
 
                             if (isTracking) {
@@ -542,7 +536,7 @@ public class Tracking extends ConsolePanel implements ItemListener {
                 }
                 catch (InterruptedException e) {
                 }
-                matCam2 = new Mat(640, 360, CvType.CV_8UC3);
+                matCam2 = new Mat(frameWidht, frameHeigth, CvType.CV_8UC3);
                 boolean isAliveIPCams;
                 boolean stateIPCams = false;
                 while (true) {
@@ -584,12 +578,6 @@ public class Tracking extends ConsolePanel implements ItemListener {
                             else {
                                 frameSizeCam2.width = matCam2.width();
                                 frameSizeCam2.height = matCam2.height();
-                                try {
-                                    logoNeptus.copyTo(matCam2.submat(340, 360, 530, 638));
-                                }
-                                catch (Exception e) {
-                                    NeptusLog.pub().error("Exception " + e + " adding logo neptus");
-                                }
                             }
 
                             if (isTracking) {
