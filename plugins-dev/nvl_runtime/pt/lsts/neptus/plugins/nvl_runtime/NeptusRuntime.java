@@ -93,7 +93,7 @@ public class NeptusRuntime extends InteractionAdapter implements NVLRuntime {
                         .availability(Availability.AVAILABLE)
                         .name("lauv-noptilus-2");
                         
-                        System.out.println("Requirements after change params: "+reqs);
+                        //System.out.println("Requirements after change params: "+reqs);
                         
                         ts.setRequirements(reqs);
                         tasks.put(ts.getId(),ts);
@@ -133,7 +133,7 @@ public class NeptusRuntime extends InteractionAdapter implements NVLRuntime {
     public void onVehicleStateChanged(ConsoleEventVehicleStateChanged e) {
           
         ImcSystem imcsystem = ImcSystemsHolder.getSystemWithName(e.getVehicle());
-        vehicles.put(e.getVehicle(), new NeptusVehicleAdapter(imcsystem,e.getState())); //Pode ser disconnected
+        vehicles.put(e.getVehicle(), new NeptusVehicleAdapter(imcsystem,e.getState())); //might be disconnected
     }
 
     @Subscribe
@@ -170,13 +170,10 @@ public class NeptusRuntime extends InteractionAdapter implements NVLRuntime {
 
 	    for(String vehicle_id: vs){
 	         
-	         // ImcMsgManager.getManager().sendMessageToSystem(plan.asIMCPlan(), vehicle_id);
-                     
-            sent = sent && IMCSendMessageUtils.sendMessage(plan, NeptusRuntime.this, "Error sendind«g " + neptus_plan.getId()
-            + " plan", true, false, false, vehicle_id);
-	         NeptusTaskExecutionAdapter exec = new NeptusTaskExecutionAdapter(task.getId());
+	        sent = sent && ImcMsgManager.getManager().sendMessageToSystem(plan, vehicle_id); //IMCSendMessageUtils.sendMessage(plan, NeptusRuntime.this, "Error sending " + neptus_plan.getId()+ " plan", true, false, false, vehicle_id);
+	        NeptusTaskExecutionAdapter exec = new NeptusTaskExecutionAdapter(task.getId());
             if(sent)
-                NeptusLog.pub().info(I18n.text(task.getId()+" sent to"+vehicle_id));
+                NeptusLog.pub().info(I18n.text(task.getId()+" sent to "+vehicle_id));
             else
                 NeptusLog.pub().info(I18n.text("Unable to send "+task.getId()+" to"+vehicle_id));
             exec.synchronizedWithVehicles(sent); 
