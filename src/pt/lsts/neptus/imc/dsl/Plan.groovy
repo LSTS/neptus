@@ -48,7 +48,7 @@ class Plan {
 	String plan_id
 	String description
 	Speed speed
-	Z z
+    Z z
 	Location location
 	List<PlanManeuver> mans = new ArrayList <>()
     List<NeptusManeuver> neptus_mans = new ArrayList <>()
@@ -70,6 +70,32 @@ class Plan {
     void planName(String name){
         plan_id = name
         }
+    
+    /**
+     * @return the speed
+     */
+    public Speed getSpeed() {
+        return speed;
+    }
+    /**
+     * @param speed the speed to set
+     */
+    public void setSpeed(BigDecimal v,Speed.Units units) {
+        speed = new Speed(v, units)
+    }
+    /**
+     * @return the z
+     */
+    public Z getZ() {
+        return z;
+    }
+    /**
+     * @param z the z to set
+     */
+    public void setZ(BigDecimal v,Z.Units units) {
+        z = new Z(v,units)
+    }
+    
 	 def IMCManeuver maneuver(String id, Class maneuver) {
         
 		def man = maneuver.newInstance(

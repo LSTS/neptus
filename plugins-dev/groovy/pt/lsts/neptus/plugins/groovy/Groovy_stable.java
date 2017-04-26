@@ -193,7 +193,7 @@ public class Groovy_stable extends InteractionAdapter {
                             stopScript.setEnabled(true);
                         }
                         File groovy_script = fc.getSelectedFile();
-                        NeptusLog.pub().info(I18n.text("Cannot open script: " + groovy_script.getName() + "." + "\n"));
+                        NeptusLog.pub().info(I18n.text("Selected script: " + groovy_script.getName() + "." + "\n"));
                         thread = new Thread() {
 
                             @Override
@@ -209,7 +209,7 @@ public class Groovy_stable extends InteractionAdapter {
                                     BufferedWriter fileW = new BufferedWriter(new FileWriter(generated_script));
                                     fileW.write(basescript);
                                     writeScriptContent(fileW,groovy_script);
-                                    fileW.write("}");
+                                    fileW.write("\n}");
                                     fileW.close();
                                     
                                     engine.run(generated_script.getName(), binds);
