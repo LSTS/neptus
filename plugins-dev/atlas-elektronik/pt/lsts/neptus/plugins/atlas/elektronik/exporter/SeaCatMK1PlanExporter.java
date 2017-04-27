@@ -199,7 +199,7 @@ public class SeaCatMK1PlanExporter implements IPlanFileExporter {
      */
     @Override
     public String[] validExtensions() {
-        return new String[] { "seacat" };
+        return new String[] { "txt" };
     }
 
     /*
