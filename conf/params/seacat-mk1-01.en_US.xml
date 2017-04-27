@@ -180,7 +180,7 @@
       <max>200</max>
     </param>
   </section>
-  <section name="NorbitWBMS" name-i18n="Norbit WBMS">
+  <section name="NorbitWBMS" name-i18n="Norbit WBMS" editor="NorbitWBMS">
     <param name="Active">
       <name-i18n>Active</name-i18n>
       <type>boolean</type>
@@ -236,11 +236,11 @@
       <type>integer</type>
       <visibility>user</visibility>
       <scope>maneuver</scope>
-      <default>0</default>
+      <default>1</default>
       <units>m</units>
       <desc></desc>
-      <min>0</min>
-      <max>200</max>
+      <min>1</min>
+      <max>300</max>
     </param>
     <param name="Lower Gate">
       <name-i18n>Lower Gate</name-i18n>
@@ -249,19 +249,19 @@
       <scope>maneuver</scope>
       <default>20</default>
       <units>m</units>
-      <desc>!!!!!!!!! [Value of upper Gate] .. 200 m</desc>
-      <min>0</min>
-      <max>200</max>
+      <desc>Minimum value depends on the upper gate value (min = [Value of upper gate] m)</desc>
+      <min>1</min>
+      <max>300</max>
     </param>
     <param name="Beam Distrib">
       <name-i18n>Beam Distribution</name-i18n>
       <type>string</type>
       <visibility>user</visibility>
       <scope>maneuver</scope>
-      <default>Equidistant</default>
+      <default>EQUIDIST</default>
       <units/>
       <desc></desc>
-      <values>Equiangular, Equidistant</values>
+      <values>EQUIANGLE, EQUIDIST</values>
       <values-i18n>Equiangular, Equidistant</values-i18n>
     </param>
   </section>
@@ -379,15 +379,15 @@
       <default>false</default>
       <units/>
     </param>
-    <param name="Cam-Mode">
+    <param name="Cam_Mode">
       <name-i18n>Cam-Mode</name-i18n>
       <type>string</type>
       <visibility>user</visibility>
       <scope>maneuver</scope>
-      <default>Images</default>
+      <default>Image</default>
       <units/>
       <desc></desc>
-      <values>Images, Video</values>
+      <values>Image, Video</values>
       <values-i18n>Still Images, Video</values-i18n>
     </param>
     <param name="Framerate">
@@ -401,17 +401,17 @@
       <min>-1</min>
       <max>4</max>
       <values-if>
-        <param>Cam-Mode</param>
-        <equals>Images</equals>
+        <param>Cam_Mode</param>
+        <equals>Image</equals>
         <values>1..4</values>
       </values-if>
       <values-if>
-        <param>Cam-Mode</param>
+        <param>Cam_Mode</param>
         <equals>Video</equals>
         <values>-1</values>
       </values-if>
     </param>
-    <param name="Show-Video">
+    <param name="Show_Video">
       <name-i18n>Show Video</name-i18n>
       <type>boolean</type>
       <visibility>user</visibility>
@@ -429,20 +429,20 @@
       <desc>0 for auto gain</desc>
       <min>0</min>
       <max>100</max>
-      <values>0, 10..100</values>
+      <values>0, 1..100</values>
     </param>
-    <param name="Image-Format">
+    <param name="Image_Format">
       <name-i18n>Image Format</name-i18n>
       <type>string</type>
       <visibility>user</visibility>
       <scope>maneuver</scope>
-      <default>jpeg</default>
+      <default>JPG</default>
       <units/>
       <desc></desc>
-      <values>jpeg, png, pgm, ppm</values>
-      <values-i18n>jpeg, png, pgm, ppm</values-i18n>
+      <values>JPG, PBM, PGM, PNG, RAW, TIFF</values>
+      <values-i18n>JPEG, PBM, PGM, PNG, RAW, TIFF</values-i18n>
     </param>
-    <param name="Image-Compr">
+    <param name="Image_Compr">
       <name-i18n>Image Compression</name-i18n>
       <type>boolean</type>
       <visibility>user</visibility>
@@ -450,7 +450,7 @@
       <default>true</default>
       <units/>
     </param>
-    <param name="Shutter-Time">
+    <param name="Shutter_Time">
       <name-i18n>Shutter Time</name-i18n>
       <type>integer</type>
       <visibility>user</visibility>
@@ -459,7 +459,7 @@
       <units>ms</units>
       <desc>0 for auto</desc>
       <min>0</min>
-      <max>1000</max>
+      <max>52</max>
     </param>
     <param name="Strobe">
       <name-i18n>Strobe</name-i18n>
