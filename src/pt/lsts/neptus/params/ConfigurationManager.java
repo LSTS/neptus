@@ -217,7 +217,6 @@ public class ConfigurationManager {
                 String editorStr = editorNode.getText();
                 try {
                     String str = CustomSystemPropertyEditor.class.getPackage().getName() + "." + editorStr + "CustomEditor";
-//                    System.out.println("###########     " + str);
                     Class<?> clazz = Class.forName(str);
                     try {
                         sectionCustomEditor = (CustomSystemPropertyEditor) clazz.getConstructor(Map.class).newInstance(sectionParams);
@@ -227,7 +226,7 @@ public class ConfigurationManager {
                     }
                 }
                 catch (ClassNotFoundException e) {
-                    e.printStackTrace();
+                    NeptusLog.pub().warn(String.format("Custom editor \"%s\" not found: %s", editorStr, e));
                 }
             }
             
