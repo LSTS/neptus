@@ -44,6 +44,8 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Vector;
 
+import javax.swing.JComponent;
+import javax.swing.JFileChooser;
 import javax.swing.ProgressMonitor;
 
 import org.apache.commons.io.FileUtils;
@@ -202,6 +204,14 @@ public class SeaCatMK1PlanExporter implements IPlanFileExporter {
         return new String[] { "txt" };
     }
 
+    /* (non-Javadoc)
+     * @see pt.lsts.neptus.types.mission.plan.IPlanFileExporter#createFileChooserAccessory(javax.swing.JFileChooser)
+     */
+    @Override
+    public JComponent createFileChooserAccessory(JFileChooser fileChooser) {
+        return new SeaCatMK1FilePreview(fileChooser);
+    }
+    
     /*
      * (non-Javadoc)
      * 
