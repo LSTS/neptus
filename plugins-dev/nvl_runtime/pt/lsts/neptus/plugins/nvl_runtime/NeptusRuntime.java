@@ -14,6 +14,7 @@ import com.google.common.eventbus.Subscribe;
 
 import pt.lsts.imc.EstimatedState;
 import pt.lsts.imc.PlanControl;
+import pt.lsts.imc.PlanControlState;
 import pt.lsts.imc.PlanControl.OP;
 import pt.lsts.imc.PlanControl.TYPE;
 import pt.lsts.imc.VehicleState;
@@ -39,6 +40,7 @@ import pt.lsts.nvl.runtime.NVLVehicle;
 import pt.lsts.nvl.runtime.NVLVehicleType;
 import pt.lsts.nvl.runtime.TaskExecution;
 import pt.lsts.nvl.runtime.TaskSpecification;
+import pt.lsts.nvl.runtime.TaskState;
 import pt.lsts.nvl.runtime.VehicleRequirements;
 
 @PluginDescription(name = "NVL Runtime Feature", author = "Keila Lima")
@@ -145,6 +147,50 @@ public class NeptusRuntime extends InteractionAdapter implements NVLRuntime {
         }
         else{
             tasks.put(changedPlan.getCurrent().getId(), new NeptusTaskSpecificationAdapter(changedPlan.getCurrent()));
+        }
+    }
+    
+
+    @Subscribe
+    public void on(PlanControlState pcstate) {
+        for(TaskExecution rt: runningTasks){
+            NeptusTaskExecutionAdapter tmp = (NeptusTaskExecutionAdapter) rt;
+            if (tmp.getPlanId().equals(pcstate.getPlanId())){
+                switch (pcstate.getState()) {
+                    case INITIALIZING:
+                    case EXECUTING:
+                        tmp.setState(TaskState.EXECUTING);
+                        System.out.println("EXECUTING");
+                        break;
+                    case BLOCKED:
+                        tmp.setState(TaskState.BLOCKED);
+                        System.out.println("BLOCKED");
+                        break;
+                    case READY:
+                        tmp.setState(TaskState.READY_TO_EXECUTE);
+                        System.out.println("READY");
+                        break;
+     
+                        
+                
+                }
+            switch (pcstate.getLastOutcome()) {
+                case NONE:
+                case FAILURE:
+                    if(tmp.isDone())
+                        tmp.setDone(false);
+                    break;
+                case SUCCESS:
+                    if(!tmp.isDone())
+                        tmp.setDone(true);
+                    //TODO remove task from list in #NeptusRuntime ?
+                    break;
+                default:
+                    break;
+    
+                
+                }
+            }
         }
     }
 

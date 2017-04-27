@@ -103,12 +103,13 @@ public class Groovy_stable extends InteractionAdapter {
     private CompilerConfiguration config;
     private Thread thread;
     private ImportCustomizer customizer;
-    private final String basescript = "new Plan(console).with{ ";
+    private final String basescript = "new Plan(console).with{ \nlocate new Location(console.getMission().getHomeRef().getLatitudeRads(),console.getMission().getHomeRef().getLongitudeRads())\n";
     /**
      * @param console
      */
     public Groovy_stable(ConsoleLayout console) {
         super(console);
+        
     }
 
     void add_console_vars() {

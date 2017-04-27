@@ -32,9 +32,6 @@
  */
 package pt.lsts.neptus.plugins.nvl_runtime;
 
-import com.google.common.eventbus.Subscribe;
-
-import pt.lsts.imc.PlanControlState;
 import pt.lsts.nvl.runtime.TaskExecution;
 import pt.lsts.nvl.runtime.TaskState;
 
@@ -71,42 +68,6 @@ public class NeptusTaskExecutionAdapter implements TaskExecution {
     }
 
 
-    @Subscribe
-    public void consume(PlanControlState pcstate) {
-        
-        if (pcstate.getPlanId().equals(this.planId)){
-        
-        switch (pcstate.getState()) {
-            case INITIALIZING:
-            case EXECUTING:
-                state = TaskState.EXECUTING;
-                break;
-            case BLOCKED:
-                state = TaskState.BLOCKED;
-                break;
-            case READY:
-                state = TaskState.READY_TO_EXECUTE;
-                break;
-            
-            }
-        switch (pcstate.getLastOutcome()) {
-            case NONE:
-            case FAILURE:
-                if(done)
-                    done = false;
-                break;
-            case SUCCESS:
-                if(!done)
-                    done = true;
-                //TODO remove task from list in #NeptusRuntime ?
-                break;
-            default:
-                break;
-
-            
-            }
-        }
-    }
     
     /* (non-Javadoc)
      * @see nvl.TaskExecution#isDone()
@@ -118,6 +79,34 @@ public class NeptusTaskExecutionAdapter implements TaskExecution {
     //@Override
     public TaskState getState() {
         return state;
+    }
+
+    /**
+     * @return the sync
+     */
+    public boolean isSync() {
+        return sync;
+    }
+
+    /**
+     * @param sync the sync to set
+     */
+    public void setSync(boolean sync) {
+        this.sync = sync;
+    }
+
+    /**
+     * @param done the done to set
+     */
+    public void setDone(boolean done) {
+        this.done = done;
+    }
+
+    /**
+     * @param state the state to set
+     */
+    public void setState(TaskState state) {
+        this.state = state;
     }
 
 }
