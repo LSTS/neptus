@@ -166,7 +166,7 @@ public class EnvironmentalDataVisualization extends ConsolePanel implements Rend
     @NeptusProperty(name = "Colormap for waves", userLevel = LEVEL.REGULAR, category = CATEGORY_VISIBILITY_WAVES)
     private ColorMap colorMapWaves = ColorMapFactory.createJetColorMap();
     @NeptusProperty(name = "Colormap for chlorophyll", userLevel = LEVEL.REGULAR, category = CATEGORY_VISIBILITY_CHLOROPHILL)
-    private ColorMap colorMapChlorophyll = ColorMapFactory.createWinterColorMap();
+    private ColorMap colorMapChlorophyll = ColorMapFactory.createJetColorMap();
 
     @NeptusProperty(name = "Minutes between updates", category = CATEGORY_DATA_UPDATE)
     public int updateFileDataMinutes = 5;
@@ -202,6 +202,28 @@ public class EnvironmentalDataVisualization extends ConsolePanel implements Rend
     @NeptusProperty(name = "Load data from file (hfradar.txt)", editable = false, userLevel = LEVEL.ADVANCED, category=CATEGORY_TEST, description = "Don't use this (testing purposes).")
     public boolean loadFromFile = false;
     
+    // private final double minCurrentCmS = 0;
+    @NeptusProperty(name = "Currents max cm/s", userLevel = LEVEL.REGULAR, category = CATEGORY_VISIBILITY_CURRENTS)
+    private double maxCurrentCmS = 200;
+
+    @NeptusProperty(name = "SST min \u00B0C", userLevel = LEVEL.REGULAR, category = CATEGORY_VISIBILITY_SST)
+    private double minSST = -10;
+    @NeptusProperty(name = "SST max \u00B0C", userLevel = LEVEL.REGULAR, category = CATEGORY_VISIBILITY_SST)
+    private double maxSST = 40;
+
+    // private final double minWind = 0;
+    @NeptusProperty(name = "Wind max m/s", userLevel = LEVEL.REGULAR, category = CATEGORY_VISIBILITY_WIND)
+    private double maxWind = 65 / UnitsUtil.MS_TO_KNOT;
+
+    // private final double minWaves = 0;
+    @NeptusProperty(name = "Waves max m", userLevel = LEVEL.REGULAR, category = CATEGORY_VISIBILITY_WAVES)
+    private double maxWaves = 7;
+
+    @NeptusProperty(name = "Chlorophyll min mg/m\u00B3", userLevel = LEVEL.REGULAR, category = CATEGORY_VISIBILITY_CHLOROPHILL)
+    private double minChlorophyll = 0.01; //mg/m3 log
+    @NeptusProperty(name = "Chlorophyll max mg/m\u00B3", userLevel = LEVEL.REGULAR, category = CATEGORY_VISIBILITY_CHLOROPHILL)
+    private double maxChlorophyll = 60; //mg/m3
+
     private static final String tuvFilePattern = ".\\.tuv$";
     private static final String netCDFFilePattern = ".\\.nc$";
     private static final String currentsFilePatternTUV = tuvFilePattern; // "^TOTL_TRAD_\\d{4}_\\d{2}_\\d{2}_\\d{4}\\.tuv$";
@@ -233,21 +255,6 @@ public class EnvironmentalDataVisualization extends ConsolePanel implements Rend
     // private static final String sampleMeteoFile = "meteo_20130705.nc";
     // private static final String sampleWavesFile = "waves_S_20130704.nc";
     
-    // private final double minCurrentCmS = 0;
-    private final double maxCurrentCmS = 200;
-
-    private final double minSST = -10;
-    private final double maxSST = 40;
-
-    // private final double minWind = 0;
-    private final double maxWind = 65 / UnitsUtil.MS_TO_KNOT;
-
-    // private final double minWaves = 0;
-    private final double maxWaves = 7;
-
-    private final double minChlorophyll = 0.01; //mg/m3 log
-    private final double maxChlorophyll = 60; //mg/m3
-
     private OffScreenLayerImageControl offScreen = new OffScreenLayerImageControl();
     
     private final HttpClientConnectionHelper httpComm = new HttpClientConnectionHelper();
@@ -420,7 +427,22 @@ public class EnvironmentalDataVisualization extends ConsolePanel implements Rend
 
         if (dateHoursToUseForData < 0)
             dateHoursToUseForData = 0;
-        
+
+        if (maxCurrentCmS <= 0)
+            maxCurrentCmS = 1;
+
+        if (minSST >= maxSST)
+            minSST = maxSST - 10;
+
+        if (maxWind <= 0)
+            maxWind = 1;
+
+        if (maxWaves <= 0)
+            maxWaves = 1;
+
+        if (minChlorophyll >= maxChlorophyll)
+            minChlorophyll = maxChlorophyll - 10;
+
         lastMillisFileDataUpdated = -1;
         cleanUpData();
     }
