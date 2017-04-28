@@ -169,6 +169,15 @@ class Plan {
         
         man
 	} 
+     
+     def IMCManeuver areaSurvey(LinkedHashMap params ){
+         List<Payload> payload = new ArrayList<>()
+         def id = "$count"+".AreaSurvey"
+         count++
+         if(params!=null){
+             
+         }
+     }
 
 
 	def IMCManeuver loiter(LinkedHashMap params){

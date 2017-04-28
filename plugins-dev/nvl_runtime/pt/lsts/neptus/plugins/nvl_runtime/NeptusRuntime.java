@@ -159,15 +159,15 @@ public class NeptusRuntime extends InteractionAdapter implements NVLRuntime {
                 switch (pcstate.getState()) {
                     case INITIALIZING:
                     case EXECUTING:
-                        tmp.setState(TaskState.EXECUTING);
+                        //tmp.setState(TaskState.EXECUTING);
                         System.out.println("EXECUTING");
                         break;
                     case BLOCKED:
                         tmp.setState(TaskState.BLOCKED);
-                        System.out.println("BLOCKED");
+                        //System.out.println("BLOCKED");
                         break;
                     case READY:
-                        tmp.setState(TaskState.READY_TO_EXECUTE);
+                        //tmp.setState(TaskState.READY_TO_EXECUTE);
                         System.out.println("READY");
                         break;
      
@@ -216,7 +216,7 @@ public class NeptusRuntime extends InteractionAdapter implements NVLRuntime {
 
 	    for(String vehicle_id: vs){
 	         
-	        sent = sent && ImcMsgManager.getManager().sendMessageToSystem(plan, vehicle_id); //IMCSendMessageUtils.sendMessage(plan, NeptusRuntime.this, "Error sending " + neptus_plan.getId()+ " plan", true, false, false, vehicle_id);
+	        sent = ImcMsgManager.getManager().sendMessageToSystem(plan, vehicle_id); //IMCSendMessageUtils.sendMessage(plan, NeptusRuntime.this, "Error sending " + neptus_plan.getId()+ " plan", true, false, false, vehicle_id);
 	        NeptusTaskExecutionAdapter exec = new NeptusTaskExecutionAdapter(task.getId());
             if(sent)
                 NeptusLog.pub().info(I18n.text(task.getId()+" sent to "+vehicle_id));
