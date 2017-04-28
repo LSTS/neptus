@@ -164,13 +164,13 @@ public class EnvironmentalDataVisualization extends ConsolePanel implements Rend
     @NeptusProperty(name = "Colorbar for chlorophyll", userLevel = LEVEL.REGULAR, category = CATEGORY_VISIBILITY)
     private ColorMap colorMapChlorophyll = ColorMapFactory.createWinterColorMap();
 
-    @NeptusProperty(name = "Minutes between file updates", category=CATEGORY_DATA_UPDATE)
-    public long updateFileDataMinutes = 5;
-    @NeptusProperty(name = "Data limit validity (hours)", userLevel = LEVEL.REGULAR, category=CATEGORY_DATA_UPDATE)
+    @NeptusProperty(name = "Minutes between updates", category = CATEGORY_DATA_UPDATE)
+    public int updateFileDataMinutes = 5;
+    @NeptusProperty(name = "Data limit validity (hours)", userLevel = LEVEL.REGULAR, category = CATEGORY_DATA_UPDATE)
     public int dateLimitHours = 12;
-    @NeptusProperty(name = "Use data x hour in the future (hours)", userLevel = LEVEL.REGULAR, category=CATEGORY_DATA_UPDATE)
+    @NeptusProperty(name = "Use data x hour in the future (hours)", userLevel = LEVEL.REGULAR, category = CATEGORY_DATA_UPDATE)
     public int dateHoursToUseForData = 1;
-    @NeptusProperty(name = "Ignore data limit validity to load data", userLevel=LEVEL.ADVANCED, category=CATEGORY_DATA_UPDATE)
+    @NeptusProperty(name = "Ignore data limit validity to load data", userLevel=LEVEL.ADVANCED, category = CATEGORY_DATA_UPDATE)
     public boolean ignoreDateLimitToLoad = false;
 
     @NeptusProperty(name = "Base Folder For Currents TUV or netCDF Files", userLevel = LEVEL.REGULAR, category = CATEGORY_DATA_UPDATE, 
@@ -213,8 +213,8 @@ public class EnvironmentalDataVisualization extends ConsolePanel implements Rend
     private static final SimpleDateFormat dateFormaterUTC = new SimpleDateFormat("yyyy-MM-dd") {{setTimeZone(TimeZone.getTimeZone("UTC"));}};
     private static final SimpleDateFormat timeFormaterUTC = new SimpleDateFormat("HH':'mm") {{setTimeZone(TimeZone.getTimeZone("UTC"));}};
 
-    private long updateSeconds = 60;
-    private long lastMillisFileDataUpdated = -1;
+    private int updateSeconds = 30;
+    private long lastMillisFileDataUpdated = System.currentTimeMillis() + 60000; // To defer the first run on start
 
     //  http://hfradar.ndbc.noaa.gov/tab.php?from=2013-06-22%2015:00:00&to=2013-06-22%2015:00:00&p=1&lat=38.324420427006515&lng=-119.94323730468749&lat2=35.69299463209881&lng2=-124.33776855468749
     //  http://hfradar.ndbc.noaa.gov/tabdownload.php?from=2013-06-23%2009:34:00&to=2013-06-23%2021:34:00&lat=37.78799270017669&lng=-122.39269445535145&lat2=37.78781729434937&lng2=-122.39236722585163
@@ -331,9 +331,21 @@ public class EnvironmentalDataVisualization extends ConsolePanel implements Rend
         httpComm.cleanUp();
     }
     
-    public String validateDataLimitHours(int value) {
-        if (value < 3 && value > 24)
-            return "Keep it between 3 and 24";
+    public String validateUpdateFileDataMinutes(int value) {
+        if (value < 1 && value > 10)
+            return "Keep it between 1 and 10";
+        return null;
+    }
+
+    public String validateDateLimitHours(int value) {
+        if (value < 3 && value > 24 * 5)
+            return "Keep it between 3 and 24*5=120";
+        return null;
+    }
+
+    public String validateDateHoursToUseForData(int value) {
+        if (value < 0)
+            return "Keep it above 0";
         return null;
     }
     
@@ -350,27 +362,40 @@ public class EnvironmentalDataVisualization extends ConsolePanel implements Rend
      */
     @Override
     public synchronized boolean update() {
-        NeptusLog.pub().info("Update");
-        
-        if (requestFromNooaWeb) {
-            HashMap<String, HFRadarDataPoint> dpLts = getNoaaHFRadarData();
-            if (dpLts != null && dpLts.size() > 0) {
-                mergeCurrentsDataToInternalDataList(dpLts);
-                System.out.println(dpLts.size() + " ------------------------------");
+        if (lastMillisFileDataUpdated <= 0
+                || System.currentTimeMillis() - lastMillisFileDataUpdated >= updateFileDataMinutes * 60 * 1000) {
+            
+            NeptusLog.pub().info("Update Data");
+
+            lastMillisFileDataUpdated = System.currentTimeMillis();
+            
+            try {
+                if (requestFromNooaWeb) {
+                    HashMap<String, HFRadarDataPoint> dpLts = getNoaaHFRadarData();
+                    if (dpLts != null && dpLts.size() > 0) {
+                        mergeCurrentsDataToInternalDataList(dpLts);
+                        System.out.println(dpLts.size() + " ------------------------------");
+                    }
+                }
+
+                loadCurrentsFromFiles();
+                loadMeteoFromFiles();
+                loadWavesFromFiles();
+                loadChlorophyllFromFiles();
+            }
+            catch (Exception e) {
+                NeptusLog.pub().warn(e);
+            }
+
+            
+            try {
+                cleanUpData();
+            }
+            catch (Exception e) {
+                NeptusLog.pub().warn(e);
             }
         }
 
-        if (lastMillisFileDataUpdated <= 0
-                || System.currentTimeMillis() - lastMillisFileDataUpdated >= updateFileDataMinutes * 60 * 1000) {
-            lastMillisFileDataUpdated = System.currentTimeMillis();
-            loadCurrentsFromFiles();
-            loadMeteoFromFiles();
-            loadWavesFromFiles();
-            loadChlorophyllFromFiles();
-        }
-
-        propertiesChanged();
-        
         return true;
     }
     
@@ -379,8 +404,24 @@ public class EnvironmentalDataVisualization extends ConsolePanel implements Rend
      */
     @Override
     public void propertiesChanged() {
-        lastMillisFileDataUpdated = -1;
+        if (updateFileDataMinutes < 1)
+            updateFileDataMinutes = 1;
+        if (updateFileDataMinutes > 10)
+            updateFileDataMinutes = 10;
         
+        if (dateLimitHours < 3)
+            dateLimitHours = 3;
+        if (dateLimitHours > 24 * 5)
+            dateLimitHours = 24 * 5;
+
+        if (dateHoursToUseForData < 0)
+            dateHoursToUseForData = 0;
+        
+        lastMillisFileDataUpdated = -1;
+        cleanUpData();
+    }
+
+    private void cleanUpData() {
         cleanDataPointsBeforeDate();
         updateValues();
         offScreen.triggerImageRebuild();
