@@ -1,5 +1,57 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <config format="1" version="2017.03.0" system="seacat-mk1-01" i18n="en_US">
+  <section name="Limits" name-i18n="Limits">
+    <param name="MaximumSpeed">
+      <name-i18n>Maximum Speed</name-i18n>
+      <type>real</type>
+      <visibility>user</visibility>
+      <scope>none</scope>
+      <default>6</default>
+      <units>kn</units>
+      <desc></desc>
+      <min>1</min>
+    </param>
+    <param name="MinimumStableSpeed">
+      <name-i18n>Minimum Stable Speed</name-i18n>
+      <type>real</type>
+      <visibility>user</visibility>
+      <scope>none</scope>
+      <default>1.5</default>
+      <units>kn</units>
+      <desc>Minimum stable speed during survey</desc>
+      <min>1</min>
+    </param>
+    <param name="MaximumDuration">
+      <name-i18n>Maximum Duration</name-i18n>
+      <type>real</type>
+      <visibility>user</visibility>
+      <scope>none</scope>
+      <default>10</default>
+      <units>h</units>
+      <desc>Maximum duration (at full charge)</desc>
+      <min>1</min>
+    </param>
+    <param name="CurveRadiusAt3knots">
+      <name-i18n>Curve Radius At 3 knots</name-i18n>
+      <type>real</type>
+      <visibility>user</visibility>
+      <scope>none</scope>
+      <default>15</default>
+      <units>m</units>
+      <desc></desc>
+      <min>1</min>
+    </param>
+    <param name="MinimumBattery">
+      <name-i18n>Minimum Battery</name-i18n>
+      <type>real</type>
+      <visibility>user</visibility>
+      <scope>none</scope>
+      <default>10</default>
+      <units>%</units>
+      <desc>Minimum Battery state for safety measures</desc>
+      <min>1</min>
+    </param>
+  </section>
   <section name="General" name-i18n="General">
     <param name="SafeAltitude">
       <name-i18n>Safe Altitude</name-i18n>
