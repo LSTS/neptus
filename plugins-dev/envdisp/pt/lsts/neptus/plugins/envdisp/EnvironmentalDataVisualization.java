@@ -96,7 +96,11 @@ public class EnvironmentalDataVisualization extends ConsolePanel implements Rend
 
     private static final String CATEGORY_TEST = "Test";
     private static final String CATEGORY_DATA_UPDATE = "Data Update";
-    private static final String CATEGORY_VISIBILITY = "Visibility";
+    private static final String CATEGORY_VISIBILITY_CURRENTS = "Visibility Currents";
+    private static final String CATEGORY_VISIBILITY_SST = "Visibility SST";
+    private static final String CATEGORY_VISIBILITY_WIND = "Visibility Wind";
+    private static final String CATEGORY_VISIBILITY_WAVES = "Visibility Waves";
+    private static final String CATEGORY_VISIBILITY_CHLOROPHILL = "Visibility Chlorophyll";
 
     static final int OFFSET_REND_TXT_DATE_RANGES = 52;
     static final int OFFSET_REND_TXT_DATE_RANGES_DELTA = 15;
@@ -105,72 +109,72 @@ public class EnvironmentalDataVisualization extends ConsolePanel implements Rend
      * Currents, wind, waves, SST 
      */
 
-    @NeptusProperty(name = "Show currents", userLevel = LEVEL.REGULAR, category=CATEGORY_VISIBILITY)
+    @NeptusProperty(name = "Show currents", userLevel = LEVEL.REGULAR, category = CATEGORY_VISIBILITY_CURRENTS)
     public boolean showCurrents = true;
-    @NeptusProperty(name = "Show SST", userLevel = LEVEL.REGULAR, category=CATEGORY_VISIBILITY)
+    @NeptusProperty(name = "Show SST", userLevel = LEVEL.REGULAR, category = CATEGORY_VISIBILITY_SST)
     public boolean showSST = true;
-    @NeptusProperty(name = "Show wind", userLevel = LEVEL.REGULAR, category=CATEGORY_VISIBILITY)
+    @NeptusProperty(name = "Show wind", userLevel = LEVEL.REGULAR, category = CATEGORY_VISIBILITY_WIND)
     public boolean showWind = true;
-    @NeptusProperty(name = "Show waves", userLevel = LEVEL.REGULAR, category=CATEGORY_VISIBILITY)
+    @NeptusProperty(name = "Show waves", userLevel = LEVEL.REGULAR, category = CATEGORY_VISIBILITY_WAVES)
     public boolean showWaves = false;
-    @NeptusProperty(name = "Show chlorophyll", userLevel = LEVEL.REGULAR, category=CATEGORY_VISIBILITY)
+    @NeptusProperty(name = "Show chlorophyll", userLevel = LEVEL.REGULAR, category = CATEGORY_VISIBILITY_CHLOROPHILL)
     public boolean showChlorophyll = false;
 
-    @NeptusProperty(name = "Show currents legend", userLevel = LEVEL.REGULAR, category=CATEGORY_VISIBILITY)
+    @NeptusProperty(name = "Show currents legend", userLevel = LEVEL.REGULAR, category = CATEGORY_VISIBILITY_CURRENTS)
     public boolean showCurrentsLegend = true;
-    @NeptusProperty(name = "Show currents legend from zoom level bigger than", userLevel = LEVEL.REGULAR, category=CATEGORY_VISIBILITY)
+    @NeptusProperty(name = "Show currents legend from zoom level bigger than", userLevel = LEVEL.REGULAR, category = CATEGORY_VISIBILITY_CURRENTS)
     public int showCurrentsLegendFromZoomLevel = 13;
-    @NeptusProperty(name = "Show SST legend", userLevel = LEVEL.REGULAR, category=CATEGORY_VISIBILITY)
+    @NeptusProperty(name = "Show SST legend", userLevel = LEVEL.REGULAR, category = CATEGORY_VISIBILITY_SST)
     public boolean showSSTLegend = true;
-    @NeptusProperty(name = "Show SST legend from zoom level bigger than", userLevel = LEVEL.REGULAR, category=CATEGORY_VISIBILITY)
+    @NeptusProperty(name = "Show SST legend from zoom level bigger than", userLevel = LEVEL.REGULAR, category = CATEGORY_VISIBILITY_SST)
     public int showSSTLegendFromZoomLevel = 11;
-    @NeptusProperty(name = "Show waves legend", userLevel = LEVEL.REGULAR, category=CATEGORY_VISIBILITY)
+    @NeptusProperty(name = "Show waves legend", userLevel = LEVEL.REGULAR, category = CATEGORY_VISIBILITY_WAVES)
     public boolean showWavesLegend = true;
-    @NeptusProperty(name = "Show waves legend from zoom level bigger than", userLevel = LEVEL.REGULAR, category=CATEGORY_VISIBILITY)
+    @NeptusProperty(name = "Show waves legend from zoom level bigger than", userLevel = LEVEL.REGULAR, category = CATEGORY_VISIBILITY_WAVES)
     public int showWavesLegendFromZoomLevel = 13;
-    @NeptusProperty(name = "Show currents as most recent (true) or mean (false) value", userLevel = LEVEL.REGULAR, category=CATEGORY_DATA_UPDATE)
+    @NeptusProperty(name = "Show currents as most recent (true) or mean (false) value", userLevel = LEVEL.REGULAR, category = CATEGORY_DATA_UPDATE)
     public boolean hfradarUseMostRecentOrMean = true;
-    @NeptusProperty(name = "Use color map for wind", userLevel = LEVEL.REGULAR, category=CATEGORY_VISIBILITY)
+    @NeptusProperty(name = "Use color map for wind", userLevel = LEVEL.REGULAR, category = CATEGORY_VISIBILITY_WIND)
     public boolean useColorMapForWind = true;
-    @NeptusProperty(name = "Show chlorophyll legend", userLevel = LEVEL.REGULAR, category=CATEGORY_VISIBILITY)
+    @NeptusProperty(name = "Show chlorophyll legend", userLevel = LEVEL.REGULAR, category = CATEGORY_VISIBILITY_CHLOROPHILL)
     public boolean showChlorophyllLegend = true;
-    @NeptusProperty(name = "Show chlorophyll legend from zoom level bigger than", userLevel = LEVEL.REGULAR, category=CATEGORY_VISIBILITY)
+    @NeptusProperty(name = "Show chlorophyll legend from zoom level bigger than", userLevel = LEVEL.REGULAR, category = CATEGORY_VISIBILITY_CHLOROPHILL)
     public int showChlorophyllLegendFromZoomLevel = 13;
 
-    @NeptusProperty(name = "Show currents colorbar", userLevel = LEVEL.REGULAR, category = CATEGORY_VISIBILITY,
+    @NeptusProperty(name = "Show currents colorbar", userLevel = LEVEL.REGULAR, category = CATEGORY_VISIBILITY_CURRENTS,
             description = "Show the color scale bar. Only one will show.")
     public boolean showCurrentsColorbar = false;
-    @NeptusProperty(name = "Show SST colorbar", userLevel = LEVEL.REGULAR, category = CATEGORY_VISIBILITY,
+    @NeptusProperty(name = "Show SST colorbar", userLevel = LEVEL.REGULAR, category = CATEGORY_VISIBILITY_SST,
             description = "Show the color scale bar. Only one will show.")
     public boolean showSSTColorbar = false;
-    @NeptusProperty(name = "Show wind colorbar", userLevel = LEVEL.REGULAR, category = CATEGORY_VISIBILITY,
+    @NeptusProperty(name = "Show wind colorbar", userLevel = LEVEL.REGULAR, category = CATEGORY_VISIBILITY_WIND,
             description = "Show the color scale bar. Only one will show.")
     public boolean showWindColorbar = false;
-    @NeptusProperty(name = "Show waves colorbar", userLevel = LEVEL.REGULAR, category = CATEGORY_VISIBILITY,
+    @NeptusProperty(name = "Show waves colorbar", userLevel = LEVEL.REGULAR, category = CATEGORY_VISIBILITY_WAVES,
             description = "Show the color scale bar. Only one will show.")
     public boolean showWavesColorbar = false;
-    @NeptusProperty(name = "Show chlorophyll colorbar", userLevel = LEVEL.REGULAR, category = CATEGORY_VISIBILITY,
+    @NeptusProperty(name = "Show chlorophyll colorbar", userLevel = LEVEL.REGULAR, category = CATEGORY_VISIBILITY_CHLOROPHILL,
             description = "Show the color scale bar. Only one will show.")
     public boolean showChlorophyllColorbar = false;
 
-    @NeptusProperty(name = "Colorbar for currents", userLevel = LEVEL.REGULAR, category = CATEGORY_VISIBILITY)
+    @NeptusProperty(name = "Colormap for currents", userLevel = LEVEL.REGULAR, category = CATEGORY_VISIBILITY_CURRENTS)
     private ColorMap colorMapCurrents = ColorMapFactory.createJetColorMap();
-    @NeptusProperty(name = "Colorbar for SST", userLevel = LEVEL.REGULAR, category = CATEGORY_VISIBILITY)
+    @NeptusProperty(name = "Colormap for SST", userLevel = LEVEL.REGULAR, category = CATEGORY_VISIBILITY_SST)
     private ColorMap colorMapSST = ColorMapFactory.createJetColorMap();
-    @NeptusProperty(name = "Colorbar for wind", userLevel = LEVEL.REGULAR, category = CATEGORY_VISIBILITY)
+    @NeptusProperty(name = "Colormap for wind", userLevel = LEVEL.REGULAR, category = CATEGORY_VISIBILITY_WIND)
     private ColorMap colorMapWind = colorMapCurrents;
-    @NeptusProperty(name = "Colorbar for waves", userLevel = LEVEL.REGULAR, category = CATEGORY_VISIBILITY)
+    @NeptusProperty(name = "Colormap for waves", userLevel = LEVEL.REGULAR, category = CATEGORY_VISIBILITY_WAVES)
     private ColorMap colorMapWaves = ColorMapFactory.createJetColorMap();
-    @NeptusProperty(name = "Colorbar for chlorophyll", userLevel = LEVEL.REGULAR, category = CATEGORY_VISIBILITY)
-    private ColorMap colorMapChlorophyll = ColorMapFactory.createWinterColorMap();
+    @NeptusProperty(name = "Colormap for chlorophyll", userLevel = LEVEL.REGULAR, category = CATEGORY_VISIBILITY_CHLOROPHILL)
+    private ColorMap colorMapChlorophyll = ColorMapFactory.createJetColorMap();
 
-    @NeptusProperty(name = "Minutes between file updates", category=CATEGORY_DATA_UPDATE)
-    public long updateFileDataMinutes = 5;
-    @NeptusProperty(name = "Data limit validity (hours)", userLevel = LEVEL.REGULAR, category=CATEGORY_DATA_UPDATE)
+    @NeptusProperty(name = "Minutes between updates", category = CATEGORY_DATA_UPDATE)
+    public int updateFileDataMinutes = 5;
+    @NeptusProperty(name = "Data limit validity (hours)", userLevel = LEVEL.REGULAR, category = CATEGORY_DATA_UPDATE)
     public int dateLimitHours = 12;
-    @NeptusProperty(name = "Use data x hour in the future (hours)", userLevel = LEVEL.REGULAR, category=CATEGORY_DATA_UPDATE)
+    @NeptusProperty(name = "Use data x hour in the future (hours)", userLevel = LEVEL.REGULAR, category = CATEGORY_DATA_UPDATE)
     public int dateHoursToUseForData = 1;
-    @NeptusProperty(name = "Ignore data limit validity to load data", userLevel=LEVEL.ADVANCED, category=CATEGORY_DATA_UPDATE)
+    @NeptusProperty(name = "Ignore data limit validity to load data", userLevel=LEVEL.ADVANCED, category = CATEGORY_DATA_UPDATE)
     public boolean ignoreDateLimitToLoad = false;
 
     @NeptusProperty(name = "Base Folder For Currents TUV or netCDF Files", userLevel = LEVEL.REGULAR, category = CATEGORY_DATA_UPDATE, 
@@ -198,6 +202,28 @@ public class EnvironmentalDataVisualization extends ConsolePanel implements Rend
     @NeptusProperty(name = "Load data from file (hfradar.txt)", editable = false, userLevel = LEVEL.ADVANCED, category=CATEGORY_TEST, description = "Don't use this (testing purposes).")
     public boolean loadFromFile = false;
     
+    // private final double minCurrentCmS = 0;
+    @NeptusProperty(name = "Currents max cm/s", userLevel = LEVEL.REGULAR, category = CATEGORY_VISIBILITY_CURRENTS)
+    private double maxCurrentCmS = 200;
+
+    @NeptusProperty(name = "SST min \u00B0C", userLevel = LEVEL.REGULAR, category = CATEGORY_VISIBILITY_SST)
+    private double minSST = -10;
+    @NeptusProperty(name = "SST max \u00B0C", userLevel = LEVEL.REGULAR, category = CATEGORY_VISIBILITY_SST)
+    private double maxSST = 40;
+
+    // private final double minWind = 0;
+    @NeptusProperty(name = "Wind max m/s", userLevel = LEVEL.REGULAR, category = CATEGORY_VISIBILITY_WIND)
+    private double maxWind = 65 / UnitsUtil.MS_TO_KNOT;
+
+    // private final double minWaves = 0;
+    @NeptusProperty(name = "Waves max m", userLevel = LEVEL.REGULAR, category = CATEGORY_VISIBILITY_WAVES)
+    private double maxWaves = 7;
+
+    @NeptusProperty(name = "Chlorophyll min mg/m\u00B3", userLevel = LEVEL.REGULAR, category = CATEGORY_VISIBILITY_CHLOROPHILL)
+    private double minChlorophyll = 0.01; //mg/m3 log
+    @NeptusProperty(name = "Chlorophyll max mg/m\u00B3", userLevel = LEVEL.REGULAR, category = CATEGORY_VISIBILITY_CHLOROPHILL)
+    private double maxChlorophyll = 60; //mg/m3
+
     private static final String tuvFilePattern = ".\\.tuv$";
     private static final String netCDFFilePattern = ".\\.nc$";
     private static final String currentsFilePatternTUV = tuvFilePattern; // "^TOTL_TRAD_\\d{4}_\\d{2}_\\d{2}_\\d{4}\\.tuv$";
@@ -213,8 +239,8 @@ public class EnvironmentalDataVisualization extends ConsolePanel implements Rend
     private static final SimpleDateFormat dateFormaterUTC = new SimpleDateFormat("yyyy-MM-dd") {{setTimeZone(TimeZone.getTimeZone("UTC"));}};
     private static final SimpleDateFormat timeFormaterUTC = new SimpleDateFormat("HH':'mm") {{setTimeZone(TimeZone.getTimeZone("UTC"));}};
 
-    private long updateSeconds = 60;
-    private long lastMillisFileDataUpdated = -1;
+    private int updateSeconds = 30;
+    private long lastMillisFileDataUpdated = System.currentTimeMillis() + 60000; // To defer the first run on start
 
     //  http://hfradar.ndbc.noaa.gov/tab.php?from=2013-06-22%2015:00:00&to=2013-06-22%2015:00:00&p=1&lat=38.324420427006515&lng=-119.94323730468749&lat2=35.69299463209881&lng2=-124.33776855468749
     //  http://hfradar.ndbc.noaa.gov/tabdownload.php?from=2013-06-23%2009:34:00&to=2013-06-23%2021:34:00&lat=37.78799270017669&lng=-122.39269445535145&lat2=37.78781729434937&lng2=-122.39236722585163
@@ -229,21 +255,6 @@ public class EnvironmentalDataVisualization extends ConsolePanel implements Rend
     // private static final String sampleMeteoFile = "meteo_20130705.nc";
     // private static final String sampleWavesFile = "waves_S_20130704.nc";
     
-    // private final double minCurrentCmS = 0;
-    private final double maxCurrentCmS = 200;
-
-    private final double minSST = -10;
-    private final double maxSST = 40;
-
-    // private final double minWind = 0;
-    private final double maxWind = 65 / UnitsUtil.MS_TO_KNOT;
-
-    // private final double minWaves = 0;
-    private final double maxWaves = 7;
-
-    private final double minChlorophyll = 0.01; //mg/m3 log
-    private final double maxChlorophyll = 60; //mg/m3
-
     private OffScreenLayerImageControl offScreen = new OffScreenLayerImageControl();
     
     private final HttpClientConnectionHelper httpComm = new HttpClientConnectionHelper();
@@ -331,9 +342,21 @@ public class EnvironmentalDataVisualization extends ConsolePanel implements Rend
         httpComm.cleanUp();
     }
     
-    public String validateDataLimitHours(int value) {
-        if (value < 3 && value > 24)
-            return "Keep it between 3 and 24";
+    public String validateUpdateFileDataMinutes(int value) {
+        if (value < 1 && value > 10)
+            return "Keep it between 1 and 10";
+        return null;
+    }
+
+    public String validateDateLimitHours(int value) {
+        if (value < 3 && value > 24 * 5)
+            return "Keep it between 3 and 24*5=120";
+        return null;
+    }
+
+    public String validateDateHoursToUseForData(int value) {
+        if (value < 0)
+            return "Keep it above 0";
         return null;
     }
     
@@ -350,27 +373,40 @@ public class EnvironmentalDataVisualization extends ConsolePanel implements Rend
      */
     @Override
     public synchronized boolean update() {
-        NeptusLog.pub().info("Update");
-        
-        if (requestFromNooaWeb) {
-            HashMap<String, HFRadarDataPoint> dpLts = getNoaaHFRadarData();
-            if (dpLts != null && dpLts.size() > 0) {
-                mergeCurrentsDataToInternalDataList(dpLts);
-                System.out.println(dpLts.size() + " ------------------------------");
+        if (lastMillisFileDataUpdated <= 0
+                || System.currentTimeMillis() - lastMillisFileDataUpdated >= updateFileDataMinutes * 60 * 1000) {
+            
+            NeptusLog.pub().info("Update Data");
+
+            lastMillisFileDataUpdated = System.currentTimeMillis();
+            
+            try {
+                if (requestFromNooaWeb) {
+                    HashMap<String, HFRadarDataPoint> dpLts = getNoaaHFRadarData();
+                    if (dpLts != null && dpLts.size() > 0) {
+                        mergeCurrentsDataToInternalDataList(dpLts);
+                        System.out.println(dpLts.size() + " ------------------------------");
+                    }
+                }
+
+                loadCurrentsFromFiles();
+                loadMeteoFromFiles();
+                loadWavesFromFiles();
+                loadChlorophyllFromFiles();
+            }
+            catch (Exception e) {
+                NeptusLog.pub().warn(e);
+            }
+
+            
+            try {
+                cleanUpData();
+            }
+            catch (Exception e) {
+                NeptusLog.pub().warn(e);
             }
         }
 
-        if (lastMillisFileDataUpdated <= 0
-                || System.currentTimeMillis() - lastMillisFileDataUpdated >= updateFileDataMinutes * 60 * 1000) {
-            lastMillisFileDataUpdated = System.currentTimeMillis();
-            loadCurrentsFromFiles();
-            loadMeteoFromFiles();
-            loadWavesFromFiles();
-            loadChlorophyllFromFiles();
-        }
-
-        propertiesChanged();
-        
         return true;
     }
     
@@ -379,8 +415,39 @@ public class EnvironmentalDataVisualization extends ConsolePanel implements Rend
      */
     @Override
     public void propertiesChanged() {
-        lastMillisFileDataUpdated = -1;
+        if (updateFileDataMinutes < 1)
+            updateFileDataMinutes = 1;
+        if (updateFileDataMinutes > 10)
+            updateFileDataMinutes = 10;
         
+        if (dateLimitHours < 3)
+            dateLimitHours = 3;
+        if (dateLimitHours > 24 * 5)
+            dateLimitHours = 24 * 5;
+
+        if (dateHoursToUseForData < 0)
+            dateHoursToUseForData = 0;
+
+        if (maxCurrentCmS <= 0)
+            maxCurrentCmS = 1;
+
+        if (minSST >= maxSST)
+            minSST = maxSST - 10;
+
+        if (maxWind <= 0)
+            maxWind = 1;
+
+        if (maxWaves <= 0)
+            maxWaves = 1;
+
+        if (minChlorophyll >= maxChlorophyll)
+            minChlorophyll = maxChlorophyll - 10;
+
+        lastMillisFileDataUpdated = -1;
+        cleanUpData();
+    }
+
+    private void cleanUpData() {
         cleanDataPointsBeforeDate();
         updateValues();
         offScreen.triggerImageRebuild();
@@ -455,7 +522,6 @@ public class EnvironmentalDataVisualization extends ConsolePanel implements Rend
         cleanWavesDataPointsBeforeDate(dateLimit);
         cleanChlorophyllDataPointsBeforeDate(dateLimit);
     }
-    
 
     private void cleanCurrentsDataPointsBeforeDate(Date dateLimit) {
         if (dateLimit == null)
@@ -561,7 +627,6 @@ public class EnvironmentalDataVisualization extends ConsolePanel implements Rend
         }
     }
     
-
     public void mergeSSTDataToInternalDataList(HashMap<String, SSTDataPoint> toMergeData) {
         for (String dpId : toMergeData.keySet()) {
             SSTDataPoint dp = toMergeData.get(dpId);
@@ -591,7 +656,6 @@ public class EnvironmentalDataVisualization extends ConsolePanel implements Rend
         }
     }
     
-
     public void mergeWavesDataToInternalDataList(HashMap<String, WavesDataPoint> toMergeData) {
         for (String dpId : toMergeData.keySet()) {
             WavesDataPoint dp = toMergeData.get(dpId);
@@ -605,7 +669,6 @@ public class EnvironmentalDataVisualization extends ConsolePanel implements Rend
             }
         }
     }
-
     
     /**
      * @param dpToMerge
@@ -654,7 +717,6 @@ public class EnvironmentalDataVisualization extends ConsolePanel implements Rend
         }
         debugOut(toMergeData.size() + " vs " + dataPointsChlorophyll.size());
     }
-
 
     private void loadCurrentsFromFiles() {
         // TUV files
@@ -738,10 +800,6 @@ public class EnvironmentalDataVisualization extends ConsolePanel implements Rend
         if (cornersLocs == null)
             return null;
         
-//        if (cornersLocs[0].getLatitudeDegs() > noaaMaxLat
-//                )
-//            return null;
-        
         return getNoaaHFRadarData(tillDate, nowDate, cornersLocs[3], cornersLocs[1]);
     }
     
@@ -752,11 +810,9 @@ public class EnvironmentalDataVisualization extends ConsolePanel implements Rend
         try {
             String uri = noaaURL;
             uri = getNoaaURI(tillDate, nowDate, lTop, lBot);
-            //uri = uri.replace("hfradar.ndbc.noaa.gov", "whale.fe.up.pt");
             
             debugOut(uri);
             // http://hfradar.ndbc.noaa.gov/tabdownload.php?from=2013-06-23%2007:56:00&to=2013-06-23%2019:56:00&lat=37.84130100297351&lng=-122.53766785260639&lat2=37.84112572375683&lng2=-122.53734062310657
-
             
             getHttpRequest = new HttpGet(uri);
             getHttpRequest.setHeader("Referer", uri /*"http://hfradar.ndbc.noaa.gov/tab.php"*/);
@@ -817,9 +873,6 @@ public class EnvironmentalDataVisualization extends ConsolePanel implements Rend
      */
     @Override
     public void paint(Graphics2D go, StateRenderer2D renderer) {
-//        if (!visible)
-//            return;
-//        paintWorker(go, renderer);
     }
     
     public void paintWorker(Graphics2D go, StateRenderer2D renderer) {
