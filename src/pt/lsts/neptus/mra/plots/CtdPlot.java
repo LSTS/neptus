@@ -32,6 +32,8 @@
  */
 package pt.lsts.neptus.mra.plots;
 
+import org.jfree.chart.JFreeChart;
+
 import pt.lsts.imc.Conductivity;
 import pt.lsts.imc.Depth;
 import pt.lsts.imc.Salinity;
@@ -63,7 +65,14 @@ public class CtdPlot extends MRACombinedPlot {
     public String getName() {
         return I18n.text("CTD");
     }
-
+    
+    
+    @Override
+    public JFreeChart createChart() {
+        JFreeChart chart = super.createChart();
+        getChart("Depth").getXYPlot().getRangeAxis().setInverted(true);
+        return chart;
+    }
     @Override
     public void process(LsfIndex source) {
         int entity = index.getFirst(Conductivity.class).getSrcEnt();

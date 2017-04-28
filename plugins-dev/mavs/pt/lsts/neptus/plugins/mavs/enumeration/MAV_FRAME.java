@@ -27,41 +27,27 @@
  *
  * For more information please see <http://lsts.fe.up.pt/neptus>.
  *
- * Author: zp
- * Jul 25, 2014
+ * Author: pdias
+ * 24/04/2017
  */
-package pt.lsts.neptus.types.mission.plan;
-
-import java.io.File;
-
-import javax.swing.JComponent;
-import javax.swing.JFileChooser;
-import javax.swing.ProgressMonitor;
+package pt.lsts.neptus.plugins.mavs.enumeration;
 
 /**
- * @author zp
+ * @author pdias
  *
  */
-public interface IPlanFileExporter {
+public enum MAV_FRAME {
+    MAV_FRAME_GLOBAL(0), // Global coordinate frame, WGS84 coordinate system. First value / x: latitude, second value / y: longitude, third value / z: positive altitude over mean sea level (MSL)
+    MAV_FRAME_GLOBAL_RELATIVE_ALT(3), // Global coordinate frame, WGS84 coordinate system, relative altitude over ground with respect to the home position. First value / x: latitude, second value / y: longitude, third value / z: positive altitude with 0 being at the altitude of the home location.
+    MAV_FRAME_GLOBAL_TERRAIN_ALT(10); // Global coordinate frame with above terrain level altitude. WGS84 coordinate system, relative altitude over terrain with respect to the waypoint coordinate. First value / x: latitude in degrees, second value / y: longitude in degrees, third value / z: positive altitude in meters with 0 being at ground level in terrain model.
+    
+    protected long value;
 
-    public String getExporterName();
-    /**
-     * @param plan
-     * @param out
-     * @param monitor Don't assume that it exists.
-     * @throws Exception
-     */
-    public void exportToFile(PlanType plan, File out, ProgressMonitor monitor) throws Exception;
-    
-    public String[] validExtensions();
-    
-    /**
-     * @see {@link JFileChooser#setAccessory(javax.swing.JComponent)}
-     * 
-     * @param fileChooser
-     * @return
-     */
-    public default JComponent createFileChooserAccessory(JFileChooser fileChooser) {
-        return null;
+    public long value() {
+        return value;
+    }
+
+    MAV_FRAME(long value) {
+        this.value = value;
     }
 }
