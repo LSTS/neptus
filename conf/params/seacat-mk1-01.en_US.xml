@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <config format="1" version="2017.03.0" system="seacat-mk1-01" i18n="en_US">
-  <section name="Limits" name-i18n="Limits">
+  <section name="Limits" name-i18n="Limits" editable="false">
     <param name="MaximumSpeed">
       <name-i18n>Maximum Speed</name-i18n>
       <type>real</type>
