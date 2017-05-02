@@ -211,6 +211,14 @@ public class ConfigurationManager {
 
             sections.add(sectionName);
 
+            boolean editableSection = true;
+            Node editableSectionNode = section.selectSingleNode("@editable");
+            if (editableSectionNode != null) {
+                Boolean vb = BooleanUtils.toBooleanObject(editableSectionNode.getText());
+                if (vb != null)
+                    editableSection = vb;
+            }
+            
             Node editorNode = section.selectSingleNode("@editor");
             CustomSystemPropertyEditor sectionCustomEditor = null;
             if (editorNode != null) {
@@ -239,6 +247,14 @@ public class ConfigurationManager {
                 if (paramName == null) {
                     NeptusLog.pub().error("Error loading unnamed param for section " + sectionName + " for " + file.getName());
                     continue;
+                }
+                
+                boolean editableParam = editableSection;
+                Node editableParamNode = param.selectSingleNode("@editable");
+                if (editableParamNode != null) {
+                    Boolean vb = BooleanUtils.toBooleanObject(editableParamNode.getText());
+                    if (vb != null)
+                        editableParam = vb;
                 }
                 
                 String paramI18nName = getTagContents(param, "name-i18n");
@@ -783,6 +799,7 @@ public class ConfigurationManager {
                 property.setCategoryId(sectionName);
                 property.setScope(SystemProperty.Scope.fromString(scope));
                 property.setVisibility(SystemProperty.Visibility.fromString(visibility));
+                property.setEditable(editableParam);
 
                 // Setting editor
                 if (propEditor != null)
