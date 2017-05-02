@@ -36,13 +36,11 @@ import java.awt.event.ActionEvent;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintStream;
-import java.nio.CharBuffer;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
@@ -59,7 +57,6 @@ import org.codehaus.groovy.control.customizers.ImportCustomizer;
 import com.google.common.eventbus.Subscribe;
 
 import groovy.lang.Binding;
-import groovy.lang.Script;
 import groovy.util.GroovyScriptEngine;
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.comm.manager.imc.ImcSystem;
@@ -67,7 +64,6 @@ import pt.lsts.neptus.comm.manager.imc.ImcSystemsHolder;
 import pt.lsts.neptus.console.ConsoleLayout;
 import pt.lsts.neptus.console.events.ConsoleEventPlanChange;
 import pt.lsts.neptus.console.events.ConsoleEventVehicleStateChanged;
-import pt.lsts.neptus.console.notifications.Notification;
 import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.plugins.PluginDescription;
 import pt.lsts.neptus.plugins.Popup;
@@ -131,8 +127,8 @@ public class Groovy_stable extends InteractionAdapter {
         this.customizer.addStarImports("pt.lsts.imc","pt.lsts.neptus.imc.dsl","pt.lsts.neptus.types.map"); //this.getClass().classLoader.rootLoader.addURL(new File("file.jar").toURL())
         this.config.addCompilationCustomizers(customizer);
         this.binds = new Binding();
-        this.binds.setVariable("vehicles_id", vehicles.keySet().toArray());
-        this.binds.setVariable("plans_id", plans.keySet().toArray());
+        this.binds.setVariable("vehicles", vehicles.keySet().toArray());
+        this.binds.setVariable("plans", plans.keySet().toArray());
         this.binds.setVariable("locations", locations.values().toArray());
         this.binds.setVariable("console", getConsole()); //TODO NOTIFY the existing binding to be used in the script
         this.binds.setVariable("result", null);
@@ -194,7 +190,7 @@ public class Groovy_stable extends InteractionAdapter {
                             stopScript.setEnabled(true);
                         }
                         File groovy_script = fc.getSelectedFile();
-                        NeptusLog.pub().info(I18n.text("Selected script: " + groovy_script.getName() + "." + "\n"));
+                        NeptusLog.pub().info(I18n.text("Selected script: " + groovy_script.getName()));
                         thread = new Thread() {
 
                             @Override
@@ -204,7 +200,6 @@ public class Groovy_stable extends InteractionAdapter {
                                     String name = groovy_script.getName()+System.currentTimeMillis();
                                     PrintStream output = new PrintStream(new FileOutputStream(new File("plugins-dev/groovy/pt/lsts/neptus/plugins/groovy/scripts/outputs/"+name)));
                                     getBinds().setProperty("out",output);
-                                    //TODO result = output.toString();
                                     //getBinds().setVariable("result",output.toString());
                                     File generated_script = new File("plugins-dev/groovy/pt/lsts/neptus/plugins/groovy/scripts/"+name);
                                     BufferedWriter fileW = new BufferedWriter(new FileWriter(generated_script));
@@ -212,10 +207,10 @@ public class Groovy_stable extends InteractionAdapter {
                                     writeScriptContent(fileW,groovy_script);
                                     fileW.write("\n}");
                                     fileW.close();
-                                    
                                     engine.run(generated_script.getName(), binds);
                                     if(stopScript.isEnabled())
                                         stopScript.setEnabled(false);
+                                    generated_script.delete();
                                 }
                                 
                                 //System.setOut(new PrintStream(new FileOutputStream(FileDescriptor.out))); -> see http://stackoverflow.com/questions/5339499/resetting-standard-output-stream
@@ -229,10 +224,10 @@ public class Groovy_stable extends InteractionAdapter {
                                           thread.interrupt();
                                       if(stopScript.isEnabled())
                                           stopScript.setEnabled(false);
-                                      //e.printStackTrace();
+
                                       }
-                                  catch(ThreadDeath e){
-                                      //TODO notify script exit
+                                  catch(ThreadDeath e){ 
+                                      NeptusLog.pub().info("Exiting script execution: "+groovy_script.getName());
                                   }
                             }
 
@@ -249,7 +244,7 @@ public class Groovy_stable extends InteractionAdapter {
                                 catch (IOException e) {
                                     // TODO Auto-generated catch block
                                     NeptusLog.pub().error(I18n.text("Error generating script from: "+groovy_script.getName()), e);
-                                    e.printStackTrace();
+                                    //e.printStackTrace();
                                 }
                             }
                         };
@@ -293,10 +288,14 @@ public class Groovy_stable extends InteractionAdapter {
             if(!this.getConsole().getMission().getIndividualPlansList().containsKey(changedPlan.getOld().getId())){
                 //System.out.println("Plan "+changedPlan.getOld().getId()+" removed.");
                 plans.remove(changedPlan.getOld().getId());
+                binds.setVariable("plans", plans.keySet().toArray());
+
             }
             else{
                 plans.put(changedPlan.getCurrent().getId(), changedPlan.getCurrent());
-                System.out.println("New Plan!! "+changedPlan.getCurrent().getId());
+                binds.setVariable("plans", plans.keySet().toArray());
+                //System.out.println("New Plan!! "+changedPlan.getCurrent().getId());
+                
             }
         }
     }
@@ -310,29 +309,29 @@ public class Groovy_stable extends InteractionAdapter {
                     //add new vehicle
                     if(!vehicles.containsKey(e.getVehicle())) {
                         vehicles.put(e.getVehicle(),VehiclesHolder.getVehicleById(e.getVehicle()));
-                        this.binds.setVariable("vehicles_id",vehicles.keySet().toArray()); //binds.vehicles=vehicles;
+                        binds.setVariable("vehicles", vehicles.keySet().toArray());
                         //System.out.println("Added "+e.getVehicle()+" Size: "+vehicles.keySet().size());
                     }
                 }
                 break;
             case ERROR:
                 if(vehicles.containsKey(e.getVehicle())){
-                    this.vehicles.remove(e.getVehicle());
-                    this.binds.setVariable("vehicles_id",vehicles.keySet().toArray());
+                    vehicles.remove(e.getVehicle());
+                    binds.setVariable("vehicles", vehicles.keySet().toArray());
                     //System.out.println("Removed "+e.getVehicle()+" Size: "+vehicles.keySet().size());
                 }
                 break;
             case DISCONNECTED:
                 if(vehicles.containsKey(e.getVehicle())){
-                    this.vehicles.remove(e.getVehicle());
-                    this.binds.setVariable("vehicles_id",vehicles.keySet().toArray());
+                    vehicles.remove(e.getVehicle());
+                    binds.setVariable("vehicles", vehicles.keySet().toArray());
                     //System.out.println("Removed "+e.getVehicle()+" Size: "+vehicles.keySet().size());
                 }
                 break;
             case CALIBRATION:// or case MANEUVER
                 if(vehicles.containsKey(e.getVehicle())){
-                    this.vehicles.remove(e.getVehicle());
-                    this.binds.setVariable("vehicles_id",vehicles.keySet().toArray());
+                    vehicles.remove(e.getVehicle());
+                    binds.setVariable("vehicles", vehicles.keySet().toArray());
                     //System.out.println("Removed "+e.getVehicle()+" Size: "+vehicles.keySet().size());
                 }
                 break;
@@ -365,21 +364,3 @@ public class Groovy_stable extends InteractionAdapter {
         return (HashMap<String, PlanType>) plans;
     }
 }
-
-/*@Subscribe
-public void onConsoleEventPlanChange(ConsoleEventPlanChange plan) {
-    //switch(plan) {
-
-    //}
-
-}*/
-
-// public void consume(PlanControlState pcstate) -> Plugin do Manuel para atualizar o estado do plano no veiculo
-
-/* @Subscribe
-public void on(EstimatedState msg) {
-
-}*/    
-//MapChangeListener listener = null;
-// getConsole().getMission().getMapsList().values();
-//getConsole().getMission().generateMapGroup().addChangeListener(listener);

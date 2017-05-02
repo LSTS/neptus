@@ -62,25 +62,14 @@ class Payload {
 //        available_params.put("Camera",["Frequency"])
         
       }
-    String normalizeParameterName (String parameter){
-        String[] aux = parameter.split()
-        String result = aux[0].toLowerCase().capitalize()
-        for(int i=1;i<aux.length;i++) {
-            result+=" "+ aux[i].toLowerCase().capitalize()
-        }
-        println result
-        result
-     }
    
     public void property (String prop,int value){
         params.add(new EntityParameter(prop,value.toString()))
     }
     public void property (String prop,String value){
-        println "property String"+prop+" "+value
         params.add(new EntityParameter(prop,value))
     }
     
-
     public static Property[]  properties(String maneuver,List<Payload> payloads) {
         //Maneuver -> startActions -> set entityParameters -> name-> param: Active, value: true
         List<SetEntityParameters> setEntities = new ArrayList<>()
@@ -96,10 +85,7 @@ class Payload {
         startActions.parseMessages(msg)
         Property startActionsProperty = PropertiesEditor.getPropertyInstance("start-actions", maneuver + " start actions",
                 PlanActions.class, startActions, false)
-//        Node nd = doc.selectSingleNode("./node/actions/start-actions");
-//        if (nd != null) {
-//            man.startActions.load((Element) nd);
-//    }
+
         Arrays.asList(startActionsProperty)
   }
 }

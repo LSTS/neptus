@@ -96,6 +96,16 @@ class Plan {
         z = new Z(v,units)
     }
     
+    String normalizeParameterName (String parameter){
+//        String result = parameter.substring(0,1).capitalize()
+//        parameter.substring(1).each{
+//            result+=it.toLowerCase()
+//        }
+//          result
+          parameter
+          
+       }
+    
 	 def IMCManeuver maneuver(String id, Class maneuver) {
         
 		def man = maneuver.newInstance(
@@ -141,13 +151,13 @@ class Plan {
                  def payloadComponent
                  params['payload'].each{
                      if(it['name'] != null){
-                         def payload_name = it['name']
+                         def payload_name = normalizeParameterName(it['name'])
                          payloadComponent = new Payload(payload_name)
                          
                              it.each {
                              key,value -> 
                              if(!key.equals("name")){ //verify(payload,key) <-- verify it parameter exists in payload to avoid runtime exceptions!"!!
-                                 payloadComponent.property key, value}
+                                 payloadComponent.property normalizeParameterName(key), value}
                               }
 
                          payload.add payloadComponent
@@ -202,13 +212,13 @@ class Plan {
                  def payloadComponent
                  params['payload'].each{
                      if(it['name'] != null){
-                         def payload_name = it['name']
+                         def payload_name = normalizeParameterName(it['name'])
                          payloadComponent = new Payload(payload_name)
                          
                              it.each {
                              key,value -> 
                              if(!key.equals("name")){ //verify(payload,key) <-- verify it parameter exists in payload to avoid runtime exceptions!"!!
-                                 payloadComponent.property key, value}
+                                 payloadComponent.property normalizeParameterName(key), value}
                               }
 
                          payload.add payloadComponent
@@ -259,13 +269,13 @@ class Plan {
                  def payloadComponent
                  params['payload'].each{
                      if(it['name'] != null){
-                         def payload_name = it['name']
+                         def payload_name = normalizeParameterName(it['name'])
                          payloadComponent = new Payload(payload_name)
                          
                              it.each {
                              key,value -> 
                              if(!key.equals("name")){ //verify(payload,key) <-- verify it parameter exists in payload to avoid runtime exceptions!"!!
-                                 payloadComponent.property key, value}
+                                 payloadComponent.property normalizeParameterName(key), value}
                               }
 
                          payload.add payloadComponent
@@ -317,13 +327,13 @@ class Plan {
                  def payloadComponent
                  params['payload'].each{
                      if(it['name'] != null){
-                         def payload_name = it['name']
+                         def payload_name = normalizeParameterName(it['name'])
                          payloadComponent = new Payload(payload_name)
                          
                              it.each {
                              key,value -> 
                              if(!key.equals("name")){ //verify(payload,key) <-- verify it parameter exists in payload to avoid runtime exceptions!"!!
-                                 payloadComponent.property key, value}
+                                 payloadComponent.property normalizeParameterName(key), value}
                               }
 
                          payload.add payloadComponent
@@ -374,13 +384,13 @@ class Plan {
                  def payloadComponent
                  params['payload'].each{
                      if(it['name'] != null){
-                         def payload_name = it['name']
+                         def payload_name = normalizeParameterName(it['name'])
                          payloadComponent = new Payload(payload_name)
                          
                              it.each {
                              key,value -> 
                              if(!key.equals("name")){ //verify(payload,key) <-- verify it parameter exists in payload to avoid runtime exceptions!"!!
-                                 payloadComponent.property key, value}
+                                 payloadComponent.property normalizeParameterName(key), value}
                               }
 
                          payload.add payloadComponent
@@ -432,13 +442,13 @@ class Plan {
                  def payloadComponent
                  params['payload'].each{
                      if(it['name'] != null){
-                         def payload_name = it['name']
+                         def payload_name = normalizeParameterName(it['name'])
                          payloadComponent = new Payload(payload_name)
                          
                              it.each {
                              key,value -> 
                              if(!key.equals("name")){ //verify(payload,key) <-- verify it parameter exists in payload to avoid runtime exceptions!"!!
-                                 payloadComponent.property key, value}
+                                 payloadComponent.property normalizeParameterName(key), value}
                               }
 
                          payload.add payloadComponent
@@ -486,13 +496,13 @@ class Plan {
                  def payloadComponent
                  params['payload'].each{
                      if(it['name'] != null){
-                         def payload_name = it['name']
+                         def payload_name = normalizeParameterName(it['name'])
                          payloadComponent = new Payload(payload_name)
                          
                              it.each {
                              key,value -> 
                              if(!key.equals("name")){ //verify(payload,key) <-- verify it parameter exists in payload to avoid runtime exceptions!"!!
-                                 payloadComponent.property key, value}
+                                 payloadComponent.property normalizeParameterName(key), value}
                               }
 
                          payload.add payloadComponent
@@ -554,13 +564,13 @@ class Plan {
                  def payloadComponent
                  params['payload'].each{
                      if(it['name'] != null){
-                         def payload_name = it['name']
+                         def payload_name = normalizeParameterName(it['name'])
                          payloadComponent = new Payload(payload_name)
                          
                              it.each {
                              key,value -> 
                              if(!key.equals("name")){ //verify(payload,key) <-- verify it parameter exists in payload to avoid runtime exceptions!"!!
-                                 payloadComponent.property key, value}
+                                 payloadComponent.property normalizeParameterName(key), value}
                               }
 
                          payload.add payloadComponent
