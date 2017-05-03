@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<console name="Neptus Console" width="1368" height="727" resizable="true" mission-file="../../missions/APDL/missao-apdl.nmisz" main-vehicle="seacat-mk1">
-  <!-- Data saved on 2017-03-28T16:38:39.0Z with Neptus version @VERSION@ (compiled on @DATE@, g@SCM_REV@). -->
+<console name="Neptus Console" width="1368" height="727" resizable="true" mission-file="../../missions/seacatmk1-test.nmisz" main-vehicle="seacat-mk1-01">
+  <!-- Data saved on 2017-05-03T11:03:43.0Z with Neptus version @VERSION@ (compiled on @DATE@, g@SCM_REV@). -->
   <mainpanel name="console main panel">
     <subpanel class="pt.lsts.neptus.console.plugins.containers.MigLayoutContainer" x="0" y="0" width="1352" height="632">
       <properties>
