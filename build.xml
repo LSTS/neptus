@@ -292,7 +292,7 @@ For simple use the main targets are:
 						<resourceexists>
 							<file file="neptus.bat"/>
 						</resourceexists>
-						<resourcecount refid="nsis-generated-launchers" when="ge" count="4" />
+						<resourcecount refid="nsis-generated-launchers" when="ge" count="2" />
 					</and>
 				</not>
 			</condition>
