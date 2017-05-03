@@ -1,0 +1,7 @@
+vehicles-defs/*-seacat-mk1-*.nvcl
+conf/params/seacat-mk1-*.*.xml
+conf/messages/IMC.xml
+conf/consoles/seacat-mk1.ncon
+missions/seacatmk1-test.nmisz
+plugins/*.jar
+bin-bundles/neptus-check.jar
