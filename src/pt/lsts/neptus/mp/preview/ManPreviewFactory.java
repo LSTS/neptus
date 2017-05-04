@@ -36,8 +36,9 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.apache.commons.lang3.tuple.Pair;
+
 import pt.lsts.neptus.NeptusLog;
-import pt.lsts.neptus.data.Pair;
 import pt.lsts.neptus.mp.Maneuver;
 import pt.lsts.neptus.mp.SystemPositionAndAttitude;
 import pt.lsts.neptus.mp.maneuvers.FollowTrajectory;
@@ -49,7 +50,7 @@ import pt.lsts.neptus.mp.maneuvers.Launch;
  */
 public class ManPreviewFactory {
 
-    private static Map<Pair<String, Class<?>>, Class<?>> previewImpl = Collections.synchronizedMap(new HashMap<>());
+    private static Map<org.apache.commons.lang3.tuple.Pair<String, Class<?>>, Class<?>> previewImpl = Collections.synchronizedMap(new HashMap<>());
     private static final String GENERIC_STRING = "any";
     
     /**
@@ -68,19 +69,20 @@ public class ManPreviewFactory {
             Object manState) {
         if (maneuver == null)
             return null;
-
-        Pair<String, Class<?>> vehicleSpecific = new Pair<>(vehicleId, maneuver.getClass());
-        Pair<String, Class<?>> generic = new Pair<>(GENERIC_STRING, maneuver.getClass());
+        Pair<String, Class<?>> vehicleSpecific = Pair.of(vehicleId, maneuver.getClass());
+        Pair<String, Class<?>> generic = Pair.of(GENERIC_STRING, maneuver.getClass());
         
         synchronized (previewImpl) {
             
-            if (previewImpl.containsKey(maneuver.getClass())) {
-                Class<IManeuverPreview<?>> prevClass = (Class<IManeuverPreview<?>>) previewImpl.get(vehicleSpecific);
+            if (previewImpl.containsKey(vehicleSpecific) || previewImpl.containsKey(generic)) {
+                Class<IManeuverPreview<?>> prevClass;
+                prevClass = (Class<IManeuverPreview<?>>) previewImpl.get(vehicleSpecific);
                 if (prevClass == null)
                     prevClass = (Class<IManeuverPreview<?>>) previewImpl.get(generic);
                 
-                if (prevClass == null)
+                if (prevClass == null) {
                     return null;
+                }
                 
                 try {
                     IManeuverPreview<Maneuver> prevG = ((IManeuverPreview<Maneuver>) prevClass.newInstance());
@@ -97,14 +99,14 @@ public class ManPreviewFactory {
                 FollowTrajectoryPreview prev = new FollowTrajectoryPreview();
                 prev.init(vehicleId, (FollowTrajectory) maneuver, state, manState);
                 IManeuverPreview<?> p = (IManeuverPreview<?>) prev;
-                previewImpl.put(new Pair<>(vehicleId, maneuver.getClass()), p.getClass());
+                previewImpl.put(Pair.of(vehicleId, maneuver.getClass()), p.getClass());
                 return prev;
             }
             else if (Launch.class.isAssignableFrom(maneuver.getClass())) {
                 GotoPreview prev = new GotoPreview();
                 prev.init(vehicleId, (Launch) maneuver, state, manState);
                 IManeuverPreview<?> p = (IManeuverPreview<?>) prev;
-                previewImpl.put(new Pair<>(vehicleId,  maneuver.getClass()), p.getClass());
+                previewImpl.put(Pair.of(vehicleId,  maneuver.getClass()), p.getClass());
                 return prev;
             }
             
@@ -131,7 +133,7 @@ public class ManPreviewFactory {
                 try {
                     IManeuverPreview<Maneuver> prevG = (IManeuverPreview<Maneuver>) prevClass.newInstance();
                     prevG.init(vehicleId, maneuver, state, manState);
-                    previewImpl.put(new Pair<>(vehicleId, maneuver.getClass()), prevG.getClass());
+                    previewImpl.put(Pair.of(vehicleId, maneuver.getClass()), prevG.getClass());
                     return prevG;
                 }
                 catch (Exception e) {
@@ -139,7 +141,7 @@ public class ManPreviewFactory {
                 }
             }
             
-            previewImpl.put(new Pair<>(vehicleId, maneuver.getClass()), null);
+            previewImpl.put(Pair.of(vehicleId, maneuver.getClass()), null);
             return null;
         }
     }
@@ -163,7 +165,7 @@ public class ManPreviewFactory {
         synchronized (previewImpl) {
             if (previewImpl.containsKey(maneuver)) {
                 if (previewImpl.get(maneuver) == null) {
-                    previewImpl.put(new Pair<>(vehicleId, maneuver), preview);
+                    previewImpl.put(Pair.of(vehicleId, maneuver), preview);
                     return true;
                 }
                 else {
@@ -171,9 +173,11 @@ public class ManPreviewFactory {
                 }
             }
             else {
-                previewImpl.put(new Pair<>(vehicleId, maneuver), preview);
+                previewImpl.put(Pair.of(vehicleId, maneuver), preview);
                 return true;
             }
         }
+        
+        
     }
 }
