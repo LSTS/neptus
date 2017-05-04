@@ -106,7 +106,7 @@ public class SeaCatMK1PlanExporter implements IPlanFileExporter {
     
     // register maneuver previews
     static {
-        String[] vehicles = new String[] {"seacat"};
+        String[] vehicles = new String[] {"seacat-mk1-01"};
         for (String vehicle : vehicles) {
             ManPreviewFactory.registerPreview(vehicle, Goto.class, SeacatGotoPreview.class);
             ManPreviewFactory.registerPreview(vehicle, StationKeeping.class, SeacatSKeepPreview.class);

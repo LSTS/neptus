@@ -50,7 +50,7 @@ public class StationKeepingPreview implements IManeuverPreview<StationKeeping> {
     protected double sk_time = -0.1;
     protected double maxTime, duration;
     protected boolean arrived = false;
-    UnicycleModel model = new UnicycleModel();
+    protected UnicycleModel model = new UnicycleModel();
 
     @Override
     public boolean init(String vehicleId, StationKeeping man, SystemPositionAndAttitude state, Object manState) {

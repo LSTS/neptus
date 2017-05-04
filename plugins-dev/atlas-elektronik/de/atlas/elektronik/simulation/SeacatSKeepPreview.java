@@ -32,13 +32,45 @@
  */
 package de.atlas.elektronik.simulation;
 
-import pt.lsts.imc.StationKeeping;
+import pt.lsts.neptus.mp.SystemPositionAndAttitude;
+import pt.lsts.neptus.mp.preview.StationKeepingPreview;
+import pt.lsts.neptus.types.coord.LocationType;
 
 /**
  * @author zp
  *
  */
-public class SeacatSKeepPreview extends StationKeeping {
+public class SeacatSKeepPreview extends StationKeepingPreview {
 
+    private static final double EIGHT_DIST = 10;
+    
+    @Override
+    public SystemPositionAndAttitude step(SystemPositionAndAttitude state, double timestep, double ellapsedTime) {
+        if (!arrived) {
+            model.setState(state);
+            arrived = model.guide(destination, speed, destination.getDepth() >= 0 ? null : -destination.getDepth());
+        }
+        else {
+            sk_time += timestep;
+            
+            if (duration == 0) {
+                finished = destination.getDepth() == 0 && model.getDepth() <= 0;
+            }
+            else {
+                finished = sk_time >= duration;
+            }
+            
+            if (destination.getDepth() != 0) {
+                double distance = destination.getDistanceInMeters(state.getPosition());
+                double angle = state.getYaw();
+                LocationType tmp = new LocationType(destination);
+                if (distance < EIGHT_DIST)
+                    tmp.translatePosition(Math.cos(angle)* 10, Math.sin(angle)*10, 0);
+                model.guide(tmp, speed, destination.getDepth() >= 0 ? null : -destination.getDepth());                   
+            }
+        }        
+        model.advance(timestep);
+        return model.getState();
+    }
     
 }
