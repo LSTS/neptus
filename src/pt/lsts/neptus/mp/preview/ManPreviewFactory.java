@@ -37,6 +37,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import pt.lsts.neptus.NeptusLog;
+import pt.lsts.neptus.data.Pair;
 import pt.lsts.neptus.mp.Maneuver;
 import pt.lsts.neptus.mp.SystemPositionAndAttitude;
 import pt.lsts.neptus.mp.maneuvers.FollowTrajectory;
@@ -48,7 +49,8 @@ import pt.lsts.neptus.mp.maneuvers.Launch;
  */
 public class ManPreviewFactory {
 
-    private static Map<Class<Maneuver>, Class<IManeuverPreview<?>>> previewMatchList = Collections.synchronizedMap(new HashMap<>());
+    private static Map<Pair<String, Class<?>>, Class<?>> previewImpl = Collections.synchronizedMap(new HashMap<>());
+    private static final String GENERIC_STRING = "any";
     
     /**
      * If finds and instantiate a preview for the maneuver. It looks for a preview in the current package of the
@@ -67,9 +69,16 @@ public class ManPreviewFactory {
         if (maneuver == null)
             return null;
 
-        synchronized (previewMatchList) {
-            if (previewMatchList.containsKey(maneuver.getClass())) {
-                Class<IManeuverPreview<?>> prevClass = previewMatchList.get(maneuver.getClass());
+        Pair<String, Class<?>> vehicleSpecific = new Pair<>(vehicleId, maneuver.getClass());
+        Pair<String, Class<?>> generic = new Pair<>(GENERIC_STRING, maneuver.getClass());
+        
+        synchronized (previewImpl) {
+            
+            if (previewImpl.containsKey(maneuver.getClass())) {
+                Class<IManeuverPreview<?>> prevClass = (Class<IManeuverPreview<?>>) previewImpl.get(vehicleSpecific);
+                if (prevClass == null)
+                    prevClass = (Class<IManeuverPreview<?>>) previewImpl.get(generic);
+                
                 if (prevClass == null)
                     return null;
                 
@@ -88,14 +97,14 @@ public class ManPreviewFactory {
                 FollowTrajectoryPreview prev = new FollowTrajectoryPreview();
                 prev.init(vehicleId, (FollowTrajectory) maneuver, state, manState);
                 IManeuverPreview<?> p = (IManeuverPreview<?>) prev;
-                previewMatchList.put((Class<Maneuver>) maneuver.getClass(), (Class<IManeuverPreview<?>>) p.getClass());
+                previewImpl.put(new Pair<>(vehicleId, maneuver.getClass()), p.getClass());
                 return prev;
             }
             else if (Launch.class.isAssignableFrom(maneuver.getClass())) {
                 GotoPreview prev = new GotoPreview();
                 prev.init(vehicleId, (Launch) maneuver, state, manState);
                 IManeuverPreview<?> p = (IManeuverPreview<?>) prev;
-                previewMatchList.put((Class<Maneuver>) maneuver.getClass(), (Class<IManeuverPreview<?>>) p.getClass());
+                previewImpl.put(new Pair<>(vehicleId,  maneuver.getClass()), p.getClass());
                 return prev;
             }
             
@@ -122,7 +131,7 @@ public class ManPreviewFactory {
                 try {
                     IManeuverPreview<Maneuver> prevG = (IManeuverPreview<Maneuver>) prevClass.newInstance();
                     prevG.init(vehicleId, maneuver, state, manState);
-                    previewMatchList.put((Class<Maneuver>) maneuver.getClass(), (Class<IManeuverPreview<?>>) prevG.getClass());
+                    previewImpl.put(new Pair<>(vehicleId, maneuver.getClass()), prevG.getClass());
                     return prevG;
                 }
                 catch (Exception e) {
@@ -130,7 +139,7 @@ public class ManPreviewFactory {
                 }
             }
             
-            previewMatchList.put((Class<Maneuver>) maneuver.getClass(), (Class<IManeuverPreview<?>>) null);
+            previewImpl.put(new Pair<>(vehicleId, maneuver.getClass()), null);
             return null;
         }
     }
@@ -138,19 +147,23 @@ public class ManPreviewFactory {
     /**
      * Utility class to register a preview for a maneuver.
      * Only if preview is not register or register as null is register.
-     * 
-     * @param maneuver
-     * @param preview
-     * @return
      */
-    public static boolean registerPreview(Class<Maneuver> maneuver, Class<IManeuverPreview<?>> preview) {
+    public static boolean registerPreview(Class<?> maneuver, Class<?> preview) {
+        return registerPreview(GENERIC_STRING, maneuver, preview);
+    }
+    
+    /**
+     * Utility class to register a preview for a maneuver.
+     * Only if preview is not register or register as null is register.
+     */
+    public static boolean registerPreview(String vehicleId, Class<?> maneuver, Class<?> preview) {
         if (maneuver == null || preview == null)
             return false;
         
-        synchronized (previewMatchList) {
-            if (previewMatchList.containsKey(maneuver)) {
-                if (previewMatchList.get(maneuver) == null) {
-                    previewMatchList.put(maneuver, preview);
+        synchronized (previewImpl) {
+            if (previewImpl.containsKey(maneuver)) {
+                if (previewImpl.get(maneuver) == null) {
+                    previewImpl.put(new Pair<>(vehicleId, maneuver), preview);
                     return true;
                 }
                 else {
@@ -158,7 +171,7 @@ public class ManPreviewFactory {
                 }
             }
             else {
-                previewMatchList.put(maneuver, preview);
+                previewImpl.put(new Pair<>(vehicleId, maneuver), preview);
                 return true;
             }
         }
