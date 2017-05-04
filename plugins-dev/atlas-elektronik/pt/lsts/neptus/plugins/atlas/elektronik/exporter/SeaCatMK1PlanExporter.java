@@ -53,6 +53,9 @@ import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.tuple.Pair;
 
+import de.atlas.elektronik.simulation.SeacatGotoPreview;
+import de.atlas.elektronik.simulation.SeacatSKeepPreview;
+import de.atlas.elektronik.simulation.SeacatSurveyPreview;
 import pt.lsts.imc.EntityParameter;
 import pt.lsts.imc.IMCMessage;
 import pt.lsts.imc.SetEntityParameters;
@@ -74,6 +77,7 @@ import pt.lsts.neptus.mp.maneuvers.PathProvider;
 import pt.lsts.neptus.mp.maneuvers.RowsManeuver;
 import pt.lsts.neptus.mp.maneuvers.RowsPattern;
 import pt.lsts.neptus.mp.maneuvers.StationKeeping;
+import pt.lsts.neptus.mp.preview.ManPreviewFactory;
 import pt.lsts.neptus.types.coord.LocationType;
 import pt.lsts.neptus.types.mission.plan.IPlanFileExporter;
 import pt.lsts.neptus.types.mission.plan.PlanType;
@@ -99,6 +103,17 @@ public class SeaCatMK1PlanExporter implements IPlanFileExporter {
     public static HashMap<String, String> activeReplacementStringForPayload = new HashMap<>();
     public static HashMap<String, Pair<String, String>> booleanReplacementString = new HashMap<>();
     public static HashMap<String, ArrayList<String>> modelSystemPayloads = new HashMap<>();
+    
+    // register maneuver previews
+    static {
+        String[] vehicles = new String[] {"seacat"};
+        for (String vehicle : vehicles) {
+            ManPreviewFactory.registerPreview(vehicle, Goto.class, SeacatGotoPreview.class);
+            ManPreviewFactory.registerPreview(vehicle, StationKeeping.class, SeacatSKeepPreview.class);
+            ManPreviewFactory.registerPreview(vehicle, RowsManeuver.class, SeacatSurveyPreview.class);
+        }
+    }
+    
     static {
         try {
             String mapperTxt = IOUtils.toString(FileUtil.getResourceAsStream("payload-active-replacement.txt"));
