@@ -32,7 +32,10 @@
  */
 package pt.lsts.neptus.plugins.envdisp;
 
+import java.util.ArrayList;
 import java.util.Date;
+
+import pt.lsts.neptus.NeptusLog;
 
 /**
  * @author pdias
@@ -40,8 +43,6 @@ import java.util.Date;
  */
 public class ChlorophyllDataPoint extends BaseDataPoint<ChlorophyllDataPoint> {
 
-    public final static double KELVIN_TO_CELSIUS = -272.15;
-    
     private double chlorophyll = 0;
     
     /**
@@ -118,6 +119,25 @@ public class ChlorophyllDataPoint extends BaseDataPoint<ChlorophyllDataPoint> {
         setChlorophyll(mRecentSST);
         setDateUTC(mostRecentDate);
         
+        return true;
+    }
+    
+    @Override
+    public ArrayList<Object> getAllDataValues() {
+        ArrayList<Object> ret = new ArrayList<>();
+        ret.add(chlorophyll);
+        return ret;
+    }
+    
+    @Override
+    public boolean setAllDataValues(ArrayList<Object> newValues) {
+        try {
+            chlorophyll = (double) newValues.get(0);
+        }
+        catch (Exception e) {
+            NeptusLog.pub().warn(e);
+            return false;
+        }
         return true;
     }
 }

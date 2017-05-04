@@ -32,7 +32,10 @@
  */
 package pt.lsts.neptus.plugins.envdisp;
 
+import java.util.ArrayList;
 import java.util.Date;
+
+import pt.lsts.neptus.NeptusLog;
 
 /**
  * @author pdias
@@ -163,4 +166,26 @@ public class WavesDataPoint extends BaseDataPoint<WavesDataPoint> {
         return true;
     }
 
+    @Override
+    public ArrayList<Object> getAllDataValues() {
+        ArrayList<Object> ret = new ArrayList<>();
+        ret.add(significantHeight);
+        ret.add(peakPeriod);
+        ret.add(peakDirection);
+        return ret;
+    }
+    
+    @Override
+    public boolean setAllDataValues(ArrayList<Object> newValues) {
+        try {
+            significantHeight = (double) newValues.get(0);
+            peakPeriod = (double) newValues.get(1);
+            peakDirection = (double) newValues.get(2);
+        }
+        catch (Exception e) {
+            NeptusLog.pub().warn(e);
+            return false;
+        }
+        return true;
+    }
 }
