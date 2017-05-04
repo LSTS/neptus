@@ -47,7 +47,7 @@ public class GotoPreview implements IManeuverPreview<Goto> {
     protected LocationType destination;
     protected double speed;
     protected boolean finished = false;
-    UnicycleModel model = new UnicycleModel();
+    protected UnicycleModel model = new UnicycleModel();
     @Override
     public boolean init(String vehicleId, Goto man, SystemPositionAndAttitude state, Object manState) {
         destination = new LocationType(man.getManeuverLocation());

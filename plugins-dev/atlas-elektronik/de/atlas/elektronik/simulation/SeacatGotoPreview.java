@@ -32,7 +32,9 @@
  */
 package de.atlas.elektronik.simulation;
 
+import pt.lsts.neptus.mp.SystemPositionAndAttitude;
 import pt.lsts.neptus.mp.preview.GotoPreview;
+import pt.lsts.neptus.types.coord.LocationType;
 
 /**
  * @author zp
@@ -40,5 +42,28 @@ import pt.lsts.neptus.mp.preview.GotoPreview;
  */
 public class SeacatGotoPreview extends GotoPreview {
 
-    
+    protected boolean arrived = false;
+    private static final double EIGHT_DIST = 10;
+
+    @Override
+    public SystemPositionAndAttitude step(SystemPositionAndAttitude state, double timestep, double ellapsedTime) {
+        model.setState(state);
+        arrived = model.guide(destination, speed, destination.getDepth() >= 0 ? null : -destination.getDepth());
+        double zDistance = Math.abs(destination.getDepth() - state.getDepth());
+        if (arrived && zDistance > 0.1) {
+            double angle = state.getYaw();
+            double xyDistance = destination.getDistanceInMeters(state.getPosition());
+            LocationType tmp = new LocationType(destination);
+            if (xyDistance < EIGHT_DIST)
+                tmp.translatePosition(Math.cos(angle) * 10, Math.sin(angle) * 10, 0);
+            model.guide(tmp, speed, destination.getDepth() >= 0 ? null : -destination.getDepth());    
+        }
+            
+        finished = arrived && zDistance < 0.1;
+
+        model.advance(timestep);
+
+        return model.getState();
+    }
+
 }
