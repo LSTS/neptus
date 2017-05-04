@@ -32,7 +32,10 @@
  */
 package pt.lsts.neptus.plugins.envdisp;
 
+import java.util.ArrayList;
 import java.util.Date;
+
+import pt.lsts.neptus.NeptusLog;
 
 /**
  * @author pdias
@@ -124,4 +127,22 @@ public class SSTDataPoint extends BaseDataPoint<SSTDataPoint> {
         return true;
     }
 
+    @Override
+    public ArrayList<Object> getAllDataValues() {
+        ArrayList<Object> ret = new ArrayList<>();
+        ret.add(sst);
+        return ret;
+    }
+    
+    @Override
+    public boolean setAllDataValues(ArrayList<Object> newValues) {
+        try {
+            sst = (double) newValues.get(0);
+        }
+        catch (Exception e) {
+            NeptusLog.pub().warn(e);
+            return false;
+        }
+        return true;
+    }
 }
