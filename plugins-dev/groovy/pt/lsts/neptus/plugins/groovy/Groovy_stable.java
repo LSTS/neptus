@@ -32,6 +32,7 @@
 
 package pt.lsts.neptus.plugins.groovy;
 
+import java.awt.BorderLayout;
 import java.awt.event.ActionEvent;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -50,9 +51,13 @@ import javax.swing.AbstractAction;
 import javax.swing.Action;
 import javax.swing.JButton;
 import javax.swing.JFileChooser;
+import javax.swing.JPanel;
 
 import org.codehaus.groovy.control.CompilerConfiguration;
 import org.codehaus.groovy.control.customizers.ImportCustomizer;
+import org.fife.ui.rsyntaxtextarea.RSyntaxTextArea;
+import org.fife.ui.rsyntaxtextarea.SyntaxConstants;
+import org.fife.ui.rtextarea.RTextScrollPane;
 
 import com.google.common.eventbus.Subscribe;
 
@@ -62,19 +67,22 @@ import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.comm.manager.imc.ImcSystem;
 import pt.lsts.neptus.comm.manager.imc.ImcSystemsHolder;
 import pt.lsts.neptus.console.ConsoleLayout;
+import pt.lsts.neptus.console.ConsolePanel;
 import pt.lsts.neptus.console.events.ConsoleEventPlanChange;
 import pt.lsts.neptus.console.events.ConsoleEventVehicleStateChanged;
+import pt.lsts.neptus.console.notifications.Notification;
 import pt.lsts.neptus.i18n.I18n;
+import pt.lsts.neptus.plugins.NeptusProperty;
 import pt.lsts.neptus.plugins.PluginDescription;
 import pt.lsts.neptus.plugins.Popup;
 import pt.lsts.neptus.plugins.Popup.POSITION;
-import pt.lsts.neptus.renderer2d.InteractionAdapter;
 import pt.lsts.neptus.types.coord.LocationType;
 import pt.lsts.neptus.types.map.MapGroup;
 import pt.lsts.neptus.types.map.MarkElement;
 import pt.lsts.neptus.types.mission.plan.PlanType;
 import pt.lsts.neptus.types.vehicle.VehicleType;
 import pt.lsts.neptus.types.vehicle.VehiclesHolder;
+import pt.lsts.neptus.util.FileUtil;
 import pt.lsts.neptus.util.ImageUtils;
 
 
@@ -84,11 +92,11 @@ import pt.lsts.neptus.util.ImageUtils;
  *
  */
 @PluginDescription(name = "Groovy Feature", author = "Keila Lima")
-@Popup(pos = POSITION.RIGHT, width=200, height=200)
+@Popup(pos = POSITION.RIGHT, width=500, height=500, accelerator='y')
 @SuppressWarnings("serial")
-public class Groovy_stable extends InteractionAdapter {
+public class Groovy_stable extends ConsolePanel {
 
-    private JButton openButton,stopScript;
+    private JButton openButton,stopScript,runScript;
     //Collections used to make Map thread safe
     private Map<String,VehicleType> vehicles = Collections.synchronizedMap(new HashMap<>()); 
     private Map<String,PlanType> plans = Collections.synchronizedMap(new HashMap<>()); 
@@ -100,6 +108,10 @@ public class Groovy_stable extends InteractionAdapter {
     private Thread thread;
     private ImportCustomizer customizer;
     private final String basescript = "new Plan(console).with{ \nlocate new Location(console.getMission().getHomeRef().getLatitudeRads(),console.getMission().getHomeRef().getLongitudeRads())\n";
+    private RSyntaxTextArea editor; 
+    
+    @NeptusProperty
+    File groovyScript = null;
     /**
      * @param console
      */
@@ -123,7 +135,7 @@ public class Groovy_stable extends InteractionAdapter {
         this.config = new CompilerConfiguration();
         //this.config.setScriptBaseClass("plugins-dev/groovy/pt/lsts/neptus/plugins/groovy/scripts/basescript");
         this.customizer = new ImportCustomizer();
-        this.customizer.addImports("pt.lsts.imc.net.IMCProtocol","pt.lsts.imc.net.Consume","pt.lsts.neptus.types.coord.LocationType");
+        this.customizer.addImports("pt.lsts.imc.net.IMCProtocol","pt.lsts.imc.net.Consume","pt.lsts.neptus.types.coord.LocationType","pt.lsts.neptus.imc.dsl.Plan","pt.lsts.neptus.imc.dsl.Location");
         this.customizer.addStarImports("pt.lsts.imc","pt.lsts.neptus.imc.dsl","pt.lsts.neptus.types.map"); //this.getClass().classLoader.rootLoader.addURL(new File("file.jar").toURL())
         this.config.addCompilationCustomizers(customizer);
         this.binds = new Binding();
@@ -134,7 +146,7 @@ public class Groovy_stable extends InteractionAdapter {
         this.binds.setVariable("result", null);
         try {
             //Description/notification: "Place your groovy scripts in the folder script of the plugin"
-            this.engine = new GroovyScriptEngine("plugins-dev/groovy/pt/lsts/neptus/plugins/groovy/scripts/");
+            this.engine = new GroovyScriptEngine("conf/groovy/scripts/");
             this.engine.setConfig(this.config);
 
         }
@@ -156,10 +168,6 @@ public class Groovy_stable extends InteractionAdapter {
             catch (Exception e1) {
                 //e1.printStackTrace();
             }
-            //TODO from planqueue plugin 
-//            if (pdbControl != null)
-//                pdbControl.removeListener(planDBListener);
-
         }
 
     /* (non-Javadoc)
@@ -169,118 +177,143 @@ public class Groovy_stable extends InteractionAdapter {
     public void initSubPanel() {
         removeAll();
         add_console_vars();
-
-        Action selectAction = new AbstractAction(I18n.text("Select Groovy Script")) {
-
-            @Override
-            public void actionPerformed(ActionEvent e) {    
-
-                //Handle open button action.
-                if (e.getSource() == openButton) {
-
-                    //Create a file chooser
-                    File directory = new File("plugins-dev/groovy/pt/lsts/neptus/plugins/groovy/scripts/");
-                    final JFileChooser fc = new JFileChooser(directory);
-                    fc.setFileSelectionMode(JFileChooser.FILES_ONLY);
-
-                    int returnVal = fc.showOpenDialog(Groovy_stable.this);
-
-                    if (returnVal == JFileChooser.APPROVE_OPTION) {
-                        if(!stopScript.isEnabled()){
-                            stopScript.setEnabled(true);
-                        }
-                        File groovy_script = fc.getSelectedFile();
-                        NeptusLog.pub().info(I18n.text("Selected script: " + groovy_script.getName()));
-                        thread = new Thread() {
-
-                            @Override
-                            public void run() {
-                                
-                                try {
-                                    String name = groovy_script.getName()+System.currentTimeMillis();
-                                    PrintStream output = new PrintStream(new FileOutputStream(new File("plugins-dev/groovy/pt/lsts/neptus/plugins/groovy/scripts/outputs/"+name)));
-                                    getBinds().setProperty("out",output);
-                                    //getBinds().setVariable("result",output.toString());
-                                    File generated_script = new File("plugins-dev/groovy/pt/lsts/neptus/plugins/groovy/scripts/"+name);
-                                    BufferedWriter fileW = new BufferedWriter(new FileWriter(generated_script));
-                                    fileW.write(basescript);
-                                    writeScriptContent(fileW,groovy_script);
-                                    fileW.write("\n}");
-                                    fileW.close();
-                                    engine.run(generated_script.getName(), binds);
-                                    if(stopScript.isEnabled())
-                                        stopScript.setEnabled(false);
-                                    generated_script.delete();
-                                }
-                                
-                                //System.setOut(new PrintStream(new FileOutputStream(FileDescriptor.out))); -> see http://stackoverflow.com/questions/5339499/resetting-standard-output-stream
-                                //shell.getContext().getVariable()
-                                
-                              
-                                catch (Exception   e) { //CompilationFailedException | ResourceException | ScriptException
-                                    //TODO notify script exit
-                                      NeptusLog.pub().error("Exception Caught during execution of script: "+groovy_script.getName(),e);
-                                      if(thread.isAlive())
-                                          thread.interrupt();
-                                      if(stopScript.isEnabled())
-                                          stopScript.setEnabled(false);
-
-                                      }
-                                  catch(ThreadDeath e){ 
-                                      NeptusLog.pub().info("Exiting script execution: "+groovy_script.getName());
-                                  }
-                            }
-
-                            private void writeScriptContent(BufferedWriter fileW, File groovy_script) {
-                                BufferedReader fileR;
-                                try {
-                                    fileR = new BufferedReader(new FileReader(groovy_script));
-                                    int c;
-                                    while((c = fileR.read())!=-1) {
-                                        fileW.write(c);
-                                    }
-                                    fileR.close();
-                                }
-                                catch (IOException e) {
-                                    // TODO Auto-generated catch block
-                                    NeptusLog.pub().error(I18n.text("Error generating script from: "+groovy_script.getName()), e);
-                                    //e.printStackTrace();
-                                }
-                            }
-                        };
-
-                        thread.start();
-                        
-                    } 
-                }
+        
+        //Text editor
+        setLayout(new BorderLayout());
+        JPanel bottom = new JPanel();
+        editor = new RSyntaxTextArea();
+        editor.setSyntaxEditingStyle(SyntaxConstants.SYNTAX_STYLE_GROOVY);
+        editor.setCodeFoldingEnabled(true);
+        
+        if (groovyScript != null) {
+            try {
+                editor.setText(FileUtil.getFileAsString(groovyScript));    
             }
-        };
-
-        Action stopAction = new AbstractAction(I18n.text("Stop Script"), ImageUtils.getScaledIcon("pt/lsts/neptus/plugins/groovy/images/stop.png", 10, 30)) {
+            catch (Exception e) {
+                NeptusLog.pub().error(e);
+                groovyScript = null;
+            }
+        }
+                    
+        RTextScrollPane scroll = new RTextScrollPane(editor);
+        
+        Action selectAction = new AbstractAction(I18n.text("Script File..."), ImageUtils.getScaledIcon("pt/lsts/neptus/plugins/groovy/images/filenew.png", 16, 16)) {
 
             @Override
             public void actionPerformed(ActionEvent e) {
 
-                if(e.getSource() == stopScript){
-                    if(thread.isAlive()){
-                      
-                        thread.interrupt();
-                        
-                    }
-                    stopScript.setEnabled(false);
+                // Create a file chooser
+                File directory = new File("conf/groovy/scripts/");
+                final JFileChooser fc = new JFileChooser(directory);
+                fc.setFileSelectionMode(JFileChooser.FILES_ONLY);
+                int returnVal = fc.showOpenDialog(Groovy_stable.this);
+
+                if (returnVal == JFileChooser.APPROVE_OPTION) {
+                    groovyScript = fc.getSelectedFile();
+                    Notification.info("Groovy Feature", "Opening: " + groovyScript.getName() + "." + "\n");
+                    editor.setText(FileUtil.getFileAsString(groovyScript));
+                }
+            }
+        };
+        
+        Action stopAction = new AbstractAction(I18n.text("Stop Script"), ImageUtils.getScaledIcon("pt/lsts/neptus/plugins/groovy/images/stop.png", 16, 16)) {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                stopScript();                
+            }
+        };
+        
+        Action runAction = new AbstractAction(I18n.text("Execute Script"), ImageUtils.getScaledIcon("pt/lsts/neptus/plugins/groovy/images/forward.png", 16, 16)) {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                runScript();           
+            }
+        };
+        
+        openButton = new JButton(selectAction); 
+        stopScript = new JButton(stopAction);
+        runScript = new JButton(runAction);
+
+        bottom.add(openButton);
+        bottom.add(runScript);
+        bottom.add(stopScript);
+        
+        add(bottom, BorderLayout.SOUTH);
+        add(scroll, BorderLayout.CENTER);
+        stopScript.setEnabled(false);
+        
+    }
+    private void writeScriptContent(BufferedWriter fileW, File groovy_script) {
+        BufferedReader fileR;
+        try {
+            fileR = new BufferedReader(new FileReader(groovy_script));
+            int c;
+            while((c = fileR.read())!=-1) {
+                fileW.write(c);
+            }
+            fileR.close();
+        }
+        catch (IOException e) {
+            // TODO Auto-generated catch block
+            NeptusLog.pub().error(I18n.text("Error generating script from: "+groovy_script.getName()), e);
+            //e.printStackTrace();
+        }
+    }
+    
+    private void stopScript() {
+        if(thread != null && thread.isAlive()){
+            thread.interrupt();                        
+        }
+        stopScript.setEnabled(false);
+    }
+    
+    private void runScript() {
+        thread = new Thread() {
+
+            @Override
+            public void run() {
+                try {
+//                    System.out.println("Exec da script!");
+//                    FileUtil.saveToFile(groovyScript.getAbsolutePath(), editor.getText());
+//                    Object output = engine.run(groovyScript.getName(), binds);
+//                    if(stopScript.isEnabled())
+//                        stopScript.setEnabled(false);
+                    
+                    String name = groovyScript.getName()+System.currentTimeMillis();
+                    PrintStream output = new PrintStream(new FileOutputStream(new File("plugins-dev/groovy/pt/lsts/neptus/plugins/groovy/outputs/"+name)));
+                    getBinds().setProperty("out",output);
+                    //getBinds().setVariable("result",output.toString());
+                    File generatedScript = new File("conf/groovy/scripts/"+name);
+                    BufferedWriter fileW = new BufferedWriter(new FileWriter(generatedScript));
+                    fileW.write(basescript);
+                    writeScriptContent(fileW,groovyScript);
+                    fileW.write("\n}");
+                    fileW.close();
+                    engine.run(generatedScript.getName(), binds);
+                    if(stopScript.isEnabled())
+                        stopScript.setEnabled(false);
+                    generatedScript.delete();
+                   
 
                 }
+                catch (Exception   e) { //CompilationFailedException | ResourceException | ScriptException
+                    //TODO notify script exit
+                      NeptusLog.pub().error("Exception Caught during execution of script: "+groovyScript.getName(),e);
+                      if(thread.isAlive())
+                          thread.interrupt();
+                      if(stopScript.isEnabled())
+                          stopScript.setEnabled(false);
 
+                      }
+                  catch(ThreadDeath e){ 
+                      NeptusLog.pub().info("Exiting script execution: "+groovyScript.getName());
+                  }
             }
         };
 
-        openButton = new JButton(selectAction); //Button height: 22 Button width: 137 Button X: 30 Button Y: 5
-        stopScript = new JButton(stopAction);
-
-        add(openButton);
-        add(stopScript);
-        stopScript.setEnabled(false);
+        thread.start();
     }
+    
 
     @Subscribe
     public void on(ConsoleEventPlanChange changedPlan) {
