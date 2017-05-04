@@ -66,6 +66,8 @@ import pt.lsts.neptus.util.UnitsUtil;
  */
 class EnvDataPaintHelper {
 
+    private static int filterUseLOD = 9;
+
     private EnvDataPaintHelper() {
     }
 
@@ -220,9 +222,14 @@ class EnvDataPaintHelper {
             LongAccumulator visiblePts = new LongAccumulator((r, i) -> r += i, 0);
             LongAccumulator toDatePts = new LongAccumulator((r, i) -> r = i > r ? i : r, 0);
             LongAccumulator fromDatePts = new LongAccumulator((r, i) -> r = i < r ? i : r, Long.MAX_VALUE);
-            Map<Point2D, Pair<Pair<Double, Double>, Date>> ptFilt = dest.parallelStream()
-                    .collect(HashMap<Point2D, Pair<Pair<Double, Double>, Date>>::new, (res, dp) -> {
+            ArrayList<Map<Point2D, Pair<Pair<Double, Double>, Date>>> ptFilt = dest.parallelStream()
+                    .collect(ArrayList<Map<Point2D, Pair<Pair<Double, Double>, Date>>>::new, (res, dp) -> {
                         try {
+                            if (res.isEmpty()) {
+                                res.add(new HashMap<Point2D, Pair<Pair<Double, Double>, Date>>());
+                                res.add(new HashMap<Point2D, Pair<Pair<Double, Double>, Date>>());
+                            }
+ 
                             if (!ignoreDateLimitToLoad && dp.getDateUTC().before(dateLimit))
                                 return;
                             
@@ -251,61 +258,87 @@ class EnvDataPaintHelper {
                             toDatePts.accumulate(dateV.getTime());
                             fromDatePts.accumulate(dateV.getTime());
                             
+                            ArrayList<Point2D> pts = new ArrayList<>();
+                            if (renderer.getLevelOfDetail() >= filterUseLOD)
+                                pts.add((Point2D) pt.clone());
+                            
                             double x = pt.getX();
                             double y = pt.getY();
-                            x = x - x % EnvDataShapesHelper.ARROW_RADIUS;
-                            y = y - y % EnvDataShapesHelper.ARROW_RADIUS;
+                            x = ((int) x) / EnvDataShapesHelper.ARROW_RADIUS * EnvDataShapesHelper.ARROW_RADIUS;
+                            y = ((int) y) / EnvDataShapesHelper.ARROW_RADIUS * EnvDataShapesHelper.ARROW_RADIUS;
                             pt.setLocation(x, y);
+                            pts.add(0, pt);
                             
-                            if (!res.containsKey(pt)) {
-                                res.put(pt, new Pair<Pair<Double, Double>, Date>(new Pair<Double, Double>(speedCmSV, headingV), dateV));
-                            }
-                            else {
-                                Pair<Pair<Double, Double>, Date> pval = res.get(pt);
-                                double val = pval.first().first();
-                                val = (val + speedCmSV) / 2d;
-                                double val1 = pval.first().second();
-                                val1 = (val1 + headingV) / 2d;
-                                if (dateV.after(pval.second()))
-                                    res.put(pt, new Pair<Pair<Double, Double>, Date>(new Pair<Double, Double>(val, val1), dateV));
-                                else
-                                    res.put(pt, new Pair<Pair<Double, Double>, Date>(new Pair<Double, Double>(val, val1), pval.second()));
+                            for (int idx = 0; idx < pts.size(); idx++) {
+                                Point2D ptI = pts.get(idx);
+                                if (!res.get(idx).containsKey(ptI)) {
+                                    res.get(idx).put(ptI, new Pair<Pair<Double, Double>, Date>(new Pair<Double, Double>(speedCmSV, headingV), dateV));
+                                }
+                                else {
+                                    Pair<Pair<Double, Double>, Date> pval = res.get(idx).get(ptI);
+                                    double val = pval.first().first();
+                                    val = (val + speedCmSV) / 2d;
+                                    double val1 = pval.first().second();
+                                    val1 = (val1 + headingV) / 2d;
+                                    if (dateV.after(pval.second()))
+                                        res.get(idx).put(ptI, new Pair<Pair<Double, Double>, Date>(new Pair<Double, Double>(val, val1), dateV));
+                                    else
+                                        res.get(idx).put(ptI, new Pair<Pair<Double, Double>, Date>(new Pair<Double, Double>(val, val1), pval.second()));
+                                }
                             }
                         }
                         catch (Exception e) {
                             NeptusLog.pub().debug(e);
                         }
                     }, (res, resInt) -> {
-                        resInt.keySet().stream().forEach(k1 -> {
-                            try {
-                                Pair<Pair<Double, Double>, Date> sI = resInt.get(k1);
-                                if (res.containsKey(k1)) {
-                                    Pair<Pair<Double, Double>, Date> s = res.get(k1);
-                                    double val = (s.first().first() + sI.first().first()) / 2d;
-                                    double val1 = (s.first().second() + sI.first().second()) / 2d;
-                                    Date valDate = sI.second().after(s.second()) ? new Date(sI.second().getTime())
-                                            : s.second();
-                                    res.put(k1, new Pair<Pair<Double, Double>, Date>(new Pair<Double, Double>(val, val1), valDate));
+                        for (int idxc = 0; idxc < 2; idxc++) {
+                            final int idx = idxc;
+                            resInt.get(idx).keySet().stream().forEach(k1 -> {
+                                try {
+                                    Pair<Pair<Double, Double>, Date> sI = resInt.get(idx).get(k1);
+                                    if (res.get(idx).containsKey(k1)) {
+                                        Pair<Pair<Double, Double>, Date> s = res.get(idx).get(k1);
+                                        double val = (s.first().first() + sI.first().first()) / 2d;
+                                        double val1 = (s.first().second() + sI.first().second()) / 2d;
+                                        Date valDate = sI.second().after(s.second()) ? new Date(sI.second().getTime())
+                                                : s.second();
+                                        res.get(idx).put(k1, new Pair<Pair<Double, Double>, Date>(new Pair<Double, Double>(val, val1), valDate));
+                                    }
+                                    else {
+                                        res.get(idx).put(k1, sI);
+                                    }
                                 }
-                                else {
-                                    res.put(k1, sI);
+                                catch (Exception e) {
+                                    NeptusLog.pub().debug(e);
                                 }
-                            }
-                            catch (Exception e) {
-                                NeptusLog.pub().debug(e);
-                            }
-                        });
+                            });
+                        }
                     });
             
-            debugOut(showDataDebugLegend, String.format("Currents stg 1 took %ss :: %d of %d from %d (%f%%)",
-                    MathMiscUtils.parseToEngineeringNotation((System.currentTimeMillis() - stMillis) / 1E3, 1), ptFilt.size(), visiblePts.longValue(), dest.size(),
-                    (ptFilt.size() * 1. / visiblePts.longValue()) * 100));
+            if (ptFilt.isEmpty()) {
+                ptFilt.add(new HashMap<Point2D, Pair<Pair<Double, Double>, Date>>());
+                ptFilt.add(new HashMap<Point2D, Pair<Pair<Double, Double>, Date>>());
+            }
+            double usePercent = (ptFilt.get(0).size() * 1. / visiblePts.longValue()) * 100;
+            final int idx;
+            if (renderer.getLevelOfDetail() > filterUseLOD) {
+                if (usePercent <= 90)
+                    idx = 0;
+                else
+                    idx = 1;
+            }
+            else {
+                idx = 0;
+            }
+            debugOut(showDataDebugLegend, String.format("Currents stg 1 took %ss :: %d of %d from %d (%f%%) %d %d",
+                    MathMiscUtils.parseToEngineeringNotation((System.currentTimeMillis() - stMillis) / 1E3, 1), ptFilt.get(0).size(), visiblePts.longValue(), dest.size(),
+                    usePercent , ptFilt.get(1).size(), idx));
             stMillis = System.currentTimeMillis();
             
-            ptFilt.keySet().parallelStream().forEach(pt -> {
+            ptFilt.get(idx).keySet().parallelStream().forEach(pt -> {
                 Graphics2D gt = null;
                 try {
-                    Pair<Pair<Double, Double>, Date> pVal = ptFilt.get(pt);
+                    Pair<Pair<Double, Double>, Date> pVal = ptFilt.get(idx).get(pt);
                     
                     double speedCmSV = pVal.first().first();
                     double headingV = pVal.first().second();
@@ -377,9 +410,14 @@ class EnvDataPaintHelper {
             LongAccumulator visiblePts = new LongAccumulator((r, i) -> r += i, 0);
             LongAccumulator toDatePts = new LongAccumulator((r, i) -> r = i > r ? i : r, 0);
             LongAccumulator fromDatePts = new LongAccumulator((r, i) -> r = i < r ? i : r, Long.MAX_VALUE);
-            Map<Point2D, Pair<Double, Date>> ptFilt = dest.parallelStream()
-                    .collect(HashMap<Point2D, Pair<Double, Date>>::new, (res, dp) -> {
+            ArrayList<Map<Point2D, Pair<Double, Date>>> ptFilt = dest.parallelStream()
+                    .collect(ArrayList<Map<Point2D, Pair<Double, Date>>>::new, (res, dp) -> {
                         try {
+                            if (res.isEmpty()) {
+                                res.add(new HashMap<Point2D, Pair<Double, Date>>());
+                                res.add(new HashMap<Point2D, Pair<Double, Date>>());
+                            }
+                            
                             if (!ignoreDateLimitToLoad && dp.getDateUTC().before(dateLimit))
                                 return;
                             
@@ -406,58 +444,84 @@ class EnvDataPaintHelper {
                             toDatePts.accumulate(dateV.getTime());
                             fromDatePts.accumulate(dateV.getTime());
                             
+                            ArrayList<Point2D> pts = new ArrayList<>();
+                            if (renderer.getLevelOfDetail() >= filterUseLOD)
+                                pts.add((Point2D) pt.clone());
+                            
                             double x = pt.getX();
                             double y = pt.getY();
-                            x = x - x % EnvDataShapesHelper.CIRCLE_RADIUS;
-                            y = y - y % EnvDataShapesHelper.CIRCLE_RADIUS;
+                            x = ((int) x) / EnvDataShapesHelper.CIRCLE_RADIUS * EnvDataShapesHelper.CIRCLE_RADIUS;
+                            y = ((int) y) / EnvDataShapesHelper.CIRCLE_RADIUS * EnvDataShapesHelper.CIRCLE_RADIUS;
                             pt.setLocation(x, y);
+                            pts.add(0, pt);
                             
-                            if (!res.containsKey(pt)) {
-                                res.put(pt, new Pair<>(sstV, dateV));
-                            }
-                            else {
-                                Pair<Double, Date> pval = res.get(pt);
-                                double val = pval.first();
-                                val = (val + sstV) / 2d;
-                                if (dateV.after(pval.second()))
-                                    res.put(pt, new Pair<>(val, dateV));
-                                else
-                                    res.put(pt, new Pair<>(val, pval.second()));
+                            for (int idx = 0; idx < pts.size(); idx++) {
+                                Point2D ptI = pts.get(idx);
+                                if (!res.get(idx).containsKey(ptI)) {
+                                    res.get(idx).put(ptI, new Pair<>(sstV, dateV));
+                                }
+                                else {
+                                    Pair<Double, Date> pval = res.get(idx).get(ptI);
+                                    double val = pval.first();
+                                    val = (val + sstV) / 2d;
+                                    if (dateV.after(pval.second()))
+                                        res.get(idx).put(ptI, new Pair<>(val, dateV));
+                                    else
+                                        res.get(idx).put(ptI, new Pair<>(val, pval.second()));
+                                }
                             }
                         }
                         catch (Exception e) {
                             NeptusLog.pub().debug(e);
                         }
                     }, (res, resInt) -> {
-                        resInt.keySet().stream().forEach(k1 -> {
-                            try {
-                                Pair<Double, Date> sI = resInt.get(k1);
-                                if (res.containsKey(k1)) {
-                                    Pair<Double, Date> s = res.get(k1);
-                                    double val = (s.first() + sI.first()) / 2d;
-                                    Date valDate = sI.second().after(s.second()) ? new Date(sI.second().getTime())
-                                            : s.second();
-                                    res.put(k1, new Pair<Double, Date>(val, valDate));
+                        for (int idxc = 0; idxc < 2; idxc++) {
+                            final int idx = idxc;
+                            resInt.get(idx).keySet().stream().forEach(k1 -> {
+                                try {
+                                    Pair<Double, Date> sI = resInt.get(idx).get(k1);
+                                    if (res.get(idx).containsKey(k1)) {
+                                        Pair<Double, Date> s = res.get(idx).get(k1);
+                                        double val = (s.first() + sI.first()) / 2d;
+                                        Date valDate = sI.second().after(s.second()) ? new Date(sI.second().getTime())
+                                                : s.second();
+                                        res.get(idx).put(k1, new Pair<Double, Date>(val, valDate));
+                                    }
+                                    else {
+                                        res.get(idx).put(k1, sI);
+                                    }
                                 }
-                                else {
-                                    res.put(k1, sI);
+                                catch (Exception e) {
+                                    NeptusLog.pub().debug(e);
                                 }
-                            }
-                            catch (Exception e) {
-                                NeptusLog.pub().debug(e);
-                            }
-                        });
+                            });
+                        }
                     });
             
-            debugOut(showDataDebugLegend, String.format("SST stg 1 took %ss :: %d of %d from %d (%f%%)",
-                    MathMiscUtils.parseToEngineeringNotation((System.currentTimeMillis() - stMillis) / 1E3, 1), ptFilt.size(), visiblePts.longValue(), dest.size(),
-                    (ptFilt.size() * 1. / visiblePts.longValue()) * 100));
+            if (ptFilt.isEmpty()) {
+                ptFilt.add(new HashMap<Point2D, Pair<Double, Date>>());
+                ptFilt.add(new HashMap<Point2D, Pair<Double, Date>>());
+            }
+            double usePercent = (ptFilt.get(0).size() * 1. / visiblePts.longValue()) * 100;
+            final int idx;
+            if (renderer.getLevelOfDetail() > filterUseLOD) {
+                if (usePercent <= 90)
+                    idx = 0;
+                else
+                    idx = 1;
+            }
+            else {
+                idx = 0;
+            }
+            debugOut(showDataDebugLegend, String.format("SST stg 1 took %ss :: %d of %d from %d (%f%%) %d %d",
+                    MathMiscUtils.parseToEngineeringNotation((System.currentTimeMillis() - stMillis) / 1E3, 1), ptFilt.get(0).size(), visiblePts.longValue(), dest.size(),
+                    usePercent , ptFilt.get(1).size(), idx));
             stMillis = System.currentTimeMillis();
-            
-            ptFilt.keySet().parallelStream().forEach(pt -> {
+
+            ptFilt.get(idx).keySet().parallelStream().forEach(pt -> {
                 Graphics2D gt = null;
                 try {
-                    Pair<Double,Date> pVal = ptFilt.get(pt);
+                    Pair<Double,Date> pVal = ptFilt.get(idx).get(pt);
                     
                     gt = (Graphics2D) g2.create();
                     gt.translate(pt.getX(), pt.getY());
@@ -520,9 +584,14 @@ class EnvDataPaintHelper {
             LongAccumulator visiblePts = new LongAccumulator((r, i) -> r += i, 0);
             LongAccumulator toDatePts = new LongAccumulator((r, i) -> r = i > r ? i : r, 0);
             LongAccumulator fromDatePts = new LongAccumulator((r, i) -> r = i < r ? i : r, Long.MAX_VALUE);
-            Map<Point2D, Triple<Double, Double, Date>> ptFilt = dest.parallelStream()
-                    .collect(HashMap<Point2D, Triple<Double, Double, Date>>::new, (res, dp) -> {
+            ArrayList<Map<Point2D, Triple<Double, Double, Date>>> ptFilt = dest.parallelStream()
+                    .collect(ArrayList<Map<Point2D, Triple<Double, Double, Date>>>::new, (res, dp) -> {
                         try {
+                            if (res.isEmpty()) {
+                                res.add(new HashMap<Point2D, Triple<Double, Double, Date>>());
+                                res.add(new HashMap<Point2D, Triple<Double, Double, Date>>());
+                            }
+                            
                             if (!ignoreDateLimitToLoad && dp.getDateUTC().before(dateLimit))
                                 return;
                             
@@ -550,61 +619,87 @@ class EnvDataPaintHelper {
                             toDatePts.accumulate(dateV.getTime());
                             fromDatePts.accumulate(dateV.getTime());
                             
+                            ArrayList<Point2D> pts = new ArrayList<>();
+                            if (renderer.getLevelOfDetail() >= filterUseLOD)
+                                pts.add((Point2D) pt.clone());
+
                             double x = pt.getX();
                             double y = pt.getY();
-                            x = x - x % EnvDataShapesHelper.WIND_BARB_RADIUS;
-                            y = y - y % EnvDataShapesHelper.WIND_BARB_RADIUS;
+                            x = ((int) x) / EnvDataShapesHelper.WIND_BARB_RADIUS * EnvDataShapesHelper.WIND_BARB_RADIUS;
+                            y = ((int) y) / EnvDataShapesHelper.WIND_BARB_RADIUS * EnvDataShapesHelper.WIND_BARB_RADIUS;
                             pt.setLocation(x, y);
-                            
-                            if (!res.containsKey(pt)) {
-                                res.put(pt, Triple.of(speedV, headingV, dateV));
-                            }
-                            else {
-                                Triple<Double, Double, Date> pval = res.get(pt);
-                                double val = pval.getLeft();
-                                val = (val + speedV) / 2d;
-                                double val1 = pval.getMiddle();
-                                val1 = (val1 + headingV) / 2d;
-                                if (dateV.after(pval.getRight()))
-                                    res.put(pt, Triple.of(val, val1, dateV));
-                                else
-                                    res.put(pt, Triple.of(val, val1, pval.getRight()));
+                            pts.add(0, pt);
+
+                            for (int idx = 0; idx < pts.size(); idx++) {
+                                Point2D ptI = pts.get(idx);
+                                if (!res.get(idx).containsKey(ptI)) {
+                                    res.get(idx).put(ptI, Triple.of(speedV, headingV, dateV));
+                                }
+                                else {
+                                    Triple<Double, Double, Date> pval = res.get(idx).get(ptI);
+                                    double val = pval.getLeft();
+                                    val = (val + speedV) / 2d;
+                                    double val1 = pval.getMiddle();
+                                    val1 = (val1 + headingV) / 2d;
+                                    if (dateV.after(pval.getRight()))
+                                        res.get(idx).put(ptI, Triple.of(val, val1, dateV));
+                                    else
+                                        res.get(idx).put(ptI, Triple.of(val, val1, pval.getRight()));
+                                }
                             }
                         }
                         catch (Exception e) {
                             NeptusLog.pub().debug(e);
                         }
                     }, (res, resInt) -> {
-                        resInt.keySet().stream().forEach(k1 -> {
-                            try {
-                                Triple<Double, Double, Date> sI = resInt.get(k1);
-                                if (res.containsKey(k1)) {
-                                    Triple<Double, Double, Date> s = res.get(k1);
-                                    double val = (s.getLeft() + sI.getLeft()) / 2d;
-                                    double val1 = (s.getMiddle() + sI.getMiddle()) / 2d;
-                                    Date valDate = sI.getRight().after(s.getRight()) ? new Date(sI.getRight().getTime())
-                                            : s.getRight();
-                                    res.put(k1, Triple.of(val, val1, valDate));
+                        for (int idxc = 0; idxc < 2; idxc++) {
+                            final int idx = idxc;
+                            resInt.get(idx).keySet().stream().forEach(k1 -> {
+                                try {
+                                    Triple<Double, Double, Date> sI = resInt.get(idx).get(k1);
+                                    if (res.get(idx).containsKey(k1)) {
+                                        Triple<Double, Double, Date> s = res.get(idx).get(k1);
+                                        double val = (s.getLeft() + sI.getLeft()) / 2d;
+                                        double val1 = (s.getMiddle() + sI.getMiddle()) / 2d;
+                                        Date valDate = sI.getRight().after(s.getRight()) ? new Date(sI.getRight().getTime())
+                                                : s.getRight();
+                                        res.get(idx).put(k1, Triple.of(val, val1, valDate));
+                                    }
+                                    else {
+                                        res.get(idx).put(k1, sI);
+                                    }
                                 }
-                                else {
-                                    res.put(k1, sI);
+                                catch (Exception e) {
+                                    NeptusLog.pub().debug(e);
                                 }
-                            }
-                            catch (Exception e) {
-                                NeptusLog.pub().debug(e);
-                            }
-                        });
+                            });
+                        }
                     });
             
-            debugOut(showDataDebugLegend, String.format("Wind stg 1 took %ss :: %d of %d from %d (%f%%)",
-                    MathMiscUtils.parseToEngineeringNotation((System.currentTimeMillis() - stMillis) / 1E3, 1), ptFilt.size(), visiblePts.longValue(), dest.size(),
-                    (ptFilt.size() * 1. / visiblePts.longValue()) * 100));
+            if (ptFilt.isEmpty()) {
+                ptFilt.add(new HashMap<Point2D, Triple<Double, Double, Date>>());
+                ptFilt.add(new HashMap<Point2D, Triple<Double, Double, Date>>());
+            }
+            double usePercent = (ptFilt.get(0).size() * 1. / visiblePts.longValue()) * 100;
+            final int idx;
+            if (renderer.getLevelOfDetail() > filterUseLOD) {
+                if (usePercent <= 90)
+                    idx = 0;
+                else
+                    idx = 1;
+            }
+            else {
+                idx = 0;
+            }
+            debugOut(showDataDebugLegend, String.format("Wind stg 1 took %ss :: %d of %d from %d (%f%%) %d %d",
+                    MathMiscUtils.parseToEngineeringNotation((System.currentTimeMillis() - stMillis) / 1E3, 1), ptFilt.get(0).size(), visiblePts.longValue(), dest.size(),
+                    usePercent , ptFilt.get(1).size(), idx));
             stMillis = System.currentTimeMillis();
             
-            ptFilt.keySet().parallelStream().forEach(pt -> {
+            ptFilt.get(idx).keySet().parallelStream().forEach(pt -> {
                 Graphics2D gt = null;
                 try {
-                    Triple<Double, Double, Date> pVal = ptFilt.get(pt);
+                    Triple<Double, Double, Date> pVal = ptFilt.get(idx).get(pt);
                     double speedV = pVal.getLeft();
                     double headingV = AngleUtils.nomalizeAngleDegrees360(pVal.getMiddle());
                     Date dateV = pVal.getRight();
@@ -670,9 +765,14 @@ class EnvDataPaintHelper {
             LongAccumulator visiblePts = new LongAccumulator((r, i) -> r += i, 0);
             LongAccumulator toDatePts = new LongAccumulator((r, i) -> r = i > r ? i : r, 0);
             LongAccumulator fromDatePts = new LongAccumulator((r, i) -> r = i < r ? i : r, Long.MAX_VALUE);
-            Map<Point2D, Pair<Triple<Double, Double, Double>, Date>> ptFilt = dest.parallelStream()
-                    .collect(HashMap<Point2D, Pair<Triple<Double, Double, Double>, Date>>::new, (res, dp) -> {
+            ArrayList<Map<Point2D, Pair<Triple<Double, Double, Double>, Date>>> ptFilt = dest.parallelStream()
+                    .collect(ArrayList<Map<Point2D, Pair<Triple<Double, Double, Double>, Date>>>::new, (res, dp) -> {
                         try {
+                            if (res.isEmpty()) {
+                                res.add(new HashMap<Point2D, Pair<Triple<Double, Double, Double>, Date>>());
+                                res.add(new HashMap<Point2D, Pair<Triple<Double, Double, Double>, Date>>());
+                            }
+                            
                             if (!ignoreDateLimitToLoad && dp.getDateUTC().before(dateLimit))
                                 return;
                             
@@ -702,64 +802,90 @@ class EnvDataPaintHelper {
                             toDatePts.accumulate(dateV.getTime());
                             fromDatePts.accumulate(dateV.getTime());
                             
+                            ArrayList<Point2D> pts = new ArrayList<>();
+                            if (renderer.getLevelOfDetail() >= filterUseLOD)
+                                pts.add((Point2D) pt.clone());
+                            
                             double x = pt.getX();
                             double y = pt.getY();
-                            x = x - x % EnvDataShapesHelper.ARROW_RADIUS;
-                            y = y - y % EnvDataShapesHelper.ARROW_RADIUS;
+                            x = ((int) x) / EnvDataShapesHelper.ARROW_RADIUS * EnvDataShapesHelper.ARROW_RADIUS;
+                            y = ((int) y) / EnvDataShapesHelper.ARROW_RADIUS * EnvDataShapesHelper.ARROW_RADIUS;
                             pt.setLocation(x, y);
-                            
-                            if (!res.containsKey(pt)) {
-                                res.put(pt, new Pair<Triple<Double, Double, Double>, Date>(Triple.of(sigHeightV, headingV, periodV), dateV));
-                            }
-                            else {
-                                Pair<Triple<Double, Double, Double>, Date> pval = res.get(pt);
-                                double val = pval.first().getLeft();
-                                val = (val + sigHeightV) / 2d;
-                                double val1 = pval.first().getMiddle();
-                                val1 = (val1 + headingV) / 2d;
-                                double val2 = pval.first().getRight();
-                                val2 = (val2 + periodV) / 2d;
-                                if (dateV.after(pval.second()))
-                                    res.put(pt, new Pair<Triple<Double, Double, Double>, Date>(Triple.of(val, val1, val2), dateV));
-                                else
-                                    res.put(pt, new Pair<Triple<Double, Double, Double>, Date>(Triple.of(val, val1, val2), pval.second()));
+                            pts.add(0, pt);
+
+                            for (int idx = 0; idx < pts.size(); idx++) {
+                                Point2D ptI = pts.get(idx);
+                                if (!res.get(idx).containsKey(ptI)) {
+                                    res.get(idx).put(ptI, new Pair<Triple<Double, Double, Double>, Date>(Triple.of(sigHeightV, headingV, periodV), dateV));
+                                }
+                                else {
+                                    Pair<Triple<Double, Double, Double>, Date> pval = res.get(idx).get(ptI);
+                                    double val = pval.first().getLeft();
+                                    val = (val + sigHeightV) / 2d;
+                                    double val1 = pval.first().getMiddle();
+                                    val1 = (val1 + headingV) / 2d;
+                                    double val2 = pval.first().getRight();
+                                    val2 = (val2 + periodV) / 2d;
+                                    if (dateV.after(pval.second()))
+                                        res.get(idx).put(ptI, new Pair<Triple<Double, Double, Double>, Date>(Triple.of(val, val1, val2), dateV));
+                                    else
+                                        res.get(idx).put(ptI, new Pair<Triple<Double, Double, Double>, Date>(Triple.of(val, val1, val2), pval.second()));
+                                }
                             }
                         }
                         catch (Exception e) {
                             NeptusLog.pub().debug(e);
                         }
                     }, (res, resInt) -> {
-                        resInt.keySet().stream().forEach(k1 -> {
-                            try {
-                                Pair<Triple<Double,Double,Double>,Date> sI = resInt.get(k1);
-                                if (res.containsKey(k1)) {
-                                    Pair<Triple<Double, Double, Double>, Date> s = res.get(k1);
-                                    double val = (s.first().getLeft() + sI.first().getLeft()) / 2d;
-                                    double val1 = (s.first().getMiddle() + sI.first().getMiddle()) / 2d;
-                                    double val2 = (s.first().getRight() + sI.first().getRight()) / 2d;
-                                    Date valDate = sI.second().after(s.second()) ? new Date(sI.second().getTime())
-                                            : s.second();
-                                    res.put(k1, new Pair<Triple<Double, Double, Double>, Date>(Triple.of(val, val1, val2), valDate));
+                        for (int idxc = 0; idxc < 2; idxc++) {
+                            final int idx = idxc;
+                            resInt.get(idx).keySet().stream().forEach(k1 -> {
+                                try {
+                                    Pair<Triple<Double,Double,Double>,Date> sI = resInt.get(idx).get(k1);
+                                    if (res.get(idx).containsKey(k1)) {
+                                        Pair<Triple<Double, Double, Double>, Date> s = res.get(idx).get(k1);
+                                        double val = (s.first().getLeft() + sI.first().getLeft()) / 2d;
+                                        double val1 = (s.first().getMiddle() + sI.first().getMiddle()) / 2d;
+                                        double val2 = (s.first().getRight() + sI.first().getRight()) / 2d;
+                                        Date valDate = sI.second().after(s.second()) ? new Date(sI.second().getTime())
+                                                : s.second();
+                                        res.get(idx).put(k1, new Pair<Triple<Double, Double, Double>, Date>(Triple.of(val, val1, val2), valDate));
+                                    }
+                                    else {
+                                        res.get(idx).put(k1, sI);
+                                    }
                                 }
-                                else {
-                                    res.put(k1, sI);
+                                catch (Exception e) {
+                                    NeptusLog.pub().debug(e);
                                 }
-                            }
-                            catch (Exception e) {
-                                NeptusLog.pub().debug(e);
-                            }
-                        });
+                            });
+                        }
                     });
             
-            debugOut(showDataDebugLegend, String.format("Waves stg 1 took %ss :: %d of %d from %d (%f%%)",
-                    MathMiscUtils.parseToEngineeringNotation((System.currentTimeMillis() - stMillis) / 1E3, 1), ptFilt.size(), visiblePts.longValue(), dest.size(),
-                    (ptFilt.size() * 1. / visiblePts.longValue()) * 100));
+            if (ptFilt.isEmpty()) {
+                ptFilt.add(new HashMap<Point2D, Pair<Triple<Double, Double, Double>, Date>>());
+                ptFilt.add(new HashMap<Point2D, Pair<Triple<Double, Double, Double>, Date>>());
+            }
+            double usePercent = (ptFilt.get(0).size() * 1. / visiblePts.longValue()) * 100;
+            final int idx;
+            if (renderer.getLevelOfDetail() > filterUseLOD) {
+                if (usePercent <= 90)
+                    idx = 0;
+                else
+                    idx = 1;
+            }
+            else {
+                idx = 0;
+            }
+            debugOut(showDataDebugLegend, String.format("Waves stg 1 took %ss :: %d of %d from %d (%f%%) %d %d",
+                    MathMiscUtils.parseToEngineeringNotation((System.currentTimeMillis() - stMillis) / 1E3, 1), ptFilt.get(0).size(), visiblePts.longValue(), dest.size(),
+                    usePercent , ptFilt.get(1).size(), idx));
             stMillis = System.currentTimeMillis();
             
-            ptFilt.keySet().parallelStream().forEach(pt -> {
+            ptFilt.get(idx).keySet().parallelStream().forEach(pt -> {
                 Graphics2D gt = null;
                 try {
-                    Pair<Triple<Double, Double, Double>, Date> pVal = ptFilt.get(pt);
+                    Pair<Triple<Double, Double, Double>, Date> pVal = ptFilt.get(idx).get(pt);
                     double sigHeightV = pVal.first().getLeft();
                     double headingV = AngleUtils.nomalizeAngleDegrees360(pVal.first().getMiddle());
                     @SuppressWarnings("unused")
@@ -815,9 +941,14 @@ class EnvDataPaintHelper {
             LongAccumulator visiblePts = new LongAccumulator((r, i) -> r += i, 0);
             LongAccumulator toDatePts = new LongAccumulator((r, i) -> r = i > r ? i : r, 0);
             LongAccumulator fromDatePts = new LongAccumulator((r, i) -> r = i < r ? i : r, Long.MAX_VALUE);
-            Map<Point2D, Pair<Double, Date>> ptFilt = dest.parallelStream()
-                    .collect(HashMap<Point2D, Pair<Double, Date>>::new, (res, dp) -> {
+            ArrayList<Map<Point2D, Pair<Double, Date>>> ptFilt = dest.parallelStream()
+                    .collect(ArrayList<Map<Point2D, Pair<Double, Date>>>::new, (res, dp) -> {
                         try {
+                            if (res.isEmpty()) {
+                                res.add(new HashMap<Point2D, Pair<Double, Date>>());
+                                res.add(new HashMap<Point2D, Pair<Double, Date>>());
+                            }
+                            
                             if (!ignoreDateLimitToLoad && dp.getDateUTC().before(dateLimit))
                                 return;
                             
@@ -844,58 +975,84 @@ class EnvDataPaintHelper {
                             toDatePts.accumulate(dateV.getTime());
                             fromDatePts.accumulate(dateV.getTime());
                             
+                            ArrayList<Point2D> pts = new ArrayList<>();
+                            if (renderer.getLevelOfDetail() >= filterUseLOD)
+                                pts.add((Point2D) pt.clone());
+
                             double x = pt.getX();
                             double y = pt.getY();
-                            x = x - x % EnvDataShapesHelper.CIRCLE_RADIUS;
-                            y = y - y % EnvDataShapesHelper.CIRCLE_RADIUS;
+                            x = ((int) x) / EnvDataShapesHelper.CIRCLE_RADIUS * EnvDataShapesHelper.CIRCLE_RADIUS;
+                            y = ((int) y) / EnvDataShapesHelper.CIRCLE_RADIUS * EnvDataShapesHelper.CIRCLE_RADIUS;
                             pt.setLocation(x, y);
-                            
-                            if (!res.containsKey(pt)) {
-                                res.put(pt, new Pair<>(chlorophyllV, dateV));
-                            }
-                            else {
-                                Pair<Double, Date> pval = res.get(pt);
-                                double val = pval.first();
-                                val = (val + chlorophyllV) / 2d;
-                                if (dateV.after(pval.second()))
-                                    res.put(pt, new Pair<>(val, dateV));
-                                else
-                                    res.put(pt, new Pair<>(val, pval.second()));
+                            pts.add(0, pt);
+
+                            for (int idx = 0; idx < pts.size(); idx++) {
+                                Point2D ptI = pts.get(idx);
+                                if (!res.get(idx).containsKey(ptI)) {
+                                    res.get(idx).put(ptI, new Pair<>(chlorophyllV, dateV));
+                                }
+                                else {
+                                    Pair<Double, Date> pval = res.get(idx).get(ptI);
+                                    double val = pval.first();
+                                    val = (val + chlorophyllV) / 2d;
+                                    if (dateV.after(pval.second()))
+                                        res.get(idx).put(ptI, new Pair<>(val, dateV));
+                                    else
+                                        res.get(idx).put(ptI, new Pair<>(val, pval.second()));
+                                }
                             }
                         }
                         catch (Exception e) {
                             NeptusLog.pub().debug(e);
                         }
                     }, (res, resInt) -> {
-                        resInt.keySet().stream().forEach(k1 -> {
-                            try {
-                                Pair<Double, Date> sI = resInt.get(k1);
-                                if (res.containsKey(k1)) {
-                                    Pair<Double, Date> s = res.get(k1);
-                                    double val = (s.first() + sI.first()) / 2d;
-                                    Date valDate = sI.second().after(s.second()) ? new Date(sI.second().getTime())
-                                            : s.second();
-                                    res.put(k1, new Pair<Double, Date>(val, valDate));
+                        for (int idxc = 0; idxc < 2; idxc++) {
+                            final int idx = idxc;
+                            resInt.get(idx).keySet().stream().forEach(k1 -> {
+                                try {
+                                    Pair<Double, Date> sI = resInt.get(idx).get(k1);
+                                    if (res.get(idx).containsKey(k1)) {
+                                        Pair<Double, Date> s = res.get(idx).get(k1);
+                                        double val = (s.first() + sI.first()) / 2d;
+                                        Date valDate = sI.second().after(s.second()) ? new Date(sI.second().getTime())
+                                                : s.second();
+                                        res.get(idx).put(k1, new Pair<Double, Date>(val, valDate));
+                                    }
+                                    else {
+                                        res.get(idx).put(k1, sI);
+                                    }
                                 }
-                                else {
-                                    res.put(k1, sI);
+                                catch (Exception e) {
+                                    NeptusLog.pub().debug(e);
                                 }
-                            }
-                            catch (Exception e) {
-                                NeptusLog.pub().debug(e);
-                            }
-                        });
+                            });
+                        }
                     });
             
-            debugOut(showDataDebugLegend, String.format("Chlorophyll stg 1 took %ss :: %d of %d from %d (%f%%)",
-                    MathMiscUtils.parseToEngineeringNotation((System.currentTimeMillis() - stMillis) / 1E3, 1), ptFilt.size(), visiblePts.longValue(), dest.size(),
-                    (ptFilt.size() * 1. / visiblePts.longValue()) * 100));
+            if (ptFilt.isEmpty()) {
+                ptFilt.add(new HashMap<Point2D, Pair<Double, Date>>());
+                ptFilt.add(new HashMap<Point2D, Pair<Double, Date>>());
+            }
+            double usePercent = (ptFilt.get(0).size() * 1. / visiblePts.longValue()) * 100;
+            final int idx;
+            if (renderer.getLevelOfDetail() > filterUseLOD) {
+                if (usePercent <= 90)
+                    idx = 0;
+                else
+                    idx = 1;
+            }
+            else {
+                idx = 0;
+            }
+            debugOut(showDataDebugLegend, String.format("Chlorophyll stg 1 took %ss :: %d of %d from %d (%f%%) %d %d",
+                    MathMiscUtils.parseToEngineeringNotation((System.currentTimeMillis() - stMillis) / 1E3, 1), ptFilt.get(0).size(), visiblePts.longValue(), dest.size(),
+                    usePercent , ptFilt.get(1).size(), idx));
             stMillis = System.currentTimeMillis();
             
-            ptFilt.keySet().parallelStream().forEach(pt -> {
+            ptFilt.get(idx).keySet().parallelStream().forEach(pt -> {
                 Graphics2D gt = null;
                 try {
-                    Pair<Double,Date> pVal = ptFilt.get(pt);
+                    Pair<Double,Date> pVal = ptFilt.get(idx).get(pt);
                     
                     gt = (Graphics2D) g2.create();
                     gt.translate(pt.getX(), pt.getY());
@@ -923,7 +1080,7 @@ class EnvDataPaintHelper {
             debugOut(showDataDebugLegend, String.format("Chlorophyll stg 2 took %ss",
                     MathMiscUtils.parseToEngineeringNotation((System.currentTimeMillis() - stMillis) / 1E3, 1)));
             
-            int offset = EnvironmentalDataVisualization.OFFSET_REND_TXT_DATE_RANGES + EnvironmentalDataVisualization.OFFSET_REND_TXT_DATE_RANGES_DELTA * 1;
+            int offset = EnvironmentalDataVisualization.OFFSET_REND_TXT_DATE_RANGES + EnvironmentalDataVisualization.OFFSET_REND_TXT_DATE_RANGES_DELTA * 4;
             String typeName = "Chlorophyll";
             paintDatesRange(g2, toDatePts.longValue(), fromDatePts.longValue(), offset, typeName, showDataDebugLegend,
                     font8Pt);
