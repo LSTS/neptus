@@ -52,6 +52,11 @@ public class SeacatGotoPreview extends GotoPreview {
             arrived = model.guide(destination, speed, destination.getDepth() >= 0 ? null : -destination.getDepth());
         
         double zDistance = Math.abs(destination.getDepth() - state.getDepth());
+        if (destination.getDepth() < 0)
+            zDistance = Math.abs(-destination.getDepth() -  state.getAltitude());
+        
+        if (destination.getDepth() < 0)
+            zDistance = Math.abs(-destination.getDepth() - state.getAltitude());
         if (arrived && zDistance > 0.1) {
             double xyDistance = destination.getHorizontalDistanceInMeters(state.getPosition());
             double angle = state.getYaw();

@@ -32,7 +32,9 @@
  */
 package de.atlas.elektronik.simulation;
 
+import pt.lsts.neptus.mp.SystemPositionAndAttitude;
 import pt.lsts.neptus.mp.preview.RowsManeuverPreview;
+import pt.lsts.neptus.types.coord.LocationType;
 
 /**
  * @author zp
@@ -40,5 +42,38 @@ import pt.lsts.neptus.mp.preview.RowsManeuverPreview;
  */
 public class SeacatSurveyPreview extends RowsManeuverPreview {
 
+    boolean arrived = false;
+    private static final double EIGHT_DIST = 10;
+    
+    @Override
+    public SystemPositionAndAttitude step(SystemPositionAndAttitude state, double timestep, double ellapsedTime) {
+        
+        // first point?
+        if (locIndex == 0) {
+            LocationType destination = locs.firstElement();
+            model.setState(state);
+            if (!arrived)
+                arrived = model.guide(destination, speed, destination.getDepth() >= 0 ? null : -destination.getDepth());
+            
+            double zDistance = Math.abs(destination.getDepth() - state.getDepth());
+            if (destination.getDepth() < 0)
+                zDistance = Math.abs(-destination.getDepth() - state.getAltitude());
+            
+            if (arrived && zDistance > 0.1) {
+                double xyDistance = destination.getHorizontalDistanceInMeters(state.getPosition());
+                double angle = state.getYaw();
+                LocationType tmp = new LocationType(destination);
+                if (xyDistance < EIGHT_DIST)
+                    tmp.translatePosition(Math.cos(angle) * 10, Math.sin(angle) * 10, 0);
+                model.guide(tmp, speed, destination.getDepth() >= 0 ? null : -destination.getDepth());    
+            }
+            if (arrived && zDistance < 0.3)
+                locIndex++;
+            model.advance(timestep);
+            return model.getState();
+        }
+        else
+            return super.step(state, timestep, ellapsedTime);
+    }
     
 }
