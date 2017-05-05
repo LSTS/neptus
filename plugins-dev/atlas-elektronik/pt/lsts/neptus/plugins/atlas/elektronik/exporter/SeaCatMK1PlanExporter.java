@@ -56,7 +56,9 @@ import org.apache.commons.lang3.tuple.Pair;
 import de.atlas.elektronik.simulation.SeacatGotoPreview;
 import de.atlas.elektronik.simulation.SeacatSKeepPreview;
 import de.atlas.elektronik.simulation.SeacatSurveyPreview;
+import de.atlas.elektronik.simulation.SeacatTrajectoryPreview;
 import pt.lsts.imc.EntityParameter;
+import pt.lsts.imc.FollowTrajectory;
 import pt.lsts.imc.IMCMessage;
 import pt.lsts.imc.SetEntityParameters;
 import pt.lsts.neptus.NeptusLog;
@@ -70,10 +72,12 @@ import pt.lsts.neptus.mp.actions.PlanActions;
 import pt.lsts.neptus.mp.element.IPlanElement;
 import pt.lsts.neptus.mp.element.PlanElements;
 import pt.lsts.neptus.mp.element.RendezvousPointsPlanElement;
+import pt.lsts.neptus.mp.maneuvers.CrossHatchPattern;
 import pt.lsts.neptus.mp.maneuvers.Goto;
 import pt.lsts.neptus.mp.maneuvers.LocatedManeuver;
 import pt.lsts.neptus.mp.maneuvers.ManeuversUtil;
 import pt.lsts.neptus.mp.maneuvers.PathProvider;
+import pt.lsts.neptus.mp.maneuvers.RIPattern;
 import pt.lsts.neptus.mp.maneuvers.RowsManeuver;
 import pt.lsts.neptus.mp.maneuvers.RowsPattern;
 import pt.lsts.neptus.mp.maneuvers.StationKeeping;
@@ -111,6 +115,8 @@ public class SeaCatMK1PlanExporter implements IPlanFileExporter {
             ManPreviewFactory.registerPreview(vehicle, Goto.class, SeacatGotoPreview.class);
             ManPreviewFactory.registerPreview(vehicle, StationKeeping.class, SeacatSKeepPreview.class);
             ManPreviewFactory.registerPreview(vehicle, RowsManeuver.class, SeacatSurveyPreview.class);
+            ManPreviewFactory.registerPreview(vehicle, CrossHatchPattern.class, SeacatTrajectoryPreview.class);
+            ManPreviewFactory.registerPreview(vehicle, RIPattern.class, SeacatTrajectoryPreview.class);
         }
     }
     
