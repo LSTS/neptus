@@ -1,0 +1,19 @@
+
+planName "yoyo"
+def treshold = 150000
+def start = System.currentTimeMillis()
+lastPosition=location
+while(System.currentTimeMillis()-start!=treshold) {
+	setSpeed 1.5,  Speed.Units.METERS_PS
+	setZ 2.5, Z.Units.DEPTH
+	yoyo max_depth:24 , min_depth:10 ,
+		payload: [[name:"Sidescan"],[name:"Camera"]]
+
+	if(location.distance(lastPosition)>=200){ //meters
+		popup //uses  current plan location by default
+		lastPosition = this.position
+		}
+    }
+
+description "Yoyo script to popup every 200 meters"
+addToConsole()

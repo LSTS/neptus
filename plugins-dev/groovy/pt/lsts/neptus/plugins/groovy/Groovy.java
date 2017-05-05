@@ -226,7 +226,7 @@ public class Groovy extends ConsolePanel {
         Action runAction = new AbstractAction(I18n.text("Execute Script"), ImageUtils.getScaledIcon("pt/lsts/neptus/plugins/groovy/images/forward.png", 16, 16)) {
             @Override
             public void actionPerformed(ActionEvent e) {
-                runScript();           
+                runScript();         //TODO add to console button   
             }
         };
         
@@ -299,6 +299,7 @@ public class Groovy extends ConsolePanel {
                 catch (Exception   e) { //CompilationFailedException | ResourceException | ScriptException
                     //TODO notify script exit
                       NeptusLog.pub().error("Exception Caught during execution of script: "+groovyScript.getName(),e);
+                      e.printStackTrace();
                       if(thread.isAlive())
                           thread.interrupt();
                       if(stopScript.isEnabled())

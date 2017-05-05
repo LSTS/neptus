@@ -24,6 +24,7 @@ import pt.lsts.neptus.comm.manager.imc.ImcMsgManager;
 import pt.lsts.neptus.comm.manager.imc.ImcSystem;
 import pt.lsts.neptus.comm.manager.imc.ImcSystemsHolder;
 import pt.lsts.neptus.console.ConsoleLayout;
+import pt.lsts.neptus.console.ConsolePanel;
 import pt.lsts.neptus.console.events.ConsoleEventPlanChange;
 import pt.lsts.neptus.console.events.ConsoleEventVehicleStateChanged;
 import pt.lsts.neptus.console.events.ConsoleEventVehicleStateChanged.STATE;
@@ -44,9 +45,9 @@ import pt.lsts.nvl.runtime.TaskState;
 import pt.lsts.nvl.runtime.VehicleRequirements;
 
 @PluginDescription(name = "NVL Runtime Feature", author = "Keila Lima")
-@Popup(pos = POSITION.BOTTOM_RIGHT, width=300, height=300, accelerator='y')
+@Popup(pos = POSITION.BOTTOM_RIGHT, width=300, height=300)
 @SuppressWarnings("serial")
-public class NeptusRuntime extends InteractionAdapter implements NVLRuntime {
+public class NeptusRuntime extends ConsolePanel implements NVLRuntime {
    private  Map<String,NeptusVehicleAdapter> vehicles;
    private  Map<String,NeptusTaskSpecificationAdapter> tasks; //Or List?
    private  List<TaskExecution> runningTasks;

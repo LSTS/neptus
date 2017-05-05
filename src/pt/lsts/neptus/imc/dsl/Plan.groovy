@@ -97,12 +97,12 @@ class Plan {
     }
     
     String normalizeParameterName (String parameter){
-//        String result = parameter.substring(0,1).capitalize()
-//        parameter.substring(1).each{
-//            result+=it.toLowerCase()
-//        }
-//          result
-          parameter
+        String result = parameter.substring(0,1).capitalize()
+        parameter.substring(1).each{
+            result+=it.toLowerCase()
+        }
+          result
+//          parameter
           
        }
     
@@ -647,8 +647,9 @@ class Plan {
         //TODO
         if(vehicles_id == null){
             println "Please define the vehicles to send this plan"
-            return
+            return null
         }
+
         vehicles_id.each {
             if((sys = ImcSystemsHolder.lookupSystemByName(it)) != null) {
                 PlanDBState prs = sys.getPlanDBControl().getRemoteState();
@@ -661,6 +662,15 @@ class Plan {
         }
         
         {notInSync}
+    }
+    
+    def void verifyPayload(){
+        if(vehicles_id!=null)
+        vehicles_id.each { vehicle ->
+           PlanCompatibility.payloadsMissing(VehiclesHolder.getVehicleById(it),this.asPlanSpecification).each {
+               println "Vehicle "+vehicle+" does not support "+it+" payload."
+           }
+        }
     }
     
 
@@ -732,7 +742,8 @@ class Plan {
         plantype.setId(plan_id)
         if(vehicles_id==null)
             vehicles_id = {"lauv-xplore-1"}
-        vehicles_id.each { plantype.setVehicle(it) }
+        else
+            vehicles_id.each { plantype.setVehicle(it) }
         plantype.setMissionType(console.getMission())
         console.getMission().getIndividualPlansList().put(plan_id,plantype)
         console.getMission().save(true)
@@ -754,6 +765,8 @@ class Plan {
 			if(it.getId().equals(vehicle))
 			select = true
 		}
+        verifyPayload()
+            
         def error_msg = "Error sending plan: "+plan_id+" to "+vehicle
 		//while(!select.equals(null)) vehicles_id.each {protocol.connect(it); def select = protocol.waitfor(it,milis)}
 		if (select != null && IMCSendMessageUtils.sendMessage(plan,error_msg,false, vehicle)) //IMCSendMessageUtils.sendMessage(plan,false,vehicle)
