@@ -35,6 +35,8 @@ package pt.lsts.neptus.plugins.envdisp;
 import java.util.ArrayList;
 import java.util.Date;
 
+import pt.lsts.neptus.NeptusLog;
+
 public class HFRadarDataPoint extends BaseDataPoint<HFRadarDataPoint> {
 
     private double speedCmS;
@@ -216,34 +218,28 @@ public class HFRadarDataPoint extends BaseDataPoint<HFRadarDataPoint> {
         return true;
     }
 
-//    public void purgeAllBefore(Date date) {
-//        if (date == null || historicalData.size() == 0)
-//            return;
-//        for (HFRadarDataPoint dp : historicalData.toArray(new HFRadarDataPoint[0])) {
-//            if (dp.getDateUTC().before(date))
-//                historicalData.remove(dp);
-//        }
-//    }
-
-//    @Override
-//    public int compareTo(HFRadarDataPoint o) {
-//        if (Double.compare(lat, o.lat) == 0 && Double.compare(lon, o.lon) == 0)
-//            return 0;
-//        else
-//            return 1; 
-//    }
+    @Override
+    public ArrayList<Object> getAllDataValues() {
+        ArrayList<Object> ret = new ArrayList<>();
+        ret.add(speedCmS);
+        ret.add(headingDegrees);
+        ret.add(resolutionKm);
+        ret.add(info);
+        return ret;
+    }
     
-//    @Override
-//    public boolean equals(Object obj) {
-//        if (obj == null)
-//            return false;
-//
-//        if (!(obj instanceof HFRadarDataPoint))
-//            return false;
-//        return compareTo((HFRadarDataPoint) obj) == 0 ? true : false;
-//    }
-    
-//    public static String getId(HFRadarDataPoint hfrdp) {
-//        return hfrdp.lat + ":" + hfrdp.lon;
-//    }
+    @Override
+    public boolean setAllDataValues(ArrayList<Object> newValues) {
+        try {
+            speedCmS = (double) newValues.get(0);
+            headingDegrees = (double) newValues.get(1);
+            resolutionKm = (double) newValues.get(2);
+            info = (String) newValues.get(3);
+        }
+        catch (Exception e) {
+            NeptusLog.pub().warn(e);
+            return false;
+        }
+        return true;
+    }
 }
