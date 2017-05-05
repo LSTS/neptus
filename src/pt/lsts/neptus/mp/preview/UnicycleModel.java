@@ -51,6 +51,8 @@ public class UnicycleModel {
     protected double targetLatRad, targetLonRad, maxSteeringRad = Math.toRadians(7);
     protected boolean arrived = true;
     
+    protected double maxPitch = 15, maxSpeed = 2;
+    
     public double getCurrentAltitude() {
         double a = SimulationEngine.simBathym.getSimulatedDepth(getCurrentPosition());
         return a - depth;
@@ -146,9 +148,9 @@ public class UnicycleModel {
             double curBathym = SimulationEngine.simBathym.getSimulatedDepth(getCurrentPosition());
             double curAltitude = curBathym-depth;
             if (curAltitude > altitude)
-                pitchRad = Math.toRadians(15);
+                pitchRad = Math.toRadians(maxPitch);
             else if (curAltitude < altitude)
-                pitchRad = -Math.toRadians(15);
+                pitchRad = -Math.toRadians(maxPitch);
             else {
                 depth = (SimulationEngine.simBathym.getSimulatedDepth(getCurrentPosition())-altitude);
             }
@@ -156,9 +158,9 @@ public class UnicycleModel {
         else {
         
             if (loc.getDepth() > depth+0.1)
-                pitchRad = Math.toRadians(12);
+                pitchRad = Math.toRadians(maxPitch);
             else if (loc.getDepth() < depth-0.1)
-                pitchRad = -Math.toRadians(12);
+                pitchRad = -Math.toRadians(maxPitch);
             else {
                 depth = loc.getDepth();
                 pitchRad = 0;
