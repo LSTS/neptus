@@ -50,6 +50,8 @@ import org.gdal.osr.SpatialReference;
 
 import pt.lsts.neptus.types.coord.LocationType;
 import pt.lsts.neptus.types.map.ImageElement;
+import pt.lsts.neptus.util.AngleUtils;
+import pt.lsts.neptus.util.MathMiscUtils;
 
 /**
  * @author zp
@@ -87,12 +89,12 @@ public class GdalDataSet {
         
         coordinates.add(new double[] {0,0});
         coordinates.add(new double[] {0,hDataset.getRasterYSize()});
-        coordinates.add(new double[] {hDataset.getRasterXSize(),0});
         coordinates.add(new double[] {hDataset.getRasterXSize(),hDataset.getRasterYSize()});
+        coordinates.add(new double[] {hDataset.getRasterXSize(),0});
         
         for (double[] coord : coordinates) {
             double[] point = toLatLong(hDataset, coord[0], coord[1]);
-            locations.add(new LocationType(point[1], point[0]));            
+            locations.add(new LocationType(point[0], point[1]));            
         }
         
         return locations.toArray(new LocationType[0]);     
@@ -101,7 +103,7 @@ public class GdalDataSet {
     public double getRotationRads() {
         LocationType[] corners = getCornerCoordinates();
         // check angle between most distant corners
-        if (corners[0].getDistanceInMeters(corners[1]) > corners[0].getDistanceInMeters(corners[2]))
+        if (corners[0].getDistanceInMeters(corners[1]) > corners[0].getDistanceInMeters(corners[3]))
             return corners[1].getXYAngle(corners[0]);
         else
             return corners[0].getXYAngle(corners[1]) - Math.PI/2;
@@ -129,7 +131,7 @@ public class GdalDataSet {
             
         LocationType corners[] = getCornerCoordinates();
         double distY = corners[0].getHorizontalDistanceInMeters(corners[1]);
-        double distX = corners[0].getHorizontalDistanceInMeters(corners[2]);
+        double distX = corners[0].getHorizontalDistanceInMeters(corners[3]);
         
         return new double[] {distX / hDataset.GetRasterXSize(), distY / hDataset.GetRasterYSize() };        
     }
@@ -140,16 +142,17 @@ public class GdalDataSet {
             outputDir = outputDir.getParentFile();
         File file = new File(outputDir, el.getId()+".png");
         try {
-            ImageIO.write(getGroundOverlay(), "png", file);    
+            ImageIO.write(getGroundOverlay(), "png", file);
         }
         catch (ImageReadException e) {
             throw new Exception("Unable to read source image: "+e.getMessage(), e);
         }
         
-        el.setImageFileName(file.getAbsolutePath());       
-        el.setImageScale(getMetersPerPixel()[0]);
-        el.setImageScaleV(getMetersPerPixel()[1]);
-        el.setYaw(getRotationRads());
+        el.setImageFileName(file.getAbsolutePath());
+        double[] mppx = getMetersPerPixel();
+        el.setImageScale(mppx[0]);
+        el.setImageScaleV(mppx[1]);
+        el.setYaw(AngleUtils.nomalizeAngleDegrees360(MathMiscUtils.round(Math.toDegrees(getRotationRads()), 1)));
         el.setCenterLocation(getCenterCoordinates());
         
         return el;
