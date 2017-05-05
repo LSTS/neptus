@@ -48,19 +48,19 @@ public class SeacatGotoPreview extends GotoPreview {
     @Override
     public SystemPositionAndAttitude step(SystemPositionAndAttitude state, double timestep, double ellapsedTime) {
         model.setState(state);
-        arrived = model.guide(destination, speed, destination.getDepth() >= 0 ? null : -destination.getDepth());
+        if (!arrived)
+            arrived = model.guide(destination, speed, destination.getDepth() >= 0 ? null : -destination.getDepth());
+        
         double zDistance = Math.abs(destination.getDepth() - state.getDepth());
         if (arrived && zDistance > 0.1) {
+            double xyDistance = destination.getHorizontalDistanceInMeters(state.getPosition());
             double angle = state.getYaw();
-            double xyDistance = destination.getDistanceInMeters(state.getPosition());
             LocationType tmp = new LocationType(destination);
             if (xyDistance < EIGHT_DIST)
                 tmp.translatePosition(Math.cos(angle) * 10, Math.sin(angle) * 10, 0);
             model.guide(tmp, speed, destination.getDepth() >= 0 ? null : -destination.getDepth());    
         }
-            
         finished = arrived && zDistance < 0.1;
-
         model.advance(timestep);
 
         return model.getState();
