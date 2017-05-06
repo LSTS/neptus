@@ -51,6 +51,7 @@ import pt.lsts.neptus.messages.TypedMessageFilter;
 import pt.lsts.neptus.messages.listener.MessageInfo;
 import pt.lsts.neptus.messages.listener.MessageListener;
 import pt.lsts.neptus.types.vehicle.VehicleType.SystemTypeEnum;
+import pt.lsts.neptus.util.conf.GeneralPreferences;
 
 /**
  * @author zp
@@ -113,16 +114,13 @@ public class DuneIridiumMessenger implements IridiumMessenger, MessageListener<M
         }
         
         providers.sort(Collections.reverseOrder());
-        ImcSystem system = ImcSystemsHolder.lookupSystemByName(providers.iterator().next());
+        ImcSystem system;
         
-        System.out.println("Subscribed to Iridium Device Updates through "+system.getName());
+        if (providers.contains(GeneralPreferences.iridiumGateway))
+            system = ImcSystemsHolder.lookupSystemByName(GeneralPreferences.iridiumGateway);
+        else
+            system = ImcSystemsHolder.lookupSystemByName(providers.iterator().next());
         
-        // Activate and deactivate subscriptions should use the id of the used gateway
-        //if (msg instanceof ActivateSubscription || msg instanceof DeactivateSubscription) {
-        //    ImcSystem system = ImcSystemsHolder.lookupSystemByName(messengerName);
-        //    if (system != null)
-        //        msg.setSource(system.getId().intValue());
-
         msg.setSource(system.getId().intValue());
         IridiumMsgTx tx = new IridiumMsgTx();
         tx.setReqId((++req_id % 65535));

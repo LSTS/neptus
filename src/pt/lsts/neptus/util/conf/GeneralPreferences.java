@@ -221,6 +221,10 @@ public class GeneralPreferences implements PropertiesProvider {
         description = "Iridium messaging implementation")
     public static IridiumMessengerEnum iridiumMessenger = IridiumMessengerEnum.HubIridiumMessenger;
     
+    @NeptusProperty(name = "Preferred Iridium Gateway", category="Iridium Communications", userLevel = LEVEL.REGULAR,
+            description = "Preferred DUNE Gateway for Iridium messaging")
+    public static String iridiumGateway = "";
+        
     // -------------------------------------------------------------------------
     
     @NeptusProperty(name = "Maximum Size of Plan Name For Acoustics", category="Plan", userLevel = LEVEL.ADVANCED,
@@ -245,6 +249,8 @@ public class GeneralPreferences implements PropertiesProvider {
 
     @NeptusProperty(name = "Lat/Lon Preferable Display Format", category = "Location", userLevel = LEVEL.REGULAR)
     public static LatLonFormatEnum latLonPrefFormat = LatLonFormatEnum.DM;
+    
+    
 
     // -------------------------------------------------------------------------
     // Constructor and initialize
