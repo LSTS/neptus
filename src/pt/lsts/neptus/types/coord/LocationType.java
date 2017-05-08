@@ -50,6 +50,7 @@ import pt.lsts.neptus.util.Dom4JUtil;
 import pt.lsts.neptus.util.GuiUtils;
 import pt.lsts.neptus.util.MathMiscUtils;
 import pt.lsts.neptus.util.NameNormalizer;
+import pt.lsts.neptus.util.conf.GeneralPreferences;
 import pt.lsts.neptus.util.coord.MapTileUtil;
 
 /**
@@ -110,7 +111,6 @@ public class LocationType implements XmlOutputMethods, Serializable, Comparable<
         ONE_LAT_DEGREE = lt.getDistanceInMeters(ABSOLUTE_ZERO);
     }
 
-    private static NumberFormat nf8 = GuiUtils.getNeptusDecimalFormat(8);
     private static NumberFormat nf2 = GuiUtils.getNeptusDecimalFormat(2);
 
     protected String id = NameNormalizer.getRandomID();
@@ -300,7 +300,7 @@ public class LocationType implements XmlOutputMethods, Serializable, Comparable<
      */
     public void setLatitudeStr(String latitude) {
         if (latitude != null)
-            setLatitudeDegs(CoordinateUtil.parseLatitudeCoordToDoubleValue(latitude));
+            setLatitudeDegs(CoordinateUtil.parseCoordString(latitude));
     }
 
     /**
@@ -346,7 +346,7 @@ public class LocationType implements XmlOutputMethods, Serializable, Comparable<
      */
     public void setLongitudeStr(String longitude) {
         if (longitude != null)
-            setLongitudeDegs(CoordinateUtil.parseLongitudeCoordToDoubleValue(longitude));
+            setLongitudeDegs(CoordinateUtil.parseCoordString(longitude));
     }
 
     /**
@@ -658,41 +658,17 @@ public class LocationType implements XmlOutputMethods, Serializable, Comparable<
         this.isOffsetUpUsed = isOffsetUpUsed;
     }
 
-    /* (non-Javadoc)
-     * @see java.lang.Object#toString()
-     */
     @Override
     public String toString() {
         double[] absLoc = getAbsoluteLatLonDepth();
 
-        double lat = absLoc[0];
-        double lon = absLoc[1];
-
-        String latStr = "N";
-        String lonStr = "E";
-
-        if (lat < 0) {
-            lat = -lat;
-            latStr = "S";
-        }
-
-        if (lon < 0) {
-            lon = -lon;
-            lonStr = "W";
-        }
-
-        // Any change to this reflects #valurOf method!!
-        return latStr + nf8.format(lat) + CoordinateUtil.CHAR_DEGREE + ", " + lonStr
-                + nf8.format(lon) + CoordinateUtil.CHAR_DEGREE + (getHeight() != 0 ? (", " +  nf2.format(getHeight())) : "");
+        return CoordinateUtil.latitudeAsPrettyString(absLoc[0], GeneralPreferences.latLonPrefFormat) + ", "
+                + CoordinateUtil.longitudeAsPrettyString(absLoc[1], GeneralPreferences.latLonPrefFormat) + ", "
+                + nf2.format(getHeight());
     }
 
     public static LocationType valueOf(String value) {
-        String[] parts = value.split("[ ,]+");
-        LocationType loc = new LocationType();
-        loc.setLatitudeStr(parts[0]);
-        loc.setLongitudeStr(parts[1]);
-        loc.setHeight(parts.length < 3 ? 0 : Double.parseDouble(parts[2]));
-        return loc;
+        return CoordinateUtil.parseLocation(value);
     }
     
     /*
@@ -1302,6 +1278,21 @@ public class LocationType implements XmlOutputMethods, Serializable, Comparable<
     }
     
     public static void main(String[] args) {
+        
+        LocationType loc = new LocationType(41.77841222222222, -8.2343122222222);
+        
+        GeneralPreferences.latLonPrefFormat = LatLonFormatEnum.DECIMAL_DEGREES;
+        System.out.println(loc);
+        System.out.println(CoordinateUtil.parseCoordString(loc.toString().split(",")[1]));
+        
+        GeneralPreferences.latLonPrefFormat = LatLonFormatEnum.DM;
+        System.out.println(loc);
+        System.out.println(CoordinateUtil.parseCoordString(loc.toString().split(",")[1]));
+        GeneralPreferences.latLonPrefFormat = LatLonFormatEnum.DMS;
+        System.out.println(loc);
+        System.out.println(CoordinateUtil.parseCoordString(loc.toString().split(",")[1]));
+        
+        
         LocationTypeTest();
     }
 }

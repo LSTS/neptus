@@ -235,7 +235,7 @@ public class LatLongSelector extends ParametersPanel implements KeyListener {
 	private JFormattedTextField getLatDeg() {
 		if (latDeg == null) {
 			latDeg = new JFormattedTextField(df);
-			latDeg.setBounds(10, 49, 72, 20);
+			latDeg.setBounds(10, 49, 82, 20);
 			latDeg.setText("0");
 			latDeg.addKeyListener(this);
 			latDeg.addFocusListener(new SelectAllFocusListener());
@@ -251,7 +251,7 @@ public class LatLongSelector extends ParametersPanel implements KeyListener {
 	private JFormattedTextField getLatMin() {
 		if (latMin == null) {
 			latMin = new JFormattedTextField(df);
-			latMin.setBounds(96, 49, 72, 20);
+			latMin.setBounds(106, 49, 72, 20);
 			latMin.setText("0");
 			latMin.addKeyListener(this);
 			latMin.addFocusListener(new SelectAllFocusListener());
@@ -267,7 +267,7 @@ public class LatLongSelector extends ParametersPanel implements KeyListener {
 	private JFormattedTextField getLatSec() {
 		if (latSec == null) {
 			latSec = new JFormattedTextField(df);
-			latSec.setBounds(181, 49, 72, 20);
+			latSec.setBounds(191, 49, 62, 20);
 			latSec.setText("0");
 			latSec.addKeyListener(this);
 			latSec.addFocusListener(new SelectAllFocusListener());
@@ -591,12 +591,17 @@ public class LatLongSelector extends ParametersPanel implements KeyListener {
 	 */
 	protected boolean convertLatLonTo(short type) {
 		LocationType loc = new LocationType();
+		
 		loc.setLatitudeStr(getLatitude());
 		loc.setLongitudeStr(getLongitude());
 		switch (type) {
     		case DECIMAL_DEGREES_DISPLAY:
     			this.setLatitude(new double[] {MathMiscUtils.round(loc.getLatitudeDegs(), 6), 0, 0});
     			this.setLongitude(new double[] {MathMiscUtils.round(loc.getLongitudeDegs(), 6), 0, 0});
+    			latMin.setEnabled(false);
+                lonMin.setEnabled(false);
+                latSec.setEnabled(false);
+                lonSec.setEnabled(false);
     			break;
     
     		case DM_DISPLAY:
@@ -604,6 +609,10 @@ public class LatLongSelector extends ParametersPanel implements KeyListener {
     			double[] dmLon = CoordinateUtil.decimalDegreesToDM(loc.getLongitudeDegs());
     			this.setLatitude(new double[] {dmLat[0], MathMiscUtils.round(dmLat[1], 4), 0});
     			this.setLongitude(new double[] {dmLon[0], MathMiscUtils.round(dmLon[1], 4), 0});
+    			latMin.setEnabled(true);
+                lonMin.setEnabled(true);
+                latSec.setEnabled(false);
+    			lonSec.setEnabled(false);
     			break;
     
     		case DMS_DISPLAY:
@@ -611,6 +620,12 @@ public class LatLongSelector extends ParametersPanel implements KeyListener {
     			double[] dmsLon = CoordinateUtil.decimalDegreesToDMS(loc.getLongitudeDegs());
     			this.setLatitude(new double[] {dmsLat[0], dmsLat[1], MathMiscUtils.round(dmsLat[2], 2)});
     			this.setLongitude(new double[] {dmsLon[0], dmsLon[1], MathMiscUtils.round(dmsLon[2], 2)});
+    			
+    			latMin.setEnabled(true);
+                lonMin.setEnabled(true);
+                
+                latSec.setEnabled(true);
+                lonSec.setEnabled(true);
     			break;
     
     		default:
