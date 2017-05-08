@@ -60,6 +60,7 @@ import pt.lsts.neptus.mp.ManeuverLocation;
 import pt.lsts.neptus.mp.element.IPlanElement;
 import pt.lsts.neptus.mp.maneuvers.Goto;
 import pt.lsts.neptus.mp.maneuvers.LocatedManeuver;
+import pt.lsts.neptus.mystate.MyState;
 import pt.lsts.neptus.renderer2d.LayerPriority;
 import pt.lsts.neptus.renderer2d.Renderer2DPainter;
 import pt.lsts.neptus.renderer2d.StateRenderer2D;
@@ -467,7 +468,12 @@ public class PlanElement extends AbstractElement implements Renderer2DPainter, P
         if (getPlan().getStartMode() == PlanType.INIT_START_WPT) {
             if (getPlan().getMapGroup().getMapObjectsByID("start").length > 0) {
                 start = new LocationType(getPlan().getMapGroup().getMapObjectsByID("start")[0].getCenterLocation());
-
+            }
+            else if (getPlan().getMapGroup().getMapObjectsByID("home").length > 0) {
+                start = new LocationType(getPlan().getMapGroup().getMapObjectsByID("home")[0].getCenterLocation());
+            }
+            else if ((start = MyState.getLocation()) != null) {
+                // start = start; Already in the test to not duplicate the location instances created 
             }
             else {
                 start = new LocationType(getPlan().getMapGroup().getCoordinateSystem());
