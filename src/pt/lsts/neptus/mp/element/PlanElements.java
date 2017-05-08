@@ -32,8 +32,10 @@
  */
 package pt.lsts.neptus.mp.element;
 
+import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
+import java.util.List;
 
 import org.w3c.dom.DOMException;
 import org.w3c.dom.Document;
@@ -50,7 +52,7 @@ import pt.lsts.neptus.util.XMLUtil;
  */
 public class PlanElements {
 
-    protected LinkedList<IPlanElement<?>> planElements = new LinkedList<>();
+    protected List<IPlanElement<?>> planElements = Collections.synchronizedList(new LinkedList<IPlanElement<?>>());
     
     public PlanElements() {
     }
@@ -58,7 +60,7 @@ public class PlanElements {
     /**
      * @return the planElements
      */
-    public LinkedList<IPlanElement<?>> getPlanElements() {
+    public List<IPlanElement<?>> getPlanElements() {
         return planElements;
     }
     
