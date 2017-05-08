@@ -57,6 +57,7 @@ import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.gui.objparams.ParametersPanel;
 import pt.lsts.neptus.mp.Maneuver;
 import pt.lsts.neptus.mp.ManeuverLocation;
+import pt.lsts.neptus.mp.element.IPlanElement;
 import pt.lsts.neptus.mp.maneuvers.Goto;
 import pt.lsts.neptus.mp.maneuvers.LocatedManeuver;
 import pt.lsts.neptus.renderer2d.LayerPriority;
@@ -455,6 +456,7 @@ public class PlanElement extends AbstractElement implements Renderer2DPainter, P
         lastRotationAngle = renderer.getRotation();
 
         Maneuver[] maneuvers = getPlan().getGraph().getAllManeuvers();
+        Object[] pElementsObjs = getPlan().getPlanElements().getPlanElements().toArray();
 
         LocationType start = null;
 
@@ -485,6 +487,8 @@ public class PlanElement extends AbstractElement implements Renderer2DPainter, P
         Vector<String> drawnLocations = new Vector<String>();
         Vector<String> drawnTransitions = new Vector<String>();
 
+        Graphics2D gElements = (Graphics2D) g.create();
+        
         for (Maneuver man : maneuvers) {
             
             for (Maneuver previousMan : plan.getGraph().getPreviousManeuvers(man.getId())) {
@@ -627,6 +631,13 @@ public class PlanElement extends AbstractElement implements Renderer2DPainter, P
         }
 
         g.setTransform(oldTransform);
+        
+        for (Object pElmObj : pElementsObjs) {
+            Graphics2D gT = (Graphics2D) gElements.create();
+            ((IPlanElement<?>) pElmObj).getPainter().paint(gT, renderer);
+            gT.dispose();
+        }
+        gElements.dispose();
     }
 
     public void setPlanZ(double z, ManeuverLocation.Z_UNITS units) {
