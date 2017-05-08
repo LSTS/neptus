@@ -129,6 +129,10 @@ public class RendezvousPointsPlanElement implements IPlanElement<RendezvousPoint
         Renderer2DPainter painter = getElement() != null ? getElement() : new Renderer2DPainter() {
             @Override
             public void paint(Graphics2D g, StateRenderer2D renderer) {
+                boolean ed = points.isEditing();
+                points.setEditing(false);
+                points.paint(g, renderer);
+                points.setEditing(ed);
             }
         };
         return painter;
