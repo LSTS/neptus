@@ -32,10 +32,12 @@
  */
 package pt.lsts.neptus.mp;
 
+import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Font;
 import java.awt.GradientPaint;
 import java.awt.Graphics2D;
+import java.awt.Stroke;
 import java.awt.geom.Ellipse2D;
 import java.awt.geom.Line2D;
 import java.awt.geom.Rectangle2D;
@@ -276,11 +278,20 @@ public abstract class Maneuver implements XmlOutputMethods, PropertiesProvider, 
             ManeuverLocation loc = ((LocatedManeuver) this).getManeuverLocation();
             // g2d.setPaint(paint1);
             g2d.setColor(Color.black);
+            double zVal = loc.getZ();
             switch (loc.getZUnits()) {
                 case ALTITUDE:
                     g2d.fill(new Rectangle2D.Double(-8, 5, 16, 3));
                     g2d.setColor(Color.orange);
                     g2d.draw(new Line2D.Double(-6, 6, 6, 6));
+                    if (zVal <= 0) {
+                        Stroke st = g2d.getStroke();
+                        g2d.setStroke(new BasicStroke(2));
+                        g2d.setColor(Color.orange.brighter());
+                        g2d.draw(new Line2D.Double(-6, -6, 6, 6));
+                        g2d.draw(new Line2D.Double(-6, 6, 6, -6));
+                        g2d.setStroke(st);
+                    }
                     break;
                 case DEPTH:
                     if (loc.getZ() == 0) {
@@ -291,12 +302,21 @@ public abstract class Maneuver implements XmlOutputMethods, PropertiesProvider, 
                     else {
                         g2d.fill(new Rectangle2D.Double(-8, -8, 16, 3));
                         g2d.setColor(Color.cyan.brighter());
-                        g2d.draw(new Line2D.Double(-6, -6, 6, -6));    
+                        g2d.draw(new Line2D.Double(-6, -6, 6, -6));
+                        if (zVal <= 0) {
+                            Stroke st = g2d.getStroke();
+                            g2d.setStroke(new BasicStroke(2));
+                            g2d.setColor(Color.orange.brighter());
+                            g2d.draw(new Line2D.Double(-6, -6, 6, 6));
+                            g2d.draw(new Line2D.Double(-6, 6, 6, -6));
+                            g2d.setStroke(st);
+                        }
                     }
                     break;
                 case HEIGHT:
                     g2d.setColor(Color.white);
                     g2d.draw(new Line2D.Double(-6, 0, 6, 0));
+                    g2d.draw(new Line2D.Double(0, -6, 0, 6));
                     break;
                 default:
                     break;
