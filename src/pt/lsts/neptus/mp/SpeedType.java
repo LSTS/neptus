@@ -42,6 +42,7 @@ import pt.lsts.neptus.mp.preview.SpeedConversion;
 import pt.lsts.neptus.plugins.NeptusProperty;
 import pt.lsts.neptus.plugins.PluginUtils;
 import pt.lsts.neptus.util.GuiUtils;
+import pt.lsts.neptus.util.UnitsUtil;
 import pt.lsts.neptus.util.conf.GeneralPreferences;
 
 /**
@@ -83,10 +84,6 @@ public class SpeedType {
         this.units = other.units;
     }
     
-    private static final double MPS_TO_MPH = 2.2369362920544;
-    private static final double MPS_TO_KPH = 3.6;
-    private static final double MPS_TO_KNOTS = 1.9438444924574;
-    
     private Units units = GeneralPreferences.speedUnits;
     private double value;
     
@@ -115,11 +112,11 @@ public class SpeedType {
     public double getMPS() {
         switch (units) {
             case KPH:
-                return value / MPS_TO_KPH;
+                return value / UnitsUtil.MS_TO_KMH;
             case MPH:
-                return value / MPS_TO_MPH;
+                return value / UnitsUtil.MS_TO_MPH;
             case Knots:
-                return value / MPS_TO_KNOTS;
+                return value / UnitsUtil.MS_TO_KNOT;
             case RPM:
                 return SpeedConversion.convertRpmtoMps(value);
             case Percentage:
@@ -160,7 +157,7 @@ public class SpeedType {
     }
     
     public double getMPH() {
-        return getMPS() * MPS_TO_MPH;
+        return getMPS() * UnitsUtil.MS_TO_MPH;
     }
     
     public void setMPH(double value) {
@@ -170,7 +167,7 @@ public class SpeedType {
     
     
     public double getKPH() {
-        return getMPS() * MPS_TO_KPH;
+        return getMPS() *  UnitsUtil.MS_TO_KMH;
     }
     
     public void setKPH(double value) {
@@ -179,7 +176,7 @@ public class SpeedType {
     }    
     
     public double getKnots() {
-        return getMPS() * MPS_TO_KNOTS;
+        return getMPS() *  UnitsUtil.MS_TO_KNOT;
     }
     
     public void setKnots(double value) {
