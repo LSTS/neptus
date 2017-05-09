@@ -34,7 +34,6 @@ package pt.lsts.neptus.mp.preview;
 
 import java.util.Vector;
 
-import pt.lsts.neptus.mp.Maneuver.SPEED_UNITS;
 import pt.lsts.neptus.mp.ManeuverLocation.Z_UNITS;
 import pt.lsts.neptus.mp.SystemPositionAndAttitude;
 import pt.lsts.neptus.mp.maneuvers.FollowTrajectory;
@@ -58,12 +57,8 @@ public class FollowTrajectoryPreview implements IManeuverPreview<FollowTrajector
         locs.addAll(man.getPathLocations());
         this.vehicleId = vehicleId;
         this.locIndex = 0;
-        speed = man.getSpeed();
-        if (man.getSpeedUnits() == SPEED_UNITS.RPM) 
-            speed = SpeedConversion.convertRpmtoMps(speed);
-        else if (man.getSpeedUnits() == SPEED_UNITS.PERCENTAGE) // convert to RPM and then to m/s
-            speed = SpeedConversion.convertPercentageToMps(speed);
-
+        speed = man.getSpeed().getMPS();
+        
         speed = Math.min(speed, SpeedConversion.MAX_SPEED);    
         
         model.setState(state); 

@@ -37,7 +37,8 @@ import java.util.LinkedHashMap;
 import com.l2fprod.common.propertysheet.DefaultProperty;
 
 import pt.lsts.neptus.comm.IMCUtils;
-import pt.lsts.neptus.mp.Maneuver.SPEED_UNITS;
+import pt.lsts.neptus.mp.SpeedType;
+import pt.lsts.neptus.mp.SpeedType.Units;
 import pt.lsts.neptus.plugins.NeptusProperty;
 import pt.lsts.neptus.plugins.PluginDescription;
 import pt.lsts.neptus.types.coord.LocationType;
@@ -62,8 +63,8 @@ public class YoYoTemplate extends AbstractPlanTemplate {
     @NeptusProperty(name="Minimum Depth", description="Maximum depth of the yoyo behavior")
     public double mindepth = 2;
 
-    @NeptusProperty(name="Speed", description="Travelling speed (in m/s)")
-    public double speed = 1.1;
+    @NeptusProperty(name="Speed", description="Travelling speed")
+    public SpeedType speed = new SpeedType(1.1, Units.MPS);
     
     @NeptusProperty(name="Rotation", description="Rotation of the survey square, in degrees")
     public double rot = 0;
@@ -92,7 +93,7 @@ public class YoYoTemplate extends AbstractPlanTemplate {
     public PlanType generatePlan() throws Exception {
         
         PlanCreator planCreator = new PlanCreator(mission);
-        planCreator.setSpeed(speed, SPEED_UNITS.METERS_PS);
+        planCreator.setSpeed(speed);
         
         LocationType center = new LocationType(loc);
         double radius = Math.sqrt((size * size)/2);
@@ -112,7 +113,7 @@ public class YoYoTemplate extends AbstractPlanTemplate {
         double depth = (maxdepth + mindepth) / 2;
         
         for (int i = 0; i < 4; i++) {
-            time += size * speed;
+            time += size * speed.getMPS();
             ang = Math.toRadians(i * 90 + 135 + rot);
             planCreator.setLocation(center);
             planCreator.move(Math.sin(ang) * radius + time * vn, Math.cos(ang) * radius + time * ve);

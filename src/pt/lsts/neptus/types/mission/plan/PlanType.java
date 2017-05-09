@@ -65,6 +65,8 @@ import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.mp.Maneuver;
 import pt.lsts.neptus.mp.ManeuverLocation;
 import pt.lsts.neptus.mp.ManeuverLocation.Z_UNITS;
+import pt.lsts.neptus.mp.SpeedType;
+import pt.lsts.neptus.mp.SpeedType.Units;
 import pt.lsts.neptus.mp.actions.PlanActions;
 import pt.lsts.neptus.mp.maneuvers.IMCSerialization;
 import pt.lsts.neptus.mp.maneuvers.LocatedManeuver;
@@ -805,7 +807,7 @@ public class PlanType implements XmlOutputMethods, PropertiesProvider, NameId {
             PlanType plan1 = new PlanType(new MissionType());
             
             RowsManeuver rows = new RowsManeuver();
-            rows.setSpeed(32);
+            rows.setSpeed(new SpeedType(1.7, Units.MPS));
             ManeuverLocation loc = new ManeuverLocation();
             loc.setLatitudeStr("41N11'6.139669166224781''");
             loc.setLongitudeStr("8W42'21.723814187086976''");

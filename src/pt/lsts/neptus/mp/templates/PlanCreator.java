@@ -37,10 +37,12 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+import pt.lsts.imc.def.SpeedUnits;
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.mp.Maneuver;
-import pt.lsts.neptus.mp.Maneuver.SPEED_UNITS;
 import pt.lsts.neptus.mp.ManeuverLocation;
+import pt.lsts.neptus.mp.SpeedType;
+import pt.lsts.neptus.mp.SpeedType.Units;
 import pt.lsts.neptus.mp.maneuvers.Goto;
 import pt.lsts.neptus.mp.maneuvers.LocatedManeuver;
 import pt.lsts.neptus.mp.maneuvers.Loiter;
@@ -58,8 +60,7 @@ import pt.lsts.neptus.util.ReflectionUtil;
  */
 public class PlanCreator {
     protected PlanType plan;
-    protected double speed = 1000;
-    protected SPEED_UNITS speed_units = SPEED_UNITS.RPM;
+    protected SpeedType speed = new SpeedType(1000, Units.RPM);
     protected ManeuverLocation loc = new ManeuverLocation();
     protected int count = 1;
 
@@ -80,9 +81,12 @@ public class PlanCreator {
         setZ(depth, ManeuverLocation.Z_UNITS.DEPTH);
     }
 
-    public void setSpeed(double speed, SPEED_UNITS units) {
-        this.speed = speed;
-        this.speed_units = units;
+    public void setSpeed(double speed, Units units) {
+        this.speed = new SpeedType(speed, SpeedType.parseUnits(units.name()));
+    }
+    
+    public void setSpeed(SpeedType speed) {
+        this.speed = new SpeedType(speed);
     }
 
     public void setZ(double z, ManeuverLocation.Z_UNITS units) {
@@ -149,64 +153,46 @@ public class PlanCreator {
         try {
             Object speedPropValue = properties.get("speed");
             Object speedUnitsPropValue = properties.get("speedUnits");
-            double usedSpeed = speed;
-            SPEED_UNITS usedSpeedUnits = speed_units;
+            Double newSpeed = null;
+            Units newUnits = null;
             try {
-                usedSpeed = (double) speedPropValue;
+                newSpeed = (double) speedPropValue;
             }
             catch (Exception e) {
                 e.printStackTrace();
             }
             if (speedUnitsPropValue instanceof String) {
                 try {
-                    usedSpeedUnits = Maneuver.SPEED_UNITS.parse(speedUnitsPropValue.toString());
+                    newUnits = SpeedType.parseUnits(speedUnitsPropValue.toString());
                 }
                 catch (Exception e) {
                     e.printStackTrace();
                 }
             }
-            else if (speedUnitsPropValue instanceof Maneuver.SPEED_UNITS) {
-                usedSpeedUnits = (SPEED_UNITS) speedUnitsPropValue;
+            else if (speedUnitsPropValue instanceof Units) {
+                newUnits = (Units) speedUnitsPropValue;
+            }
+            else if (speedUnitsPropValue instanceof SpeedUnits) {
+                newUnits = SpeedType.parseUnits(speedPropValue.toString());
             }
             
+                        
             if (man instanceof ManeuverWithSpeed) {
-                ((ManeuverWithSpeed) man).setSpeed(usedSpeed);
-                ((ManeuverWithSpeed) man).setSpeedUnits(usedSpeedUnits);
-            }
-            else {
-                Method speedSetter = man.getClass().getMethod("setSpeed", double.class);
-                speedSetter.invoke(man, usedSpeed);
+                ManeuverWithSpeed mspeed = (ManeuverWithSpeed)man;
                 
-                Method speedUnitsSetter = man.getClass().getMethod("setSpeedUnits", Maneuver.SPEED_UNITS.class);
-                boolean foundSpeedUnitsSetter = false;
-                boolean speedUnitsTypeEnumOrString = true;
-                if (speedUnitsSetter != null) {
-                    speedUnitsTypeEnumOrString = true;
+                SpeedType speed = mspeed.getSpeed();
+                
+                if (newSpeed != null && newUnits != null)
+                    mspeed.setSpeed(new SpeedType(newSpeed, newUnits));
+                else if (newUnits != null) {
+                    speed.setUnits(newUnits);
+                    mspeed.setSpeed(speed);
                 }
-                if (!foundSpeedUnitsSetter) {
-                    speedUnitsSetter = man.getClass().getMethod("setSpeedUnits", String.class);
-                    if (speedUnitsSetter != null) {
-                        speedUnitsTypeEnumOrString = false;
-                        foundSpeedUnitsSetter = true;
-                    }
+                else if (newSpeed != null) {
+                    speed = new SpeedType(newSpeed, speed.getUnits());
+                    mspeed.setSpeed(speed);
                 }
-                if (!foundSpeedUnitsSetter) {
-                    speedUnitsSetter = man.getClass().getMethod("setUnits",  Maneuver.SPEED_UNITS.class);
-                    if (speedUnitsSetter != null) {
-                        speedUnitsTypeEnumOrString = true;
-                        foundSpeedUnitsSetter = true;
-                    }
-                }
-                if (!foundSpeedUnitsSetter) {
-                    speedUnitsSetter = man.getClass().getMethod("setUnits", String.class);
-                    if (speedUnitsSetter != null) {
-                        speedUnitsTypeEnumOrString = false;
-                        foundSpeedUnitsSetter = true;
-                    }
-                }
-                if (foundSpeedUnitsSetter)
-                    speedUnitsSetter.invoke(man, speedUnitsTypeEnumOrString ? usedSpeedUnits : usedSpeedUnits.getString());
-            }
+            }            
         }
         catch (Exception e) {
             e.printStackTrace();

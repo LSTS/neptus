@@ -112,11 +112,14 @@ import pt.lsts.neptus.gui.PropertiesEditor;
 import pt.lsts.neptus.gui.VehicleChooser;
 import pt.lsts.neptus.gui.VehicleSelectionDialog;
 import pt.lsts.neptus.gui.ZValueSelector;
+import pt.lsts.neptus.gui.editor.SpeedEditor;
 import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.mp.Maneuver;
 import pt.lsts.neptus.mp.ManeuverFactory;
 import pt.lsts.neptus.mp.ManeuverLocation;
 import pt.lsts.neptus.mp.ManeuverLocation.Z_UNITS;
+import pt.lsts.neptus.mp.SpeedType;
+import pt.lsts.neptus.mp.SpeedType.Units;
 import pt.lsts.neptus.mp.maneuvers.Goto;
 import pt.lsts.neptus.mp.maneuvers.LocatedManeuver;
 import pt.lsts.neptus.mp.preview.PlanSimulationOverlay;
@@ -1080,57 +1083,33 @@ public class PlanEditor extends InteractionAdapter implements Renderer2DPainter,
 
                         @Override
                         public void actionPerformed(ActionEvent e) {
-
-                            String[] optionsI18n = { I18n.text("m/s"), I18n.text("RPM"), "%" };
-                            String[] optionsNotI18n = { "m/s", "RPM", "%" };
-                            DefaultProperty dp = planElem.getLastSetProperties().get("Speed units");
-                            String curValueNotI18n = "m/s";
-                            if (dp != null)
-                                curValueNotI18n = dp.getValue().toString();
-
-                            Object resp = JOptionPane.showInputDialog(getConsole(),
-                                    I18n.text("Please choose the speed units"), I18n.text("Set plan speed"),
-                                    JOptionPane.QUESTION_MESSAGE, null, optionsI18n, I18n.text(curValueNotI18n));
-                            if (resp == null)
+                            SpeedEditor editor = new SpeedEditor();
+                            SpeedType lastSpeed = null;
+                            try {
+                                lastSpeed = (SpeedType) planElem.getLastSetProperties().get("Speed").getValue();
+                            }
+                            catch (Exception ex) { }
+                            
+                            if (lastSpeed == null)
+                                lastSpeed = new SpeedType(1, Units.MPS);
+                            
+                            editor.setValue(lastSpeed);
+                            int resp = JOptionPane.showConfirmDialog(getConsole(),
+                                    editor.getCustomEditor(),
+                                    I18n.text("Speed for all maneuvers"),
+                                    JOptionPane.OK_CANCEL_OPTION,
+                                    JOptionPane.QUESTION_MESSAGE);
+                            
+                            if (resp != JOptionPane.OK_OPTION)
                                 return;
-
-                            String velUnitI18n = resp.toString();
-                            String velUnitNotI18n = "m/s";
-                            for (int i = 0; i < optionsI18n.length; i++) {
-                                if (velUnitI18n.equals(optionsI18n[i])) {
-                                    velUnitNotI18n = optionsNotI18n[i];
-                                    break;
-                                }
-                            }
-
-                            double velocity = 0;
-                            boolean validVel = false;
-                            while (!validVel) {
-                                double curSpeed = 1.3;
-                                dp = planElem.getLastSetProperties().get("Speed");
-                                if (dp != null)
-                                    curSpeed = (Double) dp.getValue();
-
-                                String res = JOptionPane.showInputDialog(getConsole(),
-                                        I18n.textf("Enter new speed (%speedUnit)", velUnitI18n), curSpeed);
-                                if (res == null)
-                                    return;
-                                try {
-                                    velocity = Double.parseDouble(res);
-                                    validVel = true;
-                                }
-                                catch (Exception ex) {
-                                    ex.printStackTrace();
-                                    GuiUtils.errorMessage(getConsole(), I18n.text("Set plan speed"),
-                                            I18n.text("Speed must be a numeric value"));
-                                }
-                            }
+                            
+                            SpeedType newSpeed = (SpeedType)editor.getValue();
                             
                             LinkedHashMap<String, Vector<DefaultProperty>> previousSettings = new LinkedHashMap<String, Vector<DefaultProperty>>();
                             
                             for (Maneuver m : plan.getGraph().getAllManeuvers()) {
                                 for (DefaultProperty p : m.getProperties()) {
-                                    if (p.getName().equalsIgnoreCase("Speed") || p.getName().equalsIgnoreCase("Speed units")) {
+                                    if (p.getName().equalsIgnoreCase("Speed")) {
                                         if (!previousSettings.containsKey(m.getId()))
                                             previousSettings.put(m.getId(), new Vector<DefaultProperty>());
                                         previousSettings.get(m.getId()).add(p);
@@ -1140,20 +1119,12 @@ public class PlanEditor extends InteractionAdapter implements Renderer2DPainter,
                             
                             DefaultProperty propVel = new DefaultProperty();
                             propVel.setName("Speed");
-                            propVel.setValue(velocity);
-                            propVel.setType(Double.class);
+                            propVel.setValue(newSpeed);
+                            propVel.setType(SpeedType.class);
                             propVel.setDisplayName(I18n.text("Speed"));
                             planElem.setPlanProperty(propVel);
-
-
-                            DefaultProperty propVelUnits = new DefaultProperty();
-                            propVelUnits.setName("Speed units");
-                            propVelUnits.setValue(Maneuver.SPEED_UNITS.parse(velUnitNotI18n)); // velUnitI18n
-                            propVelUnits.setType(Maneuver.SPEED_UNITS.class);
-                            propVelUnits.setDisplayName(I18n.text("Speed units"));
-                            planElem.setPlanProperty(propVelUnits);
                             
-                            manager.addEdit(new PlanSettingsChanged(plan, Arrays.asList(propVel, propVelUnits), previousSettings));
+                            manager.addEdit(new PlanSettingsChanged(plan, Arrays.asList(propVel), previousSettings));
                             refreshPropertiesManeuver();
                         }
                     };

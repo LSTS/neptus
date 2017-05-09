@@ -32,8 +32,17 @@
  */
 package pt.lsts.neptus.mp;
 
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+
+import org.dom4j.Element;
+import org.dom4j.Node;
+
 import pt.lsts.imc.DesiredSpeed;
+import pt.lsts.imc.IMCMessage;
 import pt.lsts.imc.def.SpeedUnits;
+import pt.lsts.neptus.gui.editor.SpeedEditor;
+import pt.lsts.neptus.mp.maneuvers.ManeuverWithSpeed;
 import pt.lsts.neptus.mp.preview.SpeedConversion;
 import pt.lsts.neptus.plugins.NeptusProperty;
 import pt.lsts.neptus.plugins.PluginUtils;
@@ -174,8 +183,94 @@ public class SpeedType {
         return speed;
     }
     
-    private static Units parseUnits(String units) {
+    public static SpeedType parseImcSpeed(IMCMessage message) {
+        return parseImcSpeed(message, "speed", "speed_units");        
+    }
+    
+    public static SpeedType parseImcSpeed(IMCMessage message, String field, String unitsField) {
+        try {
+            switch (message.getString(unitsField).toUpperCase()) {
+                case "RPM":
+                    return new SpeedType(message.getDouble(field), Units.RPM);
+                case "PERCENTAGE":
+                    return new SpeedType(message.getDouble(field), Units.Percentage);
+                default:
+                    return new SpeedType(message.getDouble(field), Units.MPS);            
+            }    
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+            return new SpeedType();
+        }        
+    }
+    
+    public static <M extends ManeuverWithSpeed> SpeedType parseManeuverSpeed(Element root, M maneuver) throws Exception {
+        Node speedNode = root.selectSingleNode("//speed");
+        if (speedNode == null)
+            speedNode = root.selectSingleNode("//velocity"); // Is deprecated but to load old defs
+        double speed = Double.parseDouble(speedNode.getText());
+        String units = speedNode.valueOf("@unit");
+        SpeedType parsed = new SpeedType(speed, SpeedType.parseUnits(units));
+        maneuver.setSpeed(parsed);
+        return parsed;
+    }
+    
+    public static <M extends ManeuverWithSpeed> Element addSpeedElement(Element root, M maneuver) {
+        Element velocity = root.addElement("speed");
+        velocity.addAttribute("type", "float");
+        velocity.addAttribute("unit", maneuver.getSpeed().getUnits().name());
+        switch (maneuver.getSpeed().getUnits()) {
+            case Knots:
+                velocity.setText(String.valueOf(maneuver.getSpeed().getKnots()));        
+                break;
+            case KPH:
+                velocity.setText(String.valueOf(maneuver.getSpeed().getKPH()));        
+                break;
+            case MPH:
+                velocity.setText(String.valueOf(maneuver.getSpeed().getMPH()));        
+                break;
+            case Percentage:
+                velocity.setText(String.valueOf(maneuver.getSpeed().getPercentage()));        
+                break;
+            case RPM:
+                velocity.setText(String.valueOf(maneuver.getSpeed().getRPM()));        
+                break;
+            default:
+                velocity.setText(String.valueOf(maneuver.getSpeed().getMPS()));
+                break;
+        }
+        
+        return velocity;
+    }
+
+    public void setSpeedToMessage(IMCMessage message, String field, String unitsField) {
+        switch (units) {
+            case RPM:
+                message.setValue(unitsField, SpeedUnits.RPM);
+                message.setValue(field, getRPM());
+                break;
+            case Percentage:
+                message.setValue(unitsField, SpeedUnits.PERCENTAGE);
+                message.setValue(field, getPercentage());
+                break;
+            default:
+                message.setValue(unitsField, SpeedUnits.METERS_PS);
+                message.setValue(field, getMPS());
+                break;
+        }       
+    }
+    
+    public void setSpeedToMessage(IMCMessage message) {
+         setSpeedToMessage(message, "speed", "speed_units");
+    }
+    
+    
+    public static Units parseUnits(String units) {
         String v = units.toUpperCase();
+        
+        if (v.equals("METERS_PS"))
+            v = "MPS";
+        
         for (Units u : Units.values()) {
             if (u.name.toUpperCase().equals(v))
                 return u;
@@ -202,6 +297,16 @@ public class SpeedType {
     public static void main(String[] args) throws Exception {
         String val = "10 km/h";
         System.out.println(SpeedType.valueOf(val));
+        SpeedEditor editor = new SpeedEditor();
+        editor.setValue(new SpeedType(10, Units.MPS));
+        JPanel panel = new JPanel();
+        panel.add(editor.getCustomEditor());
+        JOptionPane.showConfirmDialog(null,
+                editor.getCustomEditor(),
+                "JOptionPane Example : ",
+                JOptionPane.OK_CANCEL_OPTION,
+                JOptionPane.PLAIN_MESSAGE);
+        
         
         Object o = new Object() {
              @NeptusProperty

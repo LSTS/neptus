@@ -110,39 +110,6 @@ public abstract class Maneuver implements XmlOutputMethods, PropertiesProvider, 
         }
     }
 
-    public enum SPEED_UNITS {
-        METERS_PS(0, "m/s"), RPM(1, "RPM"), PERCENTAGE(2, "%");
-
-        private int value;
-        private String name;
-
-        SPEED_UNITS(int value, String name) {
-            this.value = value;
-            this.name = name;
-        }
-
-        public int getValue() {
-            return value;
-        }
-
-        public String getString() {
-            return name;
-        }
-        
-        public static SPEED_UNITS parse(String str) {
-            try {
-                return SPEED_UNITS.valueOf(str);
-            }
-            catch (IllegalArgumentException e) {
-                for (SPEED_UNITS vs : values()) {
-                    if (vs.getString().equalsIgnoreCase(str))
-                        return vs;
-                }
-                throw e;
-            }
-        }
-    }
-
     public static final String CT_STRING = "String";
     public static final String CT_NUMBER = "Number";
     public static final String CT_BOOLEAN = "Boolean";

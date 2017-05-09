@@ -46,13 +46,13 @@ import com.l2fprod.common.propertysheet.Property;
 
 import pt.lsts.imc.IMCMessage;
 import pt.lsts.imc.IMCUtil;
-import pt.lsts.imc.def.SpeedUnits;
 import pt.lsts.imc.def.ZUnits;
 import pt.lsts.neptus.NeptusLog;
-import pt.lsts.neptus.gui.editor.SpeedUnitsEnumEditor;
 import pt.lsts.neptus.messages.TupleList;
 import pt.lsts.neptus.mp.Maneuver;
 import pt.lsts.neptus.mp.ManeuverLocation;
+import pt.lsts.neptus.mp.SpeedType;
+import pt.lsts.neptus.mp.SpeedType.Units;
 import pt.lsts.neptus.plugins.NeptusProperty;
 import pt.lsts.neptus.types.coord.LocationType;
 
@@ -69,11 +69,9 @@ public class FollowPoint extends Maneuver
     protected TupleList customData = new TupleList();
 
     @NeptusProperty(name = "Maximum Speed")
-    protected double speed = 1;
+    protected SpeedType speed = new SpeedType(1000, Units.RPM);
 
-    @NeptusProperty(name = "Speed Units", editorClass = SpeedUnitsEnumEditor.class)
-    protected SPEED_UNITS speedUnits = SPEED_UNITS.METERS_PS;
-
+    
     @NeptusProperty(name = "Position Source", description = "IMC ID of the position source to follow")
     protected String idToFollow = "lauv-noptilus-1";
 
@@ -83,8 +81,8 @@ public class FollowPoint extends Maneuver
             Document doc = DocumentHelper.parseText(xml);
             try {
                 ManeuversXMLUtil.parseLocation(doc.getRootElement(), this);
-                speed = ManeuversXMLUtil.parseSpeed(doc.getRootElement());
-                speedUnits = ManeuversXMLUtil.parseSpeedUnits(doc.getRootElement());
+                SpeedType.parseManeuverSpeed(doc.getRootElement(), this);
+             
             }
             catch (Exception e) {
                 e.printStackTrace();
@@ -115,7 +113,7 @@ public class FollowPoint extends Maneuver
 
         try {
             ManeuversXMLUtil.addLocation(doc.getRootElement(), this);
-            ManeuversXMLUtil.addSpeed(doc.getRootElement(), speed, speedUnits);
+            SpeedType.addSpeedElement(doc.getRootElement(), this);
         }
         catch (Exception e) {
             e.printStackTrace();
@@ -131,24 +129,8 @@ public class FollowPoint extends Maneuver
     @Override
     public IMCMessage serializeToIMC() {
         pt.lsts.imc.FollowPoint msg = new pt.lsts.imc.FollowPoint();
-        msg.setMaxSpeed(speed);
-        try {
-            switch (this.getSpeedUnits()) {
-                case PERCENTAGE:
-                    msg.setSpeedUnits(SpeedUnits.PERCENTAGE);
-                    break;
-                case RPM:
-                    msg.setSpeedUnits(SpeedUnits.RPM);
-                    break;
-                case METERS_PS:
-                default:
-                    msg.setSpeedUnits(SpeedUnits.METERS_PS);
-                    break;
-            }
-        }
-        catch (Exception ex) {
-            NeptusLog.pub().error(this, ex);
-        }
+        speed.setSpeedToMessage(msg, "max_speed", "speed_units");
+        
         LocationType l = getManeuverLocation().convertToAbsoluteLatLonDepth();
         msg.setLat(l.getLatitudeRads());
         msg.setLon(l.getLongitudeRads());
@@ -179,20 +161,10 @@ public class FollowPoint extends Maneuver
         setManeuverLocation(loc);
 
         idToFollow = man.getTarget();
-        speed = man.getMaxSpeed();
+        
         customData.clear();
         customData.parse(man.getCustom());
-        switch (man.getSpeedUnits()) {
-            case METERS_PS:
-                speedUnits = SPEED_UNITS.METERS_PS;
-                break;
-            case RPM:
-                speedUnits = SPEED_UNITS.RPM;
-                break;
-            default:
-                speedUnits = SPEED_UNITS.PERCENTAGE;
-                break;
-        }
+        speed = SpeedType.parseImcSpeed(message, "max_speed", "speed_units");
     }
 
     @Override
@@ -230,26 +202,6 @@ public class FollowPoint extends Maneuver
     }
 
     @Override
-    public double getSpeed() {
-        return speed;
-    }
-
-    @Override
-    public SPEED_UNITS getSpeedUnits() {
-        return speedUnits;
-    }
-
-    @Override
-    public void setSpeed(double speed) {
-        this.speed = speed;
-    }
-
-    @Override
-    public void setSpeedUnits(SPEED_UNITS units) {
-        this.speedUnits = units;
-    }
-
-    @Override
     public double getCompletionTime(LocationType initialPosition) {
         return 0;
     }
@@ -278,6 +230,16 @@ public class FollowPoint extends Maneuver
     public void setProperties(Property[] properties) {
         super.setProperties(properties);
         ManeuversUtil.setPropertiesToManeuver(this, properties);
+    }
+    
+    @Override
+    public SpeedType getSpeed() {
+        return new SpeedType(speed);
+    }
+    
+    @Override
+    public void setSpeed(SpeedType speed) {
+        speed = new SpeedType(speed);       
     }
 
     public static void main(String[] args) {

@@ -51,13 +51,14 @@ import com.l2fprod.common.propertysheet.DefaultProperty;
 import com.l2fprod.common.propertysheet.Property;
 
 import pt.lsts.imc.IMCMessage;
-import pt.lsts.imc.def.SpeedUnits;
 import pt.lsts.imc.def.ZUnits;
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.gui.PropertiesEditor;
 import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.mp.Maneuver;
 import pt.lsts.neptus.mp.ManeuverLocation;
+import pt.lsts.neptus.mp.SpeedType;
+import pt.lsts.neptus.mp.SpeedType.Units;
 import pt.lsts.neptus.renderer2d.StateRenderer2D;
 import pt.lsts.neptus.types.coord.LocationType;
 import pt.lsts.neptus.types.map.PlanElement;
@@ -68,9 +69,9 @@ import pt.lsts.neptus.types.map.PlanElement;
  */
 public class PopUp extends Maneuver implements LocatedManeuver, ManeuverWithSpeed, IMCSerialization {
 
-    protected double speed = 1000, speedTolerance = 100, radiusTolerance = 2;
+    protected double radiusTolerance = 2;
     protected int duration = 5;
-    protected Maneuver.SPEED_UNITS speedUnits = SPEED_UNITS.RPM;
+    protected SpeedType speed = new SpeedType(1000, Units.RPM);
     protected ManeuverLocation destination = new ManeuverLocation();
     protected static final String DEFAULT_ROOT_ELEMENT = "PopUp";
 	
@@ -97,12 +98,8 @@ public class PopUp extends Maneuver implements LocatedManeuver, ManeuverWithSpee
 	    Element duration = root.addElement("duration");
 	    duration.setText(String.valueOf(getDuration()));
 	    
-	    Element velocity = root.addElement("speed");
-	    velocity.addAttribute("tolerance", String.valueOf(getSpeedTolerance()));
-	    velocity.addAttribute("type", "float");
-	    velocity.addAttribute("unit", getSpeedUnits().getString());
-	    velocity.setText(String.valueOf(getSpeed()));
 	    
+	    SpeedType.addSpeedElement(root, this);
 	    Element flags = root.addElement("flags");
 	    flags.addAttribute("CurrPos", ""+isCurrPos());
 	    flags.addAttribute("WaitAtSurface", ""+isWaitAtSurface());
@@ -122,14 +119,8 @@ public class PopUp extends Maneuver implements LocatedManeuver, ManeuverWithSpee
 	        Node durNode = doc.selectSingleNode("PopUp/duration");
 	        if (durNode != null)
 	        	setDuration(Integer.parseInt(durNode.getText()));
-	        Node speedNode = doc.selectSingleNode("PopUp/speed");
-	        if (speedNode == null) 
-	        	speedNode = doc.selectSingleNode("PopUp/velocity");
-	        setSpeed(Double.parseDouble(speedNode.getText()));
-//	        setSpeedUnits(speedNode.valueOf("@unit"));
-	        SPEED_UNITS sUnits = ManeuversXMLUtil.parseSpeedUnits((Element) speedNode);
-            setSpeedUnits(sUnits);
-	        setSpeedTolerance(Double.parseDouble(speedNode.valueOf("@tolerance")));
+	       
+	        SpeedType.parseManeuverSpeed(doc.getRootElement(), this);
 	        
 	        Node flagsNode = doc.selectSingleNode("PopUp/flags");
 	        setCurrPos(Boolean.parseBoolean(flagsNode.valueOf("@CurrPos")));
@@ -148,9 +139,7 @@ public class PopUp extends Maneuver implements LocatedManeuver, ManeuverWithSpee
 		clone.setManeuverLocation(destination.clone());
 	    clone.setDuration(getDuration());
 	    clone.setRadiusTolerance((getRadiusTolerance()));
-	    clone.setSpeedUnits(getSpeedUnits());
 	    clone.setSpeed(getSpeed());
-	    clone.setSpeedTolerance(getSpeedTolerance());
 	    clone.setCurrPos(isCurrPos());
 	    clone.setWaitAtSurface(isWaitAtSurface());
 //	    clone.setStationKeep(isStationKeep());
@@ -181,30 +170,6 @@ public class PopUp extends Maneuver implements LocatedManeuver, ManeuverWithSpee
 		this.duration = duration;
 	}
 
-	public SPEED_UNITS getSpeedUnits() {
-        return speedUnits;
-    }
-    
-    public void setSpeedUnits(SPEED_UNITS speedUnits) {
-        this.speedUnits = speedUnits;
-    }
-    
-    public double getSpeed() {
-        return speed;
-    }
-    
-    public void setSpeed(double speed) {
-        this.speed = speed;
-    }
-    
-    public double getSpeedTolerance() {
-        return speedTolerance;
-    }
-    
-    public void setSpeedTolerance(double speedTolerance) {
-        this.speedTolerance = speedTolerance;
-    }
-        
     public void translate(double offsetNorth, double offsetEast, double offsetDown) {    
     	destination.translatePosition(offsetNorth, offsetEast, offsetDown);
     }
@@ -212,22 +177,12 @@ public class PopUp extends Maneuver implements LocatedManeuver, ManeuverWithSpee
     @Override
     protected Vector<DefaultProperty> additionalProperties() {
     	Vector<DefaultProperty> properties = new Vector<DefaultProperty>();
-
-    	DefaultProperty units = PropertiesEditor.getPropertyInstance("Speed units", Maneuver.SPEED_UNITS.class, getSpeedUnits(), true);
-    	units.setShortDescription("The speed units");
-    
-    	properties.add(PropertiesEditor.getPropertyInstance("Speed", Double.class, getSpeed(), true));
-    	properties.add(units);
-    	
+    	properties.add(PropertiesEditor.getPropertyInstance("Speed", SpeedType.class, getSpeed(), true));
     	properties.add(PropertiesEditor.getPropertyInstance("Radius", Double.class, getRadiusTolerance(), true));
-        
-    	
-    	//properties.add(PropertiesEditor.getPropertyInstance("Speed tolerance", Double.class, getSpeedTolerance(), true));
-
     	properties.add(PropertiesEditor.getPropertyInstance("Duration", Integer.class, getDuration(), true));
     	
     	properties.add(PropertiesEditor.getPropertyInstance("CURR_POS", "Flags", Boolean.class, isCurrPos(), true));
-	properties.add(PropertiesEditor.getPropertyInstance("WAIT_AT_SURFACE", "Flags", Boolean.class, isWaitAtSurface(), true));
+    	properties.add(PropertiesEditor.getPropertyInstance("WAIT_AT_SURFACE", "Flags", Boolean.class, isWaitAtSurface(), true));
     	properties.add(PropertiesEditor.getPropertyInstance("STATION_KEEP", "Flags", Boolean.class, isStationKeep(), false)); // To become deprecated
     	
     	return properties;
@@ -243,14 +198,9 @@ public class PopUp extends Maneuver implements LocatedManeuver, ManeuverWithSpee
     	super.setProperties(properties);
     	
     	for (Property p : properties) {
-//    		if (p.getName().equals("Speed units")) {
-//    			setSpeedUnits((String)p.getValue());
-//    		}
-    		//if (p.getName().equals("Speed tolerance")) {
-    		//	setSpeedTolerance((Double)p.getValue());
-    		//}
+
     		if (p.getName().equalsIgnoreCase("Speed")) {
-    			setSpeed((Double)p.getValue());
+    			setSpeed((SpeedType)p.getValue());
     		}
     		else if (p.getName().equalsIgnoreCase("Radius")) {
     			setRadiusTolerance((Double)p.getValue());
@@ -263,14 +213,6 @@ public class PopUp extends Maneuver implements LocatedManeuver, ManeuverWithSpee
     		}
     		else if (p.getName().equalsIgnoreCase("WAIT_AT_SURFACE")) {
     		    setWaitAtSurface((Boolean)p.getValue());
-    		}
-//            if (p.getName().equals("STATION_KEEP")) {
-//                setStationKeep((Boolean)p.getValue());
-//            }
-    		else {
-    		    SPEED_UNITS speedUnits = ManeuversUtil.getSpeedUnitsFromPropertyOrNullIfInvalidName(p);
-    		    if (speedUnits != null)
-    		        setSpeedUnits(speedUnits);
     		}
     	}
     }
@@ -343,7 +285,7 @@ public class PopUp extends Maneuver implements LocatedManeuver, ManeuverWithSpee
     @Override
 	public String getTooltipText() {
 		return super.getTooltipText()+"<hr>"+
-		I18n.text("speed") + ": <b>"+getSpeed()+" "+I18n.text(getSpeedUnits().getString())+"</b>"+
+		I18n.text("speed") + ": <b>"+getSpeed()+"</b>"+
 		"<br>" + I18n.text("cruise depth") + ": <b>"+(int)destination.getDepth()+" " + I18n.textc("m", "meters") + "</b>"+
 		"<br>" + I18n.text("duration") + ": <b>"+getDuration()+" " + I18n.textc("s", "seconds") + "</b>";
 	}
@@ -379,16 +321,8 @@ public class PopUp extends Maneuver implements LocatedManeuver, ManeuverWithSpee
 	    }
 	    
 		setMaxTime(msgPopup.getTimeout());
-    	setSpeed(msgPopup.getSpeed());
-
-    	try {
-            String speedUnits = message.getString("speed_units");
-            setSpeedUnits(Maneuver.SPEED_UNITS.parse(speedUnits));
-        }
-        catch (Exception e) {
-            setSpeedUnits(Maneuver.SPEED_UNITS.RPM);
-            e.printStackTrace();
-        }
+    	
+		speed = SpeedType.parseImcSpeed(message);
     	
         setRadiusTolerance(msgPopup.getRadius());
     	setDuration(msgPopup.getDuration());
@@ -418,25 +352,8 @@ public class PopUp extends Maneuver implements LocatedManeuver, ManeuverWithSpee
 		
 		msg.setZUnits(ZUnits.valueOf(getManeuverLocation().getZUnits().toString()));
 	    msg.setDuration(getDuration());
-	    msg.setSpeed(speed);
 	    
-	    try {
-            switch (this.getSpeedUnits()) {
-                case METERS_PS:
-                    msg.setSpeedUnits(SpeedUnits.METERS_PS);
-                    break;
-                case PERCENTAGE:
-                    msg.setSpeedUnits(SpeedUnits.PERCENTAGE);
-                    break;
-                case RPM:
-                default:
-                    msg.setSpeedUnits(SpeedUnits.RPM);
-                    break;
-            }
-        }
-        catch (Exception ex) {
-            NeptusLog.pub().error(this, ex);                     
-        }
+	    speed.setSpeedToMessage(msg);
 		
 	    msg.setRadius(getRadiusTolerance());
 		
@@ -467,8 +384,8 @@ public class PopUp extends Maneuver implements LocatedManeuver, ManeuverWithSpee
 	public static void main(String[] args) {
         PopUp popup = new PopUp();
         popup.setRadiusTolerance(10);
-        popup.setSpeed(1.2);
-        popup.setSpeedUnits(Maneuver.SPEED_UNITS.METERS_PS);
+        popup.setSpeed(new SpeedType(1.2, Units.MPS));
+        
         popup.setDuration(300);
         
         popup.setCurrPos(true);
@@ -489,4 +406,14 @@ public class PopUp extends Maneuver implements LocatedManeuver, ManeuverWithSpee
         System.out.println(xml2);
         System.out.println(popup.asXML());        
     }
+	
+	@Override
+	public SpeedType getSpeed() {
+	    return new SpeedType(speed);
+	}
+	
+	@Override
+	public void setSpeed(SpeedType speed) {
+	    speed = new SpeedType(speed);	    
+	}
 }
