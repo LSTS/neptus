@@ -329,7 +329,7 @@ public class HeadingSpeedDepth extends DefaultManeuver implements ManeuverWithSp
     
     @Override
     public void setSpeed(SpeedType speed) {
-        speed = new SpeedType(speed);       
+        this.speed = new SpeedType(speed);       
     }
 
     public IMCMessage serializeToIMC() {

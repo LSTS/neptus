@@ -300,6 +300,6 @@ public class FollowSystem extends DefaultManeuver implements ManeuverWithSpeed, 
     
     @Override
     public void setSpeed(SpeedType speed) {
-        speed = new SpeedType(speed);       
+        this.speed = new SpeedType(speed);       
     }
 }

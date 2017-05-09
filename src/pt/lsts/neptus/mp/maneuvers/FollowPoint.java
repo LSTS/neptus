@@ -239,7 +239,7 @@ public class FollowPoint extends Maneuver
     
     @Override
     public void setSpeed(SpeedType speed) {
-        speed = new SpeedType(speed);       
+        this.speed = new SpeedType(speed);       
     }
 
     public static void main(String[] args) {

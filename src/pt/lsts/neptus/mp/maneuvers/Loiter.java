@@ -104,7 +104,6 @@ public class Loiter extends Maneuver implements LocatedManeuver, ManeuverWithSpe
 		l.setRadius(getRadius());
 		l.setRadiusTolerance(getRadiusTolerance());
 		l.setSpeed(getSpeed());
-		
 		return l;		
 	}
 
@@ -520,7 +519,7 @@ public class Loiter extends Maneuver implements LocatedManeuver, ManeuverWithSpe
     
     @Override
     public void setSpeed(SpeedType speed) {
-        speed = new SpeedType(speed);       
+        this.speed = new SpeedType(speed);       
     }
 
 }

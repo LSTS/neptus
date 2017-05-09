@@ -263,7 +263,7 @@ public class YoYo extends Maneuver implements IMCSerialization, LocatedManeuver,
 
 	@Override
 	public void setSpeed(SpeedType speed) {
-	    speed = new SpeedType(speed);       
+	    this.speed = new SpeedType(speed);       
 	}
 
     @Override

@@ -113,21 +113,46 @@ public class SpeedType {
         return this.value;
     }
     
-    public double getMPS() {
-        return value;
-    }
-        
-    
-    public void setMPS(double value) {
+    public void setValue(double value) {
         this.value = value;
     }
     
+    public double getMPS() {
+        switch (units) {
+            case KPH:
+                return value / MPS_TO_KPH;
+            case MPH:
+                return value / MPS_TO_MPH;
+            case Knots:
+                return value / MPS_TO_KNOTS;
+            case RPM:
+                return SpeedConversion.convertRpmtoMps(value);
+            case Percentage:
+                return SpeedConversion.convertPercentageToMps(value);
+            default:
+                return value;
+        }
+    }
+    
+    public void setMPS(double value) {
+        this.value = value;
+        this.units = Units.MPS;
+    }
+    
     public double getRPM() {
-        return SpeedConversion.convertMpstoRpm(value);
+        switch (units) {
+            case RPM:
+                return value;
+            case Percentage:
+                return SpeedConversion.convertPercentagetoRpm(value);
+            default:
+                return SpeedConversion.convertMpstoRpm(getMPS());
+        }
     }
     
     public void setRPM(double value) {
-        this.value = SpeedConversion.convertRpmtoMps(value);
+        this.value = value;
+        this.units = Units.RPM;
     }
     
     public double getPercentage() {
@@ -135,32 +160,36 @@ public class SpeedType {
     }
     
     public void setPercentage(double value) {
-        this.value = SpeedConversion.convertPercentageToMps(value);
+        this.value = value;
+        this.units = Units.Percentage;
     }
     
     public double getMPH() {
-        return value * MPS_TO_MPH;
+        return getMPS() * MPS_TO_MPH;
     }
     
     public void setMPH(double value) {
-        this.value = value / MPS_TO_MPH;
+        this.value = value;
+        this.units = Units.MPH;
     }
     
     
     public double getKPH() {
-        return value * MPS_TO_KPH;
+        return getMPS() * MPS_TO_KPH;
     }
     
     public void setKPH(double value) {
-        this.value = value / MPS_TO_KPH;
+        this.value = value;
+        this.units = Units.KPH;
     }    
     
     public double getKnots() {
-        return value * MPS_TO_KNOTS;
+        return getMPS() * MPS_TO_KNOTS;
     }
     
     public void setKnots(double value) {
-        this.value = value / MPS_TO_KNOTS;
+        this.value = value;
+        this.units = Units.Knots;
     }  
     
     public DesiredSpeed getImcSpeed() {
