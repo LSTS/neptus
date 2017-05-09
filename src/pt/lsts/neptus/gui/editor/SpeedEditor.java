@@ -47,6 +47,7 @@ import com.l2fprod.common.swing.LookAndFeelTweaks;
 import pt.lsts.neptus.mp.SpeedType;
 import pt.lsts.neptus.mp.SpeedType.Units;
 import pt.lsts.neptus.util.GuiUtils;
+import pt.lsts.neptus.util.conf.GeneralPreferences;
 
 /**
  * @author zp
@@ -59,14 +60,22 @@ public class SpeedEditor extends AbstractPropertyEditor {
 
     public SpeedEditor() {
         textField.setEditable(true);
-        for (SpeedType.Units u : SpeedType.Units.values()) {
-            units.addItem(u);
-        }
-
+        
         editor = new JPanel(new BorderLayout(0, 0));
         ((JPanel) editor).add(textField, BorderLayout.CENTER);
-        ((JPanel) editor).add(units, BorderLayout.EAST);
-        units.setSelectedItem(speed.getUnits());
+        
+        if (!GeneralPreferences.forceSpeedUnits) {
+            for (SpeedType.Units u : SpeedType.Units.values())
+                units.addItem(u);
+            ((JPanel) editor).add(units, BorderLayout.EAST);
+            units.setSelectedItem(speed.getUnits());
+        }
+        else {
+            units.addItem(GeneralPreferences.speedUnits);
+            units.setSelectedItem(GeneralPreferences.speedUnits);
+        }
+
+        
 
         textField.setBorder(LookAndFeelTweaks.EMPTY_BORDER);
 
@@ -133,6 +142,9 @@ public class SpeedEditor extends AbstractPropertyEditor {
     public void setValue(Object arg0) {
         if (arg0 instanceof SpeedType) {
             this.speed = new SpeedType((SpeedType) arg0);
+            if (GeneralPreferences.forceSpeedUnits)
+                this.speed.convertTo(GeneralPreferences.speedUnits);
+            
             textField.setText(GuiUtils.getNeptusDecimalFormat(2).format(speed.getValue()));
             units.setSelectedItem(speed.getUnits());
         }

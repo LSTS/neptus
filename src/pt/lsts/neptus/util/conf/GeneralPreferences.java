@@ -250,7 +250,10 @@ public class GeneralPreferences implements PropertiesProvider {
 
     @NeptusProperty(name = "Preferred Speed Units", category = "Location", userLevel = LEVEL.REGULAR)
     public static SpeedType.Units speedUnits = Units.MPS;
-
+    
+    @NeptusProperty(name = "Force Speed Units", category = "Location", userLevel = LEVEL.ADVANCED, description = "If speed units are forced, the user cannot set other units.")
+    public static boolean forceSpeedUnits = false;
+    
     // -------------------------------------------------------------------------
     // Constructor and initialize
 

@@ -275,6 +275,31 @@ public class SpeedType {
         return new SpeedType(Double.parseDouble(parts[0]), parseUnits(parts[1]));        
     }
     
+    public void convertTo(Units units) {
+        switch (units) {
+            case Knots:
+                setValue(getKnots());
+                break;
+            case KPH:
+                setValue(getKPH());
+                break;
+            case MPH:
+                setValue(getMPH());
+                break;
+            case RPM:
+                setValue(getRPM());
+                break;
+            case Percentage:
+                setValue(getPercentage());
+                break;
+            default:
+                setValue(getMPS());
+                break;
+        }
+        setUnits(units);
+        System.out.println("new "+this);
+    }
+
     public static void main(String[] args) throws Exception {
         Object o = new Object() {
              @NeptusProperty
@@ -289,6 +314,7 @@ public class SpeedType {
              @NeptusProperty
              String y = "10";
         };
+        System.out.println(GeneralPreferences.forceSpeedUnits);
         
         PluginUtils.editPluginProperties(o, true);
         System.out.println(PluginUtils.getConfigXml(o));
