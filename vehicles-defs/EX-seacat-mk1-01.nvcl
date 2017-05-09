@@ -149,6 +149,7 @@
     </feasibleManeuvers>
     <planElements>
         <item class="pt.lsts.neptus.mp.element.RendezvousPointsPlanElement" />
+        <item class="pt.lsts.neptus.mp.element.OperationLimitsPlanElement" />
     </planElements>
     <!--protocols-supported>
         <protocols></protocols>
