@@ -1353,7 +1353,7 @@ public class CoordinateUtil {
         switch (format) {
             case DECIMAL_DEGREES:
                 NumberFormat nformat = DecimalFormat.getInstance(Locale.US);
-                nformat.setMaximumFractionDigits(10);
+                nformat.setMaximumFractionDigits(8);
                 nformat.setMinimumFractionDigits(5);
                 nformat.setGroupingUsed(false);
                 return (Math.signum(latlongitudeDegs) >= 0 ? (isLat ? "N" : "E") : (isLat ? "S" : "W"))
@@ -1362,8 +1362,8 @@ public class CoordinateUtil {
                 showSeconds = false;
             case DMS:
             default:
-                return isLat ? latitudeAsString(latlongitudeDegs, !showSeconds, showSeconds ? 6 : 8)
-                        : longitudeAsString(latlongitudeDegs, !showSeconds, showSeconds ? 6 : 8);
+                return isLat ? latitudeAsString(latlongitudeDegs, !showSeconds, showSeconds ? 3 : 5)
+                        : longitudeAsString(latlongitudeDegs, !showSeconds, showSeconds ? 3 : 5);
         }
     }
 
