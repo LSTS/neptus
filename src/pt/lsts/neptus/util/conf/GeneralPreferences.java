@@ -52,6 +52,8 @@ import pt.lsts.neptus.comm.manager.imc.ImcId16;
 import pt.lsts.neptus.gui.PropertiesEditor;
 import pt.lsts.neptus.gui.PropertiesProvider;
 import pt.lsts.neptus.i18n.I18n;
+import pt.lsts.neptus.mp.SpeedType;
+import pt.lsts.neptus.mp.SpeedType.Units;
 import pt.lsts.neptus.plugins.NeptusProperty;
 import pt.lsts.neptus.plugins.NeptusProperty.LEVEL;
 import pt.lsts.neptus.types.coord.LatLonFormatEnum;
@@ -245,6 +247,9 @@ public class GeneralPreferences implements PropertiesProvider {
 
     @NeptusProperty(name = "Lat/Lon Preferable Display Format", category = "Location", userLevel = LEVEL.REGULAR)
     public static LatLonFormatEnum latLonPrefFormat = LatLonFormatEnum.DM;
+
+    @NeptusProperty(name = "Preferred Speed Units", category = "Location", userLevel = LEVEL.REGULAR)
+    public static SpeedType.Units speedUnits = Units.MPS;
 
     // -------------------------------------------------------------------------
     // Constructor and initialize
