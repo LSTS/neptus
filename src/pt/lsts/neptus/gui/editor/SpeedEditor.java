@@ -41,8 +41,6 @@ import javax.swing.JComboBox;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 
-import com.jogamp.newt.event.KeyAdapter;
-import com.jogamp.newt.event.KeyEvent;
 import com.l2fprod.common.beans.editor.AbstractPropertyEditor;
 import com.l2fprod.common.swing.LookAndFeelTweaks;
 
@@ -81,14 +79,33 @@ public class SpeedEditor extends AbstractPropertyEditor {
                 textField.setText(GuiUtils.getNeptusDecimalFormat(2).format(speed.getValue()));
             }
         });
-        
-        textField.addKeyListener(new KeyListener() {
-            
+
+        textField.addActionListener(new ActionListener() {
+
             @Override
-            public void keyTyped(java.awt.event.KeyEvent e) {
+            public void actionPerformed(ActionEvent e) {
+                SpeedType oldSpeed = new SpeedType(speed);
+                try {
+                    double val = Double.parseDouble(textField.getText());
+                    SpeedType newSpeed = new SpeedType(val, speed.getUnits());
+                    speed = newSpeed;
+                    firePropertyChange(oldSpeed, speed);
+                    textField.getFocusCycleRootAncestor().transferFocus();
+                }
+                catch (Exception ex) {
+
+                }
                 
             }
-            
+        });
+
+        textField.addKeyListener(new KeyListener() {
+
+            @Override
+            public void keyTyped(java.awt.event.KeyEvent e) {
+
+            }
+
             @Override
             public void keyReleased(java.awt.event.KeyEvent e) {
                 try {
@@ -97,33 +114,14 @@ public class SpeedEditor extends AbstractPropertyEditor {
                     speed = newSpeed;
                 }
                 catch (Exception ex) {
-                    
-                }
-                
-                if (e.getKeyCode() == KeyEvent.VK_ENTER) {
-                    firePropertyChange(speed, speed);
-                    textField.setText(GuiUtils.getNeptusDecimalFormat(2).format(speed.getValue()));
+
                 }
             }
-            
+
             @Override
             public void keyPressed(java.awt.event.KeyEvent e) {
                 // TODO Auto-generated method stub
-                
-            }
-        });
-        
-        textField.addActionListener(new ActionListener() {
-            
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                try {
-                    double val = Double.parseDouble(textField.getText());
-                    SpeedType newSpeed = new SpeedType(val, speed.getUnits());
-                    speed = newSpeed;
-                }
-                catch (Exception ex) {
-                }                
+
             }
         });
     }

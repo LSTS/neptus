@@ -32,16 +32,11 @@
  */
 package pt.lsts.neptus.mp;
 
-import javax.swing.JOptionPane;
-import javax.swing.JPanel;
-
 import org.dom4j.Element;
 import org.dom4j.Node;
 
-import pt.lsts.imc.DesiredSpeed;
 import pt.lsts.imc.IMCMessage;
 import pt.lsts.imc.def.SpeedUnits;
-import pt.lsts.neptus.gui.editor.SpeedEditor;
 import pt.lsts.neptus.mp.maneuvers.ManeuverWithSpeed;
 import pt.lsts.neptus.mp.preview.SpeedConversion;
 import pt.lsts.neptus.plugins.NeptusProperty;
@@ -192,26 +187,6 @@ public class SpeedType {
         this.units = Units.Knots;
     }  
     
-    public DesiredSpeed getImcSpeed() {
-        DesiredSpeed speed = new DesiredSpeed();
-        switch (units) {
-            case RPM:
-                speed.setSpeedUnits(SpeedUnits.RPM);
-                speed.setValue(getRPM());
-                break;
-            case Percentage:
-                speed.setSpeedUnits(SpeedUnits.PERCENTAGE);
-                speed.setValue(getPercentage());
-                break;
-            default:
-                speed.setSpeedUnits(SpeedUnits.METERS_PS);
-                speed.setValue(getMPS());
-                break;
-        }
-        
-        return speed;
-    }
-    
     public static SpeedType parseImcSpeed(IMCMessage message) {
         return parseImcSpeed(message, "speed", "speed_units");        
     }
@@ -248,27 +223,7 @@ public class SpeedType {
         Element velocity = root.addElement("speed");
         velocity.addAttribute("type", "float");
         velocity.addAttribute("unit", maneuver.getSpeed().getUnits().name());
-        switch (maneuver.getSpeed().getUnits()) {
-            case Knots:
-                velocity.setText(String.valueOf(maneuver.getSpeed().getKnots()));        
-                break;
-            case KPH:
-                velocity.setText(String.valueOf(maneuver.getSpeed().getKPH()));        
-                break;
-            case MPH:
-                velocity.setText(String.valueOf(maneuver.getSpeed().getMPH()));        
-                break;
-            case Percentage:
-                velocity.setText(String.valueOf(maneuver.getSpeed().getPercentage()));        
-                break;
-            case RPM:
-                velocity.setText(String.valueOf(maneuver.getSpeed().getRPM()));        
-                break;
-            default:
-                velocity.setText(String.valueOf(maneuver.getSpeed().getMPS()));
-                break;
-        }
-        
+        velocity.setText(String.valueOf(maneuver.getSpeed().getValue()));        
         return velocity;
     }
 
@@ -324,19 +279,6 @@ public class SpeedType {
     }
     
     public static void main(String[] args) throws Exception {
-        String val = "10 km/h";
-        System.out.println(SpeedType.valueOf(val));
-        SpeedEditor editor = new SpeedEditor();
-        editor.setValue(new SpeedType(10, Units.MPS));
-        JPanel panel = new JPanel();
-        panel.add(editor.getCustomEditor());
-        JOptionPane.showConfirmDialog(null,
-                editor.getCustomEditor(),
-                "JOptionPane Example : ",
-                JOptionPane.OK_CANCEL_OPTION,
-                JOptionPane.PLAIN_MESSAGE);
-        
-        
         Object o = new Object() {
              @NeptusProperty
              SpeedType speed1 = new SpeedType(600, Units.RPM);
