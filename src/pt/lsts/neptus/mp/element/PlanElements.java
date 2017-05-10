@@ -135,15 +135,15 @@ public class PlanElements {
         for (IPlanElement<?> iPlanElement : planElements) {
             String ipXml = iPlanElement.getElementAsXml();
             Document ipDoc = XMLUtil.createDocumentFromXmlString(ipXml);
-            System.out.println("1- " + XMLUtil.nodeToString(ipDoc.getDocumentElement()));
+            // System.out.println("1- " + XMLUtil.nodeToString(ipDoc.getDocumentElement()));
             try {
                 root.appendChild(doc.adoptNode(ipDoc.getDocumentElement()));
             }
             catch (DOMException e) {
                 e.printStackTrace();
             }
-            System.out.println("2- " + XMLUtil.nodeToString(doc.getDocumentElement()));
-            System.out.println("3- " + XMLUtil.nodeToString(root));
+            // System.out.println("2- " + XMLUtil.nodeToString(doc.getDocumentElement()));
+            // System.out.println("3- " + XMLUtil.nodeToString(root));
         }
         return root;
     }
