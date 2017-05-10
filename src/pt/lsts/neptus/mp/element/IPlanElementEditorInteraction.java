@@ -41,4 +41,5 @@ import pt.lsts.neptus.renderer2d.StateRendererInteraction;
  */
 public interface IPlanElementEditorInteraction<T> extends StateRendererInteraction {
     public T getUpdatedElement();
+    public boolean hasChanges();
 }
