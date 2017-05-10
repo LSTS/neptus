@@ -32,9 +32,9 @@
  */
 package pt.lsts.neptus.mp.interactions;
 
+import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Cursor;
-import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Image;
 import java.awt.event.ActionEvent;
@@ -45,6 +45,7 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseWheelEvent;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Ellipse2D;
+import java.awt.geom.GeneralPath;
 import java.awt.geom.Point2D;
 import java.util.ArrayList;
 import java.util.List;
@@ -64,6 +65,7 @@ import pt.lsts.neptus.types.coord.CoordinateUtil;
 import pt.lsts.neptus.types.coord.LocationType;
 import pt.lsts.neptus.types.coord.PolygonType;
 import pt.lsts.neptus.types.coord.PolygonType.Vertex;
+import pt.lsts.neptus.util.AngleUtils;
 import pt.lsts.neptus.util.MathMiscUtils;
 
 /**
@@ -83,6 +85,19 @@ public class OperationLimitsInteraction implements IPlanElementEditorInteraction
     protected Color editColor = new Color(200, 200, 0, 128);
     protected Color idleColor = new Color(128, 128, 128, 224);
     
+    protected static GeneralPath arrowSymbol = new GeneralPath();
+    {
+        arrowSymbol.moveTo(-5, -10);
+        arrowSymbol.lineTo(0, -15);
+        arrowSymbol.lineTo(5, -10);
+    }
+
+    protected static GeneralPath rotSymbol = new GeneralPath();
+    {
+        rotSymbol.moveTo(-5, -10);
+        rotSymbol.curveTo(-5, -10-3, 5, -10-3, 5, -10);
+    }
+
     public OperationLimitsInteraction(OperationLimits points) {
         this.limits = points;
         this.copyLimits = OperationLimits.loadXml(this.limits.asXml());
@@ -144,11 +159,18 @@ public class OperationLimitsInteraction implements IPlanElementEditorInteraction
             double[] off1 = vertices.get(1).getLocation().getOffsetFrom(vertices.get(0).getLocation());
             double[] off2 = vertices.get(2).getLocation().getOffsetFrom(vertices.get(0).getLocation());
             double angle = vertices.get(0).getLocation().getXYAngle(vertices.get(1).getLocation()) + Math.PI / 2;
-            double anglrDeg = Math.toDegrees(angle);
+            angle = AngleUtils.nomalizeAngleRads2Pi(angle);
+//            double anglrDeg = Math.toDegrees(angle);
             double dist = MathMiscUtils.pointLineDistance(off2[0], off2[1], 0, 0, off1[0], off1[1]);
 
             LocationType newVt2 = new LocationType(vertices.get(0).getLocation());
             newVt2.translatePosition(Math.cos(angle) * dist, Math.sin(angle) * dist, 0);
+            
+//            double inc = Math.PI / 2;
+//            if ((int) angle != (int) newVt2.getXYAngle(vertices.get(2).getLocation()))
+//                inc = -Math.PI;
+//            System.out.println(anglrDeg + "   " + Math.toDegrees(inc));
+            
             vertices.get(2).setLocation(newVt2);
             polygon.recomputePath();
             
@@ -209,7 +231,7 @@ public class OperationLimitsInteraction implements IPlanElementEditorInteraction
             copyLimits.setOpAreaLon(centroid.getLongitudeDegs());
             copyLimits.setOpAreaWidth(Math.sqrt(off[0] * off[0] + off[1] * off[1]));
             copyLimits.setOpAreaLength(vertices.get(0).getLocation().getHorizontalDistanceInMeters(vertices.get(2).getLocation()));
-            copyLimits.setOpRotationRads(vertices.get(2).getLocation().getXYAngle(vertices.get(0).getLocation()));
+            copyLimits.setOpRotationRads(AngleUtils.nomalizeAngleRads2Pi(vertices.get(2).getLocation().getXYAngle(vertices.get(0).getLocation())));
         }
     }
 
@@ -261,45 +283,6 @@ public class OperationLimitsInteraction implements IPlanElementEditorInteraction
             popup.show(source, event.getX(), event.getY());
     }
 
-    private JPopupMenu createPopUpMenu(MouseEvent event, StateRenderer2D source) {
-        final StateRenderer2D renderer = source;
-        final Point2D mousePoint = event.getPoint();
-        
-        JPopupMenu popup = new JPopupMenu();
-//        Point selPoint = getClickedPoint(source, event);
-//        if (selPoint  == null) {
-//            @SuppressWarnings("serial")
-//            AbstractAction addMenu = new AbstractAction(I18n.text("Add point")) {
-//                @Override
-//                public void actionPerformed(ActionEvent e) {
-//                    LocationType locClick = renderer.getRealWorldLocation(mousePoint);
-//                    copyPoints.addPoint(locClick);
-//                }
-//            };
-//            popup.add(addMenu);
-//        }
-//        else {
-//            @SuppressWarnings("serial")
-//            AbstractAction remMenu = new AbstractAction(I18n.text("Remove point")) {
-//                @Override
-//                public void actionPerformed(ActionEvent e) {
-//                    copyPoints.removePoint(selPoint);
-//                }
-//            };
-//            popup.add(remMenu);
-//            @SuppressWarnings("serial")
-//            AbstractAction copyMenu = new AbstractAction(I18n.text("Copy point")) {
-//                @Override
-//                public void actionPerformed(ActionEvent e) {
-//                    CoordinateUtil.copyToClipboard(selPoint.asLocation());
-//                }
-//            };
-//            copyMenu.putValue(AbstractAction.SMALL_ICON, new ImageIcon(ImageUtils.getImage("images/menus/editcopy.png")));
-//            popup.add(copyMenu);
-//        }
-        return popup;
-    }
-
     /* (non-Javadoc)
      * @see pt.lsts.neptus.renderer2d.StateRendererInteraction#mousePressed(java.awt.event.MouseEvent, pt.lsts.neptus.renderer2d.StateRenderer2D)
      */
@@ -336,6 +319,9 @@ public class OperationLimitsInteraction implements IPlanElementEditorInteraction
                 lastDragPoint = event.getPoint();
                 polygon.translate(-yammount / source.getZoom(), xammount / source.getZoom());
                 recalcPoints();
+            }
+            else {
+                adapter.mouseDragged(event, source);
             }
         }
         else {
@@ -464,7 +450,6 @@ public class OperationLimitsInteraction implements IPlanElementEditorInteraction
         polygon.setColor(editColor);
         polygon.setFilled(true);
 
-        final AtomicInteger ci = new AtomicInteger(1);
         if (copyLimits != null) {
             boolean ed = limits.isEditingPainting();
             boolean sy = limits.isShynched();
@@ -486,15 +471,60 @@ public class OperationLimitsInteraction implements IPlanElementEditorInteraction
         }
 
         Graphics2D g2 = (Graphics2D) g.create();
+        final AtomicInteger ci = new AtomicInteger(0);
         polygon.getVertices().forEach(v -> {
             Point2D pt = source.getScreenPosition(v.getLocation());
-            // Ellipse2D ellis = new Ellipse2D.Double(pt.getX() - 5, pt.getY() - 5, 10, 10);
-            Ellipse2D ellis = new Ellipse2D.Double(pt.getX() - 5*ci.get(), pt.getY() - 5*ci.get(), 10*ci.get(), 10*ci.getAndAdd(1));
+            Ellipse2D ellis = new Ellipse2D.Double(pt.getX() - 5, pt.getY() - 5, 10, 10);
+            //Ellipse2D ellis = new Ellipse2D.Double(pt.getX() - 5*ci.get()+1, pt.getY() - 5*ci.get()+1, 10*ci.get()+1, 10*ci.getAndAdd(1)+1);
             Color c = Color.magenta;
-            g2.setColor(new Color(255 - c.getRed(), 255 - c.getGreen(), 255 - c.getBlue(), 200));
+            Color invColor = new Color(255 - c.getRed(), 255 - c.getGreen(), 255 - c.getBlue(), 200);
+            g2.setColor(invColor);
             g2.fill(ellis);
             g2.setColor(c);
             g2.draw(ellis);
+            
+            if (ci.get() == 0 || ci.get() == 1 || ci.get() == 2) {
+                c = Color.BLACK;
+                Graphics2D g3 = (Graphics2D) g2.create();
+                g3.setStroke(new BasicStroke(3));
+                g3.translate(pt.getX(), pt.getY());
+                if (polygon.getVerticesSize() == 3 && ci.get() == 0) {
+                    g3.rotate(-Math.PI / 4);
+                    for (int i = 0; i < 4; i++) {
+                        g3.translate(0, -3);
+                        g3.setColor(invColor);
+                        g3.draw(arrowSymbol);
+                        g3.translate(0, 3);
+                        g3.setColor(c);
+                        g3.draw(arrowSymbol);
+                        g3.rotate(Math.PI / 2);
+                    }
+                }
+                else if (polygon.getVerticesSize() == 3 && ci.get() == 2) {
+                    for (int i = 0; i < 2; i++) {
+                        g3.translate(0, -3);
+                        g3.setColor(invColor);
+                        g3.draw(arrowSymbol);
+                        g3.translate(0, 3);
+                        g3.setColor(c);
+                        g3.draw(arrowSymbol);
+                        g3.rotate(Math.PI);
+                    }
+                }
+                else {// if (ci.get() == 1) {
+                    for (int i = 0; i < 4; i++) {
+                        g3.translate(0, -3);
+                        g3.setColor(invColor);
+                        g3.draw(rotSymbol);
+                        g3.translate(0, 3);
+                        g3.setColor(c);
+                        g3.draw(rotSymbol);
+                        g3.rotate(Math.PI / 2);
+                    }
+                }
+                g3.dispose();
+            }
+            ci.getAndAdd(1);
         });
         g2.dispose();
 
