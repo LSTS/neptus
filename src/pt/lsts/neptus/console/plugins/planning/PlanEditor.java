@@ -786,7 +786,7 @@ public class PlanEditor extends InteractionAdapter implements Renderer2DPainter,
                         "No vehicle type for main vehicle " + getMainVehicleId() + " for plan " + plan.getId());
             else
                 plan.setVehicle(getMainVehicleId());
-        }
+        }        
 
         if (vt != null) {
             this.mf = vt.getManeuverFactory();
@@ -798,6 +798,7 @@ public class PlanEditor extends InteractionAdapter implements Renderer2DPainter,
 
         for (Maneuver man : plan.getGraph().getAllManeuvers()) {
             takenNames.add(man.getId());
+            man.setVehicle(vt);
         }
     }
 
@@ -1804,6 +1805,8 @@ public class PlanEditor extends InteractionAdapter implements Renderer2DPainter,
         Maneuver man = mf.getManeuver(manType);
         if (man == null)
             return null;
+        
+        man.setVehicle(plan.getVehicleType());
         
         if (copyFrom != null) {
             try {

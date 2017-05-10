@@ -40,7 +40,9 @@ import java.awt.geom.Ellipse2D;
 import java.awt.geom.Line2D;
 import java.awt.geom.Rectangle2D;
 import java.beans.PropertyEditor;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.GregorianCalendar;
 import java.util.HashMap;
 import java.util.Hashtable;
@@ -77,6 +79,7 @@ import pt.lsts.neptus.types.coord.LocationType;
 import pt.lsts.neptus.types.map.PlanElement;
 import pt.lsts.neptus.types.mission.MissionType;
 import pt.lsts.neptus.types.mission.plan.PlanType;
+import pt.lsts.neptus.types.vehicle.VehicleType;
 import pt.lsts.neptus.util.GuiUtils;
 import pt.lsts.neptus.util.NameNormalizer;
 
@@ -89,7 +92,8 @@ import pt.lsts.neptus.util.NameNormalizer;
 public abstract class Maneuver implements XmlOutputMethods, PropertiesProvider, Comparable<Maneuver> {
     protected static final Color COLOR_HELP = new Color(255, 125, 255);
     protected static final int X = 0, Y = 1, Z = 2, T = 3;
-
+    protected ArrayList<VehicleType> vehicles = new ArrayList<>();
+    
     public enum Z_UNITS {
         NONE(0, "None"), DEPTH(1, "Depth"), ALTITUDE(2, "Altitude"), HEIGHT(3, "Height (WGS84)");
 
@@ -506,6 +510,7 @@ public abstract class Maneuver implements XmlOutputMethods, PropertiesProvider, 
         clone.setXPosition(getXPosition());
         clone.setYPosition(getYPosition());
         clone.setMissionType(getMissionType());
+        Collections.copy(clone.vehicles, vehicles);
         clone.setId(getId());
         clone.setInitialManeuver(isInitialManeuver());
         clone.setCustomSettings(getCustomSettings());
@@ -755,8 +760,27 @@ public abstract class Maneuver implements XmlOutputMethods, PropertiesProvider, 
         this.missionType = missionType;
     }
 
+    /**
+     * @param vehicle the vehicle to set
+     */
+    public final void setVehicles(List<VehicleType> vehicles) {
+        this.vehicles.clear();
+        
+        if (vehicles != null)
+            this.vehicles.addAll(vehicles);            
+    }
+    
+    public final void setVehicle(VehicleType vehicle) {
+        if (vehicle == null)
+            this.vehicles.clear();
+        else
+            setVehicles(Arrays.asList(vehicle));
+    }
+
     public DefaultProperty[] getProperties() {
 
+        System.out.println("Props for maneuver "+getId()+" from vehicles "+vehicles);
+        
         Vector<DefaultProperty> props = new Vector<DefaultProperty>();
 
         DefaultProperty id = PropertiesEditor.getPropertyInstance("ID", I18n.text("Generic properties"),
