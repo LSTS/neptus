@@ -74,6 +74,8 @@ import pt.lsts.neptus.util.MathMiscUtils;
  */
 public class OperationLimitsInteraction implements IPlanElementEditorInteraction<OperationLimits> {
 
+    private boolean hasChanges = false;
+
     private OperationLimits limits = null;
     private OperationLimits copyLimits = null;
     
@@ -178,6 +180,7 @@ public class OperationLimitsInteraction implements IPlanElementEditorInteraction
         }
         else {
             copyLimits.setArea(null);
+            hasChanges = true;
         }
     }
     
@@ -214,6 +217,7 @@ public class OperationLimitsInteraction implements IPlanElementEditorInteraction
     private void calculateLimits() {
         if (polygon.getVerticesSize() != 3) {
             copyLimits.setArea(null);
+            hasChanges = true;
         }
         else {
             List<Vertex> vertices = polygon.getVertices();
@@ -232,6 +236,7 @@ public class OperationLimitsInteraction implements IPlanElementEditorInteraction
             copyLimits.setOpAreaWidth(Math.sqrt(off[0] * off[0] + off[1] * off[1]));
             copyLimits.setOpAreaLength(vertices.get(0).getLocation().getHorizontalDistanceInMeters(vertices.get(2).getLocation()));
             copyLimits.setOpRotationRads(AngleUtils.nomalizeAngleRads2Pi(vertices.get(2).getLocation().getXYAngle(vertices.get(0).getLocation())));
+            hasChanges = true;
         }
     }
 
@@ -537,5 +542,13 @@ public class OperationLimitsInteraction implements IPlanElementEditorInteraction
     @Override
     public OperationLimits getUpdatedElement() {
         return copyLimits;
+    }
+    
+    /* (non-Javadoc)
+     * @see pt.lsts.neptus.mp.element.IPlanElementEditorInteraction#hasChanges()
+     */
+    @Override
+    public boolean hasChanges() {
+        return hasChanges;
     }
 }
