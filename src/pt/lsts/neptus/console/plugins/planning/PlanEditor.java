@@ -105,6 +105,7 @@ import pt.lsts.neptus.console.plugins.planning.edit.ManeuverChanged;
 import pt.lsts.neptus.console.plugins.planning.edit.ManeuverPropertiesPanel;
 import pt.lsts.neptus.console.plugins.planning.edit.ManeuverRemoved;
 import pt.lsts.neptus.console.plugins.planning.edit.ManeuverTranslated;
+import pt.lsts.neptus.console.plugins.planning.edit.PlanElementChanged;
 import pt.lsts.neptus.console.plugins.planning.edit.PlanRotated;
 import pt.lsts.neptus.console.plugins.planning.edit.PlanSettingsChanged;
 import pt.lsts.neptus.console.plugins.planning.edit.PlanTransitionsReversed;
@@ -205,6 +206,7 @@ public class PlanEditor extends InteractionAdapter implements Renderer2DPainter,
     private String planStatistics = "";
 
     private String maneuverUndoRedoXml = null;
+    private String planElementUndoRedoXml = null;
 
     private SwingWorker<Void, Void> editExitDoubleClickSwingWorker = null;
 
@@ -438,6 +440,7 @@ public class PlanEditor extends InteractionAdapter implements Renderer2DPainter,
                             updateDelegate((StateRendererInteraction) man, renderer);
                             
                             saveManeuverXmlState();
+                            savePlanElementXmlState();
                         }
                         else {
                             delegate.setActive(false, renderer);
@@ -445,6 +448,7 @@ public class PlanEditor extends InteractionAdapter implements Renderer2DPainter,
                             planElem.recalculateManeuverPositions(renderer);
                             
                             saveManeuverXmlToUndoManager();
+                            savePlanElementXmlToUndoManager();
                         }
                     }
                 }
@@ -1366,7 +1370,7 @@ public class PlanEditor extends InteractionAdapter implements Renderer2DPainter,
                 pStatistics.setIcon(new ImageIcon(ImageUtils.getScaledImage("images/buttons/wizard.png", 16, 16)));
                 popup.add(pStatistics);
 
-                PlanEditorMenus.addPlanElementsMenuItems(this, plan, event, source, popup);
+                PlanEditorMenus.addPlanElementsMenuItems(this, plan, event, source, popup, manager);
 
                 popup.addSeparator();
 
@@ -1437,6 +1441,7 @@ public class PlanEditor extends InteractionAdapter implements Renderer2DPainter,
 
     protected void updateDelegate(IPlanElement<?> pel, StateRenderer2D renderer) {
         activePlanElement = pel;
+        savePlanElementXmlState();
         delegate = pel.getEditor();
         delegate.setActive(true, renderer);
     }
@@ -1450,9 +1455,12 @@ public class PlanEditor extends InteractionAdapter implements Renderer2DPainter,
     protected void resetDelegate() {
         if (delegate == null)
             return;
-        if (delegate instanceof IPlanElementEditorInteraction<?>
-            && activePlanElement != null) {
-            activePlanElement.setElement(((IPlanElementEditorInteraction<?>) delegate).getUpdatedElement());
+        if (delegate instanceof IPlanElementEditorInteraction<?> && activePlanElement != null) {
+            IPlanElementEditorInteraction<?> pai = (IPlanElementEditorInteraction<?>) delegate;
+            if (pai.hasChanges()) {
+                activePlanElement.setElement(pai.getUpdatedElement());
+                savePlanElementXmlToUndoManager();
+            }
         }
         activePlanElement = null;
         delegate = null;
@@ -1471,14 +1479,30 @@ public class PlanEditor extends InteractionAdapter implements Renderer2DPainter,
     }
 
     private void saveManeuverXmlState() {
-        maneuverUndoRedoXml = getPropertiesPanel().getManeuver().getManeuverXml();
+        Maneuver man = getPropertiesPanel().getManeuver();
+        if (man != null)
+            maneuverUndoRedoXml = getPropertiesPanel().getManeuver().getManeuverXml();
     }
 
     private void saveManeuverXmlToUndoManager() {
-        if (maneuverUndoRedoXml != null) {
-            ManeuverChanged edit = new ManeuverChanged(getPropertiesPanel().getManeuver(), plan, maneuverUndoRedoXml);
+        Maneuver man = getPropertiesPanel().getManeuver();
+        if (maneuverUndoRedoXml != null && man != null) {
+            ManeuverChanged edit = new ManeuverChanged(man, plan, maneuverUndoRedoXml);
             maneuverUndoRedoXml = null;
             manager.addEdit(edit);
+        }
+    }
+
+    private void savePlanElementXmlState() {
+        if (activePlanElement != null)
+            planElementUndoRedoXml = activePlanElement.getElementAsXml();
+    }
+
+    private void savePlanElementXmlToUndoManager() {
+        if (planElementUndoRedoXml != null && activePlanElement != null) {
+            PlanElementChanged pecEvt = new PlanElementChanged(activePlanElement, plan, planElementUndoRedoXml);
+            planElementUndoRedoXml = null;
+            manager.addEdit(pecEvt);
         }
     }
 
