@@ -38,7 +38,9 @@ import java.util.ArrayList;
 
 import javax.swing.AbstractAction;
 import javax.swing.JPopupMenu;
+import javax.swing.undo.UndoManager;
 
+import pt.lsts.neptus.console.plugins.planning.edit.PlanElementAdded;
 import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.mp.element.IPlanElement;
 import pt.lsts.neptus.mp.element.PlanElements;
@@ -58,7 +60,7 @@ class PlanEditorMenus {
     }
 
     static void addPlanElementsMenuItems(PlanEditor planEditor, PlanType plan, MouseEvent event,
-            StateRenderer2D source, JPopupMenu popup) {
+            StateRenderer2D source, JPopupMenu popup, UndoManager undoManager) {
         
         String vehicleName = plan.getVehicle();
         VehicleType vehicle = VehiclesHolder.getVehicleById(vehicleName);
@@ -87,6 +89,9 @@ class PlanEditorMenus {
                     if (rpel == null) {
                         rpel = pe;
                         pElems.getPlanElements().add(rpel);
+                        
+                        PlanElementAdded peaEvt = new PlanElementAdded(rpel, plan);
+                        undoManager.addEdit(peaEvt);
                     }
                     
                     planEditor.updateDelegate(rpel, source);
