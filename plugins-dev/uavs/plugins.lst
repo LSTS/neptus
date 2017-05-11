@@ -13,3 +13,4 @@ pt.lsts.neptus.plugins.uavs.panels.GimbalPanel
 no.ntnu.gpsplot.GpsPlotter
 pt.lsts.uav.mra.MessagesPerSystemPlot
 pt.lsts.neptus.plugins.uavs.panels.PayloadManagePanel
+pt.lsts.neptus.plugins.uavs.panels.UavStatusOverlay
