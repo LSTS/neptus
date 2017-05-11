@@ -679,6 +679,9 @@ public class PlanElement extends AbstractElement implements Renderer2DPainter, P
             }
         }
         recalculateManeuverPositions(renderer);
+        
+        plan.getPlanElements().getPlanElements().stream()
+                .forEach(pe -> pe.translate(offsetNorth, offsetEast, offsetDown));
     }
 
     public void rotatePlan(LocatedManeuver center, double ammount) {

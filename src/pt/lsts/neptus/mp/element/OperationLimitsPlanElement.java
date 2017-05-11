@@ -141,6 +141,20 @@ public class OperationLimitsPlanElement implements IPlanElement<OperationLimits>
         return painter;
     }
     
+    /* (non-Javadoc)
+     * @see pt.lsts.neptus.mp.element.IPlanElement#translate(double, double, double)
+     */
+    @Override
+    public void translate(double offsetNorth, double offsetEast, double offsetDown) {
+        double latDeg = limits.getOpAreaLat();
+        double lonDeg = limits.getOpAreaLon();
+        LocationType loc = new LocationType(latDeg, lonDeg);
+        loc.translatePosition(offsetNorth, offsetEast, offsetDown);
+        loc.convertToAbsoluteLatLonDepth();
+        limits.setOpAreaLat(loc.getLatitudeDegs());
+        limits.setOpAreaLon(loc.getLongitudeDegs());
+    }
+
     public static void main(String[] args) {
         OperationLimitsPlanElement rdpe = new OperationLimitsPlanElement();
         OperationLimits rps = new OperationLimits();
