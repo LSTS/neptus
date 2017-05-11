@@ -33,7 +33,6 @@
 package pt.lsts.neptus.plugins.atlas.elektronik.exporter;
 
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -65,6 +64,7 @@ import pt.lsts.neptus.mp.RendezvousPoints;
 import pt.lsts.neptus.mp.RendezvousPoints.Point;
 import pt.lsts.neptus.mp.actions.PlanActions;
 import pt.lsts.neptus.mp.element.IPlanElement;
+import pt.lsts.neptus.mp.element.OperationLimitsPlanElement;
 import pt.lsts.neptus.mp.element.PlanElements;
 import pt.lsts.neptus.mp.element.RendezvousPointsPlanElement;
 import pt.lsts.neptus.mp.maneuvers.Goto;
@@ -429,62 +429,58 @@ public class SeaCatMK1PlanExporter implements IPlanFileExporter {
     private String getSectionAutonomyArea(PlanType plan) {
         StringBuilder sb = new StringBuilder();
         
-        String opLimitsFilePath = OperationLimits.getFilePathForSystem(plan.getVehicle());
-        File fx = new File(opLimitsFilePath);
-        if (fx.exists() && fx.canRead()) {
-            OperationLimits opl;
-            try (FileInputStream fis = new FileInputStream(fx)) {
-                opl = OperationLimits.loadXml(IOUtils.toString(fis));
-            }
-            catch (IOException e) {
-                e.printStackTrace();
-                return "";
-            }
-            Double latDeg = opl.getOpAreaLat();
-            if (latDeg != null) {
-                Double lonDeg = opl.getOpAreaLon();
-                Double width = opl.getOpAreaWidth();
-                Double length = opl.getOpAreaLength();
-                Double rotRad = opl.getOpRotationRads();
-                LocationType locC = new LocationType(latDeg, lonDeg);
+        OperationLimitsPlanElement opLimits = (OperationLimitsPlanElement) plan.getPlanElements().getPlanElements()
+                .stream().filter(t -> t.getClass() == OperationLimitsPlanElement.class).findFirst().orElse(null);        
+        
+        if (opLimits == null || opLimits.getElement() == null)
+            return "";
 
-                ArrayList<LocationType> locs = new ArrayList<>();
-                LocationType loc1 = locC.getNewAbsoluteLatLonDepth();
-                double[] offset = AngleUtils.rotate(rotRad, length / 2, -width / 2, false);
-                loc1.translatePosition(offset[0], offset[1], 0);
-                loc1.convertToAbsoluteLatLonDepth();
-                locs.add(loc1);
-                
-                loc1 = locC.getNewAbsoluteLatLonDepth();
-                offset = AngleUtils.rotate(rotRad, length / 2, width / 2, false);
-                loc1.translatePosition(offset[0], offset[1], 0);
-                loc1.convertToAbsoluteLatLonDepth();
-                locs.add(loc1);
-                
-                loc1 = locC.getNewAbsoluteLatLonDepth();
-                offset = AngleUtils.rotate(rotRad, -length / 2, width / 2, false);
-                loc1.translatePosition(offset[0], offset[1], 0);
-                loc1.convertToAbsoluteLatLonDepth();
-                locs.add(loc1);
+        OperationLimits opl = opLimits.getElement();
+        
+        Double latDeg = opl.getOpAreaLat();
+        if (latDeg != null) {
+            Double lonDeg = opl.getOpAreaLon();
+            Double width = opl.getOpAreaWidth();
+            Double length = opl.getOpAreaLength();
+            Double rotRad = opl.getOpRotationRads();
+            LocationType locC = new LocationType(latDeg, lonDeg);
 
-                loc1 = locC.getNewAbsoluteLatLonDepth();
-                offset = AngleUtils.rotate(rotRad, -length / 2, -width / 2, false);
-                loc1.translatePosition(offset[0], offset[1], 0);
-                loc1.convertToAbsoluteLatLonDepth();
-                locs.add(loc1);
+            ArrayList<LocationType> locs = new ArrayList<>();
+            LocationType loc1 = locC.getNewAbsoluteLatLonDepth();
+            double[] offset = AngleUtils.rotate(rotRad, length / 2, -width / 2, false);
+            loc1.translatePosition(offset[0], offset[1], 0);
+            loc1.convertToAbsoluteLatLonDepth();
+            locs.add(loc1);
 
-                sb.append("H AutonomyArea 4");
+            loc1 = locC.getNewAbsoluteLatLonDepth();
+            offset = AngleUtils.rotate(rotRad, length / 2, width / 2, false);
+            loc1.translatePosition(offset[0], offset[1], 0);
+            loc1.convertToAbsoluteLatLonDepth();
+            locs.add(loc1);
+
+            loc1 = locC.getNewAbsoluteLatLonDepth();
+            offset = AngleUtils.rotate(rotRad, -length / 2, width / 2, false);
+            loc1.translatePosition(offset[0], offset[1], 0);
+            loc1.convertToAbsoluteLatLonDepth();
+            locs.add(loc1);
+
+            loc1 = locC.getNewAbsoluteLatLonDepth();
+            offset = AngleUtils.rotate(rotRad, -length / 2, -width / 2, false);
+            loc1.translatePosition(offset[0], offset[1], 0);
+            loc1.convertToAbsoluteLatLonDepth();
+            locs.add(loc1);
+
+            sb.append("H AutonomyArea 4");
+            sb.append(NEW_LINE);
+
+            int counter = 0;
+            for (LocationType l : locs) {
+                sb.append(++counter);
+                sb.append(" ");
+                sb.append(formatReal(l.getLatitudeDegs()));
+                sb.append(" ");
+                sb.append(formatReal(l.getLongitudeDegs()));
                 sb.append(NEW_LINE);
-                
-                int counter = 0;
-                for (LocationType l : locs) {
-                    sb.append(++counter);
-                    sb.append(" ");
-                    sb.append(formatReal(l.getLatitudeDegs()));
-                    sb.append(" ");
-                    sb.append(formatReal(l.getLongitudeDegs()));
-                    sb.append(NEW_LINE);
-                }
             }
         }
         
