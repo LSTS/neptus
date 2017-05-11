@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <console name="UAV Operation Console" width="1315" height="772" resizable="true" mission-file="../../missions/Braganca.nmisz" main-vehicle="x8-02">
-  <!-- Data saved on 2017-05-11T21:07:24.0Z with Neptus version @VERSION@ (compiled on @DATE@, g@SCM_REV@). -->
+  <!-- Data saved on 2017-05-11T22:01:00.0Z with Neptus version @VERSION@ (compiled on @DATE@, g@SCM_REV@). -->
   <mainpanel name="console main panel">
     <subpanel class="pt.lsts.neptus.console.plugins.containers.MigLayoutContainer" x="0" y="0" width="1315" height="716">
       <properties>
@@ -160,7 +160,7 @@
           <entry key="Maximum Top Speed (100%)">20.0</entry>
         </properties>
       </child>
-      <child class="pt.lsts.neptus.plugins.uavs.panels.PreflightPanel" x="0" y="660" width="244" height="50">
+      <child class="pt.lsts.neptus.plugins.uavs.panels.PreflightPanel" x="0" y="0" width="0" height="0">
         <properties/>
       </child>
       <child class="pt.lsts.neptus.plugins.rtplot.RealTimePlot" x="0" y="0" width="0" height="0">
@@ -216,6 +216,12 @@ desired_roll: ${DesiredRoll.value} * 180 / Math.PI</entry>
         <properties>
           <entry key="Sender e-mail">auvtrack@mbari.org</entry>
           <entry key="Username">lstsfeup</entry>
+        </properties>
+      </child>
+      <child class="pt.lsts.neptus.plugins.uavs.panels.UavStatusOverlay" x="0" y="0" width="0" height="0">
+        <properties>
+          <entry key="Overlay Location">TOP</entry>
+          <entry key="Timeout period (ms)">5000</entry>
         </properties>
       </child>
     </subpanel>
