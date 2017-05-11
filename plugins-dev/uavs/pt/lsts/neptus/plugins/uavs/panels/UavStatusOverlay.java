@@ -58,7 +58,7 @@ import pt.lsts.neptus.renderer2d.StateRenderer2D;
  *
  */
 @SuppressWarnings("serial")
-@PluginDescription(name = "UAV status overlay", author = "Manuel R.")
+@PluginDescription(name = "UAV Status Overlay", author = "Manuel R.")
 @LayerPriority(priority = 100)
 public class UavStatusOverlay extends ConsolePanel implements Renderer2DPainter {
 
