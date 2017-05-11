@@ -33,8 +33,10 @@
 package pt.lsts.neptus.mp.element;
 
 import java.lang.reflect.Constructor;
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -66,14 +68,16 @@ import pt.lsts.neptus.util.XMLUtil;
  * &lt;/planElements>"
  * </code>
  * 
- * <br/><br/>
- * The args its optional and it's format id dependent, and it's feed as in the main args array.
- * <br/> The class has to exist or will be discarded.
+ * <br/>
+ * <br/>
+ * The args its optional and it's format is dependent, and it's feed as in the main args array. <br/>
+ * The class has to exist or will be discarded.
  * 
- * <br/><br/>
+ * <br/>
+ * <br/>
  * The inner tag (only one will be read) should optionally be given and should be compatible with
  * {@link IPlanElement#loadElementXml(String) call.}
- *              
+ * 
  * @author pdias
  *
  */
@@ -89,7 +93,9 @@ public class PlanElementsFactory {
     private List<Class<IPlanElement<?>>> planElementsClasses = new LinkedList<>();
     private Map<String, String[]> planElementsStartArgs = new LinkedHashMap<>();
     private Map<String, Element> planElementsTypeXml = new LinkedHashMap<>();
-    
+
+    private static Map<String, String> planElementsNames = new LinkedHashMap<>();
+
     public PlanElementsFactory(String systemId) {
         this.systemId = systemId;
     }
@@ -112,49 +118,129 @@ public class PlanElementsFactory {
     }
 
     /**
-     * Instantiates new IPlanElements. Elements in {@link IPlanElement#getElement()}
-     * may not be instantiated. 
+     * @return the planElementsClasses as unmodifiable list.
+     */
+    public List<Class<IPlanElement<?>>> getPlanElementsClasses() {
+        return Collections.unmodifiableList(planElementsClasses);
+    }
+
+    /**
+     * @return
+     */
+    public int getPlanElementsSize() {
+        return planElementsClasses.size();
+    }
+
+    /**
+     * Instantiates new IPlanElements. Elements in {@link IPlanElement#getElement()} may not be instantiated.
      * 
      * @return
      */
     public ArrayList<IPlanElement<?>> getPlanElementsInstances() {
         ArrayList<IPlanElement<?>> ret = new ArrayList<>();
-        
+
         for (Class<IPlanElement<?>> iPEClazz : planElementsClasses) {
-            IPlanElement<?> newInstance =  null;
-            String[] args = planElementsStartArgs.get(iPEClazz.getName());
-            try {
-                if (args != null && args.length > 0) {
-                    for (Constructor<?> string : iPEClazz.getConstructors()) {
-                        System.out.println(string);
-                    }
-                    Constructor<IPlanElement<?>> contructor = iPEClazz.getConstructor(String[].class);
-                    newInstance = contructor.newInstance(new Object[] {args});
-                }
-            }
-            catch (Exception e) {
-                NeptusLog.pub().warn(e);
-            }
-            try {
-                if (newInstance == null)
-                    newInstance = iPEClazz.newInstance();
-            }
-            catch (Exception e) {
-                NeptusLog.pub().warn(e);
-            }
-            
+            IPlanElement<?> newInstance = getPlanInstance(iPEClazz);
             if (newInstance == null)
                 continue;
-            
+
+            ret.add(newInstance);
+        }
+
+        return ret;
+    }
+
+    /**
+     * @param iPEClazz
+     * @return
+     */
+    public IPlanElement<?> getPlanInstance(Class<IPlanElement<?>> iPEClazz) {
+        if (!planElementsClasses.contains(iPEClazz))
+            return null;
+
+        IPlanElement<?> newInstance = null;
+        
+        String[] args = planElementsStartArgs.get(iPEClazz.getName());
+        try {
+            if (args != null && args.length > 0) {
+                for (Constructor<?> string : iPEClazz.getConstructors()) {
+                    System.out.println(string);
+                }
+                Constructor<IPlanElement<?>> contructor = iPEClazz.getConstructor(String[].class);
+                newInstance = contructor.newInstance(new Object[] { args });
+            }
+        }
+        catch (Exception e) {
+            NeptusLog.pub().warn(e);
+        }
+        try {
+            if (newInstance == null)
+                newInstance = iPEClazz.newInstance();
+        }
+        catch (Exception e) {
+            NeptusLog.pub().warn(e);
+        }
+
+        if (newInstance != null) {
             Element emlXml = planElementsTypeXml.get(iPEClazz.getName());
             if (emlXml != null) {
                 newInstance.loadElementXml(XMLUtil.nodeToString(emlXml));
             }
-
-            ret.add(newInstance);
+            
+            addNameFor(newInstance);
         }
+
+        return newInstance;
+    }
+
+    public String getNameFor(Class<IPlanElement<?>> iPEClazz) {
+        synchronized (planElementsNames) {
+            String name = planElementsNames.get(iPEClazz.getName());
+            if (name != null)
+                return name;
+            
+            IPlanElement<?> pe = getPlanInstance(iPEClazz);
+            name = addNameFor(pe);
+            return name;
+        }
+    }
+    
+    private String addNameFor(IPlanElement<?> pe) {
+        synchronized (planElementsNames) {
+            String name = planElementsNames.get(pe.getClass().getName());
+            if (name == null) {
+                name = pe.getName();
+                planElementsNames.put(pe.getClass().getName(), name);
+            }
+            
+            return name;
+        }
+    }
+    
+    /**
+     * Calls the 
+     * 
+     * @param pe
+     * @return
+     */
+    public IPlanElement<?> configureInstance(IPlanElement<?> pe) {
+        if (pe != null)
+            addNameFor(pe);
+        else
+            return pe;
         
-        return ret;
+        String[] args = planElementsStartArgs.get(pe.getClass().getName());
+        try {
+            Method configureMethod = pe.getClass().getMethod("configure", String[].class);
+            configureMethod.invoke(pe, args == null ? new String[0] : args);
+        }
+        catch (Exception e) {
+            if (args == null || args.length == 0)
+                NeptusLog.pub().error(e);
+            else
+                NeptusLog.pub().warn(e);
+        }
+        return pe;
     }
     
     /**
@@ -178,27 +264,28 @@ public class PlanElementsFactory {
             Node iNd = itemsNodes.item(i);
             if (!iNd.hasAttributes())
                 continue;
-            
+
             NamedNodeMap attrs = iNd.getAttributes();
             Node classNd = attrs.getNamedItem(TAG_ARG_CLASS);
             if (classNd == null)
                 continue;
-            
+
             String classStr = classNd.getTextContent();
             try {
                 @SuppressWarnings("unchecked")
-                Class<IPlanElement<?>> clazz = (Class<IPlanElement<?>>) ClassLoader.getSystemClassLoader().loadClass(classStr);
+                Class<IPlanElement<?>> clazz = (Class<IPlanElement<?>>) ClassLoader.getSystemClassLoader()
+                        .loadClass(classStr);
                 planElementsClasses.add(clazz);
             }
             catch (Exception e) {
                 NeptusLog.pub().warn(e);
                 continue;
             }
-            
+
             Node argsNd = attrs.getNamedItem(TAG_ARG_ARGS);
             if (argsNd == null)
                 continue;
-            
+
             try {
                 String argsStr = argsNd.getTextContent().trim();
                 String[] args = argsStr.split(" {1,}");
@@ -208,19 +295,19 @@ public class PlanElementsFactory {
             catch (Exception e) {
                 NeptusLog.pub().warn(e);
             }
-            
+
             // Getting optional element initialization XML element
             NodeList childNodes = iNd.getChildNodes();
             for (int j = 0; j < childNodes.getLength(); j++) {
                 if (childNodes.item(j) instanceof Element) {
                     Element elm = (Element) childNodes.item(j).cloneNode(true);
-                    planElementsTypeXml.put(classStr, elm );
+                    planElementsTypeXml.put(classStr, elm);
                     break;
                 }
-            } 
+            }
         }
     }
-    
+
     /**
      * Return the contents as XML text.
      * 
@@ -230,7 +317,7 @@ public class PlanElementsFactory {
         Element element = asXmlElement();
         if (element == null)
             return "";
-        
+
         return XMLUtil.nodeToString(element);
     }
 
@@ -242,24 +329,24 @@ public class PlanElementsFactory {
     public Element asXmlElement() {
         if (planElementsClasses.isEmpty())
             return null;
-        
+
         Document doc = XMLUtil.createEmptyDocument();
         Element root = doc.createElement(TAG_ROOT);
         doc.appendChild(root);
-        
+
         for (Class<IPlanElement<?>> clazz : planElementsClasses) {
             Element itemNd = doc.createElement(TAG_ITEM);
             String className = clazz.getName();
             itemNd.setAttribute(TAG_ARG_CLASS, className);
             root.appendChild(itemNd);
-            
+
             String[] argsStr = planElementsStartArgs.get(className);
             if (argsStr != null && argsStr.length > 0) {
                 StringBuilder sb = new StringBuilder(argsStr.length * 3);
                 Arrays.asList(argsStr).stream().forEach(str -> sb.append(str).append(" "));
                 itemNd.setAttribute(TAG_ARG_ARGS, sb.toString().trim());
             }
-            
+
             Element emlXml = planElementsTypeXml.get(className);
             if (emlXml != null) {
                 try {
@@ -271,32 +358,27 @@ public class PlanElementsFactory {
                 }
             }
         }
-        
+
         return root;
     }
 
     public static void main(String[] args) {
-        String xmlStr = "<planElements>\r\n" + 
-                "        <item class=\"pt.lsts.neptus.mp.element.RendezvousPointsPlanElement\" args=\"gsgs gstsg\" >\r\n" +
-                "            <RendezvousPoints>\r\n" + 
-                "                <point>\r\n" + 
-                "                    <latDeg>41.0</latDeg>\r\n" + 
-                "                    <lonDeg>-8.0</lonDeg>\r\n" + 
-                "                </point>\r\n" + 
-                "                <point>\r\n" + 
-                "                    <latDeg>41.17785</latDeg>\r\n" + 
-                "                    <lonDeg>-8.59796</lonDeg>\r\n" + 
-                "                </point>\r\n" + 
-                "            </RendezvousPoints>" +
-                "        </item>\r\n" +
-                "        <item class=\"pt.lsts.neptus.mp.element.OperationLimitsPlanElement\" args=\"limits=true\" />\r\n" + 
-                "    </planElements>";
+        String xmlStr = "<planElements>\r\n"
+                + "        <item class=\"pt.lsts.neptus.mp.element.RendezvousPointsPlanElement\" args=\"gsgs gstsg\" >\r\n"
+                + "            <RendezvousPoints>\r\n" + "                <point>\r\n"
+                + "                    <latDeg>41.0</latDeg>\r\n" + "                    <lonDeg>-8.0</lonDeg>\r\n"
+                + "                </point>\r\n" + "                <point>\r\n"
+                + "                    <latDeg>41.17785</latDeg>\r\n"
+                + "                    <lonDeg>-8.59796</lonDeg>\r\n" + "                </point>\r\n"
+                + "            </RendezvousPoints>" + "        </item>\r\n"
+                + "        <item class=\"pt.lsts.neptus.mp.element.OperationLimitsPlanElement\" args=\"limits=true\" />\r\n"
+                + "    </planElements>";
         PlanElementsFactory pef = new PlanElementsFactory("lauv-noptilus-1", xmlStr);
         System.out.println(pef.asXml());
-        
+
         ArrayList<IPlanElement<?>> pElms = pef.getPlanElementsInstances();
-        
-        pElms.forEach(p -> System.out.println("PElem: " + p.getName() + " :: " + p.getHoldingTypeName() + " :: " 
+
+        pElms.forEach(p -> System.out.println("PElem: " + p.getName() + " :: " + p.getHoldingTypeName() + " :: "
                 + p.getHoldingType() + " :: " + p.getElementAsXml()));
     }
 }
