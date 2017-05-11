@@ -111,6 +111,7 @@ import pt.lsts.neptus.console.plugins.planning.edit.PlanSettingsChanged;
 import pt.lsts.neptus.console.plugins.planning.edit.PlanTransitionsReversed;
 import pt.lsts.neptus.console.plugins.planning.edit.PlanTranslated;
 import pt.lsts.neptus.console.plugins.planning.edit.PlanZChanged;
+import pt.lsts.neptus.gui.MenuScroller;
 import pt.lsts.neptus.gui.PropertiesEditor;
 import pt.lsts.neptus.gui.VehicleChooser;
 import pt.lsts.neptus.gui.VehicleSelectionDialog;
@@ -1435,6 +1436,7 @@ public class PlanEditor extends InteractionAdapter implements Renderer2DPainter,
                 // popup.add(act);
             }
 
+            MenuScroller.setScrollerFor(popup, getConsole(), 150, 0, 0);
             popup.show(source, (int) mousePoint.getX(), (int) mousePoint.getY());
         }
     }
