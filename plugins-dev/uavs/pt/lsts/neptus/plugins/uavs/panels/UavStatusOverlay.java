@@ -43,6 +43,8 @@ import com.google.common.eventbus.Subscribe;
 
 import pt.lsts.imc.ApmStatus;
 import pt.lsts.neptus.NeptusLog;
+import pt.lsts.neptus.comm.manager.imc.ImcSystem;
+import pt.lsts.neptus.comm.manager.imc.ImcSystemsHolder;
 import pt.lsts.neptus.console.ConsoleLayout;
 import pt.lsts.neptus.console.ConsolePanel;
 import pt.lsts.neptus.console.events.ConsoleEventMainSystemChange;
@@ -88,35 +90,59 @@ public class UavStatusOverlay extends ConsolePanel implements Renderer2DPainter 
     @Subscribe
     public void on(ApmStatus rcvStatus) {
 
+        String sysNameToShow = "";
+        String status = rcvStatus.getText();
+        
+        if (mainSysName == null || !mainSysName.equalsIgnoreCase(rcvStatus.getSourceName())) {
+            sysNameToShow = rcvStatus.getSourceName() + ":: ";
+        }
+        
+        if (!sysNameToShow.isEmpty()) {
+            int srcId = rcvStatus.getSrc();
+            ImcSystem sys = ImcSystemsHolder.lookupSystem(srcId);
+            if (sys != null) {
+                switch (sys.getAuthorityState()) {
+                    case SYSTEM_FULL:
+                        break;
+                    case NONE:
+                    case OFF:
+                    default:
+                        return;
+                }
+            }
+        }
+        String msg = sysNameToShow + status;
+
         switch (rcvStatus.getSeverity()) {
             case ALERT:
                 //Not needed for now
                 break;
             case CRITICAL: //arming_checks & common "Bad ? Health" messages
-                setUavStatus(rcvStatus.getText(), "red");
+                setUavStatus(msg, "red");
                 break;
             case DEBUG:
                 //Not needed for now
                 break;
             case EMERGENCY: //crash check
-                setUavStatus(rcvStatus.getText(), "orange");
+                setUavStatus(msg, "orange");
                 break;
             case ERROR:
-                setUavStatus(rcvStatus.getText(), "red");
+                setUavStatus(msg, "red");
                 break;
             case INFO:
-                setUavStatus(rcvStatus.getText(), "yellow");
+                setUavStatus(msg, "yellow");
                 break;
             case NOTICE:
-                setUavStatus(rcvStatus.getText(), "yellow");
+                setUavStatus(msg, "yellow");
                 break;
             case WARNING:
-                setUavStatus(rcvStatus.getText(), "orange");
+                setUavStatus(msg, "orange");
                 break;
         }
 
         lastMsgReceived = System.currentTimeMillis();
-        NeptusLog.pub().info("[" + rcvStatus.getSeverity() + "] " + rcvStatus.getText() + " ("+mainSysName+")");
+        NeptusLog.pub().info("[" + rcvStatus.getSeverity() + "] " + rcvStatus.getText() + " ("
+                + (sysNameToShow.isEmpty() ? mainSysName : sysNameToShow) + ")");
     }
 
     private void setUavStatus(String text, String color) {
