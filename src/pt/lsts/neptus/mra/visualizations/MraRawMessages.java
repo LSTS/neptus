@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2016 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2017 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -13,8 +13,8 @@
  * written agreement between you and Universidade do Porto. For licensing
  * terms, conditions, and further information contact lsts@fe.up.pt.
  *
- * European Union Public Licence - EUPL v.1.1 Usage
- * Alternatively, this file may be used under the terms of the EUPL,
+ * Modified European Union Public Licence - EUPL v.1.1 Usage
+ * Alternatively, this file may be used under the terms of the Modified EUPL,
  * Version 1.1 only (the "Licence"), appearing in the file LICENSE.md
  * included in the packaging of this file. You may not use this work
  * except in compliance with the Licence. Unless required by applicable
@@ -22,7 +22,8 @@
  * distributed on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF
  * ANY KIND, either express or implied. See the Licence for the specific
  * language governing permissions and limitations at
- * http://ec.europa.eu/idabc/eupl.html.
+ * https://github.com/LSTS/neptus/blob/develop/LICENSE.md
+ * and http://ec.europa.eu/idabc/eupl.html.
  *
  * For more information please see <http://lsts.fe.up.pt/neptus>.
  *
@@ -180,6 +181,7 @@ public class MraRawMessages extends SimpleMRAVisualization {
         JPanel panel1 = new JPanel();
         panel.add(panel1, BorderLayout.EAST);
         panel1.setLayout(new BorderLayout(2, 0));
+        panel1.setBorder(BorderFactory.createEmptyBorder(0, 0, 5, 0));
         finderAction = new AbstractAction() {
             private static final long serialVersionUID = 1L;
 
@@ -202,11 +204,10 @@ public class MraRawMessages extends SimpleMRAVisualization {
         .put(KeyStroke.getKeyStroke(KeyEvent.VK_F, InputEvent.CTRL_MASK), "finder");
         mraPanel.getActionMap().put("finder", finderAction);
 
-        highlightBtn = new JToggleButton();
-        highlightBtn.setHorizontalTextPosition(SwingConstants.CENTER);
-        highlightBtn.setVerticalTextPosition(SwingConstants.BOTTOM);
+        highlightBtn = new JToggleButton(I18n.text("Highlight"));
         highlightBtn.setIcon(ImageUtils.createScaleImageIcon(LIGHTS_ICON, 13, 13));
         highlightBtn.setSelected(false);
+        highlightBtn.setToolTipText(I18n.text("Highlight all occurrences"));
         highlightBtn.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -215,11 +216,7 @@ public class MraRawMessages extends SimpleMRAVisualization {
             }
         });
 
-        panel1.add(highlightBtn, BorderLayout.EAST);
-
-        JButton findBtn = new JButton();
-        findBtn.setHorizontalTextPosition(SwingConstants.CENTER);
-        findBtn.setVerticalTextPosition(SwingConstants.BOTTOM);
+        JButton findBtn = new JButton(I18n.text("Find"));
         findBtn.setIcon(ImageUtils.createScaleImageIcon(SHOW_ICON, 13, 13));
         findBtn.addActionListener(new ActionListener() {
             @Override
@@ -243,7 +240,8 @@ public class MraRawMessages extends SimpleMRAVisualization {
             }
         });
 
-        panel1.add(findBtn, BorderLayout.WEST);
+        panel1.add(highlightBtn, BorderLayout.WEST);
+        panel1.add(findBtn, BorderLayout.EAST);
 
         table.addMouseListener(new MouseAdapter() {
             @Override
@@ -312,7 +310,7 @@ public class MraRawMessages extends SimpleMRAVisualization {
         String rowSrcEnt = null;
         long t1 = (long) find.defTimestampLow;
         long t2 = (long) find.defTimestampHigh;
-        
+
         if (type.equals(ANY_TXT) && src.equals(ANY_TXT) && 
                 srcEnt.equals(ANY_TXT) && find.hasDefaultTS(t1, t2)) {
             find.busyLbl.setBusy(false);
@@ -322,7 +320,7 @@ public class MraRawMessages extends SimpleMRAVisualization {
 
             return true;
         }
-        
+
         int first = source.getLsfIndex().getFirstMessageAtOrAfter(t1);
         int indexFirst = findFirstOcc(first, source.getLsfIndex().getNumberOfMessages(), t1, type);
 
@@ -382,14 +380,14 @@ public class MraRawMessages extends SimpleMRAVisualization {
             if (rowType.equals(type) || type.equals(ANY_TXT))
                 if (rowSrc.equals(src) || src.equals(ANY_TXT))
                     if (rowSrcEnt.equals(srcEnt) || srcEnt.equals(ANY_TXT))
-                            if ((rowTime >= t1) && (rowTime <= t2))
-                                resultList.add(row);
-                   
+                        if ((rowTime >= t1) && (rowTime <= t2))
+                            resultList.add(row);
+
             count++;
             int state = (count * 100) / total;
             find.statusLbl.setText(state+"%");
         }
-        
+
         find.busyLbl.setBusy(false);
         find.busyLbl.setVisible(false);
         find.statusLbl.setVisible(false);
@@ -840,7 +838,7 @@ public class MraRawMessages extends SimpleMRAVisualization {
 
             if (d2 > defTimestampHigh)
                 timestampHigh.setValue(parseDate(table.getRowCount() - 1));
-            
+
             if (d1 > d2) { 
                 timestampLow.setValue(parseDate(0));
                 timestampHigh.setValue(parseDate(table.getRowCount() - 1));

@@ -1,1 +1,3 @@
 pt.lsts.neptus.plugins.videostream.VideoStream
+pt.lsts.neptus.plugins.videostream.CamFootprintLayer
+pt.lsts.neptus.plugins.videostream.SnapshotsInteraction

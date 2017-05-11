@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2016 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2017 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -13,8 +13,8 @@
  * written agreement between you and Universidade do Porto. For licensing
  * terms, conditions, and further information contact lsts@fe.up.pt.
  *
- * European Union Public Licence - EUPL v.1.1 Usage
- * Alternatively, this file may be used under the terms of the EUPL,
+ * Modified European Union Public Licence - EUPL v.1.1 Usage
+ * Alternatively, this file may be used under the terms of the Modified EUPL,
  * Version 1.1 only (the "Licence"), appearing in the file LICENCE.md
  * included in the packaging of this file. You may not use this work
  * except in compliance with the Licence. Unless required by applicable
@@ -22,7 +22,8 @@
  * distributed on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF
  * ANY KIND, either express or implied. See the Licence for the specific
  * language governing permissions and limitations at
- * http://ec.europa.eu/idabc/eupl.html.
+ * https://github.com/LSTS/neptus/blob/develop/LICENSE.md
+ * and http://ec.europa.eu/idabc/eupl.html.
  *
  * For more information please see <http://lsts.fe.up.pt/neptus>.
  *
@@ -52,11 +53,13 @@ import javax.vecmath.Point3d;
 import com.l2fprod.common.propertysheet.DefaultProperty;
 import com.l2fprod.common.propertysheet.Property;
 
+import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.gui.objparams.ParametersPanel;
 import pt.lsts.neptus.mp.Maneuver;
 import pt.lsts.neptus.mp.ManeuverLocation;
 import pt.lsts.neptus.mp.maneuvers.Goto;
 import pt.lsts.neptus.mp.maneuvers.LocatedManeuver;
+import pt.lsts.neptus.mystate.MyState;
 import pt.lsts.neptus.renderer2d.LayerPriority;
 import pt.lsts.neptus.renderer2d.Renderer2DPainter;
 import pt.lsts.neptus.renderer2d.StateRenderer2D;
@@ -463,7 +466,12 @@ public class PlanElement extends AbstractElement implements Renderer2DPainter, P
         if (getPlan().getStartMode() == PlanType.INIT_START_WPT) {
             if (getPlan().getMapGroup().getMapObjectsByID("start").length > 0) {
                 start = new LocationType(getPlan().getMapGroup().getMapObjectsByID("start")[0].getCenterLocation());
-
+            }
+            else if (getPlan().getMapGroup().getMapObjectsByID("home").length > 0) {
+                start = new LocationType(getPlan().getMapGroup().getMapObjectsByID("home")[0].getCenterLocation());
+            }
+            else if ((start = MyState.getLocation()) != null) {
+                // start = start; Already in the test to not duplicate the location instances created 
             }
             else {
                 start = new LocationType(getPlan().getMapGroup().getCoordinateSystem());
@@ -642,8 +650,14 @@ public class PlanElement extends AbstractElement implements Renderer2DPainter, P
     public void setPlanProperty(DefaultProperty property) {
         lastSetProperties.put(property.getName(), property);
 
-        for (Maneuver man : plan.getGraph().getAllManeuvers())
-            man.setProperties(new Property[] { property });
+        for (Maneuver man : plan.getGraph().getAllManeuvers()) {
+            try {
+                man.setProperties(new Property[] { property });
+            }
+            catch (Exception e) {
+                NeptusLog.pub().error(e, e);
+            }
+        }
     }
 
     public void translatePlan(double offsetNorth, double offsetEast, double offsetDown) {

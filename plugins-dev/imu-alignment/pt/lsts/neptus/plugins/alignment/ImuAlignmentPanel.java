@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2016 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2017 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -13,8 +13,8 @@
  * written agreement between you and Universidade do Porto. For licensing
  * terms, conditions, and further information contact lsts@fe.up.pt.
  *
- * European Union Public Licence - EUPL v.1.1 Usage
- * Alternatively, this file may be used under the terms of the EUPL,
+ * Modified European Union Public Licence - EUPL v.1.1 Usage
+ * Alternatively, this file may be used under the terms of the Modified EUPL,
  * Version 1.1 only (the "Licence"), appearing in the file LICENSE.md
  * included in the packaging of this file. You may not use this work
  * except in compliance with the Licence. Unless required by applicable
@@ -22,7 +22,8 @@
  * distributed on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF
  * ANY KIND, either express or implied. See the Licence for the specific
  * language governing permissions and limitations at
- * http://ec.europa.eu/idabc/eupl.html.
+ * https://github.com/LSTS/neptus/blob/develop/LICENSE.md
+ * and http://ec.europa.eu/idabc/eupl.html.
  *
  * For more information please see <http://lsts.fe.up.pt/neptus>.
  *
@@ -75,11 +76,11 @@ import pt.lsts.neptus.util.ImageUtils;
 import pt.lsts.neptus.util.speech.SpeechUtil;
 
 /**
- * This panel will allow monitoring and alignment of some IMUs
+ * This panel will allow monitoring and alignment of navigation for dead reckoning purposes
  * @author zp
  */
-@PluginDescription(author = "ZP", name = "IMU Alignment")
-@Popup(accelerator=KeyEvent.VK_I, pos=Popup.POSITION.CENTER, height=300, width=300, name="IMU Alignment")
+@PluginDescription(author = "ZP", name = "Navigation Alignment")
+@Popup(accelerator=KeyEvent.VK_I, pos=Popup.POSITION.CENTER, height=300, width=300, name="Navigation Alignment")
 public class ImuAlignmentPanel extends ConsolePanel implements IPeriodicUpdates {
 
     private static final long serialVersionUID = -1330079540844029305L;
@@ -121,7 +122,7 @@ public class ImuAlignmentPanel extends ConsolePanel implements IPeriodicUpdates 
         removeAll();
         JPanel top = new JPanel(new GridLayout(1, 0));
         enableImu = new JToggleButton(I18n.text("Enable IMU"), grayLed, false);
-        enableImu.setToolTipText(I18n.text("Waiting for first IMU alignment state"));
+        enableImu.setToolTipText(I18n.text("Waiting for first navigation alignment state"));
         enableImu.setEnabled(false);
         top.add(enableImu);
 
@@ -206,39 +207,39 @@ public class ImuAlignmentPanel extends ConsolePanel implements IPeriodicUpdates 
         }
 
         if (alignState == null)
-            return "<html><h1>"+I18n.text("Waiting for IMU alignment state")+"</h1></html>";
+            return "<html><h1>"+I18n.text("Waiting for alignment state")+"</h1></html>";
         switch(alignState.getState()) {
             case ALIGNED:
                 // enableImu.setIcon(greenLed);
-                enableImu.setToolTipText(I18n.text("IMU aligned. Vehicle can be used in dead-reckoning mode."));
+                enableImu.setToolTipText(I18n.text("Navigation aligned. Vehicle can be used in dead reckoning mode."));
                 enableImu.setEnabled(true);
-                return "<html><h1><font color='green'>"+I18n.text("IMU aligned")+"</font></h1>"
+                return "<html><h1><font color='green'>"+I18n.text("Navigation aligned")+"</font></h1>"
                 +"<p>"+I18n.text("Vehicle can now be used to execute dead reckoning missions.")+"</p>"
                 +"</html>";
             case NOT_ALIGNED:
                 // enableImu.setIcon(redLed);
                 enableImu.setEnabled(true);
-                enableImu.setToolTipText(I18n.text("IMU is not aligned"));
-                return "<html><h1><font color='red'>"+I18n.text("IMU not aligned")+"</font></h1>"
-                +"<p>"+I18n.text("In order to execute dead reckoning missions, IMU must first be aligned.")+"</p>"                
+                enableImu.setToolTipText(I18n.text("Navigation not aligned"));
+                return "<html><h1><font color='red'>"+I18n.text("Navigation not aligned")+"</font></h1>"
+                +"<p>"+I18n.text("To execute dead reckoning missions, align Navigation.")+"</p>"
                 +"</html>";
             default:
                 // enableImu.setIcon(grayLed);
                 enableImu.setEnabled(false);
-                enableImu.setToolTipText(I18n.textf("IMU cannot be aligned on %vehicle", alignState.getSourceName()));
+                enableImu.setToolTipText(I18n.textf("Dead reckoning not supported on %vehicle", alignState.getSourceName()));
                 enableImu.setSelected(false);
-                return "<html><h1><font color='red'>"+I18n.text("IMU cannot be aligned")+"</font></h1>"
-                +"<p>"+I18n.text("This vehicle does not support IMU alignment.")+"</p>"                
+                return "<html><h1><font color='red'>"+I18n.text("IMU not available")+"</font></h1>"
+                +"<p>"+I18n.text("This vehicle does not support dead reckoning.")+"</p>"
                 +"</html>";
         }
     }
 
     public void doAlignment() {
-
-        int opt = GuiUtils.confirmDialog(getConsole(), I18n.text("Alignment Procedure"), "<html><h2>" + I18n.text("Alignment Procedure") + "</h2>"
-                +I18n.text("To do IMU alignment, the vehicle must do straigth segments at the surface.") + "<br>"
-                +"<b>" + I18n.text("Do you want me to create a plan at surface for you?") + "</b>");
-
+        int opt = GuiUtils.confirmDialog(getConsole(), I18n.text("Alignment Procedure"), "<html><h2>" 
+                + I18n.text("Alignment Procedure") + "</h2>"
+                + I18n.text("To align navigation, the vehicle must do straigth segments at the surface.") + "<br>"
+                + "<b>" + I18n.text("Do you want me to create a plan at surface for you?") + "</b><br>"
+                + I18n.text("(The plan generated may not be safe, please revise it.)")); 
 
         if (opt == JOptionPane.YES_OPTION) {
             EstimatedState lastState = getState().last(EstimatedState.class);
@@ -316,17 +317,17 @@ public class ImuAlignmentPanel extends ConsolePanel implements IPeriodicUpdates 
         
         if (!aligned && wasAligned) {
             if (useErrorNotification)
-                post(Notification.error(I18n.text("Navigation"), I18n.text("IMU is not aligned")));
+                post(Notification.error(I18n.text("Navigation"), I18n.text("Navigation is not aligned")));
             else
-                post(Notification.warning(I18n.text("Navigation"), I18n.text("IMU is not aligned")));
+                post(Notification.warning(I18n.text("Navigation"), I18n.text("Navigation is not aligned")));
             if (useAudioAlerts)
-                SpeechUtil.readSimpleText("I M U is not aligned");
+                SpeechUtil.readSimpleText("Navigation is not aligned");
         }
         
         if (aligned && !wasAligned) {
-            post(Notification.info(I18n.text("Navigation"), I18n.text("IMU is ready")));
+            post(Notification.info(I18n.text("Navigation"), I18n.text("Navigation is ready")));
             if (useAudioAlerts && (entityState.getDescription().equals("aligned") || entityState.getDescription().equals(I18n.text("aligned"))))
-                SpeechUtil.readSimpleText("I M U is ready");
+                SpeechUtil.readSimpleText("Navigation is ready");
         }
     }
     

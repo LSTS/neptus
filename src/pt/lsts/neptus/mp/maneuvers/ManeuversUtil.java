@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2016 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2017 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -13,8 +13,8 @@
  * written agreement between you and Universidade do Porto. For licensing
  * terms, conditions, and further information contact lsts@fe.up.pt.
  *
- * European Union Public Licence - EUPL v.1.1 Usage
- * Alternatively, this file may be used under the terms of the EUPL,
+ * Modified European Union Public Licence - EUPL v.1.1 Usage
+ * Alternatively, this file may be used under the terms of the Modified EUPL,
  * Version 1.1 only (the "Licence"), appearing in the file LICENCE.md
  * included in the packaging of this file. You may not use this work
  * except in compliance with the Licence. Unless required by applicable
@@ -22,7 +22,8 @@
  * distributed on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF
  * ANY KIND, either express or implied. See the Licence for the specific
  * language governing permissions and limitations at
- * http://ec.europa.eu/idabc/eupl.html.
+ * https://github.com/LSTS/neptus/blob/develop/LICENSE.md
+ * and http://ec.europa.eu/idabc/eupl.html.
  *
  * For more information please see <http://lsts.fe.up.pt/neptus>.
  *
@@ -48,6 +49,7 @@ import com.l2fprod.common.propertysheet.Property;
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.comm.IMCUtils;
 import pt.lsts.neptus.mp.Maneuver;
+import pt.lsts.neptus.mp.Maneuver.SPEED_UNITS;
 import pt.lsts.neptus.mp.preview.SpeedConversion;
 import pt.lsts.neptus.plugins.PluginProperty;
 import pt.lsts.neptus.plugins.PluginUtils;
@@ -475,17 +477,32 @@ public class ManeuversUtil {
         
         if (speedProp == null || unitsProp == null)
             return Double.NaN;
-        
-        switch (""+unitsProp.getValue()) {
-            case "m/s":
-                return Double.parseDouble(""+speedProp.getValue());
-            case "RPM":
-                return SpeedConversion.convertRpmtoMps(Double.parseDouble(""+speedProp.getValue()));
-            case "%":
-                return SpeedConversion.convertPercentageToMps(Double.parseDouble(""+speedProp.getValue()));
-            default:
-                NeptusLog.pub().error("Unrecognized speed units: "+unitsProp.getValue());
-                return Double.NaN;
+
+        if (unitsProp.getValue() instanceof Maneuver.SPEED_UNITS) {
+            switch ((Maneuver.SPEED_UNITS) unitsProp.getValue()) {
+                case METERS_PS:
+                    return Double.parseDouble(""+speedProp.getValue());
+                case RPM:
+                    return SpeedConversion.convertPercentageToMps(Double.parseDouble(""+speedProp.getValue()));
+                case PERCENTAGE:
+                    return SpeedConversion.convertPercentageToMps(Double.parseDouble(""+speedProp.getValue()));
+                default:
+                    NeptusLog.pub().error("Unrecognized speed units: "+unitsProp.getValue());
+                    return Double.NaN;
+            }
+        }
+        else {
+            switch (""+unitsProp.getValue()) {
+                case "m/s":
+                    return Double.parseDouble(""+speedProp.getValue());
+                case "RPM":
+                    return SpeedConversion.convertRpmtoMps(Double.parseDouble(""+speedProp.getValue()));
+                case "%":
+                    return SpeedConversion.convertPercentageToMps(Double.parseDouble(""+speedProp.getValue()));
+                default:
+                    NeptusLog.pub().error("Unrecognized speed units: "+unitsProp.getValue());
+                    return Double.NaN;
+            }
         }
     }
     
@@ -510,5 +527,35 @@ public class ManeuversUtil {
     
     public static <M extends Maneuver> Class<M> getManeuverFromType(String type) {
         return IMCUtils.getManeuverFromType(type);
+    }
+    
+    /**
+     * Check if the property has a name proper to "Speed Units", if yes parses the value
+     * and if not valid return a default value.
+     * If not with the right name return null.
+     * 
+     * @param p
+     * @return
+     */
+    public static Maneuver.SPEED_UNITS getSpeedUnitsFromPropertyOrNullIfInvalidName(Property p) {
+        if (p.getName().equalsIgnoreCase("Speed units") || p.getName().equalsIgnoreCase("SpeedUnits")) {
+            Object val = p.getValue();
+            if (val instanceof String) {
+                SPEED_UNITS units;
+                try {
+                    units = Maneuver.SPEED_UNITS.parse((String) val);
+                }
+                catch (Exception e) {
+                    units = SPEED_UNITS.RPM;
+                    e.printStackTrace();
+                }
+                return units;
+            }
+            else if (val instanceof Maneuver.SPEED_UNITS) {
+                return (SPEED_UNITS) val;
+            }
+        }
+
+        return null;
     }
 }

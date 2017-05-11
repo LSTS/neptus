@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2016 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2017 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -13,8 +13,8 @@
  * written agreement between you and Universidade do Porto. For licensing
  * terms, conditions, and further information contact lsts@fe.up.pt.
  *
- * European Union Public Licence - EUPL v.1.1 Usage
- * Alternatively, this file may be used under the terms of the EUPL,
+ * Modified European Union Public Licence - EUPL v.1.1 Usage
+ * Alternatively, this file may be used under the terms of the Modified EUPL,
  * Version 1.1 only (the "Licence"), appearing in the file LICENCE.md
  * included in the packaging of this file. You may not use this work
  * except in compliance with the Licence. Unless required by applicable
@@ -22,7 +22,8 @@
  * distributed on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF
  * ANY KIND, either express or implied. See the Licence for the specific
  * language governing permissions and limitations at
- * http://ec.europa.eu/idabc/eupl.html.
+ * https://github.com/LSTS/neptus/blob/develop/LICENSE.md
+ * and http://ec.europa.eu/idabc/eupl.html.
  *
  * For more information please see <http://lsts.fe.up.pt/neptus>.
  *
@@ -102,7 +103,7 @@ public class ImcSystem implements Comparable<ImcSystem> {
     // Authority WIP
     // FIXME add description to each one of the states
     public enum IMCAuthorityState { OFF, NONE, /* PAYLOAD_MONITOR, PAYLOAD, SYSTEM_MONITOR,*/ SYSTEM_FULL };
-    protected IMCAuthorityState authorityState = IMCAuthorityState.SYSTEM_FULL;
+    protected IMCAuthorityState authorityState = IMCAuthorityState.NONE;
     
 	/**
 	 * @param vehicle
@@ -114,14 +115,15 @@ public class ImcSystem implements Comparable<ImcSystem> {
 		setId((tmpId == null)?ImcId16.NULL_ID:tmpId);
 		CommMean commMean = CommUtil.getActiveCommMeanForProtocol(
                 vehicle, CommMean.IMC);
-		setCommsInfo((commMean == null)?null:commMean);
+        setCommsInfo((commMean == null) ? createEmptyCommMean() : commMean);
 	}
 
-	/**
+    /**
 	 * @param id
 	 */
 	public ImcSystem(ImcId16 id) {
 		this((id == null)?ImcId16.NULL_ID.toString():id.toString(), id);
+        setCommsInfo(createEmptyCommMean());
 	}
 
 	/**
@@ -132,6 +134,7 @@ public class ImcSystem implements Comparable<ImcSystem> {
 		setType(SystemTypeEnum.UNKNOWN);
 		setName(name);
 		setId((id == null)?ImcId16.NULL_ID:id);
+        setCommsInfo(createEmptyCommMean());
 	}
 
 	/**
@@ -140,7 +143,8 @@ public class ImcSystem implements Comparable<ImcSystem> {
 	 */
 	public ImcSystem(ImcId16 id, CommMean commMean) {
 		this(id);
-		setCommsInfo((commMean == null)?null:commMean);
+		if (commMean != null)
+		    setCommsInfo(commMean);
 	}
 
 	/**
@@ -150,10 +154,14 @@ public class ImcSystem implements Comparable<ImcSystem> {
 	 */
 	public ImcSystem(String name, ImcId16 id, CommMean commMean) {
 		this(name, id);
-		setCommsInfo((commMean == null)?null:commMean);
+        if (commMean != null)
+            setCommsInfo(commMean);
 	}
 
-	
+    private CommMean createEmptyCommMean() {
+        return ImcSystem.createCommMean("localhost", 0, 0, getId(), false, false);
+    }
+
 	/**
 	 * @return the name
 	 */
@@ -315,6 +323,10 @@ public class ImcSystem implements Comparable<ImcSystem> {
 	 * @param type the type to set
 	 */
 	public void setType(SystemTypeEnum type) {
+	    if (this.type == SystemTypeEnum.UNKNOWN && type != SystemTypeEnum.UNKNOWN) {
+	        if (type != SystemTypeEnum.CCU)
+                setAuthorityState(IMCAuthorityState.SYSTEM_FULL);
+	    }
 		this.type = type;
 	}
 
@@ -625,7 +637,9 @@ public class ImcSystem implements Comparable<ImcSystem> {
 	 */
 	@Override
 	public int compareTo(ImcSystem o) {
-		return getName().compareTo(o.getName());
+	    if (getId() == ImcId16.NULL_ID)
+	        return getName().compareTo(o.getName());
+		return getId().compareTo(o.getId());
 	}
 	
 	/**
@@ -970,7 +984,9 @@ public class ImcSystem implements Comparable<ImcSystem> {
     
     @Override
     public int hashCode() {
-        return name.hashCode();
+        if (getId() == ImcId16.NULL_ID)
+            return getName().hashCode();
+        return id.hashCode();
     }
     
     /**

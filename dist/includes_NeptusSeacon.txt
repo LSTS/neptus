@@ -1,11 +1,9 @@
 bin-bundles/neptus*.jar
 vehicles-defs/*-lauv-seacon-?.nvcl
-vehicles-defs/*-lauv-xtreme-2.nvcl
 vehicles-files/lauv/*seacon*.*
 vehicles-files/lauv/lauv-seacon0.x3d
 vehicles-files/lauv/lauv-xtreme-2.x3d
 conf/params/lauv-seacon-?.*.xml
-conf/params/lauv-xtreme-2.*.xml
 conf/messages/IMC.xml
 conf/consoles/lauv.ncon
 missions/APDL/missao-apdl.nmisz

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<config format="1" version="2016.05.0 (master,5a841ca)" system="x8-06" i18n="en_US">
+<config format="1" version="2017.01.0 (master,6686c4f0)" system="x8-06" i18n="en_US">
   <section name="Height Control" name-i18n="Height Control">
     <param name="Entity Label">
       <name-i18n>Entity Label</name-i18n>
@@ -423,6 +423,24 @@
       <units/>
       <desc>Convert altitude extracted from the Ardupilot to WGS84 height</desc>
     </param>
+    <param name="Loiter in Idle">
+      <name-i18n>Loiter in Idle</name-i18n>
+      <type>boolean</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>true</default>
+      <units/>
+      <desc>Loiter when in idle.</desc>
+    </param>
+    <param name="Use External Nav Data">
+      <name-i18n>Use External Nav Data</name-i18n>
+      <type>boolean</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>false</default>
+      <units/>
+      <desc>Dispatch ExternalNavData instead of EstimatedState</desc>
+    </param>
   </section>
   <section name="Path Control" name-i18n="Path Control">
     <param name="Entity Label">
@@ -647,15 +665,6 @@
       <units>°</units>
       <desc>Slope hysteresis when recovering from avoidance</desc>
     </param>
-    <param name="Bottom Track -- Minimum Altitude">
-      <name-i18n>Bottom Track -- Minimum Altitude</name-i18n>
-      <type>real</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>1.0</default>
-      <units>m</units>
-      <desc>Minimum admissible altitude for bottom tracking</desc>
-    </param>
     <param name="Bottom Track -- Minimum Range">
       <name-i18n>Bottom Track -- Minimum Range</name-i18n>
       <type>real</type>
@@ -664,24 +673,6 @@
       <default>4.0</default>
       <units>m</units>
       <desc>Minimum admissible forward range for bottom tracking</desc>
-    </param>
-    <param name="Bottom Track -- Altitude Tolerance">
-      <name-i18n>Bottom Track -- Altitude Tolerance</name-i18n>
-      <type>real</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>2.0</default>
-      <units>m</units>
-      <desc>Altitude tolerance below which altitude is ignored</desc>
-    </param>
-    <param name="Bottom Track -- Depth Tolerance">
-      <name-i18n>Bottom Track -- Depth Tolerance</name-i18n>
-      <type>real</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>1.0</default>
-      <units>m</units>
-      <desc>Depth tolerance below which altitude is ignored</desc>
     </param>
     <param name="Bottom Track -- Check Trend">
       <name-i18n>Bottom Track -- Check Trend</name-i18n>
@@ -767,6 +758,82 @@
       <desc>Use this controller for maneuver</desc>
     </param>
   </section>
+  <section name="Communications Relay Maneuver" name-i18n="Communications Relay Maneuver">
+    <param name="Entity Label">
+      <name-i18n>Entity Label</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>Communications Relay Maneuver</default>
+      <units/>
+      <desc>Main entity label</desc>
+    </param>
+    <param name="Execution Priority">
+      <name-i18n>Execution Priority</name-i18n>
+      <type>integer</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>10</default>
+      <units/>
+      <desc>Execution priority</desc>
+    </param>
+    <param name="Activation Time">
+      <name-i18n>Activation Time</name-i18n>
+      <type>integer</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>0</default>
+      <units/>
+      <desc/>
+    </param>
+    <param name="Deactivation Time">
+      <name-i18n>Deactivation Time</name-i18n>
+      <type>integer</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>0</default>
+      <units/>
+      <desc/>
+    </param>
+    <param name="Debug Level">
+      <name-i18n>Debug Level</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>None</default>
+      <units/>
+      <desc/>
+      <values>None, Debug, Trace, Spew</values>
+      <values-i18n>None, Debug, Trace, Spew</values-i18n>
+    </param>
+    <param name="Loitering Radius">
+      <name-i18n>Loitering Radius</name-i18n>
+      <type>real</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>100</default>
+      <units>m</units>
+      <desc>Radius of loitering circle after arriving at destination</desc>
+    </param>
+    <param name="Depth">
+      <name-i18n>Depth</name-i18n>
+      <type>real</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>-1</default>
+      <units>m</units>
+      <desc>Default depth. If value is below 0, altitude will be used instead.</desc>
+    </param>
+    <param name="Altitude">
+      <name-i18n>Altitude</name-i18n>
+      <type>real</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>150</default>
+      <units>m</units>
+      <desc>Altitude to use if depth less than 0.</desc>
+    </param>
+  </section>
   <section name="Follow Reference" name-i18n="Follow Reference">
     <param name="Entity Label">
       <name-i18n>Entity Label</name-i18n>
@@ -823,6 +890,7 @@
       <default>100</default>
       <units>m</units>
       <desc>Radius of loitering circle after arriving at destination</desc>
+      <min>0.0</min>
     </param>
     <param name="Default Speed">
       <name-i18n>Default Speed</name-i18n>
@@ -832,6 +900,7 @@
       <default>18</default>
       <units/>
       <desc>Speed to use in case no speed is given by reference source.</desc>
+      <min>0.0</min>
     </param>
     <param name="Default Speed Units">
       <name-i18n>Default Speed Units</name-i18n>
@@ -841,6 +910,8 @@
       <default>m/s</default>
       <units/>
       <desc>Units to use for default speed (one of 'm/s', 'rpm' or '%').</desc>
+      <values>m/s, rpm, %</values>
+      <values-i18n>m/s, rpm, %</values-i18n>
     </param>
     <param name="Default Z">
       <name-i18n>Default Z</name-i18n>
@@ -999,6 +1070,15 @@
       <units/>
       <desc>Dislodge maneuver's entity label</desc>
     </param>
+    <param name="Entity Label -- ScheduledGoto">
+      <name-i18n>Entity Label -- ScheduledGoto</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>ScheduledGoto Maneuver</default>
+      <units/>
+      <desc>ScheduledGoto maneuver's entity label</desc>
+    </param>
     <param name="Unsupported">
       <name-i18n>Unsupported</name-i18n>
       <type>list:string</type>
@@ -1061,6 +1141,16 @@
       <default>15</default>
       <units>°</units>
       <desc>Maximum course error admissible</desc>
+    </param>
+    <param name="YoYo -- Minimum Altitude Reference">
+      <name-i18n>YoYo -- Minimum Altitude Reference</name-i18n>
+      <type>real</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>5.0</default>
+      <units>m</units>
+      <desc>Minimum admissible altitude reference</desc>
+      <min>1.0</min>
     </param>
     <param name="Elevator -- Radius Tolerance">
       <name-i18n>Elevator -- Radius Tolerance</name-i18n>
@@ -1197,84 +1287,32 @@
       <units>m</units>
       <desc>Safe depth change to consider the maneuver was successful</desc>
     </param>
-  </section>
-  <section name="CPU" name-i18n="CPU">
-    <param name="Entity Label">
-      <name-i18n>Entity Label</name-i18n>
-      <type>string</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>CPU</default>
-      <units/>
-      <desc>Main entity label</desc>
-    </param>
-    <param name="Execution Priority">
-      <name-i18n>Execution Priority</name-i18n>
-      <type>integer</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>10</default>
-      <units/>
-      <desc>Execution priority</desc>
-    </param>
-    <param name="Activation Time">
-      <name-i18n>Activation Time</name-i18n>
-      <type>integer</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>0</default>
-      <units/>
-      <desc/>
-    </param>
-    <param name="Deactivation Time">
-      <name-i18n>Deactivation Time</name-i18n>
-      <type>integer</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>0</default>
-      <units/>
-      <desc/>
-    </param>
-    <param name="Debug Level">
-      <name-i18n>Debug Level</name-i18n>
-      <type>string</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>None</default>
-      <units/>
-      <desc/>
-      <values>None, Debug, Trace, Spew</values>
-      <values-i18n>None, Debug, Trace, Spew</values-i18n>
-    </param>
-    <param name="Execution Frequency">
-      <name-i18n>Execution Frequency</name-i18n>
+    <param name="Dislodge -- Safe Depth Gap">
+      <name-i18n>Dislodge -- Safe Depth Gap</name-i18n>
       <type>real</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>1</default>
-      <units>Hz</units>
-      <desc>Frequency at which task is executed</desc>
+      <default>3.0</default>
+      <units>m</units>
+      <desc>Safe depth change to consider the maneuver was successful</desc>
     </param>
-    <param name="CPU - Moving Average Samples">
-      <name-i18n>CPU - Moving Average Samples</name-i18n>
-      <type>integer</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>10</default>
-      <units/>
-      <desc>Number of moving average samples to smooth CPU usage</desc>
-      <min>0</min>
-    </param>
-    <param name="CPU - Maximum Usage">
-      <name-i18n>CPU - Maximum Usage</name-i18n>
+    <param name="ScheduledGoto -- Minimum Speed">
+      <name-i18n>ScheduledGoto -- Minimum Speed</name-i18n>
       <type>real</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>85</default>
-      <units/>
-      <desc>Maximum CPU usage. When this value is hit an error will be raised</desc>
-      <min>0</min>
-      <max>100</max>
+      <default>0.7</default>
+      <units>m/s</units>
+      <desc>Move only at speeds higher than the minimum speed</desc>
+    </param>
+    <param name="ScheduledGoto -- Maximum Speed">
+      <name-i18n>ScheduledGoto -- Maximum Speed</name-i18n>
+      <type>real</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>1.6</default>
+      <units>m/s</units>
+      <desc>Maximum commanded speed</desc>
     </param>
   </section>
   <section name="Clock" name-i18n="Clock">
@@ -1562,7 +1600,7 @@
       <default>15.0</default>
       <units>s</units>
       <desc>Time to wait at beginning before assessing vehicle medium</desc>
-      <min>20.0</min>
+      <min>5.0</min>
       <max>60.0</max>
     </param>
     <param name="Wet Data Timeout">
@@ -1602,15 +1640,26 @@
       <visibility>developer</visibility>
       <scope>global</scope>
       <default>12.5</default>
-      <units>m</units>
+      <units>m/s</units>
       <desc>Minimum air speed necessary to consider a vehicle in air</desc>
+      <min>0.0</min>
+    </param>
+    <param name="Ground Speed Threshold">
+      <name-i18n>Ground Speed Threshold</name-i18n>
+      <type>real</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>2.0</default>
+      <units>m/s</units>
+      <desc>Minimum ground speed necessary to consider a vehicle has landed</desc>
+      <min>0.0</min>
     </param>
     <param name="Altitude Threshold">
       <name-i18n>Altitude Threshold</name-i18n>
       <type>real</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>1</default>
+      <default>2.5</default>
       <units>m</units>
       <desc>Minimum altitude necessary to consider a vehicle (Copter) in air</desc>
     </param>
@@ -1632,9 +1681,9 @@
       <scope>global</scope>
       <default>FixedWing</default>
       <units/>
-      <desc>Sub-Type of vehicle</desc>
-      <values>FixedWing, Copter</values>
-      <values-i18n>FixedWing, Copter</values-i18n>
+      <desc>Sub-Type of vehicle, if applicable</desc>
+      <values>None, FixedWing, Copter</values>
+      <values-i18n>None, FixedWing, Copter</values-i18n>
     </param>
     <param name="Entity Label - Medium Sensor">
       <name-i18n>Entity Label - Medium Sensor</name-i18n>
@@ -2223,7 +2272,7 @@
       <type>string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>5V C.1</default>
+      <default>5V C.1 (Photo Trigger)</default>
       <units/>
       <desc/>
     </param>
@@ -2277,7 +2326,7 @@
       <type>string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>12V C.1</default>
+      <default>12V C.1 (Wifi Board)</default>
       <units/>
       <desc/>
     </param>
@@ -2295,7 +2344,7 @@
       <type>string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>12V C.2</default>
+      <default>12V C.2 (Switch ETH)</default>
       <units/>
       <desc/>
     </param>
@@ -2349,7 +2398,7 @@
       <type>string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>48V C</default>
+      <default>48V C (Axis/FLIR Camera)</default>
       <units/>
       <desc/>
     </param>
@@ -3544,6 +3593,165 @@
       <default>100</default>
       <units/>
       <desc>Distance to surface (sea or ground)</desc>
+    </param>
+    <param name="PhotoTrigger PCC">
+      <name-i18n>PhotoTrigger PCC</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>5V C.1 (Photo Trigger)</default>
+      <units/>
+      <desc>PhotoTrigger PowerChannelControl name.</desc>
+    </param>
+  </section>
+  <section name="UAVCamera" name-i18n="UAVCamera">
+    <param name="Entity Label">
+      <name-i18n>Entity Label</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>UAVCamera</default>
+      <units/>
+      <desc>Main entity label</desc>
+    </param>
+    <param name="Execution Priority">
+      <name-i18n>Execution Priority</name-i18n>
+      <type>integer</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>10</default>
+      <units/>
+      <desc>Execution priority</desc>
+    </param>
+    <param name="Activation Time">
+      <name-i18n>Activation Time</name-i18n>
+      <type>integer</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>0</default>
+      <units/>
+      <desc/>
+    </param>
+    <param name="Deactivation Time">
+      <name-i18n>Deactivation Time</name-i18n>
+      <type>integer</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>0</default>
+      <units/>
+      <desc/>
+    </param>
+    <param name="Debug Level">
+      <name-i18n>Debug Level</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>None</default>
+      <units/>
+      <desc/>
+      <values>None, Debug, Trace, Spew</values>
+      <values-i18n>None, Debug, Trace, Spew</values-i18n>
+    </param>
+    <param name="Active - Scope">
+      <name-i18n>Active - Scope</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>maneuver</default>
+      <units/>
+      <desc>Scoped of the 'Active' parameter</desc>
+    </param>
+    <param name="Active - Visibility">
+      <name-i18n>Active - Visibility</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>user</default>
+      <units/>
+      <desc>Visibility of the 'Active' parameter</desc>
+    </param>
+    <param name="Active">
+      <name-i18n>Active</name-i18n>
+      <type>boolean</type>
+      <visibility>user</visibility>
+      <scope>maneuver</scope>
+      <default>0</default>
+      <units/>
+      <desc>True to activate task, false otherwise</desc>
+    </param>
+    <param name="Onboard Camera">
+      <name-i18n>Onboard Camera</name-i18n>
+      <type>string</type>
+      <visibility>user</visibility>
+      <scope>maneuver</scope>
+      <default>AXIS</default>
+      <units/>
+      <desc>Onboard camera.</desc>
+      <values>AXIS, FLIR</values>
+      <values-i18n>AXIS, FLIR</values-i18n>
+    </param>
+    <param name="Power Channel Name">
+      <name-i18n>Power Channel Name</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>48V C</default>
+      <units/>
+      <desc>Default power channel name</desc>
+    </param>
+    <param name="(AXIS) Horizontal AOV">
+      <name-i18n>(AXIS) Horizontal AOV</name-i18n>
+      <type>integer</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>80</default>
+      <units/>
+      <desc>Cross-Track Angle of View, in degrees.</desc>
+    </param>
+    <param name="(AXIS) Vertical AOV">
+      <name-i18n>(AXIS) Vertical AOV</name-i18n>
+      <type>integer</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>53</default>
+      <units/>
+      <desc>Along-Track Angle of View, in degrees.</desc>
+    </param>
+    <param name="(AXIS) Tilt Angle">
+      <name-i18n>(AXIS) Tilt Angle</name-i18n>
+      <type>real</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>-27.5</default>
+      <units/>
+      <desc>Camera mount tilt angle, in degrees.</desc>
+    </param>
+    <param name="(FLIR) Horizontal AOV">
+      <name-i18n>(FLIR) Horizontal AOV</name-i18n>
+      <type>integer</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>45</default>
+      <units/>
+      <desc>Cross-Track Angle of View, in degrees.</desc>
+    </param>
+    <param name="(FLIR) Vertical AOV">
+      <name-i18n>(FLIR) Vertical AOV</name-i18n>
+      <type>integer</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>37</default>
+      <units/>
+      <desc>Along-Track Angle of View, in degrees.</desc>
+    </param>
+    <param name="(FLIR) Tilt Angle">
+      <name-i18n>(FLIR) Tilt Angle</name-i18n>
+      <type>real</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>-27.5</default>
+      <units/>
+      <desc>Camera mount tilt angle, in degrees.</desc>
     </param>
   </section>
 </config>

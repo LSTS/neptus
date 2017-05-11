@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2016 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2017 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -13,8 +13,8 @@
  * written agreement between you and Universidade do Porto. For licensing
  * terms, conditions, and further information contact lsts@fe.up.pt.
  *
- * European Union Public Licence - EUPL v.1.1 Usage
- * Alternatively, this file may be used under the terms of the EUPL,
+ * Modified European Union Public Licence - EUPL v.1.1 Usage
+ * Alternatively, this file may be used under the terms of the Modified EUPL,
  * Version 1.1 only (the "Licence"), appearing in the file LICENCE.md
  * included in the packaging of this file. You may not use this work
  * except in compliance with the Licence. Unless required by applicable
@@ -22,7 +22,8 @@
  * distributed on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF
  * ANY KIND, either express or implied. See the Licence for the specific
  * language governing permissions and limitations at
- * http://ec.europa.eu/idabc/eupl.html.
+ * https://github.com/LSTS/neptus/blob/develop/LICENSE.md
+ * and http://ec.europa.eu/idabc/eupl.html.
  *
  * For more information please see <http://lsts.fe.up.pt/neptus>.
  *
@@ -47,7 +48,6 @@ import pt.lsts.imc.IMCMessage;
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.gui.PropertiesEditor;
 import pt.lsts.neptus.mp.Maneuver;
-import pt.lsts.neptus.mp.SystemPositionAndAttitude;
 import pt.lsts.neptus.renderer2d.StateRenderer2D;
 import pt.lsts.neptus.types.map.PlanElement;
 import pt.lsts.neptus.types.mission.plan.PlanType;
@@ -57,14 +57,11 @@ import pt.lsts.neptus.types.mission.plan.PlanType;
  * @author zepinto
  */
 public class SubPlan extends Maneuver implements IMCSerialization {
-
 	
 	protected String planId = "";
 	protected String startNodeId = "";
 	protected boolean drawSubPlan = true;
 	protected PlanElement subplan;
-	
-	
 
 	public void loadFromXML(String xml) {
 		try {
@@ -142,22 +139,12 @@ public class SubPlan extends Maneuver implements IMCSerialization {
 	}
 
 	public Object clone() {
-		
 		SubPlan u = new SubPlan();
 		super.clone(u);
 		u.setPlanId(getPlanId());
 		u.setStartNodeId(getStartNodeId());
 		return u;
 	}
-
-	public SystemPositionAndAttitude ManeuverFunction(SystemPositionAndAttitude lastVehicleState) {
-		endManeuver();
-		//JOptionPane.showMessageDialog(new JFrame(), "<html>The current maneuver is unconstrained (tele-operation)<br>"+
-		//		"Click to proceed to the next maneuver", "Unconstrained Maneuver", JOptionPane.INFORMATION_MESSAGE
-		//	);
-		return lastVehicleState;		
-	}
-	
 
 	public Document getManeuverAsDocument(String rootElementName) {
 	    Document document = DocumentHelper.createDocument();
@@ -167,7 +154,6 @@ public class SubPlan extends Maneuver implements IMCSerialization {
 	    root.addAttribute("startNodeId", startNodeId);
 	    return document;
 	}
-
 	
 	@Override
 	public void parseIMCMessage(IMCMessage message) {
@@ -175,8 +161,7 @@ public class SubPlan extends Maneuver implements IMCSerialization {
 		setStartNodeId(message.getAsString("node_id"));		
 	}
 	
-	public IMCMessage serializeToIMC()
-	{
+	public IMCMessage serializeToIMC() {
 		IMCMessage man = IMCDefinition.getInstance().create("SubPlan");
 		man.setValue("plan_id", getPlanId());
 		man.setValue("node_id", getStartNodeId());

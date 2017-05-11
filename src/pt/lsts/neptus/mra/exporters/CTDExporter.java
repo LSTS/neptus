@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2016 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2017 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -13,8 +13,8 @@
  * written agreement between you and Universidade do Porto. For licensing
  * terms, conditions, and further information contact lsts@fe.up.pt.
  *
- * European Union Public Licence - EUPL v.1.1 Usage
- * Alternatively, this file may be used under the terms of the EUPL,
+ * Modified European Union Public Licence - EUPL v.1.1 Usage
+ * Alternatively, this file may be used under the terms of the Modified EUPL,
  * Version 1.1 only (the "Licence"), appearing in the file LICENSE.md
  * included in the packaging of this file. You may not use this work
  * except in compliance with the Licence. Unless required by applicable
@@ -22,7 +22,8 @@
  * distributed on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF
  * ANY KIND, either express or implied. See the Licence for the specific
  * language governing permissions and limitations at
- * http://ec.europa.eu/idabc/eupl.html.
+ * https://github.com/LSTS/neptus/blob/develop/LICENSE.md
+ * and http://ec.europa.eu/idabc/eupl.html.
  *
  * For more information please see <http://lsts.fe.up.pt/neptus>.
  *
@@ -70,10 +71,12 @@ public class CTDExporter implements MRAExporter {
     public CTDExporter(IMraLogGroup source) {
 
     }
+    
+    String ctdEntity = "CTD";
 
     @Override
     public boolean canBeApplied(IMraLogGroup source) {
-        return source.getLsfIndex().getEntityId("CTD") != -1;
+        return source.getLsfIndex().containsMessagesOfType("Conductivity");
     };
 
     private String finish(BufferedWriter writer, int count) {
@@ -88,7 +91,7 @@ public class CTDExporter implements MRAExporter {
     @SuppressWarnings("resource")
     @Override
     public String process(IMraLogGroup source, ProgressMonitor pmonitor) {
-
+        ctdEntity = source.getLsfIndex().getFirst(Conductivity.class).getEntityName();
         
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy'-'MM'-'dd HH:mm:ss");
         sdf.setTimeZone(TimeZone.getTimeZone("UTC"));
@@ -168,7 +171,7 @@ public class CTDExporter implements MRAExporter {
             return e.getClass().getSimpleName()+": "+e.getMessage();
         }
         while (true) {
-            Conductivity c = scanner.next(Conductivity.class, "CTD");
+            Conductivity c = scanner.next(Conductivity.class, ctdEntity);
             
             if (c == null || c.getTimestampMillis() > end.getTime())
                 return finish(writer, count);
@@ -187,7 +190,7 @@ public class CTDExporter implements MRAExporter {
             if (containsSalinity)
                 s = scanner.next(Salinity.class);
             
-            Temperature t = scanner.next(Temperature.class, "CTD");
+            Temperature t = scanner.next(Temperature.class, ctdEntity);
             if (t == null)
                 return finish(writer, count);
             EstimatedState d = scanner.next(EstimatedState.class);

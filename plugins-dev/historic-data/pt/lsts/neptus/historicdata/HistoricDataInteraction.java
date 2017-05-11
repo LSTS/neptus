@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2016 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2017 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -13,8 +13,8 @@
  * written agreement between you and Universidade do Porto. For licensing
  * terms, conditions, and further information contact lsts@fe.up.pt.
  *
- * European Union Public Licence - EUPL v.1.1 Usage
- * Alternatively, this file may be used under the terms of the EUPL,
+ * Modified European Union Public Licence - EUPL v.1.1 Usage
+ * Alternatively, this file may be used under the terms of the Modified EUPL,
  * Version 1.1 only (the "Licence"), appearing in the file LICENSE.md
  * included in the packaging of this file. You may not use this work
  * except in compliance with the Licence. Unless required by applicable
@@ -22,7 +22,8 @@
  * distributed on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF
  * ANY KIND, either express or implied. See the Licence for the specific
  * language governing permissions and limitations at
- * http://ec.europa.eu/idabc/eupl.html.
+ * https://github.com/LSTS/neptus/blob/develop/LICENSE.md
+ * and http://ec.europa.eu/idabc/eupl.html.
  *
  * For more information please see <http://lsts.fe.up.pt/neptus>.
  *
@@ -43,6 +44,7 @@ import java.awt.geom.Ellipse2D;
 import java.awt.geom.Point2D;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.TimeZone;
@@ -71,12 +73,14 @@ import pt.lsts.imc.HistoricDataQuery.TYPE;
 import pt.lsts.imc.HistoricEvent;
 import pt.lsts.imc.IMCMessage;
 import pt.lsts.imc.PlanControl;
+import pt.lsts.imc.RemoteCommand;
 import pt.lsts.imc.PlanControl.OP;
 import pt.lsts.imc.historic.DataSample;
 import pt.lsts.imc.sender.MessageEditor;
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.colormap.ColorMap;
 import pt.lsts.neptus.colormap.ColorMapFactory;
+import pt.lsts.neptus.comm.manager.imc.ImcMsgManager;
 import pt.lsts.neptus.comm.manager.imc.ImcSystemsHolder;
 import pt.lsts.neptus.console.ConsoleInteraction;
 import pt.lsts.neptus.console.notifications.Notification;
@@ -270,9 +274,17 @@ public class HistoricDataInteraction extends ConsoleInteraction {
     }
 
     @Subscribe
+    public void on(HistoricData data) {
+        if (data.getDst() == ImcMsgManager.getManager().getLocalId().intValue()) {
+            webAdapter.addLocalData(data);
+            process(data);
+        }
+    }
+    
+    @Subscribe
     public void on(HistoricDataQuery query) {
         try {
-            if (query.getType() == HistoricDataQuery.TYPE.REPLY) {
+            if (query.getType() == HistoricDataQuery.TYPE.REPLY && query.getDst() == ImcMsgManager.getManager().getLocalId().intValue()) {
                 webAdapter.addLocalData(query.getData());
                 process(query.getData());
                 HistoricDataQuery clear = new HistoricDataQuery();
@@ -291,6 +303,8 @@ public class HistoricDataInteraction extends ConsoleInteraction {
             e.printStackTrace();
         }
     }
+    
+    
     
     private MessageEditor editor = new MessageEditor();
     private JFormattedTextField timeoutMins = new JFormattedTextField(GuiUtils.getNeptusIntegerFormat());
@@ -318,12 +332,18 @@ public class HistoricDataInteraction extends ConsoleInteraction {
         form.add(new JLabel(I18n.text("Plan:")));
         form.add(plansCombo, "wrap");
         
+        form.add(new JLabel(I18n.text("Comm Mean:")));
+        String[] means = new String[] {"Acoustic", "Web", "Wi-Fi"};
+        JComboBox<String> commMeans = new JComboBox<String>(means);
+        
+        form.add(commMeans, "wrap");
+        
         form.add(new JLabel(I18n.text("Timeut (mins):")));
         form.add(timeoutMins, "wrap");
         
         JButton send = new JButton(I18n.text("Command Plan"));
         form.add(send, "span 2");
-        JDialog dialog = new JDialog(getConsole(), "Command Plan via web", ModalityType.DOCUMENT_MODAL);
+        JDialog dialog = new JDialog(getConsole(), "Command Plan", ModalityType.DOCUMENT_MODAL);
         dialog.setContentPane(form);
         dialog.setSize(300, 150);
         GuiUtils.centerParent(dialog, getConsole());
@@ -340,9 +360,25 @@ public class HistoricDataInteraction extends ConsoleInteraction {
                         .setType(pt.lsts.imc.PlanControl.TYPE.REQUEST);
                 double timeout = System.currentTimeMillis();
                 timeout += 60.0 * Double.parseDouble(timeoutMins.getText());
-                synchronized (uploadStatuses) {
-                    uploadStatuses.add(webAdapter.command("" + vehiclesCombo.getSelectedItem(), pc, timeout));
-                }                
+                if ((""+commMeans.getSelectedItem()).equals("Web")) {
+                    synchronized (uploadStatuses) {
+                        uploadStatuses.add(webAdapter.command("" + vehiclesCombo.getSelectedItem(), pc, timeout));
+                    }    
+                }
+                else if ((""+commMeans.getSelectedItem()).equals("Wi-Fi")) {
+                    HistoricData data = new HistoricData();
+                    RemoteCommand cmd = new RemoteCommand();
+                    cmd.setDestination(ImcSystemsHolder.getSystemWithName(""+vehiclesCombo.getSelectedItem()).getId().intValue());
+                    cmd.setOriginalSource(ImcMsgManager.getManager().getLocalId().intValue());
+                    cmd.setCmd(pc);
+                    cmd.setTimeout(timeout);
+                    data.setData(Arrays.asList(cmd));
+                    ImcMsgManager.getManager().sendMessageToSystem(data, getConsole().getMainSystem());
+                }
+                else if ((""+commMeans.getSelectedItem()).equals("Acoustic")) {
+                    
+                }
+                                
                 dialog.setVisible(false);
                 dialog.dispose();
             }

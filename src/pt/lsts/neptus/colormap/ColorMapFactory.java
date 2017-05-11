@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2016 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2017 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -13,8 +13,8 @@
  * written agreement between you and Universidade do Porto. For licensing
  * terms, conditions, and further information contact lsts@fe.up.pt.
  *
- * European Union Public Licence - EUPL v.1.1 Usage
- * Alternatively, this file may be used under the terms of the EUPL,
+ * Modified European Union Public Licence - EUPL v.1.1 Usage
+ * Alternatively, this file may be used under the terms of the Modified EUPL,
  * Version 1.1 only (the "Licence"), appearing in the file LICENCE.md
  * included in the packaging of this file. You may not use this work
  * except in compliance with the Licence. Unless required by applicable
@@ -22,7 +22,8 @@
  * distributed on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF
  * ANY KIND, either express or implied. See the Licence for the specific
  * language governing permissions and limitations at
- * http://ec.europa.eu/idabc/eupl.html.
+ * https://github.com/LSTS/neptus/blob/develop/LICENSE.md
+ * and http://ec.europa.eu/idabc/eupl.html.
  *
  * For more information please see <http://lsts.fe.up.pt/neptus>.
  *
@@ -62,6 +63,7 @@ public class ColorMapFactory {
         colorMapNamesList.add("White");
         colorMapNamesList.add("Rainbow");
         colorMapNamesList.add("Bronze");
+        colorMapNamesList.add("BrownToWhite");
         colorMapNamesList.add("StoreData");
 
         Collections.sort(colorMapNamesList);
@@ -109,6 +111,8 @@ public class ColorMapFactory {
             return createRedYellowGreenColorMap();
         else if ("bronze".equalsIgnoreCase(name))
             return createBronzeColormap();
+        else if ("brownToWhite".equalsIgnoreCase(name))
+            return createBrownToWhiteColormap();
 
         else {
             for (int i = 0; i < ColorMap.cmaps.length; i++) {
@@ -356,6 +360,22 @@ public class ColorMapFactory {
         return bronze;
     }
 
+    private static InterpolationColorMap brownToWhite = null;
+    public static InterpolationColorMap createBrownToWhiteColormap() {
+        if (brownToWhite == null) {
+            InputStreamReader isr = new InputStreamReader(
+                    ClassLoader.getSystemResourceAsStream("colormaps/brown_white.255.colormap"));
+            try {
+                brownToWhite = new TabulatedColorMap(isr, true);
+                ((InterpolationColorMap) brownToWhite).setName(I18n.textc("BrownToWhite", "Colormap name"));
+            }
+            catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+        return brownToWhite;
+    }
+
     private static InterpolationColorMap sscanmap = null;
 
     public static InterpolationColorMap createSideScanColorMap() {
@@ -393,6 +413,11 @@ public class ColorMapFactory {
         ColorBar bar2 = new ColorBar(ColorBar.HORIZONTAL_ORIENTATION, ColorMapFactory.createAutumnColorMap());
         GuiUtils.testFrame(bar, bar.getCmap().toString());
         GuiUtils.testFrame(bar2, bar2.getCmap().toString());
+
+        ColorBar bar3 = new ColorBar(ColorBar.HORIZONTAL_ORIENTATION, ColorMapFactory.createBronzeColormap());
+        GuiUtils.testFrame(bar3, bar3.getCmap().toString());
+        ColorBar bar4 = new ColorBar(ColorBar.HORIZONTAL_ORIENTATION, ColorMapFactory.createBrownToWhiteColormap());
+        GuiUtils.testFrame(bar4, bar4.getCmap().toString());
 
     }
 }

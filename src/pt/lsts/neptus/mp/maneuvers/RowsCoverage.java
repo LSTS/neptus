@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2016 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2017 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -13,8 +13,8 @@
  * written agreement between you and Universidade do Porto. For licensing
  * terms, conditions, and further information contact lsts@fe.up.pt.
  *
- * European Union Public Licence - EUPL v.1.1 Usage
- * Alternatively, this file may be used under the terms of the EUPL,
+ * Modified European Union Public Licence - EUPL v.1.1 Usage
+ * Alternatively, this file may be used under the terms of the Modified EUPL,
  * Version 1.1 only (the "Licence"), appearing in the file LICENCE.md
  * included in the packaging of this file. You may not use this work
  * except in compliance with the Licence. Unless required by applicable
@@ -22,7 +22,8 @@
  * distributed on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF
  * ANY KIND, either express or implied. See the Licence for the specific
  * language governing permissions and limitations at
- * http://ec.europa.eu/idabc/eupl.html.
+ * https://github.com/LSTS/neptus/blob/develop/LICENSE.md
+ * and http://ec.europa.eu/idabc/eupl.html.
  *
  * For more information please see <http://lsts.fe.up.pt/neptus>.
  *
@@ -57,6 +58,8 @@ import com.l2fprod.common.propertysheet.Property;
 
 import pt.lsts.imc.IMCMessage;
 import pt.lsts.imc.Rows;
+import pt.lsts.imc.def.SpeedUnits;
+import pt.lsts.imc.def.ZUnits;
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.gui.ToolbarSwitch;
 import pt.lsts.neptus.gui.editor.SpeedUnitsEnumEditor;
@@ -78,7 +81,7 @@ import pt.lsts.neptus.util.XMLUtil;
 /**
  * @author pdias
  */
-public class RowsCoverage extends Maneuver implements LocatedManeuver, StateRendererInteraction,
+public class RowsCoverage extends Maneuver implements LocatedManeuver, ManeuverWithSpeed, StateRendererInteraction,
 IMCSerialization, StatisticsProvider, PathProvider {
 
     protected double latDegs = 0;
@@ -591,7 +594,7 @@ IMCSerialization, StatisticsProvider, PathProvider {
         man.setLat(Math.toRadians(latDegs));
         man.setLon(Math.toRadians(lonDegs));
         man.setZ(z);
-        man.setZUnits(pt.lsts.imc.RowsCoverage.Z_UNITS.valueOf(getManeuverLocation().getZUnits().toString()));        
+        man.setZUnits(ZUnits.valueOf(getManeuverLocation().getZUnits().toString()));        
         man.setSpeed(speed);
         man.setWidth(width);
         man.setLength(length);
@@ -605,16 +608,23 @@ IMCSerialization, StatisticsProvider, PathProvider {
         man.setFlags((short) ((squareCurve ? pt.lsts.imc.RowsCoverage.FLG_SQUARE_CURVE : 0) 
                 + (firstCurveRight ? pt.lsts.imc.RowsCoverage.FLG_CURVE_RIGHT : 0)));
 
-        String speedU = this.getSpeedUnits().name();
-        if ("m/s".equalsIgnoreCase(speedU))
-            man.setSpeedUnits(pt.lsts.imc.RowsCoverage.SPEED_UNITS.METERS_PS);
-        else if ("RPM".equalsIgnoreCase(speedU))
-            man.setSpeedUnits(pt.lsts.imc.RowsCoverage.SPEED_UNITS.RPM);
-        else if ("%".equalsIgnoreCase(speedU))
-            man.setSpeedUnits(pt.lsts.imc.RowsCoverage.SPEED_UNITS.PERCENTAGE);
-        else if ("percentage".equalsIgnoreCase(speedU))
-            man.setSpeedUnits(pt.lsts.imc.RowsCoverage.SPEED_UNITS.PERCENTAGE);
-
+        try {
+            switch (this.getSpeedUnits()) {
+                case PERCENTAGE:
+                    man.setSpeedUnits(SpeedUnits.PERCENTAGE);
+                    break;
+                case RPM:
+                    man.setSpeedUnits(SpeedUnits.RPM);
+                    break;
+                case METERS_PS:
+                default:
+                    man.setSpeedUnits(SpeedUnits.METERS_PS);
+                    break;
+            }
+        }
+        catch (Exception ex) {
+            NeptusLog.pub().error(this, ex);                     
+        }
         return man;
     }
 

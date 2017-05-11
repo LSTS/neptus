@@ -37,9 +37,11 @@ import com.l2fprod.common.propertysheet.DefaultProperty;
 import com.l2fprod.common.propertysheet.Property;
 
 import pt.lsts.imc.IMCMessage;
-import pt.lsts.imc.Sample.SYRINGE0;
-import pt.lsts.imc.Sample.SYRINGE1;
-import pt.lsts.imc.Sample.SYRINGE2;
+import pt.lsts.imc.def.Boolean;
+import pt.lsts.imc.def.SpeedUnits;
+import pt.lsts.imc.def.ZUnits;
+import pt.lsts.neptus.NeptusLog;
+import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.mp.ManeuverLocation;
 import pt.lsts.neptus.plugins.NeptusProperty;
 import pt.lsts.neptus.types.coord.LocationType;
@@ -68,9 +70,8 @@ public class Sample extends Goto {
     public Object clone() {  
         Sample clone = new Sample();
         super.clone(clone);
-        clone.params = params;
         clone.setManeuverLocation(getManeuverLocation());
-        clone.setSpeedUnits(getUnits());
+        clone.setSpeedUnits(getSpeedUnits());
         clone.setSpeed(getSpeed());
         clone.setSpeedTolerance(getSpeedTolerance());
         clone.setUseSyringe0(useSyringe0);
@@ -89,13 +90,13 @@ public class Sample extends Goto {
             setSpeed(msg.getSpeed());
             switch (msg.getSpeedUnits()) {
                 case METERS_PS:
-                    setSpeedUnits("m/s");
+                    setSpeedUnits(SPEED_UNITS.METERS_PS);
                     break;
                 case PERCENTAGE:
-                    setSpeedUnits("%");
+                    setSpeedUnits(SPEED_UNITS.PERCENTAGE);
                     break;
                 case RPM:
-                    setSpeedUnits("RPM");
+                    setSpeedUnits(SPEED_UNITS.RPM);
                     break;
             }
             ManeuverLocation pos = new ManeuverLocation();
@@ -149,27 +150,28 @@ public class Sample extends Goto {
         sampleManeuver.setLat(l.getLatitudeRads());
         sampleManeuver.setLon(l.getLongitudeRads());
         sampleManeuver.setZ(getManeuverLocation().getZ());
-        sampleManeuver.setZUnits(pt.lsts.imc.Sample.Z_UNITS.valueOf(getManeuverLocation().getZUnits().name()));
+        sampleManeuver.setZUnits(ZUnits.valueOf(getManeuverLocation().getZUnits().name()));
+
         sampleManeuver.setSpeed(this.getSpeed());
 
-        switch (this.getUnits()) {
-            case "m/s":
-                sampleManeuver.setSpeedUnits(pt.lsts.imc.Sample.SPEED_UNITS.METERS_PS);
+        switch (this.getSpeedUnits()) {
+            case METERS_PS:
+                sampleManeuver.setSpeedUnits(SpeedUnits.METERS_PS);
                 break;
-            case "RPM":
-                sampleManeuver.setSpeedUnits(pt.lsts.imc.Sample.SPEED_UNITS.RPM);
+            case RPM:
+                sampleManeuver.setSpeedUnits(SpeedUnits.RPM);
                 break;
-            case "%":
-                sampleManeuver.setSpeedUnits(pt.lsts.imc.Sample.SPEED_UNITS.PERCENTAGE);
+            case PERCENTAGE:
+                sampleManeuver.setSpeedUnits(SpeedUnits.PERCENTAGE);
                 break;
             default:
-                sampleManeuver.setSpeedUnits(pt.lsts.imc.Sample.SPEED_UNITS.RPM);
+                sampleManeuver.setSpeedUnits(SpeedUnits.RPM);
                 break;
         }
        
-        sampleManeuver.setSyringe0(getStateSyringe0() ? SYRINGE0.TRUE : SYRINGE0.FALSE);
-        sampleManeuver.setSyringe1(getStateSyringe1() ? SYRINGE1.TRUE : SYRINGE1.FALSE);
-        sampleManeuver.setSyringe2(getStateSyringe2() ? SYRINGE2.TRUE : SYRINGE2.FALSE);
+        sampleManeuver.setSyringe0(getStateSyringe0() ? Boolean.TRUE : Boolean.FALSE);
+        sampleManeuver.setSyringe1(getStateSyringe1() ? Boolean.TRUE : Boolean.FALSE);
+        sampleManeuver.setSyringe2(getStateSyringe2() ? Boolean.TRUE : Boolean.FALSE);
 
         sampleManeuver.setCustom(getCustomSettings());
 

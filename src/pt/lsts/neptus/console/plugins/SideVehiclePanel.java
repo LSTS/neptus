@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2016 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2017 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -13,8 +13,8 @@
  * written agreement between you and Universidade do Porto. For licensing
  * terms, conditions, and further information contact lsts@fe.up.pt.
  *
- * European Union Public Licence - EUPL v.1.1 Usage
- * Alternatively, this file may be used under the terms of the EUPL,
+ * Modified European Union Public Licence - EUPL v.1.1 Usage
+ * Alternatively, this file may be used under the terms of the Modified EUPL,
  * Version 1.1 only (the "Licence"), appearing in the file LICENCE.md
  * included in the packaging of this file. You may not use this work
  * except in compliance with the Licence. Unless required by applicable
@@ -22,7 +22,8 @@
  * distributed on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF
  * ANY KIND, either express or implied. See the Licence for the specific
  * language governing permissions and limitations at
- * http://ec.europa.eu/idabc/eupl.html.
+ * https://github.com/LSTS/neptus/blob/develop/LICENSE.md
+ * and http://ec.europa.eu/idabc/eupl.html.
  *
  * For more information please see <http://lsts.fe.up.pt/neptus>.
  *
@@ -33,6 +34,7 @@ package pt.lsts.neptus.console.plugins;
 
 import java.awt.BasicStroke;
 import java.awt.Color;
+import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Image;
@@ -96,7 +98,8 @@ public class SideVehiclePanel extends JPanel {
 
     @Override
     public void paint(Graphics arg0) {
-
+        //setBackground(Color.white);
+        //setOpaque(true);
         super.paint(arg0);
         update(arg0);
 
@@ -173,6 +176,13 @@ public class SideVehiclePanel extends JPanel {
 
             g.draw(new Line2D.Double(0, getHeight() / 2, getWidth(), getHeight() / 2));
             g2.drawImage(bi, 0, 0, this);
+            
+            g2.setFont(new Font("Helvetica", Font.BOLD, 14));
+            g2.setColor(Color.BLACK);
+            if (depth > 0)
+                g2.drawString(String.format("D: %.2f", depth), 10, 15);
+            else
+                g2.drawString(String.format("A: %.2f", -depth), 10, 15);
     }
 
     public void drawImage(Graphics2D g, Image img, int imgx, int imgy, int x, int y, int w, int h) {

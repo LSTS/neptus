@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2016 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2017 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -13,8 +13,8 @@
  * written agreement between you and Universidade do Porto. For licensing
  * terms, conditions, and further information contact lsts@fe.up.pt.
  *
- * European Union Public Licence - EUPL v.1.1 Usage
- * Alternatively, this file may be used under the terms of the EUPL,
+ * Modified European Union Public Licence - EUPL v.1.1 Usage
+ * Alternatively, this file may be used under the terms of the Modified EUPL,
  * Version 1.1 only (the "Licence"), appearing in the file LICENCE.md
  * included in the packaging of this file. You may not use this work
  * except in compliance with the Licence. Unless required by applicable
@@ -22,7 +22,8 @@
  * distributed on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF
  * ANY KIND, either express or implied. See the Licence for the specific
  * language governing permissions and limitations at
- * http://ec.europa.eu/idabc/eupl.html.
+ * https://github.com/LSTS/neptus/blob/develop/LICENSE.md
+ * and http://ec.europa.eu/idabc/eupl.html.
  *
  * For more information please see <http://lsts.fe.up.pt/neptus>.
  *
@@ -107,12 +108,13 @@ public class InteractionAdapter extends ConsolePanel implements StateRendererInt
                 g.setColor(new Color(0, 0, 0, 100));
                 Point2D start = source.getScreenPosition(firstDragPoint);
 
-                int angle = (int) Math.toDegrees(Math.PI / 2
-                        + Math.atan2(lastDragPoint.getY() - start.getY(), lastDragPoint.getX() - start.getX()));
+                double[] offsets = end.getOffsetFrom(firstDragPoint);
+                int angle = (int) Math.toDegrees(Math.atan2(offsets[1], offsets[0]));
                 if (angle < 0)
                     angle += 360;
                 String angleTxt = String.format("%dº", angle);
-                g.fillArc((int) start.getX() - 15, (int) start.getY() - 15, 30, 30, 90, -angle);
+                g.fillArc((int) start.getX() - 30, (int) start.getY() - 30, 60, 60,
+                          (int) Math.toDegrees(Math.PI / 2 + source.getRotation()), -angle);
                 g.draw(new Line2D.Double(start, lastDragPoint));
                 g.setColor(Color.black);
                 g.setStroke(new BasicStroke(2.5f));
@@ -123,12 +125,13 @@ public class InteractionAdapter extends ConsolePanel implements StateRendererInt
                 g.drawString(txt, (int) (lastDragPoint.getX() + 12), (int) (lastDragPoint.getY() + 11));
                 g.drawString(txt, (int) (lastDragPoint.getX() + 12), (int) (lastDragPoint.getY() + 12));
 
-                g.setFont(new Font("Arial", Font.BOLD, 12));
+                g.setFont(new Font("Arial", Font.BOLD, 14));
                 g.drawString(angleTxt, (int) (start.getX() + 7), (int) (start.getY() + 6));
                 g.drawString(angleTxt, (int) (start.getX() + 6), (int) (start.getY() + 6));
 
-                g.setFont(new Font("Arial", Font.BOLD, 12));
-                g.setColor(Color.gray.brighter());
+                g.setFont(new Font("Arial", Font.BOLD, 14));
+//                g.setColor(Color.gray.brighter());
+                g.setColor(Color.white);
                 g.drawString(angleTxt, (int) (start.getX() + 5), (int) (start.getY() + 5));
 
                 g.setColor(Color.white);

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2016 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2017 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -13,8 +13,8 @@
  * written agreement between you and Universidade do Porto. For licensing
  * terms, conditions, and further information contact lsts@fe.up.pt.
  *
- * European Union Public Licence - EUPL v.1.1 Usage
- * Alternatively, this file may be used under the terms of the EUPL,
+ * Modified European Union Public Licence - EUPL v.1.1 Usage
+ * Alternatively, this file may be used under the terms of the Modified EUPL,
  * Version 1.1 only (the "Licence"), appearing in the file LICENCE.md
  * included in the packaging of this file. You may not use this work
  * except in compliance with the Licence. Unless required by applicable
@@ -22,7 +22,8 @@
  * distributed on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF
  * ANY KIND, either express or implied. See the Licence for the specific
  * language governing permissions and limitations at
- * http://ec.europa.eu/idabc/eupl.html.
+ * https://github.com/LSTS/neptus/blob/develop/LICENSE.md
+ * and http://ec.europa.eu/idabc/eupl.html.
  *
  * For more information please see <http://lsts.fe.up.pt/neptus>.
  *
@@ -48,9 +49,12 @@ import pt.lsts.neptus.params.renderer.SystemPropertyRenderer;
  */
 public class SystemProperty extends DefaultProperty implements PropertyChangeListener {
     private static final long serialVersionUID = 1L;
-     
+
     public static enum Scope {
-        GLOBAL(I18n.textmark("global")), IDLE(I18n.textmark("idle")), PLAN(I18n.textmark("plan")), MANEUVER(I18n.textmark("maneuver"));
+        GLOBAL(I18n.textmark("global")),
+        IDLE(I18n.textmark("idle")),
+        PLAN(I18n.textmark("plan")),
+        MANEUVER(I18n.textmark("maneuver"));
 
         private String text;
 
@@ -59,14 +63,12 @@ public class SystemProperty extends DefaultProperty implements PropertyChangeLis
         }
 
         public String getText() {
-            // return I18n.text(this.text);
             return this.text;
         }
 
         public static Scope fromString(String text) {
             if (text != null) {
                 for (Scope b : Scope.values()) {
-                    // if (text.equalsIgnoreCase(I18n.text(b.text))) {
                     if (text.equalsIgnoreCase(b.text)) {
                         return b;
                     }
@@ -77,7 +79,9 @@ public class SystemProperty extends DefaultProperty implements PropertyChangeLis
     }
 
     public static enum Visibility {
-        DEVELOPER("developer"), USER("user");
+        DEVELOPER("developer"),
+        USER("user");
+
         private String text;
 
         Visibility(String text) {
@@ -101,50 +105,54 @@ public class SystemProperty extends DefaultProperty implements PropertyChangeLis
     }
 
     public static enum ValueTypeEnum {
-        STRING(I18n.textmark("string")), INTEGER(I18n.textmark("integer")), REAL(I18n.textmark("real")), BOOLEAN(I18n.textmark("boolean"));
+        STRING(I18n.textmark("string")),
+        INTEGER(I18n.textmark("integer")),
+        REAL(I18n.textmark("real")),
+        BOOLEAN(I18n.textmark("boolean"));
+
         private String text;
 
         {
             I18n.textmark("list"); // just marking for translation
         }
-        
+
         ValueTypeEnum(String text) {
-          this.text = text;
+            this.text = text;
         }
 
         public String getText() {
-          return this.text;
+            return this.text;
         }
 
         public static ValueTypeEnum fromString(String text) {
-          if (text != null) {
-            for (ValueTypeEnum b : ValueTypeEnum.values()) {
-              if (text.equalsIgnoreCase(b.text)) {
-                return b;
-              }
+            if (text != null) {
+                for (ValueTypeEnum b : ValueTypeEnum.values()) {
+                    if (text.equalsIgnoreCase(b.text)) {
+                        return b;
+                    }
+                }
             }
-          }
-          return STRING;
+            return STRING;
         }
     }
 
     private Object defaultValue = null;
-    
+
     private Scope scope;
     private Visibility visibility;
-    
+
     private String categoryId = getCategory();
 
     private AbstractPropertyEditor editor = null;
     private DefaultCellRenderer renderer = null;
-    
+
     private CustomSystemPropertyEditor sectionCustomEditor = null;
-    
+
     private ValueTypeEnum valueType = ValueTypeEnum.STRING;
-    
+
     private long timeSync = -2;
     private long timeDirty = -1;
-    
+
     /* (non-Javadoc)
      * @see com.l2fprod.common.propertysheet.DefaultProperty#setValue(java.lang.Object)
      */
@@ -158,26 +166,26 @@ public class SystemProperty extends DefaultProperty implements PropertyChangeLis
         if (!equals)
             setTimeDirty(System.currentTimeMillis());
     }
-    
+
     /**
      * @return the defaultValue
      */
     public Object getDefaultValue() {
         return defaultValue;
     }
-    
+
     /**
      * @param defaultValue the defaultValue to set
      */
     public void setDefaultValue(Object defaultValue) {
         this.defaultValue = defaultValue;
     }
-    
+
     public void resetToDefault() {
         if (defaultValue != null)
             setValue(defaultValue);
     }
-    
+
     /**
      * This is the category not I18n.
      * @return the categoryId
@@ -185,7 +193,7 @@ public class SystemProperty extends DefaultProperty implements PropertyChangeLis
     public String getCategoryId() {
         return categoryId;
     }
-    
+
     /**
      * This is the category not I18n.
      * @param categoryId the categoryId to set
@@ -193,7 +201,7 @@ public class SystemProperty extends DefaultProperty implements PropertyChangeLis
     public void setCategoryId(String categoryId) {
         this.categoryId = categoryId;
     }
-    
+
     /**
      * @return the scope
      */
@@ -221,28 +229,28 @@ public class SystemProperty extends DefaultProperty implements PropertyChangeLis
     public void setVisibility(Visibility visibility) {
         this.visibility = visibility;
     }
-    
+
     /**
      * @return the editor
      */
     public AbstractPropertyEditor getEditor() {
         return editor;
     }
-    
+
     /**
      * @param editor the editor to set
      */
     public void setEditor(AbstractPropertyEditor editor) {
         this.editor = editor;
     }
-    
+
     /**
      * @return the renderer
      */
     public DefaultCellRenderer getRenderer() {
         return renderer;
     }
-    
+
     /**
      * @param renderer the renderer to set
      */
@@ -250,42 +258,42 @@ public class SystemProperty extends DefaultProperty implements PropertyChangeLis
         this.renderer = renderer;
         updatePropRenderer();
     }
-    
+
     /**
      * @return the sectionCustomEditor
      */
     public CustomSystemPropertyEditor getSectionCustomEditor() {
         return sectionCustomEditor;
     }
-    
+
     /**
      * @param sectionCustomEditor the sectionCustomEditor to set
      */
     public void setSectionCustomEditor(CustomSystemPropertyEditor sectionCustomEditor) {
         this.sectionCustomEditor = sectionCustomEditor;
     }
-    
+
     /**
      * @return the valueType
      */
     public ValueTypeEnum getValueType() {
         return valueType;
     }
-    
+
     /**
      * @param valueType the valueType to set
      */
     public void setValueType(ValueTypeEnum valueType) {
         this.valueType = valueType;
     }
-    
+
     /**
      * @return the timeSync
      */
     public long getTimeSync() {
         return timeSync;
     }
-    
+
     /**
      * @param timeSync the timeSync to set
      */
@@ -294,14 +302,14 @@ public class SystemProperty extends DefaultProperty implements PropertyChangeLis
         this.timeDirty = this.timeSync;
         updatePropRenderer();
     }
-    
+
     /**
      * @return the timeDirty
      */
     public long getTimeDirty() {
         return timeDirty;
     }
-    
+
     /**
      * @param timeDirty the timeDirty to set
      */
@@ -313,10 +321,10 @@ public class SystemProperty extends DefaultProperty implements PropertyChangeLis
     private void updatePropRenderer() {
         if (this.renderer == null)
             return;
-        
+
         if (!(renderer instanceof SystemPropertyRenderer))
             return;
-            
+
         if (timeDirty > timeSync || timeSync <= 0) {
             ((SystemPropertyRenderer) renderer).setPropertyInSync(false);
         }
@@ -324,7 +332,7 @@ public class SystemProperty extends DefaultProperty implements PropertyChangeLis
             ((SystemPropertyRenderer) renderer).setPropertyInSync(true);
         }
     }
-    
+
     /* (non-Javadoc)
      * @see java.beans.PropertyChangeListener#propertyChange(java.beans.PropertyChangeEvent)
      */
@@ -334,10 +342,10 @@ public class SystemProperty extends DefaultProperty implements PropertyChangeLis
             sectionCustomEditor.propertyChange(evt);
             return;
         }
-        
+
         if(!(evt.getSource() instanceof SystemProperty))
             return;
-        
+
         // SystemProperty sp = (SystemProperty) evt.getSource();
         if (editor != null && editor instanceof PropertyChangeListener) {
 //            NeptusLog.pub().info("<###>-------------- 1");
