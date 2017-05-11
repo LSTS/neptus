@@ -35,20 +35,26 @@ package pt.lsts.neptus.console.plugins.planning;
 import java.awt.event.ActionEvent;
 import java.awt.event.MouseEvent;
 import java.util.ArrayList;
+import java.util.List;
 
 import javax.swing.AbstractAction;
+import javax.swing.Action;
 import javax.swing.JPopupMenu;
 import javax.swing.undo.UndoManager;
 
+import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.console.plugins.planning.edit.PlanElementAdded;
+import pt.lsts.neptus.console.plugins.planning.edit.PlanElementRemoved;
 import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.mp.element.IPlanElement;
 import pt.lsts.neptus.mp.element.PlanElements;
 import pt.lsts.neptus.mp.element.PlanElementsFactory;
 import pt.lsts.neptus.renderer2d.StateRenderer2D;
+import pt.lsts.neptus.renderer2d.StateRendererInteraction;
 import pt.lsts.neptus.types.mission.plan.PlanType;
 import pt.lsts.neptus.types.vehicle.VehicleType;
 import pt.lsts.neptus.types.vehicle.VehiclesHolder;
+import pt.lsts.neptus.util.GuiUtils;
 
 /**
  * @author pdias
@@ -68,37 +74,71 @@ class PlanEditorMenus {
             return;
         
         PlanElementsFactory pef = vehicle.getPlanElementsFactory();
-        if (pef == null)
-            return;
-        ArrayList<IPlanElement<?>> pei = pef.getPlanElementsInstances();
-        if (pei.isEmpty())
+        if (pef == null || pef.getPlanElementsSize() == 0)
             return;
         
-        popup.addSeparator();
-
-        for (final IPlanElement<?> pe : pei) {
-            String name = I18n.text(pe.getName());
+        ArrayList<Action> menuActions = new ArrayList<>();
+        
+        List<Class<IPlanElement<?>>> peiClasses = pef.getPlanElementsClasses();
+        peiClasses.stream().forEach(peClass -> {
+            final boolean isEditOrNew;
+            PlanElements pElems = plan.getPlanElements();
+            IPlanElement<?> pe = pElems.getPlanElements().stream().filter(t -> t.getClass() == peClass)
+                    .findFirst().orElse(null);
+            if (pe == null)
+                isEditOrNew = false;
+            else
+                isEditOrNew = true;
             
+            final IPlanElement<?> rpel = pe;
+            String name = rpel == null ? I18n.text(pef.getNameFor(peClass)) : I18n.text(rpel.getName());
             @SuppressWarnings("serial")
-            AbstractAction act = new AbstractAction(I18n.textf("Edit %name", name)) {
+            AbstractAction addOrChange = new AbstractAction(
+                    isEditOrNew ? I18n.textf("Edit %name", name) : I18n.textf("Add %name", name)) {
                 @Override
                 public void actionPerformed(ActionEvent e) {
-                    PlanElements pElems = plan.getPlanElements();
-                    IPlanElement<?> rpel = pElems.getPlanElements().stream().filter(t -> t.getClass() == pe.getClass())
-                            .findFirst().orElse(null);
-                    if (rpel == null) {
-                        rpel = pe;
-                        pElems.getPlanElements().add(rpel);
+                    IPlanElement<?> el = rpel;
+                    if (!isEditOrNew) {
+                        el = pef.getPlanInstance(peClass);
+                        if (el == null) {
+                            NeptusLog.pub().error("Not possible to create a new plan element " + peClass.getSimpleName());
+                            GuiUtils.errorMessage(planEditor.getConsole(), I18n.text("Adding new plan element"),
+                                    I18n.text("Not possible to create a new plan element"));
+                            return;
+                        }
                         
-                        PlanElementAdded peaEvt = new PlanElementAdded(rpel, plan);
+                        pElems.getPlanElements().add(el);
+                        PlanElementAdded peaEvt = new PlanElementAdded(el, plan);
                         undoManager.addEdit(peaEvt);
                     }
+                    else {
+                        pef.configureInstance(el);
+                    }
                     
-                    planEditor.updateDelegate(rpel, source);
+                    planEditor.updateDelegate(el, source);
                 }
             };
+            menuActions.add(addOrChange);
             
-            popup.add(act);
+            if (isEditOrNew) {
+                @SuppressWarnings("serial")
+                AbstractAction remove = new AbstractAction(I18n.textf("Remove %name", name)) {
+                    @Override
+                    public void actionPerformed(ActionEvent e) {
+                        pElems.getPlanElements().remove(rpel);
+                        PlanElementRemoved peaEvt = new PlanElementRemoved(rpel, plan);
+                        undoManager.addEdit(peaEvt);
+
+                        planEditor.updateDelegate((StateRendererInteraction) null, source);
+                    }
+                };
+                menuActions.add(remove);
+            }
+        });
+        
+        if (!menuActions.isEmpty()) {
+            popup.addSeparator();
+            menuActions.stream().forEach(m -> popup.add(m));
         }
     }
 }
