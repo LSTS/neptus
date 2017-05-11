@@ -82,4 +82,6 @@ public interface IPlanElement<T> {
     public IPlanElementEditorInteraction<T> getEditor();
     
     public Renderer2DPainter getPainter();
+    
+    public void translate(double offsetNorth, double offsetEast, double offsetDown);
 }

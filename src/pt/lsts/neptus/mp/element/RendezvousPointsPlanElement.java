@@ -138,6 +138,23 @@ public class RendezvousPointsPlanElement implements IPlanElement<RendezvousPoint
         return painter;
     }
     
+    /* (non-Javadoc)
+     * @see pt.lsts.neptus.mp.element.IPlanElement#translate(double, double, double)
+     */
+    @Override
+    public void translate(double offsetNorth, double offsetEast, double offsetDown) {
+        points.getPoints().stream().forEach(pt -> {
+            double latDeg = pt.getLatDeg();
+            double lonDeg = pt.getLonDeg();
+            LocationType loc = new LocationType(latDeg, lonDeg);
+            loc.translatePosition(offsetNorth, offsetEast, offsetDown);
+            loc.convertToAbsoluteLatLonDepth();
+            pt.setLatDeg(loc.getLatitudeDegs());
+            pt.setLonDeg(loc.getLongitudeDegs());
+        });
+        points.triggerChange();
+    }
+    
     public static void main(String[] args) {
         RendezvousPointsPlanElement rdpe = new RendezvousPointsPlanElement();
         RendezvousPoints rps = new RendezvousPoints();
