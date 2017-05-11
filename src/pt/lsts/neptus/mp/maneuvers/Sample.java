@@ -33,6 +33,11 @@ package pt.lsts.neptus.mp.maneuvers;
 
 import java.util.Vector;
 
+import org.dom4j.Document;
+import org.dom4j.DocumentHelper;
+import org.dom4j.Element;
+import org.dom4j.Node;
+
 import com.l2fprod.common.propertysheet.DefaultProperty;
 import com.l2fprod.common.propertysheet.Property;
 
@@ -188,6 +193,60 @@ public class Sample extends Goto {
         super.setProperties(properties);
         ManeuversUtil.setPropertiesToManeuver(this, properties);
     }
+    
+    /* (non-Javadoc)
+     * @see pt.lsts.neptus.mp.maneuvers.Goto#loadFromXML(java.lang.String)
+     */
+    @Override
+    public void loadFromXML(String xml) {
+        super.loadFromXML(xml);
+        
+        try {
+            Document doc = DocumentHelper.parseText(xml);
+            
+            Node node1 = doc.selectSingleNode("useSyringe0");
+            if (node1 != null) {
+                String val = node1.getText();
+                boolean bol = java.lang.Boolean.getBoolean(val);
+                useSyringe0 = bol;
+            }
+
+            node1 = doc.selectSingleNode("useSyringe1");
+            if (node1 != null) {
+                String val = node1.getText();
+                boolean bol = java.lang.Boolean.getBoolean(val);
+                useSyringe1 = bol;
+            }
+
+            node1 = doc.selectSingleNode("useSyringe2");
+            if (node1 != null) {
+                String val = node1.getText();
+                boolean bol = java.lang.Boolean.getBoolean(val);
+                useSyringe2 = bol;
+            }
+
+        }
+        catch (Exception e) {
+            NeptusLog.pub().info(I18n.text("Error while loading the XML:")+"{" + xml + "}");
+            NeptusLog.pub().error(this, e);
+        }
+    }
+    
+    /* (non-Javadoc)
+     * @see pt.lsts.neptus.mp.maneuvers.Goto#getManeuverAsDocument(java.lang.String)
+     */
+    @Override
+    public Document getManeuverAsDocument(String rootElementName) {
+        Document doc = super.getManeuverAsDocument(rootElementName);
+        Element root = doc.getRootElement();
+        
+        root.addElement("useSyringe0").setText("" + useSyringe0);;
+        root.addElement("useSyringe1").setText("" + useSyringe1);;
+        root.addElement("useSyringe2").setText("" + useSyringe2);;
+        
+        return doc;
+    }
+    
     /**
      * @return syringe0 state
      */
