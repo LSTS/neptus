@@ -32,34 +32,27 @@
 // */
 package pt.lsts.neptus.plugins.nvl;
 
-import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-import org.mozilla.javascript.edu.emory.mathcs.backport.java.util.Collections;
-
 import com.google.common.eventbus.Subscribe;
 
-import pt.lsts.imc.EstimatedState;
-import pt.lsts.imc.PlanControlState;
 import pt.lsts.imc.VehicleState;
 import pt.lsts.neptus.comm.manager.imc.ImcMsgManager;
 import pt.lsts.neptus.comm.manager.imc.ImcSystem;
 import pt.lsts.neptus.comm.manager.imc.ImcSystemsHolder;
 import pt.lsts.neptus.console.ConsoleLayout;
 import pt.lsts.neptus.console.ConsolePanel;
-import pt.lsts.neptus.renderer2d.InteractionAdapter;
+import pt.lsts.neptus.console.events.ConsoleEventPlanChange;
+import pt.lsts.neptus.plugins.PluginDescription;
+import pt.lsts.neptus.plugins.Popup;
 import pt.lsts.neptus.types.mission.plan.PlanType;
 import pt.lsts.nvl.runtime.NVLExecutionException;
 import pt.lsts.nvl.runtime.NVLPlatform;
 import pt.lsts.nvl.runtime.NVLVehicle;
 import pt.lsts.nvl.runtime.tasks.PlatformTask;
-import pt.lsts.neptus.console.events.ConsoleEventPlanChange;
-import pt.lsts.neptus.console.events.ConsoleEventVehicleStateChanged.STATE;
-import pt.lsts.neptus.plugins.PluginDescription;
-import pt.lsts.neptus.plugins.Popup;
 
 
 
@@ -69,7 +62,6 @@ import pt.lsts.neptus.plugins.Popup;
 public class NeptusNVLPlatform extends ConsolePanel implements NVLPlatform {
     
     private final Map<String,IMCPlanTask> imcPlanTasks;
-    private final ImcMsgManager imcManager = ImcMsgManager.getManager();
 
     public NeptusNVLPlatform(ConsoleLayout layout) {
         super(layout);
@@ -92,18 +84,10 @@ public class NeptusNVLPlatform extends ConsolePanel implements NVLPlatform {
 
     }
 
-    //  @Subscribe
-    //  public void onVehicleStateChanged(ConsoleEventVehicleStateChanged e) {
-    //        
-    //      ImcSystem imcsystem = ImcSystemsHolder.getSystemWithName(e.getVehicle());
-    //      vehicles.put(e.getVehicle(), new NeptusVehicleAdapter(imcsystem,e.getState())); //might be disconnected
-    //  }
-
     @Subscribe
     public void on(ConsoleEventPlanChange changedPlan) {
         PlanType oldPlan = changedPlan.getOld();
         PlanType newPlan = changedPlan.getCurrent();
-
         if (newPlan == null){
             // TODO: porquê este check?
             if(! getConsole().getMission().getIndividualPlansList().containsKey(oldPlan.getId())){
