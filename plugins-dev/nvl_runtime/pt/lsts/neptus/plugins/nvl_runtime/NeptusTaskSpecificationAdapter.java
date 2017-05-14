@@ -38,11 +38,8 @@ import java.util.List;
 
 import pt.lsts.neptus.types.mission.plan.PlanCompatibility;
 import pt.lsts.neptus.types.mission.plan.PlanType;
-import pt.lsts.nvl.runtime.Availability;
-import pt.lsts.nvl.runtime.NVLVehicleType;
 import pt.lsts.nvl.runtime.PayloadComponent;
 import pt.lsts.nvl.runtime.Position;
-import pt.lsts.nvl.runtime.TaskSpecification;
 import pt.lsts.nvl.runtime.VehicleRequirements;
 
 /**

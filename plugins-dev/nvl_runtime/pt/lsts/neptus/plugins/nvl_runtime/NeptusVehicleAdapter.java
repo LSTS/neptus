@@ -39,31 +39,24 @@ import pt.lsts.neptus.comm.manager.imc.ImcSystem;
 import pt.lsts.neptus.comm.manager.imc.ImcSystemsHolder;
 import pt.lsts.neptus.console.events.ConsoleEventVehicleStateChanged.STATE;
 import pt.lsts.neptus.types.comm.CommMean;
+import pt.lsts.neptus.types.coord.LocationType;
 import pt.lsts.neptus.types.mission.plan.PlanCompatibility;
 import pt.lsts.neptus.types.vehicle.VehicleType.SystemTypeEnum;
-import pt.lsts.neptus.types.vehicle.VehicleType.VehicleTypeEnum;
-import pt.lsts.nvl.runtime.Availability;
 import pt.lsts.nvl.runtime.NVLVehicle;
-import pt.lsts.nvl.runtime.NVLVehicleType;
 import pt.lsts.nvl.runtime.PayloadComponent;
 import pt.lsts.nvl.runtime.Position;
+import pt.lsts.nvl.runtime.tasks.Task;
 import pt.lsts.neptus.types.vehicle.VehiclesHolder;
 
-/**
- * @author keila
- *
- */
 public class NeptusVehicleAdapter implements NVLVehicle {
 
     private final ImcSystem imcsystem;
-    private STATE state;
     private final List<PayloadComponent> availablePayload;
     private final String  acousticOPservice="acoustic/operation";
     
     public NeptusVehicleAdapter(ImcSystem imcData,STATE s) {
        List<PayloadComponent> ps = new ArrayList<>();
         imcsystem = imcData;
-        state = s!= null ?  s : STATE.CONNECTED ;
         if(! imcData.getName().equals("caravela-aux"))
              for(String payload : PlanCompatibility.availablePayloads(VehiclesHolder.getVehicleById(getId()))) {
                  ps.add(new NeptusPayloadAdapter(payload));
@@ -103,71 +96,19 @@ public class NeptusVehicleAdapter implements NVLVehicle {
      * @see nvl.Vehicle#getType()
      */
     @Override
-    public NVLVehicleType getType() {
-        switch(imcsystem.getTypeVehicle()) {
-            case UAV:
-                return NVLVehicleType.UAV;
-            case UUV:
-                return NVLVehicleType.AUV;
-            case USV:
-                return NVLVehicleType.ASV;
-            case UGV:
-            case ALL:
-            case UNKNOWN:
-            default:
-                return NVLVehicleType.ANY ; //TODO
-            
-        }
+    public String getType() {
+        return imcsystem.getTypeVehicle().toString();
         
     }
     
-    public static NVLVehicleType getType(VehicleTypeEnum type) {
-        switch(type) {
-            case UAV:
-                return NVLVehicleType.UAV;
-            case UUV:
-                return NVLVehicleType.AUV;
-            case USV:
-                return NVLVehicleType.ASV;
-            case UGV:
-            case ALL:
-            case UNKNOWN:
-            default:
-                return NVLVehicleType.ANY ; //TODO
-            
-        }
-        
-    }
-
-    /* (non-Javadoc)
-     * @see nvl.Vehicle#getAvailability()
-     */
-    @Override
-    public Availability getAvailability() {
-        switch(state) {
-            case BOOT:
-            case CALIBRATION:
-            case MANEUVER:
-            case TELEOPERATION:
-            case EXTERNAL:
-                return Availability.BUSY;
-            case SERVICE:
-                return Availability.AVAILABLE;               
-            case CONNECTED:                
-            case DISCONNECTED:                
-            case ERROR:
-            default:
-                return Availability.NOT_OPERATIONAL;
-
-        }
-    }
-
+   
     /* (non-Javadoc)
      * @see nvl.Vehicle#getPosition()
      */
     @Override
     public Position getPosition() {
-        return new NeptusPositionAdapter(imcsystem.getLocation());
+        LocationType loc = imcsystem.getLocation();
+        return new Position(loc.getLatitudeRads(), loc.getLongitudeRads(), loc.getHeight());
     }
 
     /* (non-Javadoc)
@@ -179,5 +120,21 @@ public class NeptusVehicleAdapter implements NVLVehicle {
 
     }
 
+    /* (non-Javadoc)
+     * @see pt.lsts.nvl.runtime.NVLVehicle#getRunningTask()
+     */
+    @Override
+    public Task getRunningTask() {
+        // TODO Auto-generated method stub
+        return null;
+    }
 
+    /* (non-Javadoc)
+     * @see pt.lsts.nvl.runtime.NVLVehicle#setRunningTask(pt.lsts.nvl.runtime.tasks.Task)
+     */
+    @Override
+    public void setRunningTask(Task arg0) {
+        // TODO Auto-generated method stub
+        
+    }
 }
