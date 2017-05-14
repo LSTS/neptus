@@ -105,9 +105,10 @@ public class IMCPlanTask extends PlatformTask {
      * @see pt.lsts.nvl.runtime.tasks.PlatformTask#getRequirements(java.util.List)
      */
     @Override
-    public void getRequirements(List<VehicleRequirements> arg0) {
-        // TODO Auto-generated method stub
-        
+    public void getRequirements(List<VehicleRequirements> list) {
+        // TODO: is this ok?
+        // TODO: payloads
+        list.add(new VehicleRequirements());
     }
 
     public IMCMessage asIMCPlan() {

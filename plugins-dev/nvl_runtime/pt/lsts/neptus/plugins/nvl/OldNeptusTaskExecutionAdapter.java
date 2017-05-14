@@ -1,3 +1,4 @@
+package pt.lsts.neptus.plugins.nvl;
 ///*
 // * Copyright (c) 2004-2017 Universidade do Porto - Faculdade de Engenharia
 // * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
