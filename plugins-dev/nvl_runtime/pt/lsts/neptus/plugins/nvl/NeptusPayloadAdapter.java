@@ -30,17 +30,13 @@
  * Author: keila
  * 09/03/2017
  */
-package pt.lsts.neptus.plugins.nvl_runtime;
+package pt.lsts.neptus.plugins.nvl;
 
 import java.util.HashMap;
 
 
 import pt.lsts.nvl.runtime.PayloadComponent;
 
-/**
- * @author keila
- *
- */
 public class NeptusPayloadAdapter implements PayloadComponent {
  
     private final String name;

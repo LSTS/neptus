@@ -30,20 +30,35 @@
  * Author: lsts
  * 09/03/2017
  */
-package pt.lsts.neptus.plugins.nvl_runtime;
+package pt.lsts.neptus.plugins.nvl;
 
-import pt.lsts.nvl.runtime.TaskExecution;
-import pt.lsts.nvl.runtime.TaskState;
+import java.util.List;
+
+import pt.lsts.imc.IMCMessage;
+import pt.lsts.neptus.types.mission.plan.PlanType;
+import pt.lsts.nvl.runtime.VehicleRequirements;
+import pt.lsts.nvl.runtime.tasks.PlatformTask;
+import pt.lsts.nvl.runtime.tasks.TaskExecutor;
 
 /**
  * @author lsts
  * Control  the execution of the task
  */
-public class NeptusTaskExecutionAdapter implements TaskExecution {
+public class IMCPlanTask extends PlatformTask {
     private volatile boolean done;
-    private final String  planId;
-    private TaskState state;
     private boolean sync;
+    private final PlanType plan;
+
+    public IMCPlanTask(PlanType plan) { 
+        super(plan.getId());
+        this.plan = plan;
+        done = sync = false;        
+    }
+    
+
+    public boolean isDone() {
+        return done;
+    }
     
     public void synchronizedWithVehicles(boolean s){
         this.sync = s;
@@ -52,34 +67,8 @@ public class NeptusTaskExecutionAdapter implements TaskExecution {
     public boolean isSynchronized() {
         return this.sync;
     }
-    /**
-     * 
-     * @param plan 
-     *
-     */
-    public NeptusTaskExecutionAdapter(String id) { //TODO
-        done = sync = false;
-        planId = id;
-        
-    }
-    
-    public String getPlanId() {
-        return this.planId;
-    }
 
-
-    
-    /* (non-Javadoc)
-     * @see nvl.TaskExecution#isDone()
-     */
-    @Override
-    public boolean isDone() {
-        return done;
-    }
-    //@Override
-    public TaskState getState() {
-        return state;
-    }
+   
 
     /**
      * @return the sync
@@ -102,11 +91,27 @@ public class NeptusTaskExecutionAdapter implements TaskExecution {
         this.done = done;
     }
 
-    /**
-     * @param state the state to set
+ 
+
+    /* (non-Javadoc)
+     * @see pt.lsts.nvl.runtime.tasks.Task#getExecutor()
      */
-    public void setState(TaskState state) {
-        this.state = state;
+    @Override
+    public TaskExecutor getExecutor() {
+        return new IMCPlanTaskExecutor(this);
+    }
+
+    /* (non-Javadoc)
+     * @see pt.lsts.nvl.runtime.tasks.PlatformTask#getRequirements(java.util.List)
+     */
+    @Override
+    public void getRequirements(List<VehicleRequirements> arg0) {
+        // TODO Auto-generated method stub
+        
+    }
+
+    public IMCMessage asIMCPlan() {
+        return plan.asIMCPlan(true);
     }
 
 }
