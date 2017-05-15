@@ -30,7 +30,7 @@
  * Author: lsts
  * 09/03/2017
  */
-package pt.lsts.neptus.plugins.nvl;
+package pt.lsts.neptus.plugins.nvl_runtime;
 
 import java.util.List;
 

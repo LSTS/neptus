@@ -30,12 +30,16 @@
 // * Author: edrdo
 // * May 14, 2017
 // */
-package pt.lsts.neptus.plugins.nvl;
+package pt.lsts.neptus.plugins.nvl_runtime;
 
+import java.awt.event.ActionEvent;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+
+import javax.swing.AbstractAction;
+import javax.swing.JButton;
 
 import com.google.common.eventbus.Subscribe;
 
@@ -46,9 +50,11 @@ import pt.lsts.neptus.comm.manager.imc.ImcSystemsHolder;
 import pt.lsts.neptus.console.ConsoleLayout;
 import pt.lsts.neptus.console.ConsolePanel;
 import pt.lsts.neptus.console.events.ConsoleEventPlanChange;
+import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.plugins.PluginDescription;
 import pt.lsts.neptus.plugins.Popup;
 import pt.lsts.neptus.types.mission.plan.PlanType;
+import pt.lsts.nvl.dsl.NVLEngine;
 import pt.lsts.nvl.runtime.NVLExecutionException;
 import pt.lsts.nvl.runtime.NVLPlatform;
 import pt.lsts.nvl.runtime.NVLVehicle;
@@ -59,11 +65,12 @@ import pt.lsts.nvl.runtime.tasks.PlatformTask;
 @PluginDescription(name = "NVL Runtime Feature", author = "Keila Lima")
 @Popup(pos = Popup.POSITION.BOTTOM_RIGHT, width=300, height=300)
 @SuppressWarnings("serial")
-public class NeptusNVLPlatform extends ConsolePanel implements NVLPlatform {
-    
-    private final Map<String,IMCPlanTask> imcPlanTasks;
+public class NeptusRuntime extends ConsolePanel implements NVLPlatform {
 
-    public NeptusNVLPlatform(ConsoleLayout layout) {
+    private final Map<String,IMCPlanTask> imcPlanTasks;
+    private NVLEngine engine;
+    
+    public NeptusRuntime(ConsoleLayout layout) {
         super(layout);
         imcPlanTasks =  new ConcurrentHashMap<>();
     }
@@ -76,8 +83,24 @@ public class NeptusNVLPlatform extends ConsolePanel implements NVLPlatform {
             //System.out.println("P " + plan.getId());
 
         }
-        // test();
+        NVLEngine.create(this);
+        test();
     }
+
+    private void test() {
+        JButton testButton = new JButton(
+                new AbstractAction(I18n.text("Test!")) {
+
+                    @Override
+                    public void actionPerformed(ActionEvent e) {   
+                        NVLEngine.getInstance().run(imcPlanTasks.get("test"));
+                    }
+                });
+
+        add(testButton);
+
+    }
+
 
     @Override
     public void cleanSubPanel() {
@@ -98,7 +121,7 @@ public class NeptusNVLPlatform extends ConsolePanel implements NVLPlatform {
             imcPlanTasks.put(newPlan.getId(), new IMCPlanTask(changedPlan.getCurrent()));
         }
     }
-    
+
     /* (non-Javadoc)
      * @see pt.lsts.nvl.runtime.NVLPlatform#getConnectedVehicles()
      */
@@ -111,8 +134,8 @@ public class NeptusNVLPlatform extends ConsolePanel implements NVLPlatform {
                 d("Adding %s", vec.getName());
                 list.add(new NeptusVehicleAdapter(vec));
             }
-            
-           
+
+
         }
         return list;
     }
