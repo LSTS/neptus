@@ -128,7 +128,6 @@ public class ParameterManager extends ConsolePanel implements MAVLinkConnectionL
         addListenersAndRenderer();
     }
 
-
     private void setupGUI() {
         setActivity("", StatusLed.LEVEL_OFF);
         setResizable(false);
@@ -214,7 +213,8 @@ public class ParameterManager extends ConsolePanel implements MAVLinkConnectionL
         //If current expression doesn't parse, don't update.
         try {
             rf = RowFilter.regexFilter("(?i)" + findTxtField.getText(), 0);
-        } catch (java.util.regex.PatternSyntaxException e) {
+        }
+        catch (java.util.regex.PatternSyntaxException e) {
             return;
         }
         sorter.setRowFilter(rf);
@@ -237,13 +237,13 @@ public class ParameterManager extends ConsolePanel implements MAVLinkConnectionL
                 for (Parameter param : model.getModifiedParams().values())
                     MAVLinkParameters.sendParameter(mavlink, param);
 
-                while(((System.currentTimeMillis() - now) < TIMEOUT) && !writeWithSuccess && requestingWriting)
-                {
+                while(((System.currentTimeMillis() - now) < TIMEOUT) && !writeWithSuccess && requestingWriting) {
                     Thread.sleep(1000);
                 }
 
-                if (writeWithSuccess)
+                if (writeWithSuccess) {
                     setActivity("All parameters updated successfully...", StatusLed.LEVEL_0);
+                }
                 else {
                     setActivity("Failed to update "+model.getModifiedParams().size() + " parameters...", StatusLed.LEVEL_2);
                     for (String n : model.getModifiedParams().keySet())
@@ -281,8 +281,7 @@ public class ParameterManager extends ConsolePanel implements MAVLinkConnectionL
                         requestParameters();
 
                         while (num_of_retries <= RETRYS && !isFinished) {
-                            while(((System.currentTimeMillis() - now) < TIMEOUT) && !isFinished)
-                            {
+                            while(((System.currentTimeMillis() - now) < TIMEOUT) && !isFinished) {
                                 Thread.sleep(1000);
                             }
 
@@ -387,7 +386,7 @@ public class ParameterManager extends ConsolePanel implements MAVLinkConnectionL
                     }
 
                     if (validSystems.isEmpty()) {
-                        Object[] options = {"OK"};
+                        Object[] options = {I18n.text("OK")};
                         JOptionPane.showOptionDialog(null, 
                                 "No MAVLink compatible systems found.", 
                                 "MAVLink Connection", JOptionPane.PLAIN_MESSAGE,
@@ -409,7 +408,7 @@ public class ParameterManager extends ConsolePanel implements MAVLinkConnectionL
                     String address = null;
                     int port = -1;
                     for (String rs : listSer) {
-                        if (rs.trim().startsWith(MAVLinkConnection.MAV_SCHEME+":")) {
+                        if (rs.trim().startsWith(MAVLinkConnection.MAV_SCHEME + ":")) {
                             URI url1 = URI.create(rs.trim());
                             address = url1.getHost();
                             port = url1.getPort();
@@ -421,23 +420,21 @@ public class ParameterManager extends ConsolePanel implements MAVLinkConnectionL
                     if (address != null && port != -1) {
                         beginMavConnection(address, 9999, system);
                         setActivity("Connecting...", StatusLed.LEVEL_1, "Connecting!");
-
                     }
-
                 } 
                 else {
-                    if (mavlink != null)
+                    if (mavlink != null) {
                         try {
                             mavlink.closeConnection();
                             setActivity("Not connected...", StatusLed.LEVEL_OFF, "Not connected!");
                             updateConnectMenuText();
                             setBtnsEnabled(false);
                         }
-                    catch (IOException e1) {
-                        e1.printStackTrace();
+                        catch (IOException e1) {
+                            e1.printStackTrace();
+                        }
                     }
                 }
-
             }
         });
 
@@ -471,7 +468,6 @@ public class ParameterManager extends ConsolePanel implements MAVLinkConnectionL
         });
 
         findTxtField.getDocument().addDocumentListener(new DocumentListener() {
-
             @Override
             public void removeUpdate(DocumentEvent e) {
                 applyFilter();
@@ -490,7 +486,6 @@ public class ParameterManager extends ConsolePanel implements MAVLinkConnectionL
     }
 
     private void updateConnectMenuText() {
-
         if (mavlink.isMAVLinkConnected() || mavlink.isToInitiateConnection()) {
             btnConnect.setText(I18n.text("Disconnect"));
         }

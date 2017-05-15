@@ -1,10 +1,3 @@
-package pt.lsts.neptus.plugins.uavparameters;
-import com.MAVLink.common.msg_param_request_list;
-import com.MAVLink.common.msg_param_request_read;
-import com.MAVLink.common.msg_param_set;
-
-import pt.lsts.neptus.plugins.uavparameters.connection.MAVLinkConnection;
-
 /*
  * Copyright (c) 2004-2016 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
@@ -36,6 +29,13 @@ import pt.lsts.neptus.plugins.uavparameters.connection.MAVLinkConnection;
  * Author: Manuel R.
  * Nov 14, 2016
  */
+package pt.lsts.neptus.plugins.uavparameters;
+
+import com.MAVLink.common.msg_param_request_list;
+import com.MAVLink.common.msg_param_request_read;
+import com.MAVLink.common.msg_param_set;
+
+import pt.lsts.neptus.plugins.uavparameters.connection.MAVLinkConnection;
 
 /**
  * @author Manuel R.
