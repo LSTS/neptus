@@ -40,58 +40,15 @@ import pt.lsts.nvl.runtime.VehicleRequirements;
 import pt.lsts.nvl.runtime.tasks.PlatformTask;
 import pt.lsts.nvl.runtime.tasks.TaskExecutor;
 
-/**
- * @author lsts
- * Control  the execution of the task
- */
+
 public class IMCPlanTask extends PlatformTask {
-    private volatile boolean done;
-    private boolean sync;
+
     private final PlanType plan;
 
     public IMCPlanTask(PlanType plan) { 
         super(plan.getId());
         this.plan = plan;
-        done = sync = false;        
     }
-    
-
-    public boolean isDone() {
-        return done;
-    }
-    
-    public void synchronizedWithVehicles(boolean s){
-        this.sync = s;
-    }
-    
-    public boolean isSynchronized() {
-        return this.sync;
-    }
-
-   
-
-    /**
-     * @return the sync
-     */
-    public boolean isSync() {
-        return sync;
-    }
-
-    /**
-     * @param sync the sync to set
-     */
-    public void setSync(boolean sync) {
-        this.sync = sync;
-    }
-
-    /**
-     * @param done the done to set
-     */
-    public void setDone(boolean done) {
-        this.done = done;
-    }
-
- 
 
     /* (non-Javadoc)
      * @see pt.lsts.nvl.runtime.tasks.Task#getExecutor()

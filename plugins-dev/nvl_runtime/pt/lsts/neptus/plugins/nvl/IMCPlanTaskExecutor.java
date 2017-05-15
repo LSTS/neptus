@@ -49,10 +49,6 @@ import pt.lsts.nvl.runtime.tasks.Task;
 import pt.lsts.nvl.runtime.tasks.TaskExecutor;
 
 
-/**
- * @author edrdo
- *
- */
 public class IMCPlanTaskExecutor extends TaskExecutor {
 
     private static final double WARMUP_TIME = 3.0;
