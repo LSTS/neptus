@@ -58,13 +58,17 @@ class Plan {
     ConsoleLayout neptusConsole
     Plan(ConsoleLayout c){ //constructor to facilitate script 
         neptusConsole = c
+        count = 1
+        speed = new Speed(900.0,Speed.Units.RPM)
+        z     = new Z(2.0,Z.Units.DEPTH)
+        locate new Location(c.getMission().getHomeRef().getLatitudeRads(),c.getMission().getHomeRef().getLongitudeRads())
     }
 	Plan(String id){
 		plan_id = id
 		count = 1
 		location = Location.APDL
-		speed = new Speed(1.0, Speed.Units.METERS_PS)
-		z = new Z(0.0,Z.Units.DEPTH)
+        speed = new Speed(900.0,Speed.Units.RPM) //default from Neptus
+        z     = new Z(2.0,Z.Units.DEPTH)         //default from Neptus
 		neptusConsole = null
 	}
     void planName(String name){
@@ -105,6 +109,14 @@ class Plan {
 //          parameter
           
        }
+  public void description(String dp){
+      description = dp
+  }
+    
+  public  PlanType getPlan(String id){
+      return  neptusConsole.getMission().getIndividualPlansList().get(id)
+        
+        }
     
 	 def IMCManeuver maneuver(String id, Class maneuver) {
         
@@ -629,8 +641,8 @@ class Plan {
     /**
      * Vehicles to send this plan
      */
-    def void setVehicles(String...vehicles) {
-        vehicles_id = vehicles
+    def void setVehicles(String...vs) {
+        vehicles_id = vs
         //TODO
 //        for(String v: vehicles)
 //            PlanCompatibility.isVehicleCompatible(VehiclesHolder.getVehicleById(v),this.asPlanType(neptusConsole))
@@ -667,8 +679,8 @@ class Plan {
     def void verifyPayload(){
         if(vehicles_id!=null)
         vehicles_id.each { vehicle ->
-           PlanCompatibility.payloadsMissing(VehiclesHolder.getVehicleById(it),this.asPlanSpecification).each {
-               println "Vehicle "+vehicle+" does not support "+it+" payload."
+           PlanCompatibility.payloadsMissing(VehiclesHolder.getVehicleById(vehicle),this.asPlanSpecification()).each {
+               println "Vehicle "+vehicle+" does not support "+vehicle+" payload."
            }
         }
     }
@@ -751,7 +763,31 @@ class Plan {
         plantype
      }
 
-	void sendTo (String vehicle) {
+    void  startPlan(){
+        //TODO verify if plan is in sync
+        PlanControl stop =  new PlanControl(
+                opStr: 'STOP',
+                planId: "stop"
+                )
+       def plan_spec = this.asPlanSpecification() //TODO verify if is not null
+       PlanControl      plan =  new PlanControl(
+                opStr: 'START',
+                planId: this.plan_id,
+                arg: plan_spec
+                )
+
+        if (vehicles_id!=null)
+        vehicles_id.each{
+            IMCSendMessageUtils.sendMessage(stop,"Stopping current plan",false,it)
+            def error_msg = "Error sending plan: "+plan_id+" to "+it
+            //while(!select.equals(null)) vehicles_id.each {protocol.connect(it); def select = protocol.waitfor(it,milis)}
+            if ( IMCSendMessageUtils.sendMessage(plan,error_msg,false, it)) //IMCSendMessageUtils.sendMessage(plan,false,vehicle)
+                println ("$plan_id sent to $it")
+            else
+                println ("Error communicating with $it")
+        }
+    }
+ public	void sendTo (String... vs) {
 		def plan_spec = this.asPlanSpecification() //TODO verify if is not null
 		def select = false
 		PlanControl plan = 	new PlanControl(
@@ -759,13 +795,17 @@ class Plan {
 			planId: this.plan_id,
 			arg: plan_spec
 			)
+        if(vehicles_id==null)
+            vehicles_id = vs
         
-		ImcSystemsHolder.lookupActiveSystemVehicles().each { //Through Groovy Plugin  
+        vs.each{ vehicle -> 
+		ImcSystemsHolder.lookupActiveSystemVehicles().each { 
             
-			if(it.getId().equals(vehicle))
-			select = true
-		}
-        verifyPayload()
+            if(it.getName().equals(vehicle))
+            select = true
+        }
+        //verifyPayload()
+        
             
         def error_msg = "Error sending plan: "+plan_id+" to "+vehicle
 		//while(!select.equals(null)) vehicles_id.each {protocol.connect(it); def select = protocol.waitfor(it,milis)}
@@ -773,6 +813,7 @@ class Plan {
 			println ("$plan_id sent to $vehicle")
 		else
 			println ("Error communicating with $vehicle")
+		}
 	}
 	
 	void setConsole(ConsoleLayout c){
