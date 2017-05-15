@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2016 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2017 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -13,8 +13,8 @@
  * written agreement between you and Universidade do Porto. For licensing
  * terms, conditions, and further information contact lsts@fe.up.pt.
  *
- * European Union Public Licence - EUPL v.1.1 Usage
- * Alternatively, this file may be used under the terms of the EUPL,
+ * Modified European Union Public Licence - EUPL v.1.1 Usage
+ * Alternatively, this file may be used under the terms of the Modified EUPL,
  * Version 1.1 only (the "Licence"), appearing in the file LICENCE.md
  * included in the packaging of this file. You may not use this work
  * except in compliance with the Licence. Unless required by applicable
@@ -22,7 +22,8 @@
  * distributed on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF
  * ANY KIND, either express or implied. See the Licence for the specific
  * language governing permissions and limitations at
- * http://ec.europa.eu/idabc/eupl.html.
+ * https://github.com/LSTS/neptus/blob/develop/LICENSE.md
+ * and http://ec.europa.eu/idabc/eupl.html.
  *
  * For more information please see <http://lsts.fe.up.pt/neptus>.
  *
@@ -31,10 +32,12 @@
  */
 package pt.lsts.neptus.mp;
 
+import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Font;
 import java.awt.GradientPaint;
 import java.awt.Graphics2D;
+import java.awt.Stroke;
 import java.awt.geom.Ellipse2D;
 import java.awt.geom.Line2D;
 import java.awt.geom.Rectangle2D;
@@ -275,11 +278,20 @@ public abstract class Maneuver implements XmlOutputMethods, PropertiesProvider, 
             ManeuverLocation loc = ((LocatedManeuver) this).getManeuverLocation();
             // g2d.setPaint(paint1);
             g2d.setColor(Color.black);
+            double zVal = loc.getZ();
             switch (loc.getZUnits()) {
                 case ALTITUDE:
                     g2d.fill(new Rectangle2D.Double(-8, 5, 16, 3));
                     g2d.setColor(Color.orange);
                     g2d.draw(new Line2D.Double(-6, 6, 6, 6));
+                    if (zVal <= 0) {
+                        Stroke st = g2d.getStroke();
+                        g2d.setStroke(new BasicStroke(2));
+                        g2d.setColor(Color.orange.brighter());
+                        g2d.draw(new Line2D.Double(-6, -6, 6, 6));
+                        g2d.draw(new Line2D.Double(-6, 6, 6, -6));
+                        g2d.setStroke(st);
+                    }
                     break;
                 case DEPTH:
                     if (loc.getZ() == 0) {
@@ -290,12 +302,21 @@ public abstract class Maneuver implements XmlOutputMethods, PropertiesProvider, 
                     else {
                         g2d.fill(new Rectangle2D.Double(-8, -8, 16, 3));
                         g2d.setColor(Color.cyan.brighter());
-                        g2d.draw(new Line2D.Double(-6, -6, 6, -6));    
+                        g2d.draw(new Line2D.Double(-6, -6, 6, -6));
+                        if (zVal <= 0) {
+                            Stroke st = g2d.getStroke();
+                            g2d.setStroke(new BasicStroke(2));
+                            g2d.setColor(Color.orange.brighter());
+                            g2d.draw(new Line2D.Double(-6, -6, 6, 6));
+                            g2d.draw(new Line2D.Double(-6, 6, 6, -6));
+                            g2d.setStroke(st);
+                        }
                     }
                     break;
                 case HEIGHT:
                     g2d.setColor(Color.white);
                     g2d.draw(new Line2D.Double(-6, 0, 6, 0));
+                    g2d.draw(new Line2D.Double(0, -6, 0, 6));
                     break;
                 default:
                     break;
@@ -807,7 +828,7 @@ public abstract class Maneuver implements XmlOutputMethods, PropertiesProvider, 
             loc.convertToAbsoluteLatLonDepth();
             //props.add(PropertiesEditor.getPropertyInstance("Latitude", "Location", String.class, loc.getLatitudeAsPrettyString(), false, "Maneuver's latitude"));
             //props.add(PropertiesEditor.getPropertyInstance("Longitude", "Location", String.class, loc.getLongitudeAsPrettyString(), false, "Maneuver's longitude"));
-            DefaultProperty propertyLocation = PropertiesEditor.getPropertyInstance("Location", I18n.text("Location"), ManeuverLocation.class, loc, true, I18n.text("Maneuver's location"));
+            DefaultProperty propertyLocation = PropertiesEditor.getPropertyInstance("Location", I18n.text("Location"), LocationType.class, loc, true, I18n.text("Maneuver's location"));
             propertyLocation.setDisplayName(I18n.text("Location"));
             props.add(propertyLocation);
             DefaultProperty propertyZ = PropertiesEditor.getPropertyInstance("Z", I18n.text("Location"), Double.class, loc.getZ(), true, I18n.text("Maneuver's z value"));
@@ -912,8 +933,10 @@ public abstract class Maneuver implements XmlOutputMethods, PropertiesProvider, 
                     manLoc.setZUnits((ManeuverLocation.Z_UNITS)p.getValue());                                        
                     ((LocatedManeuver)this).setManeuverLocation(manLoc);
                 }
-                else if (p.getName().equalsIgnoreCase("Location") && this instanceof LocatedManeuver) {                    
-                    ((LocatedManeuver)this).getManeuverLocation().setLocation((LocationType)p.getValue());
+                else if (p.getName().equalsIgnoreCase("Location") && this instanceof LocatedManeuver) {
+                    ManeuverLocation loc = ((LocatedManeuver)this).getManeuverLocation();
+                    loc.setLocation((LocationType)p.getValue());
+                    ((LocatedManeuver)this).setManeuverLocation(loc);
                 }
                 else if (p.getCategory() != null
                         && p.getCategory().equalsIgnoreCase(I18n.textf("%s custom settings", getType()))) {

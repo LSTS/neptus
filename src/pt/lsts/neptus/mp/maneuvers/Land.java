@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2016 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2017 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -13,8 +13,8 @@
  * written agreement between you and Universidade do Porto. For licensing
  * terms, conditions, and further information contact lsts@fe.up.pt.
  *
- * European Union Public Licence - EUPL v.1.1 Usage
- * Alternatively, this file may be used under the terms of the EUPL,
+ * Modified European Union Public Licence - EUPL v.1.1 Usage
+ * Alternatively, this file may be used under the terms of the Modified EUPL,
  * Version 1.1 only (the "Licence"), appearing in the file LICENSE.md
  * included in the packaging of this file. You may not use this work
  * except in compliance with the Licence. Unless required by applicable
@@ -57,6 +57,8 @@ import com.l2fprod.common.propertysheet.DefaultProperty;
 import com.l2fprod.common.propertysheet.Property;
 
 import pt.lsts.imc.IMCMessage;
+import pt.lsts.imc.def.SpeedUnits;
+import pt.lsts.imc.def.ZUnits;
 import pt.lsts.neptus.gui.ToolbarSwitch;
 import pt.lsts.neptus.gui.editor.SpeedUnitsEnumEditor;
 import pt.lsts.neptus.i18n.I18n;
@@ -299,20 +301,20 @@ public class Land extends Maneuver implements LocatedManeuver, ManeuverWithSpeed
         man.setLat(Math.toRadians(latDegs));
         man.setLon(Math.toRadians(lonDegs));
         man.setZ(z);
-        man.setZUnits(pt.lsts.imc.Land.Z_UNITS.valueOf(getManeuverLocation().getZUnits().toString()));        
+        man.setZUnits(ZUnits.valueOf(getManeuverLocation().getZUnits().toString()));        
         man.setSpeed(speed);
         
         SPEED_UNITS speedU = speedUnits;
         switch (speedU) {
             case RPM:
-                man.setSpeedUnits(pt.lsts.imc.Land.SPEED_UNITS.RPM);
+                man.setSpeedUnits(SpeedUnits.RPM);
                 break;
             case PERCENTAGE:
-                man.setSpeedUnits(pt.lsts.imc.Land.SPEED_UNITS.PERCENTAGE);
+                man.setSpeedUnits(SpeedUnits.PERCENTAGE);
                 break;
             case METERS_PS:
             default:
-                man.setSpeedUnits(pt.lsts.imc.Land.SPEED_UNITS.METERS_PS);
+                man.setSpeedUnits(SpeedUnits.METERS_PS);
                 break;
         }
 

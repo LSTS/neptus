@@ -225,7 +225,7 @@
         <comm-mean>
             <name>ethernet</name>
             <type>ethernet</type>
-            <host-address>10.0.20.105</host-address>
+            <host-address>10.0.20.100</host-address>
             <protocols>imc</protocols>
             <latency value="10M" unit="bps"/>
             <protocols-args>
@@ -234,7 +234,7 @@
                     <port-tcp>6002</port-tcp>
                     <udp-on>true</udp-on>
                     <tcp-on>false</tcp-on>
-                    <imc-id>0c:05</imc-id>
+                    <imc-id>0c:0c</imc-id>
                 </imc>
             </protocols-args>
         </comm-mean>

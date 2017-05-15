@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2016 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2017 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -13,8 +13,8 @@
  * written agreement between you and Universidade do Porto. For licensing
  * terms, conditions, and further information contact lsts@fe.up.pt.
  *
- * European Union Public Licence - EUPL v.1.1 Usage
- * Alternatively, this file may be used under the terms of the EUPL,
+ * Modified European Union Public Licence - EUPL v.1.1 Usage
+ * Alternatively, this file may be used under the terms of the Modified EUPL,
  * Version 1.1 only (the "Licence"), appearing in the file LICENCE.md
  * included in the packaging of this file. You may not use this work
  * except in compliance with the Licence. Unless required by applicable
@@ -22,7 +22,8 @@
  * distributed on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF
  * ANY KIND, either express or implied. See the Licence for the specific
  * language governing permissions and limitations at
- * http://ec.europa.eu/idabc/eupl.html.
+ * https://github.com/LSTS/neptus/blob/develop/LICENSE.md
+ * and http://ec.europa.eu/idabc/eupl.html.
  *
  * For more information please see <http://lsts.fe.up.pt/neptus>.
  *
@@ -36,6 +37,7 @@ import java.awt.event.FocusAdapter;
 import java.awt.event.FocusEvent;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
+import java.util.ArrayList;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.regex.Matcher;
@@ -46,10 +48,16 @@ import javax.swing.JTextField;
 import javax.swing.UIManager;
 import javax.swing.border.Border;
 
+import org.apache.commons.lang3.tuple.Pair;
+
 import com.l2fprod.common.beans.editor.NumberPropertyEditor;
 import com.l2fprod.common.util.converter.ConverterRegistry;
 
+import pt.lsts.neptus.NeptusLog;
+
 /**
+ *  Numerical properties editor.
+ *  
  * @author pdias
  *
  */
@@ -62,17 +70,34 @@ public class NumberEditor<T extends Number> extends NumberPropertyEditor impleme
     protected T minValue = null;
     protected T maxValue = null;
     
+    private ArrayList<?> admisibleRangeValues = new ArrayList<>();
+    
     private Pattern pattern;
     protected String elementPattern;
     private Color errorColor = new Color(255, 108, 108);
-    // private Color syncColor = new Color(108, 255, 108);
-    // private Color blueColor = new Color(108, 108, 255);
     private Border defaultBorder = null;
     private Border errorBorder = null;
 
     private Timer timer = null;
     private TimerTask validatorTask = null;
-    
+
+    /**
+     * @param type
+     * @param minValue
+     * @param maxValue
+     * @param admisibleRangeValues This should be of class T or {@link Pair}&lt;T, T&gt;, other types will be ignored.
+     *            Null of empty will have no effect.
+     */
+    public NumberEditor(Class<T> type, T minValue, T maxValue, ArrayList<?> admisibleRangeValues) {
+        this(type, minValue, maxValue);
+        addToAdmisibleRangeValues(admisibleRangeValues);
+    }
+
+    /**
+     * @param type
+     * @param minValue
+     * @param maxValue
+     */
     @SuppressWarnings("unchecked")
     public NumberEditor(Class<T> type, T minValue, T maxValue) {
         this(type);
@@ -133,7 +158,19 @@ public class NumberEditor<T extends Number> extends NumberPropertyEditor impleme
         this.maxValue = maxValue;
     }
 
-    
+    /**
+     * @param type
+     * @param admisibleRangeValues This should be of class T or {@link Pair}&lt;T, T&gt;, other types will be ignored.
+     *            Null of empty will have no effect.
+     */
+    public NumberEditor(Class<T> type, ArrayList<?> admisibleRangeValues) {
+        this(type);
+        addToAdmisibleRangeValues(admisibleRangeValues);
+    }
+
+    /**
+     * @param type
+     */
     public NumberEditor(Class<T> type) {
         super(type);
         this.classType = type;
@@ -223,6 +260,39 @@ public class NumberEditor<T extends Number> extends NumberPropertyEditor impleme
         });
     }
     
+    /**
+     * @param admisibleRangeValues
+     */
+    @SuppressWarnings({ "unchecked" })
+    protected void addToAdmisibleRangeValues(ArrayList<?> toAddAdmisibleRangeValues) {
+        if (toAddAdmisibleRangeValues == null || toAddAdmisibleRangeValues.isEmpty())
+            return;
+        
+        synchronized (admisibleRangeValues) {
+            for (Object object : toAddAdmisibleRangeValues) {
+                try {
+                    if (object instanceof Pair<?, ?>) {
+                        Pair<T, T> pair = (Pair<T, T>) object;
+                        ((ArrayList<Object>) admisibleRangeValues).add(pair);
+                    }
+                    else {
+                        T val = (T) object;
+                        ((ArrayList<Object>) admisibleRangeValues).add(val);
+                    }
+                }
+                catch (Exception e) { 
+                    NeptusLog.pub().warn("Admissible value not of correct type " + e.getMessage());
+                }
+            }
+        }
+    }
+
+    protected void clearAdmisibleRangeValues() {
+        synchronized (admisibleRangeValues) {
+            admisibleRangeValues.clear();
+        }
+    }
+
 //    @Override
 //    public void setValue(Object value) {
 //        System.out.println("setValue Editor " + value);
@@ -297,7 +367,7 @@ public class NumberEditor<T extends Number> extends NumberPropertyEditor impleme
     }
     
     @SuppressWarnings("unchecked")
-    private T convertFromString(String txt) throws NumberFormatException {
+    protected T convertFromString(String txt) throws NumberFormatException {
         if (pattern == null) {
             pattern = Pattern.compile(elementPattern, Pattern.CASE_INSENSITIVE);
         }
@@ -307,6 +377,47 @@ public class NumberEditor<T extends Number> extends NumberPropertyEditor impleme
             throw new NumberFormatException();
         
         T valueToReq = (T) ConverterRegistry.instance().convert(this.classType, txt);
+        
+        synchronized (admisibleRangeValues) {
+            if (enableValidation && !admisibleRangeValues.isEmpty()) {
+                T validValueIfFail = null;
+                try {
+                    boolean passedAtLeastOneTest = false;
+                    for (Object elm : admisibleRangeValues) {
+                        if (elm instanceof Pair<?, ?>) {
+                            Pair<T, T> validRange = (Pair<T, T>) elm;
+                            if (valueToReq.doubleValue() >= validRange.getLeft().doubleValue() &&
+                                    valueToReq.doubleValue() <= validRange.getRight().doubleValue()) {
+                                passedAtLeastOneTest = true;
+                                break;
+                            }
+                            else {
+                                if (validValueIfFail == null)
+                                    validValueIfFail = validRange.getLeft();
+                            }
+                        }
+                        else {
+                            if (valueToReq == (T) elm) {
+                                passedAtLeastOneTest = true;
+                                break;
+                            }
+                            else {
+                                if (validValueIfFail == null)
+                                    validValueIfFail = (T) elm;
+                            }
+                        }
+                    }
+                    
+                    if (!passedAtLeastOneTest) { // Then value outside valid ranges
+                        valueToReq = validValueIfFail != null ? validValueIfFail : valueToReq;
+                    }
+                }
+                catch (Exception e) {
+                    throw new NumberFormatException(e.getMessage());
+                }
+            }
+        }
+        
         if (enableValidation && minValue != null && maxValue != null) {
             if (valueToReq.doubleValue() < minValue.doubleValue()) {
                 ((JTextField) editor).setText(convertToString(minValue));
@@ -344,5 +455,11 @@ public class NumberEditor<T extends Number> extends NumberPropertyEditor impleme
     @Override
     public void setEnableValidation(boolean enableValidation) {
         this.enableValidation = enableValidation;
+    }
+    
+    public static class UInteger extends NumberEditor<Integer> {
+        public UInteger() {
+            super(Integer.class, 0, Integer.MAX_VALUE);
+        }
     }
 }

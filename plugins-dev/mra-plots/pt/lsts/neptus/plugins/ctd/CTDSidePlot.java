@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2016 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2017 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -13,8 +13,8 @@
  * written agreement between you and Universidade do Porto. For licensing
  * terms, conditions, and further information contact lsts@fe.up.pt.
  *
- * European Union Public Licence - EUPL v.1.1 Usage
- * Alternatively, this file may be used under the terms of the EUPL,
+ * Modified European Union Public Licence - EUPL v.1.1 Usage
+ * Alternatively, this file may be used under the terms of the Modified EUPL,
  * Version 1.1 only (the "Licence"), appearing in the file LICENSE.md
  * included in the packaging of this file. You may not use this work
  * except in compliance with the Licence. Unless required by applicable
@@ -22,7 +22,8 @@
  * distributed on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF
  * ANY KIND, either express or implied. See the Licence for the specific
  * language governing permissions and limitations at
- * http://ec.europa.eu/idabc/eupl.html.
+ * https://github.com/LSTS/neptus/blob/develop/LICENSE.md
+ * and http://ec.europa.eu/idabc/eupl.html.
  *
  * For more information please see <http://lsts.fe.up.pt/neptus>.
  *
@@ -39,9 +40,7 @@ import java.awt.RenderingHints;
 import java.awt.geom.Line2D;
 import java.awt.geom.Point2D;
 import java.awt.image.BufferedImage;
-import java.util.Arrays;
 import java.util.Collections;
-import java.util.List;
 import java.util.Locale;
 import java.util.Vector;
 
@@ -49,10 +48,11 @@ import javax.swing.JComponent;
 import javax.swing.JTabbedPane;
 import javax.swing.ProgressMonitor;
 
-import pt.lsts.imc.EstimatedState;
+import org.imgscalr.Scalr;
+
+import pt.lsts.imc.Depth;
 import pt.lsts.imc.Salinity;
 import pt.lsts.imc.Temperature;
-import pt.lsts.imc.lsf.IndexScanner;
 import pt.lsts.imc.lsf.LsfIndex;
 import pt.lsts.neptus.colormap.ColorMap;
 import pt.lsts.neptus.colormap.ColorMapFactory;
@@ -72,8 +72,6 @@ public class CTDSidePlot extends SimpleMRAVisualization {
     private static final long serialVersionUID = -2237994701546034699L;
     private JTabbedPane tabs = new JTabbedPane();
     private MRAPanel panel;
-    List<String> validEntities = Arrays.asList("CTD", "Water Quality Sensor");
-    String ctdEntity = null;
     
     public CTDSidePlot(MRAPanel panel) {
         super(panel);
@@ -87,27 +85,27 @@ public class CTDSidePlot extends SimpleMRAVisualization {
 
     @Override
     public boolean canBeApplied(IMraLogGroup source) {
-        for (String e : validEntities)
-            if (source.getLsfIndex().getEntityId(e) != 255) {
-                ctdEntity = e;
-                return true;
-            }
-        return false;
+        return source.getLsfIndex().containsMessagesOfType("Salinity");
     }
 
-    
+    /**
+     * Build image
+     */
     private JImagePanel buildImage(String name, Vector<Double> xCoords, Vector<Double> yCoords, Vector<Double> values) {
         double maxDepth = Collections.max(yCoords);
         double maxTemp = Collections.max(values);
         double minTemp = Collections.min(values);
         double maxTime = xCoords.lastElement();
         double minTime = xCoords.firstElement();
-        JImagePanel ji = new JImagePanel(1100, 725);
-        BufferedImage tmpImage = new BufferedImage(1000, 600, BufferedImage.TYPE_INT_ARGB);
-        ColorMap cmap = ColorMapFactory.createJetColorMap();
-        double depthFactor = 600 / maxDepth;
-        double timeFactor = 1000 / (maxTime - minTime);
         
+        int cmap_width = 1000;
+        int cmap_height = 600;
+        
+        JImagePanel ji = new JImagePanel(cmap_width+100, cmap_height+125);
+        BufferedImage tmpImage = new BufferedImage(cmap_width, cmap_height, BufferedImage.TYPE_INT_ARGB);
+        ColorMap cmap = ColorMapFactory.createJetColorMap();
+        double depthFactor = cmap_height / maxDepth;
+        double timeFactor = cmap_width / (maxTime - minTime);
         
         Point2D[] points = new Point2D[values.size()];
         
@@ -116,25 +114,34 @@ public class CTDSidePlot extends SimpleMRAVisualization {
         }
         
         ColorMapUtils.generateColorMap(points, values.toArray(new Double[0]), (Graphics2D) tmpImage.getGraphics(),
-                1000, 600, 128, cmap, false);
+                cmap_width, cmap_height, 128, cmap, false);
+        
+        tmpImage = Scalr.resize(tmpImage, cmap_width, cmap_height);
         
         Graphics2D g2d = (Graphics2D)ji.getBi().getGraphics();
         g2d.drawImage(tmpImage, 75, 25, null);
-        g2d.drawImage(ColorMapUtils.getBar(cmap, ColorMapUtils.HORIZONTAL_ORIENTATION, 1000, 20),
-                75, 650, null);
+        g2d.drawImage(ColorMapUtils.getBar(cmap, ColorMapUtils.HORIZONTAL_ORIENTATION, cmap_width, 20),
+                75, cmap_height+50, null);
         g2d.setColor(Color.black);
-        g2d.drawRect(75, 650, 1000, 20);
-        g2d.drawRect(75, 25, 1000, 600);
+        g2d.drawRect(75, cmap_height+50, cmap_width, 20);
+        g2d.drawRect(75, 25, cmap_width, cmap_height);
         g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
         g2d.setColor(new Color(255,255,255,128));
-        for(int d = 0; d < maxDepth; d++) {
+
+        int inc = 1;
+        if (maxDepth > 20.0)
+            inc = 2;
+        if (maxDepth > 50.0)
+            inc = 5;
+
+        for(int d = 0; d < maxDepth; d = d + inc) {
             double ycoord = depthFactor * d + 25;
             g2d.draw(new Line2D.Double(70, ycoord, 1075, ycoord));
         }
         g2d.setColor(Color.black);
         g2d.setStroke(new BasicStroke(3.0f));
         g2d.setFont(new Font("Arial", Font.PLAIN, 20));
-        for(int d = 0; d < maxDepth; d++) {
+        for(int d = 0; d < maxDepth; d = d + inc) {
             double ycoord = depthFactor * d + 25;
             g2d.draw(new Line2D.Double(70, ycoord, 75, ycoord));
             g2d.drawString(""+d, 40, (int)ycoord+10);
@@ -168,34 +175,44 @@ public class CTDSidePlot extends SimpleMRAVisualization {
     @Override
     public JComponent getVisualization(IMraLogGroup source, double timestep) {
         LsfIndex index = source.getLsfIndex();
-        IndexScanner scanner = new IndexScanner(index);
         ProgressMonitor pmonitor = new ProgressMonitor(panel, "Creating visualization", "Parsing data", 0, index.getNumberOfMessages());
         
         Vector<Double> xCoords = new Vector<>();
         Vector<Double> yCoords = new Vector<>();
         Vector<Double> temp = new Vector<>();
         Vector<Double> sal = new Vector<>();
-        while (true) {
-            Temperature t = scanner.next(Temperature.class, ctdEntity);
-            Salinity s = scanner.next(Salinity.class, ctdEntity);
+
+        int ctdEntity = source.getLsfIndex().getFirst(Salinity.class).getSrcEnt();
+
+        double startTime = source.getLsfIndex().getFirst(Salinity.class).getTimestamp();
+        double endTime = source.getLsfIndex().getLast(Salinity.class).getTimestamp();
+        int lastIndex = 0;
+        for (double time = startTime; time < endTime; time++) {
+            int tempIndex = source.getLsfIndex().getMessageAtOrAfer(Temperature.ID_STATIC, ctdEntity, lastIndex, time);
+            int salIndex = source.getLsfIndex().getMessageAtOrAfer(Salinity.ID_STATIC, ctdEntity, lastIndex, time);
+            int depthIndex = source.getLsfIndex().getMessageAtOrAfer(Depth.ID_STATIC, ctdEntity, lastIndex, time);
             
-            EstimatedState d = scanner.next(EstimatedState.class);
-            if (t == null || s == null || d == null) {
+            if (tempIndex == -1 || salIndex == -1 || depthIndex == -1)
                 break;
+            lastIndex = tempIndex;
+            
+            pmonitor.setProgress(tempIndex);
+            try {
+                Depth d = source.getLsfIndex().getMessage(depthIndex, Depth.class);
+                Temperature t = source.getLsfIndex().getMessage(tempIndex, Temperature.class);
+                Salinity s = source.getLsfIndex().getMessage(salIndex, Salinity.class);
+                
+                xCoords.add(d.getTimestamp());
+                yCoords.add(d.getValue());
+                
+                temp.add(t.getValue());
+                sal.add(s.getValue());
+            }
+            catch (Exception e) {
+                e.printStackTrace();
             }
             
-            pmonitor.setProgress(scanner.getIndex());
-            xCoords.add(d.getTimestamp());
-            yCoords.add(d.getDepth());
-            temp.add(t.getValue());
-            sal.add(s.getValue());
-        }
-        
-        for (int i = 0; !temp.isEmpty() && i < 20; i++) {
-            temp.remove(0);
-            sal.remove(0);
-            xCoords.remove(0);
-            yCoords.remove(yCoords.size()-1);
+            
         }
         
         pmonitor.setNote("Generating temperature colormap");
@@ -207,5 +224,4 @@ public class CTDSidePlot extends SimpleMRAVisualization {
         pmonitor.close();
         return tabs;
     }
-
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2016 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2017 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -13,8 +13,8 @@
  * written agreement between you and Universidade do Porto. For licensing
  * terms, conditions, and further information contact lsts@fe.up.pt.
  *
- * European Union Public Licence - EUPL v.1.1 Usage
- * Alternatively, this file may be used under the terms of the EUPL,
+ * Modified European Union Public Licence - EUPL v.1.1 Usage
+ * Alternatively, this file may be used under the terms of the Modified EUPL,
  * Version 1.1 only (the "Licence"), appearing in the file LICENCE.md
  * included in the packaging of this file. You may not use this work
  * except in compliance with the Licence. Unless required by applicable
@@ -22,7 +22,8 @@
  * distributed on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF
  * ANY KIND, either express or implied. See the Licence for the specific
  * language governing permissions and limitations at
- * http://ec.europa.eu/idabc/eupl.html.
+ * https://github.com/LSTS/neptus/blob/develop/LICENSE.md
+ * and http://ec.europa.eu/idabc/eupl.html.
  *
  * For more information please see <http://lsts.fe.up.pt/neptus>.
  *
@@ -74,6 +75,8 @@ import com.l2fprod.common.propertysheet.Property;
 import pt.lsts.imc.IMCMessage;
 import pt.lsts.imc.PathPoint;
 import pt.lsts.imc.TrajectoryPoint;
+import pt.lsts.imc.def.SpeedUnits;
+import pt.lsts.imc.def.ZUnits;
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.gui.PropertiesEditor;
 import pt.lsts.neptus.gui.ToolbarSwitch;
@@ -83,6 +86,7 @@ import pt.lsts.neptus.mp.ManeuverLocation;
 import pt.lsts.neptus.renderer2d.InteractionAdapter;
 import pt.lsts.neptus.renderer2d.StateRenderer2D;
 import pt.lsts.neptus.renderer2d.StateRendererInteraction;
+import pt.lsts.neptus.types.coord.CoordinateUtil;
 import pt.lsts.neptus.types.coord.LocationType;
 import pt.lsts.neptus.types.map.PlanElement;
 import pt.lsts.neptus.util.AngleUtils;
@@ -252,23 +256,38 @@ StateRendererInteraction, IMCSerialization, PathProvider {
     }
 
     protected void editPointsDialog(Window parent) {
-        String times = "";
+        StringBuilder times = new StringBuilder("");
         NumberFormat nf = GuiUtils.getNeptusDecimalFormat(2);
+        StringBuilder title = new StringBuilder((hasTime ? I18n.text("Trajectory") : I18n.text("Path")))
+                .append(" ").append(I18n.text("points")).append(" (N, E, D")
+                .append((hasTime ? ", T" : "")).append(") // <").append(I18n.text("comments"))
+                .append(">");
+        
+        times.append("# ").append(title.toString()).append("\n");
+        times.append("# ").append(I18n.text(
+                "If using \"N|S\" in N field and \"W|E\" in E field parsing as absolute coordinates will be done.")).append("\n");
         for (double[] pt : points) {
-            times += nf.format(pt[0]) + ", " + nf.format(pt[1]) + ", " + nf.format(pt[2])
-                    + (hasTime ? ", " + nf.format(pt[3]) : "") + "\n";
+            times.append(nf.format(pt[0]));
+            times.append(", ");
+            times.append(nf.format(pt[1]));
+            times.append(", ");
+            times.append(nf.format(pt[2]));
+            times.append((hasTime ? ", " + nf.format(pt[3]) : ""));
+            LocationType loc = startLoc.getNewAbsoluteLatLonDepth().translatePosition(pt[0], pt[1], pt[2]).convertToAbsoluteLatLonDepth();
+            times.append(" // ").append(CoordinateUtil.latitudeAsPrettyString(loc.getLatitudeDegs()));
+            times.append(", ").append(CoordinateUtil.longitudeAsPrettyString(loc.getLongitudeDegs()));
+            times.append("\n");
         }
 
         final JEditorPane epane = new JEditorPane();
-        epane.setText(times);
+        epane.setText(times.toString());
 
         JPanel mainPanel = new JPanel(new BorderLayout());
         mainPanel.add(new JScrollPane(epane));
         final JDialog dialog = new JDialog(parent);
         dialog.getContentPane().add(mainPanel);
         dialog.setDefaultCloseOperation(JDialog.DO_NOTHING_ON_CLOSE);
-        dialog.setTitle((hasTime ? "Trajectory" : "Path") + " points (N, E, D"
-                + (hasTime ? ", T" : "") + ")");
+        dialog.setTitle(title.toString());
         dialog.addWindowListener(new WindowAdapter() {
             @Override
             public void windowClosing(WindowEvent e) {
@@ -278,13 +297,41 @@ StateRendererInteraction, IMCSerialization, PathProvider {
                     String[] lines = epane.getText().split("\n");
                     Vector<double[]> pts = new Vector<double[]>();
                     for (int i = 0; i < lines.length; i++){
-                        String[] parts = lines[i].split(",");
+                        if (lines[i].trim().startsWith("#") || lines[i].trim().startsWith("//"))
+                            continue;
+                        
+                        String[] parts = lines[i].split(",|#|//");
+                        int parseLatLon = 0;
                         try {
                             double[] pt = new double[4];
-                            pt[0] = Double.parseDouble(parts[0].trim());
-                            pt[1] = Double.parseDouble(parts[1].trim());
+                            try {
+                                pt[0] = Double.parseDouble(parts[0].trim());
+                            }
+                            catch (Exception e1) {
+                                parseLatLon++;
+                                pt[0] = CoordinateUtil.parseLatitudeCoordToDoubleValue(parts[0]);
+                            }
+                            try {
+                                pt[1] = Double.parseDouble(parts[1].trim());
+                            }
+                            catch (Exception e1) {
+                                parseLatLon++;
+                                pt[1] = CoordinateUtil.parseLongitudeCoordToDoubleValue(parts[1]);
+                            }
+                            
                             pt[2] = Double.parseDouble(parts[2].trim());
                             pt[3] = hasTime ? Double.parseDouble(parts[3].trim()) : -1;
+
+                            if (parseLatLon > 0 && parseLatLon < 2)
+                                throw new Exception("Parsing error while parsing lat/lon");
+                            else if (parseLatLon == 2) {
+                                LocationType loc = new LocationType(pt[0], pt[1]);
+                                loc.setDepth(pt[2]);
+                                double[] off = loc.getOffsetFrom(startLoc);
+                                pt[0] = off[0];
+                                pt[1] = off[1];
+                            }
+
                             pts.add(pt);
                         }
                         catch (Exception ex) {
@@ -597,7 +644,8 @@ StateRendererInteraction, IMCSerialization, PathProvider {
         double lastTime = 0;
         for (int i = 0; i < points.size(); i++) {
             try {
-                lastTime += points.get(i)[T];
+                if (points.get(i).length > 3)
+                    lastTime += points.get(i)[T];
             }
             catch (Exception e) {
                 e.printStackTrace();
@@ -624,20 +672,20 @@ StateRendererInteraction, IMCSerialization, PathProvider {
             trajMessage.setLat(Math.toRadians(lld[0]));
             trajMessage.setLon(Math.toRadians(lld[1]));
             trajMessage.setZ(getManeuverLocation().getZ());
-            trajMessage.setZUnits(pt.lsts.imc.FollowTrajectory.Z_UNITS.valueOf(
+            trajMessage.setZUnits(ZUnits.valueOf(
                     getManeuverLocation().getZUnits().toString()));
             trajMessage.setSpeed(speed);
             try {
                 switch (this.getSpeedUnits()) {
                     case METERS_PS:
-                        trajMessage.setSpeedUnits(pt.lsts.imc.FollowTrajectory.SPEED_UNITS.METERS_PS);
+                        trajMessage.setSpeedUnits(SpeedUnits.METERS_PS);
                         break;
                     case PERCENTAGE:
-                        trajMessage.setSpeedUnits(pt.lsts.imc.FollowTrajectory.SPEED_UNITS.PERCENTAGE);
+                        trajMessage.setSpeedUnits(SpeedUnits.PERCENTAGE);
                         break;
                     case RPM:
                     default:
-                        trajMessage.setSpeedUnits(pt.lsts.imc.FollowTrajectory.SPEED_UNITS.RPM);
+                        trajMessage.setSpeedUnits(SpeedUnits.RPM);
                         break;
                 }
             }
@@ -664,20 +712,20 @@ StateRendererInteraction, IMCSerialization, PathProvider {
             pathMessage.setLat(Math.toRadians(lld[0]));
             pathMessage.setLon(Math.toRadians(lld[1]));
             pathMessage.setZ(getManeuverLocation().getZ());
-            pathMessage.setZUnits(pt.lsts.imc.FollowPath.Z_UNITS.valueOf(
+            pathMessage.setZUnits(ZUnits.valueOf(
                     getManeuverLocation().getZUnits().toString()));            
             pathMessage.setSpeed(speed);
             try {
                 switch (this.getSpeedUnits()) {
                     case METERS_PS:
-                        pathMessage.setSpeedUnits(pt.lsts.imc.FollowPath.SPEED_UNITS.METERS_PS);
+                        pathMessage.setSpeedUnits(SpeedUnits.METERS_PS);
                         break;
                     case PERCENTAGE:
-                        pathMessage.setSpeedUnits(pt.lsts.imc.FollowPath.SPEED_UNITS.PERCENTAGE);
+                        pathMessage.setSpeedUnits(SpeedUnits.PERCENTAGE);
                         break;
                     case RPM:
                     default:
-                        pathMessage.setSpeedUnits(pt.lsts.imc.FollowPath.SPEED_UNITS.RPM);
+                        pathMessage.setSpeedUnits(SpeedUnits.RPM);
                         break;
                 }            }
             catch (Exception ex) {

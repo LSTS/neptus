@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2016 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2017 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -13,8 +13,8 @@
  * written agreement between you and Universidade do Porto. For licensing
  * terms, conditions, and further information contact lsts@fe.up.pt.
  *
- * European Union Public Licence - EUPL v.1.1 Usage
- * Alternatively, this file may be used under the terms of the EUPL,
+ * Modified European Union Public Licence - EUPL v.1.1 Usage
+ * Alternatively, this file may be used under the terms of the Modified EUPL,
  * Version 1.1 only (the "Licence"), appearing in the file LICENSE.md
  * included in the packaging of this file. You may not use this work
  * except in compliance with the Licence. Unless required by applicable
@@ -22,7 +22,8 @@
  * distributed on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF
  * ANY KIND, either express or implied. See the Licence for the specific
  * language governing permissions and limitations at
- * http://ec.europa.eu/idabc/eupl.html.
+ * https://github.com/LSTS/neptus/blob/develop/LICENSE.md
+ * and http://ec.europa.eu/idabc/eupl.html.
  *
  * For more information please see <http://lsts.fe.up.pt/neptus>.
  *
@@ -33,6 +34,8 @@ package pt.lsts.neptus.plugins.envdisp;
 
 import java.util.ArrayList;
 import java.util.Date;
+
+import pt.lsts.neptus.NeptusLog;
 
 public class HFRadarDataPoint extends BaseDataPoint<HFRadarDataPoint> {
 
@@ -215,34 +218,28 @@ public class HFRadarDataPoint extends BaseDataPoint<HFRadarDataPoint> {
         return true;
     }
 
-//    public void purgeAllBefore(Date date) {
-//        if (date == null || historicalData.size() == 0)
-//            return;
-//        for (HFRadarDataPoint dp : historicalData.toArray(new HFRadarDataPoint[0])) {
-//            if (dp.getDateUTC().before(date))
-//                historicalData.remove(dp);
-//        }
-//    }
-
-//    @Override
-//    public int compareTo(HFRadarDataPoint o) {
-//        if (Double.compare(lat, o.lat) == 0 && Double.compare(lon, o.lon) == 0)
-//            return 0;
-//        else
-//            return 1; 
-//    }
+    @Override
+    public ArrayList<Object> getAllDataValues() {
+        ArrayList<Object> ret = new ArrayList<>();
+        ret.add(speedCmS);
+        ret.add(headingDegrees);
+        ret.add(resolutionKm);
+        ret.add(info);
+        return ret;
+    }
     
-//    @Override
-//    public boolean equals(Object obj) {
-//        if (obj == null)
-//            return false;
-//
-//        if (!(obj instanceof HFRadarDataPoint))
-//            return false;
-//        return compareTo((HFRadarDataPoint) obj) == 0 ? true : false;
-//    }
-    
-//    public static String getId(HFRadarDataPoint hfrdp) {
-//        return hfrdp.lat + ":" + hfrdp.lon;
-//    }
+    @Override
+    public boolean setAllDataValues(ArrayList<Object> newValues) {
+        try {
+            speedCmS = (double) newValues.get(0);
+            headingDegrees = (double) newValues.get(1);
+            resolutionKm = (double) newValues.get(2);
+            info = (String) newValues.get(3);
+        }
+        catch (Exception e) {
+            NeptusLog.pub().warn(e);
+            return false;
+        }
+        return true;
+    }
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2016 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2017 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -13,8 +13,8 @@
  * written agreement between you and Universidade do Porto. For licensing
  * terms, conditions, and further information contact lsts@fe.up.pt.
  *
- * European Union Public Licence - EUPL v.1.1 Usage
- * Alternatively, this file may be used under the terms of the EUPL,
+ * Modified European Union Public Licence - EUPL v.1.1 Usage
+ * Alternatively, this file may be used under the terms of the Modified EUPL,
  * Version 1.1 only (the "Licence"), appearing in the file LICENSE.md
  * included in the packaging of this file. You may not use this work
  * except in compliance with the Licence. Unless required by applicable
@@ -22,7 +22,8 @@
  * distributed on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF
  * ANY KIND, either express or implied. See the Licence for the specific
  * language governing permissions and limitations at
- * http://ec.europa.eu/idabc/eupl.html.
+ * https://github.com/LSTS/neptus/blob/develop/LICENSE.md
+ * and http://ec.europa.eu/idabc/eupl.html.
  *
  * For more information please see <http://lsts.fe.up.pt/neptus>.
  *
@@ -89,7 +90,7 @@ public class S57SoundingsExporter extends ConsolePanel {
 
         Vector<MapPanel> maps = console.getSubPanelsOfClass(MapPanel.class);
         if (maps.isEmpty())
-            throw new Exception("Cannot export soundings because there is no map in the console");
+            throw new Exception(I18n.text("Cannot export soundings because there is no map in the console"));
 
         StateRenderer2D renderer = maps.firstElement().getRenderer();
         Map<String, MapPainterProvider> painters = renderer.getWorldMapPainter().getMapPainters();
@@ -98,13 +99,13 @@ public class S57SoundingsExporter extends ConsolePanel {
             if (p instanceof S57Chart)
                 return (S57Chart) p;
 
-        throw new Exception("Cannot export soundings because there is S57 chart in the console");                
+        throw new Exception(I18n.text("Cannot export soundings because there is no S57 chart loaded"));                
     }
 
     public static StateRenderer2D getRenderer(ConsoleLayout console) throws Exception {
         Vector<MapPanel> maps = console.getSubPanelsOfClass(MapPanel.class);
         if (maps.isEmpty())
-            throw new Exception("There is no map in the console");
+            throw new Exception(I18n.text("There is no map in the console"));
         return maps.firstElement().getRenderer();
     }
 
@@ -215,12 +216,9 @@ public class S57SoundingsExporter extends ConsolePanel {
                     BathymetryMeshOptions options = new BathymetryMeshOptions();
                     options.zero.setLocation(getConsole().getMission().getHomeRef());
                     
-                    
-                    
                     LocationType topLeft = renderer.getTopLeftLocationType().convertToAbsoluteLatLonDepth();
                     LocationType bottomRight = renderer.getBottomRightLocationType()
                             .convertToAbsoluteLatLonDepth();
-                    
                     
                     double dim[] = topLeft.getOffsetFrom(bottomRight);
                     
@@ -232,6 +230,12 @@ public class S57SoundingsExporter extends ConsolePanel {
                     soundings.addAll(chart.getDepthSoundings(bottomRight.getLatitudeDegs(),
                             topLeft.getLatitudeDegs(), topLeft.getLongitudeDegs(),
                             bottomRight.getLongitudeDegs()));
+                    
+                    if (soundings.isEmpty()) {
+                        GuiUtils.infoMessage(getConsole(), I18n.text("Export Bathymetry"), 
+                                I18n.text("No soundings to export!"));
+                        return;
+                    }
                     
                     WorldImage img = new WorldImage(options.cellWidth, ColorMapFactory.createGrayScaleColorMap());
                     

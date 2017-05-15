@@ -14,8 +14,8 @@
  * written agreement between you and Universidade do Porto. For licensing
  * terms, conditions, and further information contact lsts@fe.up.pt.
  *
- * European Union Public Licence - EUPL v.1.1 Usage
- * Alternatively, this file may be used under the terms of the EUPL,
+ * Modified European Union Public Licence - EUPL v.1.1 Usage
+ * Alternatively, this file may be used under the terms of the Modified EUPL,
  * Version 1.1 only (the "Licence"), appearing in the file LICENCE.md
  * included in the packaging of this file. You may not use this work
  * except in compliance with the Licence. Unless required by applicable
@@ -23,7 +23,8 @@
  * distributed on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF
  * ANY KIND, either express or implied. See the Licence for the specific
  * language governing permissions and limitations at
- * http://ec.europa.eu/idabc/eupl.html.
+ * https://github.com/LSTS/neptus/blob/develop/LICENSE.md
+ * and http://ec.europa.eu/idabc/eupl.html.
  *
  * For more information please see <http://lsts.fe.up.pt/neptus>.
  *
@@ -51,7 +52,7 @@ import pt.lsts.imc.PowerChannelControl.OP;
 import pt.lsts.imc.PowerChannelState;
 import pt.lsts.imc.PowerChannelState.STATE;
 import pt.lsts.imc.Target;
-import pt.lsts.imc.Target.Z_UNITS;
+import pt.lsts.imc.def.ZUnits;
 import pt.lsts.neptus.comm.manager.imc.ImcSystemsHolder;
 import pt.lsts.neptus.console.ConsoleLayout;
 import pt.lsts.neptus.console.plugins.MainVehicleChangeListener;
@@ -135,7 +136,7 @@ public class DropMapLayer extends SimpleRendererInteraction implements Renderer2
                 target.setLat(targetPos.getLatitudeRads());
                 target.setLon(targetPos.getLongitudeRads());
                 target.setZ(dropHeight);
-                target.setZUnits(Z_UNITS.HEIGHT);
+                target.setZUnits(ZUnits.HEIGHT);
                 target.setLabel("neptus");
                 send(target);
                 dropPos = null;

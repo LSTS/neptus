@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2016 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2017 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -13,8 +13,8 @@
  * written agreement between you and Universidade do Porto. For licensing
  * terms, conditions, and further information contact lsts@fe.up.pt.
  *
- * European Union Public Licence - EUPL v.1.1 Usage
- * Alternatively, this file may be used under the terms of the EUPL,
+ * Modified European Union Public Licence - EUPL v.1.1 Usage
+ * Alternatively, this file may be used under the terms of the Modified EUPL,
  * Version 1.1 only (the "Licence"), appearing in the file LICENSE.md
  * included in the packaging of this file. You may not use this work
  * except in compliance with the Licence. Unless required by applicable
@@ -22,7 +22,8 @@
  * distributed on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF
  * ANY KIND, either express or implied. See the Licence for the specific
  * language governing permissions and limitations at
- * http://ec.europa.eu/idabc/eupl.html.
+ * https://github.com/LSTS/neptus/blob/develop/LICENSE.md
+ * and http://ec.europa.eu/idabc/eupl.html.
  *
  * For more information please see <http://lsts.fe.up.pt/neptus>.
  *
@@ -91,11 +92,11 @@ import com.google.gson.Gson;
 import convcao.com.agent.model.InputData;
 import convcao.com.agent.model.TransferData;
 import pt.lsts.imc.DesiredZ;
-import pt.lsts.imc.DesiredZ.Z_UNITS;
 import pt.lsts.imc.Distance;
 import pt.lsts.imc.EstimatedState;
 import pt.lsts.imc.FollowRefState;
 import pt.lsts.imc.Reference;
+import pt.lsts.imc.def.ZUnits;
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.comm.IMCUtils;
 import pt.lsts.neptus.comm.manager.imc.ImcMsgManager;
@@ -1159,7 +1160,7 @@ public class ConvcaoNeptusInteraction extends ConsolePanel implements Renderer2D
         //System.out.println("depth for "+vehicle.getId()+" is "+depth);
         ref.setLat(dest.getLatitudeRads());
         ref.setLon(dest.getLongitudeRads());
-        DesiredZ desZ = new DesiredZ(depth, Z_UNITS.DEPTH);
+        DesiredZ desZ = new DesiredZ(depth, ZUnits.DEPTH);
 
         if (depth > 0)
             ref.setRadius(10);

@@ -13,8 +13,8 @@
  * written agreement between you and Universidade do Porto. For licensing
  * terms, conditions, and further information contact lsts@fe.up.pt.
  *
- * European Union Public Licence - EUPL v.1.1 Usage
- * Alternatively, this file may be used under the terms of the EUPL,
+ * Modified European Union Public Licence - EUPL v.1.1 Usage
+ * Alternatively, this file may be used under the terms of the Modified EUPL,
  * Version 1.1 only (the "Licence"), appearing in the file LICENSE.md
  * included in the packaging of this file. You may not use this work
  * except in compliance with the Licence. Unless required by applicable
@@ -32,6 +32,8 @@
 package pt.lsts.neptus.mp.maneuvers;
 
 import pt.lsts.imc.IMCMessage;
+import pt.lsts.imc.def.SpeedUnits;
+import pt.lsts.imc.def.ZUnits;
 import pt.lsts.neptus.mp.ManeuverLocation;
 import pt.lsts.neptus.types.coord.LocationType;
 
@@ -102,21 +104,21 @@ public class Drop extends Goto {
         dropManeuver.setLat(l.getLatitudeRads());
         dropManeuver.setLon(l.getLongitudeRads());
         dropManeuver.setZ(getManeuverLocation().getZ());
-        dropManeuver.setZUnits(pt.lsts.imc.Drop.Z_UNITS.valueOf(getManeuverLocation().getZUnits().name()));
+        dropManeuver.setZUnits(ZUnits.valueOf(getManeuverLocation().getZUnits().name()));
         dropManeuver.setSpeed(this.getSpeed());
        
         switch (this.getSpeedUnits()) {
             case METERS_PS:
-                dropManeuver.setSpeedUnits(pt.lsts.imc.Drop.SPEED_UNITS.METERS_PS);
+                dropManeuver.setSpeedUnits(SpeedUnits.METERS_PS);
                 break;
             case RPM:
-                dropManeuver.setSpeedUnits(pt.lsts.imc.Drop.SPEED_UNITS.RPM);
+                dropManeuver.setSpeedUnits(SpeedUnits.RPM);
                 break;
             case PERCENTAGE:
-                dropManeuver.setSpeedUnits(pt.lsts.imc.Drop.SPEED_UNITS.PERCENTAGE);
+                dropManeuver.setSpeedUnits(SpeedUnits.PERCENTAGE);
                 break;
             default:
-                dropManeuver.setSpeedUnits(pt.lsts.imc.Drop.SPEED_UNITS.RPM);
+                dropManeuver.setSpeedUnits(SpeedUnits.RPM);
                 break;
         }
         
