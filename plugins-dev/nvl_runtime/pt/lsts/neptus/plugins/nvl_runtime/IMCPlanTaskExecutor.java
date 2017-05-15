@@ -30,7 +30,7 @@
  * Author: edrdo
  * May 14, 2017
  */
-package pt.lsts.neptus.plugins.nvl;
+package pt.lsts.neptus.plugins.nvl_runtime;
 
 import java.util.List;
 import java.util.Map;
@@ -67,6 +67,7 @@ public class IMCPlanTaskExecutor extends TaskExecutor {
     @Override
     protected void onInitialize(Map<Task, List<NVLVehicle>> allocation) {
         vehicle = (NeptusVehicleAdapter) allocation.get(getTask()).get(0);
+        pcsVar = new NVLVariable<>();
     }
 
     /* (non-Javadoc)
@@ -88,7 +89,7 @@ public class IMCPlanTaskExecutor extends TaskExecutor {
     
     @Subscribe
     public void on(PlanControlState pcs) {
-        pcsVar.set(pcs);
+        pcsVar.set(pcs, timeElapsed());
     }
     
 
@@ -103,7 +104,7 @@ public class IMCPlanTaskExecutor extends TaskExecutor {
       }
       PlanControlState pcs = pcsVar.get();
       if (!getTask().getId().equals(pcs.getPlanId())) {
-        if (clock() > WARMUP_TIME) {
+        if (timeElapsed() > WARMUP_TIME) {
           cs = new CompletionState(CompletionState.Type.ERROR);
           d("Wrong plan id: %s != %s", pcs.getPlanId(), getTask().getId());
         }
