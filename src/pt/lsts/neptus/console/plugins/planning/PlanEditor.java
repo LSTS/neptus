@@ -56,6 +56,7 @@ import java.awt.event.MouseEvent;
 import java.awt.geom.Point2D;
 import java.awt.image.BufferedImage;
 import java.text.Collator;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
@@ -105,6 +106,7 @@ import pt.lsts.neptus.console.plugins.planning.edit.ManeuverRemoved;
 import pt.lsts.neptus.console.plugins.planning.edit.ManeuverTranslated;
 import pt.lsts.neptus.console.plugins.planning.edit.PlanRotated;
 import pt.lsts.neptus.console.plugins.planning.edit.PlanSettingsChanged;
+import pt.lsts.neptus.console.plugins.planning.edit.PlanTransitionsChanged;
 import pt.lsts.neptus.console.plugins.planning.edit.PlanTransitionsReversed;
 import pt.lsts.neptus.console.plugins.planning.edit.PlanTranslated;
 import pt.lsts.neptus.console.plugins.planning.edit.PlanZChanged;
@@ -1280,6 +1282,17 @@ public class PlanEditor extends InteractionAdapter implements Renderer2DPainter,
                             parent = SwingUtilities.getWindowAncestor(ConfigFetch.getSuperParentAsFrame());
                         JDialog transitions = new JDialog(parent, I18n.textf("Edit '%planName' plan transitions",
                                 plan.getId()));
+                        
+                        ArrayList<TransitionType> originalTransitions = new ArrayList<>();
+                        Arrays.asList(plan.getGraph().getAllEdges()).stream().forEach(t -> {
+                            try {
+                                originalTransitions.add((TransitionType) t.clone());
+                            }
+                            catch (CloneNotSupportedException e1) {
+                                e1.printStackTrace();
+                            }
+                        });
+                        
                         transitions.setModalityType(ModalityType.DOCUMENT_MODAL);
                         transitions.getContentPane().add(new PlanTransitionsSimpleEditor(plan));
                         transitions.setSize(800, 500);
@@ -1289,6 +1302,22 @@ public class PlanEditor extends InteractionAdapter implements Renderer2DPainter,
                         renderer.repaint();
 
                         refreshPropertiesManeuver();
+                        
+                        ArrayList<TransitionType> newTransitions = new ArrayList<>();
+                        Arrays.asList(plan.getGraph().getAllEdges()).stream().forEach(t -> {
+                            try {
+                                newTransitions.add((TransitionType) t.clone());
+                            }
+                            catch (CloneNotSupportedException e1) {
+                                e1.printStackTrace();
+                            }
+                        });
+
+                        if (!originalTransitions.containsAll(newTransitions)
+                                || !newTransitions.containsAll(originalTransitions)) {
+                            PlanTransitionsChanged ptc = new PlanTransitionsChanged(plan, originalTransitions, newTransitions);
+                            manager.addEdit(ptc);
+                        }
                     }
                 };
                 pTransitions.putValue(AbstractAction.SMALL_ICON,
