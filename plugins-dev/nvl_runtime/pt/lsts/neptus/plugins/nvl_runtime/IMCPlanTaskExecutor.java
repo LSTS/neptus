@@ -52,10 +52,11 @@ import pt.lsts.nvl.runtime.tasks.TaskExecutor;
 public class IMCPlanTaskExecutor extends TaskExecutor {
 
     private static final double WARMUP_TIME = 3.0;
-    
+    private static final double PLAN_CONTROL_STATE_TIMEOUT = 5.0;
+
     private NeptusVehicleAdapter vehicle;
     private NVLVariable<PlanControlState> pcsVar;
-    
+
     public IMCPlanTaskExecutor(IMCPlanTask theTask) {
         super(theTask);
     }
@@ -85,67 +86,76 @@ public class IMCPlanTaskExecutor extends TaskExecutor {
         pcMsg.setFlags(PlanControl.FLG_CALIBRATE);
         vehicle.sendTo(pcMsg);
         NeptusEvents.register(this);
+        d("Initialized executor for IMC plan '%s'", task.getId());
     }
-    
+
     @Subscribe
     public void on(PlanControlState pcs) {
-        pcsVar.set(pcs, timeElapsed());
+        d("Received PCS " + pcs.getSourceName() + " " + vehicle.getId());
+
+        if (pcs.getSourceName().equals(vehicle.getId())) {
+            pcsVar.set(pcs, timeElapsed());
+        }
     }
-    
+
 
     /* (non-Javadoc)
      * @see pt.lsts.nvl.runtime.tasks.TaskExecutor#onStep()
      */
     @Override
     protected CompletionState onStep() {
-      CompletionState cs = new CompletionState(CompletionState.Type.IN_PROGRESS);
-      if (!pcsVar.hasFreshValue()) {
-        return cs;
-      }
-      PlanControlState pcs = pcsVar.get();
-      if (!getTask().getId().equals(pcs.getPlanId())) {
-        if (timeElapsed() > WARMUP_TIME) {
-          cs = new CompletionState(CompletionState.Type.ERROR);
-          d("Wrong plan id: %s != %s", pcs.getPlanId(), getTask().getId());
-        }
-      } else {
-        switch (pcs.getState()) {
-          case BLOCKED:
-            cs = new CompletionState(CompletionState.Type.ERROR);
-            break;
-          case EXECUTING:
-          case INITIALIZING:
-            break;
-          case READY:
-            d("Terminated %s on %s : %s", getTask().getId(), vehicle.getId(), pcs.getLastOutcome());
-            switch (pcs.getLastOutcome()) {
-              case FAILURE:
-              case NONE:
-                cs = new CompletionState(CompletionState.Type.ERROR);
-                d("Failure!");
-                break;
-              case SUCCESS:
-                cs = new CompletionState(CompletionState.Type.DONE);
-                d("IMC plan completed!");
-                break;
-              default:
-                throw new NVLExecutionException();
+        CompletionState completionState =  new CompletionState(CompletionState.Type.IN_PROGRESS);
+        if (! pcsVar.hasFreshValue()) {
+            if (pcsVar.age(timeElapsed()) >= PLAN_CONTROL_STATE_TIMEOUT) {
+                d("PlanControlState timeout!");
+                completionState = new CompletionState(CompletionState.Type.ERROR);
             }
-            break;
-          default:
-            throw new NVLExecutionException();
+        } else {
+            PlanControlState pcs = pcsVar.get();
+            if (!getTask().getId().equals(pcs.getPlanId())) {
+                if (timeElapsed() > WARMUP_TIME) {
+                    completionState = new CompletionState(CompletionState.Type.ERROR);
+                    d("Wrong plan id: %s != %s", pcs.getPlanId(), getTask().getId());
+                }
+            } else {
+                switch (pcs.getState()) {
+                    case BLOCKED:
+                        completionState = new CompletionState(CompletionState.Type.ERROR);
+                        break;
+                    case EXECUTING:
+                    case INITIALIZING:
+                        break;
+                    case READY:
+                        d("Terminated %s on %s : %s", getTask().getId(), vehicle.getId(), pcs.getLastOutcome());
+                        switch (pcs.getLastOutcome()) {
+                            case FAILURE:
+                            case NONE:
+                                completionState = new CompletionState(CompletionState.Type.ERROR);
+                                d("Failure!");
+                                break;
+                            case SUCCESS:
+                                completionState = new CompletionState(CompletionState.Type.DONE);
+                                d("IMC plan completed!");
+                                break;
+                            default:
+                                throw new NVLExecutionException();
+                        }
+                        break;
+                    default:
+                        throw new NVLExecutionException();
+                }
+            }
         }
-      }
-      return cs;
+        return completionState;
     }
-    
+
 
     /* (non-Javadoc)
      * @see pt.lsts.nvl.runtime.tasks.TaskExecutor#onCompletion()
      */
     @Override
     protected void onCompletion() {
-
+       //  NeptusEvents.unregister(this, null);
     }
-    
+
 }

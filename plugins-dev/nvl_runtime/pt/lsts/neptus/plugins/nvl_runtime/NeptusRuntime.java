@@ -43,6 +43,7 @@ import javax.swing.JButton;
 
 import com.google.common.eventbus.Subscribe;
 
+import pt.lsts.imc.PlanControlState;
 import pt.lsts.imc.VehicleState;
 import pt.lsts.neptus.comm.manager.imc.ImcMsgManager;
 import pt.lsts.neptus.comm.manager.imc.ImcSystem;
@@ -50,6 +51,7 @@ import pt.lsts.neptus.comm.manager.imc.ImcSystemsHolder;
 import pt.lsts.neptus.console.ConsoleLayout;
 import pt.lsts.neptus.console.ConsolePanel;
 import pt.lsts.neptus.console.events.ConsoleEventPlanChange;
+import pt.lsts.neptus.events.NeptusEvents;
 import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.plugins.PluginDescription;
 import pt.lsts.neptus.plugins.Popup;
@@ -68,13 +70,16 @@ import pt.lsts.nvl.runtime.tasks.PlatformTask;
 public class NeptusRuntime extends ConsolePanel implements NVLPlatform {
 
     private final Map<String,IMCPlanTask> imcPlanTasks;
-    private NVLEngine engine;
     
     public NeptusRuntime(ConsoleLayout layout) {
         super(layout);
         imcPlanTasks =  new ConcurrentHashMap<>();
     }
 
+    @Subscribe
+    public void on(PlanControlState pcs) {
+      NeptusEvents.post(pcs); 
+    }
     @Override
     public void initSubPanel() {
         //initialize existing plans in the console
@@ -83,17 +88,21 @@ public class NeptusRuntime extends ConsolePanel implements NVLPlatform {
             //System.out.println("P " + plan.getId());
 
         }
+        pt.lsts.nvl.util.Debug.enable();
         NVLEngine.create(this);
         test();
     }
 
+    
     private void test() {
         JButton testButton = new JButton(
                 new AbstractAction(I18n.text("Test!")) {
-
                     @Override
                     public void actionPerformed(ActionEvent e) {   
-                        NVLEngine.getInstance().run(imcPlanTasks.get("test"));
+                        new Thread(() -> {
+                          
+                            NVLEngine.getInstance().run(imcPlanTasks.get("test"));
+                        }).start();
                     }
                 });
 

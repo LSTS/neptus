@@ -144,4 +144,8 @@ public class NeptusVehicleAdapter implements NVLVehicle {
         // TODO Auto-generated method stub
 
     }
+    
+    public final ImcSystem getSystemHandle() {
+        return imcsystem;
+    }
 }
