@@ -30,7 +30,7 @@
  * Author: edrdo
  * May 14, 2017
  */
-package pt.lsts.neptus.plugins.nvl_runtime;
+package pt.lsts.neptus.plugins.nvl;
 
 import pt.lsts.imc.IMCMessage;
 import pt.lsts.imc.PlanControlState;

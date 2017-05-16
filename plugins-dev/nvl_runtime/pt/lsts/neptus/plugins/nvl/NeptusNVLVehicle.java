@@ -30,24 +30,23 @@
  * Author: keila
  * 08/03/2017
  */
-package pt.lsts.neptus.plugins.nvl_runtime;
+package pt.lsts.neptus.plugins.nvl;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import pt.lsts.imc.IMCMessage;
-import pt.lsts.neptus.comm.manager.imc.ImcMsgManager;
+import pt.lsts.imc.PlanManeuver;
 import pt.lsts.neptus.comm.manager.imc.ImcSystem;
 import pt.lsts.neptus.comm.manager.imc.ImcSystemsHolder;
 import pt.lsts.neptus.types.comm.CommMean;
 import pt.lsts.neptus.types.coord.LocationType;
 import pt.lsts.neptus.types.mission.plan.PlanCompatibility;
 import pt.lsts.neptus.types.vehicle.VehicleType.SystemTypeEnum;
+import pt.lsts.neptus.types.vehicle.VehiclesHolder;
 import pt.lsts.nvl.runtime.NVLVehicle;
 import pt.lsts.nvl.runtime.PayloadComponent;
 import pt.lsts.nvl.runtime.Position;
 import pt.lsts.nvl.runtime.tasks.Task;
-import pt.lsts.neptus.types.vehicle.VehiclesHolder;
 
 public class NeptusNVLVehicle implements NVLVehicle {
 
@@ -59,26 +58,24 @@ public class NeptusNVLVehicle implements NVLVehicle {
     public NeptusNVLVehicle(ImcSystem imcData) {
         List<PayloadComponent> ps = new ArrayList<>();
         imcsystem = imcData;
-        if(! imcData.getName().equals("caravela-aux"))
-            for(String payload : PlanCompatibility.availablePayloads(VehiclesHolder.getVehicleById(getId()))) {
-                ps.add(new NeptusPayloadAdapter(payload));
-                //System.out.println("PlanCompatibility cicle: "+payload);
-            } 
-        if(! imcData.getName().equals("caravela-aux"))
-            for(CommMean com : VehiclesHolder.getVehicleById(getId()).getCommunicationMeans().values()) { //IMC | HTTP | IRIDIUM | GSM
-                ps.add(new NeptusPayloadAdapter(com.getName()));
-                //System.out.println("Communications means: "+com.getName());
-            }
-        if(! imcData.getName().equals("caravela-aux"))
-            if(hasAcoustics()){
-                ps.add(new NeptusPayloadAdapter("Acoustics"));
-                //System.out.println("Acoustic op service.");
-            }
+        for(String payload : PlanCompatibility.availablePayloads(VehiclesHolder.getVehicleById(getId()))) {
+            ps.add(new NeptusPayloadAdapter(payload));
+            //System.out.println("PlanCompatibility cicle: "+payload);
+        } 
+        for(CommMean com : VehiclesHolder.getVehicleById(getId()).getCommunicationMeans().values()) { //IMC | HTTP | IRIDIUM | GSM
+            ps.add(new NeptusPayloadAdapter(com.getName()));
+            //System.out.println("Communications means: "+com.getName());
+        }
+        if(hasAcoustics()){
+            ps.add(new NeptusPayloadAdapter("Acoustics"));
+            //System.out.println("Acoustic op service.");
+        }
         availablePayload = ps;
     }
 
-    public boolean hasAcoustics(){
-
+    private boolean hasAcoustics(){
+        PlanManeuver p = new PlanManeuver();
+        p.setStartActions(null);
         boolean activeSystems = false; //defines the vehicle payload even if it's not active
         ImcSystem[] vehicles = ImcSystemsHolder.lookupSystemByService(acousticOPservice,SystemTypeEnum.VEHICLE,activeSystems);
         for(ImcSystem vehicle: vehicles)

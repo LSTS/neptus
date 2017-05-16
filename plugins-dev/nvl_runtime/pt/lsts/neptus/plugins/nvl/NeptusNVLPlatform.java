@@ -30,8 +30,9 @@
  * Author: edrdo
  * May 16, 2017
  */
-package pt.lsts.neptus.plugins.nvl_runtime;
+package pt.lsts.neptus.plugins.nvl;
 
+import java.io.File;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -41,7 +42,6 @@ import pt.lsts.imc.VehicleState;
 import pt.lsts.neptus.comm.manager.imc.ImcMsgManager;
 import pt.lsts.neptus.comm.manager.imc.ImcSystem;
 import pt.lsts.neptus.comm.manager.imc.ImcSystemsHolder;
-import pt.lsts.neptus.console.ConsoleLayout;
 import pt.lsts.neptus.console.events.ConsoleEventPlanChange;
 import pt.lsts.neptus.types.mission.plan.PlanType;
 import pt.lsts.nvl.dsl.NVLEngine;
@@ -52,40 +52,47 @@ import pt.lsts.nvl.runtime.tasks.PlatformTask;
 
 public enum NeptusNVLPlatform implements NVLPlatform {
     INSTANCE;
-    
+
     private final Map<String,IMCPlanTask> imcPlanTasks = new ConcurrentHashMap<>();
 
     public static final NeptusNVLPlatform getInstance() {
-       return INSTANCE;
+        return INSTANCE;
     }
-    
-    private ConsoleLayout console;
+
+    private NVLConsolePanel consolePanel;
+
     private NeptusNVLPlatform() {
         pt.lsts.nvl.util.Debug.enable();
         NVLEngine.create(this);
-        console = null;
+        consolePanel = null;
+        d("initialized");
     }
 
-    public void associateTo(ConsoleLayout c) {
-        detachFromConsole();
-        console = c;
-        for(PlanType plan: c.getMission().getIndividualPlansList().values()){
+    public void associateTo(NVLConsolePanel cp) {
+        detach();
+        d("attached to console");
+        consolePanel = cp;
+        for(PlanType plan: cp.getConsole().getMission().getIndividualPlansList().values()){
+            nvlInfoMessage("IMC plan available: %s", plan.getId());
             imcPlanTasks.put(plan.getId(), new IMCPlanTask(plan));
         }
     }
-    
-    public void detachFromConsole() {
+
+    public void detach() {
         imcPlanTasks.clear();
-        console = null;
+        if (consolePanel != null) {
+            consolePanel = null;
+            d("detach from console");
+        }
     }
-    
+
     @Override
     public List<NVLVehicle> getConnectedVehicles() {
         LinkedList<NVLVehicle> list = new LinkedList<>();
         for(ImcSystem vec: ImcSystemsHolder.lookupActiveSystemVehicles()){
             VehicleState state  = ImcMsgManager.getManager().getState(vec.getName()).last(VehicleState.class);
             if (state != null && state.getOpMode() == VehicleState.OP_MODE.SERVICE) {
-                d("Adding %s", vec.getName());
+                nvlInfoMessage("%s is available!", vec.getName());
                 list.add(new NeptusNVLVehicle(vec));
             }
 
@@ -94,6 +101,22 @@ public enum NeptusNVLPlatform implements NVLPlatform {
         return list;
     }
 
+    public void onPlanChanged(ConsoleEventPlanChange changedPlan) {
+        PlanType oldPlan = changedPlan.getOld();
+        PlanType newPlan = changedPlan.getCurrent();
+
+        if (newPlan == null){
+            if(! consolePanel.getConsole().getMission().getIndividualPlansList().containsKey(oldPlan.getId())){
+                nvlInfoMessage("removing IMC plan %s", oldPlan.getId());
+                imcPlanTasks.remove(oldPlan.getId());
+            }
+        }
+        else{
+            nvlInfoMessage("replacing IMC plan %s", oldPlan.getId());
+            imcPlanTasks.put(newPlan.getId(), new IMCPlanTask(newPlan));
+        }
+
+    }
     @Override
     public PlatformTask getPlatformTask(String id) {
         PlatformTask task = imcPlanTasks.get(id);
@@ -103,26 +126,35 @@ public enum NeptusNVLPlatform implements NVLPlatform {
         return task;
     }
 
-    
+
     public void run(String planId) {
-      if (imcPlanTasks.containsKey(planId)) {
-          NVLEngine.getInstance().run(imcPlanTasks.get(planId));
-      }
+        if (imcPlanTasks.containsKey(planId)) {
+            d("will run %s", planId);
+            NVLEngine.getInstance().run(imcPlanTasks.get(planId));
+        }
     }
 
-    public void onPlanChanged(ConsoleEventPlanChange changedPlan) {
-        PlanType oldPlan = changedPlan.getOld();
-        PlanType newPlan = changedPlan.getCurrent();
-        
-        if (newPlan == null){
-            // TODO why is this necessary ? 
-            if(! console.getMission().getIndividualPlansList().containsKey(oldPlan.getId())){
-                imcPlanTasks.remove(oldPlan.getId());
-            }
+    public void run(File scriptFile) {
+        if (scriptFile.exists()) {
+            nvlInfoMessage("will run %s", scriptFile.getAbsolutePath());
+            NVLEngine.getInstance().run(scriptFile);
         }
-        else{
-            imcPlanTasks.put(newPlan.getId(), new IMCPlanTask(newPlan));
-        }
+    }
+
+    /* (non-Javadoc)
+     * @see pt.lsts.nvl.runtime.NVLPlatform#nvlInfoMessage(java.lang.String, java.lang.Object[])
+     */
+    @Override
+    public void nvlInfoMessage(String fmt, Object... args) {
+      d(fmt, args);
+      if (consolePanel != null) {
+          consolePanel.displayMessage(fmt, args); 
+      }
         
     }
+
+ 
+
+
+
 }

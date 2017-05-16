@@ -30,7 +30,7 @@
  * Author: lsts
  * 09/03/2017
  */
-package pt.lsts.neptus.plugins.nvl_runtime;
+package pt.lsts.neptus.plugins.nvl;
 
 import pt.lsts.imc.PlanSpecification;
 import pt.lsts.neptus.types.mission.plan.PlanType;

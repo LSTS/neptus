@@ -30,9 +30,10 @@
 // * Author: edrdo
 // * May 14, 2017
 // */
-package pt.lsts.neptus.plugins.nvl_runtime;
+package pt.lsts.neptus.plugins.nvl;
 
 import java.awt.event.ActionEvent;
+import java.io.File;
 
 import javax.swing.AbstractAction;
 import javax.swing.JButton;
@@ -50,20 +51,24 @@ import pt.lsts.neptus.plugins.Popup;
 @PluginDescription(name = "NVL Runtime Feature", author = "Keila Lima")
 @Popup(pos = Popup.POSITION.BOTTOM_RIGHT, width=300, height=300)
 @SuppressWarnings("serial")
-public class NeptusRuntime extends ConsolePanel {
+public class NVLConsolePanel extends ConsolePanel {
 
     
-    public NeptusRuntime(ConsoleLayout layout) {
+    public NVLConsolePanel(ConsoleLayout layout) {
         super(layout);
     }
 
    
     @Override
     public void initSubPanel() {
-        NeptusNVLPlatform.getInstance().associateTo(getConsole());
+        NeptusNVLPlatform.getInstance().associateTo(this);
         test();
     }
 
+    @Override
+    public void cleanSubPanel() {
+        NeptusNVLPlatform.getInstance().detach();
+    }
     
     private void test() {
         JButton testButton = new JButton(
@@ -71,7 +76,7 @@ public class NeptusRuntime extends ConsolePanel {
                     @Override
                     public void actionPerformed(ActionEvent e) {   
                         new Thread(() -> {
-                            NeptusNVLPlatform.getInstance().run("test");
+                            NeptusNVLPlatform.getInstance().run(new File("conf/nvl/imcplan.nvl"));
                         }).start();
                     }
                 });
@@ -80,16 +85,16 @@ public class NeptusRuntime extends ConsolePanel {
 
     }
 
-
-    @Override
-    public void cleanSubPanel() {
-        NeptusNVLPlatform.getInstance().detachFromConsole();
-    }
-
     @Subscribe
     public void on(ConsoleEventPlanChange changedPlan) {
         NeptusNVLPlatform.getInstance().onPlanChanged(changedPlan);
       
+    }
+
+
+    public void displayMessage(String fmt, Object[] args) {
+        // TODO Auto-generated method stub
+        
     }
 
 }
