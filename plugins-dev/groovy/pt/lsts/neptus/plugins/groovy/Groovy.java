@@ -39,7 +39,7 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.FileReader;
-import java.io.FileWriter;
+//import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.util.Collections;
@@ -63,8 +63,10 @@ import com.google.common.eventbus.Subscribe;
 
 import groovy.lang.Binding;
 import groovy.util.GroovyScriptEngine;
+import pt.lsts.imc.PlanControlState;
+import pt.lsts.imc.PlanControlState.LAST_OUTCOME;
+import pt.lsts.imc.PlanControlState.STATE;
 import pt.lsts.neptus.NeptusLog;
-import pt.lsts.neptus.comm.manager.imc.ImcSystem;
 import pt.lsts.neptus.comm.manager.imc.ImcSystemsHolder;
 import pt.lsts.neptus.console.ConsoleLayout;
 import pt.lsts.neptus.console.ConsolePanel;
@@ -91,7 +93,7 @@ import pt.lsts.neptus.util.ImageUtils;
  * @author lsts
  *
  */
-@PluginDescription(name = "Groovy Feature", author = "Keila Lima")
+@PluginDescription(name = "Groovy Feature", author = "Keila Lima",icon="pt/lsts/neptus/plugins/groovy/images/groovy.png")
 @Popup(pos = POSITION.RIGHT, width=500, height=500, accelerator='y')
 @SuppressWarnings("serial")
 public class Groovy extends ConsolePanel {
@@ -101,13 +103,14 @@ public class Groovy extends ConsolePanel {
     private Map<String,VehicleType> vehicles = Collections.synchronizedMap(new HashMap<>()); 
     private Map<String,PlanType> plans = Collections.synchronizedMap(new HashMap<>()); 
     private Map<String,LocationType> locations = Collections.synchronizedMap(new HashMap<>());
+//   private Map<String,PlanControlState> states = Collections.synchronizedMap(new HashMap<>());
     private Optional<String>  result; //bindig variable to process output in the script
     private Binding binds; //verify use of @TypeChecked
     private GroovyScriptEngine engine;
     private CompilerConfiguration config;
     private Thread thread;
     private ImportCustomizer customizer;
-    private final String basescript = "new Plan(console).with{ \nlocate new Location(console.getMission().getHomeRef().getLatitudeRads(),console.getMission().getHomeRef().getLongitudeRads())\n";
+//  private final String basescript = "new Plan(console).with{ \nlocate new Location(console.getMission().getHomeRef().getLatitudeRads(),console.getMission().getHomeRef().getLongitudeRads())\n";
     private RSyntaxTextArea editor; 
     
     @NeptusProperty
@@ -121,11 +124,12 @@ public class Groovy extends ConsolePanel {
     }
 
     void add_console_vars() {
-               
-        for(ImcSystem vec: ImcSystemsHolder.lookupActiveSystemVehicles())
-            this.vehicles.put(vec.getName(),VehiclesHolder.getVehicleById(vec.getName()));
-        
-        this.plans.putAll(getConsole().getMission().getIndividualPlansList());
+        this.binds = new Binding();
+        this.binds.setVariable("vehicles",ImcSystemsHolder.lookupActiveSystemVehicles());       
+//        for(ImcSystem vec: ImcSystemsHolder.lookupActiveSystemVehicles())
+//            this.vehicles.put(vec.getName(),VehiclesHolder.getVehicleById(vec.getName()));
+        this.binds.setVariable("plans", getConsole().getMission().getIndividualPlansList());
+//        this.plans.putAll(getConsole().getMission().getIndividualPlansList());
        
         //POI/MarkElement
         for( MarkElement mark:MapGroup.getMapGroupInstance(getConsole().getMission()).getAllObjectsOfType(MarkElement.class)){
@@ -138,10 +142,9 @@ public class Groovy extends ConsolePanel {
         this.customizer.addImports("pt.lsts.imc.net.IMCProtocol","pt.lsts.imc.net.Consume","pt.lsts.neptus.types.coord.LocationType","pt.lsts.neptus.imc.dsl.Plan","pt.lsts.neptus.imc.dsl.Location");
         this.customizer.addStarImports("pt.lsts.imc","pt.lsts.neptus.imc.dsl","pt.lsts.neptus.types.map"); //this.getClass().classLoader.rootLoader.addURL(new File("file.jar").toURL())
         this.config.addCompilationCustomizers(customizer);
-        this.binds = new Binding();
-        this.binds.setVariable("vehicles", vehicles.keySet().toArray());
-        this.binds.setVariable("plans", plans.keySet().toArray());
-        this.binds.setVariable("locations", locations.values().toArray());
+//        this.binds.setVariable("vehicles", vehicles.keySet().toArray());
+//        this.binds.setVariable("plans", plans.keySet().toArray());
+//        this.binds.setVariable("locations", locations.values().toArray());
         this.binds.setVariable("console", getConsole()); //TODO NOTIFY the existing binding to be used in the script
         this.binds.setVariable("result", null);
         try {
@@ -273,27 +276,16 @@ public class Groovy extends ConsolePanel {
             @Override
             public void run() {
                 try {
-//                    System.out.println("Exec da script!");
-//                    FileUtil.saveToFile(groovyScript.getAbsolutePath(), editor.getText());
-//                    Object output = engine.run(groovyScript.getName(), binds);
-//                    if(stopScript.isEnabled())
-//                        stopScript.setEnabled(false);
                     
                     String name = groovyScript.getName()+System.currentTimeMillis();
-                    PrintStream output = new PrintStream(new FileOutputStream(new File("plugins-dev/groovy/pt/lsts/neptus/plugins/groovy/outputs/"+name)));
-                    getBinds().setProperty("out",output);
+                    //PrintStream output = new PrintStream(new FileOutputStream(new File("plugins-dev/groovy/pt/lsts/neptus/plugins/groovy/outputs/"+name)));
+                  //  getBinds().setProperty("out",output);
                     //getBinds().setVariable("result",output.toString());
-                    File generatedScript = new File("conf/groovy/scripts/"+name);
-                    BufferedWriter fileW = new BufferedWriter(new FileWriter(generatedScript));
-                    fileW.write(basescript);
-                    writeScriptContent(fileW,groovyScript);
-                    fileW.write("\n}");
-                    fileW.close();
-                    engine.run(generatedScript.getName(), binds);
-                    if(stopScript.isEnabled())
-                        stopScript.setEnabled(false);
-                    generatedScript.delete();
-                   
+                    FileUtil.saveToFile(groovyScript.getAbsolutePath(), editor.getText());
+                    if(!stopScript.isEnabled())
+                        stopScript.setEnabled(true);
+                    engine.run(groovyScript.getName(), binds);
+                    stopScript();
 
                 }
                 catch (Exception   e) { //CompilationFailedException | ResourceException | ScriptException
@@ -333,10 +325,24 @@ public class Groovy extends ConsolePanel {
             }
         }
     }
+    
+ /*   @Subscribe
+    public void on(PlanControlState pcs) {
+        if(!pcs.getLastOutcome().equals(LAST_OUTCOME.FAILURE) && pcs.getState().equals(STATE.EXECUTING)){
+            states.put(pcs.getPlanId(), pcs);//TODO get location???
+           
+        }
+        else if(pcs.getLastOutcome().equals(LAST_OUTCOME.SUCCESS)){
+            states.remove(pcs.getPlanId());
+            
+        }
+            
+    }*/
 
 
     @Subscribe
     public void onVehicleStateChanged(ConsoleEventVehicleStateChanged e) {
+        
         switch (e.getState()) {
             case SERVICE: //case CONNECTED
                 if (ImcSystemsHolder.getSystemWithName(e.getVehicle()).isActive()) {

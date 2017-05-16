@@ -1,5 +1,5 @@
 
-planName "loop"
+
 while(true) {
 	//println vehicles.length==0 ? "no vehicles" : vehicles_id.length
 	vehicles.each {println "VEHICLE: "+it}

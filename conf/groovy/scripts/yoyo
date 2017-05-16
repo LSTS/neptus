@@ -1,19 +1,41 @@
 
-planName "yoyo"
-def treshold = 150000
+def treshold = 5000
 def start = System.currentTimeMillis()
-lastPosition=location
-while(System.currentTimeMillis()-start!=treshold) {
+
+def plan_yoyo = new Plan(console)
+plan_yoyo.with{
+	planName "yoyo"
+	description = "Yoyo script to popup every 200 meters"
+	
 	setSpeed 1.5,  Speed.Units.METERS_PS
 	setZ 2.5, Z.Units.DEPTH
 	yoyo max_depth:24 , min_depth:10 ,
-		payload: [[name:"Sidescan"],[name:"Camera"]]
+			payload: [[name:"Sidescan"],[name:"Camera"]]
+	
+	sendTo "lauv-noptilus-2","lauv-xplore-1"
+	startPlan()
+}
+lastPosition=plan_yoyo.location
+println "Last Position "+lastPosition
+plan_popup = new Plan(console)
+plan_popup.with{
+	planName "popup"
+	popup() 
+	description = "Yoyo script to popup every 200 meters"
+	addToConsole()
+}
 
-	if(location.distance(lastPosition)>=200){ //meters
-		popup //uses  current plan location by default
-		lastPosition = this.position
+while(System.currentTimeMillis()-start!=treshold) {
+	println "Got here"
+	println "Distance: "+plan_yoyo.location.distance(lastPosition)
+	if(plan_yoyo.location.distance(lastPosition)>=200){ //meters
+		plan_popup.locate lastPosition
+		plan_popup.sendTo "lauv-noptilus-2","lauv-xplore-1" 
+		plan_popup.start()
+		lastPosition = plan_yoyo.location
+		plan_yoyo.locate lastPosition
+		sendTo "lauv-noptilus-2","lauv-xplore-1"
+		plan_yoyo.start()
 		}
     }
-
-description "Yoyo script to popup every 200 meters"
-addToConsole()
+   println "Finished!"

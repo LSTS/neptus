@@ -229,7 +229,7 @@ class EnvDataPaintHelper {
             List<HFRadarDataPoint> dest = new ArrayList<>(dataPointsCurrents.values());
             long stMillis = System.currentTimeMillis();
             DataCollector<HFRadarDataPoint> dataCollector = new DataCollector<HFRadarDataPoint>(ignoreDateLimitToLoad, dateLimit, renderer, 
-                    offScreenBufferPixel, EnvDataShapesHelper.ARROW_RADIUS, (vals, ovals) -> {
+                    offScreenBufferPixel, EnvDataShapesHelper.ARROW_RADIUS, dp -> dp.getAllDataValues(), (vals, ovals) -> {
                         // speedCmS, headingDegrees, resolutionKm, info(String)
                         for (int i = 0; i < 3; i++) {
                             double v = (double) vals.get(i);
@@ -340,7 +340,7 @@ class EnvDataPaintHelper {
             List<SSTDataPoint> dest = new ArrayList<>(dataPointsSST.values());
             long stMillis = System.currentTimeMillis();
             DataCollector<SSTDataPoint> dataCollector = new DataCollector<SSTDataPoint>(ignoreDateLimitToLoad, dateLimit, renderer, 
-                    offScreenBufferPixel, EnvDataShapesHelper.CIRCLE_RADIUS, (vals, ovals) -> {
+                    offScreenBufferPixel, EnvDataShapesHelper.CIRCLE_RADIUS, dp -> dp.getAllDataValues(), (vals, ovals) -> {
                         // sst
                         double v = (double) vals.get(0);
                         double o = (double) ovals.get(0);
@@ -438,7 +438,7 @@ class EnvDataPaintHelper {
             List<WindDataPoint> dest = new ArrayList<>(dataPointsWind.values());
             long stMillis = System.currentTimeMillis();
             DataCollector<WindDataPoint> dataCollector = new DataCollector<WindDataPoint>(ignoreDateLimitToLoad, dateLimit, renderer, 
-                    offScreenBufferPixel, EnvDataShapesHelper.WIND_BARB_RADIUS, (vals, ovals) -> {
+                    offScreenBufferPixel, EnvDataShapesHelper.WIND_BARB_RADIUS, dp -> dp.getAllDataValues(), (vals, ovals) -> {
                         // u, v
                         for (int i = 0; i < 2; i++) {
                             double v = (double) vals.get(i);
@@ -544,7 +544,7 @@ class EnvDataPaintHelper {
             List<WavesDataPoint> dest = new ArrayList<>(dataPointsWaves.values());
             long stMillis = System.currentTimeMillis();
             DataCollector<WavesDataPoint> dataCollector = new DataCollector<WavesDataPoint>(ignoreDateLimitToLoad, dateLimit, renderer, 
-                    offScreenBufferPixel, EnvDataShapesHelper.ARROW_RADIUS, (vals, ovals) -> {
+                    offScreenBufferPixel, EnvDataShapesHelper.ARROW_RADIUS, dp -> dp.getAllDataValues(), (vals, ovals) -> {
                         //significantHeight, peakPeriod, peakDirection
                         for (int i = 0; i < 3; i++) {
                             double v = (double) vals.get(i);
@@ -638,7 +638,7 @@ class EnvDataPaintHelper {
             List<ChlorophyllDataPoint> dest = new ArrayList<>(dataPointsChlorophyll.values());
             long stMillis = System.currentTimeMillis();
             DataCollector<ChlorophyllDataPoint> dataCollector = new DataCollector<ChlorophyllDataPoint>(ignoreDateLimitToLoad, dateLimit, renderer, 
-                    offScreenBufferPixel, EnvDataShapesHelper.CIRCLE_RADIUS, (vals, ovals) -> {
+                    offScreenBufferPixel, EnvDataShapesHelper.CIRCLE_RADIUS, dp -> dp.getAllDataValues(), (vals, ovals) -> {
                         double v = (double) vals.get(0);
                         double o = (double) ovals.get(0);
                         double r = (v + o) / 2.;
@@ -748,19 +748,34 @@ class EnvDataPaintHelper {
         
         public int gridSpacing = 8;
         
+        public Function<T, ArrayList<Object>> extractor;
         public BinaryOperator<ArrayList<Object>> merger;
 
         public LongAccumulator visiblePts = new LongAccumulator((r, i) -> r += i, 0);
         public LongAccumulator toDatePts = new LongAccumulator((r, i) -> r = i > r ? i : r, 0);
         public LongAccumulator fromDatePts = new LongAccumulator((r, i) -> r = i < r ? i : r, Long.MAX_VALUE);
 
+        /**
+         * Data collector class, see {@link java.util.stream.Collector}, to process data
+         * for painting.
+         * 
+         * @param ignoreDateLimitToLoad To ignore data limit filtering.
+         * @param dateLimit Data limit for filtering is enabled.
+         * @param renderer The renderer where it will be painted.
+         * @param offScreenBufferPixel The off-screen pixels to consider.
+         * @param gridSpacing The grid spacing to use, in pixels.
+         * @param extractor This will be called to extract data from the data point.
+         * @param merger This will be called to merge 2 data points data.
+         */
         public DataCollector(boolean ignoreDateLimitToLoad, Date dateLimit, StateRenderer2D renderer, 
-                int offScreenBufferPixel, int gridSpacing, BinaryOperator<ArrayList<Object>> merger) {
+                int offScreenBufferPixel, int gridSpacing, Function<T, ArrayList<Object>> extractor,
+                BinaryOperator<ArrayList<Object>> merger) {
             this.ignoreDateLimitToLoad = ignoreDateLimitToLoad;
             this.dateLimit = dateLimit;
             this.renderer = renderer; 
             this.offScreenBufferPixel = offScreenBufferPixel;
             this.gridSpacing = gridSpacing;
+            this.extractor = extractor;
             this.merger = merger;
         }
         
@@ -790,7 +805,7 @@ class EnvDataPaintHelper {
                         
                         double latV = dp.getLat();
                         double lonV = dp.getLon();
-                        ArrayList<Object> vals = dp.getAllDataValues();
+                        ArrayList<Object> vals = extractor.apply(dp); // dp.getAllDataValues();
                         
                         if (Double.isNaN(latV) || Double.isNaN(lonV))
                             return;
