@@ -61,10 +61,12 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.Vector;
 
 import javax.swing.AbstractAction;
@@ -95,10 +97,10 @@ import com.l2fprod.common.propertysheet.PropertySheet;
 import com.l2fprod.common.propertysheet.PropertySheetDialog;
 import com.l2fprod.common.propertysheet.PropertySheetPanel;
 
-import pt.lsts.imc.IMCMessage;
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.console.ConsoleLayout;
 import pt.lsts.neptus.console.plugins.MissionChangeListener;
+import pt.lsts.neptus.console.plugins.planning.edit.AllManeuversPayloadSettingsChanged;
 import pt.lsts.neptus.console.plugins.planning.edit.ManeuverAdded;
 import pt.lsts.neptus.console.plugins.planning.edit.ManeuverChanged;
 import pt.lsts.neptus.console.plugins.planning.edit.ManeuverPropertiesPanel;
@@ -119,6 +121,7 @@ import pt.lsts.neptus.mp.Maneuver;
 import pt.lsts.neptus.mp.ManeuverFactory;
 import pt.lsts.neptus.mp.ManeuverLocation;
 import pt.lsts.neptus.mp.ManeuverLocation.Z_UNITS;
+import pt.lsts.neptus.mp.actions.PlanActions;
 import pt.lsts.neptus.mp.maneuvers.Goto;
 import pt.lsts.neptus.mp.maneuvers.LocatedManeuver;
 import pt.lsts.neptus.mp.preview.PlanSimulationOverlay;
@@ -1168,8 +1171,6 @@ public class PlanEditor extends InteractionAdapter implements Renderer2DPainter,
 
                         @Override
                         public void actionPerformed(ActionEvent e) {
-                            // PropertiesEditor editor = new PropertiesEditor();
-
                             Goto pivot = new Goto();
                             PropertySheetPanel psp = new PropertySheetPanel();
                             psp.setEditorFactory(PropertiesEditor.getPropertyEditorRegistry());
@@ -1208,18 +1209,19 @@ public class PlanEditor extends InteractionAdapter implements Renderer2DPainter,
                                     true, psp, I18n.text("Payload Settings to apply to entire plan"),
                                     "<html>" + I18n.text("Payload Settings to apply to entire plan") + extraTxt);
                             if (propertySheetDialog.ask()) {
-                                // DefaultProperty[] propsUnlocalized = PropertiesEditor.unlocalizeProps(original,
-                                // psp.getProperties());
                                 payloadConfig.setProperties(properties);
-                                Vector<IMCMessage> startActions = new Vector<>();
-
-                                startActions.addAll(Arrays.asList(pivot.getStartActions().getAllMessages()));
-
-                                for (Maneuver m : plan.getGraph().getAllManeuvers()) {
-                                    m.getStartActions().parseMessages(startActions);
-                                    NeptusLog.pub().info("<###> " + m.getId());
-                                }
-
+                                PlanActions newPlanActions = pivot.getStartActions();
+                                Map<String, PlanActions> originalPlanActionsPerManeuver = new HashMap<>();
+                                Arrays.asList(plan.getGraph().getAllManeuvers()).stream().forEach(m -> {
+                                    PlanActions sa = m.getStartActions();
+                                    if (sa != null)
+                                        sa = (PlanActions) sa.clone();
+                                    originalPlanActionsPerManeuver.put(m.getId(), sa);
+                                });
+                                AllManeuversPayloadSettingsChanged undoRedo = new AllManeuversPayloadSettingsChanged(plan, newPlanActions, originalPlanActionsPerManeuver);
+                                undoRedo.redo();
+                                manager.addEdit(undoRedo);
+                                
                                 refreshPropertiesManeuver();
                             }
                         }
