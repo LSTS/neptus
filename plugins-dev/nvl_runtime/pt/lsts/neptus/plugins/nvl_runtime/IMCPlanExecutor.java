@@ -32,28 +32,12 @@
  */
 package pt.lsts.neptus.plugins.nvl_runtime;
 
-import java.util.List;
-import java.util.Map;
-
-import com.google.common.eventbus.Subscribe;
-
 import pt.lsts.imc.IMCMessage;
-import pt.lsts.imc.PlanControl;
 import pt.lsts.imc.PlanControlState;
-import pt.lsts.neptus.comm.IMCSendMessageUtils;
 import pt.lsts.neptus.comm.manager.imc.ImcMsgManager;
-import pt.lsts.neptus.events.NeptusEvents;
-import pt.lsts.neptus.messages.MessageFilter;
 import pt.lsts.neptus.messages.listener.MessageInfo;
 import pt.lsts.neptus.messages.listener.MessageListener;
 import pt.lsts.nvl.imc.AbstractIMCPlanExecutor;
-import pt.lsts.nvl.runtime.NVLExecutionException;
-import pt.lsts.nvl.runtime.NVLVariable;
-import pt.lsts.nvl.runtime.NVLVehicle;
-import pt.lsts.nvl.runtime.tasks.CompletionState;
-import pt.lsts.nvl.runtime.tasks.Task;
-import pt.lsts.nvl.runtime.tasks.TaskExecutor;
-import pt.lsts.nvl.util.Clock;
 
 
 public final class IMCPlanExecutor extends AbstractIMCPlanExecutor {
