@@ -254,6 +254,6 @@
 	<classpathentry kind="lib" path="lib/opencv-2.4.11.jar"/>
 	<classpathentry exported="true" kind="con" path="GROOVY_DSL_SUPPORT"/>
 	<classpathentry kind="lib" path="lib/libimc.jar"/>
-	<classpathentry kind="lib" path="plugins-dev/nvl_runtime/lib/nvl-0.1-SNAPSHOT.jar"/>
+	<classpathentry kind="lib" path="plugins-dev/nvl_runtime/lib/nvl-neptus-0.1-SNAPSHOT.jar"/>
 	<classpathentry kind="output" path="build/classes"/>
 </classpath>

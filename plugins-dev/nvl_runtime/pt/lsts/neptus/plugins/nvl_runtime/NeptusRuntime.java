@@ -33,60 +33,34 @@
 package pt.lsts.neptus.plugins.nvl_runtime;
 
 import java.awt.event.ActionEvent;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 
 import javax.swing.AbstractAction;
 import javax.swing.JButton;
 
 import com.google.common.eventbus.Subscribe;
 
-import pt.lsts.imc.PlanControlState;
-import pt.lsts.imc.VehicleState;
-import pt.lsts.neptus.comm.manager.imc.ImcMsgManager;
-import pt.lsts.neptus.comm.manager.imc.ImcSystem;
-import pt.lsts.neptus.comm.manager.imc.ImcSystemsHolder;
 import pt.lsts.neptus.console.ConsoleLayout;
 import pt.lsts.neptus.console.ConsolePanel;
 import pt.lsts.neptus.console.events.ConsoleEventPlanChange;
-import pt.lsts.neptus.events.NeptusEvents;
 import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.plugins.PluginDescription;
 import pt.lsts.neptus.plugins.Popup;
-import pt.lsts.neptus.types.mission.plan.PlanType;
-import pt.lsts.nvl.dsl.NVLEngine;
-import pt.lsts.nvl.runtime.NVLExecutionException;
-import pt.lsts.nvl.runtime.NVLPlatform;
-import pt.lsts.nvl.runtime.NVLVehicle;
-import pt.lsts.nvl.runtime.tasks.PlatformTask;
-
 
 
 @PluginDescription(name = "NVL Runtime Feature", author = "Keila Lima")
 @Popup(pos = Popup.POSITION.BOTTOM_RIGHT, width=300, height=300)
 @SuppressWarnings("serial")
-public class NeptusRuntime extends ConsolePanel implements NVLPlatform {
+public class NeptusRuntime extends ConsolePanel {
 
-    private final Map<String,IMCPlanTask> imcPlanTasks;
     
     public NeptusRuntime(ConsoleLayout layout) {
         super(layout);
-        imcPlanTasks =  new ConcurrentHashMap<>();
     }
 
    
     @Override
     public void initSubPanel() {
-        //initialize existing plans in the console
-        for(PlanType plan: getConsole().getMission().getIndividualPlansList().values()){
-            imcPlanTasks.put(plan.getId(), new IMCPlanTask(plan));
-            //System.out.println("P " + plan.getId());
-
-        }
-        pt.lsts.nvl.util.Debug.enable();
-        NVLEngine.create(this);
+        NeptusNVLPlatform.getInstance().associateTo(getConsole());
         test();
     }
 
@@ -97,8 +71,7 @@ public class NeptusRuntime extends ConsolePanel implements NVLPlatform {
                     @Override
                     public void actionPerformed(ActionEvent e) {   
                         new Thread(() -> {
-                          
-                            NVLEngine.getInstance().run(imcPlanTasks.get("test"));
+                            NeptusNVLPlatform.getInstance().run("test");
                         }).start();
                     }
                 });
@@ -110,52 +83,13 @@ public class NeptusRuntime extends ConsolePanel implements NVLPlatform {
 
     @Override
     public void cleanSubPanel() {
-
+        NeptusNVLPlatform.getInstance().detachFromConsole();
     }
 
     @Subscribe
     public void on(ConsoleEventPlanChange changedPlan) {
-        PlanType oldPlan = changedPlan.getOld();
-        PlanType newPlan = changedPlan.getCurrent();
-        if (newPlan == null){
-            // TODO: porquê este check?
-            if(! getConsole().getMission().getIndividualPlansList().containsKey(oldPlan.getId())){
-                imcPlanTasks.remove(changedPlan.getOld().getId());
-            }
-        }
-        else{
-            imcPlanTasks.put(newPlan.getId(), new IMCPlanTask(changedPlan.getCurrent()));
-        }
-    }
-
-    /* (non-Javadoc)
-     * @see pt.lsts.nvl.runtime.NVLPlatform#getConnectedVehicles()
-     */
-    @Override
-    public List<NVLVehicle> getConnectedVehicles() {
-        LinkedList<NVLVehicle> list = new LinkedList<>();
-        for(ImcSystem vec: ImcSystemsHolder.lookupActiveSystemVehicles()){
-            VehicleState state  = ImcMsgManager.getManager().getState(vec.getName()).last(VehicleState.class);
-            if (state != null && state.getOpMode() == VehicleState.OP_MODE.SERVICE) {
-                d("Adding %s", vec.getName());
-                list.add(new NeptusVehicleAdapter(vec));
-            }
-
-
-        }
-        return list;
-    }
-
-    /* (non-Javadoc)
-     * @see pt.lsts.nvl.runtime.NVLPlatform#getPlatformTask(java.lang.String)
-     */
-    @Override
-    public PlatformTask getPlatformTask(String id) {
-        PlatformTask task = imcPlanTasks.get(id);
-        if (task == null) {
-            throw new NVLExecutionException("No such IMC plan: " + id);
-        }
-        return task;
+        NeptusNVLPlatform.getInstance().onPlanChanged(changedPlan);
+      
     }
 
 }

@@ -32,44 +32,21 @@
  */
 package pt.lsts.neptus.plugins.nvl_runtime;
 
-import java.util.List;
-
-import pt.lsts.imc.IMCMessage;
+import pt.lsts.imc.PlanSpecification;
 import pt.lsts.neptus.types.mission.plan.PlanType;
-import pt.lsts.nvl.runtime.VehicleRequirements;
-import pt.lsts.nvl.runtime.tasks.PlatformTask;
-import pt.lsts.nvl.runtime.tasks.TaskExecutor;
+import pt.lsts.nvl.imc.AbstractIMCPlanTask;
 
 
-public class IMCPlanTask extends PlatformTask {
-
-    private final PlanType plan;
+public final class IMCPlanTask extends AbstractIMCPlanTask {
 
     public IMCPlanTask(PlanType plan) { 
-        super(plan.getId());
-        this.plan = plan;
+        super(plan.getId(), (PlanSpecification) plan.asIMCPlan(true));
     }
 
-    /* (non-Javadoc)
-     * @see pt.lsts.nvl.runtime.tasks.Task#getExecutor()
-     */
     @Override
-    public TaskExecutor getExecutor() {
-        return new IMCPlanTaskExecutor(this);
+    public IMCPlanExecutor getExecutor() {
+        return new IMCPlanExecutor(this);
     }
 
-    /* (non-Javadoc)
-     * @see pt.lsts.nvl.runtime.tasks.PlatformTask#getRequirements(java.util.List)
-     */
-    @Override
-    public void getRequirements(List<VehicleRequirements> list) {
-        // TODO: is this ok?
-        // TODO: payloads
-        list.add(new VehicleRequirements());
-    }
-
-    public IMCMessage asIMCPlan() {
-        return plan.asIMCPlan(true);
-    }
-
+   
 }

@@ -49,13 +49,14 @@ import pt.lsts.nvl.runtime.Position;
 import pt.lsts.nvl.runtime.tasks.Task;
 import pt.lsts.neptus.types.vehicle.VehiclesHolder;
 
-public class NeptusVehicleAdapter implements NVLVehicle {
+public class NeptusNVLVehicle implements NVLVehicle {
 
     private final ImcSystem imcsystem;
     private final List<PayloadComponent> availablePayload;
     private final String  acousticOPservice="acoustic/operation";
+    private Task runningTask;
 
-    public NeptusVehicleAdapter(ImcSystem imcData) {
+    public NeptusNVLVehicle(ImcSystem imcData) {
         List<PayloadComponent> ps = new ArrayList<>();
         imcsystem = imcData;
         if(! imcData.getName().equals("caravela-aux"))
@@ -87,21 +88,11 @@ public class NeptusVehicleAdapter implements NVLVehicle {
     }
 
 
-    public void sendTo(IMCMessage message) {
-        ImcMsgManager.getManager().sendMessageToSystem(message, getId()); 
-    }
-    
-    /* (non-Javadoc)
-     * @see nvl.Vehicle#getId()
-     */
     @Override
     public String getId() {
         return imcsystem.getName();
     }
 
-    /* (non-Javadoc)
-     * @see nvl.Vehicle#getType()
-     */
     @Override
     public String getType() {
         return imcsystem.getTypeVehicle().toString();
@@ -109,43 +100,27 @@ public class NeptusVehicleAdapter implements NVLVehicle {
     }
 
 
-    /* (non-Javadoc)
-     * @see nvl.Vehicle#getPosition()
-     */
     @Override
     public Position getPosition() {
         LocationType loc = imcsystem.getLocation();
         return new Position(loc.getLatitudeRads(), loc.getLongitudeRads(), loc.getHeight());
     }
 
-    /* (non-Javadoc)
-     * @see nvl.Vehicle#getPayload()
-     */
     @Override
     public List<PayloadComponent> getPayload() {
         return availablePayload;
 
     }
 
-    /* (non-Javadoc)
-     * @see pt.lsts.nvl.runtime.NVLVehicle#getRunningTask()
-     */
     @Override
     public Task getRunningTask() {
-        // TODO Auto-generated method stub
-        return null;
+        return runningTask;
     }
 
-    /* (non-Javadoc)
-     * @see pt.lsts.nvl.runtime.NVLVehicle#setRunningTask(pt.lsts.nvl.runtime.tasks.Task)
-     */
+
     @Override
-    public void setRunningTask(Task arg0) {
-        // TODO Auto-generated method stub
+    public void setRunningTask(Task t) {
+        runningTask = t;
+    }
 
-    }
-    
-    public final ImcSystem getSystemHandle() {
-        return imcsystem;
-    }
 }
