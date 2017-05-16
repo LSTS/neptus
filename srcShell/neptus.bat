@@ -119,26 +119,23 @@ if %JAVA_MACHINE_TYPE%==windows-x86 (
 
 if not "%1"=="ws" goto end2
 	set DEFAULT=%WORKSPACE%
-	shift
 :end2
 if not "%1"=="v3d" goto end3
 	set DEFAULT=%VIEWER3D%
-	shift
 :end3
 if not "%1"=="mra" goto end4
 	set DEFAULT=%MRA%
-	shift
 :end4
 if not "%1"=="la" goto end8
 	set DEFAULT=%LAUVCONSOLE%
-	shift
 :end8
 if not "%1"=="wm" goto end10
 	set DEFAULT=%WORLDMAPPANEL%
-	shift
 :end10
 
 :endCheckApp
+
+shift
 
 REM @echo on
 
