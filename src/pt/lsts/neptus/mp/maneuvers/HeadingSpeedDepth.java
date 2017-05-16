@@ -103,7 +103,7 @@ public class HeadingSpeedDepth extends DefaultManeuver implements ManeuverWithSp
         return document;
     }
 
-    public void loadFromXML(String xml) {
+    public void loadManeuverFromXML(String xml) {
         try {
             Document doc = DocumentHelper.parseText(xml);
             Node rootMnv = doc.selectSingleNode("HeadingSpeedDepth");

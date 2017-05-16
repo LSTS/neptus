@@ -1509,7 +1509,7 @@ public class PlanEditor extends InteractionAdapter implements Renderer2DPainter,
                     String maneuverType = doc.getRootElement().getName();
                     Maneuver m = mf.getManeuver(maneuverType);
                     if (m != null) {
-                        m.loadFromXML(xml);
+                        m.loadManeuverFromXML(xml);
                         m.setId(getNewManeuverName(maneuverType));
                         if (m instanceof LocatedManeuver) {
                             ManeuverLocation originalPos = ((LocatedManeuver) m).getManeuverLocation().clone();

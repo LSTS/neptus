@@ -162,8 +162,6 @@ public abstract class Maneuver implements XmlOutputMethods, PropertiesProvider, 
     private Hashtable<String, String> transitions = new Hashtable<String, String>();
     private MissionType missionType = null;
     
-    public abstract void loadFromXML(String xml);
-
     // JDialog dialog;
     protected static final String DEFAULT_ROOT_ELEMENT = "node";
 
@@ -489,7 +487,7 @@ public abstract class Maneuver implements XmlOutputMethods, PropertiesProvider, 
                 man.setInitialManeuver(isInitial);
                 man.setXPosition(xPos);
                 man.setYPosition(yPos);
-                man.loadFromXML(element.asXML());
+                man.loadManeuverFromXML(element.asXML());
                 man.loadFromXMLExtraParameters(element.getParent());
 
                 nd = doc.selectSingleNode("./node()/actions/start-actions");
@@ -524,6 +522,9 @@ public abstract class Maneuver implements XmlOutputMethods, PropertiesProvider, 
     }
 
     /**
+     * Loads data excepts maneuver specific data (this is the parent note from maneuver
+     * specific data from {@link #loadManeuverFromXML(String)})
+     * 
      * @param maneuver
      */
     public void loadFromXMLExtraParameters(Element maneuver) {
@@ -605,10 +606,9 @@ public abstract class Maneuver implements XmlOutputMethods, PropertiesProvider, 
             return null;
         }
         clone(m);
-        m.loadFromXML(getManeuverXml());
+        m.loadManeuverFromXML(getManeuverXml());
         return m;
     }
-    
 
     public Object clone(Maneuver clone) {
         clone.setMaxTime(getMaxTime());
@@ -664,12 +664,20 @@ public abstract class Maneuver implements XmlOutputMethods, PropertiesProvider, 
         return (String) transitions.get(targetManeuver);
     }
 
+    /**
+     * @return Only the maneuver specific part the XML (no extra data output).
+     */
     public String getManeuverXml() {
         return getManeuverAsDocument(getType()).asXML();
     }
 
+    /**
+     * @see #loadManeuverFromXML(String)
+     * 
+     * @param manXml
+     */
     public void loadManeuverXml(String manXml) {
-        loadFromXML(manXml);
+        loadManeuverFromXML(manXml);
     }
 
     public String asXML() {
@@ -698,6 +706,12 @@ public abstract class Maneuver implements XmlOutputMethods, PropertiesProvider, 
         return asDocument(rootElementName);
     }
 
+    /**
+     * Get all maneuver data as XML document. Calls {@link #getManeuverAsDocument(String)}
+     * and integrates it in the document.
+     * 
+     * @see pt.lsts.neptus.types.XmlOutputMethods#asDocument(java.lang.String)
+     */
     public Document asDocument(String rootElementName) {
         Document document = DocumentHelper.createDocument();
         Element root = document.addElement(rootElementName);
@@ -750,7 +764,20 @@ public abstract class Maneuver implements XmlOutputMethods, PropertiesProvider, 
         return document;
     }
 
+    /**
+     * Get each maneuver specific data. 
+     * 
+     * @param rootElementName
+     * @return
+     */
     public abstract Document getManeuverAsDocument(String rootElementName);
+    
+    /**
+     * Expects only maneuver specific data.
+     * 
+     * @param xml
+     */
+    public abstract void loadManeuverFromXML(String xml);
 
     /**
      * By default the class name is returned, redefine it if that is not the desired thing.

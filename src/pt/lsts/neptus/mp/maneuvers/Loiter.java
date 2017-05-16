@@ -159,7 +159,7 @@ public class Loiter extends Maneuver implements LocatedManeuver, ManeuverWithSpe
 	}
 
 	@Override
-	public void loadFromXML(String XML) {
+	public void loadManeuverFromXML(String XML) {
 		try {
 	        Document doc = DocumentHelper.parseText(XML);
 	        
