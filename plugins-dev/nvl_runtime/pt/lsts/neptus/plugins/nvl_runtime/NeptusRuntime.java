@@ -76,10 +76,7 @@ public class NeptusRuntime extends ConsolePanel implements NVLPlatform {
         imcPlanTasks =  new ConcurrentHashMap<>();
     }
 
-    @Subscribe
-    public void on(PlanControlState pcs) {
-      NeptusEvents.post(pcs); 
-    }
+   
     @Override
     public void initSubPanel() {
         //initialize existing plans in the console

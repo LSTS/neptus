@@ -37,16 +37,22 @@ import java.util.Map;
 
 import com.google.common.eventbus.Subscribe;
 
+import pt.lsts.imc.IMCMessage;
 import pt.lsts.imc.PlanControl;
 import pt.lsts.imc.PlanControlState;
 import pt.lsts.neptus.comm.IMCSendMessageUtils;
+import pt.lsts.neptus.comm.manager.imc.ImcMsgManager;
 import pt.lsts.neptus.events.NeptusEvents;
+import pt.lsts.neptus.messages.MessageFilter;
+import pt.lsts.neptus.messages.listener.MessageInfo;
+import pt.lsts.neptus.messages.listener.MessageListener;
 import pt.lsts.nvl.runtime.NVLExecutionException;
 import pt.lsts.nvl.runtime.NVLVariable;
 import pt.lsts.nvl.runtime.NVLVehicle;
 import pt.lsts.nvl.runtime.tasks.CompletionState;
 import pt.lsts.nvl.runtime.tasks.Task;
 import pt.lsts.nvl.runtime.tasks.TaskExecutor;
+import pt.lsts.nvl.util.Clock;
 
 
 public class IMCPlanTaskExecutor extends TaskExecutor {
@@ -85,8 +91,16 @@ public class IMCPlanTaskExecutor extends TaskExecutor {
         pcMsg.setRequestId(IMCSendMessageUtils.getNextRequestId());
         pcMsg.setFlags(PlanControl.FLG_CALIBRATE);
         vehicle.sendTo(pcMsg);
-        NeptusEvents.register(this);
-        d("Initialized executor for IMC plan '%s'", task.getId());
+        
+        MessageListener<MessageInfo, IMCMessage> listener = 
+                (info,msg) -> { 
+                    d("Received PCS " + msg.getSourceName() + " " + vehicle.getId());
+                    pcsVar.set( (PlanControlState) msg, Clock.now()); 
+                 };
+        MessageFilter<MessageInfo, IMCMessage> filter = 
+                (info, msg) -> PlanControlState.ID_STATIC == msg.getMgid() ;
+        ImcMsgManager.getManager().addListener(listener, vehicle.getId(), filter);
+        d("Initialized executor for IMC plan '%s' @ ", task.getId(), vehicle.getId());
     }
 
     @Subscribe
