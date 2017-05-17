@@ -81,6 +81,7 @@ import pt.lsts.neptus.plugins.Popup.POSITION;
 import pt.lsts.neptus.types.coord.LocationType;
 import pt.lsts.neptus.types.map.MapGroup;
 import pt.lsts.neptus.types.map.MarkElement;
+import pt.lsts.neptus.types.map.PlanUtil;
 import pt.lsts.neptus.types.mission.plan.PlanType;
 import pt.lsts.neptus.types.vehicle.VehicleType;
 import pt.lsts.neptus.types.vehicle.VehiclesHolder;
@@ -129,7 +130,10 @@ public class Groovy extends ConsolePanel {
 //        for(ImcSystem vec: ImcSystemsHolder.lookupActiveSystemVehicles())
 //            this.vehicles.put(vec.getName(),VehiclesHolder.getVehicleById(vec.getName()));
         this.binds.setVariable("plans", getConsole().getMission().getIndividualPlansList());
-//        this.plans.putAll(getConsole().getMission().getIndividualPlansList());
+        
+        PlanType pt = getConsole().getMission().getIndividualPlansList().get("");
+                PlanUtil.getPlanWaypoints(pt);
+                //        this.plans.putAll(getConsole().getMission().getIndividualPlansList());
        
         //POI/MarkElement
         for( MarkElement mark:MapGroup.getMapGroupInstance(getConsole().getMission()).getAllObjectsOfType(MarkElement.class)){
