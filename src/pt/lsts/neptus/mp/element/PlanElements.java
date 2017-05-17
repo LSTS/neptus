@@ -79,6 +79,8 @@ public class PlanElements {
         @SuppressWarnings("rawtypes")
         LinkedHashMap<String, Class<? extends IPlanElement>> pElementsPlugins = PluginsRepository.getPlanElements();
         
+        planElements.clear();
+        
         Element root = element;
         NodeList cElems = root.getChildNodes();
         for (int i = 0; i < cElems.getLength(); i++) {
@@ -147,5 +149,4 @@ public class PlanElements {
         }
         return root;
     }
-
 }
