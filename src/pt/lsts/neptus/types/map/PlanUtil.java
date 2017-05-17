@@ -35,7 +35,9 @@ package pt.lsts.neptus.types.map;
 import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 import java.util.Vector;
+import java.util.stream.Collectors;
 
 import javax.swing.JLabel;
 import javax.swing.JMenu;
@@ -52,6 +54,9 @@ import pt.lsts.neptus.mp.Maneuver;
 import pt.lsts.neptus.mp.Maneuver.SPEED_UNITS;
 import pt.lsts.neptus.mp.ManeuverLocation;
 import pt.lsts.neptus.mp.SystemPositionAndAttitude;
+import pt.lsts.neptus.mp.element.IPlanElement;
+import pt.lsts.neptus.mp.element.PlanElements;
+import pt.lsts.neptus.mp.element.PlanElementsFactory;
 import pt.lsts.neptus.mp.maneuvers.LocatedManeuver;
 import pt.lsts.neptus.mp.maneuvers.StatisticsProvider;
 import pt.lsts.neptus.mp.preview.PlanSimulator;
@@ -511,7 +516,7 @@ public class PlanUtil {
         PlanType originalPlan = plan.clonePlan();
         plan.setVehicles(newVehicles);
 
-        // VehicleType newVehicle = plan.getVehicleType();
+        VehicleType newVehicle = plan.getVehicleType();
 
         // Change the plan actions
         @SuppressWarnings("serial")
@@ -528,6 +533,28 @@ public class PlanUtil {
         for (Maneuver man : plan.getGraph().getAllManeuvers()) {
             propertiesPanel.setManeuver(man);
             propertiesPanel.setProps();
+        }
+        
+        // Change the plan elements
+        PlanElementsFactory pef = newVehicle.getPlanElementsFactory();
+        if (pef == null || pef.getPlanElementsSize() == 0) {
+            plan.getPlanElements().getPlanElements().clear();
+        }
+        else {
+            List<Class<IPlanElement<?>>> peiClasses = pef.getPlanElementsClasses();
+            List<IPlanElement<?>> toRemoveElements = plan.getPlanElements().getPlanElements().stream()
+                    .filter(t -> !peiClasses.contains(t.getClass())).collect(Collectors.toList());
+            toRemoveElements.stream().forEach(e -> {
+                plan.getPlanElements().getPlanElements().remove(e);
+            });
+            peiClasses.stream().forEach(peClass -> {
+                PlanElements pElems = plan.getPlanElements();
+                IPlanElement<?> pe = pElems.getPlanElements().stream().filter(t -> t.getClass() == peClass)
+                        .findFirst().orElse(null);
+                if (pe != null)
+                    pef.configureInstance(pe);
+            });
+            
         }
         
         // System.out.println(String.format("ORIGINAL PLAN:\n%s\n\nNEW PLAN:\\n%s\n", originalPlan.asXML(), plan.asXML()));
