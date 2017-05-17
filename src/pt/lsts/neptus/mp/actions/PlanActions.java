@@ -170,4 +170,11 @@ public class PlanActions {
             actionMsgs.add(paec);
         }
     }
+    
+    /**
+     * Clears all messages
+     */
+    public void clearMessages() {
+        actionMsgs.clear();
+    }
 }

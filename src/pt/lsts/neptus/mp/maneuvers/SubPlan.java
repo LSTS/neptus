@@ -63,7 +63,7 @@ public class SubPlan extends Maneuver implements IMCSerialization {
 	protected boolean drawSubPlan = true;
 	protected PlanElement subplan;
 
-	public void loadFromXML(String xml) {
+	public void loadManeuverFromXML(String xml) {
 		try {
 			Document doc = DocumentHelper.parseText(xml);
 			setPlanId(doc.selectSingleNode("SubPlan/@planId").getText());

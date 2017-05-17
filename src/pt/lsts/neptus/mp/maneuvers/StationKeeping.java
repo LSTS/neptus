@@ -121,7 +121,7 @@ public class StationKeeping extends Maneuver implements LocatedManeuver, Maneuve
 	}
 
 	@Override
-	public void loadFromXML(String XML) {
+	public void loadManeuverFromXML(String XML) {
 		try {
 	        Document doc = DocumentHelper.parseText(XML);
 	        
