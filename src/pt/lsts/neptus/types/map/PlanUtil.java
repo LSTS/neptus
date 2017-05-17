@@ -510,6 +510,8 @@ public class PlanUtil {
         plan.setVehicles(newVehicles);
 
         // VehicleType newVehicle = plan.getVehicleType();
+
+        // FIXME Fix plan actions
         
         ManeuverPropertiesPanel propertiesPanel = new ManeuverPropertiesPanel();
         propertiesPanel.setPlan(plan); // This call has to be before setManeuver (pdias 20130822)
