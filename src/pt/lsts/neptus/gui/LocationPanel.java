@@ -88,7 +88,6 @@ public class LocationPanel extends ParametersPanel implements ActionListener {
 	private LocationType location = new LocationType();
 	private JPanel jPanel = null;
 	private JTabbedPane refPointTabs = null;
-	private JPanel jPanel1 = null;
 	private JButton cancelBtn = null;
 	private JTabbedPane OffsetTabs = null;
 	private JPanel nedOffsetPanel = null;
@@ -153,23 +152,7 @@ public class LocationPanel extends ParametersPanel implements ActionListener {
 		}
 		return refPointTabs;
 	}
-	/**
-	 * This method initializes jPanel1
-	 *
-	 * @return javax.swing.JPanel
-	 */
-	private JPanel getJPanel1() {
-		if (jPanel1 == null) {
-			jPanel1 = new JPanel();
-			jPanel1.setLayout(new BorderLayout());
-			jPanel1.setBounds(16, 244, 412, 109);
-            jPanel1.setBorder(BorderFactory.createTitledBorder(null, I18n.text("Offset"),
-                    TitledBorder.DEFAULT_JUSTIFICATION,
-                    TitledBorder.DEFAULT_POSITION, null, null));
-			jPanel1.add(getOffsetTabs(), BorderLayout.CENTER);
-		}
-		return jPanel1;
-	}
+
 	/**
 	 * This method initializes cancelBtn1
 	 *
@@ -424,7 +407,6 @@ public class LocationPanel extends ParametersPanel implements ActionListener {
 		this.setLayout(gl);
 		gl.setHorizontalGroup(gl.createParallelGroup(Alignment.CENTER)
 		        .addComponent(getJPanel())
-		        .addComponent(getJPanel1())
 		        .addGroup(gl.createSequentialGroup()
 		                .addComponent(getBtnCopy())
 		                .addComponent(getBtnPaste())
@@ -439,7 +421,6 @@ public class LocationPanel extends ParametersPanel implements ActionListener {
 
 		gl.setVerticalGroup(gl.createSequentialGroup()
 		        .addComponent(getJPanel())
-		        .addComponent(getJPanel1(), 100, 100, 100)
 		        .addGroup(gl.createParallelGroup(Alignment.LEADING)
 		                .addComponent(getBtnCopy())
 		                .addComponent(getBtnPaste())
