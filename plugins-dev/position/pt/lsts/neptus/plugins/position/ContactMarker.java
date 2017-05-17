@@ -113,6 +113,10 @@ SubPanelChangeListener, MainVehicleChangeListener {
             description = "Ability to only add marks by inputing the location or using an active system")
     public boolean useSingleMarkAdditionMode = true;
 
+    @NeptusProperty(name = "Allow mark dissemination", userLevel = LEVEL.ADVANCED,
+            description = "Ability disseminate marks")
+    public boolean showDisseminateOption = false;
+
     private Vector<IMapPopup> renderersPopups = new Vector<IMapPopup>();
 
     public ContactMarker(ConsoleLayout console) {
@@ -312,7 +316,8 @@ SubPanelChangeListener, MainVehicleChangeListener {
                 }
 
                 JMenu dissem = new JMenu(I18n.text("Disseminate mark"));
-                menus.add(dissem);
+                if(showDisseminateOption)
+                    menus.add(dissem);
                 for (final AbstractElement elem : marks) {
                     final String markId = elem.getId();
                     AbstractAction rem = new AbstractAction(markId) {
