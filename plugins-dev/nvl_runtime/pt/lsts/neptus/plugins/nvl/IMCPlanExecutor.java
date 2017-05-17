@@ -27,49 +27,53 @@
  *
  * For more information please see <http://lsts.fe.up.pt/neptus>.
  *
- * Author: lsts
- * 09/03/2017
+ * Author: edrdo
+ * May 14, 2017
  */
-package pt.lsts.neptus.plugins.nvl_runtime;
-
-import java.util.List;
+package pt.lsts.neptus.plugins.nvl;
 
 import pt.lsts.imc.IMCMessage;
-import pt.lsts.neptus.types.mission.plan.PlanType;
-import pt.lsts.nvl.runtime.VehicleRequirements;
-import pt.lsts.nvl.runtime.tasks.PlatformTask;
-import pt.lsts.nvl.runtime.tasks.TaskExecutor;
+import pt.lsts.imc.PlanControlState;
+import pt.lsts.neptus.comm.manager.imc.ImcMsgManager;
+import pt.lsts.neptus.messages.listener.MessageInfo;
+import pt.lsts.neptus.messages.listener.MessageListener;
+import pt.lsts.nvl.imc.AbstractIMCPlanExecutor;
 
 
-public class IMCPlanTask extends PlatformTask {
+public final class IMCPlanExecutor extends AbstractIMCPlanExecutor {
 
-    private final PlanType plan;
-
-    public IMCPlanTask(PlanType plan) { 
-        super(plan.getId());
-        this.plan = plan;
+    
+    private final MessageListener<MessageInfo, IMCMessage> pcsListener = 
+            (info, message) -> { 
+                d("Got PCS message");
+                onStateUpdate((PlanControlState) message); 
+    };
+  
+    public IMCPlanExecutor(IMCPlanTask theTask) {
+        super(theTask);
     }
 
-    /* (non-Javadoc)
-     * @see pt.lsts.nvl.runtime.tasks.Task#getExecutor()
-     */
     @Override
-    public TaskExecutor getExecutor() {
-        return new IMCPlanTaskExecutor(this);
+    protected void sendMessageToVehicle(IMCMessage message) {
+       ImcMsgManager.getManager()
+                    .sendMessageToSystem(message, getVehicle().getId());        
     }
 
-    /* (non-Javadoc)
-     * @see pt.lsts.nvl.runtime.tasks.PlatformTask#getRequirements(java.util.List)
-     */
     @Override
-    public void getRequirements(List<VehicleRequirements> list) {
-        // TODO: is this ok?
-        // TODO: payloads
-        list.add(new VehicleRequirements());
+    protected void setup() {
+       ImcMsgManager.getManager()
+                    .addListener(pcsListener, 
+                                 getVehicle().getId(), 
+                                 (info, msg) -> PlanControlState.ID_STATIC == msg.getMgid());
     }
 
-    public IMCMessage asIMCPlan() {
-        return plan.asIMCPlan(true);
+
+    @Override
+    protected void teardown() {
+        ImcMsgManager.getManager()
+                     .removeListener(pcsListener, getVehicle().getId());
+
+        
     }
 
 }

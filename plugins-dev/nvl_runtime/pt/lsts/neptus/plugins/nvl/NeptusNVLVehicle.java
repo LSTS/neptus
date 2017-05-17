@@ -30,54 +30,52 @@
  * Author: keila
  * 08/03/2017
  */
-package pt.lsts.neptus.plugins.nvl_runtime;
+package pt.lsts.neptus.plugins.nvl;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import pt.lsts.imc.IMCMessage;
-import pt.lsts.neptus.comm.manager.imc.ImcMsgManager;
+import pt.lsts.imc.PlanManeuver;
 import pt.lsts.neptus.comm.manager.imc.ImcSystem;
 import pt.lsts.neptus.comm.manager.imc.ImcSystemsHolder;
 import pt.lsts.neptus.types.comm.CommMean;
 import pt.lsts.neptus.types.coord.LocationType;
 import pt.lsts.neptus.types.mission.plan.PlanCompatibility;
 import pt.lsts.neptus.types.vehicle.VehicleType.SystemTypeEnum;
+import pt.lsts.neptus.types.vehicle.VehiclesHolder;
 import pt.lsts.nvl.runtime.NVLVehicle;
 import pt.lsts.nvl.runtime.PayloadComponent;
 import pt.lsts.nvl.runtime.Position;
 import pt.lsts.nvl.runtime.tasks.Task;
-import pt.lsts.neptus.types.vehicle.VehiclesHolder;
 
-public class NeptusVehicleAdapter implements NVLVehicle {
+public class NeptusNVLVehicle implements NVLVehicle {
 
     private final ImcSystem imcsystem;
     private final List<PayloadComponent> availablePayload;
     private final String  acousticOPservice="acoustic/operation";
+    private Task runningTask;
 
-    public NeptusVehicleAdapter(ImcSystem imcData) {
+    public NeptusNVLVehicle(ImcSystem imcData) {
         List<PayloadComponent> ps = new ArrayList<>();
         imcsystem = imcData;
-        if(! imcData.getName().equals("caravela-aux"))
-            for(String payload : PlanCompatibility.availablePayloads(VehiclesHolder.getVehicleById(getId()))) {
-                ps.add(new NeptusPayloadAdapter(payload));
-                //System.out.println("PlanCompatibility cicle: "+payload);
-            } 
-        if(! imcData.getName().equals("caravela-aux"))
-            for(CommMean com : VehiclesHolder.getVehicleById(getId()).getCommunicationMeans().values()) { //IMC | HTTP | IRIDIUM | GSM
-                ps.add(new NeptusPayloadAdapter(com.getName()));
-                //System.out.println("Communications means: "+com.getName());
-            }
-        if(! imcData.getName().equals("caravela-aux"))
-            if(hasAcoustics()){
-                ps.add(new NeptusPayloadAdapter("Acoustics"));
-                //System.out.println("Acoustic op service.");
-            }
+        for(String payload : PlanCompatibility.availablePayloads(VehiclesHolder.getVehicleById(getId()))) {
+            ps.add(new NeptusPayloadAdapter(payload));
+            //System.out.println("PlanCompatibility cicle: "+payload);
+        } 
+        for(CommMean com : VehiclesHolder.getVehicleById(getId()).getCommunicationMeans().values()) { //IMC | HTTP | IRIDIUM | GSM
+            ps.add(new NeptusPayloadAdapter(com.getName()));
+            //System.out.println("Communications means: "+com.getName());
+        }
+        if(hasAcoustics()){
+            ps.add(new NeptusPayloadAdapter("Acoustics"));
+            //System.out.println("Acoustic op service.");
+        }
         availablePayload = ps;
     }
 
-    public boolean hasAcoustics(){
-
+    private boolean hasAcoustics(){
+        PlanManeuver p = new PlanManeuver();
+        p.setStartActions(null);
         boolean activeSystems = false; //defines the vehicle payload even if it's not active
         ImcSystem[] vehicles = ImcSystemsHolder.lookupSystemByService(acousticOPservice,SystemTypeEnum.VEHICLE,activeSystems);
         for(ImcSystem vehicle: vehicles)
@@ -87,21 +85,11 @@ public class NeptusVehicleAdapter implements NVLVehicle {
     }
 
 
-    public void sendTo(IMCMessage message) {
-        ImcMsgManager.getManager().sendMessageToSystem(message, getId()); 
-    }
-    
-    /* (non-Javadoc)
-     * @see nvl.Vehicle#getId()
-     */
     @Override
     public String getId() {
         return imcsystem.getName();
     }
 
-    /* (non-Javadoc)
-     * @see nvl.Vehicle#getType()
-     */
     @Override
     public String getType() {
         return imcsystem.getTypeVehicle().toString();
@@ -109,39 +97,27 @@ public class NeptusVehicleAdapter implements NVLVehicle {
     }
 
 
-    /* (non-Javadoc)
-     * @see nvl.Vehicle#getPosition()
-     */
     @Override
     public Position getPosition() {
         LocationType loc = imcsystem.getLocation();
         return new Position(loc.getLatitudeRads(), loc.getLongitudeRads(), loc.getHeight());
     }
 
-    /* (non-Javadoc)
-     * @see nvl.Vehicle#getPayload()
-     */
     @Override
     public List<PayloadComponent> getPayload() {
         return availablePayload;
 
     }
 
-    /* (non-Javadoc)
-     * @see pt.lsts.nvl.runtime.NVLVehicle#getRunningTask()
-     */
     @Override
     public Task getRunningTask() {
-        // TODO Auto-generated method stub
-        return null;
+        return runningTask;
     }
 
-    /* (non-Javadoc)
-     * @see pt.lsts.nvl.runtime.NVLVehicle#setRunningTask(pt.lsts.nvl.runtime.tasks.Task)
-     */
+
     @Override
-    public void setRunningTask(Task arg0) {
-        // TODO Auto-generated method stub
-
+    public void setRunningTask(Task t) {
+        runningTask = t;
     }
+
 }
