@@ -106,6 +106,7 @@ import pt.lsts.neptus.console.plugins.planning.edit.ManeuverChanged;
 import pt.lsts.neptus.console.plugins.planning.edit.ManeuverPropertiesPanel;
 import pt.lsts.neptus.console.plugins.planning.edit.ManeuverRemoved;
 import pt.lsts.neptus.console.plugins.planning.edit.ManeuverTranslated;
+import pt.lsts.neptus.console.plugins.planning.edit.PlanChanged;
 import pt.lsts.neptus.console.plugins.planning.edit.PlanRotated;
 import pt.lsts.neptus.console.plugins.planning.edit.PlanSettingsChanged;
 import pt.lsts.neptus.console.plugins.planning.edit.PlanTransitionsChanged;
@@ -1242,7 +1243,32 @@ public class PlanEditor extends InteractionAdapter implements Renderer2DPainter,
                             for (String v : vehicles) {
                                 vts.add(VehiclesHolder.getVehicleById(v));
                             }
+
+                            Vector<VehicleType> oVts = plan.getVehicles();
+                            boolean changed = false;
+                            if (vts.size() != oVts.size() 
+                                    || (vts.isEmpty() && oVts.size() > 0)
+                                    || (vts.size() > 0 && oVts.isEmpty())) {
+                                changed = true;
+                            }
+                            else {
+                                for (VehicleType v : vts) {
+                                    if (!oVts.contains(v)) {
+                                        changed = true;
+                                        break;
+                                    }
+                                }
+                            }
+                            
+                            if (!changed)
+                                return;
+                            
+                            String beforeXml = plan.asXML();
                             plan.setVehicles(vts);
+                            
+                            String afterXml = plan.asXML();
+                            PlanChanged pce = new PlanChanged(plan, beforeXml, afterXml);
+                            manager.addEdit(pce);
                         }
                     };
                     pVehicle.putValue(AbstractAction.SMALL_ICON,
