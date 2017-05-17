@@ -105,7 +105,6 @@ public class LocationPanel extends ParametersPanel implements ActionListener {
 	private JButton btnCopy = null;
 	private JButton btnPaste = null;
 	private JButton findOnMap = null;
-    private JButton makeLocAbsolute = null;
 	private Component hg1 = Box.createHorizontalGlue();
 	private Component hg2 = Box.createHorizontalGlue();
 	private boolean hideOkCancelButtons = false;
@@ -409,29 +408,6 @@ public class LocationPanel extends ParametersPanel implements ActionListener {
 	}
 
 	/**
-	 * @return
-	 */
-	private JButton getMakeLocAbsolute() {
-        if (makeLocAbsolute == null) {
-            makeLocAbsolute = new JButton();
-            makeLocAbsolute.setBounds(new Rectangle(68,360,80,20));
-            //makeLocAbsolute.setIcon(new ImageIcon(GuiUtils.getImage("images/buttons/findOnMap.png")));
-            
-            makeLocAbsolute.setText(I18n.textc("Abs", "Abs is the absolute value, don't use more than 3 letters"));
-            makeLocAbsolute.setFont(makeLocAbsolute.getFont().deriveFont(10));
-            makeLocAbsolute.setMargin(new Insets(0, 0, 0, 0));
-            makeLocAbsolute.setEnabled(true);
-            makeLocAbsolute.setToolTipText(I18n.text("Make the location absolute"));
-            makeLocAbsolute.addActionListener(new ActionListener() {
-                public void actionPerformed(ActionEvent arg0) {
-                    setLocationType((LocationType) getLocationType().getNewAbsoluteLatLonDepth());                    
-                }
-            });
-        }
-        return makeLocAbsolute;
-    }
-
-	/**
 	 * This method initializes this
 	 *
 	 * @return void
@@ -454,7 +430,6 @@ public class LocationPanel extends ParametersPanel implements ActionListener {
 		                .addComponent(getBtnPaste())
 		                .addComponent(getFindOnMap())
 		                .addGap(20)
-		                .addComponent(getMakeLocAbsolute())
 		                .addComponent(hg1))
 		        .addGroup(gl.createSequentialGroup()
                         .addComponent(hg2)
@@ -469,7 +444,6 @@ public class LocationPanel extends ParametersPanel implements ActionListener {
 		                .addComponent(getBtnCopy())
 		                .addComponent(getBtnPaste())
 		                .addComponent(getFindOnMap())
-                        .addComponent(getMakeLocAbsolute())
                         .addComponent(hg1))
                 .addGroup(gl.createParallelGroup(Alignment.TRAILING)
                         .addComponent(hg2)
@@ -479,8 +453,7 @@ public class LocationPanel extends ParametersPanel implements ActionListener {
 		
 		gl.linkSize(SwingConstants.HORIZONTAL, getOkBtn(), getCancelBtn());
 		gl.linkSize(SwingConstants.HORIZONTAL, getBtnCopy(), getBtnPaste(), getFindOnMap());
-        gl.linkSize(SwingConstants.VERTICAL, getBtnCopy(), getBtnPaste(), getFindOnMap(),
-                getMakeLocAbsolute());
+        gl.linkSize(SwingConstants.VERTICAL, getBtnCopy(), getBtnPaste(), getFindOnMap());
 	}
 
 	public void actionPerformed(ActionEvent ae) {
@@ -549,7 +522,6 @@ public class LocationPanel extends ParametersPanel implements ActionListener {
         getCancelBtn().setVisible(!hideOkCancelButtons && editable);
         getBtnPaste().setEnabled(editable);
         //getFindOnMap().setEnabled(editable);
-        getMakeLocAbsolute().setEnabled(editable);
     }
 
 	private JDialog getLocationDialog(Component parent, String title) {
