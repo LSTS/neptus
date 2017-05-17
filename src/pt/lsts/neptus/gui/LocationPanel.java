@@ -355,34 +355,29 @@ public class LocationPanel extends ParametersPanel implements ActionListener {
 			btnPaste.setBounds(new java.awt.Rectangle(42,360,20,20));
 			btnPaste.setIcon(new ImageIcon(ImageUtils.getImage("images/menus/editpaste.png")));
 			btnPaste.setToolTipText(I18n.text("Paste from clipboard"));
-			btnPaste.addActionListener(new ActionListener() {
-				
-				public void actionPerformed(ActionEvent arg0) {
-					btnPaste.setEnabled(isEditable());
+			btnPaste.addActionListener(arg0 -> {
+                btnPaste.setEnabled(isEditable());
 
-					@SuppressWarnings({ "unused" })
-                    ClipboardOwner owner = new ClipboardOwner() {
-						public void lostOwnership(Clipboard clipboard, Transferable contents) {};						
-					};
-					
-					Transferable contents = Toolkit.getDefaultToolkit().getSystemClipboard().getContents(null);
-					
-                    boolean hasTransferableText = (contents != null)
-                            && contents.isDataFlavorSupported(DataFlavor.stringFlavor);
-					
-					if ( hasTransferableText ) {
-						try {
-							String text = (String)contents.getTransferData(DataFlavor.stringFlavor);
-							LocationType lt = new LocationType();
-							lt.fromClipboardText(text);
-							setLocationType(lt);
-						}
-						catch (Exception e) {
-							NeptusLog.pub().error(e);
-						}
-					}				
-				}
-			});
+                @SuppressWarnings({ "unused" })
+				ClipboardOwner owner = (clipboard, contents) -> {};
+
+                Transferable contents = Toolkit.getDefaultToolkit().getSystemClipboard().getContents(null);
+
+				boolean hasTransferableText = (contents != null)
+						&& contents.isDataFlavorSupported(DataFlavor.stringFlavor);
+
+                if ( hasTransferableText ) {
+                    try {
+                        String text = (String)contents.getTransferData(DataFlavor.stringFlavor);
+                        LocationType lt = new LocationType();
+                        lt.fromClipboardText(text);
+                        setLocationType(lt.getNewAbsoluteLatLonDepth());
+                    }
+                    catch (Exception e) {
+                        NeptusLog.pub().error(e);
+                    }
+                }
+            });
 		}
 		return btnPaste;
 	}
