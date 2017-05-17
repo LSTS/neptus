@@ -42,6 +42,7 @@ import javax.swing.JMenu;
 
 import com.l2fprod.common.propertysheet.DefaultProperty;
 import com.l2fprod.common.propertysheet.Property;
+import com.l2fprod.common.propertysheet.PropertySheetPanel;
 
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.console.plugins.planning.edit.ManeuverPropertiesPanel;
@@ -55,6 +56,7 @@ import pt.lsts.neptus.mp.maneuvers.LocatedManeuver;
 import pt.lsts.neptus.mp.maneuvers.StatisticsProvider;
 import pt.lsts.neptus.mp.preview.PlanSimulator;
 import pt.lsts.neptus.mp.preview.SpeedConversion;
+import pt.lsts.neptus.params.PlanPayloadConfig;
 import pt.lsts.neptus.types.coord.LocationType;
 import pt.lsts.neptus.types.mission.plan.PlanType;
 import pt.lsts.neptus.types.vehicle.VehicleType;
@@ -511,10 +513,18 @@ public class PlanUtil {
 
         // VehicleType newVehicle = plan.getVehicleType();
 
-        // FIXME Fix plan actions
-        
+        // Change the plan actions
+        @SuppressWarnings("serial")
+        PropertySheetPanel propsPanel = new PropertySheetPanel() {{
+            setEditorFactory(PropertiesEditor.getPropertyEditorRegistry());
+            setRendererFactory(PropertiesEditor.getPropertyRendererRegistry());
+        }};
+        PlanPayloadConfig planPayloadConfig = new PlanPayloadConfig(plan.getVehicle(), plan, propsPanel);
+        planPayloadConfig.getProperties();
+
+        // Change the maneuvers actions
         ManeuverPropertiesPanel propertiesPanel = new ManeuverPropertiesPanel();
-        propertiesPanel.setPlan(plan); // This call has to be before setManeuver (pdias 20130822)
+        propertiesPanel.setPlan(plan);
         for (Maneuver man : plan.getGraph().getAllManeuvers()) {
             propertiesPanel.setManeuver(man);
             propertiesPanel.setProps();
