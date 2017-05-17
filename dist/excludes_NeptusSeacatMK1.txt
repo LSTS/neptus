@@ -12,7 +12,6 @@ plugins/mavs.jar
 plugins/necsave.jar
 plugins/noptilus.jar
 plugins/odss.jar
-plugins/s57*.jar
 plugins/s57-client*.jar
 plugins/spot.jar
 plugins/sunfish.jar
