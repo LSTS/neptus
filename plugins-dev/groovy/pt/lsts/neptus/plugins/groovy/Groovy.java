@@ -37,11 +37,10 @@ import java.awt.event.ActionEvent;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.FileReader;
-//import java.io.FileWriter;
+
 import java.io.IOException;
-import java.io.PrintStream;
+
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
@@ -63,9 +62,6 @@ import com.google.common.eventbus.Subscribe;
 
 import groovy.lang.Binding;
 import groovy.util.GroovyScriptEngine;
-import pt.lsts.imc.PlanControlState;
-import pt.lsts.imc.PlanControlState.LAST_OUTCOME;
-import pt.lsts.imc.PlanControlState.STATE;
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.comm.manager.imc.ImcSystemsHolder;
 import pt.lsts.neptus.console.ConsoleLayout;
@@ -132,7 +128,7 @@ public class Groovy extends ConsolePanel {
         this.binds.setVariable("plans", getConsole().getMission().getIndividualPlansList());
         
         PlanType pt = getConsole().getMission().getIndividualPlansList().get("");
-                PlanUtil.getPlanWaypoints(pt);
+                PlanUtil.getPlanWaypoints(pt); //TODO
                 //        this.plans.putAll(getConsole().getMission().getIndividualPlansList());
        
         //POI/MarkElement
@@ -148,7 +144,7 @@ public class Groovy extends ConsolePanel {
         this.config.addCompilationCustomizers(customizer);
 //        this.binds.setVariable("vehicles", vehicles.keySet().toArray());
 //        this.binds.setVariable("plans", plans.keySet().toArray());
-//        this.binds.setVariable("locations", locations.values().toArray());
+        this.binds.setVariable("locations", locations.values().toArray());
         this.binds.setVariable("console", getConsole()); //TODO NOTIFY the existing binding to be used in the script
         this.binds.setVariable("result", null);
         try {
