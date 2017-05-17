@@ -249,8 +249,8 @@ public class PlanEditor extends InteractionAdapter implements Renderer2DPainter,
             Maneuver curManeuver = getPropertiesPanel().getManeuver();
 
             if (curManeuver != null && renderer.isFocusOwner()) {
-                getPropertiesPanel().setManeuver(curManeuver);
                 getPropertiesPanel().setPlan(plan);
+                getPropertiesPanel().setManeuver(curManeuver);
                 getPropertiesPanel().setManager(manager);
                 if (delegate != null)
                     getPropertiesPanel().getEditBtn().setSelected(true);
@@ -1264,7 +1264,9 @@ public class PlanEditor extends InteractionAdapter implements Renderer2DPainter,
                                 return;
                             
                             String beforeXml = plan.asXML();
-                            plan.setVehicles(vts);
+                            
+                            // plan.setVehicles(vts);
+                            PlanUtil.changePlanVehiclesAndAdjustSettings(plan, vts);
                             
                             String afterXml = plan.asXML();
                             PlanChanged pce = new PlanChanged(plan, beforeXml, afterXml);
@@ -1745,10 +1747,10 @@ public class PlanEditor extends InteractionAdapter implements Renderer2DPainter,
             maneuverLocationBeforeMoving = null;
 
             planElem.recalculateManeuverPositions(renderer);
+            getPropertiesPanel().setPlan(plan);
             getPropertiesPanel().setManeuver(selectedManeuver);
             getPropertiesPanel().getEditBtn().setEnabled(selectedManeuver instanceof StateRendererInteraction);
             getPropertiesPanel().getEditBtn().setSelected(false);
-            getPropertiesPanel().setPlan(plan);
             getPropertiesPanel().setManager(manager);
 
         }

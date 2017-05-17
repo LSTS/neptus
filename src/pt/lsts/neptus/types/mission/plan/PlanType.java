@@ -39,6 +39,7 @@ import java.io.ByteArrayOutputStream;
 import java.security.MessageDigest;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Vector;
 
 import org.dom4j.Attribute;
@@ -382,7 +383,7 @@ public class PlanType implements XmlOutputMethods, PropertiesProvider, NameId {
         return vehicles;
     }
 
-    public void setVehicles(Vector<VehicleType> vehicles) {
+    public void setVehicles(Collection<VehicleType> vehicles) {
         this.vehicles.clear();
         for (VehicleType v : vehicles)
             if (!this.vehicles.contains(v))
