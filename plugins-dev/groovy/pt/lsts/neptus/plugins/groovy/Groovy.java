@@ -34,22 +34,20 @@ package pt.lsts.neptus.plugins.groovy;
 
 import java.awt.BorderLayout;
 import java.awt.event.ActionEvent;
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileReader;
 import java.io.IOException;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Optional;
-
 import javax.swing.AbstractAction;
 import javax.swing.Action;
+import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JFileChooser;
 import javax.swing.JPanel;
-import javax.swing.JProgressBar;
+import javax.swing.JScrollPane;
+import javax.swing.JTextArea;
+import javax.swing.border.Border;
 
 import org.codehaus.groovy.control.CompilerConfiguration;
 import org.codehaus.groovy.control.customizers.ImportCustomizer;
@@ -76,7 +74,6 @@ import pt.lsts.neptus.plugins.Popup.POSITION;
 import pt.lsts.neptus.types.coord.LocationType;
 import pt.lsts.neptus.types.map.MapGroup;
 import pt.lsts.neptus.types.map.MarkElement;
-import pt.lsts.neptus.types.map.PlanUtil;
 import pt.lsts.neptus.types.mission.plan.PlanType;
 import pt.lsts.neptus.types.vehicle.VehicleType;
 import pt.lsts.neptus.types.vehicle.VehiclesHolder;
@@ -90,16 +87,20 @@ import pt.lsts.neptus.util.ImageUtils;
  *
  */
 @PluginDescription(name = "Groovy Feature", author = "Keila Lima",icon="pt/lsts/neptus/plugins/groovy/images/groovy.png")
-@Popup(pos = POSITION.RIGHT, width=500, height=500, accelerator='y')
+@Popup(pos = POSITION.RIGHT, width=500, height=600, accelerator='y')
 @SuppressWarnings("serial")
 public class Groovy extends ConsolePanel {
     private JButton openButton,stopScript,runScript;
+    private Border border;
+    private JPanel bottom,buttons;
+    private JScrollPane outputPanel;
+    private JTextArea output;
     //Collections used to make Map thread safe
     private Map<String,VehicleType> vehicles = Collections.synchronizedMap(new HashMap<>()); 
     private Map<String,PlanType> plans = Collections.synchronizedMap(new HashMap<>()); 
     private Map<String,LocationType> locations = Collections.synchronizedMap(new HashMap<>());
 //   private Map<String,PlanControlState> states = Collections.synchronizedMap(new HashMap<>());
-    private Optional<String>  result; //bindig variable to process output in the script
+//    private Optional<String>  result; //bindig variable to process output in the script
     private Binding binds; //verify use of @TypeChecked
     private GroovyScriptEngine engine;
     private CompilerConfiguration config;
@@ -110,6 +111,7 @@ public class Groovy extends ConsolePanel {
     
     @NeptusProperty
     File groovyScript = null;
+    
     /**
      * @param console
      */
@@ -133,12 +135,12 @@ public class Groovy extends ConsolePanel {
         for( MarkElement mark:MapGroup.getMapGroupInstance(getConsole().getMission()).getAllObjectsOfType(MarkElement.class)){
             locations.put(mark.getId(),mark.getPosition());
         }
-        
+
         this.config = new CompilerConfiguration();
-        //this.config.setScriptBaseClass("plugins-dev/groovy/pt/lsts/neptus/plugins/groovy/scripts/basescript");
         this.customizer = new ImportCustomizer();
-        this.customizer.addImports("pt.lsts.imc.net.IMCProtocol","pt.lsts.imc.net.Consume","pt.lsts.neptus.types.coord.LocationType","pt.lsts.neptus.imc.dsl.Plan","pt.lsts.neptus.imc.dsl.Location");
-        this.customizer.addStarImports("pt.lsts.imc","pt.lsts.neptus.imc.dsl","pt.lsts.neptus.types.map"); //this.getClass().classLoader.rootLoader.addURL(new File("file.jar").toURL())
+        this.customizer.addImports("pt.lsts.imc.net.IMCProtocol","pt.lsts.neptus.types.coord.LocationType");
+        this.customizer.addImport("Plan", NeptusIMCDSL.class.getName());
+        this.customizer.addStarImports("pt.lsts.imc","imc_plans_dsl","pt.lsts.neptus.types.map"); //this.getClass().classLoader.rootLoader.addURL(new File("file.jar").toURL())
         this.config.addCompilationCustomizers(customizer);
 //        this.binds.setVariable("vehicles", vehicles.keySet().toArray());
 //        this.binds.setVariable("plans", plans.keySet().toArray());
@@ -178,10 +180,12 @@ public class Groovy extends ConsolePanel {
     public void initSubPanel() {
         removeAll();
         add_console_vars();
-        
         //Text editor
-        setLayout(new BorderLayout());
-        JPanel bottom = new JPanel();
+        setLayout(new BorderLayout(5,5));
+        bottom = new JPanel(new BorderLayout());
+        buttons = new JPanel();
+        output = new JTextArea();
+        
         editor = new RSyntaxTextArea();
         editor.setSyntaxEditingStyle(SyntaxConstants.SYNTAX_STYLE_GROOVY);
         editor.setCodeFoldingEnabled(true);
@@ -233,34 +237,27 @@ public class Groovy extends ConsolePanel {
         
         openButton = new JButton(selectAction); 
         stopScript = new JButton(stopAction);
-        runScript = new JButton(runAction);
+        runScript  = new JButton(runAction);
         
-        bottom.add(openButton);
-        bottom.add(runScript);
-        bottom.add(stopScript);
-        
+        buttons.add(openButton);
+        buttons.add(runScript);
+        buttons.add(stopScript);
+        bottom.add(buttons);
+        border = BorderFactory.createTitledBorder("Script Output");
+        output.setBorder(border);
+        output.setEditable(false);
+        output.setVisible(true);
+        output.setText("OUTPUT GOES HERE \n\nEncher Chouriçassssss\n"); //TODO redirect engine output to printstream to textArea
+        outputPanel = new JScrollPane(output);//RSyntaxTextArea("Script Output")
+        bottom.add(outputPanel, BorderLayout.SOUTH);
         add(bottom, BorderLayout.SOUTH);
         add(scroll, BorderLayout.CENTER);
         stopScript.setEnabled(false);
+        output.setVisible(true);
+
+        
         
     }
-    private void writeScriptContent(BufferedWriter fileW, File groovy_script) {
-        BufferedReader fileR;
-        try {
-            fileR = new BufferedReader(new FileReader(groovy_script));
-            int c;
-            while((c = fileR.read())!=-1) {
-                fileW.write(c);
-            }
-            fileR.close();
-        }
-        catch (IOException e) {
-            // TODO Auto-generated catch block
-            NeptusLog.pub().error(I18n.text("Error generating script from: "+groovy_script.getName()), e);
-            //e.printStackTrace();
-        }
-    }
-    
     private void stopScript() {
         if(thread != null && thread.isAlive()){
             thread.interrupt();                        
@@ -275,9 +272,9 @@ public class Groovy extends ConsolePanel {
             public void run() {
                 try {
                     
-                    String name = groovyScript.getName()+System.currentTimeMillis();
-                    //PrintStream output = new PrintStream(new FileOutputStream(new File("plugins-dev/groovy/pt/lsts/neptus/plugins/groovy/outputs/"+name)));
-                  //  getBinds().setProperty("out",output);
+                    //String name = groovyScript.getName()+System.currentTimeMillis();
+                    //PrintStream scriptOutput = new PrintStream(new OutputStream)//(new FileOutputStream(new File("plugins-dev/groovy/pt/lsts/neptus/plugins/groovy/outputs/"+name)));
+                    //getBinds().setProperty("out",output);
                     //getBinds().setVariable("result",output.toString());
                     FileUtil.saveToFile(groovyScript.getAbsolutePath(), editor.getText());
                     if(!stopScript.isEnabled())

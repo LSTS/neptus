@@ -36,14 +36,12 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import imc_plans_dsl.AbstractDSLPlan;
+import imc_plans_dsl.DSLPlan;
 import imc_plans_dsl.Location;
-import pt.lsts.imc.PlanControl;
 import pt.lsts.imc.PlanManeuver;
-import pt.lsts.imc.PlanSpecification;
-import pt.lsts.neptus.comm.IMCSendMessageUtils;
-import pt.lsts.neptus.console.ConsolePanel;
+import pt.lsts.neptus.console.ConsoleLayout;
 import pt.lsts.neptus.mp.Maneuver;
+import pt.lsts.neptus.mp.maneuvers.*;
 import pt.lsts.neptus.types.map.PlanUtil;
 import pt.lsts.neptus.types.mission.plan.PlanType;
 
@@ -51,16 +49,22 @@ import pt.lsts.neptus.types.mission.plan.PlanType;
  * @author lsts
  *
  */
-public class NeptusIMCDSL extends AbstractDSLPlan {
+public class NeptusIMCDSL extends DSLPlan {
     
-    ConsolePanel neptusConsole;
     PlanType neptusPlan;
+    private ConsoleLayout neptusConsole;
 
     /**
      * @param id
      */
     public NeptusIMCDSL(String id) {
         super(id);
+    }
+    
+    public NeptusIMCDSL(ConsoleLayout c){ //constructor to facilitate script
+        super("");
+        neptusConsole = c;
+        locate( new Location(c.getMission().getHomeRef().getLatitudeRads(),c.getMission().getHomeRef().getLongitudeRads()));
     }
     
     public NeptusIMCDSL(PlanType plan){
@@ -79,7 +83,9 @@ public class NeptusIMCDSL extends AbstractDSLPlan {
         for(Maneuver m: plan.getGraph().getAllManeuvers()){
             PlanManeuver pm = new PlanManeuver();//m.id, m, m.getStartActions(), m.getEndActions()
             pm.setManeuverId(m.id);
-            //pm.setData(pt.lsts.imc.Maneuver.parseXml(m.asXML())); //TODO get data from Maneuver to add it to PlanManeuver
+//            pm.setData(data);
+//            PlanUtilities.createPlan(id, maneuvers);
+//            maneuver(m.id,m.getClass(),m.asXML("data"));
             pm.setStartActions(Arrays.asList(m.getStartActions().getAllMessages()));
             pm.setEndActions(Arrays.asList(m.getEndActions().getAllMessages()));
             mans.add(pm);
@@ -87,25 +93,6 @@ public class NeptusIMCDSL extends AbstractDSLPlan {
         //plan.getGraph().getAllManeuvers() plan.getGraph().getAllEdges()
         
     }
-
-    /* (non-Javadoc)
-     * @see imc_plans_dsl.Plan#sendTo(pt.lsts.imc.PlanControl, java.lang.String[])
-     */
-    @Override
-    public boolean sendTo(String... vehicles) {
-        PlanSpecification plan_spec = this.asPlanSpecification(); 
-        PlanControl plan =  new PlanControl();
-        plan.setOpStr("LOAD");
-        plan.setPlanId(this.getPlan_id());
-        plan.setArg(plan_spec);
-        boolean result=true;
-        for(String vehicle: vehicles){
-            String errorMsg="Error sending plan: "+getPlan_id()+" to "+vehicle;
-            result = result && IMCSendMessageUtils.sendMessage(plan,errorMsg,false, vehicle);
-        }
-        return result;
-    }
-    
     public void addToConsole(){
         
         if(neptusConsole!=null){
@@ -122,7 +109,7 @@ public class NeptusIMCDSL extends AbstractDSLPlan {
         }
     }
     
-    public ConsolePanel getNeptusConsole(){
+    public ConsoleLayout getNeptusConsole(){
        return neptusConsole;
     }
 
@@ -130,19 +117,58 @@ public class NeptusIMCDSL extends AbstractDSLPlan {
      * @param console
      * @return
      */
-    private PlanType asPlanType(ConsolePanel console) {
+    private PlanType asPlanType(ConsoleLayout console) {
         PlanType plan = new PlanType(console.getConsole().getMission());
         String previous = null;
         for(PlanManeuver m: this.getMans()){
-            Maneuver man = Maneuver.createFromXML(m.getData().asXml(true));//TODO or false?
-            plan.getGraph().addManeuver(man);
-            if(man.isInitialManeuver())
-                plan.getGraph().setInitialManeuver(man.getId());
-            else //TRANSITIONS
-                plan.getGraph().addTransition(previous, man.getId(),man.getTransitionCondition(previous));//TODO verify this
-            previous=man.getId();
+            Maneuver man;// = Maneuver.createFromXML(m.getData().asXml(true));
+            Class<? extends Maneuver> clazz = getClass(m.getData().getClass().getSimpleName());
+            try {
+                
+                man = clazz.newInstance();
+                man.setId(m.getManeuverId());
+             //   man.loadManeuverXml(m.getData().asXml(false)); //TODO or false?
+             //   man.getCustomSettings(m.getData().)
+                plan.getGraph().addManeuver(man);
+                if(man.isInitialManeuver())
+                    plan.getGraph().setInitialManeuver(man.getId());
+                else //TRANSITIONS
+                    plan.getGraph().addTransition(previous, man.getId(),man.getTransitionCondition(previous));//TODO verify this
+                previous=man.getId();
+            }
+            catch (InstantiationException | IllegalAccessException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
+
         }
         return plan;
+    }
+
+    /**
+     * @param name
+     * @return
+     */
+    private Class<?extends Maneuver> getClass(String name) {
+        if(name.equalsIgnoreCase("Goto")){
+            return Goto.class;
+        }
+        if(name.equalsIgnoreCase("Loiter"))
+            return Loiter.class;
+        if(name.equalsIgnoreCase("YoYo"))
+            return YoYo.class;
+        if(name.equalsIgnoreCase("PopUp"))
+            return PopUp.class;
+        if(name.equalsIgnoreCase("Launch"))
+            return Launch.class;
+        if(name.equalsIgnoreCase("CompassCalibration"))
+            return CompassCalibration.class;
+        if(name.equalsIgnoreCase("StationKeeping"))
+            return StationKeeping.class;
+        if(name.equalsIgnoreCase("RowsManeuver"))
+            return RowsManeuver.class;
+        
+        return null;
     }
 
 

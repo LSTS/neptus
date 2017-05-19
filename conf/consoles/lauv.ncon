@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<console name="Neptus Console" width="1282" height="743" resizable="true" mission-file="../../missions/APDL/missao-apdl.nmisz" main-vehicle="lauv-noptilus-2">
-  <!-- Data saved on 2017-05-18T02:11:23.0Z with Neptus version @VERSION@ (compiled on @DATE@, g@SCM_REV@). -->
+<console name="Neptus Console" width="1282" height="1029" resizable="true" mission-file="../../missions/APDL/missao-apdl.nmisz" main-vehicle="lauv-noptilus-2">
+  <!-- Data saved on 2017-05-19T18:27:56.0Z with Neptus version @VERSION@ (compiled on @DATE@, g@SCM_REV@). -->
   <mainpanel name="console main panel">
-    <subpanel class="pt.lsts.neptus.console.plugins.containers.MigLayoutContainer" x="0" y="0" width="1280" height="660">
+    <subpanel class="pt.lsts.neptus.console.plugins.containers.MigLayoutContainer" x="0" y="0" width="1280" height="945">
       <properties>
         <entry key="XML Definitions">&lt;profiles&gt;
   &lt;profile name="Normal"&gt;
@@ -87,10 +87,10 @@
       <child class="pt.lsts.neptus.plugins.map.MapEditor" x="0" y="0" width="0" height="0">
         <properties/>
       </child>
-      <child class="pt.lsts.neptus.console.plugins.planning.MapPanel" x="0" y="0" width="974" height="660">
+      <child class="pt.lsts.neptus.console.plugins.planning.MapPanel" x="0" y="0" width="974" height="945">
         <properties/>
       </child>
-      <child class="pt.lsts.neptus.console.plugins.planning.MissionTreePanel" x="0" y="162" width="294" height="492">
+      <child class="pt.lsts.neptus.console.plugins.planning.MissionTreePanel" x="0" y="162" width="294" height="777">
         <properties/>
       </child>
       <child class="pt.lsts.neptus.console.plugins.planning.MultiVehiclePlanOverlay" x="0" y="0" width="0" height="0">
@@ -142,9 +142,9 @@ altitude: ${EstimatedState.alt};
       <child class="pt.lsts.neptus.console.plugins.planning.MultiVehiclePlanner" x="0" y="0" width="0" height="0">
         <properties/>
       </child>
-      <child class="pt.lsts.neptus.plugins.groovy.Groovy" x="0" y="0" width="0" height="0">
+      <child class="pt.lsts.neptus.plugins.groovy.Groovy" x="0" y="0" width="498" height="572">
         <properties>
-          <entry key="groovyScript">/home/lsts/workspace/neptus-keila/conf/groovy/scripts/yoyo</entry>
+          <entry key="groovyScript">/home/lsts/workspace/neptus-keila/conf/groovy/scripts/DSL</entry>
         </properties>
       </child>
       <child class="pt.lsts.neptus.plugins.nvl.NVLConsolePanel" x="0" y="0" width="0" height="0">
