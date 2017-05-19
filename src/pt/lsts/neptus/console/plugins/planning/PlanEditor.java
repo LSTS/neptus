@@ -107,7 +107,6 @@ import pt.lsts.neptus.console.plugins.planning.edit.ManeuverChanged;
 import pt.lsts.neptus.console.plugins.planning.edit.ManeuverPropertiesPanel;
 import pt.lsts.neptus.console.plugins.planning.edit.ManeuverRemoved;
 import pt.lsts.neptus.console.plugins.planning.edit.ManeuverTranslated;
-import pt.lsts.neptus.console.plugins.planning.edit.PlanChanged;
 import pt.lsts.neptus.console.plugins.planning.edit.PlanElementChanged;
 import pt.lsts.neptus.console.plugins.planning.edit.PlanPayloadSettingsChange;
 import pt.lsts.neptus.console.plugins.planning.edit.PlanRotated;
@@ -115,6 +114,7 @@ import pt.lsts.neptus.console.plugins.planning.edit.PlanSettingsChanged;
 import pt.lsts.neptus.console.plugins.planning.edit.PlanTransitionsChanged;
 import pt.lsts.neptus.console.plugins.planning.edit.PlanTransitionsReversed;
 import pt.lsts.neptus.console.plugins.planning.edit.PlanTranslated;
+import pt.lsts.neptus.console.plugins.planning.edit.PlanVehiclesChange;
 import pt.lsts.neptus.console.plugins.planning.edit.PlanZChanged;
 import pt.lsts.neptus.gui.MenuScroller;
 import pt.lsts.neptus.gui.PropertiesEditor;
@@ -1295,7 +1295,7 @@ public class PlanEditor extends InteractionAdapter implements Renderer2DPainter,
                             
                             PlanType newPlan = plan.clonePlan();
                             PlanUtil.changePlanVehiclesAndAdjustSettings(newPlan, vts);
-                            PlanChanged pce = new PlanChanged(PlanEditor.this, plan, newPlan);
+                            PlanVehiclesChange pce = new PlanVehiclesChange(PlanEditor.this, plan, newPlan);
                             pce.redo(); // To clear gui and references
                             manager.addEdit(pce);
                         }
