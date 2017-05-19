@@ -189,6 +189,7 @@ public class PlanType implements XmlOutputMethods, PropertiesProvider, NameId {
         graph = null;
         startActions.clearMessages();
         endActions.clearMessages();
+        planElements.getPlanElements().clear();
 
         try {
             Document doc = DocumentHelper.parseText(xml);
