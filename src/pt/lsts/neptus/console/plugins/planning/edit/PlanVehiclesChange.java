@@ -15,7 +15,7 @@
  *
  * Modified European Union Public Licence - EUPL v.1.1 Usage
  * Alternatively, this file may be used under the terms of the Modified EUPL,
- * Version 1.1 only (the "Licence"), appearing in the file LICENCE.md
+ * Version 1.1 only (the "Licence"), appearing in the file LICENSE.md
  * included in the packaging of this file. You may not use this work
  * except in compliance with the Licence. Unless required by applicable
  * law or agreed to in writing, software distributed under the Licence is
@@ -27,57 +27,41 @@
  *
  * For more information please see <http://lsts.fe.up.pt/neptus>.
  *
- * Author: 
- * May 11, 2005
+ * Author: pdias
+ * 19/05/2017
  */
-package pt.lsts.neptus.mp.maneuvers;
+package pt.lsts.neptus.console.plugins.planning.edit;
 
-import org.dom4j.Document;
-import org.dom4j.DocumentHelper;
-import org.dom4j.Element;
+import java.util.stream.Collectors;
 
-import pt.lsts.imc.IMCMessage;
-import pt.lsts.imc.Teleoperation;
-import pt.lsts.neptus.gui.objparams.ParametersPanel;
-import pt.lsts.neptus.mp.Maneuver;
+import pt.lsts.neptus.console.plugins.planning.PlanEditor;
+import pt.lsts.neptus.i18n.I18n;
+import pt.lsts.neptus.types.mission.plan.PlanType;
 
 /**
- * @author zepinto
+ * @author pdias
+ *
  */
-public class Unconstrained extends Maneuver implements IMCSerialization {
+@SuppressWarnings("serial")
+public class PlanVehiclesChange extends PlanChanged {
 
-	public void loadManeuverFromXML(String xml) {
-	}
+    protected String originalVehicles = "";
+    protected String newVehicles = "";
 
-	public void initializeManeuver(ParametersPanel params) {
-		//No initialization needs to be done...
-	}
-
-	public String getType() {
-		return "Unconstrained";
-	}
-
-	public Object clone() {
-		Unconstrained u = new Unconstrained();
-		super.clone(u);
-		return u;
-	}
-
-	public Document getManeuverAsDocument(String rootElementName) {
-	    Document document = DocumentHelper.createDocument();
-	    Element root = document.addElement( rootElementName );
-	    root.addAttribute("kind", "manual");    
-	    return document;
-	}
-
-	@Override
-	public void parseIMCMessage(IMCMessage message) {
-		setCustomSettings(message.getTupleList("custom"));
-	}
-	
-	public IMCMessage serializeToIMC() {
-	    Teleoperation teleop = new Teleoperation();
-	    teleop.setCustom(getCustomSettings());		
-		return teleop;
-	}
+    /**
+     * @param planEditor
+     * @param originalPlan
+     * @param newPlan
+     */
+    public PlanVehiclesChange(PlanEditor planEditor, PlanType originalPlan, PlanType newPlan) {
+        super(planEditor, originalPlan, newPlan);
+        originalVehicles += originalPlan.getVehicles().stream().map(v -> v.getName()).collect(Collectors.joining(", "));
+        newVehicles += newPlan.getVehicles().stream().map(v -> v.getName()).collect(Collectors.joining(", "));
+    }
+    
+    @Override
+    public String getPresentationName() {
+        return I18n.textf("Change plan vehicles from \"%origVehicles\" to \"%newVehicles\"", originalVehicles,
+                newVehicles);
+    }
 }

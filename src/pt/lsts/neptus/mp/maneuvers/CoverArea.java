@@ -378,7 +378,7 @@ public class CoverArea extends Maneuver implements LocatedManeuver, ManeuverWith
      * @see pt.lsts.neptus.mp.Maneuver#loadFromXML(java.lang.String)
      */
     @Override
-    public void loadFromXML(String xml) {
+    public void loadManeuverFromXML(String xml) {
         try {
             Document doc = DocumentHelper.parseText(xml);
             Node node = doc.selectSingleNode(getType()+"/finalPoint/point");
@@ -584,7 +584,7 @@ public class CoverArea extends Maneuver implements LocatedManeuver, ManeuverWith
         String ccmanXML = compc.getManeuverAsDocument("CoverArea").asXML();
         System.out.println(FileUtil.getAsPrettyPrintFormatedXMLString(ccmanXML));
         CoverArea compc1 = new CoverArea();
-        compc1.loadFromXML(ccmanXML);
+        compc1.loadManeuverFromXML(ccmanXML);
         ccmanXML = compc1.getManeuverAsDocument("CoverArea").asXML();
         System.out.println(FileUtil.getAsPrettyPrintFormatedXMLString(ccmanXML));
     }
