@@ -91,7 +91,7 @@ public class PlanChanged extends AbstractUndoableEdit {
         }
         catch (Exception e) {
             NeptusLog.pub().warn(e);
-            throw new CannotUndoException();
+            throw new CannotRedoException();
         }
     }
 }
