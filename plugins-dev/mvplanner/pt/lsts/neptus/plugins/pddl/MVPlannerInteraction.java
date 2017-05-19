@@ -50,7 +50,6 @@ import java.util.List;
 import java.util.Vector;
 
 import javax.swing.JFileChooser;
-import javax.swing.JLabel;
 import javax.swing.JPopupMenu;
 import javax.swing.ProgressMonitor;
 
@@ -87,7 +86,8 @@ import pt.lsts.neptus.util.GuiUtils;
  * @author zp
  *
  */
-@PluginDescription(name = "Multi-Vehicle Planner Interaction", icon = "pt/lsts/neptus/plugins/pddl/wizard.png")
+@PluginDescription(name = "Multi-Vehicle Planner Interaction", icon = "pt/lsts/neptus/plugins/pddl/wizard.png",
+description="This plug-in uses LPG for multi-vehicle task allocation")
 public class MVPlannerInteraction extends ConsoleInteraction {
 
     private static final File TASKS_FILE = new File("conf/mvplanner.tasks");
