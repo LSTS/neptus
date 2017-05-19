@@ -235,7 +235,7 @@ public class PlanElementsFactory {
             configureMethod.invoke(pe, args == null ? new String[0] : args);
         }
         catch (Exception e) {
-            if (args == null || args.length == 0)
+            if (args == null)
                 NeptusLog.pub().error(e);
             else
                 NeptusLog.pub().warn(e);
