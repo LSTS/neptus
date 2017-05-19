@@ -277,7 +277,8 @@ public class LocationType implements XmlOutputMethods, Serializable, Comparable<
      * @return Returns the latitude.
      */
     public String getLatitudeStr() {
-        return CoordinateUtil.dmsToLatString(CoordinateUtil.decimalDegreesToDMS(Math.toDegrees(latitudeRads)));
+        //return CoordinateUtil.dmsToLatString(CoordinateUtil.decimalDegreesToDMS(Math.toDegrees(latitudeRads)));
+        return CoordinateUtil.latitudeAsPrettyString(getLatitudeDegs());
     }
 
     /**
@@ -323,7 +324,8 @@ public class LocationType implements XmlOutputMethods, Serializable, Comparable<
      * @return Returns the longitude.
      */
     public String getLongitudeStr() {
-        return CoordinateUtil.dmsToLonString(CoordinateUtil.decimalDegreesToDMS(getLongitudeDegs()));
+        // return CoordinateUtil.dmsToLonString(CoordinateUtil.decimalDegreesToDMS(getLongitudeDegs()));
+        return CoordinateUtil.longitudeAsPrettyString(getLongitudeDegs());
     }
 
     /**
@@ -1302,5 +1304,13 @@ public class LocationType implements XmlOutputMethods, Serializable, Comparable<
         
         
         LocationTypeTest();
+        
+        for (LatLonFormatEnum lp : LatLonFormatEnum.values()) {
+            GeneralPreferences.latLonPrefFormat = lp;
+            System.out.println("for >> " + lp.toString());
+            System.out.println(loc.getClipboardText());
+            System.out.println(loc.fromClipboardText(loc.getClipboardText()));
+            System.out.println(loc.getClipboardText());
+        }
     }
 }
