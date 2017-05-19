@@ -109,6 +109,7 @@ import pt.lsts.neptus.console.plugins.planning.edit.ManeuverPropertiesPanel;
 import pt.lsts.neptus.console.plugins.planning.edit.ManeuverRemoved;
 import pt.lsts.neptus.console.plugins.planning.edit.ManeuverTranslated;
 import pt.lsts.neptus.console.plugins.planning.edit.PlanElementChanged;
+import pt.lsts.neptus.console.plugins.planning.edit.PlanPayloadSettingsChange;
 import pt.lsts.neptus.console.plugins.planning.edit.PlanRotated;
 import pt.lsts.neptus.console.plugins.planning.edit.PlanSettingsChanged;
 import pt.lsts.neptus.console.plugins.planning.edit.PlanTransitionsChanged;
@@ -1337,6 +1338,10 @@ public class PlanEditor extends InteractionAdapter implements Renderer2DPainter,
                         setEditorFactory(PropertiesEditor.getPropertyEditorRegistry());
                         setRendererFactory(PropertiesEditor.getPropertyRendererRegistry());
                     }};
+                    
+                    private String beforeStartActions = plan.getStartActions().asDocument("startActions").asXML();
+                    private String beforeEndActions = plan.getEndActions().asDocument("endActions").asXML();
+                    
                     private PlanPayloadConfig payloadConfig = new PlanPayloadConfig(plan.getVehicle(), plan,
                             psp);
                     private DefaultProperty[] properties = payloadConfig.getProperties();
@@ -1364,6 +1369,10 @@ public class PlanEditor extends InteractionAdapter implements Renderer2DPainter,
                                 "<html>" + I18n.text("Plan Payload Settings"));
                         if (propertySheetDialog.ask()) {
                             payloadConfig.setProperties(properties);
+                            
+                            PlanPayloadSettingsChange ppsc = new PlanPayloadSettingsChange(plan, beforeStartActions,
+                                    beforeEndActions);
+                            manager.addEdit(ppsc);
                         }
                     }
                 };
