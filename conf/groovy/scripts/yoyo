@@ -25,8 +25,8 @@ plan_popup.with{
 	addToConsole()
 }
 
-while(System.currentTimeMillis()-start!=treshold) {
-	println "Got here"
+while(System.currentTimeMillis()-start<treshold) {
+	//println "Got here"
 	println "Distance: "+plan_yoyo.location.distance(lastPosition)
 	if(plan_yoyo.location.distance(lastPosition)>=200){ //meters
 		plan_popup.locate lastPosition

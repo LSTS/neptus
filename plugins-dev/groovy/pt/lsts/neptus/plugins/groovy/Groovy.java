@@ -38,9 +38,7 @@ import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileReader;
-
 import java.io.IOException;
-
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
@@ -51,6 +49,7 @@ import javax.swing.Action;
 import javax.swing.JButton;
 import javax.swing.JFileChooser;
 import javax.swing.JPanel;
+import javax.swing.JProgressBar;
 
 import org.codehaus.groovy.control.CompilerConfiguration;
 import org.codehaus.groovy.control.customizers.ImportCustomizer;
@@ -94,7 +93,6 @@ import pt.lsts.neptus.util.ImageUtils;
 @Popup(pos = POSITION.RIGHT, width=500, height=500, accelerator='y')
 @SuppressWarnings("serial")
 public class Groovy extends ConsolePanel {
-
     private JButton openButton,stopScript,runScript;
     //Collections used to make Map thread safe
     private Map<String,VehicleType> vehicles = Collections.synchronizedMap(new HashMap<>()); 
@@ -127,9 +125,9 @@ public class Groovy extends ConsolePanel {
 //            this.vehicles.put(vec.getName(),VehiclesHolder.getVehicleById(vec.getName()));
         this.binds.setVariable("plans", getConsole().getMission().getIndividualPlansList());
         
-        PlanType pt = getConsole().getMission().getIndividualPlansList().get("");
-                PlanUtil.getPlanWaypoints(pt); //TODO
-                //        this.plans.putAll(getConsole().getMission().getIndividualPlansList());
+//      PlanType pt = getConsole().getMission().getIndividualPlansList().get("");
+//      PlanUtil.getPlanWaypoints(pt); //TODO
+//      this.plans.putAll(getConsole().getMission().getIndividualPlansList());
        
         //POI/MarkElement
         for( MarkElement mark:MapGroup.getMapGroupInstance(getConsole().getMission()).getAllObjectsOfType(MarkElement.class)){
@@ -236,7 +234,7 @@ public class Groovy extends ConsolePanel {
         openButton = new JButton(selectAction); 
         stopScript = new JButton(stopAction);
         runScript = new JButton(runAction);
-
+        
         bottom.add(openButton);
         bottom.add(runScript);
         bottom.add(stopScript);

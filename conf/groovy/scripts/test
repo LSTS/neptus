@@ -1,0 +1,7 @@
+def plan = new Plan(console)
+plan.planName "test"
+plan.goTo location:home
+
+plan.popup()
+
+plan.addToConsole()

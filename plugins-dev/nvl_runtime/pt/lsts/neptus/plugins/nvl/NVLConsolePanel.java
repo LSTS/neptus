@@ -32,11 +32,18 @@
 // */
 package pt.lsts.neptus.plugins.nvl;
 
+import java.awt.BorderLayout;
+import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.io.File;
 
 import javax.swing.AbstractAction;
+import javax.swing.BorderFactory;
 import javax.swing.JButton;
+import javax.swing.JPanel;
+import javax.swing.JProgressBar;
+import javax.swing.SwingConstants;
+import javax.swing.border.Border;
 
 import com.google.common.eventbus.Subscribe;
 
@@ -52,7 +59,6 @@ import pt.lsts.neptus.plugins.Popup;
 @Popup(pos = Popup.POSITION.BOTTOM_RIGHT, width=300, height=300)
 @SuppressWarnings("serial")
 public class NVLConsolePanel extends ConsolePanel {
-
     
     public NVLConsolePanel(ConsoleLayout layout) {
         super(layout);
@@ -71,6 +77,9 @@ public class NVLConsolePanel extends ConsolePanel {
     }
     
     private void test() {
+        
+        JProgressBar progressBar = new JProgressBar(SwingConstants.HORIZONTAL);
+        Border border = BorderFactory.createTitledBorder("Testing...");
         JButton testButton = new JButton(
                 new AbstractAction(I18n.text("Test!")) {
                     @Override
@@ -80,8 +89,23 @@ public class NVLConsolePanel extends ConsolePanel {
                         }).start();
                     }
                 });
-
-        add(testButton);
+        
+        
+        JPanel holder = new JPanel(new BorderLayout(1, 1));
+//        JPanel grid = new JPanel(new GridLayout(2, 0));
+        progressBar.setValue(0);
+        progressBar.setStringPainted(true);
+        progressBar.setBorder(border);
+        holder.add(progressBar,BorderLayout.SOUTH);
+        holder.add(testButton,BorderLayout.CENTER);
+//        grid.add(progressBar,BorderLayout.SOUTH);
+//        grid.add(testButton,BorderLayout.CENTER);
+        add(holder,BorderLayout.CENTER);
+        
+        
+       
+        
+        
 
     }
 
