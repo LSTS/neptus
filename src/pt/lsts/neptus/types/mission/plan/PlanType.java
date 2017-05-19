@@ -180,6 +180,12 @@ public class PlanType implements XmlOutputMethods, PropertiesProvider, NameId {
      * @see pt.lsts.neptus.types.mission.plan.AbstractPlanType#load(java.lang.String)
      */
     public boolean load(String xml) {
+        // Clear data
+        vehicles.clear();
+        graph = null;
+        startActions.clearMessages();
+        endActions.clearMessages();
+
         try {
             Document doc = DocumentHelper.parseText(xml);
             this.setId(((Attribute)doc.selectSingleNode("/node()/@id")).getStringValue());
