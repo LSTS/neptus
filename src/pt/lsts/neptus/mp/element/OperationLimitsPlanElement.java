@@ -46,7 +46,7 @@ import pt.lsts.neptus.types.coord.LocationType;
  *
  */
 @PluginDescription
-public class OperationLimitsPlanElement implements IPlanElement<OperationLimits> {
+public class OperationLimitsPlanElement implements IPlanElement<OperationLimits>, Renderer2DPainter {
 
     private OperationLimits limits = new OperationLimits();
     
@@ -126,21 +126,23 @@ public class OperationLimitsPlanElement implements IPlanElement<OperationLimits>
      */
     @Override
     public Renderer2DPainter getPainter() {
-        Renderer2DPainter painter = getElement() != null ? getElement() : new Renderer2DPainter() {
-            @Override
-            public void paint(Graphics2D g, StateRenderer2D renderer) {
-                boolean ed = limits.isEditingPainting();
-                boolean sy = limits.isShynched();
-                limits.setEditingPainting(false);
-                limits.setShynched(true);
-                limits.paint(g, renderer);
-                limits.setEditingPainting(ed);
-                limits.setShynched(sy);
-            }
-        };
-        return painter;
+        return this;
     }
-    
+
+    @Override
+    public void paint(Graphics2D g, StateRenderer2D renderer) {
+        if (limits == null)
+            return;
+        
+        boolean ed = limits.isEditingPainting();
+        boolean sy = limits.isShynched();
+        limits.setEditingPainting(false);
+        limits.setShynched(true);
+        limits.paint(g, renderer);
+        limits.setEditingPainting(ed);
+        limits.setShynched(sy);
+    }
+
     /* (non-Javadoc)
      * @see pt.lsts.neptus.mp.element.IPlanElement#translate(double, double, double)
      */
