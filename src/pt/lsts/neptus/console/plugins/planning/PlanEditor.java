@@ -1295,6 +1295,7 @@ public class PlanEditor extends InteractionAdapter implements Renderer2DPainter,
                             PlanType newPlan = plan.clonePlan();
                             PlanUtil.changePlanVehiclesAndAdjustSettings(newPlan, vts);
                             PlanChanged pce = new PlanChanged(PlanEditor.this, plan, newPlan);
+                            pce.redo(); // To clear gui and references
                             manager.addEdit(pce);
                         }
                     };
