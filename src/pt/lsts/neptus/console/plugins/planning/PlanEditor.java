@@ -795,6 +795,7 @@ public class PlanEditor extends InteractionAdapter implements Renderer2DPainter,
         overlay = null;
         sdp = null;
 
+        getPropertiesPanel().setManeuver(null);
         getPropertiesPanel().setManager(null);
         parsePlan();
         planElem = new PlanElement(mapGroup, new MapType());
@@ -803,6 +804,7 @@ public class PlanEditor extends InteractionAdapter implements Renderer2DPainter,
         planElem.setTransp2d(1.0);
         planElem.setPlan(plan);
         controls.setBorder(new TitledBorder(I18n.textf("Editing %planName", plan.getId())));
+        getPropertiesPanel().setPlan(plan);
     }
 
     private void parsePlan() {
@@ -1290,13 +1292,9 @@ public class PlanEditor extends InteractionAdapter implements Renderer2DPainter,
                             if (!changed)
                                 return;
                             
-                            String beforeXml = plan.asXML();
-                            
-                            // plan.setVehicles(vts);
-                            PlanUtil.changePlanVehiclesAndAdjustSettings(plan, vts);
-                            
-                            String afterXml = plan.asXML();
-                            PlanChanged pce = new PlanChanged(plan, beforeXml, afterXml);
+                            PlanType newPlan = plan.clonePlan();
+                            PlanUtil.changePlanVehiclesAndAdjustSettings(newPlan, vts);
+                            PlanChanged pce = new PlanChanged(PlanEditor.this, plan, newPlan);
                             manager.addEdit(pce);
                         }
                     };

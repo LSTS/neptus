@@ -37,6 +37,7 @@ import javax.swing.undo.CannotRedoException;
 import javax.swing.undo.CannotUndoException;
 
 import pt.lsts.neptus.NeptusLog;
+import pt.lsts.neptus.console.plugins.planning.PlanEditor;
 import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.types.mission.plan.PlanType;
 
@@ -47,14 +48,14 @@ import pt.lsts.neptus.types.mission.plan.PlanType;
 public class PlanChanged extends AbstractUndoableEdit {
 
     private static final long serialVersionUID = 1L;
-    protected PlanType plan;
-    protected String beforeXml;
-    protected String afterXml;
+    protected PlanEditor planEditor;
+    protected PlanType originalPlan;
+    protected PlanType newPlan;
     
-    public PlanChanged(PlanType plan, String beforeXml, String afterXml) {
-        this.plan = plan;
-        this.beforeXml = beforeXml;
-        this.afterXml = afterXml;
+    public PlanChanged(PlanEditor planEditor, PlanType originalPlan, PlanType newPlan) {
+        this.planEditor = planEditor;
+        this.originalPlan = originalPlan;
+        this.newPlan = newPlan;
     }
 
     @Override
@@ -75,7 +76,7 @@ public class PlanChanged extends AbstractUndoableEdit {
     @Override
     public void undo() throws CannotUndoException {
         try {
-            plan.load(beforeXml);
+            planEditor.setPlan(originalPlan);
         }
         catch (Exception e) {
             NeptusLog.pub().warn(e);
@@ -86,7 +87,7 @@ public class PlanChanged extends AbstractUndoableEdit {
     @Override
     public void redo() throws CannotRedoException {
         try {
-            plan.load(afterXml);
+            planEditor.setPlan(newPlan);
         }
         catch (Exception e) {
             NeptusLog.pub().warn(e);
