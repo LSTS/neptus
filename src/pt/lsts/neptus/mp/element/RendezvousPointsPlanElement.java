@@ -46,7 +46,7 @@ import pt.lsts.neptus.types.coord.LocationType;
  *
  */
 @PluginDescription
-public class RendezvousPointsPlanElement implements IPlanElement<RendezvousPoints> {
+public class RendezvousPointsPlanElement implements IPlanElement<RendezvousPoints>, Renderer2DPainter {
 
     private RendezvousPoints points = new RendezvousPoints();
     
@@ -126,16 +126,18 @@ public class RendezvousPointsPlanElement implements IPlanElement<RendezvousPoint
      */
     @Override
     public Renderer2DPainter getPainter() {
-        Renderer2DPainter painter = getElement() != null ? getElement() : new Renderer2DPainter() {
-            @Override
-            public void paint(Graphics2D g, StateRenderer2D renderer) {
-                boolean ed = points.isEditing();
-                points.setEditing(false);
-                points.paint(g, renderer);
-                points.setEditing(ed);
-            }
-        };
-        return painter;
+        return this;
+    }
+
+    @Override
+    public void paint(Graphics2D g, StateRenderer2D renderer) {
+        if (points == null)
+            return;
+
+        boolean ed = points.isEditing();
+        points.setEditing(false);
+        points.paint(g, renderer);
+        points.setEditing(ed);
     }
     
     /* (non-Javadoc)
