@@ -1058,14 +1058,14 @@ public class RhodamineOilVisualizer extends ConsoleLayer implements Configuratio
         // Time
         if (pt.getTimeMillis() > 0 && pt.getTimeMillis() < oldestTimestamp) {// && pt.getTimestamp() > minDate) {
             oldestTimestamp = pt.getTimeMillis();
-            timeSlider.setMinimum((int)(oldestTimestamp / timeStampSliderScale));
-            updateTimeSliderTime();
+//            timeSlider.setMinimum((int)(oldestTimestamp / timeStampSliderScale));
+//            updateTimeSliderTime();
         }
         if (pt.getTimeMillis() > 0 && pt.getTimeMillis() > newestTimestamp) {
             newestTimestampSelection = newestTimestamp = pt.getTimeMillis();
-            timeSlider.setMaximum((int)(newestTimestamp / timeStampSliderScale));
-            timeSlider.setUpperValue((int)(newestTimestamp / timeStampSliderScale));
-            updateTimeSliderTime();
+//            timeSlider.setMaximum((int)(newestTimestamp / timeStampSliderScale));
+//            timeSlider.setUpperValue((int)(newestTimestamp / timeStampSliderScale));
+//            updateTimeSliderTime();
         }
     }
 
@@ -1079,11 +1079,11 @@ public class RhodamineOilVisualizer extends ConsoleLayer implements Configuratio
         // Time
         if (pt.getRhodamineDyePPB() < oldestRhod) {
             oldestRhod = pt.getRhodamineDyePPB();
-            updateRhodamineRangeTexts();
+//            updateRhodamineRangeTexts();
         }
         if (pt.getRhodamineDyePPB() > newestRhod) {
             newestRhod = pt.getRhodamineDyePPB();
-            updateRhodamineRangeTexts();
+//            updateRhodamineRangeTexts();
         }
     }
 
@@ -1100,11 +1100,11 @@ public class RhodamineOilVisualizer extends ConsoleLayer implements Configuratio
         // Time
         if (pt.getRhodamineDyePPB() * predictionScaleFactor < oldestPred) {
             oldestPred = pt.getRhodamineDyePPB() * predictionScaleFactor;
-            updatePredictionRangeTexts();
+//            updatePredictionRangeTexts();
         }
         if (pt.getRhodamineDyePPB() * predictionScaleFactor > newestPred) {
             newestPred = pt.getRhodamineDyePPB() * predictionScaleFactor;
-            updatePredictionRangeTexts();
+//            updatePredictionRangeTexts();
         }
     }
 
@@ -1115,21 +1115,44 @@ public class RhodamineOilVisualizer extends ConsoleLayer implements Configuratio
         // Depth
         if (!Double.isNaN(pt.getDepth()) && pt.getDepth() < oldestDepth) {// && pt.getTimestamp() > minDate) {
             oldestDepth = pt.getDepth();
-            depthSlider.setMinimum((int)(oldestDepth / depthSliderScale));
-            updateDepthSliderTime();
+//            depthSlider.setMinimum((int)(oldestDepth / depthSliderScale));
+//            updateDepthSliderTime();
         }
         if (!Double.isNaN(pt.getDepth())) {
             double testLowerDepth = (!Double.isNaN(pt.getDepthLower()) && pt.getDepthLower() > pt.getDepth()) ? pt
                     .getDepthLower() : pt.getDepth();
             if (testLowerDepth > newestDepth) {
                 newestDepthSelection = newestDepth = testLowerDepth;
-                depthSlider.setMaximum((int)(newestDepth / depthSliderScale));
-                depthSlider.setUpperValue((int)(newestDepth / depthSliderScale));
-                updateDepthSliderTime();
+//                depthSlider.setMaximum((int)(newestDepth / depthSliderScale));
+//                depthSlider.setUpperValue((int)(newestDepth / depthSliderScale));
+//                updateDepthSliderTime();
             }
         }
     }
 
+    @Periodic(millisBetweenUpdates = 500)
+    public boolean updateExtraGUIValues() {
+        try {
+            timeSlider.setMinimum((int)(oldestTimestamp / timeStampSliderScale));
+            timeSlider.setMaximum((int)(newestTimestamp / timeStampSliderScale));
+            timeSlider.setUpperValue((int)(newestTimestamp / timeStampSliderScale));
+            updateTimeSliderTime();
+
+            updateRhodamineRangeTexts();
+
+            updatePredictionRangeTexts();
+            
+            depthSlider.setMinimum((int)(oldestDepth / depthSliderScale));
+            depthSlider.setMaximum((int)(newestDepth / depthSliderScale));
+            depthSlider.setUpperValue((int)(newestDepth / depthSliderScale));
+            updateDepthSliderTime();
+        }
+        catch (Exception e) {
+            NeptusLog.pub().error(e.toString());
+        }
+        
+        return true;
+    }
 
     @Periodic(millisBetweenUpdates = 500)
     public boolean updateExtraGUI() {
