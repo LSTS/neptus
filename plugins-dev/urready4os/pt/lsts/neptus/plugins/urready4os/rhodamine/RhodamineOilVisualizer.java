@@ -46,6 +46,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.geom.Ellipse2D;
 import java.awt.geom.Point2D;
+import java.awt.geom.Rectangle2D;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.text.SimpleDateFormat;
@@ -53,7 +54,9 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.LongAccumulator;
 
 import javax.swing.JButton;
 import javax.swing.JDialog;
@@ -180,6 +183,7 @@ public class RhodamineOilVisualizer extends ConsoleLayer implements Configuratio
     private boolean clearColorBarImgCachRqst = false;
     
     private Ellipse2D circle = new Ellipse2D.Double(-4, -4, 8, 8);
+    private Rectangle2D diamond = new Rectangle2D.Double(-4, -4, 8, 8);
 
     private ArrayList<BaseData> dataList = new ArrayList<>(); //Collections.synchronizedList(new ArrayList<>());
     private ArrayList<BaseData> dataPredictionList = new ArrayList<>();
@@ -555,6 +559,7 @@ public class RhodamineOilVisualizer extends ConsoleLayer implements Configuratio
         }
         
         circle = new Ellipse2D.Double(-pixelSizeData / 2d, -pixelSizeData / 2d, pixelSizeData, pixelSizeData);
+        diamond = new Rectangle2D.Double(-pixelSizeData / 2d, -pixelSizeData / 2d, pixelSizeData, pixelSizeData);
         
         if (minValue > maxValue)
             minValue = maxValue;
@@ -1266,7 +1271,104 @@ public class RhodamineOilVisualizer extends ConsoleLayer implements Configuratio
         return filterTime;
     }
 
-    private void paintDataWorker(StateRenderer2D renderer, Graphics2D g2, boolean prediction, ArrayList<BaseData> dList) {
+    private void paintDataWorker(StateRenderer2D renderer, Graphics2D g, boolean prediction, ArrayList<BaseData> dList) {
+        Graphics2D g2 = (Graphics2D) g.create();
+        LocationType loc = new LocationType();
+
+        long curtime = System.currentTimeMillis();
+        
+        ArrayList<BaseData> toProcessPoints = new ArrayList<>(dList);
+        int initialPointsNumber = toProcessPoints.size();
+        LongAccumulator visiblePts = new LongAccumulator((r, i) -> r += i, 0);
+        Map<Point2D, Object[]> processedPoints = toProcessPoints.parallelStream()
+                .collect(HashMap<Point2D, Object[]>::new, (r, bp) -> {
+                    double latV = bp.getLat();
+
+                    double lonV = bp.getLon();
+
+                    if (Double.isNaN(latV) || Double.isNaN(lonV))
+                        return;
+
+                    LocationType l = new LocationType();
+                    l.setLatitudeDegs(latV);
+                    l.setLongitudeDegs(lonV);
+
+                    Point2D pt = renderer.getScreenPosition(l);
+
+                    if (!isVisibleInRender(pt, renderer))
+                        return;
+
+                    boolean validPoint = validPoint(bp, !prediction ? true : false);
+                    if (!validPoint)
+                        return;
+
+                    if (!Double.isFinite(bp.getRhodamineDyePPB()))
+                        return;
+
+                    r.put(pt, new Object[] { bp.timeMillis, bp.getRhodamineDyePPB() });
+                    visiblePts.accumulate(1);
+                }, (r, a) -> {
+                    a.keySet().stream().forEach(p -> {
+                        if (r.containsKey(p)) {
+                            Object[] rVal = r.get(p);
+                            Object[] aVal = a.get(p);
+
+                            rVal[0] = Math.max((long) rVal[0], (long) aVal[0]);
+                            rVal[1] = ((double) rVal[1] + (double) aVal[1]) / 2.;
+                        }
+                        else {
+                            r.put(p, a.get(p));
+                        }
+                    });
+                });
+
+        g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+        g2.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
+        processedPoints.keySet().parallelStream().forEach(pt -> {
+            Graphics2D gt = (Graphics2D) g2.create();
+            gt.translate(pt.getX(), pt.getY());
+            
+            Object[] values = processedPoints.get(pt);
+            long timeMillis = (long) values[0];  
+            double rhodamine = (double) values[1];  
+            
+            Color color = colorMap.getColor((rhodamine * (prediction ? predictionScaleFactor : 1) - minValue) / maxValue);
+            if (!prediction) {
+                if (curtime - timeMillis > DateTimeUtil.MINUTE * 5)
+                    color = ColorUtils.setTransparencyToColor(color, 150); // 128
+            }
+            else {
+                color = ColorUtils.setTransparencyToColor(color, 128);
+            }
+            gt.setColor(color);
+            
+            // double rot =  -renderer.getRotation();
+            // gt.rotate(rot);
+            if (!prediction) {
+                gt.fill(circle);
+            }
+            else {
+                double r= Math.PI / 4;
+                gt.rotate(r);
+                gt.fill(diamond);
+                gt.rotate(-r);
+            }
+            //gt.rotate(-rot);
+                        
+            gt.dispose();
+        });
+        
+        g2.dispose();
+        
+        if (printDebug) {
+            System.out.println(String.format("Paint%s took %s for %d points ammoung %d visible and final merged %d", 
+                    prediction ? " prediction" : "", DateTimeUtil.milliSecondsToFormatedString(
+                            System.currentTimeMillis() - curtime), initialPointsNumber, visiblePts.intValue(),
+                            processedPoints.size()));
+        }
+    }
+
+    private void paintDataWorkerOld(StateRenderer2D renderer, Graphics2D g2, boolean prediction, ArrayList<BaseData> dList) {
         LocationType loc = new LocationType();
 
         long curtime = System.currentTimeMillis();
