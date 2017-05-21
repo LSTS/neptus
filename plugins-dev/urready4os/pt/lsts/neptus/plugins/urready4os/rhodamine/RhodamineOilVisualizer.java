@@ -1024,6 +1024,8 @@ public class RhodamineOilVisualizer extends ConsoleLayer implements Configuratio
         try {
             timeSlider.setMinimum((int)(oldestTimestamp / timeStampSliderScale));
             timeSlider.setMaximum((int)(newestTimestamp / timeStampSliderScale));
+//            timeSlider.setValue(Math.max(timeSlider.getValue(), timeSlider.getMinimum()));
+//            timeSlider.setUpperValue(Math.min(timeSlider.getUpperValue(), (int)(newestTimestamp / timeStampSliderScale)));
             timeSlider.setUpperValue((int)(newestTimestamp / timeStampSliderScale));
             updateTimeSliderTime();
 
@@ -1033,6 +1035,8 @@ public class RhodamineOilVisualizer extends ConsoleLayer implements Configuratio
             
             depthSlider.setMinimum((int)(oldestDepth / depthSliderScale));
             depthSlider.setMaximum((int)(newestDepth / depthSliderScale));
+//            depthSlider.setValue(Math.max(depthSlider.getValue(), depthSlider.getMinimum()));
+//            depthSlider.setUpperValue(Math.min(depthSlider.getUpperValue(), (int)(newestDepth / depthSliderScale)));
             depthSlider.setUpperValue((int)(newestDepth / depthSliderScale));
             updateDepthSliderTime();
         }
