@@ -1280,6 +1280,7 @@ public class RhodamineOilVisualizer extends ConsoleLayer implements Configuratio
         ArrayList<BaseData> toProcessPoints = new ArrayList<>(dList);
         int initialPointsNumber = toProcessPoints.size();
         LongAccumulator visiblePts = new LongAccumulator((r, i) -> r += i, 0);
+        final int gridSpacing = pixelSizeData / 2;
         Map<Point2D, Object[]> processedPoints = toProcessPoints.parallelStream()
                 .collect(HashMap<Point2D, Object[]>::new, (r, bp) -> {
                     double latV = bp.getLat();
@@ -1294,6 +1295,11 @@ public class RhodamineOilVisualizer extends ConsoleLayer implements Configuratio
                     l.setLongitudeDegs(lonV);
 
                     Point2D pt = renderer.getScreenPosition(l);
+                    double x = pt.getX();
+                    double y = pt.getY();
+                    x = ((int) x) / gridSpacing * gridSpacing;
+                    y = ((int) y) / gridSpacing * gridSpacing;
+                    pt.setLocation(x, y);
 
                     if (!isVisibleInRender(pt, renderer))
                         return;
