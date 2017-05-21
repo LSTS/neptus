@@ -58,6 +58,9 @@ public class CSVDataParser {
     private ArrayList<BaseData> points = new ArrayList<>();
     private double invalidValue = -99999;
     
+    private long millisMaxAge = -1;
+    private long curTimeMillis = System.currentTimeMillis();
+    
     private String system;
     
     // Indexes
@@ -80,6 +83,20 @@ public class CSVDataParser {
     }
 
     /**
+     * @return the millisMaxAge
+     */
+    public long getMillisMaxAge() {
+        return millisMaxAge;
+    }
+    
+    /**
+     * @param millisMaxAge the millisMaxAge to set
+     */
+    public void setMillisMaxAge(long millisMaxAge) {
+        this.millisMaxAge = millisMaxAge;
+    }
+    
+    /**
      * @return the system
      */
     public String getSystem() {
@@ -94,38 +111,39 @@ public class CSVDataParser {
     }
     
     public boolean parse() {
-            int counter = 0;
-            try {
-                String line = reader.readLine(); 
-                while (line != null) {
-//                    System.out.println(line);
-                    int systemLineNumber = 0;
-                    int invalidValueLineNumber = 2;
-                    int colsLineNumber = 3;
-                    
-                    if (counter == systemLineNumber) {
-                        processSystem(line);
-                    }
-                    else if (counter == invalidValueLineNumber) {
-                        processNaNValue(line);
-                    } 
-                    else if (counter == colsLineNumber) {
-                        processHeaderColOrder(line);
-                    }
-                    else {
-                        // Process data
-                        processData(line);
-                    }
-                    
-                    line = reader.readLine();
-                    counter++;
+        curTimeMillis = System.currentTimeMillis();
+        int counter = 0;
+        try {
+            String line = reader.readLine(); 
+            while (line != null) {
+                //                    System.out.println(line);
+                int systemLineNumber = 0;
+                int invalidValueLineNumber = 2;
+                int colsLineNumber = 3;
+
+                if (counter == systemLineNumber) {
+                    processSystem(line);
                 }
-                return true;
+                else if (counter == invalidValueLineNumber) {
+                    processNaNValue(line);
+                } 
+                else if (counter == colsLineNumber) {
+                    processHeaderColOrder(line);
+                }
+                else {
+                    // Process data
+                    processData(line);
+                }
+
+                line = reader.readLine();
+                counter++;
             }
-            catch (Exception e) {
-                e.printStackTrace();
-                return false;
-            }
+            return true;
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
     }
 
     /**
@@ -307,6 +325,11 @@ public class CSVDataParser {
 
         if (Double.isNaN(timeSecs) || Double.isNaN(lat) || Double.isNaN(lon))
             return;
+        
+        if (millisMaxAge > 0) {
+            if (curTimeMillis - (long) (timeSecs * 1000) > millisMaxAge)
+                return;
+        }
         
         BaseData point = new BaseData(lat, lon, depth, (long) (timeSecs * 1000));
         point.setRhodamineDyePPB(rhodamine);

@@ -778,6 +778,12 @@ public class RhodamineOilVisualizer extends ConsoleLayer implements Configuratio
             CSVDataParser csv = new CSVDataParser(csvFx);
             if (printDebug)
                 System.out.println("Processing file " + csvFx.getAbsolutePath());
+            
+            if (autoCleanData) {
+                long ageMillis = dataAgeToCleanInMinutes * DateTimeUtil.MINUTE;
+                csv.setMillisMaxAge(ageMillis);
+            }
+            
             csv.parse();
             return updateValues(dataList, csv.getPoints(), true);
         }
@@ -874,17 +880,11 @@ public class RhodamineOilVisualizer extends ConsoleLayer implements Configuratio
         if (autoCleanData) {
             boolean updateValues = false;
             long curTimeMillis = System.currentTimeMillis();
+            long maxAgeMillis = dataAgeToCleanInMinutes * DateTimeUtil.MINUTE;
+            updateValues = dataList.removeIf(dp -> curTimeMillis - dp.getTimeMillis() > maxAgeMillis);
 
-            for (BaseData bd : dataList.toArray(new BaseData[dataList.size()])) {
-                if (curTimeMillis - bd.getTimeMillis() > dataAgeToCleanInMinutes * DateTimeUtil.MINUTE) {
-                    dataList.remove(bd);
-                    updateValues = true;
-                }
-            }
-            
-            if (updateValues) {
+            if (updateValues)
                 recalcMinMaxValues();
-            }
             
             return updateValues;
         }
