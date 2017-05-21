@@ -1170,11 +1170,11 @@ public class RhodamineOilVisualizer extends ConsoleLayer implements Configuratio
     private void paintLegend(Graphics2D g) {
         // Legend
         Graphics2D gl = (Graphics2D) g.create();
-        gl.translate(10, 35);
-        gl.setColor(Color.BLACK);
+        gl.translate(10-3, 35+5);
+        gl.setColor(Color.WHITE);
         gl.drawString(getName(), 0, 0); // (int)pt.getX()+17, (int)pt.getY()+2
         gl.translate(1, 1);
-        gl.setColor(Color.WHITE);
+        gl.setColor(Color.BLACK);
         gl.drawString(getName(), 0, 0); // (int)pt.getX()+17, (int)pt.getY()+2
         gl.dispose();
     }
@@ -1202,23 +1202,29 @@ public class RhodamineOilVisualizer extends ConsoleLayer implements Configuratio
             g2.translate(-10, -15);
 
             try {
-                g2.setColor(Color.BLACK);
-                g2.drawString(GuiUtils.getNeptusDecimalFormat(1).format(maxValue), 28, 20);
                 g2.setColor(Color.WHITE);
-                g2.drawString(GuiUtils.getNeptusDecimalFormat(1).format(maxValue), 29, 21);
+                g2.drawString(GuiUtils.getNeptusDecimalFormat(1).format(maxValue), 28, 20+5);
                 g2.setColor(Color.BLACK);
+                g2.drawString(GuiUtils.getNeptusDecimalFormat(1).format(maxValue), 29, 21+5);
+                g2.setColor(Color.WHITE);
                 g2.drawString(GuiUtils.getNeptusDecimalFormat(1).format(maxValue / 2), 28, 60);
-                g2.setColor(Color.WHITE);
-                g2.drawString(GuiUtils.getNeptusDecimalFormat(1).format(maxValue / 2), 29, 61);
                 g2.setColor(Color.BLACK);
-                g2.drawString(GuiUtils.getNeptusDecimalFormat(1).format(minValue), 28, 100);
+                g2.drawString(GuiUtils.getNeptusDecimalFormat(1).format(maxValue / 2), 29, 61);
                 g2.setColor(Color.WHITE);
-                g2.drawString(GuiUtils.getNeptusDecimalFormat(1).format(minValue), 29, 101);
+                g2.drawString(GuiUtils.getNeptusDecimalFormat(1).format(minValue), 28, 100-10);
+                g2.setColor(Color.BLACK);
+                g2.drawString(GuiUtils.getNeptusDecimalFormat(1).format(minValue), 29, 101-10);
             }
             catch (Exception e) {
                 NeptusLog.pub().error(e);
                 e.printStackTrace();
             }
+            
+            g2.setColor(Color.WHITE);
+            g2.drawString("ppb", 10, 105);
+            g2.setColor(Color.BLACK);
+            g2.drawString("ppb", 10, 106);
+
             g2.dispose();
         }
         offScreenImageControlColorBar.paintPhaseEndFinishImageRecreateAndPaintImageCacheToRenderer(g, renderer);
