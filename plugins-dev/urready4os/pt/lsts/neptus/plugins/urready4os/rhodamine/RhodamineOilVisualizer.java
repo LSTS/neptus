@@ -111,15 +111,6 @@ import pt.lsts.neptus.util.conf.IntegerMinMaxValidator;
 @LayerPriority(priority = -50)
 public class RhodamineOilVisualizer extends ConsoleLayer implements ConfigurationListener {
 
-//    @NeptusProperty(name = "Show rhodamine dye", userLevel = LEVEL.REGULAR, category="Visibility", editable = false)
-//    private boolean showRhodamine = true;
-//
-//    @NeptusProperty(name = "Show crude oil", userLevel = LEVEL.REGULAR, category="Visibility", editable = false)
-//    private boolean showCrudeOil = false;
-//
-//    @NeptusProperty(name = "Show refine oil", userLevel = LEVEL.REGULAR, category="Visibility", editable = false)
-//    private boolean showRefineOil = false;
-    
     @NeptusProperty(name = "Minimum value", userLevel = LEVEL.REGULAR, category="Scale")
     private double minValue = 0;
 
@@ -152,9 +143,6 @@ public class RhodamineOilVisualizer extends ConsoleLayer implements Configuratio
     @NeptusProperty(name = "Prediction file or folder (tot or lv* files)", userLevel = LEVEL.REGULAR, category = "Prediction")
     private File predictionFile = new File("log/rhodamine-prediction");
 
-//    @NeptusProperty(name = "Show Prediction", userLevel = LEVEL.REGULAR, category = "Prediction")
-//    private boolean showPrediction = false;
-
     @NeptusProperty(name = "Prediction scale factor", userLevel = LEVEL.REGULAR, category = "Prediction")
     private double predictionScaleFactor = 100;
 
@@ -166,7 +154,10 @@ public class RhodamineOilVisualizer extends ConsoleLayer implements Configuratio
             userLevel = LEVEL.REGULAR, category = "Data Update",
             description = "If the maximum time difference allowed between EstimatedState and message data to data to be accepted.")
     private long maxDeltaTimeBetweenEstimatedStateAndMessageDataReceivedMillis = 200;
-    
+
+    @NeptusProperty(name = "Print debug", userLevel = LEVEL.ADVANCED, category = "Debug")
+    private boolean printDebug = false;
+
     private final PrevisionRhodamineConsoleLayer previsionLayer = new PrevisionRhodamineConsoleLayer();
 
     private long lastPaintMillis = -1;
@@ -652,6 +643,9 @@ public class RhodamineOilVisualizer extends ConsoleLayer implements Configuratio
         updatingFiles = true;
         long startmillis = System.currentTimeMillis();
         NeptusLog.pub().info("Start processing");
+        
+        int startDataSize = dataList.size();
+        int startPredSise = dataPredictionList.size();
 
         boolean addedNewData = false;
         try {
@@ -741,13 +735,13 @@ public class RhodamineOilVisualizer extends ConsoleLayer implements Configuratio
         }
         
         updatingFiles = false;
-        NeptusLog.pub().info(String.format("End processing. Took %s   data size %d   and prediction %d",
-                DateTimeUtil.milliSecondsToFormatedString(System.currentTimeMillis() - startmillis),
-                dataList.size(), dataPredictionList.size()));
+        NeptusLog.pub().info(String.format("End processing. Took %s  [data size %d from %d | prediction %d from %d]",
+                        DateTimeUtil.milliSecondsToFormatedString(System.currentTimeMillis() - startmillis),
+                        dataList.size() - startDataSize, dataList.size(), dataPredictionList.size() - startPredSise,
+                        dataPredictionList.size()));
         
         return true;
     }
-
 
     /**
      * @param fx
@@ -782,7 +776,8 @@ public class RhodamineOilVisualizer extends ConsoleLayer implements Configuratio
     private boolean loadDataFile(File csvFx) {
         try {
             CSVDataParser csv = new CSVDataParser(csvFx);
-            System.out.println("Processing file " + csvFx.getAbsolutePath());
+            if (printDebug)
+                System.out.println("Processing file " + csvFx.getAbsolutePath());
             csv.parse();
             return updateValues(dataList, csv.getPoints(), true);
         }
@@ -823,101 +818,6 @@ public class RhodamineOilVisualizer extends ConsoleLayer implements Configuratio
                 e.printStackTrace();
             }
         }
-    }
-
-    /**
-     * @param list
-     * @param points
-     */
-    private boolean updateValuesOld(ArrayList<BaseData> list, ArrayList<BaseData> points, boolean dataOrPrediction) {
-        boolean dataUpdated = false;
-        
-        long st = System.currentTimeMillis();
-        
-        if (autoCleanData && dataOrPrediction) {
-            boolean updateValues = false;
-            long curTimeMillis = System.currentTimeMillis();
-            for (BaseData bd : points.toArray(new BaseData[points.size()])) {
-                if (curTimeMillis - bd.getTimeMillis() > dataAgeToCleanInMinutes * DateTimeUtil.MINUTE) {
-                    points.remove(bd);
-                    updateValues = true;
-                }
-            }
-            for (BaseData bd : list.toArray(new BaseData[list.size()])) {
-                if (curTimeMillis - bd.getTimeMillis() > dataAgeToCleanInMinutes * DateTimeUtil.MINUTE) {
-                    list.remove(bd);
-                    updateValues = true;
-                }
-            }
-            
-            if (updateValues) {
-                recalcMinMaxValues();
-            }
-        }
-        
-        for (BaseData testPoint : points) {
-//            int counter = 0;
-            boolean found = false;
-            
-//            for (BaseData toTestPoint : list.toArray(new BaseData[list.size()])) {
-//                if (toTestPoint.equals(testPoint)) {
-//                    if (toTestPoint.getTimeMillis() < testPoint.getTimeMillis()) {
-//                        list.remove(counter);
-//                        list.add(counter, testPoint);
-//                        dataUpdated = true;
-//                        
-//                        if (dataOrPrediction) {
-//                            updateTimeValuesMinMax(testPoint);
-//                            updateRhodamineValuesMinMax(testPoint);
-//                        }
-//                        else {
-//                            updatePredictionValuesMinMax(testPoint);
-//                        }
-//                        updateDepthValuesMinMax(testPoint);
-//                    }
-////                    System.out.println("######### " + counter);
-//                    found = true;
-//                    break;
-//                }
-
-//            if (list.contains(testPoint))
-//                found = true;
-
-//            for (BaseData toTestPoint : list) {
-//                if (toTestPoint.equals(testPoint)) {
-//                    found = true;
-//                    break;
-//                }
-//
-////              counter++;
-//            }
-//            System.out.println("taking " +  (System.currentTimeMillis() - st) + "ms");
-            
-//            if (list.contains(testPoint))
-//                found = true;
-////            for (BaseData toTestPoint : list) {
-////                if (toTestPoint.equals(testPoint)) {
-////                    found = true;
-////                    break;
-////                }
-////            }
-            if (!found) {
-//                counter++;
-                list.add(testPoint);
-                dataUpdated = true;
-
-                if (dataOrPrediction) {
-                    updateTimeValuesMinMax(testPoint);
-                    updateRhodamineValuesMinMax(testPoint);
-                }
-                else {
-                    updatePredictionValuesMinMax(testPoint);
-                }
-                updateDepthValuesMinMax(testPoint);
-            }
-        }
-        System.out.println("List size: " + list.size() + " took: " + (System.currentTimeMillis() - st) + "ms" + (dataOrPrediction ? "" : " (prediction)"));
-        return dataUpdated;
     }
 
     private boolean updateValues(ArrayList<BaseData> list, ArrayList<BaseData> points, boolean dataOrPrediction) {
@@ -965,7 +865,8 @@ public class RhodamineOilVisualizer extends ConsoleLayer implements Configuratio
                 updateDepthValuesMinMax(testPoint);
             }
         }
-        System.out.println("List size: " + list.size() + " took: " + DateTimeUtil.milliSecondsToFormatedString(System.currentTimeMillis() - st) + (dataOrPrediction ? "" : " (prediction)"));
+        if (printDebug)
+            System.out.println("List size: " + list.size() + " took: " + DateTimeUtil.milliSecondsToFormatedString(System.currentTimeMillis() - st) + (dataOrPrediction ? "" : " (prediction)"));
         return dataUpdated;
     }
 
@@ -1008,9 +909,6 @@ public class RhodamineOilVisualizer extends ConsoleLayer implements Configuratio
         clearRhodPredMinMaxValues();
     }
 
-    /**
-     * 
-     */
     private void clearRhodPredMinMaxValues() {
         oldestRhod = Double.MAX_VALUE;
         newestRhod = 0;
