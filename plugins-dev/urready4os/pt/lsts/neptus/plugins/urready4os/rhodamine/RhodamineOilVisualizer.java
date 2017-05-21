@@ -53,6 +53,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import javax.swing.JButton;
 import javax.swing.JDialog;
@@ -834,43 +835,28 @@ public class RhodamineOilVisualizer extends ConsoleLayer implements Configuratio
         if (autoCleanData && dataOrPrediction) {
             boolean updateValues = false;
             long curTimeMillis = System.currentTimeMillis();
-            for (BaseData bd : points.toArray(new BaseData[points.size()])) {
-                if (curTimeMillis - bd.getTimeMillis() > dataAgeToCleanInMinutes * DateTimeUtil.MINUTE) {
-                    points.remove(bd);
-                    updateValues = true;
-                }
-            }
-//            for (BaseData bd : list.toArray(new BaseData[list.size()])) {
-//                if (curTimeMillis - bd.getTimeMillis() > dataAgeToCleanInMinutes * DateTimeUtil.MINUTE) {
-//                    list.remove(bd);
-//                    updateValues = true;
-//                }
-//            }
-            
-            if (updateValues) {
+            long maxAgeMillis = dataAgeToCleanInMinutes * DateTimeUtil.MINUTE;
+            updateValues = points.removeIf(dp -> curTimeMillis - dp.getTimeMillis() > maxAgeMillis);
+            if (updateValues)
                 recalcMinMaxValues();
-            }
         }
         
-        for (BaseData testPoint : points) {
-//            int counter = 0;
-            boolean found = false;
-            
-            if (!found) {
-//                counter++;
-                list.add(testPoint);
-                dataUpdated = true;
+        AtomicBoolean res = new AtomicBoolean(false);
+        points.stream().forEach(testPoint -> {
+            list.add(testPoint);
+            res.set(true);
 
-                if (dataOrPrediction) {
-                    updateTimeValuesMinMax(testPoint);
-                    updateRhodamineValuesMinMax(testPoint);
-                }
-                else {
-                    updatePredictionValuesMinMax(testPoint);
-                }
-                updateDepthValuesMinMax(testPoint);
+            if (dataOrPrediction) {
+                updateTimeValuesMinMax(testPoint);
+                updateRhodamineValuesMinMax(testPoint);
             }
-        }
+            else {
+                updatePredictionValuesMinMax(testPoint);
+            }
+            updateDepthValuesMinMax(testPoint);
+        });
+        dataUpdated = res.get();
+
         if (printDebug)
             System.out.println("List size: " + list.size() + " took: " + DateTimeUtil.milliSecondsToFormatedString(System.currentTimeMillis() - st) + (dataOrPrediction ? "" : " (prediction)"));
         return dataUpdated;
