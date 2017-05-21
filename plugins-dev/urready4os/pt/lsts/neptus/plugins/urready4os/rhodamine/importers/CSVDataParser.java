@@ -156,7 +156,7 @@ public class CSVDataParser {
         }
         catch (Exception e) {
             //% Not valid value (-1)
-            ln = ln.replaceAll("[a-zA-Z \\(\\)]", "").trim();
+            ln = ln.replaceAll("[a-zA-Z \\(\\),]", "").trim();
             invalidValue = Double.parseDouble(ln);
         }
     }
@@ -169,7 +169,7 @@ public class CSVDataParser {
         String ln = checkIfCommentLineRemoveMarkerOrThrowException(line);
         
         String[] tokens = ln.split(",");
-        if (tokens.length < 7)
+        if (tokens.length < 6)
             throwUnexpectedException();
         
         int tkCount = -1;
@@ -330,10 +330,10 @@ public class CSVDataParser {
      * @throws Exception
      */
     private String checkIfCommentLineRemoveMarkerOrThrowException(String line) throws Exception {
-        if (!line.startsWith("%"))
+        if (!line.startsWith("%") && !line.startsWith("\"%"))
             throw new Exception("Expected a commment line");
         
-        return line.replaceFirst("%", "").trim();
+        return line.replaceFirst("^\"?%", "").trim();
     }
 
     /**
