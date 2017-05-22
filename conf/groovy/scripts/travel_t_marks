@@ -4,14 +4,14 @@ ArrayList<Location> pois  = new ArrayList<>()
 
 sortedlocations.each {
     	println it.getId() 
-        //AbstractElement[] mark = MapGroup.getMapGroupInstance(console.getMission()).getObjectsFromMap(it)
         def loc = new Location(it.getLatitudeRads(),it.getLongitudeRads())
         pois.add loc 
     }
     
     new Plan(console).with{
+    	println location.latitude+" " + location.longitude
     planName "Travel-POIs"
 
-    pois.each {plan.goTo location:it}
+    pois.each {goTo location:it}
     addToConsole()
 	}    

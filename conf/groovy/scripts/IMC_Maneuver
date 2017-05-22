@@ -7,7 +7,7 @@ def p = new Plan(console).with{
 	
 	def home = Location.APDL
 	
-	setSpeed 1.5, Speed.Units.METERS_PS
+	speed 1.5, Speed.Units.METERS_PS
 	
 	def another_z = new Z(3,Z.Units.DEPTH)
 
@@ -23,7 +23,7 @@ def p = new Plan(console).with{
 	
 	skeeping location:home
 	
-	setVehicles "lauv-xplore-1"
+	vehicles "lauv-xplore-1"
 	
 	addToConsole()
 }

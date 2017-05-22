@@ -35,13 +35,15 @@ package pt.lsts.neptus.plugins.groovy;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-
 import imc_plans_dsl.DSLPlan;
 import imc_plans_dsl.Location;
 import pt.lsts.imc.PlanManeuver;
+import pt.lsts.neptus.NeptusLog;
+import pt.lsts.neptus.comm.IMCUtils;
 import pt.lsts.neptus.console.ConsoleLayout;
+import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.mp.Maneuver;
-import pt.lsts.neptus.mp.maneuvers.*;
+//import pt.lsts.neptus.mp.maneuvers.*;
 import pt.lsts.neptus.types.map.PlanUtil;
 import pt.lsts.neptus.types.mission.plan.PlanType;
 
@@ -51,7 +53,7 @@ import pt.lsts.neptus.types.mission.plan.PlanType;
  */
 public class NeptusIMCDSL extends DSLPlan {
     
-    PlanType neptusPlan;
+    private PlanType neptusPlan;
     private ConsoleLayout neptusConsole;
 
     /**
@@ -64,7 +66,9 @@ public class NeptusIMCDSL extends DSLPlan {
     public NeptusIMCDSL(ConsoleLayout c){ //constructor to facilitate script
         super("");
         neptusConsole = c;
+        //Startup by default position: APDL
         locate( new Location(c.getMission().getHomeRef().getLatitudeRads(),c.getMission().getHomeRef().getLongitudeRads()));
+
     }
     
     public NeptusIMCDSL(PlanType plan){
@@ -75,7 +79,7 @@ public class NeptusIMCDSL extends DSLPlan {
             this.locate(new Location(PlanUtil.getFirstLocation(plan).getLatitudeRads(),PlanUtil.getFirstLocation(plan).getLongitudeRads()));
         }
         catch (Exception e) {
-            // TODO Auto-generated catch block
+            NeptusLog.pub().error(I18n.text(" Error initializing the location in the IMC DSL."),e);
             e.printStackTrace();
         }
       //conversion
@@ -83,9 +87,6 @@ public class NeptusIMCDSL extends DSLPlan {
         for(Maneuver m: plan.getGraph().getAllManeuvers()){
             PlanManeuver pm = new PlanManeuver();//m.id, m, m.getStartActions(), m.getEndActions()
             pm.setManeuverId(m.id);
-//            pm.setData(data);
-//            PlanUtilities.createPlan(id, maneuvers);
-//            maneuver(m.id,m.getClass(),m.asXML("data"));
             pm.setStartActions(Arrays.asList(m.getStartActions().getAllMessages()));
             pm.setEndActions(Arrays.asList(m.getEndActions().getAllMessages()));
             mans.add(pm);
@@ -118,58 +119,61 @@ public class NeptusIMCDSL extends DSLPlan {
      * @return
      */
     private PlanType asPlanType(ConsoleLayout console) {
-        PlanType plan = new PlanType(console.getConsole().getMission());
-        String previous = null;
-        for(PlanManeuver m: this.getMans()){
-            Maneuver man;// = Maneuver.createFromXML(m.getData().asXml(true));
-            Class<? extends Maneuver> clazz = getClass(m.getData().getClass().getSimpleName());
-            try {
-                
-                man = clazz.newInstance();
-                man.setId(m.getManeuverId());
-             //   man.loadManeuverXml(m.getData().asXml(false)); //TODO or false?
-             //   man.getCustomSettings(m.getData().)
-                plan.getGraph().addManeuver(man);
-                if(man.isInitialManeuver())
-                    plan.getGraph().setInitialManeuver(man.getId());
-                else //TRANSITIONS
-                    plan.getGraph().addTransition(previous, man.getId(),man.getTransitionCondition(previous));//TODO verify this
-                previous=man.getId();
-            }
-            catch (InstantiationException | IllegalAccessException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
-            }
 
-        }
-        return plan;
+        return IMCUtils.parsePlanSpecification(console.getMission(),this.asPlanSpecification());
+        
+//        PlanType plan = new PlanType(console.getConsole().getMission());
+//        String previous = null;
+//        for(PlanManeuver m: this.getMans()){
+//            Maneuver man;// = Maneuver.createFromXML(m.getData().asXml(true));
+//            Class<? extends Maneuver> clazz = getClass(m.getData().getClass().getSimpleName());
+//            try {
+//                
+//                man = clazz.newInstance();
+//                man.setId(m.getManeuverId());
+//                IMCUtils.parseManeuver(m.getData());
+//             //   man.loadManeuverXml(m.getData().asXml(false)); //TODO or false?
+//                plan.getGraph().addManeuver(man);
+//                if(man.isInitialManeuver())
+//                    plan.getGraph().setInitialManeuver(man.getId());
+//                else //TRANSITIONS
+//                    plan.getGraph().addTransition(previous, man.getId(),man.getTransitionCondition(previous));//TODO verify this
+//                previous=man.getId();
+//            }
+//            catch (InstantiationException | IllegalAccessException e) {
+//                NeptusLog.pub().error(I18n.text("Illegal Maneuver Instantiation in the IMC DSL."),e);
+//                //e.printStackTrace();
+//            }
+//
+//        }
+//        return plan;
     }
 
     /**
      * @param name
      * @return
      */
-    private Class<?extends Maneuver> getClass(String name) {
-        if(name.equalsIgnoreCase("Goto")){
-            return Goto.class;
-        }
-        if(name.equalsIgnoreCase("Loiter"))
-            return Loiter.class;
-        if(name.equalsIgnoreCase("YoYo"))
-            return YoYo.class;
-        if(name.equalsIgnoreCase("PopUp"))
-            return PopUp.class;
-        if(name.equalsIgnoreCase("Launch"))
-            return Launch.class;
-        if(name.equalsIgnoreCase("CompassCalibration"))
-            return CompassCalibration.class;
-        if(name.equalsIgnoreCase("StationKeeping"))
-            return StationKeeping.class;
-        if(name.equalsIgnoreCase("RowsManeuver"))
-            return RowsManeuver.class;
-        
-        return null;
-    }
+//    private Class<?extends Maneuver> getClass(String name) {
+//        if(name.equalsIgnoreCase("Goto")){
+//            return Goto.class;
+//        }
+//        if(name.equalsIgnoreCase("Loiter"))
+//            return Loiter.class;
+//        if(name.equalsIgnoreCase("YoYo"))
+//            return YoYo.class;
+//        if(name.equalsIgnoreCase("PopUp"))
+//            return PopUp.class;
+//        if(name.equalsIgnoreCase("Launch"))
+//            return Launch.class;
+//        if(name.equalsIgnoreCase("CompassCalibration"))
+//            return CompassCalibration.class;
+//        if(name.equalsIgnoreCase("StationKeeping"))
+//            return StationKeeping.class;
+//        if(name.equalsIgnoreCase("RowsManeuver"))
+//            return RowsManeuver.class;
+//        
+//        return null;
+//    }
 
 
 }
