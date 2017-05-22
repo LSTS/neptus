@@ -414,29 +414,70 @@ public class RhodamineOilVisualizer extends ConsoleLayer implements Configuratio
         ActionListener al = new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                if (rhod3DPanel == null) {
-                    rhod3DPanel = new Rhodamine3DPanel();
-                    dialog3D = new JDialog(SwingUtilities.getWindowAncestor(RhodamineOilVisualizer.this.getConsole()));
-                    dialog3D.setLayout(new BorderLayout());
-                    dialog3D.add(rhod3DPanel);
-                    dialog3D.setSize(600, 400);
-                }
+                button3D.setEnabled(false);
+                SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>() {
 
-                ArrayList<BaseData> to3D = new ArrayList<>(dataList);
-                to3D.removeIf(p -> !validPoint(p, true) || !testIsValidInRenderer(p, RhodamineOilVisualizer.this.curRenderer));
+                    @Override
+                    protected Void doInBackground() throws Exception {
+                        if (rhod3DPanel == null) {
+                            rhod3DPanel = new Rhodamine3DPanel();
+                            dialog3D = new JDialog(SwingUtilities.getWindowAncestor(RhodamineOilVisualizer.this.getConsole()));
+                            dialog3D.setLayout(new BorderLayout());
+                            dialog3D.add(rhod3DPanel);
+                            dialog3D.setSize(600, 400);
+                        }
 
-                ArrayList<BaseData> tmpLst = filterPrevisionBySelTime();
-                ArrayList<BaseData> to3DPrev = new ArrayList<>(tmpLst);
-                to3DPrev.removeIf(p -> !validPoint(p, false) || !testIsValidInRenderer(p, RhodamineOilVisualizer.this.curRenderer));
+                        ArrayList<BaseData> to3D = new ArrayList<>(dataList);
+                        to3D.removeIf(p -> !validPoint(p, true) || !testIsValidInRenderer(p, RhodamineOilVisualizer.this.curRenderer));
 
-                rhod3DPanel.setUseRange(new double[] { minValue, maxValue });
+                        ArrayList<BaseData> tmpLst = filterPrevisionBySelTime();
+                        ArrayList<BaseData> to3DPrev = new ArrayList<>(tmpLst);
+                        to3DPrev.removeIf(p -> !validPoint(p, false) || !testIsValidInRenderer(p, RhodamineOilVisualizer.this.curRenderer));
+
+                        rhod3DPanel.setUseRange(new double[] { minValue, maxValue });
+                        
+                        PointCloudRhodamine[] newPointCloudRhod = RhodaminePointCloudLoader.loadRhodamineData(to3D, to3DPrev,
+                                predictionScaleFactor);
+                        rhod3DPanel.updatePointCloud(newPointCloudRhod[0], newPointCloudRhod[1]);
+
+                        return null;
+                    }
+                    
+                    /* (non-Javadoc)
+                     * @see javax.swing.SwingWorker#done()
+                     */
+                    @Override
+                    protected void done() {
+                        dialog3D.setVisible(true);
+                        dialog3D.requestFocus();
+                        button3D.setEnabled(true);
+                    }
+                };
+                worker.execute();
                 
-                PointCloudRhodamine[] newPointCloudRhod = RhodaminePointCloudLoader.loadRhodamineData(to3D, to3DPrev,
-                        predictionScaleFactor);
-                rhod3DPanel.updatePointCloud(newPointCloudRhod[0], newPointCloudRhod[1]);
-                
-                dialog3D.setVisible(true);
-                dialog3D.requestFocus();
+//                if (rhod3DPanel == null) {
+//                    rhod3DPanel = new Rhodamine3DPanel();
+//                    dialog3D = new JDialog(SwingUtilities.getWindowAncestor(RhodamineOilVisualizer.this.getConsole()));
+//                    dialog3D.setLayout(new BorderLayout());
+//                    dialog3D.add(rhod3DPanel);
+//                    dialog3D.setSize(600, 400);
+//                }
+//
+//                ArrayList<BaseData> to3D = new ArrayList<>(dataList);
+//                to3D.removeIf(p -> !validPoint(p, true) || !testIsValidInRenderer(p, RhodamineOilVisualizer.this.curRenderer));
+//
+//                ArrayList<BaseData> tmpLst = filterPrevisionBySelTime();
+//                ArrayList<BaseData> to3DPrev = new ArrayList<>(tmpLst);
+//                to3DPrev.removeIf(p -> !validPoint(p, false) || !testIsValidInRenderer(p, RhodamineOilVisualizer.this.curRenderer));
+//
+//                rhod3DPanel.setUseRange(new double[] { minValue, maxValue });
+//                
+//                PointCloudRhodamine[] newPointCloudRhod = RhodaminePointCloudLoader.loadRhodamineData(to3D, to3DPrev,
+//                        predictionScaleFactor);
+//                rhod3DPanel.updatePointCloud(newPointCloudRhod[0], newPointCloudRhod[1]);
+//                
+//                dialog3D.setVisible(true);
+//                dialog3D.requestFocus();
             }
 
             private boolean testIsValidInRenderer(BaseData p, StateRenderer2D renderer) {
