@@ -235,6 +235,7 @@ public class RhodamineOilVisualizer extends ConsoleLayer implements Configuratio
     
     private boolean updatingFiles = false;
     private boolean updatingExtraGui = false;
+    private StateRenderer2D curRenderer = null;
 
     // Extra GUI
     private String predictionTxt = I18n.text("Prediction");
@@ -421,18 +422,12 @@ public class RhodamineOilVisualizer extends ConsoleLayer implements Configuratio
                     dialog3D.setSize(600, 400);
                 }
 
-                ArrayList<BaseData> to3D = new ArrayList<>();
-                for (BaseData point : dataList.toArray(new BaseData[dataList.size()])) {
-                    if (validPoint(point, true))
-                        to3D.add(point);
-                }
+                ArrayList<BaseData> to3D = new ArrayList<>(dataList);
+                to3D.removeIf(p -> !validPoint(p, true) || !testIsValidInRenderer(p, RhodamineOilVisualizer.this.curRenderer));
 
-                ArrayList<BaseData> to3DPrev = new ArrayList<>();
                 ArrayList<BaseData> tmpLst = filterPrevisionBySelTime();
-                for (BaseData point : tmpLst) {
-                    if (validPoint(point, false))
-                        to3DPrev.add(point);
-                }
+                ArrayList<BaseData> to3DPrev = new ArrayList<>(tmpLst);
+                to3DPrev.removeIf(p -> !validPoint(p, false) || !testIsValidInRenderer(p, RhodamineOilVisualizer.this.curRenderer));
 
                 rhod3DPanel.setUseRange(new double[] { minValue, maxValue });
                 
@@ -442,6 +437,17 @@ public class RhodamineOilVisualizer extends ConsoleLayer implements Configuratio
                 
                 dialog3D.setVisible(true);
                 dialog3D.requestFocus();
+            }
+
+            private boolean testIsValidInRenderer(BaseData p, StateRenderer2D renderer) {
+                if (renderer == null)
+                    return true;
+                
+                LocationType l = new LocationType();
+                l.setLatitudeDegs(p.getLat());
+                l.setLongitudeDegs(p.getLon());
+                Point2D pt = renderer.getScreenPosition(l);
+                return isVisibleInRender(pt, curRenderer);
             }
         };
         return al;
@@ -551,6 +557,8 @@ public class RhodamineOilVisualizer extends ConsoleLayer implements Configuratio
             dialog3D.setVisible(false);
             dialog3D.dispose();
         }
+        
+        curRenderer = null;
     }
 
     private void cleanData() {
@@ -1325,14 +1333,14 @@ public class RhodamineOilVisualizer extends ConsoleLayer implements Configuratio
         //Collections.sort(tmpValLst);
         long filterTime = calcPredictionFlterTime(tmpValLst);
         
-        BaseData[] arr = tmpLst.toArray(new BaseData[tmpLst.size()]);
-        for (BaseData dpt : arr) {
-            if (dpt.timeMillis != filterTime)
-                tmpLst.remove(dpt);
-        }
+        tmpLst.removeIf(p -> {
+            if (p.timeMillis != filterTime)
+                return true;
+            return false;
+        });
+
         return tmpLst;
     }
-
 
     /**
      * @param tmpValLst
@@ -1359,8 +1367,9 @@ public class RhodamineOilVisualizer extends ConsoleLayer implements Configuratio
 
     private void paintDataWorker(StateRenderer2D renderer, Graphics2D g, boolean prediction, ArrayList<BaseData> dList) {
         Graphics2D g2 = (Graphics2D) g.create();
-        LocationType loc = new LocationType();
 
+        this.curRenderer = renderer;
+        
         long curtime = System.currentTimeMillis();
         
         ArrayList<BaseData> toProcessPoints = new ArrayList<>(dList);
