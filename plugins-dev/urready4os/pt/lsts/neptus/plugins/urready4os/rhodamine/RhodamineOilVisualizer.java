@@ -459,21 +459,21 @@ public class RhodamineOilVisualizer extends ConsoleLayer implements Configuratio
         return al;
     }
 
-    private void dataPanelSetVisible(boolean b) {
-        timeLabel.setVisible(b);
-        timeLabelValue.setVisible(b);
-        timeLabelMinValue.setVisible(b);
-        timeSlider.setVisible(b);
-        timeLabelMaxValue.setVisible(b);
+    private void dataPanelSetEnabled(boolean b) {
+        timeLabel.setEnabled(b);
+        timeLabelValue.setEnabled(b);
+        timeLabelMinValue.setEnabled(b);
+        timeSlider.setEnabled(b);
+        timeLabelMaxValue.setEnabled(b);
         sliderPanel.repaint();
     }
 
-    private void predictionPanelSetVisible(boolean b) {
-        predictionLabel.setVisible(b);
-        predictionLabelValue.setVisible(b);
-        predictionLabelMinValue.setVisible(b);
-        predictionSlider.setVisible(b);
-        predictionLabelMaxValue.setVisible(b);
+    private void predictionPanelSetEnabled(boolean b) {
+        predictionLabel.setEnabled(b);
+        predictionLabelValue.setEnabled(b);
+        predictionLabelMinValue.setEnabled(b);
+        predictionSlider.setEnabled(b);
+        predictionLabelMaxValue.setEnabled(b);
         sliderPanel.repaint();
     }
 
@@ -1113,14 +1113,14 @@ public class RhodamineOilVisualizer extends ConsoleLayer implements Configuratio
         }
 
         if (System.currentTimeMillis() - lastPaintDataMillis > 2000)
-            dataPanelSetVisible(false);
+            dataPanelSetEnabled(false);
         else
-            dataPanelSetVisible(true);
+            dataPanelSetEnabled(true);
 
         if (System.currentTimeMillis() - lastPaintPredictonMillis > 2000)
-            predictionPanelSetVisible(false);
+            predictionPanelSetEnabled(false);
         else
-            predictionPanelSetVisible(true);
+            predictionPanelSetEnabled(true);
 
         return true;
     }
