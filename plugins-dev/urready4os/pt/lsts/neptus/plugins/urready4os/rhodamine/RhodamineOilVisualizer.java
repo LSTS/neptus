@@ -234,6 +234,7 @@ public class RhodamineOilVisualizer extends ConsoleLayer implements Configuratio
     private SimpleDateFormat dateTimeFmt = new SimpleDateFormat("MM-dd HH:mm");
     
     private boolean updatingFiles = false;
+    private boolean updatingExtraGui = false;
 
     // Extra GUI
     private String predictionTxt = I18n.text("Prediction");
@@ -1118,12 +1119,11 @@ public class RhodamineOilVisualizer extends ConsoleLayer implements Configuratio
         return true;
     }
     
-    private boolean updating = false; 
     public void setupExtraGui(boolean mode, StateRenderer2D source) {
-        if (updating)
+        if (updatingExtraGui)
             return;
         
-        updating = true;
+        updatingExtraGui = true;
 
         boolean repaint = false;
         Container parent = source != null ? source.getParent() : null;
@@ -1146,7 +1146,7 @@ public class RhodamineOilVisualizer extends ConsoleLayer implements Configuratio
             parent.repaint();
         }
         
-        updating = false;
+        updatingExtraGui = false;
     }
 
     /* (non-Javadoc)
