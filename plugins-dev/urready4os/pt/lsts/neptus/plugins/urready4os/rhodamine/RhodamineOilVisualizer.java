@@ -912,6 +912,7 @@ public class RhodamineOilVisualizer extends ConsoleLayer implements Configuratio
         newestDepth = 0;
         
         clearRhodPredMinMaxValues();
+        clearTempPredMinMaxValues();
     }
 
     private void clearRhodPredMinMaxValues() {
@@ -920,6 +921,14 @@ public class RhodamineOilVisualizer extends ConsoleLayer implements Configuratio
         
         oldestPred = Double.MAX_VALUE;
         newestPred = 0;
+    }
+
+    private void clearTempPredMinMaxValues() {
+        oldestTemp = Double.MAX_VALUE;
+        newestTemp = 0;
+        
+        oldestTemp = Double.MAX_VALUE;
+        newestTemp = 0;
     }
 
     private void triggerRhodPredMinMaxValuesCalc() {
@@ -1053,8 +1062,8 @@ public class RhodamineOilVisualizer extends ConsoleLayer implements Configuratio
             
             depthSlider.setMinimum((int)(oldestDepth / depthSliderScale));
             depthSlider.setMaximum((int)(newestDepth / depthSliderScale));
-            updateSliderWithValues(timeSlider, oldestTimestamp, newestTimestamp, oldestTimestampSelection,
-                    newestTimestampSelection, timeStampSliderScale);
+            updateSliderWithValues(depthSlider, oldestDepth, newestDepth, oldestDepthSelection,
+                    newestDepthSelection, depthSliderScale);
             updateDepthSliderTime();
         }
         catch (Exception e) {
@@ -1072,8 +1081,8 @@ public class RhodamineOilVisualizer extends ConsoleLayer implements Configuratio
      * @param newestValSelection
      * @param scale
      */
-    private void updateSliderWithValues(RangeSlider slider, long oldestVal, long newestVal,
-            long oldestValSelection, long newestValSelection, long scale) {
+    private void updateSliderWithValues(RangeSlider slider, double oldestVal, double newestVal,
+            double oldestValSelection, double newestValSelection, double scale) {
         if (slider.getValueIsAdjusting())
             return;
         slider.setUpperValue((int)(newestValSelection / scale));
@@ -1083,6 +1092,11 @@ public class RhodamineOilVisualizer extends ConsoleLayer implements Configuratio
             slider.setValue(slider.getValue());
         if(slider.getUpperValue() == slider.getMinimum())
             slider.setUpperValue(slider.getUpperValue());
+        
+        if (slider.getUpperValue() == slider.getValue() && slider.getValue() == 0) {
+           slider.setValue(slider.getMinimum());
+           slider.setUpperValue(slider.getMaximum());
+        }
     }
 
     @Periodic(millisBetweenUpdates = 500)
