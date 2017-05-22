@@ -332,12 +332,24 @@ public class CSVDataParser {
         }
         
         BaseData point = new BaseData(lat, lon, depth, (long) (timeSecs * 1000));
-        point.setRhodamineDyePPB(rhodamine);
-        point.setTemperature(temperature);
-        point.setCrudeOilPPB(crudeOil);
-        point.setRefineOilPPB(refineOil);
+        point.setRhodamineDyePPB(checkForInvalidValue(rhodamine));
+        point.setTemperature(checkForInvalidValue(temperature));
+        point.setCrudeOilPPB(checkForInvalidValue(crudeOil));
+        point.setRefineOilPPB(checkForInvalidValue(refineOil));
         
         points.add(point);
+    }
+
+    /**
+     * @param value
+     * @return
+     */
+    private double checkForInvalidValue(double value) {
+        if (!Double.isFinite(value))
+            return Double.NaN;
+        if (Double.compare(value, invalidValue) == 0)
+            return Double.NaN;
+        return value;
     }
 
     /**
