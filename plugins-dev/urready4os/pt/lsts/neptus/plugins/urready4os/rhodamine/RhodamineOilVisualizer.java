@@ -277,27 +277,14 @@ public class RhodamineOilVisualizer extends ConsoleLayer implements Configuratio
     public RhodamineOilVisualizer() {
     }
 
-
     /* (non-Javadoc)
      * @see pt.lsts.neptus.console.ConsoleLayer#initLayer()
      */
     @Override
     public void initLayer() {
         offScreenImageControlColorBar.setOffScreenBufferPixel(0);
-//        try {
-//            CSVDataParser csv = new CSVDataParser(new File("test.csv"));
-//            CSVDataParser csv = new CSVDataParser(new File("log_2014-09-24_22-15.csv"));
-//            csv.parse();
-//            dataList.addAll(csv.getPoints());
-//        }
-//        catch (FileNotFoundException e) {
-//            e.printStackTrace();
-//        }
-        
         getConsole().addMapLayer(previsionLayer, false);
-        
         initGUI();
-        
         recalcMinMaxValues();
     }
 
@@ -565,10 +552,6 @@ public class RhodamineOilVisualizer extends ConsoleLayer implements Configuratio
         }
     }
 
-
-    /**
-     * 
-     */
     private void cleanData() {
         dataList.clear();
         dataReadFiles.clear();
@@ -608,9 +591,6 @@ public class RhodamineOilVisualizer extends ConsoleLayer implements Configuratio
             SwingWorker<Boolean, Void> sw = new SwingWorker<Boolean, Void>() {
                 @Override
                 protected Boolean doInBackground() throws Exception {
-//                    while (!updateValues()) {
-//                        Thread.yield();
-//                    }
                     updateValues();
                     return true;
                 }
@@ -741,19 +721,14 @@ public class RhodamineOilVisualizer extends ConsoleLayer implements Configuratio
             else if (predictionFile.exists() && predictionFile.isDirectory()) {
                 boolean reload = false;
                 fileList = FileUtil.getFilesFromDisk(predictionFile, totFilePattern);
-    //            ArrayList<File> fileAListCopy = new ArrayList<File>(Arrays.asList(fileList));
                 if (fileList != null && fileList.length > 0) {
                     for (int i = 0; i < fileList.length; i++) {
                         File totFx = fileList[i];
                         if (isLastModifiedDifferent(totFx, dataPredictionReadFiles)) {
                             reload = true;
                         }
-    //                    else {
-    //                        fileAListCopy.remove(totFx);
-    //                    }
                     }
                 }
-                //fileList = fileAListCopy.toArray(new File[fileAListCopy.size()]);
                 
                 if (reload) {
                     dataPredictionMillisPassedFromSpillMax = -1;
@@ -837,7 +812,6 @@ public class RhodamineOilVisualizer extends ConsoleLayer implements Configuratio
         }
         return false;
     }
-
 
     /**
      * @param predictionFile 
@@ -990,14 +964,9 @@ public class RhodamineOilVisualizer extends ConsoleLayer implements Configuratio
         // Time
         if (pt.getTimeMillis() > 0 && pt.getTimeMillis() < oldestTimestamp) {// && pt.getTimestamp() > minDate) {
             oldestTimestamp = pt.getTimeMillis();
-//            timeSlider.setMinimum((int)(oldestTimestamp / timeStampSliderScale));
-//            updateTimeSliderTime();
         }
         if (pt.getTimeMillis() > 0 && pt.getTimeMillis() > newestTimestamp) {
             newestTimestampSelection = newestTimestamp = pt.getTimeMillis();
-//            timeSlider.setMaximum((int)(newestTimestamp / timeStampSliderScale));
-//            timeSlider.setUpperValue((int)(newestTimestamp / timeStampSliderScale));
-//            updateTimeSliderTime();
         }
     }
 
@@ -1011,11 +980,9 @@ public class RhodamineOilVisualizer extends ConsoleLayer implements Configuratio
         // Time
         if (pt.getRhodamineDyePPB() < oldestRhod) {
             oldestRhod = pt.getRhodamineDyePPB();
-//            updateRhodamineRangeTexts();
         }
         if (pt.getRhodamineDyePPB() > newestRhod) {
             newestRhod = pt.getRhodamineDyePPB();
-//            updateRhodamineRangeTexts();
         }
     }
 
@@ -1032,11 +999,9 @@ public class RhodamineOilVisualizer extends ConsoleLayer implements Configuratio
         // Time
         if (pt.getRhodamineDyePPB() * predictionScaleFactor < oldestPred) {
             oldestPred = pt.getRhodamineDyePPB() * predictionScaleFactor;
-//            updatePredictionRangeTexts();
         }
         if (pt.getRhodamineDyePPB() * predictionScaleFactor > newestPred) {
             newestPred = pt.getRhodamineDyePPB() * predictionScaleFactor;
-//            updatePredictionRangeTexts();
         }
     }
 
@@ -1047,17 +1012,12 @@ public class RhodamineOilVisualizer extends ConsoleLayer implements Configuratio
         // Depth
         if (!Double.isNaN(pt.getDepth()) && pt.getDepth() < oldestDepth) {// && pt.getTimestamp() > minDate) {
             oldestDepth = pt.getDepth();
-//            depthSlider.setMinimum((int)(oldestDepth / depthSliderScale));
-//            updateDepthSliderTime();
         }
         if (!Double.isNaN(pt.getDepth())) {
             double testLowerDepth = (!Double.isNaN(pt.getDepthLower()) && pt.getDepthLower() > pt.getDepth()) ? pt
                     .getDepthLower() : pt.getDepth();
             if (testLowerDepth > newestDepth) {
                 newestDepthSelection = newestDepth = testLowerDepth;
-//                depthSlider.setMaximum((int)(newestDepth / depthSliderScale));
-//                depthSlider.setUpperValue((int)(newestDepth / depthSliderScale));
-//                updateDepthSliderTime();
             }
         }
     }
