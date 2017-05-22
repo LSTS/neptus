@@ -1083,9 +1083,8 @@ public class RhodamineOilVisualizer extends ConsoleLayer implements Configuratio
         try {
             timeSlider.setMinimum((int)(oldestTimestamp / timeStampSliderScale));
             timeSlider.setMaximum((int)(newestTimestamp / timeStampSliderScale));
-//            timeSlider.setValue(Math.max(timeSlider.getValue(), timeSlider.getMinimum()));
-//            timeSlider.setUpperValue(Math.min(timeSlider.getUpperValue(), (int)(newestTimestamp / timeStampSliderScale)));
-            timeSlider.setUpperValue((int)(newestTimestamp / timeStampSliderScale));
+            updateSliderWithValues(timeSlider, oldestTimestamp, newestTimestamp, oldestTimestampSelection,
+                    newestTimestampSelection, timeStampSliderScale);
             updateTimeSliderTime();
 
             updateRhodamineRangeTexts();
@@ -1094,9 +1093,8 @@ public class RhodamineOilVisualizer extends ConsoleLayer implements Configuratio
             
             depthSlider.setMinimum((int)(oldestDepth / depthSliderScale));
             depthSlider.setMaximum((int)(newestDepth / depthSliderScale));
-//            depthSlider.setValue(Math.max(depthSlider.getValue(), depthSlider.getMinimum()));
-//            depthSlider.setUpperValue(Math.min(depthSlider.getUpperValue(), (int)(newestDepth / depthSliderScale)));
-            depthSlider.setUpperValue((int)(newestDepth / depthSliderScale));
+            updateSliderWithValues(timeSlider, oldestTimestamp, newestTimestamp, oldestTimestampSelection,
+                    newestTimestampSelection, timeStampSliderScale);
             updateDepthSliderTime();
         }
         catch (Exception e) {
@@ -1104,6 +1102,27 @@ public class RhodamineOilVisualizer extends ConsoleLayer implements Configuratio
         }
         
         return true;
+    }
+
+    /**
+     * @param slider
+     * @param oldestVal
+     * @param newestVal
+     * @param oldestValSelection
+     * @param newestValSelection
+     * @param scale
+     */
+    private void updateSliderWithValues(RangeSlider slider, long oldestVal, long newestVal,
+            long oldestValSelection, long newestValSelection, long scale) {
+        if (slider.getValueIsAdjusting())
+            return;
+        slider.setUpperValue((int)(newestValSelection / scale));
+        slider.setValue((int)(oldestValSelection / scale));
+        
+        if(slider.getValue() == slider.getMaximum())
+            slider.setValue(slider.getValue());
+        if(slider.getUpperValue() == slider.getMinimum())
+            slider.setUpperValue(slider.getUpperValue());
     }
 
     @Periodic(millisBetweenUpdates = 500)
