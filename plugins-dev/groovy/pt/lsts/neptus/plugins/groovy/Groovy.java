@@ -36,6 +36,8 @@ import java.awt.BorderLayout;
 import java.awt.event.ActionEvent;
 import java.io.File;
 import java.io.IOException;
+import java.io.OutputStream;
+import java.io.PrintStream;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
@@ -48,7 +50,6 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.border.Border;
-
 import org.codehaus.groovy.control.CompilerConfiguration;
 import org.codehaus.groovy.control.customizers.ImportCustomizer;
 import org.fife.ui.rsyntaxtextarea.RSyntaxTextArea;
@@ -90,6 +91,7 @@ import pt.lsts.neptus.util.ImageUtils;
 @Popup(pos = POSITION.RIGHT, width=500, height=600, accelerator='y')
 @SuppressWarnings("serial")
 public class Groovy extends ConsolePanel {
+    private OutputStream scriptOutput;
     private JButton openButton,stopScript,runScript;
     private Border border;
     private JPanel bottom,buttons;
@@ -167,10 +169,13 @@ public class Groovy extends ConsolePanel {
             try {
                 if(thread.isAlive() && thread != null)
                     thread.interrupt();
+                if(scriptOutput!=null)
+                    scriptOutput.close();
             }
             catch (Exception e1) {
-                //e1.printStackTrace();
+                NeptusLog.pub().error(I18n.text("Error closing Groovy plugin."),e1);  
             }
+            
         }
 
     /* (non-Javadoc)
@@ -247,7 +252,9 @@ public class Groovy extends ConsolePanel {
         output.setBorder(border);
         output.setEditable(false);
         output.setVisible(true);
-        output.setText("OUTPUT GOES HERE \n\nEncher Chouriçassssss\n"); //TODO redirect engine output to printstream to textArea
+//        output.setBackground(Color.BLACK);
+//        output.setSelectedTextColor(Color.WHITE);
+        output.append("OUTPUT GOES HERE \n");
         outputPanel = new JScrollPane(output);//RSyntaxTextArea("Script Output")
         bottom.add(outputPanel, BorderLayout.SOUTH);
         add(bottom, BorderLayout.SOUTH);
@@ -271,16 +278,24 @@ public class Groovy extends ConsolePanel {
             @Override
             public void run() {
                 try {
-                    
-                    //String name = groovyScript.getName()+System.currentTimeMillis();
-                    //PrintStream scriptOutput = new PrintStream(new OutputStream)//(new FileOutputStream(new File("plugins-dev/groovy/pt/lsts/neptus/plugins/groovy/outputs/"+name)));
-                    //getBinds().setProperty("out",output);
-                    //getBinds().setVariable("result",output.toString());
+                    scriptOutput = new OutputStream() {
+                        
+                        @Override
+                        public void write(int b) throws IOException {
+                            System.out.println("Output: "+String.valueOf((char)b));
+                            output.append(String.valueOf((char)b));
+                            this.flush();
+                            output.setCaretPosition(output.getDocument().getLength());
+                        }
+                    };
+                    PrintStream ps = new PrintStream(scriptOutput);
+                    getBinds().setProperty("out",ps);
                     FileUtil.saveToFile(groovyScript.getAbsolutePath(), editor.getText());
                     if(!stopScript.isEnabled())
                         stopScript.setEnabled(true);
                     engine.run(groovyScript.getName(), binds);
                     stopScript();
+                    scriptOutput.close();
 
                 }
                 catch (Exception   e) { //CompilationFailedException | ResourceException | ScriptException
