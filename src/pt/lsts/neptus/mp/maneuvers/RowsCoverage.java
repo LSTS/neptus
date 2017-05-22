@@ -144,7 +144,7 @@ IMCSerialization, StatisticsProvider, PathProvider {
     }
 
     @Override
-    public void loadFromXML(String xml) {
+    public void loadManeuverFromXML(String xml) {
         try {
             Document doc = DocumentHelper.parseText(xml);
             
@@ -821,7 +821,7 @@ IMCSerialization, StatisticsProvider, PathProvider {
         System.out.println(XMLUtil.getAsPrettyPrintFormatedXMLString(rc.asXML().substring(39)));
 
         RowsCoverage rc1 = new RowsCoverage();
-        rc1.loadFromXML(XMLUtil.getAsPrettyPrintFormatedXMLString(rc.asXML().substring(39)));
+        rc1.loadManeuverFromXML(XMLUtil.getAsPrettyPrintFormatedXMLString(rc.asXML().substring(39)));
         PluginUtils.editPluginProperties(rc1, true);
     }
 }

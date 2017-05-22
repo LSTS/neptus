@@ -53,6 +53,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import javax.swing.JButton;
 import javax.swing.JDialog;
@@ -111,15 +112,6 @@ import pt.lsts.neptus.util.conf.IntegerMinMaxValidator;
 @LayerPriority(priority = -50)
 public class RhodamineOilVisualizer extends ConsoleLayer implements ConfigurationListener {
 
-//    @NeptusProperty(name = "Show rhodamine dye", userLevel = LEVEL.REGULAR, category="Visibility", editable = false)
-//    private boolean showRhodamine = true;
-//
-//    @NeptusProperty(name = "Show crude oil", userLevel = LEVEL.REGULAR, category="Visibility", editable = false)
-//    private boolean showCrudeOil = false;
-//
-//    @NeptusProperty(name = "Show refine oil", userLevel = LEVEL.REGULAR, category="Visibility", editable = false)
-//    private boolean showRefineOil = false;
-    
     @NeptusProperty(name = "Minimum value", userLevel = LEVEL.REGULAR, category="Scale")
     private double minValue = 0;
 
@@ -152,9 +144,6 @@ public class RhodamineOilVisualizer extends ConsoleLayer implements Configuratio
     @NeptusProperty(name = "Prediction file or folder (tot or lv* files)", userLevel = LEVEL.REGULAR, category = "Prediction")
     private File predictionFile = new File("log/rhodamine-prediction");
 
-//    @NeptusProperty(name = "Show Prediction", userLevel = LEVEL.REGULAR, category = "Prediction")
-//    private boolean showPrediction = false;
-
     @NeptusProperty(name = "Prediction scale factor", userLevel = LEVEL.REGULAR, category = "Prediction")
     private double predictionScaleFactor = 100;
 
@@ -166,7 +155,10 @@ public class RhodamineOilVisualizer extends ConsoleLayer implements Configuratio
             userLevel = LEVEL.REGULAR, category = "Data Update",
             description = "If the maximum time difference allowed between EstimatedState and message data to data to be accepted.")
     private long maxDeltaTimeBetweenEstimatedStateAndMessageDataReceivedMillis = 200;
-    
+
+    @NeptusProperty(name = "Print debug", userLevel = LEVEL.ADVANCED, category = "Debug")
+    private boolean printDebug = false;
+
     private final PrevisionRhodamineConsoleLayer previsionLayer = new PrevisionRhodamineConsoleLayer();
 
     private long lastPaintMillis = -1;
@@ -221,6 +213,8 @@ public class RhodamineOilVisualizer extends ConsoleLayer implements Configuratio
     
     private SimpleDateFormat dateTimeFmt = new SimpleDateFormat("MM-dd HH:mm");
     
+    private boolean updatingFiles = false;
+
     // Extra GUI
     private String predictionTxt = I18n.text("Prediction");
     private String timeTxt = I18n.text("Time");
@@ -282,9 +276,7 @@ public class RhodamineOilVisualizer extends ConsoleLayer implements Configuratio
         
         initGUI();
         
-        clearTimeAndDepthValues();
-        updateTimeAndDepthDataValues();
-        updateDepthPredictionValues();
+        recalcMinMaxValues();
     }
 
     private void initGUI() {
@@ -645,22 +637,31 @@ public class RhodamineOilVisualizer extends ConsoleLayer implements Configuratio
         clearImgCachRqst = true;
     }
 
-    private boolean updatingFiles = false;
     public boolean updateValues() {
         if (updatingFiles)
             return false;
         
         updatingFiles = true;
-        System.out.println("#########################S");
+        long startmillis = System.currentTimeMillis();
+        NeptusLog.pub().info("Start processing");
+        
+        int startDataSize = dataList.size();
+        int startPredSise = dataPredictionList.size();
 
+        boolean addedNewData = false;
         try {
-            
             File[] fileList = FileUtil.getFilesFromDisk(baseFolderForCSVFiles, csvFilePattern);
             if (fileList != null && fileList.length > 0) {
                 for (int i = (readAllOrLastOfOrderedFiles ? 0 : fileList.length -1); i < fileList.length; i++) {
                     File csvFx = fileList[i];
-                    if (isLastModifiedDifferent(csvFx, dataReadFiles))
-                        loadDataFile(csvFx);
+                    if (isLastModifiedDifferent(csvFx, dataReadFiles)) {
+                        try {
+                            addedNewData = loadDataFile(csvFx) || addedNewData;
+                        }
+                        catch (Exception e) {
+                            NeptusLog.pub().error(e.toString());
+                        }
+                    }
                 }
             }
             
@@ -671,8 +672,14 @@ public class RhodamineOilVisualizer extends ConsoleLayer implements Configuratio
                     if (fileList != null && fileList.length > 0) {
                         for (int i = (readAllOrLastOfOrderedFiles ? 0 : fileList.length -1); i < fileList.length; i++) {
                             File csvFx = fileList[i];
-                            if (isLastModifiedDifferent(csvFx, dataReadFiles))
-                                loadDataFile(csvFx);
+                            if (isLastModifiedDifferent(csvFx, dataReadFiles)) {
+                                try {
+                                    addedNewData = loadDataFile(csvFx) || addedNewData;
+                                }
+                                catch (Exception e) {
+                                    NeptusLog.pub().error(e.toString());
+                                }
+                            }
                         }
                     }
                 }
@@ -717,17 +724,25 @@ public class RhodamineOilVisualizer extends ConsoleLayer implements Configuratio
                 }
             }
             setDataPredictionMillisPassedFromSpillMax(dataPredictionMillisPassedFromSpillMax);
+            
+            
+            boolean updatedMinMaxValues = cleanupOldData();
+            if (addedNewData && !updatedMinMaxValues)
+                recalcMinMaxValues();
         }
         catch (Exception e) {
-            cleanData();
+            // cleanData();
+            NeptusLog.pub().warn(e.toString());
         }
         
         updatingFiles = false;
-        System.out.println("#########################E");
+        NeptusLog.pub().info(String.format("End processing. Took %s  [data size %d from %d | prediction %d from %d]",
+                        DateTimeUtil.milliSecondsToFormatedString(System.currentTimeMillis() - startmillis),
+                        dataList.size() - startDataSize, dataList.size(), dataPredictionList.size() - startPredSise,
+                        dataPredictionList.size()));
         
         return true;
     }
-
 
     /**
      * @param fx
@@ -753,23 +768,30 @@ public class RhodamineOilVisualizer extends ConsoleLayer implements Configuratio
         dataPredictionReadFiles.clear();
         setDataPredictionMillisPassedFromSpillMax(0);
 
-        clearTimeAndDepthValues();
-        updateTimeAndDepthDataValues();
-        updateDepthPredictionValues();
+        recalcMinMaxValues();
     }
 
     /**
      * @param csvFx
      */
-    private void loadDataFile(File csvFx) {
+    private boolean loadDataFile(File csvFx) {
         try {
             CSVDataParser csv = new CSVDataParser(csvFx);
+            if (printDebug)
+                System.out.println("Processing file " + csvFx.getAbsolutePath());
+            
+            if (autoCleanData) {
+                long ageMillis = dataAgeToCleanInMinutes * DateTimeUtil.MINUTE;
+                csv.setMillisMaxAge(ageMillis);
+            }
+            
             csv.parse();
-            updateValues(dataList, csv.getPoints(), true);
+            return updateValues(dataList, csv.getPoints(), true);
         }
-        catch (FileNotFoundException e) {
+        catch (Exception e) {
             e.printStackTrace();
         }
+        return false;
     }
 
 
@@ -805,10 +827,6 @@ public class RhodamineOilVisualizer extends ConsoleLayer implements Configuratio
         }
     }
 
-    /**
-     * @param list
-     * @param points
-     */
     private boolean updateValues(ArrayList<BaseData> list, ArrayList<BaseData> points, boolean dataOrPrediction) {
         boolean dataUpdated = false;
         
@@ -817,91 +835,55 @@ public class RhodamineOilVisualizer extends ConsoleLayer implements Configuratio
         if (autoCleanData && dataOrPrediction) {
             boolean updateValues = false;
             long curTimeMillis = System.currentTimeMillis();
-            for (BaseData bd : points.toArray(new BaseData[points.size()])) {
-                if (curTimeMillis - bd.getTimeMillis() > dataAgeToCleanInMinutes * DateTimeUtil.MINUTE) {
-                    points.remove(bd);
-                    updateValues = true;
-                }
-            }
-            for (BaseData bd : list.toArray(new BaseData[list.size()])) {
-                if (curTimeMillis - bd.getTimeMillis() > dataAgeToCleanInMinutes * DateTimeUtil.MINUTE) {
-                    list.remove(bd);
-                    updateValues = true;
-                }
-            }
-            
-            if (updateValues) {
-                clearTimeAndDepthValues();
-                updateTimeAndDepthDataValues();
-                updateDepthPredictionValues();
-            }
+            long maxAgeMillis = dataAgeToCleanInMinutes * DateTimeUtil.MINUTE;
+            updateValues = points.removeIf(dp -> curTimeMillis - dp.getTimeMillis() > maxAgeMillis);
+            if (updateValues)
+                recalcMinMaxValues();
         }
         
-        for (BaseData testPoint : points) {
-//            int counter = 0;
-            boolean found = false;
-            
-//            for (BaseData toTestPoint : list.toArray(new BaseData[list.size()])) {
-//                if (toTestPoint.equals(testPoint)) {
-//                    if (toTestPoint.getTimeMillis() < testPoint.getTimeMillis()) {
-//                        list.remove(counter);
-//                        list.add(counter, testPoint);
-//                        dataUpdated = true;
-//                        
-//                        if (dataOrPrediction) {
-//                            updateTimeValuesMinMax(testPoint);
-//                            updateRhodamineValuesMinMax(testPoint);
-//                        }
-//                        else {
-//                            updatePredictionValuesMinMax(testPoint);
-//                        }
-//                        updateDepthValuesMinMax(testPoint);
-//                    }
-////                    System.out.println("######### " + counter);
-//                    found = true;
-//                    break;
-//                }
+        AtomicBoolean res = new AtomicBoolean(false);
+        points.stream().forEach(testPoint -> {
+            list.add(testPoint);
+            res.set(true);
 
-//            if (list.contains(testPoint))
-//                found = true;
-
-//            for (BaseData toTestPoint : list) {
-//                if (toTestPoint.equals(testPoint)) {
-//                    found = true;
-//                    break;
-//                }
-//
-////              counter++;
-//            }
-//            System.out.println("taking " +  (System.currentTimeMillis() - st) + "ms");
-            
-//            if (list.contains(testPoint))
-//                found = true;
-////            for (BaseData toTestPoint : list) {
-////                if (toTestPoint.equals(testPoint)) {
-////                    found = true;
-////                    break;
-////                }
-////            }
-            if (!found) {
-//                counter++;
-                list.add(testPoint);
-                dataUpdated = true;
-
-                if (dataOrPrediction) {
-                    updateTimeValuesMinMax(testPoint);
-                    updateRhodamineValuesMinMax(testPoint);
-                }
-                else {
-                    updatePredictionValuesMinMax(testPoint);
-                }
-                updateDepthValuesMinMax(testPoint);
+            if (dataOrPrediction) {
+                updateTimeValuesMinMax(testPoint);
+                updateRhodamineValuesMinMax(testPoint);
             }
-        }
-        System.out.println("List size: " + list.size() + " took: " + (System.currentTimeMillis() - st) + "ms" + (dataOrPrediction ? "" : " (prediction)"));
+            else {
+                updatePredictionValuesMinMax(testPoint);
+            }
+            updateDepthValuesMinMax(testPoint);
+        });
+        dataUpdated = res.get();
+
+        if (printDebug)
+            System.out.println("List size: " + list.size() + " took: " + DateTimeUtil.milliSecondsToFormatedString(System.currentTimeMillis() - st) + (dataOrPrediction ? "" : " (prediction)"));
         return dataUpdated;
     }
 
+    private boolean cleanupOldData() {
+        if (autoCleanData) {
+            boolean updateValues = false;
+            long curTimeMillis = System.currentTimeMillis();
+            long maxAgeMillis = dataAgeToCleanInMinutes * DateTimeUtil.MINUTE;
+            updateValues = dataList.removeIf(dp -> curTimeMillis - dp.getTimeMillis() > maxAgeMillis);
+
+            if (updateValues)
+                recalcMinMaxValues();
+            
+            return updateValues;
+        }
+        
+        return false;
+    }
+
+    private void recalcMinMaxValues() {
+        clearTimeAndDepthValues();
+        updateTimeAndDepthDataValues();
+        updateDepthPredictionValues();
+    }
+    
     private void clearTimeAndDepthValues() {
         // Reset values
         oldestTimestamp = new Date().getTime();
@@ -913,9 +895,6 @@ public class RhodamineOilVisualizer extends ConsoleLayer implements Configuratio
         clearRhodPredMinMaxValues();
     }
 
-    /**
-     * 
-     */
     private void clearRhodPredMinMaxValues() {
         oldestRhod = Double.MAX_VALUE;
         newestRhod = 0;
@@ -963,14 +942,14 @@ public class RhodamineOilVisualizer extends ConsoleLayer implements Configuratio
         // Time
         if (pt.getTimeMillis() > 0 && pt.getTimeMillis() < oldestTimestamp) {// && pt.getTimestamp() > minDate) {
             oldestTimestamp = pt.getTimeMillis();
-            timeSlider.setMinimum((int)(oldestTimestamp / timeStampSliderScale));
-            updateTimeSliderTime();
+//            timeSlider.setMinimum((int)(oldestTimestamp / timeStampSliderScale));
+//            updateTimeSliderTime();
         }
         if (pt.getTimeMillis() > 0 && pt.getTimeMillis() > newestTimestamp) {
             newestTimestampSelection = newestTimestamp = pt.getTimeMillis();
-            timeSlider.setMaximum((int)(newestTimestamp / timeStampSliderScale));
-            timeSlider.setUpperValue((int)(newestTimestamp / timeStampSliderScale));
-            updateTimeSliderTime();
+//            timeSlider.setMaximum((int)(newestTimestamp / timeStampSliderScale));
+//            timeSlider.setUpperValue((int)(newestTimestamp / timeStampSliderScale));
+//            updateTimeSliderTime();
         }
     }
 
@@ -984,11 +963,11 @@ public class RhodamineOilVisualizer extends ConsoleLayer implements Configuratio
         // Time
         if (pt.getRhodamineDyePPB() < oldestRhod) {
             oldestRhod = pt.getRhodamineDyePPB();
-            updateRhodamineRangeTexts();
+//            updateRhodamineRangeTexts();
         }
         if (pt.getRhodamineDyePPB() > newestRhod) {
             newestRhod = pt.getRhodamineDyePPB();
-            updateRhodamineRangeTexts();
+//            updateRhodamineRangeTexts();
         }
     }
 
@@ -1005,11 +984,11 @@ public class RhodamineOilVisualizer extends ConsoleLayer implements Configuratio
         // Time
         if (pt.getRhodamineDyePPB() * predictionScaleFactor < oldestPred) {
             oldestPred = pt.getRhodamineDyePPB() * predictionScaleFactor;
-            updatePredictionRangeTexts();
+//            updatePredictionRangeTexts();
         }
         if (pt.getRhodamineDyePPB() * predictionScaleFactor > newestPred) {
             newestPred = pt.getRhodamineDyePPB() * predictionScaleFactor;
-            updatePredictionRangeTexts();
+//            updatePredictionRangeTexts();
         }
     }
 
@@ -1020,21 +999,44 @@ public class RhodamineOilVisualizer extends ConsoleLayer implements Configuratio
         // Depth
         if (!Double.isNaN(pt.getDepth()) && pt.getDepth() < oldestDepth) {// && pt.getTimestamp() > minDate) {
             oldestDepth = pt.getDepth();
-            depthSlider.setMinimum((int)(oldestDepth / depthSliderScale));
-            updateDepthSliderTime();
+//            depthSlider.setMinimum((int)(oldestDepth / depthSliderScale));
+//            updateDepthSliderTime();
         }
         if (!Double.isNaN(pt.getDepth())) {
             double testLowerDepth = (!Double.isNaN(pt.getDepthLower()) && pt.getDepthLower() > pt.getDepth()) ? pt
                     .getDepthLower() : pt.getDepth();
             if (testLowerDepth > newestDepth) {
                 newestDepthSelection = newestDepth = testLowerDepth;
-                depthSlider.setMaximum((int)(newestDepth / depthSliderScale));
-                depthSlider.setUpperValue((int)(newestDepth / depthSliderScale));
-                updateDepthSliderTime();
+//                depthSlider.setMaximum((int)(newestDepth / depthSliderScale));
+//                depthSlider.setUpperValue((int)(newestDepth / depthSliderScale));
+//                updateDepthSliderTime();
             }
         }
     }
 
+    @Periodic(millisBetweenUpdates = 500)
+    public boolean updateExtraGUIValues() {
+        try {
+            timeSlider.setMinimum((int)(oldestTimestamp / timeStampSliderScale));
+            timeSlider.setMaximum((int)(newestTimestamp / timeStampSliderScale));
+            timeSlider.setUpperValue((int)(newestTimestamp / timeStampSliderScale));
+            updateTimeSliderTime();
+
+            updateRhodamineRangeTexts();
+
+            updatePredictionRangeTexts();
+            
+            depthSlider.setMinimum((int)(oldestDepth / depthSliderScale));
+            depthSlider.setMaximum((int)(newestDepth / depthSliderScale));
+            depthSlider.setUpperValue((int)(newestDepth / depthSliderScale));
+            updateDepthSliderTime();
+        }
+        catch (Exception e) {
+            NeptusLog.pub().error(e.toString());
+        }
+        
+        return true;
+    }
 
     @Periodic(millisBetweenUpdates = 500)
     public boolean updateExtraGUI() {
@@ -1154,11 +1156,11 @@ public class RhodamineOilVisualizer extends ConsoleLayer implements Configuratio
     private void paintLegend(Graphics2D g) {
         // Legend
         Graphics2D gl = (Graphics2D) g.create();
-        gl.translate(10, 35);
-        gl.setColor(Color.BLACK);
+        gl.translate(10-3, 35+5);
+        gl.setColor(Color.WHITE);
         gl.drawString(getName(), 0, 0); // (int)pt.getX()+17, (int)pt.getY()+2
         gl.translate(1, 1);
-        gl.setColor(Color.WHITE);
+        gl.setColor(Color.BLACK);
         gl.drawString(getName(), 0, 0); // (int)pt.getX()+17, (int)pt.getY()+2
         gl.dispose();
     }
@@ -1186,23 +1188,29 @@ public class RhodamineOilVisualizer extends ConsoleLayer implements Configuratio
             g2.translate(-10, -15);
 
             try {
-                g2.setColor(Color.BLACK);
-                g2.drawString(GuiUtils.getNeptusDecimalFormat(1).format(maxValue), 28, 20);
                 g2.setColor(Color.WHITE);
-                g2.drawString(GuiUtils.getNeptusDecimalFormat(1).format(maxValue), 29, 21);
+                g2.drawString(GuiUtils.getNeptusDecimalFormat(1).format(maxValue), 28, 20+5);
                 g2.setColor(Color.BLACK);
+                g2.drawString(GuiUtils.getNeptusDecimalFormat(1).format(maxValue), 29, 21+5);
+                g2.setColor(Color.WHITE);
                 g2.drawString(GuiUtils.getNeptusDecimalFormat(1).format(maxValue / 2), 28, 60);
-                g2.setColor(Color.WHITE);
-                g2.drawString(GuiUtils.getNeptusDecimalFormat(1).format(maxValue / 2), 29, 61);
                 g2.setColor(Color.BLACK);
-                g2.drawString(GuiUtils.getNeptusDecimalFormat(1).format(minValue), 28, 100);
+                g2.drawString(GuiUtils.getNeptusDecimalFormat(1).format(maxValue / 2), 29, 61);
                 g2.setColor(Color.WHITE);
-                g2.drawString(GuiUtils.getNeptusDecimalFormat(1).format(minValue), 29, 101);
+                g2.drawString(GuiUtils.getNeptusDecimalFormat(1).format(minValue), 28, 100-10);
+                g2.setColor(Color.BLACK);
+                g2.drawString(GuiUtils.getNeptusDecimalFormat(1).format(minValue), 29, 101-10);
             }
             catch (Exception e) {
                 NeptusLog.pub().error(e);
                 e.printStackTrace();
             }
+            
+            g2.setColor(Color.WHITE);
+            g2.drawString("ppb", 10, 105);
+            g2.setColor(Color.BLACK);
+            g2.drawString("ppb", 10, 106);
+
             g2.dispose();
         }
         offScreenImageControlColorBar.paintPhaseEndFinishImageRecreateAndPaintImageCacheToRenderer(g, renderer);
@@ -1389,9 +1397,9 @@ public class RhodamineOilVisualizer extends ConsoleLayer implements Configuratio
     private boolean isVisibleInRender(Point2D sPos, StateRenderer2D renderer) {
         Dimension rendDim = renderer.getSize();
         int offScreenBufferPixel = offScreenImageControlData.getOffScreenBufferPixel();
-        if (sPos.getX() < 0 - offScreenBufferPixel && sPos.getY() < 0 - offScreenBufferPixel)
+        if (sPos.getX() < 0 - offScreenBufferPixel || sPos.getY() < 0 - offScreenBufferPixel)
             return false;
-        else if (sPos.getX() > rendDim.getWidth() + offScreenBufferPixel && sPos.getY() > rendDim.getHeight() + offScreenBufferPixel)
+        else if (sPos.getX() > rendDim.getWidth() + offScreenBufferPixel || sPos.getY() > rendDim.getHeight() + offScreenBufferPixel)
             return false;
         
         return true;

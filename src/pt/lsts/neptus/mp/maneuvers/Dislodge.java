@@ -152,8 +152,8 @@ public class Dislodge extends DefaultManeuver implements IMCSerialization {
      * @see pt.lsts.neptus.mp.maneuvers.DefaultManeuver#loadFromXML(java.lang.String)
      */
     @Override
-    public void loadFromXML(String xml) {
-        super.loadFromXML(xml);
+    public void loadManeuverFromXML(String xml) {
+        super.loadManeuverFromXML(xml);
         try {
             Document doc = DocumentHelper.parseText(xml);
             

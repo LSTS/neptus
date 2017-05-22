@@ -204,7 +204,7 @@ public class ExpandingSquarePattern extends FollowPath {
     }
 
     @Override
-    public void loadFromXML(String xml) {
+    public void loadManeuverFromXML(String xml) {
         try {
             Document doc = DocumentHelper.parseText(xml);
             Node node = doc.selectSingleNode("//basePoint/point");

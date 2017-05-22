@@ -239,7 +239,7 @@ public class RowsPattern extends FollowPath {
     }
 
     @Override
-    public void loadFromXML(String xml) {
+    public void loadManeuverFromXML(String xml) {
         // TODO FIXME 
         try {
             Document doc = DocumentHelper.parseText(xml);
