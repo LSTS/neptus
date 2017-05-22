@@ -223,6 +223,8 @@ public class RhodamineOilVisualizer extends ConsoleLayer implements Configuratio
     private double newestRhod = 0;
     private double oldestPred = Double.MAX_VALUE;
     private double newestPred = 0;
+    private double oldestTemp = Double.MAX_VALUE;
+    private double newestTemp = 0;
     
     private String rhodamineImcString = "";
     private long rhodamineImcStringMillis = -1;
@@ -241,6 +243,7 @@ public class RhodamineOilVisualizer extends ConsoleLayer implements Configuratio
     private String minTxt = I18n.text("min");
     private String maxTxt = I18n.text("max");
     private String rhoTxt = I18n.text("Rhodamine Dye");
+    private String tempTxt = I18n.text("Temperature");
 
     private JPanel sliderPanel;
 
@@ -264,6 +267,7 @@ public class RhodamineOilVisualizer extends ConsoleLayer implements Configuratio
     
     private JLabel rhodamineRangeTxt;
     private JLabel predictionRangeTxt;
+    private JLabel tempRangeTxt;
     
     // 3D GUI
     private JButton button3D;
@@ -379,6 +383,8 @@ public class RhodamineOilVisualizer extends ConsoleLayer implements Configuratio
         updateRhodamineRangeTexts();
         predictionRangeTxt = new JLabel();
         updatePredictionRangeTexts();
+        tempRangeTxt = new JLabel();
+        updateTempRangeTexts();
         
         // 3D
         button3D = new JButton(I18n.text("3D"));
@@ -387,7 +393,8 @@ public class RhodamineOilVisualizer extends ConsoleLayer implements Configuratio
         sliderPanel = new JPanel(new MigLayout("hidemode 3, wrap 6"));
         
         sliderPanel.add(rhodamineRangeTxt, "spanx 2");
-        sliderPanel.add(predictionRangeTxt, "spanx 3");
+        sliderPanel.add(predictionRangeTxt, "spanx 2");
+        sliderPanel.add(tempRangeTxt, "spanx 1");
 
         sliderPanel.add(button3D, "tag right, spany 3, wrap");
         
@@ -532,7 +539,17 @@ public class RhodamineOilVisualizer extends ConsoleLayer implements Configuratio
         }
         predictionRangeTxt.setText(predictionTxt + "[" + valMin + "; " + valMax + "] ppb");
     }
-    
+
+    private void updateTempRangeTexts() {
+        String valMin = "";
+        String valMax = "";
+        if (newestTemp >= oldestTemp) {
+            valMin = "" + MathMiscUtils.round(oldestTemp, 2);
+            valMax = "" + MathMiscUtils.round(newestTemp, 2);
+        }
+        tempRangeTxt.setText(tempTxt + "[" + valMin + "; " + valMax + "] \u00B0C");
+    }
+
     /* (non-Javadoc)
      * @see pt.lsts.neptus.console.ConsoleLayer#cleanLayer()
      */
@@ -880,6 +897,7 @@ public class RhodamineOilVisualizer extends ConsoleLayer implements Configuratio
             else {
                 updatePredictionValuesMinMax(testPoint);
             }
+            updateTempValuesMinMax(testPoint);
             updateDepthValuesMinMax(testPoint);
         });
         dataUpdated = res.get();
@@ -935,6 +953,7 @@ public class RhodamineOilVisualizer extends ConsoleLayer implements Configuratio
         
         for (BaseData pt : dataList.toArray(new BaseData[dataList.size()])) {
             updateRhodamineValuesMinMax(pt);
+            updateTempValuesMinMax(pt);
         }
 
         for (BaseData pt : dataPredictionList.toArray(new BaseData[dataPredictionList.size()])) {
@@ -942,6 +961,7 @@ public class RhodamineOilVisualizer extends ConsoleLayer implements Configuratio
         }
         
         updateRhodamineRangeTexts();
+        updateTempRangeTexts();
         updatePredictionRangeTexts();
     }
 
@@ -951,6 +971,7 @@ public class RhodamineOilVisualizer extends ConsoleLayer implements Configuratio
             updateTimeValuesMinMax(pt);
             updateDepthValuesMinMax(pt);
             updateRhodamineValuesMinMax(pt);
+            updateTempValuesMinMax(pt);
         }
     }
 
@@ -1041,6 +1062,22 @@ public class RhodamineOilVisualizer extends ConsoleLayer implements Configuratio
         }
     }
 
+    private void updateTempValuesMinMax(BaseData pt) {
+        if (pt == null)
+            return;
+        
+        if (!validPoint(pt, pt.getTemperature(), false, -1, true))
+            return;
+
+        // Time
+        if (pt.getTemperature() < oldestTemp) {
+            oldestTemp = pt.getTemperature();
+        }
+        if (pt.getTemperature() > newestTemp) {
+            newestTemp = pt.getTemperature();
+        }
+    }
+
     @Periodic(millisBetweenUpdates = 500)
     public boolean updateExtraGUIValues() {
         try {
@@ -1052,8 +1089,8 @@ public class RhodamineOilVisualizer extends ConsoleLayer implements Configuratio
             updateTimeSliderTime();
 
             updateRhodamineRangeTexts();
-
             updatePredictionRangeTexts();
+            updateTempRangeTexts();
             
             depthSlider.setMinimum((int)(oldestDepth / depthSliderScale));
             depthSlider.setMaximum((int)(newestDepth / depthSliderScale));
