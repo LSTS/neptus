@@ -1,4 +1,3 @@
-
 def initialPlan = new Plan(console,plans.get("yoyoSurvey")) //User input?
 def start = initialPlan.initialLocation()
 def waypoints = initialPlan.waypoints()
@@ -9,15 +8,16 @@ new Plan(console).with{
 	planName "YoYo_PopUp"
 	goTo location:start
 	
-	waypoint = waypoints[0]
-	
 	waypoints[1..waypoints.size-1].each(){
 		
 		yoyo location: it, payload:[[name: "Sidescan",  Range: 50]]
-		if(waypoint.distance(it)>=100){
-			waypoint = it
-			popup()
+
 		}
+	
+	def midpts = midpoints(waypoints,100)
+	midpts.each{
+		popup location:it	
 	}
-	addToConsole()
+	
+	    addToConsole()
 }

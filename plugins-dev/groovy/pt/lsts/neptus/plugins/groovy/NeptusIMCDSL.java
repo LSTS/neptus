@@ -34,6 +34,8 @@ package pt.lsts.neptus.plugins.groovy;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import imc_plans_dsl.Angle;
 import imc_plans_dsl.DSLPlan;
 import imc_plans_dsl.Location;
 import pt.lsts.neptus.NeptusLog;
@@ -82,6 +84,39 @@ public class NeptusIMCDSL extends DSLPlan {
 
     }
     
+    public List<Location> midpoints(List<Location> waypoints,int maxDist){
+        List<Location> result = new ArrayList<>();
+        int i;
+        for(i=0;i<waypoints.size()-2;i++){
+            Location wp1 = waypoints.get(i);
+            Location wp2 = waypoints.get(i+1);
+            double distance = (double) wp1.distance(wp2);
+            System.out.println("Distance= "+distance);
+            if(distance>=maxDist){
+                double aux = distance / maxDist;
+                int n = Double.valueOf(aux).intValue() -1;
+                System.out.println("N= "+n);
+                while(n-->=0){
+                    result.add(midpoint(wp1,wp2,maxDist));
+                }
+            }
+        }
+        result.add(waypoints.get(i)); //Last waypoint of the plan must be included?
+        return result;
+    }
+    
+    private Location midpoint(Location wp1,Location wp2,int maxDist){
+        double rad = (double)wp1.angle(wp2),lat,lg;
+        if(rad <0)
+            rad+=360;//rad*2 //http://www.movable-type.co.uk/scripts/latlong.html
+        
+        Location l = new Location(lat,lg);
+        
+        return l;
+    }
+        
+    
+    
     public void addToConsole(){
         
         if(neptusConsole!=null){
@@ -115,7 +150,8 @@ public class NeptusIMCDSL extends DSLPlan {
     public Location initialLocation() {
         if(neptusPlan!=null)
             try {
-                LocationType loc = PlanUtil.getFirstLocation(neptusPlan);
+                
+                LocationType loc = PlanUtil.getLocationsAsSequence(neptusPlan).firstElement().getStartLocation();//PlanUtil.getFirstLocation(neptusPlan);
                 return new Location(loc.getLatitudeRads(),loc.getLongitudeRads());
                  
             }
