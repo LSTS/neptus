@@ -102,7 +102,7 @@ public class Groovy extends ConsolePanel {
     private Map<String,PlanType> plans = Collections.synchronizedMap(new HashMap<>()); 
     private Map<String,LocationType> locations = Collections.synchronizedMap(new HashMap<>());
 //   private Map<String,PlanControlState> states = Collections.synchronizedMap(new HashMap<>());
-//    private Optional<String>  result; //bindig variable to process output in the script
+//    private Optional<StringBuilder>  result; //bindig variable to process output in the script
     private Binding binds; //verify use of @TypeChecked
     private GroovyScriptEngine engine;
     private CompilerConfiguration config;
@@ -253,7 +253,7 @@ public class Groovy extends ConsolePanel {
         output.setEditable(false);
         output.setVisible(true);
 //        output.setBackground(Color.BLACK);
-//        output.setSelectedTextColor(Color.WHITE);
+//        output.setCaretColor(Color.WHITE);
         output.append("OUTPUT GOES HERE \n");
         outputPanel = new JScrollPane(output);//RSyntaxTextArea("Script Output")
         bottom.add(outputPanel, BorderLayout.SOUTH);
@@ -261,10 +261,19 @@ public class Groovy extends ConsolePanel {
         add(scroll, BorderLayout.CENTER);
         stopScript.setEnabled(false);
         output.setVisible(true);
-
         
-        
-    }
+        scriptOutput = new OutputStream(){
+            @Override
+            public void write(int b) throws IOException {
+                //System.out.println("Output: "+String.valueOf((char)b));
+                output.append(String.valueOf((char)b));
+                this.flush();
+                output.setCaretPosition(output.getDocument().getLength());
+            }
+    };
+    PrintStream ps = new PrintStream(scriptOutput);
+    getBinds().setProperty("out",ps);
+}
     private void stopScript() {
         if(thread != null && thread.isAlive()){
             thread.interrupt();                        
@@ -278,24 +287,13 @@ public class Groovy extends ConsolePanel {
             @Override
             public void run() {
                 try {
-                    scriptOutput = new OutputStream() {
-                        
-                        @Override
-                        public void write(int b) throws IOException {
-                            System.out.println("Output: "+String.valueOf((char)b));
-                            output.append(String.valueOf((char)b));
-                            this.flush();
-                            output.setCaretPosition(output.getDocument().getLength());
-                        }
-                    };
-                    PrintStream ps = new PrintStream(scriptOutput);
-                    getBinds().setProperty("out",ps);
+                    output.setText("");
                     FileUtil.saveToFile(groovyScript.getAbsolutePath(), editor.getText());
                     if(!stopScript.isEnabled())
                         stopScript.setEnabled(true);
                     engine.run(groovyScript.getName(), binds);
                     stopScript();
-                    scriptOutput.close();
+                    
 
                 }
                 catch (Exception   e) { //CompilationFailedException | ResourceException | ScriptException
@@ -306,15 +304,14 @@ public class Groovy extends ConsolePanel {
                           thread.interrupt();
                       if(stopScript.isEnabled())
                           stopScript.setEnabled(false);
-
                       }
                   catch(ThreadDeath e){ 
                       NeptusLog.pub().info("Exiting script execution: "+groovyScript.getName());
                   }
             }
         };
+    thread.start();
 
-        thread.start();
     }
     
 

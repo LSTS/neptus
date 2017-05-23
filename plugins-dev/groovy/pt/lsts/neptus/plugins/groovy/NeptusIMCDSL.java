@@ -33,17 +33,15 @@
 package pt.lsts.neptus.plugins.groovy;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import imc_plans_dsl.DSLPlan;
 import imc_plans_dsl.Location;
-import pt.lsts.imc.PlanManeuver;
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.comm.IMCUtils;
 import pt.lsts.neptus.console.ConsoleLayout;
 import pt.lsts.neptus.i18n.I18n;
-import pt.lsts.neptus.mp.Maneuver;
-//import pt.lsts.neptus.mp.maneuvers.*;
+import pt.lsts.neptus.mp.ManeuverLocation;
+import pt.lsts.neptus.types.coord.LocationType;
 import pt.lsts.neptus.types.map.PlanUtil;
 import pt.lsts.neptus.types.mission.plan.PlanType;
 
@@ -55,7 +53,6 @@ public class NeptusIMCDSL extends DSLPlan {
     
     private PlanType neptusPlan;
     private ConsoleLayout neptusConsole;
-
     /**
      * @param id
      */
@@ -65,15 +62,15 @@ public class NeptusIMCDSL extends DSLPlan {
     
     public NeptusIMCDSL(ConsoleLayout c){ //constructor to facilitate script
         super("");
-        neptusConsole = c;
+        neptusConsole = c.getConsole();
         //Startup by default position: APDL
         locate( new Location(c.getMission().getHomeRef().getLatitudeRads(),c.getMission().getHomeRef().getLongitudeRads()));
 
     }
     
-    public NeptusIMCDSL(PlanType plan){
-        //TODO
+    public NeptusIMCDSL(ConsoleLayout c,PlanType plan){
         super(plan.getId());
+        neptusConsole = c.getConsole();
         neptusPlan = plan;
         try {
             this.locate(new Location(PlanUtil.getFirstLocation(plan).getLatitudeRads(),PlanUtil.getFirstLocation(plan).getLongitudeRads()));
@@ -82,31 +79,22 @@ public class NeptusIMCDSL extends DSLPlan {
             NeptusLog.pub().error(I18n.text(" Error initializing the location in the IMC DSL."),e);
             e.printStackTrace();
         }
-      //conversion
-        List<PlanManeuver> mans = new ArrayList<>();
-        for(Maneuver m: plan.getGraph().getAllManeuvers()){
-            PlanManeuver pm = new PlanManeuver();//m.id, m, m.getStartActions(), m.getEndActions()
-            pm.setManeuverId(m.id);
-            pm.setStartActions(Arrays.asList(m.getStartActions().getAllMessages()));
-            pm.setEndActions(Arrays.asList(m.getEndActions().getAllMessages()));
-            mans.add(pm);
-        }
-        //plan.getGraph().getAllManeuvers() plan.getGraph().getAllEdges()
-        
+
     }
+    
     public void addToConsole(){
         
         if(neptusConsole!=null){
             if(neptusPlan!=null){
-                neptusPlan.setMissionType(neptusConsole.getConsole().getMission());
-                neptusConsole.getConsole().getMission().addPlan(neptusPlan);
+                neptusPlan.setMissionType(neptusConsole.getMission());
+                neptusConsole.getMission().addPlan(neptusPlan);
         }
             else{
                 neptusPlan=this.asPlanType(neptusConsole);
                 neptusConsole.getConsole().getMission().addPlan(neptusPlan);
             }
-            neptusConsole.getConsole().getMission().save(true);
-            neptusConsole.getConsole().updateMissionListeners();
+            neptusConsole.getMission().save(true);
+            neptusConsole.updateMissionListeners();
         }
     }
     
@@ -114,13 +102,69 @@ public class NeptusIMCDSL extends DSLPlan {
        return neptusConsole;
     }
 
+    public DSLPlan getPlan(String name){
+        
+        if(neptusConsole!=null){
+           PlanType p = neptusConsole.getMission().getIndividualPlansList().get("name");
+           if(p!=null)
+               return new NeptusIMCDSL(neptusConsole,p);
+        }
+        return null;
+    }
+    
+    public Location initialLocation() {
+        if(neptusPlan!=null)
+            try {
+                LocationType loc = PlanUtil.getFirstLocation(neptusPlan);
+                return new Location(loc.getLatitudeRads(),loc.getLongitudeRads());
+                 
+            }
+            catch (Exception e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+                if(neptusConsole!=null)
+                       neptusConsole.getMainPanel(); //TODO Warn user that plan does not exists on console
+            }
+       return null;
+    }
+    
+    public List<Location> waypoints(){ 
+        //PlanUtils.planFromWaypoints(plan_id, lld_locations, speed, units);
+        //lanUtils.trajectoryPlan(plan_id, lld_locations, speed, units);
+        if(neptusConsole!=null){
+            if(neptusPlan==null)
+                neptusPlan = this.asPlanType(neptusConsole);
+            return waypointsToLocations(PlanUtil.getPlanWaypoints(neptusPlan));
+
+         }
+         return null;
+                
+    }
+
+    /**
+     * @param planWaypoints
+     * @return
+     */
+    private List<Location> waypointsToLocations(ArrayList<ManeuverLocation> planWaypoints) {
+        List<Location> result = new ArrayList<>();
+        for(ManeuverLocation loc: planWaypoints)
+            result.add(new Location(loc.getLatitudeRads(),loc.getLongitudeRads()));
+            
+        return result;
+    }
+
     /**
      * @param console
      * @return
      */
     private PlanType asPlanType(ConsoleLayout console) {
-
-        return IMCUtils.parsePlanSpecification(console.getMission(),this.asPlanSpecification());
+        if(neptusPlan!=null)
+            return IMCUtils.parsePlanSpecification(console.getMission(),IMCUtils.generatePlanSpecification(neptusPlan));
+        else
+            return IMCUtils.parsePlanSpecification(console.getMission(),this.asPlanSpecification());
+                 
+                  
+            
         
 //        PlanType plan = new PlanType(console.getConsole().getMission());
 //        String previous = null;
