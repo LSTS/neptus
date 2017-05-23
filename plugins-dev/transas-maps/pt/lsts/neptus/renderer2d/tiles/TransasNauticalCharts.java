@@ -57,7 +57,7 @@ public class TransasNauticalCharts extends TileHttpFetcher implements Configurat
 
     private static Map<String, TransasNauticalCharts> tilesMap = Collections.synchronizedMap(new HashMap<String, TransasNauticalCharts>());
 
-    private static final int MAX_LEVEL_OF_DETAIL = 17;
+    private static final int MAX_LEVEL_OF_DETAIL = 18;
     private static String BASE_URL = "http://wms.transas.com/TMS/1.0.0/TX97-transp/";
     private static String TOKEN = "9e53bcb2-01d0-46cb-8aff-512e681185a4";
 
@@ -117,6 +117,8 @@ public class TransasNauticalCharts extends TileHttpFetcher implements Configurat
         if (token.length() == 0)
             token = TOKEN;
 
+        if (levelOfDetail > 17)
+            return "http://non-existing-url.nope/";
         int max = (int)  Math.pow(2, levelOfDetail)-1;
         
         String urlGet = baseUrl + levelOfDetail + "/" + tileX + "/" + (max-tileY) + ".png?token="+token;
