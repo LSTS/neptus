@@ -49,6 +49,7 @@ import pt.lsts.neptus.plugins.PluginDescription;
 import pt.lsts.neptus.plugins.PluginUtils;
 import pt.lsts.neptus.types.mission.plan.IPlanFileExporter;
 import pt.lsts.neptus.types.mission.plan.PlanType;
+import pt.lsts.neptus.util.UnitsUtil;
 
 /**
  * @author zp
@@ -104,11 +105,11 @@ public class IverPlanExporter implements IPlanFileExporter {
     }
 
     public double metersToFeet(double meters) {
-        return meters * 3.2808399;
+        return meters * UnitsUtil.METER_TO_FEET;
     }
 
     public double mpsToKnots(double mps) {
-        return mps * 1.943844492;
+        return mps * UnitsUtil.MS_TO_KNOT;
     }
 
     @Override
