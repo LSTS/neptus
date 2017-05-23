@@ -34,8 +34,6 @@ package pt.lsts.neptus.plugins.groovy;
 
 import java.util.ArrayList;
 import java.util.List;
-
-import imc_plans_dsl.Angle;
 import imc_plans_dsl.DSLPlan;
 import imc_plans_dsl.Location;
 import pt.lsts.neptus.NeptusLog;
@@ -107,11 +105,13 @@ public class NeptusIMCDSL extends DSLPlan {
     
     private Location midpoint(Location wp1,Location wp2,int maxDist){
         double rad = (double)wp1.angle(wp2),lat,lg;
-        if(rad <0)
-            rad+=360;//rad*2 //http://www.movable-type.co.uk/scripts/latlong.html
-        
+//        if(rad <0)
+//            rad+=360;//rad*2
+        lat = Math.asin( Math.sin(wp1.getLatitude())*Math.cos(maxDist) + Math.cos(wp1.getLatitude())*Math.sin(maxDist)*Math.cos(rad) );
+        lg  = wp1.getLongitude() + rad; 
+        lg = (lg+ 3*Math.PI) % (2*Math.PI) - Math.PI; //http://www.movable-type.co.uk/scripts/latlong.html
         Location l = new Location(lat,lg);
-        
+        System.out.println("ADD new Location: "+l.toString());
         return l;
     }
         

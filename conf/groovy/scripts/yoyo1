@@ -18,6 +18,6 @@ new Plan(console).with{
 	midpts.each{
 		popup location:it	
 	}
-	
+		vehicles "lauv-noptilus-1"
 	    addToConsole()
 }

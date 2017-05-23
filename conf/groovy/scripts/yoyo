@@ -19,5 +19,6 @@ new Plan(console).with{
 			popup()
 		}
 	}
+	vehicles "lauv-noptilus-1"
 	addToConsole()
 }
