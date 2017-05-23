@@ -58,14 +58,12 @@ import java.util.stream.Stream;
 import org.apache.commons.lang3.ArrayUtils;
 
 import pt.lsts.neptus.NeptusLog;
-import pt.lsts.neptus.colormap.ColorBar;
 import pt.lsts.neptus.colormap.ColorMap;
 import pt.lsts.neptus.data.Pair;
 import pt.lsts.neptus.renderer2d.StateRenderer2D;
 import pt.lsts.neptus.types.coord.LocationType;
 import pt.lsts.neptus.util.AngleUtils;
 import pt.lsts.neptus.util.ColorUtils;
-import pt.lsts.neptus.util.GuiUtils;
 import pt.lsts.neptus.util.MathMiscUtils;
 import pt.lsts.neptus.util.UnitsUtil;
 
@@ -139,71 +137,6 @@ class EnvDataPaintHelper {
         }
     }
     
-    /**
-     * Paint a color bar with captions sized w x h=70 x 110.
-     * 
-     * @param g
-     * @param renderer
-     * @param cmap
-     * @param varName
-     * @param units
-     * @param minValue
-     * @param maxValue
-     */
-    static void paintColorBar(Graphics2D g, StateRenderer2D renderer, ColorMap cmap, String varName, 
-            String units, double minValue, double maxValue) {
-//        boolean recreateImageColorBar = offScreenImageControlColorBar.paintPhaseStartTestRecreateImageAndRecreate(g, renderer);
-//        if (recreateImageColorBar) {
-            Graphics2D g2 = g; //offScreenImageControlColorBar.getImageGraphics();
-            g2.translate(-5, -30);
-            g2.setColor(new Color(250, 250, 250, 100));
-            g2.fillRect(5, 30, 70, 110);
-
-            ColorBar cb = new ColorBar(ColorBar.VERTICAL_ORIENTATION, cmap);
-            cb.setSize(15, 80);
-            g2.setColor(Color.WHITE);
-            Font prev = g2.getFont();
-            g2.setFont(new Font("Helvetica", Font.BOLD, 18));
-            g2.setFont(prev);
-            g2.translate(15, 45);
-            cb.paint(g2);
-            g2.translate(-10, -15);
-            
-            g2.setColor(Color.WHITE);
-            g2.drawString(varName, 2, 11);
-            g2.setColor(Color.BLACK);
-            g2.drawString(varName, 2, 12);
-
-            try {
-                double medValue = (maxValue - minValue) / 2. + minValue;
-                g2.setColor(Color.WHITE);
-                g2.drawString(GuiUtils.getNeptusDecimalFormat(1).format(maxValue), 28, 20+5);
-                g2.setColor(Color.BLACK);
-                g2.drawString(GuiUtils.getNeptusDecimalFormat(1).format(maxValue), 29, 21+5);
-                g2.setColor(Color.WHITE);
-                g2.drawString(GuiUtils.getNeptusDecimalFormat(1).format(medValue), 28, 60);
-                g2.setColor(Color.BLACK);
-                g2.drawString(GuiUtils.getNeptusDecimalFormat(1).format(medValue), 29, 61);
-                g2.setColor(Color.WHITE);
-                g2.drawString(GuiUtils.getNeptusDecimalFormat(1).format(minValue), 28, 100-10);
-                g2.setColor(Color.BLACK);
-                g2.drawString(GuiUtils.getNeptusDecimalFormat(1).format(minValue), 29, 101-10);
-            }
-            catch (Exception e) {
-                NeptusLog.pub().error(e);
-                e.printStackTrace();
-            }
-
-            g2.setColor(Color.WHITE);
-            g2.drawString(units, 10, 105);
-            g2.setColor(Color.BLACK);
-            g2.drawString(units, 10, 106);
-
-            g2.dispose();
-//        }
-//        offScreenImageControlColorBar.paintPhaseEndFinishImageRecreateAndPaintImageCacheToRenderer(g, renderer);
-    }
-
 
     /**
      * @param renderer
