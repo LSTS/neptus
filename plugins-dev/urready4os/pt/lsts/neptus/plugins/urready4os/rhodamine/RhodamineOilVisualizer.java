@@ -78,6 +78,7 @@ import pt.lsts.imc.FineOil;
 import pt.lsts.imc.RhodamineDye;
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.colormap.ColorBar;
+import pt.lsts.neptus.colormap.ColorBarPainterUtil;
 import pt.lsts.neptus.colormap.ColorMap;
 import pt.lsts.neptus.colormap.ColorMapFactory;
 import pt.lsts.neptus.comm.IMCUtils;
@@ -192,6 +193,7 @@ public class RhodamineOilVisualizer extends ConsoleLayer implements Configuratio
     private OffScreenLayerImageControl offScreenImageControlData = new OffScreenLayerImageControl();
     private OffScreenLayerImageControl offScreenImageControlPrediction = new OffScreenLayerImageControl();
     private OffScreenLayerImageControl offScreenImageControlColorBar = new OffScreenLayerImageControl();
+    private OffScreenLayerImageControl offScreenImageControlColorBarPred = new OffScreenLayerImageControl();
     
     private boolean clearImgCachRqst = false;
     private boolean clearColorBarImgCachRqst = false;
@@ -285,6 +287,7 @@ public class RhodamineOilVisualizer extends ConsoleLayer implements Configuratio
     @Override
     public void initLayer() {
         offScreenImageControlColorBar.setOffScreenBufferPixel(0);
+        offScreenImageControlColorBarPred.setOffScreenBufferPixel(0);
         getConsole().addMapLayer(previsionLayer, false);
         initGUI();
         recalcMinMaxValues();
@@ -1220,7 +1223,7 @@ public class RhodamineOilVisualizer extends ConsoleLayer implements Configuratio
         }            
         offScreenImageControlData.paintPhaseEndFinishImageRecreateAndPaintImageCacheToRenderer(g, renderer);
 
-        paintColorBar(g, renderer);            
+        paintColorBar(offScreenImageControlColorBar, g, renderer, visibleDataVar);            
 
         paintLegend(g);
         
@@ -1256,6 +1259,7 @@ public class RhodamineOilVisualizer extends ConsoleLayer implements Configuratio
         
         if (clearColorBarImgCachRqst) {
             offScreenImageControlColorBar.triggerImageRebuild();
+            offScreenImageControlColorBarPred.triggerImageRebuild();
             clearColorBarImgCachRqst = false;
         }
     }
@@ -1264,17 +1268,8 @@ public class RhodamineOilVisualizer extends ConsoleLayer implements Configuratio
      * @param g
      */
     private void paintLegend(Graphics2D g) {
-        String name;
-        VisibleDataVariableEnum vizVar = visibleDataVar;
-        switch (vizVar) {
-            case Temperature:
-                name = "Temperature";
-                break;
-            case RhodaminePPB:
-            default:
-                name = "Rhodamine";
-                break;
-        }
+        String name = getName();
+
         // Legend
         Graphics2D gl = (Graphics2D) g.create();
         gl.translate(10-3, 35+5);
@@ -1290,67 +1285,38 @@ public class RhodamineOilVisualizer extends ConsoleLayer implements Configuratio
      * @param g
      * @param renderer
      */
-    private void paintColorBar(Graphics2D g, StateRenderer2D renderer) {
+    private void paintColorBar(OffScreenLayerImageControl offScreenImageControlColorBar, Graphics2D g, StateRenderer2D renderer, VisibleDataVariableEnum visibleDataVar) {
         boolean recreateImageColorBar = offScreenImageControlColorBar.paintPhaseStartTestRecreateImageAndRecreate(g, renderer);
         if (recreateImageColorBar) {
+            System.out.println(visibleDataVar);
+            String varName;
             String unit;
             double minVal;
-            double medVal;
             double maxVal;
+            int ox = 0;
+            int oy = 0;
             switch (visibleDataVar) {
                 case Temperature:
+                    varName = "Temperature";
                     unit = "\u00B0C";
                     minVal = this.minTempValue;
                     maxVal = this.maxTempValue;
+                    ox = 0;
+                    oy = 120;
                     break;
                 case RhodaminePPB:
                 default:
+                    varName = "Rhodamine";
                     unit = "ppb";
                     minVal = this.minValue;
                     maxVal = this.maxValue;
                     break;
             }
-            medVal = minVal + (maxVal - minVal) / 2.;
 
             Graphics2D g2 = offScreenImageControlColorBar.getImageGraphics();
-            g2.setColor(new Color(250, 250, 250, 100));
-            g2.fillRect(5, 30, 70, 110);
-
-            ColorMap cmap = colorMap;
-            ColorBar cb = new ColorBar(ColorBar.VERTICAL_ORIENTATION, cmap);
-            cb.setSize(15, 80);
-            g2.setColor(Color.WHITE);
-            Font prev = g2.getFont();
-            g2.setFont(new Font("Helvetica", Font.BOLD, 18));
-            g2.setFont(prev);
-            g2.translate(15, 45);
-            cb.paint(g2);
-            g2.translate(-10, -15);
-
-            try {
-                g2.setColor(Color.WHITE);
-                g2.drawString(GuiUtils.getNeptusDecimalFormat(1).format(maxVal), 28, 20+5);
-                g2.setColor(Color.BLACK);
-                g2.drawString(GuiUtils.getNeptusDecimalFormat(1).format(maxVal), 29, 21+5);
-                g2.setColor(Color.WHITE);
-                g2.drawString(GuiUtils.getNeptusDecimalFormat(1).format(medVal), 28, 60);
-                g2.setColor(Color.BLACK);
-                g2.drawString(GuiUtils.getNeptusDecimalFormat(1).format(medVal), 29, 61);
-                g2.setColor(Color.WHITE);
-                g2.drawString(GuiUtils.getNeptusDecimalFormat(1).format(minVal), 28, 100-10);
-                g2.setColor(Color.BLACK);
-                g2.drawString(GuiUtils.getNeptusDecimalFormat(1).format(minVal), 29, 101-10);
-            }
-            catch (Exception e) {
-                NeptusLog.pub().error(e);
-                e.printStackTrace();
-            }
-            
-            g2.setColor(Color.WHITE);
-            g2.drawString(unit, 10, 105);
-            g2.setColor(Color.BLACK);
-            g2.drawString(unit, 10, 106);
-
+            g2 = (Graphics2D) g2.create();
+            g2.translate(10 + ox, 50 + oy);
+            ColorBarPainterUtil.paintColorBar(g2, renderer, colorMap, varName, unit, minVal, maxVal);
             g2.dispose();
         }
         offScreenImageControlColorBar.paintPhaseEndFinishImageRecreateAndPaintImageCacheToRenderer(g, renderer);
@@ -1728,7 +1694,7 @@ public class RhodamineOilVisualizer extends ConsoleLayer implements Configuratio
             }            
             offScreenImageControlPrediction.paintPhaseEndFinishImageRecreateAndPaintImageCacheToRenderer(g, renderer);
 
-            paintColorBar(g, renderer);            
+            paintColorBar(offScreenImageControlColorBarPred, g, renderer, VisibleDataVariableEnum.RhodaminePPB);            
 
             paintLegend(g);
         }
