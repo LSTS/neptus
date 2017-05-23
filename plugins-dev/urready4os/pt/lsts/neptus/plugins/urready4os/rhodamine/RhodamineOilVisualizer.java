@@ -1103,21 +1103,41 @@ public class RhodamineOilVisualizer extends ConsoleLayer implements Configuratio
     @Periodic(millisBetweenUpdates = 500)
     public boolean updateExtraGUIValues() {
         try {
+            boolean selTimeMinForce = false;
+            boolean selTimeMaxForce = false;
+            if (!timeSlider.getValueIsAdjusting() && timeSlider.getValue() == timeSlider.getMinimum())
+                selTimeMinForce = true;
+            if (!timeSlider.getValueIsAdjusting() && timeSlider.getUpperValue() == timeSlider.getMaximum())
+                selTimeMaxForce = true;
             timeSlider.setMinimum((int)(oldestTimestamp / timeStampSliderScale));
             timeSlider.setMaximum((int)(newestTimestamp / timeStampSliderScale));
             updateSliderWithValues(timeSlider, oldestTimestamp, newestTimestamp, oldestTimestampSelection,
                     newestTimestampSelection, timeStampSliderScale);
             updateTimeSliderTime();
+            if (selTimeMinForce)
+                timeSlider.setValue(timeSlider.getMinimum());
+            if (selTimeMaxForce)
+                timeSlider.setUpperValue(timeSlider.getMaximum());
 
             updateRhodamineRangeTexts();
             updatePredictionRangeTexts();
             updateTempRangeTexts();
             
+            boolean selDepthMinForce = false;
+            boolean selDepthMaxForce = false;
+            if (!depthSlider.getValueIsAdjusting() && depthSlider.getValue() == depthSlider.getMinimum())
+                selDepthMinForce = true;
+            if (!depthSlider.getValueIsAdjusting() && depthSlider.getUpperValue() == depthSlider.getMaximum())
+                selDepthMaxForce = true;
             depthSlider.setMinimum((int)(oldestDepth / depthSliderScale));
             depthSlider.setMaximum((int)(newestDepth / depthSliderScale));
             updateSliderWithValues(depthSlider, oldestDepth, newestDepth, oldestDepthSelection,
                     newestDepthSelection, depthSliderScale);
             updateDepthSliderTime();
+            if (selDepthMinForce)
+                depthSlider.setValue(depthSlider.getMinimum());
+            if (selDepthMaxForce)
+                depthSlider.setUpperValue(depthSlider.getMaximum());
         }
         catch (Exception e) {
             NeptusLog.pub().error(e.toString());
@@ -1288,7 +1308,6 @@ public class RhodamineOilVisualizer extends ConsoleLayer implements Configuratio
     private void paintColorBar(OffScreenLayerImageControl offScreenImageControlColorBar, Graphics2D g, StateRenderer2D renderer, VisibleDataVariableEnum visibleDataVar) {
         boolean recreateImageColorBar = offScreenImageControlColorBar.paintPhaseStartTestRecreateImageAndRecreate(g, renderer);
         if (recreateImageColorBar) {
-            System.out.println(visibleDataVar);
             String varName;
             String unit;
             double minVal;
