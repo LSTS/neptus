@@ -82,36 +82,38 @@ public class NeptusIMCDSL extends DSLPlan {
 
     }
     
-    public List<Location> midpoints(List<Location> waypoints,int maxDist){
+    public List<Location> midpoints(Location wp1,Location wp2,int maxDist){
         List<Location> result = new ArrayList<>();
-        int i;
-        for(i=0;i<waypoints.size()-2;i++){
-            Location wp1 = waypoints.get(i);
-            Location wp2 = waypoints.get(i+1);
+            int j=1;
             double distance = (double) wp1.distance(wp2);
-            System.out.println("Distance= "+distance);
+            //System.out.println("Distance= "+distance);
             if(distance>=maxDist){
                 double aux = distance / maxDist;
                 int n = Double.valueOf(aux).intValue() -1;
-                System.out.println("N= "+n);
+              //  System.out.println("N= "+n);
                 while(n-->=0){
-                    result.add(midpoint(wp1,wp2,maxDist));
+                    result.add(midpoint(wp1,wp2,j*maxDist));
+                    j++;
+                    
                 }
+                j=1;
             }
-        }
-        result.add(waypoints.get(i)); //Last waypoint of the plan must be included?
+        
+        result.add(wp2); //Last waypoint of the plan must be included?
         return result;
     }
     
-    private Location midpoint(Location wp1,Location wp2,int maxDist){
+    public Location midpoint(Location wp1,Location wp2,int maxDist){
+        
         double rad = (double)wp1.angle(wp2),lat,lg;
-//        if(rad <0)
-//            rad+=360;//rad*2
-        lat = Math.asin( Math.sin(wp1.getLatitude())*Math.cos(maxDist) + Math.cos(wp1.getLatitude())*Math.sin(maxDist)*Math.cos(rad) );
-        lg  = wp1.getLongitude() + rad; 
-        lg = (lg+ 3*Math.PI) % (2*Math.PI) - Math.PI; //http://www.movable-type.co.uk/scripts/latlong.html
-        Location l = new Location(lat,lg);
-        System.out.println("ADD new Location: "+l.toString());
+        //double degree = (double) Location.toDeg(rad);
+        //degree= degree<0 ? degree+360: degree;//degree*2
+        lat = Math.sin(rad)*maxDist;
+        lg  = Math.cos(rad)*maxDist;
+        
+        Location l = (Location) wp1.translateBy(lg, lat); //displacements https://gis.stackexchange.com/questions/5821/calculating-latitude-longitude-x-miles-from-point
+        //System.out.println("ADDED new Location: "+l.toString());
+
         return l;
     }
         

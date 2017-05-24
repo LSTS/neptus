@@ -1,5 +1,9 @@
+//----Parameters Definition-----
 
-def initialPlan = new Plan(console,plans.get("yoyoSurvey")) //User input?
+def popDistance = 500 //in meters
+def planName = "3k"   // already defined in the console
+
+def initialPlan = new Plan(console,plans.get(planName)) //User input?
 def start = initialPlan.initialLocation()
 def waypoints = initialPlan.waypoints()
 
@@ -8,17 +12,18 @@ new Plan(console).with{
 	
 	planName "YoYo_PopUp"
 	goTo location:start
+	def startPoint = start
 	
-	waypoint = waypoints[0]
-	
-	waypoints[1..waypoints.size-1].each(){
-		
-		yoyo location: it, payload:[[name: "Sidescan",  Range: 50]]
-		if(waypoint.distance(it)>=100){
-			waypoint = it
+	waypoints[1..waypoints.size-1].each(){ //each waypoint of the original plan
+		waypointYoYo -> 
+		midpoints(startPoint,waypointYoYo,popDistance).each{
+			yoyo location:it
 			popup()
+			}
+		yoyo location: waypointYoYo, payload:[[name: "Sidescan",  Range: 50]]
+		startPoint = waypointYoYo
 		}
-	}
-	vehicles "lauv-noptilus-1"
-	addToConsole()
+	
+	    vehicles "lauv-noptilus-1"
+	    addToConsole()
 }
