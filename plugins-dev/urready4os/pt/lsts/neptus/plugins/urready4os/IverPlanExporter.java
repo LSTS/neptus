@@ -205,6 +205,6 @@ public class IverPlanExporter implements IPlanFileExporter {
 
     @Override
     public String[] validExtensions() {
-        return new String[] { "mis" };
+        return new String[] { "mis", "srp" };
     }
 }
