@@ -40,8 +40,8 @@ import javax.swing.AbstractAction;
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JPanel;
-import javax.swing.JProgressBar;
-import javax.swing.SwingConstants;
+import javax.swing.JScrollPane;
+import javax.swing.JTextArea;
 import javax.swing.border.Border;
 
 import com.google.common.eventbus.Subscribe;
@@ -59,6 +59,10 @@ import pt.lsts.neptus.plugins.Popup;
 @SuppressWarnings("serial")
 public class NVLConsolePanel extends ConsolePanel {
     
+    private Border border;
+    private JScrollPane outputPanel;
+    private JTextArea output;
+    
     public NVLConsolePanel(ConsoleLayout layout) {
         super(layout);
     }
@@ -68,6 +72,18 @@ public class NVLConsolePanel extends ConsolePanel {
     public void initSubPanel() {
         NeptusNVLPlatform.getInstance().associateTo(this);
         test();
+        border = BorderFactory.createTitledBorder("Script Output");
+        output.setBorder(border);
+        output.setEditable(false);
+        output.setVisible(true);
+//        output.setBackground(Color.BLACK);
+//        output.setCaretColor(Color.WHITE);
+        output.append("NLV Runtime Console\n");
+        outputPanel = new JScrollPane(output);//RSyntaxTextArea("Script Output")
+        output.setVisible(true);
+        
+
+
     }
 
     @Override
@@ -77,8 +93,7 @@ public class NVLConsolePanel extends ConsolePanel {
     
     private void test() {
         
-        JProgressBar progressBar = new JProgressBar(SwingConstants.HORIZONTAL);
-        Border border = BorderFactory.createTitledBorder("Testing...");
+
         JButton testButton = new JButton(
                 new AbstractAction(I18n.text("Test!")) {
                     @Override
@@ -88,19 +103,31 @@ public class NVLConsolePanel extends ConsolePanel {
                         }).start();
                     }
                 });
+        JButton clear = new JButton(new AbstractAction(I18n.text("Clean Console!")) {
+            
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                output.setText("");
+                            
+            }
+        });
         
-        
+        JPanel buttons = new JPanel(new BorderLayout());
         JPanel holder = new JPanel(new BorderLayout(1, 1));
-//        JPanel grid = new JPanel(new GridLayout(2, 0));
-        progressBar.setValue(0);
-        progressBar.setStringPainted(true);
-        progressBar.setBorder(border);
-        holder.add(progressBar,BorderLayout.SOUTH);
-        holder.add(testButton,BorderLayout.CENTER);
-//        grid.add(progressBar,BorderLayout.SOUTH);
-//        grid.add(testButton,BorderLayout.CENTER);
+        buttons.add(testButton);
+        buttons.add(clear);
+        holder.add(buttons,BorderLayout.CENTER);
+        holder.add(outputPanel,BorderLayout.SOUTH);
         add(holder,BorderLayout.CENTER);
-        
+   
+//        JProgressBar progressBar = new JProgressBar(SwingConstants.HORIZONTAL);
+//        Border border = BorderFactory.createTitledBorder("Testing...");
+//        progressBar.setValue(0); //TODO during task exec?
+//        progressBar.setStringPainted(true);
+//        progressBar.setBorder(border);
+//        holder.add(progressBar,BorderLayout.SOUTH);
+       
+
         
        
         
@@ -116,7 +143,8 @@ public class NVLConsolePanel extends ConsolePanel {
 
 
     public void displayMessage(String fmt, Object[] args) {
-        // TODO Auto-generated method stub
+        output.append(String.format(fmt, args));
+        output.setCaretPosition(output.getDocument().getLength());
         
     }
 

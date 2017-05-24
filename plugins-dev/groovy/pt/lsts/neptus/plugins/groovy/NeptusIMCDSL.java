@@ -201,61 +201,7 @@ public class NeptusIMCDSL extends DSLPlan {
         else
             return IMCUtils.parsePlanSpecification(console.getMission(),this.asPlanSpecification());
                  
-                  
-            
-        
-//        PlanType plan = new PlanType(console.getConsole().getMission());
-//        String previous = null;
-//        for(PlanManeuver m: this.getMans()){
-//            Maneuver man;// = Maneuver.createFromXML(m.getData().asXml(true));
-//            Class<? extends Maneuver> clazz = getClass(m.getData().getClass().getSimpleName());
-//            try {
-//                
-//                man = clazz.newInstance();
-//                man.setId(m.getManeuverId());
-//                IMCUtils.parseManeuver(m.getData());
-//             //   man.loadManeuverXml(m.getData().asXml(false)); //TODO or false?
-//                plan.getGraph().addManeuver(man);
-//                if(man.isInitialManeuver())
-//                    plan.getGraph().setInitialManeuver(man.getId());
-//                else //TRANSITIONS
-//                    plan.getGraph().addTransition(previous, man.getId(),man.getTransitionCondition(previous));//TODO verify this
-//                previous=man.getId();
-//            }
-//            catch (InstantiationException | IllegalAccessException e) {
-//                NeptusLog.pub().error(I18n.text("Illegal Maneuver Instantiation in the IMC DSL."),e);
-//                //e.printStackTrace();
-//            }
-//
-//        }
-//        return plan;
     }
-
-    /**
-     * @param name
-     * @return
-     */
-//    private Class<?extends Maneuver> getClass(String name) {
-//        if(name.equalsIgnoreCase("Goto")){
-//            return Goto.class;
-//        }
-//        if(name.equalsIgnoreCase("Loiter"))
-//            return Loiter.class;
-//        if(name.equalsIgnoreCase("YoYo"))
-//            return YoYo.class;
-//        if(name.equalsIgnoreCase("PopUp"))
-//            return PopUp.class;
-//        if(name.equalsIgnoreCase("Launch"))
-//            return Launch.class;
-//        if(name.equalsIgnoreCase("CompassCalibration"))
-//            return CompassCalibration.class;
-//        if(name.equalsIgnoreCase("StationKeeping"))
-//            return StationKeeping.class;
-//        if(name.equalsIgnoreCase("RowsManeuver"))
-//            return RowsManeuver.class;
-//        
-//        return null;
-//    }
 
 
 }
