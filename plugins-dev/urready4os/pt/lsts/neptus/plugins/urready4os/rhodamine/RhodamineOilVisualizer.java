@@ -77,13 +77,14 @@ import pt.lsts.imc.EstimatedState;
 import pt.lsts.imc.FineOil;
 import pt.lsts.imc.RhodamineDye;
 import pt.lsts.neptus.NeptusLog;
-import pt.lsts.neptus.colormap.ColorBar;
 import pt.lsts.neptus.colormap.ColorBarPainterUtil;
 import pt.lsts.neptus.colormap.ColorMap;
 import pt.lsts.neptus.colormap.ColorMapFactory;
 import pt.lsts.neptus.comm.IMCUtils;
+import pt.lsts.neptus.comm.manager.imc.ImcId16;
 import pt.lsts.neptus.console.ConsoleLayer;
 import pt.lsts.neptus.gui.editor.FolderPropertyEditor;
+import pt.lsts.neptus.gui.editor.SystemNameOrNullListEditor;
 import pt.lsts.neptus.gui.swing.RangeSlider;
 import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.plugins.ConfigurationListener;
@@ -103,7 +104,6 @@ import pt.lsts.neptus.types.coord.LocationType;
 import pt.lsts.neptus.util.ColorUtils;
 import pt.lsts.neptus.util.DateTimeUtil;
 import pt.lsts.neptus.util.FileUtil;
-import pt.lsts.neptus.util.GuiUtils;
 import pt.lsts.neptus.util.MathMiscUtils;
 import pt.lsts.neptus.util.conf.IntegerMinMaxValidator;
 
@@ -176,6 +176,14 @@ public class RhodamineOilVisualizer extends ConsoleLayer implements Configuratio
 
     @NeptusProperty(name = "Print debug", userLevel = LEVEL.ADVANCED, category = "Debug")
     private boolean printDebug = false;
+    
+    @NeptusProperty(name = "Systems to ignore for rhodamine", userLevel = LEVEL.ADVANCED, category = "Filter",
+            editorClass = SystemNameOrNullListEditor.class, description = "Comma separated list of systems to ignore.")
+    private String systemsToIgnoreForRhodamine = "";
+
+    @NeptusProperty(name = "Systems to ignore for temperature", userLevel = LEVEL.ADVANCED, category = "Filter",
+            editorClass = SystemNameOrNullListEditor.class, description = "Comma separated list of systems to ignore.")
+    private String systemsToIgnoreForTemperature = "";
 
     private final PrevisionRhodamineConsoleLayer previsionLayer = new PrevisionRhodamineConsoleLayer();
 
@@ -1403,8 +1411,37 @@ public class RhodamineOilVisualizer extends ConsoleLayer implements Configuratio
         LongAccumulator visiblePts = new LongAccumulator((r, i) -> r += i, 0);
         LongAccumulator paintedPts = new LongAccumulator((r, i) -> r += i, 0);
         final int gridSpacing = pixelSizeData / 2;
+        
+        ArrayList<String> systemsToIgnoreRhodamineList = new ArrayList<>();
+        String[] sti = systemsToIgnoreForRhodamine == null ? new String[0] : systemsToIgnoreForRhodamine.split(",");
+        for (String str : sti) {
+            if (str == null || str.trim().isEmpty())
+                continue;
+            systemsToIgnoreRhodamineList.add(str.trim().toLowerCase());
+        }
+        ArrayList<String> systemsToIgnoreTemperatureList = new ArrayList<>();
+        sti = systemsToIgnoreForTemperature == null ? new String[0] : systemsToIgnoreForTemperature.split(",");
+        for (String str : sti) {
+            if (str == null || str.trim().isEmpty())
+                continue;
+            systemsToIgnoreTemperatureList.add(str.trim().toLowerCase());
+        }
+        
         Map<Point2D, Object[]> processedPoints = toProcessPoints.parallelStream()
                 .collect(HashMap<Point2D, Object[]>::new, (r, bp) -> {
+                    boolean isToIgnoreRhodamine = false;
+                    boolean isToIgnoreTemperature = false;
+                    if (bp.getSourceSystem() == null || bp.getSourceSystem().trim().isEmpty()) {
+                        isToIgnoreRhodamine = systemsToIgnoreRhodamineList.contains("unknown");
+                        isToIgnoreTemperature = systemsToIgnoreRhodamineList.contains("unknown");
+                    }
+                    else {
+                        isToIgnoreRhodamine = systemsToIgnoreRhodamineList.contains(bp.getSourceSystem().toLowerCase());
+                        isToIgnoreTemperature = systemsToIgnoreRhodamineList.contains(bp.getSourceSystem().toLowerCase());
+                    }
+                    if (isToIgnoreRhodamine && isToIgnoreTemperature)
+                        return;
+                    
                     double latV = bp.getLat();
                     double lonV = bp.getLon();
 
@@ -1437,7 +1474,8 @@ public class RhodamineOilVisualizer extends ConsoleLayer implements Configuratio
 //                    if (!Double.isFinite(bp.getRhodamineDyePPB()))
 //                        return;
 
-                    r.put(pt, new Object[] { bp.timeMillis, bp.getRhodamineDyePPB(), bp.getTemperature() });
+                    r.put(pt, new Object[] { bp.timeMillis, isToIgnoreRhodamine ? Double.NaN : bp.getRhodamineDyePPB(), 
+                            isToIgnoreTemperature ? Double.NaN : bp.getTemperature() });
                     visiblePts.accumulate(1);
                 }, (r, a) -> {
                     a.keySet().stream().forEach(p -> {
@@ -1611,7 +1649,12 @@ public class RhodamineOilVisualizer extends ConsoleLayer implements Configuratio
                 BaseData pt = new BaseData(loc.getLatitudeDegs(), loc.getLongitudeDegs(), 
                         loc.getDepth(), rdmTs);
                 pt.setRefineOilPPB(msg.getValue());
-                // TODO store this data
+
+                String sourceSystem = msg.getSourceName();
+                if (sourceSystem.startsWith("unknown"))
+                    sourceSystem = new ImcId16(msg.getSrc()).toPrettyString();
+                pt.setSourceSystem(sourceSystem);
+
                 ArrayList<BaseData> data = new ArrayList<>(); 
                 data.add(pt);
                 updateValues(dataList, data, true);

@@ -332,6 +332,7 @@ public class CSVDataParser {
         }
         
         BaseData point = new BaseData(lat, lon, depth, (long) (timeSecs * 1000));
+        point.setSourceSystem(getSystem());
         point.setRhodamineDyePPB(checkForInvalidValue(rhodamine));
         point.setTemperature(checkForInvalidValue(temperature));
         point.setCrudeOilPPB(checkForInvalidValue(crudeOil));

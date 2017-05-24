@@ -186,6 +186,7 @@ public class MedslikDataParser {
             return;
         
         BaseData point = new BaseData(lat, lon, depthUpper, millisPassedFromSpill);
+        point.setSourceSystem("medslik");
         point.setDepthLower(depthLower);
         point.setRhodamineDyePPB(rhodamine);
         
