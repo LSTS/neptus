@@ -1648,7 +1648,7 @@ public class RhodamineOilVisualizer extends ConsoleLayer implements Configuratio
                 loc.convertToAbsoluteLatLonDepth();
                 BaseData pt = new BaseData(loc.getLatitudeDegs(), loc.getLongitudeDegs(), 
                         loc.getDepth(), rdmTs);
-                pt.setRefineOilPPB(msg.getValue());
+                pt.setRhodamineDyePPB(msg.getValue());
 
                 String sourceSystem = msg.getSourceName();
                 if (sourceSystem.startsWith("unknown"))
