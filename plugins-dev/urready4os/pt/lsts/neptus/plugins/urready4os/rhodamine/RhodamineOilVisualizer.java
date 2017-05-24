@@ -1661,6 +1661,7 @@ public class RhodamineOilVisualizer extends ConsoleLayer implements Configuratio
         
         // From any system
 //        System.out.println(msg.asJSON());
+        String accepted = "";
         EstimatedState lastSystemES = lastEstimatedStateList.get(msg.getSrc());
         if (lastSystemES != null) {
             long rdmTs = msg.getTimestampMillis();
@@ -1682,12 +1683,17 @@ public class RhodamineOilVisualizer extends ConsoleLayer implements Configuratio
                 data.add(pt);
                 updateValues(dataList, data, true);
             }
+            else {
+                accepted = " " + delta + "<=" + maxDeltaTimeBetweenEstimatedStateAndMessageDataReceivedMillis
+                        + " ? " + (delta <= maxDeltaTimeBetweenEstimatedStateAndMessageDataReceivedMillis);
+            }
         }
         
         double valueReceived = msg.getValue();
         if (!Double.isNaN(valueReceived)) {
             rhodamineImcString = "" + MathMiscUtils.round(valueReceived, 2) + "ppb @ " 
-                    + DateTimeUtil.timeFormatterUTC.format(new Date(rhodamineImcStringMillis));
+                    + DateTimeUtil.timeFormatterUTC.format(new Date(rhodamineImcStringMillis))
+                    + accepted;
             rhodamineImcStringMillis = msg.getTimestampMillis();
         }
     }
