@@ -1,11 +1,13 @@
 //----Parameters Definition-----
 
 def popDistance = 500 //in meters
-def planName = "3k"   // already defined in the console
-def speed_value = 900.0
-def speed_unit = RPM
+def plan    = "3k"   // already defined in the console
+double speed_value = 700.0
+def speed_unit  = "RPM"
+double z_value     = 5.0
+def z_unit      = "DEPTH"
 
-def initialPlan = new Plan(console,plans.get(planName)) //User input?
+def initialPlan = new Plan(console,plans.get(plan)) //User input?
 def start = initialPlan.initialLocation()
 def waypoints = initialPlan.waypoints()
 
@@ -16,6 +18,7 @@ new Plan(console).with{
 	goTo location:start
 	def startPoint = start
 	speed(speed_value,speed_unit)
+	z(z_value,z_unit)
 	
 	waypoints[1..waypoints.size-1].each(){ //each waypoint of the original plan
 		waypointYoYo -> 
