@@ -2,6 +2,8 @@
 
 def popDistance = 500 //in meters
 def planName = "3k"   // already defined in the console
+def speed_value = 900.0
+def speed_unit = RPM
 
 def initialPlan = new Plan(console,plans.get(planName)) //User input?
 def start = initialPlan.initialLocation()
@@ -13,6 +15,7 @@ new Plan(console).with{
 	planName "YoYo_PopUp"
 	goTo location:start
 	def startPoint = start
+	speed(speed_value,speed_unit)
 	
 	waypoints[1..waypoints.size-1].each(){ //each waypoint of the original plan
 		waypointYoYo -> 
