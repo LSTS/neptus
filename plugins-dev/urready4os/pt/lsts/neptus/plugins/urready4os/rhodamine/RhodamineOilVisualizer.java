@@ -181,6 +181,10 @@ public class RhodamineOilVisualizer extends ConsoleLayer implements Configuratio
             editorClass = SystemNameOrNullListEditor.class, description = "Comma separated list of systems to ignore.")
     private String systemsToIgnoreForRhodamine = "";
 
+    @NeptusProperty(name = "Systems to ignore for IMC rhodamine", userLevel = LEVEL.ADVANCED, category = "Filter",
+            editorClass = SystemNameOrNullListEditor.class, description = "Comma separated list of systems to ignore (all to ignore all).")
+    private String systemsToIgnoreForIMCRhodamine = "";
+
     @NeptusProperty(name = "Systems to ignore for temperature", userLevel = LEVEL.ADVANCED, category = "Filter",
             editorClass = SystemNameOrNullListEditor.class, description = "Comma separated list of systems to ignore.")
     private String systemsToIgnoreForTemperature = "";
@@ -1636,6 +1640,22 @@ public class RhodamineOilVisualizer extends ConsoleLayer implements Configuratio
 
     @Subscribe
     public void on(RhodamineDye msg) {
+        if (systemsToIgnoreForIMCRhodamine != null && "all".equalsIgnoreCase(systemsToIgnoreForIMCRhodamine.trim()))
+            return;
+        ArrayList<String> systemsToIgnoreIMCRhodamineList = new ArrayList<>();
+        String[] sti = systemsToIgnoreForIMCRhodamine == null ? new String[0] : systemsToIgnoreForIMCRhodamine.split(",");
+        for (String str : sti) {
+            if (str == null || str.trim().isEmpty())
+                continue;
+            systemsToIgnoreIMCRhodamineList.add(str.trim().toLowerCase());
+        }
+        String sysName = msg.getSourceName();
+        if (sysName.trim().toLowerCase().contains("unknown"))
+            sysName = "unknown";
+        boolean isToIgnoreRhodamine = systemsToIgnoreIMCRhodamineList.contains(sysName);
+        if (isToIgnoreRhodamine)
+            return;
+        
         // From any system
 //        System.out.println(msg.asJSON());
         EstimatedState lastSystemES = lastEstimatedStateList.get(msg.getSrc());
