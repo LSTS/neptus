@@ -176,6 +176,9 @@ public class RhodamineOilVisualizer extends ConsoleLayer implements Configuratio
 
     @NeptusProperty(name = "Print debug", userLevel = LEVEL.ADVANCED, category = "Debug")
     private boolean printDebug = false;
+
+    @NeptusProperty(name = "Print paint debug", userLevel = LEVEL.ADVANCED, category = "Debug")
+    private boolean printPaintDebug = false;
     
     @NeptusProperty(name = "Systems to ignore for rhodamine", userLevel = LEVEL.ADVANCED, category = "Filter",
             editorClass = SystemNameOrNullListEditor.class, description = "Comma separated list of systems to ignore.")
@@ -1269,9 +1272,9 @@ public class RhodamineOilVisualizer extends ConsoleLayer implements Configuratio
             
             try {
                 g2.setColor(Color.BLACK);
-                g2.drawString(rhodamineImcString, 1, 120);
+                g2.drawString(rhodamineImcString, 1, 123);
                 g2.setColor(Color.WHITE);
-                g2.drawString(rhodamineImcString, 2, 121);
+                g2.drawString(rhodamineImcString, 2, 124);
             }
             catch (Exception e) {
                 NeptusLog.pub().error(e);
@@ -1569,7 +1572,7 @@ public class RhodamineOilVisualizer extends ConsoleLayer implements Configuratio
         
         g2.dispose();
         
-        if (printDebug) {
+        if (printPaintDebug) {
             System.out.println(String.format("Paint%s took %s for %d points ammoung %d visible and final merged %d and %d painted for %s", 
                     prediction ? " prediction" : "", DateTimeUtil.milliSecondsToFormatedString(
                             System.currentTimeMillis() - curtime), initialPointsNumber, visiblePts.intValue(),
