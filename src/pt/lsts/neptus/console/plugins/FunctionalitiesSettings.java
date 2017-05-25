@@ -34,6 +34,7 @@ package pt.lsts.neptus.console.plugins;
 
 import java.awt.Component;
 import java.beans.PropertyEditor;
+import java.io.File;
 import java.lang.reflect.Field;
 import java.text.Collator;
 import java.text.DecimalFormat;
@@ -80,6 +81,7 @@ import pt.lsts.neptus.gui.editor.BitmaskPropertyEditor;
 import pt.lsts.neptus.gui.editor.ColorMapPropertyEditor;
 import pt.lsts.neptus.gui.editor.EnumEditor;
 import pt.lsts.neptus.gui.editor.EnumeratedPropertyEditor;
+import pt.lsts.neptus.gui.editor.FileOnlyPropertyEditor;
 import pt.lsts.neptus.gui.editor.ImcId16Editor;
 import pt.lsts.neptus.gui.editor.LocationTypePropertyEditor;
 import pt.lsts.neptus.gui.editor.NeptusDoubleEditor;
@@ -724,6 +726,7 @@ public class FunctionalitiesSettings extends JPanel {
         pEditorRegistry.registerEditor(PlanActions.class, PlanActionsEditor.class);
         pEditorRegistry.registerEditor(Double.class, NeptusDoubleEditor.class);
         pEditorRegistry.registerEditor(Float.class, NeptusDoubleEditor.class);
+        pEditorRegistry.registerEditor(File.class, FileOnlyPropertyEditor.class);
     }
 
     @SuppressWarnings("serial")
