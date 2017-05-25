@@ -59,6 +59,8 @@ import pt.lsts.neptus.util.UnitsUtil;
 @PluginDescription
 public class IverPlanExporter implements IPlanFileExporter {
 
+    private static final int INFINITE_PARKING_MINUTES = 3600;
+
     private String iverWaypoint(int wptNum, double speedMps, double yoyoAmplitude, double pitchDegs,
             int parkingTimeMinutes, ManeuverLocation prev, ManeuverLocation dst) {
 
@@ -163,9 +165,17 @@ public class IverPlanExporter implements IPlanFileExporter {
                 for (ManeuverLocation wpt : ((LocatedManeuver) m).getWaypoints()) {
                     int parkTimeMinutes = 0;
                     if (m instanceof StationKeeping) {
-                        parkTimeMinutes = ((StationKeeping) m).getDuration(); // seconds
-                        parkTimeMinutes = Math.max(0, parkTimeMinutes); // seconds
-                        parkTimeMinutes = (int) Math.round(parkTimeMinutes / 60.); // minutes
+                        if (((StationKeeping) m).getDuration() < 0) {
+                            parkTimeMinutes = 0;
+                        }
+                        else if (((StationKeeping) m).getDuration() == 0) {
+                            parkTimeMinutes = INFINITE_PARKING_MINUTES;
+                        }
+                        else {
+                            parkTimeMinutes = ((StationKeeping) m).getDuration(); // seconds
+                            parkTimeMinutes = Math.max(0, parkTimeMinutes); // seconds
+                            parkTimeMinutes = (int) Math.round(parkTimeMinutes / 60.); // minutes
+                        }
                         timeSum += parkTimeMinutes * 60;
                     }
                     wpt.convertToAbsoluteLatLonDepth();
