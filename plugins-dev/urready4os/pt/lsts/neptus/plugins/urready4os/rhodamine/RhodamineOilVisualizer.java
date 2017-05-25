@@ -85,6 +85,7 @@ import pt.lsts.neptus.colormap.ColorMapFactory;
 import pt.lsts.neptus.comm.IMCUtils;
 import pt.lsts.neptus.comm.manager.imc.ImcId16;
 import pt.lsts.neptus.console.ConsoleLayer;
+import pt.lsts.neptus.gui.editor.FolderAndFilePropertyEditor;
 import pt.lsts.neptus.gui.editor.FolderPropertyEditor;
 import pt.lsts.neptus.gui.editor.SystemNameOrNullListEditor;
 import pt.lsts.neptus.gui.swing.RangeSlider;
@@ -162,7 +163,8 @@ public class RhodamineOilVisualizer extends ConsoleLayer implements Configuratio
     @NeptusProperty(userLevel = LEVEL.REGULAR, category = "Data Cleanup")
     private int dataAgeToCleanInMinutes = 120;
     
-    @NeptusProperty(name = "Prediction file or folder (tot or lv* files)", userLevel = LEVEL.REGULAR, category = "Prediction")
+    @NeptusProperty(name = "Prediction file or folder (tot or lv* files)", userLevel = LEVEL.REGULAR, category = "Prediction",
+            editorClass = FolderAndFilePropertyEditor.class)
     private File predictionFile = new File("log/rhodamine-prediction");
 
     @NeptusProperty(name = "Prediction scale factor", userLevel = LEVEL.REGULAR, category = "Prediction")
