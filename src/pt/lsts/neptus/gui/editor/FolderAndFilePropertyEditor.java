@@ -28,7 +28,7 @@
  * For more information please see <http://lsts.fe.up.pt/neptus>.
  *
  * Author: pdias
- * Sep 29, 2014
+ * 25/05/2017
  */
 package pt.lsts.neptus.gui.editor;
 
@@ -42,9 +42,9 @@ import pt.lsts.neptus.gui.swing.NeptusFileView;
  * @author pdias
  *
  */
-public class FolderPropertyEditor extends FilePropertyEditor {
+public class FolderAndFilePropertyEditor extends FilePropertyEditor {
 
-    public FolderPropertyEditor() {
+    public FolderAndFilePropertyEditor() {
     }
 
     /* (non-Javadoc)
@@ -52,14 +52,14 @@ public class FolderPropertyEditor extends FilePropertyEditor {
      */
     @Override
     protected void customizeFileChooser(JFileChooser chooser) {
-        chooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+        chooser.setFileSelectionMode(JFileChooser.FILES_AND_DIRECTORIES);
         chooser.setFileView(new NeptusFileView());
     }
     
     /**
      * @param asTableEditor
      */
-    public FolderPropertyEditor(boolean asTableEditor) {
+    public FolderAndFilePropertyEditor(boolean asTableEditor) {
         super(asTableEditor);
     }
 }

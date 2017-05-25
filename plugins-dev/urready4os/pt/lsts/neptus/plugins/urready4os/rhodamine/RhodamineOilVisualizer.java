@@ -55,6 +55,8 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ScheduledThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.LongAccumulator;
 
@@ -83,6 +85,7 @@ import pt.lsts.neptus.colormap.ColorMapFactory;
 import pt.lsts.neptus.comm.IMCUtils;
 import pt.lsts.neptus.comm.manager.imc.ImcId16;
 import pt.lsts.neptus.console.ConsoleLayer;
+import pt.lsts.neptus.gui.editor.FolderAndFilePropertyEditor;
 import pt.lsts.neptus.gui.editor.FolderPropertyEditor;
 import pt.lsts.neptus.gui.editor.SystemNameOrNullListEditor;
 import pt.lsts.neptus.gui.swing.RangeSlider;
@@ -105,6 +108,7 @@ import pt.lsts.neptus.util.ColorUtils;
 import pt.lsts.neptus.util.DateTimeUtil;
 import pt.lsts.neptus.util.FileUtil;
 import pt.lsts.neptus.util.MathMiscUtils;
+import pt.lsts.neptus.util.ThreadPoolExecuterUtil;
 import pt.lsts.neptus.util.conf.IntegerMinMaxValidator;
 
 /**
@@ -159,7 +163,8 @@ public class RhodamineOilVisualizer extends ConsoleLayer implements Configuratio
     @NeptusProperty(userLevel = LEVEL.REGULAR, category = "Data Cleanup")
     private int dataAgeToCleanInMinutes = 120;
     
-    @NeptusProperty(name = "Prediction file or folder (tot or lv* files)", userLevel = LEVEL.REGULAR, category = "Prediction")
+    @NeptusProperty(name = "Prediction file or folder (tot or lv* files)", userLevel = LEVEL.REGULAR, category = "Prediction",
+            editorClass = FolderAndFilePropertyEditor.class)
     private File predictionFile = new File("log/rhodamine-prediction");
 
     @NeptusProperty(name = "Prediction scale factor", userLevel = LEVEL.REGULAR, category = "Prediction")
@@ -210,7 +215,11 @@ public class RhodamineOilVisualizer extends ConsoleLayer implements Configuratio
     private OffScreenLayerImageControl offScreenImageControlColorBar = new OffScreenLayerImageControl();
     private OffScreenLayerImageControl offScreenImageControlColorBarPred = new OffScreenLayerImageControl();
     
+    private ScheduledThreadPoolExecutor threadPool = ThreadPoolExecuterUtil.createScheduledThreadPool(this, 5);
+    
     private boolean clearImgCachRqst = false;
+    private long lastClearImgCacheRqstMillis = -1;
+    private long minPeriodToRecreateCacheMillis = 2000;
     private boolean clearColorBarImgCachRqst = false;
     
     private Ellipse2D circle = new Ellipse2D.Double(-4, -4, 8, 8);
@@ -670,17 +679,17 @@ public class RhodamineOilVisualizer extends ConsoleLayer implements Configuratio
                     catch (Exception e) {
                         e.printStackTrace();
                     }
-                    clearImgCachRqst = true;
+                    invalidateCache();
                     clearColorBarImgCachRqst = true;
                 }
             };
         }
         else {
-            clearImgCachRqst = true;
+            invalidateCache();
             clearColorBarImgCachRqst = true;
         }
         
-        clearImgCachRqst = true;
+        invalidateCache();
         clearColorBarImgCachRqst = true;
     }
 
@@ -726,7 +735,17 @@ public class RhodamineOilVisualizer extends ConsoleLayer implements Configuratio
     }
 
     private void invalidateCache() {
-        clearImgCachRqst = true;
+        long nowMillis = System.currentTimeMillis();
+        long deltaMillis = nowMillis - lastClearImgCacheRqstMillis;
+        if (deltaMillis < minPeriodToRecreateCacheMillis) {
+            threadPool.schedule(() -> {
+                if (System.currentTimeMillis() - lastClearImgCacheRqstMillis >= minPeriodToRecreateCacheMillis)
+                    clearImgCachRqst = true;
+            }, deltaMillis, TimeUnit.MILLISECONDS);
+        }
+        else {
+            clearImgCachRqst = true;
+        }
     }
 
     public boolean updateValues() {
@@ -1282,7 +1301,6 @@ public class RhodamineOilVisualizer extends ConsoleLayer implements Configuratio
             }
             g2.dispose();
         }
-
     }
 
     private void checkIfClearCache() {
@@ -1290,6 +1308,7 @@ public class RhodamineOilVisualizer extends ConsoleLayer implements Configuratio
             offScreenImageControlData.triggerImageRebuild();
             offScreenImageControlPrediction.triggerImageRebuild();
             clearImgCachRqst = false;
+            lastClearImgCacheRqstMillis = System.currentTimeMillis();
         }
         
         if (clearColorBarImgCachRqst) {
