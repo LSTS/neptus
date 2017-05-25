@@ -305,6 +305,20 @@ public class AreaSurvey extends FollowPath {
         }
     }
 
+    /**
+     * @return the polygon
+     */
+    public final PolygonType getPolygon() {
+        return polygon;
+    }
+
+    /**
+     * @param polygon the polygon to set
+     */
+    public final void setPolygon(PolygonType polygon) {
+        this.polygon = polygon;
+    }
+
     @Override
     public void setManeuverLocation(ManeuverLocation location) {
         double offsets[] = location.getOffsetFrom(getManeuverLocation());
