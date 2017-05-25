@@ -624,18 +624,14 @@ public class MVPlannerInteraction extends ConsoleInteraction {
                 }
             }
 
-            // add new sub-surveys
-            // note: the original survey is now a sub-survey
             for(SurveyAreaTask task : toBeSplit)
                 Arrays.stream(task.splitSurvey(surveyMaxLength))
-                        .forEach(s -> tasks.add(s));
-
+                        .forEach(s -> {tasks.add(s); System.out.println("Added task "+s.getName()+" from "+task.getName());});
             tasks.removeAll(toBeSplit);            
         }
     }
 
     private String createPlan(ProgressMonitor pm) {
-
         searchAndSplitSurveys();
         
         allocationInProgress = true;
@@ -761,7 +757,6 @@ public class MVPlannerInteraction extends ConsoleInteraction {
             try {
                 MVSolution solution = problem.getSolution();
 
-                System.out.println("SOL: " +solution);
                 if (solution != null) {
                     solution.setGeneratePopups(generatePopups);
                     solution.setScheduledGotosUsed(useScheduledGotos);
@@ -795,12 +790,8 @@ public class MVPlannerInteraction extends ConsoleInteraction {
 
                         for (String action : associatedActions) {
                             for (MVPlannerTask task : tasks) {
-                                if (task.getName().equals(action)) {
-                                    task.setAllocation(allocation);
-                                }
-                                else {
-                                    System.out.println(task.getName()+" != "+action);
-                                }
+                                if (task.getName().equals(action))
+                                    task.setAllocation(allocation);                                                                
                             }
                         }
 

@@ -99,7 +99,6 @@ public class MVSolution {
             
         try {
             actionStr = parts[1];
-
             action.type = actionStr;
             if (actionStr.contains("-"))
                 action.type = actionStr.substring(0, actionStr.indexOf('-'));
@@ -107,9 +106,14 @@ public class MVSolution {
             if (action.type.equals("getready"))
                 return null;
            
+            
             action.startTime = (long) (1000 * Double.parseDouble(parts[0]) + System.currentTimeMillis());
             action.endTime = (long) (1000 * Double.parseDouble(parts[parts.length - 1])) + action.startTime;
-            action.name = parts[3].split("_")[0];
+            action.name = parts[3];            
+            action.name = action.name.replaceAll("_entry", "");
+            action.name = action.name.replaceAll("_exit", "");
+            action.name = action.name.replaceAll("_oi", "");
+            action.name = action.name.replaceAll("_depot", "");
             action.vehicle = VehicleParams.getVehicleFromNickname(parts[2]);
             if (action.type.equals("move"))
                 action.location = new ManeuverLocation(locations.get(parts[4]));
@@ -126,6 +130,7 @@ public class MVSolution {
         double minDepth = Double.MAX_VALUE;
         double maxDepth = -Double.MAX_VALUE;
 
+        System.out.println("Parsing "+actionStr);
         if (actionStr.contains("survey") || actionStr.contains("sample")) {
             if (task.getRequiredPayloads() == null || task.getRequiredPayloads().isEmpty()) {
                 minDepth = maxDepth = DEFAULT_DEPTH;
@@ -258,6 +263,7 @@ public class MVSolution {
             }
 
             
+            System.out.println(act.name+" matches? "+act.name.matches("t[0-9]+(_p[0-9]+)?"));
             // just account for valid actions and not movements to depots...
             if (act.name.matches("t[0-9]+(_p[0-9]+)?")) {
                 ArrayList<String> actions = actionsPerVehicle.get(act.vehicle.getId());
