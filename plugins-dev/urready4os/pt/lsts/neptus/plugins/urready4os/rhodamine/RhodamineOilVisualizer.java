@@ -1646,8 +1646,8 @@ public class RhodamineOilVisualizer extends ConsoleLayer implements Configuratio
      * @return
      */
     private boolean isTimeValid(BaseData point) {
-        if (point.getTimeMillis() < oldestTimestampSelection
-                || point.getTimeMillis() > newestTimestampSelection)
+        if (point.getTimeMillis() / timeStampSliderScale * timeStampSliderScale < oldestTimestampSelection
+                || point.getTimeMillis() / timeStampSliderScale * timeStampSliderScale > newestTimestampSelection)
             return false;
         else
             return true;
