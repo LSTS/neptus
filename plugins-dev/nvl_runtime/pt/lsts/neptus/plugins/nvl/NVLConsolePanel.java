@@ -71,7 +71,7 @@ public class NVLConsolePanel extends ConsolePanel {
     @Override
     public void initSubPanel() {
         NeptusNVLPlatform.getInstance().associateTo(this);
-        test();
+        output = new JTextArea();
         border = BorderFactory.createTitledBorder("Script Output");
         output.setBorder(border);
         output.setEditable(false);
@@ -81,7 +81,8 @@ public class NVLConsolePanel extends ConsolePanel {
         output.append("NLV Runtime Console\n");
         outputPanel = new JScrollPane(output);//RSyntaxTextArea("Script Output")
         output.setVisible(true);
-        
+        test();
+
 
 
     }
@@ -113,12 +114,10 @@ public class NVLConsolePanel extends ConsolePanel {
         });
         
         JPanel buttons = new JPanel(new BorderLayout());
-        JPanel holder = new JPanel(new BorderLayout(1, 1));
         buttons.add(testButton);
         buttons.add(clear);
-        holder.add(buttons,BorderLayout.CENTER);
-        holder.add(outputPanel,BorderLayout.SOUTH);
-        add(holder,BorderLayout.CENTER);
+        add(buttons,BorderLayout.CENTER);
+        add(outputPanel,BorderLayout.SOUTH);
    
 //        JProgressBar progressBar = new JProgressBar(SwingConstants.HORIZONTAL);
 //        Border border = BorderFactory.createTitledBorder("Testing...");
