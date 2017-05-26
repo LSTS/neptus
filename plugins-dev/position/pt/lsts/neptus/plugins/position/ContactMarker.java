@@ -44,6 +44,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Date;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Vector;
 
 import javax.swing.AbstractAction;
@@ -97,6 +98,7 @@ import pt.lsts.neptus.util.DateTimeUtil;
 import pt.lsts.neptus.util.GuiUtils;
 import pt.lsts.neptus.util.ImageUtils;
 import pt.lsts.neptus.util.ReflectionUtil;
+import pt.lsts.neptus.util.csv.MarksCSVHandler;
 
 /**
  * @author pdias
@@ -333,6 +335,23 @@ SubPanelChangeListener, MainVehicleChangeListener {
                     dissem.add(rem);
                     MenuScroller.setScrollerFor(dissem, 25);
                 }
+
+                JMenuItem importMarks = new JMenuItem(I18n.text("Import marks"));
+                importMarks.addActionListener(e -> {
+                    List<MarkElement> importedMarks = MarksImporterPanel.showPanel(getConsole());
+
+                    if(importedMarks == null || importedMarks.isEmpty())
+                        return;
+
+                    // place marks on map
+                    importedMarks.stream()
+                            .forEach(m -> MapGroup.getMapGroupInstance(getConsole()
+                                    .getMission())
+                                    .getMaps()[0]
+                                    .addObject(m));
+
+                });
+                menus.add(importMarks);
             }
         }
 
