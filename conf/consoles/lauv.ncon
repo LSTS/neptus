@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <console name="Neptus Console" width="1282" height="1029" resizable="true" mission-file="../../missions/APDL/missao-apdl.nmisz" main-vehicle="lauv-noptilus-2">
-  <!-- Data saved on 2017-05-24T15:13:21.0Z with Neptus version @VERSION@ (compiled on @DATE@, g@SCM_REV@). -->
+  <!-- Data saved on 2017-05-26T14:17:53.0Z with Neptus version @VERSION@ (compiled on @DATE@, g@SCM_REV@). -->
   <mainpanel name="console main panel">
     <subpanel class="pt.lsts.neptus.console.plugins.containers.MigLayoutContainer" x="0" y="0" width="1280" height="945">
       <properties>
@@ -50,7 +50,7 @@
       <child class="pt.lsts.neptus.plugins.position.ContactMarker" x="0" y="0" width="0" height="0">
         <properties/>
       </child>
-      <child class="pt.lsts.neptus.controllers.ControllerPanel" x="0" y="0" width="300" height="200">
+      <child class="pt.lsts.neptus.controllers.ControllerPanel" x="0" y="0" width="0" height="0">
         <properties/>
       </child>
       <child class="pt.lsts.neptus.console.plugins.EntityStatePanel" x="0" y="0" width="0" height="0">
@@ -142,40 +142,12 @@ altitude: ${EstimatedState.alt};
       <child class="pt.lsts.neptus.console.plugins.planning.MultiVehiclePlanner" x="0" y="0" width="0" height="0">
         <properties/>
       </child>
-      <child class="pt.lsts.neptus.plugins.groovy.Groovy" x="0" y="0" width="498" height="572">
+      <child class="pt.lsts.neptus.plugins.groovy.GroovyPanel" x="0" y="0" width="498" height="572">
         <properties>
-          <entry key="groovyScript">/home/lsts/workspace/neptus-keila/conf/groovy/scripts/yoyo1</entry>
+          <entry key="groovyScript">/home/lsts/workspace/neptus-keila/conf/groovy/scripts/print_me</entry>
         </properties>
       </child>
     </subpanel>
   </mainpanel>
   <mainpanel name="console alarm panel"/>
-  <layers>
-    <layer class="pt.lsts.neptus.console.plugins.planning.DesiredPathLayer" opacity="1.0">
-      <properties/>
-    </layer>
-    <layer class="pt.lsts.neptus.plugins.position.FindMainSystemLayer" opacity="1.0">
-      <properties/>
-    </layer>
-    <layer class="pt.lsts.neptus.console.plugins.planning.MapShortcutsLayer" opacity="1.0">
-      <properties/>
-    </layer>
-    <layer class="pt.lsts.neptus.plugins.alliance.NmeaPlotter" opacity="1.0">
-      <properties/>
-    </layer>
-    <layer class="pt.lsts.neptus.console.plugins.planning.PlanSimulationLayer" opacity="1.0">
-      <properties/>
-    </layer>
-    <layer class="pt.lsts.neptus.plugins.position.painter.SystemInfoPainter" opacity="1.0">
-      <properties/>
-    </layer>
-  </layers>
-  <interactions>
-    <interaction class="pt.lsts.neptus.console.bathymLayer.DepthSoundingsInteraction">
-      <properties/>
-    </interaction>
-    <interaction class="pt.lsts.neptus.console.plugins.SystemsInteraction">
-      <properties/>
-    </interaction>
-  </interactions>
 </console>

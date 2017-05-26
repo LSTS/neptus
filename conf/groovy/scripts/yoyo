@@ -14,11 +14,11 @@ def waypoints = initialPlan.waypoints()
 
 new Plan(console).with{
 	
-	planName "YoYo_PopUp"
+	planName "YoYo_PopUp1"
 	goTo location:start
 	def startPoint = start
-	speed(speed_value,speed_unit)
-	z(z_value,z_unit)
+	speed speed_value,speed_unit
+	z z_value,z_unit
 	
 	waypoints[1..waypoints.size-1].each(){ //each waypoint of the original plan
 		waypointYoYo -> 
@@ -33,3 +33,4 @@ new Plan(console).with{
 	    vehicles "lauv-noptilus-1"
 	    addToConsole()
 }
+println "done"

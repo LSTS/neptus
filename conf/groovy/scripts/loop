@@ -6,3 +6,4 @@ while(true) {
 	plans.each {println "PLAN: "+it}
 	Thread.sleep(30000)
 }
+println "hello"
