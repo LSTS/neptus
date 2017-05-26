@@ -37,7 +37,6 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-
 import pt.lsts.imc.VehicleState;
 import pt.lsts.neptus.comm.manager.imc.ImcMsgManager;
 import pt.lsts.neptus.comm.manager.imc.ImcSystem;
@@ -150,7 +149,6 @@ public enum NeptusNVLPlatform implements NVLPlatform {
       if (consolePanel != null) {
           consolePanel.displayMessage(fmt, args); 
       }
-        
     }
 
  

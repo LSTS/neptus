@@ -33,6 +33,7 @@
 package pt.lsts.neptus.plugins.nvl;
 
 import java.awt.BorderLayout;
+import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.io.File;
 
@@ -55,7 +56,7 @@ import pt.lsts.neptus.plugins.Popup;
 
 
 @PluginDescription(name = "NVL Runtime Feature", author = "Keila Lima")
-@Popup(pos = Popup.POSITION.BOTTOM_RIGHT, width=300, height=300)
+@Popup(pos = Popup.POSITION.BOTTOM_RIGHT, width=400, height=200)
 @SuppressWarnings("serial")
 public class NVLConsolePanel extends ConsolePanel {
     
@@ -112,13 +113,15 @@ public class NVLConsolePanel extends ConsolePanel {
                             
             }
         });
+        JPanel holder = new JPanel(new BorderLayout());
+        holder.add(testButton,BorderLayout.CENTER);
+        JPanel bottom = new JPanel(new BorderLayout());
+        bottom.setPreferredSize(new Dimension(300, 150));
+        bottom.add(clear,BorderLayout.SOUTH);
+        bottom.add(outputPanel,BorderLayout.CENTER);
         
-        JPanel buttons = new JPanel(new BorderLayout());
-        buttons.add(testButton);
-        buttons.add(clear);
-        add(buttons,BorderLayout.CENTER);
-        add(outputPanel,BorderLayout.SOUTH);
-   
+        add(testButton,BorderLayout.CENTER);
+        add(bottom,BorderLayout.SOUTH);
 //        JProgressBar progressBar = new JProgressBar(SwingConstants.HORIZONTAL);
 //        Border border = BorderFactory.createTitledBorder("Testing...");
 //        progressBar.setValue(0); //TODO during task exec?
@@ -142,8 +145,12 @@ public class NVLConsolePanel extends ConsolePanel {
 
 
     public void displayMessage(String fmt, Object[] args) {
-        output.append(String.format(fmt, args));
-        output.setCaretPosition(output.getDocument().getLength());
+        
+        if(output!=null){
+            output.append(String.format(fmt, args));
+            output.append("\n");
+            output.setCaretPosition(output.getDocument().getLength());
+        }
         
     }
 
