@@ -1459,11 +1459,11 @@ public class RhodamineOilVisualizer extends ConsoleLayer implements Configuratio
                     boolean isToIgnoreTemperature = false;
                     if (bp.getSourceSystem() == null || bp.getSourceSystem().trim().isEmpty()) {
                         isToIgnoreRhodamine = systemsToIgnoreRhodamineList.contains("unknown");
-                        isToIgnoreTemperature = systemsToIgnoreRhodamineList.contains("unknown");
+                        isToIgnoreTemperature = systemsToIgnoreTemperatureList.contains("unknown");
                     }
                     else {
                         isToIgnoreRhodamine = systemsToIgnoreRhodamineList.contains(bp.getSourceSystem().toLowerCase());
-                        isToIgnoreTemperature = systemsToIgnoreRhodamineList.contains(bp.getSourceSystem().toLowerCase());
+                        isToIgnoreTemperature = systemsToIgnoreTemperatureList.contains(bp.getSourceSystem().toLowerCase());
                     }
                     if (isToIgnoreRhodamine && isToIgnoreTemperature)
                         return;
