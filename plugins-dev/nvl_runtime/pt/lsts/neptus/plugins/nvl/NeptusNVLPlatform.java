@@ -120,6 +120,7 @@ public enum NeptusNVLPlatform implements NVLPlatform {
     public PlatformTask getPlatformTask(String id) {
         PlatformTask task = imcPlanTasks.get(id);
         if (task == null) {
+            nvlInfoMessage("No such IMC plan: " + id);
             throw new NVLExecutionException("No such IMC plan: " + id);
         }
         return task;

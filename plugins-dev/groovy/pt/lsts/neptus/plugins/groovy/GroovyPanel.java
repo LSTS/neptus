@@ -74,16 +74,16 @@ import pt.lsts.neptus.util.ImageUtils;
  *
  */
 @PluginDescription(name = "Groovy Feature", author = "Keila Lima",icon="pt/lsts/neptus/plugins/groovy/images/groovy.png")
-@Popup(pos = POSITION.RIGHT, width=500, height=600, accelerator='y')
+@Popup(pos = POSITION.RIGHT, width=500, height=600)
 @SuppressWarnings("serial")
 public class GroovyPanel extends ConsolePanel {
-    GroovyEngine engine;
+    private GroovyEngine engine;
     private OutputStream scriptOutput;
-    public JButton openButton,stopScript,runScript;
+    private JButton openButton,stopScript,runScript;
     private Border border;
     private JPanel bottom,buttons;
     private JScrollPane outputPanel;
-    public JTextArea output;
+    private JTextArea output;
     private RSyntaxTextArea editor; 
     
     @NeptusProperty
@@ -94,6 +94,7 @@ public class GroovyPanel extends ConsolePanel {
      */
     public GroovyPanel(ConsoleLayout console) {
         super(console);
+        engine = new GroovyEngine(this);
         
     }
 
@@ -121,7 +122,7 @@ public class GroovyPanel extends ConsolePanel {
     @Override
     public void initSubPanel() {
         removeAll();
-        GroovyEngine engine = new GroovyEngine(this);
+        
 
         //Text editor
         setLayout(new BorderLayout(5,5));
@@ -139,7 +140,7 @@ public class GroovyPanel extends ConsolePanel {
             }
             catch (Exception e) {
                 NeptusLog.pub().error(e);
-                groovyScript = null;
+                groovyScript = new File(groovyScript.getPath());
             }
         }
                     
@@ -206,14 +207,32 @@ public class GroovyPanel extends ConsolePanel {
         output.setVisible(true);
         
 }
+    
+
+    /**
+     * @param string
+     */
+    public void appendOutput(String string) {
+        output.append(string);
+        output.setCaretPosition(output.getDocument().getLength());
+    }
+
     @Subscribe
     public void on(ConsoleEventPlanChange changedPlan) {
-        engine.onPlanChange(changedPlan);
+        engine.planChange(changedPlan);
     }
 
     @Subscribe
     public void onVehicleStateChanged(ConsoleEventVehicleStateChanged e) {
-        engine.onVehicleStateChanged(e);
+        engine.vehicleStateChanged(e);
+    }
+
+    /**
+     * 
+     */
+    public void disableStopButton() {
+        if(stopScript.isEnabled())
+            stopScript.setEnabled(false);        
     }
 
 }

@@ -33,8 +33,8 @@
 package pt.lsts.neptus.plugins.groovy;
 
 import java.io.IOException;
-import java.io.OutputStream;
-import java.io.PrintStream;
+import java.io.PrintWriter;
+import java.io.Writer;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
@@ -71,8 +71,8 @@ public class GroovyEngine {
     private Thread runningThread;
     private ImportCustomizer customizer;
     private GroovyPanel console;
-    private OutputStream scriptOutput;
-    
+    private final Writer  scriptOutput;
+    private  PrintWriter ps;
     public Thread getRunninThread(){
         return runningThread;
             
@@ -81,17 +81,36 @@ public class GroovyEngine {
     public GroovyEngine(GroovyPanel c){
         this.console = c;
         add_console_vars();
-        scriptOutput = new OutputStream(){
+        scriptOutput = new Writer(){
+//            @Override
+//            public void write(int b) throws IOException {
+//                System.out.println("Output: "+String.valueOf((char)b));
+//                console.appendOutput(String.valueOf((char)b));
+//            }
+
             @Override
-            public void write(int b) throws IOException {
-                //System.out.println("Output: "+String.valueOf((char)b));
-                console.output.append(String.valueOf((char)b));
-                console.output.setCaretPosition(console.output.getDocument().getLength());
+            public void write(char[] cbuf, int off, int len) throws IOException {
+                    //System.out.println("Char buffer: "+ String.valueOf(cbuf, off, len));
+                    console.appendOutput(String.valueOf(cbuf, off, len));
+
+                
+            }
+
+            @Override
+            public void flush() throws IOException {
+                // TODO Auto-generated method stub
+                
+            }
+
+            @Override
+            public void close() throws IOException {
+                // TODO Auto-generated method stub
+                
             }
     };
-    PrintStream ps = new PrintStream(scriptOutput);
-    binds.setProperty("out",ps);
-    }
+    ps = new PrintWriter(scriptOutput);
+        
+  }
     
     /**
      * 
@@ -102,11 +121,8 @@ public class GroovyEngine {
 //        for(ImcSystem vec: ImcSystemsHolder.lookupActiveSystemVehicles())
 //            this.vehicles.put(vec.getName(),VehiclesHolder.getVehicleById(vec.getName()));
         this.binds.setVariable("plans", console.getConsole().getMission().getIndividualPlansList());
-        
-//      PlanType pt = getConsole().getMission().getIndividualPlansList().get("");
-//      PlanUtil.getPlanWaypoints(pt); //TODO
-//      this.plans.putAll(getConsole().getMission().getIndividualPlansList());
-       
+      
+     
         //POI/MarkElement
         for( MarkElement mark:MapGroup.getMapGroupInstance(console.getConsole().getMission()).getAllObjectsOfType(MarkElement.class)){
             locations.put(mark.getId(),mark.getPosition());
@@ -125,7 +141,8 @@ public class GroovyEngine {
         this.binds.setVariable("result", null);
         try {
             //Description/notification: "Place your groovy scripts in the folder script of the plugin"
-            this.engine = new GroovyScriptEngine("conf/groovy/scripts/");
+            this.engine = new GroovyScriptEngine("conf/groovy/scripts/",console.getClass().getClassLoader());//new GroovyScriptEngine("conf/groovy/scripts/");
+            
             this.engine.setConfig(this.config);
 
         }
@@ -138,29 +155,28 @@ public class GroovyEngine {
         if(runningThread != null && runningThread.isAlive()){
             runningThread.interrupt();
         }
-        if(console.stopScript.isEnabled())
-            console.stopScript.setEnabled(false);
+        console.disableStopButton();
+       
     }
 
     
     public void runScript(String groovyScript) {
+        
         runningThread = new Thread() {
 
             @Override
             public void run() {
                 try {
+                    binds.setProperty("out",ps);
                     engine.run(groovyScript, binds);
-                    stopScript();
                     
-
                 }
                 catch (Exception   e) { //CompilationFailedException | ResourceException | ScriptException
                       NeptusLog.pub().error("Exception Caught during execution of script: "+groovyScript,e);e.printStackTrace();
-                      console.output.append("Error: "+e.getMessage());
-                      if(runningThread!=null && runningThread.isAlive())
-                          runningThread.interrupt();
-                      if(console.stopScript.isEnabled())
-                          console.stopScript.setEnabled(false);
+                      console.appendOutput("Error: \n\t"+e.getMessage());
+                      console.disableStopButton();
+                      stopScript();
+                      
                       }
                   catch(ThreadDeath e){ 
                       NeptusLog.pub().info("Exiting script execution: "+groovyScript);
@@ -174,7 +190,7 @@ public class GroovyEngine {
     /**
      * @param changedPlan
      */
-    public void onPlanChange(ConsoleEventPlanChange changedPlan) {
+    public void planChange(ConsoleEventPlanChange changedPlan) {
         if(changedPlan.getCurrent() == null){
             if(!console.getConsole().getMission().getIndividualPlansList().containsKey(changedPlan.getOld().getId())){
                 //System.out.println("Plan "+changedPlan.getOld().getId()+" removed.");
@@ -185,8 +201,6 @@ public class GroovyEngine {
             else{
                 plans.put(changedPlan.getCurrent().getId(), changedPlan.getCurrent());
                 binds.setVariable("plans", plans.keySet().toArray());
-                //System.out.println("New Plan!! "+changedPlan.getCurrent().getId());
-                
             }
         }
         
@@ -195,7 +209,7 @@ public class GroovyEngine {
     /**
      * @param e
      */
-    public void onVehicleStateChanged(ConsoleEventVehicleStateChanged e) {
+    public void vehicleStateChanged(ConsoleEventVehicleStateChanged e) {
         switch (e.getState()) {
             case SERVICE: //case CONNECTED
                 if (ImcSystemsHolder.getSystemWithName(e.getVehicle()).isActive()) {
@@ -257,7 +271,7 @@ public class GroovyEngine {
  /*   @Subscribe
     public void on(PlanControlState pcs) {
         if(!pcs.getLastOutcome().equals(LAST_OUTCOME.FAILURE) && pcs.getState().equals(STATE.EXECUTING)){
-            states.put(pcs.getPlanId(), pcs);//TODO get location???
+            states.put(pcs.getPlanId(), pcs);
            
         }
         else if(pcs.getLastOutcome().equals(LAST_OUTCOME.SUCCESS)){

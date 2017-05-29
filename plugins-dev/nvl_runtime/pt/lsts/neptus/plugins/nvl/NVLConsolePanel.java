@@ -105,7 +105,7 @@ public class NVLConsolePanel extends ConsolePanel {
                         }).start();
                     }
                 });
-        JButton clear = new JButton(new AbstractAction(I18n.text("Clean Console!")) {
+        JButton clear = new JButton(new AbstractAction(I18n.text("Clear Console!")) {
             
             @Override
             public void actionPerformed(ActionEvent e) {
