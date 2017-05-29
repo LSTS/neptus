@@ -1,0 +1,6 @@
+def y =3
+
+println "Y = "+y+"\n"
+def p = new Plan(console)
+p.planName "XPTO"
+println p.getPlan_id()

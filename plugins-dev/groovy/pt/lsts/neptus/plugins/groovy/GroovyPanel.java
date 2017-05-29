@@ -33,6 +33,7 @@
 package pt.lsts.neptus.plugins.groovy;
 
 import java.awt.BorderLayout;
+import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.io.File;
 import java.io.OutputStream;
@@ -79,7 +80,7 @@ import pt.lsts.neptus.util.ImageUtils;
 public class GroovyPanel extends ConsolePanel {
     private GroovyEngine engine;
     private OutputStream scriptOutput;
-    private JButton openButton,stopScript,runScript;
+    private JButton openButton,stopScript,runScript,clearOutput;
     private Border border;
     private JPanel bottom,buttons;
     private JScrollPane outputPanel;
@@ -184,28 +185,39 @@ public class GroovyPanel extends ConsolePanel {
             }
         };
         
-        openButton = new JButton(selectAction); 
-        stopScript = new JButton(stopAction);
-        runScript  = new JButton(runAction);
+        Action clearAction =  new AbstractAction(I18n.text("Clear Output")){
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                output.setText("");
+             }
+        };
+        
+        openButton  = new JButton(selectAction); 
+        stopScript  = new JButton(stopAction);
+        runScript   = new JButton(runAction);
+        clearOutput = new JButton(clearAction);
         
         buttons.add(openButton);
         buttons.add(runScript);
         buttons.add(stopScript);
+        buttons.add(clearOutput);
+        
         bottom.add(buttons);
         border = BorderFactory.createTitledBorder("Script Output");
+        
         output.setBorder(border);
         output.setEditable(false);
         output.setVisible(true);
 //        output.setBackground(Color.BLACK);
-//        output.setCaretColor(Color.WHITE);
+        
         output.append("OUTPUT GOES HERE \n");
         outputPanel = new JScrollPane(output);//RSyntaxTextArea("Script Output")
+        outputPanel.setPreferredSize(new Dimension(500, 100));
         bottom.add(outputPanel, BorderLayout.SOUTH);
         add(bottom, BorderLayout.SOUTH);
         add(scroll, BorderLayout.CENTER);
         stopScript.setEnabled(false);
         output.setVisible(true);
-        
 }
     
 

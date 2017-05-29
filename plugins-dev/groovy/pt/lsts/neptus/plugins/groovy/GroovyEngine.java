@@ -71,7 +71,7 @@ public class GroovyEngine {
     private Thread runningThread;
     private ImportCustomizer customizer;
     private GroovyPanel console;
-    private final Writer  scriptOutput;
+    private Writer  scriptOutput;
     private  PrintWriter ps;
     public Thread getRunninThread(){
         return runningThread;
@@ -87,29 +87,39 @@ public class GroovyEngine {
 //                System.out.println("Output: "+String.valueOf((char)b));
 //                console.appendOutput(String.valueOf((char)b));
 //            }
+            @Override
+            public void write(char[] cbuf){
+                System.out.println("Char []: "+ String.valueOf(cbuf));
+                console.appendOutput(String.valueOf(cbuf));
+            }
+            @Override
+            public void write(int c){
+              System.out.println("Output: "+String.valueOf((char)c));
+              System.out.println("Output sem casting: "+String.valueOf(c));
+              console.appendOutput(String.valueOf((char)c));
+            }
+            @Override
+            public void write(String str){
+                System.out.println("Str: "+ str);
+                console.appendOutput(str);
+            }
 
             @Override
             public void write(char[] cbuf, int off, int len) throws IOException {
-                    //System.out.println("Char buffer: "+ String.valueOf(cbuf, off, len));
+                    System.out.println("Char buffer: "+ String.valueOf(cbuf, off, len));
                     console.appendOutput(String.valueOf(cbuf, off, len));
-
-                
             }
 
             @Override
             public void flush() throws IOException {
-                // TODO Auto-generated method stub
-                
             }
 
             @Override
             public void close() throws IOException {
-                // TODO Auto-generated method stub
-                
             }
     };
-    ps = new PrintWriter(scriptOutput);
-        
+    ps = new PrintWriter(scriptOutput,true);
+
   }
     
     /**
@@ -141,7 +151,7 @@ public class GroovyEngine {
         this.binds.setVariable("result", null);
         try {
             //Description/notification: "Place your groovy scripts in the folder script of the plugin"
-            this.engine = new GroovyScriptEngine("conf/groovy/scripts/",console.getClass().getClassLoader());//new GroovyScriptEngine("conf/groovy/scripts/");
+            this.engine = new GroovyScriptEngine("conf/groovy/scripts/");//new GroovyScriptEngine("conf/groovy/scripts/");
             
             this.engine.setConfig(this.config);
 
@@ -154,9 +164,7 @@ public class GroovyEngine {
     public void stopScript() {
         if(runningThread != null && runningThread.isAlive()){
             runningThread.interrupt();
-        }
-        console.disableStopButton();
-       
+        }       
     }
 
     
@@ -169,10 +177,10 @@ public class GroovyEngine {
                 try {
                     binds.setProperty("out",ps);
                     engine.run(groovyScript, binds);
-                    
+                    console.disableStopButton();                    
                 }
                 catch (Exception   e) { //CompilationFailedException | ResourceException | ScriptException
-                      NeptusLog.pub().error("Exception Caught during execution of script: "+groovyScript,e);e.printStackTrace();
+                      NeptusLog.pub().error("Exception Caught during execution of script: "+groovyScript,e);//e.printStackTrace();
                       console.appendOutput("Error: \n\t"+e.getMessage());
                       console.disableStopButton();
                       stopScript();
