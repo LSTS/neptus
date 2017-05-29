@@ -342,6 +342,43 @@ public class PolygonType implements Renderer2DPainter {
     public double getDiameter() {
         return getDiameterAndAngle().first();
     }
+    
+    public double getArea() {
+        double sum = 0;
+        
+        synchronized (vertices) {
+            if (vertices.size() < 2)
+                return 0;
+            
+            LocationType pivot = vertices.get(0).getLocation();
+            
+            for (int i = 1; i < vertices.size(); i++) {
+                double[] cur = vertices.get(i).getLocation().getOffsetFrom(pivot);
+                double[] prev = vertices.get(i-1).getLocation().getOffsetFrom(pivot);
+                sum += (prev[0] * cur[1]) - (prev[1] * cur[0]); 
+            }
+            
+            double[] cur = vertices.get(vertices.size()-1).getLocation().getOffsetFrom(pivot);
+            double[] prev = vertices.get(0).getLocation().getOffsetFrom(pivot);
+            sum += (prev[0] * cur[1]) - (prev[1] * cur[0]);
+        }
+        
+        return Math.abs(sum / 2);
+    }
+    
+    public ArrayList<PolygonType> splitEvenAreas(int numAreas) {
+        ArrayList<PolygonType> polygons = new ArrayList<>();
+        Pair<Double, Double> diamAng = getDiameterAndAngle();
+        
+        
+        
+        //FIXME
+        for (int i = 0; i < diamAng.first(); i++) {
+            
+        }
+        return polygons;
+        
+    }
 
     public ArrayList<LocationType> getCoveragePath(double angle, double swathWidth, int corner) {
         ArrayList<Point2D> points = new ArrayList<>();
@@ -432,12 +469,13 @@ public class PolygonType implements Renderer2DPainter {
         LocationType loc4 = new LocationType(loc).translatePosition(130, 70, 0);
 
         pt.addVertex(loc);
-        pt.addVertex(loc1);
+        //pt.addVertex(loc1);
         pt.addVertex(loc2);
         pt.addVertex(loc3);
         pt.addVertex(loc4);
         pt.recomputePath();
 
+        System.out.println(pt.getArea());
         System.out.println(System.currentTimeMillis());
         pt.getCoveragePath(20, 0);
         System.out.println(System.currentTimeMillis());
