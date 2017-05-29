@@ -209,6 +209,10 @@ public class PolygonType implements Renderer2DPainter {
             elem.setFinished(true);
         }
     }
+    
+    public boolean containsPoint(LocationType loc) {
+        return elem.containsPoint(loc, null);
+    }
 
     @Override
     public String toString() {

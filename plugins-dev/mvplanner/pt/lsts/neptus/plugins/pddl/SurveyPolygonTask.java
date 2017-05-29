@@ -34,9 +34,19 @@ package pt.lsts.neptus.plugins.pddl;
 
 import java.awt.Color;
 import java.awt.Graphics2D;
+import java.awt.event.MouseEvent;
+import java.awt.geom.Ellipse2D;
 import java.awt.geom.Point2D;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.Serializable;
+import java.io.StringReader;
+import java.io.StringWriter;
+import java.util.ArrayList;
 import java.util.HashSet;
+
+import javax.xml.bind.JAXB;
 
 import pt.lsts.neptus.mp.ManeuverLocation;
 import pt.lsts.neptus.mp.maneuvers.AreaSurvey;
@@ -44,6 +54,7 @@ import pt.lsts.neptus.mp.maneuvers.ManeuversUtil;
 import pt.lsts.neptus.renderer2d.StateRenderer2D;
 import pt.lsts.neptus.types.coord.LocationType;
 import pt.lsts.neptus.types.coord.PolygonType;
+import pt.lsts.neptus.types.coord.PolygonType.Vertex;
 import pt.lsts.neptus.types.map.MarkElement;
 import pt.lsts.neptus.util.GuiUtils;
 
@@ -75,7 +86,7 @@ public class SurveyPolygonTask extends MVPlannerTask {
         area.addVertex(se);
         area.addVertex(sw);
         area.recomputePath();
-        
+
         entry.setId(getName() + "_entry");
         exit.setId(getName() + "_exit");
         updateManeuver();
@@ -92,14 +103,23 @@ public class SurveyPolygonTask extends MVPlannerTask {
 
     @Override
     public boolean containsPoint(LocationType lt, StateRenderer2D renderer) {
-        // FIXME
+        if (area.containsPoint(lt))
+            return true;
+        
+        Point2D screen = renderer.getScreenPosition(lt);
+        for (PolygonType.Vertex v : area.getVertices()) {
+            Point2D pt = renderer.getScreenPosition(v.getLocation());
+
+            if (pt.distance(screen) < 10) {
+                return true;
+            }
+        }
         return false;
     }
 
     @Override
     public void translate(double offsetNorth, double offsetEast) {
-        area.translate(offsetNorth, offsetEast);
-        updateManeuver();
+        pivot.translate(offsetNorth, offsetEast, 0);
     }
 
     @Override
@@ -110,19 +130,16 @@ public class SurveyPolygonTask extends MVPlannerTask {
     @Override
     public void rotate(double amountRads) {
         area.rotate(amountRads);
-        System.out.println("rotate");
         updateManeuver();
     }
 
     @Override
     public void growWidth(double amount) {
-        System.out.println("grow width");
         updateManeuver();
     }
 
     @Override
     public void growLength(double amount) {
-        System.out.println("grow length");
         updateManeuver();
     }
 
@@ -150,16 +167,22 @@ public class SurveyPolygonTask extends MVPlannerTask {
         }
         entry.setCenterLocation(getEntryPoint());
         exit.setCenterLocation(getEndPoint());
-        pivot.setPolygon(area);        
+        pivot.setPolygon(area);
     }
 
     @Override
     public void paint(Graphics2D g, StateRenderer2D renderer) {
         Graphics2D copy = (Graphics2D) g.create();
         area.setColor(new Color(128, 180, 128, 64));
-        area.paint((Graphics2D) g.create(), renderer);        
+        area.paint((Graphics2D) g.create(), renderer);
+        g.setColor(Color.magenta);
+        for (Vertex v : area.getVertices()) {
+            Point2D pt = renderer.getScreenPosition(v.getLocation());
+            g.fill(new Ellipse2D.Double(pt.getX() - 5, pt.getY() - 5, 10, 10));
+        }
+
         Point2D pt = renderer.getScreenPosition(pivot.getManeuverLocation());
-        
+
         copy.translate(pt.getX(), pt.getY());
         copy.rotate(-renderer.getRotation() - Math.PI / 2);
         ManeuversUtil.paintPointLineList(copy, renderer.getZoom(), pivot.getPathPoints(), false, 0);
@@ -176,6 +199,7 @@ public class SurveyPolygonTask extends MVPlannerTask {
         else
             g.setColor(Color.orange);
         g.drawString(getName() + " (" + payloads + ")", (int) pt.getX() + 7, (int) pt.getY() + 7);
+
     }
 
     public double getLength() {
@@ -196,37 +220,112 @@ public class SurveyPolygonTask extends MVPlannerTask {
 
     @Override
     public String marshall() throws IOException {
-        LocationType loc = new LocationType(getCenterLocation());
-        loc.convertToAbsoluteLatLonDepth();
-        // FIXME
-        // double length = area.getLength(), width = area.getWidth(), bearing = area.getYawDeg();
-        return "";//String.format("polygon %s %s %f %f %f %f %f %s", getName(), isFirstPriority(),
-                  // loc.getLatitudeDegs(),
-                  // loc.getLongitudeDegs(), length, width, bearing, getRequiredPayloads());
+
+        SurveyPolygonModel model = new SurveyPolygonModel();
+        model.firstPriority = isFirstPriority();
+        model.name = getName();
+        model.payloads.addAll(getRequiredPayloads());
+        LocationType loc = new LocationType(pivot.getManeuverLocation()).convertToAbsoluteLatLonDepth();
+        model.startLocation = new Point2D.Double(loc.getLatitudeDegs(), loc.getLongitudeDegs());
+        area.getVertices().stream().forEach(v -> {
+            model.points.add(new Point2D.Double(v.getLatitudeDegs(), v.getLongitudeDegs()));
+        });
+        StringWriter writer = new StringWriter();
+        JAXB.marshal(model, writer);
+        return writer.toString();
     }
 
     @Override
     public void unmarshall(String data) throws IOException {
-        // FIXME
-        // Scanner input = new Scanner(data);
-        // input.next("[\\w]+");
-        // this.name = input.next("[\\w]+");
-        // this.firstPriority = input.nextBoolean();
-        // double latDegs = input.nextDouble();
-        // double lonDegs = input.nextDouble();
-        // area.setCenterLocation(new LocationType(latDegs, lonDegs));
-        // area.setLength(input.nextDouble());
-        // area.setWidth(input.nextDouble());
-        // area.setYawDeg(input.nextDouble());
-        // String[] payloads = input.nextLine().replaceAll("[\\[\\]]", "").trim().split("[, ]+");
-        // getRequiredPayloads().clear();
-        // for (String p : payloads)
-        // getRequiredPayloads().add(PayloadRequirement.valueOf(p));
-        // updateManeuver();
-        // input.close();
+        SurveyPolygonModel model = JAXB.unmarshal(new StringReader(data), SurveyPolygonModel.class);
+        
+        setFirstPriority(model.firstPriority);
+        name = model.name;
+        requiredPayloads.clear();
+        requiredPayloads.addAll(model.payloads);
+        area.clearVertices();
+        model.points.stream().forEach(p -> {
+            area.addVertex(new LocationType(p.x, p.y));
+        });
+        area.recomputePath();
+        pivot.setManeuverLocation(new ManeuverLocation(new LocationType(model.startLocation.x, model.startLocation.y)));
+        pivot.setPolygon(area);
+        pivot.recalcPoints();
+    }
+
+    LocationType lastPoint = null;
+    Point2D lastScreenPoint = null;
+    Vertex clickedVertex = null;
+
+    @Override
+    public void mouseDragged(MouseEvent e, StateRenderer2D renderer) {
+        double xamount = e.getX() - lastScreenPoint.getX();
+        if (e.isShiftDown()) {            
+            rotate(xamount / 40.0);
+            lastScreenPoint = e.getPoint();
+            return;
+        }
+        if (clickedVertex != null) {
+            clickedVertex.setLocation(renderer.getRealWorldLocation(e.getPoint()));
+            area.recomputePath();
+            pivot.recalcPoints();
+        }
+        else if (e.isControlDown() && clickedVertex == null) {
+
+        }
+        else if (lastPoint != null) {
+            LocationType loc = renderer.getRealWorldLocation(e.getPoint());
+            double offsets[] = loc.getOffsetFrom(lastPoint);
+            translate(offsets[0], offsets[1]);
+        }
+
+        lastPoint = renderer.getRealWorldLocation(e.getPoint());
+        lastScreenPoint = e.getPoint();
+    }
+
+    @Override
+    public void mouseMoved(MouseEvent e, StateRenderer2D renderer) {
+        //System.out.println(getName() + " Mouse moved");
+    }
+
+    @Override
+    public void mousePressed(MouseEvent e, StateRenderer2D renderer) {
+        //System.out.println(getName() + " Mouse pressed");
+        lastPoint = renderer.getRealWorldLocation(e.getPoint());
+        lastScreenPoint = e.getPoint();
+
+        for (PolygonType.Vertex v : area.getVertices()) {
+            Point2D pt = renderer.getScreenPosition(v.getLocation());
+
+            if (pt.distance(e.getPoint()) < 15) {
+                clickedVertex = v;
+                return;
+            }
+        }
+        clickedVertex = null;
+
+    }
+
+    @Override
+    public void mouseReleased(MouseEvent e, StateRenderer2D renderer) {
+        //System.out.println(getName() + " Mouse released");
+        lastPoint = null;
+        lastScreenPoint = null;
+        clickedVertex = null;
     }
 
     public static void main(String[] args) throws Exception {
+        SurveyPolygonModel model = new SurveyPolygonModel();
+        model.startLocation = new Point2D.Double(41, -8);
+        model.name = "This is the name!";
+        model.payloads.add(PayloadRequirement.sidescan);
+        model.payloads.add(PayloadRequirement.camera);
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        JAXB.marshal(model, baos);
+        SurveyPolygonModel m2 = JAXB.unmarshal(new ByteArrayInputStream(baos.toByteArray()), SurveyPolygonModel.class);
+        JAXB.marshal(model, System.out);
+        JAXB.marshal(m2, System.out);
+
         SurveyPolygonTask task = new SurveyPolygonTask(new LocationType(41, -8.0002));
         task.rotate(Math.toDegrees(10));
         task.requiredPayloads.add(PayloadRequirement.sidescan);
@@ -238,6 +337,15 @@ public class SurveyPolygonTask extends MVPlannerTask {
         StateRenderer2D renderer = new StateRenderer2D(new LocationType(41, -8));
         renderer.addPostRenderPainter(task, "task");
         GuiUtils.testFrame(renderer);
+
+    }
+
+    private static class SurveyPolygonModel implements Serializable {
+        public ArrayList<Point2D.Double> points = new ArrayList<>();
+        public Point2D.Double startLocation = null;
+        public String name = "";
+        public boolean firstPriority = false;
+        public ArrayList<PayloadRequirement> payloads = new ArrayList<>();
     }
 
 }

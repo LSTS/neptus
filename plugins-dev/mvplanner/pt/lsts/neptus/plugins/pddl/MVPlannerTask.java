@@ -33,6 +33,8 @@
 package pt.lsts.neptus.plugins.pddl;
 
 import java.awt.Image;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
@@ -241,4 +243,22 @@ public abstract class MVPlannerTask implements Renderer2DPainter, PropertiesProv
             writer.write(task.marshall() + "\n");
         writer.close();
     }
+    
+    public void mousePressed(MouseEvent e, StateRenderer2D renderer) {
+        
+    }
+    
+    public void mouseReleased(MouseEvent e, StateRenderer2D renderer) {
+        
+    }
+        
+    public void mouseDragged(MouseEvent e, StateRenderer2D renderer) {
+        
+    }
+    
+    public void mouseMoved(MouseEvent e, StateRenderer2D renderer) {
+        
+    }
+    
+    
 }

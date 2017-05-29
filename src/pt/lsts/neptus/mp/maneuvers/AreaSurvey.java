@@ -256,7 +256,7 @@ public class AreaSurvey extends FollowPath {
     /**
      * Call this to update the maneuver points.
      */
-    protected void recalcPoints() {
+    public void recalcPoints() {
         ArrayList<LocationType> locs;
 
         if (calculateAngle)
@@ -317,6 +317,7 @@ public class AreaSurvey extends FollowPath {
      */
     public final void setPolygon(PolygonType polygon) {
         this.polygon = polygon;
+        recalcPoints();
     }
 
     @Override

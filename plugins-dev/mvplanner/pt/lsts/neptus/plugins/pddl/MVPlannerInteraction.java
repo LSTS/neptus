@@ -388,6 +388,31 @@ public class MVPlannerInteraction extends ConsoleInteraction {
                 source.repaint();
             }
         });
+        
+        popup.add("Add polygon survey").addActionListener(new ActionListener() {
+
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                SurveyPolygonTask task = null;
+                while (true) {
+                    task = new SurveyPolygonTask(source.getRealWorldLocation(event.getPoint()));
+                    boolean found = false;
+                    for (MVPlannerTask t : tasks) {
+                        if (t.getName().equals(task.getName())) {
+                            found = true;
+                            break;
+                        }
+                    }
+                    if (!found)
+                        break;
+                }
+                if (!PropertiesEditor.editProperties(task, true)) {
+                    tasks.add(task);
+                    saveState();
+                }
+                source.repaint();
+            }
+        });
 
         popup.add("Add sample task").addActionListener(new ActionListener() {
 
@@ -513,6 +538,7 @@ public class MVPlannerInteraction extends ConsoleInteraction {
         if (selected == null)
             super.mousePressed(event, source);
         else {
+            selected.mousePressed(event, source);
             selectedTask = selected;
             lastPoint = event.getPoint();
         }
@@ -520,9 +546,11 @@ public class MVPlannerInteraction extends ConsoleInteraction {
 
     @Override
     public void mouseReleased(MouseEvent event, StateRenderer2D source) {
-        if (selectedTask != null)
+        if (selectedTask != null) {
             saveState();
-
+            selectedTask.mouseReleased(event, source);
+        }
+        
         selectedTask = null;
         lastPoint = null;
         super.mouseReleased(event, source);
@@ -531,53 +559,25 @@ public class MVPlannerInteraction extends ConsoleInteraction {
     @Override
     public void mouseMoved(MouseEvent event, StateRenderer2D source) {
         
-        Point2D mouse_pt = event.getPoint();
-        MVPlannerTask task = null;
-        
         synchronized (tasks) {
             for (MVPlannerTask t : tasks) {
-                Point2D task_pt = source.getScreenPosition(t.getCenterLocation());
-                
-                if (task_pt.distance(mouse_pt) < 5) {
-                    task = t;
-                    System.out.println(t.name);
+                if (t.containsPoint(source.getRealWorldLocation(event.getPoint()), source)) {
+                    t.mouseMoved(event, source);
                     break;
-                }            
+                }
             }
         }
-        
-        
-        
     }
     
     @Override
     public void mouseDragged(MouseEvent event, StateRenderer2D source) {
+        
         if (selectedTask == null) {
             super.mouseDragged(event, source);
             return;
         }
-
-        LocationType prev = source.getRealWorldLocation(lastPoint);
-        LocationType now = source.getRealWorldLocation(event.getPoint());
-
-        double xamount = event.getX() - lastPoint.getX();
-        double yamount = event.getY() - lastPoint.getY();
-
-        if (event.isControlDown()) {
-            selectedTask.growLength(-yamount * 5 / source.getZoom());
-            selectedTask.growWidth(xamount * 5 / source.getZoom());
-        }
-        else if (event.isShiftDown()) {
-            double angle = selectedTask.getCenterLocation().getXYAngle(now);
-            selectedTask.setYaw(angle);            
-        }
-        else {
-            double offsets[] = now.getOffsetFrom(prev);
-            selectedTask.translate(offsets[0], offsets[1]);
-        }
-
-        // change selected task
-        lastPoint = event.getPoint();
+        
+        selectedTask.mouseDragged(event, source);
     }
 
     @Override
@@ -634,6 +634,8 @@ public class MVPlannerInteraction extends ConsoleInteraction {
     private String createPlan(ProgressMonitor pm) {
         searchAndSplitSurveys();
         
+        
+        System.out.println(tasks);
         allocationInProgress = true;
         
         Vector<VehicleType> activeVehicles = new Vector<VehicleType>();

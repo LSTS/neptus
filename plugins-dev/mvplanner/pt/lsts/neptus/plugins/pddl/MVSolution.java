@@ -42,6 +42,7 @@ import pt.lsts.neptus.data.Pair;
 import pt.lsts.neptus.mp.Maneuver;
 import pt.lsts.neptus.mp.ManeuverLocation;
 import pt.lsts.neptus.mp.ManeuverLocation.Z_UNITS;
+import pt.lsts.neptus.mp.maneuvers.AreaSurvey;
 import pt.lsts.neptus.mp.maneuvers.Goto;
 import pt.lsts.neptus.mp.maneuvers.LocatedManeuver;
 import pt.lsts.neptus.mp.maneuvers.Loiter;
@@ -350,14 +351,27 @@ public class MVSolution {
                 break;
             }
             case "survey": {
-                SurveyAreaTask surveyTask = (SurveyAreaTask) tasks.get(action.name);
-                RowsManeuver rows = (RowsManeuver) surveyTask.getPivot().clone();
-                rows.setManeuverLocation(action.location);
-                rows.setSpeed(1.0);
-                rows.setSpeedUnits(Maneuver.SPEED_UNITS.METERS_PS);
-                ManeuverPayloadConfig payloadConfig = new ManeuverPayloadConfig(action.vehicle.getId(), rows, null);
-                enablePayloads(payloadConfig, action.payloads);
-                m = rows;
+                if (tasks.get(action.name) instanceof SurveyAreaTask) {
+                    SurveyAreaTask surveyTask = (SurveyAreaTask) tasks.get(action.name);
+                    RowsManeuver rows = (RowsManeuver) surveyTask.getPivot().clone();
+                    rows.setManeuverLocation(action.location);
+                    rows.setSpeed(1.0);
+                    rows.setSpeedUnits(Maneuver.SPEED_UNITS.METERS_PS);
+                    ManeuverPayloadConfig payloadConfig = new ManeuverPayloadConfig(action.vehicle.getId(), rows, null);
+                    enablePayloads(payloadConfig, action.payloads);
+                    m = rows;
+                }
+                else {
+                    SurveyPolygonTask surveyTask = (SurveyPolygonTask) tasks.get(action.name);
+                    AreaSurvey rows = (AreaSurvey) surveyTask.getPivot().clone();
+                    //rows.setManeuverLocation(action.location);
+                    rows.setSpeed(1.0);
+                    rows.setSpeedUnits(Maneuver.SPEED_UNITS.METERS_PS);
+                    ManeuverPayloadConfig payloadConfig = new ManeuverPayloadConfig(action.vehicle.getId(), rows, null);
+                    enablePayloads(payloadConfig, action.payloads);
+                    m = rows;
+                }
+                
                 break;
             }
             default:
