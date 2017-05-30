@@ -38,10 +38,8 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.awt.geom.AffineTransform;
-import java.awt.geom.Point2D;
 import java.io.File;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -93,7 +91,6 @@ public class MVPlannerInteraction extends ConsoleInteraction {
     private static final File TASKS_FILE = new File("conf/mvplanner.tasks");
     private ArrayList<MVPlannerTask> tasks = new ArrayList<MVPlannerTask>();
     private MVPlannerTask selectedTask = null;
-    private Point2D lastPoint = null;
     private MVProblemSpecification problem = null;
     private boolean allocationInProgress = false;
     private LinkedHashMap<String, ConsoleEventFutureState> futureStates = new LinkedHashMap<String, ConsoleEventFutureState>();
@@ -540,7 +537,6 @@ public class MVPlannerInteraction extends ConsoleInteraction {
         else {
             selected.mousePressed(event, source);
             selectedTask = selected;
-            lastPoint = event.getPoint();
         }
     }
 
@@ -552,7 +548,6 @@ public class MVPlannerInteraction extends ConsoleInteraction {
         }
         
         selectedTask = null;
-        lastPoint = null;
         super.mouseReleased(event, source);
     }
 
@@ -612,22 +607,19 @@ public class MVPlannerInteraction extends ConsoleInteraction {
      * and split them
      * */
     private void searchAndSplitSurveys() {
-        List<SurveyAreaTask> toBeSplit = new ArrayList<>();
+        List<MVPlannerTask> toBeSplit = new ArrayList<>();
+        
         synchronized (tasks) {
             // fetch surveys eligible to be split
             for(MVPlannerTask task : tasks) {
-                if(task.getClass() == SurveyAreaTask.class) {
-                    SurveyAreaTask survey = (SurveyAreaTask) task;
-
-                    if(survey.getLength() > surveyMaxLength)
-                        toBeSplit.add(survey);
-                }
+                if (task.getLength() > surveyMaxLength)
+                    toBeSplit.add(task);
             }
 
-            for(SurveyAreaTask task : toBeSplit)
-                Arrays.stream(task.splitSurvey(surveyMaxLength))
-                        .forEach(s -> {tasks.add(s); System.out.println("Added task "+s.getName()+" from "+task.getName());});
-            tasks.removeAll(toBeSplit);            
+            for(MVPlannerTask task : toBeSplit) {
+                tasks.addAll(task.splitTask(surveyMaxLength));
+                tasks.remove(task);
+            }                        
         }
     }
 

@@ -44,6 +44,7 @@ import java.io.Serializable;
 import java.io.StringReader;
 import java.io.StringWriter;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashSet;
 
 import javax.xml.bind.JAXB;
@@ -70,7 +71,9 @@ public class SurveyPolygonTask extends MVPlannerTask {
 
     public SurveyPolygonTask(LocationType clickedLocation) {
         pivot = new AreaSurvey();
-        pivot.setManeuverLocation(new ManeuverLocation(clickedLocation));
+        ManeuverLocation loc = new ManeuverLocation(clickedLocation);
+        loc.setDepth(2);
+        pivot.setManeuverLocation(loc);
         area = new PolygonType();
         area.setColor(Color.yellow);
 
@@ -167,7 +170,7 @@ public class SurveyPolygonTask extends MVPlannerTask {
         }
         entry.setCenterLocation(getEntryPoint());
         exit.setCenterLocation(getEndPoint());
-        pivot.setPolygon(area);
+        pivot.setPolygon(area);        
     }
 
     @Override
@@ -234,6 +237,60 @@ public class SurveyPolygonTask extends MVPlannerTask {
         JAXB.marshal(model, writer);
         return writer.toString();
     }
+    
+    @Override
+    public Collection<MVPlannerTask> splitTask(double maxLength) {
+        ArrayList<MVPlannerTask> surveys = new ArrayList<>();
+        double horStep = area.getDiameter() / 3; 
+        for (PayloadRequirement p : getRequiredPayloads())
+            horStep = Math.min(horStep, p.getSwathWidth());
+        
+        final double swathWidth = horStep;
+        
+        int numAreas = 1;
+        double curLength = area.getPathLength(horStep, 0);
+        double angle = area.getDiameterAndAngle().second();
+        ArrayList<PolygonType> polygons = new ArrayList<>();
+        
+        if (curLength < maxLength) {
+            surveys.add(this);
+            return surveys;
+        }
+        
+        while (curLength > maxLength) {
+            numAreas++;
+            polygons.clear();
+            int horSplits = numAreas/3 + 1;
+            
+            if (horSplits > 1) {
+                ArrayList<PolygonType> polygonsHor = area.subAreas(horSplits, angle + Math.PI/2);
+                
+                for (PolygonType p : polygonsHor) {
+                    polygons.addAll(p.subAreas((int)Math.ceil((double)numAreas/horSplits), angle));
+                }                
+            }
+            else {
+                polygons.addAll(area.subAreas(numAreas, angle));
+            }
+            
+            curLength = 0;
+            for (PolygonType p : polygons)
+                curLength = Math.max(curLength, p.getPathLength(swathWidth, 0));            
+        }
+
+
+
+        for (int i = 0; i < polygons.size(); i++) {
+            PolygonType p = polygons.get(i);
+            SurveyPolygonTask task = new SurveyPolygonTask(p.getCentroid());
+            task.area = p;
+            task.requiredPayloads = getRequiredPayloads();
+            task.updateManeuver();
+            surveys.add(task);
+        }
+        
+        return surveys;
+    }
 
     @Override
     public void unmarshall(String data) throws IOException {
@@ -288,20 +345,26 @@ public class SurveyPolygonTask extends MVPlannerTask {
         //System.out.println(getName() + " Mouse moved");
     }
 
+    
     @Override
     public void mousePressed(MouseEvent e, StateRenderer2D renderer) {
         //System.out.println(getName() + " Mouse pressed");
         lastPoint = renderer.getRealWorldLocation(e.getPoint());
         lastScreenPoint = e.getPoint();
 
-        for (PolygonType.Vertex v : area.getVertices()) {
+        for (int i = 0; i < area.getVertices().size(); i++) {
+            PolygonType.Vertex v = area.getVertices().get(i);
             Point2D pt = renderer.getScreenPosition(v.getLocation());
-
             if (pt.distance(e.getPoint()) < 15) {
                 clickedVertex = v;
+                
+                if (e.getClickCount() == 2) {
+                    area.addVertex(v.getLocation());                    
+                }
                 return;
             }
         }
+        
         clickedVertex = null;
 
     }
@@ -341,6 +404,7 @@ public class SurveyPolygonTask extends MVPlannerTask {
     }
 
     private static class SurveyPolygonModel implements Serializable {
+        private static final long serialVersionUID = 4771888511610759920L;
         public ArrayList<Point2D.Double> points = new ArrayList<>();
         public Point2D.Double startLocation = null;
         public String name = "";

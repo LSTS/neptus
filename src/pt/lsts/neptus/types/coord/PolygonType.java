@@ -38,6 +38,8 @@ import java.awt.geom.AffineTransform;
 import java.awt.geom.Area;
 import java.awt.geom.GeneralPath;
 import java.awt.geom.Line2D;
+import java.awt.geom.NoninvertibleTransformException;
+import java.awt.geom.PathIterator;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 import java.io.StringReader;
@@ -105,7 +107,7 @@ public class PolygonType implements Renderer2DPainter {
                         pos = i;
                     }
                 }
-                
+
                 vertices.add(pos, new Vertex(latDegs, lonDegs));
             }
         }
@@ -173,7 +175,7 @@ public class PolygonType implements Renderer2DPainter {
 
         if (elem == null)
             recomputePath();
-        
+
         if (elem == null)
             return;
         else {
@@ -189,7 +191,7 @@ public class PolygonType implements Renderer2DPainter {
 
         g.setColor(Color.blue);
         if (coverage != null)
-            g.draw(coverage);        
+            g.draw(coverage);
     }
 
     public void recomputePath() {
@@ -209,7 +211,7 @@ public class PolygonType implements Renderer2DPainter {
             elem.setFinished(true);
         }
     }
-    
+
     public boolean containsPoint(LocationType loc) {
         return elem.containsPoint(loc, null);
     }
@@ -237,11 +239,11 @@ public class PolygonType implements Renderer2DPainter {
     @XmlType
     public static class Vertex {
         private LocationType lt;
-        
+
         public Vertex() {
             lt = new LocationType();
         }
-        
+
         public Vertex(LocationType lt) {
             this.lt = new LocationType(lt);
         }
@@ -284,26 +286,26 @@ public class PolygonType implements Renderer2DPainter {
      */
     public void rotate(double yawRads) {
         synchronized (vertices) {
-            
+
             LocationType pivot = elem.getCenterLocation();
             LocationType center = elem.getCenterPoint();
             double centerOffsets[] = center.getOffsetFrom(pivot);
-            
+
             Point2D[] pts = new Point2D.Double[vertices.size()];
             int i = 0;
             for (PolygonType.Vertex v : vertices) {
                 double ofs[] = v.getLocation().getOffsetFrom(pivot);
                 pts[i++] = new Point2D.Double(ofs[0], ofs[1]);
             }
-            
+
             AffineTransform t = AffineTransform.getRotateInstance(yawRads, centerOffsets[0], centerOffsets[1]);
             t.transform(pts, 0, pts, 0, pts.length);
-            
+
             for (i = 0; i < pts.length; i++) {
                 LocationType loc = new LocationType(pivot);
                 loc.translatePosition(pts[i].getX(), pts[i].getY(), 0);
                 vertices.get(i).setLocation(loc);
-            }            
+            }
         }
         recomputePath();
     }
@@ -342,42 +344,92 @@ public class PolygonType implements Renderer2DPainter {
     public double getDiameter() {
         return getDiameterAndAngle().first();
     }
-    
+
     public double getArea() {
         double sum = 0;
-        
+
         synchronized (vertices) {
             if (vertices.size() < 2)
                 return 0;
-            
+
             LocationType pivot = vertices.get(0).getLocation();
-            
+
             for (int i = 1; i < vertices.size(); i++) {
                 double[] cur = vertices.get(i).getLocation().getOffsetFrom(pivot);
-                double[] prev = vertices.get(i-1).getLocation().getOffsetFrom(pivot);
-                sum += (prev[0] * cur[1]) - (prev[1] * cur[0]); 
+                double[] prev = vertices.get(i - 1).getLocation().getOffsetFrom(pivot);
+                sum += (prev[0] * cur[1]) - (prev[1] * cur[0]);
             }
-            
-            double[] cur = vertices.get(vertices.size()-1).getLocation().getOffsetFrom(pivot);
+
+            double[] cur = vertices.get(vertices.size() - 1).getLocation().getOffsetFrom(pivot);
             double[] prev = vertices.get(0).getLocation().getOffsetFrom(pivot);
             sum += (prev[0] * cur[1]) - (prev[1] * cur[0]);
         }
-        
+
         return Math.abs(sum / 2);
     }
-    
-    public ArrayList<PolygonType> splitEvenAreas(int numAreas) {
+
+    public ArrayList<PolygonType> subAreas(int numAreas, double angle) {
         ArrayList<PolygonType> polygons = new ArrayList<>();
-        Pair<Double, Double> diamAng = getDiameterAndAngle();
-        
-        
-        
-        //FIXME
-        for (int i = 0; i < diamAng.first(); i++) {
-            
+        double subAreaSize = getArea() / numAreas;
+
+        GeneralPath shape = new GeneralPath();
+        shape.moveTo(0, 0);
+        synchronized (vertices) {
+            if (vertices.isEmpty())
+                return new ArrayList<>();
+            Vertex pivot = vertices.get(0);
+            for (Vertex v : vertices) {
+                double[] offsets = v.getLocation().getOffsetFrom(pivot.getLocation());
+                shape.lineTo(offsets[0], offsets[1]);
+            }
+        }
+
+        shape.closePath();
+        AffineTransform t = AffineTransform.getRotateInstance(angle);
+
+        Shape rotated = t.createTransformedShape(shape);
+
+        Rectangle2D bounds = rotated.getBounds2D();
+        double startY = bounds.getY(), endY = bounds.getY() + 1;
+
+        while (endY < bounds.getMaxY()) {
+
+            Rectangle2D bounds2 = new Rectangle2D.Double(bounds.getMinX() - 10, startY, bounds.getWidth() + 20,
+                    endY - startY);
+            Area a = new Area(rotated);
+            a.intersect(new Area(bounds2));
+
+            double size = Areas.approxArea(a.getPathIterator(null));
+
+            if (size >= subAreaSize || endY + 1 >= bounds.getMaxY()) {
+                try {
+                    PolygonType polygon = new PolygonType();
+                    PathIterator pi = a.getPathIterator(t.createInverse());
+                    double[] point = new double[6];
+                    while (!pi.isDone()) {
+                        pi.currentSegment(point);
+                        LocationType loc = new LocationType(vertices.get(0).getLocation());
+                        loc.translatePosition(point[0], point[1], 0);
+                        polygon.addVertex(loc);
+                        pi.next();
+                    }
+                    polygon.recomputePath();
+                    polygons.add(polygon);
+                }
+                catch (NoninvertibleTransformException e) {
+                    e.printStackTrace();
+                }
+                startY = endY;
+            }
+
+            endY += 1;
         }
         return polygons;
-        
+    }
+
+    public ArrayList<PolygonType> split(double areaSize) {
+        int numAreas = (int) Math.ceil(getArea() / areaSize);
+        return subAreas(numAreas, getDiameterAndAngle().second());
     }
 
     public ArrayList<LocationType> getCoveragePath(double angle, double swathWidth, int corner) {
@@ -416,15 +468,14 @@ public class PolygonType implements Renderer2DPainter {
 
         ArrayList<LocationType> ret = new ArrayList<>();
 
-                
-        int count = corner%2;
+        int count = corner % 2;
         for (double y = margin; y < rect.getHeight(); y += swathWidth, count++) {
 
             double pos = y;
-            
+
             if (corner > 1)
                 pos = rect.getHeight() - y;
-            
+
             Point2D pt1 = new Point2D.Double(rect.getMinX(), rect.getMinY() + pos);
             Point2D pt2 = new Point2D.Double(rect.getMaxX(), rect.getMinY() + pos);
             Line2D.Double lineBefore = new Line2D.Double(pt1, pt2);
@@ -452,10 +503,20 @@ public class PolygonType implements Renderer2DPainter {
 
         return ret;
     }
-    
+
     public ArrayList<LocationType> getCoveragePath(double swathWidth, int corner) {
         Pair<Double, Double> diamAng = getDiameterAndAngle();
         return getCoveragePath(diamAng.second(), swathWidth, corner);
+    }
+
+    public double getPathLength(double swathWidth, int corner) {
+        ArrayList<LocationType> path = getCoveragePath(swathWidth, corner);
+        double length = 0;
+        for (int i = 1; i < path.size(); i++) {
+            length += path.get(i - 1).getHorizontalDistanceInMeters(path.get(i));
+        }
+
+        return length;
     }
 
     public static void main(String[] args) {
@@ -469,21 +530,20 @@ public class PolygonType implements Renderer2DPainter {
         LocationType loc4 = new LocationType(loc).translatePosition(130, 70, 0);
 
         pt.addVertex(loc);
-        //pt.addVertex(loc1);
+        pt.addVertex(loc1);
         pt.addVertex(loc2);
         pt.addVertex(loc3);
         pt.addVertex(loc4);
         pt.recomputePath();
-
-        System.out.println(pt.getArea());
-        System.out.println(System.currentTimeMillis());
         pt.getCoveragePath(20, 0);
-        System.out.println(System.currentTimeMillis());
 
         StateRenderer2D r2d = new StateRenderer2D(loc);
-
         r2d.addPostRenderPainter(pt, "Polygon");
-        GuiUtils.testFrame(r2d);
+        int i = 1;
+        for (PolygonType p : pt.subAreas(2, Math.PI/3)) {
+            r2d.addPostRenderPainter(p, "Polygon" + (i++));
+        }
 
+        GuiUtils.testFrame(r2d);
     }
 }
