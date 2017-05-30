@@ -364,7 +364,11 @@ public class MVSolution {
                 else {
                     SurveyPolygonTask surveyTask = (SurveyPolygonTask) tasks.get(action.name);
                     AreaSurvey rows = (AreaSurvey) surveyTask.getPivot().clone();
-                    //rows.setManeuverLocation(action.location);
+                    ManeuverLocation manLoc = rows.getManeuverLocation();
+                    
+                    manLoc.setZ(action.location.getZ());
+                    manLoc.setZUnits(action.location.getZUnits());
+                    rows.setManeuverLocation(manLoc);
                     rows.setSpeed(1.0);
                     rows.setSpeedUnits(Maneuver.SPEED_UNITS.METERS_PS);
                     ManeuverPayloadConfig payloadConfig = new ManeuverPayloadConfig(action.vehicle.getId(), rows, null);
