@@ -11,6 +11,7 @@ import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
+import javax.swing.filechooser.FileFilter;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import net.miginfocom.swing.MigLayout;
 import pt.lsts.neptus.events.NeptusEvents;
@@ -44,11 +45,14 @@ public class MarksImporterPanel extends JPanel {
     private final JPanel csvImporterPanel = new JPanel();
     private final JPanel kmlImporterPanel = new JPanel();
 
+    private final FileFilter csvFilter = new FileNameExtensionFilter("Csv file", "csv", "Comma separated values");
+    private final FileFilter kmlFilter = new FileNameExtensionFilter("kml", "kml", "Keyhole Markup Language");
+    private final FileFilter txtFilter = new FileNameExtensionFilter("txt", "txt", "text");
+
     private List<MarkElement> importedMarks = null;
 
     public MarksImporterPanel() {
-        fileChooser.addChoosableFileFilter(new FileNameExtensionFilter("Csv file", "csv", "Comma separated values"));
-        fileChooser.addChoosableFileFilter(new FileNameExtensionFilter("text file", "txt", "text"));
+        fileChooser.addChoosableFileFilter(txtFilter);
         fileChooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
 
         this.setBounds(0, 0, MAIN_WIDTH, MAIN_HEIGHT);
@@ -109,10 +113,16 @@ public class MarksImporterPanel extends JPanel {
           if(fromCsv.isSelected()) {
               importerPanel.remove(kmlImporterPanel);
               importerPanel.add(csvImporterPanel);
+
+              fileChooser.removeChoosableFileFilter(kmlFilter);
+              fileChooser.addChoosableFileFilter(csvFilter);
           }
           else {
               importerPanel.remove(csvImporterPanel);
               importerPanel.add(kmlImporterPanel);
+
+              fileChooser.removeChoosableFileFilter(csvFilter);
+              fileChooser.addChoosableFileFilter(kmlFilter);
           }
         };
 
