@@ -53,6 +53,7 @@ import com.l2fprod.common.propertysheet.Property;
 
 import pt.lsts.neptus.gui.PropertiesEditor;
 import pt.lsts.neptus.gui.PropertiesProvider;
+import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.plugins.mvplanner.api.ConsoleEventPlanAllocation;
 import pt.lsts.neptus.renderer2d.Renderer2DPainter;
 import pt.lsts.neptus.renderer2d.StateRenderer2D;
@@ -147,8 +148,7 @@ public abstract class MVPlannerTask implements Renderer2DPainter, PropertiesProv
     
     @Override
     public String getPropertiesDialogTitle() {
-        // TODO Auto-generated method stub
-        return null;
+        return I18n.text("Task Parameters");
     }
     
     @Override
