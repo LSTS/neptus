@@ -28,36 +28,25 @@
  * For more information please see <http://lsts.fe.up.pt/neptus>.
  *
  * Author: zp
- * 28/01/2017
+ * 31/05/2017
  */
 package pt.lsts.neptus.plugins.pddl;
 
-import java.io.File;
+import pt.lsts.neptus.types.vehicle.VehicleType;
 
 /**
  * @author zp
  *
  */
-public enum MVDomainModel {
-
-    V1(new File("conf/pddl/LSTS_domain.pddl"), new LstsDomainModel()),
-    V2(new File("conf/pddl/LSTS_domain-v2.pddl"), new LstsDomainModelV2()),
-    OneRound(new File("conf/pddl/LSTS_domain-one_round.pddl"), new LstsDomainModelOneRound()),
-    Collaborative(new File("conf/pddl/LSTS_domain-collaborative-surfacing.pddl"), new LstsDomainModelCollaborative());
+public class LstsDomainModelCollaborative extends LstsDomainModelOneRound {
+    
+    @Override
+    protected String vehicleDetails(VehicleType v, MVProblemSpecification problem) {
+        String details = super.vehicleDetails(v, problem);
         
-    private final File domainFile;
-    private final LstsDomainModel translator;
-    
-    public File file() {
-        return domainFile;
-    }
-    
-    public LstsDomainModel translator() {
-        return translator;
-    }
-    
-    private MVDomainModel(File domainFile, LstsDomainModel translator) {
-        this.domainFile = domainFile;
-        this.translator = translator;
+        details = details + "\n"+
+        "  (=surface-credits "+v.getNickname()+") 2)\n"+
+        "  (=surface-credits-max "+v.getNickname()+") 2)\n";
+        return details;
     }
 }
