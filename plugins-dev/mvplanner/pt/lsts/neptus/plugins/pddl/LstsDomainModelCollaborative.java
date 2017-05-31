@@ -45,8 +45,79 @@ public class LstsDomainModelCollaborative extends LstsDomainModelOneRound {
         String details = super.vehicleDetails(v, problem);
         
         details = details + "\n"+
-        "  (=surface-credits "+v.getNickname()+") 2)\n"+
-        "  (=surface-credits-max "+v.getNickname()+") 2)\n";
+        "  (= (surface-credits "+v.getNickname()+") 2)\n"+
+        "  (= (surface-credits-max "+v.getNickname()+") 2)\n";
         return details;
+    }
+    
+    @Override
+    public String getInitialState(MVProblemSpecification problem) {
+
+        init(problem);
+
+        // start printing...
+        StringBuilder sb = new StringBuilder();
+        sb.append("(define (problem LSTSprob)(:domain LSTS)\n(:objects\n  ");
+
+        // print location names
+        sb.append(locationNames(problem));
+
+        // print vehicle names
+        sb.append(vehicles(problem));
+
+        // print payload names
+        sb.append(payloadNames(problem));
+
+        // print task names
+        sb.append(taskNames(problem));
+
+        sb.append(")\n(:init\n");
+
+        // distance between all locations
+        sb.append(distances(problem));
+
+        sb.append("  (= (base-returns) 0) ; \"cost\" of returning to the depots \n");
+
+        // details of all vehicles
+        for (VehicleType v : states.keySet()) {
+            sb.append(vehicleDetails(v, problem));
+        }
+
+        // survey tasks
+        sb.append(surveyTasks(problem));
+
+        // sample tasks
+        sb.append(sampleTasks(problem));
+        
+        sb.append(")\n");
+
+        // goals to solve
+        sb.append(goals(problem));
+
+        return sb.toString();
+    }
+    
+    
+    @Override
+    protected String goals(MVProblemSpecification problem) {
+        StringBuilder sb = new StringBuilder();
+        sb.append("(:goal (and\n");
+        for (SamplePointTask t : problem.sampleTasks) {
+            for (PayloadRequirement r : t.getRequiredPayloads()) {
+                sb.append("  (communicated_data " + t.getName() + "_" + r.name() + ")\n");
+            }
+        }
+        for (SurveyPolygonTask t : problem.surveyPolygon) {
+            for (PayloadRequirement r : t.getRequiredPayloads()) {
+                sb.append("  (communicated_data " + t.getName() + "_" + r.name() + ")\n");
+            }
+        }
+        
+        for (VehicleType v : problem.vehicleStates.keySet())
+            sb.append("  (at "+v.getNickname()+" "+v.getNickname()+"_depot)\n");
+        
+        sb.append("))\n");
+        sb.append("(:metric minimize (+ (total-time)(base-returns))))\n");
+        return sb.toString();
     }
 }
