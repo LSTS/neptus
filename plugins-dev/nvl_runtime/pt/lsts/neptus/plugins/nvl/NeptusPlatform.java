@@ -91,7 +91,7 @@ public enum NeptusPlatform implements Platform {
             VehicleState state  = ImcMsgManager.getManager().getState(vec.getName()).last(VehicleState.class);
             if (state != null && state.getOpMode() == VehicleState.OP_MODE.SERVICE) {
                 displayMessage("%s is available!", vec.getName());
-                set.add(new NeptusNode(vec));
+                set.add(new NodeAdapter(vec));
             }
         }
         return set;

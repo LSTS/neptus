@@ -49,14 +49,14 @@ import pt.lsts.nvl.runtime.PayloadComponent;
 import pt.lsts.nvl.runtime.Position;
 import pt.lsts.nvl.runtime.tasks.Task;
 
-public class NeptusNode implements Node {
+public class NodeAdapter implements Node {
 
     private final ImcSystem imcsystem;
     private final Payload availablePayload;
     private final String  acousticOPservice="acoustic/operation";
     private Task runningTask;
 
-    public NeptusNode(ImcSystem imcData) {
+    public NodeAdapter(ImcSystem imcData) {
         List<PayloadComponent> ps = new ArrayList<>();
         imcsystem = imcData;
         for(String payload : PlanCompatibility.availablePayloads(VehiclesHolder.getVehicleById(getId()))) {
