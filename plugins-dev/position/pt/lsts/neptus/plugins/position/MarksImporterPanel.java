@@ -1,8 +1,12 @@
 package pt.lsts.neptus.plugins.position;
 
-import java.awt.Color;
-import java.awt.Component;
+import java.awt.*;
+import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.File;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.nio.file.Paths;
 import java.util.List;
 import javax.swing.ButtonGroup;
 import javax.swing.JButton;
@@ -14,9 +18,12 @@ import javax.swing.JRadioButton;
 import javax.swing.filechooser.FileFilter;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import net.miginfocom.swing.MigLayout;
+import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.events.NeptusEvents;
 import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.types.map.MarkElement;
+import pt.lsts.neptus.util.GuiUtils;
+import pt.lsts.neptus.util.MarksKMLHandler;
 import pt.lsts.neptus.util.csv.MarksCSVHandler;
 
 /**
@@ -75,10 +82,11 @@ public class MarksImporterPanel extends JPanel {
 
     private void initImporterPanel() {
         importerPanel.setBounds(0, 0, MAIN_WIDTH - 100, MAIN_HEIGHT);
+        importerPanel.setLayout(new CardLayout());
         csvImporterPanel.setBounds(0, 0, MAIN_WIDTH - 100, MAIN_HEIGHT);
         kmlImporterPanel.setBounds(0, 0, MAIN_WIDTH - 100, MAIN_HEIGHT);
 
-        //csv panel
+        //csv pane
         csvImporterPanel.setLayout(new MigLayout());
         csvFromFileBtn.addActionListener(e -> {
             int res = fileChooser.showDialog(null, "CSV Source");
@@ -96,10 +104,48 @@ public class MarksImporterPanel extends JPanel {
             }
         });
 
-        csvImporterPanel.add(csvFromFileBtn);
+        kmlImporterPanel.setLayout(new MigLayout());
+        kmlFromFileBtn.addActionListener(e -> {
+            int res = fileChooser.showDialog(null, "KML Source");
+            if(res == JFileChooser.APPROVE_OPTION)
+                doKmlImport(fileChooser.getSelectedFile().getAbsolutePath());
+        });
 
+        kmlFromUrlBtn.addActionListener(e -> {
+            String url = JOptionPane.showInputDialog("URL");
+
+            if(url != null)
+                doKmlImport(url);
+        });
+
+        csvImporterPanel.add(csvFromFileBtn);
+        kmlImporterPanel.add(kmlFromFileBtn);
+        kmlImporterPanel.add(kmlFromUrlBtn);
+
+        importerPanel.add(csvImporterPanel, "csv");
+        importerPanel.add(kmlImporterPanel, "kml");
         // csv by default
-        importerPanel.add(csvImporterPanel);
+        ((CardLayout) importerPanel.getLayout()).show(importerPanel, "csv");
+    }
+
+    private void doKmlImport(String urlStr) {
+        URL url;
+        try {
+            url = Paths.get(urlStr).toUri().toURL();
+        } catch (MalformedURLException e1) {
+            e1.printStackTrace();
+            GuiUtils.showErrorPopup("KML", urlStr + " is not a valid URL");
+            return;
+        }
+
+        importedMarks = MarksKMLHandler.importKML(url);
+        if (importedMarks == null) {
+            sourceLabel.setForeground(Color.RED);
+            sourceLabel.setText("ERROR while importing marks");
+            return;
+        }
+
+        sourceLabel.setText(urlStr + " (" + importedMarks.size() + " marks)");
     }
 
     private void initSourcesPanel() {
@@ -111,15 +157,13 @@ public class MarksImporterPanel extends JPanel {
 
         ActionListener radioBtnListener = e -> {
           if(fromCsv.isSelected()) {
-              importerPanel.remove(kmlImporterPanel);
-              importerPanel.add(csvImporterPanel);
+              ((CardLayout) importerPanel.getLayout()).show(importerPanel, "csv");
 
               fileChooser.removeChoosableFileFilter(kmlFilter);
               fileChooser.addChoosableFileFilter(csvFilter);
           }
-          else {
-              importerPanel.remove(csvImporterPanel);
-              importerPanel.add(kmlImporterPanel);
+          else if(fromKml.isSelected()){
+              ((CardLayout) importerPanel.getLayout()).show(importerPanel, "kml");
 
               fileChooser.removeChoosableFileFilter(csvFilter);
               fileChooser.addChoosableFileFilter(kmlFilter);
