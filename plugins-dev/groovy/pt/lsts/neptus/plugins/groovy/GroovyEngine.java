@@ -45,6 +45,7 @@ import org.codehaus.groovy.control.customizers.ImportCustomizer;
 import groovy.lang.Binding;
 import groovy.util.GroovyScriptEngine;
 import pt.lsts.neptus.NeptusLog;
+import pt.lsts.neptus.comm.manager.imc.ImcSystem;
 import pt.lsts.neptus.comm.manager.imc.ImcSystemsHolder;
 import pt.lsts.neptus.console.events.ConsoleEventPlanChange;
 import pt.lsts.neptus.console.events.ConsoleEventVehicleStateChanged;
@@ -52,8 +53,7 @@ import pt.lsts.neptus.types.coord.LocationType;
 import pt.lsts.neptus.types.map.MapGroup;
 import pt.lsts.neptus.types.map.MarkElement;
 import pt.lsts.neptus.types.mission.plan.PlanType;
-import pt.lsts.neptus.types.vehicle.VehicleType;
-import pt.lsts.neptus.types.vehicle.VehiclesHolder;
+
 
 /**
  * @author lsts
@@ -62,7 +62,7 @@ import pt.lsts.neptus.types.vehicle.VehiclesHolder;
 public class GroovyEngine {
     
     //Collections used to make Map thread safe
-    private Map<String,VehicleType> vehicles = Collections.synchronizedMap(new HashMap<>()); 
+    private Map<String,ImcSystem> vehicles = Collections.synchronizedMap(new HashMap<>()); 
     private Map<String,PlanType> plans = Collections.synchronizedMap(new HashMap<>()); 
     private Map<String,LocationType> locations = Collections.synchronizedMap(new HashMap<>());
     private Binding binds; //verify use of @TypeChecked
@@ -73,6 +73,8 @@ public class GroovyEngine {
     private GroovyPanel console;
     private Writer  scriptOutput;
     private  PrintWriter ps;
+    private StringBuffer buffer;
+    
     public Thread getRunninThread(){
         return runningThread;
             
@@ -81,37 +83,38 @@ public class GroovyEngine {
     public GroovyEngine(GroovyPanel c){
         this.console = c;
         add_console_vars();
+        buffer = new StringBuffer();
         scriptOutput = new Writer(){
-//            @Override
-//            public void write(int b) throws IOException {
-//                System.out.println("Output: "+String.valueOf((char)b));
-//                console.appendOutput(String.valueOf((char)b));
-//            }
+
             @Override
             public void write(char[] cbuf){
-                System.out.println("Char []: "+ String.valueOf(cbuf));
-                console.appendOutput(String.valueOf(cbuf));
+                buffer.append(cbuf);
             }
             @Override
             public void write(int c){
-              System.out.println("Output: "+String.valueOf((char)c));
-              System.out.println("Output sem casting: "+String.valueOf(c));
-              console.appendOutput(String.valueOf((char)c));
+              //console.appendOutput(String.valueOf((char)c));
+              buffer.append((char)c);
             }
             @Override
             public void write(String str){
-                System.out.println("Str: "+ str);
-                console.appendOutput(str);
+                //System.out.println("Str: "+ str);
+                //console.appendOutput(str);
+                buffer.append(str);
             }
 
             @Override
             public void write(char[] cbuf, int off, int len) throws IOException {
-                    System.out.println("Char buffer: "+ String.valueOf(cbuf, off, len));
-                    console.appendOutput(String.valueOf(cbuf, off, len));
+                    //System.out.println("Char buffer: "+ String.valueOf(cbuf, off, len));
+                    //console.appendOutput(String.valueOf(cbuf, off, len));
+                    buffer.append(cbuf, off, len);
             }
 
             @Override
-            public void flush() throws IOException {
+            public void flush() throws IOException{
+                console.appendOutput(buffer.toString());
+                buffer = new StringBuffer();
+                //System.out.println("Flushed!");
+
             }
 
             @Override
@@ -126,29 +129,30 @@ public class GroovyEngine {
      * 
      */
     private void add_console_vars() {
-        this.binds = new Binding();
-        this.binds.setVariable("vehicles",ImcSystemsHolder.lookupActiveSystemVehicles());       
-//        for(ImcSystem vec: ImcSystemsHolder.lookupActiveSystemVehicles())
-//            this.vehicles.put(vec.getName(),VehiclesHolder.getVehicleById(vec.getName()));
-        this.binds.setVariable("plans", console.getConsole().getMission().getIndividualPlansList());
+        binds = new Binding();
+
+        for(ImcSystem v: ImcSystemsHolder.lookupActiveSystemVehicles())
+            vehicles.put(v.getName(), v);
+        binds.setVariable("vehicles",vehicles);
+        for(PlanType p: console.getConsole().getMission().getIndividualPlansList().values())
+            plans.put(p.getId(),p);
+        binds.setVariable("plans",plans);
       
      
         //POI/MarkElement
         for( MarkElement mark:MapGroup.getMapGroupInstance(console.getConsole().getMission()).getAllObjectsOfType(MarkElement.class)){
             locations.put(mark.getId(),mark.getPosition());
         }
+        binds.setVariable("locations", locations.values().toArray());
+        binds.setVariable("console", console.getConsole()); //TODO NOTIFY the existing binding to be used in the script
 
-        this.config = new CompilerConfiguration();
-        this.customizer = new ImportCustomizer();
-        this.customizer.addImports("pt.lsts.imc.net.IMCProtocol","pt.lsts.neptus.types.coord.LocationType");
-        this.customizer.addImport("Plan", NeptusIMCDSL.class.getName());
-        this.customizer.addStarImports("pt.lsts.imc","imc_plans_dsl","pt.lsts.neptus.types.map"); //this.getClass().classLoader.rootLoader.addURL(new File("file.jar").toURL())
-        this.config.addCompilationCustomizers(customizer);
-//        this.binds.setVariable("vehicles", vehicles.keySet().toArray());
-//        this.binds.setVariable("plans", plans.keySet().toArray());
-        this.binds.setVariable("locations", locations.values().toArray());
-        this.binds.setVariable("console", console.getConsole()); //TODO NOTIFY the existing binding to be used in the script
-        this.binds.setVariable("result", null);
+        config = new CompilerConfiguration();
+        customizer = new ImportCustomizer();
+        customizer.addImports("pt.lsts.imc.net.IMCProtocol","pt.lsts.neptus.types.coord.LocationType");
+        customizer.addImport("Plan", NeptusIMCDSL.class.getName());
+        customizer.addStarImports("pt.lsts.imc","imc_plans_dsl","pt.lsts.neptus.types.map"); //this.getClass().classLoader.rootLoader.addURL(new File("file.jar").toURL())
+        config.addCompilationCustomizers(customizer);
+
         try {
             //Description/notification: "Place your groovy scripts in the folder script of the plugin"
             this.engine = new GroovyScriptEngine("conf/groovy/scripts/");//new GroovyScriptEngine("conf/groovy/scripts/");
@@ -164,6 +168,8 @@ public class GroovyEngine {
     public void stopScript() {
         if(runningThread != null && runningThread.isAlive()){
             runningThread.interrupt();
+            NeptusLog.pub().warn("Stoped script execution in the groovy plugin.");
+
         }       
     }
 
@@ -177,7 +183,8 @@ public class GroovyEngine {
                 try {
                     binds.setProperty("out",ps);
                     engine.run(groovyScript, binds);
-                    console.disableStopButton();                    
+                    console.disableStopButton();
+                    stopScript();
                 }
                 catch (Exception   e) { //CompilationFailedException | ResourceException | ScriptException
                       NeptusLog.pub().error("Exception Caught during execution of script: "+groovyScript,e);//e.printStackTrace();
@@ -203,12 +210,12 @@ public class GroovyEngine {
             if(!console.getConsole().getMission().getIndividualPlansList().containsKey(changedPlan.getOld().getId())){
                 //System.out.println("Plan "+changedPlan.getOld().getId()+" removed.");
                 plans.remove(changedPlan.getOld().getId());
-                binds.setVariable("plans", plans.keySet().toArray());
+                binds.setVariable("plans", plans);
 
             }
             else{
                 plans.put(changedPlan.getCurrent().getId(), changedPlan.getCurrent());
-                binds.setVariable("plans", plans.keySet().toArray());
+                binds.setVariable("plans", plans);
             }
         }
         
@@ -223,8 +230,8 @@ public class GroovyEngine {
                 if (ImcSystemsHolder.getSystemWithName(e.getVehicle()).isActive()) {
                     //add new vehicle
                     if(!vehicles.containsKey(e.getVehicle())) {
-                        vehicles.put(e.getVehicle(),VehiclesHolder.getVehicleById(e.getVehicle()));
-                        binds.setVariable("vehicles", vehicles.keySet().toArray());
+                        vehicles.put(e.getVehicle(),ImcSystemsHolder.getSystemWithName(e.getVehicle()));
+                        binds.setVariable("vehicles", vehicles);
                         //System.out.println("Added "+e.getVehicle()+" Size: "+vehicles.keySet().size());
                     }
                 }
@@ -232,21 +239,21 @@ public class GroovyEngine {
             case ERROR:
                 if(vehicles.containsKey(e.getVehicle())){
                     vehicles.remove(e.getVehicle());
-                    binds.setVariable("vehicles", vehicles.keySet().toArray());
-                    //System.out.println("Removed "+e.getVehicle()+" Size: "+vehicles.keySet().size());
+                    binds.setVariable("vehicles", vehicles);
                 }
                 break;
             case DISCONNECTED:
                 if(vehicles.containsKey(e.getVehicle())){
                     vehicles.remove(e.getVehicle());
-                    binds.setVariable("vehicles", vehicles.keySet().toArray());
+                    binds.setVariable("vehicles", vehicles);
                     //System.out.println("Removed "+e.getVehicle()+" Size: "+vehicles.keySet().size());
                 }
                 break;
             case CALIBRATION:// or case MANEUVER
+            case MANEUVER:
                 if(vehicles.containsKey(e.getVehicle())){
                     vehicles.remove(e.getVehicle());
-                    binds.setVariable("vehicles", vehicles.keySet().toArray());
+                    binds.setVariable("vehicles", vehicles);
                     //System.out.println("Removed "+e.getVehicle()+" Size: "+vehicles.keySet().size());
                 }
                 break;

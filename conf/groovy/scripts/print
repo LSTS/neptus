@@ -1,5 +1,0 @@
-
-def y = 2
-
-println "Y equals: "+y
-

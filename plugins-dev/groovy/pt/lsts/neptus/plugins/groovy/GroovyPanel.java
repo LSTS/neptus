@@ -46,7 +46,11 @@ import javax.swing.JFileChooser;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
+import javax.swing.SwingUtilities;
 import javax.swing.border.Border;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
+import javax.swing.text.BadLocationException;
 
 import org.fife.ui.rsyntaxtextarea.RSyntaxTextArea;
 import org.fife.ui.rsyntaxtextarea.SyntaxConstants;
@@ -95,8 +99,6 @@ public class GroovyPanel extends ConsolePanel {
      */
     public GroovyPanel(ConsoleLayout console) {
         super(console);
-        engine = new GroovyEngine(this);
-        
     }
 
     /* (non-Javadoc)
@@ -123,8 +125,7 @@ public class GroovyPanel extends ConsolePanel {
     @Override
     public void initSubPanel() {
         removeAll();
-        
-
+        engine = new GroovyEngine(this);
         //Text editor
         setLayout(new BorderLayout(5,5));
         bottom = new JPanel(new BorderLayout());
@@ -218,6 +219,26 @@ public class GroovyPanel extends ConsolePanel {
         add(scroll, BorderLayout.CENTER);
         stopScript.setEnabled(false);
         output.setVisible(true);
+        output.getDocument().addDocumentListener(new DocumentListener() {
+            
+            @Override
+            public void removeUpdate(DocumentEvent e) {
+                // TODO Auto-generated method stub
+                
+            }
+            
+            @Override
+            public void insertUpdate(DocumentEvent e) {
+                // TODO Auto-generated method stub
+                
+            }
+            
+            @Override
+            public void changedUpdate(DocumentEvent e) {
+                // TODO Auto-generated method stub
+                
+            }
+        });
 }
     
 
@@ -225,8 +246,26 @@ public class GroovyPanel extends ConsolePanel {
      * @param string
      */
     public void appendOutput(String string) {
-        output.append(string);
-        output.setCaretPosition(output.getDocument().getLength());
+//        Thread t = new Thread(){
+//            @Override
+//            public void run(){
+            SwingUtilities.invokeLater(new Runnable(){
+                public void run(){    
+                    try {
+                        //System.out.println("\"writeToArea\" running.");
+                        output.getDocument().insertString(output.getDocument().getLength(), string, null);
+                        output.setCaretPosition(output.getDocument().getLength());
+                        //System.out.println("appended"+"\t"+string);
+                    }
+                    catch (BadLocationException e) {
+                        // TODO Auto-generated catch block
+                        e.printStackTrace();
+                    }
+                  }
+                    });
+//                }
+//        };
+//    t.start();
     }
 
     @Subscribe

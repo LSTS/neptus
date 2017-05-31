@@ -1,0 +1,11 @@
+
+println "hello world"
+//println vehicles.length==0 ? "no vehicles" : vehicles_id.length
+vehicles.eachWithIndex {
+	vehicle,index -> 
+		println index+".VEHICLE: "+vehicle.key}
+plans.eachWithIndex {
+	plan,index -> 
+		println index+".PLAN: "+plan.key}
+//Thread.sleep(30000)
+
