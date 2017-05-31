@@ -43,34 +43,35 @@ import pt.lsts.neptus.types.coord.LocationType;
 import pt.lsts.neptus.types.mission.plan.PlanCompatibility;
 import pt.lsts.neptus.types.vehicle.VehicleType.SystemTypeEnum;
 import pt.lsts.neptus.types.vehicle.VehiclesHolder;
-import pt.lsts.nvl.runtime.NVLVehicle;
+import pt.lsts.nvl.runtime.Node;
+import pt.lsts.nvl.runtime.Payload;
 import pt.lsts.nvl.runtime.PayloadComponent;
 import pt.lsts.nvl.runtime.Position;
 import pt.lsts.nvl.runtime.tasks.Task;
 
-public class NeptusNVLVehicle implements NVLVehicle {
+public class NeptusNode implements Node {
 
     private final ImcSystem imcsystem;
-    private final List<PayloadComponent> availablePayload;
+    private final Payload availablePayload;
     private final String  acousticOPservice="acoustic/operation";
     private Task runningTask;
 
-    public NeptusNVLVehicle(ImcSystem imcData) {
+    public NeptusNode(ImcSystem imcData) {
         List<PayloadComponent> ps = new ArrayList<>();
         imcsystem = imcData;
         for(String payload : PlanCompatibility.availablePayloads(VehiclesHolder.getVehicleById(getId()))) {
-            ps.add(new NeptusPayloadAdapter(payload));
+            ps.add(new PayloadComponent(payload));
             //System.out.println("PlanCompatibility cicle: "+payload);
         } 
         for(CommMean com : VehiclesHolder.getVehicleById(getId()).getCommunicationMeans().values()) { //IMC | HTTP | IRIDIUM | GSM
-            ps.add(new NeptusPayloadAdapter(com.getName()));
+            ps.add(new PayloadComponent(com.getName()));
             //System.out.println("Communications means: "+com.getName());
         }
         if(hasAcoustics()){
-            ps.add(new NeptusPayloadAdapter("Acoustics"));
+            ps.add(new PayloadComponent("Acoustics"));
             //System.out.println("Acoustic op service.");
         }
-        availablePayload = ps;
+        availablePayload = new Payload(ps);
     }
 
     private boolean hasAcoustics(){
@@ -104,7 +105,7 @@ public class NeptusNVLVehicle implements NVLVehicle {
     }
 
     @Override
-    public List<PayloadComponent> getPayload() {
+    public Payload getPayload() {
         return availablePayload;
 
     }

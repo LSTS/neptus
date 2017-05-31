@@ -56,14 +56,14 @@ public final class IMCPlanExecutor extends AbstractIMCPlanExecutor {
     @Override
     protected void sendMessageToVehicle(IMCMessage message) {
        ImcMsgManager.getManager()
-                    .sendMessageToSystem(message, getVehicle().getId());        
+                    .sendMessageToSystem(message, getNode().getId());        
     }
 
     @Override
     protected void setup() {
        ImcMsgManager.getManager()
                     .addListener(pcsListener, 
-                                 getVehicle().getId(), 
+                                 getNode().getId(), 
                                  (info, msg) -> PlanControlState.ID_STATIC == msg.getMgid());
     }
 
@@ -71,7 +71,7 @@ public final class IMCPlanExecutor extends AbstractIMCPlanExecutor {
     @Override
     protected void teardown() {
         ImcMsgManager.getManager()
-                     .removeListener(pcsListener, getVehicle().getId());
+                     .removeListener(pcsListener, getNode().getId());
 
         
     }

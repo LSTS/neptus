@@ -71,7 +71,7 @@ public class NVLConsolePanel extends ConsolePanel {
    
     @Override
     public void initSubPanel() {
-        NeptusNVLPlatform.getInstance().associateTo(this);
+        NeptusPlatform.getInstance().associateTo(this);
         output = new JTextArea();
         border = BorderFactory.createTitledBorder("Script Output");
         output.setBorder(border);
@@ -90,7 +90,7 @@ public class NVLConsolePanel extends ConsolePanel {
 
     @Override
     public void cleanSubPanel() {
-        NeptusNVLPlatform.getInstance().detach();
+        NeptusPlatform.getInstance().detach();
     }
     
     private void test() {
@@ -101,7 +101,7 @@ public class NVLConsolePanel extends ConsolePanel {
                     @Override
                     public void actionPerformed(ActionEvent e) {   
                         new Thread(() -> {
-                            NeptusNVLPlatform.getInstance().run(new File("conf/nvl/imcplan.nvl"));
+                            NeptusPlatform.getInstance().run(new File("conf/nvl/imcplan.nvl"));
                         }).start();
                     }
                 });
@@ -139,7 +139,7 @@ public class NVLConsolePanel extends ConsolePanel {
 
     @Subscribe
     public void on(ConsoleEventPlanChange changedPlan) {
-        NeptusNVLPlatform.getInstance().onPlanChanged(changedPlan);
+        NeptusPlatform.getInstance().onPlanChanged(changedPlan);
       
     }
 
