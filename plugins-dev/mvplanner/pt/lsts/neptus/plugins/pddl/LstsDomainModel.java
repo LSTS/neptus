@@ -84,11 +84,15 @@ public class LstsDomainModel {
         for (SurveyAreaTask task : problem.surveyTasks) {
             locations.put(task.getName() + "_entry", task.getEntryPoint());
             locations.put(task.getName() + "_exit", task.getEndPoint());
+            if (task.collaborative)
+                locations.put(task.getName()+"_c", task.getCenterLocation());
         }
         for (SurveyPolygonTask task : problem.surveyPolygon) {
             locations.put(task.getName() + "_entry", task.getEntryPoint());
             locations.put(task.getName() + "_exit", task.getEndPoint());
-        }        
+            if (task.collaborative)
+                locations.put(task.getName()+"_c", task.getCenterLocation());
+        }
         for (SamplePointTask task : problem.sampleTasks) {
             locations.put(task.getName() + "_oi", task.getLocation());
         }
@@ -272,24 +276,27 @@ public class LstsDomainModel {
             sb.append("  (free " + t.getName() + "_exit" + ")\n");
             sb.append("  (entry " + t.getName() + "_area " + t.getName() + "_entry" + ")\n");
             sb.append("  (exit " + t.getName() + "_area " + t.getName() + "_exit" + ")\n");
-            if (t instanceof SurveyAreaTask) {
-                sb.append("  (=(surveillance_distance " + t.getName() + "_area) "
-                        + String.format(Locale.US, "%.2f", ((SurveyAreaTask)t).getLength()) + ")\n");    
-            }
-            else {
-                sb.append("  (=(surveillance_distance " + t.getName() + "_area) "
-                        + String.format(Locale.US, "%.2f", ((SurveyPolygonTask)t).getLength()) + ")\n");
+            
+            if  (t.collaborative) {
+                sb.append("  (free " + t.getName() + "_c" + ")\n");
+                sb.append("  (collab_at " + t.getName() + "_area " +t.getName() +"_c)\n");
             }
             
-
+            sb.append("  (=(surveillance_distance " + t.getName() + "_area) "
+                    + String.format(Locale.US, "%.2f", t.getLength()) + ")\n");    
+            
             for (PayloadRequirement r : t.getRequiredPayloads()) {
                 if (!payloadNames.containsKey(r.name())) {
                     System.err.println("No vehicle is capable of executing task " + t.getName() + " with " + r.name());
                     continue;
                 }
                 for (String alternative : payloadNames.get(r.name())) {
-                    sb.append("  (task_desc " + t.getName() + "_" + r.name() + " " + t.getName() + "_area "
-                            + alternative + ")\n");
+                    if (t.collaborative)
+                        sb.append("  (collab_task_desc " + t.getName() + "_" + r.name() + " " + t.getName() + "_area "
+                                + alternative + ")\n");    
+                    else
+                        sb.append("  (task_desc " + t.getName() + "_" + r.name() + " " + t.getName() + "_area "
+                                + alternative + ")\n");
                 }
             }
         }

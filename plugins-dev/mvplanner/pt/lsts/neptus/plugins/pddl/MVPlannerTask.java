@@ -70,6 +70,7 @@ public abstract class MVPlannerTask implements Renderer2DPainter, PropertiesProv
     protected String name = String.format(Locale.US, "t%02d", count++);
     protected HashSet<PayloadRequirement> requiredPayloads = new HashSet<PayloadRequirement>();
     protected boolean firstPriority = false;
+    protected boolean collaborative = false;
     private String associatedAllocation = null;
     private String associatedVehicle = null;
     
@@ -108,8 +109,9 @@ public abstract class MVPlannerTask implements Renderer2DPainter, PropertiesProv
     @Override
     public DefaultProperty[] getProperties() {
         Vector<DefaultProperty> props = new Vector<DefaultProperty>();
-        props.add(PropertiesEditor.getPropertyInstance("First Priority", "Urgency", Boolean.class, firstPriority, true));
-        
+        props.add(PropertiesEditor.getPropertyInstance("First Priority", "Options", Boolean.class, firstPriority, true));
+        props.add(PropertiesEditor.getPropertyInstance("Collaborative Localization", "Options", Boolean.class, collaborative, true));
+         
         for (PayloadRequirement pr : PayloadRequirement.values()) {
             props.add(PropertiesEditor.getPropertyInstance(pr.name(), "Payload Requirements", Boolean.class, requiredPayloads.contains(pr), true));
         }
@@ -133,6 +135,10 @@ public abstract class MVPlannerTask implements Renderer2DPainter, PropertiesProv
         HashSet<PayloadRequirement> newReqs = new HashSet<PayloadRequirement>();
         
         for (Property p : properties) {
+            if (p.getName().equals("Collaborative Localization")) {
+                this.collaborative = "true".equals(""+p.getValue());
+                continue;
+            }
             if (p.getName().equals("First Priority")) {
                 this.firstPriority = "true".equals(""+p.getValue());
                 continue;
