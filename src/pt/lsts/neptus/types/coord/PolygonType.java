@@ -122,6 +122,13 @@ public class PolygonType implements Renderer2DPainter {
             vertices.add(new Vertex(loc));
         }
     }
+    
+    public void addVertex(int index, LocationType loc) {
+        synchronized (vertices) {
+            vertices.add(index, new Vertex(loc));
+        }
+    }
+
 
     /**
      * Remove all polygon vertices

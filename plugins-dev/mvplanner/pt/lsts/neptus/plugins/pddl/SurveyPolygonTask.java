@@ -108,7 +108,7 @@ public class SurveyPolygonTask extends MVPlannerTask {
     public boolean containsPoint(LocationType lt, StateRenderer2D renderer) {
         if (area.containsPoint(lt))
             return true;
-        
+
         Point2D screen = renderer.getScreenPosition(lt);
         for (PolygonType.Vertex v : area.getVertices()) {
             Point2D pt = renderer.getScreenPosition(v.getLocation());
@@ -170,7 +170,7 @@ public class SurveyPolygonTask extends MVPlannerTask {
         }
         entry.setCenterLocation(getEntryPoint());
         exit.setCenterLocation(getEndPoint());
-        pivot.setPolygon(area);        
+        pivot.setPolygon(area);
     }
 
     @Override
@@ -237,48 +237,46 @@ public class SurveyPolygonTask extends MVPlannerTask {
         JAXB.marshal(model, writer);
         return writer.toString();
     }
-    
+
     @Override
     public Collection<MVPlannerTask> splitTask(double maxLength) {
         ArrayList<MVPlannerTask> surveys = new ArrayList<>();
-        double horStep = area.getDiameter() / 3; 
+        double horStep = area.getDiameter() / 3;
         for (PayloadRequirement p : getRequiredPayloads())
             horStep = Math.min(horStep, p.getSwathWidth());
-        
+
         final double swathWidth = horStep;
-        
+
         int numAreas = 1;
         double curLength = area.getPathLength(horStep, 0);
         double angle = area.getDiameterAndAngle().second();
         ArrayList<PolygonType> polygons = new ArrayList<>();
-        
+
         if (curLength < maxLength) {
             surveys.add(this);
             return surveys;
         }
-        
+
         while (curLength > maxLength) {
             numAreas++;
             polygons.clear();
-            int horSplits = numAreas/3 + 1;
-            
+            int horSplits = numAreas / 3 + 1;
+
             if (horSplits > 1) {
-                ArrayList<PolygonType> polygonsHor = area.subAreas(horSplits, angle + Math.PI/2);
-                
+                ArrayList<PolygonType> polygonsHor = area.subAreas(horSplits, angle + Math.PI / 2);
+
                 for (PolygonType p : polygonsHor) {
-                    polygons.addAll(p.subAreas((int)Math.ceil((double)numAreas/horSplits), angle));
-                }                
+                    polygons.addAll(p.subAreas((int) Math.ceil((double) numAreas / horSplits), angle));
+                }
             }
             else {
                 polygons.addAll(area.subAreas(numAreas, angle));
             }
-            
+
             curLength = 0;
             for (PolygonType p : polygons)
-                curLength = Math.max(curLength, p.getPathLength(swathWidth, 0));            
+                curLength = Math.max(curLength, p.getPathLength(swathWidth, 0));
         }
-
-
 
         for (int i = 0; i < polygons.size(); i++) {
             PolygonType p = polygons.get(i);
@@ -288,14 +286,14 @@ public class SurveyPolygonTask extends MVPlannerTask {
             task.updateManeuver();
             surveys.add(task);
         }
-        
+
         return surveys;
     }
 
     @Override
     public void unmarshall(String data) throws IOException {
         SurveyPolygonModel model = JAXB.unmarshal(new StringReader(data), SurveyPolygonModel.class);
-        
+
         setFirstPriority(model.firstPriority);
         name = model.name;
         requiredPayloads.clear();
@@ -317,7 +315,7 @@ public class SurveyPolygonTask extends MVPlannerTask {
     @Override
     public void mouseDragged(MouseEvent e, StateRenderer2D renderer) {
         double xamount = e.getX() - lastScreenPoint.getX();
-        if (e.isShiftDown()) {            
+        if (e.isShiftDown()) {
             rotate(xamount / 40.0);
             lastScreenPoint = e.getPoint();
             return;
@@ -342,13 +340,12 @@ public class SurveyPolygonTask extends MVPlannerTask {
 
     @Override
     public void mouseMoved(MouseEvent e, StateRenderer2D renderer) {
-        //System.out.println(getName() + " Mouse moved");
+        // System.out.println(getName() + " Mouse moved");
     }
 
-    
     @Override
     public void mousePressed(MouseEvent e, StateRenderer2D renderer) {
-        //System.out.println(getName() + " Mouse pressed");
+        // System.out.println(getName() + " Mouse pressed");
         lastPoint = renderer.getRealWorldLocation(e.getPoint());
         lastScreenPoint = e.getPoint();
 
@@ -358,20 +355,26 @@ public class SurveyPolygonTask extends MVPlannerTask {
             if (pt.distance(e.getPoint()) < 15) {
                 clickedVertex = v;
                 
-                if (e.getClickCount() == 2) {
-                    area.addVertex(v.getLocation());                    
+                if (e.isControlDown()) {
+                    area.addVertex(i, v.getLocation());
                 }
                 return;
             }
         }
-        
+
         clickedVertex = null;
 
     }
 
     @Override
     public void mouseReleased(MouseEvent e, StateRenderer2D renderer) {
-        //System.out.println(getName() + " Mouse released");
+
+        System.out.println(clickedVertex);
+//        if (clickedVertex != null && e.isControlDown()) {
+//            area.removeVertex(clickedVertex);
+//        }
+            
+        
         lastPoint = null;
         lastScreenPoint = null;
         clickedVertex = null;

@@ -360,33 +360,8 @@ public class MVPlannerInteraction extends ConsoleInteraction {
             popup.addSeparator();
 
         }
-
-        popup.add("Add survey task").addActionListener(new ActionListener() {
-
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                SurveyAreaTask task = null;
-                while (true) {
-                    task = new SurveyAreaTask(source.getRealWorldLocation(event.getPoint()));
-                    boolean found = false;
-                    for (MVPlannerTask t : tasks) {
-                        if (t.getName().equals(task.getName())) {
-                            found = true;
-                            break;
-                        }
-                    }
-                    if (!found)
-                        break;
-                }
-                if (!PropertiesEditor.editProperties(task, true)) {
-                    tasks.add(task);
-                    saveState();
-                }
-                source.repaint();
-            }
-        });
         
-        popup.add("Add polygon survey").addActionListener(new ActionListener() {
+        popup.add("<html>Add <b>Survey</b> task").addActionListener(new ActionListener() {
 
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -411,7 +386,7 @@ public class MVPlannerInteraction extends ConsoleInteraction {
             }
         });
 
-        popup.add("Add sample task").addActionListener(new ActionListener() {
+        popup.add("<html>Add <b>Sample</b> task").addActionListener(new ActionListener() {
 
             @Override
             public void actionPerformed(ActionEvent e) {
