@@ -63,6 +63,7 @@ public class MVProblemSpecification {
     public static final int powerUnitMultiplier = 1000;
     Vector<SamplePointTask> sampleTasks = new Vector<SamplePointTask>();
     Vector<SurveyAreaTask> surveyTasks = new Vector<SurveyAreaTask>();
+    Vector<SurveyPolygonTask> surveyPolygon = new Vector<SurveyPolygonTask>();
     LinkedHashMap<VehicleType, SystemPositionAndAttitude> vehicleStates = new LinkedHashMap<>();
     LocationType defaultLoc = null;
     int secondsAwayFromDepot = 1000;
@@ -85,6 +86,11 @@ public class MVProblemSpecification {
             locations.put(task.getName() + "_entry", task.getEntryPoint());
             locations.put(task.getName() + "_exit", task.getEndPoint());
         }
+        for (SurveyPolygonTask task : surveyPolygon) {
+            locations.put(task.getName() + "_entry", task.getEntryPoint());
+            locations.put(task.getName() + "_exit", task.getEndPoint());
+        }
+        
         for (SamplePointTask task : sampleTasks) {
             locations.put(task.getName() + "_oi", task.getLocation());
         }
@@ -101,6 +107,7 @@ public class MVProblemSpecification {
         String output_file = "log/pddl/solution_" + timestamp + ".SOL";
 
         FileUtil.saveToFile(input_file, asPDDL());
+        System.out.println(asPDDL());
         String cmd = command_secs + secs;
         if (secs == 0)
             cmd = command_speed;
@@ -178,9 +185,10 @@ public class MVProblemSpecification {
                 continue;
             if (t instanceof SurveyAreaTask)
                 surveyTasks.add((SurveyAreaTask) t);
-            else if (t instanceof SamplePointTask) {
-                sampleTasks.add((SamplePointTask) t);
-            }
+            else if (t instanceof SurveyPolygonTask)
+                surveyPolygon.add((SurveyPolygonTask) t);
+            else if (t instanceof SamplePointTask)
+                sampleTasks.add((SamplePointTask) t);            
         }
     }
 
