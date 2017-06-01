@@ -46,6 +46,7 @@ import pt.lsts.neptus.mp.maneuvers.AreaSurvey;
 import pt.lsts.neptus.mp.maneuvers.Goto;
 import pt.lsts.neptus.mp.maneuvers.LocatedManeuver;
 import pt.lsts.neptus.mp.maneuvers.Loiter;
+import pt.lsts.neptus.mp.maneuvers.ManeuversUtil;
 import pt.lsts.neptus.mp.maneuvers.PopUp;
 import pt.lsts.neptus.mp.maneuvers.RowsManeuver;
 import pt.lsts.neptus.mp.maneuvers.ScheduledGoto;
@@ -107,7 +108,7 @@ public class MVSolution {
             if (action.type.equals("getready"))
                 return null;
            
-            
+            System.out.println("Parsing "+actionStr);            
             action.startTime = (long) (1000 * Double.parseDouble(parts[0]) + System.currentTimeMillis());
             action.endTime = (long) (1000 * Double.parseDouble(parts[parts.length - 1])) + action.startTime;
             action.name = parts[3];            
@@ -116,6 +117,8 @@ public class MVSolution {
             action.name = action.name.replaceAll("_oi", "");
             action.name = action.name.replaceAll("_depot", "");
             action.vehicle = VehicleParams.getVehicleFromNickname(parts[2]);
+
+
             if (action.type.equals("move"))
                 action.location = new ManeuverLocation(locations.get(parts[4]));
             else
@@ -123,6 +126,7 @@ public class MVSolution {
 
         }
         catch (Exception e) {
+            e.printStackTrace();
             throw new Exception("Unrecognized PDDL syntax on line '" + line + "'", e);
         }
 
@@ -131,7 +135,7 @@ public class MVSolution {
         double minDepth = Double.MAX_VALUE;
         double maxDepth = -Double.MAX_VALUE;
 
-        System.out.println("Parsing "+actionStr);
+        //System.out.println("Parsing "+actionStr);
         if (actionStr.contains("survey") || actionStr.contains("sample")) {
             if (task.getRequiredPayloads() == null || task.getRequiredPayloads().isEmpty()) {
                 minDepth = maxDepth = DEFAULT_DEPTH;
@@ -264,7 +268,7 @@ public class MVSolution {
             }
 
             
-            System.out.println(act.name+" matches? "+act.name.matches("t[0-9]+(_p[0-9]+)?"));
+            //System.out.println(act.name+" matches? "+act.name.matches("t[0-9]+(_p[0-9]+)?"));
             // just account for valid actions and not movements to depots...
             if (act.name.matches("t[0-9]+(_p[0-9]+)?")) {
                 ArrayList<String> actions = actionsPerVehicle.get(act.vehicle.getId());
@@ -304,11 +308,16 @@ public class MVSolution {
         return result;
     }
 
+    LinkedHashMap<String, LocatedManeuver> lastManeuvers = new LinkedHashMap<>();
+    
     public Maneuver generateManeuver(PddlAction action) {
 
         Maneuver m = null;
 
         switch (action.type) {
+            case "collab":
+                
+                break;                
             case "communicate":
                 action.location.setZ(0);
                 action.location.setZUnits(Z_UNITS.DEPTH);
@@ -378,11 +387,33 @@ public class MVSolution {
                 
                 break;
             }
+            case "surface": {
+                
+                LocatedManeuver last = lastManeuvers.get(action.vehicle.getId());
+                
+                StationKeeping sk = new StationKeeping();
+                sk.setSpeed(1.0);
+                ManeuverLocation loc = sk.getManeuverLocation();
+                if (last != null) {
+                    loc = last.getEndLocation();
+                    sk.setManeuverLocation(loc);    
+                }
+                
+                loc.setZ(0);
+                loc.setZUnits(Z_UNITS.DEPTH);
+                sk.setManeuverLocation(loc);
+                sk.setSpeedUnits(Maneuver.SPEED_UNITS.METERS_PS);
+                sk.setDuration(((int) ((action.endTime - action.startTime) / 1000)));
+                sk.setRadius(20);
+                m = sk;
+                break;
+            }
             default:
                 System.err.println("Unrecognized action type: " + action.type);
                 return null;
         }
-        // m.setId(action.name);
+        if (m instanceof LocatedManeuver)
+            lastManeuvers.put(action.vehicle.getId(), (LocatedManeuver)m);
         return m;
     }
     
