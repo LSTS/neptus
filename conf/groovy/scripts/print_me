@@ -1,7 +1,0 @@
-def y =3
-def x =1
-println "Y+X = "+(y+x)+"\n"
-def p = new Plan(console)
-p.planName "XPTO"
-println p.getPlan_id()
-println "done"

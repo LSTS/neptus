@@ -48,8 +48,6 @@ import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.SwingUtilities;
 import javax.swing.border.Border;
-import javax.swing.event.DocumentEvent;
-import javax.swing.event.DocumentListener;
 import javax.swing.text.BadLocationException;
 
 import org.fife.ui.rsyntaxtextarea.RSyntaxTextArea;
@@ -82,6 +80,7 @@ import pt.lsts.neptus.util.ImageUtils;
 @Popup(pos = POSITION.RIGHT, width=500, height=600)
 @SuppressWarnings("serial")
 public class GroovyPanel extends ConsolePanel {
+    
     private GroovyEngine engine;
     private OutputStream scriptOutput;
     private JButton openButton,stopScript,runScript,clearOutput;
@@ -142,7 +141,7 @@ public class GroovyPanel extends ConsolePanel {
             }
             catch (Exception e) {
                 NeptusLog.pub().error(e);
-                groovyScript = new File(groovyScript.getPath());
+                groovyScript = new File("conf/groovy/scripts/temp");
             }
         }
                     
@@ -219,28 +218,7 @@ public class GroovyPanel extends ConsolePanel {
         add(scroll, BorderLayout.CENTER);
         stopScript.setEnabled(false);
         output.setVisible(true);
-        output.getDocument().addDocumentListener(new DocumentListener() {
-            
-            @Override
-            public void removeUpdate(DocumentEvent e) {
-                // TODO Auto-generated method stub
-                
-            }
-            
-            @Override
-            public void insertUpdate(DocumentEvent e) {
-                // TODO Auto-generated method stub
-                
-            }
-            
-            @Override
-            public void changedUpdate(DocumentEvent e) {
-                // TODO Auto-generated method stub
-                
-            }
-        });
 }
-    
 
     /**
      * @param string
