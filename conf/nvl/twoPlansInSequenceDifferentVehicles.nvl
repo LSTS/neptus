@@ -1,0 +1,10 @@
+
+v1 = pick { 
+  type 'UUV'; 
+  timeout 10.seconds 
+}
+v2 = pick {
+  type 'UUV'
+}
+
+execute task('test1')[v1]  >>  task('test2')[v2]

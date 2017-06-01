@@ -36,6 +36,7 @@ import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.io.File;
+import java.io.IOException;
 
 import javax.swing.AbstractAction;
 import javax.swing.Action;
@@ -66,7 +67,7 @@ import pt.lsts.neptus.util.FileUtil;
 import pt.lsts.neptus.util.ImageUtils;
 
 
-@PluginDescription(name = "NVL Runtime Feature", author = "Keila Lima")
+@PluginDescription(name = "NVL Runtime Feature", author = "Keila Lima",icon="pt/lsts/neptus/plugins/nvl/images/tide.jpg")
 @Popup(pos = Popup.POSITION.BOTTOM_RIGHT, width=600, height=500)
 @SuppressWarnings("serial")
 public class NVLConsolePanel extends ConsolePanel {
@@ -78,6 +79,7 @@ public class NVLConsolePanel extends ConsolePanel {
     private File script;
     private JButton select,testButton;
     RTextScrollPane scroll;
+    
     public NVLConsolePanel(ConsoleLayout layout) {
         super(layout);
     }
@@ -92,7 +94,6 @@ public class NVLConsolePanel extends ConsolePanel {
         editor.setCodeFoldingEnabled(true);
         editor.setPreferredSize(new Dimension(600, 300));
         scroll = new RTextScrollPane(editor);
-        scroll.add(editor);
         
         if (script != null) {
             try {
@@ -104,7 +105,15 @@ public class NVLConsolePanel extends ConsolePanel {
         }
         else {
             script = new File("conf/nvl/temp");
-            editor.setText(FileUtil.getFileAsString(script));  
+            editor.setText(FileUtil.getFileAsString(script));
+            System.out.println("New temporary file created.");
+            try {
+                script.createNewFile();
+            }
+            catch (IOException e1) {
+                NeptusLog.pub().error(e1);
+            }
+              
         }
                     
         Action selectAction = new AbstractAction(I18n.text("Script File..."), ImageUtils.getScaledIcon("pt/lsts/neptus/plugins/groovy/images/filenew.png", 16, 16)) {
@@ -130,18 +139,20 @@ public class NVLConsolePanel extends ConsolePanel {
         //Output panel
         output = new JTextArea();
         border = BorderFactory.createTitledBorder("Script Output");
-        output.setBorder(border);
+        //output.setBorder(border);
         output.setEditable(false);
         output.setVisible(true);
         output.append("NLV Runtime Console\n");
-        outputPanel = new JScrollPane(output);//RSyntaxTextArea("Script Output")
+        outputPanel = new JScrollPane(output);
+        outputPanel.setBorder(border);
         
         
         Action testAction = new AbstractAction(I18n.text("Test!")) {
                     @Override
                     public void actionPerformed(ActionEvent e) {   
                         new Thread(() -> {
-                            NeptusPlatform.getInstance().run(new File("conf/nvl/imcplan.nvl"));
+                            FileUtil.saveToFile(script.getAbsolutePath(), editor.getText());
+                            NeptusPlatform.getInstance().run(script);
                         }).start();
                     }
         };
@@ -190,6 +201,7 @@ public class NVLConsolePanel extends ConsolePanel {
     @Override
     public void cleanSubPanel() {
         NeptusPlatform.getInstance().detach();
+        
     }
     
     @Subscribe

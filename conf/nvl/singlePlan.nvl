@@ -1,0 +1,4 @@
+
+v = pick { type 'UAV'; timeout 12.seconds }
+
+execute v: task('x8_test') 

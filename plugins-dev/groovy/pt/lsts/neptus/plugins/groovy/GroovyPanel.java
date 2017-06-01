@@ -205,7 +205,7 @@ public class GroovyPanel extends ConsolePanel {
         bottom.add(buttons);
         border = BorderFactory.createTitledBorder("Script Output");
         
-        output.setBorder(border);
+        //output.setBorder(border);
         output.setEditable(false);
         output.setVisible(true);
 //        output.setBackground(Color.BLACK);
@@ -213,6 +213,7 @@ public class GroovyPanel extends ConsolePanel {
         output.append("OUTPUT GOES HERE \n");
         outputPanel = new JScrollPane(output);//RSyntaxTextArea("Script Output")
         outputPanel.setPreferredSize(new Dimension(500, 100));
+        outputPanel.setBorder(border);
         bottom.add(outputPanel, BorderLayout.SOUTH);
         add(bottom, BorderLayout.SOUTH);
         add(scroll, BorderLayout.CENTER);
