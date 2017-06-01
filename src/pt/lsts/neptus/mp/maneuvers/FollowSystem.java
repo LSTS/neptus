@@ -45,6 +45,7 @@ import com.l2fprod.common.propertysheet.Property;
 
 import pt.lsts.imc.IMCDefinition;
 import pt.lsts.imc.IMCMessage;
+import pt.lsts.imc.def.SpeedUnits;
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.comm.IMCUtils;
 import pt.lsts.neptus.gui.PropertiesEditor;
@@ -100,7 +101,7 @@ public class FollowSystem extends DefaultManeuver implements ManeuverWithSpeed, 
 	    return document;
     }
 	
-	public void loadFromXML(String xml) {
+	public void loadManeuverFromXML(String xml) {
 	    try {
 	        Document doc = DocumentHelper.parseText(xml);
 	        setSystem(doc.selectSingleNode("//system").getText());
@@ -351,14 +352,14 @@ public class FollowSystem extends DefaultManeuver implements ManeuverWithSpeed, 
 		try {
             switch (this.getSpeedUnits()) {
                 case METERS_PS:
-                    ((pt.lsts.imc.FollowSystem) msgManeuver).setSpeedUnits(pt.lsts.imc.FollowSystem.SPEED_UNITS.METERS_PS);
+                    ((pt.lsts.imc.FollowSystem) msgManeuver).setSpeedUnits(SpeedUnits.METERS_PS);
                     break;
                 case PERCENTAGE:
-                    ((pt.lsts.imc.FollowSystem) msgManeuver).setSpeedUnits(pt.lsts.imc.FollowSystem.SPEED_UNITS.PERCENTAGE);
+                    ((pt.lsts.imc.FollowSystem) msgManeuver).setSpeedUnits(SpeedUnits.PERCENTAGE);
                     break;
                 case RPM:
                 default:
-                    ((pt.lsts.imc.FollowSystem) msgManeuver).setSpeedUnits(pt.lsts.imc.FollowSystem.SPEED_UNITS.RPM);
+                    ((pt.lsts.imc.FollowSystem) msgManeuver).setSpeedUnits(SpeedUnits.RPM);
                     break;
             }
         }

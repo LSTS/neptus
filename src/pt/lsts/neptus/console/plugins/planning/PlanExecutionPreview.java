@@ -38,6 +38,7 @@ import java.awt.geom.GeneralPath;
 import java.awt.geom.Point2D;
 import java.awt.geom.RoundRectangle2D;
 import java.util.Collections;
+import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.Vector;
 
@@ -52,11 +53,13 @@ import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.comm.manager.imc.ImcMsgManager;
 import pt.lsts.neptus.console.ConsoleLayout;
 import pt.lsts.neptus.console.ConsolePanel;
+import pt.lsts.neptus.console.events.ConsoleEventFutureState;
 import pt.lsts.neptus.console.events.ConsoleEventPositionEstimation;
 import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.mp.SystemPositionAndAttitude;
 import pt.lsts.neptus.mp.preview.PlanSimulationOverlay;
 import pt.lsts.neptus.mp.preview.PlanSimulator;
+import pt.lsts.neptus.mp.preview.SimulatedFutureState;
 import pt.lsts.neptus.plugins.ConfigurationListener;
 import pt.lsts.neptus.plugins.NeptusProperty;
 import pt.lsts.neptus.plugins.PluginDescription;
@@ -132,6 +135,7 @@ public class PlanExecutionPreview extends ConsolePanel implements Renderer2DPain
 
     @Subscribe
     public void consume(EstimatedState msg) {
+        try {
         String src = msg.getSourceName();
         if (src == null)
             return;
@@ -140,6 +144,11 @@ public class PlanExecutionPreview extends ConsolePanel implements Renderer2DPain
             simulators.get(src).setEstimatedState(msg);
             lastStates.put(src, msg);
             lastStateTimes.put(src, System.currentTimeMillis());
+            updateFutureState(src);
+        }
+        }
+        catch (Exception e) {
+            e.printStackTrace();
         }
     }
 
@@ -162,6 +171,7 @@ public class PlanExecutionPreview extends ConsolePanel implements Renderer2DPain
 
             simulators.get(src).setPositionEstimation(state, 15);
             lastStateTimes.put(src, System.currentTimeMillis());
+            updateFutureState(src);
         }
     }
 
@@ -184,6 +194,7 @@ public class PlanExecutionPreview extends ConsolePanel implements Renderer2DPain
 
             simulators.get(src).setPositionEstimation(state, 50);
             lastStateTimes.put(src, System.currentTimeMillis());
+            updateFutureState(src);
         }
     }
 
@@ -200,7 +211,21 @@ public class PlanExecutionPreview extends ConsolePanel implements Renderer2DPain
             return;
         else {
             mainSimulator.setPositionEstimation(estimate.getEstimation(), 8);
+            updateFutureState(getConsole().getMainSystem());
         }
+    }
+    
+    protected void updateFutureState(String system) {
+        PlanSimulator simulator = simulators.get(system);
+        if (simulator == null)
+            return;
+        
+        SimulatedFutureState future = simulator.getFutureState();
+        if (future == null)
+            return;
+        
+        ConsoleEventFutureState futureState = new ConsoleEventFutureState(future);
+        getConsole().post(futureState);        
     }
 
     protected void stopSimulator() {
@@ -229,10 +254,12 @@ public class PlanExecutionPreview extends ConsolePanel implements Renderer2DPain
             if (forceSimVisualization && main)
                 return;
             else {
-                //stopSimulator();
                 if (simulators.containsKey(src)) {
                     simulators.get(src).stopSimulation();
                     simulators.remove(src);
+                    // remove future state...
+                    ConsoleEventFutureState futureState = new ConsoleEventFutureState(src, new Date(), null);
+                    getConsole().post(futureState);
                 }
 
                 if (main) {

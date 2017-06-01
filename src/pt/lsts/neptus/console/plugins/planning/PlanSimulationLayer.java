@@ -56,7 +56,7 @@ import pt.lsts.neptus.renderer2d.StateRenderer2D;
 import pt.lsts.neptus.types.coord.LocationType;
 import pt.lsts.neptus.types.map.AbstractElement;
 import pt.lsts.neptus.types.map.MapGroup;
-import pt.lsts.neptus.types.mission.plan.PlanCompability;
+import pt.lsts.neptus.types.mission.plan.PlanCompatibility;
 import pt.lsts.neptus.types.mission.plan.PlanType;
 import pt.lsts.neptus.types.vehicle.VehicleType;
 import pt.lsts.neptus.types.vehicle.VehiclesHolder;
@@ -205,24 +205,26 @@ public class PlanSimulationLayer extends ConsoleLayer implements PlanSimulationL
             }
         }
 
-        if ("auv".equalsIgnoreCase(v.getType()) || "uuv".equalsIgnoreCase(v.getType())) {
-            if (maxDistToBase > maxAUVDistance) {
-                checks.add(new Pair<PlanSimulationLayer.PlanCheck, String>(PlanCheck.Warning, I18n.textf(
-                        "%vehicle will be %maxDistToBase meters away from here", v.getId(), (int) maxDistToBase)));
+        if (v != null) {
+            if ("auv".equalsIgnoreCase(v.getType()) || "uuv".equalsIgnoreCase(v.getType())) {
+                if (maxDistToBase > maxAUVDistance) {
+                    checks.add(new Pair<PlanSimulationLayer.PlanCheck, String>(PlanCheck.Warning, I18n.textf(
+                            "%vehicle will be %maxDistToBase meters away from here", v.getId(), (int) maxDistToBase)));
+                }
+                if (distAtEnd > maxAUVDistAtEnd) {
+                    checks.add(new Pair<PlanSimulationLayer.PlanCheck, String>(PlanCheck.Warning, I18n.textf(
+                            "%vehicle will finish %distance  meters away from base", v.getId(), (int) distAtEnd)));
+                }
             }
-            if (distAtEnd > maxAUVDistAtEnd) {
-                checks.add(new Pair<PlanSimulationLayer.PlanCheck, String>(PlanCheck.Warning, I18n.textf(
-                        "%vehicle will finish %distance  meters away from base", v.getId(), (int) distAtEnd)));
-            }
-        }
-        else if ("uav".equalsIgnoreCase(v.getType())) {
-            if (maxDistToBase > maxUAVDistance) {
-                checks.add(new Pair<PlanSimulationLayer.PlanCheck, String>(PlanCheck.Warning, I18n.textf(
-                        "%vehicle will be %maxDistToBase meters away from here", v.getId(), (int) maxDistToBase)));
-            }
-            if (distAtEnd > maxUAVDistAtEnd) {
-                checks.add(new Pair<PlanSimulationLayer.PlanCheck, String>(PlanCheck.Warning, I18n.textf(
-                        "%vehicle will finish %distance  meters away from base", v.getId(), (int) distAtEnd)));
+            else if ("uav".equalsIgnoreCase(v.getType())) {
+                if (maxDistToBase > maxUAVDistance) {
+                    checks.add(new Pair<PlanSimulationLayer.PlanCheck, String>(PlanCheck.Warning, I18n.textf(
+                            "%vehicle will be %maxDistToBase meters away from here", v.getId(), (int) maxDistToBase)));
+                }
+                if (distAtEnd > maxUAVDistAtEnd) {
+                    checks.add(new Pair<PlanSimulationLayer.PlanCheck, String>(PlanCheck.Warning, I18n.textf(
+                            "%vehicle will finish %distance  meters away from base", v.getId(), (int) distAtEnd)));
+                }
             }
         }
 
@@ -261,7 +263,7 @@ public class PlanSimulationLayer extends ConsoleLayer implements PlanSimulationL
     private List<Pair<PlanCheck, String>> validatePlanCompatibility() {
         ArrayList<Pair<PlanCheck, String>> checks = new ArrayList<>();
         try {
-            PlanCompability.testCompatibility(VehiclesHolder.getVehicleById(getConsole().getMainSystem()), mainPlan);
+            PlanCompatibility.testCompatibility(VehiclesHolder.getVehicleById(getConsole().getMainSystem()), mainPlan);
         }
         catch (Exception e) {
             checks.add(new Pair<PlanSimulationLayer.PlanCheck, String>(PlanCheck.Warning, e.getMessage()));

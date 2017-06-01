@@ -116,12 +116,18 @@ public class TidePredictionFactory {
             return cached.getTidePrediction(date, false);
         }
         catch (NullPointerException e) {
-            NeptusLog.pub().debug("Error geting tide for date " + date + ". Caller " + ReflectionUtil.getCallerStamp()
+            if (cached == null) {
+                NeptusLog.pub().debug("Nullpointer error getting tide data. Caller " + ReflectionUtil.getCallerStamp()
                     + ". " + e.getMessage() + " " + e);
+            }
+            else {
+                NeptusLog.pub().debug("Nullpointer error getting tide for date " + date + ". Caller " + ReflectionUtil.getCallerStamp()
+                    + ". " + e.getMessage() + " " + e);
+            }
             return 0;
         }
         catch (Exception e) {
-            NeptusLog.pub().error("Error geting tide for date " + date + ". Caller " + ReflectionUtil.getCallerStamp()
+            NeptusLog.pub().error("Error getting tide for date " + date + ". Caller " + ReflectionUtil.getCallerStamp()
                     + ". " + e.getMessage() + " " + e);
             return 0;
         }

@@ -64,6 +64,7 @@ import com.l2fprod.common.propertysheet.DefaultProperty;
 import com.l2fprod.common.propertysheet.Property;
 
 import pt.lsts.imc.IMCMessage;
+import pt.lsts.imc.def.SpeedUnits;
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.comm.IMCUtils;
 import pt.lsts.neptus.gui.LocationPanel;
@@ -197,12 +198,11 @@ public class AutonomousSection extends Maneuver
         if (v != null) {
             popup.add(I18n.text("Edit location")).addActionListener(new ActionListener() {
                 public void actionPerformed(ActionEvent e) {
-                    LocationType l = new LocationType(v.lat, v.lon);
+                    LocationType l = new LocationType(v.getLocation());
                     LocationType newLoc = LocationPanel.showLocationDialog(source, I18n.text("Edit Vertex Location"), l, getMissionType(), true);
                     if (newLoc != null) {
                         newLoc.convertToAbsoluteLatLonDepth();
-                        v.lat = newLoc.getLatitudeDegs();
-                        v.lon = newLoc.getLongitudeDegs();
+                        v.setLocation(newLoc);
                         areaLimits.recomputePath();
                     }                        
                     source.repaint();                    
@@ -242,8 +242,7 @@ public class AutonomousSection extends Maneuver
             adapter.mouseDragged(event, source);
         else {
             LocationType loc = source.getRealWorldLocation(event.getPoint());
-            vertex.lat = loc.getLatitudeDegs();
-            vertex.lon = loc.getLongitudeDegs();         
+            vertex.setLocation(loc);
             areaLimits.recomputePath();     
         }
     }
@@ -309,7 +308,7 @@ public class AutonomousSection extends Maneuver
     
     public PolygonType.Vertex intercepted(MouseEvent evt, StateRenderer2D source) {
         for (PolygonType.Vertex v : areaLimits.getVertices()) {
-            Point2D pt = source.getScreenPosition(new LocationType(v.lat, v.lon));
+            Point2D pt = source.getScreenPosition(new LocationType(v.getLocation()));
             if (pt.distance(evt.getPoint()) < 5) {
                 return v;
             }
@@ -322,7 +321,7 @@ public class AutonomousSection extends Maneuver
         g.setTransform(source.getIdentity());
         areaLimits.paint(g, source);        
         areaLimits.getVertices().forEach(v -> {
-            Point2D pt = source.getScreenPosition(new LocationType(v.lat, v.lon));
+            Point2D pt = source.getScreenPosition(new LocationType(v.getLocation()));
             Ellipse2D ellis = new Ellipse2D.Double(pt.getX()-5, pt.getY()-5, 10, 10);
             Color c = Color.yellow;
             g.setColor(new Color(255-c.getRed(),255-c.getGreen(),255-c.getBlue(),200));
@@ -360,12 +359,11 @@ public class AutonomousSection extends Maneuver
         longitudeDegs = location.getLongitudeDegs();      
         
         areaLimits.getVertices().forEach(v -> {
-            LocationType l = new LocationType(v.lat, v.lon);
+            LocationType l = new LocationType(v.getLocation());
             double[] offsets = l.getOffsetFrom(prevLocation);
             l.setLocation(location);
             l.translatePosition(offsets).convertToAbsoluteLatLonDepth();
-            v.lat = l.getLatitudeDegs();
-            v.lon = l.getLongitudeDegs();
+            v.setLocation(l);
         });
         areaLimits.recomputePath();
     }
@@ -394,14 +392,14 @@ public class AutonomousSection extends Maneuver
         maneuver.setSpeed(getSpeed());
         switch (this.getSpeedUnits()) {
             case PERCENTAGE:
-                maneuver.setSpeedUnits(pt.lsts.imc.AutonomousSection.SPEED_UNITS.PERCENTAGE);
+                maneuver.setSpeedUnits(SpeedUnits.PERCENTAGE);
                 break;
             case RPM:
-                maneuver.setSpeedUnits(pt.lsts.imc.AutonomousSection.SPEED_UNITS.RPM);
+                maneuver.setSpeedUnits(SpeedUnits.RPM);
                 break;
             case METERS_PS:
             default:
-                maneuver.setSpeedUnits(pt.lsts.imc.AutonomousSection.SPEED_UNITS.METERS_PS);
+                maneuver.setSpeedUnits(SpeedUnits.METERS_PS);
                 break;
         }
         
@@ -482,7 +480,7 @@ public class AutonomousSection extends Maneuver
     }
 
     @Override
-    public void loadFromXML(String xml) {
+    public void loadManeuverFromXML(String xml) {
         try {
             Document doc = DocumentHelper.parseText(xml);
             
@@ -526,7 +524,7 @@ public class AutonomousSection extends Maneuver
     public Object clone() {
         AutonomousSection sec = new AutonomousSection();
         super.clone(sec);
-        sec.loadFromXML(getManeuverXml());
+        sec.loadManeuverFromXML(getManeuverXml());
         return sec;
     }
 
@@ -610,6 +608,6 @@ public class AutonomousSection extends Maneuver
         
         System.out.println(FileUtil.getAsPrettyPrintFormatedXMLString(FileUtil.getAsCompactFormatedXMLString(xml)));
         
-        sec.loadFromXML(xml);
+        sec.loadManeuverFromXML(xml);
     }
 }

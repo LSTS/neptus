@@ -99,7 +99,7 @@ public class PolygonPanel extends ParametersPanel implements StateRendererIntera
             missionType = new MissionType();
             if (!polygon.getVertices().isEmpty()) {
                 HomeReference home = new HomeReference();
-                home.setLocation(new LocationType(polygon.getVertices().get(0).lat, polygon.getVertices().get(0).lon));
+                home.setLocation(new LocationType(polygon.getVertices().get(0).getLocation()));
                 missionType.setHomeRef(home);
             }
         }
@@ -116,7 +116,7 @@ public class PolygonPanel extends ParametersPanel implements StateRendererIntera
             missionType = new MissionType();
             if (!polygon.getVertices().isEmpty()) {
                 HomeReference home = new HomeReference();
-                home.setLocation(new LocationType(polygon.getVertices().get(0).lat, polygon.getVertices().get(0).lon));
+                home.setLocation(new LocationType(polygon.getVertices().get(0).getLocation()));
                 missionType.setHomeRef(home);
             }
         }
@@ -191,12 +191,11 @@ public class PolygonPanel extends ParametersPanel implements StateRendererIntera
         if (v != null) {
             popup.add(I18n.text("Edit location")).addActionListener(new ActionListener() {
                 public void actionPerformed(ActionEvent e) {
-                    LocationType l = new LocationType(v.lat, v.lon);
+                    LocationType l = new LocationType(v.getLocation());
                     LocationType newLoc = LocationPanel.showLocationDialog(renderer2d, I18n.text("Edit Vertex Location"), l, getMissionType(), true);
                     if (newLoc != null) {
                         newLoc.convertToAbsoluteLatLonDepth();
-                        v.lat = newLoc.getLatitudeDegs();
-                        v.lon = newLoc.getLongitudeDegs();
+                        v.setLocation(newLoc);
                         polygon.recomputePath();
                     }                        
                     repaint();                    
@@ -236,8 +235,7 @@ public class PolygonPanel extends ParametersPanel implements StateRendererIntera
             adapter.mouseDragged(event, source);
         else {
             LocationType loc = source.getRealWorldLocation(event.getPoint());
-            vertex.lat = loc.getLatitudeDegs();
-            vertex.lon = loc.getLongitudeDegs();         
+            vertex.setLocation(loc);
             polygon.recomputePath();     
         }
     }
@@ -302,7 +300,7 @@ public class PolygonPanel extends ParametersPanel implements StateRendererIntera
     
     public PolygonType.Vertex intercepted(MouseEvent evt, StateRenderer2D source) {
         for (PolygonType.Vertex v : polygon.getVertices()) {
-            Point2D pt = source.getScreenPosition(new LocationType(v.lat, v.lon));
+            Point2D pt = source.getScreenPosition(new LocationType(v.getLocation()));
             if (pt.distance(evt.getPoint()) < 5) {
                 return v;
             }
@@ -315,7 +313,7 @@ public class PolygonPanel extends ParametersPanel implements StateRendererIntera
         g.setTransform(source.getIdentity());
         polygon.paint(g, source);        
         polygon.getVertices().forEach(v -> {
-            Point2D pt = source.getScreenPosition(new LocationType(v.lat, v.lon));
+            Point2D pt = source.getScreenPosition(new LocationType(v.getLocation()));
             Ellipse2D ellis = new Ellipse2D.Double(pt.getX()-5, pt.getY()-5, 10, 10);
             Color c = Color.yellow;
             g.setColor(new Color(255-c.getRed(),255-c.getGreen(),255-c.getBlue(),200));

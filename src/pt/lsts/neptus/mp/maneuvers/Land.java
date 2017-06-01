@@ -57,6 +57,8 @@ import com.l2fprod.common.propertysheet.DefaultProperty;
 import com.l2fprod.common.propertysheet.Property;
 
 import pt.lsts.imc.IMCMessage;
+import pt.lsts.imc.def.SpeedUnits;
+import pt.lsts.imc.def.ZUnits;
 import pt.lsts.neptus.gui.ToolbarSwitch;
 import pt.lsts.neptus.gui.editor.SpeedUnitsEnumEditor;
 import pt.lsts.neptus.i18n.I18n;
@@ -203,7 +205,7 @@ public class Land extends Maneuver implements LocatedManeuver, ManeuverWithSpeed
      * @see pt.lsts.neptus.mp.Maneuver#loadFromXML(java.lang.String)
      */
     @Override
-    public void loadFromXML(String xml) {
+    public void loadManeuverFromXML(String xml) {
         try {
             Document doc = DocumentHelper.parseText(xml);
     
@@ -299,20 +301,20 @@ public class Land extends Maneuver implements LocatedManeuver, ManeuverWithSpeed
         man.setLat(Math.toRadians(latDegs));
         man.setLon(Math.toRadians(lonDegs));
         man.setZ(z);
-        man.setZUnits(pt.lsts.imc.Land.Z_UNITS.valueOf(getManeuverLocation().getZUnits().toString()));        
+        man.setZUnits(ZUnits.valueOf(getManeuverLocation().getZUnits().toString()));        
         man.setSpeed(speed);
         
         SPEED_UNITS speedU = speedUnits;
         switch (speedU) {
             case RPM:
-                man.setSpeedUnits(pt.lsts.imc.Land.SPEED_UNITS.RPM);
+                man.setSpeedUnits(SpeedUnits.RPM);
                 break;
             case PERCENTAGE:
-                man.setSpeedUnits(pt.lsts.imc.Land.SPEED_UNITS.PERCENTAGE);
+                man.setSpeedUnits(SpeedUnits.PERCENTAGE);
                 break;
             case METERS_PS:
             default:
-                man.setSpeedUnits(pt.lsts.imc.Land.SPEED_UNITS.METERS_PS);
+                man.setSpeedUnits(SpeedUnits.METERS_PS);
                 break;
         }
 

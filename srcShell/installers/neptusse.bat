@@ -106,5 +106,5 @@ set VMFLAGS="-XX:+HeapDumpOnOutOfMemoryError"
 
 set OLDPATH=%PATH%
 set PATH=%LIBRARYPATH%;%PATH%
-start %JAVA_BIN_FOLDER%javaw.exe -Xms10m -Xmx912m -Dj3d.rend=d3d -Dsun.java2d.d3d=true %VMFLAGS% -Djava.library.path="%LIBRARYPATH%" -cp %CLASSPATH% pt.lsts.neptus.mc.lauvconsole.LAUVConsole %1 %2 %3 %4 %5 %6 %7 %8 %9
+start %JAVA_BIN_FOLDER%javaw.exe -Xms10m -Xmx912m -Dj3d.rend=d3d -Dsun.java2d.d3d=true %VMFLAGS% -Djava.library.path="%LIBRARYPATH%" -cp %CLASSPATH% @MAIN_CLASS@ %1 %2 %3 %4 %5 %6 %7 %8 %9
 set PATH=%OLDPATH%

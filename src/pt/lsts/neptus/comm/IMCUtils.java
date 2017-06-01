@@ -1367,7 +1367,7 @@ public class IMCUtils {
         Vector<PolygonVertex> ret = new Vector<>();
         
         polygon.getVertices().forEach(v -> {
-            ret.add(new PolygonVertex(Math.toRadians(v.lat), Math.toRadians(v.lon)));
+            ret.add(new PolygonVertex(v.getLocation().getLatitudeRads(), v.getLocation().getLongitudeRads()));
         });
         
         return ret;

@@ -42,6 +42,10 @@ public class TabulatedColorMap extends InterpolationColorMap {
         super(reader);
     }	    
 
+    public TabulatedColorMap(Reader reader, boolean is255) throws IOException {
+        super(reader, is255);
+    }       
+
    public Color getColor(double value) {	
         int val = (int)(value*values.length);
         if (val >= values.length)

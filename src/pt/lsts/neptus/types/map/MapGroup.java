@@ -333,6 +333,16 @@ public class MapGroup implements MapChangeListener {
 		return tmp.getObject(objStr);
 	}
 	
+	public AbstractElement findObject(String objID) {
+	    
+	    for (MapType map : maps.values()) {
+	        if (map.getObject(objID) != null)
+	            return map.getObject(objID);
+	    }
+	    
+	    return null;
+    }
+	
 	public void updateObjectIds() {
 	    for (MapType m : maps.values())
 	        m.updateObjectIds();

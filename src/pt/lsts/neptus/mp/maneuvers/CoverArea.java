@@ -62,6 +62,8 @@ import com.l2fprod.common.propertysheet.Property;
 
 import pt.lsts.imc.IMCMessage;
 import pt.lsts.imc.PolygonVertex;
+import pt.lsts.imc.def.SpeedUnits;
+import pt.lsts.imc.def.ZUnits;
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.gui.PropertiesEditor;
 import pt.lsts.neptus.gui.ToolbarSwitch;
@@ -149,20 +151,20 @@ public class CoverArea extends Maneuver implements LocatedManeuver, ManeuverWith
         coverArea.setLat(l.getLatitudeRads());
         coverArea.setLon(l.getLongitudeRads());
         coverArea.setZ(getManeuverLocation().getZ());
-        coverArea.setZUnits(pt.lsts.imc.CoverArea.Z_UNITS.valueOf(getManeuverLocation().getZUnits().name()));
+        coverArea.setZUnits(ZUnits.valueOf(getManeuverLocation().getZUnits().name()));
         coverArea.setSpeed(this.getSpeed());
        
         try {
             switch (this.getSpeedUnits()) {
                 case METERS_PS:
-                    coverArea.setSpeedUnits(pt.lsts.imc.CoverArea.SPEED_UNITS.METERS_PS);
+                    coverArea.setSpeedUnits(SpeedUnits.METERS_PS);
                     break;
                 case PERCENTAGE:
-                    coverArea.setSpeedUnits(pt.lsts.imc.CoverArea.SPEED_UNITS.PERCENTAGE);
+                    coverArea.setSpeedUnits(SpeedUnits.PERCENTAGE);
                     break;
                 case RPM:
                 default:
-                    coverArea.setSpeedUnits(pt.lsts.imc.CoverArea.SPEED_UNITS.RPM);
+                    coverArea.setSpeedUnits(SpeedUnits.RPM);
                     break;
             }
         }
@@ -376,7 +378,7 @@ public class CoverArea extends Maneuver implements LocatedManeuver, ManeuverWith
      * @see pt.lsts.neptus.mp.Maneuver#loadFromXML(java.lang.String)
      */
     @Override
-    public void loadFromXML(String xml) {
+    public void loadManeuverFromXML(String xml) {
         try {
             Document doc = DocumentHelper.parseText(xml);
             Node node = doc.selectSingleNode(getType()+"/finalPoint/point");
@@ -582,7 +584,7 @@ public class CoverArea extends Maneuver implements LocatedManeuver, ManeuverWith
         String ccmanXML = compc.getManeuverAsDocument("CoverArea").asXML();
         System.out.println(FileUtil.getAsPrettyPrintFormatedXMLString(ccmanXML));
         CoverArea compc1 = new CoverArea();
-        compc1.loadFromXML(ccmanXML);
+        compc1.loadManeuverFromXML(ccmanXML);
         ccmanXML = compc1.getManeuverAsDocument("CoverArea").asXML();
         System.out.println(FileUtil.getAsPrettyPrintFormatedXMLString(ccmanXML));
     }

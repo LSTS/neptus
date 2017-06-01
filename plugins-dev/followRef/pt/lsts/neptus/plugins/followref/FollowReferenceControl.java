@@ -49,7 +49,6 @@ import com.l2fprod.common.propertysheet.Property;
 
 import pt.lsts.imc.DesiredSpeed;
 import pt.lsts.imc.DesiredZ;
-import pt.lsts.imc.DesiredZ.Z_UNITS;
 import pt.lsts.imc.EstimatedState;
 import pt.lsts.imc.FollowRefState;
 import pt.lsts.imc.FollowReference;
@@ -60,6 +59,8 @@ import pt.lsts.imc.PlanControlState;
 import pt.lsts.imc.PlanManeuver;
 import pt.lsts.imc.PlanSpecification;
 import pt.lsts.imc.Reference;
+import pt.lsts.imc.def.SpeedUnits;
+import pt.lsts.imc.def.ZUnits;
 import pt.lsts.neptus.console.ConsoleLayout;
 import pt.lsts.neptus.console.events.ConsoleEventMainSystemChange;
 import pt.lsts.neptus.gui.PropertiesEditor;
@@ -125,14 +126,14 @@ public class FollowReferenceControl extends SimpleRendererInteraction implements
     public void setProperties(Property[] properties) {
         super.setProperties(properties);
         double z = depth;
-        Z_UNITS units = Z_UNITS.DEPTH;
+        ZUnits units = ZUnits.DEPTH;
         if (z < 0) {
-            units = Z_UNITS.ALTITUDE;
+            units = ZUnits.ALTITUDE;
             z = -z;
         }
         if (ref != null) {
             ref.setZ(new DesiredZ((float)z, units));
-            ref.setSpeed(new DesiredSpeed(speed, DesiredSpeed.SPEED_UNITS.METERS_PS));
+            ref.setSpeed(new DesiredSpeed(speed, SpeedUnits.METERS_PS));
         }
     }
 
@@ -159,14 +160,14 @@ public class FollowReferenceControl extends SimpleRendererInteraction implements
             ref.setLat(loc.getLatitudeRads());
             ref.setLon(loc.getLongitudeRads());
             double z = depth;
-            Z_UNITS units = Z_UNITS.DEPTH;
+            ZUnits units = ZUnits.DEPTH;
             if (z < 0) {
-                units = Z_UNITS.ALTITUDE;
+                units = ZUnits.ALTITUDE;
                 z = -z;
             }
 
             ref.setZ(new DesiredZ((float)z, units));
-            ref.setSpeed(new DesiredSpeed(speed, DesiredSpeed.SPEED_UNITS.METERS_PS));
+            ref.setSpeed(new DesiredSpeed(speed, SpeedUnits.METERS_PS));
             ref.setFlags((short)(Reference.FLAG_LOCATION | Reference.FLAG_SPEED | Reference.FLAG_Z));
         }           
         

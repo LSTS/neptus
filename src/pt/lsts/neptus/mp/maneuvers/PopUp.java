@@ -51,6 +51,8 @@ import com.l2fprod.common.propertysheet.DefaultProperty;
 import com.l2fprod.common.propertysheet.Property;
 
 import pt.lsts.imc.IMCMessage;
+import pt.lsts.imc.def.SpeedUnits;
+import pt.lsts.imc.def.ZUnits;
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.gui.PropertiesEditor;
 import pt.lsts.neptus.i18n.I18n;
@@ -109,7 +111,7 @@ public class PopUp extends Maneuver implements LocatedManeuver, ManeuverWithSpee
 	    return document;
     }
 	
-	public void loadFromXML(String xml) {
+	public void loadManeuverFromXML(String xml) {
 	    try {
 	        Document doc = DocumentHelper.parseText(xml);
 	        Node node = doc.selectSingleNode("PopUp/finalPoint/point");
@@ -414,21 +416,21 @@ public class PopUp extends Maneuver implements LocatedManeuver, ManeuverWithSpee
 	    msg.setLon(loc.getLongitudeRads());
 		msg.setZ(getManeuverLocation().getZ());
 		
-		msg.setZUnits(pt.lsts.imc.PopUp.Z_UNITS.valueOf(getManeuverLocation().getZUnits().toString()));
+		msg.setZUnits(ZUnits.valueOf(getManeuverLocation().getZUnits().toString()));
 	    msg.setDuration(getDuration());
 	    msg.setSpeed(speed);
 	    
 	    try {
             switch (this.getSpeedUnits()) {
                 case METERS_PS:
-                    msg.setSpeedUnits(pt.lsts.imc.PopUp.SPEED_UNITS.METERS_PS);
+                    msg.setSpeedUnits(SpeedUnits.METERS_PS);
                     break;
                 case PERCENTAGE:
-                    msg.setSpeedUnits(pt.lsts.imc.PopUp.SPEED_UNITS.PERCENTAGE);
+                    msg.setSpeedUnits(SpeedUnits.PERCENTAGE);
                     break;
                 case RPM:
                 default:
-                    msg.setSpeedUnits(pt.lsts.imc.PopUp.SPEED_UNITS.RPM);
+                    msg.setSpeedUnits(SpeedUnits.RPM);
                     break;
             }
         }
@@ -481,7 +483,7 @@ public class PopUp extends Maneuver implements LocatedManeuver, ManeuverWithSpee
         msg1.dump(System.out);
         popup.parseIMCMessage(msg1);
         String xml2 = popup.asXML();
-        popup.loadFromXML(xml2);
+        popup.loadManeuverFromXML(xml2);
         popup.serializeToIMC().dump(System.out);
         System.out.println(xml1);
         System.out.println(xml2);

@@ -92,7 +92,7 @@ public class FollowTrajectoryPreview implements IManeuverPreview<FollowTrajector
 
 
     @Override
-    public SystemPositionAndAttitude step(SystemPositionAndAttitude state, double timestep) {
+    public SystemPositionAndAttitude step(SystemPositionAndAttitude state, double timestep, double ellapsedTime) {
         
         if (locIndex >= locs.size()) {
             finished = true;

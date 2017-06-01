@@ -169,14 +169,16 @@ public class SystemDisplay extends JXPanel implements Comparable<SystemDisplay>,
 
     private SystemConfigurationEditorPanel systemConfEditor = null;
     
-	/**
-	 * 
-	 */
 	public SystemDisplay(String id) {
 		this.id = id;
 		initialize();
 	}
 
+	public void updateId(String id) {
+        this.id = id;
+        label.setText(id);
+	}
+	
 	/* (non-Javadoc)
 	 * @see javax.swing.JComponent#getMinimumSize()
 	 */

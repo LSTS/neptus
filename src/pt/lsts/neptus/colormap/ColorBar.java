@@ -110,10 +110,14 @@ public class ColorBar extends JPanel{
 	}
 	
 	public static void main(String args[]) {
-		GuiUtils.testFrame(new ColorBar(HORIZONTAL_ORIENTATION, ColorMapFactory.createAllColorsColorMap()), "Spring", 400, 75);
-		GuiUtils.testFrame(new ColorBar(HORIZONTAL_ORIENTATION, ColorMapFactory.createHotColorMap()), "Hot", 400, 75);
-		GuiUtils.testFrame(new ColorBar(HORIZONTAL_ORIENTATION, ColorMapFactory.createJetColorMap()), "Jet", 400, 75);
-		GuiUtils.testFrame(new ColorBar(HORIZONTAL_ORIENTATION, ColorMapFactory.createBoneColorMap()), "Bone", 400, 75);
-		GuiUtils.testFrame(new ColorBar(HORIZONTAL_ORIENTATION, ColorMapFactory.createGrayScaleColorMap()), "Gray", 400, 75);
+//		GuiUtils.testFrame(new ColorBar(HORIZONTAL_ORIENTATION, ColorMapFactory.createAllColorsColorMap()), "Spring", 400, 75);
+//		GuiUtils.testFrame(new ColorBar(HORIZONTAL_ORIENTATION, ColorMapFactory.createHotColorMap()), "Hot", 400, 75);
+//		GuiUtils.testFrame(new ColorBar(HORIZONTAL_ORIENTATION, ColorMapFactory.createJetColorMap()), "Jet", 400, 75);
+//		GuiUtils.testFrame(new ColorBar(HORIZONTAL_ORIENTATION, ColorMapFactory.createBoneColorMap()), "Bone", 400, 75);
+//		GuiUtils.testFrame(new ColorBar(HORIZONTAL_ORIENTATION, ColorMapFactory.createGrayScaleColorMap()), "Gray", 400, 75);
+		
+		for (String cmName : ColorMapFactory.colorMapNamesList) {
+		    GuiUtils.testFrame(new ColorBar(HORIZONTAL_ORIENTATION, ColorMapFactory.getColorMapByName(cmName)), cmName, 400, 75);
+        }
 	}
 }

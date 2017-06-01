@@ -54,7 +54,7 @@ import pt.lsts.neptus.types.coord.LocationType;
  * @author zp
  *
  */
-@PluginDescription(name="Position Accuracy", description="This plot compares calculates the position error whenever an AUV comes back to the surface")
+@PluginDescription(name="Position Accuracy", description="Plot position error whenever an AUV resurfaces", active=false)
 public class MraPositionAccuracyPlot extends MRA2DPlot {
 
     /**

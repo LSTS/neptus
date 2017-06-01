@@ -25,14 +25,15 @@ import pt.lsts.neptus.types.coord.LocationType;
 public class Json2Lsf implements LogProcessor {
 
     // store last positions at surface from all vehicles
-    protected LinkedHashMap<String, EstimatedState> lastSurfaceLocations = new LinkedHashMap<>();
-    
+    protected LinkedHashMap<String, EstimatedState> lastPositions = new LinkedHashMap<>();
+    protected LinkedHashMap<String, EstimatedState> lastSurfacePositions = new LinkedHashMap<>();
+
     // store timestamps of plan generation
     protected LinkedHashMap<Integer, Long> planGenerationTime = new LinkedHashMap<>();
-    
+
     // cache platform names received via PlatformInfo messages
     protected LinkedHashMap<Integer, String> platformNames = new LinkedHashMap<>();
-    
+
     // methods with names matching NMP messages will be called when respective messages are found on the log
     protected LinkedHashMap<String, Method> methods = new LinkedHashMap<>();
     {
@@ -51,9 +52,9 @@ public class Json2Lsf implements LogProcessor {
         try {
             latencies = new BufferedWriter(new FileWriter(LsfMessageLogger.getLogDirSingleton() + "/latency.csv"));
             latencies.write("Timestamp,Plan,Master,Receiver,Latency\n");
-            
+
             navError = new BufferedWriter(new FileWriter(LsfMessageLogger.getLogDirSingleton() + "/accuracy.csv"));
-            navError.write("Timestamp,Platform,Time Submerged,Position Error\n");        
+            navError.write("Timestamp,Platform,Time Submerged,Position Error\n");
         }
         catch (Exception e) {
             e.printStackTrace();
@@ -77,30 +78,41 @@ public class Json2Lsf implements LogProcessor {
         platformNames.put(getPlatformSrc(obj), obj.get("platform_name").asString());
     }
 
-   
+
 
     public void on(EstimatedState state) {
         String src = platformNames.get(state.getSrc());
-        
-        if (state.getDepth() == 0) {
-            if (!lastSurfaceLocations.containsKey(src))
-                lastSurfaceLocations.put(src, state);
-            else if (state.getTimestamp() - lastSurfaceLocations.get(src).getTimestamp() > 5) {
-                LocationType prev = IMCUtils.getLocation(lastSurfaceLocations.get(src));
+        double dist = 0;
+        if (state.getDepth() < 0.1) {
+            if (!lastPositions.containsKey(src)) {
+                lastPositions.put(src, state);
+            } else if (state.getTimestamp() - lastPositions.get(src).getTimestamp() < 5) {
+                LocationType prev = IMCUtils.getLocation(lastPositions.get(src));
                 LocationType cur = IMCUtils.getLocation(state);
-                try {
-                    navError.write(state.getTimestampMillis() + "," + src + ","
-                            + (state.getTimestamp() - lastSurfaceLocations.get(src).getTimestamp()) + ","
-                            + cur.getHorizontalDistanceInMeters(prev) + "\n");
-                }
-                catch (Exception e) {
-                    e.printStackTrace();
-                }
+                dist = cur.getHorizontalDistanceInMeters(prev);
             }
-            lastSurfaceLocations.put(src, state);
+            lastPositions.put(src, state);
+
+            if (!lastSurfacePositions.containsKey(src)) {
+                lastSurfacePositions.put(src, state);
+                return;
+            }
+
+            if (dist > 2) {
+                if (state.getTimestamp() - lastSurfacePositions.get(src).getTimestamp() > 10) {
+                    try {
+                        navError.write(state.getTimestampMillis() + "," + src + ","
+                                + (state.getTimestamp() - lastSurfacePositions.get(src).getTimestamp()) + ","
+                                + dist + "\n");
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                }
+                lastSurfacePositions.put(src, state);
+            }
         }
     }
-    
+
     public void Plan(JsonObject obj) {
         int planId = Integer.parseInt(obj.getString("plan_id", "0"));
         int receiver = Integer.parseInt(obj.getString("platform_rec", "65535"));
@@ -113,7 +125,7 @@ public class Json2Lsf implements LogProcessor {
         pc.setPlanId("" + planId);
         pc.setSrc(receiver);
         pc.setTimestamp(getTimestamp(obj) / 1000.0);
-        
+
         if (generated) {
             pc.setOp(OP.LOAD);
             pc.setSrc(getPlatformSrc(obj));
@@ -224,9 +236,9 @@ public class Json2Lsf implements LogProcessor {
         state.setPsi(yaw);
         state.setU(u);
         state.setTimestamp(getTimestamp(m) / 1000.0);
-        
+
         on(state);
-        
+
         LsfMessageLogger.log(state);
 
     }

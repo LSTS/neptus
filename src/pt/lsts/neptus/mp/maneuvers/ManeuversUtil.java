@@ -477,17 +477,32 @@ public class ManeuversUtil {
         
         if (speedProp == null || unitsProp == null)
             return Double.NaN;
-        
-        switch (""+unitsProp.getValue()) {
-            case "m/s":
-                return Double.parseDouble(""+speedProp.getValue());
-            case "RPM":
-                return SpeedConversion.convertRpmtoMps(Double.parseDouble(""+speedProp.getValue()));
-            case "%":
-                return SpeedConversion.convertPercentageToMps(Double.parseDouble(""+speedProp.getValue()));
-            default:
-                NeptusLog.pub().error("Unrecognized speed units: "+unitsProp.getValue());
-                return Double.NaN;
+
+        if (unitsProp.getValue() instanceof Maneuver.SPEED_UNITS) {
+            switch ((Maneuver.SPEED_UNITS) unitsProp.getValue()) {
+                case METERS_PS:
+                    return Double.parseDouble(""+speedProp.getValue());
+                case RPM:
+                    return SpeedConversion.convertPercentageToMps(Double.parseDouble(""+speedProp.getValue()));
+                case PERCENTAGE:
+                    return SpeedConversion.convertPercentageToMps(Double.parseDouble(""+speedProp.getValue()));
+                default:
+                    NeptusLog.pub().error("Unrecognized speed units: "+unitsProp.getValue());
+                    return Double.NaN;
+            }
+        }
+        else {
+            switch (""+unitsProp.getValue()) {
+                case "m/s":
+                    return Double.parseDouble(""+speedProp.getValue());
+                case "RPM":
+                    return SpeedConversion.convertRpmtoMps(Double.parseDouble(""+speedProp.getValue()));
+                case "%":
+                    return SpeedConversion.convertPercentageToMps(Double.parseDouble(""+speedProp.getValue()));
+                default:
+                    NeptusLog.pub().error("Unrecognized speed units: "+unitsProp.getValue());
+                    return Double.NaN;
+            }
         }
     }
     

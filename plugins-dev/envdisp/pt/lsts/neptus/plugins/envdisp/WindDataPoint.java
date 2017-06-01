@@ -32,7 +32,10 @@
  */
 package pt.lsts.neptus.plugins.envdisp;
 
+import java.util.ArrayList;
 import java.util.Date;
+
+import pt.lsts.neptus.NeptusLog;
 
 /**
  * @author pdias
@@ -142,4 +145,24 @@ public class WindDataPoint extends BaseDataPoint<WindDataPoint> {
         return true;
     }
 
+    @Override
+    public ArrayList<Object> getAllDataValues() {
+        ArrayList<Object> ret = new ArrayList<>();
+        ret.add(u);
+        ret.add(v);
+        return ret;
+    }
+    
+    @Override
+    public boolean setAllDataValues(ArrayList<Object> newValues) {
+        try {
+            u = (double) newValues.get(0);
+            v = (double) newValues.get(1);
+        }
+        catch (Exception e) {
+            NeptusLog.pub().warn(e);
+            return false;
+        }
+        return true;
+    }
 }

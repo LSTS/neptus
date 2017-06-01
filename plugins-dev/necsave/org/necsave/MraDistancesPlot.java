@@ -35,7 +35,6 @@ package org.necsave;
 import java.util.LinkedHashMap;
 
 import pt.lsts.imc.EstimatedState;
-import pt.lsts.imc.IMCUtil;
 import pt.lsts.imc.lsf.LsfIndex;
 import pt.lsts.imc.lsf.LsfIterator;
 import pt.lsts.neptus.comm.IMCUtils;
@@ -48,7 +47,7 @@ import pt.lsts.neptus.types.coord.LocationType;
  * @author zp
  *
  */
-@PluginDescription(name="Distances Plot")
+@PluginDescription(name="Platform distances", description="Plots the distances between all deployed platforms", active=false)
 public class MraDistancesPlot extends MRATimeSeriesPlot {
 
     /**

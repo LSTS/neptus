@@ -97,7 +97,7 @@ public class ParallelepipedElement extends GeometryElement {
         Rectangle2D.Double tmp = new Rectangle2D.Double(-width / 2, -length / 2, width, length);
 
         AffineTransform rot = new AffineTransform();
-        rot.rotate(yaw);
+        rot.rotate(-yaw);
 
         PathIterator it = tmp.getPathIterator(rot);
 

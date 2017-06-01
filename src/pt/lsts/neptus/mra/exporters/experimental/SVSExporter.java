@@ -37,6 +37,7 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.TimeZone;
@@ -48,6 +49,7 @@ import javax.swing.ProgressMonitor;
 import pt.lsts.imc.EstimatedState;
 import pt.lsts.imc.IMCMessage;
 import pt.lsts.imc.SoundSpeed;
+import pt.lsts.imc.Temperature;
 import pt.lsts.imc.VehicleMedium;
 import pt.lsts.imc.lsf.LsfIndex;
 import pt.lsts.neptus.NeptusLog;
@@ -66,9 +68,16 @@ import pt.lsts.neptus.util.llf.LsfLogSource;
  * @author zp
  * 
  */
-@PluginDescription(name = "Export Sound Speed as CSV", experimental=true)
+@PluginDescription(name = "Export SVS to CSV", description="Export data from sound velocity sensor and temperature to CSV.", experimental=true)
 public class SVSExporter implements MRAExporter {
 
+    private static final ArrayList<String> TEMPERATURE_SENSORS = new ArrayList<>();
+    {
+        TEMPERATURE_SENSORS.add("CTD");
+        TEMPERATURE_SENSORS.add("Water Quality Sensor");
+        TEMPERATURE_SENSORS.add("Depth Sensor");
+    }
+    
     public SVSExporter(IMraLogGroup source) {
 
     }
@@ -89,11 +98,15 @@ public class SVSExporter implements MRAExporter {
     }
 
 
-    private String write(BufferedWriter writer, SystemPositionAndAttitude pos, EstimatedState state, VehicleMedium mmedium, SoundSpeed speed) throws IOException {
+    private String write(BufferedWriter writer, SystemPositionAndAttitude pos, EstimatedState state, VehicleMedium mmedium, SoundSpeed speed, Temperature temp) throws IOException {
         LocationType loc = IMCUtils.parseLocation(state).convertToAbsoluteLatLonDepth();
         SimpleDateFormat dateFormat = new SimpleDateFormat("HH:mm:ss.SSS");
         dateFormat.setTimeZone(TimeZone.getTimeZone("GMT"));
 
+        // ignore old temperature values
+        if (temp != null && (temp.getTimestampMillis() - state.getTimestampMillis()) > 1000)
+            temp = null;
+        
         if (pos==null)
             return I18n.text("Error positions is Empty");
 
@@ -112,7 +125,8 @@ public class SVSExporter implements MRAExporter {
                     state.getAlt()+", "+
                     state.getDepth()+", "+
                     medium+", "+
-                    speed.getValue()+"\n");
+                    speed.getValue() + ", " + 
+                    ((temp != null) ? temp.getValue() : "") + "\n");
             return null;
         }
         catch (Exception e) {
@@ -183,7 +197,7 @@ public class SVSExporter implements MRAExporter {
         BufferedWriter writer;
         try {
             writer = new BufferedWriter(new FileWriter(out));
-            writer.write("timestamp, gmt_time, vehicle, latitude, longitude, corrected_lat, corrected_lon, altitude, depth, medium, sound speed\n");
+            writer.write("timestamp, gmt_time, vehicle, latitude, longitude, corrected_lat, corrected_lon, altitude, depth, medium, sound speed, temperature\n");
         }
         catch (Exception e) {
             NeptusLog.pub().error(e);
@@ -195,8 +209,11 @@ public class SVSExporter implements MRAExporter {
 
         int i = index.advanceToTime(0, start.getTime()/1000.0);
 
+        
+        
         while (index.timeOf(i) < end.getTime()/1000.0) {
             String vehicle = index.sourceNameOf(i);
+            
             if (!lastMessages.containsKey(vehicle))
                 lastMessages.put(vehicle, new LinkedHashMap<Integer, IMCMessage>());
             try {
@@ -209,12 +226,20 @@ public class SVSExporter implements MRAExporter {
                         VehicleMedium medium = index.getMessage(i, VehicleMedium.class);
                         lastMessages.get(vehicle).put(VehicleMedium.ID_STATIC, medium);
                         break;
+                    
+                    case Temperature.ID_STATIC:
+                        String entity = index.entityNameOf(i);
+                        
+                        if (TEMPERATURE_SENSORS.contains(entity))
+                            lastMessages.get(vehicle).put(Temperature.ID_STATIC, index.getMessage(i, Temperature.class));
+                        break;
                     case SoundSpeed.ID_STATIC:
                         SoundSpeed sspeed = index.getMessage(i, SoundSpeed.class);
                         lastMessages.get(vehicle).put(SoundSpeed.ID_STATIC, sspeed);
                         String error = write(writer, cp.getPosition(index.timeOf(i)),(EstimatedState) lastMessages.get(vehicle).get(EstimatedState.ID_STATIC), 
                                 (VehicleMedium)lastMessages.get(vehicle).get(VehicleMedium.ID_STATIC),
-                                (SoundSpeed)lastMessages.get(vehicle).get(SoundSpeed.ID_STATIC)
+                                (SoundSpeed)lastMessages.get(vehicle).get(SoundSpeed.ID_STATIC),
+                                (Temperature)lastMessages.get(vehicle).get(Temperature.ID_STATIC)
                                 );
                         if (error != null)
                             return error;

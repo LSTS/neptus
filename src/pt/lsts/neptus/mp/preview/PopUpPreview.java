@@ -72,7 +72,7 @@ public class PopUpPreview implements IManeuverPreview<PopUp> {
     
 
     @Override
-    public SystemPositionAndAttitude step(SystemPositionAndAttitude state, double timestep) {
+    public SystemPositionAndAttitude step(SystemPositionAndAttitude state, double timestep, double ellapsedTime) {
         
         model.setState(state);        
         boolean there = model.guide(destination, speed, null);

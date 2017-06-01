@@ -52,7 +52,6 @@ public class ImcId16 extends Number implements Comparable<ImcId16>{
 
     private long id = 0;
 
-    
     public ImcId16(Object o) throws Exception {
     	if (o == null) {
     		throw new Exception("IMC Id not valid: null");
@@ -81,6 +80,33 @@ public class ImcId16 extends Number implements Comparable<ImcId16>{
 		    NeptusLog.pub().error(e.getMessage());
 			this.id = 0xFFFF;
 		}
+    }
+
+    /**
+     * Return true if id different from {@link #NULL_ID} or {@link #BROADCAST_ID} or {@link #ANNOUNCE}.
+     * 
+     * @param id
+     * @return
+     */
+    public static boolean isValidIdForSource(ImcId16 id) {
+        if (ImcId16.NULL_ID.equals(id) || ImcId16.BROADCAST_ID.equals(id) || ImcId16.ANNOUNCE.equals(id))
+            return false;
+        else
+            return true;
+    }
+
+    /**
+     * Return true if id different from {@link #NULL_ID} or {@link #BROADCAST_ID} or {@link #ANNOUNCE}.
+     * 
+     * @param id
+     * @return
+     */
+    public static boolean isValidIdForSource(long id) {
+        if (ImcId16.NULL_ID.longValue() == id || ImcId16.BROADCAST_ID.longValue() == id
+                || ImcId16.ANNOUNCE.longValue() == id)
+            return false;
+        else
+            return true;
     }
 
     @Override

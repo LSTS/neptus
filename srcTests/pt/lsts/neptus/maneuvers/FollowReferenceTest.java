@@ -35,9 +35,7 @@ package pt.lsts.neptus.maneuvers;
 import java.util.Arrays;
 
 import pt.lsts.imc.DesiredSpeed;
-import pt.lsts.imc.DesiredSpeed.SPEED_UNITS;
 import pt.lsts.imc.DesiredZ;
-import pt.lsts.imc.DesiredZ.Z_UNITS;
 import pt.lsts.imc.FollowReference;
 import pt.lsts.imc.PlanControl;
 import pt.lsts.imc.PlanControl.OP;
@@ -45,6 +43,8 @@ import pt.lsts.imc.PlanControl.TYPE;
 import pt.lsts.imc.PlanManeuver;
 import pt.lsts.imc.PlanSpecification;
 import pt.lsts.imc.Reference;
+import pt.lsts.imc.def.SpeedUnits;
+import pt.lsts.imc.def.ZUnits;
 import pt.lsts.imc.net.UDPTransport;
 import pt.lsts.neptus.comm.IMCSendMessageUtils;
 
@@ -86,10 +86,10 @@ public class FollowReferenceTest {
             
             DesiredSpeed dspeed = new DesiredSpeed();
             dspeed.setValue(1);
-            dspeed.setSpeedUnits(SPEED_UNITS.METERS_PS);
+            dspeed.setSpeedUnits(SpeedUnits.METERS_PS);
             DesiredZ z = new DesiredZ();
             z.setValue(0);
-            z.setZUnits(Z_UNITS.DEPTH);
+            z.setZUnits(ZUnits.DEPTH);
             
             Reference ref = new Reference();
             ref.setLat(Math.toRadians(41.184199));

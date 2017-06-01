@@ -50,6 +50,8 @@ import com.l2fprod.common.propertysheet.DefaultProperty;
 import com.l2fprod.common.propertysheet.Property;
 
 import pt.lsts.imc.IMCMessage;
+import pt.lsts.imc.def.SpeedUnits;
+import pt.lsts.imc.def.ZUnits;
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.gui.editor.SpeedUnitsEnumEditor;
 import pt.lsts.neptus.i18n.I18n;
@@ -139,7 +141,7 @@ public class Elevator extends Maneuver implements LocatedManeuver, ManeuverWithS
      * @see pt.lsts.neptus.mp.Maneuver#loadFromXML(java.lang.String)
      */
     @Override
-    public void loadFromXML(String xml) {
+    public void loadManeuverFromXML(String xml) {
         try {
             Document doc = DocumentHelper.parseText(xml);
             Node node = doc.selectSingleNode(DEFAULT_ROOT_ELEMENT+ "/finalPoint/point");
@@ -274,10 +276,10 @@ public class Elevator extends Maneuver implements LocatedManeuver, ManeuverWithS
         elevator.setLat(getManeuverLocation().getLatitudeRads());
         elevator.setLon(getManeuverLocation().getLongitudeRads());
         elevator.setStartZ(startZ);
-        elevator.setStartZUnits(pt.lsts.imc.Elevator.START_Z_UNITS.valueOf(
+        elevator.setStartZUnits(ZUnits.valueOf(
                 startZUnits.toString()));
         elevator.setEndZ(getManeuverLocation().getZ());
-        elevator.setEndZUnits(pt.lsts.imc.Elevator.END_Z_UNITS.valueOf(
+        elevator.setEndZUnits(ZUnits.valueOf(
                 getManeuverLocation().getZUnits().toString()));
         elevator.setRadius(getRadius());
         elevator.setSpeed(getSpeed());
@@ -286,14 +288,14 @@ public class Elevator extends Maneuver implements LocatedManeuver, ManeuverWithS
         try {
             switch (this.getSpeedUnits()) {
                 case METERS_PS:
-                    elevator.setSpeedUnits(pt.lsts.imc.Elevator.SPEED_UNITS.METERS_PS);
+                    elevator.setSpeedUnits(SpeedUnits.METERS_PS);
                     break;
                 case PERCENTAGE:
-                    elevator.setSpeedUnits(pt.lsts.imc.Elevator.SPEED_UNITS.PERCENTAGE);
+                    elevator.setSpeedUnits(SpeedUnits.PERCENTAGE);
                     break;
                 case RPM:
                 default:
-                    elevator.setSpeedUnits(pt.lsts.imc.Elevator.SPEED_UNITS.RPM);
+                    elevator.setSpeedUnits(SpeedUnits.RPM);
                     break;
             }
         }

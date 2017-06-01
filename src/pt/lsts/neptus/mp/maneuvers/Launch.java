@@ -33,6 +33,8 @@
 package pt.lsts.neptus.mp.maneuvers;
 
 import pt.lsts.imc.IMCMessage;
+import pt.lsts.imc.def.SpeedUnits;
+import pt.lsts.imc.def.ZUnits;
 import pt.lsts.neptus.mp.ManeuverLocation;
 import pt.lsts.neptus.types.coord.LocationType;
 
@@ -103,21 +105,21 @@ public class Launch extends Goto {
         gotoManeuver.setLat(l.getLatitudeRads());
         gotoManeuver.setLon(l.getLongitudeRads());
         gotoManeuver.setZ(getManeuverLocation().getZ());
-        gotoManeuver.setZUnits(pt.lsts.imc.Launch.Z_UNITS.valueOf(getManeuverLocation().getZUnits().name()));
+        gotoManeuver.setZUnits(ZUnits.valueOf(getManeuverLocation().getZUnits().name()));
         gotoManeuver.setSpeed(this.getSpeed());
        
         switch (this.getSpeedUnits()) {
             case METERS_PS:
-                gotoManeuver.setSpeedUnits(pt.lsts.imc.Launch.SPEED_UNITS.METERS_PS);
+                gotoManeuver.setSpeedUnits(SpeedUnits.METERS_PS);
                 break;
             case RPM:
-                gotoManeuver.setSpeedUnits(pt.lsts.imc.Launch.SPEED_UNITS.RPM);
+                gotoManeuver.setSpeedUnits(SpeedUnits.RPM);
                 break;
             case PERCENTAGE:
-                gotoManeuver.setSpeedUnits(pt.lsts.imc.Launch.SPEED_UNITS.PERCENTAGE);
+                gotoManeuver.setSpeedUnits(SpeedUnits.PERCENTAGE);
                 break;
             default:
-                gotoManeuver.setSpeedUnits(pt.lsts.imc.Launch.SPEED_UNITS.RPM);
+                gotoManeuver.setSpeedUnits(SpeedUnits.RPM);
                 break;
         }
         
