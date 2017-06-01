@@ -32,22 +32,51 @@
  */
 package pt.lsts.neptus.plugins.pddl;
 
+import java.util.Vector;
+import java.util.Map.Entry;
+
 import pt.lsts.neptus.types.vehicle.VehicleType;
 
 /**
  * @author zp
  *
  */
-public class LstsDomainModelCollaborative extends LstsDomainModelOneRound {
+public class LstsDomainModelCollaborative extends LstsDomainModelV2 {
+    
     
     @Override
     protected String vehicleDetails(VehicleType v, MVProblemSpecification problem) {
-        String details = super.vehicleDetails(v, problem);
-        
-        details = details + "\n"+
-        "  (= (surface-credits "+v.getNickname()+") 2)\n"+
-        "  (= (surface-credits-max "+v.getNickname()+") 2)\n";
-        return details;
+        StringBuilder sb = new StringBuilder();
+
+        double timeToStart = (states.get(v).getTime() - System.currentTimeMillis()) / 1000.0;
+        if (timeToStart < 10)
+            timeToStart = 0;
+
+        sb.append("\n  ;" + v.getId() + ":\n");
+        sb.append("  (= (speed " + v.getNickname() + ") " + MVProblemSpecification.constantSpeed + ")\n");
+        sb.append("  (base " + v.getNickname() + " " + v.getNickname() + "_depot)\n\n");
+        sb.append("  (at " + v.getNickname() + " " + v.getNickname() + "_depot" + ")\n");
+
+        for (Entry<String, Vector<String>> entry : payloadNames.entrySet()) {
+            for (String n : entry.getValue()) {
+                if (n.startsWith(v.getNickname() + "_")) {
+                    sb.append("  (having " + n + " " + v.getNickname() + ")\n");
+                }
+            }
+        }
+
+        sb.append("  (at " + timeToStart + " (ready " + v.getNickname()+"))\n");
+
+        //sb.append("  (can-move " + v.getNickname() + ") ;required always\n");
+        sb.append("  (= (from-base " + v.getNickname() + ") 0) ;how long the vehicle is away from its depot \n"); // FIXME
+        sb.append("  (= (max-to-base " + v.getNickname() + ") " + problem.secondsAwayFromDepot
+                + ") ;the maximum time before returning to the depot\n");
+        sb.append("\n");
+
+        sb.append("  (ready-dummy "+v.getNickname()+")\n");
+        sb.append("  (= (surface-credits "+v.getNickname()+") 2)\n");
+        sb.append("  (= (surface-credits-max "+v.getNickname()+") 2)\n");
+        return sb.toString();
     }
     
     @Override
