@@ -86,6 +86,7 @@ import pt.lsts.neptus.comm.IMCUtils;
 import pt.lsts.neptus.comm.manager.imc.ImcId16;
 import pt.lsts.neptus.console.ConsoleLayer;
 import pt.lsts.neptus.console.notifications.Notification;
+import pt.lsts.neptus.console.notifications.Notification.NotificationType;
 import pt.lsts.neptus.gui.editor.FolderAndFilePropertyEditor;
 import pt.lsts.neptus.gui.editor.FolderPropertyEditor;
 import pt.lsts.neptus.gui.editor.SystemNameOrNullListEditor;
@@ -201,6 +202,10 @@ public class RhodamineOilVisualizer extends ConsoleLayer implements Configuratio
     @NeptusProperty(name = "Show popup for rhodamine reveived", userLevel = LEVEL.REGULAR, category = "Popup",
             description = "Will show a popup event.")
     private boolean popupForRhodamine = false;
+
+    @NeptusProperty(name = "Show popup type", userLevel = LEVEL.ADVANCED, category = "Popup",
+            description = "Will show a popup event.")
+    private Notification.NotificationType popupForRhodamineType = NotificationType.WARNING;
 
     @NeptusProperty(name = "Threshold for rhodamine popup", userLevel = LEVEL.REGULAR, category = "Popup",
             description = "Will show a popup event only above the confirured value.")
@@ -1674,6 +1679,7 @@ public class RhodamineOilVisualizer extends ConsoleLayer implements Configuratio
         String sysName = msg.getSourceName();
         if (sysName.trim().toLowerCase().contains("unknown"))
             sysName = "unknown";
+        
         showConsolePopupEvent(sysName, msg);
 
         if (systemsToIgnoreForIMCRhodamine != null && "all".equalsIgnoreCase(systemsToIgnoreForIMCRhodamine.trim()))
@@ -1742,7 +1748,9 @@ public class RhodamineOilVisualizer extends ConsoleLayer implements Configuratio
             if (valueReceived >= popupForRhodamineThreshold) {
                 String str = sysName + " :: " + MathMiscUtils.round(valueReceived, 2) + "ppb @ "
                         + DateTimeUtil.timeFormatterUTC.format(new Date(rhodamineImcStringMillis));
-                getConsole().post(Notification.warning(I18n.text("Rhodamine value received"), str).src(sysName));
+                getConsole().post(
+                        Notification.newNotification(I18n.text("Rhodamine value received"), str, popupForRhodamineType)
+                                .src(sysName));
             }
         }
     }
