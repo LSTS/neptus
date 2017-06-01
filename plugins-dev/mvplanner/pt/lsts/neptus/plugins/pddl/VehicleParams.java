@@ -90,8 +90,7 @@ public class VehicleParams {
                 PayloadRequirement.camera });
         payloads.put("lauv-seacon-2", new PayloadRequirement[] { PayloadRequirement.ctd });
         payloads.put("lauv-seacon-3", new PayloadRequirement[] { PayloadRequirement.ctd });
-        payloads.put("lauv-xtreme-2", new PayloadRequirement[] { PayloadRequirement.sidescan, 
-                PayloadRequirement.klein });
+        payloads.put("lauv-xtreme-2", new PayloadRequirement[] { PayloadRequirement.sidescan });
         payloads.put("lauv-xplore-1", new PayloadRequirement[] { PayloadRequirement.ctd });
         payloads.put("lauv-xplore-2", new PayloadRequirement[] { PayloadRequirement.ctd,
                 PayloadRequirement.rhodamine });
