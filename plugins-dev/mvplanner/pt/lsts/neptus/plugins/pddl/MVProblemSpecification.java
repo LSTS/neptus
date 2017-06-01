@@ -85,10 +85,14 @@ public class MVProblemSpecification {
         for (SurveyAreaTask task : surveyTasks) {
             locations.put(task.getName() + "_entry", task.getEntryPoint());
             locations.put(task.getName() + "_exit", task.getEndPoint());
+            if (task.collaborative)
+                locations.put(task.getName() + "_c", task.getCenterLocation());
         }
         for (SurveyPolygonTask task : surveyPolygon) {
             locations.put(task.getName() + "_entry", task.getEntryPoint());
             locations.put(task.getName() + "_exit", task.getEndPoint());
+            if (task.collaborative)
+                locations.put(task.getName() + "_c", task.getCenterLocation());
         }
         
         for (SamplePointTask task : sampleTasks) {

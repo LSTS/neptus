@@ -36,6 +36,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map.Entry;
 
 import pt.lsts.imc.ScheduledGoto.DELAYED;
 import pt.lsts.neptus.data.Pair;
@@ -46,7 +47,6 @@ import pt.lsts.neptus.mp.maneuvers.AreaSurvey;
 import pt.lsts.neptus.mp.maneuvers.Goto;
 import pt.lsts.neptus.mp.maneuvers.LocatedManeuver;
 import pt.lsts.neptus.mp.maneuvers.Loiter;
-import pt.lsts.neptus.mp.maneuvers.ManeuversUtil;
 import pt.lsts.neptus.mp.maneuvers.PopUp;
 import pt.lsts.neptus.mp.maneuvers.RowsManeuver;
 import pt.lsts.neptus.mp.maneuvers.ScheduledGoto;
@@ -85,20 +85,21 @@ public class MVSolution {
         for (String line : pddlSolution.split("\n")) {
             if (line.trim().isEmpty() || line.trim().startsWith(";"))
                 continue;
-            PddlAction act = createAction(line.toLowerCase());
-            if (act != null)
-                actions.add(act);
+            PddlAction[] act = createAction(line.toLowerCase());
+            if (act != null) {
+                for (PddlAction a : act)
+                    actions.add(a);
+            }
         }
     }
 
-    private PddlAction createAction(String line) throws Exception {
+    private PddlAction[] createAction(String line) throws Exception {
         line = line.trim();
         String regex = "[\\:\\(\\)\\[\\] ]+";
         String[] parts = line.split(regex);
         PddlAction action = new PddlAction();
         String actionStr;
 
-            
         try {
             actionStr = parts[1];
             action.type = actionStr;
@@ -107,17 +108,15 @@ public class MVSolution {
 
             if (action.type.equals("getready"))
                 return null;
-           
-            System.out.println("Parsing "+actionStr);            
+
             action.startTime = (long) (1000 * Double.parseDouble(parts[0]) + System.currentTimeMillis());
             action.endTime = (long) (1000 * Double.parseDouble(parts[parts.length - 1])) + action.startTime;
-            action.name = parts[3];            
+            action.name = parts[3];
             action.name = action.name.replaceAll("_entry", "");
             action.name = action.name.replaceAll("_exit", "");
             action.name = action.name.replaceAll("_oi", "");
             action.name = action.name.replaceAll("_depot", "");
             action.vehicle = VehicleParams.getVehicleFromNickname(parts[2]);
-
 
             if (action.type.equals("move"))
                 action.location = new ManeuverLocation(locations.get(parts[4]));
@@ -135,7 +134,6 @@ public class MVSolution {
         double minDepth = Double.MAX_VALUE;
         double maxDepth = -Double.MAX_VALUE;
 
-        //System.out.println("Parsing "+actionStr);
         if (actionStr.contains("survey") || actionStr.contains("sample")) {
             if (task.getRequiredPayloads() == null || task.getRequiredPayloads().isEmpty()) {
                 minDepth = maxDepth = DEFAULT_DEPTH;
@@ -172,10 +170,20 @@ public class MVSolution {
                 action.payloads.add(PayloadRequirement.valueOf(parts[parts.length - 3].split("_")[1]));
                 action.payloads.add(PayloadRequirement.valueOf(parts[parts.length - 2].split("_")[1]));
                 break;
+            case "collab-survey-one-payload":
+                action.payloads.add(PayloadRequirement.valueOf(parts[parts.length - 4].split("_")[1]));
+                PddlAction locate = new PddlAction();
+                locate.location = new ManeuverLocation(locations.get(parts[parts.length - 2]));
+                locate.endTime = action.endTime;
+                locate.startTime = action.startTime;
+                locate.type = "locate";
+                locate.vehicle = VehicleParams.getVehicleFromNickname(parts[parts.length - 3]);
+                locate.name = action.name;
+                return new PddlAction[] { action, locate };
             default:
                 break;
         }
-        return action;
+        return new PddlAction[] { action };
     }
 
     private void enablePayloads(ManeuverPayloadConfig manPayloads, ArrayList<PayloadRequirement> requiredPayloads) {
@@ -251,6 +259,12 @@ public class MVSolution {
         LinkedHashMap<String, Date> startTimes = new LinkedHashMap<String, Date>();
         LinkedHashMap<String, ArrayList<String>> actionsPerVehicle = new LinkedHashMap<>();
 
+        for (Entry<String, LocationType> loc : locations.entrySet()) {
+            if (loc.getKey().endsWith("depot")) {
+                String nick = loc.getKey().substring(0, loc.getKey().indexOf("_"));
+                lastLocations.put(VehicleParams.getVehicleFromNickname(nick).getId(), new LocationType(loc.getValue()));
+            }
+        }
         int i = 1;
         for (PddlAction act : actions) {
             Maneuver maneuver = generateManeuver(act);
@@ -267,8 +281,7 @@ public class MVSolution {
                 startTimes.put(act.vehicle.getId(), new Date(act.startTime));
             }
 
-            
-            //System.out.println(act.name+" matches? "+act.name.matches("t[0-9]+(_p[0-9]+)?"));
+            // System.out.println(act.name+" matches? "+act.name.matches("t[0-9]+(_p[0-9]+)?"));
             // just account for valid actions and not movements to depots...
             if (act.name.matches("t[0-9]+(_p[0-9]+)?")) {
                 ArrayList<String> actions = actionsPerVehicle.get(act.vehicle.getId());
@@ -296,7 +309,7 @@ public class MVSolution {
         }
 
         ArrayList<Pair<ArrayList<String>, ConsoleEventPlanAllocation>> result = new ArrayList<>();
-        
+
         for (String s : plansPerVehicle.keySet()) {
             PlanType plan = plansPerVehicle.get(s);
             plan.setId(String.format("mvplanner-%03d-%s", allocationCounter++, plan.getVehicleType().getNickname()));
@@ -308,16 +321,27 @@ public class MVSolution {
         return result;
     }
 
-    LinkedHashMap<String, LocatedManeuver> lastManeuvers = new LinkedHashMap<>();
-    
+    LinkedHashMap<String, LocationType> lastLocations = new LinkedHashMap<>();
+
     public Maneuver generateManeuver(PddlAction action) {
 
         Maneuver m = null;
-
+        //System.out.println(action.type + ", " + action.name + ", " + action.vehicle.getId() + ", " + action.location);
         switch (action.type) {
-            case "collab":
-                
-                break;                
+            case "locate": {
+                StationKeeping sk = new StationKeeping();
+                ManeuverLocation loc = sk.getManeuverLocation();
+                loc.setLocation(action.location);
+                loc.setZ(0);
+                loc.setZUnits(Z_UNITS.DEPTH);
+                sk.setManeuverLocation(loc);
+                sk.setSpeedUnits(Maneuver.SPEED_UNITS.METERS_PS);
+                sk.setDuration(((int) ((action.endTime - action.startTime) / 1000)));
+                sk.setSpeed(1.0);
+                sk.setRadius(20);
+                m = sk;
+                break;
+            }
             case "communicate":
                 action.location.setZ(0);
                 action.location.setZUnits(Z_UNITS.DEPTH);
@@ -359,7 +383,8 @@ public class MVSolution {
                 m = tmpLoiter;
                 break;
             }
-            case "survey": {
+            case "survey":
+            case "collab": {
                 if (tasks.get(action.name) instanceof SurveyAreaTask) {
                     SurveyAreaTask surveyTask = (SurveyAreaTask) tasks.get(action.name);
                     RowsManeuver rows = (RowsManeuver) surveyTask.getPivot().clone();
@@ -374,7 +399,7 @@ public class MVSolution {
                     SurveyPolygonTask surveyTask = (SurveyPolygonTask) tasks.get(action.name);
                     AreaSurvey rows = (AreaSurvey) surveyTask.getPivot().clone();
                     ManeuverLocation manLoc = rows.getManeuverLocation();
-                    
+
                     manLoc.setZ(action.location.getZ());
                     manLoc.setZUnits(action.location.getZUnits());
                     rows.setManeuverLocation(manLoc);
@@ -384,26 +409,23 @@ public class MVSolution {
                     enablePayloads(payloadConfig, action.payloads);
                     m = rows;
                 }
-                
+
                 break;
             }
             case "surface": {
-                
-                LocatedManeuver last = lastManeuvers.get(action.vehicle.getId());
-                
+                LocationType last = lastLocations.get(action.vehicle.getId());
                 StationKeeping sk = new StationKeeping();
-                sk.setSpeed(1.0);
+
                 ManeuverLocation loc = sk.getManeuverLocation();
-                if (last != null) {
-                    loc = last.getEndLocation();
-                    sk.setManeuverLocation(loc);    
-                }
+                if (last != null)
+                    loc.setLocation(last);
                 
                 loc.setZ(0);
                 loc.setZUnits(Z_UNITS.DEPTH);
                 sk.setManeuverLocation(loc);
                 sk.setSpeedUnits(Maneuver.SPEED_UNITS.METERS_PS);
                 sk.setDuration(((int) ((action.endTime - action.startTime) / 1000)));
+                sk.setSpeed(1.0);
                 sk.setRadius(20);
                 m = sk;
                 break;
@@ -413,10 +435,10 @@ public class MVSolution {
                 return null;
         }
         if (m instanceof LocatedManeuver)
-            lastManeuvers.put(action.vehicle.getId(), (LocatedManeuver)m);
+            lastLocations.put(action.vehicle.getId(), ((LocatedManeuver) m).getEndLocation());
+        
         return m;
     }
-    
 
     /**
      * @return the actions
@@ -441,15 +463,14 @@ public class MVSolution {
         }
 
     }
-    
-    
+
     public static void main(String[] args) {
         String pattern = "t[0-9]+(_p[0-9]+)?";
         String act1 = "t23";
         String act2 = "t34_p3";
-        
+
         System.out.println(act1.matches(pattern));
         System.out.println(act2.matches(pattern));
-        
+
     }
 }

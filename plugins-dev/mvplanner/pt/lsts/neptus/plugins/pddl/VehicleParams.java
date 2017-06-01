@@ -58,7 +58,7 @@ public class VehicleParams {
     
     private static LinkedHashMap<String, String> nicknames = new LinkedHashMap<String, String>();
     static {
-        String[] vehicles = new String[] {"lauv-seacon-1", "lauv-seacon-2", "lauv-seacon-3", "lauv-xtreme-2", "lauv-xplore-1",
+        String[] vehicles = new String[] {"lauv-seacon-1", "lauv-arpao", "lauv-seacon-2", "lauv-seacon-3", "lauv-xtreme-2", "lauv-xplore-1",
                 "lauv-xplore-2", "lauv-noptilus-1", "lauv-noptilus-2", "lauv-noptilus-3" };
         
         for (String v : vehicles) {

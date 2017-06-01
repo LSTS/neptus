@@ -283,6 +283,8 @@ public class SurveyPolygonTask extends MVPlannerTask {
             SurveyPolygonTask task = new SurveyPolygonTask(p.getCentroid());
             task.area = p;
             task.requiredPayloads = getRequiredPayloads();
+            task.firstPriority = firstPriority;
+            task.collaborative = collaborative;
             task.updateManeuver();
             surveys.add(task);
         }
