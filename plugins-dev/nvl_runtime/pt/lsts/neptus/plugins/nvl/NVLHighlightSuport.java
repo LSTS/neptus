@@ -44,19 +44,20 @@ public class NVLHighlightSuport extends GroovyTokenMaker {
 
     TokenMap extraTokens;
     private String[]   functionTokens= {"task",         //language instructions
-            "action","during","message","allOff",
+            "during","message",
             "type","timeout","id","payload","count",               //vehicle requirements
-            "post","test","consume","poll"};                              //signals
+            "post","test","consume"};                              //signals
     
-     private String[] highlightTokens ={"execute","halt","idle","pick","until","pause"};
+     private String[] highlightTokens ={"execute","halt","idle","pick","until","allOff","choose","pause","action","when","then"};
    
     NVLHighlightSuport(){
         super();
+        getKeywords();
     }
     
     @Override
     public void addToken(char[] array, int start, int end, int tokenType, int startOffset) {
-        if (tokenType == TokenTypes.IDENTIFIER) {
+        if (tokenType == TokenTypes.FUNCTION || tokenType== Token.RESERVED_WORD ) {
             int newType = extraTokens.get(array, start, end);
             if (newType>-1) {
                 tokenType = newType;

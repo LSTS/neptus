@@ -49,8 +49,10 @@ import javax.swing.JTextArea;
 import javax.swing.border.Border;
 import javax.swing.filechooser.FileNameExtensionFilter;
 
+import org.fife.ui.rsyntaxtextarea.AbstractTokenMakerFactory;
 import org.fife.ui.rsyntaxtextarea.RSyntaxTextArea;
 import org.fife.ui.rsyntaxtextarea.SyntaxConstants;
+import org.fife.ui.rsyntaxtextarea.TokenMakerFactory;
 import org.fife.ui.rtextarea.RTextScrollPane;
 
 import com.google.common.eventbus.Subscribe;
@@ -90,7 +92,14 @@ public class NVLConsolePanel extends ConsolePanel {
         NeptusPlatform.getInstance().associateTo(this);
         setLayout(new BorderLayout());
         editor = new RSyntaxTextArea();
-        editor.setSyntaxEditingStyle(SyntaxConstants.SYNTAX_STYLE_GROOVY);
+        
+        //Custom syntax highlight
+        
+        AbstractTokenMakerFactory atmf = (AbstractTokenMakerFactory)TokenMakerFactory.getDefaultInstance();
+        atmf.putMapping("text/NVL", "plugins-dev/nvl_runtime/pt/lsts/neptus/plugins/nvl/NVLHighlightSuport.java");
+        editor.setSyntaxEditingStyle("text/NVL");
+        
+        //editor.setSyntaxEditingStyle(SyntaxConstants.SYNTAX_STYLE_GROOVY);
         editor.setCodeFoldingEnabled(true);
         editor.setPreferredSize(new Dimension(600, 300));
         scroll = new RTextScrollPane(editor);
