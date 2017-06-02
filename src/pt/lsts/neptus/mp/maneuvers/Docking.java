@@ -78,16 +78,19 @@ public class Docking extends Goto implements StateRendererInteraction,
 IMCSerialization,  PathProvider , ManeuverWithSpeed{
  
     
-    private enum vehicleFunction { Station , Target}
+    public static enum VehicleFunction { Station , Target}
+    
     @NeptusProperty(name = "Docking Target", description = "System name to perform docking maneuver.")
     private String target = "";
+    @NeptusProperty(name = "Number of Docking retries", description = "Insert the number for docking retries. 0 for no retry.")
+    private short numberOfRetries = 0;
     @NeptusProperty(name = "Vehicle Function", description = "Vehicle Fuction. Station to perform docking, Target to receive docking.")
-    private vehicleFunction vfunction = vehicleFunction.Station;
+    private VehicleFunction vehicleFunction = VehicleFunction.Station;
     
-    private double max_speed = 30;
+    private double maxSpeed = 30;
 
     protected InteractionAdapter adapter = new InteractionAdapter(null);
-    protected Point2D lastDragPoint = null;
+    protected Point2D lastDragPoint = null; 
 
     protected boolean editing = false;
 
@@ -109,7 +112,13 @@ IMCSerialization,  PathProvider , ManeuverWithSpeed{
     public Docking() {
       //  super();
     }
-
+    
+    public String validateNumberOfRetries(short value) {
+        if (value < 0 && value > 10)
+            return "Keep it between 0 and 10";
+        return null;
+    }
+    
     /* (non-Javadoc)
      * @see pt.lsts.neptus.mp.Maneuver#getType()
      */
@@ -130,6 +139,26 @@ IMCSerialization,  PathProvider , ManeuverWithSpeed{
             Node node = doc.selectSingleNode("//target");
             if (node != null)
                 target = node.getText();
+            //Get target name
+            node = doc.selectSingleNode("//vehicle-function");
+            if (node != null) {
+                try {
+                    vehicleFunction = VehicleFunction.valueOf(node.getText());
+                }
+                catch (Exception e) {
+                    vehicleFunction = VehicleFunction.Station;
+                }
+            }
+            //Get target name
+            node = doc.selectSingleNode("//number-of-retries");
+            if (node != null) {
+                try {
+                    numberOfRetries = Short.parseShort(node.getText());
+                }
+                catch (Exception e) {
+                    numberOfRetries = 0;
+                }
+            }
             
         }
         catch (Exception e) {
@@ -147,7 +176,8 @@ IMCSerialization,  PathProvider , ManeuverWithSpeed{
         this.clone(clone);
         clone.loadFromXML(getManeuverXml());
         clone.target = this.target;
-        clone.vfunction = this.vfunction;
+        clone.vehicleFunction = this.vehicleFunction;
+        clone.numberOfRetries = this.numberOfRetries;
       
         return clone;
     }
@@ -160,6 +190,8 @@ IMCSerialization,  PathProvider , ManeuverWithSpeed{
         Element root = doc.getRootElement();
         
         root.addElement("target").setText(target);
+        root.addElement("vehicle-function").setText(vehicleFunction.toString());
+        root.addElement("number-of-retries").setText(Short.toString(numberOfRetries));
 
         return doc;
     }
@@ -287,7 +319,7 @@ IMCSerialization,  PathProvider , ManeuverWithSpeed{
         man.setLat(destination.getLatitudeRads());
         man.setLon(destination.getLongitudeRads());
         man.setTarget(target);
-        man.setMaxSpeed(max_speed);
+        man.setMaxSpeed(maxSpeed);
         
         String vehicleFunction = this.getVehicleFunction();
         try {
@@ -316,7 +348,7 @@ IMCSerialization,  PathProvider , ManeuverWithSpeed{
         }
         
         target = man.getTarget();
-        max_speed = man.getMaxSpeed();
+        maxSpeed = man.getMaxSpeed();
         destination.setLatitudeRads(man.getLat());
         destination.setLongitudeRads(man.getLon());
       
@@ -324,9 +356,9 @@ IMCSerialization,  PathProvider , ManeuverWithSpeed{
         
         String vfunction = message.getString("vehicle_function");
         if (vfunction.equals("STATION"))
-            setVehicleFunction(vehicleFunction.Station);
+            setVehicleFunction(VehicleFunction.Station);
         else
-            setVehicleFunction(vehicleFunction.Target);
+            setVehicleFunction(VehicleFunction.Target);
 
     }
 
@@ -335,7 +367,7 @@ IMCSerialization,  PathProvider , ManeuverWithSpeed{
         
         Vector<DefaultProperty> props = new Vector<DefaultProperty>();
         
-        DefaultProperty type = PropertiesEditor.getPropertyInstance("Vehicle Function", String.class, this.vfunction, true);
+        DefaultProperty type = PropertiesEditor.getPropertyInstance("Vehicle Function", String.class, this.vehicleFunction, true);
         type.setShortDescription("Vehicle Fuction. Station to perform docking, Target to receive docking.");
         PropertiesEditor.getPropertyEditorRegistry().registerEditor(type, new ComboEditor<String>(wpDockingFunctionMap.values().toArray(new String[]{})));
         PropertiesEditor.getPropertyRendererRegistry().registerRenderer(type, new I18nCellRenderer());
@@ -360,15 +392,15 @@ IMCSerialization,  PathProvider , ManeuverWithSpeed{
 
     public String getTooltipText() {
         return super.getTooltipText()+"<hr>"+
-        I18n.text("vehicle function") + ": <b>"+vfunction+"<br>" + I18n.text("target") + ": <b>"+I18n.text(target)+"</b>" ;
+        I18n.text("vehicle function") + ": <b>"+vehicleFunction+"<br>" + I18n.text("target") + ": <b>"+I18n.text(target)+"</b>" ;
     }
     
-    public void setVehicleFunction( vehicleFunction vfunction) {
-        this.vfunction = vfunction;
+    public void setVehicleFunction( VehicleFunction vfunction) {
+        this.vehicleFunction = vfunction;
     }
     
     public String getVehicleFunction() {
-        return vfunction.toString();
+        return vehicleFunction.toString();
     }
     
     public String getTarget() {
