@@ -32,6 +32,7 @@
  */
 package pt.lsts.neptus.plugins.nvl;
 
+import org.fife.ui.rsyntaxtextarea.Token;
 import org.fife.ui.rsyntaxtextarea.TokenMap;
 import org.fife.ui.rsyntaxtextarea.TokenTypes;
 import org.fife.ui.rsyntaxtextarea.modes.GroovyTokenMaker;
@@ -42,10 +43,12 @@ import org.fife.ui.rsyntaxtextarea.modes.GroovyTokenMaker;
 public class NVLHighlightSuport extends GroovyTokenMaker {
 
     TokenMap extraTokens;
-    String[]   newTokens= {"task","pick","execute","halt","idle",         //language instructions
-            "action","until","during","pause","message","allOff",
-            "type","timeout","id","payload","count","near",               //vehicle requirements
+    private String[]   functionTokens= {"task",         //language instructions
+            "action","during","message","allOff",
+            "type","timeout","id","payload","count",               //vehicle requirements
             "post","test","consume","poll"};                              //signals
+    
+     private String[] highlightTokens ={"execute","halt","idle","pick","until","pause"};
    
     NVLHighlightSuport(){
         super();
@@ -62,15 +65,21 @@ public class NVLHighlightSuport extends GroovyTokenMaker {
         super.addToken(array, start, end, tokenType, startOffset, false);
         
     }
+    
+    
     public TokenMap getKeywords() {
         if (extraTokens == null) {
           try {
             extraTokens = new TokenMap(false);
             
-            for (String key : newTokens) {
+            for (String key : functionTokens) {
 
-              extraTokens.put(key, new Integer(""));//TODO
+              extraTokens.put(key, Token.FUNCTION);//TODO
             }
+            for (String key : highlightTokens) {
+
+                extraTokens.put(key, Token.RESERVED_WORD);//TODO
+              }
 
           } catch (Exception e) {
             //TODO auto-generated method stub
