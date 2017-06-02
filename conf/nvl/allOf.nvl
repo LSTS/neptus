@@ -1,0 +1,14 @@
+
+auv = pick { 
+  type 'UUV'
+}
+x8 = pick {
+  type 'UAV'
+}
+
+execute x8: task('x8_test') >> action { post zz:1} >>
+               task('x8_test') >> action { post zz:2},
+        auv: allOf {
+        	when  { consume zz:1} then task('test')
+        	when  { consume zz:2} then task('test')
+        }
