@@ -1,7 +1,12 @@
 
-v = pick { 
+uuv = pick { 
   type 'UUV'; 
-  timeout 10.seconds 
+  timeout 15.seconds 
 }
 
-execute v: task('test')  >>  task('test')
+uav = pick {
+	type: 'UAV'
+	timeout 12.seconds
+}
+
+execute task('x8_test')[uav]  | task('test')[uuv]
