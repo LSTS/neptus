@@ -33,9 +33,16 @@
 package pt.lsts.neptus.plugins.nvl;
 
 import java.io.File;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
+import org.codehaus.groovy.control.CompilerConfiguration;
+import org.codehaus.groovy.control.customizers.ImportCustomizer;
+
+
+import pt.lsts.imc.IMCDefinition;
 import pt.lsts.imc.VehicleState;
 import pt.lsts.neptus.comm.manager.imc.ImcMsgManager;
 import pt.lsts.neptus.comm.manager.imc.ImcSystem;
@@ -85,7 +92,7 @@ public enum NeptusPlatform implements Platform {
     }
 
     @Override
-    public NodeSet getConnectedVehicles() {
+    public NodeSet getConnectedNodes() {
         NodeSet set = new NodeSet();
         for(ImcSystem vec: ImcSystemsHolder.lookupActiveSystemVehicles()){
             VehicleState state  = ImcMsgManager.getManager().getState(vec.getName()).last(VehicleState.class);
@@ -144,5 +151,33 @@ public enum NeptusPlatform implements Platform {
             displayMessage("will run %s", scriptFile.getAbsolutePath());
             Engine.getInstance().run(scriptFile);
         }
+    }
+
+    @Override
+    public void customizeGroovyCompilation(CompilerConfiguration cc) {
+        displayMessage("Customizing compilation for Neptus runtime ...");
+        ImportCustomizer ic = new ImportCustomizer();
+        ic.addStaticStars("pt.lsts.neptus.plugins.nvl.dsl.Instructions");
+        for (String msg : IMCDefinition.getInstance().getConcreteMessages()) {
+          ic.addImports("pt.lsts.imc." + msg);
+        }
+        cc.addCompilationCustomizers(ic);
+    }
+
+    @Override 
+    public List<File> getExtensionFiles() {
+        displayMessage("Configuring extension files ...");
+        LinkedList<File> list = new LinkedList<>();
+        File dir = new File("conf/nvl/extensions");
+        if (dir.isDirectory()) {
+          for (String fileName : dir.list()) {
+             if (fileName.endsWith(".groovy")) {
+                 File f = new File(dir,fileName);
+                 displayMessage("- Extension file found: %s", f.getAbsolutePath());
+                 list.add(new File(dir,fileName));
+             }
+          }
+        }
+        return list;
     }  
 }
