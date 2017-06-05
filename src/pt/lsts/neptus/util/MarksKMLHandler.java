@@ -30,6 +30,8 @@ public class MarksKMLHandler {
         sb.append(kmlHeader(out.getName()));
 
         marks.stream().forEach(m -> sb.append(markToPlacemarkXml(m)));
+        sb.append("</Document> \n" +
+                "</kml> \n");
 
         try {
             String xml = sb.toString();
