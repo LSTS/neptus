@@ -34,6 +34,7 @@ package pt.lsts.neptus.plugins.groovy;
 
 import java.util.ArrayList;
 import java.util.List;
+
 import imc_plans_dsl.DSLPlan;
 import imc_plans_dsl.Location;
 import pt.lsts.neptus.NeptusLog;
@@ -195,11 +196,11 @@ public class NeptusIMCDSL extends DSLPlan {
      * @param console
      * @return
      */
-    private PlanType asPlanType(ConsoleLayout console) {
+    public PlanType asPlanType(ConsoleLayout console) {
         if(neptusPlan!=null)
-            return IMCUtils.parsePlanSpecification(console.getMission(),IMCUtils.generatePlanSpecification(neptusPlan));
+            return neptusPlan;//IMCUtils.parsePlanSpecification(console.getMission(),IMCUtils.generatePlanSpecification(neptusPlan));
         else
-            return IMCUtils.parsePlanSpecification(console.getMission(),this.asPlanSpecification());
+            return IMCUtils.parsePlanSpecification(console.getMission(),this.asPlanSpecification()); //TODO validate generated IMCMessage
                  
     }
 

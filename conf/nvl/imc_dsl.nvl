@@ -1,0 +1,12 @@
+v = pick {
+id 'lauv-xplore-1'
+}
+p = imcPlan {
+planName "IMCDSL"
+	speed 1.5, Speed.Units.METERS_PS
+	locate Location.APDL
+	move 200,0
+	goTo()
+}
+
+sendMessage v, p

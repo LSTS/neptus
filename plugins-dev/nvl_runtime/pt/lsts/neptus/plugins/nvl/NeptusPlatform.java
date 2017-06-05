@@ -158,6 +158,7 @@ public enum NeptusPlatform implements Platform {
         displayMessage("Customizing compilation for Neptus runtime ...");
         ImportCustomizer ic = new ImportCustomizer();
         ic.addStaticStars("pt.lsts.neptus.plugins.nvl.dsl.Instructions");
+        ic.addStarImports("imc_plans_dsl");
         for (String msg : IMCDefinition.getInstance().getConcreteMessages()) {
           ic.addImports("pt.lsts.imc." + msg);
         }

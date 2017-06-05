@@ -42,6 +42,11 @@ public final class IMCPlanTask extends AbstractIMCPlanTask {
     public IMCPlanTask(PlanType plan) { 
         super(plan.getId(), (PlanSpecification) plan.asIMCPlan(true));
     }
+    
+    public IMCPlanTask(PlanSpecification plan){
+        super(plan.getPlanId(), plan);
+    }
+    
 
     @Override
     public IMCPlanExecutor getExecutor() {
