@@ -32,19 +32,25 @@
  */
 package pt.lsts.neptus.plugins.pddl;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.TimeZone;
 import java.util.Map.Entry;
 
 import pt.lsts.imc.ScheduledGoto.DELAYED;
+import pt.lsts.imc.TemporalAction;
+import pt.lsts.imc.TemporalAction.STATUS;
+import pt.lsts.imc.TemporalPlan;
 import pt.lsts.neptus.data.Pair;
 import pt.lsts.neptus.mp.Maneuver;
 import pt.lsts.neptus.mp.ManeuverLocation;
 import pt.lsts.neptus.mp.ManeuverLocation.Z_UNITS;
 import pt.lsts.neptus.mp.maneuvers.AreaSurvey;
 import pt.lsts.neptus.mp.maneuvers.Goto;
+import pt.lsts.neptus.mp.maneuvers.IMCSerialization;
 import pt.lsts.neptus.mp.maneuvers.LocatedManeuver;
 import pt.lsts.neptus.mp.maneuvers.Loiter;
 import pt.lsts.neptus.mp.maneuvers.PopUp;
@@ -59,6 +65,7 @@ import pt.lsts.neptus.plugins.mvplanner.api.ConsoleEventPlanAllocation.Operation
 import pt.lsts.neptus.types.coord.LocationType;
 import pt.lsts.neptus.types.mission.plan.PlanType;
 import pt.lsts.neptus.types.vehicle.VehicleType;
+import pt.lsts.util.PlanUtilities;
 
 /**
  * @author zp
@@ -249,6 +256,50 @@ public class MVSolution {
         this.useScheduledGoto = useScheduledGoto;
     }
 
+    /**
+     * This method translates the solution into an IMC's TemporalPlan message.
+     * @return The temporal plan
+     */
+    public TemporalPlan generateTemporalPlan() {
+        ArrayList<TemporalAction> planActions = new ArrayList<>();
+        int i = 1;
+        
+        for (Entry<String, LocationType> loc : locations.entrySet()) {
+            if (loc.getKey().endsWith("depot")) {
+                String nick = loc.getKey().substring(0, loc.getKey().indexOf("_"));
+                lastLocations.put(VehicleParams.getVehicleFromNickname(nick).getId(), new LocationType(loc.getValue()));
+            }
+        }
+        
+        for (PddlAction act : actions) {
+            Maneuver maneuver = generateManeuver(act);
+            maneuver.setId("" + (i++));
+            ManeuverPayloadConfig payload = new ManeuverPayloadConfig(act.vehicle.getId(), maneuver, null);
+            enablePayloads(payload, act.payloads);
+            
+            TemporalAction action = new TemporalAction();
+            action.setSystemId(act.vehicle.getImcId().intValue());
+            action.setDuration((act.endTime - act.startTime) / 1000.0);
+            action.setStartTime(act.startTime / 1000.0);
+            String id = maneuver.getId()+"_"+act.type;
+            if (act.type.equals("survey") || act.type.equals("sample"))
+                id = act.name;
+            
+            action.setAction(PlanUtilities.createPlan(id,
+                    (pt.lsts.imc.Maneuver) ((IMCSerialization) maneuver).serializeToIMC()));
+            action.setStatus(STATUS.IGNORED);
+            planActions.add(action);
+        }
+        
+        SimpleDateFormat sdf = new SimpleDateFormat("YYYY-MM-DD_HH:mm:ss");
+        sdf.setTimeZone(TimeZone.getTimeZone("UTC"));
+        
+        TemporalPlan plan = new TemporalPlan();
+        plan.setPlanId("plan_"+sdf.format(new Date()));
+        plan.setActions(planActions);
+        return plan;
+    }
+    
     /**
      * Generate allocations for this solution
      * 
