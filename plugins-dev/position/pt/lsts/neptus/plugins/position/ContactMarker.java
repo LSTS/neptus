@@ -40,12 +40,7 @@ import java.awt.datatransfer.StringSelection;
 import java.awt.datatransfer.Transferable;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Date;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Vector;
+import java.util.*;
 
 import javax.swing.AbstractAction;
 import javax.swing.JMenu;
@@ -58,6 +53,7 @@ import org.dom4j.DocumentHelper;
 
 import com.google.common.eventbus.Subscribe;
 
+import org.opengis.sld.Mark;
 import pt.lsts.imc.CcuEvent;
 import pt.lsts.imc.CcuEvent.TYPE;
 import pt.lsts.imc.DevDataBinary;
@@ -98,7 +94,6 @@ import pt.lsts.neptus.util.DateTimeUtil;
 import pt.lsts.neptus.util.GuiUtils;
 import pt.lsts.neptus.util.ImageUtils;
 import pt.lsts.neptus.util.ReflectionUtil;
-import pt.lsts.neptus.util.csv.MarksCSVHandler;
 
 /**
  * @author pdias
@@ -350,8 +345,28 @@ SubPanelChangeListener, MainVehicleChangeListener {
                                     .getMaps()[0]
                                     .addObject(m));
 
+                    getConsole().getMission().save(true);
+
                 });
                 menus.add(importMarks);
+
+                JMenuItem exportMarks = new JMenuItem(I18n.text("Export marks"));
+                exportMarks.addActionListener(e -> {
+                    List<MarkElement> availableMarks = new ArrayList<>(MapGroup.getMapGroupInstance(getConsole()
+                            .getMission())
+                            .getMaps()[0].getMarksList().values());
+                    NeptusLog.pub().info("There are " + availableMarks.size() + " marks");
+
+                    if(availableMarks.size() <= 0) {
+                        GuiUtils.showErrorPopup("Error", "No available marks to export");
+                        return;
+                    }
+
+                    if(!MarksExporterPanel.showPanel(getConsole(), availableMarks))
+                        GuiUtils.showErrorPopup("Error", "Something went wrong while exporting, check the logs");
+
+                });
+                menus.add(exportMarks);
             }
         }
 
