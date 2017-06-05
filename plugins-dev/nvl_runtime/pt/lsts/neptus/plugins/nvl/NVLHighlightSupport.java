@@ -32,6 +32,7 @@
  */
 package pt.lsts.neptus.plugins.nvl;
 
+import org.fife.ui.rsyntaxtextarea.SyntaxConstants;
 import org.fife.ui.rsyntaxtextarea.Token;
 import org.fife.ui.rsyntaxtextarea.TokenMap;
 import org.fife.ui.rsyntaxtextarea.TokenTypes;
@@ -40,7 +41,7 @@ import org.fife.ui.rsyntaxtextarea.modes.GroovyTokenMaker;
  * @author lsts
  *
  */
-public class NVLHighlightSuport extends GroovyTokenMaker {
+public class NVLHighlightSupport extends GroovyTokenMaker implements SyntaxConstants {
 
     TokenMap extraTokens;
     private String[]   functionTokens= {"task",         //language instructions
@@ -50,7 +51,7 @@ public class NVLHighlightSuport extends GroovyTokenMaker {
     
      private String[] highlightTokens ={"execute","halt","idle","pick","until","allOff","choose","pause","action","when","then"};
    
-    NVLHighlightSuport(){
+    NVLHighlightSupport(){
         super();
         getKeywords();
     }
@@ -75,11 +76,11 @@ public class NVLHighlightSuport extends GroovyTokenMaker {
             
             for (String key : functionTokens) {
 
-              extraTokens.put(key, Token.FUNCTION);//TODO
+              extraTokens.put(key, Token.FUNCTION);
             }
             for (String key : highlightTokens) {
 
-                extraTokens.put(key, Token.RESERVED_WORD);//TODO
+                extraTokens.put(key, Token.RESERVED_WORD);
               }
 
           } catch (Exception e) {

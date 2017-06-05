@@ -61,7 +61,6 @@ import pt.lsts.neptus.console.ConsoleLayout;
 import pt.lsts.neptus.console.ConsolePanel;
 import pt.lsts.neptus.console.events.ConsoleEventPlanChange;
 import pt.lsts.neptus.console.events.ConsoleEventVehicleStateChanged;
-import pt.lsts.neptus.console.notifications.Notification;
 import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.plugins.NeptusProperty;
 import pt.lsts.neptus.plugins.PluginDescription;
@@ -147,7 +146,7 @@ public class GroovyPanel extends ConsolePanel {
                     
         RTextScrollPane scroll = new RTextScrollPane(editor);
         
-        Action selectAction = new AbstractAction(I18n.text("Script File..."), ImageUtils.getScaledIcon("pt/lsts/neptus/plugins/groovy/images/filenew.png", 16, 16)) {
+        Action selectAction = new AbstractAction(I18n.text("Script File..."), ImageUtils.getScaledIcon("pt/lsts/neptus/plugins/groovy/images/edit_new.png", 16, 16)) {
 
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -160,7 +159,7 @@ public class GroovyPanel extends ConsolePanel {
 
                 if (returnVal == JFileChooser.APPROVE_OPTION) {
                     groovyScript = fc.getSelectedFile();
-                    Notification.info("Groovy Feature", "Opening: " + groovyScript.getName() + "." + "\n");
+                    NeptusLog.pub().info("Opening: " + groovyScript.getName() + "." + "\n");
                     editor.setText(FileUtil.getFileAsString(groovyScript));
                 }
             }

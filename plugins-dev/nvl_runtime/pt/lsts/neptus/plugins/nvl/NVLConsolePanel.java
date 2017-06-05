@@ -51,7 +51,6 @@ import javax.swing.filechooser.FileNameExtensionFilter;
 
 import org.fife.ui.rsyntaxtextarea.AbstractTokenMakerFactory;
 import org.fife.ui.rsyntaxtextarea.RSyntaxTextArea;
-import org.fife.ui.rsyntaxtextarea.SyntaxConstants;
 import org.fife.ui.rsyntaxtextarea.TokenMakerFactory;
 import org.fife.ui.rtextarea.RTextScrollPane;
 
@@ -61,7 +60,6 @@ import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.console.ConsoleLayout;
 import pt.lsts.neptus.console.ConsolePanel;
 import pt.lsts.neptus.console.events.ConsoleEventPlanChange;
-import pt.lsts.neptus.console.notifications.Notification;
 import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.plugins.PluginDescription;
 import pt.lsts.neptus.plugins.Popup;
@@ -79,7 +77,8 @@ public class NVLConsolePanel extends ConsolePanel {
     private JTextArea output;
     private RSyntaxTextArea editor; 
     private File script;
-    private JButton select,testButton;
+    private JButton select,execButton,stop,saveFile;
+    private Thread runningThread;
     RTextScrollPane scroll;
     
     public NVLConsolePanel(ConsoleLayout layout) {
@@ -90,57 +89,69 @@ public class NVLConsolePanel extends ConsolePanel {
     @Override
     public void initSubPanel() {
         NeptusPlatform.getInstance().associateTo(this);
+        
         setLayout(new BorderLayout());
         editor = new RSyntaxTextArea();
         
         //Custom syntax highlight
         
         AbstractTokenMakerFactory atmf = (AbstractTokenMakerFactory)TokenMakerFactory.getDefaultInstance();
-        atmf.putMapping("text/NVL", "plugins-dev/nvl_runtime/pt/lsts/neptus/plugins/nvl/NVLHighlightSuport.java");
+        atmf.putMapping("text/NVL", "conf/nvl/extensions/NVLHighlightSupport");
         editor.setSyntaxEditingStyle("text/NVL");
-        
         //editor.setSyntaxEditingStyle(SyntaxConstants.SYNTAX_STYLE_GROOVY);
         editor.setCodeFoldingEnabled(true);
         editor.setPreferredSize(new Dimension(600, 300));
         scroll = new RTextScrollPane(editor);
         
         if (script != null) {
-            try {
-                editor.setText(FileUtil.getFileAsString(script));    
-            }
-            catch (Exception e) {
-                NeptusLog.pub().error(e);
-            }
+                 editor.setText(FileUtil.getFileAsString(script));    
         }
-        else {
-            script = new File("conf/nvl/temp");
-            editor.setText(FileUtil.getFileAsString(script));
-            System.out.println("New temporary file created.");
-            try {
-                script.createNewFile();
-            }
-            catch (IOException e1) {
-                NeptusLog.pub().error(e1);
-            }
-              
-        }
-                    
-        Action selectAction = new AbstractAction(I18n.text("Script File..."), ImageUtils.getScaledIcon("pt/lsts/neptus/plugins/groovy/images/filenew.png", 16, 16)) {
+        
+        Action saveAction = new AbstractAction(I18n.text("Save Script"), ImageUtils.getScaledIcon("pt/lsts/neptus/plugins/nvl/images/save.png", 16, 16)) {
 
             @Override
             public void actionPerformed(ActionEvent e) {
+                File directory = new File("conf/nvl/");
+                final JFileChooser fc = new JFileChooser(directory);
+                fc.setFileSelectionMode(JFileChooser.FILES_ONLY);
+                fc.setFileFilter( new FileNameExtensionFilter("NVL files","nvl"));
+                // Demonstrate "Save" dialog:
+                int rVal = fc.showSaveDialog(NVLConsolePanel.this);
+                if (rVal == JFileChooser.APPROVE_OPTION) {
+                  script = fc.getSelectedFile();
+                  FileUtil.saveToFile(script.getAbsolutePath(), editor.getText());
+                }
 
-                // Create a file chooser
+            }
+        };
+                    
+        Action selectAction = new AbstractAction(I18n.text("Script File..."), ImageUtils.getScaledIcon("pt/lsts/neptus/plugins/nvl/images/filenew.png", 16, 16)) {
+
+            @Override
+            public void actionPerformed(ActionEvent e) {
                 File directory = new File("conf/nvl/");
                 final JFileChooser fc = new JFileChooser(directory);
                 fc.setFileSelectionMode(JFileChooser.FILES_ONLY);
                 fc.setFileFilter( new FileNameExtensionFilter("NVL files","nvl"));
                 int returnVal = fc.showOpenDialog(NVLConsolePanel.this);
-
                 if (returnVal == JFileChooser.APPROVE_OPTION) {
                     script = fc.getSelectedFile();
-                    Notification.info("NVL Runtime", "Opening: " + script.getName() + "." + "\n");
-                    editor.setText(FileUtil.getFileAsString(script));
+                    if(fc.getSelectedFile().exists()){
+                        NeptusLog.pub().info("Opening: " + script.getName() + "." + "\n");
+                        editor.setText(FileUtil.getFileAsString(script));
+                    }
+                    else {
+                            try {
+                                if(script.createNewFile()){
+                                  
+                                  editor.setText(FileUtil.getFileAsString(script));
+                                  NeptusLog.pub().info("Creating new script file: " + script.getName() + "." + "\n");                          }
+                          }
+                            catch(IOException e1){
+                                NeptusLog.pub().info("Error creating new script file.\n",e1);
+                            }
+                        
+                    }
                 }
             }
         };
@@ -156,19 +167,40 @@ public class NVLConsolePanel extends ConsolePanel {
         outputPanel.setBorder(border);
         
         
-        Action testAction = new AbstractAction(I18n.text("Test!")) {
+        Action execAction = new AbstractAction(I18n.text("Execute"),ImageUtils.getScaledIcon("pt/lsts/neptus/plugins/groovy/images/forward.png", 16, 16)) {
                     @Override
                     public void actionPerformed(ActionEvent e) {   
-                        new Thread(() -> {
+                        runningThread = new Thread(){
+                           @Override
+                           public void run() {
                             FileUtil.saveToFile(script.getAbsolutePath(), editor.getText());
                             NeptusPlatform.getInstance().run(script);
-                        }).start();
+                            stop.setEnabled(false);
+                           }
+                        };
+                        runningThread.start();
+                        stop.setEnabled(true);
                     }
         };
+        
+        Action stopAction = new AbstractAction(I18n.text("Stop"),ImageUtils.getScaledIcon("pt/lsts/neptus/plugins/groovy/images/stop.png", 16, 16)) {
+            @Override
+            public void actionPerformed(ActionEvent e) {   
+                if(runningThread!=null && runningThread.isAlive())
+                    runningThread.interrupt();
+                output.append("Stopping script "+script+" execution.");
+                NeptusLog.pub().warn("Stopping script "+script+" execution.\n");
+                stop.setEnabled(false);
+            }
+};
         //Buttons
-        testButton = new JButton(testAction);
-        select = new JButton(selectAction);
-        JButton clear = new JButton(new AbstractAction(I18n.text("Clear Console!")) {
+        execButton = new JButton(execAction);
+        select     = new JButton(selectAction);
+        stop       = new JButton(stopAction);
+        stop.setEnabled(false);
+        saveFile    = new JButton(saveAction);
+        
+        JButton clear = new JButton(new AbstractAction(I18n.text("Clear Console")) {
             
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -181,7 +213,9 @@ public class NVLConsolePanel extends ConsolePanel {
         JPanel top = new JPanel(new BorderLayout());
         JPanel buttons = new JPanel();
         buttons.add(select);
-        buttons.add(testButton);
+        buttons.add(saveFile);
+        buttons.add(execButton);
+        buttons.add(stop);
         top.setPreferredSize(new Dimension(600, 350));
         top.add(buttons,BorderLayout.SOUTH);
         top.add(scroll,BorderLayout.CENTER);
