@@ -57,7 +57,7 @@ public class MarksCSVHandler {
 
             for(MarkElement m : marks) {
                 LocationType centerLoc = m.getCenterLocation().getNewAbsoluteLatLonDepth();
-                writer.write(m.getId() + del + centerLoc.getLatitudeDegs() + del + centerLoc.getLatitudeDegs());
+                writer.write(m.getId() + del + centerLoc.getLatitudeDegs() + del + centerLoc.getLatitudeDegs() + "\n");
             }
 
             writer.close();
