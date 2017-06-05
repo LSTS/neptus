@@ -25,7 +25,7 @@ public class MarksKMLHandler {
      * Export the given MarkElements to a KML file
      * */
     public static boolean exportKML(String exportPathStr, List<MarkElement> marks) {
-        File out = new File(exportPathStr);
+        File out = new File(exportPathStr + ".kml");
         StringBuilder sb = new StringBuilder();
         sb.append(kmlHeader(out.getName()));
 

@@ -50,7 +50,7 @@ import pt.lsts.neptus.types.map.MarkElement;
  */
 public class MarksCSVHandler {
     public static boolean exportCsv(String exportPathStr, List<MarkElement> marks, String del) {
-        File exportPath = new File(exportPathStr);
+        File exportPath = new File(exportPathStr + ".csv");
 
         try{
             PrintWriter writer = new PrintWriter(exportPath, "UTF-8");
