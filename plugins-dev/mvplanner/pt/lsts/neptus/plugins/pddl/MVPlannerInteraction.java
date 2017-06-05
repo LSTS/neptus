@@ -53,7 +53,12 @@ import javax.swing.ProgressMonitor;
 
 import com.google.common.eventbus.Subscribe;
 
+import pt.lsts.imc.TemporalAction;
+import pt.lsts.imc.TemporalPlan;
+import pt.lsts.imc.TemporalPlanStatus;
+import pt.lsts.imc.net.Consume;
 import pt.lsts.neptus.NeptusLog;
+import pt.lsts.neptus.comm.manager.imc.ImcMsgManager;
 import pt.lsts.neptus.comm.manager.imc.ImcSystem;
 import pt.lsts.neptus.comm.manager.imc.ImcSystemsHolder;
 import pt.lsts.neptus.console.ConsoleInteraction;
@@ -96,6 +101,8 @@ public class MVPlannerInteraction extends ConsoleInteraction {
     private LinkedHashMap<String, ConsoleEventFutureState> futureStates = new LinkedHashMap<String, ConsoleEventFutureState>();
     private long lastAllocation = System.currentTimeMillis();
 
+    private TemporalPlan plan = null;
+    
     @NeptusProperty(category = "Problem Specification", name = "Domain Model to use")
     private MVDomainModel domainModel = MVDomainModel.V2;
 
@@ -122,6 +129,9 @@ public class MVPlannerInteraction extends ConsoleInteraction {
 
     @NeptusProperty(category = "Plan Execution", name = "Seconds between automatic allocations.")
     private int secsBetweenAllocations = 30;
+
+    @NeptusProperty(category = "Plan Execution", name = "Use Onboard Executive")
+    private boolean onboardExecutive = true;
 
     @Subscribe
     public void on(ConsoleEventFutureState future) {
@@ -245,6 +255,53 @@ public class MVPlannerInteraction extends ConsoleInteraction {
 
         planner.setDaemon(true);
         planner.start();
+    }
+    
+    @Consume
+    public void on(TemporalPlanStatus status) {
+        if (!onboardExecutive || plan == null)
+            return;
+        
+        if (!(plan.getPlanId().equals(status.getPlanId()))) {
+            // send the updated plan!
+            NeptusLog.pub().info("Sending updated plan to "+status.getSourceName());
+            ImcMsgManager.getManager().sendMessageToSystem(plan, status.getSourceName());
+        }
+        else {
+            for (TemporalAction action : status.getActions()) {
+                String id = action.getActionId();
+                MVPlannerTask associatedTask = null;
+                synchronized (tasks) {
+                    for (MVPlannerTask t : tasks) {
+                        if (t.getName().equals(id)) {
+                            associatedTask = t;
+                            break;
+                        }                        
+                    }    
+                }
+                if (associatedTask == null) {
+                    NeptusLog.pub().info("Could not find action for "+id); 
+                    continue;
+                }
+                switch (action.getStatus()) {
+                    case FINISHED:
+                        synchronized (tasks) {
+                            tasks.remove(associatedTask);
+                            NeptusLog.pub().info("Task "+id+" was acomplished by "+status.getSourceName());
+                        }
+                        break;
+                    case CANCELLED:
+                    case FAILED:
+                        if (status.getSourceName().equals(associatedTask.getAssociatedVehicle())) {
+                            associatedTask.setAssociatedVehicle(null);
+                            NeptusLog.pub().warn(status.getSourceName()+" failed to execute "+id);
+                        }
+                        break;
+                    default:
+                        break;
+                }
+            }
+        }
     }
 
     @NeptusMenuItem("File>Multi-Vehicle Planner>Load Tasks")
@@ -601,8 +658,6 @@ public class MVPlannerInteraction extends ConsoleInteraction {
     private String createPlan(ProgressMonitor pm) {
         searchAndSplitSurveys();
         
-        
-        System.out.println(tasks);
         allocationInProgress = true;
         
         Vector<VehicleType> activeVehicles = new Vector<VehicleType>();
@@ -726,6 +781,11 @@ public class MVPlannerInteraction extends ConsoleInteraction {
             try {
                 MVSolution solution = problem.getSolution();
 
+                if (onboardExecutive) {
+                    plan = solution.generateTemporalPlan();
+                    return;
+                }                
+                
                 if (solution != null) {
                     solution.setGeneratePopups(generatePopups);
                     solution.setScheduledGotosUsed(useScheduledGotos);
