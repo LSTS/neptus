@@ -44,7 +44,9 @@ import org.codehaus.groovy.control.customizers.ImportCustomizer;
 
 import groovy.lang.Binding;
 import groovy.util.GroovyScriptEngine;
+import pt.lsts.imc.VehicleState;
 import pt.lsts.neptus.NeptusLog;
+import pt.lsts.neptus.comm.manager.imc.ImcMsgManager;
 import pt.lsts.neptus.comm.manager.imc.ImcSystem;
 import pt.lsts.neptus.comm.manager.imc.ImcSystemsHolder;
 import pt.lsts.neptus.console.events.ConsoleEventPlanChange;
@@ -131,8 +133,13 @@ public class GroovyEngine {
     private void add_console_vars() {
         binds = new Binding();
 
-        for(ImcSystem v: ImcSystemsHolder.lookupActiveSystemVehicles())
-            vehicles.put(v.getName(), v);
+        
+        for(ImcSystem v: ImcSystemsHolder.lookupActiveSystemVehicles()){
+            VehicleState state  = ImcMsgManager.getManager().getState(v.getName()).last(VehicleState.class);
+            if (state != null && state.getOpMode() == VehicleState.OP_MODE.SERVICE) {
+                vehicles.put(v.getName(), v);
+            }
+        }
         binds.setVariable("vehicles",vehicles);
         for(PlanType p: console.getConsole().getMission().getIndividualPlansList().values())
             plans.put(p.getId(),p);
