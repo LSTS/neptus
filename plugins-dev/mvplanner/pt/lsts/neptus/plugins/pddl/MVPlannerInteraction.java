@@ -783,6 +783,25 @@ public class MVPlannerInteraction extends ConsoleInteraction {
 
                 if (onboardExecutive) {
                     plan = solution.generateTemporalPlan();
+                    NeptusLog.pub().info(plan.asJSON());
+                    HashSet<String> vehicles = new HashSet<>();
+                    LinkedHashMap<String, String> ts =  new LinkedHashMap<>();
+                    
+                    for (TemporalAction action : plan.getActions()) {
+                        vehicles.add(ImcSystemsHolder.translateImcIdToSystemName(action.getSystemId()));
+                        ts.put(action.getActionId(), ImcSystemsHolder.translateImcIdToSystemName(action.getSystemId()));
+                    }
+                    
+                    for (String system : vehicles) {
+                        ImcMsgManager.getManager().sendMessageToSystem(plan, system);
+                        NeptusLog.pub().info("Sending temporal plan to "+system);
+                    }
+                    for (MVPlannerTask t : tasks) {                     
+                        if (ts.containsKey(t.name)) {
+                            t.setAssociatedAllocation(plan.getPlanId());
+                            t.setAssociatedVehicle(ts.get(t.name));
+                        }
+                    }
                     return;
                 }                
                 

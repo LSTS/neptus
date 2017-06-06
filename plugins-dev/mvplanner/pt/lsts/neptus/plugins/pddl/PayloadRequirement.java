@@ -37,8 +37,8 @@ package pt.lsts.neptus.plugins.pddl;
  *
  */
 public enum PayloadRequirement {
-    edgetech(50, -5, -5, 27),    
-    klein(50, -5, -5, 27),
+    //edgetech(50, -5, -5, 27),    
+    //klein(50, -5, -5, 27),
     sidescan(30, -3, -3, 4),    
     multibeam(15, 3, 3, 5),
     camera(5, -2, -2, 50),

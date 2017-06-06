@@ -153,7 +153,7 @@ public class SurveyPolygonTask extends MVPlannerTask {
     }
 
     private void updateManeuver() {
-        double minHorStep = area.getDiameter() / 3;
+        double minHorStep = area.getDiameter();
         double minDepth = Double.MAX_VALUE;
         double maxDepth = -Double.MAX_VALUE;
         for (PayloadRequirement p : getRequiredPayloads()) {
@@ -170,6 +170,7 @@ public class SurveyPolygonTask extends MVPlannerTask {
         }
         entry.setCenterLocation(getEntryPoint());
         exit.setCenterLocation(getEndPoint());
+        pivot.setHorizontalStep(minHorStep);
         pivot.setPolygon(area);
     }
 
@@ -241,14 +242,15 @@ public class SurveyPolygonTask extends MVPlannerTask {
     @Override
     public Collection<MVPlannerTask> splitTask(double maxLength) {
         ArrayList<MVPlannerTask> surveys = new ArrayList<>();
-        double horStep = area.getDiameter() / 3;
+        double horStep = area.getDiameter();
+
         for (PayloadRequirement p : getRequiredPayloads())
             horStep = Math.min(horStep, p.getSwathWidth());
 
         final double swathWidth = horStep;
 
         int numAreas = 1;
-        double curLength = area.getPathLength(horStep, 0);
+        double curLength = getLength();
         double angle = area.getDiameterAndAngle().second();
         ArrayList<PolygonType> polygons = new ArrayList<>();
 
@@ -272,10 +274,12 @@ public class SurveyPolygonTask extends MVPlannerTask {
             else {
                 polygons.addAll(area.subAreas(numAreas, angle));
             }
-
+            
             curLength = 0;
-            for (PolygonType p : polygons)
-                curLength = Math.max(curLength, p.getPathLength(swathWidth, 0));
+            for (PolygonType p : polygons) {
+                double swathW = Math.min(p.getDiameter(), swathWidth); 
+                curLength = Math.max(curLength, p.getPathLength(swathW, 0));                
+            }
         }
 
         for (int i = 0; i < polygons.size(); i++) {

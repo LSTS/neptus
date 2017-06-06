@@ -221,8 +221,7 @@ public class MVSolution {
             }
 
             if (e.getCategory().equals("Sidescan") && e.getValueType().equals(ValueTypeEnum.BOOLEAN)) {
-                if (requiredPayloads.contains(PayloadRequirement.sidescan)
-                        || requiredPayloads.contains(PayloadRequirement.edgetech))
+                if (requiredPayloads.contains(PayloadRequirement.sidescan))
                     e.setValue(true);
                 else
                     e.setValue(false);
@@ -284,10 +283,10 @@ public class MVSolution {
             String id = maneuver.getId()+"_"+act.type;
             if (act.type.equals("survey") || act.type.equals("sample"))
                 id = act.name;
-            
+            action.setActionId(id);
             action.setAction(PlanUtilities.createPlan(id,
                     (pt.lsts.imc.Maneuver) ((IMCSerialization) maneuver).serializeToIMC()));
-            action.setStatus(STATUS.IGNORED);
+            action.setStatus(STATUS.SCHEDULED);
             planActions.add(action);
         }
         

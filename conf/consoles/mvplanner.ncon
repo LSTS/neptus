@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <console name="Neptus Console" width="1368" height="727" resizable="true" mission-file="../../missions/APDL/missao-apdl.nmisz" main-vehicle="lauv-xplore-1">
-  <!-- Data saved on 2017-05-31T13:14:15.0Z with Neptus version @VERSION@ (compiled on @DATE@, g@SCM_REV@). -->
+  <!-- Data saved on 2017-06-01T14:12:01.0Z with Neptus version @VERSION@ (compiled on @DATE@, g@SCM_REV@). -->
   <mainpanel name="console main panel">
     <subpanel class="pt.lsts.neptus.console.plugins.containers.MigLayoutContainer" x="0" y="0" width="1366" height="641">
       <properties>
@@ -50,7 +50,7 @@
       <child class="pt.lsts.neptus.plugins.position.ContactMarker" x="0" y="0" width="0" height="0">
         <properties/>
       </child>
-      <child class="pt.lsts.neptus.controllers.ControllerPanel" x="0" y="0" width="0" height="0">
+      <child class="pt.lsts.neptus.controllers.ControllerPanel" x="0" y="0" width="300" height="200">
         <properties/>
       </child>
       <child class="pt.lsts.neptus.console.plugins.EntityStatePanel" x="0" y="0" width="0" height="0">
@@ -171,7 +171,7 @@ altitude: ${EstimatedState.alt};
     </interaction>
     <interaction class="pt.lsts.neptus.plugins.pddl.MVPlannerInteraction">
       <properties>
-        <entry key="Domain Model to use">V1</entry>
+        <entry key="Domain Model to use">Collaborative</entry>
         <entry key="Time (seconds) vehicles can stay away from depot">1800</entry>
         <entry key="Maximum length permitted for a survey task.">1000.0</entry>
       </properties>

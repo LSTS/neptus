@@ -320,6 +320,21 @@ public class AreaSurvey extends FollowPath {
         recalcPoints();
     }
 
+    /**
+     * @return the horizontalStep
+     */
+    public final double getHorizontalStep() {
+        return horizontalStep;
+    }
+
+    /**
+     * @param horizontalStep the horizontalStep to set
+     */
+    public final void setHorizontalStep(double horizontalStep) {
+        this.horizontalStep = horizontalStep;
+        recalcPoints();
+    }
+
     @Override
     public void setManeuverLocation(ManeuverLocation location) {
         double offsets[] = location.getOffsetFrom(getManeuverLocation());
