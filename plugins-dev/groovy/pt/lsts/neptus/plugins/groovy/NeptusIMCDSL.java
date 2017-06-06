@@ -35,8 +35,8 @@ package pt.lsts.neptus.plugins.groovy;
 import java.util.ArrayList;
 import java.util.List;
 
-import imc_plans_dsl.DSLPlan;
-import imc_plans_dsl.Location;
+import pt.lsts.imc.groovy.dsl.DSLPlan;
+import pt.lsts.imc.groovy.dsl.Location;
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.comm.IMCUtils;
 import pt.lsts.neptus.console.ConsoleLayout;
