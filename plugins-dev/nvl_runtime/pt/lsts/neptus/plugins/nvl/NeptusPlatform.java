@@ -41,7 +41,6 @@ import java.util.concurrent.ConcurrentHashMap;
 import org.codehaus.groovy.control.CompilerConfiguration;
 import org.codehaus.groovy.control.customizers.ImportCustomizer;
 
-
 import pt.lsts.imc.IMCDefinition;
 import pt.lsts.imc.VehicleState;
 import pt.lsts.neptus.comm.manager.imc.ImcMsgManager;

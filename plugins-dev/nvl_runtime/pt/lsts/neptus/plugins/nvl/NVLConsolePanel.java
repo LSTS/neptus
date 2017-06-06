@@ -96,7 +96,7 @@ public class NVLConsolePanel extends ConsolePanel {
         //Custom syntax highlight
         
         AbstractTokenMakerFactory atmf = (AbstractTokenMakerFactory)TokenMakerFactory.getDefaultInstance();
-        atmf.putMapping("text/NVL", "conf/nvl/extensions/NVLHighlightSupport");
+        atmf.putMapping("text/NVL", "~/workspace/neptus-keila/conf/nvl/extensions/NVLHighlightSupport");
         editor.setSyntaxEditingStyle("text/NVL");
         //editor.setSyntaxEditingStyle(SyntaxConstants.SYNTAX_STYLE_GROOVY);
         editor.setCodeFoldingEnabled(true);

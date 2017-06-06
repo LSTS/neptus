@@ -5,7 +5,12 @@ import pt.lsts.nvl.runtime.NodeSet
 import pt.lsts.nvl.runtime.Node
 import pt.lsts.neptus.comm.manager.imc.ImcMsgManager
 import pt.lsts.neptus.plugins.nvl.*
-
+import pt.lsts.neptus.types.mission.plan.PlanType
+import pt.lsts.neptus.comm.IMCSendMessageUtils
+import pt.lsts.neptus.comm.IMCUtils
+import pt.lsts.imc.PlanDB
+import pt.lsts.imc.PlanDB.OP
+import pt.lsts.imc.PlanDB.TYPE
 
 class Instructions {
 
@@ -34,12 +39,10 @@ class Instructions {
                                                       n.getId()         
      }
   }  
-     static void sendMessage(NodeSet nodes, IMCPlanTask task) {
-         def message = new PlanControl(
-             opStr: 'LOAD', //'START'
-             planId: task.id,
-             arg: task.getPlanSpecification()
-             )
+     static void storePlan(NodeSet nodes, IMCPlanTask task) {
+         def message = new PlanDB(TYPE.REQUEST,OP.SET,IMCSendMessageUtils.getNextRequestId(),task.id,task.getPlanSpecification(),"NVL Task")
+
+                  
          for (Node n : nodes) {
            NeptusPlatform.INSTANCE.displayMessage 'Sending \'%s\' to \'%s\'',
                                                    task.id,
