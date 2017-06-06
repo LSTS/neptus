@@ -94,11 +94,10 @@ public class NVLConsolePanel extends ConsolePanel {
         editor = new RSyntaxTextArea();
         
         //Custom syntax highlight
-        
-        AbstractTokenMakerFactory atmf = (AbstractTokenMakerFactory)TokenMakerFactory.getDefaultInstance();
-        atmf.putMapping("text/NVL", "~/workspace/neptus-keila/conf/nvl/extensions/NVLHighlightSupport");
-        editor.setSyntaxEditingStyle("text/NVL");
-        //editor.setSyntaxEditingStyle(SyntaxConstants.SYNTAX_STYLE_GROOVY);
+//        AbstractTokenMakerFactory atmf = (AbstractTokenMakerFactory)TokenMakerFactory.getDefaultInstance();
+//        atmf.putMapping("text/groovy", "conf/nvl/extensions/NVLHighlightSupport.class");
+//        editor.setSyntaxEditingStyle("text/groovy");
+        editor.setSyntaxEditingStyle(NVLHighlightSupport.SYNTAX_STYLE_GROOVY);
         editor.setCodeFoldingEnabled(true);
         editor.setPreferredSize(new Dimension(600, 300));
         scroll = new RTextScrollPane(editor);
@@ -107,7 +106,7 @@ public class NVLConsolePanel extends ConsolePanel {
                  editor.setText(FileUtil.getFileAsString(script));    
         }
         
-        Action saveAction = new AbstractAction(I18n.text("Save Script"), ImageUtils.getScaledIcon("pt/lsts/neptus/plugins/nvl/images/save.png", 16, 16)) {
+        Action saveAction = new AbstractAction(I18n.text("Save Script as"), ImageUtils.getScaledIcon("pt/lsts/neptus/plugins/nvl/images/save.png", 16, 16)) {
 
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -183,7 +182,7 @@ public class NVLConsolePanel extends ConsolePanel {
                     }
         };
         
-        Action stopAction = new AbstractAction(I18n.text("Stop"),ImageUtils.getScaledIcon("pt/lsts/neptus/plugins/groovy/images/stop.png", 16, 16)) {
+        Action stopAction = new AbstractAction(I18n.text("Stop "),ImageUtils.getScaledIcon("pt/lsts/neptus/plugins/groovy/images/stop.png", 16, 16)) {
             @Override
             public void actionPerformed(ActionEvent e) {   
                 if(runningThread!=null && runningThread.isAlive())

@@ -69,6 +69,7 @@ public class NVLHighlightSupport extends GroovyTokenMaker implements SyntaxConst
     }
     
     
+    
     public TokenMap getKeywords() {
         if (extraTokens == null) {
           try {
