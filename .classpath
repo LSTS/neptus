@@ -68,7 +68,6 @@
 	<classpathentry kind="src" path="plugins-dev/historic-data"/>
 	<classpathentry kind="src" path="plugins-dev/txtmsg"/>
 	<classpathentry kind="src" path="plugins-dev/nvl_runtime"/>
-	<classpathentry kind="src" path="plugins-dev/planqueue"/>
 	<classpathentry kind="src" path="plugins-dev/mvplanner"/>
 	<classpathentry kind="src" path="plugins-dev/transas-maps"/>
 	<classpathentry kind="src" path="plugins-dev/uav-parameters"/>
