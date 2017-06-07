@@ -19,14 +19,15 @@ class Instructions {
   }
   
   static IMCPlanTask imcPlan(Closure cl) {
-     // TODO use IMC DSL defined by closure
       def dslPlan = new DSLPlan()
 
-     // TODO MUST set closure delegate to appropriate object
       def code = cl.rehydrate(dslPlan, this, this)
       code.resolveStrategy = Closure.DELEGATE_ONLY
       code()
-      new IMCPlanTask(dslPlan.asPlanSpecification())
+      def ps = dslPlan.asPlanSpecification()
+      NeptusPlatform.INSTANCE.storeInConsole(ps)
+      println "Got here"
+      new IMCPlanTask(ps)
 
   }
   

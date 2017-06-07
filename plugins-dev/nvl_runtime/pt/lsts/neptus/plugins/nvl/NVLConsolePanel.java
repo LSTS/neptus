@@ -49,7 +49,9 @@ import javax.swing.JTextArea;
 import javax.swing.border.Border;
 import javax.swing.filechooser.FileNameExtensionFilter;
 
+import org.fife.ui.rsyntaxtextarea.AbstractTokenMakerFactory;
 import org.fife.ui.rsyntaxtextarea.RSyntaxTextArea;
+import org.fife.ui.rsyntaxtextarea.TokenMakerFactory;
 import org.fife.ui.rtextarea.RTextScrollPane;
 
 import com.google.common.eventbus.Subscribe;
@@ -92,10 +94,10 @@ public class NVLConsolePanel extends ConsolePanel {
         editor = new RSyntaxTextArea();
         
         //Custom syntax highlight
-//        AbstractTokenMakerFactory atmf = (AbstractTokenMakerFactory)TokenMakerFactory.getDefaultInstance();
-//        atmf.putMapping("text/groovy", "conf/nvl/extensions/NVLHighlightSupport.class");
-//        editor.setSyntaxEditingStyle("text/groovy");
-        editor.setSyntaxEditingStyle(NVLHighlightSupport.SYNTAX_STYLE_GROOVY);
+        AbstractTokenMakerFactory atmf = (AbstractTokenMakerFactory)TokenMakerFactory.getDefaultInstance();
+        atmf.putMapping("text/groovy", "pt.lsts.neptus.plugins.nvl.NVLHighlightSupport");
+        editor.setSyntaxEditingStyle("text/groovy");
+       // editor.setSyntaxEditingStyle(NVLHighlightSupport.SYNTAX_STYLE_GROOVY);
         editor.setCodeFoldingEnabled(true);
         editor.setPreferredSize(new Dimension(600, 300));
         scroll = new RTextScrollPane(editor);

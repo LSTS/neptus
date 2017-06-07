@@ -42,7 +42,10 @@ import org.codehaus.groovy.control.CompilerConfiguration;
 import org.codehaus.groovy.control.customizers.ImportCustomizer;
 
 import pt.lsts.imc.IMCDefinition;
+import pt.lsts.imc.PlanSpecification;
 import pt.lsts.imc.VehicleState;
+import pt.lsts.neptus.NeptusLog;
+import pt.lsts.neptus.comm.IMCUtils;
 import pt.lsts.neptus.comm.manager.imc.ImcMsgManager;
 import pt.lsts.neptus.comm.manager.imc.ImcSystem;
 import pt.lsts.neptus.comm.manager.imc.ImcSystemsHolder;
@@ -118,6 +121,21 @@ public enum NeptusPlatform implements Platform {
             imcPlanTasks.put(newPlan.getId(), new IMCPlanTask(newPlan));
         }
 
+    }
+    
+    public void storeInConsole(PlanSpecification ps){
+        
+        if(consolePanel!=null){
+            PlanType plan = IMCUtils.parsePlanSpecification(consolePanel.getConsole().getMission(),ps);
+            consolePanel.getConsole().getMission().addPlan(plan);
+            consolePanel.getConsole().getMission().save(true);
+            consolePanel.getConsole().updateMissionListeners();
+        }
+        else{
+            displayMessage("Unable to add plan to console because it does not exits.\n",(Object[])null);
+            NeptusLog.pub().error("Unable to add plan to console because it does not exits.\n");
+        }
+           
     }
     
     @Override

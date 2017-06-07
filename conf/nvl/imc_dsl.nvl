@@ -9,6 +9,4 @@ planName "IMCDSL"
 	goTo()
 }
 
-storePlan v, p 
-
 execute v: p

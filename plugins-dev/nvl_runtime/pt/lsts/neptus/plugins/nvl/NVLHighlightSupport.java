@@ -32,18 +32,16 @@
  */
 package pt.lsts.neptus.plugins.nvl;
 
-import org.fife.ui.rsyntaxtextarea.SyntaxConstants;
 import org.fife.ui.rsyntaxtextarea.Token;
 import org.fife.ui.rsyntaxtextarea.TokenMap;
-import org.fife.ui.rsyntaxtextarea.TokenTypes;
 import org.fife.ui.rsyntaxtextarea.modes.GroovyTokenMaker;
 /**
  * @author lsts
  *
  */
-public class NVLHighlightSupport extends GroovyTokenMaker implements SyntaxConstants {
+public class NVLHighlightSupport extends GroovyTokenMaker {
 
-    TokenMap extraTokens;
+    private static final TokenMap tokenMap = new TokenMap(); 
     private String[]   functionTokens= {"task",         //language instructions
             "during","message",
             "type","timeout","id","payload","count",               //vehicle requirements
@@ -58,8 +56,8 @@ public class NVLHighlightSupport extends GroovyTokenMaker implements SyntaxConst
     
     @Override
     public void addToken(char[] array, int start, int end, int tokenType, int startOffset) {
-        if (tokenType == TokenTypes.FUNCTION || tokenType== Token.RESERVED_WORD ) {
-            int newType = extraTokens.get(array, start, end);
+        if (tokenType == Token.IDENTIFIER) {
+            int newType = tokenMap.get(array, start, end);
             if (newType>-1) {
                 tokenType = newType;
             }
@@ -68,27 +66,31 @@ public class NVLHighlightSupport extends GroovyTokenMaker implements SyntaxConst
         
     }
     
+//    @Override
+//    public Token getTokenList(Segment text, int startTokenType, final int startOffset){
+//        //TODO
+//        return null;
+//    }
     
     
     public TokenMap getKeywords() {
-        if (extraTokens == null) {
+        if (tokenMap == null) {
           try {
-            extraTokens = new TokenMap(false);
             
             for (String key : functionTokens) {
 
-              extraTokens.put(key, Token.FUNCTION);
+              tokenMap.put(key, Token.FUNCTION);
             }
             for (String key : highlightTokens) {
 
-                extraTokens.put(key, Token.RESERVED_WORD);
+                tokenMap.put(key, Token.RESERVED_WORD);
               }
 
           } catch (Exception e) {
             //TODO auto-generated method stub
           }
         }
-        return extraTokens;
+        return tokenMap;
       }
 
 }
