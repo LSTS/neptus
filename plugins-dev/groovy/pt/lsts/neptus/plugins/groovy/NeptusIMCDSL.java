@@ -45,6 +45,7 @@ import pt.lsts.neptus.mp.ManeuverLocation;
 import pt.lsts.neptus.types.coord.LocationType;
 import pt.lsts.neptus.types.map.PlanUtil;
 import pt.lsts.neptus.types.mission.plan.PlanType;
+import pt.lsts.neptus.util.NameNormalizer;
 
 /**
  * @author lsts
@@ -59,10 +60,11 @@ public class NeptusIMCDSL extends DSLPlan {
      */
     public NeptusIMCDSL(String id) {
         super(id);
+        
     }
     
     public NeptusIMCDSL(ConsoleLayout c){ //constructor to facilitate script
-        super("");
+        super(NameNormalizer.getRandomID("IMCDSLPlan"));
         neptusConsole = c.getConsole();
         //Startup by default position: APDL
         locate( new Location(c.getMission().getHomeRef().getLatitudeRads(),c.getMission().getHomeRef().getLongitudeRads()));
@@ -203,7 +205,7 @@ public class NeptusIMCDSL extends DSLPlan {
             return IMCUtils.parsePlanSpecification(console.getMission(),this.asPlanSpecification()); //TODO validate generated IMCMessage
                  
     }
-
+    
 //    public Map<Double,String> getVehiclesRangeSorted(String [] avVehicles){
 //        Map<Double,String> result = new HashMap<>();
 //        for(String vehicle: avVehicles){

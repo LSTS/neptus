@@ -7,7 +7,7 @@ def speed_unit  = "RPM"
 double z_value     = 5.0
 def z_unit      = "DEPTH"
 
-def initialPlan = new Plan(console,plans.get(plan)) //User input?
+def initialPlan = new Plan(console,plans.get(plan))
 def start = initialPlan.initialLocation()
 def waypoints = initialPlan.waypoints()
 

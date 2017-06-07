@@ -1,0 +1,14 @@
+
+
+
+
+
+def p =new Plan(console)
+
+println p.getPlan_id()
+locations.each {
+
+	p.goTo location: new Location(it.getLatitudeRads(),it.getLongitudeRads())
+	
+	}
+	p.addToConsole()

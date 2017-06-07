@@ -12,15 +12,15 @@
 	
 	def another_z = new Z(3,Z.Units.DEPTH)
 
-	goTo  z:another_z, payload:[[name: "Sidescan",  Range: 50],[name: "Ranger"]]
+	goTo  z:another_z, payload:[[name: "Sidescan"],[name: "Ranger"]]
 	
 	move 100,0
 	
-	goTo location:home, z:another_z, payload:[[name: "Sidescan",  Range: 50],[name: "Ranger"]]
+	goTo location:home, z:another_z, payload:[[name: "Sidescan"],[name: "Ranger"]]
 	
 	rows cross_angle:0.5 , hstep: 25.0, payload:[[name: "Ranger"]]
 	
-	goTo location:home, z:another_z, payload:[[name: "Sidescan",  Range: 50],[name: "Ranger"]]
+	goTo location:home, z:another_z, payload:[[name: "Sidescan"],[name: "Ranger"]]
 	
 	skeeping location:home
 	

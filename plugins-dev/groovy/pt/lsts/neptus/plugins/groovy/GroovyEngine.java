@@ -147,8 +147,10 @@ public class GroovyEngine {
       
      
         //POI/MarkElement
-        for( MarkElement mark:MapGroup.getMapGroupInstance(console.getConsole().getMission()).getAllObjectsOfType(MarkElement.class)){
-            locations.put(mark.getId(),mark.getPosition());
+        for( MarkElement mark: MapGroup.getMapGroupInstance(console.getConsole().getMission()).getAllObjectsOfType(MarkElement.class)){
+            if(!mark.obstacle)
+                locations.put(mark.getId(),mark.getPosition());
+            
         }
         binds.setVariable("locations", locations.values().toArray());
         binds.setVariable("console", console.getConsole()); //TODO NOTIFY the existing binding to be used in the script
