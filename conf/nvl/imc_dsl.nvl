@@ -10,3 +10,5 @@ planName "IMCDSL"
 }
 
 storePlan v, p 
+
+execute v: p

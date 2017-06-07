@@ -33,18 +33,27 @@
 package pt.lsts.neptus.plugins.groovy;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
+import pt.lsts.imc.VehicleState;
 import pt.lsts.imc.groovy.dsl.DSLPlan;
 import pt.lsts.imc.groovy.dsl.Location;
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.comm.IMCUtils;
+import pt.lsts.neptus.comm.manager.imc.ImcMsgManager;
+import pt.lsts.neptus.comm.manager.imc.ImcSystemsHolder;
 import pt.lsts.neptus.console.ConsoleLayout;
 import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.mp.ManeuverLocation;
 import pt.lsts.neptus.types.coord.LocationType;
 import pt.lsts.neptus.types.map.PlanUtil;
+import pt.lsts.neptus.types.mission.plan.PlanCompatibility;
 import pt.lsts.neptus.types.mission.plan.PlanType;
+import pt.lsts.neptus.types.vehicle.VehiclesHolder;
 
 /**
  * @author lsts
@@ -202,6 +211,63 @@ public class NeptusIMCDSL extends DSLPlan {
         else
             return IMCUtils.parsePlanSpecification(console.getMission(),this.asPlanSpecification()); //TODO validate generated IMCMessage
                  
+    }
+
+    public Map<Double,String> getVehiclesRangeSorted(String [] avVehicles){
+        Map<Double,String> result = new HashMap<>();
+        for(String vehicle: avVehicles){
+            PlanCompatibility.availablePayloads(VehiclesHolder.getVehicleById(vehicle)).contains("Sidescan"); //TODO or Multibeam?
+//            for(Maneuver m: plan.getGraph().getAllManeuvers()){
+//                ManeuverPayloadConfig cfg = new ManeuverPayloadConfig(vehicle, m, null);
+//                for (Property p : cfg.getProperties()) {
+//                    if ("Active".equals(p.getName()) && Boolean.TRUE.equals(p.getValue())) {
+//                        
+//                    }
+//                }
+//            }
+        }
+        
+        return Collections.emptyMap();
+    }
+    
+    public Map<Double,String> getVehiclesRangeSorted(String payload,String [] avVehicles){
+        if(payload==null || payload.isEmpty())
+            return getVehiclesRangeSorted(avVehicles);
+        
+        Map<Double,String> result = new HashMap<>();
+        for(String vehicle: avVehicles){
+            PlanCompatibility.availablePayloads(VehiclesHolder.getVehicleById(vehicle)).contains(payload);
+        }
+        
+        return Collections.emptyMap();
+    }
+    
+    public List<Double> vehiclesEstimatedTime(String[] avVehicles,PlanType plan){
+        List<Double> result = new ArrayList<>();
+      //LocationType previousPos = ImcMsgManager.getManager().
+        for(String vehicle: avVehicles){
+            
+            ImcMsgManager.getManager().getState(ImcSystemsHolder.getSystemWithName(vehicle).getName()).last(VehicleState.class);
+            try {
+                result.add(new Double(PlanUtil.getEstimatedDelay(null, plan))); //calculates estimated time from plan initial location if previousPos = null
+            }
+            catch (Exception e) {
+                NeptusLog.pub().error("Error trying to estimate time that vehicle takes to cover area.\n",e);
+            }
+        }
+        
+        Collections.sort(result, new Comparator<Double>() {
+            @Override
+            public int compare(Double c1, Double c2) {
+                return Double.compare(c1.doubleValue(), c2.doubleValue());
+            }
+        });
+       
+        
+        //PlanUtil.estimatedTime(mans, speedRpmRatioSpeed, speedRpmRatioRpms);
+        //PlanUtil.getDelayStr(previousPos, plan);
+        
+        return result;
     }
 
 
