@@ -325,6 +325,9 @@ public class MyLocationDisplay extends ConsolePanel implements IPeriodicUpdates,
             newHeadingDegrees = headingDegrees;
         }
         
+        if (updateHeading)
+            headingDegrees = newHeadingDegrees;
+        
         if (updateLocation && updateHeading)
             MyState.setLocationAndAxis(newLocation, AngleUtils.nomalizeAngleDegrees360(newHeadingDegrees));
         else if (updateLocation)
@@ -336,11 +339,11 @@ public class MyLocationDisplay extends ConsolePanel implements IPeriodicUpdates,
     }
 
     private boolean isSystemToDeriveHeadingFilled() {
-        return useSystemToDeriveHeading != null && useSystemToDeriveHeading.isEmpty();
+        return useSystemToDeriveHeading != null && !useSystemToDeriveHeading.isEmpty();
     }
 
     private boolean isFollowingHeadingOfFilled() {
-        return followHeadingOf != null && followHeadingOf.isEmpty();
+        return followHeadingOf != null && !followHeadingOf.isEmpty();
     }
 
     /*
