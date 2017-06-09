@@ -59,7 +59,6 @@ import com.google.common.eventbus.Subscribe;
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.console.ConsoleLayout;
 import pt.lsts.neptus.console.ConsolePanel;
-import pt.lsts.neptus.console.events.ConsoleEventPlanChange;
 import pt.lsts.neptus.console.events.ConsoleEventVehicleStateChanged;
 import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.plugins.NeptusProperty;
@@ -246,10 +245,10 @@ public class GroovyPanel extends ConsolePanel {
 //    t.start();
     }
 
-    @Subscribe
+ /*   @Subscribe
     public void on(ConsoleEventPlanChange changedPlan) {
         engine.planChange(changedPlan);
-    }
+    }*/
 
     @Subscribe
     public void onVehicleStateChanged(ConsoleEventVehicleStateChanged e) {

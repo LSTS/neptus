@@ -141,9 +141,7 @@ public class GroovyEngine {
             }
         }
         binds.setVariable("vehicles",vehicles);
-        for(PlanType p: console.getConsole().getMission().getIndividualPlansList().values())
-            plans.put(p.getId(),p);
-        binds.setVariable("plans",plans);
+        reloadPlansFromConsole();
       
      
         //POI/MarkElement
@@ -191,6 +189,7 @@ public class GroovyEngine {
             public void run() {
                 try {
                     binds.setProperty("out",ps);
+                    reloadPlansFromConsole();
                     engine.run(groovyScript, binds);
                     console.disableStopButton();
                     stopScript();
@@ -206,9 +205,17 @@ public class GroovyEngine {
                       NeptusLog.pub().info("Exiting script execution: "+groovyScript);
                   }
             }
+
         };
         runningThread.start();
 
+    }
+    
+
+    private void reloadPlansFromConsole() {
+        for(PlanType p: console.getConsole().getMission().getIndividualPlansList().values())
+            plans.put(p.getId(),p);
+        binds.setVariable("plans",plans);        
     }
 
     /**
