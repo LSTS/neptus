@@ -51,19 +51,19 @@ import pt.lsts.neptus.util.NameNormalizer;
  * @author lsts
  *
  */
-public class NeptusIMCDSL extends DSLPlan {
+public class PlanScript extends DSLPlan {
     
     private PlanType neptusPlan;
     private ConsoleLayout neptusConsole;
     /**
      * @param id
      */
-    public NeptusIMCDSL(String id) {
+    public PlanScript(String id) {
         super(id);
         
     }
     
-    public NeptusIMCDSL(ConsoleLayout c){ //constructor to facilitate script
+    public PlanScript(ConsoleLayout c){ //constructor to facilitate script
         super(NameNormalizer.getRandomID("IMCDSLPlan"));
         neptusConsole = c.getConsole();
         //Startup by default position: APDL
@@ -71,7 +71,7 @@ public class NeptusIMCDSL extends DSLPlan {
 
     }
     
-    public NeptusIMCDSL(ConsoleLayout c,PlanType plan){
+    public PlanScript(ConsoleLayout c,PlanType plan){
         super(plan.getId());
         neptusConsole = c.getConsole();
         neptusPlan = plan;
@@ -147,7 +147,7 @@ public class NeptusIMCDSL extends DSLPlan {
         if(neptusConsole!=null){
            PlanType p = neptusConsole.getMission().getIndividualPlansList().get("name");
            if(p!=null)
-               return new NeptusIMCDSL(neptusConsole,p);
+               return new PlanScript(neptusConsole,p);
         }
         return null;
     }

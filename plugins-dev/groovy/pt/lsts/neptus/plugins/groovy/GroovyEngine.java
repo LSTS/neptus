@@ -156,7 +156,7 @@ public class GroovyEngine {
         config = new CompilerConfiguration();
         customizer = new ImportCustomizer();
         customizer.addImports("pt.lsts.imc.net.IMCProtocol","pt.lsts.neptus.types.coord.LocationType");
-        customizer.addImport("Plan", NeptusIMCDSL.class.getName());
+        customizer.addImport("Plan", PlanScript.class.getName());
         customizer.addStarImports("pt.lsts.imc","pt.lsts.imc.groovy.dsl","pt.lsts.neptus.types.map"); //this.getClass().classLoader.rootLoader.addURL(new File("file.jar").toURL())
         config.addCompilationCustomizers(customizer);
 
