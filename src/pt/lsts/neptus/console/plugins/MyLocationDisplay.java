@@ -246,6 +246,7 @@ public class MyLocationDisplay extends ConsolePanel implements IPeriodicUpdates,
         
         boolean updateLocation = false;
         boolean updateHeading = false;
+        boolean updateOffsetsInPos = false;
 
         // update pos if following system
         if (followPositionOf != null && followPositionOf.length() != 0) {
@@ -259,7 +260,7 @@ public class MyLocationDisplay extends ConsolePanel implements IPeriodicUpdates,
                 loc = sys.getLocation();
                 if (loc != null) {
                     loc = loc.getNewAbsoluteLatLonDepth();
-                    loc.translatePosition(-lenghtOffsetFromCenter, -widthOffsetFromCenter, 0).convertToAbsoluteLatLonDepth();
+                    updateOffsetsInPos = true;
                 }
                 locTime = sys.getLocationTimeMillis();
                 if (!useConfiguredMyHeading) {
@@ -272,7 +273,7 @@ public class MyLocationDisplay extends ConsolePanel implements IPeriodicUpdates,
                 if (ext != null) {
                     loc = ext.getLocation();
                     loc = loc.getNewAbsoluteLatLonDepth();
-                    loc.translatePosition(-lenghtOffsetFromCenter, -widthOffsetFromCenter, 0).convertToAbsoluteLatLonDepth();
+                    updateOffsetsInPos = true;
                     locTime = ext.getLocationTimeMillis();
                     if (!useConfiguredMyHeading) {
                         headingDegrees = ext.getYawDegrees();
@@ -346,6 +347,14 @@ public class MyLocationDisplay extends ConsolePanel implements IPeriodicUpdates,
         
         if (updateHeading)
             headingDegrees = newHeadingDegrees;
+
+        if (updateLocation && updateOffsetsInPos) {
+            double oLenght = -lenghtOffsetFromCenter;
+            double oWidth = -widthOffsetFromCenter;
+            double oN = oLenght * Math.cos(Math.toRadians(headingDegrees)) + oWidth * Math.cos(Math.toRadians(headingDegrees + 90));
+            double oE = oLenght * Math.sin(Math.toRadians(headingDegrees)) + oWidth * Math.sin(Math.toRadians(headingDegrees + 90));
+            newLocation.translatePosition(oN, oE, 0).convertToAbsoluteLatLonDepth();
+        }
         
         if (updateLocation && updateHeading)
             MyState.setLocationAndAxis(newLocation, AngleUtils.nomalizeAngleDegrees360(newHeadingDegrees));
