@@ -215,4 +215,10 @@ public enum NeptusPlatform implements Platform {
     }
 
 
+    @Override
+    public String askForInput(String prompt) {
+        return consolePanel.askForInput(prompt);
+    }
+
+
 }

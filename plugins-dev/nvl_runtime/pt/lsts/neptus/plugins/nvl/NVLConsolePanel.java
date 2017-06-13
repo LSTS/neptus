@@ -252,4 +252,15 @@ public class NVLConsolePanel extends ConsolePanel {
 
     }
 
+
+    /**
+     * @param prompt
+     * @return
+     */
+    public String askForInput(String prompt) {
+       // TODO Lançar janela de diálogo simples
+       // em que apresenta o prompt e lê uma resposta
+       throw new RuntimeException("Not yet implemented!");   
+    }
+
 }
