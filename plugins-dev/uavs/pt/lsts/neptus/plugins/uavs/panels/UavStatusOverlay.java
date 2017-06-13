@@ -117,7 +117,7 @@ public class UavStatusOverlay extends ConsolePanel implements Renderer2DPainter 
 
         switch (rcvStatus.getSeverity()) {
             case EMERGENCY: //crash check
-                setUavStatus(msg, "#F781F3");
+                setUavStatus(msg, "#F781F3"); // purple
                 break;
             case ALERT:
                 //Not needed for now
@@ -133,10 +133,10 @@ public class UavStatusOverlay extends ConsolePanel implements Renderer2DPainter 
                 setUavStatus(msg, "#FFFF00"); // "yellow"
                 break;
             case NOTICE:
-                setUavStatus(msg, "#00FFFF");
+                setUavStatus(msg, "#00FFFF"); // blue
                 break;
             case INFO:
-                setUavStatus(msg, "#00FFFF");
+                setUavStatus(msg, "#9AFE2E"); // green
                 break;
             case DEBUG:
                 //Not needed for now
