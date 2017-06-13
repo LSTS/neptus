@@ -64,7 +64,9 @@ import pt.lsts.neptus.renderer2d.StateRenderer2D;
 @LayerPriority(priority = 100)
 public class UavStatusOverlay extends ConsolePanel implements Renderer2DPainter {
 
+    private static final Color BG_COLOR = new Color(0,0,0,128);
     private static final int FONT_SIZE = 3;
+    
     private String color;
     private String status = new String();
     private String mainSysName;
@@ -94,7 +96,7 @@ public class UavStatusOverlay extends ConsolePanel implements Renderer2DPainter 
         String status = rcvStatus.getText();
         
         if (mainSysName == null || !mainSysName.equalsIgnoreCase(rcvStatus.getSourceName())) {
-            sysNameToShow = rcvStatus.getSourceName() + ":: ";
+            sysNameToShow = rcvStatus.getSourceName() + " >>  ";
         }
         
         if (!sysNameToShow.isEmpty()) {
@@ -114,29 +116,31 @@ public class UavStatusOverlay extends ConsolePanel implements Renderer2DPainter 
         String msg = sysNameToShow + status;
 
         switch (rcvStatus.getSeverity()) {
+            case EMERGENCY: //crash check
+                setUavStatus(msg, "#F781F3");
+                break;
             case ALERT:
                 //Not needed for now
+                setUavStatus(msg, "#F78181"); //"red"
                 break;
             case CRITICAL: //arming_checks & common "Bad ? Health" messages
-                setUavStatus(msg, "red");
+                setUavStatus(msg, "#F78181"); //"red"
+                break;
+            case ERROR:
+                setUavStatus(msg, "#FFBF00"); // "orange"
+                break;
+            case WARNING:
+                setUavStatus(msg, "#FFFF00"); // "yellow"
+                break;
+            case NOTICE:
+                setUavStatus(msg, "#00FFFF");
+                break;
+            case INFO:
+                setUavStatus(msg, "#00FFFF");
                 break;
             case DEBUG:
                 //Not needed for now
-                break;
-            case EMERGENCY: //crash check
-                setUavStatus(msg, "orange");
-                break;
-            case ERROR:
-                setUavStatus(msg, "red");
-                break;
-            case INFO:
-                setUavStatus(msg, "yellow");
-                break;
-            case NOTICE:
-                setUavStatus(msg, "yellow");
-                break;
-            case WARNING:
-                setUavStatus(msg, "orange");
+                setUavStatus(msg, "#FFFFFF");
                 break;
         }
 
@@ -170,7 +174,7 @@ public class UavStatusOverlay extends ConsolePanel implements Renderer2DPainter 
         AffineTransform old = g.getTransform();
         lblToDraw.setText(getUavStatus());
         lblToDraw.setOpaque(true);
-        lblToDraw.setBackground(new Color(255,255,255,128));
+        lblToDraw.setBackground(BG_COLOR);
         lblToDraw.setSize(lblToDraw.getPreferredSize());
         lblToDraw.setBorder(BorderFactory.createLineBorder(Color.black));
 
@@ -216,11 +220,9 @@ public class UavStatusOverlay extends ConsolePanel implements Renderer2DPainter 
 
     @Override
     public void cleanSubPanel() {
-
     }
 
     @Override
     public void initSubPanel() {
-
     }
 }
