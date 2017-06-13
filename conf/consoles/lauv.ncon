@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <console name="Neptus Console" width="1282" height="1029" resizable="true" mission-file="../../missions/APDL/missao-apdl.nmisz" main-vehicle="x8-02">
-  <!-- Data saved on 2017-06-07T18:28:37.0Z with Neptus version @VERSION@ (compiled on @DATE@, g@SCM_REV@). -->
+  <!-- Data saved on 2017-06-12T18:07:55.0Z with Neptus version @VERSION@ (compiled on @DATE@, g@SCM_REV@). -->
   <mainpanel name="console main panel">
     <subpanel class="pt.lsts.neptus.console.plugins.containers.MigLayoutContainer" x="0" y="0" width="1280" height="945">
       <properties>
@@ -126,7 +126,7 @@
         <properties>
           <entry key="Traces Script">depth: ${EstimatedState.depth};
 altitude: ${EstimatedState.alt};
-</entry>        </properties>      </child>      <child class="pt.lsts.neptus.plugins.s57.S57SoundingsExporter" x="0" y="0" width="0" height="0">        <properties/>      </child>      <child class="pt.lsts.neptus.plugins.sim.SimulationActionsPlugin" x="0" y="0" width="0" height="0">        <properties/>      </child>      <child class="pt.lsts.neptus.params.SystemConfiguration" x="0" y="0" width="0" height="0">        <properties/>      </child>      <child class="pt.lsts.neptus.console.plugins.SystemsList" x="0" y="0" width="298" height="572">        <properties>          <entry key="Enable Selection">false</entry>
+</entry>        </properties>      </child>      <child class="pt.lsts.neptus.plugins.s57.S57SoundingsExporter" x="0" y="0" width="0" height="0">        <properties/>      </child>      <child class="pt.lsts.neptus.plugins.sim.SimulationActionsPlugin" x="0" y="0" width="0" height="0">        <properties/>      </child>      <child class="pt.lsts.neptus.params.SystemConfiguration" x="0" y="0" width="0" height="0">        <properties/>      </child>      <child class="pt.lsts.neptus.console.plugins.SystemsList" x="0" y="0" width="220" height="250">        <properties>          <entry key="Enable Selection">false</entry>
         </properties>
       </child>
       <child class="pt.lsts.neptus.plugins.txtcmd.TextCommands" x="0" y="0" width="0" height="0">
@@ -144,10 +144,13 @@ altitude: ${EstimatedState.alt};
       <child class="pt.lsts.neptus.console.plugins.planning.MultiVehiclePlanner" x="0" y="0" width="0" height="0">
         <properties/>
       </child>
-      <child class="pt.lsts.neptus.plugins.groovy.GroovyPanel" x="0" y="0" width="498" height="572">
+      <child class="pt.lsts.neptus.plugins.groovy.GroovyPanel" x="0" y="0" width="0" height="0">
         <properties>
           <entry key="groovyScript">/home/lsts/workspace/neptus-keila/conf/groovy/scripts/locs</entry>
         </properties>
+      </child>
+      <child class="pt.lsts.neptus.plugins.nvl.NVLConsolePanel" x="0" y="0" width="598" height="472">
+        <properties/>
       </child>
     </subpanel>
   </mainpanel>

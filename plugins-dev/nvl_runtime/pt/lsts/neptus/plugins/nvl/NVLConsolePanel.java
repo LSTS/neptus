@@ -95,8 +95,8 @@ public class NVLConsolePanel extends ConsolePanel {
         
         //Custom syntax highlight
         AbstractTokenMakerFactory atmf = (AbstractTokenMakerFactory)TokenMakerFactory.getDefaultInstance();
-        atmf.putMapping("text/groovy", "pt.lsts.neptus.plugins.nvl.NVLHighlightSupport");
-        editor.setSyntaxEditingStyle("text/groovy");
+        atmf.putMapping("text/nvl", "pt.lsts.neptus.plugins.nvl.HighlightSupport");
+        editor.setSyntaxEditingStyle("text/nvl");
        // editor.setSyntaxEditingStyle(NVLHighlightSupport.SYNTAX_STYLE_GROOVY);
         editor.setCodeFoldingEnabled(true);
         editor.setPreferredSize(new Dimension(600, 300));

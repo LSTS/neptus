@@ -26,7 +26,6 @@ class Instructions {
       code()
       def ps = dslPlan.asPlanSpecification()
       NeptusPlatform.INSTANCE.storeInConsole(ps)
-      println "Got here"
       new IMCPlanTask(ps)
 
   }
