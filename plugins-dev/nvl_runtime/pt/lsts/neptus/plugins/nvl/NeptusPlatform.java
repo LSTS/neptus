@@ -180,6 +180,10 @@ public enum NeptusPlatform implements Platform {
             Engine.getInstance().run(scriptFile);
         }
     }
+    
+    public void stopExecution() {
+       Engine.getInstance().stopExecution(); 
+    }  
 
     @Override
     public void customizeGroovyCompilation(CompilerConfiguration cc) {
@@ -208,5 +212,7 @@ public enum NeptusPlatform implements Platform {
           }
         }
         return list;
-    }  
+    }
+
+
 }

@@ -35,7 +35,9 @@ package pt.lsts.neptus.plugins.nvl;
 import java.util.ArrayList;
 import java.util.List;
 
+import pt.lsts.imc.Abort;
 import pt.lsts.imc.PlanManeuver;
+import pt.lsts.neptus.comm.manager.imc.ImcMsgManager;
 import pt.lsts.neptus.comm.manager.imc.ImcSystem;
 import pt.lsts.neptus.comm.manager.imc.ImcSystemsHolder;
 import pt.lsts.neptus.types.comm.CommMean;
@@ -119,6 +121,13 @@ public class NodeAdapter implements Node {
     @Override
     public void setRunningTask(Task t) {
         runningTask = t;
+    }
+
+ 
+    @Override
+    public void release() {
+        // Temporary workaround
+        ImcMsgManager.getManager().sendMessageToSystem(new Abort(), getId());
     }
 
 }

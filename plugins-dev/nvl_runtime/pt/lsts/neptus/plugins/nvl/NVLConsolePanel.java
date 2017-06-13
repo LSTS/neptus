@@ -71,41 +71,40 @@ import pt.lsts.neptus.util.ImageUtils;
 @Popup(pos = Popup.POSITION.BOTTOM_RIGHT, width=600, height=500)
 @SuppressWarnings("serial")
 public class NVLConsolePanel extends ConsolePanel {
-    
+
     private Border border;
     private JScrollPane outputPanel;
     private JTextArea output;
     private RSyntaxTextArea editor; 
     private File script;
     private JButton select,execButton,stop,saveFile;
-    private Thread runningThread;
     RTextScrollPane scroll;
-    
+
     public NVLConsolePanel(ConsoleLayout layout) {
         super(layout);
     }
 
-   
+
     @Override
     public void initSubPanel() {
         NeptusPlatform.getInstance().associateTo(this);
-        
+
         setLayout(new BorderLayout());
         editor = new RSyntaxTextArea();
-        
+
         //Custom syntax highlight
         AbstractTokenMakerFactory atmf = (AbstractTokenMakerFactory)TokenMakerFactory.getDefaultInstance();
         atmf.putMapping("text/nvl", "pt.lsts.neptus.plugins.nvl.HighlightSupport");
         editor.setSyntaxEditingStyle("text/nvl");
-       // editor.setSyntaxEditingStyle(NVLHighlightSupport.SYNTAX_STYLE_GROOVY);
+        // editor.setSyntaxEditingStyle(NVLHighlightSupport.SYNTAX_STYLE_GROOVY);
         editor.setCodeFoldingEnabled(true);
         editor.setPreferredSize(new Dimension(600, 300));
         scroll = new RTextScrollPane(editor);
-        
+
         if (script != null) {
-                 editor.setText(FileUtil.getFileAsString(script));    
+            editor.setText(FileUtil.getFileAsString(script));    
         }
-        
+
         Action saveAction = new AbstractAction(I18n.text("Save Script as"), ImageUtils.getScaledIcon("pt/lsts/neptus/plugins/nvl/images/save.png", 16, 16)) {
 
             @Override
@@ -117,13 +116,13 @@ public class NVLConsolePanel extends ConsolePanel {
                 // Demonstrate "Save" dialog:
                 int rVal = fc.showSaveDialog(NVLConsolePanel.this);
                 if (rVal == JFileChooser.APPROVE_OPTION) {
-                  script = fc.getSelectedFile();
-                  FileUtil.saveToFile(script.getAbsolutePath(), editor.getText());
+                    script = fc.getSelectedFile();
+                    FileUtil.saveToFile(script.getAbsolutePath(), editor.getText());
                 }
 
             }
         };
-                    
+
         Action selectAction = new AbstractAction(I18n.text("Script File..."), ImageUtils.getScaledIcon("pt/lsts/neptus/plugins/nvl/images/filenew.png", 16, 16)) {
 
             @Override
@@ -140,21 +139,21 @@ public class NVLConsolePanel extends ConsolePanel {
                         editor.setText(FileUtil.getFileAsString(script));
                     }
                     else {
-                            try {
-                                if(script.createNewFile()){
-                                  
-                                  editor.setText(FileUtil.getFileAsString(script));
-                                  NeptusLog.pub().info("Creating new script file: " + script.getName() + "." + "\n");                          }
-                          }
-                            catch(IOException e1){
-                                NeptusLog.pub().info("Error creating new script file.\n",e1);
-                            }
-                        
+                        try {
+                            if(script.createNewFile()){
+
+                                editor.setText(FileUtil.getFileAsString(script));
+                                NeptusLog.pub().info("Creating new script file: " + script.getName() + "." + "\n");                          }
+                        }
+                        catch(IOException e1){
+                            NeptusLog.pub().info("Error creating new script file.\n",e1);
+                        }
+
                     }
                 }
             }
         };
-        
+
         //Output panel
         output = new JTextArea();
         border = BorderFactory.createTitledBorder("Script Output");
@@ -164,50 +163,40 @@ public class NVLConsolePanel extends ConsolePanel {
         output.append("NLV Runtime Console\n");
         outputPanel = new JScrollPane(output);
         outputPanel.setBorder(border);
-        
-        
+
+
         Action execAction = new AbstractAction(I18n.text("Execute"),ImageUtils.getScaledIcon("pt/lsts/neptus/plugins/groovy/images/forward.png", 16, 16)) {
-                    @Override
-                    public void actionPerformed(ActionEvent e) {   
-                        runningThread = new Thread(){
-                           @Override
-                           public void run() {
-                            FileUtil.saveToFile(script.getAbsolutePath(), editor.getText());
-                            NeptusPlatform.getInstance().run(script);
-                            stop.setEnabled(false);
-                           }
-                        };
-                        runningThread.start();
-                        stop.setEnabled(true);
-                    }
+            @Override
+            public void actionPerformed(ActionEvent e) {   
+                FileUtil.saveToFile(script.getAbsolutePath(), editor.getText());
+                NeptusPlatform.getInstance().run(script);
+            }
         };
-        
+
         Action stopAction = new AbstractAction(I18n.text("Stop "),ImageUtils.getScaledIcon("pt/lsts/neptus/plugins/groovy/images/stop.png", 16, 16)) {
             @Override
             public void actionPerformed(ActionEvent e) {   
-                if(runningThread!=null && runningThread.isAlive())
-                    runningThread.interrupt();
-                output.append("Stopping script "+script+" execution.");
-                NeptusLog.pub().warn("Stopping script "+script+" execution.\n");
-                stop.setEnabled(false);
+                output.append("Stopping script!\n");
+                NeptusLog.pub().warn("Stopping script!\n");
+                NeptusPlatform.getInstance().stopExecution();
             }
-};
+        };
         //Buttons
         execButton = new JButton(execAction);
         select     = new JButton(selectAction);
         stop       = new JButton(stopAction);
-        stop.setEnabled(false);
+//        stop.setEnabled(false);
         saveFile    = new JButton(saveAction);
-        
+
         JButton clear = new JButton(new AbstractAction(I18n.text("Clear Console")) {
-            
+
             @Override
             public void actionPerformed(ActionEvent e) {
                 output.setText("");
-                            
+
             }
         });
-        
+
         //Console layout
         JPanel top = new JPanel(new BorderLayout());
         JPanel buttons = new JPanel();
@@ -219,7 +208,7 @@ public class NVLConsolePanel extends ConsolePanel {
         top.add(buttons,BorderLayout.SOUTH);
         top.add(scroll,BorderLayout.CENTER);
 
-        
+
         JPanel bottom = new JPanel(new BorderLayout());
         bottom.setPreferredSize(new Dimension(600, 150));
         bottom.add(clear,BorderLayout.SOUTH);
@@ -227,14 +216,14 @@ public class NVLConsolePanel extends ConsolePanel {
 
         add(bottom,BorderLayout.SOUTH);
         add(top,BorderLayout.CENTER);
-        
-        
-//        JProgressBar progressBar = new JProgressBar(SwingConstants.HORIZONTAL);
-//        Border border = BorderFactory.createTitledBorder("Testing...");
-//        progressBar.setValue(0); //TODO during task exec?
-//        progressBar.setStringPainted(true);
-//        progressBar.setBorder(border);
-//        holder.add(progressBar,BorderLayout.SOUTH);
+
+
+        //        JProgressBar progressBar = new JProgressBar(SwingConstants.HORIZONTAL);
+        //        Border border = BorderFactory.createTitledBorder("Testing...");
+        //        progressBar.setValue(0); //TODO during task exec?
+        //        progressBar.setStringPainted(true);
+        //        progressBar.setBorder(border);
+        //        holder.add(progressBar,BorderLayout.SOUTH);
 
 
 
@@ -243,24 +232,24 @@ public class NVLConsolePanel extends ConsolePanel {
     @Override
     public void cleanSubPanel() {
         NeptusPlatform.getInstance().detach();
-        
+
     }
-    
+
     @Subscribe
     public void on(ConsoleEventPlanChange changedPlan) {
         NeptusPlatform.getInstance().onPlanChanged(changedPlan);
-      
+
     }
 
 
     public void displayMessage(String fmt, Object[] args) {
-        
+
         if(output!=null){
             output.append(String.format(fmt, args));
             output.append("\n");
             output.setCaretPosition(output.getDocument().getLength());
         }
-        
+
     }
 
 }
