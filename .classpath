@@ -67,7 +67,6 @@
 	<classpathentry kind="src" path="plugins-dev/land"/>
 	<classpathentry kind="src" path="plugins-dev/historic-data"/>
 	<classpathentry kind="src" path="plugins-dev/txtmsg"/>
-	<classpathentry kind="src" path="plugins-dev/nvl_runtime"/>
 	<classpathentry kind="src" path="plugins-dev/mvplanner"/>
 	<classpathentry kind="src" path="plugins-dev/transas-maps"/>
 	<classpathentry kind="src" path="plugins-dev/uav-parameters"/>
@@ -241,7 +240,6 @@
 	<classpathentry kind="lib" path="lib/graphstream/gs-ui-1.3.jar"/>
 	<classpathentry kind="lib" path="plugins-dev/necsave/lib/minimal-json-0.9.4.jar"/>
 	<classpathentry kind="lib" path="lib/commons-httpclient-3.1-deprecation.jar"/>
-	<classpathentry kind="lib" path="lib/groovy-all-2.4.11.jar"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.junit.JUNIT_CONTAINER/4"/>
 	<classpathentry kind="lib" path="lib/ini4j-0.5.2.jar"/>
@@ -257,6 +255,7 @@
 	<classpathentry exported="true" kind="con" path="GROOVY_DSL_SUPPORT"/>
 	<classpathentry kind="lib" path="lib/libimc.jar"/>
 	<classpathentry kind="lib" path="plugins-dev/nvl_runtime/lib/nvl-neptus-0.1-SNAPSHOT.jar"/>
-	<classpathentry kind="lib" path="lib/imc_plan_dsl.jar"/>
+	<classpathentry kind="lib" path="plugins-dev/groovy/lib/groovy-all-2.4.11.jar"/>
+	<classpathentry kind="lib" path="plugins-dev/groovy/lib/imc_plan_dsl.jar"/>
 	<classpathentry kind="output" path="build/classes"/>
 </classpath>

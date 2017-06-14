@@ -27,7 +27,7 @@
  *
  * For more information please see <http://lsts.fe.up.pt/neptus>.
  *
- * Author: lsts
+ * Author: keila
  * 26/05/2017
  */
 package pt.lsts.neptus.plugins.groovy;

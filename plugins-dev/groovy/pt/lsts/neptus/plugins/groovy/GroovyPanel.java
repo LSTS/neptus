@@ -26,7 +26,7 @@
  *
  * For more information please see <http://lsts.fe.up.pt/neptus>.
  *
- * Author: lsts
+ * Author: keila
  * 09/01/2017
  */
 
