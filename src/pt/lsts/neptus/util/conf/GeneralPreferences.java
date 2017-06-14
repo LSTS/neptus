@@ -248,10 +248,11 @@ public class GeneralPreferences implements PropertiesProvider {
     @NeptusProperty(name = "Lat/Lon Preferable Display Format", category = "Location", userLevel = LEVEL.REGULAR)
     public static LatLonFormatEnum latLonPrefFormat = LatLonFormatEnum.DM;
 
-    @NeptusProperty(name = "Preferred Speed Units", category = "Location", userLevel = LEVEL.REGULAR)
+    @NeptusProperty(name = "Preferred Speed Units", category = "Speed", userLevel = LEVEL.REGULAR)
     public static SpeedType.Units speedUnits = Units.MPS;
     
-    @NeptusProperty(name = "Force Speed Units", category = "Location", userLevel = LEVEL.ADVANCED, description = "If speed units are forced, the user cannot set other units.")
+    @NeptusProperty(name = "Force Speed Units", category = "Speed", userLevel = LEVEL.ADVANCED, 
+            description = "If speed units are forced, the user cannot set other units.")
     public static boolean forceSpeedUnits = false;
     
     // -------------------------------------------------------------------------
