@@ -250,7 +250,8 @@ public class CommandPlanner extends ConsolePanel implements IEditorMenuExtension
                                     NeptusLog.pub().error("error sending goto ");
                                     return;
                                 }
-                                creator.setZ(z, zunits);                                
+                                creator.setZ(z, zunits);
+                                creator.addManeuver("Goto");
                                 PlanType plan = creator.getPlan();
                                 plan.setVehicle(v);
                                 plan.setId("cmd-"+v);
