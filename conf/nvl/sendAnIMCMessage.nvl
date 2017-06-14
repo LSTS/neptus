@@ -1,0 +1,6 @@
+
+v = pick { }
+
+abort = new Abort()
+
+sendMessage v, abort

@@ -1,0 +1,4 @@
+
+v = pick { type 'UUV'; timeout 12.seconds }
+
+execute v: task('test') 

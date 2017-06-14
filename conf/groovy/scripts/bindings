@@ -1,0 +1,30 @@
+
+println "Binding Variables"
+
+
+//List Bindings
+if(vehicles!=null){
+
+	vehicles.eachWithIndex {
+		vehicle,index -> 
+			println index+".VEHICLE: "+vehicle.key
+		}
+	}
+if(plans!=null){ 
+
+	plans.eachWithIndex {
+		plan,index -> 
+			println index+".PLAN: "+plan.key
+		}
+	}
+	
+if(locations!=null) {
+	locations.eachWithIndex {
+		loc,index -> 
+			println index+".LOCATION: "+loc.getId()+" "+loc.getPosition().toString()
+		}
+	}
+		
+
+
+

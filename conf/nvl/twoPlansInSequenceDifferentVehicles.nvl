@@ -1,0 +1,10 @@
+
+v1 = pick { 
+  type 'UUV'; 
+}
+v2 = pick {
+  type 'UAV'
+}
+
+execute v1: task('test') >> action  {post x:2},
+	   v2: condition {consume x:2} >> task('x8_test')

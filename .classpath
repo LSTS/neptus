@@ -5,6 +5,7 @@
 			<attribute name="org.eclipse.jdt.launching.CLASSPATH_ATTR_LIBRARY_PATH_ENTRY" value="Neptus/libJNI"/>
 		</attributes>
 	</classpathentry>
+	<classpathentry kind="src" path="plugins-dev/groovy"/>
 	<classpathentry kind="src" output="build/tests" path="srcTests"/>
 	<classpathentry kind="src" path="plugins-dev/accu"/>
 	<classpathentry kind="src" path="plugins-dev/acoustic"/>
@@ -192,7 +193,6 @@
 	<classpathentry kind="lib" path="lib/commons-io-2.4.jar"/>
 	<classpathentry kind="lib" path="lib/commons-lang3-3.2.1.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/jmatio.jar"/>
-	<classpathentry kind="lib" path="lib/libimc.jar"/>
 	<classpathentry kind="lib" path="lib/jakarta-oro-core-2.1-dev-1.jar"/>
 	<classpathentry kind="lib" path="lib/jakarta-oro-perl5-2.1-dev-1.jar"/>
 	<classpathentry kind="lib" path="lib/javassist.jar"/>
@@ -252,5 +252,10 @@
 	<classpathentry kind="lib" path="lib/zxing-core-3.2.1.jar"/>
 	<classpathentry kind="lib" path="plugins-dev/shapefiles/lib/shapefilereader-1.0.jar"/>
 	<classpathentry kind="lib" path="lib/opencv-2.4.11.jar"/>
+	<classpathentry exported="true" kind="con" path="GROOVY_DSL_SUPPORT"/>
+	<classpathentry kind="lib" path="lib/libimc.jar"/>
+	<classpathentry kind="lib" path="plugins-dev/nvl_runtime/lib/nvl-neptus-0.1-SNAPSHOT.jar"/>
+	<classpathentry kind="lib" path="plugins-dev/groovy/lib/groovy-all-2.4.11.jar"/>
+	<classpathentry kind="lib" path="plugins-dev/groovy/lib/imc_plan_dsl.jar"/>
 	<classpathentry kind="output" path="build/classes"/>
 </classpath>

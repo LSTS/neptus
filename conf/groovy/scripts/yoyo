@@ -1,0 +1,36 @@
+//----Parameters Definition-----
+
+def popDistance = 500 //in meters
+def plan    = "3k"   // already defined in the console
+double speed_value = 700.0
+def speed_unit  = "RPM"
+double z_value     = 5.0
+def z_unit      = "DEPTH"
+
+def initialPlan = new Plan(console,plans.get(plan))
+def start = initialPlan.initialLocation()
+def waypoints = initialPlan.waypoints()
+
+
+new Plan(console).with{
+	
+	planName "YoYo_PopUp1"
+	goTo location:start
+	def startPoint = start
+	speed speed_value,speed_unit
+	z z_value,z_unit
+	
+	waypoints[1..waypoints.size-1].each(){ //each waypoint of the original plan
+		waypointYoYo -> 
+		midpoints(startPoint,waypointYoYo,popDistance).each{
+			yoyo location:it
+			popup()
+			}
+		yoyo location: waypointYoYo, payload:[[name: "Sidescan",  Range: 50]]
+		startPoint = waypointYoYo
+		}
+	
+	    vehicles "lauv-noptilus-1"
+	    addToConsole()
+}
+println "done"
