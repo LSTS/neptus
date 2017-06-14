@@ -779,7 +779,7 @@ public abstract class Maneuver implements XmlOutputMethods, PropertiesProvider, 
 
     public DefaultProperty[] getProperties() {
 
-        System.out.println("Props for maneuver "+getId()+" from vehicles "+vehicles);
+        // System.out.println("Props for maneuver "+getId()+" from vehicles "+vehicles);
         
         Vector<DefaultProperty> props = new Vector<DefaultProperty>();
 
