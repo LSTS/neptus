@@ -197,167 +197,171 @@ public class CommandPlanner extends ConsolePanel implements IEditorMenuExtension
         Vector<JMenuItem> items = new Vector<JMenuItem>();
         final LocationType target = loc;
         for (final VehicleType v : avVehicles) {
-            JMenu menu = new JMenu(I18n.textf("Command %vehicle", v.getId()));
-            ImageIcon vicon;
-            if (vehIconPool.containsKey(v.getId())) {
-                vicon = vehIconPool.get(v.getId());
-            }
-            else {
-                String imgFile;
-                if (!v.getPresentationImageHref().equalsIgnoreCase(""))
-                    imgFile = v.getPresentationImageHref();
-                else
-                    imgFile = v.getSideImageHref();
-                Image vimg = new ImageIcon(imgFile).getImage();
-                vicon = new ImageIcon(vimg.getScaledInstance(40, -1, Image.SCALE_SMOOTH));
-                vehIconPool.put(v.getId(), vicon);
-            }
+            try {
+                JMenu menu = new JMenu(I18n.textf("Command %vehicle", v.getId()));
+                ImageIcon vicon;
+                if (vehIconPool.containsKey(v.getId())) {
+                    vicon = vehIconPool.get(v.getId());
+                }
+                else {
+                    String imgFile;
+                    if (!v.getPresentationImageHref().equalsIgnoreCase(""))
+                        imgFile = v.getPresentationImageHref();
+                    else
+                        imgFile = v.getSideImageHref();
+                    Image vimg = new ImageIcon(imgFile).getImage();
+                    vicon = new ImageIcon(vimg.getScaledInstance(40, -1, Image.SCALE_SMOOTH));
+                    vehIconPool.put(v.getId(), vicon);
+                }
 
-            menu.setIcon(vicon);
+                menu.setIcon(vicon);
 
-            boolean ok = false;
-            if (v.getFeasibleManeuvers().containsValue(Goto.class.getName())) {
-                menu.add(new AbstractAction(I18n.text("Go here")) {
-                    @Override
-                    public void actionPerformed(final ActionEvent arg0) {
-                        new Thread() {
-                            @Override
-                            public void run() {
-                                double z = 0;
-                                ManeuverLocation.Z_UNITS zunits = Z_UNITS.NONE;
-                                
-                                PlanCreator creator = new PlanCreator(getConsole().getMission());
-                                creator.setLocation(target);
-                                if ("auv".equalsIgnoreCase(v.getType()) || "uuv".equalsIgnoreCase(v.getType())) {
-                                    z = auvDepth;
-                                    zunits = ManeuverLocation.Z_UNITS.DEPTH;
+                boolean ok = false;
+                if (v.getFeasibleManeuvers().containsValue(Goto.class.getName())) {
+                    menu.add(new AbstractAction(I18n.text("Go here")) {
+                        @Override
+                        public void actionPerformed(final ActionEvent arg0) {
+                            new Thread() {
+                                @Override
+                                public void run() {
+                                    double z = 0;
+                                    ManeuverLocation.Z_UNITS zunits = Z_UNITS.NONE;
+                                    
+                                    PlanCreator creator = new PlanCreator(getConsole().getMission());
+                                    creator.setLocation(target);
+                                    if ("auv".equalsIgnoreCase(v.getType()) || "uuv".equalsIgnoreCase(v.getType())) {
+                                        z = auvDepth;
+                                        zunits = ManeuverLocation.Z_UNITS.DEPTH;
+                                        creator.setZ(z, zunits);
+                                        creator.setSpeed(auvSpeed);
+                                    }
+                                    else if ("uav".equalsIgnoreCase(v.getType())) {
+                                        z = uavZ;
+                                        zunits = uavZUnits;
+                                        creator.setSpeed(auvSpeed);
+                                        creator.setZ(z, zunits);
+                                    }
+                                    else if ("asv".equalsIgnoreCase(v.getType()) || "usv".equalsIgnoreCase(v.getType())) {
+                                        z = 0;
+                                        zunits = ManeuverLocation.Z_UNITS.DEPTH;
+                                        creator.setSpeed(asvSpeed);
+                                        creator.setZ(z, zunits);
+                                    }
+                                    else {
+                                        NeptusLog.pub().error("error sending goto ");
+                                        return;
+                                    }
                                     creator.setZ(z, zunits);
-                                    creator.setSpeed(auvSpeed);
+                                    creator.addManeuver("Goto");
+                                    PlanType plan = creator.getPlan();
+                                    plan.setVehicle(v);
+                                    plan.setId("cmd-"+v);
+                                    plan = addPlanToMission(plan);
+                                    startPlan(plan, false, (arg0.getModifiers() & ActionEvent.CTRL_MASK) != 0);
                                 }
-                                else if ("uav".equalsIgnoreCase(v.getType())) {
-                                    z = uavZ;
-                                    zunits = uavZUnits;
-                                    creator.setSpeed(auvSpeed);
+                            }.start();
+                        }
+                    });
+                    ok = true;
+                }
+
+                if (v.getFeasibleManeuvers().containsValue(StationKeeping.class.getName())) {
+                    menu.add(new AbstractAction(I18n.text("Surface here")) {
+                        @Override
+                        public void actionPerformed(final ActionEvent arg0) {
+                            new Thread() {
+                                @Override
+                                public void run() {
+                                    PlanCreator creator = new PlanCreator(getConsole().getMission());
+                                    double radius = 10;
+                                    int duration = 0;
+                                    if ("auv".equalsIgnoreCase(v.getType()) || "uuv".equalsIgnoreCase(v.getType())) {                                    
+                                        radius = auvSkRadius;
+                                        creator.setSpeed(asvSpeed);
+                                    }
+                                    else if ("asv".equalsIgnoreCase(v.getType()) || "usv".equalsIgnoreCase(v.getType())) {                                    
+                                        radius = asvSkRadius;
+                                        creator.setSpeed(asvSpeed);
+                                    }
+                                    else {
+                                        return;
+                                    }
+
+                                    
+                                    creator.setLocation(target);
+                                    creator.setZ(0, Z_UNITS.DEPTH);
+                                    creator.addManeuver("StationKeeping", "duration", duration, "radius", radius);
+                                    PlanType plan = creator.getPlan();
+                                    plan.setVehicle(v);
+                                    plan.setId("cmd-"+v);
+                                    plan = addPlanToMission(plan);
+                                    startPlan(plan, false, (arg0.getModifiers() & ActionEvent.CTRL_MASK) != 0);
+                                }
+                            }.start();
+                        }
+                    });
+                    ok = true;
+                }
+
+                if (v.getFeasibleManeuvers().containsValue(Loiter.class.getName())) {
+                    menu.add(new AbstractAction(I18n.text("Loiter here")) {
+                        @Override
+                        public void actionPerformed(final ActionEvent arg0) {
+                            new Thread() {
+                                @Override
+                                public void run() {
+
+                                    double radius = 10;
+                                    int duration = 0;
+                                    double z = 0;
+                                    Z_UNITS zunits = Z_UNITS.NONE;
+                                    PlanCreator creator = new PlanCreator(getConsole().getMission());
+                                    
+                                    if ("auv".equalsIgnoreCase(v.getType()) || "uuv".equalsIgnoreCase(v.getType())) {
+                                        creator.setSpeed(auvSpeed);
+                                        radius = auvLoiterRadius;
+                                        z = auvLtDepth;
+                                        duration = auvLtDuration;
+                                        zunits = Z_UNITS.DEPTH;
+                                    }
+                                    else if ("asv".equalsIgnoreCase(v.getType()) || "usv".equalsIgnoreCase(v.getType())) {
+                                        creator.setSpeed(asvSpeed);
+                                        radius = asvLoiterRadius;
+                                        z = 0;
+                                        zunits = Z_UNITS.DEPTH;
+                                    }
+                                    else if ("uav".equalsIgnoreCase(v.getType())) {
+                                        creator.setSpeed(uavSpeed);
+                                        radius = uavLoiterRadius;
+                                        z = uavZ;
+                                        zunits = uavZUnits;
+                                    }
+                                    else {
+                                        return;
+                                    }
+
+                                   
+                                    creator.setLocation(target);
                                     creator.setZ(z, zunits);
+                                    creator.addManeuver("Loiter", "loiterDuration", duration, "radius", radius);
+                                    PlanType plan = creator.getPlan();
+                                    plan.setVehicle(v);
+                                    plan.setId("cmd-"+v);
+                                    plan = addPlanToMission(plan);
+                                    startPlan(plan, false, (arg0.getModifiers() & ActionEvent.CTRL_MASK) != 0);
                                 }
-                                else if ("asv".equalsIgnoreCase(v.getType()) || "usv".equalsIgnoreCase(v.getType())) {
-                                    z = 0;
-                                    zunits = ManeuverLocation.Z_UNITS.DEPTH;
-                                    creator.setSpeed(asvSpeed);
-                                    creator.setZ(z, zunits);
-                                }
-                                else {
-                                    NeptusLog.pub().error("error sending goto ");
-                                    return;
-                                }
-                                creator.setZ(z, zunits);
-                                creator.addManeuver("Goto");
-                                PlanType plan = creator.getPlan();
-                                plan.setVehicle(v);
-                                plan.setId("cmd-"+v);
-                                plan = addPlanToMission(plan);
-                                startPlan(plan, false, (arg0.getModifiers() & ActionEvent.CTRL_MASK) != 0);
-                            }
-                        }.start();
-                    }
-                });
-                ok = true;
+                            }.start();
+                        }
+                    });
+                    ok = true;
+                }
+
+                if (ok)
+                    items.add(menu);
             }
-
-            if (v.getFeasibleManeuvers().containsValue(StationKeeping.class.getName())) {
-                menu.add(new AbstractAction(I18n.text("Surface here")) {
-                    @Override
-                    public void actionPerformed(final ActionEvent arg0) {
-                        new Thread() {
-                            @Override
-                            public void run() {
-                                PlanCreator creator = new PlanCreator(getConsole().getMission());
-                                double radius = 10;
-                                int duration = 0;
-                                if ("auv".equalsIgnoreCase(v.getType()) || "uuv".equalsIgnoreCase(v.getType())) {                                    
-                                    radius = auvSkRadius;
-                                    creator.setSpeed(asvSpeed);
-                                }
-                                else if ("asv".equalsIgnoreCase(v.getType()) || "usv".equalsIgnoreCase(v.getType())) {                                    
-                                    radius = asvSkRadius;
-                                    creator.setSpeed(asvSpeed);
-                                }
-                                else {
-                                    return;
-                                }
-
-                                
-                                creator.setLocation(target);
-                                creator.setZ(0, Z_UNITS.DEPTH);
-                                creator.addManeuver("StationKeeping", "duration", duration, "radius", radius);
-                                PlanType plan = creator.getPlan();
-                                plan.setVehicle(v);
-                                plan.setId("cmd-"+v);
-                                plan = addPlanToMission(plan);
-                                startPlan(plan, false, (arg0.getModifiers() & ActionEvent.CTRL_MASK) != 0);
-                            }
-                        }.start();
-                    }
-                });
-                ok = true;
+            catch (Exception e) {
+                e.printStackTrace();
             }
-
-            if (v.getFeasibleManeuvers().containsValue(Loiter.class.getName())) {
-                menu.add(new AbstractAction(I18n.text("Loiter here")) {
-                    @Override
-                    public void actionPerformed(final ActionEvent arg0) {
-                        new Thread() {
-                            @Override
-                            public void run() {
-
-                                double radius = 10;
-                                int duration = 0;
-                                double z = 0;
-                                Z_UNITS zunits = Z_UNITS.NONE;
-                                PlanCreator creator = new PlanCreator(getConsole().getMission());
-                                
-                                if ("auv".equalsIgnoreCase(v.getType()) || "uuv".equalsIgnoreCase(v.getType())) {
-                                    creator.setSpeed(auvSpeed);
-                                    radius = auvLoiterRadius;
-                                    z = auvLtDepth;
-                                    duration = auvLtDuration;
-                                    zunits = Z_UNITS.DEPTH;
-                                }
-                                else if ("asv".equalsIgnoreCase(v.getType()) || "usv".equalsIgnoreCase(v.getType())) {
-                                    creator.setSpeed(asvSpeed);
-                                    radius = asvLoiterRadius;
-                                    z = 0;
-                                    zunits = Z_UNITS.DEPTH;
-                                }
-                                else if ("uav".equalsIgnoreCase(v.getType())) {
-                                    creator.setSpeed(uavSpeed);
-                                    radius = uavLoiterRadius;
-                                    z = uavZ;
-                                    zunits = uavZUnits;
-                                }
-                                else {
-                                    return;
-                                }
-
-                               
-                                creator.setLocation(target);
-                                creator.setZ(z, zunits);
-                                creator.addManeuver("Loiter", "loiterDuration", duration, "radius", radius);
-                                PlanType plan = creator.getPlan();
-                                plan.setVehicle(v);
-                                plan.setId("cmd-"+v);
-                                plan = addPlanToMission(plan);
-                                startPlan(plan, false, (arg0.getModifiers() & ActionEvent.CTRL_MASK) != 0);
-                            }
-                        }.start();
-                    }
-                });
-                ok = true;
-            }
-
-            if (ok)
-                items.add(menu);
-
         }
 
         return items;
