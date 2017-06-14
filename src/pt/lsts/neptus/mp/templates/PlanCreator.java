@@ -156,7 +156,8 @@ public class PlanCreator {
             Double newSpeed = null;
             Units newUnits = null;
             try {
-                newSpeed = (double) speedPropValue;
+                if (speedPropValue != null)
+                    newSpeed = (double) speedPropValue;
             }
             catch (Exception e) {
                 e.printStackTrace();
@@ -176,23 +177,22 @@ public class PlanCreator {
                 newUnits = SpeedType.parseUnits(speedPropValue.toString());
             }
             
-                        
             if (man instanceof ManeuverWithSpeed) {
-                ManeuverWithSpeed mspeed = (ManeuverWithSpeed)man;
+                ManeuverWithSpeed mspeed = (ManeuverWithSpeed) man;
                 
-                SpeedType speed = mspeed.getSpeed();
-                
-                if (newSpeed != null && newUnits != null)
+                if (newSpeed != null && newUnits != null) {
                     mspeed.setSpeed(new SpeedType(newSpeed, newUnits));
+                }
                 else if (newUnits != null) {
-                    speed.setUnits(newUnits);
-                    mspeed.setSpeed(speed);
+                    mspeed.setSpeed(new SpeedType(speed.getAs(newUnits), newUnits));
                 }
                 else if (newSpeed != null) {
-                    speed = new SpeedType(newSpeed, speed.getUnits());
-                    mspeed.setSpeed(speed);
+                    mspeed.setSpeed(new SpeedType(newSpeed, speed.getUnits()));
                 }
-            }            
+                else {
+                    mspeed.setSpeed(new SpeedType(speed));
+                }
+            }
         }
         catch (Exception e) {
             e.printStackTrace();
