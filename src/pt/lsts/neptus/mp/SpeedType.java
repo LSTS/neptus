@@ -53,7 +53,7 @@ public class SpeedType {
 
     public enum Units {
         MPS("m/s"),
-        Knots("kt"),
+        Knots("kn"),
         KPH("km/h"),
         MPH("MPH"),
         RPM("RPM"),
@@ -99,6 +99,7 @@ public class SpeedType {
                 case "KPH":
                     return Units.KPH;
                 case "knot":
+                case "kt":
                     return Units.Knots;
                 case "METERS_PS":
                 default:
