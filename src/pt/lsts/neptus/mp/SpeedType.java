@@ -53,11 +53,11 @@ public class SpeedType {
 
     public enum Units {
         MPS("m/s"),
-        KPH("kph"),
-        MPH("mph"),
-        Percentage("%"),
         Knots("kt"),
-        RPM("rpm");
+        KPH("km/h"),
+        MPH("MPH"),
+        RPM("RPM"),
+        Percentage("%");
         
         protected String name;
         Units(String name) {
@@ -67,6 +67,46 @@ public class SpeedType {
         @Override
         public String toString() {
             return name;
+        }
+        
+        /**
+         * This will parse the units, tests more cases than {@link #valueOf(String)}
+         * and always return a value (defaults to {@value #MPS}.
+         * 
+         * @param name
+         * @return
+         */
+        public static Units parse(String name) {
+            @SuppressWarnings("unused")
+            IllegalArgumentException exp = null;
+            try {
+                return valueOf(name);
+            }
+            catch (IllegalArgumentException e) {
+                exp = e;
+            }
+
+            String v = name.toUpperCase();
+
+            for (Units u : Units.values()) {
+                if (u.name.toUpperCase().equals(v))
+                    return u;
+                if (u.name().toUpperCase().equals(v))
+                    return u;
+            }
+            
+            switch (v) {
+                case "KPH":
+                    return Units.KPH;
+                case "knot":
+                    return Units.Knots;
+                case "METERS_PS":
+                default:
+                    break;
+            }
+            
+            return Units.MPS;
+            //throw exp;
         }
     }
     
@@ -245,25 +285,13 @@ public class SpeedType {
          setSpeedToMessage(message, "speed", "speed_units");
     }
     
-    
     public static Units parseUnits(String units) {
-        String v = units.toUpperCase();
-        
-        if (v.equals("METERS_PS"))
-            v = "MPS";
-        
-        for (Units u : Units.values()) {
-            if (u.name.toUpperCase().equals(v))
-                return u;
-            if (u.name().toUpperCase().equals(v))
-                return u;
-        }
-        return Units.MPS;
+        return Units.parse(units);
     }
     
     @Override
     public String toString() {
-        return GuiUtils.getNeptusDecimalFormat(2).format(value)+" "+units.name;
+        return GuiUtils.getNeptusDecimalFormat(2).format(value) + " " + units.name;
     }
     
     public static SpeedType valueOf(String text) throws Exception {
@@ -318,5 +346,7 @@ public class SpeedType {
         
         PluginUtils.editPluginProperties(o, true);
         System.out.println(PluginUtils.getConfigXml(o));
+        
+        System.out.println(Units.parse("KPH"));
     }
 }
