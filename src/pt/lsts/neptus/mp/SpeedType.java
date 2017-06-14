@@ -269,15 +269,15 @@ public class SpeedType {
     public void setSpeedToMessage(IMCMessage message, String field, String unitsField) {
         switch (units) {
             case RPM:
-                message.setValue(unitsField, SpeedUnits.RPM);
+                message.setValue(unitsField, SpeedUnits.RPM.value());
                 message.setValue(field, getRPM());
                 break;
             case Percentage:
-                message.setValue(unitsField, SpeedUnits.PERCENTAGE);
+                message.setValue(unitsField, SpeedUnits.PERCENTAGE.value());
                 message.setValue(field, getPercentage());
                 break;
             default:
-                message.setValue(unitsField, SpeedUnits.METERS_PS);
+                message.setValue(unitsField, SpeedUnits.METERS_PS.value());
                 message.setValue(field, getMPS());
                 break;
         }       
