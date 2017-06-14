@@ -42,7 +42,6 @@ import java.awt.geom.Rectangle2D;
 import java.beans.PropertyEditor;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.GregorianCalendar;
 import java.util.HashMap;
 import java.util.Hashtable;
@@ -510,7 +509,8 @@ public abstract class Maneuver implements XmlOutputMethods, PropertiesProvider, 
         clone.setXPosition(getXPosition());
         clone.setYPosition(getYPosition());
         clone.setMissionType(getMissionType());
-        Collections.copy(clone.vehicles, vehicles);
+        clone.vehicles.clear();
+        clone.vehicles.addAll(vehicles);
         clone.setId(getId());
         clone.setInitialManeuver(isInitialManeuver());
         clone.setCustomSettings(getCustomSettings());
