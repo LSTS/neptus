@@ -47,6 +47,7 @@ import pt.lsts.neptus.util.conf.GeneralPreferences;
 
 /**
  * @author zp
+ * @author pdias
  *
  */
 public class SpeedType {
@@ -110,6 +111,9 @@ public class SpeedType {
             //throw exp;
         }
     }
+
+    private Units units = GeneralPreferences.speedUnits;
+    private double value;
     
     public SpeedType(double value, Units units) {
         this.value = value;
@@ -124,9 +128,6 @@ public class SpeedType {
         this.value = other.value;
         this.units = other.units;
     }
-    
-    private Units units = GeneralPreferences.speedUnits;
-    private double value;
     
     /**
      * @return the units
@@ -327,6 +328,27 @@ public class SpeedType {
         }
         setUnits(units);
         System.out.println("new "+this);
+    }
+
+    /**
+     * @param newUnits
+     * @return
+     */
+    public double getAs(Units newUnits) {
+        switch (newUnits) {
+            case Knots:
+                return getKnots();
+            case KPH:
+                return getKPH();
+            case MPH:
+                return getMPH();
+            case RPM:
+                return getRPM();
+            case Percentage:
+                return getPercentage();
+            default:
+                return getMPS();
+        }
     }
 
     public static void main(String[] args) throws Exception {
