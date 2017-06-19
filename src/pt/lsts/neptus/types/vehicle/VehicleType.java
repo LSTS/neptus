@@ -1127,7 +1127,7 @@ public class VehicleType implements XmlOutputMethods, XmlInputMethods, XmlInputM
                 if (man != null) {
                     NeptusLog.pub().debug(
                             "loading maneuver '" + el.getName() + "' default values for vehicle '" + getId() + "'");
-                    man.loadFromXML(el.asXML());
+                    man.loadManeuverFromXML(el.asXML());
                     man.loadFromXMLExtraParameters(el.getParent());
                     manFactory.putManeuver(man);
                 }

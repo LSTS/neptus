@@ -414,8 +414,8 @@ public class AreaSurvey extends FollowPath {
     }
 
     @Override
-    public void loadFromXML(String xml) {
-        super.loadFromXML(xml);
+    public void loadManeuverFromXML(String xml) {
+        super.loadManeuverFromXML(xml);
         try {
             Document doc = DocumentHelper.parseText(xml);
 

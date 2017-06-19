@@ -133,7 +133,7 @@ public abstract class AbstractImcManeuver<T extends IMCMessage> extends DefaultM
      * @see pt.lsts.neptus.mp.maneuvers.DefaultManeuver#loadFromXML(java.lang.String)
      */
     @Override
-    public void loadFromXML(String XML) {
+    public void loadManeuverFromXML(String XML) {
         
         if (message == null) {
             NeptusLog.pub().error("Invalid maneuver: "+message.getClass());

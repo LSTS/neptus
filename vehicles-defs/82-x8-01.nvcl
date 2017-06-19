@@ -234,7 +234,7 @@
                     <port-tcp>6002</port-tcp>
                     <udp-on>true</udp-on>
                     <tcp-on>false</tcp-on>
-                    <imc-id>0c:04</imc-id>
+                    <imc-id>0c:0b</imc-id>
                 </imc>
             </protocols-args>
         </comm-mean>

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<config format="1" version="2016.05.0 (master,cae2b98)" system="mariner-01" i18n="pt_PT">
+<config format="1" version="2017.01.0 (master,6686c4f0)" system="mariner-01" i18n="pt_PT">
   <section name="Autopilot" name-i18n="Piloto Automático">
     <param name="Entity Label">
       <name-i18n>Nome da Entidade</name-i18n>
@@ -298,7 +298,7 @@
       <type>boolean</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>false</default>
+      <default>true</default>
       <units/>
       <desc>Convert altitude extracted from the Ardupilot to WGS84 height</desc>
     </param>
@@ -310,6 +310,15 @@
       <default>true</default>
       <units/>
       <desc>Loiter when in idle.</desc>
+    </param>
+    <param name="Use External Nav Data">
+      <name-i18n>Use External Nav Data</name-i18n>
+      <type>boolean</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>false</default>
+      <units/>
+      <desc>Dispatch ExternalNavData instead of EstimatedState</desc>
     </param>
   </section>
   <section name="Communications Relay Maneuver" name-i18n="Manobra de Retransmissão de Comunicações">
@@ -2411,7 +2420,7 @@
       <type>string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>/dev/ttyO2</default>
+      <default>/dev/ttyAMA0</default>
       <units/>
       <desc>Serial port device used to communicate with the sensor</desc>
     </param>

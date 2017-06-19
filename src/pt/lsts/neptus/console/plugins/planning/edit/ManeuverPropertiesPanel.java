@@ -113,7 +113,7 @@ public class ManeuverPropertiesPanel extends JPanel {
     }
 
     public void setProps() {
-        String before = maneuver.getManeuverXml();        
+        String before = maneuver.asXML();        
         payloadConfig.setProperties(propsPanel.getProperties());
         boolean wasInitialManeuver = maneuver.isInitialManeuver();
         try {
@@ -134,7 +134,7 @@ public class ManeuverPropertiesPanel extends JPanel {
         propsPanel.removePropertyChangeListener(payloadConfig);
         
         if (manager != null)
-            manager.addEdit(new ManeuverChanged(maneuver, plan, before));
+            manager.addEdit(new ManeuverWithSettingsChanged(maneuver, plan, before));
         changed = true;
     }
 
