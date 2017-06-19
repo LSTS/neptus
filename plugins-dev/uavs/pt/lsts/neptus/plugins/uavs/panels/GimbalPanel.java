@@ -48,14 +48,16 @@ import pt.lsts.neptus.console.ConsolePanel;
 import pt.lsts.neptus.console.plugins.MainVehicleChangeListener;
 import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.plugins.PluginDescription;
+import pt.lsts.neptus.plugins.Popup;
 import pt.lsts.neptus.plugins.PluginDescription.CATEGORY;
+import pt.lsts.neptus.plugins.Popup.POSITION;
 
 /**
  * @author Manuel R.
  *
  */
 @PluginDescription(name = "Gimbal Panel", author = "maribeiro", version = "0.1", category = CATEGORY.INTERFACE)
-
+@Popup(pos = POSITION.RIGHT, width = 300, height = 300)
 public class GimbalPanel extends ConsolePanel implements MainVehicleChangeListener {
 
     private static final long serialVersionUID = 1L;

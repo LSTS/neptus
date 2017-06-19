@@ -97,9 +97,9 @@ if %JAVA_MACHINE_TYPE%==windows-x86 (
 )
 
 if %JAVA_MACHINE_TYPE%==windows-x86 (
-  set LIBRARYPATH=.;libJNI\x86;libJNI;%VTKLIB%;%OPENCVLIB%
+  set LIBRARYPATH=.;libJNI\x86;libJNI\gdal\win\x86;libJNI;%VTKLIB%;%OPENCVLIB%
 ) else (
-  set LIBRARYPATH=.;libJNI\x64;libJNI;%VTKLIB%;%OPENCVLIB%
+  set LIBRARYPATH=.;libJNI\x64;libJNI\gdal\win\x64;libJNI;%VTKLIB%;%OPENCVLIB%
 )
 
 set VMFLAGS="-XX:+HeapDumpOnOutOfMemoryError"

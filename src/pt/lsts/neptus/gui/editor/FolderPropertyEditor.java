@@ -36,6 +36,8 @@ import javax.swing.JFileChooser;
 
 import com.l2fprod.common.beans.editor.FilePropertyEditor;
 
+import pt.lsts.neptus.gui.swing.NeptusFileView;
+
 /**
  * @author pdias
  *
@@ -51,6 +53,7 @@ public class FolderPropertyEditor extends FilePropertyEditor {
     @Override
     protected void customizeFileChooser(JFileChooser chooser) {
         chooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+        chooser.setFileView(new NeptusFileView());
     }
     
     /**
