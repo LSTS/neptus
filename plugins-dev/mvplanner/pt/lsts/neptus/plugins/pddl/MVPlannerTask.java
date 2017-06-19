@@ -33,6 +33,7 @@
 package pt.lsts.neptus.plugins.pddl;
 
 import java.awt.Image;
+import java.awt.event.MouseEvent;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
@@ -40,6 +41,7 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.Locale;
 import java.util.Vector;
@@ -234,6 +236,14 @@ public abstract class MVPlannerTask implements Renderer2DPainter, PropertiesProv
         reader.close();
         return tasks;
     }
+    
+    public double getLength() {
+        return 0;
+    }
+    
+    public Collection<MVPlannerTask> splitTask(double maxLength) {
+        return new ArrayList<>();
+    }
 
     public static void saveFile(File f, ArrayList<MVPlannerTask> tasks) throws IOException {
         BufferedWriter writer = new BufferedWriter(new FileWriter(f));
@@ -241,4 +251,22 @@ public abstract class MVPlannerTask implements Renderer2DPainter, PropertiesProv
             writer.write(task.marshall() + "\n");
         writer.close();
     }
+    
+    public void mousePressed(MouseEvent e, StateRenderer2D renderer) {
+        
+    }
+    
+    public void mouseReleased(MouseEvent e, StateRenderer2D renderer) {
+        
+    }
+        
+    public void mouseDragged(MouseEvent e, StateRenderer2D renderer) {
+        
+    }
+    
+    public void mouseMoved(MouseEvent e, StateRenderer2D renderer) {
+        
+    }
+    
+    
 }

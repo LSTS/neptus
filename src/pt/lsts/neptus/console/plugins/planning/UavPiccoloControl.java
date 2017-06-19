@@ -82,6 +82,7 @@ import pt.lsts.neptus.renderer2d.LayerPriority;
 import pt.lsts.neptus.renderer2d.Renderer2DPainter;
 import pt.lsts.neptus.renderer2d.StateRenderer2D;
 import pt.lsts.neptus.types.coord.LocationType;
+import pt.lsts.neptus.types.vehicle.VehicleType;
 import pt.lsts.neptus.types.vehicle.VehicleType.SystemTypeEnum;
 import pt.lsts.neptus.types.vehicle.VehicleType.VehicleTypeEnum;
 import pt.lsts.neptus.types.vehicle.VehiclesHolder;
@@ -764,8 +765,13 @@ public class UavPiccoloControl extends ConsolePanel implements MainVehicleChange
                     try {
                         // int id = message.getType().getId();
                         PiccoloWPType wpt = PiccoloWPType.getType(message.getMessageType().getShortName());
+                        if (wpt == PiccoloWPType.WAYPOINT_UNKOWN)
+                            return;
                         // message.dump(System.out);
-                        String vid = VehiclesHolder.getVehicleWithImc(id).getId();
+                        VehicleType vt = VehiclesHolder.getVehicleWithImc(id);
+                        if (vt == null)
+                            return;
+                        String vid = vt.getId();
                         PCCWaypoint w = parseWaypoint(message);
                         if (StringUtils.isTokenInList("PiccoloWaypoint", message.getAbbrev())) {
                             NeptusLog.pub().info("<###>received waypoint " + w.getId()

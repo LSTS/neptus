@@ -131,4 +131,22 @@ public class BaseDataPoint<T extends BaseDataPoint> implements Comparable<BaseDa
     public static String getId(BaseDataPoint hfrdp) {
         return hfrdp.lat + ":" + hfrdp.lon;
     }
+    
+    /**
+     * This is supposed to get all data as an {@link ArrayList} in order to bulk processing.
+     * 
+     * @return
+     */
+    public ArrayList<Object> getAllDataValues() {
+        return new ArrayList<>();
+    }
+    
+    /**
+     * This is supposed to set all data as an {@link ArrayList} in order to bulk processing.
+     * 
+     * @param newValues
+     */
+    public boolean setAllDataValues(ArrayList<Object> newValues) {
+        return true;
+    }
 }

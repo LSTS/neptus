@@ -129,7 +129,7 @@ StateRendererInteraction, IMCSerialization, PathProvider {
     }
     
     @Override
-    public void loadFromXML(String xml) {
+    public void loadManeuverFromXML(String xml) {
         try {
             Document doc = DocumentHelper.parseText(xml);
 
@@ -835,7 +835,7 @@ StateRendererInteraction, IMCSerialization, PathProvider {
         String xml = traj.getManeuverAsDocument("FollowTrajectory").asXML();
         NeptusLog.pub().info("<###> "+traj.getManeuverAsDocument("FollowTrajectory").asXML());
         FollowTrajectory other = new FollowTrajectory();
-        other.loadFromXML(xml);
+        other.loadManeuverFromXML(xml);
         NeptusLog.pub().info("<###> "+other.getManeuverAsDocument("FollowTrajectory").asXML());
         other.serializeToIMC().dump(System.out);
     }
@@ -878,7 +878,7 @@ StateRendererInteraction, IMCSerialization, PathProvider {
         // test1();
 
         FollowTrajectory traj = new FollowTrajectory();
-        traj.loadFromXML("<FollowTrajectory kind=\"automatic\"><basePoint type=\"pointType\"><point><id>id_53802104</id><name>id_53802104</name><coordinate><latitude>0N0'0''</latitude><longitude>0E0'0''</longitude><depth>0.0</depth></coordinate></point><radiusTolerance>0.0</radiusTolerance></basePoint><trajectory><nedOffsets northOffset=\"0.0\" eastOffset=\"1.0\" depthOffset=\"2.0\" timeOffset=\"3.0\"/><nedOffsets northOffset=\"4.0\" eastOffset=\"5.0\" depthOffset=\"6.0\" timeOffset=\"7.0\"/></trajectory><speed unit=\"RPM\">1000.0</speed></FollowTrajectory>");
+        traj.loadManeuverFromXML("<FollowTrajectory kind=\"automatic\"><basePoint type=\"pointType\"><point><id>id_53802104</id><name>id_53802104</name><coordinate><latitude>0N0'0''</latitude><longitude>0E0'0''</longitude><depth>0.0</depth></coordinate></point><radiusTolerance>0.0</radiusTolerance></basePoint><trajectory><nedOffsets northOffset=\"0.0\" eastOffset=\"1.0\" depthOffset=\"2.0\" timeOffset=\"3.0\"/><nedOffsets northOffset=\"4.0\" eastOffset=\"5.0\" depthOffset=\"6.0\" timeOffset=\"7.0\"/></trajectory><speed unit=\"RPM\">1000.0</speed></FollowTrajectory>");
         //NeptusLog.pub().info("<###> "+FileUtil.getAsPrettyPrintFormatedXMLString(traj.getManeuverAsDocument("FollowTrajectory")));
         traj.setSpeed(1);
         traj.setSpeedUnits(Maneuver.SPEED_UNITS.METERS_PS);        

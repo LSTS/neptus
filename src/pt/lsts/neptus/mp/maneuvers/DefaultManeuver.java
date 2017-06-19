@@ -64,7 +64,7 @@ public class DefaultManeuver extends Maneuver {
 	}
 
 	@Override
-	public void loadFromXML(String XML) {
+	public void loadManeuverFromXML(String XML) {
 	    try {
 	        Document doc = DocumentHelper.parseText(XML);
 	        this.manType = doc.getRootElement().getName();

@@ -176,8 +176,8 @@ public class ScheduledGoto extends Goto {
         return doc;
     }
 
-    public void loadFromXML(String xml) {
-        super.loadFromXML(xml);
+    public void loadManeuverFromXML(String xml) {
+        super.loadManeuverFromXML(xml);
         try {
             Document doc = DocumentHelper.parseText(xml);
             Node node = doc.selectSingleNode(getType()+"/ArrivalTime");

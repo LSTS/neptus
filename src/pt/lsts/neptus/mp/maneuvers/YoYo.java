@@ -98,7 +98,7 @@ public class YoYo extends Maneuver implements IMCSerialization, LocatedManeuver,
 	    return document;
     }
 	
-	public void loadFromXML(String xml) {
+	public void loadManeuverFromXML(String xml) {
 	    try {
 	        Document doc = DocumentHelper.parseText(xml);
 	        Node node = doc.selectSingleNode("YoYo/finalPoint/point");
