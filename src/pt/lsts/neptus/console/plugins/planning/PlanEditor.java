@@ -68,6 +68,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Vector;
+import java.util.function.Predicate;
 
 import javax.swing.AbstractAction;
 import javax.swing.ImageIcon;
@@ -126,9 +127,9 @@ import pt.lsts.neptus.mp.Maneuver;
 import pt.lsts.neptus.mp.ManeuverFactory;
 import pt.lsts.neptus.mp.ManeuverLocation;
 import pt.lsts.neptus.mp.ManeuverLocation.Z_UNITS;
+import pt.lsts.neptus.mp.actions.PlanActions;
 import pt.lsts.neptus.mp.element.IPlanElement;
 import pt.lsts.neptus.mp.element.IPlanElementEditorInteraction;
-import pt.lsts.neptus.mp.actions.PlanActions;
 import pt.lsts.neptus.mp.element.PlanElementsFactory;
 import pt.lsts.neptus.mp.maneuvers.Goto;
 import pt.lsts.neptus.mp.maneuvers.LocatedManeuver;
