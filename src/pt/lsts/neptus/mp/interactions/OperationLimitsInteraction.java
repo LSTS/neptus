@@ -158,20 +158,24 @@ public class OperationLimitsInteraction implements IPlanElementEditorInteraction
         if (polygon.getVerticesSize() > 2) {
             List<Vertex> vertices = polygon.getVertices();
 
+            double ang1Rads = vertices.get(0).getLocation().getXYAngle(vertices.get(1).getLocation());
+            double ang2Rads = vertices.get(0).getLocation().getXYAngle(vertices.get(2).getLocation());
+            double angleCWDeltaRads = AngleUtils.nomalizeAngleRadsPi(ang2Rads - ang1Rads);
+            if (angleCWDeltaRads < 0) {
+                LocationType lc0 = vertices.get(0).getLocation();
+                LocationType lc1 = vertices.get(1).getLocation();
+                vertices.get(0).setLocation(lc1);
+                vertices.get(1).setLocation(lc0);
+            }
+            
             double[] off1 = vertices.get(1).getLocation().getOffsetFrom(vertices.get(0).getLocation());
             double[] off2 = vertices.get(2).getLocation().getOffsetFrom(vertices.get(0).getLocation());
             double angle = vertices.get(0).getLocation().getXYAngle(vertices.get(1).getLocation()) + Math.PI / 2;
             angle = AngleUtils.nomalizeAngleRads2Pi(angle);
-//            double anglrDeg = Math.toDegrees(angle);
             double dist = MathMiscUtils.pointLineDistance(off2[0], off2[1], 0, 0, off1[0], off1[1]);
 
             LocationType newVt2 = new LocationType(vertices.get(0).getLocation());
             newVt2.translatePosition(Math.cos(angle) * dist, Math.sin(angle) * dist, 0);
-            
-//            double inc = Math.PI / 2;
-//            if ((int) angle != (int) newVt2.getXYAngle(vertices.get(2).getLocation()))
-//                inc = -Math.PI;
-//            System.out.println(anglrDeg + "   " + Math.toDegrees(inc));
             
             vertices.get(2).setLocation(newVt2);
             polygon.recomputePath();
