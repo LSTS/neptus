@@ -108,7 +108,7 @@ public class PopUp extends Maneuver implements LocatedManeuver, ManeuverWithSpee
 	    return document;
     }
 	
-	public void loadFromXML(String xml) {
+	public void loadManeuverFromXML(String xml) {
 	    try {
 	        Document doc = DocumentHelper.parseText(xml);
 	        Node node = doc.selectSingleNode("PopUp/finalPoint/point");
@@ -400,7 +400,7 @@ public class PopUp extends Maneuver implements LocatedManeuver, ManeuverWithSpee
         msg1.dump(System.out);
         popup.parseIMCMessage(msg1);
         String xml2 = popup.asXML();
-        popup.loadFromXML(xml2);
+        popup.loadManeuverFromXML(xml2);
         popup.serializeToIMC().dump(System.out);
         System.out.println(xml1);
         System.out.println(xml2);

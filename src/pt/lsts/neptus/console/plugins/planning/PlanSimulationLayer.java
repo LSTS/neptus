@@ -205,24 +205,26 @@ public class PlanSimulationLayer extends ConsoleLayer implements PlanSimulationL
             }
         }
 
-        if ("auv".equalsIgnoreCase(v.getType()) || "uuv".equalsIgnoreCase(v.getType())) {
-            if (maxDistToBase > maxAUVDistance) {
-                checks.add(new Pair<PlanSimulationLayer.PlanCheck, String>(PlanCheck.Warning, I18n.textf(
-                        "%vehicle will be %maxDistToBase meters away from here", v.getId(), (int) maxDistToBase)));
+        if (v != null) {
+            if ("auv".equalsIgnoreCase(v.getType()) || "uuv".equalsIgnoreCase(v.getType())) {
+                if (maxDistToBase > maxAUVDistance) {
+                    checks.add(new Pair<PlanSimulationLayer.PlanCheck, String>(PlanCheck.Warning, I18n.textf(
+                            "%vehicle will be %maxDistToBase meters away from here", v.getId(), (int) maxDistToBase)));
+                }
+                if (distAtEnd > maxAUVDistAtEnd) {
+                    checks.add(new Pair<PlanSimulationLayer.PlanCheck, String>(PlanCheck.Warning, I18n.textf(
+                            "%vehicle will finish %distance  meters away from base", v.getId(), (int) distAtEnd)));
+                }
             }
-            if (distAtEnd > maxAUVDistAtEnd) {
-                checks.add(new Pair<PlanSimulationLayer.PlanCheck, String>(PlanCheck.Warning, I18n.textf(
-                        "%vehicle will finish %distance  meters away from base", v.getId(), (int) distAtEnd)));
-            }
-        }
-        else if ("uav".equalsIgnoreCase(v.getType())) {
-            if (maxDistToBase > maxUAVDistance) {
-                checks.add(new Pair<PlanSimulationLayer.PlanCheck, String>(PlanCheck.Warning, I18n.textf(
-                        "%vehicle will be %maxDistToBase meters away from here", v.getId(), (int) maxDistToBase)));
-            }
-            if (distAtEnd > maxUAVDistAtEnd) {
-                checks.add(new Pair<PlanSimulationLayer.PlanCheck, String>(PlanCheck.Warning, I18n.textf(
-                        "%vehicle will finish %distance  meters away from base", v.getId(), (int) distAtEnd)));
+            else if ("uav".equalsIgnoreCase(v.getType())) {
+                if (maxDistToBase > maxUAVDistance) {
+                    checks.add(new Pair<PlanSimulationLayer.PlanCheck, String>(PlanCheck.Warning, I18n.textf(
+                            "%vehicle will be %maxDistToBase meters away from here", v.getId(), (int) maxDistToBase)));
+                }
+                if (distAtEnd > maxUAVDistAtEnd) {
+                    checks.add(new Pair<PlanSimulationLayer.PlanCheck, String>(PlanCheck.Warning, I18n.textf(
+                            "%vehicle will finish %distance  meters away from base", v.getId(), (int) distAtEnd)));
+                }
             }
         }
 

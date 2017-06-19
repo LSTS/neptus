@@ -39,6 +39,7 @@ import java.awt.Frame;
 import java.awt.Window;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.io.File;
 import java.text.DecimalFormat;
 import java.util.Arrays;
 import java.util.Collection;
@@ -70,6 +71,7 @@ import pt.lsts.neptus.gui.editor.BitmaskPropertyEditor;
 import pt.lsts.neptus.gui.editor.ColorMapPropertyEditor;
 import pt.lsts.neptus.gui.editor.ComboEditor;
 import pt.lsts.neptus.gui.editor.EnumeratedPropertyEditor;
+import pt.lsts.neptus.gui.editor.FileOnlyPropertyEditor;
 import pt.lsts.neptus.gui.editor.ImcId16Editor;
 import pt.lsts.neptus.gui.editor.LocationTypePropertyEditor;
 import pt.lsts.neptus.gui.editor.NeptusDoubleEditor;
@@ -538,6 +540,7 @@ public class PropertiesEditor {
 			per.registerEditor(ManeuverLocation.class, ManeuverLocationEditor.class);
 			per.registerEditor(Credentials.class, CredentialsEditor.class);            
             per.registerEditor(SpeedType.class, SpeedEditor.class);
+            per.registerEditor(File.class, FileOnlyPropertyEditor.class);
 		}
 		return per;
 	}

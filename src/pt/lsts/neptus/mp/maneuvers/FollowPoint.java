@@ -76,7 +76,7 @@ public class FollowPoint extends Maneuver
     protected String idToFollow = "lauv-noptilus-1";
 
     @Override
-    public void loadFromXML(String xml) {
+    public void loadManeuverFromXML(String xml) {
         try {
             Document doc = DocumentHelper.parseText(xml);
             try {

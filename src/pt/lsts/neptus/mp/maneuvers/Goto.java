@@ -100,7 +100,7 @@ public class Goto extends Maneuver implements IMCSerialization, LocatedManeuver,
     }
 	
 	
-	public void loadFromXML(String xml) {  
+	public void loadManeuverFromXML(String xml) {  
 	    try {
 	        Document doc = DocumentHelper.parseText(xml);
 	        Node node = doc.selectSingleNode(getType()+"/finalPoint/point");

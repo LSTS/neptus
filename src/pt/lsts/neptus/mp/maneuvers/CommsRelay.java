@@ -102,7 +102,7 @@ public class CommsRelay extends DefaultManeuver implements IMCSerialization, Loc
 	    return document;
     }
 	
-	public void loadFromXML(String xml) {
+	public void loadManeuverFromXML(String xml) {
 	    try {
 	        Document doc = DocumentHelper.parseText(xml);
 	        

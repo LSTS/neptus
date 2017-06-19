@@ -94,7 +94,7 @@ public class FollowSystem extends DefaultManeuver implements ManeuverWithSpeed, 
 	    return document;
     }
 	
-	public void loadFromXML(String xml) {
+	public void loadManeuverFromXML(String xml) {
 	    try {
 	        Document doc = DocumentHelper.parseText(xml);
 	        setSystem(doc.selectSingleNode("//system").getText());

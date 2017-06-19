@@ -226,7 +226,24 @@ public class XMLUtil {
             return null;
         }
     }
-    
+
+    public static Document createEmptyDocument() {
+        try {
+            DocumentBuilderFactory docBuilderFactory;
+            docBuilderFactory = DocumentBuilderFactory.newInstance();
+            docBuilderFactory.setIgnoringComments(true);
+            docBuilderFactory.setIgnoringElementContentWhitespace(true);
+            docBuilderFactory.setNamespaceAware(false);
+            DocumentBuilder builder = docBuilderFactory.newDocumentBuilder();
+            Document doc = builder.newDocument();
+            return doc;
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
     /**
      * @param args
      */

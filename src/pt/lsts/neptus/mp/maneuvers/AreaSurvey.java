@@ -256,7 +256,7 @@ public class AreaSurvey extends FollowPath {
     /**
      * Call this to update the maneuver points.
      */
-    protected void recalcPoints() {
+    public void recalcPoints() {
         ArrayList<LocationType> locs;
 
         if (calculateAngle)
@@ -303,6 +303,21 @@ public class AreaSurvey extends FollowPath {
         catch (Exception e) {
             return getManeuverLocation();
         }
+    }
+
+    /**
+     * @return the polygon
+     */
+    public final PolygonType getPolygon() {
+        return polygon;
+    }
+
+    /**
+     * @param polygon the polygon to set
+     */
+    public final void setPolygon(PolygonType polygon) {
+        this.polygon = polygon;
+        recalcPoints();
     }
 
     @Override
@@ -414,8 +429,8 @@ public class AreaSurvey extends FollowPath {
     }
 
     @Override
-    public void loadFromXML(String xml) {
-        super.loadFromXML(xml);
+    public void loadManeuverFromXML(String xml) {
+        super.loadManeuverFromXML(xml);
         try {
             Document doc = DocumentHelper.parseText(xml);
 

@@ -32,6 +32,7 @@
  */
 package pt.lsts.neptus.plugins.pddl;
 
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.Locale;
 import java.util.Map.Entry;
@@ -84,6 +85,10 @@ public class LstsDomainModel {
             locations.put(task.getName() + "_entry", task.getEntryPoint());
             locations.put(task.getName() + "_exit", task.getEndPoint());
         }
+        for (SurveyPolygonTask task : problem.surveyPolygon) {
+            locations.put(task.getName() + "_entry", task.getEntryPoint());
+            locations.put(task.getName() + "_exit", task.getEndPoint());
+        }        
         for (SamplePointTask task : problem.sampleTasks) {
             locations.put(task.getName() + "_oi", task.getLocation());
         }
@@ -135,8 +140,12 @@ public class LstsDomainModel {
     protected String taskNames(MVProblemSpecification problem) {
         StringBuilder sb = new StringBuilder();
 
-        if (!problem.surveyTasks.isEmpty()) {
-            for (SurveyAreaTask t : problem.surveyTasks) {
+        ArrayList<MVPlannerTask> surveys = new ArrayList<>();
+        surveys.addAll(problem.surveyTasks);
+        surveys.addAll(problem.surveyPolygon);
+        
+        if (!surveys.isEmpty()) {
+            for (MVPlannerTask t : surveys) {
                 sb.append("  " + t.getName() + "_area");
             }
             sb.append(" - area\n");
@@ -161,6 +170,11 @@ public class LstsDomainModel {
                 for (PayloadRequirement pr : t.getRequiredPayloads())
                     sb.append(" " + t.getName() + "_" + pr.name());
         }
+        for (SurveyPolygonTask t : problem.surveyPolygon) {
+            if (t.getRequiredPayloads().size() >= 1)
+                for (PayloadRequirement pr : t.getRequiredPayloads())
+                    sb.append(" " + t.getName() + "_" + pr.name());
+        }        
         for (SamplePointTask t : problem.sampleTasks) {
             if (t.getRequiredPayloads().size() >= 1)
                 for (PayloadRequirement pr : t.getRequiredPayloads())
@@ -245,15 +259,28 @@ public class LstsDomainModel {
     protected String surveyTasks(MVProblemSpecification problem) {
 
         StringBuilder sb = new StringBuilder();
-        for (SurveyAreaTask t : problem.surveyTasks) {
+        
+        
+        ArrayList<MVPlannerTask> tasks = new ArrayList<>();
+        tasks.addAll(problem.surveyTasks);
+        tasks.addAll(problem.surveyPolygon);
+        
+        for (MVPlannerTask t : tasks) {
             sb.append("\n;" + t.getName() + " survey:\n");
             sb.append("  (available " + t.getName() + "_area)\n");
             sb.append("  (free " + t.getName() + "_entry" + ")\n");
             sb.append("  (free " + t.getName() + "_exit" + ")\n");
             sb.append("  (entry " + t.getName() + "_area " + t.getName() + "_entry" + ")\n");
             sb.append("  (exit " + t.getName() + "_area " + t.getName() + "_exit" + ")\n");
-            sb.append("  (=(surveillance_distance " + t.getName() + "_area) "
-                    + String.format(Locale.US, "%.2f", t.getLength()) + ")\n");
+            if (t instanceof SurveyAreaTask) {
+                sb.append("  (=(surveillance_distance " + t.getName() + "_area) "
+                        + String.format(Locale.US, "%.2f", ((SurveyAreaTask)t).getLength()) + ")\n");    
+            }
+            else {
+                sb.append("  (=(surveillance_distance " + t.getName() + "_area) "
+                        + String.format(Locale.US, "%.2f", ((SurveyPolygonTask)t).getLength()) + ")\n");
+            }
+            
 
             for (PayloadRequirement r : t.getRequiredPayloads()) {
                 if (!payloadNames.containsKey(r.name())) {
@@ -277,7 +304,7 @@ public class LstsDomainModel {
                 sb.append("  (communicated_data " + t.getName() + "_" + r.name() + ")\n");
             }
         }
-        for (SurveyAreaTask t : problem.surveyTasks) {
+        for (SurveyPolygonTask t : problem.surveyPolygon) {
             for (PayloadRequirement r : t.getRequiredPayloads()) {
                 sb.append("  (communicated_data " + t.getName() + "_" + r.name() + ")\n");
             }
@@ -334,6 +361,7 @@ public class LstsDomainModel {
         Vector<MVPlannerTask> tasks = new Vector<MVPlannerTask>();
         tasks.addAll(problem.sampleTasks);
         tasks.addAll(problem.surveyTasks);
+        tasks.addAll(problem.surveyPolygon);
         return new MVSolution(problem.calculateLocations(), solution, tasks);
     }
 }
