@@ -662,9 +662,10 @@ public class LocationType implements XmlOutputMethods, Serializable, Comparable<
     public String toString() {
         double[] absLoc = getAbsoluteLatLonDepth();
 
+        // Any change to this, reflects the #valueOf method
         return CoordinateUtil.latitudeAsPrettyString(absLoc[0], GeneralPreferences.latLonPrefFormat) + ", "
-                + CoordinateUtil.longitudeAsPrettyString(absLoc[1], GeneralPreferences.latLonPrefFormat) + ", "
-                + nf2.format(getHeight());
+                + CoordinateUtil.longitudeAsPrettyString(absLoc[1], GeneralPreferences.latLonPrefFormat) 
+                + (getHeight() != 0  ? ", " + nf2.format(getHeight()) : "");
     }
 
     public static LocationType valueOf(String value) {
@@ -1157,7 +1158,6 @@ public class LocationType implements XmlOutputMethods, Serializable, Comparable<
         double[] offsets =  getDistanceInPixelTo(target, levelOfDetail);        
         return Math.sqrt(offsets[0] * offsets[0] + offsets[1] * offsets[1]);
     }
-    
 
     /**
      * Translate a location by pixels
@@ -1263,18 +1263,26 @@ public class LocationType implements XmlOutputMethods, Serializable, Comparable<
     }
 
     public static void LocationTypeTest() {
-        LocationType loc = new LocationType();
-        loc.setLatitudeRads(0.7188013442408926);
-        loc.setLongitudeRads(0.7188013442408926);
-        loc.setHeight(3);
-        loc.setOffsetNorth(95.97593750551583);
-        loc.setOffsetEast(-274.7049781636526);
-        loc.setOffsetDown(1.6755575514192749);
-        NeptusLog.pub().info("<###> "+loc);
-        loc.convertToAbsoluteLatLonDepth();
-        NeptusLog.pub().info("<###> "+loc);
-        LocationType loc2 = LocationType.valueOf(loc.toString());
-        NeptusLog.pub().info("<###> "+loc2);
+        for (LatLonFormatEnum lp : LatLonFormatEnum.values()) {
+            GeneralPreferences.latLonPrefFormat = lp;
+            System.out.println("for >> " + lp.toString());
+            
+            LocationType loc = new LocationType();
+            loc.setLatitudeRads(0.7188013442408926);
+            loc.setLongitudeRads(0.7188013442408926);
+            loc.setHeight(3);
+            loc.setOffsetNorth(95.97593750551583);
+            loc.setOffsetEast(-274.7049781636526);
+            loc.setOffsetDown(1.6755575514192749);
+            NeptusLog.pub().info("<###> "+loc);
+            loc.convertToAbsoluteLatLonDepth();
+            NeptusLog.pub().info("<###> "+loc);
+            LocationType loc2 = LocationType.valueOf(loc.toString());
+            NeptusLog.pub().info("<###> "+loc2);
+            loc.setHeight(0);
+            LocationType loc3 = LocationType.valueOf(loc.toString());
+            NeptusLog.pub().info("<###> "+loc3);
+        }
     }
     
     public static void main(String[] args) {

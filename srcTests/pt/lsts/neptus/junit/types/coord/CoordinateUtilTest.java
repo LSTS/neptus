@@ -198,12 +198,12 @@ public class CoordinateUtilTest extends TestCase {
 
     public void testDmsToLatStringdoubledoubledouble() {
         String lat = CoordinateUtil.dmsToLatString(41d, 16d, 1.2d);
-        assertEquals("41N16'1.200''", lat);
+        assertEquals("41N16'1.20''", lat);
     }
 
     public void testDmsToLonStringdoubledoubledouble() {
         String lon = CoordinateUtil.dmsToLonString(-8d, 36d, 0.2d);
-        assertEquals("8W36'0.200''", lon);
+        assertEquals("8W36'0.20''", lon);
     }
 
     public void testDmToLatStringdoubledouble() {

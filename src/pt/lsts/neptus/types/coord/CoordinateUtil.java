@@ -76,11 +76,11 @@ public class CoordinateUtil {
     private static final int DEFAULT_DHOUSES_FOR_DM  = 4;
 
     public static final Pattern LOC_DECIMAL = Pattern
-            .compile("([NS])(\\d+\\.\\d+)\\, ([EW])(\\d+\\.\\d+)\\, (-?\\d+\\.\\d+)");
+            .compile("([NS])(\\d+\\.\\d+)\\, ([EW])(\\d+\\.\\d+)(\\, (-?\\d+\\.\\d+))?");
     public static final Pattern LOC_DM = Pattern
-            .compile("(\\d+)([NS])(\\d+\\.\\d+)\\, (\\d+)([EW])(\\d+\\.\\d+)\\, (-?\\d+\\.\\d+)");
+            .compile("(\\d+)([NS])(\\d+\\.\\d+)\\, (\\d+)([EW])(\\d+\\.\\d+)(\\, (-?\\d+\\.\\d+))?");
     public static final Pattern LOC_DMS = Pattern
-            .compile("(\\d+)([NS])(\\d+)'(\\d+\\.\\d+)\\'', (\\d+)([EW])(\\d+)'(\\d+\\.\\d+)\\'', (-?\\d+\\.\\d+)");
+            .compile("(\\d+)([NS])(\\d+)'(\\d+\\.\\d+)\\'', (\\d+)([EW])(\\d+)'(\\d+\\.\\d+)\\''(\\, (-?\\d+\\.\\d+))?");
 
     public static final Pattern COORD_DECIMAL = Pattern.compile("([-NSEW])(\\d+\\.\\d+)");
     public static final Pattern COORD_DM = Pattern.compile("(\\d+)([NSEW])(\\d+\\.\\d+)");
@@ -91,7 +91,7 @@ public class CoordinateUtil {
         double lonDegs = 0, lonMins = 0, lonSecs = 0, lonSign = 0;
         double height = 0;
 
-        Matcher m = COORD_DECIMAL.matcher(locString);
+        Matcher m = LOC_DECIMAL.matcher(locString);
 
         if (m.matches()) {
             latSign = m.group(1).equals("N")? 1 : -1;
@@ -100,10 +100,11 @@ public class CoordinateUtil {
             lonSign = m.group(3).equals("E")? 1 : -1;
             lonDegs = Double.parseDouble(m.group(4));
 
-            height = Double.parseDouble(m.group(5));
+            if (m.group(6) != null)
+                height = Double.parseDouble(m.group(6));
         }
         else  {
-            m = COORD_DM.matcher(locString);
+            m = LOC_DM.matcher(locString);
             if (m.matches()) {
                 latSign = m.group(2).equals("N")? 1 : -1;
                 latDegs = Double.parseDouble(m.group(1));
@@ -113,10 +114,11 @@ public class CoordinateUtil {
                 lonDegs = Double.parseDouble(m.group(4));
                 lonMins = Double.parseDouble(m.group(6));
 
-                height = Double.parseDouble(m.group(7));
+                if (m.group(8) != null)
+                    height = Double.parseDouble(m.group(8));
             }
             else {
-                m = COORD_DMS.matcher(locString);
+                m = LOC_DMS.matcher(locString);
                 if (m.matches()) {
                     latSign = m.group(2).equals("N")? 1 : -1;
                     latDegs = Double.parseDouble(m.group(1));
@@ -128,7 +130,8 @@ public class CoordinateUtil {
                     lonMins = Double.parseDouble(m.group(7));
                     lonSecs = Double.parseDouble(m.group(8));
 
-                    height = Double.parseDouble(m.group(9));
+                    if (m.group(10) != null)
+                        height = Double.parseDouble(m.group(10));
                 }
             }
         }
@@ -142,7 +145,7 @@ public class CoordinateUtil {
 
     public static Double parseCoordString(String coord) {
 
-        Matcher m = COORD_DECIMAL.matcher(coord); 
+        Matcher m = COORD_DECIMAL.matcher(coord.trim()); 
         if (m.matches()) {            
             if (m.group(1).equals("N") || m.group(1).equals("E"))
                 return Double.valueOf(m.group(2));
@@ -150,7 +153,7 @@ public class CoordinateUtil {
                 return -Double.valueOf(m.group(2));
         }
 
-        m = COORD_DM.matcher(coord);
+        m = COORD_DM.matcher(coord.trim());
         if (m.matches()) {
             double degs = Double.valueOf(m.group(1));
             double mins = Double.valueOf(m.group(3));
@@ -161,7 +164,7 @@ public class CoordinateUtil {
                 return -value;
         }
 
-        m = COORD_DMS.matcher(coord);
+        m = COORD_DMS.matcher(coord.trim());
         if (m.matches()) {
             double degs = Double.valueOf(m.group(1));
             double mins = Double.valueOf(m.group(3));
