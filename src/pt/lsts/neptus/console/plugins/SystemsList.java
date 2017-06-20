@@ -111,6 +111,8 @@ import pt.lsts.neptus.gui.system.SystemPainterHelper.CircleTypeBySystemType;
 import pt.lsts.neptus.gui.system.SystemTypeSymbol;
 import pt.lsts.neptus.gui.system.TaskSymbol;
 import pt.lsts.neptus.i18n.I18n;
+import pt.lsts.neptus.mp.SpeedType;
+import pt.lsts.neptus.mp.SpeedType.Units;
 import pt.lsts.neptus.planeditor.IEditorMenuExtension;
 import pt.lsts.neptus.planeditor.IMapPopup;
 import pt.lsts.neptus.plugins.ConfigurationListener;
@@ -1266,15 +1268,17 @@ public class SystemsList extends ConsolePanel implements MainVehicleChangeListen
         }
 
         if (sys.containsData(SystemUtils.GROUND_SPEED_KEY, maxAgeTimeMillis)) {
-            txtInfo += (txtInfo.length() != 0 ? lineSep : "") + I18n.text("Ground Speed") +": " // ImcSystem.GROUND_SPEED_KEY
-                                                                                            // + ": "
-                    + MathMiscUtils.round((Double) sys.retrieveData(SystemUtils.GROUND_SPEED_KEY), 1) + " m/s";
+            double speedMs = (Double) sys.retrieveData(SystemUtils.GROUND_SPEED_KEY);
+            SpeedType speedType = new SpeedType(speedMs, Units.MPS);
+            speedType.convertToDefaultUnits();
+            txtInfo += (txtInfo.length() != 0 ? lineSep : "") + I18n.text("Ground Speed") + ": " + speedType;
         }
 
         if (sys.containsData(SystemUtils.VERTICAL_SPEED_KEY, maxAgeTimeMillis)) {
-            txtInfo += (txtInfo.length() != 0 ? lineSep : "") + I18n.text("Vertical Speed") +": " // ImcSystem.VERTICAL_SPEED_KEY
-                                                                                              // + ": "
-                    + MathMiscUtils.round((Double) sys.retrieveData(SystemUtils.VERTICAL_SPEED_KEY), 1) + " m/s";
+            double speedMs = (Double) sys.retrieveData(SystemUtils.VERTICAL_SPEED_KEY);
+            SpeedType speedType = new SpeedType(speedMs, Units.MPS);
+            speedType.convertToDefaultUnits();
+            txtInfo += (txtInfo.length() != 0 ? lineSep : "") + I18n.text("Vertical Speed") + ": " + speedType;
         }
 
         if (sys.containsData(SystemUtils.RPM_MAP_ENTITY_KEY, maxAgeTimeMillis)) {
