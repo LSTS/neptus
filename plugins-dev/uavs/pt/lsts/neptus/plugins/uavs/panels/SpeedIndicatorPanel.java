@@ -34,7 +34,6 @@ package pt.lsts.neptus.plugins.uavs.panels;
 
 import java.awt.Color;
 import java.awt.Font;
-import java.text.DecimalFormat;
 
 import javax.swing.ImageIcon;
 import javax.swing.JLabel;
@@ -87,7 +86,7 @@ public class SpeedIndicatorPanel extends ConsolePanel implements MainVehicleChan
     @NeptusProperty(name = "Minimum Speed", description = "Speed below which the vehicle enters VStall", userLevel = LEVEL.REGULAR)
     public SpeedType minSpeed = new SpeedType(12.0, Units.MPS);
 
-    @NeptusProperty(name = "Maximum Speed", description = "Speed above which it's undesirable to fly (m/s)", userLevel = LEVEL.REGULAR)
+    @NeptusProperty(name = "Maximum Speed", description = "Speed above which it's undesirable to fly", userLevel = LEVEL.REGULAR)
     public SpeedType maxSpeed = new SpeedType(25.0, Units.MPS);
 
     // Illustrative icons to differentiate speeds
@@ -121,9 +120,6 @@ public class SpeedIndicatorPanel extends ConsolePanel implements MainVehicleChan
     private JLabel gSpeedIcon = null;
     private JLabel tSpeedIcon = null;
     private JLabel tSpeedValue = null;
-
-    // display output formatter
-    private DecimalFormat formatter = new DecimalFormat("0.0");
 
     public SpeedIndicatorPanel(ConsoleLayout console) {
         super(console);
@@ -232,9 +228,6 @@ public class SpeedIndicatorPanel extends ConsolePanel implements MainVehicleChan
         this.add(speedPanel, "w 100%, h 85%, wrap");
     }
 
-    /**
-     *
-     */
     private void titlePanelSetup() {
         titlePanel = new JPanel(new MigLayout("gap 0 0, ins 0"));
         JLabel titleLabel = new JLabel(I18n.text("Speed Indicator"), SwingConstants.LEFT);
@@ -242,9 +235,6 @@ public class SpeedIndicatorPanel extends ConsolePanel implements MainVehicleChan
         titlePanel.add(titleLabel, "w 100%, h 100%");
     }
 
-    /**
-     *
-     */
     private void speedPanelSetup() {
         speedPanel = new JPanel(new MigLayout("gap 0 0, ins 0"));
 
@@ -278,9 +268,6 @@ public class SpeedIndicatorPanel extends ConsolePanel implements MainVehicleChan
         speedPanel.add(speedGraphPanel, "w 80%, h 100%");
     }
 
-    /**
-     *
-     */
     private void speedLabelUpdate() {
         aSpeedBar.setValue((int) (aSpeed.getMPS() * 10));
         if (aSpeed.getMPS() < minSpeed.getMPS()) {
@@ -307,7 +294,5 @@ public class SpeedIndicatorPanel extends ConsolePanel implements MainVehicleChan
      */
     @Override
     public void cleanSubPanel() {
-        // TODO Auto-generated method stub
-
     }
 }
