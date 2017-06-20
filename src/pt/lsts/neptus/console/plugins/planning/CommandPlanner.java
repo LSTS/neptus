@@ -238,7 +238,7 @@ public class CommandPlanner extends ConsolePanel implements IEditorMenuExtension
                                     else if ("uav".equalsIgnoreCase(v.getType())) {
                                         z = uavZ;
                                         zunits = uavZUnits;
-                                        creator.setSpeed(auvSpeed);
+                                        creator.setSpeed(uavSpeed);
                                         creator.setZ(z, zunits);
                                     }
                                     else if ("asv".equalsIgnoreCase(v.getType()) || "usv".equalsIgnoreCase(v.getType())) {
