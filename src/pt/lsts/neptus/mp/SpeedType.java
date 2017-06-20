@@ -151,6 +151,11 @@ public class SpeedType {
         this.value = value;
     }
     
+    public void set(SpeedType speed) {
+        setValue(speed.getValue());
+        setUnits(speed.getUnits());
+    }
+
     public double getMPS() {
         switch (units) {
             case KPH:
@@ -295,7 +300,12 @@ public class SpeedType {
     public String toString() {
         return GuiUtils.getNeptusDecimalFormat(2).format(value) + " " + units.name;
     }
-    
+
+    public String toStringAsDefaultUnits() {
+        Units defaultUnits = GeneralPreferences.speedUnits;
+        return GuiUtils.getNeptusDecimalFormat(2).format(getAs(defaultUnits)) + " " + defaultUnits.name;
+    }
+
     public static SpeedType valueOf(String text) throws Exception {
         String[] parts = text.split(" ");
         if (parts.length != 2) {
@@ -327,7 +337,10 @@ public class SpeedType {
                 break;
         }
         setUnits(units);
-        System.out.println("new "+this);
+    }
+
+    public void convertToDefaultUnits() {
+        convertTo(GeneralPreferences.speedUnits);
     }
 
     /**
