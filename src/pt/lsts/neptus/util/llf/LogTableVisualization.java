@@ -70,6 +70,7 @@ import javax.swing.KeyStroke;
 import javax.swing.ListCellRenderer;
 import javax.swing.ListSelectionModel;
 import javax.swing.RowFilter;
+import javax.swing.SwingWorker;
 import javax.swing.UIManager;
 import javax.swing.border.Border;
 import javax.swing.border.EmptyBorder;
@@ -450,7 +451,28 @@ public class LogTableVisualization implements MRAVisualization, LogMarkerListene
             AbstractAction filterAction = new AbstractAction() {
                 @Override
                 public void actionPerformed(ActionEvent e) {
-                    applyFilter(new ArrayList<String>(getSelectedItems()), rangeSlider.getValue(), rangeSlider.getUpperValue());
+                    filterBtn.setEnabled(false);
+                    resetBtn.setEnabled(false);
+                    SwingWorker<Void, Void> sw = new SwingWorker<Void, Void>() {
+                        @Override
+                        protected Void doInBackground() throws Exception {
+                            applyFilter(new ArrayList<String>(getSelectedItems()), rangeSlider.getValue(), rangeSlider.getUpperValue());
+                            return null;
+                        }
+                        
+                        @Override
+                        protected void done() {
+                            try {
+                                get();
+                            }
+                            catch (Exception e) {
+                                e.printStackTrace();
+                            }
+                            filterBtn.setEnabled(true);
+                            resetBtn.setEnabled(true);
+                        }
+                    };
+                    sw.execute();
                 }
             };
             filterBtn.addActionListener(filterAction);
