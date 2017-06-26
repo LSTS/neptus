@@ -43,6 +43,7 @@ import pt.lsts.neptus.types.coord.LocationType;
 import pt.lsts.neptus.util.AISUtil;
 import pt.lsts.neptus.util.AngleUtils;
 import pt.lsts.neptus.util.NMEAUtils;
+import pt.lsts.neptus.util.UnitsUtil;
 
 /**
  * @author pdias
@@ -274,7 +275,7 @@ public class CmreAisCsvParser {
         if (mmsi > 0)
             sys.storeData(SystemUtils.MMSI_KEY, mmsi, timeMillis, true);
 
-        sys.storeData(SystemUtils.GROUND_SPEED_KEY, speedKnots / AisContactDb.MPS_TO_KNOT_CONV, timeMillis, true);
+        sys.storeData(SystemUtils.GROUND_SPEED_KEY, speedKnots / UnitsUtil.MS_TO_KNOT, timeMillis, true);
         sys.storeData(SystemUtils.COURSE_DEGS_KEY, courseDegs, timeMillis, true);
 
         sys.storeData(SystemUtils.NAV_STATUS_KEY, AISUtil.translateNavigationalStatus(navStatus), timeMillis, true);
@@ -408,7 +409,7 @@ public class CmreAisCsvParser {
         if (mmsi > 0)
             sys.storeData(SystemUtils.MMSI_KEY, mmsi, timeMillis, true);
 
-        sys.storeData(SystemUtils.GROUND_SPEED_KEY, speedKnots / AisContactDb.MPS_TO_KNOT_CONV, timeMillis, true);
+        sys.storeData(SystemUtils.GROUND_SPEED_KEY, speedKnots / UnitsUtil.MS_TO_KNOT, timeMillis, true);
 //        sys.storeData(SystemUtils.COURSE_KEY, courseDegs, timeMillis, true);
 
         if (!type.isEmpty()) {
