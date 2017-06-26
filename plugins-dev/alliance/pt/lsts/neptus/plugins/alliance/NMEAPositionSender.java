@@ -55,6 +55,8 @@ import pt.lsts.neptus.plugins.NeptusProperty;
 import pt.lsts.neptus.plugins.PluginDescription;
 import pt.lsts.neptus.plugins.update.Periodic;
 import pt.lsts.neptus.types.coord.LocationType;
+import pt.lsts.neptus.util.AngleUtils;
+import pt.lsts.neptus.util.UnitsUtil;
 
 /**
  * @author zp
@@ -103,9 +105,16 @@ public class NMEAPositionSender extends ConsolePanel {
             pos.latitude = loc.getLatitudeDegs();
             pos.longitude = loc.getLongitudeDegs();
             pos.heading = Math.toDegrees(state.getPsi());
-            pos.speed_knots = state.getU() * 1.94384449244;
+            
+            double vx = state.getVx();
+            double vy = state.getVy();
+            // double vz = state.getVz();
+            double courseRad = AngleUtils.calcAngle(0, 0, vy, vx);
+            double groundSpeedMS = Math.sqrt(vx * vx + vy * vy);
+            
+            pos.speed_knots = groundSpeedMS * UnitsUtil.MS_TO_KNOT;
             pos.turnRate = Math.toDegrees(state.getR());
-            pos.cog = pos.heading;
+            pos.cog = AngleUtils.nomalizeAngleDegrees360(Math.toDegrees(courseRad));
         }
     }
 
