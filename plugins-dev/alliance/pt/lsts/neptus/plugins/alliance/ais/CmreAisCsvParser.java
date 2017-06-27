@@ -32,6 +32,9 @@
  */
 package pt.lsts.neptus.plugins.alliance.ais;
 
+import java.net.DatagramPacket;
+import java.net.DatagramSocket;
+import java.net.InetSocketAddress;
 import java.util.Arrays;
 
 import pt.lsts.neptus.NeptusLog;
@@ -42,6 +45,7 @@ import pt.lsts.neptus.systems.external.ExternalSystemsHolder;
 import pt.lsts.neptus.types.coord.LocationType;
 import pt.lsts.neptus.util.AISUtil;
 import pt.lsts.neptus.util.AngleUtils;
+import pt.lsts.neptus.util.FileUtil;
 import pt.lsts.neptus.util.NMEAUtils;
 import pt.lsts.neptus.util.UnitsUtil;
 
@@ -597,7 +601,7 @@ public class CmreAisCsvParser {
         return true;
     }
 
-    public static void main(String[] args) {
+    public static void test1(String[] args) {
         AisContactDb contactDb = new AisContactDb();
         
         String sentenceAIS = "AIS,Node_Name=211212500,Node_Type=ship,Latitude=38.889712,"
@@ -632,6 +636,46 @@ public class CmreAisCsvParser {
         parseDistressStatus(sentenceDistressStatus);
         
         System.out.println(Arrays.toString(ExternalSystemsHolder.lookupAllActiveSystems()));
+    }
+    
+    public static void test2(String[] args) {
+        try (DatagramSocket socket = new DatagramSocket();) {
+            if (args.length < 3) {
+                System.out.println("Usage <host> <port> <file>");
+                System.exit(1);
+            }
+            
+            String host = args[0];
+            int port = Integer.parseInt(args[1]);
+            String file = args[2];
+            
+//            byte[] ba = FileUtil.getFileAsByteArray(file);
+//            ByteBuffer bb = ByteBuffer.wrap(ba);
+//            byte[] dst = new byte[bb.remaining()];
+//            while (bb.remaining() > 0) {
+//                bb.get(dst, 0, Math.min(bb.remaining(), dst.length));
+//                DatagramPacket packet = new DatagramPacket(dst, dst.length, new InetSocketAddress(host, port ));
+//                socket.send(packet);
+//            }
+            
+            String sentences = FileUtil.getFileAsString(file);
+            String[] sts = sentences.split("\n");
+            for (String s : sts) {
+                Thread.sleep(2000);
+                byte[] dst = s.getBytes();
+                DatagramPacket packet = new DatagramPacket(dst, dst.length, new InetSocketAddress(host, port ));
+                socket.send(packet);
+                System.out.println("sent to " + host + ":" + port + ": " + s);
+            }
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+        }
+        System.out.println("END");
+    }
 
+    public static void main(String[] args) {
+        // test1(args);
+        test2(args);
     }
 }
