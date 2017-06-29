@@ -56,6 +56,7 @@ import pt.lsts.neptus.renderer2d.LayerPriority;
 import pt.lsts.neptus.renderer2d.StateRenderer2D;
 import pt.lsts.neptus.systems.external.ExternalSystem;
 import pt.lsts.neptus.systems.external.ExternalSystemsHolder;
+import pt.lsts.neptus.types.coord.CoordinateUtil;
 import pt.lsts.neptus.types.coord.LocationType;
 import pt.lsts.neptus.types.vehicle.VehicleType.SystemTypeEnum;
 import pt.lsts.neptus.util.DateTimeUtil;
@@ -219,9 +220,17 @@ public class SystemsInteraction extends ConsoleInteraction {
 
                     sb.append("<br/>").append("<b>").append(I18n.text("Type")).append(": ").append("</b>")
                         .append(sys.getType() == SystemTypeEnum.VEHICLE ? sys.getTypeVehicle() : sys.getType());
-                
+
                     sb.append("<br/>").append("<b>").append("IMC: ").append("</b>").append(sys.getId().toPrettyString().toUpperCase());
                     
+                    LocationType loc = sys.getLocation();
+                    sb.append("<br/>").append("<b>").append(I18n.text("Pos")).append(": ").append("</b>");
+                    sb.append(CoordinateUtil.latitudeAsPrettyString(loc.getLatitudeDegs()))
+                        .append(" ")
+                        .append(CoordinateUtil.longitudeAsPrettyString(loc.getLongitudeDegs()));
+                    if (Math.round(loc.getHeight()) != 0)
+                        sb.append(" H").append(Math.round(loc.getHeight())).append("m");
+
                     Object speed = sys.retrieveData(SystemUtils.GROUND_SPEED_KEY);
                     Object course = sys.retrieveData(SystemUtils.COURSE_DEGS_KEY);
                     Object rateOfturn = sys.retrieveData(SystemUtils.RATE_OF_TURN_DEGS_PER_MIN_KEY);
@@ -269,6 +278,14 @@ public class SystemsInteraction extends ConsoleInteraction {
                             sb.append("<b>").append("MMSI: ").append("</b>").append(mmsi);
                         if (callSign != null)
                             sb.append(" ").append("<b>").append(I18n.text("Call-Sign")).append(": ").append("</b>").append(callSign);
+
+                        LocationType loc = sys.getLocation();
+                        sb.append("<br/>").append("<b>").append(I18n.text("Pos")).append(": ").append("</b>");
+                        sb.append(CoordinateUtil.latitudeAsPrettyString(loc.getLatitudeDegs()))
+                            .append(" ")
+                            .append(CoordinateUtil.longitudeAsPrettyString(loc.getLongitudeDegs()));
+                        if (Math.round(loc.getHeight()) != 0)
+                            sb.append(" H").append(Math.round(loc.getHeight())).append("m");
 
                         Object speed = sys.retrieveData(SystemUtils.GROUND_SPEED_KEY);
                         Object course = sys.retrieveData(SystemUtils.COURSE_DEGS_KEY);
