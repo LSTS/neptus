@@ -148,7 +148,7 @@ public class CmreAisCsvParser {
         }
         
         if (extraElements == 0)
-            return false;
+            return true;
         if (tk.length != MIN_ELMS + AIS_ELM * extraElements)
             return false;
         
