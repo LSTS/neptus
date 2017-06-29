@@ -83,7 +83,13 @@ public class AisContactDb implements AISObserver {
             String line = reader.readLine();
             while (line != null) {
                 String[] parts = line.split(",");
-                int mmsi = Integer.parseInt(parts[0]);
+                int mmsi;
+                try {
+                    mmsi = Integer.parseInt(parts[0]);
+                }
+                catch (Exception e1) {
+                    mmsi = Integer.parseInt(parts[0].replaceAll("^0x", ""), 16);
+                }
                 String name = parts[1].trim();
                 labelCache.put(mmsi, name);
 
