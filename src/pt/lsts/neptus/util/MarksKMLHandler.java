@@ -105,7 +105,7 @@ public class MarksKMLHandler {
                 "      <name>" + id + "</name>\n" +
                 "      <styleUrl>#icon-1899-0288D1-nodesc</styleUrl>\n" +
                 "      <Point>\n" +
-                "        <coordinates>" + latDeg + "," + lonDeg + "</coordinates>\n" +
+                "        <coordinates>" + lonDeg + "," + latDeg + "</coordinates>\n" +
                 "      </Point>\n" +
                 "    </Placemark>\n";
     }
