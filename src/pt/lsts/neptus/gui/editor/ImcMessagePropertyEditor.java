@@ -89,7 +89,6 @@ public class  ImcMessagePropertyEditor extends AbstractPropertyEditor {
     }
     
     public void setValue(Object arg0) {
-        System.out.println("Set value to "+arg0);
         if (arg0 == null || arg0 instanceof IMCMessage) {
             message = (IMCMessage) arg0;
             if (message == null)
