@@ -63,6 +63,7 @@ import com.l2fprod.common.propertysheet.PropertySheetPanel;
 import com.l2fprod.common.swing.BannerPanel;
 import com.l2fprod.common.swing.renderer.DefaultCellRenderer;
 
+import pt.lsts.imc.IMCMessage;
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.colormap.ColorMap;
 import pt.lsts.neptus.comm.manager.imc.ImcId16;
@@ -73,6 +74,7 @@ import pt.lsts.neptus.gui.editor.ComboEditor;
 import pt.lsts.neptus.gui.editor.EnumeratedPropertyEditor;
 import pt.lsts.neptus.gui.editor.FileOnlyPropertyEditor;
 import pt.lsts.neptus.gui.editor.ImcId16Editor;
+import pt.lsts.neptus.gui.editor.ImcMessagePropertyEditor;
 import pt.lsts.neptus.gui.editor.LocationTypePropertyEditor;
 import pt.lsts.neptus.gui.editor.NeptusDoubleEditor;
 import pt.lsts.neptus.gui.editor.PlanActionsEditor;
@@ -542,6 +544,7 @@ public class PropertiesEditor {
 			per.registerEditor(Credentials.class, CredentialsEditor.class);
             per.registerEditor(SPEED_UNITS.class, SpeedUnitsEnumEditor.class); // This one does not seams to work.
             per.registerEditor(File.class, FileOnlyPropertyEditor.class);
+            per.registerEditor(IMCMessage.class, ImcMessagePropertyEditor.class);
 		}
 		return per;
 	}
@@ -614,6 +617,23 @@ public class PropertiesEditor {
                 }
             });
             prr.registerRenderer(SPEED_UNITS.class, new SpeedUnitsEnumRenderer());
+            prr.registerRenderer(IMCMessage.class, new DefaultCellRenderer() {
+                private String toolTip = "";
+                @Override
+                protected String convertToString(Object value) {
+                    if (value == null)
+                        return "null";
+                    try {
+                        IMCMessage msg = (IMCMessage) value;
+                        toolTip = msg.toString();
+                        setToolTipText(toolTip);
+                        return msg.getAbbrev();
+                    }
+                    catch (Exception e) {
+                        return super.convertToString(value);
+                    }
+                }
+            });
         }
 	    return prr;
 	}
