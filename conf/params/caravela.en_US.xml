@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<config format="1" version="2016.05.0 (master,126112c)" system="caravela" i18n="en_US">
+<config format="1" version="2017.01.0 (mission/rep17,54a3730,dirty)" system="caravela" i18n="en_US">
   <section name="Motor Controller" name-i18n="Motor Controller">
     <param name="Entity Label">
       <name-i18n>Entity Label</name-i18n>
@@ -978,27 +978,27 @@
       <type>real</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>0</default>
+      <default>10.0</default>
       <units>m</units>
       <desc>Radius of loitering circle after arriving at destination</desc>
     </param>
-    <param name="Depth">
-      <name-i18n>Depth</name-i18n>
+    <param name="Z Value">
+      <name-i18n>Z Value</name-i18n>
       <type>real</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>0</default>
+      <default>0.0</default>
       <units>m</units>
-      <desc>Default depth. If value is below 0, altitude will be used instead.</desc>
+      <desc>Z value to maintain while executing this maneuver.</desc>
     </param>
-    <param name="Altitude">
-      <name-i18n>Altitude</name-i18n>
-      <type>real</type>
+    <param name="Z Mode">
+      <name-i18n>Z Mode</name-i18n>
+      <type>string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>100</default>
-      <units>m</units>
-      <desc>Altitude to use if depth less than 0.</desc>
+      <default>None</default>
+      <units/>
+      <desc>Z Mode to use. One of Depth, Altitude or Height.</desc>
     </param>
   </section>
   <section name="Compass Calibration Maneuver" name-i18n="Compass Calibration Maneuver">
@@ -1372,6 +1372,24 @@
       <units/>
       <desc>ScheduledGoto maneuver's entity label</desc>
     </param>
+    <param name="Entity Label -- Drop">
+      <name-i18n>Entity Label -- Drop</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>Drop Maneuver</default>
+      <units/>
+      <desc>Drop maneuver's entity label</desc>
+    </param>
+    <param name="Entity Label -- Sample">
+      <name-i18n>Entity Label -- Sample</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>Sample Maneuver</default>
+      <units/>
+      <desc>Sample maneuver's entity label</desc>
+    </param>
     <param name="Unsupported">
       <name-i18n>Unsupported</name-i18n>
       <type>list:string</type>
@@ -1606,6 +1624,78 @@
       <default>1.6</default>
       <units>m/s</units>
       <desc>Maximum commanded speed</desc>
+    </param>
+    <param name="Drop -- Servo Id">
+      <name-i18n>Drop -- Servo Id</name-i18n>
+      <type>integer</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>2</default>
+      <units/>
+      <desc>Servo Id.</desc>
+    </param>
+    <param name="Drop -- Servo Value">
+      <name-i18n>Drop -- Servo Value</name-i18n>
+      <type>real</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>3.14159</default>
+      <units/>
+      <desc>Servo Value in radians.</desc>
+    </param>
+    <param name="Sample -- Syringe 0 Id">
+      <name-i18n>Sample -- Syringe 0 Id</name-i18n>
+      <type>integer</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>0</default>
+      <units/>
+      <desc>Port to use for syringe 0 servo</desc>
+    </param>
+    <param name="Sample -- Syringe 1 Id">
+      <name-i18n>Sample -- Syringe 1 Id</name-i18n>
+      <type>integer</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>1</default>
+      <units/>
+      <desc>Port to use for syringe 1 servo</desc>
+    </param>
+    <param name="Sample -- Syringe 2 Id">
+      <name-i18n>Sample -- Syringe 2 Id</name-i18n>
+      <type>integer</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>2</default>
+      <units/>
+      <desc>Port to use for syringe 2 servo</desc>
+    </param>
+    <param name="Sample -- Servo Open Value">
+      <name-i18n>Sample -- Servo Open Value</name-i18n>
+      <type>real</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>3.14159</default>
+      <units/>
+      <desc>Value to open servo</desc>
+    </param>
+    <param name="Sample -- Servo Close Value">
+      <name-i18n>Sample -- Servo Close Value</name-i18n>
+      <type>real</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>1.57079</default>
+      <units/>
+      <desc>Value to close servo</desc>
+    </param>
+    <param name="Sample -- Execution Tolerance">
+      <name-i18n>Sample -- Execution Tolerance</name-i18n>
+      <type>real</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>30</default>
+      <units/>
+      <desc>Default time tolerance to execute maneuver</desc>
     </param>
   </section>
   <section name="Rows Coverage Maneuver" name-i18n="Rows Coverage Maneuver">
@@ -1967,7 +2057,7 @@
       <type>string</type>
       <visibility>user</visibility>
       <scope>global</scope>
-      <default>+351926343690</default>
+      <default>+351933651186</default>
       <units/>
       <desc>Phone number of the SMS recipient</desc>
     </param>
@@ -2345,6 +2435,15 @@
       <desc>Constants used in current LBL rejection scheme</desc>
       <size>2</size>
     </param>
+    <param name="Disable GPS for debug">
+      <name-i18n>Disable GPS for debug</name-i18n>
+      <type>boolean</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>false</default>
+      <units/>
+      <desc>Disable GPS for debug</desc>
+    </param>
     <param name="GPS timeout">
       <name-i18n>GPS timeout</name-i18n>
       <type>real</type>
@@ -2637,7 +2736,7 @@
       <scope>global</scope>
       <default>1e-3, 1e-3, 1e-1, 1e-2, 1e-7, 5e-11</default>
       <units/>
-      <desc>Kalman Filter Process Noise Covariance values</desc>
+      <desc>Kalman Filter process noise covariance values</desc>
       <size>6</size>
     </param>
     <param name="GPS Noise Covariance">
@@ -2647,8 +2746,18 @@
       <scope>global</scope>
       <default>10, 1, 0.01, 0.001</default>
       <units/>
-      <desc>Kalman Filter Gps Noise Covariance values</desc>
+      <desc>Kalman Filter GPS noise covariance values</desc>
       <size>4</size>
+    </param>
+    <param name="USBL Noise Covariance">
+      <name-i18n>USBL Noise Covariance</name-i18n>
+      <type>real</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>100.0</default>
+      <units/>
+      <desc>Kalman Filter USBL noise covariance value</desc>
+      <min>0.0</min>
     </param>
     <param name="Measure Noise Covariance">
       <name-i18n>Measure Noise Covariance</name-i18n>
@@ -2657,7 +2766,7 @@
       <scope>global</scope>
       <default>1e-3, 1e-4, 1e-3, 1e-3, 200</default>
       <units/>
-      <desc>Kalman Filter Measurement Noise Covariance values</desc>
+      <desc>Kalman Filter measurement noise covariance values</desc>
       <size>5</size>
     </param>
     <param name="State Covariance Initial State">
@@ -2702,15 +2811,6 @@
       <desc>Kalman Filter revolutions to speed maximum allowed variation</desc>
       <min>4e-4</min>
       <max>8e-4</max>
-    </param>
-    <param name="Update Heading with Euler Increments">
-      <name-i18n>Update Heading with Euler Increments</name-i18n>
-      <type>boolean</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>false</default>
-      <units/>
-      <desc>Use 'EulerAnglesDelta' or 'AngularVelocity' to update heading</desc>
     </param>
     <param name="Abort if Uncertainty Exceeded">
       <name-i18n>Abort if Uncertainty Exceeded</name-i18n>
@@ -5918,7 +6018,7 @@
       <type>string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>None</default>
+      <default>Spew</default>
       <units/>
       <desc/>
       <values>None, Debug, Trace, Spew</values>
@@ -5929,7 +6029,7 @@
       <type>string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>/dev/ttyUSB0</default>
+      <default>/dev/ttyUSB4</default>
       <units/>
       <desc>Serial port device used to communicate with the sensor</desc>
     </param>
@@ -6059,7 +6159,7 @@
       <type>list:string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>Chlorophyll, Conductivity, CpuUsage, Current, Depth, Distance, EntityState, Fluorescein, FuelLevel, GpsFix, Heartbeat, LblConfig, LblRange, LblRangeAcceptance, Phycocyanin, Phycoerythrin, PowerChannelState, Pressure, RhodamineDye, RSSI, Rpm, Salinity, SoundSpeed, StorageUsage, Temperature, Voltage, PH, Redox</default>
+      <default>Chlorophyll, Conductivity, CpuUsage, Current, Depth, Distance, EntityState, Fluorescein, FuelLevel, GpsFix, Heartbeat, LblConfig, LblRange, LblRangeAcceptance, Phycocyanin, Phycoerythrin, PowerChannelState, Pressure, RhodamineDye, RSSI, Rpm, Salinity, SoundSpeed, StorageUsage, Temperature, Turbidity, Voltage, PH, Redox</default>
       <units/>
       <desc>List of messages to transport</desc>
     </param>
@@ -6202,7 +6302,7 @@
       <type>list:string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>Abort, Acceleration, AcousticLink, AcousticOperation, AllocatedControlTorques, AlignmentState, AngularVelocity, Announce, Brake, Chlorophyll, ClockControl, CompassCalibration, Collision, Conductivity, ControlLoops, ControlParcel, CpuUsage, Current, DataSanity, Depth, DesiredControl, DesiredZ, DesiredHeading, DesiredHeadingRate, DesiredPath, DesiredPitch, DesiredSpeed, DevCalibrationControl, DevCalibrationState, DevDataBinary, DevDataText, Distance, DvlRejection, Elevator, EmergencyControl, EmergencyControlState, EntityActivationState, EntityList, EntityMonitoringState, EntityParameters, EntityState, EstimatedState, EstimatedStreamVelocity, EulerAngles, EulerAnglesDelta, Fluorescein, FollowPath, FollowRefState, FuelLevel, Goto, GpsFix, GpsFixRejection, GroundVelocity, Heartbeat, IdleManeuver, IridiumMsgRx, IridiumMsgTx, IridiumTxStatus, LblConfig, LblEstimate, LblRange, LblRangeAcceptance, LogBookEntry, Loiter, ManeuverControlState, MagneticField, NavigationData, NavigationUncertainty, OperationalLimits, PathControlState, PH, Phycocyanin, Phycoerythrin, PlanControl, PlanControlState, PlanDB, PlanGeneration, PlanSpecification, PlanStatistics, PopEntityParameters, PopUp, PowerChannelControl, PowerChannelState, Pulse, PulseDetectionControl, PushEntityParameters, Pressure, Redox, Rows, QueryEntityParameters, Reference, RemoteActions, RemoteActionsRequest, RemoteState, ReportControl, RhodamineDye, Rpm, RSSI, Salinity, SaveEntityParameters, ServoPosition, SetEntityParameters, SetServoPosition, SetThrusterActuation, SonarData, SimulatedState, Sms, SoundSpeed, StationKeeping, StopManeuver, Teleoperation, TeleoperationDone, Temperature, TextMessage, TrexObservation, TrexOperation, TrexPlan, TrexToken, TransportBindings, UamRxFrame, UamTxFrame, UamTxStatus, UamRxRange, UsblAnglesExtended, UsblPositionExtended, UsblFixExtended, UsblModem, UsblConfig, VehicleCommand, VehicleMedium, VehicleState, VelocityDelta, Voltage, WaterDensity, WaterVelocity, YoYo</default>
+      <default>Abort, Acceleration, AcousticLink, AcousticOperation, AllocatedControlTorques, AlignmentState, AngularVelocity, Announce, Brake, Chlorophyll, ClockControl, CompassCalibration, Collision, Conductivity, ControlLoops, ControlParcel, CpuUsage, Current, DataSanity, Depth, DesiredControl, DesiredZ, DesiredHeading, DesiredHeadingRate, DesiredPath, DesiredPitch, DesiredSpeed, DevCalibrationControl, DevCalibrationState, DevDataBinary, DevDataText, Distance, DvlRejection, Elevator, EmergencyControl, EmergencyControlState, EntityActivationState, EntityList, EntityMonitoringState, EntityParameters, EntityState, EstimatedState, EstimatedStreamVelocity, EulerAngles, EulerAnglesDelta, Fluorescein, FollowPath, FollowRefState, FuelLevel, Goto, GpsFix, GpsFixRejection, GroundVelocity, Heartbeat, IdleManeuver, IridiumMsgRx, IridiumMsgTx, IridiumTxStatus, LblConfig, LblEstimate, LblRange, LblRangeAcceptance, LogBookEntry, Loiter, ManeuverControlState, MagneticField, NavigationData, NavigationUncertainty, OperationalLimits, PathControlState, PH, Phycocyanin, Phycoerythrin, PlanControl, PlanControlState, PlanDB, PlanGeneration, PlanSpecification, PlanStatistics, PopEntityParameters, PopUp, PowerChannelControl, PowerChannelState, Pulse, PulseDetectionControl, PushEntityParameters, Pressure, Redox, Rows, QueryEntityParameters, Reference, RemoteActions, RemoteActionsRequest, RemoteState, ReportControl, RhodamineDye, Rpm, RSSI, Salinity, SadcReadings, SaveEntityParameters, ServoPosition, SetEntityParameters, SetServoPosition, SetThrusterActuation, SonarData, SimulatedState, Sms, SoundSpeed, StationKeeping, StopManeuver, Teleoperation, TeleoperationDone, Temperature, TextMessage, TrexObservation, TrexOperation, TrexPlan, TrexToken, TransportBindings, Turbidity, UamRxFrame, UamTxFrame, UamTxStatus, UamRxRange, UsblAnglesExtended, UsblPositionExtended, UsblFixExtended, UsblModem, UsblConfig, VehicleCommand, VehicleMedium, VehicleState, VelocityDelta, Voltage, WaterDensity, WaterVelocity, YoYo</default>
       <units/>
       <desc/>
     </param>
@@ -6341,9 +6441,18 @@
       <type>string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>AT\^SYSCFG=2,2,3fffffff,0,1</default>
+      <default>AT\^SYSCFG=2,2,3fffffff,1,1</default>
       <units/>
       <desc>GSM/GPRS mode.</desc>
+    </param>
+    <param name="Code Presentation Mode">
+      <name-i18n>Code Presentation Mode</name-i18n>
+      <type>boolean</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>false</default>
+      <units/>
+      <desc>Code Presentation Mode</desc>
     </param>
     <param name="PPP - Interface">
       <name-i18n>PPP - Interface</name-i18n>
@@ -6631,7 +6740,7 @@
       <type>list:string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>AcousticOperation, AlignmentState, CpuUsage, DevCalibrationControl, DevCalibrationState, Distance, EntityList, EntityParameters, EntityState, EstimatedState, FollowRefState, FuelLevel, Heartbeat, IridiumMsgRx, IridiumMsgTx, IridiumTxStatus, LblEstimate, LblRangeAcceptance, LblConfig, LogBookEntry, LogBookControl, OperationalLimits, PathControlState, PlanControl, PlanControlState, PlanDB, PlanGeneration, PowerChannelState, ReportControl, RemoteActions, RemoteActionsRequest, Rpm, RSSI, SimulatedState, StorageUsage, Temperature, TrexObservation, TrexOperation, TrexToken, TrexPlan, UsblAnglesExtended, UsblPositionExtended, UsblFixExtended, UsblModem, UsblConfig, VehicleMedium, VehicleState, Voltage</default>
+      <default>AcousticOperation, AlignmentState, CpuUsage, DevCalibrationControl, DevCalibrationState, Distance, EntityList, EntityParameters, EntityState, EstimatedState, FollowRefState, FuelLevel, Heartbeat, IridiumMsgRx, IridiumMsgTx, IridiumTxStatus, LblEstimate, LblRangeAcceptance, LblConfig, LogBookEntry, LogBookControl, OperationalLimits, PathControlState, PlanControl, PlanControlState, PlanDB, PlanGeneration, PowerChannelState, ReportControl, RemoteActions, RemoteActionsRequest, Rpm, RSSI, SadcReadings, SimulatedState, StorageUsage, Temperature, TextMessage, TrexObservation, TrexOperation, TrexToken, TrexPlan, UsblAnglesExtended, UsblPositionExtended, UsblFixExtended, UsblModem, UsblConfig, VehicleMedium, VehicleState, Voltage</default>
       <units/>
       <desc>List of messages to transport</desc>
     </param>

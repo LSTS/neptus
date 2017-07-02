@@ -1,5 +1,54 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<config format="1" version="2016.05.0 (master,126112c)" system="manta-1" i18n="en_US">
+<config format="1" version="2017.01.0 (mission/rep17,54a3730,dirty)" system="manta-1" i18n="en_US">
+  <section name="Text Message Parser" name-i18n="Text Message Parser">
+    <param name="Entity Label">
+      <name-i18n>Entity Label</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>Text Message Parser</default>
+      <units/>
+      <desc>Main entity label</desc>
+    </param>
+    <param name="Execution Priority">
+      <name-i18n>Execution Priority</name-i18n>
+      <type>integer</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>10</default>
+      <units/>
+      <desc>Execution priority</desc>
+    </param>
+    <param name="Activation Time">
+      <name-i18n>Activation Time</name-i18n>
+      <type>integer</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>0</default>
+      <units/>
+      <desc/>
+    </param>
+    <param name="Deactivation Time">
+      <name-i18n>Deactivation Time</name-i18n>
+      <type>integer</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>0</default>
+      <units/>
+      <desc/>
+    </param>
+    <param name="Debug Level">
+      <name-i18n>Debug Level</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>None</default>
+      <units/>
+      <desc/>
+      <values>None, Debug, Trace, Spew</values>
+      <values-i18n>None, Debug, Trace, Spew</values-i18n>
+    </param>
+  </section>
   <section name="Navigation" name-i18n="Navigation">
     <param name="Entity Label">
       <name-i18n>Entity Label</name-i18n>
@@ -378,7 +427,7 @@
       <type>string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>N/C (+12V_S1)</default>
+      <default>Iridium</default>
       <units/>
       <desc/>
     </param>
@@ -387,7 +436,7 @@
       <type>integer</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>0</default>
+      <default>1</default>
       <units/>
       <desc/>
     </param>
@@ -396,7 +445,7 @@
       <type>string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>N/C (POE 3)</default>
+      <default>POE 3</default>
       <units/>
       <desc/>
     </param>
@@ -405,7 +454,7 @@
       <type>integer</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>0</default>
+      <default>1</default>
       <units/>
       <desc/>
     </param>
@@ -468,7 +517,7 @@
       <type>string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>Iridium + Acoustic Modem</default>
+      <default>N/C (Bat_Out)</default>
       <units/>
       <desc/>
     </param>
@@ -477,7 +526,7 @@
       <type>integer</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>1</default>
+      <default>0</default>
       <units/>
       <desc/>
     </param>
@@ -1376,231 +1425,6 @@
       <desc>Print incoming messages (Debug)</desc>
     </param>
   </section>
-  <section name="Acoustic Modem" name-i18n="Acoustic Modem">
-    <param name="Entity Label">
-      <name-i18n>Entity Label</name-i18n>
-      <type>string</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>Acoustic Modem</default>
-      <units/>
-      <desc>Main entity label</desc>
-    </param>
-    <param name="Execution Priority">
-      <name-i18n>Execution Priority</name-i18n>
-      <type>integer</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>10</default>
-      <units/>
-      <desc>Execution priority</desc>
-    </param>
-    <param name="Activation Time">
-      <name-i18n>Activation Time</name-i18n>
-      <type>integer</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>0</default>
-      <units/>
-      <desc/>
-    </param>
-    <param name="Deactivation Time">
-      <name-i18n>Deactivation Time</name-i18n>
-      <type>integer</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>0</default>
-      <units/>
-      <desc/>
-    </param>
-    <param name="Debug Level">
-      <name-i18n>Debug Level</name-i18n>
-      <type>string</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>Spew</default>
-      <units/>
-      <desc/>
-      <values>None, Debug, Trace, Spew</values>
-      <values-i18n>None, Debug, Trace, Spew</values-i18n>
-    </param>
-    <param name="IPv4 Address">
-      <name-i18n>IPv4 Address</name-i18n>
-      <type>ipv4-address</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>10.0.50.1</default>
-      <units/>
-      <desc>IPv4 address</desc>
-    </param>
-    <param name="TCP Port">
-      <name-i18n>TCP Port</name-i18n>
-      <type>integer</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>9200</default>
-      <units/>
-      <desc>TCP port</desc>
-    </param>
-    <param name="Low Gain">
-      <name-i18n>Low Gain</name-i18n>
-      <type>boolean</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>false</default>
-      <units/>
-      <desc>Enable low gain mode (testing purposes)</desc>
-    </param>
-    <param name="Source Level">
-      <name-i18n>Source Level</name-i18n>
-      <type>integer</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>1</default>
-      <units/>
-      <desc>Signal transmission source level during data exchange</desc>
-      <min>0</min>
-      <max>3</max>
-    </param>
-    <param name="Connection Retry Count">
-      <name-i18n>Connection Retry Count</name-i18n>
-      <type>integer</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>3</default>
-      <units/>
-      <desc/>
-      <min>0</min>
-      <max>50</max>
-    </param>
-    <param name="Connection Retry Timeout">
-      <name-i18n>Connection Retry Timeout</name-i18n>
-      <type>integer</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>2000</default>
-      <units>ms</units>
-      <desc/>
-      <min>500</min>
-      <max>12000</max>
-    </param>
-    <param name="Connection Idle Timeout">
-      <name-i18n>Connection Idle Timeout</name-i18n>
-      <type>integer</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>0</default>
-      <units>s</units>
-      <desc/>
-      <min>0</min>
-      <max>3600</max>
-    </param>
-    <param name="Pool Size">
-      <name-i18n>Pool Size</name-i18n>
-      <type>integer</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>16384</default>
-      <units>B</units>
-      <desc>Transmission buffer size</desc>
-      <min>16384</min>
-      <max>1048576</max>
-    </param>
-    <param name="Instant Message Retry Count">
-      <name-i18n>Instant Message Retry Count</name-i18n>
-      <type>integer</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>0</default>
-      <units/>
-      <desc>Instant message retry count</desc>
-      <min>0</min>
-      <max>255</max>
-    </param>
-    <param name="Highest Address">
-      <name-i18n>Highest Address</name-i18n>
-      <type>integer</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>14</default>
-      <units/>
-      <desc>The highest address available for a device.Highest Address values must match for all communicating devices.</desc>
-      <values>2, 6, 14, 30, 62, 126, 254</values>
-      <values-i18n>2, 6, 14, 30, 62, 126, 254</values-i18n>
-    </param>
-    <param name="Sound Speed - Default Value">
-      <name-i18n>Sound Speed - Default Value</name-i18n>
-      <type>real</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>1500</default>
-      <units>m/s</units>
-      <desc/>
-    </param>
-    <param name="Sound Speed - Entity Label">
-      <name-i18n>Sound Speed - Entity Label</name-i18n>
-      <type>string</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default/>
-      <units/>
-      <desc>Entity label of sound speed provider</desc>
-    </param>
-    <param name="Keep Alive - Timeout">
-      <name-i18n>Keep Alive - Timeout</name-i18n>
-      <type>real</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>5.0</default>
-      <units>s</units>
-      <desc>Keep-alive timeout</desc>
-    </param>
-    <param name="Source Level - Control">
-      <name-i18n>Source Level - Control</name-i18n>
-      <type>boolean</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>false</default>
-      <units/>
-      <desc>Enable/disable source level control based on medium</desc>
-    </param>
-    <param name="Source Level - Unknown">
-      <name-i18n>Source Level - Unknown</name-i18n>
-      <type>integer</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>3</default>
-      <units/>
-      <desc>Source level when medium is unknown</desc>
-    </param>
-    <param name="Source Level - Water">
-      <name-i18n>Source Level - Water</name-i18n>
-      <type>integer</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>2</default>
-      <units/>
-      <desc>Source level when medium is water</desc>
-    </param>
-    <param name="Source Level - Underwater">
-      <name-i18n>Source Level - Underwater</name-i18n>
-      <type>integer</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>1</default>
-      <units/>
-      <desc>Source level when medium is underwater</desc>
-    </param>
-    <param name="Address Section">
-      <name-i18n>Address Section</name-i18n>
-      <type>string</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>Evologics Addresses</default>
-      <units/>
-      <desc>Name of the configuration section with modem addresses</desc>
-    </param>
-  </section>
   <section name="FTP Server" name-i18n="FTP Server">
     <param name="Entity Label">
       <name-i18n>Entity Label</name-i18n>
@@ -1806,7 +1630,7 @@
       <type>list:string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>Chlorophyll, Conductivity, CpuUsage, Current, Depth, Distance, EntityState, Fluorescein, FuelLevel, GpsFix, Heartbeat, LblConfig, LblRange, LblRangeAcceptance, Phycocyanin, Phycoerythrin, PowerChannelState, Pressure, RhodamineDye, RSSI, Rpm, Salinity, SoundSpeed, StorageUsage, Temperature, Voltage, PH, Redox</default>
+      <default>Chlorophyll, Conductivity, CpuUsage, Current, Depth, Distance, EntityState, Fluorescein, FuelLevel, GpsFix, Heartbeat, LblConfig, LblRange, LblRangeAcceptance, Phycocyanin, Phycoerythrin, PowerChannelState, Pressure, RhodamineDye, RSSI, Rpm, Salinity, SoundSpeed, StorageUsage, Temperature, Turbidity, Voltage, PH, Redox</default>
       <units/>
       <desc>List of messages to transport</desc>
     </param>
@@ -2061,7 +1885,7 @@
       <type>list:string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>Abort, Announce, AcousticLink, AcousticOperation, CpuUsage, Current, Depth, DevDataText, EntityList, EntityState, GpsFix, Heartbeat, IridiumMsgRx, IridiumMsgTx, IridiumTxStatus, LblRange, LblRangeAcceptance, LogBookControl, LogBookEntry, PlanControl, PowerChannelControl, RemoteSensorInfo, RSSI, StorageUsage, Temperature, UamRxFrame, UamTxFrame, UamTxStatus, UamRxRange, UsblAnglesExtended, UsblPositionExtended, UsblFixExtended, UsblModem, UsblConfig, Voltage</default>
+      <default>Abort, Announce, AcousticLink, AcousticOperation, CpuUsage, Current, Depth, DevDataText, EntityList, EntityState, GpsFix, Heartbeat, IridiumMsgRx, IridiumMsgTx, IridiumTxStatus, LblRange, LblRangeAcceptance, LogBookControl, LogBookEntry, PlanControl, PowerChannelControl, RemoteSensorInfo, RSSI, StorageUsage, Temperature, TextMessage, UamRxFrame, UamTxFrame, UamTxStatus, UamRxRange, UsblAnglesExtended, UsblPositionExtended, UsblFixExtended, UsblModem, UsblConfig, Voltage</default>
       <units/>
       <desc/>
     </param>
@@ -2200,9 +2024,18 @@
       <type>string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>AT\^SYSCFG=2,2,3fffffff,0,1</default>
+      <default>AT\^SYSCFG=2,2,3fffffff,1,1</default>
       <units/>
       <desc>GSM/GPRS mode.</desc>
+    </param>
+    <param name="Code Presentation Mode">
+      <name-i18n>Code Presentation Mode</name-i18n>
+      <type>boolean</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>true</default>
+      <units/>
+      <desc>Code Presentation Mode</desc>
     </param>
     <param name="PPP - Interface">
       <name-i18n>PPP - Interface</name-i18n>
@@ -2221,121 +2054,6 @@
       <default>true</default>
       <units/>
       <desc>Enable or disable IP forward</desc>
-    </param>
-  </section>
-  <section name="Acoustic Access Controller" name-i18n="Acoustic Access Controller">
-    <param name="Entity Label">
-      <name-i18n>Entity Label</name-i18n>
-      <type>string</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>Acoustic Access Controller</default>
-      <units/>
-      <desc>Main entity label</desc>
-    </param>
-    <param name="Execution Priority">
-      <name-i18n>Execution Priority</name-i18n>
-      <type>integer</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>10</default>
-      <units/>
-      <desc>Execution priority</desc>
-    </param>
-    <param name="Activation Time">
-      <name-i18n>Activation Time</name-i18n>
-      <type>integer</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>0</default>
-      <units/>
-      <desc/>
-    </param>
-    <param name="Deactivation Time">
-      <name-i18n>Deactivation Time</name-i18n>
-      <type>integer</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>0</default>
-      <units/>
-      <desc/>
-    </param>
-    <param name="Debug Level">
-      <name-i18n>Debug Level</name-i18n>
-      <type>string</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>None</default>
-      <units/>
-      <desc/>
-      <values>None, Debug, Trace, Spew</values>
-      <values-i18n>None, Debug, Trace, Spew</values-i18n>
-    </param>
-    <param name="Enable Reports">
-      <name-i18n>Enable Reports</name-i18n>
-      <type>boolean</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>false</default>
-      <units/>
-      <desc>Enable system state acoustic reporting. When enabled, systems shall acknowledge reception of requests to broadcast acoustic messages containing the overall state of the system. When disabled, those requests shall be ignored</desc>
-    </param>
-    <param name="USBL Node -- Enabled">
-      <name-i18n>USBL Node -- Enabled</name-i18n>
-      <type>boolean</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>false</default>
-      <units/>
-      <desc>Enable system's USBL mode. When active, this system will start using USBL by actively broadcasting an acoustic message containing a request to get USBL feedback. The request contains the period for transmissions, if quick (two-way travel) or ranging (three-way travel) mode is desired, and, if in ranging mode (not "quick"), to use absolute or relative positioning. If a USBL modem is in reach, they will start exchanging acoustic transmissions to provide USBL positioning to the system. Any system can be configured to request USBL information including modems with built-in USBL capabilities</desc>
-    </param>
-    <param name="USBL Node -- Period">
-      <name-i18n>USBL Node -- Period</name-i18n>
-      <type>integer</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>60.0</default>
-      <units>s</units>
-      <desc>USBL's period. This value determines the period of USBL positioning data. If "Quick" mode is selected, modem shall ping the USBL modem with this period to get bearing and elevation (two-way travel transmission). If "Quick" mode is disabled, ranging information is included for a proper fix. In this case, the USBL modem pings the node, hears the reply, computes the position and transmits back to the node (three-way travel transmission)</desc>
-      <min>2.0</min>
-    </param>
-    <param name="USBL Node -- Absolute Fix">
-      <name-i18n>USBL Node -- Absolute Fix</name-i18n>
-      <type>boolean</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>false</default>
-      <units/>
-      <desc>If this argument is enabled, USBL sends an absolute fix using WGS-84 lat/lon coordinates. If disabled, then the positioning is relative to the origin of a system where the center of the reference frame is the USBL modem</desc>
-    </param>
-    <param name="USBL Node -- Quick, No Range">
-      <name-i18n>USBL Node -- Quick, No Range</name-i18n>
-      <type>boolean</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>false</default>
-      <units/>
-      <desc>In this mode, the USBL node does not request ranging information. Thus, with this mode enabled, there's only a two-way travel transmission between the node and the USBL modem. The node will actively ping the modem to get bearing/elevation information With this mode enabled "Absolute Fix" argument is ignored</desc>
-    </param>
-    <param name="USBL Modem -- Announce Service">
-      <name-i18n>USBL Modem -- Announce Service</name-i18n>
-      <type>boolean</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>false</default>
-      <units/>
-      <desc>This argument only concerns systems with USBL modems installed. This parameter statically adds a USBL announce, even if service has not been detected yet (eg. modem not connected)</desc>
-    </param>
-    <param name="USBL Modem -- Max Waiting Time">
-      <name-i18n>USBL Modem -- Max Waiting Time</name-i18n>
-      <type>real</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>10.0</default>
-      <units>s</units>
-      <desc>This argument only concerns systems with USBL modems installed. This value establishes the maximum amount of time that the modem waits for the target system's reply</desc>
-      <min>2.0</min>
-      <max>20.0</max>
     </param>
   </section>
   <section name="UDP" name-i18n="UDP">
@@ -2490,7 +2208,7 @@
       <type>list:string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>Abort, AcousticOperation, AcousticSystemsQuery, AcousticSystems, CpuUsage, Current, Depth, Distance, EntityList, EntityParameters, EntityState, EstimatedState, FuelLevel, GpsFix, Heartbeat, IridiumMsgRx, IridiumMsgTx, IridiumTxStatus, LblRange, LblRangeAcceptance, LogBookControl, LoggingControl, NavigationUncertainty, PlanControl, PlanControlState, RemoteSensorInfo, RSSI, StorageUsage, Temperature, UsblAnglesExtended, UsblPositionExtended, UsblFixExtended, UsblModem, UsblConfig, Voltage</default>
+      <default>Abort, AcousticOperation, AcousticSystemsQuery, AcousticSystems, CpuUsage, Current, Depth, Distance, EntityList, EntityParameters, EntityState, EstimatedState, FuelLevel, GpsFix, Heartbeat, IridiumMsgRx, IridiumMsgTx, IridiumTxStatus, LblRange, LblRangeAcceptance, LogBookControl, LoggingControl, NavigationUncertainty, PlanControl, PlanControlState, RemoteSensorInfo, RSSI, StorageUsage, Temperature, TextMessage, UsblAnglesExtended, UsblPositionExtended, UsblFixExtended, UsblModem, UsblConfig, Voltage</default>
       <units/>
       <desc>List of messages to transport</desc>
     </param>
@@ -2714,7 +2432,7 @@
       <type>list:string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>Evologics Addresses</default>
+      <default>Micromodem Addresses, Narrow Band Transponders</default>
       <units/>
       <desc>List of table names</desc>
     </param>

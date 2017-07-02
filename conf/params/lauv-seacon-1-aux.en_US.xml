@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<config format="1" version="2017.01.0 (mission/rep17,54a3730,dirty)" system="lauv-noptilus-3-aux" i18n="en_US">
+<config format="1" version="2017.01.0 (mission/rep17,54a3730,dirty)" system="lauv-seacon-1-aux" i18n="en_US">
   <section name="Power Supervisor" name-i18n="Power Supervisor">
     <param name="Entity Label">
       <name-i18n>Entity Label</name-i18n>
@@ -259,7 +259,7 @@
       <type>ipv4-address</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>10.0.10.100</default>
+      <default>10.0.10.10</default>
       <units/>
       <desc>Remote server address</desc>
     </param>
@@ -371,7 +371,7 @@
       <type>ipv4-address</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>10.0.10.102</default>
+      <default>10.0.10.12</default>
       <units/>
       <desc>IPv4 address of the camera</desc>
     </param>

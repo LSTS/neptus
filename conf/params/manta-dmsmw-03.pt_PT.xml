@@ -1,5 +1,54 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<config format="1" version="2016.05.0 (HEAD,5a841ca)" system="manta-dmsmw-03" i18n="pt_PT">
+<config format="1" version="2017.01.0 (mission/rep17,54a3730,dirty)" system="manta-dmsmw-03" i18n="pt_PT">
+  <section name="Text Message Parser" name-i18n="Processador de Mensagens de Texto">
+    <param name="Entity Label">
+      <name-i18n>Nome da Entidade</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>Text Message Parser</default>
+      <units/>
+      <desc>Nome principal da entidade</desc>
+    </param>
+    <param name="Execution Priority">
+      <name-i18n>Prioridade de Execução</name-i18n>
+      <type>integer</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>10</default>
+      <units/>
+      <desc>Prioridade de execução</desc>
+    </param>
+    <param name="Activation Time">
+      <name-i18n>Tempo de Ativação</name-i18n>
+      <type>integer</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>0</default>
+      <units/>
+      <desc/>
+    </param>
+    <param name="Deactivation Time">
+      <name-i18n>Tempo de Desativação</name-i18n>
+      <type>integer</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>0</default>
+      <units/>
+      <desc/>
+    </param>
+    <param name="Debug Level">
+      <name-i18n>Nível de Depuração</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>None</default>
+      <units/>
+      <desc/>
+      <values>None, Debug, Trace, Spew</values>
+      <values-i18n>None, Debug, Trace, Spew</values-i18n>
+    </param>
+  </section>
   <section name="Navigation" name-i18n="Navegação">
     <param name="Entity Label">
       <name-i18n>Nome da Entidade</name-i18n>
@@ -1000,172 +1049,6 @@
       <desc/>
     </param>
   </section>
-  <section name="Acoustic Modem" name-i18n="Modem Acústico">
-    <param name="Entity Label">
-      <name-i18n>Nome da Entidade</name-i18n>
-      <type>string</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>Acoustic Modem</default>
-      <units/>
-      <desc>Nome principal da entidade</desc>
-    </param>
-    <param name="Execution Priority">
-      <name-i18n>Prioridade de Execução</name-i18n>
-      <type>integer</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>10</default>
-      <units/>
-      <desc>Prioridade de execução</desc>
-    </param>
-    <param name="Activation Time">
-      <name-i18n>Tempo de Ativação</name-i18n>
-      <type>integer</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>0</default>
-      <units/>
-      <desc/>
-    </param>
-    <param name="Deactivation Time">
-      <name-i18n>Tempo de Desativação</name-i18n>
-      <type>integer</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>0</default>
-      <units/>
-      <desc/>
-    </param>
-    <param name="Debug Level">
-      <name-i18n>Nível de Depuração</name-i18n>
-      <type>string</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>None</default>
-      <units/>
-      <desc/>
-      <values>None, Debug, Trace, Spew</values>
-      <values-i18n>None, Debug, Trace, Spew</values-i18n>
-    </param>
-    <param name="Serial Port - Device">
-      <name-i18n>Serial Port - Device</name-i18n>
-      <type>string</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>/dev/uart/1</default>
-      <units/>
-      <desc>Serial port device used to communicate with the sensor</desc>
-    </param>
-    <param name="Serial Port - Baud Rate">
-      <name-i18n>Serial Port - Baud Rate</name-i18n>
-      <type>integer</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>19200</default>
-      <units/>
-      <desc>Serial port baud rate</desc>
-    </param>
-    <param name="Length of Transmit Pings">
-      <name-i18n>Length of Transmit Pings</name-i18n>
-      <type>integer</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>5</default>
-      <units>ms</units>
-      <desc/>
-      <min>0</min>
-    </param>
-    <param name="Length of Receive Pings">
-      <name-i18n>Length of Receive Pings</name-i18n>
-      <type>integer</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>5</default>
-      <units>ms</units>
-      <desc/>
-      <min>0</min>
-    </param>
-    <param name="Sound Speed on Water">
-      <name-i18n>Sound Speed on Water</name-i18n>
-      <type>real</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>1500</default>
-      <units>m/s</units>
-      <desc>Water sound speed</desc>
-      <min>1375</min>
-      <max>1900</max>
-    </param>
-    <param name="Turn Around Time">
-      <name-i18n>Turn Around Time</name-i18n>
-      <type>integer</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>20</default>
-      <units>ms</units>
-      <desc/>
-      <min>0</min>
-    </param>
-    <param name="Timeout - Micro-Modem Ping">
-      <name-i18n>Timeout - Micro-Modem Ping</name-i18n>
-      <type>real</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>5.0</default>
-      <units>s</units>
-      <desc/>
-      <min>0</min>
-    </param>
-    <param name="Timeout - Narrow Band Ping">
-      <name-i18n>Timeout - Narrow Band Ping</name-i18n>
-      <type>integer</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>5.0</default>
-      <units>s</units>
-      <desc/>
-      <min>0</min>
-    </param>
-    <param name="Timeout - Abort">
-      <name-i18n>Timeout - Abort</name-i18n>
-      <type>real</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>5.0</default>
-      <units>s</units>
-      <desc/>
-      <min>0</min>
-    </param>
-    <param name="Timeout - Input">
-      <name-i18n>Timeout - Input</name-i18n>
-      <type>real</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>20.0</default>
-      <units>s</units>
-      <desc/>
-      <min>0</min>
-    </param>
-    <param name="GPIO - Transducer Detection">
-      <name-i18n>GPIO - Transducer Detection</name-i18n>
-      <type>integer</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>157</default>
-      <units/>
-      <desc/>
-    </param>
-    <param name="Address Section">
-      <name-i18n>Address Section</name-i18n>
-      <type>string</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>Micromodem Addresses - DMSMW</default>
-      <units/>
-      <desc>Name of the configuration section with modem addresses</desc>
-    </param>
-  </section>
   <section name="Clock" name-i18n="Relógio">
     <param name="Entity Label">
       <name-i18n>Nome da Entidade</name-i18n>
@@ -1747,7 +1630,7 @@
       <type>list:string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>Chlorophyll, Conductivity, CpuUsage, Current, Depth, Distance, EntityState, Fluorescein, FuelLevel, GpsFix, Heartbeat, LblConfig, LblRange, LblRangeAcceptance, Phycocyanin, Phycoerythrin, PowerChannelState, Pressure, RhodamineDye, RSSI, Rpm, Salinity, SoundSpeed, StorageUsage, Temperature, Voltage</default>
+      <default>Chlorophyll, Conductivity, CpuUsage, Current, Depth, Distance, EntityState, Fluorescein, FuelLevel, GpsFix, Heartbeat, LblConfig, LblRange, LblRangeAcceptance, Phycocyanin, Phycoerythrin, PowerChannelState, Pressure, RhodamineDye, RSSI, Rpm, Salinity, SoundSpeed, StorageUsage, Temperature, Turbidity, Voltage, PH, Redox</default>
       <units/>
       <desc>List of messages to transport</desc>
     </param>
@@ -1935,9 +1818,18 @@
       <type>string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>AT\^SYSCFG=2,2,3fffffff,0,1</default>
+      <default>AT\^SYSCFG=2,2,3fffffff,1,1</default>
       <units/>
       <desc>GSM/GPRS mode.</desc>
+    </param>
+    <param name="Code Presentation Mode">
+      <name-i18n>Code Presentation Mode</name-i18n>
+      <type>boolean</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>true</default>
+      <units/>
+      <desc>Code Presentation Mode</desc>
     </param>
     <param name="PPP - Interface">
       <name-i18n>PPP - Interface</name-i18n>
@@ -2110,7 +2002,7 @@
       <type>list:string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>Abort, AcousticOperation, AcousticSystemsQuery, AcousticSystems, CpuUsage, Current, Depth, Distance, EntityList, EntityParameters, EntityState, EstimatedState, FuelLevel, GpsFix, Heartbeat, IridiumMsgRx, IridiumMsgTx, IridiumTxStatus, LblRange, LblRangeAcceptance, LogBookControl, LoggingControl, NavigationUncertainty, PlanControl, PlanControlState, RemoteSensorInfo, RSSI, StorageUsage, Temperature, Voltage</default>
+      <default>Abort, AcousticOperation, AcousticSystemsQuery, AcousticSystems, CpuUsage, Current, Depth, Distance, EntityList, EntityParameters, EntityState, EstimatedState, FuelLevel, GpsFix, Heartbeat, IridiumMsgRx, IridiumMsgTx, IridiumTxStatus, LblRange, LblRangeAcceptance, LogBookControl, LoggingControl, NavigationUncertainty, PlanControl, PlanControlState, RemoteSensorInfo, RSSI, StorageUsage, Temperature, TextMessage, UsblAnglesExtended, UsblPositionExtended, UsblFixExtended, UsblModem, UsblConfig, Voltage</default>
       <units/>
       <desc>List of messages to transport</desc>
     </param>
@@ -2343,7 +2235,7 @@
       <type>list:string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>lauv-seacon-1, lauv-seacon-2, lauv-seacon-3, benthos1, benthos2, benthos3, benthos4, benthos5</default>
+      <default>lauv-seacon-1, lauv-seacon-2, lauv-seacon-3, benthos1, benthos2, benthos3, benthos4, benthos5, benthos6</default>
       <units/>
       <desc>Array of supported system names</desc>
     </param>
