@@ -34,15 +34,23 @@ package pt.lsts.neptus.plugins.pddl;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.TimeZone;
 import java.util.Map.Entry;
+import java.util.TimeZone;
 
+import pt.lsts.imc.EntityParameter;
+import pt.lsts.imc.IMCMessage;
+import pt.lsts.imc.PlanManeuver;
+import pt.lsts.imc.PlanSpecification;
 import pt.lsts.imc.ScheduledGoto.DELAYED;
+import pt.lsts.imc.SetEntityParameters;
 import pt.lsts.imc.TemporalAction;
 import pt.lsts.imc.TemporalAction.STATUS;
+import pt.lsts.imc.TemporalAction.TYPE;
 import pt.lsts.imc.TemporalPlan;
 import pt.lsts.imc.VehicleDepot;
 import pt.lsts.neptus.data.Pair;
@@ -193,18 +201,38 @@ public class MVSolution {
         }
         return new PddlAction[] { action };
     }
+    
+    public Collection<IMCMessage> getPayloadParams(ArrayList<PayloadRequirement> requiredPayloads) {
+        
+        ArrayList<IMCMessage> ret = new ArrayList<>();
+        
+        for (PayloadRequirement r : requiredPayloads) {
+            SetEntityParameters msg = new SetEntityParameters();
+            msg.setParams(Arrays.asList(new EntityParameter("Active", "true")));
+            switch (r) {
+                case sidescan:
+                    msg.setName("Sidescan");
+                    ret.add(msg);
+                    break;
+                case camera:
+                    msg.setName("Camera");
+                    ret.add(msg);
+                    break;
+                case multibeam:
+                    msg.setName("Multibeam");
+                    ret.add(msg);
+                    break;
+                default:
+                    break;
+            }
+        }
+        
+        return ret;
+    }
 
     private void enablePayloads(ManeuverPayloadConfig manPayloads, ArrayList<PayloadRequirement> requiredPayloads) {
 
         for (SystemProperty e : manPayloads.getProperties()) {
-
-            if (requiredPayloads.contains(PayloadRequirement.ctd)) {
-                // System.out.println("I need CTD : "+ true);
-            }
-
-            if (e.getCategory().startsWith("UAN") && e.getValueType().equals(ValueTypeEnum.BOOLEAN)) {
-                e.setValue(true);
-            }
 
             if (e.getCategory().startsWith("Camera") && e.getValueType().equals(ValueTypeEnum.BOOLEAN)) {
 
@@ -226,15 +254,6 @@ public class MVSolution {
                     e.setValue(true);
                 else
                     e.setValue(false);
-            }
-
-            if (e.getCategory().equalsIgnoreCase("rhodamine") && e.getValueType().equals(ValueTypeEnum.BOOLEAN)) {
-                if (requiredPayloads.contains(PayloadRequirement.rhodamine)) {
-                    e.setValue(true);
-                }
-                else {
-                    e.setValue(false);
-                }
             }
         }
 
@@ -282,9 +301,8 @@ public class MVSolution {
         
         for (PddlAction act : actions) {
             Maneuver maneuver = generateManeuver(act);
-            maneuver.setId("" + (i++));
-            ManeuverPayloadConfig payload = new ManeuverPayloadConfig(act.vehicle.getId(), maneuver, null);
-            enablePayloads(payload, act.payloads);
+            String manId = "" + (i++);
+            maneuver.setId(manId);
             
             TemporalAction action = new TemporalAction();
             action.setSystemId(act.vehicle.getImcId().intValue());
@@ -294,9 +312,18 @@ public class MVSolution {
             if (act.type.equals("survey") || act.type.equals("sample"))
                 id = act.name;
             action.setActionId(id);
-            action.setAction(PlanUtilities.createPlan(id,
-                    (pt.lsts.imc.Maneuver) ((IMCSerialization) maneuver).serializeToIMC()));
-            action.setStatus(STATUS.SCHEDULED);
+            
+            PlanManeuver pm = new PlanManeuver();
+            pm.setManeuverId(manId);
+            pm.setData((pt.lsts.imc.Maneuver) ((IMCSerialization) maneuver).serializeToIMC());
+            pm.setStartActions(getPayloadParams(act.payloads));
+            PlanSpecification spec = new PlanSpecification();
+            spec.setManeuvers(Arrays.asList(pm));
+            spec.setPlanId(id);
+            spec.setStartManId(manId);
+            action.setAction(spec);
+            action.setType(TYPE.valueOf(act.type.toUpperCase()));
+            action.setStatus(STATUS.SCHEDULED);            
             planActions.add(action);
         }
         
