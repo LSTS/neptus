@@ -782,7 +782,7 @@ public class MVPlannerInteraction extends ConsoleInteraction {
                 MVSolution solution = problem.getSolution();
 
                 if (onboardExecutive) {
-                    plan = solution.generateTemporalPlan();
+                    plan = solution.generateTemporalPlan(secondsAway);
                     NeptusLog.pub().info(plan.asJSON());
                     HashSet<String> vehicles = new HashSet<>();
                     LinkedHashMap<String, String> ts =  new LinkedHashMap<>();

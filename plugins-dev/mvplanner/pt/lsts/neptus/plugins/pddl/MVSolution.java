@@ -44,6 +44,7 @@ import pt.lsts.imc.ScheduledGoto.DELAYED;
 import pt.lsts.imc.TemporalAction;
 import pt.lsts.imc.TemporalAction.STATUS;
 import pt.lsts.imc.TemporalPlan;
+import pt.lsts.imc.VehicleDepot;
 import pt.lsts.neptus.data.Pair;
 import pt.lsts.neptus.mp.Maneuver;
 import pt.lsts.neptus.mp.ManeuverLocation;
@@ -259,14 +260,23 @@ public class MVSolution {
      * This method translates the solution into an IMC's TemporalPlan message.
      * @return The temporal plan
      */
-    public TemporalPlan generateTemporalPlan() {
+    public TemporalPlan generateTemporalPlan(int secondsAway) {
         ArrayList<TemporalAction> planActions = new ArrayList<>();
         int i = 1;
+        
+        LinkedHashMap<String, VehicleDepot> depots = new LinkedHashMap<>();
         
         for (Entry<String, LocationType> loc : locations.entrySet()) {
             if (loc.getKey().endsWith("depot")) {
                 String nick = loc.getKey().substring(0, loc.getKey().indexOf("_"));
                 lastLocations.put(VehicleParams.getVehicleFromNickname(nick).getId(), new LocationType(loc.getValue()));
+                VehicleDepot depot = new VehicleDepot();
+                LocationType l = new LocationType(loc.getValue());
+                l.convertToAbsoluteLatLonDepth();
+                depot.setLat(l.getLatitudeRads());
+                depot.setLon(l.getLongitudeRads());
+                depot.setVehicle(VehicleParams.getVehicleFromNickname(nick).getImcId().intValue());
+                depots.put(VehicleParams.getVehicleFromNickname(nick).getId(), depot);
             }
         }
         
@@ -294,6 +304,8 @@ public class MVSolution {
         sdf.setTimeZone(TimeZone.getTimeZone("UTC"));
         
         TemporalPlan plan = new TemporalPlan();
+        plan.setDepots(depots.values());
+
         plan.setPlanId("plan_"+sdf.format(new Date()));
         plan.setActions(planActions);
         return plan;
