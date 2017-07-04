@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<config format="1" version="2017.01.0 (mission/rep17,54a3730,dirty)" system="lauv-seacon-2" i18n="en_US">
+<config format="1" version="2017.01.0 (mission/rep17,441df103)" system="lauv-seacon-2" i18n="en_US">
   <section name="Motor Controller" name-i18n="Motor Controller">
     <param name="Entity Label">
       <name-i18n>Entity Label</name-i18n>
@@ -4278,6 +4278,27 @@
       <desc>Heading bias uncertainty alignment threshold</desc>
       <min>1e-6</min>
       <max>1e-4</max>
+    </param>
+    <param name="Heading alignment sensor diff">
+      <name-i18n>Heading alignment sensor diff</name-i18n>
+      <type>real</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>15</default>
+      <units/>
+      <desc>Heading alignment sensor diff threshold</desc>
+      <min>1</min>
+      <max>180</max>
+    </param>
+    <param name="Heading buffer value ">
+      <name-i18n>Heading buffer value </name-i18n>
+      <type>real</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>200</default>
+      <units/>
+      <desc>Heading buffer value - how many repetitions to aligned</desc>
+      <min>1</min>
     </param>
     <param name="Entity Label - IMU">
       <name-i18n>Entity Label - IMU</name-i18n>

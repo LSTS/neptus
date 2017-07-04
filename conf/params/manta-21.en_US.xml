@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<config format="1" version="2017.01.0 (mission/rep17,54a3730,dirty)" system="manta-21" i18n="en_US">
+<config format="1" version="2017.01.0 (mission/rep17,441df103)" system="manta-21" i18n="en_US">
   <section name="Text Message Parser" name-i18n="Text Message Parser">
     <param name="Entity Label">
       <name-i18n>Entity Label</name-i18n>
