@@ -311,6 +311,15 @@ public class MVSolution {
             String id = maneuver.getId()+"_"+act.type;
             if (act.type.equals("survey") || act.type.equals("sample"))
                 id = act.name;
+            else if (act.type.equals("move")) {
+               VehicleDepot vdepot = depots.get(act.vehicle.getId());
+               if (vdepot.getDeadline() == 0) {
+                   Date d = new Date(act.startTime + secondsAway * 1000);
+                   vdepot.setDeadline(d.getTime()/1000.0);
+                   System.out.println("Deadline for "+act.vehicle.getId()+" is now "+d);
+               }
+                
+            }
             action.setActionId(id);
             
             PlanManeuver pm = new PlanManeuver();
