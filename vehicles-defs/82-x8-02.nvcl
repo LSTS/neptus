@@ -236,7 +236,7 @@
                 </point>
                 <radiusTolerance>2.0</radiusTolerance>
               </finalPoint>
-              <speed tolerance="0.0" type="float" unit="m/s">1.0</speed>
+              <speed tolerance="0.0" type="float" unit="m/s">16.0</speed>
               <trajectoryTolerance>
                 <radiusTolerance>2.0</radiusTolerance>
               </trajectoryTolerance>
