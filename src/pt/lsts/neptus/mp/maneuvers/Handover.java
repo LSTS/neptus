@@ -37,8 +37,8 @@ import java.awt.Graphics2D;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Area;
 import java.awt.geom.Ellipse2D;
+import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.Vector;
 
 import org.dom4j.Document;
@@ -54,7 +54,9 @@ import pt.lsts.imc.def.Boolean;
 import pt.lsts.imc.def.SpeedUnits;
 import pt.lsts.imc.def.ZUnits;
 import pt.lsts.neptus.NeptusLog;
+import pt.lsts.neptus.gui.editor.SpeedUnitsEnumEditor;
 import pt.lsts.neptus.i18n.I18n;
+import pt.lsts.neptus.mp.Maneuver;
 import pt.lsts.neptus.mp.ManeuverLocation;
 import pt.lsts.neptus.plugins.NeptusProperty;
 import pt.lsts.neptus.renderer2d.StateRenderer2D;
@@ -66,9 +68,19 @@ import pt.lsts.neptus.util.XMLUtil;
  * @author pdias
  *
  */
-public class Handover extends Goto implements LocatedManeuver, ManeuverWithSpeed, StatisticsProvider, IMCSerialization {
+public class Handover extends Maneuver implements LocatedManeuver, ManeuverWithSpeed, StatisticsProvider, IMCSerialization {
 
     protected static final String DEFAULT_ROOT_ELEMENT = "Handover";
+
+    protected double latDegs = 0;
+    protected double lonDegs = 0;
+    protected double z = 0;
+    protected ManeuverLocation.Z_UNITS zUnits = ManeuverLocation.Z_UNITS.NONE;
+
+    @NeptusProperty(name = "Speed")
+    protected double speed = 17;
+    @NeptusProperty(name = "Speed Units", editorClass = SpeedUnitsEnumEditor.class)
+    protected SPEED_UNITS speedUnits = SPEED_UNITS.METERS_PS;
 
     @NeptusProperty(name = "Direction")
     private pt.lsts.imc.Handover.DIRECTION direction = pt.lsts.imc.Handover.DIRECTION.CLOCKW;
@@ -91,7 +103,6 @@ public class Handover extends Goto implements LocatedManeuver, ManeuverWithSpeed
         super.clone(clone);
         clone.setManeuverLocation(getManeuverLocation());
         clone.setSpeed(getSpeed());
-        clone.setSpeedTolerance(getSpeedTolerance());
         clone.setSpeedUnits(getSpeedUnits());
         clone.direction = direction;
         clone.radius = radius;
@@ -102,10 +113,17 @@ public class Handover extends Goto implements LocatedManeuver, ManeuverWithSpeed
     @Override
     public void parseIMCMessage(IMCMessage message) {
         try {
-            pt.lsts.imc.Handover msg = pt.lsts.imc.Handover.clone(message);
+            pt.lsts.imc.Handover man = pt.lsts.imc.Handover.clone(message);
             
-            setSpeed(msg.getSpeed());
-            switch (msg.getSpeedUnits()) {
+            ManeuverLocation pos = new ManeuverLocation();
+            pos.setLatitudeRads(man.getLat());
+            pos.setLongitudeRads(man.getLon());
+            pos.setZ(man.getZ());
+            pos.setZUnits(ManeuverLocation.Z_UNITS.valueOf(man.getZUnits().toString()));
+            setManeuverLocation(pos);
+
+            setSpeed(man.getSpeed());
+            switch (man.getSpeedUnits()) {
                 case METERS_PS:
                     setSpeedUnits(SPEED_UNITS.METERS_PS);
                     break;
@@ -116,19 +134,12 @@ public class Handover extends Goto implements LocatedManeuver, ManeuverWithSpeed
                     setSpeedUnits(SPEED_UNITS.RPM);
                     break;
             }
-            ManeuverLocation pos = new ManeuverLocation();
-            pos.setLatitudeRads(msg.getLat());
-            pos.setLongitudeRads(msg.getLon());
-            pos.setZ(msg.getZ());
-            pos.setZUnits(ManeuverLocation.Z_UNITS.valueOf(msg.getZUnits().toString()));
             
-            setManeuverLocation(pos);
+            radius = man.getRadius();
+            direction = man.getDirection();
+            rcHandover = man.getRcHandover().compareTo(Boolean.TRUE) == 0 ? true : false;
             
-            radius = msg.getRadius();
-            direction = msg.getDirection();
-            rcHandover = msg.getRcHandover().compareTo(Boolean.TRUE) == 0 ? true : false;
-            
-            setCustomSettings(msg.getCustom());
+            setCustomSettings(man.getCustom());
             
         }
         catch (Exception e) {
@@ -140,15 +151,12 @@ public class Handover extends Goto implements LocatedManeuver, ManeuverWithSpeed
     public IMCMessage serializeToIMC() {
         pt.lsts.imc.Handover imcMan = new pt.lsts.imc.Handover();
         
-        LocationType loc = getManeuverLocation();
-        loc.convertToAbsoluteLatLonDepth();
+        imcMan.setLat(Math.toRadians(latDegs));
+        imcMan.setLon(Math.toRadians(lonDegs));
+        imcMan.setZ(z);
+        imcMan.setZUnits(ZUnits.valueOf(getManeuverLocation().getZUnits().toString()));        
+        imcMan.setSpeed(speed);
         
-        imcMan.setLat(loc.getLatitudeRads());
-        imcMan.setLon(loc.getLongitudeRads());
-        imcMan.setZ(getManeuverLocation().getZ());
-        imcMan.setZUnits(ZUnits.valueOf(getManeuverLocation().getZUnits().name()));
-        imcMan.setSpeed(this.getSpeed());
-       
         try {
             switch (this.getSpeedUnits()) {
                 case METERS_PS:
@@ -192,11 +200,17 @@ public class Handover extends Goto implements LocatedManeuver, ManeuverWithSpeed
      */
     @Override
     public void loadManeuverFromXML(String xml) {
-        super.loadManeuverFromXML(xml);
-        
         try {
             Document doc = DocumentHelper.parseText(xml);
 
+            ManeuversXMLUtil.parseLocation(doc.getRootElement(), this);
+            try {
+                ManeuversXMLUtil.parseSpeed(doc.getRootElement(), this);
+            }
+            catch (Exception e) {
+                e.printStackTrace();
+            }
+            
             try {
                 radius = Double.valueOf(doc.selectSingleNode("//radius").getText());
             }
@@ -217,7 +231,6 @@ public class Handover extends Goto implements LocatedManeuver, ManeuverWithSpeed
             catch (Exception e) {
                 e.printStackTrace();
             }
-
         }
         catch (Exception e) {
             NeptusLog.pub().info(I18n.text("Error while loading the XML:")+"{" + xml + "}");
@@ -230,7 +243,15 @@ public class Handover extends Goto implements LocatedManeuver, ManeuverWithSpeed
      */
     @Override
     public Document getManeuverAsDocument(String rootElementName) {
-        Document doc = super.getManeuverAsDocument(rootElementName);
+        Document doc = ManeuversXMLUtil.createBaseDoc(getType());
+        ManeuversXMLUtil.addLocation(doc.getRootElement(), this);
+        try {
+            ManeuversXMLUtil.addSpeed(doc.getRootElement(), this);
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+        }
+
         Element root = doc.getRootElement();
         
         root.addElement("radius").setText("" + radius);
@@ -306,10 +327,85 @@ public class Handover extends Goto implements LocatedManeuver, ManeuverWithSpeed
     }   
     
     @Override
+    public ManeuverLocation getManeuverLocation() {
+        ManeuverLocation manLoc = new ManeuverLocation();
+        manLoc.setLatitudeDegs(latDegs);
+        manLoc.setLongitudeDegs(lonDegs);
+        manLoc.setZ(z);
+        manLoc.setZUnits(zUnits);
+        return manLoc;
+    }
+
+    /* (non-Javadoc)
+     * @see pt.lsts.neptus.mp.maneuvers.LocatedManeuver#setManeuverLocation(pt.lsts.neptus.mp.ManeuverLocation)
+     */
+    @Override
+    public void setManeuverLocation(ManeuverLocation location) {
+        double absoluteLatLonDepth[] = location.getAbsoluteLatLonDepth(); 
+        latDegs = absoluteLatLonDepth[0];
+        lonDegs = absoluteLatLonDepth[1];
+        z = location.getZ();
+        zUnits = location.getZUnits();
+    }
+
+    @Override
+    public ManeuverLocation getStartLocation() {
+        return getManeuverLocation();
+    }
+
+    /* (non-Javadoc)
+     * @see pt.lsts.neptus.mp.maneuvers.LocatedManeuver#getEndLocation()
+     */
+    @Override
+    public ManeuverLocation getEndLocation() {
+        return getManeuverLocation();
+    }
+
+    @Override
+    public void translate(double offsetNorth, double offsetEast, double offsetDown) {
+        ManeuverLocation loc = getManeuverLocation();
+        loc.translatePosition(offsetNorth, offsetEast, offsetDown);
+        setManeuverLocation(loc);
+    }
+
+    /* (non-Javadoc)
+     * @see pt.lsts.neptus.mp.maneuvers.LocatedManeuver#getWaypoints()
+     */
+    @Override
     public Collection<ManeuverLocation> getWaypoints() {
-        return Collections.singleton(getStartLocation());
+        ArrayList<ManeuverLocation> wps = new ArrayList<ManeuverLocation>();
+        wps.add(getManeuverLocation());
+        return wps;
+    }
+
+    /**
+     * @return the speed
+     */
+    public double getSpeed() {
+        return speed;
     }
     
+    /**
+     * @param speed the speed to set
+     */
+    public void setSpeed(double speed) {
+        this.speed = speed;
+    }
+    
+    /**
+     * @return the speedUnits
+     */
+    public SPEED_UNITS getSpeedUnits() {
+        return speedUnits;
+    }
+    
+    /**
+     * @param speedUnits the speedUnits to set
+     */
+    public void setSpeedUnits(SPEED_UNITS speedUnits) {
+        this.speedUnits = speedUnits;
+    }
+
     public static void main(String[] args) {
         Handover rc = new Handover();
         System.out.println(XMLUtil.getAsPrettyPrintFormatedXMLString(rc.asXML().substring(39)));
