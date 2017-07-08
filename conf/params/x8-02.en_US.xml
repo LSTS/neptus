@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<config format="1" version="2017.01.0 (mission/rep17,441df103)" system="x8-02" i18n="en_US">
+<config format="1" version="2017.01.0 (mission/rep17,09387b6c,dirty)" system="x8-02" i18n="en_US">
   <section name="Height Control" name-i18n="Height Control">
     <param name="Entity Label">
       <name-i18n>Entity Label</name-i18n>
@@ -432,6 +432,15 @@
       <units/>
       <desc>Convert altitude extracted from the Ardupilot to WGS84 height</desc>
     </param>
+    <param name="Takeoff Pitch">
+      <name-i18n>Takeoff Pitch</name-i18n>
+      <type>real</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>13</default>
+      <units/>
+      <desc>Default pitch angle for automatic takeoff, in degrees.</desc>
+    </param>
     <param name="Loiter in Idle">
       <name-i18n>Loiter in Idle</name-i18n>
       <type>boolean</type>
@@ -458,6 +467,15 @@
       <default>70.0</default>
       <units/>
       <desc>Temperature of ESC failure (degrees).</desc>
+    </param>
+    <param name="Toggle RC receivers">
+      <name-i18n>Toggle RC receivers</name-i18n>
+      <type>boolean</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>false</default>
+      <units/>
+      <desc>Toggle RC receivers (Rx-A and Rx-B).</desc>
     </param>
   </section>
   <section name="Path Control" name-i18n="Path Control">
@@ -1097,6 +1115,24 @@
       <units/>
       <desc>ScheduledGoto maneuver's entity label</desc>
     </param>
+    <param name="Entity Label -- Takeoff">
+      <name-i18n>Entity Label -- Takeoff</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>Takeoff Maneuver</default>
+      <units/>
+      <desc>Takeoff maneuver's entity label</desc>
+    </param>
+    <param name="Entity Label -- Land">
+      <name-i18n>Entity Label -- Land</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>Land Maneuver</default>
+      <units/>
+      <desc>Land maneuver's entity label</desc>
+    </param>
     <param name="Entity Label -- Drop">
       <name-i18n>Entity Label -- Drop</name-i18n>
       <type>string</type>
@@ -1114,6 +1150,15 @@
       <default>Sample Maneuver</default>
       <units/>
       <desc>Sample maneuver's entity label</desc>
+    </param>
+    <param name="Entity Label -- Handover">
+      <name-i18n>Entity Label -- Handover</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>Handover Maneuver</default>
+      <units/>
+      <desc>Handover maneuver's entity label</desc>
     </param>
     <param name="Unsupported">
       <name-i18n>Unsupported</name-i18n>
@@ -1421,6 +1466,33 @@
       <default>30</default>
       <units/>
       <desc>Default time tolerance to execute maneuver</desc>
+    </param>
+    <param name="Handover -- GSM Reports">
+      <name-i18n>Handover -- GSM Reports</name-i18n>
+      <type>boolean</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>true</default>
+      <units/>
+      <desc>Enable GSM reports during handover.</desc>
+    </param>
+    <param name="Handover -- RC.A PCC name">
+      <name-i18n>Handover -- RC.A PCC name</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>5V C.2 (Rx-A)</default>
+      <units/>
+      <desc>RC Channel A PowerChannelControl name.</desc>
+    </param>
+    <param name="Handover -- RC.B PCC name">
+      <name-i18n>Handover -- RC.B PCC name</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>5V C.3 (Rx-B)</default>
+      <units/>
+      <desc>RC Channel B PowerChannelControl name.</desc>
     </param>
   </section>
   <section name="Clock" name-i18n="Clock">
@@ -2907,7 +2979,7 @@
       <type>list:string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>Acceleration, AngularVelocity, Announce, ApmStatus, AutopilotMode, ControlLoops, CpuUsage, Current, DesiredHeading, DesiredPath, DesiredRoll, DesiredSpeed, DesiredVerticalRate, DesiredZ, DevCalibrationControl, EntityList, EntityState, EstimatedState, EstimatedStreamVelocity, FollowReference, FollowRefState, FuelLevel, GpsFix, IndicatedSpeed, LeaderState, LinkLevel, LogBookEntry, MagneticField, ManeuverControlState, PathControlState, PlanControl, PlanSpecification, PlanControlState, PlanDB, PowerChannelControl, Pressure, Reference, Rpm, RSSI, ServoPosition, SetControlSurfaceDeflection, SetServoPosition, SetThrusterActuation, SimulatedState, StopManeuver, StorageUsage, Temperature, Throttle, TrueSpeed, TrexObservation, TrexPlan, TrexToken, TrueSpeed, VehicleCommand, VehicleMedium, VehicleState, Voltage</default>
+      <default>Acceleration, AcousticLink, AcousticOperation, AngularVelocity, Announce, ApmStatus, AutopilotMode, ControlLoops, CpuUsage, Current, Depth, DesiredHeading, DesiredPath, DesiredRoll, DesiredSpeed, DesiredVerticalRate, DesiredZ, DevCalibrationControl, DevDataText, EulerAngles, EntityList, EntityState, EstimatedState, EstimatedStreamVelocity, FollowReference, FollowRefState, FuelLevel, GpsFix, IndicatedSpeed, LeaderState, LinkLevel, LogBookEntry, MagneticField, ManeuverControlState, PathControlState, PlanControl, PlanSpecification, PlanControlState, PlanDB, PowerChannelControl, Pressure, Reference, Rpm, RSSI, ServoPosition, SetControlSurfaceDeflection, SetServoPosition, SetThrusterActuation, SimulatedState, StopManeuver, StorageUsage, Temperature, Throttle, TrueSpeed, TrexObservation, TrexPlan, TrexToken, TrueSpeed, UamRxFrame, UamTxFrame, UamTxStatus, UamRxRange, UsblAnglesExtended, UsblPositionExtended, UsblFixExtended, UsblModem, UsblConfig, VehicleCommand, VehicleMedium, VehicleState, Voltage</default>
       <units/>
       <desc/>
     </param>
