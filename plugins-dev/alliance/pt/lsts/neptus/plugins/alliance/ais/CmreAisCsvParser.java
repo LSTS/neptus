@@ -266,7 +266,8 @@ public class CmreAisCsvParser {
                 name = shipName;
         }
         catch (NumberFormatException e) {
-            e.printStackTrace();
+            // e.printStackTrace();
+            mmsi = name.hashCode();
         }
         
         ExternalSystem sys = NMEAUtils.getAndRegisterExternalSystem(mmsi, name);
@@ -279,7 +280,7 @@ public class CmreAisCsvParser {
         sys.setLocation(loc, timeMillis);
         sys.setAttitudeDegrees(headingDegs > 360 ? courseDegs : headingDegs, timeMillis);
         
-        if (mmsi > 0)
+        if (mmsi != -1)
             sys.storeData(SystemUtils.MMSI_KEY, mmsi, timeMillis, true);
 
         sys.storeData(SystemUtils.GROUND_SPEED_KEY, speedKnots / UnitsUtil.MS_TO_KNOT, timeMillis, true);
@@ -297,7 +298,7 @@ public class CmreAisCsvParser {
         if (Double.isFinite(rateOfTurnDegsPerMin)) {
             sys.storeData(SystemUtils.RATE_OF_TURN_DEGS_PER_MIN_KEY, rateOfTurnDegsPerMin, timeMillis, true);
         }
-        
+
         return true;
     }
     
