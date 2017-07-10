@@ -65,9 +65,8 @@ public class LstsDomainModelV2 extends LstsDomainModel {
             }
         }
 
-        sb.append("  (at " + timeToStart + " (can-move " + v.getNickname()+"))\n");
-
-        //sb.append("  (can-move " + v.getNickname() + ") ;required always\n");
+        sb.append("  (at " + timeToStart + " (ready " + v.getNickname()+"))\n");
+        sb.append("  (ready-dummy " + v.getNickname()+")\n");
         sb.append("  (= (from-base " + v.getNickname() + ") 0) ;how long the vehicle is away from its depot \n"); // FIXME
         sb.append("  (= (max-to-base " + v.getNickname() + ") " + problem.secondsAwayFromDepot
                 + ") ;the maximum time before returning to the depot\n");

@@ -20,6 +20,8 @@
              (free ?l - location) ;no vehicle in the location
              (available ?a - area) ;no vehicle is surveiling the area
              (can-move ?v - vehicle) ;vehicle can perform the move action
+             (ready ?v - vehicle) ;vehicle is ready to be released
+             (ready-dummy ?v - vehicle) ;"hack" for avoiding issues with LPG 
 )
 
 (:functions (distance ?l1 ?l2 - location)
@@ -226,6 +228,13 @@
              (at end (can-move ?v))
              (at end (not (sampled ?t ?v)))
         )
+)
+
+;dummy action
+(:action getready
+:parameters (?v - vehicle)
+:precondition (and (ready ?v)(ready-dummy ?v))
+:effect (and (not (ready ?v))(not (ready-dummy ?v))(can-move ?v))
 )
 
 )
