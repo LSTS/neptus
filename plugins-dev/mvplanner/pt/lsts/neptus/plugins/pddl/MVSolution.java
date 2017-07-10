@@ -74,7 +74,6 @@ import pt.lsts.neptus.plugins.mvplanner.api.ConsoleEventPlanAllocation.Operation
 import pt.lsts.neptus.types.coord.LocationType;
 import pt.lsts.neptus.types.mission.plan.PlanType;
 import pt.lsts.neptus.types.vehicle.VehicleType;
-import pt.lsts.util.PlanUtilities;
 
 /**
  * @author zp
@@ -195,6 +194,7 @@ public class MVSolution {
                 locate.type = "locate";
                 locate.vehicle = VehicleParams.getVehicleFromNickname(parts[parts.length - 3]);
                 locate.name = action.name;
+                action.locaterVehicle = locate.vehicle;
                 return new PddlAction[] { action, locate };
             default:
                 break;
@@ -550,7 +550,7 @@ public class MVSolution {
         public ArrayList<PayloadRequirement> payloads = new ArrayList<PayloadRequirement>();
         public ManeuverLocation location;
         // public Maneuver man;
-        public VehicleType vehicle;
+        public VehicleType vehicle, locaterVehicle = null;
         public String type;
         public String name;
 
