@@ -85,6 +85,8 @@ import pt.lsts.neptus.colormap.ColorMapFactory;
 import pt.lsts.neptus.comm.IMCUtils;
 import pt.lsts.neptus.comm.manager.imc.ImcId16;
 import pt.lsts.neptus.console.ConsoleLayer;
+import pt.lsts.neptus.console.notifications.Notification;
+import pt.lsts.neptus.console.notifications.Notification.NotificationType;
 import pt.lsts.neptus.gui.editor.FolderAndFilePropertyEditor;
 import pt.lsts.neptus.gui.editor.FolderPropertyEditor;
 import pt.lsts.neptus.gui.editor.SystemNameOrNullListEditor;
@@ -196,6 +198,18 @@ public class RhodamineOilVisualizer extends ConsoleLayer implements Configuratio
     @NeptusProperty(name = "Systems to ignore for temperature", userLevel = LEVEL.ADVANCED, category = "Filter",
             editorClass = SystemNameOrNullListEditor.class, description = "Comma separated list of systems to ignore.")
     private String systemsToIgnoreForTemperature = "";
+
+    @NeptusProperty(name = "Show popup for rhodamine reveived", userLevel = LEVEL.REGULAR, category = "Popup",
+            description = "Will show a popup event.")
+    private boolean popupForRhodamine = false;
+
+    @NeptusProperty(name = "Show popup type", userLevel = LEVEL.ADVANCED, category = "Popup",
+            description = "Will show a popup event.")
+    private Notification.NotificationType popupForRhodamineType = NotificationType.WARNING;
+
+    @NeptusProperty(name = "Threshold for rhodamine popup", userLevel = LEVEL.REGULAR, category = "Popup",
+            description = "Will show a popup event only above the confirured value.")
+    private int popupForRhodamineThreshold = 10;
 
     private final PrevisionRhodamineConsoleLayer previsionLayer = new PrevisionRhodamineConsoleLayer();
 
@@ -1662,6 +1676,12 @@ public class RhodamineOilVisualizer extends ConsoleLayer implements Configuratio
 
     @Subscribe
     public void on(RhodamineDye msg) {
+        String sysName = msg.getSourceName();
+        if (sysName.trim().toLowerCase().contains("unknown"))
+            sysName = "unknown";
+        
+        showConsolePopupEvent(sysName, msg);
+
         if (systemsToIgnoreForIMCRhodamine != null && "all".equalsIgnoreCase(systemsToIgnoreForIMCRhodamine.trim()))
             return;
         ArrayList<String> systemsToIgnoreIMCRhodamineList = new ArrayList<>();
@@ -1671,9 +1691,6 @@ public class RhodamineOilVisualizer extends ConsoleLayer implements Configuratio
                 continue;
             systemsToIgnoreIMCRhodamineList.add(str.trim().toLowerCase());
         }
-        String sysName = msg.getSourceName();
-        if (sysName.trim().toLowerCase().contains("unknown"))
-            sysName = "unknown";
         boolean isToIgnoreRhodamine = systemsToIgnoreIMCRhodamineList.contains(sysName);
         if (isToIgnoreRhodamine)
             return;
@@ -1714,6 +1731,27 @@ public class RhodamineOilVisualizer extends ConsoleLayer implements Configuratio
                     + DateTimeUtil.timeFormatterUTC.format(new Date(rhodamineImcStringMillis))
                     + accepted;
             rhodamineImcStringMillis = msg.getTimestampMillis();
+        }
+    }
+
+    /**
+     * @param sysName
+     * @param msg
+     * @return
+     */
+    private void showConsolePopupEvent(String sysName, RhodamineDye msg) {
+        if (!popupForRhodamine)
+            return;
+        
+        double valueReceived = msg.getValue();
+        if (!Double.isNaN(valueReceived)) {
+            if (valueReceived >= popupForRhodamineThreshold) {
+                String str = sysName + " :: " + MathMiscUtils.round(valueReceived, 2) + "ppb @ "
+                        + DateTimeUtil.timeFormatterUTC.format(new Date(rhodamineImcStringMillis));
+                getConsole().post(
+                        Notification.newNotification(I18n.text("Rhodamine value received"), str, popupForRhodamineType)
+                                .src(sysName));
+            }
         }
     }
 

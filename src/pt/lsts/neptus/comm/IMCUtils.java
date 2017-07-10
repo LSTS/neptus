@@ -70,6 +70,7 @@ import pt.lsts.imc.IMCMessage;
 import pt.lsts.imc.IMCMessageType;
 import pt.lsts.imc.IMCOutputStream;
 import pt.lsts.imc.ImcStringDefs;
+import pt.lsts.imc.PolygonVertex;
 import pt.lsts.imc.types.PlanSpecificationAdapter;
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.comm.manager.imc.ImcId16;
@@ -88,6 +89,7 @@ import pt.lsts.neptus.mp.maneuvers.IMCSerialization;
 import pt.lsts.neptus.mp.maneuvers.Unconstrained;
 import pt.lsts.neptus.plugins.PluginProperty;
 import pt.lsts.neptus.types.coord.LocationType;
+import pt.lsts.neptus.types.coord.PolygonType;
 import pt.lsts.neptus.types.map.MapGroup;
 import pt.lsts.neptus.types.map.MarkElement;
 import pt.lsts.neptus.types.map.TransponderElement;
@@ -1355,6 +1357,37 @@ public class IMCUtils {
             return "Gateway";
         return "Unknown";
     }
+    
+    /**
+     * Convert a polygon type into a list of PolygonVertex IMC messages
+     */
+    public static Vector<PolygonVertex> serializePolygon(PolygonType polygon) {
+        if (polygon == null)
+            return null;
+        Vector<PolygonVertex> ret = new Vector<>();
+        
+        polygon.getVertices().forEach(v -> {
+            ret.add(new PolygonVertex(v.getLocation().getLatitudeRads(), v.getLocation().getLongitudeRads()));
+        });
+        
+        return ret;
+    }
+    
+    /**
+     * Create a PolygonType from a list of PolygonVertex IMC messages
+     */
+    public static PolygonType parsePolygon(Vector<PolygonVertex> vertices) {
+        if (vertices == null)
+            return null;
+
+        PolygonType ret = new PolygonType();
+        vertices.forEach(v -> {
+            ret.addVertex(Math.toDegrees(v.getLat()), Math.toDegrees(v.getLon()));
+        });
+            
+        return ret;
+    }
+
 
     public static void main(String[] args) {
 
@@ -1375,5 +1408,5 @@ public class IMCUtils {
             String name = IMCDefinition.getInstance().getResolver().resolve(id);
             System.out.println(addrElem.getText() + "," + name + " --> " + getSystemType(id));
         }
-    }
+    }    
 }

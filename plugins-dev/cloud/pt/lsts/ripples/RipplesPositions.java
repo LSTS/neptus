@@ -58,6 +58,7 @@ import pt.lsts.neptus.plugins.PluginDescription;
 import pt.lsts.neptus.plugins.update.Periodic;
 import pt.lsts.neptus.renderer2d.StateRenderer2D;
 import pt.lsts.neptus.types.coord.LocationType;
+import pt.lsts.neptus.util.DateTimeUtil;
 import pt.lsts.neptus.util.ImageUtils;
 
 /**
@@ -106,6 +107,8 @@ public class RipplesPositions extends ConsoleLayer {
             g.drawString(error, 50, 50);
         }
         
+        PositionUpdate pivot = null;
+        
         synchronized (positions) {
             for (PositionUpdate update : positions.values()) {
                 if (System.currentTimeMillis() - update.timestamp.getTime() > 3600 * 1000)
@@ -116,15 +119,25 @@ public class RipplesPositions extends ConsoleLayer {
                 String date = sdf.format(update.timestamp);
                 Point2D pt = renderer.getScreenPosition(update.location);
                 pt.setLocation(pt.getX() - pinWidth / 2, pt.getY() - pinHeight);
-                g.drawImage(pin, (int) pt.getX(), (int) pt.getY(), (int) pt.getX() + pinWidth,
-                        (int) pt.getY() + pinHeight, 0, 0, pinWidth, pinHeight, getConsole());
-                g.setColor(Color.green);
+                g.drawImage(pin, (int) pt.getX(), (int) pt.getY(), getConsole());
+                g.setColor(cmap.getColor(age).darker().darker());
+                
                 g.drawString(update.id, (int) pt.getX() + pinWidth + 2, (int) pt.getY() + pinHeight / 2);
-                g.setColor(cmap.getColor(age));
+                g.setColor(Color.black);
                 g.drawString(date, (int) pt.getX() + pinWidth + 2,
                         (int) pt.getY() + pinHeight / 2 + g.getFontMetrics().getHeight());
 
             }
+            pivot = positions.get(getConsole().getMainSystem());
+        }
+        
+        if (pivot != null) {
+            String age = DateTimeUtil.milliSecondsToFormatedString(System.currentTimeMillis() - pivot.timestamp.getTime());
+            g.setColor(Color.blue.brighter());
+            g.drawString(pivot.id+" updated "+age+" ago.", 11, renderer.getHeight()-29);
+            
+            g.setColor(Color.black);
+            g.drawString(pivot.id+" updated "+age+" ago.", 10, renderer.getHeight()-30);
         }
     }
 

@@ -44,6 +44,7 @@ import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Properties;
+import java.util.Vector;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
@@ -292,11 +293,11 @@ public class RockBlockIridiumMessenger implements IridiumMessenger {
         }
         catch (NoSuchProviderException ex) {
             ex.printStackTrace();
-            System.exit(1);
+            return new Vector<>();
         }
         catch (MessagingException ex) {
             ex.printStackTrace();
-            System.exit(2);
+            return new Vector<>();
         }
 
         return messages;
