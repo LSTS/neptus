@@ -527,6 +527,7 @@ public class MVPlannerInteraction extends ConsoleInteraction {
             ConsoleEventPlanAllocation cancel = new ConsoleEventPlanAllocation(plan, new Date(), Operation.CANCELLED);
             getConsole().post(cancel);
         }
+        plan = null;
     }
 
     private void generate(ActionEvent action) {
