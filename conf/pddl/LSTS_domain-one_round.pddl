@@ -16,7 +16,7 @@
              (task_desc ?t - task ?i - interest ?p - payload) ; a description of the task that sample (or survey) the point of interest by the payload
 	     (sampled ?t - task ?v - vehicle) ;obtained data from sampling or surveilance by the vehicle
              ;(surveyed ?v - vehicle ?a - area)
-             ;(communicated_data ?t - task) ;data are acquired for the vehicle
+             (communicated_data ?t - task) ;data are acquired for the vehicle
              (completed ?t - task) ;task ?t has been completed
              (free ?l - location) ;no vehicle in the location
              (available ?a - area) ;no vehicle is surveiling the area
@@ -121,7 +121,7 @@
              (at end (can-move ?v))
              (at end (completed ?t))
              (at end (not (task_desc ?t ?o ?p)))
-             (at end (increase (tasks-completed) 1))
+             ;(at end (increase (tasks-completed) 1))
              (at start (increase (from-base ?v) 60))
             ; (at start (decrease (battery-level ?v)(* (battery-consumption-payload ?p) 10)))
         )
@@ -152,7 +152,7 @@
              (at end (can-move ?v))
              (at end (completed ?t))
              (at end (not (task_desc ?t ?a ?p)))
-             (at end (increase (tasks-completed) 1))
+             ;(at end (increase (tasks-completed) 1))
              (at start (increase (from-base ?v)(/ (surveillance_distance ?a)(speed ?v))))
              ;(at start (decrease (battery-level ?v)(+ (* (battery-consumption-move ?v)(surveillance_distance ?a))(* (battery-consumption-payload ?p) (/ (surveillance_distance ?a)(speed ?v))))))
          )
@@ -188,7 +188,7 @@
              (at end (completed ?t))
              (at end (not (task_desc ?t ?a ?p)))
              (at end (not (task_desc ?t ?a ?p2)))
-             (at end (increase (tasks-completed) 2))
+             ;(at end (increase (tasks-completed) 2))
              (at start (increase (from-base ?v)(/ (surveillance_distance ?a)(speed ?v))))
              ;(at start (decrease (battery-level ?v)(+ (* (battery-consumption-move ?v)(surveillance_distance ?a))(* (+ (battery-consumption-payload ?p)(battery-consumption-payload ?p2)) (/ (surveillance_distance ?a)(speed ?v))))))
        )
@@ -230,26 +230,27 @@
              (at end (not (task_desc ?t ?a ?p)))
              (at end (not (task_desc ?t ?a ?p2)))
              (at end (not (task_desc ?t ?a ?p3)))
-             (at end (increase (tasks-completed) 3))
+             ;(at end (increase (tasks-completed) 3))
              (at start (increase (from-base ?v)(/ (surveillance_distance ?a)(speed ?v))))
              ;(at start (decrease (battery-level ?v)(+ (* (battery-consumption-move ?v)(surveillance_distance ?a))(* (+ (battery-consumption-payload ?p)(+ (battery-consumption-payload ?p2)(battery-consumption-payload ?p3))) (/ (surveillance_distance ?a)(speed ?v))))))
         )
 )
 
-;(:durative-action communicate
-;:parameters (?v - vehicle ?l - location ?t - task)
-;:duration (= ?duration 60)
-;:condition (and (over all (base ?v ?l))
-;                (over all (at ?v ?l))
-;                (at start (sampled ?t ?v))
-;                (at start (can-move ?v))
-;           )
-;:effect (and (at end (communicated_data ?t))
-;             (at start (not (can-move ?v)))
-;             (at end (can-move ?v))
-;             (at end (not (sampled ?t ?v)))
-;        )
-;)
+(:durative-action communicate
+:parameters (?v - vehicle ?l - location ?t - task)
+:duration (= ?duration 60)
+:condition (and (over all (base ?v ?l))
+                (over all (at ?v ?l))
+                (at start (sampled ?t ?v))
+                ;(at start (can-move ?v))
+           )
+:effect (and (at end (communicated_data ?t))
+             ;(at start (not (can-move ?v)))
+             ;(at end (can-move ?v))
+             (at end (increase (tasks-completed) 1))
+             (at end (not (sampled ?t ?v)))
+        )
+)
 
 ;dummy action
 (:action getready
