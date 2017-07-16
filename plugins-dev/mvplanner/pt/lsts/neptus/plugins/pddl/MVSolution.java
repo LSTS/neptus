@@ -97,11 +97,22 @@ public class MVSolution {
 
         this.locations = locations;
 
+        PddlAction[] previous = null;
         for (String line : pddlSolution.split("\n")) {
             if (line.trim().isEmpty() || line.trim().startsWith(";"))
                 continue;
             PddlAction[] act = createAction(line.toLowerCase());
             if (act != null) {
+                // repeated parallel communicate actions will be skipped
+                if (previous != null && previous[0].type.equals(act[0].type) && 
+                        previous[0].vehicle.equals(act[0].vehicle) &&
+                        (int)previous[0].startTime == (int)act[0].startTime &&
+                        (int)previous[0].endTime == (int)act[0].endTime) {
+                    continue;
+                }
+                
+                previous = act;
+                
                 for (PddlAction a : act)
                     actions.add(a);
             }
