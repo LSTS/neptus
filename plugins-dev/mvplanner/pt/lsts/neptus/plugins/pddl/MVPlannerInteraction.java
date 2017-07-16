@@ -132,6 +132,10 @@ public class MVPlannerInteraction extends ConsoleInteraction {
     @NeptusProperty(category = "Plan Execution", name = "Use Onboard Executive")
     private boolean onboardExecutive = true;
 
+    @NeptusProperty(category = "Plan Generation", name = "Split survey tasks")
+    private boolean splitSurveys = true;
+
+    
     @Subscribe
     public void on(ConsoleEventFutureState future) {
         synchronized (futureStates) {
@@ -660,7 +664,8 @@ public class MVPlannerInteraction extends ConsoleInteraction {
     }
 
     private String createPlan(ProgressMonitor pm) {
-        searchAndSplitSurveys();
+        if (splitSurveys)
+            searchAndSplitSurveys();
         
         allocationInProgress = true;
         
