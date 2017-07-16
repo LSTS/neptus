@@ -41,7 +41,7 @@ import pt.lsts.neptus.types.vehicle.VehicleType;
  * @author zp
  *
  */
-public class LstsDomainModelV2 extends LstsDomainModel {
+public class LstsDomainModelAllTasks extends LstsDomainModel {
 
     @Override
     protected String vehicleDetails(VehicleType v, MVProblemSpecification problem) {

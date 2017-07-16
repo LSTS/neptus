@@ -42,7 +42,7 @@ import pt.lsts.neptus.types.vehicle.VehicleType;
  * @author zp
  *
  */
-public class LstsDomainModelOneRound extends LstsDomainModelV2 {
+public class LstsDomainModelOneRound extends LstsDomainModelAllTasks {
     
     @Override
     protected String goals(MVProblemSpecification problem) {

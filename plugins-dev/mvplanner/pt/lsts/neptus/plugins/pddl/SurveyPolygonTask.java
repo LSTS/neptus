@@ -241,12 +241,14 @@ public class SurveyPolygonTask extends MVPlannerTask {
 
     @Override
     public Collection<MVPlannerTask> splitTask(double maxLength) {
+        //maxLength -= 100;
         ArrayList<MVPlannerTask> surveys = new ArrayList<>();
-        double horStep = area.getDiameter();
+        double horStep = Double.MAX_VALUE;
 
         for (PayloadRequirement p : getRequiredPayloads())
             horStep = Math.min(horStep, p.getSwathWidth());
-
+        System.out.println(horStep);
+        
         final double swathWidth = horStep;
 
         int numAreas = 1;
@@ -259,7 +261,7 @@ public class SurveyPolygonTask extends MVPlannerTask {
             return surveys;
         }
 
-        while (curLength > maxLength) {
+        while (curLength >= maxLength) {
             numAreas++;
             polygons.clear();
             int horSplits = numAreas / 3 + 1;
@@ -272,13 +274,13 @@ public class SurveyPolygonTask extends MVPlannerTask {
                 }
             }
             else {
-                polygons.addAll(area.subAreas(numAreas, angle));
+                polygons.addAll(area.subAreas(numAreas+1, angle));
             }
             
             curLength = 0;
             for (PolygonType p : polygons) {
-                double swathW = Math.min(p.getDiameter(), swathWidth); 
-                curLength = Math.max(curLength, p.getPathLength(swathW, 0));                
+                //double swathW = Math.min(p.getDiameter(), swathWidth); 
+                curLength = Math.max(curLength, p.getPathLength(swathWidth, 0));                
             }
         }
 

@@ -247,9 +247,7 @@ public abstract class MVPlannerTask implements Renderer2DPainter, PropertiesProv
         return 0;
     }
     
-    public Collection<MVPlannerTask> splitTask(double maxLength) {
-        return new ArrayList<>();
-    }
+    public abstract Collection<MVPlannerTask> splitTask(double maxLength);
 
     public static void saveFile(File f, ArrayList<MVPlannerTask> tasks) throws IOException {
         BufferedWriter writer = new BufferedWriter(new FileWriter(f));

@@ -891,7 +891,7 @@ CommBaseManager<IMCMessage, MessageInfo, SystemImcMsgCommInfo, ImcId16, CommMana
 
     @Override
     protected boolean processMsgLocally(MessageInfo info, IMCMessage msg) {
-        // msg.dump(System.out);
+        //msg.dump(System.out);
         SystemImcMsgCommInfo vci = null;
         imcState.setMessage(msg);
         try {

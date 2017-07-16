@@ -37,7 +37,10 @@ import java.awt.Graphics2D;
 import java.awt.event.MouseEvent;
 import java.awt.geom.Point2D;
 import java.io.IOException;
+import java.util.Collection;
 import java.util.Scanner;
+
+import org.mozilla.javascript.edu.emory.mathcs.backport.java.util.Arrays;
 
 import pt.lsts.neptus.renderer2d.StateRenderer2D;
 import pt.lsts.neptus.types.coord.LocationType;
@@ -147,6 +150,12 @@ public class SamplePointTask extends MVPlannerTask {
         for (String p : payloads)
             getRequiredPayloads().add(PayloadRequirement.valueOf(p));
         input.close();        
+    }
+    
+    @SuppressWarnings("unchecked")
+    @Override
+    public Collection<MVPlannerTask> splitTask(double maxLength) {
+        return Arrays.asList(new MVPlannerTask[]{ this });
     }
     
     public static void main(String[] args) throws Exception {

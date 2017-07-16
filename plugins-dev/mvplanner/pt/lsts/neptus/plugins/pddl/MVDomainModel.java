@@ -41,7 +41,7 @@ import java.io.File;
 public enum MVDomainModel {
 
     V1(new File("conf/pddl/LSTS_domain.pddl"), new LstsDomainModel()),
-    V2(new File("conf/pddl/LSTS_domain-v2.pddl"), new LstsDomainModelV2()),
+    V2(new File("conf/pddl/LSTS_domain-all-tasks.pddl"), new LstsDomainModelAllTasks()),
     OneRound(new File("conf/pddl/LSTS_domain-one_round.pddl"), new LstsDomainModelOneRound()),
     Collaborative(new File("conf/pddl/LSTS_domain-collaborative-surfacing.pddl"), new LstsDomainModelCollaborative());
         

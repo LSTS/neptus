@@ -56,7 +56,6 @@ import com.google.common.eventbus.Subscribe;
 import pt.lsts.imc.TemporalAction;
 import pt.lsts.imc.TemporalPlan;
 import pt.lsts.imc.TemporalPlanStatus;
-import pt.lsts.imc.net.Consume;
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.comm.manager.imc.ImcMsgManager;
 import pt.lsts.neptus.comm.manager.imc.ImcSystem;
@@ -257,10 +256,12 @@ public class MVPlannerInteraction extends ConsoleInteraction {
         planner.start();
     }
     
-    @Consume
+    @Subscribe
     public void on(TemporalPlanStatus status) {
         if (!onboardExecutive || plan == null)
             return;
+        
+        System.out.println("Received status: "+status);
         
         if (!(plan.getPlanId().equals(status.getPlanId()))) {
             // send the updated plan!
@@ -475,9 +476,12 @@ public class MVPlannerInteraction extends ConsoleInteraction {
         popup.addSeparator();
 
         if (!this.autoExec) {
-            popup.add("Create plans").addActionListener(this::generate);
+            popup.add("Create plans").addActionListener(this::generate);            
             popup.addSeparator();
         }
+        
+        popup.add("Split tasks").addActionListener(a -> searchAndSplitSurveys());
+        
 
         popup.add("Settings").addActionListener(this::settings);
 
@@ -795,6 +799,7 @@ public class MVPlannerInteraction extends ConsoleInteraction {
                     for (String system : vehicles) {
                         ImcMsgManager.getManager().sendMessageToSystem(plan, system);
                         NeptusLog.pub().info("Sending temporal plan to "+system);
+                        NeptusLog.pub().info(plan);
                     }
                     for (MVPlannerTask t : tasks) {                     
                         if (ts.containsKey(t.name)) {

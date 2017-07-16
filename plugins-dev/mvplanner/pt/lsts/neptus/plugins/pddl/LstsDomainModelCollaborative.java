@@ -41,7 +41,7 @@ import pt.lsts.neptus.types.vehicle.VehicleType;
  * @author zp
  *
  */
-public class LstsDomainModelCollaborative extends LstsDomainModelV2 {
+public class LstsDomainModelCollaborative extends LstsDomainModelAllTasks {
     
     
     @Override
