@@ -134,6 +134,10 @@ public class MVPlannerInteraction extends ConsoleInteraction {
 
     @NeptusProperty(category = "Plan Generation", name = "Split survey tasks")
     private boolean splitSurveys = true;
+    
+    @NeptusProperty(category = "Plan Generation", name = "Use future vehicle states")
+    private boolean useFutureStates = false;
+    
 
     
     @Subscribe
@@ -220,15 +224,16 @@ public class MVPlannerInteraction extends ConsoleInteraction {
                 available.add(s.getName());
         }
 
+
         // For the available vehicles check which are free for being allocated
         synchronized (futureStates) {
             for (ConsoleEventFutureState future : futureStates.values()) {
                 // this vehicle won't be ready in time...
-                if ((future.getDate().getTime() - System.currentTimeMillis()) > secsBetweenAllocations * 1000) {
+                if ((future.getDate().getTime() - System.currentTimeMillis()) > secsBetweenAllocations * 1000 || !useFutureStates) {
                     available.remove(future.getVehicle());
                 }
             }
-        }
+        }            
         
         if (available.isEmpty()) {
             needsToPlan = false;
