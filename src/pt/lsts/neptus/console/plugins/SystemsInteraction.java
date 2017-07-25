@@ -77,7 +77,7 @@ public class SystemsInteraction extends ConsoleInteraction {
     
     @NeptusProperty(name = "Consider External Systems Icons", userLevel = LEVEL.REGULAR)
     public boolean considerExternalSystemsIcons = true;
-    @NeptusProperty(name = "Minutes To Consider Systems Without Known Location", userLevel = LEVEL.REGULAR)
+    @NeptusProperty(name = "Minutes To Consider Systems Without Known Location", description = "0 to disable", userLevel = LEVEL.REGULAR)
     public int minutesToConsiderSystemsWithoutKnownLocation = 5;
     @NeptusProperty(name = "Minutes to Show Distress Signal", category = "Test", userLevel = LEVEL.ADVANCED)
     private int minutesToShowDistress = 5; 
@@ -437,8 +437,8 @@ public class SystemsInteraction extends ConsoleInteraction {
         ArrayList<ExternalSystem> extSystems = new ArrayList<>();
         
         for (ImcSystem sys : ImcSystemsHolder.lookupAllSystems()) {
-            if (System.currentTimeMillis() - sys.getLocationTimeMillis() > minutesToConsiderSystemsWithoutKnownLocation
-                    * DateTimeUtil.MINUTE)
+            if (minutesToConsiderSystemsWithoutKnownLocation > 0 && System.currentTimeMillis()
+                    - sys.getLocationTimeMillis() > minutesToConsiderSystemsWithoutKnownLocation * DateTimeUtil.MINUTE)
                 continue;
             LocationType loc = sys.getLocation();
             Point2D locScreenXY = source.getScreenPosition(loc);
@@ -449,7 +449,7 @@ public class SystemsInteraction extends ConsoleInteraction {
         
         if (considerExternalSystemsIcons) {
             for (ExternalSystem sys : ExternalSystemsHolder.lookupAllSystems()) {
-                if (System.currentTimeMillis()
+                if (minutesToConsiderSystemsWithoutKnownLocation > 0 && System.currentTimeMillis()
                         - sys.getLocationTimeMillis() > minutesToConsiderSystemsWithoutKnownLocation
                                 * DateTimeUtil.MINUTE)
                     continue;
