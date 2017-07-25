@@ -1806,8 +1806,8 @@ public class SystemsList extends ConsolePanel implements MainVehicleChangeListen
             // Choose main color
             Color color = new Color(210, 176, 106); // KHAKI
 
-            if (SystemPainterHelper.getLocationAge(sys.getLocation(), sys.getLocationTimeMillis()) < DateTimeUtil.MINUTE
-                    * minutesToHideSystemsWithoutKnownLocation
+            if (minutesToHideSystemsWithoutKnownLocation <= 0 || SystemPainterHelper.getLocationAge(sys.getLocation(),
+                    sys.getLocationTimeMillis()) < DateTimeUtil.MINUTE * minutesToHideSystemsWithoutKnownLocation
                     || sys.isActive())
                 drawImcSystem(renderer, g2, sys, color, true);
 
@@ -1827,8 +1827,8 @@ public class SystemsList extends ConsolePanel implements MainVehicleChangeListen
             // Choose main color
             Color color = new Color(255, 0, 255); // PLUM_RED
 
-            if (System.currentTimeMillis() - sys.getLocationTimeMillis() < DateTimeUtil.MINUTE
-                    * minutesToHideSystemsWithoutKnownLocation)
+            if (minutesToHideSystemsWithoutKnownLocation <= 0 || System.currentTimeMillis()
+                    - sys.getLocationTimeMillis() < DateTimeUtil.MINUTE * minutesToHideSystemsWithoutKnownLocation)
                 drawExternalSystem(renderer, g2, sys, color);
 
             g2.dispose();
