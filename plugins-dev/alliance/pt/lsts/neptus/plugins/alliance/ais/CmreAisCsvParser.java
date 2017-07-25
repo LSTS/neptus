@@ -252,10 +252,8 @@ public class CmreAisCsvParser {
         }
         
         long timeMillis = System.currentTimeMillis();
-        if (Double.isFinite(timestamp)) { // assuming millis since epoch
-            timeMillis = Double.valueOf(timestamp).longValue();
-            if (timeMillis != timestamp)
-                timeMillis = Double.valueOf(timestamp * 1E3).longValue();
+        if (Double.isFinite(timestamp)) { // assuming seconds since epoch
+            timeMillis = Double.valueOf(timestamp * 1E3).longValue();
         }
         
         int mmsi = -1;
