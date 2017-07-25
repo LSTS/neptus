@@ -142,8 +142,8 @@ public class NmeaPlotter extends ConsoleLayer {
     @NeptusProperty(name = "TCP Port", category = "TCP Client")
     public int tcpPort = 13000;
 
-    @NeptusProperty(name = "Maximum age in for AIS contacts (seconds)")
-    public int maximumAisAge = 600;
+    @NeptusProperty(name = "Maximum age in for AIS contacts (minutes)", description = "0 for disable filter")
+    public int maximumAisAgeMinutes = 10;
 
     @NeptusProperty(name = "Retransmit to other Neptus consoles", userLevel = LEVEL.ADVANCED)
     public boolean retransmitToNeptus = true;
@@ -547,7 +547,8 @@ public class NmeaPlotter extends ConsoleLayer {
 
     @Periodic(millisBetweenUpdates = 60000)
     public void purgeOldContacts() {
-        contactDb.purge(maximumAisAge * 1000);
+        if (maximumAisAgeMinutes >= 0)
+            contactDb.purge(maximumAisAgeMinutes * 60 * 1000);
     }
 
     @Periodic(millisBetweenUpdates = 120000)
