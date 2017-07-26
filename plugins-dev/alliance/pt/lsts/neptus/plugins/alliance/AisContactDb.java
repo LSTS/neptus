@@ -56,6 +56,7 @@ import pt.lsts.neptus.systems.external.ExternalSystemsHolder;
 import pt.lsts.neptus.types.coord.LocationType;
 import pt.lsts.neptus.util.AISUtil;
 import pt.lsts.neptus.util.NMEAUtils;
+import pt.lsts.neptus.util.UnitsUtil;
 import pt.lsts.neptus.util.conf.ConfigFetch;
 
 /**
@@ -64,8 +65,6 @@ import pt.lsts.neptus.util.conf.ConfigFetch;
  */
 public class AisContactDb implements AISObserver {
 
-    public static final double MPS_TO_KNOT_CONV = 1.94384449244;
-    
     private LinkedHashMap<Integer, AisContact> contacts = new LinkedHashMap<>();
     private LinkedHashMap<Integer, String> labelCache = new LinkedHashMap<>();
     private LinkedHashMap<Integer, HashMap<String, Object>> dimensionsCache = new LinkedHashMap<>();
@@ -84,7 +83,13 @@ public class AisContactDb implements AISObserver {
             String line = reader.readLine();
             while (line != null) {
                 String[] parts = line.split(",");
-                int mmsi = Integer.parseInt(parts[0]);
+                int mmsi;
+                try {
+                    mmsi = Integer.parseInt(parts[0]);
+                }
+                catch (Exception e1) {
+                    mmsi = Integer.parseInt(parts[0].replaceAll("^0x", ""), 16);
+                }
                 String name = parts[1].trim();
                 labelCache.put(mmsi, name);
 
@@ -271,7 +276,7 @@ public class AisContactDb implements AISObserver {
 
         sys.storeData(SystemUtils.MMSI_KEY, mmsi);
 
-        sys.storeData(SystemUtils.GROUND_SPEED_KEY, contact.getSog() / MPS_TO_KNOT_CONV);
+        sys.storeData(SystemUtils.GROUND_SPEED_KEY, contact.getSog() / UnitsUtil.MS_TO_KNOT);
         sys.storeData(SystemUtils.COURSE_DEGS_KEY, contact.getCog());
         
         sys.storeData(SystemUtils.RATE_OF_TURN_DEGS_PER_MIN_KEY, contact.getRateOfTurn());
