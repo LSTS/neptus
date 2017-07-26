@@ -44,10 +44,10 @@ import pt.lsts.neptus.console.ConsoleLayer;
 import pt.lsts.neptus.gui.OrientationIcon;
 import pt.lsts.neptus.mystate.MyState;
 import pt.lsts.neptus.plugins.PluginDescription;
-import pt.lsts.neptus.plugins.position.FindVehicle.BaseOrientations;
 import pt.lsts.neptus.plugins.update.Periodic;
 import pt.lsts.neptus.renderer2d.LayerPriority;
 import pt.lsts.neptus.renderer2d.StateRenderer2D;
+import pt.lsts.neptus.types.coord.BaseOrientations;
 import pt.lsts.neptus.types.coord.LocationType;
 import pt.lsts.neptus.util.AngleUtils;
 import pt.lsts.neptus.util.ColorUtils;
@@ -157,7 +157,7 @@ public class FindMainSystemLayer extends ConsoleLayer {
             absDistanceToLook = baseLocation.getHorizontalDistanceInMeters(lt);
             double angleRads = baseLocation.getXYAngle(lt);
             absHeadingRadsToLook = AngleUtils.nomalizeAngleRads2Pi(angleRads);
-            absHeadingRadsToLookOrientation = FindVehicle.convertToBaseOrientation(absHeadingRadsToLook);
+            absHeadingRadsToLookOrientation = BaseOrientations.convertToBaseOrientationFromRadians(absHeadingRadsToLook);
             icon.setAngleRadians(angleRads - baseOrientationRadians);
         }
 
