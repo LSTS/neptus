@@ -179,16 +179,22 @@ public class FindMainSystemLayer extends ConsoleLayer {
         
         Graphics2D g2 = (Graphics2D) g.create();
         
-        String txt = "<html><b>";
+        StringBuilder txt = new StringBuilder("<html><div align='center'><b>");
         if (!validData) {
-            txt += "?";
+            txt.append("?");
         }
         else {
-            txt += absHeadingRadsToLookOrientation.getAbbrev() + "<br/>"
-                    + (Math.round(Math.toDegrees(absHeadingRadsToLook))) + "\u00B0" + "<br/>"
-                    + MathMiscUtils.parseToEngineeringNotation(absDistanceToLook, 0) + "m";
+            txt.append(absHeadingRadsToLookOrientation.getAbbrev()).append("<br/>");
+            txt.append(Math.round(Math.toDegrees(absHeadingRadsToLook))).append("\u00B0<br/>");
+            int dc = 0;
+            if (absDistanceToLook >= 1E3)
+                dc = 2;
+            if (absDistanceToLook >= 100E3)
+                dc = 1;
+            txt.append(MathMiscUtils.parseToEngineeringNotation(absDistanceToLook, dc)).append("m");
         }
-        toDraw.setText(txt);
+        txt.append("</b></div></html>");
+        toDraw.setText(txt.toString());
 
         g2.setColor(COLOR_BLACK_200);
         g2.drawRoundRect(renderer.getWidth() - RECT_WIDTH - (MARGIN_INT + MARGIN_EXT), 300 - RECT_HEIGHT
