@@ -75,7 +75,7 @@ public class MarksImporterPanel extends JPanel {
     private final JButton kmlFromUrlBtn = new JButton(I18n.text("From URL"));
     private final JButton kmlFromFileBtn = new JButton(I18n.text("From file"));
 
-    private final JLabel sourceLabel = new JLabel(I18n.text(""));
+    private final JLabel sourceLabel = new JLabel("");
     private final JFileChooser fileChooser = new JFileChooser();
 
     private final JButton csvFromFileBtn = new JButton(I18n.text("Choose file"));
@@ -85,14 +85,19 @@ public class MarksImporterPanel extends JPanel {
     private final JPanel csvImporterPanel = new JPanel();
     private final JPanel kmlImporterPanel = new JPanel();
 
-    private final FileFilter csvFilter = new FileNameExtensionFilter("Csv file", "csv", "Comma separated values");
-    private final FileFilter kmlFilter = new FileNameExtensionFilter("kml", "kml", "Keyhole Markup Language");
-    private final FileFilter txtFilter = new FileNameExtensionFilter("txt", "txt", "text");
+    private final FileFilter csvFilter = GuiUtils.getCustomFileFilter(I18n.text("Comma Separated Values"), "csv");
+    private final FileFilter kmlFilter = GuiUtils.getCustomFileFilter(I18n.text("Keyhole Markup Language"), "kml");
 
+    private Component parent = null;
     private List<MarkElement> importedMarks = null;
 
     public MarksImporterPanel() {
-        fileChooser.addChoosableFileFilter(txtFilter);
+        this(null);
+    }
+
+    public MarksImporterPanel(Component parent) {
+        this.parent = parent;
+        
         fileChooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
 
         this.setBounds(0, 0, MAIN_WIDTH, MAIN_HEIGHT);
@@ -122,30 +127,34 @@ public class MarksImporterPanel extends JPanel {
         //csv pane
         csvImporterPanel.setLayout(new MigLayout());
         csvFromFileBtn.addActionListener(e -> {
-            int res = fileChooser.showDialog(null, "CSV Source");
+            fileChooser.resetChoosableFileFilters();
+            fileChooser.setFileFilter(csvFilter);
+            int res = fileChooser.showDialog(parent, I18n.text("CSV Source"));
 
             if(res == JFileChooser.APPROVE_OPTION) {
                 String filePath = fileChooser.getSelectedFile().getAbsolutePath();
                 importedMarks = MarksCSVHandler.importCsv(filePath, csvDelimiter);
                 if(importedMarks == null) {
                     sourceLabel.setForeground(Color.RED);
-                    sourceLabel.setText("ERROR while importing marks");
+                    sourceLabel.setText(I18n.text("Error while importing marks"));
                     return;
                 }
 
-                sourceLabel.setText(filePath + " (" + importedMarks.size() + " marks)");
+                sourceLabel.setText(I18n.textf("Imported %numberOfMarks marks from '%path'", importedMarks.size(), filePath));
             }
         });
 
         kmlImporterPanel.setLayout(new MigLayout());
         kmlFromFileBtn.addActionListener(e -> {
-            int res = fileChooser.showDialog(null, "KML Source");
+            fileChooser.resetChoosableFileFilters();
+            fileChooser.setFileFilter(kmlFilter);
+            int res = fileChooser.showDialog(parent, I18n.text("KML Source"));
             if(res == JFileChooser.APPROVE_OPTION)
                 doKmlImport(fileChooser.getSelectedFile().getAbsolutePath());
         });
 
         kmlFromUrlBtn.addActionListener(e -> {
-            String url = JOptionPane.showInputDialog("URL");
+            String url = JOptionPane.showInputDialog(MarksImporterPanel.this, "URL");
 
             if(url != null)
                 doKmlImport(url);
@@ -165,20 +174,21 @@ public class MarksImporterPanel extends JPanel {
         URL url;
         try {
             url = Paths.get(urlStr).toUri().toURL();
-        } catch (MalformedURLException e1) {
+        }
+        catch (MalformedURLException e1) {
             e1.printStackTrace();
-            GuiUtils.showErrorPopup("KML", urlStr + " is not a valid URL");
+            GuiUtils.showErrorPopup("KML", I18n.textf("KML %url is not a valid URL", urlStr));
             return;
         }
 
         importedMarks = MarksKMLHandler.importKML(url);
         if (importedMarks == null) {
             sourceLabel.setForeground(Color.RED);
-            sourceLabel.setText("ERROR while importing marks");
+            sourceLabel.setText(I18n.text("Error while importing marks"));
             return;
         }
 
-        sourceLabel.setText(urlStr + " (" + importedMarks.size() + " marks)");
+        sourceLabel.setText(I18n.textf("Imported %numberOfMarks marks from '%path'", importedMarks.size(), urlStr));
     }
 
     private void initSourcesPanel() {
@@ -189,18 +199,18 @@ public class MarksImporterPanel extends JPanel {
         fromCsv.setSelected(true);
 
         ActionListener radioBtnListener = e -> {
-          if(fromCsv.isSelected()) {
-              ((CardLayout) importerPanel.getLayout()).show(importerPanel, "csv");
+            if(fromCsv.isSelected()) {
+                ((CardLayout) importerPanel.getLayout()).show(importerPanel, "csv");
 
-              fileChooser.removeChoosableFileFilter(kmlFilter);
-              fileChooser.addChoosableFileFilter(csvFilter);
-          }
-          else if(fromKml.isSelected()){
-              ((CardLayout) importerPanel.getLayout()).show(importerPanel, "kml");
+                fileChooser.resetChoosableFileFilters();;
+                fileChooser.setFileFilter(csvFilter);
+            }
+            else if(fromKml.isSelected()){
+                ((CardLayout) importerPanel.getLayout()).show(importerPanel, "kml");
 
-              fileChooser.removeChoosableFileFilter(csvFilter);
-              fileChooser.addChoosableFileFilter(kmlFilter);
-          }
+                fileChooser.resetChoosableFileFilters();;
+                fileChooser.setFileFilter(kmlFilter);
+            }
         };
 
         fromCsv.addActionListener(radioBtnListener);
@@ -212,10 +222,10 @@ public class MarksImporterPanel extends JPanel {
     }
 
     public static List<MarkElement> showPanel(Component parent) {
-        MarksImporterPanel panel = new MarksImporterPanel();
+        MarksImporterPanel panel = new MarksImporterPanel(parent);
         JOptionPane.showOptionDialog(parent, panel, I18n.text("Marks importer"),
                 JOptionPane.YES_NO_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE,
-                null, new Object[]{"OK", I18n.text("Cancel")}, null);
+                null, new Object[]{I18n.text("OK"), I18n.text("Cancel")}, null);
 
         return panel.getImportedMarks();
     }
