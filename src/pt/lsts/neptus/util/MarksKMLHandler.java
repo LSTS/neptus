@@ -55,18 +55,21 @@ import pt.lsts.neptus.types.map.MarkElement;
  */
 public class MarksKMLHandler {
     private static final String kmlVersion = "2.2";
+    private static final String NL = System.lineSeparator();
 
     /**
      * Export the given MarkElements to a KML file
-     * */
+     */
     public static boolean exportKML(String exportPathStr, List<MarkElement> marks) {
-        File out = new File(exportPathStr + ".kml");
+        String fxExt = FileUtil.getFileExtension(exportPathStr);
+        String fxPath = fxExt.isEmpty() ? exportPathStr + ".kml" : exportPathStr; 
+        
+        File out = new File(fxPath);
         StringBuilder sb = new StringBuilder();
         sb.append(kmlHeader(out.getName()));
 
         marks.stream().forEach(m -> sb.append(markToPlacemarkXml(m)));
-        sb.append("</Document> \n" +
-                "</kml> \n");
+        sb.append("  </Document>").append(NL).append("</kml>").append(NL);
 
         try {
             String xml = sb.toString();
@@ -75,8 +78,8 @@ public class MarksKMLHandler {
             writer.close();
 
             NeptusLog.pub().debug(xml);
-
-        } catch (FileNotFoundException | UnsupportedEncodingException e) {
+        }
+        catch (FileNotFoundException | UnsupportedEncodingException e) {
             e.printStackTrace();
             return false;
         }
@@ -123,14 +126,14 @@ public class MarksKMLHandler {
      * Utility method to get KML format's header
      * */
     private static String kmlHeader(String layerName) {
-        return "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
-                "<kml xmlns=\"http://www.opengis.net/kml/" + kmlVersion + "\">\n" +
-                "  <Document>\n" +
-                "    <name>" + layerName + "</name>\n";
+        return "<?xml version=\"1.0\" encoding=\"UTF-8\"?>" + NL +
+                "<kml xmlns=\"http://www.opengis.net/kml/" + kmlVersion + "\">" + NL +
+                "  <Document>" + NL +
+                "    <name>" + layerName + "</name>" + NL;
     }
 
     /**
-     * Tranform a MarkElement into an XML definition, to be used
+     * Transform a MarkElement into an XML definition, to be used
      * on KML format
      * */
     private static String markToPlacemarkXml(MarkElement m) {
@@ -140,12 +143,12 @@ public class MarksKMLHandler {
         double latDeg = absLoc.getLatitudeDegs();
         double lonDeg = absLoc.getLongitudeDegs();
 
-        return "<Placemark>\n" +
-                "      <name>" + id + "</name>\n" +
-                "      <styleUrl>#icon-1899-0288D1-nodesc</styleUrl>\n" +
-                "      <Point>\n" +
-                "        <coordinates>" + lonDeg + "," + latDeg + "</coordinates>\n" +
-                "      </Point>\n" +
-                "    </Placemark>\n";
+        return "    <Placemark>" + NL +
+               "      <name>" + id + "</name>" + NL +
+               "      <styleUrl>#icon-1899-0288D1-nodesc</styleUrl>" + NL +
+               "      <Point>" + NL +
+               "        <coordinates>" + lonDeg + "," + latDeg + "</coordinates>" + NL +
+               "      </Point>" + NL +
+               "    </Placemark>" + NL;
     }
 }
