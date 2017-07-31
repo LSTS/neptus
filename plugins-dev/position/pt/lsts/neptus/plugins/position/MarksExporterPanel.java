@@ -67,16 +67,25 @@ public class MarksExporterPanel extends JPanel {
 
     private final JPanel exporterSourcePanel = new JPanel();
 
+    private Component parent = null;
     private HashMap<String, MarkElement> marksToExport = null;
 
     private static boolean validOperation = false;
 
+    private final FileFilter csvFilter = GuiUtils.getCustomFileFilter(I18n.text("Comma Separated Values"), "csv");
+    private final FileFilter kmlFilter = GuiUtils.getCustomFileFilter(I18n.text("Keyhole Markup Language"), "kml");
+
     public MarksExporterPanel(List<MarkElement> marks) {
+        this(null, marks);
+    }
+
+    public MarksExporterPanel(Component parent, List<MarkElement> marks) {
+        this.parent = parent;
+        
         loadAvailableMarks(marks);
 
         this.setBounds(0, 0, MAIN_WIDTH, MAIN_HEIGHT);
         this.setLayout(new MigLayout(""));
-
 
         exporterSourcePanel.setBounds(0, 0, MAIN_WIDTH / 5, MAIN_HEIGHT);
         marksList.setBounds(0, 0, MAIN_WIDTH, MAIN_HEIGHT);
@@ -89,7 +98,9 @@ public class MarksExporterPanel extends JPanel {
         exporterSourcePanel.add(fromKml);
 
         fromCsv.addActionListener(e ->{
-            if(fileChooser.showDialog(null, I18n.text("To CSV")) != JFileChooser.APPROVE_OPTION)
+            fileChooser.resetChoosableFileFilters();
+            fileChooser.setFileFilter(csvFilter);
+            if(fileChooser.showDialog(this.parent, I18n.text("To CSV")) != JFileChooser.APPROVE_OPTION)
                 return;
 
             String exportPath = fileChooser.getSelectedFile().getAbsolutePath();
@@ -97,7 +108,9 @@ public class MarksExporterPanel extends JPanel {
         });
 
         fromKml.addActionListener(e ->{
-            if(fileChooser.showDialog(null, I18n.text("To KML")) != JFileChooser.APPROVE_OPTION)
+            fileChooser.resetChoosableFileFilters();
+            fileChooser.setFileFilter(kmlFilter);
+            if(fileChooser.showDialog(this.parent, I18n.text("To KML")) != JFileChooser.APPROVE_OPTION)
                 return;
 
             String exportPath = fileChooser.getSelectedFile().getAbsolutePath();
@@ -132,10 +145,10 @@ public class MarksExporterPanel extends JPanel {
     }
 
     public static boolean showPanel(Component parent, List<MarkElement> marks) {
-        MarksExporterPanel panel = new MarksExporterPanel(marks);
+        MarksExporterPanel panel = new MarksExporterPanel(parent, marks);
         JOptionPane.showOptionDialog(parent, panel, I18n.text("Marks Exporter"),
                 JOptionPane.YES_NO_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE,
-                null, new Object[]{"OK", I18n.text("Cancel")}, null);
+                null, new Object[]{I18n.text("OK"), I18n.text("Cancel")}, null);
 
         return validOperation;
     }
