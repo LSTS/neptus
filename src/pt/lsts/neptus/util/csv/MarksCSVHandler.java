@@ -40,6 +40,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import pt.lsts.neptus.NeptusLog;
+import pt.lsts.neptus.types.coord.CoordinateUtil;
 import pt.lsts.neptus.types.coord.LocationType;
 import pt.lsts.neptus.types.map.MarkElement;
 import pt.lsts.neptus.util.FileUtil;
@@ -58,10 +59,10 @@ public class MarksCSVHandler {
 
         try{
             PrintWriter writer = new PrintWriter(exportPath, "UTF-8");
-
+            writer.write("# ID" + del + "Latitude" + del + "Longitude" + NL);
             for(MarkElement m : marks) {
                 LocationType centerLoc = m.getCenterLocation().getNewAbsoluteLatLonDepth();
-                writer.write(m.getId() + del + centerLoc.getLatitudeDegs() + del + centerLoc.getLongitudeDegs() + NL);
+                writer.write(m.getId() + del + centerLoc.getLatitudeAsPrettyString() + del + centerLoc.getLongitudeAsPrettyString() + NL);
             }
 
             writer.close();
@@ -88,19 +89,33 @@ public class MarksCSVHandler {
         try (BufferedReader br = new BufferedReader(new FileReader(importFile))) {
             String line;
             while ((line = br.readLine()) != null) {
+                if (line.trim().startsWith("#"))
+                    continue;
+                
                 String parts[] = line.split(del);
 
                 if(parts.length != 3) {
                     NeptusLog.pub().error("Was expecting 3 columns, got " + parts.length + " on line " + line);
-                    return null;
+                    continue;
                 }
 
-                double lat = Double.valueOf(parts[1]);
-                double lon = Double.valueOf(parts[2]);
+                double lat = CoordinateUtil.parseCoordString(parts[1].trim());
+                double lon = CoordinateUtil.parseCoordString(parts[2].trim());
+                
+                if (!Double.isFinite(lat) || !Double.isFinite(lon)) {
+                    NeptusLog.pub().error("Error in parsing coordinates on line " + line);
+                    continue;
+                }
 
                 MarkElement m = new MarkElement();
-                m.setId(parts[0]);
+                m.setId(parts[0].trim());
                 m.setCenterLocation(new LocationType(lat, lon));
+                
+                if (m.getId().isEmpty()) {
+                    NeptusLog.pub().error("Empty ID found on line " + line);
+                    continue;
+                }
+                
                 marks.add(m);
             }
         }
