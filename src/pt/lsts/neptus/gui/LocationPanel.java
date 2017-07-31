@@ -353,7 +353,8 @@ public class LocationPanel extends ParametersPanel implements ActionListener {
                         String text = (String)contents.getTransferData(DataFlavor.stringFlavor);
                         LocationType lt = new LocationType();
                         lt.fromClipboardText(text);
-                        setLocationType(lt.getNewAbsoluteLatLonDepth());
+                        lt.convertToAbsoluteLatLonDepth();
+                        setLocationType(lt);
                     }
                     catch (Exception e) {
                         NeptusLog.pub().error(e);
