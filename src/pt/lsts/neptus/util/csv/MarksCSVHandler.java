@@ -48,22 +48,28 @@ import pt.lsts.neptus.util.FileUtil;
  * @author tsm
  */
 public class MarksCSVHandler {
+    private static final String NL = System.lineSeparator();
+
     public static boolean exportCsv(String exportPathStr, List<MarkElement> marks, String del) {
-        File exportPath = new File(exportPathStr + ".csv");
+        String fxExt = FileUtil.getFileExtension(exportPathStr);
+        String fxPath = fxExt.isEmpty() ? exportPathStr + ".csv" : exportPathStr; 
+        
+        File exportPath = new File(fxPath);
 
         try{
             PrintWriter writer = new PrintWriter(exportPath, "UTF-8");
 
             for(MarkElement m : marks) {
                 LocationType centerLoc = m.getCenterLocation().getNewAbsoluteLatLonDepth();
-                writer.write(m.getId() + del + centerLoc.getLatitudeDegs() + del + centerLoc.getLatitudeDegs() + "\n");
+                writer.write(m.getId() + del + centerLoc.getLatitudeDegs() + del + centerLoc.getLongitudeDegs() + NL);
             }
 
             writer.close();
             NeptusLog.pub().info("Exported " + marks.size() + " marks");
 
             return true;
-        } catch (Exception e) { // stop on any exception
+        }
+        catch (Exception e) { // stop on any exception
             e.printStackTrace();
             NeptusLog.pub().error("Something happened and couldn't write to file");
             return false;
@@ -97,7 +103,8 @@ public class MarksCSVHandler {
                 m.setCenterLocation(new LocationType(lat, lon));
                 marks.add(m);
             }
-        } catch (Exception e) { // stop on any exception
+        }
+        catch (Exception e) { // stop on any exception
             e.printStackTrace();
 
             NeptusLog.pub().error("Couldn't read import file");
