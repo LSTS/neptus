@@ -912,11 +912,19 @@ public class LocationType implements XmlOutputMethods, Serializable, Comparable<
     }
 
     public String getLatitudeAsPrettyString() {
-        return CoordinateUtil.latitudeAsPrettyString(getLatitudeDegs(), LatLonFormatEnum.DMS);
+        return CoordinateUtil.latitudeAsPrettyString(getLatitudeDegs());
+    }
+    
+    public String getLatitudeAsPrettyString(LatLonFormatEnum format) {
+        return CoordinateUtil.latitudeAsPrettyString(getLatitudeDegs(), format);
     }
 
     public String getLongitudeAsPrettyString() {
-        return CoordinateUtil.longitudeAsPrettyString(getLongitudeDegs(), LatLonFormatEnum.DMS);
+        return CoordinateUtil.longitudeAsPrettyString(getLongitudeDegs());
+    }
+
+    public String getLongitudeAsPrettyString(LatLonFormatEnum format) {
+        return CoordinateUtil.longitudeAsPrettyString(getLongitudeDegs(), format);
     }
 
     /**
