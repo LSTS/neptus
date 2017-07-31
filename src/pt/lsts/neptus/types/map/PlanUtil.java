@@ -34,6 +34,7 @@ package pt.lsts.neptus.types.map;
 
 import java.text.NumberFormat;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Vector;
 
 import javax.swing.JLabel;
@@ -43,6 +44,7 @@ import com.l2fprod.common.propertysheet.DefaultProperty;
 import com.l2fprod.common.propertysheet.Property;
 
 import pt.lsts.neptus.NeptusLog;
+import pt.lsts.neptus.console.plugins.planning.edit.ManeuverPropertiesPanel;
 import pt.lsts.neptus.gui.PropertiesEditor;
 import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.mp.Maneuver;
@@ -302,22 +304,60 @@ public class PlanUtil {
                     //e.printStackTrace();
                 }
             }
-            
+
             if (m instanceof LocatedManeuver) {
                 previousPos = ((LocatedManeuver) m).getEndLocation();
             }            
         }
-        
+
         return time;
     }
-    
+
+    public static double getEstimatedDelay(LocationType previousPos, Maneuver m) throws Exception {
+        double time = 0;
+
+        if (previousPos == null)
+            return 0;
+
+
+        if (m instanceof StatisticsProvider) {
+            time = ((StatisticsProvider)m).getCompletionTime(previousPos);
+        }
+        else {
+            try {
+                double speed = (Double) m.getClass().getMethod("getSpeed").invoke(m);
+                SPEED_UNITS units = (Maneuver.SPEED_UNITS) m.getClass().getMethod("getSpeedUnits").invoke(m);
+                switch (units) {
+                    case PERCENTAGE:
+                        speed = SpeedConversion.convertPercentageToMps(speed);
+                        break;
+                    case RPM:
+                        speed = SpeedConversion.convertRpmtoMps(speed);
+                    default:
+                        break;
+                }
+                if (m instanceof LocatedManeuver) {
+                    LocationType start = ((LocatedManeuver) m).getStartLocation();
+                    LocationType end = ((LocatedManeuver) m).getEndLocation();
+                    time += start.getDistanceInMeters(previousPos) / speed;
+                    time += end.getDistanceInMeters(start) / speed;
+                }
+            }
+            catch (Exception e) {
+                //e.printStackTrace();
+            }
+        }
+
+        return time;
+    }
+
     public static String getDelayStr(LocationType previousPos, PlanType plan) throws Exception {
         return DateTimeUtil.milliSecondsToFormatedString((long)(getEstimatedDelay(previousPos, plan) * 1000));
     }
-    
+
     public static String estimatedTime(Vector<LocatedManeuver> mans, double speedRpmRatioSpeed, double speedRpmRatioRpms) {
         double timeSecs = 0;
-        
+
         for (int i = 0; i < mans.size(); i++) {
             LocatedManeuver m = mans.get(i);
             LocationType previousPos = (i > 0)? new LocationType(mans.get(i-1).getManeuverLocation()) : new LocationType(m.getManeuverLocation());
@@ -467,5 +507,59 @@ public class PlanUtil {
         ret += simpleTextOrHTML ? "" : "</ul>" + (asHTMLFragment?"":"</html>");
 
         return ret;
+    }
+    
+    /**
+     * Will change the plan and return it changed with the settings adjusted (for the first vehicle).
+     * 
+     * @param plan
+     * @param newVehicles
+     * @return
+     */
+    public static PlanType changePlanVehiclesAndAdjustSettings(PlanType plan, Collection<VehicleType> newVehicles) {
+        if (plan.getVehicles().isEmpty() && newVehicles.isEmpty())
+            return plan;
+
+        ArrayList<VehicleType> originalPlanVehicles = new ArrayList<>(plan.getVehicles());
+
+        // If the first vehicle is the same, no big change is needed
+        if (originalPlanVehicles.size() > 1 && newVehicles.size() > 1
+                && originalPlanVehicles.get(0) == newVehicles.iterator().next()) {
+            plan.setVehicles(newVehicles);
+            return plan;
+        }
+        
+        // Set no vehicle plan, let us clear all settings
+        if (newVehicles.isEmpty()) {
+            plan.setVehicles(newVehicles);
+            
+            // let us clear all settings
+            plan.getStartActions().clearMessages();
+            plan.getEndActions().clearMessages();
+            for (Maneuver man : plan.getGraph().getAllManeuvers()) {
+                man.getStartActions().clearMessages();
+                man.getEndActions().clearMessages();
+            }
+            
+            return plan;
+        }
+        
+        PlanType originalPlan = plan.clonePlan();
+        plan.setVehicles(newVehicles);
+
+        // VehicleType newVehicle = plan.getVehicleType();
+
+        // FIXME Fix plan actions
+        
+        ManeuverPropertiesPanel propertiesPanel = new ManeuverPropertiesPanel();
+        propertiesPanel.setPlan(plan); // This call has to be before setManeuver (pdias 20130822)
+        for (Maneuver man : plan.getGraph().getAllManeuvers()) {
+            propertiesPanel.setManeuver(man);
+            propertiesPanel.setProps();
+        }
+        
+        // System.out.println(String.format("ORIGINAL PLAN:\n%s\n\nNEW PLAN:\\n%s\n", originalPlan.asXML(), plan.asXML()));
+        
+        return plan;
     }
 }

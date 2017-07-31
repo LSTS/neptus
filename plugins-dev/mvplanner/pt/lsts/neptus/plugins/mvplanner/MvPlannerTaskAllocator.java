@@ -65,6 +65,7 @@ import pt.lsts.neptus.types.mission.plan.PlanType;
 
 @PluginDescription(author = "José Pinto, Tiago Marques", name = "MvPlannerAllocator",
         icon = "pt/lsts/neptus/plugins/map/map-edit.png",
+        description="This plug-in does allocations of the tasks planned by LPG",
         version = "0.1", category = PluginDescription.CATEGORY.INTERFACE)
 public class MvPlannerTaskAllocator extends ConsolePanel implements Renderer2DPainter {
     private static final long serialVersionUID = -7052505428515767469L;

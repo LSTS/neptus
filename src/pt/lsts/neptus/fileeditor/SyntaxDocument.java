@@ -731,8 +731,8 @@ public class SyntaxDocument extends DefaultStyledDocument
 	}
 	
 	protected boolean isLatLon(String token) {
-		return (!Double.isNaN(CoordinateUtil.parseLatitudeCoordToDoubleValue(token)) ||
-				!Double.isNaN(CoordinateUtil.parseLongitudeCoordToDoubleValue(token)));
+		return (!Double.isNaN(CoordinateUtil.parseCoordString(token)) ||
+				!Double.isNaN(CoordinateUtil.parseCoordString(token)));
 	}
 	
 	protected boolean isNumeric(String token) {

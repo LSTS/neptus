@@ -760,8 +760,14 @@ public class GraphType implements XmlOutputMethods {
 	        graph.addManeuver((Maneuver)m.clone());
 	    }
 	    for (TransitionType t : transitions.values()) {
-            graph.addTransition(t.getSourceManeuver(), t.getTargetManeuver(), 
-                    (ConditionType) t.getCondition().clone());
+//            graph.addTransition(t.getSourceManeuver(), t.getTargetManeuver(), 
+//                    (ConditionType) t.getCondition().clone());
+            try {
+                graph.addTransition((TransitionType) t.clone());
+            }
+            catch (CloneNotSupportedException e) {
+                e.printStackTrace();
+            }
 	    }
 	    graph.setInitialManeuver(getInitialManeuverId());
 	    

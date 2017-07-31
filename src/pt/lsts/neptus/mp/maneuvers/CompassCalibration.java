@@ -169,7 +169,7 @@ public class CompassCalibration extends Maneuver
      * @see pt.lsts.neptus.mp.Maneuver#loadFromXML(java.lang.String)
      */
     @Override
-    public void loadFromXML(String xml) {
+    public void loadManeuverFromXML(String xml) {
         try {
             Document doc = DocumentHelper.parseText(xml);
             Node node = doc.selectSingleNode(DEFAULT_ROOT_ELEMENT+ "/finalPoint/point");
@@ -448,7 +448,7 @@ public class CompassCalibration extends Maneuver
         String ccmanXML = compc.getManeuverAsDocument("CompassCalibration").asXML();
         System.out.println(ccmanXML);
         CompassCalibration compc1 = new CompassCalibration();
-        compc1.loadFromXML(ccmanXML);
+        compc1.loadManeuverFromXML(ccmanXML);
         ccmanXML = compc.getManeuverAsDocument("CompassCalibration").asXML();
         System.out.println(ccmanXML);
         

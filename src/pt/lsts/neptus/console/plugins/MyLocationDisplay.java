@@ -149,6 +149,15 @@ public class MyLocationDisplay extends ConsolePanel implements IPeriodicUpdates,
             category = "Derive Heading", userLevel = LEVEL.ADVANCED,
             description = "This is the angle offset between what you consider front and where the operator is looking. (Clockwise positive angle.)")
     private short angleOffsetFromFrontToWhereTheOperatorIsLooking = 0;
+    
+    @NeptusProperty(name = "Offset from center in width in meters (from following system, positive right)", editable = true, 
+            category = "Follow System", userLevel = LEVEL.ADVANCED,
+            description = "")
+    private double widthOffsetFromCenter = 0;
+    @NeptusProperty(name = "Offset from center in lenght in meters (from following system, positive front)", editable = true, 
+            category = "Follow System", userLevel = LEVEL.ADVANCED,
+            description = "")
+    private double lenghtOffsetFromCenter = 0;
 
     @NeptusProperty(name = "Length", category = "Dimension", userLevel = LEVEL.REGULAR)
     public double length = 0;
@@ -168,6 +177,9 @@ public class MyLocationDisplay extends ConsolePanel implements IPeriodicUpdates,
     private Vector<IMapPopup> renderersPopups = new Vector<IMapPopup>();
 
     protected GeneralPath myShape = new GeneralPath();
+
+    private boolean recalcRqst;
+    
     {
         myShape.moveTo(0, 5);
         myShape.lineTo(-5, 3.5);
@@ -234,6 +246,7 @@ public class MyLocationDisplay extends ConsolePanel implements IPeriodicUpdates,
         
         boolean updateLocation = false;
         boolean updateHeading = false;
+        boolean updateOffsetsInPos = false;
 
         // update pos if following system
         if (followPositionOf != null && followPositionOf.length() != 0) {
@@ -245,6 +258,10 @@ public class MyLocationDisplay extends ConsolePanel implements IPeriodicUpdates,
             long headingDegreesTime = -1;
             if (sys != null) {
                 loc = sys.getLocation();
+                if (loc != null) {
+                    loc = loc.getNewAbsoluteLatLonDepth();
+                    updateOffsetsInPos = true;
+                }
                 locTime = sys.getLocationTimeMillis();
                 if (!useConfiguredMyHeading) {
                     headingDegrees = sys.getYawDegrees();
@@ -255,6 +272,8 @@ public class MyLocationDisplay extends ConsolePanel implements IPeriodicUpdates,
                 ExternalSystem ext = ExternalSystemsHolder.lookupSystem(followPositionOf);
                 if (ext != null) {
                     loc = ext.getLocation();
+                    loc = loc.getNewAbsoluteLatLonDepth();
+                    updateOffsetsInPos = true;
                     locTime = ext.getLocationTimeMillis();
                     if (!useConfiguredMyHeading) {
                         headingDegrees = ext.getYawDegrees();
@@ -262,16 +281,17 @@ public class MyLocationDisplay extends ConsolePanel implements IPeriodicUpdates,
                     }
                 }
             }
-            if (loc != null && locTime - lastCalcPosTimeMillis > 0) {
+            if (recalcRqst || loc != null && locTime - lastCalcPosTimeMillis > 0) {
                 updateLocation = true;
                 newLocation = loc;
             }
             // If the time of update of heading is old or we are using other way to calculate heading, don't updated
-            if (headingDegreesTime - lastCalcPosTimeMillis > 0
+            if (recalcRqst || headingDegreesTime - lastCalcPosTimeMillis > 0
                     && !(isFollowingHeadingOfFilled() || isSystemToDeriveHeadingFilled())) {
                 updateHeading = true;
                 newHeadingDegrees = headingDegrees;
             }
+            recalcRqst = false;
         }
         
         // update just heading if following system
@@ -325,6 +345,17 @@ public class MyLocationDisplay extends ConsolePanel implements IPeriodicUpdates,
             newHeadingDegrees = headingDegrees;
         }
         
+        if (updateHeading)
+            headingDegrees = newHeadingDegrees;
+
+        if (updateLocation && updateOffsetsInPos) {
+            double oLenght = -lenghtOffsetFromCenter;
+            double oWidth = -widthOffsetFromCenter;
+            double oN = oLenght * Math.cos(Math.toRadians(headingDegrees)) + oWidth * Math.cos(Math.toRadians(headingDegrees + 90));
+            double oE = oLenght * Math.sin(Math.toRadians(headingDegrees)) + oWidth * Math.sin(Math.toRadians(headingDegrees + 90));
+            newLocation.translatePosition(oN, oE, 0).convertToAbsoluteLatLonDepth();
+        }
+        
         if (updateLocation && updateHeading)
             MyState.setLocationAndAxis(newLocation, AngleUtils.nomalizeAngleDegrees360(newHeadingDegrees));
         else if (updateLocation)
@@ -336,11 +367,11 @@ public class MyLocationDisplay extends ConsolePanel implements IPeriodicUpdates,
     }
 
     private boolean isSystemToDeriveHeadingFilled() {
-        return useSystemToDeriveHeading != null && useSystemToDeriveHeading.isEmpty();
+        return useSystemToDeriveHeading != null && !useSystemToDeriveHeading.isEmpty();
     }
 
     private boolean isFollowingHeadingOfFilled() {
-        return followHeadingOf != null && followHeadingOf.isEmpty();
+        return followHeadingOf != null && !followHeadingOf.isEmpty();
     }
 
     /*
@@ -847,6 +878,8 @@ public class MyLocationDisplay extends ConsolePanel implements IPeriodicUpdates,
         length = MyState.getLength();
         MyState.setWidth(width);
         width = MyState.getWidth();
+        
+        recalcRqst = true;
     }
 
     /*

@@ -1,6 +1,7 @@
 package pt.lsts.neptus.util;
 
 import de.micromata.opengis.kml.v_2_2_0.Coordinate;
+import de.micromata.opengis.kml.v_2_2_0.Feature;
 import de.micromata.opengis.kml.v_2_2_0.Geometry;
 import de.micromata.opengis.kml.v_2_2_0.Placemark;
 import de.micromata.opengis.kml.v_2_2_0.Point;
@@ -60,10 +61,14 @@ public class MarksKMLHandler {
             return null;
         }
 
-        TreeMap<String, Placemark> kmlFeatures = kml.extractFeatures();
+        TreeMap<String, Feature> kmlFeatures = kml.extractFeatures();
         List<MarkElement> marks = new ArrayList<>();
         for(String fname : kmlFeatures.keySet()) {
-            Geometry feature = kmlFeatures.get(fname).getGeometry();
+            Feature ft = kmlFeatures.get(fname);
+            if (!(ft instanceof Placemark))
+                continue;
+            
+            Geometry feature = ((Placemark) ft).getGeometry();
             if(!feature.getClass().getSimpleName().equals("Point"))
                 continue;
 

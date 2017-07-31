@@ -65,4 +65,4 @@ fi
 export VMFLAGS="-XX:+HeapDumpOnOutOfMemoryError"
 
 export LD_LIBRARY_PATH=$LIBS:$LD_LIBRARY_PATH
-$JAVA_BIN_FOLDER"java" -Xms10m -Xmx1024m $VMFLAGS -Djava.library.path=$LIBS $VTKPROP -cp $CLASSPATH pt.lsts.neptus.mc.lauvconsole.LAUVConsole "$@"
+$JAVA_BIN_FOLDER"java" -Xms10m -Xmx1024m $VMFLAGS -Djava.library.path=$LIBS $VTKPROP -cp $CLASSPATH @MAIN_CLASS@ "$@"

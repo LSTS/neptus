@@ -36,6 +36,8 @@ import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.geom.Point2D;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.Scanner;
 
@@ -106,9 +108,10 @@ public class SurveyAreaTask extends MVPlannerTask {
     /**
      * Split this survey in n other areas
      * */
-    public SurveyAreaTask[] splitSurvey(double newLength) {
+    @Override
+    public Collection<MVPlannerTask> splitTask(double newLength) {
         int n = (int) Math.round(this.getLength() / newLength);
-        SurveyAreaTask surveys[] = new SurveyAreaTask[n];
+        ArrayList<MVPlannerTask> surveys = new ArrayList<>();
 
         // compute new area dimensions
         double newAreaWidth = area.getWidth();
@@ -156,10 +159,10 @@ public class SurveyAreaTask extends MVPlannerTask {
             newTask.setRequiredPayloads(newTask.getRequiredPayloads());
             newTask.setProperties(getProperties());
 
-            surveys[i] = newTask;
+            surveys.add(newTask);
         }
 
-        this.area = surveys[0].area;
+        this.area = ((SurveyAreaTask)surveys.get(0)).area;
         this.updateManeuver();
 
         return surveys;

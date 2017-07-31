@@ -34,6 +34,7 @@ package pt.lsts.neptus.plugins.pddl;
 
 import java.awt.Color;
 import java.awt.Graphics2D;
+import java.awt.event.MouseEvent;
 import java.awt.geom.Point2D;
 import java.io.IOException;
 import java.util.Scanner;
@@ -92,6 +93,11 @@ public class SamplePointTask extends MVPlannerTask {
     
     public LocationType getLocation() {
         return elem.getCenterLocation().convertToAbsoluteLatLonDepth();
+    }
+    
+    @Override
+    public void mouseDragged(MouseEvent e, StateRenderer2D renderer) {
+        elem.setCenterLocation(renderer.getRealWorldLocation(e.getPoint()));
     }
 
 

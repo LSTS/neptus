@@ -5,3 +5,7 @@
 
 pt.lsts.neptus.plugins.echosounder.EchoSounderMRA
 pt.lsts.neptus.plugins.sidescan.SidescanAnalyzer
+pt.lsts.neptus.plugins.sidescan.console.SidescanRealTimeWaterfall
+pt.lsts.neptus.plugins.multibeam.viewers.MultibeamCrossSection
+pt.lsts.neptus.plugins.multibeam.console.MultibeamRealTimeWaterfall
+pt.lsts.neptus.plugins.multibeam.viewers.MultibeamDualViewer
