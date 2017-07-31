@@ -40,7 +40,13 @@ import java.awt.datatransfer.StringSelection;
 import java.awt.datatransfer.Transferable;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Date;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Vector;
 
 import javax.swing.AbstractAction;
 import javax.swing.JMenu;
@@ -53,7 +59,6 @@ import org.dom4j.DocumentHelper;
 
 import com.google.common.eventbus.Subscribe;
 
-import org.opengis.sld.Mark;
 import pt.lsts.imc.CcuEvent;
 import pt.lsts.imc.CcuEvent.TYPE;
 import pt.lsts.imc.DevDataBinary;
