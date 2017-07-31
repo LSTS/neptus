@@ -32,18 +32,17 @@
  */
 package pt.lsts.neptus.util.csv;
 
-import com.google.common.eventbus.Subscribe;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.List;
+
 import pt.lsts.neptus.NeptusLog;
-import pt.lsts.neptus.events.NeptusEvents;
-import pt.lsts.neptus.plugins.PluginDescription;
 import pt.lsts.neptus.types.coord.LocationType;
 import pt.lsts.neptus.types.map.MarkElement;
+import pt.lsts.neptus.util.FileUtil;
 
 /**
  * @author tsm

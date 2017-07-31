@@ -32,25 +32,24 @@
  */
 package pt.lsts.neptus.plugins.position;
 
-
 import java.awt.*;
 import java.util.*;
 import java.util.List;
 import javax.swing.*;
-import javax.swing.event.ListSelectionEvent;
-import javax.swing.event.ListSelectionListener;
+import javax.swing.filechooser.FileFilter;
 
 import net.miginfocom.swing.MigLayout;
-import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.gui.CheckboxList;
 import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.types.map.MarkElement;
+import pt.lsts.neptus.util.GuiUtils;
 import pt.lsts.neptus.util.MarksKMLHandler;
 import pt.lsts.neptus.util.csv.MarksCSVHandler;
 
 /**
  * @author tsm
  */
+@SuppressWarnings("serial")
 public class MarksExporterPanel extends JPanel {
     public static String csvDelimiter = ",";
 
@@ -60,7 +59,7 @@ public class MarksExporterPanel extends JPanel {
     private final JButton fromCsv = new JButton(I18n.text("As CSV"));
     private final JButton fromKml = new JButton(I18n.text("As KML"));
 
-    private final JLabel sourceLabel = new JLabel(I18n.text(""));
+    private final JLabel sourceLabel = new JLabel("");
     private final JFileChooser fileChooser = new JFileChooser();
 
     private final CheckboxList marksList = new CheckboxList();

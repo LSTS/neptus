@@ -32,14 +32,15 @@
  */
 package pt.lsts.neptus.plugins.position;
 
-import java.awt.*;
-import java.awt.event.ActionEvent;
+import java.awt.CardLayout;
+import java.awt.Color;
+import java.awt.Component;
 import java.awt.event.ActionListener;
-import java.io.File;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.file.Paths;
 import java.util.List;
+
 import javax.swing.ButtonGroup;
 import javax.swing.JButton;
 import javax.swing.JFileChooser;
@@ -49,9 +50,8 @@ import javax.swing.JPanel;
 import javax.swing.JRadioButton;
 import javax.swing.filechooser.FileFilter;
 import javax.swing.filechooser.FileNameExtensionFilter;
+
 import net.miginfocom.swing.MigLayout;
-import pt.lsts.neptus.NeptusLog;
-import pt.lsts.neptus.events.NeptusEvents;
 import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.types.map.MarkElement;
 import pt.lsts.neptus.util.GuiUtils;
@@ -61,6 +61,7 @@ import pt.lsts.neptus.util.csv.MarksCSVHandler;
 /**
  * @author tsm
  */
+@SuppressWarnings("serial")
 public class MarksImporterPanel extends JPanel {
     public static String csvDelimiter = ",";
 
@@ -107,7 +108,7 @@ public class MarksImporterPanel extends JPanel {
 
     /**
      * Null if something went wrong
-     * */
+     */
     public List<MarkElement> getImportedMarks() {
         return importedMarks;
     }

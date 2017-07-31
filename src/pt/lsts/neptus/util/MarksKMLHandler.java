@@ -31,6 +31,15 @@
  */
 package pt.lsts.neptus.util;
 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.PrintWriter;
+import java.io.UnsupportedEncodingException;
+import java.net.URL;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.TreeMap;
+
 import de.micromata.opengis.kml.v_2_2_0.Coordinate;
 import de.micromata.opengis.kml.v_2_2_0.Feature;
 import de.micromata.opengis.kml.v_2_2_0.Geometry;
@@ -40,12 +49,6 @@ import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.console.plugins.kml.KmlReader;
 import pt.lsts.neptus.types.coord.LocationType;
 import pt.lsts.neptus.types.map.MarkElement;
-
-import java.io.*;
-import java.net.URL;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.TreeMap;
 
 /**
  * @author tsm
