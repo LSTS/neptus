@@ -74,6 +74,8 @@ public class MarksImporterPanel extends JPanel {
     private final JButton kmlFromUrlBtn = new JButton(I18n.text("From URL"));
     private final JButton kmlFromFileBtn = new JButton(I18n.text("From file"));
 
+    private final Color fgColor;
+    
     private final JLabel sourceLabel = new JLabel("");
     private final JFileChooser fileChooser = new JFileChooser();
 
@@ -85,7 +87,7 @@ public class MarksImporterPanel extends JPanel {
     private final JPanel kmlImporterPanel = new JPanel();
 
     private final FileFilter csvFilter = GuiUtils.getCustomFileFilter(I18n.text("Comma Separated Values"), "csv");
-    private final FileFilter kmlFilter = GuiUtils.getCustomFileFilter(I18n.text("Keyhole Markup Language"), "kml");
+    private final FileFilter kmlFilter = GuiUtils.getCustomFileFilter(I18n.text("KML"), "kml");
 
     private Component parent = null;
     private List<MarkElement> importedMarks = null;
@@ -105,9 +107,11 @@ public class MarksImporterPanel extends JPanel {
         initSourcesPanel();
         initImporterPanel();
 
-        add(sourceLabel, "w 20%, h 20%, wrap");
         add(importerSourcePanel, "w 20%, h 90%");
-        add(importerPanel, "w 80%, h 90%");
+        add(importerPanel, "w 80%, h 90%, wrap");
+        add(sourceLabel, "w 20%, h 20%, spanx");
+        
+        fgColor = sourceLabel.getForeground();
     }
 
     /**
@@ -126,6 +130,7 @@ public class MarksImporterPanel extends JPanel {
         //csv pane
         csvImporterPanel.setLayout(new MigLayout());
         csvFromFileBtn.addActionListener(e -> {
+            sourceLabel.setText("");
             fileChooser.resetChoosableFileFilters();
             fileChooser.setFileFilter(csvFilter);
             int res = fileChooser.showDialog(parent, I18n.text("CSV Source"));
@@ -139,12 +144,15 @@ public class MarksImporterPanel extends JPanel {
                     return;
                 }
 
-                sourceLabel.setText(I18n.textf("Imported %numberOfMarks marks from '%path'", importedMarks.size(), filePath));
+                sourceLabel.setForeground(fgColor);
+                sourceLabel.setText(I18n.textf("Imported %numberOfMarks marks from '%path'", importedMarks.size(),
+                        fileChooser.getSelectedFile().getName()));
             }
         });
 
         kmlImporterPanel.setLayout(new MigLayout());
         kmlFromFileBtn.addActionListener(e -> {
+            sourceLabel.setText("");
             fileChooser.resetChoosableFileFilters();
             fileChooser.setFileFilter(kmlFilter);
             int res = fileChooser.showDialog(parent, I18n.text("KML Source"));
@@ -153,8 +161,8 @@ public class MarksImporterPanel extends JPanel {
         });
 
         kmlFromUrlBtn.addActionListener(e -> {
+            sourceLabel.setText("");
             String url = JOptionPane.showInputDialog(MarksImporterPanel.this, "URL");
-
             if(url != null)
                 doKmlImport(url);
         });
@@ -187,6 +195,7 @@ public class MarksImporterPanel extends JPanel {
             return;
         }
 
+        sourceLabel.setForeground(fgColor);
         sourceLabel.setText(I18n.textf("Imported %numberOfMarks marks from '%path'", importedMarks.size(), urlStr));
     }
 
@@ -222,9 +231,9 @@ public class MarksImporterPanel extends JPanel {
 
     public static List<MarkElement> showPanel(Component parent) {
         MarksImporterPanel panel = new MarksImporterPanel(parent);
-        JOptionPane.showOptionDialog(parent, panel, I18n.text("Marks importer"),
-                JOptionPane.YES_NO_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE,
-                null, new Object[]{I18n.text("OK"), I18n.text("Cancel")}, null);
+        JOptionPane.showOptionDialog(parent, panel, I18n.text("Marks Importer"),
+                JOptionPane.CLOSED_OPTION, JOptionPane.PLAIN_MESSAGE,
+                null, new Object[]{I18n.text("Close")}, null);
 
         return panel.getImportedMarks();
     }
