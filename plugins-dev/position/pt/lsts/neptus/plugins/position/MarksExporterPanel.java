@@ -32,10 +32,21 @@
  */
 package pt.lsts.neptus.plugins.position;
 
-import java.awt.*;
-import java.util.*;
+import java.awt.Color;
+import java.awt.Component;
+import java.awt.Dimension;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
-import javax.swing.*;
+
+import javax.swing.JButton;
+import javax.swing.JCheckBox;
+import javax.swing.JFileChooser;
+import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
 import javax.swing.filechooser.FileFilter;
 
 import net.miginfocom.swing.MigLayout;
@@ -59,6 +70,8 @@ public class MarksExporterPanel extends JPanel {
     private final JButton fromCsv = new JButton(I18n.text("As CSV"));
     private final JButton fromKml = new JButton(I18n.text("As KML"));
 
+    private final Color fgColor;
+
     private final JLabel sourceLabel = new JLabel("");
     private final JFileChooser fileChooser = new JFileChooser();
 
@@ -73,7 +86,7 @@ public class MarksExporterPanel extends JPanel {
     private static boolean validOperation = false;
 
     private final FileFilter csvFilter = GuiUtils.getCustomFileFilter(I18n.text("Comma Separated Values"), "csv");
-    private final FileFilter kmlFilter = GuiUtils.getCustomFileFilter(I18n.text("Keyhole Markup Language"), "kml");
+    private final FileFilter kmlFilter = GuiUtils.getCustomFileFilter(I18n.text("KML"), "kml");
 
     public MarksExporterPanel(List<MarkElement> marks) {
         this(null, marks);
@@ -87,6 +100,8 @@ public class MarksExporterPanel extends JPanel {
         this.setBounds(0, 0, MAIN_WIDTH, MAIN_HEIGHT);
         this.setLayout(new MigLayout(""));
 
+        fgColor = sourceLabel.getForeground();
+
         exporterSourcePanel.setBounds(0, 0, MAIN_WIDTH / 5, MAIN_HEIGHT);
         marksList.setBounds(0, 0, MAIN_WIDTH, MAIN_HEIGHT);
         listScroller.setPreferredSize(new Dimension(MAIN_WIDTH, MAIN_HEIGHT));
@@ -98,6 +113,7 @@ public class MarksExporterPanel extends JPanel {
         exporterSourcePanel.add(fromKml);
 
         fromCsv.addActionListener(e ->{
+            sourceLabel.setText("");
             fileChooser.resetChoosableFileFilters();
             fileChooser.setFileFilter(csvFilter);
             if(fileChooser.showDialog(this.parent, I18n.text("To CSV")) != JFileChooser.APPROVE_OPTION)
@@ -105,9 +121,14 @@ public class MarksExporterPanel extends JPanel {
 
             String exportPath = fileChooser.getSelectedFile().getAbsolutePath();
             validOperation = MarksCSVHandler.exportCsv(exportPath, fetchSelectedMarks(), csvDelimiter);
+            
+            sourceLabel.setForeground(validOperation ? fgColor : Color.RED);
+            sourceLabel.setText(I18n.textf((validOperation ? "Exported" : "Error exporting") + " marks to CSV to '%path'",
+                    fileChooser.getSelectedFile().getName()));
         });
 
         fromKml.addActionListener(e ->{
+            sourceLabel.setText("");
             fileChooser.resetChoosableFileFilters();
             fileChooser.setFileFilter(kmlFilter);
             if(fileChooser.showDialog(this.parent, I18n.text("To KML")) != JFileChooser.APPROVE_OPTION)
@@ -115,11 +136,15 @@ public class MarksExporterPanel extends JPanel {
 
             String exportPath = fileChooser.getSelectedFile().getAbsolutePath();
             validOperation = MarksKMLHandler.exportKML(exportPath, fetchSelectedMarks());
+
+            sourceLabel.setForeground(validOperation ? fgColor : Color.RED);
+            sourceLabel.setText(I18n.textf((validOperation ? "Exported" : "Error exporting") + " marks to KML to '%path'",
+                    fileChooser.getSelectedFile().getName()));
         });
 
-        add(sourceLabel, "w 20%, h 10%, wrap");
+        add(listScroller, "w 100%, h 70%, wrap");
         add(exporterSourcePanel, "w 100%, h 20%, wrap");
-        add(listScroller, "w 100%, h 70%");
+        add(sourceLabel, "w 20%, h 10%, spanx");
     }
 
     private List<MarkElement> fetchSelectedMarks() {
@@ -146,9 +171,10 @@ public class MarksExporterPanel extends JPanel {
 
     public static boolean showPanel(Component parent, List<MarkElement> marks) {
         MarksExporterPanel panel = new MarksExporterPanel(parent, marks);
+        validOperation = true;
         JOptionPane.showOptionDialog(parent, panel, I18n.text("Marks Exporter"),
-                JOptionPane.YES_NO_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE,
-                null, new Object[]{I18n.text("OK"), I18n.text("Cancel")}, null);
+                JOptionPane.CLOSED_OPTION, JOptionPane.PLAIN_MESSAGE,
+                null, new Object[]{I18n.text("Close")}, null);
 
         return validOperation;
     }
