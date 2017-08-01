@@ -28,7 +28,7 @@
  * For more information please see <http://lsts.fe.up.pt/neptus>.
  *
  * Author: jfortuna
- * Jun 20, 2014
+ * 12/2/2015
  */
 package pt.lsts.neptus.plugins.uavs.panels;
 
@@ -69,17 +69,16 @@ import com.google.common.eventbus.Subscribe;
  * @author krisklau
  *
  */
+@SuppressWarnings("serial")
 @PluginDescription(name = "Piksi Panel", author = "krisklau", version = "0.1", category = CATEGORY.INTERFACE)
 public class PiksiPanel extends ConsolePanel implements MainVehicleChangeListener {
-
+    
     public enum DisplayType {
        DISTANCE, NED
     }
     
     @NeptusProperty(name = "Display NED coordinates", description = "Set true to display NED xyz coordinates. Set to false to give distance.", userLevel = LEVEL.REGULAR)
     public DisplayType displayType = DisplayType.DISTANCE;
-    
-    private static final long serialVersionUID = 1L;
 
     // GUI
     private JPanel titlePanel = null;
@@ -99,121 +98,8 @@ public class PiksiPanel extends ConsolePanel implements MainVehicleChangeListene
         JLabel text = null;
     }
 
-
-
     // Table containing ID of IMC systems and an GpsFixRtk container
     private LinkedHashMap<Integer, GpsFixRtkContainer> vehicleFixes;
-
- // Listener
-    @Subscribe
-    public void on(GpsFixRtk msg) {
-        
-        // Check if it is a piksi
-        String entName = EntitiesResolver.resolveName(msg.getSourceName(), (int) msg.getSrcEnt());
-        
-        // Check if the entity contains the "Piksi" label
-        if (entName != null && entName.toLowerCase().indexOf("piksi") == -1) {
-            // Nope. 
-            return;
-        }
-
-        // If new, add to table
-        if (!vehicleFixes.containsKey(msg.getSrc())) {
-
-            GpsFixRtkContainer container = new GpsFixRtkContainer();
-            container.lastMessage = msg;
-
-            container.text = new JLabel();
-            container.text.setHorizontalAlignment(SwingConstants.LEFT);
-
-            container.vehicleName = msg.getSourceName();
-
-            container.vehicleName = container.vehicleName.replace("ntnu-",  "");
-            container.vehicleName = container.vehicleName.replace("testbed", "test");
-
-            vehicleFixes.put(msg.getSrc(), container);
-
-            // Remove all, re-sort.
-            statusPanel.removeAll();
-
-            // Loop through to sort and stop last wrap
-            SortedSet<Integer> keys = new TreeSet<Integer>(vehicleFixes.keySet());
-            for (Integer key : keys) {
-               GpsFixRtkContainer c = vehicleFixes.get(key);
-               //statusPanel.add
-
-               if( key != keys.last())
-               {
-                   statusPanel.add(c.text, "w 100%, h 20px, wrap");
-               }
-               else {
-                   statusPanel.add(c.text, "w 100%, h 20px");
-               }
-            }
-
-            statusPanel.revalidate();
-
-        }
-
-
-        // Update text
-        GpsFixRtkContainer container = vehicleFixes.get(msg.getSrc());
-        container.lastMessage = msg;
-
-        // Sanity check, should not happen
-        if(container == null)
-        {
-            System.out.println("Warning: Key not found. Should not happen. ");
-            return;
-        }
-
-
-        fixStatus = msg.getTypeStr();
-        nedPos[0] = msg.getN();
-        nedPos[1] = msg.getE();
-        nedPos[2] = msg.getD();
-
-        String statusText;
-
-        if (msg.getType() == TYPE.FIXED)
-        {
-            if (displayType == DisplayType.NED) {
-                statusText = container.vehicleName + ": " + String.format("FIX: %.2f, %.2f, %.2f", nedPos[0], nedPos[1], nedPos[2]);
-            } else {
-                statusText = container.vehicleName + ": " + String.format("FIX: %.3fm", Math.sqrt(Math.pow(nedPos[0],2.0) + 
-                                                                                                 Math.pow(nedPos[1], 2.0) +
-                                                                                                 Math.pow(nedPos[2], 2.0)));
-            }
-
-            container.text.setBackground(new Color(81, 179, 54));
-
-            // If IAR number is higher than 1, change the color to Orange
-            if (msg.getIarHyp() > 1) {
-                container.text.setBackground(new Color(205, 179, 49));
-            }
-
-            container.text.setOpaque(true);
-        }
-        else if(msg.getType() == TYPE.FLOAT) {
-            statusText = container.vehicleName + ": " + "Float" + ", IAR: " + String.format("%d", msg.getIarHyp());
-            container.text.setBackground(new Color(205, 179, 49));
-            container.text.setOpaque(true);
-        }
-        else if(msg.getType() == TYPE.NONE) {
-            statusText = container.vehicleName + ": " + fixStatus;
-            container.text.setBackground(new Color(161, 79, 23));
-            container.text.setOpaque(true);
-        }
-        else {
-            statusText = container.vehicleName + ": " + fixStatus;
-            container.text.setOpaque(false);
-        }
-
-
-        container.text.setText(statusText);
-
-    }
-
 
     /**
      * @param console
@@ -240,13 +126,119 @@ public class PiksiPanel extends ConsolePanel implements MainVehicleChangeListene
         this.vehicleFixes = new LinkedHashMap<Integer, GpsFixRtkContainer>();
     }
 
+    /*
+     * (non-Javadoc)
+     *
+     * @see pt.lsts.neptus.console.ConsolePanel#cleanSubPanel()
+     */
+    @Override
+    public void cleanSubPanel() {
+    }
+
+    // Listener
+    @Subscribe
+    public void on(GpsFixRtk msg) {
+        // Check if it is a piksi
+        String entName = EntitiesResolver.resolveName(msg.getSourceName(), (int) msg.getSrcEnt());
+        
+        // Check if the entity contains the "Piksi" label
+        if (entName != null && entName.toLowerCase().indexOf("piksi") == -1) {
+            // Nope. 
+            return;
+        }
+
+        // If new, add to table
+        if (!vehicleFixes.containsKey(msg.getSrc())) {
+            GpsFixRtkContainer container = new GpsFixRtkContainer();
+            container.lastMessage = msg;
+
+            container.text = new JLabel();
+            container.text.setHorizontalAlignment(SwingConstants.LEFT);
+
+            container.vehicleName = msg.getSourceName();
+
+            container.vehicleName = container.vehicleName.replace("ntnu-",  "");
+            container.vehicleName = container.vehicleName.replace("testbed", "test");
+
+            vehicleFixes.put(msg.getSrc(), container);
+
+            // Remove all, re-sort.
+            statusPanel.removeAll();
+
+            // Loop through to sort and stop last wrap
+            SortedSet<Integer> keys = new TreeSet<Integer>(vehicleFixes.keySet());
+            for (Integer key : keys) {
+                GpsFixRtkContainer c = vehicleFixes.get(key);
+
+                if (key != keys.last())
+                    statusPanel.add(c.text, "w 100%, h 20px, wrap");
+                else
+                    statusPanel.add(c.text, "w 100%, h 20px");
+            }
+
+            statusPanel.revalidate();
+        }
+
+        // Update text
+        GpsFixRtkContainer container = vehicleFixes.get(msg.getSrc());
+
+        // Sanity check, should not happen
+        if (container == null) {
+            System.out.println("Warning: Key not found. Should not happen. ");
+            return;
+        }
+
+        container.lastMessage = msg;
+
+        fixStatus = msg.getTypeStr();
+        nedPos[0] = msg.getN();
+        nedPos[1] = msg.getE();
+        nedPos[2] = msg.getD();
+
+        String statusText;
+        if (msg.getType() == TYPE.FIXED) {
+            if (displayType == DisplayType.NED) {
+                statusText = container.vehicleName + ": "
+                        + String.format("FIX: %.2f, %.2f, %.2f", nedPos[0], nedPos[1], nedPos[2]);
+            }
+            else {
+                statusText = container.vehicleName + ": " + String.format("FIX: %.3fm",
+                        Math.sqrt(Math.pow(nedPos[0], 2.0) + Math.pow(nedPos[1], 2.0) + Math.pow(nedPos[2], 2.0)));
+            }
+
+            container.text.setBackground(new Color(81, 179, 54));
+
+            // If IAR number is higher than 1, change the color to Orange
+            if (msg.getIarHyp() > 1) {
+                container.text.setBackground(new Color(205, 179, 49));
+            }
+
+            container.text.setOpaque(true);
+        }
+        else if(msg.getType() == TYPE.FLOAT) {
+            statusText = container.vehicleName + ": " + "Float" + ", IAR: " + String.format("%d", msg.getIarHyp());
+            container.text.setBackground(new Color(205, 179, 49));
+            container.text.setOpaque(true);
+        }
+        else if(msg.getType() == TYPE.NONE) {
+            statusText = container.vehicleName + ": " + fixStatus;
+            container.text.setBackground(new Color(161, 79, 23));
+            container.text.setOpaque(true);
+        }
+        else {
+            statusText = container.vehicleName + ": " + fixStatus;
+            container.text.setOpaque(false);
+        }
+
+        container.text.setText(statusText);
+    }
+
     private void statusPanelSetup() {
         statusPanel = new JPanel(new MigLayout("gap 0 0, ins 0"));
 
         scrollStatusPane = new JScrollPane(statusPanel);
         scrollStatusPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED);
         scrollStatusPane.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED);
-
     }
 
     private void titlePanelSetup() {
@@ -294,14 +286,5 @@ public class PiksiPanel extends ConsolePanel implements MainVehicleChangeListene
             }
         });
         buttonPanel.add(resetIARButton, "w 33%, h 100%");
-    }
-
-    /*
-     * (non-Javadoc)
-     *
-     * @see pt.lsts.neptus.console.ConsolePanel#cleanSubPanel()
-     */
-    @Override
-    public void cleanSubPanel() {
     }
 }
