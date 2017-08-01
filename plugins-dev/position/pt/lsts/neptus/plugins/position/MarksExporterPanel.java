@@ -49,8 +49,11 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.filechooser.FileFilter;
 
+import org.jdesktop.swingx.JXBusyLabel;
+
 import net.miginfocom.swing.MigLayout;
 import pt.lsts.neptus.gui.CheckboxList;
+import pt.lsts.neptus.gui.InfiniteProgressPanel;
 import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.types.map.MarkElement;
 import pt.lsts.neptus.util.GuiUtils;
@@ -69,6 +72,8 @@ public class MarksExporterPanel extends JPanel {
 
     private final JButton fromCsv = new JButton(I18n.text("As CSV"));
     private final JButton fromKml = new JButton(I18n.text("As KML"));
+
+    private final JXBusyLabel busyLabel = InfiniteProgressPanel.createBusyAnimationInfiniteBeans(40);
 
     private final Color fgColor;
 
@@ -108,38 +113,59 @@ public class MarksExporterPanel extends JPanel {
 
         fromCsv.setSelected(true);
 
-        exporterSourcePanel.setLayout(new MigLayout("wrap 2"));
+        setWorking(false);
+        
+        exporterSourcePanel.setLayout(new MigLayout("wrap 3"));
         exporterSourcePanel.add(fromCsv);
         exporterSourcePanel.add(fromKml);
+        exporterSourcePanel.add(busyLabel);
 
         fromCsv.addActionListener(e ->{
             sourceLabel.setText("");
-            fileChooser.resetChoosableFileFilters();
-            fileChooser.setFileFilter(csvFilter);
-            if(fileChooser.showDialog(this.parent, I18n.text("To CSV")) != JFileChooser.APPROVE_OPTION)
-                return;
+            setWorking(false);
+            try {
+                fileChooser.resetChoosableFileFilters();
+                fileChooser.setFileFilter(csvFilter);
+                if(fileChooser.showDialog(this.parent, I18n.text("To CSV")) != JFileChooser.APPROVE_OPTION)
+                    return;
 
-            String exportPath = fileChooser.getSelectedFile().getAbsolutePath();
-            validOperation = MarksCSVHandler.exportCsv(exportPath, fetchSelectedMarks(), csvDelimiter);
-            
-            sourceLabel.setForeground(validOperation ? fgColor : Color.RED);
-            sourceLabel.setText(I18n.textf((validOperation ? "Exported" : "Error exporting") + " marks to CSV to '%path'",
-                    fileChooser.getSelectedFile().getName()));
+                String exportPath = fileChooser.getSelectedFile().getAbsolutePath();
+                validOperation = MarksCSVHandler.exportCsv(exportPath, fetchSelectedMarks(), csvDelimiter);
+                
+                sourceLabel.setForeground(validOperation ? fgColor : Color.RED);
+                sourceLabel.setText(I18n.textf((validOperation ? "Exported" : "Error exporting") + " marks to CSV to '%path'",
+                        fileChooser.getSelectedFile().getName()));
+            }
+            catch (Exception e1) {
+                e1.printStackTrace();
+            }
+            finally {
+                setWorking(false);
+            }
         });
 
         fromKml.addActionListener(e ->{
             sourceLabel.setText("");
-            fileChooser.resetChoosableFileFilters();
-            fileChooser.setFileFilter(kmlFilter);
-            if(fileChooser.showDialog(this.parent, I18n.text("To KML")) != JFileChooser.APPROVE_OPTION)
-                return;
+            setWorking(false);
+            try {
+                fileChooser.resetChoosableFileFilters();
+                fileChooser.setFileFilter(kmlFilter);
+                if(fileChooser.showDialog(this.parent, I18n.text("To KML")) != JFileChooser.APPROVE_OPTION)
+                    return;
 
-            String exportPath = fileChooser.getSelectedFile().getAbsolutePath();
-            validOperation = MarksKMLHandler.exportKML(exportPath, fetchSelectedMarks());
+                String exportPath = fileChooser.getSelectedFile().getAbsolutePath();
+                validOperation = MarksKMLHandler.exportKML(exportPath, fetchSelectedMarks());
 
-            sourceLabel.setForeground(validOperation ? fgColor : Color.RED);
-            sourceLabel.setText(I18n.textf((validOperation ? "Exported" : "Error exporting") + " marks to KML to '%path'",
-                    fileChooser.getSelectedFile().getName()));
+                sourceLabel.setForeground(validOperation ? fgColor : Color.RED);
+                sourceLabel.setText(I18n.textf((validOperation ? "Exported" : "Error exporting") + " marks to KML to '%path'",
+                        fileChooser.getSelectedFile().getName()));
+            }
+            catch (Exception e1) {
+                e1.printStackTrace();
+            }
+            finally {
+                setWorking(false);
+            }
         });
 
         add(listScroller, "w 100%, h 70%, wrap");
@@ -147,6 +173,11 @@ public class MarksExporterPanel extends JPanel {
         add(sourceLabel, "w 20%, h 10%, spanx");
     }
 
+    private void setWorking(boolean working) {
+        busyLabel.setBusy(working);
+        busyLabel.setVisible(working);
+    }
+    
     private List<MarkElement> fetchSelectedMarks() {
         ArrayList<MarkElement> marks = new ArrayList<>();
         Arrays.stream(marksList.getSelectedStrings())
